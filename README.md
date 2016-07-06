@@ -1,3 +1,5 @@
+# YTMusic
+
 This little python script allows downloading songs from youtube by just entering the name of the song
 and the artist in .m4a extension.
 
@@ -23,3 +25,4 @@ KNOWN BUGS (pls help me fix them):
 
 1. Fails to download songs containing accents (that is, characters like 'Ø' in song like 'BØRNS Seeing Stars')
 in the Youtube's video title.
+ 
