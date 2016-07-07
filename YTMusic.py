@@ -2,7 +2,6 @@ import mechanize
 from bs4 import BeautifulSoup as soup
 import pafy
 import os
-import ffmpy
 
 if not os.path.exists("Music"):
 	os.makedirs("Music")
