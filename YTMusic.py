@@ -2,11 +2,11 @@ import mechanize
 from bs4 import BeautifulSoup as soup
 import pafy
 import os
+import ffmpy
 
 if not os.path.exists("Music"):
 	os.makedirs("Music")
 print ''
-os.system('C:\Python27\Scripts\pip.exe install youtube-dl --upgrade')
 
 def Main():
 	script_dir = os.getcwd()
@@ -54,18 +54,35 @@ def Main():
 					Title = Unencoded_Title.encode("utf-8")
 					print str(y) + '. ' + Title
 					y = y + 1
+					c = 0
 					if os.path.exists("Music/" + Unencoded_Title + ".m4a.temp"):
 						os.remove("Music/" + Unencoded_Title + ".m4a.temp")
 					if os.path.exists("Music/" + Unencoded_Title + ".m4a"):
+						print ''
+						print 'Converting to mp3...'
+						os.system('ffmpeg -loglevel 0 -i "Music/' + Unencoded_Title + '.m4a" ' + '"Music/' + Unencoded_Title + '.mp3"')
+						os.remove("Music/" + Unencoded_Title + ".m4a")
+						c = 1
 						with open('Music/spotify.txt', 'r') as fin:
 							data = fin.read().splitlines(True)
 						with open('Music/spotify.txt', 'w') as fout:
 							fout.writelines(data[1:])
+					if os.path.exists("Music/" + Unencoded_Title + ".mp3") and c == 0:
+						with open('Music/spotify.txt', 'r') as fin:
+							data = fin.read().splitlines(True)
+						with open('Music/spotify.txt', 'w') as fout:
+							fout.writelines(data[1:])
+					elif c == 1:
+						pass
 					else:
 						audiostreams = video.audiostreams
 						for a in audiostreams:
 							if a.bitrate == "128k" and a.extension == "m4a":
 								a.download(filepath="Music/")
+								print ''
+								print 'Converting to mp3...'
+								os.system('ffmpeg -loglevel 0 -i "Music/' + Unencoded_Title + '.m4a" ' + '"Music/' + Unencoded_Title + '.mp3"')
+								os.remove("Music/" + Unencoded_Title + ".m4a")
 								with open('Music/spotify.txt', 'r') as fin:
 									data = fin.read().splitlines(True)
 								with open('Music/spotify.txt', 'w') as fout:
@@ -92,26 +109,43 @@ def Main():
 				Unencoded_Title = ((video.title).replace("\\", "_").replace("/", "_").replace(":", "_").replace("*", "_").replace("?", "_").replace('"', "_").replace("<", "_").replace(">", "_").replace("|", "_"))
 				Title = Unencoded_Title.encode("utf-8")
 				print Title
+				c = 0
 				if os.path.exists("Music/" + Unencoded_Title + ".m4a.temp"):
 					os.remove("Music/" + Unencoded_Title + ".m4a.temp")
-				if os.path.exists("Music/" + Unencoded__Title + ".m4a"):
+				if os.path.exists("Music/" + Unencoded_Title + ".m4a"):
+					print ''
+					print 'Converting to mp3...'
+					os.system('ffmpeg -loglevel 0 -i "Music/' + Unencoded_Title + '.m4a" ' + '"Music/' + Unencoded_Title + '.mp3"')
+					os.remove("Music/" + Unencoded_Title + ".m4a")
+					c = 1
+				if os.path.exists("Music/" + Unencoded_Title + ".mp3") and c == 0:
 					prompt = raw_input('Song with same name has already been downloaded.. re-download? (y/n/play): ')
 					if prompt == "y":
-						os.remove("Music/" + Unencoded_Title + ".m4a")
+						os.remove("Music/" + Unencoded_Title + ".mp3")
 						audiostreams = video.audiostreams
 						for a in audiostreams:
 							if a.bitrate == "128k" and a.extension == "m4a":
 								a.download(filepath="Music/")
+								print ''
+								print 'Converting to mp3...'
+								os.system('ffmpeg -loglevel 0 -i "Music/' + Unencoded_Title + '.m4a" ' + '"Music/' + Unencoded_Title + '.mp3"')
+								os.remove("Music/" + Unencoded_Title + ".m4a")
 					elif prompt =="play":
 						print 'Playing: ' + Title
-						os.system('"' + script_dir + "\Music\\" + Unencoded_Title + ".m4a" + '"')
+						os.system('"' + script_dir + "\Music\\" + Unencoded_Title + ".mp3" + '"')
 					else:
 						pass
+				elif c == 1:
+					pass
 				else:
 					audiostreams = video.audiostreams
 					for a in audiostreams:
 						if a.bitrate == "128k" and a.extension == "m4a":
 							a.download(filepath="Music/")
+							print ''
+							print 'Converting to mp3...'
+							os.system('ffmpeg -loglevel 0 -i "Music/' + Unencoded_Title + '.m4a" ' + '"Music/' + Unencoded_Title + '.mp3"')
+							os.remove("Music/" + Unencoded_Title + ".m4a")
 		except KeyboardInterrupt:
 			pass
 
