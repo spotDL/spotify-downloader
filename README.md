@@ -9,9 +9,13 @@ and the artist in mp3 extension.
 DEPENDENCIES:
 
 ```pip install mechanize
+
 pip install bs4
+
 pip install pafy```
+
 ```sudo apt-get install ffmpeg
+
 or download from https://ffmpeg.zeranoe.com/builds/ for windows and place the ffmpeg.exe in your script folder```
 
 COMMANDS YOU CAN USE IN THE SCRIPT:
