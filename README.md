@@ -20,7 +20,6 @@ or download from https://ffmpeg.zeranoe.com/builds/ for windows and place the ff
 
 COMMANDS YOU CAN USE IN THE SCRIPT:
 ```
-1. dir - will open your Music folder directory
 2. play - will play the last song downloaded using default music player
 3. gg - exit the script
 4. spotify - downloads songs from spotify playlist (see below:)
