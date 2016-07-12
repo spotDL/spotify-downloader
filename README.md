@@ -6,7 +6,7 @@ This python script allows downloading songs from youtube by just entering the na
 and the artist in mp3 extension.
 
 
-DEPENDENCIES:
+# Dependencies:
 
 ```
 pip install mechanize
@@ -18,14 +18,14 @@ sudo apt-get install ffmpeg
 or download from https://ffmpeg.zeranoe.com/builds/ for windows and place the ffmpeg.exe in your script folder
 ```
 
-COMMANDS YOU CAN USE IN THE SCRIPT:
+# Commands that can be used in the script:
 ```
 2. play - will play the last song downloaded using default music player
 3. gg - exit the script
 4. spotify - downloads songs from spotify playlist (see below:)
 ```
 
-DOWNLOADING MUSIC FROM SPOTIFY:
+# Downloading Music from Spotify:
 
 1. To download music from spotify playlists goto http://www.playlist-converter.net/ and login to your
 spotify account and choose the playlist you want to download. Let it grab the tracks and then click
