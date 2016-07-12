@@ -34,7 +34,8 @@ on ```Export to free text```.
 songs list.
 3. Use the command ```spotify``` in the script to start downloading the list.
 
-KNOWN BUGS (pls help me fix them):
+# Known bugs:
+(pls help me fix them)
 
 1. Fails to download songs containing accents (that is, characters like 'Ø' in song like 'BØRNS Seeing Stars')
 in the Youtube's video title.
