@@ -18,6 +18,13 @@ sudo apt-get install ffmpeg
 or download from https://ffmpeg.zeranoe.com/builds/ for windows and place the ffmpeg.exe in your script folder
 ```
 
+# Installation & Usage:
+```
+git clone https://github.com/Ritiek/YTMusic
+cd YTMusic
+sudo python YTMusic.py
+```
+
 # Commands that can be used in the script:
 ```
 2. play - will play the last song downloaded using default music player
