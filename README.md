@@ -26,7 +26,7 @@ cd YTMusic
 sudo python setup.py install
 YTMusic
 ```
-or you can also install form pypi using:
+or you can also install from pypi using:
 ```
 pip install YTMusic
 ```
