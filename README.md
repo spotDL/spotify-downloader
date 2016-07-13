@@ -24,11 +24,14 @@ or download from https://ffmpeg.zeranoe.com/builds/ for windows
 git clone https://github.com/Ritiek/YTMusic
 cd YTMusic
 sudo python setup.py install
-YTMusic
 ```
 or you can also install from pypi using:
 ```
 pip install YTMusic
+```
+Run it using:
+```
+YTMusic
 ```
 
 # Commands that can be used in the script:
