@@ -48,7 +48,7 @@ songs list.
 
 # Known bugs:
 
-1. Fails to download songs containing accents (that is, characters like 'Ø' in song like 'BØRNS Seeing Stars')
+1. Fails to download songs containing accents (that is, characters like ```Ø``` in song like ```BØRNS Seeing Stars```)
 in the Youtube's video title.
 
 # Disclaimer:
