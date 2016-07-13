@@ -13,9 +13,10 @@ pip install mechanize
 pip install bs4
 pip install pafy
 ```
+If you want to convert downloaded music to mp3 (from m4a) install ffmpeg:
 ```
 sudo apt-get install ffmpeg
-or download from https://ffmpeg.zeranoe.com/builds/ for windows and place the ffmpeg.exe in your script folder
+or download from https://ffmpeg.zeranoe.com/builds/ for windows
 ```
 
 # Installation & Usage:
