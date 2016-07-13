@@ -2,8 +2,8 @@
 
 My first GitHub Repository (sorry for any mistakes)
 
-This python script allows downloading songs from youtube by just entering the name of the song
-and the artist in mp3 extension.
+This python script allows downloading songs instantly by just entering the name of the song
+and the artist.
 
 
 # Dependencies:
