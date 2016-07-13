@@ -45,3 +45,7 @@ songs list.
 
 1. Fails to download songs containing accents (that is, characters like 'Ø' in song like 'BØRNS Seeing Stars')
 in the Youtube's video title.
+
+# Disclaimer:
+
+Downloading Copyright Music may be illegal in you country. Please support the artists by buying their Music.
