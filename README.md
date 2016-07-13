@@ -22,7 +22,12 @@ or download from https://ffmpeg.zeranoe.com/builds/ for windows and place the ff
 ```
 git clone https://github.com/Ritiek/YTMusic
 cd YTMusic
-sudo python YTMusic.py
+sudo python setup.py install
+YTMusic
+```
+or you can also install form pypi using:
+```
+pip install YTMusic
 ```
 
 # Commands that can be used in the script:
