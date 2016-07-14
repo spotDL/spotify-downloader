@@ -39,7 +39,6 @@ YTMusic
 1. play - will play the last song downloaded using default music player
 2. spotify - downloads songs from spotify playlist (see below:)
 3. exit - exit the script
-
 ```
 
 # Downloading Music from Spotify:
