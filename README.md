@@ -5,6 +5,8 @@ My first GitHub Repository (sorry for any mistakes)
 This python script allows downloading songs instantly by just entering the name of the song
 and the artist.
 
+![Alt text](http://i.imgur.com/PNCSu36.png "Downloading")
+![Alt text](http://i.imgur.com/4nOKahr.png "Converting")
 
 # Dependencies:
 
@@ -13,10 +15,10 @@ pip install mechanize
 pip install bs4
 pip install pafy
 ```
-[OPTIONAL] If you want to convert downloaded music to mp3 (from m4a) install ffmpeg:
+[OPTIONAL] If you want to convert downloaded music to mp3 (from m4a) install avconv:
 ```
-sudo apt-get install ffmpeg
-or download from https://ffmpeg.zeranoe.com/builds/ for windows
+sudo apt-get install libav-tools
+or download from https://libav.org/download/ for windows
 ```
 
 # Installation & Usage:
@@ -38,6 +40,7 @@ YTMusic
 ```
 1. play - will play the last song downloaded using default music player
 2. spotify - downloads songs from spotify playlist (see below:)
+3. convert - will convert all your m4a songs into mp3
 3. exit - exit the script
 ```
 
