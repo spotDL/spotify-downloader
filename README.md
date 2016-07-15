@@ -1,4 +1,4 @@
-# YTMusic [Alpha Release]
+# YTMusic
 
 My first GitHub Repository (sorry for any mistakes)
 
@@ -45,7 +45,7 @@ YTMusic
 
 # Downloading Music from Spotify:
 
-![Alt text](http://i.imgur.com/m3tQaqn.png "Testing")
+![Alt text](http://i.imgur.com/0dqlYpz.png "Testing")
 
 1. To download music from spotify playlists goto http://www.playlist-converter.net/ and login to your
 spotify account and choose the playlist you want to download. Let it grab the tracks and then click
