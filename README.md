@@ -37,20 +37,20 @@ YTMusic
 
 # Commands that can be used in the script:
 ```
-1. play - will play the last song downloaded using default music player
-2. spotify - downloads songs from spotify playlist (see below:)
-3. convert - will convert all your m4a songs into mp3
-3. exit - exit the script
+• play - will play the last song downloaded using default music player
+• spotify - downloads songs from spotify playlist (see below:)
+• convert - will convert all your m4a songs into mp3
+• exit - exit the script
 ```
 
 # Downloading Music from Spotify:
 
 ![Alt text](http://i.imgur.com/0dqlYpz.png "Testing")
 
-1. To download music from spotify playlists goto http://www.playlist-converter.net/ and login to your
+• To download music from spotify playlists goto http://www.playlist-converter.net/ and login to your
 spotify account and choose the playlist you want to download. Let it grab the tracks and then click
 on ```Export to free text```.
-2. Copy the songs list and create a new text file ```spotify.txt``` in your Music directory and paste the
+• Copy the songs list and create a new text file ```spotify.txt``` in your Music directory and paste the
 songs list.
 ```
 cd YTMusic/Music
@@ -58,11 +58,11 @@ sudo nano spotify.txt
 [paste your songs here then ctrl+o, enter, ctrl+x]
 sudo chmod 775 spotify.txt
 ```
-3. Use the command ```spotify``` in the script to start downloading the list.
+• Use the command ```spotify``` in the script to start downloading the list.
 
 # Known bugs:
 
-1. Fails to download songs containing accents (that is, characters like ```Ø``` in song like ```BØRNS Seeing Stars```)
+• Fails to download songs containing accents (that is, characters like ```Ø``` in song like ```BØRNS Seeing Stars```)
 in the Youtube's video title.
 
 # Disclaimer:
