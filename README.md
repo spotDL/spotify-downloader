@@ -1,4 +1,4 @@
-# YTMusic
+# YTMusic [Alpha Release]
 
 My first GitHub Repository (sorry for any mistakes)
 
