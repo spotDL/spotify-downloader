@@ -5,8 +5,7 @@ My first GitHub Repository (sorry for any mistakes)
 This python script allows downloading songs instantly by just entering the name of the song
 and the artist.
 
-![Alt text](http://i.imgur.com/PNCSu36.png "Downloading")
-![Alt text](http://i.imgur.com/4nOKahr.png "Converting")
+![Alt text](http://i.imgur.com/lWyA2pj.png "Testing")
 
 # Dependencies:
 
