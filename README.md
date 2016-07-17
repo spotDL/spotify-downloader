@@ -7,7 +7,7 @@ and the artist.
 
 ![Alt text](http://i.imgur.com/lWyA2pj.png "Testing")
 
-# Dependencies:
+## Dependencies:
 
 ```
 pip install mechanize
@@ -68,4 +68,4 @@ in the Youtube's video title.
 
 # Disclaimer:
 
-Downloading Copyright Music may be illegal in you country. Please support the artists by buying their Music.
+Downloading Copyright Music may be illegal in your country. Please support the artists by buying their Music.
