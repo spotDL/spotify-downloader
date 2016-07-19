@@ -39,6 +39,7 @@ YTMusic
 
 ## Downloading Music from Spotify:
 ![alt tag](https://camo.githubusercontent.com/f8a671460df2d56ec52701db69c6c5c3ca685e94/687474703a2f2f692e696d6775722e636f6d2f3064716c59707a2e706e67)
+
 • To download music from spotify playlists goto http://www.playlist-converter.net/ and login to your spotify account and choose the playlist you want to download. Let it grab the tracks and then click on Export to free text.
 
 • Copy the songs list and create a new text file spotify.txt in your Music directory and paste the songs list.
