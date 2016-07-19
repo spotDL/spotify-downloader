@@ -8,11 +8,14 @@ if sys.version_info > (3,0):
 
 from setuptools import setup, find_packages
 
-setup(name='YTMusic',
+setup(name='YT_Music',
       version='0.1',
-      description='Download songs just by entering the song name and artist.',
+      description='Downloads Songs and Spotify playlists.',
       author='Ritiek Malhotra',
       author_email='ritiekmalhotra123@gmail.com',
-      url='https://www.github.com/Ritiek/YTMusic/',
       scripts=['bin/YTMusic'],
+      url='https://www.github.com/Ritiek/YTMusic/',
+      download_url = 'https://github.com/Ritiek/YTMusic/tarball/0.1',
+      keywords = ['download', 'songs', 'spotify', 'playlists', 'music'],
+      classifiers = [],
      )

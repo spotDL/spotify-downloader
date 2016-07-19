@@ -13,15 +13,15 @@ avconv = 1
 
 if os.name == 'nt':
 	opsys = 'win'
-	if not os.path.isfile('ffmpeg.exe'):
-		print 'avconv not found, will not convert to mp3 (from m4a)'
+	if not os.path.isfile('avconv.exe'):
+		print 'avconv not found, will not convert to mp3 (from m4a). download from https://builds.libav.org/windows/ to be able to convert them'
 		avconv = 0
 else:
 	opsys = 'linux'
 	check_install = os.system('which avconv > /dev/null')
 	if check_install == '':
 		print 'avconv not found, will not convert to mp3 (from m4a). use sudo apt-get install libav-tools to install it'
-		avonv = 0
+		avconv = 0
 
 def Main():
 	script_dir = os.getcwd()
@@ -49,22 +49,42 @@ def Main():
 				else:
 					print 'No log to read from..'
 			elif raw_song == "convert":
+
 				print ''
-				if avconv == 1:
-					y = 1
-					x = 0
-					for m in os.listdir(script_dir + '/Music/'):
-						if m.endswith(".m4a"):
-							x = x + 1
-					print 'Total songs to convert = ' + str(x) + ' songs'
-					for m in os.listdir(script_dir + '/Music/'):
-						if m.endswith(".m4a"):
-							print ''
-							print str(y) + '. ' 'Converting ' + m + ' to mp3..'
-							y = y + 1
-							song = m.replace(".m4a", "")
-							os.system('sudo avconv -loglevel 0 -i "Music/' + song + '.m4a" ' + '"Music/' + song + '.mp3"')
-							os.remove("Music/" + m)
+				if opsys == 'win':
+					if avconv == 1:
+						y = 1
+						x = 0
+						for m in os.listdir(script_dir + '/Music/'):
+							if m.endswith(".m4a"):
+								x = x + 1
+						print 'Total songs to convert = ' + str(x) + ' songs'
+						for m in os.listdir(script_dir + '/Music/'):
+							if m.endswith(".m4a"):
+								print ''
+								print str(y) + '. ' 'Converting ' + m + ' to mp3..'
+								y = y + 1
+								song = m.replace(".m4a", "")
+								os.system('avconv.exe -loglevel 0 -i "Music\\' + song + '.m4a" ' + '"Music\\' + song + '.mp3"')
+								os.remove("Music/" + m)
+					else:
+						print 'avconv is not installed, cant convert to mp3'
+				elif opsys == 'linux':
+					if avconv == 1:
+						y = 1
+						x = 0
+						for m in os.listdir(script_dir + '/Music/'):
+							if m.endswith(".m4a"):
+								x = x + 1
+						print 'Total songs to convert = ' + str(x) + ' songs'
+						for m in os.listdir(script_dir + '/Music/'):
+							if m.endswith(".m4a"):
+								print ''
+								print str(y) + '. ' 'Converting ' + m + ' to mp3..'
+								y = y + 1
+								song = m.replace(".m4a", "")
+								os.system('sudo avconv -loglevel 0 -i "Music/' + song + '.m4a" ' + '"Music/' + song + '.mp3"')
+								os.remove("Music/" + m)
 				else:
 					print 'avconv is not installed, cant convert to mp3'
 			elif raw_song == "spotify":
