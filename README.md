@@ -8,7 +8,7 @@ This python script allows downloading songs instantly by just entering the name 
 ## Dependencies:
 ```
 pip install mechanize
-pip install bs4
+pip install BeautifulSoup4
 pip install pafy
 ```
 [OPTIONAL] If you want to convert downloaded music to mp3 (from m4a) install avconv for linux or ffmpeg from https://ffmpeg.zeranoe.com/builds/ for windows and then place the ffmpeg.exe in your script folder:
