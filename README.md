@@ -7,10 +7,12 @@ This python script allows downloading songs instantly by just entering the name 
 ![alt tag](https://camo.githubusercontent.com/3f4374e9ad1b1ec21994cd564385ec8501751b4f/687474703a2f2f692e696d6775722e636f6d2f6c57794132706a2e706e67)
 ## Dependencies:
 ```
+pip install requests
 pip install mechanize
 pip install BeautifulSoup4
 pip install pafy
 pip install spotipy
+pip install eyed3
 ```
 ```
 sudo apt-get install libav-tools
