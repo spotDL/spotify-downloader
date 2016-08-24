@@ -1,7 +1,7 @@
 # YTMusic
 
 This python script allows downloading songs instantly by just entering the name of the song and the artist or its Spotify HTTP or URI link.
-
+Downloading a song using a Spotify link will automatically fix song's meta-tags and add a nice cover-art to your song.
 
 ## Dependencies:
 ```
