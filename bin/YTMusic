@@ -48,7 +48,7 @@ def Main():
 							os.system('mplayer "' + script_dir + '/Music/' + Title + '.webm"')
 			elif raw_song == "lyrics":
 				if not Title == '':
-					if not label == '':
+					if label == '':
 						url = 'http://www.google.com/search?q=' + Title + ' metrolyrics'
 					else:
 						url = 'http://www.google.com/search?q=' + label + ' metrolyrics'
