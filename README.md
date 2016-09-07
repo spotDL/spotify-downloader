@@ -6,10 +6,9 @@
 
 That's how your Music Library will look like!
 
-<img src="https://i.imgsafe.org/fe843c25db.png" width="280">
-<img src="https://i.imgsafe.org/feab78d6e0.png" width="280">
-<img src="https://i.imgsafe.org/feacc9b9d9.png" width="280">
 <img src="https://i.imgsafe.org/feac7719a0.png" width="280">
+<img src="https://i.imgsafe.org/feab78d6e0.png" width="280">
+<img src="https://i.imgsafe.org/fe843c25db.png" width="280">
 
 ## Dependencies:
 ```
