@@ -5,6 +5,7 @@
 • Downloading a song using a Spotify link will automatically fix song's meta-tags and add a nice cover-art to your song.
 
 That's how your Music Library will look like!
+
 <img src="https://i.imgsafe.org/fe843c25db.png" width="250">
 
 ## Dependencies:
