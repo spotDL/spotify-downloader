@@ -1,4 +1,4 @@
-# YTMusic
+# Spotify-Downloader
 
 • This python script allows downloading songs instantly by just entering the name of the song and the artist or its Spotify HTTP or URI link.
 
