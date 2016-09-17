@@ -1,60 +1,47 @@
-# Spotify-Downloader
+# YTMusic
 
-• This python script allows downloading songs instantly by just entering the name of the song and the artist or its Spotify HTTP or URI link.
+My first GitHub Repository (sorry for any mistakes)
 
-• Downloading a song using a Spotify link will automatically fix song's meta-tags and add a nice cover-art to your song.
+This python script allows downloading songs from youtube by just entering the name of the song
+and the artist in mp3 extension.
 
-That's how your Music Library will look like!
 
-<img src="https://i.imgsafe.org/feac7719a0.png" width="280">
-<img src="https://i.imgsafe.org/feab78d6e0.png" width="280">
-<img src="https://i.imgsafe.org/fe843c25db.png" width="280">
+# Dependencies:
 
-Looks nice I guess..
-
-## Dependencies:
 ```
-pip install requests
 pip install mechanize
-pip install BeautifulSoup4
+pip install bs4
 pip install pafy
-pip install spotipy
-pip install eyed3
 ```
 ```
-sudo apt-get install libav-tools
+sudo apt-get install ffmpeg
+or download from https://ffmpeg.zeranoe.com/builds/ for windows and place the ffmpeg.exe in your script folder
 ```
-## Installation & Usage:
+
+# Installation & Usage:
 ```
 git clone https://github.com/Ritiek/YTMusic
 cd YTMusic
-sudo python setup.py install
-```
-Run it using:
-```
-YTMusic
-```
-## Commands that can be used in the Script:
-```
-• play - will play the last song downloaded using default music player
-• list - downloads songs using from a list
-• lyrics - prints out lyrics for last downloaded song
-• exit - exit the script
+sudo python YTMusic.py
 ```
 
-## Downloading Music from Spotify:
-
-• To download music from spotify, simply copy its HTTP or URI link and paste it in the script.
-
-• You can also copy the songs list (names or HTTP or URI) and create a new text file ```list.txt``` in your Music directory and paste the songs list.
+# Commands that can be used in the script:
 ```
-cd YTMusic/Music
-sudo nano list.txt
-[paste your songs here then ctrl+o, enter, ctrl+x]
-sudo chmod 777 list.txt
+2. play - will play the last song downloaded using default music player
+3. gg - exit the script
+4. spotify - downloads songs from spotify playlist (see below:)
 ```
 
-• Use the command ```list``` in the script to start downloading the list.
+# Downloading Music from Spotify:
 
-## Disclaimer:
-Downloading Copyright Music may be illegal in your country. Please support the artists by buying their Music.
+1. To download music from spotify playlists goto http://www.playlist-converter.net/ and login to your
+spotify account and choose the playlist you want to download. Let it grab the tracks and then click
+on ```Export to free text```.
+2. Copy the songs list and create a new text file ```spotify.txt``` in your Music directory and paste the
+songs list.
+3. Use the command ```spotify``` in the script to start downloading the list.
+
+# Known bugs:
+
+1. Fails to download songs containing accents (that is, characters like 'Ø' in song like 'BØRNS Seeing Stars')
+in the Youtube's video title.

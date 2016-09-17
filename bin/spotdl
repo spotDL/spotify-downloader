@@ -1,0 +1,247 @@
+#!/bin/python
+
+import mechanize
+from bs4 import BeautifulSoup
+import pafy
+import os
+import requests
+from os.path import expanduser
+import spotipy
+#import spotipy.util as util
+import eyed3
+
+opsys = ''
+spotify = spotipy.Spotify()
+
+if not os.path.exists("Music"):
+	os.makedirs("Music")
+
+script_dir = expanduser("~") + '/spotdl'
+os.chdir(script_dir)
+
+for m in os.listdir('Music/'):
+	if m.endswith(".temp") or m.endswith("webm"):
+		os.remove('Music/' + m)
+print ''
+
+def Main():
+	Title = ''
+	label = ''
+	while True:
+		try:
+			print('')
+			print('')
+			raw_song = raw_input('Enter a song/cmd: ')
+			print ''
+			if raw_song == "exit":
+				exit()
+			elif raw_song == "play":
+				if not Title == '':
+					if opsys == 'win':
+						if os.path.isfile(script_dir + "\Music\\" + Title + ".mp3"):
+							os.system('"' + script_dir + "\Music\\" + Title + ".mp3" + '"')
+						else:
+							os.system('"' + script_dir + "\Music\\" + Title + ".webm" + '"')
+					elif opsys == 'linux':
+						if os.path.isfile(script_dir + '/Music/' + Title + '.mp3'):
+							os.system('mplayer "' + script_dir + '/Music/' + Title + '.mp3"')
+						else:
+							os.system('mplayer "' + script_dir + '/Music/' + Title + '.webm"')
+			elif raw_song == "lyrics":
+				br.close()
+				br = mechanize.Browser()
+				br.set_handle_robots(False)
+				br.addheaders = [("User-agent","Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.2.13) Gecko/20101206 Ubuntu/10.10 (maverick) Firefox/3.6.13")]
+
+				if not Title == '':
+					if label == '':
+						link = 'https://duckduckgo.com/html/?q=' + Title.replace(' ', '+') + '+musixmatch'
+					else:
+						link = 'https://duckduckgo.com/html/?q=' + label.replace(' ', '+') + '+musixmatch'
+					page = br.open(link)
+					page = page.read()
+					soup = BeautifulSoup(page, 'html.parser')
+					link = soup.find('a', {'class':'result__url'})['href']
+					page = br.open(link).read()
+					soup = BeautifulSoup(page, 'html.parser')
+					for x in soup.find_all('p', {'class':'mxm-lyrics__content'}):
+						print x.get_text()
+				else:
+					print 'No log to read from..'
+
+			elif raw_song == "list":
+					f = open('Music/list.txt')
+					lines = f.readlines()
+					f.close()
+					x = 0
+					y = 0
+					for songie in lines:
+						if not songie == '\n' or not songie == '':
+							x = x + 1
+					print 'Total songs in list = ' + str(x) + ' songs'
+					for songie in lines:
+						try:
+							if not songie == '\n' or not songie == '':
+								if (len(songie) == 22 and songie.replace(" ", "%20") == songie) or (songie.find('spotify') > -1):
+									song = songie.replace(songie[-1:], "")
+									content = spotify.track(song)
+									URL = "https://www.youtube.com/results?sp=EgIQAQ%253D%253D&q=" + (content['artists'][0]['name'] + ' - ' + content['name']).replace(" ", "%20")
+								else:
+									song = songie.replace(" ", "%20")
+									URL = "https://www.youtube.com/results?sp=EgIQAQ%253D%253D&q=" + song
+									song = ''
+
+								print ''
+								br = mechanize.Browser()
+								br.set_handle_robots(False)
+								br.addheaders = [("User-agent","Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.2.13) Gecko/20101206 Ubuntu/10.10 (maverick) Firefox/3.6.13")]
+#								print URL
+								items = br.open(URL)
+#								print items
+								items = items.read()
+#								print items
+								zoom1 = items.find('yt-uix-tile-link')
+								zoom2 = items.find('yt-uix-tile-link', zoom1+1)
+								zoom3 = items.find('yt-uix-tile-link', zoom2+1)
+								part = items[zoom1-100: zoom2]
+								items_parse = BeautifulSoup(part, "html.parser")
+
+								#items_parse = soup(items, "html.parser")
+								br.close()
+								first_result = items_parse.find(attrs={'class':'yt-uix-tile-link'})['href']
+
+								full_link = "youtube.com" + first_result
+								#print full_link
+
+								video = pafy.new(full_link)
+								Title = ((video.title).replace("\\", "_").replace("/", "_").replace(":", "_").replace("*", "_").replace("?", "_").replace('"', "_").replace("<", "_").replace(">", "_").replace("|", "_").replace(" ", "_"))
+								y = y + 1
+								print str(y) + '. ' + ((video.title).encode("utf-8"))
+								if os.path.exists("Music/" + Title + ".webm.temp"):
+									os.remove("Music/" + Title + ".webm.temp")
+								download = 1
+								if os.path.exists("Music/" + Title + ".mp3"):
+									audiofile = eyed3.load("Music/" + Title + '.mp3')
+									if ((len(raw_song) == 22 and raw_song.replace(" ", "%20") == raw_song) or (raw_song.find('spotify') > -1)) and not audiofile.tag.title == content['name']:
+										os.remove("Music/" + Title + '.mp3')
+									else:
+										with open('Music/list.txt', 'r') as fin:
+											data = fin.read().splitlines(True)
+										with open('Music/list.txt', 'w') as fout:
+											fout.writelines(data[1:])
+										download = 0
+								if download == 1:
+									a = video.getbestaudio(preftype='webm')
+									a.download(filepath="Music/" + Title + ".webm")
+									with open('Music/list.txt', 'r') as fin:
+										data = fin.read().splitlines(True)
+									with open('Music/list.txt', 'w') as fout:
+										fout.writelines(data[1:])
+										print ''
+									print 'Converting ' + Title + '.webm' + ' to mp3..'
+									os.system('sudo avconv -loglevel 0 -i ' + script_dir + '"/Music/' + Title + '.webm" ' + script_dir + '"/Music/' + Title + '.mp3"')
+									os.remove("Music/" + Title + '.webm')
+									os.system('sudo chmod 777 "' + script_dir + '/Music/' + Title + '.mp3"')
+									if (len(songie) == 22 and songie.replace(" ", "%20") == songie) or (songie.find('spotify') > -1):
+										print 'Fixing meta-tags..'
+										audiofile = eyed3.load("Music/" + Title + '.mp3')
+										audiofile.tag.artist = content['artists'][0]['name']
+										audiofile.tag.album = content['album']['name']
+										audiofile.tag.title = content['name']
+										os.system("wget -q " + content['album']['images'][0]['url'] + "  -O " + script_dir + "/Music/last_albumart.jpg")
+										bla = open("Music/last_albumart.jpg","rb").read()
+										audiofile.tag.images.set(3,bla,"image/jpeg")
+										audiofile.tag.save()
+							else:
+								with open('Music/list.txt', 'r') as fin:
+									data = fin.read().splitlines(True)
+								with open('Music/list.txt', 'w') as fout:
+									fout.writelines(data[1:])
+
+						except KeyboardInterrupt:
+							Main()
+						except:
+							lines.append(songie)
+							with open('Music/list.txt', 'r') as fin:
+								data = fin.read().splitlines(True)
+							with open('Music/list.txt', 'w') as fout:
+								fout.writelines(data[1:])
+							with open("Music/list.txt", "a") as myfile:
+								myfile.write(songie)
+							print 'Could not complete a Song download, will try later..'
+
+			else:
+				song = raw_song.replace(" ", "%20")
+				br = mechanize.Browser()
+				br.set_handle_robots(False)
+				br.addheaders = [("User-agent","Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.2.13) Gecko/20101206 Ubuntu/10.10 (maverick) Firefox/3.6.13")]
+				if (len(raw_song) == 22 and raw_song == song) or (raw_song.find('spotify') > -1):
+					content = spotify.track(song)
+					label = (content['artists'][0]['name'] + ' - ' + content['name']).replace(" ", "%20")
+					URL = "https://www.youtube.com/results?sp=EgIQAQ%253D%253D&q=" + label
+				else:
+					URL = "https://www.youtube.com/results?sp=EgIQAQ%253D%253D&q=" + song
+				items = br.open(URL).read()
+
+				zoom1 = items.find('yt-uix-tile-link')
+				zoom2 = items.find('yt-uix-tile-link', zoom1+1)
+				zoom3 = items.find('yt-uix-tile-link', zoom2+1)
+				part = items[zoom1-100: zoom2]
+				items_parse = BeautifulSoup(part, "html.parser")
+
+				#items_parse = soup(items, "html.parser")
+				br.close()
+				first_result = items_parse.find(attrs={'class':'yt-uix-tile-link'})['href']
+
+				full_link = "youtube.com" + first_result
+				#print full_link
+
+				video = pafy.new(full_link)
+				Title = ((video.title).replace("\\", "_").replace("/", "_").replace(":", "_").replace("*", "_").replace("?", "_").replace('"', "_").replace("<", "_").replace(">", "_").replace("|", "_").replace(" ", "_"))
+				print ((video.title).encode("utf-8"))
+				if os.path.exists("Music/" + Title + ".webm.temp"):
+					os.remove("Music/" + Title + ".webm.temp")
+
+				download = 1
+
+				if os.path.exists("Music/" + Title + ".mp3"):
+					audiofile = eyed3.load("Music/" + Title + '.mp3')
+					if ((len(raw_song) == 22 and raw_song.replace(" ", "%20") == raw_song) or (raw_song.find('spotify') > -1)) and not audiofile.tag.title == content['name']:
+						os.remove("Music/" + Title + '.mp3')
+					else:
+						prompt = raw_input('Song with same name has already been downloaded.. re-download? (y/n/play): ')
+						if prompt == "y":
+							os.remove("Music/" + Title + ".mp3")
+							download = 1
+						elif prompt =="play":
+							download = 0
+							if opsys == 'win':
+								if os.path.isfile(script_dir + "\Music\\" + Title + ".mp3"):
+									os.system('"' + script_dir + "\Music\\" + Title + ".mp3" + '"')
+							else:
+								if os.path.isfile(script_dir + '/Music/' + Title + '.mp3'):
+									os.system('mplayer "' + script_dir + '/Music/' + Title + '.mp3"')
+						else:
+							download = 0
+				if download == 1:
+					a = video.getbestaudio(preftype="webm")
+					a.download(filepath="Music/" + Title + ".webm")
+					print ''
+					print 'Converting ' + Title + '.webm' + ' to mp3..'
+					os.system('sudo avconv -loglevel 0 -i ' + script_dir + '"/Music/' + Title + '.webm" ' + script_dir + '"/Music/' + Title + '.mp3"')
+					os.remove("Music/" + Title + '.webm')
+					os.system('sudo chmod 777 "' + script_dir + '/Music/' + Title + '.mp3"')
+					if (len(raw_song) == 22 and raw_song.replace(" ", "%20") == raw_song) or (raw_song.find('spotify') > -1):
+						print 'Fixing meta-tags..'
+						audiofile = eyed3.load("Music/" + Title + '.mp3')
+						audiofile.tag.artist = content['artists'][0]['name']
+						audiofile.tag.album = content['album']['name']
+						audiofile.tag.title = content['name']
+						os.system("wget -q " + content['album']['images'][0]['url'] + "  -O " + script_dir + "/Music/last_albumart.jpg")
+						bla = open("Music/last_albumart.jpg","rb").read()
+						audiofile.tag.images.set(3,bla,"image/jpeg")
+						audiofile.tag.save()
+		except KeyboardInterrupt:
+			pass
+
+Main()
