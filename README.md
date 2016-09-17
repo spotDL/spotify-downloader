@@ -5,9 +5,10 @@
 • Downloading a song using spotify link will automatically fix its meta-tags and add a nice a albumart to the song.
 
 That's how your Music library will look like!
-<img src="http://i.imgur.com/Gpch7JI.png" width="200">
-<img src="http://i.imgur.com/5vhk3HY.png" width="200">
-<img src="http://i.imgur.com/RDTCCST.png" width="200">
+
+<img src="http://i.imgur.com/Gpch7JI.png" width="250">
+<img src="http://i.imgur.com/5vhk3HY.png" width="250">
+<img src="http://i.imgur.com/RDTCCST.png" width="250">
 ## Dependencies:
 
 ```
