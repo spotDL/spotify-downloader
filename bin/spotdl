@@ -4,7 +4,6 @@ import mechanize
 from bs4 import BeautifulSoup
 import pafy
 import os
-import requests
 from os.path import expanduser
 import spotipy
 #import spotipy.util as util
@@ -16,7 +15,7 @@ spotify = spotipy.Spotify()
 if not os.path.exists("Music"):
 	os.makedirs("Music")
 
-script_dir = expanduser("~") + '/spotdl'
+script_dir = expanduser("~") + '/Spotify-Downloader'
 os.chdir(script_dir)
 
 for m in os.listdir('Music/'):
