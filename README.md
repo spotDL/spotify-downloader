@@ -35,16 +35,18 @@ Use ```spotdl``` to launch the script.
 
 ## Commands usable in script:
 ```
-• play - will play the last song downloaded using default music player
+• play - will play the last song downloaded using mplayer
 • exit - exit the script
-• list - downloads songs from list.txt
+• list - downloads songs from list.txt (see below)
 • lyrics - will print out the lyrics for last downloaded song.
 ```
 
 ## Downloading Music from Spotify:
 
 • To download music from spotify just copy the song's HTTP link or URI and paste it in the script.
+
 • You can also create ```list.txt``` in the folder where script is placed and add all the song you want to download (either by name or its spotify link).
+
 • Use the command ```list``` in the script to start downloading the list.
 
 ## Disclaimer:
