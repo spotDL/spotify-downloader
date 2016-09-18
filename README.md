@@ -1,7 +1,9 @@
 # Spotify-Downloader
 
 • This little python script allows downloading songs from Spotify just by entering the song's HTTP link or its URI.
+
 • You can also download a song by entering its artist and song name.
+
 • Downloading a song using spotify link will automatically fix its meta-tags and add a nice a albumart to the song.
 
 That's how your Music library will look like!
