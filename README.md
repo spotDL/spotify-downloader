@@ -11,6 +11,9 @@ That's how your Music library will look like!
 <img src="http://i.imgur.com/Gpch7JI.png" width="290">
 <img src="http://i.imgur.com/5vhk3HY.png" width="290">
 <img src="http://i.imgur.com/RDTCCST.png" width="290">
+
+Feel free to report issues and send pull requests for new ideas!
+
 ## Dependencies:
 
 ```
