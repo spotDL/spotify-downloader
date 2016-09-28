@@ -76,7 +76,7 @@ For example:
 
 For example:
 
-◘ I want to download Hello by Adele, The Nights by Avicci and 21 Guns by Green Day just a single command.
+◘ I want to download Hello by Adele, The Nights by Avicci and 21 Guns by Green Day just using a single command.
 
 Also this time we know the Spotify link only for Hello by Adele but not for other two songs.
 
