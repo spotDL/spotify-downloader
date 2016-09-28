@@ -9,7 +9,6 @@ import spotipy
 #import spotipy.util as util
 import eyed3
 
-opsys = ''
 spotify = spotipy.Spotify()
 
 if not os.path.exists("Music"):
@@ -19,7 +18,7 @@ script_dir = expanduser("~") + '/Spotify-Downloader'
 os.chdir(script_dir)
 
 for m in os.listdir('Music/'):
-	if m.endswith(".temp") or m.endswith("webm"):
+	if m.endswith(".temp") or m.endswith(".webm"):
 		os.remove('Music/' + m)
 print ''
 
@@ -36,16 +35,7 @@ def Main():
 				exit()
 			elif raw_song == "play":
 				if not Title == '':
-					if opsys == 'win':
-						if os.path.isfile(script_dir + "\Music\\" + Title + ".mp3"):
-							os.system('"' + script_dir + "\Music\\" + Title + ".mp3" + '"')
-						else:
-							os.system('"' + script_dir + "\Music\\" + Title + ".webm" + '"')
-					elif opsys == 'linux':
-						if os.path.isfile(script_dir + '/Music/' + Title + '.mp3'):
-							os.system('mplayer "' + script_dir + '/Music/' + Title + '.mp3"')
-						else:
-							os.system('mplayer "' + script_dir + '/Music/' + Title + '.webm"')
+					os.system('mplayer "' + script_dir + '/Music/' + Title + '.mp3"')
 			elif raw_song == "lyrics":
 				br.close()
 				br = mechanize.Browser()
@@ -94,11 +84,11 @@ def Main():
 								br = mechanize.Browser()
 								br.set_handle_robots(False)
 								br.addheaders = [("User-agent","Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.2.13) Gecko/20101206 Ubuntu/10.10 (maverick) Firefox/3.6.13")]
-#								print URL
+								#print URL
 								items = br.open(URL)
-#								print items
+								#print items
 								items = items.read()
-#								print items
+								#print items
 								zoom1 = items.find('yt-uix-tile-link')
 								zoom2 = items.find('yt-uix-tile-link', zoom1+1)
 								zoom3 = items.find('yt-uix-tile-link', zoom2+1)
@@ -214,12 +204,7 @@ def Main():
 							download = 1
 						elif prompt =="play":
 							download = 0
-							if opsys == 'win':
-								if os.path.isfile(script_dir + "\Music\\" + Title + ".mp3"):
-									os.system('"' + script_dir + "\Music\\" + Title + ".mp3" + '"')
-							else:
-								if os.path.isfile(script_dir + '/Music/' + Title + '.mp3'):
-									os.system('mplayer "' + script_dir + '/Music/' + Title + '.mp3"')
+							os.system('mplayer "' + script_dir + '/Music/' + Title + '.mp3"')
 						else:
 							download = 0
 				if download == 1:
