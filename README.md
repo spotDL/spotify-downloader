@@ -16,11 +16,7 @@ Feel free to report issues and send pull requests for new ideas!
 
 ## Dependencies:
 
-mechanize
-BeautifulSoup4
-pafy
-spotipy
-eyed3
+mechanize, BeautifulSoup4, pafy, spotipy, eyed3
 
 Just run:
 ```
