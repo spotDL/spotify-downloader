@@ -30,7 +30,7 @@ def Main():
 		try:
 			print('')
 			print('')
-			raw_song = raw_input('Enter a song/cmd: ')
+			raw_song = raw_input('>> Enter a song/cmd: ')
 			print ''
 			if raw_song == "exit":
 				exit()
