@@ -11,14 +11,15 @@ import eyed3
 
 spotify = spotipy.Spotify()
 
-if not os.path.exists("Music"):
-	os.makedirs("Music")
 
 script_dir = expanduser("~") + '/Spotify-Downloader'
 os.chdir(script_dir)
 
+if not os.path.exists("Music"):
+	os.makedirs("Music")
+
 for m in os.listdir('Music/'):
-	if m.endswith(".temp") or m.endswith(".webm"):
+	if m.endswith(".temp") or m.endswith(".m4a"):
 		os.remove('Music/' + m)
 print ''
 
@@ -106,8 +107,8 @@ def Main():
 								Title = ((video.title).replace("\\", "_").replace("/", "_").replace(":", "_").replace("*", "_").replace("?", "_").replace('"', "_").replace("<", "_").replace(">", "_").replace("|", "_").replace(" ", "_"))
 								y = y + 1
 								print str(y) + '. ' + ((video.title).encode("utf-8"))
-								if os.path.exists("Music/" + Title + ".webm.temp"):
-									os.remove("Music/" + Title + ".webm.temp")
+								if os.path.exists("Music/" + Title + ".m4a.temp"):
+									os.remove("Music/" + Title + ".m4a.temp")
 								download = 1
 								if os.path.exists("Music/" + Title + ".mp3"):
 									audiofile = eyed3.load("Music/" + Title + '.mp3')
@@ -120,16 +121,16 @@ def Main():
 											fout.writelines(data[1:])
 										download = 0
 								if download == 1:
-									a = video.getbestaudio(preftype='webm')
-									a.download(filepath="Music/" + Title + ".webm")
+									a = video.getbestaudio(preftype='m4a')
+									a.download(filepath="Music/" + Title + ".m4a")
 									with open('Music/list.txt', 'r') as fin:
 										data = fin.read().splitlines(True)
 									with open('Music/list.txt', 'w') as fout:
 										fout.writelines(data[1:])
 										print ''
-									print 'Converting ' + Title + '.webm' + ' to mp3..'
-									os.system('sudo avconv -loglevel 0 -i ' + script_dir + '"/Music/' + Title + '.webm" ' + script_dir + '"/Music/' + Title + '.mp3"')
-									os.remove("Music/" + Title + '.webm')
+									print 'Converting ' + Title + '.m4a' + ' to mp3..'
+									os.system('sudo avconv -loglevel 0 -i ' + script_dir + '"/Music/' + Title + '.m4a" ' + script_dir + '"/Music/' + Title + '.mp3"')
+									os.remove("Music/" + Title + '.m4a')
 									os.system('sudo chmod 777 "' + script_dir + '/Music/' + Title + '.mp3"')
 									if (len(songie) == 22 and songie.replace(" ", "%20") == songie) or (songie.find('spotify') > -1):
 										print 'Fixing meta-tags..'
@@ -188,8 +189,8 @@ def Main():
 				video = pafy.new(full_link)
 				Title = ((video.title).replace("\\", "_").replace("/", "_").replace(":", "_").replace("*", "_").replace("?", "_").replace('"', "_").replace("<", "_").replace(">", "_").replace("|", "_").replace(" ", "_"))
 				print ((video.title).encode("utf-8"))
-				if os.path.exists("Music/" + Title + ".webm.temp"):
-					os.remove("Music/" + Title + ".webm.temp")
+				if os.path.exists("Music/" + Title + ".m4a.temp"):
+					os.remove("Music/" + Title + ".m4a.temp")
 
 				download = 1
 
@@ -208,12 +209,12 @@ def Main():
 						else:
 							download = 0
 				if download == 1:
-					a = video.getbestaudio(preftype="webm")
-					a.download(filepath="Music/" + Title + ".webm")
+					a = video.getbestaudio(preftype="m4a")
+					a.download(filepath="Music/" + Title + ".m4a")
 					print ''
-					print 'Converting ' + Title + '.webm' + ' to mp3..'
-					os.system('sudo avconv -loglevel 0 -i ' + script_dir + '"/Music/' + Title + '.webm" ' + script_dir + '"/Music/' + Title + '.mp3"')
-					os.remove("Music/" + Title + '.webm')
+					print 'Converting ' + Title + '.m4a' + ' to mp3..'
+					os.system('sudo avconv -loglevel 0 -i ' + script_dir + '"/Music/' + Title + '.m4a" ' + script_dir + '"/Music/' + Title + '.mp3"')
+					os.remove("Music/" + Title + '.m4a')
 					os.system('sudo chmod 777 "' + script_dir + '/Music/' + Title + '.mp3"')
 					if (len(raw_song) == 22 and raw_song.replace(" ", "%20") == raw_song) or (raw_song.find('spotify') > -1):
 						print 'Fixing meta-tags..'
