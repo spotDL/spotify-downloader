@@ -99,10 +99,10 @@ the nights avicci
 ```
 
 Now press ```ctrl+o```, ```y``` and ```ctrl+x``` to save and exit the nano text editor.
-You'll have to give 775 permissions to the text file:
+You'll have to give 777 permissions to the text file:
 
 ```
-sudo chmod 775 list.txt
+sudo chmod 777 list.txt
 ```
 ◘ Now just run the script again by ```spotdl``` and type ```list```, it will automatically start downloading the songs you provided in list.txt
 
