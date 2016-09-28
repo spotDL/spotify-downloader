@@ -35,6 +35,11 @@ sudo python setup.py install
 ```
 Use ```spotdl``` to launch the script.
 
+To update the script to the latest version any time, Run:
+```
+cd Spotify-Downloader
+git pull
+```
 ## Step by step Instructions for Downloading songs:
 
 #### Downloading by Name:
