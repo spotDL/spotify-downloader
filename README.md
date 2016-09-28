@@ -16,12 +16,15 @@ Feel free to report issues and send pull requests for new ideas!
 
 ## Dependencies:
 
+mechanize
+BeautifulSoup4
+pafy
+spotipy
+eyed3
+
+Just run:
 ```
-pip install mechanize
-pip install BeautifulSoup4
-pip install pafy
-pip install spotipy
-pip install eyed3
+sudo pip install -r requirements.txt
 ```
 
 You'll also need to install avconv:
