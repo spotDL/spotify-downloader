@@ -108,7 +108,7 @@ sudo chmod 775 list.txt
 ## Brief info on Commands:
 ```
 • play - will play the last song downloaded using mplayer
-• list - downloads songs from list.txt (see below)
+• list - downloads songs from list.txt
 • lyrics - will print out the lyrics for last downloaded song.
 • exit - exit the script
 ```
