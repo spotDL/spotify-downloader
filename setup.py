@@ -4,9 +4,14 @@ import sys
 import os
 
 if sys.version_info > (3,0):
-	sys.exit("spotdl requires python 2.")
+        sys.exit("spotdl requires python 2.")
 
 from setuptools import setup, find_packages
+
+if not os.path.exists("Music"):
+        os.makedirs("Music")
+open('Music/list.txt', 'a').close()
+os.system('sudo chmod 777 Music/list.txt')
 
 setup(name='spotdl',
       version='0.1',
