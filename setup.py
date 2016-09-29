@@ -10,6 +10,7 @@ from setuptools import setup, find_packages
 
 if not os.path.exists("Music"):
         os.makedirs("Music")
+os.system('sudo chmod 777 Music')
 open('Music/list.txt', 'a').close()
 os.system('sudo chmod 777 Music/list.txt')
 
