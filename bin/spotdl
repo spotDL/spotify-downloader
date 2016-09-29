@@ -10,17 +10,12 @@ import spotipy
 import eyed3
 
 spotify = spotipy.Spotify()
-
-
 script_dir = expanduser("~") + '/Spotify-Downloader'
 os.chdir(script_dir)
 
 if not os.path.exists("Music"):
 	os.makedirs("Music")
 
-for m in os.listdir('Music/'):
-	if m.endswith(".temp") or m.endswith(".m4a"):
-		os.remove('Music/' + m)
 print ''
 
 def Main():
@@ -28,6 +23,9 @@ def Main():
 	label = ''
 	while True:
 		try:
+			for m in os.listdir('Music/'):
+				if m.endswith(".temp") or m.endswith(".m4a"):
+					os.remove('Music/' + m)
 			print('')
 			print('')
 			raw_song = raw_input('>> Enter a song/cmd: ')
@@ -129,7 +127,7 @@ def Main():
 										fout.writelines(data[1:])
 										print ''
 									print 'Converting ' + Title + '.m4a' + ' to mp3..'
-									os.system('sudo avconv -loglevel 0 -i ' + script_dir + '"/Music/' + Title + '.m4a" ' + script_dir + '"/Music/' + Title + '.mp3"')
+									os.system('sudo avconv -loglevel 0 -i ' + script_dir + '"/Music/' + Title + '.m4a" -ab 192k ' + script_dir + '"/Music/' + Title + '.mp3"')
 									os.remove("Music/" + Title + '.m4a')
 									os.system('sudo chmod 777 "' + script_dir + '/Music/' + Title + '.mp3"')
 									if (len(songie) == 22 and songie.replace(" ", "%20") == songie) or (songie.find('spotify') > -1):
@@ -213,7 +211,7 @@ def Main():
 					a.download(filepath="Music/" + Title + ".m4a")
 					print ''
 					print 'Converting ' + Title + '.m4a' + ' to mp3..'
-					os.system('sudo avconv -loglevel 0 -i ' + script_dir + '"/Music/' + Title + '.m4a" ' + script_dir + '"/Music/' + Title + '.mp3"')
+					os.system('sudo avconv -loglevel 0 -i ' + script_dir + '"/Music/' + Title + '.m4a" -ab 192k ' + script_dir + '"/Music/' + Title + '.mp3"')
 					os.remove("Music/" + Title + '.m4a')
 					os.system('sudo chmod 777 "' + script_dir + '/Music/' + Title + '.mp3"')
 					if (len(raw_song) == 22 and raw_song.replace(" ", "%20") == raw_song) or (raw_song.find('spotify') > -1):
