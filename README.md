@@ -99,11 +99,7 @@ the nights avicci
 ```
 
 Now press ```ctrl+o```, ```y``` and ```ctrl+x``` to save and exit the nano text editor.
-You'll have to give 777 permissions to the text file:
 
-```
-sudo chmod 777 list.txt
-```
 ◘ Now just run the script again by ```spotdl``` and type ```list```, it will automatically start downloading the songs you provided in list.txt
 
 ◘ If you want to download the songs by list at any later time just edit list.txt by ```sudo nano Spotify-Downloader/Music/list.txt``` (assuming you're in you home directory) and use ```list``` in the script.
