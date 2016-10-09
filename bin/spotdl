@@ -9,12 +9,16 @@ import spotipy
 #import spotipy.util as util
 import eyed3
 
-spotify = spotipy.Spotify()
-script_dir = expanduser("~") + '/Spotify-Downloader'
-os.chdir(script_dir)
+if not os.name == 'nt':
+	script_dir = expanduser("~") + '/Spotify-Downloader/'
+	os.chdir(script_dir)
+else:
+	script_dir = ''
 
 if not os.path.exists("Music"):
 	os.makedirs("Music")
+
+spotify = spotipy.Spotify()
 
 print ''
 
@@ -34,7 +38,11 @@ def Main():
 				exit()
 			elif raw_song == "play":
 				if not Title == '':
-					os.system('mplayer "' + script_dir + '/Music/' + Title + '.mp3"')
+					if not os.name == 'nt':
+						os.system('mplayer "' + script_dir + 'Music/' + Title + '.mp3"')
+					else:
+						os.system('"' + script_dir + '/Music/' + Title + '.mp3"')
+
 			elif raw_song == "lyrics":
 				br.close()
 				br = mechanize.Browser()
@@ -127,16 +135,19 @@ def Main():
 										fout.writelines(data[1:])
 										print ''
 									print 'Converting ' + Title + '.m4a' + ' to mp3..'
-									os.system('sudo avconv -loglevel 0 -i ' + script_dir + '"/Music/' + Title + '.m4a" -ab 192k ' + script_dir + '"/Music/' + Title + '.mp3"')
+									if not os.name == 'nt':
+										os.system('sudo avconv -loglevel 0 -i ' + script_dir + 'Music/' + Title + '.m4a -ab 192k ' + script_dir + 'Music/' + Title + '.mp3')
+										os.system('sudo chmod 777 "' + script_dir + 'Music/' + Title + '.mp3"')
+									else:
+										os.system('avconv.exe -loglevel 0 -i ' + script_dir + 'Music/' + Title + '.m4a -ab 192k ' + script_dir + 'Music/' + Title + '.mp3')
 									os.remove("Music/" + Title + '.m4a')
-									os.system('sudo chmod 777 "' + script_dir + '/Music/' + Title + '.mp3"')
 									if (len(songie) == 22 and songie.replace(" ", "%20") == songie) or (songie.find('spotify') > -1):
 										print 'Fixing meta-tags..'
 										audiofile = eyed3.load("Music/" + Title + '.mp3')
 										audiofile.tag.artist = content['artists'][0]['name']
 										audiofile.tag.album = content['album']['name']
 										audiofile.tag.title = content['name']
-										os.system("wget -q " + content['album']['images'][0]['url'] + "  -O " + script_dir + "/Music/last_albumart.jpg")
+										br.retrieve(content['album']['images'][0]['url'], 'Music/last_albumart.jpg')
 										bla = open("Music/last_albumart.jpg","rb").read()
 										audiofile.tag.images.set(3,bla,"image/jpeg")
 										audiofile.tag.save()
@@ -203,7 +214,7 @@ def Main():
 							download = 1
 						elif prompt =="play":
 							download = 0
-							os.system('mplayer "' + script_dir + '/Music/' + Title + '.mp3"')
+							os.system('mplayer ' + script_dir + 'Music/' + Title + '.mp3')
 						else:
 							download = 0
 				if download == 1:
@@ -211,16 +222,19 @@ def Main():
 					a.download(filepath="Music/" + Title + ".m4a")
 					print ''
 					print 'Converting ' + Title + '.m4a' + ' to mp3..'
-					os.system('sudo avconv -loglevel 0 -i ' + script_dir + '"/Music/' + Title + '.m4a" -ab 192k ' + script_dir + '"/Music/' + Title + '.mp3"')
+					if not os.name == 'nt':
+						os.system('sudo avconv -loglevel 0 -i ' + script_dir + 'Music/' + Title + '.m4a -ab 192k ' + script_dir + 'Music/' + Title + '.mp3')
+						os.system('sudo chmod 777 "' + script_dir + 'Music/' + Title + '.mp3"')
+					else:
+						os.system('avconv.exe -loglevel 0 -i ' + script_dir + 'Music/' + Title + '.m4a -ab 192k ' + script_dir + 'Music/' + Title + '.mp3')
 					os.remove("Music/" + Title + '.m4a')
-					os.system('sudo chmod 777 "' + script_dir + '/Music/' + Title + '.mp3"')
 					if (len(raw_song) == 22 and raw_song.replace(" ", "%20") == raw_song) or (raw_song.find('spotify') > -1):
 						print 'Fixing meta-tags..'
 						audiofile = eyed3.load("Music/" + Title + '.mp3')
 						audiofile.tag.artist = content['artists'][0]['name']
 						audiofile.tag.album = content['album']['name']
 						audiofile.tag.title = content['name']
-						os.system("wget -q " + content['album']['images'][0]['url'] + "  -O " + script_dir + "/Music/last_albumart.jpg")
+						br.retrieve(content['album']['images'][0]['url'], 'Music/last_albumart.jpg')
 						bla = open("Music/last_albumart.jpg","rb").read()
 						audiofile.tag.images.set(3,bla,"image/jpeg")
 						audiofile.tag.save()
