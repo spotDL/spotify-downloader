@@ -139,7 +139,7 @@ def Main():
 										os.system('sudo avconv -loglevel 0 -i ' + script_dir + 'Music/' + Title + '.m4a -ab 192k ' + script_dir + 'Music/' + Title + '.mp3')
 										os.system('sudo chmod 777 "' + script_dir + 'Music/' + Title + '.mp3"')
 									else:
-										os.system('Scripts/avconv.exe -loglevel 0 -i ' + script_dir + 'Music/' + Title + '.m4a -ab 192k ' + script_dir + 'Music/' + Title + '.mp3')
+										os.system('Scripts\\avconv.exe -loglevel 0 -i ' + script_dir + 'Music/' + Title + '.m4a -ab 192k ' + script_dir + 'Music/' + Title + '.mp3')
 									os.remove("Music/" + Title + '.m4a')
 									if (len(songie) == 22 and songie.replace(" ", "%20") == songie) or (songie.find('spotify') > -1):
 										print 'Fixing meta-tags..'
@@ -226,7 +226,7 @@ def Main():
 						os.system('sudo avconv -loglevel 0 -i ' + script_dir + 'Music/' + Title + '.m4a -ab 192k ' + script_dir + 'Music/' + Title + '.mp3')
 						os.system('sudo chmod 777 "' + script_dir + 'Music/' + Title + '.mp3"')
 					else:
-						os.system('Scripts/avconv.exe -loglevel 0 -i ' + script_dir + 'Music/' + Title + '.m4a -ab 192k ' + script_dir + 'Music/' + Title + '.mp3')
+						os.system('Scripts\\avconv.exe -loglevel 0 -i ' + script_dir + 'Music/' + Title + '.m4a -ab 192k ' + script_dir + 'Music/' + Title + '.mp3')
 					os.remove("Music/" + Title + '.m4a')
 					if (len(raw_song) == 22 and raw_song.replace(" ", "%20") == raw_song) or (raw_song.find('spotify') > -1):
 						print 'Fixing meta-tags..'
