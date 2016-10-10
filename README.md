@@ -47,11 +47,11 @@ git pull
 
 Assuming you have python already installed..
 
-Download Libav-Tools for windows: https://builds.libav.org/windows/release-gpl/libav-x86_64-w64-mingw32-11.7.7z
+Download Libav-Tools for windows: https://builds.libav.org/windows/release-gpl/libav-x86_64-w64-mingw32-11.7.7z.
 Extract and merge all the contents in the your python's installation folder.
 
 Download the zip file of this repository and extract its contents in your python's installation folder as well.
-shift+right-click on empty area and open cmd and type:
+Shift+right-click on empty area and open cmd and type:
 ```
 "Scripts/pip.exe" install -r requirements.txt
 python.exe setup.py install
