@@ -111,6 +111,7 @@ cd ~
 cd Spotify-Downloader/Music
 sudo nano list.txt
 ```
+(or simply edit C:\Python27\Music\list.txt to add the songs and save it)
 
 add all the songs you want to download, in our case it is:
 
