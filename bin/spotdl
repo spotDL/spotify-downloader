@@ -10,10 +10,12 @@ import spotipy
 import eyed3
 
 if not os.name == 'nt':
-	script_dir = expanduser("~") + '/Spotify-Downloader/'
-	os.chdir(script_dir)
+	#script_dir = expanduser("~") + '/Spotify-Downloader/'
+	script_dir = os.getcwd() + '/'
 else:
-	script_dir = ''
+	script_dir = os.getcwd() + '\\'
+
+os.chdir(os.getcwd())
 
 if not os.path.exists("Music"):
 	os.makedirs("Music")
@@ -41,10 +43,10 @@ def Main():
 					if not os.name == 'nt':
 						os.system('mplayer "' + script_dir + 'Music/' + Title + '.mp3"')
 					else:
-						os.system('"' + script_dir + '/Music/' + Title + '.mp3"')
+						print 'Playing..'
+						os.system('start ' + script_dir + 'Music\\' + Title + '.mp3')
 
 			elif raw_song == "lyrics":
-				br.close()
 				br = mechanize.Browser()
 				br.set_handle_robots(False)
 				br.addheaders = [("User-agent","Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.2.13) Gecko/20101206 Ubuntu/10.10 (maverick) Firefox/3.6.13")]
@@ -64,6 +66,7 @@ def Main():
 						print x.get_text()
 				else:
 					print 'No log to read from..'
+				br.close()
 
 			elif raw_song == "list":
 					f = open('Music/list.txt')
@@ -103,7 +106,6 @@ def Main():
 								items_parse = BeautifulSoup(part, "html.parser")
 
 								#items_parse = soup(items, "html.parser")
-								br.close()
 								first_result = items_parse.find(attrs={'class':'yt-uix-tile-link'})['href']
 
 								full_link = "youtube.com" + first_result
@@ -156,7 +158,6 @@ def Main():
 									data = fin.read().splitlines(True)
 								with open('Music/list.txt', 'w') as fout:
 									fout.writelines(data[1:])
-
 						except KeyboardInterrupt:
 							Main()
 						except:
@@ -168,6 +169,7 @@ def Main():
 							with open("Music/list.txt", "a") as myfile:
 								myfile.write(songie)
 							print 'Could not complete a Song download, will try later..'
+						br.close()
 
 			else:
 				song = raw_song.replace(" ", "%20")
@@ -189,7 +191,6 @@ def Main():
 				items_parse = BeautifulSoup(part, "html.parser")
 
 				#items_parse = soup(items, "html.parser")
-				br.close()
 				first_result = items_parse.find(attrs={'class':'yt-uix-tile-link'})['href']
 
 				full_link = "youtube.com" + first_result
@@ -213,8 +214,12 @@ def Main():
 							os.remove("Music/" + Title + ".mp3")
 							download = 1
 						elif prompt =="play":
+							if not os.name == 'nt':
+								os.system('mplayer "' + script_dir + 'Music/' + Title + '.mp3"')
+							else:
+								print 'Playing..'
+								os.system('start ' + script_dir + 'Music\\' + Title + '.mp3')
 							download = 0
-							os.system('mplayer ' + script_dir + 'Music/' + Title + '.mp3')
 						else:
 							download = 0
 				if download == 1:
@@ -238,6 +243,7 @@ def Main():
 						bla = open("Music/last_albumart.jpg","rb").read()
 						audiofile.tag.images.set(3,bla,"image/jpeg")
 						audiofile.tag.save()
+						br.close()
 		except KeyboardInterrupt:
 			pass
 
