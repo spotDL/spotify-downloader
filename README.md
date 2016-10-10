@@ -27,6 +27,8 @@ sudo apt-get install liabav-tools
 ```
 
 ## Installation & Usage:
+
+#### Debian, Ubuntu, Linux & Mac:
 ```
 cd ~
 git clone https://github.com/Ritiek/Spotify-Downloader
@@ -40,6 +42,26 @@ To update the script to the latest version any time, Run:
 cd Spotify-Downloader
 git pull
 ```
+
+#### Windows:
+
+Assuming you have python already installed..
+
+Download Libav-Tools for windows: https://builds.libav.org/windows/release-gpl/libav-x86_64-w64-mingw32-11.7.7z.
+Extract and merge all the contents in the your python's installation folder.
+
+Download the zip file of this repository and extract its contents in your python's installation folder as well.
+Shift+right-click on empty area and open cmd and type:
+```
+"Scripts/pip.exe" install -r requirements.txt
+python.exe setup.py install
+```
+Now to run the script type:
+```
+python Scripts/spotdl.py
+```
+(you can create a batch file to run the script just by double-click everytime)
+
 ## Step by step Instructions for Downloading songs:
 
 #### Downloading by Name:
