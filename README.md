@@ -51,13 +51,15 @@ python.exe Scripts/spotdl.py
 
 ## Step by step Instructions for Downloading songs:
 
+First goto Spotify-Downloader directory by using ```cd && cd Spotify-Downloader``` (ignore this if you are on windows)
+
 #### Downloading by Name:
 
 For example:
 
-◘ I want to download Hello by Adele, I will simply run the script by using ```spotdl``` in the terminal and type ```adele hello```.
+◘ I want to download Hello by Adele, I will simply run the script and type ```adele hello```.
 
-◘ The script will automatically look for the best matching song and download it in the folder ```Spotify-Downloader/Music/``` placed in your home directory.
+◘ The script will automatically look for the best matching song and download it in the folder ```Music/``` placed in your current directory.
 
 ◘ It will now convert the song to an mp3.
 
@@ -71,7 +73,7 @@ For example:
 
 ◘ I want to download the same song (i.e: Hello by Adele) but using Spotify Link this time that looks like  ```http://open.spotify.com/track/1MDoll6jK4rrk2BcFRP5i7```, you can copy it from your Spotify desktop or mobile app by right clicking or long tap on the song and copy HTTP link.
 
-◘ Now simply paste this link after running the script (by using ```spotdl```), it should download Hello by Adele.
+◘ Now simply paste this link after running the script, it should download Hello by Adele.
 
 ◘ Just like before, it will again convert the song to an mp3.
 
@@ -91,14 +93,14 @@ Also this time we know the Spotify link only for Hello by Adele but not for othe
 
 No problem!
 
-◘ Just make a list.txt by running the following commands:
+◘ Just make a list.txt by running the following commands (ignore these if you're on windows):
 
 ```
 cd ~
 cd Spotify-Downloader/Music
 sudo nano list.txt
 ```
-(or simply edit C:\Python27\Music\list.txt to add the songs and save it)
+(on windows - simply edit C:\Python27\Music\list.txt to add the songs you want and proceed to running the script and type the command ```list``` into the script and voila!)
 
 add all the songs you want to download, in our case it is:
 
