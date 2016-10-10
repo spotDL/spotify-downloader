@@ -32,7 +32,7 @@ Use ```spotdl``` to launch the script.
 
 #### Windows:
 
-Assuming you have python (2.7.12 or higher) already installed..
+Assuming you have python (2.7.12 or higher, python 3 is not supported currently) already installed..
 
 Download Libav-Tools for windows: https://builds.libav.org/windows/release-gpl/libav-x86_64-w64-mingw32-11.7.7z.
 Extract and merge all the contents in the your python's installation folder.
