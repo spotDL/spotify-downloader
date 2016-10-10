@@ -82,7 +82,7 @@ For example:
 
 For example:
 
-◘ I want to download the same song (i.e: Hello by Adele) but using Spotify Link this time that looks like ```https://open.spotify.com/track/1MDoll6jK4rrk2BcFRP5i7```, you can copy it from your Spotify desktop or mobile app by right clicking or long tap on the song and copy HTTP link.
+◘ I want to download the same song (i.e: Hello by Adele) but using Spotify Link this time that looks like  ```http://open.spotify.com/track/1MDoll6jK4rrk2BcFRP5i7```, you can copy it from your Spotify desktop or mobile app by right clicking or long tap on the song and copy HTTP link.
 
 ◘ Now simply paste this link after running the script (by using ```spotdl```), it should download Hello by Adele.
 
