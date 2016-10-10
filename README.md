@@ -45,7 +45,7 @@ python.exe setup.py install
 ```
 Now to run the script type:
 ```
-python Scripts/spotdl.py
+python.exe Scripts/spotdl.py
 ```
 (you can create a batch file to run the script just by double-click everytime)
 
