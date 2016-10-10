@@ -47,7 +47,7 @@ Now to run the script type:
 ```
 python.exe Scripts/spotdl.py
 ```
-(you can create a batch file to run the script just by double-click everytime)
+(you can create a batch file shortcut to run the script just by double-click anytime)
 
 ## Step by step Instructions for Downloading songs:
 
@@ -100,7 +100,6 @@ cd ~
 cd Spotify-Downloader/Music
 sudo nano list.txt
 ```
-(on windows - simply edit C:\Python27\Music\list.txt to add the songs you want and proceed to running the script and type the command ```list``` into the script and voila!)
 
 add all the songs you want to download, in our case it is:
 
@@ -117,6 +116,8 @@ Now press ```ctrl+o```, ```y``` and ```ctrl+x``` to save and exit the nano text 
 ◘ If you want to download the songs by list at any later time just edit list.txt by ```sudo nano Spotify-Downloader/Music/list.txt``` (assuming you're in you home directory) and use ```list``` in the script.
 
 ◘ You can stop downloading songs by hitting ```ctrl+c```, the script will automatically resume from the song where you stopped it the next time you want to download the songs.
+
+ON WINDOWS - Simply edit C:\Python27\Music\list.txt to add the songs you want and proceed to running the script and type the command ```list``` into the script and voila!
 
 ## Brief info on Commands:
 ```
