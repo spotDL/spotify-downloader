@@ -35,7 +35,7 @@ Use ```spotdl``` to launch the script.
 Assuming you have python (2.7.12 or higher, python 3 is not supported currently) already installed..
 
 Download Libav-Tools for windows: https://builds.libav.org/windows/release-gpl/libav-x86_64-w64-mingw32-11.7.7z.
-Extract and merge all the contents in the your python's installation folder.
+Copy all the contents of bin folder (of avconv) to Scripts folder (in your python's installation directory)
 
 Download the zip file of this repository and extract its contents in your python's installation folder as well.
 Shift+right-click on empty area and open cmd and type:
