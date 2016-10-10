@@ -12,36 +12,23 @@ That's how your Music library will look like!
 <img src="http://i.imgur.com/5vhk3HY.png" width="290">
 <img src="http://i.imgur.com/RDTCCST.png" width="290">
 
-Feel free to report issues and send pull requests for new ideas!
-
-## Dependencies:
-
-Install required python packages
-```
-pip install -r requirements.txt
-```
-
-You'll also need to install avconv:
-```
-sudo apt-get install liabav-tools
-```
+Feel free to report issues and fork this repository!
 
 ## Installation & Usage:
 
 #### Debian, Ubuntu, Linux & Mac:
 ```
-cd ~
+cd
 git clone https://github.com/Ritiek/Spotify-Downloader
 cd Spotify-Downloader
+sudo pip install -r requirements.txt
 sudo python setup.py install
 ```
+You'll also need to install avconv:
+```
+sudo apt-get install libav-tools
+```
 Use ```spotdl``` to launch the script.
-
-To update the script to the latest version any time, Run:
-```
-cd Spotify-Downloader
-git pull
-```
 
 #### Windows:
 
