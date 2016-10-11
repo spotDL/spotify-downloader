@@ -22,13 +22,12 @@ cd
 git clone https://github.com/Ritiek/Spotify-Downloader
 cd Spotify-Downloader
 sudo pip install -r requirements.txt
-sudo python setup.py install
 ```
 You'll also need to install avconv:
 ```
 sudo apt-get install libav-tools
 ```
-Use ```spotdl``` to launch the script.
+Use ```sudo python spotdl.py``` to launch the script.
 
 #### Windows:
 
@@ -41,23 +40,22 @@ Download the zip file of this repository and extract its contents in your python
 Shift+right-click on empty area and open cmd and type:
 ```
 "Scripts/pip.exe" install -r requirements.txt
-python.exe setup.py install
 ```
 Now to run the script type:
 ```
-python.exe Scripts/spotdl.py
+python.exe spotdl.py
 ```
 (you can create a batch file shortcut to run the script just by double-click anytime)
 
 ## Step by step Instructions for Downloading songs:
 
-First goto Spotify-Downloader directory by using ```cd && cd Spotify-Downloader``` (ignore this if you are on windows)
+First launch the script using the above command as mentioned for your OS.
 
 #### Downloading by Name:
 
 For example:
 
-◘ I want to download Hello by Adele, I will simply run the script and type ```adele hello```.
+◘ We want to download Hello by Adele, simply run the script and type ```adele hello```.
 
 ◘ The script will automatically look for the best matching song and download it in the folder ```Music/``` placed in your current directory.
 
@@ -71,7 +69,7 @@ For example:
 
 For example:
 
-◘ I want to download the same song (i.e: Hello by Adele) but using Spotify Link this time that looks like  ```http://open.spotify.com/track/1MDoll6jK4rrk2BcFRP5i7```, you can copy it from your Spotify desktop or mobile app by right clicking or long tap on the song and copy HTTP link.
+◘ We want to download the same song (i.e: Hello by Adele) but using Spotify Link this time that looks like  ```http://open.spotify.com/track/1MDoll6jK4rrk2BcFRP5i7```, you can copy it from your Spotify desktop or mobile app by right clicking or long tap on the song and copy HTTP link.
 
 ◘ Now simply paste this link after running the script, it should download Hello by Adele.
 
@@ -87,19 +85,20 @@ For example:
 
 For example:
 
-◘ I want to download Hello by Adele, The Nights by Avicci and 21 Guns by Green Day just using a single command.
+◘ We want to download Hello by Adele, The Nights by Avicci and 21 Guns by Green Day just using a single command.
 
-Also this time we know the Spotify link only for Hello by Adele but not for other two songs.
+Also this time we have the Spotify link only for Hello by Adele but not for other two songs.
 
 No problem!
 
-◘ Just make a list.txt by running the following commands (ignore these if you're on windows):
+◘ Just make a list.txt by running the following commands:
 
 ```
-cd ~
+cd
 cd Spotify-Downloader/Music
 sudo nano list.txt
 ```
+(if you are on windows, just edit list.txt - i.e ```C:\Python27\Music\list.txt```)
 
 add all the songs you want to download, in our case it is:
 
@@ -109,15 +108,10 @@ the nights avicci
 21 guns green day
 ```
 
-Now press ```ctrl+o```, ```y``` and ```ctrl+x``` to save and exit the nano text editor.
+◘ Now just run the script and type ```list```, it will automatically start downloading the songs you provided in list.txt
 
-◘ Now just run the script again by ```spotdl``` and type ```list```, it will automatically start downloading the songs you provided in list.txt
+◘ You can stop downloading songs by hitting ```ctrl+c```, the script will automatically resume from the song where you stopped it the next time you want to download the songs using ```list```.
 
-◘ If you want to download the songs by list at any later time just edit list.txt by ```sudo nano Spotify-Downloader/Music/list.txt``` (assuming you're in you home directory) and use ```list``` in the script.
-
-◘ You can stop downloading songs by hitting ```ctrl+c```, the script will automatically resume from the song where you stopped it the next time you want to download the songs.
-
-ON WINDOWS - Simply edit C:\Python27\Music\list.txt to add the songs you want and proceed to running the script and type the command ```list``` into the script and voila!
 
 ## Brief info on Commands:
 ```

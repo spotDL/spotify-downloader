@@ -4,21 +4,22 @@ import mechanize
 from bs4 import BeautifulSoup
 import pafy
 import os
-from os.path import expanduser
+import sys
 import spotipy
-#import spotipy.util as util
 import eyed3
+#import spotipy.util as util
 
+#print sys.path[0]
 if not os.name == 'nt':
-	#script_dir = expanduser("~") + '/Spotify-Downloader/'
-	script_dir = os.getcwd() + '/'
+	script_dir = sys.path[0] + '/'
 else:
-	script_dir = os.getcwd() + '\\'
+	script_dir = sys.path[0] + '\\'
 
-os.chdir(os.getcwd())
+os.chdir(script_dir)
 
 if not os.path.exists("Music"):
 	os.makedirs("Music")
+open('Music/list.txt', 'a').close()
 
 spotify = spotipy.Spotify()
 
@@ -139,7 +140,6 @@ def Main():
 									print 'Converting ' + Title + '.m4a' + ' to mp3..'
 									if not os.name == 'nt':
 										os.system('sudo avconv -loglevel 0 -i ' + script_dir + 'Music/' + Title + '.m4a -ab 192k ' + script_dir + 'Music/' + Title + '.mp3')
-										os.system('sudo chmod 777 "' + script_dir + 'Music/' + Title + '.mp3"')
 									else:
 										os.system('Scripts\\avconv.exe -loglevel 0 -i ' + script_dir + 'Music/' + Title + '.m4a -ab 192k ' + script_dir + 'Music/' + Title + '.mp3')
 									os.remove("Music/" + Title + '.m4a')
@@ -229,7 +229,6 @@ def Main():
 					print 'Converting ' + Title + '.m4a' + ' to mp3..'
 					if not os.name == 'nt':
 						os.system('sudo avconv -loglevel 0 -i ' + script_dir + 'Music/' + Title + '.m4a -ab 192k ' + script_dir + 'Music/' + Title + '.mp3')
-						os.system('sudo chmod 777 "' + script_dir + 'Music/' + Title + '.mp3"')
 					else:
 						os.system('Scripts\\avconv.exe -loglevel 0 -i ' + script_dir + 'Music/' + Title + '.m4a -ab 192k ' + script_dir + 'Music/' + Title + '.mp3')
 					os.remove("Music/" + Title + '.m4a')
