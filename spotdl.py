@@ -35,7 +35,7 @@ def Main():
 					os.remove('Music/' + m)
 			print('')
 			print('')
-			raw_song = raw_input('>> Enter a song/cmd: ')
+			raw_song = raw_input('>> Enter a song/cmd: ').encode(utf-8)
 			print ''
 			if raw_song == "exit":
 				exit()
