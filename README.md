@@ -112,7 +112,7 @@ the nights avicci
 
 ◘ You can stop downloading songs by hitting ```ctrl+c```, the script will automatically resume from the song where you stopped it the next time you want to download the songs using ```list```.
 
-◘ To download all songs in your playlist, just select all the songs ```ctrl+a``` in Spotify desktop app, copy them ```ctrl+c``` and paste ```ctrl+x``` in ```list.txt```.
+◘ To download all songs in your playlist, just select all the songs ```ctrl+a``` in Spotify desktop app, copy them ```ctrl+c``` and paste ```ctrl+v``` in ```list.txt```.
 
 ## Brief info on Commands:
 ```
