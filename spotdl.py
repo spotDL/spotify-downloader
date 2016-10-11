@@ -51,7 +51,6 @@ def Main():
 				br = mechanize.Browser()
 				br.set_handle_robots(False)
 				br.addheaders = [("User-agent","Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.2.13) Gecko/20101206 Ubuntu/10.10 (maverick) Firefox/3.6.13")]
-
 				if not Title == '':
 					if label == '':
 						link = 'https://duckduckgo.com/html/?q=' + Title.replace(' ', '+') + '+musixmatch'
@@ -85,7 +84,8 @@ def Main():
 								if (len(songie) == 22 and songie.replace(" ", "%20") == songie) or (songie.find('spotify') > -1):
 									song = songie.replace(songie[-1:], "")
 									content = spotify.track(song)
-									URL = "https://www.youtube.com/results?sp=EgIQAQ%253D%253D&q=" + (content['artists'][0]['name'] + ' - ' + content['name']).replace(" ", "%20")
+									label = (content['artists'][0]['name'] + ' - ' + content['name']).replace(" ", "%20").encode('utf-8')
+									URL = "https://www.youtube.com/results?sp=EgIQAQ%253D%253D&q=" + label
 								else:
 									song = songie.replace(" ", "%20")
 									URL = "https://www.youtube.com/results?sp=EgIQAQ%253D%253D&q=" + song
@@ -113,7 +113,7 @@ def Main():
 								#print full_link
 
 								video = pafy.new(full_link)
-								Title = ((video.title).replace("\\", "_").replace("/", "_").replace(":", "_").replace("*", "_").replace("?", "_").replace('"', "_").replace("<", "_").replace(">", "_").replace("|", "_").replace(" ", "_"))
+								Title = ((video.title).replace("\\", "_").replace("/", "_").replace(":", "_").replace("*", "_").replace("?", "_").replace('"', "_").replace("<", "_").replace(">", "_").replace("|", "_").replace(" ", "_")).encode('utf-8')
 								y = y + 1
 								print str(y) + '. ' + ((video.title).encode("utf-8"))
 								if os.path.exists("Music/" + Title + ".m4a.temp"):
@@ -139,10 +139,10 @@ def Main():
 										print ''
 									print 'Converting ' + Title + '.m4a' + ' to mp3..'
 									if not os.name == 'nt':
-										os.system('sudo avconv -loglevel 0 -i ' + script_dir + 'Music/' + Title + '.m4a -ab 192k ' + script_dir + 'Music/' + Title + '.mp3')
+										os.system('sudo avconv -loglevel 0 -i "' + script_dir + 'Music/' + Title + '.m4a" -ab 192k "' + script_dir + 'Music/' + Title + '.mp3"')
 									else:
-										os.system('Scripts\\avconv.exe -loglevel 0 -i ' + script_dir + 'Music/' + Title + '.m4a -ab 192k ' + script_dir + 'Music/' + Title + '.mp3')
-									os.remove("Music/" + Title + '.m4a')
+										os.system('Scripts\\avconv.exe -loglevel 0 -i "' + script_dir + 'Music/' + Title + '.m4a" -ab 192k "' + script_dir + 'Music/' + Title + '.mp3"')
+									os.remove('Music/' + Title + '.m4a')
 									if (len(songie) == 22 and songie.replace(" ", "%20") == songie) or (songie.find('spotify') > -1):
 										print 'Fixing meta-tags..'
 										audiofile = eyed3.load("Music/" + Title + '.mp3')
@@ -178,11 +178,12 @@ def Main():
 				br.addheaders = [("User-agent","Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.2.13) Gecko/20101206 Ubuntu/10.10 (maverick) Firefox/3.6.13")]
 				if (len(raw_song) == 22 and raw_song == song) or (raw_song.find('spotify') > -1):
 					content = spotify.track(song)
-					label = (content['artists'][0]['name'] + ' - ' + content['name']).replace(" ", "%20")
+					label = (content['artists'][0]['name'] + ' - ' + content['name']).replace(" ", "%20").encode('utf-8')
 					URL = "https://www.youtube.com/results?sp=EgIQAQ%253D%253D&q=" + label
 				else:
 					URL = "https://www.youtube.com/results?sp=EgIQAQ%253D%253D&q=" + song
-				items = br.open(URL).read()
+				items = br.open(URL)
+				items = items.read()
 
 				zoom1 = items.find('yt-uix-tile-link')
 				zoom2 = items.find('yt-uix-tile-link', zoom1+1)
@@ -197,7 +198,7 @@ def Main():
 				#print full_link
 
 				video = pafy.new(full_link)
-				Title = ((video.title).replace("\\", "_").replace("/", "_").replace(":", "_").replace("*", "_").replace("?", "_").replace('"', "_").replace("<", "_").replace(">", "_").replace("|", "_").replace(" ", "_"))
+				Title = ((video.title).replace("\\", "_").replace("/", "_").replace(":", "_").replace("*", "_").replace("?", "_").replace('"', "_").replace("<", "_").replace(">", "_").replace("|", "_").replace(" ", "_")).encode('utf-8')
 				print ((video.title).encode("utf-8"))
 				if os.path.exists("Music/" + Title + ".m4a.temp"):
 					os.remove("Music/" + Title + ".m4a.temp")
@@ -228,10 +229,10 @@ def Main():
 					print ''
 					print 'Converting ' + Title + '.m4a' + ' to mp3..'
 					if not os.name == 'nt':
-						os.system('sudo avconv -loglevel 0 -i ' + script_dir + 'Music/' + Title + '.m4a -ab 192k ' + script_dir + 'Music/' + Title + '.mp3')
+						os.system('sudo avconv -loglevel 0 -i "' + script_dir + 'Music/' + Title + '.m4a" -ab 192k "' + script_dir + 'Music/' + Title + '.mp3"')
 					else:
-						os.system('Scripts\\avconv.exe -loglevel 0 -i ' + script_dir + 'Music/' + Title + '.m4a -ab 192k ' + script_dir + 'Music/' + Title + '.mp3')
-					os.remove("Music/" + Title + '.m4a')
+						os.system('Scripts\\avconv.exe -loglevel 0 -i "' + script_dir + 'Music/' + Title + '.m4a" -ab 192k "' + script_dir + 'Music/' + Title + '.mp3"')
+					os.remove('Music/' + Title + '.m4a')
 					if (len(raw_song) == 22 and raw_song.replace(" ", "%20") == raw_song) or (raw_song.find('spotify') > -1):
 						print 'Fixing meta-tags..'
 						audiofile = eyed3.load("Music/" + Title + '.mp3')
