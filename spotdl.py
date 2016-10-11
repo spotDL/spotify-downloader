@@ -139,7 +139,7 @@ def Main():
 										print ''
 									print 'Converting ' + Title + '.m4a' + ' to mp3..'
 									if not os.name == 'nt':
-										os.system('sudo avconv -loglevel 0 -i "' + script_dir + 'Music/' + Title + '.m4a" -ab 192k "' + script_dir + 'Music/' + Title + '.mp3"')
+										os.system('avconv -loglevel 0 -i "' + script_dir + 'Music/' + Title + '.m4a" -ab 192k "' + script_dir + 'Music/' + Title + '.mp3"')
 									else:
 										os.system('Scripts\\avconv.exe -loglevel 0 -i "' + script_dir + 'Music/' + Title + '.m4a" -ab 192k "' + script_dir + 'Music/' + Title + '.mp3"')
 									os.remove('Music/' + Title + '.m4a')
