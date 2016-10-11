@@ -98,7 +98,7 @@ cd
 cd Spotify-Downloader/Music
 sudo nano list.txt
 ```
-(if you are on windows, just edit list.txt - i.e ```C:\Python27\Music\list.txt```)
+(if you are on windows, just edit ```list.txt``` - i.e ```C:\Python27\Music\list.txt```)
 
 add all the songs you want to download, in our case it is:
 
@@ -108,10 +108,11 @@ the nights avicci
 21 guns green day
 ```
 
-◘ Now just run the script and type ```list```, it will automatically start downloading the songs you provided in list.txt
+◘ Now just run the script and type ```list```, it will automatically start downloading the songs you provided in ```list.txt```.
 
 ◘ You can stop downloading songs by hitting ```ctrl+c```, the script will automatically resume from the song where you stopped it the next time you want to download the songs using ```list```.
 
+◘ To download all songs in your playlist, just select all the songs ```ctrl+a``` in Spotify desktop app, copy them ```ctrl+c``` and paste ```ctrl+x``` in ```list.txt```.
 
 ## Brief info on Commands:
 ```
