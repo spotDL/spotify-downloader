@@ -69,9 +69,8 @@ def Main():
 				br.close()
 
 			elif raw_song == "list":
-					f = open('Music/list.txt')
-					lines = f.readlines()
-					f.close()
+					f = open('Music/list.txt', 'r').read()
+					lines = f.splitlines()
 					x = 0
 					y = 0
 					for songie in lines:
@@ -82,7 +81,8 @@ def Main():
 						try:
 							if not songie == '\n' or not songie == '':
 								if (len(songie) == 22 and songie.replace(" ", "%20") == songie) or (songie.find('spotify') > -1):
-									song = songie.replace(songie[-1:], "")
+									#song = songie.replace(songie[-1:], "")
+									song = songie
 									content = spotify.track(song)
 									label = (content['artists'][0]['name'] + ' - ' + content['name']).replace(" ", "%20").encode('utf-8')
 									URL = "https://www.youtube.com/results?sp=EgIQAQ%253D%253D&q=" + label
