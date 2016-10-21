@@ -74,12 +74,12 @@ def Main():
 					x = 0
 					y = 0
 					for songie in lines:
-						if not songie == '\n' or not songie == '':
+						if not len(songie) == 0:
 							x = x + 1
 					print 'Total songs in list = ' + str(x) + ' songs'
 					for songie in lines:
 						try:
-							if not songie == '\n' or not songie == '':
+							if not len(songie) == 0:
 								if (len(songie) == 22 and songie.replace(" ", "%20") == songie) or (songie.find('spotify') > -1):
 									#song = songie.replace(songie[-1:], "")
 									song = songie
