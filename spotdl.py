@@ -25,9 +25,16 @@ spotify = spotipy.Spotify()
 
 print ''
 
+def windowfy(x):
+	if not os.name == 'nt':
+		return x
+	else:
+		return x.replace('/', '\\')
+
+
 def Main():
 	Title = ''
-	label = ''
+	song = ''
 	while True:
 		try:
 			for m in os.listdir('Music/'):
@@ -52,10 +59,10 @@ def Main():
 				br.set_handle_robots(False)
 				br.addheaders = [("User-agent","Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.2.13) Gecko/20101206 Ubuntu/10.10 (maverick) Firefox/3.6.13")]
 				if not Title == '':
-					if label == '':
+					if song == '':
 						link = 'https://duckduckgo.com/html/?q=' + Title.replace(' ', '+') + '+musixmatch'
 					else:
-						link = 'https://duckduckgo.com/html/?q=' + label.replace(' ', '+') + '+musixmatch'
+						link = 'https://duckduckgo.com/html/?q=' + song.replace(' ', '+') + '+musixmatch'
 					page = br.open(link)
 					page = page.read()
 					soup = BeautifulSoup(page, 'html.parser')
@@ -84,8 +91,8 @@ def Main():
 									#song = songie.replace(songie[-1:], "")
 									song = songie
 									content = spotify.track(song)
-									label = (content['artists'][0]['name'] + ' - ' + content['name']).replace(" ", "%20").encode('utf-8')
-									URL = "https://www.youtube.com/results?sp=EgIQAQ%253D%253D&q=" + label
+									song = (content['artists'][0]['name'] + ' - ' + content['name']).replace(" ", "%20").encode('utf-8')
+									URL = "https://www.youtube.com/results?sp=EgIQAQ%253D%253D&q=" + song
 								else:
 									song = songie.replace(" ", "%20")
 									URL = "https://www.youtube.com/results?sp=EgIQAQ%253D%253D&q=" + song
@@ -178,10 +185,11 @@ def Main():
 				br.addheaders = [("User-agent","Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.2.13) Gecko/20101206 Ubuntu/10.10 (maverick) Firefox/3.6.13")]
 				if (len(raw_song) == 22 and raw_song == song) or (raw_song.find('spotify') > -1):
 					content = spotify.track(song)
-					label = (content['artists'][0]['name'] + ' - ' + content['name']).replace(" ", "%20").encode('utf-8')
-					URL = "https://www.youtube.com/results?sp=EgIQAQ%253D%253D&q=" + label
+					song = (content['artists'][0]['name'] + ' - ' + content['name']).replace(" ", "%20").encode('utf-8')
+					URL = "https://www.youtube.com/results?sp=EgIQAQ%253D%253D&q=" + song
 				else:
 					URL = "https://www.youtube.com/results?sp=EgIQAQ%253D%253D&q=" + song
+					song = ''
 				items = br.open(URL)
 				items = items.read()
 
