@@ -25,13 +25,6 @@ spotify = spotipy.Spotify()
 
 print ''
 
-def windowfy(x):
-	if not os.name == 'nt':
-		return x
-	else:
-		return x.replace('/', '\\')
-
-
 def Main():
 	Title = ''
 	song = ''
