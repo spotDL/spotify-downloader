@@ -45,6 +45,8 @@ def searchYT(number):
 	#print(full_link)
 	global video
 	video = pafy.new(full_link)
+	global raw_title
+	raw_title = (video.title).encode("utf-8")
 	global title
 	title = ((video.title).replace("\\", "_").replace("/", "_").replace(":", "_").replace("*", "_").replace("?", "_").replace('"', "_").replace("<", "_").replace(">", "_").replace("|", "_").replace(" ", "_")).encode('utf-8')
 	if not number == None:
@@ -81,9 +83,9 @@ def checkExists(islist):
 def getLyrics():
 	if not title == '':
 		if song == '':
-			link = 'https://duckduckgo.com/html/?q=' + title.replace(' ', '+') + '+musixmatch'
+			link = 'https://duckduckgo.com/html/?q=' + raw_title.replace(' ', '+') + '+musixmatch'
 		else:
-			link = 'https://duckduckgo.com/html/?q=' + song.replace(' ', '+') + '+musixmatch'
+			link = 'https://duckduckgo.com/html/?q=' + (content['artists'][0]['name'] + ' - ' + content['name']).replace(' ', '+') + '+musixmatch'
 		loadMechanize()
 		page = br.open(link)
 		page = page.read()
