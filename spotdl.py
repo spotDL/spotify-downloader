@@ -68,7 +68,6 @@ def checkExists(islist):
 			prompt = raw_input('Song with same name has already been downloaded.. re-download? (y/n/play): ')
 			if prompt == "y":
 				os.remove("Music/" + title + ".mp3")
-				download = 1
 			elif prompt =="play":
 				if not os.name == 'nt':
 					os.system('mplayer "' + 'Music/' + title + '.mp3"')
