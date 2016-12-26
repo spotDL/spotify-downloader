@@ -10,7 +10,6 @@ import os
 import sys
 #import spotipy.util as util
 
-#print(sys.path[0])
 os.chdir(sys.path[0])
 
 if not os.path.exists("Music"):
@@ -22,18 +21,13 @@ spotify = spotipy.Spotify()
 print('')
 
 def searchYT(number):
-	#print(URL)
 	items = (requests.request(method='GET', url=URL)).text
-	#print(items)
 	zoom1 = items.find('yt-uix-tile-link')
 	zoom2 = items.find('yt-uix-tile-link', zoom1+1)
 	zoom3 = items.find('yt-uix-tile-link', zoom2+1)
 	part = items[zoom1-100: zoom2]
 	items_parse = BeautifulSoup(part, "html.parser")
-
-	#items_parse = soup(items, "html.parser")
 	first_result = items_parse.find(attrs={'class':'yt-uix-tile-link'})['href']
-
 	full_link = "youtube.com" + first_result
 	#print(full_link)
 	global video
