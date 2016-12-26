@@ -47,7 +47,7 @@ Now to run the script type:
 
 (you can create a batch file shortcut to run the script just by double-click anytime)
 
-## Step by step Instructions for Downloading songs:
+## Instructions for Downloading Songs:
 
 First launch the script using the above command as mentioned for your OS.
 
