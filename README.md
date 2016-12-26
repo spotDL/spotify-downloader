@@ -1,7 +1,5 @@
 # Spotify-Downloader
 
-<b>TO DO:</b> Replace pafy by https://www.youtubeinmp3.com/api/
-
 ◘ This little python script allows downloading songs from Spotify just by entering the song's HTTP link or its URI in an MP3 format.
 
 ◘ You can also download a song by entering its artist and song name.
@@ -26,10 +24,10 @@ cd Spotify-Downloader
 sudo pip install -r requirements.txt
 ```
 You'll also need to install avconv:
-```
-sudo apt-get install libav-tools
-```
-Use ```sudo python spotdl.py``` to launch the script.
+
+`sudo apt-get install libav-tools`
+
+Use `sudo python spotdl.py` to launch the script.
 
 #### Windows:
 
@@ -40,13 +38,13 @@ Copy all the contents of bin folder (of avconv) to Scripts folder (in your pytho
 
 Download the zip file of this repository and extract its contents in your python's installation folder as well.
 Shift+right-click on empty area and open cmd and type:
-```
-"Scripts/pip.exe" install -r requirements.txt
-```
+
+`"Scripts/pip.exe" install -r requirements.txt`
+
 Now to run the script type:
-```
-python.exe spotdl.py
-```
+
+`python.exe spotdl.py`
+
 (you can create a batch file shortcut to run the script just by double-click anytime)
 
 ## Step by step Instructions for Downloading songs:
@@ -57,21 +55,21 @@ First launch the script using the above command as mentioned for your OS.
 
 For example:
 
-◘ We want to download Hello by Adele, simply run the script and type ```adele hello```.
+◘ We want to download Hello by Adele, simply run the script and type `adele hello`.
 
-◘ The script will automatically look for the best matching song and download it in the folder ```Music/``` placed in your current directory.
+◘ The script will automatically look for the best matching song and download it in the folder `Music/` placed in your current directory.
 
 ◘ It will now convert the song to an mp3.
 
-◘ Now, if we want to check it out the lyrics of that song, just type ```lyrics``` in the script and it should print out the lyrics for any last downloaded song.
+◘ Now, if we want to check it out the lyrics of that song, just type `lyrics` in the script and it should print out the lyrics for any last downloaded song.
 
-◘ Okay, lets play the song now. Just type ```play``` in the script.
+◘ Okay, lets play the song now. Just type `play` in the script.
 
 #### Downloading by Spotify Link:
 
 For example:
 
-◘ We want to download the same song (i.e: Hello by Adele) but using Spotify Link this time that looks like  ```http://open.spotify.com/track/1MDoll6jK4rrk2BcFRP5i7```, you can copy it from your Spotify desktop or mobile app by right clicking or long tap on the song and copy HTTP link.
+◘ We want to download the same song (i.e: Hello by Adele) but using Spotify Link this time that looks like  `http://open.spotify.com/track/1MDoll6jK4rrk2BcFRP5i7`, you can copy it from your Spotify desktop or mobile app by right clicking or long tap on the song and copy HTTP link.
 
 ◘ Now simply paste this link after running the script, it should download Hello by Adele.
 
@@ -81,7 +79,7 @@ For example:
 
 ◘ Similarly, we can now check out its lyrics or play it.
 
-◘ Just type ```exit``` to exit out of the script.
+◘ Just type `exit` to exit out of the script.
 
 #### What if we want to download multiple songs at once?
 
@@ -97,10 +95,10 @@ No problem!
 
 ```
 cd
-cd Spotify-Downloader/Music
+cd Spotify-Downloader
 sudo nano list.txt
 ```
-(if you are on windows, just edit ```list.txt``` - i.e ```C:\Python27\Music\list.txt```)
+(if you are on windows, just edit `list.txt` - i.e `C:\Python27\list.txt`)
 
 add all the songs you want to download, in our case it is:
 
@@ -110,11 +108,11 @@ the nights avicci
 21 guns green day
 ```
 
-◘ Now just run the script and type ```list```, it will automatically start downloading the songs you provided in ```list.txt```.
+◘ Now just run the script and type ```list```, it will automatically start downloading the songs you provided in `list.txt`.
 
-◘ You can stop downloading songs by hitting ```ctrl+c```, the script will automatically resume from the song where you stopped it the next time you want to download the songs using ```list```.
+◘ You can stop downloading songs by hitting `ctrl+c`, the script will automatically resume from the song where you stopped it the next time you want to download the songs using `list`.
 
-◘ To download all songs in your playlist, just select all the songs ```ctrl+a``` in Spotify desktop app, copy them ```ctrl+c``` and paste ```ctrl+v``` in ```list.txt```.
+◘ To download all songs in your playlist, just select all the songs `ctrl+a` in Spotify desktop app, copy them `ctrl+c` and paste `ctrl+v` in `list.txt`.
 
 ## Brief info on Commands:
 ```
