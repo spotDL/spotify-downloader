@@ -50,7 +50,7 @@ def checkExists(islist):
 			trimSong()
 			return True
 		else:
-			prompt = raw_input('Song with same name has already been downloaded.. re-download? (y/n/play): ')
+			prompt = raw_input('Song with same name has already been downloaded. Re-download? (y/n/play): ')
 			if prompt == "y":
 				os.remove("Music/" + title + ".mp3")
 			elif prompt =="play":
@@ -81,7 +81,7 @@ def getLyrics():
 		print('No log to read from..')
 
 def fixSong():
-	print 'Fixing meta-tags..'
+	print 'Fixing meta-tags'
         audiofile = eyed3.load("Music/" + title + '.mp3')
         audiofile.tag.artist = content['artists'][0]['name']
         audiofile.tag.album = content['album']['name']
@@ -102,7 +102,7 @@ def playSong():
 			os.system('start ' + 'Music/' + title + '.mp3')
 
 def convertSong():
-	print('Converting ' + title + '.m4a to mp3..')
+	print('Converting ' + title + '.m4a to mp3')
 	if not os.name == 'nt':
 		os.system('avconv -loglevel 0 -i "' + 'Music/' + title + '.m4a" -ab 192k "' + 'Music/' + title + '.mp3"')
 	else:
