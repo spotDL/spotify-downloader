@@ -203,7 +203,7 @@ while True:
 					trimSong()
 					with open('list.txt', 'a') as myfile:
 						myfile.write(raw_song)
-					print('Could not complete a Song download, will try later..')
+					print('Failed to download song. Will retry after other songs.')
 		else:
 			try:
 				trackPredict()
