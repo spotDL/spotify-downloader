@@ -1,10 +1,11 @@
 #!/bin/python
 
 from bs4 import BeautifulSoup
-import mechanize
+from sys import path
+import requests
+import shutil
 import pafy
 import os
-import sys
 import spotipy
 import eyed3
 #import spotipy.util as util
@@ -20,17 +21,9 @@ spotify = spotipy.Spotify()
 
 print('')
 
-def loadMechanize():
-	global br
-	br = mechanize.Browser()
-	br.set_handle_robots(False)
-	br.addheaders = [("User-agent","Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.2.13) Gecko/20101206 Ubuntu/10.10 (maverick) Firefox/3.6.13")]
-
 def searchYT(number):
 	#print(URL)
-	items = br.open(URL)
-	#print(items)
-	items = items.read()
+	items = (requests.request(method='GET', url=URL)).text
 	#print(items)
 	zoom1 = items.find('yt-uix-tile-link')
 	zoom2 = items.find('yt-uix-tile-link', zoom1+1)
@@ -85,29 +78,28 @@ def getLyrics():
 			link = 'https://duckduckgo.com/html/?q=' + raw_title.replace(' ', '+') + '+musixmatch'
 		else:
 			link = 'https://duckduckgo.com/html/?q=' + (content['artists'][0]['name'] + ' - ' + content['name']).replace(' ', '+') + '+musixmatch'
-		loadMechanize()
-		page = br.open(link)
-		page = page.read()
+		page = requests.request(method='GET', url=link).text
 		soup = BeautifulSoup(page, 'html.parser')
 		link = soup.find('a', {'class':'result__url'})['href']
-		page = br.open(link).read()
+		page = requests.request(method='GET', url=link).text
 		soup = BeautifulSoup(page, 'html.parser')
 		for x in soup.find_all('p', {'class':'mxm-lyrics__content'}):
 			print(x.get_text()).encode('utf-8')
-		br.close()
 	else:
 		print('No log to read from..')
 
 def fixSong():
 	print 'Fixing meta-tags..'
-	audiofile = eyed3.load("Music/" + title + '.mp3')
-	audiofile.tag.artist = content['artists'][0]['name']
-	audiofile.tag.album = content['album']['name']
-	audiofile.tag.title = content['name']
-	br.retrieve(content['album']['images'][0]['url'], 'last_albumart.jpg')
-	bla = open("last_albumart.jpg", "rb").read()
-	audiofile.tag.images.set(3,bla,"image/jpeg")
-	audiofile.tag.save()
+        audiofile = eyed3.load("Music/" + title + '.mp3')
+        audiofile.tag.artist = content['artists'][0]['name']
+        audiofile.tag.album = content['album']['name']
+        audiofile.tag.title = content['name']
+        albumart = (requests.get(content['album']['images'][0]['url'], stream=True)).raw
+        with open('last_albumart.jpg', 'wb') as out_file:
+                shutil.copyfileobj(albumart, out_file)
+        albumart = open("last_albumart.jpg", "rb").read()
+        audiofile.tag.images.set(3,albumart,"image/jpeg")
+        audiofile.tag.save()
 
 def playSong():
 	if not title == '':
@@ -179,11 +171,9 @@ while True:
 			playSong()
 
 		elif raw_song == 'lyrics':
-			loadMechanize()
 			getLyrics()
 
 		elif raw_song == 'list':
-			loadMechanize()
 			f = open('list.txt', 'r').read()
 			lines = f.splitlines()
 			for raw_song in lines:
@@ -214,10 +204,8 @@ while True:
 					with open('list.txt', 'a') as myfile:
 						myfile.write(raw_song)
 					print('Could not complete a Song download, will try later..')
-
 		else:
 			try:
-				loadMechanize()
 				trackPredict()
 				searchYT(None)
 				if not checkExists(False):
@@ -228,7 +216,5 @@ while True:
 						fixSong()
 			except KeyboardInterrupt:
 				graceQuit()
-		br.close()
-
 	except KeyboardInterrupt:
 		graceQuit()
