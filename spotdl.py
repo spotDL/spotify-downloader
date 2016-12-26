@@ -1,13 +1,13 @@
 #!/bin/python
 
 from bs4 import BeautifulSoup
-from sys import path
-import requests
-import shutil
-import pafy
-import os
 import spotipy
 import eyed3
+import requests
+import pafy
+import shutil
+import os
+import sys
 #import spotipy.util as util
 
 #print(sys.path[0])
