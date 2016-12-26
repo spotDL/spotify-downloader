@@ -18,8 +18,6 @@ open('list.txt', 'a').close()
 
 spotify = spotipy.Spotify()
 
-print('')
-
 def searchYT(number):
 	items = (requests.request(method='GET', url=URL)).text
 	zoom1 = items.find('yt-uix-tile-link')
