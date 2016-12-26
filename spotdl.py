@@ -10,11 +10,11 @@ import eyed3
 #import spotipy.util as util
 
 #print(sys.path[0])
-os.chdir(sys.path[0] + '/')
+os.chdir(sys.path[0])
 
 if not os.path.exists("Music"):
 	os.makedirs("Music")
-open('Music/list.txt', 'a').close()
+open('list.txt', 'a').close()
 
 spotify = spotipy.Spotify()
 
@@ -104,8 +104,8 @@ def fixSong():
 	audiofile.tag.artist = content['artists'][0]['name']
 	audiofile.tag.album = content['album']['name']
 	audiofile.tag.title = content['name']
-	br.retrieve(content['album']['images'][0]['url'], 'Music/last_albumart.jpg')
-	bla = open("Music/last_albumart.jpg","rb").read()
+	br.retrieve(content['album']['images'][0]['url'], 'last_albumart.jpg')
+	bla = open("last_albumart.jpg", "rb").read()
 	audiofile.tag.images.set(3,bla,"image/jpeg")
 	audiofile.tag.save()
 
@@ -116,7 +116,6 @@ def playSong():
 		else:
 			print('Playing ' + title + '.mp3')
 			os.system('start ' + 'Music/' + title + '.mp3')
-
 
 def convertSong():
 	print('Converting ' + title + '.m4a to mp3..')
@@ -137,9 +136,9 @@ def isSpotify():
 		return False
 
 def trimSong():
-	with open('Music/list.txt', 'r') as fin:
+	with open('list.txt', 'r') as fin:
 		data = fin.read().splitlines(True)
-	with open('Music/list.txt', 'w') as fout:
+	with open('list.txt', 'w') as fout:
 		fout.writelines(data[1:])
 
 def trackPredict():
@@ -185,7 +184,7 @@ while True:
 
 		elif raw_song == 'list':
 			loadMechanize()
-			f = open('Music/list.txt', 'r').read()
+			f = open('list.txt', 'r').read()
 			lines = f.splitlines()
 			for raw_song in lines:
 				if not len(raw_song) == 0:
@@ -212,7 +211,7 @@ while True:
 				except:
 					lines.append(raw_song)
 					trimSong()
-					with open('Music/list.txt', 'a') as myfile:
+					with open('list.txt', 'a') as myfile:
 						myfile.write(raw_song)
 					print('Could not complete a Song download, will try later..')
 
