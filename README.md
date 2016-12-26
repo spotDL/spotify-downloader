@@ -1,5 +1,7 @@
 # Spotify-Downloader
 
+<b>TO DO:</b> Replace pafy by https://www.youtubeinmp3.com/api/
+
 ◘ This little python script allows downloading songs from Spotify just by entering the song's HTTP link or its URI in an MP3 format.
 
 ◘ You can also download a song by entering its artist and song name.
