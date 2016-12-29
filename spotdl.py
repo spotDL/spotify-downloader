@@ -181,11 +181,11 @@ while True:
 						searchYT(y)
 						if not checkExists(True):
 							downloadSong()
-							trimSong()
 							print('')
 							convertSong()
 							if isSpotify():
 								fixSong()
+							trimSong()
 					else:
 						trimSong()
 				except KeyboardInterrupt:
