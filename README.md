@@ -12,7 +12,7 @@ That's how your Music library will look like!
 <img src="http://i.imgur.com/5vhk3HY.png" width="290">
 <img src="http://i.imgur.com/RDTCCST.png" width="290">
 
-◘ If you are an old user and can't see the meta tags with Windows Media Player and other old players; manipulate and run the below snippet accordingly:
+◘ If you cloned this repository before 266586a2778f2cc2828079ed45699fe434ac5f14 and can't see the meta tags with Windows Media Player and other old players; manipulate and run the below snippet accordingly:
 
 ```
 import eyed3
