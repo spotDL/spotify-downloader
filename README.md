@@ -6,6 +6,17 @@
 
 ◘ Downloading a song using spotify link will automatically fix its meta-tags and add a nice a albumart to the song.
 
+◘ If you are an old user and want to see the meta tags with Windows Media Player and other old players; manipulate the below snippet accordingly:
+
+```
+import eyed3
+import os
+for x in os.listdir('/home/pi/Spotify-Downloader/Music/'):
+  if x.endswith('.mp3'):
+    audiofile = eyed3.load('/home/pi/Spotify-Downloader/Music/' + x)
+    audiofile.tag.save(version=(2,3,0))
+```
+
 That's how your Music library will look like!
 
 <img src="http://i.imgur.com/Gpch7JI.png" width="290">
