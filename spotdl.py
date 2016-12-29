@@ -91,7 +91,7 @@ def fixSong():
                 shutil.copyfileobj(albumart, out_file)
         albumart = open("last_albumart.jpg", "rb").read()
         audiofile.tag.images.set(3,albumart,"image/jpeg")
-        audiofile.tag.save()
+        audiofile.tag.save(version=(2,3,0))
 
 def playSong():
 	if not title == '':
