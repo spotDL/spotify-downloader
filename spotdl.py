@@ -24,8 +24,10 @@ def searchYT(number):
 	zoom2 = items.find('yt-uix-tile-link', zoom1+1)
 	zoom3 = items.find('yt-uix-tile-link', zoom2+1)
 	part = items[zoom1-100: zoom2]
-	items_parse = BeautifulSoup(part, "html.parser")
-	first_result = items_parse.find(attrs={'class':'yt-uix-tile-link'})['href']
+	items_parse = BeautifulSoup(items, "html.parser")
+	first_result = items_parse.find_all(attrs={'class':'yt-uix-tile-link'})[0]['href']
+	if not first_result.find('channel') == -1:
+		first_result = items_parse.find_all(attrs={'class':'yt-uix-tile-link'})[1]['href']
 	full_link = "youtube.com" + first_result
 	#print(full_link)
 	global video
@@ -178,8 +180,8 @@ while True:
 						trackPredict()
 						print('')
 						y = y + 1
-						searchYT(y)
-						if not checkExists(True):
+						searchYT(number=y)
+						if not checkExists(islist=True):
 							downloadSong()
 							print('')
 							convertSong()
@@ -199,8 +201,8 @@ while True:
 		else:
 			try:
 				trackPredict()
-				searchYT(None)
-				if not checkExists(False):
+				searchYT(number=None)
+				if not checkExists(islist=False):
 					downloadSong()
 					print('')
 					convertSong()
