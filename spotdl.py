@@ -20,14 +20,13 @@ spotify = spotipy.Spotify()
 
 def searchYT(number):
 	items = (requests.request(method='GET', url=URL)).text
-	zoom1 = items.find('yt-uix-tile-link')
-	zoom2 = items.find('yt-uix-tile-link', zoom1+1)
-	zoom3 = items.find('yt-uix-tile-link', zoom2+1)
-	part = items[zoom1-100: zoom2]
 	items_parse = BeautifulSoup(items, "html.parser")
 	first_result = items_parse.find_all(attrs={'class':'yt-uix-tile-link'})[0]['href']
-	if not first_result.find('channel') == -1:
-		first_result = items_parse.find_all(attrs={'class':'yt-uix-tile-link'})[1]['href']
+	check = 1
+	while not first_result.find('channel') == -1:
+		first_result = items_parse.find_all(attrs={'class':'yt-uix-tile-link'})[check]['href']
+		check += 1
+	del check
 	full_link = "youtube.com" + first_result
 	#print(full_link)
 	global video
