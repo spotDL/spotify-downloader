@@ -23,7 +23,7 @@ def searchYT(number):
 	items_parse = BeautifulSoup(items, "html.parser")
 	first_result = items_parse.find_all(attrs={'class':'yt-uix-tile-link'})[0]['href']
 	check = 1
-	while not first_result.find('channel') == -1:
+	while not first_result.find('channel') == -1 or first_result.find('googleads') == -1:
 		first_result = items_parse.find_all(attrs={'class':'yt-uix-tile-link'})[check]['href']
 		check += 1
 	del check
