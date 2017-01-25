@@ -1,6 +1,6 @@
 # Spotify-Downloader
 
-◘ This little python script allows downloading songs from Spotify by looking them on YouTube just by entering the song's HTTP link or its URI in an MP3 format.
+◘ This little python script allows downloading songs from Spotify by looking for them on YouTube just by entering the song's HTTP link or its URI in an MP3 format.
 
 ◘ You can also download a song by entering its artist and song name.
 
