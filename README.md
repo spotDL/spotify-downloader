@@ -32,7 +32,7 @@ Feel free to report issues and fork this repository!
 cd
 git clone https://github.com/Ritiek/Spotify-Downloader
 cd Spotify-Downloader
-sudo pip install -r requirements.txt
+sudo pip install -U -r requirements.txt
 ```
 You'll also need to install avconv:
 
