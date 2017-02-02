@@ -8,6 +8,7 @@ import pafy
 import shutil
 import os
 import sys
+import argparse
 #import spotipy.util as util
 
 os.chdir(sys.path[0])
@@ -17,6 +18,13 @@ if not os.path.exists("Music"):
 open('list.txt', 'a').close()
 
 spotify = spotipy.Spotify()
+
+parser = argparse.ArgumentParser()
+parser.add_argument("-n", "--no-convert", help="skip the conversion process and meta-tags",
+                        action="store_true")
+args = parser.parse_args()
+if args.no_convert:
+        print("-n, --no-convert  skip the conversion process and meta-tags")
 
 def searchYT(number):
 	items = (requests.request(method='GET', url=URL)).text
@@ -43,27 +51,33 @@ def searchYT(number):
 def checkExists(islist):
 	if os.path.exists("Music/" + title + ".m4a.temp"):
 		os.remove("Music/" + title + ".m4a.temp")
-	if os.path.exists("Music/" + title + ".mp3"):
-		audiofile = eyed3.load("Music/" + title + '.mp3')
-		if isSpotify() and not audiofile.tag.title == content['name']:
-			os.remove("Music/" + title + '.mp3')
+	if args.no_convert:
+		extension = '.m4a'
+	else:
+		extension = '.mp3'
+	if os.path.exists("Music/" + title + extension):
+		if extension == '.mp3':
+			audiofile = eyed3.load("Music/" + title + extension)
+			if isSpotify() and not audiofile.tag.title == content['name']:
+				os.remove("Music/" + title + extension)
+				return False
 		elif islist:
 			trimSong()
 			return True
 		else:
 			prompt = raw_input('Song with same name has already been downloaded. Re-download? (y/n/play): ')
 			if prompt == "y":
-				os.remove("Music/" + title + ".mp3")
+				os.remove("Music/" + title + extension)
+				return False
 			elif prompt =="play":
 				if not os.name == 'nt':
-					os.system('mplayer "' + 'Music/' + title + '.mp3"')
+					os.system('mplayer "' + 'Music/' + title + extension)
 				else:
-					print('Playing ' + title + '.mp3')
-					os.system('start ' + 'Music/' + title + '.mp3')
+					print('Playing ' + title + extension)
+					os.system('start ' + 'Music/' + title + extension)
 				return True
 			else:
 				return True
-	return False
 
 def getLyrics():
 	if not title == '':
@@ -152,7 +166,7 @@ while True:
 	y = 0
 	try:
 		for m in os.listdir('Music/'):
-			if m.endswith('.temp') or m.endswith('.m4a'):
+			if m.endswith('.m4a.temp'):
 				os.remove('Music/' + m)
 		print('')
 		print('')
@@ -183,9 +197,10 @@ while True:
 						if not checkExists(islist=True):
 							downloadSong()
 							print('')
-							convertSong()
-							if isSpotify():
-								fixSong()
+							if not args.no_convert:
+								convertSong()
+								if isSpotify():
+									fixSong()
 							trimSong()
 					else:
 						trimSong()
@@ -204,9 +219,10 @@ while True:
 				if not checkExists(islist=False):
 					downloadSong()
 					print('')
-					convertSong()
-					if isSpotify():
-						fixSong()
+					if not args.no_convert:
+						convertSong()
+						if isSpotify():
+							fixSong()
 			except KeyboardInterrupt:
 				graceQuit()
 	except KeyboardInterrupt:
