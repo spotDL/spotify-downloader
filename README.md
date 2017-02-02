@@ -50,7 +50,7 @@ Assuming you have python (2.7.12 or higher, python 3 is not supported currently)
 
 Shift+right-click on empty area and open cmd and type:
 
-`"Scripts/pip.exe" install -r requirements.txt`
+`"Scripts/pip.exe" install -U -r requirements.txt`
 
 Now to run the script type:
 
