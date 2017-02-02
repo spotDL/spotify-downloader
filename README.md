@@ -62,6 +62,11 @@ Now to run the script type:
 
 First launch the script using the above command as mentioned for your OS.
 
+If you want to skip the conversion process and meta-tags, run the script by passing `-n` or `--no-convert` option:
+`sudo python spotdl.py -n` or `python.exe spotdl.py -n` depending on your OS.
+
+Use `-h` option to see full list of supported options.
+
 #### Downloading by Name:
 
 For example:
@@ -129,7 +134,7 @@ the nights avicci
 ```
 • play - will play the last song downloaded using mplayer
 • list - downloads songs from list.txt
-• lyrics - will print out the lyrics for last downloaded song.
+• lyrics - will print out the lyrics for last downloaded song
 • exit - exit the script
 ```
 
