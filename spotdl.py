@@ -51,17 +51,20 @@ def searchYT(number):
 def checkExists(islist):
 	if os.path.exists("Music/" + title + ".m4a.temp"):
 		os.remove("Music/" + title + ".m4a.temp")
+	global extension
 	if args.no_convert:
 		extension = '.m4a'
 	else:
+		if os.path.exists("Music/" + title + ".m4a"):
+			os.remove("Music/" + title + ".m4a")
 		extension = '.mp3'
-	if os.path.exists("Music/" + title + extension):
+	if os.path.isfile("Music/" + title + extension):
 		if extension == '.mp3':
 			audiofile = eyed3.load("Music/" + title + extension)
 			if isSpotify() and not audiofile.tag.title == content['name']:
 				os.remove("Music/" + title + extension)
 				return False
-		elif islist:
+		if islist:
 			trimSong()
 			return True
 		else:
@@ -71,7 +74,7 @@ def checkExists(islist):
 				return False
 			elif prompt =="play":
 				if not os.name == 'nt':
-					os.system('mplayer "' + 'Music/' + title + extension)
+					os.system('mplayer "' + 'Music/' + title + extension + '"')
 				else:
 					print('Playing ' + title + extension)
 					os.system('start ' + 'Music/' + title + extension)
@@ -111,10 +114,10 @@ def fixSong():
 def playSong():
 	if not title == '':
 		if not os.name == 'nt':
-			os.system('mplayer "' + 'Music/' + title + '.mp3"')
+			os.system('mplayer "' + 'Music/' + title + extension + '"')
 		else:
 			print('Playing ' + title + '.mp3')
-			os.system('start ' + 'Music/' + title + '.mp3')
+			os.system('start ' + 'Music/' + title + extension)
 
 def convertSong():
 	print('Converting ' + title + '.m4a to mp3')
