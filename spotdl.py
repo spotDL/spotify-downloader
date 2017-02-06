@@ -99,17 +99,17 @@ def getLyrics():
 		print('No log to read from..')
 
 def fixSong():
-	print 'Fixing meta-tags'
-        audiofile = eyed3.load("Music/" + title + '.mp3')
-        audiofile.tag.artist = content['artists'][0]['name']
-        audiofile.tag.album = content['album']['name']
-        audiofile.tag.title = content['name']
-        albumart = (requests.get(content['album']['images'][0]['url'], stream=True)).raw
-        with open('last_albumart.jpg', 'wb') as out_file:
-                shutil.copyfileobj(albumart, out_file)
-        albumart = open("last_albumart.jpg", "rb").read()
-        audiofile.tag.images.set(3,albumart,"image/jpeg")
-        audiofile.tag.save(version=(2,3,0))
+	print ('Fixing meta-tags')
+	audiofile = eyed3.load("Music/" + title + '.mp3')
+	audiofile.tag.artist = content['artists'][0]['name']
+	audiofile.tag.album = content['album']['name']
+	audiofile.tag.title = content['name']
+	albumart = (requests.get(content['album']['images'][0]['url'], stream=True)).raw
+	with open('last_albumart.jpg', 'wb') as out_file:
+		shutil.copyfileobj(albumart, out_file)
+	albumart = open("last_albumart.jpg", "rb").read()
+	audiofile.tag.images.set(3,albumart,"image/jpeg")
+	audiofile.tag.save(version=(2,3,0))
 
 def playSong():
 	if not title == '':
