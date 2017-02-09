@@ -20,23 +20,51 @@ open('list.txt', 'a').close()
 spotify = spotipy.Spotify()
 
 parser = argparse.ArgumentParser()
-parser.add_argument("-n", "--no-convert", help="skip the conversion process and meta-tags",
-                        action="store_true")
+parser.add_argument("-n", "--no-convert", help="skip the conversion process and meta-tags", action="store_true")
+parser.add_argument("-m", "--manual", help="choose the song to download manually", action="store_true")
 args = parser.parse_args()
+
 if args.no_convert:
-        print("-n, --no-convert  skip the conversion process and meta-tags")
+        print("-n, --no-convert skip the conversion process and meta-tags")
+if args.manual:
+	print("-m, --manual     choose the song to download manually")
 
 def searchYT(number):
 	items = (requests.request(method='GET', url=URL)).text
 	items_parse = BeautifulSoup(items, "html.parser")
-	first_result = items_parse.find_all(attrs={'class':'yt-uix-tile-link'})[0]['href']
 	check = 1
-	while not first_result.find('channel') == -1 or not first_result.find('googleads') == -1:
-		first_result = items_parse.find_all(attrs={'class':'yt-uix-tile-link'})[check]['href']
-		check += 1
+	if args.manual:
+		links = []
+		if isSpotify():
+			print((content['artists'][0]['name'] + ' - ' + content['name']).encode('utf-8'))
+		print('')
+		for x in items_parse.find_all('h3', {'class':'yt-lockup-title'}):
+			if not x.find('channel') == -1 or not x.find('googleads') == -1:
+				print(str(check) + '. ' + x.get_text())
+				links.append(x.find('a')['href'])
+				check += 1
+		is_error = True
+		print('')
+		while is_error:
+			try:
+				the_chosen_one = int(raw_input('>> Choose your number: '))
+				if the_chosen_one >= 1 and the_chosen_one <= len(links):
+					is_error = False
+				else:
+					print('Choose a valid number!')
+			except KeyboardInterrupt:
+				graceQuit()
+			except:
+				print('Choose a valid number!')
+		print('')
+		first_result = links[the_chosen_one-1]
+	else:
+		first_result = items_parse.find_all(attrs={'class':'yt-uix-tile-link'})[0]['href']
+		while not first_result.find('channel') == -1 or not first_result.find('googleads') == -1:
+			first_result = items_parse.find_all(attrs={'class':'yt-uix-tile-link'})[check]['href']
+			check += 1
 	del check
 	full_link = "youtube.com" + first_result
-	#print(full_link)
 	global video
 	video = pafy.new(full_link)
 	global raw_title
@@ -99,7 +127,7 @@ def getLyrics():
 		print('No log to read from..')
 
 def fixSong():
-	print ('Fixing meta-tags')
+	print('Fixing meta-tags')
 	audiofile = eyed3.load("Music/" + title + '.mp3')
 	audiofile.tag.artist = content['artists'][0]['name']
 	audiofile.tag.album = content['album']['name']
