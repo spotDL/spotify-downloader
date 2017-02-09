@@ -62,11 +62,7 @@ Now to run the script type:
 
 - First launch the script using the above command as mentioned for your OS.
 
-- If you want to skip the conversion process and meta-tags, run the script by passing `-n` or `--no-convert` option:
-`sudo python spotdl.py -n` or `python.exe spotdl.py -n` depending on your OS.
-[NOTE: This option will also skip meta-tags as .m4a cannot hold meta-tags]
-
-- Use `-h` option to see full list of supported options.
+- For available options, pass `-h` option to see full list of supported options.
 
 #### Downloading by Name:
 
