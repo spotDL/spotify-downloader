@@ -100,7 +100,7 @@ def checkExists(islist):
 			if prompt == "y":
 				os.remove("Music/" + title + extension)
 				return False
-			elif prompt =="play":
+			elif prompt == "play":
 				if not os.name == 'nt':
 					os.system('mplayer "' + 'Music/' + title + extension + '"')
 				else:
