@@ -60,9 +60,9 @@ Now to run the script type:
 
 ## Instructions for Downloading Songs:
 
-- First launch the script using the above command as mentioned for your OS.
+- Launch the script using the above command as mentioned for your OS.
 
-- For available options, pass `-h` option to see full list of supported options.
+- For available options, run `sudo python spotdl.py --help`.
 
 #### Downloading by Name:
 
