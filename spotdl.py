@@ -40,7 +40,7 @@ def searchYT(number):
 		print('')
 		for x in items_parse.find_all('h3', {'class':'yt-lockup-title'}):
 			if not x.find('channel') == -1 or not x.find('googleads') == -1:
-				print(str(check) + '. ' + x.get_text())
+				print((str(check) + '. ' + x.get_text()).encode('utf-8'))
 				links.append(x.find('a')['href'])
 				check += 1
 		is_error = True
