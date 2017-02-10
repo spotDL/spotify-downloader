@@ -93,7 +93,6 @@ def checkExists(islist):
 				os.remove("Music/" + title + extension)
 				return False
 		if islist:
-			trimSong()
 			return True
 		else:
 			prompt = raw_input('Song with same name has already been downloaded. Re-download? (y/n/play): ')
@@ -232,9 +231,7 @@ while True:
 								convertSong()
 								if isSpotify():
 									fixSong()
-							trimSong()
-					else:
-						trimSong()
+					trimSong()
 				except KeyboardInterrupt:
 					graceQuit()
 				except:
