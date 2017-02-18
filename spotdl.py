@@ -43,13 +43,12 @@ def searchYT(number):
 				print((str(check) + '. ' + x.get_text()).encode('utf-8'))
 				links.append(x.find('a')['href'])
 				check += 1
-		is_error = True
 		print('')
-		while is_error:
+		while True:
 			try:
 				the_chosen_one = int(raw_input('>> Choose your number: '))
 				if the_chosen_one >= 1 and the_chosen_one <= len(links):
-					is_error = False
+					break
 				else:
 					print('Choose a valid number!')
 			except KeyboardInterrupt:
