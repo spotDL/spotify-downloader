@@ -6,6 +6,7 @@
 
 - Downloading a song using a Spotify link will automatically fix meta-tags and add a nice albumart to the song.
 
+
 That's how your Music library will look like!
 
 <img src="http://i.imgur.com/Gpch7JI.png" width="290">
