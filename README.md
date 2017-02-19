@@ -1,10 +1,10 @@
 # Spotify-Downloader
 
-- This little python script allows downloading songs from Spotify by looking for them on YouTube just by entering the song's HTTP link or its URI in an MP3 format.
+- Download songs by using Spotify's HTTP link from YouTube in an MP3 format.
 
-- You can also download a song by entering its artist and song name.
+- You can also download a song by entering its artist and song name (in case if you don't have the Spotify's HTTP link for some song).
 
-- Downloading a song using spotify link will automatically fix its meta-tags and add a nice a albumart to the song.
+- Downloading a song using a Spotify link will automatically fix meta-tags and add a nice albumart to the song.
 
 That's how your Music library will look like!
 
@@ -12,22 +12,15 @@ That's how your Music library will look like!
 <img src="http://i.imgur.com/5vhk3HY.png" width="290">
 <img src="http://i.imgur.com/RDTCCST.png" width="290">
 
-- If you cloned this repository before [266586a](https://github.com/Ritiek/Spotify-Downloader/commit/266586a2778f2cc2828079ed45699fe434ac5f14) and can't see the meta tags with Windows Media Player and other old players; manipulate and run the below snippet accordingly:
+#### Have an Issue?
 
-```
-import eyed3
-import os
-for x in os.listdir('/home/pi/Spotify-Downloader/Music/'):
-  if x.endswith('.mp3'):
-    audiofile = eyed3.load('/home/pi/Spotify-Downloader/Music/' + x)
-    audiofile.tag.save(version=(2,3,0))
-```
+- Search for your problem in the [Issues section](https://github.com/Ritiek/Spotify-Downloader/issues) before opening a new ticket. It might be already answered and save you and me some time :D
 
-Feel free to report issues and fork this repository!
+- Provide as much information possible when opening your ticket.
 
 ## Installation & Usage:
 
-#### Debian, Ubuntu, Linux & Mac:
+### Debian, Ubuntu, Linux & Mac:
 ```
 cd
 git clone https://github.com/Ritiek/Spotify-Downloader
@@ -40,7 +33,7 @@ You'll also need to install avconv:
 
 Use `sudo python spotdl.py` to launch the script.
 
-#### Windows:
+### Windows:
 
 Assuming you have python (2.7.12 or higher, python 3 is not supported currently) already installed..
 
