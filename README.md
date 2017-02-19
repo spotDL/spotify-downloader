@@ -1,11 +1,12 @@
 # Spotify-Downloader
 
-- Download songs by using Spotify's HTTP link from YouTube in an MP3 format.
+- Download songs from YouTube in an MP3 format by using Spotify's HTTP link.
 
-- You can also download a song by entering its artist and song name (in case if you don't have the Spotify's HTTP link for some song).
+- Can also download a song by entering its artist and song name (in case if you don't have the Spotify's HTTP link for some song).
 
 - Downloading a song using a Spotify link will automatically fix meta-tags and add a nice albumart to the song.
 
+<br>
 
 That's how your Music library will look like!
 
