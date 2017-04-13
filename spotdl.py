@@ -36,17 +36,17 @@ def searchYT(number):
 	if args.manual:
 		links = []
 		if isSpotify():
-			print((content['artists'][0]['name'] + ' - ' + content['name']).encode('utf-8'))
+			print(content['artists'][0]['name'] + ' - ' + content['name'])
 		print('')
 		for x in items_parse.find_all('h3', {'class':'yt-lockup-title'}):
 			if not x.find('channel') == -1 or not x.find('googleads') == -1:
-				print((str(check) + '. ' + x.get_text()).encode('utf-8'))
+				print(str(check) + '. ' + x.get_text())
 				links.append(x.find('a')['href'])
 				check += 1
 		print('')
 		while True:
 			try:
-				the_chosen_one = int(raw_input('>> Choose your number: '))
+				the_chosen_one = int(input('>> Choose your number: '))
 				if the_chosen_one >= 1 and the_chosen_one <= len(links):
 					break
 				else:
@@ -67,13 +67,13 @@ def searchYT(number):
 	global video
 	video = pafy.new(full_link)
 	global raw_title
-	raw_title = (video.title).encode("utf-8")
+	raw_title = video.title
 	global title
-	title = ((video.title).replace("\\", "_").replace("/", "_").replace(":", "_").replace("*", "_").replace("?", "_").replace('"', "_").replace("<", "_").replace(">", "_").replace("|", "_").replace(" ", "_")).encode('utf-8')
+	title = ((video.title).replace("\\", "_").replace("/", "_").replace(":", "_").replace("*", "_").replace("?", "_").replace('"', "_").replace("<", "_").replace(">", "_").replace("|", "_").replace(" ", "_"))
 	if not number == None:
-		print(str(number) + '. ' + (video.title).encode("utf-8"))
+		print(str(number) + '. ' + video.title)
 	else:
-		print(video.title).encode("utf-8")
+		print(video.title)
 
 def checkExists(islist):
 	if os.path.exists("Music/" + title + ".m4a.temp"):
@@ -120,7 +120,7 @@ def getLyrics():
 		page = requests.request(method='GET', url=link).text
 		soup = BeautifulSoup(page, 'html.parser')
 		for x in soup.find_all('p', {'class':'mxm-lyrics__content'}):
-			print(x.get_text()).encode('utf-8')
+			print(x.get_text())
 	else:
 		print('No log to read from..')
 
@@ -174,7 +174,7 @@ def trackPredict():
 	if isSpotify():
 		global content
 		content = spotify.track(raw_song)
-		song = (content['artists'][0]['name'] + ' - ' + content['name']).replace(" ", "%20").encode('utf-8')
+		song = (content['artists'][0]['name'] + ' - ' + content['name']).replace(" ", "%20")
 		URL = "https://www.youtube.com/results?sp=EgIQAQ%253D%253D&q=" + song
 	else:
 		song = raw_song.replace(" ", "%20")
@@ -199,7 +199,7 @@ while True:
 				os.remove('Music/' + m)
 		print('')
 		print('')
-		raw_song = raw_input('>> Enter a song/cmd: ').decode('utf-8').encode('utf-8')
+		raw_song = input('>> Enter a song/cmd: ')
 		print('')
 		if raw_song == 'exit':
 			exit()
