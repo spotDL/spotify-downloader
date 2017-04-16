@@ -1,17 +1,18 @@
 #!/usr/bin/env python
 
 from bs4 import BeautifulSoup
+from random import choice
+from shutil import copyfileobj
+from sys import path
 import spotipy
 import eyed3
 import requests
 import pafy
-import shutil
 import os
-import sys
 import argparse
 #import spotipy.util as util
 
-os.chdir(sys.path[0])
+os.chdir(path[0])
 
 if not os.path.exists("Music"):
 	os.makedirs("Music")
@@ -29,8 +30,20 @@ if args.no_convert:
 if args.manual:
 	print("-m, --manual     choose the song to download manually")
 
+headers = (
+	'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.7; rv:11.0) Gecko/20100101 Firefox/11.0',
+	'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:22.0) Gecko/20100 101 Firefox/22.0',
+	'Mozilla/5.0 (Windows NT 6.1; rv:11.0) Gecko/20100101 Firefox/11.0',
+	'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_4) AppleWebKit/536.5 (KHTML, like Gecko)',
+	'Chrome/19.0.1084.46 Safari/536.5',
+	'Mozilla/5.0 (Windows; Windows NT 6.1) AppleWebKit/536.5 (KHTML, like Gecko)',
+	'Chrome/19.0.1084.46',
+	'Safari/536.5',
+	'Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.2.13) Gecko/20101206 Ubuntu/10.10 (maverick) Firefox/3.6.13',
+	)
+
 def searchYT(number):
-	items = (requests.request(method='GET', url=URL)).text
+	items = requests.get(URL, headers=header).text
 	items_parse = BeautifulSoup(items, "html.parser")
 	check = 1
 	if args.manual:
@@ -111,13 +124,15 @@ def checkExists(islist):
 def getLyrics():
 	if not title == '':
 		if song == '':
-			link = 'https://duckduckgo.com/html/?q=' + raw_title.replace(' ', '+') + '+musixmatch'
+			link = 'https://www.google.com/search?q=' + raw_title.replace(' ', '+') + '+musixmatch'
 		else:
-			link = 'https://duckduckgo.com/html/?q=' + (content['artists'][0]['name'] + ' - ' + content['name']).replace(' ', '+') + '+musixmatch'
-		page = requests.request(method='GET', url=link).text
+			link = 'https://www.google.com/search?q=' + (content['artists'][0]['name'] + ' - ' + content['name']).replace(' ', '+') + '+musixmatch'
+		page = requests.get(link, headers=header).text
 		soup = BeautifulSoup(page, 'html.parser')
-		link = soup.find('a', {'class':'result__url'})['href']
-		page = requests.request(method='GET', url=link).text
+		link = soup.find('h3', {'class':'r'})
+		link = link.find('a')['href']
+		link = link.replace('/url?q=', '')
+		page = requests.get(link, headers=header).text
 		soup = BeautifulSoup(page, 'html.parser')
 		for x in soup.find_all('p', {'class':'mxm-lyrics__content'}):
 			print(x.get_text()).encode('utf-8')
@@ -132,7 +147,7 @@ def fixSong():
 	audiofile.tag.title = content['name']
 	albumart = (requests.get(content['album']['images'][0]['url'], stream=True)).raw
 	with open('last_albumart.jpg', 'wb') as out_file:
-		shutil.copyfileobj(albumart, out_file)
+		copyfileobj(albumart, out_file)
 	albumart = open("last_albumart.jpg", "rb").read()
 	audiofile.tag.images.set(3,albumart,"image/jpeg")
 	audiofile.tag.save(version=(2,3,0))
@@ -193,6 +208,8 @@ song = ''
 while True:
 	x = 0
 	y = 0
+	global header
+	header = {'User-agent': choice(headers)}
 	try:
 		for m in os.listdir('Music/'):
 			if m.endswith('.m4a.temp'):
