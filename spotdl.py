@@ -12,6 +12,8 @@ import os
 import argparse
 #import spotipy.util as util
 
+eyed3.log.setLevel("ERROR")
+
 os.chdir(path[0])
 
 if not os.path.exists("Music"):
