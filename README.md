@@ -20,7 +20,7 @@ That's how your Music library will look like!
 
 ## Installation & Usage:
 
-**Python3 users go to the [python3](../tree/python3) branch. This is meant for python2 users only.**
+**Python3 users go to the [python3](../../../tree/python3) branch. This is meant for python2 users only.**
 
 ### Debian, Ubuntu, Linux & Mac:
 
