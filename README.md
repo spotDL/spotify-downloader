@@ -20,7 +20,10 @@ That's how your Music library will look like!
 
 ## Installation & Usage:
 
+**Python3 users goto the [python3](tree/python3) branch. This is meant for python2 users.**
+
 ### Debian, Ubuntu, Linux & Mac:
+
 ```
 cd
 git clone https://github.com/Ritiek/Spotify-Downloader
@@ -35,7 +38,7 @@ Use `sudo python spotdl.py` to launch the script.
 
 ### Windows:
 
-Assuming you have python (2.7.12 or higher, python 3 is not supported currently) already installed..
+Assuming you have python already installed..
 
 - Download Libav-Tools for windows: https://builds.libav.org/windows/release-gpl/libav-x86_64-w64-mingw32-11.7.7z. Copy all the contents of bin folder (of avconv) to Scripts folder (in your python's installation directory)
 
