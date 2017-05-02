@@ -1,9 +1,8 @@
 #!/usr/bin/env python
 
 from bs4 import BeautifulSoup
-from random import choice
 from shutil import copyfileobj
-from sys import path
+from sys import path, version_info
 import spotipy
 import eyed3
 import requests
@@ -11,6 +10,9 @@ import pafy
 import os
 import argparse
 #import spotipy.util as util
+
+if version_info > (3,0):
+	raw_input = input
 
 eyed3.log.setLevel("ERROR")
 
@@ -61,7 +63,7 @@ def isSpotify(raw_song):
 def generateSongName(raw_song):
 	if isSpotify(raw_song):
 		tags = generateMetaTags(raw_song)
-		raw_song = (tags['artists'][0]['name'] + ' - ' + tags['name']).encode('utf-8')
+		raw_song = fixEncoding(tags['artists'][0]['name'] + ' - ' + tags['name'])
 	return raw_song
 
 def generateMetaTags(raw_song):
@@ -71,7 +73,7 @@ def generateMetaTags(raw_song):
 		return spotify.search(raw_song, limit=1)['tracks']['items'][0]
 
 def generateSearchURL(song):
-	URL = "https://www.youtube.com/results?sp=EgIQAQ%253D%253D&q=" + song.replace(" ", "%20").encode('utf-8')
+	URL = "https://www.youtube.com/results?sp=EgIQAQ%253D%253D&q=" + song.replace(" ", "%20")
 	return URL
 
 def generateYouTubeURL(raw_song):
@@ -86,7 +88,7 @@ def generateYouTubeURL(raw_song):
 		print('')
 		for x in items_parse.find_all('h3', {'class':'yt-lockup-title'}):
 			if not x.find('channel') == -1 or not x.find('googleads') == -1:
-				print((str(check) + '. ' + x.get_text()).encode('utf-8'))
+				print(fixEncoding(str(check) + '. ' + x.get_text()))
 				links.append(x.find('a')['href'])
 				check += 1
 		result = getInputLink(links)
@@ -103,14 +105,14 @@ def goPafy(raw_song):
 	return pafy.new(trackURL)
 
 def getYouTubeTitle(content, number):
-	title = (content.title).encode("utf-8")
+	title = fixEncoding(content.title)
 	if number == None:
 		return title
 	else:
 		return str(number) + '. ' + title
 
 def generateFileName(content):
-	return ((content.title).replace("\\", "_").replace("/", "_").replace(":", "_").replace("*", "_").replace("?", "_").replace('"', "_").replace("<", "_").replace(">", "_").replace("|", "_").replace(" ", "_")).encode('utf-8')
+	return fixEncoding((content.title).replace("\\", "_").replace("/", "_").replace(":", "_").replace("*", "_").replace("?", "_").replace('"', "_").replace("<", "_").replace(">", "_").replace("|", "_").replace(" ", "_"))
 
 def downloadSong(content):
 	music_file = generateFileName(content)
@@ -173,7 +175,7 @@ def grabSingle(raw_song, number):
 	else:
 		islist = False
 	content = goPafy(raw_song)
-	print getYouTubeTitle(content, number)
+	print(getYouTubeTitle(content, number))
 	music_file = generateFileName(content)
 	if not checkExists(music_file, raw_song, islist=islist):
 		downloadSong(content)
@@ -202,13 +204,18 @@ def grabList(file):
 			print('')
 		except KeyboardInterrupt:
 			graceQuit()
-		except Exception as e:
-			print e
+		except:
 			lines.append(raw_song)
 			trimSong(file)
 			with open(file, 'a') as myfile:
 				myfile.write(raw_song)
 			print('Failed to download song. Will retry after other songs.')
+
+def fixEncoding(query):
+	if version_info > (3,0):
+		return query
+	else:
+		return query.decode('utf-8').encode('utf-8')
 
 def graceQuit():
 		print('')
@@ -221,6 +228,6 @@ while True:
 		if m.endswith('.m4a.temp'):
 			os.remove('Music/' + m)
 	print('')
-	command = raw_input('>> Enter a song/cmd: ').decode('utf-8').encode('utf-8')
+	command = fixEncoding(raw_input('>> Enter a song/cmd: '))
 	print('')
 	initializeInput(command)
