@@ -228,6 +228,9 @@ while True:
 		if m.endswith('.m4a.temp'):
 			os.remove('Music/' + m)
 	print('')
-	command = fixEncoding(raw_input('>> Enter a song/cmd: '))
-	print('')
-	initializeInput(command)
+	try:
+		command = fixEncoding(raw_input('>> Enter a song/cmd: '))
+		print('')
+		initializeInput(command)
+	except KeyboardInterrupt:
+		graceQuit()
