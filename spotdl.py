@@ -32,244 +32,196 @@ if args.no_convert:
 if args.manual:
 	print("-m, --manual     choose the song to download manually")
 
-headers = (
-	'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.7; rv:11.0) Gecko/20100101 Firefox/11.0',
-	'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:22.0) Gecko/20100 101 Firefox/22.0',
-	'Mozilla/5.0 (Windows NT 6.1; rv:11.0) Gecko/20100101 Firefox/11.0',
-	'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_4) AppleWebKit/536.5 (KHTML, like Gecko)',
-	'Chrome/19.0.1084.46 Safari/536.5',
-	'Mozilla/5.0 (Windows; Windows NT 6.1) AppleWebKit/536.5 (KHTML, like Gecko)',
-	'Chrome/19.0.1084.46',
-	'Safari/536.5',
-	'Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.2.13) Gecko/20101206 Ubuntu/10.10 (maverick) Firefox/3.6.13',
-	)
-
-def searchYT(number):
-	items = requests.get(URL, headers=header).text
-	items_parse = BeautifulSoup(items, "html.parser")
-	check = 1
-	if args.manual:
-		links = []
-		if isSpotify():
-			print((content['artists'][0]['name'] + ' - ' + content['name']).encode('utf-8'))
-		print('')
-		for x in items_parse.find_all('h3', {'class':'yt-lockup-title'}):
-			if not x.find('channel') == -1 or not x.find('googleads') == -1:
-				print((str(check) + '. ' + x.get_text()).encode('utf-8'))
-				links.append(x.find('a')['href'])
-				check += 1
-		print('')
-		while True:
-			try:
-				the_chosen_one = int(raw_input('>> Choose your number: '))
-				if the_chosen_one >= 1 and the_chosen_one <= len(links):
-					break
-				else:
-					print('Choose a valid number!')
-			except KeyboardInterrupt:
-				graceQuit()
-			except:
-				print('Choose a valid number!')
-		print('')
-		first_result = links[the_chosen_one-1]
-	else:
-		first_result = items_parse.find_all(attrs={'class':'yt-uix-tile-link'})[0]['href']
-		while not first_result.find('channel') == -1 or not first_result.find('googleads') == -1:
-			first_result = items_parse.find_all(attrs={'class':'yt-uix-tile-link'})[check]['href']
-			check += 1
-	del check
-	full_link = "youtube.com" + first_result
-	global video
-	video = pafy.new(full_link)
-	global raw_title
-	raw_title = (video.title).encode("utf-8")
-	global title
-	title = ((video.title).replace("\\", "_").replace("/", "_").replace(":", "_").replace("*", "_").replace("?", "_").replace('"', "_").replace("<", "_").replace(">", "_").replace("|", "_").replace(" ", "_")).encode('utf-8')
-	if not number == None:
-		print(str(number) + '. ' + (video.title).encode("utf-8"))
-	else:
-		print(video.title).encode("utf-8")
-
-def checkExists(islist):
-	if os.path.exists("Music/" + title + ".m4a.temp"):
-		os.remove("Music/" + title + ".m4a.temp")
-	global extension
-	if args.no_convert:
-		extension = '.m4a'
-	else:
-		if os.path.exists("Music/" + title + ".m4a"):
-			os.remove("Music/" + title + ".m4a")
-		extension = '.mp3'
-	if os.path.isfile("Music/" + title + extension):
-		if extension == '.mp3':
-			audiofile = eyed3.load("Music/" + title + extension)
-			if isSpotify() and not audiofile.tag.title == content['name']:
-				os.remove("Music/" + title + extension)
-				return False
-		if islist:
-			return True
-		else:
-			prompt = raw_input('Song with same name has already been downloaded. Re-download? (y/n/play): ')
-			if prompt == "y":
-				os.remove("Music/" + title + extension)
-				return False
-			elif prompt == "play":
-				if not os.name == 'nt':
-					os.system('mplayer "' + 'Music/' + title + extension + '"')
-				else:
-					print('Playing ' + title + extension)
-					os.system('start ' + 'Music/' + title + extension)
-				return True
-			else:
-				return True
-
-def getLyrics():
-	if not title == '':
-		if song == '':
-			link = 'https://www.google.com/search?q=' + raw_title.replace(' ', '+') + '+musixmatch'
-		else:
-			link = 'https://www.google.com/search?q=' + (content['artists'][0]['name'] + ' - ' + content['name']).replace(' ', '+') + '+musixmatch'
-		page = requests.get(link, headers=header).text
-		soup = BeautifulSoup(page, 'html.parser')
-		link = soup.find('h3', {'class':'r'})
-		link = link.find('a')['href']
-		link = link.replace('/url?q=', '')
-		page = requests.get(link, headers=header).text
-		soup = BeautifulSoup(page, 'html.parser')
-		for x in soup.find_all('p', {'class':'mxm-lyrics__content'}):
-			print(x.get_text()).encode('utf-8')
-	else:
-		print('No log to read from..')
-
-def fixSong():
-	print('Fixing meta-tags')
-	audiofile = eyed3.load("Music/" + title + '.mp3')
-	audiofile.tag.artist = content['artists'][0]['name']
-	audiofile.tag.album = content['album']['name']
-	audiofile.tag.title = content['name']
-	albumart = (requests.get(content['album']['images'][0]['url'], stream=True)).raw
-	with open('last_albumart.jpg', 'wb') as out_file:
-		copyfileobj(albumart, out_file)
-	albumart = open("last_albumart.jpg", "rb").read()
-	audiofile.tag.images.set(3,albumart,"image/jpeg")
-	audiofile.tag.save(version=(2,3,0))
-
-def playSong():
-	if not title == '':
-		if not os.name == 'nt':
-			os.system('mplayer "' + 'Music/' + title + extension + '"')
-		else:
-			print('Playing ' + title + '.mp3')
-			os.system('start ' + 'Music/' + title + extension)
-
-def convertSong():
-	print('Converting ' + title + '.m4a to mp3')
-	if not os.name == 'nt':
-		os.system('avconv -loglevel 0 -i "' + 'Music/' + title + '.m4a" -ab 192k "' + 'Music/' + title + '.mp3"')
-	else:
-		os.system('Scripts\\avconv.exe -loglevel 0 -i "' + 'Music/' + title + '.m4a" -ab 192k "' + 'Music/' + title + '.mp3"')
-	os.remove('Music/' + title + '.m4a')
-
-def downloadSong():
-	a = video.getbestaudio(preftype="m4a")
-	a.download(filepath="Music/" + title + ".m4a")
-
-def isSpotify():
-	if (len(raw_song) == 22 and raw_song.replace(" ", "%20") == raw_song) or (raw_song.find('spotify') > -1):
-		return True
-	else:
-		return False
-
-def trimSong():
-	with open('list.txt', 'r') as fin:
-		data = fin.read().splitlines(True)
-	with open('list.txt', 'w') as fout:
-		fout.writelines(data[1:])
-
-def trackPredict():
-	global URL
-	if isSpotify():
-		global content
-		content = spotify.track(raw_song)
-		song = (content['artists'][0]['name'] + ' - ' + content['name']).replace(" ", "%20").encode('utf-8')
-		URL = "https://www.youtube.com/results?sp=EgIQAQ%253D%253D&q=" + song
-	else:
-		song = raw_song.replace(" ", "%20")
-		URL = "https://www.youtube.com/results?sp=EgIQAQ%253D%253D&q=" + song
-		song = ''
-
 def graceQuit():
 		print('')
 		print('')
 		print('Exitting..')
 		exit()
 
-title = ''
-song = ''
+def initializeInput(command):
+	if command == 'list':
+		grabList(file='list.txt')
+	elif command == 'exit':
+		graceQuit()
+	else:
+		grabSingle(raw_song=command, number=None)
+
+def getInputLink(links):
+	while True:
+		try:
+			the_chosen_one = int(raw_input('>> Choose your number: '))
+			if the_chosen_one >= 1 and the_chosen_one <= len(links):
+				break
+			else:
+				print('Choose a valid number!')
+		except ValueError:
+			print('Choose a valid number!')
+	return links[the_chosen_one-1]
+
+def isSpotify(raw_song):
+	if (len(raw_song) == 22 and raw_song.replace(" ", "%20") == raw_song) or (raw_song.find('spotify') > -1):
+		return True
+	else:
+		return False
+
+def generateSongName(raw_song):
+	if isSpotify(raw_song):
+		tags = generateMetaTags(raw_song)
+		song = (tags['artists'][0]['name'] + ' - ' + tags['name']).encode('utf-8')
+	return song
+
+def generateMetaTags(raw_song):
+	if isSpotify(raw_song):
+		return spotify.track(raw_song)
+	else:
+		# Search for song on Spotify and generate tags
+		return
+
+def generateSearchURL(song):
+	URL = "https://www.youtube.com/results?sp=EgIQAQ%253D%253D&q=" + song.replace(" ", "%20").encode('utf-8')
+	return URL
+
+def generateYouTubeURL(raw_song):
+	song = generateSongName(raw_song)
+	searchURL = generateSearchURL(song)
+	items = requests.get(searchURL).text
+	items_parse = BeautifulSoup(items, "html.parser")
+	check = 1
+	if args.manual:
+		links = []
+		print(song)
+		print('')
+		for x in items_parse.find_all('h3', {'class':'yt-lockup-title'}):
+			if not x.find('channel') == -1 or not x.find('googleads') == -1:
+				print((str(check) + '. ' + x.get_text()).encode('utf-8'))
+				links.append(x.find('a')['href'])
+				check += 1
+		result = getInputLink(links)
+	else:
+		result = items_parse.find_all(attrs={'class':'yt-uix-tile-link'})[0]['href']
+		while not result.find('channel') == -1 or not result.find('googleads') == -1:
+			result = items_parse.find_all(attrs={'class':'yt-uix-tile-link'})[check]['href']
+			check += 1
+	full_link = "youtube.com" + result
+	return full_link
+
+def goPafy(raw_song):
+	trackURL = generateYouTubeURL(raw_song)
+	return pafy.new(trackURL)
+
+def getYouTubeTitle(content, number):
+	title = (content.title).encode("utf-8")
+	if number == None:
+		return title
+	else:
+		return str(number) + '. ' + title
+
+def downloadSong(content):
+	music_file = generateFileName(content)
+	link = content.getbestaudio(preftype="m4a")
+	link.download(filepath="Music/" + music_file + ".m4a")
+
+def generateFileName(content):
+	return ((content.title).replace("\\", "_").replace("/", "_").replace(":", "_").replace("*", "_").replace("?", "_").replace('"', "_").replace("<", "_").replace(">", "_").replace("|", "_").replace(" ", "_")).encode('utf-8')
+
+def convertToMP3(music_file):
+	if os.name == 'nt':
+		os.system('Scripts\\avconv.exe -loglevel 0 -i "' + 'Music/' + music_file + '.m4a" -ab 192k "' + 'Music/' + music_file + '.mp3"')
+	else:
+		os.system('avconv -loglevel 0 -i "' + 'Music/' + music_file + '.m4a" -ab 192k "' + 'Music/' + music_file + '.mp3"')
+	os.remove('Music/' + music_file + '.m4a')
+
+def checkExists(music_file, raw_song, islist):
+	if os.path.exists("Music/" + music_file + ".m4a.temp"):
+		os.remove("Music/" + music_file + ".m4a.temp")
+	if args.no_convert:
+		extension = '.m4a'
+	else:
+		if os.path.exists("Music/" + music_file + ".m4a"):
+			os.remove("Music/" + music_file + ".m4a")
+		extension = '.mp3'
+	if os.path.isfile("Music/" + music_file + extension):
+		if extension == '.mp3':
+			audiofile = eyed3.load("Music/" + music_file + extension)
+			if isSpotify(raw_song) and not audiofile.tag.music_file == (generateMetaTags(raw_song))['name']:
+				os.remove("Music/" + music_file + extension)
+				return False
+		if islist:
+			return True
+		else:
+			prompt = raw_input('Song with same name has already been downloaded. Re-download? (y/n): ').lower()
+			if prompt == "y":
+				os.remove("Music/" + music_file + extension)
+				return False
+			else:
+				return True
+
+def trimSong(file):
+	with open(file, 'r') as fin:
+		data = fin.read().splitlines(True)
+	with open(file, 'w') as fout:
+		fout.writelines(data[1:])
+
+def fixSong(music_file, meta_tags):
+	audiofile = eyed3.load("Music/" + music_file + '.mp3')
+	audiofile.tag.artist = meta_tags['artists'][0]['name']
+	audiofile.tag.album = meta_tags['album']['name']
+	audiofile.tag.title = meta_tags['name']
+	albumart = (requests.get(meta_tags['album']['images'][0]['url'], stream=True)).raw
+	with open('last_albumart.jpg', 'wb') as out_file:
+		copyfileobj(albumart, out_file)
+	albumart = open("last_albumart.jpg", "rb").read()
+	audiofile.tag.images.set(3,albumart,"image/jpeg")
+	audiofile.tag.save(version=(2,3,0))
+
+def grabList(file):
+	lines = open(file, 'r').read()
+	lines = lines.splitlines()
+	try:
+		lines.remove('')
+	except ValueError:
+		pass
+	print('Total songs in list = ' + str(len(lines)) + ' songs')
+	number = 1
+	for raw_song in lines:
+		try:
+			grabSingle(raw_song, number=number)
+			trimSong(file)
+			number += 1
+			print('')
+		except KeyboardInterrupt:
+			graceQuit()
+		except Exception as e:
+			print e
+			lines.append(raw_song)
+			trimSong(file)
+			with open(file, 'a') as myfile:
+				myfile.write(raw_song)
+			print('Failed to download song. Will retry after other songs.')
+
+def grabSingle(raw_song, number):
+	if number:
+		islist = True
+	else:
+		islist = False
+	content = goPafy(raw_song)
+	print getYouTubeTitle(content, number)
+	music_file = generateFileName(content)
+	if not checkExists(music_file, raw_song, islist=islist):
+		downloadSong(content)
+		print('')
+		if not args.no_convert:
+			print('Converting ' + music_file + '.m4a to mp3')
+			convertToMP3(music_file)
+			print('Fixing meta-tags')
+			meta_tags = generateMetaTags(raw_song)
+			fixSong(music_file, meta_tags)
 
 while True:
-	x = 0
-	y = 0
-	global header
-	header = {'User-agent': choice(headers)}
-	try:
-		for m in os.listdir('Music/'):
-			if m.endswith('.m4a.temp'):
-				os.remove('Music/' + m)
-		print('')
-		print('')
-		raw_song = raw_input('>> Enter a song/cmd: ').decode('utf-8').encode('utf-8')
-		print('')
-		if raw_song == 'exit':
-			exit()
-		elif raw_song == 'play':
-			playSong()
-
-		elif raw_song == 'lyrics':
-			getLyrics()
-
-		elif raw_song == 'list':
-			f = open('list.txt', 'r').read()
-			lines = f.splitlines()
-			for raw_song in lines:
-				if not len(raw_song) == 0:
-					x = x + 1
-			print('Total songs in list = ' + str(x) + ' songs')
-			for raw_song in lines:
-				try:
-					if not len(raw_song) == 0:
-						trackPredict()
-						print('')
-						y = y + 1
-						searchYT(number=y)
-						if not checkExists(islist=True):
-							downloadSong()
-							print('')
-							if not args.no_convert:
-								convertSong()
-								if isSpotify():
-									fixSong()
-					trimSong()
-				except KeyboardInterrupt:
-					graceQuit()
-				except:
-					lines.append(raw_song)
-					trimSong()
-					with open('list.txt', 'a') as myfile:
-						myfile.write(raw_song)
-					print('Failed to download song. Will retry after other songs.')
-		else:
-			try:
-				trackPredict()
-				searchYT(number=None)
-				if not checkExists(islist=False):
-					downloadSong()
-					print('')
-					if not args.no_convert:
-						convertSong()
-						if isSpotify():
-							fixSong()
-			except KeyboardInterrupt:
-				graceQuit()
-	except KeyboardInterrupt:
-		graceQuit()
+	for m in os.listdir('Music/'):
+		if m.endswith('.m4a.temp'):
+			os.remove('Music/' + m)
+	print('')
+	command = raw_input('>> Enter a song/cmd: ').decode('utf-8').encode('utf-8')
+	print('')
+	initializeInput(command)
