@@ -26,7 +26,7 @@ open('list.txt', 'a').close()
 
 spotify = spotipy.Spotify()
 
-# Set up agruments
+# Set up arguments
 parser = argparse.ArgumentParser()
 parser.add_argument("-n", "--no-convert", help="skip the conversion process and meta-tags", action="store_true")
 parser.add_argument("-m", "--manual", help="choose the song to download manually", action="store_true")
@@ -204,6 +204,7 @@ def grabList(file):
 	except ValueError:
 		pass
 	print('Total songs in list = ' + str(len(lines)) + ' songs')
+	# Count the number of song being downloaded
 	number = 1
 	for raw_song in lines:
 		try:
