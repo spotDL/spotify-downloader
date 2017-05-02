@@ -10,7 +10,7 @@ import requests
 import pafy
 import os
 import argparse
-import spotipy.util as util
+#import spotipy.util as util
 
 eyed3.log.setLevel("ERROR")
 
@@ -68,8 +68,7 @@ def generateMetaTags(raw_song):
 	if isSpotify(raw_song):
 		return spotify.track(raw_song)
 	else:
-		print spotify.search(raw_song, limit=1)
-		return spotify.search(raw_song, limit=1)
+		return spotify.search(raw_song, limit=1)['tracks']['items'][0]
 
 def generateSearchURL(song):
 	URL = "https://www.youtube.com/results?sp=EgIQAQ%253D%253D&q=" + song.replace(" ", "%20").encode('utf-8')
@@ -158,6 +157,7 @@ def trimSong(file):
 
 def fixSong(music_file, meta_tags):
 	audiofile = eyed3.load("Music/" + music_file + '.mp3')
+	audiofile.tag.track_number = meta_tags[]
 	audiofile.tag.artist = meta_tags['artists'][0]['name']
 	audiofile.tag.album = meta_tags['album']['name']
 	audiofile.tag.title = meta_tags['name']
