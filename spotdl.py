@@ -157,7 +157,6 @@ def trimSong(file):
 
 def fixSong(music_file, meta_tags):
 	audiofile = eyed3.load("Music/" + music_file + '.mp3')
-	audiofile.tag.track_number = meta_tags[]
 	audiofile.tag.artist = meta_tags['artists'][0]['name']
 	audiofile.tag.album = meta_tags['album']['name']
 	audiofile.tag.title = meta_tags['name']
