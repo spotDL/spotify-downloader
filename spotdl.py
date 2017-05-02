@@ -10,7 +10,7 @@ import requests
 import pafy
 import os
 import argparse
-#import spotipy.util as util
+import spotipy.util as util
 
 eyed3.log.setLevel("ERROR")
 
@@ -31,12 +31,6 @@ if args.no_convert:
         print("-n, --no-convert skip the conversion process and meta-tags")
 if args.manual:
 	print("-m, --manual     choose the song to download manually")
-
-def graceQuit():
-		print('')
-		print('')
-		print('Exitting..')
-		exit()
 
 def initializeInput(command):
 	if command == 'list':
@@ -67,15 +61,15 @@ def isSpotify(raw_song):
 def generateSongName(raw_song):
 	if isSpotify(raw_song):
 		tags = generateMetaTags(raw_song)
-		song = (tags['artists'][0]['name'] + ' - ' + tags['name']).encode('utf-8')
-	return song
+		raw_song = (tags['artists'][0]['name'] + ' - ' + tags['name']).encode('utf-8')
+	return raw_song
 
 def generateMetaTags(raw_song):
 	if isSpotify(raw_song):
 		return spotify.track(raw_song)
 	else:
-		# Search for song on Spotify and generate tags
-		return
+		print spotify.search(raw_song, limit=1)
+		return spotify.search(raw_song, limit=1)
 
 def generateSearchURL(song):
 	URL = "https://www.youtube.com/results?sp=EgIQAQ%253D%253D&q=" + song.replace(" ", "%20").encode('utf-8')
@@ -116,13 +110,13 @@ def getYouTubeTitle(content, number):
 	else:
 		return str(number) + '. ' + title
 
+def generateFileName(content):
+	return ((content.title).replace("\\", "_").replace("/", "_").replace(":", "_").replace("*", "_").replace("?", "_").replace('"', "_").replace("<", "_").replace(">", "_").replace("|", "_").replace(" ", "_")).encode('utf-8')
+
 def downloadSong(content):
 	music_file = generateFileName(content)
 	link = content.getbestaudio(preftype="m4a")
 	link.download(filepath="Music/" + music_file + ".m4a")
-
-def generateFileName(content):
-	return ((content.title).replace("\\", "_").replace("/", "_").replace(":", "_").replace("*", "_").replace("?", "_").replace('"', "_").replace("<", "_").replace(">", "_").replace("|", "_").replace(" ", "_")).encode('utf-8')
 
 def convertToMP3(music_file):
 	if os.name == 'nt':
@@ -174,6 +168,24 @@ def fixSong(music_file, meta_tags):
 	audiofile.tag.images.set(3,albumart,"image/jpeg")
 	audiofile.tag.save(version=(2,3,0))
 
+def grabSingle(raw_song, number):
+	if number:
+		islist = True
+	else:
+		islist = False
+	content = goPafy(raw_song)
+	print getYouTubeTitle(content, number)
+	music_file = generateFileName(content)
+	if not checkExists(music_file, raw_song, islist=islist):
+		downloadSong(content)
+		print('')
+		if not args.no_convert:
+			print('Converting ' + music_file + '.m4a to mp3')
+			convertToMP3(music_file)
+			print('Fixing meta-tags')
+			meta_tags = generateMetaTags(raw_song)
+			fixSong(music_file, meta_tags)
+
 def grabList(file):
 	lines = open(file, 'r').read()
 	lines = lines.splitlines()
@@ -199,23 +211,11 @@ def grabList(file):
 				myfile.write(raw_song)
 			print('Failed to download song. Will retry after other songs.')
 
-def grabSingle(raw_song, number):
-	if number:
-		islist = True
-	else:
-		islist = False
-	content = goPafy(raw_song)
-	print getYouTubeTitle(content, number)
-	music_file = generateFileName(content)
-	if not checkExists(music_file, raw_song, islist=islist):
-		downloadSong(content)
+def graceQuit():
 		print('')
-		if not args.no_convert:
-			print('Converting ' + music_file + '.m4a to mp3')
-			convertToMP3(music_file)
-			print('Fixing meta-tags')
-			meta_tags = generateMetaTags(raw_song)
-			fixSong(music_file, meta_tags)
+		print('')
+		print('Exitting..')
+		exit()
 
 while True:
 	for m in os.listdir('Music/'):
