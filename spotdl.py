@@ -26,7 +26,7 @@ open('list.txt', 'a').close()
 
 spotify = spotipy.Spotify()
 
-# Set up agruments
+# Set up arguments
 parser = argparse.ArgumentParser()
 parser.add_argument("-n", "--no-convert", help="skip the conversion process and meta-tags", action="store_true")
 parser.add_argument("-m", "--manual", help="choose the song to download manually", action="store_true")
@@ -50,12 +50,13 @@ def getInputLink(links):
 		try:
 			the_chosen_one = int(raw_input('>> Choose your number: '))
 			if the_chosen_one >= 1 and the_chosen_one <= len(links):
-				break
+				return links[the_chosen_one-1]
+			elif the_chosen_one == 0:
+				return None
 			else:
 				print('Choose a valid number!')
 		except ValueError:
 			print('Choose a valid number!')
-	return links[the_chosen_one-1]
 
 def isSpotify(raw_song):
 	if (len(raw_song) == 22 and raw_song.replace(" ", "%20") == raw_song) or (raw_song.find('spotify') > -1):
@@ -92,6 +93,7 @@ def generateYouTubeURL(raw_song):
 		links = []
 		print(song)
 		print('')
+		print('0. Skip downloading this song')
 		for x in items_parse.find_all('h3', {'class':'yt-lockup-title'}):
 			if not x.find('channel') == -1 or not x.find('googleads') == -1:
 				print(str(check) + '. ' + x.get_text())
@@ -99,6 +101,8 @@ def generateYouTubeURL(raw_song):
 				check += 1
 		print('')
 		result = getInputLink(links)
+		if result == None:
+			return None
 	else:
 		result = items_parse.find_all(attrs={'class':'yt-uix-tile-link'})[0]['href']
 		while not result.find('channel') == -1 or not result.find('googleads') == -1:
@@ -109,7 +113,10 @@ def generateYouTubeURL(raw_song):
 
 def goPafy(raw_song):
 	trackURL = generateYouTubeURL(raw_song)
-	return pafy.new(trackURL)
+	if trackURL == None:
+		return None
+	else:
+		return pafy.new(trackURL)
 
 def getYouTubeTitle(content, number):
 	title = content.title
@@ -183,6 +190,8 @@ def grabSingle(raw_song, number):
 	else:
 		islist = False
 	content = goPafy(raw_song)
+	if content == None:
+		return
 	print(getYouTubeTitle(content, number))
 	music_file = generateFileName(content)
 	if not checkExists(music_file, raw_song, islist=islist):
@@ -204,6 +213,7 @@ def grabList(file):
 	except ValueError:
 		pass
 	print('Total songs in list = ' + str(len(lines)) + ' songs')
+	# Count the number of song being downloaded
 	number = 1
 	for raw_song in lines:
 		try:
@@ -226,7 +236,7 @@ def graceQuit():
 		print('Exitting..')
 		exit()
 
-while True:
+def main():
 	for m in os.listdir('Music/'):
 		if m.endswith('.m4a.temp'):
 			os.remove('Music/' + m)
@@ -237,3 +247,6 @@ while True:
 		initializeInput(command)
 	except KeyboardInterrupt:
 		graceQuit()
+
+while True:
+	main()
