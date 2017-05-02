@@ -11,6 +11,7 @@ import os
 import argparse
 #import spotipy.util as util
 
+# Python 3 compatibility
 if version_info > (3,0):
 	raw_input = input
 
@@ -24,6 +25,7 @@ open('list.txt', 'a').close()
 
 spotify = spotipy.Spotify()
 
+# Set up agruments
 parser = argparse.ArgumentParser()
 parser.add_argument("-n", "--no-convert", help="skip the conversion process and meta-tags", action="store_true")
 parser.add_argument("-m", "--manual", help="choose the song to download manually", action="store_true")
@@ -67,10 +69,13 @@ def generateSongName(raw_song):
 	return raw_song
 
 def generateMetaTags(raw_song):
-	if isSpotify(raw_song):
-		return spotify.track(raw_song)
-	else:
-		return spotify.search(raw_song, limit=1)['tracks']['items'][0]
+	try:
+		if isSpotify(raw_song):
+			return spotify.track(raw_song)
+		else:
+			return spotify.search(raw_song, limit=1)['tracks']['items'][0]
+	except:
+		return None
 
 def generateSearchURL(song):
 	URL = "https://www.youtube.com/results?sp=EgIQAQ%253D%253D&q=" + song.replace(" ", "%20")
@@ -183,9 +188,10 @@ def grabSingle(raw_song, number):
 		if not args.no_convert:
 			print('Converting ' + music_file + '.m4a to mp3')
 			convertToMP3(music_file)
-			print('Fixing meta-tags')
 			meta_tags = generateMetaTags(raw_song)
-			fixSong(music_file, meta_tags)
+			if not meta_tags == None:
+				print('Fixing meta-tags')
+				fixSong(music_file, meta_tags)
 
 def grabList(file):
 	lines = open(file, 'r').read()
@@ -215,7 +221,7 @@ def fixEncoding(query):
 	if version_info > (3,0):
 		return query
 	else:
-		return query.decode('utf-8').encode('utf-8')
+		return query.encode('utf-8').decode('utf-8')
 
 def graceQuit():
 		print('')
