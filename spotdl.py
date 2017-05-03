@@ -236,10 +236,10 @@ if args.no_convert:
         print("-n, --no-convert skip the conversion process and meta-tags")
 if args.manual:
 	print("-m, --manual     choose the song to download manually")
+print('')
 if args.list:
 	grabList(file='list.txt')
 	exit()	
-print('')
 
 while True:
 	for temp in os.listdir('Music/'):
