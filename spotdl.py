@@ -246,7 +246,9 @@ while True:
 		if temp.endswith('.m4a.temp'):
 			os.remove('Music/' + temp)
 	try:
-		command = raw_input('>> Enter a song/cmd: ')
+		print('Enter a Spotify URL or Song Name: ')
+		print('')
+		command = raw_input('>> ')
 		print('')
 		grabSingle(raw_song=command, number=None)
 	except KeyboardInterrupt:
