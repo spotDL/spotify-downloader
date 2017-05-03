@@ -1,10 +1,10 @@
 # Spotify-Downloader
 
-- Download songs from YouTube in an MP3 format by using Spotify's HTTP link.
+- Downloads songs from YouTube in an MP3 format by using Spotify's HTTP link.
 
 - Can also download a song by entering its artist and song name (in case if you don't have the Spotify's HTTP link for some song).
 
-- Downloading a song using a Spotify link will automatically fix meta-tags and add a nice albumart to the song.
+- Automatically fixes song's meta-tags.
 
 <br>
 
@@ -20,7 +20,7 @@ That's how your Music library will look like!
 
 ## Installation & Usage:
 
-**Python3 users go to the [python3 branch](../../tree/python3). This is meant for python2 users only.**
+This version supports both Python2 and Python3.
 <br>
 
 ### Debian, Ubuntu, Linux & Mac:
@@ -33,15 +33,15 @@ sudo pip install -U -r requirements.txt
 ```
 You'll also need to install avconv:
 
-`sudo apt-get install libav-tools`
+`sudo apt-get install libav-tools` (`brew install libav` for Mac)
 
 Use `sudo python spotdl.py` to launch the script.
 
 ### Windows:
 
-Assuming you have python already installed..
+Assuming you have Python already installed..
 
-- Download Libav-Tools for windows: https://builds.libav.org/windows/release-gpl/libav-x86_64-w64-mingw32-11.7.7z. Copy all the contents of bin folder (of avconv) to Scripts folder (in your python's installation directory)
+- Download Libav-Tools for windows: https://builds.libav.org/windows/release-gpl/libav-x86_64-w64-mingw32-11.7.7z. Copy all the contents of bin folder (of libav) to Scripts folder (in your python's installation directory).
 
 - Download the zip file of this repository and extract its contents in your python's installation folder as well.
 
@@ -69,13 +69,9 @@ For example:
 
 - The script will automatically look for the best matching song and download it in the folder `Music/` placed in your current directory.
 
-- It will now convert the song to an mp3.
+- It will now convert the song to an mp3 and try to fix meta-tags and album-art by looking up on Spotify.
 
-- Now, if we want to check it out the lyrics of that song, just type `lyrics` in the script and it should print out the lyrics for any last downloaded song.
-
-- Okay, lets play the song now. Just type `play` in the script.
-
-#### Downloading by Spotify Link:
+#### Downloading by Spotify Link (Recommended):
 
 For example:
 
@@ -83,11 +79,7 @@ For example:
 
 - Now simply paste this link after running the script, it should download Hello by Adele.
 
-- Just like before, it will again convert the song to an mp3.
-
-- Now, that we have used a Spotify link to download the song, the script will automatically fix the meta-tags and add an album-art to the song.
-
-- Similarly, we can now check out its lyrics or play it.
+- Just like before, it will again convert the song to an mp3 but since we used a Spotify HTTP link, the script is guaranteed to fetch the correct meta-tags and album-art.
 
 - Just type `exit` to exit out of the script.
 
@@ -110,7 +102,7 @@ sudo nano list.txt
 ```
 (if you are on windows, just edit `list.txt` - i.e `C:\Python27\list.txt`)
 
-add all the songs you want to download, in our case it is:
+Add all the songs you want to download, in our case it is:
 
 ```
 https://open.spotify.com/track/1MDoll6jK4rrk2BcFRP5i7
@@ -118,19 +110,11 @@ the nights avicci
 21 guns green day
 ```
 
-- Now just run the script and type ```list```, it will automatically start downloading the songs you provided in `list.txt`.
+- Now just run the script and type `list`, it will automatically start downloading the songs you provided in `list.txt`.
 
-- You can stop downloading songs by hitting `ctrl+c`, the script will automatically resume from the song where you stopped it the next time you want to download the songs using `list`.
+- You can stop downloading songs by hitting `ctrl+c`, the script will automatically resume from the song where you stopped it the next time you want to download the songs using `list` command.
 
 - To download all songs in your playlist, just select all the songs `ctrl+a` in Spotify desktop app, copy them `ctrl+c` and paste `ctrl+v` in `list.txt`.
-
-## Brief info on Commands:
-```
-• play - will play the last song downloaded using mplayer
-• list - downloads songs from list.txt
-• lyrics - will print out the lyrics for last downloaded song
-• exit - exit the script
-```
 
 ## Disclaimer:
 
