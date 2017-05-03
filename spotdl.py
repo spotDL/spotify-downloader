@@ -244,9 +244,9 @@ def graceQuit():
 		exit()
 
 while True:
-	for m in os.listdir('Music/'):
-		if m.endswith('.m4a.temp'):
-			os.remove('Music/' + m)
+	for temp in os.listdir('Music/'):
+		if temp.endswith('.m4a.temp'):
+			os.remove('Music/' + temp)
 	print('')
 	try:
 		command = raw_input('>> Enter a song/cmd: ')
