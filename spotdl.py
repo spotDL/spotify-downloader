@@ -247,9 +247,9 @@ while True:
 			os.remove('Music/' + temp)
 	try:
 		print('Enter a Spotify URL or Song Name: ')
-		print('')
 		command = raw_input('>> ')
 		print('')
 		grabSingle(raw_song=command, number=None)
+		print('')
 	except KeyboardInterrupt:
 		graceQuit()
