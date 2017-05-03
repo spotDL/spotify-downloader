@@ -119,7 +119,7 @@ the nights avicci
 
 - To download all songs in your playlist, just select all the songs `ctrl+a` in Spotify desktop app, copy them `ctrl+c` and paste `ctrl+v` in `list.txt` and then use `--list` argument.
 
-- Songs that are already downloaded will skipped and will not be downloaded again.
+- Songs that are already downloaded will be skipped and will not be downloaded again.
 
 ## Disclaimer:
 
