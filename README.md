@@ -62,7 +62,7 @@ Now to run the script type:
 
 - Launch the script using the above command as mentioned for your OS.
 
-- For available options, run `sudo python spotdl.py --help` (or for windows run `python.exe spotdl.py --help`.
+- For available options, run `sudo python spotdl.py --help` (or for windows run `python.exe spotdl.py --help`).
 
 #### Downloading by Name:
 
