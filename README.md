@@ -22,7 +22,7 @@ That's how your Music library will look like!
 
 - This version supports both Python2 and Python3.
 
-- Note: `play` and `lyrics` commands have been deprecated in `v2.0` since they were not of much use and created unnecessary clutter. You can still get them back by using `v1.9` though.
+- Note: `play` and `lyrics` commands have been deprecated in `remake` brach since they were not of much use and created unnecessary clutter. You can still get them back by using `old` branch though.
 
 ### Debian, Ubuntu, Linux & Mac:
 
