@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
+# -*- coding: UTF-8 -*-
 
 from bs4 import BeautifulSoup
 from shutil import copyfileobj
@@ -10,6 +10,7 @@ import requests
 import pafy
 import os
 import argparse
+import pathlib
 #import spotipy.util as util
 
 # Python 3 compatibility
@@ -126,7 +127,7 @@ def getYouTubeTitle(content, number):
 		return str(number) + '. ' + title
 
 def generateFileName(content):
-	return (content.title).replace("\\", "_").replace("/", "_").replace(":", "_").replace("*", "_").replace("?", "_").replace('"', "_").replace("<", "_").replace(">", "_").replace("|", "_").replace(" ", "_")
+	return fixEncoding((content.title).replace("\\", "_").replace("/", "_").replace(":", "_").replace("*", "_").replace("?", "_").replace('"', "_").replace("<", "_").replace(">", "_").replace("|", "_").replace(" ", "_"))
 
 def downloadSong(content):
 	music_file = generateFileName(content)
@@ -134,7 +135,6 @@ def downloadSong(content):
 	link.download(filepath="Music/" + music_file + ".m4a")
 
 def convertToMP3(music_file):
-	music_file = music_file.encode('utf-8')
 	if os.name == 'nt':
 		os.system('Scripts\\avconv.exe -loglevel 0 -i "' + 'Music/' + music_file + '.m4a" -ab 192k "' + 'Music/' + music_file + '.mp3"')
 	else:
@@ -205,9 +205,16 @@ def grabSingle(raw_song, number):
 				print('Fixing meta-tags')
 				fixSong(music_file, meta_tags)
 
+def fixEncoding(query):
+	if version_info > (3,0):
+		return query
+	else:
+		return query.encode('utf-8')
+
 def grabList(file):
 	lines = open(file, 'r').read()
 	lines = lines.splitlines()
+	# Do not take blank lines in list into account
 	try:
 		lines.remove('')
 	except ValueError:
@@ -236,7 +243,7 @@ def graceQuit():
 		print('Exitting..')
 		exit()
 
-def main():
+while True:
 	for m in os.listdir('Music/'):
 		if m.endswith('.m4a.temp'):
 			os.remove('Music/' + m)
@@ -247,6 +254,3 @@ def main():
 		initializeInput(command)
 	except KeyboardInterrupt:
 		graceQuit()
-
-while True:
-	main()
