@@ -82,7 +82,7 @@ For example:
 
 - Just like before, it will again convert the song to an mp3 but since we used a Spotify HTTP link, the script is guaranteed to fetch the correct meta-tags and album-art.
 
-- Just type `exit` to exit out of the script.
+- Just hit `ctrl+c` to exit out of the script.
 
 #### What if we want to download multiple songs at once?
 
