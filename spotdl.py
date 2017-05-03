@@ -13,39 +13,6 @@ import argparse
 import pathlib
 #import spotipy.util as util
 
-# Python 3 compatibility
-if version_info > (3,0):
-	raw_input = input
-
-eyed3.log.setLevel("ERROR")
-
-os.chdir(path[0])
-
-if not os.path.exists("Music"):
-	os.makedirs("Music")
-open('list.txt', 'a').close()
-
-spotify = spotipy.Spotify()
-
-# Set up arguments
-parser = argparse.ArgumentParser()
-parser.add_argument("-n", "--no-convert", help="skip the conversion process and meta-tags", action="store_true")
-parser.add_argument("-m", "--manual", help="choose the song to download manually", action="store_true")
-args = parser.parse_args()
-
-if args.no_convert:
-        print("-n, --no-convert skip the conversion process and meta-tags")
-if args.manual:
-	print("-m, --manual     choose the song to download manually")
-
-def initializeInput(command):
-	if command == 'list':
-		grabList(file='list.txt')
-	elif command == 'exit':
-		graceQuit()
-	else:
-		grabSingle(raw_song=command, number=None)
-
 def getInputLink(links):
 	while True:
 		try:
@@ -220,6 +187,7 @@ def grabList(file):
 	except ValueError:
 		pass
 	print('Total songs in list = ' + str(len(lines)) + ' songs')
+	print('')
 	# Count the number of song being downloaded
 	number = 1
 	for raw_song in lines:
@@ -243,14 +211,43 @@ def graceQuit():
 		print('Exitting..')
 		exit()
 
+# Python 3 compatibility
+if version_info > (3,0):
+	raw_input = input
+
+eyed3.log.setLevel("ERROR")
+
+os.chdir(path[0])
+
+if not os.path.exists("Music"):
+	os.makedirs("Music")
+open('list.txt', 'a').close()
+
+spotify = spotipy.Spotify()
+
+# Set up arguments
+parser = argparse.ArgumentParser()
+parser.add_argument("-n", "--no-convert", help="skip the conversion process and meta-tags", action="store_true")
+parser.add_argument("-m", "--manual", help="choose the song to download manually", action="store_true")
+parser.add_argument("-l", "--list", help="download songs present in list.txt", action="store_true")
+args = parser.parse_args()
+
+if args.no_convert:
+        print("-n, --no-convert skip the conversion process and meta-tags")
+if args.manual:
+	print("-m, --manual     choose the song to download manually")
+if args.list:
+	grabList(file='list.txt')
+	exit()	
+print('')
+
 while True:
 	for temp in os.listdir('Music/'):
 		if temp.endswith('.m4a.temp'):
 			os.remove('Music/' + temp)
-	print('')
 	try:
 		command = raw_input('>> Enter a song/cmd: ')
 		print('')
-		initializeInput(command)
+		grabSingle(raw_song=command, number=None)
 	except KeyboardInterrupt:
 		graceQuit()
