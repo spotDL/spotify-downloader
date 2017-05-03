@@ -153,7 +153,7 @@ def checkExists(music_file, raw_song, islist):
 	if os.path.isfile("Music/" + music_file + extension):
 		if extension == '.mp3':
 			audiofile = eyed3.load("Music/" + music_file + extension)
-			if isSpotify(raw_song) and not audiofile.tag.music_file == (generateMetaTags(raw_song))['name']:
+			if isSpotify(raw_song) and not audiofile.tag.title == (generateMetaTags(raw_song))['name']:
 				os.remove("Music/" + music_file + extension)
 				return False
 		if islist:
