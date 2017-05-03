@@ -22,7 +22,7 @@ That's how your Music library will look like!
 
 - This version supports both Python2 and Python3.
 
-- Note: `play` and `lyrics` commands have been deprecated in `remake` brach since they were not of much use and created unnecessary clutter. You can still get them back by using `old` branch though.
+- Note: `play` and `lyrics` commands have been deprecated in the current brach since they were not of much use and created unnecessary clutter. You can still get them back by using `old` branch though.
 
 ### Debian, Ubuntu, Linux & Mac:
 
@@ -60,7 +60,7 @@ Now to run the script type:
 
 - Launch the script using the above command as mentioned for your OS.
 
-- For available options, run `sudo python spotdl.py --help`.
+- For available options, run `sudo python spotdl.py --help` (or for windows run `python.exe spotdl.py --help`.
 
 #### Downloading by Name:
 
@@ -82,7 +82,7 @@ For example:
 
 - Just like before, it will again convert the song to an mp3 but since we used a Spotify HTTP link, the script is guaranteed to fetch the correct meta-tags and album-art.
 
-- Just type `exit` to exit out of the script.
+- Just hit `ctrl+c` to exit out of the script.
 
 #### What if we want to download multiple songs at once?
 
@@ -111,11 +111,11 @@ the nights avicci
 21 guns green day
 ```
 
-- Now just run the script and type `list`, it will automatically start downloading the songs you provided in `list.txt`.
+- Now pass `--list` or `-l` to the script, i.e `sudo python spotdl.py --list` and it will start downloading songs mentioned in `list.txt`.
 
-- You can stop downloading songs by hitting `ctrl+c`, the script will automatically resume from the song where you stopped it the next time you want to download the songs using `list` command.
+- You can stop downloading songs by hitting `ctrl+c`, the script will automatically resume from the song where you stopped it the next time you want to download the songs present in `list.txt`.
 
-- To download all songs in your playlist, just select all the songs `ctrl+a` in Spotify desktop app, copy them `ctrl+c` and paste `ctrl+v` in `list.txt`.
+- To download all songs in your playlist, just select all the songs `ctrl+a` in Spotify desktop app, copy them `ctrl+c` and paste `ctrl+v` in `list.txt` and then use `--list` argument.
 
 ## Disclaimer:
 
