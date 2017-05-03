@@ -20,7 +20,7 @@ That's how your Music library will look like!
 
 ## Installation & Usage:
 
-<img src="http://i.imgur.com/Dg8p9up.png" width="290">
+<img src="http://i.imgur.com/Dg8p9up.png" width="600">
 
 - This version supports both Python2 and Python3.
 
