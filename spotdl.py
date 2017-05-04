@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 
+# Usual import stuff
 from bs4 import BeautifulSoup
 from shutil import copyfileobj
 from sys import path, version_info
@@ -26,12 +27,14 @@ def getInputLink(links):
 		except ValueError:
 			print('Choose a valid number!')
 
+# Check if input song is Spotify URL or just a song name
 def isSpotify(raw_song):
 	if (len(raw_song) == 22 and raw_song.replace(" ", "%20") == raw_song) or (raw_song.find('spotify') > -1):
 		return True
 	else:
 		return False
 
+# [Artist] - [Song Name]
 def generateSongName(raw_song):
 	if isSpotify(raw_song):
 		tags = generateMetaTags(raw_song)
@@ -93,6 +96,7 @@ def getYouTubeTitle(content, number):
 	else:
 		return str(number) + '. ' + title
 
+# Generate name for the song to be downloaded
 def generateFileName(content):
 	return fixEncoding((content.title).replace("\\", "_").replace("/", "_").replace(":", "_").replace("*", "_").replace("?", "_").replace('"', "_").replace("<", "_").replace(">", "_").replace("|", "_").replace(" ", "_"))
 
@@ -133,6 +137,7 @@ def checkExists(music_file, raw_song, islist):
 			else:
 				return True
 
+# Remove song from list.txt once downloaded
 def trimSong(file):
 	with open(file, 'r') as fin:
 		data = fin.read().splitlines(True)
@@ -151,6 +156,7 @@ def fixSong(music_file, meta_tags):
 	audiofile.tag.images.set(3,albumart,"image/jpeg")
 	audiofile.tag.save(version=(2,3,0))
 
+# Logic behind preparing the song to download to finishing meta-tags
 def grabSingle(raw_song, number):
 	if number:
 		islist = True
@@ -172,6 +178,7 @@ def grabSingle(raw_song, number):
 				print('Fixing meta-tags')
 				fixSong(music_file, meta_tags)
 
+# Fix python2 encoding issues
 def fixEncoding(query):
 	if version_info > (3,0):
 		return query
@@ -181,7 +188,7 @@ def fixEncoding(query):
 def grabList(file):
 	lines = open(file, 'r').read()
 	lines = lines.splitlines()
-	# Do not take blank lines in list into account
+	# Ignore blank lines in list.txt (if any)
 	try:
 		lines.remove('')
 	except ValueError:
