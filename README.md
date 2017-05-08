@@ -121,6 +121,20 @@ the nights avicci
 
 - Songs that are already downloaded will be skipped and will not be downloaded again.
 
+## FAQ:
+
+#### I get system cannot find the specified file when downloading?
+
+Check out these issues #22, #35, #36.
+
+#### How can I download whole playlist with its URI?
+
+Currently this is not possible without generating unique tokens from Spotify but you can copy all the songs from a playlist and paste them in `list.txt`. I am avoiding tokens as much possible to retain the portability of this tool but if you would like to add it as an optional feature to this tool, PR's welcome!
+
+#### You write horrible code. What's wrong with you?
+
+I'm trying...
+
 ## Disclaimer:
 
 Downloading copyright songs may be illegal in your country. This tool is for educational purposes only and was created only to show how Spotify's API can be exploited to download music from YouTube. Please support the artists by buying their music.
