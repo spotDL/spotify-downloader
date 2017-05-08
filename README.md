@@ -125,7 +125,7 @@ the nights avicci
 
 #### I get system cannot find the specified file when downloading?
 
-Check out these issues [#22](/issues/22), [#35](/issues/35), [#36](/issues/36).
+Check out these issues [#22](../../issues/22), [#35](../../issues/35), [#36](../../issues/36).
 
 #### How can I download whole playlist with its URI?
 
