@@ -18,7 +18,7 @@ That's how your Music library will look like!
 
 - Provide as much information possible when opening your ticket.
 
-## Installation & Usage:
+## Installation & Usage
 
 <img src="http://i.imgur.com/Dg8p9up.png" width="600">
 
@@ -26,7 +26,7 @@ That's how your Music library will look like!
 
 - Note: `play` and `lyrics` commands have been deprecated in the current brach since they were not of much use and created unnecessary clutter. You can still get them back by using `old` branch though.
 
-### Debian, Ubuntu, Linux & Mac:
+### Debian, Ubuntu, Linux & Mac
 
 ```
 cd
@@ -40,7 +40,7 @@ You'll also need to install avconv:
 
 Use `sudo python spotdl.py` to launch the script.
 
-### Windows:
+### Windows
 
 Assuming you have Python already installed..
 
@@ -58,15 +58,15 @@ Now to run the script type:
 
 (you can create a batch file shortcut to run the script just by double-click anytime)
 
-## Instructions for Downloading Songs:
+## Instructions for Downloading Songs
 
 - Launch the script using the above command as mentioned for your OS.
 
 - For available options, run `sudo python spotdl.py --help` (or for windows run `python.exe spotdl.py --help`).
 
-#### Downloading by Name:
+#### Downloading by Name
 
-For example:
+For example
 
 - We want to download Hello by Adele, simply run the script and type `adele hello`.
 
@@ -74,9 +74,9 @@ For example:
 
 - It will now convert the song to an mp3 and try to fix meta-tags and album-art by looking up on Spotify.
 
-#### Downloading by Spotify Link (Recommended):
+#### Downloading by Spotify Link (Recommended)
 
-For example:
+For example
 
 - We want to download the same song (i.e: Hello by Adele) but using Spotify Link this time that looks like  `http://open.spotify.com/track/1MDoll6jK4rrk2BcFRP5i7`, you can copy it from your Spotify desktop or mobile app by right clicking or long tap on the song and copy HTTP link.
 
@@ -88,7 +88,7 @@ For example:
 
 #### What if we want to download multiple songs at once?
 
-For example:
+For example
 
 - We want to download Hello by Adele, The Nights by Avicci and 21 Guns by Green Day just using a single command.
 
@@ -105,7 +105,7 @@ sudo nano list.txt
 ```
 (if you are on windows, just edit `list.txt` - i.e `C:\Python27\list.txt`)
 
-Add all the songs you want to download, in our case it is:
+Add all the songs you want to download, in our case it is
 
 ```
 https://open.spotify.com/track/1MDoll6jK4rrk2BcFRP5i7
@@ -121,7 +121,7 @@ the nights avicci
 
 - Songs that are already downloaded will be skipped and will not be downloaded again.
 
-## FAQ:
+## FAQ
 
 #### I get system cannot find the specified file when downloading?
 
@@ -135,10 +135,10 @@ Currently this is not possible without generating unique tokens from Spotify but
 
 I'm trying...
 
-## Disclaimer:
+## Disclaimer
 
 Downloading copyright songs may be illegal in your country. This tool is for educational purposes only and was created only to show how Spotify's API can be exploited to download music from YouTube. Please support the artists by buying their music.
 
-## License:
+## License
 
 ```The MIT License```
