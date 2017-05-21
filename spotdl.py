@@ -147,8 +147,12 @@ def trimSong(file):
 def fixSong(music_file, meta_tags):
 	audiofile = eyed3.load("Music/" + music_file + '.mp3')
 	audiofile.tag.artist = meta_tags['artists'][0]['name']
+	audiofile.tag.album_artist = meta_tags['artists'][0]['name']
 	audiofile.tag.album = meta_tags['album']['name']
 	audiofile.tag.title = meta_tags['name']
+	audiofile.tag.track_num = meta_tags['track_number']
+	audiofile.tag.disc_num = meta_tags['disc_number']
+	audiofile.tag.release_date = spotify.album(meta_tags['album']['id'])['release_date']
 	albumart = (requests.get(meta_tags['album']['images'][0]['url'], stream=True)).raw
 	with open('last_albumart.jpg', 'wb') as out_file:
 		copyfileobj(albumart, out_file)
