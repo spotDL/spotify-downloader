@@ -217,10 +217,10 @@ def grabList(file):
 			print('Failed to download song. Will retry after other songs.')
 
 def graceQuit():
-		print('')
-		print('')
-		print('Exitting..')
-		exit()
+	print('')
+	print('')
+	print('Exitting..')
+	exit()
 
 # Python 3 compatibility
 if version_info > (3,0):
