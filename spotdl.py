@@ -161,7 +161,7 @@ def fixSong(music_file, meta_tags):
 	audiofile.tag.save(version=(2,3,0))
 
 # Logic behind preparing the song to download to finishing meta-tags
-def grabSingle(raw_song, number):
+def grabSingle(raw_song, number=None):
 	if number:
 		islist = True
 	else:
@@ -260,7 +260,7 @@ while True:
 		print('Enter a Spotify URL or Song Name: ')
 		command = raw_input('>> ')
 		print('')
-		grabSingle(raw_song=command, number=None)
+		grabSingle(raw_song=command)
 		print('')
 	except KeyboardInterrupt:
 		graceQuit()
