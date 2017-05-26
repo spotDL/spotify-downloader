@@ -32,13 +32,13 @@ That's how your Music library will look like!
 cd
 git clone https://github.com/Ritiek/Spotify-Downloader
 cd Spotify-Downloader
-sudo pip install -U -r requirements.txt
+pip install -U -r requirements.txt
 ```
 You'll also need to install avconv:
 
 `sudo apt-get install libav-tools` (`brew install libav` for Mac)
 
-Use `sudo python spotdl.py` to launch the script.
+Use `python spotdl.py` to launch the script.
 
 ### Windows
 
@@ -101,7 +101,7 @@ No problem!
 ```
 cd
 cd Spotify-Downloader
-sudo nano list.txt
+nano list.txt
 ```
 (if you are on windows, just edit `list.txt` - i.e `C:\Python27\list.txt`)
 
