@@ -12,7 +12,7 @@ import pafy
 import os
 import argparse
 import pathlib
-#import spotipy.util as util
+import spotipy.util as util
 
 def getInputLink(links):
 	while True:
@@ -234,7 +234,14 @@ if not os.path.exists("Music"):
 	os.makedirs("Music")
 open('list.txt', 'a').close()
 
-spotify = spotipy.Spotify()
+# Please respect this user token :)
+token = util.prompt_for_user_token('Spotify-Downloader',
+                                   scope = 'playlist-read-private',
+                                   client_id='4fe3fecfe5334023a1472516cc99d805',
+                                   client_secret='0f02b7c483c04257984695007a4a8d5c',
+                                   redirect_uri='http://localhost:9876/callback')
+
+spotify = spotipy.Spotify(auth=token)
 
 # Set up arguments
 parser = argparse.ArgumentParser()
