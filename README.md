@@ -1,5 +1,7 @@
 # Spotify-Downloader
 
+## Not working as of 29th May, 2017. More details in #58.
+
 - Downloads songs from YouTube in an MP3 format by using Spotify's HTTP link.
 
 - Can also download a song by entering its artist and song name (in case if you don't have the Spotify's HTTP link for some song).
