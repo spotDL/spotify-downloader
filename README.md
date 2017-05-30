@@ -1,7 +1,5 @@
 # Spotify-Downloader
 
-## Not working as of 29th May, 2017. More details in [#58](https://github.com/Ritiek/Spotify-Downloader/issues/58).
-
 - Downloads songs from YouTube in an MP3 format by using Spotify's HTTP link.
 
 - Can also download a song by entering its artist and song name (in case if you don't have the Spotify's HTTP link for some song).
@@ -15,6 +13,8 @@ That's how your Music library will look like!
 <img src="http://i.imgur.com/Gpch7JI.png" width="290"><img src="http://i.imgur.com/5vhk3HY.png" width="290"><img src="http://i.imgur.com/RDTCCST.png" width="290">
 
 #### Have an Issue?
+
+- Spotify made it mandatory to use a token to fetch track information. So, if you get rate limited, please let me know in #58.
 
 - Search for your problem in the [Issues section](https://github.com/Ritiek/Spotify-Downloader/issues) before opening a new ticket. It might be already answered and save you and me some time :D
 
