@@ -1,6 +1,6 @@
 # Spotify-Downloader
 
-## Not working as of 29th May, 2017. More details in (#58)[https://github.com/Ritiek/Spotify-Downloader/issues/58].
+## Not working as of 29th May, 2017. More details in [#58](https://github.com/Ritiek/Spotify-Downloader/issues/58).
 
 - Downloads songs from YouTube in an MP3 format by using Spotify's HTTP link.
 
