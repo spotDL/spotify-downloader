@@ -14,7 +14,7 @@ That's how your Music library will look like!
 
 #### Have an Issue?
 
-- Spotify made it mandatory to use a token to fetch track information. So, if you get rate limited, please let me know in #58.
+- Spotify made it mandatory to use a token to fetch track information. So, if you get rate limited, please let me know in [#58](https://github.com/Ritiek/Spotify-Downloader/issues/58).
 
 - Search for your problem in the [Issues section](https://github.com/Ritiek/Spotify-Downloader/issues) before opening a new ticket. It might be already answered and save you and me some time :D
 
