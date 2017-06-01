@@ -12,11 +12,11 @@ That's how your Music library will look like!
 
 <img src="http://i.imgur.com/Gpch7JI.png" width="290"><img src="http://i.imgur.com/5vhk3HY.png" width="290"><img src="http://i.imgur.com/RDTCCST.png" width="290">
 
-#### Have an Issue?
+## Reporting Issues
 
-- Spotify made it mandatory to use a token to fetch track information. So, if you get rate limited, please let me know in [#58](https://github.com/Ritiek/Spotify-Downloader/issues/58).
+- **Spotify made it mandatory to use a token to fetch track information. So, if you get rate limited or face any token problems, please let me know in [#58](https://github.com/Ritiek/Spotify-Downloader/issues/58).**
 
-- Search for your problem in the [Issues section](https://github.com/Ritiek/Spotify-Downloader/issues) before opening a new ticket. It might be already answered and save you and me some time :D
+- Search for your problem in the [Issues section](https://github.com/Ritiek/Spotify-Downloader/issues) before opening a new ticket. It might be already answered and save you and me some time :D.
 
 - Provide as much information possible when opening your ticket.
 
@@ -42,6 +42,8 @@ You'll also need to install avconv:
 
 Use `python spotdl.py` to launch the script.
 
+For list of available options, use `python spotdl.py --help`
+
 ### Windows
 
 Assuming you have Python already installed..
@@ -57,6 +59,8 @@ Shift+right-click on empty area and open cmd and type:
 Now to run the script type:
 
 `python.exe spotdl.py`
+
+For list of available options, use `python.exe spotdl.py --help`
 
 (you can create a batch file shortcut to run the script just by double-click anytime)
 
