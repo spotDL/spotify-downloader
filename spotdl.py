@@ -17,6 +17,7 @@ import argparse
 import pathlib
 import spotipy.oauth2 as oauth2
 
+
 def getInputLink(links):
     while True:
         try:
@@ -342,11 +343,11 @@ def getArgs(argv=None):
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser = argparse.ArgumentParser()
     parser.add_argument('-n', '--no-convert', default=False,
-                        help='skip the conversion process and meta-tags', action='store_true')
+                        help='Skip the conversion process and meta-tags', action='store_true')
     parser.add_argument('-m', '--manual', default=False,
-                        help='choose the song to download manually', action='store_true')
+                        help='Choose the song to download manually', action='store_true')
     parser.add_argument('-l', '--list', default=False,
-                        help='download songs present in list.txt', action='store_true')
+                        help='Download songs present in list.txt', action='store_true')
     parser.add_argument('-q', '--quiet', default=False,
                         help='Spare us output of ffmpeg conversion', action='store_true')
     parser.add_argument('-i', '--input_ext', default='.m4a',
@@ -380,7 +381,7 @@ if __name__ == '__main__':
     # Please respect this user token :)
     oauth2 = oauth2.SpotifyClientCredentials(client_id='4fe3fecfe5334023a1472516cc99d805',
                                              client_secret='0f02b7c483c04257984695007a4a8d5c')
-    token = oauth2.get_access_token()    
+    token = oauth2.get_access_token()
 
     spotify = spotipy.Spotify(auth=token)
 
