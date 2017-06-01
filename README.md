@@ -6,6 +6,8 @@
 
 - Automatically fixes song's meta-tags.
 
+- Works straight out of the box and requires no pre-messing with API tokens.
+
 <br>
 
 That's how your Music library will look like!
