@@ -5,18 +5,17 @@
 from bs4 import BeautifulSoup
 from shutil import copyfileobj
 from sys import path, version_info
+from slugify import slugify
+from titlecase import titlecase
+from mutagen.mp4 import MP4, MP4Cover
 import spotipy
 import eyed3
-from mutagen.mp4 import MP4, MP4Cover
 import requests
 import pafy
 import os
 import argparse
 import pathlib
-import spotipy.util as util
-from slugify import slugify
-from titlecase import titlecase
-
+import spotipy.oauth2 as oauth2
 
 def getInputLink(links):
     while True:
