@@ -9,13 +9,12 @@ from slugify import slugify
 from titlecase import titlecase
 from mutagen.mp4 import MP4, MP4Cover
 import spotipy
+import spotipy.oauth2 as oauth2
 import eyed3
 import requests
 import pafy
 import os
 import argparse
-import pathlib
-import spotipy.oauth2 as oauth2
 
 
 def getInputLink(links):
@@ -35,8 +34,7 @@ def getInputLink(links):
 
 
 def isSpotify(raw_song):
-    if (len(raw_song) == 22 and raw_song.replace(" ", "%20")
-            == raw_song) or (raw_song.find('spotify') > -1):
+    if (len(raw_song) == 22 and raw_song.replace(" ", "%20") == raw_song) or (raw_song.find('spotify') > -1):
         return True
     else:
         return False
@@ -187,17 +185,21 @@ def convertWithFfmpeg(music_file):
     else:
         print('Unknown formats. Unable to convert.', input_ext, output_ext)
         return
+
     if not args.quiet:
         print(ffmpeg_pre +
               '-i "Music/' + music_file + input_ext + '" ' +
               ffmpeg_params +
               '"Music/' + music_file + output_ext + '" ')
+    try:
         os.system(ffmpeg_pre +
                   '-i "Music/' + music_file + input_ext + '" ' +
                   ffmpeg_params +
                   '"Music/' + music_file + output_ext + '" ')
 
         os.remove('Music/' + music_file + input_ext)
+    except Exception as e:
+        raise
 
 
 def checkExists(music_file, raw_song, islist):
@@ -241,6 +243,8 @@ def fixSong(music_file, meta_tags):
     audiofile.tag.album_artist = meta_tags['artists'][0]['name']
     audiofile.tag.album = meta_tags['album']['name']
     audiofile.tag.title = meta_tags['name']
+    artist = spotify.artist(meta_tags['artists'][0]['id'])
+    audiofile.tag.genre = titlecase(artist['genres'][0])
     audiofile.tag.track_num = meta_tags['track_number']
     audiofile.tag.disc_num = meta_tags['disc_number']
     audiofile.tag.release_date = spotify.album(
@@ -282,6 +286,7 @@ def fixSongM4A(music_file, meta_tags):
     album = spotify.album(meta_tags['album']['id'])
     audiofile[tags['year']] = album['release_date']
     audiofile[tags['track']] = [(meta_tags['track_number'], 0)]
+    audiofile[tags['disk']] = [(meta_tags['disc_number'], 0)]
     albumart = (
         requests.get(meta_tags['album']['images'][0]['url'], stream=True)).raw
     with open('last_albumart.jpg', 'wb') as out_file:
@@ -393,25 +398,39 @@ def graceQuit():
     exit()
 
 
+def spotifyDownload():
+    while True:
+        for temp in os.listdir('Music/'):
+            if temp.endswith('.m4a.temp'):
+                os.remove('Music/' + temp)
+        try:
+            print('Enter a Spotify URL or Song Name: ')
+            command = raw_input('>> ')
+            print('')
+            grabSingle(raw_song=command)
+            print('')
+        except KeyboardInterrupt:
+            graceQuit()
+
+
 if __name__ == '__main__':
 
     # Python 3 compatibility
     if version_info > (3, 0):
         raw_input = input
 
-    eyed3.log.setLevel("ERROR")
-
     os.chdir(path[0])
-
     if not os.path.exists("Music"):
         os.makedirs("Music")
     open('list.txt', 'a').close()
 
     # Please respect this user token :)
-    oauth2 = oauth2.SpotifyClientCredentials(client_id='4fe3fecfe5334023a1472516cc99d805',
-                                             client_secret='0f02b7c483c04257984695007a4a8d5c')
+    # oauth2 = oauth2.SpotifyClientCredentials(client_id='4fe3fecfe5334023a1472516cc99d805',
+    #                                          client_secret='0f02b7c483c04257984695007a4a8d5c')
+    oauth2 = oauth2.SpotifyClientCredentials(
+        client_id='768998a7e3444c6a82f0c11ddd59c946',
+        client_secret='4b1e7672e14a42269ee4a22e11214fdf')
     token = oauth2.get_access_token()
-
     spotify = spotipy.Spotify(auth=token)
 
     # Set up arguments
@@ -430,16 +449,7 @@ if __name__ == '__main__':
     if args.list:
         grabList(file='list.txt')
         exit()
+    if args.quiet:
+        eyed3.log.setLevel("ERROR")
 
-    while True:
-        for temp in os.listdir('Music/'):
-            if temp.endswith('.m4a.temp'):
-                os.remove('Music/' + temp)
-        try:
-            print('Enter a Spotify URL or Song Name: ')
-            command = raw_input('>> ')
-            print('')
-            grabSingle(raw_song=command)
-            print('')
-        except KeyboardInterrupt:
-            graceQuit()
+    spotifyDownload()
