@@ -165,7 +165,6 @@ def convertWithFfmpeg(music_file):
     # on MacOS brew install ffmpeg --with-fdk-aac will do just that. Other OS?
     # https://trac.ffmpeg.org/wiki/Encode/AAC
     #
-    print('convertWithFfmpeg()', input_ext, output_ext)
     if args.quiet:
         ffmpeg_pre = 'ffmpeg -hide_banner -nostats -v panic -y '
     else:
@@ -274,7 +273,7 @@ def fixSongM4A(music_file, meta_tags):
             'disk': 'disk',
             'cpil': 'cpil',
             'tempo': 'tmpo'}
-    audiofile = MP4('Music/_' + music_file + output_ext)
+    audiofile = MP4('Music/' + music_file + output_ext)
     audiofile[tags['artist']] = meta_tags['artists'][0]['name']
     audiofile[tags['album']] = meta_tags['album']['name']
     audiofile[tags['title']] = meta_tags['name']
@@ -312,7 +311,7 @@ def grabSingle(raw_song, number=None):
         downloadSong(content)
         print('')
         if not args.no_convert:
-            print('Converting ' + music_file + '.m4a to mp3')
+            print('Converting ' + music_file + input_ext + ' to ' + output_ext)
             if args.ffmpeg:
                 convertWithFfmpeg(music_file)
             else:
