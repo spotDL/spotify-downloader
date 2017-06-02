@@ -339,22 +339,21 @@ def grabList(file):
 
 
 def getArgs(argv=None):
-    parser = argparse.ArgumentParser(description='Find and convert songs \
+    parser = argparse.ArgumentParser(description='Download and convert songs \
                     from Spotify, Youtube etc.',
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser = argparse.ArgumentParser()
     parser.add_argument('-n', '--no-convert', default=False,
-                        help='Skip the conversion process and meta-tags', action='store_true')
+                        help='skip the conversion process and meta-tags', action='store_true')
     parser.add_argument('-m', '--manual', default=False,
-                        help='Choose the song to download manually', action='store_true')
+                        help='choose the song to download manually', action='store_true')
     parser.add_argument('-l', '--list', default=False,
-                        help='Download songs present in list.txt', action='store_true')
+                        help='download songs present in list.txt', action='store_true')
     parser.add_argument('-q', '--quiet', default=False,
-                        help='Spare us output of ffmpeg conversion', action='store_true')
+                        help='spare us output of ffmpeg conversion', action='store_true')
     parser.add_argument('-i', '--input_ext', default='.m4a',
-                        help='Prefered input format .m4a or .webm (Opus)')
+                        help='prefered input format .m4a or .webm (Opus)')
     parser.add_argument('-o', '--output_ext', default='.mp3',
-                        help='Prefered output extension .mp3 or .m4a (AAC)')
+                        help='prefered output extension .mp3 or .m4a (AAC)')
     return parser.parse_args(argv)
 
 
