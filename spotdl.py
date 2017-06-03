@@ -9,13 +9,12 @@ from slugify import slugify
 from titlecase import titlecase
 from mutagen.mp4 import MP4, MP4Cover
 import spotipy
+import spotipy.oauth2 as oauth2
 import eyed3
 import requests
 import pafy
 import os
 import argparse
-import pathlib
-import spotipy.oauth2 as oauth2
 
 
 def getInputLink(links):
@@ -35,8 +34,7 @@ def getInputLink(links):
 
 
 def isSpotify(raw_song):
-    if (len(raw_song) == 22 and raw_song.replace(" ", "%20")
-            == raw_song) or (raw_song.find('spotify') > -1):
+    if (len(raw_song) == 22 and raw_song.replace(" ", "%20") == raw_song) or (raw_song.find('spotify') > -1):
         return True
     else:
         return False
@@ -124,14 +122,14 @@ def generateFileName(content):
 
 def downloadSong(content):
     music_file = generateFileName(content)
-    if args.input_ext == '.webm':
+    if input_ext == '.webm':
         link = content.getbestaudio(preftype='webm')
         if link is not None:
-            link.download(filepath='Music/' + music_file + args.input_ext)
+            link.download(filepath='Music/' + music_file + input_ext)
     else:
         link = content.getbestaudio(preftype="m4a")
         if link is not None:
-            link.download(filepath="Music/" + music_file + ".m4a")
+            link.download(filepath='Music/' + music_file + input_ext)
 
 
 def convertToMP3(music_file):
@@ -156,32 +154,59 @@ def convertToMP3(music_file):
     os.remove('Music/' + music_file + '.m4a')
 
 
-def convertToM4A(music_file):
-    # Here we prefer downloading .webm (Opus) audio and encode as m4a
-    # in format prefered by iTunes - AAC (256k)
-    # We are using ffmpeg with fdk_aac code and cutoff at 18kHz
-    # python3 spotdl.py -i '.webm' -o '.m4a'
+def convertWithFfmpeg(music_file):
+    # What are the differences and similarities between ffmpeg, libav, and avconv?
+    # https://stackoverflow.com/questions/9477115
+    # ffmeg encoders high to lower quality
+    # libopus > libvorbis >= libfdk_aac > aac > libmp3lame
+    # libfdk_aac due to copyrights needs to be compiled by end user
+    # on MacOS brew install ffmpeg --with-fdk-aac will do just that. Other OS?
+    # https://trac.ffmpeg.org/wiki/Encode/AAC
+    #
     if args.quiet:
         ffmpeg_pre = 'ffmpeg -hide_banner -nostats -v panic -y '
     else:
         ffmpeg_pre = 'ffmpeg -y '
-    os.system(ffmpeg_pre +
-              '-i "Music/' + music_file + args.input_ext + '" ' +
-              '-cutoff 18000 -c:a libfdk_aac -b:a 256k -vn ' +
-              '"Music/_' + music_file + args.output_ext + '" ')
 
-    os.remove('Music/' + music_file + args.input_ext)
+    if input_ext == '.m4a':
+        if output_ext == '.mp3':
+            ffmpeg_params = '-codec:v copy -codec:a libmp3lame -q:a 2 '
+        elif output_ext == '.webm':
+            ffmpeg_params = '-c:a libopus -vbr on -b:a 192k -vn '
+        else:
+            return
+    elif input_ext == '.webm':
+        if output_ext == '.mp3':
+            ffmpeg_params = '-ab 192k -ar 44100 -vn '
+        elif output_ext == '.m4a':
+            ffmpeg_params = '-cutoff 20000 -c:a libfdk_aac -b:a 256k -vn '
+        else:
+            return
+    else:
+        print('Unknown formats. Unable to convert.', input_ext, output_ext)
+        return
+
+    if not args.quiet:
+        print(ffmpeg_pre +
+              '-i "Music/' + music_file + input_ext + '" ' +
+              ffmpeg_params +
+              '"Music/' + music_file + output_ext + '" ')
+
+    os.system(
+        ffmpeg_pre +
+        '-i "Music/' + music_file + input_ext + '" ' +
+        ffmpeg_params +
+        '"Music/' + music_file + output_ext + '" ')
+    os.remove('Music/' + music_file + input_ext)
 
 
 def checkExists(music_file, raw_song, islist):
-    if os.path.exists("Music/" + music_file + ".m4a.temp"):
-        os.remove("Music/" + music_file + ".m4a.temp")
+    if os.path.exists("Music/" + music_file + input_ext + ".temp"):
+        os.remove("Music/" + music_file + input_ext + ".temp")
     if args.no_convert:
-        extension = args.input_ext
+        extension = input_ext
     else:
-        if os.path.exists('Music/' + music_file + args.input_ext):
-            os.remove('Music/' + music_file + args.input_ext)
-        extension = args.output_ext
+        extension = output_ext
     if os.path.isfile("Music/" + music_file + extension):
         if extension == '.mp3':
             audiofile = eyed3.load("Music/" + music_file + extension)
@@ -216,6 +241,8 @@ def fixSong(music_file, meta_tags):
     audiofile.tag.album_artist = meta_tags['artists'][0]['name']
     audiofile.tag.album = meta_tags['album']['name']
     audiofile.tag.title = meta_tags['name']
+    artist = spotify.artist(meta_tags['artists'][0]['id'])
+    audiofile.tag.genre = titlecase(artist['genres'][0])
     audiofile.tag.track_num = meta_tags['track_number']
     audiofile.tag.disc_num = meta_tags['disc_number']
     audiofile.tag.release_date = spotify.album(
@@ -248,7 +275,7 @@ def fixSongM4A(music_file, meta_tags):
             'disk': 'disk',
             'cpil': 'cpil',
             'tempo': 'tmpo'}
-    audiofile = MP4('Music/_' + music_file + args.output_ext)
+    audiofile = MP4('Music/' + music_file + output_ext)
     audiofile[tags['artist']] = meta_tags['artists'][0]['name']
     audiofile[tags['album']] = meta_tags['album']['name']
     audiofile[tags['title']] = meta_tags['name']
@@ -257,6 +284,7 @@ def fixSongM4A(music_file, meta_tags):
     album = spotify.album(meta_tags['album']['id'])
     audiofile[tags['year']] = album['release_date']
     audiofile[tags['track']] = [(meta_tags['track_number'], 0)]
+    audiofile[tags['disk']] = [(meta_tags['disc_number'], 0)]
     albumart = (
         requests.get(meta_tags['album']['images'][0]['url'], stream=True)).raw
     with open('last_albumart.jpg', 'wb') as out_file:
@@ -286,16 +314,17 @@ def grabSingle(raw_song, number=None):
         downloadSong(content)
         print('')
         if not args.no_convert:
-            print('Converting ' + music_file + '.m4a to mp3')
-            if args.output_ext == '.m4a':
-                convertToM4A(music_file)
-                meta_tags = generateMetaTags(raw_song)
+            print('Converting ' + music_file + input_ext + ' to ' + output_ext)
+            if args.ffmpeg:
+                convertWithFfmpeg(music_file)
+            else:
+                convertToMP3(music_file)
+            meta_tags = generateMetaTags(raw_song)
+            if output_ext == '.m4a':
                 if meta_tags is not None:
                     print('Fixing meta-tags')
                     fixSongM4A(music_file, meta_tags)
-            else:
-                convertToMP3(music_file)
-                meta_tags = generateMetaTags(raw_song)
+            elif output_ext == '.mp3':
                 if meta_tags is not None:
                     print('Fixing meta-tags')
                     fixSong(music_file, meta_tags)
@@ -348,6 +377,9 @@ def getArgs(argv=None):
                         help='choose the song to download manually', action='store_true')
     parser.add_argument('-l', '--list', default=False,
                         help='download songs present in list.txt', action='store_true')
+    parser.add_argument('-f', '--ffmpeg', default=False,
+                        help='Use ffmpeg instead of libav for conversion. If not set defaults to libav',
+                        action='store_true')
     parser.add_argument('-q', '--quiet', default=False,
                         help='spare us output of ffmpeg conversion', action='store_true')
     parser.add_argument('-i', '--input_ext', default='.m4a',
@@ -364,39 +396,7 @@ def graceQuit():
     exit()
 
 
-if __name__ == '__main__':
-
-    # Python 3 compatibility
-    if version_info > (3, 0):
-        raw_input = input
-
-    eyed3.log.setLevel("ERROR")
-
-    os.chdir(path[0])
-
-    if not os.path.exists("Music"):
-        os.makedirs("Music")
-    open('list.txt', 'a').close()
-
-    # Please respect this user token :)
-    oauth2 = oauth2.SpotifyClientCredentials(client_id='4fe3fecfe5334023a1472516cc99d805',
-                                             client_secret='0f02b7c483c04257984695007a4a8d5c')
-    token = oauth2.get_access_token()
-
-    spotify = spotipy.Spotify(auth=token)
-
-    # Set up arguments
-    args = getArgs()
-
-    if args.no_convert:
-        print("-n, --no-convert skip the conversion process and meta-tags")
-    if args.manual:
-        print("-m, --manual     choose the song to download manually")
-    print('')
-    if args.list:
-        grabList(file='list.txt')
-        exit()
-
+def spotifyDownload():
     while True:
         for temp in os.listdir('Music/'):
             if temp.endswith('.m4a.temp'):
@@ -409,3 +409,42 @@ if __name__ == '__main__':
             print('')
         except KeyboardInterrupt:
             graceQuit()
+
+
+if __name__ == '__main__':
+
+    # Python 3 compatibility
+    if version_info > (3, 0):
+        raw_input = input
+
+    os.chdir(path[0])
+    if not os.path.exists("Music"):
+        os.makedirs("Music")
+    open('list.txt', 'a').close()
+
+    # Please respect this user token :)
+    oauth2 = oauth2.SpotifyClientCredentials(
+        client_id='4fe3fecfe5334023a1472516cc99d805',
+        client_secret='0f02b7c483c04257984695007a4a8d5c')
+    token = oauth2.get_access_token()
+    spotify = spotipy.Spotify(auth=token)
+
+    # Set up arguments
+    args = getArgs()
+    if args.ffmpeg:
+        input_ext = args.input_ext
+        output_ext = args.output_ext
+    else:
+        input_ext = '.m4a'
+        output_ext = '.mp3'
+    if args.no_convert:
+        print("-n, --no-convert skip the conversion process and meta-tags")
+    if args.manual:
+        print("-m, --manual     choose the song to download manually")
+    print('')
+    if args.list:
+        grabList(file='list.txt')
+        exit()
+    eyed3.log.setLevel("ERROR")
+
+    spotifyDownload()
