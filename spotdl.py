@@ -280,7 +280,10 @@ def fixSongM4A(music_file, meta_tags):
     audiofile[tags['album']] = meta_tags['album']['name']
     audiofile[tags['title']] = meta_tags['name']
     artist = spotify.artist(meta_tags['artists'][0]['id'])
-    audiofile[tags['genre']] = titlecase(artist['genres'][0])
+    try:
+        audiofile[tags['genre']] = titlecase(artist['genres'][0])
+    except IndexError:
+        pass
     album = spotify.album(meta_tags['album']['id'])
     audiofile[tags['year']] = album['release_date']
     audiofile[tags['track']] = [(meta_tags['track_number'], 0)]
