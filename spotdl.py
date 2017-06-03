@@ -242,7 +242,10 @@ def fixSong(music_file, meta_tags):
     audiofile.tag.album = meta_tags['album']['name']
     audiofile.tag.title = meta_tags['name']
     artist = spotify.artist(meta_tags['artists'][0]['id'])
-    audiofile.tag.genre = titlecase(artist['genres'][0])
+    try:
+        audiofile.tag.genre = titlecase(artist['genres'][0])
+    except IndexError:
+        pass
     audiofile.tag.track_num = meta_tags['track_number']
     audiofile.tag.disc_num = meta_tags['disc_number']
     audiofile.tag.release_date = spotify.album(
