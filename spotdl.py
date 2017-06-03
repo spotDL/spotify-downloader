@@ -421,6 +421,8 @@ if __name__ == '__main__':
     if not os.path.exists("Music"):
         os.makedirs("Music")
     open('list.txt', 'a').close()
+    
+    eyed3.log.setLevel("ERROR")
 
     # Please respect this user token :)
     oauth2 = oauth2.SpotifyClientCredentials(
@@ -445,6 +447,5 @@ if __name__ == '__main__':
     if args.list:
         grabList(file='list.txt')
         exit()
-    eyed3.log.setLevel("ERROR")
 
     spotifyDownload()
