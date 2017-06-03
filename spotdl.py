@@ -445,7 +445,6 @@ if __name__ == '__main__':
     if args.list:
         grabList(file='list.txt')
         exit()
-    if args.quiet:
-        eyed3.log.setLevel("ERROR")
+    eyed3.log.setLevel("ERROR")
 
     spotifyDownload()
