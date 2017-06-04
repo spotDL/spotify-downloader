@@ -117,7 +117,8 @@ def getYouTubeTitle(content, number):
 
 def generateFileName(content):
     title = (content.title).replace(' ', '_')
-    return slugify(title, ok='-_()[]{}', lower=False)
+    title = slugify(title, ok='-_()[]{}', lower=False)
+    return fixEncoding(title)
 
 
 def downloadSong(content):
