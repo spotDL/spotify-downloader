@@ -104,7 +104,7 @@ Also this time we have the Spotify link only for Hello by Adele but not for othe
 
 No problem!
 
-- Just make a list.txt by running the following commands:
+- Just make a `list.txt` by running the following commands:
 
 ```
 cd
@@ -121,7 +121,7 @@ the nights avicci
 21 guns green day
 ```
 
-- Now pass `--list` or `-l` to the script, i.e `sudo python spotdl.py --list` and it will start downloading songs mentioned in `list.txt`.
+- Now pass `--list` or `-l` to the script, i.e `python spotdl.py --list` (for windows: `python.exe spotdl.py --list`) and it will start downloading songs mentioned in `list.txt`.
 
 - You can stop downloading songs by hitting `ctrl+c`, the script will automatically resume from the song where you stopped it the next time you want to download the songs present in `list.txt`.
 
