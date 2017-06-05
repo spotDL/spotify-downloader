@@ -5,6 +5,7 @@
 - Can also download a song by entering its artist and song name (in case if you don't have the Spotify's HTTP link for some song).
 
 - Automatically fixes song's meta-tags which include:
+
   -title
   -artist
   -album
