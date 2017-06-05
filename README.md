@@ -6,15 +6,15 @@
 
 - Automatically fixes song's meta-tags which include:
 
-  -title
-  -artist
-  -album
-  -album art
-  -album artist
-  -genre
-  -track number
-  -disc number
-  -release date
+  - title
+  - artist
+  - album
+  - album art
+  - album artist
+  - genre
+  - track number
+  - disc number
+  - release date
 
 - Works straight out of the box and does not require to generate or mess with your API keys.
 
