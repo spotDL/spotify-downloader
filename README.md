@@ -4,9 +4,18 @@
 
 - Can also download a song by entering its artist and song name (in case if you don't have the Spotify's HTTP link for some song).
 
-- Automatically fixes song's meta-tags.
+- Automatically fixes song's meta-tags which include:
+  -title
+  -artist
+  -album
+  -album art
+  -album artist
+  -genre
+  -track number
+  -disc number
+  -release date
 
-- Works straight out of the box and requires no pre-messing with API tokens.
+- Works straight out of the box and does not require to generate or mess with your API keys.
 
 <br>
 
