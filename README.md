@@ -66,7 +66,7 @@ Shift+right-click on empty area and open cmd and type:
 
 ## Instructions for Downloading Songs
 
-- For all available options, run `sudo python spotdl.py --help` (or for windows run `python.exe spotdl.py --help`).
+- For all available options, run `python spotdl.py --help` (or for windows run `python.exe spotdl.py --help`).
 
 #### Downloading by Name
 
