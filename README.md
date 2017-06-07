@@ -48,11 +48,9 @@ git clone https://github.com/Ritiek/Spotify-Downloader
 cd Spotify-Downloader
 pip install -U -r requirements.txt
 ```
-You'll also need to install avconv (use --ffmpeg for conversion using ffmpeg):
+You'll also need to install avconv (use `--ffmpeg` option when using the script if you want `ffmpeg`):
 
 `sudo apt-get install libav-tools` (`brew install libav` for Mac)
-
-For list of available options, use `python spotdl.py --help`
 
 ### Windows
 
@@ -66,15 +64,9 @@ Shift+right-click on empty area and open cmd and type:
 
 `"Scripts/pip.exe" install -U -r requirements.txt`
 
-For list of available options, use `python.exe spotdl.py --help`
-
-(you can create a batch file shortcut to run the script just by double-click anytime)
-
 ## Instructions for Downloading Songs
 
-- Launch the script using the above command as mentioned for your OS.
-
-- For available options, run `sudo python spotdl.py --help` (or for windows run `python.exe spotdl.py --help`).
+- For all available options, run `sudo python spotdl.py --help` (or for windows run `python.exe spotdl.py --help`).
 
 #### Downloading by Name
 
