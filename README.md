@@ -118,7 +118,7 @@ http://open.spotify.com/track/64yrDBpcdwEdNY9loyEGbX
 
 - You can also load songs from any playlist provided you have spotify username of that user.
 
-- Try running `python spotdl.py -u <your_username>`, it will show all your playlists.
+- Try running `python spotdl.py -u <your_username>`, it will show all your public playlists.
 
 - Once you select the one you want to download, the script will load all the tracks from the playlist into `<playlist_name>.txt`
 
