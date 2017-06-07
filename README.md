@@ -133,7 +133,7 @@ Check out these issues [#22](https://github.com/Ritiek/Spotify-Downloader/issues
 #### How can I download whole playlist with its URI?
 
 ~~Currently this is not possible without generating unique tokens from Spotify but you can copy all the songs from a playlist and paste them in `list.txt`. I am avoiding tokens as much possible to retain the portability of this tool but if you would like to add it as an optional feature to this tool, PR's welcome!~~
-This feautre has been added!
+This feature has been added!
 
 #### You write horrible code. What's wrong with you?
 
