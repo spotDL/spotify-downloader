@@ -98,16 +98,9 @@ Let's suppose, we have the Spotify link for only `Hello by Adele` and `21 Guns b
 
 No problem!
 
-- Just make a `list.txt` by running the following commands:
+- Just make a `list.txt` in the same folder as the script and add all the songs you want to download, in our case it is
 
-```
-cd
-cd Spotify-Downloader
-nano list.txt
-```
 (if you are on windows, just edit `list.txt` - i.e `C:\Python27\list.txt`)
-
-Add all the songs you want to download, in our case it is
 
 ```
 https://open.spotify.com/track/1MDoll6jK4rrk2BcFRP5i7
