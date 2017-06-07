@@ -123,7 +123,7 @@ http://open.spotify.com/track/64yrDBpcdwEdNY9loyEGbX
 
 - Songs that are already downloaded will be skipped and will not be downloaded again.
 
-### Downloading playlists
+#### Downloading playlists
 
 - You can also load songs from any playlist provided you have spotify username of that user.
 
