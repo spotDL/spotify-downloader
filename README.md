@@ -119,9 +119,7 @@ http://open.spotify.com/track/64yrDBpcdwEdNY9loyEGbX
 
 - You can stop downloading songs by hitting `ctrl+c`, the script will automatically resume from the song where you stopped it the next time you want to download the songs present in `list.txt`.
 
-- To download all songs in your playlist, just select all the songs `ctrl+a` in Spotify desktop app, copy them `ctrl+c` and paste `ctrl+v` in `list.txt` and then use `--list` argument.
-
-- Songs that are already downloaded will be skipped and will not be downloaded again.
+- Songs that are already downloaded will be skipped and not be downloaded again.
 
 #### Downloading playlists
 
