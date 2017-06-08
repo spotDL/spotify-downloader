@@ -68,6 +68,33 @@ Shift+right-click on empty area and open cmd and type:
 
 - For all available options, run `python spotdl.py --help` (or for windows run `python.exe spotdl.py --help`).
 
+```
+usage: spotdl.py [-h] (-s SONG | -l LIST | -u USERNAME) [-n] [-m] [-f] [-v]
+                 [-i INPUT_EXT] [-o OUTPUT_EXT]
+
+Download and convert songs from Spotify, Youtube etc.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -s SONG, --song SONG  download song by spotify link or name (default: None)
+  -l LIST, --list LIST  download songs from a file (default: None)
+  -u USERNAME, --username USERNAME
+                        load user's playlists into <playlist_name>.txt
+                        (default: None)
+  -n, --no-convert      skip the conversion process and meta-tags (default:
+                        False)
+  -m, --manual          choose the song to download manually (default: False)
+  -f, --ffmpeg          Use ffmpeg instead of libav for conversion. If not set
+                        defaults to libav (default: False)
+  -v, --verbose         show debug output (default: False)
+  -i INPUT_EXT, --input_ext INPUT_EXT
+                        prefered input format .m4a or .webm (Opus) (default:
+                        .m4a)
+  -o OUTPUT_EXT, --output_ext OUTPUT_EXT
+                        prefered output extension .mp3 or .m4a (AAC) (default:
+                        .mp3)
+```
+
 #### Downloading by Name
 
 For example
