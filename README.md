@@ -48,13 +48,9 @@ git clone https://github.com/Ritiek/Spotify-Downloader
 cd Spotify-Downloader
 pip install -U -r requirements.txt
 ```
-You'll also need to install avconv:
+You'll also need to install avconv (use `--ffmpeg` option when using the script if you want `ffmpeg`):
 
 `sudo apt-get install libav-tools` (`brew install libav` for Mac)
-
-Use `python spotdl.py` to launch the script.
-
-For list of available options, use `python spotdl.py --help`
 
 ### Windows
 
@@ -68,25 +64,42 @@ Shift+right-click on empty area and open cmd and type:
 
 `"Scripts/pip.exe" install -U -r requirements.txt`
 
-Now to run the script type:
-
-`python.exe spotdl.py`
-
-For list of available options, use `python.exe spotdl.py --help`
-
-(you can create a batch file shortcut to run the script just by double-click anytime)
-
 ## Instructions for Downloading Songs
 
-- Launch the script using the above command as mentioned for your OS.
+- For all available options, run `python spotdl.py --help` (or for windows run `python.exe spotdl.py --help`).
 
-- For available options, run `sudo python spotdl.py --help` (or for windows run `python.exe spotdl.py --help`).
+```
+usage: spotdl.py [-h] (-s SONG | -l LIST | -u USERNAME) [-n] [-m] [-f] [-v]
+                 [-i INPUT_EXT] [-o OUTPUT_EXT]
+
+Download and convert songs from Spotify, Youtube etc.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -s SONG, --song SONG  download song by spotify link or name (default: None)
+  -l LIST, --list LIST  download songs from a file (default: None)
+  -u USERNAME, --username USERNAME
+                        load user's playlists into <playlist_name>.txt
+                        (default: None)
+  -n, --no-convert      skip the conversion process and meta-tags (default:
+                        False)
+  -m, --manual          choose the song to download manually (default: False)
+  -f, --ffmpeg          Use ffmpeg instead of libav for conversion. If not set
+                        defaults to libav (default: False)
+  -v, --verbose         show debug output (default: False)
+  -i INPUT_EXT, --input_ext INPUT_EXT
+                        prefered input format .m4a or .webm (Opus) (default:
+                        .m4a)
+  -o OUTPUT_EXT, --output_ext OUTPUT_EXT
+                        prefered output extension .mp3 or .m4a (AAC) (default:
+                        .mp3)
+```
 
 #### Downloading by Name
 
 For example
 
-- We want to download Hello by Adele, simply run the script and type `adele hello`.
+- We want to download Hello by Adele, simply run `python spotdl.py --song "adele hello"`.
 
 - The script will automatically look for the best matching song and download it in the folder `Music/` placed in your current directory.
 
@@ -98,56 +111,56 @@ For example
 
 - We want to download the same song (i.e: Hello by Adele) but using Spotify Link this time that looks like  `http://open.spotify.com/track/1MDoll6jK4rrk2BcFRP5i7`, you can copy it from your Spotify desktop or mobile app by right clicking or long tap on the song and copy HTTP link.
 
-- Now simply paste this link after running the script, it should download Hello by Adele.
+- Run `python spotdl.py --song http://open.spotify.com/track/1MDoll6jK4rrk2BcFRP5i7`, it should download Hello by Adele.
 
 - Just like before, it will again convert the song to an mp3 but since we used a Spotify HTTP link, the script is guaranteed to fetch the correct meta-tags and album-art.
 
-- Just hit `ctrl+c` to exit out of the script.
-
-#### What if we want to download multiple songs at once?
+#### Download multiple songs at once
 
 For example
 
-- We want to download Hello by Adele, The Nights by Avicci and 21 Guns by Green Day just using a single command.
+- We want to download `Hello by Adele`, `The Nights by Avicci` and `21 Guns by Green Day` just using a single command.
 
-Also this time we have the Spotify link only for Hello by Adele but not for other two songs.
+Let's suppose, we have the Spotify link for only `Hello by Adele` and `21 Guns by Green Day`.
 
 No problem!
 
-- Just make a `list.txt` by running the following commands:
+- Just make a `list.txt` in the same folder as the script and add all the songs you want to download, in our case it is
 
-```
-cd
-cd Spotify-Downloader
-nano list.txt
-```
 (if you are on windows, just edit `list.txt` - i.e `C:\Python27\list.txt`)
-
-Add all the songs you want to download, in our case it is
 
 ```
 https://open.spotify.com/track/1MDoll6jK4rrk2BcFRP5i7
 the nights avicci
-21 guns green day
+http://open.spotify.com/track/64yrDBpcdwEdNY9loyEGbX
 ```
 
-- Now pass `--list` or `-l` to the script, i.e `python spotdl.py --list` (for windows: `python.exe spotdl.py --list`) and it will start downloading songs mentioned in `list.txt`.
+- Now pass `--list=list.txt` to the script, i.e `python spotdl.py --list=list.txt` and it will start downloading songs mentioned in `list.txt`.
 
 - You can stop downloading songs by hitting `ctrl+c`, the script will automatically resume from the song where you stopped it the next time you want to download the songs present in `list.txt`.
 
-- To download all songs in your playlist, just select all the songs `ctrl+a` in Spotify desktop app, copy them `ctrl+c` and paste `ctrl+v` in `list.txt` and then use `--list` argument.
+- Songs that are already downloaded will be skipped and not be downloaded again.
 
-- Songs that are already downloaded will be skipped and will not be downloaded again.
+#### Downloading playlists
+
+- You can also load songs from any playlist provided you have spotify username of that user.
+
+- Try running `python spotdl.py -u <your_username>`, it will show all your public playlists.
+
+- Once you select the one you want to download, the script will load all the tracks from the playlist into `<playlist_name>.txt`
+
+- Then you can simply run `python spotdl.py --list=<playlist_name>.txt` to download them all!
 
 ## FAQ
 
 #### I get system cannot find the specified file when downloading?
 
-Check out these issues [#22](../../issues/22), [#35](../../issues/35), [#36](../../issues/36).
+Check out these issues [#22](https://github.com/Ritiek/Spotify-Downloader/issues/22), [#35](https://github.com/Ritiek/Spotify-Downloader/issues/35), [#36](https://github.com/Ritiek/Spotify-Downloader/issues/36).
 
 #### How can I download whole playlist with its URI?
 
-Currently this is not possible without generating unique tokens from Spotify but you can copy all the songs from a playlist and paste them in `list.txt`. ~~I am avoiding tokens as much possible to retain the portability of this tool but if you would like to add it as an optional feature to this tool, PR's welcome!~~ Okay, I am working on it since Spotify has made it mandatory to use tokens but the good thing is that they can be hardcoded so that users don't have to generate their own.
+~~Currently this is not possible without generating unique tokens from Spotify but you can copy all the songs from a playlist and paste them in `list.txt`. I am avoiding tokens as much possible to retain the portability of this tool but if you would like to add it as an optional feature to this tool, PR's welcome!~~
+This feature has been added!
 
 #### You write horrible code. What's wrong with you?
 

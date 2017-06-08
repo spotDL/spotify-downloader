@@ -18,6 +18,8 @@ import argparse
 
 
 def getInputLink(links):
+    #for i in range(len(links)):
+    #    links[i] = str(i + 1) + '. ' + links[i]
     while True:
         try:
             the_chosen_one = int(raw_input('>> Choose your number: '))
@@ -112,6 +114,37 @@ def getYouTubeTitle(content, number):
     else:
         return str(number) + '. ' + title
 
+
+def feedTracks(file, tracks):
+    with open(file, 'a') as fout:
+        for item in tracks['items']:
+            track = item['track']
+            try:
+                fout.write(track['external_urls']['spotify'] + '\n')
+            except KeyError:
+                pass
+
+
+def feedPlaylist(username):
+    playlists = spotify.user_playlists(username)
+    links = []
+    check = 1
+    for playlist in playlists['items']:
+        print(str(check) + '. ' + playlist['name'] + ' (' + str(playlist['tracks']['total']) + ' tracks)')
+        links.append(playlist)
+        check += 1
+    print('')
+    playlist = getInputLink(links)
+    results = spotify.user_playlist(playlist['owner']['id'], playlist['id'], fields="tracks,next")
+    print('')
+    file = slugify(playlist['name'], ok='-_()[]{}') + '.txt'
+    print('Feeding ' + str(playlist['tracks']['total']) + ' tracks to ' + file)
+    tracks = results['tracks']
+    feedTracks(file, tracks)
+    while tracks['next']:
+        tracks = spotify.next(tracks)
+        feedTracks(file, tracks)
+
 # Generate name for the song to be downloaded
 
 
@@ -133,7 +166,7 @@ def downloadSong(content):
             link.download(filepath='Music/' + music_file + input_ext)
 
 
-def convertToMP3(music_file):
+def convertWithAvconv(music_file):
     if os.name == 'nt':
         os.system(
             'Scripts\\avconv.exe -loglevel 0 -i "' +
@@ -187,7 +220,7 @@ def convertWithFfmpeg(music_file):
         print('Unknown formats. Unable to convert.', input_ext, output_ext)
         return
 
-    if not args.quiet:
+    if args.verbose:
         print(ffmpeg_pre +
               '-i "Music/' + music_file + input_ext + '" ' +
               ffmpeg_params +
@@ -226,7 +259,7 @@ def checkExists(music_file, raw_song, islist):
             else:
                 return True
 
-# Remove song from list.txt once downloaded
+# Remove song from file once downloaded
 
 
 def trimSong(file):
@@ -236,7 +269,7 @@ def trimSong(file):
         fout.writelines(data[1:])
 
 
-def fixSong(music_file, meta_tags):
+def fixSongMP3(music_file, meta_tags):
     audiofile = eyed3.load("Music/" + music_file + '.mp3')
     audiofile.tag.artist = meta_tags['artists'][0]['name']
     audiofile.tag.album_artist = meta_tags['artists'][0]['name']
@@ -304,6 +337,26 @@ def fixSongM4A(music_file, meta_tags):
     audiofile.save()
 
 
+def convertSong(music_file):
+    print('Converting ' + music_file + input_ext + ' to ' + output_ext[1:])
+    if args.ffmpeg:
+        convertWithFfmpeg(music_file)
+    else:
+        convertWithAvconv(music_file)
+
+
+def fixSong(music_file, meta_tags):
+    if meta_tags is None:
+        print('Could not find meta-tags')
+    elif output_ext == '.m4a':
+        print('Fixing meta-tags')
+        fixSongM4A(music_file, meta_tags)
+    elif output_ext == '.mp3':
+        print('Fixing meta-tags')
+        fixSongMP3(music_file, meta_tags)
+    else:
+         print('Cannot embed meta-tags into given output extension')
+
 # Logic behind preparing the song to download to finishing meta-tags
 
 
@@ -321,20 +374,9 @@ def grabSingle(raw_song, number=None):
         downloadSong(content)
         print('')
         if not args.no_convert:
-            print('Converting ' + music_file + input_ext + ' to ' + output_ext)
-            if args.ffmpeg:
-                convertWithFfmpeg(music_file)
-            else:
-                convertToMP3(music_file)
+            convertSong(music_file)
             meta_tags = generateMetaTags(raw_song)
-            if output_ext == '.m4a':
-                if meta_tags is not None:
-                    print('Fixing meta-tags')
-                    fixSongM4A(music_file, meta_tags)
-            elif output_ext == '.mp3':
-                if meta_tags is not None:
-                    print('Fixing meta-tags')
-                    fixSong(music_file, meta_tags)
+            fixSong(music_file, meta_tags)
 
 # Fix python2 encoding issues
 
@@ -349,7 +391,7 @@ def fixEncoding(query):
 def grabList(file):
     lines = open(file, 'r').read()
     lines = lines.splitlines()
-    # Ignore blank lines in list.txt (if any)
+    # Ignore blank lines in file (if any)
     try:
         lines.remove('')
     except ValueError:
@@ -378,21 +420,29 @@ def getArgs(argv=None):
     parser = argparse.ArgumentParser(description='Download and convert songs \
                     from Spotify, Youtube etc.',
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    group = parser.add_mutually_exclusive_group(required=True)
+
+    group.add_argument('-s', '--song',
+                        help='download song by spotify link or name')
+    group.add_argument('-l', '--list',
+                        help='download songs from a file')
+    group.add_argument('-u', '--username',
+                        help="load user's playlists into <playlist_name>.txt")
+
     parser.add_argument('-n', '--no-convert', default=False,
                         help='skip the conversion process and meta-tags', action='store_true')
     parser.add_argument('-m', '--manual', default=False,
                         help='choose the song to download manually', action='store_true')
-    parser.add_argument('-l', '--list', default=False,
-                        help='download songs present in list.txt', action='store_true')
     parser.add_argument('-f', '--ffmpeg', default=False,
                         help='Use ffmpeg instead of libav for conversion. If not set defaults to libav',
                         action='store_true')
-    parser.add_argument('-q', '--quiet', default=False,
-                        help='spare us output of ffmpeg conversion', action='store_true')
+    parser.add_argument('-v', '--verbose', default=False,
+                        help='show debug output', action='store_true')
     parser.add_argument('-i', '--input_ext', default='.m4a',
                         help='prefered input format .m4a or .webm (Opus)')
     parser.add_argument('-o', '--output_ext', default='.mp3',
                         help='prefered output extension .mp3 or .m4a (AAC)')
+
     return parser.parse_args(argv)
 
 
@@ -401,21 +451,6 @@ def graceQuit():
     print('')
     print('Exitting..')
     exit()
-
-
-def spotifyDownload():
-    while True:
-        for temp in os.listdir('Music/'):
-            if temp.endswith('.m4a.temp'):
-                os.remove('Music/' + temp)
-        try:
-            print('Enter a Spotify URL or Song Name: ')
-            command = raw_input('>> ')
-            print('')
-            grabSingle(raw_song=command)
-            print('')
-        except KeyboardInterrupt:
-            graceQuit()
 
 
 if __name__ == '__main__':
@@ -427,9 +462,10 @@ if __name__ == '__main__':
     os.chdir(path[0])
     if not os.path.exists("Music"):
         os.makedirs("Music")
-    open('list.txt', 'a').close()
-    
-    eyed3.log.setLevel("ERROR")
+
+    for temp in os.listdir('Music/'):
+        if temp.endswith('.m4a.temp'):
+            os.remove('Music/' + temp)
 
     # Please respect this user token :)
     oauth2 = oauth2.SpotifyClientCredentials(
@@ -440,19 +476,20 @@ if __name__ == '__main__':
 
     # Set up arguments
     args = getArgs()
+
+    if not args.verbose:
+        eyed3.log.setLevel("ERROR")
+
     if args.ffmpeg:
         input_ext = args.input_ext
         output_ext = args.output_ext
     else:
         input_ext = '.m4a'
         output_ext = '.mp3'
-    if args.no_convert:
-        print("-n, --no-convert skip the conversion process and meta-tags")
-    if args.manual:
-        print("-m, --manual     choose the song to download manually")
-    print('')
-    if args.list:
-        grabList(file='list.txt')
-        exit()
 
-    spotifyDownload()
+    if args.song:
+        grabSingle(raw_song=args.song)
+    elif args.list:
+        grabList(file=args.list)
+    elif args.username:
+        feedPlaylist(username=args.username)
