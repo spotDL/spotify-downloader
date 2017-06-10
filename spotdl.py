@@ -130,7 +130,7 @@ def feedPlaylist(username):
     links = []
     check = 1
     for playlist in playlists['items']:
-        print(str(check) + '. ' + playlist['name'].encode('utf-8') + ' (' + str(playlist['tracks']['total']) + ' tracks)')
+        print(str(check) + '. ' + fixEncoding(playlist['name']) + ' (' + str(playlist['tracks']['total']) + ' tracks)')
         links.append(playlist)
         check += 1
     print('')
