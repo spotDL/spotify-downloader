@@ -167,24 +167,14 @@ def downloadSong(content):
 
 
 def convertWithAvconv(music_file):
-    if os.name == 'nt':
-        os.system(
-            'Scripts\\avconv.exe -loglevel 0 -i "' +
-            'Music/' +
-            music_file +
-            '.m4a" -ab 192k "' +
-            'Music/' +
-            music_file +
-            '.mp3"')
-    else:
-        os.system(
-            'avconv -loglevel 0 -i "' +
-            'Music/' +
-            music_file +
-            '.m4a" -ab 192k "' +
-            'Music/' +
-            music_file +
-            '.mp3"')
+    os.system(
+        'avconv -loglevel 0 -i "' +
+        'Music/' +
+        music_file +
+        '.m4a" -ab 192k "' +
+        'Music/' +
+        music_file +
+        '.mp3"')
     os.remove('Music/' + music_file + '.m4a')
 
 
