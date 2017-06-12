@@ -56,10 +56,6 @@ You'll also need to install avconv (use `--ffmpeg` option when using the script 
 
 Assuming you have Python already installed..
 
-- Be sure you have python 'PATH' environment variables set.
-    - python install folder: like (C:\Program Files\Python36)
-    - python scripts folder: like (C:\Program Files\Python36\Scripts)
-
 - Download Libav-Tools for windows: https://builds.libav.org/windows/release-gpl/libav-x86_64-w64-mingw32-11.7.7z. Copy all the contents of bin folder (of libav) to Scripts folder (in your python's installation directory).
 
 - Download the zip file of this repository and extract its contents in your python's installation folder as well.
@@ -67,6 +63,10 @@ Assuming you have Python already installed..
 Shift+right-click on empty area and open cmd and type:
 
 `"Scripts/pip.exe" install -U -r requirements.txt`
+
+- If you do not want to naviagte to your python folder from the command-line everytime you want to run the script, you can have your python 'PATH' environment variables set and then you can run the script from any directory.
+    - python install folder: like (C:\Program Files\Python36)
+    - python scripts folder: like (C:\Program Files\Python36\Scripts)
 
 ## Instructions for Downloading Songs
 
