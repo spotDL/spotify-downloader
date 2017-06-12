@@ -64,6 +64,10 @@ Shift+right-click on empty area and open cmd and type:
 
 `"Scripts/pip.exe" install -U -r requirements.txt`
 
+- If you do not want to naviagte to your python folder from the command-line everytime you want to run the script, you can have your python 'PATH' environment variables set and then you can run the script from any directory.
+    - python install folder: like (C:\Program Files\Python36)
+    - python scripts folder: like (C:\Program Files\Python36\Scripts)
+
 ## Instructions for Downloading Songs
 
 - For all available options, run `python spotdl.py --help` (or for windows run `python.exe spotdl.py --help`).
