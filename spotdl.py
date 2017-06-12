@@ -191,10 +191,10 @@ def convertWithFfmpeg(music_file):
     # on MacOS brew install ffmpeg --with-fdk-aac will do just that. Other OS?
     # https://trac.ffmpeg.org/wiki/Encode/AAC
     #
-    if args.quiet:
-        ffmpeg_pre = 'ffmpeg -hide_banner -nostats -v panic -y '
-    else:
+    if args.verbose:
         ffmpeg_pre = 'ffmpeg -y '
+    else:
+        ffmpeg_pre = 'ffmpeg -hide_banner -nostats -v panic -y '
 
     if input_ext == '.m4a':
         if output_ext == '.mp3':
