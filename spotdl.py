@@ -402,7 +402,7 @@ def grabList(file):
             print('')
         except KeyboardInterrupt:
             graceQuit()
-        except BaseException:
+        except ConnectionError:
             lines.append(raw_song)
             trimSong(file)
             with open(file, 'a') as myfile:
