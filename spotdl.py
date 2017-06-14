@@ -1,10 +1,17 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 
-# Usual import stuff
+from core.misc import getInputLink
+from core.misc import trimSong
+from core.misc import getArgs
+from core.misc import isSpotify
+from core.misc import generateSearchURL
+from core.misc import fixEncoding
+from core.misc import cleanTemp
+from core.misc import graceQuit
 from bs4 import BeautifulSoup
 from shutil import copyfileobj
-from sys import path, version_info
+import sys
 from slugify import slugify
 from titlecase import titlecase
 from mutagen.mp4 import MP4, MP4Cover
@@ -14,35 +21,6 @@ import eyed3
 import requests
 import pafy
 import os
-import argparse
-
-
-def getInputLink(links):
-    #for i in range(len(links)):
-    #    links[i] = str(i + 1) + '. ' + links[i]
-    while True:
-        try:
-            the_chosen_one = int(raw_input('>> Choose your number: '))
-            if the_chosen_one >= 1 and the_chosen_one <= len(links):
-                return links[the_chosen_one - 1]
-            elif the_chosen_one == 0:
-                return None
-            else:
-                print('Choose a valid number!')
-        except ValueError:
-            print('Choose a valid number!')
-
-# Check if input song is Spotify URL or just a song name
-
-
-def isSpotify(raw_song):
-    if (len(raw_song) == 22 and raw_song.replace(" ", "%20") == raw_song) or (raw_song.find('spotify') > -1):
-        return True
-    else:
-        return False
-
-# [Artist] - [Song Name]
-
 
 def generateSongName(raw_song):
     if isSpotify(raw_song):
@@ -54,24 +32,28 @@ def generateSongName(raw_song):
 def generateMetaTags(raw_song):
     try:
         if isSpotify(raw_song):
-            return spotify.track(raw_song)
+            meta_tags = spotify.track(raw_song)
         else:
-            return spotify.search(raw_song, limit=1)['tracks']['items'][0]
+            meta_tags = spotify.search(raw_song, limit=1)['tracks']['items'][0]
+        artist_id = spotify.artist(meta_tags['artists'][0]['id'])
+
+        try:
+            meta_tags['genre'] = titlecase(artist_id['genres'][0])
+        except IndexError:
+            meta_tags['genre'] = None
+
+        meta_tags['release_date'] = spotify.album(meta_tags['album']['id'])['release_date']
+        return meta_tags
+
     except BaseException:
         return None
-
-
-def generateSearchURL(song):
-    URL = "https://www.youtube.com/results?sp=EgIQAQ%253D%253D&q=" + \
-        song.replace(" ", "%20")
-    return URL
 
 
 def generateYouTubeURL(raw_song):
     song = generateSongName(raw_song)
     searchURL = generateSearchURL(song)
-    items = requests.get(searchURL).text
-    items_parse = BeautifulSoup(items, "html.parser")
+    item = requests.get(searchURL).text
+    items_parse = BeautifulSoup(item, "html.parser")
     check = 1
     if args.manual:
         links = []
@@ -166,7 +148,7 @@ def downloadSong(content):
             link.download(filepath='Music/' + music_file + input_ext)
 
 
-def convertWithAvconv(music_file):
+def convertWithAvconv(music_file, input_ext, output_ext, verbose):
     if os.name == 'nt':
         avconv_path = 'Scripts\\avconv.exe'
     else:
@@ -182,7 +164,7 @@ def convertWithAvconv(music_file):
     os.remove('Music/' + music_file + '.m4a')
 
 
-def convertWithFfmpeg(music_file):
+def convertWithFfmpeg(music_file, input_ext, output_ext, verbose):
     # What are the differences and similarities between ffmpeg, libav, and avconv?
     # https://stackoverflow.com/questions/9477115
     # ffmeg encoders high to lower quality
@@ -191,7 +173,8 @@ def convertWithFfmpeg(music_file):
     # on MacOS brew install ffmpeg --with-fdk-aac will do just that. Other OS?
     # https://trac.ffmpeg.org/wiki/Encode/AAC
     #
-    if args.verbose:
+    print(music_file, input_ext, output_ext, verbose)
+    if verbose:
         ffmpeg_pre = 'ffmpeg -y '
     else:
         ffmpeg_pre = 'ffmpeg -hide_banner -nostats -v panic -y '
@@ -214,7 +197,7 @@ def convertWithFfmpeg(music_file):
         print('Unknown formats. Unable to convert.', input_ext, output_ext)
         return
 
-    if args.verbose:
+    if verbose:
         print(ffmpeg_pre +
               '-i "Music/' + music_file + input_ext + '" ' +
               ffmpeg_params +
@@ -254,14 +237,17 @@ def checkExists(music_file, raw_song, islist):
                 return True
 
 # Remove song from file once downloaded
-
-
-def trimSong(file):
-    with open(file, 'r') as fin:
-        data = fin.read().splitlines(True)
-    with open(file, 'w') as fout:
-        fout.writelines(data[1:])
-
+def fixSong(music_file, meta_tags, output_ext):
+    if meta_tags is None:
+        print('Could not find meta-tags')
+    elif output_ext == '.m4a':
+        print('Fixing meta-tags')
+        fixSongM4A(music_file, meta_tags)
+    elif output_ext == '.mp3':
+        print('Fixing meta-tags')
+        fixSongMP3(music_file, meta_tags)
+    else:
+         print('Cannot embed meta-tags into given output extension')
 
 def fixSongMP3(music_file, meta_tags):
     audiofile = eyed3.load("Music/" + music_file + '.mp3')
@@ -269,23 +255,15 @@ def fixSongMP3(music_file, meta_tags):
     audiofile.tag.album_artist = meta_tags['artists'][0]['name']
     audiofile.tag.album = meta_tags['album']['name']
     audiofile.tag.title = meta_tags['name']
-    artist = spotify.artist(meta_tags['artists'][0]['id'])
-    try:
-        audiofile.tag.genre = titlecase(artist['genres'][0])
-    except IndexError:
-        pass
+    audiofile.tag.genre = meta_tags['genre']
     audiofile.tag.track_num = meta_tags['track_number']
     audiofile.tag.disc_num = meta_tags['disc_number']
-    audiofile.tag.release_date = spotify.album(
-        meta_tags['album']['id'])['release_date']
-    albumart = (
-        requests.get(
-            meta_tags['album']['images'][0]['url'],
-            stream=True)).raw
+    audiofile.tag.release_date = meta_tags['release_date']
+    albumart = requests.get(meta_tags['album']['images'][0]['url'], stream=True).raw
     with open('last_albumart.jpg', 'wb') as out_file:
         copyfileobj(albumart, out_file)
-    albumart = open("last_albumart.jpg", "rb").read()
-    audiofile.tag.images.set(3, albumart, "image/jpeg")
+    with open('last_albumart.jpg', 'rb') as albumart:
+        audiofile.tag.images.set(3, albumart.read(), 'image/jpeg')
     audiofile.tag.save(version=(2, 3, 0))
 
 
@@ -310,46 +288,24 @@ def fixSongM4A(music_file, meta_tags):
     audiofile[tags['artist']] = meta_tags['artists'][0]['name']
     audiofile[tags['album']] = meta_tags['album']['name']
     audiofile[tags['title']] = meta_tags['name']
-    artist = spotify.artist(meta_tags['artists'][0]['id'])
-    try:
-        audiofile[tags['genre']] = titlecase(artist['genres'][0])
-    except IndexError:
-        pass
-    album = spotify.album(meta_tags['album']['id'])
-    audiofile[tags['year']] = album['release_date']
+    audiofile[tags['genre']] = meta_tags['genre']
+    audiofile[tags['year']] = meta_tags['release_date']
     audiofile[tags['track']] = [(meta_tags['track_number'], 0)]
     audiofile[tags['disk']] = [(meta_tags['disc_number'], 0)]
-    albumart = (
-        requests.get(meta_tags['album']['images'][0]['url'], stream=True)).raw
+    albumart = requests.get(meta_tags['album']['images'][0]['url'], stream=True).raw
     with open('last_albumart.jpg', 'wb') as out_file:
         copyfileobj(albumart, out_file)
-    with open("last_albumart.jpg", "rb") as f:
-        audiofile["covr"] = [
-            MP4Cover(
-                f.read(),
-                imageformat=MP4Cover.FORMAT_JPEG)]
+    with open('last_albumart.jpg', 'rb') as albumart:
+        audiofile["covr"] = [ MP4Cover(albumart.read(), imageformat=MP4Cover.FORMAT_JPEG) ]
     audiofile.save()
 
-
-def convertSong(music_file):
+def convertSong(music_file, input_ext, output_ext, ffmpeg, verbose):
     print('Converting ' + music_file + input_ext + ' to ' + output_ext[1:])
-    if args.ffmpeg:
-        convertWithFfmpeg(music_file)
+    if ffmpeg:
+        convertWithFfmpeg(music_file, input_ext, output_ext, verbose)
     else:
-        convertWithAvconv(music_file)
+        convertWithAvconv(music_file, input_ext, output_ext, verbose)
 
-
-def fixSong(music_file, meta_tags):
-    if meta_tags is None:
-        print('Could not find meta-tags')
-    elif output_ext == '.m4a':
-        print('Fixing meta-tags')
-        fixSongM4A(music_file, meta_tags)
-    elif output_ext == '.mp3':
-        print('Fixing meta-tags')
-        fixSongMP3(music_file, meta_tags)
-    else:
-         print('Cannot embed meta-tags into given output extension')
 
 # Logic behind preparing the song to download to finishing meta-tags
 
@@ -368,18 +324,11 @@ def grabSingle(raw_song, number=None):
         downloadSong(content)
         print('')
         if not args.no_convert:
-            convertSong(music_file)
+            convertSong(music_file, input_ext, output_ext, args.ffmpeg, args.verbose)
             meta_tags = generateMetaTags(raw_song)
-            fixSong(music_file, meta_tags)
+            fixSong(music_file, meta_tags, output_ext)
 
 # Fix python2 encoding issues
-
-
-def fixEncoding(query):
-    if version_info > (3, 0):
-        return query
-    else:
-        return query.encode('utf-8')
 
 
 def grabList(file):
@@ -410,56 +359,17 @@ def grabList(file):
             print('Failed to download song. Will retry after other songs.')
 
 
-def getArgs(argv=None):
-    parser = argparse.ArgumentParser(description='Download and convert songs \
-                    from Spotify, Youtube etc.',
-                                     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    group = parser.add_mutually_exclusive_group(required=True)
-
-    group.add_argument('-s', '--song',
-                        help='download song by spotify link or name')
-    group.add_argument('-l', '--list',
-                        help='download songs from a file')
-    group.add_argument('-u', '--username',
-                        help="load user's playlists into <playlist_name>.txt")
-
-    parser.add_argument('-n', '--no-convert', default=False,
-                        help='skip the conversion process and meta-tags', action='store_true')
-    parser.add_argument('-m', '--manual', default=False,
-                        help='choose the song to download manually', action='store_true')
-    parser.add_argument('-f', '--ffmpeg', default=False,
-                        help='Use ffmpeg instead of libav for conversion. If not set defaults to libav',
-                        action='store_true')
-    parser.add_argument('-v', '--verbose', default=False,
-                        help='show debug output', action='store_true')
-    parser.add_argument('-i', '--input_ext', default='.m4a',
-                        help='prefered input format .m4a or .webm (Opus)')
-    parser.add_argument('-o', '--output_ext', default='.mp3',
-                        help='prefered output extension .mp3 or .m4a (AAC)')
-
-    return parser.parse_args(argv)
-
-
-def graceQuit():
-    print('')
-    print('')
-    print('Exitting..')
-    exit()
-
-
 if __name__ == '__main__':
 
     # Python 3 compatibility
-    if version_info > (3, 0):
+    if sys.version_info > (3, 0):
         raw_input = input
 
-    os.chdir(path[0])
+    os.chdir(sys.path[0])
     if not os.path.exists("Music"):
         os.makedirs("Music")
 
-    for temp in os.listdir('Music/'):
-        if temp.endswith('.m4a.temp'):
-            os.remove('Music/' + temp)
+    cleanTemp()
 
     # Please respect this user token :)
     oauth2 = oauth2.SpotifyClientCredentials(
@@ -470,7 +380,7 @@ if __name__ == '__main__':
 
     # Set up arguments
     args = getArgs()
-
+    print(args)
     if not args.verbose:
         eyed3.log.setLevel("ERROR")
 
