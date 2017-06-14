@@ -157,11 +157,11 @@ def convertWithAvconv(music_file, input_ext, output_ext, verbose):
         avconv_path + ' -loglevel 0 -i "' +
         'Music/' +
         music_file +
-        '.m4a" -ab 192k "' +
+        input_ext + '" -ab 192k "' +
         'Music/' +
         music_file +
-        '.mp3"')
-    os.remove('Music/' + music_file + '.m4a')
+        output_ext + '"')
+    os.remove('Music/' + music_file + input_ext)
 
 
 def convertWithFfmpeg(music_file, input_ext, output_ext, verbose):
@@ -242,7 +242,7 @@ def fixSong(music_file, meta_tags, output_ext):
         print('Could not find meta-tags')
     elif output_ext == '.m4a':
         print('Fixing meta-tags')
-        fixSongM4A(music_file, meta_tags)
+        fixSongM4A(music_file, meta_tags, output_ext)
     elif output_ext == '.mp3':
         print('Fixing meta-tags')
         fixSongMP3(music_file, meta_tags)
@@ -255,7 +255,8 @@ def fixSongMP3(music_file, meta_tags):
     audiofile.tag.album_artist = meta_tags['artists'][0]['name']
     audiofile.tag.album = meta_tags['album']['name']
     audiofile.tag.title = meta_tags['name']
-    audiofile.tag.genre = meta_tags['genre']
+    if meta_tags['genre']:
+        audiofile.tag.genre = meta_tags['genre']
     audiofile.tag.track_num = meta_tags['track_number']
     audiofile.tag.disc_num = meta_tags['disc_number']
     audiofile.tag.release_date = meta_tags['release_date']
@@ -267,7 +268,7 @@ def fixSongMP3(music_file, meta_tags):
     audiofile.tag.save(version=(2, 3, 0))
 
 
-def fixSongM4A(music_file, meta_tags):
+def fixSongM4A(music_file, meta_tags, output_ext):
     # eyed serves only mp3 not aac so using mutagen
     # Apple has specific tags - see mutagen docs -
     # http://mutagen.readthedocs.io/en/latest/api/mp4.html
@@ -288,7 +289,8 @@ def fixSongM4A(music_file, meta_tags):
     audiofile[tags['artist']] = meta_tags['artists'][0]['name']
     audiofile[tags['album']] = meta_tags['album']['name']
     audiofile[tags['title']] = meta_tags['name']
-    audiofile[tags['genre']] = meta_tags['genre']
+    if meta_tags['genre']:
+        audiofile[tags['genre']] = meta_tags['genre']
     audiofile[tags['year']] = meta_tags['release_date']
     audiofile[tags['track']] = [(meta_tags['track_number'], 0)]
     audiofile[tags['disk']] = [(meta_tags['disc_number'], 0)]
@@ -300,11 +302,15 @@ def fixSongM4A(music_file, meta_tags):
     audiofile.save()
 
 def convertSong(music_file, input_ext, output_ext, ffmpeg, verbose):
-    print('Converting ' + music_file + input_ext + ' to ' + output_ext[1:])
-    if ffmpeg:
-        convertWithFfmpeg(music_file, input_ext, output_ext, verbose)
+    print(music_file, input_ext, output_ext, ffmpeg, verbose)
+    if not input_ext == output_ext:
+        print('Converting ' + music_file + input_ext + ' to ' + output_ext[1:])
+        if ffmpeg:
+            convertWithFfmpeg(music_file, input_ext, output_ext, verbose)
+        else:
+            convertWithAvconv(music_file, input_ext, output_ext, verbose)
     else:
-        convertWithAvconv(music_file, input_ext, output_ext, verbose)
+        print('Skipping conversion since input_ext = output_ext')
 
 
 # Logic behind preparing the song to download to finishing meta-tags
@@ -324,9 +330,9 @@ def grabSingle(raw_song, number=None):
         downloadSong(content)
         print('')
         if not args.no_convert:
-            convertSong(music_file, input_ext, output_ext, args.ffmpeg, args.verbose)
+            convertSong(music_file, args.input_ext, args.output_ext, args.ffmpeg, args.verbose)
             meta_tags = generateMetaTags(raw_song)
-            fixSong(music_file, meta_tags, output_ext)
+            fixSong(music_file, meta_tags, args.output_ext)
 
 # Fix python2 encoding issues
 
