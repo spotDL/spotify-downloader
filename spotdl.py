@@ -207,7 +207,8 @@ def checkExists(music_file, raw_song, islist):
             continue
 
         if file.startswith(music_file):
-            #audiofile = eyed3.load("Music/" + music_file + output_ext)
+            # FIXME
+            #audiofile = mutagen.load("Music/" + music_file + output_ext)
             #if isSpotify(raw_song) and not audiofile.tag.title == (
             #        generateMetaTags(raw_song))['name']:
             #    os.remove("Music/" + music_file + output_ext)
@@ -240,19 +241,19 @@ def fixSong(music_file, meta_tags, output_ext):
 
 def fixSongMP3(music_file, meta_tags, output_ext):
     audiofile = EasyID3('Music/' + music_file + output_ext)
-    #audiofile = ID3('Music/' + music_file + output_ext)
-    audiofile['artist'] = "Artist"
-    audiofile['albumartist'] = "Artist"
-    audiofile['album'] = "Album"
-    audiofile['title'] = "Title"
-    audiofile['genre'] = "genre"
-    audiofile['tracknumber'] = "1"
-    audiofile['discnumber'] = "2"
-    audiofile['date'] = "2000"
+    audiofile['artist'] = meta_tags['artists'][0]['name']
+    audiofile['albumartist'] = meta_tags['artists'][0]['name']
+    audiofile['album'] = meta_tags['album']['name']
+    audiofile['title'] = meta_tags['name']
+    if meta_tags['genre']:
+        audiofile['genre'] = meta_tags['genre']
+    audiofile['tracknumber'] = [meta_tags['track_number'], 0]
+    audiofile['discnumber'] = [meta_tags['disc_number'], 0]
+    audiofile['date'] = meta_tags['release_date']
     audiofile.save(v2_version=3)
     audiofile = ID3('Music/' + music_file + output_ext)
-    albumart = urllib2.urlopen(meta_tags['album']['images'][0]['url']).read()
-    audiofile["APIC"] = APIC(encoding=3, mime='image/jpeg', type=3, desc=u'Cover', data=albumart)
+    albumart = urllib2.urlopen(meta_tags['album']['images'][0]['url'])
+    audiofile["APIC"] = APIC(encoding=3, mime='image/jpeg', type=3, desc=u'Cover', data=albumart.read())
     albumart.close()
     audiofile.save(v2_version=3)
 
@@ -273,6 +274,7 @@ def fixSongM4A(music_file, meta_tags, output_ext):
             'disk': 'disk',
             'cpil': 'cpil',
             'tempo': 'tmpo'}
+
     audiofile = MP4('Music/' + music_file + output_ext)
     audiofile[tags['artist']] = meta_tags['artists'][0]['name']
     audiofile[tags['album']] = meta_tags['album']['name']
@@ -282,8 +284,8 @@ def fixSongM4A(music_file, meta_tags, output_ext):
     audiofile[tags['year']] = meta_tags['release_date']
     audiofile[tags['track']] = [(meta_tags['track_number'], 0)]
     audiofile[tags['disk']] = [(meta_tags['disc_number'], 0)]
-    albumart = urllib2.urlopen(meta_tags['album']['images'][0]['url']).read()
-    audiofile["covr"] = [ MP4Cover(albumart, imageformat=MP4Cover.FORMAT_JPEG) ]
+    albumart = urllib2.urlopen(meta_tags['album']['images'][0]['url'])
+    audiofile["covr"] = [ MP4Cover(albumart.read(), imageformat=MP4Cover.FORMAT_JPEG) ]
     albumart.close()
     audiofile.save()
 
@@ -367,8 +369,6 @@ if __name__ == '__main__':
     # Set up arguments
     args = getArgs()
     print(args)
-    if not args.verbose:
-        eyed3.log.setLevel("ERROR")
 
     #if args.ffmpeg:
     #    input_ext = args.input_ext
