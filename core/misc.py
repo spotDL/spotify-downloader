@@ -68,11 +68,6 @@ def fixEncoding(query):
     else:
         return query.encode('utf-8')
 
-def cleanTemp():
-    for temp in os.listdir('Music/'):
-        if temp.endswith('.m4a.temp'):
-            os.remove('Music/' + temp)
-
 def graceQuit():
     print('')
     print('')
