@@ -33,12 +33,12 @@ def get_arguments():
                         help='download songs from a file')
     group.add_argument('-u', '--username',
                         help="load user's playlists into <playlist_name>.txt")
-    parser.add_argument('-n', '--no-convert', default=False,
-                        help='skip the conversion process and meta-tags', action='store_true')
     parser.add_argument('-m', '--manual', default=False,
                         help='choose the song to download manually', action='store_true')
+    parser.add_argument('-nm', '--no-metadata', default=False,
+                        help='do not embed metadata in songs', action='store_true')
     parser.add_argument('-f', '--ffmpeg', default=False,
-                        help='Use ffmpeg instead of libav for conversion. If not set defaults to libav',
+                        help='Use ffmpeg for conversion otherwise set defaults to libav',
                         action='store_true')
     parser.add_argument('-v', '--verbose', default=False,
                         help='show debug output', action='store_true')

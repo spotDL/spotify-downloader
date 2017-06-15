@@ -126,18 +126,18 @@ def generate_filename(content):
     title = slugify(title, ok='-_()[]{}', lower=False)
     return fix_encoding(title)
 
-def download_song(content, input_ext):
+def download_song(content):
     music_file = generate_filename(content)
-    if input_ext == '.webm':
+    if args.input_ext == '.webm':
         link = content.getbestaudio(preftype='webm')
         if link is not None:
-            link.download(filepath='Music/' + music_file + input_ext)
+            link.download(filepath='Music/' + music_file + args.input_ext)
     else:
         link = content.getbestaudio(preftype='m4a')
         if link is not None:
-            link.download(filepath='Music/' + music_file + input_ext)
+            link.download(filepath='Music/' + music_file + args.input_ext)
 
-def convert_with_avconv(music_file, input_ext, output_ext, verbose):
+def convert_with_libav(music_file):
     if os.name == 'nt':
         avconv_path = 'Scripts\\avconv.exe'
     else:
@@ -146,13 +146,13 @@ def convert_with_avconv(music_file, input_ext, output_ext, verbose):
         avconv_path + ' -loglevel 0 -i "' +
         'Music/' +
         music_file +
-        input_ext + '" -ab 192k "' +
+        args.input_ext + '" -ab 192k "' +
         'Music/' +
         music_file +
-        output_ext + '"')
-    os.remove('Music/' + music_file + input_ext)
+        args.output_ext + '"')
+    os.remove('Music/' + music_file + args.input_ext)
 
-def convert_with_FFmpeg(music_file, input_ext, output_ext, verbose):
+def convert_with_FFmpeg(music_file):
     # What are the differences and similarities between ffmpeg, libav, and avconv?
     # https://stackoverflow.com/questions/9477115
     # ffmeg encoders high to lower quality
@@ -161,31 +161,31 @@ def convert_with_FFmpeg(music_file, input_ext, output_ext, verbose):
     # on MacOS brew install ffmpeg --with-fdk-aac will do just that. Other OS?
     # https://trac.ffmpeg.org/wiki/Encode/AAC
     #
-    print(music_file, input_ext, output_ext, verbose)
-    if verbose:
+    print(music_file)
+    if args.verbose:
         ffmpeg_pre = 'ffmpeg -y '
     else:
         ffmpeg_pre = 'ffmpeg -hide_banner -nostats -v panic -y '
 
-    if input_ext == '.m4a':
-        if output_ext == '.mp3':
+    if args.input_ext == '.m4a':
+        if args.output_ext == '.mp3':
             ffmpeg_params = '-codec:v copy -codec:a libmp3lame -q:a 2 '
         elif output_ext == '.webm':
             ffmpeg_params = '-c:a libopus -vbr on -b:a 192k -vn '
         else:
             return
-    elif input_ext == '.webm':
-        if output_ext == '.mp3':
+    elif args.input_ext == '.webm':
+        if args.output_ext == '.mp3':
             ffmpeg_params = '-ab 192k -ar 44100 -vn '
-        elif output_ext == '.m4a':
+        elif args.output_ext == '.m4a':
             ffmpeg_params = '-cutoff 20000 -c:a libfdk_aac -b:a 256k -vn '
         else:
             return
     else:
-        print('Unknown formats. Unable to convert.', input_ext, output_ext)
+        print('Unknown formats. Unable to convert.', args.input_ext, args.output_ext)
         return
 
-    if verbose:
+    if args.verbose:
         print(ffmpeg_pre +
               '-i "Music/' + music_file + input_ext + '" ' +
               ffmpeg_params +
@@ -196,7 +196,7 @@ def convert_with_FFmpeg(music_file, input_ext, output_ext, verbose):
         '-i "Music/' + music_file + input_ext + '" ' +
         ffmpeg_params +
         '"Music/' + music_file + output_ext + '" ')
-    os.remove('Music/' + music_file + input_ext)
+    os.remove('Music/' + music_file + args.input_ext)
 
 def check_exists(music_file, raw_song, islist):
     files = os.listdir("Music")
@@ -217,8 +217,7 @@ def check_exists(music_file, raw_song, islist):
         if islist:
             return True
         else:
-            prompt = raw_input(
-                'Song with same name has already been downloaded. Re-download? (y/n): ').lower()
+            prompt = raw_input('Song with same name has already been downloaded. Re-download? (y/n): ').lower()
             if prompt == "y":
                 os.remove("Music/" + file)
                 return False
@@ -226,20 +225,20 @@ def check_exists(music_file, raw_song, islist):
                 return True
 
 # Remove song from file once downloaded
-def fix_metadata(music_file, meta_tags, output_ext):
+def fix_metadata(music_file, meta_tags):
     if meta_tags is None:
         print('Could not find meta-tags')
-    elif output_ext == '.m4a':
+    elif args.output_ext == '.m4a':
         print('Fixing meta-tags')
-        fix_metadata_m4a(music_file, meta_tags, output_ext)
-    elif output_ext == '.mp3':
+        fix_metadata_m4a(music_file, meta_tags)
+    elif args.output_ext == '.mp3':
         print('Fixing meta-tags')
-        fix_metadata_mp3(music_file, meta_tags, output_ext)
+        fix_metadata_mp3(music_file, meta_tags)
     else:
          print('Cannot embed meta-tags into given output extension')
 
-def fix_metadata_mp3(music_file, meta_tags, output_ext):
-    audiofile = EasyID3('Music/' + music_file + output_ext)
+def fix_metadata_mp3(music_file, meta_tags):
+    audiofile = EasyID3('Music/' + music_file + args.output_ext)
     audiofile['artist'] = meta_tags['artists'][0]['name']
     audiofile['albumartist'] = meta_tags['artists'][0]['name']
     audiofile['album'] = meta_tags['album']['name']
@@ -250,13 +249,13 @@ def fix_metadata_mp3(music_file, meta_tags, output_ext):
     audiofile['discnumber'] = [meta_tags['disc_number'], 0]
     audiofile['date'] = meta_tags['release_date']
     audiofile.save(v2_version=3)
-    audiofile = ID3('Music/' + music_file + output_ext)
+    audiofile = ID3('Music/' + music_file + args.output_ext)
     albumart = urllib2.urlopen(meta_tags['album']['images'][0]['url'])
     audiofile["APIC"] = APIC(encoding=3, mime='image/jpeg', type=3, desc=u'Cover', data=albumart.read())
     albumart.close()
     audiofile.save(v2_version=3)
 
-def fix_metadata_m4a(music_file, meta_tags, output_ext):
+def fix_metadata_m4a(music_file, meta_tags):
     # eyed serves only mp3 not aac so using mutagen
     # Apple has specific tags - see mutagen docs -
     # http://mutagen.readthedocs.io/en/latest/api/mp4.html
@@ -274,7 +273,7 @@ def fix_metadata_m4a(music_file, meta_tags, output_ext):
             'cpil': 'cpil',
             'tempo': 'tmpo'}
 
-    audiofile = MP4('Music/' + music_file + output_ext)
+    audiofile = MP4('Music/' + music_file + args.output_ext)
     audiofile[tags['artist']] = meta_tags['artists'][0]['name']
     audiofile[tags['album']] = meta_tags['album']['name']
     audiofile[tags['title']] = meta_tags['name']
@@ -288,17 +287,13 @@ def fix_metadata_m4a(music_file, meta_tags, output_ext):
     albumart.close()
     audiofile.save()
 
-def convert_song(music_file, input_ext, output_ext, ffmpeg, verbose):
-    print(music_file, input_ext, output_ext, ffmpeg, verbose)
-    if not input_ext == output_ext:
-        print('Converting ' + music_file + input_ext + ' to ' + output_ext[1:])
-        if ffmpeg:
-            convert_with_FFmpeg(music_file, input_ext, output_ext, verbose)
+def convert_song(music_file):
+    if not args.input_ext == args.output_ext:
+        print('Converting ' + music_file + args.input_ext + ' to ' + args.output_ext[1:])
+        if args.ffmpeg:
+            convert_with_FFmpeg(music_file)
         else:
-            convert_with_avconv(music_file, input_ext, output_ext, verbose)
-    else:
-        print('Skipping conversion since input_ext = output_ext')
-
+            convert_with_libav(music_file)
 
 # Logic behind preparing the song to download to finishing meta-tags
 def grab_single(raw_song, number=None):
@@ -312,12 +307,12 @@ def grab_single(raw_song, number=None):
     print(get_YouTube_title(content, number))
     music_file = generate_filename(content)
     if not check_exists(music_file, raw_song, islist=islist):
-        download_song(content, args.input_ext)
+        download_song(content)
         print('')
-        if not args.no_convert:
-            convert_song(music_file, args.input_ext, args.output_ext, args.ffmpeg, args.verbose)
-            meta_tags = generate_metadata(raw_song)
-            fix_metadata(music_file, meta_tags, args.output_ext)
+        convert_song(music_file)
+        meta_tags = generate_metadata(raw_song)
+        if not args.no_metadata:
+            fix_metadata(music_file, meta_tags)
 
 # Fix python2 encoding issues
 def grab_list(file):
