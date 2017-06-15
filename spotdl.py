@@ -46,8 +46,8 @@ def generate_metadata(raw_song):
         meta_tags[u'copyright'] = spotify.album(meta_tags['album']['id'])['copyrights'][0]['text']
         meta_tags[u'publisher'] = spotify.album(meta_tags['album']['id'])['label']
         meta_tags[u'total_tracks'] = spotify.album(meta_tags['album']['id'])['tracks']['total']
-        import pprint
-        pprint.pprint(meta_tags)
+        #import pprint
+        #pprint.pprint(meta_tags)
         #pprint.pprint(spotify.album(meta_tags['album']['id']))
         return meta_tags
 
@@ -270,8 +270,11 @@ def fix_metadata(music_file, meta_tags):
          print('Cannot embed meta-tags into given output extension')
 
 def fix_metadata_mp3(music_file, meta_tags):
+    artists = []
+    for artist in meta_tags['artists']:
+        artists.append(artist['name'])
     audiofile = EasyID3('Music/' + music_file + args.output_ext)
-    audiofile['artist'] = meta_tags['artists'][0]['name']
+    audiofile['artist'] = ', '.join(artists)
     audiofile['albumartist'] = meta_tags['artists'][0]['name']
     audiofile['album'] = meta_tags['album']['name']
     audiofile['title'] = meta_tags['name']
@@ -279,6 +282,7 @@ def fix_metadata_mp3(music_file, meta_tags):
     audiofile['discnumber'] = [meta_tags['disc_number'], 0]
     audiofile['date'] = meta_tags['release_date']
     audiofile['originaldate'] = meta_tags['release_date']
+    audiofile['media'] = meta_tags['type']
     audiofile['copyright'] = meta_tags['copyright']
     audiofile['author'] = meta_tags['artists'][0]['name']
     audiofile['lyricist'] = meta_tags['artists'][0]['name']
@@ -287,7 +291,7 @@ def fix_metadata_mp3(music_file, meta_tags):
     audiofile['encodedby'] = meta_tags['publisher']
     audiofile['isrc'] = meta_tags['external_ids']['isrc']
     audiofile['website'] = meta_tags['external_urls']['spotify']
-    audiofile['length'] = meta_tags['duration_ms'] / 100
+    audiofile['length'] = str(meta_tags['duration_ms'] / 1000)
     if meta_tags['genre']:
         audiofile['genre'] = meta_tags['genre']
     audiofile.save(v2_version=3)
@@ -318,8 +322,11 @@ def fix_metadata_m4a(music_file, meta_tags):
             'copyright': 'cprt',
             'tempo': 'tmpo'}
 
+    artists = []
+    for artist in meta_tags['artists']:
+        artists.append(artist['name'])
     audiofile = MP4('Music/' + music_file + args.output_ext)
-    audiofile[tags['artist']] = meta_tags['artists'][0]['name']
+    audiofile[tags['artist']] = ', '.join(artists)
     audiofile[tags['albumartist']] = meta_tags['artists'][0]['name']
     audiofile[tags['album']] = meta_tags['album']['name']
     audiofile[tags['title']] = meta_tags['name']
@@ -375,9 +382,9 @@ def grab_single(raw_song, number=None):
     print(get_YouTube_title(content, number))
     music_file = generate_filename(content)
     if not check_exists(music_file, raw_song, islist=islist):
-        download_song(content)
+        #download_song(content)
         print('')
-        convert_song(music_file)
+        #convert_song(music_file)
         meta_tags = generate_metadata(raw_song)
         if not args.no_metadata:
             fix_metadata(music_file, meta_tags)
