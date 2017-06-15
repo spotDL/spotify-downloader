@@ -1,15 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 
-from core.misc import getInputLink
-from core.misc import trimSong
-from core.misc import getArgs
-from core.misc import isSpotify
-from core.misc import generateSearchURL
-from core.misc import fixEncoding
-from core.misc import graceQuit
+from core.misc import input_link
+from core.misc import trim_song
+from core.misc import get_arguments
+from core.misc import is_spotify
+from core.misc import generate_search_URL
+from core.misc import fix_encoding
+from core.misc import grace_quit
 from bs4 import BeautifulSoup
-from shutil import copyfileobj
 import sys
 from slugify import slugify
 from titlecase import titlecase
@@ -22,15 +21,15 @@ import urllib2
 import pafy
 import os
 
-def generateSongName(raw_song):
-    if isSpotify(raw_song):
-        tags = generateMetaTags(raw_song)
+def generate_song_name(raw_song):
+    if is_spotify(raw_song):
+        tags = generate_metadata(raw_song)
         raw_song = tags['artists'][0]['name'] + ' - ' + tags['name']
     return raw_song
 
-def generateMetaTags(raw_song):
+def generate_metadata(raw_song):
     try:
-        if isSpotify(raw_song):
+        if is_spotify(raw_song):
             meta_tags = spotify.track(raw_song)
         else:
             meta_tags = spotify.search(raw_song, limit=1)['tracks']['items'][0]
@@ -47,9 +46,9 @@ def generateMetaTags(raw_song):
     except BaseException:
         return None
 
-def generateYouTubeURL(raw_song):
-    song = generateSongName(raw_song)
-    searchURL = generateSearchURL(song)
+def generate_YouTube_URL(raw_song):
+    song = generate_song_name(raw_song)
+    searchURL = generate_search_URL(song)
     item = urllib2.urlopen(searchURL).read()
     items_parse = BeautifulSoup(item, "html.parser")
     check = 1
@@ -64,7 +63,7 @@ def generateYouTubeURL(raw_song):
                 links.append(x.find('a')['href'])
                 check += 1
         print('')
-        result = getInputLink(links)
+        result = input_link(links)
         if result is None:
             return None
     else:
@@ -78,21 +77,21 @@ def generateYouTubeURL(raw_song):
     full_link = "youtube.com" + result
     return full_link
 
-def goPafy(raw_song):
-    trackURL = generateYouTubeURL(raw_song)
+def go_pafy(raw_song):
+    trackURL = generate_YouTube_URL(raw_song)
     if trackURL is None:
         return None
     else:
         return pafy.new(trackURL)
 
-def getYouTubeTitle(content, number):
+def get_YouTube_title(content, number):
     title = content.title
     if number is None:
         return title
     else:
         return str(number) + '. ' + title
 
-def feedTracks(file, tracks):
+def feed_tracks(file, tracks):
     with open(file, 'a') as fout:
         for item in tracks['items']:
             track = item['track']
@@ -101,34 +100,34 @@ def feedTracks(file, tracks):
             except KeyError:
                 pass
 
-def feedPlaylist(username):
+def feed_playlist(username):
     playlists = spotify.user_playlists(username)
     links = []
     check = 1
     for playlist in playlists['items']:
-        print(str(check) + '. ' + fixEncoding(playlist['name']) + ' (' + str(playlist['tracks']['total']) + ' tracks)')
+        print(str(check) + '. ' + fix_encoding(playlist['name']) + ' (' + str(playlist['tracks']['total']) + ' tracks)')
         links.append(playlist)
         check += 1
     print('')
-    playlist = getInputLink(links)
+    playlist = input_link(links)
     results = spotify.user_playlist(playlist['owner']['id'], playlist['id'], fields="tracks,next")
     print('')
     file = slugify(playlist['name'], ok='-_()[]{}') + '.txt'
     print('Feeding ' + str(playlist['tracks']['total']) + ' tracks to ' + file)
     tracks = results['tracks']
-    feedTracks(file, tracks)
+    feed_tracks(file, tracks)
     while tracks['next']:
         tracks = spotify.next(tracks)
-        feedTracks(file, tracks)
+        feed_tracks(file, tracks)
 
 # Generate name for the song to be downloaded
-def generateFileName(content):
+def generate_filename(content):
     title = (content.title).replace(' ', '_')
     title = slugify(title, ok='-_()[]{}', lower=False)
-    return fixEncoding(title)
+    return fix_encoding(title)
 
-def downloadSong(content, input_ext):
-    music_file = generateFileName(content)
+def download_song(content, input_ext):
+    music_file = generate_filename(content)
     if input_ext == '.webm':
         link = content.getbestaudio(preftype='webm')
         if link is not None:
@@ -138,7 +137,7 @@ def downloadSong(content, input_ext):
         if link is not None:
             link.download(filepath='Music/' + music_file + input_ext)
 
-def convertWithAvconv(music_file, input_ext, output_ext, verbose):
+def convert_with_avconv(music_file, input_ext, output_ext, verbose):
     if os.name == 'nt':
         avconv_path = 'Scripts\\avconv.exe'
     else:
@@ -153,7 +152,7 @@ def convertWithAvconv(music_file, input_ext, output_ext, verbose):
         output_ext + '"')
     os.remove('Music/' + music_file + input_ext)
 
-def convertWithFfmpeg(music_file, input_ext, output_ext, verbose):
+def convert_with_FFmpeg(music_file, input_ext, output_ext, verbose):
     # What are the differences and similarities between ffmpeg, libav, and avconv?
     # https://stackoverflow.com/questions/9477115
     # ffmeg encoders high to lower quality
@@ -199,7 +198,7 @@ def convertWithFfmpeg(music_file, input_ext, output_ext, verbose):
         '"Music/' + music_file + output_ext + '" ')
     os.remove('Music/' + music_file + input_ext)
 
-def checkExists(music_file, raw_song, islist):
+def check_exists(music_file, raw_song, islist):
     files = os.listdir("Music")
     for file in files:
         if file.endswith(".temp"):
@@ -209,8 +208,8 @@ def checkExists(music_file, raw_song, islist):
         if file.startswith(music_file):
             # FIXME
             #audiofile = mutagen.load("Music/" + music_file + output_ext)
-            #if isSpotify(raw_song) and not audiofile.tag.title == (
-            #        generateMetaTags(raw_song))['name']:
+            #if is_spotify(raw_song) and not audiofile.tag.title == (
+            #        generate_metadata(raw_song))['name']:
             #    os.remove("Music/" + music_file + output_ext)
             #    return False
             os.remove("Music/" + file)
@@ -227,19 +226,19 @@ def checkExists(music_file, raw_song, islist):
                 return True
 
 # Remove song from file once downloaded
-def fixSong(music_file, meta_tags, output_ext):
+def fix_metadata(music_file, meta_tags, output_ext):
     if meta_tags is None:
         print('Could not find meta-tags')
     elif output_ext == '.m4a':
         print('Fixing meta-tags')
-        fixSongM4A(music_file, meta_tags, output_ext)
+        fix_metadata_m4a(music_file, meta_tags, output_ext)
     elif output_ext == '.mp3':
         print('Fixing meta-tags')
-        fixSongMP3(music_file, meta_tags, output_ext)
+        fix_metadata_mp3(music_file, meta_tags, output_ext)
     else:
          print('Cannot embed meta-tags into given output extension')
 
-def fixSongMP3(music_file, meta_tags, output_ext):
+def fix_metadata_mp3(music_file, meta_tags, output_ext):
     audiofile = EasyID3('Music/' + music_file + output_ext)
     audiofile['artist'] = meta_tags['artists'][0]['name']
     audiofile['albumartist'] = meta_tags['artists'][0]['name']
@@ -257,7 +256,7 @@ def fixSongMP3(music_file, meta_tags, output_ext):
     albumart.close()
     audiofile.save(v2_version=3)
 
-def fixSongM4A(music_file, meta_tags, output_ext):
+def fix_metadata_m4a(music_file, meta_tags, output_ext):
     # eyed serves only mp3 not aac so using mutagen
     # Apple has specific tags - see mutagen docs -
     # http://mutagen.readthedocs.io/en/latest/api/mp4.html
@@ -289,39 +288,39 @@ def fixSongM4A(music_file, meta_tags, output_ext):
     albumart.close()
     audiofile.save()
 
-def convertSong(music_file, input_ext, output_ext, ffmpeg, verbose):
+def convert_song(music_file, input_ext, output_ext, ffmpeg, verbose):
     print(music_file, input_ext, output_ext, ffmpeg, verbose)
     if not input_ext == output_ext:
         print('Converting ' + music_file + input_ext + ' to ' + output_ext[1:])
         if ffmpeg:
-            convertWithFfmpeg(music_file, input_ext, output_ext, verbose)
+            convert_with_FFmpeg(music_file, input_ext, output_ext, verbose)
         else:
-            convertWithAvconv(music_file, input_ext, output_ext, verbose)
+            convert_with_avconv(music_file, input_ext, output_ext, verbose)
     else:
         print('Skipping conversion since input_ext = output_ext')
 
 
 # Logic behind preparing the song to download to finishing meta-tags
-def grabSingle(raw_song, number=None):
+def grab_single(raw_song, number=None):
     if number:
         islist = True
     else:
         islist = False
-    content = goPafy(raw_song)
+    content = go_pafy(raw_song)
     if content is None:
         return
-    print(getYouTubeTitle(content, number))
-    music_file = generateFileName(content)
-    if not checkExists(music_file, raw_song, islist=islist):
-        downloadSong(content, args.input_ext)
+    print(get_YouTube_title(content, number))
+    music_file = generate_filename(content)
+    if not check_exists(music_file, raw_song, islist=islist):
+        download_song(content, args.input_ext)
         print('')
         if not args.no_convert:
-            convertSong(music_file, args.input_ext, args.output_ext, args.ffmpeg, args.verbose)
-            meta_tags = generateMetaTags(raw_song)
-            fixSong(music_file, meta_tags, args.output_ext)
+            convert_song(music_file, args.input_ext, args.output_ext, args.ffmpeg, args.verbose)
+            meta_tags = generate_metadata(raw_song)
+            fix_metadata(music_file, meta_tags, args.output_ext)
 
 # Fix python2 encoding issues
-def grabList(file):
+def grab_list(file):
     lines = open(file, 'r').read()
     lines = lines.splitlines()
     # Ignore blank lines in file (if any)
@@ -335,15 +334,15 @@ def grabList(file):
     number = 1
     for raw_song in lines:
         try:
-            grabSingle(raw_song, number=number)
-            trimSong(file)
+            grab_single(raw_song, number=number)
+            trim_song(file)
             number += 1
             print('')
         except KeyboardInterrupt:
-            graceQuit()
+            grace_quit()
         except ConnectionError:
             lines.append(raw_song)
-            trimSong(file)
+            trim_song(file)
             with open(file, 'a') as myfile:
                 myfile.write(raw_song)
             print('Failed to download song. Will retry after other songs.')
@@ -367,7 +366,7 @@ if __name__ == '__main__':
     spotify = spotipy.Spotify(auth=token)
 
     # Set up arguments
-    args = getArgs()
+    args = get_arguments()
     print(args)
 
     #if args.ffmpeg:
@@ -378,8 +377,8 @@ if __name__ == '__main__':
     #    output_ext = '.mp3'
 
     if args.song:
-        grabSingle(raw_song=args.song)
+        grab_single(raw_song=args.song)
     elif args.list:
-        grabList(file=args.list)
+        grab_list(file=args.list)
     elif args.username:
-        feedPlaylist(username=args.username)
+        feed_playlist(username=args.username)

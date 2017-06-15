@@ -2,7 +2,7 @@ import argparse
 import sys
 import os
 
-def getInputLink(links):
+def input_link(links):
     while True:
         try:
             the_chosen_one = int(raw_input('>> Choose your number: '))
@@ -15,13 +15,13 @@ def getInputLink(links):
         except ValueError:
             print('Choose a valid number!')
 
-def trimSong(file):
+def trim_song(file):
     with open(file, 'r') as fin:
         data = fin.read().splitlines(True)
     with open(file, 'w') as fout:
         fout.writelines(data[1:])
 
-def getArgs():
+def get_arguments():
     parser = argparse.ArgumentParser(description='Download and convert songs \
                     from Spotify, Youtube etc.',
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
@@ -33,7 +33,6 @@ def getArgs():
                         help='download songs from a file')
     group.add_argument('-u', '--username',
                         help="load user's playlists into <playlist_name>.txt")
-
     parser.add_argument('-n', '--no-convert', default=False,
                         help='skip the conversion process and meta-tags', action='store_true')
     parser.add_argument('-m', '--manual', default=False,
@@ -50,25 +49,24 @@ def getArgs():
 
     return parser.parse_args()
 
-
-def isSpotify(raw_song):
+def is_spotify(raw_song):
     if (len(raw_song) == 22 and raw_song.replace(" ", "%20") == raw_song) or (raw_song.find('spotify') > -1):
         return True
     else:
         return False
 
-def generateSearchURL(song):
+def generate_search_URL(song):
     URL = "https://www.youtube.com/results?sp=EgIQAQ%253D%253D&q=" + \
         song.replace(" ", "%20")
     return URL
 
-def fixEncoding(query):
+def fix_encoding(query):
     if sys.version_info > (3, 0):
         return query
     else:
         return query.encode('utf-8')
 
-def graceQuit():
+def grace_quit():
     print('')
     print('')
     print('Exitting..')
