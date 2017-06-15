@@ -382,9 +382,9 @@ def grab_single(raw_song, number=None):
     print(get_YouTube_title(content, number))
     music_file = generate_filename(content)
     if not check_exists(music_file, raw_song, islist=islist):
-        #download_song(content)
+        download_song(content)
         print('')
-        #convert_song(music_file)
+        convert_song(music_file)
         meta_tags = generate_metadata(raw_song)
         if not args.no_metadata:
             fix_metadata(music_file, meta_tags)
