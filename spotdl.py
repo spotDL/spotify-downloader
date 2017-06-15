@@ -363,7 +363,7 @@ def grab_list(file):
             print('')
         except KeyboardInterrupt:
             grace_quit()
-        except ConnectionError:
+        except (URLError, IOError):
             lines.append(raw_song)
             trim_song(file)
             with open(file, 'a') as myfile:
