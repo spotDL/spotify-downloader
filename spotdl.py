@@ -9,17 +9,18 @@ from core.misc import generate_search_URL
 from core.misc import fix_encoding
 from core.misc import grace_quit
 from bs4 import BeautifulSoup
-import sys
-from slugify import slugify
 from titlecase import titlecase
-from mutagen.id3 import ID3, APIC
+from slugify import slugify
 from mutagen.easyid3 import EasyID3
+from mutagen.id3 import ID3, APIC
 from mutagen.mp4 import MP4, MP4Cover
 import spotipy
 import spotipy.oauth2 as oauth2
 import urllib2
 import pafy
+import sys
 import os
+import subprocess
 
 def generate_song_name(raw_song):
     if is_spotify(raw_song):
@@ -137,19 +138,37 @@ def download_song(content):
         if link is not None:
             link.download(filepath='Music/' + music_file + args.input_ext)
 
+def convert_song(music_file):
+    if not args.input_ext == args.output_ext:
+        print('Converting ' + music_file + args.input_ext + ' to ' + args.output_ext[1:])
+        if args.ffmpeg:
+            convert_with_FFmpeg(music_file)
+        else:
+            convert_with_libav(music_file)
+
 def convert_with_libav(music_file):
     if os.name == 'nt':
         avconv_path = 'Scripts\\avconv.exe'
     else:
         avconv_path = 'avconv'
-    os.system(
-        avconv_path + ' -loglevel 0 -i "' +
-        'Music/' +
-        music_file +
-        args.input_ext + '" -ab 192k "' +
-        'Music/' +
-        music_file +
-        args.output_ext + '"')
+
+    if args.verbose:
+        level = 'debug'
+    else:
+        level = '0'
+
+    print([avconv_path,
+          '-loglevel', level,
+          '-i',        'Music/' + music_file + args.input_ext,
+          '-ab',       '192k',
+          'Music/' + music_file + args.output_ext])
+
+    subprocess.call([avconv_path,
+                    '-loglevel', level,
+                    '-i',        'Music/' + music_file + args.input_ext,
+                    '-ab',       '192k',
+                    'Music/' + music_file + args.output_ext])
+
     os.remove('Music/' + music_file + args.input_ext)
 
 def convert_with_FFmpeg(music_file):
@@ -161,41 +180,47 @@ def convert_with_FFmpeg(music_file):
     # on MacOS brew install ffmpeg --with-fdk-aac will do just that. Other OS?
     # https://trac.ffmpeg.org/wiki/Encode/AAC
     #
-    print(music_file)
-    if args.verbose:
-        ffmpeg_pre = 'ffmpeg -y '
+    if os.name == "nt":
+        ffmpeg_pre = 'Scripts//ffmpeg.exe '
     else:
-        ffmpeg_pre = 'ffmpeg -hide_banner -nostats -v panic -y '
+        ffmpeg_pre = 'ffmpeg '
+
+    ffmpeg_pre += '-y '
+    if not args.verbose:
+        ffmpeg_pre += '-hide_banner -nostats -v panic '
 
     if args.input_ext == '.m4a':
         if args.output_ext == '.mp3':
-            ffmpeg_params = '-codec:v copy -codec:a libmp3lame -q:a 2 '
+            ffmpeg_params = ' -codec:v copy -codec:a libmp3lame -q:a 2 '
         elif output_ext == '.webm':
-            ffmpeg_params = '-c:a libopus -vbr on -b:a 192k -vn '
+            ffmpeg_params = ' -c:a libopus -vbr on -b:a 192k -vn '
         else:
             return
     elif args.input_ext == '.webm':
         if args.output_ext == '.mp3':
-            ffmpeg_params = '-ab 192k -ar 44100 -vn '
+            ffmpeg_params = ' -ab 192k -ar 44100 -vn '
         elif args.output_ext == '.m4a':
-            ffmpeg_params = '-cutoff 20000 -c:a libfdk_aac -b:a 256k -vn '
+	            ffmpeg_params = ' -cutoff 20000 -c:a libfdk_aac -b:a 256k -vn '
         else:
             return
     else:
         print('Unknown formats. Unable to convert.', args.input_ext, args.output_ext)
         return
 
-    if args.verbose:
-        print(ffmpeg_pre +
-              '-i "Music/' + music_file + input_ext + '" ' +
-              ffmpeg_params +
-              '"Music/' + music_file + output_ext + '" ')
+    command = (ffmpeg_pre +
+              '-i "Music/' + music_file + args.input_ext + '"' +
+               ffmpeg_params +
+              '"Music/' + music_file + args.output_ext + '"').split(' ')
 
-    os.system(
-        ffmpeg_pre +
-        '-i "Music/' + music_file + input_ext + '" ' +
-        ffmpeg_params +
-        '"Music/' + music_file + output_ext + '" ')
+    commandos = (ffmpeg_pre +
+              '-i "Music/' + music_file + args.input_ext + '" ' +
+              ffmpeg_params +
+              '"Music/' + music_file + args.output_ext + '" ')
+    #print(command)
+    #print(commandos)
+    os.system(commandos)
+    #subprocess.call(command)
+
     os.remove('Music/' + music_file + args.input_ext)
 
 def check_exists(music_file, raw_song, islist):
@@ -286,14 +311,6 @@ def fix_metadata_m4a(music_file, meta_tags):
     audiofile["covr"] = [ MP4Cover(albumart.read(), imageformat=MP4Cover.FORMAT_JPEG) ]
     albumart.close()
     audiofile.save()
-
-def convert_song(music_file):
-    if not args.input_ext == args.output_ext:
-        print('Converting ' + music_file + args.input_ext + ' to ' + args.output_ext[1:])
-        if args.ffmpeg:
-            convert_with_FFmpeg(music_file)
-        else:
-            convert_with_libav(music_file)
 
 # Logic behind preparing the song to download to finishing meta-tags
 def grab_single(raw_song, number=None):
