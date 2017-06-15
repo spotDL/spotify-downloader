@@ -273,7 +273,7 @@ def fix_metadata_mp3(music_file, meta_tags, output_ext):
     for artist in meta_tags['artists']:
         artists.append(artist['name'])
     audiofile = EasyID3('Music/' + music_file + args.output_ext)
-    audiofile['artist'] = ', '.join(artists)
+    audiofile['artist'] = artists
     audiofile['albumartist'] = meta_tags['artists'][0]['name']
     audiofile['album'] = meta_tags['album']['name']
     audiofile['title'] = meta_tags['name']
@@ -325,7 +325,7 @@ def fix_metadata_m4a(music_file, meta_tags, output_ext):
     for artist in meta_tags['artists']:
         artists.append(artist['name'])
     audiofile = MP4('Music/' + music_file + args.output_ext)
-    audiofile[tags['artist']] = ', '.join(artists)
+    audiofile[tags['artist']] = artists
     audiofile[tags['albumartist']] = meta_tags['artists'][0]['name']
     audiofile[tags['album']] = meta_tags['album']['name']
     audiofile[tags['title']] = meta_tags['name']
