@@ -16,6 +16,7 @@ from mutagen.easyid3 import EasyID3
 from mutagen.id3 import ID3, APIC
 from mutagen.mp4 import MP4, MP4Cover
 from slugify import slugify
+import spotipy.oauth2.SpotifyOauthError
 import spotipy
 import spotipy.oauth2 as oauth2
 import urllib2
@@ -356,9 +357,11 @@ def grab_list(file):
     for raw_song in lines:
         try:
             grab_single(raw_song, number=number)
-            trim_song(file)
-            number += 1
-            print('')
+        except spotipy.oauth2.SpotifyOauthError:
+            token = generate_token()
+            global spotify
+            spotify = spotipy.Spotify(auth=token)
+            grab_single(raw_song, number=number)
         except KeyboardInterrupt:
             grace_quit()
         except (urllib2.URLError, IOError):
@@ -367,6 +370,11 @@ def grab_list(file):
             with open(file, 'a') as myfile:
                 myfile.write(raw_song)
             print('Failed to download song. Will retry after other songs.')
+            continue
+        finally:
+            print('')
+        trim_song(file)
+        number += 1
 
 # Logic behind preparing the song to download to finishing meta-tags
 def grab_single(raw_song, number=None):
