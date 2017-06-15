@@ -43,6 +43,7 @@ def generate_metadata(raw_song):
             meta_tags['genre'] = None
 
         meta_tags['release_date'] = spotify.album(meta_tags['album']['id'])['release_date']
+        print(meta_tags)
         return meta_tags
 
     except BaseException:
@@ -287,29 +288,31 @@ def fix_metadata_m4a(music_file, meta_tags):
     # http://mutagen.readthedocs.io/en/latest/api/mp4.html
     tags = {'album': '\xa9alb',
             'artist': '\xa9ART',
-            'year': '\xa9day',
+            'date': '\xa9day',
             'title': '\xa9nam',
             'comment': '\xa9cmt',
             'group': '\xa9grp',
             'writer': '\xa9wrt',
             'genre': '\xa9gen',
-            'track': 'trkn',
-            'aart': 'aART',
-            'disk': 'disk',
+            'tracknumber': 'trkn',
+            'albumartist': 'aART',
+            'disknumber': 'disk',
             'cpil': 'cpil',
+            'albumart': 'covr',
             'tempo': 'tmpo'}
 
     audiofile = MP4('Music/' + music_file + args.output_ext)
     audiofile[tags['artist']] = meta_tags['artists'][0]['name']
+    audiofile[tags['albumartist']] = meta_tags['artists'][0]['name']
     audiofile[tags['album']] = meta_tags['album']['name']
     audiofile[tags['title']] = meta_tags['name']
     if meta_tags['genre']:
         audiofile[tags['genre']] = meta_tags['genre']
-    audiofile[tags['year']] = meta_tags['release_date']
-    audiofile[tags['track']] = [(meta_tags['track_number'], 0)]
-    audiofile[tags['disk']] = [(meta_tags['disc_number'], 0)]
+    audiofile[tags['tracknumber']] = [(meta_tags['track_number'], 0)]
+    audiofile[tags['disknumber']] = [(meta_tags['disc_number'], 0)]
+    audiofile[tags['date']] = meta_tags['release_date']
     albumart = urllib2.urlopen(meta_tags['album']['images'][0]['url'])
-    audiofile["covr"] = [ MP4Cover(albumart.read(), imageformat=MP4Cover.FORMAT_JPEG) ]
+    audiofile[tags['albumart']] = [ MP4Cover(albumart.read(), imageformat=MP4Cover.FORMAT_JPEG) ]
     albumart.close()
     audiofile.save()
 
