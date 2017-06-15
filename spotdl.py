@@ -38,12 +38,17 @@ def generate_metadata(raw_song):
         artist_id = spotify.artist(meta_tags['artists'][0]['id'])
 
         try:
-            meta_tags['genre'] = titlecase(artist_id['genres'][0])
+            meta_tags[u'genre'] = titlecase(artist_id['genres'][0])
         except IndexError:
-            meta_tags['genre'] = None
+            meta_tags[u'genre'] = None
 
-        meta_tags['release_date'] = spotify.album(meta_tags['album']['id'])['release_date']
-        print(meta_tags)
+        meta_tags[u'release_date'] = spotify.album(meta_tags['album']['id'])['release_date']
+        meta_tags[u'copyright'] = spotify.album(meta_tags['album']['id'])['copyrights'][0]['text']
+        meta_tags[u'publisher'] = spotify.album(meta_tags['album']['id'])['label']
+        meta_tags[u'total_tracks'] = spotify.album(meta_tags['album']['id'])['tracks']['total']
+        #import pprint
+        #pprint.pprint(meta_tags)
+        #pprint.pprint(spotify.album(meta_tags['album']['id']))
         return meta_tags
 
     except BaseException:
@@ -272,9 +277,15 @@ def fix_metadata_mp3(music_file, meta_tags):
     audiofile['title'] = meta_tags['name']
     if meta_tags['genre']:
         audiofile['genre'] = meta_tags['genre']
-    audiofile['tracknumber'] = [meta_tags['track_number'], 0]
+    audiofile['tracknumber'] = [meta_tags['track_number'], meta_tags['total_tracks']]
     audiofile['discnumber'] = [meta_tags['disc_number'], 0]
     audiofile['date'] = meta_tags['release_date']
+    audiofile['originaldate'] = meta_tags['release_date']
+    audiofile['copyright'] = meta_tags['copyright']
+    audiofile['author'] = meta_tags['publisher']
+    audiofile['arranger'] = meta_tags['publisher']
+    audiofile['performer'] = meta_tags['publisher']
+    audiofile['encodedby'] = meta_tags['publisher']
     audiofile.save(v2_version=3)
     audiofile = ID3('Music/' + music_file + args.output_ext)
     albumart = urllib2.urlopen(meta_tags['album']['images'][0]['url'])
@@ -290,6 +301,7 @@ def fix_metadata_m4a(music_file, meta_tags):
             'artist': '\xa9ART',
             'date': '\xa9day',
             'title': '\xa9nam',
+            'originaldate': 'purd',
             'comment': '\xa9cmt',
             'group': '\xa9grp',
             'writer': '\xa9wrt',
@@ -299,6 +311,7 @@ def fix_metadata_m4a(music_file, meta_tags):
             'disknumber': 'disk',
             'cpil': 'cpil',
             'albumart': 'covr',
+            'copyright': 'cprt',
             'tempo': 'tmpo'}
 
     audiofile = MP4('Music/' + music_file + args.output_ext)
@@ -308,9 +321,11 @@ def fix_metadata_m4a(music_file, meta_tags):
     audiofile[tags['title']] = meta_tags['name']
     if meta_tags['genre']:
         audiofile[tags['genre']] = meta_tags['genre']
-    audiofile[tags['tracknumber']] = [(meta_tags['track_number'], 0)]
+    audiofile[tags['tracknumber']] = [(meta_tags['track_number'], meta_tags['total_tracks'])]
     audiofile[tags['disknumber']] = [(meta_tags['disc_number'], 0)]
     audiofile[tags['date']] = meta_tags['release_date']
+    audiofile[tags['originaldate']] = meta_tags['release_date']
+    audiofile[tags['copyright']] = meta_tags['copyright']
     albumart = urllib2.urlopen(meta_tags['album']['images'][0]['url'])
     audiofile[tags['albumart']] = [ MP4Cover(albumart.read(), imageformat=MP4Cover.FORMAT_JPEG) ]
     albumart.close()
