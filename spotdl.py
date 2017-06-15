@@ -5,16 +5,17 @@ from core.misc import input_link
 from core.misc import trim_song
 from core.misc import get_arguments
 from core.misc import is_spotify
+from core.misc import generate_filename
 from core.misc import generate_token
 from core.misc import generate_search_URL
 from core.misc import fix_encoding
 from core.misc import grace_quit
 from bs4 import BeautifulSoup
 from titlecase import titlecase
-from slugify import slugify
 from mutagen.easyid3 import EasyID3
 from mutagen.id3 import ID3, APIC
 from mutagen.mp4 import MP4, MP4Cover
+from slugify import slugify
 import spotipy
 import spotipy.oauth2 as oauth2
 import urllib2
@@ -23,7 +24,7 @@ import sys
 import os
 import subprocess
 
-def generate_song_name(raw_song):
+def generate_songname(raw_song):
     if is_spotify(raw_song):
         tags = generate_metadata(raw_song)
         raw_song = tags['artists'][0]['name'] + ' - ' + tags['name']
@@ -51,11 +52,11 @@ def generate_metadata(raw_song):
         #pprint.pprint(spotify.album(meta_tags['album']['id']))
         return meta_tags
 
-    except BaseException:
+    except (urllib2.URLError, IOError):
         return None
 
 def generate_YouTube_URL(raw_song):
-    song = generate_song_name(raw_song)
+    song = generate_songname(raw_song)
     searchURL = generate_search_URL(song)
     item = urllib2.urlopen(searchURL).read()
     items_parse = BeautifulSoup(item, "html.parser")
@@ -128,14 +129,8 @@ def feed_playlist(username):
         tracks = spotify.next(tracks)
         feed_tracks(file, tracks)
 
-# Generate name for the song to be downloaded
-def generate_filename(content):
-    title = (content.title).replace(' ', '_')
-    title = slugify(title, ok='-_()[]{}', lower=False)
-    return fix_encoding(title)
-
 def download_song(content):
-    music_file = generate_filename(content)
+    music_file = generate_filename(content.title)
     if args.input_ext == '.webm':
         link = content.getbestaudio(preftype='webm')
         if link is not None:
@@ -237,39 +232,42 @@ def check_exists(music_file, raw_song, islist):
             os.remove("Music/" + file)
             continue
 
-        if file.startswith(music_file):
-            # FIXME
-            #audiofile = mutagen.load("Music/" + music_file + output_ext)
-            #if is_spotify(raw_song) and not audiofile.tag.title == (
-            #        generate_metadata(raw_song))['name']:
-            #    os.remove("Music/" + music_file + output_ext)
-            #    return False
-            os.remove("Music/" + file)
-            return False
-        if islist:
-            return True
-        else:
-            prompt = raw_input('Song with same name has already been downloaded. Re-download? (y/n): ').lower()
-            if prompt == "y":
+        if file.startswith(generate_filename(music_file)):
+            audiofile = EasyID3('Music/' + file)
+
+            try:
+                already_tagged = audiofile['title'][0] == generate_metadata(raw_song)['name']
+            except KeyError:
+                already_tagged = False
+
+            if is_spotify(raw_song) and not already_tagged:
                 os.remove("Music/" + file)
                 return False
-            else:
+
+            if islist:
                 return True
+            else:
+                prompt = raw_input('Song with same name has already been downloaded. Re-download? (y/n): ').lower()
+                if prompt == "y":
+                    os.remove("Music/" + file)
+                    return False
+                else:
+                    return True
 
 # Remove song from file once downloaded
-def fix_metadata(music_file, meta_tags):
+def fix_metadata(music_file, meta_tags, output_ext):
     if meta_tags is None:
         print('Could not find meta-tags')
-    elif args.output_ext == '.m4a':
+    elif output_ext == '.m4a':
         print('Fixing meta-tags')
-        fix_metadata_m4a(music_file, meta_tags)
-    elif args.output_ext == '.mp3':
+        fix_metadata_m4a(music_file, meta_tags, output_ext)
+    elif output_ext == '.mp3':
         print('Fixing meta-tags')
-        fix_metadata_mp3(music_file, meta_tags)
+        fix_metadata_mp3(music_file, meta_tags, output_ext)
     else:
          print('Cannot embed meta-tags into given output extension')
 
-def fix_metadata_mp3(music_file, meta_tags):
+def fix_metadata_mp3(music_file, meta_tags, output_ext):
     artists = []
     for artist in meta_tags['artists']:
         artists.append(artist['name'])
@@ -301,7 +299,7 @@ def fix_metadata_mp3(music_file, meta_tags):
     albumart.close()
     audiofile.save(v2_version=3)
 
-def fix_metadata_m4a(music_file, meta_tags):
+def fix_metadata_m4a(music_file, meta_tags, output_ext):
     # eyed serves only mp3 not aac so using mutagen
     # Apple has specific tags - see mutagen docs -
     # http://mutagen.readthedocs.io/en/latest/api/mp4.html
@@ -363,7 +361,7 @@ def grab_list(file):
             print('')
         except KeyboardInterrupt:
             grace_quit()
-        except (URLError, IOError):
+        except (urllib2.URLError, IOError):
             lines.append(raw_song)
             trim_song(file)
             with open(file, 'a') as myfile:
@@ -380,14 +378,14 @@ def grab_single(raw_song, number=None):
     if content is None:
         return
     print(get_YouTube_title(content, number))
-    music_file = generate_filename(content)
+    music_file = generate_filename(content.title)
     if not check_exists(music_file, raw_song, islist=islist):
         download_song(content)
         print('')
         convert_song(music_file)
         meta_tags = generate_metadata(raw_song)
         if not args.no_metadata:
-            fix_metadata(music_file, meta_tags)
+            fix_metadata(music_file, meta_tags, args.output_ext)
 
 if __name__ == '__main__':
 

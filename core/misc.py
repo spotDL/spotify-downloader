@@ -1,6 +1,7 @@
 import argparse
 import sys
 import os
+from slugify import slugify
 import spotipy.oauth2 as oauth2
 
 def input_link(links):
@@ -55,6 +56,11 @@ def is_spotify(raw_song):
         return True
     else:
         return False
+
+def generate_filename(title):
+    raw_title = title.replace(' ', '_')
+    filename = slugify(raw_title, ok='-_()[]{}', lower=False)
+    return fix_encoding(filename)
 
 def generate_token():
     # Please respect this user token :)
