@@ -5,6 +5,7 @@ from core.misc import input_link
 from core.misc import trim_song
 from core.misc import get_arguments
 from core.misc import is_spotify
+from core.misc import generate_token
 from core.misc import generate_search_URL
 from core.misc import fix_encoding
 from core.misc import grace_quit
@@ -157,11 +158,11 @@ def convert_with_libav(music_file):
     else:
         level = '0'
 
-    print([avconv_path,
-          '-loglevel', level,
-          '-i',        'Music/' + music_file + args.input_ext,
-          '-ab',       '192k',
-          'Music/' + music_file + args.output_ext])
+    #print([avconv_path,
+    #      '-loglevel', level,
+    #      '-i',        'Music/' + music_file + args.input_ext,
+    #      '-ab',       '192k',
+    #      'Music/' + music_file + args.output_ext])
 
     subprocess.call([avconv_path,
                     '-loglevel', level,
@@ -207,10 +208,10 @@ def convert_with_FFmpeg(music_file):
         print('Unknown formats. Unable to convert.', args.input_ext, args.output_ext)
         return
 
-    command = (ffmpeg_pre +
-              '-i "Music/' + music_file + args.input_ext + '"' +
-               ffmpeg_params +
-              '"Music/' + music_file + args.output_ext + '"').split(' ')
+    #command = (ffmpeg_pre +
+    #          '-i "Music/' + music_file + args.input_ext + '"' +
+    #           ffmpeg_params +
+    #          '"Music/' + music_file + args.output_ext + '"').split(' ')
 
     commandos = (ffmpeg_pre +
               '-i "Music/' + music_file + args.input_ext + '" ' +
@@ -312,26 +313,7 @@ def fix_metadata_m4a(music_file, meta_tags):
     albumart.close()
     audiofile.save()
 
-# Logic behind preparing the song to download to finishing meta-tags
-def grab_single(raw_song, number=None):
-    if number:
-        islist = True
-    else:
-        islist = False
-    content = go_pafy(raw_song)
-    if content is None:
-        return
-    print(get_YouTube_title(content, number))
-    music_file = generate_filename(content)
-    if not check_exists(music_file, raw_song, islist=islist):
-        download_song(content)
-        print('')
-        convert_song(music_file)
-        meta_tags = generate_metadata(raw_song)
-        if not args.no_metadata:
-            fix_metadata(music_file, meta_tags)
 
-# Fix python2 encoding issues
 def grab_list(file):
     lines = open(file, 'r').read()
     lines = lines.splitlines()
@@ -359,6 +341,24 @@ def grab_list(file):
                 myfile.write(raw_song)
             print('Failed to download song. Will retry after other songs.')
 
+# Logic behind preparing the song to download to finishing meta-tags
+def grab_single(raw_song, number=None):
+    if number:
+        islist = True
+    else:
+        islist = False
+    content = go_pafy(raw_song)
+    if content is None:
+        return
+    print(get_YouTube_title(content, number))
+    music_file = generate_filename(content)
+    if not check_exists(music_file, raw_song, islist=islist):
+        download_song(content)
+        print('')
+        convert_song(music_file)
+        meta_tags = generate_metadata(raw_song)
+        if not args.no_metadata:
+            fix_metadata(music_file, meta_tags)
 
 if __name__ == '__main__':
 
@@ -370,23 +370,11 @@ if __name__ == '__main__':
     if not os.path.exists("Music"):
         os.makedirs("Music")
 
-    # Please respect this user token :)
-    oauth2 = oauth2.SpotifyClientCredentials(
-        client_id='4fe3fecfe5334023a1472516cc99d805',
-        client_secret='0f02b7c483c04257984695007a4a8d5c')
-    token = oauth2.get_access_token()
+    token = generate_token()
     spotify = spotipy.Spotify(auth=token)
 
     # Set up arguments
     args = get_arguments()
-    print(args)
-
-    #if args.ffmpeg:
-    #    input_ext = args.input_ext
-    #    output_ext = args.output_ext
-    #else:
-    #    input_ext = '.m4a'
-    #    output_ext = '.mp3'
 
     if args.song:
         grab_single(raw_song=args.song)
