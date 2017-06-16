@@ -36,12 +36,8 @@ def embed(music_file, meta_tags, output_ext):
 
 def embed_mp3(music_file, meta_tags, output_ext):
     #EasyID3 is fun to use ;)
-    artists = []
-    for artist in meta_tags['artists']:
-        artists.append(artist['name'])
     audiofile = EasyID3('Music/' + music_file + output_ext)
-    #audiofile['artist'] = artists
-    audiofile['artist'] = ', '.join(artists)
+    audiofile['artist'] = meta_tags['artists'][0]['name']
     audiofile['albumartist'] = meta_tags['artists'][0]['name']
     audiofile['album'] = meta_tags['album']['name']
     audiofile['title'] = meta_tags['name']
@@ -88,12 +84,8 @@ def embed_m4a(music_file, meta_tags, output_ext):
             'copyright': 'cprt',
             'tempo': 'tmpo'}
 
-    artists = []
-    for artist in meta_tags['artists']:
-        artists.append(artist['name'])
     audiofile = MP4('Music/' + music_file + output_ext)
-    #audiofile[tags['artist']] = artists
-    audiofile[tags['artist']] = ', '.join(artists)
+    audiofile[tags['artist']] = meta_tags['artists'][0]['name']
     audiofile[tags['albumartist']] = meta_tags['artists'][0]['name']
     audiofile[tags['album']] = meta_tags['album']['name']
     audiofile[tags['title']] = meta_tags['name']
