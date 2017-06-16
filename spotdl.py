@@ -261,15 +261,15 @@ def grab_list(file):
             global spotify
             spotify = spotipy.Spotify(auth=token)
             grab_single(raw_song, number=number)
-        except KeyboardInterrupt:
-            misc.grace_quit()
-        except (urllib2.URLError, IOError):
+        except (urllib2.URLError, requests.exceptions.ConnectionError, IOError):
             lines.append(raw_song)
             misc.trim_song(file)
             with open(file, 'a') as myfile:
                 myfile.write(raw_song)
             print('Failed to download song. Will retry after other songs.')
             continue
+        except KeyboardInterrupt:
+            misc.grace_quit()
         finally:
             print('')
         misc.trim_song(file)
