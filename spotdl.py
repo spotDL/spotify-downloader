@@ -356,7 +356,7 @@ def grab_list(file):
     for raw_song in lines:
         try:
             grab_single(raw_song, number=number)
-        except spotipy.oauth2.SpotifyOauthError::
+        except spotipy.oauth2.SpotifyOauthError:
             token = generate_token()
             global spotify
             spotify = spotipy.Spotify(auth=token)
