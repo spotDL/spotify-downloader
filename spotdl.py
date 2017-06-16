@@ -34,7 +34,7 @@ def generate_metadata(raw_song):
     album = spotify.album(meta_tags['album']['id'])
 
     try:
-        meta_tags[u'genre'] = titlecase(artist_id['genres'][0])
+        meta_tags[u'genre'] = titlecase(artist['genres'][0])
     except IndexError:
         meta_tags[u'genre'] = None
 
