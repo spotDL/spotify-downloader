@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 
-#from core.metadata import embed_metadata
-#from core.metadata import compare_metadata
 from core import metadata
 from core.misc import input_link
 from core.misc import trim_song
@@ -234,7 +232,7 @@ def check_exists(music_file, raw_song, islist):
 
         if file.startswith(generate_filename(music_file)):
 
-            already_tagged = metadata.compare_metadata(file, generate_metadata(raw_song))
+            already_tagged = metadata.compare(file, generate_metadata(raw_song))
 
             if is_spotify(raw_song) and not already_tagged:
                 os.remove("Music/" + file)
@@ -302,7 +300,7 @@ def grab_single(raw_song, number=None):
         convert_song(music_file)
         meta_tags = generate_metadata(raw_song)
         if not args.no_metadata:
-            metadata.embed_metadata(music_file, meta_tags, args.output_ext)
+            metadata.embed(music_file, meta_tags, args.output_ext)
 
 if __name__ == '__main__':
 

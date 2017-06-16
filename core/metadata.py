@@ -4,7 +4,7 @@ from mutagen.id3 import ID3, APIC
 from mutagen.mp4 import MP4, MP4Cover
 
 
-def compare_metadata(file, metadata):
+def compare(file, metadata):
     try:
         if file.endswith('.mp3'):
             audiofile = EasyID3('Music/' + file)
@@ -17,7 +17,7 @@ def compare_metadata(file, metadata):
             already_tagged = False
     return already_tagged
 
-class embed_metadata(object):
+class embed(object):
 
     def __init__(self, music_file, meta_tags, output_ext):
 
@@ -25,14 +25,14 @@ class embed_metadata(object):
             print('Could not find meta-tags')
         elif output_ext == '.m4a':
             print('Fixing meta-tags')
-            self.metadata_m4a(music_file, meta_tags, output_ext)
+            self.embed_m4a(music_file, meta_tags, output_ext)
         elif output_ext == '.mp3':
             print('Fixing meta-tags')
-            self.metadata_mp3(music_file, meta_tags, output_ext)
+            self.embed_mp3(music_file, meta_tags, output_ext)
         else:
             print('Cannot embed meta-tags into given output extension')
 
-    def metadata_mp3(self, music_file, meta_tags, output_ext):
+    def embed_mp3(self, music_file, meta_tags, output_ext):
         artists = []
         for artist in meta_tags['artists']:
             artists.append(artist['name'])
@@ -64,7 +64,7 @@ class embed_metadata(object):
         albumart.close()
         audiofile.save(v2_version=3)
 
-    def metadata_m4a(self, music_file, meta_tags, output_ext):
+    def embed_m4a(self, music_file, meta_tags, output_ext):
         # eyed serves only mp3 not aac so using mutagen
         # Apple has specific tags - see mutagen docs -
         # http://mutagen.readthedocs.io/en/latest/api/mp4.html
