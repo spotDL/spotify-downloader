@@ -261,7 +261,7 @@ def grab_list(file):
             global spotify
             spotify = spotipy.Spotify(auth=token)
             grab_single(raw_song, number=number)
-        except (urllib2.URLError, IOError):
+        except (urllib2.URLError, TypeError, IOError):
             lines.append(raw_song)
             misc.trim_song(file)
             with open(file, 'a') as myfile:
