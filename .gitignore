@@ -1,3 +1,4 @@
-/core/*.pyc
+*.pyc
+/core/__pycache__
 /Music/
 /*.txt
