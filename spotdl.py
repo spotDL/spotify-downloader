@@ -16,7 +16,6 @@ from mutagen.easyid3 import EasyID3
 from mutagen.id3 import ID3, APIC
 from mutagen.mp4 import MP4, MP4Cover
 from slugify import slugify
-import spotipy.oauth2.SpotifyOauthError
 import spotipy
 import spotipy.oauth2 as oauth2
 import urllib2
@@ -357,7 +356,7 @@ def grab_list(file):
     for raw_song in lines:
         try:
             grab_single(raw_song, number=number)
-        except spotipy.oauth2.SpotifyOauthError:
+        except spotipy.oauth2.SpotifyOauthError::
             token = generate_token()
             global spotify
             spotify = spotipy.Spotify(auth=token)
