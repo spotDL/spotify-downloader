@@ -1,6 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 
+from core.embed_metadata import compare_metadata
+from core.embed_metadata import embed_metadata
+from core.embed_metadata import metadata_mp3
+from core.embed_metadata import metadata_m4a
 from core.misc import input_link
 from core.misc import trim_song
 from core.misc import get_arguments
@@ -12,9 +16,6 @@ from core.misc import fix_encoding
 from core.misc import grace_quit
 from bs4 import BeautifulSoup
 from titlecase import titlecase
-from mutagen.easyid3 import EasyID3
-from mutagen.id3 import ID3, APIC
-from mutagen.mp4 import MP4, MP4Cover
 from slugify import slugify
 import spotipy
 import spotipy.oauth2 as oauth2
@@ -233,17 +234,12 @@ def check_exists(music_file, raw_song, islist):
             continue
 
         if file.startswith(generate_filename(music_file)):
-            audiofile = EasyID3('Music/' + file)
 
-            try:
-                already_tagged = audiofile['title'][0] == generate_metadata(raw_song)['name']
-            except KeyError:
-                already_tagged = False
+            already_tagged = compare_metadata(file, generate_metadata(raw_song))
 
             if is_spotify(raw_song) and not already_tagged:
                 os.remove("Music/" + file)
                 return False
-
             if islist:
                 return True
             else:
@@ -253,93 +249,6 @@ def check_exists(music_file, raw_song, islist):
                     return False
                 else:
                     return True
-
-# Remove song from file once downloaded
-def fix_metadata(music_file, meta_tags, output_ext):
-    if meta_tags is None:
-        print('Could not find meta-tags')
-    elif output_ext == '.m4a':
-        print('Fixing meta-tags')
-        fix_metadata_m4a(music_file, meta_tags, output_ext)
-    elif output_ext == '.mp3':
-        print('Fixing meta-tags')
-        fix_metadata_mp3(music_file, meta_tags, output_ext)
-    else:
-         print('Cannot embed meta-tags into given output extension')
-
-def fix_metadata_mp3(music_file, meta_tags, output_ext):
-    artists = []
-    for artist in meta_tags['artists']:
-        artists.append(artist['name'])
-    audiofile = EasyID3('Music/' + music_file + args.output_ext)
-    audiofile['artist'] = artists
-    audiofile['albumartist'] = meta_tags['artists'][0]['name']
-    audiofile['album'] = meta_tags['album']['name']
-    audiofile['title'] = meta_tags['name']
-    audiofile['tracknumber'] = [meta_tags['track_number'], meta_tags['total_tracks']]
-    audiofile['discnumber'] = [meta_tags['disc_number'], 0]
-    audiofile['date'] = meta_tags['release_date']
-    audiofile['originaldate'] = meta_tags['release_date']
-    audiofile['media'] = meta_tags['type']
-    audiofile['copyright'] = meta_tags['copyright']
-    audiofile['author'] = meta_tags['artists'][0]['name']
-    audiofile['lyricist'] = meta_tags['artists'][0]['name']
-    audiofile['arranger'] = meta_tags['artists'][0]['name']
-    audiofile['performer'] = meta_tags['artists'][0]['name']
-    audiofile['encodedby'] = meta_tags['publisher']
-    audiofile['isrc'] = meta_tags['external_ids']['isrc']
-    audiofile['website'] = meta_tags['external_urls']['spotify']
-    audiofile['length'] = str(meta_tags['duration_ms'] / 1000)
-    if meta_tags['genre']:
-        audiofile['genre'] = meta_tags['genre']
-    audiofile.save(v2_version=3)
-    audiofile = ID3('Music/' + music_file + args.output_ext)
-    albumart = urllib2.urlopen(meta_tags['album']['images'][0]['url'])
-    audiofile["APIC"] = APIC(encoding=3, mime='image/jpeg', type=3, desc=u'Cover', data=albumart.read())
-    albumart.close()
-    audiofile.save(v2_version=3)
-
-def fix_metadata_m4a(music_file, meta_tags, output_ext):
-    # eyed serves only mp3 not aac so using mutagen
-    # Apple has specific tags - see mutagen docs -
-    # http://mutagen.readthedocs.io/en/latest/api/mp4.html
-    tags = {'album': '\xa9alb',
-            'artist': '\xa9ART',
-            'date': '\xa9day',
-            'title': '\xa9nam',
-            'originaldate': 'purd',
-            'comment': '\xa9cmt',
-            'group': '\xa9grp',
-            'writer': '\xa9wrt',
-            'genre': '\xa9gen',
-            'tracknumber': 'trkn',
-            'albumartist': 'aART',
-            'disknumber': 'disk',
-            'cpil': 'cpil',
-            'albumart': 'covr',
-            'copyright': 'cprt',
-            'tempo': 'tmpo'}
-
-    artists = []
-    for artist in meta_tags['artists']:
-        artists.append(artist['name'])
-    audiofile = MP4('Music/' + music_file + args.output_ext)
-    audiofile[tags['artist']] = artists
-    audiofile[tags['albumartist']] = meta_tags['artists'][0]['name']
-    audiofile[tags['album']] = meta_tags['album']['name']
-    audiofile[tags['title']] = meta_tags['name']
-    audiofile[tags['tracknumber']] = [(meta_tags['track_number'], meta_tags['total_tracks'])]
-    audiofile[tags['disknumber']] = [(meta_tags['disc_number'], 0)]
-    audiofile[tags['date']] = meta_tags['release_date']
-    audiofile[tags['originaldate']] = meta_tags['release_date']
-    audiofile[tags['copyright']] = meta_tags['copyright']
-    if meta_tags['genre']:
-        audiofile[tags['genre']] = meta_tags['genre']
-    albumart = urllib2.urlopen(meta_tags['album']['images'][0]['url'])
-    audiofile[tags['albumart']] = [ MP4Cover(albumart.read(), imageformat=MP4Cover.FORMAT_JPEG) ]
-    albumart.close()
-    audiofile.save()
-
 
 def grab_list(file):
     lines = open(file, 'r').read()
@@ -392,7 +301,7 @@ def grab_single(raw_song, number=None):
         convert_song(music_file)
         meta_tags = generate_metadata(raw_song)
         if not args.no_metadata:
-            fix_metadata(music_file, meta_tags, args.output_ext)
+            embed_metadata(music_file, meta_tags, args.output_ext)
 
 if __name__ == '__main__':
 
