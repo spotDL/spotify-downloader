@@ -25,29 +25,25 @@ def generate_songname(raw_song):
     return raw_song
 
 def generate_metadata(raw_song):
+    if misc.is_spotify(raw_song):
+        meta_tags = spotify.track(raw_song)
+    else:
+        meta_tags = spotify.search(raw_song, limit=1)['tracks']['items'][0]
+    artist_id = spotify.artist(meta_tags['artists'][0]['id'])
+
     try:
-        if misc.is_spotify(raw_song):
-            meta_tags = spotify.track(raw_song)
-        else:
-            meta_tags = spotify.search(raw_song, limit=1)['tracks']['items'][0]
-        artist_id = spotify.artist(meta_tags['artists'][0]['id'])
+        meta_tags[u'genre'] = titlecase(artist_id['genres'][0])
+    except IndexError:
+        meta_tags[u'genre'] = None
 
-        try:
-            meta_tags[u'genre'] = titlecase(artist_id['genres'][0])
-        except IndexError:
-            meta_tags[u'genre'] = None
-
-        meta_tags[u'release_date'] = spotify.album(meta_tags['album']['id'])['release_date']
-        meta_tags[u'copyright'] = spotify.album(meta_tags['album']['id'])['copyrights'][0]['text']
-        meta_tags[u'publisher'] = spotify.album(meta_tags['album']['id'])['label']
-        meta_tags[u'total_tracks'] = spotify.album(meta_tags['album']['id'])['tracks']['total']
-        #import pprint
-        #pprint.pprint(meta_tags)
-        #pprint.pprint(spotify.album(meta_tags['album']['id']))
-        return meta_tags
-
-    except (urllib2.URLError, IOError):
-        return None
+    meta_tags[u'release_date'] = spotify.album(meta_tags['album']['id'])['release_date']
+    meta_tags[u'copyright'] = spotify.album(meta_tags['album']['id'])['copyrights'][0]['text']
+    meta_tags[u'publisher'] = spotify.album(meta_tags['album']['id'])['label']
+    meta_tags[u'total_tracks'] = spotify.album(meta_tags['album']['id'])['tracks']['total']
+    #import pprint
+    #pprint.pprint(meta_tags)
+    #pprint.pprint(spotify.album(meta_tags['album']['id']))
+    return meta_tags
 
 def generate_YouTube_URL(raw_song):
     song = generate_songname(raw_song)
