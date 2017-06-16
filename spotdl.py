@@ -8,11 +8,15 @@ from titlecase import titlecase
 from slugify import slugify
 import spotipy
 import spotipy.oauth2 as oauth2
-import urllib2
 import pafy
 import sys
 import os
 import subprocess
+
+try:
+    import urllib2
+except ImportError:
+    import urllib.request as urllib2
 
 def generate_songname(raw_song):
     if misc.is_spotify(raw_song):

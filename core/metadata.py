@@ -1,8 +1,11 @@
-import urllib2
 from mutagen.easyid3 import EasyID3
 from mutagen.id3 import ID3, APIC
 from mutagen.mp4 import MP4, MP4Cover
 
+try:
+    import urllib2
+except ImportError:
+    import urllib.request as urllib2
 
 def compare(file, metadata):
     try:
