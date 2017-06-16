@@ -1,10 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 
-from core.embed_metadata import compare_metadata
-from core.embed_metadata import embed_metadata
-from core.embed_metadata import metadata_mp3
-from core.embed_metadata import metadata_m4a
+#from core.metadata import embed_metadata
+#from core.metadata import compare_metadata
+from core import metadata
 from core.misc import input_link
 from core.misc import trim_song
 from core.misc import get_arguments
@@ -235,15 +234,17 @@ def check_exists(music_file, raw_song, islist):
 
         if file.startswith(generate_filename(music_file)):
 
-            already_tagged = compare_metadata(file, generate_metadata(raw_song))
+            already_tagged = metadata.compare_metadata(file, generate_metadata(raw_song))
 
             if is_spotify(raw_song) and not already_tagged:
                 os.remove("Music/" + file)
                 return False
+
             if islist:
                 return True
             else:
                 prompt = raw_input('Song with same name has already been downloaded. Re-download? (y/n): ').lower()
+
                 if prompt == "y":
                     os.remove("Music/" + file)
                     return False
@@ -251,8 +252,8 @@ def check_exists(music_file, raw_song, islist):
                     return True
 
 def grab_list(file):
-    lines = open(file, 'r').read()
-    lines = lines.splitlines()
+    with open(file, 'r') as listed:
+        lines = (listed.read()).splitlines()
     # Ignore blank lines in file (if any)
     try:
         lines.remove('')
@@ -301,7 +302,7 @@ def grab_single(raw_song, number=None):
         convert_song(music_file)
         meta_tags = generate_metadata(raw_song)
         if not args.no_metadata:
-            embed_metadata(music_file, meta_tags, args.output_ext)
+            metadata.embed_metadata(music_file, meta_tags, args.output_ext)
 
 if __name__ == '__main__':
 
