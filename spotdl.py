@@ -2,15 +2,7 @@
 # -*- coding: UTF-8 -*-
 
 from core import metadata
-from core.misc import input_link
-from core.misc import trim_song
-from core.misc import get_arguments
-from core.misc import is_spotify
-from core.misc import generate_filename
-from core.misc import generate_token
-from core.misc import generate_search_URL
-from core.misc import fix_encoding
-from core.misc import grace_quit
+from core import misc
 from bs4 import BeautifulSoup
 from titlecase import titlecase
 from slugify import slugify
@@ -23,14 +15,14 @@ import os
 import subprocess
 
 def generate_songname(raw_song):
-    if is_spotify(raw_song):
+    if misc.is_spotify(raw_song):
         tags = generate_metadata(raw_song)
         raw_song = tags['artists'][0]['name'] + ' - ' + tags['name']
     return raw_song
 
 def generate_metadata(raw_song):
     try:
-        if is_spotify(raw_song):
+        if misc.is_spotify(raw_song):
             meta_tags = spotify.track(raw_song)
         else:
             meta_tags = spotify.search(raw_song, limit=1)['tracks']['items'][0]
@@ -55,7 +47,7 @@ def generate_metadata(raw_song):
 
 def generate_YouTube_URL(raw_song):
     song = generate_songname(raw_song)
-    searchURL = generate_search_URL(song)
+    searchURL = misc.generate_search_URL(song)
     item = urllib2.urlopen(searchURL).read()
     items_parse = BeautifulSoup(item, "html.parser")
     check = 1
@@ -70,7 +62,7 @@ def generate_YouTube_URL(raw_song):
                 links.append(x.find('a')['href'])
                 check += 1
         print('')
-        result = input_link(links)
+        result = misc.input_link(links)
         if result is None:
             return None
     else:
@@ -112,11 +104,11 @@ def feed_playlist(username):
     links = []
     check = 1
     for playlist in playlists['items']:
-        print(str(check) + '. ' + fix_encoding(playlist['name']) + ' (' + str(playlist['tracks']['total']) + ' tracks)')
+        print(str(check) + '. ' + misc.fix_encoding(playlist['name']) + ' (' + str(playlist['tracks']['total']) + ' tracks)')
         links.append(playlist)
         check += 1
     print('')
-    playlist = input_link(links)
+    playlist = misc.input_link(links)
     results = spotify.user_playlist(playlist['owner']['id'], playlist['id'], fields="tracks,next")
     print('')
     file = slugify(playlist['name'], ok='-_()[]{}') + '.txt'
@@ -128,7 +120,7 @@ def feed_playlist(username):
         feed_tracks(file, tracks)
 
 def download_song(content):
-    music_file = generate_filename(content.title)
+    music_file = misc.generate_filename(content.title)
     if args.input_ext == '.webm':
         link = content.getbestaudio(preftype='webm')
         if link is not None:
@@ -230,11 +222,11 @@ def check_exists(music_file, raw_song, islist):
             os.remove("Music/" + file)
             continue
 
-        if file.startswith(generate_filename(music_file)):
+        if file.startswith(misc.generate_filename(music_file)):
 
             already_tagged = metadata.compare(file, generate_metadata(raw_song))
 
-            if is_spotify(raw_song) and not already_tagged:
+            if misc.is_spotify(raw_song) and not already_tagged:
                 os.remove("Music/" + file)
                 return False
 
@@ -265,22 +257,22 @@ def grab_list(file):
         try:
             grab_single(raw_song, number=number)
         except spotipy.oauth2.SpotifyOauthError:
-            token = generate_token()
+            token = misc.generate_token()
             global spotify
             spotify = spotipy.Spotify(auth=token)
             grab_single(raw_song, number=number)
         except KeyboardInterrupt:
-            grace_quit()
+            misc.grace_quit()
         except (urllib2.URLError, IOError):
             lines.append(raw_song)
-            trim_song(file)
+            misc.trim_song(file)
             with open(file, 'a') as myfile:
                 myfile.write(raw_song)
             print('Failed to download song. Will retry after other songs.')
             continue
         finally:
             print('')
-        trim_song(file)
+        misc.trim_song(file)
         number += 1
 
 # Logic behind preparing the song to download to finishing meta-tags
@@ -293,7 +285,7 @@ def grab_single(raw_song, number=None):
     if content is None:
         return
     print(get_YouTube_title(content, number))
-    music_file = generate_filename(content.title)
+    music_file = misc.generate_filename(content.title)
     if not check_exists(music_file, raw_song, islist=islist):
         download_song(content)
         print('')
@@ -312,11 +304,11 @@ if __name__ == '__main__':
     if not os.path.exists("Music"):
         os.makedirs("Music")
 
-    token = generate_token()
+    token = misc.generate_token()
     spotify = spotipy.Spotify(auth=token)
 
     # Set up arguments
-    args = get_arguments()
+    args = misc.get_arguments()
 
     if args.song:
         grab_single(raw_song=args.song)
