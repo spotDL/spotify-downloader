@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+
 # -*- coding: UTF-8 -*-
 
 from core import metadata
@@ -13,17 +14,20 @@ import sys
 import os
 import subprocess
 
+# urllib2 is urllib.request in python3
 try:
     import urllib2
 except ImportError:
     import urllib.request as urllib2
 
+# generate song title to be searched on YouTube
 def generate_songname(raw_song):
     if misc.is_spotify(raw_song):
         tags = generate_metadata(raw_song)
         raw_song = tags['artists'][0]['name'] + ' - ' + tags['name']
     return misc.fix_encoding(raw_song)
 
+# fetch song's metadata from spotify
 def generate_metadata(raw_song):
     if misc.is_spotify(raw_song):
         meta_tags = spotify.track(raw_song)
@@ -78,6 +82,7 @@ def generate_YouTube_URL(raw_song):
     full_link = "youtube.com" + result
     return full_link
 
+# parse track from YouTube
 def go_pafy(raw_song):
     trackURL = generate_YouTube_URL(raw_song)
     if trackURL is None:
@@ -85,6 +90,7 @@ def go_pafy(raw_song):
     else:
         return pafy.new(trackURL)
 
+# title of the YouTube video
 def get_YouTube_title(content, number):
     title = content.title
     if number is None:
@@ -92,6 +98,7 @@ def get_YouTube_title(content, number):
     else:
         return str(number) + '. ' + title
 
+# write tracks into list file
 def feed_tracks(file, tracks):
     with open(file, 'a') as fout:
         for item in tracks['items']:
@@ -101,6 +108,7 @@ def feed_tracks(file, tracks):
             except KeyError:
                 pass
 
+# fetch user playlists when using -u option
 def feed_playlist(username):
     playlists = spotify.user_playlists(username)
     links = []
@@ -113,6 +121,7 @@ def feed_playlist(username):
     playlist = misc.input_link(links)
     results = spotify.user_playlist(playlist['owner']['id'], playlist['id'], fields="tracks,next")
     print('')
+    # slugify removes any special characters
     file = slugify(playlist['name'], ok='-_()[]{}') + '.txt'
     print('Feeding ' + str(playlist['tracks']['total']) + ' tracks to ' + file)
     tracks = results['tracks']
@@ -132,6 +141,7 @@ def download_song(content):
         if link is not None:
             link.download(filepath='Music/' + music_file + args.input_ext)
 
+# convert song from input_ext to output_ext
 def convert_song(music_file):
     if not args.input_ext == args.output_ext:
         print('Converting ' + music_file + args.input_ext + ' to ' + args.output_ext[1:])
@@ -173,7 +183,7 @@ def convert_with_FFmpeg(music_file):
     # libfdk_aac due to copyrights needs to be compiled by end user
     # on MacOS brew install ffmpeg --with-fdk-aac will do just that. Other OS?
     # https://trac.ffmpeg.org/wiki/Encode/AAC
-    #
+
     if os.name == "nt":
         ffmpeg_pre = 'Scripts//ffmpeg.exe '
     else:
@@ -217,52 +227,56 @@ def convert_with_FFmpeg(music_file):
 
     os.remove('Music/' + music_file + args.input_ext)
 
+# check if input song already exists in Music folder
 def check_exists(music_file, raw_song, islist):
     files = os.listdir("Music")
     for file in files:
         if file.endswith(".temp"):
             os.remove("Music/" + file)
             continue
-
+        # check if any file with similar name is already present in Music/
         if file.startswith(misc.generate_filename(music_file)):
-
+            # check if the already downloaded song has correct metadata
             already_tagged = metadata.compare(file, generate_metadata(raw_song))
-
+            # if not, remove it and download again without prompt
             if misc.is_spotify(raw_song) and not already_tagged:
                 os.remove("Music/" + file)
                 return False
-
+            # do not prompt and skip the current song if already downloaded when using list
             if islist:
                 return True
+            # if downloading only single song, prompt to re-download
             else:
                 prompt = raw_input('Song with same name has already been downloaded. Re-download? (y/n): ').lower()
-
                 if prompt == "y":
                     os.remove("Music/" + file)
                     return False
                 else:
                     return True
 
+# download songs from list
 def grab_list(file):
     with open(file, 'r') as listed:
         lines = (listed.read()).splitlines()
-    # Ignore blank lines in file (if any)
+    # ignore blank lines in file (if any)
     try:
         lines.remove('')
     except ValueError:
         pass
     print('Total songs in list = ' + str(len(lines)) + ' songs')
     print('')
-    # Count the number of song being downloaded
+    # nth input song
     number = 1
     for raw_song in lines:
         try:
             grab_single(raw_song, number=number)
+        # refresh token when it expires (after 1 hour)
         except spotipy.oauth2.SpotifyOauthError:
             token = misc.generate_token()
             global spotify
             spotify = spotipy.Spotify(auth=token)
             grab_single(raw_song, number=number)
+        # detect network problems
         except (urllib2.URLError, TypeError, IOError):
             lines.append(raw_song)
             misc.trim_song(file)
@@ -277,7 +291,7 @@ def grab_list(file):
         misc.trim_song(file)
         number += 1
 
-# Logic behind preparing the song to download to finishing meta-tags
+# logic behind downloading some song
 def grab_single(raw_song, number=None):
     if number:
         islist = True
@@ -298,7 +312,7 @@ def grab_single(raw_song, number=None):
 
 if __name__ == '__main__':
 
-    # Python 3 compatibility
+    # python 3 compatibility
     if sys.version_info > (3, 0):
         raw_input = input
 
@@ -306,10 +320,11 @@ if __name__ == '__main__':
     if not os.path.exists("Music"):
         os.makedirs("Music")
 
+    # token is mandatory when using Spotify's API
     token = misc.generate_token()
     spotify = spotipy.Spotify(auth=token)
 
-    # Set up arguments
+    # set up arguments
     args = misc.get_arguments()
 
     if args.song:

@@ -2,11 +2,13 @@ from mutagen.easyid3 import EasyID3
 from mutagen.id3 import ID3, APIC
 from mutagen.mp4 import MP4, MP4Cover
 
+# urllib2 is urllib.request in python3
 try:
     import urllib2
 except ImportError:
     import urllib.request as urllib2
 
+# check if input file title matches with expected title
 def compare(file, metadata):
     try:
         if file.endswith('.mp3'):
@@ -33,11 +35,13 @@ def embed(music_file, meta_tags, output_ext):
         print('Cannot embed meta-tags into given output extension')
 
 def embed_mp3(music_file, meta_tags, output_ext):
+    #EasyID3 is fun to use ;)
     artists = []
     for artist in meta_tags['artists']:
         artists.append(artist['name'])
     audiofile = EasyID3('Music/' + music_file + output_ext)
-    audiofile['artist'] = artists
+    #audiofile['artist'] = artists
+    audiofile['artist'] = ', '.join(artists)
     audiofile['albumartist'] = meta_tags['artists'][0]['name']
     audiofile['album'] = meta_tags['album']['name']
     audiofile['title'] = meta_tags['name']
@@ -65,7 +69,6 @@ def embed_mp3(music_file, meta_tags, output_ext):
     audiofile.save(v2_version=3)
 
 def embed_m4a(music_file, meta_tags, output_ext):
-    # eyed serves only mp3 not aac so using mutagen
     # Apple has specific tags - see mutagen docs -
     # http://mutagen.readthedocs.io/en/latest/api/mp4.html
     tags = {'album': '\xa9alb',
@@ -89,7 +92,8 @@ def embed_m4a(music_file, meta_tags, output_ext):
     for artist in meta_tags['artists']:
         artists.append(artist['name'])
     audiofile = MP4('Music/' + music_file + output_ext)
-    audiofile[tags['artist']] = artists
+    #audiofile[tags['artist']] = artists
+    audiofile[tags['artist']] = ', '.join(artists)
     audiofile[tags['albumartist']] = meta_tags['artists'][0]['name']
     audiofile[tags['album']] = meta_tags['album']['name']
     audiofile[tags['title']] = meta_tags['name']
