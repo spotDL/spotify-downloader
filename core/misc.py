@@ -4,6 +4,11 @@ import os
 from slugify import slugify
 import spotipy.oauth2 as oauth2
 
+try:
+    from urllib2 import quote
+except:
+    from urllib.request import quote
+
 def input_link(links):
     while True:
         try:
@@ -71,8 +76,7 @@ def generate_token():
     return token
 
 def generate_search_URL(song):
-    URL = "https://www.youtube.com/results?sp=EgIQAQ%253D%253D&q=" + \
-        song.replace(" ", "%20")
+    URL = "https://www.youtube.com/results?sp=EgIQAQ%253D%253D&q=" + quote(song)
     return URL
 
 def fix_encoding(query):

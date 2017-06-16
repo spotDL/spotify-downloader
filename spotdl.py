@@ -22,7 +22,7 @@ def generate_songname(raw_song):
     if misc.is_spotify(raw_song):
         tags = generate_metadata(raw_song)
         raw_song = tags['artists'][0]['name'] + ' - ' + tags['name']
-    return raw_song
+    return misc.fix_encoding(raw_song)
 
 def generate_metadata(raw_song):
     if misc.is_spotify(raw_song):
