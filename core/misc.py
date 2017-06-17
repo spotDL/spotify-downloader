@@ -58,6 +58,7 @@ def get_arguments():
 
     return parser.parse_args()
 
+# check if input song is spotify link
 def is_spotify(raw_song):
     if (len(raw_song) == 22 and raw_song.replace(" ", "%20") == raw_song) or (raw_song.find('spotify') > -1):
         return True
@@ -91,6 +92,7 @@ def generate_token():
     return token
 
 def generate_search_URL(song):
+    # urllib2.quote() encodes URL with special characters
     URL = "https://www.youtube.com/results?sp=EgIQAQ%253D%253D&q=" + quote(song)
     return URL
 
@@ -105,4 +107,4 @@ def grace_quit():
     print('')
     print('')
     print('Exitting..')
-    exit()
+    sys.exit()

@@ -13,10 +13,12 @@ def compare(file, metadata):
     try:
         if file.endswith('.mp3'):
             audiofile = EasyID3('Music/' + file)
+            # fetch track title metadata
             already_tagged = audiofile['title'][0] == metadata['name']
         elif file.endswith('.m4a'):
             tag = {'title': '\xa9nam'}
             audiofile = MP4('Music/' + file)
+            # fetch track title metadata
             already_tagged = audiofile[tags['title']] == metadata['name']
     except KeyError:
             already_tagged = False
@@ -35,7 +37,7 @@ def embed(music_file, meta_tags, output_ext):
         print('Cannot embed meta-tags into given output extension')
 
 def embed_mp3(music_file, meta_tags, output_ext):
-    #EasyID3 is fun to use ;)
+    # EasyID3 is fun to use ;)
     audiofile = EasyID3('Music/' + music_file + output_ext)
     audiofile['artist'] = meta_tags['artists'][0]['name']
     audiofile['albumartist'] = meta_tags['artists'][0]['name']
