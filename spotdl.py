@@ -170,17 +170,13 @@ def convert_with_libav(music_file):
     else:
         level = '0'
 
-    #print([avconv_path,
-    #      '-loglevel', level,
-    #      '-i',        'Music/' + music_file + args.input_ext,
-    #      '-ab',       '192k',
-    #      'Music/' + music_file + args.output_ext])
+    command = [avconv_path,
+               '-loglevel', level,
+               '-i',        'Music/' + music_file + args.input_ext,
+               '-ab',       '192k',
+               'Music/' + music_file + args.output_ext]
 
-    subprocess.call([avconv_path,
-                    '-loglevel', level,
-                    '-i',        'Music/' + music_file + args.input_ext,
-                    '-ab',       '192k',
-                    'Music/' + music_file + args.output_ext])
+    subprocess.call(command)
 
     os.remove('Music/' + music_file + args.input_ext)
 
@@ -204,16 +200,16 @@ def convert_with_FFmpeg(music_file):
 
     if args.input_ext == '.m4a':
         if args.output_ext == '.mp3':
-            ffmpeg_params = ' -codec:v copy -codec:a libmp3lame -q:a 2 '
+            ffmpeg_params = '-codec:v copy -codec:a libmp3lame -q:a 2 '
         elif output_ext == '.webm':
-            ffmpeg_params = ' -c:a libopus -vbr on -b:a 192k -vn '
+            ffmpeg_params = '-c:a libopus -vbr on -b:a 192k -vn '
         else:
             return
     elif args.input_ext == '.webm':
         if args.output_ext == '.mp3':
             ffmpeg_params = ' -ab 192k -ar 44100 -vn '
         elif args.output_ext == '.m4a':
-	            ffmpeg_params = ' -cutoff 20000 -c:a libfdk_aac -b:a 256k -vn '
+	            ffmpeg_params = '-cutoff 20000 -c:a libfdk_aac -b:a 256k -vn '
         else:
             return
     else:
@@ -221,20 +217,11 @@ def convert_with_FFmpeg(music_file):
         return
 
     command = (ffmpeg_pre +
-              '-i "Music/' + music_file + args.input_ext + '"' +
+              '-i Music/' + music_file + args.input_ext + ' ' +
                ffmpeg_params +
-              '"Music/' + music_file + args.output_ext + '"').split(' ')
+              'Music/' + music_file + args.output_ext + '').split(' ')
 
-    commandos = (ffmpeg_pre +
-              '-i "Music/' + music_file + args.input_ext + '" ' +
-              ffmpeg_params +
-              '"Music/' + music_file + args.output_ext + '" ')
-    print(command)
-    print(commandos)
-    exit()
-    os.system(commandos)
-    #subprocess.call(command)
-
+    subprocess.call(command)
     os.remove('Music/' + music_file + args.input_ext)
 
 # check if input song already exists in Music folder
