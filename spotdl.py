@@ -220,17 +220,18 @@ def convert_with_FFmpeg(music_file):
         print('Unknown formats. Unable to convert.', args.input_ext, args.output_ext)
         return
 
-    #command = (ffmpeg_pre +
-    #          '-i "Music/' + music_file + args.input_ext + '"' +
-    #           ffmpeg_params +
-    #          '"Music/' + music_file + args.output_ext + '"').split(' ')
+    command = (ffmpeg_pre +
+              '-i "Music/' + music_file + args.input_ext + '"' +
+               ffmpeg_params +
+              '"Music/' + music_file + args.output_ext + '"').split(' ')
 
     commandos = (ffmpeg_pre +
               '-i "Music/' + music_file + args.input_ext + '" ' +
               ffmpeg_params +
               '"Music/' + music_file + args.output_ext + '" ')
-    #print(command)
-    #print(commandos)
+    print(command)
+    print(commandos)
+    exit()
     os.system(commandos)
     #subprocess.call(command)
 
@@ -337,6 +338,7 @@ if __name__ == '__main__':
         os.makedirs("Music")
 
     # token is mandatory when using Spotify's API
+    # https://developer.spotify.com/news-stories/2017/01/27/removing-unauthenticated-calls-to-the-web-api/
     token = misc.generate_token()
     spotify = spotipy.Spotify(auth=token)
 

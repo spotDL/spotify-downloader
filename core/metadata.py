@@ -16,7 +16,7 @@ def compare(file, metadata):
             # fetch track title metadata
             already_tagged = audiofile['title'][0] == metadata['name']
         elif file.endswith('.m4a'):
-            tag = {'title': '\xa9nam'}
+            tags = {'title': '\xa9nam'}
             audiofile = MP4('Music/' + file)
             # fetch track title metadata
             already_tagged = audiofile[tags['title']] == metadata['name']
