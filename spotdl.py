@@ -98,16 +98,6 @@ def get_YouTube_title(content, number):
     else:
         return str(number) + '. ' + title
 
-# write tracks into list file
-def feed_tracks(file, tracks):
-    with open(file, 'a') as fout:
-        for item in tracks['items']:
-            track = item['track']
-            try:
-                fout.write(track['external_urls']['spotify'] + '\n')
-            except KeyError:
-                pass
-
 # fetch user playlists when using -u option
 def feed_playlist(username):
     playlists = spotify.user_playlists(username)
@@ -125,10 +115,10 @@ def feed_playlist(username):
     file = slugify(playlist['name'], ok='-_()[]{}') + '.txt'
     print('Feeding ' + str(playlist['tracks']['total']) + ' tracks to ' + file)
     tracks = results['tracks']
-    feed_tracks(file, tracks)
+    misc.feed_tracks(file, tracks)
     while tracks['next']:
         tracks = spotify.next(tracks)
-        feed_tracks(file, tracks)
+        misc.feed_tracks(file, tracks)
 
 def download_song(content):
     music_file = misc.generate_filename(content.title)
