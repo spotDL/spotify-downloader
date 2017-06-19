@@ -157,6 +157,7 @@ def convert_song(music_file):
             convert_with_FFmpeg(music_file)
         else:
             convert_with_libav(music_file)
+        os.remove('Music/' + music_file + args.input_ext)
 
 def convert_with_libav(music_file):
     # different path for windows
@@ -178,7 +179,6 @@ def convert_with_libav(music_file):
 
     subprocess.call(command)
 
-    os.remove('Music/' + music_file + args.input_ext)
 
 def convert_with_FFmpeg(music_file):
     # What are the differences and similarities between ffmpeg, libav, and avconv?
@@ -190,7 +190,7 @@ def convert_with_FFmpeg(music_file):
     # https://trac.ffmpeg.org/wiki/Encode/AAC
 
     if os.name == "nt":
-        ffmpeg_pre = 'Scripts//ffmpeg.exe '
+        ffmpeg_pre = 'Scripts\\ffmpeg.exe '
     else:
         ffmpeg_pre = 'ffmpeg '
 
@@ -203,18 +203,11 @@ def convert_with_FFmpeg(music_file):
             ffmpeg_params = '-codec:v copy -codec:a libmp3lame -q:a 2 '
         elif output_ext == '.webm':
             ffmpeg_params = '-c:a libopus -vbr on -b:a 192k -vn '
-        else:
-            return
     elif args.input_ext == '.webm':
         if args.output_ext == '.mp3':
             ffmpeg_params = ' -ab 192k -ar 44100 -vn '
         elif args.output_ext == '.m4a':
-	            ffmpeg_params = '-cutoff 20000 -c:a libfdk_aac -b:a 256k -vn '
-        else:
-            return
-    else:
-        print('Unknown formats. Unable to convert.', args.input_ext, args.output_ext)
-        return
+	            ffmpeg_params = '-cutoff 20000 -c:a libfdk_aac -b:a 192k -vn '
 
     command = (ffmpeg_pre +
               '-i Music/' + music_file + args.input_ext + ' ' +
@@ -222,7 +215,6 @@ def convert_with_FFmpeg(music_file):
               'Music/' + music_file + args.output_ext + '').split(' ')
 
     subprocess.call(command)
-    os.remove('Music/' + music_file + args.input_ext)
 
 # check if input song already exists in Music folder
 def check_exists(music_file, raw_song, islist):
