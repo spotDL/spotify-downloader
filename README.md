@@ -27,7 +27,7 @@ That's how your Music library will look like!
 
 ## Reporting Issues
 
-- Search for your problem in the [issues section](https://github.com/Ritiek/Spotify-Downloader/issues?utf8=%E2%9C%93&q=) before opening a new ticket. It might be already answered and save us time :D.
+- Search for your problem in the [issues section](https://github.com/Ritiek/spotify-downloader/issues?utf8=%E2%9C%93&q=) before opening a new ticket. It might be already answered and save us time :D.
 
 - Provide as much information possible when opening your ticket.
 
@@ -43,8 +43,8 @@ That's how your Music library will look like!
 
 ```
 cd
-git clone https://github.com/Ritiek/Spotify-Downloader
-cd Spotify-Downloader
+git clone https://github.com/ritiek/spotify-downloader
+cd spotify-downloader
 pip install -U -r requirements.txt
 ```
 
