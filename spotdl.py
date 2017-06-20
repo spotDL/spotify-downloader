@@ -100,7 +100,7 @@ def go_pafy(raw_song):
 
 # title of the YouTube video
 def get_YouTube_title(content, number):
-    title = content.title
+    title = misc.fix_encoding(content.title)
     if number is None:
         return title
     else:
@@ -297,7 +297,8 @@ def grab_single(raw_song, number=None):
     # otherwise print "[artist] - [song]"
     print(get_YouTube_title(content, number))
     # generate file name of the song to download
-    music_file = misc.generate_filename(content.title)
+    title = misc.fix_encoding(content.title)
+    music_file = misc.generate_filename(title)
     if not check_exists(music_file, raw_song, islist=islist):
         download_song(content)
         print('')
