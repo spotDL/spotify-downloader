@@ -83,7 +83,7 @@ def generate_filename(title):
     title = title.replace(' ', '_')
     # slugify removes any special characters
     filename = slugify(title, ok='-_()[]{}', lower=False)
-    return filename
+    return fix_encoding(filename)
 
 # please respect these credentials :)
 def generate_token():
