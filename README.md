@@ -27,9 +27,7 @@ That's how your Music library will look like!
 
 ## Reporting Issues
 
-- **Spotify made it mandatory to use a token to fetch track information. So, if you get rate limited or face any token problems, please let me know in [#58](https://github.com/Ritiek/Spotify-Downloader/issues/58).**
-
-- Search for your problem in the [issues section](https://github.com/Ritiek/Spotify-Downloader/issues?utf8=%E2%9C%93&q=) before opening a new ticket. It might be already answered and save you and me some time :D.
+- Search for your problem in the [issues section](https://github.com/Ritiek/Spotify-Downloader/issues?utf8=%E2%9C%93&q=) before opening a new ticket. It might be already answered and save us time :D.
 
 - Provide as much information possible when opening your ticket.
 
@@ -53,6 +51,7 @@ pip install -U -r requirements.txt
 You'll also need to install FFmpeg for conversion (use `--avconv` if you'd like to use that instead):
 
 Linux: `sudo apt-get install ffmpeg`
+
 Mac: `brew install ffmpeg --with-libass --with-opus --with-fdk-aac`
 
 ### Windows
@@ -63,7 +62,7 @@ Assuming you have Python already installed..
 
 - Download the zip file of this repository and extract its contents in your python's installation folder.
 
-Change your current working directory to python's installation directory. Shift+right-click on empty area and open cmd and type:
+- Change your current working directory to python's installation directory. Shift+right-click on empty area and open cmd and type:
 
 `"Scripts/pip.exe" install -U -r requirements.txt`
 
