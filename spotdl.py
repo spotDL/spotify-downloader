@@ -63,8 +63,8 @@ def generateMetaTags(raw_song):
 
 
 def generateSearchURL(song):
-    URL = "https://www.youtube.com/results?sp=EgIQAQ%253D%253D&q=" + \
-        urllib.quote(song)
+    name = urllib.quote(song.encode("utf8"))
+    URL = "https://www.youtube.com/results?sp=EgIQAQ%253D%253D&q=" + name
     return URL
 
 
