@@ -297,8 +297,7 @@ def grab_single(raw_song, number=None):
     # otherwise print "[artist] - [song]"
     print(get_YouTube_title(content, number))
     # generate file name of the song to download
-    title = misc.fix_encoding(content.title)
-    music_file = misc.generate_filename(title)
+    music_file = misc.generate_filename(content.title)
     if not check_exists(music_file, raw_song, islist=islist):
         download_song(content)
         print('')

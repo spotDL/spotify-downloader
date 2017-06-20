@@ -78,12 +78,14 @@ def feed_tracks(file, tracks):
 
 # generate filename of the song to be downloaded
 def generate_filename(title):
-    raw_title = title.replace(' ', '_')
+    # IMO python2 sucks dealing with unicode
+    title = fix_encoding(title, decode=True)
+    title = title.replace(' ', '_')
     # slugify removes any special characters
-    filename = slugify(raw_title, ok='-_()[]{}', lower=False)
+    filename = slugify(title, ok='-_()[]{}', lower=False)
     return filename
 
-# please respect this user token :)
+# please respect these credentials :)
 def generate_token():
     creds = oauth2.SpotifyClientCredentials(
         client_id='4fe3fecfe5334023a1472516cc99d805',
@@ -97,11 +99,12 @@ def generate_search_URL(song):
     return URL
 
 # fix encoding issues in python2
-def fix_encoding(query):
-    if sys.version_info > (3, 0):
-        return query
-    else:
-        return query.encode('utf-8')
+def fix_encoding(query, decode=False):
+    if sys.version_info < (3, 0):
+        query = query.encode('utf-8')
+        if decode:
+            query = query.decode('utf-8')
+    return query
 
 def grace_quit():
     print('')
