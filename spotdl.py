@@ -15,6 +15,7 @@ import requests
 import pafy
 import os
 import argparse
+import urllib
 
 
 def getInputLink(links):
@@ -63,7 +64,7 @@ def generateMetaTags(raw_song):
 
 def generateSearchURL(song):
     URL = "https://www.youtube.com/results?sp=EgIQAQ%253D%253D&q=" + \
-        song.replace(" ", "%20")
+        urllib.quote(song)
     return URL
 
 
