@@ -159,7 +159,7 @@ def convert_song(music_file):
             convert_with_FFmpeg(music_file)
         os.remove('Music/' + music_file + args.input_ext)
 
-def convert_with_libav(music_file):
+def convert_with_avconv(music_file):
     # different path for windows
     if os.name == 'nt':
         avconv_path = 'Scripts\\avconv.exe'
