@@ -153,10 +153,10 @@ def convert_song(music_file):
     # skip conversion if input_ext == output_ext
     if not args.input_ext == args.output_ext:
         print('Converting ' + music_file + args.input_ext + ' to ' + args.output_ext[1:])
-        if args.ffmpeg:
-            convert_with_FFmpeg(music_file)
+        if args.avconv:
+            convert_with_avconv(music_file)
         else:
-            convert_with_libav(music_file)
+            convert_with_FFmpeg(music_file)
         os.remove('Music/' + music_file + args.input_ext)
 
 def convert_with_libav(music_file):

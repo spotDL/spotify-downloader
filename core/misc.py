@@ -46,8 +46,8 @@ def get_arguments():
                         help='choose the song to download manually', action='store_true')
     parser.add_argument('-nm', '--no-metadata', default=False,
                         help='do not embed metadata in songs', action='store_true')
-    parser.add_argument('-f', '--ffmpeg', default=False,
-                        help='Use ffmpeg for conversion otherwise set defaults to libav',
+    parser.add_argument('-f', '--avconv', default=False,
+                        help='Use avconv for conversion otherwise set defaults to ffmpeg',
                         action='store_true')
     parser.add_argument('-v', '--verbose', default=False,
                         help='show debug output', action='store_true')
