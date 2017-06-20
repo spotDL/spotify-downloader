@@ -15,6 +15,7 @@
   - Track number
   - Disc number
   - Release date
+  - and some more..
 
 - Works straight out of the box and does not require to generate or mess with your API keys.
 
@@ -26,9 +27,7 @@ That's how your Music library will look like!
 
 ## Reporting Issues
 
-- **Spotify made it mandatory to use a token to fetch track information. So, if you get rate limited or face any token problems, please let me know in [#58](https://github.com/Ritiek/Spotify-Downloader/issues/58).**
-
-- Search for your problem in the [issues section](https://github.com/Ritiek/Spotify-Downloader/issues?utf8=%E2%9C%93&q=) before opening a new ticket. It might be already answered and save you and me some time :D.
+- Search for your problem in the [issues section](https://github.com/Ritiek/Spotify-Downloader/issues?utf8=%E2%9C%93&q=) before opening a new ticket. It might be already answered and save us time :D.
 
 - Provide as much information possible when opening your ticket.
 
@@ -48,25 +47,26 @@ git clone https://github.com/Ritiek/Spotify-Downloader
 cd Spotify-Downloader
 pip install -U -r requirements.txt
 ```
-You'll also need to install avconv (use `--ffmpeg` option when using the script if you want `ffmpeg`):
 
-`sudo apt-get install libav-tools` (`brew install libav` for Mac)
+You'll also need to install FFmpeg for conversion (use `--avconv` if you'd like to use that instead):
+
+Linux: `sudo apt-get install ffmpeg`
+
+Mac: `brew install ffmpeg --with-libass --with-opus --with-fdk-aac`
 
 ### Windows
 
 Assuming you have Python already installed..
 
-- Download Libav-Tools for windows: https://builds.libav.org/windows/release-gpl/libav-x86_64-w64-mingw32-11.7.7z. Copy all the contents of bin folder (of libav) to Scripts folder (in your python's installation directory).
+- Download FFmpeg for windows from [here](http://ffmpeg.zeranoe.com/builds/). Copy `ffmpeg.exe` from bin folder (of FFmpeg) to Scripts folder (in your python's installation directory).
 
-- Download the zip file of this repository and extract its contents in your python's installation folder as well.
+- Download the zip file of this repository and extract its contents in your python's installation folder.
 
-Shift+right-click on empty area and open cmd and type:
+- Change your current working directory to python's installation directory. Shift+right-click on empty area and open cmd and type:
 
 `"Scripts/pip.exe" install -U -r requirements.txt`
 
 - If you do not want to naviagte to your python folder from the command-line everytime you want to run the script, you can have your python 'PATH' environment variables set and then you can run the script from any directory.
-    - python install folder: like (C:\Program Files\Python36)
-    - python scripts folder: like (C:\Program Files\Python36\Scripts)
 
 ## Instructions for Downloading Songs
 
@@ -88,8 +88,8 @@ optional arguments:
   -n, --no-convert      skip the conversion process and meta-tags (default:
                         False)
   -m, --manual          choose the song to download manually (default: False)
-  -f, --ffmpeg          Use ffmpeg instead of libav for conversion. If not set
-                        defaults to libav (default: False)
+  -a, --avconv          Use avconv for conversion. If not set
+                        defaults to FFmpeg (default: False)
   -v, --verbose         show debug output (default: False)
   -i INPUT_EXT, --input_ext INPUT_EXT
                         prefered input format .m4a or .webm (Opus) (default:

@@ -1,3 +1,4 @@
-Music/
-last_albumart.jpg
-list.txt
+*.pyc
+__pycache__/
+/Music/
+/*.txt
