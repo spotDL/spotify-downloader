@@ -240,7 +240,7 @@ def check_exists(music_file, raw_song, islist):
                 return True
             # if downloading only single song, prompt to re-download
             else:
-                prompt = raw_input('Song with same name has already been downloaded. Re-download? (y/n): ').lower()
+                prompt = misc.user_input('Song with same name has already been downloaded. Re-download? (y/n): ').lower()
                 if prompt == "y":
                     os.remove("Music/" + file)
                     return False
@@ -312,10 +312,6 @@ def grab_single(raw_song, number=None):
             metadata.embed(music_file, meta_tags, args.output_ext)
 
 if __name__ == '__main__':
-
-    # python 3 compatibility
-    if sys.version_info > (3, 0):
-        raw_input = input
 
     os.chdir(sys.path[0])
     if not os.path.exists("Music"):

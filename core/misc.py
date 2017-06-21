@@ -13,7 +13,7 @@ except:
 def input_link(links):
     while True:
         try:
-            the_chosen_one = int(raw_input('>> Choose your number: '))
+            the_chosen_one = int(user_input('>> Choose your number: '))
             if the_chosen_one >= 1 and the_chosen_one <= len(links):
                 return links[the_chosen_one - 1]
             elif the_chosen_one == 0:
@@ -22,6 +22,12 @@ def input_link(links):
                 print('Choose a valid number!')
         except ValueError:
             print('Choose a valid number!')
+
+def user_input(string=''):
+    if sys.version_info > (3, 0):
+        return input(string)
+    else:
+        return raw_input(string)
 
 # remove first song from .txt
 def trim_song(file):
