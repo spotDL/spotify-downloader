@@ -58,6 +58,7 @@ def generate_YouTube_URL(raw_song):
     # generate direct search YouTube URL
     searchURL = misc.generate_search_URL(song)
     item = urllib2.urlopen(searchURL).read()
+    item = unicode(item, 'utf-8')
     items_parse = BeautifulSoup(item, "html.parser")
     check = 1
     if args.manual:
