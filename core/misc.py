@@ -79,7 +79,8 @@ def feed_tracks(file, tracks):
 # generate filename of the song to be downloaded
 def generate_filename(title):
     # IMO python2 sucks dealing with unicode
-    title = fix_encoding(title, decode=True)
+    title = fix_encoding(title)
+    title = fix_decoding(title)
     title = title.replace(' ', '_')
     # slugify removes any special characters
     filename = slugify(title, ok='-_()[]{}', lower=False)
@@ -99,11 +100,14 @@ def generate_search_URL(song):
     return URL
 
 # fix encoding issues in python2
-def fix_encoding(query, decode=False):
+def fix_encoding(query):
     if sys.version_info < (3, 0):
         query = query.encode('utf-8')
-        if decode:
-            query = query.decode('utf-8')
+    return query
+
+def fix_decoding(query):
+    if sys.version_info < (3, 0):
+        query = query.decode('utf-8')
     return query
 
 def grace_quit():

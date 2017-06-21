@@ -58,7 +58,7 @@ def generate_YouTube_URL(raw_song):
     # generate direct search YouTube URL
     searchURL = misc.generate_search_URL(song)
     item = urllib2.urlopen(searchURL).read()
-    item = unicode(item, 'utf-8')
+    #item = unicode(item, 'utf-8')
     items_parse = BeautifulSoup(item, "html.parser")
     check = 1
     if args.manual:
@@ -153,6 +153,7 @@ def download_song(content):
 def convert_song(music_file):
     # skip conversion if input_ext == output_ext
     if not args.input_ext == args.output_ext:
+        music_file = music_file.encode('utf-8')
         print('Converting ' + music_file + args.input_ext + ' to ' + args.output_ext[1:])
         if args.avconv:
             convert_with_avconv(music_file)
@@ -225,7 +226,9 @@ def check_exists(music_file, raw_song, islist):
             os.remove("Music/" + file)
             continue
         # check if any file with similar name is already present in Music/
-        if file.startswith(misc.generate_filename(music_file)):
+        dfile = misc.fix_decoding(file)
+        umfile = misc.fix_decoding(misc.generate_filename(music_file))
+        if dfile.startswith(umfile):
             # check if the already downloaded song has correct metadata
             already_tagged = metadata.compare(file, generate_metadata(raw_song))
             # if not, remove it and download again without prompt
@@ -299,6 +302,7 @@ def grab_single(raw_song, number=None):
     print(get_YouTube_title(content, number))
     # generate file name of the song to download
     music_file = misc.generate_filename(content.title)
+    music_file = misc.fix_decoding(music_file)
     if not check_exists(music_file, raw_song, islist=islist):
         download_song(content)
         print('')
