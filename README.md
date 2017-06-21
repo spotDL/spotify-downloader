@@ -85,8 +85,6 @@ optional arguments:
   -u USERNAME, --username USERNAME
                         load user's playlists into <playlist_name>.txt
                         (default: None)
-  -n, --no-convert      skip the conversion process and meta-tags (default:
-                        False)
   -m, --manual          choose the song to download manually (default: False)
   -a, --avconv          Use avconv for conversion. If not set
                         defaults to FFmpeg (default: False)
