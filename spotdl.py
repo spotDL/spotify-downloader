@@ -137,17 +137,22 @@ def feed_playlist(username):
         misc.feed_tracks(file, tracks)
 
 def download_song(content):
-    music_file = misc.generate_filename(content.title)
     if args.input_ext == '.webm':
-        # download best available audio in .webm
+        # best available audio in .webm
         link = content.getbestaudio(preftype='webm')
-        if link is not None:
-            link.download(filepath='Music/' + music_file + args.input_ext)
-    else:
-        # download best available audio in .webm
+    elif args.input_ext == '.m4a':
+        # best available audio in .webm
         link = content.getbestaudio(preftype='m4a')
-        if link is not None:
-            link.download(filepath='Music/' + music_file + args.input_ext)
+    else:
+        return False
+
+    if link is None:
+        return False
+    else:
+        music_file = misc.generate_filename(content.title)
+        # download link
+        link.download(filepath='Music/' + music_file + args.input_ext)
+        return True
 
 # convert song from input_ext to output_ext
 def convert_song(music_file):
@@ -304,12 +309,14 @@ def grab_single(raw_song, number=None):
     music_file = misc.generate_filename(content.title)
     music_file = misc.fix_decoding(music_file)
     if not check_exists(music_file, raw_song, islist=islist):
-        download_song(content)
-        print('')
-        convert_song(music_file)
-        meta_tags = generate_metadata(raw_song)
-        if not args.no_metadata:
-            metadata.embed(music_file, meta_tags, args.output_ext)
+        if download_song(content):
+            print('')
+            convert_song(music_file)
+            meta_tags = generate_metadata(raw_song)
+            if not args.no_metadata:
+                metadata.embed(music_file, meta_tags, args.output_ext)
+        else:
+            print('No audio streams available')
 
 if __name__ == '__main__':
 

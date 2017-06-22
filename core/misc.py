@@ -23,6 +23,7 @@ def input_link(links):
         except ValueError:
             print('Choose a valid number!')
 
+# take input correctly for both python2 & 3
 def user_input(string=''):
     if sys.version_info > (3, 0):
         return input(string)
