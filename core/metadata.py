@@ -51,7 +51,6 @@ def embed_mp3(music_file, meta_tags, output_ext):
     audiofile['date'] = meta_tags['release_date']
     audiofile['originaldate'] = meta_tags['release_date']
     audiofile['media'] = meta_tags['type']
-    audiofile['copyright'] = meta_tags['copyright']
     audiofile['author'] = meta_tags['artists'][0]['name']
     audiofile['lyricist'] = meta_tags['artists'][0]['name']
     audiofile['arranger'] = meta_tags['artists'][0]['name']
@@ -62,6 +61,8 @@ def embed_mp3(music_file, meta_tags, output_ext):
     audiofile['length'] = str(meta_tags['duration_ms'] / 1000)
     if meta_tags['genre']:
         audiofile['genre'] = meta_tags['genre']
+    if meta_tags['copyright']:
+        audiofile['copyright'] = meta_tags['copyright']
     audiofile.save(v2_version=3)
     audiofile = ID3('Music/' + music_file + output_ext)
     albumart = urllib2.urlopen(meta_tags['album']['images'][0]['url'])
@@ -98,9 +99,10 @@ def embed_m4a(music_file, meta_tags, output_ext):
     audiofile[tags['disknumber']] = [(meta_tags['disc_number'], 0)]
     audiofile[tags['date']] = meta_tags['release_date']
     audiofile[tags['originaldate']] = meta_tags['release_date']
-    audiofile[tags['copyright']] = meta_tags['copyright']
     if meta_tags['genre']:
         audiofile[tags['genre']] = meta_tags['genre']
+    if meta_tags['copyright']:
+        audiofile[tags['copyright']] = meta_tags['copyright']
     albumart = urllib2.urlopen(meta_tags['album']['images'][0]['url'])
     audiofile[tags['albumart']] = [ MP4Cover(albumart.read(), imageformat=MP4Cover.FORMAT_JPEG) ]
     albumart.close()
