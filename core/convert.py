@@ -11,6 +11,7 @@ def song(input_song, output_song, avconv, verbose):
         else:
             convert_with_FFmpeg(input_song, output_song, verbose)
         os.remove('Music/' + input_song)
+    return True
 
 def convert_with_avconv(input_song, output_song, verbose):
     # different path for windows

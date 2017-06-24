@@ -31,5 +31,5 @@ def test_check_exists():
 def test_download():
     expect_download = True
     content = spotdl.go_pafy(raw_song)
-    download = download_song(content)
+    download = spotdl.download_song(content)
     assert download == expect_download

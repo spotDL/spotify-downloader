@@ -262,6 +262,8 @@ def grab_single(raw_song, number=None):
 
 class Args(object):
     manual = False
+    input_ext = '.m4a'
+    output_ext = '.mp3'
 
 args = Args()
 # token is mandatory when using Spotify's API
