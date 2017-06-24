@@ -19,7 +19,7 @@ try:
 except ImportError:
     import urllib.request as urllib2
 
-# decode spotify link to "[artist] - [song]"
+# "[artist] - [song]"
 def generate_songname(raw_song):
     if misc.is_spotify(raw_song):
         tags = generate_metadata(raw_song)
@@ -105,7 +105,7 @@ def go_pafy(raw_song):
         return pafy.new(trackURL)
 
 # title of the YouTube video
-def get_YouTube_title(content, number):
+def get_YouTube_title(content, number=None):
     title = misc.fix_encoding(content.title)
     if number is None:
         return title
@@ -259,18 +259,21 @@ def grab_single(raw_song, number=None):
         else:
             print('No audio streams available')
 
+class Args(object):
+    manual = False
+
+args = Args()
+# token is mandatory when using Spotify's API
+# https://developer.spotify.com/news-stories/2017/01/27/removing-unauthenticated-calls-to-the-web-api/
+token = misc.generate_token()
+spotify = spotipy.Spotify(auth=token)
+
+misc.filter_path('Music')
+
 if __name__ == '__main__':
 
     os.chdir(sys.path[0])
 
-    misc.filter_path('Music')
-
-    # token is mandatory when using Spotify's API
-    # https://developer.spotify.com/news-stories/2017/01/27/removing-unauthenticated-calls-to-the-web-api/
-    token = misc.generate_token()
-    spotify = spotipy.Spotify(auth=token)
-
-    # set up arguments
     args = misc.get_arguments()
 
     if args.song:
