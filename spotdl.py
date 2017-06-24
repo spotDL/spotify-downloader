@@ -317,7 +317,8 @@ def grab_single(raw_song, number=None):
             convert_song(music_file)
             meta_tags = generate_metadata(raw_song)
             if not args.no_metadata:
-                metadata.embed(music_file, meta_tags, args.output_ext)
+                output = music_file + args.output_ext
+                metadata.embed(output, meta_tags)
         else:
             print('No audio streams available')
 
