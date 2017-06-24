@@ -33,3 +33,13 @@ def test_download():
     content = spotdl.go_pafy(raw_song)
     download = spotdl.download_song(content)
     assert download == expect_download
+
+def test_convert():
+    expect_convert = True
+    content = spotdl.go_pafy(raw_song)
+    music_file = spotdl.misc.generate_filename(content.title)
+    music_file = spotdl.misc.fix_decoding(music_file)
+    input_song = music_file + spotdl.args.input_ext
+    output_song = music_file + spotdl.args.output_ext
+    convert = spotdl.convert.song(input_song, output_song)
+    assert convert == expect_convert

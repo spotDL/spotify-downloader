@@ -1,7 +1,7 @@
 import subprocess
 import os
 
-def song(input_song, output_song, avconv, verbose):
+def song(input_song, output_song, avconv=False, verbose=False):
     if not input_song == output_song:
         input_song = input_song.encode('utf-8')
         output_song = output_song.encode('utf-8')
@@ -11,7 +11,8 @@ def song(input_song, output_song, avconv, verbose):
         else:
             convert_with_FFmpeg(input_song, output_song, verbose)
         os.remove('Music/' + input_song)
-    return True
+        return True
+    return False
 
 def convert_with_avconv(input_song, output_song, verbose):
     # different path for windows
