@@ -254,6 +254,7 @@ def grab_single(raw_song, number=None):
                          output_song,
                          avconv=args.avconv,
                          verbose=args.verbose)
+            os.remove('Music/' + input_song)
             meta_tags = generate_metadata(raw_song)
             if not args.no_metadata:
                 metadata.embed(output_song, meta_tags)

@@ -7,12 +7,11 @@ def song(input_song, output_song, avconv=False, verbose=False):
         output_song = output_song.encode('utf-8')
         print('Converting ' + input_song + ' to ' + output_song.split('.')[-1])
         if avconv:
-            convert_with_avconv(input_song, output_song, verbose)
+            exit_code = convert_with_avconv(input_song, output_song, verbose)
         else:
-            convert_with_FFmpeg(input_song, output_song, verbose)
-        os.remove('Music/' + input_song)
-        return True
-    return False
+            exit_code = convert_with_FFmpeg(input_song, output_song, verbose)
+        return exit_code
+    return None
 
 def convert_with_avconv(input_song, output_song, verbose):
     # different path for windows

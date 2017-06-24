@@ -30,14 +30,17 @@ def embed(music_file, meta_tags):
         music_file = music_file.encode('utf-8')
     if meta_tags is None:
         print('Could not find meta-tags')
+        return None
     elif music_file.endswith('.m4a'):
         print('Fixing meta-tags')
-        embed_m4a(music_file, meta_tags)
+        return embed_m4a(music_file, meta_tags)
+        return True
     elif music_file.endswith('.mp3'):
         print('Fixing meta-tags')
-        embed_mp3(music_file, meta_tags)
+        return embed_mp3(music_file, meta_tags)
     else:
         print('Cannot embed meta-tags into given output extension')
+        return False
 
 def embed_mp3(music_file, meta_tags):
     # EasyID3 is fun to use ;)
@@ -69,6 +72,7 @@ def embed_mp3(music_file, meta_tags):
     audiofile["APIC"] = APIC(encoding=3, mime='image/jpeg', type=3, desc=u'Cover', data=albumart.read())
     albumart.close()
     audiofile.save(v2_version=3)
+    return True
 
 def embed_m4a(music_file, meta_tags):
     # Apple has specific tags - see mutagen docs -
@@ -107,3 +111,4 @@ def embed_m4a(music_file, meta_tags):
     audiofile[tags['albumart']] = [ MP4Cover(albumart.read(), imageformat=MP4Cover.FORMAT_JPEG) ]
     albumart.close()
     audiofile.save()
+    return True

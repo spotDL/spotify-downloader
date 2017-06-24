@@ -35,7 +35,8 @@ def test_download():
     assert download == expect_download
 
 def test_convert():
-    expect_convert = True
+    # exit code None = success
+    expect_convert = None
     content = spotdl.go_pafy(raw_song)
     music_file = spotdl.misc.generate_filename(content.title)
     music_file = spotdl.misc.fix_decoding(music_file)
@@ -43,3 +44,13 @@ def test_convert():
     output_song = music_file + spotdl.args.output_ext
     convert = spotdl.convert.song(input_song, output_song)
     assert convert == expect_convert
+
+def test_metadata():
+    expect_metadata = True
+    content = spotdl.go_pafy(raw_song)
+    music_file = spotdl.misc.generate_filename(content.title)
+    music_file = spotdl.misc.fix_decoding(music_file)
+    output_song = music_file + spotdl.args.output_ext
+    meta_tags = spotdl.generate_metadata(raw_song)
+    metadata = spotdl.metadata.embed(output_song, meta_tags)
+    assert metadata == expect_metadata
