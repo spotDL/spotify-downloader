@@ -57,12 +57,12 @@ def generate_metadata(raw_song):
     #pprint.pprint(spotify.album(meta_tags['album']['id']))
     return meta_tags
 
-def generate_YouTube_URL(raw_song):
+def generate_youtube_url(raw_song):
     # decode spotify http link to "[artist] - [song]"
     song = generate_songname(raw_song)
     # generate direct search YouTube URL
-    searchURL = misc.generate_search_URL(song)
-    item = urllib2.urlopen(searchURL).read()
+    search_url = misc.generate_search_url(song)
+    item = urllib2.urlopen(search_url).read()
     #item = unicode(item, 'utf-8')
     items_parse = BeautifulSoup(item, "html.parser")
     check = 1
@@ -97,12 +97,12 @@ def generate_YouTube_URL(raw_song):
 # parse track from YouTube
 def go_pafy(raw_song):
     # video link of the video to extract audio from
-    trackURL = generate_YouTube_URL(raw_song)
-    if trackURL is None:
+    track_url = generate_youtube_url(raw_song)
+    if track_url is None:
         return None
     else:
         # parse the YouTube video
-        return pafy.new(trackURL)
+        return pafy.new(track_url)
 
 # title of the YouTube video
 def get_YouTube_title(content, number=None):
