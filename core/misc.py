@@ -117,6 +117,14 @@ def fix_decoding(query):
         query = query.decode('utf-8')
     return query
 
+def filter_path(path):
+    os.chdir(sys.path[0])
+    if not os.path.exists(path):
+        os.makedirs(path)
+    for temp in os.listdir(path):
+        if temp.endswith('.temp'):
+            os.remove(path + '/' + temp)
+
 def grace_quit():
     print('')
     print('')
