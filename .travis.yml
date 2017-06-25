@@ -82,10 +82,6 @@ before_install:
   - PATH="$HOME/bin:$PATH" make
   - make install
   - hash -r
-
-  - ./configure --prefix=/usr --enable-gpl --enable-libx264 --enable-libmp3lame --enable-nonfree
-  - make
-  - sudo make install
 install:
   - pip install -r requirements.txt
 script: python -m pytest test
