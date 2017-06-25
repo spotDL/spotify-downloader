@@ -10,6 +10,7 @@ before_install:
   - sudo apt-get install -y libav-tools
   - sudo apt-get install -y libavcodec-extra-*
   - sudo apt-get install -y libmp3lame0
+  - sudo aptitude -y -q install libcairo2-dev libpixman-1-dev libpango1.0-dev libgif-dev libjpeg-dev libgtk2.0-dev vlc libvlc-dev portaudio19-dev libsqlite3-dev libcurl4-openssl-dev makeself curl
 install:
   - pip install -r requirements.txt
 script: python -m pytest test
