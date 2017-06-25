@@ -52,7 +52,9 @@ You'll also need to install FFmpeg for conversion (use `--avconv` if you'd like 
 
 Linux: `sudo apt-get install ffmpeg`
 
-Mac: `brew install ffmpeg --with-libass --with-opus --with-fdk-aac`
+Mac: `brew install ffmpeg --with-libmp3lame --with-libass --with-opus --with-fdk-aac`
+
+If it does not install correctly, you may have to build it from source. For more info see https://trac.ffmpeg.org/wiki/CompilationGuide.
 
 ### Windows
 
