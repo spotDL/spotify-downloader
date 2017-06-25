@@ -1,10 +1,12 @@
 import subprocess
 import os
+import sys
 
 def song(input_song, output_song, avconv=False, verbose=False):
     if not input_song == output_song:
-        input_song = input_song.encode('utf-8')
-        output_song = output_song.encode('utf-8')
+        if sys.version_info < (3, 0):
+            input_song = input_song.encode('utf-8')
+            output_song = output_song.encode('utf-8')
         print('Converting ' + input_song + ' to ' + output_song.split('.')[-1])
         if avconv:
             exit_code = convert_with_avconv(input_song, output_song, verbose)
