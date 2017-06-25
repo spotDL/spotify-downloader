@@ -90,5 +90,6 @@ before_install:
   - make install
   - hash -r
 install:
+  - cd ~/ritiek/spotify-downloader
   - pip install -r requirements.txt
 script: python -m pytest test
