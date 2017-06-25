@@ -6,12 +6,14 @@ python:
   - "3.6"
 before_install:
   - sudo apt-get -qq update
-  - sudo apt-get install -y ffmpeg
-  - sudo apt-get install -y libav-tools
-  - sudo apt-get install -y libavcodec-extra-*
-  - sudo apt-get install -y libmp3lame0
-  - sudo apt-get install -y libmp3lame-dev
-  - sudo aptitude -y -q install libcairo2-dev libpixman-1-dev libpango1.0-dev libgif-dev libjpeg-dev libgtk2.0-dev vlc libvlc-dev portaudio19-dev libsqlite3-dev libcurl4-openssl-dev makeself curl
+  - sudo apt-get -y install autoconf automake build-essential libass-dev libfreetype6-dev libsdl2-dev libtheora-dev libtool libva-dev libvdpau-dev libvorbis-dev libxcb1-dev libxcb-shm0-dev libxcb-xfixes0-dev pkg-config texinfo wget zlib1g-dev
+  - sudo apt-get install -y libmp3lame-dev libx264-dev libfdk-aac-dev libopus-dev
+  - wget http://ffmpeg.org/releases/ffmpeg-3.3.2.tar.gz
+  - tar -zxvf ffmpeg-3.3.2.tar.gz
+  - cd ffmpeg-3.3.2
+  - ./configure --prefix=/usr --enable-gpl --enable-libx264 --enable-libmp3lame --enable-nonfree --enable-libfdk-aac --enable-libopus
+  - make
+  - sudo make install
 install:
   - pip install -r requirements.txt
 script: python -m pytest test
