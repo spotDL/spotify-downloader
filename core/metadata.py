@@ -26,8 +26,8 @@ def compare(file, metadata):
     return already_tagged
 
 def embed(music_file, meta_tags, output_ext):
-    if sys.version_info < (3, 0): 
-        music_file = music_file.encode('utf-8')
+    if sys.version_info < (3, 0):
+        music_file = misc.fix_encoding(music_file)
     if meta_tags is None:
         print('Could not find meta-tags')
     elif output_ext == '.m4a':

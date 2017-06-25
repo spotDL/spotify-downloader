@@ -161,7 +161,7 @@ def download_song(content):
 def convert_song(music_file):
     # skip conversion if input_ext == output_ext
     if not args.input_ext == args.output_ext:
-        music_file = music_file.encode('utf-8')
+        music_file = misc.fix_encoding(music_file)
         print('Converting ' + music_file + args.input_ext + ' to ' + args.output_ext[1:])
         if args.avconv:
             convert_with_avconv(music_file)
