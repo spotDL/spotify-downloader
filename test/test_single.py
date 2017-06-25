@@ -50,7 +50,8 @@ def test_metadata():
     content = spotdl.go_pafy(raw_song)
     music_file = spotdl.misc.generate_filename(content.title)
     music_file = spotdl.misc.fix_decoding(music_file)
-    output_song = music_file + spotdl.args.output_ext
     meta_tags = spotdl.generate_metadata(raw_song)
-    metadata = spotdl.metadata.embed(output_song, meta_tags)
+    output_song = music_file + spotdl.args.output_ext
+    spotdl.metadata.embed(output_song, meta_tags)
+    metadata = spotdl.check_exists(music_file, raw_song)
     assert metadata == expect_metadata
