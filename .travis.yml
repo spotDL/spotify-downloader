@@ -7,7 +7,7 @@ python:
 before_install:
   - sudo apt-get -qq update
   - sudo apt-get -y install autoconf automake build-essential libass-dev libfreetype6-dev libtheora-dev libtool libva-dev libvdpau-dev libvorbis-dev libxcb1-dev libxcb-shm0-dev libxcb-xfixes0-dev pkg-config texinfo wget zlib1g-dev
-  - sudo apt-get install -y libmp3lame-dev libx264-dev
+  - sudo apt-get install -y yasm libmp3lame-dev libx264-dev
   - wget http://ffmpeg.org/releases/ffmpeg-3.3.2.tar.gz
   - tar -zxvf ffmpeg-3.3.2.tar.gz
   - cd ffmpeg-3.3.2
