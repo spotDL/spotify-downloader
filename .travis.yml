@@ -9,6 +9,7 @@ before_install:
   - sudo apt-get install -y ffmpeg
   - sudo apt-get install -y libav-tools
   - sudo apt-get install -y libavcodec-extra-*
+  - sudo apt-get install -y libmp3lame0
 install:
   - pip install -r requirements.txt
 script: python -m pytest test
