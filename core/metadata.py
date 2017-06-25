@@ -34,7 +34,6 @@ def embed(music_file, meta_tags):
     elif music_file.endswith('.m4a'):
         print('Fixing meta-tags')
         return embed_m4a(music_file, meta_tags)
-        return True
     elif music_file.endswith('.mp3'):
         print('Fixing meta-tags')
         return embed_mp3(music_file, meta_tags)
