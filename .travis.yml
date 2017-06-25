@@ -7,6 +7,7 @@ python:
 before_install:
   - sudo apt-get -qq update
   - sudo apt-get install -y ffmpeg
+  - sudo apt-get install -y libav-tools
 install:
   - pip install -r requirements.txt
 # command to run tests
