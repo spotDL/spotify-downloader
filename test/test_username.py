@@ -24,8 +24,8 @@ def test_list():
     spotdl.misc.feed_tracks('list.txt', tracks)
 
     while tracks['next']:
-        tracks = spotify.next(tracks)
-        misc.feed_tracks('list.txt', tracks)
+        tracks = spotdl.spotify.next(tracks)
+        spotdl.misc.feed_tracks('list.txt', tracks)
 
     with open('list.txt', 'r') as listed:
         expect_song = (listed.read()).splitlines()[0]
