@@ -16,16 +16,27 @@ def test_playlist():
     tracks = playlist['tracks']['total']
     assert tracks == expect_tracks
 
-def test_list():
+def test_tracks():
     playlist = spotdl.spotify.user_playlists(username)['items'][0]
     expect_lines = playlist['tracks']['total']
     result = spotdl.spotify.user_playlist(playlist['owner']['id'], playlist['id'], fields='tracks,next')
     tracks = result['tracks']
-    spotdl.misc.feed_tracks('list.txt', tracks)
 
-    while tracks['next']:
-        tracks = spotdl.spotify.next(tracks)
-        spotdl.misc.feed_tracks('list.txt', tracks)
+    with open('list.txt', 'a') as fout:
+        while True:
+            for item in tracks['items']:
+                track = item['track']
+                try:
+                    fout.write(track['external_urls']['spotify'] + '\n')
+                except KeyError:
+                    title = track['name'] + ' by '+ track['artists'][0]['name']
+                    print('Skipping track ' + title + ' (local only?)')
+            # 1 page = 50 results
+            # check if there are more pages
+            if tracks['next']:
+                tracks = spotify.next(tracks)
+            else:
+                break
 
     with open('list.txt', 'r') as listed:
         expect_song = (listed.read()).splitlines()[0]

@@ -72,17 +72,6 @@ def is_spotify(raw_song):
     else:
         return False
 
-# write tracks into list file
-def feed_tracks(file, tracks):
-    with open(file, 'a') as fout:
-        for item in tracks['items']:
-            track = item['track']
-            try:
-                fout.write(track['external_urls']['spotify'] + '\n')
-            except KeyError:
-                title = track['name'] + ' by '+ track['artists'][0]['name']
-                print('Skipping track ' + title + ' (local only?)')
-
 # generate filename of the song to be downloaded
 def generate_filename(title):
     # IMO python2 sucks dealing with unicode
