@@ -52,7 +52,9 @@ You'll also need to install FFmpeg for conversion (use `--avconv` if you'd like 
 
 Linux: `sudo apt-get install ffmpeg`
 
-Mac: `brew install ffmpeg --with-libass --with-opus --with-fdk-aac`
+Mac: `brew install ffmpeg --with-libmp3lame --with-libass --with-opus --with-fdk-aac`
+
+If it does not install correctly, you may have to build it from source. For more info see https://trac.ffmpeg.org/wiki/CompilationGuide.
 
 ### Windows
 
@@ -153,20 +155,9 @@ http://open.spotify.com/track/64yrDBpcdwEdNY9loyEGbX
 
 - Then you can simply run `python spotdl.py --list=<playlist_name>.txt` to download them all!
 
-## FAQ
+## Running tests
 
-#### I get system cannot find the specified file when downloading?
-
-Check out these issues [#22](https://github.com/Ritiek/Spotify-Downloader/issues/22), [#35](https://github.com/Ritiek/Spotify-Downloader/issues/35), [#36](https://github.com/Ritiek/Spotify-Downloader/issues/36).
-
-#### How can I download whole playlist with its URI?
-
-~~Currently this is not possible without generating unique tokens from Spotify but you can copy all the songs from a playlist and paste them in `list.txt`. I am avoiding tokens as much possible to retain the portability of this tool but if you would like to add it as an optional feature to this tool, PR's welcome!~~
-This feature has been added!
-
-#### You write horrible code. What's wrong with you?
-
-I'm trying...
+`python -m pytest test`
 
 ## Disclaimer
 

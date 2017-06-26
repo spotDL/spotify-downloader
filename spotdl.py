@@ -3,6 +3,7 @@
 # -*- coding: UTF-8 -*-
 
 from core import metadata
+from core import convert
 from core import misc
 from bs4 import BeautifulSoup
 from titlecase import titlecase
@@ -11,7 +12,6 @@ import spotipy
 import pafy
 import sys
 import os
-import subprocess
 
 # urllib2 is urllib.request in python3
 try:
@@ -19,7 +19,7 @@ try:
 except ImportError:
     import urllib.request as urllib2
 
-# decode spotify link to "[artist] - [song]"
+# "[artist] - [song]"
 def generate_songname(raw_song):
     if misc.is_spotify(raw_song):
         tags = generate_metadata(raw_song)
@@ -33,8 +33,10 @@ def generate_metadata(raw_song):
         meta_tags = spotify.track(raw_song)
     else:
         # otherwise search on spotify and fetch information from first result
-        meta_tags = spotify.search(raw_song, limit=1)['tracks']['items'][0]
-
+        try:
+            meta_tags = spotify.search(raw_song, limit=1)['tracks']['items'][0]
+        except:
+            return None
     artist = spotify.artist(meta_tags['artists'][0]['id'])
     album = spotify.album(meta_tags['album']['id'])
 
@@ -55,12 +57,12 @@ def generate_metadata(raw_song):
     #pprint.pprint(spotify.album(meta_tags['album']['id']))
     return meta_tags
 
-def generate_YouTube_URL(raw_song):
+def generate_youtube_url(raw_song):
     # decode spotify http link to "[artist] - [song]"
     song = generate_songname(raw_song)
     # generate direct search YouTube URL
-    searchURL = misc.generate_search_URL(song)
-    item = urllib2.urlopen(searchURL).read()
+    search_url = misc.generate_search_url(song)
+    item = urllib2.urlopen(search_url).read()
     #item = unicode(item, 'utf-8')
     items_parse = BeautifulSoup(item, "html.parser")
     check = 1
@@ -95,15 +97,15 @@ def generate_YouTube_URL(raw_song):
 # parse track from YouTube
 def go_pafy(raw_song):
     # video link of the video to extract audio from
-    trackURL = generate_YouTube_URL(raw_song)
-    if trackURL is None:
+    track_url = generate_youtube_url(raw_song)
+    if track_url is None:
         return None
     else:
         # parse the YouTube video
-        return pafy.new(trackURL)
+        return pafy.new(track_url)
 
 # title of the YouTube video
-def get_YouTube_title(content, number):
+def get_youtube_title(content, number=None):
     title = misc.fix_encoding(content.title)
     if number is None:
         return title
@@ -157,77 +159,8 @@ def download_song(content):
         link.download(filepath='Music/' + music_file + args.input_ext)
         return True
 
-# convert song from input_ext to output_ext
-def convert_song(music_file):
-    # skip conversion if input_ext == output_ext
-    if not args.input_ext == args.output_ext:
-        music_file = misc.fix_encoding(music_file)
-        print('Converting ' + music_file + args.input_ext + ' to ' + args.output_ext[1:])
-        if args.avconv:
-            convert_with_avconv(music_file)
-        else:
-            convert_with_FFmpeg(music_file)
-        os.remove('Music/' + music_file + args.input_ext)
-
-def convert_with_avconv(music_file):
-    # different path for windows
-    if os.name == 'nt':
-        avconv_path = 'Scripts\\avconv.exe'
-    else:
-        avconv_path = 'avconv'
-
-    if args.verbose:
-        level = 'debug'
-    else:
-        level = '0'
-
-    command = [avconv_path,
-               '-loglevel', level,
-               '-i',        'Music/' + music_file + args.input_ext,
-               '-ab',       '192k',
-               'Music/' + music_file + args.output_ext]
-
-    subprocess.call(command)
-
-
-def convert_with_FFmpeg(music_file):
-    # What are the differences and similarities between ffmpeg, libav, and avconv?
-    # https://stackoverflow.com/questions/9477115
-    # ffmeg encoders high to lower quality
-    # libopus > libvorbis >= libfdk_aac > aac > libmp3lame
-    # libfdk_aac due to copyrights needs to be compiled by end user
-    # on MacOS brew install ffmpeg --with-fdk-aac will do just that. Other OS?
-    # https://trac.ffmpeg.org/wiki/Encode/AAC
-
-    if os.name == "nt":
-        ffmpeg_pre = 'Scripts\\ffmpeg.exe '
-    else:
-        ffmpeg_pre = 'ffmpeg '
-
-    ffmpeg_pre += '-y '
-    if not args.verbose:
-        ffmpeg_pre += '-hide_banner -nostats -v panic '
-
-    if args.input_ext == '.m4a':
-        if args.output_ext == '.mp3':
-            ffmpeg_params = '-codec:v copy -codec:a libmp3lame -q:a 2 '
-        elif output_ext == '.webm':
-            ffmpeg_params = '-c:a libopus -vbr on -b:a 192k -vn '
-    elif args.input_ext == '.webm':
-        if args.output_ext == '.mp3':
-            ffmpeg_params = ' -ab 192k -ar 44100 -vn '
-        elif args.output_ext == '.m4a':
-	            ffmpeg_params = '-cutoff 20000 -c:a libfdk_aac -b:a 192k -vn '
-
-    command = (ffmpeg_pre +
-              '-i Music/' + music_file + args.input_ext + ' ' +
-               ffmpeg_params +
-              'Music/' + music_file + args.output_ext + '').split(' ')
-
-    subprocess.call(command)
-
 # check if input song already exists in Music folder
-def check_exists(music_file, raw_song, islist):
+def check_exists(music_file, raw_song, islist=True):
     files = os.listdir("Music")
     for file in files:
         if file.endswith(".temp"):
@@ -254,6 +187,7 @@ def check_exists(music_file, raw_song, islist):
                     return False
                 else:
                     return True
+    return False
 
 # download songs from list
 def grab_list(file):
@@ -307,32 +241,43 @@ def grab_single(raw_song, number=None):
         return
     # print "[number]. [artist] - [song]" if downloading from list
     # otherwise print "[artist] - [song]"
-    print(get_YouTube_title(content, number))
+    print(get_youtube_title(content, number))
     # generate file name of the song to download
     music_file = misc.generate_filename(content.title)
     music_file = misc.fix_decoding(music_file)
     if not check_exists(music_file, raw_song, islist=islist):
         if download_song(content):
             print('')
-            convert_song(music_file)
+            input_song = music_file + args.input_ext
+            output_song = music_file + args.output_ext
+            convert.song(input_song,
+                         output_song,
+                         avconv=args.avconv,
+                         verbose=args.verbose)
+            os.remove('Music/' + input_song)
             meta_tags = generate_metadata(raw_song)
             if not args.no_metadata:
-                metadata.embed(music_file, meta_tags, args.output_ext)
+                metadata.embed(output_song, meta_tags)
         else:
             print('No audio streams available')
+
+class Args(object):
+    manual = False
+    input_ext = '.m4a'
+    output_ext = '.mp3'
+
+args = Args()
+# token is mandatory when using Spotify's API
+# https://developer.spotify.com/news-stories/2017/01/27/removing-unauthenticated-calls-to-the-web-api/
+token = misc.generate_token()
+spotify = spotipy.Spotify(auth=token)
+
+misc.filter_path('Music')
 
 if __name__ == '__main__':
 
     os.chdir(sys.path[0])
-    if not os.path.exists("Music"):
-        os.makedirs("Music")
 
-    # token is mandatory when using Spotify's API
-    # https://developer.spotify.com/news-stories/2017/01/27/removing-unauthenticated-calls-to-the-web-api/
-    token = misc.generate_token()
-    spotify = spotipy.Spotify(auth=token)
-
-    # set up arguments
     args = misc.get_arguments()
 
     if args.song:

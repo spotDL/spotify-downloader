@@ -25,23 +25,25 @@ def compare(file, metadata):
             already_tagged = False
     return already_tagged
 
-def embed(music_file, meta_tags, output_ext):
+def embed(music_file, meta_tags):
     if sys.version_info < (3, 0):
-        music_file = misc.encode('utf-8')
+        music_file = music_file.encode('utf-8')
     if meta_tags is None:
         print('Could not find meta-tags')
-    elif output_ext == '.m4a':
+        return None
+    elif music_file.endswith('.m4a'):
         print('Fixing meta-tags')
-        embed_m4a(music_file, meta_tags, output_ext)
-    elif output_ext == '.mp3':
+        return embed_m4a(music_file, meta_tags)
+    elif music_file.endswith('.mp3'):
         print('Fixing meta-tags')
-        embed_mp3(music_file, meta_tags, output_ext)
+        return embed_mp3(music_file, meta_tags)
     else:
         print('Cannot embed meta-tags into given output extension')
+        return False
 
-def embed_mp3(music_file, meta_tags, output_ext):
+def embed_mp3(music_file, meta_tags):
     # EasyID3 is fun to use ;)
-    audiofile = EasyID3('Music/' + music_file + output_ext)
+    audiofile = EasyID3('Music/' + music_file)
     audiofile['artist'] = meta_tags['artists'][0]['name']
     audiofile['albumartist'] = meta_tags['artists'][0]['name']
     audiofile['album'] = meta_tags['album']['name']
@@ -64,13 +66,14 @@ def embed_mp3(music_file, meta_tags, output_ext):
     if meta_tags['copyright']:
         audiofile['copyright'] = meta_tags['copyright']
     audiofile.save(v2_version=3)
-    audiofile = ID3('Music/' + music_file + output_ext)
+    audiofile = ID3('Music/' + music_file)
     albumart = urllib2.urlopen(meta_tags['album']['images'][0]['url'])
     audiofile["APIC"] = APIC(encoding=3, mime='image/jpeg', type=3, desc=u'Cover', data=albumart.read())
     albumart.close()
     audiofile.save(v2_version=3)
+    return True
 
-def embed_m4a(music_file, meta_tags, output_ext):
+def embed_m4a(music_file, meta_tags):
     # Apple has specific tags - see mutagen docs -
     # http://mutagen.readthedocs.io/en/latest/api/mp4.html
     tags = {'album': '\xa9alb',
@@ -90,7 +93,7 @@ def embed_m4a(music_file, meta_tags, output_ext):
             'copyright': 'cprt',
             'tempo': 'tmpo'}
 
-    audiofile = MP4('Music/' + music_file + output_ext)
+    audiofile = MP4('Music/' + music_file)
     audiofile[tags['artist']] = meta_tags['artists'][0]['name']
     audiofile[tags['albumartist']] = meta_tags['artists'][0]['name']
     audiofile[tags['album']] = meta_tags['album']['name']
@@ -107,3 +110,4 @@ def embed_m4a(music_file, meta_tags, output_ext):
     audiofile[tags['albumart']] = [ MP4Cover(albumart.read(), imageformat=MP4Cover.FORMAT_JPEG) ]
     albumart.close()
     audiofile.save()
+    return True

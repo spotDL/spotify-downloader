@@ -101,10 +101,10 @@ def generate_token():
     token = creds.get_access_token()
     return token
 
-def generate_search_URL(song):
+def generate_search_url(song):
     # urllib2.quote() encodes URL with special characters
-    URL = "https://www.youtube.com/results?sp=EgIQAQ%253D%253D&q=" + quote(song)
-    return URL
+    url = "https://www.youtube.com/results?sp=EgIQAQ%253D%253D&q=" + quote(song)
+    return url
 
 # fix encoding issues in python2
 def fix_encoding(query):
@@ -116,6 +116,14 @@ def fix_decoding(query):
     if sys.version_info < (3, 0):
         query = query.decode('utf-8')
     return query
+
+def filter_path(path):
+    os.chdir(sys.path[0])
+    if not os.path.exists(path):
+        os.makedirs(path)
+    for temp in os.listdir(path):
+        if temp.endswith('.temp'):
+            os.remove(path + '/' + temp)
 
 def grace_quit():
     print('')

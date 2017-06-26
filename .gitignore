@@ -1,4 +1,5 @@
 *.pyc
 __pycache__/
-/Music/
-/*.txt
+.cache/
+Music/
+*.txt
