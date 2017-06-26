@@ -119,10 +119,15 @@ def feed_playlist(username):
     links = []
     check = 1
     # iterate over user playlists
-    for playlist in playlists['items']:
-        print(str(check) + '. ' + misc.fix_encoding(playlist['name']) + ' (' + str(playlist['tracks']['total']) + ' tracks)')
-        links.append(playlist)
-        check += 1
+    while True:
+        for playlist in playlists['items']:
+            print(str(check) + '. ' + misc.fix_encoding(playlist['name']) + ' (' + str(playlist['tracks']['total']) + ' tracks)')
+            links.append(playlist)
+            check += 1
+        if playlists['next']:
+            playlists = spotify.next(playlists)
+        else:
+            break
     print('')
     # let user select playlist
     playlist = misc.input_link(links)
