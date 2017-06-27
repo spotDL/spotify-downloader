@@ -121,9 +121,12 @@ def feed_playlist(username):
     # iterate over user playlists
     while True:
         for playlist in playlists['items']:
-            print(str(check) + '. ' + misc.fix_encoding(playlist['name']) + ' (' + str(playlist['tracks']['total']) + ' tracks)')
-            links.append(playlist)
-            check += 1
+            # In rare cases, playlists may not be found, so playlists['next'] is
+            # None. Skip these. Also see Issue #91.
+            if playlist['name'] is not None:
+                print(str(check) + '. ' + misc.fix_encoding(playlist['name']) + ' (' + str(playlist['tracks']['total']) + ' tracks)')
+                links.append(playlist)
+                check += 1
         if playlists['next']:
             playlists = spotify.next(playlists)
         else:
