@@ -2,6 +2,7 @@ import subprocess
 import os
 import sys
 
+
 def song(input_song, output_song, avconv=False, verbose=False):
     if not input_song == output_song:
         if sys.version_info < (3, 0):
@@ -11,9 +12,10 @@ def song(input_song, output_song, avconv=False, verbose=False):
         if avconv:
             exit_code = convert_with_avconv(input_song, output_song, verbose)
         else:
-            exit_code = convert_with_FFmpeg(input_song, output_song, verbose)
+            exit_code = convert_with_ffmpeg(input_song, output_song, verbose)
         return exit_code
     return None
+
 
 def convert_with_avconv(input_song, output_song, verbose):
     # different path for windows
@@ -33,10 +35,10 @@ def convert_with_avconv(input_song, output_song, verbose):
                '-ab',       '192k',
                'Music/' + output_song]
 
-    subprocess.call(command)
+    return subprocess.call(command)
 
 
-def convert_with_FFmpeg(input_song, output_song, verbose):
+def convert_with_ffmpeg(input_song, output_song, verbose):
     # What are the differences and similarities between ffmpeg, libav, and avconv?
     # https://stackoverflow.com/questions/9477115
     # ffmeg encoders high to lower quality
@@ -54,6 +56,7 @@ def convert_with_FFmpeg(input_song, output_song, verbose):
     if not verbose:
         ffmpeg_pre += '-hide_banner -nostats -v panic '
 
+    ffmpeg_params = ''
     input_ext = input_song.split('.')[-1]
     output_ext = output_song.split('.')[-1]
 
@@ -69,10 +72,8 @@ def convert_with_FFmpeg(input_song, output_song, verbose):
         elif output_ext == 'm4a':
             ffmpeg_params = '-cutoff 20000 -c:a libfdk_aac -b:a 192k -vn '
 
-    command = (ffmpeg_pre +
-              '-i Music/' + input_song + ' ' +
-               ffmpeg_params +
-              'Music/' + output_song + '').split(' ')
+    command = '{0}-i Music/{1} {2}Music/{4}'.format(
+        ffmpeg_pre, input_song, ffmpeg_params, output_song).split(' ')
 
-    subprocess.call(command)
+    return subprocess.call(command)
 
