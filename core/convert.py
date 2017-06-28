@@ -77,7 +77,7 @@ def convert_with_ffmpeg(input_song, output_song, verbose):
         elif output_ext == 'm4a':
             ffmpeg_params = '-cutoff 20000 -c:a libfdk_aac -b:a 192k -vn '
 
-    command = '{0}-i Music/{1} {2}Music/{4}'.format(
+    command = '{0}-i Music/{1} {2}Music/{3}'.format(
         ffmpeg_pre, input_song, ffmpeg_params, output_song).split(' ')
 
     return subprocess.call(command)

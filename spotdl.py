@@ -75,7 +75,7 @@ def generate_youtube_url(raw_song):
         # fetch all video links on first page on YouTube
         for x in items_parse.find_all('h3', {'class': 'yt-lockup-title'}):
             # confirm the video result is not an advertisement
-            if not x.find('channel') == -1 or not x.find('googleads') == -1:
+            if x.find('channel') > -1 or x.find('googleads') > -1:
                 print('{0}. {1}'.format(check, x.get_text()))
                 links.append(x.find('a')['href'])
                 check += 1
@@ -91,7 +91,7 @@ def generate_youtube_url(raw_song):
 
         # confirm the video result is not an advertisement
         # otherwise keep iterating until it is not
-        while result.find('channel') < 0 or result.find('googleads') < 0:
+        while result.find('channel') > -1 or result.find('googleads') > -1:
             result = items_parse.find_all(
                 attrs={'class': 'yt-uix-tile-link'})[check]['href']
             check += 1
