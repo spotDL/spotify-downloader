@@ -10,8 +10,8 @@ except ImportError:
     from urllib.request import quote
 
 
-# method to input (user playlists) and (track when using manual mode)
 def input_link(links):
+    """Let the user input a number."""
     while True:
         try:
             the_chosen_one = int(user_input('>> Choose your number: '))
@@ -25,16 +25,16 @@ def input_link(links):
             print('Choose a valid number!')
 
 
-# take input correctly for both python2 & 3
 def user_input(string=''):
+    """Take input correctly for both Python 2 & 3."""
     if sys.version_info > (3, 0):
         return input(string)
     else:
         return raw_input(string)
 
 
-# remove first song from .txt
 def trim_song(file):
+    """Remove the first song from file."""
     with open(file, 'r') as file_in:
         data = file_in.read().splitlines(True)
     with open(file, 'w') as file_out:
@@ -77,27 +77,29 @@ def get_arguments():
     return parser.parse_args()
 
 
-# check if input song is spotify link
 def is_spotify(raw_song):
-    if (len(raw_song) == 22 and raw_song.replace(" ", "%20") == raw_song) or (raw_song.find('spotify') > -1):
+    """Check if the input song is a Spotify link."""
+    if (len(raw_song) == 22 and raw_song.replace(" ", "%20") == raw_song) or \
+            (raw_song.find('spotify') > -1):
         return True
     else:
         return False
 
 
-# generate filename of the song to be downloaded
 def generate_filename(title):
+    """Generate filename of the song to be downloaded."""
     # IMO python2 sucks dealing with unicode
     title = fix_encoding(title)
     title = fix_decoding(title)
     title = title.replace(' ', '_')
+
     # slugify removes any special characters
     filename = slugify(title, ok='-_()[]{}', lower=False)
     return fix_encoding(filename)
 
 
-# please respect these credentials :)
 def generate_token():
+    """Generate the token. Please respect these credentials :)"""
     credentials = oauth2.SpotifyClientCredentials(
         client_id='4fe3fecfe5334023a1472516cc99d805',
         client_secret='0f02b7c483c04257984695007a4a8d5c')
@@ -106,20 +108,22 @@ def generate_token():
 
 
 def generate_search_url(song):
+    """Generate YouTube search URL for the given song."""
     # urllib2.quote() encodes URL with special characters
     url = "https://www.youtube.com/results?sp=EgIQAQ%253D%253D&q={0}".format(
         quote(song))
     return url
 
 
-# fix encoding issues in python2
 def fix_encoding(query):
+    """Fix encoding issues in Python 2."""
     if sys.version_info < (3, 0):
         query = query.encode('utf-8')
     return query
 
 
 def fix_decoding(query):
+    """Fix decoding issues in Python 2."""
     if sys.version_info < (3, 0):
         query = query.decode('utf-8')
     return query

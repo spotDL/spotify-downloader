@@ -19,16 +19,16 @@ except ImportError:
     import urllib.request as urllib2
 
 
-# "[artist] - [song]"
 def generate_songname(raw_song):
+    """Generate a string of the format '[artist] - [song]' for the given song."""
     if misc.is_spotify(raw_song):
         tags = generate_metadata(raw_song)
         raw_song = '{0} - {1}'.format(tags['artists'][0]['name'], tags['name'])
     return misc.fix_encoding(raw_song)
 
 
-# fetch song's metadata from spotify
 def generate_metadata(raw_song):
+    """Fetch a song's metadata from Spotify."""
     if misc.is_spotify(raw_song):
         # fetch track information directly if it is spotify link
         meta_tags = spotify.track(raw_song)
@@ -60,9 +60,8 @@ def generate_metadata(raw_song):
 
 
 def generate_youtube_url(raw_song):
-    # decode spotify http link to "[artist] - [song]"
+    """Search for the song on YouTube and generate an URL to its video."""
     song = generate_songname(raw_song)
-    # generate direct search YouTube URL
     search_url = misc.generate_search_url(song)
     item = urllib2.urlopen(search_url).read()
     # item = unicode(item, 'utf-8')
@@ -97,23 +96,21 @@ def generate_youtube_url(raw_song):
                 attrs={'class': 'yt-uix-tile-link'})[check]['href']
             check += 1
 
-    full_link = "youtube.com{0}'.format(result)
+    full_link = 'youtube.com{0}'.format(result)
     return full_link
 
 
-# parse track from YouTube
 def go_pafy(raw_song):
-    # video link of the video to extract audio from
+    """Parse track from YouTube."""
     track_url = generate_youtube_url(raw_song)
     if track_url is None:
         return None
     else:
-        # parse the YouTube video
         return pafy.new(track_url)
 
 
-# title of the YouTube video
 def get_youtube_title(content, number=None):
+    """Get the YouTube video's title."""
     title = misc.fix_encoding(content.title)
     if number is None:
         return title
@@ -121,14 +118,12 @@ def get_youtube_title(content, number=None):
         return '{0}. {1}'.format(number, title)
 
 
-# fetch user playlists when using -u option
 def feed_playlist(username):
-    # fetch all user playlists
+    """Fetch user playlists when using the -u option."""
     playlists = spotify.user_playlists(username)
     links = []
     check = 1
 
-    # iterate over user playlists
     while True:
         for playlist in playlists['items']:
             # in rare cases, playlists may not be found, so playlists['next']
@@ -145,13 +140,10 @@ def feed_playlist(username):
             break
 
     print('')
-    # let user select playlist
     playlist = misc.input_link(links)
-    # fetch detailed information for playlist
     results = spotify.user_playlist(
         playlist['owner']['id'], playlist['id'], fields='tracks,next')
     print('')
-    # slugify removes any special characters
     file = '{0}.txt'.format(slugify(playlist['name'], ok='-_()[]{}'))
     print('Feeding {0} tracks to {1}'.format(playlist['tracks']['total'], file))
 
@@ -174,11 +166,10 @@ def feed_playlist(username):
 
 
 def download_song(content):
+    """Download the audio file from YouTube."""
     if args.input_ext == '.webm':
-        # best available audio in .webm
         link = content.getbestaudio(preftype='webm')
     elif args.input_ext == '.m4a':
-        # best available audio in .webm
         link = content.getbestaudio(preftype='m4a')
     else:
         return False
@@ -187,14 +178,13 @@ def download_song(content):
         return False
     else:
         music_file = misc.generate_filename(content.title)
-        # download link
         link.download(
             filepath='Music/{0}{1}'.format(music_file, args.input_ext))
         return True
 
 
-# check if input song already exists in Music folder
 def check_exists(music_file, raw_song, islist=True):
+    """Check if the input song already exists in the 'Music' folder."""
     files = os.listdir('Music')
     for file in files:
         if file.endswith('.temp'):
@@ -229,8 +219,8 @@ def check_exists(music_file, raw_song, islist=True):
     return False
 
 
-# download songs from list
 def grab_list(file):
+    """Download all songs from the list."""
     with open(file, 'r') as listed:
         lines = (listed.read()).splitlines()
     # ignore blank lines in file (if any)
@@ -270,9 +260,8 @@ def grab_list(file):
         number += 1
 
 
-# logic behind downloading some song
 def grab_single(raw_song, number=None):
-    # check if song is being downloaded from list
+    """Logic behind downloading a song."""
     if number:
         islist = True
     else:
@@ -283,6 +272,7 @@ def grab_single(raw_song, number=None):
     # print '[number]. [artist] - [song]' if downloading from list
     # otherwise print '[artist] - [song]'
     print(get_youtube_title(content, number))
+
     # generate file name of the song to download
     music_file = misc.generate_filename(content.title)
     music_file = misc.fix_decoding(music_file)
@@ -291,9 +281,7 @@ def grab_single(raw_song, number=None):
             print('')
             input_song = music_file + args.input_ext
             output_song = music_file + args.output_ext
-            convert.song(input_song,
-                         output_song,
-                         avconv=args.avconv,
+            convert.song(input_song, output_song, avconv=args.avconv,
                          verbose=args.verbose)
             os.remove('Music/{0}'.format(file))
             meta_tags = generate_metadata(raw_song)

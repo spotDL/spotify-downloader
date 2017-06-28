@@ -10,8 +10,8 @@ except ImportError:
     import urllib.request as urllib2
 
 
-# check if input file title matches with expected title
 def compare(file, metadata):
+    """Check if the input file title matches the expected title."""
     already_tagged = False
     try:
         if file.endswith('.mp3'):
@@ -29,6 +29,7 @@ def compare(file, metadata):
 
 
 def embed(music_file, meta_tags):
+    """Embed metadata."""
     if sys.version_info < (3, 0):
         music_file = music_file.encode('utf-8')
     if meta_tags is None:
@@ -46,6 +47,7 @@ def embed(music_file, meta_tags):
 
 
 def embed_mp3(music_file, meta_tags):
+    """Embed metadata to MP3 files."""
     # EasyID3 is fun to use ;)
     audiofile = EasyID3('Music/' + music_file)
     audiofile['artist'] = meta_tags['artists'][0]['name']
@@ -81,6 +83,7 @@ def embed_mp3(music_file, meta_tags):
 
 
 def embed_m4a(music_file, meta_tags):
+    """Embed metadata to M4A files."""
     # Apple has specific tags - see mutagen docs -
     # http://mutagen.readthedocs.io/en/latest/api/mp4.html
     tags = {'album': '\xa9alb',

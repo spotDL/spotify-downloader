@@ -22,7 +22,8 @@ def test_playlist():
 def test_tracks():
     playlist = spotdl.spotify.user_playlists(username)['items'][0]
     expect_lines = playlist['tracks']['total']
-    result = spotdl.spotify.user_playlist(playlist['owner']['id'], playlist['id'], fields='tracks,next')
+    result = spotdl.spotify.user_playlist(
+        playlist['owner']['id'], playlist['id'], fields='tracks,next')
     tracks = result['tracks']
 
     with open('list.txt', 'a') as fout:

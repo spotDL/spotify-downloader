@@ -4,11 +4,13 @@ import sys
 
 
 def song(input_song, output_song, avconv=False, verbose=False):
+    """Do the audio format conversion."""
     if not input_song == output_song:
         if sys.version_info < (3, 0):
             input_song = input_song.encode('utf-8')
             output_song = output_song.encode('utf-8')
-        print('Converting ' + input_song + ' to ' + output_song.split('.')[-1])
+        print('Converting {0} to {1}'.format(
+            input_song, output_song.split('.')[-1]))
         if avconv:
             exit_code = convert_with_avconv(input_song, output_song, verbose)
         else:
@@ -18,7 +20,7 @@ def song(input_song, output_song, avconv=False, verbose=False):
 
 
 def convert_with_avconv(input_song, output_song, verbose):
-    # different path for windows
+    """Convert the audio file using avconv."""
     if os.name == 'nt':
         avconv_path = 'Scripts\\avconv.exe'
     else:
@@ -39,13 +41,16 @@ def convert_with_avconv(input_song, output_song, verbose):
 
 
 def convert_with_ffmpeg(input_song, output_song, verbose):
-    # What are the differences and similarities between ffmpeg, libav, and avconv?
-    # https://stackoverflow.com/questions/9477115
-    # ffmeg encoders high to lower quality
-    # libopus > libvorbis >= libfdk_aac > aac > libmp3lame
-    # libfdk_aac due to copyrights needs to be compiled by end user
-    # on MacOS brew install ffmpeg --with-fdk-aac will do just that. Other OS?
-    # https://trac.ffmpeg.org/wiki/Encode/AAC
+    """Convert the audio file using FFMpeg.
+
+    What are the differences and similarities between ffmpeg, libav, and avconv?
+    https://stackoverflow.com/questions/9477115
+    ffmeg encoders high to lower quality
+    libopus > libvorbis >= libfdk_aac > aac > libmp3lame
+    libfdk_aac due to copyrights needs to be compiled by end user
+    on MacOS brew install ffmpeg --with-fdk-aac will do just that. Other OS?
+    https://trac.ffmpeg.org/wiki/Encode/AAC
+    """
 
     if os.name == "nt":
         ffmpeg_pre = 'Scripts\\ffmpeg.exe '
