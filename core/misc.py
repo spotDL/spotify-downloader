@@ -110,7 +110,7 @@ def generate_token():
 def generate_search_url(song):
     """Generate YouTube search URL for the given song."""
     # urllib2.quote() encodes URL with special characters
-    url = "https://www.youtube.com/results?sp=EgIQAQ%253D%253D&q={0}".format(
+    url = u"https://www.youtube.com/results?sp=EgIQAQ%253D%253D&q={0}".format(
         quote(song))
     return url
 
@@ -135,7 +135,7 @@ def filter_path(path):
         os.makedirs(path)
     for temp in os.listdir(path):
         if temp.endswith('.temp'):
-            os.remove('{0}/{1}'.format(path, temp))
+            os.remove(u'{0}/{1}'.format(path, temp))
 
 
 def grace_quit():
