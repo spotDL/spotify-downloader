@@ -81,4 +81,3 @@ def convert_with_ffmpeg(input_song, output_song, verbose):
         ffmpeg_pre, input_song, ffmpeg_params, output_song).split(' ')
 
     return subprocess.call(command)
-
