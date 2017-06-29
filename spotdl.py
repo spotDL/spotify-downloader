@@ -199,7 +199,7 @@ def check_exists(music_file, raw_song, islist=True):
 
             # if not, remove it and download again without prompt
             if misc.is_spotify(raw_song) and not already_tagged:
-                os.remove(u'Music/{0}'.format(file))
+                os.remove('Music/{0}'.format(file))
                 return False
 
             # do not prompt and skip the current song
@@ -212,7 +212,7 @@ def check_exists(music_file, raw_song, islist=True):
                     'Song with same name has already been downloaded. '
                     'Re-download? (y/n): ').lower()
                 if prompt == 'y':
-                    os.remove(u'Music/{0}'.format(file))
+                    os.remove('Music/{0}'.format(file))
                     return False
                 else:
                     return True
@@ -283,7 +283,7 @@ def grab_single(raw_song, number=None):
             output_song = music_file + args.output_ext
             convert.song(input_song, output_song, avconv=args.avconv,
                          verbose=args.verbose)
-            os.remove(u'Music/{0}'.format(file))
+            os.remove('Music/{0}'.format(misc.fix_encoding(input_song)))
             meta_tags = generate_metadata(raw_song)
             if not args.no_metadata:
                 metadata.embed(output_song, meta_tags)
