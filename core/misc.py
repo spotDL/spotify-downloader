@@ -135,7 +135,7 @@ def filter_path(path):
         os.makedirs(path)
     for temp in os.listdir(path):
         if temp.endswith('.temp'):
-            os.remove(u'{0}/{1}'.format(path, temp))
+            os.remove('{0}/{1}'.format(path, temp))
 
 
 def grace_quit():
