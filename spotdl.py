@@ -159,7 +159,7 @@ def feed_playlist(username):
             else:
                 break
 
-def download_song(content):
+def download_song(file_name, content):
     if args.input_ext == '.webm':
         # best available audio in .webm
         link = content.getbestaudio(preftype='webm')
@@ -172,9 +172,8 @@ def download_song(content):
     if link is None:
         return False
     else:
-        music_file = misc.generate_filename(content.title)
         # download link
-        link.download(filepath='Music/' + music_file + args.input_ext)
+        link.download(filepath='Music/' + file_name + args.input_ext)
         return True
 
 # check if input song already exists in Music folder
@@ -261,13 +260,16 @@ def grab_single(raw_song, number=None):
     # otherwise print "[artist] - [song]"
     print(get_youtube_title(content, number))
     # generate file name of the song to download
-    music_file = misc.generate_filename(content.title)
-    music_file = misc.fix_decoding(music_file)
-    if not check_exists(music_file, raw_song, islist=islist):
-        if download_song(content):
+
+    song_title = generate_songname(raw_song)
+
+    file_name = misc.generate_filename(song_title)
+    file_name = misc.fix_decoding(file_name)
+    if not check_exists(file_name, raw_song, islist=islist):
+        if download_song(file_name, content):
             print('')
-            input_song = music_file + args.input_ext
-            output_song = music_file + args.output_ext
+            input_song = file_name + args.input_ext
+            output_song = file_name + args.output_ext
             convert.song(input_song,
                          output_song,
                          avconv=args.avconv,
