@@ -23,7 +23,7 @@ def generate_songname(raw_song):
     """Generate a string of the format '[artist] - [song]' for the given song."""
     if misc.is_spotify(raw_song):
         tags = generate_metadata(raw_song)
-        raw_song = '{0} - {1}'.format(tags['artists'][0]['name'], tags['name'])
+        raw_song = u'{0} - {1}'.format(tags['artists'][0]['name'], tags['name'])
     return misc.fix_encoding(raw_song)
 
 
@@ -76,7 +76,7 @@ def generate_youtube_url(raw_song):
         for x in items_parse.find_all('h3', {'class': 'yt-lockup-title'}):
             # confirm the video result is not an advertisement
             if x.find('channel') is None and x.find('googleads') is None:
-                print('{0}. {1}'.format(check, x.get_text()))
+                print(u'{0}. {1}'.format(check, x.get_text()))
                 links.append(x.find('a')['href'])
                 check += 1
         print('')
@@ -96,7 +96,7 @@ def generate_youtube_url(raw_song):
                 attrs={'class': 'yt-uix-tile-link'})[check]['href']
             check += 1
 
-    full_link = 'youtube.com{0}'.format(result)
+    full_link = u'youtube.com{0}'.format(result)
     return full_link
 
 
@@ -115,7 +115,7 @@ def get_youtube_title(content, number=None):
     if number is None:
         return title
     else:
-        return '{0}. {1}'.format(number, title)
+        return u'{0}. {1}'.format(number, title)
 
 
 def feed_playlist(username):
@@ -129,7 +129,7 @@ def feed_playlist(username):
             # in rare cases, playlists may not be found, so playlists['next']
             # is None. Skip these. Also see Issue #91.
             if playlist['name'] is not None:
-                print('{0}. {1} ({2} tracks)'.format(
+                print(u'{0}. {1} ({2} tracks)'.format(
                     check, misc.fix_encoding(playlist['name']),
                     playlist['tracks']['total']))
                 links.append(playlist)
@@ -144,8 +144,8 @@ def feed_playlist(username):
     results = spotify.user_playlist(
         playlist['owner']['id'], playlist['id'], fields='tracks,next')
     print('')
-    file = '{0}.txt'.format(slugify(playlist['name'], ok='-_()[]{}'))
-    print('Feeding {0} tracks to {1}'.format(playlist['tracks']['total'], file))
+    file = u'{0}.txt'.format(slugify(playlist['name'], ok='-_()[]{}'))
+    print(u'Feeding {0} tracks to {1}'.format(playlist['tracks']['total'], file))
 
     tracks = results['tracks']
     with open(file, 'a') as file_out:
@@ -155,7 +155,7 @@ def feed_playlist(username):
                 try:
                     file_out.write(track['external_urls']['spotify'] + '\n')
                 except KeyError:
-                    print('Skipping track {0} by {1} (local only?)'.format(
+                    print(u'Skipping track {0} by {1} (local only?)'.format(
                         track['name'], track['artists'][0]['name']))
             # 1 page = 50 results
             # check if there are more pages
@@ -188,7 +188,7 @@ def check_exists(music_file, raw_song, islist=True):
     files = os.listdir('Music')
     for file in files:
         if file.endswith('.temp'):
-            os.remove('Music/{0}'.format(file))
+            os.remove(u'Music/{0}'.format(file))
             continue
         # check if any file with similar name is already present in Music/
         dfile = misc.fix_decoding(file)
@@ -228,7 +228,7 @@ def grab_list(file):
         lines.remove('')
     except ValueError:
         pass
-    print('Total songs in list: {0} songs'.format(len(lines)))
+    print(u'Total songs in list: {0} songs'.format(len(lines)))
     print('')
     # nth input song
     number = 1
@@ -283,7 +283,7 @@ def grab_single(raw_song, number=None):
             output_song = music_file + args.output_ext
             convert.song(input_song, output_song, avconv=args.avconv,
                          verbose=args.verbose)
-            os.remove('Music/{0}'.format(input_song))
+            os.remove('Music/{0}'.format(misc.fix_encoding(input_song)))
             meta_tags = generate_metadata(raw_song)
             if not args.no_metadata:
                 metadata.embed(output_song, meta_tags)
