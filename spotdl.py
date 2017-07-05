@@ -75,7 +75,7 @@ def generate_youtube_url(raw_song):
         # fetch all video links on first page on YouTube
         for x in items_parse.find_all('h3', {'class': 'yt-lockup-title'}):
             # confirm the video result is not an advertisement
-            if x.find('channel') > -1 or x.find('googleads') > -1:
+            if x.find('channel') is None and x.find('googleads') is None:
                 print('{0}. {1}'.format(check, x.get_text()))
                 links.append(x.find('a')['href'])
                 check += 1
@@ -130,8 +130,8 @@ def feed_playlist(username):
             # is None. Skip these. Also see Issue #91.
             if playlist['name'] is not None:
                 print('{0}. {1} ({2} tracks)'.format(
-                    check, misc.fix_encoding(playlist['name'])),
-                    playlist['tracks']['total'])
+                    check, misc.fix_encoding(playlist['name']),
+                    playlist['tracks']['total']))
                 links.append(playlist)
                 check += 1
         if playlists['next']:
@@ -283,7 +283,7 @@ def grab_single(raw_song, number=None):
             output_song = music_file + args.output_ext
             convert.song(input_song, output_song, avconv=args.avconv,
                          verbose=args.verbose)
-            os.remove('Music/{0}'.format(file))
+            os.remove('Music/{0}'.format(input_song))
             meta_tags = generate_metadata(raw_song)
             if not args.no_metadata:
                 metadata.embed(output_song, meta_tags)

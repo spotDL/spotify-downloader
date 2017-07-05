@@ -41,8 +41,8 @@ def test_download():
 
 
 def test_convert():
-    # exit code None = success
-    expect_convert = None
+    # exit code 0 = success
+    expect_convert = 0
     content = spotdl.go_pafy(raw_song)
     music_file = spotdl.misc.generate_filename(content.title)
     music_file = spotdl.misc.fix_decoding(music_file)
