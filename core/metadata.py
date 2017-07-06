@@ -23,7 +23,7 @@ def compare(file, metadata):
             audiofile = MP4('Music/' + file)
             # fetch track title metadata
             already_tagged = audiofile[tags['title']] == metadata['name']
-    except KeyError:
+    except (KeyError, TypeError):
         pass
     return already_tagged
 
