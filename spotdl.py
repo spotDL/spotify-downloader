@@ -115,7 +115,7 @@ def get_youtube_title(content, number=None):
     if number is None:
         return title
     else:
-        return u'{0}. {1}'.format(number, title)
+        return '{0}. {1}'.format(number, title)
 
 
 def feed_playlist(username):
