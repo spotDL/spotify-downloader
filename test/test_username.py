@@ -26,7 +26,7 @@ def test_tracks():
         playlist['owner']['id'], playlist['id'], fields='tracks,next')
     tracks = result['tracks']
 
-    with open('list.txt', 'a') as fout:
+    with open('list.txt', 'w') as fout:
         while True:
             for item in tracks['items']:
                 track = item['track']
