@@ -1,8 +1,12 @@
 # -*- coding: UTF-8 -*-
 
 import spotdl
+import os
 
 raw_song = 'http://open.spotify.com/track/0JlS7BXXD07hRmevDnbPDU'
+
+for x in os.listdir('Music'):
+    os.remove('Music/' + x)
 
 
 def test_spotify_title():
@@ -29,7 +33,7 @@ def test_check_exists():
     content = spotdl.go_pafy(raw_song)
     music_file = spotdl.misc.generate_filename(content.title)
     music_file = spotdl.misc.fix_decoding(music_file)
-    check = spotdl.check_exists(music_file, raw_song)
+    check = spotdl.check_exists(music_file, raw_song, islist=True)
     assert check == expect_check
 
 
@@ -58,20 +62,19 @@ def test_metadata():
     music_file = spotdl.misc.generate_filename(content.title)
     music_file = spotdl.misc.fix_decoding(music_file)
     meta_tags = spotdl.generate_metadata(raw_song)
-
     output_song = music_file + spotdl.args.output_ext
     metadata_output = spotdl.metadata.embed(output_song, meta_tags)
-
     input_song = music_file + spotdl.args.input_ext
     metadata_input = spotdl.metadata.embed(input_song, meta_tags)
-
     assert metadata_output == (metadata_input == expect_metadata)
 
 
-def check_exists2():
+def test_check_exists2():
     expect_check = True
     content = spotdl.go_pafy(raw_song)
     music_file = spotdl.misc.generate_filename(content.title)
     music_file = spotdl.misc.fix_decoding(music_file)
-    check = spotdl.check_exists(music_file, raw_song)
+    input_song = music_file + spotdl.args.input_ext
+    os.remove('Music/' + spotdl.misc.fix_encoding(input_song))
+    check = spotdl.check_exists(music_file, raw_song, islist=True)
     assert check == expect_check
