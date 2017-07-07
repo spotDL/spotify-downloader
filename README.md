@@ -105,7 +105,7 @@ For example
 
 - We want to download Hello by Adele, simply run `python spotdl.py --song "adele hello"`.
 
-- The script will automatically look for the best matching song and download it in the folder `Music/` placed in your current directory.
+- The script will automatically look for the best matching song and download it in the folder `Music/` placed in the root directory of the code base.
 
 - It will now convert the song to an mp3 and try to fix meta-tags and album-art by looking up on Spotify.
 
