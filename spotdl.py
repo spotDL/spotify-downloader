@@ -76,8 +76,9 @@ def generate_youtube_url(raw_song):
         for x in items_parse.find_all('h3', {'class': 'yt-lockup-title'}):
             # confirm the video result is not an advertisement
             if x.find('channel') is None and x.find('googleads') is None:
-                print(u'{0}. {1}'.format(check, x.get_text()))
-                links.append(x.find('a')['href'])
+                link = x.find('a')['href']
+                links.append(link)
+                print(u'{0}. {1} {2}'.format(check, x.get_text(), "http://youtube.com"+link))
                 check += 1
         print('')
         # let user select the song to download
