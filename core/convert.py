@@ -22,7 +22,7 @@ def song(input_song, output_song, avconv=False, verbose=False):
 def convert_with_avconv(input_song, output_song, verbose):
     """Convert the audio file using avconv."""
     if os.name == 'nt':
-        avconv_path = '..\\Scripts\\ffmpeg.exe'
+        avconv_path = 'Scripts\\avconv.exe'
     else:
         avconv_path = 'avconv'
 
@@ -53,7 +53,7 @@ def convert_with_ffmpeg(input_song, output_song, verbose):
     """
 
     if os.name == "nt":
-        ffmpeg_pre = 'Scripts\\ffmpeg.exe '
+        ffmpeg_pre = '..\\Scripts\\ffmpeg.exe '
     else:
         ffmpeg_pre = 'ffmpeg '
 
