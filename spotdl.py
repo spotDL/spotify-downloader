@@ -130,7 +130,7 @@ def feed_playlist(username):
             # in rare cases, playlists may not be found, so playlists['next']
             # is None. Skip these. Also see Issue #91.
             if playlist['name'] is not None:
-                print(u'{0}. {1} ({2} tracks)'.format(
+                print(u'{0:>5}.| {1:<30} | ({2} tracks)'.format(
                     check, misc.fix_encoding(playlist['name']),
                     playlist['tracks']['total']))
                 links.append(playlist)
