@@ -2,7 +2,7 @@
 
 - Downloads songs from YouTube in an MP3 format by using Spotify's HTTP link.
 
-- Can also download a song by entering it's artist and song name (in case if you don't have the Spotify's HTTP link for some song).
+- Can also download a song by entering its artist and song name (in case if you don't have the Spotify's HTTP link for some song).
 
 - Automatically fixes song's meta-tags which include:
 
@@ -62,11 +62,11 @@ Assuming you have Python already installed..
 
 - Download FFmpeg for Windows from [here](http://ffmpeg.zeranoe.com/builds/). Copy `ffmpeg.exe` from `ffmpeg-xxx-winxx-static\bin\ffmpeg.exe` to `Scripts` folder (in your Python's installation directory: `Pythonxx\Scripts\ffmpeg.exe`)
 
-- Download the [zip file](https://github.com/ritiek/spotify-downloader/archive/master.zip) of this repository and extract the folder in your Python's installation folder (`\Python36\spotify-downloader-master`).
+- Download the [zip file](https://github.com/ritiek/spotify-downloader/archive/master.zip) of this repository and copy the folder contained in the archive into your Python's installation folder (`\Python36\spotify-downloader-master`).
 
 - Open the folder from last step. Shift+right-click on empty area, open `cmd` and type:
 
-  `pip install -U -r requirements.txt`
+  `"Scripts/pip.exe" install -U -r requirements.txt`
 
 - If you do not want to naviagte to your Python folder from the command-line everytime you want to run the script, you can have your Python 'PATH' environment variables set and then you can run the script from any directory.
 
