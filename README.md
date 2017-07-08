@@ -2,7 +2,7 @@
 
 - Downloads songs from YouTube in an MP3 format by using Spotify's HTTP link.
 
-- Can also download a song by entering its artist and song name (in case if you don't have the Spotify's HTTP link for some song).
+- Can also download a song by entering it's artist and song name (in case if you don't have the Spotify's HTTP link for some song).
 
 - Automatically fixes song's meta-tags which include:
 
@@ -68,11 +68,11 @@ Assuming you have Python already installed..
 
   `pip install -U -r requirements.txt`
 
-- If you do not want to naviagte to your python folder from the command-line everytime you want to run the script, you can have your python 'PATH' environment variables set and then you can run the script from any directory.
+- If you do not want to naviagte to your Python folder from the command-line everytime you want to run the script, you can have your Python 'PATH' environment variables set and then you can run the script from any directory.
 
 ## Instructions for Downloading Songs
 
-- For all available options, run `python spotdl.py --help` (or for windows run `python.exe spotdl.py --help`).
+- For all available options, run `python spotdl.py --help` (or for Windows run `python.exe spotdl.py --help`).
 
 ```
 usage: spotdl.py [-h] (-s SONG | -l LIST | -u USERNAME) [-n] [-m] [-f] [-v]
@@ -147,7 +147,7 @@ http://open.spotify.com/track/64yrDBpcdwEdNY9loyEGbX
 
 #### Downloading playlists
 
-- You can also load songs from any playlist provided you have spotify username of that user.
+- You can also load songs from any playlist provided you have a Spotify username or user id of that user. (Open profile in Spotify, click on the three little dots below name, "Share", "Copy to clipboard", paste last numbers into command-line: `https://open.spotify.com/user/0123456790`)
 
 - Try running `python spotdl.py -u <your_username>`, it will show all your public playlists.
 
