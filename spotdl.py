@@ -9,14 +9,9 @@ from titlecase import titlecase
 from slugify import slugify
 import spotipy
 import pafy
+import urllib.request
 import sys
 import os
-
-# urllib2 is urllib.request in python3
-try:
-    import urllib2
-except ImportError:
-    import urllib.request as urllib2
 
 
 def generate_songname(raw_song):
@@ -63,7 +58,7 @@ def generate_youtube_url(raw_song):
     """Search for the song on YouTube and generate an URL to its video."""
     song = generate_songname(raw_song)
     search_url = misc.generate_search_url(song)
-    item = urllib2.urlopen(search_url).read()
+    item = urllib.request.urlopen(search_url).read()
     # item = unicode(item, 'utf-8')
     items_parse = BeautifulSoup(item, "html.parser")
     check = 1
@@ -242,7 +237,7 @@ def grab_list(text_file):
             spotify = spotipy.Spotify(auth=new_token)
             grab_single(raw_song, number=number)
         # detect network problems
-        except (urllib2.URLError, TypeError, IOError):
+        except (urllib.request.URLError, TypeError, IOError):
             lines.append(raw_song)
             # remove the downloaded song from .txt
             misc.trim_song(text_file)
