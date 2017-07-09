@@ -35,9 +35,7 @@ That's how your Music library will look like!
 
 <img src="http://i.imgur.com/Dg8p9up.png" width="600">
 
-- This version supports both Python2 and Python3.
-
-- Note: `play` and `lyrics` commands have been deprecated in the current brach since they were not of much use and created unnecessary clutter. You can still get them back by using `old` branch though.
+- This version supports only Python 3. Python 2 support was dropped because of the way it deals with unicode.
 
 ### Debian, Ubuntu, Linux & Mac
 
