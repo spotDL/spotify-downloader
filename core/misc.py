@@ -1,14 +1,9 @@
-import argparse
 import sys
 import os
-from slugify import slugify
+import argparse
 import spotipy.oauth2 as oauth2
-
-try:
-    from urllib2 import quote
-except ImportError:
-    from urllib.request import quote
-
+from urllib.request import quote
+from slugify import slugify
 
 def input_link(links):
     """Let the user input a number."""
@@ -98,7 +93,7 @@ def generate_token():
 
 def generate_search_url(song):
     """Generate YouTube search URL for the given song."""
-    # urllib2.quote() encodes URL with special characters
+    # urllib.request.quote() encodes URL with special characters
     url = u"https://www.youtube.com/results?sp=EgIQAQ%253D%253D&q={0}".format(
         quote(song))
     return url
