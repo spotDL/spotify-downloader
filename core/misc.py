@@ -14,7 +14,7 @@ def input_link(links):
     """Let the user input a number."""
     while True:
         try:
-            the_chosen_one = int(user_input('>> Choose your number: '))
+            the_chosen_one = int(input('>> Choose your number: '))
             if 1 <= the_chosen_one <= len(links):
                 return links[the_chosen_one - 1]
             elif the_chosen_one == 0:
@@ -23,14 +23,6 @@ def input_link(links):
                 print('Choose a valid number!')
         except ValueError:
             print('Choose a valid number!')
-
-
-def user_input(string=''):
-    """Take input correctly for both Python 2 & 3."""
-    if sys.version_info > (3, 0):
-        return input(string)
-    else:
-        return raw_input(string)
 
 
 def trim_song(file):
@@ -88,14 +80,11 @@ def is_spotify(raw_song):
 
 def generate_filename(title):
     """Generate filename of the song to be downloaded."""
-    # IMO python2 sucks dealing with unicode
-    title = fix_encoding(title)
-    title = fix_decoding(title)
     title = title.replace(' ', '_')
 
     # slugify removes any special characters
     filename = slugify(title, ok='-_()[]{}', lower=False)
-    return fix_encoding(filename)
+    return filename
 
 
 def generate_token():
@@ -113,20 +102,6 @@ def generate_search_url(song):
     url = u"https://www.youtube.com/results?sp=EgIQAQ%253D%253D&q={0}".format(
         quote(song))
     return url
-
-
-def fix_encoding(query):
-    """Fix encoding issues in Python 2."""
-    if sys.version_info < (3, 0):
-        query = query.encode('utf-8')
-    return query
-
-
-def fix_decoding(query):
-    """Fix decoding issues in Python 2."""
-    if sys.version_info < (3, 0):
-        query = query.decode('utf-8')
-    return query
 
 
 def filter_path(path):

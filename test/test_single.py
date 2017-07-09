@@ -32,7 +32,6 @@ def test_check_exists():
     expect_check = False
     content = spotdl.go_pafy(raw_song)
     music_file = spotdl.misc.generate_filename(content.title)
-    music_file = spotdl.misc.fix_decoding(music_file)
     check = spotdl.check_exists(music_file, raw_song, islist=True)
     assert check == expect_check
 
@@ -49,7 +48,6 @@ def test_convert():
     expect_convert = 0
     content = spotdl.go_pafy(raw_song)
     music_file = spotdl.misc.generate_filename(content.title)
-    music_file = spotdl.misc.fix_decoding(music_file)
     input_song = music_file + spotdl.args.input_ext
     output_song = music_file + spotdl.args.output_ext
     convert = spotdl.convert.song(input_song, output_song)
@@ -60,7 +58,6 @@ def test_metadata():
     expect_metadata = True
     content = spotdl.go_pafy(raw_song)
     music_file = spotdl.misc.generate_filename(content.title)
-    music_file = spotdl.misc.fix_decoding(music_file)
     meta_tags = spotdl.generate_metadata(raw_song)
     output_song = music_file + spotdl.args.output_ext
     metadata_output = spotdl.metadata.embed(output_song, meta_tags)
@@ -73,8 +70,7 @@ def test_check_exists2():
     expect_check = True
     content = spotdl.go_pafy(raw_song)
     music_file = spotdl.misc.generate_filename(content.title)
-    music_file = spotdl.misc.fix_decoding(music_file)
     input_song = music_file + spotdl.args.input_ext
-    os.remove('Music/' + spotdl.misc.fix_encoding(input_song))
+    os.remove('Music/' + input_song)
     check = spotdl.check_exists(music_file, raw_song, islist=True)
     assert check == expect_check

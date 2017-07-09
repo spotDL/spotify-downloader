@@ -1,7 +1,6 @@
 from mutagen.easyid3 import EasyID3
 from mutagen.id3 import ID3, APIC
 from mutagen.mp4 import MP4, MP4Cover
-import sys
 
 # urllib2 is urllib.request in python3
 try:
@@ -30,8 +29,6 @@ def compare(file, metadata):
 
 def embed(music_file, meta_tags):
     """Embed metadata."""
-    if sys.version_info < (3, 0):
-        music_file = music_file.encode('utf-8')
     if meta_tags is None:
         print('Could not find meta-tags')
         return None

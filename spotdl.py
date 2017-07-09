@@ -24,7 +24,7 @@ def generate_songname(raw_song):
     if misc.is_spotify(raw_song):
         tags = generate_metadata(raw_song)
         raw_song = u'{0} - {1}'.format(tags['artists'][0]['name'], tags['name'])
-    return misc.fix_encoding(raw_song)
+    return raw_song
 
 
 def generate_metadata(raw_song):
@@ -112,7 +112,7 @@ def go_pafy(raw_song):
 
 def get_youtube_title(content, number=None):
     """Get the YouTube video's title."""
-    title = misc.fix_encoding(content.title)
+    title = content.title
     if number is None:
         return title
     else:
@@ -131,7 +131,7 @@ def feed_playlist(username):
             # is None. Skip these. Also see Issue #91.
             if playlist['name'] is not None:
                 print(u'{0:>5}.| {1:<30} | ({2} tracks)'.format(
-                    check, misc.fix_encoding(playlist['name']),
+                    check, playlist['name'],
                     playlist['tracks']['total']))
                 links.append(playlist)
                 check += 1
@@ -192,9 +192,8 @@ def check_exists(music_file, raw_song, islist=True):
             os.remove(u'Music/{0}'.format(file))
             continue
         # check if any file with similar name is already present in Music/
-        dfile = misc.fix_decoding(file)
-        umfile = misc.fix_decoding(misc.generate_filename(music_file))
-        if dfile.startswith(umfile):
+        umfile = misc.generate_filename(music_file)
+        if file.startswith(umfile):
             # check if the already downloaded song has correct metadata
             already_tagged = metadata.compare(file, generate_metadata(raw_song))
 
@@ -209,9 +208,8 @@ def check_exists(music_file, raw_song, islist=True):
                 return True
             # if downloading only single song, prompt to re-download
             else:
-                prompt = misc.user_input(
-                    'Song with same name has already been downloaded. '
-                    'Re-download? (y/n): ').lower()
+                prompt = input('Song with same name has already been downloaded. '
+                               'Re-download? (y/n): ').lower()
                 if prompt == 'y':
                     os.remove('Music/{0}'.format(file))
                     return False
@@ -276,7 +274,6 @@ def grab_single(raw_song, number=None):
 
     # generate file name of the song to download
     music_file = misc.generate_filename(content.title)
-    music_file = misc.fix_decoding(music_file)
     if not check_exists(music_file, raw_song, islist=islist):
         if download_song(content):
             print('')
@@ -285,7 +282,7 @@ def grab_single(raw_song, number=None):
             convert.song(input_song, output_song, avconv=args.avconv,
                          verbose=args.verbose)
             if not args.input_ext == args.output_ext:
-                os.remove('Music/{0}'.format(misc.fix_encoding(input_song)))
+                os.remove('Music/{0}'.format(input_song))
             meta_tags = generate_metadata(raw_song)
             if not args.no_metadata:
                 metadata.embed(output_song, meta_tags)
