@@ -145,16 +145,16 @@ def feed_playlist(username):
     results = spotify.user_playlist(
         playlist['owner']['id'], playlist['id'], fields='tracks,next')
     print('')
-    file = u'{0}.txt'.format(slugify(playlist['name'], ok='-_()[]{}'))
-    print(u'Feeding {0} tracks to {1}'.format(playlist['tracks']['total'], file))
+    text_file = u'{0}.txt'.format(slugify(playlist['name'], ok='-_()[]{}'))
+    print(u'Feeding {0} tracks to {1}'.format(playlist['tracks']['total'], text_file))
 
     tracks = results['tracks']
-    with open(file, 'a') as file_out:
+    with open(text_file, 'a') as file_out:
         while True:
             for item in tracks['items']:
                 track = item['track']
                 try:
-                    file_out.write(track['external_urls']['spotify'] + '\n')
+                    text_file_out.write(track['external_urls']['spotify'] + '\n')
                 except KeyError:
                     print(u'Skipping track {0} by {1} (local only?)'.format(
                         track['name'], track['artists'][0]['name']))
@@ -186,20 +186,20 @@ def download_song(content):
 
 def check_exists(music_file, raw_song, islist=True):
     """Check if the input song already exists in the 'Music' folder."""
-    files = os.listdir('Music')
-    for file in files:
-        if file.endswith('.temp'):
-            os.remove(u'Music/{0}'.format(file))
+    songs = os.listdir('Music')
+    for song in songs:
+        if song.endswith('.temp'):
+            os.remove(u'Music/{0}'.format(song))
             continue
-        # check if any file with similar name is already present in Music/
+        # check if any song with similar name is already present in Music/
         umfile = misc.generate_filename(music_file)
-        if file.startswith(umfile):
+        if song.startswith(umfile):
             # check if the already downloaded song has correct metadata
-            already_tagged = metadata.compare(file, generate_metadata(raw_song))
+            already_tagged = metadata.compare(song, generate_metadata(raw_song))
 
             # if not, remove it and download again without prompt
             if misc.is_spotify(raw_song) and not already_tagged:
-                os.remove('Music/{0}'.format(file))
+                os.remove('Music/{0}'.format(song))
                 return False
 
             # do not prompt and skip the current song
@@ -211,18 +211,18 @@ def check_exists(music_file, raw_song, islist=True):
                 prompt = input('Song with same name has already been downloaded. '
                                'Re-download? (y/n): ').lower()
                 if prompt == 'y':
-                    os.remove('Music/{0}'.format(file))
+                    os.remove('Music/{0}'.format(song))
                     return False
                 else:
                     return True
     return False
 
 
-def grab_list(file):
+def grab_list(text_file):
     """Download all songs from the list."""
-    with open(file, 'r') as listed:
+    with open(text_file, 'r') as listed:
         lines = (listed.read()).splitlines()
-    # ignore blank lines in file (if any)
+    # ignore blank lines in text_file (if any)
     try:
         lines.remove('')
     except ValueError:
@@ -245,9 +245,9 @@ def grab_list(file):
         except (urllib2.URLError, TypeError, IOError):
             lines.append(raw_song)
             # remove the downloaded song from .txt
-            misc.trim_song(file)
+            misc.trim_song(text_file)
             # and append it to the last line in .txt
-            with open(file, 'a') as myfile:
+            with open(text_file, 'a') as myfile:
                 myfile.write(raw_song)
             print('Failed to download song. Will retry after other songs.')
             continue
@@ -255,7 +255,7 @@ def grab_list(file):
             misc.grace_quit()
         finally:
             print('')
-        misc.trim_song(file)
+        misc.trim_song(text_file)
         number += 1
 
 
@@ -310,6 +310,6 @@ if __name__ == '__main__':
     if args.song:
         grab_single(raw_song=args.song)
     elif args.list:
-        grab_list(file=args.list)
+        grab_list(text_file=args.list)
     elif args.username:
         feed_playlist(username=args.username)

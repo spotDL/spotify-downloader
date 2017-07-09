@@ -9,17 +9,17 @@ except ImportError:
     import urllib.request as urllib2
 
 
-def compare(file, metadata):
-    """Check if the input file title matches the expected title."""
+def compare(music_file, metadata):
+    """Check if the input music file title matches the expected title."""
     already_tagged = False
     try:
-        if file.endswith('.mp3'):
-            audiofile = EasyID3('Music/' + file)
+        if music_file.endswith('.mp3'):
+            audiofile = EasyID3('Music/' + music_file)
             # fetch track title metadata
             already_tagged = audiofile['title'][0] == metadata['name']
-        elif file.endswith('.m4a'):
+        elif music_file.endswith('.m4a'):
             tags = {'title': '\xa9nam'}
-            audiofile = MP4('Music/' + file)
+            audiofile = MP4('Music/' + music_file)
             # fetch track title metadata
             already_tagged = audiofile[tags['title']] == metadata['name']
     except (KeyError, TypeError):
