@@ -35,7 +35,7 @@ That's how your Music library will look like!
 
 <img src="http://i.imgur.com/Dg8p9up.png" width="600">
 
-- This version supports only Python 3. Python 2 support was dropped because of the way it deals with unicode.
+- **This version supports only Python 3.** Python 2 support was dropped because of the way it deals with unicode.
 
 ### Debian, Ubuntu, Linux & Mac
 
