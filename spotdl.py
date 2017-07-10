@@ -185,7 +185,8 @@ def check_exists(music_file, raw_song, islist=True):
             continue
         # check if any file with similar name is already present in Music/
         dfile = misc.fix_decoding(file)
-        umfile = misc.fix_decoding(misc.generate_filename(music_file))
+        umfile = misc.sanitize_title(music_file)
+        
         if dfile.startswith(umfile):
             # check if the already downloaded song has correct metadata
             already_tagged = metadata.compare(file, generate_metadata(raw_song))
@@ -261,10 +262,11 @@ def grab_single(raw_song, number=None):
     print(get_youtube_title(content, number))
     # generate file name of the song to download
 
-    song_title = generate_songname(raw_song)
+    meta_tags = generate_metadata(raw_song)
 
-    file_name = misc.generate_filename(song_title)
-    file_name = misc.fix_decoding(file_name)
+    spotify_title = generate_songname(raw_song)
+    file_name = misc.generate_filename(meta_tags, spotify_title, content.title)
+
     if not check_exists(file_name, raw_song, islist=islist):
         if download_song(file_name, content):
             print('')

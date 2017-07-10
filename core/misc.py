@@ -73,14 +73,29 @@ def is_spotify(raw_song):
         return False
 
 # generate filename of the song to be downloaded
-def generate_filename(title):
+def generate_filename(metadata, spotify_title, youtube_title):
+    if metadata:
+        # Found the Spotify single, use the Spotify title as filename
+        title = spotify_title
+    else:
+        # Did not find the Spotify single, fall back to YouTube title as filename 
+        title = youtube_title
+    
+    return sanitize_title(title)
+
+def sanitize_title(title):
     # IMO python2 sucks dealing with unicode
     title = fix_encoding(title)
     title = fix_decoding(title)
     title = title.replace(' ', '_')
     # slugify removes any special characters
-    filename = slugify(title, ok='-_()[]{}', lower=False)
-    return fix_encoding(filename)
+    title = slugify(title, ok='-_()[]{}', lower=False)
+
+    title = fix_encoding(title)
+    title = fix_decoding(title)
+
+    return title
+
 
 # please respect these credentials :)
 def generate_token():
