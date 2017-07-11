@@ -10,7 +10,7 @@ def song(input_song, output_song, folder, avconv=False, verbose=False):
         if avconv:
             exit_code = convert_with_avconv(input_song, output_song, folder, verbose)
         else:
-            exit_code = convert_with_ffmpeg(input_song,  output_song, folder, verbose)
+            exit_code = convert_with_ffmpeg(input_song, output_song, folder, verbose)
         return exit_code
     return 0
 

@@ -54,7 +54,7 @@ def get_arguments():
         action='store_true')
     parser.add_argument(
         '-f', '--folder', default='Music/',
-        help='path to folder where files will stored in')
+        help='path to folder where files will be stored in')
     parser.add_argument(
         '-v', '--verbose', default=False, help='show debug output',
         action='store_true')

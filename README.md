@@ -88,6 +88,9 @@ optional arguments:
   -m, --manual          choose the song to download manually (default: False)
   -a, --avconv          Use avconv for conversion. If not set
                         defaults to FFmpeg (default: False)
+  -f FOLDER, --folder FOLDER
+                        path to folder where files will be stored in (default:
+                        Music/)
   -v, --verbose         show debug output (default: False)
   -i INPUT_EXT, --input_ext INPUT_EXT
                         prefered input format .m4a or .webm (Opus) (default:
@@ -152,6 +155,10 @@ http://open.spotify.com/track/64yrDBpcdwEdNY9loyEGbX
 - Once you select the one you want to download, the script will load all the tracks from the playlist into `<playlist_name>.txt`
 
 - Then you can simply run `python spotdl.py --list=<playlist_name>.txt` to download them all!
+
+#### Specify the target directory
+
+If you don't want to download all the songs to the `Music/` folder relative to the `spotdl.py` script, you can use the `-f`/`--file` option. E.g. `python spotdl.py -s "adele hello" -f "/home/user/Music/"`. This works with both relative and absolute paths.
 
 ## Running tests
 
