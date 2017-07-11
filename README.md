@@ -15,7 +15,7 @@
   - Track number
   - Disc number
   - Release date
-  - And some more...
+  - And some more...
 
 - Works straight out of the box and does not require to generate or mess with your API keys.
 
