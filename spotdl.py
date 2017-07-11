@@ -149,7 +149,7 @@ def feed_playlist(username):
             for item in tracks['items']:
                 track = item['track']
                 try:
-                    text_file_out.write(track['external_urls']['spotify'] + '\n')
+                    file_out.write(track['external_urls']['spotify'] + '\n')
                 except KeyError:
                     print(u'Skipping track {0} by {1} (local only?)'.format(
                         track['name'], track['artists'][0]['name']))
