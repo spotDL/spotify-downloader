@@ -30,28 +30,22 @@ def test_youtube_title():
 
 def test_check_exists():
     expect_check = False
-    
     # prerequisites for determining filename
     content = spotdl.go_pafy(raw_song)
     spotify_title = spotdl.generate_songname(raw_song)
     meta_tags = spotdl.generate_metadata(raw_song)
-
     file_name = spotdl.misc.determine_filename(meta_tags, spotify_title, content.title)
-
     check = spotdl.check_exists(file_name, raw_song, islist=True)
     assert check == expect_check
 
 
 def test_download():
     expect_download = True
-    
     # prerequisites for determining filename
     content = spotdl.go_pafy(raw_song)
     spotify_title = spotdl.generate_songname(raw_song)
     meta_tags = spotdl.generate_metadata(raw_song)
-
     file_name = spotdl.misc.determine_filename(meta_tags, spotify_title, content.title)
-
     download = spotdl.download_song(file_name, content)
     assert download == expect_download
 
@@ -59,14 +53,11 @@ def test_download():
 def test_convert():
     # exit code 0 = success
     expect_convert = 0
-
     # prerequisites for determining filename
     content = spotdl.go_pafy(raw_song)
     spotify_title = spotdl.generate_songname(raw_song)
     meta_tags = spotdl.generate_metadata(raw_song)
-    
     file_name = spotdl.misc.determine_filename(meta_tags, spotify_title, content.title)
-
     input_song = file_name + spotdl.args.input_ext
     output_song = file_name + spotdl.args.output_ext
     convert = spotdl.convert.song(input_song, output_song)
@@ -75,14 +66,11 @@ def test_convert():
 
 def test_metadata():
     expect_metadata = True
-
     # prerequisites for determining filename
     content = spotdl.go_pafy(raw_song)
     spotify_title = spotdl.generate_songname(raw_song)
     meta_tags = spotdl.generate_metadata(raw_song)
-
     file_name = spotdl.misc.determine_filename(meta_tags, spotify_title, content.title)
-    
     output_song = file_name + spotdl.args.output_ext
     metadata_output = spotdl.metadata.embed(output_song, meta_tags)
     input_song = file_name + spotdl.args.input_ext
@@ -92,15 +80,12 @@ def test_metadata():
 
 def test_check_exists2():
     expect_check = True
-
     # prerequisites for determining filename
     content = spotdl.go_pafy(raw_song)
     spotify_title = spotdl.generate_songname(raw_song)
     meta_tags = spotdl.generate_metadata(raw_song)
-
     file_name = spotdl.misc.determine_filename(meta_tags, spotify_title, content.title)
-
     input_song = file_name + spotdl.args.input_ext
-    os.remove('Music/' + spotdl.misc.fix_encoding(input_song))
+    os.remove('Music/' + input_song)
     check = spotdl.check_exists(file_name, raw_song, islist=True)
     assert check == expect_check

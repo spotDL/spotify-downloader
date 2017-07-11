@@ -1,14 +1,10 @@
 import subprocess
 import os
-import sys
 
 
 def song(input_song, output_song, avconv=False, verbose=False):
     """Do the audio format conversion."""
     if not input_song == output_song:
-        if sys.version_info < (3, 0):
-            input_song = input_song.encode('utf-8')
-            output_song = output_song.encode('utf-8')
         print('Converting {0} to {1}'.format(
             input_song, output_song.split('.')[-1]))
         if avconv:
