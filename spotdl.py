@@ -176,7 +176,7 @@ def download_song(file_name, content):
         return False
     else:
         link.download(
-            filepath='{0}{1}'.format(os.path.join(args.folder, music_file), args.input_ext))
+            filepath='{0}{1}'.format(os.path.join(args.folder, file_name), args.input_ext))
         return True
 
 
@@ -276,8 +276,8 @@ def grab_single(raw_song, number=None):
     if not check_exists(file_name, raw_song, islist=islist):
         if download_song(file_name, content):
             print('')
-            input_song = music_file + args.input_ext
-            output_song = music_file + args.output_ext
+            input_song = file_name + args.input_ext
+            output_song = file_name + args.output_ext
             convert.song(input_song, output_song, args.folder,
                          avconv=args.avconv, verbose=args.verbose)
             if not args.input_ext == args.output_ext:
