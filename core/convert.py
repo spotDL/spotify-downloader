@@ -29,7 +29,7 @@ def convert_with_avconv(input_song, output_song, folder, verbose):
 
     command = [avconv_path,
                '-loglevel', level,
-               '-i',        'Music/' + input_song,
+               '-i',        os.path.join(folder, input_song),
                '-ab',       '192k',
                os.path.join(folder, output_song)]
 
