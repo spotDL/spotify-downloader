@@ -77,13 +77,13 @@ def is_spotify(raw_song):
         return False
 
 
-def generate_filename(title):
+def sanitize_title(title):
     """Generate filename of the song to be downloaded."""
     title = title.replace(' ', '_')
 
     # slugify removes any special characters
-    filename = slugify(title, ok='-_()[]{}', lower=False)
-    return filename
+    title = slugify(title, ok='-_()[]{}', lower=False)
+    return title
 
 
 def generate_token():

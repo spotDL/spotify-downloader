@@ -16,8 +16,11 @@ import os
 
 def generate_songname(raw_song):
     """Generate a string of the format '[artist] - [song]' for the given song."""
-    if misc.is_spotify(raw_song):
-        tags = generate_metadata(raw_song)
+    tags = generate_metadata(raw_song)
+    if tags is None:
+        content = go_pafy(raw_song)
+        raw_song = get_youtube_title(content)
+    else:
         raw_song = u'{0} - {1}'.format(tags['artists'][0]['name'], tags['name'])
     return raw_song
 
@@ -160,8 +163,7 @@ def feed_playlist(username):
             else:
                 break
 
-
-def download_song(content):
+def download_song(file_name, content):
     """Download the audio file from YouTube."""
     if args.input_ext == '.webm':
         link = content.getbestaudio(preftype='webm')
@@ -173,9 +175,8 @@ def download_song(content):
     if link is None:
         return False
     else:
-        music_file = misc.generate_filename(content.title)
         link.download(
-            filepath='{0}{1}'.format(os.path.join(args.folder, music_file), args.input_ext))
+            filepath='{0}{1}'.format(os.path.join(args.folder, file_name), args.input_ext))
         return True
 
 
@@ -187,8 +188,8 @@ def check_exists(music_file, raw_song, islist=True):
             os.remove(os.path.join(args.folder, song))
             continue
         # check if any song with similar name is already present in the given folder
-        umfile = misc.generate_filename(music_file)
-        if song.startswith(umfile):
+        file_name = misc.sanitize_title(music_file)
+        if song.startswith(file_name):
             # check if the already downloaded song has correct metadata
             already_tagged = metadata.compare(os.path.join(args.folder, song), generate_metadata(raw_song))
 
@@ -268,17 +269,21 @@ def grab_single(raw_song, number=None):
     print(get_youtube_title(content, number))
 
     # generate file name of the song to download
-    music_file = misc.generate_filename(content.title)
-    if not check_exists(music_file, raw_song, islist=islist):
-        if download_song(content):
+    meta_tags = generate_metadata(raw_song)
+    songname = generate_songname(raw_song)
+    file_name = misc.sanitize_title(songname)
+
+    if not check_exists(file_name, raw_song, islist=islist):
+        if download_song(file_name, content):
             print('')
-            input_song = music_file + args.input_ext
-            output_song = music_file + args.output_ext
+            input_song = file_name + args.input_ext
+            output_song = file_name + args.output_ext
             convert.song(input_song, output_song, args.folder,
                          avconv=args.avconv, verbose=args.verbose)
             if not args.input_ext == args.output_ext:
                 os.remove(os.path.join(args.folder, input_song))
             meta_tags = generate_metadata(raw_song)
+
             if not args.no_metadata:
                 metadata.embed(os.path.join(args.folder, output_song), meta_tags)
         else:
