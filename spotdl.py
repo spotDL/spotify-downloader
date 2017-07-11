@@ -16,8 +16,11 @@ import os
 
 def generate_songname(raw_song):
     """Generate a string of the format '[artist] - [song]' for the given song."""
-    if misc.is_spotify(raw_song):
-        tags = generate_metadata(raw_song)
+    tags = generate_metadata(raw_song)
+    if tags is None:
+        content = go_pafy(raw_song)
+        raw_song = get_youtube_title(content)
+    else:
         raw_song = u'{0} - {1}'.format(tags['artists'][0]['name'], tags['name'])
     return raw_song
 
