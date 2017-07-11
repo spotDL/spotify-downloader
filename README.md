@@ -15,11 +15,9 @@
   - Track number
   - Disc number
   - Release date
-  - and some more..
+  - And some more...
 
 - Works straight out of the box and does not require to generate or mess with your API keys.
-
-<br>
 
 That's how your Music library will look like!
 
@@ -27,7 +25,7 @@ That's how your Music library will look like!
 
 ## Reporting Issues
 
-- Search for your problem in the [issues section](https://github.com/Ritiek/spotify-downloader/issues?utf8=%E2%9C%93&q=) before opening a new ticket. It might be already answered and save us time :D.
+- Search for your problem in the [issues section](https://github.com/Ritiek/spotify-downloader/issues?utf8=%E2%9C%93&q=) before opening a new ticket. It might be already answered and save us time :smile:.
 
 - Provide as much information possible when opening your ticket.
 
@@ -35,7 +33,9 @@ That's how your Music library will look like!
 
 <img src="http://i.imgur.com/Dg8p9up.png" width="600">
 
-- **This version supports only Python 3.** Python 2 support was dropped because of the way it deals with unicode.
+- **This version supports Python 3**, Python 2 compatibility was dropped because of the way it deals with unicode. If you need to use Python 2 though, check out the `python2` branch.
+
+- Note: `play` and `lyrics` commands have been deprecated in the current brach since they were not of much use and created unnecessary clutter. You can still get them back by using `old` branch though.
 
 ### Debian, Ubuntu, Linux & Mac
 
@@ -58,11 +58,11 @@ If it does not install correctly, you may have to build it from source. For more
 
 Assuming you have Python already installed..
 
-- Download FFmpeg for Windows from [here](http://ffmpeg.zeranoe.com/builds/). Copy `ffmpeg.exe` from `ffmpeg-xxx-winxx-static\bin\ffmpeg.exe` to `Scripts` folder (in your Python's installation directory: `Pythonxx\Scripts\ffmpeg.exe`)
+- Download FFmpeg for Windows from [here](http://ffmpeg.zeranoe.com/builds/). Copy `ffmpeg.exe` from `ffmpeg-xxx-winxx-static\bin\ffmpeg.exe` to `Scripts` folder (in your Python's installation directory: e.g. `C:\Python36\Scripts\ffmpeg.exe`)
 
-- Download the [zip file](https://github.com/ritiek/spotify-downloader/archive/master.zip) of this repository and copy the folder contained in the archive into your Python's installation folder (`\Python36\spotify-downloader-master`).
+- Download the [zip file](https://github.com/ritiek/spotify-downloader/archive/master.zip) of this repository and copy the folder contained in the archive into your Python's installation folder (e.g. `C:\Python36\spotify-downloader-master`).
 
-- Open the folder from last step. Shift+right-click on empty area, open `cmd` and type:
+- Open the folder from last step. Shift+right-click on empty area, open `cmd`, navigate to your Python installation directory and type:
 
   `"Scripts/pip.exe" install -U -r requirements.txt`
 
@@ -129,7 +129,7 @@ No problem!
 
 - Just make a `list.txt` in the same folder as the script and add all the songs you want to download, in our case it is
 
-(if you are on windows, just edit `list.txt` - i.e `C:\Python27\list.txt`)
+(if you are on Windows, just edit `list.txt` - i.e `C:\Python36\spotify-downloader-master\list.txt`)
 
 ```
 https://open.spotify.com/track/1MDoll6jK4rrk2BcFRP5i7
@@ -156,6 +156,8 @@ http://open.spotify.com/track/64yrDBpcdwEdNY9loyEGbX
 ## Running tests
 
 `python -m pytest test`
+
+Obviously this requires the `pytest` module to be installed. 
 
 ## Disclaimer
 
