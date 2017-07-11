@@ -270,8 +270,8 @@ def grab_single(raw_song, number=None):
 
     # generate file name of the song to download
     meta_tags = generate_metadata(raw_song)
-    spotify_title = generate_songname(raw_song)
-    file_name = misc.determine_filename(meta_tags, spotify_title, content.title)
+    songname = generate_songname(raw_song)
+    file_name = misc.sanitize_title(songname)
 
     if not check_exists(file_name, raw_song, islist=islist):
         if download_song(file_name, content):

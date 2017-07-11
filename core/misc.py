@@ -76,17 +76,6 @@ def is_spotify(raw_song):
     else:
         return False
 
-def determine_filename(metadata, spotify_title, youtube_title):
-    """Determine filename of the song to be downloaded based on the availability of Spotify metadata."""
-    if metadata:
-        # Found the Spotify single, use the Spotify title as filename
-        title = spotify_title
-    else:
-        # Did not find the Spotify single, fall back to YouTube title as filename 
-        title = youtube_title
-    
-    return sanitize_title(title)
-
 
 def sanitize_title(title):
     """Generate filename of the song to be downloaded."""
