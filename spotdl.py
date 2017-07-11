@@ -185,7 +185,8 @@ def check_exists(music_file, raw_song, islist=True):
             os.remove(u'Music/{0}'.format(song))
             continue
         # check if any song with similar name is already present in Music/
-        umfile = misc.generate_filename(music_file)
+        umfile = misc.sanitize_title(music_file)
+        if dfile.startswith(umfile):
             # check if the already downloaded song has correct metadata
             already_tagged = metadata.compare(song, generate_metadata(raw_song))
 
