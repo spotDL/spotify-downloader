@@ -80,6 +80,7 @@ def is_spotify(raw_song):
 def sanitize_title(title):
     """Generate filename of the song to be downloaded."""
     title = title.replace(' ', '_')
+    title = title.replace('/', '_')
 
     # slugify removes any special characters
     title = slugify(title, ok='-_()[]{}', lower=False)
