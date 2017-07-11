@@ -1,26 +1,21 @@
 from mutagen.easyid3 import EasyID3
 from mutagen.id3 import ID3, APIC
 from mutagen.mp4 import MP4, MP4Cover
-import sys
 
-# urllib2 is urllib.request in python3
-try:
-    import urllib2
-except ImportError:
-    import urllib.request as urllib2
+import urllib.request
 
 
-def compare(file, metadata):
-    """Check if the input file title matches the expected title."""
+def compare(music_file, metadata):
+    """Check if the input music file title matches the expected title."""
     already_tagged = False
     try:
-        if file.endswith('.mp3'):
-            audiofile = EasyID3('Music/' + file)
+        if music_file.endswith('.mp3'):
+            audiofile = EasyID3('Music/' + music_file)
             # fetch track title metadata
             already_tagged = audiofile['title'][0] == metadata['name']
-        elif file.endswith('.m4a'):
+        elif music_file.endswith('.m4a'):
             tags = {'title': '\xa9nam'}
-            audiofile = MP4('Music/' + file)
+            audiofile = MP4('Music/' + music_file)
             # fetch track title metadata
             already_tagged = audiofile[tags['title']] == metadata['name']
     except (KeyError, TypeError):
@@ -30,8 +25,6 @@ def compare(file, metadata):
 
 def embed(music_file, meta_tags):
     """Embed metadata."""
-    if sys.version_info < (3, 0):
-        music_file = music_file.encode('utf-8')
     if meta_tags is None:
         print('Could not find meta-tags')
         return None
@@ -74,7 +67,7 @@ def embed_mp3(music_file, meta_tags):
         audiofile['copyright'] = meta_tags['copyright']
     audiofile.save(v2_version=3)
     audiofile = ID3('Music/' + music_file)
-    albumart = urllib2.urlopen(meta_tags['album']['images'][0]['url'])
+    albumart = urllib.request.urlopen(meta_tags['album']['images'][0]['url'])
     audiofile["APIC"] = APIC(encoding=3, mime='image/jpeg', type=3,
                              desc=u'Cover', data=albumart.read())
     albumart.close()
@@ -117,7 +110,7 @@ def embed_m4a(music_file, meta_tags):
         audiofile[tags['genre']] = meta_tags['genre']
     if meta_tags['copyright']:
         audiofile[tags['copyright']] = meta_tags['copyright']
-    albumart = urllib2.urlopen(meta_tags['album']['images'][0]['url'])
+    albumart = urllib.request.urlopen(meta_tags['album']['images'][0]['url'])
     audiofile[tags['albumart']] = [MP4Cover(
         albumart.read(), imageformat=MP4Cover.FORMAT_JPEG)]
     albumart.close()

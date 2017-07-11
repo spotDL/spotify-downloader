@@ -17,7 +17,7 @@ Please follow the guide below
 - [ ] Other
 
 #### System information
-- Your `python` version: `python 2.7`
+- Your `python` version: `python 3.x`
 - Your operating system: `Ubuntu 16.04`
 
 ### Description
