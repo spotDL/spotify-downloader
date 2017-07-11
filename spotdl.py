@@ -187,7 +187,7 @@ def check_exists(music_file, raw_song, islist=True):
         if song.endswith('.temp'):
             os.remove(os.path.join(args.folder, song))
             continue
-        # check if any song with similar name is already present in Music/
+        # check if any song with similar name is already present in the given folder
         file_name = misc.sanitize_title(music_file)
         if song.startswith(file_name):
             # check if the already downloaded song has correct metadata
