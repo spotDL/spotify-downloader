@@ -10,12 +10,12 @@ def compare(music_file, metadata):
     already_tagged = False
     try:
         if music_file.endswith('.mp3'):
-            audiofile = EasyID3('Music/' + music_file)
+            audiofile = EasyID3(music_file)
             # fetch track title metadata
             already_tagged = audiofile['title'][0] == metadata['name']
         elif music_file.endswith('.m4a'):
             tags = {'title': '\xa9nam'}
-            audiofile = MP4('Music/' + music_file)
+            audiofile = MP4(music_file)
             # fetch track title metadata
             already_tagged = audiofile[tags['title']] == metadata['name']
     except (KeyError, TypeError):
@@ -42,7 +42,7 @@ def embed(music_file, meta_tags):
 def embed_mp3(music_file, meta_tags):
     """Embed metadata to MP3 files."""
     # EasyID3 is fun to use ;)
-    audiofile = EasyID3('Music/' + music_file)
+    audiofile = EasyID3(music_file)
     audiofile['artist'] = meta_tags['artists'][0]['name']
     audiofile['albumartist'] = meta_tags['artists'][0]['name']
     audiofile['album'] = meta_tags['album']['name']
@@ -66,7 +66,7 @@ def embed_mp3(music_file, meta_tags):
     if meta_tags['copyright']:
         audiofile['copyright'] = meta_tags['copyright']
     audiofile.save(v2_version=3)
-    audiofile = ID3('Music/' + music_file)
+    audiofile = ID3(music_file)
     albumart = urllib.request.urlopen(meta_tags['album']['images'][0]['url'])
     audiofile["APIC"] = APIC(encoding=3, mime='image/jpeg', type=3,
                              desc=u'Cover', data=albumart.read())
@@ -96,7 +96,7 @@ def embed_m4a(music_file, meta_tags):
             'copyright': 'cprt',
             'tempo': 'tmpo'}
 
-    audiofile = MP4('Music/' + music_file)
+    audiofile = MP4(music_file)
     audiofile[tags['artist']] = meta_tags['artists'][0]['name']
     audiofile[tags['albumartist']] = meta_tags['artists'][0]['name']
     audiofile[tags['album']] = meta_tags['album']['name']

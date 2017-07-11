@@ -5,6 +5,7 @@ import spotipy.oauth2 as oauth2
 from urllib.request import quote
 from slugify import slugify
 
+
 def input_link(links):
     """Let the user input a number."""
     while True:
@@ -51,6 +52,9 @@ def get_arguments():
         '-a', '--avconv', default=False,
         help='Use avconv for conversion otherwise set defaults to ffmpeg',
         action='store_true')
+    parser.add_argument(
+        '-f', '--folder', default='Music/',
+        help='path to folder where files will stored in')
     parser.add_argument(
         '-v', '--verbose', default=False, help='show debug output',
         action='store_true')
@@ -116,7 +120,7 @@ def filter_path(path):
         os.makedirs(path)
     for temp in os.listdir(path):
         if temp.endswith('.temp'):
-            os.remove('{0}/{1}'.format(path, temp))
+            os.remove(os.path.join(path, temp))
 
 
 def grace_quit():

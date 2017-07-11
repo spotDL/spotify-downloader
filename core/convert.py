@@ -2,20 +2,20 @@ import subprocess
 import os
 
 
-def song(input_song, output_song, avconv=False, verbose=False):
+def song(input_song, output_song, folder, avconv=False, verbose=False):
     """Do the audio format conversion."""
     if not input_song == output_song:
         print('Converting {0} to {1}'.format(
             input_song, output_song.split('.')[-1]))
         if avconv:
-            exit_code = convert_with_avconv(input_song, output_song, verbose)
+            exit_code = convert_with_avconv(input_song, output_song, folder, verbose)
         else:
-            exit_code = convert_with_ffmpeg(input_song, output_song, verbose)
+            exit_code = convert_with_ffmpeg(input_song,  output_song, folder, verbose)
         return exit_code
     return 0
 
 
-def convert_with_avconv(input_song, output_song, verbose):
+def convert_with_avconv(input_song, output_song, folder, verbose):
     """Convert the audio file using avconv."""
     if os.name == 'nt':
         avconv_path = '..\\Scripts\\avconv.exe'
@@ -29,14 +29,14 @@ def convert_with_avconv(input_song, output_song, verbose):
 
     command = [avconv_path,
                '-loglevel', level,
-               '-i',        'Music/' + input_song,
+               '-i',        os.path.join(folder, input_song),
                '-ab',       '192k',
-               'Music/' + output_song]
+               os.path.join(folder, output_song)]
 
     return subprocess.call(command)
 
 
-def convert_with_ffmpeg(input_song, output_song, verbose):
+def convert_with_ffmpeg(input_song, output_song, folder, verbose):
     """Convert the audio file using FFMpeg.
 
     What are the differences and similarities between ffmpeg, libav, and avconv?
@@ -73,7 +73,7 @@ def convert_with_ffmpeg(input_song, output_song, verbose):
         elif output_ext == 'm4a':
             ffmpeg_params = '-cutoff 20000 -c:a libfdk_aac -b:a 192k -vn '
 
-    command = '{0}-i Music/{1} {2}Music/{3}'.format(
-        ffmpeg_pre, input_song, ffmpeg_params, output_song).split(' ')
+    command = '{0}-i {1} {2}{3}'.format(
+        ffmpeg_pre, os.path.join(folder, input_song), ffmpeg_params, os.path.join(folder, output_song)).split(' ')
 
     return subprocess.call(command)
