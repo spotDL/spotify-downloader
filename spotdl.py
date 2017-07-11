@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 # -*- coding: UTF-8 -*-
 
 from core import metadata
@@ -19,15 +18,17 @@ try:
 except ImportError:
     import urllib.request as urllib2
 
-# "[artist] - [song]"
+
 def generate_songname(raw_song):
+    """Generate a string of the format '[artist] - [song]' for the given song."""
     if misc.is_spotify(raw_song):
         tags = generate_metadata(raw_song)
-        raw_song = tags['artists'][0]['name'] + ' - ' + tags['name']
+        raw_song = u'{0} - {1}'.format(tags['artists'][0]['name'], tags['name'])
     return misc.fix_encoding(raw_song)
 
-# fetch song's metadata from spotify
+
 def generate_metadata(raw_song):
+    """Fetch a song's metadata from Spotify."""
     if misc.is_spotify(raw_song):
         # fetch track information directly if it is spotify link
         meta_tags = spotify.track(raw_song)
@@ -52,18 +53,18 @@ def generate_metadata(raw_song):
     meta_tags[u'release_date'] = album['release_date']
     meta_tags[u'publisher'] = album['label']
     meta_tags[u'total_tracks'] = album['tracks']['total']
-    #import pprint
-    #pprint.pprint(meta_tags)
-    #pprint.pprint(spotify.album(meta_tags['album']['id']))
+    # import pprint
+    # pprint.pprint(meta_tags)
+    # pprint.pprint(spotify.album(meta_tags['album']['id']))
     return meta_tags
 
+
 def generate_youtube_url(raw_song):
-    # decode spotify http link to "[artist] - [song]"
+    """Search for the song on YouTube and generate an URL to its video."""
     song = generate_songname(raw_song)
-    # generate direct search YouTube URL
     search_url = misc.generate_search_url(song)
     item = urllib2.urlopen(search_url).read()
-    #item = unicode(item, 'utf-8')
+    # item = unicode(item, 'utf-8')
     items_parse = BeautifulSoup(item, "html.parser")
     check = 1
     if args.manual:
@@ -74,9 +75,10 @@ def generate_youtube_url(raw_song):
         # fetch all video links on first page on YouTube
         for x in items_parse.find_all('h3', {'class': 'yt-lockup-title'}):
             # confirm the video result is not an advertisement
-            if not x.find('channel') == -1 or not x.find('googleads') == -1:
-                print(str(check) + '. ' + x.get_text())
-                links.append(x.find('a')['href'])
+            if x.find('channel') is None and x.find('googleads') is None:
+                link = x.find('a')['href']
+                links.append(link)
+                print(u'{0}. {1} {2}'.format(check, x.get_text(), "http://youtube.com"+link))
                 check += 1
         print('')
         # let user select the song to download
@@ -85,46 +87,52 @@ def generate_youtube_url(raw_song):
             return None
     else:
         # get video link of the first YouTube result
-        result = items_parse.find_all(attrs={'class': 'yt-uix-tile-link'})[0]['href']
+        result = items_parse.find_all(
+            attrs={'class': 'yt-uix-tile-link'})[0]['href']
+
         # confirm the video result is not an advertisement
         # otherwise keep iterating until it is not
-        while not result.find('channel') == -1 or not result.find('googleads') == -1:
-            result = items_parse.find_all(attrs={'class': 'yt-uix-tile-link'})[check]['href']
+        while result.find('channel') > -1 or result.find('googleads') > -1:
+            result = items_parse.find_all(
+                attrs={'class': 'yt-uix-tile-link'})[check]['href']
             check += 1
-    full_link = "youtube.com" + result
+
+    full_link = u'youtube.com{0}'.format(result)
     return full_link
 
-# parse track from YouTube
+
 def go_pafy(raw_song):
-    # video link of the video to extract audio from
+    """Parse track from YouTube."""
     track_url = generate_youtube_url(raw_song)
     if track_url is None:
         return None
     else:
-        # parse the YouTube video
         return pafy.new(track_url)
 
-# title of the YouTube video
+
 def get_youtube_title(content, number=None):
+    """Get the YouTube video's title."""
     title = misc.fix_encoding(content.title)
     if number is None:
         return title
     else:
-        return str(number) + '. ' + title
+        return '{0}. {1}'.format(number, title)
 
-# fetch user playlists when using -u option
+
 def feed_playlist(username):
-    # fetch all user playlists
+    """Fetch user playlists when using the -u option."""
     playlists = spotify.user_playlists(username)
     links = []
     check = 1
-    # iterate over user playlists
+
     while True:
         for playlist in playlists['items']:
-            # In rare cases, playlists may not be found, so playlists['next'] is
-            # None. Skip these. Also see Issue #91.
+            # in rare cases, playlists may not be found, so playlists['next']
+            # is None. Skip these. Also see Issue #91.
             if playlist['name'] is not None:
-                print(str(check) + '. ' + misc.fix_encoding(playlist['name']) + ' (' + str(playlist['tracks']['total']) + ' tracks)')
+                print(u'{0:>5}.| {1:<30} | ({2} tracks)'.format(
+                    check, misc.fix_encoding(playlist['name']),
+                    playlist['tracks']['total']))
                 links.append(playlist)
                 check += 1
         if playlists['next']:
@@ -133,25 +141,23 @@ def feed_playlist(username):
             break
 
     print('')
-    # let user select playlist
     playlist = misc.input_link(links)
-    # fetch detailed information for playlist
-    results = spotify.user_playlist(playlist['owner']['id'], playlist['id'], fields="tracks,next")
+    results = spotify.user_playlist(
+        playlist['owner']['id'], playlist['id'], fields='tracks,next')
     print('')
-    # slugify removes any special characters
-    file = slugify(playlist['name'], ok='-_()[]{}') + '.txt'
-    print('Feeding ' + str(playlist['tracks']['total']) + ' tracks to ' + file)
+    file = u'{0}.txt'.format(slugify(playlist['name'], ok='-_()[]{}'))
+    print(u'Feeding {0} tracks to {1}'.format(playlist['tracks']['total'], file))
 
     tracks = results['tracks']
-    with open(file, 'a') as fout:
+    with open(file, 'a') as file_out:
         while True:
             for item in tracks['items']:
                 track = item['track']
                 try:
-                    fout.write(track['external_urls']['spotify'] + '\n')
+                    file_out.write(track['external_urls']['spotify'] + '\n')
                 except KeyError:
-                    title = track['name'] + ' by '+ track['artists'][0]['name']
-                    print('Skipping track ' + title + ' (local only?)')
+                    print(u'Skipping track {0} by {1} (local only?)'.format(
+                        track['name'], track['artists'][0]['name']))
             # 1 page = 50 results
             # check if there are more pages
             if tracks['next']:
@@ -160,11 +166,10 @@ def feed_playlist(username):
                 break
 
 def download_song(file_name, content):
+    """Download the audio file from YouTube."""
     if args.input_ext == '.webm':
-        # best available audio in .webm
         link = content.getbestaudio(preftype='webm')
     elif args.input_ext == '.m4a':
-        # best available audio in .webm
         link = content.getbestaudio(preftype='m4a')
     else:
         return False
@@ -172,16 +177,17 @@ def download_song(file_name, content):
     if link is None:
         return False
     else:
-        # download link
-        link.download(filepath='Music/' + file_name + args.input_ext)
+        link.download(
+            filepath='Music/{0}{1}'.format(file_name, args.input_ext))
         return True
 
-# check if input song already exists in Music folder
+
 def check_exists(music_file, raw_song, islist=True):
-    files = os.listdir("Music")
+    """Check if the input song already exists in the 'Music' folder."""
+    files = os.listdir('Music')
     for file in files:
-        if file.endswith(".temp"):
-            os.remove("Music/" + file)
+        if file.endswith('.temp'):
+            os.remove(u'Music/{0}'.format(file))
             continue
         # check if any file with similar name is already present in Music/
         dfile = misc.fix_decoding(file)
@@ -190,25 +196,31 @@ def check_exists(music_file, raw_song, islist=True):
         if dfile.startswith(umfile):
             # check if the already downloaded song has correct metadata
             already_tagged = metadata.compare(file, generate_metadata(raw_song))
+
             # if not, remove it and download again without prompt
             if misc.is_spotify(raw_song) and not already_tagged:
-                os.remove("Music/" + file)
+                os.remove('Music/{0}'.format(file))
                 return False
-            # do not prompt and skip the current song if already downloaded when using list
+
+            # do not prompt and skip the current song
+            # if already downloaded when using list
             if islist:
                 return True
             # if downloading only single song, prompt to re-download
             else:
-                prompt = misc.user_input('Song with same name has already been downloaded. Re-download? (y/n): ').lower()
-                if prompt == "y":
-                    os.remove("Music/" + file)
+                prompt = misc.user_input(
+                    'Song with same name has already been downloaded. '
+                    'Re-download? (y/n): ').lower()
+                if prompt == 'y':
+                    os.remove('Music/{0}'.format(file))
                     return False
                 else:
                     return True
     return False
 
-# download songs from list
+
 def grab_list(file):
+    """Download all songs from the list."""
     with open(file, 'r') as listed:
         lines = (listed.read()).splitlines()
     # ignore blank lines in file (if any)
@@ -216,7 +228,7 @@ def grab_list(file):
         lines.remove('')
     except ValueError:
         pass
-    print('Total songs in list = ' + str(len(lines)) + ' songs')
+    print(u'Total songs in list: {0} songs'.format(len(lines)))
     print('')
     # nth input song
     number = 1
@@ -226,9 +238,9 @@ def grab_list(file):
         # token expires after 1 hour
         except spotipy.oauth2.SpotifyOauthError:
             # refresh token when it expires
-            token = misc.generate_token()
+            new_token = misc.generate_token()
             global spotify
-            spotify = spotipy.Spotify(auth=token)
+            spotify = spotipy.Spotify(auth=new_token)
             grab_single(raw_song, number=number)
         # detect network problems
         except (urllib2.URLError, TypeError, IOError):
@@ -247,9 +259,9 @@ def grab_list(file):
         misc.trim_song(file)
         number += 1
 
-# logic behind downloading some song
+
 def grab_single(raw_song, number=None):
-    # check if song is being downloaded from list
+    """Logic behind downloading a song."""
     if number:
         islist = True
     else:
@@ -257,31 +269,30 @@ def grab_single(raw_song, number=None):
     content = go_pafy(raw_song)
     if content is None:
         return
-    # print "[number]. [artist] - [song]" if downloading from list
-    # otherwise print "[artist] - [song]"
+    # print '[number]. [artist] - [song]' if downloading from list
+    # otherwise print '[artist] - [song]'
     print(get_youtube_title(content, number))
+
     # generate file name of the song to download
-
     meta_tags = generate_metadata(raw_song)
-
     spotify_title = generate_songname(raw_song)
-    file_name = misc.generate_filename(meta_tags, spotify_title, content.title)
+    file_name = misc.determine_filename(meta_tags, spotify_title, content.title)
 
     if not check_exists(file_name, raw_song, islist=islist):
         if download_song(file_name, content):
             print('')
             input_song = file_name + args.input_ext
             output_song = file_name + args.output_ext
-            convert.song(input_song,
-                         output_song,
-                         avconv=args.avconv,
+            convert.song(input_song, output_song, avconv=args.avconv,
                          verbose=args.verbose)
-            os.remove('Music/' + input_song)
+            if not args.input_ext == args.output_ext:
+                os.remove('Music/{0}'.format(misc.fix_encoding(input_song)))
             meta_tags = generate_metadata(raw_song)
             if not args.no_metadata:
                 metadata.embed(output_song, meta_tags)
         else:
             print('No audio streams available')
+
 
 class Args(object):
     manual = False
@@ -297,9 +308,7 @@ spotify = spotipy.Spotify(auth=token)
 misc.filter_path('Music')
 
 if __name__ == '__main__':
-
     os.chdir(sys.path[0])
-
     args = misc.get_arguments()
 
     if args.song:

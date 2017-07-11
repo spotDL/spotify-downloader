@@ -60,19 +60,19 @@ If it does not install correctly, you may have to build it from source. For more
 
 Assuming you have Python already installed..
 
-- Download FFmpeg for windows from [here](http://ffmpeg.zeranoe.com/builds/). Copy `ffmpeg.exe` from bin folder (of FFmpeg) to Scripts folder (in your python's installation directory).
+- Download FFmpeg for Windows from [here](http://ffmpeg.zeranoe.com/builds/). Copy `ffmpeg.exe` from `ffmpeg-xxx-winxx-static\bin\ffmpeg.exe` to `Scripts` folder (in your Python's installation directory: `Pythonxx\Scripts\ffmpeg.exe`)
 
-- Download the zip file of this repository and extract its contents in your python's installation folder.
+- Download the [zip file](https://github.com/ritiek/spotify-downloader/archive/master.zip) of this repository and copy the folder contained in the archive into your Python's installation folder (`\Python36\spotify-downloader-master`).
 
-- Change your current working directory to python's installation directory. Shift+right-click on empty area and open cmd and type:
+- Open the folder from last step. Shift+right-click on empty area, open `cmd` and type:
 
-`"Scripts/pip.exe" install -U -r requirements.txt`
+  `"Scripts/pip.exe" install -U -r requirements.txt`
 
-- If you do not want to naviagte to your python folder from the command-line everytime you want to run the script, you can have your python 'PATH' environment variables set and then you can run the script from any directory.
+- If you do not want to naviagte to your Python folder from the command-line everytime you want to run the script, you can have your Python 'PATH' environment variables set and then you can run the script from any directory.
 
 ## Instructions for Downloading Songs
 
-- For all available options, run `python spotdl.py --help` (or for windows run `python.exe spotdl.py --help`).
+- For all available options, run `python spotdl.py --help` (or for Windows run `python.exe spotdl.py --help`).
 
 ```
 usage: spotdl.py [-h] (-s SONG | -l LIST | -u USERNAME) [-n] [-m] [-f] [-v]
@@ -105,7 +105,7 @@ For example
 
 - We want to download Hello by Adele, simply run `python spotdl.py --song "adele hello"`.
 
-- The script will automatically look for the best matching song and download it in the folder `Music/` placed in your current directory.
+- The script will automatically look for the best matching song and download it in the folder `Music/` placed in the root directory of the code base.
 
 - It will now convert the song to an mp3 and try to fix meta-tags and album-art by looking up on Spotify.
 
@@ -147,7 +147,7 @@ http://open.spotify.com/track/64yrDBpcdwEdNY9loyEGbX
 
 #### Downloading playlists
 
-- You can also load songs from any playlist provided you have spotify username of that user.
+- You can also load songs from any playlist provided you have a Spotify username or user id of that user. (Open profile in Spotify, click on the three little dots below name, "Share", "Copy to clipboard", paste last numbers into command-line: `https://open.spotify.com/user/0123456790`)
 
 - Try running `python spotdl.py -u <your_username>`, it will show all your public playlists.
 
