@@ -287,7 +287,7 @@ def grab_single(raw_song, number=None):
                          verbose=args.verbose)
             if not args.input_ext == args.output_ext:
                 os.remove('Music/{0}'.format(misc.fix_encoding(input_song)))
-            meta_tags = generate_metadata(raw_song)
+            
             if not args.no_metadata:
                 metadata.embed(output_song, meta_tags)
         else:
