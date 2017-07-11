@@ -5,8 +5,8 @@ import os
 
 raw_song = 'http://open.spotify.com/track/0JlS7BXXD07hRmevDnbPDU'
 
-for x in os.listdir('Music'):
-    os.remove('Music/' + x)
+for x in os.listdir(spotdl.args.folder):
+    os.remove(os.path.join(spotdl.args.folder, x))
 
 
 def test_spotify_title():
@@ -50,7 +50,7 @@ def test_convert():
     music_file = spotdl.misc.generate_filename(content.title)
     input_song = music_file + spotdl.args.input_ext
     output_song = music_file + spotdl.args.output_ext
-    convert = spotdl.convert.song(input_song, output_song)
+    convert = spotdl.convert.song(input_song, output_song, spotdl.args.folder)
     assert convert == expect_convert
 
 
@@ -60,9 +60,9 @@ def test_metadata():
     music_file = spotdl.misc.generate_filename(content.title)
     meta_tags = spotdl.generate_metadata(raw_song)
     output_song = music_file + spotdl.args.output_ext
-    metadata_output = spotdl.metadata.embed(output_song, meta_tags)
+    metadata_output = spotdl.metadata.embed(os.path.join(spotdl.args.folder, output_song), meta_tags)
     input_song = music_file + spotdl.args.input_ext
-    metadata_input = spotdl.metadata.embed(input_song, meta_tags)
+    metadata_input = spotdl.metadata.embed(os.path.join(spotdl.args.folder, input_song), meta_tags)
     assert metadata_output == (metadata_input == expect_metadata)
 
 
@@ -71,6 +71,6 @@ def test_check_exists2():
     content = spotdl.go_pafy(raw_song)
     music_file = spotdl.misc.generate_filename(content.title)
     input_song = music_file + spotdl.args.input_ext
-    os.remove('Music/' + input_song)
+    os.remove(os.path.join(spotdl.args.folder, input_song))
     check = spotdl.check_exists(music_file, raw_song, islist=True)
     assert check == expect_check

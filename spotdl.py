@@ -175,26 +175,26 @@ def download_song(content):
     else:
         music_file = misc.generate_filename(content.title)
         link.download(
-            filepath='Music/{0}{1}'.format(music_file, args.input_ext))
+            filepath='{0}{1}'.format(os.path.join(args.folder, music_file), args.input_ext))
         return True
 
 
 def check_exists(music_file, raw_song, islist=True):
-    """Check if the input song already exists in the 'Music' folder."""
-    songs = os.listdir('Music')
+    """Check if the input song already exists in the given folder."""
+    songs = os.listdir(args.folder)
     for song in songs:
         if song.endswith('.temp'):
-            os.remove(u'Music/{0}'.format(song))
+            os.remove(os.path.join(args.folder, song))
             continue
-        # check if any song with similar name is already present in Music/
+        # check if any song with similar name is already present in the given folder
         umfile = misc.generate_filename(music_file)
         if song.startswith(umfile):
             # check if the already downloaded song has correct metadata
-            already_tagged = metadata.compare(song, generate_metadata(raw_song))
+            already_tagged = metadata.compare(os.path.join(args.folder, song), generate_metadata(raw_song))
 
             # if not, remove it and download again without prompt
             if misc.is_spotify(raw_song) and not already_tagged:
-                os.remove('Music/{0}'.format(song))
+                os.remove(os.path.join(args.folder, song))
                 return False
 
             # do not prompt and skip the current song
@@ -206,7 +206,7 @@ def check_exists(music_file, raw_song, islist=True):
                 prompt = input('Song with same name has already been downloaded. '
                                'Re-download? (y/n): ').lower()
                 if prompt == 'y':
-                    os.remove('Music/{0}'.format(song))
+                    os.remove(os.path.join(args.folder, song))
                     return False
                 else:
                     return True
@@ -274,13 +274,13 @@ def grab_single(raw_song, number=None):
             print('')
             input_song = music_file + args.input_ext
             output_song = music_file + args.output_ext
-            convert.song(input_song, output_song, avconv=args.avconv,
-                         verbose=args.verbose)
+            convert.song(input_song, output_song, args.folder,
+                         avconv=args.avconv, verbose=args.verbose)
             if not args.input_ext == args.output_ext:
-                os.remove('Music/{0}'.format(input_song))
+                os.remove(os.path.join(args.folder, input_song))
             meta_tags = generate_metadata(raw_song)
             if not args.no_metadata:
-                metadata.embed(output_song, meta_tags)
+                metadata.embed(os.path.join(args.folder, output_song), meta_tags)
         else:
             print('No audio streams available')
 
@@ -289,6 +289,7 @@ class Args(object):
     manual = False
     input_ext = '.m4a'
     output_ext = '.mp3'
+    folder = 'Music/'
 
 args = Args()
 # token is mandatory when using Spotify's API
@@ -296,11 +297,11 @@ args = Args()
 token = misc.generate_token()
 spotify = spotipy.Spotify(auth=token)
 
-misc.filter_path('Music')
-
 if __name__ == '__main__':
     os.chdir(sys.path[0])
     args = misc.get_arguments()
+
+    misc.filter_path(args.folder)
 
     if args.song:
         grab_single(raw_song=args.song)
@@ -308,3 +309,6 @@ if __name__ == '__main__':
         grab_list(text_file=args.list)
     elif args.username:
         feed_playlist(username=args.username)
+else:
+    misc.filter_path('Music')
+
