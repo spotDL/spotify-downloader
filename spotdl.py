@@ -51,9 +51,7 @@ def generate_metadata(raw_song):
     meta_tags[u'release_date'] = album['release_date']
     meta_tags[u'publisher'] = album['label']
     meta_tags[u'total_tracks'] = album['tracks']['total']
-    # import pprint
-    # pprint.pprint(meta_tags)
-    # pprint.pprint(spotify.album(meta_tags['album']['id']))
+
     return meta_tags
 
 
@@ -128,7 +126,7 @@ def feed_playlist(username):
             # in rare cases, playlists may not be found, so playlists['next']
             # is None. Skip these. Also see Issue #91.
             if playlist['name'] is not None:
-                print(u'{0:>5}.| {1:<30} | ({2} tracks)'.format(
+                print(u'{0:>5}. {1:<30}  ({2} tracks)'.format(
                     check, playlist['name'],
                     playlist['tracks']['total']))
                 links.append(playlist)
@@ -140,9 +138,13 @@ def feed_playlist(username):
 
     print('')
     playlist = misc.input_link(links)
+    print('')
+    write_tracks(playlist)
+
+
+def write_tracks(playlist):
     results = spotify.user_playlist(
         playlist['owner']['id'], playlist['id'], fields='tracks,next')
-    print('')
     text_file = u'{0}.txt'.format(slugify(playlist['name'], ok='-_()[]{}'))
     print(u'Feeding {0} tracks to {1}'.format(playlist['tracks']['total'], text_file))
 
@@ -162,6 +164,7 @@ def feed_playlist(username):
                 tracks = spotify.next(tracks)
             else:
                 break
+
 
 def download_song(file_name, content):
     """Download the audio file from YouTube."""
@@ -255,6 +258,32 @@ def grab_list(text_file):
         number += 1
 
 
+def grab_playlist(playlist):
+    if '/' in playlist:
+        if playlist.endswith('/'):
+            playlist = playlist[:-1]
+        splits = playlist.split('/')
+    else:
+        splits = playlist.split(':')
+
+    username = splits[-3]
+    playlist_id = splits[-1]
+    playlists = spotify.user_playlists(username)
+
+    while True:
+        for playlist in playlists['items']:
+            if not playlist['name'] == None:
+                if playlist['id'] == playlist_id:
+                    playlists['next'] = None
+                    break
+        if playlists['next']:
+            playlists = spotify.next(playlists)
+        else:
+            break
+
+    write_tracks(playlist)
+
+
 def grab_single(raw_song, number=None):
     """Logic behind downloading a song."""
     if number:
@@ -290,13 +319,12 @@ def grab_single(raw_song, number=None):
             print('No audio streams available')
 
 
-class Args(object):
+class TestArgs(object):
     manual = False
     input_ext = '.m4a'
     output_ext = '.mp3'
     folder = 'Music/'
 
-args = Args()
 # token is mandatory when using Spotify's API
 # https://developer.spotify.com/news-stories/2017/01/27/removing-unauthenticated-calls-to-the-web-api/
 token = misc.generate_token()
@@ -312,8 +340,10 @@ if __name__ == '__main__':
         grab_single(raw_song=args.song)
     elif args.list:
         grab_list(text_file=args.list)
+    elif args.playlist:
+        grab_playlist(playlist=args.playlist)
     elif args.username:
         feed_playlist(username=args.username)
 else:
     misc.filter_path('Music')
-
+    args = TestArgs()

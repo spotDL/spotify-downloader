@@ -40,8 +40,10 @@ def get_arguments():
     group.add_argument(
         '-l', '--list', help='download songs from a file')
     group.add_argument(
+        '-p', '--playlist', help='load songs from playlist URL into <playlist_name>.txt')
+    group.add_argument(
         '-u', '--username',
-        help="load user's playlists into <playlist_name>.txt")
+        help="load songs from user's playlist into <playlist_name>.txt")
     parser.add_argument(
         '-m', '--manual', default=False,
         help='choose the song to download manually', action='store_true')
