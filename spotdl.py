@@ -128,7 +128,7 @@ def feed_playlist(username):
             # in rare cases, playlists may not be found, so playlists['next']
             # is None. Skip these. Also see Issue #91.
             if playlist['name'] is not None:
-                print(u'{0:>5}.| {1:<30} | ({2} tracks)'.format(
+                print(u'{0:>5}. {1:<30}  ({2} tracks)'.format(
                     check, playlist['name'],
                     playlist['tracks']['total']))
                 links.append(playlist)
@@ -140,9 +140,13 @@ def feed_playlist(username):
 
     print('')
     playlist = misc.input_link(links)
+    print('')
+    write_tracks(playlist)
+
+
+def write_tracks(playlist):
     results = spotify.user_playlist(
         playlist['owner']['id'], playlist['id'], fields='tracks,next')
-    print('')
     text_file = u'{0}.txt'.format(slugify(playlist['name'], ok='-_()[]{}'))
     print(u'Feeding {0} tracks to {1}'.format(playlist['tracks']['total'], text_file))
 
@@ -162,6 +166,7 @@ def feed_playlist(username):
                 tracks = spotify.next(tracks)
             else:
                 break
+
 
 def download_song(file_name, content):
     """Download the audio file from YouTube."""
@@ -276,28 +281,7 @@ def grab_playlist(playlist):
         else:
             break
 
-    results = spotify.user_playlist(
-        playlist['owner']['id'], playlist['id'], fields='tracks,next')
-    print('')
-    text_file = u'{0}.txt'.format(slugify(playlist['name'], ok='-_()[]{}'))
-    print(u'Feeding {0} tracks to {1}'.format(playlist['tracks']['total'], text_file))
-
-    tracks = results['tracks']
-    with open(text_file, 'a') as file_out:
-        while True:
-            for item in tracks['items']:
-                track = item['track']
-                try:
-                    file_out.write(track['external_urls']['spotify'] + '\n')
-                except KeyError:
-                    print(u'Skipping track {0} by {1} (local only?)'.format(
-                        track['name'], track['artists'][0]['name']))
-            # 1 page = 50 results
-            # check if there are more pages
-            if tracks['next']:
-                tracks = spotify.next(tracks)
-            else:
-                break
+    write_tracks(playlist)
 
 
 def grab_single(raw_song, number=None):
