@@ -255,6 +255,51 @@ def grab_list(text_file):
         number += 1
 
 
+def grab_playlist(playlist):
+    if '/' in playlist:
+        if playlist.endswith('/'):
+            playlist = playlist[:-1]
+        splits = playlist.split('/')
+    else:
+        splits = playlist.split(':')
+
+    username = splits[-3]
+    playlist_id = splits[-1]
+    playlists = spotify.user_playlists(username)
+
+    while True:
+        for playlist in playlists['items']:
+            if playlist['id'] == playlist_id:
+               playlists['next'] = None
+        if playlists['next']:
+            playlists = spotify.next(playlists)
+        else:
+            break
+
+    results = spotify.user_playlist(
+        playlist['owner']['id'], playlist['id'], fields='tracks,next')
+    print('')
+    text_file = u'{0}.txt'.format(slugify(playlist['name'], ok='-_()[]{}'))
+    print(u'Feeding {0} tracks to {1}'.format(playlist['tracks']['total'], text_file))
+
+    tracks = results['tracks']
+    with open(text_file, 'a') as file_out:
+        while True:
+            for item in tracks['items']:
+                track = item['track']
+                try:
+                    file_out.write(track['external_urls']['spotify'] + '\n')
+                except KeyError:
+                    print(u'Skipping track {0} by {1} (local only?)'.format(
+                        track['name'], track['artists'][0]['name']))
+            # 1 page = 50 results
+            # check if there are more pages
+            if tracks['next']:
+                tracks = spotify.next(tracks)
+            else:
+                break
+
+
 def grab_single(raw_song, number=None):
     """Logic behind downloading a song."""
     if number:
@@ -312,6 +357,8 @@ if __name__ == '__main__':
         grab_single(raw_song=args.song)
     elif args.list:
         grab_list(text_file=args.list)
+    elif args.playlist:
+        grab_playlist(playlist=args.playlist)
     elif args.username:
         feed_playlist(username=args.username)
 else:
