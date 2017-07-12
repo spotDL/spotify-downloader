@@ -73,8 +73,8 @@ Assuming you have Python already installed..
 - For all available options, run `python spotdl.py --help` (or for Windows run `python.exe spotdl.py --help`).
 
 ```
-usage: spotdl.py [-h] (-s SONG | -l LIST | -u USERNAME) [-n] [-m] [-f] [-v]
-                 [-i INPUT_EXT] [-o OUTPUT_EXT]
+usage: spotdl.py [-h] (-s SONG | -l LIST | -p PLAYLIST | -u USERNAME) [-m]
+                 [-nm] [-a] [-f FOLDER] [-v] [-i INPUT_EXT] [-o OUTPUT_EXT]
 
 Download and convert songs from Spotify, Youtube etc.
 
@@ -82,12 +82,16 @@ optional arguments:
   -h, --help            show this help message and exit
   -s SONG, --song SONG  download song by spotify link or name (default: None)
   -l LIST, --list LIST  download songs from a file (default: None)
-  -u USERNAME, --username USERNAME
-                        load user's playlists into <playlist_name>.txt
+  -p PLAYLIST, --playlist PLAYLIST
+                        load songs from playlist URL into <playlist_name>.txt
                         (default: None)
+  -u USERNAME, --username USERNAME
+                        load songs from user's playlist into
+                        <playlist_name>.txt (default: None)
   -m, --manual          choose the song to download manually (default: False)
-  -a, --avconv          Use avconv for conversion. If not set
-                        defaults to FFmpeg (default: False)
+  -nm, --no-metadata    do not embed metadata in songs (default: False)
+  -a, --avconv          Use avconv for conversion otherwise set defaults to
+                        ffmpeg (default: False)
   -f FOLDER, --folder FOLDER
                         path to folder where files will be stored in (default:
                         Music/)
@@ -100,7 +104,7 @@ optional arguments:
                         .mp3)
 ```
 
-#### Downloading by Name
+#### Download by Name
 
 For example
 
@@ -110,7 +114,7 @@ For example
 
 - It will now convert the song to an mp3 and try to fix meta-tags and album-art by looking up on Spotify.
 
-#### Downloading by Spotify Link (Recommended)
+#### Download by Spotify Link (Recommended)
 
 For example
 
@@ -146,15 +150,27 @@ http://open.spotify.com/track/64yrDBpcdwEdNY9loyEGbX
 
 - Songs that are already downloaded will be skipped and not be downloaded again.
 
-#### Downloading playlists
+#### Download playlists
 
-- You can also load songs from any playlist provided you have a Spotify username or user id of that user. (Open profile in Spotify, click on the three little dots below name, "Share", "Copy to clipboard", paste last numbers into command-line: `https://open.spotify.com/user/0123456790`)
+- You can copy the Spotify URL of the playlist and pass it in `--playlist` option.
+
+For example
+
+- `python spodl.py --playlist https://open.spotify.com/user/camillazi/playlist/71MXqcSOKCxsLNtRvONkhF`
+
+- The script will load all the tracks from the playlist into `<playlist_name>.txt`
+
+- Then you can simply run `python spotdl.py --list=<playlist_name>.txt` to download all the tracks.
+
+#### Download playlists by username
+
+- You can also load songs using Spotify username if you don't have the playlist URL. (Open profile in Spotify, click on the three little dots below name, "Share", "Copy to clipboard", paste last numbers into command-line: `https://open.spotify.com/user/0123456790`)
 
 - Try running `python spotdl.py -u <your_username>`, it will show all your public playlists.
 
-- Once you select the one you want to download, the script will load all the tracks from the playlist into `<playlist_name>.txt`
+- Once you select the one you want to download, the script will load all the tracks from the playlist into `<playlist_name>.txt`.
 
-- Then you can simply run `python spotdl.py --list=<playlist_name>.txt` to download them all!
+- Run `python spotdl.py --list=<playlist_name>.txt` to download all the tracks.
 
 #### Specify the target directory
 
@@ -162,7 +178,9 @@ If you don't want to download all the songs to the `Music/` folder relative to t
 
 ## Running tests
 
-`python -m pytest test`
+```
+python -m pytest test
+```
 
 Obviously this requires the `pytest` module to be installed. 
 
