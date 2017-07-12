@@ -51,9 +51,7 @@ def generate_metadata(raw_song):
     meta_tags[u'release_date'] = album['release_date']
     meta_tags[u'publisher'] = album['label']
     meta_tags[u'total_tracks'] = album['tracks']['total']
-    # import pprint
-    # pprint.pprint(meta_tags)
-    # pprint.pprint(spotify.album(meta_tags['album']['id']))
+
     return meta_tags
 
 
@@ -315,19 +313,18 @@ def grab_single(raw_song, number=None):
                 os.remove(os.path.join(args.folder, input_song))
             meta_tags = generate_metadata(raw_song)
 
-            if not args.no_metadata:
+            if  not args.no_metadata:
                 metadata.embed(os.path.join(args.folder, output_song), meta_tags)
         else:
             print('No audio streams available')
 
 
-class Args(object):
+class TestArgs(object):
     manual = False
     input_ext = '.m4a'
     output_ext = '.mp3'
     folder = 'Music/'
 
-args = Args()
 # token is mandatory when using Spotify's API
 # https://developer.spotify.com/news-stories/2017/01/27/removing-unauthenticated-calls-to-the-web-api/
 token = misc.generate_token()
@@ -349,3 +346,4 @@ if __name__ == '__main__':
         feed_playlist(username=args.username)
 else:
     misc.filter_path('Music')
+    args = TestArgs()
