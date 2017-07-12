@@ -274,8 +274,10 @@ def grab_playlist(playlist):
 
     while True:
         for playlist in playlists['items']:
-            if playlist['id'] == playlist_id:
-               playlists['next'] = None
+            if not playlist['name'] == None:
+                if playlist['id'] == playlist_id:
+                    playlists['next'] = None
+                    break
         if playlists['next']:
             playlists = spotify.next(playlists)
         else:
@@ -347,4 +349,3 @@ if __name__ == '__main__':
         feed_playlist(username=args.username)
 else:
     misc.filter_path('Music')
-
