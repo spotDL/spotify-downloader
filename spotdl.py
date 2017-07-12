@@ -313,7 +313,7 @@ def grab_single(raw_song, number=None):
                 os.remove(os.path.join(args.folder, input_song))
             meta_tags = generate_metadata(raw_song)
 
-            if  not args.no_metadata:
+            if not args.no_metadata:
                 metadata.embed(os.path.join(args.folder, output_song), meta_tags)
         else:
             print('No audio streams available')
