@@ -18,13 +18,14 @@ try:
 except ImportError:
     import urllib.request as urllib2
 
-
-def generate_songname(raw_song):
+def generate_songname(tags):
     """Generate a string of the format '[artist] - [song]' for the given song."""
-    if misc.is_spotify(raw_song):
-        tags = generate_metadata(raw_song)
+    if tags is None:
+        content = go_pafy(raw_song)
+        raw_song = get_youtube_title(content)
+    else:
         raw_song = u'{0} - {1}'.format(tags['artists'][0]['name'], tags['name'])
-    return misc.fix_encoding(raw_song)
+    return raw_song
 
 
 def generate_metadata(raw_song):
@@ -40,7 +41,7 @@ def generate_metadata(raw_song):
             return None
     artist = spotify.artist(meta_tags['artists'][0]['id'])
     album = spotify.album(meta_tags['album']['id'])
-
+    
     try:
         meta_tags[u'genre'] = titlecase(artist['genres'][0])
     except IndexError:
@@ -53,50 +54,49 @@ def generate_metadata(raw_song):
     meta_tags[u'release_date'] = album['release_date']
     meta_tags[u'publisher'] = album['label']
     meta_tags[u'total_tracks'] = album['tracks']['total']
-    # import pprint
-    # pprint.pprint(meta_tags)
+    #import pprint
+    #pprint.prpint(meta_tags)
     # pprint.pprint(spotify.album(meta_tags['album']['id']))
     return meta_tags
 
 
 def generate_youtube_url(raw_song):
     """Search for the song on YouTube and generate an URL to its video."""
-    song = generate_songname(raw_song)
+    meta_tags = generate_metadata(raw_song)
+    song = generate_songname(meta_tags)
     search_url = misc.generate_search_url(song)
     item = urllib2.urlopen(search_url).read()
     # item = unicode(item, 'utf-8')
     items_parse = BeautifulSoup(item, "html.parser")
-    check = 1
+    
+    videos = []
+    for x in items_parse.find_all('div', {'class': 'yt-lockup-dismissable yt-uix-tile'}):
+        # confirm the video result is not an advertisement
+        if x.find('channel') is None and x.find('googleads') is None:
+            y = x.find('div', class_='yt-lockup-content')
+            link = y.find('a')['href']
+            title = y.find('a')['title']
+            videotime = x.find('span', class_="video-time").get_text()
+            youtubedetails = {'link': link, 'title': title, 'videotime': videotime, 'seconds':misc.get_sec(videotime)}
+            videos.append(youtubedetails)
+
     if args.manual:
-        links = []
         print(song)
         print('')
         print('0. Skip downloading this song')
         # fetch all video links on first page on YouTube
-        for x in items_parse.find_all('h3', {'class': 'yt-lockup-title'}):
-            # confirm the video result is not an advertisement
-            if x.find('channel') is None and x.find('googleads') is None:
-                print(u'{0}. {1}'.format(check, x.get_text()))
-                links.append(x.find('a')['href'])
-                check += 1
+        for i, v in enumerate(videos):
+          print(u'{0}. {1} {2} {3}'.format(i+1, v['title'], v['videotime'], "http://youtube.com"+v['link']))
         print('')
         # let user select the song to download
-        result = misc.input_link(links)
+        result = misc.input_link(videos)
         if result is None:
             return None
     else:
-        # get video link of the first YouTube result
-        result = items_parse.find_all(
-            attrs={'class': 'yt-uix-tile-link'})[0]['href']
+        videos.sort(key=lambda x: abs(x['seconds'] - (int(meta_tags['duration_ms'])/1000)))
+        result = videos[0];
 
-        # confirm the video result is not an advertisement
-        # otherwise keep iterating until it is not
-        while result.find('channel') > -1 or result.find('googleads') > -1:
-            result = items_parse.find_all(
-                attrs={'class': 'yt-uix-tile-link'})[check]['href']
-            check += 1
-
-    full_link = u'youtube.com{0}'.format(result)
+    full_link = u'youtube.com{0}'.format(result['link'])
     return full_link
 
 

@@ -141,3 +141,15 @@ def filter_path(path):
 def grace_quit():
     print('\n\nExiting.')
     sys.exit()
+    
+def get_sec(time_str):
+   v = time_str.split(':', 3)
+   v.reverse()
+   sec = 0
+   if len(v) > 0: #seconds
+       sec += int(v[0])
+   if len(v) > 1: # minutes
+       sec += int(v[1]) * 60
+   if len(v) > 2: # hours
+       sec += int(v[2]) * 3600
+   return sec
