@@ -15,11 +15,9 @@
   - Track number
   - Disc number
   - Release date
-  - and some more..
+  - And some more...
 
 - Works straight out of the box and does not require to generate or mess with your API keys.
-
-<br>
 
 That's how your Music library will look like!
 
@@ -27,7 +25,7 @@ That's how your Music library will look like!
 
 ## Reporting Issues
 
-- Search for your problem in the [issues section](https://github.com/Ritiek/spotify-downloader/issues?utf8=%E2%9C%93&q=) before opening a new ticket. It might be already answered and save us time :D.
+- Search for your problem in the [issues section](https://github.com/Ritiek/spotify-downloader/issues?utf8=%E2%9C%93&q=) before opening a new ticket. It might be already answered and save us time. :smile:
 
 - Provide as much information possible when opening your ticket.
 
@@ -35,7 +33,7 @@ That's how your Music library will look like!
 
 <img src="http://i.imgur.com/Dg8p9up.png" width="600">
 
-- This version supports both Python2 and Python3.
+- **This version supports Python 3**, Python 2 compatibility was dropped because of the way it deals with unicode. If you need to use Python 2 though, check out the `python2` branch.
 
 - Note: `play` and `lyrics` commands have been deprecated in the current brach since they were not of much use and created unnecessary clutter. You can still get them back by using `old` branch though.
 
@@ -60,23 +58,23 @@ If it does not install correctly, you may have to build it from source. For more
 
 Assuming you have Python already installed..
 
-- Download FFmpeg for windows from [here](http://ffmpeg.zeranoe.com/builds/). Copy `ffmpeg.exe` from bin folder (of FFmpeg) to Scripts folder (in your python's installation directory).
+- Download FFmpeg for Windows from [here](http://ffmpeg.zeranoe.com/builds/). Copy `ffmpeg.exe` from `ffmpeg-xxx-winxx-static\bin\ffmpeg.exe` to `Scripts` folder (in your Python's installation directory: e.g. `C:\Python36\Scripts\ffmpeg.exe`)
 
-- Download the zip file of this repository and extract its contents in your python's installation folder.
+- Download the [zip file](https://github.com/ritiek/spotify-downloader/archive/master.zip) of this repository and copy the folder contained in the archive into your Python's installation folder (e.g. `C:\Python36\spotify-downloader-master`).
 
-- Change your current working directory to python's installation directory. Shift+right-click on empty area and open cmd and type:
+- Open the folder from last step. Shift+right-click on empty area, open `cmd`, navigate to your Python installation directory and type:
 
-`"Scripts/pip.exe" install -U -r requirements.txt`
+  `"Scripts/pip.exe" install -U -r requirements.txt`
 
-- If you do not want to naviagte to your python folder from the command-line everytime you want to run the script, you can have your python 'PATH' environment variables set and then you can run the script from any directory.
+- If you do not want to naviagte to your Python folder from the command-line everytime you want to run the script, you can have your Python 'PATH' environment variables set and then you can run the script from any directory.
 
 ## Instructions for Downloading Songs
 
-- For all available options, run `python spotdl.py --help` (or for windows run `python.exe spotdl.py --help`).
+- For all available options, run `python spotdl.py --help` (or for Windows run `python.exe spotdl.py --help`).
 
 ```
-usage: spotdl.py [-h] (-s SONG | -l LIST | -u USERNAME) [-n] [-m] [-f] [-v]
-                 [-i INPUT_EXT] [-o OUTPUT_EXT]
+usage: spotdl.py [-h] (-s SONG | -l LIST | -p PLAYLIST | -u USERNAME) [-m]
+                 [-nm] [-a] [-f FOLDER] [-v] [-i INPUT_EXT] [-o OUTPUT_EXT]
 
 Download and convert songs from Spotify, Youtube etc.
 
@@ -84,12 +82,19 @@ optional arguments:
   -h, --help            show this help message and exit
   -s SONG, --song SONG  download song by spotify link or name (default: None)
   -l LIST, --list LIST  download songs from a file (default: None)
-  -u USERNAME, --username USERNAME
-                        load user's playlists into <playlist_name>.txt
+  -p PLAYLIST, --playlist PLAYLIST
+                        load songs from playlist URL into <playlist_name>.txt
                         (default: None)
+  -u USERNAME, --username USERNAME
+                        load songs from user's playlist into
+                        <playlist_name>.txt (default: None)
   -m, --manual          choose the song to download manually (default: False)
-  -a, --avconv          Use avconv for conversion. If not set
-                        defaults to FFmpeg (default: False)
+  -nm, --no-metadata    do not embed metadata in songs (default: False)
+  -a, --avconv          Use avconv for conversion otherwise set defaults to
+                        ffmpeg (default: False)
+  -f FOLDER, --folder FOLDER
+                        path to folder where files will be stored in (default:
+                        Music/)
   -v, --verbose         show debug output (default: False)
   -i INPUT_EXT, --input_ext INPUT_EXT
                         prefered input format .m4a or .webm (Opus) (default:
@@ -99,17 +104,17 @@ optional arguments:
                         .mp3)
 ```
 
-#### Downloading by Name
+#### Download by Name
 
 For example
 
 - We want to download Hello by Adele, simply run `python spotdl.py --song "adele hello"`.
 
-- The script will automatically look for the best matching song and download it in the folder `Music/` placed in your current directory.
+- The script will automatically look for the best matching song and download it in the folder `Music/` placed in the root directory of the code base.
 
 - It will now convert the song to an mp3 and try to fix meta-tags and album-art by looking up on Spotify.
 
-#### Downloading by Spotify Link (Recommended)
+#### Download by Spotify Link (Recommended)
 
 For example
 
@@ -131,7 +136,7 @@ No problem!
 
 - Just make a `list.txt` in the same folder as the script and add all the songs you want to download, in our case it is
 
-(if you are on windows, just edit `list.txt` - i.e `C:\Python27\list.txt`)
+(if you are on Windows, just edit `list.txt` - i.e `C:\Python36\spotify-downloader-master\list.txt`)
 
 ```
 https://open.spotify.com/track/1MDoll6jK4rrk2BcFRP5i7
@@ -145,19 +150,39 @@ http://open.spotify.com/track/64yrDBpcdwEdNY9loyEGbX
 
 - Songs that are already downloaded will be skipped and not be downloaded again.
 
-#### Downloading playlists
+#### Download playlists
 
-- You can also load songs from any playlist provided you have spotify username of that user.
+- You can copy the Spotify URL of the playlist and pass it in `--playlist` option.
+
+For example
+
+- `python spodl.py --playlist https://open.spotify.com/user/camillazi/playlist/71MXqcSOKCxsLNtRvONkhF`
+
+- The script will load all the tracks from the playlist into `<playlist_name>.txt`
+
+- Then you can simply run `python spotdl.py --list=<playlist_name>.txt` to download all the tracks.
+
+#### Download playlists by username
+
+- You can also load songs using Spotify username if you don't have the playlist URL. (Open profile in Spotify, click on the three little dots below name, "Share", "Copy to clipboard", paste last numbers into command-line: `https://open.spotify.com/user/0123456790`)
 
 - Try running `python spotdl.py -u <your_username>`, it will show all your public playlists.
 
-- Once you select the one you want to download, the script will load all the tracks from the playlist into `<playlist_name>.txt`
+- Once you select the one you want to download, the script will load all the tracks from the playlist into `<playlist_name>.txt`.
 
-- Then you can simply run `python spotdl.py --list=<playlist_name>.txt` to download them all!
+- Run `python spotdl.py --list=<playlist_name>.txt` to download all the tracks.
+
+#### Specify the target directory
+
+If you don't want to download all the songs to the `Music/` folder relative to the `spotdl.py` script, you can use the `-f`/`--file` option. E.g. `python spotdl.py -s "adele hello" -f "/home/user/Music/"`. This works with both relative and absolute paths.
 
 ## Running tests
 
-`python -m pytest test`
+```
+python -m pytest test
+```
+
+Obviously this requires the `pytest` module to be installed. 
 
 ## Disclaimer
 
