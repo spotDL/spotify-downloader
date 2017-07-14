@@ -299,7 +299,7 @@ def grab_single(raw_song, number=None):
 
     # generate file name of the song to download
     meta_tags = generate_metadata(raw_song)
-    songname = generate_songname(raw_song)
+    songname = generate_songname(meta_tags)
     file_name = misc.sanitize_title(songname)
 
     if not check_exists(file_name, raw_song, islist=islist):
@@ -311,7 +311,6 @@ def grab_single(raw_song, number=None):
                          avconv=args.avconv, verbose=args.verbose)
             if not args.input_ext == args.output_ext:
                 os.remove(os.path.join(args.folder, input_song))
-            meta_tags = generate_metadata(raw_song)
 
             if not args.no_metadata:
                 metadata.embed(os.path.join(args.folder, output_song), meta_tags)
