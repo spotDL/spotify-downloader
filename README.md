@@ -56,17 +56,15 @@ If it does not install correctly, you may have to build it from source. For more
 
 ### Windows
 
-Assuming you have Python already installed..
+Assuming you have Python 3 already installed and in PATH.
 
-- Download FFmpeg for Windows from [here](http://ffmpeg.zeranoe.com/builds/). Copy `ffmpeg.exe` from `ffmpeg-xxx-winxx-static\bin\ffmpeg.exe` to `Scripts` folder (in your Python's installation directory: e.g. `C:\Python36\Scripts\ffmpeg.exe`)
+- Download and extract the [zip file](https://github.com/ritiek/spotify-downloader/archive/master.zip).
 
-- Download the [zip file](https://github.com/ritiek/spotify-downloader/archive/master.zip) of this repository and copy the folder contained in the archive into your Python's installation folder (e.g. `C:\Python36\spotify-downloader-master`).
+- Download FFmpeg for Windows from [here](http://ffmpeg.zeranoe.com/builds/). Copy `ffmpeg.exe` from `ffmpeg-xxx-winxx-static\bin\ffmpeg.exe` to PATH or just place it in the root directory extracted from the above step.
 
-- Open the folder from last step. Shift+right-click on empty area, open `cmd`, navigate to your Python installation directory and type:
+- Open `cmd` to install dependencies:
 
-  `"Scripts/pip.exe" install -U -r requirements.txt`
-
-- If you do not want to naviagte to your Python folder from the command-line everytime you want to run the script, you can have your Python 'PATH' environment variables set and then you can run the script from any directory.
+ `pip.exe install -U -r requirements.txt`
 
 ## Instructions for Downloading Songs
 
