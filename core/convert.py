@@ -42,7 +42,7 @@ def convert_with_avconv(input_song, output_song, folder, verbose):
 
 
 def convert_with_ffmpeg(input_song, output_song, folder, verbose):
-    """Convert the audio file using FFMpeg."""
+    """Convert the audio file using FFmpeg."""
     ffmpeg_pre = 'ffmpeg -y '
     if not verbose:
         ffmpeg_pre += '-hide_banner -nostats -v panic '
