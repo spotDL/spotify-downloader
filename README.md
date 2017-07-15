@@ -68,7 +68,7 @@ Assuming you have Python 3 already installed and in PATH.
 
 ## Instructions for Downloading Songs
 
-- For all available options, run `python spotdl.py --help` (or for Windows run `python.exe spotdl.py --help`).
+- For all available options, run `python spotdl.py --help`.
 
 ```
 usage: spotdl.py [-h] (-s SONG | -l LIST | -p PLAYLIST | -u USERNAME) [-m]
