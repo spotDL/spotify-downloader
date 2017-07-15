@@ -58,13 +58,11 @@ If it does not install correctly, you may have to build it from source. For more
 
 Assuming you have Python 3 already installed and in PATH.
 
-- Download and extract the [zip file](https://github.com/ritiek/spotify-downloader/archive/master.zip).
+- Download and extract the [zip file](https://github.com/ritiek/spotify-downloader/archive/master.zip) from master branch.
 
-- Download FFmpeg for Windows from [here](http://ffmpeg.zeranoe.com/builds/). Copy `ffmpeg.exe` from `ffmpeg-xxx-winxx-static\bin\ffmpeg.exe` to PATH or just place it in the root directory extracted from the above step.
+- Download FFmpeg for Windows from [here](http://ffmpeg.zeranoe.com/builds/). Copy `ffmpeg.exe` from `ffmpeg-xxx-winxx-static\bin\ffmpeg.exe` to PATH (usually C:\Windows\System32\) or just place it in the root directory extracted from the above step.
 
-- Open `cmd` to install dependencies:
-
- `pip.exe install -U -r requirements.txt`
+- Open `cmd` and type `pip install -U -r requirements.txt` to install dependencies.
 
 ## Instructions for Downloading Songs
 
