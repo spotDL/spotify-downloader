@@ -16,13 +16,13 @@ def test_spotify_title():
     assert title == expect_title
 
 
-def test_youtube_url():
+def youtube_url():
     expect_url = 'youtube.com/watch?v=rg1wfcty0BA'
     url = spotdl.generate_youtube_url(raw_song)
     assert url == expect_url
 
 
-def test_youtube_title():
+def youtube_title():
     expect_title = 'Intro - David André Østby'
     content = spotdl.go_pafy(raw_song)
     title = spotdl.get_youtube_title(content)
