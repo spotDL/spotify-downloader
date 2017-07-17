@@ -37,7 +37,7 @@ def generate_metadata(raw_song):
             return None
     artist = spotify.artist(meta_tags['artists'][0]['id'])
     album = spotify.album(meta_tags['album']['id'])
-    
+
     try:
         meta_tags[u'genre'] = titlecase(artist['genres'][0])
     except IndexError:
@@ -51,9 +51,6 @@ def generate_metadata(raw_song):
     meta_tags[u'publisher'] = album['label']
     meta_tags[u'total_tracks'] = album['tracks']['total']
 
-    #import pprint
-    #pprint.prpint(meta_tags)
-    # pprint.pprint(spotify.album(meta_tags['album']['id']))
     return meta_tags
 
 
