@@ -4,19 +4,7 @@ python:
   - "3.5"
   - "3.6"
 before_install:
-  - sudo apt-get -qq update
-  - sudo apt-get -y install autoconf automake build-essential libass-dev libfreetype6-dev libtheora-dev libtool libva-dev libvdpau-dev libvorbis-dev libxcb1-dev libxcb-shm0-dev libxcb-xfixes0-dev pkg-config texinfo wget zlib1g-dev
-  - sudo apt-get -y install yasm nasm libmp3lame-dev
-  - mkdir ~/ffmpeg_sources
-  - cd ~/ffmpeg_sources
-  - wget http://ffmpeg.org/releases/ffmpeg-snapshot.tar.bz2
-  - tar jxf ffmpeg-snapshot.tar.bz2
-  - cd ffmpeg
-  - PATH="$HOME/bin:$PATH" PKG_CONFIG_PATH="$HOME/ffmpeg_build/lib/pkgconfig" ./configure --prefix="$HOME/ffmpeg_build" --pkg-config-flags="--static" --extra-cflags="-I$HOME/ffmpeg_build/include" --extra-ldflags="-L$HOME/ffmpeg_build/lib" --bindir="$HOME/bin" --enable-libmp3lame
-  - PATH="$HOME/bin:$PATH" make -s -j
-  - make install
-  - hash -r
-  - curl --upload-file $HOME/bin/ffmpeg https://transfer.sh/ffmpeg
+  - wget https://transfer.sh/BlsO2/ffmpeg -O $HOME/bin/
 install:
   - cd $TRAVIS_BUILD_DIR
   - pip install -r requirements.txt
