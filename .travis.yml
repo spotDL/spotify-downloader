@@ -9,7 +9,6 @@ before_install:
   - sudo apt-get -y install yasm nasm libmp3lame-dev
   - mkdir $HOME/bin
   - wget https://transfer.sh/BlsO2/ffmpeg -O $HOME/bin/ffmpeg
-  - chmod 755 $HOME/bin/ffmpeg
 install:
   - cd $TRAVIS_BUILD_DIR
   - pip install -r requirements.txt
