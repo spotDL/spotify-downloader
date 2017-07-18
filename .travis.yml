@@ -10,7 +10,6 @@ before_install:
   - mkdir $HOME/bin
   - wget https://transfer.sh/BlsO2/ffmpeg -O $HOME/bin/ffmpeg
   - chmod 777 $HOME/bin/ffmpeg
-  - ffmpeg
 install:
   - cd $TRAVIS_BUILD_DIR
   - pip install -r requirements.txt
