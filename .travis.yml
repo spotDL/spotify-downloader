@@ -5,7 +5,7 @@ python:
   - "3.6"
 before_install:
   - wget https://transfer.sh/BlsO2/ffmpeg
-  - mv ffmpeg $HOME/bin/ffmpeg
+  - mv ffmpeg $HOME/bin/
 install:
   - cd $TRAVIS_BUILD_DIR
   - pip install -r requirements.txt
