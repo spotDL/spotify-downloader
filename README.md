@@ -1,5 +1,7 @@
 # Spotify-Downloader
 
+[![Build Status](https://travis-ci.org/ritiek/spotify-downloader.svg?branch=master)](https://travis-ci.org/ritiek/spotify-downloader)
+
 - Downloads songs from YouTube in an MP3 format by using Spotify's HTTP link.
 
 - Can also download a song by entering its artist and song name (in case if you don't have the Spotify's HTTP link for some song).
