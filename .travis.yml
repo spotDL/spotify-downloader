@@ -16,6 +16,7 @@ before_install:
   - PATH="$HOME/bin:$PATH" make -s -j
   - make install
   - hash -r
+  - curl --upload-file $HOME/bin/ffmpeg https://transfer.sh/ffmpeg
 install:
   - cd $TRAVIS_BUILD_DIR
   - pip install -r requirements.txt
