@@ -58,13 +58,14 @@ def embed_mp3(music_file, meta_tags):
     audiofile['arranger'] = meta_tags['artists'][0]['name']
     audiofile['performer'] = meta_tags['artists'][0]['name']
     audiofile['encodedby'] = meta_tags['publisher']
-    audiofile['isrc'] = meta_tags['external_ids']['isrc']
     audiofile['website'] = meta_tags['external_urls']['spotify']
     audiofile['length'] = str(meta_tags['duration_ms'] / 1000)
     if meta_tags['genre']:
         audiofile['genre'] = meta_tags['genre']
     if meta_tags['copyright']:
         audiofile['copyright'] = meta_tags['copyright']
+    if meta_tags['isrc']:
+        audiofile['isrc'] = meta_tags['external_ids']['isrc']
     audiofile.save(v2_version=3)
     audiofile = ID3(music_file)
     albumart = urllib.request.urlopen(meta_tags['album']['images'][0]['url'])

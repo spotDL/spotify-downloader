@@ -46,6 +46,10 @@ def generate_metadata(raw_song):
         meta_tags[u'copyright'] = album['copyrights'][0]['text']
     except IndexError:
         meta_tags[u'copyright'] = None
+    try:
+        meta_tags['isrc']
+    except KeyError:
+        meta_tags['isrc'] = None
 
     meta_tags[u'release_date'] = album['release_date']
     meta_tags[u'publisher'] = album['label']
@@ -62,7 +66,7 @@ def generate_youtube_url(raw_song):
     item = urllib.request.urlopen(search_url).read()
     # item = unicode(item, 'utf-8')
     items_parse = BeautifulSoup(item, "html.parser")
-    
+
     videos = []
     for x in items_parse.find_all('div', {'class': 'yt-lockup-dismissable yt-uix-tile'}):
         # confirm the video result is not an advertisement
