@@ -3,6 +3,11 @@ python:
   - "3.4"
   - "3.5"
   - "3.6"
+matrix:
+  allow_failures:
+    - python:
+      - "3.2"
+      - "3.3"
 before_install:
   - sudo apt-get -qq update
   - sudo apt-get -y install autoconf automake build-essential libass-dev libfreetype6-dev libtheora-dev libtool libva-dev libvdpau-dev libvorbis-dev libxcb1-dev libxcb-shm0-dev libxcb-xfixes0-dev pkg-config texinfo wget zlib1g-dev
