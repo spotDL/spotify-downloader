@@ -11,6 +11,7 @@ for x in os.listdir(spotdl.args.folder):
 
 def test_spotify_title():
     expect_title = 'David André Østby - Intro'
+    global meta_tags
     meta_tags = spotdl.generate_metadata(raw_song)
     title = spotdl.generate_songname(meta_tags)
     assert title == expect_title
@@ -26,15 +27,14 @@ def youtube_title():
     expect_title = 'Intro - David André Østby'
     content = spotdl.go_pafy(raw_song)
     title = spotdl.get_youtube_title(content)
-    print(title)
     assert title == expect_title
 
 
 def test_check_exists():
     expect_check = False
     # prerequisites for determining filename
-    meta_tags = spotdl.generate_metadata(raw_song)
     songname = spotdl.generate_songname(meta_tags)
+    global file_name
     file_name = spotdl.misc.sanitize_title(songname)
     check = spotdl.check_exists(file_name, raw_song, islist=True)
     assert check == expect_check
@@ -44,9 +44,6 @@ def test_download():
     expect_download = True
     # prerequisites for determining filename
     content = spotdl.go_pafy(raw_song)
-    meta_tags = spotdl.generate_metadata(raw_song)
-    songname = spotdl.generate_songname(meta_tags)
-    file_name = spotdl.misc.sanitize_title(songname)
     download = spotdl.download_song(file_name, content)
     assert download == expect_download
 
@@ -55,9 +52,6 @@ def test_convert():
     # exit code 0 = success
     expect_convert = 0
     # prerequisites for determining filename
-    meta_tags = spotdl.generate_metadata(raw_song)
-    songname = spotdl.generate_songname(meta_tags)
-    file_name = spotdl.misc.sanitize_title(songname)
     input_song = file_name + spotdl.args.input_ext
     output_song = file_name + spotdl.args.output_ext
     convert = spotdl.convert.song(input_song, output_song, spotdl.args.folder)
@@ -67,10 +61,6 @@ def test_convert():
 def test_metadata():
     expect_metadata = True
     # prerequisites for determining filename
-    meta_tags = spotdl.generate_metadata(raw_song)
-    songname = spotdl.generate_songname(meta_tags)
-    meta_tags = spotdl.generate_metadata(raw_song)
-    file_name = spotdl.misc.sanitize_title(songname)
     output_song = file_name + spotdl.args.output_ext
     metadata_output = spotdl.metadata.embed(os.path.join(spotdl.args.folder, output_song), meta_tags)
     input_song = file_name + spotdl.args.input_ext
@@ -81,9 +71,6 @@ def test_metadata():
 def test_check_exists2():
     expect_check = True
     # prerequisites for determining filename
-    meta_tags = spotdl.generate_metadata(raw_song)
-    songname = spotdl.generate_songname(meta_tags)
-    file_name = spotdl.misc.sanitize_title(songname)
     input_song = file_name + spotdl.args.input_ext
     os.remove(os.path.join(spotdl.args.folder, input_song))
     check = spotdl.check_exists(file_name, raw_song, islist=True)
