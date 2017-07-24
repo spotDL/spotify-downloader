@@ -81,6 +81,9 @@ def generate_youtube_url(raw_song):
             if meta_tags is None:
                 break
 
+    if not videos:
+        return None
+                
     if args.manual:
         print(song)
         print('')
