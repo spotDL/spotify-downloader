@@ -14,13 +14,8 @@ import sys
 import os
 
 def generate_songname(tags):
-    """Generate a string of the format '[artist] - [song]' for the given song."""
-
-    if tags is None:
-        content = go_pafy(raw_song)
-        raw_song = get_youtube_title(content)
-    else:
-        raw_song = u'{0} - {1}'.format(tags['artists'][0]['name'], tags['name'])
+    """Generate a string of the format '[artist] - [song]' for the given spotify song."""
+    raw_song = u'{0} - {1}'.format(tags['artists'][0]['name'], tags['name'])
     return raw_song
 
 
@@ -59,9 +54,12 @@ def generate_metadata(raw_song):
 
 
 def generate_youtube_url(raw_song):
-    """Search for the song on YouTube and generate an URL to its video."""
+    """Search for the song on YouTube and generate a URL to its video."""
     meta_tags = generate_metadata(raw_song)
-    song = generate_songname(meta_tags)
+    if meta_tags is None:
+        song = raw_song
+    else:
+        song = generate_songname(meta_tags)
     search_url = misc.generate_search_url(song)
     item = urllib.request.urlopen(search_url).read()
     # item = unicode(item, 'utf-8')
@@ -74,9 +72,14 @@ def generate_youtube_url(raw_song):
             y = x.find('div', class_='yt-lockup-content')
             link = y.find('a')['href']
             title = y.find('a')['title']
-            videotime = x.find('span', class_="video-time").get_text()
+            try:
+                videotime = x.find('span', class_="video-time").get_text()
+            except AttributeError:
+                return generate_youtube_url(raw_song)
             youtubedetails = {'link': link, 'title': title, 'videotime': videotime, 'seconds':misc.get_sec(videotime)}
             videos.append(youtubedetails)
+            if meta_tags is None:
+                break
 
     if args.manual:
         print(song)
@@ -91,7 +94,8 @@ def generate_youtube_url(raw_song):
         if result is None:
             return None
     else:
-        videos.sort(key=lambda x: abs(x['seconds'] - (int(meta_tags['duration_ms'])/1000)))
+        if meta_tags is not None:
+            videos.sort(key=lambda x: abs(x['seconds'] - (int(meta_tags['duration_ms'])/1000)))
         result = videos[0];
 
     full_link = u'youtube.com{0}'.format(result['link'])
@@ -300,7 +304,10 @@ def grab_single(raw_song, number=None):
 
     # generate file name of the song to download
     meta_tags = generate_metadata(raw_song)
-    songname = generate_songname(meta_tags)
+    if meta_tags is None:
+        songname = content.title
+    else:
+        songname = generate_songname(meta_tags)
     file_name = misc.sanitize_title(songname)
 
     if not check_exists(file_name, raw_song, islist=islist):
