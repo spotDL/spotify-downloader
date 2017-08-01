@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
-
+from __future__ import unicode_literals
 from core import metadata
 from core import convert
 from core import misc
