@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
-
+from __future__ import unicode_literals
 from core import metadata
 from core import convert
 from core import misc
@@ -9,7 +9,8 @@ from titlecase import titlecase
 from slugify import slugify
 import spotipy
 import pafy
-import urllib.request
+import urllib2
+from urllib2 import URLError
 import sys
 import os
 
@@ -61,7 +62,7 @@ def generate_youtube_url(raw_song):
     else:
         song = generate_songname(meta_tags)
     search_url = misc.generate_search_url(song)
-    item = urllib.request.urlopen(search_url).read()
+    item = urllib2.urlopen(search_url).read()
     # item = unicode(item, 'utf-8')
     items_parse = BeautifulSoup(item, "html.parser")
 
@@ -249,7 +250,7 @@ def grab_list(text_file):
             spotify = spotipy.Spotify(auth=new_token)
             grab_single(raw_song, number=number)
         # detect network problems
-        except (urllib.request.URLError, TypeError, IOError):
+        except (urllib2.URLError, TypeError, IOError):
             lines.append(raw_song)
             # remove the downloaded song from .txt
             misc.trim_song(text_file)
