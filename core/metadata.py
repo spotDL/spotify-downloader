@@ -2,7 +2,7 @@ from mutagen.easyid3 import EasyID3
 from mutagen.id3 import ID3, APIC
 from mutagen.mp4 import MP4, MP4Cover
 
-import urllib.request
+import urllib2
 
 
 def compare(music_file, metadata):

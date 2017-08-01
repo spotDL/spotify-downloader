@@ -2,7 +2,7 @@ import sys
 import os
 import argparse
 import spotipy.oauth2 as oauth2
-from urllib.request import quote
+from urllib2 import quote
 from slugify import slugify
 
 
