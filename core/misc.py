@@ -98,11 +98,14 @@ def generate_token():
     return token
 
 
-def generate_search_url(song):
+def generate_search_url(song, viewsort=False):
     """Generate YouTube search URL for the given song."""
     # urllib.request.quote() encodes URL with special characters
-    url = u"https://www.youtube.com/results?q={0}&sp=CAMSAhABUBQ%253D".format(
-        quote(song))
+    song = quote(song)
+    if viewsort:
+        url = u"https://www.youtube.com/results?q={0}&sp=CAMSAhABUBQ%253D".format(song)
+    else:
+        url = u"https://www.youtube.com/results?sp=EgIQAQ%253D%253D&q={0}".format(song)
     return url
 
 

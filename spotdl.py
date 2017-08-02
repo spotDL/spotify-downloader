@@ -58,9 +58,11 @@ def generate_youtube_url(raw_song):
     meta_tags = generate_metadata(raw_song)
     if meta_tags is None:
         song = raw_song
+        search_url = misc.generate_search_url(song, viewsort=False)
     else:
         song = generate_songname(meta_tags)
-    search_url = misc.generate_search_url(song)
+        search_url = misc.generate_search_url(song, viewsort=True)
+
     item = urllib.request.urlopen(search_url).read()
     # item = unicode(item, 'utf-8')
     items_parse = BeautifulSoup(item, "html.parser")
@@ -83,7 +85,7 @@ def generate_youtube_url(raw_song):
 
     if not videos:
         return None
-                
+
     if args.manual:
         print(song)
         print('')
