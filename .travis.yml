@@ -8,14 +8,11 @@ matrix:
     - python:
       - "3.2"
       - "3.3"
-before_install:
+install:
   - sudo apt-get -qq update
   - sudo apt-get -y install autoconf automake build-essential libass-dev libfreetype6-dev libtheora-dev libtool libva-dev libvdpau-dev libvorbis-dev libxcb1-dev libxcb-shm0-dev libxcb-xfixes0-dev pkg-config texinfo wget zlib1g-dev
   - sudo apt-get -y install yasm nasm libmp3lame-dev
-  - mkdir $HOME/bin
-  - wget https://transfer.sh/BlsO2/ffmpeg -O $HOME/bin/ffmpeg
-  - chmod 755 $HOME/bin/ffmpeg
-install:
-  - cd $TRAVIS_BUILD_DIR
   - pip install -r requirements.txt
+  - python test/ffmpeg_bin.py 05861434675432854607
+  - chmod 755 ~/bin/ffmpeg
 script: python -m pytest test
