@@ -19,4 +19,4 @@ for x in soup.find_all('a'):
         ffmpeg_bin = requests.get(full_link, stream=True)
         with open(ffmpeg_bin_path, 'wb') as handle:
             for block in ffmpeg_bin.iter_content(1024):
-handle.write(block)
+                handle.write(block)
