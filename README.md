@@ -172,7 +172,7 @@ For example
 
 #### Specify the target directory
 
-If you don't want to download all the songs to the `Music/` folder relative to the `spotdl.py` script, you can use the `-f`/`--file` option. E.g. `python spotdl.py -s "adele hello" -f "/home/user/Music/"`. This works with both relative and absolute paths.
+If you don't want to download all the songs to the `Music/` folder relative to the `spotdl.py` script, you can use the `-f`/`--folder` option. E.g. `python spotdl.py -s "adele hello" -f "/home/user/Music/"`. This works with both relative and absolute paths.
 
 ## Running tests
 
