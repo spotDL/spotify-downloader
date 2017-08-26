@@ -103,9 +103,10 @@ def generate_search_url(song, viewsort=False):
     # urllib.request.quote() encodes URL with special characters
     song = quote(song)
     if viewsort:
-        url = u"https://www.youtube.com/results?q={0}&sp=CAMSAhABUBQ%253D".format(song)
+        url = u"https://www.youtube.com/results?q={0}".format(song)
     else:
         url = u"https://www.youtube.com/results?sp=EgIQAQ%253D%253D&q={0}".format(song)
+
     return url
 
 

@@ -53,8 +53,12 @@ def generate_metadata(raw_song):
     return meta_tags
 
 
-def generate_youtube_url(raw_song):
+def generate_youtube_url(raw_song, tries_remaining=5):
     """Search for the song on YouTube and generate a URL to its video."""
+    # prevents an infinite loop but allows for a few retries
+    if tries_remaining == 0:
+        return
+
     meta_tags = generate_metadata(raw_song)
     if meta_tags is None:
         song = raw_song
@@ -69,19 +73,30 @@ def generate_youtube_url(raw_song):
 
     videos = []
     for x in items_parse.find_all('div', {'class': 'yt-lockup-dismissable yt-uix-tile'}):
+        # ensure result is not a channel
+        if x.find('channel') is not None or 'yt-lockup-channel' in x.parent.attrs['class'] or 'yt-lockup-channel' in x.attrs['class']:
+            continue
+
+        # ensure result is not a mix/playlist
+        if 'yt-lockup-playlist' in x.parent.attrs['class']:
+            continue
+
         # confirm the video result is not an advertisement
-        if x.find('channel') is None and x.find('googleads') is None:
-            y = x.find('div', class_='yt-lockup-content')
-            link = y.find('a')['href']
-            title = y.find('a')['title']
-            try:
-                videotime = x.find('span', class_="video-time").get_text()
-            except AttributeError:
-                return generate_youtube_url(raw_song)
-            youtubedetails = {'link': link, 'title': title, 'videotime': videotime, 'seconds':misc.get_sec(videotime)}
-            videos.append(youtubedetails)
-            if meta_tags is None:
-                break
+        if x.find('googleads') is not None:
+            continue
+
+        y = x.find('div', class_='yt-lockup-content')
+        link = y.find('a')['href']
+        title = y.find('a')['title']
+        try:
+            videotime = x.find('span', class_="video-time").get_text()
+        except AttributeError:
+            return generate_youtube_url(raw_song, tries_remaining - 1)
+
+        youtubedetails = {'link': link, 'title': title, 'videotime': videotime, 'seconds':misc.get_sec(videotime)}
+        videos.append(youtubedetails)
+        if meta_tags is None:
+            break
 
     if not videos:
         return None
@@ -100,10 +115,32 @@ def generate_youtube_url(raw_song):
             return None
     else:
         if meta_tags is not None:
-            videos.sort(key=lambda x: abs(x['seconds'] - (int(meta_tags['duration_ms'])/1000)))
-        result = videos[0];
+            # filter out videos that do not have a similar length to the Spotify song
+            duration_tolerance = 10
+            max_duration_tolerance = 20
+            possible_videos_by_duration = list()
 
-    full_link = u'youtube.com{0}'.format(result['link'])
+            '''
+            start with a reasonable duration_tolerance, and increment duration_tolerance
+            until one of the Youtube results falls within the correct duration or
+            the duration_tolerance has reached the max_duration_tolerance
+            '''
+            while len(possible_videos_by_duration) == 0:
+                possible_videos_by_duration = list(filter(lambda x: abs(x['seconds'] - (int(meta_tags['duration_ms'])/1000)) <= duration_tolerance, videos))
+                duration_tolerance += 1
+                if duration_tolerance > max_duration_tolerance:
+                    print(meta_tags['name'], 'by', meta_tags['artists'][0]['name'], 'was not found')
+                    return None
+
+            result = possible_videos_by_duration[0]
+        else:
+            # if the metadata could not be acquired, take the first result from Youtube because the proper song length is unknown
+            result = videos[0]
+
+    full_link = None
+    if result:
+        full_link = u'youtube.com{0}'.format(result['link'])
+
     return full_link
 
 
@@ -214,6 +251,7 @@ def check_exists(music_file, raw_song, islist=True):
             # do not prompt and skip the current song
             # if already downloaded when using list
             if islist:
+                print('Song already exists')
                 return True
             # if downloading only single song, prompt to re-download
             else:
@@ -257,7 +295,7 @@ def grab_list(text_file):
             misc.trim_song(text_file)
             # and append it to the last line in .txt
             with open(text_file, 'a') as myfile:
-                myfile.write(raw_song)
+                myfile.write(raw_song + '\n')
             print('Failed to download song. Will retry after other songs.')
             continue
         except KeyboardInterrupt:
@@ -303,6 +341,7 @@ def grab_single(raw_song, number=None):
     content = go_pafy(raw_song)
     if content is None:
         return
+
     # print '[number]. [artist] - [song]' if downloading from list
     # otherwise print '[artist] - [song]'
     print(get_youtube_title(content, number))
