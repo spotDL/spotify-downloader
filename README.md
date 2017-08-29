@@ -154,7 +154,7 @@ http://open.spotify.com/track/64yrDBpcdwEdNY9loyEGbX
 
 For example
 
-- `python spodl.py --playlist https://open.spotify.com/user/camillazi/playlist/71MXqcSOKCxsLNtRvONkhF`
+- `python spotdl.py --playlist https://open.spotify.com/user/camillazi/playlist/71MXqcSOKCxsLNtRvONkhF`
 
 - The script will load all the tracks from the playlist into `<playlist_name>.txt`
 
