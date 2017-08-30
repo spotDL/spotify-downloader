@@ -12,6 +12,7 @@ import pafy
 import urllib.request
 import sys
 import os
+import time
 
 def generate_songname(tags):
     """Generate a string of the format '[artist] - [song]' for the given spotify song."""
@@ -297,6 +298,8 @@ def grab_list(text_file):
             with open(text_file, 'a') as myfile:
                 myfile.write(raw_song + '\n')
             print('Failed to download song. Will retry after other songs.')
+            # wait 0.5 sec to avoid infinite looping
+            time.sleep(0.5)
             continue
         except KeyboardInterrupt:
             misc.grace_quit()
