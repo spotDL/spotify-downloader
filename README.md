@@ -35,7 +35,7 @@ That's how your Music library will look like!
 
 <img src="http://i.imgur.com/Dg8p9up.png" width="600">
 
-- **This version supports Python 3**, Python 2 compatibility was dropped because of the way it deals with unicode. If you need to use Python 2 though, check out the `python2` branch.
+- **This tool supports only Python 3**, Python 2 compatibility was dropped because of the way it deals with unicode. If you need to use Python 2 though, check out the (old) `python2` branch.
 
 - Note: `play` and `lyrics` commands have been deprecated in the current brach since they were not of much use and created unnecessary clutter. You can still get them back by using `old` branch though.
 
@@ -58,7 +58,7 @@ If it does not install correctly, you may have to build it from source. For more
 
 ### Windows
 
-Assuming you have Python 3 already installed and in PATH.
+Assuming you have Python 3 ([preferably v3.6 or above to stay away from Unicode errors](https://stackoverflow.com/questions/30539882/whats-the-deal-with-python-3-4-unicode-different-languages-and-windows)) already installed and in PATH.
 
 - Download and extract the [zip file](https://github.com/ritiek/spotify-downloader/archive/master.zip) from master branch.
 
