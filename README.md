@@ -48,6 +48,8 @@ cd spotify-downloader
 pip install -U -r requirements.txt
 ```
 
+Important: if you have installed both Python 2 and 3, the `pip` command could invoke an installation for Python 2. To see which Python version `pip` refers to, try `pip -V`. If it turns out `pip` is your Python 2 pip, try `pip3 install -U -r requirements.txt` instead.
+
 You'll also need to install FFmpeg for conversion (use `--avconv` if you'd like to use that instead):
 
 Linux: `sudo apt-get install ffmpeg`
