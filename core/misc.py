@@ -72,11 +72,16 @@ def get_arguments():
 
 def is_spotify(raw_song):
     """Check if the input song is a Spotify link."""
-    if (len(raw_song) == 22 and raw_song.replace(" ", "%20") == raw_song) or \
-            (raw_song.find('spotify') > -1):
-        return True
-    else:
-        return False
+    status = len(raw_song) == 22 and raw_song.replace(" ", "%20") == raw_song
+    status = status or raw_song.find('spotify') > -1
+    return status
+
+def is_youtube(raw_song):
+    """Check if the input song is a YouTube link."""
+    status = len(raw_song) == 11 and raw_song.replace(" ", "%20") == raw_song
+    status = status and not raw_song.lower() == raw_song
+    status = status or 'youtube.com/watch?v=' in raw_song
+    return status
 
 
 def sanitize_title(title):
