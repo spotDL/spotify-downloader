@@ -348,11 +348,13 @@ def grab_single(raw_song, number=None):
         islist = True
     else:
         islist = False
+
     content = go_pafy(raw_song)
     if content is None:
         return
 
-    raw_song = slugify(content.title).replace('-', ' ')
+    if misc.is_youtube(raw_song):
+        raw_song = slugify(content.title).replace('-', ' ')
 
     # print '[number]. [artist] - [song]' if downloading from list
     # otherwise print '[artist] - [song]'
