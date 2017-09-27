@@ -68,10 +68,13 @@ def embed_mp3(music_file, meta_tags):
         audiofile['isrc'] = meta_tags['external_ids']['isrc']
     audiofile.save(v2_version=3)
     audiofile = ID3(music_file)
-    albumart = urllib.request.urlopen(meta_tags['album']['images'][0]['url'])
-    audiofile["APIC"] = APIC(encoding=3, mime='image/jpeg', type=3,
-                             desc=u'Cover', data=albumart.read())
-    albumart.close()
+    try:
+        albumart = urllib.request.urlopen(meta_tags['album']['images'][0]['url'])
+        audiofile["APIC"] = APIC(encoding=3, mime='image/jpeg', type=3,
+                                 desc=u'Cover', data=albumart.read())
+        albumart.close()
+    except IndexError:
+        albumart = None
     audiofile.save(v2_version=3)
     return True
 
