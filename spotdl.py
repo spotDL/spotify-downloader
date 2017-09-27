@@ -14,6 +14,7 @@ import sys
 import os
 import time
 
+
 def generate_songname(tags):
     """Generate a string of the format '[artist] - [song]' for the given spotify song."""
     raw_song = u'{0} - {1}'.format(tags['artists'][0]['name'], tags['name'])
@@ -147,11 +148,17 @@ def generate_youtube_url(raw_song, tries_remaining=5):
 
 def go_pafy(raw_song):
     """Parse track from YouTube."""
-    track_url = generate_youtube_url(raw_song)
-    if track_url is None:
-        return None
+    if misc.is_youtube(raw_song):
+        track_info = pafy.new(raw_song)
     else:
-        return pafy.new(track_url)
+        track_url = generate_youtube_url(raw_song)
+
+        if track_url is None:
+            track_info = None
+        else:
+            track_info = pafy.new(track_url)
+
+    return track_info
 
 
 def get_youtube_title(content, number=None):
@@ -341,9 +348,13 @@ def grab_single(raw_song, number=None):
         islist = True
     else:
         islist = False
+
     content = go_pafy(raw_song)
     if content is None:
         return
+
+    if misc.is_youtube(raw_song):
+        raw_song = slugify(content.title).replace('-', ' ')
 
     # print '[number]. [artist] - [song]' if downloading from list
     # otherwise print '[artist] - [song]'
