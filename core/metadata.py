@@ -74,7 +74,7 @@ def embed_mp3(music_file, meta_tags):
                                  desc=u'Cover', data=albumart.read())
         albumart.close()
     except IndexError:
-        albumart = None
+        pass
     audiofile.save(v2_version=3)
     return True
 
@@ -114,9 +114,12 @@ def embed_m4a(music_file, meta_tags):
         audiofile[tags['genre']] = meta_tags['genre']
     if meta_tags['copyright']:
         audiofile[tags['copyright']] = meta_tags['copyright']
-    albumart = urllib.request.urlopen(meta_tags['album']['images'][0]['url'])
-    audiofile[tags['albumart']] = [MP4Cover(
-        albumart.read(), imageformat=MP4Cover.FORMAT_JPEG)]
-    albumart.close()
+    try:
+        albumart = urllib.request.urlopen(meta_tags['album']['images'][0]['url'])
+        audiofile[tags['albumart']] = [MP4Cover(
+            albumart.read(), imageformat=MP4Cover.FORMAT_JPEG)]
+        albumart.close()
+    except IndexError:
+        pass
     audiofile.save()
     return True
