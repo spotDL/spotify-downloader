@@ -48,7 +48,7 @@ cd spotify-downloader
 pip install -U -r requirements.txt
 ```
 
-Important: if you have installed both Python 2 and 3, the `pip` command could invoke an installation for Python 2. To see which Python version `pip` refers to, try `pip -V`. If it turns out `pip` is your Python 2 pip, try `pip3 install -U -r requirements.txt` instead.
+**Important:** if you have installed both Python 2 and 3, the `pip` command could invoke an installation for Python 2. To see which Python version `pip` refers to, try `pip -V`. If it turns out `pip` is your Python 2 pip, try `pip3 install -U -r requirements.txt` instead.
 
 You'll also need to install FFmpeg for conversion (use `--avconv` if you'd like to use that instead):
 
@@ -66,11 +66,14 @@ Assuming you have Python 3 ([preferably v3.6 or above to stay away from Unicode 
 
 - Download FFmpeg for Windows from [here](http://ffmpeg.zeranoe.com/builds/). Copy `ffmpeg.exe` from `ffmpeg-xxx-winxx-static\bin\ffmpeg.exe` to PATH (usually C:\Windows\System32\) or just place it in the root directory extracted from the above step.
 
-- Open `cmd` and type `pip install -U -r requirements.txt` to install dependencies.
+- Open `cmd` and type `pip install -U -r requirements.txt` to install dependencies. The same note about `pip` as for Debian, Ubuntu, Linux & Mac applies.
 
 ## Instructions for Downloading Songs
 
-- For all available options, run `python spotdl.py --help`.
+
+**Important:** as like with `pip`, there might be no `python3` command. This is most likely the case when you have only Python 3 but not 2 installed. In this case try the `python` command instead of `python3`, but make sure `python -V` gives you a `Python 3.x.x`!
+
+- For all available options, run `python3 spotdl.py --help`.
 
 ```
 usage: spotdl.py [-h] (-s SONG | -l LIST | -p PLAYLIST | -u USERNAME) [-m]
@@ -108,7 +111,7 @@ optional arguments:
 
 For example
 
-- We want to download Hello by Adele, simply run `python spotdl.py --song "adele hello"`.
+- We want to download Hello by Adele, simply run `python3 spotdl.py --song "adele hello"`.
 
 - The script will automatically look for the best matching song and download it in the folder `Music/` placed in the root directory of the code base.
 
@@ -120,7 +123,7 @@ For example
 
 - We want to download the same song (i.e: Hello by Adele) but using Spotify Link this time that looks like  `http://open.spotify.com/track/1MDoll6jK4rrk2BcFRP5i7`, you can copy it from your Spotify desktop or mobile app by right clicking or long tap on the song and copy HTTP link.
 
-- Run `python spotdl.py --song http://open.spotify.com/track/1MDoll6jK4rrk2BcFRP5i7`, it should download Hello by Adele.
+- Run `python3 spotdl.py --song http://open.spotify.com/track/1MDoll6jK4rrk2BcFRP5i7`, it should download Hello by Adele.
 
 - Just like before, it will again convert the song to an mp3 but since we used a Spotify HTTP link, the script is guaranteed to fetch the correct meta-tags and album-art.
 
@@ -144,7 +147,7 @@ the nights avicci
 http://open.spotify.com/track/64yrDBpcdwEdNY9loyEGbX
 ```
 
-- Now pass `--list=list.txt` to the script, i.e `python spotdl.py --list=list.txt` and it will start downloading songs mentioned in `list.txt`.
+- Now pass `--list=list.txt` to the script, i.e `python3 spotdl.py --list=list.txt` and it will start downloading songs mentioned in `list.txt`.
 
 - You can stop downloading songs by hitting `ctrl+c`, the script will automatically resume from the song where you stopped it the next time you want to download the songs present in `list.txt`.
 
@@ -156,30 +159,30 @@ http://open.spotify.com/track/64yrDBpcdwEdNY9loyEGbX
 
 For example
 
-- `python spotdl.py --playlist https://open.spotify.com/user/camillazi/playlist/71MXqcSOKCxsLNtRvONkhF`
+- `python3 spotdl.py --playlist https://open.spotify.com/user/camillazi/playlist/71MXqcSOKCxsLNtRvONkhF`
 
 - The script will load all the tracks from the playlist into `<playlist_name>.txt`
 
-- Then you can simply run `python spotdl.py --list=<playlist_name>.txt` to download all the tracks.
+- Then you can simply run `python3 spotdl.py --list=<playlist_name>.txt` to download all the tracks.
 
 #### Download playlists by username
 
 - You can also load songs using Spotify username if you don't have the playlist URL. (Open profile in Spotify, click on the three little dots below name, "Share", "Copy to clipboard", paste last numbers into command-line: `https://open.spotify.com/user/0123456790`)
 
-- Try running `python spotdl.py -u <your_username>`, it will show all your public playlists.
+- Try running `python3 spotdl.py -u <your_username>`, it will show all your public playlists.
 
 - Once you select the one you want to download, the script will load all the tracks from the playlist into `<playlist_name>.txt`.
 
-- Run `python spotdl.py --list=<playlist_name>.txt` to download all the tracks.
+- Run `python3 spotdl.py --list=<playlist_name>.txt` to download all the tracks.
 
 #### Specify the target directory
 
-If you don't want to download all the songs to the `Music/` folder relative to the `spotdl.py` script, you can use the `-f`/`--folder` option. E.g. `python spotdl.py -s "adele hello" -f "/home/user/Music/"`. This works with both relative and absolute paths.
+If you don't want to download all the songs to the `Music/` folder relative to the `spotdl.py` script, you can use the `-f`/`--folder` option. E.g. `python3 spotdl.py -s "adele hello" -f "/home/user/Music/"`. This works with both relative and absolute paths.
 
 ## Running tests
 
 ```
-python -m pytest test
+python3 -m pytest test
 ```
 
 Obviously this requires the `pytest` module to be installed. 
