@@ -362,10 +362,12 @@ def grab_single(raw_song, number=None):
 
     # generate file name of the song to download
     meta_tags = generate_metadata(raw_song)
-    songname = generate_songname(meta_tags)
+    songname = content.title
 
-    if meta_tags is None or songname == ' - ':
-        songname = content.title
+    if meta_tags is not None:
+        refined_songname = generate_songname(meta_tags)
+        if not refined_songname == ' - ':
+            songname = refined_songname
 
     file_name = misc.sanitize_title(songname)
 
