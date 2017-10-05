@@ -88,6 +88,9 @@ optional arguments:
   -p PLAYLIST, --playlist PLAYLIST
                         load songs from playlist URL into <playlist_name>.txt
                         (default: None)
+  -b ALBUM, --album ALBUM
+                        load songs from album URL into <album_name>.txt
+                        (default: None)
   -u USERNAME, --username USERNAME
                         load songs from user's playlist into
                         <playlist_name>.txt (default: None)
@@ -164,6 +167,18 @@ For example
 - The script will load all the tracks from the playlist into `<playlist_name>.txt`
 
 - Then you can simply run `python3 spotdl.py --list=<playlist_name>.txt` to download all the tracks.
+
+#### Download albums
+
+- You can copy the Spotify URL of the album and pass it in `--album` option.
+
+For example
+
+- `python3 spotdl.py --album https://open.spotify.com/album/7CjakTZxwIF8oixONe6Bpb`
+
+- The script will load all the tracks from the album into `<album_name>.txt`
+
+- Then you can simply run `python3 spotdl.py --list=<album_name>.txt` to download all the tracks.
 
 #### Download playlists by username
 

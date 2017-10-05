@@ -194,20 +194,17 @@ def feed_playlist(username):
     print('')
     playlist = misc.input_link(links)
     print('')
-    write_tracks(playlist)
+    write_playlist(playlist)
 
 
-def write_tracks(playlist):
-    results = spotify.user_playlist(
-        playlist['owner']['id'], playlist['id'], fields='tracks,next')
-    text_file = u'{0}.txt'.format(slugify(playlist['name'], ok='-_()[]{}'))
-    print(u'Feeding {0} tracks to {1}'.format(playlist['tracks']['total'], text_file))
-
-    tracks = results['tracks']
+def write_tracks(text_file, tracks):
     with open(text_file, 'a') as file_out:
         while True:
             for item in tracks['items']:
-                track = item['track']
+                if 'track' in item:
+                    track = item['track']
+                else:
+                    track = item
                 try:
                     file_out.write(track['external_urls']['spotify'] + '\n')
                 except KeyError:
@@ -219,6 +216,24 @@ def write_tracks(playlist):
                 tracks = spotify.next(tracks)
             else:
                 break
+
+
+def write_playlist(playlist):
+    results = spotify.user_playlist(
+        playlist['owner']['id'], playlist['id'], fields='tracks,next')
+    text_file = u'{0}.txt'.format(slugify(playlist['name'], ok='-_()[]{}'))
+    print(u'Feeding {0} tracks to {1}'.format(playlist['tracks']['total'], text_file))
+
+    tracks = results['tracks']
+    write_tracks(text_file, tracks)
+
+
+def write_album(album):
+    tracks = spotify.album_tracks(album['id'])
+    text_file = u'{0}.txt'.format(slugify(album['name'], ok='-_()[]{}'))
+    print(u'Feeding {0} tracks to {1}'.format(tracks['total'], text_file))
+
+    write_tracks(text_file, tracks)
 
 
 def download_song(file_name, content):
@@ -339,7 +354,21 @@ def grab_playlist(playlist):
         else:
             break
 
-    write_tracks(playlist)
+    write_playlist(playlist)
+
+
+def grab_album(album):
+    if '/' in album:
+        if album.endswith('/'):
+            playlist = playlist[:-1]
+        splits = album.split('/')
+    else:
+        splits = album.split(':')
+
+    album_id = splits[-1]
+    album = spotify.album(album_id)
+
+    write_album(album)
 
 
 def grab_single(raw_song, number=None):
@@ -410,6 +439,8 @@ if __name__ == '__main__':
         grab_list(text_file=args.list)
     elif args.playlist:
         grab_playlist(playlist=args.playlist)
+    elif args.album:
+        grab_album(album=args.album)
     elif args.username:
         feed_playlist(username=args.username)
 else:
