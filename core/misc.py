@@ -42,6 +42,8 @@ def get_arguments():
     group.add_argument(
         '-p', '--playlist', help='load songs from playlist URL into <playlist_name>.txt')
     group.add_argument(
+        '-b', '--album', help='load songs from album URL into <album_name>.txt')
+    group.add_argument(
         '-u', '--username',
         help="load songs from user's playlist into <playlist_name>.txt")
     parser.add_argument(
