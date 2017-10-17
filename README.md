@@ -194,6 +194,14 @@ For example
 
 If you don't want to download all the songs to the `Music/` folder relative to the `spotdl.py` script, you can use the `-f`/`--folder` option. E.g. `python3 spotdl.py -s "adele hello" -f "/home/user/Music/"`. This works with both relative and absolute paths.
 
+#### Preserve spaces in file names
+
+Beside some other characters, spaces will be replaced by underscores. There's no option to change this behavior in spotify-downloader itself, but on Unix-based operating systems you can issue the following Bash command after downloading is done:
+
+    find . -type f -name "*.mp3" -exec bash -c 'mv "$0" "${0//_/ }"' {} \;
+
+Just make sure your working directory is the one you have the music files in.
+
 ## Running tests
 
 ```
