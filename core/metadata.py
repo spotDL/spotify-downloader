@@ -57,9 +57,10 @@ def embed_mp3(music_file, meta_tags):
     audiofile['lyricist'] = meta_tags['artists'][0]['name']
     audiofile['arranger'] = meta_tags['artists'][0]['name']
     audiofile['performer'] = meta_tags['artists'][0]['name']
-    audiofile['encodedby'] = meta_tags['publisher']
     audiofile['website'] = meta_tags['external_urls']['spotify']
     audiofile['length'] = str(meta_tags['duration_ms'] / 1000)
+    if meta_tags['publisher']:
+        audiofile['encodedby'] = meta_tags['publisher']
     if meta_tags['genre']:
         audiofile['genre'] = meta_tags['genre']
     if meta_tags['copyright']:
