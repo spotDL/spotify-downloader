@@ -305,7 +305,7 @@ def grab_list(text_file):
         try:
             grab_single(raw_song, number=number)
         # token expires after 1 hour
-        except spotipy.oauth2.SpotifyOauthError:
+        except spotipy.client.SpotifyException:
             # refresh token when it expires
             new_token = misc.generate_token()
             global spotify
