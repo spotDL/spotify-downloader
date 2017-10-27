@@ -30,7 +30,7 @@ def generate_metadata(raw_song):
         # otherwise search on spotify and fetch information from first result
         try:
             meta_tags = spotify.search(raw_song, limit=1)['tracks']['items'][0]
-        except:
+        except IndexError:
             return None
     artist = spotify.artist(meta_tags['artists'][0]['id'])
     album = spotify.album(meta_tags['album']['id'])
