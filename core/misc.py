@@ -128,7 +128,7 @@ def filter_path(path):
 
 def grace_quit():
     print('\n\nExiting.')
-    sys.exit()
+    sys.exit(0)
 
 def get_sec(time_str):
    v = time_str.split(':', 3)
