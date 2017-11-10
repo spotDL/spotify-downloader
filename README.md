@@ -118,7 +118,7 @@ optional arguments:
 
 For example
 
-- We want to download Hello by Adele, simply run `python3 spotdl.py --song "adele hello"`.
+- We want to download Hello by Adele, simply run `python3 spotdl.py --song "alan walker fade"`.
 
 - The script will automatically look for the best matching song and download it in the folder `Music/` placed in the root directory of the code base.
 
@@ -128,9 +128,9 @@ For example
 
 For example
 
-- We want to download the same song (i.e: Hello by Adele) but using Spotify Link this time that looks like  `http://open.spotify.com/track/1MDoll6jK4rrk2BcFRP5i7`, you can copy it from your Spotify desktop or mobile app by right clicking or long tap on the song and copy HTTP link.
+- We want to download the same song (i.e: Fade by Alan Walker) but using Spotify Link this time that looks like  `https://open.spotify.com/track/2lfPecqFbH8X4lHSpTxt8l`, you can copy it from your Spotify desktop or mobile app by right clicking or long tap on the song and copy HTTP link.
 
-- Run `python3 spotdl.py --song http://open.spotify.com/track/1MDoll6jK4rrk2BcFRP5i7`, it should download Hello by Adele.
+- Run `python3 spotdl.py --song https://open.spotify.com/track/2lfPecqFbH8X4lHSpTxt8l`, it should download Fade by Alan Walker.
 
 - Just like before, it will again convert the song to an mp3 but since we used a Spotify HTTP link, the script is guaranteed to fetch the correct meta-tags and album-art.
 
@@ -138,9 +138,9 @@ For example
 
 For example
 
-- We want to download `Hello by Adele`, `The Nights by Avicci` and `21 Guns by Green Day` just using a single command.
+- We want to download `Fade by Alan Walker`, `Sky High by Elektromania` and `Fire by Elektromania` just using a single command.
 
-Let's suppose, we have the Spotify link for only `Hello by Adele` and `21 Guns by Green Day`.
+Let's suppose, we have the Spotify link for only `Fade by Alan Walker` and `Fire by Elektromania`.
 
 No problem!
 
@@ -149,9 +149,9 @@ No problem!
 (if you are on Windows, just edit `list.txt` - i.e `C:\Python36\spotify-downloader-master\list.txt`)
 
 ```
-https://open.spotify.com/track/1MDoll6jK4rrk2BcFRP5i7
-the nights avicci
-http://open.spotify.com/track/64yrDBpcdwEdNY9loyEGbX
+https://open.spotify.com/track/2lfPecqFbH8X4lHSpTxt8l
+elektromania sky high
+https://open.spotify.com/track/0fbspWuEdaaT9vfmbAZr1C
 ```
 
 - Now pass `--list=list.txt` to the script, i.e `python3 spotdl.py --list=list.txt` and it will start downloading songs mentioned in `list.txt`.
@@ -166,7 +166,7 @@ http://open.spotify.com/track/64yrDBpcdwEdNY9loyEGbX
 
 For example
 
-- `python3 spotdl.py --playlist https://open.spotify.com/user/camillazi/playlist/71MXqcSOKCxsLNtRvONkhF`
+- `python3 spotdl.py --playlist https://open.spotify.com/user/nocopyrightsounds/playlist/7sZbq8QGyMnhKPcLJvCUFD`
 
 - The script will load all the tracks from the playlist into `<playlist_name>.txt`
 
@@ -178,7 +178,7 @@ For example
 
 For example
 
-- `python3 spotdl.py --album https://open.spotify.com/album/7CjakTZxwIF8oixONe6Bpb`
+- `python3 spotdl.py --album https://open.spotify.com/album/499J8bIsEnU7DSrosFDJJg`
 
 - The script will load all the tracks from the album into `<album_name>.txt`
 
@@ -186,7 +186,7 @@ For example
 
 #### Download playlists by username
 
-- You can also load songs using Spotify username if you don't have the playlist URL. (Open profile in Spotify, click on the three little dots below name, "Share", "Copy to clipboard", paste last numbers into command-line: `https://open.spotify.com/user/0123456790`)
+- You can also load songs using Spotify username if you don't have the playlist URL. (Open profile in Spotify, click on the three little dots below name, "Share", "Copy to clipboard", paste last numbers or text into command-line: `https://open.spotify.com/user/0123456790`)
 
 - Try running `python3 spotdl.py -u <your_username>`, it will show all your public playlists.
 
