@@ -348,13 +348,19 @@ def grab_playlist(playlist):
             if not playlist['name'] == None:
                 if playlist['id'] == playlist_id:
                     playlists['next'] = None
+                    found = True
                     break
         if playlists['next']:
             playlists = spotify.next(playlists)
         else:
+            found = False
             break
 
-    write_playlist(playlist)
+    if found:
+        write_playlist(playlist)
+    else:
+        print('Unable to find playlist')
+        print('Make sure the playlist is set to publicly visible and then try again')
 
 
 def grab_album(album):
