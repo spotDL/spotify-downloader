@@ -342,6 +342,7 @@ def grab_playlist(playlist):
     username = splits[-3]
     playlist_id = splits[-1]
     playlists = spotify.user_playlists(username)
+    found = False
 
     while True:
         for playlist in playlists['items']:
@@ -353,7 +354,6 @@ def grab_playlist(playlist):
         if playlists['next']:
             playlists = spotify.next(playlists)
         else:
-            found = False
             break
 
     if found:
