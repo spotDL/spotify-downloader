@@ -118,7 +118,7 @@ optional arguments:
 
 For example
 
-- We want to download Hello by Adele, simply run `python3 spotdl.py --song "alan walker fade"`.
+- We want to download Fade by Alan Walker, simply run `python3 spotdl.py --song "alan walker fade"`.
 
 - The script will automatically look for the best matching song and download it in the folder `Music/` placed in the root directory of the code base.
 
