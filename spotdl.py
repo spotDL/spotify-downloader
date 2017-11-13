@@ -44,9 +44,9 @@ def generate_metadata(raw_song):
     except IndexError:
         meta_tags[u'copyright'] = None
     try:
-        meta_tags['isrc']
+        meta_tags[u'external_ids'][u'isrc']
     except KeyError:
-        meta_tags['isrc'] = None
+        meta_tags[u'external_ids'][u'isrc'] = None
 
     meta_tags[u'release_date'] = album['release_date']
     meta_tags[u'publisher'] = album['label']

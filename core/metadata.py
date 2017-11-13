@@ -65,7 +65,7 @@ def embed_mp3(music_file, meta_tags):
         audiofile['genre'] = meta_tags['genre']
     if meta_tags['copyright']:
         audiofile['copyright'] = meta_tags['copyright']
-    if meta_tags['isrc']:
+    if meta_tags['external_ids']['isrc']:
         audiofile['isrc'] = meta_tags['external_ids']['isrc']
     audiofile.save(v2_version=3)
     audiofile = ID3(music_file)
