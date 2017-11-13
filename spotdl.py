@@ -55,13 +55,12 @@ def generate_metadata(raw_song):
     return meta_tags
 
 
-def generate_youtube_url(raw_song, tries_remaining=5):
+def generate_youtube_url(raw_song, meta_tags, tries_remaining=5):
     """Search for the song on YouTube and generate a URL to its video."""
     # prevents an infinite loop but allows for a few retries
     if tries_remaining == 0:
         return
 
-    meta_tags = generate_metadata(raw_song)
     if meta_tags is None:
         song = raw_song
         search_url = misc.generate_search_url(song, viewsort=False)
@@ -93,7 +92,7 @@ def generate_youtube_url(raw_song, tries_remaining=5):
         try:
             videotime = x.find('span', class_="video-time").get_text()
         except AttributeError:
-            return generate_youtube_url(raw_song, tries_remaining - 1)
+            return generate_youtube_url(raw_song, meta_tags, tries_remaining - 1)
 
         youtubedetails = {'link': link, 'title': title, 'videotime': videotime, 'seconds':misc.get_sec(videotime)}
         videos.append(youtubedetails)
@@ -146,12 +145,12 @@ def generate_youtube_url(raw_song, tries_remaining=5):
     return full_link
 
 
-def go_pafy(raw_song):
+def go_pafy(raw_song, meta_tags):
     """Parse track from YouTube."""
     if misc.is_youtube(raw_song):
         track_info = pafy.new(raw_song)
     else:
-        track_url = generate_youtube_url(raw_song)
+        track_url = generate_youtube_url(raw_song, meta_tags)
 
         if track_url is None:
             track_info = None
@@ -253,7 +252,7 @@ def download_song(file_name, content):
         return True
 
 
-def check_exists(music_file, raw_song, islist=True):
+def check_exists(music_file, raw_song, meta_tags, islist=True):
     """Check if the input song already exists in the given folder."""
     songs = os.listdir(args.folder)
     for song in songs:
@@ -264,7 +263,7 @@ def check_exists(music_file, raw_song, islist=True):
         file_name = misc.sanitize_title(music_file)
         if song.startswith(file_name):
             # check if the already downloaded song has correct metadata
-            already_tagged = metadata.compare(os.path.join(args.folder, song), generate_metadata(raw_song))
+            already_tagged = metadata.compare(os.path.join(args.folder, song), meta_tags)
 
             # if not, remove it and download again without prompt
             if misc.is_spotify(raw_song) and not already_tagged:
@@ -384,19 +383,18 @@ def grab_single(raw_song, number=None):
     else:
         islist = False
 
-    content = go_pafy(raw_song)
-    if content is None:
-        return
-
     if misc.is_youtube(raw_song):
         raw_song = slugify(content.title).replace('-', ' ')
+
+    meta_tags = generate_metadata(raw_song)
+    content = go_pafy(raw_song, meta_tags)
+    if content is None:
+        return
 
     # print '[number]. [artist] - [song]' if downloading from list
     # otherwise print '[artist] - [song]'
     print(get_youtube_title(content, number))
-
     # generate file name of the song to download
-    meta_tags = generate_metadata(raw_song)
     songname = content.title
 
     if meta_tags is not None:
@@ -406,7 +404,7 @@ def grab_single(raw_song, number=None):
 
     file_name = misc.sanitize_title(songname)
 
-    if not check_exists(file_name, raw_song, islist=islist):
+    if not check_exists(file_name, raw_song, meta_tags, islist=islist):
         if download_song(file_name, content):
             print('')
             input_song = file_name + args.input_ext
