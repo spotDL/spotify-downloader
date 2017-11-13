@@ -19,13 +19,13 @@ def test_spotify_title():
 
 def youtube_url():
     expect_url = 'youtube.com/watch?v=rg1wfcty0BA'
-    url = spotdl.generate_youtube_url(raw_song)
+    url = spotdl.generate_youtube_url(raw_song, meta_tags)
     assert url == expect_url
 
 
 def youtube_title():
     expect_title = 'Intro - David André Østby'
-    content = spotdl.go_pafy(raw_song)
+    content = spotdl.go_pafy(raw_song, meta_tags)
     title = spotdl.get_youtube_title(content)
     assert title == expect_title
 
@@ -36,14 +36,14 @@ def test_check_exists():
     songname = spotdl.generate_songname(meta_tags)
     global file_name
     file_name = spotdl.misc.sanitize_title(songname)
-    check = spotdl.check_exists(file_name, raw_song, islist=True)
+    check = spotdl.check_exists(file_name, raw_song, meta_tags, islist=True)
     assert check == expect_check
 
 
 def test_download():
     expect_download = True
     # prerequisites for determining filename
-    content = spotdl.go_pafy(raw_song)
+    content = spotdl.go_pafy(raw_song, meta_tags)
     download = spotdl.download_song(file_name, content)
     assert download == expect_download
 
@@ -73,5 +73,5 @@ def test_check_exists2():
     # prerequisites for determining filename
     input_song = file_name + spotdl.args.input_ext
     os.remove(os.path.join(spotdl.args.folder, input_song))
-    check = spotdl.check_exists(file_name, raw_song, islist=True)
+    check = spotdl.check_exists(file_name, raw_song, meta_tags, islist=True)
     assert check == expect_check

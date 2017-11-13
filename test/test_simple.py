@@ -10,14 +10,14 @@ for x in os.listdir(spotdl.args.folder):
 
 def test_youtube_url():
     expect_url = 'youtube.com/watch?v=qOOcy2-tmbk'
-    url = spotdl.generate_youtube_url(raw_song)
+    url = spotdl.generate_youtube_url(raw_song, meta_tags=None)
     assert url == expect_url
 
 
 def test_youtube_title():
     expect_title = "Tony's Videos VERY SHORT VIDEO 28.10.2016"
     global content
-    content = spotdl.go_pafy(raw_song)
+    content = spotdl.go_pafy(raw_song, meta_tags=None)
     global title
     title = spotdl.get_youtube_title(content)
     assert title == expect_title
@@ -26,7 +26,7 @@ def test_check_exists():
     expect_check = False
     # prerequisites for determining filename
     file_name = spotdl.misc.sanitize_title(title)
-    check = spotdl.check_exists(file_name, raw_song, islist=True)
+    check = spotdl.check_exists(file_name, raw_song, meta_tags=None, islist=True)
     assert check == expect_check
 
 
@@ -68,5 +68,5 @@ def test_check_exists2():
     file_name = spotdl.misc.sanitize_title(title)
     input_song = file_name + spotdl.args.input_ext
     os.remove(os.path.join(spotdl.args.folder, input_song))
-    check = spotdl.check_exists(file_name, raw_song, islist=True)
+    check = spotdl.check_exists(file_name, raw_song, meta_tags=None, islist=True)
     assert check == expect_check
