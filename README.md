@@ -37,8 +37,6 @@ That's how your Music library will look like!
 
 ## Installation & Usage
 
-<img src="http://i.imgur.com/Dg8p9up.png" width="600">
-
 - **This tool supports only Python 3**, Python 2 compatibility was dropped because of the way it deals with unicode. If you need to use Python 2 though, check out the (old) `python2` branch.
 
 - Note: `play` and `lyrics` commands have been deprecated in the current brach since they were not of much use and created unnecessary clutter. You can still get them back by using `old` branch though.
