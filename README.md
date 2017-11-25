@@ -33,7 +33,7 @@ That's how your Music library will look like!
 
 - Look up for open issues and see if you can help out there.
 
-- There's also a web-based application for this tool under (major) work called (spotifube)[https://github.com/djalmaaraujo/spotifube]. Check it out if you would like to help work on it.
+- There's also a web-based application for this tool under (major) work called [spotifube](https://github.com/djalmaaraujo/spotifube). Check it out if you'd like to contribute to it!
 
 ## Installation & Usage
 
