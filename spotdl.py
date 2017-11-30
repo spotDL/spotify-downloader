@@ -10,7 +10,6 @@ from slugify import slugify
 import spotipy
 import pafy
 import urllib.request
-import sys
 import os
 import time
 
@@ -222,11 +221,11 @@ def write_playlist(username, playlist_id):
             username, playlist_id, fields='tracks,next,name')
     text_file = u'{0}.txt'.format(slugify(results['name'], ok='-_()[]{}'))
 
-    print(u'Feeding {0} tracks to {1}'.format(results['tracks']['total'], text_file)) 
+    print(u'Feeding {0} tracks to {1}'.format(results['tracks']['total'], text_file))
     tracks = results['tracks']
     write_tracks(text_file, tracks)
 
-    
+
 def write_album(album):
     tracks = spotify.album_tracks(album['id'])
     text_file = u'{0}.txt'.format(slugify(album['name'], ok='-_()[]{}'))
@@ -417,9 +416,7 @@ token = misc.generate_token()
 spotify = spotipy.Spotify(auth=token)
 
 if __name__ == '__main__':
-    os.chdir(sys.path[0])
     args = misc.get_arguments()
-
     misc.filter_path(args.folder)
 
     if args.song:
