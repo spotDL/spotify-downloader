@@ -217,15 +217,6 @@ def write_tracks(text_file, tracks):
                 break
 
 
-def write_playlist(playlist):
-    results = spotify.user_playlist(
-        playlist['owner']['id'], playlist['id'], fields='tracks,next')
-    text_file = u'{0}.txt'.format(slugify(playlist['name'], ok='-_()[]{}'))
-    print(u'Feeding {0} tracks to {1}'.format(playlist['tracks']['total'], text_file))
-
-    tracks = results['tracks']
-    write_tracks(text_file, tracks)
-
 def write_playlist(username, playlist_id):
     results = spotify.user_playlist(
             username, playlist_id, fields='tracks,next,name')
@@ -235,6 +226,7 @@ def write_playlist(username, playlist_id):
     tracks = results['tracks']
     write_tracks(text_file, tracks)
 
+    
 def write_album(album):
     tracks = spotify.album_tracks(album['id'])
     text_file = u'{0}.txt'.format(slugify(album['name'], ok='-_()[]{}'))
