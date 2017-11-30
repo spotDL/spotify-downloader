@@ -10,7 +10,6 @@ from slugify import slugify
 import spotipy
 import pafy
 import urllib.request
-import sys
 import os
 import time
 
@@ -217,12 +216,12 @@ def write_tracks(text_file, tracks):
                 break
 
 
-def write_playlist(playlist):
+def write_playlist(username, playlist_id):
     results = spotify.user_playlist(
-        playlist['owner']['id'], playlist['id'], fields='tracks,next')
-    text_file = u'{0}.txt'.format(slugify(playlist['name'], ok='-_()[]{}'))
-    print(u'Feeding {0} tracks to {1}'.format(playlist['tracks']['total'], text_file))
+            username, playlist_id, fields='tracks,next,name')
+    text_file = u'{0}.txt'.format(slugify(results['name'], ok='-_()[]{}'))
 
+    print(u'Feeding {0} tracks to {1}'.format(results['tracks']['total'], text_file))
     tracks = results['tracks']
     write_tracks(text_file, tracks)
 
@@ -345,24 +344,9 @@ def grab_playlist(playlist):
         print('The provided playlist URL is not in a recognized format!')
         sys.exit(10)
     playlist_id = splits[-1]
-    playlists = spotify.user_playlists(username)
-    found = False
-
-    while True:
-        for playlist in playlists['items']:
-            if not playlist['name'] == None:
-                if playlist['id'] == playlist_id:
-                    playlists['next'] = None
-                    found = True
-                    break
-        if playlists['next']:
-            playlists = spotify.next(playlists)
-        else:
-            break
-
-    if found:
-        write_playlist(playlist)
-    else:
+    try:
+        write_playlist(username, playlist_id)
+    except spotipy.client.SpotifyException:
         print('Unable to find playlist')
         print('Make sure the playlist is set to publicly visible and then try again')
         sys.exit(11)
@@ -438,9 +422,7 @@ token = misc.generate_token()
 spotify = spotipy.Spotify(auth=token)
 
 if __name__ == '__main__':
-    os.chdir(sys.path[0])
     args = misc.get_arguments()
-
     misc.filter_path(args.folder)
 
     if args.song:

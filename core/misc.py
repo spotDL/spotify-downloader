@@ -57,7 +57,7 @@ def get_arguments():
         help='Use avconv for conversion otherwise set defaults to ffmpeg',
         action='store_true')
     parser.add_argument(
-        '-f', '--folder', default='Music/',
+        '-f', '--folder', default=(os.path.join(sys.path[0], 'Music')),
         help='path to folder where files will be stored in')
     parser.add_argument(
         '-v', '--verbose', default=False, help='show debug output',
@@ -118,7 +118,6 @@ def generate_search_url(song, viewsort=False):
 
 
 def filter_path(path):
-    os.chdir(sys.path[0])
     if not os.path.exists(path):
         os.makedirs(path)
     for temp in os.listdir(path):

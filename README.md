@@ -160,7 +160,7 @@ https://open.spotify.com/track/0fbspWuEdaaT9vfmbAZr1C
 
 #### Download playlists
 
-- You can copy the Spotify URL of the playlist and pass it in `--playlist` option. Note: This method will not work with playlists set to private only or with collaborative playlists (since they cannot be set be publicly visible).
+- You can copy the Spotify URL of the playlist and pass it in `--playlist` option. Note: This method works for public as well as private playlists.
 
 For example
 
@@ -186,7 +186,7 @@ For example
 
 - You can also load songs using Spotify username if you don't have the playlist URL. (Open profile in Spotify, click on the three little dots below name, "Share", "Copy to clipboard", paste last numbers or text into command-line: `https://open.spotify.com/user/0123456790`)
 
-- Try running `python3 spotdl.py -u <your_username>`, it will show all your public playlists (which excludes collaborative and private playlists).
+- Try running `python3 spotdl.py -u <your_username>`, it will (only) show all your public playlists (which excludes collaborative and private playlists).
 
 - Once you select the one you want to download, the script will load all the tracks from the playlist into `<playlist_name>.txt`.
 
