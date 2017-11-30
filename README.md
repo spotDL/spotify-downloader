@@ -204,6 +204,14 @@ Beside some other characters, spaces will be replaced by underscores. There's no
 
 Just make sure your working directory is the one you have the music files in.
 
+## Return codes
+
+- `0` - Success
+- `1` - Unknown error
+- `2` - Command line error (e.g. invalid args)
+- `10` - Invalid playlist URL
+- `11` - Playlist not found
+
 ## Running tests
 
 ```

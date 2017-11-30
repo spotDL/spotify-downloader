@@ -337,13 +337,19 @@ def grab_playlist(playlist):
     else:
         splits = playlist.split(':')
 
-    username = splits[-3]
+    try:
+        username = splits[-3]
+    except IndexError:
+        # Wrong format, in either case
+        print('The provided playlist URL is not in a recognized format!')
+        sys.exit(10)
     playlist_id = splits[-1]
     try:
         write_playlist(username, playlist_id)
     except spotipy.client.SpotifyException:
         print('Unable to find playlist')
         print('Make sure the playlist is set to publicly visible and then try again')
+        sys.exit(11)
 
 
 def grab_album(album):
