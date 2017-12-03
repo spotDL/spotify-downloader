@@ -70,6 +70,17 @@ Assuming you have Python 3 ([preferably v3.6 or above to stay away from Unicode 
 
 - Open `cmd` and type `pip install -U -r requirements.txt` to install dependencies. The same note about `pip` as for Debian, Ubuntu, Linux & Mac applies.
 
+## Docker
+
+Create the docker image and use the `-s` `-p` `-l` to download single song, prepare playlist and download list file.
+
+```
+docker build -t ritiek/spotdl .
+docker run --rm -v $(pwd):/app ritiek/spotdl -s https://open.spotify.com/track/4eSv18SwAXoQJF6tPqFIyw
+docker run --rm -v $(pwd):/app ritiek/spotdl -p https://open.spotify.com/user/spotify/playlist/37i9dQZF1DX2iUghHXGIjj
+docker run --rm -v $(pwd):/app ritiek/spotdl -l acoustic-blues.txt
+```
+
 ## Instructions for Downloading Songs
 
 
