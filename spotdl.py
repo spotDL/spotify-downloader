@@ -192,7 +192,8 @@ def feed_playlist(username):
     print('')
     playlist = misc.input_link(links)
     print('')
-    write_playlist(playlist)
+    print(playlist)
+    write_playlist(playlist['owner']['id'], playlist['id'])
 
 
 def write_tracks(text_file, tracks):
