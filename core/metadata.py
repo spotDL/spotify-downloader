@@ -1,6 +1,7 @@
 from mutagen.easyid3 import EasyID3
 from mutagen.id3 import ID3, APIC
 from mutagen.mp4 import MP4, MP4Cover
+from core.misc import log
 
 import urllib.request
 
@@ -26,16 +27,16 @@ def compare(music_file, metadata):
 def embed(music_file, meta_tags):
     """Embed metadata."""
     if meta_tags is None:
-        print('Could not find meta-tags')
+        log.warning('Could not find meta-tags.\n')
         return None
     elif music_file.endswith('.m4a'):
-        print('Fixing meta-tags')
+        log.info('Fixing meta-tags.\n')
         return embed_m4a(music_file, meta_tags)
     elif music_file.endswith('.mp3'):
-        print('Fixing meta-tags')
+        log.info('Fixing meta-tags.\n')
         return embed_mp3(music_file, meta_tags)
     else:
-        print('Cannot embed meta-tags into given output extension')
+        log.warning('Cannot embed meta-tags into given output extension.')
         return False
 
 
