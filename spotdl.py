@@ -238,17 +238,18 @@ def write_album(album):
 
 def download_song(file_name, content):
     """Download the audio file from YouTube."""
-    if args.input_ext in [".webm", ".m4a"]:
+    if args.input_ext in (".webm", ".m4a"):
         pref = args.input_ext.replace(".", "")
         link = content.getbestaudio(preftype=pref)
     else:
         return False
 
-    if link is not None:
+    if link is None:
+        return False
+    else
         link.download(
             filepath='{0}{1}'.format(os.path.join(args.folder, file_name), args.input_ext))
         return True
-    return False
 
 
 def check_exists(music_file, raw_song, islist=True):
