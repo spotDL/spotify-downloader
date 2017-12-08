@@ -239,14 +239,13 @@ def write_album(album):
 def download_song(file_name, content):
     """Download the audio file from YouTube."""
     if args.input_ext in (".webm", ".m4a"):
-        pref = args.input_ext.replace(".", "")
-        link = content.getbestaudio(preftype=pref)
+        link = content.getbestaudio(preftype=args.input_ext[1:])
     else:
         return False
 
     if link is None:
         return False
-    else
+    else:
         link.download(
             filepath='{0}{1}'.format(os.path.join(args.folder, file_name), args.input_ext))
         return True
