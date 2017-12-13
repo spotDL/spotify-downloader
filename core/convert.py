@@ -1,9 +1,8 @@
 import subprocess
 import os
+from core.misc import log
 
-
-"""
-What are the differences and similarities between ffmpeg, libav, and avconv?
+"""What are the differences and similarities between ffmpeg, libav, and avconv?
 https://stackoverflow.com/questions/9477115
 ffmeg encoders high to lower quality
 libopus > libvorbis >= libfdk_aac > aac > libmp3lame
@@ -12,10 +11,11 @@ on MacOS brew install ffmpeg --with-fdk-aac will do just that. Other OS?
 https://trac.ffmpeg.org/wiki/Encode/AAC
 """
 
+
 def song(input_song, output_song, folder, avconv=False, verbose=False):
     """Do the audio format conversion."""
     if not input_song == output_song:
-        print('Converting {0} to {1}'.format(
+        log.info('Converting {0} to {1}'.format(
             input_song, output_song.split('.')[-1]))
         if avconv:
             exit_code = convert_with_avconv(input_song, output_song, folder, verbose)
@@ -32,10 +32,8 @@ def convert_with_avconv(input_song, output_song, folder, verbose):
     else:
         level = '0'
 
-    command = ['avconv',
-               '-loglevel', level,
-               '-i',        os.path.join(folder, input_song),
-               '-ab',       '192k',
+    command = ['avconv', '-loglevel', level, '-i',
+               os.path.join(folder, input_song), '-ab', '192k',
                os.path.join(folder, output_song)]
 
     return subprocess.call(command)

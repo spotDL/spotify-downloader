@@ -4,6 +4,7 @@
 from core import metadata
 from core import convert
 from core import misc
+from core.misc import log
 from bs4 import BeautifulSoup
 from titlecase import titlecase
 from slugify import slugify
@@ -12,6 +13,7 @@ import pafy
 import urllib.request
 import os
 import time
+import sys
 
 
 def generate_songname(tags):
@@ -93,7 +95,8 @@ def generate_youtube_url(raw_song, meta_tags, tries_remaining=5):
         except AttributeError:
             return generate_youtube_url(raw_song, meta_tags, tries_remaining - 1)
 
-        youtubedetails = {'link': link, 'title': title, 'videotime': videotime, 'seconds':misc.get_sec(videotime)}
+        youtubedetails = {'link': link, 'title': title, 'videotime': videotime,
+                          'seconds': misc.get_sec(videotime)}
         videos.append(youtubedetails)
         if meta_tags is None:
             break
@@ -102,13 +105,12 @@ def generate_youtube_url(raw_song, meta_tags, tries_remaining=5):
         return None
 
     if args.manual:
-        print(song)
-        print('')
-        print('0. Skip downloading this song')
+        log.info(song)
+        log.info('0. Skip downloading this song.\n')
         # fetch all video links on first page on YouTube
         for i, v in enumerate(videos):
-          print(u'{0}. {1} {2} {3}'.format(i+1, v['title'], v['videotime'], "http://youtube.com"+v['link']))
-        print('')
+            log.info(u'{0}. {1} {2} {3}'.format(i+1, v['title'], v['videotime'],
+                  "http://youtube.com"+v['link']))
         # let user select the song to download
         result = misc.input_link(videos)
         if result is None:
@@ -129,7 +131,7 @@ def generate_youtube_url(raw_song, meta_tags, tries_remaining=5):
                 possible_videos_by_duration = list(filter(lambda x: abs(x['seconds'] - (int(meta_tags['duration_ms'])/1000)) <= duration_tolerance, videos))
                 duration_tolerance += 1
                 if duration_tolerance > max_duration_tolerance:
-                    print(meta_tags['name'], 'by', meta_tags['artists'][0]['name'], 'was not found')
+                    log.error("{0} by {1} was not found.\n".format(meta_tags['name'],meta_tags['artists'][0]['name']))
                     return None
 
             result = possible_videos_by_duration[0]
@@ -179,7 +181,7 @@ def feed_playlist(username):
             # in rare cases, playlists may not be found, so playlists['next']
             # is None. Skip these. Also see Issue #91.
             if playlist['name'] is not None:
-                print(u'{0:>5}. {1:<30}  ({2} tracks)'.format(
+                log.info(u'{0:>5}. {1:<30}  ({2} tracks)'.format(
                     check, playlist['name'],
                     playlist['tracks']['total']))
                 links.append(playlist)
@@ -189,9 +191,7 @@ def feed_playlist(username):
         else:
             break
 
-    print('')
     playlist = misc.input_link(links)
-    print('')
     write_playlist(playlist['owner']['id'], playlist['id'])
 
 
@@ -217,11 +217,11 @@ def write_tracks(text_file, tracks):
 
 
 def write_playlist(username, playlist_id):
-    results = spotify.user_playlist(
-            username, playlist_id, fields='tracks,next,name')
+    results = spotify.user_playlist(username, playlist_id,
+                                    fields='tracks,next,name')
     text_file = u'{0}.txt'.format(slugify(results['name'], ok='-_()[]{}'))
 
-    print(u'Feeding {0} tracks to {1}'.format(results['tracks']['total'], text_file))
+    log.info(u'Feeding {0} tracks to {1}'.format(results['tracks']['total'], text_file))
     tracks = results['tracks']
     write_tracks(text_file, tracks)
 
@@ -229,7 +229,7 @@ def write_playlist(username, playlist_id):
 def write_album(album):
     tracks = spotify.album_tracks(album['id'])
     text_file = u'{0}.txt'.format(slugify(album['name'], ok='-_()[]{}'))
-    print(u'Feeding {0} tracks to {1}'.format(tracks['total'], text_file))
+    log.info(u'Feeding {0} tracks to {1}'.format(tracks['total'], text_file))
 
     write_tracks(text_file, tracks)
 
@@ -272,7 +272,7 @@ def check_exists(music_file, raw_song, meta_tags, islist=True):
             # do not prompt and skip the current song
             # if already downloaded when using list
             if islist:
-                print('Song already exists')
+                log.warning('Song already exists.\n')
                 return True
             # if downloading only single song, prompt to re-download
             else:
@@ -295,8 +295,7 @@ def grab_list(text_file):
         lines.remove('')
     except ValueError:
         pass
-    print(u'Total songs in list: {0} songs'.format(len(lines)))
-    print('')
+    log.info(u'{0} total songs in list.\n'.format(len(lines)))
     # nth input song
     number = 1
     for raw_song in lines:
@@ -317,14 +316,12 @@ def grab_list(text_file):
             # and append it to the last line in .txt
             with open(text_file, 'a') as myfile:
                 myfile.write(raw_song + '\n')
-            print('Failed to download song. Will retry after other songs.')
+            log.warning('Failed to download song. Will retry after other songs.')
             # wait 0.5 sec to avoid infinite looping
             time.sleep(0.5)
             continue
         except KeyboardInterrupt:
             misc.grace_quit()
-        finally:
-            print('')
         misc.trim_song(text_file)
         number += 1
 
@@ -341,14 +338,14 @@ def grab_playlist(playlist):
         username = splits[-3]
     except IndexError:
         # Wrong format, in either case
-        print('The provided playlist URL is not in a recognized format!')
+        log.error('The provided playlist URL is not in a recognized format!')
         sys.exit(10)
     playlist_id = splits[-1]
     try:
         write_playlist(username, playlist_id)
     except spotipy.client.SpotifyException:
-        print('Unable to find playlist')
-        print('Make sure the playlist is set to publicly visible and then try again')
+        log.error('Unable to find playlist.')
+        log.fatal('Make sure the playlist is set to publicly visible and then try again.')
         sys.exit(11)
 
 
@@ -374,6 +371,8 @@ def grab_single(raw_song, number=None):
         islist = False
 
     if misc.is_youtube(raw_song):
+        meta_tags = generate_metadata(raw_song)
+        content = go_pafy(raw_song, meta_tags)
         raw_song = slugify(content.title).replace('-', ' ')
 
     meta_tags = generate_metadata(raw_song)
@@ -383,7 +382,7 @@ def grab_single(raw_song, number=None):
 
     # print '[number]. [artist] - [song]' if downloading from list
     # otherwise print '[artist] - [song]'
-    print(get_youtube_title(content, number))
+    log.info(get_youtube_title(content, number))
     # generate file name of the song to download
     songname = content.title
 
@@ -396,7 +395,6 @@ def grab_single(raw_song, number=None):
 
     if not check_exists(file_name, raw_song, meta_tags, islist=islist):
         if download_song(file_name, content):
-            print('')
             input_song = file_name + args.input_ext
             output_song = file_name + args.output_ext
             convert.song(input_song, output_song, args.folder,
@@ -407,7 +405,7 @@ def grab_single(raw_song, number=None):
             if not args.no_metadata:
                 metadata.embed(os.path.join(args.folder, output_song), meta_tags)
         else:
-            print('No audio streams available')
+            log.warning('No audio streams available.')
 
 
 class TestArgs(object):
@@ -415,6 +413,7 @@ class TestArgs(object):
     input_ext = '.m4a'
     output_ext = '.mp3'
     folder = 'Music/'
+
 
 # token is mandatory when using Spotify's API
 # https://developer.spotify.com/news-stories/2017/01/27/removing-unauthenticated-calls-to-the-web-api/

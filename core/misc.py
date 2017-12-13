@@ -3,7 +3,14 @@ import os
 import argparse
 import spotipy.oauth2 as oauth2
 from urllib.request import quote
-from slugify import slugify
+from slugify import SLUG_OK, slugify
+from logzero import setup_logger, LogFormatter
+
+
+# Create a logger
+__log_format = ("%(color)s%(levelname)s:%(end_color)s %(message)s")
+__formatter = LogFormatter(fmt=__log_format)
+log = setup_logger(formatter=__formatter)
 
 
 def input_link(links):
@@ -16,9 +23,9 @@ def input_link(links):
             elif the_chosen_one == 0:
                 return None
             else:
-                print('Choose a valid number!')
+                log.error('Choose a valid number!')
         except ValueError:
-            print('Choose a valid number!')
+            log.error('Choose a valid number!')
 
 
 def trim_song(file):
@@ -78,6 +85,7 @@ def is_spotify(raw_song):
     status = status or raw_song.find('spotify') > -1
     return status
 
+
 def is_youtube(raw_song):
     """Check if the input song is a YouTube link."""
     status = len(raw_song) == 11 and raw_song.replace(" ", "%20") == raw_song
@@ -126,17 +134,18 @@ def filter_path(path):
 
 
 def grace_quit():
-    print('\n\nExiting.')
+    log.critical('\n\nExiting.')
     sys.exit()
 
+
 def get_sec(time_str):
-   v = time_str.split(':', 3)
-   v.reverse()
-   sec = 0
-   if len(v) > 0: #seconds
-       sec += int(v[0])
-   if len(v) > 1: # minutes
-       sec += int(v[1]) * 60
-   if len(v) > 2: # hours
-       sec += int(v[2]) * 3600
-   return sec
+    v = time_str.split(':', 3)
+    v.reverse()
+    sec = 0
+    if len(v) > 0:  # seconds
+        sec += int(v[0])
+    if len(v) > 1:  # minutes
+        sec += int(v[1]) * 60
+    if len(v) > 2:  # hours
+        sec += int(v[2]) * 3600
+    return sec
