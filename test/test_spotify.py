@@ -5,8 +5,15 @@ import os
 
 raw_song = 'http://open.spotify.com/track/0JlS7BXXD07hRmevDnbPDU'
 
-for x in os.listdir(spotdl.args.folder):
-    os.remove(os.path.join(spotdl.args.folder, x))
+class TestArgs:
+    manual = False
+    input_ext = '.m4a'
+    output_ext = '.mp3'
+    folder = 'test'
+
+test_args = TestArgs()
+setattr(spotdl, "args", test_args)
+spotdl.misc.filter_path(spotdl.args.folder)
 
 
 def test_spotify_title():
@@ -52,6 +59,8 @@ def test_convert():
     # exit code 0 = success
     expect_convert = 0
     # prerequisites for determining filename
+    global input_song
+    global output_song
     input_song = file_name + spotdl.args.input_ext
     output_song = file_name + spotdl.args.output_ext
     convert = spotdl.convert.song(input_song, output_song, spotdl.args.folder)
@@ -61,9 +70,7 @@ def test_convert():
 def test_metadata():
     expect_metadata = True
     # prerequisites for determining filename
-    output_song = file_name + spotdl.args.output_ext
     metadata_output = spotdl.metadata.embed(os.path.join(spotdl.args.folder, output_song), meta_tags)
-    input_song = file_name + spotdl.args.input_ext
     metadata_input = spotdl.metadata.embed(os.path.join(spotdl.args.folder, input_song), meta_tags)
     assert metadata_output == (metadata_input == expect_metadata)
 
@@ -71,7 +78,7 @@ def test_metadata():
 def test_check_exists2():
     expect_check = True
     # prerequisites for determining filename
-    input_song = file_name + spotdl.args.input_ext
     os.remove(os.path.join(spotdl.args.folder, input_song))
     check = spotdl.check_exists(file_name, raw_song, meta_tags, islist=True)
+    os.remove(os.path.join(spotdl.args.folder, output_song))
     assert check == expect_check

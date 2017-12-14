@@ -157,7 +157,7 @@ def generate_youtube_url(raw_song, meta_tags, tries_remaining=5):
     return full_link
 
 
-def go_pafy(raw_song, meta_tags):
+def go_pafy(raw_song, meta_tags=None):
     """Parse track from YouTube."""
     if misc.is_youtube(raw_song):
         track_info = pafy.new(raw_song)
@@ -385,12 +385,13 @@ def grab_single(raw_song, number=None):
         islist = False
 
     if misc.is_youtube(raw_song):
+        content = go_pafy(raw_song, meta_tags=None)
+        raw_song = slugify(content.title).replace('-', ' ')
+        meta_tags = generate_metadata(raw_song)
+    else:
         meta_tags = generate_metadata(raw_song)
         content = go_pafy(raw_song, meta_tags)
-        raw_song = slugify(content.title).replace('-', ' ')
 
-    meta_tags = generate_metadata(raw_song)
-    content = go_pafy(raw_song, meta_tags)
     if content is None:
         return
 
@@ -423,13 +424,6 @@ def grab_single(raw_song, number=None):
             log.error('No audio streams available')
 
 
-class TestArgs(object):
-    manual = False
-    input_ext = '.m4a'
-    output_ext = '.mp3'
-    folder = 'Music/'
-
-
 # token is mandatory when using Spotify's API
 # https://developer.spotify.com/news-stories/2017/01/27/removing-unauthenticated-calls-to-the-web-api/
 token = misc.generate_token()
@@ -449,6 +443,3 @@ if __name__ == '__main__':
         grab_album(album=args.album)
     elif args.username:
         feed_playlist(username=args.username)
-else:
-    misc.filter_path('Music')
-    args = TestArgs()
