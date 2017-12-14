@@ -2,15 +2,9 @@ import sys
 import os
 import argparse
 import spotipy.oauth2 as oauth2
+from core.logger import log
 from urllib.request import quote
 from slugify import SLUG_OK, slugify
-from logzero import setup_logger, LogFormatter
-
-
-# Create a logger
-__log_format = ("%(color)s%(levelname)s:%(end_color)s %(message)s")
-__formatter = LogFormatter(fmt=__log_format)
-log = setup_logger(formatter=__formatter)
 
 
 def input_link(links):
@@ -133,8 +127,8 @@ def filter_path(path):
             os.remove(os.path.join(path, temp))
 
 
-def grace_quit():
-    log.critical('\n\nExiting.')
+def grace_quit(msg):
+    log.critical(msg)
     sys.exit()
 
 

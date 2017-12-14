@@ -1,6 +1,6 @@
 import subprocess
 import os
-from core.misc import log
+from core.logger import log
 
 """What are the differences and similarities between ffmpeg, libav, and avconv?
 https://stackoverflow.com/questions/9477115

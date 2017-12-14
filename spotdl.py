@@ -4,7 +4,7 @@
 from core import metadata
 from core import convert
 from core import misc
-from core.misc import log
+from core.logger import log
 from bs4 import BeautifulSoup
 from titlecase import titlecase
 from slugify import slugify
@@ -56,6 +56,24 @@ def generate_metadata(raw_song):
     return meta_tags
 
 
+def is_video(result):
+    # ensure result is not a channel
+    not_video = result.find('channel') is not None or \
+                'yt-lockup-channel' in result.parent.attrs['class'] or \
+                'yt-lockup-channel' in result.attrs['class']
+
+    # ensure result is not a mix/playlist
+    not_video = not_video or \
+               'yt-lockup-playlist' in result.parent.attrs['class']
+
+    # ensure video result is not an advertisement
+    not_video = not_video or \
+                result.find('googleads') is not None
+
+    video = not not_video
+    return video
+
+
 def generate_youtube_url(raw_song, meta_tags, tries_remaining=5):
     """Search for the song on YouTube and generate a URL to its video."""
     # prevents an infinite loop but allows for a few retries
@@ -70,26 +88,18 @@ def generate_youtube_url(raw_song, meta_tags, tries_remaining=5):
         search_url = misc.generate_search_url(song, viewsort=True)
 
     item = urllib.request.urlopen(search_url).read()
-    # item = unicode(item, 'utf-8')
     items_parse = BeautifulSoup(item, "html.parser")
 
     videos = []
     for x in items_parse.find_all('div', {'class': 'yt-lockup-dismissable yt-uix-tile'}):
-        # ensure result is not a channel
-        if x.find('channel') is not None or 'yt-lockup-channel' in x.parent.attrs['class'] or 'yt-lockup-channel' in x.attrs['class']:
-            continue
 
-        # ensure result is not a mix/playlist
-        if 'yt-lockup-playlist' in x.parent.attrs['class']:
-            continue
-
-        # confirm the video result is not an advertisement
-        if x.find('googleads') is not None:
+        if not is_video(x):
             continue
 
         y = x.find('div', class_='yt-lockup-content')
         link = y.find('a')['href']
         title = y.find('a')['title']
+
         try:
             videotime = x.find('span', class_="video-time").get_text()
         except AttributeError:
@@ -136,7 +146,8 @@ def generate_youtube_url(raw_song, meta_tags, tries_remaining=5):
 
             result = possible_videos_by_duration[0]
         else:
-            # if the metadata could not be acquired, take the first result from Youtube because the proper song length is unknown
+            # if the metadata could not be acquired, take the first result
+            # from Youtube because the proper song length is unknown
             result = videos[0]
 
     full_link = None
@@ -220,8 +231,8 @@ def write_playlist(username, playlist_id):
     results = spotify.user_playlist(username, playlist_id,
                                     fields='tracks,next,name')
     text_file = u'{0}.txt'.format(slugify(results['name'], ok='-_()[]{}'))
-
-    log.info(u'Feeding {0} tracks to {1}'.format(results['tracks']['total'], text_file))
+    log.info(u'writing {0} tracks to {1}'.format(
+               results['tracks']['total'], text_file))
     tracks = results['tracks']
     write_tracks(text_file, tracks)
 
@@ -229,8 +240,8 @@ def write_playlist(username, playlist_id):
 def write_album(album):
     tracks = spotify.album_tracks(album['id'])
     text_file = u'{0}.txt'.format(slugify(album['name'], ok='-_()[]{}'))
-    log.info(u'Feeding {0} tracks to {1}'.format(tracks['total'], text_file))
-
+    log.info(u'writing {0} tracks to {1}'.format(
+               tracks['total'], text_file))
     write_tracks(text_file, tracks)
 
 
@@ -246,8 +257,9 @@ def download_song(file_name, content):
     if link is None:
         return False
     else:
-        link.download(
-            filepath='{0}{1}'.format(os.path.join(args.folder, file_name), args.input_ext))
+        filepath = '{0}{1}'.format(os.path.join(args.folder, file_name),
+                                   args.input_ext)
+        link.download(filepath=filepath)
         return True
 
 
@@ -272,12 +284,12 @@ def check_exists(music_file, raw_song, meta_tags, islist=True):
             # do not prompt and skip the current song
             # if already downloaded when using list
             if islist:
-                log.warning('Song already exists.\n')
+                log.warning('Song already exists')
                 return True
             # if downloading only single song, prompt to re-download
             else:
                 prompt = input('Song with same name has already been downloaded. '
-                               'Re-download? (y/n): ').lower()
+                               'Re-download? (y/N): ').lower()
                 if prompt == 'y':
                     os.remove(os.path.join(args.folder, song))
                     return False
@@ -295,12 +307,13 @@ def grab_list(text_file):
         lines.remove('')
     except ValueError:
         pass
-    log.info(u'{0} total songs in list.\n'.format(len(lines)))
-    # nth input song
+    log.info(u'Preparing to download {} songs\n'.format(len(lines)))
     number = 1
+
     for raw_song in lines:
         try:
             grab_single(raw_song, number=number)
+            print('')
         # token expires after 1 hour
         except spotipy.client.SpotifyException:
             # refresh token when it expires
@@ -311,17 +324,19 @@ def grab_list(text_file):
         # detect network problems
         except (urllib.request.URLError, TypeError, IOError):
             lines.append(raw_song)
-            # remove the downloaded song from .txt
+            # remove the downloaded song from file
             misc.trim_song(text_file)
-            # and append it to the last line in .txt
+            # and append it at the end of file
             with open(text_file, 'a') as myfile:
                 myfile.write(raw_song + '\n')
-            log.warning('Failed to download song. Will retry after other songs.')
+            log.warning('Failed to download song. Will retry after other songs\n')
+            print('')
             # wait 0.5 sec to avoid infinite looping
             time.sleep(0.5)
             continue
-        except KeyboardInterrupt:
-            misc.grace_quit()
+        except KeyboardInterrupt as e:
+            misc.grace_quit(e)
+
         misc.trim_song(text_file)
         number += 1
 
@@ -344,8 +359,8 @@ def grab_playlist(playlist):
     try:
         write_playlist(username, playlist_id)
     except spotipy.client.SpotifyException:
-        log.error('Unable to find playlist.')
-        log.fatal('Make sure the playlist is set to publicly visible and then try again.')
+        log.error('Unable to find playlist')
+        log.info('Make sure the playlist is set to publicly visible and then try again')
         sys.exit(11)
 
 
@@ -397,6 +412,7 @@ def grab_single(raw_song, number=None):
         if download_song(file_name, content):
             input_song = file_name + args.input_ext
             output_song = file_name + args.output_ext
+            print('')
             convert.song(input_song, output_song, args.folder,
                          avconv=args.avconv, verbose=args.verbose)
             if not args.input_ext == args.output_ext:
@@ -405,7 +421,7 @@ def grab_single(raw_song, number=None):
             if not args.no_metadata:
                 metadata.embed(os.path.join(args.folder, output_song), meta_tags)
         else:
-            log.warning('No audio streams available.')
+            log.error('No audio streams available')
 
 
 class TestArgs(object):
