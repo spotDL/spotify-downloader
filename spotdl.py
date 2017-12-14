@@ -307,13 +307,13 @@ def grab_list(text_file):
         lines.remove('')
     except ValueError:
         pass
-    log.info(u'Preparing to download {} songs\n'.format(len(lines)))
+    log.info(u'Preparing to download {} songs'.format(len(lines)))
     number = 1
 
     for raw_song in lines:
+        print('')
         try:
             grab_single(raw_song, number=number)
-            print('')
         # token expires after 1 hour
         except spotipy.client.SpotifyException:
             # refresh token when it expires
@@ -330,7 +330,6 @@ def grab_list(text_file):
             with open(text_file, 'a') as myfile:
                 myfile.write(raw_song + '\n')
             log.warning('Failed to download song. Will retry after other songs\n')
-            print('')
             # wait 0.5 sec to avoid infinite looping
             time.sleep(0.5)
             continue
