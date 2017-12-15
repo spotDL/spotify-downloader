@@ -72,7 +72,7 @@ def get_arguments():
         '-ll', '--log-level', default='INFO',
         choices=_LOG_LEVELS_STR,
         type=str.upper,
-        help='possible values - {}'.format(_LOG_LEVELS_STR))
+        help='set log verbosity')
 
     parsed = parser.parse_args()
     parsed.log_level = log_leveller(parsed.log_level)

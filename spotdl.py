@@ -305,11 +305,11 @@ def check_exists(music_file, raw_song, meta_tags, islist=True):
 
             # if downloading only single song, prompt to re-download
             if islist:
-                log.warning('Song already exists')
+                log.warning('"{}" already exists'.format(song))
                 return True
             else:
-                log.info('Song with same name has already been downloaded. '
-                         'Re-download? (y/N): ')
+                log.info('"{}" has already been downloaded. '
+                         'Re-download? (y/N): '.format(song))
                 prompt = input('> ')
                 if prompt.lower() == 'y':
                     os.remove(os.path.join(args.folder, song))

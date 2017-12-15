@@ -10,7 +10,7 @@ def log_leveller(log_level_str):
     return loggin_level
 
 
-# Create a logger
 log_format = ("%(color)s%(levelname)s:%(end_color)s %(message)s")
 formatter = logzero.LogFormatter(fmt=log_format)
-log = logzero.setup_logger(formatter=formatter, level=logging.INFO)
+# create a default logger
+log = logzero.setup_logger(formatter=formatter)

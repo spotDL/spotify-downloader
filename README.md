@@ -112,8 +112,7 @@ optional arguments:
                         prefered output extension .mp3 or .m4a (AAC) (default:
                         .mp3)
   -ll {INFO,WARNING,ERROR,DEBUG}, --log-level {INFO,WARNING,ERROR,DEBUG}
-                        possible values - ['INFO', 'WARNING', 'ERROR',
-                        'DEBUG'] (default: INFO)
+                        set log verbosity (default: INFO)
 ```
 
 #### Download by Name
