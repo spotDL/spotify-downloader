@@ -308,7 +308,6 @@ def check_exists(music_file, raw_song, meta_tags, islist=True):
                 log.info('Song with same name has already been downloaded. '
                          'Re-download? (y/N): ')
                 prompt = input('> ')
-                log.debug('Received response: {}'.format(prompt))
                 if prompt.lower() == 'y':
                     os.remove(os.path.join(args.folder, song))
                     return False
