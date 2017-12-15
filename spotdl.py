@@ -288,7 +288,7 @@ def check_exists(music_file, raw_song, meta_tags, islist=True):
         file_name = misc.sanitize_title(music_file)
         if song.startswith(file_name):
             log.debug('Found an already existing song: "{}"'.format(song))
-            if misc.is_spotify(raw_song) and not already_tagged:
+            if misc.is_spotify(raw_song):
                 # check if the already downloaded song has correct metadata
                 # if not, remove it and download again without prompt
                 already_tagged = metadata.compare(os.path.join(args.folder, song),

@@ -1,23 +1,28 @@
 # -*- coding: UTF-8 -*-
 
+from spotdl import logger
 import spotdl
 import os
 
 raw_song = "Tony's Videos VERY SHORT VIDEO 28.10.2016"
+
 
 class TestArgs:
     manual = False
     input_ext = '.m4a'
     output_ext = '.mp3'
     folder = 'test'
+    log_level = logger.logging.DEBUG
 
 test_args = TestArgs()
 setattr(spotdl, "args", test_args)
-spotdl.misc.filter_path(spotdl.args.folder)
+
+spotdl.log = logger.logzero.setup_logger(formatter=logger.formatter,
+                                  level=spotdl.args.log_level)
 
 
 def test_youtube_url():
-    expect_url = 'youtube.com/watch?v=qOOcy2-tmbk'
+    expect_url = 'http://youtube.com/watch?v=qOOcy2-tmbk'
     url = spotdl.generate_youtube_url(raw_song, meta_tags=None)
     assert url == expect_url
 

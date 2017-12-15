@@ -1,18 +1,24 @@
 # -*- coding: UTF-8 -*-
 
+from spotdl import logger
 import spotdl
 import os
 
 raw_song = 'http://open.spotify.com/track/0JlS7BXXD07hRmevDnbPDU'
+
 
 class TestArgs:
     manual = False
     input_ext = '.m4a'
     output_ext = '.mp3'
     folder = 'test'
+    log_level = 'DEBUG'
 
 test_args = TestArgs()
 setattr(spotdl, "args", test_args)
+
+spotdl.log = logger.logzero.setup_logger(formatter=logger.formatter,
+                                  level=spotdl.args.log_level)
 spotdl.misc.filter_path(spotdl.args.folder)
 
 
