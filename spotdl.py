@@ -209,6 +209,7 @@ def feed_playlist(username):
                 log.info(u'{0:>5}. {1:<30}  ({2} tracks)'.format(
                     check, playlist['name'],
                     playlist['tracks']['total']))
+                log.debug(playlist['external_urls']['spotify'])
                 links.append(playlist)
                 check += 1
         if playlists['next']:
@@ -229,7 +230,9 @@ def write_tracks(text_file, tracks):
                 else:
                     track = item
                 try:
-                    file_out.write(track['external_urls']['spotify'] + '\n')
+                    track_url = track['external_urls']['spotify']
+                    file_out.write(track_url + '\n')
+                    log.debug(track_url)
                 except KeyError:
                     log.warning(u'Skipping track {0} by {1} (local only?)'.format(
                         track['name'], track['artists'][0]['name']))
@@ -458,9 +461,8 @@ if __name__ == '__main__':
                                       level=args.log_level)
     log = logger.log
     log.debug('Python version: {}'.format(sys.version))
-    log.debug('Platform: {}\n'.format(platform.platform()))
-
-    log.debug(args.__dict__)
+    log.debug('Platform: {}'.format(platform.platform()))
+    log.debug(pprint.pformat(args.__dict__))
 
     try:
         if args.song:
