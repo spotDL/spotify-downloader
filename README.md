@@ -104,8 +104,7 @@ optional arguments:
                         ffmpeg (default: False)
   -f FOLDER, --folder FOLDER
                         path to folder where files will be stored in (default:
-                        /home/ritiek/Downloads/spotify-downloader/Music)
-  -v, --verbose         show debug output (default: False)
+                        Music/)
   -i INPUT_EXT, --input-ext INPUT_EXT
                         prefered input format .m4a or .webm (Opus) (default:
                         .m4a)

@@ -20,7 +20,7 @@ Please follow the guide below
 
 
 ### Log
-<!-- Run the script with `-\-log-level=DEBUG` and paste the output below -->
+<!-- Run the script with `--log-level=DEBUG` and paste the output below -->
 
 
 <!-- Give your issue a relevant title and you are good to go -->
