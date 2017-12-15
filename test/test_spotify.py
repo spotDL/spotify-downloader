@@ -19,7 +19,7 @@ setattr(spotdl, "args", test_args)
 
 spotdl.log = logger.logzero.setup_logger(formatter=logger.formatter,
                                   level=spotdl.args.log_level)
-spotdl.misc.filter_path(spotdl.args.folder)
+spotdl.internals.filter_path(spotdl.args.folder)
 
 
 def test_spotify_title():
@@ -48,7 +48,7 @@ def test_check_exists():
     # prerequisites for determining filename
     songname = spotdl.generate_songname(meta_tags)
     global file_name
-    file_name = spotdl.misc.sanitize_title(songname)
+    file_name = spotdl.internals.sanitize_title(songname)
     check = spotdl.check_exists(file_name, raw_song, meta_tags, islist=True)
     assert check == expect_check
 

@@ -15,22 +15,22 @@ https://trac.ffmpeg.org/wiki/Encode/AAC
 """
 
 
-def song(input_song, output_song, folder, avconv=False, verbose=False):
-    """Do the audio format conversion."""
+def song(input_song, output_song, folder, avconv=False):
+    """ Do the audio format conversion. """
     if not input_song == output_song:
         log.info('Converting {0} to {1}'.format(
             input_song, output_song.split('.')[-1]))
         if avconv:
-            exit_code = convert_with_avconv(input_song, output_song, folder, verbose)
+            exit_code = convert_with_avconv(input_song, output_song, folder)
         else:
-            exit_code = convert_with_ffmpeg(input_song, output_song, folder, verbose)
+            exit_code = convert_with_ffmpeg(input_song, output_song, folder)
         return exit_code
     return 0
 
 
-def convert_with_avconv(input_song, output_song, folder, verbose):
-    """Convert the audio file using avconv."""
-    if verbose:
+def convert_with_avconv(input_song, output_song, folder):
+    """ Convert the audio file using avconv. """
+    if log.level == 10:
         level = 'debug'
     else:
         level = '0'
@@ -44,10 +44,11 @@ def convert_with_avconv(input_song, output_song, folder, verbose):
     return subprocess.call(command)
 
 
-def convert_with_ffmpeg(input_song, output_song, folder, verbose):
-    """Convert the audio file using FFmpeg."""
+def convert_with_ffmpeg(input_song, output_song, folder):
+    """ Convert the audio file using FFmpeg. """
     ffmpeg_pre = 'ffmpeg -y '
-    if not verbose:
+
+    if not log.level == 10:
         ffmpeg_pre += '-hide_banner -nostats -v panic '
 
     input_ext = input_song.split('.')[-1]

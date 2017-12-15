@@ -20,7 +20,10 @@ Please follow the guide below
 
 
 ### Log
-<!-- Run the script with `--log-level=DEBUG` and paste the output below -->
+<!-- Run the script with `--log-level=DEBUG` and paste the output below within the <details> tag-->
+<details>
 
+
+</details>
 
 <!-- Give your issue a relevant title and you are good to go -->
