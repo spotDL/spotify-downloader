@@ -12,6 +12,7 @@ import spotipy
 import pafy
 import urllib.request
 import os
+import sys
 import time
 import sys
 import platform
@@ -259,10 +260,8 @@ def write_album(album):
 
 def download_song(file_name, content):
     """Download the audio file from YouTube."""
-    if args.input_ext == '.webm':
-        link = content.getbestaudio(preftype='webm')
-    elif args.input_ext == '.m4a':
-        link = content.getbestaudio(preftype='m4a')
+    if args.input_ext in (".webm", ".m4a"):
+        link = content.getbestaudio(preftype=args.input_ext[1:])
     else:
         return False
 
