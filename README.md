@@ -17,7 +17,7 @@
   - Track number
   - Disc number
   - Release date
-  - And some more...
+  - And more...
 
 - Works straight out of the box and does not require to generate or mess with your API keys.
 
@@ -78,8 +78,10 @@ Assuming you have Python 3 ([preferably v3.6 or above to stay away from Unicode 
 - For all available options, run `python3 spotdl.py --help`.
 
 ```
-usage: spotdl.py [-h] (-s SONG | -l LIST | -p PLAYLIST | -u USERNAME) [-m]
-                 [-nm] [-a] [-f FOLDER] [-v] [-i INPUT_EXT] [-o OUTPUT_EXT]
+usage: spotdl.py [-h]
+                 (-s SONG | -l LIST | -p PLAYLIST | -b ALBUM | -u USERNAME)
+                 [-m] [-nm] [-a] [-f FOLDER] [-v] [-i INPUT_EXT]
+                 [-o OUTPUT_EXT] [-ll {INFO,WARNING,ERROR,DEBUG}]
 
 Download and convert songs from Spotify, Youtube etc.
 
@@ -102,14 +104,17 @@ optional arguments:
                         ffmpeg (default: False)
   -f FOLDER, --folder FOLDER
                         path to folder where files will be stored in (default:
-                        Music/)
+                        /home/ritiek/Downloads/spotify-downloader/Music)
   -v, --verbose         show debug output (default: False)
-  -i INPUT_EXT, --input_ext INPUT_EXT
+  -i INPUT_EXT, --input-ext INPUT_EXT
                         prefered input format .m4a or .webm (Opus) (default:
                         .m4a)
-  -o OUTPUT_EXT, --output_ext OUTPUT_EXT
+  -o OUTPUT_EXT, --output-ext OUTPUT_EXT
                         prefered output extension .mp3 or .m4a (AAC) (default:
                         .mp3)
+  -ll {INFO,WARNING,ERROR,DEBUG}, --log-level {INFO,WARNING,ERROR,DEBUG}
+                        possible values - ['INFO', 'WARNING', 'ERROR',
+                        'DEBUG'] (default: INFO)
 ```
 
 #### Download by Name
@@ -204,11 +209,12 @@ Beside some other characters, spaces will be replaced by underscores. There's no
 
 Just make sure your working directory is the one you have the music files in.
 
-## Return codes
+## Exit codes
 
 - `0` - Success
 - `1` - Unknown error
 - `2` - Command line error (e.g. invalid args)
+- `-1` - KeyboardInterrupt
 - `10` - Invalid playlist URL
 - `11` - Playlist not found
 
@@ -218,7 +224,7 @@ Just make sure your working directory is the one you have the music files in.
 python3 -m pytest test
 ```
 
-Obviously this requires the `pytest` module to be installed. 
+Obviously this requires the `pytest` module to be installed.
 
 ## Disclaimer
 

@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 
+from core import logger
 from core import metadata
 from core import convert
 from core import misc
-from core.logger import log
 from bs4 import BeautifulSoup
 from titlecase import titlecase
 from slugify import slugify
@@ -14,6 +14,7 @@ import urllib.request
 import os
 import time
 import sys
+import platform
 
 
 def generate_songname(tags):
@@ -26,9 +27,11 @@ def generate_metadata(raw_song):
     """Fetch a song's metadata from Spotify."""
     if misc.is_spotify(raw_song):
         # fetch track information directly if it is spotify link
+        log.debug('Fetching metadata from Spotify URL: "{}"'.format(raw_song))
         meta_tags = spotify.track(raw_song)
     else:
         # otherwise search on spotify and fetch information from first result
+        log.debug('Searching for "{}" on Spotify'.format(raw_song))
         try:
             meta_tags = spotify.search(raw_song, limit=1)['tracks']['items'][0]
         except IndexError:
@@ -53,6 +56,7 @@ def generate_metadata(raw_song):
     meta_tags[u'publisher'] = album['label']
     meta_tags[u'total_tracks'] = album['tracks']['total']
 
+    log.debug(meta_tags)
     return meta_tags
 
 
@@ -78,6 +82,7 @@ def generate_youtube_url(raw_song, meta_tags, tries_remaining=5):
     """Search for the song on YouTube and generate a URL to its video."""
     # prevents an infinite loop but allows for a few retries
     if tries_remaining == 0:
+        log.debug('No tries left. I quit.')
         return
 
     if meta_tags is None:
@@ -86,6 +91,7 @@ def generate_youtube_url(raw_song, meta_tags, tries_remaining=5):
     else:
         song = generate_songname(meta_tags)
         search_url = misc.generate_search_url(song, viewsort=True)
+    log.debug('Opening URL: {0}'.format(search_url))
 
     item = urllib.request.urlopen(search_url).read()
     items_parse = BeautifulSoup(item, "html.parser")
@@ -103,6 +109,7 @@ def generate_youtube_url(raw_song, meta_tags, tries_remaining=5):
         try:
             videotime = x.find('span', class_="video-time").get_text()
         except AttributeError:
+            log.debug('Could not find video duration on YouTube, retrying..')
             return generate_youtube_url(raw_song, meta_tags, tries_remaining - 1)
 
         youtubedetails = {'link': link, 'title': title, 'videotime': videotime,
@@ -113,6 +120,8 @@ def generate_youtube_url(raw_song, meta_tags, tries_remaining=5):
 
     if not videos:
         return None
+
+    log.debug(videos)
 
     if args.manual:
         log.info(song)
@@ -126,7 +135,12 @@ def generate_youtube_url(raw_song, meta_tags, tries_remaining=5):
         if result is None:
             return None
     else:
-        if meta_tags is not None:
+        if meta_tags is None:
+            # if the metadata could not be acquired, take the first result
+            # from Youtube because the proper song length is unknown
+            result = videos[0]
+            log.debug('Since no metadata found on Spotify, going with the first result')
+        else:
             # filter out videos that do not have a similar length to the Spotify song
             duration_tolerance = 10
             max_duration_tolerance = 20
@@ -145,15 +159,13 @@ def generate_youtube_url(raw_song, meta_tags, tries_remaining=5):
                     return None
 
             result = possible_videos_by_duration[0]
-        else:
-            # if the metadata could not be acquired, take the first result
-            # from Youtube because the proper song length is unknown
-            result = videos[0]
 
-    full_link = None
     if result:
-        full_link = u'youtube.com{0}'.format(result['link'])
+        full_link = u'http://youtube.com{0}'.format(result['link'])
+    else:
+        full_link = None
 
+    log.debug('Best matching video link: {}'.format(full_link))
     return full_link
 
 
@@ -217,7 +229,7 @@ def write_tracks(text_file, tracks):
                 try:
                     file_out.write(track['external_urls']['spotify'] + '\n')
                 except KeyError:
-                    print(u'Skipping track {0} by {1} (local only?)'.format(
+                    log.warning(u'Skipping track {0} by {1} (local only?)'.format(
                         track['name'], track['artists'][0]['name']))
             # 1 page = 50 results
             # check if there are more pages
@@ -231,7 +243,7 @@ def write_playlist(username, playlist_id):
     results = spotify.user_playlist(username, playlist_id,
                                     fields='tracks,next,name')
     text_file = u'{0}.txt'.format(slugify(results['name'], ok='-_()[]{}'))
-    log.info(u'writing {0} tracks to {1}'.format(
+    log.info(u'Writing {0} tracks to {1}'.format(
                results['tracks']['total'], text_file))
     tracks = results['tracks']
     write_tracks(text_file, tracks)
@@ -254,6 +266,7 @@ def download_song(file_name, content):
     else:
         return False
 
+    log.debug('Downloading from URL: ' + link.url)
     if link is None:
         return False
     else:
@@ -265,6 +278,8 @@ def download_song(file_name, content):
 
 def check_exists(music_file, raw_song, meta_tags, islist=True):
     """Check if the input song already exists in the given folder."""
+    log.debug('Cleaning any temp files and checking '
+              'if "{}" already exists'.format(music_file))
     songs = os.listdir(args.folder)
     for song in songs:
         if song.endswith('.temp'):
@@ -273,27 +288,32 @@ def check_exists(music_file, raw_song, meta_tags, islist=True):
         # check if any song with similar name is already present in the given folder
         file_name = misc.sanitize_title(music_file)
         if song.startswith(file_name):
-            # check if the already downloaded song has correct metadata
-            already_tagged = metadata.compare(os.path.join(args.folder, song), meta_tags)
-
-            # if not, remove it and download again without prompt
+            log.debug('Found an already existing song: "{}"'.format(song))
             if misc.is_spotify(raw_song) and not already_tagged:
-                os.remove(os.path.join(args.folder, song))
-                return False
+                # check if the already downloaded song has correct metadata
+                # if not, remove it and download again without prompt
+                already_tagged = metadata.compare(os.path.join(args.folder, song),
+                                                  meta_tags)
+                log.debug('Checking if it is already tagged correctly? {}',
+                                                            already_tagged)
+                if not already_tagged:
+                    os.remove(os.path.join(args.folder, song))
+                    return False
 
-            # do not prompt and skip the current song
-            # if already downloaded when using list
+            # if downloading only single song, prompt to re-download
             if islist:
                 log.warning('Song already exists')
                 return True
-            # if downloading only single song, prompt to re-download
             else:
-                prompt = input('Song with same name has already been downloaded. '
-                               'Re-download? (y/N): ').lower()
-                if prompt == 'y':
+                log.info('Song with same name has already been downloaded. '
+                         'Re-download? (y/N): ')
+                prompt = input('> ')
+                log.debug('Received response: {}'.format(prompt))
+                if prompt.lower() == 'y':
                     os.remove(os.path.join(args.folder, song))
                     return False
                 else:
+                    log.debug('Skipping song')
                     return True
     return False
 
@@ -317,6 +337,7 @@ def grab_list(text_file):
         # token expires after 1 hour
         except spotipy.client.SpotifyException:
             # refresh token when it expires
+            log.debug('Token expired, generating new one and authorizing')
             new_token = misc.generate_token()
             global spotify
             spotify = spotipy.Spotify(auth=new_token)
@@ -333,9 +354,8 @@ def grab_list(text_file):
             # wait 0.5 sec to avoid infinite looping
             time.sleep(0.5)
             continue
-        except KeyboardInterrupt as e:
-            misc.grace_quit(e)
 
+        log.debug('Removing downloaded song from text file')
         misc.trim_song(text_file)
         number += 1
 
@@ -385,6 +405,7 @@ def grab_single(raw_song, number=None):
         islist = False
 
     if misc.is_youtube(raw_song):
+        log.debug('Input song is a YouTube URL')
         content = go_pafy(raw_song, meta_tags=None)
         raw_song = slugify(content.title).replace('-', ' ')
         meta_tags = generate_metadata(raw_song)
@@ -393,16 +414,18 @@ def grab_single(raw_song, number=None):
         content = go_pafy(raw_song, meta_tags)
 
     if content is None:
+        log.debug('Found no matching video')
         return
 
-    # print '[number]. [artist] - [song]' if downloading from list
-    # otherwise print '[artist] - [song]'
+    # log '[number]. [artist] - [song]' if downloading from list
+    # otherwise log '[artist] - [song]'
     log.info(get_youtube_title(content, number))
     # generate file name of the song to download
     songname = content.title
 
     if meta_tags is not None:
         refined_songname = generate_songname(meta_tags)
+        log.debug('Refining songname from "{0}" to "{1}"'.format(songname, refined_songname))
         if not refined_songname == ' - ':
             songname = refined_songname
 
@@ -433,13 +456,27 @@ if __name__ == '__main__':
     args = misc.get_arguments()
     misc.filter_path(args.folder)
 
-    if args.song:
-        grab_single(raw_song=args.song)
-    elif args.list:
-        grab_list(text_file=args.list)
-    elif args.playlist:
-        grab_playlist(playlist=args.playlist)
-    elif args.album:
-        grab_album(album=args.album)
-    elif args.username:
-        feed_playlist(username=args.username)
+    logger.log = logger.logzero.setup_logger(formatter=logger.formatter,
+                                      level=args.log_level)
+    log = logger.log
+    log.debug('Python version: {}'.format(sys.version))
+    log.debug('Platform: {}\n'.format(platform.platform()))
+
+    log.debug(args.__dict__)
+
+    try:
+        if args.song:
+            grab_single(raw_song=args.song)
+        elif args.list:
+            grab_list(text_file=args.list)
+        elif args.playlist:
+            grab_playlist(playlist=args.playlist)
+        elif args.album:
+            grab_album(album=args.album)
+        elif args.username:
+            feed_playlist(username=args.username)
+        sys.exit(0)
+
+    except KeyboardInterrupt as e:
+        log.exception(e)
+        sys.exit(-1)

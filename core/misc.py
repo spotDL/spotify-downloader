@@ -1,17 +1,19 @@
-import sys
-import os
 import argparse
 import spotipy.oauth2 as oauth2
-from core.logger import log
 from urllib.request import quote
 from slugify import SLUG_OK, slugify
+
+import sys
+import os
+from core.logger import log, log_leveller
 
 
 def input_link(links):
     """Let the user input a number."""
     while True:
         try:
-            the_chosen_one = int(input('>> Choose your number: '))
+            log.info('Choose your number:')
+            the_chosen_one = int(input('> '))
             if 1 <= the_chosen_one <= len(links):
                 return links[the_chosen_one - 1]
             elif the_chosen_one == 0:
@@ -31,6 +33,8 @@ def trim_song(file):
 
 
 def get_arguments():
+    log_levels = ['INFO', 'WARNING', 'ERROR', 'DEBUG']
+
     parser = argparse.ArgumentParser(
         description='Download and convert songs from Spotify, Youtube etc.',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
@@ -64,13 +68,20 @@ def get_arguments():
         '-v', '--verbose', default=False, help='show debug output',
         action='store_true')
     parser.add_argument(
-        '-i', '--input_ext', default='.m4a',
+        '-i', '--input-ext', default='.m4a',
         help='prefered input format .m4a or .webm (Opus)')
     parser.add_argument(
-        '-o', '--output_ext', default='.mp3',
+        '-o', '--output-ext', default='.mp3',
         help='prefered output extension .mp3 or .m4a (AAC)')
+    parser.add_argument(
+        '-ll', '--log-level', default='INFO',
+        choices=log_levels,
+        help='possible values - {}'.format(log_levels))
 
-    return parser.parse_args()
+    parsed = parser.parse_args()
+    parsed.log_level = log_leveller(parsed.log_level)
+
+    return parsed
 
 
 def is_spotify(raw_song):
@@ -125,11 +136,6 @@ def filter_path(path):
     for temp in os.listdir(path):
         if temp.endswith('.temp'):
             os.remove(os.path.join(path, temp))
-
-
-def grace_quit(msg):
-    log.critical(msg)
-    sys.exit()
 
 
 def get_sec(time_str):
