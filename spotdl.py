@@ -88,10 +88,10 @@ def generate_youtube_url(raw_song, meta_tags, tries_remaining=5):
         return
 
     if meta_tags is None:
-        song = raw_song + "lyrics"
+        song = raw_song + " lyrics"
         search_url = internals.generate_search_url(song, viewsort=False)
     else:
-        song = generate_songname(meta_tags) + "lyrics"
+        song = generate_songname(meta_tags) + " lyrics"
         search_url = internals.generate_search_url(song, viewsort=True)
     log.debug('Opening URL: {0}'.format(search_url))
 
