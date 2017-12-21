@@ -2,7 +2,6 @@
 
 [![Build Status](https://travis-ci.org/ritiek/spotify-downloader.svg?branch=master)](https://travis-ci.org/ritiek/spotify-downloader)
 [![Docker Build Status](https://img.shields.io/docker/build/ritiek/spotify-downloader.svg)](https://hub.docker.com/r/ritiek/spotify-downloader)
-[![Docker automated build](https://img.shields.io/docker/automated/jrottenberg/ffmpeg.svg)](https://hub.docker.com/r/ritiek/spotify-downloader)
 
 - Downloads songs from YouTube in an MP3 format by using Spotify's HTTP link.
 
@@ -92,7 +91,6 @@ from the above step.
 The same note about `pip` as for Debian, Ubuntu, Linux & Mac applies.
 
 ## Instructions for Downloading Songs
-
 
 **Important:** as like with `pip`, there might be no `python3` command.
 This is most likely the case when you have only Python 3 but not 2 installed.
@@ -260,6 +258,22 @@ command after downloading is done:
 
 Just make sure your working directory is the one you have the music files in.
 
+## [Docker Image](https://hub.docker.com/r/ritiek/spotify-downloader/)
+[![Docker automated build](https://img.shields.io/docker/automated/jrottenberg/ffmpeg.svg)](https://hub.docker.com/r/ritiek/spotify-downloader)
+
+We also provide the latest docker image on [DockerHub](https://hub.docker.com/r/ritiek/spotify-downloader/).
+
+- Run it with `docker run --rm -it -v $(pwd):/music ritiek/spotify-downloader <arguments>`.
+
+- This will download music and write tracks in your current working directory.
+
+**Downloading a playlist:**
+
+```
+docker run --rm -it -v $(pwd):/music ritiek/spotify-downloader -p https://open.spotify.com/user/nocopyrightsounds/playlist/7sZbq8QGyMnhKPcLJvCUFD
+docker run --rm -it -v $(pwd):/music ritiek/spotify-downloader -l ncs-releases.txt
+```
+
 ### Exit Codes
 
 - `0` - Success
@@ -286,4 +300,4 @@ Please support the artists by buying their music.
 
 ## License
 
-```The MIT License```
+[![License](https://img.shields.io/github/license/ritiek/spotify-downloader.svg)](https://github.com/ritiek/spotify-downloader/blob/master/LICENSE)
