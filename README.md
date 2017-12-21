@@ -168,6 +168,7 @@ it should download Fade by Alan Walker.
 a Spotify HTTP link, the script is guaranteed to fetch the correct meta-tags and album-art.
 
 #### Download by File
+
 For example
 
 - We want to download `Fade by Alan Walker`, `Sky High by Elektromania`
@@ -259,7 +260,7 @@ command after downloading is done:
 
 Just make sure your working directory is the one you have the music files in.
 
-## Exit Codes
+### Exit Codes
 
 - `0` - Success
 - `1` - Unknown error
