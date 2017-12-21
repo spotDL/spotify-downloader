@@ -269,12 +269,13 @@ def download_song(file_name, content):
     else:
         return False
 
-    log.debug('Downloading from URL: ' + link.url)
     if link is None:
         return False
     else:
+        log.debug('Downloading from URL: ' + link.url)
         filepath = '{0}{1}'.format(os.path.join(args.folder, file_name),
                                    args.input_ext)
+        log.debug('Saving to: ' + filepath)
         link.download(filepath=filepath)
         return True
 
