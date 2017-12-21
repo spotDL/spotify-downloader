@@ -4,9 +4,13 @@ RUN apk add --no-cache \
     ffmpeg
 
 ADD requirements.txt /spotify-downloader/
-RUN cd /spotify-downloader && pip install -U -r requirements.txt
+RUN pip install -r /spotify-downloader/requirements.txt
+RUN rm /spotify-downloader/requirements.txt
 
 ADD spotdl.py /spotify-downloader/
 ADD core/ /spotify-downloader/core
 
-ENTRYPOINT ["python3", "/spotify-downloader/spotdl.py", "-f", "/spotify-downloader"]
+RUN mkdir /music
+WORKDIR /music
+
+ENTRYPOINT ["python3", "/spotify-downloader/spotdl.py", "-f", "/music"]
