@@ -2,6 +2,7 @@
 
 [![Build Status](https://travis-ci.org/ritiek/spotify-downloader.svg?branch=master)](https://travis-ci.org/ritiek/spotify-downloader)
 [![Docker Build Status](https://img.shields.io/docker/build/ritiek/spotify-downloader.svg)](https://hub.docker.com/r/ritiek/spotify-downloader)
+[![Docker automated build](https://img.shields.io/docker/automated/jrottenberg/ffmpeg.svg)](https://hub.docker.com/r/ritiek/spotify-downloader)
 
 - Downloads songs from YouTube in an MP3 format by using Spotify's HTTP link.
 
@@ -40,7 +41,7 @@ before opening a new ticket. It might be already answered and save us time. :smi
 called [spotifube](https://github.com/djalmaaraujo/spotifube).
 Check it out if you'd like to contribute to it!
 
-## Installation & Usage
+## Installation
 
 - **This tool supports only Python 3**, Python 2 compatibility was dropped
 because of the way it deals with unicode.
@@ -89,18 +90,6 @@ from the above step.
 
 - Open `cmd` and type `pip install -U -r requirements.txt` to install dependencies.
 The same note about `pip` as for Debian, Ubuntu, Linux & Mac applies.
-
-## Docker
-
-Create the docker image and use the `-s` `-p` `-l` to download single song,
-prepare playlist and download list file.
-
-```
-docker build -t ritiek/spotdl .
-docker run --rm -v $(pwd):/app ritiek/spotdl -s https://open.spotify.com/track/4eSv18SwAXoQJF6tPqFIyw
-docker run --rm -v $(pwd):/app ritiek/spotdl -p https://open.spotify.com/user/spotify/playlist/37i9dQZF1DX2iUghHXGIjj
-docker run --rm -v $(pwd):/app ritiek/spotdl -l acoustic-blues.txt
-```
 
 ## Instructions for Downloading Songs
 
@@ -178,8 +167,7 @@ it should download Fade by Alan Walker.
 - Just like before, it will again convert the song to an mp3 but since we used
 a Spotify HTTP link, the script is guaranteed to fetch the correct meta-tags and album-art.
 
-#### Download multiple songs at once
-
+#### Download by File
 For example
 
 - We want to download `Fade by Alan Walker`, `Sky High by Elektromania`
@@ -211,7 +199,7 @@ the songs present in `list.txt`.
 
 - Songs that are already downloaded will be skipped and not be downloaded again.
 
-#### Download playlists
+#### Download by Playlist Link
 
 - You can copy the Spotify URL of the playlist and pass it in `--playlist` option.
 Note: This method works for public as well as private playlists.
@@ -225,7 +213,7 @@ For example
 - Then you can simply run `python3 spotdl.py --list=<playlist_name>.txt`
 to download all the tracks.
 
-#### Download albums
+#### Download by Album Link
 
 - You can copy the Spotify URL of the album and pass it in `--album` option.
 
@@ -238,7 +226,7 @@ For example
 - Then you can simply run `python3 spotdl.py --list=<album_name>.txt`
 to download all the tracks.
 
-#### Download playlists by username
+#### Download by Username
 
 - You can also load songs using Spotify username if you don't have the playlist URL.
 (Open profile in Spotify, click on the three little dots below name,
@@ -253,14 +241,14 @@ from the playlist into `<playlist_name>.txt`.
 
 - Run `python3 spotdl.py --list=<playlist_name>.txt` to download all the tracks.
 
-#### Specify the target directory
+#### Specify the Target Directory
 
 If you don't want to download all the songs to the `Music/` folder relative to the
 `spotdl.py` script, you can use the `-f`/`--folder` option.
 E.g. `python3 spotdl.py -s "adele hello" -f "/home/user/Music/"`.
 This works with both relative and absolute paths.
 
-#### Preserve spaces in file names
+#### Preserve Spaces in File Names
 
 Beside some other characters, spaces will be replaced by underscores.
 There's no option to change this behavior in spotify-downloader itself,
@@ -271,7 +259,7 @@ command after downloading is done:
 
 Just make sure your working directory is the one you have the music files in.
 
-## Exit codes
+## Exit Codes
 
 - `0` - Success
 - `1` - Unknown error
@@ -280,7 +268,7 @@ Just make sure your working directory is the one you have the music files in.
 - `10` - Invalid playlist URL
 - `11` - Playlist not found
 
-## Running tests
+## Running Tests
 
 ```
 python3 -m pytest test
