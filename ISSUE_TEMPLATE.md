@@ -20,13 +20,4 @@ Please follow the guide below
 
 
 ### Log
-<!-- Run the script with `--log-level=DEBUG` and paste the output below within the code block-->
-<details>
-
-```
-paste the output over here
-```
-
-</details>
-
-<!-- Give your issue a relevant title and you are good to go -->
+<!-- Run the script with `--log-level=DEBUG` and paste the output below-->
