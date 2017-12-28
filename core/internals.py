@@ -63,6 +63,10 @@ def get_arguments():
         '-f', '--folder', default=(os.path.join(sys.path[0], 'Music')),
         help='path to folder where files will be stored in')
     parser.add_argument(
+        '--overwrite', default='prompt',
+        help='change the overwrite policy',
+        choices={'prompt', 'force', 'skip'})
+    parser.add_argument(
         '-i', '--input-ext', default='.m4a',
         help='prefered input format .m4a or .webm (Opus)')
     parser.add_argument(
