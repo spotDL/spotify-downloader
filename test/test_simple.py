@@ -13,7 +13,7 @@ class TestArgs:
     output_ext = '.mp3'
     folder = 'test'
     log_level = logger.logging.DEBUG
-    overwrite = 'prompt'
+    overwrite = 'skip'
 
 test_args = TestArgs()
 setattr(spotdl, "args", test_args)
