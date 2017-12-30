@@ -22,7 +22,7 @@
 
 - Works straight out of the box and does not require to generate or mess with your API keys.
 
-That's how your Music library will look like!
+That's how your Mmusic library will look like!
 
 <img src="http://i.imgur.com/Gpch7JI.png" width="290"><img src="http://i.imgur.com/5vhk3HY.png" width="290"><img src="http://i.imgur.com/RDTCCST.png" width="290">
 
@@ -32,12 +32,12 @@ That's how your Music library will look like!
 [issues section](https://github.com/Ritiek/spotify-downloader/issues?utf8=%E2%9C%93&q=)
 before opening a new ticket. It might be already answered and save us time. :smile:
 
-- Provide as much information possible when opening your ticket.
+- Provide as much information as possible when opening your ticket.
 
 - Look up for open issues and see if you can help out there.
 
 - There's also a web-based application for this tool under (major) construction
-called [spotifube](https://github.com/djalmaaraujo/spotifube).
+called [spotifube](https://github.com/linusg/spotifube).
 Check it out if you'd like to contribute to it!
 
 ## Installation
