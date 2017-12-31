@@ -196,7 +196,8 @@ and it will start downloading songs mentioned in `list.txt`.
 resume from the song where you stopped it the next time you want to download
 the songs present in `list.txt`.
 
-- Songs that are already downloaded will be skipped and not be downloaded again.
+- Songs that are already downloaded will prompt you to overwrite or skip. This behavior can be changed by
+passing `--overwrite {prompt,skip,force}`.
 
 #### Download by Playlist Link
 

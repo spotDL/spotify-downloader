@@ -280,7 +280,7 @@ def download_song(file_name, content):
         return True
 
 
-def check_exists(music_file, raw_song, meta_tags, islist=True):
+def check_exists(music_file, raw_song, meta_tags):
     """ Check if the input song already exists in the given folder. """
     log.debug('Cleaning any temp files and checking '
               'if "{}" already exists'.format(music_file))
@@ -304,11 +304,8 @@ def check_exists(music_file, raw_song, meta_tags, islist=True):
                     os.remove(os.path.join(args.folder, song))
                     return False
 
-            # if downloading only single song, prompt to re-download
-            if islist:
-                log.warning('"{}" already exists'.format(song))
-                return True
-            else:
+            log.warning('"{}" already exists'.format(song))
+            if args.overwrite == 'prompt':
                 log.info('"{}" has already been downloaded. '
                          'Re-download? (y/N): '.format(song))
                 prompt = input('> ')
@@ -317,6 +314,13 @@ def check_exists(music_file, raw_song, meta_tags, islist=True):
                     return False
                 else:
                     return True
+            elif args.overwrite == 'force':
+                os.remove(os.path.join(args.folder, song))
+                log.info('Overwriting "{}"'.format(song))
+                return False
+            elif args.overwrite == 'skip':
+                log.info('Skipping "{}"'.format(song))
+                return True
     return False
 
 
@@ -401,11 +405,6 @@ def grab_album(album):
 
 def grab_single(raw_song, number=None):
     """ Logic behind downloading a song. """
-    if number:
-        islist = True
-    else:
-        islist = False
-
     if internals.is_youtube(raw_song):
         log.debug('Input song is a YouTube URL')
         content = go_pafy(raw_song, meta_tags=None)
@@ -433,7 +432,7 @@ def grab_single(raw_song, number=None):
 
     file_name = internals.sanitize_title(songname)
 
-    if not check_exists(file_name, raw_song, meta_tags, islist=islist):
+    if not check_exists(file_name, raw_song, meta_tags):
         if download_song(file_name, content):
             input_song = file_name + args.input_ext
             output_song = file_name + args.output_ext

@@ -13,6 +13,7 @@ class TestArgs:
     output_ext = '.mp3'
     folder = 'test'
     log_level = 'DEBUG'
+    overwrite = 'skip'
 
 test_args = TestArgs()
 setattr(spotdl, "args", test_args)
@@ -49,7 +50,7 @@ def test_check_exists():
     songname = spotdl.generate_songname(meta_tags)
     global file_name
     file_name = spotdl.internals.sanitize_title(songname)
-    check = spotdl.check_exists(file_name, raw_song, meta_tags, islist=True)
+    check = spotdl.check_exists(file_name, raw_song, meta_tags)
     assert check == expect_check
 
 
@@ -85,6 +86,6 @@ def test_check_exists2():
     expect_check = True
     # prerequisites for determining filename
     os.remove(os.path.join(spotdl.args.folder, input_song))
-    check = spotdl.check_exists(file_name, raw_song, meta_tags, islist=True)
+    check = spotdl.check_exists(file_name, raw_song, meta_tags)
     os.remove(os.path.join(spotdl.args.folder, output_song))
     assert check == expect_check
