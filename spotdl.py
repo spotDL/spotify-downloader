@@ -405,11 +405,6 @@ def grab_album(album):
 
 def grab_single(raw_song, number=None):
     """ Logic behind downloading a song. """
-    if number:
-        islist = True
-    else:
-        islist = False
-
     if internals.is_youtube(raw_song):
         log.debug('Input song is a YouTube URL')
         content = go_pafy(raw_song, meta_tags=None)
