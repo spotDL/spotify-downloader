@@ -127,6 +127,9 @@ optional arguments:
   -f FOLDER, --folder FOLDER
                         path to folder where files will be stored in (default:
                         Music/)
+  --overwrite {prompt,force,skip}
+                        change the overwrite policy (default: prompt)
+
   -i INPUT_EXT, --input-ext INPUT_EXT
                         prefered input format .m4a or .webm (Opus) (default:
                         .m4a)
