@@ -59,10 +59,17 @@ cd spotify-downloader
 pip install -U -r requirements.txt
 ```
 
+If you have Homebrew on Mac you can install instead with:
+```
+brew tap austharlow/homebrew-austharlow
+brew install spotify-downloader
+```
+Installing with Homebrew automatically completes the next step.
+
 **Important:** if you have installed both Python 2 and 3, the `pip` command
 could invoke an installation for Python 2. To see which Python version `pip`
-refers to, try `pip -V`. If it turns out `pip` is your Python 2 pip, try
-`pip3 install -U -r requirements.txt` instead.
+refers to, try `pip -V`. If it turns out `python` is your Python 2 pip, try
+`pip3 setup.py install` instead.
 
 You'll also need to install FFmpeg for conversion
 (use `--avconv` if you'd like to use that instead):
@@ -87,15 +94,15 @@ Copy `ffmpeg.exe` from `ffmpeg-xxx-winxx-static\bin\ffmpeg.exe` to PATH
 (usually C:\Windows\System32\) or just place it in the root directory extracted
 from the above step.
 
-- Open `cmd` and type `pip install -U -r requirements.txt` to install dependencies.
+- Open `cmd` and type `pip install -U -r requirements.txt` to install.
 The same note about `pip` as for Debian, Ubuntu, Linux & Mac applies.
 
 ## Instructions for Downloading Songs
 
-**Important:** as like with `pip`, there might be no `python3` command.
+**Important:** There might be no `python3` command.
 This is most likely the case when you have only Python 3 but not 2 installed.
 In this case try the `python` command instead of `python3`,
-but make sure `python -V` gives you a `Python 3.x.x`!
+but make sure `python -V` gives you a `Python 3.x.x`! If you installed with Homebrew on Mac, run all the commands without `python3` prepended.
 
 - For all available options, run `python3 spotdl.py --help`.
 
