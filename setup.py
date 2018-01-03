@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from disutils.core import setup
+from distutils.core import setup
 
 setup(name='Spotify Downloader',
       description='Download Spotify playlists with albumart and meta-tags',
