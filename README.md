@@ -99,7 +99,7 @@ The same note about `pip` as for Debian, Ubuntu, Linux & Mac applies.
 
 ## Instructions for Downloading Songs
 
-**Important:** as like with `pip`, there `python3` command.
+**Important:** as like with `pip`, there might be no `python3` command.
 This is most likely the case when you have only Python 3 but not 2 installed.
 In this case try the `python` command instead of `python3`,
 but make sure `python -V` gives you a `Python 3.x.x`! If you installed with Homebrew on Mac, run all the commands without `python3` prepended.
