@@ -118,18 +118,6 @@ def generate_token():
     return token
 
 
-def generate_search_url(song, viewsort=False):
-    """ Generate YouTube search URL for the given song. """
-    # urllib.request.quote() encodes URL with special characters
-    song = quote(song)
-    if viewsort:
-        url = u"https://www.youtube.com/results?q={0}".format(song)
-    else:
-        url = u"https://www.youtube.com/results?sp=EgIQAQ%253D%253D&q={0}".format(song)
-
-    return url
-
-
 def filter_path(path):
     if not os.path.exists(path):
         os.makedirs(path)
