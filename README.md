@@ -50,7 +50,7 @@ If you need to use Python 2 though, check out the (old) `python2` branch.
 since they were not of much use and created unnecessary clutter.
 You can still get them back by using `old` branch though.
 
-### Debian, Ubuntu, Linux & Mac
+### Debian, Ubuntu, Linux & macOS
 
 ```
 cd
@@ -58,6 +58,13 @@ git clone https://github.com/ritiek/spotify-downloader
 cd spotify-downloader
 pip install -U -r requirements.txt
 ```
+
+If you have Homebrew on macOS you can instead install with:
+```
+brew tap austharlow/homebrew-austharlow
+brew install spotify-downloader
+```
+Installing with Homebrew automatically installs FFmpeg.
 
 **Important:** if you have installed both Python 2 and 3, the `pip` command
 could invoke an installation for Python 2. To see which Python version `pip`
@@ -69,7 +76,7 @@ You'll also need to install FFmpeg for conversion
 
 Linux: `sudo apt-get install ffmpeg`
 
-Mac: `brew install ffmpeg --with-libmp3lame --with-libass --with-opus --with-fdk-aac`
+macOS: `brew install ffmpeg --with-libmp3lame --with-libass --with-opus --with-fdk-aac`
 
 If it does not install correctly, you may have to build it from source.
 For more info see https://trac.ffmpeg.org/wiki/CompilationGuide.
@@ -88,14 +95,14 @@ Copy `ffmpeg.exe` from `ffmpeg-xxx-winxx-static\bin\ffmpeg.exe` to PATH
 from the above step.
 
 - Open `cmd` and type `pip install -U -r requirements.txt` to install dependencies.
-The same note about `pip` as for Debian, Ubuntu, Linux & Mac applies.
+The same note about `pip` as for Debian, Ubuntu, Linux & macOS applies.
 
 ## Instructions for Downloading Songs
 
 **Important:** as like with `pip`, there might be no `python3` command.
 This is most likely the case when you have only Python 3 but not 2 installed.
 In this case try the `python` command instead of `python3`,
-but make sure `python -V` gives you a `Python 3.x.x`!
+but make sure `python -V` gives you a `Python 3.x.x`! If you installed with Homebrew on macOS, run all the commands without `python3` prepended.
 
 - For all available options, run `python3 spotdl.py --help`.
 
