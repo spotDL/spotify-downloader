@@ -475,8 +475,11 @@ if __name__ == '__main__':
             grab_album(album=args.album)
         elif args.username:
             feed_playlist(username=args.username)
+
+        # Actually we don't necessarily need this, but yeah...
+        # Explicit is better than implicit!
         sys.exit(0)
 
     except KeyboardInterrupt as e:
         log.exception(e)
-        sys.exit(-1)
+        sys.exit(3)

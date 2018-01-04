@@ -283,7 +283,7 @@ docker run --rm -it -v $(pwd):/music ritiek/spotify-downloader -l ncs-releases.t
 - `0` - Success
 - `1` - Unknown error
 - `2` - Command line error (e.g. invalid args)
-- `-1` - KeyboardInterrupt
+- `3` - `KeyboardInterrupt`
 - `10` - Invalid playlist URL
 - `11` - Playlist not found
 
