@@ -21,4 +21,4 @@ setup(name='Spotify Downloader',
         'titlecase',
         'logzero',
       ]
-      )
+)
