@@ -138,14 +138,12 @@ def filter_path(path):
             os.remove(os.path.join(path, temp))
 
 
-def get_sec(time_str):
-    v = time_str.split(':', 3)
-    v.reverse()
-    sec = 0
-    if len(v) > 0:  # seconds
-        sec += int(v[0])
-    if len(v) > 1:  # minutes
-        sec += int(v[1]) * 60
-    if len(v) > 2:  # hours
-        sec += int(v[2]) * 3600
-    return sec
+def videotime_from_seconds(time):
+    if time<60:
+        return str(time)
+    if time<3600:
+        return '{}:{}'.format(str(time//60), str(time%60).zfill(2))
+
+    return '{}:{}:{}'.format(str(time//60),
+                             str((time%60)//60).zfill(2),
+                             str((time%60)%60).zfill(2))
