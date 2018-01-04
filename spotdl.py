@@ -93,7 +93,7 @@ def generate_youtube_url(raw_song, meta_tags, tries_remaining=5):
              'videoCategoryId': '10'}
     if meta_tags is None:
         song = raw_song
-        query['q'] = son
+        query['q'] = song
     else:
         song = generate_songname(meta_tags)
         query['q'] = song
