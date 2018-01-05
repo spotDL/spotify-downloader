@@ -53,7 +53,6 @@ You can still get them back by using `old` branch though.
 ### Debian, Ubuntu, Linux & Mac
 
 ```
-cd
 git clone https://github.com/ritiek/spotify-downloader
 cd spotify-downloader
 pip install -U -r requirements.txt
