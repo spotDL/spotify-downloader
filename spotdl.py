@@ -87,35 +87,32 @@ def generate_youtube_url(raw_song, meta_tags, tries_remaining=5):
         log.debug('No tries left. I quit.')
         return
 
+    query = {'part': 'snippet',
+             'maxResults': 50,
+             'type': 'video',
+             'videoCategoryId': '10'}
     if meta_tags is None:
         song = raw_song
-        search_url = internals.generate_search_url(song, viewsort=False)
+        query['q'] = song
     else:
         song = generate_songname(meta_tags)
-        search_url = internals.generate_search_url(song, viewsort=True)
-    log.debug('Opening URL: {0}'.format(search_url))
+        query['q'] = song
+    log.debug('Query: {0}'.format(query))
 
-    item = urllib.request.urlopen(search_url).read()
-    items_parse = BeautifulSoup(item, "html.parser")
+    data = pafy.call_gdata('search', query)
+    query2 = {'part': 'contentDetails,snippet,statistics',
+              'maxResults': 50,
+              'id': ','.join(i['id']['videoId'] for i in data['items'])}
+    log.debug('Query2: {0}'.format(query2))
+
+    vdata = pafy.call_gdata('videos', query2)
 
     videos = []
-    for x in items_parse.find_all('div', {'class': 'yt-lockup-dismissable yt-uix-tile'}):
-
-        if not is_video(x):
-            continue
-
-        y = x.find('div', class_='yt-lockup-content')
-        link = y.find('a')['href']
-        title = y.find('a')['title']
-
-        try:
-            videotime = x.find('span', class_="video-time").get_text()
-        except AttributeError:
-            log.debug('Could not find video duration on YouTube, retrying..')
-            return generate_youtube_url(raw_song, meta_tags, tries_remaining - 1)
-
-        youtubedetails = {'link': link, 'title': title, 'videotime': videotime,
-                          'seconds': internals.get_sec(videotime)}
+    for x in vdata['items']:
+        duration_s = pafy.playlist.parseISO8591(x['contentDetails']['duration'])
+        youtubedetails = {'link': x['id'], 'title': x['snippet']['title'],
+                          'videotime':internals.videotime_from_seconds(duration_s),
+                          'seconds': duration_s}
         videos.append(youtubedetails)
         if meta_tags is None:
             break
@@ -163,9 +160,9 @@ def generate_youtube_url(raw_song, meta_tags, tries_remaining=5):
             result = possible_videos_by_duration[0]
 
     if result:
-        full_link = u'http://youtube.com{0}'.format(result['link'])
+        video_id = result['link']
     else:
-        full_link = None
+        video_id = None
 
     return full_link
 
