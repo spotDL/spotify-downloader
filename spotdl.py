@@ -131,7 +131,7 @@ def generate_youtube_url(raw_song, meta_tags, tries_remaining=5):
         # fetch all video links on first page on YouTube
         for i, v in enumerate(videos):
             log.info(u'{0}. {1} {2} {3}'.format(i+1, v['title'], v['videotime'],
-                  "http://youtube.com"+v['link']))
+                  "http://youtube.com/watch?v="+v['link']))
         # let user select the song to download
         result = internals.input_link(videos)
         if result is None:
@@ -163,11 +163,11 @@ def generate_youtube_url(raw_song, meta_tags, tries_remaining=5):
             result = possible_videos_by_duration[0]
 
     if result:
-        video_id = result['link']
+        url = "http://youtube.com/watch?v=" + result['link']
     else:
-        video_id = None
+        url = None
 
-    return video_id
+    return  url
 
 
 def go_pafy(raw_song, meta_tags=None):
