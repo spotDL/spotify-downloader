@@ -137,6 +137,8 @@ optional arguments:
                         prefered output extension .mp3 or .m4a (AAC) (default:
                         .mp3)
   -d, --dry-run         Show only track title and YouTube URL (default: False)
+  -mo, --music-videos-only
+                        Search only for music on Youtube (default: False)
   -ll {INFO,WARNING,ERROR,DEBUG}, --log-level {INFO,WARNING,ERROR,DEBUG}
                         set log verbosity (default: INFO)
 ```
