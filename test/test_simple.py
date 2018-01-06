@@ -14,6 +14,7 @@ class TestArgs:
     folder = 'test'
     log_level = logger.logging.DEBUG
     overwrite = 'skip'
+    music_videos_only = False
 
 test_args = TestArgs()
 setattr(spotdl, "args", test_args)
