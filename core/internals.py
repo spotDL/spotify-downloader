@@ -73,6 +73,10 @@ def get_arguments():
         '-o', '--output-ext', default='.mp3',
         help='prefered output extension .mp3 or .m4a (AAC)')
     parser.add_argument(
+        '-d', '--dry-run', default=False,
+        help='Show only track title and YouTube URL',
+        action='store_true')
+    parser.add_argument(
         '-ll', '--log-level', default='INFO',
         choices=_LOG_LEVELS_STR,
         type=str.upper,

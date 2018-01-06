@@ -167,7 +167,6 @@ def generate_youtube_url(raw_song, meta_tags, tries_remaining=5):
     else:
         full_link = None
 
-    log.debug('Best matching video link: {}'.format(full_link))
     return full_link
 
 
@@ -418,9 +417,10 @@ def grab_single(raw_song, number=None):
         log.debug('Found no matching video')
         return
 
-    # log '[number]. [artist] - [song]' if downloading from list
-    # otherwise log '[artist] - [song]'
-    log.info(get_youtube_title(content, number))
+    # "[number]. [artist] - [song]" if downloading from list
+    # otherwise "[artist] - [song]"
+    youtube_title = get_youtube_title(content, number)
+    log.info('{} ({})'.format(youtube_title, content.watchv_url))
     # generate file name of the song to download
     songname = content.title
 
@@ -429,6 +429,9 @@ def grab_single(raw_song, number=None):
         log.debug('Refining songname from "{0}" to "{1}"'.format(songname, refined_songname))
         if not refined_songname == ' - ':
             songname = refined_songname
+
+    if args.dry_run:
+        return
 
     file_name = internals.sanitize_title(songname)
 
