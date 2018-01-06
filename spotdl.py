@@ -5,7 +5,6 @@ from core import logger
 from core import metadata
 from core import convert
 from core import internals
-from bs4 import BeautifulSoup
 from titlecase import titlecase
 from slugify import slugify
 import spotipy
