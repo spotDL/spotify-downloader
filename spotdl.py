@@ -439,13 +439,24 @@ def grab_single(raw_song, number=None):
             input_song = file_name + args.input_ext
             output_song = file_name + args.output_ext
             print('')
-            convert.song(input_song, output_song, args.folder,
-                         avconv=args.avconv)
+
+            try:
+                convert.song(input_song, output_song, args.folder,
+                             avconv=args.avconv)
+            except FileNotFoundError:
+                if args.avconv:
+                    encoder = 'avconv'
+                else:
+                    encoder = 'ffmpeg'
+                log.warning('Could not find {0}, skipping conversion'.format(encoder))
+                args.output_ext = args.input_ext
+                output_song = file_name + args.output_ext
+
             if not args.input_ext == args.output_ext:
                 os.remove(os.path.join(args.folder, input_song))
-
             if not args.no_metadata:
                 metadata.embed(os.path.join(args.folder, output_song), meta_tags)
+
         else:
             log.error('No audio streams available')
 
