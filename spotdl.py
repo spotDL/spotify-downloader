@@ -444,10 +444,7 @@ def grab_single(raw_song, number=None):
                 convert.song(input_song, output_song, args.folder,
                              avconv=args.avconv)
             except FileNotFoundError:
-                if args.avconv:
-                    encoder = 'avconv'
-                else:
-                    encoder = 'ffmpeg'
+                encoder = 'avconv' if args.avconv else 'ffmpeg'
                 log.warning('Could not find {0}, skipping conversion'.format(encoder))
                 args.output_ext = args.input_ext
                 output_song = file_name + args.output_ext
