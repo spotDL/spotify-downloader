@@ -256,11 +256,13 @@ Just make sure your working directory is the one you have the music files in.
 
 We also provide the latest docker image on [DockerHub](https://hub.docker.com/r/ritiek/spotify-downloader/).
 
+- Pull (or update) the image with `docker pull ritiek/spotify-downloader`.
+
 - Run it with `docker run --rm -it -v $(pwd):/music ritiek/spotify-downloader <arguments>`.
 
-- This will download music and write tracks in your current working directory.
+- The container will download music and write tracks in your current working directory.
 
-**Downloading a playlist:**
+**Example - Downloading a Playlist**
 
 ```
 docker run --rm -it -v $(pwd):/music ritiek/spotify-downloader -p https://open.spotify.com/user/nocopyrightsounds/playlist/7sZbq8QGyMnhKPcLJvCUFD
