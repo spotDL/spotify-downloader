@@ -22,7 +22,7 @@
 
 - Works straight out of the box and does not require to generate or mess with your API keys.
 
-That's how your Mmusic library will look like!
+That's how your music library will look like!
 
 <img src="http://i.imgur.com/Gpch7JI.png" width="290"><img src="http://i.imgur.com/5vhk3HY.png" width="290"><img src="http://i.imgur.com/RDTCCST.png" width="290">
 
