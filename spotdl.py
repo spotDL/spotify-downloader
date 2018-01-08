@@ -9,6 +9,7 @@ from titlecase import titlecase
 from slugify import slugify
 import spotipy
 import pafy
+import lyricwikia
 import urllib.request
 import os
 import sys
@@ -56,6 +57,11 @@ def generate_metadata(raw_song):
     meta_tags[u'release_date'] = album['release_date']
     meta_tags[u'publisher'] = album['label']
     meta_tags[u'total_tracks'] = album['tracks']['total']
+
+    log.debug('Fetching lyrics')
+    meta_tags['lyrics'] = lyricwikia.get_lyrics(
+                    meta_tags['artists'][0]['name'],
+                    meta_tags['name'])
 
     log.debug(pprint.pformat(meta_tags))
     return meta_tags
