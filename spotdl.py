@@ -63,6 +63,9 @@ def generate_metadata(raw_song):
                     meta_tags['artists'][0]['name'],
                     meta_tags['name'])
 
+    del meta_tags['available_markets']
+    del meta_tags['album']['available_markets']
+
     log.debug(pprint.pformat(meta_tags))
     return meta_tags
 
@@ -105,15 +108,15 @@ def generate_youtube_url(raw_song, meta_tags, tries_remaining=5):
     else:
         song = generate_songname(meta_tags)
         query['q'] = song
-    log.debug('Query: {0}'.format(query))
+    log.debug('query: {0}'.format(query))
 
     data = pafy.call_gdata('search', query)
-    query2 = {'part': 'contentDetails,snippet,statistics',
+    query_results = {'part': 'contentDetails,snippet,statistics',
               'maxResults': 50,
               'id': ','.join(i['id']['videoId'] for i in data['items'])}
-    log.debug('Query2: {0}'.format(query2))
+    log.debug('query_results: {0}'.format(query_results))
 
-    vdata = pafy.call_gdata('videos', query2)
+    vdata = pafy.call_gdata('videos', query_results)
 
     videos = []
     for x in vdata['items']:
@@ -127,8 +130,6 @@ def generate_youtube_url(raw_song, meta_tags, tries_remaining=5):
 
     if not videos:
         return None
-
-    log.debug(pprint.pformat(videos))
 
     if args.manual:
         log.info(song)
