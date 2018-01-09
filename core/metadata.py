@@ -1,5 +1,5 @@
 from mutagen.easyid3 import EasyID3
-from mutagen.id3 import ID3, APIC, USLT, COMM
+from mutagen.id3 import ID3, TORY, TYER, TPUB, APIC, USLT, COMM
 from mutagen.mp4 import MP4, MP4Cover
 from core.logger import log
 
@@ -78,9 +78,14 @@ def embed_mp3(music_file, meta_tags):
     # https://github.com/quodlibet/mutagen/blob/master/mutagen/id3/_frames.py
     # Each class represents an id3 tag
     audiofile = ID3(music_file)
+    print(meta_tags['release_date'].split('-')[0])
+    year, *_ = meta_tags['release_date'].split('-')
+    audiofile['TORY'] = TORY(encoding=3, text=year)
+    audiofile['TYER'] = TYER(encoding=3, text=year)
+    audiofile['TPUB'] = TPUB(encoding=3, text=meta_tags['publisher'])
+    audiofile['COMM'] = COMM(encoding=3, text=meta_tags['external_urls']['spotify'])
     if meta_tags['lyrics']:
         audiofile['USLT'] = USLT(encoding=3, desc=u'Lyrics', text=meta_tags['lyrics'])
-        audiofile['COMM'] = COMM(encoding=3, desc=u'Lyrics', text=meta_tags['lyrics'])
     try:
         albumart = urllib.request.urlopen(meta_tags['album']['images'][0]['url'])
         audiofile['APIC'] = APIC(encoding=3, mime='image/jpeg', type=3,
@@ -101,6 +106,7 @@ def embed_m4a(music_file, meta_tags):
              'artist'       : '\xa9ART',
              'date'         : '\xa9day',
              'title'        : '\xa9nam',
+             'year'         : '\xa9day',
              'originaldate' : 'purd',
              'comment'      : '\xa9cmt',
              'group'        : '\xa9grp',
@@ -113,7 +119,6 @@ def embed_m4a(music_file, meta_tags):
              'albumart'     : 'covr',
              'copyright'    : 'cprt',
              'tempo'        : 'tmpo',
-             'comment'      : '\xa9cmt',
              'lyrics'       : '\xa9lyr' }
 
     audiofile = MP4(music_file)
@@ -125,7 +130,10 @@ def embed_m4a(music_file, meta_tags):
                                        meta_tags['total_tracks'])]
     audiofile[tags['disknumber']] = [(meta_tags['disc_number'], 0)]
     audiofile[tags['date']] = meta_tags['release_date']
+    year, *_ = meta_tags['release_date'].split('-')
+    audiofile[tags['year']] = year
     audiofile[tags['originaldate']] = meta_tags['release_date']
+    audiofile[tags['comment']] = meta_tags['external_urls']['spotify']
     if meta_tags['genre']:
         audiofile[tags['genre']] = meta_tags['genre']
     if meta_tags['copyright']:
