@@ -6,7 +6,6 @@ from core import metadata
 from core import convert
 from core import internals
 from core import spotify_tools
-from titlecase import titlecase
 from slugify import slugify
 import spotipy
 import pafy
