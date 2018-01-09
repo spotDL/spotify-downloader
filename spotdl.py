@@ -56,7 +56,7 @@ def generate_youtube_url(raw_song, meta_tags, tries_remaining=5):
     if args.music_videos_only:
         query['videoCategoryId'] = '10'
 
-    if meta_tags is None:
+    if not meta_tags:
         song = raw_song
         query['q'] = song
     else:
@@ -79,7 +79,7 @@ def generate_youtube_url(raw_song, meta_tags, tries_remaining=5):
                           'videotime':internals.videotime_from_seconds(duration_s),
                           'seconds': duration_s}
         videos.append(youtubedetails)
-        if meta_tags is None:
+        if not meta_tags:
             break
 
     if not videos:
@@ -96,10 +96,10 @@ def generate_youtube_url(raw_song, meta_tags, tries_remaining=5):
                   "http://youtube.com/watch?v="+v['link']))
         # let user select the song to download
         result = internals.input_link(videos)
-        if result is None:
+        if not result:
             return None
     else:
-        if meta_tags is None:
+        if not meta_tags:
             # if the metadata could not be acquired, take the first result
             # from Youtube because the proper song length is unknown
             result = videos[0]
@@ -139,10 +139,10 @@ def go_pafy(raw_song, meta_tags=None):
     else:
         track_url = generate_youtube_url(raw_song, meta_tags)
 
-        if track_url is None:
-            track_info = None
-        else:
+        if track_url:
             track_info = pafy.new(track_url)
+        else:
+            track_info = None
 
     return track_info
 
@@ -150,10 +150,10 @@ def go_pafy(raw_song, meta_tags=None):
 def get_youtube_title(content, number=None):
     """ Get the YouTube video's title. """
     title = content.title
-    if number is None:
-        return title
-    else:
+    if number:
         return '{0}. {1}'.format(number, title)
+    else:
+        return title
 
 
 def download_song(file_name, content):
@@ -163,15 +163,15 @@ def download_song(file_name, content):
     else:
         return False
 
-    if link is None:
-        return False
-    else:
+    if link:
         log.debug('Downloading from URL: ' + link.url)
         filepath = '{0}{1}'.format(os.path.join(args.folder, file_name),
                                    args.input_ext)
         log.debug('Saving to: ' + filepath)
         link.download(filepath=filepath)
         return True
+    else:
+        return False
 
 
 def check_exists(music_file, raw_song, meta_tags):
@@ -294,7 +294,7 @@ def grab_single(raw_song, number=None):
         meta_tags = spotify_tools.generate_metadata(raw_song)
         content = go_pafy(raw_song, meta_tags)
 
-    if content is None:
+    if not content:
         log.debug('Found no matching video')
         return
 
@@ -305,7 +305,7 @@ def grab_single(raw_song, number=None):
     # generate file name of the song to download
     songname = content.title
 
-    if meta_tags is not None:
+    if meta_tags:
         refined_songname = generate_songname(meta_tags)
         log.debug('Refining songname from "{0}" to "{1}"'.format(songname, refined_songname))
         if not refined_songname == ' - ':
@@ -333,8 +333,12 @@ def grab_single(raw_song, number=None):
 
             if not args.input_ext == args.output_ext:
                 os.remove(os.path.join(args.folder, input_song))
+
             if not args.no_metadata:
-                metadata.embed(os.path.join(args.folder, output_song), meta_tags)
+                if metadata:
+                    metadata.embed(os.path.join(args.folder, output_song), meta_tags)
+                else:
+                    log.warning('Could not find metadata')
 
         else:
             log.error('No audio streams available')
