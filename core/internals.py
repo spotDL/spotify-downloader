@@ -85,6 +85,10 @@ def get_arguments():
         choices=_LOG_LEVELS_STR,
         type=str.upper,
         help='set log verbosity')
+    parser.add_argument(
+        '-dm', '--download-only-metadata', default=False,
+        help='download songs for which metadata is found',
+        action='store_true')
 
     parsed = parser.parse_args()
     parsed.log_level = log_leveller(parsed.log_level)

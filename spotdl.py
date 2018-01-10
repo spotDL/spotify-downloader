@@ -412,6 +412,11 @@ def grab_single(raw_song, number=None):
         meta_tags = generate_metadata(raw_song)
         content = go_pafy(raw_song, meta_tags)
 
+    if args.download_only_metadata:
+        if meta_tags is None:
+            log.info('Found No metadata. Skipping the download')
+            return
+
     if content is None:
         log.debug('Found no matching video')
         return
