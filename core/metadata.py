@@ -8,7 +8,6 @@ import urllib.request
 
 def compare(music_file, metadata):
     """Check if the input music file title matches the expected title."""
-    already_tagged = False
     try:
         if music_file.endswith('.mp3'):
             audiofile = EasyID3(music_file)
@@ -17,29 +16,31 @@ def compare(music_file, metadata):
             audiofile = MP4(music_file)
             already_tagged = audiofile[tags['title']] == metadata['name']
     except (KeyError, TypeError):
-        pass
+        already_tagged = False
+
     return already_tagged
 
 
 def embed(music_file, meta_tags):
     """ Embed metadata. """
-    embedder = EmbedMetadata(music_file, meta_tags)
+    embed = EmbedMetadata(music_file, meta_tags)
     if music_file.endswith('.m4a'):
         log.info('Applying metadata')
-        return embedder.m4a()
+        return embed.as_m4a()
     elif music_file.endswith('.mp3'):
         log.info('Applying metadata')
-        return embedder.mp3()
+        return embed.as_mp3()
     else:
         log.warning('Cannot embed metadata into given output extension')
         return False
+
 
 class EmbedMetadata:
     def __init__(self, music_file, meta_tags):
         self.music_file = music_file
         self.meta_tags = meta_tags
 
-    def mp3(self):
+    def as_mp3(self):
         """ Embed metadata to MP3 files. """
         music_file = self.music_file
         meta_tags = self.meta_tags
@@ -81,7 +82,7 @@ class EmbedMetadata:
         audiofile.save(v2_version=3)
         return True
 
-    def m4a(self):
+    def as_m4a(self):
         """ Embed metadata to M4A files. """
         music_file = self.music_file
         meta_tags = self.meta_tags
