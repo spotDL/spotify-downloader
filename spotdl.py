@@ -9,6 +9,7 @@ from titlecase import titlecase
 from slugify import slugify
 import spotipy
 import pafy
+import lyricwikia
 import urllib.request
 import os
 import sys
@@ -57,6 +58,19 @@ def generate_metadata(raw_song):
     meta_tags[u'publisher'] = album['label']
     meta_tags[u'total_tracks'] = album['tracks']['total']
 
+    log.debug('Fetching lyrics')
+
+    try:
+        meta_tags['lyrics'] = lyricwikia.get_lyrics(
+                        meta_tags['artists'][0]['name'],
+                        meta_tags['name'])
+    except lyricwikia.LyricsNotFound:
+        meta_tags['lyrics'] = None
+
+    # remove unused clutter when debug meta_tags
+    del meta_tags['available_markets']
+    del meta_tags['album']['available_markets']
+
     log.debug(pprint.pformat(meta_tags))
     return meta_tags
 
@@ -99,15 +113,15 @@ def generate_youtube_url(raw_song, meta_tags, tries_remaining=5):
     else:
         song = generate_songname(meta_tags)
         query['q'] = song
-    log.debug('Query: {0}'.format(query))
+    log.debug('query: {0}'.format(query))
 
     data = pafy.call_gdata('search', query)
-    query2 = {'part': 'contentDetails,snippet,statistics',
+    query_results = {'part': 'contentDetails,snippet,statistics',
               'maxResults': 50,
               'id': ','.join(i['id']['videoId'] for i in data['items'])}
-    log.debug('Query2: {0}'.format(query2))
+    log.debug('query_results: {0}'.format(query_results))
 
-    vdata = pafy.call_gdata('videos', query2)
+    vdata = pafy.call_gdata('videos', query_results)
 
     videos = []
     for x in vdata['items']:
@@ -121,8 +135,6 @@ def generate_youtube_url(raw_song, meta_tags, tries_remaining=5):
 
     if not videos:
         return None
-
-    log.debug(pprint.pformat(videos))
 
     if args.manual:
         log.info(song)
@@ -491,8 +503,8 @@ if __name__ == '__main__':
         elif args.username:
             feed_playlist(username=args.username)
 
-        # Actually we don't necessarily need this, but yeah...
-        # Explicit is better than implicit!
+        # actually we don't necessarily need this, but yeah...
+        # explicit is better than implicit!
         sys.exit(0)
 
     except KeyboardInterrupt as e:
