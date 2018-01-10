@@ -69,10 +69,14 @@ def test_convert():
 def test_metadata():
     expect_metadata = None
     # prerequisites for determining filename
-    meta_tags = spotdl.generate_metadata(raw_song)
+    meta_tags = spotdl.spotify_tools.generate_metadata(raw_song)
     file_name = spotdl.internals.sanitize_title(title)
-    metadata_output = spotdl.metadata.embed(os.path.join(spotdl.args.folder, output_song), meta_tags)
-    metadata_input = spotdl.metadata.embed(os.path.join(spotdl.args.folder, input_song), meta_tags)
+    if meta_tags:
+        metadata_output = spotdl.metadata.embed(os.path.join(spotdl.args.folder, output_song), meta_tags)
+        metadata_input = spotdl.metadata.embed(os.path.join(spotdl.args.folder, input_song), meta_tags)
+    else:
+        metadata_input = None
+        metadata_output = None
     assert (metadata_output == expect_metadata) and (metadata_input == expect_metadata)
 
 

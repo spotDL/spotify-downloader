@@ -27,7 +27,7 @@ spotdl.internals.filter_path(spotdl.args.folder)
 def test_spotify_title():
     expect_title = 'David André Østby - Intro'
     global meta_tags
-    meta_tags = spotdl.generate_metadata(raw_song)
+    meta_tags = spotdl.spotify_tools.generate_metadata(raw_song)
     title = spotdl.generate_songname(meta_tags)
     assert title == expect_title
 
