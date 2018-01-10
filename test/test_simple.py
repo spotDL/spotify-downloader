@@ -7,6 +7,8 @@ import os
 raw_song = "Tony's Videos VERY SHORT VIDEO 28.10.2016"
 
 
+test_args = '-f test -ll debug -m --overwrite skip'.split()
+
 class TestArgs:
     manual = False
     input_ext = '.m4a'
@@ -16,8 +18,7 @@ class TestArgs:
     overwrite = 'skip'
     music_videos_only = False
 
-test_args = TestArgs()
-setattr(spotdl, "args", test_args)
+setattr(spotdl, "args", TestArgs())
 
 spotdl.log = logger.logzero.setup_logger(formatter=logger.formatter,
                                   level=spotdl.args.log_level)

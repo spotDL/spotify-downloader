@@ -1,11 +1,7 @@
-import argparse
-import spotipy.oauth2 as oauth2
-from urllib.request import quote
 from slugify import SLUG_OK, slugify
+from core.logger import log
 
-import sys
 import os
-from core.logger import log, log_leveller, _LOG_LEVELS_STR
 
 
 def input_link(links):
@@ -24,72 +20,12 @@ def input_link(links):
             log.warning('Choose a valid number!')
 
 
-def trim_song(file):
+def trim_song(text_file):
     """ Remove the first song from file. """
-    with open(file, 'r') as file_in:
+    with open(text_file, 'r') as file_in:
         data = file_in.read().splitlines(True)
-    with open(file, 'w') as file_out:
+    with open(text_file, 'w') as file_out:
         file_out.writelines(data[1:])
-
-
-def get_arguments():
-    parser = argparse.ArgumentParser(
-        description='Download and convert songs from Spotify, Youtube etc.',
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    group = parser.add_mutually_exclusive_group(required=True)
-
-    group.add_argument(
-        '-s', '--song', help='download song by spotify link or name')
-    group.add_argument(
-        '-l', '--list', help='download songs from a file')
-    group.add_argument(
-        '-p', '--playlist', help='load songs from playlist URL into <playlist_name>.txt')
-    group.add_argument(
-        '-b', '--album', help='load songs from album URL into <album_name>.txt')
-    group.add_argument(
-        '-u', '--username',
-        help="load songs from user's playlist into <playlist_name>.txt")
-    parser.add_argument(
-        '-m', '--manual', default=False,
-        help='choose the song to download manually', action='store_true')
-    parser.add_argument(
-        '-nm', '--no-metadata', default=False,
-        help='do not embed metadata in songs', action='store_true')
-    parser.add_argument(
-        '-a', '--avconv', default=False,
-        help='Use avconv for conversion otherwise set defaults to ffmpeg',
-        action='store_true')
-    parser.add_argument(
-        '-f', '--folder', default=(os.path.join(sys.path[0], 'Music')),
-        help='path to folder where files will be stored in')
-    parser.add_argument(
-        '--overwrite', default='prompt',
-        help='change the overwrite policy',
-        choices={'prompt', 'force', 'skip'})
-    parser.add_argument(
-        '-i', '--input-ext', default='.m4a',
-        help='prefered input format .m4a or .webm (Opus)')
-    parser.add_argument(
-        '-o', '--output-ext', default='.mp3',
-        help='prefered output extension .mp3 or .m4a (AAC)')
-    parser.add_argument(
-        '-d', '--dry-run', default=False,
-        help='Show only track title and YouTube URL',
-        action='store_true')
-    parser.add_argument(
-        '-mo', '--music-videos-only', default=False,
-        help='Search only for music on Youtube',
-        action='store_true')
-    parser.add_argument(
-        '-ll', '--log-level', default='INFO',
-        choices=_LOG_LEVELS_STR,
-        type=str.upper,
-        help='set log verbosity')
-
-    parsed = parser.parse_args()
-    parsed.log_level = log_leveller(parsed.log_level)
-
-    return parsed
 
 
 def is_spotify(raw_song):
@@ -105,6 +41,12 @@ def is_youtube(raw_song):
     status = status and not raw_song.lower() == raw_song
     status = status or 'youtube.com/watch?v=' in raw_song
     return status
+
+
+def generate_songname(tags):
+    """ Generate a string of the format '[artist] - [song]' for the given spotify song. """
+    raw_song = u'{0} - {1}'.format(tags['artists'][0]['name'], tags['name'])
+    return raw_song
 
 
 def sanitize_title(title):
