@@ -66,7 +66,6 @@ def generate_metadata(raw_song):
                         meta_tags['name'])
     except lyricwikia.LyricsNotFound:
         meta_tags['lyrics'] = None
-        log.debug('Could not find lyrics')
 
     # remove unused clutter when debug meta_tags
     del meta_tags['available_markets']
