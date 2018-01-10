@@ -59,10 +59,16 @@ def generate_metadata(raw_song):
     meta_tags[u'total_tracks'] = album['tracks']['total']
 
     log.debug('Fetching lyrics')
-    meta_tags['lyrics'] = lyricwikia.get_lyrics(
-                    meta_tags['artists'][0]['name'],
-                    meta_tags['name'])
 
+    try:
+        meta_tags['lyrics'] = lyricwikia.get_lyrics(
+                        meta_tags['artists'][0]['name'],
+                        meta_tags['name'])
+    except lyricwikia.LyricsNotFound:
+        meta_tags['lyrics'] = None
+        log.debug('Could not find lyrics')
+
+    # remove unused clutter when debug meta_tags
     del meta_tags['available_markets']
     del meta_tags['album']['available_markets']
 
@@ -493,8 +499,8 @@ if __name__ == '__main__':
         elif args.username:
             feed_playlist(username=args.username)
 
-        # Actually we don't necessarily need this, but yeah...
-        # Explicit is better than implicit!
+        # actually we don't necessarily need this, but yeah...
+        # explicit is better than implicit!
         sys.exit(0)
 
     except KeyboardInterrupt as e:
