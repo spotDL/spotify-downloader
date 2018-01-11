@@ -1,27 +1,38 @@
+import logging
 import argparse
 import os
 import sys
 
-from core.logger import log_leveller, _LOG_LEVELS_STR
+
+_LOG_LEVELS_STR = ['INFO', 'WARNING', 'ERROR', 'DEBUG']
+
+def log_leveller(log_level_str):
+    loggin_levels = [logging.INFO, logging.WARNING, logging.ERROR, logging.DEBUG]
+    log_level_str_index = _LOG_LEVELS_STR.index(log_level_str)
+    loggin_level = loggin_levels[log_level_str_index]
+    return loggin_level
 
 
-def get_arguments():
+def get_arguments(to_group=False, raw_args=None):
     parser = argparse.ArgumentParser(
         description='Download and convert songs from Spotify, Youtube etc.',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    group = parser.add_mutually_exclusive_group(required=True)
 
-    group.add_argument(
-        '-s', '--song', help='download song by spotify link or name')
-    group.add_argument(
-        '-l', '--list', help='download songs from a file')
-    group.add_argument(
-        '-p', '--playlist', help='load songs from playlist URL into <playlist_name>.txt')
-    group.add_argument(
-        '-b', '--album', help='load songs from album URL into <album_name>.txt')
-    group.add_argument(
-        '-u', '--username',
-        help="load songs from user's playlist into <playlist_name>.txt")
+    if to_group:
+        group = parser.add_mutually_exclusive_group(required=True)
+
+        group.add_argument(
+            '-s', '--song', help='download song by spotify link or name')
+        group.add_argument(
+            '-l', '--list', help='download songs from a file')
+        group.add_argument(
+            '-p', '--playlist', help='load songs from playlist URL into <playlist_name>.txt')
+        group.add_argument(
+            '-b', '--album', help='load songs from album URL into <album_name>.txt')
+        group.add_argument(
+            '-u', '--username',
+            help="load songs from user's playlist into <playlist_name>.txt")
+
     parser.add_argument(
         '-m', '--manual', default=False,
         help='choose the song to download manually', action='store_true')
@@ -59,10 +70,7 @@ def get_arguments():
         type=str.upper,
         help='set log verbosity')
 
-    parsed = parser.parse_args()
+    parsed = parser.parse_args(raw_args)
     parsed.log_level = log_leveller(parsed.log_level)
 
     return parsed
-
-
-parsed = get_arguments()

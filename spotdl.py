@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding: UTF-8 -*-
 
-from core import logger
+from core import const
+from core import handle
 from core import metadata
 from core import convert
 from core import internals
 from core import spotify_tools
 from core import youtube_tools
-from core import arguments
 from slugify import slugify
 import spotipy
 import pafy
@@ -24,10 +24,10 @@ def check_exists(music_file, raw_song, meta_tags):
     """ Check if the input song already exists in the given folder. """
     log.debug('Cleaning any temp files and checking '
               'if "{}" already exists'.format(music_file))
-    songs = os.listdir(args.folder)
+    songs = os.listdir(const.args.folder)
     for song in songs:
         if song.endswith('.temp'):
-            os.remove(os.path.join(args.folder, song))
+            os.remove(os.path.join(const.args.folder, song))
             continue
         # check if any song with similar name is already present in the given folder
         file_name = internals.sanitize_title(music_file)
@@ -36,29 +36,29 @@ def check_exists(music_file, raw_song, meta_tags):
             if internals.is_spotify(raw_song):
                 # check if the already downloaded song has correct metadata
                 # if not, remove it and download again without prompt
-                already_tagged = metadata.compare(os.path.join(args.folder, song),
+                already_tagged = metadata.compare(os.path.join(const.args.folder, song),
                                                   meta_tags)
                 log.debug('Checking if it is already tagged correctly? {}',
                                                             already_tagged)
                 if not already_tagged:
-                    os.remove(os.path.join(args.folder, song))
+                    os.remove(os.path.join(const.args.folder, song))
                     return False
 
             log.warning('"{}" already exists'.format(song))
-            if args.overwrite == 'prompt':
+            if const.args.overwrite == 'prompt':
                 log.info('"{}" has already been downloaded. '
                          'Re-download? (y/N): '.format(song))
                 prompt = input('> ')
                 if prompt.lower() == 'y':
-                    os.remove(os.path.join(args.folder, song))
+                    os.remove(os.path.join(const.args.folder, song))
                     return False
                 else:
                     return True
-            elif args.overwrite == 'force':
-                os.remove(os.path.join(args.folder, song))
+            elif const.args.overwrite == 'force':
+                os.remove(os.path.join(const.args.folder, song))
                 log.info('Overwriting "{}"'.format(song))
                 return False
-            elif args.overwrite == 'skip':
+            elif const.args.overwrite == 'skip':
                 log.info('Skipping "{}"'.format(song))
                 return True
     return False
@@ -157,32 +157,32 @@ def grab_single(raw_song, number=None):
         if not refined_songname == ' - ':
             songname = refined_songname
 
-    if args.dry_run:
+    if const.args.dry_run:
         return
 
     file_name = internals.sanitize_title(songname)
 
     if not check_exists(file_name, raw_song, meta_tags):
         if youtube_tools.download_song(file_name, content):
-            input_song = file_name + args.input_ext
-            output_song = file_name + args.output_ext
+            input_song = file_name + const.args.input_ext
+            output_song = file_name + const.args.output_ext
             print('')
 
             try:
-                convert.song(input_song, output_song, args.folder,
-                             avconv=args.avconv)
+                convert.song(input_song, output_song, const.args.folder,
+                             avconv=const.args.avconv)
             except FileNotFoundError:
-                encoder = 'avconv' if args.avconv else 'ffmpeg'
+                encoder = 'avconv' if const.args.avconv else 'ffmpeg'
                 log.warning('Could not find {0}, skipping conversion'.format(encoder))
-                args.output_ext = args.input_ext
-                output_song = file_name + args.output_ext
+                const.args.output_ext = const.args.input_ext
+                output_song = file_name + const.args.output_ext
 
-            if not args.input_ext == args.output_ext:
-                os.remove(os.path.join(args.folder, input_song))
+            if not const.args.input_ext == const.args.output_ext:
+                os.remove(os.path.join(const.args.folder, input_song))
 
-            if not args.no_metadata:
+            if not const.args.no_metadata:
                 if metadata:
-                    metadata.embed(os.path.join(args.folder, output_song), meta_tags)
+                    metadata.embed(os.path.join(const.args.folder, output_song), meta_tags)
                 else:
                     log.warning('Could not find metadata')
 
@@ -196,27 +196,27 @@ token = spotify_tools.generate_token()
 spotify = spotipy.Spotify(auth=token)
 
 if __name__ == '__main__':
-    args = arguments.parsed
-    internals.filter_path(args.folder)
+    const.args = handle.get_arguments()
+    internals.filter_path(const.args.folder)
 
-    logger.log = logger.logzero.setup_logger(formatter=logger.formatter,
-                                      level=args.log_level)
-    log = logger.log
+    const.log = const.logzero.setup_logger(formatter=const.formatter,
+                                      level=const.args.log_level)
+    log = const.log
     log.debug('Python version: {}'.format(sys.version))
     log.debug('Platform: {}'.format(platform.platform()))
-    log.debug(pprint.pformat(args.__dict__))
+    log.debug(pprint.pformat(const.args.__dict__))
 
     try:
-        if args.song:
-            grab_single(raw_song=args.song)
-        elif args.list:
-            grab_list(text_file=args.list)
-        elif args.playlist:
-            grab_playlist(playlist=args.playlist)
-        elif args.album:
-            spotify_tools.grab_album(album=args.album)
-        elif args.username:
-            spotify_tools.feed_playlist(username=args.username)
+        if const.args.song:
+            grab_single(raw_song=const.args.song)
+        elif const.args.list:
+            grab_list(text_file=const.args.list)
+        elif const.args.playlist:
+            grab_playlist(playlist=const.args.playlist)
+        elif const.args.album:
+            spotify_tools.grab_album(album=const.args.album)
+        elif const.args.username:
+            spotify_tools.feed_playlist(username=const.args.username)
 
         # Actually we don't necessarily need this, but yeah...
         # Explicit is better than implicit!

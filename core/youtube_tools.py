@@ -1,13 +1,12 @@
 import pafy
 
 from core import internals
-from core import arguments
-from core.logger import log
+from core import const
 
 import os
 import pprint
 
-args = arguments.parsed
+log = const.log
 
 
 def go_pafy(raw_song, meta_tags=None):
@@ -36,15 +35,15 @@ def get_youtube_title(content, number=None):
 
 def download_song(file_name, content):
     """ Download the audio file from YouTube. """
-    if args.input_ext in (".webm", ".m4a"):
-        link = content.getbestaudio(preftype=args.input_ext[1:])
+    if const.args.input_ext in (".webm", ".m4a"):
+        link = content.getbestaudio(preftype=const.args.input_ext[1:])
     else:
         return False
 
     if link:
         log.debug('Downloading from URL: ' + link.url)
-        filepath = '{0}{1}'.format(os.path.join(args.folder, file_name),
-                                   args.input_ext)
+        filepath = '{0}{1}'.format(os.path.join(const.args.folder, file_name),
+                                   const.args.input_ext)
         log.debug('Saving to: ' + filepath)
         link.download(filepath=filepath)
         return True
@@ -63,7 +62,7 @@ def generate_youtube_url(raw_song, meta_tags, tries_remaining=5):
               'maxResults' :  50,
               'type'       : 'video' }
 
-    if args.music_videos_only:
+    if const.args.music_videos_only:
         query['videoCategoryId'] = '10'
 
     if not meta_tags:
@@ -97,7 +96,7 @@ def generate_youtube_url(raw_song, meta_tags, tries_remaining=5):
 
     log.debug(pprint.pformat(videos))
 
-    if args.manual:
+    if const.args.manual:
         log.info(song)
         log.info('0. Skip downloading this song.\n')
         # fetch all video links on first page on YouTube

@@ -1,5 +1,5 @@
 from slugify import SLUG_OK, slugify
-from core.logger import log
+from core.const import log
 
 import os
 

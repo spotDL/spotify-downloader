@@ -1,7 +1,7 @@
 from mutagen.easyid3 import EasyID3
 from mutagen.id3 import ID3, APIC
 from mutagen.mp4 import MP4, MP4Cover
-from core.logger import log
+from core.const import log
 
 import urllib.request
 

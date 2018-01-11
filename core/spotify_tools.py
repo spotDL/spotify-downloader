@@ -4,9 +4,7 @@ from titlecase import titlecase
 import pprint
 
 from core import internals
-from core import logger
-
-log = logger.log
+from core.const import log
 
 
 def generate_token():
