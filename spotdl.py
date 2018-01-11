@@ -10,12 +10,10 @@ from core import spotify_tools
 from core import youtube_tools
 from slugify import slugify
 import spotipy
-import pafy
 import urllib.request
 import os
 import sys
 import time
-import sys
 import platform
 import pprint
 
@@ -85,8 +83,7 @@ def grab_list(text_file):
             # refresh token when it expires
             log.debug('Token expired, generating new one and authorizing')
             new_token = spotify_tools.generate_token()
-            global spotify
-            spotify = spotipy.Spotify(auth=new_token)
+            spotify_tools.spotify = spotipy.Spotify(auth=new_token)
             grab_single(raw_song, number=number)
         # detect network problems
         except (urllib.request.URLError, TypeError, IOError):
