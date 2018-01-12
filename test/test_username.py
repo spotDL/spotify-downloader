@@ -4,25 +4,26 @@ import spotdl
 
 username = 'alex'
 
+spotify = spotdl.spotify_tools.spotify
 
 def test_user():
     expect_playlists = 7
-    playlists = spotdl.spotify.user_playlists(username)
+    playlists = spotify.user_playlists(username)
     playlists = len(playlists['items'])
     assert playlists == expect_playlists
 
 
 def test_playlist():
     expect_tracks = 14
-    playlist = spotdl.spotify.user_playlists(username)['items'][0]
+    playlist = spotify.user_playlists(username)['items'][0]
     tracks = playlist['tracks']['total']
     assert tracks == expect_tracks
 
 
 def test_tracks():
-    playlist = spotdl.spotify.user_playlists(username)['items'][0]
+    playlist = spotify.user_playlists(username)['items'][0]
     expect_lines = playlist['tracks']['total']
-    result = spotdl.spotify.user_playlist(
+    result = spotify.user_playlist(
         playlist['owner']['id'], playlist['id'], fields='tracks,next')
     tracks = result['tracks']
 

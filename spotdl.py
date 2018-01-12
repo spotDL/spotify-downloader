@@ -192,11 +192,6 @@ def grab_single(raw_song, number=None):
             log.error('No audio streams available')
 
 
-# token is mandatory when using Spotify's API
-# https://developer.spotify.com/news-stories/2017/01/27/removing-unauthenticated-calls-to-the-web-api/
-token = spotify_tools.generate_token()
-spotify = spotipy.Spotify(auth=token)
-
 if __name__ == '__main__':
     const.args = handle.get_arguments()
     internals.filter_path(const.args.folder)
