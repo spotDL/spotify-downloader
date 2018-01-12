@@ -137,15 +137,9 @@ def grab_single(raw_song, number=None):
         meta_tags = spotify_tools.generate_metadata(raw_song)
         content = youtube_tools.go_pafy(raw_song, meta_tags)
 
-    if const.args.download_only_metadata:
-        if meta_tags is None:
-            log.info('Found No metadata. Skipping the download')
-            return
-
-    if const.args.download_only_metadata:
-        if meta_tags is None:
-            log.info('Found No metadata. Skipping the download')
-            return
+    if const.args.download_only_metadata and meta_tags is None:
+        log.info('Found No metadata. Skipping the download')
+        return
 
     if content is None:
         log.debug('Found no matching video')
@@ -158,11 +152,14 @@ def grab_single(raw_song, number=None):
     # generate file name of the song to download
     songname = content.title
 
-    if meta_tags:
+    if meta_tags is not None:
         refined_songname = internals.generate_songname(meta_tags)
         log.debug('Refining songname from "{0}" to "{1}"'.format(songname, refined_songname))
         if not refined_songname == ' - ':
             songname = refined_songname
+    else:
+        log.warning('Could not find metadata')
+
 
     if const.args.dry_run:
         return
@@ -187,11 +184,8 @@ def grab_single(raw_song, number=None):
             if not const.args.input_ext == const.args.output_ext:
                 os.remove(os.path.join(const.args.folder, input_song))
 
-            if not const.args.no_metadata:
-                if meta_tags:
-                    metadata.embed(os.path.join(const.args.folder, output_song), meta_tags)
-                else:
-                    log.warning('Could not find metadata')
+            if not const.args.no_metadata and meta_tags is not None:
+                metadata.embed(os.path.join(const.args.folder, output_song), meta_tags)
 
         else:
             log.error('No audio streams available')
