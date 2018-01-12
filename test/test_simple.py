@@ -1,7 +1,7 @@
 # -*- coding: UTF-8 -*-
 
-from spotdl import const
-from spotdl import handle
+from core import const
+from core import handle
 import spotdl
 
 import os
