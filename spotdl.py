@@ -137,18 +137,19 @@ def grab_single(raw_song, number=None):
         meta_tags = spotify_tools.generate_metadata(raw_song)
         content = youtube_tools.go_pafy(raw_song, meta_tags)
 
-    if const.args.download_only_metadata and meta_tags is None:
-        log.info('Found No metadata. Skipping the download')
-        return
-
     if content is None:
         log.debug('Found no matching video')
+        return
+
+    if const.args.download_only_metadata and meta_tags is None:
+        log.info('Found no metadata. Skipping the download')
         return
 
     # "[number]. [artist] - [song]" if downloading from list
     # otherwise "[artist] - [song]"
     youtube_title = youtube_tools.get_youtube_title(content, number)
     log.info('{} ({})'.format(youtube_title, content.watchv_url))
+
     # generate file name of the song to download
     songname = content.title
 
