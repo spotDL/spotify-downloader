@@ -188,7 +188,7 @@ def grab_single(raw_song, number=None):
                 os.remove(os.path.join(const.args.folder, input_song))
 
             if not const.args.no_metadata:
-                if metadata:
+                if meta_tags:
                     metadata.embed(os.path.join(const.args.folder, output_song), meta_tags)
                 else:
                     log.warning('Could not find metadata')
