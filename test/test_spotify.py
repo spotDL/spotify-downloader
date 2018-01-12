@@ -1,54 +1,48 @@
 # -*- coding: UTF-8 -*-
 
-from spotdl import logger
+from spotdl import const
+from spotdl import handle
 import spotdl
+
 import os
 
+const.args = handle.get_arguments(to_group=False, raw_args='')
+const.args.folder = 'test'
+const.args.overwrite = 'skip'
+const.args.log_level = handle.logging.DEBUG
+
+spotdl.args = const.args
+spotdl.log = const.logzero.setup_logger(formatter=const.formatter,
+                                  level=const.args.log_level)
+
+
 raw_song = 'http://open.spotify.com/track/0JlS7BXXD07hRmevDnbPDU'
-
-
-class TestArgs:
-    manual = False
-    input_ext = '.m4a'
-    output_ext = '.mp3'
-    folder = 'test'
-    log_level = 'DEBUG'
-    overwrite = 'skip'
-    music_videos_only = False
-
-test_args = TestArgs()
-setattr(spotdl, "args", test_args)
-
-spotdl.log = logger.logzero.setup_logger(formatter=logger.formatter,
-                                  level=spotdl.args.log_level)
-spotdl.internals.filter_path(spotdl.args.folder)
-
 
 def test_spotify_title():
     expect_title = 'David André Østby - Intro'
     global meta_tags
-    meta_tags = spotdl.generate_metadata(raw_song)
-    title = spotdl.generate_songname(meta_tags)
+    meta_tags = spotdl.spotify_tools.generate_metadata(raw_song)
+    title = spotdl.internals.generate_songname(meta_tags)
     assert title == expect_title
 
 
-def youtube_url():
-    expect_url = 'youtube.com/watch?v=rg1wfcty0BA'
-    url = spotdl.generate_youtube_url(raw_song, meta_tags)
+def test_youtube_url():
+    expect_url = 'http://youtube.com/watch?v=rg1wfcty0BA'
+    url = spotdl.youtube_tools.generate_youtube_url(raw_song, meta_tags)
     assert url == expect_url
 
 
-def youtube_title():
+def test_youtube_title():
     expect_title = 'Intro - David André Østby'
-    content = spotdl.go_pafy(raw_song, meta_tags)
-    title = spotdl.get_youtube_title(content)
+    content = spotdl.youtube_tools.go_pafy(raw_song, meta_tags)
+    title = spotdl.youtube_tools.get_youtube_title(content)
     assert title == expect_title
 
 
 def test_check_exists():
     expect_check = False
     # prerequisites for determining filename
-    songname = spotdl.generate_songname(meta_tags)
+    songname = spotdl.internals.generate_songname(meta_tags)
     global file_name
     file_name = spotdl.internals.sanitize_title(songname)
     check = spotdl.check_exists(file_name, raw_song, meta_tags)
@@ -58,8 +52,8 @@ def test_check_exists():
 def test_download():
     expect_download = True
     # prerequisites for determining filename
-    content = spotdl.go_pafy(raw_song, meta_tags)
-    download = spotdl.download_song(file_name, content)
+    content = spotdl.youtube_tools.go_pafy(raw_song, meta_tags)
+    download = spotdl.youtube_tools.download_song(file_name, content)
     assert download == expect_download
 
 
