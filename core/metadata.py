@@ -1,5 +1,5 @@
 from mutagen.easyid3 import EasyID3
-from mutagen.id3 import ID3, APIC
+from mutagen.id3 import ID3, TORY, TYER, TPUB, APIC, USLT, COMM
 from mutagen.mp4 import MP4, MP4Cover
 from core.const import log
 
@@ -45,6 +45,9 @@ class EmbedMetadata:
         music_file = self.music_file
         meta_tags = self.meta_tags
         # EasyID3 is fun to use ;)
+        # For supported easyid3 tags:
+        # https://github.com/quodlibet/mutagen/blob/master/mutagen/easyid3.py
+        # Check out somewhere at end of above linked file
         audiofile = EasyID3(music_file)
         audiofile['artist'] = meta_tags['artists'][0]['name']
         audiofile['albumartist'] = meta_tags['artists'][0]['name']
@@ -61,7 +64,7 @@ class EmbedMetadata:
         audiofile['arranger'] = meta_tags['artists'][0]['name']
         audiofile['performer'] = meta_tags['artists'][0]['name']
         audiofile['website'] = meta_tags['external_urls']['spotify']
-        audiofile['length'] = str(meta_tags['duration_ms'] / 1000)
+        audiofile['length'] = str(meta_tags['duration_ms'] / 1000.0)
         if meta_tags['publisher']:
             audiofile['encodedby'] = meta_tags['publisher']
         if meta_tags['genre']:
@@ -71,14 +74,26 @@ class EmbedMetadata:
         if meta_tags['external_ids']['isrc']:
             audiofile['isrc'] = meta_tags['external_ids']['isrc']
         audiofile.save(v2_version=3)
+
+        # For supported id3 tags:
+        # https://github.com/quodlibet/mutagen/blob/master/mutagen/id3/_frames.py
+        # Each class represents an id3 tag
         audiofile = ID3(music_file)
+        year, *_ = meta_tags['release_date'].split('-')
+        audiofile['TORY'] = TORY(encoding=3, text=year)
+        audiofile['TYER'] = TYER(encoding=3, text=year)
+        audiofile['TPUB'] = TPUB(encoding=3, text=meta_tags['publisher'])
+        audiofile['COMM'] = COMM(encoding=3, text=meta_tags['external_urls']['spotify'])
+        if meta_tags['lyrics']:
+            audiofile['USLT'] = USLT(encoding=3, desc=u'Lyrics', text=meta_tags['lyrics'])
         try:
             albumart = urllib.request.urlopen(meta_tags['album']['images'][0]['url'])
-            audiofile["APIC"] = APIC(encoding=3, mime='image/jpeg', type=3,
+            audiofile['APIC'] = APIC(encoding=3, mime='image/jpeg', type=3,
                                      desc=u'Cover', data=albumart.read())
             albumart.close()
         except IndexError:
             pass
+
         audiofile.save(v2_version=3)
         return True
 
@@ -88,22 +103,24 @@ class EmbedMetadata:
         meta_tags = self.meta_tags
         # Apple has specific tags - see mutagen docs -
         # http://mutagen.readthedocs.io/en/latest/api/mp4.html
-        tags = {'album': '\xa9alb',
-                'artist': '\xa9ART',
-                'date': '\xa9day',
-                'title': '\xa9nam',
-                'originaldate': 'purd',
-                'comment': '\xa9cmt',
-                'group': '\xa9grp',
-                'writer': '\xa9wrt',
-                'genre': '\xa9gen',
-                'tracknumber': 'trkn',
-                'albumartist': 'aART',
-                'disknumber': 'disk',
-                'cpil': 'cpil',
-                'albumart': 'covr',
-                'copyright': 'cprt',
-                'tempo': 'tmpo'}
+        tags = { 'album'        : '\xa9alb',
+                 'artist'       : '\xa9ART',
+                 'date'         : '\xa9day',
+                 'title'        : '\xa9nam',
+                 'year'         : '\xa9day',
+                 'originaldate' : 'purd',
+                 'comment'      : '\xa9cmt',
+                 'group'        : '\xa9grp',
+                 'writer'       : '\xa9wrt',
+                 'genre'        : '\xa9gen',
+                 'tracknumber'  : 'trkn',
+                 'albumartist'  : 'aART',
+                 'disknumber'   : 'disk',
+                 'cpil'         : 'cpil',
+                 'albumart'     : 'covr',
+                 'copyright'    : 'cprt',
+                 'tempo'        : 'tmpo',
+                 'lyrics'       : '\xa9lyr' }
 
         audiofile = MP4(music_file)
         audiofile[tags['artist']] = meta_tags['artists'][0]['name']
@@ -114,11 +131,16 @@ class EmbedMetadata:
                                            meta_tags['total_tracks'])]
         audiofile[tags['disknumber']] = [(meta_tags['disc_number'], 0)]
         audiofile[tags['date']] = meta_tags['release_date']
+        year, *_ = meta_tags['release_date'].split('-')
+        audiofile[tags['year']] = year
         audiofile[tags['originaldate']] = meta_tags['release_date']
+        audiofile[tags['comment']] = meta_tags['external_urls']['spotify']
         if meta_tags['genre']:
             audiofile[tags['genre']] = meta_tags['genre']
         if meta_tags['copyright']:
             audiofile[tags['copyright']] = meta_tags['copyright']
+        if meta_tags['lyrics']:
+            audiofile[tags['lyrics']] = meta_tags['lyrics']
         try:
             albumart = urllib.request.urlopen(meta_tags['album']['images'][0]['url'])
             audiofile[tags['albumart']] = [MP4Cover(

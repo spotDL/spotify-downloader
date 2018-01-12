@@ -137,7 +137,12 @@ def grab_single(raw_song, number=None):
         meta_tags = spotify_tools.generate_metadata(raw_song)
         content = youtube_tools.go_pafy(raw_song, meta_tags)
 
-    if not content:
+    if const.args.download_only_metadata:
+        if meta_tags is None:
+            log.info('Found No metadata. Skipping the download')
+            return
+
+    if content is None:
         log.debug('Found no matching video')
         return
 
@@ -215,8 +220,8 @@ if __name__ == '__main__':
         elif const.args.username:
             spotify_tools.feed_playlist(username=const.args.username)
 
-        # Actually we don't necessarily need this, but yeah...
-        # Explicit is better than implicit!
+        # actually we don't necessarily need this, but yeah...
+        # explicit is better than implicit!
         sys.exit(0)
 
     except KeyboardInterrupt as e:

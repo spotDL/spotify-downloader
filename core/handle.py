@@ -13,7 +13,7 @@ def log_leveller(log_level_str):
     return loggin_level
 
 
-def get_arguments(to_group=False, raw_args=None):
+def get_arguments(to_group=True, raw_args=None):
     parser = argparse.ArgumentParser(
         description='Download and convert songs from Spotify, Youtube etc.',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
@@ -56,6 +56,10 @@ def get_arguments(to_group=False, raw_args=None):
     parser.add_argument(
         '-o', '--output-ext', default='.mp3',
         help='prefered output extension .mp3 or .m4a (AAC)')
+    parser.add_argument(
+        '-dm', '--download-only-metadata', default=False,
+        help='download songs for which metadata is found',
+        action='store_true')
     parser.add_argument(
         '-d', '--dry-run', default=False,
         help='Show only track title and YouTube URL',

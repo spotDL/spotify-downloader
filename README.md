@@ -7,12 +7,13 @@
 
 - Can also download a song by entering its artist and song name (in case if you don't have the Spotify's HTTP link for some song).
 
-- Automatically fixes song's meta-tags which include:
+- Automatically applies metadata to the downloaded song which include:
 
   - Title
   - Artist
   - Album
   - Album art
+  - Lyrics (if found on http://lyrics.wikia.com)
   - Album artist
   - Genre
   - Track number

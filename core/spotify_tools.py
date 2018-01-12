@@ -1,10 +1,12 @@
 import spotipy
 import spotipy.oauth2 as oauth2
+import lyricwikia
 from titlecase import titlecase
-import pprint
 
 from core import internals
 from core.const import log
+
+import pprint
 
 
 def generate_token():
@@ -51,6 +53,19 @@ def generate_metadata(raw_song):
     meta_tags[u'release_date'] = album['release_date']
     meta_tags[u'publisher'] = album['label']
     meta_tags[u'total_tracks'] = album['tracks']['total']
+
+    log.debug('Fetching lyrics')
+
+    try:
+        meta_tags['lyrics'] = lyricwikia.get_lyrics(
+                        meta_tags['artists'][0]['name'],
+                        meta_tags['name'])
+    except lyricwikia.LyricsNotFound:
+        meta_tags['lyrics'] = None
+
+    # remove unused clutter when debug meta_tags
+    del meta_tags['available_markets']
+    del meta_tags['album']['available_markets']
 
     log.debug(pprint.pformat(meta_tags))
     return meta_tags
