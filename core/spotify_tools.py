@@ -1,11 +1,12 @@
 import spotipy
 import spotipy.oauth2 as oauth2
 import lyricwikia
-from titlecase import titlecase
 
 from core import internals
 from core.const import log
 
+from slugify import slugify
+from titlecase import titlecase
 import pprint
 
 
