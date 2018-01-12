@@ -148,5 +148,6 @@ class EmbedMetadata:
             albumart.close()
         except IndexError:
             pass
+
         audiofile.save()
         return True

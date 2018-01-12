@@ -142,6 +142,11 @@ def grab_single(raw_song, number=None):
             log.info('Found No metadata. Skipping the download')
             return
 
+    if args.download_only_metadata:
+        if meta_tags is None:
+            log.info('Found No metadata. Skipping the download')
+            return
+
     if content is None:
         log.debug('Found no matching video')
         return
