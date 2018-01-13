@@ -255,6 +255,14 @@ command after downloading is done:
 
 Just make sure your working directory is the one you have the music files in.
 
+## Config File
+
+At first run, this tool will generate a `config.yml` in root directory
+of the code base with default options. You can then modify `config.yml`
+to override any default options.
+
+Also note that config options are overridden by command-line arguments.
+
 ## [Docker Image](https://hub.docker.com/r/ritiek/spotify-downloader/)
 [![Docker automated build](https://img.shields.io/docker/automated/jrottenberg/ffmpeg.svg)](https://hub.docker.com/r/ritiek/spotify-downloader)
 
