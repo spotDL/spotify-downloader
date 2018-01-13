@@ -1,6 +1,8 @@
+config.yml
+Music/
+*.txt
+
 *.pyc
 __pycache__/
 .cache/
-Music/
-*.txt
 .python-version
