@@ -72,12 +72,11 @@ def grab_list(text_file):
     except ValueError:
         pass
     log.info(u'Preparing to download {} songs'.format(len(lines)))
-    number = 1
 
-    for raw_song in lines:
+    for number, raw_song in enumerate(lines):
         print('')
         try:
-            grab_single(raw_song, number=number)
+            grab_single(raw_song, number=number+1)
         # token expires after 1 hour
         except spotipy.client.SpotifyException:
             # refresh token when it expires
@@ -100,7 +99,6 @@ def grab_list(text_file):
 
         log.debug('Removing downloaded song from text file')
         internals.trim_song(text_file)
-        number += 1
 
 
 def grab_playlist(playlist):
