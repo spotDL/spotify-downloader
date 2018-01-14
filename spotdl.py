@@ -114,14 +114,14 @@ def grab_playlist(playlist):
     except IndexError:
         # Wrong format, in either case
         log.error('The provided playlist URL is not in a recognized format!')
-        sys.exit(1)
+        sys.exit(10)
     playlist_id = splits[-1]
     try:
         spotify_tools.write_playlist(username, playlist_id)
     except spotipy.client.SpotifyException:
         log.error('Unable to find playlist')
         log.info('Make sure the playlist is set to publicly visible and then try again')
-        sys.exit(1)
+        sys.exit(11)
 
 
 def grab_single(raw_song, number=None):
@@ -219,4 +219,4 @@ if __name__ == '__main__':
 
     except KeyboardInterrupt as e:
         log.exception(e)
-        sys.exit(1)
+        sys.exit(3)
