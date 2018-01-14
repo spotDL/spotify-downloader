@@ -129,6 +129,8 @@ optional arguments:
   -d, --dry-run         Show only track title and YouTube URL (default: False)
   -mo, --music-videos-only
                         Search only for music on Youtube (default: False)
+  -ps, --preserve-spaces
+                        Preserve spaces on file names (default: False)
   -ll {INFO,WARNING,ERROR,DEBUG}, --log-level {INFO,WARNING,ERROR,DEBUG}
                         set log verbosity (default: INFO)
 ```
@@ -243,18 +245,6 @@ If you don't want to download all the songs to the `Music/` folder relative to t
 `spotdl.py` script, you can use the `-f`/`--folder` option.
 E.g. `$ python3 spotdl.py -s "adele hello" -f "/home/user/Music/"`.
 This works with both relative and absolute paths.
-
-#### Preserve Spaces in File Names
-
-Beside some other characters, spaces will be replaced by underscores.
-There's no option to change this behavior in spotify-downloader itself,
-but on Unix-based operating systems you can issue the following bash
-command after downloading is done:
-```
-$ find . -type f -name "*.mp3" -exec bash -c 'mv "$0" "${0//_/ }"' {} \;
-```
-
-Just make sure your working directory is the one you have the music files in.
 
 ## Config File
 

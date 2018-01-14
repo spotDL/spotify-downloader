@@ -19,6 +19,7 @@ default_conf = { 'spotify-downloader':
                    'download-only-metadata' : False,
                    'dry-run'                : False,
                    'music-videos-only'      : False,
+                   'preserve_spaces'        : False,
                    'log-level'              : 'INFO' }
                }
 
@@ -106,6 +107,10 @@ def get_arguments(to_group=True, raw_args=None):
     parser.add_argument(
         '-mo', '--music-videos-only', default=config['music-videos-only'],
         help='Search only for music on Youtube',
+        action='store_true')
+    parser.add_argument(
+        '-ps', '--preserve-spaces', default=config['preserve-spaces'],
+        help='Preserve spaces on file names',
         action='store_true')
     parser.add_argument(
         '-ll', '--log-level', default=config['log-level'],
