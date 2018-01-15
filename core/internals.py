@@ -43,10 +43,25 @@ def is_youtube(raw_song):
     return status
 
 
-def generate_songname(tags):
+def generate_songname(file_format, tags):
     """ Generate a string of the format '[artist] - [song]' for the given spotify song. """
-    raw_song = u'{0} - {1}'.format(tags['artists'][0]['name'], tags['name'])
-    return raw_song
+    formats = { '{track_name}'    : tags['name'],
+                '{artist}'        : tags['artists'][0]['name'],
+                '{album}'         : tags['album']['name'],
+                '{album_artist}'  : tags['artists'][0]['name'],
+                '{genre}'         : tags['genre'],
+                '{disc_number}'   : tags['disc_number'],
+                '{duration}'      : tags['duration'],
+                '{year}'          : tags['year'],
+                '{original_date}' : tags['release_date'],
+                '{track_number}'  : tags['track_number'],
+                '{total_tracks}'  : tags['total_tracks'],
+                '{isrc}'          : tags['external_ids']['isrc'] }
+
+    for item in formats:
+        file_format = file_format.replace(item, str(formats[item]))
+
+    return file_format
 
 
 def sanitize_title(title):

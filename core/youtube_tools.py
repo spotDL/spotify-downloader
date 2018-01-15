@@ -69,7 +69,7 @@ def generate_youtube_url(raw_song, meta_tags, tries_remaining=5):
         song = raw_song
         query['q'] = song
     else:
-        song = internals.generate_songname(meta_tags)
+        song = internals.generate_songname(const.args.file_format, meta_tags)
         query['q'] = song
     log.debug('query: {0}'.format(query))
 
@@ -123,7 +123,7 @@ def generate_youtube_url(raw_song, meta_tags, tries_remaining=5):
             the duration_tolerance has reached the max_duration_tolerance
             '''
             while len(possible_videos_by_duration) == 0:
-                possible_videos_by_duration = list(filter(lambda x: abs(x['seconds'] - (int(meta_tags['duration_ms'])/1000)) <= duration_tolerance, videos))
+                possible_videos_by_duration = list(filter(lambda x: abs(x['seconds'] - meta_tags['duration']) <= duration_tolerance, videos))
                 duration_tolerance += 1
                 if duration_tolerance > max_duration_tolerance:
                     log.error("{0} by {1} was not found.\n".format(meta_tags['name'], meta_tags['artists'][0]['name']))

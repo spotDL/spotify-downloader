@@ -20,6 +20,7 @@ default_conf = { 'spotify-downloader':
                    'dry-run'                : False,
                    'music-videos-only'      : False,
                    'preserve-spaces'        : False,
+                   'file-format'            : '{artist}_-_{track_name}',
                    'log-level'              : 'INFO' }
                }
 
@@ -96,6 +97,10 @@ def get_arguments(to_group=True, raw_args=None):
     parser.add_argument(
         '-o', '--output-ext', default=config['output-ext'],
         help='prefered output extension .mp3 or .m4a (AAC)')
+    parser.add_argument(
+        '-ff', '--file-format', default=config['file-format'],
+        help='File format to save the downloaded song with',
+        action='store_true')
     parser.add_argument(
         '-dm', '--download-only-metadata', default=config['download-only-metadata'],
         help='download songs for which metadata is found',

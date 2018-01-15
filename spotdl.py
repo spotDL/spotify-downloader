@@ -152,7 +152,7 @@ def grab_single(raw_song, number=None):
     songname = content.title
 
     if meta_tags is not None:
-        refined_songname = internals.generate_songname(meta_tags)
+        refined_songname = internals.generate_songname(const.args.file_format, meta_tags)
         log.debug('Refining songname from "{0}" to "{1}"'.format(songname, refined_songname))
         if not refined_songname == ' - ':
             songname = refined_songname
