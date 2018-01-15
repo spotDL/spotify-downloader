@@ -69,7 +69,8 @@ def generate_youtube_url(raw_song, meta_tags, tries_remaining=5):
         song = raw_song
         query['q'] = song
     else:
-        song = internals.generate_songname(const.args.file_format, meta_tags)
+        song = '{0} - {1}'.format(meta_tags['artists'][0]['name'],
+                                  meta_tags['name'])
         query['q'] = song
     log.debug('query: {0}'.format(query))
 
