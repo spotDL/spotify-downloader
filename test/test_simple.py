@@ -1,22 +1,14 @@
-# -*- coding: UTF-8 -*-
-
 from core import const
 from core import handle
+
 import spotdl
+import loader
 
 import os
 
-const.args = handle.get_arguments(to_group=False, raw_args='')
-const.args.folder = 'test'
-const.args.overwrite = 'skip'
-const.args.log_level = handle.logging.DEBUG
-
-spotdl.args = const.args
-spotdl.log = const.logzero.setup_logger(formatter=const.formatter,
-                                  level=const.args.log_level)
-
-
+loader.load_defaults()
 raw_song = "Tony's Videos VERY SHORT VIDEO 28.10.2016"
+
 
 def test_youtube_url():
     expect_url = 'http://youtube.com/watch?v=qOOcy2-tmbk'
@@ -31,6 +23,7 @@ def test_youtube_title():
     content = spotdl.youtube_tools.go_pafy(raw_song, meta_tags=None)
     title = spotdl.youtube_tools.get_youtube_title(content)
     assert title == expect_title
+
 
 def test_check_exists():
     expect_check = False

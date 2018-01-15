@@ -1,21 +1,13 @@
-# -*- coding: UTF-8 -*-
 
 from core import const
 from core import handle
+
 import spotdl
 
+import loader
 import os
 
-const.args = handle.get_arguments(to_group=False, raw_args='')
-const.args.folder = 'test'
-const.args.overwrite = 'skip'
-const.args.log_level = handle.logging.DEBUG
-
-spotdl.args = const.args
-spotdl.log = const.logzero.setup_logger(formatter=const.formatter,
-                                  level=const.args.log_level)
-
-
+loader.load_defaults()
 raw_song = 'http://open.spotify.com/track/0JlS7BXXD07hRmevDnbPDU'
 
 def test_spotify_title():

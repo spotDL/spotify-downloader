@@ -1,10 +1,8 @@
-# -*- coding: UTF-8 -*-
-
 import spotdl
 
+spotify = spotdl.spotify_tools.spotify
 username = 'alex'
 
-spotify = spotdl.spotify_tools.spotify
 
 def test_user():
     expect_playlists = 7
