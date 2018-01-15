@@ -19,7 +19,7 @@ default_conf = { 'spotify-downloader':
                    'download-only-metadata' : False,
                    'dry-run'                : False,
                    'music-videos-only'      : False,
-                   'preserve_spaces'        : False,
+                   'preserve-spaces'        : False,
                    'log-level'              : 'INFO' }
                }
 
