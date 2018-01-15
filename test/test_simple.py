@@ -32,7 +32,6 @@ def test_youtube_title():
 
 
 def test_check_exists():
-    print(const.args)
     expect_check = False
     # prerequisites for determining filename
     file_name = internals.sanitize_title(title)

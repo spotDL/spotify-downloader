@@ -28,8 +28,8 @@ def check_exists(music_file, raw_song, meta_tags):
             os.remove(os.path.join(const.args.folder, song))
             continue
         # check if any song with similar name is already present in the given folder
-        file_name = internals.sanitize_title(music_file)
-        if song.startswith(file_name):
+        #file_name = internals.sanitize_title(music_file)
+        if song.startswith(music_file):
             log.debug('Found an already existing song: "{}"'.format(song))
             if internals.is_spotify(raw_song):
                 # check if the already downloaded song has correct metadata
@@ -157,18 +157,18 @@ def grab_single(raw_song, number=None):
         if not refined_songname == ' - ':
             songname = refined_songname
     else:
+        songname = internals.sanitize_title(songname)
         log.warning('Could not find metadata')
 
 
     if const.args.dry_run:
         return
 
-    file_name = internals.sanitize_title(songname)
 
-    if not check_exists(file_name, raw_song, meta_tags):
-        if youtube_tools.download_song(file_name, content):
-            input_song = file_name + const.args.input_ext
-            output_song = file_name + const.args.output_ext
+    if not check_exists(songname, raw_song, meta_tags):
+        if youtube_tools.download_song(songname, content):
+            input_song = songname + const.args.input_ext
+            output_song = songname + const.args.output_ext
             print('')
 
             try:
@@ -178,7 +178,7 @@ def grab_single(raw_song, number=None):
                 encoder = 'avconv' if const.args.avconv else 'ffmpeg'
                 log.warning('Could not find {0}, skipping conversion'.format(encoder))
                 const.args.output_ext = const.args.input_ext
-                output_song = file_name + const.args.output_ext
+                output_song = songname + const.args.output_ext
 
             if not const.args.input_ext == const.args.output_ext:
                 os.remove(os.path.join(const.args.folder, input_song))
