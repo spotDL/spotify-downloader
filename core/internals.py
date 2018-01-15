@@ -1,5 +1,9 @@
-from slugify import SLUG_OK, slugify
 from core.const import log
+
+try:
+    from slugify import SLUG_OK, slugify
+except ImportError:
+    log.warning('Remove any other slugifies and install unicode-slugify')
 
 import os
 
@@ -68,11 +72,11 @@ def filter_path(path):
 
 
 def videotime_from_seconds(time):
-    if time<60:
+    if time < 60:
         return str(time)
-    if time<3600:
-        return '{}:{}'.format(str(time//60), str(time%60).zfill(2))
+    if time < 3600:
+        return '{}:{}'.format(str(time // 60), str(time % 60).zfill(2))
 
-    return '{}:{}:{}'.format(str(time//60),
-                             str((time%60)//60).zfill(2),
-                             str((time%60)%60).zfill(2))
+    return '{}:{}:{}'.format(str(time // 60),
+                             str((time % 60) // 60).zfill(2),
+                             str((time % 60) % 60).zfill(2))
