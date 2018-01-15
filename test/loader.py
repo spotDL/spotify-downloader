@@ -4,10 +4,8 @@ import spotdl
 
 
 def load_defaults():
-    const.args = handle.get_arguments(to_group=False, raw_args='')
-    const.args.folder = 'test'
+    const.args = handle.get_arguments(raw_args='', to_group=False, merge=False)
     const.args.overwrite = 'skip'
-    const.args.log_level = handle.logging.DEBUG
 
     spotdl.args = const.args
     spotdl.log = const.logzero.setup_logger(formatter=const.formatter,

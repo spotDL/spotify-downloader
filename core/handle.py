@@ -51,13 +51,16 @@ def get_config(config_file):
     return cfg['spotify-downloader']
 
 
-def get_arguments(to_group=True, raw_args=None):
+def get_arguments(raw_args=None, to_group=True, merge=True):
     parser = argparse.ArgumentParser(
         description='Download and convert songs from Spotify, Youtube etc.',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
-    config_file = os.path.join(sys.path[0], 'config.yml')
-    config = merge(default_conf, get_config(config_file))
+    if merge:
+        config_file = os.path.join(sys.path[0], 'config.yml')
+        config = merge(default_conf, get_config(config_file))
+    else:
+        config = default_conf['spotify-downloader']
 
     if to_group:
         group = parser.add_mutually_exclusive_group(required=True)
