@@ -186,6 +186,10 @@ def grab_single(raw_song, number=None):
             if not const.args.no_metadata and meta_tags is not None:
                 metadata.embed(os.path.join(const.args.folder, output_song), meta_tags)
 
+            if const.args.preserve_spaces and "_" in output_song:
+                song_path = os.path.join(const.args.folder, output_song.replace('_', ' '))
+                os.rename(os.path.join(const.args.folder, output_song), song_path)
+
         else:
             log.error('No audio streams available')
 
