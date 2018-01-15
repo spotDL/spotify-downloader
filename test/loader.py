@@ -4,7 +4,7 @@ import spotdl
 
 
 def load_defaults():
-    const.args = handle.get_arguments(raw_args='', to_group=False, merge=False)
+    const.args = handle.get_arguments(raw_args='', to_group=False, to_merge=False)
     const.args.overwrite = 'skip'
 
     spotdl.args = const.args
