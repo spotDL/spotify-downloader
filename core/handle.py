@@ -5,6 +5,8 @@ import argparse
 import os
 import sys
 
+from os.path import expanduser
+
 
 _LOG_LEVELS_STR = ['INFO', 'WARNING', 'ERROR', 'DEBUG']
 
@@ -12,7 +14,7 @@ default_conf = { 'spotify-downloader':
                  { 'manual'                 : False,
                    'no-metadata'            : False,
                    'avconv'                 : False,
-                   'folder'                 : os.path.join(sys.path[0], 'Music'),
+                   'folder'                 : os.path.join(expanduser('~'), 'Music'),
                    'overwrite'              : 'prompt',
                    'input-ext'              : '.m4a',
                    'output-ext'             : '.mp3',
