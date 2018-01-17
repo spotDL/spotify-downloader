@@ -19,7 +19,7 @@ default_conf = { 'spotify-downloader':
                    'download-only-metadata' : False,
                    'dry-run'                : False,
                    'music-videos-only'      : False,
-                   'preserve-spaces'        : False,
+                   'no-spaces'              : False,
                    'file-format'            : '{artist}_-_{track_name}',
                    'log-level'              : 'INFO' }
                }
@@ -117,8 +117,8 @@ def get_arguments(raw_args=None, to_group=True, to_merge=True):
         help='Search only for music on Youtube',
         action='store_true')
     parser.add_argument(
-        '-ps', '--preserve-spaces', default=config['preserve-spaces'],
-        help='Preserve spaces on file names',
+        '-ns', '--no-spaces', default=config['no-spaces'],
+        help='Replace spaces with underscores in file names',
         action='store_true')
     parser.add_argument(
         '-ll', '--log-level', default=config['log-level'],

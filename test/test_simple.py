@@ -34,6 +34,7 @@ def test_youtube_title():
 def test_check_exists():
     expect_check = False
     # prerequisites for determining filename
+    global file_name
     file_name = internals.sanitize_title(title)
     check = spotdl.check_exists(file_name, raw_song, meta_tags=None)
     assert check == expect_check
@@ -41,8 +42,6 @@ def test_check_exists():
 
 def test_download():
     expect_download = True
-    # prerequisites for determining filename
-    file_name = internals.sanitize_title(title)
     download = youtube_tools.download_song(file_name, content)
     assert download == expect_download
 
@@ -50,8 +49,6 @@ def test_download():
 def test_convert():
     # exit code 0 = success
     expect_converted = 0
-    # prerequisites for determining filename
-    file_name = internals.sanitize_title(title)
     global input_song
     global output_song
     input_song = file_name + const.args.input_ext
@@ -62,9 +59,7 @@ def test_convert():
 
 def test_metadata():
     expect_metadata = None
-    # prerequisites for determining filename
     meta_tags = spotify_tools.generate_metadata(raw_song)
-    file_name = internals.sanitize_title(title)
     if meta_tags:
         metadata_output = metadata.embed(os.path.join(const.args.folder, output_song), meta_tags)
         metadata_input = metadata.embed(os.path.join(const.args.folder, input_song), meta_tags)
@@ -76,8 +71,6 @@ def test_metadata():
 
 def test_check_exists2():
     expect_check = True
-    # prerequisites for determining filename
-    file_name = internals.sanitize_title(title)
     os.remove(os.path.join(const.args.folder, input_song))
     check = spotdl.check_exists(file_name, raw_song, meta_tags=None)
     os.remove(os.path.join(const.args.folder, output_song))

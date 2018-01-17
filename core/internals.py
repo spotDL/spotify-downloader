@@ -1,7 +1,9 @@
 from slugify import SLUG_OK, slugify
-from core.const import log
+from core import const
 
 import os
+
+log = const.log
 
 
 def input_link(links):
@@ -60,17 +62,18 @@ def generate_songname(file_format, tags):
 
     for item in formats:
         file_format = file_format.replace(item, str(formats[item]))
+    log.info(const.args.no_spaces)
+    if const.args.no_spaces:
+        file_format = file_format.replace(' ', '_')
 
     return file_format
 
 
 def sanitize_title(title):
     """ Generate filename of the song to be downloaded. """
-    title = title.replace(' ', '_')
-    title = title.replace('/', '_')
-
     # slugify removes any special characters
-    title = slugify(title, ok='-_()[]{}', lower=False)
+    title = slugify(title, ok='-_()[]{}\/', lower=False,
+                    spaces=(not const.args.no_spaces))
     return title
 
 

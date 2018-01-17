@@ -28,7 +28,6 @@ def check_exists(music_file, raw_song, meta_tags):
             os.remove(os.path.join(const.args.folder, song))
             continue
         # check if any song with similar name is already present in the given folder
-        #file_name = internals.sanitize_title(music_file)
         if song.startswith(music_file):
             log.debug('Found an already existing song: "{}"'.format(song))
             if internals.is_spotify(raw_song):
@@ -157,15 +156,16 @@ def grab_single(raw_song, number=None):
         if not refined_songname == ' - ':
             songname = refined_songname
     else:
-        songname = internals.sanitize_title(songname)
         log.warning('Could not find metadata')
-
+        songname = internals.sanitize_title(songname)
 
     if const.args.dry_run:
         return
 
-
     if not check_exists(songname, raw_song, meta_tags):
+        # deal with file formats containing slashes to non-existent directories
+        songpath = os.path.join(const.args.folder, os.path.dirname(songname))
+        os.makedirs(songpath, exist_ok=True)
         if youtube_tools.download_song(songname, content):
             input_song = songname + const.args.input_ext
             output_song = songname + const.args.output_ext
@@ -185,10 +185,6 @@ def grab_single(raw_song, number=None):
 
             if not const.args.no_metadata and meta_tags is not None:
                 metadata.embed(os.path.join(const.args.folder, output_song), meta_tags)
-
-            if const.args.preserve_spaces and "_" in output_song:
-                song_path = os.path.join(const.args.folder, output_song.replace('_', ' '))
-                os.rename(os.path.join(const.args.folder, output_song), song_path)
 
         else:
             log.error('No audio streams available')
