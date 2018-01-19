@@ -1,7 +1,22 @@
 from slugify import SLUG_OK, slugify
-from core.const import log
+from core import const
 
 import os
+
+log = const.log
+
+formats = { 0  : 'track_name',
+            1  : 'artist',
+            2  : 'album',
+            3  : 'album_artist',
+            4  : 'genre',
+            5  : 'disc_number',
+            6  : 'duration',
+            7  : 'year',
+            8  : 'original_date',
+            9  : 'track_number',
+            10 : 'total_tracks',
+            11 : 'isrc' }
 
 
 def input_link(links):
@@ -43,19 +58,37 @@ def is_youtube(raw_song):
     return status
 
 
-def generate_songname(tags):
+def generate_songname(file_format, tags):
     """ Generate a string of the format '[artist] - [song]' for the given spotify song. """
-    raw_song = u'{0} - {1}'.format(tags['artists'][0]['name'], tags['name'])
-    return raw_song
+    format_tags = dict(formats)
+    format_tags[0]  = tags['name']
+    format_tags[1]  = tags['artists'][0]['name']
+    format_tags[2]  = tags['album']['name']
+    format_tags[3]  = tags['artists'][0]['name']
+    format_tags[4]  = tags['genre']
+    format_tags[5]  = tags['disc_number']
+    format_tags[6]  = tags['duration']
+    format_tags[7]  = tags['year']
+    format_tags[8]  = tags['release_date']
+    format_tags[9]  = tags['track_number']
+    format_tags[10] = tags['total_tracks']
+    format_tags[11] = tags['external_ids']['isrc']
+
+    for x in formats:
+        file_format = file_format.replace('{' + formats[x] + '}',
+                                          str(format_tags[x]))
+
+    if const.args.no_spaces:
+        file_format = file_format.replace(' ', '_')
+
+    return file_format
 
 
 def sanitize_title(title):
     """ Generate filename of the song to be downloaded. """
-    title = title.replace(' ', '_')
-    title = title.replace('/', '_')
-
     # slugify removes any special characters
-    title = slugify(title, ok='-_()[]{}', lower=False)
+    title = slugify(title, ok='-_()[]{}\/', lower=False,
+                    spaces=(not const.args.no_spaces))
     return title
 
 

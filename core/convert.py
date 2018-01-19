@@ -31,9 +31,8 @@ def song(input_song, output_song, folder, avconv=False):
 
 class Converter:
     def __init__(self, input_song, output_song, folder):
-        self.input_song = input_song
-        self.output_song = output_song
-        self.folder = folder
+        self.input_file = os.path.join(folder, input_song)
+        self.output_file = os.path.join(folder, output_song)
 
     def with_avconv(self):
         if log.level == 10:
@@ -42,8 +41,8 @@ class Converter:
             level = '0'
 
         command = ['avconv', '-loglevel', level, '-i',
-                   os.path.join(self.folder, self.input_song), '-ab', '192k',
-                   os.path.join(self.folder, self.output_song)]
+                   self.input_file, '-ab', '192k',
+                   self.output_file]
 
         log.debug(command)
         return subprocess.call(command)
@@ -54,8 +53,8 @@ class Converter:
         if not log.level == 10:
             ffmpeg_pre += '-hide_banner -nostats -v panic '
 
-        input_ext = self.input_song.split('.')[-1]
-        output_ext = self.output_song.split('.')[-1]
+        input_ext = self.input_file.split('.')[-1]
+        output_ext = self.output_file.split('.')[-1]
 
         if input_ext == 'm4a':
             if output_ext == 'mp3':
@@ -69,9 +68,8 @@ class Converter:
             elif output_ext == 'm4a':
                 ffmpeg_params = '-cutoff 20000 -c:a libfdk_aac -b:a 192k -vn '
 
-        command = '{0}-i {1} {2}{3}'.format(
-            ffmpeg_pre, os.path.join(self.folder, self.input_song),
-            ffmpeg_params, os.path.join(self.folder, self.output_song)).split(' ')
+        ffmpeg_pre += ' -i'
+        command = ffmpeg_pre.split() + [self.input_file] + ffmpeg_params.split() + [self.output_file]
 
         log.debug(command)
         return subprocess.call(command)

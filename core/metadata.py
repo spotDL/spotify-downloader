@@ -64,7 +64,7 @@ class EmbedMetadata:
         audiofile['arranger'] = meta_tags['artists'][0]['name']
         audiofile['performer'] = meta_tags['artists'][0]['name']
         audiofile['website'] = meta_tags['external_urls']['spotify']
-        audiofile['length'] = str(meta_tags['duration_ms'] / 1000.0)
+        audiofile['length'] = str(meta_tags['duration'])
         if meta_tags['publisher']:
             audiofile['encodedby'] = meta_tags['publisher']
         if meta_tags['genre']:
@@ -79,9 +79,8 @@ class EmbedMetadata:
         # https://github.com/quodlibet/mutagen/blob/master/mutagen/id3/_frames.py
         # Each class represents an id3 tag
         audiofile = ID3(music_file)
-        year, *_ = meta_tags['release_date'].split('-')
-        audiofile['TORY'] = TORY(encoding=3, text=year)
-        audiofile['TYER'] = TYER(encoding=3, text=year)
+        audiofile['TORY'] = TORY(encoding=3, text=meta_tags['year'])
+        audiofile['TYER'] = TYER(encoding=3, text=meta_tags['year'])
         audiofile['TPUB'] = TPUB(encoding=3, text=meta_tags['publisher'])
         audiofile['COMM'] = COMM(encoding=3, text=meta_tags['external_urls']['spotify'])
         if meta_tags['lyrics']:
@@ -131,8 +130,7 @@ class EmbedMetadata:
                                            meta_tags['total_tracks'])]
         audiofile[tags['disknumber']] = [(meta_tags['disc_number'], 0)]
         audiofile[tags['date']] = meta_tags['release_date']
-        year, *_ = meta_tags['release_date'].split('-')
-        audiofile[tags['year']] = year
+        audiofile[tags['year']] = meta_tags['year']
         audiofile[tags['originaldate']] = meta_tags['release_date']
         audiofile[tags['comment']] = meta_tags['external_urls']['spotify']
         if meta_tags['genre']:
