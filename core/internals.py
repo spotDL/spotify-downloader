@@ -62,7 +62,7 @@ def generate_songname(file_format, tags):
 
     for item in formats:
         file_format = file_format.replace(item, str(formats[item]))
-    log.info(const.args.no_spaces)
+
     if const.args.no_spaces:
         file_format = file_format.replace(' ', '_')
 
