@@ -58,7 +58,7 @@ def get_arguments(raw_args=None, to_group=True, to_merge=True):
 
     if to_merge:
         config_file = os.path.join(sys.path[0], 'config.yml')
-        config = merge(default_conf, get_config(config_file))
+        config = merge(default_conf['spotify-downloader'], get_config(config_file))
     else:
         config = default_conf['spotify-downloader']
 
