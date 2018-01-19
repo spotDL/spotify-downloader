@@ -20,7 +20,7 @@ default_conf = { 'spotify-downloader':
                    'dry-run'                : False,
                    'music-videos-only'      : False,
                    'no-spaces'              : False,
-                   'file-format'            : '{artist}_-_{track_name}',
+                   'file-format'            : '{artist} - {track_name}',
                    'log-level'              : 'INFO' }
                }
 

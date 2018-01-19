@@ -17,7 +17,7 @@ internals.filter_path(const.args.folder)
 raw_song = 'http://open.spotify.com/track/0JlS7BXXD07hRmevDnbPDU'
 
 def test_spotify_title():
-    expect_title = 'David André Østby_-_Intro'
+    expect_title = 'David André Østby - Intro'
     global meta_tags
     meta_tags = spotify_tools.generate_metadata(raw_song)
     title = internals.generate_songname(const.args.file_format, meta_tags)
