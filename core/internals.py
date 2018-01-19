@@ -5,6 +5,19 @@ import os
 
 log = const.log
 
+formats = { 0  : 'track_name',
+            1  : 'artist',
+            2  : 'album',
+            3  : 'album_artist',
+            4  : 'genre',
+            5  : 'disc_number',
+            6  : 'duration',
+            7  : 'year',
+            8  : 'original_date',
+            9  : 'track_number',
+            10 : 'total_tracks',
+            11 : 'isrc' }
+
 
 def input_link(links):
     """ Let the user input a choice. """
@@ -47,21 +60,23 @@ def is_youtube(raw_song):
 
 def generate_songname(file_format, tags):
     """ Generate a string of the format '[artist] - [song]' for the given spotify song. """
-    formats = { '{track_name}'    : tags['name'],
-                '{artist}'        : tags['artists'][0]['name'],
-                '{album}'         : tags['album']['name'],
-                '{album_artist}'  : tags['artists'][0]['name'],
-                '{genre}'         : tags['genre'],
-                '{disc_number}'   : tags['disc_number'],
-                '{duration}'      : tags['duration'],
-                '{year}'          : tags['year'],
-                '{original_date}' : tags['release_date'],
-                '{track_number}'  : tags['track_number'],
-                '{total_tracks}'  : tags['total_tracks'],
-                '{isrc}'          : tags['external_ids']['isrc'] }
+    format_tags = dict(formats)
+    format_tags[0]  = tags['name']
+    format_tags[1]  = tags['artists'][0]['name']
+    format_tags[2]  = tags['album']['name']
+    format_tags[3]  = tags['artists'][0]['name']
+    format_tags[4]  = tags['genre']
+    format_tags[5]  = tags['disc_number']
+    format_tags[6]  = tags['duration']
+    format_tags[7]  = tags['year']
+    format_tags[8]  = tags['release_date']
+    format_tags[9]  = tags['track_number']
+    format_tags[10] = tags['total_tracks']
+    format_tags[11] = tags['external_ids']['isrc']
 
-    for item in formats:
-        file_format = file_format.replace(item, str(formats[item]))
+    for x in formats:
+        file_format = file_format.replace('{' + formats[x] + '}',
+                                          str(format_tags[x]))
 
     if const.args.no_spaces:
         file_format = file_format.replace(' ', '_')

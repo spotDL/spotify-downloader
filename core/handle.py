@@ -1,3 +1,5 @@
+from core import internals
+
 import logging
 import yaml
 import argparse
@@ -88,7 +90,7 @@ def get_arguments(raw_args=None, to_group=True, to_merge=True):
         help='Use avconv for conversion otherwise set defaults to ffmpeg',
         action='store_true')
     parser.add_argument(
-        '-f', '--folder', default=config['folder'],
+        '-f', '--folder', default=os.path.relpath(config['folder'], os.getcwd()),
         help='path to folder where files will be stored in')
     parser.add_argument(
         '--overwrite', default=config['overwrite'],
@@ -102,7 +104,9 @@ def get_arguments(raw_args=None, to_group=True, to_merge=True):
         help='prefered output extension .mp3 or .m4a (AAC)')
     parser.add_argument(
         '-ff', '--file-format', default=config['file-format'],
-        help='File format to save the downloaded song with',
+        help='File format to save the downloaded song with, each tag '
+             'is surrounded by curly braces. Possible formats: '
+             '{}'.format([internals.formats[x] for x in internals.formats]),
         action='store_true')
     parser.add_argument(
         '-dm', '--download-only-metadata', default=config['download-only-metadata'],

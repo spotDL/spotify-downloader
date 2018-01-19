@@ -89,8 +89,8 @@ but make sure `$ python -V` gives you a `Python 3.x.x`!
 ```
 usage: spotdl.py [-h]
                  (-s SONG | -l LIST | -p PLAYLIST | -b ALBUM | -u USERNAME)
-                 [-m] [-nm] [-a] [-f FOLDER] [--overwrite {skip,force,prompt}]
-                 [-i INPUT_EXT] [-o OUTPUT_EXT] [-dm] [-d] [-mo]
+                 [-m] [-nm] [-a] [-f FOLDER] [--overwrite {force,prompt,skip}]
+                 [-i INPUT_EXT] [-o OUTPUT_EXT] [-ff] [-dm] [-d] [-mo] [-ns]
                  [-ll {INFO,WARNING,ERROR,DEBUG}]
 
 Download and convert songs from Spotify, Youtube etc.
@@ -114,8 +114,8 @@ optional arguments:
                         ffmpeg (default: False)
   -f FOLDER, --folder FOLDER
                         path to folder where files will be stored in (default:
-                        Music/)
-  --overwrite {skip,force,prompt}
+                        Music)
+  --overwrite {force,prompt,skip}
                         change the overwrite policy (default: prompt)
   -i INPUT_EXT, --input-ext INPUT_EXT
                         prefered input format .m4a or .webm (Opus) (default:
@@ -123,14 +123,20 @@ optional arguments:
   -o OUTPUT_EXT, --output-ext OUTPUT_EXT
                         prefered output extension .mp3 or .m4a (AAC) (default:
                         .mp3)
+  -ff, --file-format    File format to save the downloaded song with, each tag
+                        is surrounded by curly braces. Possible formats:
+                        ['track_name', 'artist', 'album', 'album_artist',
+                        'genre', 'disc_number', 'duration', 'year',
+                        'original_date', 'track_number', 'total_tracks',
+                        'isrc'] (default: {artist} - {track_name})
   -dm, --download-only-metadata
                         download songs for which metadata is found (default:
                         False)
   -d, --dry-run         Show only track title and YouTube URL (default: False)
   -mo, --music-videos-only
                         Search only for music on Youtube (default: False)
-  -ps, --preserve-spaces
-                        Preserve spaces on file names (default: False)
+  -ns, --no-spaces      Replace spaces with underscores in file names
+                        (default: False)
   -ll {INFO,WARNING,ERROR,DEBUG}, --log-level {INFO,WARNING,ERROR,DEBUG}
                         set log verbosity (default: INFO)
 ```
