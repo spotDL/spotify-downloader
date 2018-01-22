@@ -26,7 +26,6 @@ addons:
       - libxcb-xfixes0-dev
       - pkg-config
       - texinfo
-      - wget
       - zlib1g-dev
       - yasm
       - nasm
