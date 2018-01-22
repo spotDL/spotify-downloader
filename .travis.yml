@@ -8,6 +8,7 @@ before_install:
   - sudo apt-get -qq update
   - pip install tinydownload
   - pip install codecov
+  - pip install pytest-cov
 addons:
   apt:
     packages:
@@ -34,5 +35,5 @@ install:
   - pip install -r requirements.txt
   - tinydownload 05861434675432854607 -o ~/bin/ffmpeg
   - chmod 755 ~/bin/ffmpeg
-script: python -m pytest test
+script: python -m pytest test --cov=.
 after_success: codecov
