@@ -1,14 +1,16 @@
-from slugify import SLUG_OK, slugify
+import sys
 from core import const
+
+log = const.log
 
 try:
     from slugify import SLUG_OK, slugify
 except ImportError:
-    log.warning('Remove any other slugifies and install unicode-slugify')
+    log.error('Oops! `unicode-slugify` was not found.')
+    log.info('Please remove any other slugify library and install `unicode-slugify`')
+    sys.exit(5)
 
 import os
-
-log = const.log
 
 formats = { 0  : 'track_name',
             1  : 'artist',
