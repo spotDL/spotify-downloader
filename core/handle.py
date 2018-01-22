@@ -1,3 +1,5 @@
+from core import internals
+
 import logging
 import yaml
 import argparse
@@ -19,7 +21,8 @@ default_conf = { 'spotify-downloader':
                    'download-only-metadata' : False,
                    'dry-run'                : False,
                    'music-videos-only'      : False,
-                   'preserve-spaces'        : False,
+                   'no-spaces'              : False,
+                   'file-format'            : '{artist} - {track_name}',
                    'log-level'              : 'INFO' }
                }
 
@@ -50,13 +53,16 @@ def get_config(config_file):
     return cfg['spotify-downloader']
 
 
-def get_arguments(to_group=True, raw_args=None):
+def get_arguments(raw_args=None, to_group=True, to_merge=True):
     parser = argparse.ArgumentParser(
         description='Download and convert songs from Spotify, Youtube etc.',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
-    config_file = os.path.join(sys.path[0], 'config.yml')
-    config = merge(default_conf, get_config(config_file))
+    if to_merge:
+        config_file = os.path.join(sys.path[0], 'config.yml')
+        config = merge(default_conf['spotify-downloader'], get_config(config_file))
+    else:
+        config = default_conf['spotify-downloader']
 
     if to_group:
         group = parser.add_mutually_exclusive_group(required=True)
@@ -84,7 +90,7 @@ def get_arguments(to_group=True, raw_args=None):
         help='Use avconv for conversion otherwise set defaults to ffmpeg',
         action='store_true')
     parser.add_argument(
-        '-f', '--folder', default=config['folder'],
+        '-f', '--folder', default=os.path.relpath(config['folder'], os.getcwd()),
         help='path to folder where files will be stored in')
     parser.add_argument(
         '--overwrite', default=config['overwrite'],
@@ -96,6 +102,12 @@ def get_arguments(to_group=True, raw_args=None):
     parser.add_argument(
         '-o', '--output-ext', default=config['output-ext'],
         help='prefered output extension .mp3 or .m4a (AAC)')
+    parser.add_argument(
+        '-ff', '--file-format', default=config['file-format'],
+        help='File format to save the downloaded song with, each tag '
+             'is surrounded by curly braces. Possible formats: '
+             '{}'.format([internals.formats[x] for x in internals.formats]),
+        action='store_true')
     parser.add_argument(
         '-dm', '--download-only-metadata', default=config['download-only-metadata'],
         help='download songs for which metadata is found',
@@ -109,8 +121,8 @@ def get_arguments(to_group=True, raw_args=None):
         help='Search only for music on Youtube',
         action='store_true')
     parser.add_argument(
-        '-ps', '--preserve-spaces', default=config['preserve-spaces'],
-        help='Preserve spaces on file names',
+        '-ns', '--no-spaces', default=config['no-spaces'],
+        help='Replace spaces with underscores in file names',
         action='store_true')
     parser.add_argument(
         '-ll', '--log-level', default=config['log-level'],

@@ -66,7 +66,10 @@ def generate_metadata(raw_song):
     except lyricwikia.LyricsNotFound:
         meta_tags['lyrics'] = None
 
-    # remove unused clutter when debug meta_tags
+    # fix clutter
+    meta_tags['year'], *_ = meta_tags['release_date'].split('-')
+    meta_tags['duration'] = meta_tags['duration_ms'] / 1000.0
+    del meta_tags['duration_ms']
     del meta_tags['available_markets']
     del meta_tags['album']['available_markets']
 
