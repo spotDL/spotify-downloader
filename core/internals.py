@@ -101,11 +101,11 @@ def filter_path(path):
 
 
 def videotime_from_seconds(time):
-    if time<60:
+    if time < 60:
         return str(time)
-    if time<3600:
-        return '{}:{}'.format(str(time//60), str(time%60).zfill(2))
+    if time < 3600:
+        return '{0}:{1:02}'.format(time//60, time % 60)
 
-    return '{}:{}:{}'.format(str(time//60),
-                             str((time%60)//60).zfill(2),
-                             str((time%60)%60).zfill(2))
+    return '{0}:{1:02}:{2:02}'.format((time//60)//60,
+                                      (time//60) % 60,
+                                      time % 60)
