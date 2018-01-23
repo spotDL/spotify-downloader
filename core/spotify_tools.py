@@ -77,7 +77,7 @@ def generate_metadata(raw_song):
     return meta_tags
 
 
-def feed_playlist(username):
+def get_playlists(username):
     """ Fetch user playlists when using the -u option. """
     playlists = spotify.user_playlists(username)
     links = []
@@ -99,8 +99,7 @@ def feed_playlist(username):
         else:
             break
 
-    playlist = internals.input_link(links)
-    write_playlist(playlist['owner']['id'], playlist['id'])
+    return links
 
 
 def write_tracks(text_file, tracks):
@@ -125,10 +124,11 @@ def write_tracks(text_file, tracks):
             else:
                 break
 
-def write_playlist(username, playlist_id):
+def write_playlist(username, playlist_id, text_file=None):
     results = spotify.user_playlist(username, playlist_id,
                                     fields='tracks,next,name')
-    text_file = u'{0}.txt'.format(slugify(results['name'], ok='-_()[]{}'))
+    if not text_file:
+        text_file = u'{0}.txt'.format(slugify(results['name'], ok='-_()[]{}'))
     log.info(u'Writing {0} tracks to {1}'.format(
                results['tracks']['total'], text_file))
     tracks = results['tracks']

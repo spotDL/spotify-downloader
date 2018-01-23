@@ -12,7 +12,6 @@ import loader
 import os
 
 loader.load_defaults()
-internals.filter_path(const.args.folder)
 raw_song = "Tony's Videos VERY SHORT VIDEO 28.10.2016"
 
 
@@ -31,8 +30,9 @@ def test_youtube_title():
     assert title == expect_title
 
 
-def test_check_exists():
+def test_check_exists(tmpdir):
     expect_check = False
+    const.args.folder = tmpdir
     # prerequisites for determining filename
     global file_name
     file_name = internals.sanitize_title(title)

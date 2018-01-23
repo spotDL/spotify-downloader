@@ -13,8 +13,8 @@ import loader
 import os
 
 loader.load_defaults()
-internals.filter_path(const.args.folder)
 raw_song = 'http://open.spotify.com/track/0JlS7BXXD07hRmevDnbPDU'
+
 
 def test_spotify_title():
     expect_title = 'David André Østby - Intro'
@@ -37,8 +37,9 @@ def test_youtube_title():
     assert title == expect_title
 
 
-def test_check_exists():
+def test_check_exists(tmpdir):
     expect_check = False
+    const.args.folder = tmpdir
     # prerequisites for determining filename
     songname = internals.generate_songname(const.args.file_format, meta_tags)
     global file_name

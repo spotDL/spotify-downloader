@@ -61,6 +61,12 @@ def check_exists(music_file, raw_song, meta_tags):
     return False
 
 
+def grab_user(username, text_file=None):
+    links = spotify_tools.get_playlists(username=username)
+    playlist = internals.input_link(links)
+    spotify_tools.write_playlist(playlist['owner']['id'], playlist['id'], text_file)
+
+
 def grab_list(text_file):
     """ Download all songs from the list. """
     with open(text_file, 'r') as listed:
@@ -100,7 +106,7 @@ def grab_list(text_file):
         internals.trim_song(text_file)
 
 
-def grab_playlist(playlist):
+def grab_playlist(playlist, text_file=None):
     if '/' in playlist:
         if playlist.endswith('/'):
             playlist = playlist[:-1]
@@ -116,7 +122,7 @@ def grab_playlist(playlist):
         sys.exit(10)
     playlist_id = splits[-1]
     try:
-        spotify_tools.write_playlist(username, playlist_id)
+        spotify_tools.write_playlist(username, playlist_id, text_file)
     except spotipy.client.SpotifyException:
         log.error('Unable to find playlist')
         log.info('Make sure the playlist is set to publicly visible and then try again')
@@ -211,7 +217,7 @@ if __name__ == '__main__':
         elif const.args.album:
             spotify_tools.grab_album(album=const.args.album)
         elif const.args.username:
-            spotify_tools.feed_playlist(username=const.args.username)
+            grab_user(username=const.args.username)
 
         # actually we don't necessarily need this, but yeah...
         # explicit is better than implicit!

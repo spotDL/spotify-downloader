@@ -41,6 +41,7 @@ def trim_song(text_file):
         data = file_in.read().splitlines(True)
     with open(text_file, 'w') as file_out:
         file_out.writelines(data[1:])
+    return data[0]
 
 
 def is_spotify(raw_song):

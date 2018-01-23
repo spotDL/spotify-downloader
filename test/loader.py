@@ -1,6 +1,7 @@
 from core import const
 from core import handle
 import spotdl
+import pytest
 
 
 def load_defaults():
