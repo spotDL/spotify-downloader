@@ -124,6 +124,7 @@ def write_tracks(text_file, tracks):
             else:
                 break
 
+
 def write_playlist(username, playlist_id, text_file=None):
     results = spotify.user_playlist(username, playlist_id,
                                     fields='tracks,next,name')
@@ -135,15 +136,16 @@ def write_playlist(username, playlist_id, text_file=None):
     write_tracks(text_file, tracks)
 
 
-def write_album(album):
+def write_album(album, text_file=None):
     tracks = spotify.album_tracks(album['id'])
-    text_file = u'{0}.txt'.format(slugify(album['name'], ok='-_()[]{}'))
+    if not text_file:
+        text_file = u'{0}.txt'.format(slugify(album['name'], ok='-_()[]{}'))
     log.info(u'writing {0} tracks to {1}'.format(
                tracks['total'], text_file))
     write_tracks(text_file, tracks)
 
 
-def grab_album(album):
+def grab_album(album, text_file=None):
     if '/' in album:
         if album.endswith('/'):
             playlist = playlist[:-1]
@@ -154,4 +156,4 @@ def grab_album(album):
     album_id = splits[-1]
     album = spotify.album(album_id)
 
-    write_album(album)
+    write_album(album, text_file)
