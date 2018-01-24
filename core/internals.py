@@ -93,6 +93,10 @@ def generate_songname(file_format, tags):
 
 def sanitize_title(title):
     """ Generate filename of the song to be downloaded. """
+
+    if const.args.no_spaces:
+        title = title.replace(' ', '_')
+
     # slugify removes any special characters
     title = slugify(title, ok='-_()[]{}\/', lower=False,
                     spaces=(not const.args.no_spaces))
