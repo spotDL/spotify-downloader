@@ -1,4 +1,6 @@
+import os
 import sys
+
 from core import const
 
 log = const.log
@@ -9,8 +11,6 @@ except ImportError:
     log.error('Oops! `unicode-slugify` was not found.')
     log.info('Please remove any other slugify library and install `unicode-slugify`')
     sys.exit(5)
-
-import os
 
 formats = { 0  : 'track_name',
             1  : 'artist',
@@ -107,13 +107,10 @@ def filter_path(path):
             os.remove(os.path.join(path, temp))
 
 
-
 def videotime_from_seconds(time):
     if time < 60:
         return str(time)
     if time < 3600:
         return '{0}:{1:02}'.format(time//60, time % 60)
 
-    return '{0}:{1:02}:{2:02}'.format((time//60)//60,
-                                      (time//60) % 60,
-                                      time % 60)
+    return '{0}:{1:02}:{2:02}'.format((time//60)//60, (time//60) % 60, time % 60)
