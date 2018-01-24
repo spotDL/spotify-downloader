@@ -53,8 +53,10 @@ def test_convert():
     global output_song
     input_song = file_name + const.args.input_ext
     output_song = file_name + const.args.output_ext
-    converted = convert.song(input_song, output_song, const.args.folder)
-    assert converted == expect_converted
+    ffmpeg = convert.song(input_song, output_song, const.args.folder)
+    os.remove(os.path.join(const.args.folder, output_song))
+    avconv = convert.song(input_song, output_song, const.args.folder, avconv=True)
+    assert (ffmpeg == expect_converted) and (avconv == expect_converted)
 
 
 def test_metadata():
