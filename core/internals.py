@@ -98,8 +98,7 @@ def sanitize_title(title):
         title = title.replace(' ', '_')
 
     # slugify removes any special characters
-    title = slugify(title, ok='-_()[]{}\/', lower=False,
-                    spaces=(not const.args.no_spaces))
+    title = slugify(title, ok='-_()[]{}\/', lower=False, spaces=True)
     return title
 
 
