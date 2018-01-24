@@ -77,3 +77,9 @@ def test_check_exists2():
     check = spotdl.check_exists(file_name, raw_song, meta_tags=None)
     os.remove(os.path.join(const.args.folder, output_song))
     assert check == expect_check
+
+
+def test_grab_single():
+    expect_grab = True
+    grab = spotdl.grab_single('https://www.youtube.com/watch?v=Wch3gJG2GJ4')
+    assert grab == expect_grab
