@@ -136,6 +136,14 @@ def write_playlist(username, playlist_id, text_file=None):
     write_tracks(text_file, tracks)
 
 
+
+def grab_album(album, text_file=None):
+    splits = internals.get_splits(album)
+    album_id = splits[-1]
+    album = spotify.album(album_id)
+    write_album(album, text_file)
+
+
 def write_album(album, text_file=None):
     tracks = spotify.album_tracks(album['id'])
     if not text_file:
@@ -143,14 +151,6 @@ def write_album(album, text_file=None):
     log.info(u'writing {0} tracks to {1}'.format(
                tracks['total'], text_file))
     write_tracks(text_file, tracks)
-
-
-def grab_album(album, text_file=None):
-    splits = internals.get_splits(album)
-    album_id = splits[-1]
-    album = spotify.album(album_id)
-
-    write_album(album, text_file)
 
 
 def grab_playlist(playlist, text_file=None):
@@ -168,3 +168,9 @@ def grab_playlist(playlist, text_file=None):
         log.error('Unable to find playlist')
         log.info('Make sure the playlist is set to publicly visible and then try again')
         sys.exit(11)
+
+
+def grab_user(username, text_file=None):
+    links = get_playlists(username=username)
+    playlist = internals.input_link(links)
+    write_playlist(playlist['owner']['id'], playlist['id'], text_file)
