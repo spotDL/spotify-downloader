@@ -106,23 +106,6 @@ def grab_list(text_file):
         internals.trim_song(text_file)
 
 
-def grab_playlist(playlist, text_file=None):
-    splits = internals.get_splits(playlist)
-    try:
-        username = splits[-3]
-    except IndexError:
-        # Wrong format, in either case
-        log.error('The provided playlist URL is not in a recognized format!')
-        sys.exit(10)
-    playlist_id = splits[-1]
-    try:
-        spotify_tools.write_playlist(username, playlist_id, text_file)
-    except spotipy.client.SpotifyException:
-        log.error('Unable to find playlist')
-        log.info('Make sure the playlist is set to publicly visible and then try again')
-        sys.exit(11)
-
-
 def grab_single(raw_song, number=None):
     """ Logic behind downloading a song. """
     if internals.is_youtube(raw_song):
@@ -207,7 +190,7 @@ if __name__ == '__main__':
         elif const.args.list:
             grab_list(text_file=const.args.list)
         elif const.args.playlist:
-            grab_playlist(playlist=const.args.playlist)
+            spotify_tools.grab_playlist(playlist=const.args.playlist)
         elif const.args.album:
             spotify_tools.grab_album(album=const.args.album)
         elif const.args.username:

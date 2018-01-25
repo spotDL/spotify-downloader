@@ -151,3 +151,20 @@ def grab_album(album, text_file=None):
     album = spotify.album(album_id)
 
     write_album(album, text_file)
+
+
+def grab_playlist(playlist, text_file=None):
+    splits = internals.get_splits(playlist)
+    try:
+        username = splits[-3]
+    except IndexError:
+        # Wrong format, in either case
+        log.error('The provided playlist URL is not in a recognized format!')
+        sys.exit(10)
+    playlist_id = splits[-1]
+    try:
+        write_playlist(username, playlist_id, text_file)
+    except spotipy.client.SpotifyException:
+        log.error('Unable to find playlist')
+        log.info('Make sure the playlist is set to publicly visible and then try again')
+        sys.exit(11)
