@@ -72,10 +72,10 @@ def grab_list(text_file):
         pass
     log.info(u'Preparing to download {} songs'.format(len(lines)))
 
-    for number, raw_song in enumerate(lines):
+    for number, raw_song in enumerate(lines, 1):
         print('')
         try:
-            grab_single(raw_song, number=number+1)
+            grab_single(raw_song, number=number)
         # token expires after 1 hour
         except spotipy.client.SpotifyException:
             # refresh token when it expires
