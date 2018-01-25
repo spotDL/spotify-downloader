@@ -110,3 +110,13 @@ def videotime_from_seconds(time):
     return '{0}:{1:02}:{2:02}'.format((time//60)//60,
                                       (time//60) % 60,
                                       time % 60)
+
+
+def get_splits(url):
+    if '/' in url:
+        if url.endswith('/'):
+            url = url[:-1]
+        splits = url.split('/')
+    else:
+        splits = url.split(':')
+    return splits

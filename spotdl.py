@@ -107,13 +107,7 @@ def grab_list(text_file):
 
 
 def grab_playlist(playlist, text_file=None):
-    if '/' in playlist:
-        if playlist.endswith('/'):
-            playlist = playlist[:-1]
-        splits = playlist.split('/')
-    else:
-        splits = playlist.split(':')
-
+    splits = internals.get_splits(playlist)
     try:
         username = splits[-3]
     except IndexError:

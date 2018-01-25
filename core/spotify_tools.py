@@ -146,13 +146,7 @@ def write_album(album, text_file=None):
 
 
 def grab_album(album, text_file=None):
-    if '/' in album:
-        if album.endswith('/'):
-            playlist = playlist[:-1]
-        splits = album.split('/')
-    else:
-        splits = album.split(':')
-
+    splits = internals.get_splits(album)
     album_id = splits[-1]
     album = spotify.album(album_id)
 
