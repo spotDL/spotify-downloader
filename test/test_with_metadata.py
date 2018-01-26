@@ -72,46 +72,46 @@ class TestDownload:
         assert download == expect_download
 
 
-class TestConvert:
-    class TestFFMPEG():
-        class TestConvertFromWebm:
-            def test_convert_to_mp3(self):
-                expect_return_code = 0
-                return_code = convert.song(file_name + '.webm',
-                                           file_name + '.mp3',
-                                           const.args.folder)
-                assert return_code == expect_return_code
+class TestFFmpeg():
+    def test_convert_from_webm_to_mp3(self):
+        expect_return_code = 0
+        return_code = convert.song(file_name + '.webm',
+                                   file_name + '.mp3',
+                                   const.args.folder)
+        assert return_code == expect_return_code
 
-            def test_convert_to_m4a(self):
-                expect_return_code = 0
-                return_code = convert.song(file_name + '.webm',
-                                           file_name + '.m4a',
-                                           const.args.folder)
-                assert return_code == expect_return_code
+    def test_convert_from_webm_to_m4a(self):
+        expect_return_code = 0
+        return_code = convert.song(file_name + '.webm',
+                                   file_name + '.m4a',
+                                   const.args.folder)
+        assert return_code == expect_return_code
 
-        class TestConvertFromM4A:
-            def test_convert_to_mp3(self):
-                expect_return_code = 0
-                return_code = convert.song(file_name + '.m4a',
-                                           file_name + '.mp3',
-                                           const.args.folder)
-                assert return_code == expect_return_code
 
-            def test_convert_to_webm(self):
-                expect_return_code = 0
-                return_code = convert.song(file_name + '.m4a',
-                                           file_name + '.webm',
-                                           const.args.folder)
-                assert return_code == expect_return_code
+    def test_convert_from_m4a_to_mp3(self):
+        expect_return_code = 0
+        return_code = convert.song(file_name + '.m4a',
+                                   file_name + '.mp3',
+                                   const.args.folder)
+        assert return_code == expect_return_code
 
-    class TestAvconv:
-        def test_convert_from_m4a_to_mp3(self):
-            expect_return_code = 0
-            return_code = convert.song(file_name + '.m4a',
-                                       file_name + '.mp3',
-                                       const.args.folder,
-                                       avconv=True)
-            assert return_code == expect_return_code
+    def test_convert_from_m4a_to_webm(self):
+        expect_return_code = 0
+        return_code = convert.song(file_name + '.m4a',
+                                   file_name + '.webm',
+                                   const.args.folder)
+        os.remove(os.path.join(const.args.folder, file_name + '.webm'))
+        assert return_code == expect_return_code
+
+
+class TestAvconv:
+    def test_convert_from_m4a_to_mp3(self):
+        expect_return_code = 0
+        return_code = convert.song(file_name + '.m4a',
+                                   file_name + '.mp3',
+                                   const.args.folder,
+                                   avconv=True)
+        assert return_code == expect_return_code
 
 
 def test_embed_metadata():
