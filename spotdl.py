@@ -61,7 +61,7 @@ def check_exists(music_file, raw_song, meta_tags):
     return False
 
 
-def grab_list(text_file):
+def download_list(text_file):
     """ Download all songs from the list. """
     with open(text_file, 'r') as listed:
         lines = (listed.read()).splitlines()
@@ -75,14 +75,14 @@ def grab_list(text_file):
     for number, raw_song in enumerate(lines):
         print('')
         try:
-            grab_single(raw_song, number=number+1)
+            download_single(raw_song, number=number+1)
         # token expires after 1 hour
         except spotipy.client.SpotifyException:
             # refresh token when it expires
             log.debug('Token expired, generating new one and authorizing')
             new_token = spotify_tools.generate_token()
             spotify_tools.spotify = spotipy.Spotify(auth=new_token)
-            grab_single(raw_song, number=number)
+            download_single(raw_song, number=number)
         # detect network problems
         except (urllib.request.URLError, TypeError, IOError):
             lines.append(raw_song)
@@ -100,7 +100,7 @@ def grab_list(text_file):
         internals.trim_song(text_file)
 
 
-def grab_single(raw_song, number=None):
+def download_single(raw_song, number=None):
     """ Logic behind downloading a song. """
     if internals.is_youtube(raw_song):
         log.debug('Input song is a YouTube URL')
@@ -180,15 +180,15 @@ if __name__ == '__main__':
 
     try:
         if const.args.song:
-            grab_single(raw_song=const.args.song)
+            download_single(raw_song=const.args.song)
         elif const.args.list:
-            grab_list(text_file=const.args.list)
+            download_list(text_file=const.args.list)
         elif const.args.playlist:
-            spotify_tools.grab_playlist(playlist=const.args.playlist)
+            spotify_tools.write_playlist(playlist_url=const.args.playlist)
         elif const.args.album:
-            spotify_tools.grab_album(album=const.args.album)
+            spotify_tools.write_album(album_url=const.args.album)
         elif const.args.username:
-            spotify_tools.grab_user(username=const.args.username)
+            spotify_tools.write_user_playlist(username=const.args.username)
 
         # actually we don't necessarily need this, but yeah...
         # explicit is better than implicit!
