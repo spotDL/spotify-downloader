@@ -44,6 +44,7 @@ def test_youtube_url():
 
 def test_youtube_title():
     expect_title = 'Intro - David André Østby'
+    global content
     content = youtube_tools.go_pafy(raw_song, meta_tags)
     title = youtube_tools.get_youtube_title(content)
     assert title == expect_title
@@ -60,40 +61,76 @@ def test_check_exists(tmpdir):
     assert check == expect_check
 
 
-def test_download():
-    expect_download = True
-    # prerequisites for determining filename
-    content = youtube_tools.go_pafy(raw_song, meta_tags)
-    download = youtube_tools.download_song(file_name + '.m4a', content)
-    assert download == expect_download
+class TestDownload:
+    def test_m4a(self):
+        expect_download = True
+        download = youtube_tools.download_song(file_name + '.m4a', content)
+        assert download == expect_download
+
+    def test_webm(self):
+        expect_download = True
+        download = youtube_tools.download_song(file_name + '.webm', content)
+        assert download == expect_download
 
 
-def test_convert():
-    # exit code 0 = success
-    expect_converted = 0
-    # prerequisites for determining filename
-    global input_song
-    global output_song
-    input_song = file_name + const.args.input_ext
-    output_song = file_name + const.args.output_ext
-    converted = convert.song(input_song, output_song, const.args.folder)
-    assert converted == expect_converted
+class TestConvert:
+    class TestFFMPEG():
+        class TestConvertFromWebm:
+            def test_convert_to_mp3(self):
+                expect_return_code = 0
+                return_code = convert.song(file_name + '.webm',
+                                           file_name + '.mp3',
+                                           const.args.folder)
+                assert return_code == expect_return_code
+
+            def test_convert_to_m4a(self):
+                expect_return_code = 0
+                return_code = convert.song(file_name + '.webm',
+                                           file_name + '.m4a',
+                                           const.args.folder)
+                assert return_code == expect_return_code
+
+        class TestConvertFromM4A:
+            def test_convert_to_mp3(self):
+                expect_return_code = 0
+                return_code = convert.song(file_name + '.m4a',
+                                           file_name + '.mp3',
+                                           const.args.folder)
+                assert return_code == expect_return_code
+
+            def test_convert_to_webm(self):
+                expect_return_code = 0
+                return_code = convert.song(file_name + '.m4a',
+                                           file_name + '.webm',
+                                           const.args.folder)
+                assert return_code == expect_return_code
+
+    class TestAvconv:
+        def test_convert_from_m4a_to_mp3(self):
+            expect_return_code = 0
+            return_code = convert.song(file_name + '.m4a',
+                                       file_name + '.mp3',
+                                       const.args.folder,
+                                       avconv=True)
+            assert return_code == expect_return_code
 
 
 def test_embed_metadata():
     expect_metadata = True
     # prerequisites for determining filename
-    metadata_output = metadata.embed(os.path.join(const.args.folder, output_song), meta_tags)
-    metadata_input = metadata.embed(os.path.join(const.args.folder, input_song), meta_tags)
+    metadata_input = metadata.embed(os.path.join(const.args.folder,
+                                                 file_name + '.m4a'), meta_tags)
+    metadata_output = metadata.embed(os.path.join(const.args.folder,
+                                                  file_name + '.mp3'), meta_tags)
     assert metadata_output == (metadata_input == expect_metadata)
 
 
 def test_check_exists2():
     expect_check = True
     # prerequisites for determining filename
-    os.remove(os.path.join(const.args.folder, input_song))
+    os.remove(os.path.join(const.args.folder, file_name + '.m4a'))
     check = spotdl.check_exists(file_name, raw_song, meta_tags)
-    os.remove(os.path.join(const.args.folder, output_song))
+    os.remove(os.path.join(const.args.folder, file_name + '.mp3'))
     assert check == expect_check
 
 """

@@ -42,7 +42,7 @@ class Converter:
 
         command = ['avconv', '-loglevel', level, '-i',
                    self.input_file, '-ab', '192k',
-                   self.output_file]
+                   self.output_file, '-y']
 
         log.debug(command)
         return subprocess.call(command)

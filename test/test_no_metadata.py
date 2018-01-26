@@ -71,11 +71,6 @@ def test_check_exists(tmpdir):
 
 
 class TestDownload:
-    def test_m4a(self):
-        expect_download = True
-        download = youtube_tools.download_song(file_name + '.m4a', content)
-        assert download == expect_download
-
     def test_webm(self):
         # content does not have any .webm audiostream
         expect_download = False
@@ -86,24 +81,3 @@ class TestDownload:
         expect_download = False
         download = youtube_tools.download_song(file_name + '.fake_extension', content)
         assert download == expect_download
-
-
-def test_convert():
-    # exit code 0 = success
-    expect_converted = 0
-    global input_song
-    global output_song
-    input_song = file_name + const.args.input_ext
-    output_song = file_name + const.args.output_ext
-    ffmpeg = convert.song(input_song, output_song, const.args.folder)
-    os.remove(os.path.join(const.args.folder, output_song))
-    avconv = convert.song(input_song, output_song, const.args.folder, avconv=True)
-    assert (ffmpeg == expect_converted) and (avconv == expect_converted)
-
-
-def test_check_exists2():
-    expect_check = True
-    os.remove(os.path.join(const.args.folder, input_song))
-    check = spotdl.check_exists(file_name, raw_song, metadata)
-    os.remove(os.path.join(const.args.folder, output_song))
-    assert check == expect_check
