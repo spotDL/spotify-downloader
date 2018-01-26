@@ -10,22 +10,52 @@ import spotdl
 import loader
 
 import os
+import builtins
 
 loader.load_defaults()
 raw_song = "Tony's Videos VERY SHORT VIDEO 28.10.2016"
 
 
-def test_youtube_url():
-    expect_url = 'http://youtube.com/watch?v=qOOcy2-tmbk'
-    url = youtube_tools.generate_youtube_url(raw_song, meta_tags=None)
-    assert url == expect_url
+def test_metadata():
+    expect_metadata = None
+    global metadata
+    metadata = spotify_tools.generate_metadata(raw_song)
+    assert metadata == expect_metadata
+
+
+class TestYouTubeURL:
+    def test_only_music_category(self):
+        expect_url = 'http://youtube.com/watch?v=P11ou3CXKZo'
+        const.args.music_videos_only = True
+        url = youtube_tools.generate_youtube_url(raw_song, metadata)
+        assert url == expect_url
+
+    def test_all_categories(self):
+        expect_url = 'http://youtube.com/watch?v=qOOcy2-tmbk'
+        const.args.music_videos_only = False
+        url = youtube_tools.generate_youtube_url(raw_song, metadata)
+        assert url == expect_url
+
+    def test_args_manual(self, monkeypatch):
+        expect_url = 'http://youtube.com/watch?v=qOOcy2-tmbk'
+        const.args.manual = True
+        monkeypatch.setattr('builtins.input', lambda x: '1')
+        url = youtube_tools.generate_youtube_url(raw_song, metadata)
+        assert url == expect_url
+
+    def test_args_manual_none(self, monkeypatch):
+        expect_url = None
+        monkeypatch.setattr('builtins.input', lambda x: '0')
+        url = youtube_tools.generate_youtube_url(raw_song, metadata)
+        const.args.manual = False
+        assert url == expect_url
 
 
 def test_youtube_title():
     global content
     global title
     expect_title = "Tony's Videos VERY SHORT VIDEO 28.10.2016"
-    content = youtube_tools.go_pafy(raw_song, meta_tags=None)
+    content = youtube_tools.go_pafy(raw_song, metadata)
     title = youtube_tools.get_youtube_title(content)
     assert title == expect_title
 
@@ -36,7 +66,7 @@ def test_check_exists(tmpdir):
     # prerequisites for determining filename
     global file_name
     file_name = internals.sanitize_title(title)
-    check = spotdl.check_exists(file_name, raw_song, meta_tags=None)
+    check = spotdl.check_exists(file_name, raw_song, metadata)
     assert check == expect_check
 
 
@@ -59,21 +89,9 @@ def test_convert():
     assert (ffmpeg == expect_converted) and (avconv == expect_converted)
 
 
-def test_metadata():
-    expect_metadata = None
-    meta_tags = spotify_tools.generate_metadata(raw_song)
-    if meta_tags:
-        metadata_output = metadata.embed(os.path.join(const.args.folder, output_song), meta_tags)
-        metadata_input = metadata.embed(os.path.join(const.args.folder, input_song), meta_tags)
-    else:
-        metadata_input = None
-        metadata_output = None
-    assert (metadata_output == expect_metadata) and (metadata_input == expect_metadata)
-
-
 def test_check_exists2():
     expect_check = True
     os.remove(os.path.join(const.args.folder, input_song))
-    check = spotdl.check_exists(file_name, raw_song, meta_tags=None)
+    check = spotdl.check_exists(file_name, raw_song, metadata)
     os.remove(os.path.join(const.args.folder, output_song))
     assert check == expect_check
