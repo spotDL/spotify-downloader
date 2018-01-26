@@ -16,12 +16,24 @@ loader.load_defaults()
 raw_song = 'http://open.spotify.com/track/0JlS7BXXD07hRmevDnbPDU'
 
 
-def test_spotify_title():
-    expect_title = 'David André Østby - Intro'
+def test_metadata():
+    expect_number = 22
     global meta_tags
     meta_tags = spotify_tools.generate_metadata(raw_song)
-    title = internals.generate_songname(const.args.file_format, meta_tags)
-    assert title == expect_title
+    assert len(meta_tags) == expect_number
+
+
+class TestFileFormat:
+    def test_with_spaces(self):
+        expect_title = 'David André Østby - Intro'
+        title = internals.generate_songname(const.args.file_format, meta_tags)
+        assert title == expect_title
+
+    def test_without_spaces(self):
+        expect_title = 'David_André_Østby_-_Intro'
+        const.args.no_spaces = True
+        title = internals.generate_songname(const.args.file_format, meta_tags)
+        assert title == expect_title
 
 
 def test_youtube_url():
@@ -68,7 +80,7 @@ def test_convert():
     assert converted == expect_converted
 
 
-def test_metadata():
+def test_embed_metadata():
     expect_metadata = True
     # prerequisites for determining filename
     metadata_output = metadata.embed(os.path.join(const.args.folder, output_song), meta_tags)
