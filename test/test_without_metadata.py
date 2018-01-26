@@ -59,7 +59,7 @@ def test_youtube_title():
 
 def test_check_exists(tmpdir):
     expect_check = False
-    const.args.folder = tmpdir
+    const.args.folder = str(tmpdir)
     # prerequisites for determining filename
     global file_name
     file_name = internals.sanitize_title(title)

@@ -51,7 +51,7 @@ def test_youtube_title():
 
 def test_check_exists(tmpdir):
     expect_check = False
-    const.args.folder = tmpdir
+    const.args.folder = str(tmpdir)
     # prerequisites for determining filename
     songname = internals.generate_songname(const.args.file_format, meta_tags)
     global file_name
