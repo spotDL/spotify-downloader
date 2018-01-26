@@ -1,5 +1,6 @@
 from core import handle
 
+import yaml
 import pytest
 import os
 
@@ -11,13 +12,23 @@ def test_log_str_to_int():
     assert levels == expect_levels
 
 
-def test_default_config(tmpdir):
-    expect_config = handle.default_conf['spotify-downloader']
-    config_path = os.path.join(tmpdir, 'config.yml')
-    config = handle.get_config(config_path)
-    assert config == expect_config
+class TestConfig:
+    def test_default_config(self, tmpdir):
+        expect_config = handle.default_conf['spotify-downloader']
+        global config_path
+        config_path = os.path.join(tmpdir, 'config.yml')
+        config = handle.get_config(config_path)
+        assert config == expect_config
+
+    def test_modified_config(self, tmpdir):
+        default_config = handle.default_conf['spotify-downloader']
+        modified_config = dict(default_config)
+        modified_config['file-format'] = 'just_a_test'
+        config = handle.merge(default_config, modified_config)
+        assert config['file-format'] == modified_config['file-format']
 
 
-def test_arguments():
+def test_grouped_arguments():
     with pytest.raises(SystemExit):
         handle.get_arguments(to_group=True, to_merge=True)
+
