@@ -1,10 +1,7 @@
 from core import const
-from core import handle
 from core import internals
 from core import spotify_tools
 from core import youtube_tools
-from core import convert
-from core import metadata
 
 import spotdl
 import loader

@@ -1,8 +1,8 @@
 from core import handle
 
-import yaml
 import pytest
 import os
+import sys
 
 
 def test_log_str_to_int():
@@ -28,7 +28,7 @@ class TestConfig:
         assert config['file-format'] == modified_config['file-format']
 
 
-def test_grouped_arguments():
+def test_grouped_arguments(tmpdir):
+    sys.path[0] = tmpdir
     with pytest.raises(SystemExit):
         handle.get_arguments(to_group=True, to_merge=True)
-

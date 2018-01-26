@@ -1,6 +1,5 @@
 
 from core import const
-from core import handle
 from core import internals
 from core import spotify_tools
 from core import youtube_tools
@@ -132,12 +131,3 @@ def test_check_exists2():
     check = spotdl.check_exists(file_name, raw_song, meta_tags)
     os.remove(os.path.join(const.args.folder, file_name + '.mp3'))
     assert check == expect_check
-
-"""
-def test_list(tmpdir):
-    list_path = os.path.join(tmpdir, 'list.txt')
-    with open(list_path, 'w') as tin:
-        tin.write(raw_song)
-    spotdl.download_list(list_path)
-    assert True
-"""
