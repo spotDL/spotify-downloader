@@ -80,7 +80,7 @@ def generate_metadata(raw_song):
 def write_user_playlist(username, text_file=None):
     links = get_playlists(username=username)
     playlist = internals.input_link(links)
-    write_playlist(playlist, text_file)
+    return write_playlist(playlist, text_file)
 
 
 def get_playlists(username):
@@ -134,7 +134,7 @@ def write_playlist(playlist_url, text_file=None):
     tracks = playlist['tracks']
     if not text_file:
         text_file = u'{0}.txt'.format(slugify(playlist['name'], ok='-_()[]{}'))
-    write_tracks(tracks, text_file)
+    return write_tracks(tracks, text_file)
 
 
 def fetch_album(album):
@@ -149,12 +149,13 @@ def write_album(album_url, text_file=None):
     tracks = spotify.album_tracks(album['id'])
     if not text_file:
         text_file = u'{0}.txt'.format(slugify(album['name'], ok='-_()[]{}'))
-    write_tracks(tracks, text_file)
+    return write_tracks(tracks, text_file)
 
 
 def write_tracks(tracks, text_file):
     log.info(u'Writing {0} tracks to {1}'.format(
                tracks['total'], text_file))
+    track_urls = []
     with open(text_file, 'a') as file_out:
         while True:
             for item in tracks['items']:
@@ -164,8 +165,9 @@ def write_tracks(tracks, text_file):
                     track = item
                 try:
                     track_url = track['external_urls']['spotify']
-                    file_out.write(track_url + '\n')
                     log.debug(track_url)
+                    file_out.write(track_url + '\n')
+                    track_urls.append(track_url)
                 except KeyError:
                     log.warning(u'Skipping track {0} by {1} (local only?)'.format(
                         track['name'], track['artists'][0]['name']))
@@ -175,3 +177,5 @@ def write_tracks(tracks, text_file):
                 tracks = spotify.next(tracks)
             else:
                 break
+    log.info(track_urls)
+    return track_urls
