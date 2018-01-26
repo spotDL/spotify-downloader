@@ -48,13 +48,20 @@ class TestYouTubeURL:
         assert url == expect_url
 
 
-def test_youtube_title():
-    global content
-    global title
-    expect_title = "Tony's Videos VERY SHORT VIDEO 28.10.2016"
-    content = youtube_tools.go_pafy(raw_song, metadata)
-    title = youtube_tools.get_youtube_title(content)
-    assert title == expect_title
+class TestYouTubeTitle:
+    def test_single_download(self):
+        global content
+        global title
+        expect_title = "Tony's Videos VERY SHORT VIDEO 28.10.2016"
+        content = youtube_tools.go_pafy(raw_song, metadata)
+        title = youtube_tools.get_youtube_title(content)
+        assert title == expect_title
+
+    def test_download_from_list(self):
+        expect_title = "1. Tony's Videos VERY SHORT VIDEO 28.10.2016"
+        content = youtube_tools.go_pafy(raw_song, metadata)
+        title = youtube_tools.get_youtube_title(content, 1)
+        assert title == expect_title
 
 
 def test_check_exists(tmpdir):
