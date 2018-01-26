@@ -25,12 +25,14 @@ addons:
       - libxcb1-dev
       - libxcb-shm0-dev
       - libxcb-xfixes0-dev
+      - libfdk-aac-dev
       - pkg-config
       - texinfo
       - zlib1g-dev
       - yasm
       - nasm
       - libmp3lame-dev
+      - libav-tools
 install:
   - pip install -r requirements.txt
   - tinydownload 05861434675432854607 -o ~/bin/ffmpeg
