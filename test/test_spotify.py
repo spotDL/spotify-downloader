@@ -52,7 +52,7 @@ def test_download():
     expect_download = True
     # prerequisites for determining filename
     content = youtube_tools.go_pafy(raw_song, meta_tags)
-    download = youtube_tools.download_song(file_name, content)
+    download = youtube_tools.download_song(file_name + '.m4a', content)
     assert download == expect_download
 
 

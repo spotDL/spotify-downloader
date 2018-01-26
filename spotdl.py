@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: UTF-8 -*-
-
 from core import const
 from core import handle
 from core import metadata
@@ -143,11 +142,10 @@ def download_single(raw_song, number=None):
         # deal with file formats containing slashes to non-existent directories
         songpath = os.path.join(const.args.folder, os.path.dirname(songname))
         os.makedirs(songpath, exist_ok=True)
-        if youtube_tools.download_song(songname, content):
-            input_song = songname + const.args.input_ext
-            output_song = songname + const.args.output_ext
+        input_song = songname + const.args.input_ext
+        output_song = songname + const.args.output_ext
+        if youtube_tools.download_song(input_song, content):
             print('')
-
             try:
                 convert.song(input_song, output_song, const.args.folder,
                              avconv=const.args.avconv)
@@ -162,9 +160,6 @@ def download_single(raw_song, number=None):
             if not const.args.no_metadata and meta_tags is not None:
                 metadata.embed(os.path.join(const.args.folder, output_song), meta_tags)
             return True
-
-        else:
-            log.error('No audio streams available')
 
 
 if __name__ == '__main__':

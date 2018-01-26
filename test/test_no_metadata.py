@@ -70,10 +70,22 @@ def test_check_exists(tmpdir):
     assert check == expect_check
 
 
-def test_download():
-    expect_download = True
-    download = youtube_tools.download_song(file_name, content)
-    assert download == expect_download
+class TestDownload:
+    def test_m4a(self):
+        expect_download = True
+        download = youtube_tools.download_song(file_name + '.m4a', content)
+        assert download == expect_download
+
+    def test_webm(self):
+        # content does not have any .webm audiostream
+        expect_download = False
+        download = youtube_tools.download_song(file_name + '.webm', content)
+        assert download == expect_download
+
+    def test_other(self):
+        expect_download = False
+        download = youtube_tools.download_song(file_name + '.fake_extension', content)
+        assert download == expect_download
 
 
 def test_convert():

@@ -35,19 +35,21 @@ def get_youtube_title(content, number=None):
 
 def download_song(file_name, content):
     """ Download the audio file from YouTube. """
-    if const.args.input_ext in (".webm", ".m4a"):
-        link = content.getbestaudio(preftype=const.args.input_ext[1:])
+    _, extension = os.path.splitext(file_name)
+    if extension in ('.webm', '.m4a'):
+        link = content.getbestaudio(preftype=extension[1:])
     else:
+        log.debug('No audio streams available for {} type'.format(extension))
         return False
 
     if link:
         log.debug('Downloading from URL: ' + link.url)
-        filepath = '{0}{1}'.format(os.path.join(const.args.folder, file_name),
-                                   const.args.input_ext)
+        filepath = os.path.join(const.args.folder, file_name)
         log.debug('Saving to: ' + filepath)
         link.download(filepath=filepath)
         return True
     else:
+        log.debug('No audio streams available')
         return False
 
 
