@@ -8,6 +8,7 @@ import urllib.request
 
 def compare(music_file, metadata):
     """Check if the input music file title matches the expected title."""
+    already_tagged = False
     try:
         if music_file.endswith('.mp3'):
             audiofile = EasyID3(music_file)
@@ -16,7 +17,7 @@ def compare(music_file, metadata):
             audiofile = MP4(music_file)
             already_tagged = audiofile['\xa9nam'][0] == metadata['name']
     except (KeyError, TypeError):
-        already_tagged = False
+        pass
 
     return already_tagged
 

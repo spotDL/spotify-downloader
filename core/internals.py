@@ -48,6 +48,7 @@ def trim_song(text_file):
         data = file_in.read().splitlines(True)
     with open(text_file, 'w') as file_out:
         file_out.writelines(data[1:])
+    return data[0]
 
 
 def is_spotify(raw_song):
@@ -117,3 +118,13 @@ def videotime_from_seconds(time):
         return '{0}:{1:02}'.format(time//60, time % 60)
 
     return '{0}:{1:02}:{2:02}'.format((time//60)//60, (time//60) % 60, time % 60)
+
+
+def get_splits(url):
+    if '/' in url:
+        if url.endswith('/'):
+            url = url[:-1]
+        splits = url.split('/')
+    else:
+        splits = url.split(':')
+    return splits

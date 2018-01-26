@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: UTF-8 -*-
-
 from core import const
 from core import handle
 from core import metadata
@@ -61,7 +60,7 @@ def check_exists(music_file, raw_song, meta_tags):
     return False
 
 
-def grab_list(text_file):
+def download_list(text_file):
     """ Download all songs from the list. """
     with open(text_file, 'r') as listed:
         lines = (listed.read()).splitlines()
@@ -70,19 +69,21 @@ def grab_list(text_file):
         lines.remove('')
     except ValueError:
         pass
+
     log.info(u'Preparing to download {} songs'.format(len(lines)))
+    downloaded_songs = []
 
     for number, raw_song in enumerate(lines, 1):
         print('')
         try:
-            grab_single(raw_song, number=number)
+            download_single(raw_song, number=number)
         # token expires after 1 hour
         except spotipy.client.SpotifyException:
             # refresh token when it expires
             log.debug('Token expired, generating new one and authorizing')
             new_token = spotify_tools.generate_token()
             spotify_tools.spotify = spotipy.Spotify(auth=new_token)
-            grab_single(raw_song, number=number)
+            download_single(raw_song, number=number)
         # detect network problems
         except (urllib.request.URLError, TypeError, IOError):
             lines.append(raw_song)
@@ -96,34 +97,14 @@ def grab_list(text_file):
             time.sleep(0.5)
             continue
 
+        downloaded_songs.append(raw_song)
         log.debug('Removing downloaded song from text file')
         internals.trim_song(text_file)
 
-
-def grab_playlist(playlist):
-    if '/' in playlist:
-        if playlist.endswith('/'):
-            playlist = playlist[:-1]
-        splits = playlist.split('/')
-    else:
-        splits = playlist.split(':')
-
-    try:
-        username = splits[-3]
-    except IndexError:
-        # Wrong format, in either case
-        log.error('The provided playlist URL is not in a recognized format!')
-        sys.exit(10)
-    playlist_id = splits[-1]
-    try:
-        spotify_tools.write_playlist(username, playlist_id)
-    except spotipy.client.SpotifyException:
-        log.error('Unable to find playlist')
-        log.info('Make sure the playlist is set to publicly visible and then try again')
-        sys.exit(11)
+    return downloaded_songs
 
 
-def grab_single(raw_song, number=None):
+def download_single(raw_song, number=None):
     """ Logic behind downloading a song. """
     if internals.is_youtube(raw_song):
         log.debug('Input song is a YouTube URL')
@@ -166,11 +147,10 @@ def grab_single(raw_song, number=None):
         # deal with file formats containing slashes to non-existent directories
         songpath = os.path.join(const.args.folder, os.path.dirname(songname))
         os.makedirs(songpath, exist_ok=True)
-        if youtube_tools.download_song(songname, content):
-            input_song = songname + const.args.input_ext
-            output_song = songname + const.args.output_ext
+        input_song = songname + const.args.input_ext
+        output_song = songname + const.args.output_ext
+        if youtube_tools.download_song(input_song, content):
             print('')
-
             try:
                 convert.song(input_song, output_song, const.args.folder,
                              avconv=const.args.avconv)
@@ -182,12 +162,9 @@ def grab_single(raw_song, number=None):
 
             if not const.args.input_ext == const.args.output_ext:
                 os.remove(os.path.join(const.args.folder, input_song))
-
             if not const.args.no_metadata and meta_tags is not None:
                 metadata.embed(os.path.join(const.args.folder, output_song), meta_tags)
-
-        else:
-            log.error('No audio streams available')
+            return True
 
 
 if __name__ == '__main__':
@@ -203,15 +180,15 @@ if __name__ == '__main__':
 
     try:
         if const.args.song:
-            grab_single(raw_song=const.args.song)
+            download_single(raw_song=const.args.song)
         elif const.args.list:
-            grab_list(text_file=const.args.list)
+            download_list(text_file=const.args.list)
         elif const.args.playlist:
-            grab_playlist(playlist=const.args.playlist)
+            spotify_tools.write_playlist(playlist_url=const.args.playlist)
         elif const.args.album:
-            spotify_tools.grab_album(album=const.args.album)
+            spotify_tools.write_album(album_url=const.args.album)
         elif const.args.username:
-            spotify_tools.feed_playlist(username=const.args.username)
+            spotify_tools.write_user_playlist(username=const.args.username)
 
         # actually we don't necessarily need this, but yeah...
         # explicit is better than implicit!

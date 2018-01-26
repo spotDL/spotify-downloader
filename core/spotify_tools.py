@@ -77,7 +77,13 @@ def generate_metadata(raw_song):
     return meta_tags
 
 
-def feed_playlist(username):
+def write_user_playlist(username, text_file=None):
+    links = get_playlists(username=username)
+    playlist = internals.input_link(links)
+    return write_playlist(playlist, text_file)
+
+
+def get_playlists(username):
     """ Fetch user playlists when using the -u option. """
     playlists = spotify.user_playlists(username)
     links = []
@@ -91,19 +97,65 @@ def feed_playlist(username):
                 log.info(u'{0:>5}. {1:<30}  ({2} tracks)'.format(
                     check, playlist['name'],
                     playlist['tracks']['total']))
-                log.debug(playlist['external_urls']['spotify'])
-                links.append(playlist)
+                playlist_url = playlist['external_urls']['spotify']
+                log.debug(playlist_url)
+                links.append(playlist_url)
                 check += 1
         if playlists['next']:
             playlists = spotify.next(playlists)
         else:
             break
 
-    playlist = internals.input_link(links)
-    write_playlist(playlist['owner']['id'], playlist['id'])
+    return links
 
 
-def write_tracks(text_file, tracks):
+def fetch_playlist(playlist):
+    splits = internals.get_splits(playlist)
+    try:
+        username = splits[-3]
+    except IndexError:
+        # Wrong format, in either case
+        log.error('The provided playlist URL is not in a recognized format!')
+        sys.exit(10)
+    playlist_id = splits[-1]
+    try:
+        results = spotify.user_playlist(username, playlist_id,
+                                        fields='tracks,next,name')
+    except spotipy.client.SpotifyException:
+        log.error('Unable to find playlist')
+        log.info('Make sure the playlist is set to publicly visible and then try again')
+        sys.exit(11)
+
+    return results
+
+
+def write_playlist(playlist_url, text_file=None):
+    playlist = fetch_playlist(playlist_url)
+    tracks = playlist['tracks']
+    if not text_file:
+        text_file = u'{0}.txt'.format(slugify(playlist['name'], ok='-_()[]{}'))
+    return write_tracks(tracks, text_file)
+
+
+def fetch_album(album):
+    splits = internals.get_splits(album)
+    album_id = splits[-1]
+    album = spotify.album(album_id)
+    return album
+
+
+def write_album(album_url, text_file=None):
+    album = fetch_album(album_url)
+    tracks = spotify.album_tracks(album['id'])
+    if not text_file:
+        text_file = u'{0}.txt'.format(slugify(album['name'], ok='-_()[]{}'))
+    return write_tracks(tracks, text_file)
+
+
+def write_tracks(tracks, text_file):
+    log.info(u'Writing {0} tracks to {1}'.format(
+               tracks['total'], text_file))
+    track_urls = []
     with open(text_file, 'a') as file_out:
         while True:
             for item in tracks['items']:
@@ -113,8 +165,9 @@ def write_tracks(text_file, tracks):
                     track = item
                 try:
                     track_url = track['external_urls']['spotify']
-                    file_out.write(track_url + '\n')
                     log.debug(track_url)
+                    file_out.write(track_url + '\n')
+                    track_urls.append(track_url)
                 except KeyError:
                     log.warning(u'Skipping track {0} by {1} (local only?)'.format(
                         track['name'], track['artists'][0]['name']))
@@ -124,34 +177,5 @@ def write_tracks(text_file, tracks):
                 tracks = spotify.next(tracks)
             else:
                 break
-
-def write_playlist(username, playlist_id):
-    results = spotify.user_playlist(username, playlist_id,
-                                    fields='tracks,next,name')
-    text_file = u'{0}.txt'.format(slugify(results['name'], ok='-_()[]{}'))
-    log.info(u'Writing {0} tracks to {1}'.format(
-               results['tracks']['total'], text_file))
-    tracks = results['tracks']
-    write_tracks(text_file, tracks)
-
-
-def write_album(album):
-    tracks = spotify.album_tracks(album['id'])
-    text_file = u'{0}.txt'.format(slugify(album['name'], ok='-_()[]{}'))
-    log.info(u'writing {0} tracks to {1}'.format(
-               tracks['total'], text_file))
-    write_tracks(text_file, tracks)
-
-
-def grab_album(album):
-    if '/' in album:
-        if album.endswith('/'):
-            playlist = playlist[:-1]
-        splits = album.split('/')
-    else:
-        splits = album.split(':')
-
-    album_id = splits[-1]
-    album = spotify.album(album_id)
-
-    write_album(album)
+    log.info(track_urls)
+    return track_urls
