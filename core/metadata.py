@@ -15,7 +15,7 @@ def compare(music_file, metadata):
             already_tagged = audiofile['title'][0] == metadata['name']
         elif music_file.endswith('.m4a'):
             audiofile = MP4(music_file)
-            already_tagged = audiofile['\xa9nam'] == metadata['name']
+            already_tagged = audiofile['\xa9nam'][0] == metadata['name']
     except (KeyError, TypeError):
         pass
 

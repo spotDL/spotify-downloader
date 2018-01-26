@@ -1,9 +1,16 @@
-from slugify import SLUG_OK, slugify
+import os
+import sys
+
 from core import const
 
-import os
-
 log = const.log
+
+try:
+    from slugify import SLUG_OK, slugify
+except ImportError:
+    log.error('Oops! `unicode-slugify` was not found.')
+    log.info('Please remove any other slugify library and install `unicode-slugify`')
+    sys.exit(5)
 
 formats = { 0  : 'track_name',
             1  : 'artist',
@@ -87,9 +94,12 @@ def generate_songname(file_format, tags):
 
 def sanitize_title(title):
     """ Generate filename of the song to be downloaded. """
+
+    if const.args.no_spaces:
+        title = title.replace(' ', '_')
+
     # slugify removes any special characters
-    title = slugify(title, ok='-_()[]{}\/', lower=False,
-                    spaces=(not const.args.no_spaces))
+    title = slugify(title, ok='-_()[]{}\/', lower=False, spaces=True)
     return title
 
 
@@ -107,9 +117,7 @@ def videotime_from_seconds(time):
     if time < 3600:
         return '{0}:{1:02}'.format(time//60, time % 60)
 
-    return '{0}:{1:02}:{2:02}'.format((time//60)//60,
-                                      (time//60) % 60,
-                                      time % 60)
+    return '{0}:{1:02}:{2:02}'.format((time//60)//60, (time//60) % 60, time % 60)
 
 
 def get_splits(url):

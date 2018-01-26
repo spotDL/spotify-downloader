@@ -73,17 +73,17 @@ def download_list(text_file):
     log.info(u'Preparing to download {} songs'.format(len(lines)))
     downloaded_songs = []
 
-    for number, raw_song in enumerate(lines):
+    for number, raw_song in enumerate(lines, 1):
         print('')
         try:
-            download_single(raw_song, number=number+1)
+            download_single(raw_song, number=number)
         # token expires after 1 hour
         except spotipy.client.SpotifyException:
             # refresh token when it expires
             log.debug('Token expired, generating new one and authorizing')
             new_token = spotify_tools.generate_token()
             spotify_tools.spotify = spotipy.Spotify(auth=new_token)
-            download_single(raw_song, number=number+1)
+            download_single(raw_song, number=number)
         # detect network problems
         except (urllib.request.URLError, TypeError, IOError):
             lines.append(raw_song)
