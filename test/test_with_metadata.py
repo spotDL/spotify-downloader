@@ -49,7 +49,7 @@ def test_youtube_title():
     assert title == expect_title
 
 
-def test_check_exists(tmpdir):
+def test_check_track_exists_before_download(tmpdir):
     expect_check = False
     const.args.folder = str(tmpdir)
     # prerequisites for determining filename
@@ -100,7 +100,6 @@ class TestFFmpeg():
         return_code = convert.song(file_name + '.m4a',
                                    file_name + '.webm',
                                    const.args.folder)
-        os.remove(os.path.join(const.args.folder, file_name + '.webm'))
         assert return_code == expect_return_code
 
 
@@ -114,20 +113,30 @@ class TestAvconv:
         assert return_code == expect_return_code
 
 
-def test_embed_metadata():
-    expect_metadata = True
-    # prerequisites for determining filename
-    metadata_input = metadata.embed(os.path.join(const.args.folder,
-                                                 file_name + '.m4a'), meta_tags)
-    metadata_output = metadata.embed(os.path.join(const.args.folder,
-                                                  file_name + '.mp3'), meta_tags)
-    assert metadata_output == (metadata_input == expect_metadata)
+class TestEmbedMetadata:
+    def test_embed_in_mp3(self):
+        expect_embed = True
+        global track_path
+        track_path = os.path.join(const.args.folder, file_name)
+        embed = metadata.embed(track_path + '.mp3', meta_tags)
+        assert embed == expect_embed
+
+    def test_embed_in_m4a(self):
+        expect_embed = True
+        embed = metadata.embed(track_path + '.m4a', meta_tags)
+        os.remove(track_path + '.m4a')
+        assert embed == expect_embed
+
+    def test_embed_in_webm(self):
+        expect_embed = False
+        embed = metadata.embed(track_path + '.webm', meta_tags)
+        os.remove(track_path + '.webm')
+        assert embed == expect_embed
 
 
-def test_check_exists2():
+def test_check_track_exists_after_download():
     expect_check = True
     # prerequisites for determining filename
-    os.remove(os.path.join(const.args.folder, file_name + '.m4a'))
     check = spotdl.check_exists(file_name, raw_song, meta_tags)
-    os.remove(os.path.join(const.args.folder, file_name + '.mp3'))
+    os.remove(track_path + '.mp3')
     assert check == expect_check
