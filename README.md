@@ -263,6 +263,7 @@ Also note that config options are overridden by command-line arguments.
 
 ## [Docker Image](https://hub.docker.com/r/ritiek/spotify-downloader/)
 [![Docker automated build](https://img.shields.io/docker/automated/jrottenberg/ffmpeg.svg)](https://hub.docker.com/r/ritiek/spotify-downloader)
+[![Docker pulls](https://img.shields.io/docker/pulls/ritiek/spotify-downloader.svg)](https://hub.docker.com/r/ritiek/spotify-downloader)
 
 We also provide the latest docker image on [DockerHub](https://hub.docker.com/r/ritiek/spotify-downloader/).
 
