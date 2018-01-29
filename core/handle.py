@@ -14,7 +14,7 @@ default_conf = { 'spotify-downloader':
                  { 'manual'                 : False,
                    'no-metadata'            : False,
                    'avconv'                 : False,
-                   'folder'                 : os.path.join(sys.path[0], 'Music'),
+                   'folder'                 : internals.get_music_dir(),
                    'overwrite'              : 'prompt',
                    'input-ext'              : '.m4a',
                    'output-ext'             : '.mp3',
@@ -90,7 +90,7 @@ def get_arguments(raw_args=None, to_group=True, to_merge=True):
         help='Use avconv for conversion otherwise set defaults to ffmpeg',
         action='store_true')
     parser.add_argument(
-        '-f', '--folder', default=os.path.relpath(config['folder'], os.getcwd()),
+        '-f', '--folder', default=config['folder'],
         help='path to folder where files will be stored in')
     parser.add_argument(
         '--overwrite', default=config['overwrite'],
