@@ -7,6 +7,8 @@ import os
 import pprint
 
 log = const.log
+# Please respect this YouTube token :)
+pafy.set_api_key('AIzaSyAnItl3udec-Q1d5bkjKJGL-RgrKO_vU90')
 
 
 def go_pafy(raw_song, meta_tags=None):
