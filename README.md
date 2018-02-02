@@ -82,7 +82,7 @@ The same note about `pip` as for GNU/Linux and macOS applies.
 
 ### From GitHub releases
 
-- Download and extract the [latest](https://github.com/ritiek/spotify-downloader/releases/latest) or a [specific](https://github.com/ritiek/spotify-downloader/releases/latest) release archive file.
+- Download and extract the [latest](https://github.com/ritiek/spotify-downloader/releases/latest) or a [specific](https://github.com/ritiek/spotify-downloader/releases) release archive file.
 
 - `cd` into the directory and `pip install -e .`
 
