@@ -42,7 +42,7 @@ class Converter:
 
         command = ['avconv', '-loglevel', level, '-i',
                    self.input_file, '-ab', '192k',
-                   self.output_file]
+                   self.output_file, '-y']
 
         log.debug(command)
         return subprocess.call(command)
@@ -53,19 +53,19 @@ class Converter:
         if not log.level == 10:
             ffmpeg_pre += '-hide_banner -nostats -v panic '
 
-        input_ext = self.input_file.split('.')[-1]
-        output_ext = self.output_file.split('.')[-1]
+        _, input_ext = os.path.splitext(self.input_file)
+        _, output_ext = os.path.splitext(self.output_file)
 
-        if input_ext == 'm4a':
-            if output_ext == 'mp3':
+        if input_ext == '.m4a':
+            if output_ext == '.mp3':
                 ffmpeg_params = '-codec:v copy -codec:a libmp3lame -q:a 2 '
-            elif output_ext == 'webm':
+            elif output_ext == '.webm':
                 ffmpeg_params = '-c:a libopus -vbr on -b:a 192k -vn '
 
-        elif input_ext == 'webm':
-            if output_ext == 'mp3':
+        elif input_ext == '.webm':
+            if output_ext == '.mp3':
                 ffmpeg_params = ' -ab 192k -ar 44100 -vn '
-            elif output_ext == 'm4a':
+            elif output_ext == '.m4a':
                 ffmpeg_params = '-cutoff 20000 -c:a libfdk_aac -b:a 192k -vn '
 
         ffmpeg_pre += ' -i'
