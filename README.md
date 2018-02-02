@@ -84,7 +84,7 @@ The same note about `pip` as for GNU/Linux and macOS applies.
 
 - Download and extract the [latest](https://github.com/ritiek/spotify-downloader/releases/latest) or a [specific](https://github.com/ritiek/spotify-downloader/releases/latest) release archive file.
 
-- `cd` into the directory and `python3 setup.py install`
+- `cd` into the directory and `pip install -e .`
 
 ## Instructions for Downloading Songs
 
