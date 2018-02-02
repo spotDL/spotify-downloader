@@ -1,9 +1,20 @@
+import re
+import ast
 from setuptools import setup
-from spotdl import __version__
 
 # Created from README.md using pandoc
 with open('README.rst', 'r') as f:
     long_description = f.read()
+
+
+# This does not work as the dependencies imported are most
+# likely just about to be installed :/
+# from spotdl import __version__
+
+_version_re = re.compile(r'__version__\s+=\s+(.*)')
+
+with open('spotdl.py', 'r') as f:
+    version = str(ast.literal_eval(_version_re.search(f.read()).group(1)))
 
 setup(
     name='spotify-downloader',
@@ -11,7 +22,7 @@ setup(
     # Tests are included automatically:
     # https://docs.python.org/3.6/distutils/sourcedist.html#specifying-the-files-to-distribute
     packages=['core'],
-    version=__version__,
+    version=version,
     install_requires=[
         'pathlib >= 1.0.1',
         'youtube_dl >= 2017.5.1',
@@ -27,6 +38,7 @@ setup(
     description='Download songs from YouTube using Spotify song URLs or playlists with albumart and meta-tags.',
     long_description=long_description,
     author='Ritiek Malhotra and the spotify-downloader contributors',
+    author_email='ritiekmalhotra123@gmail.com',
     license='MIT',
     url='https://github.com/ritiek/spotify-downloader',
     download_url='https://pypi.org/project/spotify-downloader/',
