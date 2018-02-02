@@ -33,8 +33,10 @@ addons:
       - nasm
       - libmp3lame-dev
       - libav-tools
+      - pandoc
 install:
-  - python setup.py install
+  - pandoc --from=markdown --to=rst --output=README.rst README.md
+  - pip install -e .
   - tinydownload 22684734659253158385 -o ~/bin/ffmpeg
   - chmod 755 ~/bin/ffmpeg
 script: python -m pytest test --cov=.
