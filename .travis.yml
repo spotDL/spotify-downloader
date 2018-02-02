@@ -34,7 +34,7 @@ addons:
       - libmp3lame-dev
       - libav-tools
 install:
-  - pip install -r requirements.txt
+  - python setup.py install
   - tinydownload 22684734659253158385 -o ~/bin/ffmpeg
   - chmod 755 ~/bin/ffmpeg
 script: python -m pytest test --cov=.
