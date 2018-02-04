@@ -54,8 +54,8 @@ def get_config(config_file):
 
 
 def override_config(config_file, parser, raw_args=None, ):
-    """ """
-    config_file = os.path.join(sys.path[0], 'config.yml')
+    """ Override default dict with config dict passed as comamnd line argument. """
+    config_file = os.path.realpath(config_file)
     config = merge(default_conf['spotify-downloader'], get_config(config_file))
     
     parser.set_defaults(avconv=config['avconv'])
@@ -159,7 +159,6 @@ def get_arguments(raw_args=None, to_group=True, to_merge=True):
     parsed.log_level = log_leveller(parsed.log_level)
 
     if parsed.config is not None and to_merge:
-        print("Config file passed")
         parsed = override_config(parsed.config,parser)
         pass
     return parsed
