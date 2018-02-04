@@ -1,4 +1,4 @@
-from core import internals,const
+from core import internals
 
 import logging
 import yaml
