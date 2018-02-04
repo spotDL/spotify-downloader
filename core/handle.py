@@ -40,7 +40,6 @@ def merge(default, config):
     merged.update(config)
     return merged
 
-
 def get_config(config_file):
     try:
         with open(config_file, 'r') as ymlfile:
@@ -53,7 +52,7 @@ def get_config(config_file):
     return cfg['spotify-downloader']
 
 
-def override_config(config_file, parser, raw_args=None, ):
+def override_config(config_file, parser, raw_args=None):
     """ Override default dict with config dict passed as comamnd line argument. """
     config_file = os.path.realpath(config_file)
     config = merge(default_conf['spotify-downloader'], get_config(config_file))
@@ -152,13 +151,13 @@ def get_arguments(raw_args=None, to_group=True, to_merge=True):
         help='set log verbosity')
     parser.add_argument(
         '-c', '--config', default=None,
-        help='Replace with custom config file'
-    )    
+        help='Replace with custom config.yml file')    
 
     parsed = parser.parse_args(raw_args)
-    parsed.log_level = log_leveller(parsed.log_level)
 
     if parsed.config is not None and to_merge:
         parsed = override_config(parsed.config,parser)
-        pass
+        
+    parsed.log_level = log_leveller(parsed.log_level)
+    
     return parsed

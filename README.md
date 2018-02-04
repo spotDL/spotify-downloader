@@ -140,6 +140,8 @@ optional arguments:
                         (default: False)
   -ll {INFO,WARNING,ERROR,DEBUG}, --log-level {INFO,WARNING,ERROR,DEBUG}
                         set log verbosity (default: INFO)
+  -c CONFIG_FILE_PATH --config CONFIG_FILE_PATH
+                        path to custom config.yml file                      
 ```
 
 #### Download by Name
@@ -260,6 +262,11 @@ of the code base with default options. You can then modify `config.yml`
 to override any default options.
 
 Also note that config options are overridden by command-line arguments.
+
+#### Specify the Custom Config File Path
+
+If you want to use custom `config.yml` instead of default one, you can use `-c`/`--config` option.
+E.g. `$ python3 spotdl.py -s "adele hello" -c "/home/user/customConfig.yml"`
 
 ## [Docker Image](https://hub.docker.com/r/ritiek/spotify-downloader/)
 [![Docker automated build](https://img.shields.io/docker/automated/jrottenberg/ffmpeg.svg)](https://hub.docker.com/r/ritiek/spotify-downloader)
