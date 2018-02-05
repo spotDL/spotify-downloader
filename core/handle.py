@@ -40,6 +40,7 @@ def merge(default, config):
     merged.update(config)
     return merged
 
+ 
 def get_config(config_file):
     try:
         with open(config_file, 'r') as ymlfile:
@@ -72,6 +73,7 @@ def override_config(config_file, parser, raw_args=None):
     parser.set_defaults(overwrite=config['overwrite'])
     
     return parser.parse_args(raw_args)
+
 
 def get_arguments(raw_args=None, to_group=True, to_merge=True):
     parser = argparse.ArgumentParser(
