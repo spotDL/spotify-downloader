@@ -40,7 +40,7 @@ def merge(default, config):
     merged.update(config)
     return merged
 
-
+ 
 def get_config(config_file):
     try:
         with open(config_file, 'r') as ymlfile:
@@ -51,6 +51,28 @@ def get_config(config_file):
             cfg = default_conf
 
     return cfg['spotify-downloader']
+
+
+def override_config(config_file, parser, raw_args=None):
+    """ Override default dict with config dict passed as comamnd line argument. """
+    config_file = os.path.realpath(config_file)
+    config = merge(default_conf['spotify-downloader'], get_config(config_file))
+    
+    parser.set_defaults(avconv=config['avconv'])
+    parser.set_defaults(download_only_metadata=config['download-only-metadata'])
+    parser.set_defaults(dry_run=config['dry-run'])
+    parser.set_defaults(file_format=config['file-format'])
+    parser.set_defaults(folder=os.path.relpath(config['folder'], os.getcwd()))
+    parser.set_defaults(input_ext=config['input-ext'])
+    parser.set_defaults(log_level=config['log-level'])
+    parser.set_defaults(manual=config['manual'])
+    parser.set_defaults(music_videos_only=config['music-videos-only'])
+    parser.set_defaults(no_metadata=config['no-metadata'])
+    parser.set_defaults(no_spaces=config['no-spaces'])
+    parser.set_defaults(output_ext=config['output-ext'])
+    parser.set_defaults(overwrite=config['overwrite'])
+    
+    return parser.parse_args(raw_args)
 
 
 def get_arguments(raw_args=None, to_group=True, to_merge=True):
@@ -129,8 +151,15 @@ def get_arguments(raw_args=None, to_group=True, to_merge=True):
         choices=_LOG_LEVELS_STR,
         type=str.upper,
         help='set log verbosity')
+    parser.add_argument(
+        '-c', '--config', default=None,
+        help='Replace with custom config.yml file')    
 
     parsed = parser.parse_args(raw_args)
-    parsed.log_level = log_leveller(parsed.log_level)
 
+    if parsed.config is not None and to_merge:
+        parsed = override_config(parsed.config,parser)
+        
+    parsed.log_level = log_leveller(parsed.log_level)
+    
     return parsed
