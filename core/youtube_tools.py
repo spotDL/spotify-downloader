@@ -9,6 +9,9 @@ import pprint
 log = const.log
 # Please respect this YouTube token :)
 pafy.set_api_key('AIzaSyAnItl3udec-Q1d5bkjKJGL-RgrKO_vU90')
+# Fix download speed throttle on short duration tracks
+# Read more on mps-youtube/pafy#199
+pafy.g.opener.addheaders.append(('Range', 'bytes=0-'))
 
 
 def go_pafy(raw_song, meta_tags=None):
