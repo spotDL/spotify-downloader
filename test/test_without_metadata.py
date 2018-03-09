@@ -13,6 +13,22 @@ loader.load_defaults()
 raw_song = "Tony's Videos VERY SHORT VIDEO 28.10.2016"
 
 
+class TestYouTubeAPIKeys:
+    def test_custom(self):
+        expect_key = 'some_api_key'
+        const.args.youtube_api_key = expect_key
+        youtube_tools.set_api_key()
+        key = youtube_tools.pafy.g.api_key
+        assert key == expect_key
+
+    def test_default(self):
+        expect_key = 'AIzaSyAnItl3udec-Q1d5bkjKJGL-RgrKO_vU90'
+        const.args.youtube_api_key = None
+        youtube_tools.set_api_key()
+        key = youtube_tools.pafy.g.api_key
+        assert key == expect_key
+
+
 def test_metadata():
     expect_metadata = None
     global metadata
@@ -22,10 +38,12 @@ def test_metadata():
 
 class TestYouTubeURL:
     def test_only_music_category(self):
-        expect_url = 'http://youtube.com/watch?v=5USR1Omo7f0'
+        # YouTube keeps changing its results
+        expect_urls = ('http://youtube.com/watch?v=qOOcy2-tmbk',
+                       'http://youtube.com/watch?v=5USR1Omo7f0')
         const.args.music_videos_only = True
         url = youtube_tools.generate_youtube_url(raw_song, metadata)
-        assert url == expect_url
+        assert url in expect_urls
 
     def test_all_categories(self):
         expect_url = 'http://youtube.com/watch?v=qOOcy2-tmbk'
@@ -49,16 +67,21 @@ class TestYouTubeURL:
 
 
 class TestYouTubeTitle:
-    def test_single_download(self):
+    def test_single_download_with_youtube_api(self):
         global content
         global title
         expect_title = "Tony's Videos VERY SHORT VIDEO 28.10.2016"
+        key = 'AIzaSyAnItl3udec-Q1d5bkjKJGL-RgrKO_vU90'
+        const.args.youtube_api_key = key
+        youtube_tools.set_api_key()
         content = youtube_tools.go_pafy(raw_song, metadata)
         title = youtube_tools.get_youtube_title(content)
         assert title == expect_title
 
-    def test_download_from_list(self):
+    def test_download_from_list_without_youtube_api(self):
         expect_title = "1. Tony's Videos VERY SHORT VIDEO 28.10.2016"
+        const.args.youtube_api_key = None
+        youtube_tools.set_api_key()
         content = youtube_tools.go_pafy(raw_song, metadata)
         title = youtube_tools.get_youtube_title(content, 1)
         assert title == expect_title

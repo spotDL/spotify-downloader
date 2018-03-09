@@ -141,7 +141,7 @@ optional arguments:
   -ll {INFO,WARNING,ERROR,DEBUG}, --log-level {INFO,WARNING,ERROR,DEBUG}
                         set log verbosity (default: INFO)
   -c CONFIG_FILE_PATH --config CONFIG_FILE_PATH
-                        Replace with custom config.yml file (default: None)                      
+                        Replace with custom config.yml file (default: None)
 ```
 
 #### Download by Name
@@ -263,10 +263,15 @@ to override any default options.
 
 Also note that config options are overridden by command-line arguments.
 
-#### Specify the Custom Config File Path
-
 If you want to use custom `.yml` configuration instead of the default one, you can use `-c`/`--config` option.
 E.g. `$ python3 spotdl.py -s "adele hello" -c "/home/user/customConfig.yml"`
+
+## Set YouTube API Key
+
+By default this tool will scrape YouTube to fetch for matching video tracks.
+However, you can optionally use YouTube API for faster response time.
+To do this, [generate your API key](https://developers.google.com/youtube/registering_an_application)
+and then set it in your `config.yml`.
 
 ## [Docker Image](https://hub.docker.com/r/ritiek/spotify-downloader/)
 [![Docker automated build](https://img.shields.io/docker/automated/jrottenberg/ffmpeg.svg)](https://hub.docker.com/r/ritiek/spotify-downloader)
