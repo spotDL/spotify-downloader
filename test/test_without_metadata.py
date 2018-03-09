@@ -38,10 +38,12 @@ def test_metadata():
 
 class TestYouTubeURL:
     def test_only_music_category(self):
-        expect_url = 'http://youtube.com/watch?v=qOOcy2-tmbk'
+        # YouTube keeps changing its results
+        expect_urls = ('http://youtube.com/watch?v=qOOcy2-tmbk',
+                       'http://youtube.com/watch?v=5USR1Omo7f0')
         const.args.music_videos_only = True
         url = youtube_tools.generate_youtube_url(raw_song, metadata)
-        assert url == expect_url
+        assert url in expect_urls
 
     def test_all_categories(self):
         expect_url = 'http://youtube.com/watch?v=qOOcy2-tmbk'
