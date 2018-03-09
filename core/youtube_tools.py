@@ -20,7 +20,7 @@ def set_api_key():
         key = const.args.youtube_api_key
     else:
         # Please respect this YouTube token :)
-        key = 'AIzaSyAnItl3udec-Q1d5bkjKJGL-RgrKO_vU90'
+        key = 'AIzaSyC6cEeKlxtOPybk9sEe5ksFN5sB-7wzYp0'
     pafy.set_api_key(key)
 
 
