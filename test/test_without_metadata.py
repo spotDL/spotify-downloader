@@ -22,7 +22,7 @@ def test_metadata():
 
 class TestYouTubeURL:
     def test_only_music_category(self):
-        expect_url = None
+        expect_url = 'http://youtube.com/watch?v=5USR1Omo7f0'
         const.args.music_videos_only = True
         url = youtube_tools.generate_youtube_url(raw_song, metadata)
         assert url == expect_url
