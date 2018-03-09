@@ -17,10 +17,11 @@ pafy.g.opener.addheaders.append(('Range', 'bytes=0-'))
 
 def set_api_key():
     if const.args.youtube_api_key:
-        pafy.set_api_key(const.args.youtube_api_key)
+        key = const.args.youtube_api_key
     else:
         # Please respect this YouTube token :)
-        pafy.set_api_key('AIzaSyAnItl3udec-Q1d5bkjKJGL-RgrKO_vU90')
+        key = 'AIzaSyAnItl3udec-Q1d5bkjKJGL-RgrKO_vU90'
+    pafy.set_api_key(key)
 
 
 def go_pafy(raw_song, meta_tags=None):
@@ -111,7 +112,7 @@ class GenerateYouTubeURL:
     def _best_match(self, videos):
         """ Select the best matching video from a list of videos. """
         if const.args.manual:
-            log.info(song)
+            log.info(self.raw_song)
             log.info('0. Skip downloading this song.\n')
             # fetch all video links on first page on YouTube
             for i, v in enumerate(videos):
@@ -164,7 +165,7 @@ class GenerateYouTubeURL:
 
         if self.meta_tags is None:
             song = self.raw_song
-            search_url = internals.generate_search_url(song, viewsort=False)
+            search_url = generate_search_url(song)
         else:
             song = internals.generate_songname(const.args.file_format,
                                                self.meta_tags)
