@@ -22,7 +22,7 @@ class TestYouTubeAPIKeys:
         assert key == expect_key
 
     def test_default(self):
-        expect_key = 'AIzaSyAnItl3udec-Q1d5bkjKJGL-RgrKO_vU90'
+        expect_key = 'AIzaSyC6cEeKlxtOPybk9sEe5ksFN5sB-7wzYp0'
         const.args.youtube_api_key = None
         youtube_tools.set_api_key()
         key = youtube_tools.pafy.g.api_key
