@@ -82,6 +82,8 @@ def generate_youtube_url(raw_song, meta_tags, tries_remaining=5):
     log.debug('query: {0}'.format(query))
 
     data = pafy.call_gdata('search', query)
+    data['items'] = list(filter(lambda x: x['id'].get('videoId') is not None,
+                                data['items']))
     query_results = {'part': 'contentDetails,snippet,statistics',
               'maxResults': 50,
               'id': ','.join(i['id']['videoId'] for i in data['items'])}
