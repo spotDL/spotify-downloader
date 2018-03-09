@@ -1,3 +1,5 @@
+from bs4 import BeautifulSoup
+import urllib
 import pafy
 
 from core import internals
@@ -76,8 +78,6 @@ def generate_youtube_url(raw_song, meta_tags):
         url = url_fetch.scrape()
     return url
 
-from bs4 import BeautifulSoup
-import urllib
 
 def is_video(result):
     # ensure result is not a channel
@@ -96,16 +96,61 @@ def is_video(result):
     video = not not_video
     return video
 
+
 class GenerateYouTubeURL:
     def __init__(self, raw_song, meta_tags):
         self.raw_song = raw_song
         self.meta_tags = meta_tags
 
-    def common(self):
-        pass
+    def _best_match(self, videos):
+        """ Select the best matching video from a list of videos. """
+        if const.args.manual:
+            log.info(song)
+            log.info('0. Skip downloading this song.\n')
+            # fetch all video links on first page on YouTube
+            for i, v in enumerate(videos):
+                log.info(u'{0}. {1} {2} {3}'.format(i+1, v['title'], v['videotime'],
+                      "http://youtube.com/watch?v="+v['link']))
+            # let user select the song to download
+            result = internals.input_link(videos)
+            if result is None:
+                return None
+        else:
+            if not self.meta_tags:
+                # if the metadata could not be acquired, take the first result
+                # from Youtube because the proper song length is unknown
+                result = videos[0]
+                log.debug('Since no metadata found on Spotify, going with the first result')
+            else:
+                # filter out videos that do not have a similar length to the Spotify song
+                duration_tolerance = 10
+                max_duration_tolerance = 20
+                possible_videos_by_duration = list()
+
+                '''
+                start with a reasonable duration_tolerance, and increment duration_tolerance
+                until one of the Youtube results falls within the correct duration or
+                the duration_tolerance has reached the max_duration_tolerance
+                '''
+                while len(possible_videos_by_duration) == 0:
+                    possible_videos_by_duration = list(filter(lambda x: abs(x['seconds'] - self.meta_tags['duration']) <= duration_tolerance, videos))
+                    duration_tolerance += 1
+                    if duration_tolerance > max_duration_tolerance:
+                        log.error("{0} by {1} was not found.\n".format(self.meta_tags['name'], self.meta_tags['artists'][0]['name']))
+                        return None
+
+                result = possible_videos_by_duration[0]
+
+        if result:
+            url = "http://youtube.com/watch?v=" + result['link']
+        else:
+            url = None
+
+        return url
 
     def scrape(self, tries_remaining=5):
-        """ Search for the song on YouTube and generate a URL to its video. """
+        """ Search and scrape YouTube to return a list of matching videos. """
+
         # prevents an infinite loop but allows for a few retries
         if tries_remaining == 0:
             log.debug('No tries left. I quit.')
@@ -130,7 +175,7 @@ class GenerateYouTubeURL:
                 continue
 
             y = x.find('div', class_='yt-lockup-content')
-            link = y.find('a')['href']
+            link = y.find('a')['href'][-11:]
             title = y.find('a')['title']
 
             try:
@@ -145,59 +190,11 @@ class GenerateYouTubeURL:
             if self.meta_tags is None:
                 break
 
-        if not videos:
-            return None
+        return self._best_match(videos)
 
-        log.debug(pprint.pformat(videos))
-
-        if const.args.manual:
-            log.info(song)
-            log.info('0. Skip downloading this song.\n')
-            # fetch all video links on first page on YouTube
-            for i, v in enumerate(videos):
-                log.info(u'{0}. {1} {2} {3}'.format(i+1, v['title'], v['videotime'],
-                      "http://youtube.com"+v['link']))
-            # let user select the song to download
-            result = internals.input_link(videos)
-            if result is None:
-                return None
-        else:
-            if self.meta_tags is None:
-                # if the metadata could not be acquired, take the first result
-                # from Youtube because the proper song length is unknown
-                result = videos[0]
-                log.debug('Since no metadata found on Spotify, going with the first result')
-            else:
-                # filter out videos that do not have a similar length to the Spotify song
-                duration_tolerance = 10
-                max_duration_tolerance = 20
-                possible_videos_by_duration = []
-
-                '''
-                start with a reasonable duration_tolerance, and increment duration_tolerance
-                until one of the Youtube results falls within the correct duration or
-                the duration_tolerance has reached the max_duration_tolerance
-                '''
-
-                while len(possible_videos_by_duration) == 0:
-                    possible_videos_by_duration = list(filter(lambda x: abs(x['seconds'] - self.meta_tags['duration']) <= duration_tolerance, videos))
-                    duration_tolerance += 1
-                    if duration_tolerance > max_duration_tolerance:
-                        log.error("{0} by {1} was not found.\n".format(self.meta_tags['name'],
-                                                                       self.meta_tags['artists'][0]['name']))
-                        return None
-
-                result = possible_videos_by_duration[0]
-
-        if result:
-            full_link = u'http://youtube.com{0}'.format(result['link'])
-        else:
-            full_link = None
-
-        return full_link
 
     def api(self):
-        """ Search for the song on YouTube and generate a URL to its video. """
+        """ Use YouTube API to search and return a list of matching videos. """
 
         query = { 'part'       : 'snippet',
                   'maxResults' :  50,
@@ -235,49 +232,4 @@ class GenerateYouTubeURL:
             if not self.meta_tags:
                 break
 
-        if not videos:
-            return None
-
-        if const.args.manual:
-            log.info(song)
-            log.info('0. Skip downloading this song.\n')
-            # fetch all video links on first page on YouTube
-            for i, v in enumerate(videos):
-                log.info(u'{0}. {1} {2} {3}'.format(i+1, v['title'], v['videotime'],
-                      "http://youtube.com/watch?v="+v['link']))
-            # let user select the song to download
-            result = internals.input_link(videos)
-            if not result:
-                return None
-        else:
-            if not self.meta_tags:
-                # if the metadata could not be acquired, take the first result
-                # from Youtube because the proper song length is unknown
-                result = videos[0]
-                log.debug('Since no metadata found on Spotify, going with the first result')
-            else:
-                # filter out videos that do not have a similar length to the Spotify song
-                duration_tolerance = 10
-                max_duration_tolerance = 20
-                possible_videos_by_duration = list()
-
-                '''
-                start with a reasonable duration_tolerance, and increment duration_tolerance
-                until one of the Youtube results falls within the correct duration or
-                the duration_tolerance has reached the max_duration_tolerance
-                '''
-                while len(possible_videos_by_duration) == 0:
-                    possible_videos_by_duration = list(filter(lambda x: abs(x['seconds'] - self.meta_tags['duration']) <= duration_tolerance, videos))
-                    duration_tolerance += 1
-                    if duration_tolerance > max_duration_tolerance:
-                        log.error("{0} by {1} was not found.\n".format(self.meta_tags['name'], self.meta_tags['artists'][0]['name']))
-                        return None
-
-                result = possible_videos_by_duration[0]
-
-        if result:
-            url = "http://youtube.com/watch?v=" + result['link']
-        else:
-            url = None
-
-        return url
+        return self._best_match(videos)
