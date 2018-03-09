@@ -170,6 +170,7 @@ def download_single(raw_song, number=None):
 if __name__ == '__main__':
     const.args = handle.get_arguments()
     internals.filter_path(const.args.folder)
+    youtube_tools.set_api_key()
 
     const.log = const.logzero.setup_logger(formatter=const.formatter,
                                       level=const.args.log_level)

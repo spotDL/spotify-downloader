@@ -9,11 +9,18 @@ import os
 import pprint
 
 log = const.log
-# Please respect this YouTube token :)
-pafy.set_api_key('AIzaSyAnItl3udec-Q1d5bkjKJGL-RgrKO_vU90')
+
 # Fix download speed throttle on short duration tracks
 # Read more on mps-youtube/pafy#199
 pafy.g.opener.addheaders.append(('Range', 'bytes=0-'))
+
+
+def set_api_key():
+    if const.args.youtube_api_key:
+        pafy.set_api_key(const.args.youtube_api_key)
+    else:
+        # Please respect this YouTube token :)
+        pafy.set_api_key('AIzaSyAnItl3udec-Q1d5bkjKJGL-RgrKO_vU90')
 
 
 def go_pafy(raw_song, meta_tags=None):
@@ -69,16 +76,6 @@ def generate_search_url(song):
     return url
 
 
-def generate_youtube_url(raw_song, meta_tags):
-    url_fetch = GenerateYouTubeURL(raw_song, meta_tags)
-    const.args.api = False
-    if const.args.api:
-        url = url_fetch.api()
-    else:
-        url = url_fetch.scrape()
-    return url
-
-
 def is_video(result):
     # ensure result is not a channel
     not_video = result.find('channel') is not None or \
@@ -95,6 +92,15 @@ def is_video(result):
 
     video = not not_video
     return video
+
+
+def generate_youtube_url(raw_song, meta_tags):
+    url_fetch = GenerateYouTubeURL(raw_song, meta_tags)
+    if const.args.youtube_api_key:
+        url = url_fetch.api()
+    else:
+        url = url_fetch.scrape()
+    return url
 
 
 class GenerateYouTubeURL:
