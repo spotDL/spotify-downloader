@@ -132,13 +132,11 @@ class GenerateYouTubeURL:
                 # filter out videos that do not have a similar length to the Spotify song
                 duration_tolerance = 10
                 max_duration_tolerance = 20
-                possible_videos_by_duration = list()
+                possible_videos_by_duration = []
 
-                '''
-                start with a reasonable duration_tolerance, and increment duration_tolerance
-                until one of the Youtube results falls within the correct duration or
-                the duration_tolerance has reached the max_duration_tolerance
-                '''
+                # start with a reasonable duration_tolerance, and increment duration_tolerance
+                # until one of the Youtube results falls within the correct duration or
+                # the duration_tolerance has reached the max_duration_tolerance
                 while len(possible_videos_by_duration) == 0:
                     possible_videos_by_duration = list(filter(lambda x: abs(x['seconds'] - self.meta_tags['duration']) <= duration_tolerance, videos))
                     duration_tolerance += 1
@@ -149,7 +147,7 @@ class GenerateYouTubeURL:
                 result = possible_videos_by_duration[0]
 
         if result:
-            url = "http://youtube.com/watch?v=" + result['link']
+            url = "http://youtube.com/watch?v={0}".format(result['link'])
         else:
             url = None
 
