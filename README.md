@@ -90,9 +90,9 @@ but make sure `$ python -V` gives you a `Python 3.x.x`!
 ```
 usage: spotdl.py [-h]
                  (-s SONG | -l LIST | -p PLAYLIST | -b ALBUM | -u USERNAME)
-                 [-m] [-nm] [-a] [-f FOLDER] [--overwrite {force,prompt,skip}]
-                 [-i INPUT_EXT] [-o OUTPUT_EXT] [-ff] [-dm] [-d] [-mo] [-ns]
-                 [-ll {INFO,WARNING,ERROR,DEBUG}]
+                 [-m] [-nm] [-a] [-f FOLDER] [--overwrite {skip,force,prompt}]
+                 [-i {.webm,.m4a}] [-o OUTPUT_EXT] [-ff] [-dm] [-d] [-mo]
+                 [-ns] [-ll {INFO,WARNING,ERROR,DEBUG}] [-c CONFIG]
 
 Download and convert songs from Spotify, Youtube etc.
 
@@ -116,14 +116,14 @@ optional arguments:
   -f FOLDER, --folder FOLDER
                         path to folder where files will be stored in (default:
                         Music)
-  --overwrite {force,prompt,skip}
+  --overwrite {skip,force,prompt}
                         change the overwrite policy (default: prompt)
-  -i INPUT_EXT, --input-ext INPUT_EXT
+  -i {.webm,.m4a}, --input-ext {.webm,.m4a}
                         prefered input format .m4a or .webm (Opus) (default:
                         .m4a)
   -o OUTPUT_EXT, --output-ext OUTPUT_EXT
-                        prefered output extension .mp3 or .m4a (AAC) (default:
-                        .mp3)
+                        prefered output format .mp3, .m4a (AAC), .flac, etc.
+                        (default: .mp3)
   -ff, --file-format    File format to save the downloaded song with, each tag
                         is surrounded by curly braces. Possible formats:
                         ['track_name', 'artist', 'album', 'album_artist',
@@ -140,7 +140,7 @@ optional arguments:
                         (default: False)
   -ll {INFO,WARNING,ERROR,DEBUG}, --log-level {INFO,WARNING,ERROR,DEBUG}
                         set log verbosity (default: INFO)
-  -c CONFIG_FILE_PATH --config CONFIG_FILE_PATH
+  -c CONFIG, --config CONFIG
                         Replace with custom config.yml file (default: None)
 ```
 

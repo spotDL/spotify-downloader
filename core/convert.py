@@ -56,6 +56,8 @@ class Converter:
         _, input_ext = os.path.splitext(self.input_file)
         _, output_ext = os.path.splitext(self.output_file)
 
+        ffmpeg_params = ''
+
         if input_ext == '.m4a':
             if output_ext == '.mp3':
                 ffmpeg_params = '-codec:v copy -codec:a libmp3lame -ar 44100 '
