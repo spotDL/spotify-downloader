@@ -96,7 +96,8 @@ class EmbedMetadata:
         audiofile = MP4(music_file)
         self._embed_basic_metadata(audiofile, preset=M4A_TAG_PRESET)
         audiofile[M4A_TAG_PRESET['year']] = meta_tags['year']
-        audiofile[M4A_TAG_PRESET['comment']] = meta_tags['external_urls']['spotify']
+        if meta_tags['lyrics']:
+            audiofile['lyrics'] = meta_tags['lyrics']
         try:
             albumart = urllib.request.urlopen(meta_tags['album']['images'][0]['url'])
             audiofile[M4A_TAG_PRESET['albumart']] = [MP4Cover(
@@ -115,6 +116,8 @@ class EmbedMetadata:
         self._embed_basic_metadata(audiofile)
         audiofile['year'] = meta_tags['year']
         audiofile['comment'] = meta_tags['external_urls']['spotify']
+        if meta_tags['lyrics']:
+            audiofile['lyrics'] = meta_tags['lyrics']
 
         image = Picture()
         image.type = 3
@@ -140,8 +143,6 @@ class EmbedMetadata:
             audiofile[preset['genre']] = meta_tags['genre']
         if meta_tags['copyright']:
             audiofile[preset['copyright']] = meta_tags['copyright']
-        if meta_tags['lyrics']:
-            audiofile[preset['lyrics']] = meta_tags['lyrics']
         if self.music_file.endswith('.flac'):
             audiofile[preset['discnumber']] = str(meta_tags['disc_number'])
         else:
