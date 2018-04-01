@@ -54,7 +54,7 @@ class EmbedMetadata:
         # https://github.com/quodlibet/mutagen/blob/master/mutagen/easyid3.py
         # Check out somewhere at end of above linked file
         audiofile = EasyID3(music_file)
-        self._embed_basic_metadata(audiofile, meta_tags, preset=TAG_PRESET)
+        self._embed_basic_metadata(audiofile, preset=TAG_PRESET)
         audiofile['media'] = meta_tags['type']
         audiofile['author'] = meta_tags['artists'][0]['name']
         audiofile['lyricist'] = meta_tags['artists'][0]['name']
@@ -94,7 +94,7 @@ class EmbedMetadata:
         music_file = self.music_file
         meta_tags = self.meta_tags
         audiofile = MP4(music_file)
-        self._embed_basic_metadata(audiofile, meta_tags, preset=M4A_TAG_PRESET)
+        self._embed_basic_metadata(audiofile, preset=M4A_TAG_PRESET)
         audiofile[M4A_TAG_PRESET['year']] = meta_tags['year']
         audiofile[M4A_TAG_PRESET['comment']] = meta_tags['external_urls']['spotify']
         try:
@@ -112,7 +112,7 @@ class EmbedMetadata:
         music_file = self.music_file
         meta_tags = self.meta_tags
         audiofile = FLAC(music_file)
-        self._embed_basic_metadata(audiofile, meta_tags)
+        self._embed_basic_metadata(audiofile)
         audiofile['year'] = meta_tags['year']
         audiofile['comment'] = meta_tags['external_urls']['spotify']
 
@@ -126,8 +126,10 @@ class EmbedMetadata:
         audiofile.add_picture(image)
 
         audiofile.save()
+        return True
 
-    def _embed_basic_metadata(self, audiofile, meta_tags, preset=TAG_PRESET):
+    def _embed_basic_metadata(self, audiofile, preset=TAG_PRESET):
+        meta_tags = self.meta_tags
         audiofile[preset['artist']] = meta_tags['artists'][0]['name']
         audiofile[preset['albumartist']] = meta_tags['artists'][0]['name']
         audiofile[preset['album']] = meta_tags['album']['name']
@@ -140,14 +142,12 @@ class EmbedMetadata:
             audiofile[preset['copyright']] = meta_tags['copyright']
         if meta_tags['lyrics']:
             audiofile[preset['lyrics']] = meta_tags['lyrics']
-        if self.music_file.endswith('.mp3'):
-            audiofile[preset['discnumber']] = [(meta_tags['disc_number'], 0)]
-        else:
+        if self.music_file.endswith('.flac'):
             audiofile[preset['discnumber']] = str(meta_tags['disc_number'])
-        if self.music_file.endswith('.mp3'):
+        else:
+            audiofile[preset['discnumber']] = [(meta_tags['disc_number'], 0)]
+        if self.music_file.endswith('.flac'):
+            audiofile[preset['tracknumber']] = str(meta_tags['track_number'])
+        else:
             audiofile[preset['tracknumber']] = [(meta_tags['track_number'],
                                                  meta_tags['total_tracks'])]
-        else:
-            audiofile[preset['tracknumber']] = str(meta_tags['track_number'])
-
-
