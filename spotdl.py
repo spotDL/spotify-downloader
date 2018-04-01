@@ -172,7 +172,7 @@ if __name__ == '__main__':
     internals.filter_path(const.args.folder)
     youtube_tools.set_api_key()
 
-    const.log = const.logzero.setup_logger(formatter=const.formatter,
+    const.log = const.logzero.setup_logger(formatter=const._formatter,
                                       level=const.args.log_level)
     log = const.log
     log.debug('Python version: {}'.format(sys.version))

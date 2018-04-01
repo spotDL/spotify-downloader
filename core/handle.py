@@ -122,10 +122,11 @@ def get_arguments(raw_args=None, to_group=True, to_merge=True):
         choices={'prompt', 'force', 'skip'})
     parser.add_argument(
         '-i', '--input-ext', default=config['input-ext'],
-        help='prefered input format .m4a or .webm (Opus)')
+        help='prefered input format .m4a or .webm (Opus)',
+        choices={'.m4a', '.webm'})
     parser.add_argument(
         '-o', '--output-ext', default=config['output-ext'],
-        help='prefered output extension .mp3 or .m4a (AAC)')
+        help='prefered output format .mp3, .m4a (AAC), .flac, etc.')
     parser.add_argument(
         '-ff', '--file-format', default=config['file-format'],
         help='File format to save the downloaded song with, each tag '

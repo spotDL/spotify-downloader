@@ -16,7 +16,7 @@ raw_song = 'http://open.spotify.com/track/0JlS7BXXD07hRmevDnbPDU'
 
 
 def test_metadata():
-    expect_number = 22
+    expect_number = 23
     global meta_tags
     meta_tags = spotify_tools.generate_metadata(raw_song)
     assert len(meta_tags) == expect_number
@@ -102,6 +102,13 @@ class TestFFmpeg():
                                    const.args.folder)
         assert return_code == expect_return_code
 
+    def test_convert_from_m4a_to_flac(self):
+        expect_return_code = 0
+        return_code = convert.song(file_name + '.m4a',
+                                   file_name + '.flac',
+                                   const.args.folder)
+        assert return_code == expect_return_code
+
 
 class TestAvconv:
     def test_convert_from_m4a_to_mp3(self):
@@ -133,10 +140,15 @@ class TestEmbedMetadata:
         os.remove(track_path + '.webm')
         assert embed == expect_embed
 
+    def test_embed_in_flac(self):
+        expect_embed = True
+        embed = metadata.embed(track_path + '.flac', meta_tags)
+        os.remove(track_path + '.flac')
+        assert embed == expect_embed
+
 
 def test_check_track_exists_after_download():
     expect_check = True
-    # prerequisites for determining filename
     check = spotdl.check_exists(file_name, raw_song, meta_tags)
     os.remove(track_path + '.mp3')
     assert check == expect_check

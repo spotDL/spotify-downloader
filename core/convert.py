@@ -17,16 +17,16 @@ https://trac.ffmpeg.org/wiki/Encode/AAC
 
 def song(input_song, output_song, folder, avconv=False):
     """ Do the audio format conversion. """
-    if not input_song == output_song:
-        convert = Converter(input_song, output_song, folder)
-        log.info('Converting {0} to {1}'.format(
-            input_song, output_song.split('.')[-1]))
-        if avconv:
-            exit_code = convert.with_avconv()
-        else:
-            exit_code = convert.with_ffmpeg()
-        return exit_code
-    return 0
+    if input_song == output_song:
+        return 0
+    convert = Converter(input_song, output_song, folder)
+    log.info('Converting {0} to {1}'.format(
+        input_song, output_song.split('.')[-1]))
+    if avconv:
+        exit_code = convert.with_avconv()
+    else:
+        exit_code = convert.with_ffmpeg()
+    return exit_code
 
 
 class Converter:
@@ -56,6 +56,8 @@ class Converter:
         _, input_ext = os.path.splitext(self.input_file)
         _, output_ext = os.path.splitext(self.output_file)
 
+        ffmpeg_params = ''
+
         if input_ext == '.m4a':
             if output_ext == '.mp3':
                 ffmpeg_params = '-codec:v copy -codec:a libmp3lame -ar 44100 '
@@ -67,6 +69,9 @@ class Converter:
                 ffmpeg_params = '-codec:a libmp3lame -ar 44100 '
             elif output_ext == '.m4a':
                 ffmpeg_params = '-cutoff 20000 -codec:a libfdk_aac -ar 44100 '
+
+        if output_ext == '.flac':
+            ffmpeg_params = '-codec:a flac -ar 44100 '
 
         # add common params for any of the above combination
         ffmpeg_params += '-b:a 192k -vn '
