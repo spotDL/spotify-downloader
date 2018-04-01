@@ -8,6 +8,7 @@ from core.const import log
 from slugify import slugify
 from titlecase import titlecase
 import pprint
+import sys
 
 
 def generate_token():
