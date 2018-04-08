@@ -23,6 +23,7 @@ default_conf = { 'spotify-downloader':
                    'music-videos-only'      : False,
                    'no-spaces'              : False,
                    'file-format'            : '{artist} - {track_name}',
+                   'search-format'          : '{artist} - {track_name} lyrics',
                    'youtube-api-key'        : None,
                    'log-level'              : 'INFO' }
                }
@@ -71,7 +72,8 @@ def override_config(config_file, parser, raw_args=None):
     parser.set_defaults(music_videos_only=config['music-videos-only'])
     parser.set_defaults(no_spaces=config['no-spaces'])
     parser.set_defaults(file_format=config['file-format'])
-    parser.set_defaults(no_spaces=config['youtube-api-key'])
+    parser.set_defaults(search_format=config['search-format'])
+    parser.set_defaults(youtube_api_key=config['youtube-api-key'])
     parser.set_defaults(log_level=config['log-level'])
 
     return parser.parse_args(raw_args)
@@ -131,8 +133,12 @@ def get_arguments(raw_args=None, to_group=True, to_merge=True):
         '-ff', '--file-format', default=config['file-format'],
         help='File format to save the downloaded song with, each tag '
              'is surrounded by curly braces. Possible formats: '
-             '{}'.format([internals.formats[x] for x in internals.formats]),
-        action='store_true')
+             '{}'.format([internals.formats[x] for x in internals.formats]))
+    parser.add_argument(
+        '-sf', '--search-format', default=config['search-format'],
+        help='Search format to search for on YouTube, each tag '
+             'is surrounded by curly braces. Possible formats: '
+             '{}'.format([internals.formats[x] for x in internals.formats]))
     parser.add_argument(
         '-dm', '--download-only-metadata', default=config['download-only-metadata'],
         help='download songs for which metadata is found',

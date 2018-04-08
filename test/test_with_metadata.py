@@ -25,13 +25,13 @@ def test_metadata():
 class TestFileFormat:
     def test_with_spaces(self):
         expect_title = 'David André Østby - Intro'
-        title = internals.generate_songname(const.args.file_format, meta_tags)
+        title = internals.format_string(const.args.file_format, meta_tags)
         assert title == expect_title
 
     def test_without_spaces(self):
         expect_title = 'David_André_Østby_-_Intro'
         const.args.no_spaces = True
-        title = internals.generate_songname(const.args.file_format, meta_tags)
+        title = internals.format_string(const.args.file_format, meta_tags)
         assert title == expect_title
 
 
@@ -53,7 +53,7 @@ def test_check_track_exists_before_download(tmpdir):
     expect_check = False
     const.args.folder = str(tmpdir)
     # prerequisites for determining filename
-    songname = internals.generate_songname(const.args.file_format, meta_tags)
+    songname = internals.format_string(const.args.file_format, meta_tags)
     global file_name
     file_name = internals.sanitize_title(songname)
     check = spotdl.check_exists(file_name, raw_song, meta_tags)
