@@ -1,8 +1,12 @@
+import yaml
+
 from core import handle
+from core import const
 
 import pytest
 import os
 import sys
+import argparse
 
 
 def test_log_str_to_int():
@@ -21,11 +25,23 @@ class TestConfig:
         assert config == expect_config
 
     def test_modified_config(self):
-        default_config = handle.default_conf['spotify-downloader']
-        modified_config = dict(default_config)
-        modified_config['file-format'] = 'just_a_test'
-        config = handle.merge(default_config, modified_config)
-        assert config['file-format'] == modified_config['file-format']
+        global modified_config
+        modified_config = dict(handle.default_conf)
+        modified_config['spotify-downloader']['file-format'] = 'just_a_test'
+        merged_config = handle.merge(handle.default_conf, modified_config)
+        assert merged_config == modified_config
+
+    def test_custom_config_path(self, tmpdir):
+        parser = argparse.ArgumentParser()
+        with open(config_path, 'w') as config_file:
+            yaml.dump(modified_config, config_file, default_flow_style=False)
+        overridden_config = handle.override_config(config_path,
+                                                   parser,
+                                                   raw_args='')
+        modified_values = [ value for value in modified_config['spotify-downloader'].values() ]
+        overridden_config.folder = os.path.realpath(overridden_config.folder)
+        overridden_values = [ value for value in overridden_config.__dict__.values() ]
+        assert overridden_values == modified_values
 
 
 def test_grouped_arguments(tmpdir):

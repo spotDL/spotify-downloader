@@ -68,12 +68,12 @@ def download_song(file_name, content):
         return False
 
 
-def generate_search_url(song):
+def generate_search_url(query):
     """ Generate YouTube search URL for the given song. """
-    # urllib.request.quote() encodes URL with special characters
-    song = urllib.request.quote(song)
+    # urllib.request.quote() encodes string with special characters
+    quoted_query = urllib.request.quote(query)
     # Special YouTube URL filter to search only for videos
-    url = 'https://www.youtube.com/results?sp=EgIQAQ%253D%253D&q={0}'.format(song)
+    url = 'https://www.youtube.com/results?sp=EgIQAQ%253D%253D&q={0}'.format(quoted_query)
     return url
 
 
@@ -108,6 +108,12 @@ class GenerateYouTubeURL:
     def __init__(self, raw_song, meta_tags):
         self.raw_song = raw_song
         self.meta_tags = meta_tags
+
+        if meta_tags is None:
+            self.search_query = raw_song
+        else:
+            self.search_query = internals.format_string(const.args.search_format,
+                                                        meta_tags)
 
     def _best_match(self, videos):
         """ Select the best matching video from a list of videos. """
@@ -161,13 +167,7 @@ class GenerateYouTubeURL:
             log.debug('No tries left. I quit.')
             return
 
-        if self.meta_tags is None:
-            song = self.raw_song
-            search_url = generate_search_url(song)
-        else:
-            song = internals.generate_songname(const.args.file_format,
-                                               self.meta_tags)
-            search_url = generate_search_url(song)
+        search_url = generate_search_url(self.search_query)
         log.debug('Opening URL: {0}'.format(search_url))
 
         item = urllib.request.urlopen(search_url).read()
@@ -212,9 +212,7 @@ class GenerateYouTubeURL:
             song = self.raw_song
             query['q'] = song
         else:
-            song = '{0} - {1}'.format(self.meta_tags['artists'][0]['name'],
-                                      self.meta_tags['name'])
-            query['q'] = song
+            query['q'] = self.search_query
         log.debug('query: {0}'.format(query))
 
         data = pafy.call_gdata('search', query)
