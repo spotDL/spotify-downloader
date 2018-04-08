@@ -90,64 +90,71 @@ but make sure `$ python -V` gives you a `Python 3.x.x`!
 ```
 usage: spotdl.py [-h]
                  (-s SONG | -l LIST | -p PLAYLIST | -b ALBUM | -u USERNAME)
-                 [-m] [-nm] [-a] [-f FOLDER] [--overwrite {force,skip,prompt}]
-                 [-i {.webm,.m4a}] [-o OUTPUT_EXT] [-ff] [-sf] [-dm] [-d]
-                 [-mo] [-ns] [-ll {INFO,WARNING,ERROR,DEBUG}] [-c CONFIG]
+                 [-m] [-nm] [-a] [-f FOLDER] [--overwrite {prompt,force,skip}]
+                 [-i {.m4a,.webm}] [-o OUTPUT_EXT] [-ff FILE_FORMAT]
+                 [-sf SEARCH_FORMAT] [-dm] [-d] [-mo] [-ns]
+                 [-ll {INFO,WARNING,ERROR,DEBUG}] [-c CONFIG]
 
-Download and convert songs from Spotify, Youtube etc.
+Download and convert tracks from Spotify, Youtube etc.
 
 optional arguments:
   -h, --help            show this help message and exit
-  -s SONG, --song SONG  download song by spotify link or name (default: None)
-  -l LIST, --list LIST  download songs from a file (default: None)
+  -s SONG, --song SONG  download track by spotify link or name (default: None)
+  -l LIST, --list LIST  download tracks from a file (default: None)
   -p PLAYLIST, --playlist PLAYLIST
-                        load songs from playlist URL into <playlist_name>.txt
+                        load tracks from playlist URL into <playlist_name>.txt
                         (default: None)
   -b ALBUM, --album ALBUM
-                        load songs from album URL into <album_name>.txt
+                        load tracks from album URL into <album_name>.txt
                         (default: None)
   -u USERNAME, --username USERNAME
-                        load songs from user's playlist into
+                        load tracks from user's playlist into
                         <playlist_name>.txt (default: None)
-  -m, --manual          choose the song to download manually (default: False)
-  -nm, --no-metadata    do not embed metadata in songs (default: False)
-  -a, --avconv          Use avconv for conversion otherwise set defaults to
-                        ffmpeg (default: False)
+  -m, --manual          choose the track to download manually from a list of
+                        matching tracks (default: False)
+  -nm, --no-metadata    do not embed metadata in tracks (default: False)
+  -a, --avconv          use avconv for conversion (otherwise defaults to
+                        ffmpeg) (default: False)
   -f FOLDER, --folder FOLDER
-                        path to folder where files will be stored in (default:
-                        Music)
-  --overwrite {force,skip,prompt}
+                        path to folder where downloaded tracks will be stored
+                        in (default: Music)
+  --overwrite {prompt,force,skip}
                         change the overwrite policy (default: prompt)
-  -i {.webm,.m4a}, --input-ext {.webm,.m4a}
-                        prefered input format .m4a or .webm (Opus) (default:
+  -i {.m4a,.webm}, --input-ext {.m4a,.webm}
+                        preferred input format .m4a or .webm (Opus) (default:
                         .m4a)
   -o OUTPUT_EXT, --output-ext OUTPUT_EXT
-                        prefered output format .mp3, .m4a (AAC), .flac, etc.
+                        preferred output format .mp3, .m4a (AAC), .flac, etc.
                         (default: .mp3)
-  -ff, --file-format    File format to save the downloaded song with, each tag
-                        is surrounded by curly braces. Possible formats:
+  -ff FILE_FORMAT, --file-format FILE_FORMAT
+                        file format to save the downloaded track with, each
+                        tag is surrounded by curly braces. Possible formats:
                         ['track_name', 'artist', 'album', 'album_artist',
                         'genre', 'disc_number', 'duration', 'year',
                         'original_date', 'track_number', 'total_tracks',
                         'isrc'] (default: {artist} - {track_name})
-  -sf, --search-format  Search format to search for on YouTube, each tag is
+  -sf SEARCH_FORMAT, --search-format SEARCH_FORMAT
+                        search format to search for on YouTube, each tag is
                         surrounded by curly braces. Possible formats:
                         ['track_name', 'artist', 'album', 'album_artist',
                         'genre', 'disc_number', 'duration', 'year',
                         'original_date', 'track_number', 'total_tracks',
                         'isrc'] (default: {artist} - {track_name} lyrics)
   -dm, --download-only-metadata
-                        download songs for which metadata is found (default:
+                        download tracks only whose metadata is found (default:
                         False)
-  -d, --dry-run         Show only track title and YouTube URL (default: False)
+  -d, --dry-run         show only track title and YouTube URL, and then skip
+                        to the next track (if any) (default: False)
   -mo, --music-videos-only
-                        Search only for music on Youtube (default: False)
-  -ns, --no-spaces      Replace spaces with underscores in file names
+                        search only for music videos on Youtube (works only
+                        when YouTube API key is set (default: False)
+  -ns, --no-spaces      replace spaces with underscores in file names
                         (default: False)
   -ll {INFO,WARNING,ERROR,DEBUG}, --log-level {INFO,WARNING,ERROR,DEBUG}
                         set log verbosity (default: INFO)
   -c CONFIG, --config CONFIG
-                        Replace with custom config.yml file (default: None)
+                        path to config.yml file (otherwise load it from same
+                        directory as spotdl.py) (default: None)
 ```
 
 #### Download by Name
