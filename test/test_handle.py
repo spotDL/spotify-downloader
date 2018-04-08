@@ -38,10 +38,10 @@ class TestConfig:
         overridden_config = handle.override_config(config_path,
                                                    parser,
                                                    raw_args='')
-        modified_values = [ value for value in modified_config['spotify-downloader'].values() ]
+        modified_values = [ str(value) for value in modified_config['spotify-downloader'].values() ]
         overridden_config.folder = os.path.realpath(overridden_config.folder)
-        overridden_values = [ value for value in overridden_config.__dict__.values() ]
-        assert overridden_values == modified_values
+        overridden_values = [ str(value) for value in overridden_config.__dict__.values() ]
+        assert sorted(overridden_values) == sorted(modified_values)
 
 
 def test_grouped_arguments(tmpdir):
