@@ -16,6 +16,7 @@ import time
 import platform
 import pprint
 
+WINDOWS_BADCHARS = r'\/:*?"<>|'
 
 def check_exists(music_file, raw_song, meta_tags):
     """ Check if the input song already exists in the given folder. """
@@ -144,6 +145,10 @@ def download_single(raw_song, number=None):
         return
 
     if not check_exists(songname, raw_song, meta_tags):
+        if os.name == 'nt':
+            for char in WINDOWS_BADCHARS:
+                songname = songname.replace(char, ' ')
+
         # deal with file formats containing slashes to non-existent directories
         songpath = os.path.join(const.args.folder, os.path.dirname(songname))
         os.makedirs(songpath, exist_ok=True)
