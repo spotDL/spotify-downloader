@@ -31,3 +31,5 @@ M4A_TAG_PRESET = { 'album'        : '\xa9alb',
 TAG_PRESET = {}
 for key in M4A_TAG_PRESET.keys():
     TAG_PRESET[key] = key
+
+WINDOWS_BADCHARS = r'\/:*?"<>|'
