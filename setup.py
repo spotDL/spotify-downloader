@@ -38,6 +38,7 @@ setup(
     ],
     description='Download songs from YouTube using Spotify song URLs or playlists with albumart and meta-tags.',
     long_description=long_description,
+    long_description_content_type='text/markdown',
     author='Ritiek Malhotra and the spotify-downloader contributors',
     author_email='ritiekmalhotra123@gmail.com',
     license='MIT',

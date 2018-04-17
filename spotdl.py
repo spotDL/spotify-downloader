@@ -16,7 +16,7 @@ import time
 import platform
 import pprint
 
-__version__ = '1.0.0b1'
+__version__ = '0.9.0'
 
 
 def check_exists(music_file, raw_song, meta_tags):
