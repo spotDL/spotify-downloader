@@ -29,6 +29,7 @@ setup(
         'pafy >= 0.5.3.1',
         'spotipy >= 2.4.4',
         'mutagen >= 1.37',
+        'beautifulsoup4 >= 4.6.0',
         'unicode-slugify >= 0.1.3',
         'titlecase >= 0.10.0',
         'logzero >= 1.3.1',

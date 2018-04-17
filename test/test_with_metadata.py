@@ -16,7 +16,7 @@ raw_song = 'http://open.spotify.com/track/0JlS7BXXD07hRmevDnbPDU'
 
 
 def test_metadata():
-    expect_number = 22
+    expect_number = 23
     global meta_tags
     meta_tags = spotify_tools.generate_metadata(raw_song)
     assert len(meta_tags) == expect_number
