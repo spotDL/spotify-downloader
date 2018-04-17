@@ -66,7 +66,7 @@ def is_youtube(raw_song):
     return status
 
 
-def generate_songname(file_format, tags):
+def format_string(string_format, tags):
     """ Generate a string of the format '[artist] - [song]' for the given spotify song. """
     format_tags = dict(formats)
     format_tags[0]  = tags['name']
@@ -83,13 +83,13 @@ def generate_songname(file_format, tags):
     format_tags[11] = tags['external_ids']['isrc']
 
     for x in formats:
-        file_format = file_format.replace('{' + formats[x] + '}',
+        string_format = string_format.replace('{' + formats[x] + '}',
                                           str(format_tags[x]))
 
     if const.args.no_spaces:
-        file_format = file_format.replace(' ', '_')
+        string_format = string_format.replace(' ', '_')
 
-    return file_format
+    return string_format
 
 
 def sanitize_title(title):
@@ -118,6 +118,19 @@ def videotime_from_seconds(time):
         return '{0}:{1:02}'.format(time//60, time % 60)
 
     return '{0}:{1:02}:{2:02}'.format((time//60)//60, (time//60) % 60, time % 60)
+
+
+def get_sec(time_str):
+    v = time_str.split(':', 3)
+    v.reverse()
+    sec = 0
+    if len(v) > 0:  # seconds
+        sec += int(v[0])
+    if len(v) > 1:  # minutes
+        sec += int(v[1]) * 60
+    if len(v) > 2:  # hours
+        sec += int(v[2]) * 3600
+    return sec
 
 
 def get_splits(url):

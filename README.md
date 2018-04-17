@@ -38,26 +38,31 @@ If you need to use Python 2 though, check out the (old) `python2` branch.
 since they were not of much use and created unnecessary clutter.
 You can still get them back by using `old` branch though.
 
-### Debian, Ubuntu, Linux & Mac
+### Debian-like GNU/Linux & macOS
 
 ```
-$ cd
-$ git clone https://github.com/ritiek/spotify-downloader
-$ cd spotify-downloader
-$ pip install -U -r requirements.txt
+$ pip install spotify-downloader
 ```
 
 **Important:** if you have installed both Python 2 and 3, the `pip` command
 could invoke an installation for Python 2. To see which Python version `pip`
 refers to, try `$ pip -V`. If it turns out `pip` is your Python 2 pip, try
-`$ pip3 install -U -r requirements.txt` instead.
+`$ pip3 install spotify-downloader` instead.
 
 You'll also need to install FFmpeg for conversion
 (use `--avconv` if you'd like to use that instead):
 
-Linux: `$ sudo apt-get install ffmpeg`
+GNU/Linux:
 
-Mac: `$ brew install ffmpeg --with-libmp3lame --with-libass --with-opus --with-fdk-aac`
+```
+$ sudo apt-get install ffmpeg
+```
+
+macOS:
+
+```
+$ brew install ffmpeg --with-libmp3lame --with-libass --with-opus --with-fdk-aac
+```
 
 If it does not install correctly, you may have to build it from source.
 For more info see https://trac.ffmpeg.org/wiki/CompilationGuide.
@@ -65,18 +70,21 @@ For more info see https://trac.ffmpeg.org/wiki/CompilationGuide.
 ### Windows
 
 Assuming you have Python 3
-([preferably v3.6 or above to stay away from Unicode errors](https://stackoverflow.com/questions/30539882/whats-the-deal-with-python-3-4-unicode-different-languages-and-windows)) already installed and in PATH.
-
-- Download and extract the [zip file](https://github.com/ritiek/spotify-downloader/archive/master.zip)
-from master branch.
+([preferably v3.6 or above to stay away from Unicode errors](https://stackoverflow.com/questions/30539882/whats-the-deal-with-python-3-4-unicode-different-languages-and-windows)) and pip already installed and in PATH.
 
 - Download FFmpeg for Windows from [here](http://ffmpeg.zeranoe.com/builds/).
 Copy `ffmpeg.exe` from `ffmpeg-xxx-winxx-static\bin\ffmpeg.exe` to PATH
 (usually C:\Windows\System32\) or just place it in the root directory extracted
 from the above step.
 
-- Open `cmd` and type `$ pip install -U -r requirements.txt` to install dependencies.
-The same note about `pip` as for Debian, Ubuntu, Linux & Mac applies.
+- Open `cmd` and type `pip install spotify-downloader`.
+The same note about `pip` as for GNU/Linux and macOS applies.
+
+### From GitHub releases
+
+- Download and extract the [latest](https://github.com/ritiek/spotify-downloader/releases/latest) or a [specific](https://github.com/ritiek/spotify-downloader/releases) release archive file.
+
+- `cd` into the directory and `pip install -e .`
 
 ## Instructions for Downloading Songs
 
@@ -90,56 +98,71 @@ but make sure `$ python -V` gives you a `Python 3.x.x`!
 ```
 usage: spotdl.py [-h]
                  (-s SONG | -l LIST | -p PLAYLIST | -b ALBUM | -u USERNAME)
-                 [-m] [-nm] [-a] [-f FOLDER] [--overwrite {force,prompt,skip}]
-                 [-i INPUT_EXT] [-o OUTPUT_EXT] [-ff] [-dm] [-d] [-mo] [-ns]
-                 [-ll {INFO,WARNING,ERROR,DEBUG}]
+                 [-m] [-nm] [-a] [-f FOLDER] [--overwrite {prompt,force,skip}]
+                 [-i {.m4a,.webm}] [-o OUTPUT_EXT] [-ff FILE_FORMAT]
+                 [-sf SEARCH_FORMAT] [-dm] [-d] [-mo] [-ns]
+                 [-ll {INFO,WARNING,ERROR,DEBUG}] [-c CONFIG]
 
-Download and convert songs from Spotify, Youtube etc.
+Download and convert tracks from Spotify, Youtube etc.
 
 optional arguments:
   -h, --help            show this help message and exit
-  -s SONG, --song SONG  download song by spotify link or name (default: None)
-  -l LIST, --list LIST  download songs from a file (default: None)
+  -s SONG, --song SONG  download track by spotify link or name (default: None)
+  -l LIST, --list LIST  download tracks from a file (default: None)
   -p PLAYLIST, --playlist PLAYLIST
-                        load songs from playlist URL into <playlist_name>.txt
+                        load tracks from playlist URL into <playlist_name>.txt
                         (default: None)
   -b ALBUM, --album ALBUM
-                        load songs from album URL into <album_name>.txt
+                        load tracks from album URL into <album_name>.txt
                         (default: None)
   -u USERNAME, --username USERNAME
-                        load songs from user's playlist into
+                        load tracks from user's playlist into
                         <playlist_name>.txt (default: None)
-  -m, --manual          choose the song to download manually (default: False)
-  -nm, --no-metadata    do not embed metadata in songs (default: False)
-  -a, --avconv          Use avconv for conversion otherwise set defaults to
-                        ffmpeg (default: False)
+  -m, --manual          choose the track to download manually from a list of
+                        matching tracks (default: False)
+  -nm, --no-metadata    do not embed metadata in tracks (default: False)
+  -a, --avconv          use avconv for conversion (otherwise defaults to
+                        ffmpeg) (default: False)
   -f FOLDER, --folder FOLDER
-                        path to folder where files will be stored in (default:
-                        Music)
-  --overwrite {force,prompt,skip}
+                        path to folder where downloaded tracks will be stored
+                        in (default: Music)
+  --overwrite {prompt,force,skip}
                         change the overwrite policy (default: prompt)
-  -i INPUT_EXT, --input-ext INPUT_EXT
-                        prefered input format .m4a or .webm (Opus) (default:
+  -i {.m4a,.webm}, --input-ext {.m4a,.webm}
+                        preferred input format .m4a or .webm (Opus) (default:
                         .m4a)
   -o OUTPUT_EXT, --output-ext OUTPUT_EXT
-                        prefered output extension .mp3 or .m4a (AAC) (default:
-                        .mp3)
-  -ff, --file-format    File format to save the downloaded song with, each tag
-                        is surrounded by curly braces. Possible formats:
+                        preferred output format .mp3, .m4a (AAC), .flac, etc.
+                        (default: .mp3)
+  -ff FILE_FORMAT, --file-format FILE_FORMAT
+                        file format to save the downloaded track with, each
+                        tag is surrounded by curly braces. Possible formats:
                         ['track_name', 'artist', 'album', 'album_artist',
                         'genre', 'disc_number', 'duration', 'year',
                         'original_date', 'track_number', 'total_tracks',
                         'isrc'] (default: {artist} - {track_name})
+  -sf SEARCH_FORMAT, --search-format SEARCH_FORMAT
+                        search format to search for on YouTube, each tag is
+                        surrounded by curly braces. Possible formats:
+                        ['track_name', 'artist', 'album', 'album_artist',
+                        'genre', 'disc_number', 'duration', 'year',
+                        'original_date', 'track_number', 'total_tracks',
+                        'isrc'] (default: {artist} - {track_name} lyrics)
   -dm, --download-only-metadata
-                        download songs for which metadata is found (default:
+                        download tracks only whose metadata is found (default:
                         False)
-  -d, --dry-run         Show only track title and YouTube URL (default: False)
+  -d, --dry-run         show only track title and YouTube URL, and then skip
+                        to the next track (if any) (default: False)
   -mo, --music-videos-only
-                        Search only for music on Youtube (default: False)
-  -ns, --no-spaces      Replace spaces with underscores in file names
+                        search only for music videos on Youtube (works only
+                        when YouTube API key is set (default: False)
+  -ns, --no-spaces      replace spaces with underscores in file names
                         (default: False)
   -ll {INFO,WARNING,ERROR,DEBUG}, --log-level {INFO,WARNING,ERROR,DEBUG}
                         set log verbosity (default: INFO)
+  -c CONFIG, --config CONFIG
+                        path to config.yml file (otherwise load it from same
+                        directory as spotdl.py) (default: None)
 ```
 
 #### Download by Name
@@ -261,8 +284,19 @@ to override any default options.
 
 Also note that config options are overridden by command-line arguments.
 
+If you want to use custom `.yml` configuration instead of the default one, you can use `-c`/`--config` option.
+E.g. `$ python3 spotdl.py -s "adele hello" -c "/home/user/customConfig.yml"`
+
+## Set YouTube API Key
+
+By default this tool will scrape YouTube to fetch for matching video tracks.
+However, you can optionally use YouTube API for faster response time.
+To do this, [generate your API key](https://developers.google.com/youtube/registering_an_application)
+and then set it in your `config.yml`.
+
 ## [Docker Image](https://hub.docker.com/r/ritiek/spotify-downloader/)
 [![Docker automated build](https://img.shields.io/docker/automated/jrottenberg/ffmpeg.svg)](https://hub.docker.com/r/ritiek/spotify-downloader)
+[![Docker pulls](https://img.shields.io/docker/pulls/ritiek/spotify-downloader.svg)](https://hub.docker.com/r/ritiek/spotify-downloader)
 
 We also provide the latest docker image on [DockerHub](https://hub.docker.com/r/ritiek/spotify-downloader/).
 

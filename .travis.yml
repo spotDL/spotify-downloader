@@ -6,7 +6,6 @@ python:
   - "3.6"
 before_install:
   - pip install tinydownload
-  - pip install codecov
   - pip install pytest-cov
 addons:
   apt:
@@ -33,9 +32,13 @@ addons:
       - nasm
       - libmp3lame-dev
       - libav-tools
+      - pandoc
 install:
-  - pip install -r requirements.txt
+  - pandoc --from=markdown --to=rst --output=README.rst README.md
+  - pip install -e .
   - tinydownload 22684734659253158385 -o ~/bin/ffmpeg
   - chmod 755 ~/bin/ffmpeg
 script: python -m pytest test --cov=.
-after_success: codecov
+after_success:
+  - pip install codecov
+  - codecov

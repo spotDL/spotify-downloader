@@ -8,6 +8,7 @@ from core.const import log
 from slugify import slugify
 from titlecase import titlecase
 import pprint
+import sys
 
 
 def generate_token():
@@ -177,5 +178,4 @@ def write_tracks(tracks, text_file):
                 tracks = spotify.next(tracks)
             else:
                 break
-    log.info(track_urls)
     return track_urls
