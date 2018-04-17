@@ -108,6 +108,10 @@ def get_arguments(raw_args=None, to_group=True, to_merge=True):
         group.add_argument(
             '-u', '--username',
             help="load tracks from user's playlist into <playlist_name>.txt")
+        group.add_argument(
+            '-V', '--version',
+            help="show version and exit",
+            action='store_true')
 
     parser.add_argument(
         '-m', '--manual', default=config['manual'],
