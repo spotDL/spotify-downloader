@@ -1,0 +1,14 @@
+spotify-downloader:
+  avconv: false
+  download-only-metadata: false
+  dry-run: false
+  file-format: '{artist} - {track_name}'
+  folder: /home/linus/GitHub/spotify-downloader/Music
+  input-ext: .m4a
+  log-level: INFO
+  manual: false
+  music-videos-only: false
+  no-metadata: false
+  no-spaces: false
+  output-ext: .mp3
+  overwrite: prompt

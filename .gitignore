@@ -1,9 +1,9 @@
 config.yml
 Music/
 *.txt
-.cache/
-README.rst
 upload.sh
+.pytest_cache/
+
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -2,8 +2,7 @@ import re
 import ast
 from setuptools import setup
 
-# Created from README.md using pandoc
-with open('README.rst', 'r') as f:
+with open('README.md', 'r') as f:
     long_description = f.read()
 
 
@@ -17,7 +16,8 @@ with open('spotdl.py', 'r') as f:
     version = str(ast.literal_eval(_version_re.search(f.read()).group(1)))
 
 setup(
-    name='spotify-downloader',
+    # 'spotify-downloader' was already taken :/
+    name='spotdl',
     py_modules=['spotdl'],
     # Tests are included automatically:
     # https://docs.python.org/3.6/distutils/sourcedist.html#specifying-the-files-to-distribute

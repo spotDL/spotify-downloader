@@ -58,16 +58,18 @@ class Converter:
 
         if input_ext == '.m4a':
             if output_ext == '.mp3':
-                ffmpeg_params = '-codec:v copy -codec:a libmp3lame -q:a 2 '
+                ffmpeg_params = '-codec:v copy -codec:a libmp3lame -ar 44100 '
             elif output_ext == '.webm':
-                ffmpeg_params = '-c:a libopus -vbr on -b:a 192k -vn '
+                ffmpeg_params = '-codec:a libopus -vbr on '
 
         elif input_ext == '.webm':
             if output_ext == '.mp3':
-                ffmpeg_params = ' -ab 192k -ar 44100 -vn '
+                ffmpeg_params = '-codec:a libmp3lame -ar 44100 '
             elif output_ext == '.m4a':
-                ffmpeg_params = '-cutoff 20000 -c:a libfdk_aac -b:a 192k -vn '
+                ffmpeg_params = '-cutoff 20000 -codec:a libfdk_aac -ar 44100 '
 
+        # add common params for any of the above combination
+        ffmpeg_params += '-b:a 192k -vn '
         ffmpeg_pre += ' -i'
         command = ffmpeg_pre.split() + [self.input_file] + ffmpeg_params.split() + [self.output_file]
 
