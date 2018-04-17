@@ -38,26 +38,31 @@ If you need to use Python 2 though, check out the (old) `python2` branch.
 since they were not of much use and created unnecessary clutter.
 You can still get them back by using `old` branch though.
 
-### Debian, Ubuntu, Linux & Mac
+### Debian-like GNU/Linux & macOS
 
 ```
-$ cd
-$ git clone https://github.com/ritiek/spotify-downloader
-$ cd spotify-downloader
-$ pip install -U -r requirements.txt
+$ pip install spotify-downloader
 ```
 
 **Important:** if you have installed both Python 2 and 3, the `pip` command
 could invoke an installation for Python 2. To see which Python version `pip`
 refers to, try `$ pip -V`. If it turns out `pip` is your Python 2 pip, try
-`$ pip3 install -U -r requirements.txt` instead.
+`$ pip3 install spotify-downloader` instead.
 
 You'll also need to install FFmpeg for conversion
 (use `--avconv` if you'd like to use that instead):
 
-Linux: `$ sudo apt-get install ffmpeg`
+GNU/Linux:
 
-Mac: `$ brew install ffmpeg --with-libmp3lame --with-libass --with-opus --with-fdk-aac`
+```
+$ sudo apt-get install ffmpeg
+```
+
+macOS:
+
+```
+$ brew install ffmpeg --with-libmp3lame --with-libass --with-opus --with-fdk-aac
+```
 
 If it does not install correctly, you may have to build it from source.
 For more info see https://trac.ffmpeg.org/wiki/CompilationGuide.
@@ -65,18 +70,21 @@ For more info see https://trac.ffmpeg.org/wiki/CompilationGuide.
 ### Windows
 
 Assuming you have Python 3
-([preferably v3.6 or above to stay away from Unicode errors](https://stackoverflow.com/questions/30539882/whats-the-deal-with-python-3-4-unicode-different-languages-and-windows)) already installed and in PATH.
-
-- Download and extract the [zip file](https://github.com/ritiek/spotify-downloader/archive/master.zip)
-from master branch.
+([preferably v3.6 or above to stay away from Unicode errors](https://stackoverflow.com/questions/30539882/whats-the-deal-with-python-3-4-unicode-different-languages-and-windows)) and pip already installed and in PATH.
 
 - Download FFmpeg for Windows from [here](http://ffmpeg.zeranoe.com/builds/).
 Copy `ffmpeg.exe` from `ffmpeg-xxx-winxx-static\bin\ffmpeg.exe` to PATH
 (usually C:\Windows\System32\) or just place it in the root directory extracted
 from the above step.
 
-- Open `cmd` and type `$ pip install -U -r requirements.txt` to install dependencies.
-The same note about `pip` as for Debian, Ubuntu, Linux & Mac applies.
+- Open `cmd` and type `pip install spotify-downloader`.
+The same note about `pip` as for GNU/Linux and macOS applies.
+
+### From GitHub releases
+
+- Download and extract the [latest](https://github.com/ritiek/spotify-downloader/releases/latest) or a [specific](https://github.com/ritiek/spotify-downloader/releases) release archive file.
+
+- `cd` into the directory and `pip install -e .`
 
 ## Instructions for Downloading Songs
 

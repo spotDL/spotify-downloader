@@ -16,6 +16,8 @@ import time
 import platform
 import pprint
 
+__version__ = '0.9.1'
+
 
 def check_exists(music_file, raw_song, meta_tags):
     """ Check if the input song already exists in the given folder. """
@@ -167,13 +169,14 @@ def download_single(raw_song, number=None):
             return True
 
 
-if __name__ == '__main__':
+def main():
     const.args = handle.get_arguments()
     internals.filter_path(const.args.folder)
     youtube_tools.set_api_key()
 
     const.log = const.logzero.setup_logger(formatter=const._formatter,
                                       level=const.args.log_level)
+    global log
     log = const.log
     log.debug('Python version: {}'.format(sys.version))
     log.debug('Platform: {}'.format(platform.platform()))
@@ -198,3 +201,7 @@ if __name__ == '__main__':
     except KeyboardInterrupt as e:
         log.exception(e)
         sys.exit(3)
+
+
+if __name__ == '__main__':
+    main()
