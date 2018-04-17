@@ -61,7 +61,7 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'spotdl = spotdl:cli',
+            'spotdl = spotdl:main',
         ],
     }
 )
