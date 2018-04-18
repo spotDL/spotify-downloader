@@ -192,8 +192,6 @@ class GenerateYouTubeURL:
             youtubedetails = {'link': link, 'title': title, 'videotime': videotime,
                               'seconds': internals.get_sec(videotime)}
             videos.append(youtubedetails)
-            if self.meta_tags is None:
-                break
 
         return self._best_match(videos)
 
@@ -232,7 +230,5 @@ class GenerateYouTubeURL:
                               'videotime':internals.videotime_from_seconds(duration_s),
                               'seconds': duration_s}
             videos.append(youtubedetails)
-            if not self.meta_tags:
-                break
 
         return self._best_match(videos)
