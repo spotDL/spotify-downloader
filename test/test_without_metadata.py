@@ -40,14 +40,14 @@ class TestArgsManualResultCount:
     # Regresson test for issue #264
     def test_scrape(self):
         const.args.manual = True
-        url = youtube_tools.GenerateYouTubeURL("she is still sleeping",
+        url = youtube_tools.GenerateYouTubeURL("she is still sleeping SAO",
                                                meta_tags=None)
         video_ids = url.scrape(bestmatch=False)
         # Web scraping gives us all videos on the 1st page
         assert len(video_ids) == 20
 
     def test_api(self):
-        url = youtube_tools.GenerateYouTubeURL("she is still sleeping",
+        url = youtube_tools.GenerateYouTubeURL("she is still sleeping SAO",
                                                meta_tags=None)
         video_ids = url.api(bestmatch=False)
         const.args.manual = False
