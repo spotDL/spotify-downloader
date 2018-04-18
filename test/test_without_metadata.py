@@ -36,6 +36,25 @@ def test_metadata():
     assert metadata == expect_metadata
 
 
+class TestArgsManualResultCount:
+    # Regresson test for issue #264
+    def test_scrape(self):
+        const.args.manual = True
+        url = youtube_tools.GenerateYouTubeURL("she is still sleeping",
+                                               meta_tags=None)
+        video_ids = url.scrape(bestmatch=False)
+        # Web scraping gives us all videos on the 1st page
+        assert len(video_ids) == 20
+
+    def test_api(self):
+        url = youtube_tools.GenerateYouTubeURL("she is still sleeping",
+                                               meta_tags=None)
+        video_ids = url.api(bestmatch=False)
+        const.args.manual = False
+        # API gives us 50 videos (or as requested)
+        assert len(video_ids) == 50
+
+
 class TestYouTubeURL:
     def test_only_music_category(self):
         # YouTube keeps changing its results
