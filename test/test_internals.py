@@ -1,6 +1,20 @@
 from core import internals
 
+import sys
 import os
+import subprocess
+
+
+def test_default_music_directory():
+    if sys.platform.startswith('linux'):
+        output = subprocess.check_output(['xdg-user-dir', 'MUSIC'])
+        expect_directory = output.decode('utf-8').rstrip()
+    else:
+        home = os.path.expanduser('~')
+        expect_directory = os.path.join(home, 'Music')
+
+    directory = internals.get_music_dir()
+    assert directory == expect_directory
 
 
 class TestPathFilterer:

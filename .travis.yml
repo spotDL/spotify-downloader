@@ -10,6 +10,7 @@ before_install:
 addons:
   apt:
     packages:
+      - xdg-user-dirs
       - automake
       - autoconf
       - build-essential
@@ -36,6 +37,7 @@ install:
   - pip install -e .
   - tinydownload 22684734659253158385 -o ~/bin/ffmpeg
   - chmod 755 ~/bin/ffmpeg
+  - xdg-user-dirs-update
 script: python -m pytest test --cov=.
 after_success:
   - pip install codecov
