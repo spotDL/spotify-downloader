@@ -1,6 +1,7 @@
 import spotipy
 import spotipy.oauth2 as oauth2
 import lyricwikia
+from spotipy.client import SpotifyException
 
 from core import internals
 from core.const import log
@@ -36,7 +37,7 @@ def generate_metadata(raw_song):
         log.debug('Searching for "{}" on Spotify'.format(raw_song))
         try:
             meta_tags = spotify.search(raw_song, limit=1)['tracks']['items'][0]
-        except IndexError:
+        except (IndexError, SpotifyException):
             return None
     artist = spotify.artist(meta_tags['artists'][0]['id'])
     album = spotify.album(meta_tags['album']['id'])
