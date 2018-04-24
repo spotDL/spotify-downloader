@@ -1,4 +1,6 @@
-from core import internals
+from core import internals, const
+
+log = const.log
 
 import logging
 import yaml
@@ -48,9 +50,16 @@ def get_config(config_file):
         with open(config_file, 'r') as ymlfile:
             cfg = yaml.load(ymlfile)
     except FileNotFoundError:
+        log.info('Writing default configuration to {0}:'.format(config_file))
         with open(config_file, 'w') as ymlfile:
             yaml.dump(default_conf, ymlfile, default_flow_style=False)
             cfg = default_conf
+
+        for line in yaml.dump(default_conf['spotify-downloader'], default_flow_style=False).split('\n'):
+            if line.strip():
+                log.info(line.strip())
+        log.info('Please note that command line arguments have higher priority '
+                 'than their equivalents in the configuration file')
 
     return cfg['spotify-downloader']
 
