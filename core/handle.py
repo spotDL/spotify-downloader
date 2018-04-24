@@ -17,7 +17,7 @@ default_conf = { 'spotify-downloader':
                  { 'manual'                 : False,
                    'no-metadata'            : False,
                    'avconv'                 : False,
-                   'folder'                 : os.path.join(sys.path[0], 'Music'),
+                   'folder'                 : internals.get_music_dir(),
                    'overwrite'              : 'prompt',
                    'input-ext'              : '.m4a',
                    'output-ext'             : '.mp3',

@@ -159,7 +159,7 @@ class GenerateYouTubeURL:
 
         return url
 
-    def scrape(self, tries_remaining=5):
+    def scrape(self, bestmatch=True, tries_remaining=5):
         """ Search and scrape YouTube to return a list of matching videos. """
 
         # prevents an infinite loop but allows for a few retries
@@ -187,18 +187,21 @@ class GenerateYouTubeURL:
                 videotime = x.find('span', class_="video-time").get_text()
             except AttributeError:
                 log.debug('Could not find video duration on YouTube, retrying..')
-                return generate_youtube_url(self.raw_song, self.meta_tags, tries_remaining - 1)
+                return self.scrape(self.raw_song,
+                                   self.meta_tags,
+                                   tries_remaining=tries_remaining-1)
 
             youtubedetails = {'link': link, 'title': title, 'videotime': videotime,
                               'seconds': internals.get_sec(videotime)}
             videos.append(youtubedetails)
-            if self.meta_tags is None:
-                break
 
-        return self._best_match(videos)
+        if bestmatch:
+            return self._best_match(videos)
+
+        return videos
 
 
-    def api(self):
+    def api(self, bestmatch=True):
         """ Use YouTube API to search and return a list of matching videos. """
 
         query = { 'part'       : 'snippet',
@@ -232,7 +235,8 @@ class GenerateYouTubeURL:
                               'videotime':internals.videotime_from_seconds(duration_s),
                               'seconds': duration_s}
             videos.append(youtubedetails)
-            if not self.meta_tags:
-                break
 
-        return self._best_match(videos)
+        if bestmatch:
+            return self._best_match(videos)
+
+        return videos
