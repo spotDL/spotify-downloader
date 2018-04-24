@@ -1,6 +1,5 @@
 from core import internals, const
 
-global log
 log = const.log
 
 import logging
