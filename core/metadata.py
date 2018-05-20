@@ -150,5 +150,10 @@ class EmbedMetadata:
         if self.music_file.endswith('.flac'):
             audiofile[preset['tracknumber']] = str(meta_tags['track_number'])
         else:
-            audiofile[preset['tracknumber']] = [(meta_tags['track_number'],
-                                                 meta_tags['total_tracks'])]
+            if preset['tracknumber'] == TAG_PRESET['tracknumber']:
+                audiofile[preset['tracknumber']] = '{}/{}'.format(meta_tags['track_number'],
+                                                                  meta_tags['total_tracks'])
+            else:
+                audiofile[preset['tracknumber']] = [
+                    (meta_tags['track_number'], meta_tags['total_tracks'])
+                ]
