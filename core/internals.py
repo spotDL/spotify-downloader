@@ -66,7 +66,7 @@ def is_youtube(raw_song):
     return status
 
 
-def format_string(string_format, tags):
+def format_string(string_format, tags, slugification=False):
     """ Generate a string of the format '[artist] - [song]' for the given spotify song. """
     format_tags = dict(formats)
     format_tags[0]  = tags['name']
@@ -82,9 +82,17 @@ def format_string(string_format, tags):
     format_tags[10] = tags['total_tracks']
     format_tags[11] = tags['external_ids']['isrc']
 
+    for tag in format_tags:
+        if slugification:
+            format_tags[tag] = sanitize_title(format_tags[tag],
+                                              ok='-_()[]{}')
+        else:
+            format_tags[tag] = str(format_tags[tag])
+
     for x in formats:
-        string_format = string_format.replace('{' + formats[x] + '}',
-                                          str(format_tags[x]))
+        format_tag = '{' + formats[x] + '}'
+        string_format = string_format.replace(format_tag,
+                                              format_tags[x])
 
     if const.args.no_spaces:
         string_format = string_format.replace(' ', '_')
@@ -92,14 +100,14 @@ def format_string(string_format, tags):
     return string_format
 
 
-def sanitize_title(title):
+def sanitize_title(title, ok='-_()[]{}\/'):
     """ Generate filename of the song to be downloaded. """
 
     if const.args.no_spaces:
         title = title.replace(' ', '_')
 
     # slugify removes any special characters
-    title = slugify(title, ok='-_()[]{}\/', lower=False, spaces=True)
+    title = slugify(title, ok=ok, lower=False, spaces=True)
     return title
 
 
