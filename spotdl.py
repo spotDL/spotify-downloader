@@ -19,6 +19,15 @@ import pprint
 __version__ = '0.9.3'
 
 
+def log_output_directory_info():
+    """Print info on current output directory."""
+    log.info(
+        "Downloading into {} directory".format(
+            os.path.abspath(const.args.folder)
+        )
+    )
+
+
 def check_exists(music_file, raw_song, meta_tags):
     """ Check if the input song already exists in the given folder. """
     log.debug('Cleaning any temp files and checking '
@@ -64,6 +73,7 @@ def check_exists(music_file, raw_song, meta_tags):
 
 def download_list(text_file):
     """ Download all songs from the list. """
+    log_output_directory_info()
     with open(text_file, 'r') as listed:
         lines = (listed.read()).splitlines()
     # ignore blank lines in text_file (if any)
@@ -108,6 +118,7 @@ def download_list(text_file):
 
 def download_single(raw_song, number=None):
     """ Logic behind downloading a song. """
+    log_output_directory_info()
     if internals.is_youtube(raw_song):
         log.debug('Input song is a YouTube URL')
         content = youtube_tools.go_pafy(raw_song, meta_tags=None)
