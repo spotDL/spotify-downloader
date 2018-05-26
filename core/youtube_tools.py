@@ -187,9 +187,7 @@ class GenerateYouTubeURL:
                 videotime = x.find('span', class_="video-time").get_text()
             except AttributeError:
                 log.debug('Could not find video duration on YouTube, retrying..')
-                return self.scrape(self.raw_song,
-                                   self.meta_tags,
-                                   tries_remaining=tries_remaining-1)
+                return self.scrape(bestmatch=bestmatch, tries_remaining=tries_remaining-1)
 
             youtubedetails = {'link': link, 'title': title, 'videotime': videotime,
                               'seconds': internals.get_sec(videotime)}
