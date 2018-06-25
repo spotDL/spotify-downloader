@@ -120,10 +120,12 @@ class Converter:
             elif self.output_ext == ".m4a":
                 ffmpeg_params = "-cutoff 20000 -codec:a aac -ar 44100 "
             elif self.output_ext == ".ogg":
-            	ffmpeg_params = "-vn -codec:a copy "
+            	ffmpeg_params = "-codec:a copy "
 
         if self.output_ext == ".flac":
             ffmpeg_params = "-codec:a flac -ar 44100 "
+        elif output_ext == ".oga":
+            	ffmpeg_params = "-codec:a libvorbis -ar 44100 "
 
         # add common params for any of the above combination
         ffmpeg_params += "-b:a 192k -vn "
