@@ -112,7 +112,8 @@ class Converter:
             elif self.output_ext == ".m4a":
                 ffmpeg_params = "-acodec copy "
             elif self.output_ext == ".ogg":
-            	ffmpeg_params = "-codec:a libopus -ar 48000 -vbr on " # Opus doesn't support 44.1k
+                # Opus doesn't support 44.1k
+            	ffmpeg_params = "-codec:a libopus -ar 48000 -vbr on "
 
         elif self.input_ext == ".webm":
             if self.output_ext == ".mp3":
