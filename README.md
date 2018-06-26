@@ -158,7 +158,7 @@ optional arguments:
                         directory as spotdl.py) (default: None)
 ```
 
-#### Download by Name
+### Download by Name
 
 For example
 
@@ -171,7 +171,7 @@ download it in the folder `Music/` placed in the root directory of the code base
 - It will now convert the song to an mp3 and try to fix meta-tags
 and album-art by looking up on Spotify.
 
-#### Download by Spotify Link (Recommended)
+### Download by Spotify Link (Recommended)
 
 For example
 
@@ -186,7 +186,7 @@ it should download Fade by Alan Walker.
 - Just like before, it will again convert the song to an mp3 but since we used
 a Spotify HTTP link, the script is guaranteed to fetch the correct meta-tags and album-art.
 
-#### Download by File
+### Download by File
 
 For example
 
@@ -220,7 +220,7 @@ the songs present in `list.txt`.
 - Songs that are already downloaded will prompt you to overwrite or skip. This behavior can be changed by
 passing `--overwrite {prompt,skip,force}`.
 
-#### Download by Playlist Link
+### Download by Playlist Link
 
 - You can copy the Spotify URL of the playlist and pass it in `--playlist` option.
 Note: This method works for public as well as private playlists.
@@ -234,7 +234,7 @@ For example
 - Then you can simply run `$ python3 spotdl.py --list=<playlist_name>.txt`
 to download all the tracks.
 
-#### Download by Album Link
+### Download by Album Link
 
 - You can copy the Spotify URL of the album and pass it in `--album` option.
 
@@ -247,7 +247,7 @@ For example
 - Then you can simply run `$ python3 spotdl.py --list=<album_name>.txt`
 to download all the tracks.
 
-#### Download by Username
+### Download by Username
 
 - You can also load songs using Spotify username if you don't have the playlist URL.
 (Open profile in Spotify, click on the three little dots below name,
@@ -262,7 +262,7 @@ from the playlist into `<playlist_name>.txt`.
 
 - Run `$ python3 spotdl.py --list=<playlist_name>.txt` to download all the tracks.
 
-#### Specify the Target Directory
+### Specify the Target Directory
 
 If you don't want to download all the songs to the `Music/` folder relative to the
 `spotdl.py` script, you can use the `-f`/`--folder` option.
@@ -306,7 +306,11 @@ $ docker run --rm -it -v $(pwd):/music ritiek/spotify-downloader -p https://open
 $ docker run --rm -it -v $(pwd):/music ritiek/spotify-downloader -l ncs-releases.txt
 ```
 
-### Exit Codes
+## Vagrant box
+
+If you have struggle setting this up in a Vagrant box, [**@csimpi**](https://github.com/csimpi) has posted very detailed instructions [here](https://github.com/ritiek/spotify-downloader/issues/294#issuecomment-400155361).
+
+## Exit Codes
 
 - `0` - Success
 - `1` - Unknown error
