@@ -129,7 +129,14 @@ def videotime_from_seconds(time):
 
 
 def get_sec(time_str):
-    v = time_str.split(':', 3)
+    if ':' in time_str:
+        splitter = ':'
+    elif '.' in time_str:
+        splitter = '.'
+    else:
+        raise ValueError("No expected character found in {} to split"
+                         "time values.".format(time_str))
+    v = time_str.split(splitter, 3)
     v.reverse()
     sec = 0
     if len(v) > 0:  # seconds

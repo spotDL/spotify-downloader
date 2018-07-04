@@ -3,6 +3,7 @@ from core import internals
 import sys
 import os
 import subprocess
+import pytest
 
 
 def test_default_music_directory():
@@ -35,7 +36,7 @@ class TestPathFilterer:
         assert is_file == expect_file
 
 
-class TestVideoTime:
+class TestVideoTimeFromSeconds:
     def test_from_seconds(self):
         expect_duration = '35'
         duration = internals.videotime_from_seconds(35)
@@ -50,3 +51,32 @@ class TestVideoTime:
         expect_duration = '1:16:02'
         duration = internals.videotime_from_seconds(4562)
         assert duration == expect_duration
+
+
+class TestGetSeconds:
+    def test_from_seconds(self):
+        expect_secs = 45
+        secs = internals.get_sec('0:45')
+        assert secs == expect_secs
+        secs = internals.get_sec('0.45')
+        assert secs == expect_secs
+
+    def test_from_minutes(self):
+        expect_secs = 213
+        secs = internals.get_sec('3.33')
+        assert secs == expect_secs
+        secs = internals.get_sec('3:33')
+        assert secs == expect_secs
+
+    def test_from_hours(self):
+        expect_secs = 5405
+        secs = internals.get_sec('1.30.05')
+        assert secs == expect_secs
+        secs = internals.get_sec('1:30:05')
+        assert secs == expect_secs
+
+    def test_raise_error(self):
+        with pytest.raises(ValueError):
+            internals.get_sec('10*05')
+        with pytest.raises(ValueError):
+            internals.get_sec('02,28,46')
