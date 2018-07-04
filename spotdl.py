@@ -65,7 +65,9 @@ def check_exists(music_file, raw_song, meta_tags):
 def download_list(text_file):
     """ Download all songs from the list. """
     with open(text_file, 'r') as listed:
-        lines = (listed.read()).splitlines()
+        # read tracks into a list and remove any duplicates
+        lines = listed.read().splitlines()
+        lines = list(set(lines))
     # ignore blank lines in text_file (if any)
     try:
         lines.remove('')
