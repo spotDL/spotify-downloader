@@ -39,7 +39,7 @@ If you need to use Python 2 though, check out the (old) `python2` branch.
 since they were not of much use and created unnecessary clutter.
 You can still get them back by using `old` branch though.
 
-### Debian, Ubuntu, Linux & Mac
+### Debian-like GNU/Linux & macOS
 
 ```
 $ cd
@@ -50,15 +50,23 @@ $ pip install -U -r requirements.txt
 
 **Important:** if you have installed both Python 2 and 3, the `pip` command
 could invoke an installation for Python 2. To see which Python version `pip`
-refers to, try `$ pip -V`. If it turns out `pip` is your Python 2 pip, try
-`$ pip3 install -U -r requirements.txt` instead.
+refers to, try `pip -V`. If it turns out `pip` is your Python 2 pip, try
+`pip3 install -U -r requirements.txt` instead.
 
 You'll also need to install FFmpeg for conversion
 (use `--avconv` if you'd like to use that instead):
 
-Linux: `$ sudo apt-get install ffmpeg`
+Debian-like GNU/Linux:
 
-Mac: `$ brew install ffmpeg --with-libmp3lame --with-libass --with-opus --with-fdk-aac`
+```
+$ sudo apt-get install ffmpeg
+```
+
+macOS:
+
+```
+$ brew install ffmpeg --with-libmp3lame --with-libass --with-opus --with-fdk-aac
+```
 
 If it does not install correctly, you may have to build it from source.
 For more info see https://trac.ffmpeg.org/wiki/CompilationGuide.
@@ -76,17 +84,17 @@ Copy `ffmpeg.exe` from `ffmpeg-xxx-winxx-static\bin\ffmpeg.exe` to PATH
 (usually C:\Windows\System32\) or just place it in the root directory extracted
 from the above step.
 
-- Open `cmd` and type `$ pip install -U -r requirements.txt` to install dependencies.
+- Open `cmd` and type `pip install -U -r requirements.txt` to install dependencies.
 The same note about `pip` as for Debian, Ubuntu, Linux & Mac applies.
 
 ## Instructions for Downloading Songs
 
-**Important:** as like with `pip`, there might be no `$ python3` command.
+**Important:** as like with `pip`, there might be no `python3` command.
 This is most likely the case when you have only Python 3 but not 2 installed.
-In this case try the `$ python` command instead of `$ python3`,
-but make sure `$ python -V` gives you a `Python 3.x.x`!
+In this case try the `python` command instead of `python3`,
+but make sure `python -V` gives you a `Python 3.x.x`!
 
-- For all available options, run `$ python3 spotdl.py --help`.
+- For all available options, run `python3 spotdl.py --help`.
 
 ```
 usage: spotdl.py [-h]
@@ -163,7 +171,7 @@ optional arguments:
 For example
 
 - We want to download Fade by Alan Walker,
-simply run `$ python3 spotdl.py --song "alan walker fade"`.
+simply run `python3 spotdl.py --song "alan walker fade"`.
 
 - The script will automatically look for the best matching song and
 download it in the folder `Music/` placed in the root directory of the code base.
@@ -180,7 +188,7 @@ Spotify Link this time that looks like  `https://open.spotify.com/track/2lfPecqF
 you can copy it from your Spotify desktop or mobile app by right clicking
 or long tap on the song and copy HTTP link.
 
-- Run `$ python3 spotdl.py --song https://open.spotify.com/track/2lfPecqFbH8X4lHSpTxt8l`,
+- Run `python3 spotdl.py --song https://open.spotify.com/track/2lfPecqFbH8X4lHSpTxt8l`,
 it should download Fade by Alan Walker.
 
 - Just like before, it will again convert the song to an mp3 but since we used
@@ -210,7 +218,7 @@ elektromania sky high
 https://open.spotify.com/track/0fbspWuEdaaT9vfmbAZr1C
 ```
 
-- Now pass `--list=list.txt` to the script, i.e `$ python3 spotdl.py --list=list.txt`
+- Now pass `--list=list.txt` to the script, i.e `python3 spotdl.py --list=list.txt`
 and it will start downloading songs mentioned in `list.txt`.
 
 - You can stop downloading songs by hitting `ctrl+c`, the script will automatically
@@ -227,11 +235,11 @@ Note: This method works for public as well as private playlists.
 
 For example
 
-- `$ python3 spotdl.py --playlist https://open.spotify.com/user/nocopyrightsounds/playlist/7sZbq8QGyMnhKPcLJvCUFD`
+- `python3 spotdl.py --playlist https://open.spotify.com/user/nocopyrightsounds/playlist/7sZbq8QGyMnhKPcLJvCUFD`
 
 - The script will load all the tracks from the playlist into `<playlist_name>.txt`
 
-- Then you can simply run `$ python3 spotdl.py --list=<playlist_name>.txt`
+- Then you can simply run `python3 spotdl.py --list=<playlist_name>.txt`
 to download all the tracks.
 
 #### Download by Album Link
@@ -240,11 +248,11 @@ to download all the tracks.
 
 For example
 
-- `$ python3 spotdl.py --album https://open.spotify.com/album/499J8bIsEnU7DSrosFDJJg`
+- `python3 spotdl.py --album https://open.spotify.com/album/499J8bIsEnU7DSrosFDJJg`
 
 - The script will load all the tracks from the album into `<album_name>.txt`
 
-- Then you can simply run `$ python3 spotdl.py --list=<album_name>.txt`
+- Then you can simply run `python3 spotdl.py --list=<album_name>.txt`
 to download all the tracks.
 
 #### Download by Username
@@ -260,13 +268,13 @@ public playlists (which excludes collaborative and private playlists).
 - Once you select the one you want to download, the script will load all the tracks
 from the playlist into `<playlist_name>.txt`.
 
-- Run `$ python3 spotdl.py --list=<playlist_name>.txt` to download all the tracks.
+- Run `python3 spotdl.py --list=<playlist_name>.txt` to download all the tracks.
 
 #### Specify the Target Directory
 
 If you don't want to download all the songs to the `Music/` folder relative to the
 `spotdl.py` script, you can use the `-f`/`--folder` option.
-E.g. `$ python3 spotdl.py -s "adele hello" -f "/home/user/Music/"`.
+E.g. `python3 spotdl.py -s "adele hello" -f "/home/user/Music/"`.
 This works with both relative and absolute paths.
 
 ## Config File
@@ -278,7 +286,7 @@ to override any default options.
 Also note that config options are overridden by command-line arguments.
 
 If you want to use custom `.yml` configuration instead of the default one, you can use `-c`/`--config` option.
-E.g. `$ python3 spotdl.py -s "adele hello" -c "/home/user/customConfig.yml"`
+E.g. `python3 spotdl.py -s "adele hello" -c "/home/user/customConfig.yml"`
 
 ## Set YouTube API Key
 
@@ -293,9 +301,9 @@ and then set it in your `config.yml`.
 
 We also provide the latest docker image on [DockerHub](https://hub.docker.com/r/ritiek/spotify-downloader/).
 
-- Pull (or update) the image with `$ docker pull ritiek/spotify-downloader`.
+- Pull (or update) the image with `docker pull ritiek/spotify-downloader`.
 
-- Run it with `$ docker run --rm -it -v $(pwd):/music ritiek/spotify-downloader <arguments>`.
+- Run it with `docker run --rm -it -v $(pwd):/music ritiek/spotify-downloader <arguments>`.
 
 - The container will download music and write tracks in your current working directory.
 
