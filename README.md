@@ -98,9 +98,9 @@ but make sure `python -V` gives you a `Python 3.x.x`!
 
 ```
 usage: spotdl.py [-h]
-                 (-s SONG | -l LIST | -p PLAYLIST | -b ALBUM | -u USERNAME)
-                 [-m] [-nm] [-a] [-f FOLDER] [--overwrite {prompt,force,skip}]
-                 [-i {.m4a,.webm}] [-o OUTPUT_EXT] [-ff FILE_FORMAT]
+                 (-s SONG | -l LIST | -p PLAYLIST | -b ALBUM | -u USERNAME | -V)
+                 [-m] [-nm] [-a] [-f FOLDER] [--overwrite {force,prompt,skip}]
+                 [-i {.webm,.m4a}] [-o OUTPUT_EXT] [-ff FILE_FORMAT]
                  [-sf SEARCH_FORMAT] [-dm] [-d] [-mo] [-ns]
                  [-ll {INFO,WARNING,ERROR,DEBUG}] [-c CONFIG]
 
@@ -119,6 +119,7 @@ optional arguments:
   -u USERNAME, --username USERNAME
                         load tracks from user's playlist into
                         <playlist_name>.txt (default: None)
+  -V, --version         show version and exit (default: False)
   -m, --manual          choose the track to download manually from a list of
                         matching tracks (default: False)
   -nm, --no-metadata    do not embed metadata in tracks (default: False)
@@ -127,9 +128,9 @@ optional arguments:
   -f FOLDER, --folder FOLDER
                         path to folder where downloaded tracks will be stored
                         in (default: Music)
-  --overwrite {prompt,force,skip}
+  --overwrite {force,prompt,skip}
                         change the overwrite policy (default: prompt)
-  -i {.m4a,.webm}, --input-ext {.m4a,.webm}
+  -i {.webm,.m4a}, --input-ext {.webm,.m4a}
                         preferred input format .m4a or .webm (Opus) (default:
                         .m4a)
   -o OUTPUT_EXT, --output-ext OUTPUT_EXT
