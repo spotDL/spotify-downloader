@@ -96,76 +96,13 @@ but make sure `python -V` gives you a `Python 3.x.x`!
 
 - For all available options, run `python3 spotdl.py --help`.
 
-```
-usage: spotdl.py [-h]
-                 (-s SONG | -l LIST | -p PLAYLIST | -b ALBUM | -u USERNAME | -V)
-                 [-m] [-nm] [-a] [-f FOLDER] [--overwrite {force,prompt,skip}]
-                 [-i {.webm,.m4a}] [-o OUTPUT_EXT] [-ff FILE_FORMAT]
-                 [-sf SEARCH_FORMAT] [-dm] [-d] [-mo] [-ns]
-                 [-ll {INFO,WARNING,ERROR,DEBUG}] [-c CONFIG]
+Check out the [Available options](https://github.com/ritiek/spotify-downloader/wiki/Available-options)
+wiki page for the list of currently available options with their description.
 
-Download and convert tracks from Spotify, Youtube etc.
+## FAQ
 
-optional arguments:
-  -h, --help            show this help message and exit
-  -s SONG, --song SONG  download track by spotify link or name (default: None)
-  -l LIST, --list LIST  download tracks from a file (default: None)
-  -p PLAYLIST, --playlist PLAYLIST
-                        load tracks from playlist URL into <playlist_name>.txt
-                        (default: None)
-  -b ALBUM, --album ALBUM
-                        load tracks from album URL into <album_name>.txt
-                        (default: None)
-  -u USERNAME, --username USERNAME
-                        load tracks from user's playlist into
-                        <playlist_name>.txt (default: None)
-  -V, --version         show version and exit (default: False)
-  -m, --manual          choose the track to download manually from a list of
-                        matching tracks (default: False)
-  -nm, --no-metadata    do not embed metadata in tracks (default: False)
-  -a, --avconv          use avconv for conversion (otherwise defaults to
-                        ffmpeg) (default: False)
-  -f FOLDER, --folder FOLDER
-                        path to folder where downloaded tracks will be stored
-                        in (default: Music)
-  --overwrite {force,prompt,skip}
-                        change the overwrite policy (default: prompt)
-  -i {.webm,.m4a}, --input-ext {.webm,.m4a}
-                        preferred input format .m4a or .webm (Opus) (default:
-                        .m4a)
-  -o OUTPUT_EXT, --output-ext OUTPUT_EXT
-                        preferred output format .mp3, .m4a (AAC), .flac, etc.
-                        (default: .mp3)
-  -ff FILE_FORMAT, --file-format FILE_FORMAT
-                        file format to save the downloaded track with, each
-                        tag is surrounded by curly braces. Possible formats:
-                        ['track_name', 'artist', 'album', 'album_artist',
-                        'genre', 'disc_number', 'duration', 'year',
-                        'original_date', 'track_number', 'total_tracks',
-                        'isrc'] (default: {artist} - {track_name})
-  -sf SEARCH_FORMAT, --search-format SEARCH_FORMAT
-                        search format to search for on YouTube, each tag is
-                        surrounded by curly braces. Possible formats:
-                        ['track_name', 'artist', 'album', 'album_artist',
-                        'genre', 'disc_number', 'duration', 'year',
-                        'original_date', 'track_number', 'total_tracks',
-                        'isrc'] (default: {artist} - {track_name} lyrics)
-  -dm, --download-only-metadata
-                        download tracks only whose metadata is found (default:
-                        False)
-  -d, --dry-run         show only track title and YouTube URL, and then skip
-                        to the next track (if any) (default: False)
-  -mo, --music-videos-only
-                        search only for music videos on Youtube (works only
-                        when YouTube API key is set (default: False)
-  -ns, --no-spaces      replace spaces with underscores in file names
-                        (default: False)
-  -ll {INFO,WARNING,ERROR,DEBUG}, --log-level {INFO,WARNING,ERROR,DEBUG}
-                        set log verbosity (default: INFO)
-  -c CONFIG, --config CONFIG
-                        path to config.yml file (otherwise load it from same
-                        directory as spotdl.py) (default: None)
-```
+Check out our [FAQ wiki page](https://github.com/ritiek/spotify-downloader/wiki/FAQ)
+for more info.
 
 ## Contributing
 
