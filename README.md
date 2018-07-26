@@ -51,6 +51,15 @@ $ python3 spotdl.py --song https://open.spotify.com/track/2DGa7iaidT5s0qnINlwMjJ
 $ python3 spotdl.py --song "ncs - spectre"
 ```
 
+For downloading playlist and albums, you need to first load all the tracks into text file and then pass
+this text file to `--list` argument. Here is how you would do it for a playlist
+
+```
+$ python3 spotdl.py --playlist https://open.spotify.com/user/nocopyrightsounds/playlist/7sZbq8QGyMnhKPcLJvCUFD
+INFO: Writing 62 tracks to ncs-releases.txt
+$ python3 spotdl.py --list ncs-releases.txt
+```
+
 Run `python3 spotdl.py --help` to get a list of all available options in spotify-downloader.
 
 Check out the [Available options](https://github.com/ritiek/spotify-downloader/wiki/Available-options)
