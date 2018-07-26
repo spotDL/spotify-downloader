@@ -56,8 +56,8 @@ Run `python3 spotdl.py --help` to get a list of all available options in spotify
 Check out the [Available options](https://github.com/ritiek/spotify-downloader/wiki/Available-options)
 wiki page for the list of currently available options with their description.
 
-Check the [usage](https://github.com/ritiek/spotify-downloader/wiki/Instructions-for-Downloading-Songs)
-wiki page for a more detailed information about different available ways to download tracks.
+The wiki page [Instructions for Downloading Songs](https://github.com/ritiek/spotify-downloader/wiki/Instructions-for-Downloading-Songs)
+contains detailed information about different available ways to download tracks.
 
 ## FAQ
 
