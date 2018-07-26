@@ -23,7 +23,7 @@
   - Release date
   - And more...
 
-- Works straight out of the box and does not require to generate or mess with your API keys.
+- Works straight out of the box and does not require to generate or mess with your API keys (already included).
 
 That's how your music library will look like!
 
@@ -31,73 +31,33 @@ That's how your music library will look like!
 
 ## Installation
 
-- **This tool supports only Python 3**, Python 2 compatibility was dropped
-because of the way it deals with unicode.
-If you need to use Python 2 though, check out the (old) `python2` branch.
+**This tool works with only Python 3**.
 
-- Note: `play` and `lyrics` commands have been deprecated in the current branch
-since they were not of much use and created unnecessary clutter.
-You can still get them back by using `old` branch though.
+Python 2 compatibility was dropped because of the way it deals with unicode (2020 is coming soon too).
+If you still need to use Python 2 - check out the (outdated)
+[python2](https://github.com/ritiek/spotify-downloader/tree/python2) branch.
 
-### Debian-like GNU/Linux & macOS
+spotify-downloader works with all major distributions and even on low-powered devices such as a Raspberry Pi.
 
-```
-$ cd
-$ git clone https://github.com/ritiek/spotify-downloader
-$ cd spotify-downloader
-$ pip install -U -r requirements.txt
-```
-
-**Important:** if you have installed both Python 2 and 3, the `pip` command
-could invoke an installation for Python 2. To see which Python version `pip`
-refers to, try `pip -V`. If it turns out `pip` is your Python 2 pip, try
-`pip3 install -U -r requirements.txt` instead.
-
-You'll also need to install FFmpeg for conversion
-(use `--avconv` if you'd like to use that instead):
-
-Debian-like GNU/Linux:
-
-```
-$ sudo apt-get install ffmpeg
-```
-
-macOS:
-
-```
-$ brew install ffmpeg --with-libmp3lame --with-libass --with-opus --with-fdk-aac
-```
-
-If it does not install correctly, you may have to build it from source.
-For more info see https://trac.ffmpeg.org/wiki/CompilationGuide.
-
-### Windows
-
-Assuming you have Python 3
-([preferably v3.6 or above to stay away from Unicode errors](https://stackoverflow.com/questions/30539882/whats-the-deal-with-python-3-4-unicode-different-languages-and-windows)) already installed and in PATH.
-
-- Download and extract the [zip file](https://github.com/ritiek/spotify-downloader/archive/master.zip)
-from master branch.
-
-- Download FFmpeg for Windows from [here](http://ffmpeg.zeranoe.com/builds/).
-Copy `ffmpeg.exe` from `ffmpeg-xxx-winxx-static\bin\ffmpeg.exe` to PATH
-(usually C:\Windows\System32\) or just place it in the root directory extracted
-from the above step.
-
-- Open `cmd` and type `pip install -U -r requirements.txt` to install dependencies.
-The same note about `pip` as for Debian, Ubuntu, Linux & Mac applies.
+Check out the [Installation](https://github.com/ritiek/spotify-downloader/wiki/Installation) wiki page
+for OS-specific instructions to get spotify-downloader working on your system.
 
 ## Usage
 
-**Important:** as like with `pip`, there might be no `python3` command.
-This is most likely the case when you have only Python 3 but not 2 installed.
-In this case try the `python` command instead of `python3`,
-but make sure `python -V` gives you a `Python 3.x.x`!
+For the most basic usage, downloading tracks is as easy as
 
-- For all available options, run `python3 spotdl.py --help`.
+```
+$ python3 spotdl.py --song https://open.spotify.com/track/2DGa7iaidT5s0qnINlwMjJ
+$ python3 spotdl.py --song "ncs - spectre"
+```
+
+Run `python3 spotdl.py --help` to get a list of all available options in spotify-downloader.
 
 Check out the [Available options](https://github.com/ritiek/spotify-downloader/wiki/Available-options)
 wiki page for the list of currently available options with their description.
+
+Check the [usage](https://github.com/ritiek/spotify-downloader/wiki/Instructions-for-Downloading-Songs)
+wiki page for a more detailed information about different available ways to download tracks.
 
 ## FAQ
 
@@ -126,4 +86,3 @@ Please support the artists by buying their music.
 ## License
 
 [![License](https://img.shields.io/github/license/ritiek/spotify-downloader.svg)](https://github.com/ritiek/spotify-downloader/blob/master/LICENSE)
-
