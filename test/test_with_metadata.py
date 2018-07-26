@@ -12,7 +12,7 @@ import loader
 import os
 
 loader.load_defaults()
-raw_song = 'http://open.spotify.com/track/0JlS7BXXD07hRmevDnbPDU'
+raw_song = 'https://open.spotify.com/track/1vYWRhAXS37sYhN5tP3RuF'
 
 
 def test_metadata():
