@@ -75,6 +75,7 @@ class Converter:
 
         # add common params for any of the above combination
         ffmpeg_params += '-b:a 192k -vn '
+        ffmpeg_params += '-af silenceremove=start_periods=1 '
         ffmpeg_pre += ' -i'
         command = ffmpeg_pre.split() + [self.input_file] + ffmpeg_params.split() + [self.output_file]
 
