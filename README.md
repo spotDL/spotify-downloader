@@ -6,9 +6,7 @@
 [![Gitter Chat](https://badges.gitter.im/ritiek/spotify-downloader/Lobby.svg)](https://gitter.im/spotify-downloader/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 - Downloads songs from YouTube in an MP3 format by using Spotify's HTTP link.
-
 - Can also download a song by entering its artist and song name (in case if you don't have the Spotify's HTTP link for some song).
-
 - Automatically applies metadata to the downloaded song which include:
 
   - Title
@@ -31,7 +29,7 @@ That's how your music library will look like!
 
 ## Installation
 
-**This tool works with only Python 3**.
+**This tool works only with Python 3.**
 
 Python 2 compatibility was dropped because of the way it deals with unicode (2020 is coming soon too).
 If you still need to use Python 2 - check out the (outdated)
@@ -69,6 +67,9 @@ The wiki page [Instructions for Downloading Songs](https://github.com/ritiek/spo
 contains detailed information about different available ways to download tracks.
 
 ## FAQ
+
+- [
+How to specify a custom folder where tracks should be downloaded?](https://github.com/ritiek/spotify-downloader/wiki/FAQ#how-to-specify-a-custom-folder-where-tracks-should-be-downloaded)
 
 Check out our [FAQ wiki page](https://github.com/ritiek/spotify-downloader/wiki/FAQ)
 for more info.
