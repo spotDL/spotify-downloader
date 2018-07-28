@@ -159,7 +159,7 @@ def download_single(raw_song, number=None):
             print('')
             try:
                 convert.song(input_song, output_song, const.args.folder,
-                             avconv=const.args.avconv)
+                             avconv=const.args.avconv, trim_silence=const.args.trim_silence)
             except FileNotFoundError:
                 encoder = 'avconv' if const.args.avconv else 'ffmpeg'
                 log.warning('Could not find {0}, skipping conversion'.format(encoder))

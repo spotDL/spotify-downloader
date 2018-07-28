@@ -20,6 +20,7 @@ default_conf = { 'spotify-downloader':
                    'overwrite'              : 'prompt',
                    'input-ext'              : '.m4a',
                    'output-ext'             : '.mp3',
+                   'trim-silence'           : False,
                    'download-only-metadata' : False,
                    'dry-run'                : False,
                    'music-videos-only'      : False,
@@ -153,6 +154,10 @@ def get_arguments(raw_args=None, to_group=True, to_merge=True):
         help='file format to save the downloaded track with, each tag '
              'is surrounded by curly braces. Possible formats: '
              '{}'.format([internals.formats[x] for x in internals.formats]))
+    parser.add_argument(
+        '--trim-silence', default=config['trim-silence'],
+        help='remove silence from the start of the audio',
+        action='store_true')
     parser.add_argument(
         '-sf', '--search-format', default=config['search-format'],
         help='search format to search for on YouTube, each tag '
