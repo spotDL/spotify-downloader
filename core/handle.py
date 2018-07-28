@@ -77,6 +77,7 @@ def override_config(config_file, parser, raw_args=None):
     parser.set_defaults(overwrite=config['overwrite'])
     parser.set_defaults(input_ext=config['input-ext'])
     parser.set_defaults(output_ext=config['output-ext'])
+    parser.set_defaults(trim_silence=config['trim-silence'])
     parser.set_defaults(download_only_metadata=config['download-only-metadata'])
     parser.set_defaults(dry_run=config['dry-run'])
     parser.set_defaults(music_videos_only=config['music-videos-only'])

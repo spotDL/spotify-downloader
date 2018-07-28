@@ -15,7 +15,7 @@ https://trac.ffmpeg.org/wiki/Encode/AAC
 """
 
 
-def song(input_song, output_song, folder, avconv=False, trim_silence=True):
+def song(input_song, output_song, folder, avconv=False, trim_silence=False):
     """ Do the audio format conversion. """
     if input_song == output_song:
         return 0
@@ -30,7 +30,7 @@ def song(input_song, output_song, folder, avconv=False, trim_silence=True):
 
 
 class Converter:
-    def __init__(self, input_song, output_song, folder, trim_silence):
+    def __init__(self, input_song, output_song, folder, trim_silence=False):
         self.input_file = os.path.join(folder, input_song)
         self.output_file = os.path.join(folder, output_song)
         self.trim_silence = trim_silence
