@@ -175,7 +175,6 @@ def download_single(raw_song, number=None):
 
 def main():
     const.args = handle.get_arguments()
-
     if const.args.version:
         print('spotdl {version}'.format(version=__version__))
         sys.exit()
@@ -197,7 +196,7 @@ def main():
         elif const.args.list:
             download_list(text_file=const.args.list)
         elif const.args.playlist:
-            spotify_tools.write_playlist(playlist_url=const.args.playlist)
+            download_list(text_file=spotify_tools.write_playlist(playlist_url=const.args.playlist))
         elif const.args.album:
             spotify_tools.write_album(album_url=const.args.album)
         elif const.args.username:

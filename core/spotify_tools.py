@@ -136,8 +136,8 @@ def write_playlist(playlist_url, text_file=None):
     tracks = playlist['tracks']
     if not text_file:
         text_file = u'{0}.txt'.format(slugify(playlist['name'], ok='-_()[]{}'))
-    return write_tracks(tracks, text_file)
-
+    write_tracks(tracks, text_file)
+    return text_file
 
 def fetch_album(album):
     splits = internals.get_splits(album)
