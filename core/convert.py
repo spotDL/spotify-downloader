@@ -15,11 +15,11 @@ https://trac.ffmpeg.org/wiki/Encode/AAC
 """
 
 
-def song(input_song, output_song, folder, avconv=False):
+def song(input_song, output_song, folder, avconv=False, trim_silence=False):
     """ Do the audio format conversion. """
     if input_song == output_song:
         return 0
-    convert = Converter(input_song, output_song, folder)
+    convert = Converter(input_song, output_song, folder, trim_silence)
     log.info('Converting {0} to {1}'.format(
         input_song, output_song.split('.')[-1]))
     if avconv:
@@ -30,9 +30,10 @@ def song(input_song, output_song, folder, avconv=False):
 
 
 class Converter:
-    def __init__(self, input_song, output_song, folder):
+    def __init__(self, input_song, output_song, folder, trim_silence=False):
         self.input_file = os.path.join(folder, input_song)
         self.output_file = os.path.join(folder, output_song)
+        self.trim_silence = trim_silence
 
     def with_avconv(self):
         if log.level == 10:
@@ -43,7 +44,10 @@ class Converter:
         command = ['avconv', '-loglevel', level, '-i',
                    self.input_file, '-ab', '192k',
                    self.output_file, '-y']
-
+        
+        if self.trim_silence:
+            log.warning('--trim-silence not supported with avconv')
+        
         log.debug(command)
         return subprocess.call(command)
 
@@ -76,6 +80,10 @@ class Converter:
         # add common params for any of the above combination
         ffmpeg_params += '-b:a 192k -vn '
         ffmpeg_pre += ' -i'
+        
+        if self.trim_silence:
+            ffmpeg_params += '-af silenceremove=start_periods=1 '
+        
         command = ffmpeg_pre.split() + [self.input_file] + ffmpeg_params.split() + [self.output_file]
 
         log.debug(command)
