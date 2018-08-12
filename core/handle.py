@@ -120,7 +120,7 @@ def get_arguments(raw_args=None, to_group=True, to_merge=True):
         help='use avconv for conversion (otherwise defaults to ffmpeg)',
         action='store_true')
     parser.add_argument(
-        '-f', '--folder', default=os.path.relpath(config['folder'], os.getcwd()),
+        '-f', '--folder', default=os.path.abspath(config['folder']),
         help='path to folder where downloaded tracks will be stored in')
     parser.add_argument(
         '--overwrite', default=config['overwrite'],
