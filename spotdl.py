@@ -64,16 +64,7 @@ def check_exists(music_file, raw_song, meta_tags):
 
 def download_list(text_file):
     """ Download all songs from the list. """
-    with open(text_file, 'r') as listed:
-        # read tracks into a list and remove any duplicates
-        lines = listed.read().splitlines()
-        lines = list(set(lines))
-    # ignore blank lines in text_file (if any)
-    try:
-        lines.remove('')
-    except ValueError:
-        pass
-
+    lines = internals.read_tracks_from_file(text_file)
     log.info(u'Preparing to download {} songs'.format(len(lines)))
     downloaded_songs = []
 
@@ -110,14 +101,7 @@ def download_list(text_file):
 
 def download_single(raw_song, number=None):
     """ Logic behind downloading a song. """
-    if internals.is_youtube(raw_song):
-        log.debug('Input song is a YouTube URL')
-        content = youtube_tools.go_pafy(raw_song, meta_tags=None)
-        raw_song = slugify(content.title).replace('-', ' ')
-        meta_tags = spotify_tools.generate_metadata(raw_song)
-    else:
-        meta_tags = spotify_tools.generate_metadata(raw_song)
-        content = youtube_tools.go_pafy(raw_song, meta_tags)
+    content, meta_tags = youtube_tools.match_video_and_metadata(raw_song)
 
     if content is None:
         log.debug('Found no matching video')
@@ -195,7 +179,10 @@ def main():
         if const.args.song:
             download_single(raw_song=const.args.song)
         elif const.args.list:
-            download_list(text_file=const.args.list)
+            if const.args.write_m3u:
+                youtube_tools.generate_m3u(track_file=const.args.list)
+            else:
+                download_list(text_file=const.args.list)
         elif const.args.playlist:
             spotify_tools.write_playlist(playlist_url=const.args.playlist)
         elif const.args.album:

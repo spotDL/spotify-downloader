@@ -180,3 +180,16 @@ def get_music_dir():
     # respectively is sufficient.
     # On Linux, default to /home/<user>/Music if the above method failed.
     return os.path.join(home, 'Music')
+
+def read_tracks_from_file(track_file):
+    with open(track_file, 'r') as listed:
+        # read tracks into a list and remove any duplicates
+        tracks = listed.read().splitlines()
+        tracks = list(set(tracks))
+    # ignore blank lines in text_file (if any)
+    try:
+        tracks.remove('')
+    except ValueError:
+        pass
+
+    return tracks
