@@ -75,7 +75,7 @@ def generate_m3u(track_file):
                                 total_tracks,
                                 content.watchv_url))
             log.debug(track)
-            m3u_key = '#EXTM3U:{duration},{title}\n{youtube_url}\n'.format(
+            m3u_key = '#EXTINF:{duration},{title}\n{youtube_url}\n'.format(
                                 duration=internals.get_sec(content.duration),
                                 title=content.title,
                                 youtube_url=content.watchv_url)

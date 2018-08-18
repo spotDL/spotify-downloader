@@ -42,19 +42,21 @@ def test_album(tmpdir):
 
 def test_m3u(tmpdir):
     expect_m3u = ('#EXTM3U\n\n'
-                  '#EXTM3U:226,Vidya Vidya - Safari Fruits [NCS Release]\n'
-                  'http://www.youtube.com/watch?v=PbIjuqd4ENY\n'
-                  '#EXTM3U:198,Tobu - Candyland [NCS Release]\n'
+                  '#EXTINF:198,Tobu - Candyland [NCS Release]\n'
                   'http://www.youtube.com/watch?v=IIrCDAV3EgI\n')
-    expect_lines = 6
+
     with open(text_file, 'r') as tin:
         tracks = tin.readlines()
-    with open(text_file, 'w') as tout:
-        tout.write('\n'.join(tracks[:2]))
-    youtube_tools.generate_m3u(text_file)
-    m3u_file = '{}.m3u'.format(text_file.split('.')[0])
+
+    single_song_file = os.path.join(str(tmpdir), 'test_m3u.txt')
+    with open(single_song_file, 'w') as tout:
+        tout.write('\n'.join(tracks[:1]))
+
+    youtube_tools.generate_m3u(single_song_file)
+    m3u_file = '{}.m3u'.format(single_song_file.split('.')[0])
     with open(m3u_file, 'r') as m3u_in:
         m3u = m3u_in.readlines()
+
     assert ''.join(m3u) == expect_m3u
 
 
