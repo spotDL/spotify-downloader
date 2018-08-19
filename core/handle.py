@@ -1,3 +1,4 @@
+import appdirs
 from core import internals, const
 
 log = const.log
@@ -79,7 +80,9 @@ def get_arguments(raw_args=None, to_group=True, to_merge=True):
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
     if to_merge:
-        config_file = os.path.join(sys.path[0], 'config.yml')
+        config_dir = os.path.join(appdirs.user_config_dir(), 'spotdl')
+        os.makedirs(config_dir, exist_ok=True)
+        config_file = os.path.join(config_dir, 'config.yml')
         config = merge(default_conf['spotify-downloader'], get_config(config_file))
     else:
         config = default_conf['spotify-downloader']
@@ -175,8 +178,7 @@ def get_arguments(raw_args=None, to_group=True, to_merge=True):
         help=argparse.SUPPRESS)
     parser.add_argument(
         '-c', '--config', default=None,
-        help='path to config.yml file (otherwise load it from same '
-             'directory as spotdl.py)')
+        help='path to custom config.yml file')
 
     parsed = parser.parse_args(raw_args)
 
