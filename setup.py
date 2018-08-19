@@ -35,7 +35,8 @@ setup(
         'titlecase >= 0.10.0',
         'logzero >= 1.3.1',
         'lyricwikia >= 0.1.8',
-        'PyYAML >= 3.12'
+        'PyYAML >= 3.12',
+        'appdirs >= 1.4.3'
     ],
     description='Download songs from YouTube using Spotify song URLs or playlists with albumart and meta-tags.',
     long_description=long_description,
