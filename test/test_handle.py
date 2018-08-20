@@ -1,12 +1,22 @@
 import yaml
 
 from core import handle
-from core import const
 
 import pytest
 import os
 import sys
 import argparse
+
+
+def test_error_m3u_without_list():
+    with pytest.raises(SystemExit):
+        handle.get_arguments(raw_args=('-s cool song', '--write-m3u',),
+                             to_group=True)
+
+
+def test_m3u_with_list():
+    handle.get_arguments(raw_args=('-l cool_list.txt', '--write-m3u',),
+                         to_group=True)
 
 
 def test_log_str_to_int():
