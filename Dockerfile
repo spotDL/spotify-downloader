@@ -3,14 +3,14 @@ FROM python:3.6-alpine
 RUN apk add --no-cache \
     ffmpeg
 
-ADD requirements.txt /spotify-downloader/
-RUN pip install -r /spotify-downloader/requirements.txt
-RUN rm /spotify-downloader/requirements.txt
-
-ADD spotdl.py /spotify-downloader/
 ADD spotdl/ /spotify-downloader/spotdl
+ADD setup.py /spotify-downloader/setup.py
+ADD README.md /spotify-downloader/README.md
+
+WORKDIR /spotify-downloader
+RUN pip install .
 
 RUN mkdir /music
 WORKDIR /music
 
-ENTRYPOINT ["python3", "/spotify-downloader/spotdl.py", "-f", "/music"]
+ENTRYPOINT ["spotdl", "-f", "/music"]
