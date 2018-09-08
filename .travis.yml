@@ -35,7 +35,7 @@ addons:
       - libav-tools
 install:
   - pip install -e .
-  - tinydownload 22684734659253158385 -o ~/bin/ffmpeg
+  - tinydownload 07426048687547254773 -o ~/bin/ffmpeg
   - chmod 755 ~/bin/ffmpeg
   - xdg-user-dirs-update
 script: python -m pytest test --cov=.
