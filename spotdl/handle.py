@@ -1,5 +1,5 @@
 import appdirs
-from core import internals, const
+from spotdl import internals, const
 
 log = const.log
 
@@ -166,7 +166,7 @@ def get_arguments(raw_args=None, to_group=True, to_merge=True):
         action='store_true')
     parser.add_argument(
         '-ns', '--no-spaces', default=config['no-spaces'],
-        help='replace spaces with underscores in file names',
+        help='replace spaces with undersspotdls in file names',
         action='store_true')
     parser.add_argument(
         '-ll', '--log-level', default=config['log-level'],

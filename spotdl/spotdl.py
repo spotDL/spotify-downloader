@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: UTF-8 -*-
-from core import const
-from core import handle
-from core import metadata
-from core import convert
-from core import internals
-from core import spotify_tools
-from core import youtube_tools
+from spotdl import const
+from spotdl import handle
+from spotdl import metadata
+from spotdl import convert
+from spotdl import internals
+from spotdl import spotify_tools
+from spotdl import youtube_tools
 from slugify import slugify
 import spotipy
 import urllib.request
@@ -15,8 +15,6 @@ import sys
 import time
 import platform
 import pprint
-
-__version__ = '0.9.3'
 
 
 def check_exists(music_file, raw_song, meta_tags):

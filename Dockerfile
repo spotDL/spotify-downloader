@@ -8,7 +8,7 @@ RUN pip install -r /spotify-downloader/requirements.txt
 RUN rm /spotify-downloader/requirements.txt
 
 ADD spotdl.py /spotify-downloader/
-ADD core/ /spotify-downloader/core
+ADD spotdl/ /spotify-downloader/spotdl
 
 RUN mkdir /music
 WORKDIR /music

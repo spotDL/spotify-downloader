@@ -1,6 +1,6 @@
-from core import const
+from spotdl import const
 
-import spotdl
+from spotdl import spotdl
 import loader
 import os
 
