@@ -195,6 +195,11 @@ def main():
             download_single(raw_song=const.args.song)
         elif const.args.list:
             download_list(text_file=const.args.list)
+            try:
+                os.remove(text_file)
+                except OSError as e:
+                    print ("Error: %s - %s." % (e.filename, e.strerror))
+            
         elif const.args.playlist:
             spotify_tools.write_playlist(playlist_url=const.args.playlist)
         elif const.args.album:
