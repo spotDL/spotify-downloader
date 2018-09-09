@@ -6,9 +6,6 @@ from setuptools import setup
 with open('README.md', 'r') as f:
     long_description = f.read()
 
-# This does not work as the dependencies imported are most
-# likely just about to be installed :/
-
 import spotdl
 
 setup(
