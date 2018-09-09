@@ -43,17 +43,20 @@ def test_album(tmpdir):
 def test_m3u(tmpdir):
     expect_m3u = ('#EXTM3U\n\n'
                   '#EXTINF:198,Tobu - Candyland [NCS Release]\n'
-                  'http://www.youtube.com/watch?v=IIrCDAV3EgI\n')
+                  'http://www.youtube.com/watch?v=IIrCDAV3EgI\n'
+                  '#EXTINF:226,Alan Walker - Spectre [NCS Release]\n'
+                  'http://www.youtube.com/watch?v=AOeY-nDp7hI\n')
 
     with open(text_file, 'r') as tin:
         tracks = tin.readlines()
 
-    single_song_file = os.path.join(str(tmpdir), 'test_m3u.txt')
-    with open(single_song_file, 'w') as tout:
+    m3u_track_file = os.path.join(str(tmpdir), 'm3u_test.txt')
+    with open(m3u_track_file, 'w') as tout:
         tout.write('\n'.join(tracks[:1]))
+        tout.write('\nhttp://www.youtube.com/watch?v=AOeY-nDp7hI')
 
-    youtube_tools.generate_m3u(single_song_file)
-    m3u_file = '{}.m3u'.format(single_song_file.split('.')[0])
+    youtube_tools.generate_m3u(m3u_track_file)
+    m3u_file = '{}.m3u'.format(m3u_track_file.split('.')[0])
     with open(m3u_file, 'r') as m3u_in:
         m3u = m3u_in.readlines()
 

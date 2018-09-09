@@ -1,6 +1,7 @@
 from bs4 import BeautifulSoup
 import urllib
 import pafy
+from slugify import slugify
 
 from core import spotify_tools
 from core import internals
