@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: UTF-8 -*-
+from spotdl import __version__
 from spotdl import const
 from spotdl import handle
 from spotdl import metadata

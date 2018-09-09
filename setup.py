@@ -1,6 +1,3 @@
-import re
-import ast
-
 from setuptools import setup
 
 with open('README.md', 'r') as f:
@@ -36,7 +33,7 @@ setup(
     author='Ritiek Malhotra and the spotify-downloader contributors',
     author_email='ritiekmalhotra123@gmail.com',
     license='MIT',
-    python_require='>=3.4',
+    python_requires='>=3.4',
     url='https://github.com/ritiek/spotify-downloader',
     download_url='https://pypi.org/project/spotify-downloader/',
     keywords=['spotify', 'downloader', 'download', 'music', 'youtube', 'mp3', 'album', 'metadata'],
