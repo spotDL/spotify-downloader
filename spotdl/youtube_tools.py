@@ -2,8 +2,8 @@ from bs4 import BeautifulSoup
 import urllib
 import pafy
 
-from core import internals
-from core import const
+from spotdl import internals
+from spotdl import const
 
 import os
 import pprint

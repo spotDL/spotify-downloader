@@ -1,7 +1,7 @@
 import yaml
 
-from core import handle
-from core import const
+from spotdl import handle
+from spotdl import const
 
 import pytest
 import os

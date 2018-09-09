@@ -1,5 +1,5 @@
 import appdirs
-from core import internals, const
+from spotdl import internals, const
 
 log = const.log
 

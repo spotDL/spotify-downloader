@@ -1,6 +1,6 @@
-from core import const
-from core import handle
-import spotdl
+from spotdl import const
+from spotdl import handle
+from spotdl import spotdl
 import pytest
 
 

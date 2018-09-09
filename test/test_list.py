@@ -1,7 +1,7 @@
-from core import spotify_tools
-from core import const
+from spotdl import spotify_tools
+from spotdl import const
 
-import spotdl
+from spotdl import spotdl
 
 import builtins
 import os

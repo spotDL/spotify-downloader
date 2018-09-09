@@ -1,9 +1,9 @@
-from core import const
-from core import internals
-from core import spotify_tools
-from core import youtube_tools
+from spotdl import const
+from spotdl import internals
+from spotdl import spotify_tools
+from spotdl import youtube_tools
 
-import spotdl
+from spotdl import spotdl
 import loader
 
 import os

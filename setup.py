@@ -6,15 +6,7 @@ from setuptools import setup
 with open('README.md', 'r') as f:
     long_description = f.read()
 
-
-# This does not work as the dependencies imported are most
-# likely just about to be installed :/
-# from spotdl import __version__
-
-_version_re = re.compile(r'__version__\s+=\s+(.*)')
-
-with open('spotdl.py', 'r') as f:
-    version = str(ast.literal_eval(_version_re.search(f.read()).group(1)))
+import spotdl
 
 setup(
     # 'spotify-downloader' was already taken :/
@@ -22,11 +14,11 @@ setup(
     py_modules=['spotdl'],
     # Tests are included automatically:
     # https://docs.python.org/3.6/distutils/sourcedist.html#specifying-the-files-to-distribute
-    packages=['core'],
-    version=version,
+    packages=['spotdl'],
+    version=spotdl.__version__,
     install_requires=[
         'pathlib >= 1.0.1',
-        'youtube_dl >= 2017.5.1',
+        'youtube_dl >= 2017.9.8',
         'pafy >= 0.5.3.1',
         'spotipy >= 2.4.4',
         'mutagen >= 1.37',
@@ -64,7 +56,7 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'spotdl = spotdl:main',
+            'spotdl = spotdl.spotdl:main',
         ],
     }
 )

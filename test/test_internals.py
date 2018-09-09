@@ -1,4 +1,4 @@
-from core import internals
+from spotdl import internals
 
 import sys
 import os
