@@ -196,8 +196,8 @@ def main():
         elif const.args.list:
             download_list(text_file=const.args.list)
             try:
-                os.remove(text_file)
-                except OSError as e:
+                os.remove(const.args.list)
+            except OSError as e:
                     print ("Error: %s - %s." % (e.filename, e.strerror))
             
         elif const.args.playlist:
