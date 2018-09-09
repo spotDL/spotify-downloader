@@ -1,5 +1,6 @@
 # Spotify-Downloader
 
+[![PyPi](https://img.shields.io/pypi/v/spotdl.svg)](https://pypi.org/project/spotdl)
 [![Build Status](https://travis-ci.org/ritiek/spotify-downloader.svg?branch=master)](https://travis-ci.org/ritiek/spotify-downloader)
 [![Coverage Status](https://codecov.io/gh/ritiek/spotify-downloader/branch/master/graph/badge.svg)](https://codecov.io/gh/ritiek/spotify-downloader)
 [![Docker Build Status](https://img.shields.io/docker/build/ritiek/spotify-downloader.svg)](https://hub.docker.com/r/ritiek/spotify-downloader)
@@ -45,20 +46,20 @@ for OS-specific instructions to get spotify-downloader working on your system.
 For the most basic usage, downloading tracks is as easy as
 
 ```
-$ python3 spotdl.py --song https://open.spotify.com/track/2DGa7iaidT5s0qnINlwMjJ
-$ python3 spotdl.py --song "ncs - spectre"
+$ spotdl --song https://open.spotify.com/track/2DGa7iaidT5s0qnINlwMjJ
+$ spotdl --song "ncs - spectre"
 ```
 
 For downloading playlist and albums, you need to first load all the tracks into text file and then pass
 this text file to `--list` argument. Here is how you would do it for a playlist
 
 ```
-$ python3 spotdl.py --playlist https://open.spotify.com/user/nocopyrightsounds/playlist/7sZbq8QGyMnhKPcLJvCUFD
+$ spotdl --playlist https://open.spotify.com/user/nocopyrightsounds/playlist/7sZbq8QGyMnhKPcLJvCUFD
 INFO: Writing 62 tracks to ncs-releases.txt
-$ python3 spotdl.py --list ncs-releases.txt
+$ spotdl --list ncs-releases.txt
 ```
 
-Run `python3 spotdl.py --help` to get a list of all available options in spotify-downloader.
+Run `spotdl --help` to get a list of all available options in spotify-downloader.
 
 Check out the [Available options](https://github.com/ritiek/spotify-downloader/wiki/Available-options)
 wiki page for the list of currently available options with their description.
