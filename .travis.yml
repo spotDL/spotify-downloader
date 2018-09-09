@@ -5,8 +5,10 @@ python:
   - "3.5"
   - "3.6"
 before_install:
-  - pip install tinydownload
   - pip install pytest-cov
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo add-apt-repository -y ppa:mc3man/trusty-media; fi
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo apt-get update; fi
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo apt-get install -y ffmpeg; fi
 addons:
   apt:
     packages:
@@ -35,7 +37,6 @@ addons:
       - libav-tools
 install:
   - pip install -e .
-  - tinydownload 07426048687547254773 -o ~/bin/ffmpeg
   - chmod 755 ~/bin/ffmpeg
   - xdg-user-dirs-update
 script: python -m pytest test --cov=.
