@@ -85,7 +85,7 @@ def format_string(string_format, tags, slugification=False, force_spaces=False):
     for tag in format_tags:
         if slugification:
             format_tags[tag] = sanitize_title(format_tags[tag],
-                                              ok='-_()[]{}')
+                                              ok="'-_()[]{}")
         else:
             format_tags[tag] = str(format_tags[tag])
 
