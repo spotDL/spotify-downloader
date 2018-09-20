@@ -8,29 +8,21 @@
 
 - Downloads songs from YouTube in an MP3 format by using Spotify's HTTP link.
 - Can also download a song by entering its artist and song name (in case if you don't have the Spotify's HTTP link for some song).
-- Automatically applies metadata to the downloaded song which include:
+- Automatically applies metadata to the downloaded song which includes:
 
-  - Title
-  - Artist
-  - Album
-  - Album art
-  - Lyrics (if found on http://lyrics.wikia.com)
-  - Album artist
-  - Genre
-  - Track number
-  - Disc number
-  - Release date
-  - And more...
+  - `Title`, `Artist`, `Album`, `Album art`, `Lyrics` (if found on [lyrics wikia](http://lyrics.wikia.com)), `Album artist`, `Genre`, `Track number`, `Disc number`, `Release date`, and more...
 
-- Works straight out of the box and does not require to generate or mess with your API keys (already included).
+- Works straight out of the box and does not require you to generate or mess with your API keys (already included).
 
-That's how your music library will look like!
+Below is how your music library will look like!
 
 <img src="http://i.imgur.com/Gpch7JI.png" width="290"><img src="http://i.imgur.com/5vhk3HY.png" width="290"><img src="http://i.imgur.com/RDTCCST.png" width="290">
 
 ## Installation
 
-**This tool works only with Python 3.**
+:heavy_exclamation_mark: **This tool works only with Python 3.**
+
+`pip install spotdl`
 
 Python 2 compatibility was dropped because of the way it deals with unicode (2020 is coming soon too).
 If you still need to use Python 2 - check out the (outdated)
