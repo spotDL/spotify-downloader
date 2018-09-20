@@ -193,7 +193,7 @@ def main():
 
     try:
         if const.args.song:
-            download_single(raw_song=const.args.song, logger=log)
+            download_single(raw_song=const.args.song)
         elif const.args.list:
             download_list(text_file=const.args.list)
         elif const.args.playlist:
