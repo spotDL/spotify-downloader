@@ -14,7 +14,7 @@
 
 - Works straight out of the box and does not require you to generate or mess with your API keys (already included).
 
-Below is how your music library will look like!
+Below is how your music library will look!
 
 <img src="http://i.imgur.com/Gpch7JI.png" width="290"><img src="http://i.imgur.com/5vhk3HY.png" width="290"><img src="http://i.imgur.com/RDTCCST.png" width="290">
 
