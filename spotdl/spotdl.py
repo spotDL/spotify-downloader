@@ -109,7 +109,7 @@ def download_list(text_file):
     return downloaded_songs
 
 
-def download_single(raw_song, number=None, logger=None):
+def download_single(raw_song, number=None):
     """ Logic behind downloading a song. """
 
     if internals.is_youtube(raw_song):
