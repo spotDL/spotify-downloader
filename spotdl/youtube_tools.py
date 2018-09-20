@@ -1,14 +1,13 @@
 from bs4 import BeautifulSoup
 import urllib
 import pafy
+from logzero import logger as log
 
 from spotdl import internals
 from spotdl import const
 
 import os
 import pprint
-
-log = const.log
 
 # Fix download speed throttle on short duration tracks
 # Read more on mps-youtube/pafy#199

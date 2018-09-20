@@ -1,6 +1,6 @@
 import subprocess
 import os
-from spotdl.const import log
+from logzero import logger as log
 
 
 """What are the differences and similarities between ffmpeg, libav, and avconv?

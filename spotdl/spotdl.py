@@ -8,9 +8,11 @@ from spotdl import convert
 from spotdl import internals
 from spotdl import spotify_tools
 from spotdl import youtube_tools
+from logzero import logging as log
 from slugify import slugify
 import spotipy
 import urllib.request
+import logzero
 import os
 import sys
 import time
@@ -107,8 +109,9 @@ def download_list(text_file):
     return downloaded_songs
 
 
-def download_single(raw_song, number=None):
+def download_single(raw_song, number=None, logger=None):
     """ Logic behind downloading a song. """
+
     if internals.is_youtube(raw_song):
         log.debug('Input song is a YouTube URL')
         content = youtube_tools.go_pafy(raw_song, meta_tags=None)
@@ -182,17 +185,15 @@ def main():
     internals.filter_path(const.args.folder)
     youtube_tools.set_api_key()
 
-    const.log = const.logzero.setup_logger(formatter=const._formatter,
-                                      level=const.args.log_level)
-    global log
-    log = const.log
+    logzero.setup_default_logger(formatter=const._formatter, level=const.args.log_level)
+
     log.debug('Python version: {}'.format(sys.version))
     log.debug('Platform: {}'.format(platform.platform()))
     log.debug(pprint.pformat(const.args.__dict__))
 
     try:
         if const.args.song:
-            download_single(raw_song=const.args.song)
+            download_single(raw_song=const.args.song, logger=log)
         elif const.args.list:
             download_list(text_file=const.args.list)
         elif const.args.playlist:

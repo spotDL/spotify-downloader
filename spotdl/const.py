@@ -4,7 +4,6 @@ _log_format = ("%(color)s%(levelname)s:%(end_color)s %(message)s")
 _formatter = logzero.LogFormatter(fmt=_log_format)
 
 # options
-log = logzero.setup_logger(formatter=_formatter)
 args = None
 
 # Apple has specific tags - see mutagen docs -

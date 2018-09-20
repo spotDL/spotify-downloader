@@ -2,7 +2,8 @@ from mutagen.easyid3 import EasyID3
 from mutagen.id3 import ID3, TORY, TYER, TPUB, APIC, USLT, COMM
 from mutagen.mp4 import MP4, MP4Cover
 from mutagen.flac import Picture, FLAC
-from spotdl.const import log, TAG_PRESET, M4A_TAG_PRESET
+from logzero import logger as log
+from spotdl.const import TAG_PRESET, M4A_TAG_PRESET
 
 import urllib.request
 
