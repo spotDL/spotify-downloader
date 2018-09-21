@@ -22,13 +22,15 @@ Below is how your music library will look!
 
 :heavy_exclamation_mark: **This tool works only with Python 3.**
 
-`pip install spotdl`
-
 Python 2 compatibility was dropped because of the way it deals with unicode (2020 is coming soon too).
 If you still need to use Python 2 - check out the (outdated)
 [python2](https://github.com/ritiek/spotify-downloader/tree/python2) branch.
 
 spotify-downloader works with all major distributions and even on low-powered devices such as a Raspberry Pi.
+
+```
+$ pip3 install spotdl
+```
 
 Check out the [Installation](https://github.com/ritiek/spotify-downloader/wiki/Installation) wiki page
 for OS-specific instructions to get spotify-downloader working on your system.
