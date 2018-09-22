@@ -1,7 +1,6 @@
 import appdirs
+from logzero import logging as log
 from spotdl import internals, const
-
-log = const.log
 
 import logging
 import yaml

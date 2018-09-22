@@ -1,9 +1,9 @@
 import os
 import sys
+from logzero import logger as log
 
 from spotdl import const
 
-log = const.log
 
 try:
     from slugify import SLUG_OK, slugify
