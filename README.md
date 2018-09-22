@@ -28,12 +28,13 @@ If you still need to use Python 2 - check out the (outdated)
 
 spotify-downloader works with all major distributions and even on low-powered devices such as a Raspberry Pi.
 
+spotify-downloader can be installed via pip with:
 ```
 $ pip3 install spotdl
 ```
 
-Check out the [Installation](https://github.com/ritiek/spotify-downloader/wiki/Installation) wiki page
-for OS-specific instructions to get spotify-downloader working on your system.
+but be sure to check out the [Installation](https://github.com/ritiek/spotify-downloader/wiki/Installation) wiki
+page for detailed OS-specific instructions to get it and other dependencies it relies on working on your system.
 
 ## Usage
 
