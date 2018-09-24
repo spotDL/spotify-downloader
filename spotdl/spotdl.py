@@ -8,7 +8,7 @@ from spotdl import convert
 from spotdl import internals
 from spotdl import spotify_tools
 from spotdl import youtube_tools
-from logzero import logging as log
+from logzero import logger as log
 from slugify import slugify
 import spotipy
 import urllib.request
