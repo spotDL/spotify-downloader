@@ -180,3 +180,17 @@ def get_music_dir():
     # respectively is sufficient.
     # On Linux, default to /home/<user>/Music if the above method failed.
     return os.path.join(home, 'Music')
+
+
+def remove_duplicates(tracks):
+    """
+    Removes duplicates from a list whilst preserving order.
+
+    We could directly call `set()` on the list but it changes
+    the order of elements.
+    """
+
+    local_set = set()
+    local_set_add = local_set.add
+    return [x for x in tracks
+            if not (x in local_set or local_set_add(x))]
