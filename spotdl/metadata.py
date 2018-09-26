@@ -2,7 +2,8 @@ from mutagen.easyid3 import EasyID3
 from mutagen.id3 import ID3, TORY, TYER, TPUB, APIC, USLT, COMM
 from mutagen.mp4 import MP4, MP4Cover
 from mutagen.flac import Picture, FLAC
-from spotdl.const import log, TAG_PRESET, M4A_TAG_PRESET
+from logzero import logger as log
+from spotdl.const import TAG_PRESET, M4A_TAG_PRESET
 
 import urllib.request
 
@@ -97,7 +98,7 @@ class EmbedMetadata:
         self._embed_basic_metadata(audiofile, preset=M4A_TAG_PRESET)
         audiofile[M4A_TAG_PRESET['year']] = meta_tags['year']
         if meta_tags['lyrics']:
-            audiofile['lyrics'] = meta_tags['lyrics']
+            audiofile[M4A_TAG_PRESET['lyrics']] = meta_tags['lyrics']
         try:
             albumart = urllib.request.urlopen(meta_tags['album']['images'][0]['url'])
             audiofile[M4A_TAG_PRESET['albumart']] = [MP4Cover(
