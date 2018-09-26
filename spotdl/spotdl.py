@@ -79,7 +79,6 @@ def download_list(text_file):
     downloaded_songs = []
 
     for number, raw_song in enumerate(lines, 1):
-        print('')
         try:
             download_single(raw_song, number=number)
         # token expires after 1 hour
@@ -158,7 +157,6 @@ def download_single(raw_song, number=None):
         input_song = songname + const.args.input_ext
         output_song = songname + const.args.output_ext
         if youtube_tools.download_song(input_song, content):
-            print('')
             try:
                 convert.song(input_song, output_song, const.args.folder,
                              avconv=const.args.avconv, trim_silence=const.args.trim_silence)
