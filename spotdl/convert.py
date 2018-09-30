@@ -15,7 +15,7 @@ https://trac.ffmpeg.org/wiki/Encode/AAC
 """
 
 
-def song(input_song, output_song, folder, avconv=False, trim_silence=False):
+def song(input_song, output_song, folder, avconv=False, trim_silence=False, hide_progress=False):
     """ Do the audio format conversion. """
     if input_song == output_song:
         return 0
@@ -23,9 +23,9 @@ def song(input_song, output_song, folder, avconv=False, trim_silence=False):
     log.info('Converting {0} to {1}'.format(
         input_song, output_song.split('.')[-1]))
     if avconv:
-        exit_code = convert.with_avconv()
+        exit_code = convert.with_avconv(hide_progress=hide_progress)
     else:
-        exit_code = convert.with_ffmpeg()
+        exit_code = convert.with_ffmpeg(hide_progress=hide_progress)
     return exit_code
 
 
@@ -35,8 +35,8 @@ class Converter:
         self.output_file = os.path.join(folder, output_song)
         self.trim_silence = trim_silence
 
-    def with_avconv(self):
-        if log.level == 10:
+    def with_avconv(self, hide_progress=False):
+        if log.level == 10 and not hide_progress:
             level = 'debug'
         else:
             level = '0'
@@ -51,10 +51,10 @@ class Converter:
         log.debug(command)
         return subprocess.call(command)
 
-    def with_ffmpeg(self):
+    def with_ffmpeg(self, hide_progress=False):
         ffmpeg_pre = 'ffmpeg -y '
 
-        if not log.level == 10:
+        if hide_progress:
             ffmpeg_pre += '-hide_banner -nostats -v panic '
 
         _, input_ext = os.path.splitext(self.input_file)

@@ -47,7 +47,7 @@ def get_youtube_title(content, number=None):
         return title
 
 
-def download_song(file_name, content):
+def download_song(file_name, content, quiet=False):
     """ Download the audio file from YouTube. """
     _, extension = os.path.splitext(file_name)
     if extension in ('.webm', '.m4a'):
@@ -60,7 +60,8 @@ def download_song(file_name, content):
         log.debug('Downloading from URL: ' + link.url)
         filepath = os.path.join(const.args.folder, file_name)
         log.debug('Saving to: ' + filepath)
-        link.download(filepath=filepath)
+        link.download(filepath=filepath, quiet=quiet)
+        log.debug('Done')
         return True
     else:
         log.debug('No audio streams available')

@@ -133,6 +133,8 @@ def download_single(raw_song, number=None):
     youtube_title = youtube_tools.get_youtube_title(content, number)
     log.info('{} ({})'.format(youtube_title, content.watchv_url))
 
+    hide_progress = log.level > 10 or const.args.hide_progress
+
     # generate file name of the song to download
     songname = content.title
 
@@ -156,10 +158,11 @@ def download_single(raw_song, number=None):
         os.makedirs(songpath, exist_ok=True)
         input_song = songname + const.args.input_ext
         output_song = songname + const.args.output_ext
-        if youtube_tools.download_song(input_song, content):
+        if youtube_tools.download_song(input_song, content, quiet=hide_progress):
             try:
                 convert.song(input_song, output_song, const.args.folder,
-                             avconv=const.args.avconv, trim_silence=const.args.trim_silence)
+                             avconv=const.args.avconv, trim_silence=const.args.trim_silence,
+                             hide_progress=hide_progress)
             except FileNotFoundError:
                 encoder = 'avconv' if const.args.avconv else 'ffmpeg'
                 log.warning('Could not find {0}, skipping conversion'.format(encoder))

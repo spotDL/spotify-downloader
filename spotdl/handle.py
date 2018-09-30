@@ -1,4 +1,5 @@
 import appdirs
+
 from spotdl import internals, const
 from logzero import logger as log
 
@@ -172,6 +173,10 @@ def get_arguments(raw_args=None, to_group=True, to_merge=True):
         choices=_LOG_LEVELS_STR,
         type=str.upper,
         help='set log verbosity')
+    parser.add_argument(
+        '--hide-progress', action='store_true',
+        help='hides avconv/ffmpeg conversion progress bar'
+    )
     parser.add_argument(
         '-yk', '--youtube-api-key', default=config['youtube-api-key'],
         help=argparse.SUPPRESS)
