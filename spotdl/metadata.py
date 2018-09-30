@@ -75,7 +75,8 @@ class EmbedMetadata:
         audiofile = ID3(music_file)
         audiofile['TORY'] = TORY(encoding=3, text=meta_tags['year'])
         audiofile['TYER'] = TYER(encoding=3, text=meta_tags['year'])
-        audiofile['TPUB'] = TPUB(encoding=3, text=meta_tags['publisher'])
+        if meta_tags['publisher']:
+            audiofile['TPUB'] = TPUB(encoding=3, text=meta_tags['publisher'])
         audiofile['COMM'] = COMM(encoding=3, text=meta_tags['external_urls']['spotify'])
         if meta_tags['lyrics']:
             audiofile['USLT'] = USLT(encoding=3, desc=u'Lyrics', text=meta_tags['lyrics'])
