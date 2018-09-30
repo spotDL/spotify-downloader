@@ -8,29 +8,19 @@
 
 - Downloads songs from YouTube in an MP3 format by using Spotify's HTTP link.
 - Can also download a song by entering its artist and song name (in case if you don't have the Spotify's HTTP link for some song).
-- Automatically applies metadata to the downloaded song which include:
+- Automatically applies metadata to the downloaded song which includes:
 
-  - Title
-  - Artist
-  - Album
-  - Album art
-  - Lyrics (if found on http://lyrics.wikia.com)
-  - Album artist
-  - Genre
-  - Track number
-  - Disc number
-  - Release date
-  - And more...
+  - `Title`, `Artist`, `Album`, `Album art`, `Lyrics` (if found on [lyrics wikia](http://lyrics.wikia.com)), `Album artist`, `Genre`, `Track number`, `Disc number`, `Release date`, and more...
 
-- Works straight out of the box and does not require to generate or mess with your API keys (already included).
+- Works straight out of the box and does not require you to generate or mess with your API keys (already included).
 
-That's how your music library will look like!
+Below is how your music library will look!
 
 <img src="http://i.imgur.com/Gpch7JI.png" width="290"><img src="http://i.imgur.com/5vhk3HY.png" width="290"><img src="http://i.imgur.com/RDTCCST.png" width="290">
 
 ## Installation
 
-**This tool works only with Python 3.**
+:heavy_exclamation_mark: **This tool works only with Python 3.**
 
 Python 2 compatibility was dropped because of the way it deals with unicode (2020 is coming soon too).
 If you still need to use Python 2 - check out the (outdated)
@@ -38,8 +28,13 @@ If you still need to use Python 2 - check out the (outdated)
 
 spotify-downloader works with all major distributions and even on low-powered devices such as a Raspberry Pi.
 
-Check out the [Installation](https://github.com/ritiek/spotify-downloader/wiki/Installation) wiki page
-for OS-specific instructions to get spotify-downloader working on your system.
+spotify-downloader can be installed via pip with:
+```
+$ pip3 install spotdl
+```
+
+but be sure to check out the [Installation](https://github.com/ritiek/spotify-downloader/wiki/Installation) wiki
+page for detailed OS-specific instructions to get it and other dependencies it relies on working on your system.
 
 ## Usage
 

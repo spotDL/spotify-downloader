@@ -98,7 +98,7 @@ class EmbedMetadata:
         self._embed_basic_metadata(audiofile, preset=M4A_TAG_PRESET)
         audiofile[M4A_TAG_PRESET['year']] = meta_tags['year']
         if meta_tags['lyrics']:
-            audiofile['lyrics'] = meta_tags['lyrics']
+            audiofile[M4A_TAG_PRESET['lyrics']] = meta_tags['lyrics']
         try:
             albumart = urllib.request.urlopen(meta_tags['album']['images'][0]['url'])
             audiofile[M4A_TAG_PRESET['albumart']] = [MP4Cover(
