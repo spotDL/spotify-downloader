@@ -3,6 +3,10 @@ import logzero
 _log_format = ("%(color)s%(levelname)s:%(end_color)s %(message)s")
 _formatter = logzero.LogFormatter(fmt=_log_format)
 
+# Set up a temporary logger with default log level so that
+# it can be used before log level argument is determined
+logzero.setup_default_logger(formatter=_formatter)
+
 # options
 args = None
 
