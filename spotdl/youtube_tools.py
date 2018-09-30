@@ -61,7 +61,6 @@ def download_song(file_name, content, quiet=False):
         filepath = os.path.join(const.args.folder, file_name)
         log.debug('Saving to: ' + filepath)
         link.download(filepath=filepath, quiet=quiet)
-        log.debug('Done')
         return True
     else:
         log.debug('No audio streams available')

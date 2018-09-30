@@ -159,6 +159,7 @@ def download_single(raw_song, number=None):
         input_song = songname + const.args.input_ext
         output_song = songname + const.args.output_ext
         if youtube_tools.download_song(input_song, content, quiet=hide_progress):
+            print('')
             try:
                 convert.song(input_song, output_song, const.args.folder,
                              avconv=const.args.avconv, trim_silence=const.args.trim_silence,
