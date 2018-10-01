@@ -1,8 +1,9 @@
-from spotdl import const
-
-from spotdl import spotdl
-import loader
 import os
+
+from spotdl import const
+from spotdl.main import download_list
+
+import loader
 
 loader.load_defaults()
 
@@ -14,5 +15,5 @@ def test_dry_download_list(tmpdir):
     file_path = os.path.join(const.args.folder, 'test_list.txt')
     with open(file_path, 'w') as tin:
         tin.write(song)
-    downloaded_song, *_ = spotdl.download_list(file_path)
+    downloaded_song, *_ = download_list(file_path)
     assert downloaded_song == song

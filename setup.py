@@ -8,7 +8,6 @@ import spotdl
 setup(
     # 'spotify-downloader' was already taken :/
     name='spotdl',
-    py_modules=['spotdl'],
     # Tests are included automatically:
     # https://docs.python.org/3.6/distutils/sourcedist.html#specifying-the-files-to-distribute
     packages=['spotdl'],
@@ -53,7 +52,7 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'spotdl = spotdl.spotdl:main',
+            'spotdl = spotdl.main:main',
         ],
     }
 )

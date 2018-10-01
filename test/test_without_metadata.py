@@ -1,16 +1,16 @@
+import os
+import builtins
+
 from spotdl import const
 from spotdl import internals
 from spotdl import spotify_tools
 from spotdl import youtube_tools
+from spotdl.main import check_exists
 
-from spotdl import spotdl
 import loader
 
-import os
-import builtins
-
 loader.load_defaults()
-raw_song = "Tony's Videos VERY SHORT VIDEO 28.10.2016"
+TRACK_SEARCH = "Tony's Videos VERY SHORT VIDEO 28.10.2016"
 
 
 class TestYouTubeAPIKeys:
@@ -32,7 +32,7 @@ class TestYouTubeAPIKeys:
 def test_metadata():
     expect_metadata = None
     global metadata
-    metadata = spotify_tools.generate_metadata(raw_song)
+    metadata = spotify_tools.generate_metadata(TRACK_SEARCH)
     assert metadata == expect_metadata
 
 
@@ -61,26 +61,26 @@ class TestYouTubeURL:
         expect_urls = ('http://youtube.com/watch?v=qOOcy2-tmbk',
                        'http://youtube.com/watch?v=5USR1Omo7f0')
         const.args.music_videos_only = True
-        url = youtube_tools.generate_youtube_url(raw_song, metadata)
+        url = youtube_tools.generate_youtube_url(TRACK_SEARCH, metadata)
         assert url in expect_urls
 
     def test_all_categories(self):
         expect_url = 'http://youtube.com/watch?v=qOOcy2-tmbk'
         const.args.music_videos_only = False
-        url = youtube_tools.generate_youtube_url(raw_song, metadata)
+        url = youtube_tools.generate_youtube_url(TRACK_SEARCH, metadata)
         assert url == expect_url
 
     def test_args_manual(self, monkeypatch):
         expect_url = 'http://youtube.com/watch?v=qOOcy2-tmbk'
         const.args.manual = True
         monkeypatch.setattr('builtins.input', lambda x: '1')
-        url = youtube_tools.generate_youtube_url(raw_song, metadata)
+        url = youtube_tools.generate_youtube_url(TRACK_SEARCH, metadata)
         assert url == expect_url
 
     def test_args_manual_none(self, monkeypatch):
         expect_url = None
         monkeypatch.setattr('builtins.input', lambda x: '0')
-        url = youtube_tools.generate_youtube_url(raw_song, metadata)
+        url = youtube_tools.generate_youtube_url(TRACK_SEARCH, metadata)
         const.args.manual = False
         assert url == expect_url
 
@@ -93,7 +93,7 @@ class TestYouTubeTitle:
         key = 'AIzaSyAnItl3udec-Q1d5bkjKJGL-RgrKO_vU90'
         const.args.youtube_api_key = key
         youtube_tools.set_api_key()
-        content = youtube_tools.go_pafy(raw_song, metadata)
+        content = youtube_tools.go_pafy(TRACK_SEARCH, metadata)
         title = youtube_tools.get_youtube_title(content)
         assert title == expect_title
 
@@ -101,7 +101,7 @@ class TestYouTubeTitle:
         expect_title = "1. Tony's Videos VERY SHORT VIDEO 28.10.2016"
         const.args.youtube_api_key = None
         youtube_tools.set_api_key()
-        content = youtube_tools.go_pafy(raw_song, metadata)
+        content = youtube_tools.go_pafy(TRACK_SEARCH, metadata)
         title = youtube_tools.get_youtube_title(content, 1)
         assert title == expect_title
 
@@ -112,7 +112,7 @@ def test_check_exists(tmpdir):
     # prerequisites for determining filename
     global file_name
     file_name = internals.sanitize_title(title)
-    check = spotdl.check_exists(file_name, raw_song, metadata)
+    check = check_exists(file_name, TRACK_SEARCH, metadata)
     assert check == expect_check
 
 

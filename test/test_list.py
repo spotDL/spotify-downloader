@@ -1,10 +1,9 @@
-from spotdl import spotify_tools
-from spotdl import const
-
-from spotdl import spotdl
-
 import builtins
 import os
+
+from spotdl import const
+from spotdl import internals
+from spotdl import spotify_tools
 
 
 def test_user_playlists(tmpdir, monkeypatch):
@@ -42,7 +41,7 @@ def test_trim():
 
     expect_number = len(tracks) - 1
     expect_track = tracks[0]
-    track = spotdl.internals.trim_song(text_file)
+    track = internals.trim_song(text_file)
 
     with open(text_file, 'r') as track_file:
         number = len(track_file.readlines())
