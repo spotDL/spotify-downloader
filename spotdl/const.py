@@ -29,7 +29,8 @@ M4A_TAG_PRESET = { 'album'        : '\xa9alb',
                    'albumart'     : 'covr',
                    'copyright'    : 'cprt',
                    'tempo'        : 'tmpo',
-                   'lyrics'       : '\xa9lyr' }
+                   'lyrics'       : '\xa9lyr',
+                   'comment'      : '\xa9cmt' }
 
 TAG_PRESET = {}
 for key in M4A_TAG_PRESET.keys():

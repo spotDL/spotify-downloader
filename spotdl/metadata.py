@@ -98,6 +98,7 @@ class EmbedMetadata:
         audiofile = MP4(music_file)
         self._embed_basic_metadata(audiofile, preset=M4A_TAG_PRESET)
         audiofile[M4A_TAG_PRESET['year']] = meta_tags['year']
+        audiofile[M4A_TAG_PRESET['comment']] = meta_tags['external_urls']['spotify']
         if meta_tags['lyrics']:
             audiofile[M4A_TAG_PRESET['lyrics']] = meta_tags['lyrics']
         try:
