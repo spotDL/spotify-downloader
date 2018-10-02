@@ -16,7 +16,6 @@ YT_API_KEY = 'AIzaSyAnItl3udec-Q1d5bkjKJGL-RgrKO_vU90'
 TRACK_SEARCH = "Tony's Videos VERY SHORT VIDEO 28.10.2016"
 EXPECTED_TITLE = TRACK_SEARCH
 EXPECTED_YT_URL = 'http://youtube.com/watch?v=qOOcy2-tmbk'
-# YouTube keeps changing its results
 EXPECTED_YT_URLS = (EXPECTED_YT_URL, 'http://youtube.com/watch?v=5USR1Omo7f0')
 
 RESULT_COUNT_SEARCH = "she is still sleeping SAO"
@@ -67,6 +66,7 @@ class TestYouTubeURL:
     def test_only_music_category(self):
         const.args.music_videos_only = True
         url = youtube_tools.generate_youtube_url(TRACK_SEARCH, metadata)
+        # YouTube keeps changing its results
         assert url in EXPECTED_YT_URLS
 
     def test_all_categories(self):
