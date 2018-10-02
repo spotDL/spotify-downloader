@@ -65,15 +65,13 @@ def check_exists(music_file, raw_song, meta_tags):
 
 def download_list(text_file):
     """ Download all songs from the list. """
-    with open(text_file, 'r') as listed:
-        # read tracks into a list and remove any duplicates
-        lines = listed.read().splitlines()
-        lines = internals.remove_duplicates(lines)
-    # ignore blank lines in text_file (if any)
-    try:
-        lines.remove('')
-    except ValueError:
-        pass
+
+    log.info('Checking and removing any duplicate tracks')
+    lines = internals.get_unique_tracks(text_file)
+
+    # override file with unique tracks
+    with open(text_file, 'w') as listed:
+        listed.write('\n'.join(lines))
 
     log.info(u'Preparing to download {} songs'.format(len(lines)))
     downloaded_songs = []

@@ -80,3 +80,39 @@ class TestGetSeconds:
             internals.get_sec('10*05')
         with pytest.raises(ValueError):
             internals.get_sec('02,28,46')
+
+
+duplicate_tracks_test_table = [
+    (('https://open.spotify.com/track/2DGa7iaidT5s0qnINlwMjJ',
+      'https://open.spotify.com/track/2DGa7iaidT5s0qnINlwMjJ'),
+     ('https://open.spotify.com/track/2DGa7iaidT5s0qnINlwMjJ',)),
+
+    (('https://open.spotify.com/track/2DGa7iaidT5s0qnINlwMjJ',
+      '',
+      'https://open.spotify.com/track/3SipFlNddvL0XNZRLXvdZD'),
+     ('https://open.spotify.com/track/2DGa7iaidT5s0qnINlwMjJ',
+      'https://open.spotify.com/track/3SipFlNddvL0XNZRLXvdZD')),
+
+    (('ncs fade',
+      'https://open.spotify.com/track/2DGa7iaidT5s0qnINlwMjJ',
+      '',
+      'ncs fade'),
+     ('ncs fade',
+      'https://open.spotify.com/track/2DGa7iaidT5s0qnINlwMjJ')),
+
+    (('ncs spectre ',
+      '  https://open.spotify.com/track/2DGa7iaidT5s0qnINlwMjJ',
+      ''),
+     ('ncs spectre',
+      'https://open.spotify.com/track/2DGa7iaidT5s0qnINlwMjJ'))
+]
+
+
+@pytest.mark.parametrize("duplicates, expected", duplicate_tracks_test_table)
+def test_get_unique_tracks(tmpdir, duplicates, expected):
+    file_path = os.path.join(str(tmpdir), 'test_duplicates.txt')
+    with open(file_path, 'w') as tin:
+        tin.write('\n'.join(duplicates))
+
+    unique_tracks = internals.get_unique_tracks(file_path)
+    assert tuple(unique_tracks) == expected
