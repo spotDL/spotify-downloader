@@ -1,12 +1,12 @@
-import yaml
+import os
+import sys
+import argparse
 
 from spotdl import handle
 from spotdl import const
 
+import yaml
 import pytest
-import os
-import sys
-import argparse
 
 
 def test_log_str_to_int():

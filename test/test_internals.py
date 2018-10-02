@@ -1,8 +1,9 @@
-from spotdl import internals
-
 import sys
 import os
 import subprocess
+
+from spotdl import internals
+
 import pytest
 
 
