@@ -8,7 +8,6 @@ import spotdl
 setup(
     # 'spotify-downloader' was already taken :/
     name='spotdl',
-    py_modules=['spotdl'],
     # Tests are included automatically:
     # https://docs.python.org/3.6/distutils/sourcedist.html#specifying-the-files-to-distribute
     packages=['spotdl'],
@@ -35,7 +34,7 @@ setup(
     license='MIT',
     python_requires='>=3.4',
     url='https://github.com/ritiek/spotify-downloader',
-    download_url='https://pypi.org/project/spotify-downloader/',
+    download_url='https://pypi.org/project/spotdl/',
     keywords=['spotify', 'downloader', 'download', 'music', 'youtube', 'mp3', 'album', 'metadata'],
     classifiers=[
         'Development Status :: 4 - Beta',
@@ -46,6 +45,7 @@ setup(
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3 :: Only',
         'Topic :: Multimedia',
         'Topic :: Multimedia :: Sound/Audio',
