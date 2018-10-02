@@ -1,3 +1,4 @@
+import os
 
 from spotdl import const
 from spotdl import internals
@@ -5,48 +6,46 @@ from spotdl import spotify_tools
 from spotdl import youtube_tools
 from spotdl import convert
 from spotdl import metadata
-
 from spotdl import spotdl
 
 import loader
-import os
 
 loader.load_defaults()
-raw_song = 'http://open.spotify.com/track/0JlS7BXXD07hRmevDnbPDU'
+
+TRACK_URL = 'http://open.spotify.com/track/0JlS7BXXD07hRmevDnbPDU'
+EXPECTED_TITLE = 'David André Østby - Intro'
+EXPECTED_YT_TITLE = 'Intro - David André Østby'
+EXPECTED_YT_URL = 'http://youtube.com/watch?v=rg1wfcty0BA'
 
 
 def test_metadata():
     expect_number = 23
     global meta_tags
-    meta_tags = spotify_tools.generate_metadata(raw_song)
+    meta_tags = spotify_tools.generate_metadata(TRACK_URL)
     assert len(meta_tags) == expect_number
 
 
 class TestFileFormat:
     def test_with_spaces(self):
-        expect_title = 'David André Østby - Intro'
         title = internals.format_string(const.args.file_format, meta_tags)
-        assert title == expect_title
+        assert title == EXPECTED_TITLE
 
     def test_without_spaces(self):
-        expect_title = 'David_André_Østby_-_Intro'
         const.args.no_spaces = True
         title = internals.format_string(const.args.file_format, meta_tags)
-        assert title == expect_title
+        assert title == EXPECTED_TITLE.replace(' ', '_')
 
 
 def test_youtube_url():
-    expect_url = 'http://youtube.com/watch?v=rg1wfcty0BA'
-    url = youtube_tools.generate_youtube_url(raw_song, meta_tags)
-    assert url == expect_url
+    url = youtube_tools.generate_youtube_url(TRACK_URL, meta_tags)
+    assert url == EXPECTED_YT_URL
 
 
 def test_youtube_title():
-    expect_title = 'Intro - David André Østby'
     global content
-    content = youtube_tools.go_pafy(raw_song, meta_tags)
+    content = youtube_tools.go_pafy(TRACK_URL, meta_tags)
     title = youtube_tools.get_youtube_title(content)
-    assert title == expect_title
+    assert title == EXPECTED_YT_TITLE
 
 
 def test_check_track_exists_before_download(tmpdir):
@@ -56,7 +55,7 @@ def test_check_track_exists_before_download(tmpdir):
     songname = internals.format_string(const.args.file_format, meta_tags)
     global file_name
     file_name = internals.sanitize_title(songname)
-    check = spotdl.check_exists(file_name, raw_song, meta_tags)
+    check = spotdl.check_exists(file_name, TRACK_URL, meta_tags)
     assert check == expect_check
 
 
@@ -72,7 +71,7 @@ class TestDownload:
         assert download == expect_download
 
 
-class TestFFmpeg():
+class TestFFmpeg:
     def test_convert_from_webm_to_mp3(self):
         expect_return_code = 0
         return_code = convert.song(file_name + '.webm',
@@ -149,6 +148,6 @@ class TestEmbedMetadata:
 
 def test_check_track_exists_after_download():
     expect_check = True
-    check = spotdl.check_exists(file_name, raw_song, meta_tags)
+    check = spotdl.check_exists(file_name, TRACK_URL, meta_tags)
     os.remove(track_path + '.mp3')
     assert check == expect_check
