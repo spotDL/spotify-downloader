@@ -158,6 +158,23 @@ def get_splits(url):
     return splits
 
 
+def get_unique_tracks(text_file):
+    """
+    Returns a list of unique tracks given a path to a
+    file containing tracks.
+    """
+
+    with open(text_file, 'r') as listed:
+        # Read tracks into a list and remove any duplicates
+        lines = listed.read().splitlines()
+
+    # Remove blank and strip whitespaces from lines (if any)
+    lines = [line.strip() for line in lines if line.strip()]
+    lines = remove_duplicates(lines)
+
+    return lines
+
+
 # a hacky way to user's localized music directory
 # (thanks @linusg, issue #203)
 def get_music_dir():
