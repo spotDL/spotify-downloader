@@ -105,7 +105,7 @@ def download_list(tracks_file, skip_file=None, write_successful_file=None):
             internals.trim_song(tracks_file)
             # and append it at the end of file
             with open(tracks_file, 'a') as f:
-                f.write(raw_song + '\n')
+                f.write('\n' + raw_song)
             log.warning('Failed to download song. Will retry after other songs\n')
             # wait 0.5 sec to avoid infinite looping
             time.sleep(0.5)
@@ -116,7 +116,7 @@ def download_list(tracks_file, skip_file=None, write_successful_file=None):
         log.debug('Adding downloaded song to write successful file')
         if write_successful_file is not None:
             with open(write_successful_file, 'a') as f:
-                f.write(raw_song + '\n')
+                f.write('\n' + raw_song)
         log.debug('Removing downloaded song from tracks file')
         internals.trim_song(tracks_file)
 
