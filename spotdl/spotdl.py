@@ -63,20 +63,31 @@ def check_exists(music_file, raw_song, meta_tags):
     return False
 
 
-def download_list(text_file):
+def download_list(tracks_file, skip_file=None, write_successful_file=None):
     """ Download all songs from the list. """
 
     log.info('Checking and removing any duplicate tracks')
-    lines = internals.get_unique_tracks(text_file)
+    tracks = internals.get_unique_tracks(tracks_file)
 
     # override file with unique tracks
-    with open(text_file, 'w') as listed:
-        listed.write('\n'.join(lines))
+    with open(tracks_file, 'w') as f:
+        f.write('\n'.join(tracks))
 
-    log.info(u'Preparing to download {} songs'.format(len(lines)))
+    # Remove tracks to skip from tracks list
+    if skip_file is not None:
+        skip_tracks = internals.get_unique_tracks(skip_file)
+        len_before = len(tracks)
+        tracks = [
+            track for track in tracks
+            if track not in skip_tracks
+        ]
+        log.info('Skipping {} tracks'.format(len_before - len(tracks)))
+
+
+    log.info(u'Preparing to download {} songs'.format(len(tracks)))
     downloaded_songs = []
 
-    for number, raw_song in enumerate(lines, 1):
+    for number, raw_song in enumerate(tracks, 1):
         print('')
         try:
             download_single(raw_song, number=number)
@@ -89,20 +100,25 @@ def download_list(text_file):
             download_single(raw_song, number=number)
         # detect network problems
         except (urllib.request.URLError, TypeError, IOError):
-            lines.append(raw_song)
+            tracks.append(raw_song)
             # remove the downloaded song from file
-            internals.trim_song(text_file)
+            internals.trim_song(tracks_file)
             # and append it at the end of file
-            with open(text_file, 'a') as myfile:
-                myfile.write(raw_song + '\n')
+            with open(tracks_file, 'a') as f:
+                f.write(raw_song + '\n')
             log.warning('Failed to download song. Will retry after other songs\n')
             # wait 0.5 sec to avoid infinite looping
             time.sleep(0.5)
             continue
 
         downloaded_songs.append(raw_song)
-        log.debug('Removing downloaded song from text file')
-        internals.trim_song(text_file)
+        # Add track to file of successful downloads
+        log.debug('Adding downloaded song to write successful file')
+        if write_successful_file is not None:
+            with open(write_successful_file, 'a') as f:
+                f.write(raw_song + '\n')
+        log.debug('Removing downloaded song from tracks file')
+        internals.trim_song(tracks_file)
 
     return downloaded_songs
 
@@ -193,7 +209,7 @@ def main():
         if const.args.song:
             download_single(raw_song=const.args.song)
         elif const.args.list:
-            download_list(text_file=const.args.list)
+            download_list(tracks_file=const.args.list, skip_file=const.args.skip, write_successful_file=const.args.write_successful)
         elif const.args.playlist:
             spotify_tools.write_playlist(playlist_url=const.args.playlist)
         elif const.args.album:

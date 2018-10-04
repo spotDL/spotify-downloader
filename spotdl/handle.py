@@ -28,6 +28,8 @@ default_conf = { 'spotify-downloader':
                    'file-format'            : '{artist} - {track_name}',
                    'search-format'          : '{artist} - {track_name} lyrics',
                    'youtube-api-key'        : None,
+                   'skip'                   : None,
+                   'write-successful'       : None,
                    'log-level'              : 'INFO' }
                }
 
@@ -175,6 +177,12 @@ def get_arguments(raw_args=None, to_group=True, to_merge=True):
     parser.add_argument(
         '-yk', '--youtube-api-key', default=config['youtube-api-key'],
         help=argparse.SUPPRESS)
+    parser.add_argument(
+        '-sk', '--skip', default=config['skip'],
+        help='path to file containing tracks to skip')
+    parser.add_argument(
+        '-w', '--write-successful', default=config['write-successful'],
+        help='path to file to write successful tracks to')
     parser.add_argument(
         '-c', '--config', default=None,
         help='path to custom config.yml file')
