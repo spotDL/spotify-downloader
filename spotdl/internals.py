@@ -4,6 +4,10 @@ from logzero import logger as log
 
 from spotdl import const
 
+try:
+    from winreg import *
+except ImportError:
+    pass
 
 try:
     from slugify import SLUG_OK, slugify
@@ -175,8 +179,7 @@ def get_unique_tracks(text_file):
     return lines
 
 
-# a hacky way to user's localized music directory
-# (thanks @linusg, issue #203)
+# Get user's localized music directory
 def get_music_dir():
     home = os.path.expanduser('~')
 
@@ -191,11 +194,16 @@ def get_music_dir():
                         if line.startswith('XDG_MUSIC_DIR'):
                             return os.path.expandvars(line.strip().split('=')[1].strip('"'))
 
-    # On both Windows and macOS, the localized folder names you see in
-    # Explorer and Finder are actually in English on the file system.
-    # So, defaulting to C:\Users\<user>\Music or /Users/<user>/Music
-    # respectively is sufficient.
-    # On Linux, default to /home/<user>/Music if the above method failed.
+    # Windows / Cygwin
+    # Queries registry for 'My Music' folder path (as this can be changed)
+    if 'win' in sys.platform:
+        try:
+            key = OpenKey(HKEY_CURRENT_USER, r"Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders", 0, KEY_ALL_ACCESS)
+            return QueryValueEx(key, "My Music")[0]
+        except Exception:
+            pass
+    
+    # Default to /home/<user>/Music if the above method failed.
     return os.path.join(home, 'Music')
 
 
