@@ -178,8 +178,8 @@ def get_unique_tracks(text_file):
 
     return lines
 
-
-# a hacky way to user's localized music directory
+# a hacky way to get user's localized music directory
+# (thanks @linusg, issue #203)
 def get_music_dir():
     home = os.path.expanduser('~')
 
@@ -200,7 +200,7 @@ def get_music_dir():
         try:
             key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders", 0, winreg.KEY_ALL_ACCESS)
             return winreg.QueryValueEx(key, "My Music")[0]
-        except FileNotFoundError:
+        except (FileNotFoundError, NameError):
             pass
     
     # On both Windows and macOS, the localized folder names you see in
