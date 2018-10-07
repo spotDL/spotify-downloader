@@ -102,6 +102,9 @@ def get_arguments(raw_args=None, to_group=True, to_merge=True):
             '-b', '--album',
             help='load tracks from album URL into <album_name>.txt')
         group.add_argument(
+            '-ab', '--all-albums',
+            help='load all tracks from artist URL into <artist_name>.txt')
+        group.add_argument(
             '-u', '--username',
             help="load tracks from user's playlist into <playlist_name>.txt")
         group.add_argument(
