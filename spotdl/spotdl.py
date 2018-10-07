@@ -209,7 +209,11 @@ def main():
         if const.args.song:
             download_single(raw_song=const.args.song)
         elif const.args.list:
-            download_list(tracks_file=const.args.list, skip_file=const.args.skip, write_successful_file=const.args.write_successful)
+            download_list(
+                tracks_file=const.args.list,
+                skip_file=const.args.skip,
+                write_successful_file=const.args.write_successful
+            )
         elif const.args.playlist:
             spotify_tools.write_playlist(playlist_url=const.args.playlist)
         elif const.args.album:
