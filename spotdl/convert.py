@@ -20,8 +20,7 @@ def song(input_song, output_song, folder, avconv=False, trim_silence=False):
     if input_song == output_song:
         return 0
     convert = Converter(input_song, output_song, folder, trim_silence)
-    log.info('Converting {0} to {1}'.format(
-        input_song, output_song.split('.')[-1]))
+    log.info("Converting {0} to {1}".format(input_song, output_song.split(".")[-1]))
     if avconv:
         exit_code = convert.with_avconv()
     else:
@@ -37,54 +36,67 @@ class Converter:
 
     def with_avconv(self):
         if log.level == 10:
-            level = 'debug'
+            level = "debug"
         else:
-            level = '0'
+            level = "0"
 
-        command = ['avconv', '-loglevel', level, '-i',
-                   self.input_file, '-ab', '192k',
-                   self.output_file, '-y']
-        
+        command = [
+            "avconv",
+            "-loglevel",
+            level,
+            "-i",
+            self.input_file,
+            "-ab",
+            "192k",
+            self.output_file,
+            "-y",
+        ]
+
         if self.trim_silence:
-            log.warning('--trim-silence not supported with avconv')
-        
+            log.warning("--trim-silence not supported with avconv")
+
         log.debug(command)
         return subprocess.call(command)
 
     def with_ffmpeg(self):
-        ffmpeg_pre = 'ffmpeg -y '
+        ffmpeg_pre = "ffmpeg -y "
 
         if not log.level == 10:
-            ffmpeg_pre += '-hide_banner -nostats -v panic '
+            ffmpeg_pre += "-hide_banner -nostats -v panic "
 
         _, input_ext = os.path.splitext(self.input_file)
         _, output_ext = os.path.splitext(self.output_file)
 
-        ffmpeg_params = ''
+        ffmpeg_params = ""
 
-        if input_ext == '.m4a':
-            if output_ext == '.mp3':
-                ffmpeg_params = '-codec:v copy -codec:a libmp3lame -ar 44100 '
-            elif output_ext == '.webm':
-                ffmpeg_params = '-codec:a libopus -vbr on '
+        if input_ext == ".m4a":
+            if output_ext == ".mp3":
+                ffmpeg_params = "-codec:v copy -codec:a libmp3lame -ar 44100 "
+            elif output_ext == ".webm":
+                ffmpeg_params = "-codec:a libopus -vbr on "
 
-        elif input_ext == '.webm':
-            if output_ext == '.mp3':
-                ffmpeg_params = '-codec:a libmp3lame -ar 44100 '
-            elif output_ext == '.m4a':
-                ffmpeg_params = '-cutoff 20000 -codec:a libfdk_aac -ar 44100 '
+        elif input_ext == ".webm":
+            if output_ext == ".mp3":
+                ffmpeg_params = "-codec:a libmp3lame -ar 44100 "
+            elif output_ext == ".m4a":
+                ffmpeg_params = "-cutoff 20000 -codec:a libfdk_aac -ar 44100 "
 
-        if output_ext == '.flac':
-            ffmpeg_params = '-codec:a flac -ar 44100 '
+        if output_ext == ".flac":
+            ffmpeg_params = "-codec:a flac -ar 44100 "
 
         # add common params for any of the above combination
-        ffmpeg_params += '-b:a 192k -vn '
-        ffmpeg_pre += ' -i'
-        
+        ffmpeg_params += "-b:a 192k -vn "
+        ffmpeg_pre += " -i"
+
         if self.trim_silence:
-            ffmpeg_params += '-af silenceremove=start_periods=1 '
-        
-        command = ffmpeg_pre.split() + [self.input_file] + ffmpeg_params.split() + [self.output_file]
+            ffmpeg_params += "-af silenceremove=start_periods=1 "
+
+        command = (
+            ffmpeg_pre.split()
+            + [self.input_file]
+            + ffmpeg_params.split()
+            + [self.output_file]
+        )
 
         log.debug(command)
         return subprocess.call(command)

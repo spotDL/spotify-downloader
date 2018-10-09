@@ -22,6 +22,7 @@ don't feel bad. Open an issue any way!
 [good-first-issue](https://github.com/ritiek/spotify-downloader/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22).
 - When making a PR, point it to the [master branch](https://github.com/ritiek/spotify-downloader/tree/master)
 unless mentioned otherwise.
+- Code should be formatted using [black](https://github.com/ambv/black).
 - All tests are placed in the [test directory](https://github.com/ritiek/spotify-downloader/tree/master/test). We use [pytest](https://github.com/pytest-dev/pytest)
 to run the test suite: `$ python3 -m pytest test`.
 If you don't have pytest, you can install it with `$ pip3 install pytest`.
