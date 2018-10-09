@@ -11,17 +11,17 @@ import loader
 
 loader.load_defaults()
 
-YT_API_KEY = 'AIzaSyAnItl3udec-Q1d5bkjKJGL-RgrKO_vU90'
+YT_API_KEY = "AIzaSyAnItl3udec-Q1d5bkjKJGL-RgrKO_vU90"
 
 TRACK_SEARCH = "Tony's Videos VERY SHORT VIDEO 28.10.2016"
 EXPECTED_TITLE = TRACK_SEARCH
-EXPECTED_YT_URL = 'http://youtube.com/watch?v=qOOcy2-tmbk'
-EXPECTED_YT_URLS = (EXPECTED_YT_URL, 'http://youtube.com/watch?v=5USR1Omo7f0')
+EXPECTED_YT_URL = "http://youtube.com/watch?v=qOOcy2-tmbk"
+EXPECTED_YT_URLS = (EXPECTED_YT_URL, "http://youtube.com/watch?v=5USR1Omo7f0")
 
 RESULT_COUNT_SEARCH = "she is still sleeping SAO"
 
-EXPECTED_YT_API_KEY = 'AIzaSyC6cEeKlxtOPybk9sEe5ksFN5sB-7wzYp0'
-EXPECTED_YT_API_KEY_CUSTOM = 'some_api_key'
+EXPECTED_YT_API_KEY = "AIzaSyC6cEeKlxtOPybk9sEe5ksFN5sB-7wzYp0"
+EXPECTED_YT_API_KEY_CUSTOM = "some_api_key"
 
 
 class TestYouTubeAPIKeys:
@@ -76,13 +76,13 @@ class TestYouTubeURL:
 
     def test_args_manual(self, monkeypatch):
         const.args.manual = True
-        monkeypatch.setattr('builtins.input', lambda x: '1')
+        monkeypatch.setattr("builtins.input", lambda x: "1")
         url = youtube_tools.generate_youtube_url(TRACK_SEARCH, metadata)
         assert url == EXPECTED_YT_URL
 
     def test_args_manual_none(self, monkeypatch):
         expect_url = None
-        monkeypatch.setattr('builtins.input', lambda x: '0')
+        monkeypatch.setattr("builtins.input", lambda x: "0")
         url = youtube_tools.generate_youtube_url(TRACK_SEARCH, metadata)
         const.args.manual = False
         assert url == expect_url
@@ -120,10 +120,10 @@ class TestDownload:
     def test_webm(self):
         # content does not have any .webm audiostream
         expect_download = False
-        download = youtube_tools.download_song(file_name + '.webm', content)
+        download = youtube_tools.download_song(file_name + ".webm", content)
         assert download == expect_download
 
     def test_other(self):
         expect_download = False
-        download = youtube_tools.download_song(file_name + '.fake_extension', content)
+        download = youtube_tools.download_song(file_name + ".fake_extension", content)
         assert download == expect_download
