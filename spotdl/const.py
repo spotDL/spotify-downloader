@@ -31,6 +31,7 @@ M4A_TAG_PRESET = {
     "copyright": "cprt",
     "tempo": "tmpo",
     "lyrics": "\xa9lyr",
+    "comment": "\xa9cmt",
 }
 
 TAG_PRESET = {}
