@@ -22,11 +22,13 @@ import pprint
 
 def check_exists(music_file, raw_song, meta_tags):
     """ Check if the input song already exists in the given folder. """
-    log.debug('Cleaning any temp files and checking '
-              'if "{}" already exists'.format(music_file))
+    log.debug(
+        "Cleaning any temp files and checking "
+        'if "{}" already exists'.format(music_file)
+    )
     songs = os.listdir(const.args.folder)
     for song in songs:
-        if song.endswith('.temp'):
+        if song.endswith(".temp"):
             os.remove(os.path.join(const.args.folder, song))
             continue
         # check if a song with the same name is already present in the given folder
@@ -35,29 +37,33 @@ def check_exists(music_file, raw_song, meta_tags):
             if internals.is_spotify(raw_song):
                 # check if the already downloaded song has correct metadata
                 # if not, remove it and download again without prompt
-                already_tagged = metadata.compare(os.path.join(const.args.folder, song),
-                                                  meta_tags)
-                log.debug('Checking if it is already tagged correctly? {}',
-                                                            already_tagged)
+                already_tagged = metadata.compare(
+                    os.path.join(const.args.folder, song), meta_tags
+                )
+                log.debug(
+                    "Checking if it is already tagged correctly? {}", already_tagged
+                )
                 if not already_tagged:
                     os.remove(os.path.join(const.args.folder, song))
                     return False
 
             log.warning('"{}" already exists'.format(song))
-            if const.args.overwrite == 'prompt':
-                log.info('"{}" has already been downloaded. '
-                         'Re-download? (y/N): '.format(song))
-                prompt = input('> ')
-                if prompt.lower() == 'y':
+            if const.args.overwrite == "prompt":
+                log.info(
+                    '"{}" has already been downloaded. '
+                    "Re-download? (y/N): ".format(song)
+                )
+                prompt = input("> ")
+                if prompt.lower() == "y":
                     os.remove(os.path.join(const.args.folder, song))
                     return False
                 else:
                     return True
-            elif const.args.overwrite == 'force':
+            elif const.args.overwrite == "force":
                 os.remove(os.path.join(const.args.folder, song))
                 log.info('Overwriting "{}"'.format(song))
                 return False
-            elif const.args.overwrite == 'skip':
+            elif const.args.overwrite == "skip":
                 log.info('Skipping "{}"'.format(song))
                 return True
     return False
@@ -66,35 +72,31 @@ def check_exists(music_file, raw_song, meta_tags):
 def download_list(tracks_file, skip_file=None, write_successful_file=None):
     """ Download all songs from the list. """
 
-    log.info('Checking and removing any duplicate tracks')
+    log.info("Checking and removing any duplicate tracks")
     tracks = internals.get_unique_tracks(tracks_file)
 
     # override file with unique tracks
-    with open(tracks_file, 'w') as f:
-        f.write('\n'.join(tracks))
+    with open(tracks_file, "w") as f:
+        f.write("\n".join(tracks))
 
     # Remove tracks to skip from tracks list
     if skip_file is not None:
         skip_tracks = internals.get_unique_tracks(skip_file)
         len_before = len(tracks)
-        tracks = [
-            track for track in tracks
-            if track not in skip_tracks
-        ]
-        log.info('Skipping {} tracks'.format(len_before - len(tracks)))
+        tracks = [track for track in tracks if track not in skip_tracks]
+        log.info("Skipping {} tracks".format(len_before - len(tracks)))
 
-
-    log.info(u'Preparing to download {} songs'.format(len(tracks)))
+    log.info(u"Preparing to download {} songs".format(len(tracks)))
     downloaded_songs = []
 
     for number, raw_song in enumerate(tracks, 1):
-        print('')
+        print("")
         try:
             download_single(raw_song, number=number)
         # token expires after 1 hour
         except spotipy.client.SpotifyException:
             # refresh token when it expires
-            log.debug('Token expired, generating new one and authorizing')
+            log.debug("Token expired, generating new one and authorizing")
             new_token = spotify_tools.generate_token()
             spotify_tools.spotify = spotipy.Spotify(auth=new_token)
             download_single(raw_song, number=number)
@@ -104,20 +106,20 @@ def download_list(tracks_file, skip_file=None, write_successful_file=None):
             # remove the downloaded song from file
             internals.trim_song(tracks_file)
             # and append it at the end of file
-            with open(tracks_file, 'a') as f:
-                f.write('\n' + raw_song)
-            log.warning('Failed to download song. Will retry after other songs\n')
+            with open(tracks_file, "a") as f:
+                f.write("\n" + raw_song)
+            log.warning("Failed to download song. Will retry after other songs\n")
             # wait 0.5 sec to avoid infinite looping
             time.sleep(0.5)
             continue
 
         downloaded_songs.append(raw_song)
         # Add track to file of successful downloads
-        log.debug('Adding downloaded song to write successful file')
+        log.debug("Adding downloaded song to write successful file")
         if write_successful_file is not None:
-            with open(write_successful_file, 'a') as f:
-                f.write('\n' + raw_song)
-        log.debug('Removing downloaded song from tracks file')
+            with open(write_successful_file, "a") as f:
+                f.write("\n" + raw_song)
+        log.debug("Removing downloaded song from tracks file")
         internals.trim_song(tracks_file)
 
     return downloaded_songs
@@ -127,39 +129,41 @@ def download_single(raw_song, number=None):
     """ Logic behind downloading a song. """
 
     if internals.is_youtube(raw_song):
-        log.debug('Input song is a YouTube URL')
+        log.debug("Input song is a YouTube URL")
         content = youtube_tools.go_pafy(raw_song, meta_tags=None)
-        raw_song = slugify(content.title).replace('-', ' ')
+        raw_song = slugify(content.title).replace("-", " ")
         meta_tags = spotify_tools.generate_metadata(raw_song)
     else:
         meta_tags = spotify_tools.generate_metadata(raw_song)
         content = youtube_tools.go_pafy(raw_song, meta_tags)
 
     if content is None:
-        log.debug('Found no matching video')
+        log.debug("Found no matching video")
         return
 
     if const.args.download_only_metadata and meta_tags is None:
-        log.info('Found no metadata. Skipping the download')
+        log.info("Found no metadata. Skipping the download")
         return
 
     # "[number]. [artist] - [song]" if downloading from list
     # otherwise "[artist] - [song]"
     youtube_title = youtube_tools.get_youtube_title(content, number)
-    log.info('{} ({})'.format(youtube_title, content.watchv_url))
+    log.info("{} ({})".format(youtube_title, content.watchv_url))
 
     # generate file name of the song to download
     songname = content.title
 
     if meta_tags is not None:
-        refined_songname = internals.format_string(const.args.file_format,
-                                                   meta_tags,
-                                                   slugification=True)
-        log.debug('Refining songname from "{0}" to "{1}"'.format(songname, refined_songname))
-        if not refined_songname == ' - ':
+        refined_songname = internals.format_string(
+            const.args.file_format, meta_tags, slugification=True
+        )
+        log.debug(
+            'Refining songname from "{0}" to "{1}"'.format(songname, refined_songname)
+        )
+        if not refined_songname == " - ":
             songname = refined_songname
     else:
-        log.warning('Could not find metadata')
+        log.warning("Could not find metadata")
         songname = internals.sanitize_title(songname)
 
     if const.args.dry_run:
@@ -172,13 +176,18 @@ def download_single(raw_song, number=None):
         input_song = songname + const.args.input_ext
         output_song = songname + const.args.output_ext
         if youtube_tools.download_song(input_song, content):
-            print('')
+            print("")
             try:
-                convert.song(input_song, output_song, const.args.folder,
-                             avconv=const.args.avconv, trim_silence=const.args.trim_silence)
+                convert.song(
+                    input_song,
+                    output_song,
+                    const.args.folder,
+                    avconv=const.args.avconv,
+                    trim_silence=const.args.trim_silence,
+                )
             except FileNotFoundError:
-                encoder = 'avconv' if const.args.avconv else 'ffmpeg'
-                log.warning('Could not find {0}, skipping conversion'.format(encoder))
+                encoder = "avconv" if const.args.avconv else "ffmpeg"
+                log.warning("Could not find {0}, skipping conversion".format(encoder))
                 const.args.output_ext = const.args.input_ext
                 output_song = songname + const.args.output_ext
 
@@ -193,7 +202,7 @@ def main():
     const.args = handle.get_arguments()
 
     if const.args.version:
-        print('spotdl {version}'.format(version=__version__))
+        print("spotdl {version}".format(version=__version__))
         sys.exit()
 
     internals.filter_path(const.args.folder)
@@ -201,8 +210,8 @@ def main():
 
     logzero.setup_default_logger(formatter=const._formatter, level=const.args.log_level)
 
-    log.debug('Python version: {}'.format(sys.version))
-    log.debug('Platform: {}'.format(platform.platform()))
+    log.debug("Python version: {}".format(sys.version))
+    log.debug("Platform: {}".format(platform.platform()))
     log.debug(pprint.pformat(const.args.__dict__))
 
     try:
@@ -212,7 +221,7 @@ def main():
             download_list(
                 tracks_file=const.args.list,
                 skip_file=const.args.skip,
-                write_successful_file=const.args.write_successful
+                write_successful_file=const.args.write_successful,
             )
         elif const.args.playlist:
             spotify_tools.write_playlist(playlist_url=const.args.playlist)
@@ -230,5 +239,5 @@ def main():
         sys.exit(3)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
