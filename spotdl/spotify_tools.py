@@ -157,12 +157,8 @@ def fetch_all_albums_from_artist(artist_url, text_file=None):
     of the album
     :param artist_url - spotify artist ulr
     """
-    #getting artist uri from url by parsing id
-    artist_id = internals.get_splits(artist_url)[4]
+    results = spotify.artist_albums(artist_url, album_type='album')
 
-    artis_uri = 'spotify:artist:' + artist_id 
-
-    results = spotify.artist_albums(artis_uri, album_type='album')
     albums = results['items']
     while results['next']:
         results = spotify.next(results)
@@ -172,6 +168,8 @@ def fetch_all_albums_from_artist(artist_url, text_file=None):
         text_file = albums[0]['artists'][0]['name']+'.txt'
 
     for album in albums:
+       #logging album name 
+       log.info('Fetching album: ' + album['name'])
        write_album('https://open.spotify.com/album/' + album['id'], text_file=text_file)
 
 def write_album(album_url, text_file=None):
