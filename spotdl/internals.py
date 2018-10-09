@@ -161,7 +161,12 @@ def get_splits(url):
     if "/" in url:
         if url.endswith("/"):
             url = url[:-1]
-        splits = url.split("/")
+        # We need to manually trim additional text from HTTP URLs
+        # or if https://github.com/plamere/spotipy/pull/324 gets merged
+        to_trim = url.find('?')
+        if not to_trim == -1:
+            url = url[:to_trim]
+        splits = url.split('/')
     else:
         splits = url.split(":")
     return splits
