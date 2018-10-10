@@ -10,7 +10,6 @@ from titlecase import titlecase
 import pprint
 import sys
 
-
 def generate_token():
     """ Generate the token. Please respect these credentials :) """
     credentials = oauth2.SpotifyClientCredentials(
@@ -150,27 +149,60 @@ def fetch_album(album):
     album = spotify.album(album_id)
     return album
 
-def fetch_all_albums_from_artist(artist_url, text_file=None):
+def fetch_album_from_artist(artist_url, album_type='album'):
+    """
+    This funcction returns all the albums from a give artist_url using the US
+    market
+    :param artist_url - spotify artist ulr
+    :param album_type - the type of album to fetch (ex: single) the default is
+                        a standard album
+    :param return - the album from the artist    
+    """
+
+    #fetching artist's albums limitting the results to the US to avoid duplicate
+    #albums from multiple markets
+    results = spotify.artist_albums(artist_url, album_type=album_type, country='US')
+
+    albums = results['items']
+
+    #indexing all pages of results
+    while results['next']:
+        results = spotify.next(results)
+        albums.extend(results['items'])
+
+    return albums
+        
+
+def write_all_albums_from_artist(artist_url, text_file=None):
     """
     This function gets all albums from an artist and writes it to a file in the
     current working directory called [ARTIST].txt, where [ARTIST] is the artist
     of the album
     :param artist_url - spotify artist ulr
+    :param text_file - file to write albums to 
     """
-    results = spotify.artist_albums(artist_url, album_type='album')
 
-    albums = results['items']
-    while results['next']:
-        results = spotify.next(results)
-        albums.extend(results['items'])
+    album_base_url = 'https://open.spotify.com/album/'
 
+    #fetching all default albums
+    albums = fetch_album_from_artist(artist_url)
+
+    #if no file if given, the default save file is in the current working
+    #directory with the name of the artist
     if text_file is None:
         text_file = albums[0]['artists'][0]['name']+'.txt'
 
     for album in albums:
        #logging album name 
        log.info('Fetching album: ' + album['name'])
-       write_album('https://open.spotify.com/album/' + album['id'], text_file=text_file)
+       write_album(album_base_url + album['id'], text_file=text_file)
+
+    #fetching all single albums
+    singles = fetch_album_from_artist(artist_url, album_type='single') 
+
+    for single in singles:
+        log.info('Fetching single: ' + single['name'])
+        write_album(album_base_url + single['id'], text_file=text_file)
 
 def write_album(album_url, text_file=None):
     album = fetch_album(album_url)
