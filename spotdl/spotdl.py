@@ -229,7 +229,7 @@ def main():
         elif const.args.album:
             spotify_tools.write_album(album_url=const.args.album)
         elif const.args.all_albums:
-            spotify_tools.fetch_all_albums_from_artist(artist_url=const.args.all_albums)
+            spotify_tools.write_all_albums_from_artist(artist_url=const.args.all_albums)
         elif const.args.username:
             spotify_tools.write_user_playlist(username=const.args.username)
 
