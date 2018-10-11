@@ -7,6 +7,7 @@ from spotdl import spotdl
 
 PLAYLIST_URL = "https://open.spotify.com/user/alex/playlist/0iWOVoumWlkXIrrBTSJmN8"
 ALBUM_URL = "https://open.spotify.com/album/499J8bIsEnU7DSrosFDJJg"
+ARTIST_URL = "https://open.spotify.com/artist/4dpARuHxo51G3z768sgnrY"
 
 
 def test_user_playlists(tmpdir, monkeypatch):
@@ -34,6 +35,17 @@ def test_album(tmpdir):
     text_file = os.path.join(str(tmpdir), "test_al.txt")
     spotify_tools.write_album(ALBUM_URL, text_file)
     with open(text_file, "r") as f:
+        tracks = len(f.readlines())
+    assert tracks == expect_tracks
+
+def test_all_albums(tmpdir):
+    #current number of tracks on spotify since as of 10/10/2018
+    #in US market only
+    expect_tracks = 49 
+    global text_file
+    text_file = os.path.join(str(tmpdir), 'test_ab.txt')
+    spotify_tools.write_all_albums_from_artist(ARTIST_URL, text_file)
+    with open(text_file, 'r') as f:
         tracks = len(f.readlines())
     assert tracks == expect_tracks
 
