@@ -153,7 +153,7 @@ def fetch_album_from_artist(artist_url, album_type='album'):
     """
     This funcction returns all the albums from a give artist_url using the US
     market
-    :param artist_url - spotify artist ulr
+    :param artist_url - spotify artist url
     :param album_type - the type of album to fetch (ex: single) the default is
                         a standard album
     :param return - the album from the artist    
