@@ -178,7 +178,7 @@ def write_all_albums_from_artist(artist_url, text_file=None):
     This function gets all albums from an artist and writes it to a file in the
     current working directory called [ARTIST].txt, where [ARTIST] is the artist
     of the album
-    :param artist_url - spotify artist ulr
+    :param artist_url - spotify artist url
     :param text_file - file to write albums to 
     """
 
