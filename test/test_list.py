@@ -39,11 +39,12 @@ def test_album(tmpdir):
     assert tracks == expect_tracks
 
 def test_all_albums(tmpdir):
-    #current number of tracks on spotify since as of 08/07/2018
-    expect_tracks = 128 
+    #current number of tracks on spotify since as of 10/10/2018
+    #in US market only
+    expect_tracks = 49 
     global text_file
     text_file = os.path.join(str(tmpdir), 'test_ab.txt')
-    spotify_tools.fetch_all_albums_from_artist(ARTIST_URL, text_file)
+    spotify_tools.write_all_albums_from_artist(ARTIST_URL, text_file)
     with open(text_file, 'r') as f:
         tracks = len(f.readlines())
     assert tracks == expect_tracks
