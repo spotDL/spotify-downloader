@@ -1,8 +1,10 @@
 from bs4 import BeautifulSoup
 import urllib
 import pafy
+from slugify import slugify
 from logzero import logger as log
 
+from spotdl import spotify_tools
 from spotdl import internals
 from spotdl import const
 
@@ -38,6 +40,21 @@ def go_pafy(raw_song, meta_tags=None):
     return track_info
 
 
+def match_video_and_metadata(track, force_pafy=True):
+    if internals.is_youtube(track):
+        log.debug('Input song is a YouTube URL')
+        content = go_pafy(track, meta_tags=None)
+        track = slugify(content.title).replace('-', ' ')
+        meta_tags = spotify_tools.generate_metadata(track)
+    else:
+        meta_tags = spotify_tools.generate_metadata(track)
+        if force_pafy:
+            content = go_pafy(track, meta_tags)
+        else:
+            content = None
+    return content, meta_tags
+
+
 def get_youtube_title(content, number=None):
     """ Get the YouTube video's title. """
     title = content.title
@@ -45,6 +62,32 @@ def get_youtube_title(content, number=None):
         return "{0}. {1}".format(number, title)
     else:
         return title
+
+
+def generate_m3u(track_file):
+    tracks = internals.get_unique_tracks(track_file)
+    target_file = '{}.m3u'.format(track_file.split('.')[0])
+    total_tracks = len(tracks)
+    log.info('Generating {0} from {1} YouTube URLs'.format(target_file, total_tracks))
+    with open(target_file, 'w') as output_file:
+        output_file.write('#EXTM3U\n\n')
+    for n, track in enumerate(tracks, 1):
+        content, _ = match_video_and_metadata(track)
+        if content is None:
+            log.warning('Skipping {}'.format(track))
+        else:
+            log.info('Matched track {0}/{1} ({2})'.format(
+                                n,
+                                total_tracks,
+                                content.watchv_url))
+            log.debug(track)
+            m3u_key = '#EXTINF:{duration},{title}\n{youtube_url}\n'.format(
+                                duration=internals.get_sec(content.duration),
+                                title=content.title,
+                                youtube_url=content.watchv_url)
+            log.debug(m3u_key)
+            with open(target_file, 'a') as output_file:
+                output_file.write(m3u_key)
 
 
 def download_song(file_name, content):
@@ -164,7 +207,7 @@ class GenerateYouTubeURL:
                     duration_tolerance += 1
                     if duration_tolerance > max_duration_tolerance:
                         log.error(
-                            "{0} by {1} was not found.\n".format(
+                            "{0} by {1} was not found.".format(
                                 self.meta_tags["name"],
                                 self.meta_tags["artists"][0]["name"],
                             )
