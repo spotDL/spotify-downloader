@@ -12,10 +12,10 @@ import loader
 
 loader.load_defaults()
 
-TRACK_URL = "http://open.spotify.com/track/0JlS7BXXD07hRmevDnbPDU"
-EXPECTED_TITLE = "David André Østby - Intro"
-EXPECTED_YT_TITLE = "Intro - David André Østby"
-EXPECTED_YT_URL = "http://youtube.com/watch?v=rg1wfcty0BA"
+TRACK_URL = "https://open.spotify.com/track/2nT5m433s95hvYJH4S7ont"
+EXPECTED_TITLE = "Eminem - Encore"
+EXPECTED_YT_TITLE = "Eminem - Encore - Curtains Up"
+EXPECTED_YT_URL = "http://www.youtube.com/watch?v=0BZ6JYwrl2Y"
 
 
 def test_metadata():
