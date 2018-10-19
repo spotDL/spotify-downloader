@@ -11,7 +11,7 @@ ARTIST_URL = "https://open.spotify.com/artist/4dpARuHxo51G3z768sgnrY"
 
 
 def test_user_playlists(tmpdir, monkeypatch):
-    expect_tracks = 14
+    expect_tracks = 21
     text_file = os.path.join(str(tmpdir), "test_us.txt")
     monkeypatch.setattr("builtins.input", lambda x: 1)
     spotify_tools.write_user_playlist("alex", text_file)
@@ -41,7 +41,7 @@ def test_album(tmpdir):
 def test_all_albums(tmpdir):
     #current number of tracks on spotify since as of 10/10/2018
     #in US market only
-    expect_tracks = 49 
+    expect_tracks = 49
     global text_file
     text_file = os.path.join(str(tmpdir), 'test_ab.txt')
     spotify_tools.write_all_albums_from_artist(ARTIST_URL, text_file)
