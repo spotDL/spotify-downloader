@@ -37,7 +37,6 @@ def test_playlist(tmpdir):
 
 def test_album(tmpdir):
     expect_tracks = 15
-    global text_file
     text_file = os.path.join(str(tmpdir), "test_al.txt")
     spotify_tools.write_album(ALBUM_URL, text_file)
     with open(text_file, "r") as f:
@@ -48,16 +47,14 @@ def test_album(tmpdir):
 def test_m3u(tmpdir):
     expect_m3u = (
         "#EXTM3U\n\n"
-        "#EXTINF:198,Tobu - Candyland [NCS Release]\n"
-        "http://www.youtube.com/watch?v=IIrCDAV3EgI\n"
+        "#EXTINF:47,Eminem - Encore - Curtains Up\n"
+        "http://www.youtube.com/watch?v=0BZ6JYwrl2Y\n"
         "#EXTINF:226,Alan Walker - Spectre [NCS Release]\n"
         "http://www.youtube.com/watch?v=AOeY-nDp7hI\n"
     )
-    with open(text_file, "r") as album_tracks:
-        tracks = album_tracks.readlines()
     m3u_track_file = os.path.join(str(tmpdir), "m3u_test.txt")
     with open(m3u_track_file, "w") as track_file:
-        track_file.write("\n".join(tracks[:1]))
+        track_file.write("\nhttps://open.spotify.com/track/2nT5m433s95hvYJH4S7ont")
         track_file.write("\nhttp://www.youtube.com/watch?v=AOeY-nDp7hI")
     youtube_tools.generate_m3u(m3u_track_file)
     m3u_file = "{}.m3u".format(m3u_track_file.split(".")[0])
