@@ -127,15 +127,7 @@ def download_list(tracks_file, skip_file=None, write_successful_file=None):
 
 def download_single(raw_song, number=None):
     """ Logic behind downloading a song. """
-
-    if internals.is_youtube(raw_song):
-        log.debug("Input song is a YouTube URL")
-        content = youtube_tools.go_pafy(raw_song, meta_tags=None)
-        raw_song = slugify(content.title).replace("-", " ")
-        meta_tags = spotify_tools.generate_metadata(raw_song)
-    else:
-        meta_tags = spotify_tools.generate_metadata(raw_song)
-        content = youtube_tools.go_pafy(raw_song, meta_tags)
+    content, meta_tags = youtube_tools.match_video_and_metadata(raw_song)
 
     if content is None:
         log.debug("Found no matching video")
@@ -219,11 +211,14 @@ def main():
         if const.args.song:
             download_single(raw_song=const.args.song)
         elif const.args.list:
-            download_list(
-                tracks_file=const.args.list,
-                skip_file=const.args.skip,
-                write_successful_file=const.args.write_successful,
-            )
+            if const.args.write_m3u:
+                youtube_tools.generate_m3u(track_file=const.args.list)
+            else:
+                download_list(
+                    tracks_file=const.args.list,
+                    skip_file=const.args.skip,
+                    write_successful_file=const.args.write_successful,
+                )
         elif const.args.playlist:
             spotify_tools.write_playlist(playlist_url=const.args.playlist)
         elif const.args.album:

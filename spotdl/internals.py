@@ -205,7 +205,7 @@ def get_music_dir():
             return winreg.QueryValueEx(key, "My Music")[0]
         except (FileNotFoundError, NameError):
             pass
-    
+
     # On both Windows and macOS, the localized folder names you see in
     # Explorer and Finder are actually in English on the file system.
     # So, defaulting to C:\Users\<user>\Music or /Users/<user>/Music

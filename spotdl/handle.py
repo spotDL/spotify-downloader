@@ -125,6 +125,12 @@ def get_arguments(raw_args=None, to_group=True, to_merge=True):
         )
 
     parser.add_argument(
+        '--write-m3u',
+        help="generate an .m3u playlist file with youtube links given "
+             "a text file containing tracks",
+        action='store_true'
+    )
+    parser.add_argument(
         "-m",
         "--manual",
         default=config["manual"],
@@ -256,6 +262,9 @@ def get_arguments(raw_args=None, to_group=True, to_merge=True):
 
     if parsed.config is not None and to_merge:
         parsed = override_config(parsed.config, parser)
+
+    if parsed.write_m3u and not parsed.list:
+        parser.error('--write-m3u can only be used with --list')
 
     parsed.log_level = log_leveller(parsed.log_level)
 
