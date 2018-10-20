@@ -110,8 +110,8 @@ def sanitize_title(title, ok="-_()[]{}\/"):
     if const.args.no_spaces:
         title = title.replace(" ", "_")
 
-    # replace "/" with "-" to avoid folder creation errors
-    title = title.replace("/", "-")
+    # replace slashes with "-" to avoid folder creation errors
+    title = title.replace("/", "-").replace("\\", "-")
 
     # slugify removes any special characters
     title = slugify(title, ok=ok, lower=False, spaces=True)
