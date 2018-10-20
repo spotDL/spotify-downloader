@@ -206,7 +206,6 @@ def main():
     log.debug("Platform: {}".format(platform.platform()))
     log.debug(pprint.pformat(const.args.__dict__))
 
-    
     try:
         if const.args.song:
             download_single(raw_song=const.args.song)

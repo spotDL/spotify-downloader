@@ -88,15 +88,16 @@ def format_string(string_format, tags, slugification=False, force_spaces=False):
     format_tags[10] = tags["total_tracks"]
     format_tags[11] = tags["external_ids"]["isrc"]
 
-    for tag in format_tags:
-        if slugification:
-            format_tags[tag] = sanitize_title(format_tags[tag], ok="'-_()[]{}")
-        else:
-            format_tags[tag] = str(format_tags[tag])
+    format_tags_sanitized = {
+        k: sanitize_title(str(v), ok="'-_()[]{}")
+        if slugification
+        else str(v)
+        for k, v in format_tags.items()
+    }
 
     for x in formats:
         format_tag = "{" + formats[x] + "}"
-        string_format = string_format.replace(format_tag, format_tags[x])
+        string_format = string_format.replace(format_tag, format_tags_sanitized[x])
 
     if const.args.no_spaces and not force_spaces:
         string_format = string_format.replace(" ", "_")
@@ -104,11 +105,14 @@ def format_string(string_format, tags, slugification=False, force_spaces=False):
     return string_format
 
 
-def sanitize_title(title, ok="-_()[]{}\/"):
+def sanitize_title(title, ok="-_()[]{}"):
     """ Generate filename of the song to be downloaded. """
 
     if const.args.no_spaces:
         title = title.replace(" ", "_")
+
+    # replace slashes with "-" to avoid folder creation errors
+    title = title.replace("/", "-").replace("\\", "-")
 
     # slugify removes any special characters
     title = slugify(title, ok=ok, lower=False, spaces=True)
