@@ -134,6 +134,7 @@ def download_single(raw_song, number=None):
         raw_song = slugify(content.title).replace("-", " ")
         meta_tags = spotify_tools.generate_metadata(raw_song)
     else:
+
         meta_tags = spotify_tools.generate_metadata(raw_song)
         content = youtube_tools.go_pafy(raw_song, meta_tags)
 
@@ -214,7 +215,7 @@ def main():
     log.debug("Platform: {}".format(platform.platform()))
     log.debug(pprint.pformat(const.args.__dict__))
 
-    
+
     try:
         if const.args.song:
             download_single(raw_song=const.args.song)
