@@ -42,9 +42,9 @@ def go_pafy(raw_song, meta_tags=None):
 
 def match_video_and_metadata(track, force_pafy=True):
     if internals.is_youtube(track):
-        log.debug('Input song is a YouTube URL')
+        log.debug("Input song is a YouTube URL")
         content = go_pafy(track, meta_tags=None)
-        track = slugify(content.title).replace('-', ' ')
+        track = slugify(content.title).replace("-", " ")
         meta_tags = spotify_tools.generate_metadata(track)
     else:
         meta_tags = spotify_tools.generate_metadata(track)
@@ -66,27 +66,29 @@ def get_youtube_title(content, number=None):
 
 def generate_m3u(track_file):
     tracks = internals.get_unique_tracks(track_file)
-    target_file = '{}.m3u'.format(track_file.split('.')[0])
+    target_file = "{}.m3u".format(track_file.split(".")[0])
     total_tracks = len(tracks)
-    log.info('Generating {0} from {1} YouTube URLs'.format(target_file, total_tracks))
-    with open(target_file, 'w') as output_file:
-        output_file.write('#EXTM3U\n\n')
+    log.info("Generating {0} from {1} YouTube URLs".format(target_file, total_tracks))
+    with open(target_file, "w") as output_file:
+        output_file.write("#EXTM3U\n\n")
     for n, track in enumerate(tracks, 1):
         content, _ = match_video_and_metadata(track)
         if content is None:
-            log.warning('Skipping {}'.format(track))
+            log.warning("Skipping {}".format(track))
         else:
-            log.info('Matched track {0}/{1} ({2})'.format(
-                                n,
-                                total_tracks,
-                                content.watchv_url))
+            log.info(
+                "Matched track {0}/{1} ({2})".format(
+                    n, total_tracks, content.watchv_url
+                )
+            )
             log.debug(track)
-            m3u_key = '#EXTINF:{duration},{title}\n{youtube_url}\n'.format(
-                                duration=internals.get_sec(content.duration),
-                                title=content.title,
-                                youtube_url=content.watchv_url)
+            m3u_key = "#EXTINF:{duration},{title}\n{youtube_url}\n".format(
+                duration=internals.get_sec(content.duration),
+                title=content.title,
+                youtube_url=content.watchv_url,
+            )
             log.debug(m3u_key)
-            with open(target_file, 'a') as output_file:
+            with open(target_file, "a") as output_file:
                 output_file.write(m3u_key)
 
 

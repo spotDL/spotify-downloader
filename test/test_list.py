@@ -46,32 +46,34 @@ def test_album(tmpdir):
 
 
 def test_m3u(tmpdir):
-    expect_m3u = ('#EXTM3U\n\n'
-                  '#EXTINF:198,Tobu - Candyland [NCS Release]\n'
-                  'http://www.youtube.com/watch?v=IIrCDAV3EgI\n'
-                  '#EXTINF:226,Alan Walker - Spectre [NCS Release]\n'
-                  'http://www.youtube.com/watch?v=AOeY-nDp7hI\n')
-    with open(text_file, 'r') as tin:
-        tracks = tin.readlines()
-    m3u_track_file = os.path.join(str(tmpdir), 'm3u_test.txt')
-    with open(m3u_track_file, 'w') as tout:
-        tout.write('\n'.join(tracks[:1]))
-        tout.write('\nhttp://www.youtube.com/watch?v=AOeY-nDp7hI')
+    expect_m3u = (
+        "#EXTM3U\n\n"
+        "#EXTINF:198,Tobu - Candyland [NCS Release]\n"
+        "http://www.youtube.com/watch?v=IIrCDAV3EgI\n"
+        "#EXTINF:226,Alan Walker - Spectre [NCS Release]\n"
+        "http://www.youtube.com/watch?v=AOeY-nDp7hI\n"
+    )
+    with open(text_file, "r") as album_tracks:
+        tracks = album_tracks.readlines()
+    m3u_track_file = os.path.join(str(tmpdir), "m3u_test.txt")
+    with open(m3u_track_file, "w") as track_file:
+        track_file.write("\n".join(tracks[:1]))
+        track_file.write("\nhttp://www.youtube.com/watch?v=AOeY-nDp7hI")
     youtube_tools.generate_m3u(m3u_track_file)
-    m3u_file = '{}.m3u'.format(m3u_track_file.split('.')[0])
-    with open(m3u_file, 'r') as m3u_in:
+    m3u_file = "{}.m3u".format(m3u_track_file.split(".")[0])
+    with open(m3u_file, "r") as m3u_in:
         m3u = m3u_in.readlines()
-    assert ''.join(m3u) == expect_m3u
+    assert "".join(m3u) == expect_m3u
 
 
 def test_all_albums(tmpdir):
-    #current number of tracks on spotify since as of 10/10/2018
-    #in US market only
-    expect_tracks = 49 
+    # current number of tracks on spotify since as of 10/10/2018
+    # in US market only
+    expect_tracks = 49
     global text_file
-    text_file = os.path.join(str(tmpdir), 'test_ab.txt')
+    text_file = os.path.join(str(tmpdir), "test_ab.txt")
     spotify_tools.write_all_albums_from_artist(ARTIST_URL, text_file)
-    with open(text_file, 'r') as f:
+    with open(text_file, "r") as f:
         tracks = len(f.readlines())
     assert tracks == expect_tracks
 
