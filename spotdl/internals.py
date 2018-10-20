@@ -111,7 +111,8 @@ def sanitize_title(title, ok="-_()[]{}\/"):
         title = title.replace(" ", "_")
 
     # replace slashes with "-" to avoid folder creation errors
-    title = title.replace("/", "-").replace("\\", "-")
+    if isinstance(title, str):
+        title = title.replace("/", "-").replace("\\", "-")
 
     # slugify removes any special characters
     title = slugify(title, ok=ok, lower=False, spaces=True)
