@@ -9,7 +9,8 @@ from spotdl import spotdl
 import loader
 
 
-PLAYLIST_URL = "https://open.spotify.com/user/alex/playlist/0iWOVoumWlkXIrrBTSJmN8"
+USERNAME = "uqlakumu7wslkoen46s5bulq0"
+PLAYLIST_URL = "https://open.spotify.com/playlist/0fWBMhGh38y0wsYWwmM9Kt"
 ALBUM_URL = "https://open.spotify.com/album/499J8bIsEnU7DSrosFDJJg"
 ARTIST_URL = "https://open.spotify.com/artist/4dpARuHxo51G3z768sgnrY"
 
@@ -17,10 +18,10 @@ loader.load_defaults()
 
 
 def test_user_playlists(tmpdir, monkeypatch):
-    expect_tracks = 21
+    expect_tracks = 17
     text_file = os.path.join(str(tmpdir), "test_us.txt")
     monkeypatch.setattr("builtins.input", lambda x: 1)
-    spotify_tools.write_user_playlist("alex", text_file)
+    spotify_tools.write_user_playlist(USERNAME, text_file)
     with open(text_file, "r") as f:
         tracks = len(f.readlines())
     assert tracks == expect_tracks
