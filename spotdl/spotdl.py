@@ -155,7 +155,8 @@ def download_single(raw_song, number=None):
         if not refined_songname == " - ":
             songname = refined_songname
     else:
-        log.warning("Could not find metadata")
+        if not const.args.no_metadata:
+            log.warning("Could not find metadata")
         songname = internals.sanitize_title(songname)
 
     if const.args.dry_run:
