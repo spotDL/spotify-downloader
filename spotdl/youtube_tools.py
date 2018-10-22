@@ -41,7 +41,7 @@ def go_pafy(raw_song, meta_tags=None):
 
 
 def match_video_and_metadata(track, force_pafy=True):
-    """ Match and return track data from YouTube and Spotify. """
+    """ Get and match track data from YouTube and Spotify. """
     meta_tags = None
 
     if internals.is_youtube(track):
