@@ -89,9 +89,7 @@ def format_string(string_format, tags, slugification=False, force_spaces=False):
     format_tags[11] = tags["external_ids"]["isrc"]
 
     format_tags_sanitized = {
-        k: sanitize_title(str(v), ok="'-_()[]{}")
-        if slugification
-        else str(v)
+        k: sanitize_title(str(v), ok="'-_()[]{}") if slugification else str(v)
         for k, v in format_tags.items()
     }
 
@@ -157,19 +155,30 @@ def get_sec(time_str):
     return sec
 
 
-def get_splits(url):
-    if "/" in url:
-        if url.endswith("/"):
-            url = url[:-1]
+def extract_spotify_id(raw_string):
+    """
+    Returns a Spotify ID of a playlist, album, etc. after extracting
+    it from a given HTTP URL or Spotify URI.
+    """
+
+    if "/" in raw_string:
+        # Input string is an HTTP URL
+        if raw_string.endswith("/"):
+            raw_string = raw_string[:-1]
         # We need to manually trim additional text from HTTP URLs
-        # or if https://github.com/plamere/spotipy/pull/324 gets merged
-        to_trim = url.find('?')
+        # We could skip this if https://github.com/plamere/spotipy/pull/324
+        # gets merged,
+        to_trim = raw_string.find("?")
         if not to_trim == -1:
-            url = url[:to_trim]
-        splits = url.split('/')
+            raw_string = raw_string[:to_trim]
+        splits = raw_string.split("/")
     else:
-        splits = url.split(":")
-    return splits
+        # Input string is a Spotify URI
+        splits = raw_string.split(":")
+
+    spotify_id = splits[-1]
+
+    return spotify_id
 
 
 def get_unique_tracks(text_file):
@@ -187,6 +196,7 @@ def get_unique_tracks(text_file):
     lines = remove_duplicates(lines)
 
     return lines
+
 
 # a hacky way to get user's localized music directory
 # (thanks @linusg, issue #203)
@@ -208,9 +218,14 @@ def get_music_dir():
 
     # Windows / Cygwin
     # Queries registry for 'My Music' folder path (as this can be changed)
-    if 'win' in sys.platform:
+    if "win" in sys.platform:
         try:
-            key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders", 0, winreg.KEY_ALL_ACCESS)
+            key = winreg.OpenKey(
+                winreg.HKEY_CURRENT_USER,
+                r"Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders",
+                0,
+                winreg.KEY_ALL_ACCESS,
+            )
             return winreg.QueryValueEx(key, "My Music")[0]
         except (FileNotFoundError, NameError):
             pass
