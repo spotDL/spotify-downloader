@@ -160,7 +160,8 @@ def fetch_album_from_artist(artist_url, album_type="album"):
 
     # fetching artist's albums limitting the results to the US to avoid duplicate
     # albums from multiple markets
-    results = spotify.artist_albums(artist_url, album_type=album_type, country="US")
+    artist_id = internals.extract_spotify_id(artist_url)
+    results = spotify.artist_albums(artist_id, album_type=album_type, country="US")
 
     albums = results["items"]
 
