@@ -41,13 +41,18 @@ def go_pafy(raw_song, meta_tags=None):
 
 
 def match_video_and_metadata(track, force_pafy=True):
+    """ Get and match track data from YouTube and Spotify. """
+    meta_tags = None
+
     if internals.is_youtube(track):
         log.debug("Input song is a YouTube URL")
         content = go_pafy(track, meta_tags=None)
         track = slugify(content.title).replace("-", " ")
-        meta_tags = spotify_tools.generate_metadata(track)
+        if not const.args.no_metadata:
+            meta_tags = spotify_tools.generate_metadata(track)
     else:
-        meta_tags = spotify_tools.generate_metadata(track)
+        if not const.args.no_metadata:
+            meta_tags = spotify_tools.generate_metadata(track)
         if force_pafy:
             content = go_pafy(track, meta_tags)
         else:
