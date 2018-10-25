@@ -20,19 +20,17 @@ def generate_token():
     token = credentials.get_access_token()
     return token
 
+
+def refresh_token():
+    """ Refresh expired token"""
+    global spotify
+    new_token = generate_token()
+    spotify = spotipy.Spotify(auth=new_token)
+
 # token is mandatory when using Spotify's API
 # https://developer.spotify.com/news-stories/2017/01/27/removing-unauthenticated-calls-to-the-web-api/
 token = generate_token()
 spotify = spotipy.Spotify(auth=token)
-
-
-def refresh_token():
-    """ Refresh cached/expired token"""
-    global spotify
-    expired_token = spotify.get_cached_token()
-    refreshed_token = expired_token['refresh_token']
-    new_token = spotify.refresh_access_token(refreshed_token)
-    spotify = spotipy.Spotify(auth=new_token['access_token'])
 
 
 def generate_metadata(raw_song):
