@@ -48,11 +48,12 @@ def input_link(links):
             log.warning("Choose a valid number!")
 
 
-def trim_song(text_file):
+def trim_song(tracks_file):
     """ Remove the first song from file. """
-    with open(text_file, "r") as file_in:
+    log.debug("Removing downloaded song from tracks file")
+    with open(tracks_file, "r") as file_in:
         data = file_in.read().splitlines(True)
-    with open(text_file, "w") as file_out:
+    with open(tracks_file, "w") as file_out:
         file_out.writelines(data[1:])
     return data[0]
 
@@ -181,20 +182,23 @@ def extract_spotify_id(raw_string):
     return spotify_id
 
 
-def get_unique_tracks(text_file):
+def get_unique_tracks(tracks_file):
     """
     Returns a list of unique tracks given a path to a
     file containing tracks.
     """
 
-    with open(text_file, "r") as listed:
+    log.info(
+        "Checking and removing any duplicate tracks "
+        "in reading {}".format(tracks_file)
+    )
+    with open(tracks_file, "r") as tracks_in:
         # Read tracks into a list and remove any duplicates
-        lines = listed.read().splitlines()
+        lines = tracks_in.read().splitlines()
 
     # Remove blank and strip whitespaces from lines (if any)
     lines = [line.strip() for line in lines if line.strip()]
     lines = remove_duplicates(lines)
-
     return lines
 
 
