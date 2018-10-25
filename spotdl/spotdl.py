@@ -97,8 +97,7 @@ def download_list(tracks_file, skip_file=None, write_successful_file=None):
         except spotipy.client.SpotifyException:
             # refresh token when it expires
             log.debug("Token expired, generating new one and authorizing")
-            new_token = spotify_tools.generate_token()
-            spotify_tools.spotify = spotipy.Spotify(auth=new_token)
+            spotify_tools.refresh_token()
             download_single(raw_song, number=number)
         # detect network problems
         except (urllib.request.URLError, TypeError, IOError) as e:
