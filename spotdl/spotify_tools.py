@@ -21,6 +21,12 @@ def generate_token():
     return token
 
 
+def refresh_token():
+    """ Refresh expired token"""
+    global spotify
+    new_token = generate_token()
+    spotify = spotipy.Spotify(auth=new_token)
+
 # token is mandatory when using Spotify's API
 # https://developer.spotify.com/news-stories/2017/01/27/removing-unauthenticated-calls-to-the-web-api/
 token = generate_token()
@@ -179,7 +185,7 @@ def write_all_albums_from_artist(artist_url, text_file=None):
     current working directory called [ARTIST].txt, where [ARTIST] is the artist
     of the album
     :param artist_url - spotify artist url
-    :param text_file - file to write albums to 
+    :param text_file - file to write albums to
     """
 
     album_base_url = "https://open.spotify.com/album/"
