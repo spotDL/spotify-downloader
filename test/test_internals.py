@@ -41,6 +41,44 @@ DUPLICATE_TRACKS_TEST_TABLE = [
     ),
 ]
 
+STRING_IDS_TEST_TABLE = [
+    (
+        "https://open.spotify.com/artist/1feoGrmmD8QmNqtK2Gdwy8?si=_cVm-FBRQmi7VWML7E49Ig",
+        "1feoGrmmD8QmNqtK2Gdwy8",
+    ),
+    (
+        "https://open.spotify.com/artist/1feoGrmmD8QmNqtK2Gdwy8",
+        "1feoGrmmD8QmNqtK2Gdwy8",
+    ),
+    ("spotify:artist:1feoGrmmD8QmNqtK2Gdwy8", "1feoGrmmD8QmNqtK2Gdwy8"),
+    (
+        "https://open.spotify.com/album/1d1l3UkeAjtM7kVTDyR8yp?si=LkVQLJGGT--Lh8BWM4MGvg",
+        "1d1l3UkeAjtM7kVTDyR8yp",
+    ),
+    ("https://open.spotify.com/album/1d1l3UkeAjtM7kVTDyR8yp", "1d1l3UkeAjtM7kVTDyR8yp"),
+    ("spotify:album:1d1l3UkeAjtM7kVTDyR8yp", "1d1l3UkeAjtM7kVTDyR8yp"),
+    (
+        "https://open.spotify.com/user/5kkyy50uu8btnagp30pobxz2f/playlist/3SFKRjUXm0IMQJMkEgPHeY?si=8Da4gbE2T9qMkd8Upg22ZA",
+        "3SFKRjUXm0IMQJMkEgPHeY",
+    ),
+    (
+        "https://open.spotify.com/playlist/3SFKRjUXm0IMQJMkEgPHeY?si=8Da4gbE2T9qMkd8Upg22ZA",
+        "3SFKRjUXm0IMQJMkEgPHeY",
+    ),
+    (
+        "https://open.spotify.com/playlist/3SFKRjUXm0IMQJMkEgPHeY",
+        "3SFKRjUXm0IMQJMkEgPHeY",
+    ),
+    (
+        "spotify:user:5kkyy50uu8btnagp30pobxz2f:playlist:3SFKRjUXm0IMQJMkEgPHeY",
+        "3SFKRjUXm0IMQJMkEgPHeY",
+    ),
+    (
+        "https://open.spotify.com/user/uqlakumu7wslkoen46s5bulq0",
+        "uqlakumu7wslkoen46s5bulq0",
+    ),
+]
+
 
 def test_default_music_directory():
     if sys.platform.startswith("linux"):
@@ -126,3 +164,9 @@ def test_get_unique_tracks(tmpdir, duplicates, expected):
 
     unique_tracks = internals.get_unique_tracks(file_path)
     assert tuple(unique_tracks) == expected
+
+
+@pytest.mark.parametrize("input_str, expected_spotify_id", STRING_IDS_TEST_TABLE)
+def test_extract_spotify_id(input_str, expected_spotify_id):
+    spotify_id = internals.extract_spotify_id(input_str)
+    assert spotify_id == expected_spotify_id
