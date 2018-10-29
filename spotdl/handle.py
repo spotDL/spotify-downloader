@@ -5,10 +5,6 @@ import logging
 import yaml
 import argparse
 import mimetypes
-<<<<<<< HEAD
-=======
-
->>>>>>> --list flag accepts only text files using mimetypes
 import os
 
 import spotdl
