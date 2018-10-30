@@ -264,7 +264,8 @@ def get_arguments(raw_args=None, to_group=True, to_merge=True):
     if parsed.config is not None and to_merge:
         parsed = override_config(parsed.config, parser)
 
-    if not mimetypes.MimeTypes().guess_type(parsed.list)[0] == "text/plain":
+    if to_group and parsed.list and \
+            not mimetypes.MimeTypes().guess_type(parsed.list)[0] == "text/plain":
         parser.error("{0} is not of a valid argument to --list, argument must be plain text file".format(parsed.list))
 
     if parsed.write_m3u and not parsed.list:
