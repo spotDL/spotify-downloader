@@ -5,6 +5,7 @@ from logzero import logger as log
 import logging
 import yaml
 import argparse
+import mimetypes
 
 import os
 import sys
@@ -262,6 +263,10 @@ def get_arguments(raw_args=None, to_group=True, to_merge=True):
 
     if parsed.config is not None and to_merge:
         parsed = override_config(parsed.config, parser)
+
+    if to_group and parsed.list and \
+            not mimetypes.MimeTypes().guess_type(parsed.list)[0] == "text/plain":
+        parser.error("{0} is not of a valid argument to --list, argument must be plain text file".format(parsed.list))
 
     if parsed.write_m3u and not parsed.list:
         parser.error('--write-m3u can only be used with --list')
