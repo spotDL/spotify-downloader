@@ -17,7 +17,7 @@ spotify = None
 
 def generate_token():
     """ Generate the token. """
-    if const.args.spotify_client_id and const.args.spotify_client_secret:
+    if const.args is not None and const.args.spotify_client_id and const.args.spotify_client_secret:
         credentials = oauth2.SpotifyClientCredentials(
             client_id=const.args.spotify_client_id,
             client_secret=const.args.spotify_client_secret,
