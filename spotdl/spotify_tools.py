@@ -12,28 +12,40 @@ import os
 from spotdl import const
 from spotdl import internals
 
+spotify = None
+
 
 def generate_token():
-    """ Generate the token. Please respect these credentials :) """
-    credentials = oauth2.SpotifyClientCredentials(
-        client_id="4fe3fecfe5334023a1472516cc99d805",
-        client_secret="0f02b7c483c04257984695007a4a8d5c",
-    )
+    """ Generate the token. """
+    if const.args.spotify_client_id and const.args.spotify_client_secret:
+        credentials = oauth2.SpotifyClientCredentials(
+            client_id=const.args.spotify_client_id,
+            client_secret=const.args.spotify_client_secret,
+        )
+    else:
+        # Please respect these credentials :)
+        credentials = oauth2.SpotifyClientCredentials(
+            client_id="4fe3fecfe5334023a1472516cc99d805",
+            client_secret="0f02b7c483c04257984695007a4a8d5c",
+        )
     token = credentials.get_access_token()
     return token
 
 
 def refresh_token():
-    """ Refresh expired token"""
+    """ Refresh expired token. """
     global spotify
     new_token = generate_token()
     spotify = spotipy.Spotify(auth=new_token)
 
 
-# token is mandatory when using Spotify's API
-# https://developer.spotify.com/news-stories/2017/01/27/removing-unauthenticated-calls-to-the-web-api/
-_token = generate_token()
-spotify = spotipy.Spotify(auth=_token)
+def set_client_credentials():
+    """ Setup and initialize Spotipy object. """
+    # token is mandatory when using Spotify's API
+    # https://developer.spotify.com/news-stories/2017/01/27/removing-unauthenticated-calls-to-the-web-api/
+    global spotify
+    token = generate_token()
+    spotify = spotipy.Spotify(auth=token)
 
 
 def generate_metadata(raw_song):

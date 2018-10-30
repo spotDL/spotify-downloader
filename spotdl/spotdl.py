@@ -51,6 +51,7 @@ def main():
 
     internals.filter_path(const.args.folder)
     youtube_tools.set_api_key()
+    spotify_tools.set_client_credentials()
 
     logzero.setup_default_logger(formatter=const._formatter, level=const.args.log_level)
 
