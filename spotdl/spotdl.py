@@ -20,53 +20,83 @@ import platform
 import pprint
 
 
-def check_exists(music_file, raw_song, meta_tags):
-    """ Check if the input song already exists in the given folder. """
-    log.debug(
-        "Cleaning any temp files and checking "
-        'if "{}" already exists'.format(music_file)
-    )
-    songs = os.listdir(const.args.folder)
-    for song in songs:
-        if song.endswith(".temp"):
-            os.remove(os.path.join(const.args.folder, song))
-            continue
-        # check if a song with the same name is already present in the given folder
-        if os.path.splitext(song)[0] == music_file:
-            log.debug('Found an already existing song: "{}"'.format(song))
-            if internals.is_spotify(raw_song):
-                # check if the already downloaded song has correct metadata
-                # if not, remove it and download again without prompt
-                already_tagged = metadata.compare(
-                    os.path.join(const.args.folder, song), meta_tags
-                )
-                log.debug(
-                    "Checking if it is already tagged correctly? {}", already_tagged
-                )
-                if not already_tagged:
-                    os.remove(os.path.join(const.args.folder, song))
+class CheckExists:
+    def __init__(self, music_file, meta_tags=None):
+        self.music_file = music_file
+        self.meta_tags = meta_tags
+
+    def already_exists(self, raw_song):
+        """ Check if the input song already exists in the given folder. """
+        log.debug(
+            "Cleaning any temp files and checking "
+            'if "{}" already exists'.format(self.music_file)
+        )
+        songs = os.listdir(const.args.folder)
+        self._remove_temp_files(songs)
+
+        for song in songs:
+            # check if a song with the same name is already present in the given folder
+            if self._match_filenames(song):
+                if internals.is_spotify(raw_song) and \
+                        not self._has_metadata(song):
                     return False
 
-            log.warning('"{}" already exists'.format(song))
-            if const.args.overwrite == "prompt":
-                log.info(
-                    '"{}" has already been downloaded. '
-                    "Re-download? (y/N): ".format(song)
-                )
-                prompt = input("> ")
-                if prompt.lower() == "y":
-                    os.remove(os.path.join(const.args.folder, song))
-                    return False
-                else:
-                    return True
-            elif const.args.overwrite == "force":
+                log.warning('"{}" already exists'.format(song))
+                if const.args.overwrite == "prompt":
+                    return self._prompt_song(song)
+                elif const.args.overwrite == "force":
+                    return self._force_overwrite_song(song)
+                elif const.args.overwrite == "skip":
+                    return self._skip_song(song)
+
+        return False
+
+    def _remove_temp_files(self, songs):
+        for song in songs:
+            if song.endswith(".temp"):
                 os.remove(os.path.join(const.args.folder, song))
-                log.info('Overwriting "{}"'.format(song))
-                return False
-            elif const.args.overwrite == "skip":
-                log.info('Skipping "{}"'.format(song))
-                return True
-    return False
+
+    def _has_metadata(self, song):
+        # check if the already downloaded song has correct metadata
+        # if not, remove it and download again without prompt
+        already_tagged = metadata.compare(
+            os.path.join(const.args.folder, song), self.meta_tags
+        )
+        log.debug(
+            "Checking if it is already tagged correctly? {}", already_tagged
+        )
+        if not already_tagged:
+            os.remove(os.path.join(const.args.folder, song))
+            return False
+
+        return True
+
+    def _prompt_song(self, song):
+        log.info(
+            '"{}" has already been downloaded. '
+            "Re-download? (y/N): ".format(song)
+        )
+        prompt = input("> ")
+        if prompt.lower() == "y":
+            return self._force_overwrite_song(song)
+        else:
+            return self._skip_song(song)
+
+    def _force_overwrite_song(self, song):
+        os.remove(os.path.join(const.args.folder, song))
+        log.info('Overwriting "{}"'.format(song))
+        return False
+
+    def _skip_song(self, song):
+        log.info('Skipping "{}"'.format(song))
+        return True
+
+    def _match_filenames(self, song):
+        if os.path.splitext(song)[0] == self.music_file:
+            log.debug('Found an already existing song: "{}"'.format(song))
+            return True
+
+        return False
 
 
 class Downloader:
@@ -92,7 +122,8 @@ class Downloader:
         if const.args.dry_run:
             return
 
-        if not check_exists(songname, self.raw_song, self.meta_tags):
+        song_existence = CheckExists(songname, self.meta_tags)
+        if not song_existence.already_exists(self.raw_song):
             return self._download_single(songname)
 
     def _download_single(self, songname):

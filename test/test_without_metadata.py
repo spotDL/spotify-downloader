@@ -112,7 +112,8 @@ def test_check_exists(tmpdir):
     # prerequisites for determining filename
     global file_name
     file_name = internals.sanitize_title(title)
-    check = spotdl.check_exists(file_name, TRACK_SEARCH, metadata)
+    track_existence = spotdl.CheckExists(file_name, metadata)
+    check = track_existence.already_exists(TRACK_SEARCH)
     assert check == expect_check
 
 
