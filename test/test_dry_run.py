@@ -1,7 +1,7 @@
 import os
 
 from spotdl import const
-from spotdl import spotdl
+from spotdl import downloader
 
 import loader
 
@@ -16,6 +16,6 @@ def test_dry_download_list(tmpdir):
     file_path = os.path.join(const.args.folder, "test_list.txt")
     with open(file_path, "w") as f:
         f.write(TRACK_URL)
-    list_dl = spotdl.ListDownloader(file_path)
+    list_dl = downloader.ListDownloader(file_path)
     downloaded_song, *_ = list_dl.download_list()
     assert downloaded_song == TRACK_URL
