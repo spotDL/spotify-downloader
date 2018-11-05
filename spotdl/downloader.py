@@ -241,8 +241,7 @@ class ListDownloader:
     @staticmethod
     def _regenerate_token():
         log.debug("Token expired, generating new one and authorizing")
-        new_token = spotify_tools.generate_token()
-        spotify_tools.spotify = spotipy.Spotify(auth=new_token)
+        spotify_tools.refresh_token()
 
     def _cleanup(self, raw_song, exception):
         self.tracks.append(raw_song)
