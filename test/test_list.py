@@ -48,8 +48,8 @@ def test_album(tmpdir):
 def test_m3u(tmpdir):
     expect_m3u = (
         "#EXTM3U\n\n"
-        "#EXTINF:32,Eminem - Curtains Up (Skit) - The Eminem Show (2002) w/ Lyrics\n"
-        "http://www.youtube.com/watch?v=HbMJGI1m--Y\n"
+        "#EXTINF:31,Eminem - 01 - Eminem - Curtains Up (Skit)\n"
+        "http://www.youtube.com/watch?v=qk13SFlwG9A\n"
         "#EXTINF:226,Alan Walker - Spectre [NCS Release]\n"
         "http://www.youtube.com/watch?v=AOeY-nDp7hI\n"
     )
