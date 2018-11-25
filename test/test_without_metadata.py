@@ -5,7 +5,7 @@ from spotdl import const
 from spotdl import internals
 from spotdl import spotify_tools
 from spotdl import youtube_tools
-from spotdl import spotdl
+from spotdl import downloader
 
 import loader
 
@@ -112,7 +112,8 @@ def test_check_exists(tmpdir):
     # prerequisites for determining filename
     global file_name
     file_name = internals.sanitize_title(title)
-    check = spotdl.check_exists(file_name, TRACK_SEARCH, metadata)
+    track_existence = downloader.CheckExists(file_name, metadata)
+    check = track_existence.already_exists(TRACK_SEARCH)
     assert check == expect_check
 
 

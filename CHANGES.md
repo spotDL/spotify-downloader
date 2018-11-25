@@ -6,7 +6,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
-*Please keep this section up to date when creating a PR!*
+### Changed
+- Refactored core downloading module ([@ritiek](https://github.com/ritiek)) (#410)
 
 ## [1.1.0] - 2018-11-13
 ### Added

@@ -6,7 +6,7 @@ from spotdl import spotify_tools
 from spotdl import youtube_tools
 from spotdl import convert
 from spotdl import metadata
-from spotdl import spotdl
+from spotdl import downloader
 
 import loader
 
@@ -55,7 +55,8 @@ def test_check_track_exists_before_download(tmpdir):
     songname = internals.format_string(const.args.file_format, meta_tags)
     global file_name
     file_name = internals.sanitize_title(songname)
-    check = spotdl.check_exists(file_name, TRACK_URL, meta_tags)
+    track_existence = downloader.CheckExists(file_name, meta_tags)
+    check = track_existence.already_exists(TRACK_URL)
     assert check == expect_check
 
 
@@ -146,6 +147,7 @@ class TestEmbedMetadata:
 
 def test_check_track_exists_after_download():
     expect_check = True
-    check = spotdl.check_exists(file_name, TRACK_URL, meta_tags)
+    track_existence = downloader.CheckExists(file_name, meta_tags)
+    check = track_existence.already_exists(TRACK_URL)
     os.remove(track_path + ".mp3")
     assert check == expect_check

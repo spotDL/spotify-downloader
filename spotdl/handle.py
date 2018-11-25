@@ -1,5 +1,5 @@
 import appdirs
-from spotdl import internals, const
+from spotdl import internals
 from logzero import logger as log
 
 import logging
@@ -8,7 +8,6 @@ import argparse
 import mimetypes
 
 import os
-import sys
 
 
 _LOG_LEVELS_STR = ["INFO", "WARNING", "ERROR", "DEBUG"]

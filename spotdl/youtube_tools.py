@@ -9,7 +9,6 @@ from spotdl import internals
 from spotdl import const
 
 import os
-import pprint
 
 # Fix download speed throttle on short duration tracks
 # Read more on mps-youtube/pafy#199
