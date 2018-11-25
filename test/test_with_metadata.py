@@ -14,8 +14,8 @@ loader.load_defaults()
 
 TRACK_URL = "https://open.spotify.com/track/2nT5m433s95hvYJH4S7ont"
 EXPECTED_TITLE = "Eminem - Curtains Up"
-EXPECTED_YT_TITLE = "Eminem - Curtains Up (Skit) - The Eminem Show (2002) w/ Lyrics"
-EXPECTED_YT_URL = "http://youtube.com/watch?v=HbMJGI1m--Y"
+EXPECTED_YT_TITLE = "Eminem - 01 - Eminem - Curtains Up (Skit)"
+EXPECTED_YT_URL = "http://youtube.com/watch?v=qk13SFlwG9A"
 
 
 def test_metadata():
@@ -67,21 +67,21 @@ class TestDownload:
         assert download == expect_download
 
     def test_webm(self):
-        expect_download = False
+        expect_download = True
         download = youtube_tools.download_song(file_name + ".webm", content)
         assert download == expect_download
 
 
 class TestFFmpeg:
     def test_convert_from_webm_to_mp3(self):
-        expect_return_code = 1
+        expect_return_code = 0
         return_code = convert.song(
             file_name + ".webm", file_name + ".mp3", const.args.folder
         )
         assert return_code == expect_return_code
 
     def test_convert_from_webm_to_m4a(self):
-        expect_return_code = 1
+        expect_return_code = 0
         return_code = convert.song(
             file_name + ".webm", file_name + ".m4a", const.args.folder
         )

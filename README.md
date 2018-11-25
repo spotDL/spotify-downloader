@@ -21,7 +21,7 @@ Below is how your music library will look!
 
 ## Installation
 
-:heavy_exclamation_mark: **This tool works only with Python 3.**
+❗️ **This tool works only with Python 3.**
 
 Python 2 compatibility was dropped because of the way it deals with unicode (2020 is coming soon too).
 If you still need to use Python 2 - check out the (outdated)
