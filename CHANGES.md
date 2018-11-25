@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Changed
+- Refactored core downloading module ([@ritiek](https://github.com/ritiek)) (#410)
+
 ## 1.0.0-beta.1 - 2018-02-02
 ### Added
 - Initial release, prepare for 1.0.0
