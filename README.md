@@ -63,6 +63,49 @@ wiki page for the list of currently available options with their description.
 The wiki page [Instructions for Downloading Songs](https://github.com/ritiek/spotify-downloader/wiki/Instructions-for-Downloading-Songs)
 contains detailed information about different available ways to download tracks.
 
+## Project Structure
+
+```console
+.
+├── CHANGES.md
+├── CODE_OF_CONDUCT.md
+├── CONTRIBUTING.md
+├── core
+│   └── __pycache__
+│       ├── const.cpython-36.pyc
+│       ├── convert.cpython-36.pyc
+│       ├── handle.cpython-36.pyc
+│       ├── __init__.cpython-36.pyc
+│       ├── internals.cpython-36.pyc
+│       ├── metadata.cpython-36.pyc
+│       ├── spotify_tools.cpython-36.pyc
+│       └── youtube_tools.cpython-36.pyc
+├── Dockerfile
+├── ISSUE_TEMPLATE.md
+├── LICENSE
+├── README.md
+├── setup.py
+├── spotdl
+│   ├── const.py
+│   ├── convert.py
+│   ├── downloader.py
+│   ├── handle.py
+│   ├── __init__.py
+│   ├── internals.py
+│   ├── metadata.py
+│   ├── spotdl.py
+│   ├── spotify_tools.py
+│   └── youtube_tools.py
+└── test
+    ├── loader.py
+    ├── test_dry_run.py
+    ├── test_handle.py
+    ├── test_internals.py
+    ├── test_list.py
+    ├── test_with_metadata.py
+    └── test_without_metadata.py
+```
+
 ## FAQ
 
 - [
