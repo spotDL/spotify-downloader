@@ -1,9 +1,12 @@
+import pafy
+
 import builtins
 import os
 
 from spotdl import spotify_tools
 from spotdl import youtube_tools
 from spotdl import const
+from spotdl import internals
 from spotdl import spotdl
 
 import loader
@@ -46,22 +49,38 @@ def test_album(tmpdir):
 
 
 def test_m3u(tmpdir):
+    test_spotify_track = "https://open.spotify.com/track/2nT5m433s95hvYJH4S7ont"
+    test_youtube_track = "http://www.youtube.com/watch?v=AOeY-nDp7hI"
+
+    m3u_track_file = os.path.join(str(tmpdir), "m3u_test.txt")
+
+    with open(m3u_track_file, "w") as track_file:
+        track_file.write("\n" + test_spotify_track)
+        track_file.write("\n" + test_youtube_track)
+
+    first_video, *_ = youtube_tools.generate_m3u(m3u_track_file)
+    m3u_file = "{}.m3u".format(m3u_track_file.split(".")[0])
+
+    with open(m3u_file, "r") as m3u_in:
+        m3u_content = m3u_in.readlines()
+
+    match_video = loader.match_url_in_search_results(first_video.watchv_url, test_spotify_track)
+    pafy_vid = pafy.new(match_video['link'])
+
     expect_m3u = (
         "#EXTM3U\n\n"
-        "#EXTINF:31,Eminem - 01 - Eminem - Curtains Up (Skit)\n"
-        "http://www.youtube.com/watch?v=qk13SFlwG9A\n"
-        "#EXTINF:226,Alan Walker - Spectre [NCS Release]\n"
-        "http://www.youtube.com/watch?v=AOeY-nDp7hI\n"
-    )
-    m3u_track_file = os.path.join(str(tmpdir), "m3u_test.txt")
-    with open(m3u_track_file, "w") as track_file:
-        track_file.write("\nhttps://open.spotify.com/track/2nT5m433s95hvYJH4S7ont")
-        track_file.write("\nhttp://www.youtube.com/watch?v=AOeY-nDp7hI")
-    youtube_tools.generate_m3u(m3u_track_file)
-    m3u_file = "{}.m3u".format(m3u_track_file.split(".")[0])
-    with open(m3u_file, "r") as m3u_in:
-        m3u = m3u_in.readlines()
-    assert "".join(m3u) == expect_m3u
+        "#EXTINF:{t1_duration},{t1_title}\n"
+        "{t1_watchv_url}\n"
+        "#EXTINF:{t2_duration},{t2_title}\n"
+        "{t2_watchv_url}\n"
+    ).format(t1_duration=str(internals.get_sec(pafy_vid.duration)),
+             t1_title=pafy_vid.title,
+             t1_watchv_url=pafy_vid.watchv_url,
+             t2_duration="226",
+             t2_title="Alan Walker - Spectre [NCS Release]",
+             t2_watchv_url=test_youtube_track)
+
+    assert ''.join(m3u_content) == expect_m3u
 
 
 def test_all_albums(tmpdir):
