@@ -59,7 +59,7 @@ def test_m3u(tmpdir):
         track_file.write("\n" + test_youtube_track)
 
     first_video, *_ = youtube_tools.generate_m3u(m3u_track_file)
-    m3u_file = "{}.m3u".format(m3u_track_file.split(".")[0])
+    m3u_file = "{}.m3u".format(os.path.splitext(m3u_track_file)[0])
 
     with open(m3u_file, "r") as m3u_in:
         m3u_content = m3u_in.readlines()

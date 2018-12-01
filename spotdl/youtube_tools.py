@@ -70,7 +70,7 @@ def get_youtube_title(content, number=None):
 
 def generate_m3u(track_file):
     tracks = internals.get_unique_tracks(track_file)
-    target_file = "{}.m3u".format(track_file.split(".")[0])
+    target_file = "{}.m3u".format(os.path.splitext(track_file)[0])
     total_tracks = len(tracks)
     log.info("Generating {0} from {1} YouTube URLs".format(target_file, total_tracks))
     with open(target_file, "w") as output_file:

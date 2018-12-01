@@ -1,5 +1,3 @@
-import os
-
 from spotdl import const
 from spotdl import internals
 from spotdl import spotify_tools
@@ -9,6 +7,11 @@ from spotdl import metadata
 from spotdl import downloader
 
 import loader
+
+import pytest
+import os
+import subprocess
+
 
 loader.load_defaults()
 
@@ -74,6 +77,13 @@ class TestDownload:
         assert download == expect_download
 
 
+def check_ffmpeg_codec_support(codec):
+    process = subprocess.Popen(['ffmpeg'], stderr=subprocess.PIPE)
+    _, stderr = process.communicate()
+    has_codec = "--enable-{}".format(codec) in stderr.decode('utf-8')
+    return has_codec
+
+
 class TestFFmpeg:
     def test_convert_from_webm_to_mp3(self):
         expect_return_code = 0
@@ -82,6 +92,8 @@ class TestFFmpeg:
         )
         assert return_code == expect_return_code
 
+    @pytest.mark.skipif(not check_ffmpeg_codec_support('libfdk-aac'),
+                        reason='FFmpeg has not been compiled with libfdk-aac support')
     def test_convert_from_webm_to_m4a(self):
         expect_return_code = 0
         return_code = convert.song(
