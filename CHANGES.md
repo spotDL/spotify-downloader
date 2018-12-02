@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
 - Refactored core downloading module ([@ritiek](https://github.com/ritiek)) (#410)
 
+### Fixed
+- Included a missing `import spotipy` in downloader.py ([@ritiek](https://github.com/ritiek)) (#440)
+
 ## [1.1.0] - 2018-11-13
 ### Added
 - Output error details when track download fails from list file ([@ManveerBasra](https://github.com/ManveerBasra)) (#406)
