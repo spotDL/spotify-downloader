@@ -5,6 +5,7 @@ from spotdl import internals
 from spotdl import spotify_tools
 from spotdl import youtube_tools
 
+import spotipy
 from logzero import logger as log
 import os
 
