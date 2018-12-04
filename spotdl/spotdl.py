@@ -22,8 +22,9 @@ def debug_sys_info():
 
 def match_args():
     if const.args.song:
-        track_dl = downloader.Downloader(raw_song=const.args.song)
-        track_dl.download_single()
+        for track in const.args.song:
+            track_dl = downloader.Downloader(raw_song=track)
+            track_dl.download_single()
     elif const.args.list:
         if const.args.write_m3u:
             youtube_tools.generate_m3u(track_file=const.args.list)

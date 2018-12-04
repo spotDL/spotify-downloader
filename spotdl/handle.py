@@ -99,7 +99,10 @@ def get_arguments(raw_args=None, to_group=True, to_merge=True):
         group = parser.add_mutually_exclusive_group(required=True)
 
         group.add_argument(
-            "-s", "--song", help="download track by spotify link or name"
+            "-s",
+            "--song",
+            nargs='+',
+            help="download track by spotify link or name"
         )
         group.add_argument("-l", "--list", help="download tracks from a file")
         group.add_argument(

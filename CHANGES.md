@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Added
+- Ability to pass multiple tracks with `-s` option ([@ritiek](https://github.com/ritiek)) (#442)
+
 ### Changed
 - Refactored core downloading module ([@ritiek](https://github.com/ritiek)) (#410)
 
