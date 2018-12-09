@@ -80,6 +80,26 @@ STRING_IDS_TEST_TABLE = [
 ]
 
 
+FROM_SECONDS_TEST_TABLE = [
+    (35, "35"),
+    (23, "23"),
+    (158, "2:38"),
+    (263, "4:23"),
+    (4562, "1:16:02"),
+    (26762, "7:26:02")
+]
+
+
+TO_SECONDS_TEST_TABLE = [
+    ("0:23", 23),
+    ("0:45", 45),
+    ("2:19", 139),
+    ("3:33", 213),
+    ("7:38", 458),
+    ("1:30:05", 5405),
+]
+
+
 def test_default_music_directory():
     if sys.platform.startswith("linux"):
         output = subprocess.check_output(["xdg-user-dir", "MUSIC"])
@@ -110,50 +130,16 @@ class TestPathFilterer:
         assert is_file == expect_file
 
 
-class TestVideoTimeFromSeconds:
-    def test_from_seconds(self):
-        expect_duration = "35"
-        duration = internals.videotime_from_seconds(35)
-        assert duration == expect_duration
-
-    def test_from_minutes(self):
-        expect_duration = "2:38"
-        duration = internals.videotime_from_seconds(158)
-        assert duration == expect_duration
-
-    def test_from_hours(self):
-        expect_duration = "1:16:02"
-        duration = internals.videotime_from_seconds(4562)
-        assert duration == expect_duration
+@pytest.mark.parametrize("sec_duration, str_duration", FROM_SECONDS_TEST_TABLE)
+def test_video_time_from_seconds(sec_duration, str_duration):
+    duration = internals.videotime_from_seconds(sec_duration)
+    assert duration == str_duration
 
 
-class TestGetSeconds:
-    def test_from_seconds(self):
-        expect_secs = 45
-        secs = internals.get_sec("0:45")
-        assert secs == expect_secs
-        secs = internals.get_sec("0.45")
-        assert secs == expect_secs
-
-    def test_from_minutes(self):
-        expect_secs = 213
-        secs = internals.get_sec("3.33")
-        assert secs == expect_secs
-        secs = internals.get_sec("3:33")
-        assert secs == expect_secs
-
-    def test_from_hours(self):
-        expect_secs = 5405
-        secs = internals.get_sec("1.30.05")
-        assert secs == expect_secs
-        secs = internals.get_sec("1:30:05")
-        assert secs == expect_secs
-
-    def test_raise_error(self):
-        with pytest.raises(ValueError):
-            internals.get_sec("10*05")
-        with pytest.raises(ValueError):
-            internals.get_sec("02,28,46")
+@pytest.mark.parametrize("str_duration, sec_duration", TO_SECONDS_TEST_TABLE)
+def test_get_seconds_from_video_time(str_duration, sec_duration):
+    secs = internals.get_sec(str_duration)
+    assert secs == sec_duration
 
 
 @pytest.mark.parametrize("duplicates, expected", DUPLICATE_TRACKS_TEST_TABLE)
