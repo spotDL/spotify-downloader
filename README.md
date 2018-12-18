@@ -65,11 +65,7 @@ contains detailed information about different available ways to download tracks.
 
 ## FAQ
 
-- [
-How to specify a custom folder where tracks should be downloaded?](https://github.com/ritiek/spotify-downloader/wiki/FAQ#how-to-specify-a-custom-folder-where-tracks-should-be-downloaded)
-
-Check out our [FAQ wiki page](https://github.com/ritiek/spotify-downloader/wiki/FAQ)
-for more info.
+All FAQs will be mentioned in our [FAQ wiki page](https://github.com/ritiek/spotify-downloader/wiki/FAQ).
 
 ## Contributing
 
