@@ -29,8 +29,8 @@ def refresh_token():
 
 # token is mandatory when using Spotify's API
 # https://developer.spotify.com/news-stories/2017/01/27/removing-unauthenticated-calls-to-the-web-api/
-token = generate_token()
-spotify = spotipy.Spotify(auth=token)
+_token = generate_token()
+spotify = spotipy.Spotify(auth=_token)
 
 
 def generate_metadata(raw_song):
@@ -87,12 +87,6 @@ def generate_metadata(raw_song):
     return meta_tags
 
 
-def write_user_playlist(username, text_file=None):
-    links = get_playlists(username=username)
-    playlist = internals.input_link(links)
-    return write_playlist(playlist, text_file)
-
-
 def get_playlists(username):
     """ Fetch user playlists when using the -u option. """
     playlists = spotify.user_playlists(username)
@@ -119,6 +113,12 @@ def get_playlists(username):
             break
 
     return links
+
+
+def write_user_playlist(username, text_file=None):
+    links = get_playlists(username=username)
+    playlist = internals.input_link(links)
+    return write_playlist(playlist, text_file)
 
 
 def fetch_playlist(playlist):
@@ -154,7 +154,7 @@ def fetch_album(album):
     return album
 
 
-def fetch_album_from_artist(artist_url, album_type="album"):
+def fetch_albums_from_artist(artist_url, album_type="album"):
     """
     This funcction returns all the albums from a give artist_url using the US
     market
@@ -191,7 +191,7 @@ def write_all_albums_from_artist(artist_url, text_file=None):
     album_base_url = "https://open.spotify.com/album/"
 
     # fetching all default albums
-    albums = fetch_album_from_artist(artist_url)
+    albums = fetch_albums_from_artist(artist_url)
 
     # if no file if given, the default save file is in the current working
     # directory with the name of the artist
@@ -204,7 +204,7 @@ def write_all_albums_from_artist(artist_url, text_file=None):
         write_album(album_base_url + album["id"], text_file=text_file)
 
     # fetching all single albums
-    singles = fetch_album_from_artist(artist_url, album_type="single")
+    singles = fetch_albums_from_artist(artist_url, album_type="single")
 
     for single in singles:
         log.info("Fetching single: " + single["name"])
