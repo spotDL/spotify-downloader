@@ -156,3 +156,21 @@ def test_get_unique_tracks(tmpdir, duplicates, expected):
 def test_extract_spotify_id(input_str, expected_spotify_id):
     spotify_id = internals.extract_spotify_id(input_str)
     assert spotify_id == expected_spotify_id
+
+
+def test_trim(tmpdir):
+    text_file = os.path.join(str(tmpdir), "test_trim.txt")
+    with open(text_file, "w") as track_file:
+        track_file.write("ncs - spectre\nncs - heroes\nncs - hope")
+
+    with open(text_file, "r") as track_file:
+        tracks = track_file.readlines()
+
+    expect_number = len(tracks) - 1
+    expect_track = tracks[0]
+    track = internals.trim_song(text_file)
+
+    with open(text_file, "r") as track_file:
+        number = len(track_file.readlines())
+
+    assert expect_number == number and expect_track == track

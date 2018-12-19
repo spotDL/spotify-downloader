@@ -1,3 +1,4 @@
+import subprocess
 import os
 
 from spotdl import const
@@ -61,61 +62,70 @@ def test_check_track_exists_before_download(tmpdir):
 
 
 class TestDownload:
-    def test_m4a(self):
+    def blank_audio_generator(self, filepath):
+        if filepath.endswith(".m4a"):
+            cmd = "ffmpeg -f lavfi -i anullsrc -t 1 -c:a aac {}".format(filepath)
+        elif filepath.endswith(".webm"):
+            cmd = "ffmpeg -f lavfi -i anullsrc -t 1 -c:a libopus {}".format(filepath)
+        subprocess.call(cmd.split(" "))
+
+    def test_m4a(self, monkeypatch):
         expect_download = True
+        monkeypatch.setattr("pafy.backend_shared.BaseStream.download", self.blank_audio_generator)
         download = youtube_tools.download_song(file_name + ".m4a", content)
         assert download == expect_download
 
-    def test_webm(self):
+    def test_webm(self, monkeypatch):
         expect_download = True
+        monkeypatch.setattr("pafy.backend_shared.BaseStream.download", self.blank_audio_generator)
         download = youtube_tools.download_song(file_name + ".webm", content)
         assert download == expect_download
 
 
 class TestFFmpeg:
-    def test_convert_from_webm_to_mp3(self):
-        expect_return_code = 0
-        return_code = convert.song(
+    def test_convert_from_webm_to_mp3(self, monkeypatch):
+        expect_command = "ffmpeg -y -i {0}.webm -codec:a libmp3lame -ar 44100 -b:a 192k -vn {0}.mp3".format(os.path.join(const.args.folder, file_name))
+        _, command = convert.song(
             file_name + ".webm", file_name + ".mp3", const.args.folder
         )
-        assert return_code == expect_return_code
+        assert ' '.join(command) == expect_command
 
-    def test_convert_from_webm_to_m4a(self):
-        expect_return_code = 0
-        return_code = convert.song(
+    def test_convert_from_webm_to_m4a(self, monkeypatch):
+        expect_command = "ffmpeg -y -i {0}.webm -cutoff 20000 -codec:a aac -ar 44100 -b:a 192k -vn {0}.m4a".format(os.path.join(const.args.folder, file_name))
+        _, command = convert.song(
             file_name + ".webm", file_name + ".m4a", const.args.folder
         )
-        assert return_code == expect_return_code
+        assert ' '.join(command) == expect_command
 
-    def test_convert_from_m4a_to_mp3(self):
-        expect_return_code = 0
-        return_code = convert.song(
+    def test_convert_from_m4a_to_mp3(self, monkeypatch):
+        expect_command = "ffmpeg -y -i {0}.m4a -codec:v copy -codec:a libmp3lame -ar 44100 -b:a 192k -vn {0}.mp3".format(os.path.join(const.args.folder, file_name))
+        _, command = convert.song(
             file_name + ".m4a", file_name + ".mp3", const.args.folder
         )
-        assert return_code == expect_return_code
+        assert ' '.join(command) == expect_command
 
-    def test_convert_from_m4a_to_webm(self):
-        expect_return_code = 0
-        return_code = convert.song(
+    def test_convert_from_m4a_to_webm(self, monkeypatch):
+        expect_command = "ffmpeg -y -i {0}.m4a -codec:a libopus -vbr on -b:a 192k -vn {0}.webm".format(os.path.join(const.args.folder, file_name))
+        _, command = convert.song(
             file_name + ".m4a", file_name + ".webm", const.args.folder
         )
-        assert return_code == expect_return_code
+        assert ' '.join(command) == expect_command
 
-    def test_convert_from_m4a_to_flac(self):
-        expect_return_code = 0
-        return_code = convert.song(
+    def test_convert_from_m4a_to_flac(self, monkeypatch):
+        expect_command = "ffmpeg -y -i {0}.m4a -codec:a flac -ar 44100 -b:a 192k -vn {0}.flac".format(os.path.join(const.args.folder, file_name))
+        _, command = convert.song(
             file_name + ".m4a", file_name + ".flac", const.args.folder
         )
-        assert return_code == expect_return_code
+        assert ' '.join(command) == expect_command
 
 
 class TestAvconv:
     def test_convert_from_m4a_to_mp3(self):
-        expect_return_code = 0
-        return_code = convert.song(
+        expect_command = "avconv -loglevel debug -i {0}.m4a -ab 192k {0}.mp3 -y".format(os.path.join(const.args.folder, file_name))
+        _, command = convert.song(
             file_name + ".m4a", file_name + ".mp3", const.args.folder, avconv=True
         )
-        assert return_code == expect_return_code
+        assert ' '.join(command) == expect_command
 
 
 class TestEmbedMetadata:

@@ -118,13 +118,15 @@ def test_check_exists(tmpdir):
 
 
 class TestDownload:
-    def test_webm(self):
+    def test_webm(self, monkeypatch):
         # content does not have any .webm audiostream
         expect_download = False
+        monkeypatch.setattr("pafy.backend_shared.BaseStream.download", lambda x: None)
         download = youtube_tools.download_song(file_name + ".webm", content)
         assert download == expect_download
 
-    def test_other(self):
+    def test_other(self, monkeypatch):
         expect_download = False
+        monkeypatch.setattr("pafy.backend_shared.BaseStream.download", lambda x: None)
         download = youtube_tools.download_song(file_name + ".fake_extension", content)
         assert download == expect_download

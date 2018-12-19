@@ -75,6 +75,8 @@ def generate_m3u(track_file):
     log.info("Generating {0} from {1} YouTube URLs".format(target_file, total_tracks))
     with open(target_file, "w") as output_file:
         output_file.write("#EXTM3U\n\n")
+
+    videos = []
     for n, track in enumerate(tracks, 1):
         content, _ = match_video_and_metadata(track)
         if content is None:
@@ -94,6 +96,9 @@ def generate_m3u(track_file):
             log.debug(m3u_key)
             with open(target_file, "a") as output_file:
                 output_file.write(m3u_key)
+            videos.append(content.watchv_url)
+
+    return videos
 
 
 def download_song(file_name, content):
