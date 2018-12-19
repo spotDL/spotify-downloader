@@ -245,7 +245,7 @@ class GenerateYouTubeURL:
         search_url = generate_search_url(self.search_query)
         log.debug("Opening URL: {0}".format(search_url))
 
-        item = urllib.request.urlopen(search_url).read()
+        item = self._fetch_response(search_url).read()
         items_parse = BeautifulSoup(item, "html.parser")
 
         videos = []
@@ -324,3 +324,11 @@ class GenerateYouTubeURL:
             return self._best_match(videos)
 
         return videos
+
+    @staticmethod
+    def _fetch_response(url):
+        # XXX: This method exists only because it helps us indirectly
+        # monkey patch `urllib.request.open`, directly monkey patching
+        # `urllib.request.open` causes us to end up in an infinite recursion
+        # during the test since `urllib.request.open` would monkeypatch itself.
+        return urllib.request.urlopen(url)

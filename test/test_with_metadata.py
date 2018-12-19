@@ -1,3 +1,4 @@
+import urllib
 import subprocess
 import os
 
@@ -9,44 +10,55 @@ from spotdl import convert
 from spotdl import metadata
 from spotdl import downloader
 
+import pytest
 import loader
 
 loader.load_defaults()
 
-TRACK_URL = "https://open.spotify.com/track/2nT5m433s95hvYJH4S7ont"
-EXPECTED_TITLE = "Eminem - Curtains Up"
-EXPECTED_YT_TITLE = "Eminem - 01 - Eminem - Curtains Up (Skit)"
-EXPECTED_YT_URL = "http://youtube.com/watch?v=qk13SFlwG9A"
+SPOTIFY_TRACK_URL = "https://open.spotify.com/track/3SipFlNddvL0XNZRLXvdZD"
+EXPECTED_YOUTUBE_TITLE = "Janji - Heroes Tonight (feat. Johnning) [NCS Release]"
+EXPECTED_SPOTIFY_TITLE = "Janji - Heroes Tonight"
+EXPECTED_YOUTUBE_URL = "http://youtube.com/watch?v=3nQNiWdeH2Q"
+# GIST_URL is the monkeypatched version of: https://www.youtube.com/results?search_query=janji+-+heroes
+# so that we get same results even if YouTube changes the list/order of videos on their page.
+GIST_URL = "https://gist.githubusercontent.com/ritiek/e731338e9810e31c2f00f13c249a45f5/raw/c11a27f3b5d11a8d082976f1cdd237bd605ec2c2/search_results.html"
 
 
 def test_metadata():
     expect_number = 23
     global meta_tags
-    meta_tags = spotify_tools.generate_metadata(TRACK_URL)
+    meta_tags = spotify_tools.generate_metadata(SPOTIFY_TRACK_URL)
     assert len(meta_tags) == expect_number
 
 
 class TestFileFormat:
     def test_with_spaces(self):
         title = internals.format_string(const.args.file_format, meta_tags)
-        assert title == EXPECTED_TITLE
+        assert title == EXPECTED_SPOTIFY_TITLE
 
     def test_without_spaces(self):
         const.args.no_spaces = True
         title = internals.format_string(const.args.file_format, meta_tags)
-        assert title == EXPECTED_TITLE.replace(" ", "_")
+        assert title == EXPECTED_SPOTIFY_TITLE.replace(" ", "_")
 
 
-def test_youtube_url():
-    url = youtube_tools.generate_youtube_url(TRACK_URL, meta_tags)
-    assert url == EXPECTED_YT_URL
+@pytest.fixture(scope="module")
+def monkeypatch_youtube_search_page(*args, **kwargs):
+    return urllib.request.urlopen(GIST_URL)
 
 
-def test_youtube_title():
+def test_youtube_url(monkeypatch):
+    monkeypatch.setattr(youtube_tools.GenerateYouTubeURL, "_fetch_response", monkeypatch_youtube_search_page)
+    url = youtube_tools.generate_youtube_url(SPOTIFY_TRACK_URL, meta_tags)
+    assert url == EXPECTED_YOUTUBE_URL
+
+
+def test_youtube_title(monkeypatch):
     global content
-    content = youtube_tools.go_pafy(TRACK_URL, meta_tags)
+    monkeypatch.setattr(youtube_tools.GenerateYouTubeURL, "_fetch_response", monkeypatch_youtube_search_page)
+    content = youtube_tools.go_pafy(SPOTIFY_TRACK_URL, meta_tags)
     title = youtube_tools.get_youtube_title(content)
-    assert title == EXPECTED_YT_TITLE
+    assert title == EXPECTED_YOUTUBE_TITLE
 
 
 def test_check_track_exists_before_download(tmpdir):
@@ -57,7 +69,7 @@ def test_check_track_exists_before_download(tmpdir):
     global file_name
     file_name = internals.sanitize_title(songname)
     track_existence = downloader.CheckExists(file_name, meta_tags)
-    check = track_existence.already_exists(TRACK_URL)
+    check = track_existence.already_exists(SPOTIFY_TRACK_URL)
     assert check == expect_check
 
 
@@ -158,6 +170,6 @@ class TestEmbedMetadata:
 def test_check_track_exists_after_download():
     expect_check = True
     track_existence = downloader.CheckExists(file_name, meta_tags)
-    check = track_existence.already_exists(TRACK_URL)
+    check = track_existence.already_exists(SPOTIFY_TRACK_URL)
     os.remove(track_path + ".mp3")
     assert check == expect_check
