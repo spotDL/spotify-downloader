@@ -1,13 +1,13 @@
-import appdirs
-from spotdl import internals
 from logzero import logger as log
+import appdirs
 
 import logging
 import yaml
 import argparse
 import mimetypes
-
 import os
+
+from spotdl import internals
 
 
 _LOG_LEVELS_STR = ["INFO", "WARNING", "ERROR", "DEBUG"]

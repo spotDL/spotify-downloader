@@ -1,14 +1,14 @@
 import spotipy
 import spotipy.oauth2 as oauth2
 import lyricwikia
-from logzero import logger as log
-
-from spotdl import internals
 
 from slugify import slugify
 from titlecase import titlecase
+from logzero import logger as log
 import pprint
 import sys
+
+from spotdl import internals
 
 
 def generate_token():

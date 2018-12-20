@@ -3,7 +3,8 @@ import os
 from logzero import logger as log
 
 
-"""What are the differences and similarities between ffmpeg, libav, and avconv?
+"""
+What are the differences and similarities between ffmpeg, libav, and avconv?
 https://stackoverflow.com/questions/9477115
 
 ffmeg encoders high to lower quality
