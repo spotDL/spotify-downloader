@@ -112,12 +112,14 @@ def test_default_music_directory():
     assert directory == expect_directory
 
 
-class TestPathFilterer:
-    @pytest.fixture(scope="module")
-    def directory_fixture(tmpdir):
-        dir_path = os.path.join(str(tmpdir), "filter_this_folder")
-        return dir_path
+@pytest.fixture(scope="module")
+def directory_fixture(tmpdir_factory):
+    dir_path = os.path.join(str(tmpdir_factory.mktemp("tmpdir")),
+                            "filter_this_folder")
+    return dir_path
 
+
+class TestPathFilterer:
     def test_create_directory(self, directory_fixture):
         expect_path = True
         internals.filter_path(directory_fixture)
