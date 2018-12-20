@@ -121,7 +121,6 @@ def test_write_all_albums_from_artist(tmpdir):
     # current number of tracks on spotify since as of 10/10/2018
     # in US market only
     expect_tracks = 49
-    global text_file
     text_file = os.path.join(str(tmpdir), "test_ab.txt")
     spotify_tools.write_all_albums_from_artist("https://open.spotify.com/artist/4dpARuHxo51G3z768sgnrY", text_file)
     with open(text_file, "r") as f:

@@ -113,19 +113,22 @@ def test_default_music_directory():
 
 
 class TestPathFilterer:
-    def test_create_directory(self, tmpdir):
+    @pytest.fixture(scope="module")
+    def directory_fixture(tmpdir):
+        dir_path = os.path.join(str(tmpdir), "filter_this_folder")
+        return dir_path
+
+    def test_create_directory(self, directory_fixture):
         expect_path = True
-        global folder_path
-        folder_path = os.path.join(str(tmpdir), "filter_this_folder")
-        internals.filter_path(folder_path)
-        is_path = os.path.isdir(folder_path)
+        internals.filter_path(directory_fixture)
+        is_path = os.path.isdir(directory_fixture)
         assert is_path == expect_path
 
-    def test_remove_temp_files(self, tmpdir):
+    def test_remove_temp_files(self, directory_fixture):
         expect_file = False
-        file_path = os.path.join(folder_path, "pesky_file.temp")
+        file_path = os.path.join(directory_fixture, "pesky_file.temp")
         open(file_path, "a")
-        internals.filter_path(folder_path)
+        internals.filter_path(directory_fixture)
         is_file = os.path.isfile(file_path)
         assert is_file == expect_file
 
