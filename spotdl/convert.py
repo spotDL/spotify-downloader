@@ -21,7 +21,7 @@ def song(input_song, output_song, folder, avconv=False, trim_silence=False):
     if not input_song == output_song:
         log.info("Converting {0} to {1}".format(input_song, output_song.split(".")[-1]))
     elif input_song.endswith(".m4a"):
-        log.info("Correcting container in {}".format(input_song))
+        log.info('Correcting container in "{}"'.format(input_song))
     else:
         return 0
     if avconv:
