@@ -17,10 +17,13 @@ https://trac.ffmpeg.org/wiki/Encode/AAC
 
 def song(input_song, output_song, folder, avconv=False, trim_silence=False):
     """ Do the audio format conversion. """
-    if input_song == output_song:
-        return 0
     convert = Converter(input_song, output_song, folder, trim_silence)
-    log.info("Converting {0} to {1}".format(input_song, output_song.split(".")[-1]))
+    if not input_song == output_song:
+        log.info("Converting {0} to {1}".format(input_song, output_song.split(".")[-1]))
+    elif input_song.endswith(".m4a"):
+        log.info("Correcting container in {}".format(input_song))
+    else:
+        return 0
     if avconv:
         exit_code = convert.with_avconv()
     else:
@@ -74,6 +77,8 @@ class Converter:
                 ffmpeg_params = "-codec:v copy -codec:a libmp3lame -ar 44100 "
             elif output_ext == ".webm":
                 ffmpeg_params = "-codec:a libopus -vbr on "
+            elif output_ext == ".m4a":
+                ffmpeg_params = "-vn -acodec copy "
 
         elif input_ext == ".webm":
             if output_ext == ".mp3":
