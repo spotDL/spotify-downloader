@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Ability to pass multiple tracks with `-s` option ([@ritiek](https://github.com/ritiek)) (#442)
 
 ### Changed
+- Correct `.m4a` container before writing metadata so metadata fields shows up properly in
+  media players (especially iTunes) ([@ritiek](https://github.com/ritiek) with thanks to [@Amit-L](https://github.com/Amit-L)!) (#453)
 - Refactored core downloading module ([@ritiek](https://github.com/ritiek)) (#410)
 
 ### Fixed
