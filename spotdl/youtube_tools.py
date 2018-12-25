@@ -189,9 +189,16 @@ class GenerateYouTubeURL:
             if not self.meta_tags:
                 # if the metadata could not be acquired, take the first result
                 # from Youtube because the proper song length is unknown
-                result = videos[0]
-                log.debug(
-                    "Since no metadata found on Spotify, going with the first result"
+                result = None if len(videos)==0 else videos[0]
+                
+                if(len(videos)==0):
+                    log.debug(
+                        "No videos found on youtube for a given search"
+                )
+
+                else:
+                    log.debug(
+                        "Since no metadata found on Spotify, going with the first result"
                 )
             else:
                 # filter out videos that do not have a similar length to the Spotify song
