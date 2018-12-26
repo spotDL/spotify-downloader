@@ -191,7 +191,7 @@ class GenerateYouTubeURL:
             if not self.meta_tags:
                 # if the metadata could not be acquired, take the first result
                 # from Youtube because the proper song length is unknown
-                result = None if len(videos)==0 else videos[0]
+                result = None if not videos else videos[0]
                 
                 if(len(videos)==0):
                     log.debug(
