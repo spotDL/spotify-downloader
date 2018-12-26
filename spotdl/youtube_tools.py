@@ -193,7 +193,7 @@ class GenerateYouTubeURL:
                 # from Youtube because the proper song length is unknown
                 result = None if not videos else videos[0]
                 
-                if(len(videos)==0):
+                if result is None:
                     log.debug(
                         "No videos found on youtube for a given search"
                 )
