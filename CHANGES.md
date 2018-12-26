@@ -7,17 +7,17 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 
 ### Added
-- Output informative message in case of no result found in youtube search ([@Amit-L](https://github.com/Amit-L)) (#452)
+- Output informative message in case of no result found in YouTube search ([@Amit-L](https://github.com/Amit-L)) (#452)
 - Ability to pass multiple tracks with `-s` option ([@ritiek](https://github.com/ritiek)) (#442)
 
 ### Changed
-- Allowed to fetch metadata from spotify upon searching spotify-url and  `--no-metadata` to gather youtube custom-search fields ([@Amit-L](https://github.com/Amit-L)) (#452)
+- Allowed to fetch metadata from Spotify upon searching Spotify-URL and  `--no-metadata` to gather YouTube custom-search fields ([@Amit-L](https://github.com/Amit-L)) (#452)
 - Correct `.m4a` container before writing metadata so metadata fields shows up properly in
   media players (especially iTunes) ([@ritiek](https://github.com/ritiek) with thanks to [@Amit-L](https://github.com/Amit-L)!) (#453)
 - Refactored core downloading module ([@ritiek](https://github.com/ritiek)) (#410)
 
 ### Fixed
-- Applied a check on result in case of search using spotify-url  `--no-metadata` option ([@Amit-L](https://github.com/Amit-L)) (#452)
+- Applied a check on result in case of search using Spotify-URL  `--no-metadata` option ([@Amit-L](https://github.com/Amit-L)) (#452)
 - Included a missing `import spotipy` in downloader.py ([@ritiek](https://github.com/ritiek)) (#440)
 
 ## [1.1.0] - 2018-11-13
