@@ -3,7 +3,8 @@ import os
 from logzero import logger as log
 
 
-"""What are the differences and similarities between ffmpeg, libav, and avconv?
+"""
+What are the differences and similarities between ffmpeg, libav, and avconv?
 https://stackoverflow.com/questions/9477115
 
 ffmeg encoders high to lower quality
@@ -25,10 +26,10 @@ def song(input_song, output_song, folder, avconv=False, trim_silence=False):
     else:
         return 0
     if avconv:
-        exit_code = convert.with_avconv()
+        exit_code, command = convert.with_avconv()
     else:
-        exit_code = convert.with_ffmpeg()
-    return exit_code
+        exit_code, command = convert.with_ffmpeg()
+    return exit_code, command
 
 
 class Converter:
@@ -59,7 +60,7 @@ class Converter:
             log.warning("--trim-silence not supported with avconv")
 
         log.debug(command)
-        return subprocess.call(command)
+        return subprocess.call(command), command
 
     def with_ffmpeg(self):
         ffmpeg_pre = "ffmpeg -y "
@@ -84,7 +85,7 @@ class Converter:
             if output_ext == ".mp3":
                 ffmpeg_params = "-codec:a libmp3lame -ar 44100 "
             elif output_ext == ".m4a":
-                ffmpeg_params = "-cutoff 20000 -codec:a libfdk_aac -ar 44100 "
+                ffmpeg_params = "-cutoff 20000 -codec:a aac -ar 44100 "
 
         if output_ext == ".flac":
             ffmpeg_params = "-codec:a flac -ar 44100 "
@@ -104,4 +105,4 @@ class Converter:
         )
 
         log.debug(command)
-        return subprocess.call(command)
+        return subprocess.call(command), command

@@ -1,13 +1,14 @@
+import spotipy
+import urllib
+import os
+from logzero import logger as log
+
 from spotdl import const
 from spotdl import metadata
 from spotdl import convert
 from spotdl import internals
 from spotdl import spotify_tools
 from spotdl import youtube_tools
-
-import spotipy
-from logzero import logger as log
-import os
 
 
 class CheckExists:

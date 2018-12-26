@@ -80,6 +80,26 @@ STRING_IDS_TEST_TABLE = [
 ]
 
 
+FROM_SECONDS_TEST_TABLE = [
+    (35, "35"),
+    (23, "23"),
+    (158, "2:38"),
+    (263, "4:23"),
+    (4562, "1:16:02"),
+    (26762, "7:26:02")
+]
+
+
+TO_SECONDS_TEST_TABLE = [
+    ("0:23", 23),
+    ("0:45", 45),
+    ("2:19", 139),
+    ("3:33", 213),
+    ("7:38", 458),
+    ("1:30:05", 5405),
+]
+
+
 def test_default_music_directory():
     if sys.platform.startswith("linux"):
         output = subprocess.check_output(["xdg-user-dir", "MUSIC"])
@@ -92,68 +112,39 @@ def test_default_music_directory():
     assert directory == expect_directory
 
 
+@pytest.fixture(scope="module")
+def directory_fixture(tmpdir_factory):
+    dir_path = os.path.join(str(tmpdir_factory.mktemp("tmpdir")),
+                            "filter_this_folder")
+    return dir_path
+
+
 class TestPathFilterer:
-    def test_create_directory(self, tmpdir):
+    def test_create_directory(self, directory_fixture):
         expect_path = True
-        global folder_path
-        folder_path = os.path.join(str(tmpdir), "filter_this_folder")
-        internals.filter_path(folder_path)
-        is_path = os.path.isdir(folder_path)
+        internals.filter_path(directory_fixture)
+        is_path = os.path.isdir(directory_fixture)
         assert is_path == expect_path
 
-    def test_remove_temp_files(self, tmpdir):
+    def test_remove_temp_files(self, directory_fixture):
         expect_file = False
-        file_path = os.path.join(folder_path, "pesky_file.temp")
+        file_path = os.path.join(directory_fixture, "pesky_file.temp")
         open(file_path, "a")
-        internals.filter_path(folder_path)
+        internals.filter_path(directory_fixture)
         is_file = os.path.isfile(file_path)
         assert is_file == expect_file
 
 
-class TestVideoTimeFromSeconds:
-    def test_from_seconds(self):
-        expect_duration = "35"
-        duration = internals.videotime_from_seconds(35)
-        assert duration == expect_duration
-
-    def test_from_minutes(self):
-        expect_duration = "2:38"
-        duration = internals.videotime_from_seconds(158)
-        assert duration == expect_duration
-
-    def test_from_hours(self):
-        expect_duration = "1:16:02"
-        duration = internals.videotime_from_seconds(4562)
-        assert duration == expect_duration
+@pytest.mark.parametrize("sec_duration, str_duration", FROM_SECONDS_TEST_TABLE)
+def test_video_time_from_seconds(sec_duration, str_duration):
+    duration = internals.videotime_from_seconds(sec_duration)
+    assert duration == str_duration
 
 
-class TestGetSeconds:
-    def test_from_seconds(self):
-        expect_secs = 45
-        secs = internals.get_sec("0:45")
-        assert secs == expect_secs
-        secs = internals.get_sec("0.45")
-        assert secs == expect_secs
-
-    def test_from_minutes(self):
-        expect_secs = 213
-        secs = internals.get_sec("3.33")
-        assert secs == expect_secs
-        secs = internals.get_sec("3:33")
-        assert secs == expect_secs
-
-    def test_from_hours(self):
-        expect_secs = 5405
-        secs = internals.get_sec("1.30.05")
-        assert secs == expect_secs
-        secs = internals.get_sec("1:30:05")
-        assert secs == expect_secs
-
-    def test_raise_error(self):
-        with pytest.raises(ValueError):
-            internals.get_sec("10*05")
-        with pytest.raises(ValueError):
-            internals.get_sec("02,28,46")
+@pytest.mark.parametrize("str_duration, sec_duration", TO_SECONDS_TEST_TABLE)
+def test_get_seconds_from_video_time(str_duration, sec_duration):
+    secs = internals.get_sec(str_duration)
+    assert secs == sec_duration
 
 
 @pytest.mark.parametrize("duplicates, expected", DUPLICATE_TRACKS_TEST_TABLE)
@@ -170,3 +161,21 @@ def test_get_unique_tracks(tmpdir, duplicates, expected):
 def test_extract_spotify_id(input_str, expected_spotify_id):
     spotify_id = internals.extract_spotify_id(input_str)
     assert spotify_id == expected_spotify_id
+
+
+def test_trim(tmpdir):
+    text_file = os.path.join(str(tmpdir), "test_trim.txt")
+    with open(text_file, "w") as track_file:
+        track_file.write("ncs - spectre\nncs - heroes\nncs - hope")
+
+    with open(text_file, "r") as track_file:
+        tracks = track_file.readlines()
+
+    expect_number = len(tracks) - 1
+    expect_track = tracks[0]
+    track = internals.trim_song(text_file)
+
+    with open(text_file, "r") as track_file:
+        number = len(track_file.readlines())
+
+    assert expect_number == number and expect_track == track

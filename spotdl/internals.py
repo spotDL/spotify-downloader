@@ -1,6 +1,6 @@
+from logzero import logger as log
 import os
 import sys
-from logzero import logger as log
 
 from spotdl import const
 

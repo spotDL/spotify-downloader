@@ -1,5 +1,11 @@
 #!/usr/bin/env python3
 
+import sys
+import platform
+import pprint
+import logzero
+from logzero import logger as log
+
 from spotdl import __version__
 from spotdl import const
 from spotdl import handle
@@ -7,11 +13,6 @@ from spotdl import internals
 from spotdl import spotify_tools
 from spotdl import youtube_tools
 from spotdl import downloader
-from logzero import logger as log
-import logzero
-import sys
-import platform
-import pprint
 
 
 def debug_sys_info():

@@ -8,6 +8,7 @@ from spotdl import youtube_tools
 from spotdl import downloader
 
 import loader
+import pytest
 
 loader.load_defaults()
 
@@ -38,11 +39,15 @@ class TestYouTubeAPIKeys:
         assert key == EXPECTED_YT_API_KEY
 
 
-def test_metadata():
-    expect_metadata = None
-    global metadata
+@pytest.fixture(scope="module")
+def metadata_fixture():
     metadata = spotify_tools.generate_metadata(TRACK_SEARCH)
-    assert metadata == expect_metadata
+    return metadata
+
+
+def test_metadata(metadata_fixture):
+    expect_metadata = None
+    assert metadata_fixture == expect_metadata
 
 
 class TestArgsManualResultCount:
@@ -63,68 +68,82 @@ class TestArgsManualResultCount:
 
 
 class TestYouTubeURL:
-    def test_only_music_category(self):
+    def test_only_music_category(self, metadata_fixture):
         const.args.music_videos_only = True
-        url = youtube_tools.generate_youtube_url(TRACK_SEARCH, metadata)
+        url = youtube_tools.generate_youtube_url(TRACK_SEARCH, metadata_fixture)
         # YouTube keeps changing its results
         assert url in EXPECTED_YT_URLS
 
-    def test_all_categories(self):
+    def test_all_categories(self, metadata_fixture):
         const.args.music_videos_only = False
-        url = youtube_tools.generate_youtube_url(TRACK_SEARCH, metadata)
+        url = youtube_tools.generate_youtube_url(TRACK_SEARCH, metadata_fixture)
         assert url == EXPECTED_YT_URL
 
-    def test_args_manual(self, monkeypatch):
+    def test_args_manual(self, metadata_fixture, monkeypatch):
         const.args.manual = True
         monkeypatch.setattr("builtins.input", lambda x: "1")
-        url = youtube_tools.generate_youtube_url(TRACK_SEARCH, metadata)
+        url = youtube_tools.generate_youtube_url(TRACK_SEARCH, metadata_fixture)
         assert url == EXPECTED_YT_URL
 
-    def test_args_manual_none(self, monkeypatch):
+    def test_args_manual_none(self, metadata_fixture, monkeypatch):
         expect_url = None
         monkeypatch.setattr("builtins.input", lambda x: "0")
-        url = youtube_tools.generate_youtube_url(TRACK_SEARCH, metadata)
+        url = youtube_tools.generate_youtube_url(TRACK_SEARCH, metadata_fixture)
         const.args.manual = False
         assert url == expect_url
 
 
+@pytest.fixture(scope="module")
+def content_fixture(metadata_fixture):
+    content = youtube_tools.go_pafy(TRACK_SEARCH, metadata_fixture)
+    return content
+
+
+@pytest.fixture(scope="module")
+def title_fixture(content_fixture):
+    title = youtube_tools.get_youtube_title(content_fixture)
+    return title
+
+
 class TestYouTubeTitle:
-    def test_single_download_with_youtube_api(self):
-        global content
-        global title
+    def test_single_download_with_youtube_api(self, title_fixture):
         const.args.youtube_api_key = YT_API_KEY
         youtube_tools.set_api_key()
-        content = youtube_tools.go_pafy(TRACK_SEARCH, metadata)
-        title = youtube_tools.get_youtube_title(content)
-        assert title == EXPECTED_TITLE
+        assert title_fixture == EXPECTED_TITLE
 
-    def test_download_from_list_without_youtube_api(self):
+    def test_download_from_list_without_youtube_api(self, metadata_fixture, content_fixture):
         const.args.youtube_api_key = None
         youtube_tools.set_api_key()
-        content = youtube_tools.go_pafy(TRACK_SEARCH, metadata)
-        title = youtube_tools.get_youtube_title(content, 1)
+        content_fixture = youtube_tools.go_pafy(TRACK_SEARCH, metadata_fixture)
+        title = youtube_tools.get_youtube_title(content_fixture, 1)
         assert title == "1. {0}".format(EXPECTED_TITLE)
 
 
-def test_check_exists(tmpdir):
+@pytest.fixture(scope="module")
+def filename_fixture(title_fixture):
+    filename = internals.sanitize_title(title_fixture)
+    return filename
+
+
+def test_check_exists(metadata_fixture, filename_fixture, tmpdir):
     expect_check = False
     const.args.folder = str(tmpdir)
     # prerequisites for determining filename
-    global file_name
-    file_name = internals.sanitize_title(title)
-    track_existence = downloader.CheckExists(file_name, metadata)
+    track_existence = downloader.CheckExists(filename_fixture, metadata_fixture)
     check = track_existence.already_exists(TRACK_SEARCH)
     assert check == expect_check
 
 
 class TestDownload:
-    def test_webm(self):
-        # content does not have any .webm audiostream
+    def test_webm(self, content_fixture, filename_fixture, monkeypatch):
+        # content_fixture does not have any .webm audiostream
         expect_download = False
-        download = youtube_tools.download_song(file_name + ".webm", content)
+        monkeypatch.setattr("pafy.backend_shared.BaseStream.download", lambda x: None)
+        download = youtube_tools.download_song(filename_fixture + ".webm", content_fixture)
         assert download == expect_download
 
-    def test_other(self):
+    def test_other(self, content_fixture, filename_fixture, monkeypatch):
         expect_download = False
-        download = youtube_tools.download_song(file_name + ".fake_extension", content)
+        monkeypatch.setattr("pafy.backend_shared.BaseStream.download", lambda x: None)
+        download = youtube_tools.download_song(filename_fixture + ".fake_extension", content_fixture)
         assert download == expect_download
