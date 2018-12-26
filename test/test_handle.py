@@ -25,28 +25,37 @@ def test_log_str_to_int():
     assert levels == expect_levels
 
 
+@pytest.fixture(scope="module")
+def config_path_fixture(tmpdir_factory):
+    config_path = os.path.join(str(tmpdir_factory.mktemp("config")),
+                               "config.yml")
+    return config_path
+
+
+@pytest.fixture(scope="module")
+def modified_config_fixture():
+    modified_config = dict(handle.default_conf)
+    return modified_config
+
+
 class TestConfig:
-    def test_default_config(self, tmpdir):
+    def test_default_config(self, config_path_fixture):
         expect_config = handle.default_conf["spotify-downloader"]
-        global config_path
-        config_path = os.path.join(str(tmpdir), "config.yml")
-        config = handle.get_config(config_path)
+        config = handle.get_config(config_path_fixture)
         assert config == expect_config
 
-    def test_modified_config(self):
-        global modified_config
-        modified_config = dict(handle.default_conf)
-        modified_config["spotify-downloader"]["file-format"] = "just_a_test"
-        merged_config = handle.merge(handle.default_conf, modified_config)
-        assert merged_config == modified_config
+    def test_modified_config(self, modified_config_fixture):
+        modified_config_fixture["spotify-downloader"]["file-format"] = "just_a_test"
+        merged_config = handle.merge(handle.default_conf, modified_config_fixture)
+        assert merged_config == modified_config_fixture
 
-    def test_custom_config_path(self, tmpdir):
+    def test_custom_config_path(self, config_path_fixture, modified_config_fixture):
         parser = argparse.ArgumentParser()
-        with open(config_path, "w") as config_file:
-            yaml.dump(modified_config, config_file, default_flow_style=False)
-        overridden_config = handle.override_config(config_path, parser, raw_args="")
+        with open(config_path_fixture, "w") as config_file:
+            yaml.dump(modified_config_fixture, config_file, default_flow_style=False)
+        overridden_config = handle.override_config(config_path_fixture, parser, raw_args="")
         modified_values = [
-            str(value) for value in modified_config["spotify-downloader"].values()
+            str(value) for value in modified_config_fixture["spotify-downloader"].values()
         ]
         overridden_config.folder = os.path.realpath(overridden_config.folder)
         overridden_values = [

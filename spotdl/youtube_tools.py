@@ -1,14 +1,14 @@
 from bs4 import BeautifulSoup
 import urllib
 import pafy
+
 from slugify import slugify
 from logzero import logger as log
+import os
 
 from spotdl import spotify_tools
 from spotdl import internals
 from spotdl import const
-
-import os
 
 # Fix download speed throttle on short duration tracks
 # Read more on mps-youtube/pafy#199
@@ -75,6 +75,8 @@ def generate_m3u(track_file):
     log.info("Generating {0} from {1} YouTube URLs".format(target_file, total_tracks))
     with open(target_file, "w") as output_file:
         output_file.write("#EXTM3U\n\n")
+
+    videos = []
     for n, track in enumerate(tracks, 1):
         content, _ = match_video_and_metadata(track)
         if content is None:
@@ -94,6 +96,9 @@ def generate_m3u(track_file):
             log.debug(m3u_key)
             with open(target_file, "a") as output_file:
                 output_file.write(m3u_key)
+            videos.append(content.watchv_url)
+
+    return videos
 
 
 def download_song(file_name, content):
@@ -240,7 +245,7 @@ class GenerateYouTubeURL:
         search_url = generate_search_url(self.search_query)
         log.debug("Opening URL: {0}".format(search_url))
 
-        item = urllib.request.urlopen(search_url).read()
+        item = self._fetch_response(search_url).read()
         items_parse = BeautifulSoup(item, "html.parser")
 
         videos = []
@@ -319,3 +324,11 @@ class GenerateYouTubeURL:
             return self._best_match(videos)
 
         return videos
+
+    @staticmethod
+    def _fetch_response(url):
+        # XXX: This method exists only because it helps us indirectly
+        # monkey patch `urllib.request.open`, directly monkey patching
+        # `urllib.request.open` causes us to end up in an infinite recursion
+        # during the test since `urllib.request.open` would monkeypatch itself.
+        return urllib.request.urlopen(url)
