@@ -12,6 +12,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Changed
 - Allowed to fetch metadata from Spotify upon searching Spotify-URL and  `--no-metadata` to gather YouTube custom-search fields ([@Amit-L](https://github.com/Amit-L)) (#452)
+- Change FFmpeg to use the built-in encoder `aac` instead of 3rd party `libfdk-aac` which does not
+  ship with the apt package ([@ritiek](https://github.com/ritiek)) (#448)
+- Monkeypatch ever-changing network-relying tests ([@ritiek](https://github.com/ritiek)) (#448)
 - Correct `.m4a` container before writing metadata so metadata fields shows up properly in
   media players (especially iTunes) ([@ritiek](https://github.com/ritiek) with thanks to [@Amit-L](https://github.com/Amit-L)!) (#453)
 - Refactored core downloading module ([@ritiek](https://github.com/ritiek)) (#410)
