@@ -199,8 +199,8 @@ class GenerateYouTubeURL:
                 result = None if not videos else videos[0]
                 
                 if result is None:
-                    log.debug(
-                        "No videos found on youtube for a given search"
+                    log.error(
+                        "No videos found on YouTube for a given search"
                 )
 
                 else:
