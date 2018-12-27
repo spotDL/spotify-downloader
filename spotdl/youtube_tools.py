@@ -174,6 +174,10 @@ class GenerateYouTubeURL:
             )
 
     def _best_match(self, videos):
+        if not videos:
+            log.error("No videos found on YouTube for a given search")
+            return None
+
         """ Select the best matching video from a list of videos. """
         if const.args.manual:
             log.info(self.raw_song)
@@ -196,16 +200,9 @@ class GenerateYouTubeURL:
             if not self.meta_tags:
                 # if the metadata could not be acquired, take the first result
                 # from Youtube because the proper song length is unknown
-                result = None if not videos else videos[0]
-                
-                if result is None:
-                    log.error(
-                        "No videos found on YouTube for a given search"
-                )
-
-                else:
-                    log.debug(
-                        "Since no metadata found on Spotify, going with the first result"
+                result = videos[0]
+                log.debug(
+                    "Since no metadata found on Spotify, going with the first result"
                 )
             else:
                 # filter out videos that do not have a similar length to the Spotify song
