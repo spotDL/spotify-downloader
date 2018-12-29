@@ -50,8 +50,10 @@ def match_video_and_metadata(track, force_pafy=True):
         if not const.args.no_metadata:
             meta_tags = spotify_tools.generate_metadata(track)
     else:
-        if not const.args.no_metadata:
+        # Let it generate metadata, youtube doesn't know spotify slang
+        if not const.args.no_metadata or internals.is_spotify(track):
             meta_tags = spotify_tools.generate_metadata(track)
+        
         if force_pafy:
             content = go_pafy(track, meta_tags)
         else:
@@ -172,6 +174,10 @@ class GenerateYouTubeURL:
             )
 
     def _best_match(self, videos):
+        if not videos:
+            log.error("No videos found on YouTube for a given search")
+            return None
+
         """ Select the best matching video from a list of videos. """
         if const.args.manual:
             log.info(self.raw_song)
