@@ -111,7 +111,9 @@ class TestYouTubeTitle:
         youtube_tools.set_api_key()
         assert title_fixture == EXPECTED_TITLE
 
-    def test_download_from_list_without_youtube_api(self, metadata_fixture, content_fixture):
+    def test_download_from_list_without_youtube_api(
+        self, metadata_fixture, content_fixture
+    ):
         const.args.youtube_api_key = None
         youtube_tools.set_api_key()
         content_fixture = youtube_tools.go_pafy(TRACK_SEARCH, metadata_fixture)
@@ -139,11 +141,15 @@ class TestDownload:
         # content_fixture does not have any .webm audiostream
         expect_download = False
         monkeypatch.setattr("pafy.backend_shared.BaseStream.download", lambda x: None)
-        download = youtube_tools.download_song(filename_fixture + ".webm", content_fixture)
+        download = youtube_tools.download_song(
+            filename_fixture + ".webm", content_fixture
+        )
         assert download == expect_download
 
     def test_other(self, content_fixture, filename_fixture, monkeypatch):
         expect_download = False
         monkeypatch.setattr("pafy.backend_shared.BaseStream.download", lambda x: None)
-        download = youtube_tools.download_song(filename_fixture + ".fake_extension", content_fixture)
+        download = youtube_tools.download_song(
+            filename_fixture + ".fake_extension", content_fixture
+        )
         assert download == expect_download

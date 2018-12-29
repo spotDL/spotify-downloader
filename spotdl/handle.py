@@ -99,10 +99,7 @@ def get_arguments(raw_args=None, to_group=True, to_merge=True):
         group = parser.add_mutually_exclusive_group(required=True)
 
         group.add_argument(
-            "-s",
-            "--song",
-            nargs='+',
-            help="download track by spotify link or name"
+            "-s", "--song", nargs="+", help="download track by spotify link or name"
         )
         group.add_argument("-l", "--list", help="download tracks from a file")
         group.add_argument(
@@ -116,7 +113,7 @@ def get_arguments(raw_args=None, to_group=True, to_merge=True):
         group.add_argument(
             "-ab",
             "--all-albums",
-            help="load all tracks from artist URL into <artist_name>.txt"
+            help="load all tracks from artist URL into <artist_name>.txt",
         )
         group.add_argument(
             "-u",
@@ -128,10 +125,10 @@ def get_arguments(raw_args=None, to_group=True, to_merge=True):
         )
 
     parser.add_argument(
-        '--write-m3u',
+        "--write-m3u",
         help="generate an .m3u playlist file with youtube links given "
-             "a text file containing tracks",
-        action='store_true'
+        "a text file containing tracks",
+        action="store_true",
     )
     parser.add_argument(
         "-m",
@@ -266,12 +263,19 @@ def get_arguments(raw_args=None, to_group=True, to_merge=True):
     if parsed.config is not None and to_merge:
         parsed = override_config(parsed.config, parser)
 
-    if to_group and parsed.list and \
-            not mimetypes.MimeTypes().guess_type(parsed.list)[0] == "text/plain":
-        parser.error("{0} is not of a valid argument to --list, argument must be plain text file".format(parsed.list))
+    if (
+        to_group
+        and parsed.list
+        and not mimetypes.MimeTypes().guess_type(parsed.list)[0] == "text/plain"
+    ):
+        parser.error(
+            "{0} is not of a valid argument to --list, argument must be plain text file".format(
+                parsed.list
+            )
+        )
 
     if parsed.write_m3u and not parsed.list:
-        parser.error('--write-m3u can only be used with --list')
+        parser.error("--write-m3u can only be used with --list")
 
     parsed.log_level = log_leveller(parsed.log_level)
 

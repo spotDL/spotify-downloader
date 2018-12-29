@@ -28,8 +28,7 @@ class CheckExists:
         for song in songs:
             # check if a song with the same name is already present in the given folder
             if self._match_filenames(song):
-                if internals.is_spotify(raw_song) and \
-                        not self._has_metadata(song):
+                if internals.is_spotify(raw_song) and not self._has_metadata(song):
                     return False
 
                 log.warning('"{}" already exists'.format(song))
@@ -53,9 +52,7 @@ class CheckExists:
         already_tagged = metadata.compare(
             os.path.join(const.args.folder, song), self.meta_tags
         )
-        log.debug(
-            "Checking if it is already tagged correctly? {}", already_tagged
-        )
+        log.debug("Checking if it is already tagged correctly? {}", already_tagged)
         if not already_tagged:
             os.remove(os.path.join(const.args.folder, song))
             return False
@@ -64,8 +61,7 @@ class CheckExists:
 
     def _prompt_song(self, song):
         log.info(
-            '"{}" has already been downloaded. '
-            "Re-download? (y/N): ".format(song)
+            '"{}" has already been downloaded. ' "Re-download? (y/N): ".format(song)
         )
         prompt = input("> ")
         if prompt.lower() == "y":

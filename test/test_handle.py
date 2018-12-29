@@ -10,13 +10,11 @@ import yaml
 
 def test_error_m3u_without_list():
     with pytest.raises(SystemExit):
-        handle.get_arguments(raw_args=('-s cool song', '--write-m3u',),
-                             to_group=True)
+        handle.get_arguments(raw_args=("-s cool song", "--write-m3u"), to_group=True)
 
 
 def test_m3u_with_list():
-    handle.get_arguments(raw_args=('-l cool_list.txt', '--write-m3u',),
-                         to_group=True)
+    handle.get_arguments(raw_args=("-l cool_list.txt", "--write-m3u"), to_group=True)
 
 
 def test_log_str_to_int():
@@ -27,8 +25,7 @@ def test_log_str_to_int():
 
 @pytest.fixture(scope="module")
 def config_path_fixture(tmpdir_factory):
-    config_path = os.path.join(str(tmpdir_factory.mktemp("config")),
-                               "config.yml")
+    config_path = os.path.join(str(tmpdir_factory.mktemp("config")), "config.yml")
     return config_path
 
 
@@ -53,9 +50,12 @@ class TestConfig:
         parser = argparse.ArgumentParser()
         with open(config_path_fixture, "w") as config_file:
             yaml.dump(modified_config_fixture, config_file, default_flow_style=False)
-        overridden_config = handle.override_config(config_path_fixture, parser, raw_args="")
+        overridden_config = handle.override_config(
+            config_path_fixture, parser, raw_args=""
+        )
         modified_values = [
-            str(value) for value in modified_config_fixture["spotify-downloader"].values()
+            str(value)
+            for value in modified_config_fixture["spotify-downloader"].values()
         ]
         overridden_config.folder = os.path.realpath(overridden_config.folder)
         overridden_values = [

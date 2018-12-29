@@ -53,7 +53,7 @@ def match_video_and_metadata(track, force_pafy=True):
         # Let it generate metadata, youtube doesn't know spotify slang
         if not const.args.no_metadata or internals.is_spotify(track):
             meta_tags = spotify_tools.generate_metadata(track)
-        
+
         if force_pafy:
             content = go_pafy(track, meta_tags)
         else:
