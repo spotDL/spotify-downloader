@@ -17,6 +17,7 @@ default_conf = {
     "spotify-downloader": {
         "manual": False,
         "no-metadata": False,
+        "no-fallback-metadata": False,
         "avconv": False,
         "folder": internals.get_music_dir(),
         "overwrite": "prompt",
@@ -132,7 +133,7 @@ def get_arguments(raw_args=None, to_group=True, to_merge=True):
         "-m",
         "--manual",
         default=config["manual"],
-        help="choose the track to download manually from a list " "of matching tracks",
+        help="choose the track to download manually from a list of matching tracks",
         action="store_true",
     )
     parser.add_argument(
@@ -140,6 +141,13 @@ def get_arguments(raw_args=None, to_group=True, to_merge=True):
         "--no-metadata",
         default=config["no-metadata"],
         help="do not embed metadata in tracks",
+        action="store_true",
+    )
+    parser.add_argument(
+        "-nf",
+        "--no-fallback-metadata",
+        default=config["no-fallback-metadata"],
+        help="use YouTube metadata as fallback if track not found on Spotify",
         action="store_true",
     )
     parser.add_argument(
@@ -283,6 +291,9 @@ def get_arguments(raw_args=None, to_group=True, to_merge=True):
 
     if parsed.avconv and parsed.trim_silence:
         parser.error("--trim-silence can only be used with FFmpeg")
+
+    if parsed.no_metadata and parsed.no_fallback_metadata:
+        parser.error('--no-metadata and --no-fallback-metadata cannot be used together')
 
     parsed.log_level = log_leveller(parsed.log_level)
 
