@@ -39,7 +39,7 @@ def metadata_fixture():
 
 
 def test_metadata(metadata_fixture):
-    expect_number = 23
+    expect_number = 24
     assert len(metadata_fixture) == expect_number
 
 
@@ -107,22 +107,16 @@ class TestDownload:
 
     def test_m4a(self, monkeypatch, filename_fixture):
         expect_download = True
-        monkeypatch.setattr(
-            "pafy.backend_shared.BaseStream.download", self.blank_audio_generator
-        )
-        download = youtube_tools.download_song(
-            filename_fixture + ".m4a", pytest.content_fixture
-        )
+        monkeypatch.setattr("pafy.backend_shared.BaseStream.download", self.blank_audio_generator)
+        monkeypatch.setattr("pafy.backend_youtube_dl.YtdlStream.download", self.blank_audio_generator)
+        download = youtube_tools.download_song(filename_fixture + ".m4a", pytest.content_fixture)
         assert download == expect_download
 
     def test_webm(self, monkeypatch, filename_fixture):
         expect_download = True
-        monkeypatch.setattr(
-            "pafy.backend_shared.BaseStream.download", self.blank_audio_generator
-        )
-        download = youtube_tools.download_song(
-            filename_fixture + ".webm", pytest.content_fixture
-        )
+        monkeypatch.setattr("pafy.backend_shared.BaseStream.download", self.blank_audio_generator)
+        monkeypatch.setattr("pafy.backend_youtube_dl.YtdlStream.download", self.blank_audio_generator)
+        download = youtube_tools.download_song(filename_fixture + ".webm", pytest.content_fixture)
         assert download == expect_download
 
 
