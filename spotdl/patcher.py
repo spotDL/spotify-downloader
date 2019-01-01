@@ -8,7 +8,7 @@ def _getbestthumb(self):
     if url:
         return url
 
-    part_url = "http://i.ytimg.com/vi/%s/" % self.videoid
+    part_url = "https://i.ytimg.com/vi/%s/" % self.videoid
     # Thumbnail resolution sorted in descending order
     thumbs = ("maxresdefault.jpg",
               "sddefault.jpg",

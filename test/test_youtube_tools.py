@@ -99,6 +99,56 @@ def content_fixture(metadata_fixture):
     return content
 
 
+# True = Metadata must be fetched from Spotify
+# False = Metadata must be fetched from YouTube
+# None = Metadata must be `None`
+
+MATCH_METADATA_NO_FALLBACK_TEST_TABLE = [
+    ("https://open.spotify.com/track/5nWduGwBGBn1PSqYTJUDbS", True),
+    ("http://youtube.com/watch?v=3nQNiWdeH2Q", None),
+    ("Linux Talk | Working with Drives and Filesystems", None)
+]
+
+MATCH_METADATA_FALLBACK_TEST_TABLE = [
+    ("https://open.spotify.com/track/5nWduGwBGBn1PSqYTJUDbS", True),
+    ("http://youtube.com/watch?v=3nQNiWdeH2Q", False),
+    ("Linux Talk | Working with Drives and Filesystems", False)
+]
+
+MATCH_METADATA_NO_METADATA_TEST_TABLE = [
+    ("https://open.spotify.com/track/5nWduGwBGBn1PSqYTJUDbS", None),
+    ("http://youtube.com/watch?v=3nQNiWdeH2Q", None),
+    ("Linux Talk | Working with Drives and Filesystems", None)
+]
+
+
+class TestMetadataOrigin:
+    def match_metadata(self, track, metadata_type):
+        _, metadata = youtube_tools.match_video_and_metadata(track)
+        if metadata_type is None:
+            assert metadata == metadata_type
+        else:
+            assert metadata["spotify_metadata"] == metadata_type
+
+    @pytest.mark.parametrize("track, metadata_type", MATCH_METADATA_NO_FALLBACK_TEST_TABLE)
+    def test_match_metadata_with_no_fallback(self, track, metadata_type, monkeypatch, content_fixture):
+        monkeypatch.setattr(youtube_tools, "go_pafy", lambda track, meta_tags: content_fixture)
+        const.args.no_fallback_metadata = True
+        self.match_metadata(track, metadata_type)
+
+    @pytest.mark.parametrize("track, metadata_type", MATCH_METADATA_FALLBACK_TEST_TABLE)
+    def test_match_metadata_with_fallback(self, track, metadata_type, monkeypatch, content_fixture):
+        monkeypatch.setattr(youtube_tools, "go_pafy", lambda track, meta_tags: content_fixture)
+        const.args.no_fallback_metadata = False
+        self.match_metadata(track, metadata_type)
+
+    @pytest.mark.parametrize("track, metadata_type", MATCH_METADATA_NO_METADATA_TEST_TABLE)
+    def test_match_metadata_with_no_metadata(self, track, metadata_type, monkeypatch, content_fixture):
+        monkeypatch.setattr(youtube_tools, "go_pafy", lambda track, meta_tags: content_fixture)
+        const.args.no_metadata = True
+        self.match_metadata(track, metadata_type)
+
+
 @pytest.fixture(scope="module")
 def title_fixture(content_fixture):
     title = youtube_tools.get_youtube_title(content_fixture)
