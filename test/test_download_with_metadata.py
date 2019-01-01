@@ -1,4 +1,3 @@
-import urllib
 import subprocess
 import os
 
@@ -54,16 +53,11 @@ class TestFileFormat:
         assert title == EXPECTED_SPOTIFY_TITLE.replace(" ", "_")
 
 
-def monkeypatch_youtube_search_page(*args, **kwargs):
-    fake_urlopen = urllib.request.urlopen(GIST_URL)
-    return fake_urlopen
-
-
 def test_youtube_url(metadata_fixture, monkeypatch):
     monkeypatch.setattr(
         youtube_tools.GenerateYouTubeURL,
         "_fetch_response",
-        monkeypatch_youtube_search_page,
+        loader.monkeypatch_youtube_search_page,
     )
     url = youtube_tools.generate_youtube_url(SPOTIFY_TRACK_URL, metadata_fixture)
     assert url == EXPECTED_YOUTUBE_URL
@@ -73,7 +67,7 @@ def test_youtube_title(metadata_fixture, monkeypatch):
     monkeypatch.setattr(
         youtube_tools.GenerateYouTubeURL,
         "_fetch_response",
-        monkeypatch_youtube_search_page,
+        loader.monkeypatch_youtube_search_page,
     )
     content = youtube_tools.go_pafy(SPOTIFY_TRACK_URL, metadata_fixture)
     pytest.content_fixture = content
