@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
-## [1.1.1] - 2018-12-29
+## [1.1.1] - 2019-01-03
 ### Added
 - Output informative message in case of no result found in YouTube search ([@Amit-L](https://github.com/Amit-L)) (#452)
 - Ability to pass multiple tracks with `-s` option ([@ritiek](https://github.com/ritiek)) (#442)
