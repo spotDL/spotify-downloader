@@ -132,8 +132,6 @@ class Downloader:
             except FileNotFoundError:
                 output_song = self.unconverted_filename(songname)
 
-            if not const.args.input_ext == const.args.output_ext:
-                os.remove(os.path.join(const.args.folder, input_song))
             if not const.args.no_metadata and self.meta_tags is not None:
                 metadata.embed(
                     os.path.join(const.args.folder, output_song), self.meta_tags

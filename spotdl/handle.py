@@ -277,6 +277,9 @@ def get_arguments(raw_args=None, to_group=True, to_merge=True):
     if parsed.write_m3u and not parsed.list:
         parser.error("--write-m3u can only be used with --list")
 
+    if parsed.avconv and parsed.trim_silence:
+        parser.error("--trim-silence can only be used with FFmpeg")
+
     parsed.log_level = log_leveller(parsed.log_level)
 
     return parsed
