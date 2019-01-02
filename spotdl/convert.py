@@ -49,7 +49,9 @@ class Converter:
             # FFmpeg/avconv cannot have the same file for both input and output
             # This would happen when the extensions are same, so rename
             # the input track to append ".temp"
-            log.debug('Input file and output file are going will be same during encoding, will append ".temp" to input file just before starting encoding to avoid conflict')
+            log.debug(
+                'Input file and output file are going will be same during encoding, will append ".temp" to input file just before starting encoding to avoid conflict'
+            )
             input_song = output_song + ".temp"
             rename_to_temp = True
             delete_original = True
