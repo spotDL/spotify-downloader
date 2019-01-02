@@ -27,6 +27,7 @@ def refresh_token():
     new_token = generate_token()
     spotify = spotipy.Spotify(auth=new_token)
 
+
 # token is mandatory when using Spotify's API
 # https://developer.spotify.com/news-stories/2017/01/27/removing-unauthenticated-calls-to-the-web-api/
 _token = generate_token()

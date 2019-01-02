@@ -86,7 +86,7 @@ FROM_SECONDS_TEST_TABLE = [
     (158, "2:38"),
     (263, "4:23"),
     (4562, "1:16:02"),
-    (26762, "7:26:02")
+    (26762, "7:26:02"),
 ]
 
 
@@ -114,8 +114,7 @@ def test_default_music_directory():
 
 @pytest.fixture(scope="module")
 def directory_fixture(tmpdir_factory):
-    dir_path = os.path.join(str(tmpdir_factory.mktemp("tmpdir")),
-                            "filter_this_folder")
+    dir_path = os.path.join(str(tmpdir_factory.mktemp("tmpdir")), "filter_this_folder")
     return dir_path
 
 

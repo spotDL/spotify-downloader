@@ -60,13 +60,21 @@ def monkeypatch_youtube_search_page(*args, **kwargs):
 
 
 def test_youtube_url(metadata_fixture, monkeypatch):
-    monkeypatch.setattr(youtube_tools.GenerateYouTubeURL, "_fetch_response", monkeypatch_youtube_search_page)
+    monkeypatch.setattr(
+        youtube_tools.GenerateYouTubeURL,
+        "_fetch_response",
+        monkeypatch_youtube_search_page,
+    )
     url = youtube_tools.generate_youtube_url(SPOTIFY_TRACK_URL, metadata_fixture)
     assert url == EXPECTED_YOUTUBE_URL
 
 
 def test_youtube_title(metadata_fixture, monkeypatch):
-    monkeypatch.setattr(youtube_tools.GenerateYouTubeURL, "_fetch_response", monkeypatch_youtube_search_page)
+    monkeypatch.setattr(
+        youtube_tools.GenerateYouTubeURL,
+        "_fetch_response",
+        monkeypatch_youtube_search_page,
+    )
     content = youtube_tools.go_pafy(SPOTIFY_TRACK_URL, metadata_fixture)
     pytest.content_fixture = content
     title = youtube_tools.get_youtube_title(content)
@@ -99,60 +107,78 @@ class TestDownload:
 
     def test_m4a(self, monkeypatch, filename_fixture):
         expect_download = True
-        monkeypatch.setattr("pafy.backend_shared.BaseStream.download", self.blank_audio_generator)
-        download = youtube_tools.download_song(filename_fixture + ".m4a", pytest.content_fixture)
+        monkeypatch.setattr(
+            "pafy.backend_shared.BaseStream.download", self.blank_audio_generator
+        )
+        download = youtube_tools.download_song(
+            filename_fixture + ".m4a", pytest.content_fixture
+        )
         assert download == expect_download
 
     def test_webm(self, monkeypatch, filename_fixture):
         expect_download = True
-        monkeypatch.setattr("pafy.backend_shared.BaseStream.download", self.blank_audio_generator)
-        download = youtube_tools.download_song(filename_fixture + ".webm", pytest.content_fixture)
+        monkeypatch.setattr(
+            "pafy.backend_shared.BaseStream.download", self.blank_audio_generator
+        )
+        download = youtube_tools.download_song(
+            filename_fixture + ".webm", pytest.content_fixture
+        )
         assert download == expect_download
 
 
 class TestFFmpeg:
     def test_convert_from_webm_to_mp3(self, filename_fixture, monkeypatch):
+        expect_command = "ffmpeg -y -hide_banner -nostats -v panic -i {0}.webm -codec:a libmp3lame -ar 44100 -b:a 192k -vn {0}.mp3".format(
+            os.path.join(const.args.folder, filename_fixture)
+        )
         monkeypatch.setattr("os.remove", lambda x: None)
-        expect_command = "ffmpeg -y -i {0}.webm -codec:a libmp3lame -ar 44100 -b:a 192k -vn {0}.mp3".format(os.path.join(const.args.folder, filename_fixture))
         _, command = convert.song(
             filename_fixture + ".webm", filename_fixture + ".mp3", const.args.folder
         )
-        assert ' '.join(command) == expect_command
+        assert " ".join(command) == expect_command
 
     def test_convert_from_webm_to_m4a(self, filename_fixture, monkeypatch):
+        expect_command = "ffmpeg -y -hide_banner -nostats -v panic -i {0}.webm -cutoff 20000 -codec:a aac -ar 44100 -b:a 192k -vn {0}.m4a".format(
+            os.path.join(const.args.folder, filename_fixture)
+        )
         monkeypatch.setattr("os.remove", lambda x: None)
-        expect_command = "ffmpeg -y -i {0}.webm -cutoff 20000 -codec:a aac -ar 44100 -b:a 192k -vn {0}.m4a".format(os.path.join(const.args.folder, filename_fixture))
         _, command = convert.song(
             filename_fixture + ".webm", filename_fixture + ".m4a", const.args.folder
         )
-        assert ' '.join(command) == expect_command
+        assert " ".join(command) == expect_command
 
     def test_convert_from_m4a_to_mp3(self, filename_fixture, monkeypatch):
+        expect_command = "ffmpeg -y -hide_banner -nostats -v panic -i {0}.m4a -codec:v copy -codec:a libmp3lame -ar 44100 -b:a 192k -vn {0}.mp3".format(
+            os.path.join(const.args.folder, filename_fixture)
+        )
         monkeypatch.setattr("os.remove", lambda x: None)
-        expect_command = "ffmpeg -y -i {0}.m4a -codec:v copy -codec:a libmp3lame -ar 44100 -b:a 192k -vn {0}.mp3".format(os.path.join(const.args.folder, filename_fixture))
         _, command = convert.song(
             filename_fixture + ".m4a", filename_fixture + ".mp3", const.args.folder
         )
-        assert ' '.join(command) == expect_command
+        assert " ".join(command) == expect_command
 
     def test_convert_from_m4a_to_webm(self, filename_fixture, monkeypatch):
+        expect_command = "ffmpeg -y -hide_banner -nostats -v panic -i {0}.m4a -codec:a libopus -vbr on -b:a 192k -vn {0}.webm".format(
+            os.path.join(const.args.folder, filename_fixture)
+        )
         monkeypatch.setattr("os.remove", lambda x: None)
-        expect_command = "ffmpeg -y -i {0}.m4a -codec:a libopus -vbr on -b:a 192k -vn {0}.webm".format(os.path.join(const.args.folder, filename_fixture))
         _, command = convert.song(
             filename_fixture + ".m4a", filename_fixture + ".webm", const.args.folder
         )
-        assert ' '.join(command) == expect_command
+        assert " ".join(command) == expect_command
 
     def test_convert_from_m4a_to_flac(self, filename_fixture, monkeypatch):
+        expect_command = "ffmpeg -y -hide_banner -nostats -v panic -i {0}.m4a -codec:a flac -ar 44100 -b:a 192k -vn {0}.flac".format(
+            os.path.join(const.args.folder, filename_fixture)
+        )
         monkeypatch.setattr("os.remove", lambda x: None)
-        expect_command = "ffmpeg -y -i {0}.m4a -codec:a flac -ar 44100 -b:a 192k -vn {0}.flac".format(os.path.join(const.args.folder, filename_fixture))
         _, command = convert.song(
             filename_fixture + ".m4a", filename_fixture + ".flac", const.args.folder
         )
-        assert ' '.join(command) == expect_command
+        assert " ".join(command) == expect_command
 
     def test_correct_container_for_m4a(self, filename_fixture, monkeypatch):
-        expect_command = "ffmpeg -y -i {0}.m4a.temp -acodec copy -b:a 192k -vn {0}.m4a".format(os.path.join(const.args.folder, filename_fixture))
+        expect_command = "ffmpeg -y -hide_banner -nostats -v panic -i {0}.m4a.temp -acodec copy -b:a 192k -vn {0}.m4a".format(os.path.join(const.args.folder, filename_fixture))
         _, command = convert.song(
             filename_fixture + ".m4a", filename_fixture + ".m4a", const.args.folder
         )
@@ -162,11 +188,15 @@ class TestFFmpeg:
 class TestAvconv:
     def test_convert_from_m4a_to_mp3(self, filename_fixture, monkeypatch):
         monkeypatch.setattr("os.remove", lambda x: None)
-        expect_command = "avconv -loglevel debug -i {0}.m4a -ab 192k {0}.mp3 -y".format(os.path.join(const.args.folder, filename_fixture))
+        expect_command = "avconv -loglevel 0 -i {0}.m4a -ab 192k {0}.mp3 -y".format(
+            os.path.join(const.args.folder, filename_fixture))
         _, command = convert.song(
-            filename_fixture + ".m4a", filename_fixture + ".mp3", const.args.folder, avconv=True
+            filename_fixture + ".m4a",
+            filename_fixture + ".mp3",
+            const.args.folder,
+            avconv=True,
         )
-        assert ' '.join(command) == expect_command
+        assert " ".join(command) == expect_command
 
 
 @pytest.fixture(scope="module")
@@ -200,7 +230,9 @@ class TestEmbedMetadata:
         assert embed == expect_embed
 
 
-def test_check_track_exists_after_download(metadata_fixture, filename_fixture, trackpath_fixture):
+def test_check_track_exists_after_download(
+    metadata_fixture, filename_fixture, trackpath_fixture
+):
     expect_check = True
     track_existence = downloader.CheckExists(filename_fixture, metadata_fixture)
     check = track_existence.already_exists(SPOTIFY_TRACK_URL)

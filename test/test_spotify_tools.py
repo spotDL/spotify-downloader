@@ -36,12 +36,16 @@ class TestGenerateMetadata:
 
 
 def test_get_playlists():
-    expect_playlist_ids = [ "34gWCK8gVeYDPKcctB6BQJ",
-                            "04wTU2c2WNQG9XE5oSLYfj",
-                            "0fWBMhGh38y0wsYWwmM9Kt" ]
+    expect_playlist_ids = [
+        "34gWCK8gVeYDPKcctB6BQJ",
+        "04wTU2c2WNQG9XE5oSLYfj",
+        "0fWBMhGh38y0wsYWwmM9Kt",
+    ]
 
-    expect_playlists = [ "https://open.spotify.com/playlist/" +  playlist_id
-                         for playlist_id in expect_playlist_ids ]
+    expect_playlists = [
+        "https://open.spotify.com/playlist/" + playlist_id
+        for playlist_id in expect_playlist_ids
+    ]
 
     playlists = spotify_tools.get_playlists("uqlakumu7wslkoen46s5bulq0")
     assert playlists == expect_playlists
@@ -60,7 +64,9 @@ def test_write_user_playlist(tmpdir, monkeypatch):
 class TestFetchPlaylist:
     @pytest.fixture(scope="module")
     def playlist_fixture(self):
-        playlist = spotify_tools.fetch_playlist("https://open.spotify.com/playlist/0fWBMhGh38y0wsYWwmM9Kt")
+        playlist = spotify_tools.fetch_playlist(
+            "https://open.spotify.com/playlist/0fWBMhGh38y0wsYWwmM9Kt"
+        )
         return playlist
 
     def test_name(self, playlist_fixture):
@@ -73,7 +79,9 @@ class TestFetchPlaylist:
 def test_write_playlist(tmpdir):
     expect_tracks = 14
     text_file = os.path.join(str(tmpdir), "test_pl.txt")
-    spotify_tools.write_playlist("https://open.spotify.com/playlist/0fWBMhGh38y0wsYWwmM9Kt", text_file)
+    spotify_tools.write_playlist(
+        "https://open.spotify.com/playlist/0fWBMhGh38y0wsYWwmM9Kt", text_file
+    )
     with open(text_file, "r") as f:
         tracks = len(f.readlines())
     assert tracks == expect_tracks
@@ -83,7 +91,9 @@ def test_write_playlist(tmpdir):
 class TestFetchAlbum:
     @pytest.fixture(scope="module")
     def album_fixture(self):
-        album = spotify_tools.fetch_album("https://open.spotify.com/album/499J8bIsEnU7DSrosFDJJg")
+        album = spotify_tools.fetch_album(
+            "https://open.spotify.com/album/499J8bIsEnU7DSrosFDJJg"
+        )
         return album
 
     def test_name(self, album_fixture):
@@ -97,7 +107,9 @@ class TestFetchAlbum:
 class TestFetchAlbumsFromArtist:
     @pytest.fixture(scope="module")
     def albums_from_artist_fixture(self):
-        albums = spotify_tools.fetch_albums_from_artist("https://open.spotify.com/artist/7oPftvlwr6VrsViSDV7fJY")
+        albums = spotify_tools.fetch_albums_from_artist(
+            "https://open.spotify.com/artist/7oPftvlwr6VrsViSDV7fJY"
+        )
         return albums
 
     def test_len(self, albums_from_artist_fixture):
@@ -122,7 +134,9 @@ def test_write_all_albums_from_artist(tmpdir):
     # in US market only
     expect_tracks = 49
     text_file = os.path.join(str(tmpdir), "test_ab.txt")
-    spotify_tools.write_all_albums_from_artist("https://open.spotify.com/artist/4dpARuHxo51G3z768sgnrY", text_file)
+    spotify_tools.write_all_albums_from_artist(
+        "https://open.spotify.com/artist/4dpARuHxo51G3z768sgnrY", text_file
+    )
     with open(text_file, "r") as f:
         tracks = len(f.readlines())
     assert tracks == expect_tracks
@@ -131,7 +145,9 @@ def test_write_all_albums_from_artist(tmpdir):
 def test_write_album(tmpdir):
     expect_tracks = 15
     text_file = os.path.join(str(tmpdir), "test_al.txt")
-    spotify_tools.write_album("https://open.spotify.com/album/499J8bIsEnU7DSrosFDJJg", text_file)
+    spotify_tools.write_album(
+        "https://open.spotify.com/album/499J8bIsEnU7DSrosFDJJg", text_file
+    )
     with open(text_file, "r") as f:
         tracks = len(f.readlines())
     assert tracks == expect_tracks
