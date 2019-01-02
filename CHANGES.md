@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Refactored core downloading module ([@ritiek](https://github.com/ritiek)) (#410)
 
 ### Fixed
+- Workaround conversion conflicts when input and output filename are same ([@ritiek](https://github.com/ritiek)) (#459)
 - Applied a check on result in case of search using Spotify-URL  `--no-metadata` option ([@Amit-L](https://github.com/Amit-L)) (#452)
 - Included a missing `import spotipy` in downloader.py ([@ritiek](https://github.com/ritiek)) (#440)
 
