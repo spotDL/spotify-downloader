@@ -18,25 +18,43 @@ https://trac.ffmpeg.org/wiki/Encode/AAC
 
 def song(input_song, output_song, folder, avconv=False, trim_silence=False):
     """ Do the audio format conversion. """
-    convert = Converter(input_song, output_song, folder, trim_silence)
+    if avconv and trim_silence:
+        raise ValueError("avconv does not support trim_silence")
+
     if not input_song == output_song:
         log.info("Converting {0} to {1}".format(input_song, output_song.split(".")[-1]))
     elif input_song.endswith(".m4a"):
         log.info('Correcting container in "{}"'.format(input_song))
     else:
         return 0
+
+    convert = Converter(input_song, output_song, folder, delete_original=True)
     if avconv:
         exit_code, command = convert.with_avconv()
     else:
-        exit_code, command = convert.with_ffmpeg()
+        exit_code, command = convert.with_ffmpeg(trim_silence=trim_silence)
     return exit_code, command
 
 
 class Converter:
-    def __init__(self, input_song, output_song, folder, trim_silence=False):
-        self.input_file = os.path.join(folder, input_song)
+    def __init__(self, input_song, output_song, folder, delete_original):
         self.output_file = os.path.join(folder, output_song)
-        self.trim_silence = trim_silence
+        rename_to_temp = False
+
+        same_file = input_song == output_song
+        if same_file:
+            # FFmpeg/avconv cannot have the same file for both input and output
+            # This would happen when the extensions are same, so rename
+            # the input track to append ".temp"
+            log.debug('Input file and output file are going will be same during encoding, will append ".temp" to input file just before starting encoding to avoid conflict')
+            input_song = output_song + ".temp"
+            rename_to_temp = True
+            delete_original = True
+
+        self.input_file = os.path.join(folder, input_song)
+
+        self.rename_to_temp = rename_to_temp
+        self.delete_original = delete_original
 
     def with_avconv(self):
         if log.level == 10:
@@ -56,13 +74,19 @@ class Converter:
             "-y",
         ]
 
-        if self.trim_silence:
-            log.warning("--trim-silence not supported with avconv")
+        if self.rename_to_temp:
+            os.rename(self.output_file, self.input_file)
 
         log.debug(command)
-        return subprocess.call(command), command
+        code = subprocess.call(command)
 
-    def with_ffmpeg(self):
+        if self.delete_original:
+            log.debug('Removing original file: "{}"'.format(self.input_file))
+            os.remove(self.input_file)
+
+        return code, command
+
+    def with_ffmpeg(self, trim_silence=False):
         ffmpeg_pre = "ffmpeg -y "
 
         if not log.level == 10:
@@ -79,7 +103,7 @@ class Converter:
             elif output_ext == ".webm":
                 ffmpeg_params = "-codec:a libopus -vbr on "
             elif output_ext == ".m4a":
-                ffmpeg_params = "-vn -acodec copy "
+                ffmpeg_params = "-acodec copy "
 
         elif input_ext == ".webm":
             if output_ext == ".mp3":
@@ -92,9 +116,9 @@ class Converter:
 
         # add common params for any of the above combination
         ffmpeg_params += "-b:a 192k -vn "
-        ffmpeg_pre += " -i"
+        ffmpeg_pre += "-i "
 
-        if self.trim_silence:
+        if trim_silence:
             ffmpeg_params += "-af silenceremove=start_periods=1 "
 
         command = (
@@ -104,5 +128,14 @@ class Converter:
             + [self.output_file]
         )
 
+        if self.rename_to_temp:
+            os.rename(self.output_file, self.input_file)
+
         log.debug(command)
-        return subprocess.call(command), command
+        code = subprocess.call(command)
+
+        if self.delete_original:
+            log.debug('Removing original file: "{}"'.format(self.input_file))
+            os.remove(self.input_file)
+
+        return code, command
