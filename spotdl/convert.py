@@ -38,10 +38,13 @@ def song(input_song, output_song, folder, avconv=False, trim_silence=False):
 
 class Converter:
     def __init__(self, input_song, output_song, folder, delete_original):
+        _, self.input_ext = os.path.splitext(input_song)
+        _, self.output_ext = os.path.splitext(output_song)
+
         self.output_file = os.path.join(folder, output_song)
         rename_to_temp = False
 
-        same_file = input_song == output_song
+        same_file = os.path.abspath(input_song) == os.path.abspath(output_song)
         if same_file:
             # FFmpeg/avconv cannot have the same file for both input and output
             # This would happen when the extensions are same, so rename
@@ -92,26 +95,23 @@ class Converter:
         if not log.level == 10:
             ffmpeg_pre += "-hide_banner -nostats -v panic "
 
-        _, input_ext = os.path.splitext(self.input_file)
-        _, output_ext = os.path.splitext(self.output_file)
-
         ffmpeg_params = ""
 
-        if input_ext == ".m4a":
-            if output_ext == ".mp3":
+        if self.input_ext == ".m4a":
+            if self.output_ext == ".mp3":
                 ffmpeg_params = "-codec:v copy -codec:a libmp3lame -ar 44100 "
-            elif output_ext == ".webm":
+            elif self.output_ext == ".webm":
                 ffmpeg_params = "-codec:a libopus -vbr on "
-            elif output_ext == ".m4a":
+            elif self.output_ext == ".m4a":
                 ffmpeg_params = "-acodec copy "
 
-        elif input_ext == ".webm":
-            if output_ext == ".mp3":
+        elif self.input_ext == ".webm":
+            if self.output_ext == ".mp3":
                 ffmpeg_params = "-codec:a libmp3lame -ar 44100 "
-            elif output_ext == ".m4a":
+            elif self.output_ext == ".m4a":
                 ffmpeg_params = "-cutoff 20000 -codec:a aac -ar 44100 "
 
-        if output_ext == ".flac":
+        if self.output_ext == ".flac":
             ffmpeg_params = "-codec:a flac -ar 44100 "
 
         # add common params for any of the above combination
