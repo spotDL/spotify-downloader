@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Changed
+- Option `-f` (`--folder`) is used when exporting text files using `-p` (`--playlist`) for playlists or `-b` (`--album`) for albums ([@Silverfeelin](https://github.com/Silverfeelin)) (#476)
+
 ## [1.1.1] - 2019-01-03
 ### Added
 - Output informative message in case of no result found in YouTube search ([@Amit-L](https://github.com/Amit-L)) (#452)
