@@ -7,7 +7,9 @@ from titlecase import titlecase
 from logzero import logger as log
 import pprint
 import sys
+import os
 
+from spotdl import const
 from spotdl import internals
 
 
@@ -146,7 +148,8 @@ def write_playlist(playlist_url, text_file=None):
     tracks = playlist["tracks"]
     if not text_file:
         text_file = u"{0}.txt".format(slugify(playlist["name"], ok="-_()[]{}"))
-    return write_tracks(tracks, text_file)
+    filepath = os.path.join(const.args.folder if const.args.folder else "", text_file)
+    return write_tracks(tracks, filepath)
 
 
 def fetch_album(album):
@@ -217,7 +220,8 @@ def write_album(album_url, text_file=None):
     tracks = spotify.album_tracks(album["id"])
     if not text_file:
         text_file = u"{0}.txt".format(slugify(album["name"], ok="-_()[]{}"))
-    return write_tracks(tracks, text_file)
+    filepath = os.path.join(const.args.folder if const.args.folder else "", text_file)
+    return write_tracks(tracks, filepath)
 
 
 def write_tracks(tracks, text_file):
