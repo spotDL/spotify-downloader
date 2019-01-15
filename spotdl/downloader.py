@@ -131,6 +131,8 @@ class Downloader:
                     trim_silence=const.args.trim_silence,
                 )
             except FileNotFoundError:
+                encoder = "avconv" if const.args.avconv else "ffmpeg"
+                log.warning("Could not find {0}, skip encoding".format(encoder))
                 output_song = self.unconverted_filename(songname)
 
             if not const.args.no_metadata and self.meta_tags is not None:
@@ -169,8 +171,6 @@ class Downloader:
 
     @staticmethod
     def unconverted_filename(songname):
-        encoder = "avconv" if const.args.avconv else "ffmpeg"
-        log.warning("Could not find {0}, skipping conversion".format(encoder))
         const.args.output_ext = const.args.input_ext
         output_song = songname + const.args.output_ext
         return output_song

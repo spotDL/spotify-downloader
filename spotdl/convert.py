@@ -83,7 +83,12 @@ class Converter:
             os.rename(self.output_file, self.input_file)
 
         log.debug(command)
-        code = subprocess.call(command)
+        try:
+            code = subprocess.call(command)
+        except FileNotFoundError:
+            if self.rename_to_temp:
+                os.rename(self.input_file, self.output_file)
+            raise
 
         if self.delete_original:
             log.debug('Removing original file: "{}"'.format(self.input_file))
@@ -134,7 +139,12 @@ class Converter:
             os.rename(self.output_file, self.input_file)
 
         log.debug(command)
-        code = subprocess.call(command)
+        try:
+            code = subprocess.call(command)
+        except FileNotFoundError:
+            if self.rename_to_temp:
+                os.rename(self.input_file, self.output_file)
+            raise
 
         if self.delete_original:
             log.debug('Removing original file: "{}"'.format(self.input_file))
