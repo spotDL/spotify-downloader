@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Changed
+- Option `-f` (`--folder`) is used when exporting text files using `-p` (`--playlist`) for playlists or `-b` (`--album`) for albums ([@Silverfeelin](https://github.com/Silverfeelin)) (#476)
 
 ### Fixed
 - Fix renaming files when encoder is not found ([@ritiek](https://github.com/ritiek)) (#475)
