@@ -5,11 +5,16 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+-
+
 ### Changed
 - Option `-f` (`--folder`) is used when exporting text files using `-p` (`--playlist`) for playlists or `-b` (`--album`) for albums ([@Silverfeelin](https://github.com/Silverfeelin)) (#476)
+- Use first artist from album object for album artist ([@tillhainbach](https://github.com/tillhainbach))
 
 ### Fixed
 - Fix renaming files when encoder is not found ([@ritiek](https://github.com/ritiek)) (#475)
+- Add missing `import time` ([@ifduyue](https://github.com/ifduyue)) (#465)
 
 ## [1.1.1] - 2019-01-03
 ### Added
