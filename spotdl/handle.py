@@ -7,6 +7,7 @@ import argparse
 import mimetypes
 import os
 
+import spotdl
 from spotdl import internals
 
 
@@ -119,9 +120,6 @@ def get_arguments(raw_args=None, to_group=True, to_merge=True):
             "-u",
             "--username",
             help="load tracks from user's playlist into <playlist_name>.txt",
-        )
-        group.add_argument(
-            "-V", "--version", help="show version and exit", action="store_true"
         )
 
     parser.add_argument(
@@ -256,6 +254,9 @@ def get_arguments(raw_args=None, to_group=True, to_merge=True):
     )
     parser.add_argument(
         "-c", "--config", default=None, help="path to custom config.yml file"
+    )
+    parser.add_argument(
+        "-V", "--version", action="version", version="%(prog)s {}".format(spotdl.__version__)
     )
 
     parsed = parser.parse_args(raw_args)
