@@ -158,13 +158,13 @@ def fetch_album(album):
     return album
 
 
-def fetch_albums_from_artist(artist_url, album_type="album"):
+def fetch_albums_from_artist(artist_url, album_type=None):
     """
     This funcction returns all the albums from a give artist_url using the US
     market
     :param artist_url - spotify artist url
     :param album_type - the type of album to fetch (ex: single) the default is
-                        a standard album
+                        all albums
     :param return - the album from the artist
     """
 
@@ -195,7 +195,7 @@ def write_all_albums_from_artist(artist_url, text_file=None):
     album_base_url = "https://open.spotify.com/album/"
 
     # fetching all default albums
-    albums = fetch_albums_from_artist(artist_url)
+    albums = fetch_albums_from_artist(artist_url, album_type=None)
 
     # if no file if given, the default save file is in the current working
     # directory with the name of the artist
@@ -206,13 +206,6 @@ def write_all_albums_from_artist(artist_url, text_file=None):
         # logging album name
         log.info("Fetching album: " + album["name"])
         write_album(album_base_url + album["id"], text_file=text_file)
-
-    # fetching all single albums
-    singles = fetch_albums_from_artist(artist_url, album_type="single")
-
-    for single in singles:
-        log.info("Fetching single: " + single["name"])
-        write_album(album_base_url + single["id"], text_file=text_file)
 
 
 def write_album(album_url, text_file=None):

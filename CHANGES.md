@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 -
 
 ### Changed
+- Fetch all artist albums by default instead of only fetching the "album" type ([@ritiek](https://github.com/ritiek)) (#493)
 - Option `-f` (`--folder`) is used when exporting text files using `-p` (`--playlist`) for playlists or `-b` (`--album`) for albums ([@Silverfeelin](https://github.com/Silverfeelin)) (#476)
 - Use first artist from album object for album artist ([@tillhainbach](https://github.com/tillhainbach))
 

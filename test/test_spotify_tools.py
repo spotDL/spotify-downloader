@@ -113,7 +113,8 @@ class TestFetchAlbumsFromArtist:
         return albums
 
     def test_len(self, albums_from_artist_fixture):
-        assert len(albums_from_artist_fixture) == 18
+        # TODO: Mock this test (failed in #493)
+        assert len(albums_from_artist_fixture) == 52
 
     def test_zeroth_album_name(self, albums_from_artist_fixture):
         assert albums_from_artist_fixture[0]["name"] == "Revolution Radio"
@@ -128,11 +129,9 @@ class TestFetchAlbumsFromArtist:
         assert albums_from_artist_fixture[0]["total_tracks"] == 12
 
 
-# XXX: Mock this test off if it fails in future
+# TODO: Mock this test (failed in #493)
 def test_write_all_albums_from_artist(tmpdir):
-    # current number of tracks on spotify since as of 10/10/2018
-    # in US market only
-    expect_tracks = 49
+    expect_tracks = 282
     text_file = os.path.join(str(tmpdir), "test_ab.txt")
     spotify_tools.write_all_albums_from_artist(
         "https://open.spotify.com/artist/4dpARuHxo51G3z768sgnrY", text_file
