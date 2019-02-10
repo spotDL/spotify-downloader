@@ -4,10 +4,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+
 ## [Unreleased]
 ### Added
 -
 
+### Changed
+-
+
+### Fixed
+-
+
+## [1.1.2] - 2019-02-10
 ### Changed
 - Fetch all artist albums by default instead of only fetching the "album" type ([@ritiek](https://github.com/ritiek)) (#493)
 - Option `-f` (`--folder`) is used when exporting text files using `-p` (`--playlist`) for playlists or `-b` (`--album`) for albums ([@Silverfeelin](https://github.com/Silverfeelin)) (#476)
