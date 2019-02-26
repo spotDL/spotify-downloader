@@ -12,9 +12,6 @@ import os
 from spotdl import const
 from spotdl import internals
 
-spotify = None
-
-
 # token = generate_token()
 # spotify = spotipy.Spotify(auth=token)
 
@@ -86,6 +83,7 @@ class SpotifyAuthorize:
         # Some sugar
         meta_tags["year"], *_ = meta_tags["release_date"].split("-")
         meta_tags["duration"] = meta_tags["duration_ms"] / 1000.0
+        meta_tags["spotify_metadata"] = True
         # Remove unwanted parameters
         del meta_tags["duration_ms"]
         del meta_tags["available_markets"]
@@ -157,13 +155,13 @@ class SpotifyAuthorize:
         album = self.spotify.album(album_id)
         return album
 
-    def fetch_album_from_artist(self, artist_url, album_type="album"):
+    def fetch_albums_from_artist(self, artist_url, album_type=None):
         """
         This funcction returns all the albums from a give artist_url using the US
         market
         :param artist_url - spotify artist url
         :param album_type - the type of album to fetch (ex: single) the default is
-                            a standard album
+                            all albums
         :param return - the album from the artist
         """
 
@@ -181,6 +179,7 @@ class SpotifyAuthorize:
 
         return albums
 
+
     def write_all_albums_from_artist(self, artist_url, text_file=None):
         """
         This function gets all albums from an artist and writes it to a file in the
@@ -193,7 +192,7 @@ class SpotifyAuthorize:
         album_base_url = "https://open.spotify.com/album/"
 
         # fetching all default albums
-        albums = self.fetch_album_from_artist(artist_url)
+        albums = self.fetch_albums_from_artist(artist_url, album_type=None)
 
         # if no file if given, the default save file is in the current working
         # directory with the name of the artist
@@ -204,13 +203,6 @@ class SpotifyAuthorize:
             # logging album name
             log.info("Fetching album: " + album["name"])
             self.write_album(album_base_url + album["id"], text_file=text_file)
-
-        # fetching all single albums
-        singles = self.fetch_album_from_artist(artist_url, album_type="single")
-
-        for single in singles:
-            log.info("Fetching single: " + single["name"])
-            self.write_album(album_base_url + single["id"], text_file=text_file)
 
     def write_album(self, album_url, text_file=None):
         album = self.fetch_album(album_url)

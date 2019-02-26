@@ -149,7 +149,7 @@ def get_arguments(raw_args=None, to_group=True, to_merge=True):
         "-nf",
         "--no-fallback-metadata",
         default=config["no-fallback-metadata"],
-        help="use YouTube metadata as fallback if track not found on Spotify",
+        help="do not use YouTube as fallback for metadata if track not found on Spotify",
         action="store_true",
     )
     parser.add_argument(
