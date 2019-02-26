@@ -1,6 +1,7 @@
 from logzero import logger as log
 import os
 import sys
+import urllib.request
 
 from spotdl import const
 
@@ -253,3 +254,12 @@ def remove_duplicates(tracks):
     local_set = set()
     local_set_add = local_set.add
     return [x for x in tracks if not (x in local_set or local_set_add(x))]
+
+
+def content_available(url):
+    try:
+        response = urllib.request.urlopen(url)
+    except HTTPError:
+        return False
+    else:
+        return response.getcode() < 300

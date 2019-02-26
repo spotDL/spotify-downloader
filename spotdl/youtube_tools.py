@@ -14,6 +14,12 @@ from spotdl import const
 # Read more on mps-youtube/pafy#199
 pafy.g.opener.addheaders.append(("Range", "bytes=0-"))
 
+# Implement unreleased methods on Pafy object
+# More info: https://github.com/mps-youtube/pafy/pull/211
+if pafy.__version__ <= "0.5.4":
+    from spotdl import patcher
+    patcher.patch_pafy()
+
 
 def set_api_key():
     if const.args.youtube_api_key:
@@ -39,9 +45,22 @@ def go_pafy(raw_song, meta_tags=None):
     return track_info
 
 
-def match_video_and_metadata(track, force_pafy=True):
+def match_video_and_metadata(track):
     """ Get and match track data from YouTube and Spotify. """
     meta_tags = None
+
+
+    def fallback_metadata(meta_tags):
+        fallback_metadata_info = "Track not found on Spotify, falling back on YouTube metadata"
+        skip_fallback_metadata_warning = "Fallback condition not met, shall not embed metadata"
+        if meta_tags is None:
+            if const.args.no_fallback_metadata:
+                log.warning(skip_fallback_metadata_warning)
+            else:
+                log.info(fallback_metadata_info)
+                meta_tags = generate_metadata(content)
+        return meta_tags
+
 
     if internals.is_youtube(track):
         log.debug("Input song is a YouTube URL")
@@ -49,16 +68,50 @@ def match_video_and_metadata(track, force_pafy=True):
         track = slugify(content.title).replace("-", " ")
         if not const.args.no_metadata:
             meta_tags = spotify_tools.generate_metadata(track)
-    else:
-        # Let it generate metadata, youtube doesn't know spotify slang
-        if not const.args.no_metadata or internals.is_spotify(track):
-            meta_tags = spotify_tools.generate_metadata(track)
+            meta_tags = fallback_metadata(meta_tags)
 
-        if force_pafy:
-            content = go_pafy(track, meta_tags)
+    elif internals.is_spotify(track):
+        log.debug("Input song is a Spotify URL")
+        # Let it generate metadata, YouTube doesn't know Spotify slang
+        meta_tags = spotify_tools.generate_metadata(track)
+        content = go_pafy(track, meta_tags)
+        if const.args.no_metadata:
+            meta_tags = None
+
+    else:
+        log.debug("Input song is plain text based")
+        if const.args.no_metadata:
+            content = go_pafy(track, meta_tags=None)
         else:
-            content = None
+            meta_tags = spotify_tools.generate_metadata(track)
+            content = go_pafy(track, meta_tags=meta_tags)
+            meta_tags = fallback_metadata(meta_tags)
+
     return content, meta_tags
+
+
+def generate_metadata(content):
+    """ Fetch a song's metadata from YouTube. """
+    meta_tags = {"spotify_metadata": False,
+                 "name": content.title,
+                 "artists": [{"name": content.author}],
+                 "duration": content.length,
+                 "external_urls": {"youtube": content.watchv_url},
+                 "album": {"images" : [{"url": content.getbestthumb()}], "name": None},
+                 "year": content.published.split("-")[0],
+                 "release_date": content.published.split(" ")[0],
+                 "type": "track",
+                 "disc_number": 1,
+                 "track_number": 1,
+                 "total_tracks": 1,
+                 "publisher": None,
+                 "external_ids": {"isrc": None},
+                 "lyrics": None,
+                 "copyright": None,
+                 "genre": None,
+                 }
+
+    return meta_tags
 
 
 def get_youtube_title(content, number=None):

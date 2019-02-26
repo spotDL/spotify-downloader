@@ -163,8 +163,6 @@ class Downloader:
             if not refined_songname == " - ":
                 songname = refined_songname
         else:
-            if not const.args.no_metadata:
-                log.warning("Could not find metadata")
             songname = internals.sanitize_title(songname)
 
         return songname

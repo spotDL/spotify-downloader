@@ -27,11 +27,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [1.1.1] - 2019-01-03
 ### Added
+- Use YouTube as fallback metadata if track not found on Spotify. Also added `--no-fallback-metadata`
+  to preserve old behaviour ([@ritiek](https://github.com/ritiek)) (#457)
 - Output informative message in case of no result found in YouTube search ([@Amit-L](https://github.com/Amit-L)) (#452)
 - Ability to pass multiple tracks with `-s` option ([@ritiek](https://github.com/ritiek)) (#442)
 
 ### Changed
-- Allowed to fetch metadata from Spotify upon searching Spotify-URL and  `--no-metadata` to gather YouTube custom-search fields ([@Amit-L](https://github.com/Amit-L)) (#452)
+- Allowed to fetch metadata from Spotify upon searching Spotify-URL and  `--no-metadata` to gather YouTube
+  custom-search fields ([@Amit-L](https://github.com/Amit-L)) (#452)
 - Change FFmpeg to use the built-in encoder `aac` instead of 3rd party `libfdk-aac` which does not
   ship with the apt package ([@ritiek](https://github.com/ritiek)) (#448)
 - Monkeypatch ever-changing network-relying tests ([@ritiek](https://github.com/ritiek)) (#448)

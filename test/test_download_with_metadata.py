@@ -1,4 +1,3 @@
-import urllib
 import subprocess
 import os
 
@@ -39,7 +38,7 @@ def metadata_fixture():
 
 
 def test_metadata(metadata_fixture):
-    expect_number = 23
+    expect_number = 24
     assert len(metadata_fixture) == expect_number
 
 
@@ -54,16 +53,11 @@ class TestFileFormat:
         assert title == EXPECTED_SPOTIFY_TITLE.replace(" ", "_")
 
 
-def monkeypatch_youtube_search_page(*args, **kwargs):
-    fake_urlopen = urllib.request.urlopen(GIST_URL)
-    return fake_urlopen
-
-
 def test_youtube_url(metadata_fixture, monkeypatch):
     monkeypatch.setattr(
         youtube_tools.GenerateYouTubeURL,
         "_fetch_response",
-        monkeypatch_youtube_search_page,
+        loader.monkeypatch_youtube_search_page,
     )
     url = youtube_tools.generate_youtube_url(SPOTIFY_TRACK_URL, metadata_fixture)
     assert url == EXPECTED_YOUTUBE_URL
@@ -73,7 +67,7 @@ def test_youtube_title(metadata_fixture, monkeypatch):
     monkeypatch.setattr(
         youtube_tools.GenerateYouTubeURL,
         "_fetch_response",
-        monkeypatch_youtube_search_page,
+        loader.monkeypatch_youtube_search_page,
     )
     content = youtube_tools.go_pafy(SPOTIFY_TRACK_URL, metadata_fixture)
     pytest.content_fixture = content
@@ -107,22 +101,16 @@ class TestDownload:
 
     def test_m4a(self, monkeypatch, filename_fixture):
         expect_download = True
-        monkeypatch.setattr(
-            "pafy.backend_shared.BaseStream.download", self.blank_audio_generator
-        )
-        download = youtube_tools.download_song(
-            filename_fixture + ".m4a", pytest.content_fixture
-        )
+        monkeypatch.setattr("pafy.backend_shared.BaseStream.download", self.blank_audio_generator)
+        monkeypatch.setattr("pafy.backend_youtube_dl.YtdlStream.download", self.blank_audio_generator)
+        download = youtube_tools.download_song(filename_fixture + ".m4a", pytest.content_fixture)
         assert download == expect_download
 
     def test_webm(self, monkeypatch, filename_fixture):
         expect_download = True
-        monkeypatch.setattr(
-            "pafy.backend_shared.BaseStream.download", self.blank_audio_generator
-        )
-        download = youtube_tools.download_song(
-            filename_fixture + ".webm", pytest.content_fixture
-        )
+        monkeypatch.setattr("pafy.backend_shared.BaseStream.download", self.blank_audio_generator)
+        monkeypatch.setattr("pafy.backend_youtube_dl.YtdlStream.download", self.blank_audio_generator)
+        download = youtube_tools.download_song(filename_fixture + ".webm", pytest.content_fixture)
         assert download == expect_download
 
 

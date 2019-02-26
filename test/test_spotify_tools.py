@@ -2,6 +2,9 @@ from spotdl import spotify_tools
 
 import os
 import pytest
+import loader
+
+loader.load_defaults()
 
 
 def test_generate_token():
@@ -23,7 +26,7 @@ class TestGenerateMetadata:
         return metadata
 
     def test_len(self, metadata_fixture):
-        assert len(metadata_fixture) == 23
+        assert len(metadata_fixture) == 24
 
     def test_trackname(self, metadata_fixture):
         assert metadata_fixture["name"] == "Spectre"

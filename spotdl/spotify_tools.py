@@ -81,6 +81,7 @@ def generate_metadata(raw_song):
     # Some sugar
     meta_tags["year"], *_ = meta_tags["release_date"].split("-")
     meta_tags["duration"] = meta_tags["duration_ms"] / 1000.0
+    meta_tags["spotify_metadata"] = True
     # Remove unwanted parameters
     del meta_tags["duration_ms"]
     del meta_tags["available_markets"]
