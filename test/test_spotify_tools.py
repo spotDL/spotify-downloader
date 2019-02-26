@@ -2,6 +2,9 @@ from spotdl import spotify_tools
 
 import os
 import pytest
+import loader
+
+loader.load_defaults()
 
 
 def test_generate_token():
