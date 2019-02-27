@@ -33,7 +33,7 @@ def pytest_namespace():
 
 @pytest.fixture(scope="module")
 def metadata_fixture():
-    meta_tags = spotify_tools.SpotifyAuthorize().generate_metadata(SPOTIFY_TRACK_URL)
+    meta_tags = spotify_tools.generate_metadata(SPOTIFY_TRACK_URL)
     return meta_tags
 
 

@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Fixed
 - Fix already downloaded prompt when using "/" in `--file-format` to create sub-directories ([@ritiek](https://github.com/ritiek)) (#503)
+- Fix writing playlist tracks to file ([@ritiek](https://github.com/ritiek)) (#506)
 
 ## [1.1.2] - 2019-02-10
 ### Changed
