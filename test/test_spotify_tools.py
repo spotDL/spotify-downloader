@@ -1,4 +1,7 @@
 from spotdl import spotify_tools
+from spotdl import const
+
+import spotipy
 
 import os
 import pytest
@@ -10,6 +13,35 @@ loader.load_defaults()
 def test_generate_token():
     token = spotify_tools.generate_token()
     assert len(token) == 83
+
+
+class TestMustBeAuthorizedDecorator:
+    def test_spotify_instance_is_unset(self):
+        spotify_tools.spotify = None
+
+        @spotify_tools.must_be_authorized
+        def sample_func():
+            return True
+
+        assert sample_func()
+
+    def test_spotify_instance_forces_assertion_error(self):
+        @spotify_tools.must_be_authorized
+        def sample_func():
+            raise AssertionError
+
+        with pytest.raises(AssertionError):
+            sample_func()
+
+    def test_fake_token_generator(self, monkeypatch):
+        spotify_tools.spotify = None
+        monkeypatch.setattr(spotify_tools, "generate_token", lambda: 123123)
+
+        with pytest.raises(spotipy.client.SpotifyException):
+            spotify_tools.generate_metadata("ncs - spectre")
+
+    def test_correct_token(self):
+        assert spotify_tools.generate_metadata("ncs - spectre")
 
 
 class TestGenerateMetadata:
