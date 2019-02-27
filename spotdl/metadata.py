@@ -148,7 +148,8 @@ class EmbedMetadata:
     def _embed_basic_metadata(self, audiofile, preset=TAG_PRESET):
         meta_tags = self.meta_tags
         audiofile[preset["artist"]] = meta_tags["artists"][0]["name"]
-        audiofile[preset["albumartist"]] = meta_tags["album"]["artists"][0]["name"]
+        if meta_tags["album"]["artists"][0]["name"]:
+            audiofile[preset["albumartist"]] = meta_tags["album"]["artists"][0]["name"]
         if meta_tags["album"]["name"]:
             audiofile[preset["album"]] = meta_tags["album"]["name"]
         audiofile[preset["title"]] = meta_tags["name"]
