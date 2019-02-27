@@ -14,16 +14,20 @@ from spotdl import youtube_tools
 
 class CheckExists:
     def __init__(self, music_file, meta_tags=None):
-        self.music_file = music_file
         self.meta_tags = meta_tags
+        basepath, filename = os.path.split(music_file)
+        filepath = os.path.join(const.args.folder, basepath)
+        os.makedirs(filepath, exist_ok=True)
+        self.filepath = filepath
+        self.filename = filename
 
     def already_exists(self, raw_song):
         """ Check if the input song already exists in the given folder. """
         log.debug(
             "Cleaning any temp files and checking "
-            'if "{}" already exists'.format(self.music_file)
+            'if "{}" already exists'.format(self.filename)
         )
-        songs = os.listdir(const.args.folder)
+        songs = os.listdir(self.filepath)
         self._remove_temp_files(songs)
 
         for song in songs:
@@ -45,17 +49,17 @@ class CheckExists:
     def _remove_temp_files(self, songs):
         for song in songs:
             if song.endswith(".temp"):
-                os.remove(os.path.join(const.args.folder, song))
+                os.remove(os.path.join(self.filepath, song))
 
     def _has_metadata(self, song):
         # check if the already downloaded song has correct metadata
         # if not, remove it and download again without prompt
         already_tagged = metadata.compare(
-            os.path.join(const.args.folder, song), self.meta_tags
+            os.path.join(self.filepath, song), self.meta_tags
         )
         log.debug("Checking if it is already tagged correctly? {}", already_tagged)
         if not already_tagged:
-            os.remove(os.path.join(const.args.folder, song))
+            os.remove(os.path.join(self.filepath, song))
             return False
 
         return True
@@ -80,7 +84,7 @@ class CheckExists:
         return True
 
     def _match_filenames(self, song):
-        if os.path.splitext(song)[0] == self.music_file:
+        if os.path.splitext(song)[0] == self.filename:
             log.debug('Found an already existing song: "{}"'.format(song))
             return True
 
