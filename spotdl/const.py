@@ -13,10 +13,6 @@ logzero.setup_default_logger(formatter=_formatter, level=_log_level)
 # (useful when using spotdl as a library)
 args = type("", (), {})()
 
-# This is used as an authenticated instance for accessing
-# Spotify's web API
-spotify = None
-
 # Apple has specific tags - see mutagen docs -
 # http://mutagen.readthedocs.io/en/latest/api/mp4.html
 M4A_TAG_PRESET = {
