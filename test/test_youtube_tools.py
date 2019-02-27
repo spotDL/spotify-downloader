@@ -40,7 +40,7 @@ class TestYouTubeAPIKeys:
 
 @pytest.fixture(scope="module")
 def metadata_fixture():
-    metadata = spotify_tools.SpotifyAuthorize().generate_metadata(TRACK_SEARCH)
+    metadata = spotify_tools.generate_metadata(TRACK_SEARCH)
     return metadata
 
 

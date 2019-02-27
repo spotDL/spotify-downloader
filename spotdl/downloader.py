@@ -202,12 +202,8 @@ class ListDownloader:
             try:
                 track_dl = Downloader(raw_song, number=number)
                 track_dl.download_single()
-            except spotipy.client.SpotifyException:
-                # token expires after 1 hour
-                self._regenerate_token()
-                track_dl.download_single()
-            # detect network problems
             except (urllib.request.URLError, TypeError, IOError) as e:
+                # detect network problems
                 self._cleanup(raw_song, e)
                 # TODO: remove this sleep once #397 is fixed
                 # wait 0.5 sec to avoid infinite looping
@@ -232,11 +228,6 @@ class ListDownloader:
         log.debug("Adding downloaded song to write successful file")
         with open(self.write_successful_file, "a") as f:
             f.write("\n" + raw_song)
-
-    @staticmethod
-    def _regenerate_token():
-        log.debug("Token expired, generating new one and authorizing")
-        spotify_tools.refresh_token()
 
     def _cleanup(self, raw_song, exception):
         self.tracks.append(raw_song)
