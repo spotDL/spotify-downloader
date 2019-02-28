@@ -4,16 +4,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-
 ## [Unreleased]
+### Added
+-
+
+### Fixed
+-
+
+### Changed
+-
+
+## [1.2.0] - 2019-03-01
 ### Added
 - `--write-to` parameter for setting custom file to write Spotify track URLs to ([@ritiek](https://github.com/ritiek)) (#507)
 - Set custom Spotify Client ID and Client Secret via config.yml ([@ManveerBasra](https://github.com/ManveerBasra)) (#502)
 - Use YouTube as fallback metadata if track not found on Spotify. Also added `--no-fallback-metadata`
   to preserve old behaviour ([@ritiek](https://github.com/ritiek)) (#457)
-
-### Changed
--
 
 ### Fixed
 - Fix already downloaded prompt when using "/" in `--file-format` to create sub-directories ([@ritiek](https://github.com/ritiek)) (#503)
