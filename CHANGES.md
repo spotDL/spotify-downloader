@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 ### Added
+- `--write-to` parameter for setting custom file to write Spotify track URLs to ([@ritiek](https://github.com/ritiek)) (#507)
 - Set custom Spotify Client ID and Client Secret via config.yml ([@ManveerBasra](https://github.com/ManveerBasra)) (#502)
 - Use YouTube as fallback metadata if track not found on Spotify. Also added `--no-fallback-metadata`
   to preserve old behaviour ([@ritiek](https://github.com/ritiek)) (#457)
