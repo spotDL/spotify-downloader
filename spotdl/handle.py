@@ -23,6 +23,7 @@ default_conf = {
         "overwrite": "prompt",
         "input-ext": ".m4a",
         "output-ext": ".mp3",
+        "write-to": None,
         "trim-silence": False,
         "download-only-metadata": False,
         "dry-run": False,
@@ -185,6 +186,11 @@ def get_arguments(raw_args=None, to_group=True, to_merge=True):
         help="preferred output format .mp3, .m4a (AAC), .flac, etc.",
     )
     parser.add_argument(
+        "--write-to",
+        default=config["write-to"],
+        help="write tracks from Spotify playlist, album, etc. to this file",
+    )
+    parser.add_argument(
         "-ff",
         "--file-format",
         default=config["file-format"],
@@ -305,6 +311,12 @@ def get_arguments(raw_args=None, to_group=True, to_merge=True):
 
     if parsed.avconv and parsed.trim_silence:
         parser.error("--trim-silence can only be used with FFmpeg")
+
+    if parsed.write_to and not (parsed.playlist \
+            or parsed.album \
+            or parsed.all_albums \
+            or parsed.username):
+        parser.error("--write-to can only be used with --playlist, --album, --all-albums, or --username")
 
     parsed.log_level = log_leveller(parsed.log_level)
 
