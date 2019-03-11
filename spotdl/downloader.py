@@ -134,6 +134,8 @@ class Downloader:
                     avconv=const.args.avconv,
                     trim_silence=const.args.trim_silence,
                 )
+                output_path = os.path.join(const.args.folder, output_song)
+                log.info("Output Path: {}".format(output_path))
             except FileNotFoundError:
                 encoder = "avconv" if const.args.avconv else "ffmpeg"
                 log.warning("Could not find {0}, skip encoding".format(encoder))
