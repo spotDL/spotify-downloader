@@ -51,7 +51,6 @@ def input_link(links):
 
 def trim_song(tracks_file):
     """ Remove the first song from file. """
-    log.debug("Removing downloaded song from tracks file")
     with open(tracks_file, "r") as file_in:
         data = file_in.read().splitlines(True)
     with open(tracks_file, "w") as file_out:
