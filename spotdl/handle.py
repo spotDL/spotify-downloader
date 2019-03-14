@@ -58,7 +58,7 @@ def merge(default, config):
 def get_config(config_file):
     try:
         with open(config_file, "r") as ymlfile:
-            cfg = yaml.load(ymlfile)
+            cfg = yaml.safe_load(ymlfile)
     except FileNotFoundError:
         log.info("Writing default configuration to {0}:".format(config_file))
         with open(config_file, "w") as ymlfile:
