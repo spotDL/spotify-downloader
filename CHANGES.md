@@ -9,10 +9,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 -
 
 ### Fixed
-- Fix YAMLLoadWarning ([@cyberboysumanjay](https://github.com/cyberboysumanjay))
+-
 
 ### Changed
--
+- Fix YAMLLoadWarning ([@cyberboysumanjay](https://github.com/cyberboysumanjay)) (#517)
 
 ## [1.2.0] - 2019-03-01
 ### Added
