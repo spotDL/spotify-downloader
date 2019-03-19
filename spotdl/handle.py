@@ -17,6 +17,7 @@ default_conf = {
     "spotify-downloader": {
         "manual": False,
         "no-metadata": False,
+        "no-lyrics": False,
         "no-fallback-metadata": False,
         "avconv": False,
         "folder": internals.get_music_dir(),
@@ -144,6 +145,13 @@ def get_arguments(raw_args=None, to_group=True, to_merge=True):
         "--no-metadata",
         default=config["no-metadata"],
         help="do not embed metadata in tracks",
+        action="store_true",
+    )
+    parser.add_argument(
+        "-nl",
+        "--no-lyrics",
+        default=config["no-lyrics"],
+        help="do not embed lyrics",
         action="store_true",
     )
     parser.add_argument(

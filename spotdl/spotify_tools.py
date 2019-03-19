@@ -73,13 +73,15 @@ def generate_metadata(raw_song):
     meta_tags[u"publisher"] = album["label"]
     meta_tags[u"total_tracks"] = album["tracks"]["total"]
 
-    log.debug("Fetching lyrics")
-
-    try:
-        meta_tags["lyrics"] = lyricwikia.get_lyrics(
-            meta_tags["artists"][0]["name"], meta_tags["name"]
-        )
-    except lyricwikia.LyricsNotFound:
+    if not const.args.no_lyrics:
+        log.debug("Fetching lyrics")
+        try:
+            meta_tags["lyrics"] = lyricwikia.get_lyrics(
+                meta_tags["artists"][0]["name"], meta_tags["name"]
+            )
+        except lyricwikia.LyricsNotFound:
+            meta_tags["lyrics"] = None
+    else:
         meta_tags["lyrics"] = None
 
     # Some sugar
