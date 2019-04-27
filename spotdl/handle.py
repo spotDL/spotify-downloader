@@ -266,8 +266,8 @@ def get_arguments(raw_args=None, to_group=True, to_merge=True):
     parser.add_argument(
         "-se",
         "--skip-on-error",
-        default=config["skip-on-error",
-        help="Skip song in list when an unknown error occurs"
+        default=config["skip-on-error"],
+        help="Skip song in list when an unknown error occurs",
     )
     parser.add_argument(
         "-w",
