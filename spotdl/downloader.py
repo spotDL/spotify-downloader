@@ -3,6 +3,7 @@ import urllib
 import os
 import time
 from logzero import logger as log
+from mutagen import MutagenError
 
 from spotdl import const
 from spotdl import metadata
@@ -206,7 +207,7 @@ class ListDownloader:
             try:
                 track_dl = Downloader(raw_song, number=number)
                 track_dl.download_single()
-            except (urllib.request.URLError, TypeError, IOError) as e:
+            except (urllib.request.URLError, TypeError, IOError, MutagenError) as e:
                 # detect network problems
                 self._cleanup(raw_song, e)
                 # TODO: remove this sleep once #397 is fixed
