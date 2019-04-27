@@ -179,10 +179,11 @@ class Downloader:
 
 
 class ListDownloader:
-    def __init__(self, tracks_file, skip_file=None, write_successful_file=None):
+    def __init__(self, tracks_file, skip_file=None, write_successful_file=None, skip_on_error=None):
         self.tracks_file = tracks_file
         self.skip_file = skip_file
         self.write_successful_file = write_successful_file
+        self.skip_on_error = skip_on_error
         self.tracks = internals.get_unique_tracks(self.tracks_file)
 
     def download_list(self):
@@ -213,6 +214,12 @@ class ListDownloader:
                 # wait 0.5 sec to avoid infinite looping
                 time.sleep(0.5)
                 continue
+            except Exception as e:
+                if self.skip_on_error:
+                    print('Unknown Exception: %s' % str(e))
+                    print('Skipping song in list')
+                else:
+                    raise
 
             downloaded_songs.append(raw_song)
             # Add track to file of successful downloads

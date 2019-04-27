@@ -35,6 +35,7 @@ def match_args():
                 tracks_file=const.args.list,
                 skip_file=const.args.skip,
                 write_successful_file=const.args.write_successful,
+                skip_on_error=const.args.skip_on_error
             )
             list_dl.download_list()
     elif const.args.playlist:

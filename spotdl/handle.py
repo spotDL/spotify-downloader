@@ -34,6 +34,7 @@ default_conf = {
         "youtube-api-key": None,
         "skip": None,
         "write-successful": None,
+        "skip-on-error": False,
         "log-level": "INFO",
         "spotify_client_id": "4fe3fecfe5334023a1472516cc99d805",
         "spotify_client_secret": "0f02b7c483c04257984695007a4a8d5c"
@@ -261,6 +262,12 @@ def get_arguments(raw_args=None, to_group=True, to_merge=True):
         "--skip",
         default=config["skip"],
         help="path to file containing tracks to skip",
+    )
+    parser.add_argument(
+        "-se",
+        "--skip-on-error",
+        default=config["skip-on-error",
+        help="Skip song in list when an unknown error occurs"
     )
     parser.add_argument(
         "-w",
