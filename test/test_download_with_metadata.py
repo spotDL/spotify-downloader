@@ -176,6 +176,7 @@ class TestFFmpeg:
 
 
 class TestAvconv:
+    @pytest.mark.skip(reason="avconv is no longer provided with FFmpeg")
     def test_convert_from_m4a_to_mp3(self, filename_fixture, monkeypatch):
         monkeypatch.setattr("os.remove", lambda x: None)
         expect_command = "avconv -loglevel 0 -i {0}.m4a -ab 192k {0}.mp3 -y".format(
