@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 -
 
 ### Fixed
+-
+
+### Changed
+-
+
+## [1.2.1] - 2019-04-28
+### Fixed
 - Patch bug in Pafy when fetching audiostreams with latest youtube-dl ([@ritiek](https://github.com/ritiek)) (#539)
 
 ### Changed
