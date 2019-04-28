@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 -
 
 ### Fixed
--
+- Patch bug in Pafy when fetching audiostreams with latest youtube-dl ([@ritiek](https://github.com/ritiek)) (#539)
 
 ### Changed
 - Removed duplicate debug log entry from `internals.trim_song` ([@ritiek](https://github.com/ritiek)) (#519)

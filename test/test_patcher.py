@@ -3,7 +3,8 @@ import pafy
 
 import pytest
 
-patcher.patch_pafy()
+pafy_patcher = patcher.PatchPafy()
+pafy_patcher.patch_getbestthumb()
 
 class TestPafyContentAvailable:
     pass
