@@ -1,3 +1,4 @@
+from pafy import backend_youtube_dl
 import pafy
 
 from spotdl import internals
@@ -26,7 +27,7 @@ def _process_streams(self):
             self._ydl_info['formats'][format_index]['url'] = self._ydl_info['formats'][format_index]['fragment_base_url']
         except KeyError:
             pass
-    return pafy.backend_youtube_dl.YtdlPafy._old_process_streams(self)
+    return backend_youtube_dl.YtdlPafy._old_process_streams(self)
 
 @classmethod
 def _content_available(cls, url):
@@ -40,5 +41,5 @@ class PatchPafy:
         pafy.backend_shared.BasePafy.getbestthumb = _getbestthumb
 
     def patch_process_streams(self):
-        pafy.backend_youtube_dl.YtdlPafy._old_process_streams = pafy.backend_youtube_dl.YtdlPafy._process_streams
-        pafy.backend_youtube_dl.YtdlPafy._process_streams = _process_streams
+        backend_youtube_dl.YtdlPafy._old_process_streams = backend_youtube_dl.YtdlPafy._process_streams
+        backend_youtube_dl.YtdlPafy._process_streams = _process_streams
