@@ -5,7 +5,6 @@ from mutagen.mp4 import MP4, MP4Cover
 from mutagen.flac import Picture, FLAC
 from mutagen.oggopus import OggOpus
 from mutagen.oggvorbis import OggVorbis
-from spotdl.const import log, TAG_PRESET, M4A_TAG_PRESET
 
 import urllib.request
 from logzero import logger as log
