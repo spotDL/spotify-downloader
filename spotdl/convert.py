@@ -125,7 +125,7 @@ class Converter:
 
         if self.output_ext == ".flac":
             ffmpeg_params = "-codec:a flac -ar 44100 "
-        elif output_ext == ".oga":
+        elif self.output_ext == ".oga":
             ffmpeg_params = "-codec:a libvorbis -ar 44100 "
 
         # add common params for any of the above combination
