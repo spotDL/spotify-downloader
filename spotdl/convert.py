@@ -111,8 +111,7 @@ class Converter:
                 ffmpeg_params = "-codec:a libopus -vbr on "
             elif self.output_ext == ".m4a":
                 ffmpeg_params = "-acodec copy "
-            # Most Android versions need .ogg for both Opus and Vorbis, so allow .[codec].ogg
-            elif self.output_ext in (".opus", ".opus.ogg"):
+            elif self.output_ext == ".opus":
                 # Opus doesn't support 44.1k
                 ffmpeg_params = "-codec:a libopus -ar 48000 -vbr on "
 
@@ -122,14 +121,15 @@ class Converter:
             elif self.output_ext == ".m4a":
                 ffmpeg_params = "-cutoff 20000 -codec:a aac -ar 44100 "
             # Audio in YouTube WebM files is Opus
-            elif self.output_ext in (".opus", ".opus.ogg"):
+            elif self.output_ext == ".opus":
                 ffmpeg_params = "-codec:a copy "
 
 
         if self.output_ext == ".flac":
             ffmpeg_params = "-codec:a flac -ar 44100 "
-        elif self.output_ext in (".ogg", ".vorbis.ogg"):
+        elif self.output_ext == ".ogg":
             ffmpeg_params = "-codec:a libvorbis -ar 44100 "
+            log.info("Vorbis")
 
         # add common params for any of the above combination
         ffmpeg_params += "-b:a 192k -vn "

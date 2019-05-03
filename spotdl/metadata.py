@@ -187,11 +187,11 @@ class EmbedMetadata:
             audiofile[preset["genre"]] = meta_tags["genre"]
         if meta_tags["copyright"]:
             audiofile[preset["copyright"]] = meta_tags["copyright"]
-        if self.music_file.endswith((".flac", ".oga", ".ogg")):
+        if self.music_file.endswith((".flac", ".opus", ".ogg")):
             audiofile[preset["discnumber"]] = str(meta_tags["disc_number"])
         else:
             audiofile[preset["discnumber"]] = [(meta_tags["disc_number"], 0)]
-        if self.music_file.endswith((".flac", ".oga", ".ogg")):
+        if self.music_file.endswith((".flac", ".opus", ".ogg")):
             audiofile[preset["tracknumber"]] = str(meta_tags["track_number"])
         else:
             if preset["tracknumber"] == TAG_PRESET["tracknumber"]:
