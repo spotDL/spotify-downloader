@@ -111,22 +111,15 @@ class Converter:
                 ffmpeg_params = "-codec:a libopus -vbr on "
             elif self.output_ext == ".m4a":
                 ffmpeg_params = "-acodec copy "
-            elif self.output_ext == ".ogg":
-                # Opus doesn't support 44.1k
-            	ffmpeg_params = "-codec:a libopus -ar 48000 -vbr on "
 
         elif self.input_ext == ".webm":
             if self.output_ext == ".mp3":
                 ffmpeg_params = "-codec:a libmp3lame -ar 44100 "
             elif self.output_ext == ".m4a":
                 ffmpeg_params = "-cutoff 20000 -codec:a aac -ar 44100 "
-            elif self.output_ext == ".ogg":
-            	ffmpeg_params = "-codec:a copy "
 
         if self.output_ext == ".flac":
             ffmpeg_params = "-codec:a flac -ar 44100 "
-        elif self.output_ext == ".oga":
-            ffmpeg_params = "-codec:a libvorbis -ar 44100 "
 
         # add common params for any of the above combination
         ffmpeg_params += "-b:a 192k -vn "

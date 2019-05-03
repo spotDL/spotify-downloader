@@ -1,10 +1,7 @@
-import base64
 from mutagen.easyid3 import EasyID3
 from mutagen.id3 import ID3, TORY, TYER, TPUB, APIC, USLT, COMM
 from mutagen.mp4 import MP4, MP4Cover
 from mutagen.flac import Picture, FLAC
-from mutagen.oggopus import OggOpus
-from mutagen.oggvorbis import OggVorbis
 
 import urllib.request
 from logzero import logger as log
@@ -40,12 +37,6 @@ def embed(music_file, meta_tags):
     elif music_file.endswith(".flac"):
         log.info("Applying metadata")
         return embed.as_flac()
-    elif music_file.endswith('.ogg'):
-        log.info('Applying metadata')
-        return embed.as_ogg()
-    elif music_file.endswith('.oga'):
-        log.info('Applying metadata')
-        return embed.as_oga()
     else:
         log.warning("Cannot embed metadata into given output extension")
         return False
@@ -131,20 +122,11 @@ class EmbedMetadata:
 
         audiofile.save()
         return True
-        
-    def as_flac(self):
-        return self._embed_ogg(FLAC)
 
-    def as_ogg(self):
-        return self._embed_ogg(OggOpus)
-    
-    def as_oga(self):
-        return self._embed_ogg(OggVorbis)
-    
-    def _embed_ogg(self, type):
+    def as_flac(self):
         music_file = self.music_file
         meta_tags = self.meta_tags
-        audiofile = type(music_file)
+        audiofile = FLAC(music_file)
         self._embed_basic_metadata(audiofile)
         audiofile["year"] = meta_tags["year"]
         audiofile["comment"] = meta_tags["external_urls"][self.provider]
@@ -158,20 +140,11 @@ class EmbedMetadata:
         albumart = urllib.request.urlopen(meta_tags["album"]["images"][0]["url"])
         image.data = albumart.read()
         albumart.close()
+        audiofile.add_picture(image)
 
-        # FLAC uses a different method for images than the other two
-        if type == FLAC:
-            audiofile.add_picture(image)
-        else:
-            # From the Mutagen docs (https://mutagen.readthedocs.io/en/latest/user/vcomment.html)
-            image_data = image.write()
-            encoded_data = base64.b64encode(image_data)
-            vcomment_value = encoded_data.decode("ascii")
-            audiofile["metadata_block_picture"] = [vcomment_value]
-        
-        audiofile.save();
+        audiofile.save()
         return True
-    
+
     def _embed_basic_metadata(self, audiofile, preset=TAG_PRESET):
         meta_tags = self.meta_tags
         audiofile[preset["artist"]] = meta_tags["artists"][0]["name"]
@@ -186,11 +159,11 @@ class EmbedMetadata:
             audiofile[preset["genre"]] = meta_tags["genre"]
         if meta_tags["copyright"]:
             audiofile[preset["copyright"]] = meta_tags["copyright"]
-        if self.music_file.endswith((".flac", ".oga", ".ogg")):
+        if self.music_file.endswith(".flac"):
             audiofile[preset["discnumber"]] = str(meta_tags["disc_number"])
         else:
             audiofile[preset["discnumber"]] = [(meta_tags["disc_number"], 0)]
-        if self.music_file.endswith((".flac", ".oga", ".ogg")):
+        if self.music_file.endswith(".flac"):
             audiofile[preset["tracknumber"]] = str(meta_tags["track_number"])
         else:
             if preset["tracknumber"] == TAG_PRESET["tracknumber"]:
