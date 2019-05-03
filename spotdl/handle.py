@@ -183,7 +183,7 @@ def get_arguments(raw_args=None, to_group=True, to_merge=True):
         "-o",
         "--output-ext",
         default=config["output-ext"],
-        help="preferred output format .mp3, .m4a (AAC), .flac, etc.",
+        help="preferred output format .mp3, .m4a (AAC), .flac, .opus[.ogg], [.vorbis].ogg etc.",
     )
     parser.add_argument(
         "--write-to",
