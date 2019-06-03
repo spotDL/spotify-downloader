@@ -115,7 +115,7 @@ def test_write_playlist(tmpdir):
     assert tracks == expect_tracks
 
 
-# XXX: Mock this test off if it fails in future
+# XXX: Monkeypatch these tests if they fail in future
 class TestFetchAlbum:
     @pytest.fixture(scope="module")
     def album_fixture(self):
@@ -131,7 +131,7 @@ class TestFetchAlbum:
         assert album_fixture["tracks"]["total"] == 15
 
 
-# XXX: Mock this test off if it fails in future
+# XXX: Monkeypatch these tests if they fail in future
 class TestFetchAlbumsFromArtist:
     @pytest.fixture(scope="module")
     def albums_from_artist_fixture(self):
@@ -141,7 +141,7 @@ class TestFetchAlbumsFromArtist:
         return albums
 
     def test_len(self, albums_from_artist_fixture):
-        assert len(albums_from_artist_fixture) == 52
+        assert len(albums_from_artist_fixture) == 53
 
     def test_zeroth_album_name(self, albums_from_artist_fixture):
         assert albums_from_artist_fixture[0]["name"] == "Revolution Radio"
