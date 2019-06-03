@@ -43,3 +43,6 @@ class PatchPafy:
     def patch_process_streams(self):
         backend_youtube_dl.YtdlPafy._old_process_streams = backend_youtube_dl.YtdlPafy._process_streams
         backend_youtube_dl.YtdlPafy._process_streams = _process_streams
+
+    def patch_insecure_streams(self):
+        pafy.g.def_ydl_opts["prefer_insecure"] = False
