@@ -35,11 +35,21 @@ def _content_available(cls, url):
 
 
 class PatchPafy:
+    """
+    These patches have not been released by pafy on PyPI yet but
+    are useful to us.
+    """
     def patch_getbestthumb(self):
+        # https://github.com/mps-youtube/pafy/pull/211
         pafy.backend_shared.BasePafy._bestthumb = None
         pafy.backend_shared.BasePafy._content_available = _content_available
         pafy.backend_shared.BasePafy.getbestthumb = _getbestthumb
 
     def patch_process_streams(self):
+        # https://github.com/mps-youtube/pafy/pull/230
         backend_youtube_dl.YtdlPafy._old_process_streams = backend_youtube_dl.YtdlPafy._process_streams
         backend_youtube_dl.YtdlPafy._process_streams = _process_streams
+
+    def patch_insecure_streams(self):
+        # https://github.com/mps-youtube/pafy/pull/235
+        pafy.g.def_ydl_opts["prefer_insecure"] = False
