@@ -165,6 +165,26 @@ class TestFFmpeg:
         )
         assert " ".join(command) == expect_command
  
+    def test_convert_from_m4a_to_opus(self, filename_fixture, monkeypatch):
+        expect_command = "ffmpeg -y -hide_banner -nostats -v panic -i {0}.m4a -codec:a libopus -ar 48000 -vbr on -b:a 192k -vn {0}.opus".format(
+            os.path.join(const.args.folder, filename_fixture)
+        )
+        monkeypatch.setattr("os.remove", lambda x: None)
+        _, command = convert.song(
+            filename_fixture + ".m4a", filename_fixture + ".opus", const.args.folder
+        )
+        assert " ".join(command) == expect_command
+ 
+    def test_convert_from_m4a_to_vorbis(self, filename_fixture, monkeypatch):
+        expect_command = "ffmpeg -y -hide_banner -nostats -v panic -i {0}.m4a -codec:a libvorbis -ar 44100 -b:a 192k -vn {0}.ogg".format(
+            os.path.join(const.args.folder, filename_fixture)
+        )
+        monkeypatch.setattr("os.remove", lambda x: None)
+        _, command = convert.song(
+            filename_fixture + ".m4a", filename_fixture + ".ogg", const.args.folder
+        )
+        assert " ".join(command) == expect_command
+ 
     def test_correct_container_for_m4a(self, filename_fixture, monkeypatch):
         expect_command = "ffmpeg -y -hide_banner -nostats -v panic -i {0}.m4a.temp -acodec copy -b:a 192k -vn {0}.m4a".format(
             os.path.join(const.args.folder, filename_fixture)
