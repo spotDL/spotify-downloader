@@ -225,8 +225,11 @@ class ListDownloader:
         return downloaded_songs
 
     def _override_file(self):
-        with open(self.tracks_file, "w") as f:
-            f.write("\n".join(self.tracks))
+        try:
+            with open(self.tracks_file, "w") as f:
+                f.write("\n".join(self.tracks))
+        except PermissionError:
+            log.warn("could not override tracks file.")
 
     def _write_successful(self, raw_song):
         log.debug("Adding downloaded song to write successful file")

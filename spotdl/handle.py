@@ -1,4 +1,5 @@
 from logzero import logger as log
+import traceback
 import appdirs
 
 import logging
@@ -6,6 +7,7 @@ import yaml
 import argparse
 import mimetypes
 import os
+import tempfile, shutil
 
 import spotdl
 from spotdl import internals
@@ -295,16 +297,34 @@ def get_arguments(raw_args=None, to_group=True, to_merge=True):
     if parsed.config is not None and to_merge:
         parsed = override_config(parsed.config, parser)
 
-    if (
-        to_group
-        and parsed.list
-        and not mimetypes.MimeTypes().guess_type(parsed.list)[0] == "text/plain"
-    ):
-        parser.error(
-            "{0} is not of a valid argument to --list, argument must be plain text file".format(
-                parsed.list
+    if (to_group and parsed.list):
+        isText = False
+        try:
+            import magic
+            l_mime = magic.from_file(parsed.list, mime=True)
+            isText = (l_mime in ("text/plain", "inode/fifo"))
+            if l_mime == "inode/fifo":
+                # The code tries to edit the tracks file, so it can't use the fifo.
+                temp_dir = tempfile.gettempdir()
+                temp_path = os.path.join(temp_dir, 'tracks.temp.txt')
+                with open(temp_path, 'w') as tmp_file:
+                    with open(parsed.list, "r") as fifo:
+                            while True:
+                                data = fifo.read()
+                                if len(data) == 0:
+                                    break
+                                tmp_file.write(data + "\n")
+                parsed.list = temp_path
+        except Exception:
+            log.warn(traceback.format_exc())
+            pass
+
+        if not (isText or mimetypes.MimeTypes().guess_type(parsed.list)[0] == "text/plain"):
+            parser.error(
+                "{0} is not of a valid argument to --list, argument must be plain text file".format(
+                    parsed.list
+                )
             )
-        )
 
     if parsed.write_m3u and not parsed.list:
         parser.error("--write-m3u can only be used with --list")
