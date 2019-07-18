@@ -1,4 +1,5 @@
 from logzero import logger as log
+import uuid
 import traceback
 import appdirs
 
@@ -306,7 +307,7 @@ def get_arguments(raw_args=None, to_group=True, to_merge=True):
             if l_mime == "inode/fifo":
                 # The code tries to edit the tracks file, so it can't use the fifo.
                 temp_dir = tempfile.gettempdir()
-                temp_path = os.path.join(temp_dir, 'tracks.temp.txt')
+                temp_path = os.path.join(temp_dir, str(uuid.uuid4().hex) + 'tracks.temp.txt')
                 with open(temp_path, 'w') as tmp_file:
                     with open(parsed.list, "r") as fifo:
                             while True:
