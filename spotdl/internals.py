@@ -258,7 +258,7 @@ def remove_duplicates(tracks):
 def content_available(url):
     try:
         response = urllib.request.urlopen(url)
-    except HTTPError:
+    except urllib.request.HTTPError:
         return False
     else:
         return response.getcode() < 300

@@ -141,7 +141,7 @@ class TestFetchAlbumsFromArtist:
         return albums
 
     def test_len(self, albums_from_artist_fixture):
-        assert len(albums_from_artist_fixture) == 53
+        assert len(albums_from_artist_fixture) == 54
 
     def test_zeroth_album_name(self, albums_from_artist_fixture):
         assert albums_from_artist_fixture[0]["name"] == "Revolution Radio"
