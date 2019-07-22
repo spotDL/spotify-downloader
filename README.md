@@ -74,7 +74,7 @@ Check out [CONTRIBUTING.md](CONTRIBUTING.md) for more info.
 ## Running Tests
 
 ```console
-$ python3 -m pytest test
+$ python3 -m pytest
 ```
 
 Obviously this requires the `pytest` module to be installed.
