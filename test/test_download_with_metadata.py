@@ -116,7 +116,7 @@ class TestDownload:
 
 class TestFFmpeg:
     def test_convert_from_webm_to_mp3(self, filename_fixture, monkeypatch):
-        expect_command = "ffmpeg -y -hide_banner -nostats -v panic -i {0}.webm -codec:a libmp3lame -ar 44100 -b:a 192k -vn {0}.mp3".format(
+        expect_command = "ffmpeg -y -nostdin -hide_banner -nostats -v panic -i {0}.webm -codec:a libmp3lame -ar 44100 -b:a 192k -vn {0}.mp3".format(
             os.path.join(const.args.folder, filename_fixture)
         )
         monkeypatch.setattr("os.remove", lambda x: None)
@@ -126,7 +126,7 @@ class TestFFmpeg:
         assert " ".join(command) == expect_command
 
     def test_convert_from_webm_to_m4a(self, filename_fixture, monkeypatch):
-        expect_command = "ffmpeg -y -hide_banner -nostats -v panic -i {0}.webm -cutoff 20000 -codec:a aac -ar 44100 -b:a 192k -vn {0}.m4a".format(
+        expect_command = "ffmpeg -y -nostdin -hide_banner -nostats -v panic -i {0}.webm -cutoff 20000 -codec:a aac -ar 44100 -b:a 192k -vn {0}.m4a".format(
             os.path.join(const.args.folder, filename_fixture)
         )
         monkeypatch.setattr("os.remove", lambda x: None)
@@ -136,7 +136,7 @@ class TestFFmpeg:
         assert " ".join(command) == expect_command
 
     def test_convert_from_m4a_to_mp3(self, filename_fixture, monkeypatch):
-        expect_command = "ffmpeg -y -hide_banner -nostats -v panic -i {0}.m4a -codec:v copy -codec:a libmp3lame -ar 44100 -b:a 192k -vn {0}.mp3".format(
+        expect_command = "ffmpeg -y -nostdin -hide_banner -nostats -v panic -i {0}.m4a -codec:v copy -codec:a libmp3lame -ar 44100 -b:a 192k -vn {0}.mp3".format(
             os.path.join(const.args.folder, filename_fixture)
         )
         monkeypatch.setattr("os.remove", lambda x: None)
@@ -146,7 +146,7 @@ class TestFFmpeg:
         assert " ".join(command) == expect_command
 
     def test_convert_from_m4a_to_webm(self, filename_fixture, monkeypatch):
-        expect_command = "ffmpeg -y -hide_banner -nostats -v panic -i {0}.m4a -codec:a libopus -vbr on -b:a 192k -vn {0}.webm".format(
+        expect_command = "ffmpeg -y -nostdin -hide_banner -nostats -v panic -i {0}.m4a -codec:a libopus -vbr on -b:a 192k -vn {0}.webm".format(
             os.path.join(const.args.folder, filename_fixture)
         )
         monkeypatch.setattr("os.remove", lambda x: None)
@@ -156,7 +156,7 @@ class TestFFmpeg:
         assert " ".join(command) == expect_command
 
     def test_convert_from_m4a_to_flac(self, filename_fixture, monkeypatch):
-        expect_command = "ffmpeg -y -hide_banner -nostats -v panic -i {0}.m4a -codec:a flac -ar 44100 -b:a 192k -vn {0}.flac".format(
+        expect_command = "ffmpeg -y -nostdin -hide_banner -nostats -v panic -i {0}.m4a -codec:a flac -ar 44100 -b:a 192k -vn {0}.flac".format(
             os.path.join(const.args.folder, filename_fixture)
         )
         monkeypatch.setattr("os.remove", lambda x: None)
@@ -166,7 +166,7 @@ class TestFFmpeg:
         assert " ".join(command) == expect_command
 
     def test_correct_container_for_m4a(self, filename_fixture, monkeypatch):
-        expect_command = "ffmpeg -y -hide_banner -nostats -v panic -i {0}.m4a.temp -acodec copy -b:a 192k -vn {0}.m4a".format(
+        expect_command = "ffmpeg -y -nostdin -hide_banner -nostats -v panic -i {0}.m4a.temp -acodec copy -b:a 192k -vn {0}.m4a".format(
             os.path.join(const.args.folder, filename_fixture)
         )
         _, command = convert.song(

@@ -133,6 +133,7 @@ class Downloader:
                     const.args.folder,
                     avconv=const.args.avconv,
                     trim_silence=const.args.trim_silence,
+                    delete_original=not const.args.no_remove_original,
                 )
             except FileNotFoundError:
                 encoder = "avconv" if const.args.avconv else "ffmpeg"

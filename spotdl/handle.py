@@ -15,6 +15,7 @@ _LOG_LEVELS_STR = ["INFO", "WARNING", "ERROR", "DEBUG"]
 
 default_conf = {
     "spotify-downloader": {
+        "no-remove-original": False,
         "manual": False,
         "no-metadata": False,
         "no-fallback-metadata": False,
@@ -137,6 +138,13 @@ def get_arguments(raw_args=None, to_group=True, to_merge=True):
         "--manual",
         default=config["manual"],
         help="choose the track to download manually from a list of matching tracks",
+        action="store_true",
+    )
+    parser.add_argument(
+        "-nr",
+        "--no-remove-original",
+        default=config["no-remove-original"],
+        help="do not remove the original file after conversion",
         action="store_true",
     )
     parser.add_argument(
