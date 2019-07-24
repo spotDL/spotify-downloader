@@ -11,10 +11,12 @@ import functools
 
 from spotdl import const
 from spotdl import internals
-from spotdl.lyrics.providers import LyricWikia
+from spotdl.lyrics.providers import LyricClasses
 from spotdl.lyrics.exceptions import LyricsNotFound
 
 spotify = None
+
+
 
 
 def generate_token():
@@ -75,12 +77,16 @@ def generate_metadata(raw_song):
     meta_tags[u"total_tracks"] = album["tracks"]["total"]
 
     log.debug("Fetching lyrics")
-    track = LyricWikia(meta_tags["artists"][0]["name"], meta_tags["name"])
+    meta_tags["lyrics"] = None
 
-    try:
-        meta_tags["lyrics"] = track.get_lyrics()
-    except LyricsNotFound:
-        meta_tags["lyrics"] = None
+    for LyricClass in LyricClasses:
+        track = LyricClass(meta_tags["artists"][0]["name"], meta_tags["name"])
+        try:
+            meta_tags["lyrics"] = track.get_lyrics()
+        except LyricsNotFound:
+            continue
+        else:
+            break
 
     # Some sugar
     meta_tags["year"], *_ = meta_tags["release_date"].split("-")
