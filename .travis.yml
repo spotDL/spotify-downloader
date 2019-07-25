@@ -40,7 +40,7 @@ install:
   - tinydownload 07426048687547254773 -o ~/bin/ffmpeg
   - chmod 755 ~/bin/ffmpeg
   - xdg-user-dirs-update
-script: python -m pytest test --cov=.
+script: travis_retry pytest --cov=.
 after_success:
   - pip install codecov
   - codecov
