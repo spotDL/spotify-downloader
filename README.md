@@ -11,7 +11,7 @@
 - Can also download a song by entering its artist and song name (in case if you don't have the Spotify's HTTP link for some song).
 - Automatically applies metadata to the downloaded song which includes:
 
-  - `Title`, `Artist`, `Album`, `Album art`, `Lyrics` (if found on [lyrics wikia](http://lyrics.wikia.com)), `Album artist`, `Genre`, `Track number`, `Disc number`, `Release date`, and more...
+  - `Title`, `Artist`, `Album`, `Album art`, `Lyrics` (if found either on [Genius](https://genius.com/) or [LyricsWikia](http://lyrics.wikia.com)), `Album artist`, `Genre`, `Track number`, `Disc number`, `Release date`, and more...
 
 - Works straight out of the box and does not require you to generate or mess with your API keys (already included).
 
