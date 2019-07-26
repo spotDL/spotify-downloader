@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Added `--no-remove-original-file` ([@NightMachinary](https://github.com/NightMachinary)) (#580)
 
 ### Fixed
--
+- Fix a bug where configuration options won't correctly override when using `--config` ([@ritiek](https://github.com/ritiek)) (#589)
 
 ### Changed
 - Fetch lyrics from Genius and fallback to LyricWikia if not found ([@ritiek](https://github.com/ritiek)) (#585)
