@@ -83,7 +83,8 @@ def override_config(config_file, parser, raw_args=None):
     """ Override default dict with config dict passed as comamnd line argument. """
     config_file = os.path.realpath(config_file)
     config = merge(default_conf["spotify-downloader"], get_config(config_file))
-    parser.set_defaults(**config)
+    for key, value in config.items():
+        parser.set_defaults(**{key:value})
     return parser.parse_args(raw_args)
 
 
