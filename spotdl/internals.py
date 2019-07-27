@@ -30,6 +30,7 @@ formats = {
     9: "track_number",
     10: "total_tracks",
     11: "isrc",
+    12: "track_id",
 }
 
 
@@ -88,6 +89,7 @@ def format_string(string_format, tags, slugification=False, force_spaces=False):
     format_tags[9] = tags["track_number"]
     format_tags[10] = tags["total_tracks"]
     format_tags[11] = tags["external_ids"]["isrc"]
+    format_tags[12] = tags["id"]
 
     format_tags_sanitized = {
         k: sanitize_title(str(v), ok="'-_()[]{}") if slugification else str(v)
