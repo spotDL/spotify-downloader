@@ -80,7 +80,9 @@ class EmbedMetadata:
         audiofile["TYER"] = TYER(encoding=3, text=meta_tags["year"])
         if meta_tags["publisher"]:
             audiofile["TPUB"] = TPUB(encoding=3, text=meta_tags["publisher"])
-        audiofile["COMM"] = COMM(encoding=3, text=meta_tags["external_urls"][self.provider])
+        audiofile["COMM"] = COMM(
+            encoding=3, text=meta_tags["external_urls"][self.provider]
+        )
         if meta_tags["lyrics"]:
             audiofile["USLT"] = USLT(
                 encoding=3, desc=u"Lyrics", text=meta_tags["lyrics"]

@@ -10,11 +10,7 @@ setup(
     name="spotdl",
     # Tests are included automatically:
     # https://docs.python.org/3.6/distutils/sourcedist.html#specifying-the-files-to-distribute
-    packages=[
-        "spotdl",
-        "spotdl.lyrics",
-        "spotdl.lyrics.providers",
-    ],
+    packages=["spotdl", "spotdl.lyrics", "spotdl.lyrics.providers"],
     version=spotdl.__version__,
     install_requires=[
         "pathlib >= 1.0.1",
