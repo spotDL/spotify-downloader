@@ -20,7 +20,7 @@ def load_defaults():
 # so that we get same results even if YouTube changes the list/order of videos on their page.
 GIST_URL = "https://gist.githubusercontent.com/ritiek/e731338e9810e31c2f00f13c249a45f5/raw/c11a27f3b5d11a8d082976f1cdd237bd605ec2c2/search_results.html"
 
+
 def monkeypatch_youtube_search_page(*args, **kwargs):
     fake_urlopen = urllib.request.urlopen(GIST_URL)
     return fake_urlopen
-

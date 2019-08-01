@@ -16,7 +16,14 @@ https://trac.ffmpeg.org/wiki/Encode/AAC
 """
 
 
-def song(input_song, output_song, folder, avconv=False, trim_silence=False, delete_original=True):
+def song(
+    input_song,
+    output_song,
+    folder,
+    avconv=False,
+    trim_silence=False,
+    delete_original=True,
+):
     """ Do the audio format conversion. """
     if avconv and trim_silence:
         raise ValueError("avconv does not support trim_silence")
@@ -28,7 +35,9 @@ def song(input_song, output_song, folder, avconv=False, trim_silence=False, dele
     else:
         return 0
 
-    convert = Converter(input_song, output_song, folder, delete_original=delete_original)
+    convert = Converter(
+        input_song, output_song, folder, delete_original=delete_original
+    )
     if avconv:
         exit_code, command = convert.with_avconv()
     else:
@@ -97,7 +106,9 @@ class Converter:
         return code, command
 
     def with_ffmpeg(self, trim_silence=False):
-        ffmpeg_pre = "ffmpeg -y -nostdin " # -nostdin is necessary for spotdl to be able to run in the backgroung.
+        ffmpeg_pre = (
+            "ffmpeg -y -nostdin "
+        )  # -nostdin is necessary for spotdl to be able to run in the backgroung.
 
         if not log.level == 10:
             ffmpeg_pre += "-hide_banner -nostats -v panic "

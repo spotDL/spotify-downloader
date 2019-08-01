@@ -6,6 +6,7 @@ import pytest
 pafy_patcher = patcher.PatchPafy()
 pafy_patcher.patch_getbestthumb()
 
+
 class TestPafyContentAvailable:
     pass
 
@@ -29,7 +30,6 @@ class TestMethodCalls:
         content_fixture._ydl_info["thumbnails"][0]["url"] = None
         thumbnail = patcher._getbestthumb(content_fixture)
         assert thumbnail == "https://i.ytimg.com/vi/3nQNiWdeH2Q/sddefault.jpg"
-
 
     def test_pafy_content_available(self):
         TestPafyContentAvailable._content_available = patcher._content_available
