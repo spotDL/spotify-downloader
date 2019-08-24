@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Added leading Zeros in `track_number` for correct sorting ([@Dsujan](https://github.com/Dsujan)) (#592)
 
 ### Fixed
--
+- Generate list error --write-m3u ([@arthurlutz](https://github.com/arthurlutz)) (#559)
 
 ### Changed
 - Fetch lyrics from Genius and fallback to LyricWikia if not found ([@ritiek](https://github.com/ritiek)) (#585)
