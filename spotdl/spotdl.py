@@ -29,7 +29,7 @@ def match_args():
     elif const.args.list:
         if const.args.write_m3u:
             youtube_tools.generate_m3u(
-                track_file=const.args.list, text_file=const.args.write_to
+                track_file=const.args.list
             )
         else:
             list_dl = downloader.ListDownloader(
