@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 ### Added
 - Added `--no-remove-original-file` ([@NightMachinary](https://github.com/NightMachinary)) (#580)
+- Added `track_id` key for `--file-format` parameter ([@kadaliao](https://github.com/kadaliao)) (#568)
 
 ### Fixed
 -
