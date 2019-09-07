@@ -18,7 +18,6 @@ class TestGenius:
         assert track.base_url == "https://genius.com"
 
     def test_get_lyrics(self, track, monkeypatch):
-
         def mocked_urlopen(url, timeout=None):
             class DummyHTTPResponse:
                 def read(self):
@@ -30,7 +29,6 @@ class TestGenius:
         assert track.get_lyrics() == "amazing lyrics!"
 
     def test_lyrics_not_found_error(self, track, monkeypatch):
-
         def mocked_urlopen(url, timeout=None):
             raise urllib.request.HTTPError("", "", "", "", "")
 

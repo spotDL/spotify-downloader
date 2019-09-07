@@ -37,7 +37,7 @@ default_conf = {
         "write-successful": None,
         "log-level": "INFO",
         "spotify_client_id": "4fe3fecfe5334023a1472516cc99d805",
-        "spotify_client_secret": "0f02b7c483c04257984695007a4a8d5c"
+        "spotify_client_secret": "0f02b7c483c04257984695007a4a8d5c",
     }
 }
 
@@ -280,13 +280,13 @@ def get_arguments(raw_args=None, to_group=True, to_merge=True):
         "-sci",
         "--spotify-client-id",
         default=config["spotify_client_id"],
-        help=argparse.SUPPRESS
+        help=argparse.SUPPRESS,
     )
     parser.add_argument(
         "-scs",
         "--spotify-client-secret",
         default=config["spotify_client_secret"],
-        help=argparse.SUPPRESS
+        help=argparse.SUPPRESS,
     )
     parser.add_argument(
         "-c", "--config", default=None, help="path to custom config.yml file"
@@ -320,11 +320,12 @@ def get_arguments(raw_args=None, to_group=True, to_merge=True):
     if parsed.avconv and parsed.trim_silence:
         parser.error("--trim-silence can only be used with FFmpeg")
 
-    if parsed.write_to and not (parsed.playlist \
-            or parsed.album \
-            or parsed.all_albums \
-            or parsed.username):
-        parser.error("--write-to can only be used with --playlist, --album, --all-albums, or --username")
+    if parsed.write_to and not (
+        parsed.playlist or parsed.album or parsed.all_albums or parsed.username
+    ):
+        parser.error(
+            "--write-to can only be used with --playlist, --album, --all-albums, or --username"
+        )
 
     parsed.log_level = log_leveller(parsed.log_level)
 

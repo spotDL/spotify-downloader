@@ -18,6 +18,7 @@ pafy.g.opener.addheaders.append(("Range", "bytes=0-"))
 # More info: https://github.com/mps-youtube/pafy/pull/211
 if pafy.__version__ <= "0.5.4":
     from spotdl import patcher
+
     pafy_patcher = patcher.PatchPafy()
     pafy_patcher.patch_getbestthumb()
     pafy_patcher.patch_process_streams()
@@ -52,10 +53,13 @@ def match_video_and_metadata(track):
     """ Get and match track data from YouTube and Spotify. """
     meta_tags = None
 
-
     def fallback_metadata(meta_tags):
-        fallback_metadata_info = "Track not found on Spotify, falling back on YouTube metadata"
-        skip_fallback_metadata_warning = "Fallback condition not met, shall not embed metadata"
+        fallback_metadata_info = (
+            "Track not found on Spotify, falling back on YouTube metadata"
+        )
+        skip_fallback_metadata_warning = (
+            "Fallback condition not met, shall not embed metadata"
+        )
         if meta_tags is None:
             if const.args.no_fallback_metadata:
                 log.warning(skip_fallback_metadata_warning)
@@ -63,7 +67,6 @@ def match_video_and_metadata(track):
                 log.info(fallback_metadata_info)
                 meta_tags = generate_metadata(content)
         return meta_tags
-
 
     if internals.is_youtube(track):
         log.debug("Input song is a YouTube URL")
@@ -95,25 +98,29 @@ def match_video_and_metadata(track):
 
 def generate_metadata(content):
     """ Fetch a song's metadata from YouTube. """
-    meta_tags = {"spotify_metadata": False,
-                 "name": content.title,
-                 "artists": [{"name": content.author}],
-                 "duration": content.length,
-                 "external_urls": {"youtube": content.watchv_url},
-                 "album": {"images" : [{"url": content.getbestthumb()}],
-                           "artists": [{"name": None}],"name": None},
-                 "year": content.published.split("-")[0],
-                 "release_date": content.published.split(" ")[0],
-                 "type": "track",
-                 "disc_number": 1,
-                 "track_number": 1,
-                 "total_tracks": 1,
-                 "publisher": None,
-                 "external_ids": {"isrc": None},
-                 "lyrics": None,
-                 "copyright": None,
-                 "genre": None,
-                 }
+    meta_tags = {
+        "spotify_metadata": False,
+        "name": content.title,
+        "artists": [{"name": content.author}],
+        "duration": content.length,
+        "external_urls": {"youtube": content.watchv_url},
+        "album": {
+            "images": [{"url": content.getbestthumb()}],
+            "artists": [{"name": None}],
+            "name": None,
+        },
+        "year": content.published.split("-")[0],
+        "release_date": content.published.split(" ")[0],
+        "type": "track",
+        "disc_number": 1,
+        "track_number": 1,
+        "total_tracks": 1,
+        "publisher": None,
+        "external_ids": {"isrc": None},
+        "lyrics": None,
+        "copyright": None,
+        "genre": None,
+    }
 
     return meta_tags
 

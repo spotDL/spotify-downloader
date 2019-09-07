@@ -1,7 +1,9 @@
 from logzero import logger as log
 import os
 import sys
+import math
 import urllib.request
+
 
 from spotdl import const
 
@@ -74,7 +76,9 @@ def is_youtube(raw_song):
     return status
 
 
-def format_string(string_format, tags, slugification=False, force_spaces=False):
+def format_string(
+    string_format, tags, slugification=False, force_spaces=False, total_songs=0
+):
     """ Generate a string of the format '[artist] - [song]' for the given spotify song. """
     format_tags = dict(formats)
     format_tags[0] = tags["name"]
@@ -95,9 +99,16 @@ def format_string(string_format, tags, slugification=False, force_spaces=False):
         k: sanitize_title(str(v), ok="'-_()[]{}") if slugification else str(v)
         for k, v in format_tags.items()
     }
+    # calculating total digits presnet in total_songs to prepare a zfill.
+    total_digits = 0 if total_songs == 0 else int(math.log10(total_songs)) + 1
 
     for x in formats:
         format_tag = "{" + formats[x] + "}"
+        # Making consistent track number by prepending zero
+        # on it according to number of digits in total songs
+        if format_tag == "{track_number}":
+            format_tags_sanitized[x] = format_tags_sanitized[x].zfill(total_digits)
+
         string_format = string_format.replace(format_tag, format_tags_sanitized[x])
 
     if const.args.no_spaces and not force_spaces:

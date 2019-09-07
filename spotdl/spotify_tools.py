@@ -17,8 +17,6 @@ from spotdl.lyrics.exceptions import LyricsNotFound
 spotify = None
 
 
-
-
 def generate_token():
     """ Generate the token. """
     credentials = oauth2.SpotifyClientCredentials(
@@ -39,6 +37,7 @@ def must_be_authorized(func, spotify=spotify):
             token = generate_token()
             spotify = spotipy.Spotify(auth=token)
             return func(*args, **kwargs)
+
     return wrapper
 
 

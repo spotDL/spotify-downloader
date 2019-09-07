@@ -28,8 +28,9 @@ def match_args():
             track_dl.download_single()
     elif const.args.list:
         if const.args.write_m3u:
-            youtube_tools.generate_m3u(track_file=const.args.list,
-                                       text_file=const.args.write_to)
+            youtube_tools.generate_m3u(
+                track_file=const.args.list
+            )
         else:
             list_dl = downloader.ListDownloader(
                 tracks_file=const.args.list,
@@ -38,17 +39,21 @@ def match_args():
             )
             list_dl.download_list()
     elif const.args.playlist:
-        spotify_tools.write_playlist(playlist_url=const.args.playlist,
-                                     text_file=const.args.write_to)
+        spotify_tools.write_playlist(
+            playlist_url=const.args.playlist, text_file=const.args.write_to
+        )
     elif const.args.album:
-        spotify_tools.write_album(album_url=const.args.album,
-                                  text_file=const.args.write_to)
+        spotify_tools.write_album(
+            album_url=const.args.album, text_file=const.args.write_to
+        )
     elif const.args.all_albums:
-        spotify_tools.write_all_albums_from_artist(artist_url=const.args.all_albums,
-                                                   text_file=const.args.write_to)
+        spotify_tools.write_all_albums_from_artist(
+            artist_url=const.args.all_albums, text_file=const.args.write_to
+        )
     elif const.args.username:
-        spotify_tools.write_user_playlist(username=const.args.username,
-                                          text_file=const.args.write_to)
+        spotify_tools.write_user_playlist(
+            username=const.args.username, text_file=const.args.write_to
+        )
 
 
 def main():
