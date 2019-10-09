@@ -268,6 +268,11 @@ class GenerateYouTubeURL:
                 log.debug(
                     "Since no metadata found on Spotify, going with the first result"
                 )
+            elif const.args.no_duration:
+                result = videos[0]
+                log.debug(
+                    "Filtering by duration is disabled, going with the first result"
+                )
             else:
                 # filter out videos that do not have a similar length to the Spotify song
                 duration_tolerance = 10

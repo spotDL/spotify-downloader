@@ -18,6 +18,7 @@ default_conf = {
         "no-remove-original": False,
         "manual": False,
         "no-metadata": False,
+        "no-duration": False,
         "no-fallback-metadata": False,
         "avconv": False,
         "folder": internals.get_music_dir(),
@@ -152,6 +153,12 @@ def get_arguments(raw_args=None, to_group=True, to_merge=True):
         "--no-metadata",
         default=config["no-metadata"],
         help="do not embed metadata in tracks",
+        action="store_true",
+    )
+    parser.add_argument(
+        "--no-duration",
+        default=config["no-duration"],
+        help="do not filter tracks by duration",
         action="store_true",
     )
     parser.add_argument(
