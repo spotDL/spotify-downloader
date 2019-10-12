@@ -77,7 +77,7 @@ def is_youtube(raw_song):
 
 
 def format_string(
-    string_format, tags, slugification=False, force_spaces=False, total_songs=0
+    string_format, tags, slugification=False, force_spaces=False, total_songs=0, prefix=''
 ):
     """ Generate a string of the format '[artist] - [song]' for the given spotify song. """
     format_tags = dict(formats)
@@ -114,7 +114,7 @@ def format_string(
     if const.args.no_spaces and not force_spaces:
         string_format = string_format.replace(" ", "_")
 
-    return string_format
+    return prefix+string_format
 
 
 def sanitize_title(title, ok="-_()[]{}"):

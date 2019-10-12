@@ -30,6 +30,7 @@ default_conf = {
         "dry-run": False,
         "music-videos-only": False,
         "no-spaces": False,
+        "prefix": False,
         "file-format": "{artist} - {track_name}",
         "search-format": "{artist} - {track_name} lyrics",
         "youtube-api-key": None,
@@ -205,6 +206,12 @@ def get_arguments(raw_args=None, to_group=True, to_merge=True):
         help="file format to save the downloaded track with, each tag "
         "is surrounded by curly braces. Possible formats: "
         "{}".format([internals.formats[x] for x in internals.formats]),
+    )
+    parser.add_argument(
+        "--prefix",
+        default=config["prefix"],
+        help="prepend the track's number to the file name so playlist output is in original order",
+        action="store_true",
     )
     parser.add_argument(
         "--trim-silence",

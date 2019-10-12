@@ -110,7 +110,10 @@ class Downloader:
         log.info("{} ({})".format(youtube_title, self.content.watchv_url))
 
         # generate file name of the song to download
-        songname = self.refine_songname(self.content.title)
+        prefix = ''
+        if const.args.prefix:
+            prefix = f'{self.number} - '
+        songname = self.refine_songname(self.content.title, prefix=prefix)
 
         if const.args.dry_run:
             return
@@ -156,13 +159,14 @@ class Downloader:
             log.info("Found no metadata. Skipping the download")
             return True
 
-    def refine_songname(self, songname):
+    def refine_songname(self, songname, prefix=''):
         if self.meta_tags is not None:
             refined_songname = internals.format_string(
                 const.args.file_format,
                 self.meta_tags,
                 slugification=True,
                 total_songs=self.total_songs,
+                prefix=prefix,
             )
             log.debug(
                 'Refining songname from "{0}" to "{1}"'.format(
