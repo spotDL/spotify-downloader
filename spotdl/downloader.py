@@ -193,6 +193,7 @@ class ListDownloader:
         self.skip_file = skip_file
         self.write_successful_file = write_successful_file
         self.tracks = internals.get_unique_tracks(self.tracks_file)
+        self.failed_tracks = dict()
 
     def download_list(self):
         """ Download all songs from the list. """
@@ -213,11 +214,15 @@ class ListDownloader:
         for number, raw_song in enumerate(self.tracks, 1):
             print("")
             try:
+                if number in self.failed_tracks:
+                    number = self.failed_tracks[number]
+                    del self.failed_tracks[number]
                 track_dl = Downloader(raw_song, number=number)
                 track_dl.download_single()
             except (urllib.request.URLError, TypeError, IOError) as e:
                 # detect network problems
                 self._cleanup(raw_song, e)
+                self.failed_tracks[number] = len(self.tracks)-1
                 # TODO: remove this sleep once #397 is fixed
                 # wait 0.5 sec to avoid infinite looping
                 time.sleep(0.5)
