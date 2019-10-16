@@ -222,7 +222,7 @@ class ListDownloader:
             except (urllib.request.URLError, TypeError, IOError) as e:
                 # detect network problems
                 self._cleanup(raw_song, e)
-                self.failed_tracks[number] = len(self.tracks)-1
+                self.failed_tracks[len(self.tracks)-1] = number
                 # TODO: remove this sleep once #397 is fixed
                 # wait 0.5 sec to avoid infinite looping
                 time.sleep(0.5)
