@@ -19,7 +19,6 @@ setup(
         "spotipy >= 2.4.4",
         "mutagen >= 1.41.1",
         "beautifulsoup4 >= 4.6.3",
-        "unicode-slugify >= 0.1.3",
         "titlecase >= 0.10.0",
         "logzero >= 1.3.1",
         "lyricwikia >= 0.1.8",
