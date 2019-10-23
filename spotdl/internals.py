@@ -12,13 +12,6 @@ try:
 except ImportError:
     pass
 
-try:
-    from slugify import SLUG_OK, slugify
-except ImportError:
-    log.error("Oops! `unicode-slugify` was not found.")
-    log.info("Please remove any other slugify library and install `unicode-slugify`")
-    sys.exit(5)
-
 formats = {
     0: "track_name",
     1: "artist",
@@ -116,6 +109,14 @@ def format_string(
 
     return string_format
 
+def special_chars_filter(char):
+    """ Returns False for Any Unallowed Character """
+    unallowedChars = [":", "*", "?", "\"", "<", ">", "|"]
+
+    if char in unallowedChars:
+        return False
+    return True
+
 
 def sanitize_title(title, ok="-_()[]{}"):
     """ Generate filename of the song to be downloaded. """
@@ -126,8 +127,11 @@ def sanitize_title(title, ok="-_()[]{}"):
     # replace slashes with "-" to avoid folder creation errors
     title = title.replace("/", "-").replace("\\", "-")
 
-    # slugify removes any special characters
-    title = slugify(title, ok=ok, lower=False, spaces=True)
+    # remove forbidedd special characters
+    title = ""
+    for char in filter(special_chars_filter, title):
+        title += char
+    
     return title
 
 
