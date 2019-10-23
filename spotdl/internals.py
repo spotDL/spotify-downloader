@@ -128,8 +128,9 @@ def sanitize_title(title, ok="-_()[]{}"):
     title = title.replace("/", "-").replace("\\", "-")
 
     # remove forbidedd special characters
+    newTitleList = filter(special_chars_filter, title)
     title = ""
-    for char in filter(special_chars_filter, title):
+    for char in newTitleList:
         title += char
     
     return title
