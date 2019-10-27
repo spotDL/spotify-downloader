@@ -112,7 +112,7 @@ class Downloader:
         # generate file name of the song to download
         prefix = ''
         if const.args.prefix:
-            prefix = f'{self.number:03d} - '
+            prefix = '{:03d} - '.format(self.number)
         songname = self.refine_songname(self.content.title, prefix=prefix)
 
         if const.args.dry_run:
@@ -215,7 +215,7 @@ class ListDownloader:
             print("")
             try:
                 if number in self.failed_tracks:
-                    log.info(f'Track #{number} is a retry of #{self.failed_tracks[number]} - {raw_song}')
+                    log.info('Track #{} is a retry of #{} - {}'.format(number, self.failed_tracks[number], raw_song))
                     # below triangle swap ensures original track number is preserved even if multiple consecutive errors happen 
                     orig_number = self.failed_tracks[number]
                     del self.failed_tracks[number]
@@ -225,7 +225,7 @@ class ListDownloader:
             except (urllib.request.URLError, TypeError, IOError) as e:
                 # detect network problems
                 self._cleanup(raw_song, e)
-                log.warning(f'Keeping track of track #{number} in {len(self.tracks)}')
+                log.warning('Keeping track of track #{} in {}'.format(number, len(self.tracks)))
                 # since the enumeration starts from 0, we store not len-1 but len to avoid skipping tracks
                 self.failed_tracks[len(self.tracks)] = number
                 # TODO: remove this sleep once #397 is fixed

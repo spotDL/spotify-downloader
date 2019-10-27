@@ -114,7 +114,7 @@ def format_string(
     if const.args.no_spaces and not force_spaces:
         string_format = string_format.replace(" ", "_")
 
-    return prefix+string_format
+    return '{}{}'.format(prefix, string_format)
 
 
 def sanitize_title(title, ok="-_()[]{}"):
