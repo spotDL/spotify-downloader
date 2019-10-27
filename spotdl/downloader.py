@@ -215,8 +215,11 @@ class ListDownloader:
             print("")
             try:
                 if number in self.failed_tracks:
-                    number = self.failed_tracks[number]
+                    log.info(f'Track #{number} is a retry of #{self.failed_tracks[number]} - {raw_song}')
+                    # below triangle swap ensures original track number is preserved even if multiple consecutive errors happen 
+                    orig_number = self.failed_tracks[number]
                     del self.failed_tracks[number]
+                    number = orig_number
                 track_dl = Downloader(raw_song, number=number)
                 track_dl.download_single()
             except (urllib.request.URLError, TypeError, IOError) as e:
