@@ -112,7 +112,7 @@ class Downloader:
         # generate file name of the song to download
         prefix = ''
         if const.args.prefix:
-            prefix = f'{self.number} - '
+            prefix = f'{self.number:03d} - '
         songname = self.refine_songname(self.content.title, prefix=prefix)
 
         if const.args.dry_run:
