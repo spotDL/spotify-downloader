@@ -5,6 +5,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+- Adds parameter `--prefix`  to enable prepending of track number in playlist to have a filename sorted output when downloading playlists ([@alpsayin](https://github.com/alpsayin)) (#622)
 ### Added
 - Added `--no-remove-original-file` ([@NightMachinary](https://github.com/NightMachinary)) (#580)
 - Added leading Zeros in `track_number` for correct sorting ([@Dsujan](https://github.com/Dsujan)) (#592)
