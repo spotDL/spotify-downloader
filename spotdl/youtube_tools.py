@@ -125,11 +125,11 @@ def generate_metadata(content):
     return meta_tags
 
 
-def get_youtube_title(content, number=None):
+def get_youtube_title(content, number=None, count=None):
     """ Get the YouTube video's title. """
     title = content.title
-    if number:
-        return "{0}. {1}".format(number, title)
+    if number and count:
+        return "{0}/{1}: {2}".format(number, count, title)
     else:
         return title
 
