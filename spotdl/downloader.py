@@ -92,9 +92,10 @@ class CheckExists:
 
 
 class Downloader:
-    def __init__(self, raw_song, number=None):
+    def __init__(self, raw_song, number=None, count=None):
         self.raw_song = raw_song
         self.number = number
+        self.count = count
         self.content, self.meta_tags = youtube_tools.match_video_and_metadata(raw_song)
         self.total_songs = int(self.meta_tags["total_tracks"])
 
@@ -104,9 +105,11 @@ class Downloader:
         if self._to_skip():
             return
 
-        # "[number]. [artist] - [song]" if downloading from list
+        # "[number]/[count]: [artist] - [song]" if downloading from list
         # otherwise "[artist] - [song]"
-        youtube_title = youtube_tools.get_youtube_title(self.content, self.number)
+        youtube_title = youtube_tools.get_youtube_title(
+            self.content, self.number, self.count
+        )
         log.info("{} ({})".format(youtube_title, self.content.watchv_url))
 
         # generate file name of the song to download
@@ -189,6 +192,7 @@ class ListDownloader:
         self.skip_file = skip_file
         self.write_successful_file = write_successful_file
         self.tracks = internals.get_unique_tracks(self.tracks_file)
+        self.count = len(self.tracks)
 
     def download_list(self):
         """ Download all songs from the list. """
@@ -200,7 +204,7 @@ class ListDownloader:
         if self.skip_file is not None:
             self.tracks = self._filter_tracks_against_skip_file()
 
-        log.info(u"Preparing to download {} songs".format(len(self.tracks)))
+        log.info(u"Preparing to download {} songs".format(self.count))
         return self._download_list()
 
     def _download_list(self):
@@ -209,7 +213,7 @@ class ListDownloader:
         for number, raw_song in enumerate(self.tracks, 1):
             print("")
             try:
-                track_dl = Downloader(raw_song, number=number)
+                track_dl = Downloader(raw_song, number=number, count=self.count)
                 track_dl.download_single()
             except (urllib.request.URLError, TypeError, IOError) as e:
                 # detect network problems
