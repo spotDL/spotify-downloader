@@ -7,8 +7,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 ### Added
 - Added `--no-remove-original-file` ([@NightMachinary](https://github.com/NightMachinary)) (#580)
-- Added leading Zeros in `track_number` for correct sorting ([@Dsujan](https://github.com/Dsujan)) (#592)
+- Added leading zeros in `track_number` for correct sorting ([@Dsujan](https://github.com/Dsujan)) (#592)
 - Added `track_id` key for `--file-format` parameter ([@kadaliao](https://github.com/kadaliao)) (#568)
+- Added total count of songs while downloading a list ([@kuvam](https://github.com/kuvam)) (#625)
 
 ### Fixed
 - Generate list error --write-m3u ([@arthurlutz](https://github.com/arthurlutz)) (#559)
