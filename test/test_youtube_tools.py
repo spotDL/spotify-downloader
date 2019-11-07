@@ -181,8 +181,8 @@ class TestYouTubeTitle:
         const.args.youtube_api_key = None
         youtube_tools.set_api_key()
         content_fixture = youtube_tools.go_pafy(TRACK_SEARCH, metadata_fixture)
-        title = youtube_tools.get_youtube_title(content_fixture, 1)
-        assert title == "1. {0}".format(EXPECTED_TITLE)
+        title = youtube_tools.get_youtube_title(content_fixture, 1, 1)
+        assert title == "1/1: {0}".format(EXPECTED_TITLE)
 
 
 @pytest.fixture(scope="module")
