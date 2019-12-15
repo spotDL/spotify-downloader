@@ -1,6 +1,9 @@
 from bs4 import BeautifulSoup
 import urllib
 import pafy
+import audioread
+import requests
+import xmltodict
 
 from slugify import slugify
 from logzero import logger as log
@@ -167,6 +170,33 @@ def generate_m3u(track_file):
     return videos
 
 
+def _check_if_downloaded_successfully(filepath):
+    """Checks if audio file downloaded by pafy is not corrupted"""
+    try:
+        with audioread.audio_open(filepath) as f:
+            return f.duration >= 1
+    except audioread.exceptions.NoBackendError:
+        # File is corrupted or can't be read by audioread
+        return False
+
+
+def _manual_audio_stream_download(link, filepath):
+    """Downloads audio file from BaseURL provided YouTubes' audio stream XML file"""
+    # Get audio URL from XML file
+    url = link.url
+    r = requests.get(url, allow_redirects=True)
+    data = xmltodict.parse(r.content)
+    try:
+        audio_url = data['MPD']["Period"]["AdaptationSet"][0]["Representation"][0]["BaseURL"]
+    except KeyError:
+        return False
+    # Download audio file
+    r = requests.get(audio_url)
+    with open(filepath, 'wb') as f:
+        f.write(r.content)
+    return True
+
+
 def download_song(file_name, content):
     """ Download the audio file from YouTube. """
     _, extension = os.path.splitext(file_name)
@@ -181,7 +211,10 @@ def download_song(file_name, content):
         filepath = os.path.join(const.args.folder, file_name)
         log.debug("Saving to: " + filepath)
         link.download(filepath=filepath)
-        return True
+        if not _check_if_downloaded_successfully(filepath):
+            return _manual_audio_stream_download(link, filepath)
+        else:
+            return True
     else:
         log.debug("No audio streams available")
         return False
