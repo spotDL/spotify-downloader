@@ -46,7 +46,6 @@ setup(
         "metadata",
     ],
     classifiers=[
-        "Development Status :: 4 - Beta",
         "Intended Audience :: End Users/Desktop",
         "License :: OSI Approved :: MIT License",
         "Programming Language :: Python",
