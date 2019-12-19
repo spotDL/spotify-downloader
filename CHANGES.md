@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [1.2.3] - 2019-12-20
 ### Added
 - Added `--no-remove-original-file` ([@NightMachinary](https://github.com/NightMachinary)) (#580)
 - Added leading Zeros in `track_number` for correct sorting ([@Dsujan](https://github.com/Dsujan)) (#592)
