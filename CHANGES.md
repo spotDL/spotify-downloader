@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Added `track_id` key for `--file-format` parameter ([@kadaliao](https://github.com/kadaliao)) (#568)
 
 ### Fixed
+- Some tracks randomly fail to download with Pafy v0.5.5 ([@ritiek](https://github.com/ritiek)) (#638)
 - Generate list error --write-m3u ([@arthurlutz](https://github.com/arthurlutz)) (#559)
 
 ### Changed
