@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Fixed
+- Fixed a regression where a track would fail to download if it isn't
+  found on Spotify ([@ritiek](https://github.com/ritiek)) (#653)
 
 ## [1.2.3] - 2019-12-20
 ### Added
