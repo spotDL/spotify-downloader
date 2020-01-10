@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 ### Fixed
+- Fixed a crash occuring when lyrics for a track are not yet released
+  on Genius ([@ritiek](https://github.com/ritiek)) (#654)
 - Fixed a regression where a track would fail to download if it isn't
   found on Spotify ([@ritiek](https://github.com/ritiek)) (#653)
 
