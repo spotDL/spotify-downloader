@@ -93,7 +93,10 @@ def format_string(
     format_tags[9] = tags["track_number"]
     format_tags[10] = tags["total_tracks"]
     format_tags[11] = tags["external_ids"]["isrc"]
-    format_tags[12] = tags["id"]
+    try:
+        format_tags[12] = tags["id"]
+    except KeyError:
+        pass
 
     format_tags_sanitized = {
         k: sanitize_title(str(v), ok="'-_()[]{}") if slugification else str(v)
