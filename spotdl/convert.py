@@ -117,7 +117,7 @@ class Converter:
 
         if self.input_ext == ".m4a":
             if self.output_ext == ".mp3":
-                ffmpeg_params = "-codec:v copy -codec:a libmp3lame -ar 44100 "
+                ffmpeg_params = "-codec:v copy -codec:a libmp3lame -ar 48000 "
             elif self.output_ext == ".webm":
                 ffmpeg_params = "-codec:a libopus -vbr on "
             elif self.output_ext == ".m4a":
@@ -125,9 +125,9 @@ class Converter:
 
         elif self.input_ext == ".webm":
             if self.output_ext == ".mp3":
-                ffmpeg_params = "-codec:a libmp3lame -ar 44100 "
+                ffmpeg_params = "-codec:a libmp3lame -ar 48000 "
             elif self.output_ext == ".m4a":
-                ffmpeg_params = "-cutoff 20000 -codec:a aac -ar 44100 "
+                ffmpeg_params = "-cutoff 20000 -codec:a aac -ar 48000 "
 
         if self.output_ext == ".flac":
             ffmpeg_params = "-codec:a flac -ar 44100 "
