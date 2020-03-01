@@ -130,7 +130,7 @@ class Converter:
                 ffmpeg_params = "-cutoff 20000 -codec:a aac -ar 48000 "
 
         if self.output_ext == ".flac":
-            ffmpeg_params = "-codec:a flac -ar 44100 "
+            ffmpeg_params = "-codec:a flac -ar 48000 "
 
         # add common params for any of the above combination
         ffmpeg_params += "-b:a 192k -vn "
