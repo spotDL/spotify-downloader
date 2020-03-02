@@ -5,8 +5,13 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [1.2.5] - 2020-03-02
 ### Fixed
 - Skip crash when accessing YouTube-API-only fields in scrape mode ([@ritiek](https://github.com/ritiek)) (#672)
+
+### Changed
+- Changed FFMPEG args to convert to 48k quality audio instead of the current 44k audio. ([@AvinashReddy3108](https://github.com/AvinashReddy3108)) (#667)
 
 ## [1.2.4] - 2020-01-10
 ### Fixed
