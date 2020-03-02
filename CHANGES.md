@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Fixed
+- Skip crash when accessing YouTube-API-only fields in scrape mode ([@ritiek](https://github.com/ritiek)) (#672)
 
 ## [1.2.4] - 2020-01-10
 ### Fixed
