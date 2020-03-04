@@ -117,9 +117,9 @@ class Converter:
 
         if self.input_ext == ".m4a":
             if self.output_ext == ".mp3":
-                ffmpeg_params = "-codec:v copy -codec:a libmp3lame "
+                ffmpeg_params = "-codec:v copy -codec:a libmp3lame"
             elif self.output_ext == ".m4a":
-                ffmpeg_params = "-acodec copy "
+                ffmpeg_params = "-acodec copy"
             elif self.output_ext == ".ogg":
                 ffmpeg_params = "-codec:a libopus -vbr on -ar 48000"
             elif self.output_ext == ".oga":
@@ -127,19 +127,19 @@ class Converter:
 
         elif self.input_ext == ".webm":
             if self.output_ext == ".mp3":
-                ffmpeg_params = "-codec:a libmp3lame "
+                ffmpeg_params = "-codec:a libmp3lame"
             elif self.output_ext == ".m4a":
-                ffmpeg_params = "-codec:a aac "
+                ffmpeg_params = "-codec:a aac"
             elif self.output_ext == ".ogg":
-                ffmpeg_params = "-codec:a copy "
+                ffmpeg_params = "-codec:a copy"
             elif self.output_ext == ".oga":
-                ffmpeg_params = "-codec:a libvorbis "
+                ffmpeg_params = "-codec:a libvorbis"
 
         if self.output_ext == ".flac":
-            ffmpeg_params = "-codec:a flac -ar 48000 "
+            ffmpeg_params = "-codec:a flac"
 
         # add common params for any of the above combination
-        ffmpeg_params += "-b:a 192k -vn "
+        ffmpeg_params += " -b:a 192k -vn "
         ffmpeg_pre += "-i "
 
         if trim_silence:

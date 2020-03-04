@@ -133,29 +133,29 @@ class EmbedMetadata:
     def as_flac_ogg(self):
         music_file = self.music_file
         meta_tags = self.meta_tags
-        if music_file.endswith('.flac'):
+        if music_file.endswith(".flac"):
             audiofile = FLAC(music_file)
-        elif music_file.endswith('.ogg'):
+        elif music_file.endswith(".ogg"):
             audiofile = OggOpus(music_file)
         else:
             audiofile = OggVorbis(music_file)
         
         self._embed_basic_metadata(audiofile)
-        audiofile['year'] = meta_tags['year']
-        audiofile['comment'] = meta_tags['external_urls']['spotify']
-        if meta_tags['lyrics']:
-            audiofile['lyrics'] = meta_tags['lyrics']
+        audiofile["year"] = meta_tags["year"]
+        audiofile["comment"] = meta_tags["external_urls"]["spotify"]
+        if meta_tags["lyrics"]:
+            audiofile["lyrics"] = meta_tags["lyrics"]
             
         image = Picture()
         image.type = 3
-        image.desc = 'Cover'
-        image.mime = 'image/jpeg'
-        albumart = urllib.request.urlopen(meta_tags['album']['images'][0]['url'])
+        image.desc = "Cover"
+        image.mime = "image/jpeg"
+        albumart = urllib.request.urlopen(meta_tags["album"]["images"][0]["url"])
         image.data = albumart.read()
         albumart.close()
         # From the Mutagen docs (https://mutagen.readthedocs.io/en/latest/user/vcomment.html)
         
-        if music_file.endswith('.flac'):
+        if music_file.endswith(".flac"):
             audiofile.add_picture(image)
         else:
             image_data = image.write()
