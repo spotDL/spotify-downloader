@@ -145,7 +145,7 @@ class EmbedMetadata:
         audiofile["comment"] = meta_tags["external_urls"]["spotify"]
         if meta_tags["lyrics"]:
             audiofile["lyrics"] = meta_tags["lyrics"]
-            
+
         image = Picture()
         image.type = 3
         image.desc = "Cover"
