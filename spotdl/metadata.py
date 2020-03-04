@@ -1,7 +1,10 @@
+import base64
 from mutagen.easyid3 import EasyID3
 from mutagen.id3 import ID3, TORY, TYER, TPUB, APIC, USLT, COMM
 from mutagen.mp4 import MP4, MP4Cover
 from mutagen.flac import Picture, FLAC
+from mutagen.oggopus import OggOpus
+from mutagen.oggvorbis import OggVorbis
 
 import urllib.request
 from logzero import logger as log
@@ -34,9 +37,9 @@ def embed(music_file, meta_tags):
     elif music_file.endswith(".mp3"):
         log.info("Applying metadata")
         return embed.as_mp3()
-    elif music_file.endswith(".flac"):
+    elif music_file.endswith((".flac", ".ogg", ".oga")):
         log.info("Applying metadata")
-        return embed.as_flac()
+        return embed.as_flac_ogg()
     else:
         log.warning("Cannot embed metadata into given output extension")
         return False
@@ -127,26 +130,39 @@ class EmbedMetadata:
         audiofile.save()
         return True
 
-    def as_flac(self):
+    def as_flac_ogg(self):
         music_file = self.music_file
         meta_tags = self.meta_tags
-        audiofile = FLAC(music_file)
+        if music_file.endswith('.flac'):
+            audiofile = FLAC(music_file)
+        elif music_file.endswith('.ogg'):
+            audiofile = OggOpus(music_file)
+        else:
+            audiofile = OggVorbis(music_file)
+        
         self._embed_basic_metadata(audiofile)
-        if meta_tags["year"]:
-            audiofile["year"] = meta_tags["year"]
-        audiofile["comment"] = meta_tags["external_urls"][self.provider]
-        if meta_tags["lyrics"]:
-            audiofile["lyrics"] = meta_tags["lyrics"]
-
+        audiofile['year'] = meta_tags['year']
+        audiofile['comment'] = meta_tags['external_urls']['spotify']
+        if meta_tags['lyrics']:
+            audiofile['lyrics'] = meta_tags['lyrics']
+            
         image = Picture()
         image.type = 3
-        image.desc = "Cover"
-        image.mime = "image/jpeg"
-        albumart = urllib.request.urlopen(meta_tags["album"]["images"][0]["url"])
+        image.desc = 'Cover'
+        image.mime = 'image/jpeg'
+        albumart = urllib.request.urlopen(meta_tags['album']['images'][0]['url'])
         image.data = albumart.read()
         albumart.close()
-        audiofile.add_picture(image)
-
+        # From the Mutagen docs (https://mutagen.readthedocs.io/en/latest/user/vcomment.html)
+        
+        if music_file.endswith('.flac'):
+            audiofile.add_picture(image)
+        else:
+            image_data = image.write()
+            encoded_data = base64.b64encode(image_data)
+            vcomment_value = encoded_data.decode("ascii")
+            audiofile["metadata_block_picture"] = [vcomment_value]
+        
         audiofile.save()
         return True
 
@@ -165,7 +181,7 @@ class EmbedMetadata:
             audiofile[preset["genre"]] = meta_tags["genre"]
         if meta_tags["copyright"]:
             audiofile[preset["copyright"]] = meta_tags["copyright"]
-        if self.music_file.endswith(".flac"):
+        if self.music_file.endswith((".flac", ".oga", ".ogg")):
             audiofile[preset["discnumber"]] = str(meta_tags["disc_number"])
         else:
             audiofile[preset["discnumber"]] = [(meta_tags["disc_number"], 0)]
