@@ -126,6 +126,9 @@ def get_arguments(raw_args=None, to_group=True, to_merge=True):
             "--username",
             help="load tracks from user's playlist into <playlist_name>.txt",
         )
+        group.add_argument(
+            "-sm", "--set-metadata", nargs=2, help="set track metadata from url"
+        )
 
     parser.add_argument(
         "--write-m3u",

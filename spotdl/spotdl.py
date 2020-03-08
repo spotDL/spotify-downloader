@@ -13,6 +13,7 @@ from spotdl import internals
 from spotdl import spotify_tools
 from spotdl import youtube_tools
 from spotdl import downloader
+from spotdl import set_metadata
 
 
 def debug_sys_info():
@@ -54,6 +55,8 @@ def match_args():
         spotify_tools.write_user_playlist(
             username=const.args.username, text_file=const.args.write_to
         )
+    elif const.args.set_metadata:
+        set_metadata.create_file(*const.args.set_metadata)
 
 
 def main():
