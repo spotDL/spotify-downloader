@@ -12,7 +12,7 @@ import functools
 from spotdl import const
 from spotdl import internals
 from spotdl.lyrics.providers import LyricClasses
-from spotdl.lyrics.exceptions import LyricsNotFound
+from spotdl.lyrics.exceptions import LyricsNotFoundError
 
 spotify = None
 
@@ -82,7 +82,7 @@ def generate_metadata(raw_song):
         track = LyricClass(meta_tags["artists"][0]["name"], meta_tags["name"])
         try:
             meta_tags["lyrics"] = track.get_lyrics()
-        except LyricsNotFound:
+        except LyricsNotFoundError:
             continue
         else:
             break

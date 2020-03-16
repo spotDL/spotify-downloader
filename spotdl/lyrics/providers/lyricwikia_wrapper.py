@@ -1,7 +1,7 @@
 import lyricwikia
 
 from spotdl.lyrics.lyric_base import LyricBase
-from spotdl.lyrics.exceptions import LyricsNotFound
+from spotdl.lyrics.exceptions import LyricsNotFoundError
 
 
 class LyricWikia(LyricBase):
@@ -13,6 +13,6 @@ class LyricWikia(LyricBase):
         try:
             lyrics = lyricwikia.get_lyrics(self.artist, self.song, linesep, timeout)
         except lyricwikia.LyricsNotFound as e:
-            raise LyricsNotFound(e.args[0])
+            raise LyricsNotFoundError(e.args[0])
         else:
             return lyrics

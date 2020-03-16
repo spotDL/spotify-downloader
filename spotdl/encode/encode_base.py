@@ -1,7 +1,10 @@
+import shutil
 import os
 
 from abc import ABC
 from abc import abstractmethod
+
+from spotdl.encode.exceptions import EncoderNotFoundError
 
 """
   NOTE ON ENCODERS
@@ -25,6 +28,12 @@ from abc import abstractmethod
 class EncoderBase(ABC):
     @abstractmethod
     def __init__(self, encoder_path, loglevel, additional_arguments):
+        if shutil.which(encoder_path) is None:
+            raise EncoderNotFoundError(
+                "{} executable does not exist or was not found in PATH.".format(
+                    encoder_path
+                )
+            )
         self.encoder_path = encoder_path
         self._loglevel = loglevel
         self._additional_arguments = additional_arguments

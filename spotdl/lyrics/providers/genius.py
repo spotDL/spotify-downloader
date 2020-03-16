@@ -2,7 +2,7 @@ from bs4 import BeautifulSoup
 import urllib.request
 
 from spotdl.lyrics.lyric_base import LyricBase
-from spotdl.lyrics.exceptions import LyricsNotFound
+from spotdl.lyrics.exceptions import LyricsNotFoundError
 
 BASE_URL = "https://genius.com"
 
@@ -26,7 +26,7 @@ class Genius(LyricBase):
         try:
             response = urllib.request.urlopen(request, timeout=timeout)
         except urllib.request.HTTPError:
-            raise LyricsNotFound(
+            raise LyricsNotFoundError(
                 "Could not find lyrics for {} - {} at URL: {}".format(
                     self.artist, self.song, url
                 )
@@ -40,7 +40,7 @@ class Genius(LyricBase):
         if lyrics_paragraph:
             return lyrics_paragraph.get_text()
         else:
-            raise LyricsNotFound("The lyrics for this track are yet to be released.")
+            raise LyricsNotFoundError("The lyrics for this track are yet to be released.")
 
     def get_lyrics(self, linesep="\n", timeout=None):
         url = self._guess_lyric_url()

@@ -25,11 +25,11 @@ class TestLyricWikia:
         def lyricwikia_lyrics_not_found(msg):
             raise lyricwikia.LyricsNotFound(msg)
 
-        # Wrap `lyricwikia.LyricsNotFound` with `exceptions.LyricsNotFound` error.
+        # Wrap `lyricwikia.LyricsNotFoundError` with `exceptions.LyricsNotFoundError` error.
         monkeypatch.setattr(
             "lyricwikia.get_lyrics",
             lambda a, b, c, d: lyricwikia_lyrics_not_found("Nope, no lyrics."),
         )
         track = LyricWikia("Lyricwikia", "Lyricwikia")
-        with pytest.raises(exceptions.LyricsNotFound):
+        with pytest.raises(exceptions.LyricsNotFoundError):
             track.get_lyrics()

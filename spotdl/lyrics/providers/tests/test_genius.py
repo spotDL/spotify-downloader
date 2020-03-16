@@ -33,5 +33,5 @@ class TestGenius:
             raise urllib.request.HTTPError("", "", "", "", "")
 
         monkeypatch.setattr("urllib.request.urlopen", mocked_urlopen)
-        with pytest.raises(exceptions.LyricsNotFound):
+        with pytest.raises(exceptions.LyricsNotFoundError):
             track.get_lyrics()

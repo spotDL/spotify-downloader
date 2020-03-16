@@ -1,7 +1,10 @@
 import subprocess
 import os
 from logzero import logger as log
+
 from spotdl.encode import EncoderBase
+from spotdl.encode.exceptions import EncoderNotFoundError
+from spotdl.encode.exceptions import FFmpegNotFoundError
 
 RULES = {
     "m4a": {
@@ -17,14 +20,15 @@ RULES = {
     },
 }
 
+
 class EncoderFFmpeg(EncoderBase):
     def __init__(self, encoder_path="ffmpeg"):
-        encoder_path = encoder_path
         _loglevel = "-hide_banner -nostats -v panic"
         _additional_arguments = ["-b:a", "192k", "-vn"]
-
-        super().__init__(encoder_path, _loglevel, _additional_arguments)
-
+        try:
+            super().__init__(encoder_path, _loglevel, _additional_arguments)
+        except EncoderNotFoundError as e:
+            raise FFmpegNotFoundError(e.args[0])
         self._rules = RULES
 
     def set_argument(self, argument):
@@ -41,18 +45,16 @@ class EncoderFFmpeg(EncoderBase):
         if initial_arguments is None:
             raise TypeError(
                 'The input format ("{}") is not supported.'.format(
-                input_extension,
+                input_encoding,
             )
         )
-
         arguments = initial_arguments.get(output_encoding)
         if arguments is None:
             raise TypeError(
                 'The output format ("{}") is not supported.'.format(
-                output_extension,
+                output_encoding,
             )
         )
-
         return arguments
 
     def set_debuglog(self):
@@ -61,12 +63,10 @@ class EncoderFFmpeg(EncoderBase):
     def _generate_encode_command(self, input_file, output_file):
         input_encoding = self.get_encoding(input_file)
         output_encoding = self.get_encoding(output_file)
-
         arguments = self._generate_encoding_arguments(
             input_encoding,
             output_encoding
         )
-
         command = [self.encoder_path] \
             + ["-y", "-nostdin"] \
             + self._loglevel.split() \
@@ -82,10 +82,8 @@ class EncoderFFmpeg(EncoderBase):
             input_file,
             output_file
         )
-
         returncode = subprocess.call(encode_command)
         encode_successful = returncode == 0
-
         if encode_successful and delete_original:
             os.remove(input_file)
 
