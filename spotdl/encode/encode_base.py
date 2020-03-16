@@ -1,8 +1,7 @@
-from abc import ABCMeta
-from abc import abstractmethod
-from abc import abstractproperty
-
 import os
+
+from abc import ABC
+from abc import abstractmethod
 
 """
   NOTE ON ENCODERS
@@ -22,7 +21,8 @@ import os
 
 """
 
-class EncoderBase(metaclass=ABCMeta):
+
+class EncoderBase(ABC):
     @abstractmethod
     def __init__(self, encoder_path, loglevel, additional_arguments):
         self.encoder_path = encoder_path

@@ -1,20 +1,37 @@
 import subprocess
 import os
 from logzero import logger as log
-from spotdl.encoders import EncoderBase
+from spotdl.encode import EncoderBase
 
-class EncoderAvconv(EncoderBase):
-    def __init__(self, encoder_path="avconv"):
-        print("Using avconv is deprecated and this will be removed in",
-              "future versions. Use ffmpeg instead.")
+RULES = {
+    "m4a": {
+        "mp3": "-codec:v copy -codec:a libmp3lame -ar 48000",
+        "webm": "-codec:a libopus -vbr on ",
+        "m4a": "-acodec copy ",
+        "flac": "-codec:a flac -ar 48000",
+    },
+    "webm": {
+        "mp3": "-codec:a libmp3lame -ar 48000",
+        "m4a": "-cutoff 20000 -codec:a aac -ar 48000",
+        "flac": "-codec:a flac -ar 48000",
+    },
+}
+
+class EncoderFFmpeg(EncoderBase):
+    def __init__(self, encoder_path="ffmpeg"):
         encoder_path = encoder_path
-        _loglevel = "-loglevel 0"
-        _additional_arguments = ["-ab", "192k"]
+        _loglevel = "-hide_banner -nostats -v panic"
+        _additional_arguments = ["-b:a", "192k", "-vn"]
 
         super().__init__(encoder_path, _loglevel, _additional_arguments)
 
+        self._rules = RULES
+
     def set_argument(self, argument):
         super().set_argument(argument)
+
+    def set_trim_silence(self):
+        self.set_argument("-af silenceremove=start_periods=1")
 
     def get_encoding(self, filename):
         return super().get_encoding(filename)
@@ -38,9 +55,6 @@ class EncoderAvconv(EncoderBase):
 
         return arguments
 
-    def _generate_encoding_arguments(self, input_encoding, output_encoding):
-        return ""
-
     def set_debuglog(self):
         self._loglevel = "-loglevel debug"
 
@@ -54,9 +68,10 @@ class EncoderAvconv(EncoderBase):
         )
 
         command = [self.encoder_path] \
-            + ["-y"] \
+            + ["-y", "-nostdin"] \
             + self._loglevel.split() \
             + ["-i", input_file] \
+            + arguments.split() \
             + self._additional_arguments \
             + [output_file]
 
