@@ -6,6 +6,9 @@ import pytest
 
 
 class TestEncoderNotFoundSubclass:
+    def test_encoder_not_found_subclass(self):
+        assert issubclass(FFmpegNotFoundError, Exception)
+
     def test_ffmpeg_not_found_subclass(self):
         assert issubclass(FFmpegNotFoundError, EncoderNotFoundError)
 

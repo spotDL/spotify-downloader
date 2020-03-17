@@ -12,7 +12,7 @@ class TestGenius:
 
     @pytest.fixture(scope="module")
     def track(self):
-        return Genius("artist", "song")
+        return Genius("artist", "track")
 
     def test_base_url(self, track):
         assert track.base_url == "https://genius.com"

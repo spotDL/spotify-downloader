@@ -8,13 +8,13 @@ BASE_URL = "https://genius.com"
 
 
 class Genius(LyricBase):
-    def __init__(self, artist, song):
+    def __init__(self, artist, track):
         self.artist = artist
-        self.song = song
+        self.track = track
         self.base_url = BASE_URL
 
     def _guess_lyric_url(self):
-        query = "/{} {} lyrics".format(self.artist, self.song)
+        query = "/{} {} lyrics".format(self.artist, self.track)
         query = query.replace(" ", "-")
         encoded_query = urllib.request.quote(query)
         lyric_url = self.base_url + encoded_query
@@ -28,7 +28,7 @@ class Genius(LyricBase):
         except urllib.request.HTTPError:
             raise LyricsNotFoundError(
                 "Could not find lyrics for {} - {} at URL: {}".format(
-                    self.artist, self.song, url
+                    self.artist, self.track, url
                 )
             )
         else:

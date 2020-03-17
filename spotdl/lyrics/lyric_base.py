@@ -6,7 +6,7 @@ from abc import abstractmethod
 
 class LyricBase(ABC):
     @abstractmethod
-    def __init__(self, artist, song):
+    def __init__(self, artist, track):
         pass
 
     @abstractmethod

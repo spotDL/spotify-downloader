@@ -9,8 +9,8 @@ from spotdl.encode.exceptions import FFmpegNotFoundError
 RULES = {
     "m4a": {
         "mp3": "-codec:v copy -codec:a libmp3lame -ar 48000",
-        "webm": "-codec:a libopus -vbr on ",
-        "m4a": "-acodec copy ",
+        "webm": "-codec:a libopus -vbr on",
+        "m4a": "-acodec copy",
         "flac": "-codec:a flac -ar 48000",
     },
     "webm": {

@@ -1,5 +1,5 @@
 from spotdl.encode import EncoderBase
-# from spotdl.encode import exceptions
+from spotdl.encode.exceptions import FFmpegNotFoundError
 from spotdl.encode.encoders import EncoderFFmpeg
 
 import pytest
@@ -8,6 +8,10 @@ import pytest
 class TestEncoderFFmpeg:
     def test_subclass(self):
         assert issubclass(EncoderFFmpeg, EncoderBase)
+
+    def test_ffmpeg_not_found_error(self):
+        with pytest.raises(FFmpegNotFoundError):
+            EncoderFFmpeg(encoder_path="/a/nonexistent/path")
 
 
 class TestEncodingDefaults:
