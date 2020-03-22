@@ -26,8 +26,18 @@ from spotdl.encode.exceptions import EncoderNotFoundError
 
 
 class EncoderBase(ABC):
+    """
+    Defined encoders must inherit from this abstract base class
+    and implement their own functionality for the below defined
+    methods.
+    """
+
     @abstractmethod
-    def __init__(self, encoder_path, loglevel, additional_arguments):
+    def __init__(self, encoder_path, loglevel, additional_arguments=[]):
+        """
+        This method must make sure whether specified encoder
+        is available under PATH.
+        """
         if shutil.which(encoder_path) is None:
             raise EncoderNotFoundError(
                 "{} executable does not exist or was not found in PATH.".format(
@@ -40,26 +50,51 @@ class EncoderBase(ABC):
 
     @abstractmethod
     def set_argument(self, argument):
+        """
+        This method must be used to set any custom functionality
+        for the encoder by passing arguments to it.
+        """
         self._additional_arguments += argument.split()
 
     @abstractmethod
     def get_encoding(self, filename):
+        """
+        This method must determine the encoding for a local
+        audio file. Such as "mp3", "wav", "m4a", etc.
+        """
         _, extension = os.path.splitext(filename)
         # Ignore the initial dot from file extension
         return extension[1:]
 
     @abstractmethod
     def set_debuglog(self):
+        """
+        This method must enable verbose logging in the defined
+        encoder.
+        """
         pass
 
     @abstractmethod
     def _generate_encode_command(self, input_file, output_file):
+        """
+        This method must the complete command for that would be
+        used to invoke the encoder and perform the encoding.
+        """
         pass
 
     @abstractmethod
     def _generate_encoding_arguments(self, input_encoding, output_encoding):
+        """
+        This method must return the core arguments for the defined
+        encoder such as defining the sample rate, audio bitrate,
+        etc.
+        """
         pass
 
     @abstractmethod
-    def re_encode(self, input_encoding, output_encoding):
+    def re_encode(self, input_file, output_file):
+        """
+        This method must invoke FFmpeg to encode a given input
+        file to a specified output file.
+        """
         pass

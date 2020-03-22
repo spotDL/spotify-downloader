@@ -10,6 +10,9 @@ class LyricWikia(LyricBase):
         self.track = track
 
     def get_lyrics(self, linesep="\n", timeout=None):
+        """
+        Returns the lyric string for the given artist and track.
+        """
         try:
             lyrics = lyricwikia.get_lyrics(self.artist, self.track, linesep, timeout)
         except lyricwikia.LyricsNotFound as e:

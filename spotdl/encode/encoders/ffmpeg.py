@@ -60,9 +60,12 @@ class EncoderFFmpeg(EncoderBase):
     def set_debuglog(self):
         self._loglevel = "-loglevel debug"
 
-    def _generate_encode_command(self, input_file, output_file):
-        input_encoding = self.get_encoding(input_file)
-        output_encoding = self.get_encoding(output_file)
+    def _generate_encode_command(self, input_file, output_file,
+                                 input_encoding=None, output_encoding=None):
+        if input_encoding is None:
+            input_encoding = self.get_encoding(input_file)
+        if output_encoding is None:
+            output_encoding = self.get_encoding(output_file)
         arguments = self._generate_encoding_arguments(
             input_encoding,
             output_encoding
@@ -82,9 +85,20 @@ class EncoderFFmpeg(EncoderBase):
             input_file,
             output_file
         )
-        returncode = subprocess.call(encode_command)
-        encode_successful = returncode == 0
+        process = subprocess.Popen(encode_command)
+        process.wait()
+        encode_successful = process.returncode == 0
         if encode_successful and delete_original:
             os.remove(input_file)
+        return process
 
-        return returncode
+    def re_encode_from_stdin(self, input_encoding, output_file):
+        output_encoding = self.get_encoding(output_file)
+        encode_command = self._generate_encode_command(
+            "-",
+            output_file,
+            input_encoding=input_encoding,
+        )
+        process = subprocess.Popen(encode_command)
+        return process
+
