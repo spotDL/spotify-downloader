@@ -13,7 +13,7 @@ RULES = {
         "m4a": "-acodec copy",
         "flac": "-codec:a flac -ar 48000",
     },
-    "webm": {
+    "opus": {
         "mp3": "-codec:a libmp3lame -ar 48000",
         "m4a": "-cutoff 20000 -codec:a aac -ar 48000",
         "flac": "-codec:a flac -ar 48000",
@@ -99,6 +99,6 @@ class EncoderFFmpeg(EncoderBase):
             output_file,
             input_encoding=input_encoding,
         )
-        process = subprocess.Popen(encode_command)
+        process = subprocess.Popen(encode_command, stdin=subprocess.PIPE)
         return process
 
