@@ -34,7 +34,7 @@ class StreamsBase(ABC):
         return self.all[-1]
 
 
-class MetadataBase(ABC):
+class ProviderBase(ABC):
     def set_credentials(self, client_id, client_secret):
         """
         This method may or not be used depending on

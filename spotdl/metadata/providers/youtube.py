@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup
 import urllib.request
 
 from spotdl.metadata import StreamsBase
-from spotdl.metadata import MetadataBase
+from spotdl.metadata import ProviderBase
 
 BASE_URL = "https://www.youtube.com/results?sp=EgIQAQ%253D%253D&q={}"
 
@@ -90,7 +90,7 @@ class YouTubeStreams(StreamsBase):
         return self.all[-1]
 
 
-class MetadataYouTube(MetadataBase):
+class ProviderYouTube(ProviderBase):
     def from_query(self, query):
         watch_urls = YouTubeSearch().search(query)
         return self.from_url(watch_urls[0])

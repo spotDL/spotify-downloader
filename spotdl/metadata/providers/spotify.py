@@ -1,10 +1,10 @@
 import spotipy
 import spotipy.oauth2 as oauth2
 
-from spotdl.metadata import MetadataBase
+from spotdl.metadata import ProviderBase
 
 
-class MetadataSpotify(MetadataBase):
+class ProviderSpotify(ProviderBase):
     def __init__(self, spotify=None):
         self.spotify = spotify
 

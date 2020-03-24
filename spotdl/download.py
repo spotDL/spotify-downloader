@@ -4,6 +4,7 @@ import subprocess
 import urllib.request
 
 from spotdl.encode.encoders import EncoderFFmpeg
+from spotdl.metadata.embedders import EmbedderDefault
 
 CHUNK_SIZE= 16 * 1024
 HEADERS = [('Range', 'bytes=0-'),]
@@ -23,13 +24,13 @@ class Track:
     def _calculate_total_chunks(self, filesize):
         return (filesize // self._chunksize) + 1
 
-    def download_while_re_encoding(self, path, encoder=EncoderFFmpeg(), show_progress=True):
+    def download_while_re_encoding(self, target_path, encoder=EncoderFFmpeg(), show_progress=True):
         stream = self.metadata["streams"].getbest()
         total_chunks = self._calculate_total_chunks(stream["filesize"])
         response = self._make_request(stream["download_url"])
         process = encoder.re_encode_from_stdin(
             stream["encoding"],
-            path
+            target_path
         )
         for _ in tqdm.trange(total_chunks):
             chunk = response.read(self._chunksize)
@@ -38,11 +39,11 @@ class Track:
         process.stdin.close()
         process.wait()
 
-    def download(self, path, show_progress=True):
+    def download(self, target_path, show_progress=True):
         stream = self.metadata["streams"].getbest()
         total_chunks = self._calculate_total_chunks(stream["filesize"])
         response = self._make_request(stream["download_url"])
-        with open(path, "wb") as fout:
+        with open(target_path, "wb") as fout:
             for _ in tqdm.trange(total_chunks):
                 chunk = response.read(self._chunksize)
                 fout.write(chunk)
@@ -62,5 +63,6 @@ class Track:
         process.stdin.close()
         process.wait()
 
-    def apply_metadata(path):
-        pass
+    def apply_metadata(self, input_path, embedder=EmbedderDefault()):
+        embedder.apply_metadata(input_path, self.metadata)
+

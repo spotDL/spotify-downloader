@@ -48,7 +48,6 @@ class EncoderBase(ABC):
         self._loglevel = loglevel
         self._additional_arguments = additional_arguments
 
-    @abstractmethod
     def set_argument(self, argument):
         """
         This method must be used to set any custom functionality
@@ -56,13 +55,12 @@ class EncoderBase(ABC):
         """
         self._additional_arguments += argument.split()
 
-    @abstractmethod
-    def get_encoding(self, filename):
+    def get_encoding(self, path):
         """
         This method must determine the encoding for a local
         audio file. Such as "mp3", "wav", "m4a", etc.
         """
-        _, extension = os.path.splitext(filename)
+        _, extension = os.path.splitext(path)
         # Ignore the initial dot from file extension
         return extension[1:]
 
@@ -75,7 +73,7 @@ class EncoderBase(ABC):
         pass
 
     @abstractmethod
-    def _generate_encode_command(self, input_file, output_file):
+    def _generate_encode_command(self, input_path, target_path):
         """
         This method must the complete command for that would be
         used to invoke the encoder and perform the encoding.
@@ -92,9 +90,17 @@ class EncoderBase(ABC):
         pass
 
     @abstractmethod
-    def re_encode(self, input_file, output_file):
+    def re_encode(self, input_path, target_path):
         """
-        This method must invoke FFmpeg to encode a given input
+        This method must invoke the encoder to encode a given input
         file to a specified output file.
         """
         pass
+
+    def re_encode_from_stdin(self, input_encoding, target_path):
+        """
+        This method must invoke the encoder to encode stdin to a
+        specified output file.
+        """
+        raise NotImplementedError
+
