@@ -4,7 +4,6 @@ from spotdl.encode.encoders import EncoderFFmpeg
 
 import pytest
 
-
 class TestEncoderFFmpeg:
     def test_subclass(self):
         assert issubclass(EncoderFFmpeg, EncoderBase)

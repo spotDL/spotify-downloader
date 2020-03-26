@@ -15,12 +15,12 @@ class TestEncoderAvconv:
 
 
 class TestEncodingDefaults:
-    def encode_command(input_file, output_file):
+    def encode_command(input_file, target_file):
         command = [
             'avconv', '-y', '-loglevel', '0',
             '-i', input_file,
             '-ab', '192k',
-            output_file,
+            target_file,
         ]
         return command
 
@@ -36,12 +36,12 @@ class TestEncodingDefaults:
 
 
 class TestEncodingInDebugMode:
-    def debug_encode_command(input_file, output_file):
+    def debug_encode_command(input_file, target_file):
         command = [
             'avconv', '-y', '-loglevel', 'debug',
             '-i', input_file,
             '-ab', '192k',
-            output_file,
+            target_file,
         ]
         return command
 

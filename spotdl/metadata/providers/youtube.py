@@ -5,6 +5,7 @@ import urllib.request
 
 from spotdl.metadata import StreamsBase
 from spotdl.metadata import ProviderBase
+from spotdl.metadata.exceptions import YouTubeMetadataNotFoundError
 
 BASE_URL = "https://www.youtube.com/results?sp=EgIQAQ%253D%253D&q={}"
 
@@ -77,6 +78,9 @@ class YouTubeStreams(StreamsBase):
     def __init__(self, streams):
         audiostreams = streams.filter(only_audio=True).order_by("abr").desc()
         self.all = [{
+            # Store only the integer part. For example the given
+            # bitrate would be "192kbps", we store only the integer
+            # part here and drop the rest.
             "bitrate": int(stream.abr[:-4]),
             "download_url": stream.url,
             "encoding": stream.audio_codec,
@@ -93,6 +97,11 @@ class YouTubeStreams(StreamsBase):
 class ProviderYouTube(ProviderBase):
     def from_query(self, query):
         watch_urls = YouTubeSearch().search(query)
+        if not watch_urls:
+            raise YouTubeMetadataNotFoundError(
+                'YouTube returned nothing for the given search '
+                'query ("{}")'.format(query)
+            )
         return self.from_url(watch_urls[0])
 
     def from_url(self, url):
@@ -111,7 +120,6 @@ class ProviderYouTube(ProviderBase):
 
     def metadata_to_standard_form(self, content):
         """ Fetch a song's metadata from YouTube. """
-        streams = []
         publish_date = self._fetch_publish_date(content)
         metadata = {
             "name": content.title,

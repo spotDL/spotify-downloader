@@ -2,8 +2,6 @@ from spotdl.encode.exceptions import EncoderNotFoundError
 from spotdl.encode.exceptions import FFmpegNotFoundError
 from spotdl.encode.exceptions import AvconvNotFoundError
 
-import pytest
-
 
 class TestEncoderNotFoundSubclass:
     def test_encoder_not_found_subclass(self):

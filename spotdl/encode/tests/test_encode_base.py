@@ -3,7 +3,6 @@ from spotdl.encode.exceptions import EncoderNotFoundError
 
 import pytest
 
-
 class TestAbstractBaseClass:
     def test_error_abstract_base_class_encoderbase(self):
         encoder_path = "ffmpeg"
@@ -27,13 +26,7 @@ class TestAbstractBaseClass:
             def _generate_encoding_arguments(self):
                 pass
 
-            def get_encoding(self):
-                pass
-
             def re_encode(self):
-                pass
-
-            def set_argument(self):
                 pass
 
             def set_debuglog(self):
@@ -52,20 +45,14 @@ class TestMethods:
         def __init__(self, encoder_path, _loglevel, _additional_arguments):
             super().__init__(encoder_path, _loglevel, _additional_arguments)
 
-        def _generate_encode_command(self, input_file, output_file):
+        def _generate_encode_command(self, input_file, target_file):
             pass
 
-        def _generate_encoding_arguments(self, input_encoding, output_encoding):
+        def _generate_encoding_arguments(self, input_encoding, target_encoding):
             pass
 
-        def get_encoding(self, filename):
-            return super().get_encoding(filename)
-
-        def re_encode(self, input_encoding, output_encoding):
+        def re_encode(self, input_encoding, target_encoding):
             pass
-
-        def set_argument(self, argument):
-            super().set_argument(argument)
 
         def set_debuglog(self):
             pass

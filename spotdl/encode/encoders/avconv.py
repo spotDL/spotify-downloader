@@ -26,7 +26,7 @@ class EncoderAvconv(EncoderBase):
     def get_encoding(self, filename):
         return super().get_encoding(filename)
 
-    def _generate_encoding_arguments(self, input_encoding, output_encoding):
+    def _generate_encoding_arguments(self, input_encoding, target_encoding):
         initial_arguments = self._rules.get(input_encoding)
         if initial_arguments is None:
             raise TypeError(
@@ -35,7 +35,7 @@ class EncoderAvconv(EncoderBase):
             )
         )
 
-        arguments = initial_arguments.get(output_encoding)
+        arguments = initial_arguments.get(target_encoding)
         if arguments is None:
             raise TypeError(
                 'The output format ("{}") is not supported.'.format(
@@ -45,19 +45,19 @@ class EncoderAvconv(EncoderBase):
 
         return arguments
 
-    def _generate_encoding_arguments(self, input_encoding, output_encoding):
+    def _generate_encoding_arguments(self, input_encoding, target_encoding):
         return ""
 
     def set_debuglog(self):
         self._loglevel = "-loglevel debug"
 
-    def _generate_encode_command(self, input_file, output_file):
+    def _generate_encode_command(self, input_file, target_file):
         input_encoding = self.get_encoding(input_file)
-        output_encoding = self.get_encoding(output_file)
+        target_encoding = self.get_encoding(target_file)
 
         arguments = self._generate_encoding_arguments(
             input_encoding,
-            output_encoding
+            target_encoding
         )
 
         command = [self.encoder_path] \
@@ -65,14 +65,14 @@ class EncoderAvconv(EncoderBase):
             + self._loglevel.split() \
             + ["-i", input_file] \
             + self._additional_arguments \
-            + [output_file]
+            + [target_file]
 
         return command
 
-    def re_encode(self, input_file, output_file, delete_original=False):
+    def re_encode(self, input_file, target_file, delete_original=False):
         encode_command = self._generate_encode_command(
             input_file,
-            output_file
+            target_file
         )
 
         returncode = subprocess.call(encode_command)

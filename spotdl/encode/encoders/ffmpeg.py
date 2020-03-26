@@ -37,18 +37,18 @@ class EncoderFFmpeg(EncoderBase):
     def get_encoding(self, path):
         return super().get_encoding(path)
 
-    def _generate_encoding_arguments(self, input_encoding, output_encoding):
+    def _generate_encoding_arguments(self, input_encoding, target_encoding):
         initial_arguments = self._rules.get(input_encoding)
         if initial_arguments is None:
             raise TypeError(
                 'The input format ("{}") is not supported.'.format(
                 input_encoding,
             ))
-        arguments = initial_arguments.get(output_encoding)
+        arguments = initial_arguments.get(target_encoding)
         if arguments is None:
             raise TypeError(
                 'The output format ("{}") is not supported.'.format(
-                output_encoding,
+                target_encoding,
             ))
         return arguments
 
@@ -56,14 +56,14 @@ class EncoderFFmpeg(EncoderBase):
         self._loglevel = "-loglevel debug"
 
     def _generate_encode_command(self, input_path, target_path,
-                                 input_encoding=None, output_encoding=None):
+                                 input_encoding=None, target_encoding=None):
         if input_encoding is None:
             input_encoding = self.get_encoding(input_path)
-        if output_encoding is None:
-            output_encoding = self.get_encoding(target_path)
+        if target_encoding is None:
+            target_encoding = self.get_encoding(target_path)
         arguments = self._generate_encoding_arguments(
             input_encoding,
-            output_encoding
+            target_encoding
         )
         command = [self.encoder_path] \
             + ["-y", "-nostdin"] \
@@ -88,7 +88,7 @@ class EncoderFFmpeg(EncoderBase):
         return process
 
     def re_encode_from_stdin(self, input_encoding, target_path):
-        output_encoding = self.get_encoding(target_path)
+        target_encoding = self.get_encoding(target_path)
         encode_command = self._generate_encode_command(
             "-",
             target_path,

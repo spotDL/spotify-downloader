@@ -2,7 +2,7 @@ import spotipy
 import spotipy.oauth2 as oauth2
 
 from spotdl.metadata import ProviderBase
-
+from spotdl.metadata.exceptions import SpotifyMetadataNotFoundError
 
 class ProviderSpotify(ProviderBase):
     def __init__(self, spotify=None):
@@ -17,8 +17,14 @@ class ProviderSpotify(ProviderBase):
         return self.metadata_to_standard_form(metadata)
 
     def from_query(self, query):
-        metadata = self.spotify.search(query, limit=1)["tracks"]["items"][0]
-        return self.metadata_to_standard_form(metadata)
+        tracks = self.spotify.search(query, limit=1)["tracks"]["items"]
+        if tracks is None:
+            raise SpotifyMetadataNotFoundError(
+                'Could not find any tracks matching the given search query ("{}")'.format(
+                    query,
+                )
+            )
+        return self.metadata_to_standard_form(tracks[0])
 
     def _generate_token(self, client_id, client_secret):
         """ Generate the token. """

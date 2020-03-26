@@ -5,7 +5,7 @@ from abc import abstractmethod
 
 class EmbedderBase(ABC):
     """
-    The class must define the supported media file encoding
+    The subclass must define the supported media file encoding
     formats here using a static variable - such as:
 
     >>> supported_formats = ("mp3", "opus", "flac")

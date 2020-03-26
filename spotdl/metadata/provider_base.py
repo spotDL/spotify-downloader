@@ -1,7 +1,6 @@
 from abc import ABC
 from abc import abstractmethod
 
-
 class StreamsBase(ABC):
     @abstractmethod
     def __init__(self, streams):
@@ -17,7 +16,6 @@ class StreamsBase(ABC):
         """
         self.all = streams
 
-    @abstractmethod
     def getbest(self):
         """
         This method must return the audio stream with the
@@ -25,7 +23,6 @@ class StreamsBase(ABC):
         """
         return self.all[0]
 
-    @abstractmethod
     def getworst(self):
         """
         This method must return the audio stream with the
@@ -51,13 +48,12 @@ class ProviderBase(ABC):
         """
         pass
 
-    @abstractmethod
     def from_query(self, query):
         """
         This method must return track metadata from the
         corresponding search query.
         """
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def metadata_to_standard_form(self, metadata):
@@ -67,3 +63,4 @@ class ProviderBase(ABC):
         providers, for easy utilization.
         """
         pass
+

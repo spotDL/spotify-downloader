@@ -1,18 +1,18 @@
-class EncoderNotFoundError(Exception):
+class MetadataNotFoundError(Exception):
     __module__ = Exception.__module__
 
     def __init__(self, message=None):
         super().__init__(message)
 
 
-class FFmpegNotFoundError(EncoderNotFoundError):
+class SpotifyMetadataNotFoundError(MetadataNotFoundError):
     __module__ = Exception.__module__
 
     def __init__(self, message=None):
         super().__init__(message)
 
 
-class AvconvNotFoundError(EncoderNotFoundError):
+class YouTubeMetadataNotFoundError(MetadataNotFoundError):
     __module__ = Exception.__module__
 
     def __init__(self, message=None):
