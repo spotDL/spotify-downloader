@@ -14,16 +14,28 @@ import pytest
 
 @pytest.fixture(scope="module")
 def track():
+    """
+    This query is to be searched on YouTube for queries
+    that do return search results.
+    """
     return "selena gomez wolves"
 
 
 @pytest.fixture(scope="module")
 def no_result_track():
+    """
+    This query is to be searched on YouTube for queries
+    that return no search results.
+    """
     return "n0 v1d305 3x157 f0r 7h15 53arc4 qu3ry"
 
 
 @pytest.fixture(scope="module")
 def expect_search_results():
+    """
+    These are the expected search results for the "track"
+    query.
+    """
     return [
         "https://www.youtube.com/watch?v=cH4E_t3m3xM",
         "https://www.youtube.com/watch?v=xrbY9gDVms0",
@@ -40,6 +52,10 @@ def expect_search_results():
 
 @pytest.fixture(scope="module")
 def expect_mock_search_results():
+    """
+    These are the expected mock search results for the
+    "track" query.
+    """
     return [
         "https://www.youtube.com/watch?v=cH4E_t3m3xM",
         "https://www.youtube.com/watch?v=xrbY9gDVms0",
@@ -70,6 +86,9 @@ class TestYouTubeSearch:
         assert results == expect_search_results
 
     class MockHTTPResponse:
+        """
+        This mocks `urllib.request.urlopen` for custom response text.
+        """
         response_file = ""
 
         def __init__(self, url):
@@ -129,12 +148,19 @@ def mock_content():
 
 @pytest.fixture(scope="module")
 def expect_formatted_streams():
-        return [
-            {"bitrate": 160, "download_url": None, "encoding": "opus", "filesize": 3614184},
-            {"bitrate": 128, "download_url": None, "encoding": "mp4a.40.2", "filesize": 3444850},
-            {"bitrate": 70, "download_url": None, "encoding": "opus", "filesize": 1847626},
-            {"bitrate": 50, "download_url": None, "encoding": "opus", "filesize": 1407962}
-        ]
+    """
+    Expected streams for the best matching video for "track" in
+    search results.
+
+    The `download_url` is expected as `None` since it's impossible
+    to predict its value before-hand.
+    """
+    return [
+        {"bitrate": 160, "download_url": None, "encoding": "opus", "filesize": 3614184},
+        {"bitrate": 128, "download_url": None, "encoding": "mp4a.40.2", "filesize": 3444850},
+        {"bitrate": 70, "download_url": None, "encoding": "opus", "filesize": 1847626},
+        {"bitrate": 50, "download_url": None, "encoding": "opus", "filesize": 1407962}
+    ]
 
 
 class TestYouTubeStreams:
@@ -143,6 +169,8 @@ class TestYouTubeStreams:
         formatted_streams = YouTubeStreams(content.streams)
         for index in range(len(formatted_streams.all)):
             assert isinstance(formatted_streams.all[index]["download_url"], str)
+            # We `None` the `download_url` since it's impossible to
+            # predict its value before-hand.
             formatted_streams.all[index]["download_url"] = None
 
         assert formatted_streams.all == expect_formatted_streams
@@ -155,6 +183,8 @@ class TestYouTubeStreams:
     def test_getbest(self, content):
         formatted_streams = YouTubeStreams(content.streams)
         best_stream = formatted_streams.getbest()
+        # We `None` the `download_url` since it's impossible to
+        # predict its value before-hand.
         best_stream["download_url"] = None
         assert best_stream == {
             "bitrate": 160,
@@ -171,6 +201,8 @@ class TestYouTubeStreams:
     def test_getworst(self, content):
         formatted_streams = YouTubeStreams(content.streams)
         worst_stream = formatted_streams.getworst()
+        # We `None` the `download_url` since it's impossible to
+        # predict its value before-hand.
         worst_stream["download_url"] = None
         assert worst_stream == {
             "bitrate": 50,
@@ -198,7 +230,8 @@ class TestProviderYouTube:
     def test_from_query(self, track, youtube_provider):
         metadata = youtube_provider.from_query(track)
         assert isinstance(metadata["streams"], YouTubeStreams)
-
+        # We avoid testing each item for the `streams` key here
+        # again. It this has already been tested above.
         metadata["streams"] = []
         assert metadata == {
           'album': {'artists': [{'name': None}],
