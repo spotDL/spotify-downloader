@@ -17,16 +17,6 @@ from spotdl.lyrics.exceptions import LyricsNotFoundError
 spotify = None
 
 
-def generate_token():
-    """ Generate the token. """
-    credentials = oauth2.SpotifyClientCredentials(
-        client_id=const.args.spotify_client_id,
-        client_secret=const.args.spotify_client_secret,
-    )
-    token = credentials.get_access_token()
-    return token
-
-
 def must_be_authorized(func, spotify=spotify):
     def wrapper(*args, **kwargs):
         global spotify

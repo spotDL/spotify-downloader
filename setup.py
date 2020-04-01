@@ -16,8 +16,11 @@ setup(
         "spotdl.lyrics.providers",
         "spotdl.encode",
         "spotdl.encode.encoders",
-        "spotdl.downloaders",
-        "spotdl.patch",
+        "spotdl.metadata",
+        "spotdl.metadata.embedders",
+        "spotdl.metadata.providers",
+        "spotdl.authorize",
+        "spotdl.authorize.services",
     ],
     version=spotdl.__version__,
     install_requires=[
