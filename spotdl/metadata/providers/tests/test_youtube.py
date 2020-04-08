@@ -70,6 +70,31 @@ def expect_mock_search_results():
     ]
 
 
+class MockHTTPResponse:
+    """
+    This mocks `urllib.request.urlopen` for custom response text.
+    """
+    response_file = ""
+
+    def __init__(self, request):
+        if isinstance(request, urllib.request.Request):
+            if request._full_url.endswith("ouVRL5arzUg=="):
+                self.headers = {"Content-Length": 3614184}
+            elif request._full_url.endswith("egl0iK2D-Bk="):
+                self.headers = {"Content-Length": 3444850}
+            elif request._full_url.endswith("J7VXJtoi3as="):
+                self.headers = {"Content-Length": 1847626}
+            elif request._full_url.endswith("_d5_ZthQdvtD"):
+                self.headers = {"Content-Length": 1407962}
+
+    def read(self):
+        module_directory = os.path.dirname(__file__)
+        mock_html = os.path.join(module_directory, "data", self.response_file)
+        with open(mock_html, "r") as fin:
+            html = fin.read()
+        return html
+
+
 class TestYouTubeSearch:
     @pytest.fixture(scope="module")
     def youtube_searcher(self):
@@ -103,8 +128,8 @@ class TestYouTubeSearch:
 
     # @pytest.mark.mock
     def test_mock_search(self, track, youtube_searcher, expect_mock_search_results, monkeypatch):
-        self.MockHTTPResponse.response_file = "youtube_search_results.html"
-        monkeypatch.setattr(urllib.request, "urlopen", self.MockHTTPResponse)
+        MockHTTPResponse.response_file = "youtube_search_results.html"
+        monkeypatch.setattr(urllib.request, "urlopen", MockHTTPResponse)
         self.test_search(track, youtube_searcher, expect_mock_search_results)
 
     @pytest.mark.network
@@ -113,8 +138,8 @@ class TestYouTubeSearch:
         assert results == []
 
     def test_mock_no_videos_search(self, no_result_track, youtube_searcher, monkeypatch):
-        self.MockHTTPResponse.response_file = "youtube_no_search_results.html"
-        monkeypatch.setattr(urllib.request, "urlopen", self.MockHTTPResponse)
+        MockHTTPResponse.response_file = "youtube_no_search_results.html"
+        monkeypatch.setattr(urllib.request, "urlopen", MockHTTPResponse)
         self.test_no_videos_search(no_result_track, youtube_searcher)
 
 
@@ -186,32 +211,9 @@ class TestYouTubeStreams:
         for f, e in zip(formatted_streams.all, expect_formatted_streams):
             assert f["filesize"] == e["filesize"]
 
-    class MockHTTPResponse:
-        """
-        This mocks `urllib.request.urlopen` for custom response text.
-        """
-        response_file = ""
-
-        def __init__(self, response):
-            if response._full_url.endswith("ouVRL5arzUg=="):
-                self.headers = {"Content-Length": 3614184}
-            elif response._full_url.endswith("egl0iK2D-Bk="):
-                self.headers = {"Content-Length": 3444850}
-            elif response._full_url.endswith("J7VXJtoi3as="):
-                self.headers = {"Content-Length": 1847626}
-            elif response._full_url.endswith("_d5_ZthQdvtD"):
-                self.headers = {"Content-Length": 1407962}
-
-        def read(self):
-            module_directory = os.path.dirname(__file__)
-            mock_html = os.path.join(module_directory, "data", self.response_file)
-            with open(mock_html, "r") as fin:
-                html = fin.read()
-            return html
-
     # @pytest.mark.mock
     def test_mock_streams(self, mock_content, expect_formatted_streams, monkeypatch):
-        monkeypatch.setattr(urllib.request, "urlopen", self.MockHTTPResponse)
+        monkeypatch.setattr(urllib.request, "urlopen", MockHTTPResponse)
         self.test_streams(mock_content, expect_formatted_streams)
 
     @pytest.mark.network
@@ -234,7 +236,7 @@ class TestYouTubeStreams:
 
     # @pytest.mark.mock
     def test_mock_getbest(self, mock_content, monkeypatch):
-        monkeypatch.setattr(urllib.request, "urlopen", self.MockHTTPResponse)
+        monkeypatch.setattr(urllib.request, "urlopen", MockHTTPResponse)
         self.test_getbest(mock_content)
 
     @pytest.mark.network
@@ -257,7 +259,7 @@ class TestYouTubeStreams:
 
     # @pytest.mark.mock
     def test_mock_getworst(self, mock_content, monkeypatch):
-        monkeypatch.setattr(urllib.request, "urlopen", self.MockHTTPResponse)
+        monkeypatch.setattr(urllib.request, "urlopen", MockHTTPResponse)
         self.test_getworst(mock_content)
 
 
@@ -301,10 +303,13 @@ class TestProviderYouTube:
           'year': '2017'
        }
 
+
+
     def test_mock_from_query(self, track, youtube_provider, expect_mock_search_results, monkeypatch):
         self.MockYouTubeSearch.watch_urls = expect_mock_search_results
         monkeypatch.setattr(youtube, "YouTubeSearch", self.MockYouTubeSearch)
         monkeypatch.setattr(pytube, "YouTube", MockYouTube)
+        monkeypatch.setattr(urllib.request, "urlopen", MockHTTPResponse)
         self.test_from_query(track, youtube_provider)
 
     @pytest.mark.network
