@@ -45,7 +45,7 @@ class EmbedderDefault(EmbedderBase):
         self._tag_preset = TAG_PRESET
         # self.provider = "spotify" if metadata["spotify_metadata"] else "youtube"
 
-    def as_mp3(self, path, metadata):
+    def as_mp3(self, path, metadata, cached_albumart=None):
         """ Embed metadata to MP3 files. """
         # EasyID3 is fun to use ;)
         # For supported easyid3 tags:
@@ -84,22 +84,25 @@ class EmbedderDefault(EmbedderBase):
             audiofile["USLT"] = USLT(
                 encoding=3, desc=u"Lyrics", text=metadata["lyrics"]
             )
+        if cached_albumart is None:
+            cached_albumart = urllib.request.urlopen(
+                metadata["album"]["images"][0]["url"]
+            ).read()
+            albumart.close()
         try:
-            albumart = urllib.request.urlopen(metadata["album"]["images"][0]["url"])
             audiofile["APIC"] = APIC(
                 encoding=3,
                 mime="image/jpeg",
                 type=3,
                 desc=u"Cover",
-                data=albumart.read(),
+                data=cached_albumart,
             )
-            albumart.close()
         except IndexError:
             pass
 
         audiofile.save(v2_version=3)
 
-    def as_opus(self, path):
+    def as_opus(self, path, cached_albumart=None):
         """ Embed metadata to M4A files. """
         audiofile = MP4(path)
         self._embed_basic_metadata(audiofile, metadata, "opus", preset=M4A_TAG_PRESET)
@@ -110,17 +113,20 @@ class EmbedderDefault(EmbedderBase):
         if metadata["lyrics"]:
             audiofile[M4A_TAG_PRESET["lyrics"]] = metadata["lyrics"]
         try:
-            albumart = urllib.request.urlopen(metadata["album"]["images"][0]["url"])
+            if cached_albumart is None:
+                cached_albumart = urllib.request.urlopen(
+                    metadata["album"]["images"][0]["url"]
+                ).read()
+                albumart.close()
             audiofile[M4A_TAG_PRESET["albumart"]] = [
-                MP4Cover(albumart.read(), imageformat=MP4Cover.FORMAT_JPEG)
+                MP4Cover(cached_albumart, imageformat=MP4Cover.FORMAT_JPEG)
             ]
-            albumart.close()
         except IndexError:
             pass
 
         audiofile.save()
 
-    def as_flac(self, path, metadata):
+    def as_flac(self, path, metadata, cached_albumart=None):
         audiofile = FLAC(path)
         self._embed_basic_metadata(audiofile, metadata, "flac")
         if metadata["year"]:
@@ -134,9 +140,12 @@ class EmbedderDefault(EmbedderBase):
         image.type = 3
         image.desc = "Cover"
         image.mime = "image/jpeg"
-        albumart = urllib.request.urlopen(metadata["album"]["images"][0]["url"])
-        image.data = albumart.read()
-        albumart.close()
+        if cached_albumart is None:
+            cached_albumart = urllib.request.urlopen(
+                metadata["album"]["images"][0]["url"]
+            ).read()
+            albumart.close()
+        image.data = cached_albumart
         audiofile.add_picture(image)
 
         audiofile.save()

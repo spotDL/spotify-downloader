@@ -3,6 +3,8 @@ import os
 from abc import ABC
 from abc import abstractmethod
 
+import urllib.request
+
 class EmbedderBase(ABC):
     """
     The subclass must define the supported media file encoding
@@ -40,12 +42,16 @@ class EmbedderBase(ABC):
         # Ignore the initial dot from file extension
         return extension[1:]
 
-    def apply_metadata(self, path, metadata, encoding=None):
+    def apply_metadata(self, path, metadata, cached_albumart=None, encoding=None):
         """
         This method must automatically detect the media encoding
         format from file path and embed the corresponding metadata
         on the given file by calling an appropriate submethod.
         """
+        if cached_albumart is None:
+            cached_albumart = urllib.request.urlopen(
+                metadata["album"]["images"][0]["url"],
+            ).read()
         if encoding is None:
             encoding = self.get_encoding(path)
         if encoding not in self.supported_formats:
@@ -54,9 +60,9 @@ class EmbedderBase(ABC):
                 encoding,
             ))
         embed_on_given_format = self.targets[encoding]
-        embed_on_given_format(path, metadata)
+        embed_on_given_format(path, metadata, cached_albumart=cached_albumart)
 
-    def as_mp3(self, path, metadata):
+    def as_mp3(self, path, metadata, cached_albumart=None):
         """
         Method for mp3 support. This method might be defined in
         a subclass.
@@ -66,7 +72,7 @@ class EmbedderBase(ABC):
         """
         raise NotImplementedError
 
-    def as_opus(self, path, metadata):
+    def as_opus(self, path, metadata, cached_albumart=None):
         """
         Method for opus support. This method might be defined in
         a subclass.
@@ -76,7 +82,7 @@ class EmbedderBase(ABC):
         """
         raise NotImplementedError
 
-    def as_flac(self, path, metadata):
+    def as_flac(self, path, metadata, cached_albumart=None):
         """
         Method for flac support. This method might be defined in
         a subclass.

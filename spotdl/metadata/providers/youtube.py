@@ -2,13 +2,14 @@ import pytube
 from bs4 import BeautifulSoup
 
 import urllib.request
+import threading
 
 from spotdl.metadata import StreamsBase
 from spotdl.metadata import ProviderBase
 from spotdl.metadata.exceptions import YouTubeMetadataNotFoundError
 
 BASE_URL = "https://www.youtube.com/results?sp=EgIQAQ%253D%253D&q={}"
-
+HEADERS = [('Range', 'bytes=0-'),]
 
 class YouTubeSearch:
     def __init__(self):
@@ -76,16 +77,45 @@ class YouTubeSearch:
 
 class YouTubeStreams(StreamsBase):
     def __init__(self, streams):
+        self.network_headers = HEADERS
+
         audiostreams = streams.filter(only_audio=True).order_by("abr").desc()
-        self.all = [{
-            # Store only the integer part. For example the given
-            # bitrate would be "192kbps", we store only the integer
-            # part here and drop the rest.
-            "bitrate": int(stream.abr[:-4]),
-            "download_url": stream.url,
-            "encoding": stream.audio_codec,
-            "filesize": stream.filesize,
-        } for stream in audiostreams]
+
+        thread_pool = []
+        self.all = []
+
+        for stream in audiostreams:
+            standard_stream = {
+                # Store only the integer part for bitrate. For example
+                # the given bitrate would be "192kbps", we store only
+                # the integer part (192) here and drop the rest.
+                "bitrate": int(stream.abr[:-4]),
+                "connection": None,
+                "download_url": stream.url,
+                "encoding": stream.audio_codec,
+                "filesize": None,
+            }
+            establish_connection = threading.Thread(
+               target=self._store_connection,
+               args=(standard_stream,),
+            )
+            thread_pool.append(establish_connection)
+            establish_connection.start()
+            self.all.append(standard_stream)
+
+        for thread in thread_pool:
+            thread.join()
+
+    def _store_connection(self, stream):
+        response = self._make_request(stream["download_url"])
+        stream["connection"] = response
+        stream["filesize"] = int(response.headers["Content-Length"])
+
+    def _make_request(self, url):
+        request = urllib.request.Request(url)
+        for header in self.network_headers:
+            request.add_header(*header)
+        return urllib.request.urlopen(request)
 
     def getbest(self):
         return self.all[0]

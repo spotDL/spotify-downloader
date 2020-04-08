@@ -42,7 +42,7 @@ def expect_search_results():
         "https://www.youtube.com/watch?v=jX0n2rSmDbE",
         "https://www.youtube.com/watch?v=nVzA1uWTydQ",
         "https://www.youtube.com/watch?v=rQ6jcpwzQZU",
-        "https://www.youtube.com/watch?v=-grLLLTza6k",
+        "https://www.youtube.com/watch?v=VY1eFxgRR-k",
         "https://www.youtube.com/watch?v=j0AxZ4V5WQw",
         "https://www.youtube.com/watch?v=zbWsb36U0uo",
         "https://www.youtube.com/watch?v=3B1aY9Ob8r0",
@@ -134,6 +134,13 @@ class MockYouTube:
 
     @property
     def streams(self):
+        # For updating the test data:
+        # from spotdl.metadata.providers.youtube import YouTubeStreams
+        # import pytube
+        # import pickle
+        # content = pytube.YouTube("https://youtube.com/watch?v=cH4E_t3m3xM")
+        # with open("streams.dump", "wb") as fout:
+        #       pickle.dump(content.streams, fout)
         module_directory = os.path.dirname(__file__)
         mock_streams = os.path.join(module_directory, "data", "streams.dump")
         with open(mock_streams, "rb") as fin:
@@ -156,10 +163,10 @@ def expect_formatted_streams():
     to predict its value before-hand.
     """
     return [
-        {"bitrate": 160, "download_url": None, "encoding": "opus", "filesize": 3614184},
-        {"bitrate": 128, "download_url": None, "encoding": "mp4a.40.2", "filesize": 3444850},
-        {"bitrate": 70, "download_url": None, "encoding": "opus", "filesize": 1847626},
-        {"bitrate": 50, "download_url": None, "encoding": "opus", "filesize": 1407962}
+        {"bitrate": 160, "content": None, "download_url": None, "encoding": "opus", "filesize": 3614184},
+        {"bitrate": 128, "content": None, "download_url": None, "encoding": "mp4a.40.2", "filesize": 3444850},
+        {"bitrate": 70, "content": None, "download_url": None, "encoding": "opus", "filesize": 1847626},
+        {"bitrate": 50, "content": None, "download_url": None, "encoding": "opus", "filesize": 1407962}
     ]
 
 
@@ -169,50 +176,88 @@ class TestYouTubeStreams:
         formatted_streams = YouTubeStreams(content.streams)
         for index in range(len(formatted_streams.all)):
             assert isinstance(formatted_streams.all[index]["download_url"], str)
+            assert formatted_streams.all[index]["connection"] is not None
             # We `None` the `download_url` since it's impossible to
             # predict its value before-hand.
             formatted_streams.all[index]["download_url"] = None
+            formatted_streams.all[index]["connection"] = None
 
-        assert formatted_streams.all == expect_formatted_streams
+        # assert formatted_streams.all == expect_formatted_streams
+        for f, e in zip(formatted_streams.all, expect_formatted_streams):
+            assert f["filesize"] == e["filesize"]
+
+    class MockHTTPResponse:
+        """
+        This mocks `urllib.request.urlopen` for custom response text.
+        """
+        response_file = ""
+
+        def __init__(self, response):
+            if response._full_url.endswith("ouVRL5arzUg=="):
+                self.headers = {"Content-Length": 3614184}
+            elif response._full_url.endswith("egl0iK2D-Bk="):
+                self.headers = {"Content-Length": 3444850}
+            elif response._full_url.endswith("J7VXJtoi3as="):
+                self.headers = {"Content-Length": 1847626}
+            elif response._full_url.endswith("_d5_ZthQdvtD"):
+                self.headers = {"Content-Length": 1407962}
+
+        def read(self):
+            module_directory = os.path.dirname(__file__)
+            mock_html = os.path.join(module_directory, "data", self.response_file)
+            with open(mock_html, "r") as fin:
+                html = fin.read()
+            return html
 
     # @pytest.mark.mock
-    def test_mock_streams(self, mock_content, expect_formatted_streams):
+    def test_mock_streams(self, mock_content, expect_formatted_streams, monkeypatch):
+        monkeypatch.setattr(urllib.request, "urlopen", self.MockHTTPResponse)
         self.test_streams(mock_content, expect_formatted_streams)
 
     @pytest.mark.network
     def test_getbest(self, content):
         formatted_streams = YouTubeStreams(content.streams)
         best_stream = formatted_streams.getbest()
+        assert isinstance(best_stream["download_url"], str)
+        assert best_stream["connection"] is not None
         # We `None` the `download_url` since it's impossible to
         # predict its value before-hand.
         best_stream["download_url"] = None
+        best_stream["connection"] = None
         assert best_stream == {
             "bitrate": 160,
+            "connection": None,
             "download_url": None,
             "encoding": "opus",
             "filesize": 3614184
         }
 
     # @pytest.mark.mock
-    def test_mock_getbest(self, mock_content):
+    def test_mock_getbest(self, mock_content, monkeypatch):
+        monkeypatch.setattr(urllib.request, "urlopen", self.MockHTTPResponse)
         self.test_getbest(mock_content)
 
     @pytest.mark.network
     def test_getworst(self, content):
         formatted_streams = YouTubeStreams(content.streams)
         worst_stream = formatted_streams.getworst()
+        assert isinstance(worst_stream["download_url"], str)
+        assert worst_stream["connection"] is not None
         # We `None` the `download_url` since it's impossible to
         # predict its value before-hand.
         worst_stream["download_url"] = None
+        worst_stream["connection"] = None
         assert worst_stream == {
             "bitrate": 50,
+            "connection": None,
             "download_url": None,
             "encoding": 'opus',
             "filesize": 1407962
         }
 
     # @pytest.mark.mock
-    def test_mock_getworst(self, mock_content):
+    def test_mock_getworst(self, mock_content, monkeypatch):
+        monkeypatch.setattr(urllib.request, "urlopen", self.MockHTTPResponse)
         self.test_getworst(mock_content)
 
 

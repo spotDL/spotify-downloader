@@ -1,25 +1,38 @@
 import tqdm
 
-import subprocess
 import urllib.request
+import subprocess
+import threading
 
 from spotdl.encode.encoders import EncoderFFmpeg
 from spotdl.metadata.embedders import EmbedderDefault
 
 CHUNK_SIZE= 16 * 1024
-HEADERS = [('Range', 'bytes=0-'),]
 
 class Track:
-    def __init__(self, metadata):
+    def __init__(self, metadata, cache_albumart=False):
         self.metadata = metadata
-        self.network_headers = HEADERS
         self._chunksize = CHUNK_SIZE
 
-    def _make_request(self, url):
-        request = urllib.request.Request(url)
-        for header in self.network_headers:
-            request.add_header(*header)
-        return urllib.request.urlopen(request)
+        self._cache_resources = {
+            "albumart": {"content": None, "threadinstance": None }
+        }
+        if cache_albumart:
+            self._albumart_thread = self._cache_albumart()
+
+    def _fetch_response_content_threaded(self, mutable_resource, url):
+        content = urllib.request.urlopen(url).read()
+        mutable_resource["content"] = content
+
+    def _cache_albumart(self):
+        # A hack to get a thread's return value
+        albumart_thread = threading.Thread(
+            target=self._fetch_response_content_threaded,
+            args=(self._cache_resources["albumart"],
+                  self.metadata["album"]["images"][0]["url"]),
+        )
+        albumart_thread.start()
+        self._cache_resources["albumart"]["threadinstance"] = albumart_thread
 
     def _calculate_total_chunks(self, filesize):
         return (filesize // self._chunksize) + 1
@@ -27,11 +40,11 @@ class Track:
     def download_while_re_encoding(self, target_path, encoder=EncoderFFmpeg(), show_progress=True):
         stream = self.metadata["streams"].getbest()
         total_chunks = self._calculate_total_chunks(stream["filesize"])
-        response = self._make_request(stream["download_url"])
         process = encoder.re_encode_from_stdin(
             stream["encoding"],
             target_path
         )
+        response = stream["connection"]
         for _ in tqdm.trange(total_chunks):
             chunk = response.read(self._chunksize)
             process.stdin.write(chunk)
@@ -42,7 +55,7 @@ class Track:
     def download(self, target_path, show_progress=True):
         stream = self.metadata["streams"].getbest()
         total_chunks = self._calculate_total_chunks(stream["filesize"])
-        response = self._make_request(stream["download_url"])
+        response = stream["connection"]
         with open(target_path, "wb") as fout:
             for _ in tqdm.trange(total_chunks):
                 chunk = response.read(self._chunksize)
@@ -64,5 +77,9 @@ class Track:
         process.wait()
 
     def apply_metadata(self, input_path, embedder=EmbedderDefault()):
-        embedder.apply_metadata(input_path, self.metadata)
+        albumart = self._cache_resources["albumart"]
+        if albumart["threadinstance"]:
+            albumart["threadinstance"].join()
+
+        embedder.apply_metadata(input_path, self.metadata, cached_albumart=albumart["content"])
 

@@ -36,6 +36,13 @@ formats = {
 }
 
 
+def merge(base, overrider):
+    """ Override default dict with config dict. """
+    merger = base.copy()
+    merger.update(overrider)
+    return merger
+
+
 def input_link(links):
     """ Let the user input a choice. """
     while True:
@@ -50,15 +57,6 @@ def input_link(links):
                 log.warning("Choose a valid number!")
         except ValueError:
             log.warning("Choose a valid number!")
-
-
-def trim_song(tracks_file):
-    """ Remove the first song from file. """
-    with open(tracks_file, "r") as file_in:
-        data = file_in.read().splitlines(True)
-    with open(tracks_file, "w") as file_out:
-        file_out.writelines(data[1:])
-    return data[0]
 
 
 def is_spotify(raw_song):
@@ -172,52 +170,6 @@ def get_sec(time_str):
     return sec
 
 
-def extract_spotify_id(raw_string):
-    """
-    Returns a Spotify ID of a playlist, album, etc. after extracting
-    it from a given HTTP URL or Spotify URI.
-    """
-
-    if "/" in raw_string:
-        # Input string is an HTTP URL
-        if raw_string.endswith("/"):
-            raw_string = raw_string[:-1]
-        # We need to manually trim additional text from HTTP URLs
-        # We could skip this if https://github.com/plamere/spotipy/pull/324
-        # gets merged,
-        to_trim = raw_string.find("?")
-        if not to_trim == -1:
-            raw_string = raw_string[:to_trim]
-        splits = raw_string.split("/")
-    else:
-        # Input string is a Spotify URI
-        splits = raw_string.split(":")
-
-    spotify_id = splits[-1]
-
-    return spotify_id
-
-
-def get_unique_tracks(tracks_file):
-    """
-    Returns a list of unique tracks given a path to a
-    file containing tracks.
-    """
-
-    log.info(
-        "Checking and removing any duplicate tracks "
-        "in reading {}".format(tracks_file)
-    )
-    with open(tracks_file, "r") as tracks_in:
-        # Read tracks into a list and remove any duplicates
-        lines = tracks_in.read().splitlines()
-
-    # Remove blank and strip whitespaces from lines (if any)
-    lines = [line.strip() for line in lines if line.strip()]
-    lines = remove_duplicates(lines)
-    return lines
-
-
 # a hacky way to get user's localized music directory
 # (thanks @linusg, issue #203)
 def get_music_dir():
@@ -258,7 +210,7 @@ def get_music_dir():
     return os.path.join(home, "Music")
 
 
-def remove_duplicates(tracks):
+def remove_duplicates(elements, condition=lambda _: True, operation=lambda x: x):
     """
     Removes duplicates from a list whilst preserving order.
 
@@ -268,7 +220,12 @@ def remove_duplicates(tracks):
 
     local_set = set()
     local_set_add = local_set.add
-    return [x for x in tracks if not (x in local_set or local_set_add(x))]
+    filtered_list = []
+    for x in elements:
+        if not local_set and condition(x):
+                filtered_list.append(operation(x))
+                local_set_add(x)
+    return filtered_list
 
 
 def content_available(url):
@@ -278,3 +235,4 @@ def content_available(url):
         return False
     else:
         return response.getcode() < 300
+
