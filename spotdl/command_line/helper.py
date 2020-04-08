@@ -1,6 +1,8 @@
 from spotdl.metadata.providers import ProviderSpotify
 from spotdl.metadata.providers import ProviderYouTube
 from spotdl.metadata.embedders import EmbedderDefault
+from spotdl.lyrics.providers import LyricWikia
+from spotdl.lyrics.providers import Genius
 
 from spotdl.track import Track
 
@@ -10,7 +12,7 @@ import urllib.request
 import threading
 
 
-def search_metadata(track):
+def search_metadata(track, lyrics=True):
     youtube = ProviderYouTube()
     if spotdl.util.is_spotify(track):
         spotify = ProviderSpotify()
@@ -34,8 +36,7 @@ def search_metadata(track):
     return metadata
 
 
-def download_track(metadata,
-            dry_run=False, overwrite="prompt", output_ext="mp3", file_format="{artist} - {track-name}", log_fmt="{artist} - {track_name}"):
+def download_track(metadata, arguments):
     # TODO: CONFIG.YML
     #       Exit here if config.dry_run
 
@@ -52,10 +53,16 @@ def download_track(metadata,
 
     track = Track(metadata, cache_albumart=True)
     track.download_while_re_encoding("test.mp3")
+
+    # TODO: CONFIG.YML
+    #       Skip metadata if config.no_metadata
+
     track.apply_metadata("test.mp3")
 
 
-def download_tracks_from_file(path):
+def download_tracks_from_file(path, arguments):
+    # FIXME: Can we make this function cleaner?
+
     # log.info(
     #     "Checking and removing any duplicate tracks "
     #     "in reading {}".format(path)

@@ -5,25 +5,20 @@ import pytest
 
 class TestAbstractBaseClass:
     def test_error_abstract_base_class_lyricbase(self):
-        artist = "awesome artist"
-        track = "amazing track"
-
         with pytest.raises(TypeError):
             # This abstract base class must be inherited from
             # for instantiation
-            LyricBase(artist, track)
-
+            LyricBase()
 
     def test_inherit_abstract_base_class_encoderbase(self):
         class LyricKid(LyricBase):
-            def __init__(self, artist, track):
-                super().__init__(artist, track)
+            def from_query(self, query):
+                raise NotImplementedError
 
-            def get_lyrics(self):
+            def from_artist_and_track(self, artist, track):
                 pass
 
+            def from_url(self, url):
+                raise NotImplementedError
 
-        artist = "awesome artist"
-        track = "amazing track"
-
-        LyricKid(artist, track)
+        LyricKid()

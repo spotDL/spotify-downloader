@@ -12,16 +12,23 @@ class LyricBase(ABC):
     """
 
     @abstractmethod
-    def __init__(self, artist, track):
+    def from_url(self, url, linesep="\n", timeout=None):
         """
-        This method must set any protected attributes,
-        which may be modified from outside the class
-        if the need arises.
+        This method must return the lyrics string for the
+        given track.
         """
         pass
 
     @abstractmethod
-    def get_lyrics(self, linesep="\n", timeout=None):
+    def from_artist_and_track(self, artist, track, linesep="\n", timeout=None):
+        """
+        This method must return the lyrics string for the
+        given track.
+        """
+        pass
+
+    @abstractmethod
+    def from_query(self, query, linesep="\n", timeout=None):
         """
         This method must return the lyrics string for the
         given track.
