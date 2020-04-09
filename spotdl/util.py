@@ -5,8 +5,6 @@ import math
 import urllib.request
 
 
-from spotdl import const
-
 try:
     import winreg
 except ImportError:
@@ -222,9 +220,10 @@ def remove_duplicates(elements, condition=lambda _: True, operation=lambda x: x)
     local_set_add = local_set.add
     filtered_list = []
     for x in elements:
-        if not local_set and condition(x):
-                filtered_list.append(operation(x))
-                local_set_add(x)
+        if condition(x) and not (x in local_set or local_set_add(x)):
+            operated = operation(x)
+            filtered_list.append(operated)
+            local_set_add(operated)
     return filtered_list
 
 

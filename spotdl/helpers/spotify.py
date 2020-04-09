@@ -1,25 +1,11 @@
+# XXX: Perhaps we do not need to call `spotify._get_id`
+#      explicitly in newer versions of spotipy.
+#      Need to confirm this and if so, remove the calls
+#      to `spotify._get_id` in below methods.
+
 class SpotifyHelpers:
     def __init__(self, spotify):
         self.spotify = spotify
-
-    def extract_spotify_id(string):
-        """
-        Returns a Spotify ID of a playlist, album, etc. after extracting
-        it from a given HTTP URL or Spotify URI.
-        """
-
-        if "/" in string:
-            # Input string is an HTTP URL
-            if string.endswith("/"):
-                string = string[:-1]
-            splits = string.split("/")
-        else:
-            # Input string is a Spotify URI
-            splits = string.split(":")
-
-        spotify_id = splits[-1]
-
-        return spotify_id
 
     def prompt_for_user_playlist(self, username):
         """ Write user playlists to text_file """
@@ -56,7 +42,7 @@ class SpotifyHelpers:
 
     def fetch_playlist(self, playlist_url):
         try:
-            playlist_id = self.extract_spotify_id(playlist_url)
+            playlist_id = self.spotify._get_id("playlist", playlist_url)
         except IndexError:
             # Wrong format, in either case
             # log.error("The provided playlist URL is not in a recognized format!")
@@ -79,7 +65,7 @@ class SpotifyHelpers:
         return write_tracks(tracks, text_file)
 
     def fetch_album(self, album_url):
-        album_id = self.extract_spotify_id(album_url)
+        album_id = self.spotify._get_id("album", album_url)
         album = self.spotify.album(album_id)
         return album
 
@@ -101,7 +87,7 @@ class SpotifyHelpers:
 
         # fetching artist's albums limitting the results to the US to avoid duplicate
         # albums from multiple markets
-        artist_id = self.extract_spotify_id(artist_url)
+        artist_id = self.spotify._get_id("artist", artist_url)
         results = self.spotify.artist_albums(artist_id, album_type=album_type, country="US")
 
         albums = results["items"]
