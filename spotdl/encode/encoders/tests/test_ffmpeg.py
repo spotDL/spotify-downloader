@@ -22,7 +22,9 @@ class TestEncodingDefaults:
             '-codec:a', 'libmp3lame',
             '-ar', '48000',
             '-b:a', '192k',
-            '-vn', target_path
+            '-vn',
+            '-f', 'mp3',
+            target_path
         ]
         return command
 
@@ -33,7 +35,9 @@ class TestEncodingDefaults:
             '-codec:a', 'libopus',
             '-vbr', 'on',
             '-b:a', '192k',
-            '-vn', target_path
+            '-vn',
+            '-f', 'webm',
+            target_path
         ]
         return command
 
@@ -43,7 +47,9 @@ class TestEncodingDefaults:
             '-i', input_path,
             '-acodec', 'copy',
             '-b:a', '192k',
-            '-vn', target_path
+            '-vn',
+            '-f', 'm4a',
+             target_path
         ]
         return command
 
@@ -54,7 +60,9 @@ class TestEncodingDefaults:
             '-codec:a', 'flac',
             '-ar', '48000',
             '-b:a', '192k',
-            '-vn', target_path
+            '-vn',
+            '-f', 'flac',
+            target_path
         ]
         return command
 
@@ -78,7 +86,9 @@ class TestEncodingInDebugMode:
             '-codec:a', 'libmp3lame',
             '-ar', '48000',
             '-b:a', '192k',
-            '-vn', target_path
+            '-vn',
+            '-f', 'mp3',
+            target_path
         ]
         return command
 
@@ -89,7 +99,9 @@ class TestEncodingInDebugMode:
             '-codec:a', 'libopus',
             '-vbr', 'on',
             '-b:a', '192k',
-            '-vn', target_path
+            '-vn',
+            '-f', 'webm',
+             target_path
         ]
         return command
 
@@ -99,7 +111,9 @@ class TestEncodingInDebugMode:
             '-i', input_path,
             '-acodec', 'copy',
             '-b:a', '192k',
-            '-vn', target_path
+            '-vn',
+            '-f', 'm4a',
+             target_path
         ]
         return command
 
@@ -110,7 +124,9 @@ class TestEncodingInDebugMode:
             '-codec:a', 'flac',
             '-ar', '48000',
             '-b:a', '192k',
-            '-vn', target_path
+            '-vn',
+            '-f', 'flac',
+             target_path
         ]
         return command
 
@@ -137,6 +153,7 @@ class TestEncodingAndTrimSilence:
             '-b:a', '192k',
             '-vn',
             '-af', 'silenceremove=start_periods=1',
+            '-f', 'mp3',
             target_path
         ]
         return command
@@ -150,6 +167,7 @@ class TestEncodingAndTrimSilence:
             '-b:a', '192k',
             '-vn',
             '-af', 'silenceremove=start_periods=1',
+            '-f', 'webm',
             target_path
         ]
         return command
@@ -162,6 +180,7 @@ class TestEncodingAndTrimSilence:
             '-b:a', '192k',
             '-vn',
             '-af', 'silenceremove=start_periods=1',
+            '-f', 'm4a',
             target_path
         ]
         return command
@@ -175,6 +194,7 @@ class TestEncodingAndTrimSilence:
             '-b:a', '192k',
             '-vn',
             '-af', 'silenceremove=start_periods=1',
+            '-f', 'flac',
             target_path
         ]
         return command

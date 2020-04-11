@@ -6,6 +6,7 @@ import argparse
 import mimetypes
 import os
 import sys
+import shutil
 
 import spotdl.util
 import spotdl.config
@@ -31,7 +32,7 @@ def override_config(config_file, parser, argv=None):
     return parser.parse_args(argv)
 
 
-def get_arguments(argv=None, to_group=True, to_merge=True):
+def get_arguments(argv=None, to_merge=True):
     parser = argparse.ArgumentParser(
         description="Download and convert tracks from Spotify, Youtube etc.",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
@@ -48,46 +49,45 @@ def get_arguments(argv=None, to_group=True, to_merge=True):
     else:
         config = spotdl.config.DEFAULT_CONFIGURATION["spotify-downloader"]
 
-    if to_group:
-        group = parser.add_mutually_exclusive_group(required=True)
+    group = parser.add_mutually_exclusive_group(required=True)
 
-        # TODO: --song is deprecated. Remove in future versions.
-        #       Use --tracks instead.
-        group.add_argument(
-            "-s",
-            "--song",
-            nargs="+",
-            help=argparse.SUPPRESS
-        )
-        group.add_argument(
-            "-t",
-            "--tracks",
-            nargs="+",
-            help="download track(s) by spotify link or name"
-        )
-        group.add_argument(
-            "-l",
-            "--list",
-            help="download tracks from a file"
-        )
-        group.add_argument(
-            "-p",
-            "--playlist",
-            help="load tracks from playlist URL into <playlist_name>.txt",
-        )
-        group.add_argument(
-            "-b", "--album", help="load tracks from album URL into <album_name>.txt"
-        )
-        group.add_argument(
-            "-ab",
-            "--all-albums",
-            help="load all tracks from artist URL into <artist_name>.txt",
-        )
-        group.add_argument(
-            "-u",
-            "--username",
-            help="load tracks from user's playlist into <playlist_name>.txt",
-        )
+    # TODO: --song is deprecated. Remove in future versions.
+    #       Use --tracks instead.
+    group.add_argument(
+        "-s",
+        "--song",
+        nargs="+",
+        help=argparse.SUPPRESS
+    )
+    group.add_argument(
+        "-t",
+        "--tracks",
+        nargs="+",
+        help="download track(s) by spotify link or name"
+    )
+    group.add_argument(
+        "-l",
+        "--list",
+        help="download tracks from a file"
+    )
+    group.add_argument(
+        "-p",
+        "--playlist",
+        help="load tracks from playlist URL into <playlist_name>.txt",
+    )
+    group.add_argument(
+        "-b", "--album", help="load tracks from album URL into <album_name>.txt"
+    )
+    group.add_argument(
+        "-ab",
+        "--all-albums",
+        help="load all tracks from artist URL into <artist_name>.txt",
+    )
+    group.add_argument(
+        "-u",
+        "--username",
+        help="load tracks from user's playlist into <playlist_name>.txt",
+    )
 
     parser.add_argument(
         "--write-m3u",
@@ -129,6 +129,12 @@ def get_arguments(argv=None, to_group=True, to_merge=True):
         default=config["avconv"],
         help="use avconv for conversion (otherwise defaults to ffmpeg)",
         action="store_true",
+    )
+    parser.add_argument(
+        "-e",
+        "--encoder",
+        default=config["encoder"],
+        help="use this encoder for conversion",
     )
     parser.add_argument(
         "-f",
@@ -268,9 +274,11 @@ def get_arguments(argv=None, to_group=True, to_merge=True):
     if parsed.config is not None and to_merge:
         parsed = override_config(parsed.config, parser)
 
-    if (
-        to_group
-        and parsed.list
+    return run_errands(parser, parsed)
+
+
+def run_errands(parser, parsed):
+    if (parsed.list
         and not mimetypes.MimeTypes().guess_type(parsed.list)[0] == "text/plain"
     ):
         parser.error(
@@ -292,13 +300,26 @@ def get_arguments(argv=None, to_group=True, to_merge=True):
             "--write-to can only be used with --playlist, --album, --all-albums, or --username"
         )
 
+    if parsed.avconv:
+        # log.warn('-a / --avconv is deprecated and will be removed in future versions. '
+        #          'Use "-e avconv" or "--encoder avconv" instead)
+        parsed.encoder = "avconv"
+    del parsed.avconv
+
+    encoder_exists = shutil.which(parsed.encoder)
+    if not encoder_exists:
+        # log.warn("Specified encoder () was not found. Will not encode to specified "
+        #          "output format".format(parsed.encoder))
+        parsed.output_ext = parsed.input_ext
+
     song_parameter_passed = parsed.song is not None and parsed.tracks is None
     if song_parameter_passed:
         # log.warn("-s / --song is deprecated and will be removed in future versions. "
         #          "Use -t / --tracks instead.")
         setattr(parsed, "tracks", parsed.song)
-        del parsed.song
+    del parsed.song
 
     parsed.log_level = log_leveller(parsed.log_level)
 
     return parsed
+

@@ -58,20 +58,20 @@ def is_youtube(raw_song):
 
 def format_string(string, metadata, output_extension=""):
     formats = {
-        "{track_name}"   : metadata["name"],
+        "{track-name}"   : metadata["name"],
         "{artist}"       : metadata["artists"][0]["name"],
         "{album}"        : metadata["album"]["name"],
-        "{album_artist}" : metadata["artists"][0]["name"],
+        "{album-artist}" : metadata["artists"][0]["name"],
         "{genre}"        : metadata["genre"],
-        "{disc_number}"  : metadata["disc_number"],
+        "{disc-number}"  : metadata["disc_number"],
         "{duration}"     : metadata["duration"],
         "{year}"         : metadata["year"],
-        "{original_date}": metadata["release_date"],
-        "{track_number}" : metadata["track_number"],
-        "{total_tracks}" : metadata["total_tracks"],
+        "{original-date}": metadata["release_date"],
+        "{track-number}" : metadata["track_number"],
+        "{total-tracks}" : metadata["total_tracks"],
         "{isrc}"         : metadata["external_ids"]["isrc"],
-        "{track_id}"     : metadata.get("id", ""),
-        "{output_ext}"   : output_extension,
+        "{track-id}"     : metadata.get("id", ""),
+        "{output-ext}"   : output_extension,
     }
 
     for key, value in formats.items():

@@ -11,6 +11,7 @@ DEFAULT_CONFIGURATION = {
         "no-metadata": False,
         "no-fallback-metadata": False,
         "avconv": False,
+        "encoder": "ffmpeg",
         "directory": spotdl.util.get_music_dir(),
         "overwrite": "prompt",
         "input-ext": "m4a",

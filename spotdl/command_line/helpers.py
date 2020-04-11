@@ -12,17 +12,12 @@ import urllib.request
 import threading
 
 
-def search_metadata(track, lyrics=True):
+def search_metadata(track, lyrics=True, search_format="{artist} - {track-name}"):
     youtube = ProviderYouTube()
     if spotdl.util.is_spotify(track):
         spotify = ProviderSpotify()
         spotify_metadata = spotify.from_url(track)
-        # TODO: CONFIG.YML
-        #       Generate string in config.search_format
-        search_query = "{} - {}".format(
-            spotify_metadata["artists"][0]["name"],
-            spotify_metadata["name"]
-        )
+        search_query = spotdl.util.format_string(search_format, spotify_metadata)
         youtube_metadata = youtube.from_query(search_query)
         metadata = spotdl.util.merge(
             youtube_metadata,
@@ -37,44 +32,48 @@ def search_metadata(track, lyrics=True):
 
 
 def download_track(track, arguments):
-    metadata = search_metadata(track)
+    metadata = search_metadata(track, search_format=arguments.search_format)
+    log_fmt = spotdl.util.format_string(
+        arguments.file_format,
+        metadata,
+        output_extension=arguments.output_ext
+    )
+    # log.info(log_fmt)
     download_track_from_metadata(metadata, arguments)
 
 
 def download_track_from_metadata(metadata, arguments):
-    # TODO: CONFIG.YML
-    #       Exit here if config.dry_run
-
-    # TODO: CONFIG.YML
-    #       Check if test.mp3 already exists here
-
+    track = Track(metadata, cache_albumart=(not arguments.no_metadata))
     # log.info(log_fmt)
-
-    track = Track(metadata, cache_albumart=True)
-
-    # TODO: CONFIG.YML
-    #       Download tracks with name config.file_format
-
-    # TODO: CONFIG.YML
-    #       Append config.output_ext to config.file_format
-
-    # TODO: CONFIG.YML
-    #       Check config.overwrite here
 
     filename = spotdl.util.format_string(
         arguments.file_format,
         metadata,
         output_extension=arguments.output_ext
     )
-    track.download_while_re_encoding(
-        filename,
-        target_encoding=arguments.output_ext
-    )
 
-    # TODO: CONFIG.YML
-    #       Skip metadata if config.no_metadata
+    if arguments.dry_run:
+        return
 
-    track.apply_metadata(filename, encoding=arguments.output_ext)
+    if os.path.isfile(filename):
+        if arguments.overwrite == "skip":
+            to_skip = True
+        elif arguments.overwrite == "prompt":
+            to_skip = not input("overwrite? (y/N)").lower() == "y"
+
+    if to_skip:
+        return
+
+    if arguments.no_encode:
+        track.download(filename)
+    else:
+        track.download_while_re_encoding(
+            filename,
+            target_encoding=arguments.output_ext
+        )
+
+    if not arguments.no_metadata:
+        track.apply_metadata(filename, encoding=arguments.output_ext)
 
 
 def download_tracks_from_file(path, arguments):
@@ -102,7 +101,10 @@ def download_tracks_from_file(path, arguments):
     current_iteration = 1
 
     def mutable_assignment(mutable_resource, track):
-        mutable_resource["next_track"] = search_metadata(track)
+        mutable_resource["next_track"] = search_metadata(
+            track,
+            search_format=arguments.search_format
+        )
 
     metadata = {
         "current_track": None,
@@ -115,7 +117,10 @@ def download_tracks_from_file(path, arguments):
         metadata["next_track"] = None
         try:
             if metadata["current_track"] is None:
-                metadata["current_track"] = search_metadata(current_track)
+                metadata["current_track"] = search_metadata(
+                    current_track,
+                    search_format=arguments.search_format
+                )
             if tracks_count > 0:
                 next_track = tracks[0]
                 next_track_metadata = threading.Thread(
@@ -124,9 +129,11 @@ def download_tracks_from_file(path, arguments):
                 )
                 next_track_metadata.start()
 
+            log_fmt=(str(current_iteration) + ". {artist} - {track-name}")
+            # log.info(log_fmt)
             download_track_from_metadata(
                 metadata["current_track"],
-                log_fmt=(str(current_iteration) + ". {artist} - {track_name}")
+                arguments
             )
             current_iteration += 1
             next_track_metadata.join()
