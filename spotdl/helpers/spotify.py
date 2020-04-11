@@ -3,8 +3,12 @@
 #      Need to confirm this and if so, remove the calls
 #      to `spotify._get_id` in below methods.
 
+from spotdl.authorize.services import AuthorizeSpotify
+
 class SpotifyHelpers:
-    def __init__(self, spotify):
+    def __init__(self, spotify=None):
+        if spotify is None:
+            spotify = AuthorizeSpotify()
         self.spotify = spotify
 
     def prompt_for_user_playlist(self, username):

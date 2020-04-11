@@ -36,7 +36,12 @@ def search_metadata(track, lyrics=True):
     return metadata
 
 
-def download_track(metadata, arguments):
+def download_track(track, arguments):
+    metadata = search_metadata(track)
+    download_track_from_metadata(metadata, arguments)
+
+
+def download_track_from_metadata(metadata, arguments):
     # TODO: CONFIG.YML
     #       Exit here if config.dry_run
 
@@ -45,19 +50,31 @@ def download_track(metadata, arguments):
 
     # log.info(log_fmt)
 
+    track = Track(metadata, cache_albumart=True)
+
     # TODO: CONFIG.YML
     #       Download tracks with name config.file_format
 
     # TODO: CONFIG.YML
     #       Append config.output_ext to config.file_format
 
-    track = Track(metadata, cache_albumart=True)
-    track.download_while_re_encoding("test.mp3")
+    # TODO: CONFIG.YML
+    #       Check config.overwrite here
+
+    filename = spotdl.util.format_string(
+        arguments.file_format,
+        metadata,
+        output_extension=arguments.output_ext
+    )
+    track.download_while_re_encoding(
+        filename,
+        target_encoding=arguments.output_ext
+    )
 
     # TODO: CONFIG.YML
     #       Skip metadata if config.no_metadata
 
-    track.apply_metadata("test.mp3")
+    track.apply_metadata(filename, encoding=arguments.output_ext)
 
 
 def download_tracks_from_file(path, arguments):
@@ -107,7 +124,10 @@ def download_tracks_from_file(path, arguments):
                 )
                 next_track_metadata.start()
 
-            download_track(metadata["current_track"], log_fmt=(str(current_iteration) + ". {artist} - {track_name}"))
+            download_track_from_metadata(
+                metadata["current_track"],
+                log_fmt=(str(current_iteration) + ". {artist} - {track_name}")
+            )
             current_iteration += 1
             next_track_metadata.join()
         except (urllib.request.URLError, TypeError, IOError) as e:

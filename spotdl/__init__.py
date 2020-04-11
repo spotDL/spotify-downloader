@@ -1,3 +1,3 @@
-__version__ = "1.2.6"
+__version__ = "2.0.0"
 
 from spotdl.track import Track

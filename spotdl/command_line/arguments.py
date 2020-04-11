@@ -23,7 +23,10 @@ def log_leveller(log_level_str):
 def override_config(config_file, parser, argv=None):
     """ Override default dict with config dict passed as comamnd line argument. """
     config_file = os.path.realpath(config_file)
-    config = spotdl.util.merge(DEFAULT_CONFIGURATION["spotify-downloader"], spotdl.config.get_config(config_file))
+    config = spotdl.util.merge(
+        spotdl.config.DEFAULT_CONFIGURATION["spotify-downloader"],
+        spotdl.config.get_config(config_file)
+    )
     parser.set_defaults(**config)
     return parser.parse_args(argv)
 
@@ -34,8 +37,8 @@ def get_arguments(argv=None, to_group=True, to_merge=True):
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
 
+    config_file = spotdl.config.default_config_file
     if to_merge:
-        config_file = spotdl.config.default_config_file
         config_dir = os.path.dirname(spotdl.config.default_config_file)
         os.makedirs(os.path.dirname(spotdl.config.default_config_file), exist_ok=True)
         config = spotdl.util.merge(
@@ -49,7 +52,7 @@ def get_arguments(argv=None, to_group=True, to_merge=True):
         group = parser.add_mutually_exclusive_group(required=True)
 
         # TODO: --song is deprecated. Remove in future versions.
-        #       Use --track instead.
+        #       Use --tracks instead.
         group.add_argument(
             "-s",
             "--song",
@@ -58,9 +61,9 @@ def get_arguments(argv=None, to_group=True, to_merge=True):
         )
         group.add_argument(
             "-t",
-            "--track",
+            "--tracks",
             nargs="+",
-            help="download track by spotify link or name"
+            help="download track(s) by spotify link or name"
         )
         group.add_argument(
             "-l",
@@ -143,14 +146,14 @@ def get_arguments(argv=None, to_group=True, to_merge=True):
         "-i",
         "--input-ext",
         default=config["input-ext"],
-        help="preferred input format .m4a or .webm (Opus)",
-        choices={".m4a", ".webm"},
+        help="preferred input format 'm4a' or 'webm' (Opus)",
+        choices={"m4a", "webm"},
     )
     parser.add_argument(
         "-o",
         "--output-ext",
         default=config["output-ext"],
-        help="preferred output format .mp3, .m4a (AAC), .flac, etc.",
+        help="preferred output format: 'mp3', 'm4a' (AAC), 'flac', etc.",
     )
     parser.add_argument(
         "--write-to",
@@ -163,7 +166,7 @@ def get_arguments(argv=None, to_group=True, to_merge=True):
         default=config["file-format"],
         help="file format to save the downloaded track with, each tag "
         "is surrounded by curly braces. Possible formats: "
-        "{}".format([spotdl.util.formats[x] for x in spotdl.util.formats]),
+        # "{}".format([spotdl.util.formats[x] for x in spotdl.util.formats]),
     )
     parser.add_argument(
         "--trim-silence",
@@ -177,7 +180,7 @@ def get_arguments(argv=None, to_group=True, to_merge=True):
         default=config["search-format"],
         help="search format to search for on YouTube, each tag "
         "is surrounded by curly braces. Possible formats: "
-        "{}".format([spotdl.util.formats[x] for x in spotdl.util.formats]),
+        # "{}".format([spotdl.util.formats[x] for x in spotdl.util.formats]),
     )
     parser.add_argument(
         "-dm",
@@ -238,19 +241,19 @@ def get_arguments(argv=None, to_group=True, to_merge=True):
     parser.add_argument(
         "-sci",
         "--spotify-client-id",
-        default=config["spotify_client_id"],
+        default=config["spotify-client-id"],
         help=argparse.SUPPRESS,
     )
     parser.add_argument(
         "-scs",
         "--spotify-client-secret",
-        default=config["spotify_client_secret"],
+        default=config["spotify-client-secret"],
         help=argparse.SUPPRESS,
     )
     parser.add_argument(
         "-c",
         "--config",
-        default=None,
+        default=config_file,
         help="path to custom config.yml file"
     )
     parser.add_argument(
@@ -289,11 +292,11 @@ def get_arguments(argv=None, to_group=True, to_merge=True):
             "--write-to can only be used with --playlist, --album, --all-albums, or --username"
         )
 
-    song_parameter_passed = parsed.song is not None and parsed.track is None
+    song_parameter_passed = parsed.song is not None and parsed.tracks is None
     if song_parameter_passed:
         # log.warn("-s / --song is deprecated and will be removed in future versions. "
-        #          "Use -t / --track instead.")
-        setattr(parsed, "track", parsed.song)
+        #          "Use -t / --tracks instead.")
+        setattr(parsed, "tracks", parsed.song)
         del parsed.song
 
     parsed.log_level = log_leveller(parsed.log_level)

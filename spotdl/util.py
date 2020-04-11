@@ -17,22 +17,6 @@ except ImportError:
     log.info("Please remove any other slugify library and install `unicode-slugify`")
     sys.exit(5)
 
-formats = {
-    0: "track_name",
-    1: "artist",
-    2: "album",
-    3: "album_artist",
-    4: "genre",
-    5: "disc_number",
-    6: "duration",
-    7: "year",
-    8: "original_date",
-    9: "track_number",
-    10: "total_tracks",
-    11: "isrc",
-    12: "track_id",
-}
-
 
 def merge(base, overrider):
     """ Override default dict with config dict. """
@@ -72,48 +56,28 @@ def is_youtube(raw_song):
     return status
 
 
-def format_string(
-    string_format, tags, slugification=False, force_spaces=False, total_songs=0
-):
-    """ Generate a string of the format '[artist] - [song]' for the given spotify song. """
-    format_tags = dict(formats)
-    format_tags[0] = tags["name"]
-    format_tags[1] = tags["artists"][0]["name"]
-    format_tags[2] = tags["album"]["name"]
-    format_tags[3] = tags["artists"][0]["name"]
-    format_tags[4] = tags["genre"]
-    format_tags[5] = tags["disc_number"]
-    format_tags[6] = tags["duration"]
-    format_tags[7] = tags["year"]
-    format_tags[8] = tags["release_date"]
-    format_tags[9] = tags["track_number"]
-    format_tags[10] = tags["total_tracks"]
-    format_tags[11] = tags["external_ids"]["isrc"]
-    try:
-        format_tags[12] = tags["id"]
-    except KeyError:
-        pass
-
-    format_tags_sanitized = {
-        k: sanitize_title(str(v), ok="'-_()[]{}") if slugification else str(v)
-        for k, v in format_tags.items()
+def format_string(string, metadata, output_extension=""):
+    formats = {
+        "{track_name}"   : metadata["name"],
+        "{artist}"       : metadata["artists"][0]["name"],
+        "{album}"        : metadata["album"]["name"],
+        "{album_artist}" : metadata["artists"][0]["name"],
+        "{genre}"        : metadata["genre"],
+        "{disc_number}"  : metadata["disc_number"],
+        "{duration}"     : metadata["duration"],
+        "{year}"         : metadata["year"],
+        "{original_date}": metadata["release_date"],
+        "{track_number}" : metadata["track_number"],
+        "{total_tracks}" : metadata["total_tracks"],
+        "{isrc}"         : metadata["external_ids"]["isrc"],
+        "{track_id}"     : metadata.get("id", ""),
+        "{output_ext}"   : output_extension,
     }
-    # calculating total digits presnet in total_songs to prepare a zfill.
-    total_digits = 0 if total_songs == 0 else int(math.log10(total_songs)) + 1
 
-    for x in formats:
-        format_tag = "{" + formats[x] + "}"
-        # Making consistent track number by prepending zero
-        # on it according to number of digits in total songs
-        if format_tag == "{track_number}":
-            format_tags_sanitized[x] = format_tags_sanitized[x].zfill(total_digits)
+    for key, value in formats.items():
+        string = string.replace(key, str(value))
 
-        string_format = string_format.replace(format_tag, format_tags_sanitized[x])
-
-    if const.args.no_spaces and not force_spaces:
-        string_format = string_format.replace(" ", "_")
-
-    return string_format
+    return string
 
 
 def sanitize_title(title, ok="-_()[]{}"):

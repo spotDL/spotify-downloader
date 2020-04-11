@@ -1,55 +1,61 @@
-def match_args():
-    if const.args.song:
-        for track in const.args.song:
-            track_dl = downloader.Downloader(raw_song=track)
-            track_dl.download_single()
-    elif const.args.list:
-        if const.args.write_m3u:
+from spotdl.authorize.services import AuthorizeSpotify
+from spotdl import command_line
+
+def match_arguments(arguments):
+    if arguments.tracks:
+        # TODO: Also support reading from stdin for -t parameter
+        # Also supported writing to stdout for all parameters
+        if len(arguments.tracks) > 1:
+            # log.warning("download multiple tracks with optimized list instead")
+            pass
+        for track in arguments.tracks:
+            command_line.helpers.download_track(track, arguments)
+    elif arguments.list:
+        if arguments.write_m3u:
             youtube_tools.generate_m3u(
-                track_file=const.args.list
+                track_file=arguments.list
             )
         else:
             list_dl = downloader.ListDownloader(
-                tracks_file=const.args.list,
-                skip_file=const.args.skip,
-                write_successful_file=const.args.write_successful,
+                tracks_file=arguments.list,
+                skip_file=arguments.skip,
+                write_successful_file=arguments.write_successful,
             )
             list_dl.download_list()
-    elif const.args.playlist:
+    elif arguments.playlist:
         spotify_tools.write_playlist(
-            playlist_url=const.args.playlist, text_file=const.args.write_to
+            playlist_url=arguments.playlist, text_file=arguments.write_to
         )
-    elif const.args.album:
+    elif arguments.album:
         spotify_tools.write_album(
-            album_url=const.args.album, text_file=const.args.write_to
+            album_url=arguments.album, text_file=arguments.write_to
         )
-    elif const.args.all_albums:
+    elif arguments.all_albums:
         spotify_tools.write_all_albums_from_artist(
-            artist_url=const.args.all_albums, text_file=const.args.write_to
+            artist_url=arguments.all_albums, text_file=arguments.write_to
         )
-    elif const.args.username:
+    elif arguments.username:
         spotify_tools.write_user_playlist(
-            username=const.args.username, text_file=const.args.write_to
+            username=arguments.username, text_file=arguments.write_to
         )
 
 
 def main():
-    const.args = handle.get_arguments()
+    arguments = command_line.get_arguments()
 
-    internals.filter_path(const.args.folder)
-    youtube_tools.set_api_key()
+    AuthorizeSpotify(
+        client_id=arguments.spotify_client_id,
+        client_secret=arguments.spotify_client_secret
+    )
+    # youtube_tools.set_api_key()
 
-    logzero.setup_default_logger(formatter=const._formatter, level=const.args.log_level)
+    # logzero.setup_default_logger(formatter=const._formatter, level=const.args.log_level)
 
     try:
-        match_args()
-        # actually we don't necessarily need this, but yeah...
-        # explicit is better than implicit!
-        sys.exit(0)
-
+        match_arguments(arguments)
     except KeyboardInterrupt as e:
         # log.exception(e)
-        sys.exit(3)
+        sys.exit(2)
 
 
 if __name__ == "__main__":

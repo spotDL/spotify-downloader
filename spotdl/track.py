@@ -37,12 +37,14 @@ class Track:
     def _calculate_total_chunks(self, filesize):
         return (filesize // self._chunksize) + 1
 
-    def download_while_re_encoding(self, target_path, encoder=EncoderFFmpeg(), show_progress=True):
+    def download_while_re_encoding(self, target_path, target_encoding=None,
+                                   encoder=EncoderFFmpeg(), show_progress=True):
         stream = self.metadata["streams"].getbest()
         total_chunks = self._calculate_total_chunks(stream["filesize"])
         process = encoder.re_encode_from_stdin(
             stream["encoding"],
-            target_path
+            target_path,
+            target_encoding=target_encoding
         )
         response = stream["connection"]
         for _ in tqdm.trange(total_chunks):
@@ -61,12 +63,14 @@ class Track:
                 chunk = response.read(self._chunksize)
                 fout.write(chunk)
 
-    def re_encode(self, input_path, target_path, encoder=EncoderFFmpeg(), show_progress=True):
+    def re_encode(self, input_path, target_path, target_encoding=None,
+                  encoder=EncoderFFmpeg(), show_progress=True):
         stream = self.metadata["streams"].getbest()
         total_chunks = self._calculate_total_chunks(stream["filesize"])
         process = encoder.re_encode_from_stdin(
             stream["encoding"],
-            target_path
+            target_path,
+            target_encoding=target_encoding
         )
         with open(input_path, "rb") as fin:
             for _ in tqdm.trange(total_chunks):
@@ -76,10 +80,15 @@ class Track:
         process.stdin.close()
         process.wait()
 
-    def apply_metadata(self, input_path, embedder=EmbedderDefault()):
+    def apply_metadata(self, input_path, encoding=None, embedder=EmbedderDefault()):
         albumart = self._cache_resources["albumart"]
         if albumart["threadinstance"]:
             albumart["threadinstance"].join()
 
-        embedder.apply_metadata(input_path, self.metadata, cached_albumart=albumart["content"])
+        embedder.apply_metadata(
+            input_path,
+            self.metadata,
+            cached_albumart=albumart["content"],
+            encoding=encoding,
+        )
 

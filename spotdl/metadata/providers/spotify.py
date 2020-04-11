@@ -4,8 +4,12 @@ import spotipy.oauth2 as oauth2
 from spotdl.metadata import ProviderBase
 from spotdl.metadata.exceptions import SpotifyMetadataNotFoundError
 
+from spotdl.authorize.services import AuthorizeSpotify
+
 class ProviderSpotify(ProviderBase):
     def __init__(self, spotify=None):
+        if spotify is None:
+            spotify = AuthorizeSpotify()
         self.spotify = spotify
 
     def set_credentials(self, client_id, client_secret):

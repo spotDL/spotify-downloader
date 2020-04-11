@@ -71,14 +71,16 @@ class EncoderFFmpeg(EncoderBase):
             + ["-i", input_path] \
             + arguments.split() \
             + self._additional_arguments \
+            + ["-f", target_encoding] \
             + [target_path]
 
         return command
 
-    def re_encode(self, input_path, target_path, delete_original=False):
+    def re_encode(self, input_path, target_path, target_encoding=None, delete_original=False):
         encode_command = self._generate_encode_command(
             input_path,
-            target_path
+            target_path,
+            target_encoding=target_encoding
         )
         process = subprocess.Popen(encode_command)
         process.wait()
@@ -87,12 +89,12 @@ class EncoderFFmpeg(EncoderBase):
             os.remove(input_path)
         return process
 
-    def re_encode_from_stdin(self, input_encoding, target_path):
-        target_encoding = self.get_encoding(target_path)
+    def re_encode_from_stdin(self, input_encoding, target_path, target_encoding=None):
         encode_command = self._generate_encode_command(
             "-",
             target_path,
             input_encoding=input_encoding,
+            target_encoding=target_encoding,
         )
         process = subprocess.Popen(encode_command, stdin=subprocess.PIPE)
         return process
