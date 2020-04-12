@@ -68,31 +68,37 @@ def get_arguments(argv=None, to_merge=True):
     group.add_argument(
         "-l",
         "--list",
-        help="download tracks from a file"
+        help="download tracks from a file (WARNING: this file will be modified!)"
     )
     group.add_argument(
         "-p",
         "--playlist",
-        help="load tracks from playlist URL into <playlist_name>.txt",
+        help="load tracks from playlist URL into <playlist_name>.txt or "
+             "if `--write-to=<path/to/file.txt>` has been passed",
     )
     group.add_argument(
-        "-b", "--album", help="load tracks from album URL into <album_name>.txt"
+        "-b"
+        "--album",
+        help="load tracks from album URL into <album_name>.txt or if "
+             "`--write-to=<path/to/file.txt>` has been passed"
     )
     group.add_argument(
         "-ab",
         "--all-albums",
-        help="load all tracks from artist URL into <artist_name>.txt",
+        help="load all tracks from artist URL into <artist_name>.txt "
+             "or if `--write-to=<path/to/file.txt>` has been passed"
     )
     group.add_argument(
         "-u",
         "--username",
-        help="load tracks from user's playlist into <playlist_name>.txt",
+        help="load tracks from user's playlist into <playlist_name>.txt "
+             "or if `--write-to=<path/to/file.txt>` has been passed"
     )
 
     parser.add_argument(
         "--write-m3u",
         help="generate an .m3u playlist file with youtube links given "
-            "a text file containing tracks",
+             "a text file containing tracks",
         action="store_true",
     )
     parser.add_argument(
@@ -100,13 +106,6 @@ def get_arguments(argv=None, to_merge=True):
         "--manual",
         default=config["manual"],
         help="choose the track to download manually from a list of matching tracks",
-        action="store_true",
-    )
-    parser.add_argument(
-        "-nr",
-        "--no-remove-original",
-        default=config["no-remove-original"],
-        help="do not remove the original file after conversion",
         action="store_true",
     )
     parser.add_argument(

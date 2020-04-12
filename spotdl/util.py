@@ -4,6 +4,8 @@ import sys
 import math
 import urllib.request
 
+import threading
+
 
 try:
     import winreg
@@ -16,6 +18,26 @@ except ImportError:
     log.error("Oops! `unicode-slugify` was not found.")
     log.info("Please remove any other slugify library and install `unicode-slugify`")
     sys.exit(5)
+
+
+# This has been referred from
+# https://stackoverflow.com/a/6894023/6554943
+# It's because threaded functions do not return by default
+# Whereas this will return the value when `join` method
+# is called.
+class ThreadWithReturnValue(threading.Thread):
+    def __init__(self, target=lambda: None, args=()):
+        super().__init__(target=target, args=args)
+        self._return = None
+    def run(self):
+        if self._target is not None:
+            self._return = self._target(
+                *self._args,
+                **self._kwargs
+            )
+    def join(self, *args):
+        super().join(*args)
+        return self._return
 
 
 def merge(base, overrider):

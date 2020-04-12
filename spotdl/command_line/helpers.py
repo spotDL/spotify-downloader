@@ -1,7 +1,10 @@
 from spotdl.metadata.providers import ProviderSpotify
 from spotdl.metadata.providers import ProviderYouTube
 from spotdl.metadata.embedders import EmbedderDefault
-from spotdl.encode.encoders import EncoderFFmpeg, EncoderAvconv
+
+from spotdl.encode.encoders import EncoderFFmpeg
+from spotdl.encode.encoders import EncoderAvconv
+
 from spotdl.lyrics.providers import LyricWikia
 from spotdl.lyrics.providers import Genius
 
@@ -11,7 +14,6 @@ import spotdl.util
 
 import os
 import urllib.request
-import threading
 
 
 def search_metadata(track, lyrics=True, search_format="{artist} - {track-name}"):
@@ -46,7 +48,7 @@ def download_track(track, arguments):
 
 def download_track_from_metadata(metadata, arguments):
     track = Track(metadata, cache_albumart=(not arguments.no_metadata))
-    # log.info(log_fmt)
+    print(metadata["name"])
 
     stream = metadata["streams"].get(
         quality=arguments.quality,
@@ -114,45 +116,41 @@ def download_tracks_from_file(path, arguments):
 
     # Remove duplicates and empty elements
     # Also strip whitespaces from elements (if any)
-    spotdl.util.remove_duplicates(tracks, condition=lambda x: x, operation=str.strip)
+    spotdl.util.remove_duplicates(
+        tracks,
+        condition=lambda x: x,
+        operation=str.strip
+    )
 
     # Overwrite file
     with open(path, "w") as fout:
         fout.writelines(tracks)
 
-    next_track_metadata = threading.Thread(target=lambda: None)
-    next_track_metadata.start()
     tracks_count = len(tracks)
     current_iteration = 1
 
-    def mutable_assignment(mutable_resource, track):
-        mutable_resource["next_track"] = search_metadata(
-            track,
-            search_format=arguments.search_format
-        )
-
+    next_track = tracks.pop(0)
     metadata = {
         "current_track": None,
-        "next_track": None,
+        "next_track": spotdl.util.ThreadWithReturnValue(
+            target=search_metadata,
+            args=(next_track, True, arguments.search_format)
+        )
     }
+    metadata["next_track"].start()
     while tracks_count > 0:
-        current_track = tracks.pop(0)
         tracks_count -= 1
-        metadata["current_track"] = metadata["next_track"]
+        metadata["current_track"] = metadata["next_track"].join()
         metadata["next_track"] = None
         try:
-            if metadata["current_track"] is None:
-                metadata["current_track"] = search_metadata(
-                    current_track,
-                    search_format=arguments.search_format
-                )
             if tracks_count > 0:
-                next_track = tracks[0]
-                next_track_metadata = threading.Thread(
-                    target=mutable_assignment,
-                    args=(metadata, next_track)
+                current_track = next_track
+                next_track = tracks.pop(0)
+                metadata["next_track"] = spotdl.util.ThreadWithReturnValue(
+                    target=search_metadata,
+                    args=(next_track, True, arguments.search_format)
                 )
-                next_track_metadata.start()
+                metadata["next_track"].start()
 
             log_fmt=(str(current_iteration) + ". {artist} - {track-name}")
             # log.info(log_fmt)
@@ -161,7 +159,6 @@ def download_tracks_from_file(path, arguments):
                 arguments
             )
             current_iteration += 1
-            next_track_metadata.join()
         except (urllib.request.URLError, TypeError, IOError) as e:
             # log.exception(e.args[0])
             # log.warning("Failed. Will retry after other songs\n")

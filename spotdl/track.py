@@ -2,10 +2,11 @@ import tqdm
 
 import urllib.request
 import subprocess
-import threading
 
 from spotdl.encode.encoders import EncoderFFmpeg
 from spotdl.metadata.embedders import EmbedderDefault
+
+import spotdl.util
 
 CHUNK_SIZE= 16 * 1024
 
@@ -14,25 +15,18 @@ class Track:
         self.metadata = metadata
         self._chunksize = CHUNK_SIZE
 
-        self._cache_resources = {
-            "albumart": {"content": None, "threadinstance": None }
-        }
         if cache_albumart:
             self._albumart_thread = self._cache_albumart()
 
-    def _fetch_response_content_threaded(self, mutable_resource, url):
-        content = urllib.request.urlopen(url).read()
-        mutable_resource["content"] = content
+        self._cache_albumart = cache_albumart
 
     def _cache_albumart(self):
-        # A hack to get a thread's return value
-        albumart_thread = threading.Thread(
-            target=self._fetch_response_content_threaded,
-            args=(self._cache_resources["albumart"],
-                  self.metadata["album"]["images"][0]["url"]),
+        albumart_thread = spotdl.util.ThreadWithReturnValue(
+            target=lambda url: urllib.request.urlopen(url).read(),
+            args=(self.metadata["album"]["images"][0]["url"],)
         )
         albumart_thread.start()
-        self._cache_resources["albumart"]["threadinstance"] = albumart_thread
+        return albumart_thread
 
     def _calculate_total_chunks(self, filesize):
         return (filesize // self._chunksize) + 1
@@ -79,14 +73,15 @@ class Track:
         process.wait()
 
     def apply_metadata(self, input_path, encoding=None, embedder=EmbedderDefault()):
-        albumart = self._cache_resources["albumart"]
-        if albumart["threadinstance"]:
-            albumart["threadinstance"].join()
+        if self._cache_albumart:
+            albumart = self._albumart_thread.join()
+        else:
+            albumart = None
 
         embedder.apply_metadata(
             input_path,
             self.metadata,
-            cached_albumart=albumart["content"],
+            cached_albumart=albumart,
             encoding=encoding,
         )
 

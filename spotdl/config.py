@@ -6,7 +6,6 @@ import spotdl.util
 
 DEFAULT_CONFIGURATION = {
     "spotify-downloader": {
-        "no-remove-original": False,
         "manual": False,
         "no-metadata": False,
         "no-fallback-metadata": False,
