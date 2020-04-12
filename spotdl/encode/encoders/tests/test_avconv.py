@@ -26,7 +26,7 @@ class TestEncodingDefaults:
 
     @pytest.mark.parametrize("files, expected_command", [
         (("test.m4a", "test.mp3"), encode_command("test.m4a", "test.mp3")),
-        (("abc.m4a", "cba.webm"), encode_command("abc.m4a", "cba.webm")),
+        (("abc.m4a", "cba.opus"), encode_command("abc.m4a", "cba.opus")),
         (("bla bla.m4a", "ble ble.m4a"), encode_command("bla bla.m4a", "ble ble.m4a")),
         (("😛.m4a", "• tongue.flac"), encode_command("😛.m4a", "• tongue.flac")),
     ])
@@ -47,7 +47,7 @@ class TestEncodingInDebugMode:
 
     @pytest.mark.parametrize("files, expected_command", [
         (("test.m4a", "test.mp3"), debug_encode_command("test.m4a", "test.mp3")),
-        (("abc.m4a", "cba.webm"), debug_encode_command("abc.m4a", "cba.webm")),
+        (("abc.m4a", "cba.opus"), debug_encode_command("abc.m4a", "cba.opus")),
         (("bla bla.m4a", "ble ble.m4a"), debug_encode_command("bla bla.m4a", "ble ble.m4a")),
         (("😛.m4a", "• tongue.flac"), debug_encode_command("😛.m4a", "• tongue.flac")),
     ])

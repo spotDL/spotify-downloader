@@ -134,6 +134,7 @@ def get_arguments(argv=None, to_merge=True):
         "-e",
         "--encoder",
         default=config["encoder"],
+        choices={"ffmpeg", "avconv", "null"},
         help="use this encoder for conversion",
     )
     parser.add_argument(
@@ -145,21 +146,29 @@ def get_arguments(argv=None, to_merge=True):
     parser.add_argument(
         "--overwrite",
         default=config["overwrite"],
-        help="change the overwrite policy",
         choices={"prompt", "force", "skip"},
+        help="change the overwrite policy",
+    )
+    parser.add_argument(
+        "-q",
+        "--quality",
+        default=config["quality"],
+        choices={"best", "worst"},
+        help="preferred audio quality",
     )
     parser.add_argument(
         "-i",
         "--input-ext",
         default=config["input-ext"],
-        help="preferred input format 'm4a' or 'webm' (Opus)",
-        choices={"m4a", "webm"},
+        choices={"automatic", "m4a", "opus"},
+        help="preferred input format",
     )
     parser.add_argument(
         "-o",
         "--output-ext",
         default=config["output-ext"],
-        help="preferred output format: 'mp3', 'm4a' (AAC), 'flac', etc.",
+        choices={"mp3", "m4a", "flac"},
+        help="preferred output format",
     )
     parser.add_argument(
         "--write-to",
@@ -310,7 +319,7 @@ def run_errands(parser, parsed):
     if not encoder_exists:
         # log.warn("Specified encoder () was not found. Will not encode to specified "
         #          "output format".format(parsed.encoder))
-        parsed.output_ext = parsed.input_ext
+        parsed.encoder = "null"
 
     song_parameter_passed = parsed.song is not None and parsed.tracks is None
     if song_parameter_passed:

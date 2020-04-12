@@ -16,12 +16,16 @@ def match_arguments(arguments):
                 track_file=arguments.list
             )
         else:
-            list_dl = downloader.ListDownloader(
-                tracks_file=arguments.list,
-                skip_file=arguments.skip,
-                write_successful_file=arguments.write_successful,
+            command_line.helpers.download_tracks_from_file(
+                arguments.list,
+                arguments,
             )
-            list_dl.download_list()
+            # list_dl = downloader.ListDownloader(
+            #     tracks_file=arguments.list,
+            #     skip_file=arguments.skip,
+            #     write_successful_file=arguments.write_successful,
+            # )
+            # list_dl.download_list()
     elif arguments.playlist:
         spotify_tools.write_playlist(
             playlist_url=arguments.playlist, text_file=arguments.write_to

@@ -37,9 +37,8 @@ class Track:
     def _calculate_total_chunks(self, filesize):
         return (filesize // self._chunksize) + 1
 
-    def download_while_re_encoding(self, target_path, target_encoding=None,
+    def download_while_re_encoding(self, stream, target_path, target_encoding=None,
                                    encoder=EncoderFFmpeg(), show_progress=True):
-        stream = self.metadata["streams"].getbest()
         total_chunks = self._calculate_total_chunks(stream["filesize"])
         process = encoder.re_encode_from_stdin(
             stream["encoding"],
@@ -54,8 +53,7 @@ class Track:
         process.stdin.close()
         process.wait()
 
-    def download(self, target_path, show_progress=True):
-        stream = self.metadata["streams"].getbest()
+    def download(self, stream, target_path, show_progress=True):
         total_chunks = self._calculate_total_chunks(stream["filesize"])
         response = stream["connection"]
         with open(target_path, "wb") as fout:

@@ -77,7 +77,7 @@ class TestMethods:
     @pytest.mark.parametrize("filename, encoding", [
         ("example.m4a", "m4a"),
         ("exampley.mp3", "mp3"),
-        ("test 123.webm", "webm"),
+        ("test 123.opus", "opus"),
         ("flakey.flac", "flac"),
     ])
     def test_get_encoding(self, encoderkid, filename, encoding):

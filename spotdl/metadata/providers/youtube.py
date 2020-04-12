@@ -117,11 +117,27 @@ class YouTubeStreams(StreamsBase):
             request.add_header(*header)
         return urllib.request.urlopen(request)
 
-    def getbest(self):
-        return self.all[0]
+    def get(self, quality="best", preftype="automatic"):
+        if quality == "best":
+            return self.getbest(preftype=preftype)
+        elif quality == "worst":
+            return self.getworst(preftype=preftype)
+        else:
+            return None
 
-    def getworst(self):
-        return self.all[-1]
+    def getbest(self, preftype="automatic"):
+        if preftype == "automatic":
+            return self.all[0]
+        for stream in self.all:
+            if stream["encoding"] == preftype:
+                return stream
+
+    def getworst(self, preftype="automatic"):
+        if preftype == "automatic":
+            return self.all[-1]
+        for stream in self.all[::-1]:
+            if stream["encoding"] == preftype:
+                return stream
 
 
 class ProviderYouTube(ProviderBase):

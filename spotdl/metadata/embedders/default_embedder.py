@@ -37,7 +37,7 @@ for key in M4A_TAG_PRESET.keys():
 
 
 class EmbedderDefault(EmbedderBase):
-    supported_formats = ("mp3", "opus", "flac")
+    supported_formats = ("mp3", "m4a", "flac")
 
     def __init__(self):
         super().__init__()
@@ -102,10 +102,10 @@ class EmbedderDefault(EmbedderBase):
 
         audiofile.save(v2_version=3)
 
-    def as_opus(self, path, cached_albumart=None):
+    def as_m4a(self, path, metadata, cached_albumart=None):
         """ Embed metadata to M4A files. """
         audiofile = MP4(path)
-        self._embed_basic_metadata(audiofile, metadata, "opus", preset=M4A_TAG_PRESET)
+        self._embed_basic_metadata(audiofile, metadata, "m4a", preset=M4A_TAG_PRESET)
         if metadata["year"]:
             audiofile[M4A_TAG_PRESET["year"]] = metadata["year"]
         provider = metadata["provider"]

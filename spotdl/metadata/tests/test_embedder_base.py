@@ -62,7 +62,7 @@ class TestMethods:
 
     @pytest.mark.parametrize("fmt_method_suffix", (
         "as_mp3",
-        "as_opus",
+        "as_m4a",
         "as_flac",
     ))
     def test_embed_formats(self, fmt_method_suffix, embedderkid):

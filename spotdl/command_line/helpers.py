@@ -1,6 +1,7 @@
 from spotdl.metadata.providers import ProviderSpotify
 from spotdl.metadata.providers import ProviderYouTube
 from spotdl.metadata.embedders import EmbedderDefault
+from spotdl.encode.encoders import EncoderFFmpeg, EncoderAvconv
 from spotdl.lyrics.providers import LyricWikia
 from spotdl.lyrics.providers import Genius
 
@@ -8,6 +9,7 @@ from spotdl.track import Track
 
 import spotdl.util
 
+import os
 import urllib.request
 import threading
 
@@ -46,34 +48,57 @@ def download_track_from_metadata(metadata, arguments):
     track = Track(metadata, cache_albumart=(not arguments.no_metadata))
     # log.info(log_fmt)
 
+    stream = metadata["streams"].get(
+        quality=arguments.quality,
+        preftype=arguments.input_ext,
+    )
+    # log.info(stream)
+
+    Encoder = {
+        "ffmpeg": EncoderFFmpeg,
+        "avconv": EncoderAvconv,
+    }.get(arguments.encoder)
+
+    if Encoder is None:
+        output_extension = stream["encoding"]
+    else:
+        output_extension = arguments.output_ext
+
     filename = spotdl.util.format_string(
         arguments.file_format,
         metadata,
-        output_extension=arguments.output_ext
+        output_extension=output_extension
     )
+    # log.info(filename)
 
-    if arguments.dry_run:
-        return
-
-    if os.path.isfile(filename):
-        if arguments.overwrite == "skip":
-            to_skip = True
+    to_skip = arguments.dry_run
+    if not to_skip and os.path.isfile(filename):
+        if arguments.overwrite == "force":
+            to_skip = False
         elif arguments.overwrite == "prompt":
             to_skip = not input("overwrite? (y/N)").lower() == "y"
+        else:
+            to_skip = True
 
     if to_skip:
         return
 
-    if arguments.no_encode:
-        track.download(filename)
+    if Encoder is None:
+        track.download(stream, filename)
     else:
         track.download_while_re_encoding(
+            stream,
             filename,
-            target_encoding=arguments.output_ext
+            target_encoding=output_extension,
+            encoder=Encoder()
         )
 
     if not arguments.no_metadata:
-        track.apply_metadata(filename, encoding=arguments.output_ext)
+        try:
+            track.apply_metadata(filename, encoding=output_extension)
+        except TypeError:
+            # log.warning("Cannot write metadata to given file")
+            pass
 
 
 def download_tracks_from_file(path, arguments):
@@ -142,9 +167,9 @@ def download_tracks_from_file(path, arguments):
             # log.warning("Failed. Will retry after other songs\n")
             tracks.append(current_track)
         else:
-            # TODO: CONFIG.YML
-            #       Write track to config.write_sucessful
-            pass
+            if arguments.write_successful:
+                with open(arguments.write_successful, "a") as fout:
+                    fout.write(current_track)
         finally:
             with open(path, "w") as fout:
                 fout.writelines(tracks)
