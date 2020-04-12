@@ -76,7 +76,7 @@ class Genius(LyricBase):
         """
         Returns the best matching track's URL from a given query.
         """
-        encoded_query = query.replace(" ", "+")
+        encoded_query = urllib.request.quote(query.replace(" ", "+"))
         search_url = self.base_search_url + encoded_query
         metadata = self._fetch_search_page(search_url)
         lyric_url = metadata["response"]["sections"][0]["hits"][0]["result"]["path"]

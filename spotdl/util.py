@@ -92,6 +92,7 @@ def format_string(string, metadata, output_extension=""):
         "{track-number}" : metadata["track_number"],
         "{total-tracks}" : metadata["total_tracks"],
         "{isrc}"         : metadata["external_ids"]["isrc"],
+        # TODO: Call `str.zfill` fill on track-id
         "{track-id}"     : metadata.get("id", ""),
         "{output-ext}"   : output_extension,
     }

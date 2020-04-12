@@ -7,6 +7,7 @@ from spotdl.encode.encoders import EncoderAvconv
 
 from spotdl.lyrics.providers import LyricWikia
 from spotdl.lyrics.providers import Genius
+from spotdl.lyrics.exceptions import LyricsNotFoundError
 
 from spotdl.track import Track
 
@@ -15,12 +16,28 @@ import spotdl.util
 import os
 import urllib.request
 
+# XXX: The code here may be a bit ugly due to overly gross techniques
+# applied to squeeze out possible bits of performance.
 
-def search_metadata(track, lyrics=True, search_format="{artist} - {track-name}"):
+
+def search_lyrics(query):
+    provider = Genius()
+    try:
+        lyrics = provider.from_query(query)
+    except LyricsNotFoundError:
+        lyrics = None
+    return lyrics
+
+
+def search_metadata(track, search_format="{artist} - {track-name} lyrics"):
     youtube = ProviderYouTube()
     if spotdl.util.is_spotify(track):
         spotify = ProviderSpotify()
         spotify_metadata = spotify.from_url(track)
+        lyric_query = spotdl.util.format_string(
+            "{artist} - {track-name}",
+            spotify_metadata,
+        )
         search_query = spotdl.util.format_string(search_format, spotify_metadata)
         youtube_metadata = youtube.from_query(search_query)
         metadata = spotdl.util.merge(
@@ -29,9 +46,20 @@ def search_metadata(track, lyrics=True, search_format="{artist} - {track-name}")
         )
     elif spotdl.util.is_youtube(track):
         metadata = youtube.from_url(track)
+        lyric_query = spotdl.util.format_string(
+            "{artist} - {track-name}",
+            metadata,
+        )
     else:
         metadata = youtube.from_query(track)
+        lyric_query = track
 
+    metadata["lyrics"] = spotdl.util.ThreadWithReturnValue(
+        target=search_lyrics,
+        args=(lyric_query,)
+    )
+
+    metadata["lyrics"].start()
     return metadata
 
 
@@ -47,6 +75,8 @@ def download_track(track, arguments):
 
 
 def download_track_from_metadata(metadata, arguments):
+    # TODO: Add `-m` flag
+
     track = Track(metadata, cache_albumart=(not arguments.no_metadata))
     print(metadata["name"])
 
@@ -96,6 +126,7 @@ def download_track_from_metadata(metadata, arguments):
         )
 
     if not arguments.no_metadata:
+        track.metadata["lyrics"] = track.metadata["lyrics"].join()
         try:
             track.apply_metadata(filename, encoding=output_extension)
         except TypeError:
@@ -134,7 +165,7 @@ def download_tracks_from_file(path, arguments):
         "current_track": None,
         "next_track": spotdl.util.ThreadWithReturnValue(
             target=search_metadata,
-            args=(next_track, True, arguments.search_format)
+            args=(next_track, arguments.search_format)
         )
     }
     metadata["next_track"].start()
@@ -148,7 +179,7 @@ def download_tracks_from_file(path, arguments):
                 next_track = tracks.pop(0)
                 metadata["next_track"] = spotdl.util.ThreadWithReturnValue(
                     target=search_metadata,
-                    args=(next_track, True, arguments.search_format)
+                    args=(next_track, arguments.search_format)
                 )
                 metadata["next_track"].start()
 
