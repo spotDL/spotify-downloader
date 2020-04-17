@@ -3,32 +3,75 @@ from bs4 import BeautifulSoup
 
 import urllib.request
 import threading
+from collections.abc import Sequence
 
 from spotdl.metadata import StreamsBase
 from spotdl.metadata import ProviderBase
 from spotdl.metadata.exceptions import YouTubeMetadataNotFoundError
 
-BASE_URL = "https://www.youtube.com/results?sp=EgIQAQ%253D%253D&q={}"
+import spotdl.util
+
+BASE_SEARCH_URL = "https://www.youtube.com/results?sp=EgIQAQ%253D%253D&q={}"
 HEADERS = [('Range', 'bytes=0-'),]
+
+
+class YouTubeVideos(Sequence):
+    def __init__(self, videos):
+        self.videos = videos
+        super().__init__()
+
+    def __len__(self):
+        return len(self.videos)
+
+    def __getitem__(self, index):
+        return self.videos[index]
+
+    def bestmatch(self):
+        return self.videos[0]
+
 
 class YouTubeSearch:
     def __init__(self):
-        self.base_url = BASE_URL
+        self.base_search_url = BASE_SEARCH_URL
 
     def generate_search_url(self, query):
         quoted_query = urllib.request.quote(query)
-        return self.base_url.format(quoted_query)
+        return self.base_search_url.format(quoted_query)
 
     def _fetch_response_html(self, url):
         response = urllib.request.urlopen(url)
         soup = BeautifulSoup(response.read(), "html.parser")
         return soup
 
-    def _fetch_search_results(self, html):
-        results = html.find_all(
+    def _extract_video_details_from_result(self, html):
+        video_time = html.find("span", class_="video-time").get_text()
+        inner_html = html.find("div", class_="yt-lockup-content")
+        video_id = inner_html.find("a")["href"][-11:]
+        video_title = inner_html.find("a")["title"]
+        video_details = {
+            "url": "https://www.youtube.com/watch?v=" + video_id,
+            "title": video_title,
+            "duration": video_time,
+        }
+        return video_details
+
+    def _fetch_search_results(self, html, limit=10):
+        result_source = html.find_all(
             "div", {"class": "yt-lockup-dismissable yt-uix-tile"}
         )
-        return results
+        videos = []
+
+        for result in result_source:
+            if not self._is_video(result):
+                continue
+
+            video = self._extract_video_details_from_result(result)
+            videos.append(video)
+
+            if len(videos) >= limit:
+                break
+
+        return videos
 
     def _is_video(self, result):
         # ensure result is not a channel
@@ -47,32 +90,14 @@ class YouTubeSearch:
         video = not not_video
         return video
 
-    def _parse_video_id(self, result):
-        details = result.find("div", class_="yt-lockup-content")
-        video_id = details.find("a")["href"][-11:]
-        return video_id
-
-    def search(self, query, limit=10, tries_remaining=5):
+    def search(self, query, limit=10):
         """ Search and scrape YouTube to return a list of matching videos. """
-        # prevents an infinite loop but allows for a few retries
-        if tries_remaining == 0:
-            # log.debug("No tries left. I quit.")
-            return
-
         search_url = self.generate_search_url(query)
         # log.debug("Opening URL: {0}".format(search_url))
         html = self._fetch_response_html(search_url)
 
-        videos = []
-        for result in self._fetch_search_results(html):
-            if not self._is_video(result):
-                continue
-            if len(videos) >= limit:
-                break
-            video_id = self._parse_video_id(result)
-            videos.append("https://www.youtube.com/watch?v=" + video_id)
-
-        return videos
+        videos = self._fetch_search_results(html)
+        return YouTubeVideos(videos)
 
 
 class YouTubeStreams(StreamsBase):

@@ -22,7 +22,7 @@ class ProviderSpotify(ProviderBase):
 
     def from_query(self, query):
         tracks = self.spotify.search(query, limit=1)["tracks"]["items"]
-        if tracks is None:
+        if not tracks:
             raise SpotifyMetadataNotFoundError(
                 'Could not find any tracks matching the given search query ("{}")'.format(
                     query,

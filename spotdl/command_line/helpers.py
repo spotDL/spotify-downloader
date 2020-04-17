@@ -1,6 +1,8 @@
 from spotdl.metadata.providers import ProviderSpotify
 from spotdl.metadata.providers import ProviderYouTube
+from spotdl.metadata.providers import YouTubeSearch
 from spotdl.metadata.embedders import EmbedderDefault
+from spotdl.metadata.exceptions import SpotifyMetadataNotFoundError
 
 from spotdl.encode.encoders import EncoderFFmpeg
 from spotdl.encode.encoders import EncoderAvconv
@@ -8,6 +10,8 @@ from spotdl.encode.encoders import EncoderAvconv
 from spotdl.lyrics.providers import LyricWikia
 from spotdl.lyrics.providers import Genius
 from spotdl.lyrics.exceptions import LyricsNotFoundError
+
+from spotdl.command_line.exceptions import NoYouTubeVideoError
 
 from spotdl.track import Track
 
@@ -29,8 +33,19 @@ def search_lyrics(query):
     return lyrics
 
 
-def search_metadata(track, search_format="{artist} - {track-name} lyrics"):
+def search_metadata_on_spotify(query):
+    provider = ProviderSpotify()
+    try:
+        metadata = provider.from_query(query)
+    except SpotifyMetadataNotFoundError:
+        metadata = {}
+    return metadata
+
+
+def search_metadata(track, search_format="{artist} - {track-name} lyrics", manual=False):
     youtube = ProviderYouTube()
+    youtube_searcher = YouTubeSearch()
+
     if spotdl.util.is_spotify(track):
         spotify = ProviderSpotify()
         spotify_metadata = spotify.from_url(track)
@@ -39,20 +54,51 @@ def search_metadata(track, search_format="{artist} - {track-name} lyrics"):
             spotify_metadata,
         )
         search_query = spotdl.util.format_string(search_format, spotify_metadata)
-        youtube_metadata = youtube.from_query(search_query)
+        youtube_urls = youtube_searcher.search(search_query)
+        if not youtube_urls:
+            # raise NoYouTubeVideoError(
+            #     'No videos found for the search query: "{}"'.format(search_query)
+            # )
+            return
+        if manual:
+            pass
+        else:
+            youtube_url = youtube_urls.bestmatch()["url"]
+        youtube_metadata = youtube.from_url(youtube_url)
         metadata = spotdl.util.merge(
             youtube_metadata,
             spotify_metadata
         )
+
     elif spotdl.util.is_youtube(track):
         metadata = youtube.from_url(track)
         lyric_query = spotdl.util.format_string(
             "{artist} - {track-name}",
             metadata,
         )
+
     else:
-        metadata = youtube.from_query(track)
         lyric_query = track
+        spotify_metadata = spotdl.util.ThreadWithReturnValue(
+            target=search_metadata_on_spotify,
+            args=(track,)
+        )
+        spotify_metadata.start()
+        youtube_urls = youtube_searcher.search(track)
+        if not youtube_urls:
+        #     raise NoYouTubeVideoError(
+        #         'No videos found for the search query: "{}"'.format(track)
+        #     )
+            return
+        if manual:
+            pass
+        else:
+            youtube_url = youtube_urls.bestmatch()["url"]
+        youtube_metadata = youtube.from_url(youtube_url)
+        metadata = spotdl.util.merge(
+            youtube_metadata,
+            spotify_metadata.join()
+        )
 
     metadata["lyrics"] = spotdl.util.ThreadWithReturnValue(
         target=search_lyrics,
@@ -170,10 +216,11 @@ def download_tracks_from_file(path, arguments):
     }
     metadata["next_track"].start()
     while tracks_count > 0:
-        tracks_count -= 1
         metadata["current_track"] = metadata["next_track"].join()
         metadata["next_track"] = None
         try:
+            print(tracks_count)
+            print(tracks)
             if tracks_count > 0:
                 current_track = next_track
                 next_track = tracks.pop(0)
@@ -185,20 +232,26 @@ def download_tracks_from_file(path, arguments):
 
             log_fmt=(str(current_iteration) + ". {artist} - {track-name}")
             # log.info(log_fmt)
+            if metadata["current_track"] is None:
+                # log.warning("Something went wrong. Will retry after downloading remaining tracks")
+                print("FUCK")
+                raise TypeError("fuck.")
+            print(metadata["current_track"]["name"])
             download_track_from_metadata(
                 metadata["current_track"],
                 arguments
             )
-            current_iteration += 1
         except (urllib.request.URLError, TypeError, IOError) as e:
             # log.exception(e.args[0])
             # log.warning("Failed. Will retry after other songs\n")
             tracks.append(current_track)
         else:
+            tracks_count -= 1
             if arguments.write_successful:
                 with open(arguments.write_successful, "a") as fout:
                     fout.write(current_track)
         finally:
+            current_iteration += 1
             with open(path, "w") as fout:
                 fout.writelines(tracks)
 
