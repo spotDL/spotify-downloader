@@ -1,9 +1,12 @@
 from setuptools import setup
+import os
 
 with open("README.md", "r", encoding="utf-8") as f:
     long_description = f.read()
 
-import spotdl
+# __version__ comes into namespace from here
+with open(os.path.join("spotdl", "version.py")) as version_file:
+    exec(version_file.read())
 
 setup(
     # 'spotify-downloader' was already taken :/
@@ -22,20 +25,20 @@ setup(
         "spotdl.authorize",
         "spotdl.authorize.services",
     ],
-    version=spotdl.__version__,
+    version=__version__,
     install_requires=[
         "pathlib >= 1.0.1",
         "youtube_dl >= 2017.9.26",
-        "pafy >= 0.5.3.1",
+        "pytube3 >= 9.6.4",
         "spotipy >= 2.4.4",
         "mutagen >= 1.41.1",
         "beautifulsoup4 >= 4.6.3",
         "unicode-slugify >= 0.1.3",
-        "titlecase >= 0.10.0",
         "logzero >= 1.3.1",
         "lyricwikia >= 0.1.8",
         "PyYAML >= 3.13",
         "appdirs >= 1.4.3",
+        "tqdm >= 4.45.0"
     ],
     description="Download songs from YouTube using Spotify song URLs or playlists with albumart and meta-tags.",
     long_description=long_description,
