@@ -79,7 +79,22 @@ class Genius(LyricBase):
         encoded_query = urllib.request.quote(query.replace(" ", "+"))
         search_url = self.base_search_url + encoded_query
         metadata = self._fetch_search_page(search_url)
-        lyric_url = metadata["response"]["sections"][0]["hits"][0]["result"]["path"]
+
+        lyric_url = None
+        for section in metadata["response"]["sections"]:
+            result = section["hits"][0]["result"]
+            try:
+                lyric_url = result["path"]
+                break
+            except KeyError:
+                pass
+
+        if lyric_url is None:
+            raise LyricsNotFoundError(
+                "Could not find any valid lyric paths in the "
+                "API response for the query {}".format(query)
+            )
+
         return self.base_url + lyric_url
 
     def from_query(self, query, linesep="\n", timeout=None):
