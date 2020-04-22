@@ -20,9 +20,6 @@ import spotdl.util
 import os
 import urllib.request
 
-# XXX: The code here may be a bit ugly due to overly gross techniques
-# applied to squeeze out possible bits of performance.
-
 
 def search_lyrics(query):
     provider = Genius()
@@ -181,6 +178,46 @@ def download_track_from_metadata(metadata, arguments):
 
 
 def download_tracks_from_file(path, arguments):
+    # log.info(
+    #     "Checking and removing any duplicate tracks "
+    #     "in reading {}".format(path)
+    # )
+    with open(path, "r") as fin:
+        # Read tracks into a list and remove any duplicates
+        tracks = fin.read().splitlines()
+
+    # Remove duplicates and empty elements
+    # Also strip whitespaces from elements (if any)
+    spotdl.util.remove_duplicates(
+        tracks,
+        condition=lambda x: x,
+        operation=str.strip
+    )
+
+    # Overwrite file
+    with open(path, "w") as fout:
+        fout.writelines(tracks)
+
+    for number, track in enumerate(tracks, 1):
+        try:
+            metadata = search_metadata(next_track, arguments.search_format)
+            log_fmt=(str(number) + ". {artist} - {track-name}")
+            # log.info(log_fmt)
+            download_track_from_metadata(metadata, arguments)
+        except (urllib.request.URLError, TypeError, IOError) as e:
+            # log.exception(e.args[0])
+            # log.warning("Failed. Will retry after other songs\n")
+            tracks.append(track)
+        else:
+            if arguments.write_sucessful:
+                with open(arguments.write_successful, "a") as fout:
+                    fout.write(track)
+        finally:
+            with open(path, "w") as fout:
+                fout.writelines(tracks[number-1:])
+
+
+def download_tracks_from_file_threaded(path, arguments):
     # FIXME: Can we make this function cleaner?
 
     # log.info(
@@ -221,7 +258,7 @@ def download_tracks_from_file(path, arguments):
         try:
             print(tracks_count)
             print(tracks)
-            if tracks_count > 0:
+            if tracks_count > 1:
                 current_track = next_track
                 next_track = tracks.pop(0)
                 metadata["next_track"] = spotdl.util.ThreadWithReturnValue(
@@ -234,13 +271,12 @@ def download_tracks_from_file(path, arguments):
             # log.info(log_fmt)
             if metadata["current_track"] is None:
                 # log.warning("Something went wrong. Will retry after downloading remaining tracks")
-                print("FUCK")
-                raise TypeError("fuck.")
+                pass
             print(metadata["current_track"]["name"])
-            download_track_from_metadata(
-                metadata["current_track"],
-                arguments
-            )
+            # download_track_from_metadata(
+            #     metadata["current_track"],
+            #     arguments
+            # )
         except (urllib.request.URLError, TypeError, IOError) as e:
             # log.exception(e.args[0])
             # log.warning("Failed. Will retry after other songs\n")

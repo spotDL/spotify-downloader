@@ -220,6 +220,13 @@ def get_arguments(argv=None, to_merge=True):
         action="store_true",
     )
     parser.add_argument(
+        "--processor",
+        default=config["processor"],
+        help='list downloading strategy: - "synchronous" downloads '
+        'tracks one-by-one. - "threaded" (highly experimental!) pre-fetches '
+        'the next track\'s metadata for more efficient downloading'
+    )
+    parser.add_argument(
         "-ns",
         "--no-spaces",
         default=config["no-spaces"],
@@ -326,6 +333,13 @@ def run_errands(parser, parsed):
         #          "Use -t / --tracks instead.")
         setattr(parsed, "tracks", parsed.song)
     del parsed.song
+
+    if parsed.file_format == "-" and parsed.no_metadata is False:
+        # log.warn(
+        #     "Cannot write metadata when target file is STDOUT. Pass "
+        #     "--no-metadata explicitly to hide this warning."
+        # )
+        parsed.no_metadata = True
 
     parsed.log_level = log_leveller(parsed.log_level)
 

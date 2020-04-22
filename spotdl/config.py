@@ -22,6 +22,7 @@ DEFAULT_CONFIGURATION = {
         "dry-run": False,
         "music-videos-only": False,
         "no-spaces": False,
+        "processor": "synchronous",
         "file-format": "{artist} - {track-name}.{output-ext}",
         "search-format": "{artist} - {track-name} lyrics",
         "youtube-api-key": None,
