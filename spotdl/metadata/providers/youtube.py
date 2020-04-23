@@ -20,6 +20,9 @@ class YouTubeVideos(Sequence):
         self.videos = videos
         super().__init__()
 
+    def __repr__(self):
+        return "YouTubeVideos({})".format(self.videos)
+
     def __len__(self):
         return len(self.videos)
 

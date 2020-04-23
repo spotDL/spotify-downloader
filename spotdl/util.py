@@ -49,20 +49,23 @@ def merge(base, overrider):
     return merger
 
 
-def input_link(links):
+def prompt_user_for_selection(items):
     """ Let the user input a choice. """
     while True:
         try:
-            log.info("Choose your number:")
+            # log.info("Choose your number:")
+            print("Choose your number:")
             the_chosen_one = int(input("> "))
-            if 1 <= the_chosen_one <= len(links):
-                return links[the_chosen_one - 1]
+            if 1 <= the_chosen_one <= len(items):
+                return items[the_chosen_one - 1]
             elif the_chosen_one == 0:
                 return None
             else:
-                log.warning("Choose a valid number!")
+                # log.warning("Choose a valid number!")
+                print("Chose a valid number!")
         except ValueError:
-            log.warning("Choose a valid number!")
+            # log.warning("Choose a valid number!")
+            print("Chose a valid number!")
 
 
 def is_spotify(raw_song):

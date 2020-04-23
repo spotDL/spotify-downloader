@@ -51,17 +51,9 @@ def get_arguments(argv=None, to_merge=True):
 
     group = parser.add_mutually_exclusive_group(required=True)
 
-    # TODO: --song is deprecated. Remove in future versions.
-    #       Use --tracks instead.
     group.add_argument(
         "-s",
         "--song",
-        nargs="+",
-        help=argparse.SUPPRESS
-    )
-    group.add_argument(
-        "-t",
-        "--tracks",
         nargs="+",
         help="download track(s) by spotify link or name"
     )
@@ -113,13 +105,6 @@ def get_arguments(argv=None, to_merge=True):
         "--no-metadata",
         default=config["no-metadata"],
         help="do not embed metadata in tracks",
-        action="store_true",
-    )
-    parser.add_argument(
-        "-nf",
-        "--no-fallback-metadata",
-        default=config["no-fallback-metadata"],
-        help="do not use YouTube as fallback for metadata if track not found on Spotify",
         action="store_true",
     )
     parser.add_argument(
@@ -191,13 +176,6 @@ def get_arguments(argv=None, to_merge=True):
         # "{}".format([spotdl.util.formats[x] for x in spotdl.util.formats]),
     )
     parser.add_argument(
-        "-dm",
-        "--download-only-metadata",
-        default=config["download-only-metadata"],
-        help="download tracks only whose metadata is found",
-        action="store_true",
-    )
-    parser.add_argument(
         "-d",
         "--dry-run",
         default=config["dry-run"],
@@ -210,15 +188,17 @@ def get_arguments(argv=None, to_merge=True):
         "--music-videos-only",
         default=config["music-videos-only"],
         help="search only for music videos on Youtube (works only "
-        "when YouTube API key is set",
+        "when YouTube API key is set)",
         action="store_true",
     )
     parser.add_argument(
         "--processor",
         default=config["processor"],
+        choices={"synchronous", "threaded"},
         help='list downloading strategy: - "synchronous" downloads '
-        'tracks one-by-one. - "threaded" (highly experimental!) pre-fetches '
-        'the next track\'s metadata for more efficient downloading'
+        'tracks one-by-one. - "threaded" (highly experimental at the '
+        'moment! expect it to slash & burn) pre-fetches the next '
+        'track\'s metadata for more efficient downloading'
     )
     parser.add_argument(
         "-ns",
@@ -320,13 +300,6 @@ def run_errands(parser, parsed, config):
         # log.warn("Specified encoder () was not found. Will not encode to specified "
         #          "output format".format(parsed.encoder))
         parsed.encoder = "null"
-
-    song_parameter_passed = parsed.song is not None and parsed.tracks is None
-    if song_parameter_passed:
-        # log.warn("-s / --song is deprecated and will be removed in future versions. "
-        #          "Use -t / --tracks instead.")
-        setattr(parsed, "tracks", parsed.song)
-    del parsed.song
 
     if parsed.output_file == "-" and parsed.no_metadata is False:
         # log.warn(

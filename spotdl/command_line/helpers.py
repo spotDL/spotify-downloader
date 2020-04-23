@@ -40,7 +40,23 @@ def search_metadata_on_spotify(query):
     return metadata
 
 
+def prompt_for_youtube_search_result(videos):
+    urls = []
+    print("0. Skip downloading this track")
+    for index, video in enumerate(videos, 1):
+        video_repr = "{index}. {title} [{duration}] ({url})".format(
+            index=index,
+            title=video["title"],
+            duration=video["duration"],
+            url=video["url"]
+        )
+        print(video_repr)
+        urls.append(video["url"])
+    return spotdl.util.prompt_user_for_selection(urls)
+
+
 def search_metadata(track, search_format="{artist} - {track-name} lyrics", manual=False):
+    # TODO: Clean this function
     youtube = ProviderYouTube()
     youtube_searcher = YouTubeSearch()
 
@@ -52,16 +68,16 @@ def search_metadata(track, search_format="{artist} - {track-name} lyrics", manua
             spotify_metadata,
         )
         search_query = spotdl.metadata.format_string(search_format, spotify_metadata)
-        youtube_urls = youtube_searcher.search(search_query)
-        if not youtube_urls:
+        youtube_videos = youtube_searcher.search(search_query)
+        if not youtube_videos:
             raise NoYouTubeVideoError(
                 'No videos found for the search query: "{}"'.format(search_query)
             )
         if manual:
-            pass
+            youtube_video = prompt_for_youtube_search_result(youtube_videos)
         else:
-            youtube_url = youtube_urls.bestmatch()["url"]
-        youtube_metadata = youtube.from_url(youtube_url)
+            youtube_video = youtube_videos.bestmatch()["url"]
+        youtube_metadata = youtube.from_url(youtube_video)
         metadata = spotdl.util.merge(
             youtube_metadata,
             spotify_metadata
@@ -81,17 +97,17 @@ def search_metadata(track, search_format="{artist} - {track-name} lyrics", manua
             args=(track,)
         )
         spotify_metadata.start()
-        youtube_urls = youtube_searcher.search(track)
-        if not youtube_urls:
-        #     raise NoYouTubeVideoError(
-        #         'No videos found for the search query: "{}"'.format(track)
-        #     )
+        youtube_videos = youtube_searcher.search(track)
+        if not youtube_videos:
+            raise NoYouTubeVideoError(
+                'No videos found for the search query: "{}"'.format(track)
+            )
             return
         if manual:
-            pass
+            youtube_video = prompt_for_youtube_search_result(youtube_videos)
         else:
-            youtube_url = youtube_urls.bestmatch()["url"]
-        youtube_metadata = youtube.from_url(youtube_url)
+            youtube_video = youtube_videos.bestmatch()["url"]
+        youtube_metadata = youtube.from_url(youtube_video)
         metadata = spotdl.util.merge(
             youtube_metadata,
             spotify_metadata.join()
@@ -110,11 +126,15 @@ def download_track(track, arguments):
     track_splits = track.split(":")
     if len(track_splits) == 2:
         youtube_track, spotify_track = track_splits
-    metadata = search_metadata(track, search_format=arguments.search_format)
+    metadata = search_metadata(
+        track,
+        search_format=arguments["search_format"],
+        manual=arguments["manual"],
+    )
     log_fmt = spotdl.metadata.format_string(
-        arguments.output_file,
+        arguments["output_file"],
         metadata,
-        output_extension=arguments.output_ext,
+        output_extension=arguments["output_ext"],
     )
     # log.info(log_fmt)
     download_track_from_metadata(metadata, arguments)
@@ -122,41 +142,41 @@ def download_track(track, arguments):
 
 def download_track_from_metadata(metadata, arguments):
     # TODO: Add `-m` flag
-    track = Track(metadata, cache_albumart=(not arguments.no_metadata))
+    track = Track(metadata, cache_albumart=(not arguments["no_metadata"]))
     print(metadata["name"])
 
     stream = metadata["streams"].get(
-        quality=arguments.quality,
-        preftype=arguments.input_ext,
+        quality=arguments["quality"],
+        preftype=arguments["input_ext"],
     )
     # log.info(stream)
 
     Encoder = {
         "ffmpeg": EncoderFFmpeg,
         "avconv": EncoderAvconv,
-    }.get(arguments.encoder)
+    }.get(arguments["encoder"])
 
     if Encoder is None:
         output_extension = stream["encoding"]
     else:
-        output_extension = arguments.output_ext
+        output_extension = arguments["output_ext"]
 
     filename = spotdl.metadata.format_string(
-        arguments.output_file,
+        arguments["output_file"],
         metadata,
         output_extension=output_extension,
         sanitizer=lambda s: spotdl.util.sanitize(
-            s, spaces_to_underscores=arguments.no_spaces
+            s, spaces_to_underscores=arguments["no_spaces"]
         )
     )
     print(filename)
     # log.info(filename)
 
-    to_skip = arguments.dry_run
+    to_skip = arguments["dry_run"]
     if not to_skip and os.path.isfile(filename):
-        if arguments.overwrite == "force":
+        if arguments["overwrite"] == "force":
             to_skip = False
-        elif arguments.overwrite == "prompt":
+        elif arguments["overwrite"] == "prompt":
             to_skip = not input("overwrite? (y/N)").lower() == "y"
         else:
             to_skip = True
@@ -174,7 +194,7 @@ def download_track_from_metadata(metadata, arguments):
             encoder=Encoder()
         )
 
-    if not arguments.no_metadata:
+    if not arguments["no_metadata"]:
         track.metadata["lyrics"] = track.metadata["lyrics"].join()
         try:
             track.apply_metadata(filename, encoding=output_extension)
@@ -206,7 +226,7 @@ def download_tracks_from_file(path, arguments):
 
     for number, track in enumerate(tracks, 1):
         try:
-            metadata = search_metadata(next_track, arguments.search_format)
+            metadata = search_metadata(next_track, arguments["search_format"])
             log_fmt=(str(number) + ". {artist} - {track-name}")
             # log.info(log_fmt)
             download_track_from_metadata(metadata, arguments)
@@ -215,8 +235,8 @@ def download_tracks_from_file(path, arguments):
             # log.warning("Failed. Will retry after other songs\n")
             tracks.append(track)
         else:
-            if arguments.write_sucessful:
-                with open(arguments.write_successful, "a") as fout:
+            if arguments["write_sucessful"]:
+                with open(arguments["write_successful"], "a") as fout:
                     fout.write(track)
         finally:
             with open(path, "w") as fout:
@@ -254,7 +274,7 @@ def download_tracks_from_file_threaded(path, arguments):
         "current_track": None,
         "next_track": spotdl.util.ThreadWithReturnValue(
             target=search_metadata,
-            args=(next_track, arguments.search_format)
+            args=(next_track, arguments["search_format"])
         )
     }
     metadata["next_track"].start()
@@ -269,7 +289,7 @@ def download_tracks_from_file_threaded(path, arguments):
                 next_track = tracks.pop(0)
                 metadata["next_track"] = spotdl.util.ThreadWithReturnValue(
                     target=search_metadata,
-                    args=(next_track, arguments.search_format)
+                    args=(next_track, arguments["search_format"])
                 )
                 metadata["next_track"].start()
 
@@ -289,8 +309,8 @@ def download_tracks_from_file_threaded(path, arguments):
             tracks.append(current_track)
         else:
             tracks_count -= 1
-            if arguments.write_successful:
-                with open(arguments.write_successful, "a") as fout:
+            if arguments["write_successful"]:
+                with open(arguments["write_successful"], "a") as fout:
                     fout.write(current_track)
         finally:
             current_iteration += 1
