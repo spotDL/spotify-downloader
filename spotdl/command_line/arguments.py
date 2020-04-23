@@ -108,13 +108,6 @@ def get_arguments(argv=None, to_merge=True):
         action="store_true",
     )
     parser.add_argument(
-        "-a",
-        "--avconv",
-        default=config["avconv"],
-        help="use avconv for conversion (otherwise defaults to ffmpeg)",
-        action="store_true",
-    )
-    parser.add_argument(
         "-e",
         "--encoder",
         default=config["encoder"],
@@ -279,7 +272,7 @@ def run_errands(parser, parsed, config):
     if parsed.write_m3u and not parsed.list:
         parser.error("--write-m3u can only be used with --list")
 
-    if parsed.avconv and parsed.trim_silence:
+    if parsed.trim_silence and not "ffmpeg" in parsed.encoder:
         parser.error("--trim-silence can only be used with FFmpeg")
 
     if parsed.write_to and not (
@@ -288,12 +281,6 @@ def run_errands(parser, parsed, config):
         parser.error(
             "--write-to can only be used with --playlist, --album, --all-albums, or --username"
         )
-
-    if parsed.avconv:
-        # log.warn('-a / --avconv is deprecated and will be removed in future versions. '
-        #          'Use "-e avconv" or "--encoder avconv" instead)
-        parsed.encoder = "avconv"
-    del parsed.avconv
 
     encoder_exists = shutil.which(parsed.encoder)
     if not encoder_exists:

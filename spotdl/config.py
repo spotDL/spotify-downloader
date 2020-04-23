@@ -9,7 +9,6 @@ DEFAULT_CONFIGURATION = {
         "manual": False,
         "no-metadata": False,
         "no-fallback-metadata": False,
-        "avconv": False,
         "encoder": "ffmpeg",
         "overwrite": "prompt",
         "quality": "best",
