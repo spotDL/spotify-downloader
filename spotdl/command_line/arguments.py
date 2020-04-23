@@ -137,12 +137,6 @@ def get_arguments(argv=None, to_merge=True):
         help="use this encoder for conversion",
     )
     parser.add_argument(
-        "-f",
-        "--directory",
-        default=os.path.abspath(config["directory"]),
-        help="path to directory where downloaded tracks will be stored in",
-    )
-    parser.add_argument(
         "--overwrite",
         default=config["overwrite"],
         choices={"prompt", "force", "skip"},
@@ -175,11 +169,11 @@ def get_arguments(argv=None, to_merge=True):
         help="write tracks from Spotify playlist, album, etc. to this file",
     )
     parser.add_argument(
-        "-ff",
-        "--file-format",
-        default=config["file-format"],
-        help="file format to save the downloaded track with, each tag "
-        "is surrounded by curly braces. Possible formats: "
+        "-f",
+        "--output-file",
+        default=config["output-file"],
+        help="path where to write the downloaded track to, special tags "
+        "are to be surrounded by curly braces. Possible tags: "
         # "{}".format([spotdl.util.formats[x] for x in spotdl.util.formats]),
     )
     parser.add_argument(
@@ -192,8 +186,8 @@ def get_arguments(argv=None, to_merge=True):
         "-sf",
         "--search-format",
         default=config["search-format"],
-        help="search format to search for on YouTube, each tag "
-        "is surrounded by curly braces. Possible formats: "
+        help="search format to search for on YouTube, special tags "
+        "are to be surrounded by curly braces. Possible tags: "
         # "{}".format([spotdl.util.formats[x] for x in spotdl.util.formats]),
     )
     parser.add_argument(
@@ -289,10 +283,10 @@ def get_arguments(argv=None, to_merge=True):
     if parsed.config is not None and to_merge:
         parsed = override_config(parsed.config, parser)
 
-    return run_errands(parser, parsed)
+    return run_errands(parser, parsed, config)
 
 
-def run_errands(parser, parsed):
+def run_errands(parser, parsed, config):
     if (parsed.list
         and not mimetypes.MimeTypes().guess_type(parsed.list)[0] == "text/plain"
     ):
@@ -334,12 +328,23 @@ def run_errands(parser, parsed):
         setattr(parsed, "tracks", parsed.song)
     del parsed.song
 
-    if parsed.file_format == "-" and parsed.no_metadata is False:
+    if parsed.output_file == "-" and parsed.no_metadata is False:
         # log.warn(
         #     "Cannot write metadata when target file is STDOUT. Pass "
         #     "--no-metadata explicitly to hide this warning."
         # )
         parsed.no_metadata = True
+    elif os.path.isdir(parsed.output_file):
+        adjusted_output_file = os.path.join(
+            parsed.output_file,
+            config["output-file"]
+        )
+        # log.warn(
+        #     "Specified output file is a directory. Will write the filename as in
+        #     "default file format. Pass --output-file={} to hide this warning".format(
+        #         adjusted_output_file
+        # )
+        parsed.output_file = adjusted_output_file
 
     parsed.log_level = log_leveller(parsed.log_level)
 

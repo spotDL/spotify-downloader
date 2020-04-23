@@ -7,3 +7,5 @@ from spotdl.metadata.exceptions import YouTubeMetadataNotFoundError
 
 from spotdl.metadata.embedder_base import EmbedderBase
 
+from spotdl.metadata.formatter import format_string
+

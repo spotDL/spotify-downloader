@@ -3,6 +3,7 @@ from spotdl.metadata.providers import ProviderYouTube
 from spotdl.metadata.providers import YouTubeSearch
 from spotdl.metadata.embedders import EmbedderDefault
 from spotdl.metadata.exceptions import SpotifyMetadataNotFoundError
+import spotdl.metadata
 
 from spotdl.encode.encoders import EncoderFFmpeg
 from spotdl.encode.encoders import EncoderAvconv
@@ -46,17 +47,16 @@ def search_metadata(track, search_format="{artist} - {track-name} lyrics", manua
     if spotdl.util.is_spotify(track):
         spotify = ProviderSpotify()
         spotify_metadata = spotify.from_url(track)
-        lyric_query = spotdl.util.format_string(
+        lyric_query = spotdl.metadata.format_string(
             "{artist} - {track-name}",
             spotify_metadata,
         )
-        search_query = spotdl.util.format_string(search_format, spotify_metadata)
+        search_query = spotdl.metadata.format_string(search_format, spotify_metadata)
         youtube_urls = youtube_searcher.search(search_query)
         if not youtube_urls:
-            # raise NoYouTubeVideoError(
-            #     'No videos found for the search query: "{}"'.format(search_query)
-            # )
-            return
+            raise NoYouTubeVideoError(
+                'No videos found for the search query: "{}"'.format(search_query)
+            )
         if manual:
             pass
         else:
@@ -69,7 +69,7 @@ def search_metadata(track, search_format="{artist} - {track-name} lyrics", manua
 
     elif spotdl.util.is_youtube(track):
         metadata = youtube.from_url(track)
-        lyric_query = spotdl.util.format_string(
+        lyric_query = spotdl.metadata.format_string(
             "{artist} - {track-name}",
             metadata,
         )
@@ -107,11 +107,14 @@ def search_metadata(track, search_format="{artist} - {track-name} lyrics", manua
 
 
 def download_track(track, arguments):
+    track_splits = track.split(":")
+    if len(track_splits) == 2:
+        youtube_track, spotify_track = track_splits
     metadata = search_metadata(track, search_format=arguments.search_format)
-    log_fmt = spotdl.util.format_string(
-        arguments.file_format,
+    log_fmt = spotdl.metadata.format_string(
+        arguments.output_file,
         metadata,
-        output_extension=arguments.output_ext
+        output_extension=arguments.output_ext,
     )
     # log.info(log_fmt)
     download_track_from_metadata(metadata, arguments)
@@ -119,7 +122,6 @@ def download_track(track, arguments):
 
 def download_track_from_metadata(metadata, arguments):
     # TODO: Add `-m` flag
-
     track = Track(metadata, cache_albumart=(not arguments.no_metadata))
     print(metadata["name"])
 
@@ -139,11 +141,15 @@ def download_track_from_metadata(metadata, arguments):
     else:
         output_extension = arguments.output_ext
 
-    filename = spotdl.util.format_string(
-        arguments.file_format,
+    filename = spotdl.metadata.format_string(
+        arguments.output_file,
         metadata,
-        output_extension=output_extension
+        output_extension=output_extension,
+        sanitizer=lambda s: spotdl.util.sanitize(
+            s, spaces_to_underscores=arguments.no_spaces
+        )
     )
+    print(filename)
     # log.info(filename)
 
     to_skip = arguments.dry_run

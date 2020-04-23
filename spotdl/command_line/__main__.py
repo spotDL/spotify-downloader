@@ -8,7 +8,10 @@ def match_arguments(arguments):
         for track in arguments.tracks:
             if track == "-":
                 for line in sys.stdin:
-                    command_line.helpers.download_track(line, arguments)
+                    command_line.helpers.download_track(
+                        line,
+                        arguments
+                    )
             else:
                 command_line.helpers.download_track(track, arguments)
     elif arguments.list:

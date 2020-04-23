@@ -80,43 +80,15 @@ def is_youtube(raw_song):
     return status
 
 
-def format_string(string, metadata, output_extension=""):
-    formats = {
-        "{track-name}"   : metadata["name"],
-        "{artist}"       : metadata["artists"][0]["name"],
-        "{album}"        : metadata["album"]["name"],
-        "{album-artist}" : metadata["artists"][0]["name"],
-        "{genre}"        : metadata["genre"],
-        "{disc-number}"  : metadata["disc_number"],
-        "{duration}"     : metadata["duration"],
-        "{year}"         : metadata["year"],
-        "{original-date}": metadata["release_date"],
-        "{track-number}" : metadata["track_number"],
-        "{total-tracks}" : metadata["total_tracks"],
-        "{isrc}"         : metadata["external_ids"]["isrc"],
-        # TODO: Call `str.zfill` fill on track-id
-        "{track-id}"     : metadata.get("id", ""),
-        "{output-ext}"   : output_extension,
-    }
-
-    for key, value in formats.items():
-        string = string.replace(key, str(value))
-
-    return string
-
-
-def sanitize_title(title, ok="-_()[]{}"):
+def sanitize(string, ok="-_()[]{}", spaces_to_underscores=False):
     """ Generate filename of the song to be downloaded. """
-
-    if const.args.no_spaces:
-        title = title.replace(" ", "_")
-
-    # replace slashes with "-" to avoid folder creation errors
-    title = title.replace("/", "-").replace("\\", "-")
-
+    if spaces_to_underscores:
+        string = string.replace(" ", "_")
+    # replace slashes with "-" to avoid directory creation errors
+    string = string.replace("/", "-").replace("\\", "-")
     # slugify removes any special characters
-    title = slugify(title, ok=ok, lower=False, spaces=True)
-    return title
+    string = slugify(string, ok=ok, lower=False, spaces=True)
+    return string
 
 
 def filter_path(path):
@@ -162,7 +134,7 @@ def get_sec(time_str):
 def get_music_dir():
     home = os.path.expanduser("~")
 
-    # On Linux, the localized folder names are the actual ones.
+    # On Linux, the localized directory names are the actual ones.
     # It's a freedesktop standard though.
     if sys.platform.startswith("linux"):
         for file_item in (".config/user-dirs.dirs", "user-dirs.dirs"):
@@ -176,7 +148,7 @@ def get_music_dir():
                             )
 
     # Windows / Cygwin
-    # Queries registry for 'My Music' folder path (as this can be changed)
+    # Queries registry for 'My Music' directory path (as this can be changed)
     if "win" in sys.platform:
         try:
             key = winreg.OpenKey(
@@ -189,7 +161,7 @@ def get_music_dir():
         except (FileNotFoundError, NameError):
             pass
 
-    # On both Windows and macOS, the localized folder names you see in
+    # On both Windows and macOS, the localized directory names you see in
     # Explorer and Finder are actually in English on the file system.
     # So, defaulting to C:\Users\<user>\Music or /Users/<user>/Music
     # respectively is sufficient.

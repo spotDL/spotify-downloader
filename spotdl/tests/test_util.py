@@ -21,7 +21,7 @@ def test_default_music_directory():
 
 @pytest.fixture(scope="module")
 def directory_fixture(tmpdir_factory):
-    dir_path = os.path.join(str(tmpdir_factory.mktemp("tmpdir")), "filter_this_folder")
+    dir_path = os.path.join(str(tmpdir_factory.mktemp("tmpdir")), "filter_this_directory")
     return dir_path
 
 
