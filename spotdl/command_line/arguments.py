@@ -103,7 +103,7 @@ def get_arguments(argv=None, to_merge=True):
     parser.add_argument(
         "-nm",
         "--no-metadata",
-        default=config["no-metadata"],
+        default=config["no_metadata"],
         help="do not embed metadata in tracks",
         action="store_true",
     )
@@ -130,40 +130,40 @@ def get_arguments(argv=None, to_merge=True):
     parser.add_argument(
         "-i",
         "--input-ext",
-        default=config["input-ext"],
+        default=config["input_ext"],
         choices={"automatic", "m4a", "opus"},
         help="preferred input format",
     )
     parser.add_argument(
         "-o",
         "--output-ext",
-        default=config["output-ext"],
+        default=config["output_ext"],
         choices={"mp3", "m4a", "flac"},
         help="preferred output format",
     )
     parser.add_argument(
         "--write-to",
-        default=config["write-to"],
+        default=config["write_to"],
         help="write tracks from Spotify playlist, album, etc. to this file",
     )
     parser.add_argument(
         "-f",
         "--output-file",
-        default=config["output-file"],
+        default=config["output_file"],
         help="path where to write the downloaded track to, special tags "
         "are to be surrounded by curly braces. Possible tags: "
         # "{}".format([spotdl.util.formats[x] for x in spotdl.util.formats]),
     )
     parser.add_argument(
         "--trim-silence",
-        default=config["trim-silence"],
+        default=config["trim_silence"],
         help="remove silence from the start of the audio",
         action="store_true",
     )
     parser.add_argument(
         "-sf",
         "--search-format",
-        default=config["search-format"],
+        default=config["search_format"],
         help="search format to search for on YouTube, special tags "
         "are to be surrounded by curly braces. Possible tags: "
         # "{}".format([spotdl.util.formats[x] for x in spotdl.util.formats]),
@@ -171,7 +171,7 @@ def get_arguments(argv=None, to_merge=True):
     parser.add_argument(
         "-d",
         "--dry-run",
-        default=config["dry-run"],
+        default=config["dry_run"],
         help="show only track title and YouTube URL, and then skip "
         "to the next track (if any)",
         action="store_true",
@@ -179,7 +179,7 @@ def get_arguments(argv=None, to_merge=True):
     parser.add_argument(
         "-mo",
         "--music-videos-only",
-        default=config["music-videos-only"],
+        default=config["music_videos_only"],
         help="search only for music videos on Youtube (works only "
         "when YouTube API key is set)",
         action="store_true",
@@ -196,14 +196,14 @@ def get_arguments(argv=None, to_merge=True):
     parser.add_argument(
         "-ns",
         "--no-spaces",
-        default=config["no-spaces"],
+        default=config["no_spaces"],
         help="replace spaces with underscores in file names",
         action="store_true",
     )
     parser.add_argument(
         "-ll",
         "--log-level",
-        default=config["log-level"],
+        default=config["log_level"],
         choices=_LOG_LEVELS_STR,
         type=str.upper,
         help="set log verbosity",
@@ -211,7 +211,7 @@ def get_arguments(argv=None, to_merge=True):
     parser.add_argument(
         "-yk",
         "--youtube-api-key",
-        default=config["youtube-api-key"],
+        default=config["youtube_api_key"],
         help=argparse.SUPPRESS,
     )
     parser.add_argument(
@@ -223,19 +223,19 @@ def get_arguments(argv=None, to_merge=True):
     parser.add_argument(
         "-w",
         "--write-successful",
-        default=config["write-successful"],
+        default=config["write_successful"],
         help="path to file to write successful tracks to",
     )
     parser.add_argument(
         "-sci",
         "--spotify-client-id",
-        default=config["spotify-client-id"],
+        default=config["spotify_client_id"],
         help=argparse.SUPPRESS,
     )
     parser.add_argument(
         "-scs",
         "--spotify-client-secret",
-        default=config["spotify-client-secret"],
+        default=config["spotify_client_secret"],
         help=argparse.SUPPRESS,
     )
     parser.add_argument(
@@ -307,6 +307,9 @@ def run_errands(parser, parsed, config):
         parsed.output_file = adjusted_output_file
 
     parsed.log_level = log_leveller(parsed.log_level)
+
+    # We're done dealing with configuration file here and don't need to use it later
+    del parsed.config
 
     return parsed
 
