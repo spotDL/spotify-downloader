@@ -25,6 +25,114 @@ import os
 import urllib.request
 
 
+def set_logger(level):
+    fmt = "%(color)s%(levelname)s:%(end_color)s %(message)s"
+    formatter = logzero.LogFormatter(fmt=fmt)
+    logzero.formatter(formatter)
+    logzero.loglevel(level)
+    return logzero.logger
+
+
+def search_lyrics(query):
+    provider = Genius()
+    try:
+        lyrics = provider.from_query(query)
+    except LyricsNotFoundError:
+        lyrics = None
+    return lyrics
+
+
+def search_metadata_on_spotify(query):
+    provider = ProviderSpotify()
+    try:
+        metadata = provider.from_query(query)
+    except SpotifyMetadataNotFoundError:
+        metadata = {}
+    return metadata
+
+
+def prompt_for_youtube_search_result(videos):
+    urls = []
+    print("0. Skip downloading this track")
+    for index, video in enumerate(videos, 1):
+        video_repr = "{index}. {title} [{duration}] ({url})".format(
+            index=index,
+            title=video["title"],
+            duration=video["duration"],
+            url=video["url"]
+        )
+        print(video_repr)
+        urls.append(video["url"])
+    return spotdl.util.prompt_user_for_selection(urls)
+
+
+def search_metadata(track, search_format="{artist} - {track-name} lyrics", manual=False):
+    # TODO: Clean this function
+    youtube = ProviderYouTube()
+    youtube_searcher = YouTubeSearch()
+
+    if spotdl.util.is_spotify(track):
+        spotify = ProviderSpotify()
+        spotify_metadata = spotify.from_url(track)
+        lyric_query = spotdl.metadata.format_string(
+            "{artist} - {track-name}",
+            spotify_metadata,
+        )
+        search_query = spotdl.metadata.format_string(search_format, spotify_metadata)
+        youtube_videos = youtube_searcher.search(search_query)
+        if not youtube_videos:
+            raise NoYouTubeVideoError(
+                'No videos found for the search query: "{}"'.format(search_query)
+            )
+        if manual:
+            youtube_video = prompt_for_youtube_search_result(youtube_videos)
+        else:
+            youtube_video = youtube_videos.bestmatch()["url"]
+        youtube_metadata = youtube.from_url(youtube_video)
+        metadata = spotdl.util.merge(
+            youtube_metadata,
+            spotify_metadata
+        )
+
+    elif spotdl.util.is_youtube(track):
+        metadata = youtube.from_url(track)
+        lyric_query = spotdl.metadata.format_string(
+            "{artist} - {track-name}",
+            metadata,
+        )
+
+    else:
+        lyric_query = track
+        spotify_metadata = spotdl.util.ThreadWithReturnValue(
+            target=search_metadata_on_spotify,
+            args=(track,)
+        )
+        spotify_metadata.start()
+        youtube_videos = youtube_searcher.search(track)
+        if not youtube_videos:
+            raise NoYouTubeVideoError(
+                'No videos found for the search query: "{}"'.format(track)
+            )
+            return
+        if manual:
+            youtube_video = prompt_for_youtube_search_result(youtube_videos)
+        else:
+            youtube_video = youtube_videos.bestmatch()["url"]
+        youtube_metadata = youtube.from_url(youtube_video)
+        metadata = spotdl.util.merge(
+            youtube_metadata,
+            spotify_metadata.join()
+        )
+
+    metadata["lyrics"] = spotdl.util.ThreadWithReturnValue(
+        target=search_lyrics,
+        args=(lyric_query,)
+    )
+
+    metadata["lyrics"].start()
+    return metadata
+
+
 class Spotdl:
     def __init__(self, arguments):
         if "config" in arguments:
@@ -47,18 +155,13 @@ class Spotdl:
     def __exit__(self, type, value, traceback):
         del self
 
-    def authorize_spotify(self, client_id, client_secret):
+    def match_arguments(self):
         AuthorizeSpotify(
-            client_id=client_id,
-            client_secret=client_secret
+            client_id=self.arguments["spotify_client_id"],
+            client_secret=self.arguments["spotify_client_secret"]
         )
 
-    def match_arguments(self):
-        self.authorize_spotify(
-            self.arguments["spotify_client_id"],
-            self.arguments["spotify_client_secret"]
-        )
-        logger = self.set_logger(self.arguments["log_level"])
+        logger = set_logger(self.arguments["log_level"])
         logger.debug(self.arguments)
 
         # youtube_tools.set_api_key()
@@ -103,114 +206,11 @@ class Spotdl:
                 username=self.arguments["username"], text_file=self.arguments["write_to"]
             )
 
-    def set_logger(self, level):
-        fmt = "%(color)s%(levelname)s:%(end_color)s %(message)s"
-        formatter = logzero.LogFormatter(fmt=fmt)
-        logzero.formatter(formatter)
-        logzero.loglevel(level)
-        return logzero.logger
-
-    def search_lyrics(self, query):
-        provider = Genius()
-        try:
-            lyrics = provider.from_query(query)
-        except LyricsNotFoundError:
-            lyrics = None
-        return lyrics
-
-    def search_metadata_on_spotify(self, query):
-        provider = ProviderSpotify()
-        try:
-            metadata = provider.from_query(query)
-        except SpotifyMetadataNotFoundError:
-            metadata = {}
-        return metadata
-
-    def prompt_for_youtube_search_result(self, videos):
-        urls = []
-        print("0. Skip downloading this track")
-        for index, video in enumerate(videos, 1):
-            video_repr = "{index}. {title} [{duration}] ({url})".format(
-                index=index,
-                title=video["title"],
-                duration=video["duration"],
-                url=video["url"]
-            )
-            print(video_repr)
-            urls.append(video["url"])
-        return spotdl.util.prompt_user_for_selection(urls)
-
-    def search_metadata(self, track, search_format="{artist} - {track-name} lyrics", manual=False):
-        # TODO: Clean this function
-        youtube = ProviderYouTube()
-        youtube_searcher = YouTubeSearch()
-
-        if spotdl.util.is_spotify(track):
-            spotify = ProviderSpotify()
-            spotify_metadata = spotify.from_url(track)
-            lyric_query = spotdl.metadata.format_string(
-                "{artist} - {track-name}",
-                spotify_metadata,
-            )
-            search_query = spotdl.metadata.format_string(search_format, spotify_metadata)
-            youtube_videos = youtube_searcher.search(search_query)
-            if not youtube_videos:
-                raise NoYouTubeVideoError(
-                    'No videos found for the search query: "{}"'.format(search_query)
-                )
-            if manual:
-                youtube_video = prompt_for_youtube_search_result(youtube_videos)
-            else:
-                youtube_video = youtube_videos.bestmatch()["url"]
-            youtube_metadata = youtube.from_url(youtube_video)
-            metadata = spotdl.util.merge(
-                youtube_metadata,
-                spotify_metadata
-            )
-
-        elif spotdl.util.is_youtube(track):
-            metadata = youtube.from_url(track)
-            lyric_query = spotdl.metadata.format_string(
-                "{artist} - {track-name}",
-                metadata,
-            )
-
-        else:
-            lyric_query = track
-            spotify_metadata = spotdl.util.ThreadWithReturnValue(
-                target=self.search_metadata_on_spotify,
-                args=(track,)
-            )
-            spotify_metadata.start()
-            youtube_videos = youtube_searcher.search(track)
-            if not youtube_videos:
-                raise NoYouTubeVideoError(
-                    'No videos found for the search query: "{}"'.format(track)
-                )
-                return
-            if manual:
-                youtube_video = prompt_for_youtube_search_result(youtube_videos)
-            else:
-                youtube_video = youtube_videos.bestmatch()["url"]
-            youtube_metadata = youtube.from_url(youtube_video)
-            metadata = spotdl.util.merge(
-                youtube_metadata,
-                spotify_metadata.join()
-            )
-
-        metadata["lyrics"] = spotdl.util.ThreadWithReturnValue(
-            target=self.search_lyrics,
-            args=(lyric_query,)
-        )
-
-        metadata["lyrics"].start()
-        return metadata
-
     def download_track(self, track):
         track_splits = track.split(":")
         if len(track_splits) == 2:
             youtube_track, spotify_track = track_splits
-        metadata = self.search_metadata(
+        metadata = search_metadata(
             track,
             search_format=self.arguments["search_format"],
             manual=self.arguments["manual"],
@@ -308,7 +308,7 @@ class Spotdl:
 
         for number, track in enumerate(tracks, 1):
             try:
-                metadata = self.search_metadata(track, self.arguments["search_format"])
+                metadata = search_metadata(track, self.arguments["search_format"])
                 log_fmt=(str(number) + ". {artist} - {track-name}")
                 # log.info(log_fmt)
                 self.download_track_from_metadata(metadata)
@@ -357,7 +357,7 @@ class Spotdl:
         metadata = {
             "current_track": None,
             "next_track": spotdl.util.ThreadWithReturnValue(
-                target=self.search_metadata,
+                target=search_metadata,
                 args=(next_track, self.arguments["search_format"])
             )
         }
@@ -372,7 +372,7 @@ class Spotdl:
                     current_track = next_track
                     next_track = tracks.pop(0)
                     metadata["next_track"] = spotdl.util.ThreadWithReturnValue(
-                        target=self.search_metadata,
+                        target=search_metadata,
                         args=(next_track, self.arguments["search_format"])
                     )
                     metadata["next_track"].start()
