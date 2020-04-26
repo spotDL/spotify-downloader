@@ -18,6 +18,7 @@ from spotdl.track import Track
 
 import spotdl.util
 
+from logzero import logger
 import os
 import urllib.request
 

@@ -1,6 +1,7 @@
 from spotdl.authorize.services import AuthorizeSpotify
 from spotdl import command_line
 
+import logzero
 import sys
 
 def match_arguments(arguments):
@@ -47,8 +48,18 @@ def match_arguments(arguments):
         )
 
 
+def set_logger(level):
+    fmt = "%(color)s%(levelname)s:%(end_color)s %(message)s"
+    formatter = logzero.LogFormatter(fmt=fmt)
+    logzero.formatter(formatter)
+    logzero.loglevel(level)
+    return logzero.logger
+
+
 def main():
     arguments = command_line.get_arguments()
+    logger = set_logger(arguments.log_level)
+    logger.debug(arguments.__dict__)
 
     AuthorizeSpotify(
         client_id=arguments.spotify_client_id,
@@ -56,12 +67,10 @@ def main():
     )
     # youtube_tools.set_api_key()
 
-    # logzero.setup_default_logger(formatter=const._formatter, level=const.args.log_level)
-
     try:
         match_arguments(arguments.__dict__)
     except KeyboardInterrupt as e:
-        # log.exception(e)
+        logger.exception(e)
         sys.exit(2)
 
 

@@ -6,9 +6,21 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [2.0.0] - <add-date-here>
+### Migrating from v1.2.6 to v2.0.0
+
+### Fixed
+
+### Added
+
+### Changed
+
+### Removed
+- Command-line options 
+
 ## [1.2.6] (Hotfix Release) - 2020-03-02
 ### Fixed
-Embed release date metadata only when available (follow up of #672) ([@ritiek](https://github.com/ritiek)) (#674)
+- Embed release date metadata only when available (follow up of #672) ([@ritiek](https://github.com/ritiek)) (#674)
 
 ## [1.2.5] - 2020-03-02
 ### Fixed
