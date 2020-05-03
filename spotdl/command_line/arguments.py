@@ -1,4 +1,3 @@
-from logzero import logger as log
 import appdirs
 
 import logging
@@ -284,26 +283,26 @@ def run_errands(parser, parsed, config):
 
     encoder_exists = shutil.which(parsed.encoder)
     if not encoder_exists:
-        # log.warn("Specified encoder () was not found. Will not encode to specified "
-        #          "output format".format(parsed.encoder))
+        logger.warn("Specified encoder () was not found. Will not encode to specified "
+                 "output format".format(parsed.encoder))
         parsed.encoder = "null"
 
     if parsed.output_file == "-" and parsed.no_metadata is False:
-        # log.warn(
-        #     "Cannot write metadata when target file is STDOUT. Pass "
-        #     "--no-metadata explicitly to hide this warning."
-        # )
+        logger.warn(
+            "Cannot write metadata when target file is STDOUT. Pass "
+            "--no-metadata explicitly to hide this warning."
+        )
         parsed.no_metadata = True
     elif os.path.isdir(parsed.output_file):
         adjusted_output_file = os.path.join(
             parsed.output_file,
             config["output-file"]
         )
-        # log.warn(
-        #     "Specified output file is a directory. Will write the filename as in
-        #     "default file format. Pass --output-file={} to hide this warning".format(
-        #         adjusted_output_file
-        # )
+        logger.warn(
+            "Specified output file is a directory. Will write the filename as in "
+            "default file format. Pass --output-file={} to hide this warning".format(
+                adjusted_output_file
+        ))
         parsed.output_file = adjusted_output_file
 
     parsed.log_level = log_leveller(parsed.log_level)
@@ -311,5 +310,5 @@ def run_errands(parser, parsed, config):
     # We're done dealing with configuration file here and don't need to use it later
     del parsed.config
 
-    return parsed
+    return parsed.__dict__
 

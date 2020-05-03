@@ -1,6 +1,8 @@
 import subprocess
 import os
-from logzero import logger as log
+# from logzero import logger as log
+import logging
+logger = logging.getLogger(__name__)
 
 from spotdl.encode import EncoderBase
 from spotdl.encode.exceptions import EncoderNotFoundError

@@ -1,10 +1,11 @@
-from logzero import logger as log
 import os
 import sys
 import math
 import urllib.request
-
 import threading
+
+import logging
+logger = logging.getLogger(__name__)
 
 
 try:
@@ -15,8 +16,8 @@ except ImportError:
 try:
     from slugify import SLUG_OK, slugify
 except ImportError:
-    log.error("Oops! `unicode-slugify` was not found.")
-    log.info("Please remove any other slugify library and install `unicode-slugify`")
+    logger.error("Oops! `unicode-slugify` was not found.")
+    logger.info("Please remove any other slugify library and install `unicode-slugify`")
     sys.exit(5)
 
 
@@ -53,19 +54,16 @@ def prompt_user_for_selection(items):
     """ Let the user input a choice. """
     while True:
         try:
-            # log.info("Choose your number:")
-            print("Choose your number:")
+            logger.info("Choose your number:")
             the_chosen_one = int(input("> "))
             if 1 <= the_chosen_one <= len(items):
                 return items[the_chosen_one - 1]
             elif the_chosen_one == 0:
                 return None
             else:
-                # log.warning("Choose a valid number!")
-                print("Chose a valid number!")
+                logger.warning("Choose a valid number!")
         except ValueError:
-            # log.warning("Choose a valid number!")
-            print("Chose a valid number!")
+            logger.warning("Choose a valid number!")
 
 
 def is_spotify(raw_song):

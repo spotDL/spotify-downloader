@@ -73,5 +73,6 @@ setup(
         "Topic :: Multimedia :: Sound/Audio",
         "Topic :: Utilities",
     ],
-    entry_points={"console_scripts": ["spotdl = spotdl.command_line.__main__:main"]},
+    # entry_points={"console_scripts": ["spotdl = spotdl.command_line.__main__:main"]},
+    entry_points={"console_scripts": ["spotdl = spotdl:main"]},
 )

@@ -11,6 +11,9 @@ from spotdl.metadata.exceptions import YouTubeMetadataNotFoundError
 
 import spotdl.util
 
+import logging
+logger = logging.getLogger(__name__)
+
 BASE_SEARCH_URL = "https://www.youtube.com/results?sp=EgIQAQ%253D%253D&q={}"
 HEADERS = [('Range', 'bytes=0-'),]
 
@@ -96,7 +99,7 @@ class YouTubeSearch:
     def search(self, query, limit=10):
         """ Search and scrape YouTube to return a list of matching videos. """
         search_url = self.generate_search_url(query)
-        # log.debug("Opening URL: {0}".format(search_url))
+        logger.debug("Opening URL: {0}".format(search_url))
         html = self._fetch_response_html(search_url)
 
         videos = self._fetch_search_results(html)

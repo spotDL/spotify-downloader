@@ -5,6 +5,9 @@
 
 from spotdl.authorize.services import AuthorizeSpotify
 
+import logging
+logger = logging.getLogger(__name__)
+
 class SpotifyHelpers:
     def __init__(self, spotify=None):
         if spotify is None:
@@ -28,7 +31,7 @@ class SpotifyHelpers:
                 # in rare cases, playlists may not be found, so playlists['next']
                 # is None. Skip these. Also see Issue #91.
                 if playlist["name"] is not None:
-                    # log.info(
+                    logger.info(
                     #     u"{0:>5}. {1:<30}  ({2} tracks)".format(
                     #         check, playlist["name"], playlist["tracks"]["total"]
                     #     )
@@ -57,7 +60,7 @@ class SpotifyHelpers:
             )
         except spotipy.client.SpotifyException:
             # log.error("Unable to find playlist")
-            # log.info("Make sure the playlist is set to publicly visible and then try again")
+            logger.info("Make sure the playlist is set to publicly visible and then try again")
             sys.exit(11)
 
         return results
@@ -125,7 +128,7 @@ class SpotifyHelpers:
             write_album(album_base_url + album["id"], text_file=text_file)
 
     def write_tracks(self, tracks, text_file):
-        # log.info(u"Writing {0} tracks to {1}".format(tracks["total"], text_file))
+        logger.info(u"Writing {0} tracks to {1}".format(tracks["total"], text_file))
         track_urls = []
         with open(text_file, "a") as file_out:
             while True:

@@ -3,6 +3,8 @@ import yaml
 import os
 
 import spotdl.util
+import logging
+logger = logging.getLogger(__name__)
 
 DEFAULT_CONFIGURATION = {
     "spotify-downloader": {
@@ -56,17 +58,17 @@ def get_config(config_file):
         config = DEFAULT_CONFIGURATION
         dump_config(config_file, config=DEFAULT_CONFIGURATION)
 
-        # log.info("Writing default configuration to {0}:".format(config_file))
+        logger.info("Writing default configuration to {0}:".format(config_file))
 
-        # for line in yaml.dump(
-        #     DEFAULT_CONFIGURATION["spotify-downloader"], default_flow_style=False
-        # ).split("\n"):
-        #     if line.strip():
-        #         log.info(line.strip())
-        # log.info(
-        #     "Please note that command line arguments have higher priority "
-        #     "than their equivalents in the configuration file"
-        # )
+        for line in yaml.dump(
+            DEFAULT_CONFIGURATION["spotify-downloader"], default_flow_style=False
+        ).split("\n"):
+            if line.strip():
+                log.info(line.strip())
+        logger.info(
+            "Please note that command line arguments have higher priority "
+            "than their equivalents in the configuration file"
+        )
 
     return config["spotify-downloader"]
 
