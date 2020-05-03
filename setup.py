@@ -34,7 +34,7 @@ setup(
         "mutagen >= 1.41.1",
         "beautifulsoup4 >= 4.6.3",
         "unicode-slugify >= 0.1.3",
-        "logzero >= 1.3.1",
+        "coloredlogs >= 14.0",
         "lyricwikia >= 0.1.8",
         "PyYAML >= 3.13",
         "appdirs >= 1.4.3",

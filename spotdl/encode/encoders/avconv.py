@@ -1,6 +1,5 @@
 import subprocess
 import os
-# from logzero import logger as log
 import logging
 logger = logging.getLogger(__name__)
 
@@ -11,8 +10,10 @@ from spotdl.encode.exceptions import AvconvNotFoundError
 
 class EncoderAvconv(EncoderBase):
     def __init__(self, encoder_path="avconv"):
-        print("Using EncoderAvconv is deprecated and will be removed",
-              "in future versions. Use EncoderFFmpeg instead.")
+        logger.warn(
+            "Using EncoderAvconv is deprecated and will be removed",
+            "in future versions. Use EncoderFFmpeg instead."
+        )
         encoder_path = encoder_path
         _loglevel = "-loglevel 0"
         _additional_arguments = ["-ab", "192k"]

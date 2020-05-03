@@ -1,19 +1,23 @@
 import logging
-for module in ("urllib3", "spotipy", "pytube",):
+import coloredlogs
+
+import sys
+
+# hardcode loglevel for dependencies so that they do not spew generic
+# log messages along with spotdl.
+for module in ("urllib3", "spotipy", "pytube"):
     logging.getLogger(module).setLevel(logging.CRITICAL)
 
-import coloredlogs
 coloredlogs.DEFAULT_FIELD_STYLES = {
     "levelname": {"bold": True, "color": "yellow"},
     "name": {"color": "blue"},
     "lineno": {"color": "magenta"},
 }
 
-import sys
 
 def set_logger(level):
     if level == logging.DEBUG:
-        fmt = "%(levelname)s:%(name)s:%(lineno)d:\n%(message)s"
+        fmt = "%(levelname)s:%(name)s:%(lineno)d:\n%(message)s\n"
     else:
         fmt = "%(levelname)s: %(message)s"
     logging.basicConfig(format=fmt, level=level)
@@ -25,12 +29,14 @@ def set_logger(level):
 def main():
     from spotdl.command_line.arguments import get_arguments
     arguments = get_arguments()
-    logger = set_logger(arguments["log_level"])
+    logger = set_logger(arguments.parsed.log_level)
+    arguments = arguments.run_errands()
     from spotdl.command_line.lib import Spotdl
     spotdl = Spotdl(arguments)
     try:
         spotdl.match_arguments()
     except KeyboardInterrupt as e:
+        print("", file=sys.stderr)
         logger.exception(e)
         sys.exit(2)
 

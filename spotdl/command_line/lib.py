@@ -20,6 +20,7 @@ import spotdl.config
 
 from spotdl.command_line.exceptions import NoYouTubeVideoError
 
+import sys
 import os
 import urllib.request
 
@@ -45,18 +46,21 @@ def search_metadata_on_spotify(query):
 
 
 def prompt_for_youtube_search_result(videos):
-    urls = []
-    print("0. Skip downloading this track")
+    print("0. Skip downloading this track", file=sys.stderr)
     for index, video in enumerate(videos, 1):
-        video_repr = "{index}. {title} [{duration}] ({url})".format(
+        video_repr = "{index}. {title} ({url}) [{duration}]".format(
             index=index,
             title=video["title"],
+            url=video["url"],
             duration=video["duration"],
-            url=video["url"]
         )
-        print(video_repr)
-        urls.append(video["url"])
-    return spotdl.util.prompt_user_for_selection(urls)
+        print(video_repr, file=sys.stderr)
+
+    selection = spotdl.util.prompt_user_for_selection(range(1, len(videos)+1))
+
+    if selection is None:
+        return None
+    return videos[selection-1]
 
 
 def search_metadata(track, search_format="{artist} - {track-name} lyrics", manual=False):
@@ -80,12 +84,15 @@ def search_metadata(track, search_format="{artist} - {track-name} lyrics", manua
         if manual:
             youtube_video = prompt_for_youtube_search_result(youtube_videos)
         else:
-            youtube_video = youtube_videos.bestmatch()["url"]
-        youtube_metadata = youtube.from_url(youtube_video)
-        metadata = spotdl.util.merge(
-            youtube_metadata,
-            spotify_metadata
-        )
+            youtube_video = youtube_videos.bestmatch()
+        if youtube_video is None:
+            metadata = spotify_metadata
+        else:
+            youtube_metadata = youtube.from_url(youtube_video["url"])
+            metadata = spotdl.util.merge(
+                youtube_metadata,
+                spotify_metadata
+            )
 
     elif spotdl.util.is_youtube(track):
         metadata = youtube.from_url(track)
@@ -106,15 +113,26 @@ def search_metadata(track, search_format="{artist} - {track-name} lyrics", manua
             raise NoYouTubeVideoError(
                 'No videos found for the search query: "{}"'.format(track)
             )
-            return
         if manual:
             youtube_video = prompt_for_youtube_search_result(youtube_videos)
-        else: youtube_video = youtube_videos.bestmatch()["url"]
-        youtube_metadata = youtube.from_url(youtube_video)
-        metadata = spotdl.util.merge(
-            youtube_metadata,
-            spotify_metadata.join()
-        )
+            if youtube_video is None:
+                return
+        else:
+            youtube_video = youtube_videos.bestmatch()
+        if youtube_video is None:
+            metadata = spotify_metadata
+        else:
+            youtube_metadata = youtube.from_url(youtube_video["url"])
+            metadata = spotdl.util.merge(
+                youtube_metadata,
+                spotify_metadata.join()
+            )
+
+    logger.debug("Matched with: {title} ({url}) [{duration}]".format(
+        title=youtube_video["title"],
+        url=youtube_video["url"],
+        duration=youtube_video["duration"]
+    ))
 
     metadata["lyrics"] = spotdl.util.ThreadWithReturnValue(
         target=search_lyrics,
@@ -152,7 +170,7 @@ class Spotdl:
             client_id=self.arguments["spotify_client_id"],
             client_secret=self.arguments["spotify_client_secret"]
         )
-        logger.debug(self.arguments)
+        logger.debug("Received arguments: {}".format(self.arguments))
 
         # youtube_tools.set_api_key()
         if self.arguments["song"]:
@@ -205,24 +223,17 @@ class Spotdl:
             search_format=self.arguments["search_format"],
             manual=self.arguments["manual"],
         )
-        log_fmt = spotdl.metadata.format_string(
-            self.arguments["output_file"],
-            metadata,
-            output_extension=self.arguments["output_ext"],
-        )
-        logger.info(log_fmt)
-        self.download_track_from_metadata(metadata)
+        if "streams" in metadata:
+            self.download_track_from_metadata(metadata)
 
     def download_track_from_metadata(self, metadata):
         # TODO: Add `-m` flag
         track = Track(metadata, cache_albumart=(not self.arguments["no_metadata"]))
-        print(metadata["name"])
-
         stream = metadata["streams"].get(
             quality=self.arguments["quality"],
             preftype=self.arguments["input_ext"],
         )
-        logger.info(stream)
+        logger.debug("Stream information: {}".format(stream))
 
         Encoder = {
             "ffmpeg": EncoderFFmpeg,
@@ -242,16 +253,18 @@ class Spotdl:
                 s, spaces_to_underscores=self.arguments["no_spaces"]
             )
         )
-        print(filename)
-        logger.info(filename)
+        logger.info('Downloading to "{filename}"'.format(filename=filename))
 
         to_skip = self.arguments["dry_run"]
         if not to_skip and os.path.isfile(filename):
             if self.arguments["overwrite"] == "force":
                 to_skip = False
+                logger.info("A file with target filename already exists. Forcing overwrite.")
             elif self.arguments["overwrite"] == "prompt":
-                to_skip = not input("overwrite? (y/N)").lower() == "y"
+                overwrite_msg = "A file with target filename already exists. Overwrite? (y/N): "
+                to_skip = not input(overwrite_msg).lower() == "y"
             else:
+                logger.info("A file with target filename already exists. Skipping download.")
                 to_skip = True
 
         if to_skip:
@@ -270,14 +283,14 @@ class Spotdl:
         if not self.arguments["no_metadata"]:
             track.metadata["lyrics"] = track.metadata["lyrics"].join()
             try:
+                logger.info("Applying metadata")
                 track.apply_metadata(filename, encoding=output_extension)
             except TypeError:
-                logger.warning("Cannot write metadata to given file")
-                pass
+                logger.warning("Cannot apply metadata on provided output format.")
 
     def download_tracks_from_file(self, path):
         logger.info(
-            "Checking and removing any duplicate tracks in {}".format(path)
+            "Checking and removing any duplicate tracks in {}.".format(path)
         )
         with open(path, "r") as fin:
             # Read tracks into a list and remove any duplicates
@@ -298,8 +311,8 @@ class Spotdl:
         for number, track in enumerate(tracks, 1):
             try:
                 metadata = search_metadata(track, self.arguments["search_format"])
-                log_fmt=(str(number) + ". {artist} - {track-name}")
-                logger.info(log_fmt)
+                log_track_query = str(number) + ". {artist} - {track-name}"
+                logger.info(log_track_query)
                 self.download_track_from_metadata(metadata)
             except (urllib.request.URLError, TypeError, IOError) as e:
                 logger.exception(e.args[0])
@@ -320,7 +333,7 @@ class Spotdl:
         # FIXME: Can we make this function cleaner?
 
         logger.info(
-            "Checking and removing any duplicate tracks in {}".format(path)
+            "Checking and removing any duplicate tracks in {}.".format(path)
         )
         with open(path, "r") as fin:
             # Read tracks into a list and remove any duplicates
@@ -354,8 +367,8 @@ class Spotdl:
             metadata["current_track"] = metadata["next_track"].join()
             metadata["next_track"] = None
             try:
-                print(tracks_count)
-                print(tracks)
+                print(tracks_count, file=sys.stderr)
+                print(tracks, file=sys.stderr)
                 if tracks_count > 1:
                     current_track = next_track
                     next_track = tracks.pop(0)
@@ -365,12 +378,12 @@ class Spotdl:
                     )
                     metadata["next_track"].start()
 
-                log_fmt=(str(current_iteration) + ". {artist} - {track-name}")
-                logger.info(log_fmt)
+                log_track_query = str(current_iteration) + ". {artist} - {track-name}"
+                logger.info(log_track_query)
                 if metadata["current_track"] is None:
-                    logger.warning("Something went wrong. Will retry after downloading remaining tracks")
+                    logger.warning("Something went wrong. Will retry after downloading remaining tracks.")
                     pass
-                print(metadata["current_track"]["name"])
+                print(metadata["current_track"]["name"], file=sys.stderr)
                 # self.download_track_from_metadata(metadata["current_track"])
             except (urllib.request.URLError, TypeError, IOError) as e:
                 logger.exception(e.args[0])

@@ -99,7 +99,7 @@ class YouTubeSearch:
     def search(self, query, limit=10):
         """ Search and scrape YouTube to return a list of matching videos. """
         search_url = self.generate_search_url(query)
-        logger.debug("Opening URL: {0}".format(search_url))
+        logger.debug("Fetching YouTube results for search URL: {0}".format(search_url))
         html = self._fetch_response_html(search_url)
 
         videos = self._fetch_search_results(html)

@@ -1,6 +1,5 @@
 import appdirs
 
-import logging
 import argparse
 import mimetypes
 import os
@@ -10,8 +9,12 @@ import shutil
 import spotdl.util
 import spotdl.config
 
+from collections.abc import Sequence
+import logging
+logger = logging.getLogger(__name__)
 
 _LOG_LEVELS_STR = ("INFO", "WARNING", "ERROR", "DEBUG")
+
 
 def log_leveller(log_level_str):
     logging_levels = [logging.INFO, logging.WARNING, logging.ERROR, logging.DEBUG]
@@ -31,19 +34,18 @@ def override_config(config_file, parser, argv=None):
     return parser.parse_args(argv)
 
 
-def get_arguments(argv=None, to_merge=True):
+def get_arguments(argv=None, base_config_file=spotdl.config.default_config_file):
     parser = argparse.ArgumentParser(
         description="Download and convert tracks from Spotify, Youtube etc.",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
 
-    config_file = spotdl.config.default_config_file
-    if to_merge:
-        config_dir = os.path.dirname(spotdl.config.default_config_file)
-        os.makedirs(os.path.dirname(spotdl.config.default_config_file), exist_ok=True)
+    if base_config_file:
+        config_dir = os.path.dirname(base_config_file)
+        os.makedirs(os.path.dirname(base_config_file), exist_ok=True)
         config = spotdl.util.merge(
             spotdl.config.DEFAULT_CONFIGURATION["spotify-downloader"],
-            spotdl.config.get_config(config_file)
+            spotdl.config.get_config(base_config_file)
         )
     else:
         config = spotdl.config.DEFAULT_CONFIGURATION["spotify-downloader"]
@@ -240,7 +242,7 @@ def get_arguments(argv=None, to_merge=True):
     parser.add_argument(
         "-c",
         "--config",
-        default=config_file,
+        default=base_config_file,
         help="path to custom config.yml file"
     )
     parser.add_argument(
@@ -252,63 +254,70 @@ def get_arguments(argv=None, to_merge=True):
 
     parsed = parser.parse_args(argv)
 
-    if parsed.config is not None and to_merge:
+    if base_config_file and parsed.config is not None:
         parsed = override_config(parsed.config, parser)
 
-    return run_errands(parser, parsed, config)
-
-
-def run_errands(parser, parsed, config):
-    if (parsed.list
-        and not mimetypes.MimeTypes().guess_type(parsed.list)[0] == "text/plain"
-    ):
-        parser.error(
-            "{0} is not of a valid argument to --list, argument must be plain text file".format(
-                parsed.list
-            )
-        )
-
-    if parsed.write_m3u and not parsed.list:
-        parser.error("--write-m3u can only be used with --list")
-
-    if parsed.trim_silence and not "ffmpeg" in parsed.encoder:
-        parser.error("--trim-silence can only be used with FFmpeg")
-
-    if parsed.write_to and not (
-        parsed.playlist or parsed.album or parsed.all_albums or parsed.username
-    ):
-        parser.error(
-            "--write-to can only be used with --playlist, --album, --all-albums, or --username"
-        )
-
-    encoder_exists = shutil.which(parsed.encoder)
-    if not encoder_exists:
-        logger.warn("Specified encoder () was not found. Will not encode to specified "
-                 "output format".format(parsed.encoder))
-        parsed.encoder = "null"
-
-    if parsed.output_file == "-" and parsed.no_metadata is False:
-        logger.warn(
-            "Cannot write metadata when target file is STDOUT. Pass "
-            "--no-metadata explicitly to hide this warning."
-        )
-        parsed.no_metadata = True
-    elif os.path.isdir(parsed.output_file):
-        adjusted_output_file = os.path.join(
-            parsed.output_file,
-            config["output-file"]
-        )
-        logger.warn(
-            "Specified output file is a directory. Will write the filename as in "
-            "default file format. Pass --output-file={} to hide this warning".format(
-                adjusted_output_file
-        ))
-        parsed.output_file = adjusted_output_file
-
     parsed.log_level = log_leveller(parsed.log_level)
+    return Arguments(parser, parsed)
 
-    # We're done dealing with configuration file here and don't need to use it later
-    del parsed.config
 
-    return parsed.__dict__
+class Arguments:
+    def __init__(self, parser, parsed):
+        self.parser = parser
+        self.parsed = parsed
+
+    def run_errands(self):
+        if (self.parsed.list
+            and not mimetypes.MimeTypes().guess_type(self.parsed.list)[0] == "text/plain"
+        ):
+            self.parser.error(
+                "{0} is not of a valid argument to --list, argument must be plain text file.".format(
+                    self.parsed.list
+                )
+            )
+
+        if self.parsed.write_m3u and not self.parsed.list:
+            self.parser.error("--write-m3u can only be used with --list")
+
+        if self.parsed.trim_silence and not "ffmpeg" in self.parsed.encoder:
+            self.parser.error("--trim-silence can only be used with FFmpeg")
+
+        if self.parsed.write_to and not (
+            self.parsed.playlist or self.parsed.album or self.parsed.all_albums or self.parsed.username
+        ):
+            self.parser.error(
+                "--write-to can only be used with --playlist, --album, --all-albums, or --username"
+            )
+
+        encoder_exists = shutil.which(self.parsed.encoder)
+        if not self.parsed.encoder == "null" and not encoder_exists:
+            logger.warn(
+                'Specified encoder "{}" was not found in PATH. Will not encode to specified '
+                'output format.'.format(self.parsed.encoder))
+            self.parsed.encoder = "null"
+
+        if self.parsed.output_file == "-" and self.parsed.no_metadata is False:
+            logger.warn(
+                "Cannot write metadata when target file is STDOUT. Pass "
+                "--no-metadata explicitly to hide this warning."
+            )
+            self.parsed.no_metadata = True
+        elif os.path.isdir(self.parsed.output_file):
+            adjusted_output_file = os.path.join(
+                self.parsed.output_file,
+                self.parser.get_default("output_file")
+            )
+            logger.warn(
+                "Given output file is a directory. Will download tracks in this directory with "
+                "their filename as per the default file format. Pass '--output-file=\"{}\"' to hide this "
+                "warning.".format(
+                    adjusted_output_file
+                )
+            )
+            self.parsed.output_file = adjusted_output_file
+
+        # We're done dealing with configuration file here and don't need to use it later
+        del self.parsed.config
+
+        return self.parsed.__dict__
 
