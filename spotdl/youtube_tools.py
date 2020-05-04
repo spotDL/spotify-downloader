@@ -4,6 +4,7 @@ import pafy
 
 from slugify import slugify
 from logzero import logger as log
+from re import sub
 import os
 
 from spotdl import spotify_tools
@@ -37,6 +38,7 @@ def set_api_key():
 def go_pafy(raw_song, meta_tags=None):
     """ Parse track from YouTube. """
     if internals.is_youtube(raw_song):
+        raw_song = sub("music.youtube", "www.youtube", raw_song)
         track_info = pafy.new(raw_song)
     else:
         track_url = generate_youtube_url(raw_song, meta_tags)
