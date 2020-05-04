@@ -52,7 +52,7 @@ def merge(base, overrider):
 
 def prompt_user_for_selection(items):
     """ Let the user input a choice. """
-    logger.info("Choose your number:")
+    logger.info("Enter a number:")
     while True:
         try:
             the_chosen_one = int(input("> "))
