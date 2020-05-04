@@ -1,13 +1,16 @@
 import subprocess
 import os
-# from logzero import logger as log
-import logging
-logger = logging.getLogger(__name__)
 
 from spotdl.encode import EncoderBase
 from spotdl.encode.exceptions import EncoderNotFoundError
 from spotdl.encode.exceptions import FFmpegNotFoundError
 
+import logging
+logger = logging.getLogger(__name__)
+
+
+# Key: from format
+# Subkey: to format
 RULES = {
     "m4a": {
         "mp3": "-codec:v copy -codec:a libmp3lame -ar 48000",
@@ -84,6 +87,9 @@ class EncoderFFmpeg(EncoderBase):
             target_path,
             target_encoding=target_encoding
         )
+        logger.debug("Calling FFmpeg with:\n{command}".format(
+            command=encode_command,
+        ))
         process = subprocess.Popen(encode_command)
         process.wait()
         encode_successful = process.returncode == 0
@@ -98,6 +104,9 @@ class EncoderFFmpeg(EncoderBase):
             input_encoding=input_encoding,
             target_encoding=target_encoding,
         )
+        logger.debug("Calling FFmpeg with:\n{command}".format(
+            command=encode_command,
+        ))
         process = subprocess.Popen(encode_command, stdin=subprocess.PIPE)
         return process
 

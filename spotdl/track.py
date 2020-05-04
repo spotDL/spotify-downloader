@@ -8,7 +8,7 @@ from spotdl.metadata.embedders import EmbedderDefault
 
 import spotdl.util
 
-CHUNK_SIZE= 16 * 1024
+CHUNK_SIZE = 16 * 1024
 
 class Track:
     def __init__(self, metadata, cache_albumart=False):
@@ -28,19 +28,32 @@ class Track:
         albumart_thread.start()
         return albumart_thread
 
-    def _calculate_total_chunks(self, filesize):
+    def calculate_total_chunks(self, filesize):
         return (filesize // self._chunksize) + 1
+
+    def make_progress_bar(self, total_chunks):
+        progress_bar = tqdm.trange(
+            total_chunks,
+            unit_scale=(self._chunksize // 1024),
+            unit="KiB",
+            dynamic_ncols=True,
+            bar_format='{desc}: {percentage:3.0f}%|{bar}| {n_fmt}/{total_fmt}KiB '
+                '[{elapsed}<{remaining}, {rate_fmt}{postfix}]',
+        )
+        return progress_bar
 
     def download_while_re_encoding(self, stream, target_path, target_encoding=None,
                                    encoder=EncoderFFmpeg(), show_progress=True):
-        total_chunks = self._calculate_total_chunks(stream["filesize"])
+        total_chunks = self.calculate_total_chunks(stream["filesize"])
         process = encoder.re_encode_from_stdin(
             stream["encoding"],
             target_path,
             target_encoding=target_encoding
         )
         response = stream["connection"]
-        for _ in tqdm.trange(total_chunks):
+
+        progress_bar = self.make_progress_bar(total_chunks)
+        for _ in progress_bar:
             chunk = response.read(self._chunksize)
             process.stdin.write(chunk)
 
@@ -48,17 +61,18 @@ class Track:
         process.wait()
 
     def download(self, stream, target_path, show_progress=True):
-        total_chunks = self._calculate_total_chunks(stream["filesize"])
+        total_chunks = self.calculate_total_chunks(stream["filesize"])
+        progress_bar = self.make_progress_bar(total_chunks)
         response = stream["connection"]
         with open(target_path, "wb") as fout:
-            for _ in tqdm.trange(total_chunks):
+            for _ in progress_bar:
                 chunk = response.read(self._chunksize)
                 fout.write(chunk)
 
     def re_encode(self, input_path, target_path, target_encoding=None,
                   encoder=EncoderFFmpeg(), show_progress=True):
         stream = self.metadata["streams"].getbest()
-        total_chunks = self._calculate_total_chunks(stream["filesize"])
+        total_chunks = self.calculate_total_chunks(stream["filesize"])
         process = encoder.re_encode_from_stdin(
             stream["encoding"],
             target_path,

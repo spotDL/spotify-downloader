@@ -4,6 +4,9 @@ from spotdl.authorize.exceptions import SpotifyAuthorizationError
 import spotipy
 import spotipy.oauth2 as oauth2
 
+import logging
+logger = logging.getLogger(__name__)
+
 # This masterclient is used to keep the last logged-in client
 # object in memory for for persistence. If credentials aren't
 # provided when creating further objects, the last authenticated
@@ -26,10 +29,12 @@ class AuthorizeSpotify(spotipy.Spotify):
             )
 
         if masterclient:
+            logger.debug("Reading cached master Spotify credentials.")
             # Use cached client instead of authorizing again
             # and thus wasting time.
             self.__dict__.update(masterclient.__dict__)
         else:
+            logger.debug("Setting master Spotify credentials.")
             credential_manager = oauth2.SpotifyClientCredentials(
                 client_id=client_id,
                 client_secret=client_secret

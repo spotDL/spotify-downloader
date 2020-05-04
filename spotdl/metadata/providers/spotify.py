@@ -6,6 +6,10 @@ from spotdl.metadata.exceptions import SpotifyMetadataNotFoundError
 
 from spotdl.authorize.services import AuthorizeSpotify
 
+import logging
+logger = logging.getLogger(__name__)
+
+
 class ProviderSpotify(ProviderBase):
     def __init__(self, spotify=None):
         if spotify is None:
@@ -17,6 +21,7 @@ class ProviderSpotify(ProviderBase):
         self.spotify = spotipy.Spotify(auth=token)
 
     def from_url(self, url):
+        logger.debug('Fetching Spotify metadata for "{url}".'.format(url=url))
         metadata = self.spotify.track(url)
         return self.metadata_to_standard_form(metadata)
 
@@ -33,7 +38,6 @@ class ProviderSpotify(ProviderBase):
     def _generate_token(self, client_id, client_secret):
         """ Generate the token. """
         credentials = oauth2.SpotifyClientCredentials(
-            client_id=client_id,
             client_secret=client_secret,
         )
         token = credentials.get_access_token()

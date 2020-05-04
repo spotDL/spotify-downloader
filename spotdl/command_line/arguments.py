@@ -291,10 +291,16 @@ class Arguments:
 
         encoder_exists = shutil.which(self.parsed.encoder)
         if not self.parsed.encoder == "null" and not encoder_exists:
-            logger.warn(
-                'Specified encoder "{}" was not found in PATH. Will not encode to specified '
-                'output format.'.format(self.parsed.encoder))
+            logger.warn('Specified encoder "{}" was not found in PATH.')
             self.parsed.encoder = "null"
+
+        if self.parsed.encoder == "null":
+            self.parsed.output_ext = self.parsed.input_ext
+            logger.warn(
+                "Encoder is null. Will not re-encode to specified output format.".format(
+                    self.parsed.encoder
+                )
+            )
 
         if self.parsed.output_file == "-" and self.parsed.no_metadata is False:
             logger.warn(

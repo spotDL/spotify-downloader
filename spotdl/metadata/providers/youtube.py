@@ -33,7 +33,13 @@ class YouTubeVideos(Sequence):
         return self.videos[index]
 
     def bestmatch(self):
-        return self.videos[0]
+        video = self.videos[0]
+        logger.debug("Matched with: {title} ({url}) [{duration}]".format(
+            title=video["title"],
+            url=video["url"],
+            duration=video["duration"]
+        ))
+        return video
 
 
 class YouTubeSearch:
@@ -96,13 +102,16 @@ class YouTubeSearch:
         video = not not_video
         return video
 
-    def search(self, query, limit=10):
+    def search(self, query, limit=5):
         """ Search and scrape YouTube to return a list of matching videos. """
         search_url = self.generate_search_url(query)
-        logger.debug("Fetching YouTube results for search URL: {0}".format(search_url))
+        logger.debug('Fetching YouTube results for "{}".'.format(search_url))
         html = self._fetch_response_html(search_url)
-
         videos = self._fetch_search_results(html)
+        # print(html)
+        # print("")
+        # print(videos)
+        # exit()
         return YouTubeVideos(videos)
 
 
@@ -157,18 +166,34 @@ class YouTubeStreams(StreamsBase):
             return None
 
     def getbest(self, preftype="automatic"):
+        selected_stream = None
         if preftype == "automatic":
-            return self.all[0]
-        for stream in self.all:
-            if stream["encoding"] == preftype:
-                return stream
+            selected_stream = self.all[0]
+        else:
+            for stream in self.all:
+                if stream["encoding"] == preftype:
+                    selected_stream = stream
+                    break
+        logger.debug('Selected best quality stream for "{preftype}" format:\n{stream}'.format(
+            preftype=preftype,
+            stream=selected_stream,
+        ))
+        return selected_stream
 
     def getworst(self, preftype="automatic"):
+        selected_stream = None
         if preftype == "automatic":
-            return self.all[-1]
-        for stream in self.all[::-1]:
-            if stream["encoding"] == preftype:
-                return stream
+            selected_stream = self.all[-1]
+        else:
+            for stream in self.all[::-1]:
+                if stream["encoding"] == preftype:
+                    selected_stream = stream
+                    break
+        logger.debug('Selected worst quality stream for "{preftype}" format:\n'.format(
+            preftype=preftype,
+            stream=selected_stream,
+        ))
+        return selected_stream
 
 
 class ProviderYouTube(ProviderBase):
@@ -182,6 +207,7 @@ class ProviderYouTube(ProviderBase):
         return self.from_url(watch_urls[0])
 
     def from_url(self, url):
+        logger.debug('Fetching YouTube metadata for "{url}".'.format(url=url))
         content = pytube.YouTube(url)
         return self.from_pytube_object(content)
 

@@ -7,6 +7,9 @@ import urllib.request
 
 from spotdl.metadata import EmbedderBase
 
+import logging
+logger = logging.getLogger(__name__)
+
 # Apple has specific tags - see mutagen docs -
 # http://mutagen.readthedocs.io/en/latest/api/mp4.html
 M4A_TAG_PRESET = {
@@ -47,6 +50,7 @@ class EmbedderDefault(EmbedderBase):
 
     def as_mp3(self, path, metadata, cached_albumart=None):
         """ Embed metadata to MP3 files. """
+        logger.debug('Writing MP3 metadata to "{path}"'.format(path=path))
         # EasyID3 is fun to use ;)
         # For supported easyid3 tags:
         # https://github.com/quodlibet/mutagen/blob/master/mutagen/easyid3.py
@@ -104,6 +108,7 @@ class EmbedderDefault(EmbedderBase):
 
     def as_m4a(self, path, metadata, cached_albumart=None):
         """ Embed metadata to M4A files. """
+        logger.debug('Writing M4A metadata to "{path}"'.format(path=path))
         audiofile = MP4(path)
         self._embed_basic_metadata(audiofile, metadata, "m4a", preset=M4A_TAG_PRESET)
         if metadata["year"]:
@@ -127,6 +132,7 @@ class EmbedderDefault(EmbedderBase):
         audiofile.save()
 
     def as_flac(self, path, metadata, cached_albumart=None):
+        logger.debug('Writing FLAC metadata to "{path}"'.format(path=path))
         audiofile = FLAC(path)
         self._embed_basic_metadata(audiofile, metadata, "flac")
         if metadata["year"]:
