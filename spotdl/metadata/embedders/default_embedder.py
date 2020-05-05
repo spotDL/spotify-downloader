@@ -174,12 +174,13 @@ class EmbedderDefault(EmbedderBase):
             audiofile[preset["discnumber"]] = str(metadata["disc_number"])
         else:
             audiofile[preset["discnumber"]] = [(metadata["disc_number"], 0)]
+        zfilled_track_number = str(metadata["track_number"]).zfill(len(str(metadata["total_tracks"])))
         if encoding == "flac":
-            audiofile[preset["tracknumber"]] = str(metadata["track_number"])
+            audiofile[preset["tracknumber"]] = zfilled_track_number
         else:
             if preset["tracknumber"] == TAG_PRESET["tracknumber"]:
                 audiofile[preset["tracknumber"]] = "{}/{}".format(
-                    metadata["track_number"], metadata["total_tracks"]
+                    zfilled_track_number, metadata["total_tracks"]
                 )
             else:
                 audiofile[preset["tracknumber"]] = [

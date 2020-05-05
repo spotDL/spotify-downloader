@@ -9,10 +9,9 @@ def format_string(string, metadata, output_extension="", sanitizer=lambda s: s):
         "{duration}"     : metadata["duration"],
         "{year}"         : metadata["year"],
         "{original-date}": metadata["release_date"],
-        "{track-number}" : metadata["track_number"],
+        "{track-number}" : str(metadata["track_number"]).zfill(len(str(metadata["total_tracks"]))),
         "{total-tracks}" : metadata["total_tracks"],
         "{isrc}"         : metadata["external_ids"]["isrc"],
-        # TODO: Call `str.zfill` fill on track-id
         "{track-id}"     : metadata.get("id", ""),
         "{output-ext}"   : output_extension,
     }

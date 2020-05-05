@@ -22,7 +22,7 @@ DEFAULT_CONFIGURATION = {
         "dry_run": False,
         "music_videos_only": False,
         "no_spaces": False,
-        "processor": "synchronous",
+        # "processor": "synchronous",
         "output_file": "{artist} - {track-name}.{output-ext}",
         "search_format": "{artist} - {track-name} lyrics",
         "youtube_api_key": None,
@@ -64,7 +64,7 @@ def get_config(config_file):
             DEFAULT_CONFIGURATION["spotify-downloader"], default_flow_style=False
         ).split("\n"):
             if line.strip():
-                log.info(line.strip())
+                logger.info(line.strip())
         logger.info(
             "Please note that command line arguments have higher priority "
             "than their equivalents in the configuration file"

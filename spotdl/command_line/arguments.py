@@ -185,15 +185,15 @@ def get_arguments(argv=None, base_config_file=spotdl.config.default_config_file)
         "when YouTube API key is set)",
         action="store_true",
     )
-    parser.add_argument(
-        "--processor",
-        default=config["processor"],
-        choices={"synchronous", "threaded"},
-        help='list downloading strategy: - "synchronous" downloads '
-        'tracks one-by-one. - "threaded" (highly experimental at the '
-        'moment! expect it to slash & burn) pre-fetches the next '
-        'track\'s metadata for more efficient downloading'
-    )
+    # parser.add_argument(
+    #     "--processor",
+    #     default=config["processor"],
+    #     choices={"synchronous", "threaded"},
+    #     help='list downloading strategy: - "synchronous" downloads '
+    #     'tracks one-by-one. - "threaded" (highly experimental at the '
+    #     'moment! expect it to slash & burn) pre-fetches the next '
+    #     'track\'s metadata for more efficient downloading'
+    # )
     parser.add_argument(
         "-ns",
         "--no-spaces",
@@ -258,6 +258,9 @@ def get_arguments(argv=None, base_config_file=spotdl.config.default_config_file)
         parsed = override_config(parsed.config, parser)
 
     parsed.log_level = log_leveller(parsed.log_level)
+    # TODO: Remove this line once we can experiement with other
+    # download processors (such as "threaded").
+    parsed.processor = "synchronous"
     return Arguments(parser, parsed)
 
 
