@@ -121,43 +121,36 @@ class Spotdl:
             target_file = "{}.m3u".format(track_file.split(".")[0])
 
         total_tracks = len(tracks)
-        logger.info("Generating {0} from {1} YouTube URLs".format(target_file, total_tracks))
+        logger.info("Generating {0} from {1} YouTube URLs.".format(target_file, total_tracks))
         with open(target_file, "w") as output_file:
             output_file.write("#EXTM3U\n\n")
 
-        youtube_searcher = YouTubeSearch()
         videos = []
         for n, track in enumerate(tracks, 1):
             try:
-                search_results = youtube_searcher.search(search_query)
-                if not search_results:
-                    raise NoYouTubeVideoFoundError(
-                        'YouTube returned no videos for the search query "{}".'.format(search_query)
-                    )
-                video = search_results.bestmatch()
-                if not video:
-                    raise NoYouTubeVideoMatchError(
-                        'No matching videos found on YouTube for the search query "{}".'.format(search_query)
-                    )
+                search_metadata = MetadataSearch(
+                    track,
+                    lyrics=False,
+                    yt_search_format=self.arguments["search_format"],
+                    yt_manual=self.arguments["manual"]
+                )
+                video = search_metadata.best_on_youtube_search()
             except (NoYouTubeVideoFoundError, NoYouTubeVideoMatchError) as e:
                 logger.error(e.args[0])
             else:
-                print(video)
-                exit()
                 logger.info(
                     "Matched track {0}/{1} ({2})".format(
                         str(n).zfill(len(str(total_tracks))),
                         total_tracks,
-                        content.watchv_url
+                        video["url"],
                     )
                 )
-                logger.debug(track)
                 m3u_key = "#EXTINF:{duration},{title}\n{youtube_url}\n".format(
-                    duration=internals.get_sec(content.duration),
-                    title=content.title,
-                    youtube_url=content.watchv_url,
+                    duration=spotdl.util.get_sec(video["duration"]),
+                    title=video["title"],
+                    youtube_url=video["url"],
                 )
-                logger.debug(m3u_key)
+                logger.debug(m3u_key.strip())
                 with open(target_file, "a") as output_file:
                     output_file.write(m3u_key)
 

@@ -138,6 +138,45 @@ class MetadataSearch:
 
         return metadata
 
+    def best_on_youtube_search(self):
+        track_type_mapper = {
+            "spotify": self._best_on_youtube_search_for_type_spotify,
+            "youtube": self._best_on_youtube_search_for_type_youtube,
+            "query": self._best_on_youtube_search_for_type_query,
+        }
+        caller = track_type_mapper[self.track_type]
+        video = caller(self.track)
+        return video
+
+    def _best_on_youtube_search_for_type_query(self, query):
+        videos = self.providers["youtube"].search(query)
+        if not videos:
+            raise NoYouTubeVideoFoundError(
+                'YouTube returned no videos for the search query "{}".'.format(query)
+            )
+        if self.yt_manual:
+            video = prompt_for_youtube_search_result(videos)
+        else:
+            video = videos.bestmatch()
+
+        if video is None:
+            raise NoYouTubeVideoMatchError(
+                'No matching videos found on YouTube for the search query "{}".'.format(
+                    search_query
+                )
+            )
+        return video
+
+    def _best_on_youtube_search_for_type_youtube(self, url):
+        video = self._best_on_youtube_search_for_type_query(url)
+        return video
+
+    def _best_on_youtube_search_for_type_spotify(self, url):
+        spotify_metadata = self._on_spotify_for_type_spotify(self.track)
+        search_query = spotdl.metadata.format_string(self.yt_search_format, spotify_metadata)
+        video = self._best_on_youtube_search_for_type_query(search_query)
+        return video
+
     def _on_youtube_and_spotify_for_type_spotify(self):
         logger.debug("Extracting YouTube and Spotify metadata for input Spotify URI.")
         spotify_metadata = self._on_spotify_for_type_spotify(self.track)
@@ -146,23 +185,7 @@ class MetadataSearch:
             spotify_metadata,
         )
         search_query = spotdl.metadata.format_string(self.yt_search_format, spotify_metadata)
-        videos = self.providers["youtube"].search(search_query)
-        if not videos:
-            raise NoYouTubeVideoFoundError(
-                'YouTube returned no videos for the search query "{}".'.format(search_query)
-            )
-        if self.yt_manual:
-            youtube_video = prompt_for_youtube_search_result(videos)
-        else:
-            youtube_video = videos.bestmatch()
-
-        if youtube_video is None:
-            raise NoYouTubeVideoMatchError(
-                'No matching videos found on YouTube for the search query "{}".'.format(
-                    search_query
-                )
-            )
-
+        youtube_video = self._best_on_youtube_search_for_type_spotify(search_query)
         youtube_metadata = self.providers["youtube"].from_url(youtube_video["url"])
         metadata = spotdl.util.merge(
             youtube_metadata,
@@ -207,23 +230,7 @@ class MetadataSearch:
             spotify_metadata,
         )
         search_query = spotdl.metadata.format_string(self.yt_search_format, spotify_metadata)
-        videos = self.providers["youtube"].search(search_query)
-        if not videos:
-            raise NoYouTubeVideoFoundError(
-                'YouTube returned no videos for the search query "{}".'.format(search_query)
-            )
-        if self.yt_manual:
-            youtube_video = prompt_for_youtube_search_result(videos)
-        else:
-            youtube_video = videos.bestmatch()
-
-        if youtube_video is None:
-            raise NoYouTubeVideoMatchError(
-                'No matching videos found on YouTube for the search query "{}".'.format(
-                    search_query
-                )
-            )
-
+        youtube_video = self._best_on_youtube_search_for_type_spotify(search_query)
         youtube_metadata = self.providers["youtube"].from_url(youtube_video["url"])
         return youtube_metadata
 
@@ -234,21 +241,7 @@ class MetadataSearch:
 
     def _on_youtube_for_type_query(self, query):
         logger.debug("Extracting YouTube metadata for input track query.")
-        videos = self.providers["youtube"].search(query)
-        if not videos:
-            raise NoYouTubeVideoFoundError(
-                'YouTube returned no videos for the search query "{}".'.format(query)
-            )
-        if self.yt_manual:
-            youtube_video = prompt_for_youtube_search_result(videos)
-        else:
-            youtube_video = videos.bestmatch()
-        if youtube_video is None:
-            raise NoYouTubeVideoMatchError(
-                'No matching videos found on YouTube for the search query "{}".'.format(
-                    query
-                )
-            )
+        youtube_video = self._best_on_youtube_search_for_type_query(query)
         youtube_metadata = self.providers["youtube"].from_url(youtube_video["url"])
         return youtube_metadata
 
