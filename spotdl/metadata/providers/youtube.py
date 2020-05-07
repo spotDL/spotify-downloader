@@ -108,10 +108,6 @@ class YouTubeSearch:
         logger.debug('Fetching YouTube results for "{}".'.format(search_url))
         html = self._fetch_response_html(search_url)
         videos = self._fetch_search_results(html)
-        # print(html)
-        # print("")
-        # print(videos)
-        # exit()
         return YouTubeVideos(videos)
 
 
@@ -198,7 +194,7 @@ class YouTubeStreams(StreamsBase):
 
 class ProviderYouTube(ProviderBase):
     def from_query(self, query):
-        watch_urls = YouTubeSearch().search(query)
+        watch_urls = self.search(query)
         if not watch_urls:
             raise YouTubeMetadataNotFoundError(
                 'YouTube returned nothing for the given search '
@@ -213,6 +209,9 @@ class ProviderYouTube(ProviderBase):
 
     def from_pytube_object(self, content):
         return self.metadata_to_standard_form(content)
+
+    def search(self, query):
+        return YouTubeSearch().search(query)
 
     def _fetch_publish_date(self, content):
         # FIXME: This needs to be supported in PyTube itself

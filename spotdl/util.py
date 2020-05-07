@@ -66,22 +66,33 @@ def prompt_user_for_selection(items):
             logger.warning("Choose a valid number!")
 
 
-def is_spotify(raw_song):
+def is_spotify(track):
     """ Check if the input song is a Spotify link. """
-    status = len(raw_song) == 22 and raw_song.replace(" ", "%20") == raw_song
-    status = status or raw_song.find("spotify") > -1
+    status = len(track) == 22 and track.replace(" ", "%20") == track
+    status = status or track.find("spotify") > -1
     return status
 
 
-def is_youtube(raw_song):
+def is_youtube(track):
     """ Check if the input song is a YouTube link. """
-    status = len(raw_song) == 11 and raw_song.replace(" ", "%20") == raw_song
-    status = status and not raw_song.lower() == raw_song
-    status = status or "youtube.com/watch?v=" in raw_song
+    status = len(track) == 11 and track.replace(" ", "%20") == track
+    status = status and not track.lower() == track
+    status = status or "youtube.com/watch?v=" in track
     return status
 
 
-def sanitize(string, ok="-_()[]{}", spaces_to_underscores=False):
+def track_type(track):
+    track_types = {
+        "spotify": is_spotify,
+        "youtube": is_youtube,
+    }
+    for provider, fn in track_types.items():
+        if fn(track):
+            return provider
+    return "query"
+
+
+def sanitize(string, ok="&-_()[]{}", spaces_to_underscores=False):
     """ Generate filename of the song to be downloaded. """
     if spaces_to_underscores:
         string = string.replace(" ", "_")
@@ -196,4 +207,8 @@ def content_available(url):
         return False
     else:
         return response.getcode() < 300
+
+
+def titlecase(string):
+    return " ".join(word.capitalize() for word in string.split())
 

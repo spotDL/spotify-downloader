@@ -20,6 +20,7 @@ import spotdl.config
 
 from spotdl.command_line.exceptions import NoYouTubeVideoFoundError
 from spotdl.command_line.exceptions import NoYouTubeVideoMatchError
+from spotdl.metadata_search import MetadataSearch
 
 from spotdl.helpers.spotify import SpotifyHelpers
 
@@ -28,133 +29,7 @@ import os
 import urllib.request
 
 import logging
-logger = logging.getLogger(name=__name__)
-
-def search_lyrics(query):
-    provider = Genius()
-    try:
-        lyrics = provider.from_query(query)
-    except LyricsNotFoundError:
-        lyrics = None
-    return lyrics
-
-
-def search_metadata_on_spotify(query):
-    provider = ProviderSpotify()
-    try:
-        metadata = provider.from_query(query)
-    except SpotifyMetadataNotFoundError:
-        metadata = {}
-    return metadata
-
-
-def prompt_for_youtube_search_result(videos):
-    max_index_length = len(str(len(videos)))
-    max_title_length = max(len(v["title"]) for v in videos)
-    print(" 0. Skip downloading this track", file=sys.stderr)
-    for index, video in enumerate(videos, 1):
-        vid_details = "{index:>{max_index}}. {title:<{max_title}} {url} [{duration}]".format(
-            index=index,
-            max_index=max_index_length,
-            title=video["title"],
-            max_title=max_title_length,
-            url=video["url"],
-            duration=video["duration"],
-        )
-        print(vid_details, file=sys.stderr)
-    print("", file=sys.stderr)
-
-    selection = spotdl.util.prompt_user_for_selection(range(1, len(videos)+1))
-
-    if selection is None:
-        return None
-    return videos[selection-1]
-
-
-def search_metadata(track, search_format="{artist} - {track-name} lyrics", manual=False):
-    # TODO: Clean this function
-    youtube = ProviderYouTube()
-    youtube_searcher = YouTubeSearch()
-
-    if spotdl.util.is_spotify(track):
-        logger.debug("Input track is a Spotify URL.")
-        spotify = ProviderSpotify()
-        spotify_metadata = spotify.from_url(track)
-        lyric_query = spotdl.metadata.format_string(
-            "{artist} - {track-name}",
-            spotify_metadata,
-        )
-        search_query = spotdl.metadata.format_string(search_format, spotify_metadata)
-        youtube_videos = youtube_searcher.search(search_query)
-        if not youtube_videos:
-            raise NoYouTubeVideoFoundError(
-                'YouTube returned no videos for the search query "{}".'.format(search_query)
-            )
-        if manual:
-            youtube_video = prompt_for_youtube_search_result(youtube_videos)
-        else:
-            youtube_video = youtube_videos.bestmatch()
-
-        if youtube_video is None:
-            raise NoYouTubeVideoMatchError(
-                'No matching videos found on YouTube for the search query "{}".'.format(
-                    search_query
-                )
-            )
-
-        youtube_metadata = youtube.from_url(youtube_video["url"])
-        metadata = spotdl.util.merge(
-            youtube_metadata,
-            spotify_metadata
-        )
-
-    elif spotdl.util.is_youtube(track):
-        logger.debug("Input track is a YouTube URL.")
-        metadata = youtube.from_url(track)
-        lyric_query = spotdl.metadata.format_string(
-            "{artist} - {track-name}",
-            metadata,
-        )
-
-    else:
-        logger.debug("Input track is a search query.")
-        search_query = track
-        lyric_query = search_query
-        spotify_metadata = spotdl.util.ThreadWithReturnValue(
-            target=search_metadata_on_spotify,
-            args=(search_query,)
-        )
-        spotify_metadata.start()
-        youtube_videos = youtube_searcher.search(search_query)
-        if not youtube_videos:
-            raise NoYouTubeVideoFoundError(
-                'YouTube returned no videos for the search query "{}".'.format(search_query)
-            )
-        if manual:
-            youtube_video = prompt_for_youtube_search_result(youtube_videos)
-        else:
-            youtube_video = youtube_videos.bestmatch()
-
-        if youtube_video is None:
-            raise NoYouTubeVideoMatchError(
-                'No apparent matching videos found on YouTube for the search query "{}"'.format(
-                    search_query
-                )
-            )
-
-        youtube_metadata = youtube.from_url(youtube_video["url"])
-        metadata = spotdl.util.merge(
-            youtube_metadata,
-            spotify_metadata.join()
-        )
-
-    metadata["lyrics"] = spotdl.util.ThreadWithReturnValue(
-        target=search_lyrics,
-        args=(lyric_query,)
-    )
-
-    metadata["lyrics"].start()
-    return metadata
+logger = logging.getLogger(__name__)
 
 
 class Spotdl:
@@ -200,13 +75,14 @@ class Spotdl:
                     self.download_track(track)
         elif self.arguments["list"]:
             if self.arguments["write_m3u"]:
-                youtube_tools.generate_m3u(
-                    track_file=self.arguments["list"]
+                self.write_m3u(
+                    self.arguments["list"],
+                    self.arguments["write_to"]
                 )
             else:
                 list_download = {
                     "synchronous": self.download_tracks_from_file,
-                    "threaded"  : self.download_tracks_from_file_threaded,
+                    # "threaded"  : self.download_tracks_from_file_threaded,
                 }[self.arguments["processor"]]
 
                 list_download(
@@ -226,14 +102,75 @@ class Spotdl:
             playlist = spotify_tools.fetch_playlist(playlist_url)
             spotify_tools.write_playlist_tracks(playlist, self.arguments["write_to"])
 
+    def write_m3u(self, track_file, target_file=None):
+        with open(track_file, "r") as fin:
+            tracks = fin.read().splitlines()
+
+        logger.info(
+            "Checking and removing any duplicate tracks in {}.".format(track_file)
+        )
+        # Remove duplicates and empty elements
+        # Also strip whitespaces from elements (if any)
+        spotdl.util.remove_duplicates(
+            tracks,
+            condition=lambda x: x,
+            operation=str.strip
+        )
+
+        if target_file is None:
+            target_file = "{}.m3u".format(track_file.split(".")[0])
+
+        total_tracks = len(tracks)
+        logger.info("Generating {0} from {1} YouTube URLs".format(target_file, total_tracks))
+        with open(target_file, "w") as output_file:
+            output_file.write("#EXTM3U\n\n")
+
+        youtube_searcher = YouTubeSearch()
+        videos = []
+        for n, track in enumerate(tracks, 1):
+            try:
+                search_results = youtube_searcher.search(search_query)
+                if not search_results:
+                    raise NoYouTubeVideoFoundError(
+                        'YouTube returned no videos for the search query "{}".'.format(search_query)
+                    )
+                video = search_results.bestmatch()
+                if not video:
+                    raise NoYouTubeVideoMatchError(
+                        'No matching videos found on YouTube for the search query "{}".'.format(search_query)
+                    )
+            except (NoYouTubeVideoFoundError, NoYouTubeVideoMatchError) as e:
+                logger.error(e.args[0])
+            else:
+                print(video)
+                exit()
+                logger.info(
+                    "Matched track {0}/{1} ({2})".format(
+                        str(n).zfill(len(str(total_tracks))),
+                        total_tracks,
+                        content.watchv_url
+                    )
+                )
+                logger.debug(track)
+                m3u_key = "#EXTINF:{duration},{title}\n{youtube_url}\n".format(
+                    duration=internals.get_sec(content.duration),
+                    title=content.title,
+                    youtube_url=content.watchv_url,
+                )
+                logger.debug(m3u_key)
+                with open(target_file, "a") as output_file:
+                    output_file.write(m3u_key)
+
     def download_track(self, track):
         logger.info('Downloading "{}"'.format(track))
+        search_metadata = MetadataSearch(
+            track,
+            lyrics=True,
+            yt_search_format=self.arguments["search_format"],
+            yt_manual=self.arguments["manual"]
+        )
         try:
-            metadata = search_metadata(
-                track,
-                search_format=self.arguments["search_format"],
-                manual=self.arguments["manual"],
-            )
+            metadata = search_metadata.on_youtube_and_spotify()
         except (NoYouTubeVideoFoundError, NoYouTubeVideoMatchError) as e:
             logger.error(e.args[0])
         else:
@@ -316,7 +253,6 @@ class Spotdl:
             "Checking and removing any duplicate tracks in {}.".format(path)
         )
         with open(path, "r") as fin:
-            # Read tracks into a list and remove any duplicates
             tracks = fin.read().splitlines()
 
         # Remove duplicates and empty elements
@@ -334,13 +270,19 @@ class Spotdl:
         print("", file=sys.stderr)
 
         for number, track in enumerate(tracks, 1):
+            search_metadata = MetadataSearch(
+                track,
+                lyrics=True,
+                yt_search_format=self.arguments["search_format"],
+                yt_manual=self.arguments["manual"]
+            )
             try:
                 log_track_query = '{position}. Downloading "{track}"'.format(
                     position=number,
                     track=track
                 )
                 logger.info(log_track_query)
-                metadata = search_metadata(track, self.arguments["search_format"])
+                metadata = search_metadata.on_youtube_and_spotify()
                 self.download_track_from_metadata(metadata)
             except (urllib.request.URLError, TypeError, IOError) as e:
                 logger.exception(e.args[0])
@@ -360,6 +302,7 @@ class Spotdl:
                     fout.writelines(tracks[number-1:])
                 print("", file=sys.stderr)
 
+    """
     def download_tracks_from_file_threaded(self, path):
         # FIXME: Can we make this function cleaner?
 
@@ -430,4 +373,5 @@ class Spotdl:
                 current_iteration += 1
                 with open(path, "w") as fout:
                     fout.writelines(tracks)
+    """
 

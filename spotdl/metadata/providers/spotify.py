@@ -5,6 +5,7 @@ from spotdl.metadata import ProviderBase
 from spotdl.metadata.exceptions import SpotifyMetadataNotFoundError
 
 from spotdl.authorize.services import AuthorizeSpotify
+import spotdl.util
 
 import logging
 logger = logging.getLogger(__name__)
@@ -26,14 +27,17 @@ class ProviderSpotify(ProviderBase):
         return self.metadata_to_standard_form(metadata)
 
     def from_query(self, query):
-        tracks = self.spotify.search(query, limit=1)["tracks"]["items"]
+        tracks = self.search(query)["tracks"]["items"]
         if not tracks:
             raise SpotifyMetadataNotFoundError(
-                'Could not find any tracks matching the given search query ("{}")'.format(
+                'Spotify returned no tracks for the search query "{}".'.format(
                     query,
                 )
             )
         return self.metadata_to_standard_form(tracks[0])
+
+    def search(self, query):
+        return self.spotify.search(query)
 
     def _generate_token(self, client_id, client_secret):
         """ Generate the token. """
@@ -43,15 +47,12 @@ class ProviderSpotify(ProviderBase):
         token = credentials.get_access_token()
         return token
 
-    def _titlecase(self, string):
-        return " ".join(word.capitalize() for word in string.split())
-
     def metadata_to_standard_form(self, metadata):
         artist = self.spotify.artist(metadata["artists"][0]["id"])
         album = self.spotify.album(metadata["album"]["id"])
 
         try:
-            metadata[u"genre"] = self._titlecase(artist["genres"][0])
+            metadata[u"genre"] = spotdl.util.titlecase(artist["genres"][0])
         except IndexError:
             metadata[u"genre"] = None
         try:
@@ -78,3 +79,4 @@ class ProviderSpotify(ProviderBase):
         del metadata["album"]["available_markets"]
 
         return metadata
+

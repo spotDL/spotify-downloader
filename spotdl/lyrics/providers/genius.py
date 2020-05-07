@@ -5,6 +5,9 @@ import json
 from spotdl.lyrics.lyric_base import LyricBase
 from spotdl.lyrics.exceptions import LyricsNotFoundError
 
+import logging
+logger = logging.getLogger(__name__)
+
 BASE_URL = "https://genius.com"
 BASE_SEARCH_URL = BASE_URL + "/api/search/multi?per_page=1&q="
 
@@ -40,7 +43,7 @@ class Genius(LyricBase):
             response = urllib.request.urlopen(request, timeout=timeout)
         except urllib.request.HTTPError:
             raise LyricsNotFoundError(
-                "Could not find lyrics at URL: {}".format(url)
+                "Could not find Genius lyrics at URL: {}".format(url)
             )
         else:
             return response.read()
@@ -55,7 +58,7 @@ class Genius(LyricBase):
             return lyrics_paragraph.get_text()
         else:
             raise LyricsNotFoundError(
-                "The lyrics for this track are yet to be released."
+                "The lyrics for this track are yet to be released on Genius."
             )
 
     def _fetch_search_page(self, url, timeout=None):
@@ -68,7 +71,7 @@ class Genius(LyricBase):
         metadata = json.loads(response.read())
         if len(metadata["response"]["sections"][0]["hits"]) == 0:
             raise LyricsNotFoundError(
-                "Could not find any search results for URL: {}".format(url)
+                "Genius returned no lyric results for the search URL: {}".format(url)
             )
         return metadata
 
@@ -91,8 +94,8 @@ class Genius(LyricBase):
 
         if lyric_url is None:
             raise LyricsNotFoundError(
-                "Could not find any valid lyric paths in the "
-                "API response for the query {}".format(query)
+                "Could not find any valid lyric paths in Genius "
+                "lyrics API response for the query {}.".format(query)
             )
 
         return self.base_url + lyric_url
@@ -102,8 +105,14 @@ class Genius(LyricBase):
         Returns the lyric string for the track best matching the
         given query.
         """
-        lyric_url = self.best_matching_lyric_url_from_query(query)
-        return self.from_url(lyric_url, linesep, timeout=timeout)
+        try:
+            lyric_url = self.best_matching_lyric_url_from_query(query)
+        except LyricsNotFoundError:
+            raise LyricsNotFoundError(
+                'Genius returned no lyric results for the search query "{}".'.format(query)
+            )
+        else:
+            return self.from_url(lyric_url, linesep, timeout=timeout)
 
     def from_artist_and_track(self, artist, track, linesep="\n", timeout=None):
         """
