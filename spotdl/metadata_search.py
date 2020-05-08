@@ -23,7 +23,11 @@ PROVIDERS = {
 def prompt_for_youtube_search_result(videos):
     max_index_length = len(str(len(videos)))
     max_title_length = max(len(v["title"]) for v in videos)
-    print(" 0. Skip downloading this track", file=sys.stderr)
+    msg = "{index:>{max_index}}. Skip downloading this track".format(
+        index=0,
+        max_index=max_index_length,
+    )
+    print(msg, file=sys.stderr)
     for index, video in enumerate(videos, 1):
         vid_details = "{index:>{max_index}}. {title:<{max_title}}\n{new_line_gap}  {url} [{duration}]".format(
             index=index,
@@ -92,7 +96,6 @@ class MetadataSearch:
             target=self.get_lyrics,
             args=(lyric_query,),
         )
-        metadata["lyrics"].start()
 
         return metadata
 
@@ -113,7 +116,6 @@ class MetadataSearch:
             target=self.get_lyrics,
             arguments=(lyric_query,),
         )
-        metadata["lyrics"].start()
 
         return metadata
 
@@ -134,7 +136,6 @@ class MetadataSearch:
             target=self.get_lyrics,
             arguments=(lyric_query,),
         )
-        metadata["lyrics"].start()
 
         return metadata
 

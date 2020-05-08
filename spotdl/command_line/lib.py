@@ -111,7 +111,7 @@ class Spotdl:
         )
         # Remove duplicates and empty elements
         # Also strip whitespaces from elements (if any)
-        spotdl.util.remove_duplicates(
+        tracks = spotdl.util.remove_duplicates(
             tracks,
             condition=lambda x: x,
             operation=str.strip
@@ -158,12 +158,15 @@ class Spotdl:
         logger.info('Downloading "{}"'.format(track))
         search_metadata = MetadataSearch(
             track,
-            lyrics=True,
+            lyrics=not self.arguments["no_metadata"],
             yt_search_format=self.arguments["search_format"],
             yt_manual=self.arguments["manual"]
         )
         try:
-            metadata = search_metadata.on_youtube_and_spotify()
+            if self.arguments["no_metadata"]:
+                metadata = search_metadata.on_youtube()
+            else:
+                metadata = search_metadata.on_youtube_and_spotify()
         except (NoYouTubeVideoFoundError, NoYouTubeVideoMatchError) as e:
             logger.error(e.args[0])
         else:
@@ -219,6 +222,9 @@ class Spotdl:
             logger.debug("Skip track download.")
             return
 
+        if not self.arguments["no_metadata"]:
+            metadata["lyrics"].start()
+
         logger.info('Downloading to "{filename}"'.format(filename=filename))
         if Encoder is None:
             track.download(stream, filename)
@@ -231,10 +237,10 @@ class Spotdl:
             )
 
         if not self.arguments["no_metadata"]:
+            track.metadata["lyrics"] = track.metadata["lyrics"].join()
             self.apply_metadata(track, filename, output_extension)
 
     def apply_metadata(self, track, filename, encoding):
-        track.metadata["lyrics"] = track.metadata["lyrics"].join()
         logger.info("Applying metadata")
         try:
             track.apply_metadata(filename, encoding=encoding)
@@ -245,24 +251,22 @@ class Spotdl:
         logger.info(
             "Checking and removing any duplicate tracks in {}.".format(path)
         )
-        with open(path, "r") as fin:
-            tracks = fin.read().splitlines()
-
+        tracks = spotdl.util.readlines_from_nonbinary_file(path)
         # Remove duplicates and empty elements
         # Also strip whitespaces from elements (if any)
-        spotdl.util.remove_duplicates(
+        tracks = spotdl.util.remove_duplicates(
             tracks,
             condition=lambda x: x,
             operation=str.strip
         )
-
         # Overwrite file
-        with open(path, "w") as fout:
-            fout.writelines(tracks)
+        spotdl.util.writelines_to_nonbinary_file(path, tracks)
 
-        print("", file=sys.stderr)
+        logger.info(
+            "Downloading {n} tracks.\n".format(n=len(tracks))
+        )
 
-        for number, track in enumerate(tracks, 1):
+        for position, track in enumerate(tracks, 1):
             search_metadata = MetadataSearch(
                 track,
                 lyrics=True,
@@ -271,7 +275,7 @@ class Spotdl:
             )
             try:
                 log_track_query = '{position}. Downloading "{track}"'.format(
-                    position=number,
+                    position=position,
                     track=track
                 )
                 logger.info(log_track_query)
@@ -285,14 +289,13 @@ class Spotdl:
                 )
                 tracks.append(track)
             except (NoYouTubeVideoFoundError, NoYouTubeVideoMatchError) as e:
-                logger.error(e.args[0])
+                logger.error("{err}".format(err=e.args[0]))
             else:
                 if self.arguments["write_successful"]:
                     with open(self.arguments["write_successful"], "a") as fout:
                         fout.write(track)
             finally:
-                with open(path, "w") as fout:
-                    fout.writelines(tracks[number-1:])
+                spotdl.util.writelines_to_nonbinary_file(path, tracks[position:])
                 print("", file=sys.stderr)
 
     """

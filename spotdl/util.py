@@ -212,3 +212,14 @@ def content_available(url):
 def titlecase(string):
     return " ".join(word.capitalize() for word in string.split())
 
+
+def readlines_from_nonbinary_file(path):
+    with open(path, "r") as fin:
+        lines = fin.read().splitlines()
+    return lines
+
+
+def writelines_to_nonbinary_file(path, lines):
+    with open(path, "w") as fout:
+        fout.writelines(map(lambda x: x + "\n", lines))
+

@@ -50,7 +50,7 @@ class YouTubeSearch:
         quoted_query = urllib.request.quote(query)
         return self.base_search_url.format(quoted_query)
 
-    def _fetch_response_html(self, url):
+    def _fetch_response_html(self, url, retries=5):
         response = urllib.request.urlopen(url)
         soup = BeautifulSoup(response.read(), "html.parser")
         return soup
@@ -102,12 +102,26 @@ class YouTubeSearch:
         video = not not_video
         return video
 
-    def search(self, query, limit=5):
+    def _is_server_side_invalid_response(self, videos, html):
+        if videos:
+            return False
+        search_message = html.find("div", {"class":"search-message"})
+        return search_message is None
+
+    def search(self, query, limit=10, retries=5):
         """ Search and scrape YouTube to return a list of matching videos. """
         search_url = self.generate_search_url(query)
         logger.debug('Fetching YouTube results for "{}".'.format(search_url))
         html = self._fetch_response_html(search_url)
-        videos = self._fetch_search_results(html)
+        videos = self._fetch_search_results(html, limit=limit)
+        to_retry = retries > 0 and self._is_server_side_invalid_response(videos, html)
+        if to_retry:
+            retries -= 1
+            logger.debug(
+                "Retrying since YouTube returned invalid response for search "
+                "results. Retries left: {retries}.".format(retries=retries)
+            )
+            return self.search(query, limit=limit, retries=retries)
         return YouTubeVideos(videos)
 
 
@@ -202,10 +216,26 @@ class ProviderYouTube(ProviderBase):
             )
         return self.from_url(watch_urls[0])
 
-    def from_url(self, url):
+    def from_url(self, url, retries=5):
         logger.debug('Fetching YouTube metadata for "{url}".'.format(url=url))
-        content = pytube.YouTube(url)
-        return self.from_pytube_object(content)
+        try:
+            content = pytube.YouTube(url)
+        except KeyError:
+            # Sometimes YouTube can return unexpected response, in such a case
+            # retry a few times before finally failing.
+            if retries > 0:
+                retries -= 1
+                logger.debug(
+                    "YouTube returned an unexpected response for "
+                    "`pytube.YouTube({url})`. Retries left: {retries}".format(
+                        url=url, retries=retries
+                    )
+                )
+                return self.from_url(url, retries=retries)
+            else:
+                raise
+        else:
+            return self.from_pytube_object(content)
 
     def from_pytube_object(self, content):
         return self.metadata_to_standard_form(content)
