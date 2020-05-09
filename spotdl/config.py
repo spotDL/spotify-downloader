@@ -11,7 +11,7 @@ DEFAULT_CONFIGURATION = {
         "manual": False,
         "no_metadata": False,
         "no_fallback_metadata": False,
-        "encoder": "ffmpeg",
+        "no-encode": False,
         "overwrite": "prompt",
         "quality": "best",
         "input_ext": "automatic",

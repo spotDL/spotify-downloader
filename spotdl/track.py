@@ -2,6 +2,7 @@ import tqdm
 
 import urllib.request
 import subprocess
+import sys
 
 from spotdl.encode.encoders import EncoderFFmpeg
 from spotdl.metadata.embedders import EmbedderDefault
@@ -64,10 +65,16 @@ class Track:
         total_chunks = self.calculate_total_chunks(stream["filesize"])
         progress_bar = self.make_progress_bar(total_chunks)
         response = stream["connection"]
-        with open(target_path, "wb") as fout:
+        if target_path == "-":
+            # Target is STDOUT
             for _ in progress_bar:
                 chunk = response.read(self._chunksize)
-                fout.write(chunk)
+                sys.stdout.buffer.write(chunk)
+        else:
+            with open(target_path, "wb") as fout:
+                for _ in progress_bar:
+                    chunk = response.read(self._chunksize)
+                    fout.write(chunk)
 
     def re_encode(self, input_path, target_path, target_encoding=None,
                   encoder=EncoderFFmpeg(), show_progress=True):

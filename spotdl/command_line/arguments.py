@@ -109,11 +109,10 @@ def get_arguments(argv=None, base_config_file=spotdl.config.default_config_file)
         action="store_true",
     )
     parser.add_argument(
-        "-e",
-        "--encoder",
-        default=config["encoder"],
-        choices={"ffmpeg", "avconv", "null"},
-        help="use this encoder for conversion",
+        "--no-encode",
+        default=config["no-encode"],
+        action="store_true",
+        help="do not encode media using FFmpeg",
     )
     parser.add_argument(
         "--overwrite",
@@ -282,9 +281,6 @@ class Arguments:
         if self.parsed.write_m3u and not self.parsed.list:
             self.parser.error("--write-m3u can only be used with --list")
 
-        if self.parsed.trim_silence and not "ffmpeg" in self.parsed.encoder:
-            self.parser.error("--trim-silence can only be used with FFmpeg")
-
         if self.parsed.write_to and not (
             self.parsed.playlist or self.parsed.album or self.parsed.all_albums or self.parsed.username
         ):
@@ -292,18 +288,10 @@ class Arguments:
                 "--write-to can only be used with --playlist, --album, --all-albums, or --username"
             )
 
-        encoder_exists = shutil.which(self.parsed.encoder)
-        if not self.parsed.encoder == "null" and not encoder_exists:
-            logger.warn('Specified encoder "{}" was not found in PATH.')
-            self.parsed.encoder = "null"
-
-        if self.parsed.encoder == "null":
+        ffmpeg_exists = shutil.which("ffmpeg")
+        if not ffmpeg_exists:
+            logger.warn("FFmpeg was not found in PATH. Will not re-encode media to specified output format.")
             self.parsed.output_ext = self.parsed.input_ext
-            logger.warn(
-                "Encoder is null. Will not re-encode to specified output format.".format(
-                    self.parsed.encoder
-                )
-            )
 
         if self.parsed.output_file == "-" and self.parsed.no_metadata is False:
             logger.warn(
@@ -317,8 +305,9 @@ class Arguments:
                 self.parser.get_default("output_file")
             )
             logger.warn(
-                "Given output file is a directory. Will download tracks in this directory with "
-                "their filename as per the default file format. Pass '--output-file=\"{}\"' to hide this "
+                "Given output file is a directory. Will download tracks "
+                "in this directory with their filename as per the default "
+                "file format. Pass '--output-file=\"{}\"' to hide this "
                 "warning.".format(
                     adjusted_output_file
                 )

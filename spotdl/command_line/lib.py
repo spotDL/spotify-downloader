@@ -5,9 +5,6 @@ from spotdl.metadata.embedders import EmbedderDefault
 from spotdl.metadata.exceptions import SpotifyMetadataNotFoundError
 import spotdl.metadata
 
-from spotdl.encode.encoders import EncoderFFmpeg
-from spotdl.encode.encoders import EncoderAvconv
-
 from spotdl.lyrics.providers import LyricWikia
 from spotdl.lyrics.providers import Genius
 from spotdl.lyrics.exceptions import LyricsNotFoundError
@@ -171,11 +168,11 @@ class Spotdl:
         else:
             self.download_track_from_metadata(metadata)
 
-    def should_we_overwrite_existing_file(self):
-        if self.arguments["overwrite"] == "force":
+    def should_we_overwrite_existing_file(self, overwrite):
+        if overwrite == "force":
             logger.info("Forcing overwrite on existing file.")
             to_overwrite = True
-        elif self.arguments["overwrite"] == "prompt":
+        elif overwrite == "prompt":
             to_overwrite = input("Overwrite? (y/N): ").lower() == "y"
         else:
             logger.info("Not overwriting existing file.")
@@ -190,12 +187,7 @@ class Spotdl:
             preftype=self.arguments["input_ext"],
         )
 
-        Encoder = {
-            "ffmpeg": EncoderFFmpeg,
-            "avconv": EncoderAvconv,
-        }.get(self.arguments["encoder"])
-
-        if Encoder is None:
+        if self.arguments["no_encode"]:
             output_extension = stream["encoding"]
         else:
             output_extension = self.arguments["output_ext"]
@@ -220,7 +212,7 @@ class Spotdl:
                 filename=filename
             ))
             to_skip_download = to_skip_download \
-                or not self.should_we_overwrite_existing_file()
+                or not self.should_we_overwrite_existing_file(self.arguments["overwrite"])
 
         if to_skip_download:
             logger.debug("Skip track download.")
@@ -230,14 +222,13 @@ class Spotdl:
             metadata["lyrics"].start()
 
         logger.info('Downloading to "{filename}"'.format(filename=filename))
-        if Encoder is None:
+        if self.arguments["no_encode"]:
             track.download(stream, temp_filename)
         else:
             track.download_while_re_encoding(
                 stream,
                 temp_filename,
                 target_encoding=output_extension,
-                encoder=Encoder()
             )
 
         if not self.arguments["no_metadata"]:

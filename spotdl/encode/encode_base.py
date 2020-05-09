@@ -10,9 +10,6 @@ from spotdl.encode.exceptions import EncoderNotFoundError
   NOTE ON ENCODERS
   ================
 
-* A comparision between FFmpeg, avconv, and libav:
-  https://stackoverflow.com/questions/9477115
-
 * FFmeg encoders sorted in descending order based
   on the quality of audio produced:
   libopus > libvorbis >= libfdk_aac > aac > libmp3lame

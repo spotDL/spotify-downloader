@@ -60,12 +60,12 @@ class EncoderFFmpeg(EncoderBase):
     def set_debuglog(self):
         self._loglevel = "-loglevel debug"
 
-    def _generate_encode_command(self, input_path, target_path,
+    def _generate_encode_command(self, input_path, target_file,
                                  input_encoding=None, target_encoding=None):
         if input_encoding is None:
             input_encoding = self.get_encoding(input_path)
         if target_encoding is None:
-            target_encoding = self.get_encoding(target_path)
+            target_encoding = self.get_encoding(target_file)
         arguments = self._generate_encoding_arguments(
             input_encoding,
             target_encoding
@@ -77,14 +77,14 @@ class EncoderFFmpeg(EncoderBase):
             + arguments.split() \
             + self._additional_arguments \
             + ["-f", target_encoding] \
-            + [target_path]
+            + [target_file]
 
         return command
 
-    def re_encode(self, input_path, target_path, target_encoding=None, delete_original=False):
+    def re_encode(self, input_path, target_file, target_encoding=None, delete_original=False):
         encode_command = self._generate_encode_command(
             input_path,
-            target_path,
+            target_file,
             target_encoding=target_encoding
         )
         logger.debug("Calling FFmpeg with:\n{command}".format(
@@ -97,10 +97,10 @@ class EncoderFFmpeg(EncoderBase):
             os.remove(input_path)
         return process
 
-    def re_encode_from_stdin(self, input_encoding, target_path, target_encoding=None):
+    def re_encode_from_stdin(self, input_encoding, target_file, target_encoding=None):
         encode_command = self._generate_encode_command(
             "-",
-            target_path,
+            target_file,
             input_encoding=input_encoding,
             target_encoding=target_encoding,
         )
