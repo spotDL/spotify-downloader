@@ -307,7 +307,7 @@ class Arguments:
 
         if self.parsed.output_file == "-" and self.parsed.no_metadata is False:
             logger.warn(
-                "Cannot write metadata when target file is STDOUT. Pass "
+                "Cannot write metadata when target is STDOUT. Pass "
                 "--no-metadata explicitly to hide this warning."
             )
             self.parsed.no_metadata = True

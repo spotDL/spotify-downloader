@@ -60,7 +60,6 @@ class Spotdl:
             client_secret=self.arguments["spotify_client_secret"]
         )
         spotify_tools = SpotifyHelpers()
-        # youtube_tools.set_api_key()
         logger.debug("Received arguments:\n{}".format(self.arguments))
 
         if self.arguments["song"]:
@@ -209,6 +208,11 @@ class Spotdl:
                 s, spaces_to_underscores=self.arguments["no_spaces"]
             )
         )
+        download_to_stdout = filename == "-"
+        if download_to_stdout:
+            temp_filename = filename
+        else:
+            temp_filename = "{filename}.temp".format(filename=filename)
 
         to_skip_download = self.arguments["dry_run"]
         if os.path.isfile(filename):
@@ -227,18 +231,21 @@ class Spotdl:
 
         logger.info('Downloading to "{filename}"'.format(filename=filename))
         if Encoder is None:
-            track.download(stream, filename)
+            track.download(stream, temp_filename)
         else:
             track.download_while_re_encoding(
                 stream,
-                filename,
+                temp_filename,
                 target_encoding=output_extension,
                 encoder=Encoder()
             )
 
         if not self.arguments["no_metadata"]:
             track.metadata["lyrics"] = track.metadata["lyrics"].join()
-            self.apply_metadata(track, filename, output_extension)
+            self.apply_metadata(track, temp_filename, output_extension)
+
+        if not download_to_stdout:
+            os.rename(temp_filename, filename)
 
     def apply_metadata(self, track, filename, encoding):
         logger.info("Applying metadata")
