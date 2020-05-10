@@ -111,7 +111,7 @@ class YouTubeSearch:
     def search(self, query, limit=10, retries=5):
         """ Search and scrape YouTube to return a list of matching videos. """
         search_url = self.generate_search_url(query)
-        logger.debug('Fetching YouTube results for "{}".'.format(search_url))
+        logger.debug('Fetching YouTube results for "{}" at "{}".'.format(query, search_url))
         html = self._fetch_response_html(search_url)
         videos = self._fetch_search_results(html, limit=limit)
         to_retry = retries > 0 and self._is_server_side_invalid_response(videos, html)

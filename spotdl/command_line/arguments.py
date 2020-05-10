@@ -153,6 +153,7 @@ def get_arguments(argv=None, base_config_file=spotdl.config.default_config_file)
         default=config["output_file"],
         help="path where to write the downloaded track to, special tags "
         "are to be surrounded by curly braces. Possible tags: "
+        # TODO: Add possible tags
         # "{}".format([spotdl.util.formats[x] for x in spotdl.util.formats]),
     )
     parser.add_argument(
@@ -167,6 +168,7 @@ def get_arguments(argv=None, base_config_file=spotdl.config.default_config_file)
         default=config["search_format"],
         help="search format to search for on YouTube, special tags "
         "are to be surrounded by curly braces. Possible tags: "
+        # TODO: Add possible tags
         # "{}".format([spotdl.util.formats[x] for x in spotdl.util.formats]),
     )
     parser.add_argument(
@@ -198,7 +200,8 @@ def get_arguments(argv=None, base_config_file=spotdl.config.default_config_file)
         "-ns",
         "--no-spaces",
         default=config["no_spaces"],
-        help="replace spaces with underscores in file names",
+        help="replace spaces in metadata values with underscores when "
+        "generating filenames",
         action="store_true",
     )
     parser.add_argument(
