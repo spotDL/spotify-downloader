@@ -31,8 +31,10 @@ All the below changes were made as a part of #690.
 - Display a combined *download & encode* progress bar.
 
 ### Changed
-- Tracks are now downloaded in the current working directory (instead of Music directory)
+- **[Breaking]** Tracks are now downloaded in the current working directory (instead of Music directory)
   by default.
+- **[Breaking]** Short for `--album` is now `-a` instead of `-b`.
+- **[Breaking]** Short for `--all-albums` is now `-aa` instead of `-ab`.
 - Allow "&" character in filenames.
 - **[Breaking]** Merge parameters `-ff` and `-f` to `-f` (`--output-file`).
 - **[Breaking]** Do not prefix formats with a dot when specifying `-i` and `-o` parameters

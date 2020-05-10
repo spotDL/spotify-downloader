@@ -1,8 +1,3 @@
-# XXX: Perhaps we do not need to call `spotify._get_id`
-#      explicitly in newer versions of spotipy.
-#      Need to confirm this and if so, remove the calls
-#      to `spotify._get_id` in below methods.
-
 from spotdl.authorize.services import AuthorizeSpotify
 import spotdl.util
 
@@ -19,11 +14,8 @@ except ImportError:
     sys.exit(5)
 
 
-ALBUM_BASE_URL = "https://open.spotify.com/album/"
-
 class SpotifyHelpers:
     def __init__(self, spotify=None):
-        self._ALBUM_BASE_URL = ALBUM_BASE_URL
         if spotify is None:
             spotify = AuthorizeSpotify()
         self.spotify = spotify
@@ -64,18 +56,12 @@ class SpotifyHelpers:
     def fetch_playlist(self, playlist_url):
         logger.debug('Fetching playlist "{playlist}".'.format(playlist=playlist_url))
         try:
-            playlist_id = self.spotify._get_id("playlist", playlist_url)
-        except IndexError:
-            # Wrong format, in either case
-            logger.error("The provided playlist URL is not in a recognized format!")
-            sys.exit(10)
-        try:
-            results = self.spotify.user_playlist(
-                user=None, playlist_id=playlist_id, fields="tracks,next,name"
-            )
+            results = self.spotify.playlist(playlist_url, fields="tracks,next,name")
         except spotipy.client.SpotifyException:
-            logger.error("Unable to find playlist")
-            logger.info("Make sure the playlist is set to publicly visible and then try again.")
+            logger.exception(
+                "Unable to find playlist. Make sure the playlist is set "
+                "to publicly visible and then try again."
+            )
             sys.exit(11)
 
         return results
@@ -86,10 +72,9 @@ class SpotifyHelpers:
             text_file = u"{0}.txt".format(slugify(playlist["name"], ok="-_()[]{}"))
         return self.write_tracks(tracks, text_file)
 
-    def fetch_album(self, album_url):
-        logger.debug('Fetching album "{album}".'.format(album=album_url))
-        album_id = self.spotify._get_id("album", album_url)
-        album = self.spotify.album(album_id)
+    def fetch_album(self, album_uri):
+        logger.debug('Fetching album "{album}".'.format(album=album_uri))
+        album = self.spotify.album(album_uri)
         return album
 
     def write_album_tracks(self, album, text_file=None):
@@ -98,21 +83,20 @@ class SpotifyHelpers:
             text_file = u"{0}.txt".format(slugify(album["name"], ok="-_()[]{}"))
         return self.write_tracks(tracks, text_file)
 
-    def fetch_albums_from_artist(self, artist_url, album_type=None):
+    def fetch_albums_from_artist(self, artist_uri, album_type=None):
         """
-        This function returns all the albums from a give artist_url using the US
+        This function returns all the albums from a give artist_uri using the US
         market
-        :param artist_url - spotify artist url
+        :param artist_uri - spotify artist uri
         :param album_type - the type of album to fetch (ex: single) the default is
                             all albums
         :param return - the album from the artist
         """
 
-        logger.debug('Fetching all albums for "{artist}".'.format(artist=artist_url))
-        artist_id = self.spotify._get_id("artist", artist_url)
+        logger.debug('Fetching all albums for "{artist}".'.format(artist=artist_uri))
         # fetching artist's albums limitting the results to the US to avoid duplicate
         # albums from multiple markets
-        results = self.spotify.artist_albums(artist_id, album_type=album_type, country="US")
+        results = self.spotify.artist_albums(artist_uri, album_type=album_type, country="US")
 
         albums = results["items"]
 
@@ -128,7 +112,7 @@ class SpotifyHelpers:
         This function gets all albums from an artist and writes it to a file in the
         current working directory called [ARTIST].txt, where [ARTIST] is the artist
         of the album
-        :param artist_url - spotify artist url
+        :param artist_uri - spotify artist uri
         :param text_file - file to write albums to
         """
 

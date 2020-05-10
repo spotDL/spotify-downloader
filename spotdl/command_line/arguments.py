@@ -70,13 +70,13 @@ def get_arguments(argv=None, base_config_file=spotdl.config.default_config_file)
              "if `--write-to=<path/to/file.txt>` has been passed",
     )
     group.add_argument(
-        "-b",
+        "-a",
         "--album",
         help="load tracks from album URL into <album_name>.txt or if "
              "`--write-to=<path/to/file.txt>` has been passed"
     )
     group.add_argument(
-        "-ab",
+        "-aa",
         "--all-albums",
         help="load all tracks from artist URL into <artist_name>.txt "
              "or if `--write-to=<path/to/file.txt>` has been passed"

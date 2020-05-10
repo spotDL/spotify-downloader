@@ -30,7 +30,7 @@ setup(
         "pathlib >= 1.0.1",
         "youtube_dl >= 2017.9.26",
         "pytube3 >= 9.6.4",
-        "spotipy >= 2.4.4",
+        "spotipy >= 2.12.0",
         "mutagen >= 1.41.1",
         "beautifulsoup4 >= 4.6.3",
         "unicode-slugify >= 0.1.3",
