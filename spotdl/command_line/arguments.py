@@ -109,6 +109,7 @@ def get_arguments(argv=None, base_config_file=spotdl.config.default_config_file)
         action="store_true",
     )
     parser.add_argument(
+        "-ne",
         "--no-encode",
         default=config["no-encode"],
         action="store_true",

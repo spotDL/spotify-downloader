@@ -6,17 +6,66 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
-## [2.0.0] - <add-date-here>
+## [2.0.0] - <add-date-here-when-ready-to-publish>
 ### Migrating from v1.2.6 to v2.0.0
+It is highly recommended to remove your previous `config.yml` due to breaking changes
+in v2.0.0 (marked as **[Breaking]** in the below sections), new options being added, and old
+ones being removed. You may want to first backup your old configuration for reference.
+You can then install spotdl v2.0.0 and remove your current configuration by running:
+```
+$ spotdl --remove-config
+```
+spotdl will automatically generate a new configuration file on the next run. You can
+then replace the appropriate fields in the newly generated configuration file by
+referring to your old configuration file.
 
-### Fixed
+All the below changes were made as a part of #690.
 
 ### Added
+- `-i` now accepts `automatic` which would automatically select the best available stream
+  irrespective of the format.
+- Added parameter `-q` (`--quality {best,worst}`) to select best (default) or worst audio quality.
+- Added `-ne` (`--no-encode`) to disable encoding.
+- Output to STDOUT with `-f -`.
+- Read tracks from STDIN in `-s` parameter.
+- Display a combined *download & encode* progress bar.
 
 ### Changed
+- Tracks are now downloaded in the current working directory (instead of Music directory)
+  by default.
+- Allow "&" character in filenames.
+- **[Breaking]** Merge parameters `-ff` and `-f` to `-f` (`--output-file`).
+- **[Breaking]** Do not prefix formats with a dot when specifying `-i` and `-o` parameters
+  Such as `-o .mp3` is now written as `-o mp3`.
+- Partial re-write and internal API refactor.
+- Enhance debug log output readability.
+- Internally adapt to latest changes made in Spotipy library.
+- Switch to `logging` + `coloredlogs` instead of `logzero`. Our loggers weren't being
+  setup properly with `logzero`.
+- Simplify checking for an already track. Previously it also analyzed metadata
+  for the already downloaded track to determine whether to overwrite the already downloaded
+  track, which caused unexpected behvaiours at times.
+- Codebase is now more modular making it easier to use spotdl in python scripts.
+
+### Optimized
+- Track download and encoding now happen parallely instead of sequentially making spotdl
+  faster.
+- Lyrics and albumart are now downloaded in the background while the track is being downloaded
+  instead of in the end. This reduces additional delays if we are to download them while applying
+  metadata.
+- `--write-m3u` now only scrapes YouTube for required metadata making it much faster.
+  Previously, it was also required to parse it via an external YouTube parsing library
+  which was slow.
+- Switch to PyTube from Pafy. PyTube is faster and relies only on scraping.
 
 ### Removed
-- Command-line options 
+- **[Breaking]** Removed Avconv support. Only FFmpeg is supported now.
+- **[Breaking]** Removed `--no-fallback-metadata` parameter since not many people seem to find it useful.
+- **[Breaking]** Removed apparently misleading `--download-only-metadata` parameter.
+- **[Breaking]** Removed ability to set YouTube API key since we now use PyTube instead of Pafy, and
+  PyTube does not require an API key.
+- **[Breaking]** As a side effect of above, `--music-videos-only` is also removed as this feature worked only
+  with YouTube API.
 
 ## [1.2.6] (Hotfix Release) - 2020-03-02
 ### Fixed
