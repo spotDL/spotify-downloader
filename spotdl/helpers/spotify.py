@@ -21,7 +21,7 @@ class SpotifyHelpers:
         self.spotify = spotify
 
     def prompt_for_user_playlist(self, username):
-        """ Write user playlists to text_file """
+        """ Write user playlists to target_file """
         playlists = self.fetch_user_playlist_urls(username)
         for i, playlist in enumerate(playlists, 1):
             playlist_details = "{0}. {1:<30}  ({2} tracks)".format(
@@ -65,22 +65,22 @@ class SpotifyHelpers:
 
         return results
 
-    def write_playlist_tracks(self, playlist, text_file=None):
+    def write_playlist_tracks(self, playlist, target_file=None):
         tracks = playlist["tracks"]
-        if not text_file:
-            text_file = u"{0}.txt".format(slugify(playlist["name"], ok="-_()[]{}"))
-        return self.write_tracks(tracks, text_file)
+        if not target_file:
+            target_file = u"{0}.txt".format(slugify(playlist["name"], ok="-_()[]{}"))
+        return self.write_tracks(tracks, target_file)
 
     def fetch_album(self, album_uri):
         logger.debug('Fetching album "{album}".'.format(album=album_uri))
         album = self.spotify.album(album_uri)
         return album
 
-    def write_album_tracks(self, album, text_file=None):
+    def write_album_tracks(self, album, target_file=None):
         tracks = self.spotify.album_tracks(album["id"])
-        if not text_file:
-            text_file = u"{0}.txt".format(slugify(album["name"], ok="-_()[]{}"))
-        return self.write_tracks(tracks, text_file)
+        if not target_file:
+            target_file = u"{0}.txt".format(slugify(album["name"], ok="-_()[]{}"))
+        return self.write_tracks(tracks, target_file)
 
     def fetch_albums_from_artist(self, artist_uri, album_type=None):
         """
@@ -106,28 +106,27 @@ class SpotifyHelpers:
 
         return albums
 
-    def write_all_albums(self, albums, text_file=None):
+    def write_all_albums(self, albums, target_file=None):
         """
         This function gets all albums from an artist and writes it to a file in the
         current working directory called [ARTIST].txt, where [ARTIST] is the artist
         of the album
         :param artist_uri - spotify artist uri
-        :param text_file - file to write albums to
+        :param target_file - file to write albums to
         """
 
         # if no file if given, the default save file is in the current working
         # directory with the name of the artist
-        if text_file is None:
-            text_file = albums[0]["artists"][0]["name"] + ".txt"
+        if target_file is None:
+            target_file = albums[0]["artists"][0]["name"] + ".txt"
 
         for album in albums:
             logger.info('Fetching album "{album}".'.format(album=album["name"]))
-            self.write_album_tracks(album, text_file=text_file)
+            self.write_album_tracks(album, target_file=target_file)
 
-    def write_tracks(self, tracks, text_file):
-        logger.info(u"Writing {0} tracks to {1}.".format(tracks["total"], text_file))
-        track_urls = []
-        with open(text_file, "a") as file_out:
+    def write_tracks(self, tracks, target_file):
+        def writer(tracks, file_io):
+            track_urls = []
             while True:
                 for item in tracks["items"]:
                     if "track" in item:
@@ -136,7 +135,7 @@ class SpotifyHelpers:
                         track = item
                     try:
                         track_url = track["external_urls"]["spotify"]
-                        file_out.write(track_url + "\n")
+                        file_io.write(track_url + "\n")
                         track_urls.append(track_url)
                     except KeyError:
                         # FIXME: Write "{artist} - {name}" instead of Spotify URI for
@@ -152,5 +151,15 @@ class SpotifyHelpers:
                     tracks = self.spotify.next(tracks)
                 else:
                     break
+            return track_urls
+
+        logger.info(u"Writing {0} tracks to {1}.".format(tracks["total"], target_file))
+        write_to_stdout = target_file == "-"
+        if write_to_stdout:
+            with open(target_file, "a") as file_out:
+                track_urls = writer(tracks, file_out)
+        else:
+            file_out = sys.stdout
+            track_urls = writer(tracks, file_out)
         return track_urls
 

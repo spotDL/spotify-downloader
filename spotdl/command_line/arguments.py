@@ -283,13 +283,13 @@ class Arguments:
             )
 
         if self.parsed.write_m3u and not self.parsed.list:
-            self.parser.error("--write-m3u can only be used with --list")
+            self.parser.error("--write-m3u can only be used with --list.")
 
         if self.parsed.write_to and not (
-            self.parsed.playlist or self.parsed.album or self.parsed.all_albums or self.parsed.username
+            self.parsed.playlist or self.parsed.album or self.parsed.all_albums or self.parsed.username or self.parsed.write_m3u
         ):
             self.parser.error(
-                "--write-to can only be used with --playlist, --album, --all-albums, or --username"
+                "--write-to can only be used with --playlist, --album, --all-albums, --username, or --write-m3u."
             )
 
         ffmpeg_exists = shutil.which("ffmpeg")

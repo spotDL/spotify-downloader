@@ -65,16 +65,19 @@ class Track:
         total_chunks = self.calculate_total_chunks(stream["filesize"])
         progress_bar = self.make_progress_bar(total_chunks)
         response = stream["connection"]
-        if target_path == "-":
-            # Target is STDOUT
+
+        def writer(response, progress_bar, file_io):
             for _ in progress_bar:
                 chunk = response.read(self._chunksize)
-                sys.stdout.buffer.write(chunk)
+                file_io.write(chunk)
+
+        write_to_stdout = target_path == "-"
+        if write_to_stdout:
+            file_io = sys.stdout.buffer
+            writer(response, progress_bar, file_io)
         else:
-            with open(target_path, "wb") as fout:
-                for _ in progress_bar:
-                    chunk = response.read(self._chunksize)
-                    fout.write(chunk)
+            with open(target_path, "wb") as file_io:
+                writer(response, progress_bar, file_io)
 
     def re_encode(self, input_path, target_path, target_encoding=None,
                   encoder=EncoderFFmpeg(), show_progress=True):

@@ -118,8 +118,13 @@ class Spotdl:
 
         total_tracks = len(tracks)
         logger.info("Generating {0} from {1} YouTube URLs.".format(target_file, total_tracks))
-        with open(target_file, "w") as output_file:
-            output_file.write("#EXTM3U\n\n")
+        write_to_stdout = target_file == "-"
+        m3u_headers = "#EXTM3U\n\n"
+        if write_to_stdout:
+            sys.stdout.write(m3u_headers)
+        else:
+            with open(target_file, "w") as output_file:
+                output_file.write(m3u_headers)
 
         videos = []
         for n, track in enumerate(tracks, 1):
@@ -147,8 +152,11 @@ class Spotdl:
                     youtube_url=video["url"],
                 )
                 logger.debug(m3u_key.strip())
-                with open(target_file, "a") as output_file:
-                    output_file.write(m3u_key)
+                if write_to_stdout:
+                    sys.stdout.write(m3u_key)
+                else:
+                    with open(target_file, "a") as output_file:
+                        output_file.write(m3u_key)
 
     def download_track(self, track):
         logger.info('Downloading "{}"'.format(track))
