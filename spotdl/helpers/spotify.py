@@ -11,7 +11,7 @@ try:
 except ImportError:
     logger.error("Oops! `unicode-slugify` was not found.")
     logger.info("Please remove any other slugify library and install `unicode-slugify`.")
-    sys.exit(5)
+    raise
 
 
 class SpotifyHelpers:
@@ -62,7 +62,6 @@ class SpotifyHelpers:
                 "Unable to find playlist. Make sure the playlist is set "
                 "to publicly visible and then try again."
             )
-            sys.exit(11)
 
         return results
 

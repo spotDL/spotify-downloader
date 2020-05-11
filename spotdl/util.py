@@ -18,7 +18,7 @@ try:
 except ImportError:
     logger.error("Oops! `unicode-slugify` was not found.")
     logger.info("Please remove any other slugify library and install `unicode-slugify`")
-    sys.exit(5)
+    raise
 
 
 # This has been referred from
