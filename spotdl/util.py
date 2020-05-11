@@ -103,23 +103,6 @@ def sanitize(string, ok="&-_()[]{}", spaces_to_underscores=False):
     return string
 
 
-def filter_path(path):
-    if not os.path.exists(path):
-        os.makedirs(path)
-    for temp in os.listdir(path):
-        if temp.endswith(".temp"):
-            os.remove(os.path.join(path, temp))
-
-
-def videotime_from_seconds(time):
-    if time < 60:
-        return str(time)
-    if time < 3600:
-        return "{0}:{1:02}".format(time // 60, time % 60)
-
-    return "{0}:{1:02}:{2:02}".format((time // 60) // 60, (time // 60) % 60, time % 60)
-
-
 def get_sec(time_str):
     if ":" in time_str:
         splitter = ":"
@@ -141,46 +124,6 @@ def get_sec(time_str):
     return sec
 
 
-# a hacky way to get user's localized music directory
-# (thanks @linusg, issue #203)
-def get_music_dir():
-    home = os.path.expanduser("~")
-
-    # On Linux, the localized directory names are the actual ones.
-    # It's a freedesktop standard though.
-    if sys.platform.startswith("linux"):
-        for file_item in (".config/user-dirs.dirs", "user-dirs.dirs"):
-            path = os.path.join(home, file_item)
-            if os.path.isfile(path):
-                with open(path, "r") as f:
-                    for line in f:
-                        if line.startswith("XDG_MUSIC_DIR"):
-                            return os.path.expandvars(
-                                line.strip().split("=")[1].strip('"')
-                            )
-
-    # Windows / Cygwin
-    # Queries registry for 'My Music' directory path (as this can be changed)
-    if "win" in sys.platform:
-        try:
-            key = winreg.OpenKey(
-                winreg.HKEY_CURRENT_USER,
-                r"Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders",
-                0,
-                winreg.KEY_ALL_ACCESS,
-            )
-            return winreg.QueryValueEx(key, "My Music")[0]
-        except (FileNotFoundError, NameError):
-            pass
-
-    # On both Windows and macOS, the localized directory names you see in
-    # Explorer and Finder are actually in English on the file system.
-    # So, defaulting to C:\Users\<user>\Music or /Users/<user>/Music
-    # respectively is sufficient.
-    # On Linux, default to /home/<user>/Music if the above method failed.
-    return os.path.join(home, "Music")
-
-
 def remove_duplicates(elements, condition=lambda _: True, operation=lambda x: x):
     """
     Removes duplicates from a list whilst preserving order.
@@ -198,15 +141,6 @@ def remove_duplicates(elements, condition=lambda _: True, operation=lambda x: x)
             filtered_list.append(operated)
             local_set_add(operated)
     return filtered_list
-
-
-def content_available(url):
-    try:
-        response = urllib.request.urlopen(url)
-    except urllib.request.HTTPError:
-        return False
-    else:
-        return response.getcode() < 300
 
 
 def titlecase(string):
