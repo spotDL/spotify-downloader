@@ -9,6 +9,8 @@ from spotdl.lyrics.providers import LyricWikia
 from spotdl.lyrics.providers import Genius
 from spotdl.lyrics.exceptions import LyricsNotFoundError
 
+from spotdl.encode.encoders import EncoderFFmpeg
+
 from spotdl.authorize.services import AuthorizeSpotify
 
 from spotdl.track import Track
@@ -233,10 +235,14 @@ class Spotdl:
         if self.arguments["no_encode"]:
             track.download(stream, temp_filename)
         else:
+            encoder = EncoderFFmpeg()
+            if self.arguments["trim_silence"]:
+                encoder.set_trim_silence()
             track.download_while_re_encoding(
                 stream,
                 temp_filename,
                 target_encoding=output_extension,
+                encoder=encoder,
             )
 
         if not self.arguments["no_metadata"]:
@@ -244,6 +250,9 @@ class Spotdl:
             self.apply_metadata(track, temp_filename, output_extension)
 
         if not download_to_stdout:
+            logger.debug("Renaming {temp_filename} to {filename}.".format(
+                temp_filename=temp_filename, filename=filename
+            ))
             os.rename(temp_filename, filename)
 
     def apply_metadata(self, track, filename, encoding):
