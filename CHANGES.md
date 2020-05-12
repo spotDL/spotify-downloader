@@ -27,6 +27,7 @@ All the below changes were made as a part of #690.
 - Added parameter `-q` (`--quality {best,worst}`) to select best (default) or worst audio quality.
 - Added `-ne` (`--no-encode`) to disable encoding.
 - Output to STDOUT with `-f -`.
+- Output to STDOUT with `--write-to -`.
 - Read tracks from STDIN in `-s` parameter.
 - Display a combined *download & encode* progress bar.
 
