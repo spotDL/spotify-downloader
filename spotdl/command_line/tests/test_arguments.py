@@ -34,7 +34,7 @@ class TestArguments:
         arguments["spotify_client_secret"] = None
 
         expect_arguments = {
-            "track": ["elena coats - one last song"],
+            "song": ["elena coats - one last song"],
             "song": None,
             "list": None,
             "playlist": None,
@@ -46,7 +46,6 @@ class TestArguments:
             "no_remove_original": False,
             "no_metadata": False,
             "no_fallback_metadata": False,
-            "avconv": False,
             "directory": "/home/ritiek/Music",
             "overwrite": "prompt",
             "input_ext": ".m4a",
@@ -60,7 +59,6 @@ class TestArguments:
             "music_videos_only": False,
             "no_spaces": False,
             "log_level": 20,
-            "youtube_api_key": None,
             "skip": None,
             "write_successful": None,
             "spotify_client_id": None,
@@ -72,5 +70,5 @@ class TestArguments:
 
     def test_grouped_arguments(self):
         with pytest.raises(SystemExit):
-            spotdl.command_line.arguments.get_arguments(to_merge=True)
+            spotdl.command_line.arguments.get_arguments()
 

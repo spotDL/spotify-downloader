@@ -292,10 +292,13 @@ class Arguments:
                 "--write-to can only be used with --playlist, --album, --all-albums, --username, or --write-m3u."
             )
 
-        ffmpeg_exists = shutil.which("ffmpeg")
+        ffmpeg_exists = shutil.which("fffmpeg")
         if not ffmpeg_exists:
             logger.warn("FFmpeg was not found in PATH. Will not re-encode media to specified output format.")
-            self.parsed.output_ext = self.parsed.input_ext
+            self.parsed.no_encode = True
+
+        if self.parsed.no_encode and self.parsed.trim_silence:
+            logger.warn("--trim-silence can only be used when an encoder is set.")
 
         if self.parsed.output_file == "-" and self.parsed.no_metadata is False:
             logger.warn(
@@ -311,7 +314,7 @@ class Arguments:
             logger.warn(
                 "Given output file is a directory. Will download tracks "
                 "in this directory with their filename as per the default "
-                "file format. Pass '--output-file=\"{}\"' to hide this "
+                "file format. Pass --output-file=\"{}\" to hide this "
                 "warning.".format(
                     adjusted_output_file
                 )

@@ -199,7 +199,7 @@ class YouTubeStreams(StreamsBase):
                 if stream["encoding"] == preftype:
                     selected_stream = stream
                     break
-        logger.debug('Selected worst quality stream for "{preftype}" format:\n'.format(
+        logger.debug('Selected worst quality stream for "{preftype}" format:\n{stream}'.format(
             preftype=preftype,
             stream=selected_stream,
         ))
