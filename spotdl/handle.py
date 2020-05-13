@@ -31,7 +31,7 @@ default_conf = {
         "music-videos-only": False,
         "no-spaces": False,
         "file-format": "{artist} - {track_name}",
-        "search-format": "{artist} - {track_name} lyrics",
+        "search-format": "{artist} - {track_name}",
         "youtube-api-key": None,
         "skip": None,
         "write-successful": None,
