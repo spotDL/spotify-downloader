@@ -37,8 +37,10 @@ class Genius(LyricBase):
     def _get_lyrics_text(self, html):
         soup = BeautifulSoup(html, "html.parser")
         lyrics_paragraph = soup.find("p")
-        lyrics = lyrics_paragraph.get_text()
-        return lyrics
+        if lyrics_paragraph:
+            return lyrics_paragraph.get_text()
+        else:
+            raise LyricsNotFound("The lyrics for this track are yet to be released.")
 
     def get_lyrics(self, linesep="\n", timeout=None):
         url = self._guess_lyric_url()

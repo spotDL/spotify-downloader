@@ -6,6 +6,24 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [1.2.6] (Hotfix Release) - 2020-03-02
+### Fixed
+Embed release date metadata only when available (follow up of #672) ([@ritiek](https://github.com/ritiek)) (#674)
+
+## [1.2.5] - 2020-03-02
+### Fixed
+- Skip crash when accessing YouTube-API-only fields in scrape mode ([@ritiek](https://github.com/ritiek)) (#672)
+
+### Changed
+- Changed FFMPEG args to convert to 48k quality audio instead of the current 44k audio. ([@AvinashReddy3108](https://github.com/AvinashReddy3108)) (#667)
+
+## [1.2.4] - 2020-01-10
+### Fixed
+- Fixed a crash occuring when lyrics for a track are not yet released
+  on Genius ([@ritiek](https://github.com/ritiek)) (#654)
+- Fixed a regression where a track would fail to download if it isn't
+  found on Spotify ([@ritiek](https://github.com/ritiek)) (#653)
+
 ## [1.2.3] - 2019-12-20
 ### Added
 - Added `--no-remove-original-file` ([@NightMachinary](https://github.com/NightMachinary)) (#580)

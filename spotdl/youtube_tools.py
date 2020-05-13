@@ -109,8 +109,8 @@ def generate_metadata(content):
             "artists": [{"name": None}],
             "name": None,
         },
-        "year": content.published.split("-")[0],
-        "release_date": content.published.split(" ")[0],
+        "year": None,
+        "release_date": None,
         "type": "track",
         "disc_number": 1,
         "track_number": 1,
@@ -121,6 +121,14 @@ def generate_metadata(content):
         "copyright": None,
         "genre": None,
     }
+
+    # Workaround for
+    # https://github.com/ritiek/spotify-downloader/issues/671
+    try:
+        meta_tags["year"] = content.published.split("-")[0]
+        meta_tags["release_date"] = content.published.split(" ")[0]
+    except pafy.util.GdataError:
+        pass
 
     return meta_tags
 

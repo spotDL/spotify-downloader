@@ -76,8 +76,9 @@ class EmbedMetadata:
         # https://github.com/quodlibet/mutagen/blob/master/mutagen/id3/_frames.py
         # Each class represents an id3 tag
         audiofile = ID3(music_file)
-        audiofile["TORY"] = TORY(encoding=3, text=meta_tags["year"])
-        audiofile["TYER"] = TYER(encoding=3, text=meta_tags["year"])
+        if meta_tags["year"]:
+            audiofile["TORY"] = TORY(encoding=3, text=meta_tags["year"])
+            audiofile["TYER"] = TYER(encoding=3, text=meta_tags["year"])
         if meta_tags["publisher"]:
             audiofile["TPUB"] = TPUB(encoding=3, text=meta_tags["publisher"])
         audiofile["COMM"] = COMM(
@@ -109,7 +110,8 @@ class EmbedMetadata:
         meta_tags = self.meta_tags
         audiofile = MP4(music_file)
         self._embed_basic_metadata(audiofile, preset=M4A_TAG_PRESET)
-        audiofile[M4A_TAG_PRESET["year"]] = meta_tags["year"]
+        if meta_tags["year"]:
+            audiofile[M4A_TAG_PRESET["year"]] = meta_tags["year"]
         audiofile[M4A_TAG_PRESET["comment"]] = meta_tags["external_urls"][self.provider]
         if meta_tags["lyrics"]:
             audiofile[M4A_TAG_PRESET["lyrics"]] = meta_tags["lyrics"]
@@ -130,7 +132,8 @@ class EmbedMetadata:
         meta_tags = self.meta_tags
         audiofile = FLAC(music_file)
         self._embed_basic_metadata(audiofile)
-        audiofile["year"] = meta_tags["year"]
+        if meta_tags["year"]:
+            audiofile["year"] = meta_tags["year"]
         audiofile["comment"] = meta_tags["external_urls"][self.provider]
         if meta_tags["lyrics"]:
             audiofile["lyrics"] = meta_tags["lyrics"]
@@ -155,8 +158,9 @@ class EmbedMetadata:
         if meta_tags["album"]["name"]:
             audiofile[preset["album"]] = meta_tags["album"]["name"]
         audiofile[preset["title"]] = meta_tags["name"]
-        audiofile[preset["date"]] = meta_tags["release_date"]
-        audiofile[preset["originaldate"]] = meta_tags["release_date"]
+        if meta_tags["release_date"]:
+            audiofile[preset["date"]] = meta_tags["release_date"]
+            audiofile[preset["originaldate"]] = meta_tags["release_date"]
         if meta_tags["genre"]:
             audiofile[preset["genre"]] = meta_tags["genre"]
         if meta_tags["copyright"]:
