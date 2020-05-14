@@ -11,7 +11,7 @@ DEFAULT_CONFIGURATION = {
         "manual": False,
         "no_metadata": False,
         "no_fallback_metadata": False,
-        "no-encode": False,
+        "no_encode": False,
         "overwrite": "prompt",
         "quality": "best",
         "input_ext": "automatic",
@@ -58,7 +58,7 @@ def get_config(config_file):
         config = DEFAULT_CONFIGURATION
         dump_config(config_file, config=DEFAULT_CONFIGURATION)
 
-        logger.info("Writing default configuration to {0}:".format(config_file))
+        logger.info("Writing default configuration to {0}.".format(config_file))
 
         for line in yaml.dump(
             DEFAULT_CONFIGURATION["spotify-downloader"], default_flow_style=False
@@ -67,8 +67,8 @@ def get_config(config_file):
                 logger.info(line.strip())
         logger.info(
             "Please note that command line arguments have higher priority "
-            "than their equivalents in the configuration file"
+            "than their equivalents in the configuration file."
         )
 
-    return config["spotify-downloader"]
+    return config
 

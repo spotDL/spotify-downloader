@@ -3,6 +3,10 @@ import coloredlogs
 
 import sys
 
+from spotdl.command_line.lib import Spotdl
+from spotdl.command_line.arguments import get_arguments
+from spotdl.command_line.exceptions import ArgumentError
+
 # hardcode loglevel for dependencies so that they do not spew generic
 # log messages along with spotdl.
 for module in ("urllib3", "spotipy", "pytube"):
@@ -27,12 +31,13 @@ def set_logger(level):
 
 
 def main():
-    from spotdl.command_line.arguments import get_arguments
-    arguments = get_arguments()
-    logger = set_logger(arguments.parsed.log_level)
-    arguments = arguments.run_errands()
-    from spotdl.command_line.lib import Spotdl
-    spotdl = Spotdl(arguments)
+    argument_handler = get_arguments()
+    logging_level = argument_handler.get_logging_level()
+    logger = set_logger(logging_level)
+    try:
+        spotdl = Spotdl(argument_handler)
+    except ArgumentError as e:
+        argument_handler.parser.error(e.args[0])
     try:
         spotdl.match_arguments()
     except KeyboardInterrupt as e:

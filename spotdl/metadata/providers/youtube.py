@@ -244,7 +244,7 @@ class ProviderYouTube(ProviderBase):
         return YouTubeSearch().search(query)
 
     def _fetch_publish_date(self, content):
-        # FIXME: This needs to be supported in PyTube itself
+        # XXX: This needs to be supported in PyTube itself
         # See https://github.com/nficano/pytube/issues/595
         position = content.watch_html.find("publishDate")
         publish_date = content.watch_html[position+16:position+25]

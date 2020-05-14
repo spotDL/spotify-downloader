@@ -32,20 +32,8 @@ logger = logging.getLogger(__name__)
 
 
 class Spotdl:
-    def __init__(self, arguments):
-        if "config" in arguments:
-            # Make sure we set the base configuration from the config file if
-            # the config file has been passed.
-            config = spotdl.util.merge(
-                spotdl.config.DEFAULT_CONFIGURATION["spotify-downloader"],
-                spotdl.config.get_config(arguments["config"])
-            )
-        else:
-            # If config file has not been passed, set the base configuration
-            # to the default confguration.
-            config = spotdl.config.DEFAULT_CONFIGURATION["spotify-downloader"]
-
-        self.arguments = spotdl.util.merge(config, arguments)
+    def __init__(self, argument_handler):
+        self.arguments = argument_handler.run_errands()
 
     def __enter__(self):
         return self
@@ -254,6 +242,8 @@ class Spotdl:
                 temp_filename=temp_filename, filename=filename
             ))
             os.rename(temp_filename, filename)
+
+        return filename
 
     def apply_metadata(self, track, filename, encoding):
         logger.info("Applying metadata")
