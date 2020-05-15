@@ -7,7 +7,8 @@ python:
   - "3.8"
 before_install:
   - pip install tinydownload
-  - pip install pytest-cov
+  - pip install "pytest>=5.4.1"
+  - pip install "pytest-cov>=2.8.1"
 addons:
   apt:
     packages:
