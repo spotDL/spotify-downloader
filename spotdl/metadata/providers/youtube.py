@@ -32,6 +32,9 @@ class YouTubeVideos(Sequence):
     def __getitem__(self, index):
         return self.videos[index]
 
+    def __eq__(self, instance):
+        return self.videos == instance.videos
+
     def bestmatch(self):
         video = self.videos[0]
         logger.debug("Matched with: {title} ({url}) [{duration}]".format(

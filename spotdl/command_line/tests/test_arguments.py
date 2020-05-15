@@ -1,24 +1,37 @@
 import spotdl.command_line.arguments
+from spotdl.command_line.exceptions import ArgumentError
 
+import logging
 import sys
 import pytest
 
 
-def test_log_str_to_int():
-    expect_levels = [20, 30, 40, 10]
-    levels = [spotdl.command_line.arguments.log_leveller(level)
-              for level in spotdl.command_line.arguments._LOG_LEVELS_STR]
-    assert levels == expect_levels
+def test_logging_levels():
+    expect_logging_levels = {
+        "INFO": logging.INFO,
+        "WARNING": logging.WARNING,
+        "DEBUG": logging.DEBUG,
+        "ERROR": logging.ERROR,
+    }
+    assert spotdl.command_line.arguments._LOG_LEVELS == expect_logging_levels
 
 
 class TestBadArguments:
     def test_error_m3u_without_list(self):
-        with pytest.raises(SystemExit):
-            spotdl.command_line.arguments.get_arguments(argv=("-t cool song", "--write-m3u"))
+        previous_argv = sys.argv
+        sys.argv[1:] = ["-s", "cool song", "--write-m3u"]
+        argument_handler = spotdl.command_line.arguments.get_arguments()
+        with pytest.raises(ArgumentError):
+            argument_handler.run_errands()
+        sys.argv[1:] = previous_argv[1:]
 
     def test_write_to_error(self):
-        with pytest.raises(SystemExit):
-            spotdl.command_line.arguments.get_arguments(argv=("-t", "sekai all i had", "--write-to", "output.txt"))
+        previous_argv = sys.argv
+        sys.argv[1:] = ["-s", "sekai all i had", "--write-to", "output.txt"]
+        argument_handler = spotdl.command_line.arguments.get_arguments()
+        with pytest.raises(ArgumentError):
+            argument_handler.run_errands()
+        sys.argv[1:] = previous_argv[1:]
 
 
 class TestArguments:
@@ -69,6 +82,9 @@ class TestArguments:
         assert arguments == expect_arguments
 
     def test_grouped_arguments(self):
+        previous_argv = sys.argv
+        sys.argv[1:] = []
         with pytest.raises(SystemExit):
-            spotdl.command_line.arguments.get_arguments()
+            argument_handler = spotdl.command_line.arguments.get_arguments()
+        sys.argv[1:] = previous_argv[1:]
 

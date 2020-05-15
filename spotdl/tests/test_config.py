@@ -53,7 +53,7 @@ class TestDefaultConfigFile:
 class TestConfig:
     def test_default_config(self, config_path):
         expect_config = spotdl.config.DEFAULT_CONFIGURATION["spotify-downloader"]
-        config = spotdl.config.get_config(config_path)
+        config = spotdl.config.get_config(config_path)["spotify-downloader"]
         assert config == expect_config
 
     @pytest.mark.xfail

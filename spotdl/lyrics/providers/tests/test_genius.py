@@ -51,7 +51,7 @@ class TestGenius:
         expect_lyrics = ""
 
         def __init__(self, request, timeout=None):
-            search_results_url = "https://genius.com/api/search/multi?per_page=1&q=selena+gomez+wolves"
+            search_results_url = "https://genius.com/api/search/multi?per_page=1&q=selena%2Bgomez%2Bwolves"
             if request._full_url == search_results_url:
                 read_method = lambda: json.dumps({
                     "response": {"sections": [{"hits": [{"result": {

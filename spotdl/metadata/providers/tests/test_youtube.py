@@ -1,5 +1,6 @@
 from spotdl.metadata.providers.youtube import YouTubeSearch
 from spotdl.metadata.providers.youtube import YouTubeStreams
+from spotdl.metadata.providers.youtube import YouTubeVideos
 from spotdl.metadata.providers import youtube
 from spotdl.metadata.providers import ProviderYouTube
 from spotdl.metadata.exceptions import YouTubeMetadataNotFoundError
@@ -36,18 +37,38 @@ def expect_search_results():
     These are the expected search results for the "track"
     query.
     """
-    return [
-        "https://www.youtube.com/watch?v=cH4E_t3m3xM",
-        "https://www.youtube.com/watch?v=xrbY9gDVms0",
-        "https://www.youtube.com/watch?v=jX0n2rSmDbE",
-        "https://www.youtube.com/watch?v=nVzA1uWTydQ",
-        "https://www.youtube.com/watch?v=rQ6jcpwzQZU",
-        "https://www.youtube.com/watch?v=VY1eFxgRR-k",
-        "https://www.youtube.com/watch?v=j0AxZ4V5WQw",
-        "https://www.youtube.com/watch?v=zbWsb36U0uo",
-        "https://www.youtube.com/watch?v=3B1aY9Ob8r0",
-        "https://www.youtube.com/watch?v=hd2SGk90r9k",
-    ]
+    return YouTubeVideos([
+        {'duration': '3:33',
+         'title': 'Selena Gomez, Marshmello - Wolves',
+         'url': 'https://www.youtube.com/watch?v=cH4E_t3m3xM'},
+        {'duration': '3:18',
+         'title': 'Selena Gomez, Marshmello - Wolves (Lyrics)',
+         'url': 'https://www.youtube.com/watch?v=xrbY9gDVms0'},
+        {'duration': '3:21',
+         'title': 'Wolves - Selena Gomez, Marshmello (Lyrics)',
+         'url': 'https://www.youtube.com/watch?v=jX0n2rSmDbE'},
+        {'duration': '6:26',
+         'title': 'Selena Gomez and Marshmello - Wolves (Official) Extended',
+         'url': 'https://www.youtube.com/watch?v=rQ6jcpwzQZU'},
+        {'duration': '3:43',
+         'title': 'Selena Gomez, Marshmello - Wolves (Vertical Video)',
+         'url': 'https://www.youtube.com/watch?v=nVzA1uWTydQ'},
+        {'duration': '3:18',
+         'title': 'Selena Gomez, Marshmello - Wolves (Visualizer)',
+         'url': 'https://www.youtube.com/watch?v=-grLLLTza6k'},
+        {'duration': '1:32',
+         'title': 'Wolves - Selena Gomez, Marshmello / Jun Liu Choreography',
+         'url': 'https://www.youtube.com/watch?v=zbWsb36U0uo'},
+        {'duration': '3:17',
+         'title': 'Selena Gomez, Marshmello - Wolves (Lyrics)',
+         'url': 'https://www.youtube.com/watch?v=rykH1BkGwTo'},
+        {'duration': '3:16',
+         'title': 'Selena Gomez, Marshmello - Wolves (8D AUDIO)',
+         'url': 'https://www.youtube.com/watch?v=j0AxZ4V5WQw'},
+        {'duration': '3:47',
+         'title': 'Selena Gomez, Marshmello - Wolves (Vanrip Remix)',
+         'url': 'https://www.youtube.com/watch?v=RyxsaKfu-ZY'}
+    ])
 
 
 @pytest.fixture(scope="module")
@@ -56,18 +77,38 @@ def expect_mock_search_results():
     These are the expected mock search results for the
     "track" query.
     """
-    return [
-        "https://www.youtube.com/watch?v=cH4E_t3m3xM",
-        "https://www.youtube.com/watch?v=xrbY9gDVms0",
-        "https://www.youtube.com/watch?v=jX0n2rSmDbE",
-        "https://www.youtube.com/watch?v=rQ6jcpwzQZU",
-        "https://www.youtube.com/watch?v=nVzA1uWTydQ",
-        "https://www.youtube.com/watch?v=-grLLLTza6k",
-        "https://www.youtube.com/watch?v=zbWsb36U0uo",
-        "https://www.youtube.com/watch?v=rykH1BkGwTo",
-        "https://www.youtube.com/watch?v=j0AxZ4V5WQw",
-        "https://www.youtube.com/watch?v=RyxsaKfu-ZY",
-    ]
+    return YouTubeVideos([
+        {'duration': '3:33',
+         'title': 'Selena Gomez, Marshmello - Wolves',
+         'url': 'https://www.youtube.com/watch?v=cH4E_t3m3xM'},
+        {'duration': '3:18',
+         'title': 'Selena Gomez, Marshmello - Wolves (Lyrics)',
+         'url': 'https://www.youtube.com/watch?v=xrbY9gDVms0'},
+        {'duration': '3:21',
+         'title': 'Wolves - Selena Gomez, Marshmello (Lyrics)',
+         'url': 'https://www.youtube.com/watch?v=jX0n2rSmDbE'},
+        {'duration': '6:26',
+         'title': 'Selena Gomez and Marshmello - Wolves (Official) Extended',
+         'url': 'https://www.youtube.com/watch?v=rQ6jcpwzQZU'},
+        {'duration': '3:43',
+         'title': 'Selena Gomez, Marshmello - Wolves (Vertical Video)',
+         'url': 'https://www.youtube.com/watch?v=nVzA1uWTydQ'},
+        {'duration': '3:18',
+         'title': 'Selena Gomez, Marshmello - Wolves (Visualizer)',
+         'url': 'https://www.youtube.com/watch?v=-grLLLTza6k'},
+        {'duration': '1:32',
+         'title': 'Wolves - Selena Gomez, Marshmello / Jun Liu Choreography',
+         'url': 'https://www.youtube.com/watch?v=zbWsb36U0uo'},
+        {'duration': '3:17',
+         'title': 'Selena Gomez, Marshmello - Wolves (Lyrics)',
+         'url': 'https://www.youtube.com/watch?v=rykH1BkGwTo'},
+        {'duration': '3:16',
+         'title': 'Selena Gomez, Marshmello - Wolves (8D AUDIO)',
+         'url': 'https://www.youtube.com/watch?v=j0AxZ4V5WQw'},
+        {'duration': '3:47',
+         'title': 'Selena Gomez, Marshmello - Wolves (Vanrip Remix)',
+         'url': 'https://www.youtube.com/watch?v=RyxsaKfu-ZY'}
+    ])
 
 
 class MockHTTPResponse:
@@ -135,7 +176,7 @@ class TestYouTubeSearch:
     @pytest.mark.network
     def test_no_videos_search(self, no_result_track, youtube_searcher):
         results = youtube_searcher.search(no_result_track)
-        assert results == []
+        assert results == YouTubeVideos([])
 
     def test_mock_no_videos_search(self, no_result_track, youtube_searcher, monkeypatch):
         MockHTTPResponse.response_file = "youtube_no_search_results.html"
