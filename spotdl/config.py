@@ -54,21 +54,22 @@ def dump_config(config_file, config=DEFAULT_CONFIGURATION):
 def get_config(config_file):
     if os.path.isfile(config_file):
         config = read_config(config_file)
-    else:
-        config = DEFAULT_CONFIGURATION
-        dump_config(config_file, config=DEFAULT_CONFIGURATION)
+        return config
 
-        logger.info("Writing default configuration to {0}.".format(config_file))
+    config_dir = os.path.dirname(config_file)
+    os.makedirs(config_dir, exist_ok=True)
+    dump_config(config_file, config=DEFAULT_CONFIGURATION)
 
-        for line in yaml.dump(
-            DEFAULT_CONFIGURATION["spotify-downloader"], default_flow_style=False
-        ).split("\n"):
-            if line.strip():
-                logger.info(line.strip())
-        logger.info(
-            "Please note that command line arguments have higher priority "
-            "than their equivalents in the configuration file."
-        )
+    logger.info("Writing default configuration to {0}.".format(config_file))
 
-    return config
+    for line in yaml.dump(
+        DEFAULT_CONFIGURATION["spotify-downloader"], default_flow_style=False
+    ).split("\n"):
+        if line.strip():
+            logger.info(line.strip())
+    logger.info(
+        "Please note that command line arguments have higher priority "
+        "than their equivalents in the configuration file."
+    )
+    return DEFAULT_CONFIGURATION
 
