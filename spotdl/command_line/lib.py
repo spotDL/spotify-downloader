@@ -42,13 +42,18 @@ class Spotdl:
         del self
 
     def match_arguments(self):
+        logger.debug("Received arguments:\n{}".format(self.arguments))
+
+        if self.arguments["remove_config"]:
+            self.remove_saved_config()
+            return
+        self.save_default_config()
+
         AuthorizeSpotify(
             client_id=self.arguments["spotify_client_id"],
             client_secret=self.arguments["spotify_client_secret"]
         )
         spotify_tools = SpotifyHelpers()
-        logger.debug("Received arguments:\n{}".format(self.arguments))
-
         if self.arguments["song"]:
             for track in self.arguments["song"]:
                 if track == "-":
@@ -87,6 +92,31 @@ class Spotdl:
             playlist_url = spotify_tools.prompt_for_user_playlist(self.arguments["username"])
             playlist = spotify_tools.fetch_playlist(playlist_url)
             spotify_tools.write_playlist_tracks(playlist, self.arguments["write_to"])
+
+    def save_config(self, config_file=spotdl.config.DEFAULT_CONFIG_FILE, config=spotdl.config.DEFAULT_CONFIGURATION):
+        config_dir = os.path.dirname(config_file)
+        os.makedirs(config_dir, exist_ok=True)
+        logger.info('Writing configuration to "{0}":'.format(config_file))
+        spotdl.config.dump_config(config_file=config_file, config=spotdl.config.DEFAULT_CONFIGURATION)
+        config = spotdl.config.dump_config(config=spotdl.config.DEFAULT_CONFIGURATION["spotify-downloader"])
+        for line in config.split("\n"):
+            if line.strip():
+                logger.info(line.strip())
+        logger.info(
+            "Please note that command line arguments have higher priority "
+            "than their equivalents in the configuration file.\n"
+        )
+
+    def save_default_config(self):
+        if not os.path.isfile(spotdl.config.DEFAULT_CONFIG_FILE):
+            self.save_config()
+
+    def remove_saved_config(self, config_file=spotdl.config.DEFAULT_CONFIG_FILE):
+        if os.path.isfile(spotdl.config.DEFAULT_CONFIG_FILE):
+            logger.info('Removing "{}".'.format(spotdl.config.DEFAULT_CONFIG_FILE))
+            os.remove(spotdl.config.DEFAULT_CONFIG_FILE)
+        else:
+            logger.info('File does not exist: "{}".'.format(spotdl.config.DEFAULT_CONFIG_FILE))
 
     def write_m3u(self, track_file, target_file=None):
         with open(track_file, "r") as fin:

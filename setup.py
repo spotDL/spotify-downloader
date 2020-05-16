@@ -15,6 +15,7 @@ setup(
     # https://docs.python.org/3.6/distutils/sourcedist.html#specifying-the-files-to-distribute
     packages=[
         "spotdl",
+        "spotdl.command_line",
         "spotdl.lyrics",
         "spotdl.lyrics.providers",
         "spotdl.encode",
@@ -22,8 +23,11 @@ setup(
         "spotdl.metadata",
         "spotdl.metadata.embedders",
         "spotdl.metadata.providers",
+        "spotdl.lyrics",
+        "spotdl.lyrics.providers",
         "spotdl.authorize",
         "spotdl.authorize.services",
+        "spotdl.helpers",
     ],
     version=__version__,
     install_requires=[
@@ -43,10 +47,10 @@ setup(
     description="Download songs from YouTube using Spotify song URLs or playlists with albumart and meta-tags.",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    author="Ritiek Malhotra and the spotify-downloader contributors",
+    author="Ritiek Malhotra",
     author_email="ritiekmalhotra123@gmail.com",
     license="MIT",
-    python_requires=">=3.4",
+    python_requires=">=3.6",
     url="https://github.com/ritiek/spotify-downloader",
     download_url="https://pypi.org/project/spotdl/",
     keywords=[
@@ -71,6 +75,5 @@ setup(
         "Topic :: Multimedia :: Sound/Audio",
         "Topic :: Utilities",
     ],
-    # entry_points={"console_scripts": ["spotdl = spotdl.command_line.__main__:main"]},
     entry_points={"console_scripts": ["spotdl = spotdl:main"]},
 )

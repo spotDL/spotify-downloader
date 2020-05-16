@@ -22,9 +22,14 @@ _LOG_LEVELS = {
     "DEBUG": logging.DEBUG,
 }
 
+if os.path.isfile(spotdl.config.DEFAULT_CONFIG_FILE):
+    saved_config = spotdl.config.read_config(spotdl.config.DEFAULT_CONFIG_FILE)
+else:
+    saved_config = {}
+
 _CONFIG_BASE = spotdl.util.merge(
-    spotdl.config.get_config(spotdl.config.default_config_file),
     spotdl.config.DEFAULT_CONFIGURATION,
+    saved_config,
 )
 
 
@@ -35,7 +40,10 @@ def get_arguments(config_base=_CONFIG_BASE):
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
 
-    group = parser.add_mutually_exclusive_group(required=True)
+    # `--remove-config` does not require the any of the group arguments to be passed.
+    require_group_args = not "--remove-config" in sys.argv[1:]
+    group = parser.add_mutually_exclusive_group(required=require_group_args)
+
     group.add_argument(
         "-s",
         "--song",
@@ -201,13 +209,11 @@ def get_arguments(config_base=_CONFIG_BASE):
         help="path to file to write successful tracks to",
     )
     parser.add_argument(
-        "-sci",
         "--spotify-client-id",
         default=defaults["spotify_client_id"],
         help=argparse.SUPPRESS,
     )
     parser.add_argument(
-        "-scs",
         "--spotify-client-secret",
         default=defaults["spotify_client_secret"],
         help=argparse.SUPPRESS,
@@ -215,8 +221,14 @@ def get_arguments(config_base=_CONFIG_BASE):
     parser.add_argument(
         "-c",
         "--config",
-        default=spotdl.config.default_config_file,
+        default=spotdl.config.DEFAULT_CONFIG_FILE,
         help="path to custom config.yml file"
+    )
+    parser.add_argument(
+        "--remove-config",
+        default=False,
+        action="store_true",
+        help="remove previously saved config"
     )
     parser.add_argument(
         "-V",
@@ -235,7 +247,8 @@ class ArgumentHandler:
             args = parser.parse_args().__dict__
 
         config_file = args.get("config")
-        if config_file:
+        configured_args = args.copy()
+        if config_file and os.path.isfile(config_file):
             config = spotdl.config.read_config(config_file)
             parser.set_defaults(**config["spotify-downloader"])
             configured_args = parser.parse_args().__dict__
@@ -259,6 +272,7 @@ class ArgumentHandler:
 
     def run_errands(self):
         args = self.get_configured_args()
+
         if (args.get("list")
             and not mimetypes.MimeTypes().guess_type(args["list"])[0] == "text/plain"
         ):

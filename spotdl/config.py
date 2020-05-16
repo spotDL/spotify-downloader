@@ -34,7 +34,7 @@ DEFAULT_CONFIGURATION = {
     }
 }
 
-default_config_file = os.path.join(
+DEFAULT_CONFIG_FILE = os.path.join(
     appdirs.user_config_dir(),
     "spotdl",
     "config.yml"
@@ -46,30 +46,11 @@ def read_config(config_file):
     return config
 
 
-def dump_config(config_file, config=DEFAULT_CONFIGURATION):
-    with open(config_file, "w") as ymlfile:
-        yaml.dump(DEFAULT_CONFIGURATION, ymlfile, default_flow_style=False)
-
-
-def get_config(config_file):
-    if os.path.isfile(config_file):
-        config = read_config(config_file)
+def dump_config(config_file=None, config=DEFAULT_CONFIGURATION):
+    if config_file is None:
+        config = yaml.dump(config, default_flow_style=False)
         return config
 
-    config_dir = os.path.dirname(config_file)
-    os.makedirs(config_dir, exist_ok=True)
-    dump_config(config_file, config=DEFAULT_CONFIGURATION)
-
-    logger.info("Writing default configuration to {0}.".format(config_file))
-
-    for line in yaml.dump(
-        DEFAULT_CONFIGURATION["spotify-downloader"], default_flow_style=False
-    ).split("\n"):
-        if line.strip():
-            logger.info(line.strip())
-    logger.info(
-        "Please note that command line arguments have higher priority "
-        "than their equivalents in the configuration file."
-    )
-    return DEFAULT_CONFIGURATION
+    with open(config_file, "w") as ymlfile:
+        yaml.dump(config, ymlfile, default_flow_style=False)
 
