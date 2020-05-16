@@ -44,10 +44,15 @@ class ThreadWithReturnValue(threading.Thread):
 
 
 def merge(base, overrider):
-    """ Override default dict with config dict. """
-    merger = base.copy()
-    merger.update(overrider)
-    return merger
+    """ Override base dict with an overrider dict, recursively. """
+    for key, value in base.items():
+        if isinstance(value, dict):
+            subitem = overrider.setdefault(key, {})
+            merge(value, subitem)
+        else:
+            overrider[key] = value
+
+    return overrider
 
 
 def prompt_user_for_selection(items):

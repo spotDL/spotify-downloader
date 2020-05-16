@@ -25,7 +25,7 @@ _LOG_LEVELS = {
 if os.path.isfile(spotdl.config.DEFAULT_CONFIG_FILE):
     saved_config = spotdl.config.read_config(spotdl.config.DEFAULT_CONFIG_FILE)
 else:
-    saved_config = {}
+    saved_config = {"spotify-downloader": {}}
 
 _CONFIG_BASE = spotdl.util.merge(
     spotdl.config.DEFAULT_CONFIGURATION,
@@ -34,15 +34,33 @@ _CONFIG_BASE = spotdl.util.merge(
 
 
 def get_arguments(config_base=_CONFIG_BASE):
-    defaults = config_base["spotify-downloader"]
     parser = argparse.ArgumentParser(
-        description="Download and convert tracks from Spotify, Youtube etc.",
+        description="Download and convert tracks from Spotify, Youtube, etc.",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
 
+    defaults = config_base["spotify-downloader"]
+
+    to_remove_config = "--remove-config" in sys.argv[1:]
+    if not to_remove_config and "download-only-metadata" in defaults:
+        raise ArgumentError(
+            "The default configuration file currently set is not suitable for spotdl>=2.0.0.\n"
+            "You need to remove your previous `config.yml` due to breaking changes\n"
+            "introduced in v2.0.0, new options being added, and old ones being removed\n"
+            "You may want to first backup your old configuration for reference. You can\n"
+            "then remove your current configuration by running:\n"
+            "```\n"
+            "$ spotdl --remove-config\n"
+            "```\n"
+            "spotdl will automatically generate a new configuration file on the next run.\n"
+            "You can then replace the appropriate fields in the newly generated\n"
+            "configuration file by referring to your old configuration file.\n\n"
+            "For the list of OTHER BREAKING CHANGES and release notes check out:\n"
+            "https://github.com/ritiek/spotify-downloader/releases/tag/v2.0.0"
+        )
+
     # `--remove-config` does not require the any of the group arguments to be passed.
-    require_group_args = not "--remove-config" in sys.argv[1:]
-    group = parser.add_mutually_exclusive_group(required=require_group_args)
+    group = parser.add_mutually_exclusive_group(required=not to_remove_config)
 
     group.add_argument(
         "-s",
@@ -189,23 +207,15 @@ def get_arguments(config_base=_CONFIG_BASE):
         action="store_true",
     )
     parser.add_argument(
-        "-ll",
-        "--log-level",
-        default=defaults["log_level"],
-        choices=_LOG_LEVELS.keys(),
-        type=str.upper,
-        help="set log verbosity",
-    )
-    parser.add_argument(
         "-sk",
-        "--skip",
-        default=defaults["skip"],
+        "--skip-file",
+        default=defaults["skip_file"],
         help="path to file containing tracks to skip",
     )
     parser.add_argument(
         "-w",
-        "--write-successful",
-        default=defaults["write_successful"],
+        "--write-successful-file",
+        default=defaults["write_successful_file"],
         help="path to file to write successful tracks to",
     )
     parser.add_argument(
@@ -217,6 +227,14 @@ def get_arguments(config_base=_CONFIG_BASE):
         "--spotify-client-secret",
         default=defaults["spotify_client_secret"],
         help=argparse.SUPPRESS,
+    )
+    parser.add_argument(
+        "-ll",
+        "--log-level",
+        default=defaults["log_level"],
+        choices=_LOG_LEVELS.keys(),
+        type=str.upper,
+        help="set log verbosity",
     )
     parser.add_argument(
         "-c",
@@ -268,7 +286,7 @@ class ArgumentHandler:
         return self.configured_args
 
     def get_logging_level(self):
-        return _LOG_LEVELS[self.args["log_level"]]
+        return _LOG_LEVELS[self.configured_args["log_level"]]
 
     def run_errands(self):
         args = self.get_configured_args()

@@ -326,8 +326,8 @@ class Spotdl:
             except (NoYouTubeVideoFoundError, NoYouTubeVideoMatchError) as e:
                 logger.error("{err}".format(err=e.args[0]))
             else:
-                if self.arguments["write_successful"]:
-                    with open(self.arguments["write_successful"], "a") as fout:
+                if self.arguments["write_sucessful_file"]:
+                    with open(self.arguments["write_sucessful_file"], "a") as fout:
                         fout.write(track)
             finally:
                 spotdl.util.writelines_to_nonbinary_file(path, tracks[position:])
@@ -397,8 +397,8 @@ class Spotdl:
                 tracks.append(current_track)
             else:
                 tracks_count -= 1
-                if self.arguments["write_successful"]:
-                    with open(self.arguments["write_successful"], "a") as fout:
+                if self.arguments["write_sucessful_file"]:
+                    with open(self.arguments["write_sucessful_file"], "a") as fout:
                         fout.write(current_track)
             finally:
                 current_iteration += 1

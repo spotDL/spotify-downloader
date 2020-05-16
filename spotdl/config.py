@@ -10,7 +10,6 @@ DEFAULT_CONFIGURATION = {
     "spotify-downloader": {
         "manual": False,
         "no_metadata": False,
-        "no_fallback_metadata": False,
         "no_encode": False,
         "overwrite": "prompt",
         "quality": "best",
@@ -18,19 +17,16 @@ DEFAULT_CONFIGURATION = {
         "output_ext": "mp3",
         "write_to": None,
         "trim_silence": False,
-        "download_only_metadata": False,
+        "search_format": "{artist} - {track-name} lyrics",
         "dry_run": False,
-        "music_videos_only": False,
         "no_spaces": False,
         # "processor": "synchronous",
         "output_file": "{artist} - {track-name}.{output-ext}",
-        "search_format": "{artist} - {track-name} lyrics",
-        "youtube_api_key": None,
-        "skip": None,
-        "write_successful": None,
-        "log_level": "INFO",
+        "skip_file": None,
+        "write_successful_file": None,
         "spotify_client_id": "4fe3fecfe5334023a1472516cc99d805",
         "spotify_client_secret": "0f02b7c483c04257984695007a4a8d5c",
+        "log_level": "INFO",
     }
 }
 

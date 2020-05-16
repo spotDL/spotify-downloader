@@ -31,10 +31,16 @@ def set_logger(level):
 
 
 def main():
-    argument_handler = get_arguments()
-    logging_level = argument_handler.get_logging_level()
-    logger = set_logger(logging_level)
+    try:
+        argument_handler = get_arguments()
+    except ArgumentError as e:
+        logger = set_logger(logging.INFO)
+        logger.info(e.args[0])
+        sys.exit(5)
 
+    logging_level = argument_handler.get_logging_level()
+    print(logging_level)
+    logger = set_logger(logging_level)
     try:
         spotdl = Spotdl(argument_handler)
     except ArgumentError as e:

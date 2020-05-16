@@ -8,10 +8,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [2.0.0] - <add-date-here-when-ready-to-publish>
 ### Migrating from v1.2.6 to v2.0.0
-It is highly recommended to remove your previous `config.yml` due to breaking changes
-in v2.0.0 (marked as **[Breaking]** in the below sections), new options being added, and old
-ones being removed. You may want to first backup your old configuration for reference.
-You can then install spotdl v2.0.0 and remove your current configuration by running:
+For v2.0.0 to work correctly, you need to remove your previous `config.yml` due to
+breaking changes in v2.0.0 (marked as **[Breaking]** in the below sections), new options being
+added, and old ones being removed. You may want to first backup your old configuration for
+reference.  You can then install spotdl v2.0.0 and remove your current configuration by
+running:
 ```
 $ spotdl --remove-config
 ```
@@ -42,6 +43,9 @@ All the below changes were made as a part of #690.
   Such as `-o .mp3` is now written as `-o mp3`.
 - **[Breaking]** Search format now uses hyphen for word break instead of underscore. Such as
   `-sf "{artist} - {track_name}"` is now written as `-sf "{artist} - {track-name}"`.
+- **[Breaking]** `--write-sucessful` and `--skip` is renamed to `--write-succesful-file` and
+  `--skip-file` respectively.
+  Such as `-o .mp3` is now written as `-o mp3`.
 - Partial re-write and internal API refactor.
 - Enhance debug log output readability.
 - Internally adapt to latest changes made in Spotipy library.
@@ -51,6 +55,8 @@ All the below changes were made as a part of #690.
   for the already downloaded track to determine whether to overwrite the already downloaded
   track, which caused unexpected behvaiours at times.
 - Codebase is now more modular making it easier to use spotdl in python scripts.
+- `config.yml` now uses underscores for separating between argument words instead of
+  hyphens for better compatibility with `argparse`.
 
 ### Optimized
 - Track download and encoding now happen parallely instead of sequentially making spotdl
