@@ -43,6 +43,9 @@ class ThreadWithReturnValue(threading.Thread):
         return self._return
 
 
+def merge_copy(base, overrider):
+    return merge(base.copy(), overrider)
+
 def merge(base, overrider):
     """ Override base dict with an overrider dict, recursively. """
     for key, value in overrider.items():

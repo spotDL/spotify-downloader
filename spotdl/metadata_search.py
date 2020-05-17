@@ -184,7 +184,7 @@ class MetadataSearch:
         search_query = spotdl.metadata.format_string(self.yt_search_format, spotify_metadata)
         youtube_video = self._best_on_youtube_search_for_type_spotify(search_query)
         youtube_metadata = self.providers["youtube"].from_url(youtube_video["url"])
-        metadata = spotdl.util.merge(
+        metadata = spotdl.util.merge_copy(
             youtube_metadata,
             spotify_metadata
         )
@@ -195,7 +195,7 @@ class MetadataSearch:
         youtube_metadata = self._on_youtube_for_type_youtube(self.track)
         search_query = spotdl.metadata.format_string("{track-name}", youtube_metadata)
         spotify_metadata = self._on_spotify_for_type_query(search_query)
-        metadata = spotdl.util.merge(
+        metadata = spotdl.util.merge_copy(
             youtube_metadata,
             spotify_metadata
         )
@@ -212,7 +212,7 @@ class MetadataSearch:
         )
         spotify_metadata.start()
         youtube_metadata = self._on_youtube_for_type_query(search_query)
-        metadata = spotdl.util.merge(
+        metadata = spotdl.util.merge_copy(
             youtube_metadata,
             spotify_metadata.join()
         )

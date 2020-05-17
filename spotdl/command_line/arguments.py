@@ -27,7 +27,7 @@ if os.path.isfile(spotdl.config.DEFAULT_CONFIG_FILE):
 else:
     saved_config = {"spotify-downloader": {}}
 
-_CONFIG_BASE = spotdl.util.merge(
+_CONFIG_BASE = spotdl.util.merge_copy(
     spotdl.config.DEFAULT_CONFIGURATION,
     saved_config,
 )
@@ -278,7 +278,7 @@ class ArgumentHandler:
             configured_args = parser.parse_args().__dict__
 
         defaults = config_base["spotify-downloader"]
-        args = spotdl.util.merge(defaults, args)
+        args = spotdl.util.merge_copy(defaults, args)
 
         self.parser = parser
         self.args = args
