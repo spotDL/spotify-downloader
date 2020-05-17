@@ -4,9 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+The release dates mentioned follow the format `DD-MM-YYYY`.
+
 ## [Unreleased]
 
-## [2.0.0] - <add-date-here-when-ready-to-publish>
+## [2.0.0] - 18-05-2020
 ### Migrating from v1.2.6 to v2.0.0
 For v2.0.0 to work correctly, you need to remove your previous `config.yml` due to
 breaking changes in v2.0.0 (marked as **[Breaking]** in the below sections), new options being
