@@ -6,9 +6,81 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [2.0.0] - <add-date-here-when-ready-to-publish>
+### Migrating from v1.2.6 to v2.0.0
+For v2.0.0 to work correctly, you need to remove your previous `config.yml` due to
+breaking changes in v2.0.0 (marked as **[Breaking]** in the below sections), new options being
+added, and old ones being removed. You may want to first backup your old configuration for
+reference.  You can then install spotdl v2.0.0 and remove your current configuration by
+running:
+```
+$ spotdl --remove-config
+```
+spotdl will automatically generate a new configuration file on the next run. You can
+then replace the appropriate fields in the newly generated configuration file by
+referring to your old configuration file.
+
+All the below changes were made as a part of #690.
+
+### Added
+- `-i` now accepts `automatic` which would automatically select the best available stream
+  irrespective of the format.
+- Added parameter `-q` (`--quality {best,worst}`) to select best (default) or worst audio quality.
+- Added `-ne` (`--no-encode`) to disable encoding.
+- Output to STDOUT with `-f -`.
+- Output to STDOUT with `--write-to -`.
+- Read tracks from STDIN in `-s` parameter.
+- Display a combined *download & encode* progress bar.
+
+### Changed
+- **[Breaking]** Tracks are now downloaded in the current working directory (instead of
+  user's Music directory) by default.
+- **[Breaking]** Short for `--album` is now `-a` instead of `-b`.
+- **[Breaking]** Short for `--all-albums` is now `-aa` instead of `-ab`.
+- Allow "&" character in filenames.
+- **[Breaking]** Merge parameters `-ff` and `-f` to `-f` (`--output-file`).
+- **[Breaking]** Do not prefix formats with a dot when specifying `-i` and `-o` parameters
+  Such as `-o .mp3` is now written as `-o mp3`.
+- **[Breaking]** Search format now uses hyphen for word break instead of underscore. Such as
+  `-sf "{artist} - {track_name}"` is now written as `-sf "{artist} - {track-name}"`.
+- **[Breaking]** `--write-sucessful` and `--skip` is renamed to `--write-succesful-file` and
+  `--skip-file` respectively.
+  Such as `-o .mp3` is now written as `-o mp3`.
+- Partial re-write and internal API refactor.
+- Enhance debug log output readability.
+- Internally adapt to latest changes made in Spotipy library.
+- Switch to `logging` + `coloredlogs` instead of `logzero`. Our loggers weren't being
+  setup properly with `logzero`.
+- Simplify checking for an already track. Previously it also analyzed metadata
+  for the already downloaded track to determine whether to overwrite the already downloaded
+  track, which caused unexpected behvaiours at times.
+- Codebase is now more modular making it easier to use spotdl in python scripts.
+- `config.yml` now uses underscores for separating between argument words instead of
+  hyphens for better compatibility with `argparse`.
+
+### Optimized
+- Track download and encoding now happen parallely instead of sequentially making spotdl
+  faster.
+- Lyrics and albumart are now downloaded in the background while the track is being downloaded
+  instead of in the end. This reduces additional delays if we are to download them while applying
+  metadata.
+- `--write-m3u` now only scrapes YouTube for required metadata making it much faster.
+  Previously, it was also required to parse it via an external YouTube parsing library
+  which was slow.
+- Switch to PyTube from Pafy. PyTube is faster and relies only on scraping.
+
+### Removed
+- **[Breaking]** Removed Avconv support. Only FFmpeg is supported now.
+- **[Breaking]** Removed `--no-fallback-metadata` parameter since not many people seem to find it useful.
+- **[Breaking]** Removed apparently misleading `--download-only-metadata` parameter.
+- **[Breaking]** Removed ability to set YouTube API key since we now use PyTube instead of Pafy, and
+  PyTube does not require an API key.
+- **[Breaking]** As a side effect of above, `--music-videos-only` is also removed as this feature worked only
+  with YouTube API.
+
 ## [1.2.6] (Hotfix Release) - 2020-03-02
 ### Fixed
-Embed release date metadata only when available (follow up of #672) ([@ritiek](https://github.com/ritiek)) (#674)
+- Embed release date metadata only when available (follow up of #672) ([@ritiek](https://github.com/ritiek)) (#674)
 
 ## [1.2.5] - 2020-03-02
 ### Fixed

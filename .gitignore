@@ -1,10 +1,15 @@
 # Spotdl generated files
 *.m4a
+*.webm
 *.mp3
+*.opus
+*.flac
+*.temp
 config.yml
 Music/
 *.txt
 *.m3u
+.cache-*
 .pytest_cache/
 
 
