@@ -169,7 +169,7 @@ class TestYouTubeSearch:
 
     # @pytest.mark.mock
     def test_mock_search(self, track, youtube_searcher, expect_mock_search_results, monkeypatch):
-        MockHTTPResponse.response_file = "youtube_search_results.html"
+        MockHTTPResponse.response_file = "youtube_search_results.html.test"
         monkeypatch.setattr(urllib.request, "urlopen", MockHTTPResponse)
         self.test_search(track, youtube_searcher, expect_mock_search_results)
 
@@ -179,7 +179,7 @@ class TestYouTubeSearch:
         assert results == YouTubeVideos([])
 
     def test_mock_no_videos_search(self, no_result_track, youtube_searcher, monkeypatch):
-        MockHTTPResponse.response_file = "youtube_no_search_results.html"
+        MockHTTPResponse.response_file = "youtube_no_search_results.html.test"
         monkeypatch.setattr(urllib.request, "urlopen", MockHTTPResponse)
         self.test_no_videos_search(no_result_track, youtube_searcher)
 
