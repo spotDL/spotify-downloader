@@ -151,7 +151,7 @@ class Spotdl:
             try:
                 search_metadata = MetadataSearch(
                     track,
-                    lyrics=False,
+                    lyrics=not self.arguments["no_metadata"],
                     yt_search_format=self.arguments["search_format"],
                     yt_manual=self.arguments["manual"]
                 )
