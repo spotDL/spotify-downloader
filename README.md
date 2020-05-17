@@ -11,7 +11,7 @@
 - Can also download a song by entering its artist and song name (in case if you don't have the Spotify's HTTP link for some song).
 - Automatically applies metadata to the downloaded song which includes:
 
-  - `Title`, `Artist`, `Album`, `Album art`, `Lyrics` (if found either on [Genius](https://genius.com/) or [LyricsWikia](http://lyrics.wikia.com)), `Album artist`, `Genre`, `Track number`, `Disc number`, `Release date`, and more...
+  - `Title`, `Artist`, `Album`, `Album art`, `Lyrics` (if found either on [Genius](https://genius.com/)), `Album artist`, `Genre`, `Track number`, `Disc number`, `Release date`, and more...
 
 - Works straight out of the box and does not require you to generate or mess with your API keys (already included).
 
@@ -21,11 +21,7 @@ Below is how your music library will look!
 
 ## Installation
 
-❗️ **This tool works only with Python 3.**
-
-Python 2 compatibility was dropped because of the way it deals with unicode (2020 is coming soon too).
-If you still need to use Python 2 - check out the (outdated)
-[python2](https://github.com/ritiek/spotify-downloader/tree/python2) branch.
+❗️ **This tool works only with Python 3.6+**
 
 spotify-downloader works with all major distributions and even on low-powered devices such as a Raspberry Pi.
 
