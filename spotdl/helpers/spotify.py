@@ -156,10 +156,10 @@ class SpotifyHelpers:
         logger.info(u"Writing {0} tracks to {1}.".format(tracks["total"], target_file))
         write_to_stdout = target_file == "-"
         if write_to_stdout:
-            with open(target_file, "a") as file_out:
-                track_urls = writer(tracks, file_out)
-        else:
             file_out = sys.stdout
             track_urls = writer(tracks, file_out)
+        else:
+            with open(target_file, "a") as file_out:
+                track_urls = writer(tracks, file_out)
         return track_urls
 

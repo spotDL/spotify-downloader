@@ -13,4 +13,4 @@ RUN pip install .
 RUN mkdir /music
 WORKDIR /music
 
-ENTRYPOINT ["spotdl", "-f", "/music"]
+ENTRYPOINT ["spotdl"]
