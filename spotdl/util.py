@@ -45,14 +45,14 @@ class ThreadWithReturnValue(threading.Thread):
 
 def merge(base, overrider):
     """ Override base dict with an overrider dict, recursively. """
-    for key, value in base.items():
+    for key, value in overrider.items():
         if isinstance(value, dict):
-            subitem = overrider.setdefault(key, {})
-            merge(value, subitem)
+            subitem = base.setdefault(key, {})
+            merge(subitem, value)
         else:
-            overrider[key] = value
+            base[key] = value
 
-    return overrider
+    return base
 
 
 def prompt_user_for_selection(items):

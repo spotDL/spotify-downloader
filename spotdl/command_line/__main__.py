@@ -39,7 +39,6 @@ def main():
         sys.exit(5)
 
     logging_level = argument_handler.get_logging_level()
-    print(logging_level)
     logger = set_logger(logging_level)
     try:
         spotdl = Spotdl(argument_handler)

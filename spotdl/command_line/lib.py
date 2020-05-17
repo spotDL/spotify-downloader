@@ -208,6 +208,17 @@ class Spotdl:
 
         return to_overwrite
 
+    def generate_temp_filename(self, filename, for_stdout=False):
+        if for_stdout:
+            return filename
+        return "{filename}.temp".format(filename=filename)
+
+    def output_filename_filter(self, allow_spaces):
+        replace_spaces_with_underscores = not allow_spaces
+        if replace_spaces_with_underscores:
+            return lambda s: s.replace(" ", "_")
+        return lambda s: s
+
     def download_track_from_metadata(self, metadata):
         track = Track(metadata, cache_albumart=(not self.arguments["no_metadata"]))
         stream = metadata["streams"].get(
@@ -229,10 +240,7 @@ class Spotdl:
             )
         )
         download_to_stdout = filename == "-"
-        if download_to_stdout:
-            temp_filename = filename
-        else:
-            temp_filename = "{filename}.temp".format(filename=filename)
+        temp_filename = self.generate_temp_filename(filename, for_stdout=download_to_stdout)
 
         to_skip_download = self.arguments["dry_run"]
         if os.path.isfile(filename):
@@ -248,6 +256,17 @@ class Spotdl:
 
         if not self.arguments["no_metadata"]:
             metadata["lyrics"].start()
+
+        filter_space_chars = self.output_filename_filter(not self.arguments["no_spaces"])
+        directory = os.path.dirname(
+            spotdl.metadata.format_string(
+                self.arguments["output_file"],
+                metadata,
+                output_extension=output_extension,
+                sanitizer=filter_space_chars
+            )
+        )
+        os.makedirs(directory or ".", exist_ok=True)
 
         logger.info('Downloading to "{filename}"'.format(filename=filename))
         if self.arguments["no_encode"]:
@@ -282,18 +301,33 @@ class Spotdl:
         except TypeError:
             logger.warning("Cannot apply metadata on provided output format.")
 
+    def strip_and_filter_duplicates(self, tracks):
+        filtered_tracks = spotdl.util.remove_duplicates(
+            tracks,
+            condition=lambda x: x,
+            operation=str.strip
+        )
+        return filtered_tracks
+
+    def filter_against_skip_file(self, items, skip_file):
+        skip_items = spotdl.util.readlines_from_nonbinary_file(skip_file)
+        filtered_skip_items = self.strip_and_filter_duplicates(skip_items)
+        filtered_items = [item for item in items if not item in filtered_skip_items]
+        return filtered_items
+
     def download_tracks_from_file(self, path):
         logger.info(
             "Checking and removing any duplicate tracks in {}.".format(path)
         )
         tracks = spotdl.util.readlines_from_nonbinary_file(path)
-        # Remove duplicates and empty elements
-        # Also strip whitespaces from elements (if any)
-        tracks = spotdl.util.remove_duplicates(
-            tracks,
-            condition=lambda x: x,
-            operation=str.strip
-        )
+        tracks = self.strip_and_filter_duplicates(tracks)
+
+        if self.arguments["skip_file"]:
+            len_tracks_before = len(tracks)
+            tracks = self.filter_against_skip_file(tracks, self.arguments["skip_file"])
+            logger.info("Skipping {} tracks due to matches in skip file.".format(
+                len_tracks_before - len(tracks))
+            )
         # Overwrite file
         spotdl.util.writelines_to_nonbinary_file(path, tracks)
 
@@ -326,9 +360,9 @@ class Spotdl:
             except (NoYouTubeVideoFoundError, NoYouTubeVideoMatchError) as e:
                 logger.error("{err}".format(err=e.args[0]))
             else:
-                if self.arguments["write_sucessful_file"]:
-                    with open(self.arguments["write_sucessful_file"], "a") as fout:
-                        fout.write(track)
+                if self.arguments["write_successful_file"]:
+                    with open(self.arguments["write_successful_file"], "a") as fout:
+                        fout.write("{}\n".format(track))
             finally:
                 spotdl.util.writelines_to_nonbinary_file(path, tracks[position:])
                 print("", file=sys.stderr)

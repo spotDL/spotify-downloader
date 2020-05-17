@@ -189,15 +189,17 @@ def get_arguments(config_base=_CONFIG_BASE):
         "to the next track (if any)",
         action="store_true",
     )
-    # parser.add_argument(
-    #     "--processor",
-    #     default=defaults["processor"],
-    #     choices={"synchronous", "threaded"},
-    #     help='list downloading strategy: - "synchronous" downloads '
-    #     'tracks one-by-one. - "threaded" (highly experimental at the '
-    #     'moment! expect it to slash & burn) pre-fetches the next '
-    #     'track\'s metadata for more efficient downloading'
-    # )
+    parser.add_argument(
+        "--processor",
+        default="synchronous",
+        choices={"synchronous", "threaded"},
+        # help='list downloading strategy: - "synchronous" downloads '
+        # 'tracks one-by-one. - "threaded" (highly experimental at the '
+        # 'moment! expect it to slash & burn) pre-fetches the next '
+        # 'track\'s metadata for more efficient downloading'
+        # XXX: Still very experimental to be exposed
+        help=argparse.SUPPRESS,
+    )
     parser.add_argument(
         "-ns",
         "--no-spaces",
