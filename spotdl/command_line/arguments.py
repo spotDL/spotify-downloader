@@ -59,6 +59,23 @@ def get_arguments(config_base=_CONFIG_BASE):
             "https://github.com/ritiek/spotify-downloader/releases/tag/v2.0.0"
         )
 
+    possible_special_tags = (
+        "{track-name}",
+        "{artist}",
+        "{album}",
+        "{album-artist}",
+        "{genre}",
+        "{disc-number}",
+        "{duration}",
+        "{year}",
+        "{original-date}",
+        "{track-number}",
+        "{total-tracks}",
+        "{isrc}",
+        "{track-id}",
+        "{output-ext}",
+    )
+
     # `--remove-config` does not require the any of the group arguments to be passed.
     group = parser.add_mutually_exclusive_group(required=not to_remove_config)
 
@@ -162,9 +179,9 @@ def get_arguments(config_base=_CONFIG_BASE):
         "--output-file",
         default=defaults["output_file"],
         help="path where to write the downloaded track to, special tags "
-        "are to be surrounded by curly braces. Possible tags: "
-        # TODO: Add possible tags
-        # "{}".format([spotdl.util.formats[x] for x in spotdl.util.formats]),
+        "are to be surrounded by curly braces. Possible tags: {}".format(
+            possible_special_tags
+        )
     )
     parser.add_argument(
         "--trim-silence",
@@ -177,9 +194,9 @@ def get_arguments(config_base=_CONFIG_BASE):
         "--search-format",
         default=defaults["search_format"],
         help="search format to search for on YouTube, special tags "
-        "are to be surrounded by curly braces. Possible tags: "
-        # TODO: Add possible tags
-        # "{}".format([spotdl.util.formats[x] for x in spotdl.util.formats]),
+        "are to be surrounded by curly braces. Possible tags: {}".format(
+            possible_special_tags
+        )
     )
     parser.add_argument(
         "-d",
