@@ -59,8 +59,7 @@ class Spotdl:
                 if track == "-":
                     for line in sys.stdin:
                         self.download_track(
-                            line,
-                            self.arguments
+                            line.strip(),
                         )
                 else:
                     self.download_track(track)

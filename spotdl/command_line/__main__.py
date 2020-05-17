@@ -3,7 +3,7 @@ import coloredlogs
 
 import sys
 
-from spotdl.command_line.lib import Spotdl
+from spotdl.command_line.core import Spotdl
 from spotdl.command_line.arguments import get_arguments
 from spotdl.command_line.exceptions import ArgumentError
 

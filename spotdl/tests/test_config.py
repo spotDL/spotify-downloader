@@ -35,7 +35,7 @@ class TestDefaultConfigFile:
     @pytest.mark.skipif(not sys.platform == "linux", reason="Linux only")
     def test_linux_default_config_file(self):
         expect_default_config_file = os.path.expanduser("~/.config/spotdl/config.yml")
-        assert spotdl.config.default_config_file == expect_default_config_file
+        assert spotdl.config.DEFAULT_CONFIG_FILE == expect_default_config_file
 
     @pytest.mark.xfail
     @pytest.mark.skipif(not sys.platform == "darwin" and not sys.platform == "win32",
@@ -51,11 +51,6 @@ class TestDefaultConfigFile:
 
 
 class TestConfig:
-    def test_default_config(self, config_path):
-        expect_config = spotdl.config.DEFAULT_CONFIGURATION["spotify-downloader"]
-        config = spotdl.config.get_config(config_path)["spotify-downloader"]
-        assert config == expect_config
-
     @pytest.mark.xfail
     def test_custom_config_path(self, config_path, modified_config):
         parser = argparse.ArgumentParser()
