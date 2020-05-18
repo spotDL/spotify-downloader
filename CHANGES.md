@@ -8,6 +8,10 @@ The release dates mentioned follow the format `DD-MM-YYYY`.
 
 ## [Unreleased]
 
+## [2.0.1] (Hotfix Release) - 18-05-2020
+### Fixed
+- `-o m4a` would always fail.
+
 ## [2.0.0] - 18-05-2020
 ### Migrating from v1.2.6 to v2.0.0
 For v2.0.0 to work correctly, you need to remove your previous `config.yml` due to
@@ -45,15 +49,14 @@ All the below changes were made as a part of #690.
   Such as `-o .mp3` is now written as `-o mp3`.
 - **[Breaking]** Search format now uses hyphen for word break instead of underscore. Such as
   `-sf "{artist} - {track_name}"` is now written as `-sf "{artist} - {track-name}"`.
-- **[Breaking]** `--write-sucessful` and `--skip` is renamed to `--write-succesful-file` and
+- **[Breaking]** `--write-successful` and `--skip` is renamed to `--write-successful-file` and
   `--skip-file` respectively.
-  Such as `-o .mp3` is now written as `-o mp3`.
 - Partial re-write and internal API refactor.
 - Enhance debug log output readability.
 - Internally adapt to latest changes made in Spotipy library.
 - Switch to `logging` + `coloredlogs` instead of `logzero`. Our loggers weren't being
   setup properly with `logzero`.
-- Simplify checking for an already track. Previously it also analyzed metadata
+- Simplify checking for an downloaded already track. Previously it also analyzed metadata
   for the already downloaded track to determine whether to overwrite the already downloaded
   track, which caused unexpected behvaiours at times.
 - Codebase is now more modular making it easier to use spotdl in python scripts.
