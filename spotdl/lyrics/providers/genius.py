@@ -121,7 +121,7 @@ class Genius(LyricBase):
         result.
         """
         lyric_url = self.guess_lyric_url_from_artist_and_track(artist, track)
-        return self.from_url(lyric_url, linesep, timeout)
+        return self.from_url(lyric_url, linesep, timeout=timeout)
 
     def from_url(self, url, linesep="\n", retries=5, timeout=None):
         """
