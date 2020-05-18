@@ -8,6 +8,10 @@ The release dates mentioned follow the format `DD-MM-YYYY`.
 
 ## [Unreleased]
 
+## [2.0.2] (Hotfix Release) - 18-05-2020
+### Fixed
+- Skipping tracks with `-m` would crash.
+
 ## [2.0.1] (Hotfix Release) - 18-05-2020
 ### Fixed
 - `-o m4a` would always fail.
