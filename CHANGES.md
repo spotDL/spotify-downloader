@@ -15,14 +15,17 @@ The release dates mentioned follow the format `DD-MM-YYYY`.
 ## [2.0.3] (Hotfix Release) - 18-05-2020
 ### Fixed
 - Genius would sometimes return invalid lyrics. Retry a few times in such a case.
+  [@ritiek](https://github.com/ritiek) (29b1f31a2622f749df83c3072c4cbb22615bff95)
 
 ## [2.0.2] (Hotfix Release) - 18-05-2020
 ### Fixed
-- Skipping tracks with `-m` would crash.
+- Skipping tracks with `-m` would crash. [@ritiek](https://github.com/ritiek)
+  (bbe43da191093302726ddc9a48f0fa0a55be6fb6)
 
 ## [2.0.1] (Hotfix Release) - 18-05-2020
 ### Fixed
-- `-o m4a` would always fail.
+- `-o m4a` would always fail. [@ritiek](https://github.com/ritiek)
+  (cd5f224e379f3feefc95e338ec50674f976e2e89)
 
 ## [2.0.0] - 18-05-2020
 ### Migrating from v1.2.6 to v2.0.0
