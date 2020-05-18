@@ -86,3 +86,12 @@ class TestMethods:
     def test_encoder_not_found_error(self):
         with pytest.raises(EncoderNotFoundError):
             self.EncoderKid("/a/nonexistent/path", "0", [])
+
+    @pytest.mark.parametrize("encoding, target_format", [
+        ("m4a", "mp4"),
+        ("mp3", "mp3"),
+        ("opus", "opus"),
+        ("flac", "flac"),
+    ])
+    def test_target_format_from_encoding(self, encoderkid, encoding, target_format):
+        assert encoderkid.target_format_from_encoding(encoding) == target_format

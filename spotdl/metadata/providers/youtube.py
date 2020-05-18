@@ -138,6 +138,7 @@ class YouTubeStreams(StreamsBase):
         self.all = []
 
         for stream in audiostreams:
+            encoding = "m4a" if "mp4a" in stream.audio_codec else stream.audio_codec
             standard_stream = {
                 # Store only the integer part for bitrate. For example
                 # the given bitrate would be "192kbps", we store only
@@ -145,7 +146,7 @@ class YouTubeStreams(StreamsBase):
                 "bitrate": int(stream.abr[:-4]),
                 "connection": None,
                 "download_url": stream.url,
-                "encoding": stream.audio_codec,
+                "encoding": encoding,
                 "filesize": None,
             }
             establish_connection = threading.Thread(

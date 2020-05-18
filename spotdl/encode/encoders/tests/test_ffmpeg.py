@@ -48,7 +48,7 @@ class TestEncodingDefaults:
             '-acodec', 'copy',
             '-b:a', '192k',
             '-vn',
-            '-f', 'm4a',
+            '-f', 'mp4',
              target_path
         ]
         return command
@@ -112,7 +112,7 @@ class TestEncodingInDebugMode:
             '-acodec', 'copy',
             '-b:a', '192k',
             '-vn',
-            '-f', 'm4a',
+            '-f', 'mp4',
              target_path
         ]
         return command
@@ -180,7 +180,7 @@ class TestEncodingAndTrimSilence:
             '-b:a', '192k',
             '-vn',
             '-af', 'silenceremove=start_periods=1',
-            '-f', 'm4a',
+            '-f', 'mp4',
             target_path
         ]
         return command

@@ -76,7 +76,7 @@ class EncoderFFmpeg(EncoderBase):
             + ["-i", input_path] \
             + arguments.split() \
             + self._additional_arguments \
-            + ["-f", target_encoding] \
+            + ["-f", self.target_format_from_encoding(target_encoding)] \
             + [target_file]
 
         return command

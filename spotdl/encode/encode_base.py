@@ -21,6 +21,13 @@ from spotdl.encode.exceptions import EncoderNotFoundError
 
 """
 
+_TARGET_FORMATS_FROM_ENCODING = {
+    "m4a": "mp4",
+    "mp3": "mp3",
+    "opus": "opus",
+    "flac": "flac"
+}
+
 
 class EncoderBase(ABC):
     """
@@ -44,6 +51,7 @@ class EncoderBase(ABC):
         self.encoder_path = encoder_path
         self._loglevel = loglevel
         self._additional_arguments = additional_arguments
+        self._target_formats_from_encoding = _TARGET_FORMATS_FROM_ENCODING
 
     def set_argument(self, argument):
         """
@@ -93,6 +101,14 @@ class EncoderBase(ABC):
         file to a specified output file.
         """
         pass
+
+    def target_format_from_encoding(self, encoding):
+        """
+        This method generates the target stream format from given
+        input encoding.
+        """
+        target_format = self._target_formats_from_encoding[encoding]
+        return target_format
 
     def re_encode_from_stdin(self, input_encoding, target_path):
         """
