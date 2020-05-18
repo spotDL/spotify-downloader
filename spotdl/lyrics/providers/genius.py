@@ -81,6 +81,7 @@ class Genius(LyricBase):
         """
         encoded_query = urllib.request.quote(query.replace(" ", "+"))
         search_url = self.base_search_url + encoded_query
+        logger.debug('Fetching Genius search results from "{}".'.format(search_url))
         metadata = self._fetch_search_page(search_url)
 
         lyric_url = None
@@ -105,6 +106,7 @@ class Genius(LyricBase):
         Returns the lyric string for the track best matching the
         given query.
         """
+        logger.debug('Fetching lyrics for the search query on "{}".'.format(query))
         try:
             lyric_url = self.best_matching_lyric_url_from_query(query)
         except LyricsNotFoundError:
@@ -127,6 +129,7 @@ class Genius(LyricBase):
         """
         Returns the lyric string for the given URL.
         """
+        logger.debug('Fetching lyric text from "{}".'.format(url))
         lyric_html_page = self._fetch_url_page(url, timeout=timeout)
         lyrics = self._get_lyrics_text(lyric_html_page)
         return lyrics.replace("\n", linesep)
