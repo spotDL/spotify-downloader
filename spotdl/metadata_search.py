@@ -163,7 +163,7 @@ class MetadataSearch:
         if video is None:
             raise NoYouTubeVideoMatchError(
                 'No matching videos found on YouTube for the search query "{}".'.format(
-                    search_query
+                    query
                 )
             )
         return video
