@@ -8,6 +8,10 @@ The release dates mentioned follow the format `DD-MM-YYYY`.
 
 ## [Unreleased]
 
+## [2.0.3] (Hotfix Release) - 18-05-2020
+### Fixed
+- Genius would sometimes return invalid lyrics. Retry a few times in such a case.
+
 ## [2.0.2] (Hotfix Release) - 18-05-2020
 ### Fixed
 - Skipping tracks with `-m` would crash.

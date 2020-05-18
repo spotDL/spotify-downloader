@@ -53,7 +53,7 @@ class YouTubeSearch:
         quoted_query = urllib.request.quote(query)
         return self.base_search_url.format(quoted_query)
 
-    def _fetch_response_html(self, url, retries=5):
+    def _fetch_response_html(self, url):
         response = urllib.request.urlopen(url)
         soup = BeautifulSoup(response.read(), "html.parser")
         return soup
@@ -119,12 +119,11 @@ class YouTubeSearch:
         videos = self._fetch_search_results(html, limit=limit)
         to_retry = retries > 0 and self._is_server_side_invalid_response(videos, html)
         if to_retry:
-            retries -= 1
             logger.debug(
                 "Retrying since YouTube returned invalid response for search "
                 "results. Retries left: {retries}.".format(retries=retries)
             )
-            return self.search(query, limit=limit, retries=retries)
+            return self.search(query, limit=limit, retries=retries-1)
         return YouTubeVideos(videos)
 
 

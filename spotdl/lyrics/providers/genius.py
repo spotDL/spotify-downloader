@@ -48,14 +48,12 @@ class Genius(LyricBase):
         else:
             return response.read()
 
-    def _get_lyrics_text(self, html):
+    def _get_lyrics_text(self, paragraph):
         """
         Extracts and returns the lyric content from the provided HTML.
         """
-        soup = BeautifulSoup(html, "html.parser")
-        lyrics_paragraph = soup.find("p")
-        if lyrics_paragraph:
-            return lyrics_paragraph.get_text()
+        if paragraph:
+            return paragraph.get_text()
         else:
             raise LyricsNotFoundError(
                 "The lyrics for this track are yet to be released on Genius."
@@ -125,12 +123,29 @@ class Genius(LyricBase):
         lyric_url = self.guess_lyric_url_from_artist_and_track(artist, track)
         return self.from_url(lyric_url, linesep, timeout)
 
-    def from_url(self, url, linesep="\n", timeout=None):
+    def from_url(self, url, linesep="\n", retries=5, timeout=None):
         """
         Returns the lyric string for the given URL.
         """
         logger.debug('Fetching lyric text from "{}".'.format(url))
         lyric_html_page = self._fetch_url_page(url, timeout=timeout)
-        lyrics = self._get_lyrics_text(lyric_html_page)
+        soup = BeautifulSoup(lyric_html_page, "html.parser")
+        paragraph = soup.find("p")
+        # If <p> has a class (like <p class="bla">), then we got an invalid
+        # response. Retry in such a case.
+        invalid_response = paragraph.get("class") is not None
+        to_retry = retries > 0 and invalid_response
+        if to_retry:
+            logger.debug(
+                "Retrying since Genius returned invalid response for search "
+                "results. Retries left: {retries}.".format(retries=retries)
+            )
+            return self.from_url(url, linesep=linesep, retries=retries-1, timeout=timeout)
+
+        if invalid_response:
+            raise LyricsNotFoundError(
+                'Genius returned invalid response for the search URL "{}".'.format(url)
+            )
+        lyrics = self._get_lyrics_text(paragraph)
         return lyrics.replace("\n", linesep)
 
