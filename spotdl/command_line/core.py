@@ -224,6 +224,11 @@ class Spotdl:
             quality=self.arguments["quality"],
             preftype=self.arguments["input_ext"],
         )
+        if stream is None:
+            logger.error('No matching streams found for given input format: "{}".'.format(
+                self.arguments["input_ext"]
+            ))
+            return
 
         if self.arguments["no_encode"]:
             output_extension = stream["encoding"]
