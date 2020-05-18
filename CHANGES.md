@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 The release dates mentioned follow the format `DD-MM-YYYY`.
 
 ## [Unreleased]
+### Fixed
+- Failure on invoking spotdl if FFmpeg isn't found. It should now warn about missing
+  FFmpeg and move ahead without encoding. [@ritiek](https://github.com/ritiek)
+  (29b1f31a2622f749df83c3072c4cbb22615bff95)
 
 ## [2.0.3] (Hotfix Release) - 18-05-2020
 ### Fixed
