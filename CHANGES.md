@@ -7,24 +7,28 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 The release dates mentioned follow the format `DD-MM-YYYY`.
 
 ## [Unreleased]
+
+## [2.0.4] - 19-05-2020
 ### Fixed
+- Do not remove the currently downloading track from file on `KeyboardInterrupt`
+  when `--list` is passed. ([@ritiek](https://github.com/ritiek/spotify-downloader)) (#722)
 - Failure on invoking spotdl if FFmpeg isn't found. It should now warn about missing
-  FFmpeg and move ahead without encoding. [@ritiek](https://github.com/ritiek)
+  FFmpeg and move ahead without encoding. ([@ritiek](https://github.com/ritiek))
   (debe7ee9024e2ec65eed9935460c62f4eecd03ea)
 
 ## [2.0.3] (Hotfix Release) - 18-05-2020
 ### Fixed
 - Genius would sometimes return invalid lyrics. Retry a few times in such a case.
-  [@ritiek](https://github.com/ritiek) (29b1f31a2622f749df83c3072c4cbb22615bff95)
+  ([@ritiek](https://github.com/ritiek)) (29b1f31a2622f749df83c3072c4cbb22615bff95)
 
 ## [2.0.2] (Hotfix Release) - 18-05-2020
 ### Fixed
-- Skipping tracks with `-m` would crash. [@ritiek](https://github.com/ritiek)
+- Skipping tracks with `-m` would crash. ([@ritiek](https://github.com/ritiek))
   (bbe43da191093302726ddc9a48f0fa0a55be6fb6)
 
 ## [2.0.1] (Hotfix Release) - 18-05-2020
 ### Fixed
-- `-o m4a` would always fail. [@ritiek](https://github.com/ritiek)
+- `-o m4a` would always fail. ([@ritiek](https://github.com/ritiek))
   (cd5f224e379f3feefc95e338ec50674f976e2e89)
 
 ## [2.0.0] - 18-05-2020
