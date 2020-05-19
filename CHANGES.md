@@ -10,7 +10,7 @@ The release dates mentioned follow the format `DD-MM-YYYY`.
 ### Fixed
 - Failure on invoking spotdl if FFmpeg isn't found. It should now warn about missing
   FFmpeg and move ahead without encoding. [@ritiek](https://github.com/ritiek)
-  (29b1f31a2622f749df83c3072c4cbb22615bff95)
+  (debe7ee9024e2ec65eed9935460c62f4eecd03ea)
 
 ## [2.0.3] (Hotfix Release) - 18-05-2020
 ### Fixed
