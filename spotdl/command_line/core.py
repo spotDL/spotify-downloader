@@ -321,7 +321,7 @@ class Spotdl:
 
     def download_tracks_from_file(self, path):
         logger.info(
-            "Checking and removing any duplicate tracks in {}.".format(path)
+            'Checking and removing any duplicate tracks in "{}".'.format(path)
         )
         tracks = spotdl.util.readlines_from_nonbinary_file(path)
         tracks = self.strip_and_filter_duplicates(tracks)
@@ -346,12 +346,12 @@ class Spotdl:
                 yt_search_format=self.arguments["search_format"],
                 yt_manual=self.arguments["manual"]
             )
+            log_track_query = '{position}. Downloading "{track}"'.format(
+                position=position,
+                track=track
+            )
+            logger.info(log_track_query)
             try:
-                log_track_query = '{position}. Downloading "{track}"'.format(
-                    position=position,
-                    track=track
-                )
-                logger.info(log_track_query)
                 metadata = search_metadata.on_youtube_and_spotify()
                 self.download_track_from_metadata(metadata)
             except (urllib.request.URLError, TypeError, IOError) as e:
@@ -363,6 +363,11 @@ class Spotdl:
                 tracks.append(track)
             except (NoYouTubeVideoFoundError, NoYouTubeVideoMatchError) as e:
                 logger.error("{err}".format(err=e.args[0]))
+            except KeyboardInterrupt:
+                # The current track hasn't been downloaded completely.
+                # Make sure we continue from here the next the program runs.
+                tracks.insert(0, track)
+                raise
             else:
                 if self.arguments["write_successful_file"]:
                     with open(self.arguments["write_successful_file"], "a") as fout:
