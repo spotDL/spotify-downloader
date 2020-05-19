@@ -37,12 +37,12 @@ class EncoderBase(ABC):
     """
 
     @abstractmethod
-    def __init__(self, encoder_path, loglevel, additional_arguments=[]):
+    def __init__(self, encoder_path, must_exist, loglevel, additional_arguments=[]):
         """
         This method must make sure whether specified encoder
         is available under PATH.
         """
-        if shutil.which(encoder_path) is None:
+        if must_exist and shutil.which(encoder_path) is None:
             raise EncoderNotFoundError(
                 "{} executable does not exist or was not found in PATH.".format(
                     encoder_path

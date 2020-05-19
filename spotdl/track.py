@@ -44,9 +44,9 @@ class Track:
         return progress_bar
 
     def download_while_re_encoding(self, stream, target_path, target_encoding=None,
-                                   encoder=EncoderFFmpeg, show_progress=True):
+                                   encoder=EncoderFFmpeg(must_exist=False), show_progress=True):
         total_chunks = self.calculate_total_chunks(stream["filesize"])
-        process = encoder().re_encode_from_stdin(
+        process = encoder.re_encode_from_stdin(
             stream["encoding"],
             target_path,
             target_encoding=target_encoding
@@ -80,10 +80,10 @@ class Track:
                 writer(response, progress_bar, file_io)
 
     def re_encode(self, input_path, target_path, target_encoding=None,
-                  encoder=EncoderFFmpeg, show_progress=True):
+                  encoder=EncoderFFmpeg(must_exist=False), show_progress=True):
         stream = self.metadata["streams"].getbest()
         total_chunks = self.calculate_total_chunks(stream["filesize"])
-        process = encoder().re_encode_from_stdin(
+        process = encoder.re_encode_from_stdin(
             stream["encoding"],
             target_path,
             target_encoding=target_encoding
