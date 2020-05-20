@@ -13,6 +13,36 @@ def directory_fixture(tmpdir_factory):
     return dir_path
 
 
+@pytest.mark.parametrize("value", [
+    5,
+    "string",
+    {"a": 1, "b": 2},
+    (10, 20, 30, "string"),
+    [2, 4, "sample"]
+])
+def test_thread_with_return_value(value):
+    returner = lambda x: x
+    thread = spotdl.util.ThreadWithReturnValue(
+        target=returner,
+        args=(value,)
+    )
+    thread.start()
+    assert value == thread.join()
+
+
+@pytest.mark.parametrize("track, track_type", [
+  ("https://open.spotify.com/track/3SipFlNddvL0XNZRLXvdZD", "spotify"),
+  ("spotify:track:3SipFlNddvL0XNZRLXvdZD", "spotify"),
+  ("3SipFlNddvL0XNZRLXvdZD", "spotify"),
+  ("https://www.youtube.com/watch?v=oMiNsd176NM", "youtube"),
+  ("oMiNsd176NM", "youtube"),
+  ("kodaline - saving grace", "query"),
+  ("or anything else", "query"),
+])
+def test_track_type(track, track_type):
+    assert spotdl.util.track_type(track) == track_type
+
+
 @pytest.mark.parametrize("str_duration, sec_duration", [
     ("0:23", 23),
 	("0:45", 45),
