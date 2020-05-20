@@ -8,6 +8,15 @@ The release dates mentioned follow the format `DD-MM-YYYY`.
 
 ## [Unreleased]
 
+## [2.0.5] - 20-05-2020
+### Fixed
+- In some cases when using `-f` to create sub-directories from metadata, where the
+  full slugified download filename and the non-slugified download directory happen
+  to differ, the download would fail. The download directory will now be derived from
+  filename itself so that the sub-directory name always overlaps.
+  ([@ritiek](https://github.com/ritiek/spotify-downloader))
+  (2aa7dce4a42feb5cd3ceb9324e58da524cdb4b6f)
+
 ## [2.0.4] - 19-05-2020
 ### Fixed
 - Do not remove the currently downloading track from file on `KeyboardInterrupt`
