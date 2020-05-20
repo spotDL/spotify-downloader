@@ -9,7 +9,7 @@ from spotdl.command_line.exceptions import ArgumentError
 
 # hardcode loglevel for dependencies so that they do not spew generic
 # log messages along with spotdl.
-for module in ("urllib3", "spotipy", "pytube"):
+for module in ("chardet", "urllib3", "spotipy", "pytube"):
     logging.getLogger(module).setLevel(logging.CRITICAL)
 
 coloredlogs.DEFAULT_FIELD_STYLES = {
