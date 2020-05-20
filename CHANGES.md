@@ -17,6 +17,10 @@ The release dates mentioned follow the format `DD-MM-YYYY`.
   ([@ritiek](https://github.com/ritiek/spotify-downloader))
   (2aa7dce4a42feb5cd3ceb9324e58da524cdb4b6f)
 
+### Changed
+- Disable unneeded logs from `chardet`. ([@ritiek](https://github.com/ritiek))
+  (c1b3949edb943cc21a63c34d6a01ed59e9b6536d)
+
 ## [2.0.4] - 19-05-2020
 ### Fixed
 - Do not remove the currently downloading track from file on `KeyboardInterrupt`
