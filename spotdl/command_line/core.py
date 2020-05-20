@@ -261,16 +261,7 @@ class Spotdl:
         if not self.arguments["no_metadata"]:
             metadata["lyrics"].start()
 
-        filter_space_chars = self.output_filename_filter(not self.arguments["no_spaces"])
-        directory = os.path.dirname(
-            spotdl.metadata.format_string(
-                self.arguments["output_file"],
-                metadata,
-                output_extension=output_extension,
-                sanitizer=filter_space_chars
-            )
-        )
-        os.makedirs(directory or ".", exist_ok=True)
+        os.makedirs(os.path.dirname(filename) or ".", exist_ok=True)
 
         logger.info('Downloading to "{filename}"'.format(filename=filename))
         if self.arguments["no_encode"]:
