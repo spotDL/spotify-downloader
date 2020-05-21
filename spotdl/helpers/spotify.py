@@ -2,6 +2,7 @@ from spotdl.authorize.services import AuthorizeSpotify
 import spotdl.util
 
 import sys
+import spotipy
 
 import logging
 logger = logging.getLogger(__name__)
