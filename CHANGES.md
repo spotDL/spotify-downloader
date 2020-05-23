@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 The release dates mentioned follow the format `DD-MM-YYYY`.
 
 ## [Unreleased]
+### Fixed
+- Skip invalid tracks returned on playlist endpoint with Spotify Web-API
+  ([@ritiek](https://github.com/ritiek/spotify-downloader)) (#732)
 
 ## [2.0.5] - 20-05-2020
 ### Fixed
