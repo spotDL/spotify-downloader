@@ -134,6 +134,11 @@ class SpotifyHelpers:
                         track = item["track"]
                     else:
                         track = item
+                    # Spotify sometimes returns additional empty "tracks" in the API
+                    # response. We need to discard such "tracks".
+                    # See https://github.com/spotify/web-api/issues/1562
+                    if track is None:
+                        continue
                     try:
                         track_url = track["external_urls"]["spotify"]
                         file_io.write(track_url + "\n")
