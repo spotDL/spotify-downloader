@@ -11,7 +11,7 @@ The release dates mentioned follow the format `DD-MM-YYYY`.
 ## [2.0.6] - 26-05-2020
 ### Fixed
 - Fix crash if YouTube search results contains live streams
-  ([@ritiek](https://github.com/ritiek) (f56ea08457baff6a0d3c29efe9d7cc0412c43b24)
+  ([@ritiek](https://github.com/ritiek) (#735)
 - Skip invalid tracks returned on playlist endpoint with Spotify Web-API
   ([@ritiek](https://github.com/ritiek)) (#732)
 
