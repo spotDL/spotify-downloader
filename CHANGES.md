@@ -7,9 +7,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 The release dates mentioned follow the format `DD-MM-YYYY`.
 
 ## [Unreleased]
+
+## [2.0.6] - 26-05-2020
 ### Fixed
+- Fix crash if YouTube search results contains live streams
+  ([@ritiek](https://github.com/ritiek) (f56ea08457baff6a0d3c29efe9d7cc0412c43b24)
 - Skip invalid tracks returned on playlist endpoint with Spotify Web-API
-  ([@ritiek](https://github.com/ritiek/spotify-downloader)) (#732)
+  ([@ritiek](https://github.com/ritiek)) (#732)
 
 ## [2.0.5] - 20-05-2020
 ### Fixed
@@ -17,8 +21,7 @@ The release dates mentioned follow the format `DD-MM-YYYY`.
   full slugified download filename and the non-slugified download directory happen
   to differ, the download would fail. The download directory will now be derived from
   filename itself so that the sub-directory name always overlaps.
-  ([@ritiek](https://github.com/ritiek/spotify-downloader))
-  (2aa7dce4a42feb5cd3ceb9324e58da524cdb4b6f)
+  ([@ritiek](https://github.com/ritiek)) (2aa7dce4a42feb5cd3ceb9324e58da524cdb4b6f)
 
 ### Changed
 - Disable unneeded logs from `chardet`. ([@ritiek](https://github.com/ritiek))

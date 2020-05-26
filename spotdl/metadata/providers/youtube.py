@@ -101,6 +101,8 @@ class YouTubeSearch:
 
         # ensure video result is not an advertisement
         not_video = not_video or result.find("googleads") is not None
+        # ensure video result is not a live stream
+        not_video = not_video or result.find("span", class_="video-time") is None
 
         video = not not_video
         return video
