@@ -72,9 +72,9 @@ class SpotifyHelpers:
             target_file = u"{0}.txt".format(slugify(playlist["name"], ok="-_()[]{}"))
         return self.write_tracks(tracks, target_file)
 
-    def fetch_album(self, album_uri):
-        logger.debug('Fetching album "{album}".'.format(album=album_uri))
-        album = self.spotify.album(album_uri)
+    def fetch_album(self, album_url):
+        logger.debug('Fetching album "{album}".'.format(album=album_url))
+        album = self.spotify.album(album_url)
         return album
 
     def write_album_tracks(self, album, target_file=None):
