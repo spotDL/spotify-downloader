@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 The release dates mentioned follow the format `DD-MM-YYYY`.
 
 ## [Unreleased]
+### Changed
+- Exit with an appropriate code on bad arguments. ([@ritiek](https://github.com/ritiek)) (#736)
 
 ## [2.0.9] - 02-06-2020
 ### Changed
