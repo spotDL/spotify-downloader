@@ -1,4 +1,5 @@
 from spotdl.authorize.services import AuthorizeSpotify
+import spotdl.helpers.exceptions
 import spotdl.util
 
 import sys
@@ -36,35 +37,40 @@ class SpotifyHelpers:
     def fetch_user_playlist_urls(self, username):
         """ Fetch user playlists when using the -u option. """
         logger.debug('Fetching playlists for "{username}".'.format(username=username))
-        playlists = self.spotify.user_playlists(username)
-        collected_playlists = []
-        check = 1
-
-        while True:
-            for playlist in playlists["items"]:
-                # in rare cases, playlists may not be found, so playlists['next']
-                # is None. Skip these. Also see Issue #91.
-                if playlist["name"] is not None:
-                    collected_playlists.append(playlist)
-                    check += 1
-            if playlists["next"]:
-                playlists = self.spotify.next(playlists)
-            else:
-                break
-
-        return collected_playlists
-
-    def fetch_playlist(self, playlist_url):
-        logger.debug('Fetching playlist "{playlist}".'.format(playlist=playlist_url))
         try:
-            results = self.spotify.playlist(playlist_url, fields="tracks,next,name")
+            playlists = self.spotify.user_playlists(username)
         except spotipy.client.SpotifyException:
-            logger.exception(
-                "Unable to find playlist. Make sure the playlist is set "
-                "to publicly visible and then try again."
-            )
+            msg = ('Unable to find user "{}". Make sure the the user ID is correct '
+                   'and then try again.'.format(username))
+            logger.error(msg)
+            raise spotdl.helpers.exceptions.SpotifyUserNotFoundError(msg)
+        else:
+            collected_playlists = []
+            while True:
+                for playlist in playlists["items"]:
+                    # in rare cases, playlists may not be found, so playlists['next']
+                    # is None. Skip these. Also see Issue #91.
+                    if playlist["name"] is not None:
+                        collected_playlists.append(playlist)
+                if playlists["next"]:
+                    playlists = self.spotify.next(playlists)
+                else:
+                    break
+            return collected_playlists
 
-        return results
+    def fetch_playlist(self, playlist_uri):
+        logger.debug('Fetching playlist "{playlist}".'.format(playlist=playlist_uri))
+        try:
+            playlist = self.spotify.playlist(playlist_uri, fields="tracks,next,name")
+        except spotipy.client.SpotifyException:
+            msg = ('Unable to find playlist "{}". Make sure the the playlist ID is correct '
+                   'and the playlist is set to publicly visible, and then try again.'.format(
+                    playlist_uri
+                  ))
+            logger.error(msg)
+            raise spotdl.helpers.exceptions.SpotifyPlaylistNotFoundError(msg)
+        else:
+            return playlist
 
     def write_playlist_tracks(self, playlist, target_file=None):
         tracks = playlist["tracks"]
@@ -74,8 +80,15 @@ class SpotifyHelpers:
 
     def fetch_album(self, album_uri):
         logger.debug('Fetching album "{album}".'.format(album=album_uri))
-        album = self.spotify.album(album_uri)
-        return album
+        try:
+            album = self.spotify.album(album_uri)
+        except spotipy.client.SpotifyException:
+            msg = ('Unable to find album "{}". Make sure the album ID is correct '
+                   'and then try again.'.format(album_uri))
+            logger.error(msg)
+            raise spotdl.helpers.exceptions.SpotifyAlbumNotFoundError(msg)
+        else:
+            return album
 
     def write_album_tracks(self, album, target_file=None):
         tracks = self.spotify.album_tracks(album["id"])
@@ -96,16 +109,20 @@ class SpotifyHelpers:
         logger.debug('Fetching all albums for "{artist}".'.format(artist=artist_uri))
         # fetching artist's albums limitting the results to the US to avoid duplicate
         # albums from multiple markets
-        results = self.spotify.artist_albums(artist_uri, album_type=album_type, country="US")
-
-        albums = results["items"]
-
-        # indexing all pages of results
-        while results["next"]:
-            results = self.spotify.next(results)
-            albums.extend(results["items"])
-
-        return albums
+        try:
+            results = self.spotify.artist_albums(artist_uri, album_type=album_type, country="US")
+        except spotipy.client.SpotifyException:
+            msg = ('Unable to find artist "{}". Make sure the artist ID is correct '
+                   'and then try again.'.format(artist_uri))
+            logger.error(msg)
+            raise spotdl.helpers.exceptions.SpotifyArtistNotFoundError(msg)
+        else:
+            albums = results["items"]
+            # indexing all pages of results
+            while results["next"]:
+                results = self.spotify.next(results)
+                albums.extend(results["items"])
+            return albums
 
     def write_all_albums(self, albums, target_file=None):
         """

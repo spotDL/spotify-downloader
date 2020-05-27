@@ -22,6 +22,7 @@ from spotdl.command_line.exceptions import NoYouTubeVideoMatchError
 from spotdl.metadata_search import MetadataSearch
 
 from spotdl.helpers.spotify import SpotifyHelpers
+import spotdl.helpers.exceptions
 
 import sys
 import os
@@ -46,7 +47,7 @@ class Spotdl:
 
         if self.arguments["remove_config"]:
             self.remove_saved_config()
-            return
+            return 0
         self.save_default_config()
 
         AuthorizeSpotify(
@@ -79,18 +80,34 @@ class Spotdl:
                     self.arguments["list"],
                 )
         elif self.arguments["playlist"]:
-            playlist = spotify_tools.fetch_playlist(self.arguments["playlist"])
-            spotify_tools.write_playlist_tracks(playlist, self.arguments["write_to"])
+            try:
+                playlist = spotify_tools.fetch_playlist(self.arguments["playlist"])
+            except spotdl.helpers.exceptions.PlaylistNotFoundError:
+                return spotdl.command_line.exitcodes.URI_NOT_FOUND_ERROR
+            else:
+                spotify_tools.write_playlist_tracks(playlist, self.arguments["write_to"])
         elif self.arguments["album"]:
-            album = spotify_tools.fetch_album(self.arguments["album"])
-            spotify_tools.write_album_tracks(album, self.arguments["write_to"])
+            try:
+                album = spotify_tools.fetch_album(self.arguments["album"])
+            except spotdl.helpers.exceptions.AlbumNotFoundError:
+                return spotdl.command_line.exitcodes.URI_NOT_FOUND_ERROR
+            else:
+                spotify_tools.write_album_tracks(album, self.arguments["write_to"])
         elif self.arguments["all_albums"]:
-            albums = spotify_tools.fetch_albums_from_artist(self.arguments["all_albums"])
-            spotify_tools.write_all_albums(albums, self.arguments["write_to"])
+            try:
+                albums = spotify_tools.fetch_albums_from_artist(self.arguments["all_albums"])
+            except spotdl.helpers.exceptions.ArtistNotFoundError:
+                return spotdl.command_line.exitcodes.URI_NOT_FOUND_ERROR
+            else:
+                spotify_tools.write_all_albums(albums, self.arguments["write_to"])
         elif self.arguments["username"]:
-            playlist_url = spotify_tools.prompt_for_user_playlist(self.arguments["username"])
-            playlist = spotify_tools.fetch_playlist(playlist_url)
-            spotify_tools.write_playlist_tracks(playlist, self.arguments["write_to"])
+            try:
+                playlist_url = spotify_tools.prompt_for_user_playlist(self.arguments["username"])
+            except spotdl.helpers.exceptions.UserNotFoundError:
+                return spotdl.command_line.exitcodes.URI_NOT_FOUND_ERROR
+            else:
+                playlist = spotify_tools.fetch_playlist(playlist_url)
+                spotify_tools.write_playlist_tracks(playlist, self.arguments["write_to"])
 
     def save_config(self, config_file=spotdl.config.DEFAULT_CONFIG_FILE, config=spotdl.config.DEFAULT_CONFIGURATION):
         config_dir = os.path.dirname(config_file)
@@ -147,13 +164,13 @@ class Spotdl:
 
         videos = []
         for n, track in enumerate(tracks, 1):
+            search_metadata = MetadataSearch(
+                track,
+                lyrics=not self.arguments["no_metadata"],
+                yt_search_format=self.arguments["search_format"],
+                yt_manual=self.arguments["manual"]
+            )
             try:
-                search_metadata = MetadataSearch(
-                    track,
-                    lyrics=not self.arguments["no_metadata"],
-                    yt_search_format=self.arguments["search_format"],
-                    yt_manual=self.arguments["manual"]
-                )
                 video = search_metadata.best_on_youtube_search()
             except (NoYouTubeVideoFoundError, NoYouTubeVideoMatchError) as e:
                 logger.error(e.args[0])

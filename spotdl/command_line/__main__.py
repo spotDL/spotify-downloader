@@ -3,6 +3,7 @@ import coloredlogs
 
 import sys
 
+import spotdl.command_line.exitcodes
 from spotdl.command_line.core import Spotdl
 from spotdl.command_line.arguments import get_arguments
 from spotdl.command_line.exceptions import ArgumentError
@@ -36,20 +37,25 @@ def main():
     except ArgumentError as e:
         logger = set_logger(logging.INFO)
         logger.info(e.args[0])
-        sys.exit(5)
+        sys.exit(spotdl.command_line.exitcodes.ARGUMENT_ERROR)
 
     logging_level = argument_handler.get_logging_level()
     logger = set_logger(logging_level)
     try:
-        spotdl = Spotdl(argument_handler)
+        spotdl_handler = Spotdl(argument_handler)
     except ArgumentError as e:
-        argument_handler.parser.error(e.args[0])
+        argument_handler.parser.error(
+            e.args[0],
+            exitcode=spotdl.command_line.exitcodes.ARGUMENT_ERROR
+        )
     try:
-        spotdl.match_arguments()
+        exitcode = spotdl_handler.match_arguments()
     except KeyboardInterrupt as e:
         print("", file=sys.stderr)
         logger.exception(e)
-        sys.exit(2)
+        sys.exit(spotdl.command_line.exitcodes.KEYBOARD_INTTERUPT)
+    else:
+        sys.exit(exitcode)
 
 
 if __name__ == "__main__":
