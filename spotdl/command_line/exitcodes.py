@@ -1,4 +1,4 @@
-KEYBOARD_INTTERUPT = 1
+KEYBOARD_INTERRUPT = 1
 ARGUMENT_ERROR = 2
 
 # When playlists, albums, artists, users aren't found.

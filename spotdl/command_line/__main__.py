@@ -53,7 +53,7 @@ def main():
     except KeyboardInterrupt as e:
         print("", file=sys.stderr)
         logger.exception(e)
-        sys.exit(spotdl.command_line.exitcodes.KEYBOARD_INTTERUPT)
+        sys.exit(spotdl.command_line.exitcodes.KEYBOARD_INTERRUPT)
     else:
         sys.exit(exitcode)
 
