@@ -8,6 +8,11 @@ The release dates mentioned follow the format `DD-MM-YYYY`.
 
 ## [Unreleased]
 
+## [2.0.7] (Hotfix Release) - 31-05-2020
+### Fixed
+- Patch PyTube so it correctly parses YouTube videos.
+  ([@ritiek](https://github.com/ritiek)) (#742)
+
 ## [2.0.6] - 26-05-2020
 ### Fixed
 - Fix crash if YouTube search results contains live streams
