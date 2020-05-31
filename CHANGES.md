@@ -11,6 +11,7 @@ The release dates mentioned follow the format `DD-MM-YYYY`.
 ## [2.0.8] (Hotfix Release) - 31-05-2020
 ### Fixed
 - Fix complaining about missing `spotdl.patch`.
+  ([@ritiek](https://github.com/ritiek)) (120ae9e3629253bfabf8091e0762eeacc4e63b04)
 
 ## [2.0.7] (Hotfix Release) - 31-05-2020
 ### Fixed
