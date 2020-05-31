@@ -28,6 +28,7 @@ setup(
         "spotdl.authorize",
         "spotdl.authorize.services",
         "spotdl.helpers",
+        "spotdl.patch",
     ],
     version=__version__,
     install_requires=[

@@ -8,6 +8,10 @@ The release dates mentioned follow the format `DD-MM-YYYY`.
 
 ## [Unreleased]
 
+## [2.0.8] (Hotfix Release) - 31-05-2020
+### Fixed
+- Fix complaining about missing `spotdl.patch`.
+
 ## [2.0.7] (Hotfix Release) - 31-05-2020
 ### Fixed
 - Patch PyTube so it correctly parses YouTube videos.
