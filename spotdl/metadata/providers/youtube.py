@@ -11,6 +11,9 @@ from spotdl.metadata.exceptions import YouTubeMetadataNotFoundError
 
 import spotdl.util
 
+import spotdl.patch
+spotdl.patch.youtube.apply_patches()
+
 import logging
 logger = logging.getLogger(__name__)
 
