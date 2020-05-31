@@ -36,16 +36,14 @@ SOFTWARE.
 
 
 import pytube
-# The below imports are required by the patch
-import json
-from urllib.parse import parse_qs, unquote
-import logging
-logger = logging.getLogger(__name__)
-
 
 def apply_patches():
     pytube.__main__.apply_descrambler = apply_descrambler
 
+
+# The below imports are required by the patch
+import json
+from urllib.parse import parse_qs, unquote
 
 def apply_descrambler(stream_data, key):
     """Apply various in-place transforms to YouTube's media stream data.
@@ -107,6 +105,4 @@ def apply_descrambler(stream_data, key):
             {k: unquote(v) for k, v in parse_qsl(i)}
             for i in stream_data[key].split(",")
         ]
-
-    logger.debug("applying descrambler")
 
