@@ -28,7 +28,7 @@ RULES = {
 
 class EncoderFFmpeg(EncoderBase):
     def __init__(self, encoder_path="ffmpeg", must_exist=True):
-        _loglevel = "-hide_banner -nostats -v panic"
+        _loglevel = "-hide_banner -nostats -v warning"
         _additional_arguments = ["-b:a", "192k", "-vn"]
         try:
             super().__init__(encoder_path, must_exist, _loglevel, _additional_arguments)
