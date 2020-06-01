@@ -8,6 +8,11 @@ The release dates mentioned follow the format `DD-MM-YYYY`.
 
 ## [Unreleased]
 
+## [2.0.9] - 02-06-2020
+### Changed
+- Specifically display what went wrong with FFmpeg when encoding fails.
+  ([@ritiek](https://github.com/ritiek)) (#748)
+
 ## [2.0.8] (Hotfix Release) - 31-05-2020
 ### Fixed
 - Fix complaining about missing `spotdl.patch`.
@@ -20,9 +25,9 @@ The release dates mentioned follow the format `DD-MM-YYYY`.
 
 ## [2.0.6] - 26-05-2020
 ### Fixed
-- Fix crash if YouTube search results contains live streams
+- Fix crash if YouTube search results contains live streams.
   ([@ritiek](https://github.com/ritiek) (#735)
-- Skip invalid tracks returned on playlist endpoint with Spotify Web-API
+- Skip invalid tracks returned on playlist endpoint with Spotify Web-API.
   ([@ritiek](https://github.com/ritiek)) (#732)
 
 ## [2.0.5] - 20-05-2020
