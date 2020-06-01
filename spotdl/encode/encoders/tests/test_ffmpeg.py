@@ -16,7 +16,7 @@ class TestEncoderFFmpeg:
 class TestEncodingDefaults:
     def m4a_to_mp3_encoder(input_path, target_path):
         command = [
-            'ffmpeg', '-y', '-nostdin', '-hide_banner', '-nostats', '-v', 'panic',
+            'ffmpeg', '-y', '-nostdin', '-hide_banner', '-nostats', '-v', 'warning',
             '-i', input_path,
             '-codec:v', 'copy',
             '-codec:a', 'libmp3lame',
@@ -30,7 +30,7 @@ class TestEncodingDefaults:
 
     def m4a_to_opus_encoder(input_path, target_path):
         command = [
-            'ffmpeg', '-y', '-nostdin', '-hide_banner', '-nostats', '-v', 'panic',
+            'ffmpeg', '-y', '-nostdin', '-hide_banner', '-nostats', '-v', 'warning',
             '-i', input_path,
             '-codec:a', 'libopus',
             '-vbr', 'on',
@@ -43,7 +43,7 @@ class TestEncodingDefaults:
 
     def m4a_to_m4a_encoder(input_path, target_path):
         command = [
-            'ffmpeg', '-y', '-nostdin', '-hide_banner', '-nostats', '-v', 'panic',
+            'ffmpeg', '-y', '-nostdin', '-hide_banner', '-nostats', '-v', 'warning',
             '-i', input_path,
             '-acodec', 'copy',
             '-b:a', '192k',
@@ -55,7 +55,7 @@ class TestEncodingDefaults:
 
     def m4a_to_flac_encoder(input_path, target_path):
         command = [
-            'ffmpeg', '-y', '-nostdin', '-hide_banner', '-nostats', '-v', 'panic',
+            'ffmpeg', '-y', '-nostdin', '-hide_banner', '-nostats', '-v', 'warning',
             '-i', input_path,
             '-codec:a', 'flac',
             '-ar', '48000',
@@ -145,7 +145,7 @@ class TestEncodingInDebugMode:
 class TestEncodingAndTrimSilence:
     def m4a_to_mp3_encoder_and_trim_silence(input_path, target_path):
         command = [
-            'ffmpeg', '-y', '-nostdin', '-hide_banner', '-nostats', '-v', 'panic',
+            'ffmpeg', '-y', '-nostdin', '-hide_banner', '-nostats', '-v', 'warning',
             '-i', input_path,
             '-codec:v', 'copy',
             '-codec:a', 'libmp3lame',
@@ -160,7 +160,7 @@ class TestEncodingAndTrimSilence:
 
     def m4a_to_opus_encoder_and_trim_silence(input_path, target_path):
         command = [
-            'ffmpeg', '-y', '-nostdin', '-hide_banner', '-nostats', '-v', 'panic',
+            'ffmpeg', '-y', '-nostdin', '-hide_banner', '-nostats', '-v', 'warning',
             '-i', input_path,
             '-codec:a', 'libopus',
             '-vbr', 'on',
@@ -174,7 +174,7 @@ class TestEncodingAndTrimSilence:
 
     def m4a_to_m4a_encoder_and_trim_silence(input_path, target_path):
         command = [
-            'ffmpeg', '-y', '-nostdin', '-hide_banner', '-nostats', '-v', 'panic',
+            'ffmpeg', '-y', '-nostdin', '-hide_banner', '-nostats', '-v', 'warning',
             '-i', input_path,
             '-acodec', 'copy',
             '-b:a', '192k',
@@ -187,7 +187,7 @@ class TestEncodingAndTrimSilence:
 
     def m4a_to_flac_encoder_and_trim_silence(input_path, target_path):
         command = [
-            'ffmpeg', '-y', '-nostdin', '-hide_banner', '-nostats', '-v', 'panic',
+            'ffmpeg', '-y', '-nostdin', '-hide_banner', '-nostats', '-v', 'warning',
             '-i', input_path,
             '-codec:a', 'flac',
             '-ar', '48000',
