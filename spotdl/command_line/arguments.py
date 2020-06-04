@@ -9,6 +9,7 @@ import shutil
 from spotdl.command_line.exceptions import ArgumentError
 import spotdl.util
 import spotdl.config
+import spotdl.command_line.exitcodes
 
 from collections.abc import Sequence
 import logging
@@ -33,8 +34,17 @@ _CONFIG_BASE = spotdl.util.merge_copy(
 )
 
 
+class ArgumentParser(argparse.ArgumentParser):
+    def error(self, message, exitcode=spotdl.command_line.exitcodes.ARGUMENT_ERROR):
+        self.print_usage(sys.stderr)
+        self.exit(
+            exitcode,
+            '%s: error: %s\n' % (self.prog, message)
+        )
+
+
 def get_arguments(config_base=_CONFIG_BASE):
-    parser = argparse.ArgumentParser(
+    parser = ArgumentParser(
         description="Download and convert tracks from Spotify, Youtube, etc.",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
@@ -278,7 +288,7 @@ def get_arguments(config_base=_CONFIG_BASE):
 
 
 class ArgumentHandler:
-    def __init__(self, args=None, parser=argparse.ArgumentParser(""), config_base=_CONFIG_BASE):
+    def __init__(self, args=None, parser=ArgumentParser(""), config_base=_CONFIG_BASE):
         args_were_passed = args is not None
         if not args_were_passed:
             args = parser.parse_args().__dict__
