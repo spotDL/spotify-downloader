@@ -32,6 +32,7 @@ M4A_TAG_PRESET = {
     "tempo": "tmpo",
     "lyrics": "\xa9lyr",
     "comment": "\xa9cmt",
+    "explicit": "rtng",
 }
 
 TAG_PRESET = {}
@@ -73,7 +74,7 @@ class EmbedderDefault(EmbedderBase):
 
         # For supported id3 tags:
         # https://github.com/quodlibet/mutagen/blob/master/mutagen/id3/_frames.py
-        # Each class represents an id3 tag
+        # Each class in the linked source file represents an id3 tag
         audiofile = ID3(path)
         if metadata["year"]:
             audiofile["TORY"] = TORY(encoding=3, text=metadata["year"])
@@ -109,6 +110,9 @@ class EmbedderDefault(EmbedderBase):
     def as_m4a(self, path, metadata, cached_albumart=None):
         """ Embed metadata to M4A files. """
         logger.debug('Writing M4A metadata to "{path}".'.format(path=path))
+        # For supported m4a tags:
+        # https://github.com/quodlibet/mutagen/blob/master/mutagen/mp4/__init__.py
+        # Look for the class named `MP4Tags` in the linked source file
         audiofile = MP4(path)
         self._embed_basic_metadata(audiofile, metadata, "m4a", preset=M4A_TAG_PRESET)
         if metadata["year"]:
@@ -117,6 +121,8 @@ class EmbedderDefault(EmbedderBase):
         audiofile[M4A_TAG_PRESET["comment"]] = metadata["external_urls"][provider]
         if metadata["lyrics"]:
             audiofile[M4A_TAG_PRESET["lyrics"]] = metadata["lyrics"]
+        # Explicit values: Dirty: 4, Clean: 2, None: 0
+        audiofile[M4A_TAG_PRESET["explicit"]] = (4,) if metadata["explicit"] else (2,)
         try:
             if cached_albumart is None:
                 cached_albumart = urllib.request.urlopen(
@@ -133,6 +139,9 @@ class EmbedderDefault(EmbedderBase):
 
     def as_flac(self, path, metadata, cached_albumart=None):
         logger.debug('Writing FLAC metadata to "{path}".'.format(path=path))
+        # For supported flac tags:
+        # https://github.com/quodlibet/mutagen/blob/master/mutagen/mp4/__init__.py
+        # Look for the class named `MP4Tags` in the linked source file
         audiofile = FLAC(path)
         self._embed_basic_metadata(audiofile, metadata, "flac")
         if metadata["year"]:
