@@ -304,7 +304,9 @@ class ArgumentHandler:
     def _from_parser(self, parser):
         args = parser.parse_args().__dict__
         config_file = args.get("config")
-        if config_file:
+        # Make sure the passed `config_file` exists before
+        # doing anything.
+        if config_file and os.path.isfile(config_file):
             config = spotdl.config.read_config(config_file)
             parser.set_defaults(**config["spotify-downloader"])
             configured_args = parser.parse_args().__dict__.copy()
@@ -317,7 +319,9 @@ class ArgumentHandler:
     def _from_args(self, args):
         config_file = args.get("config")
         defaults = self.config_base["spotify-downloader"]
-        if config_file:
+        # Make sure the passed `config_file` exists before
+        # doing anything.
+        if config_file and os.path.isfile(config_file):
             config = spotdl.config.read_config(config_file)
             configured_args = spotdl.util.merge_copy(defaults, config)
         else:
