@@ -284,41 +284,52 @@ def get_arguments(config_base=_CONFIG_BASE):
         version="%(prog)s {}".format(spotdl.__version__),
     )
 
-    return ArgumentHandler(parser=parser)
+    return ArgumentHandler(parser)
 
 
 class ArgumentHandler:
-    def __init__(self, args=None, parser=ArgumentParser(""), config_base=_CONFIG_BASE):
-        args_were_passed = args is not None
-        if not args_were_passed:
-            args = parser.parse_args().__dict__
-
-        config_file = args.get("config")
-        configured_args = args.copy()
-        if config_file and os.path.isfile(config_file):
-            config = spotdl.config.read_config(config_file)
-            parser.set_defaults(**config["spotify-downloader"])
-            configured_args = parser.parse_args().__dict__
-
-        if args_were_passed:
-            parser.set_defaults(**args)
-            configured_args = parser.parse_args().__dict__
-
-        defaults = config_base["spotify-downloader"]
-        args = spotdl.util.merge_copy(defaults, args)
-
-        self.parser = parser
-        self.args = args
+    def __init__(self, context={}, config_base=_CONFIG_BASE):
+        self.config_base = config_base
+        self.context = context
+        handlers = {
+            dict: self._from_args,
+            argparse.ArgumentParser: self._from_parser,
+        }
+        for cls, handler in handlers.items():
+            if isinstance(context, cls):
+                configured_args = handler(context)
+                break
         self.configured_args = configured_args
 
-    def get_configured_args(self):
-        return self.configured_args
+    def _from_parser(self, parser):
+        args = parser.parse_args().__dict__
+        config_file = args.get("config")
+        if config_file:
+            config = spotdl.config.read_config(config_file)
+            parser.set_defaults(**config["spotify-downloader"])
+            configured_args = parser.parse_args().__dict__.copy()
+        else:
+            configured_args = args.copy()
+        defaults = self.config_base["spotify-downloader"]
+        configured_args = spotdl.util.merge_copy(defaults, configured_args)
+        return configured_args
+
+    def _from_args(self, args):
+        config_file = args.get("config")
+        defaults = self.config_base["spotify-downloader"]
+        if config_file:
+            config = spotdl.config.read_config(config_file)
+            configured_args = spotdl.util.merge_copy(defaults, config)
+        else:
+            configured_args = defaults.copy()
+        configured_args = spotdl.util.merge_copy(configured_args, args)
+        return configured_args
 
     def get_logging_level(self):
         return _LOG_LEVELS[self.configured_args["log_level"]]
 
     def run_errands(self):
-        args = self.get_configured_args()
+        args = self.configured_args
 
         if (args.get("list")
             and not mimetypes.MimeTypes().guess_type(args["list"])[0] == "text/plain"
