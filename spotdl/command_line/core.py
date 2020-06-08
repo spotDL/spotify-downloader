@@ -34,7 +34,12 @@ logger = logging.getLogger(__name__)
 
 class Spotdl:
     def __init__(self, argument_handler):
-        self.arguments = argument_handler.run_errands()
+        arguments = argument_handler.run_errands()
+        AuthorizeSpotify(
+            client_id=arguments["spotify_client_id"],
+            client_secret=arguments["spotify_client_secret"]
+        )
+        self.arguments = arguments
 
     def __enter__(self):
         return self
@@ -50,10 +55,6 @@ class Spotdl:
             return 0
         self.save_default_config()
 
-        AuthorizeSpotify(
-            client_id=self.arguments["spotify_client_id"],
-            client_secret=self.arguments["spotify_client_secret"]
-        )
         spotify_tools = SpotifyHelpers()
         if self.arguments["song"]:
             for track in self.arguments["song"]:
