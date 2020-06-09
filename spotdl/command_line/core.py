@@ -58,6 +58,7 @@ class Spotdl:
         spotify_tools = SpotifyHelpers()
         if self.arguments["song"]:
             for track in self.arguments["song"]:
+                logger.info('Downloading "{}"'.format(track))
                 if track == "-":
                     for line in sys.stdin:
                         self.download_track(
@@ -196,7 +197,6 @@ class Spotdl:
                         output_file.write(m3u_key)
 
     def download_track(self, track):
-        logger.info('Downloading "{}"'.format(track))
         search_metadata = MetadataSearch(
             track,
             lyrics=not self.arguments["no_metadata"],
@@ -349,20 +349,13 @@ class Spotdl:
         )
 
         for position, track in enumerate(tracks, 1):
-            search_metadata = MetadataSearch(
-                track,
-                lyrics=True,
-                yt_search_format=self.arguments["search_format"],
-                yt_manual=self.arguments["manual"]
-            )
             log_track_query = '{position}. Downloading "{track}"'.format(
                 position=position,
                 track=track
             )
             logger.info(log_track_query)
             try:
-                metadata = search_metadata.on_youtube_and_spotify()
-                self.download_track_from_metadata(metadata)
+                self.download_track(track)
             except (urllib.request.URLError, TypeError, IOError) as e:
                 logger.exception(e.args[0])
                 logger.warning(
@@ -370,8 +363,6 @@ class Spotdl:
                     "Will retry after other songs."
                 )
                 tracks.append(track)
-            except (NoYouTubeVideoFoundError, NoYouTubeVideoMatchError) as e:
-                logger.error("{err}".format(err=e.args[0]))
             except KeyboardInterrupt:
                 # The current track hasn't been downloaded completely.
                 # Make sure we continue from here the next the program runs.
