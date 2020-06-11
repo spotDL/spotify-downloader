@@ -71,10 +71,11 @@ setup(
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3 :: Only",
         "Topic :: Multimedia",
         "Topic :: Multimedia :: Sound/Audio",
         "Topic :: Utilities",
     ],
-    entry_points={"console_scripts": ["spotdl = spotdl:main"]},
+    entry_points={"console_scripts": ["spotdl = spotdl.command_line.__main__:main"]},
 )
