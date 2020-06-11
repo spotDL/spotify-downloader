@@ -22,6 +22,7 @@ from spotdl.command_line.exceptions import NoYouTubeVideoMatchError
 from spotdl.metadata_search import MetadataSearch
 
 from spotdl.helpers.spotify import SpotifyHelpers
+from spotdl.command_line.arguments import ArgumentHandler
 import spotdl.helpers.exceptions
 
 import sys
@@ -31,9 +32,9 @@ import urllib.request
 import logging
 logger = logging.getLogger(__name__)
 
-
 class Spotdl:
-    def __init__(self, argument_handler):
+    def __init__(self, args={}):
+        argument_handler = ArgumentHandler(args)
         arguments = argument_handler.run_errands()
         AuthorizeSpotify(
             client_id=arguments["spotify_client_id"],
@@ -50,7 +51,7 @@ class Spotdl:
     def match_arguments(self):
         logger.debug("Received arguments:\n{}".format(self.arguments))
 
-        if self.arguments["remove_config"]:
+        if self.arguments.get("remove_config"):
             self.remove_saved_config()
             return 0
         self.save_default_config()

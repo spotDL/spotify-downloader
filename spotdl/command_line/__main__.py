@@ -1,55 +1,33 @@
 import logging
-import coloredlogs
-
 import sys
 
-import spotdl.command_line.exitcodes
 from spotdl.command_line.core import Spotdl
-from spotdl.command_line.arguments import get_arguments
+from spotdl.command_line import arguments
 from spotdl.command_line.exceptions import ArgumentError
+
+import spotdl.command_line.exitcodes
 
 # hardcode loglevel for dependencies so that they do not spew generic
 # log messages along with spotdl.
-for module in ("chardet", "urllib3", "spotipy", "pytube"):
-    logging.getLogger(module).setLevel(logging.CRITICAL)
-
-coloredlogs.DEFAULT_FIELD_STYLES = {
-    "levelname": {"bold": True, "color": "yellow"},
-    "name": {"color": "blue"},
-    "lineno": {"color": "magenta"},
-}
-
-
-def set_logger(level):
-    if level == logging.DEBUG:
-        fmt = "%(levelname)s:%(name)s:%(lineno)d:\n%(message)s\n"
-    else:
-        fmt = "%(levelname)s: %(message)s"
-    logging.basicConfig(format=fmt, level=level)
-    logger = logging.getLogger(name=__name__)
-    coloredlogs.install(level=level, fmt=fmt, logger=logger)
-    return logger
+logger = logging.getLogger(name=__name__)
 
 
 def main():
     try:
-        argument_handler = get_arguments()
+        parser = arguments.get_arguments()
     except ArgumentError as e:
-        logger = set_logger(logging.INFO)
         logger.info(e.args[0])
         sys.exit(spotdl.command_line.exitcodes.ARGUMENT_ERROR)
-
-    logging_level = argument_handler.get_logging_level()
-    logger = set_logger(logging_level)
+    else:
+        args = parser.parse_args().__dict__
     try:
-        spotdl_handler = Spotdl(argument_handler)
+        with Spotdl(args) as spotdl_handler:
+            exitcode = spotdl_handler.match_arguments()
     except ArgumentError as e:
-        argument_handler.parser.error(
+        parser.error(
             e.args[0],
             exitcode=spotdl.command_line.exitcodes.ARGUMENT_ERROR
         )
-    try:
-        exitcode = spotdl_handler.match_arguments()
     except KeyboardInterrupt as e:
         print("", file=sys.stderr)
         logger.exception(e)

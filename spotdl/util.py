@@ -5,6 +5,7 @@ import urllib.request
 import threading
 
 import logging
+import coloredlogs
 logger = logging.getLogger(__name__)
 
 
@@ -43,8 +44,25 @@ class ThreadWithReturnValue(threading.Thread):
         return self._return
 
 
+def install_logger(level, to_disable=("chardet", "urllib3", "spotipy", "pytube")):
+    for module in to_disable:
+        logging.getLogger(module).setLevel(logging.CRITICAL)
+    if level == logging.DEBUG:
+        fmt = "%(levelname)s:%(name)s:%(lineno)d:\n%(message)s\n"
+    else:
+        fmt = "%(levelname)s: %(message)s"
+    logging.basicConfig(format=fmt, level=level)
+    coloredlogs.DEFAULT_FIELD_STYLES = {
+        "levelname": {"bold": True, "color": "yellow"},
+        "name": {"color": "blue"},
+        "lineno": {"color": "magenta"},
+    }
+    coloredlogs.install(level=level, fmt=fmt, logger=logger)
+
+
 def merge_copy(base, overrider):
     return merge(base.copy(), overrider)
+
 
 def merge(base, overrider):
     """ Override base dict with an overrider dict, recursively. """

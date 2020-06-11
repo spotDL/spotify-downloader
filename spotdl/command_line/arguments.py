@@ -16,17 +16,17 @@ import logging
 logger = logging.getLogger(__name__)
 
 
+if os.path.isfile(spotdl.config.DEFAULT_CONFIG_FILE):
+    saved_config = spotdl.config.read_config(spotdl.config.DEFAULT_CONFIG_FILE)
+else:
+    saved_config = {"spotify-downloader": {}}
+
 _LOG_LEVELS = {
     "INFO": logging.INFO,
     "WARNING": logging.WARNING,
     "ERROR": logging.ERROR,
     "DEBUG": logging.DEBUG,
 }
-
-if os.path.isfile(spotdl.config.DEFAULT_CONFIG_FILE):
-    saved_config = spotdl.config.read_config(spotdl.config.DEFAULT_CONFIG_FILE)
-else:
-    saved_config = {"spotify-downloader": {}}
 
 _CONFIG_BASE = spotdl.util.merge_copy(
     spotdl.config.DEFAULT_CONFIGURATION,
@@ -42,6 +42,18 @@ class ArgumentParser(argparse.ArgumentParser):
             '%s: error: %s\n' % (self.prog, message)
         )
 
+    def parse_args(self, args=None):
+        configured_args = super().parse_args(args=args)
+        config_file = configured_args.config
+        if config_file and os.path.isfile(config_file):
+            config = spotdl.config.read_config(config_file)
+            self.set_defaults(**config["spotify-downloader"])
+            configured_args = super().parse_args(args=args)
+        logging_level = _LOG_LEVELS[configured_args.log_level]
+        spotdl.util.install_logger(logging_level)
+        del configured_args.config
+        return configured_args
+
 
 def get_arguments(config_base=_CONFIG_BASE):
     parser = ArgumentParser(
@@ -53,6 +65,7 @@ def get_arguments(config_base=_CONFIG_BASE):
 
     to_remove_config = "--remove-config" in sys.argv[1:]
     if not to_remove_config and "download-only-metadata" in defaults:
+        logger = spotdl.util.install_logger(logging.INFO)
         raise ArgumentError(
             "The default configuration file currently set is not suitable for spotdl>=2.0.0.\n"
             "You need to remove your previous `config.yml` due to breaking changes\n"
@@ -284,37 +297,14 @@ def get_arguments(config_base=_CONFIG_BASE):
         version="%(prog)s {}".format(spotdl.__version__),
     )
 
-    return ArgumentHandler(parser)
+    return parser
 
 
 class ArgumentHandler:
-    def __init__(self, context={}, config_base=_CONFIG_BASE):
+    def __init__(self, args={}, config_base=_CONFIG_BASE):
         self.config_base = config_base
-        self.context = context
-        handlers = {
-            dict: self._from_args,
-            argparse.ArgumentParser: self._from_parser,
-        }
-        for cls, handler in handlers.items():
-            if isinstance(context, cls):
-                configured_args = handler(context)
-                break
-        self.configured_args = configured_args
-
-    def _from_parser(self, parser):
-        args = parser.parse_args().__dict__
-        config_file = args.get("config")
-        # Make sure the passed `config_file` exists before
-        # doing anything.
-        if config_file and os.path.isfile(config_file):
-            config = spotdl.config.read_config(config_file)
-            parser.set_defaults(**config["spotify-downloader"])
-            configured_args = parser.parse_args().__dict__.copy()
-        else:
-            configured_args = args.copy()
-        defaults = self.config_base["spotify-downloader"]
-        configured_args = spotdl.util.merge_copy(defaults, configured_args)
-        return configured_args
+        self.args = args
+        self.configured_args = self._from_args(args)
 
     def _from_args(self, args):
         config_file = args.get("config")
@@ -323,14 +313,12 @@ class ArgumentHandler:
         # doing anything.
         if config_file and os.path.isfile(config_file):
             config = spotdl.config.read_config(config_file)
+            config = config["spotify-downloader"]
             configured_args = spotdl.util.merge_copy(defaults, config)
         else:
             configured_args = defaults.copy()
         configured_args = spotdl.util.merge_copy(configured_args, args)
         return configured_args
-
-    def get_logging_level(self):
-        return _LOG_LEVELS[self.configured_args["log_level"]]
 
     def run_errands(self):
         args = self.configured_args
