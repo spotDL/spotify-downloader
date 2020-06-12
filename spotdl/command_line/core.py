@@ -198,21 +198,59 @@ class Spotdl:
                         output_file.write(m3u_key)
 
     def download_track(self, track):
+        subtracks = track.split("::")
+        download_track = subtracks[0]
+        custom_metadata_track = len(subtracks) > 1
+        if custom_metadata_track:
+            metadata_track = subtracks[1]
+        else:
+            metadata_track = download_track
+
         search_metadata = MetadataSearch(
-            track,
+            metadata_track,
             lyrics=not self.arguments["no_metadata"],
             yt_search_format=self.arguments["search_format"],
             yt_manual=self.arguments["manual"]
         )
-        try:
-            if self.arguments["no_metadata"]:
-                metadata = search_metadata.on_youtube()
+
+        def threaded_metadata():
+            try:
+                if self.arguments["no_metadata"]:
+                    metadata = search_metadata.on_youtube()
+                else:
+                    metadata = search_metadata.on_youtube_and_spotify()
+            except (NoYouTubeVideoFoundError, NoYouTubeVideoMatchError) as e:
+                logger.error(e.args[0])
             else:
-                metadata = search_metadata.on_youtube_and_spotify()
+                return metadata
+
+        metadata = spotdl.util.ThreadWithReturnValue(target=threaded_metadata)
+        metadata.start()
+        if not custom_metadata_track:
+            metadata = metadata.join()
+            if not metadata:
+                return
+            return self.download_track_from_metadata(metadata)
+
+        search_metadata = MetadataSearch(
+            download_track,
+            lyrics=False,
+            yt_search_format=self.arguments["search_format"],
+            yt_manual=self.arguments["manual"]
+        )
+        try:
+            download_track_metadata = search_metadata.on_youtube()
         except (NoYouTubeVideoFoundError, NoYouTubeVideoMatchError) as e:
             logger.error(e.args[0])
-        else:
-            self.download_track_from_metadata(metadata)
+            return
+
+        metadata = metadata.join()
+        if not metadata:
+            return
+
+        logger.info('Overriding metadata as per passed metadata-track'.format(metadata_track))
+        metadata["streams"] = download_track_metadata["streams"]
+        return self.download_track_from_metadata(metadata)
 
     def should_we_overwrite_existing_file(self, overwrite):
         if overwrite == "force":

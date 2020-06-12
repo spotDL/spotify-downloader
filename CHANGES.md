@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 The release dates mentioned follow the format `DD-MM-YYYY`.
 
 ## [Unreleased]
+### Added
+- Add metadata to a track from a different track. ([@ritiek](https://github.com/ritiek)) (#757)
+
 ### Changed
 - Exit with an appropriate code on bad arguments. ([@ritiek](https://github.com/ritiek)) (#736)
 
