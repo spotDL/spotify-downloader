@@ -45,7 +45,7 @@ setup(
         "appdirs >= 1.4.3",
         "tqdm >= 4.45.0"
     ],
-    description="Download songs from YouTube using Spotify song URLs or playlists with albumart and meta-tags.",
+    description="Download Spotify playlists from YouTube with albumart and metadata",
     long_description=long_description,
     long_description_content_type="text/markdown",
     author="Ritiek Malhotra",
