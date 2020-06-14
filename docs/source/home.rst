@@ -1,4 +1,4 @@
-.. include:: badges.rst
+.. INCLUDE:: badges.rst
 
 Home
 ****
@@ -20,9 +20,5 @@ For contributing, check out the
 For other queries, check out the
 `Gitter channel <https://gitter.im/spotify-downloader/Lobby>`_.
 
-
 |codestyle-black| |gitter.im| |license|
-
-.. toctree::
-   :maxdepth: 2
 

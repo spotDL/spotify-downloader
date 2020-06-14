@@ -1,7 +1,7 @@
 # Spotify-Downloader
 
 [![PyPi](https://img.shields.io/pypi/v/spotdl.svg)](https://pypi.org/project/spotdl)
-[![Docs Build Status](https://readthedocs.org/projects/spotdl/badge/?version=latest)](https://spotdl.readthedocs.io/)
+[![Docs Build Status](https://readthedocs.org/projects/spotdl/badge/?version=latest)](https://spotdl.readthedocs.io/en/latest/home.html)
 [![Build Status](https://travis-ci.org/ritiek/spotify-downloader.svg?branch=master)](https://travis-ci.org/ritiek/spotify-downloader)
 [![Coverage Status](https://codecov.io/gh/ritiek/spotify-downloader/branch/master/graph/badge.svg)](https://codecov.io/gh/ritiek/spotify-downloader)
 [![Docker Build Status](https://img.shields.io/docker/build/ritiek/spotify-downloader.svg)](https://hub.docker.com/r/ritiek/spotify-downloader)
@@ -31,8 +31,8 @@ spotify-downloader can be installed via pip with:
 $ pip3 install spotdl
 ```
 
-but be sure to check out the [Installation](https://github.com/ritiek/spotify-downloader/wiki/Installation) wiki
-page for detailed OS-specific instructions to get it and other dependencies it relies on working on your system.
+but be sure to check out the [Installation](https://spotdl.readthedocs.io/en/latest/installation.html) docs
+for detailed OS-specific instructions to get it and other dependencies it relies on working on your system.
 
 ## Usage
 
@@ -54,15 +54,15 @@ $ spotdl --list ncs-releases.txt
 
 Run `spotdl --help` to get a list of all available options in spotify-downloader.
 
-Check out the [Available options](https://github.com/ritiek/spotify-downloader/wiki/Available-options)
-wiki page for the list of currently available options with their description.
+Check out the [Available options](https://spotdl.readthedocs.io/en/latest/available-options.html)
+page for the list of currently available options with their description.
 
-The wiki page [Instructions for Downloading Songs](https://github.com/ritiek/spotify-downloader/wiki/Instructions-for-Downloading-Songs)
+The docs on [Downloading Tracks](https://spotdl.readthedocs.io/en/latest/download-tracks.html)
 contains detailed information about different available ways to download tracks.
 
 ## FAQ
 
-All FAQs will be mentioned in our [FAQ wiki page](https://github.com/ritiek/spotify-downloader/wiki/FAQ).
+All FAQs will be mentioned in our [FAQ docs](https://spotdl.readthedocs.io/en/latest/faq.html).
 
 ## Contributing
 

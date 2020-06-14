@@ -1,7 +1,7 @@
 .. |pypi.python.org| image:: https://img.shields.io/pypi/v/spotdl.svg?branch=master
    :target: https://pypi.org/project/spotdl
 .. |readthedocs.org| image:: https://readthedocs.org/projects/spotdl/badge/?version=latest
-   :target: https://spotdl.readthedocs.io/
+   :target: https://spotdl.readthedocs.io/en/latest/home.html
 .. |travis-ci.org| image:: https://travis-ci.org/ritiek/spotify-downloader.svg?branch=master
    :target: https://travis-ci.org/ritiek/spotify-downloader
 .. |codecov.io| image:: https://codecov.io/gh/ritiek/spotify-downloader/branch/master/graph/badge.svg
