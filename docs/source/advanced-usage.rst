@@ -114,7 +114,7 @@ the artist's name and download the matched track to this directory.
 
 .. TIP::
     This option supports same tag attributes as in
-    `setting custom YouTube search queries <https://github.com/ritiek/spotify-downloader/wiki/Advanced-usage#set-custom-youtube-search-query>`_.
+    `setting custom YouTube search queries <#set-custom-youtube-search-query>`_.
 
 **For example:**
 
@@ -167,7 +167,7 @@ you can also write tracks from *\--playlist*, *\--album*, etc. to STDOUT by pass
 Embed spotdl in Python scripts
 ==============================
 
-Check out the `API docs <../api.html>`_.
+Check out the `API docs <api.html>`_.
 
 
 Maintain a skip tracks file

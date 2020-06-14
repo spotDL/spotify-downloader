@@ -31,7 +31,7 @@ This works with both relative and absolute paths.
 Where is my config.yml?
 =======================
 
-Check out the docs for  `advanced-usage#config-file <../advanced-usage.html#configuration-file>`_.
+Check out the docs for  `advanced-usage#config-file <advanced-usage.html#configuration-file>`_.
 
 
 How to skip already downloaded tracks by default?
