@@ -80,6 +80,7 @@ class TestMethods:
         ("test 123.opus", "opus"),
         ("flakey.flac", "flac"),
         ("example.ogg", "ogg"),
+        ("example.opus", "opus"),
     ])
     def test_get_encoding(self, encoderkid, filename, encoding):
         assert encoderkid.get_encoding(filename) == encoding

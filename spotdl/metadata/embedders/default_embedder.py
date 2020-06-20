@@ -3,6 +3,7 @@ from mutagen.id3 import ID3, TORY, TYER, TPUB, APIC, USLT, COMM
 from mutagen.mp4 import MP4, MP4Cover
 from mutagen.flac import Picture, FLAC
 from mutagen.oggvorbis import OggVorbis
+from mutagen.oggopus import OggOpus
 
 import urllib.request
 import base64
@@ -43,7 +44,7 @@ for key in M4A_TAG_PRESET.keys():
 
 
 class EmbedderDefault(EmbedderBase):
-    supported_formats = ("mp3", "m4a", "flac", "ogg")
+    supported_formats = ("mp3", "m4a", "flac", "ogg", "opus")
 
     def __init__(self):
         super().__init__()
@@ -162,6 +163,16 @@ class EmbedderDefault(EmbedderBase):
 
         audiofile.save()
 
+    def as_opus(self, path, metadata, cached_albumart=None):
+        logger.debug('Writing Opus metadata to "{path}".'.format(path=path))
+        audiofile = OggOpus(path)
+
+        self._embed_basic_metadata(audiofile, metadata, "opus")
+        self._embed_ogg_metadata(audiofile, metadata)
+        self._embed_mbp_picture(audiofile, metadata, cached_albumart, "opus")
+
+        audiofile.save()
+
     def _embed_ogg_metadata(self, audiofile, metadata):
         if metadata["year"]:
             audiofile["year"] = metadata["year"]
@@ -184,7 +195,7 @@ class EmbedderDefault(EmbedderBase):
 
         if encoding == "flac":
             audiofile.add_picture(image)
-        elif encoding == "ogg":
+        elif encoding == "ogg" or encoding == "opus":
             # From the Mutagen docs (https://mutagen.readthedocs.io/en/latest/user/vcomment.html)
             image_data = image.write()
             encoded_data = base64.b64encode(image_data)
@@ -205,12 +216,12 @@ class EmbedderDefault(EmbedderBase):
             audiofile[preset["genre"]] = metadata["genre"]
         if metadata["copyright"]:
             audiofile[preset["copyright"]] = metadata["copyright"]
-        if encoding == "flac" or encoding == "ogg":
+        if encoding == "flac" or encoding == "ogg" or encoding == "opus":
             audiofile[preset["discnumber"]] = str(metadata["disc_number"])
         else:
             audiofile[preset["discnumber"]] = [(metadata["disc_number"], 0)]
         zfilled_track_number = str(metadata["track_number"]).zfill(len(str(metadata["total_tracks"])))
-        if encoding == "flac" or encoding == "ogg":
+        if encoding == "flac" or encoding == "ogg" or encoding == "opus":
             audiofile[preset["tracknumber"]] = zfilled_track_number
         else:
             if preset["tracknumber"] == TAG_PRESET["tracknumber"]:

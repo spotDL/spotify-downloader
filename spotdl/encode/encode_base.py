@@ -26,7 +26,8 @@ _TARGET_FORMATS_FROM_ENCODING = {
     "mp3": "mp3",
     "opus": "opus",
     "flac": "flac",
-    "ogg": "ogg"
+    "ogg": "ogg",
+    "opus": "opus"
 }
 
 

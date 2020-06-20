@@ -189,7 +189,7 @@ def get_arguments(config_base=_CONFIG_BASE):
         "-o",
         "--output-ext",
         default=defaults["output_ext"],
-        choices={"mp3", "m4a", "flac", "ogg"},
+        choices={"mp3", "m4a", "flac", "ogg", "opus"},
         help="preferred output format",
     )
     parser.add_argument(
