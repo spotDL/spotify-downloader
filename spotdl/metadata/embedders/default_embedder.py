@@ -2,8 +2,10 @@ from mutagen.easyid3 import EasyID3
 from mutagen.id3 import ID3, TORY, TYER, TPUB, APIC, USLT, COMM
 from mutagen.mp4 import MP4, MP4Cover
 from mutagen.flac import Picture, FLAC
+from mutagen.oggvorbis import OggVorbis
 
 import urllib.request
+import base64
 
 from spotdl.metadata import EmbedderBase
 
@@ -41,7 +43,7 @@ for key in M4A_TAG_PRESET.keys():
 
 
 class EmbedderDefault(EmbedderBase):
-    supported_formats = ("mp3", "m4a", "flac")
+    supported_formats = ("mp3", "m4a", "flac", "ogg")
 
     def __init__(self):
         super().__init__()
@@ -143,7 +145,24 @@ class EmbedderDefault(EmbedderBase):
         # https://github.com/quodlibet/mutagen/blob/master/mutagen/mp4/__init__.py
         # Look for the class named `MP4Tags` in the linked source file
         audiofile = FLAC(path)
+
         self._embed_basic_metadata(audiofile, metadata, "flac")
+        self._embed_ogg_metadata(audiofile, metadata)
+        self._embed_mbp_picture(audiofile, "metadata", cached_albumart, "flac")
+
+        audiofile.save()
+
+    def as_ogg(self, path, metadata, cached_albumart=None):
+        logger.debug('Writing OGG Vorbis metadata to "{path}".'.format(path=path))
+        audiofile = OggVorbis(path)
+
+        self._embed_basic_metadata(audiofile, metadata, "ogg")
+        self._embed_ogg_metadata(audiofile, metadata)
+        self._embed_mbp_picture(audiofile, metadata, cached_albumart, "ogg")
+
+        audiofile.save()
+
+    def _embed_ogg_metadata(self, audiofile, metadata):
         if metadata["year"]:
             audiofile["year"] = metadata["year"]
         provider = metadata["provider"]
@@ -151,6 +170,7 @@ class EmbedderDefault(EmbedderBase):
         if metadata["lyrics"]:
             audiofile["lyrics"] = metadata["lyrics"]
 
+    def _embed_mbp_picture(self, audiofile, metadata, cached_albumart, encoding):
         image = Picture()
         image.type = 3
         image.desc = "Cover"
@@ -161,9 +181,15 @@ class EmbedderDefault(EmbedderBase):
             ).read()
             albumart.close()
         image.data = cached_albumart
-        audiofile.add_picture(image)
 
-        audiofile.save()
+        if encoding == "flac":
+            audiofile.add_picture(image)
+        elif encoding == "ogg":
+            # From the Mutagen docs (https://mutagen.readthedocs.io/en/latest/user/vcomment.html)
+            image_data = image.write()
+            encoded_data = base64.b64encode(image_data)
+            vcomment_value = encoded_data.decode("ascii")
+            audiofile["metadata_block_picture"] = [vcomment_value]
 
     def _embed_basic_metadata(self, audiofile, metadata, encoding, preset=TAG_PRESET):
         audiofile[preset["artist"]] = metadata["artists"][0]["name"]
@@ -179,12 +205,12 @@ class EmbedderDefault(EmbedderBase):
             audiofile[preset["genre"]] = metadata["genre"]
         if metadata["copyright"]:
             audiofile[preset["copyright"]] = metadata["copyright"]
-        if encoding == "flac":
+        if encoding == "flac" or encoding == "ogg":
             audiofile[preset["discnumber"]] = str(metadata["disc_number"])
         else:
             audiofile[preset["discnumber"]] = [(metadata["disc_number"], 0)]
         zfilled_track_number = str(metadata["track_number"]).zfill(len(str(metadata["total_tracks"])))
-        if encoding == "flac":
+        if encoding == "flac" or encoding == "ogg":
             audiofile[preset["tracknumber"]] = zfilled_track_number
         else:
             if preset["tracknumber"] == TAG_PRESET["tracknumber"]:

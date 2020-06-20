@@ -79,6 +79,7 @@ class TestMethods:
         ("exampley.mp3", "mp3"),
         ("test 123.opus", "opus"),
         ("flakey.flac", "flac"),
+        ("example.ogg", "ogg"),
     ])
     def test_get_encoding(self, encoderkid, filename, encoding):
         assert encoderkid.get_encoding(filename) == encoding
@@ -92,6 +93,7 @@ class TestMethods:
         ("mp3", "mp3"),
         ("opus", "opus"),
         ("flac", "flac"),
+        ("ogg", "ogg"),
     ])
     def test_target_format_from_encoding(self, encoderkid, encoding, target_format):
         assert encoderkid.target_format_from_encoding(encoding) == target_format
