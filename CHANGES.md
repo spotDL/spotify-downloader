@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 The release dates mentioned follow the format `DD-MM-YYYY`.
 
 ## [Unreleased]
+### Added
+- Add support for Vorbis & Opus output formats. ([@Sigill](https://github.com/Sigill)) (#769)
 
 ## [2.1.0] - 13-06-2020
 ### Added
