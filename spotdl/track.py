@@ -6,8 +6,12 @@ import sys
 
 from spotdl.encode.encoders import EncoderFFmpeg
 from spotdl.metadata.embedders import EmbedderDefault
+from spotdl.metadata import BadMediaFileError
 
 import spotdl.util
+
+import logging
+logger = logging.getLogger(__name__)
 
 CHUNK_SIZE = 16 * 1024
 
@@ -102,10 +106,15 @@ class Track:
         else:
             albumart = None
 
-        embedder.apply_metadata(
-            input_path,
-            self.metadata,
-            cached_albumart=albumart,
-            encoding=encoding,
-        )
+        try:
+            embedder.apply_metadata(
+                input_path,
+                self.metadata,
+                cached_albumart=albumart,
+                encoding=encoding,
+            )
+        except BadMediaFileError as e:
+            msg = ("{} Such problems should be fixed "
+                  "with FFmpeg set as the encoder.").format(e.args[0])
+            logger.warning(msg)
 

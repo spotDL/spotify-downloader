@@ -1,9 +1,12 @@
+import mutagen
 import os
 
 from abc import ABC
 from abc import abstractmethod
 
 import urllib.request
+
+from spotdl.metadata import BadMediaFileError
 
 class EmbedderBase(ABC):
     """
@@ -55,12 +58,18 @@ class EmbedderBase(ABC):
         if encoding is None:
             encoding = self.get_encoding(path)
         if encoding not in self.supported_formats:
-            raise TypeError(
+            raise BadMediaFileError(
                 'The input format ("{}") is not supported.'.format(
                 encoding,
             ))
         embed_on_given_format = self.targets[encoding]
-        embed_on_given_format(path, metadata, cached_albumart=cached_albumart)
+        try:
+            embed_on_given_format(path, metadata, cached_albumart=cached_albumart)
+        except (mutagen.id3.error, mutagen.flac.error, mutagen.oggopus.error):
+            raise BadMediaFileError(
+                'Cannot apply metadata as "{}" is badly encoded as '
+                '"{}".'.format(path, encoding)
+            )
 
     def as_mp3(self, path, metadata, cached_albumart=None):
         """

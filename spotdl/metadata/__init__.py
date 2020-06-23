@@ -1,6 +1,7 @@
 from spotdl.metadata.provider_base import ProviderBase
 from spotdl.metadata.provider_base import StreamsBase
 
+from spotdl.metadata.exceptions import BadMediaFileError
 from spotdl.metadata.exceptions import MetadataNotFoundError
 from spotdl.metadata.exceptions import SpotifyMetadataNotFoundError
 from spotdl.metadata.exceptions import YouTubeMetadataNotFoundError

@@ -9,6 +9,7 @@ import urllib.request
 import base64
 
 from spotdl.metadata import EmbedderBase
+from spotdl.metadata import BadMediaFileError
 
 import logging
 logger = logging.getLogger(__name__)
@@ -51,7 +52,6 @@ class EmbedderDefault(EmbedderBase):
         self._m4a_tag_preset = M4A_TAG_PRESET
         self._tag_preset = TAG_PRESET
         # self.provider = "spotify" if metadata["spotify_metadata"] else "youtube"
-
     def as_mp3(self, path, metadata, cached_albumart=None):
         """ Embed metadata to MP3 files. """
         logger.debug('Writing MP3 metadata to "{path}".'.format(path=path))
@@ -96,7 +96,6 @@ class EmbedderDefault(EmbedderBase):
             cached_albumart = urllib.request.urlopen(
                 metadata["album"]["images"][0]["url"]
             ).read()
-            albumart.close()
         try:
             audiofile["APIC"] = APIC(
                 encoding=3,
@@ -131,7 +130,6 @@ class EmbedderDefault(EmbedderBase):
                 cached_albumart = urllib.request.urlopen(
                     metadata["album"]["images"][0]["url"]
                 ).read()
-                albumart.close()
             audiofile[M4A_TAG_PRESET["albumart"]] = [
                 MP4Cover(cached_albumart, imageformat=MP4Cover.FORMAT_JPEG)
             ]
@@ -190,7 +188,6 @@ class EmbedderDefault(EmbedderBase):
             cached_albumart = urllib.request.urlopen(
                 metadata["album"]["images"][0]["url"]
             ).read()
-            albumart.close()
         image.data = cached_albumart
 
         if encoding == "flac":
