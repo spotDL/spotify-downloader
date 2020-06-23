@@ -3,6 +3,7 @@ from spotdl.metadata.providers import ProviderYouTube
 from spotdl.metadata.providers import YouTubeSearch
 from spotdl.metadata.embedders import EmbedderDefault
 from spotdl.metadata.exceptions import SpotifyMetadataNotFoundError
+from spotdl.metadata.exceptions import BadMediaFileError
 import spotdl.metadata
 
 from spotdl.lyrics.providers import LyricWikia
@@ -350,7 +351,7 @@ class Spotdl:
         logger.info("Applying metadata")
         try:
             track.apply_metadata(filename, encoding=encoding)
-        except TypeError:
+        except MediaFileError:
             logger.warning("Cannot apply metadata on provided output format.")
 
     def strip_and_filter_duplicates(self, tracks):

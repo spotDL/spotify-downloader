@@ -1,4 +1,5 @@
 from spotdl.metadata import EmbedderBase
+from spotdl.metadata import BadMediaFileError
 
 import pytest
 
@@ -35,11 +36,11 @@ class TestMethods:
         assert embedderkid.get_encoding(path) == expect_encoding
 
     def test_apply_metadata_with_explicit_encoding(self, embedderkid):
-        with pytest.raises(TypeError):
+        with pytest.raises(BadMediaFileError):
             embedderkid.apply_metadata("/path/to/music.mp3", {}, cached_albumart="imagedata", encoding="mp3")
 
     def test_apply_metadata_with_implicit_encoding(self, embedderkid):
-        with pytest.raises(TypeError):
+        with pytest.raises(BadMediaFileError):
             embedderkid.apply_metadata("/path/to/music.wav", {}, cached_albumart="imagedata")
 
     class MockHTTPResponse:
@@ -57,7 +58,7 @@ class TestMethods:
     def test_apply_metadata_without_cached_image(self, embedderkid, monkeypatch):
         monkeypatch.setattr("urllib.request.urlopen", self.MockHTTPResponse)
         metadata = {"album": {"images": [{"url": "http://animageurl.com"},]}}
-        with pytest.raises(TypeError):
+        with pytest.raises(BadMediaFileError):
             embedderkid.apply_metadata("/path/to/music.wav", metadata, cached_albumart=None)
 
     @pytest.mark.parametrize("fmt_method_suffix", (
