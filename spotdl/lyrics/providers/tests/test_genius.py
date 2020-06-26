@@ -44,7 +44,7 @@ class TestGenius:
         return "https://genius.com/Selena-gomez-and-marshmello-wolves-lyrics"
 
     def test_guess_lyric_url_from_artist_and_track(self, genius, artist, track, guess_url):
-        url = genius.guess_lyric_url_from_artist_and_track(artist, track)
+        url = genius._guess_lyric_url_from_artist_and_track(artist, track)
         assert url == guess_url
 
     class MockHTTPResponse:

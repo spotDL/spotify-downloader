@@ -4,11 +4,8 @@ import pytest
 
 
 class TestAbstractBaseClass:
-    def test_error_abstract_base_class_lyricbase(self):
-        with pytest.raises(TypeError):
-            # This abstract base class must be inherited from
-            # for instantiation
-            LyricBase()
+    def test_lyricbase(self):
+        assert LyricBase()
 
     def test_inherit_abstract_base_class_encoderbase(self):
         class LyricKid(LyricBase):
