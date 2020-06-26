@@ -5,8 +5,18 @@ from spotdl.lyrics.exceptions import LyricsNotFoundError
 
 
 class LyricWikia(LyricBase):
-    def from_query(self, query, linesep="\n", timeout=None):
-        raise NotImplementedError
+    """
+    Fetch lyrics from LyricWikia.
+
+    Examples
+    --------
+    + Fetching lyrics for *"Tobu - Cruel"*:
+
+        >>> from spotdl.lyrics.providers import LyricWikia
+        >>> genius = LyricWikia()
+        >>> lyrics = genius.from_artist_and_track("Tobu", "Cruel")
+        >>> print(lyrics)
+    """
 
     def from_artist_and_track(self, artist, track, linesep="\n", timeout=None):
         """
@@ -16,9 +26,5 @@ class LyricWikia(LyricBase):
             lyrics = lyricwikia.get_lyrics(artist, track, linesep, timeout)
         except lyricwikia.LyricsNotFound as e:
             raise LyricsNotFoundError(e.args[0])
-
         return lyrics
-
-    def from_url(self, url, linesep="\n", timeout=None):
-        raise NotImplementedError
 

@@ -11,26 +11,72 @@ class LyricBase(ABC):
     defined methods.
     """
 
-    @abstractmethod
     def from_url(self, url, linesep="\n", timeout=None):
         """
-        This method must return the lyrics string for the
-        given track.
-        """
-        pass
+        Fetches lyrics given a URL.
 
-    @abstractmethod
+        Parameters
+        ----------
+        url: `str`
+            URL to fetch lyrics from.
+
+        linesep: `str`
+            Use this separator between every line of the lyrics.
+
+        timeout: `int`, `None`
+            Timeout duration such as if the server doesn't return a
+            response in an expected time frame.
+
+        Returns
+        -------
+        lyrics: `str`
+        """
+        raise NotImplementedError
+
     def from_artist_and_track(self, artist, track, linesep="\n", timeout=None):
         """
-        This method must return the lyrics string for the
-        given track.
-        """
-        pass
+        Fetches lyrics given an artist and the track name.
 
-    @abstractmethod
+        Parameters
+        ----------
+        artist: `str`
+            Artist name.
+
+        track: `str`
+            Track name.
+
+        linesep: `str`
+            Use this separator between every line of the lyrics.
+
+        timeout: `int`, `None`
+            Timeout duration such as if the server doesn't return a
+            response in an expected time frame.
+
+        Returns
+        -------
+        lyrics: `str`
+        """
+        raise NotImplementedError
+
     def from_query(self, query, linesep="\n", timeout=None):
         """
-        This method must return the lyrics string for the
-        given track.
+        Fetches lyrics given a search query.
+
+        Parameters
+        ----------
+        query: `str`
+            A search query.
+
+        linesep: `str`
+            Use this separator between every line of the lyrics.
+
+        timeout: `int`, `None`
+            Timeout duration such as if the server doesn't return a
+            response in an expected time frame.
+
+        Returns
+        -------
+        lyrics: `str`
         """
-        pass
+        raise NotImplementedError
+

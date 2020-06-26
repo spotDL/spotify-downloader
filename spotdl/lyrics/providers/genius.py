@@ -17,14 +17,35 @@ BASE_SEARCH_URL = BASE_URL + "/api/search/multi?per_page=1&q="
 #        https://genius.com/api/search/multi?per_page=1&q=artist+trackname
 
 class Genius(LyricBase):
+    """
+    Fetch lyrics from Genius.
+
+    Examples
+    --------
+    + Fetching lyrics for *"Tobu - Cruel"*:
+
+        >>> from spotdl.lyrics.providers import Genius
+        >>> genius = Genius()
+        >>> lyrics = genius.from_query("tobu cruel")
+        >>> print(lyrics)
+    """
+
     def __init__(self):
         self.base_url = BASE_URL
         self.base_search_url = BASE_SEARCH_URL
 
-    def guess_lyric_url_from_artist_and_track(self, artist, track):
+    def _guess_lyric_url_from_artist_and_track(self, artist, track):
         """
         Returns the possible lyric URL for the track available on
         Genius. This may not always be a valid URL.
+
+        Parameters
+        ----------
+        artist: `str`
+            Artist name.
+
+        track: `str`
+            Track name.
         """
         query = "/{} {} lyrics".format(artist, track)
         query = query.replace(" ", "-")
@@ -75,7 +96,17 @@ class Genius(LyricBase):
 
     def best_matching_lyric_url_from_query(self, query):
         """
-        Returns the best matching track's URL from a given query.
+        Fetches the best matching lyric track URL for a given query.
+
+        Parameters
+        ----------
+        query: `str`
+            The search query.
+
+        Returns
+        -------
+        lyric_url: `str`
+            The best matching track lyric URL on Genius.
         """
         encoded_query = urllib.request.quote(query.replace(" ", "+"))
         search_url = self.base_search_url + encoded_query
@@ -100,10 +131,6 @@ class Genius(LyricBase):
         return self.base_url + lyric_url
 
     def from_query(self, query, linesep="\n", timeout=None):
-        """
-        Returns the lyric string for the track best matching the
-        given query.
-        """
         logger.debug('Fetching lyrics for the search query on "{}".'.format(query))
         try:
             lyric_url = self.best_matching_lyric_url_from_query(query)
@@ -115,18 +142,10 @@ class Genius(LyricBase):
             return self.from_url(lyric_url, linesep, timeout=timeout)
 
     def from_artist_and_track(self, artist, track, linesep="\n", timeout=None):
-        """
-        Returns the lyric string for the given artist and track
-        by making scraping search results and fetching the first
-        result.
-        """
-        lyric_url = self.guess_lyric_url_from_artist_and_track(artist, track)
+        lyric_url = self._guess_lyric_url_from_artist_and_track(artist, track)
         return self.from_url(lyric_url, linesep, timeout=timeout)
 
     def from_url(self, url, linesep="\n", retries=5, timeout=None):
-        """
-        Returns the lyric string for the given URL.
-        """
         logger.debug('Fetching lyric text from "{}".'.format(url))
         lyric_html_page = self._fetch_url_page(url, timeout=timeout)
         soup = BeautifulSoup(lyric_html_page, "html.parser")
