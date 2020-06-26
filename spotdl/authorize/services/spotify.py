@@ -15,8 +15,42 @@ logger = logging.getLogger(__name__)
 masterclient = None
 
 class AuthorizeSpotify(spotipy.Spotify):
+    """
+    Allows for a single-time authentication for accessing the Spotify
+    API which can later globally be re-used later on in other modules
+    if needed.
+
+    Parameters
+    ----------
+    client_id: `str`
+        Your Spotify API Client ID.
+
+    client_secret: `str`
+        Your Spotify API Client Secret.
+
+    Examples
+    --------
+        >>> # Module A:
+        >>> from spotdl.authorize.services import AuthorizeSpotify
+        >>> # Authorize once.
+        >>> AuthorizeSpotify(
+        ...     client_id="your_spotify_client_id",
+        ...     client_secret="your_spotify_client_secret",
+        ... )
+        >>>
+        >>> # Module B:
+        >>> from spotdl.authorize.services import AuthorizeSpotify
+        >>> # Re-use later in other modules.
+        >>> sp = AuthorizeSpotify()
+        >>> results = sp.search("illenium - good things fall apart")
+        >>> print(results)
+    """
+
     def __init__(self, client_id=None, client_secret=None):
         global masterclient
+        # `spotipy.Spotify` makes use of `self._session` and would
+        # result in an error. The below line is a workaround.
+        self._session = None
 
         credentials_provided = client_id is not None \
                            and client_secret is not None
