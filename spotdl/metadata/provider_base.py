@@ -1,7 +1,8 @@
 from abc import ABC
 from abc import abstractmethod
+from collections.abc import Sequence
 
-class StreamsBase(ABC):
+class StreamsBase(Sequence):
     @abstractmethod
     def __init__(self, streams):
         """
@@ -12,55 +13,88 @@ class StreamsBase(ABC):
         The list should typically be sorted in descending order
         based on the audio stream's bitrate.
 
-        This sorted list must be assigned to `self.all`.
+        This sorted list must be assigned to ``self.streams``.
         """
-        self.all = streams
+
+        self.streams = streams
+
+    def __repr__(self):
+        return "Streams({})".format(self.streams)
+
+    def __len__(self):
+        return len(self.streams)
+
+    def __getitem__(self, index):
+        return self.streams[index]
+
+    def __eq__(self, instance):
+        return self.streams == instance.streams
 
     def getbest(self):
         """
-        This method must return the audio stream with the
-        highest bitrate.
+        Returns the audio stream with the highest bitrate.
         """
-        return self.all[0]
+
+        return self.streams[0]
 
     def getworst(self):
         """
-        This method must return the audio stream with the
-        lowest bitrate.
+        Returns the audio stream with the lowest bitrate.
         """
-        return self.all[-1]
+
+        return self.streams[-1]
 
 
 class ProviderBase(ABC):
     def set_credentials(self, client_id, client_secret):
         """
-        This method may or not be used depending on
-        whether the metadata provider requires authentication
-        or not.
+        This method may or not be used depending on whether the
+        metadata provider requires authentication or not.
         """
-        pass
+
+        raise NotImplementedError
 
     @abstractmethod
     def from_url(self, url):
         """
-        This method must return track metadata from the
-        corresponding Spotify URL.
+        Fetches metadata for the given URL.
+
+        Parameters
+        ----------
+        url: `str`
+            Media URL.
+
+        Returns
+        -------
+        metadata: `dict`
+            A *dict* of standardized metadata.
         """
+
         pass
 
     def from_query(self, query):
         """
-        This method must return track metadata from the
-        corresponding search query.
+        Fetches metadata for the given search query.
+
+        Parameters
+        ----------
+        query: `str`
+            Search query.
+
+        Returns
+        -------
+        metadata: `dict`
+            A *dict* of standardized metadata.
         """
+
         raise NotImplementedError
 
     @abstractmethod
-    def metadata_to_standard_form(self, metadata):
+    def _metadata_to_standard_form(self, metadata):
         """
-        This method must transform the fetched metadata
-        into a format consistent with all other metadata
-        providers, for easy utilization.
+        Transforms the metadata into a format consistent with all other
+        metadata providers, for easy utilization.
         """
+
         pass
 

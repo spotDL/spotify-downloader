@@ -22,6 +22,14 @@ HEADERS = [('Range', 'bytes=0-'),]
 
 
 class YouTubeVideos(Sequence):
+    """
+    A class for dealing with YouTube videos.
+
+    Parameters
+    ----------
+    videos: A `list` of `dict` video objects
+    """
+
     def __init__(self, videos):
         self.videos = videos
         super().__init__()
@@ -39,6 +47,13 @@ class YouTubeVideos(Sequence):
         return self.videos == instance.videos
 
     def bestmatch(self):
+        """
+        Returns
+        -------
+        video: `dict`
+            A *dict* with the keys: *title*, *url* and *duration*.
+        """
+
         video = self.videos[0]
         logger.debug("Matched with: {title} ({url}) [{duration}]".format(
             title=video["title"],
@@ -49,12 +64,42 @@ class YouTubeVideos(Sequence):
 
 
 class YouTubeSearch:
+    """
+    Make query searches on YouTube and fetch resulting videos.
+
+    Examples
+    --------
+    >>> from spotdl.metadata.providers.youtube import YouTubeSearch
+    >>> youtube = YouTubeSearch()
+    >>> results = youtube.search("python projects")
+    >>> for result in results:
+    ...     print(result["title"])
+    ...     print(result["url"])
+    ...     print(result["duration"])
+    ...     print("")
+    """
+
     def __init__(self):
         self.base_search_url = BASE_SEARCH_URL
 
     def generate_search_url(self, query):
+        """
+        Generates a search URL for YouTube for a given search query.
+
+        Parameters
+        ----------
+        query: `str`
+            The search query.
+
+        Returns
+        -------
+        search_url: `str`
+            A URL which corresponds to YouTube search results.
+        """
+
         quoted_query = urllib.request.quote(query)
-        return self.base_search_url.format(quoted_query)
+        search_url = self.base_search_url.format(quoted_query)
+        return search_url
 
     def _fetch_response_html(self, url):
         response = urllib.request.urlopen(url)
@@ -117,7 +162,26 @@ class YouTubeSearch:
         return search_message is None
 
     def search(self, query, limit=10, retries=5):
-        """ Search and scrape YouTube to return a list of matching videos. """
+        """
+        Search and scrape YouTube to return a list of matching videos.
+
+        Parameters
+        ----------
+        query: `str`
+            The search query.
+
+        limit: `int`
+            Return only first n results.
+
+        retries: `int`
+            YouTube can sometimes return invalid response. Maximum
+            number of retries to make in such case.
+
+        Returns
+        -------
+        videos: An instance of :class:`spotdl.metadata.providers.youtube.YouTubeVideos`.
+        """
+
         search_url = self.generate_search_url(query)
         logger.debug('Fetching YouTube results for "{}" at "{}".'.format(query, search_url))
         html = self._fetch_response_html(search_url)
@@ -129,18 +193,38 @@ class YouTubeSearch:
                 "results. Retries left: {retries}.".format(retries=retries)
             )
             return self.search(query, limit=limit, retries=retries-1)
-        return YouTubeVideos(videos)
+        videos = YouTubeVideos(videos)
+        return videos
 
 
 class YouTubeStreams(StreamsBase):
+    """
+    A class for standardizing pytube YouTube streams.
+    The standardized streams can be accessed by ``self.streams``,
+    which is a list of streams.
+    Each stream contains the keys: *bitrate*, *connection*,
+    *download_url*, *encoding* and *filesize*.
+
+    Parameters
+    ----------
+    streams: :class:`pytube.query.StreamQuery`
+        PyTube streams.
+
+    Examples
+    --------
+    >>> import pytube
+    >>> video = pytube.YouTube("https://www.youtube.com/watch?v=XpmeVNxZ-Ks")
+    >>> from spotdl.metadata.providers.youtube import YouTubeStreams
+    >>> streams = YouTubeStreams(video.streams)
+    >>> for stream in streams:
+    ...     print(stream["encoding"], stream["filesize"])
+    """
+
     def __init__(self, streams):
         self.network_headers = HEADERS
-
         audiostreams = streams.filter(only_audio=True).order_by("abr").desc()
-
         thread_pool = []
-        self.all = []
-
+        self.streams = []
         for stream in audiostreams:
             encoding = "m4a" if "mp4a" in stream.audio_codec else stream.audio_codec
             standard_stream = {
@@ -159,7 +243,7 @@ class YouTubeStreams(StreamsBase):
             )
             thread_pool.append(establish_connection)
             establish_connection.start()
-            self.all.append(standard_stream)
+            self.streams.append(standard_stream)
 
         for thread in thread_pool:
             thread.join()
@@ -176,6 +260,24 @@ class YouTubeStreams(StreamsBase):
         return urllib.request.urlopen(request)
 
     def get(self, quality="best", preftype="automatic"):
+        """
+        Fetches a stream matching the given parameters.
+
+        Parameters
+        ----------
+        quality: `str`
+            Stream quality to fetch. Can either be "best" or "worst".
+
+        preftype: `str`
+            Stream encoding to prefer.
+
+        Returns
+        -------
+        stream: `dict`, `None`
+            The stream matching the given parameters. ``None`` if no
+            matching stream was found.
+        """
+
         if quality == "best":
             return self.getbest(preftype=preftype)
         elif quality == "worst":
@@ -184,11 +286,25 @@ class YouTubeStreams(StreamsBase):
             return None
 
     def getbest(self, preftype="automatic"):
+        """
+        Fetches the best quality stream.
+
+        Parameters
+        ----------
+        preftype: `str`
+            Stream encoding to prefer.
+
+        Returns
+        -------
+        stream: `dict`, `None`
+            The stream matching the given parameters.
+        """
+
         selected_stream = None
         if preftype == "automatic":
-            selected_stream = self.all[0]
+            selected_stream = self.streams[0]
         else:
-            for stream in self.all:
+            for stream in self.streams:
                 if stream["encoding"] == preftype:
                     selected_stream = stream
                     break
@@ -199,11 +315,25 @@ class YouTubeStreams(StreamsBase):
         return selected_stream
 
     def getworst(self, preftype="automatic"):
+        """
+        Fetches the worst quality stream.
+
+        Parameters
+        ----------
+        preftype: `str`
+            Stream encoding to prefer.
+
+        Returns
+        -------
+        stream: `dict`, `None`
+            The stream matching the given parameters.
+        """
+
         selected_stream = None
         if preftype == "automatic":
-            selected_stream = self.all[-1]
+            selected_stream = self.streams[-1]
         else:
-            for stream in self.all[::-1]:
+            for stream in self.streams[::-1]:
                 if stream["encoding"] == preftype:
                     selected_stream = stream
                     break
@@ -215,14 +345,29 @@ class YouTubeStreams(StreamsBase):
 
 
 class ProviderYouTube(ProviderBase):
-    def from_query(self, query):
+    """
+    Fetch metadata from YouTube in standardized form.
+
+    Examples
+    --------
+    + Making a YouTube search and fetching metadata for the first
+      result
+
+        >>> from spotdl.metadata.providers import ProviderYouTube
+        >>> provider = ProviderYouTube()
+        >>> metadata = provider.from_query("mitis - try (unreleased)")
+        >>> metadata["name"]
+        'MitiS - Try (Unreleased) ft RØRY'
+    """
+
+    def from_query(self, query, retries=5):
         watch_urls = self.search(query)
         if not watch_urls:
             raise YouTubeMetadataNotFoundError(
                 'YouTube returned nothing for the given search '
                 'query ("{}")'.format(query)
             )
-        return self.from_url(watch_urls[0])
+        return self.from_url(watch_urls[0]["url"], retries=retries)
 
     def from_url(self, url, retries=5):
         logger.debug('Fetching YouTube metadata for "{url}".'.format(url=url))
@@ -246,7 +391,7 @@ class ProviderYouTube(ProviderBase):
             return self.from_pytube_object(content)
 
     def from_pytube_object(self, content):
-        return self.metadata_to_standard_form(content)
+        return self._metadata_to_standard_form(content)
 
     def search(self, query):
         return YouTubeSearch().search(query)
@@ -258,8 +403,7 @@ class ProviderYouTube(ProviderBase):
         publish_date = content.watch_html[position+16:position+25]
         return publish_date
 
-    def metadata_to_standard_form(self, content):
-        """ Fetch a song's metadata from YouTube. """
+    def _metadata_to_standard_form(self, content):
         publish_date = self._fetch_publish_date(content)
         metadata = {
             "name": content.title,

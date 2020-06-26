@@ -240,16 +240,16 @@ class TestYouTubeStreams:
     @pytest.mark.network
     def test_streams(self, content, expect_formatted_streams):
         formatted_streams = YouTubeStreams(content.streams)
-        for index in range(len(formatted_streams.all)):
-            assert isinstance(formatted_streams.all[index]["download_url"], str)
-            assert formatted_streams.all[index]["connection"] is not None
+        for index in range(len(formatted_streams.streams)):
+            assert isinstance(formatted_streams.streams[index]["download_url"], str)
+            assert formatted_streams.streams[index]["connection"] is not None
             # We `None` the `download_url` since it's impossible to
             # predict its value before-hand.
-            formatted_streams.all[index]["download_url"] = None
-            formatted_streams.all[index]["connection"] = None
+            formatted_streams.streams[index]["download_url"] = None
+            formatted_streams.streams[index]["connection"] = None
 
-        # assert formatted_streams.all == expect_formatted_streams
-        for f, e in zip(formatted_streams.all, expect_formatted_streams):
+        # assert formatted_streams.streams == expect_formatted_streams
+        for f, e in zip(formatted_streams.streams, expect_formatted_streams):
             assert f["filesize"] == e["filesize"]
 
     # @pytest.mark.mock
