@@ -15,6 +15,9 @@
 # sys.path.insert(0, os.path.abspath('.'))
 
 import os
+import sys
+sys.path.insert(0, os.path.abspath(os.path.join("..", "..", "spotdl")))
+
 # __version__ comes into namespace from here
 with open(os.path.join("..", "..", "spotdl", "version.py")) as version_file:
     exec(version_file.read())
@@ -38,7 +41,17 @@ master_doc = 'index'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
+    # XXX: Not sure which one is better here.
+    #      `sphinx_automodapi.automodapi` generates nice looking API
+    #      docs but is not built-in, while both being conversely true
+    #      for `sphinx.ext.autodoc`.
+    "sphinx.ext.autodoc",
+    # "sphinx_automodapi.automodapi",
+
     "sphinxcontrib.programoutput",
+    # This adds support for Googley formatted docstrings as they are
+    # easier to read than reStructuredText..
+    "sphinx.ext.napoleon"
 ]
 
 # Add any paths that contain templates here, relative to this directory.
