@@ -31,6 +31,50 @@ RULES = {
 
 
 class EncoderFFmpeg(EncoderBase):
+    """
+    A class for encoding media files using FFmpeg.
+
+    Parameters
+    ----------
+    encoder_path: `str`
+        Path to FFmpeg.
+
+    must_exist: `bool`
+        Error out immediately if the encoder isn't found in
+        ``encoder_path``.
+
+    Examples
+    --------
+    + Re-encode an OPUS stream from STDIN to an MP3:
+
+        >>> import os
+        >>> input_path = "audio.opus"
+        >>> target_path = "audio.mp3"
+        >>> input_path_size = os.path.getsize(input_path)
+        >>>
+        >>> from spotdl.encode.encoders import EncoderFFmpeg
+        >>> ffmpeg = EncoderFFmpeg()
+        >>> process = ffmpeg.re_encode_from_stdin(
+        ...     input_encoding="opus",
+        ...     target_path=target_path
+        ... )
+        >>>
+        >>> chunk_size = 4096
+        >>> total_chunks = (input_path_size // chunk_size) + 1
+        >>>
+        >>> with open(input_path, "rb") as fin:
+        ...     for chunk_number in range(1, total_chunks+1):
+        ...         chunk = fin.read(chunk_size)
+        ...         process.stdin.write(chunk)
+        ...         print("chunks encoded: {}/{}".format(
+        ...             chunk_number,
+        ...             total_chunks,
+        ...         ))
+        >>>
+        >>> process.stdin.close()
+        >>> process.wait()
+    """
+
     def __init__(self, encoder_path="ffmpeg", must_exist=True):
         _loglevel = "-hide_banner -nostats -v warning"
         _additional_arguments = ["-b:a", "192k", "-vn"]
@@ -64,12 +108,12 @@ class EncoderFFmpeg(EncoderBase):
     def set_debuglog(self):
         self._loglevel = "-loglevel debug"
 
-    def _generate_encode_command(self, input_path, target_file,
+    def _generate_encode_command(self, input_path, target_path,
                                  input_encoding=None, target_encoding=None):
         if input_encoding is None:
             input_encoding = self.get_encoding(input_path)
         if target_encoding is None:
-            target_encoding = self.get_encoding(target_file)
+            target_encoding = self.get_encoding(target_path)
         arguments = self._generate_encoding_arguments(
             input_encoding,
             target_encoding
@@ -81,14 +125,14 @@ class EncoderFFmpeg(EncoderBase):
             + arguments.split() \
             + self._additional_arguments \
             + ["-f", self.target_format_from_encoding(target_encoding)] \
-            + [target_file]
+            + [target_path]
 
         return command
 
-    def re_encode(self, input_path, target_file, target_encoding=None, delete_original=False):
+    def re_encode(self, input_path, target_path, target_encoding=None, delete_original=False):
         encode_command = self._generate_encode_command(
             input_path,
-            target_file,
+            target_path,
             target_encoding=target_encoding
         )
         logger.debug("Calling FFmpeg with:\n{command}".format(
@@ -101,10 +145,10 @@ class EncoderFFmpeg(EncoderBase):
             os.remove(input_path)
         return process
 
-    def re_encode_from_stdin(self, input_encoding, target_file, target_encoding=None):
+    def re_encode_from_stdin(self, input_encoding, target_path, target_encoding=None):
         encode_command = self._generate_encode_command(
             "-",
-            target_file,
+            target_path,
             input_encoding=input_encoding,
             target_encoding=target_encoding,
         )
