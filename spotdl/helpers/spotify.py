@@ -17,13 +17,38 @@ except ImportError:
 
 
 class SpotifyHelpers:
+    """
+    Provides helper methods for accessing the Spotify API.
+
+    Parameters
+    ----------
+    spotify: :class:`spotdl.authorize.services.AuthorizeSpotify`, :class:`spotipy.Spotify`, ``None``
+        An authorized instance to make API calls to Spotify endpoints.
+
+        If ``None``, it will attempt to reference an already created
+        :class:`spotdl.authorize.services.AuthorizeSpotify` instance.
+    """
+
     def __init__(self, spotify=None):
         if spotify is None:
             spotify = AuthorizeSpotify()
         self.spotify = spotify
 
     def prompt_for_user_playlist(self, username):
-        """ Write user playlists to target_file """
+        """
+        An interactive method that will display user's playlists
+        and prompt to make a selection.
+
+        Parameters
+        ----------
+        username: `str`
+            Spotfiy username.
+
+        Returns
+        -------
+        spotify_uri: `str`
+            Spotify URI for the selected playlist.
+        """
         playlists = self.fetch_user_playlist_urls(username)
         for i, playlist in enumerate(playlists, 1):
             playlist_details = "{0}. {1:<30}  ({2} tracks)".format(
@@ -35,7 +60,19 @@ class SpotifyHelpers:
         return playlist["external_urls"]["spotify"]
 
     def fetch_user_playlist_urls(self, username):
-        """ Fetch user playlists when using the -u option. """
+        """
+        Fetches all user's playlists.
+
+        Parameters
+        ----------
+        username: `str`
+            Spotfiy username.
+
+        Returns
+        -------
+        playlist_uris: `list`
+            Containing all playlist URIs.
+        """
         logger.debug('Fetching playlists for "{username}".'.format(username=username))
         try:
             playlists = self.spotify.user_playlists(username)
@@ -59,6 +96,19 @@ class SpotifyHelpers:
             return collected_playlists
 
     def fetch_playlist(self, playlist_uri):
+        """
+        Fetches playlist.
+
+        Parameters
+        ----------
+        playlist_uri: `str`
+            Spotify playlist URI.
+
+        Returns
+        -------
+        playlist: `dict`
+            Spotify API response object for the playlist endpoint.
+        """
         logger.debug('Fetching playlist "{playlist}".'.format(playlist=playlist_uri))
         try:
             playlist = self.spotify.playlist(playlist_uri, fields="tracks,next,name")
@@ -72,13 +122,37 @@ class SpotifyHelpers:
         else:
             return playlist
 
-    def write_playlist_tracks(self, playlist, target_file=None):
+    def write_playlist_tracks(self, playlist, target_path=None):
+        """
+        Writes playlist track URIs to file.
+
+        Parameters
+        ----------
+        playlist: `dict`
+            Spotify API response object for the playlist endpoint.
+
+        target_path: `str`
+            Write Spotify track URIs to this file.
+        """
         tracks = playlist["tracks"]
-        if not target_file:
-            target_file = u"{0}.txt".format(slugify(playlist["name"], ok="-_()[]{}"))
-        return self.write_tracks(tracks, target_file)
+        if not target_path:
+            target_path = u"{0}.txt".format(slugify(playlist["name"], ok="-_()[]{}"))
+        return self.write_tracks(tracks, target_path)
 
     def fetch_album(self, album_uri):
+        """
+        Fetches album.
+
+        Parameters
+        ----------
+        album_uri: `str`
+            Spotify album URI.
+
+        Returns
+        -------
+        album: `dict`
+            Spotify API response object for the album endpoint.
+        """
         logger.debug('Fetching album "{album}".'.format(album=album_uri))
         try:
             album = self.spotify.album(album_uri)
@@ -90,22 +164,42 @@ class SpotifyHelpers:
         else:
             return album
 
-    def write_album_tracks(self, album, target_file=None):
+    def write_album_tracks(self, album, target_path=None):
+        """
+        Writes album track URIs to file.
+
+        Parameters
+        ----------
+        album: `dict`
+            Spotify API response object for the album endpoint.
+
+        target_path: `str`
+            Write Spotify track URIs to this file.
+        """
         tracks = self.spotify.album_tracks(album["id"])
-        if not target_file:
-            target_file = u"{0}.txt".format(slugify(album["name"], ok="-_()[]{}"))
-        return self.write_tracks(tracks, target_file)
+        if not target_path:
+            target_path = u"{0}.txt".format(slugify(album["name"], ok="-_()[]{}"))
+        return self.write_tracks(tracks, target_path)
 
     def fetch_albums_from_artist(self, artist_uri, album_type=None):
         """
-        This function returns all the albums from a give artist_uri using the US
-        market
-        :param artist_uri - spotify artist uri
-        :param album_type - the type of album to fetch (ex: single) the default is
-                            all albums
-        :param return - the album from the artist
-        """
+        Fetches all Spotify albums from a Spotify artist in the US
+        market.
 
+        Parameters
+        ----------
+        artist_uri: `str`
+            Spotify artist URI.
+
+        album_type: `str`
+            The type of album to fetch (ex: single) the default is
+            all albums.
+
+        Returns
+        -------
+        abums: `str`
+            All albums received in the Spotify API response object.
+        """
         logger.debug('Fetching all albums for "{artist}".'.format(artist=artist_uri))
         # fetching artist's albums limitting the results to the US to avoid duplicate
         # albums from multiple markets
@@ -124,25 +218,39 @@ class SpotifyHelpers:
                 albums.extend(results["items"])
             return albums
 
-    def write_all_albums(self, albums, target_file=None):
+    def write_all_albums(self, albums, target_path=None):
         """
-        This function gets all albums from an artist and writes it to a file in the
-        current working directory called [ARTIST].txt, where [ARTIST] is the artist
-        of the album
-        :param artist_uri - spotify artist uri
-        :param target_file - file to write albums to
-        """
+        Writes tracks from all albums into a file.
 
+        Parameters
+        ----------
+        albums: `str`
+            Spotfiy API response received in :func:`fetch_albums_from_artist`.
+
+        target_path: `str`
+            Write Spotify track URIs to this file.
+        """
         # if no file if given, the default save file is in the current working
         # directory with the name of the artist
-        if target_file is None:
-            target_file = albums[0]["artists"][0]["name"] + ".txt"
+        if target_path is None:
+            target_path = albums[0]["artists"][0]["name"] + ".txt"
 
         for album in albums:
             logger.info('Fetching album "{album}".'.format(album=album["name"]))
-            self.write_album_tracks(album, target_file=target_file)
+            self.write_album_tracks(album, target_path=target_path)
 
-    def write_tracks(self, tracks, target_file):
+    def write_tracks(self, tracks, target_path):
+        """
+        Writes Spotify track URIs to file
+
+        Parameters
+        ----------
+        tracks: `list`
+            As returned in the Spotify API response.
+
+        target_path: `str`
+            Writes track URIs to this file.
+        """
         def writer(tracks, file_io):
             track_urls = []
             while True:
@@ -176,13 +284,13 @@ class SpotifyHelpers:
                     break
             return track_urls
 
-        logger.info(u"Writing {0} tracks to {1}.".format(tracks["total"], target_file))
-        write_to_stdout = target_file == "-"
+        logger.info(u"Writing {0} tracks to {1}.".format(tracks["total"], target_path))
+        write_to_stdout = target_path == "-"
         if write_to_stdout:
             file_out = sys.stdout
             track_urls = writer(tracks, file_out)
         else:
-            with open(target_file, "a") as file_out:
+            with open(target_path, "a") as file_out:
                 track_urls = writer(tracks, file_out)
         return track_urls
 

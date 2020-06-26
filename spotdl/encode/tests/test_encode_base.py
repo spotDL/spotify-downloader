@@ -45,7 +45,7 @@ class TestMethods:
         def __init__(self, encoder_path, _loglevel, _additional_arguments):
             super().__init__(encoder_path, _loglevel, _additional_arguments)
 
-        def _generate_encode_command(self, input_file, target_file):
+        def _generate_encode_command(self, input_path, target_path):
             pass
 
         def _generate_encoding_arguments(self, input_encoding, target_encoding):

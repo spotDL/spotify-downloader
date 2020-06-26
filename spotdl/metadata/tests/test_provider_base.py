@@ -17,7 +17,7 @@ class TestStreamsBaseABC:
 
         streams = ("stream1", "stream2", "stream3")
         kid = StreamsKid(streams)
-        assert kid.all == streams
+        assert kid.streams == streams
 
 
 class TestMethods:
@@ -53,7 +53,7 @@ class TestProviderBaseABC:
             def from_url(self, query):
                 pass
 
-            def metadata_to_standard_form(self, metadata):
+            def _metadata_to_standard_form(self, metadata):
                 pass
 
         ProviderKid()

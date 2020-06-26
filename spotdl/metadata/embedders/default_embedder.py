@@ -45,6 +45,20 @@ for key in M4A_TAG_PRESET.keys():
 
 
 class EmbedderDefault(EmbedderBase):
+    """
+    A class for applying metadata on media files.
+
+    Examples
+    --------
+    - Applying metadata on an already downloaded MP3 file:
+
+        >>> from spotdl.metadata_search import MetadataSearch
+        >>> provider = MetadataSearch("ncs spectre")
+        >>> metadata = provider.on_youtube()
+        >>> from spotdl.metadata.embedders import EmbedderDefault
+        >>> embedder = EmbedderDefault()
+        >>> embedder.as_mp3("media.mp3", metadata)
+    """
     supported_formats = ("mp3", "m4a", "flac", "ogg", "opus")
 
     def __init__(self):
@@ -53,7 +67,21 @@ class EmbedderDefault(EmbedderBase):
         self._tag_preset = TAG_PRESET
         # self.provider = "spotify" if metadata["spotify_metadata"] else "youtube"
     def as_mp3(self, path, metadata, cached_albumart=None):
-        """ Embed metadata to MP3 files. """
+        """
+        Apply metadata on MP3 media files.
+
+        Parameters
+        ----------
+        path: `str`
+            Path to the media file.
+
+        metadata: `dict`
+            Metadata (standardized) to apply to the media file.
+
+        cached_albumart: `bool`
+            An albumart image binary. If passed, the albumart URL
+            present in the ``metadata`` won't be downloaded or used.
+        """
         logger.debug('Writing MP3 metadata to "{path}".'.format(path=path))
         # EasyID3 is fun to use ;)
         # For supported easyid3 tags:
@@ -110,7 +138,22 @@ class EmbedderDefault(EmbedderBase):
         audiofile.save(v2_version=3)
 
     def as_m4a(self, path, metadata, cached_albumart=None):
-        """ Embed metadata to M4A files. """
+        """
+        Apply metadata on FLAC media files.
+
+        Parameters
+        ----------
+        path: `str`
+            Path to the media file.
+
+        metadata: `dict`
+            Metadata (standardized) to apply to the media file.
+
+        cached_albumart: `bool`
+            An albumart image binary. If passed, the albumart URL
+            present in the ``metadata`` won't be downloaded or used.
+        """
+
         logger.debug('Writing M4A metadata to "{path}".'.format(path=path))
         # For supported m4a tags:
         # https://github.com/quodlibet/mutagen/blob/master/mutagen/mp4/__init__.py
@@ -139,6 +182,22 @@ class EmbedderDefault(EmbedderBase):
         audiofile.save()
 
     def as_flac(self, path, metadata, cached_albumart=None):
+        """
+        Apply metadata on MP3 media files.
+
+        Parameters
+        ----------
+        path: `str`
+            Path to the media file.
+
+        metadata: `dict`
+            Metadata (standardized) to apply to the media file.
+
+        cached_albumart: `bool`
+            An albumart image binary. If passed, the albumart URL
+            present in the ``metadata`` won't be downloaded or used.
+        """
+
         logger.debug('Writing FLAC metadata to "{path}".'.format(path=path))
         # For supported flac tags:
         # https://github.com/quodlibet/mutagen/blob/master/mutagen/mp4/__init__.py

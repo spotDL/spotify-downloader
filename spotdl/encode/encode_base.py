@@ -40,10 +40,6 @@ class EncoderBase(ABC):
 
     @abstractmethod
     def __init__(self, encoder_path, must_exist, loglevel, additional_arguments=[]):
-        """
-        This method must make sure whether specified encoder
-        is available under PATH.
-        """
         if must_exist and shutil.which(encoder_path) is None:
             raise EncoderNotFoundError(
                 "{} executable does not exist or was not found in PATH.".format(
@@ -57,33 +53,46 @@ class EncoderBase(ABC):
 
     def set_argument(self, argument):
         """
-        This method must be used to set any custom functionality
-        for the encoder by passing arguments to it.
+        Set any arbitrary arguments which are passed when the encoder
+        is invoked.
+
+        Parameters
+        ----------
+        argument: `str`
         """
         self._additional_arguments += argument.split()
 
     def get_encoding(self, path):
         """
-        This method must determine the encoding for a local
-        audio file. Such as "mp3", "wav", "m4a", etc.
+        Determine the encoding for a local audio file from its file
+        extnension. Whether is it an "mp3", "wav", "m4a", etc.
+
+        Parameters
+        ----------
+        path: `str`
+            Path to media file.
+
+        Returns
+        -------
+        encoding: `str`
         """
         _, extension = os.path.splitext(path)
         # Ignore the initial dot from file extension
-        return extension[1:]
+        encoding = extension[1:]
+        return encoding
 
     @abstractmethod
     def set_debuglog(self):
         """
-        This method must enable verbose logging in the defined
-        encoder.
+        Enable verbose logging on the encoder.
         """
         pass
 
     @abstractmethod
     def _generate_encode_command(self, input_path, target_path):
         """
-        This method must the complete command for that would be
-        used to invoke the encoder and perform the encoding.
+        This method must generate the complete command for that would
+        be used to invoke the encoder and perform the encoding.
         """
         pass
 
@@ -97,25 +106,62 @@ class EncoderBase(ABC):
         pass
 
     @abstractmethod
-    def re_encode(self, input_path, target_path):
+    def re_encode(self, input_path, target_path, target_encoding=None, delete_original=False):
         """
-        This method must invoke the encoder to encode a given input
-        file to a specified output file.
+        Re-encode a given input file to a specified output file.
+
+        Parameters
+        ----------
+        input_path: `str`
+            Path to media file that needs re-encoding.
+
+        target_path: `str`
+            Path to output media file.
+
+        target_encoding: `str`, `None`
+            It maybe "mp3", "opus", etc. If ``None``, it is
+            determined from the file extension passed in
+            ``target_path``.
+
+        delete_original: `bool`
+            Whether or not to delete the original media file.
         """
         pass
 
     def target_format_from_encoding(self, encoding):
         """
-        This method generates the target stream format from given
-        input encoding.
+        Determines the target stream format from given input encoding
+        for use with encoder.
+
+        Parameters
+        ----------
+        encoding: `str`
+
+        Returns
+        -------
+        target_format: `str`
+            Target format which can be accepted by most mainstream encoders.
         """
         target_format = self._target_formats_from_encoding[encoding]
         return target_format
 
-    def re_encode_from_stdin(self, input_encoding, target_path):
+    def re_encode_from_stdin(self, input_encoding, target_path, target_encoding=None):
         """
-        This method must invoke the encoder to encode stdin to a
-        specified output file.
+        Read a file from STDIN and re-encode it to a specified output
+        file.
+
+        Parameters
+        ----------
+        input_encoding: `str`
+            Path to media file that needs re-encoding.
+
+        target_path: `str`
+            Path to output media file.
+
+        target_encoding: `str`, `None`
+            It maybe "mp3", "opus", etc. If ``None``, it is
+            determined from the file extension passed in
+            ``target_path``.
         """
         raise NotImplementedError
 

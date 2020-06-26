@@ -34,6 +34,78 @@ import logging
 logger = logging.getLogger(__name__)
 
 class Spotdl:
+    """
+    This class is directly involved with the command-line interface
+    of the tool. It allows downloading of tracks, writing M3U
+    playlists, and providers other useful methods.
+
+    Parameters
+    ----------
+    args: `dict`
+        A dictionary containing arguments. These passed arguments will
+        override the default arguments used by the tool. In case an
+        invalid combination of arguments is passed, an `ArgumentError`
+        will be raised indicating the reason.
+
+    Examples
+    --------
+    + To download a track:
+
+        >>> from spotdl.command_line.core import Spotdl
+        >>> args = {
+        ...     "song": ["https://open.spotify.com/track/2lfPecqFbH8X4lHSpTxt8l",],
+        ... }
+        >>> with Spotdl(args) as spotdl_handler:
+        ...     spotdl_handler.match_arguments()
+
+    + To download tracks without metadata:
+
+        >>> from spotdl.command_line.core import Spotdl
+        >>> args = {
+        ...     "song": [
+        ...         "https://open.spotify.com/track/2lfPecqFbH8X4lHSpTxt8l",
+        ...         "ncs spectre"
+        ...     ],
+        ...     "no_metadata": True,
+        ... }
+        >>> with Spotdl(args) as spotdl_handler:
+        ...     spotdl_handler.match_arguments()
+
+    Similary, you can pass additional arguments (refer to the config fiile
+    to know what all arguments are supported).
+
+    + To download tracks from file:
+
+        >>> from spotdl.command_line.core import Spotdl
+        >>> args = {
+        ...     "list": "file_with_tracks.txt",
+        ... }
+        >>> with Spotdl(args) as spotdl_handler:
+        ...     spotdl_handler.match_arguments()
+
+    + You can also the call the download methods later on as per need:
+
+        >>> from spotdl.command_line.core import Spotdl
+        >>> args = {
+        ...     "no_encode": True,
+        ... }
+        >>> with Spotdl(args) as spotdl_handler:
+        ...     spotdl_handler.download_track("https://open.spotify.com/track/2lfPecqFbH8X4lHSpTxt8l")
+        ...     print("Downloading 2nd track.")
+        ...     spotdl_handler.download_track("ncs spectre")
+        ...     print("Downloading from file.")
+        ...     spotdl_handler.download_tracks_from_file("file_full_of_tracks.txt")
+
+    Using `with` is optional. You can also directly create :class:`Spotdl` objects:
+
+        >>> from spotdl.command_line.core import Spotdl
+        >>> args = {
+        ...     "no_encode": True,
+        ... }
+        >>> spotdl_handler = Spotdl(args)
+        >>> spotdl_handler.download_track("ncs spectre")
+    """
+
     def __init__(self, args={}):
         argument_handler = ArgumentHandler(args)
         arguments = argument_handler.run_errands()
@@ -50,6 +122,11 @@ class Spotdl:
         del self
 
     def match_arguments(self):
+        """
+        This is the main entry method that performs relevant work based
+        on whatever arguments have been passed.
+        """
+
         logger.debug("Received arguments:\n{}".format(self.arguments))
 
         if self.arguments.get("remove_config"):
@@ -114,6 +191,18 @@ class Spotdl:
                 spotify_tools.write_playlist_tracks(playlist, self.arguments["write_to"])
 
     def save_config(self, config_file=spotdl.config.DEFAULT_CONFIG_FILE, config=spotdl.config.DEFAULT_CONFIGURATION):
+        """
+        Writes provided configuration to config file.
+
+        Parameters
+        ----------
+        config_file: `str`
+            Path to write the configuration to.
+
+        config: `dict`
+            A `dict` consisting of configuration options.
+        """
+
         config_dir = os.path.dirname(config_file)
         os.makedirs(config_dir, exist_ok=True)
         logger.info('Writing configuration to "{0}":'.format(config_file))
@@ -128,17 +217,45 @@ class Spotdl:
         )
 
     def save_default_config(self):
+        """
+        Writes the default configuration to the default config file if
+        it does not already exist.
+        """
+
         if not os.path.isfile(spotdl.config.DEFAULT_CONFIG_FILE):
             self.save_config()
 
     def remove_saved_config(self, config_file=spotdl.config.DEFAULT_CONFIG_FILE):
+        """
+        Removes the config file if it exists.
+
+        Parameters
+        ----------
+        config_file: `str`
+            Path to configuration file.
+        """
+
         if os.path.isfile(spotdl.config.DEFAULT_CONFIG_FILE):
             logger.info('Removing "{}".'.format(spotdl.config.DEFAULT_CONFIG_FILE))
             os.remove(spotdl.config.DEFAULT_CONFIG_FILE)
         else:
             logger.info('File does not exist: "{}".'.format(spotdl.config.DEFAULT_CONFIG_FILE))
 
-    def write_m3u(self, track_file, target_file=None):
+    def write_m3u(self, track_file, target_path=None):
+        """
+        Generates an M3U playlist from a given track file and writes it
+        to a target file.
+
+        Parameters
+        ----------
+        track_file: `str`
+            Path to file consisting of tracks.
+
+        target_path:`str`
+            Path to file to write the M3U playlist to. `None` indicates
+            to automatically determine it from the `track_file`.
+        """
+
         with open(track_file, "r") as fin:
             tracks = fin.read().splitlines()
 
@@ -153,17 +270,17 @@ class Spotdl:
             operation=str.strip
         )
 
-        if target_file is None:
-            target_file = "{}.m3u".format(track_file.split(".")[0])
+        if target_path is None:
+            target_path = "{}.m3u".format(track_file.split(".")[0])
 
         total_tracks = len(tracks)
-        logger.info("Generating {0} from {1} YouTube URLs.".format(target_file, total_tracks))
-        write_to_stdout = target_file == "-"
+        logger.info("Generating {0} from {1} YouTube URLs.".format(target_path, total_tracks))
+        write_to_stdout = target_path == "-"
         m3u_headers = "#EXTM3U\n\n"
         if write_to_stdout:
             sys.stdout.write(m3u_headers)
         else:
-            with open(target_file, "w") as output_file:
+            with open(target_path, "w") as output_file:
                 output_file.write(m3u_headers)
 
         videos = []
@@ -195,10 +312,20 @@ class Spotdl:
                 if write_to_stdout:
                     sys.stdout.write(m3u_key)
                 else:
-                    with open(target_file, "a") as output_file:
+                    with open(target_path, "a") as output_file:
                         output_file.write(m3u_key)
 
     def download_track(self, track):
+        """
+        Downloads a track given a track query, Spotify URI or a YouTube
+        URI.
+
+        Parameters
+        ----------
+        track: `str`
+            A Spotify URI, YouTube URI or a query.
+        """
+
         subtracks = track.split("::")
         download_track = subtracks[0]
         custom_metadata_track = len(subtracks) > 1
@@ -254,6 +381,24 @@ class Spotdl:
         return self.download_track_from_metadata(metadata)
 
     def should_we_overwrite_existing_file(self, overwrite):
+        """
+        Returns a `boolean` based on the given value of `overwrite`
+        parameter, where `overwrite` is one of `force`, `skip` or
+        `prompt`. The method will prompt for input via STDIN if the
+        value of `overwrite` is `prompt`.
+
+        Parameters
+        ----------
+        overwrite: `str`
+            One of `force`, `skip` or `prompt`.
+
+        Returns
+        -------
+        to_overwrite: `bool`
+            `True` or `False` depending on whether the existing file
+            should be overwritten or not.
+        """
+
         if overwrite == "force":
             logger.info("Forcing overwrite on existing file.")
             to_overwrite = True
@@ -265,18 +410,16 @@ class Spotdl:
 
         return to_overwrite
 
-    def generate_temp_filename(self, filename, for_stdout=False):
-        if for_stdout:
-            return filename
-        return "{filename}.temp".format(filename=filename)
-
-    def output_filename_filter(self, allow_spaces):
-        replace_spaces_with_underscores = not allow_spaces
-        if replace_spaces_with_underscores:
-            return lambda s: s.replace(" ", "_")
-        return lambda s: s
-
     def download_track_from_metadata(self, metadata):
+        """
+        Downloads track audio from the provided metadata.
+
+        Parameters
+        ----------
+        metadata: `dict`
+            A `dict` consisting of metadata in standardized form.
+        """
+
         track = Track(metadata, cache_albumart=(not self.arguments["no_metadata"]))
         stream = metadata["streams"].get(
             quality=self.arguments["quality"],
@@ -302,7 +445,7 @@ class Spotdl:
             )
         )
         download_to_stdout = filename == "-"
-        temp_filename = self.generate_temp_filename(filename, for_stdout=download_to_stdout)
+        temp_filename = filename if download_to_stdout else filename + ".temp"
 
         to_skip_download = self.arguments["dry_run"]
         if os.path.isfile(filename):
@@ -336,39 +479,101 @@ class Spotdl:
             )
 
         if not self.arguments["no_metadata"]:
+            logger.info("Applying metadata")
             track.metadata["lyrics"] = track.metadata["lyrics"].join()
             self.apply_metadata(track, temp_filename, output_extension)
 
         if not download_to_stdout:
-            logger.debug("Renaming {temp_filename} to {filename}.".format(
+            logger.debug('Renaming "{temp_filename}" to "{filename}".'.format(
                 temp_filename=temp_filename, filename=filename
             ))
             os.rename(temp_filename, filename)
 
         return filename
 
-    def apply_metadata(self, track, filename, encoding):
-        logger.info("Applying metadata")
+    def apply_metadata(self, track, filename, encoding=None):
+        """
+        Applies metadata to a given track. This is the same as calling
+        :func:`spotdl.track.Track.apply_metadata` except this will
+        only raise a warning if an unsupported output format has
+        been passed unlike :func:`spotdl.track.Track.apply_metadata`
+        which would raise a `TypeError`.
+
+        Parameters
+        ----------
+        track: :class:`spotdl.track.Track` object
+            A corresponding :class:`spotdl.track.Track` object.
+
+        filename: `str`
+            A filename where the audio file exists on the disk.
+
+        encoding: `str`, `None`
+            An encoding of `None` indicates to automatically determine
+            it from the filename.
+        """
+
         try:
             track.apply_metadata(filename, encoding=encoding)
         except MediaFileError:
             logger.warning("Cannot apply metadata on provided output format.")
 
-    def strip_and_filter_duplicates(self, tracks):
-        filtered_tracks = spotdl.util.remove_duplicates(
-            tracks,
+    def strip_and_filter_duplicates(self, elements):
+        """
+        Removes any duplicate elements from the given list and strips
+        any whitespaces from elements.
+
+        Parameters
+        ----------
+        elements: `list`
+            A list of elements.
+
+        Returns
+        -------
+        filtered_elements: `list`
+            A list of filtered elements.
+        """
+
+        filtered_elements = spotdl.util.remove_duplicates(
+            elements,
             condition=lambda x: x,
             operation=str.strip
         )
-        return filtered_tracks
+        return filtered_elements
 
     def filter_against_skip_file(self, items, skip_file):
+        """
+        Removes the element from `items` if there already exists the
+        same element in `skip_file`.
+
+        Parameters
+        ----------
+        items: `list`
+            A list of elements.
+
+        skip_file: `str`
+            Path to file.
+
+        Returns
+        -------
+        filtered_items: `list`
+            ``items`` but with duplicates removed.
+        """
+
         skip_items = spotdl.util.readlines_from_nonbinary_file(skip_file)
         filtered_skip_items = self.strip_and_filter_duplicates(skip_items)
         filtered_items = [item for item in items if not item in filtered_skip_items]
         return filtered_items
 
     def download_tracks_from_file(self, path):
+        """
+        Download tracks from file.
+
+        Parameters
+        ----------
+        path: `str`
+            Path to the file consisting of tracks.
+        """
+
         logger.info(
             'Checking and removing any duplicate tracks in "{}".'.format(path)
         )

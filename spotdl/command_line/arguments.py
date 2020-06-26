@@ -359,7 +359,7 @@ class ArgumentHandler:
         elif os.path.isdir(args["output_file"]):
             adjusted_output_file = os.path.join(
                 args["output_file"],
-                self.parser.get_default("output_file")
+                self.config_base["spotify-downloader"]["output_file"]
             )
             logger.warn(
                 "Given output file is a directory. Will download tracks "
