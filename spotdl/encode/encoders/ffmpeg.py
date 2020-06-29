@@ -13,17 +13,17 @@ logger = logging.getLogger(__name__)
 # Subkey: to format
 RULES = {
     "m4a": {
-        "mp3": "-codec:v copy -codec:a libmp3lame -ar 48000",
+        "mp3": "-codec:v copy -codec:a libmp3lame",
         "opus": "-codec:a libopus -vbr on",
         "m4a": "-acodec copy",
-        "flac": "-codec:a flac -ar 48000",
-        "ogg": "-codec:a libvorbis -ar 48000",
+        "flac": "-codec:a flac",
+        "ogg": "-codec:a libvorbis -q:a 5",
     },
     "opus": {
-        "mp3": "-codec:a libmp3lame -ar 48000",
-        "m4a": "-cutoff 20000 -codec:a aac -ar 48000",
-        "flac": "-codec:a flac -ar 48000",
-        "ogg": "-codec:a libvorbis -ar 48000",
+        "mp3": "-codec:a libmp3lame",
+        "m4a": "-cutoff 20000 -codec:a aac",
+        "flac": "-codec:a flac",
+        "ogg": "-codec:a libvorbis -q:a 5",
         "opus": "-acodec copy",
     },
 }
