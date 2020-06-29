@@ -18,7 +18,6 @@ RULES = {
         "m4a": "-acodec copy",
         "flac": "-codec:a flac -ar 48000",
         "ogg": "-codec:a libvorbis -ar 48000",
-        "opus": "-codec:a libopus -ar 48000",
     },
     "opus": {
         "mp3": "-codec:a libmp3lame -ar 48000",
