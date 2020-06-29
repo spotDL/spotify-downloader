@@ -93,3 +93,27 @@ spotdl.metadata
 
 .. autoclass:: spotdl.metadata.StreamsBase
    :members:
+
+
+Examples
+========
+
++ Setup the internal logger and download tracks from a Spotify playlist:
+
+    .. CODE:: python
+
+        from spotdl.helpers.spotify import SpotifyHelpers
+        from spotdl import Spotdl
+
+        from spotdl import util
+        import logging
+        util.install_logger(logging.INFO)
+
+        playlist_uri = "https://open.spotify.com/user/nocopyrightsounds/playlist/7sZbq8QGyMnhKPcLJvCUFD"
+        tracks_file = "tracks.txt"
+
+        with Spotdl() as spotdl_handler:
+            spotify_tools = SpotifyHelpers()
+            playlist = spotify_tools.fetch_playlist(playlist_uri)
+            spotify_tools.write_playlist_tracks(playlist, tracks_file)
+            spotdl_handler.download_tracks_from_file(tracks_file)
