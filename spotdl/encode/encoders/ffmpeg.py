@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 RULES = {
     "m4a": {
         "mp3": "-codec:v copy -codec:a libmp3lame",
-        "opus": "-codec:a libopus -vbr on",
+        "opus": "-codec:a libopus",
         "m4a": "-acodec copy",
         "flac": "-codec:a flac",
         "ogg": "-codec:a libvorbis -q:a 5",
