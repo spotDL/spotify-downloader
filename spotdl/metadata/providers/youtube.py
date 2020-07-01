@@ -1,5 +1,6 @@
 import pytube
 from bs4 import BeautifulSoup
+import json
 
 import urllib.request
 import threading
@@ -106,7 +107,18 @@ class YouTubeSearch:
         soup = BeautifulSoup(response.read(), "html.parser")
         return soup
 
-    def _extract_video_details_from_result(self, html):
+    def _fetch_search_results_from_html(self, html, limit=10):
+        videos = []
+        for result in html:
+            if not self._html_is_video(result):
+                continue
+            video = self._extract_video_details_from_html_result(result)
+            videos.append(video)
+            if len(videos) >= limit:
+                break
+        return videos
+
+    def _extract_video_details_from_html_result(self, html):
         video_time = html.find("span", class_="video-time").get_text()
         inner_html = html.find("div", class_="yt-lockup-content")
         video_id = inner_html.find("a")["href"][-11:]
@@ -118,42 +130,76 @@ class YouTubeSearch:
         }
         return video_details
 
-    def _fetch_search_results(self, html, limit=10):
-        result_source = html.find_all(
-            "div", {"class": "yt-lockup-dismissable yt-uix-tile"}
-        )
-        videos = []
-
-        for result in result_source:
-            if not self._is_video(result):
-                continue
-
-            video = self._extract_video_details_from_result(result)
-            videos.append(video)
-
-            if len(videos) >= limit:
-                break
-
-        return videos
-
-    def _is_video(self, result):
+    def _html_is_video(self, result):
         # ensure result is not a channel
         not_video = (
             result.find("channel") is not None
             or "yt-lockup-channel" in result.parent.attrs["class"]
             or "yt-lockup-channel" in result.attrs["class"]
         )
-
         # ensure result is not a mix/playlist
         not_video = not_video or "yt-lockup-playlist" in result.parent.attrs["class"]
-
         # ensure video result is not an advertisement
         not_video = not_video or result.find("googleads") is not None
         # ensure video result is not a live stream
         not_video = not_video or result.find("span", class_="video-time") is None
-
         video = not not_video
         return video
+
+    def _fetch_search_results_from_json(self, json, limit=10):
+        json = json["contents"]["twoColumnSearchResultsRenderer"]
+        json = json["primaryContents"]["sectionListRenderer"]["contents"][0]
+        json = json["itemSectionRenderer"]["contents"]
+        videos = []
+        for result in json:
+            if not self._json_is_video(result):
+                continue
+            video = self._extract_video_details_from_json_result(result)
+            videos.append(video)
+            if len(videos) >= limit:
+                break
+        return videos
+
+    def _extract_video_details_from_json_result(self, json):
+        json = json["videoRenderer"]
+        video_id = json["videoId"]
+        video_title = json["title"]["runs"][0]["text"]
+        video_time = json["lengthText"]["simpleText"]
+        video_details = {
+            "url": "https://www.youtube.com/watch?v=" + video_id,
+            "title": video_title,
+            "duration": video_time,
+        }
+        return video_details
+
+    def _json_is_video(self, result):
+        # ensure result is not a corrected search query
+        video = "videoRenderer" in result
+        return video
+
+    def _fetch_search_results(self, html, limit=10):
+        videos_html = html.find_all(
+            "div", {"class": "yt-lockup-dismissable yt-uix-tile"}
+        )
+        if videos_html:
+            return self._fetch_search_results_from_html(videos_html, limit=limit)
+
+        # Sometimes YouTube can go crazy and return JSON data instead
+        # of an HTML response. Handle such cases.
+        logger.debug("YouTube returned malformed HTML. Attempting to parse possible JSON data.")
+
+        html = str(html)
+        search_start = 'window["ytInitialData"] = '
+        videos_json_start = html.find(search_start) + len(search_start)
+        search_end = "}}]}}}}}}"
+        videos_json_end = videos_json_start + html[videos_json_start:].find(search_end) + len(search_end)
+        videos_json = html[videos_json_start:videos_json_end] + "}"
+        try:
+            videos_json = json.loads(videos_json)
+        except json.decoder.JSONDecodeError:
+            return []
+
+        return self._fetch_search_results_from_json(videos_json, limit=limit)
 
     def _is_server_side_invalid_response(self, videos, html):
         if videos:
@@ -161,7 +207,7 @@ class YouTubeSearch:
         search_message = html.find("div", {"class":"search-message"})
         return search_message is None
 
-    def search(self, query, limit=10, retries=5):
+    def search(self, query, limit=10, retries=2):
         """
         Search and scrape YouTube to return a list of matching videos.
 
