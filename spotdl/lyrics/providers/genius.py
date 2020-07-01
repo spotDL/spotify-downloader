@@ -150,9 +150,11 @@ class Genius(LyricBase):
         lyric_html_page = self._fetch_url_page(url, timeout=timeout)
         soup = BeautifulSoup(lyric_html_page, "html.parser")
         paragraph = soup.find("p")
-        # If <p> has a class (like <p class="bla">), then we got an invalid
-        # response. Retry in such a case.
-        invalid_response = paragraph.get("class") is not None
+        # If <p> is not found or
+        # if <p> has a class (like <p class="bla">), then we got an invalid
+        # response.
+        # Retry in such a case.
+        invalid_response = paragraph is None or paragraph.get("class") is not None
         to_retry = retries > 0 and invalid_response
         if to_retry:
             logger.debug(
