@@ -7,8 +7,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 The release dates mentioned follow the format `DD-MM-YYYY`.
 
 ## [Unreleased]
+
+## [2.2.0] - 01-07-2020
 ### Added
 - Add support for Vorbis & Opus output formats. ([@Sigill](https://github.com/Sigill)) (#769)
+
+### Fixed
+- "YouTube returned no videos for the search query" for most tracks. ([@ritiek](https://github.com/ritiek)) (#775)
 
 ## [2.1.0] - 13-06-2020
 ### Added
