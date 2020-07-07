@@ -8,6 +8,10 @@ The release dates mentioned follow the format `DD-MM-YYYY`.
 
 ## [Unreleased]
 
+## [2.2.1] - 07-07-2020
+### Fixed
+- Occasionaly wrong title would be extracted from YouTube video. (#779)
+
 ## [2.2.0] - 01-07-2020
 ### Added
 - Add support for Vorbis & Opus output formats. ([@Sigill](https://github.com/Sigill)) (#769)
