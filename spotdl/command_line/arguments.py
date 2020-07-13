@@ -106,7 +106,7 @@ def get_arguments(config_base=_CONFIG_BASE):
         "-s",
         "--song",
         nargs="+",
-        help="download track(s) by spotify link or name"
+        help="download track(s) by spotify link, name, or youtube url."
     )
     group.add_argument(
         "-l",
