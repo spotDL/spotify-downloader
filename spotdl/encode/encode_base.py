@@ -24,8 +24,8 @@ from spotdl.encode.exceptions import EncoderNotFoundError
 _TARGET_FORMATS_FROM_ENCODING = {
     "m4a": "mp4",
     "mp3": "mp3",
-    "opus": "opus",
     "flac": "flac",
+    "oga": "oga",
     "ogg": "ogg",
 }
 
@@ -105,7 +105,7 @@ class EncoderBase(ABC):
         pass
 
     @abstractmethod
-    def re_encode(self, input_path, target_path, target_encoding=None, delete_original=False):
+    def re_encode(self, input_path, target_path, target_encoding=None, quality=None, delete_original=False):
         """
         Re-encode a given input file to a specified output file.
 
@@ -144,7 +144,7 @@ class EncoderBase(ABC):
         target_format = self._target_formats_from_encoding[encoding]
         return target_format
 
-    def re_encode_from_stdin(self, input_encoding, target_path, target_encoding=None):
+    def re_encode_from_stdin(self, input_encoding, target_path, target_encoding=None, quality=None):
         """
         Read a file from STDIN and re-encode it to a specified output
         file.

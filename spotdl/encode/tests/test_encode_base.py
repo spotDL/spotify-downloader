@@ -7,7 +7,7 @@ class TestAbstractBaseClass:
     def test_error_abstract_base_class_encoderbase(self):
         encoder_path = "ffmpeg"
         _loglevel = "-hide_banner -nostats -v panic"
-        _additional_arguments = ["-b:a", "192k", "-vn"]
+        _additional_arguments = ["-vn"]
 
         with pytest.raises(TypeError):
             # This abstract base class must be inherited from
@@ -35,7 +35,7 @@ class TestAbstractBaseClass:
 
         encoder_path = "ffmpeg"
         _loglevel = "-hide_banner -nostats -v panic"
-        _additional_arguments = ["-b:a", "192k", "-vn"]
+        _additional_arguments = ["-vn"]
 
         EncoderKid(encoder_path, _loglevel, _additional_arguments)
 
@@ -45,13 +45,13 @@ class TestMethods:
         def __init__(self, encoder_path, _loglevel, _additional_arguments):
             super().__init__(encoder_path, _loglevel, _additional_arguments)
 
-        def _generate_encode_command(self, input_path, target_path):
+        def _generate_encode_command(self, input_path, target_path, quality):
             pass
 
-        def _generate_encoding_arguments(self, input_encoding, target_encoding):
+        def _generate_encoding_arguments(self, input_encoding, target_encoding, quality):
             pass
 
-        def re_encode(self, input_encoding, target_encoding):
+        def re_encode(self, input_encoding, target_encoding, quality):
             pass
 
         def set_debuglog(self):
@@ -77,10 +77,9 @@ class TestMethods:
     @pytest.mark.parametrize("filename, encoding", [
         ("example.m4a", "m4a"),
         ("exampley.mp3", "mp3"),
-        ("test 123.opus", "opus"),
         ("flakey.flac", "flac"),
-        ("example.ogg", "ogg"),
-        ("example.opus", "opus"),
+        ("example.oga", "oga"),
+        ("test 123.ogg", "ogg"),
     ])
     def test_get_encoding(self, encoderkid, filename, encoding):
         assert encoderkid.get_encoding(filename) == encoding
@@ -92,8 +91,8 @@ class TestMethods:
     @pytest.mark.parametrize("encoding, target_format", [
         ("m4a", "mp4"),
         ("mp3", "mp3"),
-        ("opus", "opus"),
         ("flac", "flac"),
+        ("oga", "oga"),
         ("ogg", "ogg"),
     ])
     def test_target_format_from_encoding(self, encoderkid, encoding, target_format):

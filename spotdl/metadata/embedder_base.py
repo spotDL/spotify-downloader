@@ -13,7 +13,7 @@ class EmbedderBase(ABC):
     The subclass must define the supported media file encoding
     formats here using a static variable - such as:
 
-    >>> supported_formats = ("mp3", "m4a", "flac", "ogg", "opus")
+    >>> supported_formats = ("mp3", "m4a", "flac", "oga", "ogg")
     """
     supported_formats = ()
 
@@ -101,7 +101,7 @@ class EmbedderBase(ABC):
         """
         raise NotImplementedError
 
-    def as_ogg(self, path, metadata, cached_albumart=None):
+    def as_oga(self, path, metadata, cached_albumart=None):
         """
         Method for ogg support. This method might be defined in
         a subclass.
@@ -111,7 +111,7 @@ class EmbedderBase(ABC):
         """
         raise NotImplementedError
 
-    def as_opus(self, path, metadata, cached_albumart=None):
+    def as_ogg(self, path, metadata, cached_albumart=None):
         """
         Method for opus support. This method might be defined in
         a subclass.

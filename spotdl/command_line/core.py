@@ -422,7 +422,7 @@ class Spotdl:
 
         track = Track(metadata, cache_albumart=(not self.arguments["no_metadata"]))
         stream = metadata["streams"].get(
-            quality=self.arguments["quality"],
+            quality="best",
             preftype=self.arguments["input_ext"],
         )
         if stream is None:
@@ -475,7 +475,8 @@ class Spotdl:
                 stream,
                 temp_filename,
                 target_encoding=output_extension,
-                encoder=encoder,
+                quality=self.arguments["quality"],
+                encoder=encoder
             )
 
         if not self.arguments["no_metadata"]:

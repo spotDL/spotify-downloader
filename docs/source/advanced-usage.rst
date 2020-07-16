@@ -57,7 +57,7 @@ Here's a sample config file depicting how the file should look like:
       output_ext: mp3
       output_file: '{artist} - {track-name}.{output-ext}'
       overwrite: prompt
-      quality: best
+      quality: 3
       search_format: '{artist} - {track-name} lyrics'
       skip_file: null
       spotify_client_id: 4fe3fecfe5334023a1472516cc99d805

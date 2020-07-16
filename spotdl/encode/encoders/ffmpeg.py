@@ -13,19 +13,26 @@ logger = logging.getLogger(__name__)
 # Subkey: to format
 RULES = {
     "m4a": {
-        "mp3": "-codec:v copy -codec:a libmp3lame",
-        "opus": "-codec:a libopus",
-        "m4a": "-acodec copy",
-        "flac": "-codec:a flac",
-        "ogg": "-codec:a libvorbis -q:a 5",
+        "mp3": "-codec:v copy -codec:a libmp3lame -q:a",
+        "m4a": "-acodec copy -b:a",
+        "flac": "-codec:a flac -compression_level",
+        "oga": "-codec:a libvorbis -q:a",
+        "ogg": "-codec:a libopus -b:a",
     },
     "opus": {
-        "mp3": "-codec:a libmp3lame",
-        "m4a": "-cutoff 20000 -codec:a aac",
-        "flac": "-codec:a flac",
-        "ogg": "-codec:a libvorbis -q:a 5",
-        "opus": "-acodec copy",
+        "mp3": "-codec:a libmp3lame -q:a",
+        "m4a": "-cutoff 20000 -codec:a aac -b:a",
+        "flac": "-codec:a flac -compression_level",
+        "oga": "-codec:a libvorbis -q:a",
+        "ogg": "-acodec copy -b:a",
     },
+}
+QARGS = {
+    "m4a": ["256k", "224k", "192k", "160k", "128k", "96k"],
+    "mp3": ["0", "1", "2", "3", "4", "5"],
+    "flac": ["0", "3", "5", "7", "10", "12"],
+    "oga": ["7", "6", "5", "4", "2", "1"],
+    "ogg": ["192k", "160k", "128k", "96k", "80k", "64k"],
 }
 
 
@@ -76,12 +83,13 @@ class EncoderFFmpeg(EncoderBase):
 
     def __init__(self, encoder_path="ffmpeg", must_exist=True):
         _loglevel = "-hide_banner -nostats -v warning"
-        _additional_arguments = ["-b:a", "192k", "-vn"]
+        _additional_arguments = ["-vn"]
         try:
             super().__init__(encoder_path, must_exist, _loglevel, _additional_arguments)
         except EncoderNotFoundError as e:
             raise FFmpegNotFoundError(e.args[0])
         self._rules = RULES
+        self._qargs = QARGS
 
     def set_trim_silence(self):
         self.set_argument("-af silenceremove=start_periods=1")
@@ -89,14 +97,14 @@ class EncoderFFmpeg(EncoderBase):
     def get_encoding(self, path):
         return super().get_encoding(path)
 
-    def _generate_encoding_arguments(self, input_encoding, target_encoding):
+    def _generate_encoding_arguments(self, input_encoding, target_encoding, quality):
         initial_arguments = self._rules.get(input_encoding)
         if initial_arguments is None:
             raise TypeError(
                 'The input format ("{}") is not supported.'.format(
                 input_encoding,
             ))
-        arguments = initial_arguments.get(target_encoding)
+        arguments = initial_arguments.get(target_encoding) + " " + self._qargs.get(target_encoding)[int(quality)-1]
         if arguments is None:
             raise TypeError(
                 'The output format ("{}") is not supported.'.format(
@@ -108,14 +116,17 @@ class EncoderFFmpeg(EncoderBase):
         self._loglevel = "-loglevel debug"
 
     def _generate_encode_command(self, input_path, target_path,
-                                 input_encoding=None, target_encoding=None):
+                                 input_encoding=None, target_encoding=None, quality=None):
         if input_encoding is None:
             input_encoding = self.get_encoding(input_path)
         if target_encoding is None:
             target_encoding = self.get_encoding(target_path)
+        if quality is None:
+            quality = "3"
         arguments = self._generate_encoding_arguments(
             input_encoding,
-            target_encoding
+            target_encoding,
+            quality=quality
         )
         command = [self.encoder_path] \
             + ["-y", "-nostdin"] \
@@ -128,11 +139,12 @@ class EncoderFFmpeg(EncoderBase):
 
         return command
 
-    def re_encode(self, input_path, target_path, target_encoding=None, delete_original=False):
+    def re_encode(self, input_path, target_path, target_encoding=None, quality=None, delete_original=False):
         encode_command = self._generate_encode_command(
             input_path,
             target_path,
-            target_encoding=target_encoding
+            target_encoding=target_encoding,
+            quality=quality
         )
         logger.debug("Calling FFmpeg with:\n{command}".format(
             command=encode_command,
@@ -144,12 +156,13 @@ class EncoderFFmpeg(EncoderBase):
             os.remove(input_path)
         return process
 
-    def re_encode_from_stdin(self, input_encoding, target_path, target_encoding=None):
+    def re_encode_from_stdin(self, input_encoding, target_path, target_encoding=None, quality=None):
         encode_command = self._generate_encode_command(
             "-",
             target_path,
             input_encoding=input_encoding,
             target_encoding=target_encoding,
+            quality=quality
         )
         logger.debug("Calling FFmpeg with:\n{command}".format(
             command=encode_command,

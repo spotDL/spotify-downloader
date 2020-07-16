@@ -12,7 +12,7 @@ DEFAULT_CONFIGURATION = {
         "no_metadata": False,
         "no_encode": False,
         "overwrite": "prompt",
-        "quality": "best",
+        "quality": "3",
         "input_ext": "automatic",
         "output_ext": "mp3",
         "write_to": None,

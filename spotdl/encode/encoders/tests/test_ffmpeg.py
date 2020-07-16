@@ -20,21 +20,9 @@ class TestEncodingDefaults:
             '-i', input_path,
             '-codec:v', 'copy',
             '-codec:a', 'libmp3lame',
-            '-b:a', '192k',
+            '-q:a', '2',
             '-vn',
             '-f', 'mp3',
-            target_path
-        ]
-        return command
-
-    def m4a_to_opus_encoder(input_path, target_path):
-        command = [
-            'ffmpeg', '-y', '-nostdin', '-hide_banner', '-nostats', '-v', 'warning',
-            '-i', input_path,
-            '-codec:a', 'libopus',
-            '-b:a', '192k',
-            '-vn',
-            '-f', 'opus',
             target_path
         ]
         return command
@@ -47,7 +35,7 @@ class TestEncodingDefaults:
             '-b:a', '192k',
             '-vn',
             '-f', 'mp4',
-             target_path
+            target_path
         ]
         return command
 
@@ -56,9 +44,21 @@ class TestEncodingDefaults:
             'ffmpeg', '-y', '-nostdin', '-hide_banner', '-nostats', '-v', 'warning',
             '-i', input_path,
             '-codec:a', 'flac',
-            '-b:a', '192k',
+            '-compression_level', '5',
             '-vn',
             '-f', 'flac',
+            target_path
+        ]
+        return command
+
+    def m4a_to_oga_encoder(input_path, target_path):
+        command = [
+            'ffmpeg', '-y', '-nostdin', '-hide_banner', '-nostats', '-v', 'warning',
+            '-i', input_path,
+            '-codec:a', 'libvorbis',
+            '-q:a', '5',
+            '-vn',
+            '-f', 'oga',
             target_path
         ]
         return command
@@ -67,34 +67,20 @@ class TestEncodingDefaults:
         command = [
             'ffmpeg', '-y', '-nostdin', '-hide_banner', '-nostats', '-v', 'warning',
             '-i', input_path,
-            '-codec:a', 'libvorbis',
-            '-q:a', '5',
-            '-b:a', '192k',
+            '-codec:a', 'libopus',
+            '-b:a', '128k',
             '-vn',
             '-f', 'ogg',
             target_path
         ]
         return command
 
-    def m4a_to_opus_encoder(input_path, target_path):
-        command = [
-            'ffmpeg', '-y', '-nostdin', '-hide_banner', '-nostats', '-v', 'warning',
-            '-i', input_path,
-            '-codec:a', 'libopus',
-            '-b:a', '192k',
-            '-vn',
-            '-f', 'opus',
-            target_path
-        ]
-        return command
-
     @pytest.mark.parametrize("files, expected_command", [
         (("test.m4a", "test.mp3"), m4a_to_mp3_encoder("test.m4a", "test.mp3")),
-        (("abc.m4a", "cba.opus"), m4a_to_opus_encoder("abc.m4a", "cba.opus")),
         (("bla bla.m4a", "ble ble.m4a"), m4a_to_m4a_encoder("bla bla.m4a", "ble ble.m4a")),
         (("😛.m4a", "• tongue.flac"), m4a_to_flac_encoder("😛.m4a", "• tongue.flac")),
-        (("example.m4a", "example.ogg"), m4a_to_ogg_encoder("example.m4a", "example.ogg")),
-        (("example.m4a", "example.opus"), m4a_to_opus_encoder("example.m4a", "example.opus")),
+        (("example.m4a", "example.oga"), m4a_to_oga_encoder("example.m4a", "example.oga")),
+        (("abc.m4a", "cba.ogg"), m4a_to_ogg_encoder("abc.m4a", "cba.ogg")),
     ])
     def test_generate_encode_command(self, files, expected_command):
         encoder = EncoderFFmpeg()
@@ -108,22 +94,10 @@ class TestEncodingInDebugMode:
             '-i', input_path,
             '-codec:v', 'copy',
             '-codec:a', 'libmp3lame',
-            '-b:a', '192k',
+            '-q:a', '2',
             '-vn',
             '-f', 'mp3',
             target_path
-        ]
-        return command
-
-    def m4a_to_opus_encoder_with_debug(input_path, target_path):
-        command = [
-            'ffmpeg', '-y', '-nostdin', '-loglevel', 'debug',
-            '-i', input_path,
-            '-codec:a', 'libopus',
-            '-b:a', '192k',
-            '-vn',
-            '-f', 'opus',
-             target_path
         ]
         return command
 
@@ -135,7 +109,7 @@ class TestEncodingInDebugMode:
             '-b:a', '192k',
             '-vn',
             '-f', 'mp4',
-             target_path
+            target_path
         ]
         return command
 
@@ -144,10 +118,22 @@ class TestEncodingInDebugMode:
             'ffmpeg', '-y', '-nostdin', '-loglevel', 'debug',
             '-i', input_path,
             '-codec:a', 'flac',
-            '-b:a', '192k',
+            '-compression_level', '5',
             '-vn',
             '-f', 'flac',
-             target_path
+            target_path
+        ]
+        return command
+
+    def m4a_to_oga_encoder_with_debug(input_path, target_path):
+        command = [
+            'ffmpeg', '-y', '-nostdin', '-loglevel', 'debug',
+            '-i', input_path,
+            '-codec:a', 'libvorbis',
+            '-q:a', '5',
+            '-vn',
+            '-f', 'oga',
+            target_path
         ]
         return command
 
@@ -155,34 +141,20 @@ class TestEncodingInDebugMode:
         command = [
             'ffmpeg', '-y', '-nostdin', '-loglevel', 'debug',
             '-i', input_path,
-            '-codec:a', 'libvorbis',
-            '-q:a', '5',
-            '-b:a', '192k',
+            '-codec:a', 'libopus',
+            '-b:a', '128k',
             '-vn',
             '-f', 'ogg',
             target_path
         ]
         return command
 
-    def m4a_to_opus_encoder_with_debug(input_path, target_path):
-        command = [
-            'ffmpeg', '-y', '-nostdin', '-loglevel', 'debug',
-            '-i', input_path,
-            '-codec:a', 'libopus',
-            '-b:a', '192k',
-            '-vn',
-            '-f', 'opus',
-            target_path
-        ]
-        return command
-
     @pytest.mark.parametrize("files, expected_command", [
         (("test.m4a", "test.mp3"), m4a_to_mp3_encoder_with_debug("test.m4a", "test.mp3")),
-        (("abc.m4a", "cba.opus"), m4a_to_opus_encoder_with_debug("abc.m4a", "cba.opus")),
         (("bla bla.m4a", "ble ble.m4a"), m4a_to_m4a_encoder_with_debug("bla bla.m4a", "ble ble.m4a")),
         (("😛.m4a", "• tongue.flac"), m4a_to_flac_encoder_with_debug("😛.m4a", "• tongue.flac")),
-        (("example.m4a", "example.ogg"), m4a_to_ogg_encoder_with_debug("example.m4a", "example.ogg")),
-        (("example.m4a", "example.opus"), m4a_to_opus_encoder_with_debug("example.m4a", "example.opus")),
+        (("example.m4a", "example.oga"), m4a_to_oga_encoder_with_debug("example.m4a", "example.oga")),
+        (("abc.m4a", "cba.ogg"), m4a_to_ogg_encoder_with_debug("abc.m4a", "cba.ogg")),
     ])
     def test_generate_encode_command_with_debug(self, files, expected_command):
         encoder = EncoderFFmpeg()
@@ -197,23 +169,10 @@ class TestEncodingAndTrimSilence:
             '-i', input_path,
             '-codec:v', 'copy',
             '-codec:a', 'libmp3lame',
-            '-b:a', '192k',
+            '-q:a', '2',
             '-vn',
             '-af', 'silenceremove=start_periods=1',
             '-f', 'mp3',
-            target_path
-        ]
-        return command
-
-    def m4a_to_opus_encoder_and_trim_silence(input_path, target_path):
-        command = [
-            'ffmpeg', '-y', '-nostdin', '-hide_banner', '-nostats', '-v', 'warning',
-            '-i', input_path,
-            '-codec:a', 'libopus',
-            '-b:a', '192k',
-            '-vn',
-            '-af', 'silenceremove=start_periods=1',
-            '-f', 'opus',
             target_path
         ]
         return command
@@ -236,7 +195,7 @@ class TestEncodingAndTrimSilence:
             'ffmpeg', '-y', '-nostdin', '-hide_banner', '-nostats', '-v', 'warning',
             '-i', input_path,
             '-codec:a', 'flac',
-            '-b:a', '192k',
+            '-compression_level', '5',
             '-vn',
             '-af', 'silenceremove=start_periods=1',
             '-f', 'flac',
@@ -244,13 +203,26 @@ class TestEncodingAndTrimSilence:
         ]
         return command
 
-    def m4a_to_ogg_encoder_and_trim_silence(input_path, target_path):
+    def m4a_to_oga_encoder_and_trim_silence(input_path, target_path):
         command = [
             'ffmpeg', '-y', '-nostdin', '-hide_banner', '-nostats', '-v', 'warning',
             '-i', input_path,
             '-codec:a', 'libvorbis',
             '-q:a', '5',
-            '-b:a', '192k',
+            '-vn',
+            '-af', 'silenceremove=start_periods=1',
+            '-f', 'oga',
+            target_path
+        ]
+        return command
+
+
+    def m4a_to_ogg_encoder_and_trim_silence(input_path, target_path):
+        command = [
+            'ffmpeg', '-y', '-nostdin', '-hide_banner', '-nostats', '-v', 'warning',
+            '-i', input_path,
+            '-codec:a', 'libopus',
+            '-b:a', '128k',
             '-vn',
             '-af', 'silenceremove=start_periods=1',
             '-f', 'ogg',
@@ -258,26 +230,12 @@ class TestEncodingAndTrimSilence:
         ]
         return command
 
-    def m4a_to_opus_encoder_and_trim_silence(input_path, target_path):
-        command = [
-            'ffmpeg', '-y', '-nostdin', '-hide_banner', '-nostats', '-v', 'warning',
-            '-i', input_path,
-            '-codec:a', 'libopus',
-            '-b:a', '192k',
-            '-vn',
-            '-af', 'silenceremove=start_periods=1',
-            '-f', 'opus',
-            target_path
-        ]
-        return command
-
     @pytest.mark.parametrize("files, expected_command", [
         (("test.m4a", "test.mp3"), m4a_to_mp3_encoder_and_trim_silence("test.m4a", "test.mp3")),
-        (("abc.m4a", "cba.opus"), m4a_to_opus_encoder_and_trim_silence("abc.m4a", "cba.opus")),
         (("bla bla.m4a", "ble ble.m4a"), m4a_to_m4a_encoder_and_trim_silence("bla bla.m4a", "ble ble.m4a")),
         (("😛.m4a", "• tongue.flac"), m4a_to_flac_encoder_and_trim_silence("😛.m4a", "• tongue.flac")),
-        (("example.m4a", "example.ogg"), m4a_to_ogg_encoder_and_trim_silence("example.m4a", "example.ogg")),
-        (("example.m4a", "example.opus"), m4a_to_opus_encoder_and_trim_silence("example.m4a", "example.opus")),
+        (("example.m4a", "example.oga"), m4a_to_oga_encoder_and_trim_silence("example.m4a", "example.oga")),
+        (("abc.m4a", "cba.ogg"), m4a_to_ogg_encoder_and_trim_silence("abc.m4a", "cba.ogg")),
     ])
     def test_generate_encode_command_and_trim_silence(self, files, expected_command):
         encoder = EncoderFFmpeg()

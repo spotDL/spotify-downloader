@@ -175,8 +175,8 @@ def get_arguments(config_base=_CONFIG_BASE):
         "-q",
         "--quality",
         default=defaults["quality"],
-        choices={"best", "worst"},
-        help="preferred audio quality",
+        choices={"1", "2", "3", "4", "5", "6"},
+        help="preferred output audio quality",
     )
     parser.add_argument(
         "-i",
@@ -189,7 +189,7 @@ def get_arguments(config_base=_CONFIG_BASE):
         "-o",
         "--output-ext",
         default=defaults["output_ext"],
-        choices={"mp3", "m4a", "flac", "ogg", "opus"},
+        choices={"mp3", "m4a", "flac", "oga", "ogg"},
         help="preferred output format",
     )
     parser.add_argument(
