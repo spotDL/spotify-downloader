@@ -175,7 +175,7 @@ def get_arguments(config_base=_CONFIG_BASE):
         "-q",
         "--quality",
         default=defaults["quality"],
-        choices={"1", "2", "3", "4", "5", "6"},
+        choices={"automatic", "1", "2", "3", "4", "5", "6"},
         help="preferred output audio quality",
     )
     parser.add_argument(

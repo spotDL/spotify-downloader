@@ -8,13 +8,13 @@
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
 [![Gitter Chat](https://badges.gitter.im/ritiek/spotify-downloader/Lobby.svg)](https://gitter.im/spotify-downloader/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-- Downloads songs from YouTube in an MP3 format by using Spotify's HTTP link.
-- Can also download a song by entering its artist and song name (in case if you don't have the Spotify's HTTP link for some song).
+- Download songs from YouTube in different format like MP3, M4A, FLAC, and OGG by using the Spotify link.
+- Also, download a song by entering its Artist and Song name (in case If you don't have the Spotify link for some song).
 - Automatically applies metadata to the downloaded song which includes:
 
-  - `Title`, `Artist`, `Album`, `Album art`, `Lyrics` (if found either on [Genius](https://genius.com/)), `Album artist`, `Genre`, `Track number`, `Disc number`, `Release date`, and more...
+  - `Title`, `Artist`, `Album`, `Album Art`, `Lyrics` (if found on [Genius](https://genius.com/)), `Album Artist`, `Genre`, `Track Number.`, `Disc Number`, `Release Date`, and more...
 
-- Works straight out of the box and does not require you to generate or mess with your API keys (already included).
+- Works straight out of the box and does not require you to generate or mess with any API keys (already included).
 
 Below is how your music library will look!
 
@@ -51,6 +51,20 @@ $ spotdl --playlist https://open.spotify.com/user/nocopyrightsounds/playlist/7sZ
 INFO: Writing 62 tracks to ncs-releases.txt
 $ spotdl --list ncs-releases.txt
 ```
+
+Download a song in `FLAC` format, with manually selecting YouTube Link
+
+```console
+$ spotdl -s https://open.spotify.com/track/0EqSRhWIeNqdomsU603EfC -o flac -m
+```
+
+Download a song with YouTube Link in `MP3` format, with higher bitrate
+
+```console
+$ spotdl -s https://www.youtube.com/watch?v=pedgIfGqHcw -o mp3 --quality 1
+```
+
+Note: While `spotdl` have `--quality` or `-q` arguments for changing bitrates if you want to, but keep in mind that `spotdl` downloads song from YouTube (not Spotify), and YouTube's highest bitrate is only 160 Kbps `Opus` stream. So, It is useless to throw more bitrate to it when re-encoding, it will just take up extra space on your hard drive, with very insignificant improvement in Practical hearing quality.
 
 Run `spotdl --help` to get a list of all available options in spotify-downloader.
 

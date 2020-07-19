@@ -121,7 +121,7 @@ class EncoderFFmpeg(EncoderBase):
             input_encoding = self.get_encoding(input_path)
         if target_encoding is None:
             target_encoding = self.get_encoding(target_path)
-        if quality is None:
+        if quality is None or "automatic":
             quality = "3"
         arguments = self._generate_encoding_arguments(
             input_encoding,

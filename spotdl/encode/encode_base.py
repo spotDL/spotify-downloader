@@ -88,7 +88,7 @@ class EncoderBase(ABC):
         pass
 
     @abstractmethod
-    def _generate_encode_command(self, input_path, target_path):
+    def _generate_encode_command(self, input_path, target_path, input_encoding, target_encoding, quality):
         """
         This method must generate the complete command for that would
         be used to invoke the encoder and perform the encoding.
@@ -96,7 +96,7 @@ class EncoderBase(ABC):
         pass
 
     @abstractmethod
-    def _generate_encoding_arguments(self, input_encoding, target_encoding):
+    def _generate_encoding_arguments(self, input_encoding, target_encoding, quality):
         """
         This method must return the core arguments for the defined
         encoder such as defining the sample rate, audio bitrate,
