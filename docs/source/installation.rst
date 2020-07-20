@@ -84,7 +84,7 @@ to install spotdl.
 
 You'll also need to download zip file for an `FFmpeg build <https://ffmpeg.zeranoe.com/builds/>`_.
 Extract it and then place *ffmpeg.exe* in a directory included in your
-PATH variable.  Placing *ffmpeg.exe* in *C:\Windows\\System32* usually
+PATH variable. Placing *ffmpeg.exe* in *C:\Windows\\System32* usually
 works fine.
 
 To confirm whether *ffmpeg.exe* was correctly installed in PATH, from
@@ -103,6 +103,21 @@ If you get a *command-not-found* error, that means something's still off.
     `this post <https://docs.alfresco.com/4.2/tasks/fot-addpath.html>`_
     or `this video <https://www.youtube.com/watch?v=qjtmgCb8NcE>`_.
 
+Android (Termux)
+================
+
+Install Python and FFmpeg:
+
+.. CODE::
+
+    $ pkg update
+    $ pkg install python ffmpeg
+
+Then install spotdl with:
+
+.. CODE::
+
+    $ pip install spotdl
 
 Docker Image
 ============
