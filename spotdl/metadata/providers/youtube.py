@@ -389,6 +389,28 @@ class YouTubeStreams(StreamsBase):
         ))
         return selected_stream
 
+    def get_by_abr(self, abr=None, preftype="automatic"):
+        selected_stream = None
+        if preftype == "automatic":
+            for stream in self.streams:
+                if stream["bitrate"] == int(abr):
+                    selected_stream = stream
+                    break
+        else:
+            for stream in self.streams:
+                if stream["encoding"] == preftype:
+                    if stream["bitrate"] == int(abr):
+                        selected_stream = stream
+                        break
+        if not selected_stream:
+            return None
+        logger.debug('Selected {bitrate}k stream for {preftype} format:\n{stream}'.format(
+            bitrate=selected_stream["bitrate"],
+            preftype=selected_stream["encoding"],
+            stream=selected_stream
+            ))
+        return selected_stream
+
 
 class ProviderYouTube(ProviderBase):
     """

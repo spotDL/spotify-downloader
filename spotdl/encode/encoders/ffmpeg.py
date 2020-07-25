@@ -29,9 +29,9 @@ RULES = {
 }
 QARGS = {
     "m4a": ["256k", "224k", "192k", "160k", "128k", "96k"],
-    "mp3": ["0", "1", "2", "3", "4", "5"],
+    "mp3": ["0", "1", "2", "4", "5", "6"],
     "flac": ["0", "3", "5", "7", "10", "12"],
-    "oga": ["7", "6", "5", "4", "2", "1"],
+    "oga": ["7", "6", "5", "4", "2", "0"],
     "ogg": ["192k", "160k", "128k", "96k", "80k", "64k"],
 }
 
@@ -90,6 +90,7 @@ class EncoderFFmpeg(EncoderBase):
             raise FFmpegNotFoundError(e.args[0])
         self._rules = RULES
         self._qargs = QARGS
+        self._defualt_quality = 3
 
     def set_trim_silence(self):
         self.set_argument("-af silenceremove=start_periods=1")
@@ -121,8 +122,8 @@ class EncoderFFmpeg(EncoderBase):
             input_encoding = self.get_encoding(input_path)
         if target_encoding is None:
             target_encoding = self.get_encoding(target_path)
-        if quality is None or "automatic":
-            quality = "3"
+        if quality is None or quality == "automatic":
+            quality = self._defualt_quality
         arguments = self._generate_encoding_arguments(
             input_encoding,
             target_encoding,
@@ -169,4 +170,8 @@ class EncoderFFmpeg(EncoderBase):
         ))
         process = subprocess.Popen(encode_command, stdin=subprocess.PIPE)
         return process
+
+    def set_default_quality(self, stream):
+        bitrates = [160, 128, 70, 50]
+        self._defualt_quality += bitrates.index(stream["bitrate"])
 

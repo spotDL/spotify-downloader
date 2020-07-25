@@ -172,9 +172,16 @@ def get_arguments(config_base=_CONFIG_BASE):
         help="change the overwrite policy",
     )
     parser.add_argument(
-        "-q",
-        "--quality",
-        default=defaults["quality"],
+        "-iq",
+        "--input-quality",
+        default=defaults["input_quality"],
+        choices={"best", "160k", "128k", "70k", "50k", "worst"},
+        help="preferred input audio bitrate",
+    )
+    parser.add_argument(
+        "-oq",
+        "--output-quality",
+        default=defaults["output_quality"],
         choices={"automatic", "1", "2", "3", "4", "5", "6"},
         help="preferred output audio quality",
     )
@@ -189,7 +196,7 @@ def get_arguments(config_base=_CONFIG_BASE):
         "-o",
         "--output-ext",
         default=defaults["output_ext"],
-        choices={"mp3", "m4a", "flac", "oga", "ogg"},
+        choices={"mp3", "m4a", "flac", "oga", "ogg", "opus"},
         help="preferred output format",
     )
     parser.add_argument(

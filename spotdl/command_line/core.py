@@ -421,10 +421,16 @@ class Spotdl:
         """
 
         track = Track(metadata, cache_albumart=(not self.arguments["no_metadata"]))
-        stream = metadata["streams"].get(
-            quality="best",
-            preftype=self.arguments["input_ext"],
-        )
+        if self.arguments["input_quality"] in ["worst", "best"]:
+            stream = metadata["streams"].get(
+                quality=self.arguments["input_quality"],
+                preftype=self.arguments["input_ext"],
+            )
+        else:
+            stream = metadata["streams"].get_by_abr(
+                abr=self.arguments["input_quality"][:-1],
+                preftype=self.arguments["input_ext"],
+            )
         if stream is None:
             logger.error('No matching streams found for given input format: "{}".'.format(
                 self.arguments["input_ext"]
@@ -471,11 +477,13 @@ class Spotdl:
             encoder = EncoderFFmpeg()
             if self.arguments["trim_silence"]:
                 encoder.set_trim_silence()
+            if self.arguments["input_quality"] != "best" and self.arguments["output_quality"] == "automatic":
+                encoder.set_default_quality(stream)
             track.download_while_re_encoding(
                 stream,
                 temp_filename,
                 target_encoding=output_extension,
-                quality=self.arguments["quality"],
+                quality=self.arguments["output_quality"],
                 encoder=encoder
             )
 

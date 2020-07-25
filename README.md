@@ -64,8 +64,6 @@ Download a song with YouTube Link in `MP3` format, with higher bitrate
 $ spotdl -s https://www.youtube.com/watch?v=pedgIfGqHcw -o mp3 --quality 1
 ```
 
-Note: While `spotdl` have `--quality` or `-q` arguments for changing bitrates if you want to, but keep in mind that `spotdl` downloads song from YouTube (not Spotify), and YouTube's highest bitrate is only 160 Kbps `Opus` stream. So, It is useless to throw more bitrate to it when re-encoding, it will just take up extra space on your hard drive, with very insignificant improvement in Practical hearing quality.
-
 Run `spotdl --help` to get a list of all available options in spotify-downloader.
 
 Check out the [Available options](https://spotdl.readthedocs.io/en/latest/available-options.html)
