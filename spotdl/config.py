@@ -17,7 +17,7 @@ DEFAULT_CONFIGURATION = {
         "output_ext": "mp3",
         "write_to": None,
         "trim_silence": False,
-        "search_format": "{artist} - {track-name} lyrics",
+        "search_format": "{artist} - {track-name}",
         "dry_run": False,
         "no_spaces": False,
         # "processor": "synchronous",
