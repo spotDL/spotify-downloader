@@ -432,8 +432,9 @@ class Spotdl:
                 preftype=self.arguments["input_ext"],
             )
         if stream is None:
-            logger.error('No matching streams found for given input format: "{}".'.format(
-                self.arguments["input_ext"]
+            logger.error('No matching streams found for given bitrate ({abr}) and "{ext}" format.'.format(
+                abr=self.arguments["input_quality"],
+                ext=self.arguments["input_ext"]
             ))
             return
 

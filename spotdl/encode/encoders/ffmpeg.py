@@ -18,6 +18,7 @@ RULES = {
         "flac": "-codec:a flac -compression_level",
         "oga": "-codec:a libvorbis -q:a",
         "ogg": "-codec:a libopus -b:a",
+        "opus": "-codec:a libopus -b:a",
     },
     "opus": {
         "mp3": "-codec:a libmp3lame -q:a",
@@ -25,14 +26,16 @@ RULES = {
         "flac": "-codec:a flac -compression_level",
         "oga": "-codec:a libvorbis -q:a",
         "ogg": "-acodec copy -b:a",
+        "opus": "-acodec copy -b:a",
     },
 }
 QARGS = {
-    "m4a": ["256k", "224k", "192k", "160k", "128k", "96k"],
     "mp3": ["0", "1", "2", "4", "5", "6"],
+    "m4a": ["256k", "224k", "192k", "160k", "128k", "96k"],
     "flac": ["0", "3", "5", "7", "10", "12"],
     "oga": ["7", "6", "5", "4", "2", "0"],
     "ogg": ["192k", "160k", "128k", "96k", "80k", "64k"],
+    "opus": ["192k", "160k", "128k", "96k", "80k", "64k"],
 }
 
 
@@ -124,6 +127,7 @@ class EncoderFFmpeg(EncoderBase):
             target_encoding = self.get_encoding(target_path)
         if quality is None or quality == "automatic":
             quality = self._defualt_quality
+
         arguments = self._generate_encoding_arguments(
             input_encoding,
             target_encoding,

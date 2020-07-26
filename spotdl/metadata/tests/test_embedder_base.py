@@ -67,6 +67,7 @@ class TestMethods:
         "as_flac",
         "as_oga",
         "as_ogg",
+        "as_opus",
     ))
     def test_embed_formats(self, fmt_method_suffix, embedderkid):
         method = eval("embedderkid." + fmt_method_suffix)

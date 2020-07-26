@@ -27,6 +27,7 @@ _TARGET_FORMATS_FROM_ENCODING = {
     "flac": "flac",
     "oga": "oga",
     "ogg": "ogg",
+    "opus": "opus",
 }
 
 

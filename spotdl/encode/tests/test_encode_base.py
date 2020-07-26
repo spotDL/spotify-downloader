@@ -80,6 +80,7 @@ class TestMethods:
         ("flakey.flac", "flac"),
         ("example.oga", "oga"),
         ("test 123.ogg", "ogg"),
+        ("oops 456.opus", "opus"),
     ])
     def test_get_encoding(self, encoderkid, filename, encoding):
         assert encoderkid.get_encoding(filename) == encoding
@@ -94,6 +95,7 @@ class TestMethods:
         ("flac", "flac"),
         ("oga", "oga"),
         ("ogg", "ogg"),
+        ("opus", "opus"),
     ])
     def test_target_format_from_encoding(self, encoderkid, encoding, target_format):
         assert encoderkid.target_format_from_encoding(encoding) == target_format
