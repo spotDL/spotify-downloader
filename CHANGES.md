@@ -8,6 +8,10 @@ The release dates mentioned follow the format `DD-MM-YYYY`.
 
 ## [Unreleased]
 
+## [2.2.2] - 28-07-2020
+## Fixed
+- PyTube failing on outdated regex. (#798)
+
 ## [2.2.1] - 07-07-2020
 ### Fixed
 - Occasionaly wrong title would be extracted from YouTube video. (#779)
