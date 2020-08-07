@@ -269,13 +269,10 @@ class SpotifyHelpers:
                         file_io.write(track_url + "\n")
                         track_urls.append(track_url)
                     except KeyError:
-                        # FIXME: Write "{artist} - {name}" instead of Spotify URI for
-                        #        "local only" tracks.
-                        logger.warning(
-                            'Skipping track "{0}" by "{1}" (local only?)'.format(
-                                track["name"], track["artists"][0]["name"]
-                            )
+                        file_io.write(
+                            '{0} by {1}'.format(track["name"], track["artists"][0]["name"])
                         )
+
                 # 1 page = 50 results
                 # check if there are more pages
                 if tracks["next"]:
