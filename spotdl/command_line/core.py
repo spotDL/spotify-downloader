@@ -1,14 +1,6 @@
+from spotdl.helpers.apple_music import fetch_playlist
 from spotdl.metadata.providers import ProviderSpotify
-from spotdl.metadata.providers import ProviderYouTube
-from spotdl.metadata.providers import YouTubeSearch
-from spotdl.metadata.embedders import EmbedderDefault
-from spotdl.metadata.exceptions import SpotifyMetadataNotFoundError
-from spotdl.metadata.exceptions import BadMediaFileError
 import spotdl.metadata
-
-from spotdl.lyrics.providers import LyricWikia
-from spotdl.lyrics.providers import Genius
-from spotdl.lyrics.exceptions import LyricsNotFoundError
 
 from spotdl.encode.encoders import EncoderFFmpeg
 
@@ -163,10 +155,22 @@ class Spotdl:
         elif self.arguments["playlist"]:
             try:
                 playlist = spotify_tools.fetch_playlist(self.arguments["playlist"])
-            except spotdl.helpers.exceptions.PlaylistNotFoundError:
-                return spotdl.command_line.exitcodes.URI_NOT_FOUND_ERROR
+            except spotdl.helpers.exceptions.SpotifyPlaylistNotFoundError:
+                pass
             else:
                 spotify_tools.write_playlist_tracks(playlist, self.arguments["write_to"])
+
+            if "music.apple.com" in self.arguments["playlist"]:
+                logger.debug('Playlist not found on Spotify. Fetching from Apple Music')
+                try:
+                    playlist = fetch_playlist(self.arguments["playlist"])
+                except spotdl.helpers.exceptions.AppleMusicPlaylistNotFoundError:
+                    return spotdl.command_line.exitcodes.URI_NOT_FOUND_ERROR
+                else:
+                    spotify_tools.write_playlist_tracks(playlist, self.arguments["write_to"])
+            else:
+                return spotdl.command_line.exitcodes.URI_NOT_FOUND_ERROR
+
         elif self.arguments["album"]:
             try:
                 album = spotify_tools.fetch_album(self.arguments["album"])
