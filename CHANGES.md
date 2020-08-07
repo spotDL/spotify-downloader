@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 The release dates mentioned follow the format `DD-MM-YYYY`.
 
 ## [Unreleased]
+## Added
+- Support for Apple Music playlists (#728)
 
 ## [2.2.2] - 28-07-2020
 ## Fixed
