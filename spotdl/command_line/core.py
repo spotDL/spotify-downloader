@@ -1,4 +1,3 @@
-from spotdl.helpers.apple_music import fetch_playlist
 from spotdl.metadata.providers import ProviderSpotify
 import spotdl.metadata
 
@@ -15,6 +14,7 @@ from spotdl.command_line.exceptions import NoYouTubeVideoMatchError
 from spotdl.metadata_search import MetadataSearch
 
 from spotdl.helpers.spotify import SpotifyHelpers
+from spotdl.helpers.apple_music import fetch_playlist
 from spotdl.command_line.arguments import ArgumentHandler
 import spotdl.helpers.exceptions
 
@@ -161,7 +161,7 @@ class Spotdl:
                 spotify_tools.write_playlist_tracks(playlist, self.arguments["write_to"])
 
             if "music.apple.com" in self.arguments["playlist"]:
-                logger.debug('Playlist not found on Spotify. Fetching from Apple Music')
+                logger.info('Playlist not found on Spotify. Fetching from Apple Music')
                 try:
                     playlist = fetch_playlist(self.arguments["playlist"])
                 except spotdl.helpers.exceptions.AppleMusicPlaylistNotFoundError:
