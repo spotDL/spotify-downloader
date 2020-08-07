@@ -7,14 +7,29 @@ logger = logging.getLogger(__name__)
 
 
 def fetch_playlist(playlist_uri):
+    """
+    Helper function that gets html data from the given music.apple.com url and parses
+    this data into the dictionary format used by the Spotify API
+
+    Parameters
+    ----------
+    playlist_uri: `str`
+        The Apple Music playlist URL
+
+    Returns
+    -------
+    playlist: `dict`
+        The playlist data in the Spotify dictionary format
+    """
     try:
         content = request.urlopen(playlist_uri)
     except error.URLError as e:
-        message = 'Error opening requested URL: {reason}'.format(reason=e.reason)
+        message = 'Error opening requested URL ({url}): {reason}'.format(reason=e.reason, url=playlist_uri)
         logger.error(message)
         raise spotdl.helpers.exceptions.AppleMusicPlaylistNotFoundError
     else:
         playlist_html = BeautifulSoup(content.read(), 'html.parser')
+
         playlist = {
             'tracks': {
                 "items": [],
@@ -26,11 +41,12 @@ def fetch_playlist(playlist_uri):
         }
 
         logger.info(f'Fetching list: "{playlist["name"]} by {playlist["creator"]}" from Apple Music')
-
         songs = playlist_html.findAll("div", {"class": "song"})
+
         if not songs:
             logger.error(f'Playlist {playlist_uri} is either empty or some other error occurred.')
             raise spotdl.helpers.exceptions.AppleMusicPlaylistNotFoundError
+
         playlist['tracks']['total'] = len(songs)
         for song in songs:
             try:
