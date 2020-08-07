@@ -270,7 +270,9 @@ class SpotifyHelpers:
                         track_urls.append(track_url)
                     except KeyError:
                         file_io.write(
-                            '{0} by {1}'.format(track["name"], track["artists"][0]["name"])
+                            '{0} by {1}\n'.format(
+                                track["name"],
+                                track["artists"][0]["name"])
                         )
 
                 # 1 page = 50 results
@@ -287,7 +289,7 @@ class SpotifyHelpers:
             file_out = sys.stdout
             track_urls = writer(tracks, file_out)
         else:
-            with open(target_path, "a") as file_out:
+            with open(target_path, "a", encoding='utf-8') as file_out:
                 track_urls = writer(tracks, file_out)
         return track_urls
 
