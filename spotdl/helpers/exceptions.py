@@ -33,6 +33,13 @@ class SpotifyPlaylistNotFoundError(PlaylistNotFoundError):
         super().__init__(message)
 
 
+class AppleMusicPlaylistNotFoundError(PlaylistNotFoundError):
+    __module__ = Exception.__module__
+
+    def __init__(self, message=None):
+        super().__init__(message)
+
+
 class SpotifyAlbumNotFoundError(AlbumNotFoundError):
     __module__ = Exception.__module__
 
