@@ -18,6 +18,8 @@ excellence they set.
 he/she/them want in under 3 attempts at max and under 1 attempt most of the
 times.
 
+- Provide accurate metadata - all downloads should have the correct metadata.
+
 - Simple scalable design (Ease of contribution) - a programmer should
 understand what does what and be free to start working on his/her/their
 contributions in under 30 minutes.

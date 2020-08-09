@@ -31,3 +31,10 @@ don't know the principles of OOP or would like a refresher, look through
 
 - Compliance with the code guidelines setup [here](Temp/codeGuidelines.md)
 and also the [core values](Temp/coreValues.md) of this project.
+
+# Latest Updates
+
+- Current status of the work and the ideas/thought-process behind it can be
+seen [here](Temp/workingDocs.md).
+
+- Some new [interfaces](Temp/interfaces.md) have been designed.
