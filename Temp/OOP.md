@@ -140,11 +140,141 @@ class?). Eventually you have to tradeoff 'managing of complexity' against
 'freedom/flexibility'. In 99% or cases with codebases above 500 lines, it'd be
 better to manage complexity first and bother about flexibility/freedom later.
 
+Some coders enforce contestant abstraction via 'data hiding'. THis author
+personally doesn't believe in such extreme methods.
+
 <br><br>
 
-## Polymorphism / Inheritance
+## Polymorphism
 
-*Not completely sure of this part, will update after a wikipedia lookup.*
+Polymorphism comes from the greek words meaning 'different shapes',
+Polymorphism is a 'generalization' relation - the ability to handle different
+classes/objects the same way. One of the most common ways of implementing
+polymorphism is via interfaces.
+
+```python
+# A bad example of polymorphism
+#
+# Print the areas of different shapes
+
+circle = shapeCircle(radius = 7)
+area = circle.area()
+print(area)
+
+squire = shapeSquire(side = 5)
+area = squire.sideSquire()
+print(area)
+
+rhombus = shapeRhombus(diagonals = (1, 5))
+area = rhombus.calculateArea()
+print(area)
+
+triangle = shapeTriangle(a = 15, b = 10, c = 13)
+area = triangle.halfBaseTimesHeight()
+print(area)
+
+# Remake of the 'bad' example using polymorphism
+
+circle = shapeCircle(radius = 7)
+squire = shapeSquire(side = 5)
+rhombus = shapeRhombus(diagonals = (1,5))
+triangle = shapeTriangle(a = 15, b = 10, c = 13)
+
+shapes = [circle, squire, rhombus, triangle]
+
+for shape in shapes:
+    area = shape.getArea()
+    print(area)
+```
+
+What's the difference? In the polymorphism based remake, the method to get area
+is standardized, this means that different shape classes that require deferent
+calculation to obtain the area can now be treated the exact same way.
+
+<br><br>
+
+## Inheritance
+
+Inheritance works alongside polymorphism just as abstraction works with
+encapsulation. while polymorphism is a 'generalization' relation. Inheritance
+is a 'specialization' relation.
+
+```python
+# An example without inheritance
+
+class car(object):
+    # code goes here
+
+    def getNumberPlate(self):
+        return self.registrationNumber
+    
+    def getVehicleName(self):
+        return self.model
+    
+    # more code
+
+class bike(object):
+    # code goes here
+
+    def getNumberPlate(self):
+        return self.numberPlate
+    
+    def getVehicleName(self):
+        return self.bikeName
+    
+    # more code
+
+class tractor(object):
+    # code goes here
+
+    def getNumberPlate(self):
+        return self.companyProvidedNumber
+    
+    def getVehicleName(self):
+        return self.modelName
+    
+    # more code
+```
+
+The polymorphism followed here make these objects fairly manageable but for
+someone reading all of this code, he/she/them will have to read through
+the same set of code multiple times. This usually causes two problems - 
+ballooning of code and confusion that arises from reading the same set of
+code again and again in the context of different variables.
+
+```python
+# An inheritance based example
+
+class vehicle(object):
+    # code goes here
+
+    def getNumberPlate(self):
+        return self.numberPlate
+    
+    def getVehicleName(self):
+        return self.name
+    
+    # more code
+
+class car(vehicle):
+    # car specific functions
+
+class bike(vehicle):
+    # bike specific functions
+
+class tractor(vehicle):
+    # tractor specific functions
+
+```
+
+This example treat's `car`, `bike`, and `tractor` as special instances of
+`vehicle`, removing a lot of the confusion that accompanies the earlier
+example. Know what a particular function does in a parent class to a large
+extent allows you to know what a 'child class' does. Only one note of warning
+here, use shallow inheritance, deep inheritance trees will have you searching
+for which parent/super-parent defines a particular variable/function and
+which parent/super-parent modifies those same variables/functions leading to a
+confusing mess.
 
 <br><br>
 

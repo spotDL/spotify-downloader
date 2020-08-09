@@ -29,5 +29,5 @@ most of you guys probably do so, for those of you who don't, please do. If you
 don't know the principles of OOP or would like a refresher, look through 
 [this](Temp/OOP.md).
 
-- Compliance with the code guidelines setup [here](Temp/codeGuidelines.md).
+- Compliance with the code guidelines setup [here](Temp/codeGuidelines.md)
 and also the [core values](Temp/coreValues.md) of this project.
