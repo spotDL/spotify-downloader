@@ -1,88 +1,33 @@
-# Spotify-Downloader
+# Why this branch?
 
-[![PyPi](https://img.shields.io/pypi/v/spotdl.svg)](https://pypi.org/project/spotdl)
-[![Docs Build Status](https://readthedocs.org/projects/spotdl/badge/?version=latest)](https://spotdl.readthedocs.io/en/latest/home.html)
-[![Build Status](https://travis-ci.org/ritiek/spotify-downloader.svg?branch=master)](https://travis-ci.org/ritiek/spotify-downloader)
-[![Coverage Status](https://codecov.io/gh/ritiek/spotify-downloader/branch/master/graph/badge.svg)](https://codecov.io/gh/ritiek/spotify-downloader)
-[![Docker Build Status](https://img.shields.io/docker/build/ritiek/spotify-downloader.svg)](https://hub.docker.com/r/ritiek/spotify-downloader)
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
-[![Gitter Chat](https://badges.gitter.im/ritiek/spotify-downloader/Lobby.svg)](https://gitter.im/spotify-downloader/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+This branch was created for a very specific purpose - to restructure spot-dl so
+that it is more scalable (can get bigger and more richly featured without major
+effort/maintenance trouble). This fairly sizeable project is being undertaken
+with one single underlying belief that the primary directive of any codebase
+should be to manage complexity. The beauty of software systems/models is that
+they can get infinitely big/complex, they aren't bound by the limitations of
+the physical world. There is a dark side to this too, the human brain can't and
+isn't designed to comprehend systems of any kind, small or big. We lack an
+intuitive feel for it, we most certainly can't handle big interconnected chunks
+of code - hence, the need to manage complexity.
 
-- Downloads songs from YouTube in an MP3 format by using Spotify's HTTP link.
-- Can also download a song by entering its artist and song name (in case if you don't have the Spotify's HTTP link for some song).
-- Automatically applies metadata to the downloaded song which includes:
+Spot-dl grew from a fairly small project to it's current feature rich size. In
+it's infancy, there was no need to 'manage complexity', it was small enough to
+handle head on. As it grew, most contributors didn't put in a conscious effort
+to manage the complexity, this isn't really any ones fault, those coders knew
+how everything was connected. The average new guy/girl on the block isn't
+willing to put in the effort required to understand the large interconnected
+blocks of code that constitute spot-dl. This is an attempt to break it down,
+manage the complexity. The reason this author repeats this point is because
+to serve its purpose, there are some very specific needs to all code being
+contributed here and hopefully hereon into the future.
 
-  - `Title`, `Artist`, `Album`, `Album art`, `Lyrics` (if found either on [Genius](https://genius.com/)), `Album artist`, `Genre`, `Track number`, `Disc number`, `Release date`, and more...
+# The requirements
 
-- Works straight out of the box and does not require you to generate or mess with your API keys (already included).
+- An conscious attempt to follow Object Oriented Programing. I realize that
+most of you guys probably do so, for those of you who don't, please do. If you
+don't know the principles of OOP or would like a refresher, look through 
+[this](Temp/OOP.md).
 
-Below is how your music library will look!
-
-<img src="http://i.imgur.com/Gpch7JI.png" width="290"><img src="http://i.imgur.com/5vhk3HY.png" width="290"><img src="http://i.imgur.com/RDTCCST.png" width="290">
-
-## Installation
-
-❗️ **This tool works only with Python 3.6+**
-
-spotify-downloader works with all major distributions and even on low-powered devices such as a Raspberry Pi.
-
-spotify-downloader can be installed via pip with:
-```console
-$ pip3 install spotdl
-```
-
-but be sure to check out the [Installation](https://spotdl.readthedocs.io/en/latest/installation.html) docs
-for detailed OS-specific instructions to get it and other dependencies it relies on working on your system.
-
-## Usage
-
-For the most basic usage, downloading tracks is as easy as
-
-```console
-$ spotdl --song https://open.spotify.com/track/2DGa7iaidT5s0qnINlwMjJ
-$ spotdl --song "ncs - spectre"
-```
-
-For downloading playlist and albums, you need to first load all the tracks into text file and then pass
-this text file to `--list` argument. Here is how you would do it for a playlist
-
-```console
-$ spotdl --playlist https://open.spotify.com/user/nocopyrightsounds/playlist/7sZbq8QGyMnhKPcLJvCUFD
-INFO: Writing 62 tracks to ncs-releases.txt
-$ spotdl --list ncs-releases.txt
-```
-
-Run `spotdl --help` to get a list of all available options in spotify-downloader.
-
-Check out the [Available options](https://spotdl.readthedocs.io/en/latest/available-options.html)
-page for the list of currently available options with their description.
-
-The docs on [Downloading Tracks](https://spotdl.readthedocs.io/en/latest/download-tracks.html)
-contains detailed information about different available ways to download tracks.
-
-## FAQ
-
-All FAQs will be mentioned in our [FAQ docs](https://spotdl.readthedocs.io/en/latest/faq.html).
-
-## Contributing
-
-Check out [CONTRIBUTING.md](CONTRIBUTING.md) for more info.
-
-## Running Tests
-
-```console
-$ pytest
-```
-
-Obviously this requires the `pytest` module to be installed.
-
-## Disclaimer
-
-Downloading copyright songs may be illegal in your country.
-This tool is for educational purposes only and was created only to show
-how Spotify's API can be exploited to download music from YouTube.
-Please support the artists by buying their music.
-
-## License
-
-[![License](https://img.shields.io/github/license/ritiek/spotify-downloader.svg)](https://github.com/ritiek/spotify-downloader/blob/master/LICENSE)
+- Compliance with the code guidelines setup [here](Temp/codeGuidelines.md).
+and also the [core values](Temp/coreValues.md) of this project.
