@@ -323,7 +323,8 @@ class YouTubeStreams(StreamsBase):
             The stream matching the given parameters. ``None`` if no
             matching stream was found.
         """
-
+        if not self.streams:
+            return None
         if quality == "best":
             return self.getbest(preftype=preftype)
         elif quality == "worst":
@@ -419,6 +420,7 @@ class ProviderYouTube(ProviderBase):
         logger.debug('Fetching YouTube metadata for "{url}".'.format(url=url))
         try:
             content = pytube.YouTube(url)
+            logger.debug(content.streams)
         except KeyError:
             # Sometimes YouTube can return unexpected response, in such a case
             # retry a few times before finally failing.
