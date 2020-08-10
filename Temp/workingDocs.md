@@ -26,3 +26,12 @@ be found [here](interfaces.md). The original version doesn't have a standard
 interface for this and hence, any changes to search providers call for writing
 of new classes and also inserting/deleting code all over the place to use the
 new search provider.
+
+The various user facing search and download options will be implemented by a
+different class that utilizes the search results provided to do its thing.
+Maybe I should name that class `soulOfSpotDl`, bad joke, I know. I might name
+it the same anyways. All search providers have to be registered with the
+`soulOfSpotDl` maybe like `soulOfSpotDl.registerProvider('music', searchClass)`
+which then will be **accessed and used via its pre-defined interfaces only**.
+It might be a good idea to provide some generic 'tools' to work with spotify
+because expecting a contributor to learn how to use spotipy.
