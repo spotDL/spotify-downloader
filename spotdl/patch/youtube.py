@@ -32,7 +32,8 @@ SOFTWARE.
 
 
 import pytube
-from pytube.extract import get_ytplayer_config, apply_signature
+from pytube import request
+from pytube.extract import get_ytplayer_config, apply_signature, js_url
 
 def apply_patches():
     """
@@ -166,7 +167,7 @@ def descramble(self) -> None:
         if not self.js:
             if not self.embed_html:
                 self.embed_html = request.get(url=self.embed_url)
-            self.js_url = extract.js_url(self.embed_html)
+            self.js_url = js_url(self.embed_html)
             self.js = request.get(self.js_url)
 
         apply_signature(self.player_config_args, fmt, self.js)
