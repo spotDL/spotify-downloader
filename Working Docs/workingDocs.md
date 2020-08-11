@@ -35,3 +35,26 @@ it the same anyways. All search providers have to be registered with the
 which then will be **accessed and used via its pre-defined interfaces only**.
 It might be a good idea to provide some generic 'tools' to work with spotify
 because expecting a contributor to learn how to use spotipy.
+
+# 11/08/2020 - 12:19 AM
+
+Very odd time to be programing indeed but then who cares? I was just looking
+through some of the original spot-dl code by @ritek, he actually created
+abstract classes to enforce interfaces. Its a good idea. Plan to do the same.
+
+Interface enforcing abstract classes are a partial letdown, since you cant
+define the output, pass on docStrings or enforce input args but they do the
+work to an extent. Can consider writing up a custom metaClass. The current
+metaClasses written up are at [Temp/interfaces.py](../Temp/interfaces.py).
+
+Other things to carry on from the original spot-dl:
+- Spotify client id + secret authorization: Look at
+[authorize](../Ref%20-%20Original%20Code/spotdl/authorize) for reference and
+inspiration.
+
+- A wrapper around ffmpeg for transcoding songs: Look at
+[encode](../Ref%20-%20Original%20Code/spotdl/encode) for reference and
+inspiration.
+
+- Remember those generic 'tools' to work with spotify? Look at
+[helpers](../Ref%20-%20Original%20Code/spotdl/helpers)

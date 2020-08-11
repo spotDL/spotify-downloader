@@ -14,25 +14,25 @@ change often and without warning.
 ## 01. Music Search Interface
 
 Functions defined here:
-- [searchFromLink](#searchFromLink)
-- [searchAllFromLink](#searchAllFromLink)
+- [searchFromUri](#searchFromUri)
+- [searchAllFromUri](#searchAllFromUri)
 - [searchFromName](#searchFromName)
 - [searchAllFromName](#searchAllFromName)
 
-### searchFromLink
+### searchFromUri
 
 | Parameter | Type | Description |
 | --- | --- | --- |
-| link | str | The spotify URI of a song |
+| spotifyUri | str | The spotify URI of a song |
 | **RETURN** | [song](objects.md#Song) | The details of the ***best*** match |
 
 <br><br>
 
-### searchAllFromLink
+### searchAllFromUri
 
 | Parameter | Type | Description |
 | --- | --- | --- |
-| link | str | The spotify URI of a song |
+| spotifyUri | str | The spotify URI of a song |
 | **RETURN** | list | List of all matches as [song](objects.md#Song) objects |
 
 <br><br>
