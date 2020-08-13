@@ -29,13 +29,13 @@ logger = loggingBase.getSubLoggerFor('authorization')
 #=== Classes ===
 #===============
 
-class authorizeSpotify(Spotify):
+class authorizedSpotify(Spotify):
     '''
     This class is a wrapper around spotipy.Spotify, what it does is to allow
     a one-time creation, multiple-times use is a simple intuitive way.
     '''
     
-    def __init__(self, clientId = None, clientSecret = None, session = False):
+    def __init__(self, clientId = None, clientSecret = None):
         # spotipy.Spotify uses self.__session
         global masterClient
 
@@ -68,8 +68,7 @@ class authorizeSpotify(Spotify):
             )
 
             super().__init__(
-                client_credentials_manager = credentialManager,
-                requests_session = session
+                client_credentials_manager = credentialManager
             )
 
             # Cache current client

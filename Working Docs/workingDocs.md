@@ -98,3 +98,8 @@ sessions (for performance considerations) and deal with a rather annoying
 (._sessions not defined) error and renamed a file. Might have to figure the
 whole package structuring thing. My focus at the moment is on completing the
 'tools' so I can get others into this.
+
+# Ideas
+
+So, today I'm going to work on those spotify 'tools'. Since downloading takes
+up quite some time, I'm considering using multiprocessing for that.

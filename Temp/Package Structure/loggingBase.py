@@ -56,12 +56,13 @@ def getSubLoggerFor(functionalUnit):
     Returns a logger related to the functionality of the module calling
     this function.
 
-    functionalUnit must be one of 'authorization', ...
+    functionalUnit must be one of 'authorization', 'utility', ...
     '''
     
     # Mapping of module function to logger name
     loggerMap = {
-        'authorization': 'spotify.authorize'
+        'authorization': 'spotdl.authorize',
+        'utility': 'spotdl.utility'
     }
 
     return logging.getLogger(loggerMap[functionalUnit])

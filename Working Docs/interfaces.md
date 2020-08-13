@@ -84,7 +84,7 @@ Functions defined here:
 | Parameter | Type | Description |
 | --- | --- | --- |
 | song | [song](objects.md#Song) | song object of the required song |
-| **RETURN** | str | lyrics of the song |
+| **RETURN** | str | lyrics of the song, None if not available |
 
 <br><br>
 
