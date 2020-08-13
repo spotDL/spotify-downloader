@@ -16,3 +16,5 @@ replaced by the more accurate file path + line number. Time for our purpose is
 irrelevant. The function (funcName) name has been retained as a quick reference
 ( its easier to recall than file path + line number). The logger name has been
 retained as an extra measure for quick identification.
+
+## Go [back](workingDocs.md#hierarchalLogging) to where you left off

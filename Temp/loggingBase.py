@@ -26,12 +26,14 @@ import logging
 #=== Main Code ===
 #=================
 
-# Reasons behind the basic configuration for loggers can be found at .
+# Reasons behind the basic configuration for loggers can be found at 
+# .Working Docs/Design Notes.md
+
 logging.basicConfig(
     filename = 'spotdl.log',
     filemode = 'w',
-    format = '%(levelname)-10s | %(name)-20s | %(message)-150s | \
-        %(funcName)-20s | %(pathname)s (ln:%(lineno)d)',
+    format = '%(levelname)-10s | %(name)-20s | %(message)-150s' +
+    '| %(funcName)-20s | %(pathname)s (ln:%(lineno)d)',
     level = logging.INFO
 )
 
@@ -48,4 +50,21 @@ criticalHandler.setFormatter(formater)
 topLog = logging.getLogger('spotdl')
 topLog.addHandler(criticalHandler)
 
+# Function passing out requisite loggers to various modules
+def getSubLoggerFor(functionalUnit):
+    '''
+    Returns a logger related to the functionality of the module calling
+    this function.
+
+    functionalUnit must be one of 'authorization', ...
+    '''
+    
+    # Mapping of module function to logger name
+    loggerMap = {
+        'authorization': 'spotify.authorize'
+    }
+
+    return logging.getLogger(loggerMap[functionalUnit])
+
+# Log initialization
 topLog.info('All defined loggers have been configured')

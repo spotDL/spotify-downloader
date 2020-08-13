@@ -2,8 +2,8 @@
 
 This is where a list of the smaller code guidelines like variable naming will
 be listed out. Some of the gains from the following guidelines might seem
-negligible, but for large code bases, those marginal gains will add up to
-sizable improvements.
+negligible, but for large code bases (greater than 1000 lines), those marginal
+gains will add up to sizable improvements.
 
 # Guidelines
 
@@ -27,6 +27,56 @@ difficulty in understanding.
     )
     ```
 
+- Comment out the control flow of your code before you start coding, it not
+only makes your coding get done fast (from personal experience, I can back this
+up) but also provides future contributors an on-spot guide/context to the code
+they are reading.
+
+- Use as few imports as possible (< 5). More imports are harder to track and
+also increase to inter-dependencies b/w different pieces of code. What this
+means is that a change is code in one of the many imports you use or one of its
+dependencies will break your code and you'll be in for a long session of
+debugging.
+
+- Before you write production code (what actually goes into the project), write
+up your concept in prototype code, your prototype code can be as messy as you
+want. Experiment on your prototype code. This gives you a temporary familiarity
+with the imports or ideas your trying to implement resulting is better
+production code. Never repurposed prototype code for production.
+
+- Write up documentation for your production code. Take it for granted that
+software projects only grow in size and bigger codebases are harder to
+understand. To keep a project maintainable, documentation is paramount.
+Avoid writing too detailed documentation, the purpose of documentation is to
+give a new contributor a base from which to start up while providing an
+experienced contributor a quick reference. If your documentation is in html or
+markdown, links are your best friend. Make the documentation. as easy as
+possible to use.
+
+- On openSource projects (like this one) commit often - as soon as your done
+with one session. Commit your work even if it's incomplete.
+
+<!-- Have to break 80 character rule here to render the print output correctly
+as will be seen during runtime -->
+
+- Avoid backslash notation, use a '+' instead
+    ```python
+    def randomFunction():
+        print('This is a random function that prints a random message so that the \
+            message length exceeds 80 characters and ends up using the backslash notation')
+
+    # The above will print:
+    # This is a random function that prints a random message so that the         message length exceeds 80 characters and ends up using the backslash notation
+    ```
+    ```python
+    def randomFunction():
+        print('This is a random function that prints a random message so that the ' +
+            'message length exceeds 80 characters and ends up using the backslash notation')
+
+    # The above will print:
+    # This is a random function that prints a random message so that the message length exceeds 80 characters and ends up using the backslash notation
+    ```
+
 <br><br>
 
 ## Variables
@@ -43,6 +93,23 @@ alternate better variable name would be `car` or `duneBuggy`.
 acronym for `gateway` is a bad choice because, it can't be pronounced, `gway`
 is comparatively better because it is pronounceable. Research shows that
 mnemonic names are more easily remembered and discussed.
+
+- Use positive names for boolean variables
+    ```python
+    # Not very easy to understand
+    notAdult = True
+
+    if not notAdult:
+        # the person is an adult
+        ...
+    ```
+    ```python
+    # Easier to understand
+    oldEnough = True
+
+    if oldEnough:
+        ...
+    ```
 
 <br><br>
 

@@ -82,10 +82,19 @@ they can be found in the
 spot-dl used generic loggers, I plan to use hierarchal loggers. So once I get
 the loggers and help tools up. Work should ease up.
 
-# 12/08/2020 - 03:24 PM
+# hierarchalLogging
 
 The basic hierarchal logging setup is up and running, the relevant files can be
 found at [loggingConfig.py](../Temp/loggingConfig.py), It will probably see a
 lot more loggers defined over the course of dev. Some updates have been made to
 the code guidelines. Notes on the design of `loggingConfig.py` have been added
 [here](../Working%20Docs/Design%20Notes.md).
+
+# Authorization
+
+The classes required for authorizing spotify is done, the file is almost 98%
+original code, all I did was rename some variables, allow the use of request
+sessions (for performance considerations) and deal with a rather annoying
+(._sessions not defined) error and renamed a file. Might have to figure the
+whole package structuring thing. My focus at the moment is on completing the
+'tools' so I can get others into this.
