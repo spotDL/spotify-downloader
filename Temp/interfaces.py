@@ -1,5 +1,5 @@
 # Author: Mikhail Zex
-# Status: Dev
+# Status: Dropped (not in use, not in dev)
 
 # About this file
 '''
@@ -10,13 +10,16 @@ Refer 'Working Docs/interfaces.md' for details on the interfaces, their inputs
 and their outputs. The outputs of each of the abstractmethods defined here are
 absolutely important as the other parts of the program work on assumptions
 about the outputs.
+
+Update: This file will not be making it into the finished version, for reasons
+look to '11/08/2020 - 01:49 AM' in 'Working Docs.md'
 '''
 
 # Imports
 from abc import ABCMeta, abstractmethod
 
 # The Music Search Interface
-class musicSearchInterface(metaclass = ABCMeta):
+class musicSearch(metaclass = ABCMeta):
     def implementsInterface(self):
         '''
         This method is an additional layer of security. Code utilizing 
@@ -42,7 +45,7 @@ class musicSearchInterface(metaclass = ABCMeta):
         pass
 
 # Metadata Search Interface
-class metadataSearchInterface(metaclass = ABCMeta):
+class metadataSearch(metaclass = ABCMeta):
     def implementsInterface(self):
         '''
         This method is an additional layer of security. Code utilizing 

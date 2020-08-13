@@ -34,7 +34,7 @@ it the same anyways. All search providers have to be registered with the
 `soulOfSpotDl` maybe like `soulOfSpotDl.registerProvider('music', searchClass)`
 which then will be **accessed and used via its pre-defined interfaces only**.
 It might be a good idea to provide some generic 'tools' to work with spotify
-because expecting a contributor to learn how to use spotipy.
+because expecting a contributor to learn how to use spotipy is a tall order.
 
 # 11/08/2020 - 12:19 AM
 
@@ -42,7 +42,7 @@ Very odd time to be programing indeed but then who cares? I was just looking
 through some of the original spot-dl code by @ritek, he actually created
 abstract classes to enforce interfaces. Its a good idea. Plan to do the same.
 
-Interface enforcing abstract classes are a partial letdown, since you cant
+Interface enforcing abstract classes are a partial letdown, since you can't
 define the output, pass on docStrings or enforce input args but they do the
 work to an extent. Can consider writing up a custom metaClass. The current
 metaClasses written up are at [Temp/interfaces.py](../Temp/interfaces.py).
@@ -57,4 +57,35 @@ inspiration.
 inspiration.
 
 - Remember those generic 'tools' to work with spotify? Look at
-[helpers](../Ref%20-%20Original%20Code/spotdl/helpers)
+[helpers](../Ref%20-%20Original%20Code/spotdl/helpers) for reference and
+inspiration.
+
+# 11/08/2020 - 01:49 AM
+
+After going through my handy Python Essential Reference, Fourth edition, it has
+dawned on me that you can drastically alter the behavior or a class but you
+can't enforce return types and it seems to me that having an Abstract Base
+Class (ABC) for the interfaces might actually be a drag. On one hand, they
+superficially enforce interface implementation on the other hand, they add an
+additional link b/w various modules, the need to know the names of the ABC's
+(so they can be inherited from) and don't even enforce inputs or outputs. The
+killing blow is probably that a coder who intends to write a new better search
+provider or a replacement for the current providers can implement the required
+interfaces directly including the necessary inputs and output types. The aim
+of this exercise is to simplify spot-dl so ABC's for interfaces got to go. Sad.
+
+# 11/08/2020 - 04:50 PM
+
+As to the client_id and client_secret used throughout to authorize spotify,
+they can be found in the
+[config.py](../Ref%20-%20Original%20Code/spotdl/config.py) file. The original
+spot-dl used generic loggers, I plan to use hierarchal loggers. So once I get
+the loggers and help tools up. Work should ease up.
+
+# 12/08/2020 - 03:24 PM
+
+The basic hierarchal logging setup is up and running, the relevant files can be
+found at [loggingConfig.py](../Temp/loggingConfig.py), It will probably see a
+lot more loggers defined over the course of dev. Some updates have been made to
+the code guidelines. Notes on the design of `loggingConfig.py` have been added
+[here](../Working%20Docs/Design%20Notes.md).

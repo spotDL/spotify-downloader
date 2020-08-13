@@ -14,25 +14,25 @@ change often and without warning.
 ## 01. Music Search Interface
 
 Functions defined here:
-- [searchFromUri](#searchFromUri)
-- [searchAllFromUri](#searchAllFromUri)
+- [searchFromURI](#searchFromURI)
+- [searchAllFromURI](#searchAllFromURI)
 - [searchFromName](#searchFromName)
 - [searchAllFromName](#searchAllFromName)
 
-### searchFromUri
+### searchFromURI
 
 | Parameter | Type | Description |
 | --- | --- | --- |
-| spotifyUri | str | The spotify URI of a song |
+| spotifyURI | str | The spotify URI of a song |
 | **RETURN** | [song](objects.md#Song) | The details of the ***best*** match |
 
 <br><br>
 
-### searchAllFromUri
+### searchAllFromURI
 
 | Parameter | Type | Description |
 | --- | --- | --- |
-| spotifyUri | str | The spotify URI of a song |
+| spotifyURI | str | The spotify URI of a song |
 | **RETURN** | list | List of all matches as [song](objects.md#Song) objects |
 
 <br><br>
@@ -54,6 +54,13 @@ Functions defined here:
 | songName | str | name of the song |
 | artist (optional) | str | name of the artist, defaults to `None` |
 | **RETURN** | list | List of all matches as [song](objects.md#Song) objects |
+
+<br><br>
+
+Notes,
+- Snake case naming conventions are broken here (URI instead of Uri), this is
+because URI looks more correct and also, it's an abbreviation, messing with
+abbreviations is usually bad.
 
 <br><br>
 

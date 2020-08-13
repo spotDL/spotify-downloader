@@ -7,7 +7,29 @@ sizable improvements.
 
 # Guidelines
 
-## Naming
+## General
+
+- Keep line width under 80 characters. Both studies and experience state that
+longer lines of code lead to higher incidence of errors and and increased
+difficulty in understanding.
+
+    ```python
+    # Harder to handle
+    logging.basicConfig(filename = 'blah.log', filemode = 'w', format = '%(levelname)-10s | %(name)-20s | %(message)-150s | %(funcName)-20s | %(pathname)s (ln:%(lineno)d)', level = logging.INFO)
+
+    # Easier to handle, lines below 80 characters
+    logging.basicConfig(
+        filename = 'blah.log',
+        filemode = 'w',
+        format = '%(levelname)-10s | %(name)-20s | %(message)-150s | \
+            %(funcName)-20s | %(pathname)s (ln:%(lineno)d)',
+        level = logging.INFO
+    )
+    ```
+
+<br><br>
+
+## Variables
 
 - Use snake case naming. A constant naming style decreases the overhead
 cognitive load of reading through the code. It might be an unconscious gain
@@ -21,6 +43,54 @@ alternate better variable name would be `car` or `duneBuggy`.
 acronym for `gateway` is a bad choice because, it can't be pronounced, `gway`
 is comparatively better because it is pronounceable. Research shows that
 mnemonic names are more easily remembered and discussed.
+
+<br><br>
+
+## Functions
+
+- Function naming to follow the same guidelines as for [Variables](#Variables).
+
+- Avoid functions greater that 150 lines. Studies show that functions < 50
+lines and functions > 150 lines show greatest level of errors.
+
+<br><br>
+
+## Classes
+
+- Class naming to follow the same guidelines as for [Variables](#Variables).
+
+- Avoid classes greater than 400 lines. Incidence of error increases
+exponentially beyond 400 lines.
+
+<br><br>
+
+## Logging
+
+- Use different logging levels (CRITICAL, ERROR, WARNING, INFO) as follows:
+    - CRITICAL - Errors that can't or shouldn't be handled (like absence of
+    write permission in the given location)
+    - ERROR - Errors that can are being handled (think, list out of range
+    error)
+    - WARNING - Actions that should be done but can't (write song metadata
+    can't be done because of media format)
+    - INFO - Overview of what is being done (messages like 'retrieved
+    songs from spotify playlist')
+
+- The difference b/w ERROR and WARNING may not be very clear at first look.
+WARNING is more like INFO. INFO is what is being done, WARNING is like negative
+INFO logs (basically, what is not being done) while ERROR is what you'd find
+in a try-except block - an actual error that you have expected and handled.
+
+- Make minimal use of logging, logging is only to figure out what happened and
+what went wrong not every last detail to the extent of the value of some random
+variable.
+
+- Keep log messages below 80 characters, if its longer chances are that it has
+unnecessary details.
+
+- Don't use programming references or reference variables in your logging
+messages, the reader of the log may not necessarily know programing or know the
+functioning of spot-dl thoroughly enough to understand what your referring to.
 
 <br><br>
 
