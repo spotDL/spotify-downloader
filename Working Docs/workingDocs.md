@@ -103,3 +103,56 @@ whole package structuring thing. My focus at the moment is on completing the
 
 So, today I'm going to work on those spotify 'tools'. Since downloading takes
 up quite some time, I'm considering using multiprocessing for that.
+
+# Well, another day, new problems
+
+For starters, I tried skinning VLC. It looks a lot cooler now but functionally
+it's weird. Now, about the code. I'm confused as to what to allow into metadata
+because, on one hand more details, the better, and on the other hand, more
+details, more complex - something I'm seriously trying to avoid. So lets see,
+just why do we need metadata?
+
+- To accurately identify songs. This could use,
+    - song name
+    - album name
+    - artist name(s)    (apps read contributing artists as main artist)
+    - song length
+
+- Some sugar, stuff that complements other metadata points. This would include,
+    - track number (within it's parent album)
+    - genre
+    - album release date/year
+    - album artist
+
+- Other notable stuff Spotify provides:
+    - label             (publisher or encodedBy ?)
+    - copyright
+    - explicit or not
+
+- What can be set using python libraries:
+    - The above and a lott more details that no one would ever look up
+
+What does all of this mean? the first 4 are mandatory, the next 4 are preferable,
+the rest could possibly used at some point of time, but no guarantees. In the
+name of simplicity and minimalism or as jobs famously said - keep the core, get
+rid of the rest - don't make the cut. only the first 8 details to be kept and a
+little extra...
+
+In essence, all that's left is:
+- Song related:
+    - song name
+    - contributing artists (inclusive of main artist)
+    - track number
+    - genre
+    - length
+
+- Album related:
+    - album name
+    - album release date/year
+    - album artist
+
+- Other Utilities:
+    - album art URL
+
+The one thing I have to do the next commit is update the interface/related
+object docs and add genre lookup to SpotifyHelpers.

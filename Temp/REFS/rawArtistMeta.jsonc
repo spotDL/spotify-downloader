@@ -1,0 +1,41 @@
+// Spotipy Artist request response
+
+{
+    "external_urls": {
+        "spotify": "https://open.spotify.com/artist/5tIkXJTex4JY7cv9mmgAZx"
+    },
+    "followers": {
+        "href": null, // Python recieves 'None' instead of 'null'
+        "total": 368721
+    },
+    "genres": [
+        "electropop",
+        "indie poptimism",
+        "metropopolis",
+        "modern rock",
+        "pop"
+    ],
+    "href": "https://api.spotify.com/v1/artists/5tIkXJTex4JY7cv9mmgAZx",
+    "id": "5tIkXJTex4JY7cv9mmgAZx",
+    "images": [
+        {
+            "height": 640,
+            "url": "https://i.scdn.co/image/123c7503da1d0a1f36ffc59d7c7c35c817edfe55",
+            "width": 640
+        },
+        {
+            "height": 320,
+            "url": "https://i.scdn.co/image/7ebc5768cc1ccde497eae33125d39831329bb7e5",
+            "width": 320
+        },
+        {
+            "height": 160,
+            "url": "https://i.scdn.co/image/698cb95df123cfe8e13afd76616c75bd9fe0a3df",
+            "width": 160
+        }
+    ],
+    "name": "Ruelle",
+    "popularity": 67,
+    "type": "artist",
+    "uri": "spotify:artist:5tIkXJTex4JY7cv9mmgAZx"
+}

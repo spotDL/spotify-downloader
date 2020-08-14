@@ -41,7 +41,7 @@ def searchForSong(songName, artist = None):
 #=== Classes ===
 #===============
 class trackDetails(object):
-    # This class is used during both the search phase and also the metadata
+    # This class is used during both the search phase and also the metadata['duration_ms]
     # phase. Interesting, don't you think?
 
     def __init__(self, url):
@@ -49,41 +49,44 @@ class trackDetails(object):
 
         # Spotify api response, (JSON)
         rawTrackMeta = spotify.track(url)
-        rawArtistMeta = spotify.artist(rawTrackMeta['artists'][0]['id'])
-        rawAlbumMeta = spotify.album(rawTrackMeta['album']['id'])
 
-        # I'm not sure if theses are the right indexes and don't have an
-        # internet connection at the moment, commenting them out for future
-        # tests. the correctness of the uncommented code is also questionable
-        #
-        # self.songName = rawTrackMeta['name']
-        # self.albumArtist = rawArtistMeta['artists'][0]['name']
-        # 
-        # self.contributingArtist = []
-        # 
-        # for artist in rawArtistMeta[1:]:
-        #     self.contributingArtist.append(artist['name'])
-        # 
-        # self.album = rawAlbumMeta['name']
+        # Keeping theese for now, will probably use only for genres
+        # rawArtistMeta = spotify.artist(rawTrackMeta['artists'][0]['id'])
+        # rawAlbumMeta = spotify.album(rawTrackMeta['album']['id'])
+    
+        # Song related Details as follows:
+        # 1. Song name
+        self.songName = rawTrackMeta['name']
 
-        albumReleaseYear = rawAlbumMeta['release_date'].split('-')[0]
-        self.year = int(albumReleaseYear)
+        # 2. Track number
+        self.trackNumber = rawTrackMeta['track_number']
 
-        # How to songnumber?
+        # 3. genres
+        # How? From album or artists? stack Overflow?
+        # and also, single or multiple genres?
 
-        # Can we make this song specific instead of artist basesd?
-        # Should we consider all artists?
-        if 'genres' in rawTrackMeta.keys():
-            self.genre = rawArtistMeta['genres'][0].title()
+        # 4. Length
+        self.length = rawTrackMeta['duration_ms'] / 1000.0
 
-        self.length = rawTrackMeta['duration_ms'] / 1000
+        # 5. Contributing artists
+        self.contributingArtists = []
 
-        # The following provided by @ritek, should we retain theese?
-        if 'copyrights' in rawAlbumMeta.keys():
-            self.copyright = rawAlbumMeta['copyrights'][0]['text']
-        
-        self.releaseDate = rawAlbumMeta['release_date']
-        self.label = rawAlbumMeta['label']
-        self.totalTracks = rawAlbumMeta['tracks']['total']
+        for artist in rawTrackMeta['artists']:
+            self.contributingArtists.append(artist['name'])
 
-        logger.info('Obtained details for ' + url)
+        # Album related Details as follows:
+        # 1. Album name
+        self.albumName = rawTrackMeta['album']['name']
+
+        # 2. Album artists
+        self.albumArtists = []
+
+        for artist in rawTrackMeta['album']['artists']:
+            self.albumArtists.append(artist['name'])
+
+        # 3. Album release date/year
+        self.albumRelease = rawTrackMeta['album']['release_date']
+
+        # Other utilities
+        # 1. Album art
+        self.albumArtURL = rawTrackMeta['album']['images']['url']
