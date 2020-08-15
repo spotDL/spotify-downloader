@@ -8,7 +8,7 @@ from spotipy.oauth2 import SpotifyClientCredentials
 
 from requests import Session
 
-from .. import loggingBase
+from ..loggingBase import getSubLoggerFor
 
 #==================
 #=== Exceptions ===
@@ -23,7 +23,7 @@ class spotifyAuthorizationError(Exception): pass
 masterClient = None
 
 # logger
-logger = loggingBase.getSubLoggerFor('authorization')
+logger = getSubLoggerFor('authorization')
 
 #===============
 #=== Classes ===
