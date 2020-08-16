@@ -159,6 +159,55 @@ unnecessary details.
 messages, the reader of the log may not necessarily know programing or know the
 functioning of spot-dl thoroughly enough to understand what your referring to.
 
+- Give a context for your logging messages. Use '>' to signal possible continuation
+
+    ```python
+    # Example log-file, only partial log presented here
+
+    # Not very clear
+
+    INFO        | All defined loggers have been configured
+    INFO        | Creating authorized Spotify client
+    INFO        | Client creation successful
+    INFO        | Returning cached client
+    INFO        | Obtained authorized Spotify client
+
+    # Clearer
+
+    INFO        | All defined loggers have been configured
+    INFO        | Spotify client Primary initialization >   # context line
+    INFO        | Creating authorized Spotify client >
+    INFO        | Client creation successful
+    INFO        | Requesting Spotify client >           # context line
+    INFO        | Returning cached client               # should possess '>'
+    INFO        | Obtained authorized Spotify client
+    ```
+
+- Once you have working code, read the error free logs and adjust your log
+messages. For example, in the above log example, 'Returning cached client'
+should, in theory be 'Returning cached client >' because the next log message
+is clearly a continuation of the same *flow of events* but
+`getAuthorizedSpotifyClient` doesn't know of the existence of the logger
+message that follows it, the author didn't anticipate this. A simple solution
+is to delete `logger.info('Obtained authorized Spotify client')` (see below
+code). The only way that would strike you is if you read the working code's
+log messages to figure out if it was readable. So, read the logs once in a
+while.
+
+    ```python
+    # python code for the 'clearer' version of the log from the previous
+    # point
+
+    logger.info('Requesting Spotify client >')  # assumes that below function
+                                                # writes log messages
+
+    client = getAuthorizedSpotifyClient()       # 'Returning cached client' 
+                                                # log message from here
+
+    logger.info('Obtained authorized Spotify client')       # To be deleted
+
+    ```
+
 <br><br>
 
 ## Go [back](../README.md#The%20requirements) to where you left off

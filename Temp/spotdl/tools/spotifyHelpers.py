@@ -5,7 +5,7 @@ A few helper utilities for spotify access
 #===============
 #=== Imports ===
 #===============
-from .authorization import authorizedSpotify
+from .authorization import getSpotifyClient
 from ..loggingBase import getSubLoggerFor
 
 
@@ -15,9 +15,11 @@ from ..loggingBase import getSubLoggerFor
 #====================
 logger = getSubLoggerFor('utility')
 
+logger.info('Requesting authorized spotify client >')
+
 # We assume that authorizedSpotify has already been set up with a clientID and
 # clientSecret somewhere else
-spotify = authorizedSpotify()
+spotify = getSpotifyClient()
 
 logger.info('Obtained authorized spotify client')
 

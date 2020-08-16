@@ -32,14 +32,14 @@ import logging
 logging.basicConfig(
     filename = 'spotdl.log',
     filemode = 'w',
-    format = '%(levelname)-10s | %(name)-20s | %(message)-150s' +
+    format = '%(levelname)-10s | %(process)d | %(name)-20s | %(message)-150s' +
     '| %(funcName)-20s | %(pathname)s (ln:%(lineno)d)',
     level = logging.INFO
 )
 
 # Use stream handler to selectively print CRITICAL logs to cmd-line
 # formatter formats CRITICAL log for the cmd-line
-formater = logging.Formatter('TERMINAL ERROR: %(message)s')
+formater = logging.Formatter('TERMINAL ERROR: %(message)s\n\n\n')
 
 # Create the handler, set formating using a formater
 criticalHandler = logging.StreamHandler()
@@ -62,7 +62,8 @@ def getSubLoggerFor(functionalUnit):
     # Mapping of module function to logger name
     loggerMap = {
         'authorization': 'spotdl.authorize',
-        'utility': 'spotdl.utility'
+        'utility': 'spotdl.utility',
+        'tests': 'spotdl.test'
     }
 
     return logging.getLogger(loggerMap[functionalUnit])

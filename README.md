@@ -37,4 +37,8 @@ and also the [core values](Temp/coreValues.md) of this project.
 - Current status of the work and the ideas/thought-process behind it can be
 seen [here](Temp/workingDocs.md).
 
+- Complete package overlay [here](Diagrams/packageDiag.jpg)
+
+- Updated code guidelines.
+
 - Some new [interfaces](Temp/interfaces.md) have been designed.

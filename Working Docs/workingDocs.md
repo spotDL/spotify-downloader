@@ -156,3 +156,28 @@ In essence, all that's left is:
 
 The one thing I have to do the next commit is update the interface/related
 object docs and add genre lookup to SpotifyHelpers.
+
+# 2 Days later...
+
+Well, yesterday I fixed up the metadata dilemma. Good. Just now made a few
+changes to the logging format because if spotdl is going to be multi-process,
+chances are that the same code will be executing in parallel meaning that all
+the logging data will be the same, so how do you distinguish them? the PID.
+I've added the PID of the calling process to the logging format.
+
+Reading logs can be quite the pain, It sometimes seems like a random list of
+disjoint strings. So here are 2 new logging guidelines, give a context and use
+'>' to denote continuation. I just updated the code guidelines now.
+
+I guess its about time we had a package/module overview of what constitutes
+spot-dl. That is what I'm going to do now.
+
+The results can be found [here](../Diagrams).
+
+Out of the required modules, the following are left to complete:
+- search provider (plan to ask @rockeyinventor)
+- metadata provider (lyrics only, should it be clubbed anyways?)
+- multi-process downloader
+- ffmpeg wrapper
+- encoder (partially complete, don't know how to apply album art)
+- the main interface (`soulOfSpotify`)
