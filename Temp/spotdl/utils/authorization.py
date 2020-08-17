@@ -8,7 +8,7 @@ from spotipy.oauth2 import SpotifyClientCredentials
 
 from requests import Session
 
-from ..loggingBase import getSubLoggerFor
+from spotdl.utils.loggingBase import getSubLoggerFor
 
 #==================
 #=== Exceptions ===

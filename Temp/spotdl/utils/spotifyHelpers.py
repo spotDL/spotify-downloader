@@ -5,8 +5,8 @@ A few helper utilities for spotify access
 #===============
 #=== Imports ===
 #===============
-from .authorization import getSpotifyClient
-from ..loggingBase import getSubLoggerFor
+from spotdl.utils.authorization import getSpotifyClient
+from spotdl.utils.loggingBase import getSubLoggerFor
 
 
 
@@ -28,7 +28,7 @@ logger.info('Obtained authorized spotify client')
 #=================
 #=== Functions ===
 #=================
-def searchForSong(songName, artist = None):
+def getsearchForSong(songName, artist = None):
     '''
     str : songName      > name of the song
     str : artist        > name of the primary artist
@@ -65,7 +65,7 @@ class trackDetails(object):
     # note, if your interested in the structure of the spotify-api response,
     # look up the REFS folder under TEMP on the github repo
 
-    def __init__(self, url):
+    def get__init__(self, url):
         global spotify
 
         # Spotify api response, (JSON)
@@ -91,7 +91,7 @@ class trackDetails(object):
 
     # Song Details:
     # 1. Name
-    def songName(self):
+    def getSongName(self):
         ''''
         returns songs's name.
         '''
@@ -99,7 +99,7 @@ class trackDetails(object):
         return self.__rawTrackMeta['name']
     
     # 2. Track Number
-    def trackNumber(self):
+    def getTrackNumber(self):
         '''
         returns song's track number from album (as in weather its the first
         or second or third or fifth track in the album)
@@ -108,7 +108,7 @@ class trackDetails(object):
         return self.__rawTrackMeta['track_number']
     
     # 3. Genres
-    def genres(self):
+    def getGenres(self):
         '''
         returns a list of possible genres for the given song, the first member
         of the list is the most likely genre. returns None if genre data could
@@ -125,7 +125,7 @@ class trackDetails(object):
             return None
     
     # 4. Duration
-    def length(self):
+    def getLength(self):
         '''
         returns duration of song in seconds.
         '''
@@ -133,7 +133,7 @@ class trackDetails(object):
         return self.__rawTrackMeta['duration_ms'] / 1000.0
     
     # 5. All involved artists
-    def contributingArtists(self):
+    def getContributingArtists(self):
         '''
         returns a list of all artists who worked on the song.
         The first member of the list is likely the main artist.
@@ -148,7 +148,7 @@ class trackDetails(object):
     
     # Album Details:
     # 1. Name
-    def albumName(self):
+    def getAlbumName(self):
         '''
         returns name of the album that the song belongs to.
         '''
@@ -156,7 +156,7 @@ class trackDetails(object):
         return self.__rawTrackMeta['album']['name']
     
     # 2. All involved artist
-    def albumArtists(self):
+    def getAlbumArtists(self):
         '''
         returns list of all artists who worked on the album that
         the song belongs to. The first member of the list is likely the main
@@ -171,7 +171,7 @@ class trackDetails(object):
         return albumArtists
     
     # 3. Release Year/Date
-    def albumRelease(self):
+    def getAlbumRelease(self):
         '''
         returns date/year of album release depending on what data is available.
         '''
@@ -180,7 +180,7 @@ class trackDetails(object):
     
     # Utilities for genuine coders and also for metadata freaks:
     # 1. Album Art URL
-    def albumArtUrl(self):
+    def getAlbumArtUrl(self):
         '''
         returns url of the biggest album art image available.
         '''
@@ -188,7 +188,7 @@ class trackDetails(object):
         return self.__rawTrackMeta['album']['images'][0]['url']
     
     # 2. All the details the spotify-api can provide
-    def dataDump(self):
+    def getDataDump(self):
         '''
         returns a dictionary containing the spotify-api responses as-is. The
         dictionary keys are as follows:
