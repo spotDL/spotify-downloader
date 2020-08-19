@@ -5,6 +5,8 @@ here.
 
 # Song
 
+[HAS BEEN UPDATED, SEE BELOW]
+
 Describes details of Music search results.
 
 | Attributes | | |
@@ -16,6 +18,11 @@ Describes details of Music search results.
 | youtubeLength | int | length of song on youtube in seconds |
 | spotifyLink | str | the songs spotify URI |
 | youtubeLink | str | the songs youtube URL |
+
+[UPDATE]
+
+A song object is any object that implements the
+[song interface](interfaces.md#04.%20Song%20Object%20Interface).
 
 <br><br>
 
@@ -46,8 +53,10 @@ length, hence the inclusion of a `spotifyLength` attribute.
 
  # Metadata
 
- Holds the metadata of a song.
- 
+[HAS BEEN UPDATED, SEE BELOW]
+
+Holds the metadata of a song.
+
 | Attributes | | |
 | --- | --- | --- |
 | **Name** | **Type** | **Description** |
@@ -72,3 +81,8 @@ Notes,
 storage. I haven't ruled that out yet.
 
 - Should every single parameter of the above be compulsory? I don't know yet.
+
+[UPDATE]
+
+A metadata object is any object that implements the
+[metadata interface](interfaces.md#03.%20Metadata%20Object%20Interface).

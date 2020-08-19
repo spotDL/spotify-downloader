@@ -27,18 +27,17 @@ contributed here and hopefully hereon into the future.
 - An conscious attempt to follow Object Oriented Programing. I realize that
 most of you guys probably do so, for those of you who don't, please do. If you
 don't know the principles of OOP or would like a refresher, look through 
-[this](Temp/OOP.md).
+[this](Working%20Docs/OOP.md).
 
-- Compliance with the code guidelines setup [here](Temp/codeGuidelines.md)
-and also the [core values](Temp/coreValues.md) of this project.
+- Compliance with the code guidelines setup [here](Working%20Docs/codeGuidelines.md)
+and also the [core values](Working%20Docs/coreValues.md) of this project.
 
-# Latest Updates
-
-- Current status of the work and the ideas/thought-process behind it can be
-seen [here](Temp/workingDocs.md).
+# Latest Updates (19-08-2020)
 
 - Complete package overlay [here](Diagrams/packageDiag.jpg)
 
 - Updated code guidelines.
 
-- Some new [interfaces](Temp/interfaces.md) have been designed.
+- Some new [interfaces](Working%20Docs/interfaces.md) have been designed.
+
+- Almost all of spotdl's dependency classes have been completed.

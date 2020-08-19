@@ -179,5 +179,9 @@ Out of the required modules, the following are left to complete:
 - metadata provider (lyrics only, should it be clubbed anyways?)
 - multi-process downloader
 - ffmpeg wrapper
-- encoder (partially complete, don't know how to apply album art)
 - the main interface (`soulOfSpotify`)
+
+# Wednesday (19/08/2020)
+
+I might have been a bit billergent on code. GOing to sort out all the
+interfaces today (now) and get cracking soon.

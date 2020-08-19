@@ -1,3 +1,9 @@
+'''
+Handles the embedding of metadata into audio files, uses ID3 v2.3 tags.
+'''
+
+
+
 #===============
 #=== Imports ===
 #===============
@@ -34,10 +40,10 @@ def embedDetails(filePath, metadata):
     audioFile.delete()
 
     # A note for the logs...
-    fileNameIndex = filePath.rfind('\\')
-
     # str.rfind returns the index of the character, filePath[stringNameIndex]
     # would return '\\song name.mp3', I don't want the '\\'
+    fileNameIndex = filePath.rfind('\\')
+
     fileName = filePath[fileNameIndex + 1]
     logger.info('Embedding ID3 metadata to %s >' % fileName)
 

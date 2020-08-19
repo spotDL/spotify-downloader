@@ -89,7 +89,7 @@ but is well worth it in the case of large code bases.
 because it doesn't tell you anything about how the variable functions. An
 alternate better variable name would be `car` or `duneBuggy`.
 
-- When using use mnemonic variables(pronounceable variable names). `gtwy` as an
+- Use mnemonic variables(pronounceable variable names). `gtwy` as an
 acronym for `gateway` is a bad choice because, it can't be pronounced, `gway`
 is comparatively better because it is pronounceable. Research shows that
 mnemonic names are more easily remembered and discussed.
@@ -108,6 +108,8 @@ mnemonic names are more easily remembered and discussed.
     oldEnough = True
 
     if oldEnough:
+        ...
+    elif not oldEnough:
         ...
     ```
 
