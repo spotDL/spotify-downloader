@@ -28,24 +28,98 @@ logger.info('Obtained authorized spotify client')
 #=================
 #=== Functions ===
 #=================
-def getsearchForSong(songName, artist = None):
+def searchForSong(songName, artist = None, returnAll = False):
     '''
     str : songName      > name of the song
     str : artist        > name of the primary artist
+    bool: returnAll     > if all results to be returned
 
     Queries Spotify for a song and returns the best match. 
     '''
 
     # None evaluates to False, non-None values to True
     if artist:
-        results = spotify.search(artist + ' - ' + songName)
+        results = spotify.search(artist + ' - ' + songName, type = 'track')
     else:
-        results = spotify.search(songName)
+        results = spotify.search(songName, type = 'track')
     
-    # Supposed best match
-    rawTrackMeta = results['tracks']['items'][0]
+    # If all results to be returned
+    if returnAll:
+        trackUrls = []
+
+        for rawTrackMeta in results['tracks']['items']:
+            trackUrls.append(
+                'http://open.spotify.com/track/' + rawTrackMeta['id']
+            )
+
+        return trackUrls
     
-    return 'http://open.spotify.com/track/' + rawTrackMeta['id']
+    # else return supposed best match
+    else:
+        rawTrackMeta = results['tracks']['items'][0]
+
+        return 'http://open.spotify.com/track/' + rawTrackMeta['id']
+
+def searchForAlbum(albumName, artist = None, returnAll = False):
+    '''
+    str : songName      > name of the song
+    str : artist        > name of the primary artist
+    bool: returnAll     > if all results to be returned
+
+    Queries Spotify for a song and returns the best match. 
+    '''
+
+    # None evaluates to False, non-None values to True
+    if artist:
+        results = spotify.search(artist + ' - ' + albumName, type = 'album')
+    else:
+        results = spotify.search(albumName, type = 'album')
+    
+    # If all results to be returned
+    if returnAll:
+        albumUrls = []
+
+        for rawAlbumMeta in results['albums']['items']:
+            albumUrls.append(
+                'http://open.spotify.com/album/' + rawAlbumMeta['id']
+            )
+        
+        return albumUrls
+    
+    # else return supposed best match
+    else:
+        rawAlbumMeta = results['tracks']['items'][0]
+
+        return 'http://open.spotify.com/album/' + rawAlbumMeta['id']
+
+def searchForPlaylist(playlistName, returnAll = False):
+    '''
+    str : songName      > name of the song
+    str : artist        > name of the primary artist
+    bool: returnAll     > if all results to be returned
+
+    Queries Spotify for a song and returns the best match. 
+    '''
+
+    # None evaluates to False, non-None values to True
+    results = spotify.search(playlistName, type = 'playlist')
+    
+    # If all results to be returned
+    if returnAll:
+        playlistUrls = []
+
+        for rawPlaylistMeta in results['playlists']['items']:
+            playlistUrls.append(
+                'http://open.spotify.com/playlist/' + rawPlaylistMeta['id']
+            )
+        
+        return playlistUrls
+    
+    # else return supposed best match
+    else:
+        rawPlaylistMeta = results['playlists']['items'][0]
+
+        return 'http://open.spotify.com/playlist/' + rawPlaylistMeta['id']
 
 
 
@@ -65,7 +139,7 @@ class trackDetails(object):
     # note, if your interested in the structure of the spotify-api response,
     # look up the REFS folder under TEMP on the github repo
 
-    def get__init__(self, url):
+    def __init__(self, url):
         global spotify
 
         # Spotify api response, (JSON)
