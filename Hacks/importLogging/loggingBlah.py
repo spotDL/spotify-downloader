@@ -20,7 +20,7 @@ import logging
 logging.basicConfig(
     filename = 'spotdl.log',
     filemode = 'w',
-    format = '%(levelname)-10s | %(name)-20s | %(message)-150s | %(funcName)-20s | %(pathname)s (ln:%(lineno)d)',
+    format = '%(levelname)-10s | %(process)-7s | %(name)-20s | %(message)-150s | %(funcName)-20s | %(pathname)s (ln:%(lineno)d)',
     level = logging.INFO
 )
 
@@ -40,7 +40,7 @@ formater = logging.Formatter('TERMINAL ERROR: %(message)s')
 criticalHandler.setFormatter(formater)
 
 log0 = logging.getLogger('test')
-log0.addHandler(criticalHandler)
+#log0.addHandler(criticalHandler)
 
 log1 = logging.getLogger('test.loggingBlah')
 

@@ -121,7 +121,51 @@ def searchForPlaylist(playlistName, returnAll = False):
 
         return 'http://open.spotify.com/playlist/' + rawPlaylistMeta['id']
 
+def getAlbumTracks(albumUrl):
+    albumTracks = []
 
+    # while loop acts like do-while
+    while True:
+        trackResponse = spotify.album_tracks(albumUrl)
+
+        for track in trackResponse['items']:
+            albumUrl.append(
+                'https://open.spotify.com/track/' + track['id']
+            )
+        
+        # check if more tracks are to be passed
+        if trackResponse['next']:
+            trackResponse = spotify.album_tracks(
+                albumUrl,
+                offset = len(albumTracks)
+            )
+        else:
+            break
+    
+    return albumTracks
+
+def getPlaylistTracks(playlistUrl):
+    playlistTracks = []
+
+    # while loop to mimic do-while
+    while True:
+        playlistResponse = spotify.playlist_tracks(playlistUrl)
+
+        for trackEntry in playlistResponse['items']:
+            playlistTracks.append(
+                'https://open.spotify.com/track/' + trackEntry['track']['id']
+            )
+
+        # check if more tracks are to be passed        
+        if playlistResponse['next']:
+            playlistResponse = spotify.playlist_tracks(
+                playlistUrl,
+                offset = len(playlistTracks)
+            )
+        else:
+            break
+    
+    return playlistTracks
 
 #===============
 #=== Classes ===
