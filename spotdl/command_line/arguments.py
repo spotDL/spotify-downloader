@@ -183,7 +183,8 @@ def get_arguments(config_base=_CONFIG_BASE):
         "--output-quality",
         default=defaults["output_quality"],
         choices={"automatic", "1", "2", "3", "4", "5", "6"},
-        help="preferred output audio quality",
+        help="preferred output audio quality, bitrate varies with different formats. "
+        "1: 256k-192k, 2: 225k-160k, 3: 190k-128k, 4: 165k-96k, 5: 130k-80k, 6: 115k-64k",
     )
     parser.add_argument(
         "-i",

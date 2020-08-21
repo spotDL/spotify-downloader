@@ -49,6 +49,7 @@ Here's a sample config file depicting how the file should look like:
     spotify-downloader:
       dry_run: false
       input_ext: automatic
+      input_quality: best
       log_level: INFO
       manual: false
       no_encode: false
@@ -56,8 +57,8 @@ Here's a sample config file depicting how the file should look like:
       no_spaces: false
       output_ext: mp3
       output_file: '{artist} - {track-name}.{output-ext}'
+      output_quality: automatic
       overwrite: prompt
-      quality: 3
       search_format: '{artist} - {track-name} lyrics'
       skip_file: null
       spotify_client_id: 4fe3fecfe5334023a1472516cc99d805
@@ -168,6 +169,74 @@ Embed spotdl in Python scripts
 ==============================
 
 Check out the `API docs <api.html>`_.
+
+
+Set Format, Download bit-rate and Output quality
+================================================
+
+Youtube re-encodes every video uploaded to it, at certain bit-rates.
+You can query these bit-rates from youtube-dl program or from
+pytube library. spotdl can download audio in 2 formats availabe
+from Youtube, and furthermore it can convert to other formats
+using FFmpeg. When using same formats, it does not re-encode to
+avoid quality loss in subsequent lossy re-encodes. Youtube have
+a m4a audio at 128kbps and three webm audio containing opus stream
+at 160kbps, 70kbps and 50kbps.
+
+You can specify input format to spotdl using *\--input-ext* or *\-i*.
+You can also select perferred input bitrate to download from Youtube
+using *\--input-quality* or *\-iq*, to save bandwith and time.
+If you want to use highest bit-rate available, use *best* with
+*\--input-quality* and for lowest bit-rate use *worst*.
+
+**Example** Downloading track in "m4a" format and saving in "m4a" format:
+
+  .. CODE::
+
+      $ spotdl -s https://open.spotify.com/track/0EqSRhWIeNqdomsU603EfC --input-ext m4a --output-ext m4a
+
+  Download 50kbps audio stream and save in "ogg" format:
+
+  .. CODE::
+
+      $ spotdl -s https://open.spotify.com/track/0EqSRhWIeNqdomsU603EfC --input-quality 50k -o ogg
+
+spotdl can convert to different formats other than input formats opus and
+m4a using FFmpeg. Currently, spotdl supports to convert to these formats:
+
+* *mp3*
+* *m4a*
+* *flac*
+* *ogg*
+* *oga*
+* *opus*
+
+Specify desired output format to spotdl using *\--output-ext* arguments.
+spotdl will determine best bit-rate for your output format based on input
+bitrate.
+If you want to change output file bit-rate, you can use *\--output-quality*
+argument. You can choose output quality between 1 to 6 and automatic (which
+is default), where 1 being highest bit-rate/quality and 6 being lowest bit-rate/
+quality.
+
+**Output quality bit-rate for different codecs/format:**
+
+  .. CODE::
+
+      libmp3lame    -q              0 (245k),   1 (225k),   2 (190k),   4 (165k),   5 (130k),   6 (115k)
+
+      aac           -b              256k,       192k,       160k,       128k,       112k,       96k
+
+      flac      -compression_level  0,          3,          5,          8,          10,         12
+
+      libvorbis     -q              7 (224k),   6 (192k),   5 (160k),   4 (128k),   2 (96k),    0 (64k)
+
+      libopus       -b              192k,       160k,       128k,       96k,        80k,        64k
+
+
+.. WARNING::
+  When giving same *\--input-ext* and *\--output-ext*, spotdl will
+  always *stream-copy* even with *\--output-quality*.
 
 
 Maintain a skip tracks file

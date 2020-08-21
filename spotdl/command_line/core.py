@@ -478,8 +478,14 @@ class Spotdl:
             encoder = EncoderFFmpeg()
             if self.arguments["trim_silence"]:
                 encoder.set_trim_silence()
-            if self.arguments["input_quality"] != "best" and self.arguments["output_quality"] == "automatic":
-                encoder.set_default_quality(stream)
+            if self.arguments["input_quality"] != "best":
+                if self.arguments["output_quality"] == "automatic":
+                    encoder.set_default_quality(stream)
+                else:
+                    if int(self.arguments["output_quality"]) < encoder.set_default_quality(stream):
+                        logger.warning("Higher output quality specified for a lower input bitrate,"
+                        " either select higher input bitrate or lower output quality...")
+
             track.download_while_re_encoding(
                 stream,
                 temp_filename,

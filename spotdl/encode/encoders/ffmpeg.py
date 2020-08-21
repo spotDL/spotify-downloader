@@ -93,7 +93,7 @@ class EncoderFFmpeg(EncoderBase):
             raise FFmpegNotFoundError(e.args[0])
         self._rules = RULES
         self._qargs = QARGS
-        self._defualt_quality = 3
+        self._default_quality = 3
 
     def set_trim_silence(self):
         self.set_argument("-af silenceremove=start_periods=1")
@@ -126,13 +126,14 @@ class EncoderFFmpeg(EncoderBase):
         if target_encoding is None:
             target_encoding = self.get_encoding(target_path)
         if quality is None or quality == "automatic":
-            quality = self._defualt_quality
+            quality = self._default_quality
 
         arguments = self._generate_encoding_arguments(
             input_encoding,
             target_encoding,
             quality=quality
         )
+
         command = [self.encoder_path] \
             + ["-y", "-nostdin"] \
             + self._loglevel.split() \
@@ -177,5 +178,5 @@ class EncoderFFmpeg(EncoderBase):
 
     def set_default_quality(self, stream):
         bitrates = [160, 128, 70, 50]
-        self._defualt_quality += bitrates.index(stream["bitrate"])
-
+        self._default_quality += bitrates.index(stream["bitrate"])
+        return self._default_quality

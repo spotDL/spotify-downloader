@@ -61,7 +61,7 @@ $ spotdl -s https://open.spotify.com/track/0EqSRhWIeNqdomsU603EfC -o flac -m
 Download a song with YouTube Link in `MP3` format, with higher bitrate
 
 ```console
-$ spotdl -s https://www.youtube.com/watch?v=pedgIfGqHcw -o mp3 --quality 1
+$ spotdl -s https://www.youtube.com/watch?v=pedgIfGqHcw -o mp3 --output-quality 2
 ```
 
 Run `spotdl --help` to get a list of all available options in spotify-downloader.
