@@ -1,5 +1,13 @@
 # Spotify-Downloader
 
+<ins>**P.S.:**</ins>
+
+The last iteration of refactoring was a solo effort by @ritiek in [PR #690](https://github.com/ritiek/spotify-downloader/pull/690), but the shortcomings of this iteration too were quickly realized while working with potential contributors as many modules are interconnected with each other making it not so obvious to what exactly to work on for making a potential contribution (see [this](https://github.com/ritiek/spotify-downloader/issues/778#issuecomment-660683786), [this](https://github.com/ritiek/spotify-downloader/issues/810)).
+
+So, @Mikhail-Zex is working on another iteration of reactoring on their fork at [Mikhail-Zex/spotify-downloader#reStructure/reCode](https://github.com/Mikhail-Zex/spotify-downloader/tree/reStructure/reCode) and the corresponding [draft PR #812](https://github.com/ritiek/spotify-downloader/pull/812), and this time we'd like as much eyes and feedback possible on this work-in-progress from the community to in-turn make it easier for the commnity to contribute to the codebase. Because it's really optimistic to expect 1-2 people to maintain this code for its lifetime and so it's important that people are able to get involved with the codebase more easily.
+
+Thank you.
+
 [![PyPi](https://img.shields.io/pypi/v/spotdl.svg)](https://pypi.org/project/spotdl)
 [![Docs Build Status](https://readthedocs.org/projects/spotdl/badge/?version=latest)](https://spotdl.readthedocs.io/en/latest/home.html)
 [![Build Status](https://travis-ci.org/ritiek/spotify-downloader.svg?branch=master)](https://travis-ci.org/ritiek/spotify-downloader)
