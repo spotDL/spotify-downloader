@@ -8,6 +8,8 @@ The release dates mentioned follow the format `DD-MM-YYYY`.
 
 ## [Unreleased]
 
+- Improve input file validation for --list (#818)
+
 ## [2.2.2] - 28-07-2020
 ## Fixed
 - PyTube failing on outdated regex. (#798)
