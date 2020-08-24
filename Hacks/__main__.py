@@ -4,13 +4,19 @@ import hashlib
 
 from multiprocessing.managers import BaseManager
 
+from os import remove
+
+import atexit
+
 from datetime import datetime as Time
 
 from importLogging.loggingBlah import log0, log1
 
+# Also, logging on parlell processes is for all practical purposes pointless ¯\_(ツ)_/¯
+
 # Some parameters you can tweak
 BUFSIZE = 2**25
-POOLSIZE = 1
+POOLSIZE = 16
 
 totalFiles = 0
 
@@ -28,6 +34,13 @@ class notify(object):
         print()
         print('Files Processed:\t%06d' % self.x)
         self.file.close()
+    
+    def emCLose(self):                              # Wont be called in case of ctrl + c Shutdown.
+        print()                                     # In case of download, how to handle partially downloaded
+        print('Files Processed:\t%06d' % self.x)    # files?, wipe it off the list only after its done.
+        self.file.close()
+        print()
+        print('All files could not be processed')
 
 class managedNotify(BaseManager): pass
 managedNotify.register('notify', notify)
@@ -72,48 +85,96 @@ def build_digest_map(topdir, fname):
     manager.start()
     temp = manager.notify(fname)
 
-    for file in allfiles:
-        argsR.append((file, temp))
+    try:
+        for file in allfiles:
+            argsR.append((file, temp))
 
 
-    log0.info('launching the Imaps')
-    digest_map = dict(digest_pool.starmap(compute_digest,argsR))
-    digest_pool.close()
+        log0.info('launching the Imaps')
+        digest_map = dict(digest_pool.starmap(compute_digest,argsR))
+        digest_pool.close()
 
-    temp.final()
+        temp.final()
+    
+    except KeyboardInterrupt:
+        temp.emClose()
+        manager.shutdown()
+    
     manager.shutdown()
     
     return digest_map
+
+from os import system as runInShell
+
+def encodeFlac(filePath, overwriteFiles=False):
+    # ffmpeg handles the details of conversions, just have to specify the
+    # input and output:
+    #
+    # ffmpeg -i $inputFile.anyExtension $outputFile.mp3
+
+
+    extensionIndex = filePath.rfind('.')
+    extension = filePath[extensionIndex + 1 :].lower()
+
+    command = ''
+
+    if overwriteFiles:
+        command = 'ffmpeg -v quiet -y -i "%s" "%s.ogg"'
+    else:
+        command = 'ffmpeg -v quiet -n -i "%s" "%s.ogg"'
+
+    if extension == 'flac':
+        print(filePath)
+        extensionLessFile = filePath[: extensionIndex]
+        formattedCommand = command % (filePath, extensionLessFile)
+        runInShell(formattedCommand)
+
+from datetime import datetime
+
+if __name__ == '__main__':
+    pool = multiprocessing.Pool(POOLSIZE)
+
+    allfiles = (os.path.join(path,name)
+        for path, dirs, files in os.walk(r'D:\test')
+         for name in files)
+    
+    st = datetime.now()
+    pool.map(func=encodeFlac, iterable=allfiles)
+    nd = datetime.now()
+
+    print(nd-st)
 
 # Try it out. Change the directory name as desired. 
 
 #__name__ = '__main__'
 
-if __name__ == '__main__':
-    multiprocessing.freeze_support()
-
-    log1.critical('Inside Main')
- 
-    print('\n\nUtilizing 1 processes, (1core normal-threading):')
-
-    st = Time.now()
-    digest_map = build_digest_map(r"D:\\Software", '1core.txt')
-    final = Time.now()
-    
-    print('Time Taken:\t\t', end='')
-    print((final-st))
-
-    print('\n\nUtilizing 16 processes, (8core hyperthreading):')
-
-    POOLSIZE = 16
-
-    st = Time.now()
-    digest_map = build_digest_map(r"D:\\Software", '16proc.txt')
-    final = Time.now()
-    
-    print('Time Taken:\t\t', end='')
-    print((final-st))
-
+#if __name__ == '__main__':
+#    multiprocessing.freeze_support()
+#
+#    log1.critical('Inside Main')
+# 
+#    print('\n\nUtilizing 1 processes, (1core normal-threading):')
+#
+#    st = Time.now()
+#    digest_map = build_digest_map(r"D:\\Software", '1core.txt')
+#    final = Time.now()
+#    
+#    print('Time Taken:\t\t', end='')
+#    print((final-st))
+#
+#    print('\n\nUtilizing 16 processes, (8core hyperthreading):')
+#
+#    POOLSIZE = 16
+#
+#    st = Time.now()
+#    digest_map = build_digest_map(r"D:\\Software", '16proc.txt')
+#    final = Time.now()
+#    
+#    print('Time Taken:\t\t', end='')
+#    print((final-st))
+#
+# Run output (Python 3.7.8, 21/08/2020):
+#
 # Utilizing 1 processes, (1core normal-threading):
 # 033326 > D:\\Software\VLC\skins\fonts\FreeSansBold.ttf  
 # Files Processed:        033326
@@ -124,3 +185,5 @@ if __name__ == '__main__':
 # 033326 > D:\\Software\VLC\locale\ml\LC_MESSAGES\vlc.mo
 # Files Processed:        033326
 # Time Taken:             0:03:26.973040
+
+# audio conv of 520 .flac files (~22.8gB) - 19.28.02 mins

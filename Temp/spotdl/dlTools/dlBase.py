@@ -7,22 +7,28 @@ Handles the embedding of metadata into audio files, uses ID3 v2.3 tags.
 #===============
 #=== Imports ===
 #===============
-from spotdl.utils.loggingBase import getSubLoggerFor
 
+# generic imports:
 from urllib.request import urlopen
+#from spotdl.utils.loggingBase import getSubLoggerFor
 
+# The following help embed metadata:
 # Renaming imports to conform to naming conventions 
 from mutagen.easyid3 import EasyID3 as easyId3, ID3 as id3
 
 # Renaming imports so that their purpose is clear
 from mutagen.id3 import APIC as albumCover, USLT as lyricData
 
+# for downloading audio
+from pytube import YouTube
+from os import system as runInShell
+
 
 
 #====================
 #=== Initializing ===
 #====================
-logger = getSubLoggerFor('utility')
+#logger = getSubLoggerFor('utility')
 
 
 
@@ -30,8 +36,43 @@ logger = getSubLoggerFor('utility')
 #=== Functions ===
 #=================
 
-# currently supports only mp3
+def downloadTrack(link, folder):
+    # should be fairly self explanatory...
+    youtubeHandler = YouTube(link)
+    
+    trackStreams = youtubeHandler.streams.get_audio_only()
+    savedPath = trackStreams.download(output_path = folder)
 
+    return savedPath
+
+# Used a Pool (16 processes), converted 520 .flac files (~22.8gB)
+# in 19.28.02 mins, single proc took 62 mins.
+
+def encodeToMp3(filePath, outFolder = '.\\', overwriteFiles=False):
+    # ffmpeg handles the details of conversions, just have to specify the
+    # input and output:
+    #
+    # ffmpeg -i $inputFile.anyExtension $outputFile.mp3
+
+    rIndexOfSlash = filePath.rfind('\\')
+
+    extensionIndex = filePath.rfind('.')
+    extension = filePath[extensionIndex + 1 :].lower()
+
+    command = ''
+
+    if overwriteFiles:
+        command = 'ffmpeg -v quiet -y -i "%s" "%s.mp3"'
+    else:
+        command = 'ffmpeg -v quiet -n -i "%s" "%s.mp3"'
+
+    if extension != '.txt' and extension != '.mp3':
+        extensionLessFile = filePath[rIndexOfSlash + 1 : extensionIndex]
+        formattedCommand = command % (filePath, outFolder + extensionLessFile)
+        runInShell(formattedCommand)
+
+
+# currently supports only mp3
 def embedDetails(filePath, metadata):
     # Setting the simple ID3 values
     audioFile = easyId3(filePath)
