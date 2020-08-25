@@ -36,9 +36,6 @@ from pytube import request
 from pytube.extract import apply_signature, js_url
 from typing import Any
 
-import logging
-logger = logging.getLogger(__name__)
-
 def apply_patches():
     """
     This methods applies all the needed patches on PyTube.
@@ -83,10 +80,8 @@ def apply_descrambler(stream_data, key):
         formats = []
         streamingData = json.loads(stream_data["player_response"])["streamingData"]
         if 'formats' in streamingData.keys():
-            logger.debug("Stream data has formats")
             formats.extend(json.loads(stream_data["player_response"])["streamingData"]["formats"])
         if 'adaptiveFormats' in streamingData.keys():
-            logger.debug("Stream data has adaptiveFormats")
             formats.extend(json.loads(stream_data["player_response"])["streamingData"]["adaptiveFormats"])
         try:
             stream_data[key] = [
@@ -118,7 +113,6 @@ def apply_descrambler(stream_data, key):
                 for i, format_item in enumerate(formats)
             ]
     else:
-        logger.debug("else")
         stream_data[key] = [
             {k: unquote(v) for k, v in parse_qsl(i)}
             for i in stream_data[key].split(",")

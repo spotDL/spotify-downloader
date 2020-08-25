@@ -420,7 +420,6 @@ class ProviderYouTube(ProviderBase):
         logger.debug('Fetching YouTube metadata for "{url}".'.format(url=url))
         try:
             content = pytube.YouTube(url)
-            logger.debug(content.streams)
         except KeyError:
             # Sometimes YouTube can return unexpected response, in such a case
             # retry a few times before finally failing.
