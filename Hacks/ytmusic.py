@@ -36,7 +36,30 @@ for chunk in r.text.split('videoId')[1:]:
         # print(id)
         video_ids.append(id)
 
-# print(video_ids)
+# print('IDs:', video_ids)
 
+
+
+# # Get (redundant) metadata from youtube using pytube:
+# # (Redundant b/c we can get it on other ways, and also at download)
+# # Note: PyTube has not been working for me lately. Maybe rewrite it for youtube-dl
+# 
+# from pytube import YouTube
+# 
+# print('Objects:')
+# videos = []
 for video_id in video_ids:
-    print("https://www.youtube.com/watch?v=" + video_id)
+    video_url = 'https://www.youtube.com/watch?v=' + video_id
+    print(video_url)
+# 
+#     yt = YouTube(video_url)
+#     # min, sec = divmod(int(yt.length), 60)
+#     # duration = '{}:{}'.format(min, sec)
+#     videos.append({
+#         'title': yt.title,
+#         'length': yt.length,
+#         # 'duration': duration,
+#         'youtubeLink': video_url
+#     })
+# 
+# print(videos)
