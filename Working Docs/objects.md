@@ -70,7 +70,7 @@ Holds the metadata of a song.
 | songNumber | int | int |
 | genre | str | int |
 | length | int | length of the song in seconds |
-| durationText | str | preformatted text specifying how long (hr:min:sec) the song/video is (optional)
+| durationText | str | preformatted text specifying how long (hr:min:sec) the song/video is
 
 <br><br>
 
