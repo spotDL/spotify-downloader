@@ -44,7 +44,7 @@ class YouTubeMusic():
             "videoId": video_id
         })
         json_text = self.request('next')
-        # using double quotes b/c it is copied from the JSON
+        # using double quotes for the JSON keys
         try:
             album_name = self.get_inner_text("albumName", json_text)
         except IndexError:
@@ -56,14 +56,19 @@ class YouTubeMusic():
         thumbnails = Parse('[' + thumbnails + ']')
         thumbnail_url = thumbnails[-2]['url']
         video_url = "https://www.youtube.com/watch?v=" + video_id
+        length_s = 0
+        for duration in length_text.split(':'):
+            length_s = length_s * 60
+            length_s += int(duration)
         return {
-            'title': f'{artist_name} - {song_name}',
-            'duration': length_text,
-            'url': video_url,
+            'songName': song_name,
+            'artists': artist_name,
             'album': album_name,
-            'artist': artist_name,
-            'song': song_name,
-            'thumbnail': thumbnail_url
+            'thumbnail': thumbnail_url,
+            'thumbnails': thumbnails,
+            'youtubeDuration': length_text,
+            'youtubeLengthText': length_s,
+            'youtubeLink': video_url,
         }
 
     def search(self, query):

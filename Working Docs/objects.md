@@ -64,10 +64,13 @@ Holds the metadata of a song.
 | albumArtist | str | name of the main artist |
 | contributingArtist | list:str | names of artists featured |
 | album | str | name of the album |
+| thumbnail | str | url of song cover-image (optional) |
+| thumbnails | list:str, list:dict:str | list of song cover-image URL's, list can contain URL's, or dicts with urls (and resolutions, or width/height keys) (optional) |
 | year | int | year of release |
 | songNumber | int | int |
 | genre | str | int |
 | length | int | length of the song in seconds |
+| durationText | str | preformatted text specifying how long (hr:min:sec) the song/video is
 
 <br><br>
 
