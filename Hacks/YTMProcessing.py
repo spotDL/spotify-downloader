@@ -50,6 +50,7 @@ def ytmSearch(query):
             detailsBlock = each['musicResponsiveListItemRenderer']['flexColumns']
 
             if 'overlay' in each['musicResponsiveListItemRenderer']:
+                # Add the block containing video / playlist id (which is nested af. as usual)
                 detailsBlock.append(each['musicResponsiveListItemRenderer'] \
                     ['overlay'] ['musicItemThumbnailOverlayRenderer']['content'] \
                     ['musicPlayButtonRenderer']['playNavigationEndpoint']
@@ -66,9 +67,9 @@ def ytmSearch(query):
         # gather all details in one place first,
         data = []
 
-        lvOneKey = list(result[-1].keys())[1]
-        lvTwoKey = list(result[-1][lvOneKey].keys())[0]
-        linkId = result[-1][lvOneKey][lvTwoKey]
+        lvOneKey = list(result[-1].keys())[1]           # playlistEndpoint / watchEndpoint
+        lvTwoKey = list(result[-1][lvOneKey].keys())[0] # VideoId / playlistId / ...
+        linkId = result[-1][lvOneKey][lvTwoKey]         # the bloody link
 
         for detail in result[:-1]:
             # This blocks out the occasional dummy details, I have no clue as
