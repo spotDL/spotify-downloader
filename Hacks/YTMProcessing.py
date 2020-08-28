@@ -27,6 +27,10 @@ def ytmSearch(query):
     # Convert JSON response to dict-list object for easy processing
     resp = json.loads(r.text)
 
+    # save to file for lookup
+    with open(query + '.jsonc', 'w') as file:
+        file.write(json.dumps(resp, indent=4, sort_keys=True))
+
     # Break response into major blocks (Top results, Songs, Videos, Albums,
     # Artists, Playlists, User Notices)
     contentBlocks = resp['contents']['sectionListRenderer']['contents']
@@ -43,8 +47,16 @@ def ytmSearch(query):
             continue
 
         for each in block['musicShelfRenderer']['contents']:
-            results.append(each['musicResponsiveListItemRenderer']['flexColumns'])
-    
+            detailsBlock = each['musicResponsiveListItemRenderer']['flexColumns']
+
+            if 'overlay' in each['musicResponsiveListItemRenderer']:
+                detailsBlock.append(each['musicResponsiveListItemRenderer'] \
+                    ['overlay'] ['musicItemThumbnailOverlayRenderer']['content'] \
+                    ['musicPlayButtonRenderer']['playNavigationEndpoint']
+                    )
+            
+                results.append(detailsBlock)
+                
     # Filter out all results that are not Songs or Videos, also
     # select required details from Song and Video results and
     # group them as a dict
@@ -54,7 +66,11 @@ def ytmSearch(query):
         # gather all details in one place first,
         data = []
 
-        for detail in result:
+        lvOneKey = list(result[-1].keys())[1]
+        lvTwoKey = list(result[-1][lvOneKey].keys())[0]
+        linkId = result[-1][lvOneKey][lvTwoKey]
+
+        for detail in result[:-1]:
             # This blocks out the occasional dummy details, I have no clue as
             # to why the response even contains these things. the below append
             # statement will throw a keyError if we don't ignore these
@@ -74,6 +90,7 @@ def ytmSearch(query):
                 'Artist'  : data[2],
                 'Album'   : data[3],
                 'Length'  : data[4],
+                'Link'    : 'https://www.youtube.com/watch?v=' + linkId,
                 'Position': position
             }
 
@@ -84,6 +101,7 @@ def ytmSearch(query):
             formattedDetails = {
                 'Name'    : data[0],
                 'Length'  : data[4],
+                'Link'    : 'https://www.youtube.com/watch?v=' + linkId,
                 'Position': position
             }
 
@@ -101,7 +119,7 @@ while True:
     if query == 'quit()':
         break
 
-    filteredResults = ytmSearch('Ira Ivory Rasmus')
+    filteredResults = ytmSearch(query)
 
     print('SONGS:')
 
