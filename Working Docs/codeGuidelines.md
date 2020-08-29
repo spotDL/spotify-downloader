@@ -9,6 +9,8 @@ gains will add up to sizable improvements.
 
 ## General
 
+- Use PEP8 naming Patterns (To be refactored)
+
 - Keep line width under 80 characters. Both studies and experience state that
 longer lines of code lead to higher incidence of errors and and increased
 difficulty in understanding.
@@ -37,6 +39,10 @@ also increase to inter-dependencies b/w different pieces of code. What this
 means is that a change is code in one of the many imports you use or one of its
 dependencies will break your code and you'll be in for a long session of
 debugging.
+
+- Avoid deep import chains, even if you ensure < 5 imports in each file, but
+instead import from 5 files that have 5 imports each, your effectively linking
+up your code to 25 different imports.
 
 - Before you write production code (what actually goes into the project), write
 up your concept in prototype code, your prototype code can be as messy as you
@@ -81,10 +87,6 @@ as will be seen during runtime -->
 
 ## Variables
 
-- Use snake case naming. A constant naming style decreases the overhead
-cognitive load of reading through the code. It might be an unconscious gain
-but is well worth it in the case of large code bases.
-
 - Use descriptive names. Variable names like `fourTire` is a bad variable name
 because it doesn't tell you anything about how the variable functions. An
 alternate better variable name would be `car` or `duneBuggy`.
@@ -117,16 +119,12 @@ mnemonic names are more easily remembered and discussed.
 
 ## Functions
 
-- Function naming to follow the same guidelines as for [Variables](#Variables).
-
 - Avoid functions greater that 150 lines. Studies show that functions < 50
 lines and functions > 150 lines show greatest level of errors.
 
 <br><br>
 
 ## Classes
-
-- Class naming to follow the same guidelines as for [Variables](#Variables).
 
 - Avoid classes greater than 400 lines. Incidence of error increases
 exponentially beyond 400 lines.
@@ -209,7 +207,3 @@ while.
     logger.info('Obtained authorized Spotify client')       # To be deleted
 
     ```
-
-<br><br>
-
-## Go [back](../README.md#The%20requirements) to where you left off

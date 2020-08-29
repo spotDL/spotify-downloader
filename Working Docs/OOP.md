@@ -275,7 +275,3 @@ here, use shallow inheritance, deep inheritance trees will have you searching
 for which parent/super-parent defines a particular variable/function and
 which parent/super-parent modifies those same variables/functions leading to a
 confusing mess.
-
-<br><br>
-
-## Go [back](../README.md#The%20requirements) to where you left off

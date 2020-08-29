@@ -7,7 +7,7 @@ Implementation of the Search interfaces defined in interfaces.md
 #===============
 #=== Imports ===
 #===============
-from defaultObjects import metadataObject
+from spotdl.providers.defaultObjects import metadataObject
 
 from requests import post
 from json import loads as convertJsonToDict
@@ -68,7 +68,7 @@ class searchProvider(object):
         # save the response for the current search term if received,
         # not part of the interface, useful for use as a library
         self.cResponse = None
-    
+
     def queryAndSimplify(self, searchTerm):
         # Query YouTube Music with a POST request, save response to
         # self.cRequest as a dict
@@ -125,8 +125,9 @@ class searchProvider(object):
                 detailsBlock = result['musicResponsiveListItemRenderer'] \
                     ['flexColumns']
                 
-                linkBlock = result['musicResponsiveListItemRenderer'] \
-                    ['overlay'] \
+                if 'overlay' in result['musicResponsiveListItemRenderer']:
+                    linkBlock = result['musicResponsiveListItemRenderer'] \
+                        ['overlay'] \
                         ['musicItemThumbnailOverlayRenderer'] \
                             ['content'] \
                                 ['musicPlayButtonRenderer'] \
@@ -191,58 +192,58 @@ class searchProvider(object):
                                 ['text']
                 )
         
-        # Now filter out non-Song/Video results while capturing relevant
-        # details for song/video results. From what we know about detail order,
-        # note that [1] - indicate result type
-        if availableDetails[1] in ['Song', 'Video']:
+            # Now filter out non-Song/Video results while capturing relevant
+            # details for song/video results. From what we know about detail order,
+            # note that [1] - indicate result type
+            if availableDetails[1] in ['Song', 'Video']:
 
-            # grab position of result in the response for the odd-ball cases
-            # when 2+ results seem to be equally good, in such a case the
-            # result higher up in the results can be taken as the better match
-            resultPosition = resultBlocks.index(result)
+                # grab position of result in the response for the odd-ball cases
+                # when 2+ results seem to be equally good, in such a case the
+                # result higher up in the results can be taken as the better match
+                resultPosition = resultBlocks.index(result)
 
-            # grab the link of the result too, this is nested as
-            # [playlistEndpoint/watchEndpoint][videoId/playlistId/etc...], so
-            # hardcoding the dict keys for data look up is an ardours process,
-            # since the sub-block pattern is fixed even though the key isn't,
-            # we just reference the dict keys by index
-            endpointKey = list( result[-1].keys() )[1]
-            resultIdKey = list( result[-1][endpointKey].keys() )[0]
-            
-            linkId = result[-1][endpointKey][resultIdKey]
-            resultLink = 'https://www.youtube.com/watch?v=' + linkId
+                # grab the link of the result too, this is nested as
+                # [playlistEndpoint/watchEndpoint][videoId/playlistId/etc...], so
+                # hardcoding the dict keys for data look up is an ardours process,
+                # since the sub-block pattern is fixed even though the key isn't,
+                # we just reference the dict keys by index
+                endpointKey = list( result[-1].keys() )[1]
+                resultIdKey = list( result[-1][endpointKey].keys() )[0]
 
-            # format relevant details
-            if availableDetails[1] == 'Song':
-                formattedDetails = {
-                    'name'      : availableDetails[0],
-                    'artist'    : availableDetails[2],
-                    'album'     : availableDetails[3],
-                    'length'    : availableDetails[4],
-                    'link'      : resultLink,
-                    'position'  : resultPosition
-                }
+                linkId = result[-1][endpointKey][resultIdKey]
+                resultLink = 'https://www.youtube.com/watch?v=' + linkId
 
-                if formattedDetails not in simplifiedResults['songs']:
-                    simplifiedResults['songs'].append(formattedDetails)
-            
-            elif availableDetails[1] == 'Video':
-                formattedDetails = {
-                    'name'      : availableDetails[0],
-                    'length'    : availableDetails[4],
-                    'link'      : resultLink,
-                    'position'  : resultPosition
-                }
+                # format relevant details
+                if availableDetails[1] == 'Song':
+                    formattedDetails = {
+                        'name'      : availableDetails[0],
+                        'artist'    : availableDetails[2],
+                        'album'     : availableDetails[3],
+                        'length'    : availableDetails[4],
+                        'link'      : resultLink,
+                        'position'  : resultPosition
+                    }
 
-                if formattedDetails not in simplifiedResults['videos']:
-                    simplifiedResults['videos'].append(formattedDetails)
-            
-            # For things like playlists, albums, etc... just ignore them
-            else:
-                pass
-        
+                    if formattedDetails not in simplifiedResults['songs']:
+                        simplifiedResults['songs'].append(formattedDetails)
+
+                elif availableDetails[1] == 'Video':
+                    formattedDetails = {
+                        'name'      : availableDetails[0],
+                        'length'    : availableDetails[4],
+                        'link'      : resultLink,
+                        'position'  : resultPosition
+                    }
+
+                    if formattedDetails not in simplifiedResults['videos']:
+                        simplifiedResults['videos'].append(formattedDetails)
+
+                # For things like playlists, albums, etc... just ignore them
+                else:
+                    pass
+                
         return simplifiedResults
-    
+
     def save(self):
         # save the details of the latest YTM query as-is to query.jsonc
         latestQuery = self.payload['query']
@@ -258,6 +259,6 @@ class searchProvider(object):
         )
 
         outFile = open(latestQuery + '.jsonc', 'wb')
-        outFile.write(commentLine)
-        outFile.write(formattedResponse)
+        outFile.write(commentLine.encode())
+        outFile.write(formattedResponse.encode())
         outFile.close()

@@ -22,22 +22,23 @@ manage the complexity. The reason this author repeats this point is because
 to serve its purpose, there are some very specific needs to all code being
 contributed here and hopefully hereon into the future.
 
-# The requirements
+# We request contributors to ...
 
-- An conscious attempt to follow Object Oriented Programing. I realize that
+- Consciously attempt to follow Object Oriented Programing. I realize that
 most of you guys probably do so, for those of you who don't, please do. If you
 don't know the principles of OOP or would like a refresher, look through 
-[this](Working%20Docs/OOP.md).
+[this](Working-Docs/OOP.md).
 
-- Compliance with the code guidelines setup [here](Working%20Docs/codeGuidelines.md)
-and also the [core values](Working%20Docs/coreValues.md) of this project.
+- Compliance with the code guidelines setup [here](Working-Docs/codeGuidelines.md)
+and also the [core values](Working-Docs/coreValues.md) of this project.
 
-# Latest Updates (19-08-2020)
+- Read the [interface definitions](Working-Docs/interfaces.md) before coding.
 
-- Complete package overlay [here](Diagrams/packageDiag.jpg)
+- Provide documentation for the code you write up so that others can go about
+contributing without major code-deciphering-investigations.
 
-- Updated code guidelines.
+# Latest Updates (29-08-2020)
 
-- Some new [interfaces](Working%20Docs/interfaces.md) have been designed.
+- Updated interfaces
 
-- Almost all of spotdl's dependency classes have been completed.
+- Cleaned up repo-tree

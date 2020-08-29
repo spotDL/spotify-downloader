@@ -23,7 +23,3 @@ times.
 - Simple scalable design (Ease of contribution) - a programmer should
 understand what does what and be free to start working on his/her/their
 contributions in under 30 minutes.
-
-<br><br>
-
-## Go [back](../README.md#The%20requirements) to where you left off

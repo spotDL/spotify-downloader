@@ -1,3 +1,5 @@
+# Author: Elliot G. (@rocketinventor)
+
 import requests
 import json
 from ast import literal_eval as Parse

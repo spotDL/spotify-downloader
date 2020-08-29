@@ -6,11 +6,11 @@ change often and without warning.
 
 # Index
 
-- [Music Search Interface](#01.%20Music%20Search%20Interface)
-- [Metadata Search Interface](#02.%20Metadata%20Search%20Interface)
-- [Metadata Object Interface](#03.%20Metadata%20Object%20Interface)
-- [Song Object Interface](#04.%20Song%20Object%20Interface)
-- [Downloads Interface](#05.%20Downloads%20Interface)
+- [Music Search Interface](#01.-Music-Search-Interface)
+- [Metadata Search Interface](#02.-Metadata-Search-Interface)
+- [Metadata Object Interface](#03.-Metadata-Object-Interface)
+- [Song Object Interface](#04.-Song-Object-Interface)
+- [Downloads Interface](#05.-Downloads-Interface)
 
 # Interfaces
 
@@ -270,7 +270,3 @@ Function: Download song, converts format, applies metadata
 | metadata | [metadata](objects.md#metadata) | metadata of song to download |
 | format | str | format to save the downloaded song, defaults to '.mp3' |
 | **RETURN** | None | - |
-
-
-
-## Go [back](workingDocs.md#Search%20Providers) to where you left off
