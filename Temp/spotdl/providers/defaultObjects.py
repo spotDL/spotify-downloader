@@ -41,7 +41,7 @@ class songObject(object):
     # yLen      >   length of song on youtube (sec)
     # sLink     >   spotify url of song
     # yLink     >   youtube url of song
-    def __init__(self, name, artists, sLen, yLen, sLink, yLink):
+    def __init__(self, name, artists, sLen, yLen, sLink, yLink, metadata = None):
         
         # Check validity of inputs before assignment, else raise an Exception
         # these exceptions are not meant to be handled so also log a critical
@@ -78,6 +78,11 @@ class songObject(object):
         else:
             logger.critical('sLink/yLink passed to songObject not Url\'s')
             raise Exception('"sLink/yLink" passed to songObject must be Url')
+
+        if isinstance(metadata, metadataObject):
+            self.metadata = metadata
+        else:
+            self.metadata = metadataObject(self.sLink)
     
     def getSongName(self):
         return self.name
@@ -96,3 +101,6 @@ class songObject(object):
     
     def getYoutubeLink(self):
         return self.yLink
+    
+    def getMetadata(self):
+        return self.metadata

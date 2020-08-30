@@ -7,18 +7,47 @@ Implementation of the Search interfaces defined in interfaces.md
 #===============
 #=== Imports ===
 #===============
-from spotdl.providers.defaultObjects import metadataObject
+from spotdl.providers.defaultObjects import *
+from spotdl.utils.spotifyHelpers import searchForSong
+
+from fuzzywuzzy.fuzz import partial_ratio as matchPercentage
 
 from requests import post
+
 from json import loads as convertJsonToDict
 from json import dumps as convertDictToJsonStr
 
 
 
-#======================
-#=== Initialization ===
-#======================
+#==================================================
+#=== Initialization & Module specific Utilities ===
+#==================================================
 ytmApiKey = 'AIzaSyC9XL3ZjWddXya6X74dJoCTL-WEYFDNX30'
+
+def atLeastOneCommonWord(sentenceA, sentenceB):
+    # most song results on youtube go by $artist - $songName, so
+    # if the spotify name has a '-', this function would return True,
+    # a common '-' is hardly a 'common 'word', so we get rid of it.
+    # Lower-caseing all the inputs is to get rid of the troubles
+    # that arise from pythons handling of differently cased words, i.e.
+    # 'Rhino' == 'rhino is false though the word is same...
+    lowerSentenceA = sentenceA.lower()
+    lowerSentenceB = sentenceB.lower()
+
+    sentenceAWords = lowerSentenceA.replace('-', ' ').split(' ')
+    sentenceBWords = lowerSentenceB.replace('-', ' ').split(' ')
+
+    for word in sentenceAWords:
+        if word != '' and word in lowerSentenceB:
+            return True
+    
+    for word in sentenceBWords:
+        if word != '' and word in lowerSentenceA:
+            return True
+    
+    # The above loops catch common words and return True, thereby exiting the
+    # function, if there are no common words, return False
+    return False
 
 
 
@@ -37,8 +66,30 @@ class metadataProvider(object):
         #
         # see also, comment above metadata class declaration in
         # defaultObjects.py
+
+        # This function is redundant in this implementation, as we again,
+        # once more piggyback on trackDetails to get metadata from the
+        # Spotify-api. This function is defined to keep in line with the
+        # interface definitions. You might say that the interface definition
+        # is dumb, maybe true... but, if someone is not satisfied with
+        # just the Spotify-api, he/she/them don't have to rewrite the
+        # trackDetails class from helpers, they might as well, write their
+        # fresh code here, and return an object that implements the metadata
+        # object interface, it doesn't even have to be a metadata object, just
+        # something that provides the same interface....
+        #
+        # In case your writing a custom getDetails method,
+        #
+        #   class customMetadataProvider(metadataProvider):
+        #       def getDetails(self, songObj):
+        #           # your code goes here
+        #           ...
+        #
+        #           # please apply your metadata to songObj, so the rest of 
+        #           # spotDL can benifit from your, fresh/new  metadata
+        #           songObj.metadata = yourImplementationOfTheMetadataInterface
         
-        return metadataObject(songObj.getSpotifyLink())
+        return songObj.getMetadata()
     
     def getLyrics(self, songObj):
         # Not yet implemented, return None as-per the interface rules from
@@ -46,6 +97,9 @@ class metadataProvider(object):
         return None
 
 class searchProvider(object):
+    # Authored by: Elliot G. (@rocketinventor)
+    # Just a few tweaks by @Mikhail-Zex
+
     def __init__(self, apiKey = ytmApiKey):
         self.url = 'https://music.youtube.com/youtubei/v1/search?alt=json&key=' + apiKey
 
@@ -68,6 +122,8 @@ class searchProvider(object):
         # save the response for the current search term if received,
         # not part of the interface, useful for use as a library
         self.cResponse = None
+
+    # The following class methods do all the work
 
     def queryAndSimplify(self, searchTerm):
         # Query YouTube Music with a POST request, save response to
@@ -164,10 +220,7 @@ class searchProvider(object):
         # cherrypick the details we need based on  their index numbers,
         # we do so only if their Type is 'Song' or 'Video
 
-        simplifiedResults = {
-            'songs' : [],
-            'videos': []
-        }
+        simplifiedResults = []
 
         for result in resultBlocks:
             # Blindly gather all available details
@@ -196,6 +249,10 @@ class searchProvider(object):
             # details for song/video results. From what we know about detail order,
             # note that [1] - indicate result type
             if availableDetails[1] in ['Song', 'Video']:
+                # skip result if length is in hours or seconds (i.e. not in mins),
+                # time is formatted as hh:mm:ss
+                if len(availableDetails[4].split(':')) != 2:
+                    continue
 
                 # grab position of result in the response for the odd-ball cases
                 # when 2+ results seem to be equally good, in such a case the
@@ -213,36 +270,138 @@ class searchProvider(object):
                 linkId = result[-1][endpointKey][resultIdKey]
                 resultLink = 'https://www.youtube.com/watch?v=' + linkId
 
+                # convert length to seconds
+                minStr, secStr = availableDetails[4].split(':')
+
+                # handle leading zeroes (eg. 01, 09, etc...), they cause
+                # eval errors
+                if minStr[0] == '0':
+                    minStr = minStr[1]
+                if secStr[0] == '0':
+                    secStr = secStr[1]
+                
+                time = eval(minStr) + eval(secStr)
+
                 # format relevant details
                 if availableDetails[1] == 'Song':
                     formattedDetails = {
                         'name'      : availableDetails[0],
+                        'type'      : 'song',
                         'artist'    : availableDetails[2],
                         'album'     : availableDetails[3],
-                        'length'    : availableDetails[4],
+                        'length'    : time,
                         'link'      : resultLink,
                         'position'  : resultPosition
                     }
 
-                    if formattedDetails not in simplifiedResults['songs']:
-                        simplifiedResults['songs'].append(formattedDetails)
+                    if formattedDetails not in simplifiedResults:
+                        simplifiedResults.append(formattedDetails)
 
                 elif availableDetails[1] == 'Video':
                     formattedDetails = {
                         'name'      : availableDetails[0],
-                        'length'    : availableDetails[4],
+                        'type'      : 'video',
+                        'length'    : time,
                         'link'      : resultLink,
                         'position'  : resultPosition
                     }
 
-                    if formattedDetails not in simplifiedResults['videos']:
-                        simplifiedResults['videos'].append(formattedDetails)
+                    if formattedDetails not in simplifiedResults:
+                        simplifiedResults.append(formattedDetails)
 
                 # For things like playlists, albums, etc... just ignore them
                 else:
                     pass
                 
         return simplifiedResults
+    
+    def searchAndFilterYTM(self, songDetails, getBestMatchOnly = False):
+        # Build a youtube search term
+        searchTerm = ''
+
+        for artist in songDetails.getContributingArtists():
+            searchTerm += artist + ', '
+        
+        # ..[:-2] is because we don't want the last ', '
+        searchTerm = searchTerm[:-2] + ' - ' + songDetails.getSongName()
+
+        # Get YouTube Music Results
+        results = self.queryAndSimplify(searchTerm)
+
+        # This list gathers all the processed/filtered results
+        filteredResults = []
+
+        for result in results:
+            # If there are no common words b/w the spotify and YouTube Music
+            # name, the song is a wrong match (Like Ruelle - Madness being
+            # matched to Ruelle - Monster, it happens without this conditional)
+            if not atLeastOneCommonWord(songDetails.getSongName(), result['name']):
+                continue
+
+            # Find artists match %
+            artistMatch = 0
+
+            if result['type'] == 'song':
+                for artist in songDetails.getContributingArtists():
+                    if artist.lower() in result['artist'].lower():
+                        artistMatch += 1
+            else:
+                for artist in songDetails.getContributingArtists():
+                    if artist.lower() in result['name'].lower():
+                        artistMatch += 1
+            
+            artistMatchRatio = artistMatch/len(songDetails.getContributingArtists())
+            artistMatchPercentage = artistMatchRatio * 100
+
+            # Skip if there are no artists in common, (else, results like
+            # 'Leven - Madness' will be the top match for 'Ruelle - Madness')
+            if artistMatchPercentage == 0:
+                continue
+
+            # Find name match%
+            nameMatchPercentage = matchPercentage(
+                result['name'],
+                songDetails.getSongName()
+            )
+
+            # Find album name match %, 0 is the default, it is used in case of
+            # video results from YouTube Music
+            albumMatchPercentage = 0
+
+            if result['type'] == 'song':
+                albumMatchPercentage = matchPercentage(
+                    result['album'],
+                    songDetails.getAlbumName()
+                )
+            
+            # Add an average match percentage to result
+            avgMatch = (artistMatchPercentage + albumMatchPercentage
+                + nameMatchPercentage) / 3
+               
+            result['avgMatch'] = avgMatch
+               
+            filteredResults.append(result)
+        
+        if getBestMatchOnly:
+            # If we are to return only the top result after filtering
+            topResult = None
+
+            for result in filteredResults:
+                if result['avgMatch'] > topResult['avgMatch']:
+                    topResult = result
+                elif result['avgMatch'] == topResult['avgMatch']:
+                    if result['position'] < topResult['position']:
+                        topResult = result
+            
+            return topResult
+
+        else:
+            # If we are to return all results
+            return filteredResults
+
+    # save is a little utility in case you want to study YouTube Music's JSON
+    # responses, they are quite messy. Not used within spotDL, but might
+    # be of use, when using spotDL as a library
 
     def save(self):
         # save the details of the latest YTM query as-is to query.jsonc
@@ -262,3 +421,114 @@ class searchProvider(object):
         outFile.write(commentLine.encode())
         outFile.write(formattedResponse.encode())
         outFile.close()
+
+    # The class methods below are interface implimentations, if you intend to
+    # understand how they work, go through the methods defined above, thats
+    # where the real work is
+    
+    def searchFromName(self, query):
+        # Search for the best match and get the song's details
+        songSpotifyUrl = searchForSong(query)
+        songDetails = metadataObject(songSpotifyUrl)
+
+        # Find matches from YouTube Music
+        result = self.searchAndFilterYTM(songDetails, getBestMatchOnly = True)
+
+        resultAsSongObj = songObject(
+            name = result['name'],
+
+            # MetadataObject is more complete than YouTube Music results
+            artists = songDetails.getContributingArtists(),
+            
+            sLen = songDetails.getLength(),
+            yLen = result['length'],
+            
+            sLink = songSpotifyUrl,
+            yLink = result['link'],
+            
+            metadata = songDetails
+        )
+
+        return resultAsSongObj
+    
+    def searchFromUrl(self, url):
+        songDetails = metadataObject(url)
+
+        # Find matches from YouTube Music
+        result = self.searchAndFilterYTM(songDetails, getBestMatchOnly = True)
+
+        resultAsSongObj = songObject(
+            name = result['name'],
+
+            # MetadataObject is more complete than YouTube Music results
+            artists = songDetails.getContributingArtists(),
+            
+            sLen = songDetails.getLength(),
+            yLen = result['length'],
+            
+            sLink = url,
+            yLink = result['link'],
+            
+            metadata = songDetails
+        )
+
+        return resultAsSongObj
+    
+    def searchAllFromName(self, query):
+        # Search for the best match and get the song's details
+        songSpotifyUrl = searchForSong(query)
+        songDetails = metadataObject(songSpotifyUrl)
+
+        # Find matches from YouTube Music
+        results = self.searchAndFilterYTM(songDetails, getBestMatchOnly = False)
+
+        allResults = []
+
+        for result in results:
+            resultAsSongObj = songObject(
+                name = result['name'],
+
+                # MetadataObject is more complete than YouTube Music results
+                artists = songDetails.getContributingArtists(),
+
+                sLen = songDetails.getLength(),
+                yLen = result['length'],
+
+                sLink = songSpotifyUrl,
+                yLink = result['link'],
+
+                metadata = songDetails
+            )
+
+            allResults.append(resultAsSongObj)
+
+        return allResults
+
+    def searchAllFromUrl(self, url):
+        # Search for the best match and get the song's details
+        songDetails = metadataObject(url)
+
+        # Find matches from YouTube Music
+        results = self.searchAndFilterYTM(songDetails, getBestMatchOnly = False)
+
+        allResults = []
+
+        for result in results:
+            resultAsSongObj = songObject(
+                name = result['name'],
+
+                # MetadataObject is more complete than YouTube Music results
+                artists = songDetails.getContributingArtists(),
+
+                sLen = songDetails.getLength(),
+                yLen = result['length'],
+
+                sLink = url,
+                yLink = result['link'],
+
+                metadata = songDetails
+            )
+
+            allResults.append(resultAsSongObj)
+
+        return allResults

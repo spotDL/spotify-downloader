@@ -1,6 +1,8 @@
 from requests import post
 from fuzzywuzzy import fuzz
 
+from datetime import datetime
+
 from spotdl.utils.authorization import getSpotifyClient
 spotify_client_id = "4fe3fecfe5334023a1472516cc99d805"
 spotify_client_secret = "0f02b7c483c04257984695007a4a8d5c"
@@ -237,14 +239,16 @@ class searchProvider(object):
         outFile.close()
 
     def searchFromName(self, name):
+        topRes = (0,'')
+
         songUrl = searchForSong(name)
         song = trackDetails(songUrl)
 
         print(song.getSongName())
-        print(song.getContributingArtists())
-        print(song.getAlbumName())
-        print(song.getLength())
-        print()
+#        print(song.getContributingArtists())
+#        print(song.getAlbumName())
+#        print(song.getLength())
+#        print()
 
         searchTerm = ''
         for artist in song.getContributingArtists():
@@ -258,38 +262,90 @@ class searchProvider(object):
             w = 0
             q = 0
 
-            print(song.getSongName())
-            print(each['name'])
+#            print(song.getSongName())
+#            print(each['name'])
             q = fuzz.ratio(
                 song.getSongName(),
                 each['name']
             )
-            print(q)
-            print()
 
-            print(song.getAlbumName())
-            try:
-                print(each['album'])
-                w = fuzz.ratio(
-                song.getSongName(),
-                each['name']
-                )
-                print(w)
-            except:
-                print('Video Result')
+            nameMatch = False
+            rop = song.getSongName().lower().split(' ')
+            for _ in rop:
+                if _ in each['name']:
+                    nameMatch = True
+                    break
             
-            print()
-            print('AVG:', end = '')
-            print((q + w)/2)
-            print(each['link'])
-            print()
+            rop = each['name'].lower().split(' ')
+            for _ in rop:
+                if _ in each['name']:
+                    nameMatch = True
+                    break
+
+#            print(q)
+#            print()
+
+            e = 0
+
+            if each in result['songs']:
+                for artist in song.getContributingArtists():
+                    if artist.lower() in each['artist'].lower():
+                        e += 1
+            else:
+                for artist in song.getContributingArtists():
+                    if artist.lower() in each['name'].lower():
+                        e += 1
+            
+            r = e/len(song.getContributingArtists())
+            r = r*100
+
+            _ = song.getContributingArtists()
+            popqro = ''
+
+#            print(song.getAlbumName())
+            try:
+#                print(each['album'])
+                w = fuzz.ratio(
+                song.getAlbumName(),
+                each['album']
+                )
+#                print(w)
+            except:
+                pass
+#                print('Video Result')
+            
+#            print()
+            if r != 0 and nameMatch:
+                z = (q + w + r)/3
+                if z > topRes[0]:
+                    topRes = (z, each)
+                elif z == topRes[0]:
+                    if each['position'] < topRes[1]['position']:
+                        topRes = (z, each)
+
+        print('---------------------------------------------------------------------')
+        print(topRes[1]['name'])
+        try:
+            print(topRes[1]['artist'])
+        except:pass
+        print(topRes[1]['link'])
+        print('MATCH AVG: %f' % topRes[0])
 
         return result
 
 q = searchProvider()
-q.searchFromName('Aiobahn Stephen Walking remix')
-q.searchFromName('Sugaan Essen')
-q.searchFromName('Ruelle madness')
+
+while True:
+    query = input('\nSearch Query: ')
+
+    if query == 'quit()':
+        break
+
+    t1 = datetime.now()
+    q.searchFromName(query)
+    t2 = datetime.now()
+
+    print(t2-t1)
 
 #while True:
 #    query = input('search query: ')

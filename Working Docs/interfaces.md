@@ -17,25 +17,25 @@ change often and without warning.
 ## 01. Music Search Interface
 
 Functions defined here:
-- [searchFromURI](#searchFromURI)
-- [searchAllFromURI](#searchAllFromURI)
+- [searchFromUrl](#searchFromUrl)
+- [searchAllFromUrl](#searchAllFromUrl)
 - [searchFromName](#searchFromName)
 - [searchAllFromName](#searchAllFromName)
 
-### searchFromUri
+### searchFromUrl
 
 | Parameter | Type | Description |
 | --- | --- | --- |
-| spotifyURI | str | The spotify URI of a song |
-| **RETURN** | [song](objects.md#Song) | The details of the ***best*** match |
+| spotifyUrl | str | The spotify Url of a song |
+| **RETURN** | [song](#04.-Song-Object-Interface) | The details of the ***best*** match |
 
 <br><br>
 
-### searchAllFromUri
+### searchAllFromUrl
 
 | Parameter | Type | Description |
 | --- | --- | --- |
-| spotifyURI | str | The spotify URI of a song |
+| spotifyUrl | str | The spotify Url of a song |
 | **RETURN** | list\<song> | List of all matches |
 
 <br><br>
@@ -46,7 +46,7 @@ Functions defined here:
 | --- | --- | --- |
 | songName | str | name of the song |
 | artist (optional) | str | name of the artist, defaults to `None` |
-| **RETURN** | [song](objects.md#Song) | The details of the ***best*** match |
+| **RETURN** | [song](#04.-Song-Object-Interface) | The details of the ***best*** match |
 
 <br><br>
 
@@ -72,8 +72,8 @@ Functions defined here:
 
 | Parameter | Type | Description |
 | --- | --- | --- |
-| song | [song](objects.md#Song) | song object of the required song |
-| **RETURN** | [metadata](objects.md#Metadata)| The ***best*** match |
+| song | [song](#04.-Song-Object-Interface) | song object of the required song |
+| **RETURN** | [metadata](#03.-Metadata-Object-Interface)| The ***best*** match |
 
 <br><br>
 
@@ -81,7 +81,7 @@ Functions defined here:
 
 | Parameter | Type | Description |
 | --- | --- | --- |
-| song | [song](objects.md#Song) | song object of the required song |
+| song | [song](#04.-Song-Object-Interface) | song object of the required song |
 | **RETURN** | str | lyrics of the song, None if not available |
 
 <br><br>
@@ -195,6 +195,7 @@ Functions defined here:
 - [getYoutubeLength](#getYoutubeLength)
 - [getSpotifyLink](#getSpotifyLink)
 - [getYoutubeLink](#getYoutubeLink)
+- [getMetaData](#getMetaData)
 
 ### getSongName
 
@@ -247,6 +248,14 @@ required.
 
 <br><br>
 
+### getMetaData
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| **RETURN** | [metadata](#03.-Metadata-Object-Interface) | Metadata of the given song |
+
+<br><br>
+
 Note, I realize that there might seem to be sizeable overlap b/w the Song
 Object and Metadata Object Interfaces, Their purposes are fundamentally
 different hence they are separate. The Song Object Interface aims to
@@ -266,7 +275,7 @@ Function: Download song, converts format, applies metadata
 
 | Parameter | Type | Description |
 | --- | --- | --- |
-| song | [song](objects.md#song) | the song to download |
-| metadata | [metadata](objects.md#metadata) | metadata of song to download |
+| song | [song](#04.-Song-Object-Interface) | the song to download |
+| metadata | [metadata](#03.-Metadata-Object-Interface) | metadata of song to download |
 | format | str | format to save the downloaded song, defaults to '.mp3' |
 | **RETURN** | None | - |
