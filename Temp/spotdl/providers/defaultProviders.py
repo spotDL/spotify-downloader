@@ -7,7 +7,7 @@ Implementation of the Search interfaces defined in interfaces.md
 #===============
 #=== Imports ===
 #===============
-from spotdl.providers.defaultObjects import songObject
+from spotdl.providers.defaultObjects import *
 from spotdl.utils.spotifyHelpers import searchForSong
 
 from fuzzywuzzy.fuzz import partial_ratio as matchPercentage
@@ -61,68 +61,17 @@ def atLeastOneCommonWord(sentenceA, sentenceB):
 
 
 
+#==========================
+#=== Provider Functions ===    
+#==========================
+
+# getLyrics should be defined here but has been moved to defaultObjects.py
+# as circular imports trigger ImportError's
+
+
 #========================
 #=== Provider Classes ===
 #========================
-class metadataProvider(object):
-
-    def __init__(self): pass
-
-    def getDetails(self, songObj):
-        '''
-        `songObj` `songObj` : An object that implements the song object
-        interface
-
-        returns an instance of a `metadataObj` containing metadata of the
-        song referenced in the `songObj`.
-        
-        See interfaces.md on github repo for more details
-        '''
-
-        # The metadata class is the same as the trackDetails class from
-        # spotdl.utils.spotifyHelpers.py, it takes a spotify Url as its
-        # __init__ arg and implements the metadata object interface over
-        # metadata queried from spotify.
-        #
-        # see also, comment above metadata class declaration in
-        # defaultObjects.py
-
-        # This function is redundant in this implementation, as we again,
-        # once more piggyback on trackDetails to get metadata from the
-        # Spotify-api. This function is defined to keep in line with the
-        # interface definitions. You might say that the interface definition
-        # is dumb, maybe true... but, if someone is not satisfied with
-        # just the Spotify-api, he/she/them don't have to rewrite the
-        # trackDetails class from helpers, they might as well, write their
-        # fresh code here, and return an object that implements the metadata
-        # object interface, it doesn't even have to be a metadata object, just
-        # something that provides the same interface....
-        #
-        # In case your writing a custom getDetails method,
-        #
-        #   class customMetadataProvider(metadataProvider):
-        #       def getDetails(self, songObj):
-        #           # your code goes here
-        #           ...
-        #
-        #           # please apply your metadata to songObj, so the rest of 
-        #           # spotDL can benifit from your, fresh/new  metadata
-        #           songObj.metadata = yourImplementationOfTheMetadataInterface
-        
-        return songObj.getMetadata()
-    
-    def getLyrics(self, songObj):
-        '''
-        `songObj` `songObj`: Any object that implements the song object
-        interface
-
-        returns the lyrics of the referenced song if available, returns
-        `None` if no lyrics were found
-        '''
-
-        # Not yet implemented, return None as-per the interface rules from
-        # interface.md
-        return None
 
 class searchProvider(object):
     '''
@@ -460,7 +409,7 @@ class searchProvider(object):
         
         if getBestMatchOnly:
             # If we are to return only the top result after filtering
-            topResult = None
+            topResult = filteredResults[0]
 
             for result in filteredResults:
                 if result['avgMatch'] > topResult['avgMatch']:
@@ -527,11 +476,11 @@ class searchProvider(object):
             # MetadataObject is more complete than YouTube Music results
             artists = songDetails.getContributingArtists(),
             
-            sLen = songDetails.getLength(),
-            yLen = result['length'],
+            spotifyLength = songDetails.getLength(),
+            youtubeLength = result['length'],
             
-            sLink = songSpotifyUrl,
-            yLink = result['link'],
+            spotifyLink = songSpotifyUrl,
+            youtubeLink = result['link'],
             
             metadata = songDetails
         )
@@ -556,11 +505,11 @@ class searchProvider(object):
             # MetadataObject is more complete than YouTube Music results
             artists = songDetails.getContributingArtists(),
             
-            sLen = songDetails.getLength(),
-            yLen = result['length'],
+            spotifyLength = songDetails.getLength(),
+            youtubeLength = result['length'],
             
-            sLink = url,
-            yLink = result['link'],
+            spotifyLink = url,
+            youtubeLink = result['link'],
             
             metadata = songDetails
         )
@@ -590,11 +539,11 @@ class searchProvider(object):
                 # MetadataObject is more complete than YouTube Music results
                 artists = songDetails.getContributingArtists(),
 
-                sLen = songDetails.getLength(),
-                yLen = result['length'],
+                spotifyLength = songDetails.getLength(),
+                youtubeLength = result['length'],
 
-                sLink = songSpotifyUrl,
-                yLink = result['link'],
+                spotifyLink = songSpotifyUrl,
+                youtubeLink = result['link'],
 
                 metadata = songDetails
             )
@@ -625,11 +574,11 @@ class searchProvider(object):
                 # MetadataObject is more complete than YouTube Music results
                 artists = songDetails.getContributingArtists(),
 
-                sLen = songDetails.getLength(),
-                yLen = result['length'],
+                spotifyLength = songDetails.getLength(),
+                youtubeLength = result['length'],
 
-                sLink = url,
-                yLink = result['link'],
+                spotifyLink = url,
+                youtubeLink = result['link'],
 
                 metadata = songDetails
             )

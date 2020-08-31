@@ -21,6 +21,28 @@ logger = getSubLoggerFor('other')
 
 
 
+#==========================
+#=== Provider Functions ===    
+#==========================
+
+# This should be defined under searchProviders.py but that
+# throws up import errors for some reason
+def getLyrics(songObj):
+    '''
+    `songObj` `songObj`: Any object that implements the song object
+    interface
+
+    returns the lyrics of the referenced song if available, returns
+    `None` if no lyrics were found. Is default implementation or
+    getLyrics from 'Search & allied functionlaity' from interfaces.md
+    '''
+
+    # Not yet implemented, return None as-per the interface rules from
+    # interface.md
+    return None
+
+
+
 #===============
 #=== Classes ===
 #===============
@@ -47,7 +69,13 @@ class songObject(object):
     # yLen      >   length of song on youtube (sec)
     # sLink     >   spotify url of song
     # yLink     >   youtube url of song
-    def __init__(self, name, artists, sLen, yLen, sLink, yLink, metadata = None):
+    def __init__(
+        self, name, artists,
+        spotifyLength, youtubeLength,
+        spotifyLink, youtubeLink,
+        metadata = None,
+        lyrics = None
+    ):
         
         # Check validity of inputs before assignment, else raise an Exception
         # these exceptions are not meant to be handled so also log a critical
@@ -68,19 +96,20 @@ class songObject(object):
             raise Exception('"artists" passed to songObject must be list<str>')
         
         # sLen, yLen must be int
-        if isinstance(sLen, int) and isinstance(yLen, int):
-            self.sLen = sLen
-            self.yLen = yLen
+        if isinstance(spotifyLength, int) or isinstance(spotifyLength, float) and \
+        isinstance(youtubeLength, int) or isinstance(youtubeLength, float):
+            self.sLen = spotifyLength
+            self.yLen = youtubeLength
         else:
             logger.critical('sLen/yLen passed to songObject not int')
             raise Exception('"sLen/yLen" passed to songObject must be int')
 
         # sLink, yLink must be str, start with 'http'
 
-        if (isinstance(sLink, str) and sLink.startswith('http')) and (
-            isinstance(yLink, str) and yLink.startswith('http')):
-            self.sLink = sLink
-            self.yLink = yLink
+        if (isinstance(spotifyLink, str) and spotifyLink.startswith('http')) and (
+            isinstance(youtubeLink, str) and youtubeLink.startswith('http')):
+            self.sLink = spotifyLink
+            self.yLink = youtubeLink
         else:
             logger.critical('sLink/yLink passed to songObject not Url\'s')
             raise Exception('"sLink/yLink" passed to songObject must be Url')
@@ -89,6 +118,11 @@ class songObject(object):
             self.metadata = metadata
         else:
             self.metadata = metadataObject(self.sLink)
+        
+        if isinstance(lyrics, str):
+            self.lyrics = lyrics
+        else:
+            self.lyrics = getLyrics(self)
     
     def getSongName(self):
         '''
@@ -138,3 +172,10 @@ class songObject(object):
         '''
 
         return self.metadata
+    
+    def getLyrics(self):
+        '''
+        returns non-time-synched lyrics as `str`
+        '''
+
+        return self.lyrics

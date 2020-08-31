@@ -42,8 +42,9 @@ def downloadTrack(link, folder):
 
     `str` `folder` : path to folder where track is to be downloaded
 
-    returns path of saved file. This function doesn't create a destination
-    folder if it doesn't exist on the file system
+    downloads audio from youtube link and returns path of saved file.
+    This function doesn't create a destination folder if it doesn't exist
+    on the file system
     '''
 
     # should be fairly self explanatory...

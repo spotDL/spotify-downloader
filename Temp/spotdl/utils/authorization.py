@@ -59,12 +59,14 @@ def getSpotifyClient(clientId = None, clientSecret = None):
     
     else:
         logger.info('Creating authorized Spotify Client >')
+        
         # Oauth
         credentialManager = SpotifyClientCredentials(
             client_id = clientId,
             client_secret = clientSecret
         )
         spotifyClient = Spotify(client_credentials_manager = credentialManager)
+        
         # Cache current client
         masterClient = spotifyClient
     
