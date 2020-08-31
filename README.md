@@ -6,6 +6,8 @@ We're doing some (kinda) major work on spotify-downloader to make it easier to c
 
 We'd like as many reviews of the work in progress so that we can turn out a truly improved, simple and easy-to-contribute spotify-downloader. Head over to [Draft PR #812](https://github.com/ritiek/spotify-downloader/pull/812) to help out with that. Only with your help, together can do the whole community and the many users a lot of good.
 
+⚠⚠⚠ We just finished the new search providers, if your interested in trying them try running [this file](https://github.com/Mikhail-Zex/spotify-downloader/blob/reStructure/reCode/Temp/YTM_test.py) ⚠⚠⚠
+
 Thank you for your time.
 
 [![PyPi](https://img.shields.io/pypi/v/spotdl.svg)](https://pypi.org/project/spotdl)
