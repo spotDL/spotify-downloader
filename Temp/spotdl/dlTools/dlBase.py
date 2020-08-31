@@ -21,7 +21,9 @@ from mutagen.id3 import APIC as albumCover, USLT as lyricData
 
 # for downloading audio
 from pytube import YouTube
+
 from os import system as runInShell
+from os.path import join
 
 
 
@@ -58,7 +60,7 @@ def downloadTrack(link, folder):
 # Used a Pool (16 processes), converted 520 .flac files (~22.8gB)
 # in 19.28.02 mins, single proc took 62 mins.
 
-def convertToMp3(filePath, outFolder = '.\\', overwriteFiles = False):
+def convertToMp3(filePath, outFolder, overwriteFiles = False):
     '''
     `str` `filePath` : path to file to be converted
 
@@ -78,25 +80,24 @@ def convertToMp3(filePath, outFolder = '.\\', overwriteFiles = False):
     # ffmpeg -i $inputFile.anyExtension $outputFile.mp3
 
     rIndexOfSlash = filePath.rfind('\\')
-
     extensionIndex = filePath.rfind('.')
-    extension = filePath[extensionIndex + 1 :].lower()
 
-    command = ''
+    extensionLessFile = filePath[rIndexOfSlash + 1 : extensionIndex]
+    outFile = join(outFolder, extensionLessFile)
 
     if overwriteFiles:
         command = 'ffmpeg -v quiet -y -i "%s" "%s.mp3"'
+        formattedCommand = command % (filePath, outFile)
+        runInShell(formattedCommand)
     else:
         command = 'ffmpeg -v quiet -n -i "%s" "%s.mp3"'
-
-    if extension != '.txt' and extension != '.mp3':
-        extensionLessFile = filePath[rIndexOfSlash + 1 : extensionIndex]
-        formattedCommand = command % (filePath, outFolder + extensionLessFile)
+        formattedCommand = command % (filePath, outFile)
         runInShell(formattedCommand)
-
+    
+    return outFile + '.mp3'
 
 # currently supports only mp3
-def embedDetails(filePath, metadata):
+def embedDetails(filePath, songObj):
     '''
     `str` `filePath` : path to file whose metadata is to be embedded
 
@@ -106,6 +107,8 @@ def embedDetails(filePath, metadata):
     Embeds metadata to given file using ID3 v2.3 tags. ID3 v2.4 is not used as
     Windows systems do not support them and hence metadata would not display
     '''
+
+    metadata = songObj.getMetadata()
 
     # Setting the simple ID3 values
     audioFile = easyId3(filePath)
@@ -125,12 +128,12 @@ def embedDetails(filePath, metadata):
     audioFile['title'] = metadata.getSongName()
 
     #track number
-    audioFile['tracknumber'] = metadata.getTrackNumber()
+    audioFile['tracknumber'] = str(metadata.getTrackNumber())
 
     # geners [TODO]
 
     # duration
-    audioFile['length'] = metadata.getLength()
+#    audioFile['length'] = str(metadata.getLength())
 
     # all artists involved in the song
     audioFile['artist'] = metadata.getContributingArtists() # what separator?
@@ -165,7 +168,7 @@ def embedDetails(filePath, metadata):
     )
 
     # Returns 'None' if lyrics not found
-    lyrics = metadata.getLyrics()
+    lyrics = songObj.getLyrics()
 
     # 'None' evaluates to 'False'
     if lyrics:

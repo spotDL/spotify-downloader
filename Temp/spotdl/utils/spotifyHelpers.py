@@ -58,7 +58,10 @@ def searchForSong(songName, artist = None, returnAll = False):
     
     # else return supposed best match
     else:
-        rawTrackMeta = results['tracks']['items'][0]
+        try:
+            rawTrackMeta = results['tracks']['items'][0]
+        except:
+            raise Exception('No results found')
 
         return 'http://open.spotify.com/track/' + rawTrackMeta['id']
 

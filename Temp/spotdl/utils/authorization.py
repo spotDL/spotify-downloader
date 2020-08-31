@@ -10,10 +10,14 @@ from requests import Session
 
 from spotdl.utils.loggingBase import getSubLoggerFor
 
+
+
 #==================
 #=== Exceptions ===
 #==================
 class spotifyAuthorizationError(Exception): pass
+
+
 
 #========================
 #=== Module Variables ===
@@ -24,6 +28,21 @@ masterClient = None
 
 # logger
 logger = getSubLoggerFor('authorization')
+
+
+
+#=========================
+#=== Utility functions ===
+#=========================
+
+def initialize():
+    # initializes and caches spotifyClient
+    getSpotifyClient(
+        clientId='4fe3fecfe5334023a1472516cc99d805',
+        clientSecret='0f02b7c483c04257984695007a4a8d5c'
+    )
+
+
 
 #===============
 #=== Classes ===
