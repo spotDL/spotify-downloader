@@ -7,7 +7,7 @@ Implementation of the Search interfaces defined in interfaces.md
 #===============
 #=== Imports ===
 #===============
-from spotdl.providers.defaultObjects import *
+from spotdl.providers.defaultObjects import songObject
 from spotdl.utils.spotifyHelpers import searchForSong
 
 from fuzzywuzzy.fuzz import partial_ratio as matchPercentage
@@ -25,6 +25,16 @@ from json import dumps as convertDictToJsonStr
 ytmApiKey = 'AIzaSyC9XL3ZjWddXya6X74dJoCTL-WEYFDNX30'
 
 def atLeastOneCommonWord(sentenceA, sentenceB):
+    '''
+
+    `str` `sentenceA` : a sentence
+
+    `str` `sentenceB` : another sentence
+
+    returns `True` if there is at least one common word b/w sentenceA and
+    sentenceB. It is not case sensitive.
+    '''
+
     # most song results on youtube go by $artist - $songName, so
     # if the spotify name has a '-', this function would return True,
     # a common '-' is hardly a 'common 'word', so we get rid of it.
@@ -59,6 +69,16 @@ class metadataProvider(object):
     def __init__(self): pass
 
     def getDetails(self, songObj):
+        '''
+        `songObj` `songObj` : An object that implements the song object
+        interface
+
+        returns an instance of a `metadataObj` containing metadata of the
+        song referenced in the `songObj`.
+        
+        See interfaces.md on github repo for more details
+        '''
+
         # The metadata class is the same as the trackDetails class from
         # spotdl.utils.spotifyHelpers.py, it takes a spotify Url as its
         # __init__ arg and implements the metadata object interface over
@@ -92,11 +112,25 @@ class metadataProvider(object):
         return songObj.getMetadata()
     
     def getLyrics(self, songObj):
+        '''
+        `songObj` `songObj`: Any object that implements the song object
+        interface
+
+        returns the lyrics of the referenced song if available, returns
+        `None` if no lyrics were found
+        '''
+
         # Not yet implemented, return None as-per the interface rules from
         # interface.md
         return None
 
 class searchProvider(object):
+    '''
+    Default implementation of the search interface
+    
+    see interfaces.md for more details
+    '''
+
     # Authored by: Elliot G. (@rocketinventor)
     # Just a few tweaks by @Mikhail-Zex
 
@@ -126,6 +160,34 @@ class searchProvider(object):
     # The following class methods do all the work
 
     def queryAndSimplify(self, searchTerm):
+        '''
+        `str` `searchTerm` : the search term you would type into YouTube
+        Music's search bar
+        
+        queries YouTube Music and simplifies their (as of now) senselessly
+        nested JSON response. returns `list<dict>`. Each `dict` has the
+        following indices:
+
+        `str` `name` : name of the result as on YouTube Music
+
+        `str` `type` : either 'song' or 'video'
+        
+        
+        `int` `length` : length of result in seconds
+
+        `str` `link` : link of the result on YouTube (not YouTube Music)
+
+        `int` `position` : index of the result from the top of the page (the
+        topmost result would be 0)
+
+        The following details will only be present in results with type 'song'
+
+        `str` `artist` : name of artist as on YouTube Music, generally only the
+        primary artist
+        
+        `str` `album` : name of album as on YouTube Music
+        '''
+
         # Query YouTube Music with a POST request, save response to
         # self.cRequest as a dict
         self.payload['query'] = searchTerm
@@ -316,6 +378,20 @@ class searchProvider(object):
         return simplifiedResults
     
     def searchAndFilterYTM(self, songDetails, getBestMatchOnly = False):
+        '''
+        `metadataObj` `songDetails` : metadata of the song to be matched
+        
+        `bool` `getBestMatchOnly` : decides to return top result or all results
+
+        First query's YouTube Music via the queryAndSimplify method, then
+        matches the provided results agains the metadata from `songDetails`. It
+        adds a 'avgMatch' index to each result provided by queryAndSimplify indicating
+        the % similarity the result has with the given metadata.
+
+        returns all results with the additional 'avgMatch' field or only the result
+        with the best overall match depending on `getBestMatchOnly`
+        '''
+
         # Build a youtube search term
         searchTerm = ''
 
@@ -404,6 +480,11 @@ class searchProvider(object):
     # be of use, when using spotDL as a library
 
     def save(self):
+        '''
+        saves the YouTube Music Query Response as-is to a .jsonc file in
+        the directory of execution
+        '''
+
         # save the details of the latest YTM query as-is to query.jsonc
         latestQuery = self.payload['query']
 
@@ -427,6 +508,12 @@ class searchProvider(object):
     # where the real work is
     
     def searchFromName(self, query):
+        '''
+        `str` `query` : search query you would type into Spotify's search box
+
+        returns the best match to the given search query as a `songObj`
+        '''
+
         # Search for the best match and get the song's details
         songSpotifyUrl = searchForSong(query)
         songDetails = metadataObject(songSpotifyUrl)
@@ -452,6 +539,12 @@ class searchProvider(object):
         return resultAsSongObj
     
     def searchFromUrl(self, url):
+        '''
+        `str` `url` : Spotify Url of song to be matched on YouTube Music
+
+        returns best overall match as a `songObj`
+        '''
+
         songDetails = metadataObject(url)
 
         # Find matches from YouTube Music
@@ -475,6 +568,12 @@ class searchProvider(object):
         return resultAsSongObj
     
     def searchAllFromName(self, query):
+        '''
+        `str` `query` : search query you would type into Spotify's search box
+
+        returns the all matches to the given search query as a `list<songObj>`
+        '''
+
         # Search for the best match and get the song's details
         songSpotifyUrl = searchForSong(query)
         songDetails = metadataObject(songSpotifyUrl)
@@ -505,6 +604,12 @@ class searchProvider(object):
         return allResults
 
     def searchAllFromUrl(self, url):
+        '''
+        `str` `url` : Spotify url of the song to be matched on YouTube Music
+
+        returns the all matches to the given search query as a `list<songObj>`
+        '''
+
         # Search for the best match and get the song's details
         songDetails = metadataObject(url)
 

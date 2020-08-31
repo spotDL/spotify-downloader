@@ -53,10 +53,10 @@ topLog.addHandler(criticalHandler)
 # Function passing out requisite loggers to various modules
 def getSubLoggerFor(functionalUnit):
     '''
+    `str` `functionalUnit` : one of ['authorization', 'utility', 'other', 'tests']
+
     Returns a logger related to the functionality of the module calling
     this function.
-
-    functionalUnit must be one of 'authorization', 'utility', 'other', 'tests'
     '''
     
     # Mapping of module function to logger name

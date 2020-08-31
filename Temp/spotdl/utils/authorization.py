@@ -30,6 +30,15 @@ logger = getSubLoggerFor('authorization')
 #===============
 
 def getSpotifyClient(clientId = None, clientSecret = None):
+    '''
+    `str` `clientID` : Spotify client id
+
+    `str` `clientSecret` : Spotify client secret
+
+    returns cached Spotify client if available, else attempts to create
+    and return a fresh client of type `spotify.Spotify`
+    '''
+
     global masterClient
 
     # check if inputs are valid and usable

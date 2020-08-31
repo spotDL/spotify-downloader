@@ -1,18 +1,22 @@
 # What is this file?
 
 This file contains a working specification of all interfaces used in this
-project. As it is still in dev, the interfaces declared here are likely to
-change often and without warning.
+project. They are grouped by their purpose.
 
 # Index
 
-- [Music Search Interface](#01.-Music-Search-Interface)
-- [Metadata Search Interface](#02.-Metadata-Search-Interface)
-- [Metadata Object Interface](#03.-Metadata-Object-Interface)
-- [Song Object Interface](#04.-Song-Object-Interface)
-- [Downloads Interface](#05.-Downloads-Interface)
+- [Search & allied functionality](#Search-&-allied-functionality)
+    - [Music Search Interface](#01.-Music-Search-Interface)
+    - [getLyrics](#02.-getLyrics-[function])
+    - [Metadata Object Interface](#03.-Metadata-Object-Interface)
 
-# Interfaces
+- [General data passing](#General-data-passing)
+    - [Song Object Interface](#04.-Song-Object-Interface)
+
+- [Downloads](#Downloads)
+    - [Downloads Interface](#05.-Downloads-Interface)
+
+# Search & allied functionality
 
 ## 01. Music Search Interface
 
@@ -62,33 +66,26 @@ Functions defined here:
 
 <br><br>
 
-## 02. Metadata Search Interface
-
-Functions defined here:
-- [getDetails](#getDetails)
-- [getLyrics](#getLyrics)
-
-### getDetails
+## 02. getLyrics [function]
 
 | Parameter | Type | Description |
 | --- | --- | --- |
-| song | [song](#04.-Song-Object-Interface) | song object of the required song |
-| **RETURN** | [metadata](#03.-Metadata-Object-Interface)| The ***best*** match |
+| songObj | [song](#04.-Song-Object-Interface) | The song whose lyrics are to be found |
+| **RETURN** | str | non-time-synched lyrics, returns `None` if no lyrics found |
 
 <br><br>
 
-### getLyrics
-
-| Parameter | Type | Description |
-| --- | --- | --- |
-| song | [song](#04.-Song-Object-Interface) | song object of the required song |
-| **RETURN** | str | lyrics of the song, None if not available |
+Notes,
+- Though this is a function definition among many other interface definitions,
+this function must be implemented as it is generally used by any object implementing
+the song object interface
 
 <br><br>
 
 ## 03. Metadata Object Interface
 
 Functions defined here:
+- [\_\_init\_\_](#__init__)
 - [getSongName](#getSongName)
 - [getTrackNumber](#getTrackNumber)
 - [getLength](#getLength)
@@ -97,8 +94,17 @@ Functions defined here:
 - [getAlbumArtists](#getAlbumArtists)
 - [getAlbumRelease](#getAlbumRelease)
 - [getAlbumArtUrl](#getAlbumArtUrl)
-- [getLyrics](#getLyrics)
 - [getDataDump](#getDataDump)
+
+### \_\_init\_\_
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| spotifyUrl | str | Spotify url of a given song |
+| youtubeUrl (optional) | str | youtube url of the given song, defaults to `None` |
+| **RETURN** | metadataObject | an object implementing the metadata object interface |
+
+<br><br>
 
 ### getSongName
 
@@ -164,27 +170,27 @@ Functions defined here:
 
 <br><br>
 
-### getLyrics
-
-| Parameter | Type | Description |
-| --- | --- | --- |
-| **RETURN** | str | un-time-synched lyrics |
-
-<br><br>
-
 ### getDataDump
 
 | Parameter | Type | Description |
 | --- | --- | --- |
 | **RETURN** | any | Returns all the gathered metadata, None if absent |
 
-Note, The return value of the `getDataDump()` function can be of any kind -
+<br><br>
+
+Notes,
+- The return value of the `getDataDump()` function can be of any kind -
 dicts, lists, JSON responses, custom objects, or even complex dict-list nested
 structures, freedom to the author. We encourage the authors of an
 implementation of the interface to also document the return format/type of
 the `getDataDump` function.
 
+- This object is generally called by an object implementing the song object
+interface
+
 <br><br>
+
+# General data passing
 
 ## 04. Song Object Interface
 
@@ -196,6 +202,7 @@ Functions defined here:
 - [getSpotifyLink](#getSpotifyLink)
 - [getYoutubeLink](#getYoutubeLink)
 - [getMetaData](#getMetaData)
+- [getLyrics](#getLyrics)
 
 ### getSongName
 
@@ -256,6 +263,16 @@ required.
 
 <br><br>
 
+### getLyrics
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| **RETURN** | str| returns lyrics of song if found, else returns `None` |
+
+Note, just call the getLyrics function on `self`
+
+<br><br>
+
 Note, I realize that there might seem to be sizeable overlap b/w the Song
 Object and Metadata Object Interfaces, Their purposes are fundamentally
 different hence they are separate. The Song Object Interface aims to
@@ -276,6 +293,5 @@ Function: Download song, converts format, applies metadata
 | Parameter | Type | Description |
 | --- | --- | --- |
 | song | [song](#04.-Song-Object-Interface) | the song to download |
-| metadata | [metadata](#03.-Metadata-Object-Interface) | metadata of song to download |
 | format | str | format to save the downloaded song, defaults to '.mp3' |
 | **RETURN** | None | - |

@@ -30,11 +30,13 @@ logger.info('Obtained authorized spotify client')
 #=================
 def searchForSong(songName, artist = None, returnAll = False):
     '''
-    str : songName      > name of the song
-    str : artist        > name of the primary artist
-    bool: returnAll     > if all results to be returned
+    `str` `songName` : name of the song
 
-    Queries Spotify for a song and returns the best match. 
+    `str` `artist` : name of the primary artist
+    
+    `bool` `returnAll` : if all results to be returned
+
+    Queries Spotify for a song and returns the best match
     '''
 
     # None evaluates to False, non-None values to True
@@ -62,11 +64,13 @@ def searchForSong(songName, artist = None, returnAll = False):
 
 def searchForAlbum(albumName, artist = None, returnAll = False):
     '''
-    str : songName      > name of the song
-    str : artist        > name of the primary artist
-    bool: returnAll     > if all results to be returned
+    `str` `songName` : name of the song
+    
+    `str` `artist` : name of the primary artist
+    
+    `bool` `returnAll` : if all results to be returned
 
-    Queries Spotify for a song and returns the best match. 
+    Queries Spotify for a album and returns the best match
     '''
 
     # None evaluates to False, non-None values to True
@@ -94,11 +98,13 @@ def searchForAlbum(albumName, artist = None, returnAll = False):
 
 def searchForPlaylist(playlistName, returnAll = False):
     '''
-    str : songName      > name of the song
-    str : artist        > name of the primary artist
-    bool: returnAll     > if all results to be returned
+    `str` `songName` : name of the song
+    
+    `str` `artist` : name of the primary artist
+    
+    `bool` `returnAll` : if all results to be returned
 
-    Queries Spotify for a song and returns the best match. 
+    Queries Spotify for a playlist and returns the best match
     '''
 
     # None evaluates to False, non-None values to True
@@ -122,6 +128,13 @@ def searchForPlaylist(playlistName, returnAll = False):
         return 'http://open.spotify.com/playlist/' + rawPlaylistMeta['id']
 
 def getAlbumTracks(albumUrl):
+    '''
+    `str` `albumUrl` : Spotify Url of the album whose tracks are to be
+    retrieved
+
+    returns a `list<str>` containing Url's of each track in the given album
+    '''
+
     albumTracks = []
 
     # while loop acts like do-while
@@ -145,6 +158,14 @@ def getAlbumTracks(albumUrl):
     return albumTracks
 
 def getPlaylistTracks(playlistUrl):
+    '''
+    `str` `playlistUrl` : Spotify Url of the album whose tracks are to be
+    retrieved
+
+    returns a `list<str>` containing Url's of each track in the given playlist
+    '''
+
+
     playlistTracks = []
 
     # while loop to mimic do-while
@@ -172,10 +193,12 @@ def getPlaylistTracks(playlistUrl):
 #===============
 class trackDetails(object):
     '''
-    str: url        > URL of a spotify track, usually from open.spotify.com
+    `str` `spotifyUrl` : URL of a Spotify track
 
-    trackDetails is an abstraction layer over the standart spotify-api
-    response.
+    `str` `youtubeUrl` : URL of the same track from YouTube
+
+    trackDetails is an abstraction layer over the standard Spotify-api
+    response that implements the metadata object interface
     '''
     
     # This class is used during both the search phase and also the
@@ -183,11 +206,14 @@ class trackDetails(object):
     # note, if your interested in the structure of the spotify-api response,
     # look up the REFS folder under TEMP on the github repo
 
-    def __init__(self, url):
+    def __init__(self, spotifyUrl, youtubeUrl = None):
+        # youtubeUrl arg is not utilized anywhere, its been added only
+        # to keep in line with the interface definition
+
         global spotify
 
         # Spotify api response, (JSON)
-        self.__rawTrackMeta = spotify.track(url)
+        self.__rawTrackMeta = spotify.track(spotifyUrl)
 
         # Barely use these two - they're here just to provide genre info and
         # use by enterprising young coders. Look to the dataDump method below
@@ -202,7 +228,7 @@ class trackDetails(object):
         # log successful detail retrieval
         logMessage = 'Obtained metadata for %-10s (%s)' % (
             self.__rawTrackMeta['name'],
-            url
+            spotifyUrl
         )
 
         logger.info(logMessage)
@@ -310,9 +336,9 @@ class trackDetails(object):
         '''
         returns a dictionary containing the spotify-api responses as-is. The
         dictionary keys are as follows:
-            - rawTrackMeta      > spotify-api track details
-            - rawAlbumMeta      > spotify-api song's album details
-            - rawArtistMeta     > spotify-api song's artist details
+            - rawTrackMeta      spotify-api track details
+            - rawAlbumMeta      spotify-api song's album details
+            - rawArtistMeta     spotify-api song's artist details
         
         Avoid using this function, it is implemented here only for those super
         rare occasions where there is a need to look up other details. Why

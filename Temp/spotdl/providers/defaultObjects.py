@@ -1,5 +1,7 @@
 '''
 Implementation of the Object interfaces defined in interfaces.md
+
+See interfaces.md on the github repo from more details
 '''
 
 
@@ -34,6 +36,10 @@ metadataObject = trackDetails
 # 02. Song Object Interface Provider
 
 class songObject(object):
+    '''
+    Default implementation of the 'song object interface'. It uniquely
+    identifies a given song using details from spotify and YouTube Music.
+    '''
     
     # name      >   song name
     # artists   >   list of contributing artists
@@ -85,22 +91,50 @@ class songObject(object):
             self.metadata = metadataObject(self.sLink)
     
     def getSongName(self):
+        '''
+        returns name of the song
+        '''
+
         return self.name
     
     def getContributingArtists(self):
+        '''
+        returns a `list<str>` containing names of contributing artists
+        '''
+
         return self.artists
     
     def getSpotifyLength(self):
+        '''
+        returns length of song as on Spotify in seconds
+        '''
+
         return self.sLen
     
     def getYoutubeLength(self):
+        '''
+        returns length of song as on YouTube Music in seconds
+        '''
+
         return self.yLen
     
     def getSpotifyLink(self):
+        '''
+        returns link of song from Spotify's web player
+        '''
+
         return self.sLink
     
     def getYoutubeLink(self):
+        '''
+        returns link of the song from YouTube
+        '''
+
         return self.yLink
     
     def getMetadata(self):
+        '''
+        returns a `metadataObj` containing song metadata
+        '''
+
         return self.metadata

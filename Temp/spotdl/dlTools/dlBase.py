@@ -10,7 +10,7 @@ Handles the embedding of metadata into audio files, uses ID3 v2.3 tags.
 
 # generic imports:
 from urllib.request import urlopen
-#from spotdl.utils.loggingBase import getSubLoggerFor
+from spotdl.utils.loggingBase import getSubLoggerFor
 
 # The following help embed metadata:
 # Renaming imports to conform to naming conventions 
@@ -28,7 +28,7 @@ from os import system as runInShell
 #====================
 #=== Initializing ===
 #====================
-#logger = getSubLoggerFor('utility')
+logger = getSubLoggerFor('utility')
 
 
 
@@ -37,6 +37,15 @@ from os import system as runInShell
 #=================
 
 def downloadTrack(link, folder):
+    '''
+    `str` `link` : link of a song from YouTube
+
+    `str` `folder` : path to folder where track is to be downloaded
+
+    returns path of saved file. This function doesn't create a destination
+    folder if it doesn't exist on the file system
+    '''
+
     # should be fairly self explanatory...
     youtubeHandler = YouTube(link)
     
@@ -48,7 +57,20 @@ def downloadTrack(link, folder):
 # Used a Pool (16 processes), converted 520 .flac files (~22.8gB)
 # in 19.28.02 mins, single proc took 62 mins.
 
-def encodeToMp3(filePath, outFolder = '.\\', overwriteFiles=False):
+def convertToMp3(filePath, outFolder = '.\\', overwriteFiles = False):
+    '''
+    `str` `filePath` : path to file to be converted
+
+    `str` `outFolder` : path to output folder
+
+    `bool` `overwriteFiles` : flag indicating weather to overwrite file or not
+
+    converts file at `filePath` to mp3 and outputs the resultant .mp3 file at
+    `outFolder`. This function doesn't create the necessary directories. Note
+    that no explicit notification is provided as to weather the file is
+    overwritten or skipped
+    '''
+
     # ffmpeg handles the details of conversions, just have to specify the
     # input and output:
     #
@@ -74,6 +96,16 @@ def encodeToMp3(filePath, outFolder = '.\\', overwriteFiles=False):
 
 # currently supports only mp3
 def embedDetails(filePath, metadata):
+    '''
+    `str` `filePath` : path to file whose metadata is to be embedded
+
+    `metadataObj` `metadata` : object containing metadata of the given song.
+    Object should implement the metadata object interface
+
+    Embeds metadata to given file using ID3 v2.3 tags. ID3 v2.4 is not used as
+    Windows systems do not support them and hence metadata would not display
+    '''
+
     # Setting the simple ID3 values
     audioFile = easyId3(filePath)
 
