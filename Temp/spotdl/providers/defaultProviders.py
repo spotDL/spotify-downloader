@@ -285,13 +285,14 @@ class searchProvider(object):
                 minStr, secStr = availableDetails[4].split(':')
 
                 # handle leading zeroes (eg. 01, 09, etc...), they cause
-                # eval errors
-                if minStr[0] == '0':
+                # eval errors, there are a few oddball tracks that are only
+                # a few seconds long
+                if minStr[0] == '0' and len(minStr) == 2:
                     minStr = minStr[1]
                 if secStr[0] == '0':
                     secStr = secStr[1]
                 
-                time = eval(minStr) + eval(secStr)
+                time = eval(minStr)*60 + eval(secStr)
 
                 # format relevant details
                 if availableDetails[1] == 'Song':
@@ -368,11 +369,11 @@ class searchProvider(object):
 
             if result['type'] == 'song':
                 for artist in songDetails.getContributingArtists():
-                    if artist.lower() in result['artist'].lower():
+                    if matchPercentage(artist.lower(), result['artist'].lower()) > 85:
                         artistMatch += 1
             else:
                 for artist in songDetails.getContributingArtists():
-                    if artist.lower() in result['name'].lower():
+                    if matchPercentage(artist.lower(), result['name'].lower()) > 85:
                         artistMatch += 1
             
             artistMatchRatio = artistMatch/len(songDetails.getContributingArtists())
@@ -399,9 +400,17 @@ class searchProvider(object):
                     songDetails.getAlbumName()
                 )
             
+            # Find time delta as %, we squire the time delta as time
+            # differences usually are of the magnitude of just a few
+            # seconds, we need to amplify that difference if it is to have
+            # any meaningful impact
+            delta = result['length'] - songDetails.getLength()
+            deltaPercentage = (delta ** 2 / songDetails.getLength()) * 100
+            inverseDeltaPercentage = 100 - deltaPercentage
+
             # Add an average match percentage to result
             avgMatch = (artistMatchPercentage + albumMatchPercentage
-                + nameMatchPercentage) / 3
+                + nameMatchPercentage + inverseDeltaPercentage) / 4
                
             result['avgMatch'] = avgMatch
                

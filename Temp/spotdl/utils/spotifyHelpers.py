@@ -145,7 +145,7 @@ def getAlbumTracks(albumUrl):
         trackResponse = spotify.album_tracks(albumUrl)
 
         for track in trackResponse['items']:
-            albumUrl.append(
+            albumTracks.append(
                 'https://open.spotify.com/track/' + track['id']
             )
         

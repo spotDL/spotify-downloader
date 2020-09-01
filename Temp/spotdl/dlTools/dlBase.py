@@ -130,7 +130,11 @@ def embedDetails(filePath, songObj):
     #track number
     audioFile['tracknumber'] = str(metadata.getTrackNumber())
 
-    # geners [TODO]
+    # geners
+    genres = metadata.getGenres()
+
+    if genres != None:
+        audioFile['genre'] = genres
 
     # duration
 #    audioFile['length'] = str(metadata.getLength())
