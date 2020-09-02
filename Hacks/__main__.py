@@ -10,8 +10,6 @@ import atexit
 
 from datetime import datetime as Time
 
-from importLogging.loggingBlah import log0, log1
-
 # Also, logging on parlell processes is for all practical purposes pointless ¯\_(ツ)_/¯
 
 # Some parameters you can tweak
@@ -57,10 +55,8 @@ def compute_digest(filename, printer):
         chunk = f.read(BUFSIZE)
         
         if not chunk:
-            log0.info('%s digest calculated' % filename)
             break
         
-        log1.info('%s digest being updated' % filename)
         digest.update(chunk)
 
     f.close()
@@ -90,7 +86,6 @@ def build_digest_map(topdir, fname):
             argsR.append((file, temp))
 
 
-        log0.info('launching the Imaps')
         digest_map = dict(digest_pool.starmap(compute_digest,argsR))
         digest_pool.close()
 
@@ -132,6 +127,8 @@ def encodeFlac(filePath, overwriteFiles=False):
 from datetime import datetime
 
 if __name__ == '__main__':
+    build_digest_map('D:\\Projects', 'rand')
+
     pool = multiprocessing.Pool(POOLSIZE)
 
     allfiles = (os.path.join(path,name)

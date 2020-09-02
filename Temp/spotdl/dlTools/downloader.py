@@ -17,8 +17,13 @@ from spotdl.providers.defaultProviders import searchProvider
 
 # save to .\Temp > convert > embed > mode to topDir > remove from list
 
-class downloadTracker():
+def parallelLinkToSongProc(link):
+    sp = searchProvider()
+    print('searching for %s' % link)
+    return sp.searchFromUrl(link)
 
+
+class downloadTracker():
     def __init__(self, trackingFile = None, songObjList = None, outFileName = 'outfile'):
         '''
         `str` `trackingFile` : path to a .spotdlTrackingFile
@@ -54,16 +59,16 @@ class downloadTracker():
             
             self.outfile = trackingFile
 
-            def parallelLinkToSongProc(link):
-                sp = searchProvider()
-
-                return sp.searchFromUrl(link)
-
             processPool = Pool(8)
+
             self.songList = processPool.map(
                 func = parallelLinkToSongProc,
-                iterable = self.linkList
+                iterable = (link for link in self.linkList)
             )
+
+            processPool.close()
+            
+            print('parlSOngCOmp')
           
     def backupToOutFile(self):
         outFile = open(self.outfile, 'w')
@@ -121,11 +126,15 @@ def process(songObj, downloadController = None, folder = '.'):
     if not exists(tmpPath):
         makedirs(tmpPath)
 
+    print('downloading')
+
     # download song
     downloadedPath = downloadTrack(
         songObj.getYoutubeLink(),
         tmpPath
     )
+
+    print('converting')
 
     # convert to .mp3
     convertedPath = convertToMp3(
@@ -138,6 +147,8 @@ def process(songObj, downloadController = None, folder = '.'):
     # to remove it if the paths are the same
     if convertedPath != downloadedPath:
         remove(downloadedPath)
+
+    print('embedding')
 
     # embed metadata
     embedDetails(
@@ -158,3 +169,5 @@ def process(songObj, downloadController = None, folder = '.'):
 
     if downloadController:
         downloadController.notifyCompletion(songObj)
+    
+    print('complete')

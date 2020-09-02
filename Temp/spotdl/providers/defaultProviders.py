@@ -260,6 +260,10 @@ class searchProvider(object):
             # details for song/video results. From what we know about detail order,
             # note that [1] - indicate result type
             if availableDetails[1] in ['Song', 'Video']:
+                # check if details tally up, if they don't chuck it
+                if not len(availableDetails) == 5:
+                    continue
+                
                 # skip result if length is in hours or seconds (i.e. not in mins),
                 # time is formatted as hh:mm:ss
                 if len(availableDetails[4].split(':')) != 2:

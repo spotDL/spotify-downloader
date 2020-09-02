@@ -22,8 +22,8 @@ from mutagen.id3 import APIC as albumCover, USLT as lyricData
 # for downloading audio
 from pytube import YouTube
 
-from os import system as runInShell
-from os.path import join
+from os import system as runInShell, makedirs, remove, rename
+from os.path import join, exists
 
 
 
@@ -136,9 +136,6 @@ def embedDetails(filePath, songObj):
     if genres != None:
         audioFile['genre'] = genres
 
-    # duration
-#    audioFile['length'] = str(metadata.getLength())
-
     # all artists involved in the song
     audioFile['artist'] = metadata.getContributingArtists() # what separator?
 
@@ -188,3 +185,86 @@ def embedDetails(filePath, songObj):
     audioFile.save(v2_version = 3)
 
     logger.info('Metadata successfully applied')
+
+def process(songObj, dlTracker = None, folder = '.'):
+    '''
+    `songObj` `songObj` : An object implementing the song object interface
+    representing the song to be downloaded
+
+    `Autoproxy` `dlTracker` : an instance of `downloadTracker` running on a
+    separate process to handle download tracking and user-notification. Pass
+    only if downloading multiple songs in parallel (i.e. using this function as
+    the 'func' parameter for a `multiprocessing.Pool`)
+
+    `str` `folder` : path to folder where songs are to be saved
+
+    downloads the passed song, converts it to MP3, embeds metadata. If
+    `dlTracker` is passed, this function also keeps track of download progress
+    through a '.spotifyTrackingFile'
+    '''
+    
+    # create a temp folder if not present
+    tmpPath = join(folder, 'Temp')
+
+    if not exists(tmpPath):
+        makedirs(tmpPath)
+    
+    if dlTracker:
+        dlTracker.notifyDownloadStart()
+
+    try:
+        # download song
+        downloadedPath = downloadTrack(
+            songObj.getYoutubeLink(),
+            tmpPath
+        )
+
+        if dlTracker:
+            dlTracker.notifyConversionStart()
+
+        # convert to .mp3
+        convertedPath = convertToMp3(
+            downloadedPath,
+            tmpPath
+            )
+
+        if dlTracker:
+            dlTracker.notifyEmbeddingStart()
+
+        # if the downloaded file is .mp3, it isn't converted or is
+        # overwritten by the converted .mp3 file, so we wouldn't want
+        # to remove it if the paths are the same
+        if convertedPath != downloadedPath:
+            remove(downloadedPath)
+
+        # embed metadata
+        embedDetails(
+            convertedPath,
+            songObj
+        )
+
+        # rename converted file
+
+        # build name string that goes $artist-1, ..., $artist-N - $songName.mp3
+        songRenameName = ''
+
+        for artist in songObj.getContributingArtists():
+            songRenameName += artist + ', '
+
+        songRenameName = songRenameName[:-2] + ' - ' + songObj.getSongName() + '.mp3'
+        for dissallowedChar in ['/', '?', '\\', '*','|', '<', '>']:
+            if dissallowedChar in songRenameName:
+                songRenameName = songRenameName.replace(dissallowedChar, '')
+
+        renamedPath = join(folder, songRenameName.replace('"', "'").replace(':', ' -'))
+
+        # actually rename the file
+        rename(convertedPath, renamedPath)
+
+        # notify download completion to update the corresponding .spotdlTrackingFile
+        if dlTracker:
+            dlTracker.notifyCompletion(songObj)
+
+    except:
+        if dlTracker:
+            dlTracker.notifyDownloadError()

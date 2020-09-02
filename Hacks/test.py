@@ -1,42 +1,43 @@
-fileName = input('fileName: ')
-q = eval(open( fileName + '.txt', 'rb').read().decode().replace('false', 'False').replace('true', 'True').replace('null', 'None'))
+from tqdm import tqdm
+from time import sleep
 
-file = open(fileName + '.skeleton.txt', 'wb')
-maxInd = 0
+class tqdmm(tqdm):
 
-def pprint(JSON, indent = 0):
-    global file
-    global maxInd
+    @property
+    def format_dict(self):
+        d = super(tqdmm, self).format_dict
 
-    if indent > maxInd:
-        maxInd = indent
-    
-    if isinstance(JSON, list) and len(JSON) > 0:
-        for each in JSON:
-            outStr = ''
+        rate_min = '{:.2f}'.format(1/d['rate'] /60) if d['rate'] else '?'
+        d.update(rate_min = (rate_min + 'min/' + d['unit']))
 
-            for i in range(indent):
-                outStr += '\t'
-            
-            outStr += ('%02d:\n' % JSON.index(each))
-            print(outStr, end='')
-            file.write(outStr.encode())
-            pprint(each, indent=indent+1)
+        return d
 
-    elif isinstance(JSON, dict) and len(JSON) > 0:
-        for key, value in JSON.items():
-            outStr = ''
+w = tqdmm(
+    dynamic_ncols=True,
+    total=8,
+    unit='song',
+    bar_format='{l_bar}{bar}|ETA: {remaining_s}, {rate_min}'
+)
 
-            for i in range(indent):
-                outStr += '\t'
+name = [
+    'qwe',
+    'rty',
+    'uio',
+    'asd',
+    'fgh',
+    'jkl',
+    'zxc',
+    'vbn'
+]
 
-            outStr += ('%s:\n' % key)
-            print(outStr, end='')
-            file.write(outStr.encode())
-            pprint(value, indent=indent+1)
+for i in range(4):
+    w.set_description(name[i] + ' ')
+    w.update(1)
+    sleep(2)
 
-pprint(q)
-file.close()
+for i in range(4):
+    w.set_description(name[i+4] + ' ')
+    w.update(0)
+    sleep(2)
 
-print()
-print(maxInd)
+w.close()
