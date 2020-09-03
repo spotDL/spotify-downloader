@@ -18,9 +18,9 @@ from spotdl.dlTools.downloader import download, parallellDownload
 #=== Our dead simple CLI ===
 #===========================
 
-if __name__ == "__main__":
+def main():
 
-    # we assume each argument passed is a spotifyLink
+    # we assume each argument passed is a spotifyLink or a .spotdlTrackingFile
     for arg in CLIArgs[1:]:
         try:
 
@@ -45,3 +45,6 @@ if __name__ == "__main__":
         
         except:
             print('argument could not be processed: %s' % arg)
+
+if __name__ == "__main__":
+    main()
