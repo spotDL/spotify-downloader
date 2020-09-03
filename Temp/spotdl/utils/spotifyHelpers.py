@@ -45,25 +45,29 @@ def searchForSong(songName, artist = None, returnAll = False):
     else:
         results = spotify.search(songName, type = 'track')
     
+    trackDetails = []
+
+    # if no results are found, this loop won't execute and trackDetails
+    # will be empty
+    for rawTrackMeta in results['tracks']['items']:
+        trackDetails.append(
+            {
+                'name': rawTrackMeta['name'],
+                'url' : 'http://open.spotify.com/track/' + rawTrackMeta['id']
+            }
+        )
+    
+    # if no results were found,
+    if len(trackDetails) == 0:
+        raise Exception('no results were found')
+
     # If all results to be returned
     if returnAll:
-        trackUrls = []
-
-        for rawTrackMeta in results['tracks']['items']:
-            trackUrls.append(
-                'http://open.spotify.com/track/' + rawTrackMeta['id']
-            )
-
-        return trackUrls
+        return trackDetails
     
     # else return supposed best match
     else:
-        try:
-            rawTrackMeta = results['tracks']['items'][0]
-        except:
-            raise Exception('No results found')
-
-        return 'http://open.spotify.com/track/' + rawTrackMeta['id']
+        return trackDetails[0]
 
 def searchForAlbum(albumName, artist = None, returnAll = False):
     '''
@@ -75,29 +79,35 @@ def searchForAlbum(albumName, artist = None, returnAll = False):
 
     Queries Spotify for a album and returns the best match
     '''
-
     # None evaluates to False, non-None values to True
     if artist:
         results = spotify.search(artist + ' - ' + albumName, type = 'album')
     else:
-        results = spotify.search(albumName, type = 'album')
+        results = spotify.search(albumName, type = 'track')
     
+    albumDetails = []
+
+    # if no results are found, this loop won't execute and trackDetails
+    # will be empty
+    for rawTrackMeta in results['tracks']['items']:
+        albumDetails.append(
+            {
+                'name': rawTrackMeta['name'],
+                'url' : 'http://open.spotify.com/album/' + rawTrackMeta['id']
+            }
+        )
+    
+    # if no results were found,
+    if len(albumDetails) == 0:
+        raise Exception('no results were found')
+
     # If all results to be returned
     if returnAll:
-        albumUrls = []
-
-        for rawAlbumMeta in results['albums']['items']:
-            albumUrls.append(
-                'http://open.spotify.com/album/' + rawAlbumMeta['id']
-            )
-        
-        return albumUrls
+        return albumDetails
     
     # else return supposed best match
     else:
-        rawAlbumMeta = results['tracks']['items'][0]
-
-        return 'http://open.spotify.com/album/' + rawAlbumMeta['id']
+        return albumDetails[0]
 
 def searchForPlaylist(playlistName, returnAll = False):
     '''
@@ -109,26 +119,31 @@ def searchForPlaylist(playlistName, returnAll = False):
 
     Queries Spotify for a playlist and returns the best match
     '''
-
-    # None evaluates to False, non-None values to True
     results = spotify.search(playlistName, type = 'playlist')
     
+    playlistDetails = []
+
+    # if no results are found, this loop won't execute and trackDetails
+    # will be empty
+    for rawTrackMeta in results['tracks']['items']:
+        playlistDetails.append(
+            {
+                'name': rawTrackMeta['name'],
+                'url' : 'http://open.spotify.com/playlist/' + rawTrackMeta['id']
+            }
+        )
+    
+    # if no results were found,
+    if len(playlistDetails) == 0:
+        raise Exception('no results were found')
+
     # If all results to be returned
     if returnAll:
-        playlistUrls = []
-
-        for rawPlaylistMeta in results['playlists']['items']:
-            playlistUrls.append(
-                'http://open.spotify.com/playlist/' + rawPlaylistMeta['id']
-            )
-        
-        return playlistUrls
+        return playlistDetails
     
     # else return supposed best match
     else:
-        rawPlaylistMeta = results['playlists']['items'][0]
-
-        return 'http://open.spotify.com/playlist/' + rawPlaylistMeta['id']
+        return playlistDetails[0]
 
 def getAlbumTracks(albumUrl):
     '''

@@ -1,22 +1,47 @@
-from spotdl.utils.authorization import initialize
+#===============
+#=== Imports ===
+#===============
 
+from sys import argv as CLIArgs
+
+# if we don't initialize spotdl first, just about every
+# import from spotdl will raise an error
+from spotdl.utils.authorization import initialize
 initialize()
 
-from spotdl.utils.spotifyHelpers import getPlaylistTracks
-from spotdl.dlTools.reDO import parallellDownload
+from spotdl.utils.spotifyHelpers import getAlbumTracks, getPlaylistTracks
+from spotdl.providers.defaultProviders import searchProvider
+from spotdl.dlTools.downloader import download, parallellDownload
 
-from datetime import datetime
 
-# If your from mutagen, uncomment the below and change the variable in getPlaylistTracks
-# mutagen_embed_roor_link = 'https://open.spotify.com/playlist/0MsBYWcYv4sc2tr0kJnfL5?si=Ga8mTg6hRlGopVFXcKS_4g'
+#===========================
+#=== Our dead simple CLI ===
+#===========================
 
-link = 'https://open.spotify.com/playlist/4q6GdHWcJwCWchkYiulnxN?si=ryYHuJJITqKWa-o2wc4dmw'
+if __name__ == "__main__":
 
-with open('test.spotdlTrackingFile', 'w') as file: file.write(str(getPlaylistTracks(link)))
+    # we assume each argument passed is a spotifyLink
+    for arg in CLIArgs[1:]:
+        try:
 
-if __name__ == '__main__':
-    st = datetime.now()
-    parallellDownload(trackingFile = 'test.spotdlTrackingFile', folder = 'D:\\Test')
-    end = datetime.now()
+            if arg.startswith('http://open.spotify.com/track'):
+                sProvider = searchProvider()
+                song = sProvider.searchFromUrl(arg)
+                download(song)
 
-    print(end - st)
+            elif arg.startswith('http://open.spotify.com/album'):
+                albumUrlList = getAlbumTracks(arg)
+                parallellDownload(linkList = albumUrlList)
+
+            elif  arg.startswith('http://open.spotify.com/playlist'):
+                playlistUrlList = getPlaylistTracks(arg)
+                parallellDownload(linkList = playlistUrlList)
+
+            elif arg.endswith('spotdlTrackingFile'):
+                parallellDownload(trackingFile = arg)
+
+            else:
+                print('unknown argument, not recognized: %s' % arg)
+        
+        except:
+            print('argument could not be processed: %s' % arg)

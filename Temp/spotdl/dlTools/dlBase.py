@@ -227,7 +227,7 @@ def process(songObj, dlTracker = None, folder = '.'):
     renamedPath = join(folder, songRenameName)
     
     if exists(renamedPath) and dlTracker:
-        dlTracker.notifyCompletion(songObj)
+        dlTracker.notifySkip(songObj)
     
     else:
         try:

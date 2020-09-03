@@ -477,14 +477,14 @@ class searchProvider(object):
         '''
 
         # Search for the best match and get the song's details
-        songSpotifyUrl = searchForSong(query)
+        songSpotifyUrl = searchForSong(query['url'])
         songDetails = metadataObject(songSpotifyUrl)
 
         # Find matches from YouTube Music
         result = self.searchAndFilterYTM(songDetails, getBestMatchOnly = True)
 
         resultAsSongObj = songObject(
-            name = result['name'],
+            name = songDetails.getSongName(),
 
             # MetadataObject is more complete than YouTube Music results
             artists = songDetails.getContributingArtists(),
@@ -513,7 +513,7 @@ class searchProvider(object):
         result = self.searchAndFilterYTM(songDetails, getBestMatchOnly = True)
 
         resultAsSongObj = songObject(
-            name = result['name'],
+            name = songDetails.getSongName(),
 
             # MetadataObject is more complete than YouTube Music results
             artists = songDetails.getContributingArtists(),
@@ -537,7 +537,7 @@ class searchProvider(object):
         '''
 
         # Search for the best match and get the song's details
-        songSpotifyUrl = searchForSong(query)
+        songSpotifyUrl = searchForSong(query['url'])
         songDetails = metadataObject(songSpotifyUrl)
 
         # Find matches from YouTube Music
@@ -547,7 +547,7 @@ class searchProvider(object):
 
         for result in results:
             resultAsSongObj = songObject(
-                name = result['name'],
+                name = songDetails.getSongName(),
 
                 # MetadataObject is more complete than YouTube Music results
                 artists = songDetails.getContributingArtists(),
@@ -582,7 +582,7 @@ class searchProvider(object):
 
         for result in results:
             resultAsSongObj = songObject(
-                name = result['name'],
+                name = songDetails.getSongName(),
 
                 # MetadataObject is more complete than YouTube Music results
                 artists = songDetails.getContributingArtists(),

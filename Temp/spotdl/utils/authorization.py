@@ -36,12 +36,16 @@ logger = getSubLoggerFor('authorization')
 #=========================
 
 def initialize():
+    '''
+    initializes and caches a `spotifyClient`, importing any module of spotdl
+    without initializing a `spotifyClient` will end in complete Failure
+    '''
+
     # initializes and caches spotifyClient
     getSpotifyClient(
         clientId='4fe3fecfe5334023a1472516cc99d805',
         clientSecret='0f02b7c483c04257984695007a4a8d5c'
     )
-
 
 
 #===============
