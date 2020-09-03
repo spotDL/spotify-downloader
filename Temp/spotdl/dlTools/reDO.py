@@ -139,6 +139,7 @@ class downloadTracker():
             )
 
             linkToSongObjConverters.close()
+            linkToSongObjConverters.join()
 
         # set outfile depending on weather trackingFile has been provided
         # or not
@@ -356,4 +357,6 @@ def parallellDownload(trackingFile = None, songObjList = None, folder = '.'):
     # Clean up behind you
     dlTracker.close()
     rootProcess.shutdown()
+
     downloadPool.close()
+    downloadPool.join()

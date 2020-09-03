@@ -286,10 +286,17 @@ class trackDetails(object):
         The first member of the list is likely the main artist.
         '''
 
+        # we get rid of artist name that are in the song title so
+        # naming the song would be as easy as 
+        # $contributingArtists + songName.mp3, we would want to end up with
+        # 'Jetta, Mastubs - I'd love to change the world (Mastubs remix).mp3'
+        # as a song name, it's dumb.
+        
         contributingArtists = []
 
         for artist in self.__rawTrackMeta['artists']:
-            contributingArtists.append(artist['name'])
+            if artist['name'].lower() not in self.getSongName().lower():
+                contributingArtists.append(artist['name'])
         
         return contributingArtists
     

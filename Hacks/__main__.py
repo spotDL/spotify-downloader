@@ -64,7 +64,7 @@ def compute_digest(filename, printer):
     dValue = digest.digest().hex()
     printer.msPrint(filename, dValue)
 
-    return filename, dValue
+    return (filename, dValue)
 
 def build_digest_map(topdir, fname):
     digest_pool = multiprocessing.Pool(POOLSIZE)
@@ -86,8 +86,9 @@ def build_digest_map(topdir, fname):
             argsR.append((file, temp))
 
 
-        digest_map = dict(digest_pool.starmap(compute_digest,argsR))
-        digest_pool.close()
+        digest_map = digest_pool.starmap(compute_digest,argsR)
+#        digest_pool.close()
+        digest_pool.join()
 
         temp.final()
     
@@ -126,50 +127,37 @@ def encodeFlac(filePath, overwriteFiles=False):
 
 from datetime import datetime
 
-if __name__ == '__main__':
-    build_digest_map('D:\\Projects', 'rand')
-
-    pool = multiprocessing.Pool(POOLSIZE)
-
-    allfiles = (os.path.join(path,name)
-        for path, dirs, files in os.walk(r'D:\test')
-         for name in files)
-    
-    st = datetime.now()
-    pool.map(func=encodeFlac, iterable=allfiles)
-    nd = datetime.now()
-
-    print(nd-st)
+# if __name__ == '__main__':
+#     build_digest_map('D:\\Projects', 'rand')
+# 
+#     pool = multiprocessing.Pool(POOLSIZE)
+# 
+#     allfiles = (os.path.join(path,name)
+#         for path, dirs, files in os.walk(r'D:\test')
+#          for name in files)
+#     
+#     st = datetime.now()
+#     pool.map(func=encodeFlac, iterable=allfiles)
+#     nd = datetime.now()
+# 
+#     print(nd-st)
 
 # Try it out. Change the directory name as desired. 
 
-#__name__ = '__main__'
+if __name__ == '__main__':
+    multiprocessing.freeze_support()
 
-#if __name__ == '__main__':
-#    multiprocessing.freeze_support()
-#
-#    log1.critical('Inside Main')
-# 
-#    print('\n\nUtilizing 1 processes, (1core normal-threading):')
-#
-#    st = Time.now()
-#    digest_map = build_digest_map(r"D:\\Software", '1core.txt')
-#    final = Time.now()
-#    
-#    print('Time Taken:\t\t', end='')
-#    print((final-st))
-#
-#    print('\n\nUtilizing 16 processes, (8core hyperthreading):')
-#
-#    POOLSIZE = 16
-#
-#    st = Time.now()
-#    digest_map = build_digest_map(r"D:\\Software", '16proc.txt')
-#    final = Time.now()
-#    
-#    print('Time Taken:\t\t', end='')
-#    print((final-st))
-#
+    print('\n\nUtilizing 16 processes, (8core hyperthreading):')
+
+    POOLSIZE = 16
+
+    st = Time.now()
+    digest_map = build_digest_map(r"D:\Software\Python37", '16proc.log')
+    final = Time.now()
+    
+    print('Time Taken:\t\t', end='')
+    print((final-st))
+
 # Run output (Python 3.7.8, 21/08/2020):
 #
 # Utilizing 1 processes, (1core normal-threading):
