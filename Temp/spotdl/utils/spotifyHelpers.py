@@ -155,9 +155,10 @@ def getAlbumTracks(albumUrl):
 
     albumTracks = []
 
+    trackResponse = spotify.album_tracks(albumUrl)
+
     # while loop acts like do-while
     while True:
-        trackResponse = spotify.album_tracks(albumUrl)
 
         for track in trackResponse['items']:
             albumTracks.append(
@@ -186,9 +187,10 @@ def getPlaylistTracks(playlistUrl):
 
     playlistTracks = []
 
+    playlistResponse = spotify.playlist_tracks(playlistUrl)
+
     # while loop to mimic do-while
     while True:
-        playlistResponse = spotify.playlist_tracks(playlistUrl)
 
         for trackEntry in playlistResponse['items']:
             playlistTracks.append(
@@ -306,15 +308,13 @@ class trackDetails(object):
         # $contributingArtists + songName.mp3, we would want to end up with
         # 'Jetta, Mastubs - I'd love to change the world (Mastubs remix).mp3'
         # as a song name, it's dumb.
-        
+
         contributingArtists = []
 
         for artist in self.__rawTrackMeta['artists']:
-            if artist['name'].lower() not in self.getSongName().lower():
-                contributingArtists.append(artist['name'])
+            contributingArtists.append(artist['name'])
         
         return contributingArtists
-    
     # Album Details:
     # 1. Name
     def getAlbumName(self):

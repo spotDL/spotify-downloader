@@ -77,8 +77,8 @@ class downloadTracker():
 
         # either trackingFile or songObjList should be passed, raise error
         # if neither is passed
-        if trackingFile == None and songObjList == None:
-            raise Exception('Either trackingFile or songObjList should be passed')
+        if trackingFile == None and songObjList == None and linkList == None:
+            raise Exception('Either trackingFile, linkList or songObjList should be passed')
         
         if trackingFile and not trackingFile.endswith('.spotdlTrackingFile'):
             raise Exception('tracingFile should be a .spotdlTrackingFile')
@@ -163,6 +163,8 @@ class downloadTracker():
             bar_format      = '{desc} {percentage:3.0f}%|{bar}|ETA: {remaining}, {rate_min}',
             unit            = 'song'
         )
+
+        self.backupToOutFile()
     
     def backupToOutFile(self):
         '''
@@ -383,7 +385,11 @@ def parallellDownload(trackingFile = None, linkList = None, songObjList = None, 
         rootProcess = parallellDownloadTracker()
         rootProcess.start()
 
-        dlTracker = rootProcess.downloadTracker(trackingFile, songObjList)
+        dlTracker = rootProcess.downloadTracker(
+                trackingFile = trackingFile,
+                linkList     = linkList,
+                songObjList  = songObjList
+        )
 
         # Prepare args to be passed to each process that downloads songs
         argGenerator = (

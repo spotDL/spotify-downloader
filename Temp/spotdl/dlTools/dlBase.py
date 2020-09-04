@@ -216,7 +216,8 @@ def process(songObj, dlTracker = None, folder = '.'):
     songRenameName = ''
 
     for artist in songObj.getContributingArtists():
-        songRenameName += artist + ', '
+        if artist.lower() not in songObj.getSongName().lower():
+            songRenameName += artist + ', '
 
     songRenameName = songRenameName[:-2] + ' - ' + songObj.getSongName() + '.mp3'
     for dissallowedChar in ['/', '?', '\\', '*','|', '<', '>']:

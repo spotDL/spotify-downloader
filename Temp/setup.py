@@ -18,7 +18,8 @@ setup(
         'mutagen >= 1.41.1',
         'tqdm >= 4.45.0',
         'fuzzywuzzy >= 0.17.0',
-        'requests >= 2.20.0'
+        'requests >= 2.20.0',
+        'python-Levenshtein-wheels'
     ],
     python_requires = '>= 3.6',
 
