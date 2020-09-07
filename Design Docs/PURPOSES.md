@@ -25,10 +25,20 @@ interface to song details thereby adding to simplicity.
 [RES.] songObj is meant to serve dual purposes - to act as an ***exchange currency***
 through out spotDL and as a central repository of all known details of a given song.
 
-## getSpotifyClient (FUNCTION)
+## get_spotify_client (FUNCTION)
 
 [PUR.] Having different parts of code having to initialize spotifyClients when required,
 would make for a lot of duplicate code. Serves as a ***single-point-of-access*** to 
 a ***singleton spotifyClient***.
 
 [RES.] ensure that only a single instance of spotifyClient exists throughout the codebase.
+
+[SEE ALSO.] initialize
+
+## initialize (FUNCTION)
+
+[PUR.] To create a cache a SpotifyClient
+
+[RES.] Clubbing of client creation/caching with singleton-access requires passing of a
+client_id & client_secret the first time but not for subsequent calls. This ambiguity
+as to passing args is avoided.

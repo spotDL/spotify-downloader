@@ -58,11 +58,11 @@ def getSpotifyClient(clientId = None, clientSecret = None):
 
     `str` `clientSecret` : Spotify client secret
 
-    returns cached Spotify client if available, else attempts to create
-    and return a fresh client of type `spotify.Spotify`
-    '''
+    RETURN `Spotify`
 
-    global masterClient
+    returns cached Spotify client if available, else attempts to create
+    and return a fresh client of type `spotipy.Spotify`
+    '''
 
     # check if inputs are valid and usable
     credentialsProvided = (clientId != None) and (clientSecret != None)
