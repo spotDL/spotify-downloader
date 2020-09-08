@@ -32,42 +32,7 @@ from typing import List
 #! api key if and when the change happens should be a simple job
 ytmApiKey = 'AIzaSyC9XL3ZjWddXya6X74dJoCTL-WEYFDNX30'
 
-def __atLeastOneCommonWord(sentenceA: str, sentenceB: str) -> bool:
-    '''
-    `str` `sentenceA` : a sentence
-
-    `str` `sentenceB` : another sentence
-
-    RETURNS `bool` : weather there is a common word
-
-    It is not case sensitive and is built specifically to handle Youtube results.
-    '''
-
-    #! most song results on youtube go by $artist - $songName, so if the spotify name
-    #! has a '-', this function would return True, a common '-' is hardly a 'common word',
-    #! so we get rid of it. Lower-caseing all the inputs is to get rid of the troubles
-    #! that arise from pythons handling of differently cased words, i.e.
-    #! 'Rhino' == 'rhino' is false though the word is same...
-
-    # lower-case both sentences and replace any hypens(-)
-    lowerSentenceA = sentenceA.lower()
-    lowerSentenceB = sentenceB.lower()
-    sentenceAWords = lowerSentenceA.replace('-', ' ').split(' ')
-
-
-
-    # check for common word
-    for word in sentenceAWords:
-        if word != '' and word in lowerSentenceB:
-            return True
-
-
-
-    # if there are no common words, return False
-    #! The above loops catch common words and return True, thereby exiting the
-    return False
-
-def __queryAndSimplify(searchTerm: str, apiKey: str = ytmApiKey) -> List[dict]:
+def __query_and_simplify(searchTerm: str, apiKey: str = ytmApiKey) -> List[dict]:
     '''
     `str` `searchTerm` : the search term you would type into YTM's search bar
 
@@ -358,7 +323,7 @@ def search_and_order_ytm_results(songName: str, songArtists: List[str],
 
 
     # Query YTM
-    results = __queryAndSimplify(songSearchStr)
+    results = __query_and_simplify(songSearchStr)
 
 
 
@@ -369,7 +334,28 @@ def search_and_order_ytm_results(songName: str, songArtists: List[str],
         #! If there are no common words b/w the spotify and YouTube Music name, the song
         #! is a wrong match (Like Ruelle - Madness being matched to Ruelle - Monster, it
         #! happens without this conditional)
-        if not __atLeastOneCommonWord(songName, result['name']):
+        
+        #! most song results on youtube go by $artist - $songName, so if the spotify name
+        #! has a '-', this function would return True, a common '-' is hardly a 'common
+        #! word', so we get rid of it. Lower-caseing all the inputs is to get rid of the
+        #! troubles that arise from pythons handling of differently cased words, i.e.
+        #! 'Rhino' == 'rhino' is false though the word is same... so we lower-case both
+        #! sentences and replace any hypens(-)
+        lowerSongName = songName.lower()
+        lowerResultName = result['name'].lower()
+
+        sentenceAWords = lowerSongName.replace('-', ' ').split(' ')
+        
+        commonWord = False
+
+        #! check for common word
+        for word in sentenceAWords:
+            if word != '' and word in lowerResultName:
+                return True
+        
+        #! if there are no common words, return False
+        #! The above loops catch common words and return True, thereby exiting the
+        if not commonWord:
             continue
 
 
