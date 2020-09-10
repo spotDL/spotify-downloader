@@ -108,3 +108,22 @@ URL from a given query.
 
 [REA.] Having to individually list out each track in a playlist is a greater pain than
 listing out each track in an album.
+
+# downloads
+
+## downloadManager class
+
+[PUR.] To download given songs, singly or in parallel, convert them to MP3 and embed
+required metadata
+
+[REA.] Come on, the whole point of spotDL is to download stuff
+
+<!-- should I put in download singly and in parallel sub methods?-->
+
+## displayManager class
+
+[PUR.] To ensure a clean UI for users even when downloading stuff in parallel
+
+[REA.] Using print methods in parallel with carriage returns (\r) for clean updates
+will print in new lines as the print call is from different processes. THis creates
+a need for a common point of output. The easiest hi-lv way to do that is an autoproxy.

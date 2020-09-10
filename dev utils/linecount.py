@@ -65,3 +65,5 @@ print('TOTAL     %04d\nSUCCESS   %04d\nFAIL      %04d\nSKIPPED   %04d' % (
     totalFiles, correctFiles, totalFiles - correctFiles, skips
     )
 )
+
+# ffmpeg -y -v silent -i $inputFile  <-ar 44100> -af 'loudnorm=i=-17' $outFile

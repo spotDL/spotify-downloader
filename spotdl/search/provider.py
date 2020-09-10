@@ -351,7 +351,7 @@ def search_and_order_ytm_results(songName: str, songArtists: List[str],
         #! check for common word
         for word in sentenceAWords:
             if word != '' and word in lowerResultName:
-                return True
+                commonWord = True
         
         #! if there are no common words, return False
         #! The above loops catch common words and return True, thereby exiting the

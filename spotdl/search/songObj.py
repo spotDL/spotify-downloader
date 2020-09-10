@@ -1,5 +1,8 @@
 from spotdl.search.provider import search_and_get_best_match
 from spotdl.search.spotifyClient import get_spotify_client
+
+from os.path import join
+
 from json import dumps as convert_dict_to_json, loads as convert_json_to_dict
 
 from typing import List
@@ -12,6 +15,11 @@ class songObj():
     #====================
     #=== Constructors ===
     #====================
+    def __init__(self, rawTrackMeta, rawAlbumMeta, rawArtistMeta, youtubeLink):
+        self. __rawTrackMeta = rawTrackMeta
+        self.__rawAlbumMeta  = rawArtistMeta
+        self.__rawArtistMeta = rawArtistMeta
+        self.__youtubeLink   = youtubeLink
 
     #! constructors here are a bit mucky, there are two different constructors for two
     #! different use cases, hence the actual __init__ function does not exist
@@ -19,7 +27,7 @@ class songObj():
     #! Note, since the following are class methods, an instance of songObj is initialized
     #! and passed to them
     @classmethod
-    def from_url(thisClass, spotifyURL: str):
+    def from_url(cls, spotifyURL: str):
         # check if URL is a playlist, user, artist or album, if yes raise an Exception,
         # else procede
         if 'track' not in spotifyURL:
@@ -30,29 +38,29 @@ class songObj():
         # query spotify for song, artist, album details
         spotifyClient = get_spotify_client()
 
-        thisClass.__rawTrackMeta = spotifyClient.track(spotifyURL)
+        rawTrackMeta = spotifyClient.track(spotifyURL)
 
-        primaryArtistId = thisClass.__rawTrackMeta['artists'][0]['id']
-        thisClass.__rawArtistMeta = spotifyClient.artist(primaryArtistId)
+        primaryArtistId = rawTrackMeta['artists'][0]['id']
+        rawArtistMeta = spotifyClient.artist(primaryArtistId)
 
-        albumId = thisClass.__rawTrackMeta['album']['id']
-        thisClass.__rawAlbumMeta = spotifyClient.album(albumId)
+        albumId = rawTrackMeta['album']['id']
+        rawAlbumMeta = spotifyClient.album(albumId)
 
 
 
         # get best match from the given provider
-        songName = thisClass.__rawTrackMeta['name']
+        songName = rawTrackMeta['name']
 
-        albumName = thisClass.__rawTrackMeta['album']['name']
+        albumName = rawTrackMeta['album']['name']
 
         duration = round(
-            thisClass.__rawTrackMeta['duration_ms'] / 1000,
+            rawTrackMeta['duration_ms'] / 1000,
             ndigits = 3
         )
 
         contributingArtists = []
 
-        for artist in thisClass.__rawTrackMeta['artists']:
+        for artist in rawTrackMeta['artists']:
             contributingArtists.append(artist['name'])
 
         youtubeLink = songObj.searchProvider(
@@ -62,22 +70,30 @@ class songObj():
             duration
         )
 
-        thisClass.__youtubeLink = youtubeLink
+        youtubeLink = youtubeLink
 
-        return thisClass()
-    
-    @classmethod
-    def from_disk(thisClass, path: str):        
-        with open(path, 'r') as songObjFile:
-            dataDump    = convert_json_to_dict(songObjFile.read())
+        return  cls(
+            rawTrackMeta, rawAlbumMeta,
+            rawArtistMeta, youtubeLink
+        )
         
-        thisClass.__rawTrackMeta  = dataDump['rawTrackMeta']
-        thisClass.__rawAlbumMeta  = dataDump['rawAlbumMeta']
-        thisClass.__rawArtistMeta = dataDump['rawAlbumMeta']
-        thisClass.__youtubeLink   = dataDump['youtubeLink']
-        thisClass.isInitialized = True
+    @classmethod
+    def from_dump(cls, dataDump: dict):
+        rawTrackMeta  = dataDump['rawTrackMeta']
+        rawAlbumMeta  = dataDump['rawAlbumMeta']
+        rawArtistMeta = dataDump['rawAlbumMeta']
+        youtubeLink   = dataDump['youtubeLink']
 
-        return thisClass()
+        return  cls(
+            rawTrackMeta, rawAlbumMeta,
+            rawArtistMeta, youtubeLink
+        )
+
+    def __eq__(self, comparedSong) -> bool:
+        if comparedSong.get_data_dump() == self.get_data_dump():
+            return True
+        else:
+            return False
 
     #================================
     #=== Interface Implementation ===
@@ -113,14 +129,7 @@ class songObj():
         not be found.
         '''
 
-        if len(self.__rawAlbumMeta['genres']) > 0:
-            return self.__rawAlbumMeta['genres']
-
-        elif len(self.__rawArtistMeta['genres']) > 0:
-            return self.__rawArtistMeta['genres']
-
-        else:
-            return None
+        return self.__rawAlbumMeta['genres'] + self.__rawArtistMeta['genres']
     
     #! 4. Duration
     def get_duration(self) -> float:
@@ -215,13 +224,3 @@ class songObj():
             'rawAlbumMeta' : self.__rawAlbumMeta,
             'rawArtistMeta': self.__rawArtistMeta
         }
-    
-    def save(self):
-        with open(self.get_song_name() + '.songObjData', 'wb') as file:
-            file.write(
-                convert_dict_to_json(
-                    self.get_data_dump(),
-                    sort_keys = True,
-                    indent    = 4
-                ).encode()
-            )

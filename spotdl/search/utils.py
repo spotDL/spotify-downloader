@@ -56,7 +56,7 @@ def get_album_tracks(albumUrl: str) -> List[songObj]:
     
     return albumTracks
 
-def get_playlist_tracks(playlistUrl) -> List[songObj]:
+def get_playlist_tracks(playlistUrl: str) -> List[songObj]:
     '''
     `str` `playlistUrl` : Spotify Url of the album whose tracks are to be
     retrieved
