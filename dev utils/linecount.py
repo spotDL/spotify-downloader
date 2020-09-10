@@ -48,20 +48,20 @@ for eachFile in files:
                 linecount += 1
     except:
         if not ignoreFails:
-            print("%-100s | ~~~~ | ☠" % eachFile[-100:])
+            print("%-100s | ~~~~ | ~~~~ | ☠" % eachFile[-97:])
             skips += 1
     
     if linecount > 200:
         if not onlyFails:
-            print("%-100s | %04d | ⚠" % (eachFile[-100:], linecount))
+            print("%-100s | %-4d | %-4d | ⚠" % (eachFile[-97:], linecount, linecount - 200))
     else:
         correctFiles += 1
         
         if not onlyErrors and not onlyFails:
-            print("%-100s | %04d | ✔" % (eachFile[-100:], linecount))
+            print("%-100s | %-4d | %-4d | ✔" % (eachFile[-97:], linecount, linecount - 200))
 
 print('----------------------------------------------------------------------------------------------------------------')
-print('TOTAL     %04d\nSUCCESS   %04d\nFAIL      %04d\nSKIPPED   %04d' % (
+print('TOTAL     %-4d\nSUCCESS   %-4d\nFAIL      %-4d\nSKIPPED   %-4d' % (
     totalFiles, correctFiles, totalFiles - correctFiles, skips
     )
 )

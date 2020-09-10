@@ -1,9 +1,7 @@
-from spotdl.search.utils import get_playlist_tracks
-#from spotdl.download.dlBase import downloadManager, downloadTracker, download_song
 from spotdl.search.spotifyClient import initialize
-from spotdl.download.downloader import downloadManager
 
-from spotdl.search.songObj import songObj
+from spotdl.search.utils import get_playlist_tracks
+from spotdl.download.downloader import DownloadManager
 
 if __name__ == '__main__':
     initialize(
@@ -12,6 +10,7 @@ if __name__ == '__main__':
         )
 
 
-    #playlistSongObjects = get_playlist_tracks('https://open.spotify.com/playlist/37i9dQZF1EpGlVPORupxY0?si=qD6l3hEQQ6uHgpG9etwtOg')
-    q = downloadManager()
-    q.resume_download_from_tracking_file('weekend.spotdlTrackingFile')
+    playlistSongObjects = get_playlist_tracks('https://open.spotify.com/playlist/37i9dQZF1EpGlVPORupxY0?si=qD6l3hEQQ6uHgpG9etwtOg')
+    
+    man = DownloadManager()
+    man.download_multiple_songs(playlistSongObjects)

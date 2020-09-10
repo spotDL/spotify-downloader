@@ -1,65 +1,306 @@
-from spotdl.download.downloadingActual import download_song, downloadTrackerManager
-from spotdl.search.songObj import songObj
+#===============
+#=== Imports ===
+#===============
 
-from typing import List
+from spotdl.download.progressHandlers import ProgressRootProcess
+
+from os import mkdir, remove, system as run_in_shell
+from os.path import join, exists
 
 from multiprocessing import Pool
 
+from pytube import YouTube
 
-class downloadManager():
+from mutagen.easyid3 import EasyID3, ID3
+from mutagen.id3 import APIC as AlbumCover
+
+from urllib.request import urlopen
+
+#! The following are not used, they are just here for static typechecking with mypy
+from typing import List
+
+from spotdl.search.songObj import songObj
+from spotdl.download.progressHandlers import DisplayManager, DownloadTracker
+
+
+
+#==========================
+#=== Base functionality ===
+#==========================
+
+#! Technically, this should ideally be defined within the downloadManager class. But due
+#! to the quirks of multiprocessing.Pool, that can't be done. Do not consider this as a
+#! standalone function but rather as part of DownloadManager
+
+def download_song(songObj: songObj, displayManager: DisplayManager = None,
+                                    downloadTracker: DownloadTracker = None) -> None:
+    '''
+    `songObj` `songObj` : song to be downloaded
+
+    `AutoProxy` `displayManager` : autoproxy reference to a `DisplayManager`
+
+    `AutoProxy` `downloadTracker`: autoproxy reference to a `DownloadTracker`
+
+    RETURNS `~`
+
+    Downloads, Converts, Normalizes song & embeds metadata as ID3 tags.
+    '''
+
+    #! all YouTube downloads are to .\Temp; they are then converted and put into .\ and
+    #! finally followed up with ID3 metadata tags
+
+    #! we explicitly use the os.path.join function here to ensure download is
+    #! platform agnostic
+    
+    # Create a .\Temp folder if not present
+    tempFolder = join('.', 'Temp')
+    
+    if not exists(tempFolder):
+        mkdir(tempFolder)
+    
+    # build file name of converted file
+    artistStr = ''
+
+    #! we eliminate contributing artist names that are also in the song name, else we
+    #! would end up with things like 'Jetta, Mastubs - I'd love to change the world
+    #! (Mastubs REMIX).mp3' which is kinda an odd file name.
+    for artist in songObj.get_contributing_artists():
+        if artist.lower() not in songObj.get_song_name().lower():
+            artistStr += artist + ', '
+    
+    #! the ...[:-2] is to avoid the last ', ' appended to artistStr
+    convertedFileName = artistStr[:-2] + ' - ' + songObj.get_song_name() + '.mp3'
+
+    #! this is windows specific (disallowed chars)
+    for disallowedChar in ['/', '?', '\\', '*','|', '<', '>']:
+        if disallowedChar in convertedFileName:
+            convertedFileName.replace(disallowedChar, '')
+    
+    #! double quotes (") and semi-colons (:) are also disallowed characters but we would
+    #! like to retain their equivalents, so they aren't removed in the prior loop
+    convertedFileName = convertedFileName.replace('"', "'").replace(': ', ' - ')
+
+    convertedFilePath = join('.', convertedFileName)
+
+
+
+    # if a song is already downloaded skip it
+    if exists(convertedFilePath):
+        if displayManager:
+            displayManager.notify_download_skip()
+        if downloadTracker:
+            downloadTracker.notify_download_completion()
+        
+        #! None is the default return value of all functions, we just explicitly define
+        #! it here as a continent way to avoid executing the rest of the function.
+        return None
+    
+
+
+    # download Audio from YouTube
+    if displayManager:
+        youtubeHandler = YouTube(
+            url                  = songObj.get_youtube_link(),
+            on_progress_callback = displayManager.pytube_progress_hook
+        )
+    else:
+        youtubeHandler = YouTube(songObj.get_youtube_link())
+    
+    trackAudioStream = youtubeHandler.streams.get_audio_only()
+
+    #! The actual download, if there is any error, it'll be here,
+    try:
+        downloadedFilePath = trackAudioStream.download(tempFolder)
+    except:
+        #! This is equivalent to a failed download, we do nothing, the song remains on
+        #! downloadTrackers download queue and all is well...
+        #!
+        #! None is again used as a convenient escape
+        return None
+    
+
+
+    # convert downloaded file to MP3 with normalization
+
+    #! -af loudnorm=I=-7 applies EBR 128 loudness normalization algorithm with
+    #! intergrated loudness target set to -7
+    #!
+    #! -af 44100 sets audio sampling to 44100Hz, its required for the ffmpeg loudnorm
+    #! filter to work without errors
+
+    command = 'ffmpeg -v quiet -y -i "%s" -ar 44100 -af loudnorm=I=-7 "%s"'
+    formattedCommand = command % (downloadedFilePath, convertedFilePath)
+    run_in_shell(formattedCommand)
+
+    if displayManager:
+        displayManager.notify_conversion_completion()
+
+
+
+    # embed song details
+    #! we save tags as both ID3 v2.3 and v2.4
+
+    #! The simple ID3 tags
+    audioFile = EasyID3(convertedFilePath)
+
+    #! Get rid of all existing ID3 tags (if any exist)
+    audioFile.delete()
+
+    #! song name
+    audioFile['title'] = songObj.get_song_name()
+
+    #! track number
+    audioFile['tracknumber'] = str(songObj.get_track_number())
+
+    #! genres (pretty pointless if you ask me)
+    genres = songObj.get_genres()
+
+    if len(genres) > 0:
+        audioFile['genres'] = genres
+    
+    #! all involved artists
+    audioFile['artists'] = songObj.get_contributing_artists()
+
+    #! album name
+    audioFile['album'] = songObj.get_album_name()
+
+    #! album artist (all of 'em)
+    audioFile['albumartist'] = songObj.get_album_artists()
+
+    #! album release date (to what ever precision available)
+    audioFile['date']         = songObj.get_album_release()
+    audioFile['originaldate'] = songObj.get_album_release()
+
+    #! save as both ID3 v2.3 & v2.4 as v2.3 isn't fully features and
+    #! windows doesn't support v2.4 until later versions of Win10
+    audioFile.save(v2_version = 3)
+    audioFile.save(v2_version = 4)
+
+    #! setting the album art
+    audioFile = ID3(convertedFilePath)
+
+    rawAlbumArt = urlopen(songObj.get_album_cover_url()).read()
+
+    audioFile['APIC'] = AlbumCover(
+        encoding = 3,
+        mime = 'image/jpeg',
+        type = 3,
+        desc = songObj.get_album_name() + ' cover art',
+        data = rawAlbumArt
+    )
+
+
+
+    # Do the necessary cleanup
+    if displayManager:
+        displayManager.notify_download_completion()
+    
+    if downloadTracker:
+        downloadTracker.notify_download_completion(songObj)
+
+
+
+    # delete the unnecessary YouTube download File
+    remove(downloadedFilePath)
+
+
+
+#===========================================================
+#=== The Download Manager (the tyrannical boss lady/guy) ===
+#===========================================================
+
+class DownloadManager():
+    #! Big pool sizes on slow connections will lead to more incomplete downloads
     poolSize = 4
 
     def __init__(self):
-        trackerManager = downloadTrackerManager()
-        trackerManager.start()
+        # start a server for objects shared across processes
+        progressRoot = ProgressRootProcess()
+        progressRoot.start()
 
-        self.rootProcess = trackerManager
-        self.downloadTracker = trackerManager.downloadTracker()
+        self.rootProcess = progressRoot
 
-        self.workerPool = Pool(downloadManager.poolSize)
+        # initialize shared objects
+        self.displayManager  = progressRoot.DisplayManager()
+        self.downloadTracker = progressRoot.DownloadTracker()
+
+        # initialize worker pool
+        self.workerPool = Pool( DownloadManager.poolSize)
     
-    def download_single(self, song: songObj) -> None:
-        self.downloadTracker.reset()
+    def download_single_song(self, songObj: songObj) -> None:
+        '''
+        `songObj` `song` : song to be downloaded
 
+        RETURNS `~`
+
+        downloads the given song
+        '''
+
+        self.downloadTracker.clear()
         self.downloadTracker.load_song_list([songObj])
 
-        self.workerPool.starmap(
-            func     = download_song,
-            iterable = (
-                (self.downloadTracker, songObj)
-                    for songObj in self.downloadTracker.get_song_list()
-            )
-        )
+        self.displayManager.reset()
+        self.displayManager.set_song_count_to(1)
+
+        download_song(songObj, self.displayManager, self.downloadTracker)
     
-    def download_multiple(self, songList: List[songObj]) -> None:
-        self.downloadTracker.reset()
-        
-        self.downloadTracker.load_song_list(songList)
+    def download_multiple_songs(self, songObjList: List[songObj]) -> None:
+        '''
+        `list<songObj>` `songObjList` : list of songs to be downloaded
+
+        RETURNS `~`
+
+        downloads the given songs in parallel
+        '''
+
+        self.downloadTracker.clear()
+        self.downloadTracker.load_song_list(songObjList)
+
+        self.displayManager.reset()
+        self.displayManager.set_song_count_to(len(songObjList))
 
         self.workerPool.starmap(
             func     = download_song,
             iterable = (
-                (self.downloadTracker, songObj)
-                    for songObj in self.downloadTracker.get_song_list()
+                (song, self.displayManager, self.downloadTracker)
+                    for song in songObjList
             )
         )
     
     def resume_download_from_tracking_file(self, trackingFilePath: str) -> None:
-        self.downloadTracker.reset()
-        
+        '''
+        `str` `trackingFilePath` : path to a .spotdlTrackingFile
+
+        RETURNS `~`
+
+        downloads songs present on the .spotdlTrackingFile in parallel
+        '''
+
+        self.downloadTracker.clear()
         self.downloadTracker.load_tracking_file(trackingFilePath)
+
+        songObjList = self.downloadTracker.get_song_list()
+
+        self.displayManager.reset()
+        self.displayManager.set_song_count_to(len(songObjList))
 
         self.workerPool.starmap(
             func     = download_song,
             iterable = (
-                (self.downloadTracker, songObj)
-                    for songObj in self.downloadTracker.get_song_list()
+                (song, self.displayManager, self.downloadTracker)
+                    for song in songObjList
             )
         )
     
     def close(self) -> None:
-        self.downloadTracker.close()
-        self.rootProcess.shutdown()
+        '''
+        RETURNS `~`
+
+        cleans up across all processes
+        '''
+
+        self.displayManager.close()
+        self.rootProcess.close()
 
         self.workerPool.close()
         self.workerPool.join()
