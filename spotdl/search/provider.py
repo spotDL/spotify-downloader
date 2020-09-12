@@ -3,7 +3,7 @@
 #===============
 
 #! the following are for the search provider to function
-from fuzzywuzzy.fuzz import partial_ratio as match_percentage
+from fuzzywuzzy.fuzz import partial_ratio
 from json import loads as convert_json_to_dict
 from requests import post
 
@@ -22,6 +22,42 @@ from typing import List
 #! Essentially, Without Elliot, you wouldn't have a YTM search provider at all.
 
 
+
+#=======================
+#=== helper function ===
+#=======================
+def match_percentage(str1:str, str2:str) -> bool:
+    '''
+    `str` `str1` : a random sentence
+
+    `str` `str2` : another random sentence
+
+    RETURNS `int`
+
+    A wrapper around `fuzzywuzzy.partial_ratio` to handle UTF-8 encoded
+    emojis that usually cause errors
+    '''
+
+    #! this will throw an error if either string contains a UTF-8 encoded emoji 
+    try:
+        return partial_ratio(str1, str2)
+
+    #! we build new strings that contain only alphanumerical characters and spaces
+    #! and return the partial_ratio of that
+    except:
+        newStr1 = ''
+
+        for eachLetter in str1:
+            if eachLetter.isalnum() or eachLetter.isspace():
+                newStr1 += eachLetter
+        
+        newStr2 = ''
+
+        for eachLetter in str1:
+            if eachLetter.isalnum() or eachLetter.isspace():
+                newStr2 += eachLetter
+        
+        return partial_ratio(newStr1, newStr2)
 
 #========================================================================
 #=== Background functions/Variables (Not meant to be called directly) ===

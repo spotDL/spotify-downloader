@@ -1,5 +1,8 @@
 # Spotdl dev related testing files
 *.log
+*.spotdlTrackingFile
+*.mp3
+*.mp4
 
 # Reference Code
 originalCodeRef/*

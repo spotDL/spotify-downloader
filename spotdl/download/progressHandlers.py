@@ -13,6 +13,8 @@ import multiprocessing.managers
 from spotdl.search.songObj import songObj
 from typing import List
 
+from os import remove
+
 
 
 #=================
@@ -164,8 +166,8 @@ class DownloadTracker():
 
         # Attempt to read .spotdlTrackingFile, raise exception if file can't be read
         try:
-            file = open(trackingFilePath, 'r')
-            songDataDumps = eval(file.read())
+            file = open(trackingFilePath, 'rb')
+            songDataDumps = eval(file.read().decode())
             file.close()
         except FileNotFoundError:
             raise Exception('no such tracking file found: %s' % trackingFilePath)
@@ -187,7 +189,7 @@ class DownloadTracker():
         prepares to track download of provided songObj's
         '''
 
-        self.songObjList = songObj
+        self.songObjList = songObjList
 
         self.backup_to_disk()
     
@@ -205,6 +207,14 @@ class DownloadTracker():
 
         backs up details of songObj's yet to be downloaded to a .spotdlTrackingFile
         '''
+        # remove tracking file if no songs left in queue
+        #! we use 'return None' as a convenient exit point
+        if len(self.songObjList) == 0:
+            remove(self.saveFile)
+            return None
+
+
+
 
         # prepare datadumps of all songObj's yet to be downloaded
         songDataDumps = []

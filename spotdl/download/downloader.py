@@ -89,7 +89,7 @@ def download_song(songObj: songObj, displayManager: DisplayManager = None,
         if displayManager:
             displayManager.notify_download_skip()
         if downloadTracker:
-            downloadTracker.notify_download_completion()
+            downloadTracker.notify_download_completion(songObj)
         
         #! None is the default return value of all functions, we just explicitly define
         #! it here as a continent way to avoid executing the rest of the function.
@@ -110,12 +110,18 @@ def download_song(songObj: songObj, displayManager: DisplayManager = None,
 
     #! The actual download, if there is any error, it'll be here,
     try:
-        downloadedFilePath = trackAudioStream.download(tempFolder)
+        #! pyTube will save the song in .\Temp\$songName.mp4, it doesn't save as '.mp3'
+        downloadedFilePath = trackAudioStream.download(
+            output_path   = tempFolder,
+            filename      = songObj.get_song_name(),
+            skip_existing = False
+        )
     except:
         #! This is equivalent to a failed download, we do nothing, the song remains on
         #! downloadTrackers download queue and all is well...
         #!
-        #! None is again used as a convenient escape
+        #! None is again used as a convenient exit
+        remove(join(tempFolder, songObj.get_song_name() + '.mp4'))
         return None
     
 
@@ -123,14 +129,25 @@ def download_song(songObj: songObj, displayManager: DisplayManager = None,
     # convert downloaded file to MP3 with normalization
 
     #! -af loudnorm=I=-7 applies EBR 128 loudness normalization algorithm with
-    #! intergrated loudness target set to -7
+    #! intergrated loudness target set to -17, using values lower than -15
+    #! causes 'pumping' i.e. rhythmic variation in loudness that should not
+    #! exist -loud parts exaggerate, soft parts left alone
+    #! 
+    #! dynaudnorm applies dynamic non-linear RMS based normalization, this is what
+    #! actually normalized the audio. The loudnorm filter just makes the apparent
+    #! loudness constant   
     #!
     #! -af 44100 sets audio sampling to 44100Hz, its required for the ffmpeg loudnorm
     #! filter to work without errors
 
-    command = 'ffmpeg -v quiet -y -i "%s" -ar 44100 -af loudnorm=I=-7 "%s"'
+    command = 'ffmpeg -v quiet -y -i "%s" -ar 44100 -af "dynaudnorm, loudnorm=I=-17" "%s"'
     formattedCommand = command % (downloadedFilePath, convertedFilePath)
+
     run_in_shell(formattedCommand)
+
+    while True:
+        if exists(convertedFilePath):
+            break
 
     if displayManager:
         displayManager.notify_conversion_completion()
@@ -156,10 +173,10 @@ def download_song(songObj: songObj, displayManager: DisplayManager = None,
     genres = songObj.get_genres()
 
     if len(genres) > 0:
-        audioFile['genres'] = genres
+        audioFile['genre'] = genres
     
     #! all involved artists
-    audioFile['artists'] = songObj.get_contributing_artists()
+    audioFile['artist'] = songObj.get_contributing_artists()
 
     #! album name
     audioFile['album'] = songObj.get_album_name()
@@ -174,7 +191,6 @@ def download_song(songObj: songObj, displayManager: DisplayManager = None,
     #! save as both ID3 v2.3 & v2.4 as v2.3 isn't fully features and
     #! windows doesn't support v2.4 until later versions of Win10
     audioFile.save(v2_version = 3)
-    audioFile.save(v2_version = 4)
 
     #! setting the album art
     audioFile = ID3(convertedFilePath)
@@ -185,11 +201,11 @@ def download_song(songObj: songObj, displayManager: DisplayManager = None,
         encoding = 3,
         mime = 'image/jpeg',
         type = 3,
-        desc = songObj.get_album_name() + ' cover art',
+        desc = 'Cover',
         data = rawAlbumArt
     )
 
-
+    audioFile.save(v2_version = 3)
 
     # Do the necessary cleanup
     if displayManager:
@@ -202,7 +218,6 @@ def download_song(songObj: songObj, displayManager: DisplayManager = None,
 
     # delete the unnecessary YouTube download File
     remove(downloadedFilePath)
-
 
 
 #===========================================================
@@ -225,7 +240,7 @@ class DownloadManager():
         self.downloadTracker = progressRoot.DownloadTracker()
 
         # initialize worker pool
-        self.workerPool = Pool( DownloadManager.poolSize)
+        self.workerPool = Pool( DownloadManager.poolSize )
     
     def download_single_song(self, songObj: songObj) -> None:
         '''
