@@ -120,6 +120,14 @@ required metadata
 
 <!-- should I put in download singly and in parallel sub methods?-->
 
+## downloadTracker class
+
+[PUR.] to track the progress of downloads and enable download resuming
+
+[REA]. considering that downloading takes place in parallel, it is much easier to have
+tracking of downloads progressing live-time in parallel to downloading in a separate
+process instead of having it tracked in the main python process (its much simpler too)
+
 ## displayManager class
 
 [PUR.] To ensure a clean UI for users even when downloading stuff in parallel

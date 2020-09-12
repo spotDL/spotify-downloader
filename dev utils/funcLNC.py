@@ -78,7 +78,7 @@ for eachFile in files:
                 lineCount[funcName] = 0
             
             elif baseIndent > funcBaseIndent and inFunction != 0 and not inDocStr and funcName != '':
-                lineCount[funcName] += 1
+                lineCount[funcName] += int( len(line) / 90 ) + 1
             
             elif baseIndent < funcBaseIndent:
                 inFunction = False

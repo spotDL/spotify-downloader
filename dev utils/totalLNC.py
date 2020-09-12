@@ -64,7 +64,7 @@ for eachFile in files:
                 funcName = (strippedLine[4:bracketStartIndex], cLineNumber)
             
             elif not inDocStr:
-                lineCount += 1
+                lineCount += int( len(line) / 90 ) + 1
                     
         if lineCount > limit:
             print ('| %-111s | %-4d | %-4d | ⚠ |' % (eachFile[-111:] , lineCount, lineCount - limit))

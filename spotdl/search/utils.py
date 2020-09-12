@@ -1,9 +1,9 @@
 from spotdl.search.spotifyClient import get_spotify_client
-from spotdl.search.songObj import songObj
+from spotdl.search.songObj import SongObj
 
 from typing import List
 
-def search_for_song(query: str) ->  songObj:
+def search_for_song(query: str) ->  SongObj:
     '''
     `str` `query` : what you'd type into spotify's search box
 
@@ -22,9 +22,9 @@ def search_for_song(query: str) ->  songObj:
     else:
         songUrl = 'http://open.spotify.com/track/' + result['tracks']['items'][0]['id']
 
-        return songObj.from_url(songUrl)
+        return SongObj.from_url(songUrl)
 
-def get_album_tracks(albumUrl: str) -> List[songObj]:
+def get_album_tracks(albumUrl: str) -> List[SongObj]:
     '''
     `str` `albumUrl` : Spotify Url of the album whose tracks are to be
     retrieved
@@ -42,7 +42,7 @@ def get_album_tracks(albumUrl: str) -> List[songObj]:
 
         for track in trackResponse['items']:
             albumTracks.append(
-                songObj.from_url('https://open.spotify.com/track/' + track['id'])
+                SongObj.from_url('https://open.spotify.com/track/' + track['id'])
             )
         
         # check if more tracks are to be passed
@@ -56,7 +56,7 @@ def get_album_tracks(albumUrl: str) -> List[songObj]:
     
     return albumTracks
 
-def get_playlist_tracks(playlistUrl: str) -> List[songObj]:
+def get_playlist_tracks(playlistUrl: str) -> List[SongObj]:
     '''
     `str` `playlistUrl` : Spotify Url of the album whose tracks are to be
     retrieved
@@ -74,7 +74,7 @@ def get_playlist_tracks(playlistUrl: str) -> List[songObj]:
 
         for songEntry in playlistResponse['items']:
             playlistTracks.append(
-                songObj.from_url('https://open.spotify.com/track/' + songEntry['track']['id'])
+                SongObj.from_url('https://open.spotify.com/track/' + songEntry['track']['id'])
             )
 
         # check if more tracks are to be passed        

@@ -7,7 +7,7 @@ from json import dumps as convert_dict_to_json, loads as convert_json_to_dict
 
 from typing import List
 
-class songObj():
+class SongObj():
     #! This can be accessed as songObj.searchProvider. songObj acts like a namespace
     #! it allows us a convenient way of setting a search provider without using globals
     searchProvider = search_and_get_best_match
@@ -63,7 +63,7 @@ class songObj():
         for artist in rawTrackMeta['artists']:
             contributingArtists.append(artist['name'])
 
-        youtubeLink = songObj.searchProvider(
+        youtubeLink = SongObj.searchProvider(
             songName,
             contributingArtists,
             albumName,

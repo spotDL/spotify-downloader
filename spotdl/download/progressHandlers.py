@@ -10,7 +10,7 @@ from tqdm import tqdm
 import multiprocessing.managers
 
 #! These are not used, they're here for static type checking using mypy
-from spotdl.search.songObj import songObj
+from spotdl.search.songObj import SongObj
 from typing import List
 
 from os import remove
@@ -178,9 +178,9 @@ class DownloadTracker():
         # convert song data dumps to songObj's
         #! see, songObj.get_data_dump and songObj.from_dump for more details
         for dump in songDataDumps:
-            self.songObjList.append( songObj.from_dump(dump) )
+            self.songObjList.append( SongObj.from_dump(dump) )
     
-    def load_song_list(self, songObjList: List[songObj]) -> None:
+    def load_song_list(self, songObjList: List[SongObj]) -> None:
         '''
         `list<songOjb>` `songObjList` : songObj's being downloaded
 
@@ -193,7 +193,7 @@ class DownloadTracker():
 
         self.backup_to_disk()
     
-    def get_song_list(self) -> List[songObj]:
+    def get_song_list(self) -> List[SongObj]:
         '''
         RETURNS `list<songObj>
 
@@ -236,7 +236,7 @@ class DownloadTracker():
         )
         file.close()
     
-    def notify_download_completion(self, songObj: songObj) -> None:
+    def notify_download_completion(self, songObj: SongObj) -> None:
         '''
         `songObj` `songObj` : songObj representing song that has been downloaded
 

@@ -78,7 +78,7 @@ for eachFile in files:
                 lineCount[className] = 0
             
             elif baseIndent > classBaseIndent and inClass != 0 and not inDocStr and className != '':
-                lineCount[className] += 1
+                lineCount[className] += int( len(line) / 90 ) + 1
             
             elif baseIndent < classBaseIndent:
                 inClass = False

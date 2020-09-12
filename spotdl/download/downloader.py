@@ -19,7 +19,7 @@ from urllib.request import urlopen
 #! The following are not used, they are just here for static typechecking with mypy
 from typing import List
 
-from spotdl.search.songObj import songObj
+from spotdl.search.songObj import SongObj
 from spotdl.download.progressHandlers import DisplayManager, DownloadTracker
 
 
@@ -32,7 +32,7 @@ from spotdl.download.progressHandlers import DisplayManager, DownloadTracker
 #! to the quirks of multiprocessing.Pool, that can't be done. Do not consider this as a
 #! standalone function but rather as part of DownloadManager
 
-def download_song(songObj: songObj, displayManager: DisplayManager = None,
+def download_song(songObj: SongObj, displayManager: DisplayManager = None,
                                     downloadTracker: DownloadTracker = None) -> None:
     '''
     `songObj` `songObj` : song to be downloaded
@@ -113,7 +113,7 @@ def download_song(songObj: songObj, displayManager: DisplayManager = None,
         #! pyTube will save the song in .\Temp\$songName.mp4, it doesn't save as '.mp3'
         downloadedFilePath = trackAudioStream.download(
             output_path   = tempFolder,
-            filename      = songObj.get_song_name(),
+            filename      = convertedFileName,
             skip_existing = False
         )
     except:
@@ -121,7 +121,7 @@ def download_song(songObj: songObj, displayManager: DisplayManager = None,
         #! downloadTrackers download queue and all is well...
         #!
         #! None is again used as a convenient exit
-        remove(join(tempFolder, songObj.get_song_name() + '.mp4'))
+        remove(convertedFileName + '.mp4')
         return None
     
 
@@ -242,7 +242,7 @@ class DownloadManager():
         # initialize worker pool
         self.workerPool = Pool( DownloadManager.poolSize )
     
-    def download_single_song(self, songObj: songObj) -> None:
+    def download_single_song(self, songObj: SongObj) -> None:
         '''
         `songObj` `song` : song to be downloaded
 
@@ -259,7 +259,7 @@ class DownloadManager():
 
         download_song(songObj, self.displayManager, self.downloadTracker)
     
-    def download_multiple_songs(self, songObjList: List[songObj]) -> None:
+    def download_multiple_songs(self, songObjList: List[SongObj]) -> None:
         '''
         `list<songObj>` `songObjList` : list of songs to be downloaded
 
