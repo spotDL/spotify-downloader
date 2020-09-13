@@ -66,7 +66,7 @@ if __name__ == '__main__':
             print('Fetching Playlist...')
             songObjList = get_playlist_tracks(request)
 
-            downloader.download_multiple_songs(request)
+            downloader.download_multiple_songs(songObjList)
         
         elif request.endswith('.spotdlTrackingFile'):
             print('Preparing to resume download...')
