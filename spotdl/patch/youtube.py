@@ -33,7 +33,8 @@ SOFTWARE.
 
 import pytube
 from pytube import request
-from pytube.extract import get_ytplayer_config, apply_signature, js_url
+from pytube.extract import apply_signature, js_url
+from typing import Any
 
 def apply_patches():
     """
@@ -46,6 +47,8 @@ def apply_patches():
     pytube.__main__.YouTube.descramble = descramble
     # Patch 3: https://github.com/nficano/pytube/pull/701
     pytube.cipher.get_initial_function_name = get_initial_function_name
+    # Patch 4: https://github.com/nficano/pytube/pull/726
+    pytube.__main__.get_ytplayer_config = get_ytplayer_config
 
 
 # The below imports are required by the patches
@@ -213,4 +216,33 @@ def get_initial_function_name(js: str) -> str:
 
     raise RegexMatchError(
         caller="get_initial_function_name", pattern="multiple"
+    )
+
+def get_ytplayer_config(html: str) -> Any:
+    """Get the YouTube player configuration data from the watch html.
+
+    Extract the ``ytplayer_config``, which is json data embedded within the
+    watch html and serves as the primary source of obtaining the stream
+    manifest data.
+
+    :param str html:
+        The html contents of the watch page.
+    :rtype: str
+    :returns:
+        Substring of the html containing the encoded manifest data.
+    """
+    config_patterns = [
+        r";ytplayer\.config\s*=\s*({.+?});ytplayer",
+        r";yt\.setConfig\(\{'PLAYER_CONFIG':\s*({.*})}\);",
+        r";yt\.setConfig\(\{'PLAYER_CONFIG':\s*({.*})(,'EXPERIMENT_FLAGS'|;)",  # noqa: E501
+    ]
+    for pattern in config_patterns:
+        regex = re.compile(pattern)
+        function_match = regex.search(html)
+        if function_match:
+            yt_player_config = function_match.group(1)
+            return json.loads(yt_player_config)
+
+    raise RegexMatchError(
+        caller="get_ytplayer_config", pattern="config_patterns"
     )

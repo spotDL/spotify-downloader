@@ -8,7 +8,11 @@ The release dates mentioned follow the format `DD-MM-YYYY`.
 
 ## [Unreleased]
 
-- Improve input file validation for --list (#818)
+### Fixed
+- Fix YouTube pattern matching. ([@FransM](https://github.com/FransM) (#832)
+
+### Changed
+- Improve input file validation for --list. ([@FransM](https://github.com/FransM) (#818)
 
 ## [2.2.2] - 28-07-2020
 ## Fixed
