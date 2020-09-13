@@ -171,15 +171,18 @@ def download_song(songObj: SongObj, displayManager: DisplayManager = None,
 
     #! song name
     audioFile['title'] = songObj.get_song_name()
+    audioFile['titlesort'] = songObj.get_song_name()
 
     #! track number
     audioFile['tracknumber'] = str(songObj.get_track_number())
 
     #! genres (pretty pointless if you ask me)
+    #! we only apply the first available genre as ID3 v2.3 doesn't support multiple
+    #! genres and ~80% of the world PC's run Windows - an OS with no ID3 v2.4 support
     genres = songObj.get_genres()
 
     if len(genres) > 0:
-        audioFile['genre'] = genres
+        audioFile['genre'] = genres[0]
     
     #! all involved artists
     audioFile['artist'] = songObj.get_contributing_artists()
@@ -245,6 +248,8 @@ class DownloadManager():
         self.displayManager  = progressRoot.DisplayManager()
         self.downloadTracker = progressRoot.DownloadTracker()
 
+        self.displayManager.clear()
+
         # initialize worker pool
         self.workerPool = Pool( DownloadManager.poolSize )
     
@@ -264,6 +269,8 @@ class DownloadManager():
         self.displayManager.set_song_count_to(1)
 
         download_song(songObj, self.displayManager, self.downloadTracker)
+
+        print()
     
     def download_multiple_songs(self, songObjList: List[SongObj]) -> None:
         '''
@@ -287,6 +294,7 @@ class DownloadManager():
                     for song in songObjList
             )
         )
+        print()
     
     def resume_download_from_tracking_file(self, trackingFilePath: str) -> None:
         '''
@@ -312,6 +320,7 @@ class DownloadManager():
                     for song in songObjList
             )
         )
+        print()
     
     def close(self) -> None:
         '''
@@ -321,7 +330,7 @@ class DownloadManager():
         '''
 
         self.displayManager.close()
-        self.rootProcess.close()
+        self.rootProcess.shutdown()
 
         self.workerPool.close()
         self.workerPool.join()

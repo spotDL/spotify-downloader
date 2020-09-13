@@ -30,7 +30,7 @@ class SongObj():
     def from_url(cls, spotifyURL: str):
         # check if URL is a playlist, user, artist or album, if yes raise an Exception,
         # else procede
-        if 'track' not in spotifyURL:
+        if not ('open.spotify.com' in spotifyURL and 'track' in spotifyURL):
             raise Exception('passed URL is not that of a track: %s' % spotifyURL)
 
 

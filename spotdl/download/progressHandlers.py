@@ -137,6 +137,13 @@ class DisplayManager():
 
         self.progressBar.reset()
     
+    def clear(self) -> None:
+        '''
+        clear the tqdm progress bar
+        '''
+
+        self.progressBar.clear()
+    
     def close(self) -> None:
         '''
         clean up TQDM
