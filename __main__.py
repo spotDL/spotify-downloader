@@ -1,37 +1,52 @@
+#! Basic necessities to get the CLI running
 from spotdl.search.spotifyClient import initialize
+from sys import argv as cliArgs
 
-from spotdl.search.utils import get_playlist_tracks
-
-from spotdl.download.downloader import DownloadManager
+#! Song Search from different start points
+from spotdl.search.utils import get_playlist_tracks, get_album_tracks, search_for_song
 from spotdl.search.songObj import SongObj
+
+#! The actual download stuff
+from spotdl.download.downloader import DownloadManager
 
 if __name__ == '__main__':
     initialize(
         clientId='4fe3fecfe5334023a1472516cc99d805',
         clientSecret='0f02b7c483c04257984695007a4a8d5c'
         )
+    
+    downloader = DownloadManager()
 
-    #cp = [
-    #'https://open.spotify.com/playlist/4q6GdHWcJwCWchkYiulnxN?si=5MA4InKgRSWnfT344UDzMw',
-    #'https://open.spotify.com/playlist/0pIwglF2dofjZRBb2ZcboR?si=6zcqKDmXRx6fWefulmxwvg',
-    #'https://open.spotify.com/playlist/37i9dQZF1EpiXbCbU404ST?si=sdOo_mN-TcGNla4roiuJFQ',
-    #'https://open.spotify.com/playlist/2GNgOMv4JMkv96wsOo64Wx?si=1f02HuudQr244xMMSgq9lA',
-    #'https://open.spotify.com/playlist/37i9dQZF1EpGlVPORupxY0?si=wytPwJA4SvKk1UVjRhnOLw',
-    #'https://open.spotify.com/playlist/37i9dQZF1EpiXbCbU404ST?si=-vUDyYAJQ2q0tKaaZ9VCfQ'
-    #]
+    for request in cliArgs[1:]:
+        if 'open.spotify.com' in request and 'track' in request:
+            print('Fetching Song...')
+            song = SongObj.from_url(request)
 
-    #songObjList = []
+            downloader.download_single_song(song)
+        
+        elif 'open.spotify.com' in request and 'album' in request:
+            print('Fetching Album...')
+            songObjList = get_album_tracks(request)
 
-    #print('Fetching playlist...')
-    #for each in cp:
-    #    print('Fetching: %s...' % each)
-    #    songObjList += get_playlist_tracks(each)
+            downloader.download_multiple_songs(songObjList)
+        
+        elif 'open.spotify.com' in request and 'playlist' in request:
+            print('Fetching Playlist...')
+            songObjList = get_playlist_tracks(request)
 
-    man = DownloadManager()
+            downloader.download_multiple_songs(request)
+        
+        elif request.endswith('.spotdlTrackingFile'):
+            print('Preparing to resume download...')
+            downloader.resume_download_from_tracking_file(request)
+        
+        else:
+            print('Searching for song "%s"...' % request)
+            try:
+                song = search_for_song(request)
+                downloader.download_single_song(song)
 
-    #song = SongObj.from_url('https://open.spotify.com/track/0m3offEyxRFE41CG2UQKBp?si=XImR7iMrS1Crgproz4dfCQ')
-    #man.download_single_song(song)
-
-    #man.download_multiple_songs(songObjList)
-    man.resume_download_from_tracking_file('multiList.spotdlTrackingFile')
-    #man.resume_download_from_tracking_file("Losing Hold (feat. Austin Jenckes).spotdlTrackingFile")
+            except:            
+                print('No song named "%s" could be found on spotify' % request)
+    
+    downloader.close()
