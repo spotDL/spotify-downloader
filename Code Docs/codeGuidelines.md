@@ -18,11 +18,15 @@ then... Whatever (no fancy reasons here).
 
 2. [Sizing of Modules/Classes/Functions](#Sizing)
 
-3. [Documentation](#Documentation)
+3. [In-line Documentation](#Documentation)
+
+4. [Zero-base accounting](#Zero-base-accounting)
+
+5. [Just how much of this is compulsory?](#Necessary-conventions)
 
 <br><br>
 
-# Naming Conventions
+# Naming conventions
 
 Internal consistency in naming greatly reduces the effort in understanding the codebase by getting
 rid of cognitive overhead allowing you to focus on what matters. This is especially useful in large
@@ -89,7 +93,8 @@ large classes/functions you might have)
 
 Counting lines of python code is arduous, so you can use the `totalLNC.py`, `funcLNC.py` &
 `classLNC.py` from the `.\dev utils\` folder to do the heavy lifting. Run them by passing
-them a folder name. eg, `python '.\dev Utils\classLNC.py' .\spotdl`
+them a folder name. eg, `python '.\dev Utils\classLNC.py' .\spotdl`, all these command line utils,
+count 90 characters as a line, so you can't cheat by just writing longer but fewer lines of code.
 
 <br><br>
 
@@ -192,3 +197,29 @@ write good in-line documentation.
     that to download was successful?
 
     - And the weird function structure makes sense without major head-whacking.
+
+<br><br>
+
+# Zero-base accounting
+
+Zero-base accounting is a corporate system in which every department has to justify a need for its
+existence each year. If you can't justify the need, the department is dissolved. It is very easy to
+just add features and functionality to an OSS project, but with every single line of code, it also
+becomes harder to maintain - it's another piece of unnecessary code, another unneeded complication,
+anther thing you have to keep in mind while coding.
+
+Every top level module, class and function has an entry at [PURPOSES.md](..\Design%20Docs\PURPOSES.md),
+if you can't put up a justification for any bit of top level code, that bit gets deleted, if there is
+any sub-code (think class methods under a class) don't keep in line with the **PURPOSES** file,
+that bit gets deleted. Essentially, the **PURPOSES** file, helps enforce abstraction, encapsulation
+and zero-base accounting.
+
+<br><br>
+
+# Necessary conventions
+
+Now, now, you don't expect us to follow all of these while writing code do you? Nope we don't -
+that's a lot to ask. But we absolutely need you to follow [Naming conventions](#Naming-conventions)
+and [Zero-base accounting](#Zero-base-accounting). We also ask that you do your level best to
+comply with other guidelines, but feel free to be flexible in that. We have no intension to accept
+code that totally disregards the conventions.

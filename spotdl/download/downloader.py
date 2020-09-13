@@ -69,18 +69,18 @@ def download_song(songObj: SongObj, displayManager: DisplayManager = None,
             artistStr += artist + ', '
     
     #! the ...[:-2] is to avoid the last ', ' appended to artistStr
-    convertedFileName = artistStr[:-2] + ' - ' + songObj.get_song_name() + '.mp3'
+    convertedFileName = artistStr[:-2] + ' - ' + songObj.get_song_name()
 
     #! this is windows specific (disallowed chars)
     for disallowedChar in ['/', '?', '\\', '*','|', '<', '>']:
         if disallowedChar in convertedFileName:
-            convertedFileName.replace(disallowedChar, '')
+            convertedFileName = convertedFileName.replace(disallowedChar, '')
     
     #! double quotes (") and semi-colons (:) are also disallowed characters but we would
     #! like to retain their equivalents, so they aren't removed in the prior loop
     convertedFileName = convertedFileName.replace('"', "'").replace(': ', ' - ')
 
-    convertedFilePath = join('.', convertedFileName)
+    convertedFilePath = join('.', convertedFileName) + '.mp3'
 
 
 
@@ -121,30 +121,36 @@ def download_song(songObj: SongObj, displayManager: DisplayManager = None,
         #! downloadTrackers download queue and all is well...
         #!
         #! None is again used as a convenient exit
-        remove(convertedFileName + '.mp4')
+        remove(join(tempFolder, convertedFileName) + '.mp4')
         return None
     
 
 
     # convert downloaded file to MP3 with normalization
 
-    #! -af loudnorm=I=-7 applies EBR 128 loudness normalization algorithm with
-    #! intergrated loudness target set to -17, using values lower than -15
+    #! -af loudnorm=I=-7:LRA applies EBR 128 loudness normalization algorithm with
+    #! intergrated loudness target (I) set to -17, using values lower than -15
     #! causes 'pumping' i.e. rhythmic variation in loudness that should not
-    #! exist -loud parts exaggerate, soft parts left alone
+    #! exist -loud parts exaggerate, soft parts left alone.
     #! 
     #! dynaudnorm applies dynamic non-linear RMS based normalization, this is what
     #! actually normalized the audio. The loudnorm filter just makes the apparent
-    #! loudness constant   
+    #! loudness constant
+    #!
+    #! apad=pad_dur=2 adds 3 seconds of silence toward the end of the track, this is
+    #! done because the loudnorm filter clips/cuts/deletes the last 1-2 seconds on
+    #! occasion especially if the song is EDM-like, so we add a few extra seconds to
+    #! combat that.
     #!
     #! -af 44100 sets audio sampling to 44100Hz, its required for the ffmpeg loudnorm
     #! filter to work without errors
 
-    command = 'ffmpeg -v quiet -y -i "%s" -ar 44100 -af "dynaudnorm, loudnorm=I=-17" "%s"'
+    command = 'ffmpeg -v quiet -y -i "%s" -ar 44100 -af "apad=pad_dur=2, dynaudnorm, loudnorm=I=-17" "%s"'
     formattedCommand = command % (downloadedFilePath, convertedFilePath)
 
     run_in_shell(formattedCommand)
 
+    #! Wait till converted file is actually created
     while True:
         if exists(convertedFilePath):
             break
