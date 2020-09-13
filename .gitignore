@@ -1,11 +1,15 @@
 # Spotdl dev related testing files
 *.log
+*.spotdlTrackingFile
+*.mp3
+*.mp4
 
 # Reference Code
 originalCodeRef/*
 
 # Python
 __pycache__
+.mypy_cache
 
 # vscode
 .vscode
