@@ -323,7 +323,8 @@ class YouTubeStreams(StreamsBase):
             The stream matching the given parameters. ``None`` if no
             matching stream was found.
         """
-
+        if not self.streams:
+            return None
         if quality == "best":
             return self.getbest(preftype=preftype)
         elif quality == "worst":
