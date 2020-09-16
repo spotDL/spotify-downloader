@@ -1,12 +1,8 @@
 # Spotify-Downloader
 
-<ins>**NOTE:**</ins>
+## **NOTE:**
 
-We're doing some (kinda) major work on spotify-downloader to make it easier to contribute to (see [this](https://github.com/ritiek/spotify-downloader/issues/778#issuecomment-660683786) and [this](https://github.com/ritiek/spotify-downloader/issues/810) as to why) If your interested in contributing, do look up [this project](https://github.com/ritiek/spotify-downloader/projects/2).
-
-We'd like as many reviews of the work in progress so that we can turn out a truly improved, simple and easy-to-contribute spotify-downloader. Head over to [Draft PR #812](https://github.com/ritiek/spotify-downloader/pull/812) to help out with that. Only with your help, together can do the whole community and the many users a lot of good.
-
-### ⚠⚠⚠ We just finished the new search providers, if your interested in trying them try running [this file](https://github.com/Mikhail-Zex/spotify-downloader/blob/reStructure/reCode/Temp/YTM_test.py)
+We finished the spotdl rework, it's pending review. You can test it out by cloning [@Mikhail-Zex/spotidy-downloader](https://github.com/Mikhail-Zex/spotify-downloader) and running the setup.py file.
 
 Thank you for your time.
 
