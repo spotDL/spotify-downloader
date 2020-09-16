@@ -1,4 +1,5 @@
 __all__ = [
     'search',
-    'download'
+    'download',
+    'patches'
 ]

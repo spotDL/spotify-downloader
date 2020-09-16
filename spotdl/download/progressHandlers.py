@@ -229,9 +229,18 @@ class DownloadTracker():
         for song in self.songObjList:
             songDataDumps.append(song.get_data_dump())
         
-        #! the default naming of a tracking file is $nameOfFirstSOng.spotdlTrackingFile
+        #! the default naming of a tracking file is $nameOfFirstSOng.spotdlTrackingFile,
+        #! it needs a little fixing because of disallowed characters in file naming
         if not self.saveFile:
-            self.saveFile = self.songObjList[0].get_song_name() + '.spotdlTrackingFile'
+            songName = self.songObjList[0].get_song_name()
+
+            for disallowedChar in ['/', '?', '\\', '*','|', '<', '>']:
+                if disallowedChar in songName:
+                    songName = songName.replace(disallowedChar, '')
+            
+            songName = songName.replace('"', "'").replace(': ', ' - ')
+
+            self.saveFile = songName + '.spotdlTrackingFile'
         
 
 

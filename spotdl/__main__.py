@@ -2,6 +2,12 @@
 from spotdl.search.spotifyClient import initialize
 from sys import argv as cliArgs
 
+#! pyTube patch
+#!
+#! This needs to be before the spotdl.download imports, else the un-patched
+# version of pyTube is used and results in errors
+from spotdl.patches.pyTube import apply_patches
+
 #! Song Search from different start points
 from spotdl.search.utils import get_playlist_tracks, get_album_tracks, search_for_song
 from spotdl.search.songObj import SongObj
@@ -39,8 +45,53 @@ from multiprocessing import freeze_support
 #!
 #! P.S. Tell me what you think. Up to your expectations?
 
-if __name__ == '__main__':
-    freeze_support()
+# Apply pytube patches
+apply_patches()
+
+#! Script Help
+help_notice = '''
+To download a song run,
+    spotdl $trackUrl
+    eg. spotdl https://open.spotify.com/track/08mG3Y1vljYA6bvDt4Wqkj?si=SxezdxmlTx-CaVoucHmrUA
+
+To download a album run,
+    spotdl $albumUrl
+    eg. spotdl https://open.spotify.com/album/2YMWspDGtbDgYULXvVQFM6?si=gF5dOQm8QUSo-NdZVsFjAQ
+
+To download a playlist run,
+    spotdl $playlistUrl
+    eg. spotdl https://open.spotify.com/playlist/37i9dQZF1DWXhcuQw7KIeM?si=xubKHEBESM27RqGkqoXzgQ
+
+To search for and download a song (not very accurate) run,
+    spotdl $songQuery
+    eg. spotdl 'The HU - Sugaan Essenna'
+
+To resume a failed/incomplete download run,
+    spotdl $pathToTrackingFile
+    eg. spotdl 'Sugaan Essenna.spotdlTrackingFile'
+
+    Note, '.spotDlTrackingFiles' are automatically created during download start, they are deleted on
+    download completion
+
+You can chain up download tasks by seperating them with spaces:
+    spotdl $songQuery1 $albumUrl $songQuery2 ... (order does not matter)
+    eg. spotdl 'The Hu - Sugaan Essenna' https://open.spotify.com/playlist/37i9dQZF1DWXhcuQw7KIeM?si=xubKHEBESM27RqGkqoXzgQ ...
+
+Spotdl downloads up to 4 songs in parallel - try to download albums and playlists instead of
+tracks for more speed
+'''
+
+def console_entry_point():
+    '''
+    This is where all the console processing magic happens.
+    Its super simple, rudimentary even but, it's dead simple & it works.
+    '''
+
+    if '--help' in cliArgs or '-h' in cliArgs:
+        print(help_notice)
+
+        #! We use 'return None' as a convenient exit/break from the function
+        return None
 
     initialize(
         clientId='4fe3fecfe5334023a1472516cc99d805',
@@ -78,7 +129,12 @@ if __name__ == '__main__':
                 song = search_for_song(request)
                 downloader.download_single_song(song)
 
-            except:            
+            except Exception:
                 print('No song named "%s" could be found on spotify' % request)
     
     downloader.close()
+
+if __name__ == '__main__':
+    freeze_support()
+
+    console_entry_point()
