@@ -118,8 +118,6 @@ required metadata
 
 [REA.] Come on, the whole point of spotDL is to download stuff
 
-<!-- should I put in download singly and in parallel sub methods?-->
-
 ## downloadTracker class
 
 [PUR.] to track the progress of downloads and enable download resuming

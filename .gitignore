@@ -19,3 +19,8 @@ externalTools/*
 
 # Getting rid of Hacks (for now, 04/09/2020)
 Hacks/*
+
+# setuptools
+spotdl.egg-info/*
+build/*
+dist/*

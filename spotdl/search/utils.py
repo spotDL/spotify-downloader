@@ -20,10 +20,15 @@ def search_for_song(query: str) ->  SongObj:
     if len(result['tracks']['items']) == 0:
         raise Exception('No song matches found on Spotify')
     else:
-        songUrl = 'http://open.spotify.com/track/' + result['tracks']['items'][0]['id']
-
-        return SongObj.from_url(songUrl)
-
+        for songResult in result['tracks']['items']:
+            songUrl = 'http://open.spotify.com/track/' + songResult['id']
+            song = SongObj.from_url(songUrl)
+            
+            if song.get_youtube_link() != None:
+                return song
+        
+        raise Exception('Could not match any of the results on YouTube')
+        
 def get_album_tracks(albumUrl: str) -> List[SongObj]:
     '''
     `str` `albumUrl` : Spotify Url of the album whose tracks are to be
@@ -41,9 +46,10 @@ def get_album_tracks(albumUrl: str) -> List[SongObj]:
     while True:
 
         for track in trackResponse['items']:
-            albumTracks.append(
-                SongObj.from_url('https://open.spotify.com/track/' + track['id'])
-            )
+            song = SongObj.from_url('https://open.spotify.com/track/' + track['id'])
+            
+            if song.get_youtube_link() != None:
+                albumTracks.append(song)
         
         # check if more tracks are to be passed
         if trackResponse['next']:
@@ -73,9 +79,11 @@ def get_playlist_tracks(playlistUrl: str) -> List[SongObj]:
     while True:
 
         for songEntry in playlistResponse['items']:
-            playlistTracks.append(
-                SongObj.from_url('https://open.spotify.com/track/' + songEntry['track']['id'])
-            )
+            song = SongObj.from_url(
+                'https://open.spotify.com/track/' + songEntry['track']['id'])
+            
+            if song.get_youtube_link() != None:
+                playlistTracks.append(song)
 
         # check if more tracks are to be passed        
         if playlistResponse['next']:
