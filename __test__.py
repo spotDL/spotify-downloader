@@ -1,39 +1,54 @@
-#! Basic necessities to get the CLI running
-from spotdl.search.spotifyClient import initialize
-from sys import argv as cliArgs
 
-#! Song Search from different start points
-from spotdl.search.utils import get_playlist_tracks, get_album_tracks, search_for_song
-from spotdl.search.songObj import SongObj
 
-#! The actual download stuff
-from spotdl.download.downloader import DownloadManager
+from spotdl.cli.logger import NewProgressBar
+from rich.progress import Progress, BarColumn, TimeRemainingColumn
+from rich.progress import track
+import time
 
-#! to avoid packaging errors
-from multiprocessing import freeze_support
 
+def progresstest():
+	# p1 = NewProgressBar('Song1')
+	# for i in range(1, 100, 10):
+	# 	# print(i)
+	# 	p1.setProgress(i)
+	# 	time.sleep(0.1)
+	# p1.close()
+	# style = "black on black"
+	# progress = Progress(
+	# 	"[progress.description]{task.description}",
+	# 	BarColumn(bar_width=None),
+	# 	"[progress.percentage]{task.percentage:>3.0f}%",
+	# 	TimeRemainingColumn(),
+	# )
+
+	# for step in track(range(100), style="black on black", finished_style="white", description="[green]Processing..."):
+		# time.sleep(0.1)
+
+	# progress = Progress(
+	# 	"[progress.description]{task.description}",
+	# 	BarColumn(),
+	# 	"[progress.percentage]{task.percentage:>3.0f}%",
+	# 	TimeRemainingColumn(),
+	# )
+
+	with Progress(
+		# "[progress.description]{task.description}",
+		BarColumn(bar_width=None, style="black on black"),
+		"[progress.percentage]{task.percentage:>3.0f}%",
+		TimeRemainingColumn(),
+		) as progress:
+
+		task1 = progress.add_task("[red]Downloading...", total=1000)
+		task2 = progress.add_task("[green]Processing...", total=1000)
+		task3 = progress.add_task("[cyan]Cooking...", total=1000)
+
+		while not progress.finished:
+			progress.update(task1, advance=0.5)
+			progress.update(task2, advance=0.3)
+			progress.update(task3, advance=0.9)
+			time.sleep(0.02)
 
 
 if __name__ == '__main__':
-	freeze_support()
-
-	initialize(
-		clientId='4fe3fecfe5334023a1472516cc99d805',
-		clientSecret='0f02b7c483c04257984695007a4a8d5c'
-		)
-	
-	downloader = DownloadManager()
-
-
-	try:
-		song = search_for_song('Rednecker')
-		print('song', song.get_song_name(), song.get_album_name())
-	except:            
-		print('No song named Rednecker could be found on spotify')
-	
-	try:
-		downloader.download_single_song(song)
-	except:            
-		print('No song named Rednecker could be downloaded')
-	
-	downloader.close()
+	# main()
+	progresstest()

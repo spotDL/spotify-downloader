@@ -39,6 +39,10 @@ from multiprocessing import freeze_support
 #!
 #! P.S. Tell me what you think. Up to your expectations?
 
+
+#! It worked great once I wouked out a couple kinks in dependencies!
+#! -Peyton
+
 if __name__ == '__main__':
     freeze_support()
 
@@ -53,19 +57,16 @@ if __name__ == '__main__':
         if 'open.spotify.com' in request and 'track' in request:
             print('Fetching Song...')
             song = SongObj.from_url(request)
-
             downloader.download_single_song(song)
         
         elif 'open.spotify.com' in request and 'album' in request:
             print('Fetching Album...')
             songObjList = get_album_tracks(request)
-
             downloader.download_multiple_songs(songObjList)
         
         elif 'open.spotify.com' in request and 'playlist' in request:
             print('Fetching Playlist...')
             songObjList = get_playlist_tracks(request)
-
             downloader.download_multiple_songs(request)
         
         elif request.endswith('.spotdlTrackingFile'):
@@ -76,9 +77,8 @@ if __name__ == '__main__':
             print('Searching for song "%s"...' % request)
             try:
                 song = search_for_song(request)
-                downloader.download_single_song(song)
-
             except:            
                 print('No song named "%s" could be found on spotify' % request)
+            downloader.download_single_song(song)
     
     downloader.close()
