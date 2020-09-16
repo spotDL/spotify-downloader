@@ -389,8 +389,7 @@ def search_and_order_ytm_results(songName: str, songArtists: List[str],
             if word != '' and word in lowerResultName:
                 commonWord = True
         
-        #! if there are no common words, return False
-        #! The above loops catch common words and return True, thereby exiting the
+        #! if there are no common words, skip result
         if not commonWord:
             continue
 
@@ -476,6 +475,9 @@ def search_and_get_best_match(songName: str, songArtists: List[str],
         songName, songArtists,
         songAlbumName, songDuration
     )
+
+    if len(results) == 0:
+        return None
 
     resultItems = list(results.items())
     sortedResults = sorted(resultItems, key = lambda x: x[1], reverse=True)

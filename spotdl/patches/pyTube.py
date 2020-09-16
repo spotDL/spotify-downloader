@@ -241,3 +241,7 @@ def get_ytplayer_config(html: str) -> Any:
     raise RegexMatchError(
         caller="get_ytplayer_config", pattern="config_patterns"
     )
+
+apply_patches()
+
+YouTube = pytube.YouTube

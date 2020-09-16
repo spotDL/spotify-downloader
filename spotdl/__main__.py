@@ -2,12 +2,6 @@
 from spotdl.search.spotifyClient import initialize
 from sys import argv as cliArgs
 
-#! pyTube patch
-#!
-#! This needs to be before the spotdl.download imports, else the un-patched
-# version of pyTube is used and results in errors
-from spotdl.patches.pyTube import apply_patches
-
 #! Song Search from different start points
 from spotdl.search.utils import get_playlist_tracks, get_album_tracks, search_for_song
 from spotdl.search.songObj import SongObj
@@ -44,9 +38,6 @@ from multiprocessing import freeze_support
 #!                                                          - cheerio! (Michael)
 #!
 #! P.S. Tell me what you think. Up to your expectations?
-
-# Apply pytube patches
-apply_patches()
 
 #! Script Help
 help_notice = '''
@@ -105,7 +96,12 @@ def console_entry_point():
             print('Fetching Song...')
             song = SongObj.from_url(request)
 
-            downloader.download_single_song(song)
+            if song.get_youtube_link() != None:
+                downloader.download_single_song(song)
+            else:
+                print('Skipping %s (%s) as no match could be found on youtube' % (
+                    song.get_song_name(), request
+                ))
         
         elif 'open.spotify.com' in request and 'album' in request:
             print('Fetching Album...')
