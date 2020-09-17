@@ -1,6 +1,8 @@
 
 
-from spotdl.cli.logger import NewProgressBar
+# from spotdl.cli.display import NewProgressBar, stop
+import spotdl.cli.displayManager as displayManager
+import spotdl.cli.arguementHandler as arguementHandler
 from rich.progress import Progress, BarColumn, TimeRemainingColumn
 # from rich.progress import track
 import time
@@ -20,8 +22,11 @@ from rich.console import (
 
 import io
 import sys
+import signal
+# import sys
 
-
+import atexit
+from sys import argv as cliArgs
 
 
 def progresstest():
@@ -49,7 +54,7 @@ def progresstest():
 	# 	TimeRemainingColumn(),
 	# )
 	# print("[italic red]Hello[/italic red] World!", locals())
-	console = Console(force_terminal=True)
+	# console = Console(force_terminal=True)
 	with Progress(
 		"[progress.description]{task.description}",
 		BarColumn(bar_width=None, style="black on black"),
@@ -59,7 +64,7 @@ def progresstest():
 		# console=console,
 		# redirect_stdout=True,
 		# redirect_stderr=True,
-		auto_refresh=False
+		# auto_refresh=False
 		) as progress:
 
 		task1 = progress.add_task("[red]Downloading...", total=100)
@@ -70,7 +75,7 @@ def progresstest():
 			progress.update(task1, advance=0.5)
 			progress.update(task2, advance=0.3)
 			# progress.update(task3, advance=0.9)
-			progress.refresh()
+			# progress.refresh()
 			time.sleep(0.02)
 
 def progresstest2():
@@ -110,12 +115,57 @@ def progresstest4():
 		time.sleep(0.002)
 	progressTheme.stop() # CRUCIAL if funning outside with object
 
+def progresstest5():
+    # signal.signal(signal.SIGINT, signal_handler)
+    # print('Press Ctrl+C')
+    # signal.pause()
+    v1 = displayManager.NewProgressBar("1")
+    time.sleep(1)
+    v1.setProgress(50)
+    displayManager.log('stuff')
+    time.sleep(1)
+    # v1.setProgress(100)
+    v1.done()
+    time.sleep(1)
+    # v1.close()
+    displayManager.stop()
+
+def signal_handler(sig, frame):
+    print('You pressed Ctrl+C!')
+    displayManager.stop()
+    sys.exit(0)
+
+def exit_handler(quit=False):
+    # print('I exited i guess')
+    displayManager.stop()
+    if quit:
+        sys.exit(0)
+
+def argtest1():
+    arguementHandler.passArgs(cliArgs)
+
+
+atexit.register(exit_handler)
+signal.signal(signal.SIGTERM, signal_handler)
+signal.signal(signal.SIGINT, signal_handler)
 
 if __name__ == '__main__':
 	# main()
 	# progresstest()
 	# progresstest2()
 	# progresstest3()
-	progresstest4()
+	# progresstest4()
+    try:
+        
+        # progresstest5()
+        argtest1()
+        # print(f)
+    except Exception as inst:
+        displayManager.log("there was an unknown error of:   " + str(inst.__str__()))
+        # displayManager.log(str(inst.args))
+        exit_handler()
+        raise
 	# showtime()
 	# alive_test()
+
+exit_handler()
