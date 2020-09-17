@@ -1,1 +1,5 @@
-__version__ = "1.2.4"
+__all__ = [
+    'search',
+    'download',
+    'patches'
+]
