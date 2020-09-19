@@ -67,14 +67,24 @@ class Track:
     def __init__(self, metadata, cache_albumart=False):
         self.metadata = metadata
         self._chunksize = CHUNK_SIZE
-        if cache_albumart:
-            self._albumart_thread = self._cache_albumart()
         self._cache_albumart = cache_albumart
-
-    def _cache_albumart(self):
+        if cache_albumart:
+            albumart_url = _get_albumart_url()
+            if albumart_url is None:
+                self._cache_albumart = False
+            else:
+                self._albumart_thread = self._cache_albumart(albumart_url)                
+    
+    def _get_albumart_url(self):
+        try:
+            return self.metadata["album"]["images"][0]["url"]
+        except IndexError:
+            return None
+        
+    def _cache_albumart(self, albumart_url):
         albumart_thread = spotdl.util.ThreadWithReturnValue(
             target=lambda url: urllib.request.urlopen(url).read(),
-            args=(self.metadata["album"]["images"][0]["url"],)
+            args=(albumart_url,)
         )
         albumart_thread.start()
         return albumart_thread
