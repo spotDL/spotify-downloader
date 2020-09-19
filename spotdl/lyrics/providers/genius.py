@@ -115,7 +115,10 @@ class Genius(LyricBase):
 
         lyric_url = None
         for section in metadata["response"]["sections"]:
-            result = section["hits"][0]["result"]
+            try:
+                result = section["hits"][0]["result"]
+            except IndexError:
+                continue
             try:
                 lyric_url = result["path"]
                 break
