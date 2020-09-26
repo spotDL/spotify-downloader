@@ -41,7 +41,7 @@ Download by Spotify URI
 -----------------------
 
 .. IMPORTANT::
-    It is recommened to use Spotify URIs for downloading tracks as it
+    It is recommended to use Spotify URIs for downloading tracks as it
     guarantees that the track exists on Spotify which allows the tool
     to always fetch the accurate metadata.
 

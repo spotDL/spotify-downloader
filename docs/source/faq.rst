@@ -64,7 +64,7 @@ of metadata.
 - Search for this track on YouTube
 - Get lyrics for the track from Genius
 - Downloads the audiostream from YouTube in an *.opus* or *.webm*
-  format (or as specified in input format) and simuntaneously encodes it
+  format (or as specified in input format) and simultaneously encodes it
   to an *.mp3* format (or as specified in output format)
 - Finally apply metadata from Spotify to this encoded track
 

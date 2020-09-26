@@ -38,7 +38,7 @@ class Track:
         >>> from spotdl.metadata_search import MetadataSearch
         >>> provider = MetadataSearch("ncs spectre")
         >>> metadata = provider.on_youtube()
-        # The same metadata can also be retrived using `ProviderYouTube`:
+        # The same metadata can also be retrieved using `ProviderYouTube`:
         >>> # from spotdl.metadata.providers import ProviderYouTube
         >>> # provider = ProviderYouTube()
         >>> # metadata = provider.from_query("ncs spectre")

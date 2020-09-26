@@ -22,7 +22,7 @@ The release dates mentioned follow the format `DD-MM-YYYY`.
 
 ## [2.2.1] - 07-07-2020
 ### Fixed
-- Occasionaly wrong title would be extracted from YouTube video. (#779)
+- Occasionally wrong title would be extracted from YouTube video. (#779)
 
 ## [2.2.0] - 01-07-2020
 ### Added
@@ -139,15 +139,15 @@ All the below changes were made as a part of #690.
 - Internally adapt to latest changes made in Spotipy library.
 - Switch to `logging` + `coloredlogs` instead of `logzero`. Our loggers weren't being
   setup properly with `logzero`.
-- Simplify checking for an downloaded already track. Previously it also analyzed metadata
+- Simplify checking for an already downloaded track. Previously it also analyzed metadata
   for the already downloaded track to determine whether to overwrite the already downloaded
-  track, which caused unexpected behvaiours at times.
+  track, which caused unexpected behaviours at times.
 - Codebase is now more modular making it easier to use spotdl in python scripts.
 - `config.yml` now uses underscores for separating between argument words instead of
   hyphens for better compatibility with `argparse`.
 
 ### Optimized
-- Track download and encoding now happen parallely instead of sequentially making spotdl
+- Track download and encoding now happen parallelly instead of sequentially making spotdl
   faster.
 - Lyrics and albumart are now downloaded in the background while the track is being downloaded
   instead of in the end. This reduces additional delays if we are to download them while applying
@@ -179,7 +179,7 @@ All the below changes were made as a part of #690.
 
 ## [1.2.4] - 2020-01-10
 ### Fixed
-- Fixed a crash occuring when lyrics for a track are not yet released
+- Fixed a crash occurring when lyrics for a track are not yet released
   on Genius ([@ritiek](https://github.com/ritiek)) (#654)
 - Fixed a regression where a track would fail to download if it isn't
   found on Spotify ([@ritiek](https://github.com/ritiek)) (#653)

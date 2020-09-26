@@ -71,7 +71,7 @@ class Spotdl:
         >>> with Spotdl(args) as spotdl_handler:
         ...     spotdl_handler.match_arguments()
 
-    Similary, you can pass additional arguments (refer to the config fiile
+    Similarly, you can pass additional arguments (refer to the config fiile
     to know what all arguments are supported).
 
     + To download tracks from file:
