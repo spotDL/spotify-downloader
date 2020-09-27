@@ -37,7 +37,7 @@ class Spotdl:
     """
     This class is directly involved with the command-line interface
     of the tool. It allows downloading of tracks, writing M3U
-    playlists, and providers other useful methods.
+    playlists, and provides other useful methods.
 
     Parameters
     ----------
@@ -71,7 +71,7 @@ class Spotdl:
         >>> with Spotdl(args) as spotdl_handler:
         ...     spotdl_handler.match_arguments()
 
-    Similary, you can pass additional arguments (refer to the config fiile
+    Similary, you can pass additional arguments (refer to the config file
     to know what all arguments are supported).
 
     + To download tracks from file:
@@ -283,7 +283,8 @@ class Spotdl:
             with open(target_path, "w") as output_file:
                 output_file.write(m3u_headers)
 
-        videos = []
+        #videos = [] 
+        #un-used variable?
         for n, track in enumerate(tracks, 1):
             search_metadata = MetadataSearch(
                 track,
@@ -514,7 +515,7 @@ class Spotdl:
 
         try:
             track.apply_metadata(filename, encoding=encoding)
-        except MediaFileError:
+        except BadMediaFileError: 
             logger.warning("Cannot apply metadata on provided output format.")
 
     def strip_and_filter_duplicates(self, elements):
