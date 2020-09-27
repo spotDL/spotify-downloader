@@ -8,6 +8,14 @@ The release dates mentioned follow the format `DD-MM-YYYY`.
 
 ## [Unreleased]
 
+### Fixed
+- Fix YouTube pattern matching. ([@FransM](https://github.com/FransM) (#832)
+- Error message instead of crash when no audio stream is found in the YouTube video.
+  ([@gordominossi](https://github.com/gordominossi)) (#828)
+
+### Changed
+- Improve input file validation for --list. ([@FransM](https://github.com/FransM) (#818)
+
 ## [2.2.2] - 28-07-2020
 ## Fixed
 - PyTube failing on outdated regex. (#798)

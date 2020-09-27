@@ -1,7 +1,6 @@
 import appdirs
 
 import argparse
-import mimetypes
 import os
 import sys
 import shutil
@@ -323,14 +322,16 @@ class ArgumentHandler:
     def run_errands(self):
         args = self.configured_args
 
-        if (args.get("list")
-            and not mimetypes.MimeTypes().guess_type(args["list"])[0] == "text/plain"
-        ):
-            raise ArgumentError(
-                "{0} is not of a valid argument to --list, argument must be plain text file.".format(
-                    args["list"]
-                )
-            )
+        if (args.get("list")):
+            textchars = bytearray({7,8,9,10,12,13,27} | set(range(0x20, 0x7e)))
+            is_binary_string = lambda bytes: bool(bytes.translate(None, textchars))
+            with open(args["list"], 'rb') as file:
+                if is_binary_string(file.read(1024)):
+                    raise ArgumentError(
+                        "{0} is not of a valid argument to --list, it must be a text file".format(
+                            args["list"]
+                        )
+                    )
 
         if args.get("write_m3u") and not args.get("list"):
             raise ArgumentError("--write-m3u can only be used with --list.")
