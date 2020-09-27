@@ -4,6 +4,8 @@
 
 We finished the spotdl rework, it's pending review. You can test it out by cloning [@Mikhail-Zex/spotidy-downloader](https://github.com/Mikhail-Zex/spotify-downloader) and running the setup.py file.
 
+If you find any errors, please do report them over at issues, we'll work on handling them.
+
 Thank you for your time.
 
 [![PyPi](https://img.shields.io/pypi/v/spotdl.svg)](https://pypi.org/project/spotdl)
