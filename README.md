@@ -1,96 +1,70 @@
-# Spotify-Downloader
+# spotDL
 
-## **NOTE:**
+⚠ Interested Contributors, please read our [contributing Guidelines](CONTRIBUTING.md) first.
 
-We finished the spotdl rework, it's pending review. You can test it out by cloning [@Mikhail-Zex/spotidy-downloader](https://github.com/Mikhail-Zex/spotify-downloader) and running the setup.py file.
+<br><br>
 
-If you find any errors, please do report them over at issues, we'll work on handling them.
+What spotDL does:
+1. Downloads music from YouTube as an MP3 file
+2. Applies basic metadata like `track name`, `track number`, `album`, `genre` and more...
 
-Thank you for your time.
+<br><br>
 
-[![PyPi](https://img.shields.io/pypi/v/spotdl.svg)](https://pypi.org/project/spotdl)
-[![Docs Build Status](https://readthedocs.org/projects/spotdl/badge/?version=latest)](https://spotdl.readthedocs.io/en/latest/home.html)
-[![Build Status](https://travis-ci.org/ritiek/spotify-downloader.svg?branch=master)](https://travis-ci.org/ritiek/spotify-downloader)
-[![Coverage Status](https://codecov.io/gh/ritiek/spotify-downloader/branch/master/graph/badge.svg)](https://codecov.io/gh/ritiek/spotify-downloader)
-[![Docker Build Status](https://img.shields.io/docker/build/ritiek/spotify-downloader.svg)](https://hub.docker.com/r/ritiek/spotify-downloader)
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
-[![Gitter Chat](https://badges.gitter.im/ritiek/spotify-downloader/Lobby.svg)](https://gitter.im/spotify-downloader/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+You need to download ffmpeg to use this tool, download it from:
+1. [MacOs](https://evermeet.cx/ffmpeg/)
+2. [Windows](https://www.gyan.dev/ffmpeg/builds/)
+3. [Linux](https://johnvansickle.com/ffmpeg/)
+4. [Central Release Page](https://ffmpeg.org/download.html)
 
-- Downloads songs from YouTube in an MP3 format by using Spotify's HTTP link.
-- Can also download a song by entering its artist and song name (in case if you don't have the Spotify's HTTP link for some song).
-- Automatically applies metadata to the downloaded song which includes:
+<br><br>
 
-  - `Title`, `Artist`, `Album`, `Album art`, `Lyrics` (if found either on [Genius](https://genius.com/)), `Album artist`, `Genre`, `Track number`, `Disc number`, `Release date`, and more...
+# Announcing spotDL v3.0.2
 
-- Works straight out of the box and does not require you to generate or mess with your API keys (already included).
+We have rebuilt spotDL from scratch to be much faster, simpler and better than the old spotDL.
+The documentation for the same is a work in progress. v3.0.2 is yet to be released to PyPi so you
+can't install it using `pip`, this is intensional. v3.0.2 is still in alpha testing. We request that
+you use spotDL v3 and open issues for problems that you come across.
 
-Below is how your music library will look!
+# How to use
+To download a song run,
 
-<img src="http://i.imgur.com/Gpch7JI.png" width="290"><img src="http://i.imgur.com/5vhk3HY.png" width="290"><img src="http://i.imgur.com/RDTCCST.png" width="290">
+    # spotdl $trackUrl
+    spotdl https://open.spotify.com/track/08mG3Y1vljYA6bvDt4Wqkj?si=SxezdxmlTx-CaVoucHmrUA
 
-## Installation
+To download a album run,
+    
+    # spotdl $albumUrl
+    spotdl https://open.spotify.com/album/2YMWspDGtbDgYULXvVQFM6?si=gF5dOQm8QUSo-NdZVsFjAQ
 
-❗️ **This tool works only with Python 3.6+**
+To download a playlist run,
+    
+    # spotdl $playlistUrl
+    spotdl https://open.spotify.com/playlist/37i9dQZF1DWXhcuQw7KIeM?si=xubKHEBESM27RqGkqoXzgQ
 
-spotify-downloader works with all major distributions and even on low-powered devices such as a Raspberry Pi.
+To search for and download a song (not very accurate) run,
+    
+    # spotdl $songQuery
+    spotdl 'The HU - Sugaan Essenna'
 
-spotify-downloader can be installed via pip with:
-```console
-$ pip3 install spotdl
-```
+To resume a failed/incomplete download run,
+    
+-   ```
+    # spotdl $pathToTrackingFile
+    spotdl 'Sugaan Essenna.spotdlTrackingFile'
+    ```
 
-but be sure to check out the [Installation](https://spotdl.readthedocs.io/en/latest/installation.html) docs
-for detailed OS-specific instructions to get it and other dependencies it relies on working on your system.
+-   Note, '.spotDlTrackingFiles' are automatically created during download start, they are deleted on
+    download completion
 
-## Usage
+You can chain up download tasks by seperating them with spaces:
+    
+    # spotdl $songQuery1 $albumUrl $songQuery2 ... (order does not matter)
+    spotdl 'The Hu - Sugaan Essenna' https://open.spotify.com/playlist/37i9dQZF1DWXhcuQw7KIeM?si=xubKHEBESM27RqGkqoXzgQ ...
 
-For the most basic usage, downloading tracks is as easy as
+Spotdl downloads up to 4 songs in parallel - try to download albums and playlists instead of
+tracks for more speed.
 
-```console
-$ spotdl --song https://open.spotify.com/track/2DGa7iaidT5s0qnINlwMjJ
-$ spotdl --song "ncs - spectre"
-```
-
-For downloading playlist and albums, you need to first load all the tracks into text file and then pass
-this text file to `--list` argument. Here is how you would do it for a playlist
-
-```console
-$ spotdl --playlist https://open.spotify.com/user/nocopyrightsounds/playlist/7sZbq8QGyMnhKPcLJvCUFD
-INFO: Writing 62 tracks to ncs-releases.txt
-$ spotdl --list ncs-releases.txt
-```
-
-Run `spotdl --help` to get a list of all available options in spotify-downloader.
-
-Check out the [Available options](https://spotdl.readthedocs.io/en/latest/available-options.html)
-page for the list of currently available options with their description.
-
-The docs on [Downloading Tracks](https://spotdl.readthedocs.io/en/latest/download-tracks.html)
-contains detailed information about different available ways to download tracks.
-
-## FAQ
-
-All FAQs will be mentioned in our [FAQ docs](https://spotdl.readthedocs.io/en/latest/faq.html).
-
-## Contributing
-
-Check out [CONTRIBUTING.md](CONTRIBUTING.md) for more info.
-
-## Running Tests
-
-```console
-$ pytest
-```
-
-Obviously this requires the `pytest` module to be installed.
-
-## Disclaimer
-
-Downloading copyright songs may be illegal in your country.
-This tool is for educational purposes only and was created only to show
-how Spotify's API can be exploited to download music from YouTube.
-Please support the artists by buying their music.
-
-## License
-
-[![License](https://img.shields.io/github/license/ritiek/spotify-downloader.svg)](https://github.com/ritiek/spotify-downloader/blob/master/LICENSE)
+# Thanks for developing the v3.0.1
+1. [@ritiek](https://github.com/ritiek) for creating and maintaining spotDL for 4 years
+2. [@rocketinventor](https://github.com/rocketinventor) for figuring out the YouTube Music querying
+3. [@Mikhail-Zex](https://github.com/Mikhail-Zex) for, never mind...

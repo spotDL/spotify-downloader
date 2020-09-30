@@ -1,59 +1,40 @@
 from setuptools import setup
-import os
-
-with open("README.md", "r", encoding="utf-8") as f:
-    long_description = f.read()
-
-# __version__ comes into namespace from here
-with open(os.path.join("spotdl", "version.py")) as version_file:
-    exec(version_file.read())
 
 setup(
-    # 'spotify-downloader' was already taken :/
-    name="spotdl",
-    # Tests are included automatically:
-    # https://docs.python.org/3.6/distutils/sourcedist.html#specifying-the-files-to-distribute
-    packages=[
-        "spotdl",
-        "spotdl.command_line",
-        "spotdl.lyrics",
-        "spotdl.lyrics.providers",
-        "spotdl.encode",
-        "spotdl.encode.encoders",
-        "spotdl.metadata",
-        "spotdl.metadata.embedders",
-        "spotdl.metadata.providers",
-        "spotdl.lyrics",
-        "spotdl.lyrics.providers",
-        "spotdl.authorize",
-        "spotdl.authorize.services",
-        "spotdl.helpers",
-        "spotdl.patch",
+    # 'spotify-downloader' was already taken (＞﹏＜)
+    name = "spotdl",
+    
+    packages = [
+        'spotdl',
+        'spotdl.search',
+        'spotdl.download',
+        'spotdl.patches'
     ],
-    version=__version__,
-    install_requires=[
-        "pathlib >= 1.0.1",
-        "youtube_dl >= 2017.9.26",
-        "pytube3 >= 9.5.5",
-        "spotipy >= 2.12.0",
-        "mutagen >= 1.41.1",
-        "beautifulsoup4 >= 4.6.3",
-        "unicode-slugify >= 0.1.3",
-        "coloredlogs >= 14.0",
-        "lyricwikia >= 0.1.8",
-        "PyYAML >= 3.13",
-        "appdirs >= 1.4.3",
-        "tqdm >= 4.45.0"
+
+    version = '3.1.0',
+
+    install_requires = [
+        'fuzzywuzzy',
+        'spotipy',
+        'pytube3',
+        'tqdm',
+        'requests',
+        'mutagen',
+        'python-Levenshtein-wheels',
     ],
-    description="Download Spotify playlists from YouTube with albumart and metadata",
-    long_description=long_description,
-    long_description_content_type="text/markdown",
+
+    description="Downloads Spotify music from Youtube with metadata and album art",
+    
     author="Ritiek Malhotra",
     author_email="ritiekmalhotra123@gmail.com",
+
     license="MIT",
+
     python_requires=">=3.6",
+
     url="https://github.com/ritiek/spotify-downloader",
     download_url="https://pypi.org/project/spotdl/",
+
     keywords=[
         "spotify",
         "downloader",
@@ -64,6 +45,7 @@ setup(
         "album",
         "metadata",
     ],
+
     classifiers=[
         "Intended Audience :: End Users/Desktop",
         "License :: OSI Approved :: MIT License",
@@ -77,5 +59,8 @@ setup(
         "Topic :: Multimedia :: Sound/Audio",
         "Topic :: Utilities",
     ],
-    entry_points={"console_scripts": ["spotdl = spotdl.command_line.__main__:main"]},
+
+    entry_points = {
+        "console_scripts": ["spotdl = spotdl.__main__:console_entry_point"]
+    }
 )
