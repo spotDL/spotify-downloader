@@ -2,6 +2,12 @@
 
 ⚠ Interested Contributors, please read our [contributing Guidelines](CONTRIBUTING.md) first.
 
+⚠ We are dropping active development of spotDL v2. No focused efforts will be made to resolve v2
+specific issues.
+
+⚠ We are actively looking for Contributors/Organization Members for all projects under development. 
+If interested, see [#857](https://github.com/spotDL/spotify-downloader/issues/857)
+
 <br><br>
 
 What spotDL does:
