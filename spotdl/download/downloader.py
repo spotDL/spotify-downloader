@@ -1,6 +1,6 @@
-#===============
-#=== Imports ===
-#===============
+# ===============
+# === Imports ===
+# ===============
 
 from spotdl.download.progressHandlers import ProgressRootProcess
 
@@ -23,17 +23,16 @@ from spotdl.search.songObj import SongObj
 from spotdl.download.progressHandlers import DisplayManager, DownloadTracker
 
 
-
-#==========================
-#=== Base functionality ===
-#==========================
+# ==========================
+# === Base functionality ===
+# ==========================
 
 #! Technically, this should ideally be defined within the downloadManager class. But due
 #! to the quirks of multiprocessing.Pool, that can't be done. Do not consider this as a
 #! standalone function but rather as part of DownloadManager
 
 def download_song(songObj: SongObj, displayManager: DisplayManager = None,
-                                    downloadTracker: DownloadTracker = None) -> None:
+                  downloadTracker: DownloadTracker = None) -> None:
     '''
     `songObj` `songObj` : song to be downloaded
 
@@ -51,13 +50,13 @@ def download_song(songObj: SongObj, displayManager: DisplayManager = None,
 
     #! we explicitly use the os.path.join function here to ensure download is
     #! platform agnostic
-    
+
     # Create a .\Temp folder if not present
     tempFolder = join('.', 'Temp')
-    
+
     if not exists(tempFolder):
         mkdir(tempFolder)
-    
+
     # build file name of converted file
     artistStr = ''
 
@@ -67,22 +66,20 @@ def download_song(songObj: SongObj, displayManager: DisplayManager = None,
     for artist in songObj.get_contributing_artists():
         if artist.lower() not in songObj.get_song_name().lower():
             artistStr += artist + ', '
-    
+
     #! the ...[:-2] is to avoid the last ', ' appended to artistStr
     convertedFileName = artistStr[:-2] + ' - ' + songObj.get_song_name()
 
     #! this is windows specific (disallowed chars)
-    for disallowedChar in ['/', '?', '\\', '*','|', '<', '>']:
+    for disallowedChar in ['/', '?', '\\', '*', '|', '<', '>']:
         if disallowedChar in convertedFileName:
             convertedFileName = convertedFileName.replace(disallowedChar, '')
-    
+
     #! double quotes (") and semi-colons (:) are also disallowed characters but we would
     #! like to retain their equivalents, so they aren't removed in the prior loop
     convertedFileName = convertedFileName.replace('"', "'").replace(': ', ' - ')
 
     convertedFilePath = join('.', convertedFileName) + '.mp3'
-
-
 
     # if a song is already downloaded skip it
     if exists(convertedFilePath):
@@ -90,31 +87,29 @@ def download_song(songObj: SongObj, displayManager: DisplayManager = None,
             displayManager.notify_download_skip()
         if downloadTracker:
             downloadTracker.notify_download_completion(songObj)
-        
+
         #! None is the default return value of all functions, we just explicitly define
         #! it here as a continent way to avoid executing the rest of the function.
         return None
-    
-
 
     # download Audio from YouTube
     if displayManager:
         youtubeHandler = YouTube(
-            url                  = songObj.get_youtube_link(),
-            on_progress_callback = displayManager.pytube_progress_hook
+            url=songObj.get_youtube_link(),
+            on_progress_callback=displayManager.pytube_progress_hook
         )
     else:
         youtubeHandler = YouTube(songObj.get_youtube_link())
-    
+
     trackAudioStream = youtubeHandler.streams.get_audio_only()
 
     #! The actual download, if there is any error, it'll be here,
     try:
         #! pyTube will save the song in .\Temp\$songName.mp4, it doesn't save as '.mp3'
         downloadedFilePath = trackAudioStream.download(
-            output_path   = tempFolder,
-            filename      = convertedFileName,
-            skip_existing = False
+            output_path=tempFolder,
+            filename=convertedFileName,
+            skip_existing=False
         )
     except:
         #! This is equivalent to a failed download, we do nothing, the song remains on
@@ -123,8 +118,6 @@ def download_song(songObj: SongObj, displayManager: DisplayManager = None,
         #! None is again used as a convenient exit
         remove(join(tempFolder, convertedFileName) + '.mp4')
         return None
-    
-
 
     # convert downloaded file to MP3 with normalization
 
@@ -132,7 +125,7 @@ def download_song(songObj: SongObj, displayManager: DisplayManager = None,
     #! intergrated loudness target (I) set to -17, using values lower than -15
     #! causes 'pumping' i.e. rhythmic variation in loudness that should not
     #! exist -loud parts exaggerate, soft parts left alone.
-    #! 
+    #!
     #! dynaudnorm applies dynamic non-linear RMS based normalization, this is what
     #! actually normalized the audio. The loudnorm filter just makes the apparent
     #! loudness constant
@@ -148,10 +141,10 @@ def download_song(songObj: SongObj, displayManager: DisplayManager = None,
     #! sampled length of songs matches the actual length (i.e. a 5 min song won't display
     #! as 47 seconds long in your music player, yeah that was an issue earlier.)
 
-    command = 'ffmpeg -v quiet -y -i "%s" -acodec libmp3lame -abr true -af "apad=pad_dur=2, dynaudnorm, loudnorm=I=-17" "%s"'
-    formattedCommand = command % (downloadedFilePath, convertedFilePath)
+    command = f'ffmpeg -v quiet -y -i "{downloadedFilePath}" -acodec libmp3lame' + \
+              f' -abr true -af "apad=pad_dur=2, dynaudnorm, loudnorm=I=-17" "{convertedFilePath}"'
 
-    run_in_shell(formattedCommand)
+    run_in_shell(command)
 
     #! Wait till converted file is actually created
     while True:
@@ -160,8 +153,6 @@ def download_song(songObj: SongObj, displayManager: DisplayManager = None,
 
     if displayManager:
         displayManager.notify_conversion_completion()
-
-
 
     # embed song details
     #! we save tags as both ID3 v2.3 and v2.4
@@ -186,7 +177,7 @@ def download_song(songObj: SongObj, displayManager: DisplayManager = None,
 
     if len(genres) > 0:
         audioFile['genre'] = genres[0]
-    
+
     #! all involved artists
     audioFile['artist'] = songObj.get_contributing_artists()
 
@@ -197,12 +188,12 @@ def download_song(songObj: SongObj, displayManager: DisplayManager = None,
     audioFile['albumartist'] = songObj.get_album_artists()
 
     #! album release date (to what ever precision available)
-    audioFile['date']         = songObj.get_album_release()
+    audioFile['date'] = songObj.get_album_release()
     audioFile['originaldate'] = songObj.get_album_release()
 
     #! save as both ID3 v2.3 & v2.4 as v2.3 isn't fully features and
     #! windows doesn't support v2.4 until later versions of Win10
-    audioFile.save(v2_version = 3)
+    audioFile.save(v2_version=3)
 
     #! setting the album art
     audioFile = ID3(convertedFilePath)
@@ -210,31 +201,29 @@ def download_song(songObj: SongObj, displayManager: DisplayManager = None,
     rawAlbumArt = urlopen(songObj.get_album_cover_url()).read()
 
     audioFile['APIC'] = AlbumCover(
-        encoding = 3,
-        mime = 'image/jpeg',
-        type = 3,
-        desc = 'Cover',
-        data = rawAlbumArt
+        encoding=3,
+        mime='image/jpeg',
+        type=3,
+        desc='Cover',
+        data=rawAlbumArt
     )
 
-    audioFile.save(v2_version = 3)
+    audioFile.save(v2_version=3)
 
     # Do the necessary cleanup
     if displayManager:
         displayManager.notify_download_completion()
-    
+
     if downloadTracker:
         downloadTracker.notify_download_completion(songObj)
-
-
 
     # delete the unnecessary YouTube download File
     remove(downloadedFilePath)
 
 
-#===========================================================
-#=== The Download Manager (the tyrannical boss lady/guy) ===
-#===========================================================
+# ===========================================================
+# === The Download Manager (the tyrannical boss lady/guy) ===
+# ===========================================================
 
 class DownloadManager():
     #! Big pool sizes on slow connections will lead to more incomplete downloads
@@ -248,14 +237,14 @@ class DownloadManager():
         self.rootProcess = progressRoot
 
         # initialize shared objects
-        self.displayManager  = progressRoot.DisplayManager()
+        self.displayManager = progressRoot.DisplayManager()
         self.downloadTracker = progressRoot.DownloadTracker()
 
         self.displayManager.clear()
 
         # initialize worker pool
-        self.workerPool = Pool( DownloadManager.poolSize )
-    
+        self.workerPool = Pool(DownloadManager.poolSize)
+
     def download_single_song(self, songObj: SongObj) -> None:
         '''
         `songObj` `song` : song to be downloaded
@@ -274,7 +263,7 @@ class DownloadManager():
         download_song(songObj, self.displayManager, self.downloadTracker)
 
         print()
-    
+
     def download_multiple_songs(self, songObjList: List[SongObj]) -> None:
         '''
         `list<songObj>` `songObjList` : list of songs to be downloaded
@@ -291,14 +280,14 @@ class DownloadManager():
         self.displayManager.set_song_count_to(len(songObjList))
 
         self.workerPool.starmap(
-            func     = download_song,
-            iterable = (
+            func=download_song,
+            iterable=(
                 (song, self.displayManager, self.downloadTracker)
-                    for song in songObjList
+                for song in songObjList
             )
         )
         print()
-    
+
     def resume_download_from_tracking_file(self, trackingFilePath: str) -> None:
         '''
         `str` `trackingFilePath` : path to a .spotdlTrackingFile
@@ -317,14 +306,14 @@ class DownloadManager():
         self.displayManager.set_song_count_to(len(songObjList))
 
         self.workerPool.starmap(
-            func     = download_song,
-            iterable = (
+            func=download_song,
+            iterable=(
                 (song, self.displayManager, self.downloadTracker)
-                    for song in songObjList
+                for song in songObjList
             )
         )
         print()
-    
+
     def close(self) -> None:
         '''
         RETURNS `~`

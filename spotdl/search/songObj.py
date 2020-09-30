@@ -7,23 +7,24 @@ from json import dumps as convert_dict_to_json, loads as convert_json_to_dict
 
 from typing import List
 
+
 class SongObj():
     #! This can be accessed as songObj.searchProvider. songObj acts like a namespace
     #! it allows us a convenient way of setting a search provider without using globals
     searchProvider = search_and_get_best_match
 
-    #====================
-    #=== Constructors ===
-    #====================
+    # ====================
+    # === Constructors ===
+    # ====================
     def __init__(self, rawTrackMeta, rawAlbumMeta, rawArtistMeta, youtubeLink):
         self. __rawTrackMeta = rawTrackMeta
-        self.__rawAlbumMeta  = rawArtistMeta
+        self.__rawAlbumMeta = rawArtistMeta
         self.__rawArtistMeta = rawArtistMeta
-        self.__youtubeLink   = youtubeLink
+        self.__youtubeLink = youtubeLink
 
     #! constructors here are a bit mucky, there are two different constructors for two
     #! different use cases, hence the actual __init__ function does not exist
-    
+
     #! Note, since the following are class methods, an instance of songObj is initialized
     #! and passed to them
     @classmethod
@@ -31,9 +32,7 @@ class SongObj():
         # check if URL is a playlist, user, artist or album, if yes raise an Exception,
         # else procede
         if not ('open.spotify.com' in spotifyURL and 'track' in spotifyURL):
-            raise Exception('passed URL is not that of a track: %s' % spotifyURL)
-
-
+            raise Exception(f'passed URL is not that of a track: {spotifyURL}')
 
         # query spotify for song, artist, album details
         spotifyClient = get_spotify_client()
@@ -46,8 +45,6 @@ class SongObj():
         albumId = rawTrackMeta['album']['id']
         rawAlbumMeta = spotifyClient.album(albumId)
 
-
-
         # get best match from the given provider
         songName = rawTrackMeta['name']
 
@@ -55,7 +52,7 @@ class SongObj():
 
         duration = round(
             rawTrackMeta['duration_ms'] / 1000,
-            ndigits = 3
+            ndigits=3
         )
 
         contributingArtists = []
@@ -72,19 +69,19 @@ class SongObj():
 
         youtubeLink = youtubeLink
 
-        return  cls(
+        return cls(
             rawTrackMeta, rawAlbumMeta,
             rawArtistMeta, youtubeLink
         )
-        
+
     @classmethod
     def from_dump(cls, dataDump: dict):
-        rawTrackMeta  = dataDump['rawTrackMeta']
-        rawAlbumMeta  = dataDump['rawAlbumMeta']
+        rawTrackMeta = dataDump['rawTrackMeta']
+        rawAlbumMeta = dataDump['rawAlbumMeta']
         rawArtistMeta = dataDump['rawAlbumMeta']
-        youtubeLink   = dataDump['youtubeLink']
+        youtubeLink = dataDump['youtubeLink']
 
-        return  cls(
+        return cls(
             rawTrackMeta, rawAlbumMeta,
             rawArtistMeta, youtubeLink
         )
@@ -95,23 +92,23 @@ class SongObj():
         else:
             return False
 
-    #================================
-    #=== Interface Implementation ===
-    #================================
+    # ================================
+    # === Interface Implementation ===
+    # ================================
 
     def get_youtube_link(self) -> str:
         return self.__youtubeLink
 
     #! Song Details:
-    
+
     #! 1. Name
     def get_song_name(self) -> str:
         ''''
         returns songs's name.
         '''
-        
+
         return self.__rawTrackMeta['name']
-    
+
     #! 2. Track Number
     def get_track_number(self) -> int:
         '''
@@ -120,7 +117,7 @@ class SongObj():
         '''
 
         return self.__rawTrackMeta['track_number']
-    
+
     #! 3. Genres
     def get_genres(self) -> List[str]:
         '''
@@ -130,15 +127,15 @@ class SongObj():
         '''
 
         return self.__rawAlbumMeta['genres'] + self.__rawArtistMeta['genres']
-    
+
     #! 4. Duration
     def get_duration(self) -> float:
         '''
         returns duration of song in seconds.
         '''
 
-        return round(self.__rawTrackMeta['duration_ms'] / 1000, ndigits = 3)
-    
+        return round(self.__rawTrackMeta['duration_ms'] / 1000, ndigits=3)
+
     #! 5. All involved artists
     def get_contributing_artists(self) -> List[str]:
         '''
@@ -147,7 +144,7 @@ class SongObj():
         '''
 
         # we get rid of artist name that are in the song title so
-        # naming the song would be as easy as 
+        # naming the song would be as easy as
         # $contributingArtists + songName.mp3, we would want to end up with
         # 'Jetta, Mastubs - I'd love to change the world (Mastubs remix).mp3'
         # as a song name, it's dumb.
@@ -156,11 +153,11 @@ class SongObj():
 
         for artist in self.__rawTrackMeta['artists']:
             contributingArtists.append(artist['name'])
-        
+
         return contributingArtists
 
     #! Album Details:
-    
+
     #! 1. Name
     def get_album_name(self) -> str:
         '''
@@ -168,7 +165,7 @@ class SongObj():
         '''
 
         return self.__rawTrackMeta['album']['name']
-    
+
     #! 2. All involved artist
     def get_album_artists(self) -> List[str]:
         '''
@@ -181,9 +178,9 @@ class SongObj():
 
         for artist in self.__rawTrackMeta['album']['artists']:
             albumArtists.append(artist['name'])
-        
+
         return albumArtists
-    
+
     #! 3. Release Year/Date
     def get_album_release(self) -> str:
         '''
@@ -191,9 +188,9 @@ class SongObj():
         '''
 
         return self.__rawTrackMeta['album']['release_date']
-    
+
     #! Utilities for genuine use and also for metadata freaks:
-    
+
     #! 1. Album Art URL
     def get_album_cover_url(self) -> str:
         '''
@@ -201,7 +198,7 @@ class SongObj():
         '''
 
         return self.__rawTrackMeta['album']['images'][0]['url']
-    
+
     #! 2. All the details the spotify-api can provide
     def get_data_dump(self) -> dict:
         '''
@@ -210,7 +207,7 @@ class SongObj():
             - rawTrackMeta      spotify-api track details
             - rawAlbumMeta      spotify-api song's album details
             - rawArtistMeta     spotify-api song's artist details
-        
+
         Avoid using this function, it is implemented here only for those super
         rare occasions where there is a need to look up other details. Why
         have to look it up seperately when it's already been looked up once?
@@ -219,8 +216,8 @@ class SongObj():
         #! internally the only reason this exists is that it helps in saving to disk
 
         return {
-            'youtubeLink'  : self.__youtubeLink,
-            'rawTrackMeta' : self.__rawTrackMeta,
-            'rawAlbumMeta' : self.__rawAlbumMeta,
+            'youtubeLink': self.__youtubeLink,
+            'rawTrackMeta': self.__rawTrackMeta,
+            'rawAlbumMeta': self.__rawAlbumMeta,
             'rawArtistMeta': self.__rawArtistMeta
         }

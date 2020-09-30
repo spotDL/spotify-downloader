@@ -1,6 +1,6 @@
-#===============
-#=== Imports ===
-#===============
+# ===============
+# === Imports ===
+# ===============
 
 from tqdm import tqdm
 
@@ -16,14 +16,14 @@ from typing import List
 from os import remove
 
 
-
-#=================
-#=== The Patch ===
-#=================
+# =================
+# === The Patch ===
+# =================
 originalAutoproxy = multiprocessing.managers.AutoProxy
 
+
 def patchedAutoproxy(token, serializer, manager=None,
-    authkey=None,exposed=None, incref=True, manager_owned=True):
+                     authkey=None, exposed=None, incref=True, manager_owned=True):
     '''
     A patch to `multiprocessing.managers.AutoProxy`
     '''
@@ -31,14 +31,14 @@ def patchedAutoproxy(token, serializer, manager=None,
     #! we bypass the unwanted key argument here
     return originalAutoproxy(token, serializer, manager, authkey, exposed, incref)
 
+
 #! Update the Autoproxy definition in multiprocessing.managers package
 multiprocessing.managers.AutoProxy = patchedAutoproxy
 
 
-
-#=======================
-#=== Display classes ===
-#=======================
+# =======================
+# === Display classes ===
+# =======================
 
 class SpecializedTQDM(tqdm):
 
@@ -51,15 +51,16 @@ class SpecializedTQDM(tqdm):
         #! makes one song downloaded. Hence the time in seconds per song would be
         #! 100 * (1/rate) and in minuts would be 100/ (60 * rate)
         if formatDict['rate']:
-            newRate = '{:.2f}'.format(100 / (60 * formatDict['rate'] ))
+            newRate = '{:.2f}'.format(100 / (60 * formatDict['rate']))
         else:
             newRate = '~'
 
-        formatDict.update(rate_min = (newRate + 'min/' + formatDict['unit']))
+        formatDict.update(rate_min=(newRate + 'min/' + formatDict['unit']))
 
         #! You can now use {rate_min} as a formatting arg to get rate in mins/unit
 
         return formatDict
+
 
 class DisplayManager():
     def __init__(self):
@@ -67,10 +68,10 @@ class DisplayManager():
         #! additional bit of calculations to ensure that the specializedTQDM progressbar
         #! works accurately across downloads from multiple processes
         self.progressBar = SpecializedTQDM(
-            total           = 100,
-            dynamic_ncols   = True,
-            bar_format      = '{percentage:3.0f}%|{bar}|ETA: {remaining}, {rate_min}',
-            unit            = 'song'
+            total=100,
+            dynamic_ncols=True,
+            bar_format='{percentage:3.0f}%|{bar}|ETA: {remaining}, {rate_min}',
+            unit='song'
         )
 
     def set_song_count_to(self, songCount: int) -> None:
@@ -84,7 +85,7 @@ class DisplayManager():
         '''
 
         #! all calculations are based of the arbitrary choice that 1 song consists of
-        #! 100 steps/points/iterations 
+        #! 100 steps/points/iterations
         self.progressBar.total = songCount * 100
 
     def notify_download_skip(self) -> None:
@@ -93,7 +94,7 @@ class DisplayManager():
         '''
 
         self.progressBar.update(100)
-    
+
     def pytube_progress_hook(self, stream, chunk, bytes_remaining) -> None:
         '''
         Progress hook built according to pytube's documentation. It is called each time
@@ -112,14 +113,14 @@ class DisplayManager():
         iterFraction = len(chunk) / fileSize * 90
 
         self.progressBar.update(iterFraction)
-    
+
     def notify_conversion_completion(self) -> None:
         '''
         updates progresbar to reflect a audio conversion being completed
         '''
 
         self.progressBar.update(5)
-    
+
     def notify_download_completion(self) -> None:
         '''
         updates progresbar to reflect a download being completed
@@ -127,7 +128,7 @@ class DisplayManager():
 
         #! Download completion implie ID# tag embedding was just finished
         self.progressBar.update(5)
-    
+
     def reset(self) -> None:
         '''
         prepare displayManager for a new download set. call
@@ -136,14 +137,14 @@ class DisplayManager():
         '''
 
         self.progressBar.reset()
-    
+
     def clear(self) -> None:
         '''
         clear the tqdm progress bar
         '''
 
         self.progressBar.clear()
-    
+
     def close(self) -> None:
         '''
         clean up TQDM
@@ -152,16 +153,15 @@ class DisplayManager():
         self.progressBar.close()
 
 
-
-#===============================
-#=== Download tracking class ===
-#===============================
+# ===============================
+# === Download tracking class ===
+# ===============================
 
 class DownloadTracker():
     def __init__(self):
         self.songObjList = []
         self.saveFile = None
-    
+
     def load_tracking_file(self, trackingFilePath: str) -> None:
         '''
         `str` `trackingFilePath` : path to a .spotdlTrackingFile
@@ -177,16 +177,16 @@ class DownloadTracker():
             songDataDumps = eval(file.read().decode())
             file.close()
         except FileNotFoundError:
-            raise Exception('no such tracking file found: %s' % trackingFilePath)
-        
+            raise Exception(f'no such tracking file found: {trackingFilePath}')
+
         # Save path to .spotdlTrackingFile
         self.saveFile = trackingFilePath
 
         # convert song data dumps to songObj's
         #! see, songObj.get_data_dump and songObj.from_dump for more details
         for dump in songDataDumps:
-            self.songObjList.append( SongObj.from_dump(dump) )
-    
+            self.songObjList.append(SongObj.from_dump(dump))
+
     def load_song_list(self, songObjList: List[SongObj]) -> None:
         '''
         `list<songOjb>` `songObjList` : songObj's being downloaded
@@ -199,7 +199,7 @@ class DownloadTracker():
         self.songObjList = songObjList
 
         self.backup_to_disk()
-    
+
     def get_song_list(self) -> List[SongObj]:
         '''
         RETURNS `list<songObj>
@@ -207,7 +207,7 @@ class DownloadTracker():
         get songObj's representing songs yet to be downloaded
         '''
         return self.songObjList
-    
+
     def backup_to_disk(self):
         '''
         RETURNS `~`
@@ -220,29 +220,24 @@ class DownloadTracker():
             remove(self.saveFile)
             return None
 
-
-
-
         # prepare datadumps of all songObj's yet to be downloaded
         songDataDumps = []
 
         for song in self.songObjList:
             songDataDumps.append(song.get_data_dump())
-        
+
         #! the default naming of a tracking file is $nameOfFirstSOng.spotdlTrackingFile,
         #! it needs a little fixing because of disallowed characters in file naming
         if not self.saveFile:
             songName = self.songObjList[0].get_song_name()
 
-            for disallowedChar in ['/', '?', '\\', '*','|', '<', '>']:
+            for disallowedChar in ['/', '?', '\\', '*', '|', '<', '>']:
                 if disallowedChar in songName:
                     songName = songName.replace(disallowedChar, '')
-            
+
             songName = songName.replace('"', "'").replace(': ', ' - ')
 
             self.saveFile = songName + '.spotdlTrackingFile'
-        
-
 
         # backup to file
         #! we use 'wb' instead of 'w' to accommodate your fav K-pop/J-pop/Viking music
@@ -251,7 +246,7 @@ class DownloadTracker():
             str(songDataDumps).encode()
         )
         file.close()
-    
+
     def notify_download_completion(self, songObj: SongObj) -> None:
         '''
         `songObj` `songObj` : songObj representing song that has been downloaded
@@ -263,18 +258,17 @@ class DownloadTracker():
 
         if songObj in self.songObjList:
             self.songObjList.remove(songObj)
-        
+
         self.backup_to_disk()
-    
+
     def clear(self):
         self.songObjList = []
         self.saveFile = None
 
 
-
-#===============================================
-#=== Enabling work across multiple processes ===
-#===============================================
+# ===============================================
+# === Enabling work across multiple processes ===
+# ===============================================
 
 #! we actually run displayManagers and downloadTrackers in a separate process and pass
 #! reference handles of those objects to various processes. Thats handled by a
@@ -282,7 +276,9 @@ class DownloadTracker():
 #! to work across multiple processes and work accurately but, this is the part that
 #! puts multiprocessing into the picture
 
-class ProgressRootProcess(multiprocessing.managers.BaseManager): pass
+class ProgressRootProcess(multiprocessing.managers.BaseManager):
+    pass
+
 
 ProgressRootProcess.register('DownloadTracker', DownloadTracker)
 ProgressRootProcess.register('DisplayManager',  DisplayManager)
