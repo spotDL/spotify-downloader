@@ -1,11 +1,12 @@
+from json import dumps as convert_dict_to_json
+from json import loads as convert_json_to_dict
+from os.path import join
+from typing import List
+
+from bs4 import BeautifulSoup
+from requests import get
 from spotdl.search.provider import search_and_get_best_match
 from spotdl.search.spotifyClient import get_spotify_client
-
-from os.path import join
-
-from json import dumps as convert_dict_to_json, loads as convert_json_to_dict
-
-from typing import List
 
 
 class SongObj():
@@ -155,6 +156,34 @@ class SongObj():
             contributingArtists.append(artist['name'])
 
         return contributingArtists
+
+    #! 6. Song Lyrics
+    def get_song_lyrics(self) -> str:
+        '''
+        returns the lyrics of the song.
+        '''
+        geniusHeaders = {
+            'Authorization':
+            'Bearer alXXDbPZtK1m2RrZ8I4k2Hn8Ahsd0Gh_o076HYvcdlBvmc0ULL1H8Z8xRlew5qaG',
+        }
+
+        search_url = 'https://api.genius.com/search'
+        search_query = '+'.join(i for i in (self.get_song_name() +
+                       ' ' + self.get_contributing_artists()[0]).split())
+
+        geniusResponse = get(search_url, headers=geniusHeaders,
+                             params={'q': search_query}).json()['response']
+
+        bestMatchURL = 'https://api.genius.com/songs/' + \
+            str(geniusResponse['hits'][0]['result']['id'])
+        songURL = get(bestMatchURL, headers=geniusHeaders).json()['response']['song']['url']
+
+        lyricsPage = get(songURL)
+        lyricsPageHTML = BeautifulSoup(lyricsPage.text, 'html.parser')
+
+        lyrics = lyricsPageHTML.find('div', attrs={'class': 'lyrics'}).get_text()
+
+        return lyrics
 
     #! Album Details:
 
