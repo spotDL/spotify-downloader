@@ -167,12 +167,12 @@ class SongObj():
             'Bearer alXXDbPZtK1m2RrZ8I4k2Hn8Ahsd0Gh_o076HYvcdlBvmc0ULL1H8Z8xRlew5qaG',
         }
 
-        search_url = 'https://api.genius.com/search'
-        search_query = '+'.join(i for i in (self.get_song_name() +
+        searchURL = 'https://api.genius.com/search'
+        searchQuery = '+'.join(i for i in (self.get_song_name() +
                        ' ' + self.get_contributing_artists()[0]).split())
 
-        geniusResponse = get(search_url, headers=geniusHeaders,
-                             params={'q': search_query}).json()['response']
+        geniusResponse = get(searchURL, headers=geniusHeaders,
+                             params={'q': searchQuery}).json()['response']
 
         bestMatchURL = 'https://api.genius.com/songs/' + \
             str(geniusResponse['hits'][0]['result']['id'])
