@@ -31,6 +31,26 @@ The documentation for the same is a work in progress. v3.0.2 is yet to be releas
 can't install it using `pip`, this is intensional. v3.0.2 is still in alpha testing. We request that
 you use spotDL v3 and open issues for problems that you come across.
 
+# Installation
+
+1. For v2, run
+    ```
+    $pip install spotdl
+    ```
+
+2. For v3,
+    - Clone this repo
+        ```
+        $git clone https://github.com/spotDL/spotify-downloader.git
+        ```
+    - Run setup.py
+        ```
+        $ cd spotdl
+        $ python setup.py install
+        ```
+        
+3. Voila !
+
 # How to use
 To download a song run,
 
