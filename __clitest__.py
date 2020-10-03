@@ -1,8 +1,8 @@
 
 
 # from spotdl.cli.display import NewProgressBar, stop
-import spotdl.cli.displayManager as displayManager
-import spotdl.cli.arguementHandler as arguementHandler
+# import spotdl.cli.displayManager as displayManager
+# import spotdl.cli.arguementHandler as arguementHandler
 from rich.progress import Progress, BarColumn, TimeRemainingColumn
 # from rich.progress import track
 import time
@@ -130,24 +130,47 @@ def progresstest5():
     # v1.close()
     displayManager.stop()
 
-def signal_handler(sig, frame):
-    print('You pressed Ctrl+C!')
-    displayManager.stop()
-    sys.exit(0)
 
-def exit_handler(quit=False):
-    # print('I exited i guess')
-    displayManager.stop()
-    if quit:
-        sys.exit(0)
+with Progress(
+    "[progress.description]{task.description}",
+    BarColumn(bar_width=None, style="black on black"),
+    "[progress.percentage]{task.percentage:>3.0f}%",
+    TimeRemainingColumn(),
+) as progress:
+    def progresstest6():
+        print('assdf')
 
-def argtest1():
-    arguementHandler.passArgs(cliArgs)
+        task1 = progress.add_task("[red]Downloading...", total=100)
+        task2 = progress.add_task("[green]Processing...", total=100)
+        task3 = progress.add_task("[cyan]Cooking...", total=100, start=False)
+
+        while not progress.finished:
+            progress.update(task1, advance=0.5)
+            progress.update(task2, advance=0.3)
+            # progress.update(task3, advance=0.9)
+            # progress.refresh()
+            time.sleep(0.02)
 
 
-atexit.register(exit_handler)
-signal.signal(signal.SIGTERM, signal_handler)
-signal.signal(signal.SIGINT, signal_handler)
+
+# def signal_handler(sig, frame):
+#     print('You pressed Ctrl+C!')
+#     displayManager.stop()
+#     sys.exit(0)
+
+# def exit_handler(quit=False):
+#     # print('I exited i guess')
+#     displayManager.stop()
+#     if quit:
+#         sys.exit(0)
+
+# def argtest1():
+#     arguementHandler.passArgs(cliArgs)
+
+
+# atexit.register(exit_handler)
+# signal.signal(signal.SIGTERM, signal_handler)
+# signal.signal(signal.SIGINT, signal_handler)
 
 if __name__ == '__main__':
 	# main()
@@ -158,14 +181,15 @@ if __name__ == '__main__':
     try:
         
         # progresstest5()
-        argtest1()
+        progresstest6()
+        # argtest1()
         # print(f)
     except Exception as inst:
-        displayManager.log("there was an unknown error of:   " + str(inst.__str__()))
+        # displayManager.log("there was an unknown error of:   " + str(inst.__str__()))
         # displayManager.log(str(inst.args))
-        exit_handler()
+        # exit_handler()
         raise
 	# showtime()
 	# alive_test()
 
-exit_handler()
+# exit_handler()

@@ -54,7 +54,7 @@ def download_song(songObj: SongObj, displayManager: DisplayManager = None,
     
     # Create a .\Temp folder if not present
     tempFolder = join('.', 'Temp')
-    print('Temp dir done')
+    # print('Temp dir done')
     
     if not exists(tempFolder):
         mkdir(tempFolder)
@@ -83,7 +83,7 @@ def download_song(songObj: SongObj, displayManager: DisplayManager = None,
 
     convertedFilePath = join('.', convertedFileName) + '.mp3'
 
-    print('Formatting done')
+    # print('Formatting done')
 
     # if a song is already downloaded skip it
     if exists(convertedFilePath):
@@ -96,7 +96,7 @@ def download_song(songObj: SongObj, displayManager: DisplayManager = None,
         #! it here as a continent way to avoid executing the rest of the function.
         return None
     
-    print('Bout to init pytube', songObj.get_youtube_link())
+    # print('Bout to init pytube', songObj.get_youtube_link())
 
     # download Audio from YouTube
     if displayManager:
@@ -107,10 +107,10 @@ def download_song(songObj: SongObj, displayManager: DisplayManager = None,
     else:
         youtubeHandler = YouTube(songObj.get_youtube_link())
     
-    print('Inited Pytube')
+    # print('Inited Pytube')
 
     trackAudioStream = youtubeHandler.streams.get_audio_only()
-    print('Bout to download')
+    # print('Bout to download')
     #! The actual download, if there is any error, it'll be here,
     try:
         #! pyTube will save the song in .\Temp\$songName.mp4, it doesn't save as '.mp3'

@@ -12,6 +12,8 @@ from spotdl.search.songObj import SongObj
 import sys
 import argparse
 
+from spotdl.cli.displayManager import print
+
 
 
 def get_arguments():
@@ -23,35 +25,38 @@ def get_arguments():
         # formatter_class=argparse.ArgumentDefaultsHelpFormatter,
         # add_help=True
     )
-
+    parser.add_argument(
+        "query",
+        help="Download track/album/playlist/artist by spotify link, name, or youtube url."
+    )
     parser.add_argument(
         "-s",
         "--song",
         nargs="+",
         help="Download track(s) by spotify link, name, or youtube url."
     )
-    parser.add_argument(
-        "-l",
-        "--list",
-        help="Download tracks from a file (WARNING: this file will be modified!)"
-    )
-    parser.add_argument(
-        "-p",
-        "--playlist",
-        help="Load tracks from playlist URL into <playlist_name>.txt or "
-             "if `--write-to=<path/to/file.txt>` has been passed",
-    )
-    parser.add_argument(
-        "-a",
-        "--album",
-        help="Load tracks from album URL into <album_name>.txt or if "
-             "`--write-to=<path/to/file.txt>` has been passed"
-    )
-    parser.add_argument(
-        "-aa",
-        "--all-albums",
-        help="load all tracks from artist URL into <artist_name>.txt "
-    )
+    # parser.add_argument(
+    #     "-l",
+    #     "--list",
+    #     help="Download tracks from a file (WARNING: this file will be modified!)"
+    # )
+    # parser.add_argument(
+    #     "-p",
+    #     "--playlist",
+    #     help="Load tracks from playlist URL into <playlist_name>.txt or "
+    #          "if `--write-to=<path/to/file.txt>` has been passed",
+    # )
+    # parser.add_argument(
+    #     "-a",
+    #     "--album",
+    #     help="Load tracks from album URL into <album_name>.txt or if "
+    #          "`--write-to=<path/to/file.txt>` has been passed"
+    # )
+    # parser.add_argument(
+    #     "-aa",
+    #     "--all-albums",
+    #     help="load all tracks from artist URL into <artist_name>.txt "
+    # )
     parser.add_argument(
         "--spotify-client-id",
         # default=defaults["spotify_client_id"],
@@ -65,10 +70,11 @@ def get_arguments():
 
     return parser
 
+
 def get_options(args=sys.argv[1:]):
     '''
     Parse all the options created in get_arguments() and match them up with the arguments fed into the command
-    if no args are presented (default), sys.argv[1:] grabs all the args and filters out the 1st one: the filename.
+    sys.argv[1:] grabs all the args and filters out the 1st one: the filename.
     '''
     # print(args, sys.argv[1:])
     # args=sys.argv[1:]
@@ -106,18 +112,47 @@ def passArgs(cliArgs, downloader):
                 print('No song named "%s" could be found on spotify' % request)
             downloader.download_single_song(song)
 
+
 def passArgs2(cliArgs, downloader):
     '''
-    Where the magic happens. Each arg option gets checked if it was used, and if so, the corresponding action(s) (with its paramerters) gets ran.
+    `array` `cliArgs` : argements gathered
+    `downloader` : initiated downloader to download song
+
+    Where the magic happens. (What functions get ran based on input) Each arg option gets checked if it was used, and if so, the corresponding action(s) (with its paramerters) gets ran.
     '''
     options = get_options(cliArgs)
-    print("options:", options)
+    print("options:" + str(options))
+
+
     if options.spotify_client_id:
         print('gonna use id:', options.spotify_client_id)
 
-
     if options.song:
-        print('gonna get song by url: ', options.song[0])
+        print('gonna get song by url: ' + options.song[0])
+        request = options.song[0]
+        if 'open.spotify.com' in request and 'track' in request:
+            print('Fetching Song...')
+            song = SongObj.from_url(request)
+            downloader.download_single_song(song)
+        
+        elif request.endswith('.spotdlTrackingFile'):
+            print('Preparing to resume download...')
+            downloader.resume_download_from_tracking_file(request)
+        
+        else:
+            print('Searching for song "%s"...' % request)
+            try:
+                song = search_for_song(request)
+            except:            
+                print('No song named "%s" could be found on spotify' % request)
+            downloader.download_single_song(song)
+
     elif options.album:
-        print('gonna get album'. options.album[0])
+        print('gonna get album' + options.album[0])
+
+    elif options.query:
+        print('Main')
+
+    else:
+        print('Idk what im supposed to do...')
    
