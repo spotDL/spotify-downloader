@@ -140,15 +140,18 @@ def download_song(songObj: SongObj, displayManager: DisplayManager = None,
     #! actually normalized the audio. The loudnorm filter just makes the apparent
     #! loudness constant
     #!
-    #! apad=pad_dur=2 adds 3 seconds of silence toward the end of the track, this is
+    #! apad=pad_dur=2 adds 2 seconds of silence toward the end of the track, this is
     #! done because the loudnorm filter clips/cuts/deletes the last 1-2 seconds on
     #! occasion especially if the song is EDM-like, so we add a few extra seconds to
     #! combat that.
     #!
-    #! -af 44100 sets audio sampling to 44100Hz, its required for the ffmpeg loudnorm
-    #! filter to work without errors
+    #! -acodec libmp3lame sets the encoded to 'libmp3lame' which is far better
+    #! than the default 'mp3_mf', '-abr true' automatically determines and passes the
+    #! audio encoding bitrate to the filters and encoder. This ensures that the
+    #! sampled length of songs matches the actual length (i.e. a 5 min song won't display
+    #! as 47 seconds long in your music player, yeah that was an issue earlier.)
 
-    command = 'ffmpeg -v quiet -y -i "%s" -ar 44100 -af "apad=pad_dur=2, dynaudnorm, loudnorm=I=-17" "%s"'
+    command = 'ffmpeg -v quiet -y -i "%s" -acodec libmp3lame -abr true -af "apad=pad_dur=2, dynaudnorm, loudnorm=I=-17" "%s"'
     formattedCommand = command % (downloadedFilePath, convertedFilePath)
 
     run_in_shell(formattedCommand)
