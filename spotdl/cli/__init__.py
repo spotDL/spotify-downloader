@@ -1,3 +1,6 @@
 __all__ = [
-    'logger'
+    'downloadManager',
+    'argumentHandler',
+    'displayManager',
+    'progressHandlers'
 ]

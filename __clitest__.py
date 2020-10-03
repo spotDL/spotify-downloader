@@ -130,6 +130,7 @@ def progresstest5():
     # v1.close()
     displayManager.stop()
 
+print('runnnnnn')
 
 with Progress(
     "[progress.description]{task.description}",

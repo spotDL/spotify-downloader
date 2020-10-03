@@ -1,3 +1,9 @@
+'''
+Everything that has to do with multi-processing is in this file. 
+This library is completely optional to the base spotDL ecosystem but is apart of the command-line service.
+'''
+
+
 #===============
 #=== Imports ===
 #===============
@@ -15,7 +21,7 @@ from typing import List
 
 from os import remove
 
-from spotdl.cli.displayManager import DisplayManager
+from spotdl.cli.displayManager import DisplayManager #, ProcessDisplayManager
 
 #=================
 #=== The Patch ===
@@ -33,12 +39,6 @@ def patchedAutoproxy(token, serializer, manager=None,
 
 #! Update the Autoproxy definition in multiprocessing.managers package
 multiprocessing.managers.AutoProxy = patchedAutoproxy
-
-
-
-#=======================
-#=== Display classes ===
-#=======================
 
 
 
@@ -173,8 +173,8 @@ class DownloadTracker():
 
 class ProgressRootProcess(multiprocessing.managers.BaseManager): pass
 
-ProgressRootProcess.register('DownloadTracker', DownloadTracker)
-ProgressRootProcess.register('DisplayManager',  DisplayManager)
+# ProgressRootProcess.register('DownloadTracker', DownloadTracker)
+# ProgressRootProcess.register('DisplayManager',  ProcessDisplayManager)
 
 #! You can now run the following code to work with both DisplayManagers and
 #! DownloadTrackers:

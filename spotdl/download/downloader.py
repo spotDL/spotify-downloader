@@ -2,7 +2,7 @@
 #=== Imports ===
 #===============
 
-from spotdl.download.progressHandlers import ProgressRootProcess
+# from spotdl.download.progressHandlers import ProgressRootProcess
 
 from os import mkdir, remove, system as run_in_shell
 from os.path import join, exists
@@ -20,7 +20,7 @@ from urllib.request import urlopen
 from typing import List
 
 from spotdl.search.songObj import SongObj
-from spotdl.download.progressHandlers import DisplayManager, DownloadTracker
+from spotdl.cli.progressHandlers import DisplayManager, DownloadTracker
 
 
 
@@ -37,9 +37,9 @@ def download_song(songObj: SongObj, displayManager: DisplayManager = None,
     '''
     `songObj` `songObj` : song to be downloaded
 
-    `AutoProxy` `displayManager` : autoproxy reference to a `DisplayManager`
+    `class` `displayManager` : (autoproxy) reference to a `DisplayManager`
 
-    `AutoProxy` `downloadTracker`: autoproxy reference to a `DownloadTracker`
+    `class` `downloadTracker`: (autoproxy) reference to a `DownloadTracker`
 
     RETURNS `~`
 
@@ -234,109 +234,3 @@ def download_song(songObj: SongObj, displayManager: DisplayManager = None,
     # delete the unnecessary YouTube download File
     remove(downloadedFilePath)
 
-
-#===========================================================
-#=== The Download Manager (the tyrannical boss lady/guy) ===
-#===========================================================
-
-class DownloadManager():
-    #! Big pool sizes on slow connections will lead to more incomplete downloads
-    poolSize = 4
-
-    def __init__(self):
-        # start a server for objects shared across processes
-        progressRoot = ProgressRootProcess()
-        progressRoot.start()
-
-        self.rootProcess = progressRoot
-
-        # initialize shared objects
-        self.displayManager  = progressRoot.DisplayManager()
-        self.downloadTracker = progressRoot.DownloadTracker()
-
-        self.displayManager.clear()
-
-        # initialize worker pool
-        self.workerPool = Pool( DownloadManager.poolSize )
-    
-    def download_single_song(self, songObj: SongObj) -> None:
-        '''
-        `songObj` `song` : song to be downloaded
-
-        RETURNS `~`
-
-        downloads the given song
-        '''
-
-        self.downloadTracker.clear()
-        self.downloadTracker.load_song_list([songObj])
-
-        self.displayManager.reset()
-        self.displayManager.set_song_count_to(1)
-
-        download_song(songObj, self.displayManager, self.downloadTracker)
-
-        print()
-    
-    def download_multiple_songs(self, songObjList: List[SongObj]) -> None:
-        '''
-        `list<songObj>` `songObjList` : list of songs to be downloaded
-
-        RETURNS `~`
-
-        downloads the given songs in parallel
-        '''
-
-        self.downloadTracker.clear()
-        self.downloadTracker.load_song_list(songObjList)
-
-        self.displayManager.reset()
-        self.displayManager.set_song_count_to(len(songObjList))
-
-        self.workerPool.starmap(
-            func     = download_song,
-            iterable = (
-                (song, self.displayManager, self.downloadTracker)
-                    for song in songObjList
-            )
-        )
-        print()
-    
-    def resume_download_from_tracking_file(self, trackingFilePath: str) -> None:
-        '''
-        `str` `trackingFilePath` : path to a .spotdlTrackingFile
-
-        RETURNS `~`
-
-        downloads songs present on the .spotdlTrackingFile in parallel
-        '''
-
-        self.downloadTracker.clear()
-        self.downloadTracker.load_tracking_file(trackingFilePath)
-
-        songObjList = self.downloadTracker.get_song_list()
-
-        self.displayManager.reset()
-        self.displayManager.set_song_count_to(len(songObjList))
-
-        self.workerPool.starmap(
-            func     = download_song,
-            iterable = (
-                (song, self.displayManager, self.downloadTracker)
-                    for song in songObjList
-            )
-        )
-        print()
-    
-    def close(self) -> None:
-        '''
-        RETURNS `~`
-
-        cleans up across all processes
-        '''
-
-        self.displayManager.close()
-        self.rootProcess.shutdown()
-
-        self.workerPool.close()
-        self.workerPool.join()

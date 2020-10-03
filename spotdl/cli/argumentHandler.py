@@ -1,5 +1,6 @@
 '''
-This file should only be used when calling spotdl from the command line.
+Everything that has to do with translating command line arguemnts is in this file. 
+This library is completely optional to the base spotDL ecosystem but is apart of the command-line service.
 These arguements are created to provide as few breaking changes between v2 -> v3 migration so most of these should be the same as spotdl=v2
 '''
 
@@ -12,7 +13,7 @@ from spotdl.search.songObj import SongObj
 import sys
 import argparse
 
-from spotdl.cli.displayManager import print
+# from spotdl.cli.displayManager import print
 
 
 
@@ -118,7 +119,7 @@ def passArgs2(cliArgs, downloader):
     `array` `cliArgs` : argements gathered
     `downloader` : initiated downloader to download song
 
-    Where the magic happens. (What functions get ran based on input) Each arg option gets checked if it was used, and if so, the corresponding action(s) (with its paramerters) gets ran.
+    Each arg option gets checked if it was used, and if so, the corresponding action(s) (with its paramerters) gets ran.
     '''
     options = get_options(cliArgs)
     print("options:" + str(options))

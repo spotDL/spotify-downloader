@@ -1,3 +1,9 @@
+'''
+Everything that has to do with outputting information onto the screen is in this file. 
+This library is completely optional to the base spotDL ecosystem but is apart of the command-line service.
+'''
+
+
 #===============
 #=== Imports ===
 #===============
@@ -5,62 +11,23 @@
 # from tqdm import tqdm  # Importing breaks python package: willmcgugan/rich
 from rich.progress import track, Progress, BarColumn, TimeRemainingColumn
 from datetime import datetime
-import atexit
-
-#======================
-#=== Initialization ===
-#======================
-
-# def initializer():
-#     global _richProgressBar
-    
-_richProgressBar = Progress(
-    "[progress.description]{task.description}",
-    BarColumn(bar_width=None, style="black on black"),
-    "[progress.percentage]{task.percentage:>3.0f}%",
-    TimeRemainingColumn(),
-    #transient=True     # Normally when you exit the progress context manager (or call stop()) the last refreshed display remains in the terminal with the cursor on the following line. You can also make the progress display disappear on exit by setting transient=True on the Progress constructor
-)
-_richProgressBar.__enter__()
-print('displayManager & rich Initialized  ' + str(datetime.now()))
+# import atexit
   
 
-def stop():
-    '''
-    Must be called to de-activate rich's text formatting and resume normal termial operation
-    '''
-    _richProgressBar.stop()
-atexit.register(stop)
+# def stop():
+#     '''
+#     Must be called to de-activate rich's text formatting and resume normal termial operation
+#     '''
+#     _richProgressBar.stop()
+# atexit.register(stop)
+
+
 
 #=======================
 #=== Display classes ===
 #=======================
 
-def log(*text, type=None, color="orange", log_locals=False):
-    '''
-    Use this print to replace default print(). 
-    TODO: Make output customizable, to file, pipe, etc.
-    '''
-    # color = "orange"
-    # print(text)
-    if color:
-        _richProgressBar.console.log("[" + color + "]Message:" + text, log_locals=log_locals)
-    else:
-        _richProgressBar.console.log("Message:" + text, log_locals=log_locals)
 
-def print(text, type=None, color="green"):
-    '''
-    Use this logger for debug messages. 
-    TODO: Make output customizable, to file, pipe, etc.
-    '''
-    # color = "green"
-
-    # print(text)
-    if color:
-        _richProgressBar.console.print("[" + color + "]" + text)
-    else:
-        _richProgressBar.console.print(""+ text)
-        # _richProgressBar.console.log("Working on job:", text)
 
 class NewProgressBar: 
     '''
@@ -68,13 +35,14 @@ class NewProgressBar:
     Is it Necessary? IDK. Is there a better way to do it? Probably.
     '''
     _instances = []
-    def __init__(self, name, start=0, total=100):
+    def __init__(self, name, richProgressBar, start=0, total=100):
         self.__class__._instances.append(self)
         self.name = name
         self.percent = start
         self.prevPercent = start
         self.total = total
-        self.task = _richProgressBar.add_task("[green]" + self.name, total=total)
+        self._richProgressBar = richProgressBar
+        self.task = self._richProgressBar.add_task("[green]" + self.name, total=total)
         
         
     def setProgress(self, percent):
@@ -84,33 +52,31 @@ class NewProgressBar:
         self.percent = percent
         value = self.percent * self.total
         # self.prevPercent = self.percent
-        _richProgressBar.update(self.task, completed=value)
+        self._richProgressBar.update(self.task, completed=value)
         
     def update(self, value):
         '''
         same as self.setProgress() except accepts raw numercical value
         '''
         self.percent = value / self.total
-        _richProgressBar.update(self.task, completed=value)
+        self._richProgressBar.update(self.task, completed=value)
 
     def setTotal(self, total):
-        _richProgressBar.update(self.task, total=total)
+        self._richProgressBar.update(self.task, total=total)
 
     def clear(self):
-        _richProgressBar.update(self.task, completed=0)
+        self._richProgressBar.update(self.task, completed=0)
 
     def reset(self):
-        _richProgressBar.update(self.task, completed=0)
+        self._richProgressBar.update(self.task, completed=0)
     
     def done(self):
-        _richProgressBar.update(self.task, visible=False)
+        self._richProgressBar.update(self.task, visible=False)
         print("Finished Downloading")
 
     def close(self):
-        _richProgressBar.update(self.task, visible=False)
+        self._richProgressBar.update(self.task, visible=False)
         print("Finished Downloading")
-
-
 
     @classmethod
     def printInstances(cls):
@@ -118,25 +84,75 @@ class NewProgressBar:
             print(instance)
 
 
-
-
 class DisplayManager():
     def __init__(self):
-        #! specializedTQDM handles most of the display details, displayManager is an
-        #! additional bit of calculations to ensure that the specializedTQDM progressbar
-        #! works accurately across downloads from multiple processes
-        # self.progressBar = SpecializedTQDM(
-        #     total           = 100,
-        #     dynamic_ncols   = True,
-        #     bar_format      = '{percentage:3.0f}%|{bar}|ETA: {remaining}, {rate_min}',
-        #     unit            = 'song'
-        # )
-        self.progressBar = NewProgressBar(
-            name            = "Total",
-            total           = 100,
+        # self.a = 1
+        self._richProgressBar = Progress(
+            "[progress.description]{task.description}",
+            BarColumn(bar_width=None, style="black on black"),
+            "[progress.percentage]{task.percentage:>3.0f}%",
+            TimeRemainingColumn(),
+            #transient=True     # Normally when you exit the progress context manager (or call stop()) the last refreshed display remains in the terminal with the cursor on the following line. You can also make the progress display disappear on exit by setting transient=True on the Progress constructor
         )
         print('Display Manager Initialized')
+        # self.progressBar = NewProgressBar(
+        #     name            = "Total",
+        #     richProgressBar = self._richProgressBar,
+        #     total           = 100
+        # )
 
+    def __enter__(self):
+        # self.__init__()
+        print('Display Manager Entered')
+        self._richProgressBar.__enter__()
+        return self
+
+    def __exit__(self, type, value, traceback):
+        print('Display Manager Exited')
+        # _richProgressBar.__exit__()
+        self._richProgressBar.stop()
+
+    def log(self, *text, type=None, color="orange", log_locals=False):
+        '''
+        Use this print to replace default print(). 
+        '''
+        # color = "orange"
+        # print(text)
+        if color:
+            self._richProgressBar.console.log("[" + color + "]Message:" + text, log_locals=log_locals)
+        else:
+            self._richProgressBar.console.log("Message:" + text, log_locals=log_locals)
+
+    def print(self, text, type=None, color="green"):
+        '''
+        Use this logger for debug messages. 
+        TODO: Make output customizable, to file, pipe, etc.
+        '''
+        # color = "green"
+
+        # print(text)
+        if color:
+            self._richProgressBar.console.print("[" + color + "]" + text)
+        else:
+            self._richProgressBar.console.print(""+ text)
+            # self._richProgressBar.console.log("Working on job:", text)
+
+    def ProcessDisplayManager(self):
+        print('Handing off subprocess function')
+        return _ProcessDisplayManager(self._richProgressBar)
+
+
+
+
+class _ProcessDisplayManager(DisplayManager):
+    def __init__(self, _richProgressBar):
+        print('Subprocess Display Manager Initialized')
+        self.progressBar = NewProgressBar( # Each process gets a progress bar
+            name            = "Total",
+            richProgressBar = _richProgressBar,
+            total           = 100
+        )
+    
     def set_song_count_to(self, songCount: int) -> None:
         '''
         `int` `songCount` : number of songs being downloaded
@@ -217,4 +233,4 @@ class DisplayManager():
         '''
 
         self.progressBar.close()
-
+            
