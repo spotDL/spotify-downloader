@@ -10,6 +10,9 @@ specific issues.
 ⚠ We are actively looking for Contributors/Organization Members for all projects under development. 
 If interested, see [#857](https://github.com/spotDL/spotify-downloader/issues/857)
 
+⚠ There are a few feature requests we'd like the community to vote on. Do voice your support for features you'd like.
+See [#867](https://github.com/spotDL/spotify-downloader/issues/867) to vote.
+
 <br><br>
 
 What spotDL does:
