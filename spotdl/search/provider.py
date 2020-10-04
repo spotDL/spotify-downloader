@@ -3,7 +3,7 @@
 #===============
 
 #! the following are for the search provider to function
-from fuzzywuzzy.fuzz import partial_ratio
+from rapidfuzz.fuzz import partial_ratio
 from json import loads as convert_json_to_dict
 from requests import post
 
@@ -26,21 +26,25 @@ from typing import List
 #=======================
 #=== helper function ===
 #=======================
-def match_percentage(str1:str, str2:str) -> bool:
+
+def match_percentage(str1: str, str2: str, score_cutoff: float = 0) -> float:
     '''
     `str` `str1` : a random sentence
 
     `str` `str2` : another random sentence
 
-    RETURNS `int`
+    `float` `score_cutoff` : minimum score required to consider it a match
+                             returns 0 when similarity < score_cutoff
 
-    A wrapper around `fuzzywuzzy.partial_ratio` to handle UTF-8 encoded
+    RETURNS `float`
+
+    A wrapper around `rapidfuzz.fuzz.partial_ratio` to handle UTF-8 encoded
     emojis that usually cause errors
     '''
 
     #! this will throw an error if either string contains a UTF-8 encoded emoji 
     try:
-        return partial_ratio(str1, str2)
+        return partial_ratio(str1, str2, score_cutoff=score_cutoff)
 
     #! we build new strings that contain only alphanumerical characters and spaces
     #! and return the partial_ratio of that
@@ -50,14 +54,14 @@ def match_percentage(str1:str, str2:str) -> bool:
         for eachLetter in str1:
             if eachLetter.isalnum() or eachLetter.isspace():
                 newStr1 += eachLetter
-        
+
         newStr2 = ''
 
-        for eachLetter in str1:
+        for eachLetter in str2:
             if eachLetter.isalnum() or eachLetter.isspace():
                 newStr2 += eachLetter
-        
-        return partial_ratio(newStr1, newStr2)
+
+        return partial_ratio(newStr1, newStr2, score_cutoff=score_cutoff)
 
 #========================================================================
 #=== Background functions/Variables (Not meant to be called directly) ===
@@ -402,7 +406,7 @@ def search_and_order_ytm_results(songName: str, songArtists: List[str],
         #! we use fuzzy matching because YouTube spellings might be mucked up
         if result['type'] == 'song':
             for artist in songArtists:
-                if match_percentage (artist.lower(), result['artist'].lower()) > 85:
+                if match_percentage (artist.lower(), result['artist'].lower(), 85):
                     artistMatchNumber += 1
         else:
             #! i.e if video
@@ -410,7 +414,7 @@ def search_and_order_ytm_results(songName: str, songArtists: List[str],
                 #! something like match_percentage('rionos', 'aiobahn, rionos Motivation
                 #! (remix)' would return 100, so we're absolutely corrent in matching
                 #! artists to song name.
-                if match_percentage(artist.lower(), result['name'].lower()) > 85:
+                if match_percentage(artist.lower(), result['name'].lower(), 85):
                     artistMatchNumber += 1
         
         #! Skip if there are no artists in common, (else, results like 'Griffith Swank -
