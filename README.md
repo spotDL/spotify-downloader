@@ -1,5 +1,7 @@
 # spotDL
 
+[![MIT License](https://img.shields.io/apm/l/atomic-design-ui.svg?)](https://github.com/spotDL/spotify-downloader/blob/master/LICENSE)
+
 ⚠ Interested Contributors, please read our [contributing Guidelines](CONTRIBUTING.md) first.
 
 ⚠ We are dropping active development of spotDL v2. No focused efforts will be made to resolve v2
