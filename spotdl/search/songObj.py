@@ -32,7 +32,7 @@ class SongObj:
         # check if URL is a playlist, user, artist or album, if yes raise an Exception,
         # else procede
         if not (
-            "open.spotify.com" or "Spotify:" in spotifyURL and "track" in spotifyURL
+            "open.spotify.com" or "spotify:" in spotifyURL and "track" in spotifyURL
         ):
             raise Exception("passed URL is not that of a track: %s" % spotifyURL)
 
