@@ -12,6 +12,9 @@ from spotdl.download.downloader import DownloadManager
 #! to avoid packaging errors
 from multiprocessing import freeze_support
 
+#! used to quiet the output
+from io import StringIO as quiet
+import sys
 
 #! Usage is simple - call 'python __main__.py <links, search terms, tracking files seperated by spaces>
 #! Eg.
@@ -83,6 +86,13 @@ def console_entry_point():
 
         #! We use 'return None' as a convenient exit/break from the function
         return None
+
+    if '--quiet' in cliArgs:
+        #! removing --quiet so it doesnt mess up with the download
+        cliArgs.remove('--quiet')
+        #! make stdout & stderr silent
+        sys.stdout = quiet()
+        sys.stderr = quiet()
 
     initialize(
         clientId='4fe3fecfe5334023a1472516cc99d805',
