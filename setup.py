@@ -17,7 +17,7 @@ setup(
         'spotipy',
         'pytube3',
         'tqdm',
-        'rapidfuzz'
+        'rapidfuzz',
         'requests',
         'mutagen',
     ],

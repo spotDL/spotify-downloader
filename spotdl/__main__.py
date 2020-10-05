@@ -92,29 +92,61 @@ def console_entry_point():
     downloader = DownloadManager()
 
     for request in cliArgs[1:]:
-        if 'open.spotify.com' in request and 'track' in request:
-            print('Fetching Song...')
-            song = SongObj.from_url(request)
+        if "?" in request:
+            # strip unnecessary data for both url and uri
+            request = request[:request.find("?")]
+        if 'open.spotify.com':
+            if 'track' in request:
+                print('Fetching Song...')
+                song = SongObj.from_url(request)
 
-            if song.get_youtube_link() != None:
-                downloader.download_single_song(song)
-            else:
-                print('Skipping %s (%s) as no match could be found on youtube' % (
-                    song.get_song_name(), request
-                ))
-        
-        elif 'open.spotify.com' in request and 'album' in request:
-            print('Fetching Album...')
-            songObjList = get_album_tracks(request)
+                if song.get_youtube_link() != None:
+                    downloader.download_single_song(song)
+                else:
+                    print('Skipping %s (%s) as no match could be found on youtube' % (
+                        song.get_song_name(), request
+                    ))
+            
+            elif 'album' in request:
+                print('Fetching Album...')
+                songObjList = get_album_tracks(request)
 
-            downloader.download_multiple_songs(songObjList)
-        
-        elif 'open.spotify.com' in request and 'playlist' in request:
-            print('Fetching Playlist...')
-            songObjList = get_playlist_tracks(request)
+                downloader.download_multiple_songs(songObjList)
+            
+            elif 'playlist' in request:
+                print('Fetching Playlist...')
+                songObjList = get_playlist_tracks(request)
 
-            downloader.download_multiple_songs(songObjList)
-        
+                downloader.download_multiple_songs(songObjList)
+        elif "spotify:":
+            # it's a URI with format Spotify:...:id
+            if 'track:' in request:
+                print('Fetching Song...')
+                # yes, passing a URI to this function still works coz it relies on another
+                # spotipy function that simply extracts the ID, ideally u can just pass the ID
+                # and the track downloads 
+                song = SongObj.from_url(request)
+
+                if song.get_youtube_link() != None:
+                    downloader.download_single_song(song)
+                else:
+                    print('Skipping %s (%s) as no match could be found on youtube' % (
+                        song.get_song_name(), request
+                    ))
+            
+            elif 'album:' in request:
+                print('Fetching Album...')
+                songObjList = get_album_tracks(request)
+
+                downloader.download_multiple_songs(songObjList)
+            
+            elif 'playlist:' in request:
+                print('Fetching Playlist...')
+                songObjList = get_playlist_tracks(request)
+
+                downloader.download_multiple_songs(songObjList)
+
+
         elif request.endswith('.spotdlTrackingFile'):
             print('Preparing to resume download...')
             downloader.resume_download_from_tracking_file(request)
