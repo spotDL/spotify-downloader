@@ -45,13 +45,23 @@ To download a song run,
     spotdl $trackUrl
     eg. spotdl https://open.spotify.com/track/08mG3Y1vljYA6bvDt4Wqkj?si=SxezdxmlTx-CaVoucHmrUA
 
+    spotdl $trackUri
+    eg. spotdl spotify:track:08mG3Y1vljYA6bvDt4Wqkj
+
 To download a album run,
     spotdl $albumUrl
     eg. spotdl https://open.spotify.com/album/2YMWspDGtbDgYULXvVQFM6?si=gF5dOQm8QUSo-NdZVsFjAQ
 
+    spotdl $albumUri
+    eg. spotdl spotify:album:2YMWspDGtbDgYULXvVQFM6
+
 To download a playlist run,
     spotdl $playlistUrl
     eg. spotdl https://open.spotify.com/playlist/37i9dQZF1DWXhcuQw7KIeM?si=xubKHEBESM27RqGkqoXzgQ
+
+To download a playlist run,
+    spotdl $playlistUri
+    eg. spotdl spotify:playlist:37i9dQZF1DWXhcuQw7KIeM
 
 To search for and download a song (not very accurate) run,
     spotdl $songQuery
