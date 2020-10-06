@@ -78,10 +78,10 @@ class SongObj():
 
     @classmethod
     def from_dump(cls, dataDump: dict):
-        rawTrackMeta = dataDump['rawTrackMeta']
-        rawAlbumMeta = dataDump['rawAlbumMeta']
+        rawTrackMeta  = dataDump['rawTrackMeta']
+        rawAlbumMeta  = dataDump['rawAlbumMeta']
         rawArtistMeta = dataDump['rawAlbumMeta']
-        youtubeLink = dataDump['youtubeLink']
+        youtubeLink   = dataDump['youtubeLink']
 
         return cls(
             rawTrackMeta, rawAlbumMeta,
