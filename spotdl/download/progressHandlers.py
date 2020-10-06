@@ -67,11 +67,11 @@ class DisplayManager():
         #! specializedTQDM handles most of the display details, displayManager is an
         #! additional bit of calculations to ensure that the specializedTQDM progressbar
         #! works accurately across downloads from multiple processes
-        self.progressBar = SpecializedTQDM(
-            total=100,
-            dynamic_ncols=True,
-            bar_format='{percentage:3.0f}%|{bar}|ETA: {remaining}, {rate_min}',
-            unit='song'
+        self.progressBar  = SpecializedTQDM(
+            total         = 100,
+            dynamic_ncols = True,
+            bar_format    = '{percentage:3.0f}%|{bar}|ETA: {remaining}, {rate_min}',
+            unit          = 'song'
         )
 
     def set_song_count_to(self, songCount: int) -> None:
@@ -173,7 +173,7 @@ class DownloadTracker():
 
         # Attempt to read .spotdlTrackingFile, raise exception if file can't be read
         try:
-            file = open(trackingFilePath, 'rb')
+            file          = open(trackingFilePath, 'rb')
             songDataDumps = eval(file.read().decode())
             file.close()
         except FileNotFoundError:
