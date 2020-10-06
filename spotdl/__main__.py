@@ -86,8 +86,8 @@ def console_entry_point():
         return None
 
     initialize(
-        clientId='4fe3fecfe5334023a1472516cc99d805',
-        clientSecret='0f02b7c483c04257984695007a4a8d5c'
+        clientId     = '4fe3fecfe5334023a1472516cc99d805',
+        clientSecret = '0f02b7c483c04257984695007a4a8d5c'
     )
 
     downloader = DownloadManager()
@@ -117,15 +117,14 @@ def console_entry_point():
 
         elif request.endswith('.txt'):
             print(f'Fetching songs from {request}...')
+            songObjList = []
+            
             with open(request, 'r') as songFile:
                 for songLink in songFile.readlines():
                     song = SongObj.from_url(songLink)
-
-                    if song.get_youtube_link() != None:
-                        downloader.download_single_song(song)
-                    else:
-                        print(f'Skipping {song.get_song_name()} ({request}) '
-                              'as no match could be found on youtube')
+                    songObjList.append(song)
+            
+            downloader.download_multiple_songs(songObjList)
 
         elif request.endswith('.spotdlTrackingFile'):
             print('Preparing to resume download...')

@@ -3,6 +3,7 @@ from spotdl.search.songObj import SongObj
 
 from typing import List
 
+
 def search_for_song(query: str) -> SongObj:
     '''
     `str` `query` : what you'd type into spotify's search box

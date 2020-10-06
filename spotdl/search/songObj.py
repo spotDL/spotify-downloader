@@ -3,8 +3,9 @@ from json import loads as convert_json_to_dict
 from os.path import join
 from typing import List
 
-from bs4 import BeautifulSoup
 from requests import get
+import re
+from html import unescape
 from spotdl.search.provider import search_and_get_best_match
 from spotdl.search.spotifyClient import get_spotify_client
 
@@ -19,9 +20,9 @@ class SongObj():
     # ====================
     def __init__(self, rawTrackMeta, rawAlbumMeta, rawArtistMeta, youtubeLink):
         self. __rawTrackMeta = rawTrackMeta
-        self.__rawAlbumMeta = rawArtistMeta
+        self.__rawAlbumMeta  = rawArtistMeta
         self.__rawArtistMeta = rawArtistMeta
-        self.__youtubeLink = youtubeLink
+        self.__youtubeLink   = youtubeLink
 
     #! constructors here are a bit mucky, there are two different constructors for two
     #! different use cases, hence the actual __init__ function does not exist
@@ -41,9 +42,9 @@ class SongObj():
         rawTrackMeta = spotifyClient.track(spotifyURL)
 
         primaryArtistId = rawTrackMeta['artists'][0]['id']
-        rawArtistMeta = spotifyClient.artist(primaryArtistId)
+        rawArtistMeta   = spotifyClient.artist(primaryArtistId)
 
-        albumId = rawTrackMeta['album']['id']
+        albumId      = rawTrackMeta['album']['id']
         rawAlbumMeta = spotifyClient.album(albumId)
 
         # get best match from the given provider
@@ -162,28 +163,51 @@ class SongObj():
         '''
         returns the lyrics of the song.
         '''
+        #! Access Token for genius api.
         geniusHeaders = {
             'Authorization':
             'Bearer alXXDbPZtK1m2RrZ8I4k2Hn8Ahsd0Gh_o076HYvcdlBvmc0ULL1H8Z8xRlew5qaG',
         }
 
+        #! Base url for a search query.
         searchURL = 'https://api.genius.com/search'
+        #! In order to get accurate results, we include artist name in the search query. 
+        #! As the url can't have spaces, replace the spaces by '+'
         searchQuery = '+'.join(i for i in (self.get_song_name() +
                        ' ' + self.get_contributing_artists()[0]).split())
 
         geniusResponse = get(searchURL, headers=geniusHeaders,
                              params={'q': searchQuery}).json()['response']
 
+        #! Gets the songID of the best match from the genius response and then get its details. 
         bestMatchURL = 'https://api.genius.com/songs/' + \
             str(geniusResponse['hits'][0]['result']['id'])
+        #! Gets the lyrics page url from genius' response and scape the lyrics.
         songURL = get(bestMatchURL, headers=geniusHeaders).json()['response']['song']['url']
 
-        lyricsPage = get(songURL)
-        lyricsPageHTML = BeautifulSoup(lyricsPage.text, 'html.parser')
+        #! Compile All the required Regular Expressions.
+        #! Matches the lyrics.( including html tags)
+        lyricsRegex = re.compile(r'<div class="Lyrics__Container.*?>.*</div><div class="RightSidebar.*?>') 
+        htmlTagRegex = re.compile(r'<.*?>') #! Matches HTML tags.
+        genTagRegex = re.compile(r'\[.*?\]', re.DOTALL) #! Matches Genius Tags like [Chorus]
+        edgeRegEx = re.compile(r'(\()(\n)(.*?)(\n)(\))') #! we use this regex to handle egde cases: (\n Some_lyric \n) -> (Some_Lyric) 
 
-        lyrics = lyricsPageHTML.find('div', attrs={'class': 'lyrics'}).get_text()
+        geniusPage = get(songURL).text  #! Gets the genius lyrics page.
+        preLyrics = re.findall(lyricsRegex, geniusPage)[0] #! Takes the first string that matches lyricsRegex
+        preLyrics = htmlTagRegex.sub('\n', preLyrics)  #! Substitutes HTML Tags for newline characters.
 
-        return lyrics
+        #! Replace Multiple Newline characters by a single newline character.
+        lyrics = []
+        for i in preLyrics.split('\n'):
+            if i != '\n' and i:
+                lyrics.append(i)
+        lyrics = "\n".join(lyrics)
+
+        lyrics = unescape(lyrics) #! Replaces all HTML escaped characters with unescaped characters.
+        lyrics = genTagRegex.sub('\n', lyrics) #! Substitute genius tags for newlines.
+        lyrics = edgeRegEx.sub(r'\1\3\5', lyrics) #! Edge case handling
+
+        return lyrics.strip() #! Removes trailing and leading newlines and spaces.
 
     #! Album Details:
 
@@ -245,8 +269,8 @@ class SongObj():
         #! internally the only reason this exists is that it helps in saving to disk
 
         return {
-            'youtubeLink': self.__youtubeLink,
-            'rawTrackMeta': self.__rawTrackMeta,
-            'rawAlbumMeta': self.__rawAlbumMeta,
+            'youtubeLink'  : self.__youtubeLink,
+            'rawTrackMeta' : self.__rawTrackMeta,
+            'rawAlbumMeta' : self.__rawAlbumMeta,
             'rawArtistMeta': self.__rawArtistMeta
         }

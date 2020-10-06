@@ -96,8 +96,8 @@ def download_song(songObj: SongObj, displayManager: DisplayManager = None,
     # download Audio from YouTube
     if displayManager:
         youtubeHandler = YouTube(
-            url=songObj.get_youtube_link(),
-            on_progress_callback=displayManager.pytube_progress_hook
+            url                  = songObj.get_youtube_link(),
+            on_progress_callback = displayManager.pytube_progress_hook
         )
     else:
         youtubeHandler = YouTube(songObj.get_youtube_link())
@@ -108,9 +108,9 @@ def download_song(songObj: SongObj, displayManager: DisplayManager = None,
     try:
         #! pyTube will save the song in .\Temp\$songName.mp4, it doesn't save as '.mp3'
         downloadedFilePath = trackAudioStream.download(
-            output_path=tempFolder,
-            filename=convertedFileName,
-            skip_existing=False
+            output_path    = tempFolder,
+            filename       = convertedFileName,
+            skip_existing  = False
         )
     except:
         #! This is equivalent to a failed download, we do nothing, the song remains on
@@ -165,7 +165,7 @@ def download_song(songObj: SongObj, displayManager: DisplayManager = None,
     audioFile.delete()
 
     #! song name
-    audioFile['title'] = songObj.get_song_name()
+    audioFile['title']     = songObj.get_song_name()
     audioFile['titlesort'] = songObj.get_song_name()
 
     #! track number
@@ -189,7 +189,7 @@ def download_song(songObj: SongObj, displayManager: DisplayManager = None,
     audioFile['albumartist'] = songObj.get_album_artists()
 
     #! album release date (to what ever precision available)
-    audioFile['date'] = songObj.get_album_release()
+    audioFile['date']         = songObj.get_album_release()
     audioFile['originaldate'] = songObj.get_album_release()
 
     #! save as both ID3 v2.3 & v2.4 as v2.3 isn't fully features and
@@ -202,11 +202,11 @@ def download_song(songObj: SongObj, displayManager: DisplayManager = None,
     rawAlbumArt = urlopen(songObj.get_album_cover_url()).read()
 
     audioFile['APIC'] = AlbumCover(
-        encoding=3,
-        mime='image/jpeg',
-        type=3,
-        desc='Cover',
-        data=rawAlbumArt
+        encoding = 3,
+        mime     = 'image/jpeg',
+        type     = 3,
+        desc     = 'Cover',
+        data     = rawAlbumArt
     )
     
     #! adding lyrics
@@ -246,7 +246,7 @@ class DownloadManager():
         self.rootProcess = progressRoot
 
         # initialize shared objects
-        self.displayManager = progressRoot.DisplayManager()
+        self.displayManager  = progressRoot.DisplayManager()
         self.downloadTracker = progressRoot.DownloadTracker()
 
         self.displayManager.clear()
@@ -315,8 +315,8 @@ class DownloadManager():
         self.displayManager.set_song_count_to(len(songObjList))
 
         self.workerPool.starmap(
-            func=download_song,
-            iterable=(
+            func     = download_song,
+            iterable = (
                 (song, self.displayManager, self.downloadTracker)
                 for song in songObjList
             )
