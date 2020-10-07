@@ -111,7 +111,7 @@ def console_entry_point():
             # becomes spotify:track:4Q34FP1AT7GEl9oLgNtiWj
 
             request = request[: request.find("?")]
-        if "open.spotify.com":
+        if "open.spotify.com" in request:
             # it's a url
             if "track" in request:
                 print("Fetching Song...")
@@ -136,7 +136,7 @@ def console_entry_point():
                 songObjList = get_playlist_tracks(request)
 
                 downloader.download_multiple_songs(songObjList)
-        elif "spotify:":
+        elif "spotify:" in request:
             # it's a URI with format Spotify:...:id
             if "track:" in request:
                 print("Fetching Song...")
