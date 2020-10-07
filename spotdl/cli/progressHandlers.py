@@ -21,7 +21,7 @@ from typing import List
 
 from os import remove
 
-from spotdl.cli.displayManager import DisplayManager #, ProcessDisplayManager
+from spotdl.cli.displayManager import DisplayManager, ProcessDisplayManager
 
 #=================
 #=== The Patch ===
@@ -173,8 +173,8 @@ class DownloadTracker():
 
 class ProgressRootProcess(multiprocessing.managers.BaseManager): pass
 
-# ProgressRootProcess.register('DownloadTracker', DownloadTracker)
-# ProgressRootProcess.register('DisplayManager',  ProcessDisplayManager)
+ProgressRootProcess.register('DownloadTracker', DownloadTracker)
+ProgressRootProcess.register('DisplayManager',  ProcessDisplayManager)
 
 #! You can now run the following code to work with both DisplayManagers and
 #! DownloadTrackers:

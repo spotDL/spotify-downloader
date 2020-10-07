@@ -14,12 +14,6 @@ from spotdl.search.songObj import SongObj
 from multiprocessing import freeze_support
 
 
-
-
-
-
-
-
 if __name__ == '__main__':
     try:
         freeze_support()

@@ -20,8 +20,8 @@ from urllib.request import urlopen
 from typing import List
 
 from spotdl.search.songObj import SongObj
-from spotdl.cli.progressHandlers import DisplayManager, DownloadTracker
-
+from spotdl.cli.progressHandlers import DownloadTracker
+from spotdl.cli.displayManager import DisplayManager
 
 
 #==========================

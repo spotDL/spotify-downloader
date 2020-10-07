@@ -8,15 +8,11 @@ This library is completely optional to the base spotDL ecosystem but is apart of
 #=== Imports ===
 #===============
 
-
-
 # from os import mkdir, remove, system as run_in_shell
 # from os.path import join, exists
 
 from multiprocessing import Pool
 from multiprocessing.managers import BaseManager
-
-# from spotdl.patches.pyTube import YouTube
 
 # from mutagen.easyid3 import EasyID3, ID3
 # from mutagen.id3 import APIC as AlbumCover
@@ -31,6 +27,7 @@ from spotdl.cli.progressHandlers import DownloadTracker, ProgressRootProcess
 # from spotdl.cli.progressHandlers import DownloadTracker
 from spotdl.download.downloader import download_song
 
+from spotdl.cli.displayManager import ProcessDisplayManager
 
 
 #===========================================================
@@ -43,17 +40,26 @@ class DownloadManager():
 
     def __init__(self, DisplayManagerInstance):
         # start a server for objects shared across processes
-        ProgressRootProcess.register('DownloadTracker', DownloadTracker)
-        # ProgressRootProcess.register('DisplayManager',  DisplayManagerInstance.ProcessDisplayManager)
+        # ProgressRootProcess.register('DownloadTracker', DownloadTracker)
+        # PDM = DisplayManagerInstance.ProcessDisplayManager
+        # ProgressRootProcess.register('DisplayManager', PDM)
+        ProgressRootProcess.register('DisplayManager',  ProcessDisplayManager)
+        # ProgressRootProcess.register('DisplayManager',  DisplayManagerInstance.GetProcessDisplayManager())
+
 
         progressRoot = ProgressRootProcess()
         progressRoot.start()
 
+        # q = progressRoot.Queue()
+
         self.rootProcess = progressRoot
 
         # initialize shared objects
-        # self.displayManager  = progressRoot.DisplayManager()
-        self.displayManager = DisplayManagerInstance.ProcessDisplayManager()
+
+        # self.displayManager  = progressRoot.DisplayManager(DisplayManagerInstance.getself())
+        self.displayManager  = progressRoot.DisplayManager(DisplayManagerInstance.getself())
+        
+        # self.displayManager = DisplayManagerInstance.ProcessDisplayManager()
         self.downloadTracker = progressRoot.DownloadTracker()
 
         self.displayManager.clear()
@@ -78,7 +84,7 @@ class DownloadManager():
 
         download_song(songObj, self.displayManager, self.downloadTracker)
 
-        print()
+        # print()
     
     def download_multiple_songs(self, songObjList: List[SongObj]) -> None:
         '''
@@ -102,7 +108,7 @@ class DownloadManager():
                     for song in songObjList
             )
         )
-        print()
+        # print()
     
     def resume_download_from_tracking_file(self, trackingFilePath: str) -> None:
         '''
@@ -128,7 +134,7 @@ class DownloadManager():
                     for song in songObjList
             )
         )
-        print()
+        # print()
     
     def close(self) -> None:
         '''
