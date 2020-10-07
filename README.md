@@ -50,13 +50,13 @@ you use spotDL v3 and open issues for problems that you come across.
         ```
     - Run setup.py
         ```
-        $ cd spotdl
+        $ cd spotify-downloader
         $ python setup.py install
         ```
         
 3. Voila !
 
-# How to use
+# How to use (instructions for v3)
 To download a song run,
 
     # spotdl $trackUrl
