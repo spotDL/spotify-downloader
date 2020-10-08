@@ -8,9 +8,9 @@ This library is completely optional to the base spotDL ecosystem but is apart of
 #=== Imports ===
 #===============
 
-from tqdm import tqdm  # Importing breaks python package: willmcgugan/rich
-# from rich.progress import track, Progress, BarColumn, TimeRemainingColumn
-# from rich.console import Console
+# from tqdm import tqdm  # Importing breaks python package: willmcgugan/rich
+from rich.progress import track, Progress, BarColumn, TimeRemainingColumn
+from rich.console import Console
 from datetime import datetime
 
 
@@ -143,3 +143,103 @@ class DisplayManager():
         return self
 
 
+
+
+class ProcessDisplayManager():
+    def __init__(self, parent):
+        print('Subprocess Display Manager Initialized')
+        self.progressBar = NewProgressBar( # Each process gets a progress bar
+            name            = "Total",
+            richProgressBar = parent._richProgressBar,
+            total           = 100,
+        )
+        self.print = parent.print
+    
+    def set_song_count_to(self, songCount: int) -> None:
+        '''
+        `int` `songCount` : number of songs being downloaded
+
+        RETURNS `~`
+
+        sets the size of the progressbar based on the number of songs in the current
+        download set
+        '''
+
+        #! all calculations are based of the arbitrary choice that 1 song consists of
+        #! 100 steps/points/iterations 
+
+        # self.progressBar.total = songCount * 100
+        self.progressBar.setTotal(songCount * 100)
+
+    def notify_download_skip(self) -> None:
+        '''
+        updates progress bar to reflect a song being skipped
+        '''
+
+        self.progressBar.set_by_percent(100)
+    
+    def pytube_progress_hook(self, stream, chunk, bytes_remaining) -> None:
+        '''
+        Progress hook built according to pytube's documentation. It is called each time
+        bytes are read from youtube.
+        '''
+
+        #! This will be called until download is complete, i.e we get an overall
+        #! self.progressBar.update(90)
+
+        fileSize = stream.filesize
+
+        #! How much of the file was downloaded this iteration scaled put of 90.
+        #! It's scaled to 90 because, the arbitrary division of each songs 100
+        #! iterations is (a) 90 for download (b) 5 for conversion & normalization
+        #! and (c) 5 for ID3 tag embedding
+        iterFraction = len(chunk) / fileSize * 90
+
+        self.progressBar.set_by_incriment(iterFraction)
+    
+    def notify_conversion_completion(self) -> None:
+        '''
+        updates progresbar to reflect a audio conversion being completed
+        '''
+        self.print('Conversion Complete')
+        self.progressBar.set_by_incriment(5)
+    
+    def notify_download_completion(self) -> None:
+        '''
+        updates progresbar to reflect a download being completed
+        '''
+
+        #! Download completion implie ID# tag embedding was just finished
+        self.print('Download Complete')
+        self.progressBar.set_by_incriment(5)
+    
+    def reset(self) -> None:
+        '''
+        prepare displayManager for a new download set. call
+        `displayManager.set_song_count_to` before next set of downloads for accurate
+        progressbar.
+        '''
+
+        self.progressBar.reset()
+    
+    def clear(self) -> None:
+        '''
+        clear the tqdm progress bar
+        '''
+
+        self.progressBar.clear()
+    
+    def close(self) -> None:
+        '''
+        clean up TQDM
+        '''
+
+        self.progressBar.close()
+            
+
+class DisplayRelay():
+    def __init__(self, queue, id):
+        self.q = queue
+        self.id = id
+
+        

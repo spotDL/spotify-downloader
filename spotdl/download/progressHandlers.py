@@ -13,7 +13,9 @@ This library is completely optional to the base spotDL ecosystem but is apart of
 #! we need to import the whole shebang here to patch multiprocessing's AutoProxy.
 #! Attempting to use a displayManager across multiple processes without the
 #! patch will result in a 'Key Error: Autoproxy takes no key argument manager_owned'
-import multiprocessing.managers
+# import multiprocessing.managers
+import multiprocess.managers
+
 
 #! These are not used, they're here for static type checking using mypy
 from spotdl.search.songObj import SongObj
@@ -21,12 +23,13 @@ from typing import List
 
 from os import remove
 
-from spotdl.cli.displayManager import DisplayManager, ProcessDisplayManager
+# from spotdl.cli.displayManager import DisplayManager, ProcessDisplayManager
 
 #=================
 #=== The Patch ===
 #=================
-originalAutoproxy = multiprocessing.managers.AutoProxy
+# originalAutoproxy = multiprocessing.managers.AutoProxy
+originalAutoproxy = multiprocess.managers.AutoProxy
 
 def patchedAutoproxy(token, serializer, manager=None,
     authkey=None,exposed=None, incref=True, manager_owned=True):
@@ -38,7 +41,8 @@ def patchedAutoproxy(token, serializer, manager=None,
     return originalAutoproxy(token, serializer, manager, authkey, exposed, incref)
 
 #! Update the Autoproxy definition in multiprocessing.managers package
-multiprocessing.managers.AutoProxy = patchedAutoproxy
+# multiprocessing.managers.AutoProxy = patchedAutoproxy
+multiprocess.managers.AutoProxy = patchedAutoproxy
 
 
 
@@ -171,10 +175,11 @@ class DownloadTracker():
 #! to work across multiple processes and work accurately but, this is the part that
 #! puts multiprocessing into the picture
 
-class ProgressRootProcess(multiprocessing.managers.BaseManager): pass
+# class ProgressRootProcess(multiprocessing.managers.BaseManager): pass
+class ProgressRootProcess(multiprocess.managers.BaseManager): pass
 
 ProgressRootProcess.register('DownloadTracker', DownloadTracker)
-ProgressRootProcess.register('DisplayManager',  ProcessDisplayManager)
+# ProgressRootProcess.register('DisplayManager',  ProcessDisplayManager)
 
 #! You can now run the following code to work with both DisplayManagers and
 #! DownloadTrackers:

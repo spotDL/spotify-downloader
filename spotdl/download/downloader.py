@@ -6,6 +6,7 @@
 
 from os import mkdir, remove, system as run_in_shell
 from os.path import join, exists
+import os
 
 from multiprocessing import Pool
 
@@ -20,7 +21,7 @@ from urllib.request import urlopen
 from typing import List
 
 from spotdl.search.songObj import SongObj
-from spotdl.cli.progressHandlers import DownloadTracker
+from spotdl.download.progressHandlers import DownloadTracker
 from spotdl.cli.displayManager import DisplayManager
 
 
@@ -45,6 +46,9 @@ def download_song(songObj: SongObj, displayManager: DisplayManager = None,
 
     Downloads, Converts, Normalizes song & embeds metadata as ID3 tags.
     '''
+
+    if displayManager:
+        displayManager.notify_download_begin(os.getpid())
 
     #! all YouTube downloads are to .\Temp; they are then converted and put into .\ and
     #! finally followed up with ID3 metadata tags
@@ -102,7 +106,7 @@ def download_song(songObj: SongObj, displayManager: DisplayManager = None,
     if displayManager:
         youtubeHandler = YouTube(
             url                  = songObj.get_youtube_link(),
-            on_progress_callback = displayManager.pytube_progress_hook
+            on_progress_callback = displayManager.download_progress_hook
         )
     else:
         youtubeHandler = YouTube(songObj.get_youtube_link())
@@ -127,7 +131,8 @@ def download_song(songObj: SongObj, displayManager: DisplayManager = None,
         remove(join(tempFolder, convertedFileName) + '.mp4')
         return None
     
-
+    if displayManager:
+        displayManager.notify_download_completion()
 
     # convert downloaded file to MP3 with normalization
 
@@ -224,7 +229,7 @@ def download_song(songObj: SongObj, displayManager: DisplayManager = None,
 
     # Do the necessary cleanup
     if displayManager:
-        displayManager.notify_download_completion()
+        displayManager.notify_finished()
     
     if downloadTracker:
         downloadTracker.notify_download_completion(songObj)
