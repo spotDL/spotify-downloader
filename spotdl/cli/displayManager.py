@@ -8,11 +8,11 @@ This library is completely optional to the base spotDL ecosystem but is apart of
 #=== Imports ===
 #===============
 
-from tqdm import tqdm  # Importing breaks python package: willmcgugan/rich
-# from rich.progress import track, Progress, BarColumn, TimeRemainingColumn
-# from rich.console import Console
+# from tqdm import tqdm  # Importing breaks python package: willmcgugan/rich
+from rich.progress import track, Progress, BarColumn, TimeRemainingColumn
+from rich.console import Console
 from datetime import datetime
-
+import time
 
 
 
@@ -132,14 +132,31 @@ class DisplayManager():
             self._richProgressBar.console.print(""+ text)
             # self._richProgressBar.console.log("Working on job:", text)
 
-    def GetProcessDisplayManager(self):
-        print('Handing off subprocess function')
-        return ProcessDisplayManager(self)
-
-    def getrich(self):
+    def get_rich(self):
         return self._richProgressBar
 
-    def getself(self):
+    def get_self(self):
         return self
 
+    def monitor_process(self, multiprocessResult, queue):
+        # result = function()
+        print('Proc:', multiprocessResult, multiprocessResult.ready())
+
+        while not multiprocessResult.ready():
+            time.sleep(0.1)
+            messages = []
+            try:
+                # data = q.get(False)
+                # If `False`, the program is not blocked. `Queue.Empty` is thrown if
+                # the queue is empty
+                for _ in range(queue.qsize()):
+                    data = queue.get(False)
+                    messages.append(data)
+            except:
+                data = None
+
+            print('refresh: not yet', messages)
+
+        print('Results Ready')
+        multiprocessResult.wait()
 

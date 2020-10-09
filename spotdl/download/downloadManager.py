@@ -1,6 +1,6 @@
 '''
-Everything that has to do with multi-file is in this file. 
-This library is completely optional to the base spotDL ecosystem but is apart of the command-line service.
+Everything that has to do with multi-processing is in this file. 
+
 '''
 
 
@@ -11,7 +11,8 @@ This library is completely optional to the base spotDL ecosystem but is apart of
 # Switch to multiprocess (not multiprocessING) for better support
 # from multiprocessing import Pool
 # from multiprocessing.managers import BaseManager
-from multiprocess import Pool
+import multiprocess
+from multiprocess import Pool, Lock
 from multiprocess.managers import BaseManager
 
 from urllib.request import urlopen
@@ -20,31 +21,46 @@ from urllib.request import urlopen
 from typing import List
 
 from spotdl.search.songObj import SongObj
-from spotdl.download.progressHandlers import DownloadTracker, ProgressRootProcess
+from spotdl.download.progressHandlers import DownloadTracker
 from spotdl.download.downloader import download_song
 
 
 from queue import Queue
 import sys
-
+from collections import defaultdict
 
 
 
 
 class BasicDisplayMessenger():
-    def __init__(self, message_queue = None):
+    '''
+    This Class is an placeholder for the shared message_queue 
+    It is also responsible for dispatching Process Trackers and storing all the processes' information
+    '''
+
+    def __init__(self, message_queue, lock = None):
         print('Subprocess Display Messenger Initialized')
         self.message_queue = message_queue
         self.overallProgress = 0
         self.overallTotal = 100
+        self.lock = lock
+        # self.lock = Lock()
+        # self.lock.release()
 
-    def newTracker(self, name):
-        return self.Tracker(self, name)
+    def newMessageTracker(self, name):
+        return self.MessageTracker(self, name)
     
-    class Tracker():
+    class MessageTracker():
+        '''
+        A Plugin for handling callback events from the download process. 
+        Each function here corresponds to a function that is called throughout the main download process.
+        This class handles things such as displayName, processProgress, processMessages, etc.
+        A New message Tracker object is created for each download process and passed into it upon creation.
+        '''
+
         def __init__(self, parent, songName):
             self.parent = parent
-            self.songName = songName
+            self.displayName = songName
             self.ID = None
             self.progress = 0
             self.isComplete = False
@@ -76,7 +92,6 @@ class BasicDisplayMessenger():
             #! all calculations are based of the arbitrary choice that 1 song consists of
             #! 100 steps/points/iterations 
 
-            # self.progressBar.total = songCount * 100
             self.parent.overallTotal = songCount * 100
             self.send_update('Song Count now' + str(songCount))
 
@@ -109,7 +124,8 @@ class BasicDisplayMessenger():
 
             # self.progressBar.set_by_incriment(iterFraction)
             self.progress += iterFraction
-            self.send_update('Downloding...')
+            if not int(self.progress) % 10:
+                self.send_update('Downloading...')
 
         def notify_download_completion(self) -> None:
             '''
@@ -128,16 +144,26 @@ class BasicDisplayMessenger():
             self.send_update('Conversion Complete, Tagging...')
 
         def notify_finished(self):
+            '''
+            updates progres to show the process is completed
+            '''
             self.isComplete = True
             self.progress = 100
             self.send_update('Finished Tagging')
             self.send_update('Done')
 
         def send_update(self, message):
-            print(self.ID, self.songName, int(self.progress), message, flush=True)
-            # line = '%s %s %s %s' % (self.ID, self.songName, int(self.progress), message) # \n is now in explicitly in line
-            # print >>sys.stderr, line, # Use trailing , to indicate no implicit end-of-line
-            # print(line, flush=True)
+            '''
+            Called everytime the user should be notified.
+            '''
+            if self.parent.lock:
+                self.parent.lock.acquire()
+            # line = '%s %s %s %s' % (self.ID, self.displayName, int(self.progress), message)
+            line2 = [self.ID, self.displayName, int(self.progress), message]
+            print(line2, flush=True)
+            self.parent.message_queue.put(line2) #, block=False
+            if self.parent.lock:
+                self.parent.lock.release()
 
                 
         def close(self) -> None:
@@ -147,9 +173,62 @@ class BasicDisplayMessenger():
 
             self.send_update('Leaving Display Manager')
 
+
+
+#=================
+#=== The Patch ===  https://stackoverflow.com/questions/46779860/multiprocessing-managers-and-custom-classes
+#=================
+# originalAutoproxy = multiprocessing.managers.AutoProxy
+originalAutoproxy = multiprocess.managers.AutoProxy
+
+def patchedAutoproxy(token, serializer, manager=None,
+    authkey=None,exposed=None, incref=True, manager_owned=True):
+    '''
+    A patch to `multiprocessing.managers.AutoProxy`
+    '''
+
+    #! we bypass the unwanted key argument here
+    return originalAutoproxy(token, serializer, manager, authkey, exposed, incref)
+
+#! Update the Autoproxy definition in multiprocessing.managers package
+# multiprocessing.managers.AutoProxy = patchedAutoproxy
+multiprocess.managers.AutoProxy = patchedAutoproxy
+
+
+
             
+#===============================================
+#=== Enabling work across multiple processes ===
+#===============================================
 
+#! we actually run displayManagers and downloadTrackers in a separate process and pass
+#! reference handles of those objects to various processes. Thats handled by a
+#! BaseManager, i.e. this part of the file. Every bit of the above classes is designed
+#! to work across multiple processes and work accurately but, this is the part that
+#! puts multiprocessing into the picture
 
+# class ProgressRootProcess(multiprocessing.managers.BaseManager): pass
+class ProgressRootProcess(multiprocess.managers.BaseManager): pass
+
+ProgressRootProcess.register('DownloadTracker', DownloadTracker)
+# ProgressRootProcess.register('DisplayManager',  ProcessDisplayManager)
+queue = Queue()
+ProgressRootProcess.register('MessageQueue', callable=lambda: queue)
+lock = Lock()
+ProgressRootProcess.register('Lock', callable=lambda: lock)
+ProgressRootProcess.register('ProcessDisplayManager', BasicDisplayMessenger)
+
+#! You can now run the following code to work with both DisplayManagers and
+#! DownloadTrackers:
+#!
+#!          rootProc = progressRootProcess()
+#!          rootProc.start()
+#!
+#!          displayManager  = rootProc.DisplayManager()
+#!          downloadTracker = rootProc.DownloadTracker()
+#!
+#! The returned objects will be instances of AutoProxy but you can use them like a normal
+#! DisplayManager or DowloadTracker
 
 
 
@@ -162,12 +241,11 @@ class DownloadManager():
     #! Big pool sizes on slow connections will lead to more incomplete downloads
     poolSize = 4
 
-    def __init__(self, ProcessDisplayManager = BasicDisplayMessenger):
+    def __init__(self):
         # start a server for objects shared across processes
 
-        queue = Queue()
-        ProgressRootProcess.register('MessageQueue', callable=lambda: queue)
-        ProgressRootProcess.register('ProcessDisplayManager', ProcessDisplayManager)
+        
+
         progressRoot = ProgressRootProcess()
         progressRoot.start()
 
@@ -175,7 +253,10 @@ class DownloadManager():
         # initialize shared objects
 
         self.messageQueue = progressRoot.MessageQueue()
-        self.processDisplayManager = progressRoot.ProcessDisplayManager(self.messageQueue)
+        self.lock = progressRoot.Lock()
+        
+        self.processDisplayManagerAsync = progressRoot.ProcessDisplayManager(self.messageQueue)
+        self.processDisplayManagerSync = progressRoot.ProcessDisplayManager(self.messageQueue, self.lock)
         self.downloadTracker = progressRoot.DownloadTracker()
 
         self.progressRoot = progressRoot
@@ -201,7 +282,7 @@ class DownloadManager():
         self.downloadTracker.clear()
         self.downloadTracker.load_song_list([songObj])
 
-        download_song(songObj, self.processDisplayManager.newTracker(songObj.get_song_name()), self.downloadTracker)
+        download_song(songObj, self.processDisplayManagerSync.newMessageTracker(songObj.get_song_name()), self.downloadTracker)
 
         # print()
     
@@ -221,7 +302,7 @@ class DownloadManager():
         return self.workerPool.starmap_async(
             func     = download_song,
             iterable = (
-                (songObj, self.processDisplayManager.newTracker(songObj.get_song_name()), self.downloadTracker)
+                (songObj, self.processDisplayManagerAsync.newMessageTracker(songObj.get_song_name()), self.downloadTracker)
                     for songObj in songObjList
             )
         )
@@ -244,7 +325,7 @@ class DownloadManager():
         self.workerPool.starmap(
             func     = download_song,
             iterable = (
-                (songObj, self.processDisplayManager.newTracker(songObj.get_song_name()), self.downloadTracker)
+                (songObj, self.processDisplayManager.newMessageTracker(songObj.get_song_name()), self.downloadTracker)
                     for songObj in songObjList
             )
         )

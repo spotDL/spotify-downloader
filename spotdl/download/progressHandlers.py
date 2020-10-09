@@ -25,24 +25,6 @@ from os import remove
 
 # from spotdl.cli.displayManager import DisplayManager, ProcessDisplayManager
 
-#=================
-#=== The Patch ===
-#=================
-# originalAutoproxy = multiprocessing.managers.AutoProxy
-originalAutoproxy = multiprocess.managers.AutoProxy
-
-def patchedAutoproxy(token, serializer, manager=None,
-    authkey=None,exposed=None, incref=True, manager_owned=True):
-    '''
-    A patch to `multiprocessing.managers.AutoProxy`
-    '''
-
-    #! we bypass the unwanted key argument here
-    return originalAutoproxy(token, serializer, manager, authkey, exposed, incref)
-
-#! Update the Autoproxy definition in multiprocessing.managers package
-# multiprocessing.managers.AutoProxy = patchedAutoproxy
-multiprocess.managers.AutoProxy = patchedAutoproxy
 
 
 
@@ -165,30 +147,3 @@ class DownloadTracker():
 
 
 
-#===============================================
-#=== Enabling work across multiple processes ===
-#===============================================
-
-#! we actually run displayManagers and downloadTrackers in a separate process and pass
-#! reference handles of those objects to various processes. Thats handled by a
-#! BaseManager, i.e. this part of the file. Every bit of the above classes is designed
-#! to work across multiple processes and work accurately but, this is the part that
-#! puts multiprocessing into the picture
-
-# class ProgressRootProcess(multiprocessing.managers.BaseManager): pass
-class ProgressRootProcess(multiprocess.managers.BaseManager): pass
-
-ProgressRootProcess.register('DownloadTracker', DownloadTracker)
-# ProgressRootProcess.register('DisplayManager',  ProcessDisplayManager)
-
-#! You can now run the following code to work with both DisplayManagers and
-#! DownloadTrackers:
-#!
-#!          rootProc = progressRootProcess()
-#!          rootProc.start()
-#!
-#!          displayManager  = rootProc.DisplayManager()
-#!          downloadTracker = rootProc.DownloadTracker()
-#!
-#! The returned objects will be instances of AutoProxy but you can use them like a normal
-#! DisplayManager or DowloadTracker

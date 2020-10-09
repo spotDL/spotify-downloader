@@ -24,12 +24,13 @@ if __name__ == '__main__':
         )
         
 
-        # with DisplayManager() as displayManagerInstance:
-        with DownloadManager() as downloadManagerInstance:
-            songObj = SongObj.from_url("https://open.spotify.com/track/7fcEMgPlojD0LzPHwMsoic")
-            songObj2 = SongObj.from_url("https://open.spotify.com/track/0elizmA21eSQgorzFxU80l")
-            downloadManagerInstance.download_multiple_songs([songObj, songObj2])
-                
+        with DisplayManager() as displayManagerInstance:
+            with DownloadManager() as downloadManagerInstance:
+                songObj = SongObj.from_url("https://open.spotify.com/track/7fcEMgPlojD0LzPHwMsoic")
+                songObj2 = SongObj.from_url("https://open.spotify.com/track/0elizmA21eSQgorzFxU80l")
+                # downloadManagerInstance.download_multiple_songs([songObj, songObj2])
+                displayManagerInstance.monitor_process(downloadManagerInstance.download_multiple_songs([songObj, songObj2]), downloadManagerInstance.messageQueue)
+                    
 
 
     except Exception as inst:
