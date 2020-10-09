@@ -14,7 +14,7 @@ Everything that has to do with multi-processing is in this file.
 import multiprocess
 from multiprocess import Pool, Lock
 from multiprocess.managers import BaseManager
-
+import time
 from urllib.request import urlopen
 
 #! The following are not used, they are just here for static typechecking with mypy
@@ -160,7 +160,7 @@ class BasicDisplayMessenger():
                 self.parent.lock.acquire()
             # line = '%s %s %s %s' % (self.ID, self.displayName, int(self.progress), message)
             line2 = [self.ID, self.displayName, int(self.progress), message]
-            print(line2, flush=True)
+            # print(line2, flush=True)
             self.parent.message_queue.put(line2) #, block=False
             if self.parent.lock:
                 self.parent.lock.release()
@@ -241,11 +241,14 @@ class DownloadManager():
     #! Big pool sizes on slow connections will lead to more incomplete downloads
     poolSize = 4
 
-    def __init__(self):
+    def __init__(self, asyncResultCallback = None):
+
+        if asyncResultCallback:
+            self.asyncResultCallback = asyncResultCallback
+        else:
+            self.asyncResultCallback = self.ownResultCallback
+
         # start a server for objects shared across processes
-
-        
-
         progressRoot = ProgressRootProcess()
         progressRoot.start()
 
@@ -299,14 +302,18 @@ class DownloadManager():
         self.downloadTracker.load_song_list(songObjList)
 
         # async to keep trunk process going
-        return self.workerPool.starmap_async(
+        results = self.workerPool.starmap_async(
             func     = download_song,
             iterable = (
                 (songObj, self.processDisplayManagerAsync.newMessageTracker(songObj.get_song_name()), self.downloadTracker)
                     for songObj in songObjList
             )
         )
-        # print()
+
+        if self.asyncResultCallback:
+            self.asyncResultCallback(results)
+
+        return results
     
     def resume_download_from_tracking_file(self, trackingFilePath: str) -> None:
         '''
@@ -342,6 +349,22 @@ class DownloadManager():
 
         self.workerPool.close()
         self.workerPool.join()
+
+    def ownResultCallback(self, results):
+        while not results.ready():
+            time.sleep(0.1)
+            messages = []
+            try:
+                for _ in range(queue.qsize()):
+                    data = queue.get(False)
+                    messages.append(data)
+            except:
+                data = None
+            print(messages)
+
+        print('refresh: not yet', messages)
+        # results.wait()
+        print(results.get())
 
 
 

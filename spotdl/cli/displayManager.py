@@ -78,8 +78,7 @@ class DisplayManager():
     '''
     Basically a wrapper to convert: rich's with ... as ... into new with ... as ...
     '''
-    def __init__(self):
-        # self.a = 1
+    def __init__(self, queue = None):
         # self.console = Console()
         self._richProgressBar = Progress(
             "[progress.description]{task.description}",
@@ -90,11 +89,7 @@ class DisplayManager():
             #transient=True     # Normally when you exit the progress context manager (or call stop()) the last refreshed display remains in the terminal with the cursor on the following line. You can also make the progress display disappear on exit by setting transient=True on the Progress constructor
         )
         print('Display Manager Initialized')
-        # self.progressBar = NewProgressBar(
-        #     name            = "Total",
-        #     richProgressBar = self._richProgressBar,
-        #     total           = 100
-        # )
+        self.queue = queue
 
     def __enter__(self):
         # self.__init__()
@@ -138,8 +133,13 @@ class DisplayManager():
     def get_self(self):
         return self
 
-    def monitor_process(self, multiprocessResult, queue):
-        # result = function()
+    def attach_to(self, queue):
+        self.queue = queue
+
+    def monitor_processes(self, multiprocessResult, queue = None):
+        if not queue:
+            queue = self.queue
+
         print('Proc:', multiprocessResult, multiprocessResult.ready())
 
         while not multiprocessResult.ready():
@@ -159,4 +159,5 @@ class DisplayManager():
 
         print('Results Ready')
         multiprocessResult.wait()
+        print('Results:', multiprocessResult.get())
 

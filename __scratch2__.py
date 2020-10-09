@@ -2,6 +2,10 @@
 class Mgr():
     def __init__(self, name):
         self.name = name
+        self.two =self.er
+
+    def er(self):
+        print('er')
     class new():
         def __init__(self, id, parent):
             self.id = id
@@ -17,8 +21,9 @@ class Mgr():
 
 if __name__ == "__main__":
     a = Mgr('asdf')
-    b = a.new('1', a)
-    b.get()
-    b.setName('qwer')
-    b.setId(2)
-    b.get()
+    a.er()
+    # b = a.new('1', a)
+    # b.get()
+    # b.setName('qwer')
+    # b.setId(2)
+    # b.get()
