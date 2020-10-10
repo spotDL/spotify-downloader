@@ -92,7 +92,7 @@ def console_entry_point():
     downloader = DownloadManager()
 
     for request in cliArgs[1:]:
-        if 'open.spotify.com' in request and 'track' in request:
+        if ('open.spotify.com' in request and 'track' in request) or 'spotify:track:' in request:
             print('Fetching Song...')
             song = SongObj.from_url(request)
 
@@ -103,13 +103,13 @@ def console_entry_point():
                     song.get_song_name(), request
                 ))
         
-        elif 'open.spotify.com' in request and 'album' in request:
+        elif ('open.spotify.com' in request and 'album' in request) or 'spotify:album:' in request:
             print('Fetching Album...')
             songObjList = get_album_tracks(request)
 
             downloader.download_multiple_songs(songObjList)
         
-        elif 'open.spotify.com' in request and 'playlist' in request:
+        elif ('open.spotify.com' in request and 'playlist' in request) or 'spotify:playlist:' in request:
             print('Fetching Playlist...')
             songObjList = get_playlist_tracks(request)
 
