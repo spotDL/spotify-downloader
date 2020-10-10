@@ -1,5 +1,1 @@
-__all__ = [
-    'search',
-    'download',
-    'patches'
-]
+__all__ = ["search", "download", "patches"]

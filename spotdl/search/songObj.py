@@ -197,7 +197,7 @@ class SongObj:
             - rawTrackMeta      spotify-api track details
             - rawAlbumMeta      spotify-api song's album details
             - rawArtistMeta     spotify-api song's artist details
-        
+
         Avoid using this function, it is implemented here only for those super
         rare occasions where there is a need to look up other details. Why
         have to look it up seperately when it's already been looked up once?

@@ -33,6 +33,7 @@ from pytube import request
 from pytube.extract import apply_signature, js_url
 from typing import Any
 
+
 def apply_patches():
     """
     This methods applies all the needed patches on PyTube.
@@ -53,6 +54,7 @@ import re
 import json
 from html import unescape
 from urllib.parse import parse_qs, parse_qsl, unquote
+
 
 def apply_descrambler(stream_data, key):
     """Apply various in-place transforms to YouTube's media stream data.
@@ -76,10 +78,16 @@ def apply_descrambler(stream_data, key):
     ):
         formats = []
         streamingData = json.loads(stream_data["player_response"])["streamingData"]
-        if 'formats' in streamingData.keys():
-            formats.extend(json.loads(stream_data["player_response"])["streamingData"]["formats"])
-        if 'adaptiveFormats' in streamingData.keys():
-            formats.extend(json.loads(stream_data["player_response"])["streamingData"]["adaptiveFormats"])
+        if "formats" in streamingData.keys():
+            formats.extend(
+                json.loads(stream_data["player_response"])["streamingData"]["formats"]
+            )
+        if "adaptiveFormats" in streamingData.keys():
+            formats.extend(
+                json.loads(stream_data["player_response"])["streamingData"][
+                    "adaptiveFormats"
+                ]
+            )
         try:
             stream_data[key] = [
                 {
@@ -194,7 +202,7 @@ def get_initial_function_name(js: str) -> str:
     function_patterns = [
         r"\b[cs]\s*&&\s*[adf]\.set\([^,]+\s*,\s*encodeURIComponent\s*\(\s*(?P<sig>[a-zA-Z0-9$]+)\(",  # noqa: E501
         r"\b[a-zA-Z0-9]+\s*&&\s*[a-zA-Z0-9]+\.set\([^,]+\s*,\s*encodeURIComponent\s*\(\s*(?P<sig>[a-zA-Z0-9$]+)\(",  # noqa: E501
-        r'(?:\b|[^a-zA-Z0-9$])(?P<sig>[a-zA-Z0-9$]{2})\s*=\s*function\(\s*a\s*\)\s*{\s*a\s*=\s*a\.split\(\s*""\s*\)', # noqa: E501
+        r'(?:\b|[^a-zA-Z0-9$])(?P<sig>[a-zA-Z0-9$]{2})\s*=\s*function\(\s*a\s*\)\s*{\s*a\s*=\s*a\.split\(\s*""\s*\)',  # noqa: E501
         r'(?P<sig>[a-zA-Z0-9$]+)\s*=\s*function\(\s*a\s*\)\s*{\s*a\s*=\s*a\.split\(\s*""\s*\)',  # noqa: E501
         r'(["\'])signature\1\s*,\s*(?P<sig>[a-zA-Z0-9$]+)\(',
         r"\.sig\|\|(?P<sig>[a-zA-Z0-9$]+)\(",
@@ -211,9 +219,8 @@ def get_initial_function_name(js: str) -> str:
         if function_match:
             return function_match.group(1)
 
-    raise RegexMatchError(
-        caller="get_initial_function_name", pattern="multiple"
-    )
+    raise RegexMatchError(caller="get_initial_function_name", pattern="multiple")
+
 
 def get_ytplayer_config(html: str) -> Any:
     """Get the YouTube player configuration data from the watch html.
@@ -238,9 +245,8 @@ def get_ytplayer_config(html: str) -> Any:
             yt_player_config = function_match.group(1)
             return json.loads(yt_player_config)
 
-    raise RegexMatchError(
-        caller="get_ytplayer_config", pattern="config_patterns"
-    )
+    raise RegexMatchError(caller="get_ytplayer_config", pattern="config_patterns")
+
 
 apply_patches()
 

@@ -22,7 +22,7 @@ masterClient = None
 def initialize(clientId: str, clientSecret: str):
     """
     `str` `clientId` : client id from your spotify account
-    
+
     `str` `clientSecret` : client secret for your client id
 
     RETURNS `~`

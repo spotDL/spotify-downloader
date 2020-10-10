@@ -1,3 +1,1 @@
-__all__ = [
-    'pyTube'
-]
+__all__ = ["pyTube"]
