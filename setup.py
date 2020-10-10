@@ -18,6 +18,7 @@ setup(
         'spotipy',
         'pytube3',
         'tqdm',
+        'rapidfuzz',
         'requests',
         'mutagen',
         'python-Levenshtein-wheels',

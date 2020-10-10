@@ -2,8 +2,6 @@
 #=== Imports ===
 #===============
 
-# from spotdl.download.progressHandlers import ProgressRootProcess
-
 from os import mkdir, remove, system as run_in_shell
 from os.path import join, exists
 import os
@@ -38,9 +36,9 @@ def download_song(songObj: SongObj, displayManager: DisplayManager = None,
     '''
     `songObj` `songObj` : song to be downloaded
 
-    `class` `displayManager` : (autoproxy) reference to a `DisplayManager`
+    `AutoProxy` `displayManager` : autoproxy reference to a `DisplayManager`
 
-    `class` `downloadTracker`: (autoproxy) reference to a `DownloadTracker`
+    `AutoProxy` `downloadTracker`: autoproxy reference to a `DownloadTracker`
 
     RETURNS `~`
 
@@ -58,7 +56,6 @@ def download_song(songObj: SongObj, displayManager: DisplayManager = None,
     
     # Create a .\Temp folder if not present
     tempFolder = join('.', 'Temp')
-    # print('Temp dir done')
     
     if not exists(tempFolder):
         mkdir(tempFolder)
@@ -87,7 +84,6 @@ def download_song(songObj: SongObj, displayManager: DisplayManager = None,
 
     convertedFilePath = join('.', convertedFileName) + '.mp3'
 
-    # print('Formatting done')
 
     # if a song is already downloaded skip it
     if exists(convertedFilePath):
@@ -100,7 +96,6 @@ def download_song(songObj: SongObj, displayManager: DisplayManager = None,
         #! it here as a continent way to avoid executing the rest of the function.
         return None
     
-    # print('Bout to init pytube', songObj.get_youtube_link())
 
     # download Audio from YouTube
     if displayManager:
@@ -111,10 +106,8 @@ def download_song(songObj: SongObj, displayManager: DisplayManager = None,
     else:
         youtubeHandler = YouTube(songObj.get_youtube_link())
     
-    # print('Inited Pytube')
-
     trackAudioStream = youtubeHandler.streams.get_audio_only()
-    # print('Bout to download')
+
     #! The actual download, if there is any error, it'll be here,
     try:
         #! pyTube will save the song in .\Temp\$songName.mp4, it doesn't save as '.mp3'

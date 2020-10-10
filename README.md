@@ -1,6 +1,17 @@
 # spotDL
 
+[![MIT License](https://img.shields.io/apm/l/atomic-design-ui.svg?)](https://github.com/spotDL/spotify-downloader/blob/master/LICENSE)
+
 ⚠ Interested Contributors, please read our [contributing Guidelines](CONTRIBUTING.md) first.
+
+⚠ We are dropping active development of spotDL v2. No focused efforts will be made to resolve v2
+specific issues.
+
+⚠ We are actively looking for Contributors/Organization Members for all projects under development. 
+If interested, see [#857](https://github.com/spotDL/spotify-downloader/issues/857)
+
+⚠ There are a few feature requests we'd like the community to vote on. Do voice your support for features you'd like.
+See [#867](https://github.com/spotDL/spotify-downloader/issues/867) to vote.
 
 <br><br>
 
@@ -25,7 +36,27 @@ The documentation for the same is a work in progress. v3.0.2 is yet to be releas
 can't install it using `pip`, this is intensional. v3.0.2 is still in alpha testing. We request that
 you use spotDL v3 and open issues for problems that you come across.
 
-# How to use
+# Installation
+
+1. For v2, run
+    ```
+    $pip install spotdl
+    ```
+
+2. For v3,
+    - Clone this repo
+        ```
+        $git clone https://github.com/spotDL/spotify-downloader.git
+        ```
+    - Run setup.py
+        ```
+        $ cd spotify-downloader
+        $ python setup.py install
+        ```
+        
+3. Voila !
+
+# How to use (instructions for v3)
 To download a song run,
 
     # spotdl $trackUrl
