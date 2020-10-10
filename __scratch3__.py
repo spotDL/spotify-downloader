@@ -26,13 +26,13 @@ if __name__ == '__main__':
 
         with DisplayManager() as displayManagerInstance:
             with DownloadManager() as downloadManagerInstance:
-                displayManagerInstance.attach_to(downloadManagerInstance.messageQueue)
-                downloadManagerInstance.asyncResultCallback = displayManagerInstance.monitor_processes
+                displayManagerInstance.listen_to_queue(downloadManagerInstance.messageQueue)
+                downloadManagerInstance.send_results_to(displayManagerInstance.process_monitor)
 
                 songObj = SongObj.from_url("https://open.spotify.com/track/7fcEMgPlojD0LzPHwMsoic")
                 songObj2 = SongObj.from_url("https://open.spotify.com/track/0elizmA21eSQgorzFxU80l")
                 # downloadManagerInstance.download_multiple_songs([songObj, songObj2])
-                # displayManagerInstance.monitor_processes(downloadManagerInstance.download_multiple_songs([songObj, songObj2]))
+                # displayManagerInstance.process_monitor(downloadManagerInstance.download_multiple_songs([songObj, songObj2]))
                 downloadManagerInstance.download_multiple_songs([songObj, songObj2])
                     
 

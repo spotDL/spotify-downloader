@@ -20,59 +20,6 @@ import time
 #=== Display classes ===
 #=======================
 
-class NewProgressBar: 
-    '''
-    Makes a new progress bar and handles it
-    '''
-    _instances = []
-    def __init__(self, name, richProgressBar, log = print, start=0, total=100):
-        self.__class__._instances.append(self)
-        self.name = name
-        self.percent = start
-        self.prevPercent = start
-        self.total = total
-        self.log = log
-        self._richProgressBar = richProgressBar
-        self.task = self._richProgressBar.add_task("[green]" + self.name, total=total)
-        
-        
-    def set_by_percent(self, percent):
-        '''
-        set this progress bar's completed percentage
-        '''
-        self.percent = percent
-        # self.prevPercent = self.percent
-        self._richProgressBar.update(self.task, completed=percent)
-        
-    def set_by_incriment(self, value):
-        '''
-        same as self.setProgress() except accepts raw numercical value
-        '''
-        self.percent = value + self.percent
-        self._richProgressBar.update(self.task, advance=value)
-
-    def setTotal(self, total):
-        self._richProgressBar.update(self.task, total=total)
-
-    def clear(self):
-        self._richProgressBar.update(self.task, completed=0)
-
-    def reset(self):
-        self._richProgressBar.update(self.task, completed=0)
-    
-    def done(self):
-        self._richProgressBar.update(self.task, visible=False)
-        self.log("Finished Downloading")
-
-    def close(self):
-        self._richProgressBar.update(self.task, visible=False)
-        self.log("Finished Downloading")
-
-    @classmethod
-    def printInstances(cls):
-        for instance in cls._instances:
-            print(instance)
-
 
 class DisplayManager():
     '''
@@ -88,12 +35,13 @@ class DisplayManager():
             # console = self.console    # use this when self.console = Console()
             #transient=True     # Normally when you exit the progress context manager (or call stop()) the last refreshed display remains in the terminal with the cursor on the following line. You can also make the progress display disappear on exit by setting transient=True on the Progress constructor
         )
-        print('Display Manager Initialized')
+        # print('Display Manager Initialized')
         self.queue = queue
+        self.current_status = {}
 
     def __enter__(self):
         # self.__init__()
-        print('Display Manager Entered')
+        # print('Display Manager Entered')
         self._richProgressBar.__enter__()
         return self
 
@@ -113,7 +61,7 @@ class DisplayManager():
         else:
             self._richProgressBar.console.log("Message:" + text, log_locals=log_locals)
 
-    def print(self, text, type=None, color="green"):
+    def print(self, *text, type=None, color="green"):
         '''
         Use this logger for debug messages. 
         TODO: Make output customizable, to file, pipe, etc.
@@ -122,42 +70,65 @@ class DisplayManager():
 
         # print(text)
         if color:
-            self._richProgressBar.console.print("[" + color + "]" + text)
+            self._richProgressBar.console.print("[" + color + "]" + str(text))
         else:
             self._richProgressBar.console.print(""+ text)
             # self._richProgressBar.console.log("Working on job:", text)
 
     def get_rich(self):
+        '''
+        I had to
+        '''
         return self._richProgressBar
 
     def get_self(self):
         return self
 
-    def attach_to(self, queue):
+    def listen_to_queue(self, queue):
         self.queue = queue
 
-    def monitor_processes(self, multiprocessResult, queue = None):
+    def filter_and_save_messages(self, messages):
+        '''
+        Filteres throught all the messages from the queue, comparing them to current_status dictionary, sorting out old ones, updating or creating new processes if needed 
+        '''
+        for message in messages:
+            messageID = list(message.keys())[0]
+            if messageID in self.current_status:
+                # self.print('Updating existing process', message, self.current_status)
+                if message[messageID]['time'] > self.current_status[messageID]['time']:
+                    task = self.current_status[messageID]['task']
+                    self._richProgressBar.update(task, completed=message[messageID]['progress'])
+                    self.current_status[messageID] = message[messageID]
+            else:
+                # self.print('New process', message)
+                self.current_status[messageID] = message[messageID]
+                task = self._richProgressBar.add_task(message[messageID]['name'], total=100)
+
+            self.current_status[messageID]['task'] = task
+        return self.current_status
+
+
+    def process_monitor(self, multiprocessResult, queue = None):
         if not queue:
             queue = self.queue
 
-        print('Proc:', multiprocessResult, multiprocessResult.ready())
+        # self.print('Proc:', multiprocessResult, multiprocessResult.ready())
 
         while not multiprocessResult.ready():
             time.sleep(0.1)
             messages = []
             try:
-                # data = q.get(False)
-                # If `False`, the program is not blocked. `Queue.Empty` is thrown if
-                # the queue is empty
                 for _ in range(queue.qsize()):
                     data = queue.get(False)
                     messages.append(data)
             except:
                 data = None
 
-            print('refresh: not yet', messages)
+            # print('refresh: not yet', messages)
+            self.filter_and_save_messages(messages)
+            # self.print('refresh: ', self.filter_and_save_messages(messages))
 
-        print('Results Ready')
+        # self.print('Results Ready')
         multiprocessResult.wait()
-        print('Results:', multiprocessResult.get())
+        self.print('Results:', multiprocessResult.get())
 

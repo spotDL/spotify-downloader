@@ -28,7 +28,7 @@ from spotdl.download.downloader import download_song
 from queue import Queue
 import sys
 from collections import defaultdict
-
+from datetime import datetime
 
 
 
@@ -155,11 +155,16 @@ class BasicDisplayMessenger():
         def send_update(self, message):
             '''
             Called everytime the user should be notified.
+            This is where the communication information layout is defined.
+            queue add -> [ ID, timestamp, DisplayName, Progress%, Message ]
             '''
             if self.parent.lock:
                 self.parent.lock.acquire()
             # line = '%s %s %s %s' % (self.ID, self.displayName, int(self.progress), message)
-            line2 = [self.ID, self.displayName, int(self.progress), message]
+            # line2 = [self.ID, datetime.timestamp(datetime.now()), self.displayName, int(self.progress), message]
+            # line2 = {'id': self.ID, 'time': datetime.timestamp(datetime.now()), 'name': self.displayName, 'progress': int(self.progress), 'message': message}
+            line2 = { self.ID: { 'time': datetime.timestamp(datetime.now()), 'name': self.displayName, 'progress': int(self.progress), 'message': message}}
+            
             # print(line2, flush=True)
             self.parent.message_queue.put(line2) #, block=False
             if self.parent.lock:
@@ -349,6 +354,9 @@ class DownloadManager():
 
         self.workerPool.close()
         self.workerPool.join()
+
+    def send_results_to(self, cb):
+        self.asyncResultCallback = cb
 
     def ownResultCallback(self, results):
         while not results.ready():
