@@ -1,6 +1,6 @@
 '''
 Everything that has to do with outputting information onto the screen is in this file. 
-This library is completely optional to the base spotDL ecosystem but is apart of the command-line service.
+This library is completely optional to the base spotDL ecosystem but is apart of the command-line interface service.
 '''
 
 
@@ -13,8 +13,23 @@ from rich.progress import track, Progress, BarColumn, TimeRemainingColumn
 from rich.console import Console
 from datetime import datetime
 import time
+import logging
+from rich.logging import RichHandler
 
 
+#=====================
+#=== Setup Logger ===
+#=====================
+
+# All of this code and library loggings will output to rich's log handler.
+
+FORMAT = "%(message)s"
+logging.basicConfig(
+    level=logging.ERROR, format=FORMAT, datefmt="[%X]", handlers=[RichHandler()]
+)
+
+log = logging.getLogger("rich")
+log.info("Hello, World!")
 
 #=======================
 #=== Display classes ===
@@ -24,6 +39,9 @@ import time
 class DisplayManager():
     '''
     Basically a wrapper to convert: rich's with ... as ... into new with ... as ...
+    All of the process information is read from a queue and stored inside of a dict: self.currentStatus.
+    queue         -> { (processID): { 'time': (timestamp), 'name': (display name), 'progress': (int: 0-100), 'message': (str: message) } } 
+    currentStatus -> { (processID): { 'time': (timestamp), 'name': (display name), 'progress': (int: 0-100), 'message': (str: message), 'task': <_richProgressBar.task Object> } } 
     '''
     def __init__(self, queue = None):
         # self.console = Console()
@@ -35,45 +53,35 @@ class DisplayManager():
             # console = self.console    # use this when self.console = Console()
             #transient=True     # Normally when you exit the progress context manager (or call stop()) the last refreshed display remains in the terminal with the cursor on the following line. You can also make the progress display disappear on exit by setting transient=True on the Progress constructor
         )
-        # print('Display Manager Initialized')
+  
+
         self.queue = queue
-        self.current_status = {}
+        self.currentStatus = {}
+        self.loggingLevel = 5 # DEBUG = 5, INFO = 4, WARNING = 3, ERROR = 2, CRITICAL = 1
 
     def __enter__(self):
         # self.__init__()
-        # print('Display Manager Entered')
         self._richProgressBar.__enter__()
-        return self
+        return self ## Important
 
     def __exit__(self, type, value, traceback):
-        # _richProgressBar.__exit__()
         self._richProgressBar.stop()
-        print('Display Manager Exited')
+        # print('Display Manager Exited')
 
-    def log(self, *text, type=None, color="orange", log_locals=False):
+    def print(self, *text, logLevel=5, color="green"):
         '''
-        Use this print to replace default print(). 
-        '''
-        # color = "orange"
-        # print(text)
-        if color:
-            self._richProgressBar.console.log("[" + color + "]Message:" + text, log_locals=log_locals)
-        else:
-            self._richProgressBar.console.log("Message:" + text, log_locals=log_locals)
+        `text` : Text to be printed to screen
+        `logLevel` : Logging Level of message (Default 0)
 
-    def print(self, *text, type=None, color="green"):
+        Use this self.print to replace default print(). 
         '''
-        Use this logger for debug messages. 
-        TODO: Make output customizable, to file, pipe, etc.
-        '''
-        # color = "green"
 
-        # print(text)
-        if color:
-            self._richProgressBar.console.print("[" + color + "]" + str(text))
-        else:
-            self._richProgressBar.console.print(""+ text)
-            # self._richProgressBar.console.log("Working on job:", text)
+        if logLevel <= self.loggingLevel:
+            if color:
+                self._richProgressBar.console.print("[" + color + "]" + str(text))
+            else:
+                self._richProgressBar.console.print(text)
+                # self._richProgressBar.console.log("Working on job:", text)
 
     def get_rich(self):
         '''
@@ -87,25 +95,30 @@ class DisplayManager():
     def listen_to_queue(self, queue):
         self.queue = queue
 
-    def filter_and_save_messages(self, messages):
+    def handle_messages(self, messages):
         '''
-        Filteres throught all the messages from the queue, comparing them to current_status dictionary, sorting out old ones, updating or creating new processes if needed 
+        Filteres throught all the messages from the queue, comparing them to currentStatus dictionary, sorting out old ones, updating or creating new processes if needed 
         '''
         for message in messages:
+            # self.print(message)
             messageID = list(message.keys())[0]
-            if messageID in self.current_status:
-                # self.print('Updating existing process', message, self.current_status)
-                if message[messageID]['time'] > self.current_status[messageID]['time']:
-                    task = self.current_status[messageID]['task']
-                    self._richProgressBar.update(task, completed=message[messageID]['progress'])
-                    self.current_status[messageID] = message[messageID]
+            if messageID in self.currentStatus:
+                # self.print(messageID)
+                # Process alread exists. If newer than others, update accordingly
+                if message[messageID]['time'] > self.currentStatus[messageID]['time']:
+                    
+                    taskID = self.currentStatus[messageID]['taskID']
+                    displayName = str(messageID) + ' - ' + message[messageID]['name'] + ' - ' + message[messageID]['message']
+                    # self.print(messageID, message,  self.currentStatus[messageID], message)
+                    self._richProgressBar.update(taskID, description=displayName, completed=message[messageID]['progress'])
+                    self.currentStatus[messageID] = message[messageID]
             else:
-                # self.print('New process', message)
-                self.current_status[messageID] = message[messageID]
-                task = self._richProgressBar.add_task(message[messageID]['name'], total=100)
+                # New process has appeared in queue
+                self.currentStatus[messageID] = message[messageID]
+                taskID = self._richProgressBar.add_task(description=message[messageID]['name'], total=100)
 
-            self.current_status[messageID]['task'] = task
-        return self.current_status
+            self.currentStatus[messageID]['taskID'] = taskID
+        return self.currentStatus
 
 
     def process_monitor(self, multiprocessResult, queue = None):
@@ -125,10 +138,13 @@ class DisplayManager():
                 data = None
 
             # print('refresh: not yet', messages)
-            self.filter_and_save_messages(messages)
-            # self.print('refresh: ', self.filter_and_save_messages(messages))
+            self.handle_messages(messages)
+            # self.print('refresh: ', self.handle_messages(messages))
 
         # self.print('Results Ready')
         multiprocessResult.wait()
         self.print('Results:', multiprocessResult.get())
+        for result in multiprocessResult.get():
+            if result != None:
+                self.print
 

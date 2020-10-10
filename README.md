@@ -56,6 +56,7 @@ you use spotDL v3 and open issues for problems that you come across.
         
 3. Voila !
 
+
 # How to use (instructions for v3)
 To download a song run,
 
@@ -94,6 +95,23 @@ You can chain up download tasks by seperating them with spaces:
 
 Spotdl downloads up to 4 songs in parallel - try to download albums and playlists instead of
 tracks for more speed.
+
+
+# Developing
+
+ - Clone this repo
+     ```
+     $ git clone https://github.com/spotDL/spotify-downloader.git
+     ```
+ - Install requirements
+     ```
+     $ cd spotify-downloader
+     $ pip3 install requirements.txt
+     ```
+ - Use Library
+     ```
+     >>> import spotdl
+     >>> ...
 
 # Thanks for developing the v3.0.1
 1. [@ritiek](https://github.com/ritiek) for creating and maintaining spotDL for 4 years

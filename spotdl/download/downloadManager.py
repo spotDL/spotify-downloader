@@ -1,6 +1,5 @@
 '''
 Everything that has to do with multi-processing is in this file. 
-
 '''
 
 
@@ -39,18 +38,15 @@ class BasicDisplayMessenger():
     '''
 
     def __init__(self, message_queue, lock = None):
-        print('Subprocess Display Messenger Initialized')
         self.message_queue = message_queue
         self.overallProgress = 0
         self.overallTotal = 100
         self.lock = lock
-        # self.lock = Lock()
-        # self.lock.release()
 
     def newMessageTracker(self, name):
-        return self.MessageTracker(self, name)
+        return self.DownloadPlugin(self, name)
     
-    class MessageTracker():
+    class DownloadPlugin():
         '''
         A Plugin for handling callback events from the download process. 
         Each function here corresponds to a function that is called throughout the main download process.
@@ -152,11 +148,11 @@ class BasicDisplayMessenger():
             self.send_update('Finished Tagging')
             self.send_update('Done')
 
-        def send_update(self, message):
+        def send_update(self, message = ''):
             '''
             Called everytime the user should be notified.
             This is where the communication information layout is defined.
-            queue add -> [ ID, timestamp, DisplayName, Progress%, Message ]
+            queue -> { (processID): { 'time': (timestamp), 'name': (display name), 'progress': (int: 0-100), 'message': (str: message) } }
             '''
             if self.parent.lock:
                 self.parent.lock.acquire()
@@ -243,7 +239,7 @@ ProgressRootProcess.register('ProcessDisplayManager', BasicDisplayMessenger)
 #===========================================================
 
 class DownloadManager():
-    #! Big pool sizes on slow connections will lead to more incomplete downloads
+    #! Big pool sizes on slow connections will lead to more incomplete downloads. Best option is approx. cpu count
     poolSize = 4
 
     def __init__(self, asyncResultCallback = None):
@@ -251,7 +247,8 @@ class DownloadManager():
         if asyncResultCallback:
             self.asyncResultCallback = asyncResultCallback
         else:
-            self.asyncResultCallback = self.ownResultCallback
+            # If no callback is specified, use internal callback logging
+            self.asyncResultCallback = self.own_result_callback
 
         # start a server for objects shared across processes
         progressRoot = ProgressRootProcess()
@@ -261,10 +258,10 @@ class DownloadManager():
         # initialize shared objects
 
         self.messageQueue = progressRoot.MessageQueue()
-        self.lock = progressRoot.Lock()
+        # self.lock = progressRoot.Lock()
         
-        self.processDisplayManagerAsync = progressRoot.ProcessDisplayManager(self.messageQueue)
-        self.processDisplayManagerSync = progressRoot.ProcessDisplayManager(self.messageQueue, self.lock)
+        self.processDisplayManager = progressRoot.ProcessDisplayManager(self.messageQueue)
+        # self.processDisplayManagerSync = progressRoot.ProcessDisplayManager(self.messageQueue, self.lock)
         self.downloadTracker = progressRoot.DownloadTracker()
 
         self.progressRoot = progressRoot
@@ -290,15 +287,17 @@ class DownloadManager():
         self.downloadTracker.clear()
         self.downloadTracker.load_song_list([songObj])
 
-        download_song(songObj, self.processDisplayManagerSync.newMessageTracker(songObj.get_song_name()), self.downloadTracker)
+        download_song(songObj, self.processDisplayManager.newMessageTracker(songObj.get_song_name()), self.downloadTracker)
 
         # print()
     
-    def download_multiple_songs(self, songObjList: List[SongObj]) -> None:
+    def download_multiple_songs(self, songObjList: List[SongObj], cb = None) -> None:
         '''
         `list<songObj>` `songObjList` : list of songs to be downloaded
 
-        RETURNS `~`
+        `function` `cb` : (optional) Function called after jobs have been submitted to pool with the multiprocessing.pool.AsyncResult as the argement.
+
+        RETURNS `multiprocessing.pool.AsyncResult`
 
         downloads the given songs in parallel
         '''
@@ -310,21 +309,26 @@ class DownloadManager():
         results = self.workerPool.starmap_async(
             func     = download_song,
             iterable = (
-                (songObj, self.processDisplayManagerAsync.newMessageTracker(songObj.get_song_name()), self.downloadTracker)
+                (songObj, self.processDisplayManager.newMessageTracker(songObj.get_song_name()), self.downloadTracker)
                     for songObj in songObjList
             )
         )
 
-        if self.asyncResultCallback:
+        if cb:
+            cb(results)
+            return
+        elif self.asyncResultCallback:
             self.asyncResultCallback(results)
 
         return results
     
-    def resume_download_from_tracking_file(self, trackingFilePath: str) -> None:
+    def resume_download_from_tracking_file(self, trackingFilePath: str, cb = None) -> None:
         '''
         `str` `trackingFilePath` : path to a .spotdlTrackingFile
 
-        RETURNS `~`
+        `function` `cb` : (optional) Function called after jobs have been submitted to pool with the multiprocessing.pool.AsyncResult as the argement.
+
+        RETURNS `multiprocessing.pool.AsyncResult`
 
         downloads songs present on the .spotdlTrackingFile in parallel
         '''
@@ -334,14 +338,19 @@ class DownloadManager():
 
         songObjList = self.downloadTracker.get_song_list()
 
-        self.workerPool.starmap(
+        results = self.workerPool.starmap_async(
             func     = download_song,
             iterable = (
                 (songObj, self.processDisplayManager.newMessageTracker(songObj.get_song_name()), self.downloadTracker)
                     for songObj in songObjList
             )
         )
-        # print()
+
+        if cb:
+            cb(results)
+            return
+        elif self.asyncResultCallback:
+            self.asyncResultCallback(results)
     
     def close(self) -> None:
         '''
@@ -356,9 +365,16 @@ class DownloadManager():
         self.workerPool.join()
 
     def send_results_to(self, cb):
+        '''
+        `function` `cb` : Function called after jobs have been submitted to pool with the multiprocessing.pool.AsyncResult as the argement.
+
+        RETURNS `~`
+
+        sets callback function to be called after jobs submitted.
+        '''
         self.asyncResultCallback = cb
 
-    def ownResultCallback(self, results):
+    def own_result_callback(self, results):
         while not results.ready():
             time.sleep(0.1)
             messages = []
@@ -370,8 +386,8 @@ class DownloadManager():
                 data = None
             print(messages)
 
-        print('refresh: not yet', messages)
-        # results.wait()
+        # print(messages)
+        results.wait()
         print(results.get())
 
 
