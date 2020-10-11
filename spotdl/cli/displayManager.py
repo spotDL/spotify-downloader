@@ -71,6 +71,7 @@ class DisplayManager():
         self.queue = queue
         self.currentStatus = {}
         self.loggingLevel = 5 # DEBUG = 5, INFO = 4, WARNING = 3, ERROR = 2, CRITICAL = 1
+        self.overallProgress = 0
 
     def __enter__(self):
         # self.__init__()
@@ -116,24 +117,39 @@ class DisplayManager():
         for message in messages:
             # self.print(message)
             messageID = list(message.keys())[0]
-            if messageID in self.currentStatus:
-                # self.print(messageID)
-                # Process alread exists. If newer than others, update accordingly
-                if message[messageID]['time'] > self.currentStatus[messageID]['time']:
-                    
-                    taskID = self.currentStatus[messageID]['taskID']
-                    # displayName = str(messageID) + ' - ' + message[messageID]['name'] + ' - ' + message[messageID]['message']
-                    # self.print(messageID, message,  self.currentStatus[messageID], message)
-                    self._richProgressBar.update(taskID, description=message[messageID]['name'], processID=str(messageID), message=message[messageID]['message'], completed=message[messageID]['progress'])
-                    self.currentStatus[messageID] = message[messageID]
+            if messageID == 0:
+                print('System Message')
+                self.handle_misc_message(message[messageID])
             else:
-                # New process has appeared in queue
-                self.currentStatus[messageID] = message[messageID]
-                taskID = self._richProgressBar.add_task(description=message[messageID]['name'], processID=str(messageID), message=message[messageID]['message'], total=100)
+                if messageID in self.currentStatus:
+                    # self.print(messageID)
+                    # Process alread exists. If newer than others, update accordingly
+                    if message[messageID]['time'] > self.currentStatus[messageID]['time']:
+                        
+                        taskID = self.currentStatus[messageID]['taskID']
+                        # displayName = str(messageID) + ' - ' + message[messageID]['name'] + ' - ' + message[messageID]['message']
+                        # self.print(messageID, message,  self.currentStatus[messageID], message)
+                        self._richProgressBar.update(taskID, description=message[messageID]['name'], processID=str(messageID), message=message[messageID]['message'], completed=message[messageID]['progress'])
+                        self.currentStatus[messageID] = message[messageID]
+                else:
+                    # New process has appeared in queue
+                    self.currentStatus[messageID] = message[messageID]
+                    taskID = self._richProgressBar.add_task(description=message[messageID]['name'], processID=str(messageID), message=message[messageID]['message'], total=100)
+                self.currentStatus[messageID]['taskID'] = taskID
+        self.update_overall()
 
-            self.currentStatus[messageID]['taskID'] = taskID
         return self.currentStatus
 
+    def handle_misc_message(self, message):
+        self.print(message)
+        if message['name'] == 'Song Count':
+            self.overallID = self._richProgressBar.add_task(description='Total', processID=0, message='', total=100*message['progress'])
+
+    def update_overall(self):
+        self.overallProgress = 0
+        for processID in self.currentStatus:
+            self.overallProgress += self.currentStatus[processID]['progress']
+        self._richProgressBar.update(self.overallID, completed=self.overallProgress)
 
     def process_monitor(self, multiprocessResult, queue = None):
         if not queue:
@@ -142,7 +158,7 @@ class DisplayManager():
         # self.print('Proc:', multiprocessResult, multiprocessResult.ready())
 
         while not multiprocessResult.ready():
-            time.sleep(0.1)
+            time.sleep(0.01)
             messages = []
             try:
                 for _ in range(queue.qsize()):

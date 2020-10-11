@@ -30,11 +30,14 @@ from collections import defaultdict
 from datetime import datetime
 
 
+#===============================================
+#=== Enabling work across multiple processes ===
+#===============================================
 
 class BasicDisplayMessenger():
     '''
-    This Class is an placeholder for the shared message_queue 
-    It is also responsible for dispatching Process Trackers and storing all the processes' information
+    This Class is an placeholder for the shared message_queue & overall progress information.
+    It is also responsible for dispatching Process Trackers.
     '''
 
     def __init__(self, message_queue, lock = None):
@@ -43,136 +46,152 @@ class BasicDisplayMessenger():
         self.overallTotal = 100
         self.lock = lock
 
+    def set_song_count_to(self, count: int):
+        self.overallTotal = 100 * count
+        # line2 = { '0': { 'time': datetime.timestamp(datetime.now()), 'name': 'Overall', 'progress': 0, 'message': 'set_song_count'}}
+        # self.put(line2)
+        # if count > 4:
+        self.put(0, 'Song Count', count)
+
+    def put(self, ID, name, progress, message = ''):
+        '''
+        queue -> { (processID): { 'time': (timestamp), 'name': (display name), 'progress': (int: 0-100), 'message': (str: message) } }
+        '''
+
+        line2 = { ID: { 'time': datetime.timestamp(datetime.now()), 'name': name, 'progress': int(progress), 'message': message}}
+        self.message_queue.put(line2)
+
     def newMessageTracker(self, name):
-        return self.DownloadPlugin(self, name)
+        return DownloadPlugin(self, name)
     
-    class DownloadPlugin():
+class DownloadPlugin():
+    '''
+    A Plugin for handling callback events from the download process. 
+    Each function here corresponds to a function that is called throughout the main download process.
+    This class handles things such as displayName, processProgress, processMessages, etc.
+    A New message Tracker object is created for each download process and passed into it upon creation.
+    '''
+
+    def __init__(self, parent, displayName):
+        self.parent = parent
+        self.displayName = displayName
+        self.ID = None
+        self.progress = 0
+        self.isComplete = False
+        # print('New Tracker Initialized')
+        # self.total = 100
+
+    def notify_download_begin(self, ID: int):
         '''
-        A Plugin for handling callback events from the download process. 
-        Each function here corresponds to a function that is called throughout the main download process.
-        This class handles things such as displayName, processProgress, processMessages, etc.
-        A New message Tracker object is created for each download process and passed into it upon creation.
+        `ID` : `int` Process ID of download process
+
+        RETURNS `~`
+
+        Should be called at the beginning of each download
+        '''
+        self.ID = ID
+        self.send_update('Downlod Started')
+
+
+    def set_song_count_to(self, songCount: int) -> None:
+        '''
+        `songCount` : `int` number of songs being downloaded
+
+        RETURNS `~`
+
+        sets the size of the progressbar based on the number of songs in the current
+        download set
         '''
 
-        def __init__(self, parent, songName):
-            self.parent = parent
-            self.displayName = songName
-            self.ID = None
-            self.progress = 0
-            self.isComplete = False
-            # print('New Tracker Initialized')
-            # self.total = 100
+        #! all calculations are based of the arbitrary choice that 1 song consists of
+        #! 100 steps/points/iterations 
 
-        def notify_download_begin(self, ID: int):
-            '''
-            `int` `ID` : Process ID of download process
+        self.parent.overallTotal = songCount * 100
+        self.send_update('Song Count now' + str(songCount))
 
-            RETURNS `~`
+    def notify_download_skip(self) -> None:
+        '''
+        updates progress bar to reflect a song being skipped
+        '''
 
-            Should be called at the beginning of each download
-            '''
-            self.ID = ID
-            self.send_update('Downlod Started')
+        # self.progressBar.set_by_percent(100)
+        self.progress = 100
+        self.isComplete = True
+        self.send_update('Skipping')
 
+    def download_progress_hook(self, stream, chunk, bytes_remaining) -> None:
+        '''
+        Progress hook built according to pytube's documentation. It is called each time
+        bytes are read from youtube.
+        '''
 
-        def set_song_count_to(self, songCount: int) -> None:
-            '''
-            `int` `songCount` : number of songs being downloaded
+        #! This will be called until download is complete, i.e we get an overall
+        #! self.progressBar.update(90)
 
-            RETURNS `~`
+        fileSize = stream.filesize
 
-            sets the size of the progressbar based on the number of songs in the current
-            download set
-            '''
+        #! How much of the file was downloaded this iteration scaled put of 90.
+        #! It's scaled to 90 because, the arbitrary division of each songs 100
+        #! iterations is (a) 90 for download (b) 5 for conversion & normalization
+        #! and (c) 5 for ID3 tag embedding
+        iterFraction = len(chunk) / fileSize * 90
 
-            #! all calculations are based of the arbitrary choice that 1 song consists of
-            #! 100 steps/points/iterations 
+        # self.progressBar.set_by_incriment(iterFraction)
+        self.progress += iterFraction
+        if not int(self.progress) % 10:
+            self.send_update('Downloading...')
 
-            self.parent.overallTotal = songCount * 100
-            self.send_update('Song Count now' + str(songCount))
+    def notify_download_completion(self) -> None:
+        '''
+        updates progresbar to reflect a download being completed. 
+        '''
+        self.progress = 90
+        self.send_update('Download Complete, Converting....')
+    
+    def notify_conversion_completion(self) -> None:
+        '''
+        updates progresbar to reflect a audio conversion being completed
+        '''
 
-        def notify_download_skip(self) -> None:
-            '''
-            updates progress bar to reflect a song being skipped
-            '''
+        # self.progressBar.set_by_incriment(5)
+        self.progress = 95
+        self.send_update('Conversion Complete, Tagging...')
 
-            # self.progressBar.set_by_percent(100)
-            self.progress = 100
-            self.isComplete = True
-            self.send_update('Skipping')
+    def notify_finished(self):
+        '''
+        updates progres to show the process is completed
+        '''
+        self.isComplete = True
+        self.progress = 100
+        self.send_update('Finished Tagging')
+        self.send_update('Done')
 
-        def download_progress_hook(self, stream, chunk, bytes_remaining) -> None:
-            '''
-            Progress hook built according to pytube's documentation. It is called each time
-            bytes are read from youtube.
-            '''
-
-            #! This will be called until download is complete, i.e we get an overall
-            #! self.progressBar.update(90)
-
-            fileSize = stream.filesize
-
-            #! How much of the file was downloaded this iteration scaled put of 90.
-            #! It's scaled to 90 because, the arbitrary division of each songs 100
-            #! iterations is (a) 90 for download (b) 5 for conversion & normalization
-            #! and (c) 5 for ID3 tag embedding
-            iterFraction = len(chunk) / fileSize * 90
-
-            # self.progressBar.set_by_incriment(iterFraction)
-            self.progress += iterFraction
-            if not int(self.progress) % 10:
-                self.send_update('Downloading...')
-
-        def notify_download_completion(self) -> None:
-            '''
-            updates progresbar to reflect a download being completed. 
-            '''
-            self.progress = 90
-            self.send_update('Download Complete, Converting....')
+    def send_update(self, message = ''):
+        '''
+        Called everytime the user should be notified.
+        This is where the communication information layout is defined.
+        queue -> { (processID): { 'time': (timestamp), 'name': (display name), 'progress': (int: 0-100), 'message': (str: message) } }
+        '''
+        if self.parent.lock:
+            self.parent.lock.acquire()
+        # line = '%s %s %s %s' % (self.ID, self.displayName, int(self.progress), message)
+        # line2 = [self.ID, datetime.timestamp(datetime.now()), self.displayName, int(self.progress), message]
+        # line2 = {'id': self.ID, 'time': datetime.timestamp(datetime.now()), 'name': self.displayName, 'progress': int(self.progress), 'message': message}
+        # line2 = { self.ID: { 'time': datetime.timestamp(datetime.now()), 'name': self.displayName, 'progress': int(self.progress), 'message': message}}
         
-        def notify_conversion_completion(self) -> None:
-            '''
-            updates progresbar to reflect a audio conversion being completed
-            '''
+        # print(line2, flush=True)
+        # self.parent.message_queue.put(line2) #, block=False
+        self.parent.put(self.ID, self.displayName, self.progress, message)
+        if self.parent.lock:
+            self.parent.lock.release()
 
-            # self.progressBar.set_by_incriment(5)
-            self.progress = 95
-            self.send_update('Conversion Complete, Tagging...')
-
-        def notify_finished(self):
-            '''
-            updates progres to show the process is completed
-            '''
-            self.isComplete = True
-            self.progress = 100
-            self.send_update('Finished Tagging')
-            self.send_update('Done')
-
-        def send_update(self, message = ''):
-            '''
-            Called everytime the user should be notified.
-            This is where the communication information layout is defined.
-            queue -> { (processID): { 'time': (timestamp), 'name': (display name), 'progress': (int: 0-100), 'message': (str: message) } }
-            '''
-            if self.parent.lock:
-                self.parent.lock.acquire()
-            # line = '%s %s %s %s' % (self.ID, self.displayName, int(self.progress), message)
-            # line2 = [self.ID, datetime.timestamp(datetime.now()), self.displayName, int(self.progress), message]
-            # line2 = {'id': self.ID, 'time': datetime.timestamp(datetime.now()), 'name': self.displayName, 'progress': int(self.progress), 'message': message}
-            line2 = { self.ID: { 'time': datetime.timestamp(datetime.now()), 'name': self.displayName, 'progress': int(self.progress), 'message': message}}
             
-            # print(line2, flush=True)
-            self.parent.message_queue.put(line2) #, block=False
-            if self.parent.lock:
-                self.parent.lock.release()
+    def close(self) -> None:
+        '''
+        clean up and exit
+        '''
 
-                
-        def close(self) -> None:
-            '''
-            clean up and exit
-            '''
-
-            self.send_update('Leaving Display Manager')
+        self.send_update('Leaving Display Manager')
 
 
 
@@ -254,7 +273,6 @@ class DownloadManager():
         progressRoot = ProgressRootProcess()
         progressRoot.start()
 
-        
         # initialize shared objects
 
         self.messageQueue = progressRoot.MessageQueue()
@@ -283,7 +301,7 @@ class DownloadManager():
 
         downloads the given song
         '''
-
+        self.processDisplayManager.set_song_count_to(1)
         self.downloadTracker.clear()
         self.downloadTracker.load_song_list([songObj])
 
@@ -301,7 +319,7 @@ class DownloadManager():
 
         downloads the given songs in parallel
         '''
-
+        self.processDisplayManager.set_song_count_to(len(songObjList))
         self.downloadTracker.clear()
         self.downloadTracker.load_song_list(songObjList)
 
@@ -335,8 +353,10 @@ class DownloadManager():
 
         self.downloadTracker.clear()
         self.downloadTracker.load_tracking_file(trackingFilePath)
-
+        
         songObjList = self.downloadTracker.get_song_list()
+
+        self.processDisplayManager.set_song_count_to(len(songObjList))
 
         results = self.workerPool.starmap_async(
             func     = download_song,
