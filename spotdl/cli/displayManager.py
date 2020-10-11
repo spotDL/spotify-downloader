@@ -9,13 +9,21 @@ This library is completely optional to the base spotDL ecosystem but is apart of
 #===============
 
 # from tqdm import tqdm  # Importing breaks python package: willmcgugan/rich
-from rich.progress import track, Progress, BarColumn, TimeRemainingColumn
 from rich.console import Console
 from datetime import datetime
 import time
 import logging
 from rich.logging import RichHandler
-
+from rich.progress import (
+    track,
+    BarColumn,
+    DownloadColumn,
+    TextColumn,
+    TransferSpeedColumn,
+    TimeRemainingColumn,
+    Progress,
+    TaskID,
+)
 
 #=====================
 #=== Setup Logger ===
@@ -40,14 +48,19 @@ class DisplayManager():
     '''
     Basically a wrapper to convert: rich's with ... as ... into new with ... as ...
     All of the process information is read from a queue and stored inside of a dict: self.currentStatus.
+
     queue         -> { (processID): { 'time': (timestamp), 'name': (display name), 'progress': (int: 0-100), 'message': (str: message) } } 
+
     currentStatus -> { (processID): { 'time': (timestamp), 'name': (display name), 'progress': (int: 0-100), 'message': (str: message), 'task': <_richProgressBar.task Object> } } 
     '''
     def __init__(self, queue = None):
         # self.console = Console()
         self._richProgressBar = Progress(
-            "[progress.description]{task.description}",
-            BarColumn(bar_width=None, style="black on black"),
+            TextColumn("{task.fields[processID]}", style="rgb(40,100,40)"),
+            TextColumn("[white]{task.description}"), # overflow='ellipsis',
+            # "[progress.description]{task.description}",
+            TextColumn("[green]{task.fields[message]}"),
+            BarColumn(bar_width=None, style="black on black", finished_style="green"),
             "[progress.percentage]{task.percentage:>3.0f}%",
             TimeRemainingColumn(),
             # console = self.console    # use this when self.console = Console()
@@ -70,8 +83,9 @@ class DisplayManager():
 
     def print(self, *text, logLevel=5, color="green"):
         '''
-        `text` : Text to be printed to screen
-        `logLevel` : Logging Level of message (Default 0)
+        `text` : `any`  Text to be printed to screen
+
+        `logLevel` : `int(0-5, Default=5)` Logging Level of message (Default 0)
 
         Use this self.print to replace default print(). 
         '''
@@ -97,7 +111,7 @@ class DisplayManager():
 
     def handle_messages(self, messages):
         '''
-        Filteres throught all the messages from the queue, comparing them to currentStatus dictionary, sorting out old ones, updating or creating new processes if needed 
+        Filters throught all the messages from the queue, comparing them to currentStatus dictionary, sorting out old ones, updating or creating new processes if needed 
         '''
         for message in messages:
             # self.print(message)
@@ -108,14 +122,14 @@ class DisplayManager():
                 if message[messageID]['time'] > self.currentStatus[messageID]['time']:
                     
                     taskID = self.currentStatus[messageID]['taskID']
-                    displayName = str(messageID) + ' - ' + message[messageID]['name'] + ' - ' + message[messageID]['message']
+                    # displayName = str(messageID) + ' - ' + message[messageID]['name'] + ' - ' + message[messageID]['message']
                     # self.print(messageID, message,  self.currentStatus[messageID], message)
-                    self._richProgressBar.update(taskID, description=displayName, completed=message[messageID]['progress'])
+                    self._richProgressBar.update(taskID, description=message[messageID]['name'], processID=str(messageID), message=message[messageID]['message'], completed=message[messageID]['progress'])
                     self.currentStatus[messageID] = message[messageID]
             else:
                 # New process has appeared in queue
                 self.currentStatus[messageID] = message[messageID]
-                taskID = self._richProgressBar.add_task(description=message[messageID]['name'], total=100)
+                taskID = self._richProgressBar.add_task(description=message[messageID]['name'], processID=str(messageID), message=message[messageID]['message'], total=100)
 
             self.currentStatus[messageID]['taskID'] = taskID
         return self.currentStatus
@@ -143,8 +157,12 @@ class DisplayManager():
 
         # self.print('Results Ready')
         multiprocessResult.wait()
-        self.print('Results:', multiprocessResult.get())
-        for result in multiprocessResult.get():
+        # self.print('Results:', multiprocessResult.get())
+        results = multiprocessResult.get()
+        for result in results:
             if result != None:
-                self.print
+                # self.print(result)
+                log.ERROR(result)
+
+        return results
 

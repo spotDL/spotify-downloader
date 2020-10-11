@@ -60,7 +60,7 @@ class BasicDisplayMessenger():
             self.ID = None
             self.progress = 0
             self.isComplete = False
-            print('New Tracker Initialized')
+            # print('New Tracker Initialized')
             # self.total = 100
 
         def notify_download_begin(self, ID: int):
