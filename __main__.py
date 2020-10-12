@@ -7,7 +7,8 @@ from spotdl.search.utils import get_playlist_tracks, get_album_tracks, search_fo
 from spotdl.search.songObj import SongObj
 
 #! The actual download stuff
-from spotdl.download.downloader import DownloadManager
+# from spotdl.download.downloader import DownloadManager
+from spotdl.download.downloadManager import DownloadManager
 
 #! to avoid packaging errors
 from multiprocessing import freeze_support

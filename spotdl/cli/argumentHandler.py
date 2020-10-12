@@ -1,7 +1,7 @@
 '''
-Everything that has to do with translating command line arguemnts is in this file. 
+Everything that has to do with translating command line arguments is in this file. 
 This library is completely optional to the base spotDL ecosystem but is apart of the command-line service.
-These arguements are created to provide as few breaking changes between v2 -> v3 migration so most of these should be the same as spotdl=v2
+These arguments are created to provide as few breaking changes between v2 -> v3 migration so most of these should be the same as spotdl=v2
 '''
 
 #===============
@@ -22,24 +22,33 @@ def get_arguments():
     Generate all possible arguments along with their alias, alt. alias, and help description
     '''
     parser = argparse.ArgumentParser(
-        description="Download and convert tracks from Spotify, Youtube, etc.",
+        description="Download Spotify playlists from YouTube with albumart and metadata",
+        # version='3.0',
         # formatter_class=argparse.ArgumentDefaultsHelpFormatter,
         # add_help=True
     )
+    parser.add_argument('-v', '--version', action='version', version='3.0')
+
     parser.add_argument(
         "query",
-        help="Download track/album/playlist/artist by spotify link, name, or youtube url."
+        nargs='*',
+        help="Download track/album/playlist/artist by Spotify track/album/playlist link, song query, .spotdlTrackingFile, or Youtube url."
     )
     parser.add_argument(
-        "-s",
-        "--song",
+        "-u",
+        "--url",
         nargs="+",
-        help="Download track(s) by spotify link, name, or youtube url."
+        help="Download track(s) by Spotify link, or youtube url."
+    )
+    parser.add_argument(
+        "-f",
+        "--file",
+        help="Download tracks from a .spotdlTrackingFile (WARNING: this file will be modified!)"
     )
     # parser.add_argument(
     #     "-l",
     #     "--list",
-    #     help="Download tracks from a file (WARNING: this file will be modified!)"
+    #     help="Download tracks from a file cantaining a list of queries (WARNING: this file will be modified!)"
     # )
     # parser.add_argument(
     #     "-p",
@@ -58,12 +67,16 @@ def get_arguments():
     #     "--all-albums",
     #     help="load all tracks from artist URL into <artist_name>.txt "
     # )
-    parser.add_argument(
+
+
+    authgroup = parser.add_argument_group('authentication')
+
+    authgroup.add_argument(
         "--spotify-client-id",
         # default=defaults["spotify_client_id"],
         help=argparse.SUPPRESS,
     )
-    parser.add_argument(
+    authgroup.add_argument(
         "--spotify-client-secret",
         # default=defaults["spotify_client_secret"],
         help=argparse.SUPPRESS,
@@ -77,8 +90,7 @@ def get_options(args=sys.argv[1:]):
     Parse all the options created in get_arguments() and match them up with the arguments fed into the command
     sys.argv[1:] grabs all the args and filters out the 1st one: the filename.
     '''
-    # print(args, sys.argv[1:])
-    # args=sys.argv[1:]
+
     options = get_arguments().parse_args(args)
     return options
 
@@ -116,10 +128,10 @@ def passArgs(cliArgs, downloader):
 
 def passArgs2(cliArgs, downloader):
     '''
-    `array` `cliArgs` : argements gathered
+    `array` `cliArgs` : arguments gathered
     `downloader` : initiated downloader to download song
 
-    Each arg option gets checked if it was used, and if so, the corresponding action(s) (with its paramerters) gets ran.
+    Each arg option gets checked if it was used, and if so, the corresponding action(s) (with its parameters) gets ran.
     '''
     options = get_options(cliArgs)
     print("options:" + str(options))

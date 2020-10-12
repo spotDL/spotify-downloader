@@ -89,11 +89,15 @@ class DisplayManager():
         Use this self.print to replace default print(). 
         '''
 
+        line = ''
+        for item in text:
+            line += str(item) + ' '
+
         if logLevel <= self.loggingLevel:
             if color:
-                self._richProgressBar.console.print("[" + color + "]" + str(text))
+                self._richProgressBar.console.print("[" + color + "]" + str(line))
             else:
-                self._richProgressBar.console.print(text)
+                self._richProgressBar.console.print(line)
                 # self._richProgressBar.console.log("Working on job:", text)
 
     def get_rich(self):
@@ -120,7 +124,7 @@ class DisplayManager():
 
         RETURNS `newMessageList` : `list` Cleaned up list of `dict` messages
 
-        Filters throught all the messages from the list and remove duplicates but leaves the latest.
+        Filters through all the messages from the list and remove duplicates but leaves the latest.
         '''
 
         # self.print('before new list: ', messages)
@@ -141,7 +145,7 @@ class DisplayManager():
                 if messageID == ID:
                     try:
                         # print(messageID, message[messageID]['time'])
-                        if message[messageID]['time'] > latestMessage[messageID]['time']:
+                        if message[messageID]['time'] >= latestMessage[messageID]['time']:
                             latestMessage = message
                     except:
                         latestMessage = message
@@ -154,11 +158,11 @@ class DisplayManager():
 
     def handle_messages(self, messages):
         '''
-        `messages` : `list` A List of messages, each in `dict` format, for the mailman to sort througth.
+        `messages` : `list` A List of messages, each in `dict` format, for the mailman to sort through.
 
         RETURNS `currentStatus` : `dict` Dictionary of the all processes & respective information
 
-        Filters throught all the messages from the queue, comparing them to currentStatus dictionary, updating or creating new processes if needed.
+        Filters through all the messages from the queue, comparing them to currentStatus dictionary, updating or creating new processes if needed.
         
         messages (from queue) -> [ { (processID): { 'time': (timestamp), 'name': (display name), 'progress': (int: 0-100), 'message': (str: message) } }, ...]
 
@@ -171,7 +175,7 @@ class DisplayManager():
                 self.handle_misc_message(message[messageID])
             else:
                 if messageID in self.currentStatus:
-                    # Process alread exists. If newer than others, update accordingly
+                    # Process already exists. If newer than others, update accordingly
                     if message[messageID]['time'] > self.currentStatus[messageID]['time']:
                         taskID = self.currentStatus[messageID]['taskID']
                         self._richProgressBar.update(taskID, description=message[messageID]['name'], processID=str(messageID), message=message[messageID]['message'], completed=message[messageID]['progress'])
@@ -202,7 +206,7 @@ class DisplayManager():
         self.overallProgress = 0
         for processID in self.currentStatus:
             self.overallProgress += self.currentStatus[processID]['progress']
-        if self.overallID:
+        if self.overallID:  # If the progress bar exists
             self._richProgressBar.update(self.overallID, completed=self.overallProgress)
 
     def collect_messages_from(self, queue):
@@ -250,9 +254,14 @@ class DisplayManager():
         multiprocessResult.wait()
         # self.print('Results:', multiprocessResult.get())
         results = multiprocessResult.get()
-        for result in results:
+        if isinstance(results, list): 
+            for result in results:
+                if result != None:
+                    # self.print(result)
+                    log.ERROR(result)
+        else:
+            result = results
             if result != None:
-                # self.print(result)
                 log.ERROR(result)
 
         return results

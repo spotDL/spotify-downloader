@@ -48,9 +48,6 @@ class BasicDisplayMessenger():
 
     def set_song_count_to(self, count: int):
         self.overallTotal = 100 * count
-        # line2 = { '0': { 'time': datetime.timestamp(datetime.now()), 'name': 'Overall', 'progress': 0, 'message': 'set_song_count'}}
-        # self.put(line2)
-        # if count > 4:
         self.put(0, 'Song Count', count)
 
     def put(self, ID, name, progress, message = ''):
@@ -58,13 +55,13 @@ class BasicDisplayMessenger():
         queue -> { (processID): { 'time': (timestamp), 'name': (display name), 'progress': (int: 0-100), 'message': (str: message) } }
         '''
 
-        line2 = { ID: { 'time': datetime.timestamp(datetime.now()), 'name': name, 'progress': int(progress), 'message': message}}
-        self.message_queue.put(line2)
+        message = { ID: { 'time': datetime.timestamp(datetime.now()), 'name': name, 'progress': int(progress), 'message': message}}
+        self.message_queue.put(message)
 
     def newMessageTracker(self, name):
-        return DownloadPlugin(self, name)
+        return DownloadMessagesPlugin(self, name)
     
-class DownloadPlugin():
+class DownloadMessagesPlugin():
     '''
     A Plugin for handling callback events from the download process. 
     Each function here corresponds to a function that is called throughout the main download process.
@@ -138,8 +135,8 @@ class DownloadPlugin():
 
         # self.progressBar.set_by_incriment(iterFraction)
         self.progress += iterFraction
-        if not int(self.progress) % 10:
-            self.send_update('Downloading...')
+        # if not int(self.progress) % 10:
+        self.send_update('Downloading...')
 
     def notify_download_completion(self) -> None:
         '''
@@ -280,7 +277,6 @@ class DownloadManager():
         # self.lock = progressRoot.Lock()
         
         self.processDisplayManager = progressRoot.ProcessDisplayManager(self.messageQueue)
-        # self.processDisplayManagerSync = progressRoot.ProcessDisplayManager(self.messageQueue, self.lock)
         self.downloadTracker = progressRoot.DownloadTracker()
 
         self.progressRoot = progressRoot
@@ -294,7 +290,7 @@ class DownloadManager():
     def __exit__(self, type, value, traceback):
         self.close()
     
-    def download_single_song(self, songObj: SongObj) -> None:
+    def download_single_song(self, songObj: List[SongObj], cb = None) -> None:
         '''
         `songObj` `song` : song to be downloaded
 
@@ -306,15 +302,27 @@ class DownloadManager():
         self.downloadTracker.clear()
         self.downloadTracker.load_song_list([songObj])
 
-        download_song(songObj, self.processDisplayManager.newMessageTracker(songObj.get_song_name()), self.downloadTracker)
+        # download_song(songObj, self.processDisplayManager.newMessageTracker(songObj.get_song_name()), self.downloadTracker)
+        results = self.workerPool.apply_async(
+            func     = download_song,
+            args     = (
+                songObj, self.processDisplayManager.newMessageTracker(songObj.get_song_name()), self.downloadTracker
+            )
+        )
 
-        # print()
+        if cb:
+            cb(results)
+            return
+        elif self.asyncResultCallback:
+            self.asyncResultCallback(results)
+
+        return results
     
-    def download_multiple_songs(self, songObjList: List[SongObj], cb = None) -> None:
+    def download_multiple_songs(self, songObjList: List[SongObj], cb = None):
         '''
         `list<songObj>` `songObjList` : list of songs to be downloaded
 
-        `function` `cb` : (optional) Function called after jobs have been submitted to pool with the multiprocessing.pool.AsyncResult as the argement.
+        `function` `cb` : (optional) Function called after jobs have been submitted to pool with the multiprocessing.pool.AsyncResult as the argument.
 
         RETURNS `multiprocessing.pool.AsyncResult`
 
@@ -345,7 +353,7 @@ class DownloadManager():
         '''
         `str` `trackingFilePath` : path to a .spotdlTrackingFile
 
-        `function` `cb` : (optional) Function called after jobs have been submitted to pool with the multiprocessing.pool.AsyncResult as the argement.
+        `function` `cb` : (optional) Function called after jobs have been submitted to pool with the multiprocessing.pool.AsyncResult as the argument.
 
         RETURNS `multiprocessing.pool.AsyncResult`
 
