@@ -30,6 +30,7 @@ from rich.progress import (
 #=====================
 
 # All of this code and library loggings will output to rich's log handler.
+# https://rich.readthedocs.io/en/latest/logging.html
 
 FORMAT = "%(message)s"
 logging.basicConfig(
@@ -105,30 +106,76 @@ class DisplayManager():
         return self._richProgressBar
 
     def get_self(self):
+        '''Returns self'''
         return self
 
     def listen_to_queue(self, queue):
+        '''
+        `queue` : `multiprocessing.Queue`
+
+        Lets DisplayManager instance know what queue it should be listening to
+        '''
         self.queue = queue
+
+    def remove_duplicate_messages(self, messages):
+        '''
+        `messages` : `list` A List of messages, each in `dict` format.
+
+        RETURNS `messages` : `dict` Cleaned up list of messages
+
+        Filters throught all the messages from the list and remove duplicates but leaves the latest.
+        '''
+
+        # self.print('before new list: ', messages)
+
+        existingIDs = []
+        newMessageList = []
+        latestMessage = None
+        for message in messages:
+            messageID = list(message.keys())[0] # Gets the message's process ID
+            if messageID not in existingIDs:
+                existingIDs.append(messageID)
+
+        # self.print('Gathered:', existingIDs)
+
+        for ID in existingIDs:
+            for message in messages:
+                messageID = list(message.keys())[0] # Gets the message's process ID
+                if messageID == ID:
+                    try:
+                        # print(messageID, message[messageID]['time'])
+                        if message[messageID]['time'] > latestMessage[messageID]['time']:
+                            latestMessage = message
+                    except:
+                        latestMessage = message
+            newMessageList.append(latestMessage)
+
+        # self.print('new list: ', newMessageList)
+
+        return newMessageList
+
+
 
     def handle_messages(self, messages):
         '''
-        Filters throught all the messages from the queue, comparing them to currentStatus dictionary, sorting out old ones, updating or creating new processes if needed 
+        `messages` : `list` A List of messages, each in `dict` format, for the mailman to sort througth.
+
+        RETURNS `currentStatus` : `dict` Dictionary of the all processes & respective information
+
+        Filters throught all the messages from the queue, comparing them to currentStatus dictionary, updating or creating new processes if needed.
         '''
+
+        messages = self.remove_duplicate_messages(messages)
+
         for message in messages:
-            # self.print(message)
-            messageID = list(message.keys())[0]
+            messageID = list(message.keys())[0] # Gets the message's process ID
             if messageID == 0:
-                print('System Message')
                 self.handle_misc_message(message[messageID])
             else:
                 if messageID in self.currentStatus:
-                    # self.print(messageID)
                     # Process alread exists. If newer than others, update accordingly
                     if message[messageID]['time'] > self.currentStatus[messageID]['time']:
-                        
                         taskID = self.currentStatus[messageID]['taskID']
-                        # displayName = str(messageID) + ' - ' + message[messageID]['name'] + ' - ' + message[messageID]['message']
-                        # self.print(messageID, message,  self.currentStatus[messageID], message)
                         self._richProgressBar.update(taskID, description=message[messageID]['name'], processID=str(messageID), message=message[messageID]['message'], completed=message[messageID]['progress'])
                         self.currentStatus[messageID] = message[messageID]
                 else:
@@ -141,7 +188,11 @@ class DisplayManager():
         return self.currentStatus
 
     def handle_misc_message(self, message):
-        self.print(message)
+        '''
+        `message` : `dict`
+
+        Any message that did not come from a sub-process will be handled here
+        '''
         if message['name'] == 'Song Count':
             self.overallID = self._richProgressBar.add_task(description='Total', processID=0, message='', total=100*message['progress'])
 
@@ -151,25 +202,44 @@ class DisplayManager():
             self.overallProgress += self.currentStatus[processID]['progress']
         self._richProgressBar.update(self.overallID, completed=self.overallProgress)
 
+    def collect_messages_from(self, queue):
+        '''
+        `queue` : `multiprocessing.Queue` The queue in which all the messages are emitted from the parallel processes
+
+        RETURNS `messages` : `list` A list of all the messages gatered from the queue
+        '''
+        messages = []
+        try:
+            for _ in range(queue.qsize()):
+                data = queue.get(False)
+                messages.append(data)
+        except:
+            data = None
+
+        return messages
+
     def process_monitor(self, multiprocessResult, queue = None):
+        '''
+        `multiprocessResult` : `multiprocessing.pool.AsyncResult` 
+
+        `queue` : `Queue` the queue to listen to. Can alternatively be assigned through `displayManager.listen_to_queue(queue)`
+
+        Use this function as the callback of an async multiprocessing job to monitor it & the queue
+        This method is where the majority of the time is spent after the download has begun.
+        '''
         if not queue:
             queue = self.queue
 
-        # self.print('Proc:', multiprocessResult, multiprocessResult.ready())
-
         while not multiprocessResult.ready():
-            time.sleep(0.01)
-            messages = []
-            try:
-                for _ in range(queue.qsize()):
-                    data = queue.get(False)
-                    messages.append(data)
-            except:
-                data = None
-
-            # print('refresh: not yet', messages)
+            time.sleep(0.1)
+            messages = self.collect_messages_from(queue)
             self.handle_messages(messages)
-            # self.print('refresh: ', self.handle_messages(messages))
+
+        # Goes through queue 1 more time to ensure all messages have been gathered and processed
+        time.sleep(0.1)
+        messages = self.collect_messages_from(queue)
+        self.handle_messages(messages)
+
 
         # self.print('Results Ready')
         multiprocessResult.wait()

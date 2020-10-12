@@ -164,6 +164,7 @@ class DownloadPlugin():
         self.isComplete = True
         self.progress = 100
         self.send_update('Finished Tagging')
+        time.sleep(0.01) # Or else the messaeges will not be distinguishable from a timestamp sort
         self.send_update('Done')
 
     def send_update(self, message = ''):
