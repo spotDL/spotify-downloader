@@ -40,10 +40,10 @@ logging.basicConfig(
 log = logging.getLogger("rich")
 log.info("Hello, World!")
 
+
 #=======================
 #=== Display classes ===
 #=======================
-
 
 class DisplayManager():
     '''
@@ -72,8 +72,9 @@ class DisplayManager():
         self.queue = queue
         self.currentStatus = {}
         self.loggingLevel = 5 # DEBUG = 5, INFO = 4, WARNING = 3, ERROR = 2, CRITICAL = 1
+        self.overallID = None
         self.overallProgress = 0
-
+        self.overallTotal = 100
     def __enter__(self):
         # self.__init__()
         self._richProgressBar.__enter__()
@@ -165,8 +166,6 @@ class DisplayManager():
         Filters throught all the messages from the queue, comparing them to currentStatus dictionary, updating or creating new processes if needed.
         '''
 
-        messages = self.remove_duplicate_messages(messages)
-
         for message in messages:
             messageID = list(message.keys())[0] # Gets the message's process ID
             if messageID == 0:
@@ -183,6 +182,7 @@ class DisplayManager():
                     self.currentStatus[messageID] = message[messageID]
                     taskID = self._richProgressBar.add_task(description=message[messageID]['name'], processID=str(messageID), message=message[messageID]['message'], total=100)
                 self.currentStatus[messageID]['taskID'] = taskID
+
         self.update_overall()
 
         return self.currentStatus
@@ -193,14 +193,18 @@ class DisplayManager():
 
         Any message that did not come from a sub-process will be handled here
         '''
-        if message['name'] == 'Song Count':
-            self.overallID = self._richProgressBar.add_task(description='Total', processID=0, message='', total=100*message['progress'])
+        if message['name'] == 'Song Count' and message['progress'] > 4:
+            self.overallTotal = 100 * message['progress']
+            self.overallID = self._richProgressBar.add_task(description='Total', processID=0, message='', total=self.overallTotal)
 
     def update_overall(self):
+        '''Updates the overall progress bar.
+        '''
         self.overallProgress = 0
         for processID in self.currentStatus:
             self.overallProgress += self.currentStatus[processID]['progress']
-        self._richProgressBar.update(self.overallID, completed=self.overallProgress)
+        if self.overallID:
+            self._richProgressBar.update(self.overallID, completed=self.overallProgress)
 
     def collect_messages_from(self, queue):
         '''
@@ -233,11 +237,13 @@ class DisplayManager():
         while not multiprocessResult.ready():
             time.sleep(0.1)
             messages = self.collect_messages_from(queue)
+            messages = self.remove_duplicate_messages(messages)
             self.handle_messages(messages)
 
         # Goes through queue 1 more time to ensure all messages have been gathered and processed
         time.sleep(0.1)
         messages = self.collect_messages_from(queue)
+        messages = self.remove_duplicate_messages(messages)
         self.handle_messages(messages)
 
 

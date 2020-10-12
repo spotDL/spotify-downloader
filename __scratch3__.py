@@ -31,9 +31,10 @@ if __name__ == '__main__':
 
                 songObj = SongObj.from_url("https://open.spotify.com/track/7fcEMgPlojD0LzPHwMsoic")
                 songObj2 = SongObj.from_url("https://open.spotify.com/track/0elizmA21eSQgorzFxU80l")
+                songObj3 = SongObj.from_url("https://open.spotify.com/track/6TWjDrdEoFy4YWf2oAsy9s")
                 # downloadManagerInstance.download_multiple_songs([songObj, songObj2])
                 # displayManagerInstance.process_monitor(downloadManagerInstance.download_multiple_songs([songObj, songObj2]))
-                downloadManagerInstance.download_multiple_songs([songObj, songObj2])
+                downloadManagerInstance.download_multiple_songs([songObj, songObj2, songObj3])
                     
 
 
