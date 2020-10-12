@@ -33,7 +33,7 @@ You need to download ffmpeg to use this tool, download it from:
 
 We have rebuilt spotDL from scratch to be much faster, simpler and better than the old spotDL.
 The documentation for the same is a work in progress. v3.0.2 is yet to be released to PyPi so you
-can't install it using `pip`, this is intensional. v3.0.2 is still in alpha testing. We request that
+can't install it using `pip`, this is intentional. v3.0.2 is still in alpha testing. We request that
 you use spotDL v3 and open issues for problems that you come across.
 
 # Installation
@@ -117,3 +117,7 @@ tracks for more speed.
 1. [@ritiek](https://github.com/ritiek) for creating and maintaining spotDL for 4 years
 2. [@rocketinventor](https://github.com/rocketinventor) for figuring out the YouTube Music querying
 3. [@Mikhail-Zex](https://github.com/Mikhail-Zex) for, never mind...
+
+# A few interesting forks
+1. [aasmpro/spotify/downloader](https://github.com/aasmpro/spotify-downloader)
+    - Sets metadata for songs that are already downloaded (v2 only.)
