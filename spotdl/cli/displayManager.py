@@ -48,11 +48,7 @@ log.info("Hello, World!")
 class DisplayManager():
     '''
     Basically a wrapper to convert: rich's with ... as ... into new with ... as ...
-    All of the process information is read from a queue and stored inside of a dict: self.currentStatus.
-
-    queue         -> { (processID): { 'time': (timestamp), 'name': (display name), 'progress': (int: 0-100), 'message': (str: message) } } 
-
-    currentStatus -> { (processID): { 'time': (timestamp), 'name': (display name), 'progress': (int: 0-100), 'message': (str: message), 'task': <_richProgressBar.task Object> } } 
+    All of the process information is read from a queue and stored inside of a dict: self.currentStatus
     '''
     def __init__(self, queue = None):
         # self.console = Console()
@@ -67,7 +63,6 @@ class DisplayManager():
             # console = self.console    # use this when self.console = Console()
             #transient=True     # Normally when you exit the progress context manager (or call stop()) the last refreshed display remains in the terminal with the cursor on the following line. You can also make the progress display disappear on exit by setting transient=True on the Progress constructor
         )
-  
 
         self.queue = queue
         self.currentStatus = {}
@@ -75,6 +70,7 @@ class DisplayManager():
         self.overallID = None
         self.overallProgress = 0
         self.overallTotal = 100
+
     def __enter__(self):
         # self.__init__()
         self._richProgressBar.__enter__()
@@ -122,7 +118,7 @@ class DisplayManager():
         '''
         `messages` : `list` A List of messages, each in `dict` format.
 
-        RETURNS `messages` : `dict` Cleaned up list of messages
+        RETURNS `newMessageList` : `list` Cleaned up list of `dict` messages
 
         Filters throught all the messages from the list and remove duplicates but leaves the latest.
         '''
@@ -156,7 +152,6 @@ class DisplayManager():
         return newMessageList
 
 
-
     def handle_messages(self, messages):
         '''
         `messages` : `list` A List of messages, each in `dict` format, for the mailman to sort througth.
@@ -164,6 +159,10 @@ class DisplayManager():
         RETURNS `currentStatus` : `dict` Dictionary of the all processes & respective information
 
         Filters throught all the messages from the queue, comparing them to currentStatus dictionary, updating or creating new processes if needed.
+        
+        messages (from queue) -> [ { (processID): { 'time': (timestamp), 'name': (display name), 'progress': (int: 0-100), 'message': (str: message) } }, ...]
+
+        currentStatus -> [ { (processID): { 'time': (timestamp), 'name': (display name), 'progress': (int: 0-100), 'message': (str: message), 'task': <_richProgressBar.task Object> } }, ...] 
         '''
 
         for message in messages:
