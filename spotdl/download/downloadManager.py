@@ -87,7 +87,7 @@ class DownloadMessagesPlugin():
         Should be called at the beginning of each download
         '''
         self.ID = ID
-        self.send_update('Downlod Started')
+        self.send_update('Download Started')
 
 
     def set_song_count_to(self, songCount: int) -> None:
@@ -133,7 +133,6 @@ class DownloadMessagesPlugin():
         #! and (c) 5 for ID3 tag embedding
         iterFraction = len(chunk) / fileSize * 90
 
-        # self.progressBar.set_by_incriment(iterFraction)
         self.progress += iterFraction
         # if not int(self.progress) % 10:
         self.send_update('Downloading...')
@@ -150,7 +149,6 @@ class DownloadMessagesPlugin():
         updates progresbar to reflect a audio conversion being completed
         '''
 
-        # self.progressBar.set_by_incriment(5)
         self.progress = 95
         self.send_update('Conversion Complete, Tagging...')
 
@@ -161,7 +159,7 @@ class DownloadMessagesPlugin():
         self.isComplete = True
         self.progress = 100
         self.send_update('Finished Tagging')
-        time.sleep(0.01) # Or else the messaeges will not be distinguishable from a timestamp sort
+        time.sleep(0.01) # Or else the messages will not be distinguishable from a timestamp sort
         self.send_update('Done')
 
     def send_update(self, message = ''):
@@ -172,12 +170,6 @@ class DownloadMessagesPlugin():
         '''
         if self.parent.lock:
             self.parent.lock.acquire()
-        # line = '%s %s %s %s' % (self.ID, self.displayName, int(self.progress), message)
-        # line2 = [self.ID, datetime.timestamp(datetime.now()), self.displayName, int(self.progress), message]
-        # line2 = {'id': self.ID, 'time': datetime.timestamp(datetime.now()), 'name': self.displayName, 'progress': int(self.progress), 'message': message}
-        # line2 = { self.ID: { 'time': datetime.timestamp(datetime.now()), 'name': self.displayName, 'progress': int(self.progress), 'message': message}}
-        
-        # print(line2, flush=True)
         # self.parent.message_queue.put(line2) #, block=False
         self.parent.put(self.ID, self.displayName, self.progress, message)
         if self.parent.lock:
