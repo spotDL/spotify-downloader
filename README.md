@@ -45,7 +45,7 @@ you use spotDL v3 and open issues for problems that you come across.
 
 2. For v3, (latest version)
     ```
-    $pip install git+https://github.com/spotDL/spotify-downloader.git
+    $pip install https://github.com/spotDL/spotify-downloader/archive/master.zip
     ```
         
 3. Voila !
@@ -96,4 +96,4 @@ tracks for more speed.
 
 # A few interesting forks
 1. [aasmpro/spotify/downloader](https://github.com/aasmpro/spotify-downloader)
-    - Sets metadata for songs that are already downloaded (v2 only)
+    - Sets metadata for songs that are already downloaded (v2 only.)
