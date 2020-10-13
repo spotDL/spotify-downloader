@@ -13,10 +13,10 @@ expected to merely satisfy the rule-of-thumb counterparts but push far beyond th
 # Our Values
 
 - Accurate & Fast Downloads - a user should be able to find and download the song
-he/she/them want in under 3 attempts at max and under 1 attempt most of the times and is
-the shortest time possible
+  he/she/them want in under 3 attempts at max and under 1 attempt most of the times and is
+  the shortest time possible
 
 - Provide accurate metadata - all downloads should have the correct metadata.
 
 - Simple scalable design (Ease of contribution) - a programmer should understand what
-does what and be free to start working on his/her/their contributions in under 30 minutes.
+  does what and be free to start working on his/her/their contributions in under 30 minutes.

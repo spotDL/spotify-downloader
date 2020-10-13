@@ -24,11 +24,11 @@ that class/function should exist
 
 ## songObj class
 
-[PUR.] songObj is meant to serve dual purposes - to act as an ***exchange currency***
+[PUR.] songObj is meant to serve dual purposes - to act as an **_exchange currency_**
 through out spotDL and as a central repository of all known details of a given song.
 
 [REA.] A lot of what spotDL does requires passing around of various details about songs.
-The songObj serves as a ***single-point-of-access*** to all the various details we
+The songObj serves as a **_single-point-of-access_** to all the various details we
 might seek. The eliminates the need to query the same info multiple times from a server
 while eliminating any ambiguity as to code unit return types. It also allows a consistent
 interface to song details thereby adding to simplicity.
@@ -42,8 +42,8 @@ interface to song details thereby adding to simplicity.
 [PUR.] ensure that only a single instance of spotifyClient exists throughout the codebase.
 
 [REA.] Having different parts of code having to initialize spotifyClients when required,
-would make for a lot of duplicate code. Serves as a ***single-point-of-access*** to 
-a ***singleton spotifyClient***.
+would make for a lot of duplicate code. Serves as a **_single-point-of-access_** to
+a **_singleton spotifyClient_**.
 
 [SEE ALSO.] initialize
 
@@ -59,7 +59,7 @@ as to passing args is avoided.
 
 # provider
 
-## __query_and_simplify function
+## \_\_query_and_simplify function
 
 [PUR.] To query YouTube Music and extract details from their hopelessly nested responses
 
@@ -90,7 +90,7 @@ Music match link
 
 ## search_for_song function
 
-[PUR.] Get song  details from a search query instead of from a URL
+[PUR.] Get song details from a search query instead of from a URL
 
 [REA.] The end-user might not always attempt to download songs from their URL's. To
 always use URL's would be a cumbersome process. This bypasses that effort by fetching the
@@ -100,7 +100,7 @@ URL from a given query.
 
 [PUR.] Get details of all tracks in an album
 
-[REA.] Having to individually list out each track in an album is a pain 
+[REA.] Having to individually list out each track in an album is a pain
 
 ## get_playlist_tracks
 
