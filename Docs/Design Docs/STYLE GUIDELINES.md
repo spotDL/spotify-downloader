@@ -2,21 +2,29 @@
 
 ## Our Logo
 
+![alt text]([https://github.com/loftwah/spotify-downloader/raw/master/images/spotdl-icon.png](https://github.com/loftwah/spotify-downloader/raw/master/images/spotdl-icon.png)"spotDL Logo")
+
 We are proud of our logo and if you would like to use it anywhere, please follow these guidelines. Our logo is the combination of a simple text with our icon.
 
 ### Icon
 
 ### Colors
 
+![alt text]([https://github.com/loftwah/spotify-downloader/raw/master/images/color1@2x.png](https://github.com/loftwah/spotify-downloader/raw/master/images/color1@2x.png)"spotDL Logo")
+
 Green
 HEX: #1DB954
 RGB: R30 G215 B96
 CMYK: C80 M0 Y80 K0
 
+![alt text]([https://github.com/loftwah/spotify-downloader/raw/master/images/color2@2x.png](https://github.com/loftwah/spotify-downloader/raw/master/images/color2@2x.png)"spotDL Logo")
+
 White
 #FFFFFF
 R255 G255 B255
 C0 M0 Y0 K0
+
+![alt text]([https://github.com/loftwah/spotify-downloader/raw/master/images/color3@2x.png](https://github.com/loftwah/spotify-downloader/raw/master/images/color3@2x.png)"spotDL Logo")
 
 Black
 #191414
