@@ -70,8 +70,8 @@ class SongObj():
 
         youtubeLink = youtubeLink
 
-        # Removes spaces and seperates the query using +
-        lyrics = get_lyrics('+'.join((songName + contributingArtists[0]).split(" ")))
+        # Get Lyrics Using Songs Name and Primary Artist's name.
+        lyrics = get_lyrics(songName, contributingArtists[0])
 
         return cls(
             rawTrackMeta, rawAlbumMeta,

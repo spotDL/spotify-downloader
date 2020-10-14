@@ -467,9 +467,10 @@ def search_and_get_best_match(songName: str, songArtists: List[str],
     return sortedResults[0][0]
 
 
-def get_lyrics(query: str) -> str:
+def get_lyrics(songName: str, artistName: str) -> str:
     '''
-    `str` `query` : Song name and artist name seperated by '+'
+    `str` `songName`   : Name of the song
+    `str` `artistName` : Name of the primary artist
 
     RETURNS `str` : lyrics of the song
     '''
@@ -482,6 +483,9 @@ def get_lyrics(query: str) -> str:
             'Authorization':
             'Bearer alXXDbPZtK1m2RrZ8I4k2Hn8Ahsd0Gh_o076HYvcdlBvmc0ULL1H8Z8xRlew5qaG',
         }
+
+        #! Seperate song name and artist name using '+' instead of spaces (' ')    
+        query = '+'.join((songName+artistName).split(' '))
 
         #! Base url for a search query.
         searchURL = 'https://api.genius.com/search'
