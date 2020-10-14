@@ -56,6 +56,12 @@ you use spotDL v3 and open issues for problems that you come across.
      $ cd spotify-downloader
      $ python setup.py install
      ```
+     
+2. For v3, (latest version)
+    ```
+    $pip install https://github.com/spotDL/spotify-downloader/archive/master.zip
+    ```
+    
 3. Voila !
 
 # How to use (instructions for v3)
