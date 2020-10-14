@@ -138,6 +138,7 @@ class DisplayManager():
         self.overallID = None
         self.overallProgress = 0
         self.overallTotal = 100
+        self.overallCompletedTasks = 0
         setup_log()
 
     def __enter__(self):
@@ -281,6 +282,9 @@ class DisplayManager():
                     # New process has appeared in queue
                     self.currentStatus[downloadID] = message[downloadID]
                     taskID = self._richProgressBar.add_task(description=message[downloadID]['name'], processID=str(downloadID), message=message[downloadID]['message'], total=100, completed=message[downloadID]['progress'])
+
+                if message[downloadID]['progress'] == 100:
+                    self.overallCompletedTasks += 1
                 self.currentStatus[downloadID]['taskID'] = taskID
 
         self.update_overall()
@@ -296,7 +300,7 @@ class DisplayManager():
         if message['name'] == 'Song Count' and message['progress'] >= 4:
             # self.print('Total songs:',  message['progress'])
             self.overallTotal = 100 * message['progress']
-            self.overallID = self._richProgressBar.add_task(description='Total', processID='0', message='', total=self.overallTotal)
+            self.overallID = self._richProgressBar.add_task(description='Total', processID='0', total=self.overallTotal)
 
     def update_overall(self):
         '''Updates the overall progress bar.
@@ -306,7 +310,7 @@ class DisplayManager():
             self.overallProgress += self.currentStatus[processID]['progress']
         if self.overallID != None:  # If the overall progress bar exists
             # log.info('Updating total to:' + str(self.overallProgress) )
-            self._richProgressBar.update(self.overallID, completed=self.overallProgress)
+            self._richProgressBar.update(self.overallID, message=str(self.overallCompletedTasks) + '/' + str(int(self.overallTotal/100)) + " complete", completed=self.overallProgress)
 
     def collect_messages_from(self, queue):
         '''
