@@ -9,6 +9,8 @@ from spotdl.cli.argumentHandler import get_options
 from spotdl.search.utils import get_playlist_tracks, get_album_tracks, search_for_song
 from spotdl.search.songObj import SongObj
 
+import logging
+
 #! to avoid packaging errors
 from multiprocessing import freeze_support
 
@@ -16,9 +18,6 @@ from multiprocessing import freeze_support
 if __name__ == '__main__':
 
     freeze_support()
-
-    
-    
 
     with DisplayManager() as disp:
         with DownloadManager() as downloader:
@@ -32,17 +31,17 @@ if __name__ == '__main__':
             # downloadManagerInstance.download_multiple_songs([songObj2, songObj3])
 
             options = get_options()
-            # disp.print("options:" + str(options))
+            logging.debug("Arguments:" + str(options))
 
             if options.debug:
-                disp.print('Debug mode on')
                 disp.set_log_level()
+                disp.print('Debug mode on')
 
 
             if options.spotify_client_id:
                 if options.spotify_client_secret:
-                    disp.print('gonna use id:', options.spotify_client_id)
-                    disp.print('gonna use secret:', options.spotify_client_secret)
+                    disp.print('Using id:', options.spotify_client_id)
+                    disp.print('Using secret:', options.spotify_client_secret)
                     initialize(
                         clientId=options.spotify_client_id,
                         clientSecret=options.spotify_client_secret
@@ -86,7 +85,6 @@ if __name__ == '__main__':
                 downloader.resume_download_from_tracking_file(options.file)
 
             elif options.query:
-                # disp.print('Main')
                 for request in options.query:
                     if 'open.spotify.com' in request and 'track' in request:
                         disp.print('Fetching Song...')
