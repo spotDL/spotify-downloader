@@ -87,7 +87,6 @@ def get_arguments():
         "--debug",
         action="store_true",
         default=False,
-        # default=defaults["spotify_client_id"],
         help=argparse.SUPPRESS,
     )
 

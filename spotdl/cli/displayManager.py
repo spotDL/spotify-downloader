@@ -23,7 +23,20 @@ from rich.progress import (
     TimeRemainingColumn,
     Progress,
     TaskID,
+    ProgressColumn
 )
+
+from rich.style import StyleType
+from rich.console import (
+    Console,
+    ConsoleRenderable,
+    JustifyMethod,
+    RenderableType,
+    RenderGroup,
+    RenderHook,
+)
+from rich.highlighter import Highlighter
+from rich.text import Text
 
 #=====================
 #=== Setup Logger ===
@@ -41,6 +54,44 @@ log = logging.getLogger("rich")
 log.info("Hello, World!")
 
 
+
+class SizedTextColumn(ProgressColumn):
+    """A column containing text."""
+
+    def __init__(
+        self,
+        text_format: str,
+        style: StyleType = "none",
+        justify: JustifyMethod = "left",
+        markup: bool = True,
+        highlighter: Highlighter = None,
+        overflow: "OverflowMethod" = "ellipsis",
+        width: int = 20
+    ) -> None:
+        self.text_format = text_format
+        self.justify = justify
+        self.style = style
+        self.markup = markup
+        self.highlighter = highlighter
+        self.overflow = overflow,
+        self.width = width
+        super().__init__()
+
+    def render(self, task: "Task") -> Text:
+        _text = self.text_format.format(task=task)
+        if self.markup:
+            text = Text.from_markup(_text, style=self.style, justify=self.justify)
+        else:
+            text = Text(_text, style=self.style, justify=self.justify)
+        if self.highlighter:
+            self.highlighter.highlight(text)
+
+        text.truncate(max_width=self.width, overflow=self.overflow, pad=True)
+        # text.align(align="left", width=self.width)
+        return text
+
+
+
 #=======================
 #=== Display classes ===
 #=======================
@@ -53,8 +104,8 @@ class DisplayManager():
     def __init__(self, queue = None):
         # self.console = Console()
         self._richProgressBar = Progress(
-            TextColumn("{task.fields[processID]}", style="rgb(40,100,40)"),
-            TextColumn("[white]{task.description}"), # overflow='ellipsis',
+            SizedTextColumn("{task.fields[processID]}", style="rgb(40,100,40)", width=7),
+            SizedTextColumn("[white]{task.description}", overflow="ellipsis", width=60), # overflow='ellipsis',
             # "[progress.description]{task.description}",
             TextColumn("[green]{task.fields[message]}"),
             BarColumn(bar_width=None, style="black on black", finished_style="green"),
@@ -99,6 +150,14 @@ class DisplayManager():
             else:
                 self._richProgressBar.console.print(line)
                 # self._richProgressBar.console.log("Working on job:", text)
+
+    def string_column(self, size: int, data: str) -> str:
+        '''
+        `size` : `int` Length of string
+
+        `data` : `str` Makes string length of `size`
+        '''
+        return (data[:size-3] + '...') if len(data) > size else data.ljust(size)
 
     def get_rich(self):
         '''

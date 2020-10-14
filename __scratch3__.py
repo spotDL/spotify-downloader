@@ -17,10 +17,7 @@ if __name__ == '__main__':
 
     freeze_support()
 
-    initialize(
-        clientId='4fe3fecfe5334023a1472516cc99d805',
-        clientSecret='0f02b7c483c04257984695007a4a8d5c'
-    )
+    
     
 
     with DisplayManager() as disp:
@@ -42,7 +39,20 @@ if __name__ == '__main__':
 
 
             if options.spotify_client_id:
-                disp.print('gonna use id:', options.spotify_client_id)
+                if options.spotify_client_secret:
+                    disp.print('gonna use id:', options.spotify_client_id)
+                    disp.print('gonna use secret:', options.spotify_client_secret)
+                    initialize(
+                        clientId=options.spotify_client_id,
+                        clientSecret=options.spotify_client_secret
+                    )
+                else: 
+                    disp.print('Spotify Secret has to be supplied with ID')
+            else:
+                initialize(
+                    clientId='4fe3fecfe5334023a1472516cc99d805',
+                    clientSecret='0f02b7c483c04257984695007a4a8d5c'
+                )
 
             if options.url:
                 request = options.url
