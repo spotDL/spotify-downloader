@@ -38,6 +38,7 @@ from rich.console import (
 from rich.highlighter import Highlighter
 from rich.text import Text
 
+
 #=====================
 #=== Setup Logger ===
 #=====================
@@ -169,9 +170,16 @@ class DisplayManager():
         return (data[:size-3] + '...') if len(data) > size else data.ljust(size)
 
     def set_log_level(self, level=logging.NOTSET) -> None:
+        '''
+        `level` : logging level to set
+
+        This is set to change the global logging level. If any files, modules, or libraries use the logging package, it will be outputted. here.
+        '''
         log.debug('Debug mode turning on...')
         # log.setLevel(level=level)  # Local logs only
         setup_log(level=level)  # All logging logs
+
+        # if logging.getLogger().isEnabledFor(logging.INFO):  # If log level is INFO or higher
         log.debug('Log level is set')
         log.debug('Debug')
         log.info('Info')
@@ -275,7 +283,8 @@ class DisplayManager():
 
         Any message that did not come from a sub-process will be handled here
         '''
-        if message['name'] == 'Song Count' and message['progress'] > 4:
+        if message['name'] == 'Song Count' and message['progress'] >= 4:
+            self.print('Overall songs:',  message['progress'])
             self.overallTotal = 100 * message['progress']
             self.overallID = self._richProgressBar.add_task(description='Total', processID=0, message='', total=self.overallTotal)
 

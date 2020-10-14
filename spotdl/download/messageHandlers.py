@@ -56,7 +56,7 @@ class ParentMessageTracker():
         '''
         Dispatch a new Message Plugin
 
-        `RETURNS` `DownloadMessagesPlugin` instance with `self` (`put()` method) already passed into it.
+        `RETURNS` `DownloadMessagesPlugin` instance with `self` (`self.put()` method) already passed into it.
         '''
         return MessagesTrackerPlugin(self, name)
     
