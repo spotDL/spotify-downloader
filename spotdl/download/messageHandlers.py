@@ -141,7 +141,7 @@ class MessagesTrackerPlugin():
         updates progresbar to reflect a download being completed. 
         '''
         self.progress = 90
-        self.send_update('Download Complete, Converting....')
+        self.send_update('Converting...') # Download Complete, Converting...
     
     def notify_conversion_completion(self) -> None:
         '''
@@ -149,7 +149,7 @@ class MessagesTrackerPlugin():
         '''
 
         self.progress = 95
-        self.send_update('Conversion Complete, Tagging...')
+        self.send_update('Tagging...') # Conversion Complete, Tagging...
 
     def notify_finished(self):
         '''
@@ -157,9 +157,9 @@ class MessagesTrackerPlugin():
         '''
         self.isComplete = True
         self.progress = 100
-        self.send_update('Finished Tagging')
-        time.sleep(0.01) # Or else the messages will not be distinguishable from a timestamp sort
-        self.send_update('Done')
+        # self.send_update('Finished Tagging')
+        # time.sleep(0.01) # Or else the messages will not be distinguishable from a timestamp sort
+        self.send_update('Done') # finished Tagging
 
     def send_update(self, message = ''):
         '''

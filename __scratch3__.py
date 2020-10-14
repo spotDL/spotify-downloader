@@ -36,6 +36,7 @@ if __name__ == '__main__':
 
             if options.debug:
                 disp.print('Debug mode on')
+                disp.set_log_level()
 
 
             if options.spotify_client_id:

@@ -45,15 +45,27 @@ from rich.text import Text
 # All of this code and library loggings will output to rich's log handler.
 # https://rich.readthedocs.io/en/latest/logging.html
 
-FORMAT = "%(message)s"
-logging.basicConfig(
-    level=logging.ERROR, format=FORMAT, datefmt="[%X]", handlers=[RichHandler()]
-)
+def setup_log(level=logging.ERROR):
+    global log
 
-log = logging.getLogger("rich")
-log.info("Hello, World!")
+    # Remove all handlers associated with the root logger object.
+    for handler in logging.root.handlers[:]:
+        logging.root.removeHandler(handler)
+
+    # Reconfigure root logging config
+    FORMAT = "%(message)s"
+    logging.basicConfig(
+        level=level, format=FORMAT, datefmt="[%X]", handlers=[RichHandler()] # level=logging.ERROR, 
+    )
+
+    log = logging.getLogger("rich")
+    # log.setLevel(level=logging.NOTSET)
+    log.info('Hello, World!')
 
 
+#========================================================
+#=== Modified rich Text Column to Support Fixed Width ===
+#========================================================
 
 class SizedTextColumn(ProgressColumn):
     """A column containing text."""
@@ -107,7 +119,7 @@ class DisplayManager():
             SizedTextColumn("{task.fields[processID]}", style="rgb(40,100,40)", width=7),
             SizedTextColumn("[white]{task.description}", overflow="ellipsis", width=60), # overflow='ellipsis',
             # "[progress.description]{task.description}",
-            TextColumn("[green]{task.fields[message]}"),
+            SizedTextColumn("[green]{task.fields[message]}", width=18),
             BarColumn(bar_width=None, style="black on black", finished_style="green"),
             "[progress.percentage]{task.percentage:>3.0f}%",
             TimeRemainingColumn(),
@@ -117,10 +129,10 @@ class DisplayManager():
 
         self.queue = queue
         self.currentStatus = {}
-        self.loggingLevel = 5 # DEBUG = 5, INFO = 4, WARNING = 3, ERROR = 2, CRITICAL = 1
         self.overallID = None
         self.overallProgress = 0
         self.overallTotal = 100
+        setup_log()
 
     def __enter__(self):
         # self.__init__()
@@ -135,8 +147,6 @@ class DisplayManager():
         '''
         `text` : `any`  Text to be printed to screen
 
-        `logLevel` : `int(0-5, Default=5)` Logging Level of message (Default 0)
-
         Use this self.print to replace default print(). 
         '''
 
@@ -144,12 +154,11 @@ class DisplayManager():
         for item in text:
             line += str(item) + ' '
 
-        if logLevel <= self.loggingLevel:
-            if color:
-                self._richProgressBar.console.print("[" + color + "]" + str(line))
-            else:
-                self._richProgressBar.console.print(line)
-                # self._richProgressBar.console.log("Working on job:", text)
+        if color:
+            self._richProgressBar.console.print("[" + color + "]" + str(line))
+        else:
+            self._richProgressBar.console.print(line)
+            # self._richProgressBar.console.log("Working on job:", text)
 
     def string_column(self, size: int, data: str) -> str:
         '''
@@ -158,6 +167,17 @@ class DisplayManager():
         `data` : `str` Makes string length of `size`
         '''
         return (data[:size-3] + '...') if len(data) > size else data.ljust(size)
+
+    def set_log_level(self, level=logging.NOTSET) -> None:
+        log.debug('Debug mode turning on...')
+        # log.setLevel(level=level)  # Local logs only
+        setup_log(level=level)  # All logging logs
+        log.debug('Log level is set')
+        log.debug('Debug')
+        log.info('Info')
+        log.warning('Warning')
+        log.error('Error')
+        log.critical('Critical')
 
     def get_rich(self):
         '''
@@ -265,7 +285,7 @@ class DisplayManager():
         self.overallProgress = 0
         for processID in self.currentStatus:
             self.overallProgress += self.currentStatus[processID]['progress']
-        if self.overallID:  # If the progress bar exists
+        if self.overallID:  # If the overall progress bar exists
             self._richProgressBar.update(self.overallID, completed=self.overallProgress)
 
     def collect_messages_from(self, queue):
