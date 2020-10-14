@@ -1,11 +1,12 @@
 from spotdl.search.spotifyClient import get_spotify_client
 from spotdl.search.songObj import SongObj
+import logging
 
 from typing import List
 
 def search_for_song(query: str) ->  SongObj:
     '''
-    `str` `query` : what you'd type into spotify's search box
+    `str` `query` : what you'd type into Spotify's search box
 
     Queries Spotify for a song and returns the best match
     '''
@@ -15,9 +16,11 @@ def search_for_song(query: str) ->  SongObj:
 
     # get possible matches from spotify
     result = spotifyClient.search(query, type = 'track')
+    logging.info("Search: " + query + " - Spotify Results:" +  str(result) )
 
     # return first result link or if no matches are found, raise and Exception
     if len(result['tracks']['items']) == 0:
+        logging.error('No song matches found on Spotify')
         raise Exception('No song matches found on Spotify')
     else:
         for songResult in result['tracks']['items']:
@@ -26,7 +29,8 @@ def search_for_song(query: str) ->  SongObj:
             
             if song.get_youtube_link() != None:
                 return song
-        
+
+        logging.error('Could not match any of the results on YouTube')
         raise Exception('Could not match any of the results on YouTube')
         
 def get_album_tracks(albumUrl: str) -> List[SongObj]:
@@ -34,7 +38,7 @@ def get_album_tracks(albumUrl: str) -> List[SongObj]:
     `str` `albumUrl` : Spotify Url of the album whose tracks are to be
     retrieved
 
-    returns a `list<songObj>` containing Url's of each track in the given album
+    returns a `list<songObj>` containing URLs of each track in the given album
     '''
 
     spotifyClient = get_spotify_client()
@@ -67,7 +71,7 @@ def get_playlist_tracks(playlistUrl: str) -> List[SongObj]:
     `str` `playlistUrl` : Spotify Url of the album whose tracks are to be
     retrieved
 
-    returns a `list<songObj>` containing Url's of each track in the given playlist
+    returns a `list<songObj>` containing URLs of each track in the given playlist
     '''
 
     spotifyClient = get_spotify_client()
