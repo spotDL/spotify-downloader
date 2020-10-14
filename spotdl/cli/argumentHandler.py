@@ -13,7 +13,6 @@ from spotdl.search.songObj import SongObj
 import sys
 import argparse
 
-# from spotdl.cli.displayManager import print
 
 
 
@@ -79,6 +78,16 @@ def get_arguments():
     authgroup.add_argument(
         "--spotify-client-secret",
         # default=defaults["spotify_client_secret"],
+        help=argparse.SUPPRESS,
+    )
+
+    devgroup = parser.add_argument_group('debug')
+
+    devgroup.add_argument(
+        "--debug",
+        action="store_true",
+        default=False,
+        # default=defaults["spotify_client_id"],
         help=argparse.SUPPRESS,
     )
 

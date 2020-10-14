@@ -1,10 +1,8 @@
 #! Basic necessities to get the CLI running
 from spotdl.search.spotifyClient import initialize
-from sys import argv as cliArgs
 
 from spotdl.cli.displayManager import DisplayManager
 from spotdl.download.downloadManager import DownloadManager
-# from spotdl.cli.argumentHandler import passArgs2 
 
 from spotdl.cli.argumentHandler import get_options
 
@@ -28,7 +26,7 @@ if __name__ == '__main__':
     with DisplayManager() as disp:
         with DownloadManager() as downloader:
             disp.listen_to_queue(downloader.messageQueue)
-            downloader.send_results_to(disp.process_monitor)
+            downloader.set_callback_to(disp.process_monitor)
 
             # songObj = SongObj.from_url("https://open.spotify.com/track/7fcEMgPlojD0LzPHwMsoic")
             # songObj2 = SongObj.from_url("https://open.spotify.com/track/0elizmA21eSQgorzFxU80l")
@@ -38,6 +36,9 @@ if __name__ == '__main__':
 
             options = get_options()
             # disp.print("options:" + str(options))
+
+            if options.debug:
+                disp.print('Debug mode on')
 
 
             if options.spotify_client_id:

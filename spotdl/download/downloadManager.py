@@ -30,9 +30,9 @@ from collections import defaultdict
 from datetime import datetime
 
 
-#===============================================
-#=== Enabling work across multiple processes ===
-#===============================================
+#============================================
+#=== Subprocess Reporting to Main Process ===
+#============================================
 
 class BasicDisplayMessenger():
     '''
@@ -47,23 +47,41 @@ class BasicDisplayMessenger():
         self.lock = lock
 
     def set_song_count_to(self, count: int):
+        '''
+        `count` : `int` The numbers of songs the current download Pool has mapped
+
+        Sets the current song count so that the DisplayManager can estimate an overall progress indicator.
+        '''
         self.overallTotal = 100 * count
         self.put(0, 'Song Count', count)
 
-    def put(self, ID, name, progress, message = ''):
+    def put(self, ID: int, name: str, progress, message = ''):
         '''
-        queue -> { (processID): { 'time': (timestamp), 'name': (display name), 'progress': (int: 0-100), 'message': (str: message) } }
+        `ID` : `int` Current process ID
+
+        `name` : `str` Display Name
+
+        `progress` : 'int` 0-100 
+
+        `message` : `str` (Optional) Message to display
+        
+        queue -> `{ (processID): { 'time': (timestamp), 'name': (display name), 'progress': (0-100), 'message': (message) } }`
         '''
 
         message = { ID: { 'time': datetime.timestamp(datetime.now()), 'name': name, 'progress': int(progress), 'message': message}}
         self.message_queue.put(message)
 
     def newMessageTracker(self, name):
+        '''
+        Dispatch a new Message Plugin
+
+        `RETURNS` `DownloadMessagesPlugin` instance with `self` (`put()` method) already passed into it.
+        '''
         return DownloadMessagesPlugin(self, name)
     
 class DownloadMessagesPlugin():
     '''
-    A Plugin for handling callback events from the download process. 
+    A Plugin for handling callback events from each download process seperately. 
     Each function here corresponds to a function that is called throughout the main download process.
     This class handles things such as displayName, processProgress, processMessages, etc.
     A New message Tracker object is created for each download process and passed into it upon creation.
@@ -298,7 +316,7 @@ class DownloadManager():
         results = self.workerPool.apply_async(
             func     = download_song,
             args     = (
-                songObj, self.processDisplayManager.newMessageTracker(songObj.get_song_name()), self.downloadTracker
+                songObj, self.processDisplayManager.newMessageTracker(songObj.get_display_name()), self.downloadTracker
             )
         )
 
@@ -328,7 +346,7 @@ class DownloadManager():
         results = self.workerPool.starmap_async(
             func     = download_song,
             iterable = (
-                (songObj, self.processDisplayManager.newMessageTracker(songObj.get_song_name()), self.downloadTracker)
+                (songObj, self.processDisplayManager.newMessageTracker(songObj.get_display_name()), self.downloadTracker)
                     for songObj in songObjList
             )
         )
@@ -362,7 +380,7 @@ class DownloadManager():
         results = self.workerPool.starmap_async(
             func     = download_song,
             iterable = (
-                (songObj, self.processDisplayManager.newMessageTracker(songObj.get_song_name()), self.downloadTracker)
+                (songObj, self.processDisplayManager.newMessageTracker(songObj.get_display_name()), self.downloadTracker)
                     for songObj in songObjList
             )
         )
@@ -385,9 +403,9 @@ class DownloadManager():
         self.workerPool.close()
         self.workerPool.join()
 
-    def send_results_to(self, cb):
+    def set_callback_to(self, cb):
         '''
-        `function` `cb` : Function called after jobs have been submitted to pool with the multiprocessing.pool.AsyncResult as the argement.
+        `function` `cb` : Function called after jobs have been submitted to pool with the multiprocessing.pool.AsyncResult as the argument.
 
         RETURNS `~`
 
