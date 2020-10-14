@@ -34,11 +34,11 @@ class ParentMessageTracker():
         Sets the current song count so that the DisplayManager can estimate an overall progress indicator.
         '''
         self.overallTotal = 100 * count
-        self.put(0, 'Song Count', count)
+        self.put('0', 'Song Count', count)
 
-    def put(self, ID: int, name: str, progress, message = ''):
+    def put(self, ID: str, name: str, progress, message = ''):
         '''
-        `ID` : `int` Current process ID
+        `ID` : `str` Current process ID
 
         `name` : `str` Display Name
 
@@ -77,7 +77,7 @@ class MessagesTrackerPlugin():
         # print('New Tracker Initialized')
         # self.total = 100
 
-    def notify_download_begin(self, ID: int):
+    def notify_download_begin(self, ID: str):
         '''
         `ID` : `int` Process ID of download process
 

@@ -85,8 +85,9 @@ def get_arguments():
 
     devgroup.add_argument(
         "--debug",
-        action="store_true",
-        default=False,
+        # action="store_true",
+        nargs='?',
+        const='local',  # Scope: local/global
         help=argparse.SUPPRESS,
     )
 

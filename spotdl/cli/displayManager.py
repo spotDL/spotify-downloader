@@ -46,7 +46,7 @@ from rich.text import Text
 # All of this code and library loggings will output to rich's log handler.
 # https://rich.readthedocs.io/en/latest/logging.html
 
-def setup_log(level=logging.ERROR):
+def setup_log(level=logging.ERROR, filename=None):
     global log
 
     # Remove all handlers associated with the root logger object.
@@ -55,9 +55,14 @@ def setup_log(level=logging.ERROR):
 
     # Reconfigure root logging config
     FORMAT = "%(message)s"
-    logging.basicConfig(
-        level=level, format=FORMAT, datefmt="[%X]", handlers=[RichHandler()] # level=logging.ERROR, 
-    )
+    if filename:
+        logging.basicConfig(
+            level=level, format=FORMAT, datefmt="[%X]", handlers=[RichHandler(), logging.FileHandler(filename="debug.log",)] # level=logging.ERROR, 
+        )
+    else:
+        logging.basicConfig(
+            level=level, format=FORMAT, datefmt="[%X]", handlers=[RichHandler()] # level=logging.ERROR, 
+        )
 
     log = logging.getLogger("rich")
     # log.setLevel(level=logging.NOTSET)
@@ -169,16 +174,19 @@ class DisplayManager():
         '''
         return (data[:size-3] + '...') if len(data) > size else data.ljust(size)
 
-    def set_log_level(self, level=logging.NOTSET) -> None:
+    def set_log_level(self, scope='local', level=logging.DEBUG) -> None:
         '''
         `level` : logging level to set
 
         This is set to change the global logging level. If any files, modules, or libraries use the logging package, it will be outputted. here.
         '''
         log.debug('Debug mode turning on...')
-        # log.setLevel(level=level)  # Local logs only
-        setup_log(level=level)  # All logging logs
+        if scope == 'global':
+            setup_log(level=level, filename='debug.log')  # All logging logs
+        else:
+            log.setLevel(level=logging.DEBUG)
 
+            
         # if logging.getLogger().isEnabledFor(logging.INFO):  # If log level is INFO or higher
         log.debug('Log level is set')
         log.debug('Debug')
@@ -215,30 +223,32 @@ class DisplayManager():
         '''
 
         # self.print('before new list: ', messages)
+        log.info('before new list: ' + str(messages) )
 
         existingIDs = []
         newMessageList = []
         latestMessage = None
         for message in messages:
-            messageID = list(message.keys())[0] # Gets the message's process ID
-            if messageID not in existingIDs:
-                existingIDs.append(messageID)
+            downloadID = list(message.keys())[0] # Gets the message's process ID
+            if downloadID not in existingIDs:
+                existingIDs.append(downloadID)
 
         # self.print('Gathered:', existingIDs)
 
         for ID in existingIDs:
             for message in messages:
-                messageID = list(message.keys())[0] # Gets the message's process ID
-                if messageID == ID:
+                downloadID = list(message.keys())[0] # Gets the message's process ID
+                if downloadID == ID:
                     try:
-                        # print(messageID, message[messageID]['time'])
-                        if message[messageID]['time'] >= latestMessage[messageID]['time']:
+                        # print(downloadID, message[downloadID]['time'])
+                        if message[downloadID]['time'] >= latestMessage[downloadID]['time']:
                             latestMessage = message
                     except:
                         latestMessage = message
             newMessageList.append(latestMessage)
 
         # self.print('new list: ', newMessageList)
+        log.info('new list: ' + str(newMessageList) )
 
         return newMessageList
 
@@ -251,27 +261,27 @@ class DisplayManager():
 
         Filters through all the messages from the queue, comparing them to currentStatus dictionary, updating or creating new processes if needed.
         
-        messages (from queue) -> [ { (processID): { 'time': (timestamp), 'name': (display name), 'progress': (int: 0-100), 'message': (str: message) } }, ...]
+        messages (from queue) -> [ { int(downloadID): { 'time': (timestamp), 'name': (display name), 'progress': (int: 0-100), 'message': (str: message) } }, ...]
 
-        currentStatus -> [ { (processID): { 'time': (timestamp), 'name': (display name), 'progress': (int: 0-100), 'message': (str: message), 'task': <_richProgressBar.task Object> } }, ...] 
+        currentStatus -> [ { str(downloadID): { 'time': (timestamp), 'name': (display name), 'progress': (int: 0-100), 'message': (str: message), 'task': <_richProgressBar.task Object> } }, ...] 
         '''
 
         for message in messages:
-            messageID = list(message.keys())[0] # Gets the message's process ID
-            if messageID == 0:
-                self.handle_misc_message(message[messageID])
+            downloadID = list(message.keys())[0] # Gets the message's process ID
+            if downloadID == '0':
+                self.handle_misc_message(message[downloadID])
             else:
-                if messageID in self.currentStatus:
+                if downloadID in self.currentStatus:
                     # Process already exists. If newer than others, update accordingly
-                    if message[messageID]['time'] > self.currentStatus[messageID]['time']:
-                        taskID = self.currentStatus[messageID]['taskID']
-                        self._richProgressBar.update(taskID, description=message[messageID]['name'], processID=str(messageID), message=message[messageID]['message'], completed=message[messageID]['progress'])
-                        self.currentStatus[messageID] = message[messageID]
+                    # if message[downloadID]['time'] > self.currentStatus[downloadID]['time']:
+                    taskID = self.currentStatus[downloadID]['taskID']
+                    self._richProgressBar.update(taskID, description=message[downloadID]['name'], processID=str(downloadID), message=message[downloadID]['message'], completed=message[downloadID]['progress'])
+                    self.currentStatus[downloadID] = message[downloadID]
                 else:
                     # New process has appeared in queue
-                    self.currentStatus[messageID] = message[messageID]
-                    taskID = self._richProgressBar.add_task(description=message[messageID]['name'], processID=str(messageID), message=message[messageID]['message'], total=100)
-                self.currentStatus[messageID]['taskID'] = taskID
+                    self.currentStatus[downloadID] = message[downloadID]
+                    taskID = self._richProgressBar.add_task(description=message[downloadID]['name'], processID=str(downloadID), message=message[downloadID]['message'], total=100, completed=message[downloadID]['progress'])
+                self.currentStatus[downloadID]['taskID'] = taskID
 
         self.update_overall()
 
@@ -284,9 +294,9 @@ class DisplayManager():
         Any message that did not come from a sub-process will be handled here
         '''
         if message['name'] == 'Song Count' and message['progress'] >= 4:
-            self.print('Overall songs:',  message['progress'])
+            # self.print('Total songs:',  message['progress'])
             self.overallTotal = 100 * message['progress']
-            self.overallID = self._richProgressBar.add_task(description='Total', processID=0, message='', total=self.overallTotal)
+            self.overallID = self._richProgressBar.add_task(description='Total', processID='0', message='', total=self.overallTotal)
 
     def update_overall(self):
         '''Updates the overall progress bar.
@@ -294,7 +304,8 @@ class DisplayManager():
         self.overallProgress = 0
         for processID in self.currentStatus:
             self.overallProgress += self.currentStatus[processID]['progress']
-        if self.overallID:  # If the overall progress bar exists
+        if self.overallID != None:  # If the overall progress bar exists
+            # log.info('Updating total to:' + str(self.overallProgress) )
             self._richProgressBar.update(self.overallID, completed=self.overallProgress)
 
     def collect_messages_from(self, queue):

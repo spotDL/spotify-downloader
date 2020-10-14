@@ -21,16 +21,16 @@ if __name__ == '__main__':
 
     with DisplayManager() as disp:
         with DownloadManager() as downloader:
-            disp.listen_to_queue(downloader.messageQueue)
-            downloader.set_callback_to(disp.process_monitor)
+            # disp.listen_to_queue(downloader.messageQueue)
+            # downloader.set_callback_to(disp.process_monitor)
 
 
             options = get_options()
             logging.debug("Arguments:" + str(options))
 
             if options.debug:
-                disp.print('Debug mode on', options.debug)
-                disp.set_log_level(scope=options.debug)
+                disp.set_log_level()
+                disp.print('Debug mode on')
 
 
             if options.spotify_client_id:
@@ -66,7 +66,7 @@ if __name__ == '__main__':
                 elif 'open.spotify.com' in request and 'album' in request:
                     disp.print('Fetching Album...')
                     songObjList = get_album_tracks(request)
-                    downloader.download_multiple_songs(songObjList)
+                    downloader.download_multiple_songs_sync(songObjList)
                 
                 elif 'open.spotify.com' in request and 'playlist' in request:
                     disp.print('Fetching Playlist...')

@@ -8,7 +8,8 @@ Everything that has to do with multi-processing is in this file.
 #===============
 
 # Switch to multiprocess (not multiprocessING) for better support
-# from multiprocessing import Pool
+# import multiprocessing
+# from multiprocessing import Pool, Lock
 # from multiprocessing.managers import BaseManager
 import multiprocess
 from multiprocess import Pool, Lock
@@ -24,7 +25,10 @@ from spotdl.download.messageHandlers import ParentMessageTracker
 
 
 from queue import Queue
+# from multiprocessing import Queue
 import sys
+import time
+
 
 
 
@@ -64,10 +68,10 @@ class ProgressRootProcess(multiprocess.managers.BaseManager): pass
 
 ProgressRootProcess.register('DownloadTracker', DownloadTracker)
 # ProgressRootProcess.register('DisplayManager',  ProcessDisplayManager)
-queue = Queue()
+queue =  Queue()
 ProgressRootProcess.register('MessageQueue', callable=lambda: queue)
-lock = Lock()
-ProgressRootProcess.register('Lock', callable=lambda: lock)
+# lock = Lock()
+# ProgressRootProcess.register('Lock', lock)
 ProgressRootProcess.register('ParentMessageTracker', ParentMessageTracker)
 
 #! You can now run the following code to work with both DisplayManagers and
@@ -108,6 +112,7 @@ class DownloadManager():
         # initialize shared objects
 
         self.messageQueue = progressRoot.MessageQueue()
+        # self.messageQueue = progressRoot.Queue()
         # self.lock = progressRoot.Lock()
         
         self.parentMessageTracker = progressRoot.ParentMessageTracker(self.messageQueue)
@@ -160,7 +165,7 @@ class DownloadManager():
 
         RETURNS `multiprocessing.pool.AsyncResult`
 
-        downloads the given songs in parallel
+        downloads the given songs in parallel and returns an multiprocessing.pool.AsyncResult once the pool has been initiated
         '''
         self.parentMessageTracker.set_song_count_to(len(songObjList))
         self.downloadTracker.clear()
@@ -168,6 +173,37 @@ class DownloadManager():
 
         # async to keep trunk process going
         results = self.workerPool.starmap_async(
+            func     = download_song,
+            iterable = (
+                (songObj, self.parentMessageTracker.newMessageTracker(songObj.get_display_name()), self.downloadTracker)
+                    for songObj in songObjList
+            )
+        )
+
+        if cb:
+            cb(results)
+            return
+        elif self.asyncResultCallback:
+            self.asyncResultCallback(results)
+
+        return results
+
+    def download_multiple_songs_sync(self, songObjList: List[SongObj], cb = None):
+        '''
+        `list<songObj>` `songObjList` : list of songs to be downloaded
+
+        `function` `cb` : (optional) Function called after jobs have been submitted to pool with the multiprocessing.pool.AsyncResult as the argument.
+
+        RETURNS `multiprocessing.pool.AsyncResult`
+
+        downloads the given songs in parallel and returns once the Pool is complete
+        '''
+        self.parentMessageTracker.set_song_count_to(len(songObjList))
+        self.downloadTracker.clear()
+        self.downloadTracker.load_song_list(songObjList)
+
+        # async to keep trunk process going
+        results = self.workerPool.starmap(
             func     = download_song,
             iterable = (
                 (songObj, self.parentMessageTracker.newMessageTracker(songObj.get_display_name()), self.downloadTracker)
@@ -242,8 +278,8 @@ class DownloadManager():
             time.sleep(0.1)
             messages = []
             try:
-                for _ in range(queue.qsize()):
-                    data = queue.get(False)
+                for _ in range(self.messageQueue.qsize()):
+                    data = self.messageQueue.get(False)
                     messages.append(data)
             except:
                 data = None

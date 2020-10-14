@@ -49,7 +49,7 @@ def download_song(songObj: SongObj, displayManager: DisplayManager = None,
 
     if displayManager:
         # displayManager.notify_download_begin(os.getpid())
-        displayManager.notify_download_begin(hashlib.md5(bytes(str(songObj.get_display_name()), 'utf-8')).hexdigest())
+        displayManager.notify_download_begin(str(hashlib.md5(bytes(str(songObj.get_display_name()), 'utf-8')).hexdigest()))
 
     #! all YouTube downloads are to .\Temp; they are then converted and put into .\ and
     #! finally followed up with ID3 metadata tags
