@@ -5,6 +5,7 @@
 from os import mkdir, remove, system as run_in_shell
 from os.path import join, exists
 import os
+import logging
 
 from multiprocessing import Pool
 
@@ -22,6 +23,7 @@ from spotdl.search.songObj import SongObj
 from spotdl.download.progressHandlers import DownloadTracker
 from spotdl.cli.displayManager import DisplayManager
 
+import hashlib
 
 #==========================
 #=== Base functionality ===
@@ -46,7 +48,8 @@ def download_song(songObj: SongObj, displayManager: DisplayManager = None,
     '''
 
     if displayManager:
-        displayManager.notify_download_begin(os.getpid())
+        # displayManager.notify_download_begin(os.getpid())
+        displayManager.notify_download_begin(hashlib.md5(bytes(str(songObj.get_display_name()), 'utf-8')).hexdigest())
 
     #! all YouTube downloads are to .\Temp; they are then converted and put into .\ and
     #! finally followed up with ID3 metadata tags
@@ -87,6 +90,7 @@ def download_song(songObj: SongObj, displayManager: DisplayManager = None,
 
     # if a song is already downloaded skip it
     if exists(convertedFilePath):
+        logging.info('Song is already downloaded')
         if displayManager:
             displayManager.notify_download_skip()
         if downloadTracker:
