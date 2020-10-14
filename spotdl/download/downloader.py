@@ -5,7 +5,7 @@
 from os import mkdir, remove, system as run_in_shell
 from os.path import join, exists
 import os
-import logging
+# import logging
 
 from multiprocessing import Pool
 
@@ -90,7 +90,7 @@ def download_song(songObj: SongObj, displayManager: DisplayManager = None,
 
     # if a song is already downloaded skip it
     if exists(convertedFilePath):
-        logging.info('Song is already downloaded')
+        # logging.info('Song is already downloaded')
         if displayManager:
             displayManager.notify_download_skip()
         if downloadTracker:

@@ -25,7 +25,7 @@ from rich.progress import (
     TaskID,
     ProgressColumn
 )
-
+from rich.theme import Theme
 from rich.style import StyleType
 from rich.console import (
     Console,
@@ -37,6 +37,24 @@ from rich.console import (
 )
 from rich.highlighter import Highlighter
 from rich.text import Text
+
+
+
+#=============
+#=== Theme ===
+#==============
+
+custom_theme = Theme({
+    "general" : "green",
+    "nonimportant" : "rgb(40,100,40)",
+    "progress.data.speed" : "red",
+    "progress.description" : "none",
+    "progress.download" : "green",
+    "progress.filesize" : "green",
+    "progress.filesize.total" : "green",
+    "progress.percentage" : "magenta",
+    "progress.remaining" : "green"
+})
 
 
 #=====================
@@ -120,16 +138,16 @@ class DisplayManager():
     All of the process information is read from a queue and stored inside of a dict: self.currentStatus
     '''
     def __init__(self, queue = None):
-        # self.console = Console()
+        self.console = Console(theme = custom_theme)
         self._richProgressBar = Progress(
-            SizedTextColumn("{task.fields[processID]}", style="rgb(40,100,40)", width=7),
+            SizedTextColumn("{task.fields[processID]}", style="nonimportant", width=7),
             SizedTextColumn("[white]{task.description}", overflow="ellipsis", width=60), # overflow='ellipsis',
             # "[progress.description]{task.description}",
             SizedTextColumn("[green]{task.fields[message]}", width=18),
             BarColumn(bar_width=None, style="black on black", finished_style="green"),
             "[progress.percentage]{task.percentage:>3.0f}%",
             TimeRemainingColumn(),
-            # console = self.console    # use this when self.console = Console()
+            console = self.console    # use this when self.console = Console()
             #transient=True     # Normally when you exit the progress context manager (or call stop()) the last refreshed display remains in the terminal with the cursor on the following line. You can also make the progress display disappear on exit by setting transient=True on the Progress constructor
         )
 
