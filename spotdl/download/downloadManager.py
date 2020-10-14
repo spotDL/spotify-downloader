@@ -23,11 +23,8 @@ from spotdl.download.progressHandlers import DownloadTracker
 from spotdl.download.messageHandlers import ParentMessageTracker
 
 
-
 from queue import Queue
 import sys
-
-
 
 
 
@@ -49,7 +46,6 @@ def patchedAutoproxy(token, serializer, manager=None,
 #! Update the Autoproxy definition in multiprocessing.managers package
 # multiprocessing.managers.AutoProxy = patchedAutoproxy
 multiprocess.managers.AutoProxy = patchedAutoproxy
-
 
 
             
