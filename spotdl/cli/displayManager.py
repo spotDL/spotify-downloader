@@ -300,7 +300,7 @@ class DisplayManager():
         if message['name'] == 'Song Count' and message['progress'] >= 4:
             # self.print('Total songs:',  message['progress'])
             self.overallTotal = 100 * message['progress']
-            self.overallID = self._richProgressBar.add_task(description='Total', processID='0', total=self.overallTotal)
+            self.overallID = self._richProgressBar.add_task(description='Total', processID='0', message='', total=self.overallTotal)
 
     def update_overall(self):
         '''Updates the overall progress bar.

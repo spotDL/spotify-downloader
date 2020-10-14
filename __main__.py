@@ -111,7 +111,7 @@ if __name__ == '__main__':
                         disp.print('Searching for song "%s"...' % request)
                         try:
                             songObj = search_for_song(request)
-                            disp.print('Found song: "%s"' % songObj.get_display_name())
+                            disp.print('Closest Match: "%s"' % songObj.get_display_name())
                             downloader.download_single_song(songObj)
 
                         except Exception:

@@ -29,8 +29,8 @@ if __name__ == '__main__':
             logging.debug("Arguments:" + str(options))
 
             if options.debug:
-                disp.set_log_level()
-                disp.print('Debug mode on')
+                disp.print('Debug mode on', options.debug)
+                disp.set_log_level(scope=options.debug)
 
 
             if options.spotify_client_id:
@@ -111,7 +111,7 @@ if __name__ == '__main__':
                         disp.print('Searching for song "%s"...' % request)
                         try:
                             songObj = search_for_song(request)
-                            disp.print('Found song: "%s"' % songObj.get_display_name())
+                            disp.print('Closest Match: "%s"' % songObj.get_display_name())
                             downloader.download_single_song(songObj)
 
                         except Exception:
