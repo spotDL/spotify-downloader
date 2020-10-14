@@ -88,7 +88,7 @@ To resume a failed/incomplete download run,
 -   Note, '.spotDlTrackingFiles' are automatically created during download start, they are deleted on
     download completion
 
-You can chain up download tasks by seperating them with spaces:
+You can chain up download tasks by separating them with spaces:
     
     # spotdl $songQuery1 $albumUrl $songQuery2 ... (order does not matter)
     spotdl 'The Hu - Sugaan Essenna' https://open.spotify.com/playlist/37i9dQZF1DWXhcuQw7KIeM?si=xubKHEBESM27RqGkqoXzgQ ...
