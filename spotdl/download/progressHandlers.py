@@ -1,6 +1,6 @@
 '''
-Everything that has to do with multi-processing is in this file. 
-This library is completely optional to the base spotDL ecosystem but is apart of the command-line service.
+Everything that has to do with a download's .spotdlTrackingFile is in this file. 
+This library is completely optional to the base spotDL download library but is crucial for the command-line service.
 '''
 
 
@@ -94,8 +94,6 @@ class DownloadTracker():
         if len(self.songObjList) == 0:
             remove(self.saveFile)
             return None
-
-
 
 
         # prepare datadumps of all songObj's yet to be downloaded
