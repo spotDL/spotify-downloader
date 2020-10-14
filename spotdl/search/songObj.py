@@ -102,6 +102,9 @@ class SongObj():
     def get_youtube_link(self) -> str:
         return self.__youtubeLink
 
+    def get_spotify_link(self) -> str:
+        return 'http://open.spotify.com/track/' + self.__rawTrackMeta['id']
+
     #! Song Details:
     
     #! 1. Name
