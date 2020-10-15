@@ -190,14 +190,6 @@ class DisplayManager():
             self._richProgressBar.console.print(line)
             # self._richProgressBar.console.log("Working on job:", text)
 
-    def string_column(self, size: int, data: str) -> str:
-        '''
-        `size` : `int` Length of string
-
-        `data` : `str` Makes string length of `size`
-        '''
-        return (data[:size-3] + '...') if len(data) > size else data.ljust(size)
-
     def set_log_level(self, scope='local', level=logging.DEBUG) -> None:
         '''
         `level` : logging level to set
@@ -220,12 +212,6 @@ class DisplayManager():
         log.warning('Warning')
         log.error('Error')
         log.critical('Critical')
-
-    def get_rich(self):
-        '''
-        I had to
-        '''
-        return self._richProgressBar
 
     def get_self(self):
         '''Returns self'''
