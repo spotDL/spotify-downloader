@@ -43,16 +43,10 @@ you use spotDL v3 and open issues for problems that you come across.
     $pip install spotdl
     ```
 
-2. For v3,
-    - Clone this repo
-        ```
-        $git clone https://github.com/spotDL/spotify-downloader.git
-        ```
-    - Run setup.py
-        ```
-        $ cd spotify-downloader
-        $ python setup.py install
-        ```
+2. For v3, (latest version)
+    ```
+    $pip install https://github.com/spotDL/spotify-downloader/archive/master.zip
+    ```
         
 3. Voila !
 
@@ -63,7 +57,7 @@ To download a song run,
     # spotdl $trackUrl
     spotdl https://open.spotify.com/track/08mG3Y1vljYA6bvDt4Wqkj?si=SxezdxmlTx-CaVoucHmrUA
 
-To download a album run,
+To download an album run,
     
     # spotdl $albumUrl
     spotdl https://open.spotify.com/album/2YMWspDGtbDgYULXvVQFM6?si=gF5dOQm8QUSo-NdZVsFjAQ
