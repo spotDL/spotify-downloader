@@ -188,13 +188,11 @@ class DownloadManager():
 
         return results
 
-    def download_multiple_songs_sync(self, songObjList: List[SongObj], cb = None):
+    def download_multiple_songs_sync(self, songObjList: List[SongObj]):
         '''
         `list<songObj>` `songObjList` : list of songs to be downloaded
 
-        `function` `cb` : (optional) Function called after jobs have been submitted to pool with the multiprocessing.pool.AsyncResult as the argument.
-
-        RETURNS `multiprocessing.pool.AsyncResult`
+        RETURNS `multiprocessing.pool.Result`
 
         downloads the given songs in parallel and returns once the Pool is complete
         '''
@@ -202,7 +200,6 @@ class DownloadManager():
         self.downloadTracker.clear()
         self.downloadTracker.load_song_list(songObjList)
 
-        # async to keep trunk process going
         results = self.workerPool.starmap(
             func     = download_song,
             iterable = (
@@ -210,12 +207,6 @@ class DownloadManager():
                     for songObj in songObjList
             )
         )
-
-        if cb:
-            cb(results)
-            return
-        elif self.asyncResultCallback:
-            self.asyncResultCallback(results)
 
         return results
     

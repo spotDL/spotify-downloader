@@ -95,7 +95,7 @@ if __name__ == '__main__':
                     elif 'open.spotify.com' in request and 'album' in request:
                         disp.print('Fetching Album...')
                         songObjList = get_album_tracks(request)
-                        downloader.download_multiple_songs(songObjList)
+                        downloader.download_multiple_songs_sync(songObjList)
                     
                     elif 'open.spotify.com' in request and 'playlist' in request:
                         disp.print('Fetching Playlist...')
