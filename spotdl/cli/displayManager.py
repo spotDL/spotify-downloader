@@ -52,8 +52,8 @@ custom_theme = Theme({
     "progress.download" : "green",
     "progress.filesize" : "green",
     "progress.filesize.total" : "green",
-    "progress.percentage" : "magenta",
-    "progress.remaining" : "green"
+    "progress.percentage" : "green",
+    "progress.remaining" : "rgb(40,100,40)"
 })
 
 
@@ -143,7 +143,7 @@ class DisplayManager():
             SizedTextColumn("{task.fields[processID]}", style="nonimportant", width=7),
             SizedTextColumn("[white]{task.description}", overflow="ellipsis", width=60), # overflow='ellipsis',
             # "[progress.description]{task.description}",
-            SizedTextColumn("[green]{task.fields[message]}", width=18),
+            SizedTextColumn("{task.fields[message]}", width=18, style="nonimportant"),
             BarColumn(bar_width=None, style="black on black", finished_style="green"),
             "[progress.percentage]{task.percentage:>3.0f}%",
             TimeRemainingColumn(),
