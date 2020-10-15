@@ -161,6 +161,13 @@ class MessagesTrackerPlugin():
         # time.sleep(0.01) # Or else the messages will not be distinguishable from a timestamp sort
         self.send_update('Done') # finished Tagging
 
+    def notify_error(self, pid, e, tb=''):
+        '''
+        Reports error message to queue
+        '''
+        self.send_update(message='Error')
+        self.parent.put(ID='0', name='Error', progress=pid, message=str(e) + " - " + str(tb))
+
     def send_update(self, message = ''):
         '''
         Called everytime the user should be notified.

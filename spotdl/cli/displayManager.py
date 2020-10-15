@@ -64,7 +64,7 @@ custom_theme = Theme({
 # All of this code and library loggings will output to rich's log handler.
 # https://rich.readthedocs.io/en/latest/logging.html
 
-def setup_log(level=logging.ERROR, filename=None):
+def setup_log(level=logging.ERROR, filename=None, fileonly: bool =False):
     global log
 
     # Remove all handlers associated with the root logger object.
@@ -74,9 +74,14 @@ def setup_log(level=logging.ERROR, filename=None):
     # Reconfigure root logging config
     FORMAT = "%(message)s"
     if filename:
-        logging.basicConfig(
-            level=level, format=FORMAT, datefmt="[%X]", handlers=[RichHandler(), logging.FileHandler(filename="debug.log",)] # level=logging.ERROR, 
-        )
+        if fileonly:
+            logging.basicConfig(
+                level=level, format=FORMAT, datefmt="[%X]", handlers=[logging.FileHandler(filename="debug.log",)] # level=logging.ERROR, 
+            )
+        else:
+            logging.basicConfig(
+                level=level, format=FORMAT, datefmt="[%X]", handlers=[RichHandler(), logging.FileHandler(filename="debug.log",)] # level=logging.ERROR, 
+            )
     else:
         logging.basicConfig(
             level=level, format=FORMAT, datefmt="[%X]", handlers=[RichHandler()] # level=logging.ERROR, 
@@ -202,6 +207,8 @@ class DisplayManager():
         log.debug('Debug mode turning on...')
         if scope == 'global':
             setup_log(level=level, filename='debug.log')  # All logging logs
+        elif scope == 'file':
+            setup_log(level=level, filename='debug.log', fileonly=True)
         else:
             log.setLevel(level=logging.DEBUG)
 
@@ -294,12 +301,16 @@ class DisplayManager():
                     # Process already exists. If newer than others, update accordingly
                     # if message[downloadID]['time'] > self.currentStatus[downloadID]['time']:
                     taskID = self.currentStatus[downloadID]['taskID']
+                    self._richProgressBar.start_task(taskID)
                     self._richProgressBar.update(taskID, description=message[downloadID]['name'], processID=str(downloadID), message=message[downloadID]['message'], completed=message[downloadID]['progress'])
                     self.currentStatus[downloadID] = message[downloadID]
                 else:
                     # New process has appeared in queue
                     self.currentStatus[downloadID] = message[downloadID]
-                    taskID = self._richProgressBar.add_task(description=message[downloadID]['name'], processID=str(downloadID), message=message[downloadID]['message'], total=100, completed=message[downloadID]['progress'])
+                    taskID = self._richProgressBar.add_task(description=message[downloadID]['name'], processID=str(downloadID), message=message[downloadID]['message'], total=100, completed=message[downloadID]['progress'], start=False)
+                    if message[downloadID]['message'] != "Download Started":
+                        self._richProgressBar.start_task(taskID)
+
 
                 if message[downloadID]['progress'] == 100:
                     self.overallCompletedTasks += 1
@@ -313,12 +324,14 @@ class DisplayManager():
         '''
         `message` : `dict`
 
-        Any message that did not come from a sub-process will be handled here
+        Any message that did not come from a sub-process will be handled here: ( {ID: 0 {...} )
         '''
         if message['name'] == 'Song Count' and message['progress'] >= 4:
             # self.print('Total songs:',  message['progress'])
             self.overallTotal = 100 * message['progress']
             self.overallID = self._richProgressBar.add_task(description='Total', processID='0', message='', total=self.overallTotal)
+        elif message['name'] == 'Error' or message['message']:
+            self.print('PID:', message['progress'], 'Error:', message['message'])
 
     def update_overall(self):
         '''Updates the overall progress bar.
@@ -359,7 +372,7 @@ class DisplayManager():
             queue = self.queue
 
         while not multiprocessResult.ready():
-            time.sleep(0.1)
+            time.sleep(0.01)
             messages = self.collect_messages_from(queue)
             messages = self.remove_duplicate_messages(messages)
             self.handle_messages(messages)

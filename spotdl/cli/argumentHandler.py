@@ -87,7 +87,7 @@ def get_arguments():
         "--debug",
         # action="store_true",
         nargs='?',
-        const='local',  # Scope: local/global
+        const='local',  # Scope: local/global/file(global)
         help=argparse.SUPPRESS,
     )
 
