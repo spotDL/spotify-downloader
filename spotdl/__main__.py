@@ -12,32 +12,9 @@ from spotdl.download.downloader import DownloadManager
 #! to avoid packaging errors
 from multiprocessing import freeze_support
 
-
-#! Usage is simple - call 'python __main__.py <links, search terms, tracking files seperated by spaces>
-#! Eg.
-#!      python __main__.py https://open.spotify.com/playlist/37i9dQZF1DWXhcuQw7KIeM?si=xubKHEBESM27RqGkqoXzgQ 'old gods of asgard Control' https://open.spotify.com/album/2YMWspDGtbDgYULXvVQFM6?si=gF5dOQm8QUSo-NdZVsFjAQ https://open.spotify.com/track/08mG3Y1vljYA6bvDt4Wqkj?si=SxezdxmlTx-CaVoucHmrUA
-#!
-#! Well, yeah its a pretty long example but, in theory, it should work like a charm. 
-#!
-#! A '.spotdlTrackingFile' is automatically  created with the name of the first song in the playlist/album or
-#! the name of the song supplied. We don't really re re re-query YTM and SPotify as all relevant details are
-#! stored to disk.
-#!
-#! Files are cleaned up on download failure.
-#!
-#! All songs are normalized to standard base volume. the soft ones are made louder, the loud ones, softer.
-#!
-#! The progress bar is synched across multiple-processes (4 processes as of now), getting the progress bar to
-#! synch was an absolute pain, each process knows how much 'it' progressed, but the display has to be for the
-#! overall progress so, yeah... that took time.
-#!
-#! spotdl will show you its true speed on longer download's - so make sure you try downloading a playlist.
-#!
-#! still yet to try and package this but, in theory, there should be no errors.
-#!
-#!                                                          - cheerio! (Michael)
-#!
-#! P.S. Tell me what you think. Up to your expectations?
+#! used to quiet the output
+from io import StringIO as quiet
+import sys
 
 #! Script Help
 help_notice = '''
@@ -84,6 +61,13 @@ def console_entry_point():
         #! We use 'return None' as a convenient exit/break from the function
         return None
 
+    if '--quiet' in cliArgs:
+        #! removing --quiet so it doesnt mess up with the download
+        cliArgs.remove('--quiet')
+        #! make stdout & stderr silent
+        sys.stdout = quiet()
+        sys.stderr = quiet()
+
     initialize(
         clientId='4fe3fecfe5334023a1472516cc99d805',
         clientSecret='0f02b7c483c04257984695007a4a8d5c'
@@ -92,7 +76,7 @@ def console_entry_point():
     downloader = DownloadManager()
 
     for request in cliArgs[1:]:
-        if 'open.spotify.com' in request and 'track' in request:
+        if ('open.spotify.com' in request and 'track' in request) or 'spotify:track:' in request:
             print('Fetching Song...')
             song = SongObj.from_url(request)
 
@@ -103,13 +87,13 @@ def console_entry_point():
                     song.get_song_name(), request
                 ))
         
-        elif 'open.spotify.com' in request and 'album' in request:
+        elif ('open.spotify.com' in request and 'album' in request) or 'spotify:album:' in request:
             print('Fetching Album...')
             songObjList = get_album_tracks(request)
 
             downloader.download_multiple_songs(songObjList)
         
-        elif 'open.spotify.com' in request and 'playlist' in request:
+        elif ('open.spotify.com' in request and 'playlist' in request) or 'spotify:playlist:' in request:
             print('Fetching Playlist...')
             songObjList = get_playlist_tracks(request)
 
