@@ -5,10 +5,7 @@
 from os import mkdir, remove, system as run_in_shell
 from os.path import join, exists
 import os
-import logging
 import traceback
-
-from multiprocessing import Pool
 
 from spotdl.patches.pyTube import YouTube
 
@@ -92,7 +89,6 @@ def download_song(songObj: SongObj, displayManager: DisplayManager = None,
 
         # if a song is already downloaded skip it
         if exists(convertedFilePath):
-            # logging.info('Song is already downloaded')
             if displayManager:
                 displayManager.notify_download_skip()
             if downloadTracker:
@@ -244,7 +240,6 @@ def download_song(songObj: SongObj, displayManager: DisplayManager = None,
     except Exception as e:
         # print 'got exception: %r:, terminating the pool' % (e,)
         tb = traceback.format_exc()
-        logging.error('Uncaught exception in worker process:' +  str(os.getpid()) + "\n" + str(e) + "\n" + tb)
         if displayManager:
             displayManager.notify_error(os.getpid(), e, tb)
         else:

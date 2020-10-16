@@ -9,7 +9,6 @@ from spotdl.cli.argumentHandler import get_options
 from spotdl.search.utils import get_playlist_tracks, get_album_tracks, search_for_song
 from spotdl.search.songObj import SongObj
 
-import logging
 
 #! to avoid packaging errors
 from multiprocessing import freeze_support
@@ -26,7 +25,6 @@ if __name__ == '__main__':
 
 
             options = get_options()
-            logging.debug("Arguments:" + str(options))
 
             if options.debug:
                 disp.print('Debug mode on', options.debug)
