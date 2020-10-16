@@ -9,10 +9,10 @@ Everything that has to do with multi-processing is in this file.
 
 # Switch to multiprocess (not multiprocessING) for better support
 # import multiprocessing
-# from multiprocessing import Pool, Lock
+# from multiprocessing import Pool
 # from multiprocessing.managers import BaseManager
 import multiprocess
-from multiprocess import Pool, Lock
+from multiprocess import Pool
 from multiprocess.managers import BaseManager
 
 #! The following are not used, they are just here for static typechecking with mypy
@@ -70,8 +70,6 @@ ProgressRootProcess.register('DownloadTracker', DownloadTracker)
 # ProgressRootProcess.register('DisplayManager',  ProcessDisplayManager)
 queue =  Queue()
 ProgressRootProcess.register('MessageQueue', callable=lambda: queue)
-# lock = Lock()
-# ProgressRootProcess.register('Lock', lock)
 ProgressRootProcess.register('ParentMessageTracker', ParentMessageTracker)
 
 #! You can now run the following code to work with both DisplayManagers and
@@ -112,8 +110,6 @@ class DownloadManager():
         # initialize shared objects
 
         self.messageQueue = progressRoot.MessageQueue()
-        # self.messageQueue = progressRoot.Queue()
-        # self.lock = progressRoot.Lock()
         
         self.parentMessageTracker = progressRoot.ParentMessageTracker(self.messageQueue)
         self.downloadTracker = progressRoot.DownloadTracker()
