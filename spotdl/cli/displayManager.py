@@ -12,8 +12,6 @@ This library is completely optional to the base spotDL ecosystem but is apart of
 from rich.console import Console
 from datetime import datetime
 import time
-import logging
-from rich.logging import RichHandler
 from rich.progress import (
     track,
     BarColumn,
@@ -56,40 +54,6 @@ custom_theme = Theme({
     "progress.remaining" : "rgb(40,100,40)"
 })
 
-
-#=====================
-#=== Setup Logger ===
-#=====================
-
-# All of this code and library loggings will output to rich's log handler.
-# https://rich.readthedocs.io/en/latest/logging.html
-
-def setup_log(level=logging.ERROR, filename=None, fileonly: bool =False):
-    global log
-
-    # Remove all handlers associated with the root logger object.
-    for handler in logging.root.handlers[:]:
-        logging.root.removeHandler(handler)
-
-    # Reconfigure root logging config
-    FORMAT = "%(message)s"
-    if filename:
-        if fileonly:
-            logging.basicConfig(
-                level=level, format=FORMAT, datefmt="[%X]", handlers=[logging.FileHandler(filename="debug.log",)] # level=logging.ERROR, 
-            )
-        else:
-            logging.basicConfig(
-                level=level, format=FORMAT, datefmt="[%X]", handlers=[RichHandler(), logging.FileHandler(filename="debug.log",)] # level=logging.ERROR, 
-            )
-    else:
-        logging.basicConfig(
-            level=level, format=FORMAT, datefmt="[%X]", handlers=[RichHandler()] # level=logging.ERROR, 
-        )
-
-    log = logging.getLogger("rich")
-    # log.setLevel(level=logging.NOTSET)
-    log.info('Hello, World!')
 
 
 #========================================================
@@ -145,7 +109,7 @@ class DisplayManager():
     def __init__(self, queue = None):
         self.console = Console(theme = custom_theme)
         self._richProgressBar = Progress(
-            # SizedTextColumn("{task.fields[processID]}", style="nonimportant", width=7),
+            SizedTextColumn("{task.fields[processID]}", style="nonimportant", width=7),
             SizedTextColumn("[white]{task.description}", overflow="ellipsis", width=60), # overflow='ellipsis',
             # "[progress.description]{task.description}",
             SizedTextColumn("{task.fields[message]}", width=18, style="nonimportant"),
@@ -162,7 +126,6 @@ class DisplayManager():
         self.overallProgress = 0
         self.overallTotal = 100
         self.overallCompletedTasks = 0
-        setup_log()
 
     def __enter__(self):
         # self.__init__()
@@ -173,7 +136,7 @@ class DisplayManager():
         self._richProgressBar.stop()
         # print('Display Manager Exited')
 
-    def print(self, *text, logLevel=5, color="green"):
+    def print(self, *text, color="green"):
         '''
         `text` : `any`  Text to be printed to screen
 
@@ -189,29 +152,6 @@ class DisplayManager():
         else:
             self._richProgressBar.console.print(line)
             # self._richProgressBar.console.log("Working on job:", text)
-
-    def set_log_level(self, scope='local', level=logging.DEBUG) -> None:
-        '''
-        `level` : logging level to set
-
-        This is set to change the global logging level. If any files, modules, or libraries use the logging package, it will be outputted. here.
-        '''
-        log.debug('Debug mode turning on...')
-        if scope == 'global':
-            setup_log(level=level, filename='debug.log')  # All logging logs
-        elif scope == 'file':
-            setup_log(level=level, filename='debug.log', fileonly=True)
-        else:
-            log.setLevel(level=logging.DEBUG)
-
-            
-        # if logging.getLogger().isEnabledFor(logging.INFO):  # If log level is INFO or higher
-        log.debug('Log level is set')
-        log.debug('Debug')
-        log.info('Info')
-        log.warning('Warning')
-        log.error('Error')
-        log.critical('Critical')
 
     def get_self(self):
         '''Returns self'''
@@ -235,7 +175,6 @@ class DisplayManager():
         '''
 
         # self.print('before new list: ', messages)
-        log.info('before new list: ' + str(messages) )
 
         existingIDs = []
         newMessageList = []
@@ -260,7 +199,6 @@ class DisplayManager():
             newMessageList.append(latestMessage)
 
         # self.print('new list: ', newMessageList)
-        log.info('new list: ' + str(newMessageList) )
 
         return newMessageList
 
@@ -326,7 +264,6 @@ class DisplayManager():
         for processID in self.currentStatus:
             self.overallProgress += self.currentStatus[processID]['progress']
         if self.overallID != None:  # If the overall progress bar exists
-            # log.info('Updating total to:' + str(self.overallProgress) )
             self._richProgressBar.update(self.overallID, message=str(self.overallCompletedTasks) + '/' + str(int(self.overallTotal/100)) + " complete", completed=self.overallProgress)
 
     def collect_messages_from(self, queue):
@@ -377,12 +314,13 @@ class DisplayManager():
         if isinstance(results, list): 
             for result in results:
                 if result != None:
-                    # self.print(result)
-                    log.ERROR(result)
+                    self.print(result)
+                    # log.ERROR(result)
         else:
             result = results
             if result != None:
-                log.ERROR(result)
+                self.print(result)
+                # log.ERROR(result)
 
         return results
 
