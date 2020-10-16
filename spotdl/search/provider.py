@@ -1,9 +1,9 @@
-# ===============
-# === Imports ===
-# ===============
+#===============
+#=== Imports ===
+#===============
 
 #! the following are for the search provider to function
-from fuzzywuzzy.fuzz import partial_ratio
+from rapidfuzz.fuzz import partial_ratio
 from json import loads as convert_json_to_dict
 from requests import post
 
@@ -15,33 +15,41 @@ from html import unescape
 #! Just for static typing
 from typing import List
 
-# ================================
-# === Note to readers / Coders ===
-# ================================
+
+
+#================================
+#=== Note to readers / Coders ===
+#================================
 
 #! YTM search (the actual POST request), courtesy of Elliot G. (@rocketinventor)
 #! result parsing and song matching system by @Mikhail-Zex
 #!
 #! Essentially, Without Elliot, you wouldn't have a YTM search provider at all.
 
-# =======================
-# === helper function ===
-# =======================
-def match_percentage(str1: str, str2: str) -> bool:
+
+
+#=======================
+#=== helper function ===
+#=======================
+
+def match_percentage(str1: str, str2: str, score_cutoff: float = 0) -> float:
     '''
     `str` `str1` : a random sentence
 
     `str` `str2` : another random sentence
 
-    RETURNS `int`
+    `float` `score_cutoff` : minimum score required to consider it a match
+                             returns 0 when similarity < score_cutoff
 
-    A wrapper around `fuzzywuzzy.partial_ratio` to handle UTF-8 encoded
+    RETURNS `float`
+
+    A wrapper around `rapidfuzz.fuzz.partial_ratio` to handle UTF-8 encoded
     emojis that usually cause errors
     '''
 
-    #! this will throw an error if either string contains a UTF-8 encoded emoji
+    #! this will throw an error if either string contains a UTF-8 encoded emoji 
     try:
-        return partial_ratio(str1, str2)
+        return partial_ratio(str1, str2, score_cutoff=score_cutoff)
 
     #! we build new strings that contain only alphanumerical characters and spaces
     #! and return the partial_ratio of that
@@ -54,22 +62,20 @@ def match_percentage(str1: str, str2: str) -> bool:
 
         newStr2 = ''
 
-        for eachLetter in str1:
+        for eachLetter in str2:
             if eachLetter.isalnum() or eachLetter.isspace():
                 newStr2 += eachLetter
 
-        return partial_ratio(newStr1, newStr2)
+        return partial_ratio(newStr1, newStr2, score_cutoff=score_cutoff)
 
-# ========================================================================
-# === Background functions/Variables (Not meant to be called directly) ===
-# ========================================================================
-
+#========================================================================
+#=== Background functions/Variables (Not meant to be called directly) ===
+#========================================================================
 
 #! as of now there is no need to allow anyone to set a ytm-api key, so no-one should mess
 #! with this. It's only defined out here instead of within a class so that chaning of the
 #! api key if and when the change happens should be a simple job
 ytmApiKey = 'AIzaSyC9XL3ZjWddXya6X74dJoCTL-WEYFDNX30'
-
 
 def __query_and_simplify(searchTerm: str, apiKey: str = ytmApiKey) -> List[dict]:
     '''
@@ -82,6 +88,7 @@ def __query_and_simplify(searchTerm: str, apiKey: str = ytmApiKey) -> List[dict]
 
     #! For dict structure, see end of this function (~ln 268, ln 283) and chill, this
     #! function ain't soo big, there are plenty of comments and blank lines
+
 
 
     # build and POST a query to YTM
@@ -130,15 +137,20 @@ def __query_and_simplify(searchTerm: str, apiKey: str = ytmApiKey) -> List[dict]
     #! Link block (under each 'Result block')
     #!       Contains the video/Album/playlist/Song/Artist link of the
     #!       result as found on YouTube
-
+    
     # Simplify and extract necessary details from senselessly nested YTM response
     #! This process is broken into numbered steps below
 
     #! nested-dict keys are used to (a) indicate nesting visually and (b) make the code
     #! more readable
 
+
+
     # 01. Break response into contentBLocks
-    contentBlocks = response['contents']['sectionListRenderer']['contents']
+    contentBlocks = response['contents'] \
+        ['sectionListRenderer'] \
+            ['contents']
+
 
 
     # 02. Gather all result block in the same place
@@ -159,19 +171,28 @@ def __query_and_simplify(searchTerm: str, apiKey: str = ytmApiKey) -> List[dict]
             if 'overlay' not in contents['musicResponsiveListItemRenderer']:
                 continue
 
-            result = contents['musicResponsiveListItemRenderer']['flexColumns']
+            result = contents['musicResponsiveListItemRenderer'] \
+                ['flexColumns']
+            
 
-            # Add the linkBlock
 
-            linkBlock = contents['musicResponsiveListItemRenderer']['overlay'][
-                'musicItemThumbnailOverlayRenderer']['content']['musicPlayButtonRenderer']['playNavigationEndpoint']
-
+            # Add the linkBlock        
+            
+            linkBlock = contents['musicResponsiveListItemRenderer'] \
+                ['overlay'] \
+                    ['musicItemThumbnailOverlayRenderer'] \
+                        ['content'] \
+                            ['musicPlayButtonRenderer'] \
+                                ['playNavigationEndpoint']
+            
             #! detailsBlock is always a list, so we just append the linkBlock to it
             #! insted of carrying along all the other junk from 'musicResponsiveListItemRenderer'
             result.append(linkBlock)
-
+        
             #! gather resultBlock
             resultBlocks.append(result)
+    
+    
 
     # 03. Gather available details in the same place
 
@@ -205,18 +226,20 @@ def __query_and_simplify(searchTerm: str, apiKey: str = ytmApiKey) -> List[dict]
         # Blindly gather available details
         availableDetails = []
 
+
+
         # Filterout dummies here itself
         #! 'musicResponsiveListItmeFlexColumnRenderer' should have more that one
         #! sub-block, if not its a dummy, why does the YTM response contain dummies?
         #! I have no clue. We skip these.
-
+        
         #! Remember that we appended the linkBlock to result, treating that like the
         #! other constituents of a result block will lead to errors, hence the 'in
         #! result[:-1]'
         for detail in result[:-1]:
             if len(detail['musicResponsiveListItemFlexColumnRenderer']) < 2:
                 continue
-
+            
             #! if not a dummy, collect all available details
             availableDetails.append(
                 detail['musicResponsiveListItemFlexColumnRenderer'] \
@@ -224,14 +247,17 @@ def __query_and_simplify(searchTerm: str, apiKey: str = ytmApiKey) -> List[dict]
                         ['runs'][0] \
                             ['text']
             )
+        
+
 
         # Filterout non-Song/Video results and incomplete results here itself
         #! From what we know about detail order, note that [1] - indicate result type
         if availableDetails[1] in ['Song', 'Video'] and len(availableDetails) == 5:
-
+            
             #! skip if result is in hours instead of minuts (no song is that long)
             if len(availableDetails[4].split(':')) != 2:
-                continue
+                    continue
+
 
 
             # grab position of result
@@ -240,16 +266,18 @@ def __query_and_simplify(searchTerm: str, apiKey: str = ytmApiKey) -> List[dict]
             resultPosition = resultBlocks.index(result)
 
 
+
             # grab result link
             #! this is nested as [playlistEndpoint/watchEndpoint][videoId/playlistId/...]
             #! so hardcoding the dict keys for data look up is an ardours process, since
             #! the sub-block pattern is fixed even though the key isn't, we just
             #! reference the dict keys by index
-            endpointKey = list(result[-1].keys())[1]
-            resultIdKey = list(result[-1][endpointKey].keys())[0]
+            endpointKey = list( result[-1].keys() )[1]
+            resultIdKey = list( result[-1][endpointKey].keys() )[0]
 
-            linkId      = result[-1][endpointKey][resultIdKey]
-            resultLink  = 'https://www.youtube.com/watch?v=' + linkId
+            linkId = result[-1][endpointKey][resultIdKey]
+            resultLink = 'https://www.youtube.com/watch?v=' + linkId
+
 
 
             # convert length into seconds
@@ -259,16 +287,17 @@ def __query_and_simplify(searchTerm: str, apiKey: str = ytmApiKey) -> List[dict]
             #! are a few oddball tracks that are only a few seconds long
             if minStr[0] == '0' and len(minStr) == 2:
                 minStr = minStr[1]
-
+            
             if secStr[0] == '0':
                 secStr = secStr[1]
-
+            
             time = eval(minStr)*60 + eval(secStr)
+
 
 
             # format relevant details
             if availableDetails[1] == 'Song':
-
+            
                 formattedDetails = {
                     'name'      : availableDetails[0],
                     'type'      : 'song',
@@ -278,12 +307,12 @@ def __query_and_simplify(searchTerm: str, apiKey: str = ytmApiKey) -> List[dict]
                     'link'      : resultLink,
                     'position'  : resultPosition
                 }
-
+            
                 if formattedDetails not in simplifiedResults:
                     simplifiedResults.append(formattedDetails)
-
+            
             elif availableDetails[1] == 'Video':
-
+            
                 formattedDetails = {
                     'name'      : availableDetails[0],
                     'type'      : 'video',
@@ -291,24 +320,25 @@ def __query_and_simplify(searchTerm: str, apiKey: str = ytmApiKey) -> List[dict]
                     'link'      : resultLink,
                     'position'  : resultPosition
                 }
-
+            
                 if formattedDetails not in simplifiedResults:
                     simplifiedResults.append(formattedDetails)
-
+            
             #! Things like playlists, albums, etc... just get ignored
-
+            
 
 
     # return the results
     return simplifiedResults
 
-# =======================
-# === Search Provider ===
-# =======================
+
+
+#=======================
+#=== Search Provider ===
+#=======================
 
 def search_and_order_ytm_results(songName: str, songArtists: List[str],
-                                 songAlbumName: str, songDuration: int) -> dict:
-
+                                        songAlbumName: str, songDuration: int) -> dict:
     '''
     `str` `songName` : name of song
 
@@ -330,7 +360,7 @@ def search_and_order_ytm_results(songName: str, songArtists: List[str],
 
     for artist in songArtists:
         songArtistStr += artist + ', '
-
+    
     #! the ...[:-2] is so that we don't get the last ', ' of searchStrArtists because we
     #! want $artist1, $artist2, ..., $artistN - $songName
     songSearchStr = songArtistStr[:-2] + ' - ' + songName
@@ -349,7 +379,7 @@ def search_and_order_ytm_results(songName: str, songArtists: List[str],
         #! If there are no common words b/w the spotify and YouTube Music name, the song
         #! is a wrong match (Like Ruelle - Madness being matched to Ruelle - Monster, it
         #! happens without this conditional)
-
+        
         #! most song results on youtube go by $artist - $songName, so if the spotify name
         #! has a '-', this function would return True, a common '-' is hardly a 'common
         #! word', so we get rid of it. Lower-caseing all the inputs is to get rid of the
@@ -360,14 +390,14 @@ def search_and_order_ytm_results(songName: str, songArtists: List[str],
         lowerResultName = result['name'].lower()
 
         sentenceAWords = lowerSongName.replace('-', ' ').split(' ')
-
+        
         commonWord = False
 
         #! check for common word
         for word in sentenceAWords:
             if word != '' and word in lowerResultName:
                 commonWord = True
-
+        
         #! if there are no common words, skip result
         if not commonWord:
             continue
@@ -381,7 +411,7 @@ def search_and_order_ytm_results(songName: str, songArtists: List[str],
         #! we use fuzzy matching because YouTube spellings might be mucked up
         if result['type'] == 'song':
             for artist in songArtists:
-                if match_percentage(artist.lower(), result['artist'].lower()) > 85:
+                if match_percentage (artist.lower(), result['artist'].lower(), 85):
                     artistMatchNumber += 1
         else:
             #! i.e if video
@@ -389,15 +419,16 @@ def search_and_order_ytm_results(songName: str, songArtists: List[str],
                 #! something like match_percentage('rionos', 'aiobahn, rionos Motivation
                 #! (remix)' would return 100, so we're absolutely corrent in matching
                 #! artists to song name.
-                if match_percentage(artist.lower(), result['name'].lower()) > 85:
+                if match_percentage(artist.lower(), result['name'].lower(), 85):
                     artistMatchNumber += 1
-
+        
         #! Skip if there are no artists in common, (else, results like 'Griffith Swank -
         #! Madness' will be the top match for 'Ruelle - Madness')
         if artistMatchNumber == 0:
             continue
+        
+        artistMatch = (artistMatchNumber / len(songArtists) ) * 100
 
-        artistMatch = (artistMatchNumber / len(songArtists)) * 100
 
 
         # Find name match
@@ -434,10 +465,8 @@ def search_and_order_ytm_results(songName: str, songArtists: List[str],
 
     return linksWithMatchValue
 
-
 def search_and_get_best_match(songName: str, songArtists: List[str],
-                              songAlbumName: str, songDuration: int) -> str:
-
+                                        songAlbumName: str, songDuration: int) -> str:
     '''
     `str` `songName` : name of song
 
@@ -460,7 +489,7 @@ def search_and_get_best_match(songName: str, songArtists: List[str],
         return None
 
     resultItems = list(results.items())
-    sortedResults = sorted(resultItems, key=lambda x: x[1], reverse=True)
+    sortedResults = sorted(resultItems, key = lambda x: x[1], reverse=True)
 
     #! In theory, the first 'TUPLE' in sortedResults should have the highest match
     #! value, we send back only the link
@@ -541,5 +570,6 @@ def get_lyrics(songName: str, artistName: str) -> str:
         lyrics = edgeRegEx.sub(r'\1\3\5', lyrics)  #! Edge case handling
     except:
         lyrics = ''
+        
     #! Removes trailing and leading newlines and spaces.
     return lyrics.strip()

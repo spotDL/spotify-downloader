@@ -26,5 +26,7 @@ for eachFile in CLIARGS[1:]:
 
             if not onlyCount:
                 print('%3d   %-60s   %s' % (songCount, contributingArtists[:-2], songName))
-
+        
+        print("Found search results")
+        
         print('\nThere are %d songs in "%s"' % (songCount, eachFile[2:-19]))
