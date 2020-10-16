@@ -19,14 +19,14 @@ import argparse
 def get_arguments():
     '''
     Generate all possible arguments along with their alias, alt. alias, and help description
+
+    RETURNS `ArgumentParser` object
     '''
     parser = argparse.ArgumentParser(
         description="Download Spotify playlists from YouTube with albumart and metadata",
-        # version='3.0',
         # formatter_class=argparse.ArgumentDefaultsHelpFormatter,
         # add_help=True
     )
-    parser.add_argument('-v', '--version', action='version', version='3.0')
 
     parser.add_argument(
         "query",
@@ -44,28 +44,6 @@ def get_arguments():
         "--file",
         help="Download tracks from a .spotdlTrackingFile (WARNING: this file will be modified!)"
     )
-    # parser.add_argument(
-    #     "-l",
-    #     "--list",
-    #     help="Download tracks from a file cantaining a list of queries (WARNING: this file will be modified!)"
-    # )
-    # parser.add_argument(
-    #     "-p",
-    #     "--playlist",
-    #     help="Load tracks from playlist URL into <playlist_name>.txt or "
-    #          "if `--write-to=<path/to/file.txt>` has been passed",
-    # )
-    # parser.add_argument(
-    #     "-a",
-    #     "--album",
-    #     help="Load tracks from album URL into <album_name>.txt or if "
-    #          "`--write-to=<path/to/file.txt>` has been passed"
-    # )
-    # parser.add_argument(
-    #     "-aa",
-    #     "--all-albums",
-    #     help="load all tracks from artist URL into <artist_name>.txt "
-    # )
 
 
     authgroup = parser.add_argument_group('authentication')
@@ -94,12 +72,13 @@ def get_arguments():
     return parser
 
 
-def get_options(args=sys.argv[1:]):
+def get_options():
     '''
-    Parse all the options created in get_arguments() and match them up with the arguments fed into the command
-    sys.argv[1:] grabs all the args and filters out the 1st one: the filename.
+    Convert argument strings to objects and assign them as attributes of the namespace
+
+    RETURNS `options` the populated namespace.
     '''
 
-    options = get_arguments().parse_args(args)
+    options = get_arguments().parse_args()
     return options
 
