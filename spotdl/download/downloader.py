@@ -144,7 +144,7 @@ def download_song(songObj: SongObj, displayManager: DisplayManager = None,
     #! sampled length of songs matches the actual length (i.e. a 5 min song won't display
     #! as 47 seconds long in your music player, yeah that was an issue earlier.)
 
-    command = 'ffmpeg -y -v quiet -i "%s" -acodec libmp3lame -r:a 41k -af "apad=pad_dur=2, loudnorm=I=-17" "%s"'
+    command = 'ffmpeg -v quiet -y -i "%s" -acodec libmp3lame -abr true -af loudnorm=I=-17 "%s"'
     formattedCommand = command % (downloadedFilePath, convertedFilePath)
 
     run_in_shell(formattedCommand)
@@ -196,7 +196,8 @@ def download_song(songObj: SongObj, displayManager: DisplayManager = None,
     audioFile['date']         = songObj.get_album_release()
     audioFile['originaldate'] = songObj.get_album_release()
 
-    #! spotify link
+    #! spotify link: in case you wanna re-download your whole offline library,
+    #! you can just read the links from the tags and redownload the songs.
     audioFile['website'] = songObj.get_spotify_link()
 
     #! save as both ID3 v2.3 & v2.4 as v2.3 isn't fully features and
