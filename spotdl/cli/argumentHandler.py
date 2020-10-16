@@ -59,16 +59,6 @@ def get_arguments():
         help=argparse.SUPPRESS,
     )
 
-    devgroup = parser.add_argument_group('debug')
-
-    devgroup.add_argument(
-        "--debug",
-        # action="store_true",
-        nargs='?',
-        const='local',  # Scope: local/global/file(global)
-        help=argparse.SUPPRESS,
-    )
-
     return parser
 
 
