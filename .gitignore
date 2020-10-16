@@ -11,6 +11,7 @@ originalCodeRef/*
 __pycache__
 .mypy_cache
 *.pyc
+--pycache__/*
 __scratch*__.py
 
 # vscode
