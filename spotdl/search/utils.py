@@ -1,7 +1,7 @@
 from spotdl.search.spotifyClient import get_spotify_client
 from spotdl.search.songObj import SongObj
 
-from typing import List
+from typing import Dict, List
 
 def search_for_song(query: str) ->  SongObj:
     '''
@@ -23,12 +23,12 @@ def search_for_song(query: str) ->  SongObj:
         for songResult in result['tracks']['items']:
             songUrl = 'http://open.spotify.com/track/' + songResult['id']
             song = SongObj.from_url(songUrl)
-            
+
             if song.get_youtube_link() != None:
                 return song
-        
+
         raise Exception('Could not match any of the results on YouTube')
-        
+
 def get_album_tracks(albumUrl: str) -> List[SongObj]:
     '''
     `str` `albumUrl` : Spotify Url of the album whose tracks are to be
@@ -47,10 +47,10 @@ def get_album_tracks(albumUrl: str) -> List[SongObj]:
 
         for track in trackResponse['items']:
             song = SongObj.from_url('https://open.spotify.com/track/' + track['id'])
-            
+
             if song.get_youtube_link() != None:
                 albumTracks.append(song)
-        
+
         # check if more tracks are to be passed
         if trackResponse['next']:
             trackResponse = spotifyClient.album_tracks(
@@ -59,7 +59,7 @@ def get_album_tracks(albumUrl: str) -> List[SongObj]:
             )
         else:
             break
-    
+
     return albumTracks
 
 def get_playlist_tracks(playlistUrl: str) -> List[SongObj]:
@@ -81,11 +81,11 @@ def get_playlist_tracks(playlistUrl: str) -> List[SongObj]:
         for songEntry in playlistResponse['items']:
             song = SongObj.from_url(
                 'https://open.spotify.com/track/' + songEntry['track']['id'])
-            
+
             if song.get_youtube_link() != None:
                 playlistTracks.append(song)
 
-        # check if more tracks are to be passed        
+        # check if more tracks are to be passed
         if playlistResponse['next']:
             playlistResponse = spotifyClient.playlist_tracks(
                 playlistUrl,
@@ -93,5 +93,27 @@ def get_playlist_tracks(playlistUrl: str) -> List[SongObj]:
             )
         else:
             break
-    
+
     return playlistTracks
+
+
+def get_artist_albums(artistUrl: str) -> Dict:
+    '''
+    `str` `artistUrl` : Spotify Url of the artist whose tracks are to be
+    retrieved
+
+    returns a `dict` containing Url's of each album of the artist. {'albumName':'albumUrl'}
+    '''
+
+    spotifyClient = get_spotify_client()
+    artistAlbums = {}
+
+    artistResponse = spotifyClient.artist_albums(artistUrl)
+
+    for album in artistResponse['items']:
+        albumName = album['name']
+        albumUrl  = album['external_urls']['spotify']
+
+        artistAlbums[albumName] = albumUrl
+
+    return artistAlbums
