@@ -31,7 +31,8 @@ class SongObj():
     def from_url(cls, spotifyURL: str):
         # check if URL is a playlist, user, artist or album, if yes raise an Exception,
         # else procede
-        if not ('open.spotify.com' in spotifyURL and 'track' in spotifyURL):
+        if not (('open.spotify.com' in spotifyURL and 'track' in spotifyURL)
+            or spotifyURL.startswith('spotify:track:')):
             raise Exception('passed URL is not that of a track: %s' % spotifyURL)
 
 
@@ -108,6 +109,12 @@ class SongObj():
 
     def get_youtube_link(self) -> str:
         return self.__youtubeLink
+    
+    def get_spotify_link(self) -> str:
+        return 'http://open.spotify.com/track/' + self.__rawTrackMeta['id']
+
+    def get_spotify_link(self) -> str:
+        return 'http://open.spotify.com/track/' + self.__rawTrackMeta['id']
 
     #! Song Details:
 
