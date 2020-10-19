@@ -109,7 +109,7 @@ class DisplayManager():
     def __init__(self, queue = None):
         self.console = Console(theme = custom_theme)
         self._richProgressBar = Progress(
-            SizedTextColumn("{task.fields[processID]}", style="nonimportant", width=7),
+            # SizedTextColumn("{task.fields[processID]}", style="nonimportant", width=7),
             SizedTextColumn("[white]{task.description}", overflow="ellipsis", width=60), # overflow='ellipsis',
             # "[progress.description]{task.description}",
             SizedTextColumn("{task.fields[message]}", width=18, style="nonimportant"),
