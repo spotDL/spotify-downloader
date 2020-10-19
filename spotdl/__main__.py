@@ -69,10 +69,10 @@ def console_entry_point():
         sys.stderr = quiet()
 
     initialize(
-        clientId='4fe3fecfe5334023a1472516cc99d805',
-        clientSecret='0f02b7c483c04257984695007a4a8d5c'
+        clientId     = '4fe3fecfe5334023a1472516cc99d805',
+        clientSecret = '0f02b7c483c04257984695007a4a8d5c'
         )
-    
+
     downloader = DownloadManager()
 
     for request in cliArgs[1:]:
@@ -98,11 +98,22 @@ def console_entry_point():
             songObjList = get_playlist_tracks(request)
 
             downloader.download_multiple_songs(songObjList)
-        
+
+        elif request.endswith('.txt'):
+            print('Fetching songs from %s...' % request)
+            songObjList = []
+
+            with open(request, 'r') as songFile:
+                for songLink in songFile.readlines():
+                    song = SongObj.from_url(songLink)
+                    songObjList.append(song)
+
+            downloader.download_multiple_songs(songObjList)
+
         elif request.endswith('.spotdlTrackingFile'):
             print('Preparing to resume download...')
             downloader.resume_download_from_tracking_file(request)
-        
+
         else:
             print('Searching for song "%s"...' % request)
             try:
@@ -111,7 +122,7 @@ def console_entry_point():
 
             except Exception:
                 print('No song named "%s" could be found on spotify' % request)
-    
+
     downloader.close()
 
 if __name__ == '__main__':
