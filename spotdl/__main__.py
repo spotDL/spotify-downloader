@@ -3,7 +3,7 @@ from spotdl.search.spotifyClient import initialize
 from sys import argv as cliArgs
 
 #! Song Search from different start points
-from spotdl.search.utils import get_playlist_tracks, get_album_tracks, search_for_song, get_artist_albums
+from spotdl.search.utils import get_playlist_tracks, get_album_tracks, search_for_song, get_artist_tracks
 from spotdl.search.songObj import SongObj
 
 #! The actual download stuff
@@ -30,9 +30,9 @@ To download a playlist run,
     spotdl $playlistUrl
     eg. spotdl https://open.spotify.com/playlist/37i9dQZF1DWXhcuQw7KIeM?si=xubKHEBESM27RqGkqoXzgQ
 
-To download an artists songs run,
+To download an artist's songs run,
     spotdl $artistUrl
-    rg. spotdl https://open.spotify.com/artist/6fOMl44jA4Sp5b9PpYCkzz
+    eg. spotdl https://open.spotify.com/artist/6fOMl44jA4Sp5b9PpYCkzz
 
 To search for and download a song (not very accurate) run,
     spotdl $songQuery
@@ -104,14 +104,10 @@ def console_entry_point():
             downloader.download_multiple_songs(songObjList)
 
         elif ('open.spotify.com' in request and 'artist' in request) or 'spotify:artist:' in request:
-            print('Fetching Artist Albums...')
-            artistAlbums = get_artist_albums(request)
+            print('Fetching Artist\'s Tracks...')
+            songObjList = get_artist_tracks(request)
 
-            for album in artistAlbums.items():
-                print('Fetching songs from "%s"' % album[0])
-
-                songObjList = get_album_tracks(album[1])
-                downloader.download_multiple_songs(songObjList)
+            downloader.download_multiple_songs(songObjList)
 
         elif request.endswith('.txt'):
             print('Fetching songs from %s...' % request)

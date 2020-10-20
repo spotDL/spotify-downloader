@@ -97,23 +97,39 @@ def get_playlist_tracks(playlistUrl: str) -> List[SongObj]:
     return playlistTracks
 
 
-def get_artist_albums(artistUrl: str) -> Dict:
+def get_artist_tracks(artistUrl: str) -> List[SongObj]:
     '''
     `str` `artistUrl` : Spotify Url of the artist whose tracks are to be
     retrieved
 
-    returns a `dict` containing Url's of each album of the artist. {'albumName':'albumUrl'}
+    returns a `dict` containing Url's of each track of the artist.
     '''
 
     spotifyClient = get_spotify_client()
-    artistAlbums = {}
+    artistAlbums = []
+    artistTracks = []
 
     artistResponse = spotifyClient.artist_albums(artistUrl)
 
-    for album in artistResponse['items']:
-        albumName = album['name']
-        albumUrl  = album['external_urls']['spotify']
+    while True:
 
-        artistAlbums[albumName] = albumUrl
+        for album in artistResponse['items']:
+            albumUrl  = album['external_urls']['spotify']
 
-    return artistAlbums
+            artistAlbums.append(albumUrl)
+
+        # Check if the artist has more albums.
+        if artistResponse['next']:
+            artistResponse = spotifyClient.artist_albums(
+                artistUrl,
+                offset = len(artistAlbums)
+            )
+        else:
+            break
+
+    for album in artistAlbums:
+        albumTracks = get_album_tracks(album)
+        
+        artistTracks.append(albumTracks)
+
+    return artistTracks
