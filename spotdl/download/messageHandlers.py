@@ -166,7 +166,7 @@ class MessagesTrackerPlugin():
         Reports error message to queue
         '''
         self.send_update(message='Error')
-        self.parent.put(ID='0', name='Error', progress=pid, message=str(e) + " - " + str(tb))
+        self.parent.put(ID='0', name='Error', progress=0, message="Process ID: " + str(pid) + "\t Error: " + str(e) + "\t While downloading: " + self.displayName + "\n" + str(tb))
 
     def send_update(self, message = ''):
         '''

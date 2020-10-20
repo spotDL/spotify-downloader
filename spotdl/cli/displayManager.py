@@ -115,7 +115,7 @@ class DisplayManager():
             SizedTextColumn("[white]{task.description}", overflow="ellipsis", width=int(self.console.width/3)), # overflow='ellipsis',
             # "[progress.description]{task.description}",
             SizedTextColumn("{task.fields[message]}", width=18, style="nonimportant"),
-            BarColumn(bar_width=None, style="black on black", finished_style="green"),
+            BarColumn(bar_width=None, finished_style="green"),
             "[progress.percentage]{task.percentage:>3.0f}%",
             TimeRemainingColumn(),
             console = self.console    # use this when self.console = Console()
@@ -193,7 +193,6 @@ class DisplayManager():
                 downloadID = list(message.keys())[0] # Gets the message's process ID
                 if downloadID == ID:
                     try:
-                        # print(downloadID, message[downloadID]['time'])
                         if message[downloadID]['time'] >= latestMessage[downloadID]['time']:
                             latestMessage = message
                     except:
@@ -259,7 +258,7 @@ class DisplayManager():
             self.overallTotal = 100 * message['progress']
             self.overallID = self._richProgressBar.add_task(description='Total', processID='0', message='', total=self.overallTotal)
         elif message['name'] == 'Error' or message['message']:
-            self.print('PID:', message['progress'], 'Error:', message['message'])
+            self.print(message['message'], color="red")
 
 
 
@@ -313,7 +312,6 @@ class DisplayManager():
         self.handle_messages(messages)
 
 
-        # self.print('Results Ready')
         multiprocessResult.wait()
         # self.print('Results:', multiprocessResult.get())
         results = multiprocessResult.get()
