@@ -228,7 +228,9 @@ class DisplayManager():
                     # if message[downloadID]['time'] > self.currentStatus[downloadID]['time']:
                     taskID = self.currentStatus[downloadID]['taskID']
                     self._richProgressBar.start_task(taskID)
-                    self._richProgressBar.update(taskID, description=message[downloadID]['name'], processID=str(downloadID), message=message[downloadID]['message'], completed=message[downloadID]['progress'])
+                    for completed in range(self.currentStatus[downloadID]['progress'], message[downloadID]['progress'] + 1):
+                        self._richProgressBar.update(taskID, description=message[downloadID]['name'], processID=str(downloadID), message=message[downloadID]['message'], completed=completed, refresh=True)
+                        time.sleep(0.001)
                     self.currentStatus[downloadID] = message[downloadID]
                 else:
                     # New process has appeared in queue
@@ -258,6 +260,8 @@ class DisplayManager():
             self.overallID = self._richProgressBar.add_task(description='Total', processID='0', message='', total=self.overallTotal)
         elif message['name'] == 'Error' or message['message']:
             self.print('PID:', message['progress'], 'Error:', message['message'])
+
+
 
     def update_overall(self):
         '''Updates the overall progress bar.
