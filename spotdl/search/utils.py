@@ -102,7 +102,7 @@ def get_artist_tracks(artistUrl: str) -> List[SongObj]:
     `str` `artistUrl` : Spotify Url of the artist whose tracks are to be
     retrieved
 
-    returns a `dict` containing Url's of each track of the artist.
+    returns a `List` containing Url's of each track of the artist.
     '''
 
     spotifyClient = get_spotify_client()
