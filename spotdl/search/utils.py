@@ -1,7 +1,7 @@
 from spotdl.search.spotifyClient import get_spotify_client
 from spotdl.search.songObj import SongObj
 
-from typing import Dict, List
+from typing import List
 
 def search_for_song(query: str) ->  SongObj:
     '''
@@ -130,6 +130,6 @@ def get_artist_tracks(artistUrl: str) -> List[SongObj]:
     for album in artistAlbums:
         albumTracks = get_album_tracks(album)
         
-        artistTracks.append(albumTracks)
+        artistTracks += albumTracks
 
     return artistTracks
