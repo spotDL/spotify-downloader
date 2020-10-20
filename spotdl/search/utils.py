@@ -30,7 +30,7 @@ def search_for_song(query: str) ->  SongObj:
             if song.get_youtube_link() != None:
                 return song
 
-        logging.error('Could not match any of the results on YouTube')
+        # logging.error('Could not match any of the results on YouTube')
         raise Exception('Could not match any of the results on YouTube')
         
 def get_album_tracks(albumUrl: str) -> List[SongObj]:

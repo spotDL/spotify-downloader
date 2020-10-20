@@ -32,6 +32,7 @@ from rich.console import (
     RenderableType,
     RenderGroup,
     RenderHook,
+    detect_legacy_windows,
 )
 from rich.highlighter import Highlighter
 from rich.text import Text
@@ -111,8 +112,11 @@ class DisplayManager():
     All of the process information is read from a queue and stored inside of a dict: self.currentStatus
     '''
     def __init__(self, queue = None):
-        self.console = Console(theme = custom_theme)
+        
         # (width, height) = 
+        self.isLegacy = detect_legacy_windows()
+
+        self.console = Console(theme = custom_theme, color_system= "truecolor" if not self.isLegacy else None)
 
         self._richProgressBar = Progress(
             # SizedTextColumn("{task.fields[processID]}", style="nonimportant", width=7),
@@ -122,9 +126,10 @@ class DisplayManager():
             BarColumn(bar_width=None, finished_style="green"),
             "[progress.percentage]{task.percentage:>3.0f}%",
             TimeRemainingColumn(),
-            console = self.console    # use this when self.console = Console()
-            #transient=True     # Normally when you exit the progress context manager (or call stop()) the last refreshed display remains in the terminal with the cursor on the following line. You can also make the progress display disappear on exit by setting transient=True on the Progress constructor
+            console = self.console,    # use this when self.console = Console()
+            transient=self.isLegacy     # Normally when you exit the progress context manager (or call stop()) the last refreshed display remains in the terminal with the cursor on the following line. You can also make the progress display disappear on exit by setting transient=True on the Progress constructor
         )
+
 
         self.queue = queue
         self.currentStatus = {}
@@ -230,11 +235,14 @@ class DisplayManager():
                     # Process already exists. If newer than others, update accordingly
                     taskID = self.currentStatus[downloadID]['taskID']
                     self._richProgressBar.start_task(taskID)
-                    # for completed in range(self.currentStatus[downloadID]['progress'], message[downloadID]['progress'] + 1, 5): # Uncomment this to make a smoother progress bar progressing animation
-                    #     self._richProgressBar.update(taskID, description=message[downloadID]['name'], processID=str(downloadID), message=message[downloadID]['message'], completed=completed, refresh=True)
-                    #     time.sleep(0.0005)
+                    ''' # Uncomment this to make a smoother progress bar progressing animation
+                    for completed in range(self.currentStatus[downloadID]['progress'], message[downloadID]['progress'] + 1, 5): 
+                        self._richProgressBar.update(taskID, description=message[downloadID]['name'], processID=str(downloadID), message=message[downloadID]['message'], completed=completed, refresh=True)
+                        time.sleep(0.0005)
+                    '''
                     self._richProgressBar.update(taskID, description=message[downloadID]['name'], processID=str(downloadID), message=message[downloadID]['message'], completed=message[downloadID]['progress'])
                     self.currentStatus[downloadID] = message[downloadID]
+                    
                 else:
                     # New process has appeared in queue
                     self.currentStatus[downloadID] = message[downloadID]
@@ -245,6 +253,8 @@ class DisplayManager():
 
                 if message[downloadID]['progress'] == 100:
                     self.overallCompletedTasks += 1
+                if (self.isLegacy and (message[downloadID]['progress'] == 100  or message[downloadID]['message'] == "Error")):
+                    self._richProgressBar.remove_task(taskID)
                 self.currentStatus[downloadID]['taskID'] = taskID
 
         self.update_overall()
