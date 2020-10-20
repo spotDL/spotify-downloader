@@ -1,6 +1,6 @@
 from spotdl.search.spotifyClient import get_spotify_client
 from spotdl.search.songObj import SongObj
-import logging
+# import logging
 
 from typing import List
 
@@ -16,11 +16,11 @@ def search_for_song(query: str) ->  SongObj:
 
     # get possible matches from spotify
     result = spotifyClient.search(query, type = 'track')
-    logging.info("Search: " + query + " - Spotify Results:" +  str(result) )
+    # logging.info("Search: " + query + " - Spotify Results:" +  str(result) )
 
     # return first result link or if no matches are found, raise and Exception
     if len(result['tracks']['items']) == 0:
-        logging.error('No song matches found on Spotify')
+        # logging.error('No song matches found on Spotify')
         raise Exception('No song matches found on Spotify')
     else:
         for songResult in result['tracks']['items']:
