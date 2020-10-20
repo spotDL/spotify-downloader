@@ -225,12 +225,12 @@ class DisplayManager():
             else:
                 if downloadID in self.currentStatus:
                     # Process already exists. If newer than others, update accordingly
-                    # if message[downloadID]['time'] > self.currentStatus[downloadID]['time']:
                     taskID = self.currentStatus[downloadID]['taskID']
                     self._richProgressBar.start_task(taskID)
-                    for completed in range(self.currentStatus[downloadID]['progress'], message[downloadID]['progress'] + 1):
-                        self._richProgressBar.update(taskID, description=message[downloadID]['name'], processID=str(downloadID), message=message[downloadID]['message'], completed=completed, refresh=True)
-                        time.sleep(0.001)
+                    # for completed in range(self.currentStatus[downloadID]['progress'], message[downloadID]['progress'] + 1, 5): # Uncomment this to make a smoother progress bar progressing animation
+                    #     self._richProgressBar.update(taskID, description=message[downloadID]['name'], processID=str(downloadID), message=message[downloadID]['message'], completed=completed, refresh=True)
+                    #     time.sleep(0.0005)
+                    self._richProgressBar.update(taskID, description=message[downloadID]['name'], processID=str(downloadID), message=message[downloadID]['message'], completed=message[downloadID]['progress'])
                     self.currentStatus[downloadID] = message[downloadID]
                 else:
                     # New process has appeared in queue
