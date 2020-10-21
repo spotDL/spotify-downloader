@@ -22,5 +22,10 @@ Hacks/*
 
 # setuptools
 spotdl.egg-info/*
-build/*
-dist/*
+
+# setuptools and PyInstaller
+build
+dist
+
+# PyInstaller
+*.spec
