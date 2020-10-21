@@ -12,6 +12,7 @@ from multiprocessing import Pool
 from spotdl.patches.pyTube import YouTube
 
 from mutagen.easyid3 import EasyID3, ID3
+from mutagen.id3 import USLT
 from mutagen.id3 import APIC as AlbumCover
 
 from urllib.request import urlopen
@@ -216,6 +217,14 @@ def download_song(songObj: SongObj, displayManager: DisplayManager = None,
         desc = 'Cover',
         data = rawAlbumArt
     )
+
+    #! adding lyrics
+    try:
+        lyrics = songObj.get_song_lyrics()
+        USLTOutput = USLT(encoding=3, lang=u'eng', desc=u'desc', text=lyrics)
+        audioFile["USLT::'eng'"] = USLTOutput
+    except:
+        pass
 
     audioFile.save(v2_version = 3)
 
