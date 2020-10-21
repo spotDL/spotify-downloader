@@ -7,7 +7,8 @@ from tqdm import tqdm
 #! we need to import the whole shebang here to patch multiprocessing's AutoProxy.
 #! Attempting to use a displayManager across multiple processes without the
 #! patch will result in a 'Key Error: Autoproxy takes no key argument manager_owned'
-import multiprocessing.managers
+# import multiprocessing.managers
+from multiprocess.managers import BaseManager
 
 #! These are not used, they're here for static type checking using mypy
 from spotdl.search.songObj import SongObj
@@ -20,19 +21,19 @@ from os import remove
 #=================
 #=== The Patch ===
 #=================
-originalAutoproxy = multiprocessing.managers.AutoProxy
-
-def patchedAutoproxy(token, serializer, manager=None,
-    authkey=None,exposed=None, incref=True, manager_owned=True):
-    '''
-    A patch to `multiprocessing.managers.AutoProxy`
-    '''
-
-    #! we bypass the unwanted key argument here
-    return originalAutoproxy(token, serializer, manager, authkey, exposed, incref)
-
-#! Update the Autoproxy definition in multiprocessing.managers package
-multiprocessing.managers.AutoProxy = patchedAutoproxy
+# originalAutoproxy = multiprocessing.managers.AutoProxy
+# 
+# def patchedAutoproxy(token, serializer, manager=None,
+#     authkey=None,exposed=None, incref=True, manager_owned=True):
+#     '''
+#     A patch to `multiprocessing.managers.AutoProxy`
+#     '''
+# 
+#     #! we bypass the unwanted key argument here
+#     return originalAutoproxy(token, serializer, manager, authkey, exposed, incref)
+# 
+# #! Update the Autoproxy definition in multiprocessing.managers package
+# multiprocessing.managers.AutoProxy = patchedAutoproxy
 
 
 
@@ -282,7 +283,7 @@ class DownloadTracker():
 #! to work across multiple processes and work accurately but, this is the part that
 #! puts multiprocessing into the picture
 
-class ProgressRootProcess(multiprocessing.managers.BaseManager): pass
+class ProgressRootProcess(BaseManager): pass
 
 ProgressRootProcess.register('DownloadTracker', DownloadTracker)
 ProgressRootProcess.register('DisplayManager',  DisplayManager)

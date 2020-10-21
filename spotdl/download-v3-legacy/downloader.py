@@ -7,7 +7,7 @@ from spotdl.download.progressHandlers import ProgressRootProcess
 from os import mkdir, remove, system as run_in_shell
 from os.path import join, exists
 
-from multiprocessing import Pool
+from multiprocess import Pool
 
 from spotdl.patches.pyTube import YouTube
 
