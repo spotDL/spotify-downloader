@@ -45,6 +45,12 @@ def get_arguments():
         help="Download tracks from a .spotdlTrackingFile (WARNING: this file will be modified!)"
     )
 
+    parser.add_argument(
+        "--quiet",
+        action="store_true",
+        help="Do not output to console"
+    )
+
 
     authgroup = parser.add_argument_group('authentication')
 

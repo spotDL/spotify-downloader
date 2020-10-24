@@ -26,6 +26,9 @@ if __name__ == '__main__':
 
             options = get_options()
 
+            if options.quiet:
+                disp.quiet = True
+
 
             if options.spotify_client_id:
                 if options.spotify_client_secret:
@@ -111,8 +114,6 @@ if __name__ == '__main__':
                         except Exception:
                             disp.print('No song named "%s" could be found on spotify' % request)
 
-            else:
-                disp.print('Idk what im supposed to do...')
    
                 
 

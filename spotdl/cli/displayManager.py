@@ -126,7 +126,7 @@ class DisplayManager():
             BarColumn(bar_width=None, finished_style="green"),
             "[progress.percentage]{task.percentage:>3.0f}%",
             TimeRemainingColumn(),
-            console = self.console,    # use this when self.console = Console()
+            console = self.console,
             transient=self.isLegacy     # Normally when you exit the progress context manager (or call stop()) the last refreshed display remains in the terminal with the cursor on the following line. You can also make the progress display disappear on exit by setting transient=True on the Progress constructor
         )
 
@@ -137,6 +137,7 @@ class DisplayManager():
         self.overallProgress = 0
         self.overallTotal = 100
         self.overallCompletedTasks = 0
+        self.quiet = False
 
     def __enter__(self):
         # self.__init__()
@@ -153,6 +154,9 @@ class DisplayManager():
 
         Use this self.print to replace default print(). 
         '''
+
+        if self.quiet:
+            return
 
         line = ''
         for item in text:
@@ -246,7 +250,7 @@ class DisplayManager():
                 else:
                     # New process has appeared in queue
                     self.currentStatus[downloadID] = message[downloadID]
-                    taskID = self._richProgressBar.add_task(description=message[downloadID]['name'], processID=str(downloadID), message=message[downloadID]['message'], total=100, completed=message[downloadID]['progress'], start=False)
+                    taskID = self._richProgressBar.add_task(description=message[downloadID]['name'], processID=str(downloadID), message=message[downloadID]['message'], total=100, completed=message[downloadID]['progress'], start=False, visible=(not self.quiet) )
                     if message[downloadID]['message'] != "Download Started":
                         self._richProgressBar.start_task(taskID)
 
@@ -270,7 +274,7 @@ class DisplayManager():
         if message['name'] == 'Song Count' and message['progress'] >= 4:
             # self.print('Total songs:',  message['progress'])
             self.overallTotal = 100 * message['progress']
-            self.overallID = self._richProgressBar.add_task(description='Total', processID='0', message='', total=self.overallTotal)
+            self.overallID = self._richProgressBar.add_task(description='Total', processID='0', message='', total=self.overallTotal, visible=(not self.quiet) )
         elif message['name'] == 'Error' or message['message']:
             self.print(message['message'], color="red")
 
@@ -333,6 +337,7 @@ class DisplayManager():
             for result in results:
                 if result != None:
                     self.print(result)
+                    print("Result:", result)
                     # log.ERROR(result)
         else:
             result = results
