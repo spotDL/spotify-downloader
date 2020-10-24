@@ -47,7 +47,7 @@ you use spotDL v3 and open issues for problems that you come across.
 2. For latest version (not necessarily stable)
 
     ```
-    $pip install https://github.com/spotDL/spotify-downloader/archive/next-rel-dev.zip
+    $pip install https://github.com/spotDL/spotify-downloader/archive/master.zip
     ```
         
 3. Voila !
