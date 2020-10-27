@@ -20,6 +20,7 @@ class SongObj():
         self.__rawAlbumMeta  = rawArtistMeta
         self.__rawArtistMeta = rawArtistMeta
         self.__youtubeLink   = youtubeLink
+        self.__playlistIndex = None
 
     #! constructors here are a bit mucky, there are two different constructors for two
     #! different use cases, hence the actual __init__ function does not exist
@@ -83,11 +84,15 @@ class SongObj():
         rawAlbumMeta  = dataDump['rawAlbumMeta']
         rawArtistMeta = dataDump['rawAlbumMeta']
         youtubeLink   = dataDump['youtubeLink']
+        playlistIndex = dataDump['playlistIndex']
 
-        return  cls(
+        returnObj = cls(
             rawTrackMeta, rawAlbumMeta,
             rawArtistMeta, youtubeLink
         )
+        returnObj.set_playlist_index(playlistIndex)
+
+        return returnObj
 
     def __eq__(self, comparedSong) -> bool:
         if comparedSong.get_data_dump() == self.get_data_dump():
@@ -98,6 +103,26 @@ class SongObj():
     #================================
     #=== Interface Implementation ===
     #================================
+
+    def set_playlist_index(self, playlistIndex):
+        '''
+        returns song's track number within the playlist (as in the index of the track
+        within the playlist and not the album, see get_track_number for that.)
+        This can be used to prepend the number to filename to keep output files
+        ordered with respect to their original order in playlist.
+        returns None if it wasn't set.
+        '''
+        self.__playlistIndex = playlistIndex
+    
+    def get_playlist_index(self) -> int:
+        '''
+        returns song's track number within the playlist (as in the index of the track
+        within the playlist and not the album, see get_track_number for that.)
+        This can be used to prepend the number to filename to keep output files
+        ordered with respect to their original order in playlist.
+        returns None if it wasn't set.
+        '''
+        return self.__playlistIndex
 
     def get_youtube_link(self) -> str:
         return self.__youtubeLink
@@ -219,6 +244,7 @@ class SongObj():
         #! internally the only reason this exists is that it helps in saving to disk
 
         return {
+            'playlistIndex'  : self.__playlistIndex,
             'youtubeLink'  : self.__youtubeLink,
             'rawTrackMeta' : self.__rawTrackMeta,
             'rawAlbumMeta' : self.__rawAlbumMeta,
