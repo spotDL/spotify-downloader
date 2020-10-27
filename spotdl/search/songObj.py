@@ -106,11 +106,11 @@ class SongObj():
 
     def set_playlist_index(self, playlistIndex):
         '''
-        returns song's track number within the playlist (as in the index of the track
+        sets a song's track number within a playlist (as in the index of the track
         within the playlist and not the album, see get_track_number for that.)
         This can be used to prepend the number to filename to keep output files
         ordered with respect to their original order in playlist.
-        returns None if it wasn't set.
+        Set to None to disable.
         '''
         self.__playlistIndex = playlistIndex
     
