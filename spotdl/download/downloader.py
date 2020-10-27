@@ -79,6 +79,9 @@ def download_song(songObj: SongObj, displayManager: DisplayManager = None,
     #! double quotes (") and semi-colons (:) are also disallowed characters but we would
     #! like to retain their equivalents, so they aren't removed in the prior loop
     convertedFileName = convertedFileName.replace('"', "'").replace(': ', ' - ')
+    #! if a songObj's playlistIndex is not None then we prepend it to keep the playlist/album order
+    if (playlistIndex := songObj.get_playlist_index()) is not None:
+        convertedFileName = f'{playlistIndex:04d}' + ' - ' + convertedFileName
 
     convertedFilePath = join('.', convertedFileName) + '.mp3'
 
