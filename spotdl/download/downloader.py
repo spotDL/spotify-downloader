@@ -82,6 +82,7 @@ def download_song(songObj: SongObj, displayManager: DisplayManager = None,
     #! if a songObj's playlistIndex is not None then we prepend it to keep the playlist/album order
     playlistIndex = songObj.get_playlist_index()
     if playlistIndex is not None:
+        convertedFileName = '{:04d}'.format(playlistIndex) + ' - ' + convertedFileName
 
     convertedFilePath = join('.', convertedFileName) + '.mp3'
 
