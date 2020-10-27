@@ -10,4 +10,4 @@ component_depth: 3
 
 # Folders to exclude
 exclude:
-- /dev utils/*
+- /dev utils/.*
