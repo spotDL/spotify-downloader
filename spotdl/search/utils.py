@@ -110,6 +110,7 @@ def get_artist_tracks(artistUrl: str) -> List[SongObj]:
     artistTracks = []
 
     artistResponse = spotifyClient.artist_albums(artistUrl)
+    artistName     = spotifyClient.artist(artistUrl)['name']
 
     while True:
 
@@ -129,7 +130,10 @@ def get_artist_tracks(artistUrl: str) -> List[SongObj]:
 
     for album in artistAlbums:
         albumTracks = get_album_tracks(album)
-        
+
         artistTracks += albumTracks
+
+    #! Filter out the Songs in which the given artist has not contributed.
+    artistTracks = [track for track in artistTracks if artistName in track.get_contributing_artists()]
 
     return artistTracks
