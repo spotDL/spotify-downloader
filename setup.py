@@ -1,7 +1,5 @@
 from setuptools import setup
 
-long_desc = open('README.md', encoding = 'utf-8').read()
-
 setup(
     # 'spotify-downloader' was already taken (＞﹏＜)
     name = "spotdl",
@@ -25,11 +23,9 @@ setup(
     ],
 
     description="Downloads Spotify music from Youtube with metadata and album art",
-    long_description=long_desc,
-    long_description_content_type='text/markdown',
     
-    author="Mikhail Zex (Not really my name)",
-    author_email="unrealengin71+PyPi@gmail.com",
+    author="Ritiek Malhotra",
+    author_email="ritiekmalhotra123@gmail.com",
 
     license="MIT",
 

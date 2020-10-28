@@ -1,7 +1,6 @@
 # spotDL
 
 [![MIT License](https://img.shields.io/apm/l/atomic-design-ui.svg?)](https://github.com/spotDL/spotify-downloader/blob/master/LICENSE)
-[![BCH compliance](https://bettercodehub.com/edge/badge/spotDL/spotify-downloader?branch=master)](https://bettercodehub.com/)
 
 ⚠ Interested Contributors, please read our [contributing Guidelines](CONTRIBUTING.md) first.
 
@@ -39,12 +38,10 @@ you use spotDL v3 and open issues for problems that you come across.
 
 # Installation
 
-1. For stable version
-
+1. For v2, run
     ```
     $pip install spotdl
     ```
-
 
 2. For v3, (latest version)
     ```
