@@ -14,11 +14,11 @@ setup(
     ],
 
     #! PyPi doesn't allow repeat names, so it essentially considered a patch
-    version = '3.1.2',
+    version = '3.1.4',
 
     install_requires = [
         'spotipy',
-        'pytube3',
+        'a-pytube-fork-for-spotdl-users',
         'tqdm',
         'rapidfuzz',
         'requests',
