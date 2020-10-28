@@ -45,10 +45,10 @@ you use spotDL v3 and open issues for problems that you come across.
     $pip install spotdl
     ```
 
-2. For latest version (not necessarily stable)
 
+2. For v3, (latest version)
     ```
-    $pip install https://github.com/spotDL/spotify-downloader/archive/next-rel-dev.zip
+    $pip install https://github.com/spotDL/spotify-downloader/archive/master.zip
     ```
         
 3. Voila !

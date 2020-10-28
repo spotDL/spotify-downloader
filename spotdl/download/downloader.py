@@ -12,6 +12,7 @@ from multiprocessing import Pool
 from spotdl.patches.pyTube import YouTube
 
 from mutagen.easyid3 import EasyID3, ID3
+from mutagen.id3 import USLT
 from mutagen.id3 import APIC as AlbumCover
 
 from urllib.request import urlopen
@@ -136,10 +137,6 @@ def download_song(songObj: SongObj, displayManager: DisplayManager = None,
     #! intergrated loudness target (I) set to -17, using values lower than -15
     #! causes 'pumping' i.e. rhythmic variation in loudness that should not
     #! exist -loud parts exaggerate, soft parts left alone.
-    #! 
-    #! dynaudnorm applies dynamic non-linear RMS based normalization, this is what
-    #! actually normalized the audio. The loudnorm filter just makes the apparent
-    #! loudness constant
     #!
     #! apad=pad_dur=2 adds 2 seconds of silence toward the end of the track, this is
     #! done because the loudnorm filter clips/cuts/deletes the last 1-2 seconds on
@@ -152,7 +149,7 @@ def download_song(songObj: SongObj, displayManager: DisplayManager = None,
     #! sampled length of songs matches the actual length (i.e. a 5 min song won't display
     #! as 47 seconds long in your music player, yeah that was an issue earlier.)
 
-    command = 'ffmpeg -v quiet -y -i "%s" -acodec libmp3lame -abr true -af "apad=pad_dur=2, dynaudnorm, loudnorm=I=-17" "%s"'
+    command = 'ffmpeg -v quiet -y -i "%s" -acodec libmp3lame -abr true -af loudnorm=I=-17 "%s"'
     formattedCommand = command % (downloadedFilePath, convertedFilePath)
 
     run_in_shell(formattedCommand)
@@ -204,6 +201,10 @@ def download_song(songObj: SongObj, displayManager: DisplayManager = None,
     audioFile['date']         = songObj.get_album_release()
     audioFile['originaldate'] = songObj.get_album_release()
 
+    #! spotify link: in case you wanna re-download your whole offline library,
+    #! you can just read the links from the tags and redownload the songs.
+    audioFile['website'] = songObj.get_spotify_link()
+
     #! save as both ID3 v2.3 & v2.4 as v2.3 isn't fully features and
     #! windows doesn't support v2.4 until later versions of Win10
     audioFile.save(v2_version = 3)
@@ -220,6 +221,14 @@ def download_song(songObj: SongObj, displayManager: DisplayManager = None,
         desc = 'Cover',
         data = rawAlbumArt
     )
+
+    #! adding lyrics
+    try:
+        lyrics = songObj.get_song_lyrics()
+        USLTOutput = USLT(encoding=3, lang=u'eng', desc=u'desc', text=lyrics)
+        audioFile["USLT::'eng'"] = USLTOutput
+    except:
+        pass
 
     audioFile.save(v2_version = 3)
 

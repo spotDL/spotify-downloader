@@ -13,8 +13,7 @@ setup(
         'spotdl.patches'
     ],
 
-    #! PyPi doesn't allow repeat names, so it essentially considered a patch
-    version = '3.1.2',
+    version = '3.2.0-pre',
 
     install_requires = [
         'spotipy',
