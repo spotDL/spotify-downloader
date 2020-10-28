@@ -9,7 +9,7 @@ from os.path import join, exists
 
 from multiprocessing import Pool
 
-from spotdl.patches.pyTube import YouTube
+from spotdl.pytube import YouTube
 
 from mutagen.easyid3 import EasyID3, ID3
 from mutagen.id3 import APIC as AlbumCover

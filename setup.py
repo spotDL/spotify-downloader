@@ -10,15 +10,15 @@ setup(
         'spotdl',
         'spotdl.search',
         'spotdl.download',
-        'spotdl.patches'
+        'spotdl.patches',
+        'spotdl.pytube'
     ],
 
     #! PyPi doesn't allow repeat names, so it essentially considered a patch
-    version = '3.1.2',
+    version = '3.1.3',
 
     install_requires = [
         'spotipy',
-        'pytube3',
         'tqdm',
         'rapidfuzz',
         'requests',
