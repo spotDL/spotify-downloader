@@ -45,7 +45,7 @@ def get_album_tracks(albumUrl: str) -> List[SongObj]:
     # while loop acts like do-while
     while True:
 
-        for index, track in enumerate(trackResponse['items'], 0):
+        for index, track in enumerate(trackResponse['items'], 1):
             song = SongObj.from_url('https://open.spotify.com/track/' + track['id'])
             song.set_playlist_index(index)
 
@@ -79,7 +79,7 @@ def get_playlist_tracks(playlistUrl: str) -> List[SongObj]:
     # while loop to mimic do-while
     while True:
 
-        for index, songEntry in enumerate(playlistResponse['items'], 0):
+        for index, songEntry in enumerate(playlistResponse['items'], 1):
             song = SongObj.from_url(
                 'https://open.spotify.com/track/' + songEntry['track']['id'])
             song.set_playlist_index(index)
