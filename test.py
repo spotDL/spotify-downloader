@@ -5,10 +5,9 @@ initialize(
     )
 
 from spotdl.search.utils import get_album_tracks
-from spotdl.download.downloadProcesses import *
+from spotdl.download.downloader import download_song
 
 q = get_album_tracks('https://open.spotify.com/album/0v1VLjgwVun46wA13DWUJI?si=nkRyfk2_Rn2Ddph0Zo9T8A')
 
-for each in q[:3]:
-    downloadedFilePath = download_song(each, 'D:\\Hero')
-    convert_song_to_mp3(downloadedFilePath)
+for each in q[:4]:
+    download_song(each)
