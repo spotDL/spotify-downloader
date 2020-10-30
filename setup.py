@@ -1,5 +1,7 @@
 from setuptools import setup
 
+long_desc = open('README.md', encoding = 'utf-8').read()
+
 setup(
     # 'spotify-downloader' was already taken (＞﹏＜)
     name = "spotdl",
@@ -11,11 +13,12 @@ setup(
         'spotdl.patches'
     ],
 
-    version = '3.1.0',
+    #! PyPi doesn't allow repeat names, so it essentially considered a patch
+    version = '3.1.4',
 
     install_requires = [
         'spotipy',
-        'pytube3',
+        'a-pytube-fork-for-spotdl-users',
         'tqdm',
         'rapidfuzz',
         'requests',
@@ -23,9 +26,11 @@ setup(
     ],
 
     description="Downloads Spotify music from Youtube with metadata and album art",
+    long_description=long_desc,
+    long_description_content_type='text/markdown',
     
-    author="Ritiek Malhotra",
-    author_email="ritiekmalhotra123@gmail.com",
+    author="Mikhail Zex (Not really my name)",
+    author_email="unrealengin71+PyPi@gmail.com",
 
     license="MIT",
 

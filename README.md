@@ -38,14 +38,16 @@ you use spotDL v3 and open issues for problems that you come across.
 
 # Installation
 
-1. For v2, run
+1. For stable version
+
     ```
     $pip install spotdl
     ```
 
-2. For v3, (latest version)
+2. For latest version (not necessarily stable)
+
     ```
-    $pip install https://github.com/spotDL/spotify-downloader/archive/master.zip
+    $pip install https://github.com/spotDL/spotify-downloader/archive/next-rel-dev.zip
     ```
         
 3. Voila !
