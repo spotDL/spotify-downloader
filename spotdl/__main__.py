@@ -16,6 +16,12 @@ from multiprocess import freeze_support
 from io import StringIO as quiet
 import sys
 
+initialize(
+    clientId     = '4fe3fecfe5334023a1472516cc99d805',
+    clientSecret = '0f02b7c483c04257984695007a4a8d5c'
+    )
+
+
 #! Script Help
 help_notice = '''
 To download a song run,
@@ -127,5 +133,51 @@ def console_entry_point():
 
 if __name__ == '__main__':
     freeze_support()
+    
+    from search.spotifyClient import initialize
+
+
+    from common.workers import workerPool
+    from datetime import datetime
+
+
+    #! biggerpool size faster it is (provided you have that many processors)
+    #! Note to maintainance testers
+    initialize(
+        clientId     = '4fe3fecfe5334023a1472516cc99d805',
+        clientSecret = '0f02b7c483c04257984695007a4a8d5c'
+    )
+
+    q = workerPool(poolSize=1)
+
+    start = datetime.now()
+
+    w = q.do(
+        get_album_tracks,
+        [
+            'https://open.spotify.com/album/6mUdeDZCsExyJLMdAfDuwh?si=fUnrDYEBTPilDgnS_v46sQ',
+            'https://open.spotify.com/album/2YMWspDGtbDgYULXvVQFM6?si=BQEKilFAQMCYqyatB-1Cag',
+            'https://open.spotify.com/album/6thZ5crAR7sABcxy4FOzxh?si=29ssaWHGRP6AHx85mLvyvw',
+            'https://open.spotify.com/album/3B0PgLmgaW0gJth55ApWbw?si=JAaCetp5Qt60CYZPNvnigA',
+            'https://open.spotify.com/album/5iDRB3mIvV9ceXZIkXA4KT?si=ozJ0xEZeRW6Rqamdt3bfGA',
+            'https://open.spotify.com/album/0v1VLjgwVun46wA13DWUJI?si=Xn0O7SAgS_iqzeL5esccCw',
+            'https://open.spotify.com/album/5ikgQawMuw7aC6VPEfJJ7C?si=tfrgm7haTX62nPnjv9dMXQ',
+            'https://open.spotify.com/album/4xFmHg5dYvaqmn9ZNQpjWL?si=dnZb1mCmSraSV1HOiELHnw',
+            'https://open.spotify.com/album/4xFmHg5dYvaqmn9ZNQpjWL?si=Cjz4G0gNSwSffQJtbIhH2Q',
+            'https://open.spotify.com/album/0o2Y0VeJEZ72wA6ug0yN8X?si=X89joxHTRtiarvFG3m-Iyw',
+            'https://open.spotify.com/album/6BJ3qH85n2juWivLlEybAw?si=1UxQGqhZTy-xxp1ulyCArw',
+            'https://open.spotify.com/album/40J4xZREcFpeJVnXDXntvk?si=SbNjxO-_TTa_IEo7ogCGKw'
+        ]
+    )
+
+    end = datetime.now()
+
+    print(end - start)
+
+
+    #! Number of processes  | Time taken to get songObj's   | Avg speed
+    #! 01                     05.20.667661                    192kbps
+    #! 04                     01.47.572535                    380Kbps
+    #! 08                     01.24.923228                    800kbps (no major gains here prolly due to my internet speed)
 
     console_entry_point()
