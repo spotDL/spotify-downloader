@@ -30,7 +30,7 @@ from spotdl.download.progressHandlers import DisplayManager, DownloadTracker
 #==========================
 
 #! Technically, this should ideally be defined within the downloadManager class. But due
-#! to the quirks of multiprocessing.Pool, that can't be done. Do not consider this as a
+#! to the quirks of multiprocess.Pool, that can't be done. Do not consider this as a
 #! standalone function but rather as part of DownloadManager
 
 def download_song(songObj: SongObj, displayManager: DisplayManager = None,

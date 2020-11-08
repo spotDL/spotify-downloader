@@ -247,3 +247,32 @@ class SongObj():
             'rawArtistMeta': self.__rawArtistMeta,
             'lyrics'       : self.__lyrics
         }
+
+    def get_clean_song_name(self) -> str:
+        '''
+        RETURNS `str` formatted string for song name
+        '''
+
+        artistNameString = ''
+
+        #! we eliminate contributing artist names that are also in the song name, else we
+        #! would end up with things like 'Jetta, Mastubs - I'd love to change the world
+        #! (Mastubs REMIX).mp3' which is kinda an odd file name.
+        for artist in self.get_contributing_artists():
+            if artist.lower() not in self.get_song_name().lower():
+                artistNameString += artist + ', '
+
+        #! Now the artistNameString ends with 'name1, ..., nameN, ' - we don't want the last
+        #! ', ' so we remove it 
+        songNameString = artistNameString[:-2] + ' - ' + self.get_song_name()
+
+        #! removing disallowed charaters (Windows, Mac & Linux)
+        for forbiddenChar in ['/', '?', '\\', '*','|', '<', '>']:
+            if forbiddenChar in songNameString:
+                songNameString = songNameString.replace(forbiddenChar, '')
+
+        #! double quotes (") and semi-colons (:) are also disallowed characters but we would
+        #! like to retain their equivalents, so they aren't removed in the prior loop
+        songNameString = songNameString.replace('"', "'").replace(': ', ' - ')
+
+        return songNameString

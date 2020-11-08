@@ -4,10 +4,10 @@
 
 from tqdm import tqdm
 
-#! we need to import the whole shebang here to patch multiprocessing's AutoProxy.
+#! we need to import the whole shebang here to patch multiprocess's AutoProxy.
 #! Attempting to use a displayManager across multiple processes without the
 #! patch will result in a 'Key Error: Autoproxy takes no key argument manager_owned'
-# import multiprocessing.managers
+# import multiprocess.managers
 from multiprocess.managers import BaseManager
 
 #! These are not used, they're here for static type checking using mypy
@@ -21,19 +21,22 @@ from os import remove
 #=================
 #=== The Patch ===
 #=================
-# originalAutoproxy = multiprocessing.managers.AutoProxy
+
+import multiprocess
+
+# originalAutoproxy = multiprocess.managers.AutoProxy
 # 
 # def patchedAutoproxy(token, serializer, manager=None,
 #     authkey=None,exposed=None, incref=True, manager_owned=True):
 #     '''
-#     A patch to `multiprocessing.managers.AutoProxy`
+#     A patch to `multiprocess.managers.AutoProxy`
 #     '''
 # 
 #     #! we bypass the unwanted key argument here
 #     return originalAutoproxy(token, serializer, manager, authkey, exposed, incref)
 # 
-# #! Update the Autoproxy definition in multiprocessing.managers package
-# multiprocessing.managers.AutoProxy = patchedAutoproxy
+# #! Update the Autoproxy definition in multiprocess.managers package
+# multiprocess.managers.AutoProxy = patchedAutoproxy
 
 
 
@@ -281,7 +284,7 @@ class DownloadTracker():
 #! reference handles of those objects to various processes. Thats handled by a
 #! BaseManager, i.e. this part of the file. Every bit of the above classes is designed
 #! to work across multiple processes and work accurately but, this is the part that
-#! puts multiprocessing into the picture
+#! puts multiprocess into the picture
 
 class ProgressRootProcess(BaseManager): pass
 

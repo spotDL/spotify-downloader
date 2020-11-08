@@ -2,7 +2,7 @@ from multiprocess.pool import Pool
 
 from typing import Callable, Any
 
-class workerPool():
+class WorkerPool():
     def __init__(self, poolSize: int = 4):
         self.__workerPool = Pool(poolSize)
     
@@ -36,3 +36,6 @@ class workerPool():
         )
     
         return results
+    
+    def close(self):
+        self.__workerPool.close()

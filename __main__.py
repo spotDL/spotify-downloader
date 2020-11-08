@@ -16,6 +16,8 @@ from multiprocess import freeze_support
 from io import StringIO as quiet
 import sys
 
+import dill
+
 initialize(
     clientId     = '4fe3fecfe5334023a1472516cc99d805',
     clientSecret = '0f02b7c483c04257984695007a4a8d5c'
@@ -134,39 +136,50 @@ def console_entry_point():
 if __name__ == '__main__':
     freeze_support()
     
-    from search.spotifyClient import initialize
-    from download.downloader import DownloadManager
-    from common.workers import WorkerPool
+    from spotdl.search.spotifyClient import initialize
+
+
+    from spotdl.common.workers import WorkerPool
     from datetime import datetime
 
     print('starting')
+    #! biggerpool size faster it is (provided you have that many processors)
+    #! Note to maintainance testers
+    #!initialize(
+    #!    clientId     = '4fe3fecfe5334023a1472516cc99d805',
+    #!    clientSecret = '0f02b7c483c04257984695007a4a8d5c'
+    #!)
 
+    st0 = datetime.now()
     q = WorkerPool(poolSize=4)
-
-    start0 = datetime.now()
     dlm = DownloadManager(q)
     start = datetime.now()
 
-    print(start - start0)
+    print(start - st0)
 
     print('lookup')
-    w = q.do(
-        get_album_tracks,
-        [
-            'https://open.spotify.com/album/6mUdeDZCsExyJLMdAfDuwh?si=fUnrDYEBTPilDgnS_v46sQ',
-            'https://open.spotify.com/album/2YMWspDGtbDgYULXvVQFM6?si=BQEKilFAQMCYqyatB-1Cag',
-            'https://open.spotify.com/album/6thZ5crAR7sABcxy4FOzxh?si=29ssaWHGRP6AHx85mLvyvw',
-            'https://open.spotify.com/album/3B0PgLmgaW0gJth55ApWbw?si=JAaCetp5Qt60CYZPNvnigA',
-            #'https://open.spotify.com/album/5iDRB3mIvV9ceXZIkXA4KT?si=ozJ0xEZeRW6Rqamdt3bfGA',
-            #'https://open.spotify.com/album/0v1VLjgwVun46wA13DWUJI?si=Xn0O7SAgS_iqzeL5esccCw',
-            #'https://open.spotify.com/album/5ikgQawMuw7aC6VPEfJJ7C?si=tfrgm7haTX62nPnjv9dMXQ',
-            #'https://open.spotify.com/album/4xFmHg5dYvaqmn9ZNQpjWL?si=dnZb1mCmSraSV1HOiELHnw',
-            #'https://open.spotify.com/album/4xFmHg5dYvaqmn9ZNQpjWL?si=Cjz4G0gNSwSffQJtbIhH2Q',
-            #'https://open.spotify.com/album/0o2Y0VeJEZ72wA6ug0yN8X?si=X89joxHTRtiarvFG3m-Iyw',
-            #'https://open.spotify.com/album/6BJ3qH85n2juWivLlEybAw?si=1UxQGqhZTy-xxp1ulyCArw',
-            #'https://open.spotify.com/album/40J4xZREcFpeJVnXDXntvk?si=SbNjxO-_TTa_IEo7ogCGKw'
-        ]
-    )
+#    w = q.do(
+#        get_album_tracks,
+#        [
+#            'https://open.spotify.com/album/6mUdeDZCsExyJLMdAfDuwh?si=fUnrDYEBTPilDgnS_v46sQ',
+#            'https://open.spotify.com/album/2YMWspDGtbDgYULXvVQFM6?si=BQEKilFAQMCYqyatB-1Cag',
+#            #'https://open.spotify.com/album/6thZ5crAR7sABcxy4FOzxh?si=29ssaWHGRP6AHx85mLvyvw',
+#            #'https://open.spotify.com/album/3B0PgLmgaW0gJth55ApWbw?si=JAaCetp5Qt60CYZPNvnigA',
+#            #'https://open.spotify.com/album/5iDRB3mIvV9ceXZIkXA4KT?si=ozJ0xEZeRW6Rqamdt3bfGA',
+#            #'https://open.spotify.com/album/0v1VLjgwVun46wA13DWUJI?si=Xn0O7SAgS_iqzeL5esccCw',
+#            #'https://open.spotify.com/album/5ikgQawMuw7aC6VPEfJJ7C?si=tfrgm7haTX62nPnjv9dMXQ',
+#            #'https://open.spotify.com/album/4xFmHg5dYvaqmn9ZNQpjWL?si=dnZb1mCmSraSV1HOiELHnw',
+#            #'https://open.spotify.com/album/4xFmHg5dYvaqmn9ZNQpjWL?si=Cjz4G0gNSwSffQJtbIhH2Q',
+#            #'https://open.spotify.com/album/0o2Y0VeJEZ72wA6ug0yN8X?si=X89joxHTRtiarvFG3m-Iyw',
+#            #'https://open.spotify.com/album/6BJ3qH85n2juWivLlEybAw?si=1UxQGqhZTy-xxp1ulyCArw',
+#            #'https://open.spotify.com/album/40J4xZREcFpeJVnXDXntvk?si=SbNjxO-_TTa_IEo7ogCGKw'
+#        ]
+#    )
+#
+#    masterList = []
+#
+#    for each in w:
+#        masterList += each
 
     end1 = datetime.now()
 
@@ -179,7 +192,9 @@ if __name__ == '__main__':
     #! 08                     01.24.923228                    800kbps (no major gains here prolly due to my internet speed)
 
     print('download')
-    dlm.download_multiple_songs(w[:10])
+    from spotdl.download.downloader import download_song
+    download_song(SongObj.from_url('https://open.spotify.com/track/08mG3Y1vljYA6bvDt4Wqkj?si=SxezdxmlTx-CaVoucHmrUA'))
+    dlm.resume_download_from_tracking_file('.\Hells Bells.spotdlTrackingFile')
 
     end2 = datetime.now()
     print(end2-end1)

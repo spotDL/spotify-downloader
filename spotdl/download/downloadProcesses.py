@@ -13,35 +13,6 @@ from urllib.request import urlopen
 from spotdl.search.songObj import SongObj
 from typing import Callable
 
-def get_clean_song_name(songObj: SongObj) -> str:
-    '''
-    '''
-
-    artistNameString = ''
-
-    #! we eliminate contributing artist names that are also in the song name, else we
-    #! would end up with things like 'Jetta, Mastubs - I'd love to change the world
-    #! (Mastubs REMIX).mp3' which is kinda an odd file name.
-    for artist in songObj.get_contributing_artists():
-        if artist.lower() not in songObj.get_song_name().lower():
-            artistNameString += artist + ', '
-    
-    #! Now the artistNameString ends with 'name1, ..., nameN, ' - we don't want the last
-    #! ', ' so we remove it 
-    songNameString = artistNameString[:-2] + ' - ' + songObj.get_song_name()
-
-    #! removing disallowed charaters (Windows, Mac & Linux)
-    for forbiddenChar in ['/', '?', '\\', '*','|', '<', '>']:
-        if forbiddenChar in songNameString:
-            songNameString = songNameString.replace(forbiddenChar, '')
-    
-    #! double quotes (") and semi-colons (:) are also disallowed characters but we would
-    #! like to retain their equivalents, so they aren't removed in the prior loop
-    songNameString = songNameString.replace('"', "'").replace(': ', ' - ')
-
-    return songNameString
-
-
 
 def download_song_to_local(songObj: SongObj, downloadFolder: str,
                                     progressHook: Callable = None) -> str:
@@ -60,7 +31,7 @@ def download_song_to_local(songObj: SongObj, downloadFolder: str,
     be under `downloadedPath\\Temp`.
     '''
 
-    songName = get_clean_song_name(songObj)
+    songName = songObj.get_clean_song_name()
 
     tempFolder = join(downloadFolder, 'Temp')
     if not exists(tempFolder):
