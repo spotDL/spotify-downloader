@@ -2,7 +2,6 @@ from spotdl.search.spotifyClient import get_spotify_client
 from spotdl.search.songObj import SongObj
 
 from typing import List
-import multiprocessing
 
 def search_for_song(query: str) ->  SongObj:
     '''
@@ -35,14 +34,13 @@ def get_album_tracks(albumUrl: str) -> List[SongObj]:
     `str` `albumUrl` : Spotify Url of the album whose tracks are to be
     retrieved
 
-    returns a `list<songObj>` containing URLs of each track in the given album
+    returns a `list<songObj>` containing Url's of each track in the given album
     '''
 
     spotifyClient = get_spotify_client()
     albumTracks = []
 
     trackResponse = spotifyClient.album_tracks(albumUrl)
-    print('looking deeper into ', album)
 
     # while loop acts like do-while
     while True:
@@ -63,26 +61,6 @@ def get_album_tracks(albumUrl: str) -> List[SongObj]:
             break
 
     return albumTracks
-
-def get_album_tracks_only_from_artist(albumUrl: str, artistUrl: str) -> List[SongObj]:
-    '''
-    `str` `albumUrl` : Spotify Url of the album whose tracks are to be
-    retrieved
-
-    `str` `albumUrl` : Spotify Url of the artist to filter
-
-    returns a `list<songObj>` containing URLs of each track in the given album that are contributed to byt the given artist
-    '''
-
-    spotifyClient   = get_spotify_client()
-
-    artistName      = spotifyClient.artist(artistUrl)['name']
-
-    albumTracks     = get_album_tracks(albumUrl)
-
-    albumTracksByArtist     = [track for track in albumTracks if artistName in track.get_contributing_artists()]
-
-    return albumTracksByArtist
 
 def get_playlist_tracks(playlistUrl: str) -> List[SongObj]:
     '''
@@ -137,76 +115,25 @@ def get_artist_tracks(artistUrl: str) -> List[SongObj]:
     while True:
 
         for album in artistResponse['items']:
-            print('looking into ', album)
             albumUrl  = album['external_urls']['spotify']
 
             artistAlbums.append(albumUrl)
 
         # Check if the artist has more albums.
         if artistResponse['next']:
-            print('I have more...')
             artistResponse = spotifyClient.artist_albums(
                 artistUrl,
                 offset = len(artistAlbums)
             )
         else:
-            print('got it all')
             break
 
-    # for album in artistAlbums:
-    #     print('looking deeper into ', album)
-    #     albumTracks = get_album_tracks(album)
+    for album in artistAlbums:
+        albumTracks = get_album_tracks(album)
 
-    #     artistTracks += albumTracks
-
-    pool_size = multiprocessing.cpu_count() * 2
-    pool = multiprocessing.Pool(processes=pool_size,
-                                # initializer=start_process,
-                                # maxtasksperchild=2,
-                                )
-    
-    artistTracks = pool.map(get_album_tracks, artistAlbums)
+        artistTracks += albumTracks
 
     #! Filter out the Songs in which the given artist has not contributed.
     artistTracks = [track for track in artistTracks if artistName in track.get_contributing_artists()]
 
-    print('returning')
-
     return artistTracks
-
-
-def get_artist_albums(artistUrl: str) -> List[SongObj]:
-    '''
-    `str` `artistUrl` : Spotify Url of the artist whose tracks are to be
-    retrieved
-
-    returns a `List` containing Url's of each track of the artist.
-    '''
-
-    spotifyClient = get_spotify_client()
-    artistAlbums = []
-    # artistTracks = []
-
-    artistResponse = spotifyClient.artist_albums(artistUrl)
-    # artistName     = spotifyClient.artist(artistUrl)['name']
-
-    while True:
-
-        for album in artistResponse['items']:
-            print('looking into ', album)
-            albumUrl  = album['external_urls']['spotify']
-
-            artistAlbums.append(albumUrl)
-
-        # Check if the artist has more albums.
-        if artistResponse['next']:
-            print('I have more...')
-            artistResponse = spotifyClient.artist_albums(
-                artistUrl,
-                offset = len(artistAlbums)
-            )
-        else:
-            print('got it all')
-            break
-
-    return artistAlbums
