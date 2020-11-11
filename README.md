@@ -104,3 +104,5 @@ To check if YouTube Music is available in your country, visit [YouTube Music](ht
 # A few interesting forks
 1. [aasmpro/spotify/downloader](https://github.com/aasmpro/spotify-downloader)
     - Sets metadata for songs that are already downloaded (v2 only.)
+2. [shabinder/SpotiFlyer](https://github.com/Shabinder/SpotiFlyer)
+    - Android App supports Spotify Downloads and also from various more platforms.
