@@ -7,7 +7,7 @@ from os.path import join, exists
 import os
 import traceback
 
-from spotdl.patches.pyTube import YouTube
+from pytube import YouTube
 
 from mutagen.easyid3 import EasyID3, ID3
 from mutagen.id3 import APIC as AlbumCover

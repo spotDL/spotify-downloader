@@ -16,7 +16,7 @@ setup(
     install_requires = [
         'fuzzywuzzy',
         'spotipy',
-        'pytube3',
+        'a-pytube-fork-for-spotdl-users',
         'tqdm',
         'rapidfuzz',
         'requests',
