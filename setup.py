@@ -17,12 +17,14 @@ setup(
     version = '3.1.4',
 
     install_requires = [
+        'fuzzywuzzy',
         'spotipy',
         'a-pytube-fork-for-spotdl-users',
         'tqdm',
         'rapidfuzz',
         'requests',
         'mutagen',
+        'python-Levenshtein-wheels',
     ],
 
     description="Downloads Spotify music from Youtube with metadata and album art",

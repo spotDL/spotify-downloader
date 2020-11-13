@@ -52,6 +52,7 @@ you use spotDL v3 and open issues for problems that you come across.
         
 3. Voila !
 
+
 # How to use (instructions for v3)
 To download a song run,
 
@@ -83,13 +84,30 @@ To resume a failed/incomplete download run,
 -   Note, '.spotDlTrackingFiles' are automatically created during download start, they are deleted on
     download completion
 
-You can chain up download tasks by seperating them with spaces:
+You can chain up download tasks by separating them with spaces:
     
     # spotdl $songQuery1 $albumUrl $songQuery2 ... (order does not matter)
     spotdl 'The Hu - Sugaan Essenna' https://open.spotify.com/playlist/37i9dQZF1DWXhcuQw7KIeM?si=xubKHEBESM27RqGkqoXzgQ ...
 
 Spotdl downloads up to 4 songs in parallel - try to download albums and playlists instead of
 tracks for more speed.
+
+
+# Developing
+
+ - Clone this repo
+     ```
+     $ git clone https://github.com/spotDL/spotify-downloader.git
+     ```
+ - Install requirements
+     ```
+     $ cd spotify-downloader
+     $ pip3 install requirements.txt
+     ```
+ - Use Library
+     ```
+     >>> import spotdl
+     >>> ...
 
 # Thanks for developing the v3.0.1
 1. [@ritiek](https://github.com/ritiek) for creating and maintaining spotDL for 4 years
