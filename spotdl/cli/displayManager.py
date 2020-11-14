@@ -97,7 +97,6 @@ class SizedTextColumn(ProgressColumn):
             self.highlighter.highlight(text)
 
         text.truncate(max_width=self.width, overflow=self.overflow, pad=True)
-        # text.align(align="left", width=self.width)
         return text
 
 
@@ -113,7 +112,6 @@ class DisplayManager():
     '''
     def __init__(self, queue = None):
         
-        # (width, height) = 
         self.isLegacy = detect_legacy_windows()
 
         self.console = Console(theme = custom_theme, color_system= "truecolor" if not self.isLegacy else None)
@@ -140,13 +138,11 @@ class DisplayManager():
         self.quiet = False
 
     def __enter__(self):
-        # self.__init__()
         self._richProgressBar.__enter__()
         return self ## Important
 
     def __exit__(self, type, value, traceback):
         self._richProgressBar.stop()
-        # print('Display Manager Exited')
 
     def print(self, *text, color="green"):
         '''
@@ -166,7 +162,6 @@ class DisplayManager():
             self._richProgressBar.console.print("[" + color + "]" + str(line))
         else:
             self._richProgressBar.console.print(line)
-            # self._richProgressBar.console.log("Working on job:", text)
 
     def get_self(self):
         '''Returns self'''
@@ -189,8 +184,6 @@ class DisplayManager():
         Filters through all the messages from the list and remove duplicates but leaves the latest.
         '''
 
-        # self.print('before new list: ', messages)
-
         existingIDs = []
         newMessageList = []
         latestMessage = None
@@ -198,8 +191,6 @@ class DisplayManager():
             downloadID = list(message.keys())[0] # Gets the message's process ID
             if downloadID not in existingIDs:
                 existingIDs.append(downloadID)
-
-        # self.print('Gathered:', existingIDs)
 
         for ID in existingIDs:
             for message in messages:
@@ -211,8 +202,6 @@ class DisplayManager():
                     except:
                         latestMessage = message
             newMessageList.append(latestMessage)
-
-        # self.print('new list: ', newMessageList)
 
         return newMessageList
 
@@ -272,7 +261,6 @@ class DisplayManager():
         Any message that did not come from a sub-process will be handled here: ( {ID: 0 {...} )
         '''
         if message['name'] == 'Song Count' and message['progress'] >= 4:
-            # self.print('Total songs:',  message['progress'])
             self.overallTotal = 100 * message['progress']
             self.overallID = self._richProgressBar.add_task(description='Total', processID='0', message='', total=self.overallTotal, visible=(not self.quiet) )
         elif message['name'] == 'Error' or message['message']:
@@ -331,7 +319,6 @@ class DisplayManager():
 
 
         multiprocessResult.wait()
-        # self.print('Results:', multiprocessResult.get())
         results = multiprocessResult.get()
         if isinstance(results, list): 
             for result in results:

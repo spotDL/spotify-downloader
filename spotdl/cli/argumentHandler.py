@@ -24,8 +24,6 @@ def get_cli_arguments():
     '''
     parser = argparse.ArgumentParser(
         description="Download Spotify playlists from YouTube with albumart and metadata",
-        # formatter_class=argparse.ArgumentDefaultsHelpFormatter,
-        # add_help=True
     )
 
     parser.add_argument(
