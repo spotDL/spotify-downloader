@@ -305,7 +305,7 @@ class DisplayManager():
 
         return messages
 
-    def process_monitor(self, multiprocessResult, queue = None):
+    def monitor_process(self, multiprocessResult, queue = None):
         '''
         `multiprocessResult` : `multiprocessing.pool.AsyncResult` 
 

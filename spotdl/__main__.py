@@ -115,7 +115,7 @@ def console_entry_point():
                     songObj = SongObj.from_url(request)
 
                     if songObj.get_youtube_link() != None:
-                        downloader.download_single_song_async(songObj, callback = disp.process_monitor)
+                        downloader.download_single_song_async(songObj, callback = disp.monitor_process)
                     else:
                         disp.print('Skipping %s (%s) as no match could be found on youtube' % (
                             songObj.get_song_name(), request
