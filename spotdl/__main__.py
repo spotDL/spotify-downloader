@@ -174,7 +174,6 @@ def console_entry_point():
 
                         except Exception as e:
                             disp.print('No song named "%s" could be found on spotify' % request)
-                            disp.print(e)
 
 
 if __name__ == '__main__':
