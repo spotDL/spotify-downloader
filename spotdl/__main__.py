@@ -124,18 +124,18 @@ def console_entry_point():
                 elif 'open.spotify.com' in request and 'album' in request:
                     disp.print('Fetching Album...')
                     songObjList = get_album_tracks(request)
-                    downloader.download_multiple_songs_async(songObjList, callback = disp.process_monitor)
+                    downloader.download_multiple_songs_async(songObjList, callback = disp.monitor_process)
                 
                 elif 'open.spotify.com' in request and 'playlist' in request:
                     disp.print('Fetching Playlist...')
                     songObjList = get_playlist_tracks(request)
 
-                    downloader.download_multiple_songs_async(songObjList, callback = disp.process_monitor)
+                    downloader.download_multiple_songs_async(songObjList, callback = disp.monitor_process)
 
 
             elif cli_options.file:
                 disp.print('File')
-                downloader.resume_download_from_tracking_file_async(cli_options.file, callback = disp.process_monitor)
+                downloader.resume_download_from_tracking_file_async(cli_options.file, callback = disp.monitor_process)
 
             elif cli_options.query:
                 for request in cli_options.query:
@@ -144,7 +144,7 @@ def console_entry_point():
                         songObj = SongObj.from_url(request)
 
                         if songObj.get_youtube_link() != None:
-                            downloader.download_single_song_async(songObj, callback = disp.process_monitor)
+                            downloader.download_single_song_async(songObj, callback = disp.monitor_process)
                         else:
                             disp.print('Skipping %s (%s) as no match could be found on youtube' % (
                                 songObj.get_song_name(), request
@@ -153,27 +153,28 @@ def console_entry_point():
                     elif 'open.spotify.com' in request and 'album' in request:
                         disp.print('Fetching Album...')
                         songObjList = get_album_tracks(request)
-                        downloader.download_multiple_songs_async(songObjList, callback = disp.process_monitor)
+                        downloader.download_multiple_songs_async(songObjList, callback = disp.monitor_process)
                     
                     elif 'open.spotify.com' in request and 'playlist' in request:
                         disp.print('Fetching Playlist...')
                         songObjList = get_playlist_tracks(request)
 
-                        downloader.download_multiple_songs_async(songObjList, callback = disp.process_monitor)
+                        downloader.download_multiple_songs_async(songObjList, callback = disp.monitor_process)
                     
                     elif request.endswith('.spotdlTrackingFile'):
                         disp.print('Preparing to resume download...')
-                        downloader.resume_download_from_tracking_file_async(request, callback = disp.process_monitor)
+                        downloader.resume_download_from_tracking_file_async(request, callback = disp.monitor_process)
                     
                     else:
                         disp.print('Searching for song "%s"...' % request)
                         try:
                             songObj = search_for_song(request)
                             disp.print('Closest Match: "%s"' % songObj.get_display_name())
-                            downloader.download_single_song_async(songObj, callback = disp.process_monitor)
+                            downloader.download_single_song_async(songObj, callback = disp.monitor_process)
 
-                        except Exception:
+                        except Exception as e:
                             disp.print('No song named "%s" could be found on spotify' % request)
+                            disp.print(e)
 
 
 if __name__ == '__main__':
