@@ -125,7 +125,7 @@ class DownloadManager():
     def __exit__(self, type, value, traceback):
         self.close()
     
-    def download_single_song(self, songObj: List[SongObj], cb = None) -> None:
+    def download_single_song_async(self, songObj: List[SongObj], callback = None) -> None:
         '''
         `songObj` `song` : song to be downloaded
 
@@ -145,15 +145,15 @@ class DownloadManager():
             )
         )
 
-        if cb:
-            cb(results)
+        if callback:
+            callback(results, self.messageQueue)
             return
         elif self.asyncResultCallback:
             self.asyncResultCallback(results)
 
         return results
     
-    def download_multiple_songs(self, songObjList: List[SongObj], cb = None):
+    def download_multiple_songs_async(self, songObjList: List[SongObj], callback = None):
         '''
         `list<songObj>` `songObjList` : list of songs to be downloaded
 
@@ -176,8 +176,8 @@ class DownloadManager():
             )
         )
 
-        if cb:
-            cb(results)
+        if callback:
+            callback(results, self.messageQueue)
             return
         elif self.asyncResultCallback:
             self.asyncResultCallback(results)
@@ -206,7 +206,7 @@ class DownloadManager():
 
         return results
     
-    def resume_download_from_tracking_file(self, trackingFilePath: str, cb = None) -> None:
+    def resume_download_from_tracking_file_async(self, trackingFilePath: str, callback = None) -> None:
         '''
         `str` `trackingFilePath` : path to a .spotdlTrackingFile
 
@@ -232,8 +232,8 @@ class DownloadManager():
             )
         )
 
-        if cb:
-            cb(results)
+        if callback:
+            callback(results)
             return
         elif self.asyncResultCallback:
             self.asyncResultCallback(results)
@@ -250,7 +250,7 @@ class DownloadManager():
         self.workerPool.close()
         self.workerPool.join()
 
-    def set_callback_to(self, cb):
+    def set_callback_to(self, callback):
         '''
         `function` `cb` : Function called after jobs have been submitted to pool with the multiprocessing.pool.AsyncResult as the argument.
 
@@ -258,7 +258,7 @@ class DownloadManager():
 
         sets callback function to be called after jobs submitted.
         '''
-        self.asyncResultCallback = cb
+        self.asyncResultCallback = callback
 
     def own_result_callback(self, results):
         while not results.ready():
