@@ -93,19 +93,30 @@ tracks for more speed.
 
 # Developing
 
- - Clone this repo
-     ```
-     $ git clone https://github.com/spotDL/spotify-downloader.git
-     ```
- - Install requirements
-     ```
-     $ cd spotify-downloader
-     $ pip3 install requirements.txt
-     ```
- - Use Library
-     ```
-     >>> import spotdl
-     >>> ...
+1. Clone this repo
+    ```
+    $ git clone https://github.com/spotDL/spotify-downloader.git
+    ```
+2. Install requirements
+    ```
+    $ cd spotify-downloader
+    $ python3 -m venv .venv
+    $ .\.venv\Scripts\activate
+    (.venv)$ python setup.py develop
+    ```
+-  Use as Command
+    ```
+    (.venv)$ spotdl [ARGUMENTS]
+    ```
+-  Use as Library
+    ```
+    >>> import spotdl
+    >>> ...
+    ```
+- Cleaning Up
+    ```
+    (.venv)$ deactivate
+    ```
 
 # Thanks for developing the v3.0.1
 1. [@ritiek](https://github.com/ritiek) for creating and maintaining spotDL for 4 years
