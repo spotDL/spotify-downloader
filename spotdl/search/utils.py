@@ -7,19 +7,12 @@ from typing import List
 
 
 def _get_songObj_from_url(url):
-    # initialize(
-    #     clientId     = '4fe3fecfe5334023a1472516cc99d805',
-    #     clientSecret = '0f02b7c483c04257984695007a4a8d5c'
-    # )
     song = SongObj.from_url(url)
     if song.get_youtube_link() != None:
         return song
 
 def _get_songObj_from_url_and_artist(url, artistName):
-    # initialize(
-    #     clientId     = '4fe3fecfe5334023a1472516cc99d805',
-    #     clientSecret = '0f02b7c483c04257984695007a4a8d5c'
-    # )
+    # Gather quick metadata (without searching youtube or gathering Lyrics) beforehand to validate found song is by artist
     song_preliminary = SongObj.from_url(url, preliminary=True)
     if artistName in song_preliminary.get_contributing_artists():
         song = SongObj.from_url(url, preliminary=False)
@@ -28,7 +21,7 @@ def _get_songObj_from_url_and_artist(url, artistName):
 
 def search_for_song(query: str) ->  SongObj:
     '''
-    `str` `query` : what you'd type into spotify's search box
+    `str` `query` : what you'd type into Spotify's search box
 
     Queries Spotify for a song and returns the best match
     '''
@@ -57,7 +50,7 @@ def get_album_tracks(albumUrl: str) -> List[SongObj]:
     `str` `albumUrl` : Spotify Url of the album whose tracks are to be
     retrieved
 
-    returns a `list<songObj>` containing Url's of each track in the given album
+    returns a `list<songObj>` containing URLs of each track in the given album
     '''
 
     spotifyClient = get_spotify_client()
@@ -91,7 +84,7 @@ def get_playlist_tracks(playlistUrl: str) -> List[SongObj]:
     `str` `playlistUrl` : Spotify Url of the album whose tracks are to be
     retrieved
 
-    returns a `list<songObj>` containing Url's of each track in the given playlist
+    returns a `list<songObj>` containing URLs of each track in the given playlist
     '''
 
     spotifyClient = get_spotify_client()
@@ -121,50 +114,7 @@ def get_playlist_tracks(playlistUrl: str) -> List[SongObj]:
     return playlistTracks
 
 
-def get_artist_discography_slow(artistUrl: str) -> List[SongObj]:
-    '''
-    `str` `artistUrl` : Spotify Url of the artist whose tracks are to be
-    retrieved
-
-    returns a `List` containing Url's of each track of the artist.
-    '''
-
-    spotifyClient = get_spotify_client()
-    artistAlbums = []
-    artistTracks = []
-
-    artistResponse = spotifyClient.artist_albums(artistUrl)
-    artistName     = spotifyClient.artist(artistUrl)['name']
-
-    while True:
-
-        for album in artistResponse['items']:
-            albumUrl  = album['external_urls']['spotify']
-
-            artistAlbums.append(albumUrl)
-
-        # Check if the artist has more albums.
-        if artistResponse['next']:
-            artistResponse = spotifyClient.artist_albums(
-                artistUrl,
-                offset = len(artistAlbums)
-            )
-        else:
-            break
-
-    for album in artistAlbums:
-        albumTracks = get_album_tracks(album)
-
-        artistTracks += albumTracks
-
-    #! Filter out the Songs in which the given artist has not contributed.
-    artistTracks = [track for track in artistTracks if artistName in track.get_contributing_artists()]
-
-    return artistTracks
-
-
-
-def get_artist_tracks(artistUrl: str, isPrimaryArtist: bool=False) -> List[SongObj]:
+def get_artist_tracks(artistUrl: str, isPrimaryArtistOnly: bool=False) -> List[SongObj]:
     '''
     `str` `artistUrl` : Spotify URL of the artist whose tracks are to be
     retrieved
@@ -180,8 +130,8 @@ def get_artist_tracks(artistUrl: str, isPrimaryArtist: bool=False) -> List[SongO
     artistName      = spotifyClient.artist(artistUrl)['name']
     songURLlist = []
 
-    if isPrimaryArtist == True:
-        searchQuery = q='artist:' + artistName  # Spotify API for searching for songs where he is the primary artist
+    if isPrimaryArtistOnly == True:
+        searchQuery = q='artist:' + artistName  # Spotify API for searching for songs where artist is the primary artist
     else:
         searchQuery = q=artistName # Generic search for songs
 
@@ -216,9 +166,6 @@ def get_artist_tracks(artistUrl: str, isPrimaryArtist: bool=False) -> List[SongO
     # Remove all the 'None' values. None values occur when the artist isn't actually on the list of contributing artist or when a Youtube URL was not found
     artistTracks = [i for i in artistTracks_raw_results if i] 
 
-    # Remove all tracks in which the specified artist is not a contributing artist.
-    # artistTracks = [track for track in artistTracks if artistName in track.get_contributing_artists()]
-
     print('Spotify gave ', len(songURLlist), 'songs, then sorted that down to', len(artistTracks_raw_results), 'candidates, then found', len(artistTracks), ' to download')
     return artistTracks
 
@@ -235,7 +182,7 @@ def get_artist_discography(artistUrl: str) -> List[SongObj]:
     artistAlbums = []
     artistTracks = []
 
-    artistResponse = spotifyClient.artist_albums(artistUrl, album_type='album,single') # ‘album’, ‘single’, ‘appears_on’, ‘compilation’, 'None': all
+    artistResponse = spotifyClient.artist_albums(artistUrl, album_type='album,single') # ‘album’,‘single’,‘appears_on’,‘compilation’,'None': all
     artistName     = spotifyClient.artist(artistUrl)['name']
 
     # Gather albums
@@ -294,6 +241,6 @@ def get_artist_discography(artistUrl: str) -> List[SongObj]:
     #! Filter out the Songs in which the given artist has not contributed.
     artistTracks = [track for track in artistTracks if artistName in track.get_contributing_artists()]
 
-    print('Total:', len(artistTracks))
+    print("Downloading", len(artistTracks), "songs")
 
     return artistTracks

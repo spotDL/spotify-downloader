@@ -105,8 +105,8 @@ def console_entry_point():
 
         elif ('open.spotify.com' in request and 'artist' in request) or 'spotify:artist:' in request:
             print('Fetching Artist\'s Tracks...')
-            # songObjList = get_artist_tracks(request, isPrimaryArtist=False)
-            songObjList = get_artist_discography(request)
+            songObjList = get_artist_tracks(request, isPrimaryArtistOnly=False)
+            # songObjList = get_artist_discography(request)
 
             downloader.download_multiple_songs(songObjList)
 
