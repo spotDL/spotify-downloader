@@ -4,7 +4,8 @@
 
 from spotipy import Spotify
 from spotipy.oauth2 import SpotifyClientCredentials
-
+import pickle
+from os import path
 
 
 #===============
@@ -28,7 +29,7 @@ def initialize(clientId: str, clientSecret: str):
 
     RETURNS `~`
 
-    creates and caches a spotify client iff. a client doesn't exist. Can only be called
+    creates and caches a spotify client if a client doesn't exist. Can only be called
     once, multiple calls will cause an Exception.
     '''
 
@@ -36,23 +37,20 @@ def initialize(clientId: str, clientSecret: str):
     #! None evaluates to False, objects evaluate to True.
     global masterClient
 
-    if masterClient:
-        # raise Exception('A spotify client has already been initialized')
-        return
+    # create Oauth credentials for the SpotifyClient
+    credentialManager = SpotifyClientCredentials(
+        client_id = clientId,
+        client_secret = clientSecret
+    )
 
+    client = Spotify(client_credentials_manager = credentialManager)
 
+    # Save credentials as serialized binary file. If file does not exist, create now one. Overwrite if it does exist.
+    with open("spotify.spotdlKey", "wb") as pickle_out:
+        pickle.dump(client, pickle_out)
+    
+    masterClient = client
 
-    # else create and cache a spotify client
-    else:
-        # create Oauth credentials for the SpotifyClient
-        credentialManager = SpotifyClientCredentials(
-            client_id = clientId,
-            client_secret = clientSecret
-        )
-
-        client = Spotify(client_credentials_manager = credentialManager)
-        
-        masterClient = client
 
 def get_spotify_client():
     '''
@@ -64,9 +62,15 @@ def get_spotify_client():
 
     global masterClient
     
-    #! None evaluvates to False, Objects evaluate to True
+    #! None evaluates to False, Objects evaluate to True
     if masterClient:
         return masterClient
+
+    # Checks if the credentials have been put in a file. Useful for multiprocessing applications
+    if path.exists("spotify.spotdlKey"):
+        with open("spotify.spotdlKey", "rb") as input:
+            client = pickle.load(input)
+        return client
 
     else:
         raise Exception('Spotify client not created. Call spotifyClient.initialize' +
