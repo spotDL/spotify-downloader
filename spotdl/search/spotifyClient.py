@@ -37,7 +37,8 @@ def initialize(clientId: str, clientSecret: str):
     global masterClient
 
     if masterClient:
-        raise Exception('A spotify client has already been initialized')
+        # raise Exception('A spotify client has already been initialized')
+        return
 
 
 

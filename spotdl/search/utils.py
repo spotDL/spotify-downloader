@@ -1,5 +1,7 @@
 from spotdl.search.spotifyClient import get_spotify_client
 from spotdl.search.songObj import SongObj
+from spotdl.search.spotifyClient import initialize
+from spotdl.common.workers import WorkerPool
 
 from typing import List
 
@@ -97,7 +99,7 @@ def get_playlist_tracks(playlistUrl: str) -> List[SongObj]:
     return playlistTracks
 
 
-def get_artist_tracks_old(artistUrl: str) -> List[SongObj]:
+def get_artist_discography_tracks(artistUrl: str) -> List[SongObj]:
     '''
     `str` `artistUrl` : Spotify Url of the artist whose tracks are to be
     retrieved
@@ -139,7 +141,7 @@ def get_artist_tracks_old(artistUrl: str) -> List[SongObj]:
     return artistTracks
 
 
-def get_artist_tracks(artistUrl: str) -> List[SongObj]:
+def get_artist_tracks_new(artistUrl: str) -> List[SongObj]:
     '''
     `str` `artistUrl` : Spotify Url of the artist whose tracks are to be
     retrieved
@@ -184,3 +186,59 @@ def get_artist_tracks(artistUrl: str) -> List[SongObj]:
     # print(artistTracks)
 
     # return artistTracks
+
+def _get_songObj_from_url_and_artist(url, artistName):
+    initialize(
+        clientId     = '4fe3fecfe5334023a1472516cc99d805',
+        clientSecret = '0f02b7c483c04257984695007a4a8d5c'
+        )
+    song_preliminary = SongObj.from_url(url, preliminary=True)
+    if artistName in song_preliminary.get_contributing_artists():
+        song = SongObj.from_url(url, preliminary=False)
+        if song.get_youtube_link() != None:
+            return song
+
+def get_artist_tracks(artistUrl: str) -> List[SongObj]:
+    '''
+    `str` `artistUrl` : Spotify Url of the artist whose tracks are to be
+    retrieved
+
+    returns a `List` containing Url's of each track of the artist.
+    '''
+
+    spotifyClient = get_spotify_client()
+
+    artistName      = spotifyClient.artist(artistUrl)['name']
+    songURLlist = []
+
+    artistResponse = spotifyClient.search(q='artist:' + artistName, type='track') # remove 'artist:' to included contributed tracks
+
+    # while loop acts like do-while
+    while True:
+
+        for track in artistResponse['tracks']['items']:
+            songURLlist.append('https://open.spotify.com/track/' + track['id'])
+
+        # check if more tracks are to be passed
+        if artistResponse['tracks']['next']:
+            artistResponse = spotifyClient.search(
+                q='artist:' + artistName, 
+                type='track',
+                offset = len(songURLlist)
+            )
+        else:
+            break
+
+    q = WorkerPool(poolSize=4)
+
+    artistTracks_raw_results = q.do(
+        _get_songObj_from_url_and_artist, songURLlist, [artistName]*len(songURLlist)
+    )
+
+    q.close()
+
+    # Remove all the 'None' values. None values occur when the artist isn't actually on the list of contributing artist or when a Youtube URL was not found
+    artistTracks = [i for i in artistTracks_raw_results if i] 
+
+    print('Spotify gave ', len(songURLlist), 'songs, then sorted that down to', len(artistTracks_raw_results), 'candidates, then found', len(artistTracks), ' to download')
+    return artistTracks

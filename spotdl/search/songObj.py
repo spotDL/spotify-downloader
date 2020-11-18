@@ -15,7 +15,7 @@ class SongObj():
     #====================
     #=== Constructors ===
     #====================
-    def __init__(self, rawTrackMeta, rawAlbumMeta, rawArtistMeta, youtubeLink, lyrics):
+    def __init__(self, rawTrackMeta, rawAlbumMeta, rawArtistMeta, youtubeLink=None, lyrics=None):
         self. __rawTrackMeta = rawTrackMeta
         self.__rawAlbumMeta  = rawArtistMeta
         self.__rawArtistMeta = rawArtistMeta
@@ -28,7 +28,7 @@ class SongObj():
     #! Note, since the following are class methods, an instance of songObj is initialized
     #! and passed to them
     @classmethod
-    def from_url(cls, spotifyURL: str):
+    def from_url(cls, spotifyURL: str, preliminary: bool=False):
         # check if URL is a playlist, user, artist or album, if yes raise an Exception,
         # else procede
         if not (('open.spotify.com' in spotifyURL and 'track' in spotifyURL)
@@ -64,6 +64,13 @@ class SongObj():
 
         for artist in rawTrackMeta['artists']:
             contributingArtists.append(artist['name'])
+
+        if preliminary:
+            return  cls(
+                rawTrackMeta, rawAlbumMeta,
+                rawArtistMeta
+            )
+
 
         youtubeLink = SongObj.searchProvider(
             songName,
@@ -110,9 +117,6 @@ class SongObj():
     def get_youtube_link(self) -> str:
         return self.__youtubeLink
     
-    def get_spotify_link(self) -> str:
-        return 'http://open.spotify.com/track/' + self.__rawTrackMeta['id']
-
     def get_spotify_link(self) -> str:
         return 'http://open.spotify.com/track/' + self.__rawTrackMeta['id']
 
@@ -180,6 +184,14 @@ class SongObj():
         '''
 
         return self.__lyrics
+
+    #! 7. Display Name
+    def get_display_name(self) -> str:
+        ''''
+        returns songs's display name.
+        '''
+
+        return str(self.get_song_name()) + " - " + str( ", ".join(self.get_contributing_artists()) )
 
     #! Album Details:
 
