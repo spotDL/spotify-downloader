@@ -3,7 +3,7 @@ from spotdl.search.spotifyClient import initialize
 from sys import argv as cliArgs
 
 #! Song Search from different start points
-from spotdl.search.utils import get_playlist_tracks, get_album_tracks, search_for_song, get_artist_tracks
+from spotdl.search.utils import get_playlist_tracks, get_album_tracks, search_for_song, get_artist_tracks, get_artist_discography
 from spotdl.search.songObj import SongObj
 
 #! The actual download stuff
@@ -105,7 +105,8 @@ def console_entry_point():
 
         elif ('open.spotify.com' in request and 'artist' in request) or 'spotify:artist:' in request:
             print('Fetching Artist\'s Tracks...')
-            songObjList = get_artist_tracks(request)
+            # songObjList = get_artist_tracks(request, isPrimaryArtist=False)
+            songObjList = get_artist_discography(request)
 
             downloader.download_multiple_songs(songObjList)
 

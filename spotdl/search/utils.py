@@ -5,6 +5,27 @@ from spotdl.common.workers import WorkerPool
 
 from typing import List
 
+
+def _get_songObj_from_url(url):
+    initialize(
+        clientId     = '4fe3fecfe5334023a1472516cc99d805',
+        clientSecret = '0f02b7c483c04257984695007a4a8d5c'
+    )
+    song = SongObj.from_url(url)
+    if song.get_youtube_link() != None:
+        return song
+
+def _get_songObj_from_url_and_artist(url, artistName):
+    initialize(
+        clientId     = '4fe3fecfe5334023a1472516cc99d805',
+        clientSecret = '0f02b7c483c04257984695007a4a8d5c'
+    )
+    song_preliminary = SongObj.from_url(url, preliminary=True)
+    if artistName in song_preliminary.get_contributing_artists():
+        song = SongObj.from_url(url, preliminary=False)
+        if song.get_youtube_link() != None:
+            return song
+
 def search_for_song(query: str) ->  SongObj:
     '''
     `str` `query` : what you'd type into spotify's search box
@@ -64,6 +85,7 @@ def get_album_tracks(albumUrl: str) -> List[SongObj]:
 
     return albumTracks
 
+
 def get_playlist_tracks(playlistUrl: str) -> List[SongObj]:
     '''
     `str` `playlistUrl` : Spotify Url of the album whose tracks are to be
@@ -99,7 +121,7 @@ def get_playlist_tracks(playlistUrl: str) -> List[SongObj]:
     return playlistTracks
 
 
-def get_artist_discography_tracks(artistUrl: str) -> List[SongObj]:
+def get_artist_discography_slow(artistUrl: str) -> List[SongObj]:
     '''
     `str` `artistUrl` : Spotify Url of the artist whose tracks are to be
     retrieved
@@ -141,69 +163,14 @@ def get_artist_discography_tracks(artistUrl: str) -> List[SongObj]:
     return artistTracks
 
 
-def get_artist_tracks_new(artistUrl: str) -> List[SongObj]:
+
+def get_artist_tracks(artistUrl: str, isPrimaryArtist: bool=False) -> List[SongObj]:
     '''
-    `str` `artistUrl` : Spotify Url of the artist whose tracks are to be
+    `str` `artistUrl` : Spotify URL of the artist whose tracks are to be
     retrieved
 
-    returns a `List` containing Url's of each track of the artist.
-    '''
-
-    spotifyClient = get_spotify_client()
-
-    # artistResponse = spotifyClient.artist_albums(artistUrl)
-    artistName      = spotifyClient.artist(artistUrl)['name']
-    artistTracks     = []
-
-    artistResponse = spotifyClient.search(q='artist:' + artistName, type='track')
-
-    print(artistResponse)
-
-    # while loop acts like do-while
-    while True:
-
-        for track in artistResponse['tracks']['items']:
-            song = SongObj.from_url('https://open.spotify.com/track/' + track['id'])
-            print(song)
-
-            if (song.get_youtube_link() != None) and (artistName in song.get_contributing_artists()):
-                artistTracks.append(song)
-                print(song, song.get_song_name())
-
-        # check if more tracks are to be passed
-        if artistResponse['tracks']['next']:
-            artistResponse = spotifyClient.search(
-                q='artist:' + artistName, 
-                type='track',
-                offset = len(artistTracks)
-            )
-        else:
-            break
-
-    #! Filter out the Songs in which the given artist has not contributed.
-    # artistTracks = [track for track in artistTracks if artistName in track.get_contributing_artists()]
-
-    # print(artistTracks)
-
-    # return artistTracks
-
-def _get_songObj_from_url_and_artist(url, artistName):
-    initialize(
-        clientId     = '4fe3fecfe5334023a1472516cc99d805',
-        clientSecret = '0f02b7c483c04257984695007a4a8d5c'
-        )
-    song_preliminary = SongObj.from_url(url, preliminary=True)
-    if artistName in song_preliminary.get_contributing_artists():
-        song = SongObj.from_url(url, preliminary=False)
-        if song.get_youtube_link() != None:
-            return song
-
-def get_artist_tracks(artistUrl: str) -> List[SongObj]:
-    '''
-    `str` `artistUrl` : Spotify Url of the artist whose tracks are to be
-    retrieved
-
-    returns a `List` containing Url's of each track of the artist.
+    returns a `List` containing URLs of each track in which the specified 
+    artist is the primary/contributing artist.
     '''
 
     spotifyClient = get_spotify_client()
@@ -211,7 +178,12 @@ def get_artist_tracks(artistUrl: str) -> List[SongObj]:
     artistName      = spotifyClient.artist(artistUrl)['name']
     songURLlist = []
 
-    artistResponse = spotifyClient.search(q='artist:' + artistName, type='track') # remove 'artist:' to included contributed tracks
+    if isPrimaryArtist == True:
+        searchQuery = q='artist:' + artistName
+    else:
+        searchQuery = q=artistName
+
+    artistResponse = spotifyClient.search(q= searchQuery, type='track')
 
     # while loop acts like do-while
     while True:
@@ -222,12 +194,14 @@ def get_artist_tracks(artistUrl: str) -> List[SongObj]:
         # check if more tracks are to be passed
         if artistResponse['tracks']['next']:
             artistResponse = spotifyClient.search(
-                q='artist:' + artistName, 
+                q=searchQuery, 
                 type='track',
                 offset = len(songURLlist)
             )
         else:
             break
+
+    print('Found', len(songURLlist), 'tracks in search')
 
     q = WorkerPool(poolSize=4)
 
@@ -240,5 +214,84 @@ def get_artist_tracks(artistUrl: str) -> List[SongObj]:
     # Remove all the 'None' values. None values occur when the artist isn't actually on the list of contributing artist or when a Youtube URL was not found
     artistTracks = [i for i in artistTracks_raw_results if i] 
 
+    # Remove all tracks in which the specified artist is not a contributing artist.
+    # artistTracks = [track for track in artistTracks if artistName in track.get_contributing_artists()]
+
     print('Spotify gave ', len(songURLlist), 'songs, then sorted that down to', len(artistTracks_raw_results), 'candidates, then found', len(artistTracks), ' to download')
+    return artistTracks
+
+
+def get_artist_discography(artistUrl: str) -> List[SongObj]:
+    '''
+    `str` `artistUrl` : Spotify Url of the artist whose tracks are to be
+    retrieved
+
+    returns a `List` containing URLs of each track of the artist including albums the artist is featured on.
+    '''
+
+    spotifyClient = get_spotify_client()
+    artistAlbums = []
+    artistTracks = []
+
+    artistResponse = spotifyClient.artist_albums(artistUrl, album_type='album,single')
+    artistName     = spotifyClient.artist(artistUrl)['name']
+
+    # songURLlist = []
+
+    while True:
+
+        for album in artistResponse['items']:
+            albumUrl  = album['external_urls']['spotify']
+
+            artistAlbums.append(albumUrl)
+
+        # Check if the artist has more albums.
+        if artistResponse['next']:
+            artistResponse = spotifyClient.artist_albums(
+                artistUrl,
+                album_type='album,single',
+                offset = len(artistAlbums)
+            )
+        else:
+            break
+
+    print('Found', len(artistAlbums), 'albums')
+
+    for album in artistAlbums:
+
+        trackResponse = spotifyClient.album_tracks(album)
+
+        # while loop acts like do-while
+        while True:
+
+            for track in trackResponse['items']:
+                artistTracks.append('https://open.spotify.com/track/' + track['id'])
+
+            # check if more tracks are to be passed
+            if trackResponse['next']:
+                trackResponse = spotifyClient.album_tracks(
+                    album,
+                    offset = len(artistTracks)
+                )
+            else:
+                break
+
+    print('Found', len(artistTracks), 'songs')
+
+    q = WorkerPool(poolSize=4)
+
+    artistTracks_raw_results = q.do(
+        _get_songObj_from_url, artistTracks
+    )
+
+    q.close()
+
+    # Remove all 'None' values
+    artistTracks = [i for i in artistTracks_raw_results if i] 
+
+    #! Filter out the Songs in which the given artist has not contributed.
+    artistTracks = [track for track in artistTracks if artistName in track.get_contributing_artists()]
+
+    print('Total:', len(artistTracks))
+
     return artistTracks
