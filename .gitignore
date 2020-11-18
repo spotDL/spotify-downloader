@@ -12,6 +12,8 @@ __pycache__
 .mypy_cache
 *.pyc
 __scratch*__.py
+.venv
+venv
 
 # vscode
 .vscode
