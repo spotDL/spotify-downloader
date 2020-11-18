@@ -81,15 +81,16 @@ def console_entry_point():
     Its super simple, rudimentary even but, it's dead simple & it works.
     '''
 
-
+    # Initialize the Display Mannager. 
     with DisplayManager() as disp:
+
+        # Initialize the Download Manager. 
         with DownloadManager() as downloader:
 
             cli_options = get_cli_options()
 
             if cli_options.quiet:
                 disp.quiet = True
-
 
             if cli_options.spotify_client_id:
                 if cli_options.spotify_client_secret:

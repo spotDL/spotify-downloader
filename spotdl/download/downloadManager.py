@@ -21,7 +21,7 @@ from typing import List
 from spotdl.download.downloader import download_song
 from spotdl.search.songObj import SongObj
 from spotdl.download.progressHandlers import DownloadTracker
-from spotdl.download.messageHandlers import ParentMessageTracker
+from spotdl.cli.messageHandlers import ParentMessageTracker
 
 
 from queue import Queue
@@ -150,6 +150,7 @@ class DownloadManager():
             return
         elif self.asyncResultCallback:
             self.asyncResultCallback(results)
+            return
 
         return results
     
@@ -181,6 +182,7 @@ class DownloadManager():
             return
         elif self.asyncResultCallback:
             self.asyncResultCallback(results)
+            return
 
         return results
 
@@ -237,6 +239,9 @@ class DownloadManager():
             return
         elif self.asyncResultCallback:
             self.asyncResultCallback(results)
+            return
+
+        return results
     
     def close(self) -> None:
         '''
