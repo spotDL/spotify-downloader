@@ -16,7 +16,7 @@ import argparse
 
 
 
-def get_arguments():
+def get_cli_arguments():
     '''
     Generate all possible arguments along with their alias, alt. alias, and help description
 
@@ -24,8 +24,6 @@ def get_arguments():
     '''
     parser = argparse.ArgumentParser(
         description="Download Spotify playlists from YouTube with albumart and metadata",
-        # formatter_class=argparse.ArgumentDefaultsHelpFormatter,
-        # add_help=True
     )
 
     parser.add_argument(
@@ -68,13 +66,13 @@ def get_arguments():
     return parser
 
 
-def get_options():
+def get_cli_options():
     '''
     Convert argument strings to objects and assign them as attributes of the namespace
 
     RETURNS `options` the populated namespace.
     '''
 
-    options = get_arguments().parse_args()
+    options = get_cli_arguments().parse_args()
     return options
 

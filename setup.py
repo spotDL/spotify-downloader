@@ -25,6 +25,8 @@ setup(
         'requests',
         'mutagen',
         'python-Levenshtein-wheels',
+        'rich',
+        'multiprocess',
     ],
 
     description="Downloads Spotify music from Youtube with metadata and album art",
