@@ -8,6 +8,7 @@ setup(
     
     packages = [
         'spotdl',
+        'spotdl.cli',
         'spotdl.search',
         'spotdl.download',
         'spotdl.patches'
@@ -17,14 +18,11 @@ setup(
     version = '3.1.2',
 
     install_requires = [
-        'fuzzywuzzy',
         'spotipy',
-        'pytube3',
-        'tqdm',
+        'a-pytube-fork-for-spotdl-users',
         'rapidfuzz',
         'requests',
         'mutagen',
-        'python-Levenshtein-wheels',
         'rich',
         'multiprocess',
     ],
