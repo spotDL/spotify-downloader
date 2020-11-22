@@ -4,9 +4,6 @@
 *.mp3
 *.mp4
 
-# Reference Code
-originalCodeRef/*
-
 # Python
 __pycache__
 .mypy_cache
@@ -26,5 +23,10 @@ Hacks/*
 
 # setuptools
 spotdl.egg-info/*
-build/*
-dist/*
+
+# setuptools and PyInstaller
+build
+dist
+
+# PyInstaller
+*.spec
