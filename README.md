@@ -98,12 +98,18 @@ tracks for more speed.
 1. Clone this repo
     ```
     $ git clone https://github.com/spotDL/spotify-downloader.git
-    ```
-2. Install requirements
-    ```
     $ cd spotify-downloader
-    $ python3 -m venv .venv
+    ```
+2. Install requirements (Windows)
+    ```
+    $ py -3 -m venv env
     $ .\.venv\Scripts\activate
+    (.venv)$ python setup.py develop
+    ```
+2. Install requirements (Linux/macOS)
+    ```
+    $ python3 -m venv .venv
+    $ source .venv/bin/activate
     (.venv)$ python setup.py develop
     ```
 -  Use as Command
