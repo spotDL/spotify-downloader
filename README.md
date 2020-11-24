@@ -91,6 +91,11 @@ You can chain up download tasks by seperating them with spaces:
 Spotdl downloads up to 4 songs in parallel - try to download albums and playlists instead of
 tracks for more speed.
 
+# Note
+
+The availability of YouTube Music in your country is important for spotDL to work since we use YouTube Music to filter out our search results.
+To check if YouTube Music is available in your country, visit [YouTube Music](https://music.youtube.com).
+
 # Thanks for developing the v3.0.1
 1. [@ritiek](https://github.com/ritiek) for creating and maintaining spotDL for 4 years
 2. [@rocketinventor](https://github.com/rocketinventor) for figuring out the YouTube Music querying
