@@ -92,7 +92,7 @@ class DisplayManager():
         updates progress bar to reflect a song being skipped
         '''
 
-        self.progressBar.update(100)
+        self.progressBar.update(5)
     
     def pytube_progress_hook(self, stream, chunk, bytes_remaining) -> None:
         '''

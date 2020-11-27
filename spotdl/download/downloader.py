@@ -31,7 +31,6 @@ from spotdl.download.progressHandlers import DisplayManager, DownloadTracker
 #! Technically, this should ideally be defined within the downloadManager class. But due
 #! to the quirks of multiprocessing.Pool, that can't be done. Do not consider this as a
 #! standalone function but rather as part of DownloadManager
-
 def download_song(songObj: SongObj, displayManager: DisplayManager = None,
                                     downloadTracker: DownloadTracker = None) -> None:
     '''
@@ -87,6 +86,7 @@ def download_song(songObj: SongObj, displayManager: DisplayManager = None,
     # if a song is already downloaded skip it
     if exists(convertedFilePath):
         if displayManager:
+            print('Skipping: %s' % (songObj.get_song_name()))
             displayManager.notify_download_skip()
         if downloadTracker:
             downloadTracker.notify_download_completion(songObj)
@@ -97,20 +97,36 @@ def download_song(songObj: SongObj, displayManager: DisplayManager = None,
     
 
 
-    # download Audio from YouTube
-    if displayManager:
-        youtubeHandler = YouTube(
-            url                  = songObj.get_youtube_link(),
-            on_progress_callback = displayManager.pytube_progress_hook
-        )
-    else:
-        youtubeHandler = YouTube(songObj.get_youtube_link())
-    
+    try:
+        # download Audio from YouTube
+        if displayManager:
+            youtubeHandler = YouTube(
+                url                  = songObj.get_youtube_link(),
+                on_progress_callback = displayManager.pytube_progress_hook
+            )
+        else:
+            youtubeHandler = YouTube(songObj.get_youtube_link())
+    except:
+                #! This is equivalent to a failed download, we do nothing, the song remains on
+        #! downloadTrackers download queue and all is well...
+        #!
+        #! None is again used as a convenient exit
+        print('YoutubeHandle init failed for: %s' % (songObj.get_song_name()))
+        displayManager.notify_download_skip()
+        try:
+            remove(join(tempFolder, convertedFileName) + '.mp4')
+        except:
+            return None
+
+        return None
+
+
     trackAudioStream = youtubeHandler.streams.get_audio_only()
 
     #! The actual download, if there is any error, it'll be here,
     try:
         #! pyTube will save the song in .\Temp\$songName.mp4, it doesn't save as '.mp3'
+        print('Downloading: %s ...' % (songObj.get_song_name()))
         downloadedFilePath = trackAudioStream.download(
             output_path   = tempFolder,
             filename      = convertedFileName,
@@ -121,6 +137,8 @@ def download_song(songObj: SongObj, displayManager: DisplayManager = None,
         #! downloadTrackers download queue and all is well...
         #!
         #! None is again used as a convenient exit
+        print('Download failed for: %s' % (songObj.get_song_name()))
+        displayManager.notify_download_skip()
         remove(join(tempFolder, convertedFileName) + '.mp4')
         return None
     
@@ -290,14 +308,17 @@ class DownloadManager():
         self.displayManager.reset()
         self.displayManager.set_song_count_to(len(songObjList))
 
+        print('Go with chunksize of 50')
         self.workerPool.starmap(
             func     = download_song,
             iterable = (
                 (song, self.displayManager, self.downloadTracker)
                     for song in songObjList
-            )
+            ),
+            chunksize = 50
         )
         print()
+
     
     def resume_download_from_tracking_file(self, trackingFilePath: str) -> None:
         '''
@@ -308,6 +329,7 @@ class DownloadManager():
         downloads songs present on the .spotdlTrackingFile in parallel
         '''
 
+        print('resume from tracking file')
         self.downloadTracker.clear()
         self.downloadTracker.load_tracking_file(trackingFilePath)
 
@@ -321,7 +343,8 @@ class DownloadManager():
             iterable = (
                 (song, self.displayManager, self.downloadTracker)
                     for song in songObjList
-            )
+            ),
+            chunksize = 50
         )
         print()
     

@@ -1,5 +1,7 @@
 from spotdl.search.spotifyClient import get_spotify_client
 from spotdl.search.songObj import SongObj
+from multiprocessing import Pool
+
 
 from typing import List
 
@@ -62,6 +64,25 @@ def get_album_tracks(albumUrl: str) -> List[SongObj]:
     
     return albumTracks
 
+def get_song_obj_from_url(songEntry, playlistResponse, spotifyClient, playlistUrl):
+    playlistTracks = []
+    song = SongObj.from_url(
+        'https://open.spotify.com/track/' + songEntry['track']['id'])
+    print('Got song info: %s' % (song.get_song_name()))
+    if song.get_youtube_link() != None:
+            playlistTracks.append(song)
+        
+
+
+        # check if more tracks are to be passed        
+    if playlistResponse['next']:
+        playlistResponse = spotifyClient.playlist_tracks(
+            playlistUrl,
+            offset = len(playlistTracks)
+        )
+
+    return playlistTracks
+
 def get_playlist_tracks(playlistUrl: str) -> List[SongObj]:
     '''
     `str` `playlistUrl` : Spotify Url of the album whose tracks are to be
@@ -70,28 +91,26 @@ def get_playlist_tracks(playlistUrl: str) -> List[SongObj]:
     returns a `list<songObj>` containing Url's of each track in the given playlist
     '''
 
+    # initialize worker pool
+    print('Retrieving song information...')
+    print()
+    workerPool = Pool( 4 )
+
     spotifyClient = get_spotify_client()
-    playlistTracks = []
 
     playlistResponse = spotifyClient.playlist_tracks(playlistUrl)
 
-    # while loop to mimic do-while
-    while True:
+    playlistTracks = workerPool.starmap(
+        func     = get_song_obj_from_url,
+        iterable = (
+            (songEntry, playlistResponse, spotifyClient, playlistUrl)
+                for songEntry in playlistResponse['items']
+        ),
+        chunksize = 50
+    )
+    print()
+    print('Done retrieving song information!')
 
-        for songEntry in playlistResponse['items']:
-            song = SongObj.from_url(
-                'https://open.spotify.com/track/' + songEntry['track']['id'])
-            
-            if song.get_youtube_link() != None:
-                playlistTracks.append(song)
-
-        # check if more tracks are to be passed        
-        if playlistResponse['next']:
-            playlistResponse = spotifyClient.playlist_tracks(
-                playlistUrl,
-                offset = len(playlistTracks)
-            )
-        else:
-            break
+    playlistTracks = [ent for sublist in playlistTracks for ent in sublist]
     
     return playlistTracks
