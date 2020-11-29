@@ -308,7 +308,6 @@ class DownloadManager():
         self.displayManager.reset()
         self.displayManager.set_song_count_to(len(songObjList))
 
-        print('Go with chunksize of 50')
         self.workerPool.starmap(
             func     = download_song,
             iterable = (

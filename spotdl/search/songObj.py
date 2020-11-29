@@ -1,5 +1,4 @@
 from spotdl.search.provider import search_and_get_best_match
-from spotdl.search.spotifyClient import get_spotify_client
 
 from os.path import join
 
@@ -27,7 +26,7 @@ class SongObj():
     #! Note, since the following are class methods, an instance of songObj is initialized
     #! and passed to them
     @classmethod
-    def from_url(cls, spotifyURL: str):
+    def from_url(cls, spotifyURL: str, spotifyClient):
         # check if URL is a playlist, user, artist or album, if yes raise an Exception,
         # else procede
         if not ('open.spotify.com' in spotifyURL and 'track' in spotifyURL):
@@ -36,8 +35,6 @@ class SongObj():
 
 
         # query spotify for song, artist, album details
-        spotifyClient = get_spotify_client()
-
         rawTrackMeta = spotifyClient.track(spotifyURL)
 
         primaryArtistId = rawTrackMeta['artists'][0]['id']
