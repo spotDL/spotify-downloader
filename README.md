@@ -1,6 +1,9 @@
 ![logo](static/logo.png)
 
 # spotDL
+
+> The fastest and most accurate command-line music downloader
+
 [![MIT License](https://img.shields.io/apm/l/atomic-design-ui.svg?)](https://github.com/spotDL/spotify-downloader/blob/master/LICENSE) ![Contributors](https://img.shields.io/github/contributors/spotDL/spotify-downloader) ![downloads](https://img.shields.io/github/downloads/spotDL/spotify-downloader/latest/total) 
 [![pypi version](https://img.shields.io/pypi/v/spotDL)](https://pypi.org/project/spotdl/) [![pypi version](https://img.shields.io/pypi/pyversions/spotDL)](https://pypi.org/project/spotdl/) [![pypi downloads](https://img.shields.io/pypi/dw/spotDL?label=downloads@pypi)](https://pypi.org/project/spotdl/) 
 
@@ -101,7 +104,7 @@ ex. `spotdl 'The Hu - Sugaan Essenna' https://open.spotify.com/playlist/37i9dQZF
 *The availability of YouTube Music in your country is important for spotDL to work since we use YouTube Music to filter out our search results. To check if YouTube Music is available in your country, visit [YouTube Music](https://music.youtube.com).*
 
 
-## For Developers
+## For Developers and Contributors
 
 1. Clone this repo
     ```
@@ -121,7 +124,7 @@ ex. `spotdl 'The Hu - Sugaan Essenna' https://open.spotify.com/playlist/37i9dQZF
       $ source .venv/bin/activate
       (.venv)$ python setup.py develop
       ```
--  Use as Command
+-  Use as Command (no need to re-install after file changes)
     ```
     (.venv)$ spotdl [ARGUMENTS]
     ```
