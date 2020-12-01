@@ -16,12 +16,12 @@ What spotDL does:
     - and more...
 
 
-# Announcing spotDL v3
+### Announcing spotDL v3
 
 We have rebuilt spotDL from scratch to be much faster, simpler, and better than the old spotDL.
 The documentation for the same is a work in progress. v3.0.2 is yet to be released to PyPi so you can't install it using `pip`, this is intentional. v3.0.2 is still in alpha testing. We request that you use spotDL v3 and submit issues to voice problems and like-to-haves that you come across.
 
-#### Information
+#### Please Read
 
 ⚠ We are dropping active development of spotDL v2 due to support and organization changes. No focused efforts will be made to resolve v2 specific issues.
 
@@ -36,15 +36,16 @@ The documentation for the same is a work in progress. v3.0.2 is yet to be releas
 You need to download ffmpeg to use this tool. Download and installation instructions can be found at [ffmpeg.org](https://ffmpeg.org/)
 
 
-- ```
-  $ pip install spotdl
-  ```
+- Recommended Stable Version
+    ```
+    $ pip install spotdl
+    ```
 
-   -   For latest version (not necessarily stable)
+- Alternatively for the latest version (not necessarily stable)
 
-        ```
-        $ pip install https://github.com/spotDL/spotify-downloader/archive/next-rel-dev.zip
-        ```
+    ```
+    $ pip install https://github.com/spotDL/spotify-downloader/archive/next-rel-dev.zip
+    ```
 
 
 ## Usage (instructions for v3)
@@ -53,7 +54,7 @@ You need to download ffmpeg to use this tool. Download and installation instruct
     ```
     $ spotdl [trackUrl]
     ```
-    example: `spotdl https://open.spotify.com/track/08mG3Y1vljYA6bvDt4Wqkj?si=SxezdxmlTx-CaVoucHmrUA`
+    ex. `spotdl https://open.spotify.com/track/08mG3Y1vljYA6bvDt4Wqkj?si=SxezdxmlTx-CaVoucHmrUA`
     <br/>
 
 - To download an album run,
@@ -89,7 +90,7 @@ You need to download ffmpeg to use this tool. Download and installation instruct
 
 You can chain up download tasks by seperating them with spaces:
 ```
-$ spotdl $songQuery1 $albumUrl $songQuery2 ... (order does not matter)
+$ spotdl [songQuery1] [albumUrl] [songQuery2] ... (order does not matter)
 ```
 ex. `spotdl 'The Hu - Sugaan Essenna' https://open.spotify.com/playlist/37i9dQZF1DWXhcuQw7KIeM?si=xubKHEBESM27RqGkqoXzgQ ...`    
 
