@@ -40,6 +40,7 @@ You need to download ffmpeg to use this tool. Download and installation instruct
 
 
 - Recommended Stable Version
+
     ```
     $ pip install spotdl
     ```
@@ -54,6 +55,7 @@ You need to download ffmpeg to use this tool. Download and installation instruct
 ## Usage (instructions for v3)
 
 - To download a song run,
+
     ```
     $ spotdl [trackUrl]
     ```
@@ -61,6 +63,7 @@ You need to download ffmpeg to use this tool. Download and installation instruct
     <br/>
 
 - To download an album run,
+
     ```
     $ spotdl [albumUrl]
     ```
@@ -68,6 +71,7 @@ You need to download ffmpeg to use this tool. Download and installation instruct
     <br/>
 
 - To download a playlist run,
+
     ```
     $ spotdl [playlistUrl]
     ```
@@ -75,6 +79,7 @@ You need to download ffmpeg to use this tool. Download and installation instruct
     <br/>
 
 - To search for and download a song (not very accurate) run,
+
     ```
     $ spotdl [songQuery]
     ```
@@ -82,16 +87,18 @@ You need to download ffmpeg to use this tool. Download and installation instruct
     <br/>
 
 - To resume a failed/incomplete download run,
+
     ```
     $ spotdl [pathToTrackingFile]
     ```
     ex. `spotdl 'Sugaan Essenna.spotdlTrackingFile'`
-
+    
     *`.spotDlTrackingFiles` are automatically created during download start, they are deleted on download completion*
 
 <br/>
 
 You can chain up download tasks by seperating them with spaces:
+
 ```
 $ spotdl [songQuery1] [albumUrl] [songQuery2] ... (order does not matter)
 ```
