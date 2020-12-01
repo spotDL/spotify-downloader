@@ -11,12 +11,12 @@
 What spotDL does:
 1. Downloads music from YouTube as an MP3 file
 2. Applies basic metadata like 
-    - track name
-    - track number
-    - album
-    - album cover
-    - genre
-    - and more...
+    - Track Name
+    - Track Number
+    - Album
+    - Album Cover
+    - Genre
+    - and more!
 
 
 ### Announcing spotDL v3
