@@ -2,7 +2,7 @@
 
 # spotDL
 
-> The fastest and most accurate command-line music downloader
+> The fastest, easiest, and most accurate command-line music downloader
 
 [![MIT License](https://img.shields.io/apm/l/atomic-design-ui.svg?)](https://github.com/spotDL/spotify-downloader/blob/master/LICENSE) ![Contributors](https://img.shields.io/github/contributors/spotDL/spotify-downloader) ![downloads](https://img.shields.io/github/downloads/spotDL/spotify-downloader/latest/total) 
 [![pypi version](https://img.shields.io/pypi/v/spotDL)](https://pypi.org/project/spotdl/) [![pypi version](https://img.shields.io/pypi/pyversions/spotDL)](https://pypi.org/project/spotdl/) [![pypi downloads](https://img.shields.io/pypi/dw/spotDL?label=downloads@pypi)](https://pypi.org/project/spotdl/) 
