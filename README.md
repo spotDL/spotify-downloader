@@ -26,7 +26,7 @@ The documentation for the same is a work in progress. v3.0.2 is yet to be releas
 
 #### Please Read
 
-⚠ We are dropping active development of spotDL v2 due to support and organization changes. No focused efforts will be made to resolve v2 specific issues.
+⚠ We have dropped active development of spotDL v2 due to support and organization changes. No focused efforts will be made to resolve v2 specific issues.
 
 ⚠ We are actively looking for Contributors/Organization Members for all projects under development. If interested, please read our [Contributing Guidelines](CONTRIBUTING.md) first and see [#857](https://github.com/spotDL/spotify-downloader/issues/857)
 
