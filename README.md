@@ -10,7 +10,7 @@
 
 What spotDL does:
 1. Downloads music from YouTube as an MP3 file
-2. Applies basic metadata like 
+2. Applies basic metadata such as:
     - Track Name
     - Track Number
     - Album
@@ -54,7 +54,7 @@ You need to download ffmpeg to use this tool. Download and installation instruct
 
 ## Usage (instructions for v3)
 
-- To download a song run,
+- To download a song, run:
 
     ```
     $ spotdl [trackUrl]
@@ -62,7 +62,7 @@ You need to download ffmpeg to use this tool. Download and installation instruct
     ex. `spotdl https://open.spotify.com/track/08mG3Y1vljYA6bvDt4Wqkj?si=SxezdxmlTx-CaVoucHmrUA`
     <br/>
 
-- To download an album run,
+- To download an album, run:
 
     ```
     $ spotdl [albumUrl]
@@ -70,7 +70,7 @@ You need to download ffmpeg to use this tool. Download and installation instruct
     ex. `spotdl https://open.spotify.com/album/2YMWspDGtbDgYULXvVQFM6?si=gF5dOQm8QUSo-NdZVsFjAQ`
     <br/>
 
-- To download a playlist run,
+- To download a playlist, run:
 
     ```
     $ spotdl [playlistUrl]
@@ -78,26 +78,28 @@ You need to download ffmpeg to use this tool. Download and installation instruct
     ex. `spotdl https://open.spotify.com/playlist/37i9dQZF1DWXhcuQw7KIeM?si=xubKHEBESM27RqGkqoXzgQ`
     <br/>
 
-- To search for and download a song (not very accurate) run,
+- To search for and download a song, run:
+    *(Note: This may not be very accurate)*
 
     ```
     $ spotdl [songQuery]
     ```
     ex. `spotdl 'The HU - Sugaan Essenna'`
+    
     <br/>
 
-- To resume a failed/incomplete download run,
+- To resume a failed/incomplete download, run:
 
     ```
     $ spotdl [pathToTrackingFile]
     ```
     ex. `spotdl 'Sugaan Essenna.spotdlTrackingFile'`
     
-    *`.spotDlTrackingFiles` are automatically created during download start, they are deleted on download completion*
+    *`.spotDlTrackingFiles` are automatically created when a download starts, and deleted on completion*
 
 <br/>
 
-You can chain up download tasks by seperating them with spaces:
+You can chain up download tasks by separating them with spaces:
 
 ```
 $ spotdl [songQuery1] [albumUrl] [songQuery2] ... (order does not matter)
@@ -106,7 +108,7 @@ ex. `spotdl 'The Hu - Sugaan Essenna' https://open.spotify.com/playlist/37i9dQZF
 
 <br/>
 
-*Spotdl downloads up to 4 songs in parallel - try to download albums and playlists instead of tracks for more speed.*
+*spotDL downloads up to 4 songs in parallel so try to download albums and playlists, instead of tracks for a faster experience.*
 
 *The availability of YouTube Music in your country is important for spotDL to work since we use YouTube Music to filter out our search results. To check if YouTube Music is available in your country, visit [YouTube Music](https://music.youtube.com).*
 
@@ -147,9 +149,9 @@ ex. `spotdl 'The Hu - Sugaan Essenna' https://open.spotify.com/playlist/37i9dQZF
     ```
 
 
-## Thanks for developing the v3.0.1
+## Thanks for developing v3.0.1
 1. [@ritiek](https://github.com/ritiek) for creating and maintaining spotDL for 4 years
-2. [@rocketinventor](https://github.com/rocketinventor) for figuring out the YouTube Music querying
+2. [@rocketinventor](https://github.com/rocketinventor) for figuring out YouTube Music querying
 3. [@Mikhail-Zex](https://github.com/Mikhail-Zex) for, never mind...
 
 ## A few interesting forks
