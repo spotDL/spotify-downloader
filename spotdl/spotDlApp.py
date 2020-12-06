@@ -7,6 +7,7 @@ import sys
 from spotdl.search.utils import get_playlist_tracks, get_album_tracks, search_for_song
 from spotdl.search.songObj import SongObj
 from spotdl.search.spotifyClient import SpotifyClient
+from spotdl.search.spotifyClientFactory import SpotifyClientFactory
 
 class SpotDlApp():
 
@@ -54,7 +55,7 @@ class SpotDlApp():
         argParser.add_argument("spotify_url")
         return argParser.parse_args(cmdLine)
 
-    def runSpotDl(self, cmdLine, spotifyClient: SpotifyClient, downloader):
+    def runSpotDl(self, cmdLine, spotifyClientFactory: SpotifyClientFactory, downloader):
         '''
         This is where all the console processing magic happens.
         Its super simple, rudimentary even but, it's dead simple & it works.
@@ -71,12 +72,14 @@ class SpotDlApp():
             sys.exit("Must supply either BOTH clientId and clientSecret, or neither.")
     
         if (cliArgs.clientId and cliArgs.clientSecret):
+            print('Using provided Spotify clientId and clientSecret!')
             spotifyClientId = cliArgs.clientId
             spotifyClientSecret = cliArgs.clientSecret
         else:
             spotifyClientId = SpotDlApp.default_client_id
             spotifyClientSecret = SpotDlApp.default_client_secret
-        spotifyClient.initialize(
+
+        spotifyClient = spotifyClientFactory.build(
             clientId = spotifyClientId,
             clientSecret = spotifyClientSecret
         )
@@ -84,7 +87,8 @@ class SpotDlApp():
         spotifyUrl = cliArgs.spotify_url
         if 'open.spotify.com' in spotifyUrl and 'track' in spotifyUrl:
             print('Fetching Song...')
-            song = SongObj.from_url(spotifyUrl, spotifyClient.get_spotify_client())
+            song = SongObj.from_url(spotifyUrl, spotifyClient.get())
+            print('Fetching Song... Done')
 
             if song.get_youtube_link() != None:
                 downloader.download_single_song(song)
@@ -95,13 +99,15 @@ class SpotDlApp():
         
         elif 'open.spotify.com' in spotifyUrl and 'album' in spotifyUrl:
             print('Fetching Album...')
-            songObjList = get_album_tracks(spotifyUrl, spotifyClient.get_spotify_client())
+            songObjList = get_album_tracks(spotifyUrl, spotifyClient.get())
+            print('Fetching Album... Done')
 
             downloader.download_multiple_songs(songObjList)
         
         elif 'open.spotify.com' in spotifyUrl and 'playlist' in spotifyUrl:
             print('Fetching Playlist...')
-            songObjList = get_playlist_tracks(spotifyUrl, spotifyClient.get_spotify_client())
+            songObjList = get_playlist_tracks(spotifyUrl, spotifyClient.get())
+            print('Fetching Playlist... Done')
 
             downloader.download_multiple_songs(songObjList)
         
@@ -112,7 +118,7 @@ class SpotDlApp():
         else:
             print('Searching for song "%s"...' % spotifyUrl)
             try:
-                song = search_for_song(spotifyUrl, spotifyClient.get_spotify_client())
+                song = search_for_song(spotifyUrl, spotifyClient.get())
                 downloader.download_single_song(song)
 
             except Exception:

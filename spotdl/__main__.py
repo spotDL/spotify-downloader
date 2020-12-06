@@ -1,5 +1,5 @@
 #! Basic necessities to get the CLI running
-from spotdl.search import spotifyClient
+from spotdl.search.spotifyClientFactory import SpotifyClientFactory
 from spotdl.spotDlApp import SpotDlApp
 
 #! The actual download stuff
@@ -42,7 +42,7 @@ def console_entry_point():
     cmdline = sys.argv[1:]
 
     spotDlApp = SpotDlApp()
-    spotDlApp.runSpotDl(cmdline, spotifyClient.SpotifyClient(), DownloadManager())
+    spotDlApp.runSpotDl(cmdline, SpotifyClientFactory(), DownloadManager())
 
 if __name__ == '__main__':
     freeze_support()

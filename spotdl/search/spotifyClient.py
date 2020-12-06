@@ -6,63 +6,32 @@ from spotipy import Spotify
 from spotipy.oauth2 import SpotifyClientCredentials
 
 
-class SpotifyClient():
-    #===============
-    #=== Globals ===
-    #===============
-
-    
-    #! Look through both initialize() and get_spotify_client() for need of masterClient
-    __masterClient = None
-    
-    
+class SpotifyClient:
     
     #=========================
     #=== The actual action ===
     #=========================
     
-    def initialize(self, clientId: str, clientSecret: str):
+    def __init__(self, clientId: str, clientSecret: str):
         '''
         `str` `clientId` : client id from your spotify account
         
         `str` `clientSecret` : client secret for your client id
     
-        RETURNS `~`
+        RETURNS `SpotifyClient`
     
-        creates and caches a spotify client iff. a client doesn't exist. Can only be called
-        once, multiple calls will cause an Exception.
+        creates a spotify client
         '''
-    
 
-        # check if initialization has been completed, if yes, raise an Exception
-        #! None evaluates to False, objects evaluate to True.
-        if SpotifyClient.__masterClient:
-            raise Exception('A spotify client has already been initialized')
-
-        # else create and cache a spotify client
-        else:
-            # create Oauth credentials for the SpotifyClient
-            credentialManager = SpotifyClientCredentials(
-                client_id = clientId,
-                client_secret = clientSecret
-            )
+        # create Oauth credentials for the SpotifyClient
+        credentialManager = SpotifyClientCredentials(
+            client_id = clientId,
+            client_secret = clientSecret
+        )
     
-            client = Spotify(client_credentials_manager = credentialManager)
-            
-            SpotifyClient.__masterClient = client
-    
-    def get_spotify_client(self):
-        '''
-        RETURNS `Spotify`
-    
-        returns a cached spotify client of type `spotipy.Spotify`, can only be called after a
-        call to `spotifyClient.initialize(clientId, clientSecret)`
-        '''
+        client = Spotify(client_credentials_manager = credentialManager)
         
-        #! None evaluvates to False, Objects evaluate to True
-        if SpotifyClient.__masterClient:
-            return SpotifyClient.__masterClient
-    
-        else:
-            raise Exception('Spotify client not created. Call spotifyClient.initialize' +
-                '(clientId, clientSecret) first.')
+        self.client = client
+
+    def get(self) -> Spotify:
+        return self.client
