@@ -40,12 +40,27 @@ take SongObj as inputs.
 
 <br><br>
 
+## spotDlApp
+
+Serves as the boundary between platform (python) and application logic. This class allows us to setup
+dependency injection (constructor injection, in this case) at the platform boundary, meaning we can test
+our apps logic from the platform boundary to the network boundary.
+
+<br><br>
+
+
 ## spotifyClient
 
-The 'spotifyClient' module is a wrapper around `spotipy.Spotify` class, it ensures that there is
-only one instance of the `Spotify` class at runtime and that the same class is shared across
-multiple 'internal name-spaces' instead of creating new clients each time. Essentially, it
-implements a 'singleton' pattern.
+The 'spotifyClient' module is a wrapper around `spotipy.Spotify` class. It provides flexibility
+should we decide to switch to something other than spotipy.
+
+<br><br>
+
+## spotifyClientFactory
+
+Builds an instance of the SpotifyClient class. Injecting this factory into the SpotDlApp class
+provides us a unified means to create  instances both in production and in test, bolstering
+confidence in our end-to-end configuration of the app.
 
 <br><br>
 

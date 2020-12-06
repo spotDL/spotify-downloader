@@ -37,23 +37,19 @@ interface to song details thereby adding to simplicity.
 
 # spotifyClient
 
-## get_spotify_client function
+## get function
 
-[PUR.] ensure that only a single instance of spotifyClient exists throughout the codebase.
+[PUR.] Provide an abstaction layer between app and spotipy's Spotify instance.
 
-[REA.] Having different parts of code having to initialize spotifyClients when required,
-would make for a lot of duplicate code. Serves as a ***single-point-of-access*** to 
-a ***singleton spotifyClient***.
+[REA.] Allows more flexibility if we chose to swap out spotipy with something else.
 
-[SEE ALSO.] initialize
+# spotifyClientFactory
 
-## initialize function
+## build function
 
-[PUR.] To create a cache a SpotifyClient
+[PUR.] Builds an instance of our SpotifyClient class, given a clientId and clientSecret.
 
-[REA.] Clubbing of client creation/caching with singleton-access requires passing of a
-client_id & client_secret the first time but not for subsequent calls. This ambiguity
-as to passing args is avoided.
+[REA.] Allows for shared configuration of the SpotifyClient class in prod and in tests.
 
 <br><br>
 
