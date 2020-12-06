@@ -1,6 +1,7 @@
 #===============
 #=== Imports ===
 #===============
+from pytube import YouTube
 
 from spotdl.download.progressHandlers import ProgressRootProcess
 
@@ -8,8 +9,6 @@ from os import mkdir, remove, system as run_in_shell
 from os.path import join, exists
 
 from multiprocessing import Pool
-
-from spotdl.patches.pyTube import YouTube
 
 from mutagen.easyid3 import EasyID3, ID3
 from mutagen.id3 import USLT
@@ -52,13 +51,13 @@ def download_song(songObj: SongObj, displayManager: DisplayManager = None,
 
     #! we explicitly use the os.path.join function here to ensure download is
     #! platform agnostic
-    
+
     # Create a .\Temp folder if not present
     tempFolder = join('.', 'Temp')
-    
+
     if not exists(tempFolder):
         mkdir(tempFolder)
-    
+
     # build file name of converted file
     artistStr = ''
 
@@ -68,7 +67,7 @@ def download_song(songObj: SongObj, displayManager: DisplayManager = None,
     for artist in songObj.get_contributing_artists():
         if artist.lower() not in songObj.get_song_name().lower():
             artistStr += artist + ', '
-    
+
     #! the ...[:-2] is to avoid the last ', ' appended to artistStr
     convertedFileName = artistStr[:-2] + ' - ' + songObj.get_song_name()
 
@@ -76,7 +75,7 @@ def download_song(songObj: SongObj, displayManager: DisplayManager = None,
     for disallowedChar in ['/', '?', '\\', '*','|', '<', '>']:
         if disallowedChar in convertedFileName:
             convertedFileName = convertedFileName.replace(disallowedChar, '')
-    
+
     #! double quotes (") and semi-colons (:) are also disallowed characters but we would
     #! like to retain their equivalents, so they aren't removed in the prior loop
     convertedFileName = convertedFileName.replace('"', "'").replace(': ', ' - ')
@@ -91,11 +90,11 @@ def download_song(songObj: SongObj, displayManager: DisplayManager = None,
             displayManager.notify_download_skip()
         if downloadTracker:
             downloadTracker.notify_download_completion(songObj)
-        
+
         #! None is the default return value of all functions, we just explicitly define
         #! it here as a continent way to avoid executing the rest of the function.
         return None
-    
+
 
 
     # download Audio from YouTube
@@ -106,7 +105,7 @@ def download_song(songObj: SongObj, displayManager: DisplayManager = None,
         )
     else:
         youtubeHandler = YouTube(songObj.get_youtube_link())
-    
+
     trackAudioStream = youtubeHandler.streams.get_audio_only()
 
     #! The actual download, if there is any error, it'll be here,
@@ -124,7 +123,7 @@ def download_song(songObj: SongObj, displayManager: DisplayManager = None,
         #! None is again used as a convenient exit
         remove(join(tempFolder, convertedFileName) + '.mp4')
         return None
-    
+
 
 
     # convert downloaded file to MP3 with normalization
@@ -183,7 +182,7 @@ def download_song(songObj: SongObj, displayManager: DisplayManager = None,
 
     if len(genres) > 0:
         audioFile['genre'] = genres[0]
-    
+
     #! all involved artists
     audioFile['artist'] = songObj.get_contributing_artists()
 
@@ -231,7 +230,7 @@ def download_song(songObj: SongObj, displayManager: DisplayManager = None,
     # Do the necessary cleanup
     if displayManager:
         displayManager.notify_download_completion()
-    
+
     if downloadTracker:
         downloadTracker.notify_download_completion(songObj)
 
@@ -264,7 +263,7 @@ class DownloadManager():
 
         # initialize worker pool
         self.workerPool = Pool( DownloadManager.poolSize )
-    
+
     def download_single_song(self, songObj: SongObj) -> None:
         '''
         `songObj` `song` : song to be downloaded
@@ -283,7 +282,7 @@ class DownloadManager():
         download_song(songObj, self.displayManager, self.downloadTracker)
 
         print()
-    
+
     def download_multiple_songs(self, songObjList: List[SongObj]) -> None:
         '''
         `list<songObj>` `songObjList` : list of songs to be downloaded
@@ -307,7 +306,7 @@ class DownloadManager():
             )
         )
         print()
-    
+
     def resume_download_from_tracking_file(self, trackingFilePath: str) -> None:
         '''
         `str` `trackingFilePath` : path to a .spotdlTrackingFile
@@ -333,7 +332,7 @@ class DownloadManager():
             )
         )
         print()
-    
+
     def close(self) -> None:
         '''
         RETURNS `~`

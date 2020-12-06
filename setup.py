@@ -3,19 +3,18 @@ from setuptools import setup
 setup(
     # 'spotify-downloader' was already taken (＞﹏＜)
     name = "spotdl",
-    
+
     packages = [
         'spotdl',
         'spotdl.search',
         'spotdl.download',
-        'spotdl.patches'
     ],
 
     version = '3.2.0-pre',
 
     install_requires = [
         'spotipy',
-        'pytube3',
+        'pytube',
         'tqdm',
         'rapidfuzz',
         'requests',
@@ -23,7 +22,7 @@ setup(
     ],
 
     description="Downloads Spotify music from Youtube with metadata and album art",
-    
+
     author="Ritiek Malhotra",
     author_email="ritiekmalhotra123@gmail.com",
 
