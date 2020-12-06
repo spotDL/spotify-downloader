@@ -45,7 +45,7 @@ class SpotDlApp():
     default_client_id = '4fe3fecfe5334023a1472516cc99d805'
     default_client_secret = '0f02b7c483c04257984695007a4a8d5c'
 
-    def __parseArgs(self, cmdLine) -> Namespace:
+    def _parseArgs(self, cmdLine) -> Namespace:
         argParser = ArgumentParser(add_help=False)
         argParser.add_argument("--help", help="print help message", action="store_true")
         argParser.add_argument("--h", help="print help message", action="store_true")
@@ -60,7 +60,7 @@ class SpotDlApp():
         Its super simple, rudimentary even but, it's dead simple & it works.
         '''
 
-        cliArgs = self.__parseArgs(cmdLine)
+        cliArgs = self._parseArgs(cmdLine)
         if cliArgs.help or cliArgs.h:
             print(SpotDlApp.help_notice)
             sys.exit(0)
