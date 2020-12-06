@@ -107,7 +107,7 @@ def download_song(songObj: SongObj, displayManager: DisplayManager = None,
         else:
             youtubeHandler = YouTube(songObj.get_youtube_link())
     except:
-                #! This is equivalent to a failed download, we do nothing, the song remains on
+        #! This is equivalent to a failed download, we do nothing, the song remains on
         #! downloadTrackers download queue and all is well...
         #!
         #! None is again used as a convenient exit
