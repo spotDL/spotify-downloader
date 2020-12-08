@@ -98,15 +98,24 @@ def download_song(songObj: SongObj, displayManager: DisplayManager = None,
 
 
     # download Audio from YouTube
-    if displayManager:
-        youtubeHandler = YouTube(
-            url                  = songObj.get_youtube_link(),
-            on_progress_callback = displayManager.pytube_progress_hook
-        )
-    else:
-        youtubeHandler = YouTube(songObj.get_youtube_link())
-    
-    trackAudioStream = youtubeHandler.streams.get_audio_only()
+    YouTubeLinks = songObj.get_youtube_link(),
+    for link in YouTubeLinks[0]:
+        if displayManager:
+            youtubeHandler = YouTube(
+                url                  = link,
+                on_progress_callback = displayManager.pytube_progress_hook
+            )
+        else:
+            youtubeHandler = YouTube(link)
+
+        trackAudioStream = youtubeHandler.streams.get_audio_only()
+        if trackAudioStream:
+            break
+
+    #! Even after Multiple tries the system is not able to find the audioStream
+    if not trackAudioStream:
+        print("Can not download:", songObj.get_song_name())
+        return None
 
     #! The actual download, if there is any error, it'll be here,
     try:
