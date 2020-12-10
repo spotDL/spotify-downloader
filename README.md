@@ -51,6 +51,8 @@ You need to download FFmpeg to use this tool. Download and installation instruct
     $ pip install https://github.com/spotDL/spotify-downloader/archive/next-rel-dev.zip
     ```
 
+*The availability of YouTube Music in your country is important for spotDL to work since we use YouTube Music to filter out our search results. To check if YouTube Music is available in your country, visit [YouTube Music](https://music.youtube.com).*
+
 
 ## Usage (instructions for v3)
 
@@ -99,7 +101,7 @@ You need to download FFmpeg to use this tool. Download and installation instruct
 
 <br/>
 
-You can chain up download tasks by separating them with spaces:
+You can queue up multiple download tasks by separating the arguments with spaces:
 
 ```
 $ spotdl [songQuery1] [albumUrl] [songQuery2] ... (order does not matter)
@@ -109,8 +111,6 @@ ex. `spotdl 'The Hu - Sugaan Essenna' https://open.spotify.com/playlist/37i9dQZF
 <br/>
 
 *spotDL downloads up to 4 songs in parallel, so try to download albums and playlists, instead of tracks for a faster experience.*
-
-*The availability of YouTube Music in your country is important for spotDL to work since we use YouTube Music to filter out our search results. To check if YouTube Music is available in your country, visit [YouTube Music](https://music.youtube.com).*
 
 
 ## For Developers and Contributors
