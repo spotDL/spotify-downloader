@@ -9,15 +9,12 @@ from spotdl.search.songObj import SongObj
 #! The actual download stuff
 from spotdl.download.downloader import DownloadManager
 
-#! to avoid packaging errors
-from multiprocessing import freeze_support
-
 
 #! Usage is simple - call 'python __main__.py <links, search terms, tracking files seperated by spaces>
 #! Eg.
 #!      python __main__.py https://open.spotify.com/playlist/37i9dQZF1DWXhcuQw7KIeM?si=xubKHEBESM27RqGkqoXzgQ 'old gods of asgard Control' https://open.spotify.com/album/2YMWspDGtbDgYULXvVQFM6?si=gF5dOQm8QUSo-NdZVsFjAQ https://open.spotify.com/track/08mG3Y1vljYA6bvDt4Wqkj?si=SxezdxmlTx-CaVoucHmrUA
 #!
-#! Well, yeah its a pretty long example but, in theory, it should work like a charm. 
+#! Well, yeah its a pretty long example but, in theory, it should work like a charm.
 #!
 #! A '.spotdlTrackingFile' is automatically  created with the name of the first song in the playlist/album or
 #! the name of the song supplied. We don't really re re re-query YTM and SPotify as all relevant details are
@@ -88,7 +85,7 @@ def console_entry_point():
         clientId='4fe3fecfe5334023a1472516cc99d805',
         clientSecret='0f02b7c483c04257984695007a4a8d5c'
         )
-    
+
     downloader = DownloadManager()
 
     for request in cliArgs[1:]:
@@ -102,23 +99,23 @@ def console_entry_point():
                 print('Skipping %s (%s) as no match could be found on youtube' % (
                     song.get_song_name(), request
                 ))
-        
+
         elif 'open.spotify.com' in request and 'album' in request:
             print('Fetching Album...')
             songObjList = get_album_tracks(request)
 
             downloader.download_multiple_songs(songObjList)
-        
+
         elif 'open.spotify.com' in request and 'playlist' in request:
             print('Fetching Playlist...')
             songObjList = get_playlist_tracks(request)
 
             downloader.download_multiple_songs(songObjList)
-        
+
         elif request.endswith('.spotdlTrackingFile'):
             print('Preparing to resume download...')
             downloader.resume_download_from_tracking_file(request)
-        
+
         else:
             print('Searching for song "%s"...' % request)
             try:
@@ -127,10 +124,8 @@ def console_entry_point():
 
             except Exception:
                 print('No song named "%s" could be found on spotify' % request)
-    
+
     downloader.close()
 
 if __name__ == '__main__':
-    freeze_support()
-
     console_entry_point()
