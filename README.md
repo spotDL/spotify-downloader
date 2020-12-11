@@ -2,16 +2,7 @@
 
 [![MIT License](https://img.shields.io/apm/l/atomic-design-ui.svg?)](https://github.com/spotDL/spotify-downloader/blob/master/LICENSE)
 
-⚠ Interested Contributors, please read our [contributing Guidelines](CONTRIBUTING.md) first.
-
-⚠ We are dropping active development of spotDL v2. No focused efforts will be made to resolve v2
-specific issues.
-
-⚠ We are actively looking for Contributors/Organization Members for all projects under development. 
-If interested, see [#857](https://github.com/spotDL/spotify-downloader/issues/857)
-
-⚠ There are a few feature requests we'd like the community to vote on. Do voice your support for features you'd like.
-See [#867](https://github.com/spotDL/spotify-downloader/issues/867) to vote.
+## Join a [spotDL discussion](https://github.com/spotDL/spotify-downloader/discussions?discussions_q=category%3AGeneral)!
 
 <br><br>
 
