@@ -24,13 +24,7 @@ What spotDL does:
 We rebuilt spotDL from scratch to be much faster, simpler, and better than the old spotDL.
 he documentation is also a work in progress. v3.0.2 is yet to be released to PyPi so you can't install it using `pip`, this is intentional. v3.0.2 is still in alpha testing. We request that you use spotDL v3 and submit issues to voice problems and like-to-haves that you come across.
 
-#### Please Read
-
-⚠ We have dropped active development of spotDL v2 due to support and organization changes. No focused efforts will be made to resolve v2 specific issues.
-
-⚠ We are actively looking for Contributors/Organization Members for all projects under development. If interested, please read our [Contributing Guidelines](CONTRIBUTING.md) first and see [#857](https://github.com/spotDL/spotify-downloader/issues/857)
-
-⚠ There are a few feature requests we'd like the community to vote on. Do voice your support for features you'd like. See [#867](https://github.com/spotDL/spotify-downloader/issues/867) to vote.
+#### Join the [spotDL discussion](https://github.com/spotDL/spotify-downloader/discussions?discussions_q=category%3AGeneral)!
 
 <br/>
 
