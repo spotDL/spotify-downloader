@@ -121,13 +121,13 @@ ex. `spotdl 'The Hu - Sugaan Essenna' https://open.spotify.com/playlist/37i9dQZF
         ```
         $ py -3 -m venv env
         $ .\.venv\Scripts\activate
-        (.venv)$ python setup.py develop
+        (.venv)$ pip install -e .
         ```
     - Linux/macOS
       ```
       $ python3 -m venv .venv
       $ source .venv/bin/activate
-      (.venv)$ python setup.py develop
+      (.venv)$ pip install -e .
       ```
 -  Use as Command (no need to re-install after file changes)
     ```
