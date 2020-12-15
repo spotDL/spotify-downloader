@@ -302,7 +302,7 @@ class _ProgressTracker():
         if (self.progress == 100 or message == "Error"):
             self.parent.overallCompletedTasks += 1
             if (self.parent.isLegacy):
-                self.parent._richProgressBar.remove_task(taskID)
+                self.parent._richProgressBar.remove_task(self.taskID)
 
         self.parent.overallProgress += delta
         self.parent.update_overall()
