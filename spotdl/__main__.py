@@ -86,46 +86,47 @@ def console_entry_point():
         clientSecret='0f02b7c483c04257984695007a4a8d5c'
         )
 
-    downloader = DownloadManager()
 
-    for request in cliArgs[1:]:
-        if 'open.spotify.com' in request and 'track' in request:
-            print('Fetching Song...')
-            song = SongObj.from_url(request)
+    with DownloadManager() as downloader:
 
-            if song.get_youtube_link() != None:
-                downloader.download_single_song(song)
+        for request in cliArgs[1:]:
+            if 'open.spotify.com' in request and 'track' in request:
+                print('Fetching Song...')
+                song = SongObj.from_url(request)
+
+                if song.get_youtube_link() != None:
+                    downloader.download_single_song(song)
+                else:
+                    print('Skipping %s (%s) as no match could be found on youtube' % (
+                        song.get_song_name(), request
+                    ))
+
+            elif 'open.spotify.com' in request and 'album' in request:
+                print('Fetching Album...')
+                songObjList = get_album_tracks(request)
+
+                downloader.download_multiple_songs(songObjList)
+
+            elif 'open.spotify.com' in request and 'playlist' in request:
+                print('Fetching Playlist...')
+                songObjList = get_playlist_tracks(request)
+
+                downloader.download_multiple_songs(songObjList)
+
+            elif request.endswith('.spotdlTrackingFile'):
+                print('Preparing to resume download...')
+                downloader.resume_download_from_tracking_file(request)
+
             else:
-                print('Skipping %s (%s) as no match could be found on youtube' % (
-                    song.get_song_name(), request
-                ))
+                print('Searching for song "%s"...' % request)
+                try:
+                    song = search_for_song(request)
+                    downloader.download_single_song(song)
 
-        elif 'open.spotify.com' in request and 'album' in request:
-            print('Fetching Album...')
-            songObjList = get_album_tracks(request)
+                except Exception as e:
+                    print('No song named "%s" could be found on spotify' % request)
+                    print(e)
 
-            downloader.download_multiple_songs(songObjList)
-
-        elif 'open.spotify.com' in request and 'playlist' in request:
-            print('Fetching Playlist...')
-            songObjList = get_playlist_tracks(request)
-
-            downloader.download_multiple_songs(songObjList)
-
-        elif request.endswith('.spotdlTrackingFile'):
-            print('Preparing to resume download...')
-            downloader.resume_download_from_tracking_file(request)
-
-        else:
-            print('Searching for song "%s"...' % request)
-            try:
-                song = search_for_song(request)
-                downloader.download_single_song(song)
-
-            except Exception:
-                print('No song named "%s" could be found on spotify' % request)
-
-    downloader.close()
 
 if __name__ == '__main__':
     console_entry_point()

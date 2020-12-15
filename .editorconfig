@@ -15,3 +15,6 @@ max_line_length = 100
 
 [*.json]
 indent_size = 2
+
+[*.spotdlTrackingFile]
+indent_size = 2

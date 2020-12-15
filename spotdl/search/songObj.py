@@ -16,7 +16,7 @@ class SongObj():
     #=== Constructors ===
     #====================
     def __init__(self, rawTrackMeta, rawAlbumMeta, rawArtistMeta, youtubeLink):
-        self. __rawTrackMeta = rawTrackMeta
+        self.__rawTrackMeta = rawTrackMeta
         self.__rawAlbumMeta  = rawArtistMeta
         self.__rawArtistMeta = rawArtistMeta
         self.__youtubeLink   = youtubeLink
@@ -158,6 +158,15 @@ class SongObj():
             contributingArtists.append(artist['name'])
         
         return contributingArtists
+
+    #! 6. Display Name
+    def get_display_name(self) -> str:
+        ''''
+        returns songs's display name.
+        '''
+
+        return str(self.get_song_name()) + " - " + str( ", ".join(self.get_contributing_artists()) )
+
 
     #! Album Details:
     
