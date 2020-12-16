@@ -116,33 +116,32 @@ ex. `spotdl 'The Hu - Sugaan Essenna' https://open.spotify.com/playlist/37i9dQZF
     $ git clone https://github.com/spotDL/spotify-downloader.git
     $ cd spotify-downloader
     ```
-2. Install requirements
+2. Setup venv (optional)
     - Windows
         ```
         $ py -3 -m venv env
         $ .\.venv\Scripts\activate
-        (.venv)$ pip install -e .
         ```
     - Linux/macOS
       ```
       $ python3 -m venv .venv
       $ source .venv/bin/activate
-      (.venv)$ pip install -e .
       ```
+3. Install requirements
+    ```
+    $ pip install -e .
+    ```
 -  Use as Command (no need to re-install after file changes)
     ```
-    (.venv)$ spotdl [ARGUMENTS]
+    $ spotdl [ARGUMENTS]
     ```
 -  Use as Library
     ```
-    (.venv)$ python
+    $ python
     >>> import spotdl
     >>> ...
     ```
-- Cleaning Up
-    ```
-    (.venv)$ deactivate
-    ```
+
 
 
 ## Thanks for developing v3.0.1
