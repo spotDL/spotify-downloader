@@ -9,28 +9,32 @@ assignees: ''
 
 <!--- Please search existing bugs before creating a new one -->
 
-# Bug Report
-**Install Source:** 
+
+### Environment
+- **System OS:** <!--- Windows/OSX/Linux/Heroku/Docker --> 
+
+- **Python Version:** <!--- Python Version can be found by running "py -V" -->
+
+- **Install Source:** 
 <!--- Did you download from pip, the master branch on github, or a different branch?) -->
 
-**Version:** 
-<!--- If from pip, what is the version? Run "pip show spotdl" -->
-**OR Commit hash:** 
+- **Version OR Commit hash:**
+<!--- If from pip, what is the version? Run "pip show spotdl" --> 
 <!--- If not from pip, what is the commit hash? -->
 
-## Expected Behavior
+------------------------------------------------------------
+
+### Expected Behaviour
 <!--- What did you expect to happen? -->
 
-## Actual Behavior
+### Actual Behaviour
 <!--- What actually happened? -->
 
-## Steps to Reproduce
+### Steps to Reproduce
 1. 
 2. 
 3. 
 
-## Environment
-**System OS:** <!--- Windows/OSX/Linux/Heroku/Docker --> 
-**Python Version:** <!--- Python Version can be found by running "py -V" -->
+--------------------------------------------------------------------
 
-## Any other information:
+### Any other information:
