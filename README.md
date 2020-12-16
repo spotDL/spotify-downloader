@@ -151,5 +151,5 @@ ex. `spotdl 'The Hu - Sugaan Essenna' https://open.spotify.com/playlist/37i9dQZF
 3. [@Mikhail-Zex](https://github.com/Mikhail-Zex) for, never mind...
 
 ## A few interesting forks
-1. [aasmpro/spotify/downloader](https://github.com/aasmpro/spotify-downloader)
+1. [aasmpro/spotify-downloader](https://github.com/aasmpro/spotify-downloader)
     - Sets metadata for songs that are already downloaded (v2 only.)
