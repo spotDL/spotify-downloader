@@ -5,7 +5,7 @@
 > The fastest, easiest, and most accurate command-line music downloader
 
 [![MIT License](https://img.shields.io/apm/l/atomic-design-ui.svg?)](https://github.com/spotDL/spotify-downloader/blob/master/LICENSE) ![Contributors](https://img.shields.io/github/contributors/spotDL/spotify-downloader) ![downloads](https://img.shields.io/github/downloads/spotDL/spotify-downloader/latest/total) 
-[![pypi version](https://img.shields.io/pypi/v/spotDL)](https://pypi.org/project/spotdl/) [![pypi version](https://img.shields.io/pypi/pyversions/spotDL)](https://pypi.org/project/spotdl/) [![pypi downloads](https://img.shields.io/pypi/dw/spotDL?label=downloads@pypi)](https://pypi.org/project/spotdl/) 
+[![pypi version](https://img.shields.io/pypi/v/spotDL)](https://pypi.org/project/spotdl/) [![pypi downloads](https://img.shields.io/pypi/dw/spotDL?label=downloads@pypi)](https://pypi.org/project/spotdl/) [![pypi version](https://img.shields.io/pypi/pyversions/spotDL)](https://pypi.org/project/spotdl/) 
 
 
 What spotDL does:
@@ -21,8 +21,7 @@ What spotDL does:
 
 ### Announcing spotDL v3
 
-We rebuilt spotDL from scratch to be much faster, simpler, and better than the old spotDL.
-he documentation is also a work in progress. v3.0.2 is yet to be released to PyPi so you can't install it using `pip`, this is intentional. v3.0.2 is still in alpha testing. We request that you use spotDL v3 and submit issues to voice problems and like-to-haves that you come across.
+We rebuilt spotDL from scratch to be much faster, simpler, and better than the old spotDL. The documentation is also a work in progress.
 
 ⚠ We have dropped active development of spotDL v2 due to support and organization changes. No focused efforts will be made to resolve v2 specific issues.
 
@@ -144,7 +143,7 @@ ex. `spotdl 'The Hu - Sugaan Essenna' https://open.spotify.com/playlist/37i9dQZF
 
 
 
-## Thanks for developing v3.0.1
+## Thanks for developing v3
 1. [@ritiek](https://github.com/ritiek) for creating and maintaining spotDL for 4 years
 2. [@rocketinventor](https://github.com/rocketinventor) for figuring out YouTube Music querying
 3. [@Mikhail-Zex](https://github.com/Mikhail-Zex) for, never mind...
