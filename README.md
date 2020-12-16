@@ -10,7 +10,7 @@
 
 What spotDL does:
 1. Downloads music from YouTube as an MP3 file
-2. Applies basic metadata such as:
+2. Applies basic metadata gathered from spotify such as:
     - Track Name
     - Track Number
     - Album
