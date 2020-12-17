@@ -172,13 +172,14 @@ def __query_and_simplify(searchTerm: str, apiKey: str = ytmApiKey) -> List[dict]
 
 
             # Add the linkBlock        
-            try:
-                linkBlock = contents['musicResponsiveListItemRenderer'] \
+          
+            _linkBlock = contents['musicResponsiveListItemRenderer'] \
                     ['overlay'] \
                         ['musicItemThumbnailOverlayRenderer'] \
                             ['content'] \
-                                ['musicPlayButtonRenderer'] \
-                                    ['playNavigationEndpoint']
+                                ['musicPlayButtonRenderer']
+            try:
+                linkBlock = _linkBlock['playNavigationEndpoint']
             except KeyError:
                 continue
                 
