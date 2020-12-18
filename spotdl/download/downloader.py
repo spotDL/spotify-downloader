@@ -36,13 +36,9 @@ def download_song(songObj: SongObj, displayManager: DisplayManager = None,
                                     downloadTracker: DownloadTracker = None) -> None:
     '''
     `songObj` `songObj` : song to be downloaded
-
     `AutoProxy` `displayManager` : autoproxy reference to a `DisplayManager`
-
     `AutoProxy` `downloadTracker`: autoproxy reference to a `DownloadTracker`
-
     RETURNS `~`
-
     Downloads, Converts, Normalizes song & embeds metadata as ID3 tags.
     '''
 
@@ -268,9 +264,7 @@ class DownloadManager():
     def download_single_song(self, songObj: SongObj) -> None:
         '''
         `songObj` `song` : song to be downloaded
-
         RETURNS `~`
-
         downloads the given song
         '''
 
@@ -287,9 +281,7 @@ class DownloadManager():
     def download_multiple_songs(self, songObjList: List[SongObj]) -> None:
         '''
         `list<songObj>` `songObjList` : list of songs to be downloaded
-
         RETURNS `~`
-
         downloads the given songs in parallel
         '''
 
@@ -311,9 +303,7 @@ class DownloadManager():
     def resume_download_from_tracking_file(self, trackingFilePath: str) -> None:
         '''
         `str` `trackingFilePath` : path to a .spotdlTrackingFile
-
         RETURNS `~`
-
         downloads songs present on the .spotdlTrackingFile in parallel
         '''
 
@@ -337,7 +327,6 @@ class DownloadManager():
     def close(self) -> None:
         '''
         RETURNS `~`
-
         cleans up across all processes
         '''
 
