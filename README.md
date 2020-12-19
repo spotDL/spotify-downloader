@@ -37,7 +37,7 @@ spotify-downloader can be installed via pip with:
 $ pip3 install spotdl
 ```
 
-but be sure to check out the [Installation](https://spotdl.readthedocs.io/en/latest/installation.html) docs
+but be sure to check out the [Installation](https://spotdl.readthedocs.io/en/v2.2.2/installation.html) docs
 for detailed OS-specific instructions to get it and other dependencies it relies on working on your system.
 
 ## Usage
@@ -60,15 +60,15 @@ $ spotdl --list ncs-releases.txt
 
 Run `spotdl --help` to get a list of all available options in spotify-downloader.
 
-Check out the [Available options](https://spotdl.readthedocs.io/en/latest/available-options.html)
+Check out the [Available options](https://spotdl.readthedocs.io/en/v2.2.2/available-options.html)
 page for the list of currently available options with their description.
 
-The docs on [Downloading Tracks](https://spotdl.readthedocs.io/en/latest/download-tracks.html)
+The docs on [Downloading Tracks](https://spotdl.readthedocs.io/en/v2.2.2/download-tracks.html)
 contains detailed information about different available ways to download tracks.
 
 ## FAQ
 
-All FAQs will be mentioned in our [FAQ docs](https://spotdl.readthedocs.io/en/latest/faq.html).
+All FAQs will be mentioned in our [FAQ docs](https://spotdl.readthedocs.io/en/v2.2.2/faq.html).
 
 ## Contributing
 
