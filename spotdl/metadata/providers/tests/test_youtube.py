@@ -7,6 +7,7 @@ from spotdl.metadata.exceptions import YouTubeMetadataNotFoundError
 
 import pytube
 import urllib.request
+import datetime
 import pickle
 import sys
 import os
@@ -195,6 +196,7 @@ class MockYouTube:
         self.title = "Selena Gomez, Marshmello - Wolves"
         self.author = "SelenaGomezVEVO"
         self.length = 213
+        self.publish_date = datetime.datetime(2017, 11, 18, 0, 0)
         self.watch_url = "https://youtube.com/watch?v=cH4E_t3m3xM"
         self.thumbnail_url = "https://i.ytimg.com/vi/cH4E_t3m3xM/maxresdefault.jpg"
 
@@ -336,7 +338,7 @@ class TestProviderYouTube:
           'name': 'Selena Gomez, Marshmello - Wolves',
           'provider': 'youtube',
           'publisher': None,
-          'release_date': '2017-11-1',
+          'release_date': '2017-11-18',
           'streams': [],
           'total_tracks': 1,
           'track_number': 1,

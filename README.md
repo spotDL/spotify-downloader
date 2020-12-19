@@ -1,10 +1,13 @@
 # Spotify-Downloader
 
-**There is a v3 of spotdl now being maintained by other folks on https://github.com/spotDL/spotify-downloader.
-However, I personally find its usage not as flexibile as v2 as of yet, so I'll be passively fixing bugs in v2
-arising from YouTube changing their algorithms, so I can keep v2 usable for myself. I won't be adding any
-new features to v2. I don't really use spotdl as often as I used to so there's little personal motivation to
-keep maintaining it any further.**
+**There is a v3 of spotdl now being maintained by other folks on https://github.com/spotDL/spotify-downloader.**
+
+**However, I personally find its usage not as flexible as v2 as of yet, so I'll be passively fixing bugs in v2
+arising only from YouTube changing their algorithms and will also accept Issues/PRs for the same. I won't be adding any
+new features nor will I be fixing any other bugs in v2. Issues and PRs for anything else will be rejected too.**
+
+**I don't really use spotdl as often as I used to, so there's little personal motivation to maintain it any further
+from my side. Sorry about that.**
 
 [![PyPi](https://img.shields.io/pypi/v/spotdl.svg)](https://pypi.org/project/spotdl/2.2.2/)
 [![Docs Build Status](https://readthedocs.org/projects/spotdl/badge/?version=v2.2.2)](https://spotdl.readthedocs.io/en/v2.2.2/)

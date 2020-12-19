@@ -12,9 +12,6 @@ from spotdl.metadata.exceptions import YouTubeMetadataNotFoundError
 
 import spotdl.util
 
-import spotdl.patch
-spotdl.patch.youtube.apply_patches()
-
 import logging
 logger = logging.getLogger(__name__)
 
@@ -189,7 +186,7 @@ class YouTubeSearch:
         logger.debug("YouTube returned malformed HTML. Attempting to parse possible JSON data.")
 
         html = str(html)
-        search_start = 'window["ytInitialData"] = '
+        search_start = 'var ytInitialData = '
         videos_json_start = html.find(search_start) + len(search_start)
         search_end = "}}]}}}}}}"
         videos_json_end = videos_json_start + html[videos_json_start:].find(search_end) + len(search_end)
@@ -443,15 +440,8 @@ class ProviderYouTube(ProviderBase):
     def search(self, query):
         return YouTubeSearch().search(query)
 
-    def _fetch_publish_date(self, content):
-        # XXX: This needs to be supported in PyTube itself
-        # See https://github.com/nficano/pytube/issues/595
-        position = content.watch_html.find("publishDate")
-        publish_date = content.watch_html[position+16:position+25]
-        return publish_date
-
     def _metadata_to_standard_form(self, content):
-        publish_date = self._fetch_publish_date(content)
+        publish_date, *_ = content.publish_date.strftime("%Y-%m-%d"),
         metadata = {
             "name": content.title,
             "artists": [{"name": content.author}],
