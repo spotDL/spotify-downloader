@@ -1,17 +1,13 @@
 # Spotify-Downloader
 
-<ins>**NOTE:**</ins>
+**There is a v3 of spotdl now being maintained by other folks on https://github.com/spotDL/spotify-downloader.
+However, I personally find its usage not as flexibile as v2 as of yet, so I'll be passively fixing bugs in v2
+arising from YouTube changing their algorithms, so I can keep v2 usable for myself. I won't be adding any
+new features to v2. I don't really use spotdl as often as I used to so there's little personal motivation to
+keep maintaining it any further.**
 
-We're doing some (kinda) major work on spotify-downloader to make it easier to contribute to (see [this](https://github.com/ritiek/spotify-downloader/issues/778#issuecomment-660683786) and [this](https://github.com/ritiek/spotify-downloader/issues/810) as to why) If your interested in contributing, do look up [this project](https://github.com/ritiek/spotify-downloader/projects/2).
-
-We'd like as many reviews of the work in progress so that we can turn out a truly improved, simple and easy-to-contribute spotify-downloader. Head over to [Draft PR #812](https://github.com/ritiek/spotify-downloader/pull/812) to help out with that. Only with your help, together can do the whole community and the many users a lot of good.
-
-### ⚠⚠⚠ We just finished the new search providers, if your interested in trying them try running [this file](https://github.com/Mikhail-Zex/spotify-downloader/blob/reStructure/reCode/Temp/YTM_test.py)
-
-Thank you for your time.
-
-[![PyPi](https://img.shields.io/pypi/v/spotdl.svg)](https://pypi.org/project/spotdl)
-[![Docs Build Status](https://readthedocs.org/projects/spotdl/badge/?version=latest)](https://spotdl.readthedocs.io/en/latest/home.html)
+[![PyPi](https://img.shields.io/pypi/v/spotdl.svg)](https://pypi.org/project/spotdl/2.2.2/)
+[![Docs Build Status](https://readthedocs.org/projects/spotdl/badge/?version=v2.2.2)](https://spotdl.readthedocs.io/en/v2.2.2/)
 [![Build Status](https://travis-ci.org/ritiek/spotify-downloader.svg?branch=master)](https://travis-ci.org/ritiek/spotify-downloader)
 [![Coverage Status](https://codecov.io/gh/ritiek/spotify-downloader/branch/master/graph/badge.svg)](https://codecov.io/gh/ritiek/spotify-downloader)
 [![Docker Build Status](https://img.shields.io/docker/build/ritiek/spotify-downloader.svg)](https://hub.docker.com/r/ritiek/spotify-downloader)
