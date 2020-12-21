@@ -154,12 +154,6 @@ pipx run spotdl ...
   ```
   $ spotdl [ARGUMENTS]
   ```
-- Use as Library
-  ```
-  $ python
-  >>> import spotdl
-  >>> ...
-  ```
 
 ## Thanks for developing v3
 
