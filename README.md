@@ -22,7 +22,7 @@ What spotDL does:
 
 We rebuilt spotDL from scratch to be much faster, simpler, and better than the old spotDL. The documentation is also a work in progress.
 
-⚠ We have dropped active development of spotDL v2 due to support and organization changes. No focused efforts will be made to resolve v2 specific issues.
+⚠ We have dropped active development of spotDL v2 due to support and maintainability. No focused efforts will be made to resolve v2 specific issues.
 
 #### Join the [spotDL discussion](https://github.com/spotDL/spotify-downloader/discussions?discussions_q=category%3AGeneral)!
 
