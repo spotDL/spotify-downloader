@@ -471,7 +471,7 @@ def search_and_get_best_match(songName: str, songArtists: List[str],
 
     `int` `songDuration` : duration of the song
 
-    RETURNS `str` : link of the best match
+    RETURNS list `str` : list of top 10  best match
     '''
 
     #! This is lazy coding, sorry.
@@ -488,4 +488,8 @@ def search_and_get_best_match(songName: str, songArtists: List[str],
 
     #! In theory, the first 'TUPLE' in sortedResults should have the highest match
     #! value, we send back only the link
-    return sortedResults[0][0]
+    resultLinks = []
+    for i in sortedResults:
+        resultLinks.append(i[0])
+
+    return resultLinks[:10]

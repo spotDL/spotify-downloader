@@ -36,13 +36,9 @@ def download_song(songObj: SongObj, displayManager: DisplayManager = None,
                                     downloadTracker: DownloadTracker = None) -> None:
     '''
     `songObj` `songObj` : song to be downloaded
-
     `AutoProxy` `displayManager` : autoproxy reference to a `DisplayManager`
-
     `AutoProxy` `downloadTracker`: autoproxy reference to a `DownloadTracker`
-
     RETURNS `~`
-
     Downloads, Converts, Normalizes song & embeds metadata as ID3 tags.
     '''
 
@@ -98,15 +94,24 @@ def download_song(songObj: SongObj, displayManager: DisplayManager = None,
 
 
     # download Audio from YouTube
-    if displayManager:
-        youtubeHandler = YouTube(
-            url                  = songObj.get_youtube_link(),
-            on_progress_callback = displayManager.pytube_progress_hook
-        )
-    else:
-        youtubeHandler = YouTube(songObj.get_youtube_link())
-    
-    trackAudioStream = youtubeHandler.streams.get_audio_only()
+    YouTubeLinks = songObj.get_youtube_link(),
+    for link in YouTubeLinks[0]:
+        if displayManager:
+            youtubeHandler = YouTube(
+                url                  = link,
+                on_progress_callback = displayManager.pytube_progress_hook
+            )
+        else:
+            youtubeHandler = YouTube(link)
+
+        trackAudioStream = youtubeHandler.streams.get_audio_only()
+        if trackAudioStream:
+            break
+
+    #! Even after Multiple tries the system is not able to find the audioStream
+    if not trackAudioStream:
+        print("Can not download:", songObj.get_song_name())
+        return None
 
     #! The actual download, if there is any error, it'll be here,
     try:
@@ -259,9 +264,7 @@ class DownloadManager():
     def download_single_song(self, songObj: SongObj) -> None:
         '''
         `songObj` `song` : song to be downloaded
-
         RETURNS `~`
-
         downloads the given song
         '''
 
@@ -278,9 +281,7 @@ class DownloadManager():
     def download_multiple_songs(self, songObjList: List[SongObj]) -> None:
         '''
         `list<songObj>` `songObjList` : list of songs to be downloaded
-
         RETURNS `~`
-
         downloads the given songs in parallel
         '''
 
@@ -302,9 +303,7 @@ class DownloadManager():
     def resume_download_from_tracking_file(self, trackingFilePath: str) -> None:
         '''
         `str` `trackingFilePath` : path to a .spotdlTrackingFile
-
         RETURNS `~`
-
         downloads songs present on the .spotdlTrackingFile in parallel
         '''
 
@@ -328,7 +327,6 @@ class DownloadManager():
     def close(self) -> None:
         '''
         RETURNS `~`
-
         cleans up across all processes
         '''
 
