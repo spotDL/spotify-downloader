@@ -26,7 +26,6 @@ We rebuilt spotDL from scratch to be faster, simpler, and better than v2 of spot
 
 #### Join the [spotDL discussion](https://github.com/spotDL/spotify-downloader/discussions?discussions_q=category%3AGeneral)!
 
-<br/>
 
 ## Installation
 
@@ -46,7 +45,7 @@ You need to download FFmpeg to use this tool. Download and installation instruct
   $ pip install https://github.com/spotDL/spotify-downloader/archive/next-rel-dev.zip
   ```
 
-_YouTube Music must be available in your country for spotDL to work. This is because we use YouTube Music to filter search results. You can check if YouTube Music is availible in your country, by visiting [YouTube Music](https://music.youtube.com)._
+_YouTube Music must be available in your country for spotDL to work. This is because we use YouTube Music to filter search results. You can check if YouTube Music is available in your country, by visiting [YouTube Music](https://music.youtube.com)._
 
 ## Usage (Instructions for v3)
 
@@ -116,7 +115,7 @@ _spotDL downloads up to 4 songs in parallel, so for a faster experience, downloa
 
 For users who are not familiar with `pipx`, it can be used to run scripts _without_ installing the spotDL package and all the dependencies globally with pip. (Effectively skipping over the [Installation](https://github.com/spotDL/spotify-downloader#Installation) step)
 
-First, you will need to install `pipx`
+First, you will need to install `pipx` by running:
 
 ```
 python3 -m pip install --user pipx
@@ -157,7 +156,7 @@ pipx run spotdl ...
   $ spotdl [ARGUMENTS]
   ```
 
-## Thanks for developing v3
+## Thank Yous
 
 1. [@ritiek](https://github.com/ritiek) for creating and maintaining spotDL for 4 years
 2. [@rocketinventor](https://github.com/rocketinventor) for figuring out YouTube Music querying
