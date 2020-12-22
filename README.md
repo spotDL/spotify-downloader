@@ -56,7 +56,7 @@ _YouTube Music must be available in your country for spotDL to work. This is bec
   ```
 
   ex. `spotdl https://open.spotify.com/track/08mG3Y1vljYA6bvDt4Wqkj?si=SxezdxmlTx-CaVoucHmrUA`
-  <br/>
+
 
 - To download an album, run:
 
@@ -65,7 +65,7 @@ _YouTube Music must be available in your country for spotDL to work. This is bec
   ```
 
   ex. `spotdl https://open.spotify.com/album/2YMWspDGtbDgYULXvVQFM6?si=gF5dOQm8QUSo-NdZVsFjAQ`
-  <br/>
+
 
 - To download a playlist, run:
 
@@ -74,9 +74,9 @@ _YouTube Music must be available in your country for spotDL to work. This is bec
   ```
 
   ex. `spotdl https://open.spotify.com/playlist/37i9dQZF1DWXhcuQw7KIeM?si=xubKHEBESM27RqGkqoXzgQ`
-  <br/>
 
-- To search for and download a song, run (with quotation marks):
+
+- To search for and download a song, run, __with quotation marks__,:
   _Note: This is not accurate and often causes errors._
 
   ```
@@ -85,7 +85,6 @@ _YouTube Music must be available in your country for spotDL to work. This is bec
 
   ex. `spotdl 'The HU - Sugaan Essenna'`
 
-    <br/>
 
 - To resume a failed/incomplete download, run:
 
@@ -97,7 +96,6 @@ _YouTube Music must be available in your country for spotDL to work. This is bec
 
   _`.spotdlTrackingFile`s are automatically created when a download starts and deleted on completion_
 
-<br/>
 
 You can queue up multiple download tasks by separating the arguments with spaces:
 
@@ -107,7 +105,7 @@ $ spotdl [songQuery1] [albumUrl] [songQuery2] ... (order does not matter)
 
 ex. `spotdl 'The Hu - Sugaan Essenna' https://open.spotify.com/playlist/37i9dQZF1DWXhcuQw7KIeM?si=xubKHEBESM27RqGkqoXzgQ ...`
 
-<br/>
+
 
 _spotDL downloads up to 4 songs in parallel, so for a faster experience, download albums and playlist, rather than tracks._
 
