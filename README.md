@@ -55,7 +55,7 @@ _YouTube Music must be available in your country for spotDL to work. This is bec
   $ spotdl [trackUrl]
   ```
 
-  ex. `spotdl https://open.spotify.com/track/08mG3Y1vljYA6bvDt4Wqkj?si=SxezdxmlTx-CaVoucHmrUA`
+  ex. `spotdl https://open.spotify.com/track/0VjIjW4GlUZAMYd2vXMi3b?si=1stnMF5GSdClnIEARnJiiQ`
 
 
 - To download an album, run:
@@ -64,7 +64,7 @@ _YouTube Music must be available in your country for spotDL to work. This is bec
   $ spotdl [albumUrl]
   ```
 
-  ex. `spotdl https://open.spotify.com/album/2YMWspDGtbDgYULXvVQFM6?si=gF5dOQm8QUSo-NdZVsFjAQ`
+  ex. `spotdl https://open.spotify.com/album/4yP0hdKOZPNshxUOjY0cZj?si=AssgQQrVTJqptFe7X92jNg`
 
 
 - To download a playlist, run:
@@ -73,17 +73,17 @@ _YouTube Music must be available in your country for spotDL to work. This is bec
   $ spotdl [playlistUrl]
   ```
 
-  ex. `spotdl https://open.spotify.com/playlist/37i9dQZF1DWXhcuQw7KIeM?si=xubKHEBESM27RqGkqoXzgQ`
+  ex. `spotdl https://open.spotify.com/playlist/37i9dQZF1E8UXBoz02kGID?si=oGd5ctlyQ0qblj_bL6WWow`
 
 
-- To search for and download a song, run, __with quotation marks__,:
+- To search for and download a song, run, __with quotation marks__:  
   _Note: This is not accurate and often causes errors._
 
   ```
   $ spotdl '[songQuery]'
   ```
 
-  ex. `spotdl 'The HU - Sugaan Essenna'`
+  ex. `spotdl 'The Weeknd - Blinding Lights'`
 
 
 - To resume a failed/incomplete download, run:
@@ -92,7 +92,7 @@ _YouTube Music must be available in your country for spotDL to work. This is bec
   $ spotdl [pathToTrackingFile]
   ```
 
-  ex. `spotdl 'Sugaan Essenna.spotdlTrackingFile'`
+  ex. `spotdl 'The Weeknd - Blinding Lights.spotdlTrackingFile'`
 
   _`.spotdlTrackingFile`s are automatically created when a download starts and deleted on completion_
 
@@ -103,7 +103,7 @@ You can queue up multiple download tasks by separating the arguments with spaces
 $ spotdl [songQuery1] [albumUrl] [songQuery2] ... (order does not matter)
 ```
 
-ex. `spotdl 'The Hu - Sugaan Essenna' https://open.spotify.com/playlist/37i9dQZF1DWXhcuQw7KIeM?si=xubKHEBESM27RqGkqoXzgQ ...`
+ex. `spotdl 'The Weeknd - Blinding Lights'https://open.spotify.com/playlist/37i9dQZF1E8UXBoz02kGID?si=oGd5ctlyQ0qblj_bL6WWow ...`
 
 
 
@@ -111,7 +111,7 @@ _spotDL downloads up to 4 songs in parallel, so for a faster experience, downloa
 
 ## `pipx` Isolated Environment Alternative
 
-For users who are not familiar with `pipx`, it can be used to run scripts _without_ installing the spotDL package and all the dependencies globally with pip. (Effectively skipping over the [Installation](https://github.com/spotDL/spotify-downloader#Installation) step)
+For users who are not familiar with `pipx`, it can be used to run scripts __without__ installing the spotDL package and all the dependencies globally with pip. (Effectively skipping over the [Installation](https://github.com/spotDL/spotify-downloader#Installation) step)
 
 First, you will need to install `pipx` by running:
 
