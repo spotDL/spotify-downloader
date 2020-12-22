@@ -10,7 +10,7 @@
 What spotDL does:
 
 1. Downloads music from YouTube as an MP3 file
-2. Applies basic metadata gathered from spotify such as:
+2. Applies basic metadata gathered from Spotify such as:
    - Track Name
    - Track Number
    - Album
@@ -20,9 +20,9 @@ What spotDL does:
 
 ### Announcing spotDL v3
 
-We rebuilt spotDL from scratch to be much faster, simpler, and better than the old spotDL. The documentation is also a work in progress.
+We rebuilt spotDL from scratch to be faster, simpler, and better than v2 of spotDL. Documentation is also a work in progress.
 
-⚠ We have dropped active development of spotDL v2 due to support and maintainability. No focused efforts will be made to resolve v2 specific issues.
+⚠ We have dropped the active development of spotDL v2 due to support and maintainability. No focused efforts will be made to resolve v2 specific issues.
 
 #### Join the [spotDL discussion](https://github.com/spotDL/spotify-downloader/discussions?discussions_q=category%3AGeneral)!
 
@@ -32,21 +32,23 @@ We rebuilt spotDL from scratch to be much faster, simpler, and better than the o
 
 You need to download FFmpeg to use this tool. Download and installation instructions can be found at [FFmpeg.org](https://ffmpeg.org/)
 
+### Installing spotDL
+
 - Recommended Stable Version:
 
   ```
   $ pip install spotdl
   ```
 
-- Alternatively, for the latest version (not necessarily stable):
+- Latest Version: __(NOT NECESSARILY STABLE)__
 
   ```
   $ pip install https://github.com/spotDL/spotify-downloader/archive/next-rel-dev.zip
   ```
 
-_The availability of YouTube Music in your country is important for spotDL to work since we use YouTube Music to filter out our search results. To check if YouTube Music is available in your country, visit [YouTube Music](https://music.youtube.com)._
+_YouTube Music must be available in your country for spotDL to work. This is because we use YouTube Music to filter search results. You can check if YouTube Music is availible in your country, by visiting [YouTube Music](https://music.youtube.com)._
 
-## Usage (instructions for v3)
+## Usage (Instructions for v3)
 
 - To download a song, run:
 
@@ -76,7 +78,7 @@ _The availability of YouTube Music in your country is important for spotDL to wo
   <br/>
 
 - To search for and download a song, run (with quotation marks):
-  _(Note: This may not be very accurate)_
+  _Note: This is not accurate and often causes errors._
 
   ```
   $ spotdl '[songQuery]'
@@ -94,7 +96,7 @@ _The availability of YouTube Music in your country is important for spotDL to wo
 
   ex. `spotdl 'Sugaan Essenna.spotdlTrackingFile'`
 
-  _`.spotDlTrackingFiles` are automatically created when a download starts, and deleted on completion_
+  _`.spotdlTrackingFile`s are automatically created when a download starts and deleted on completion_
 
 <br/>
 
@@ -108,20 +110,20 @@ ex. `spotdl 'The Hu - Sugaan Essenna' https://open.spotify.com/playlist/37i9dQZF
 
 <br/>
 
-_spotDL downloads up to 4 songs in parallel, so try to download albums and playlists, instead of tracks for a faster experience._
+_spotDL downloads up to 4 songs in parallel, so for a faster experience, download albums and playlist, rather than tracks._
 
-## `pipx` isolated environment alternative
+## `pipx` Isolated Environment Alternative
 
-For users who are not familiar with `pipx`, you can use it to run the script _without_ installing the spotDL package and all the dependencies globally with pip. (Effectively skipping over the [Installation](https://github.com/spotDL/spotify-downloader#Installation) step)
+For users who are not familiar with `pipx`, it can be used to run scripts _without_ installing the spotDL package and all the dependencies globally with pip. (Effectively skipping over the [Installation](https://github.com/spotDL/spotify-downloader#Installation) step)
 
-First you will need `pipx`
+First, you will need to install `pipx`
 
 ```
 python3 -m pip install --user pipx
 python3 -m pipx ensurepath
 ```
 
-Then you can jump directly to running spotDL with:
+Next, you can jump directly to running spotDL with:
 
 ```
 pipx run spotdl ...
@@ -134,7 +136,7 @@ pipx run spotdl ...
    $ git clone https://github.com/spotDL/spotify-downloader.git
    $ cd spotify-downloader
    ```
-2. Setup venv (optional)
+2. Setup venv (Optional)
    - Windows
      ```
      $ py -3 -m venv env
@@ -150,7 +152,7 @@ pipx run spotdl ...
    $ pip install -e .
    ```
 
-- Use as Command (no need to re-install after file changes)
+- Use as command (no need to re-install after file changes)
   ```
   $ spotdl [ARGUMENTS]
   ```
@@ -160,8 +162,3 @@ pipx run spotdl ...
 1. [@ritiek](https://github.com/ritiek) for creating and maintaining spotDL for 4 years
 2. [@rocketinventor](https://github.com/rocketinventor) for figuring out YouTube Music querying
 3. [@Mikhail-Zex](https://github.com/Mikhail-Zex) for, never mind...
-
-## A few interesting forks
-
-1. [aasmpro/spotify-downloader](https://github.com/aasmpro/spotify-downloader)
-   - Sets metadata for songs that are already downloaded (v2 only.)
