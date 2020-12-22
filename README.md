@@ -45,7 +45,7 @@ You need to download FFmpeg to use this tool. Download and installation instruct
   $ pip install https://github.com/spotDL/spotify-downloader/archive/next-rel-dev.zip
   ```
 
-_YouTube Music must be available in your country for spotDL to work. This is because we use YouTube Music to filter search results. You can check if YouTube Music is available in your country, by visiting [YouTube Music](https://music.youtube.com)._
+___YouTube Music must be available in your country for spotDL to work. This is because we use YouTube Music to filter search results. You can check if YouTube Music is available in your country, by visiting [YouTube Music](https://music.youtube.com).___
 
 ## Usage (Instructions for v3)
 
