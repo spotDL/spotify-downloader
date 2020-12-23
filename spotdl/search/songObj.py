@@ -1,17 +1,14 @@
-from spotdl.search.provider import search_and_get_best_match_ytmusicapi
-from spotdl.lyrics import get_lyrics
-from spotdl.search.spotifyClient import get_spotify_client
-
-from os.path import join
-
-from json import dumps as convert_dict_to_json, loads as convert_json_to_dict
-
 from typing import List
 
+from spotdl.lyrics import get_lyrics
+from spotdl.search.provider import search_and_get_best_match
+from spotdl.search.spotifyClient import get_spotify_client
+
+
 class SongObj():
-    #! This can be accessed as songObj.searchProvider. songObj acts like a namespace
-    #! it allows us a convenient way of setting a search provider without using globals
-    searchProvider = search_and_get_best_match_ytmusicapi
+    # ! This can be accessed as songObj.searchProvider. songObj acts like a namespace
+    # ! it allows us a convenient way of setting a search provider without using globals
+    searchProvider = search_and_get_best_match
 
     #====================
     #=== Constructors ===
