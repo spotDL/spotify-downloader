@@ -1,4 +1,5 @@
 from spotdl.search.provider import search_and_get_best_match_ytmusicapi
+from spotdl.lyrics import get_lyrics
 from spotdl.search.spotifyClient import get_spotify_client
 
 from os.path import join
@@ -15,11 +16,12 @@ class SongObj():
     #====================
     #=== Constructors ===
     #====================
-    def __init__(self, rawTrackMeta, rawAlbumMeta, rawArtistMeta, youtubeLink):
+    def __init__(self, rawTrackMeta, rawAlbumMeta, rawArtistMeta, youtubeLink, lyrics):
         self. __rawTrackMeta = rawTrackMeta
         self.__rawAlbumMeta  = rawArtistMeta
         self.__rawArtistMeta = rawArtistMeta
         self.__youtubeLink   = youtubeLink
+        self.__lyrics = lyrics
 
     #! constructors here are a bit mucky, there are two different constructors for two
     #! different use cases, hence the actual __init__ function does not exist
@@ -30,7 +32,8 @@ class SongObj():
     def from_url(cls, spotifyURL: str):
         # check if URL is a playlist, user, artist or album, if yes raise an Exception,
         # else procede
-        if not ('open.spotify.com' in spotifyURL and 'track' in spotifyURL):
+        if not (('open.spotify.com' in spotifyURL and 'track' in spotifyURL)
+                or spotifyURL.startswith('spotify:track:')):
             raise Exception('passed URL is not that of a track: %s' % spotifyURL)
 
 
@@ -70,9 +73,11 @@ class SongObj():
             duration
         )
 
+        lyrics = get_lyrics(songName, contributingArtists[0])
+
         return  cls(
             rawTrackMeta, rawAlbumMeta,
-            rawArtistMeta, youtubeLink
+            rawArtistMeta, youtubeLink, lyrics
         )
 
     @classmethod
@@ -81,10 +86,12 @@ class SongObj():
         rawAlbumMeta  = dataDump['rawAlbumMeta']
         rawArtistMeta = dataDump['rawAlbumMeta']
         youtubeLink   = dataDump['youtubeLink']
+        lyrics = dataDump['lyrics']
 
         return  cls(
             rawTrackMeta, rawAlbumMeta,
-            rawArtistMeta, youtubeLink
+            rawArtistMeta, youtubeLink,
+            lyrics
         )
 
     def __eq__(self, comparedSong) -> bool:
@@ -99,6 +106,9 @@ class SongObj():
 
     def get_youtube_link(self) -> str:
         return self.__youtubeLink
+
+    def get_spotify_link(self) -> str:
+        return 'http://open.spotify.com/track/' + self.__rawTrackMeta['id']
 
     #! Song Details:
 
@@ -156,6 +166,15 @@ class SongObj():
             contributingArtists.append(artist['name'])
 
         return contributingArtists
+
+        # ! 6. Song Lyrics
+
+    def get_song_lyrics(self) -> str:
+        '''
+        returns the lyrics of the song.
+        '''
+
+        return self.__lyrics
 
     #! Album Details:
 
@@ -220,5 +239,6 @@ class SongObj():
             'youtubeLink'  : self.__youtubeLink,
             'rawTrackMeta' : self.__rawTrackMeta,
             'rawAlbumMeta' : self.__rawAlbumMeta,
-            'rawArtistMeta': self.__rawArtistMeta
+            'rawArtistMeta': self.__rawArtistMeta,
+            'lyrics': self.__lyrics,
         }
