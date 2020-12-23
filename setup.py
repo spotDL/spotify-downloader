@@ -8,7 +8,6 @@ setup(
         'spotdl',
         'spotdl.search',
         'spotdl.download',
-        'spotdl.patches'
     ],
 
     version = '3.2.0-pre',
