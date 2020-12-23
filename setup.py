@@ -20,6 +20,7 @@ setup(
         'rapidfuzz',
         'requests',
         'mutagen',
+        'ytmusicapi',
     ],
 
     description="Downloads Spotify music from Youtube with metadata and album art",
