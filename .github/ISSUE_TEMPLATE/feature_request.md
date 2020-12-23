@@ -11,11 +11,12 @@ assignees: ''
 <!--- Change the title to summarise simply and succintly. -->
 
 ## Problem
-<!-- IMPORTANT: Why do we need to implement this feature? How would it help you? -->
+<!--- IMPORTANT: Why do we need to implement this feature? How would it help you? -->
 
 ## Solution
-<!-- How can we fix this problem? Describe the feature you are requesting. -->
+<!--- How can we fix this problem? Describe the feature you are requesting. -->
+<!--- Address Pros & Cons of the feature. If you present multiple solutions, please state them separately, and compare at the end -->
 
 ## Examples/Research
-<!-- Have you tried to solve your problem? -->
-<!-- Can you provide code examples, diagrams or any other information to support the Feature Request? -->
+<!--- Have you tried to solve your problem? -->
+<!--- Can you provide code examples, diagrams or any other information to support the Feature Request? -->
