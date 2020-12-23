@@ -101,9 +101,10 @@ class SizedTextColumn(ProgressColumn):
 # === Display Manager ===
 # =======================
 
+
 class DisplayManager():
     def __init__(self):
-        
+
         self.isLegacy = detect_legacy_windows()
 
         self.console = Console(
@@ -131,7 +132,7 @@ class DisplayManager():
         self.overallCompletedTasks = 0
         self.quiet = False
 
-        # Basically a wrapper to convert: rich's with ... as ...
+        # Basically a wrapper for rich's: with ... as ...
         self._richProgressBar.__enter__()
 
     def print(self, *text, color="green"):
@@ -164,45 +165,28 @@ class DisplayManager():
 
         #! all calculations are based of the arbitrary choice that 1 song consists of
         #! 100 steps/points/iterations
-        # self.progressBar.total = songCount * 100
-        # print("pass")
         self.songCount = songCount
 
         self.overallTotal = 100 * songCount
 
         if self.songCount > 4:
-            self.overallTaskID = self._richProgressBar.add_task(description='Total', processID='0', message=str(self.overallCompletedTasks) + '/' + str(int(self.overallTotal/100)) + " complete", total=self.overallTotal, visible=(not self.quiet) )
+            self.overallTaskID = self._richProgressBar.add_task(description='Total', processID='0', message=str(
+                self.overallCompletedTasks) + '/' + str(int(self.overallTotal/100)) + " complete", total=self.overallTotal, visible=(not self.quiet))
 
     def update_overall(self):
-        '''Updates the overall progress bar.
         '''
-        # self.overallProgress = 0
-        # for processID in self.currentStatus:
-            # self.overallProgress += self.currentStatus[processID]['progress']
-        if self.overallTaskID != None:  # If the overall progress bar exists
-            self._richProgressBar.update(self.overallTaskID, message=str(self.overallCompletedTasks) + '/' + str(int(self.overallTotal/100)) + " complete", completed=self.overallProgress)
+        Updates the overall progress bar.
+        '''
 
+        if self.overallTaskID != None:  # If the overall progress bar exists
+            self._richProgressBar.update(self.overallTaskID, message=str(
+                self.overallCompletedTasks) + '/' + str(int(self.overallTotal/100)) + " complete", completed=self.overallProgress)
 
     def new_progress_tracker(self, songObj):
+        '''
+        returns new instance of `_ProgressTracker` that follows the `songObj` download subprocess
+        '''
         return _ProgressTracker(self, songObj)
-
-    def reset(self) -> None:
-        '''
-        prepare displayManager for a new download set. call
-        `displayManager.set_song_count_to` before next set of downloads for accurate
-        progressbar.
-        '''
-
-        # self.progressBar.reset()
-        # print("pass")
-
-    def clear(self) -> None:
-        '''
-        clear the rich progress bar
-        '''
-
-        # self.progressBar.clear()
-        # print("pass")
 
     def close(self) -> None:
         '''
@@ -226,9 +210,9 @@ class _ProgressTracker():
         self.oldProgress = 0
         self.downloadID = 0
 
-        self.taskID = self.parent._richProgressBar.add_task(description=songObj.get_display_name(), processID=str(self.downloadID), message="Download Started", total=100, completed=self.progress, start=False, visible=(not self.parent.quiet) )
+        self.taskID = self.parent._richProgressBar.add_task(description=songObj.get_display_name(), processID=str(
+            self.downloadID), message="Download Started", total=100, completed=self.progress, start=False, visible=(not self.parent.quiet))
 
-        
     def notify_download_skip(self) -> None:
         '''
         updates progress bar to reflect a song being skipped
@@ -242,7 +226,7 @@ class _ProgressTracker():
         Progress hook built according to pytube's documentation. It is called each time
         bytes are read from youtube.
         '''
-        
+
         #! This will be called until download is complete, i.e we get an overall
         #! self.progressBar.update(90)
 
@@ -262,7 +246,7 @@ class _ProgressTracker():
         updates progresbar to reflect a audio conversion being completed
         '''
 
-        self.progress = 90 # self.progress + 5
+        self.progress = 90  # self.progress + 5
         self.update("Converting")
 
     def notify_conversion_completion(self) -> None:
@@ -270,7 +254,7 @@ class _ProgressTracker():
         updates progresbar to reflect a audio conversion being completed
         '''
 
-        self.progress = 95 # self.progress + 5
+        self.progress = 95  # self.progress + 5
         self.update("Tagging")
 
     def notify_download_completion(self) -> None:
@@ -279,37 +263,46 @@ class _ProgressTracker():
         '''
 
         #! Download completion implie ID# tag embedding was just finished
-        self.progress = 100 # self.progress + 5
+        self.progress = 100  # self.progress + 5
         self.update("Done")
-    
+
     def notify_error(self, e, tb):
+        '''
+        `e` : error message
+        `tb` : traceback
+
+        Freezes the progress bar and prints the traceback received
+        '''
         self.update(message='Error')
-        message="Error: " + str(e) + "\t While downloading: " + self.songObj.get_display_name() + "\n" + str(tb)
+        message = "Error: " + str(e) + "\t While downloading: " + \
+            self.songObj.get_display_name() + "\n" + str(tb)
         self.parent.print(message, color="red")
 
-    def update(self, message = ""):
+    def update(self, message=""):
         '''
-        Called everytime the user should be notified.
+        Called at every event.
         '''
 
+        #! The change in progress since last update
         delta = self.progress - self.oldProgress
 
+        #! Update the progress bar
+        #! `start_task` called everytime to ensure progress is remove from indeterminate state
         self.parent._richProgressBar.start_task(self.taskID)
         self.parent._richProgressBar.update(self.taskID, description=self.songObj.get_display_name(), processID=str(
             self.downloadID), message=message, completed=self.progress)
 
-        # Task is complete
+        #! If task is complete
         if (self.progress == 100 or message == "Error"):
             self.parent.overallCompletedTasks += 1
             if (self.parent.isLegacy):
                 self.parent._richProgressBar.remove_task(self.taskID)
 
+        #! Update the overall progress bar
         self.parent.overallProgress += delta
         self.parent.update_overall()
 
         self.oldProgress = self.progress
-
-
 
 
 # ===============================
