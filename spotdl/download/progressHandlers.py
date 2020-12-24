@@ -188,6 +188,14 @@ class DisplayManager():
         '''
         return _ProgressTracker(self, songObj)
 
+    def clear(self) -> None:
+        '''
+        clear the rich progress bar
+        '''
+
+        # self.progressBar.clear()
+        # print("pass")
+
     def close(self) -> None:
         '''
         clean up rich

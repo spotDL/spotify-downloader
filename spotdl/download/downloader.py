@@ -137,7 +137,6 @@ class DownloadManager():
         Downloads, Converts, Normalizes song & embeds metadata as ID3 tags.
         '''
 
-        
         progressTracker = self.displayManager.new_progress_tracker(songObj)
 
         try:
@@ -166,7 +165,8 @@ class DownloadManager():
                     artistStr += artist + ', '
 
             # ! the ...[:-2] is to avoid the last ', ' appended to artistStr
-            convertedFileName = artistStr[:-2] + ' - ' + songObj.get_song_name()
+            convertedFileName = artistStr[:-2] + \
+                ' - ' + songObj.get_song_name()
 
             # ! this is windows specific (disallowed chars)
             for disallowedChar in ['/', '?', '\\', '*', '|', '<', '>']:
@@ -204,7 +204,7 @@ class DownloadManager():
             trackAudioStream = youtubeHandler.streams.get_audio_only()
 
             downloadedFilePath = await self._download_from_youtube(convertedFileName, tempFolder,
-                                                                trackAudioStream)
+                                                                   trackAudioStream)
             if downloadedFilePath is None:
                 return None
 
@@ -234,8 +234,9 @@ class DownloadManager():
             # ! as 47 seconds long in your music player, yeah that was an issue earlier.)
 
             command = 'ffmpeg -v quiet -y -i "%s" -acodec libmp3lame -abr true ' \
-                    '-af "apad=pad_dur=2, dynaudnorm, loudnorm=I=-17" "%s"'
-            formattedCommand = command % (downloadedFilePath, convertedFilePath)
+                '-af "apad=pad_dur=2, dynaudnorm, loudnorm=I=-17" "%s"'
+            formattedCommand = command % (
+                downloadedFilePath, convertedFilePath)
 
             process = await asyncio.subprocess.create_subprocess_shell(formattedCommand)
             _ = await process.communicate()
@@ -319,8 +320,7 @@ class DownloadManager():
             if progressTracker:
                 progressTracker.notify_error(e, tb)
             else:
-                raise e 
-
+                raise e
 
     async def _download_from_youtube(self, convertedFileName, tempFolder, trackAudioStream):
         # ! The following function calls blocking code, which would block whole event loop.
