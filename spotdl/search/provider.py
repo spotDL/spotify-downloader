@@ -6,6 +6,8 @@
 from rapidfuzz.fuzz import partial_ratio
 from json import loads as convert_json_to_dict
 from requests import post
+import ytm
+from ytmusicapi import YTMusic
 
 #! Just for static typing
 from typing import List
@@ -326,7 +328,71 @@ def __query_and_simplify(searchTerm: str, apiKey: str = ytmApiKey) -> List[dict]
     # return the results
     return simplifiedResults
 
+ytmApi = ytm.YouTubeMusic()  # used to query ytm
 
+def __query_ytm_and_simplify(searchTerm: str):
+    '''
+    'str' 'searchTerm' : the search term you would type into YTM's search bar
+
+    RETURNS `list<dict>`
+    '''
+
+    songResults = ytmApi.search_songs(searchTerm)['items']
+
+    videoResults = ytmApi.search_videos(searchTerm)['items']
+
+    simplifiedResults = []
+
+    for songResult in list(songResults):
+
+        metadata = YTMusic.get_song(YTMusic(),songResult['id'])
+
+        if 'errorcode' in metadata:
+            continue
+
+        if int(metadata['lengthSeconds']) > 3600:
+            continue    # no song is an hour or more long
+
+        if len(metadata['artists']) == 0:
+            metadata['artists'].append('')
+
+        formattedDetails = {
+            'name'      : metadata['title'],
+            'type'      : 'song',
+            'artist'    : metadata['artists'][0],
+            # I'm not sure how we're supposed to handle multiple artists, so I just take the first
+            'album'     : songResult['album']['name'],
+            # I'm pretty sure the ytm library handles this wrong and just gives the song title, but
+            # my other library does't even have the album *shrug*
+            'length'    : int(metadata['lengthSeconds']),
+            'link'      : 'https://www.youtube.com/watch?v=' + songResult['id']
+            # from what I'm seeing, the position doesn't play into the judging, so I'm not concerned
+            # to leave it out
+        }
+
+        if formattedDetails not in simplifiedResults:
+            simplifiedResults.append(formattedDetails)
+
+    for videoResult in videoResults:
+
+        metadata = YTMusic.get_song(YTMusic(), videoResult['id'])
+
+        if int(metadata['lengthSeconds']) > 3600:
+            continue  # no song is an hour or more long
+
+        formattedDetails = {
+            'name': metadata['title'],
+            'type': 'video',
+            'length': int(metadata['lengthSeconds']),
+            'link': 'https://www.youtube.com/watch?v=' + videoResult['id']
+            # from what I'm seeing, the position doesn't play into the judging, so I'm not concerned
+            # to leave it out
+        }
+
+        if formattedDetails not in simplifiedResults:
+            simplifiedResults.append(formattedDetails)
+
+    return simplifiedResults
 
 #=======================
 #=== Search Provider ===
@@ -363,7 +429,7 @@ def search_and_order_ytm_results(songName: str, songArtists: List[str],
 
 
     # Query YTM
-    results = __query_and_simplify(songSearchStr)
+    results = __query_ytm_and_simplify(songSearchStr)
 
 
 
