@@ -343,12 +343,27 @@ def __query_ytm_and_simplify(searchTerm: str):
 
     simplifiedResults = []
 
+    # these lists are waaaaaay too long, so they have to be pared down to reduce
+    # processing time for albums and playlists
+
+    numOfSongs = 6
+    numOfVids = 3
+
+    while len(songResults) > numOfSongs:
+        songResults.pop(len(songResults) - 1)
+
+    while len(videoResults) > numOfVids:
+        videoResults.pop(len(videoResults) - 1)
+
     for songResult in list(songResults):
 
         metadata = YTMusic.get_song(YTMusic(),songResult['id'])
 
         if 'errorcode' in metadata:
             continue
+
+        if not ('lengthSeconds' in metadata):
+            metadata['lengthSeconds'] = '0'
 
         if int(metadata['lengthSeconds']) > 3600:
             continue    # no song is an hour or more long
