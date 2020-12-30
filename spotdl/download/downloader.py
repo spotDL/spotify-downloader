@@ -210,6 +210,7 @@ class DownloadManager():
         # ! as 47 seconds long in your music player, yeah that was an issue earlier.)
 
         command = 'ffmpeg -v quiet -y -i "%s" -acodec libmp3lame -abr true ' \
+                 f'-b:a {trackAudioStream.bitrate} ' \
                   '-af "apad=pad_dur=2, dynaudnorm, loudnorm=I=-17" "%s"'
         formattedCommand = command % (downloadedFilePath, convertedFilePath)
 
