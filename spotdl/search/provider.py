@@ -172,14 +172,16 @@ def __query_and_simplify(searchTerm: str, apiKey: str = ytmApiKey) -> List[dict]
 
 
             # Add the linkBlock        
-            
+          
             linkBlock = contents['musicResponsiveListItemRenderer'] \
-                ['overlay'] \
-                    ['musicItemThumbnailOverlayRenderer'] \
-                        ['content'] \
-                            ['musicPlayButtonRenderer'] \
-                                ['playNavigationEndpoint']
+                    ['overlay'] \
+                        ['musicItemThumbnailOverlayRenderer'] \
+                            ['content'] \
+                                ['musicPlayButtonRenderer'].get('playNavigationEndpoint')
             
+            if linkBlock is None:
+                continue
+                
             #! detailsBlock is always a list, so we just append the linkBlock to it
             #! insted of carrying along all the other junk from 'musicResponsiveListItemRenderer'
             result.append(linkBlock)
