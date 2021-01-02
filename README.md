@@ -39,10 +39,16 @@ You need to download FFmpeg to use this tool. Download and installation instruct
   $ pip install spotdl
   ```
 
-- Latest Version: __(NOT NECESSARILY STABLE)__
+- Install directly from master: (Use if experiencing issues)
 
   ```
-  $ pip install https://github.com/spotDL/spotify-downloader/archive/next-rel-dev.zip
+  $ pip install https://codeload.github.com/spotDL/spotify-downloader/zip/master
+  ```
+
+- Dev Version: __(NOT STABLE)__
+
+  ```
+  $ pip install https://codeload.github.com/spotDL/spotify-downloader/zip/dev
   ```
 
 ___YouTube Music must be available in your country for spotDL to work. This is because we use YouTube Music to filter search results. You can check if YouTube Music is available in your country, by visiting [YouTube Music](https://music.youtube.com).___
