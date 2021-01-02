@@ -20,7 +20,7 @@ What spotDL does:
 
 ### Announcing spotDL v3
 
-We rebuilt spotDL from scratch to be faster, simpler, and better than v2 of spotDL. Documentation is also a work in progress.
+We rebuilt spotDL from scratch to be faster, simpler, and better than spotDL v2. Documentation is still a work in progress.
 
 ⚠ We have dropped the active development of spotDL v2 due to support and maintainability. No focused efforts will be made to resolve v2 specific issues.
 
