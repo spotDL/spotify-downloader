@@ -1,6 +1,6 @@
 #! Basic necessities to get the CLI running
-from spotdl.search.spotifyClient import initialize
-from sys import argv as cliArgs
+from spotdl.search import spotifyClient
+import sys
 
 #! Song Search from different start points
 from spotdl.search.utils import get_playlist_tracks, get_album_tracks, search_for_song
@@ -75,20 +75,20 @@ def console_entry_point():
     Its super simple, rudimentary even but, it's dead simple & it works.
     '''
 
-    if '--help' in cliArgs or '-h' in cliArgs:
+    if '--help' in sys.argv or '-h' in sys.argv or len(sys.argv) == 1:
         print(help_notice)
 
         #! We use 'return None' as a convenient exit/break from the function
         return None
 
-    initialize(
+    spotifyClient.initialize(
         clientId='4fe3fecfe5334023a1472516cc99d805',
         clientSecret='0f02b7c483c04257984695007a4a8d5c'
         )
 
     downloader = DownloadManager()
 
-    for request in cliArgs[1:]:
+    for request in sys.argv[1:]:
         if 'open.spotify.com' in request and 'track' in request:
             print('Fetching Song...')
             song = SongObj.from_url(request)
