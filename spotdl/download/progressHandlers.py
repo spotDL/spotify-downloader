@@ -193,7 +193,8 @@ class DownloadTracker():
         # remove tracking file if no songs left in queue
         #! we use 'return None' as a convenient exit point
         if len(self.songObjList) == 0:
-            remove(self.saveFile)
+            if self.saveFile:
+                remove(self.saveFile)
             return None
 
 

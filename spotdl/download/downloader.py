@@ -181,6 +181,11 @@ class DownloadManager():
             youtubeHandler = YouTube(songObj.get_youtube_link())
 
         trackAudioStream = youtubeHandler.streams.get_audio_only()
+        if not trackAudioStream:
+            print(f"Unable to get audio stream for \"{songObj.get_song_name()}\" "
+                  f"by \"{songObj.get_contributing_artists()[0]}\" "
+                  f"from video \"{songObj.get_youtube_link()}\"")
+            return None
 
         downloadedFilePath = await self._download_from_youtube(convertedFileName, tempFolder,
                                                                trackAudioStream)
@@ -327,7 +332,8 @@ class DownloadManager():
             # !
             # ! None is again used as a convenient exit
             fileName = join(tempFolder, convertedFileName) + '.mp4'
-            remove(fileName)
+            if exists(fileName):
+                remove(fileName)
             return None
 
     async def _pool_download(self, song_obj: SongObj):

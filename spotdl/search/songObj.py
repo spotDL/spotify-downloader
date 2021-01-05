@@ -70,8 +70,6 @@ class SongObj():
             duration
         )
 
-        youtubeLink = youtubeLink
-
         return  cls(
             rawTrackMeta, rawAlbumMeta,
             rawArtistMeta, youtubeLink
