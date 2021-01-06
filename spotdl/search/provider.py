@@ -219,39 +219,24 @@ def __query_and_simplify(searchTerm: str, apiKey: str = ytmApiKey) -> List[dict]
     for result in resultBlocks:
 
         # Blindly gather available details
-        availableDetails = []
+        availableDetails = {}
 
-
-
-        # Filterout dummies here itself
-        #! 'musicResponsiveListItmeFlexColumnRenderer' should have more that one
-        #! sub-block, if not its a dummy, why does the YTM response contain dummies?
-        #! I have no clue. We skip these.
-        
-        #! Remember that we appended the linkBlock to result, treating that like the
-        #! other constituents of a result block will lead to errors, hence the 'in
-        #! result[:-1]'
-        for detail in result[:-1]:
-            if len(detail['musicResponsiveListItemFlexColumnRenderer']) < 2:
-                continue
-            
-            #! if not a dummy, collect all available details
-            availableDetails.append(
-                detail['musicResponsiveListItemFlexColumnRenderer'] \
-                    ['text'] \
-                        ['runs'][0] \
-                            ['text']
-            )
-        
-
+        availableDetails['name'] = result[0]['musicResponsiveListItemFlexColumnRenderer']['text']['runs'][0]['text']
+        remainingDetailContainer = result[1]['musicResponsiveListItemFlexColumnRenderer']['text']['runs']
+        availableDetails['type'] = remainingDetailContainer[0]['text']
 
         # Filterout non-Song/Video results and incomplete results here itself
-        #! From what we know about detail order, note that [1] - indicate result type
-        if availableDetails[1] in ['Song', 'Video'] and len(availableDetails) == 5:
+        if availableDetails['type'] in ['Song', 'Video']:
             
+            if availableDetails['type'] == 'Song':
+                availableDetails['artist'] = remainingDetailContainer[2]['text']
+                availableDetails['album'] = remainingDetailContainer[4]['text']
+
+            availableDetails['time'] = remainingDetailContainer[6]['text']
+
             #! skip if result is in hours instead of minuts (no song is that long)
-            if len(availableDetails[4].split(':')) != 2:
-                    continue
+            if len(availableDetails['time'].split(':')) != 2:
+                continue
 
 
 
@@ -276,7 +261,7 @@ def __query_and_simplify(searchTerm: str, apiKey: str = ytmApiKey) -> List[dict]
 
 
             # convert length into seconds
-            minStr, secStr = availableDetails[4].split(':')
+            minStr, secStr = availableDetails['time'].split(':')
 
             #! handle leading zeroes (eg. 01, 09, etc...), they cause eval errors, there
             #! are a few oddball tracks that are only a few seconds long
@@ -291,13 +276,12 @@ def __query_and_simplify(searchTerm: str, apiKey: str = ytmApiKey) -> List[dict]
 
 
             # format relevant details
-            if availableDetails[1] == 'Song':
-            
+            if availableDetails['type'] == 'Song':
                 formattedDetails = {
-                    'name'      : availableDetails[0],
+                    'name'      : availableDetails['name'],
                     'type'      : 'song',
-                    'artist'    : availableDetails[2],
-                    'album'     : availableDetails[3],
+                    'artist'    : availableDetails['artist'],
+                    'album'     : availableDetails['album'],
                     'length'    : time,
                     'link'      : resultLink,
                     'position'  : resultPosition
@@ -306,10 +290,10 @@ def __query_and_simplify(searchTerm: str, apiKey: str = ytmApiKey) -> List[dict]
                 if formattedDetails not in simplifiedResults:
                     simplifiedResults.append(formattedDetails)
             
-            elif availableDetails[1] == 'Video':
+            elif availableDetails['type'] == 'Video':
             
                 formattedDetails = {
-                    'name'      : availableDetails[0],
+                    'name'      : availableDetails['name'],
                     'type'      : 'video',
                     'length'    : time,
                     'link'      : resultLink,
@@ -364,7 +348,6 @@ def search_and_order_ytm_results(songName: str, songArtists: List[str],
 
     # Query YTM
     results = __query_and_simplify(songSearchStr)
-
 
 
     # Assign an overall avg match value to each result
