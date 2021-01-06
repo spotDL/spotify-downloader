@@ -1,6 +1,6 @@
 #! Basic necessities to get the CLI running
-from spotdl.search import spotifyClient
-import sys
+from spotdl.search.spotifyClient import initialize
+from sys import argv as cliArgs
 
 #! Song Search from different start points
 from spotdl.search.utils import get_playlist_tracks, get_album_tracks, search_for_song, get_artist_tracks
