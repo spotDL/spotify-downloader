@@ -9,14 +9,14 @@ class SongObj():
     # ! it allows us a convenient way of setting a search provider without using globals
     searchProvider = search_and_get_best_match
 
-    #====================
-    #=== Constructors ===
-    #====================
+    # ====================
+    # === Constructors ===
+    # ====================
     def __init__(self, rawTrackMeta, rawAlbumMeta, rawArtistMeta, youtubeLink):
-        self. __rawTrackMeta = rawTrackMeta
-        self.__rawAlbumMeta  = rawArtistMeta
+        self.__rawTrackMeta = rawTrackMeta
+        self.__rawAlbumMeta = rawArtistMeta
         self.__rawArtistMeta = rawArtistMeta
-        self.__youtubeLink   = youtubeLink
+        self.__youtubeLink = youtubeLink
 
     #! constructors here are a bit mucky, there are two different constructors for two
     #! different use cases, hence the actual __init__ function does not exist
