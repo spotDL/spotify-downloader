@@ -1,0 +1,63 @@
+interactions:
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Authorization:
+      - Bearer BQBFAUlHzlOsi8i_1oHEPVcnQLGD9QyQhE9oYWpVvsvieSAduynnhXIZZNSma6OFLZKVqdLRhWvUpAY5eS4
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      User-Agent:
+      - python-requests/2.25.0
+    method: GET
+    uri: https://api.spotify.com/v1/search?q=The+HU+-+Sugaan+Essenna&limit=10&offset=0&type=track
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAAAFyNvQ7CIBRGd5+CMHRB+7M2IU4m7upkHEhzESIFhNvGpum729K6OJ6Tk+8bd4RQ
+        DKJ5RUpqMs44CxVALkgVoo91UQiv8+gdajnkjWuLvioiiNCo47uDMPCrAna+sQO7dE8hLDvFCNaK
+        DAcPPM1nTsoIyMvM6FYjr0q6X880QpvO7+SxqZQsqio3Y+GThO2M2dQ6uMhf5AP02nXxL0SHwqRu
+        5mk3fQEAAP//AwArFp7t9AAAAA==
+    headers:
+      Alt-Svc:
+      - clear
+      Transfer-Encoding:
+      - chunked
+      Via:
+      - HTTP/2 edgeproxy, 1.1 google
+      access-control-allow-credentials:
+      - 'true'
+      access-control-allow-headers:
+      - Accept, App-Platform, Authorization, Content-Type, Origin, Retry-After, Spotify-App-Version,
+        X-Cloud-Trace-Context, client-token
+      access-control-allow-methods:
+      - GET, POST, OPTIONS, PUT, DELETE, PATCH
+      access-control-allow-origin:
+      - '*'
+      access-control-max-age:
+      - '604800'
+      cache-control:
+      - public, max-age=7200
+      content-encoding:
+      - gzip
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Sat, 05 Dec 2020 14:02:49 GMT
+      server:
+      - envoy
+      strict-transport-security:
+      - max-age=31536000
+      x-content-type-options:
+      - nosniff
+      x-robots-tag:
+      - noindex, nofollow
+    status:
+      code: 200
+      message: OK
+version: 1

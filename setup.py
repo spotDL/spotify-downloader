@@ -1,20 +1,23 @@
 from setuptools import setup
 
+long_desc = open('README.md', encoding = 'utf-8').read()
+
 setup(
     # 'spotify-downloader' was already taken (＞﹏＜)
     name = "spotdl",
-    
+
     packages = [
         'spotdl',
         'spotdl.search',
         'spotdl.download',
     ],
 
+   #! PyPi doesn't allow repeat names, so it essentially considered a patch
     version = '3.2.0-pre',
 
     install_requires = [
         'spotipy',
-        'pytube3',
+        'pytube',
         'tqdm',
         'rapidfuzz',
         'requests',
@@ -22,10 +25,25 @@ setup(
         'ytmusicapi',
     ],
 
+    extras_require={
+        "test": [
+            "pytest>=6.0",
+            "pytest-mock==3.3.1",
+            "pytest-vcr==1.0.2",
+            "pyfakefs==4.3.0",
+            "pytest-cov==2.10.1"
+        ],
+        "dev": [
+            "tox"
+        ]
+    },
+
     description="Downloads Spotify music from Youtube with metadata and album art",
-    
-    author="Ritiek Malhotra",
-    author_email="ritiekmalhotra123@gmail.com",
+    long_description=long_desc,
+    long_description_content_type='text/markdown',
+
+    author="Mikhail Zex (Not really my name)",
+    author_email="unrealengin71+PyPi@gmail.com",
 
     license="MIT",
 

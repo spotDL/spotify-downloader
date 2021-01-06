@@ -4,12 +4,10 @@
 *.mp3
 *.mp4
 
-# Reference Code
-originalCodeRef/*
-
 # Python
 __pycache__
 .mypy_cache
+.venv
 
 # vscode
 .vscode
@@ -22,7 +20,12 @@ Hacks/*
 
 # setuptools
 spotdl.egg-info/*
-build/*
-dist/*
 venv
 .idea
+
+# setuptools and PyInstaller
+build
+dist
+
+# PyInstaller
+*.spec
