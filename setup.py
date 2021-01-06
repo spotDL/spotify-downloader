@@ -24,6 +24,19 @@ setup(
         'mutagen',
     ],
 
+    extras_require={
+        "test": [
+            "pytest>=6.0",
+            "pytest-mock==3.3.1",
+            "pytest-vcr==1.0.2",
+            "pyfakefs==4.3.0",
+            "pytest-cov==2.10.1"
+        ],
+        "dev": [
+            "tox"
+        ]
+    },
+
     description="Downloads Spotify music from Youtube with metadata and album art",
     long_description=long_desc,
     long_description_content_type='text/markdown',

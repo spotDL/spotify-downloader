@@ -1,0 +1,17 @@
+language: python
+
+python:
+- "3.5"
+- "3.6"
+- "3.7"
+- "3.8"
+- "3.9"
+
+install:
+- python setup.py install
+- pip install -U pylint, black, mypy
+
+script:
+- pylint --fail-under=9
+- mypy --follow-imports skip .\spotdl
+- black .\spotdl
