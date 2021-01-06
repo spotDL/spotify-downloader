@@ -22,6 +22,7 @@ setup(
         'rapidfuzz',
         'requests',
         'mutagen',
+        'ytmusicapi',
     ],
 
     extras_require={

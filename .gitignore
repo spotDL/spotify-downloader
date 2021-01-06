@@ -27,3 +27,6 @@ dist
 
 # PyInstaller
 *.spec
+
+# pycharm/intellij
+.idea
