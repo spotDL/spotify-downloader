@@ -39,34 +39,33 @@ from spotdl.download.downloader import DownloadManager
 #! Script Help
 help_notice = '''
 To download a song run,
-    spotdl $trackUrl
-    eg. spotdl https://open.spotify.com/track/08mG3Y1vljYA6bvDt4Wqkj?si=SxezdxmlTx-CaVoucHmrUA
+    spotdl [trackUrl]
+    ex. spotdl https://open.spotify.com/track/0VjIjW4GlUZAMYd2vXMi3b?si=1stnMF5GSdClnIEARnJiiQ
 
 To download a album run,
-    spotdl $albumUrl
-    eg. spotdl https://open.spotify.com/album/2YMWspDGtbDgYULXvVQFM6?si=gF5dOQm8QUSo-NdZVsFjAQ
+    spotdl [albumUrl]
+    ex. spotdl https://open.spotify.com/album/4yP0hdKOZPNshxUOjY0cZj?si=AssgQQrVTJqptFe7X92jNg
 
-To download a playlist run,
-    spotdl $playlistUrl
-    eg. spotdl https://open.spotify.com/playlist/37i9dQZF1DWXhcuQw7KIeM?si=xubKHEBESM27RqGkqoXzgQ
+To download a playlist, run:
+    spotdl [playlistUrl]
+    ex. spotdl https://open.spotify.com/playlist/37i9dQZF1E8UXBoz02kGID?si=oGd5ctlyQ0qblj_bL6WWow
 
-To search for and download a song (not very accurate) run,
-    spotdl $songQuery
-    eg. spotdl 'The HU - Sugaan Essenna'
+To search for and download a song, run, with quotation marks:
+  Note: This is not accurate and often causes errors.
+    spotdl [songQuery]
+    ex. spotdl 'The Weeknd - Blinding Lights'
 
-To resume a failed/incomplete download run,
-    spotdl $pathToTrackingFile
-    eg. spotdl 'Sugaan Essenna.spotdlTrackingFile'
+To resume a failed/incomplete download, run:
+    spotdl [pathToTrackingFile]
+    ex. spotdl 'The Weeknd - Blinding Lights.spotdlTrackingFile'
 
-    Note, '.spotDlTrackingFiles' are automatically created during download start, they are deleted on
-    download completion
+    .spotdlTrackingFiles are automatically created when a download starts and deleted on completion
 
-You can chain up download tasks by seperating them with spaces:
-    spotdl $songQuery1 $albumUrl $songQuery2 ... (order does not matter)
-    eg. spotdl 'The Hu - Sugaan Essenna' https://open.spotify.com/playlist/37i9dQZF1DWXhcuQw7KIeM?si=xubKHEBESM27RqGkqoXzgQ ...
+You can queue up multiple download tasks by separating the arguments with spaces:
+    spotdl [songQuery1] [albumUrl] [songQuery2] ... (order does not matter)
+    ex. spotdl 'The Weeknd - Blinding Lights' https://open.spotify.com/playlist/37i9dQZF1E8UXBoz02kGID?si=oGd5ctlyQ0qblj_bL6WWow ...
 
-Spotdl downloads up to 4 songs in parallel - try to download albums and playlists instead of
-tracks for more speed
+spotDL downloads up to 4 songs in parallel, so for a faster experience, download albums and playlist, rather than tracks.
 '''
 
 def console_entry_point():
@@ -75,7 +74,7 @@ def console_entry_point():
     Its super simple, rudimentary even but, it's dead simple & it works.
     '''
 
-    if '--help' in sys.argv or '-h' in sys.argv or len(sys.argv) == 1:
+    if '--help' in sys.argv or '-H' in sys.argv or len(sys.argv) == 1:
         print(help_notice)
 
         #! We use 'return None' as a convenient exit/break from the function
