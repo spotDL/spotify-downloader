@@ -109,7 +109,7 @@ You can queue up multiple download tasks by separating the arguments with spaces
 $ spotdl [songQuery1] [albumUrl] [songQuery2] ... (order does not matter)
 ```
 
-ex. `spotdl 'The Weeknd - Blinding Lights'https://open.spotify.com/playlist/37i9dQZF1E8UXBoz02kGID?si=oGd5ctlyQ0qblj_bL6WWow ...`
+ex. `spotdl 'The Weeknd - Blinding Lights' https://open.spotify.com/playlist/37i9dQZF1E8UXBoz02kGID?si=oGd5ctlyQ0qblj_bL6WWow ...`
 
 
 
