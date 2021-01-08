@@ -2,6 +2,7 @@ categories:
   - title: 'Bug Fixes'
     labels:
       - 'bug'
+      - 'bugfix'
 change-template: '- $TITLE @$AUTHOR (#$NUMBER)'
 change-title-escapes: '\<*_&' # You can add # and @ to disable mentions, and add ` to disable code blocks.
 exclude-labels:
