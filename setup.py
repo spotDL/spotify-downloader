@@ -12,8 +12,8 @@ setup(
         'spotdl.download',
     ],
 
-    #! PyPi doesn't allow repeat names, so it essentially considered a patch
-    version = '3.1.4',
+    #! PyPi follows Semantic Versioning - http://semver.org/
+    version = '3.2.0',
 
     install_requires = [
         'spotipy',
@@ -42,14 +42,14 @@ setup(
     long_description=long_desc,
     long_description_content_type='text/markdown',
 
-    author="Mikhail Zex (Not really my name)",
+    author="spotDL Team",
     author_email="unrealengin71+PyPi@gmail.com",
 
     license="MIT",
 
     python_requires=">=3.6",
 
-    url="https://github.com/ritiek/spotify-downloader",
+    url="https://github.com/spotDL/spotify-downloader",
     download_url="https://pypi.org/project/spotdl/",
 
     keywords=[
