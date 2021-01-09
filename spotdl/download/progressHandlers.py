@@ -121,7 +121,7 @@ class DisplayManager():
             "[progress.percentage]{task.percentage:>3.0f}%",
             TimeRemainingColumn(),
             console=self.console,
-            # Normally when you exit the progress context manager (or call stop()) the last refreshed display remains in the terminal with the cursor on the following line. You can also make the progress display disappear on exit by setting transient=True on the Progress constructor
+            # ! Normally when you exit the progress context manager (or call stop()) the last refreshed display remains in the terminal with the cursor on the following line. You can also make the progress display disappear on exit by setting transient=True on the Progress constructor
             transient=self.isLegacy
         )
 
@@ -132,7 +132,7 @@ class DisplayManager():
         self.overallCompletedTasks = 0
         self.quiet = False
 
-        # Basically a wrapper for rich's: with ... as ...
+        # ! Basically a wrapper for rich's: with ... as ...
         self._richProgressBar.__enter__()
 
     def print(self, *text, color="green"):
@@ -161,8 +161,8 @@ class DisplayManager():
         download set
         '''
 
-        #! all calculations are based of the arbitrary choice that 1 song consists of
-        #! 100 steps/points/iterations
+        # ! all calculations are based of the arbitrary choice that 1 song consists of
+        # ! 100 steps/points/iterations
         self.songCount = songCount
 
         self.overallTotal = 100 * songCount
@@ -176,7 +176,8 @@ class DisplayManager():
         Updates the overall progress bar.
         '''
 
-        if self.overallTaskID != None:  # If the overall progress bar exists
+        # If the overall progress bar exists
+        if self.overallTaskID != None:
             self._richProgressBar.update(self.overallTaskID, message=str(
                 self.overallCompletedTasks) + '/' + str(int(self.overallTotal/100)) + " complete", completed=self.overallProgress)
 
@@ -190,9 +191,7 @@ class DisplayManager():
         '''
         clear the rich progress bar
         '''
-
-        # self.progressBar.clear()
-        # print("pass")
+        pass
 
     def close(self) -> None:
         '''
@@ -202,6 +201,9 @@ class DisplayManager():
         self._richProgressBar.stop()
 
     def reset(self) -> None:
+        '''
+        restart progress for new download instance
+        '''
         pass
 
 
@@ -236,15 +238,14 @@ class _ProgressTracker():
         bytes are read from youtube.
         '''
 
-        #! This will be called until download is complete, i.e we get an overall
-        #! self.progressBar.update(90)
+        # ! This will be called until download is complete, i.e we get an overall
 
         fileSize = stream.filesize
 
-        #! How much of the file was downloaded this iteration scaled put of 90.
-        #! It's scaled to 90 because, the arbitrary division of each songs 100
-        #! iterations is (a) 90 for download (b) 5 for conversion & normalization
-        #! and (c) 5 for ID3 tag embedding
+        # ! How much of the file was downloaded this iteration scaled put of 90.
+        # ! It's scaled to 90 because, the arbitrary division of each songs 100
+        # ! iterations is (a) 90 for download (b) 5 for conversion & normalization
+        # ! and (c) 5 for ID3 tag embedding
         iterFraction = len(chunk) / fileSize * 90
 
         self.progress = self.progress + iterFraction
@@ -271,7 +272,7 @@ class _ProgressTracker():
         updates progresbar to reflect a download being completed
         '''
 
-        #! Download completion implie ID# tag embedding was just finished
+        # ! Download completion implie ID# tag embedding was just finished
         self.progress = 100  # self.progress + 5
         self.update("Done")
 
@@ -291,22 +292,22 @@ class _ProgressTracker():
         Called at every event.
         '''
 
-        #! The change in progress since last update
+        # The change in progress since last update
         delta = self.progress - self.oldProgress
 
-        #! Update the progress bar
-        #! `start_task` called everytime to ensure progress is remove from indeterminate state
+        # Update the progress bar
+        # ! `start_task` called everytime to ensure progress is remove from indeterminate state
         self.parent._richProgressBar.start_task(self.taskID)
         self.parent._richProgressBar.update(self.taskID, description=self.songObj.get_display_name(), processID=str(
             self.downloadID), message=message, completed=self.progress)
 
-        #! If task is complete
+        # If task is complete
         if (self.progress == 100 or message == "Error"):
             self.parent.overallCompletedTasks += 1
             if (self.parent.isLegacy):
                 self.parent._richProgressBar.remove_task(self.taskID)
 
-        #! Update the overall progress bar
+        # Update the overall progress bar
         self.parent.overallProgress += delta
         self.parent.update_overall()
 
@@ -331,7 +332,7 @@ class DownloadTracker():
         reads songsObj's from disk and prepares to track their download
         '''
 
-        # Attempt to read .spotdlTrackingFile, raise exception if file can't be read
+        # ! Attempt to read .spotdlTrackingFile, raise exception if file can't be read
         try:
             file = open(trackingFilePath, 'rb')
             songDataDumps = eval(file.read().decode())
@@ -344,7 +345,7 @@ class DownloadTracker():
         self.saveFile = trackingFilePath
 
         # convert song data dumps to songObj's
-        #! see, songObj.get_data_dump and songObj.from_dump for more details
+        # ! see, songObj.get_data_dump and songObj.from_dump for more details
         for dump in songDataDumps:
             self.songObjList.append(SongObj.from_dump(dump))
 
@@ -376,7 +377,7 @@ class DownloadTracker():
         backs up details of songObj's yet to be downloaded to a .spotdlTrackingFile
         '''
         # remove tracking file if no songs left in queue
-        #! we use 'return None' as a convenient exit point
+        # ! we use 'return None' as a convenient exit point
         if len(self.songObjList) == 0:
             if self.saveFile:
                 remove(self.saveFile)
@@ -388,8 +389,8 @@ class DownloadTracker():
         for song in self.songObjList:
             songDataDumps.append(song.get_data_dump())
 
-        #! the default naming of a tracking file is $nameOfFirstSOng.spotdlTrackingFile,
-        #! it needs a little fixing because of disallowed characters in file naming
+        # ! the default naming of a tracking file is $nameOfFirstSOng.spotdlTrackingFile,
+        # ! it needs a little fixing because of disallowed characters in file naming
         if not self.saveFile:
             songName = self.songObjList[0].get_song_name()
 
@@ -402,7 +403,7 @@ class DownloadTracker():
             self.saveFile = songName + '.spotdlTrackingFile'
 
         # backup to file
-        #! we use 'wb' instead of 'w' to accommodate your fav K-pop/J-pop/Viking music
+        # ! we use 'wb' instead of 'w' to accommodate your fav K-pop/J-pop/Viking music
         file = open(self.saveFile, 'wb')
         file.write(
             str(songDataDumps).encode()
