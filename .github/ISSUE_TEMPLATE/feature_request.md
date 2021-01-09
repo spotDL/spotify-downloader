@@ -10,6 +10,8 @@ assignees: ''
 <!--- Please search existing issues for your feature before creating a new one -->
 <!--- Change the title to summarise simply and succintly. -->
 
+<!--- !!! Come talk to us on our Discord! https://discord.gg/xCa23pwJWY !!! -->
+
 ## Problem
 <!--- Why should we add this feature? How would it help spotDL users? -->
 
