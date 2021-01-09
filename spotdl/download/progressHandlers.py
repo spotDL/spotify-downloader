@@ -1,74 +1,234 @@
-#===============
-#=== Imports ===
-#===============
+# ===============
+# === Imports ===
+# ===============
 
-from tqdm import tqdm
+from rich.console import Console
+from rich.progress import (
+    track,
+    BarColumn,
+    DownloadColumn,
+    TextColumn,
+    TransferSpeedColumn,
+    TimeRemainingColumn,
+    Progress,
+    TaskID,
+    ProgressColumn
+)
+from rich.theme import Theme
+from rich.style import StyleType
+from rich.console import (
+    Console,
+    ConsoleRenderable,
+    JustifyMethod,
+    RenderableType,
+    RenderGroup,
+    RenderHook,
+    detect_legacy_windows,
+)
+from rich.highlighter import Highlighter
+from rich.text import Text
 
 #! These are not used, they're here for static type checking using mypy
 from spotdl.search.songObj import SongObj
 from typing import List
+from datetime import datetime
+import time
 
 from os import remove
 
 
+# =============
+# === Theme ===
+# =============
 
-#=======================
-#=== Display classes ===
-#=======================
+custom_theme = Theme({
+    "bar.back": "grey23",
+    "bar.complete": "rgb(165,66,129)",
+    "bar.finished": "rgb(114,156,31)",
+    "bar.pulse": "rgb(165,66,129)",
+    "general": "green",
+    "nonimportant": "rgb(40,100,40)",
+    "progress.data.speed": "red",
+    "progress.description": "none",
+    "progress.download": "green",
+    "progress.filesize": "green",
+    "progress.filesize.total": "green",
+    "progress.percentage": "green",
+    "progress.remaining": "rgb(40,100,40)"
+})
 
-class SpecializedTQDM(tqdm):
 
-    @property
-    def format_dict(self):
-        formatDict = super(SpecializedTQDM, self).format_dict
+# ========================================================
+# === Modified rich Text Column to Support Fixed Width ===
+# ========================================================
 
-        #! 1/rate is the time it takes to finish 1 iteration (secs). The displayManager
-        #! for which specializedTQDM is built works on the assumption that 100 iterations
-        #! makes one song downloaded. Hence the time in seconds per song would be
-        #! 100 * (1/rate) and in minuts would be 100/ (60 * rate)
-        if formatDict['rate']:
-            newRate = '{:.2f}'.format(100 / (60 * formatDict['rate'] ))
+class SizedTextColumn(ProgressColumn):
+    """A column containing text."""
+
+    def __init__(
+        self,
+        text_format: str,
+        style: StyleType = "none",
+        justify: JustifyMethod = "left",
+        markup: bool = True,
+        highlighter: Highlighter = None,
+        overflow: "OverflowMethod" = "ellipsis",
+        width: int = 20
+    ) -> None:
+        self.text_format = text_format
+        self.justify = justify
+        self.style = style
+        self.markup = markup
+        self.highlighter = highlighter
+        self.overflow = overflow,
+        self.width = width
+        super().__init__()
+
+    def render(self, task: "Task") -> Text:
+        _text = self.text_format.format(task=task)
+        if self.markup:
+            text = Text.from_markup(
+                _text, style=self.style, justify=self.justify)
         else:
-            newRate = '~'
+            text = Text(_text, style=self.style, justify=self.justify)
+        if self.highlighter:
+            self.highlighter.highlight(text)
 
-        formatDict.update(rate_min = (newRate + 'min/' + formatDict['unit']))
+        text.truncate(max_width=self.width, overflow=self.overflow, pad=True)
+        return text
 
-        #! You can now use {rate_min} as a formatting arg to get rate in mins/unit
+# =======================
+# === Display Manager ===
+# =======================
 
-        return formatDict
 
 class DisplayManager():
     def __init__(self):
-        #! specializedTQDM handles most of the display details, displayManager is an
-        #! additional bit of calculations to ensure that the specializedTQDM progressbar
-        #! works accurately across downloads from multiple processes
-        self.progressBar = SpecializedTQDM(
-            total           = 100,
-            dynamic_ncols   = True,
-            bar_format      = '{percentage:3.0f}%|{bar}|ETA: {remaining}, {rate_min}',
-            unit            = 'song'
+
+        self.isLegacy = detect_legacy_windows()
+
+        self.console = Console(
+            theme=custom_theme, color_system="truecolor" if not self.isLegacy else None)
+
+        self._richProgressBar = Progress(
+            # SizedTextColumn("{task.fields[processID]}", style="nonimportant", width=7),
+            SizedTextColumn("[white]{task.description}", overflow="ellipsis", width=int(
+                self.console.width/3)),  # overflow='ellipsis',
+            # "[progress.description]{task.description}",
+            SizedTextColumn("{task.fields[message]}",
+                            width=18, style="nonimportant"),
+            BarColumn(bar_width=None, finished_style="green"),
+            "[progress.percentage]{task.percentage:>3.0f}%",
+            TimeRemainingColumn(),
+            console=self.console,
+            # Normally when you exit the progress context manager (or call stop()) the last refreshed display remains in the terminal with the cursor on the following line. You can also make the progress display disappear on exit by setting transient=True on the Progress constructor
+            transient=self.isLegacy
         )
+
+        self.songCount = 0
+        self.overallTaskID = None
+        self.overallProgress = 0
+        self.overallTotal = 100
+        self.overallCompletedTasks = 0
+        self.quiet = False
+
+        # Basically a wrapper for rich's: with ... as ...
+        self._richProgressBar.__enter__()
+
+    def print(self, *text, color="green"):
+        '''
+        `text` : `any`  Text to be printed to screen
+        Use this self.print to replace default print(). 
+        '''
+
+        if self.quiet:
+            return
+
+        line = ''
+        for item in text:
+            line += str(item) + ' '
+
+        if color:
+            self._richProgressBar.console.print("[" + color + "]" + str(line))
+        else:
+            self._richProgressBar.console.print(line)
 
     def set_song_count_to(self, songCount: int) -> None:
         '''
         `int` `songCount` : number of songs being downloaded
-
         RETURNS `~`
-
         sets the size of the progressbar based on the number of songs in the current
         download set
         '''
 
         #! all calculations are based of the arbitrary choice that 1 song consists of
         #! 100 steps/points/iterations
-        self.progressBar.total = songCount * 100
+        self.songCount = songCount
+
+        self.overallTotal = 100 * songCount
+
+        if self.songCount > 4:
+            self.overallTaskID = self._richProgressBar.add_task(description='Total', processID='0', message=str(
+                self.overallCompletedTasks) + '/' + str(int(self.overallTotal/100)) + " complete", total=self.overallTotal, visible=(not self.quiet))
+
+    def update_overall(self):
+        '''
+        Updates the overall progress bar.
+        '''
+
+        if self.overallTaskID != None:  # If the overall progress bar exists
+            self._richProgressBar.update(self.overallTaskID, message=str(
+                self.overallCompletedTasks) + '/' + str(int(self.overallTotal/100)) + " complete", completed=self.overallProgress)
+
+    def new_progress_tracker(self, songObj):
+        '''
+        returns new instance of `_ProgressTracker` that follows the `songObj` download subprocess
+        '''
+        return _ProgressTracker(self, songObj)
+
+    def clear(self) -> None:
+        '''
+        clear the rich progress bar
+        '''
+
+        # self.progressBar.clear()
+        # print("pass")
+
+    def close(self) -> None:
+        '''
+        clean up rich
+        '''
+
+        self._richProgressBar.stop()
+
+    def reset(self) -> None:
+        pass
+
+
+# ========================
+# === Progress Tracker ===
+# ========================
+
+class _ProgressTracker():
+
+    def __init__(self, parent, songObj):
+        self.parent = parent
+        self.songObj = songObj
+
+        self.progress = 0
+        self.oldProgress = 0
+        self.downloadID = 0
+
+        self.taskID = self.parent._richProgressBar.add_task(description=songObj.get_display_name(), processID=str(
+            self.downloadID), message="Download Started", total=100, completed=self.progress, start=False, visible=(not self.parent.quiet))
 
     def notify_download_skip(self) -> None:
         '''
         updates progress bar to reflect a song being skipped
         '''
 
-        self.progressBar.update(100)
+        self.progress = 100
+        self.update("Skipping")
 
     def pytube_progress_hook(self, stream, chunk, bytes_remaining) -> None:
         '''
@@ -87,14 +247,24 @@ class DisplayManager():
         #! and (c) 5 for ID3 tag embedding
         iterFraction = len(chunk) / fileSize * 90
 
-        self.progressBar.update(iterFraction)
+        self.progress = self.progress + iterFraction
+        self.update("Downloading")
+
+    def notify_youtube_download_completion(self) -> None:
+        '''
+        updates progresbar to reflect a audio conversion being completed
+        '''
+
+        self.progress = 90  # self.progress + 5
+        self.update("Converting")
 
     def notify_conversion_completion(self) -> None:
         '''
         updates progresbar to reflect a audio conversion being completed
         '''
 
-        self.progressBar.update(5)
+        self.progress = 95  # self.progress + 5
+        self.update("Tagging")
 
     def notify_download_completion(self) -> None:
         '''
@@ -102,36 +272,50 @@ class DisplayManager():
         '''
 
         #! Download completion implie ID# tag embedding was just finished
-        self.progressBar.update(5)
+        self.progress = 100  # self.progress + 5
+        self.update("Done")
 
-    def reset(self) -> None:
+    def notify_error(self, e, tb):
         '''
-        prepare displayManager for a new download set. call
-        `displayManager.set_song_count_to` before next set of downloads for accurate
-        progressbar.
+        `e` : error message
+        `tb` : traceback
+        Freezes the progress bar and prints the traceback received
         '''
+        self.update(message='Error')
+        message = "Error: " + str(e) + "\t While downloading: " + \
+            self.songObj.get_display_name() + "\n" + str(tb)
+        self.parent.print(message, color="red")
 
-        self.progressBar.reset()
-
-    def clear(self) -> None:
+    def update(self, message=""):
         '''
-        clear the tqdm progress bar
-        '''
-
-        self.progressBar.clear()
-
-    def close(self) -> None:
-        '''
-        clean up TQDM
+        Called at every event.
         '''
 
-        self.progressBar.close()
+        #! The change in progress since last update
+        delta = self.progress - self.oldProgress
+
+        #! Update the progress bar
+        #! `start_task` called everytime to ensure progress is remove from indeterminate state
+        self.parent._richProgressBar.start_task(self.taskID)
+        self.parent._richProgressBar.update(self.taskID, description=self.songObj.get_display_name(), processID=str(
+            self.downloadID), message=message, completed=self.progress)
+
+        #! If task is complete
+        if (self.progress == 100 or message == "Error"):
+            self.parent.overallCompletedTasks += 1
+            if (self.parent.isLegacy):
+                self.parent._richProgressBar.remove_task(self.taskID)
+
+        #! Update the overall progress bar
+        self.parent.overallProgress += delta
+        self.parent.update_overall()
+
+        self.oldProgress = self.progress
 
 
-
-#===============================
-#=== Download tracking class ===
-#===============================
+# ===============================
+# === Download tracking class ===
+# ===============================
 
 class DownloadTracker():
     def __init__(self):
@@ -153,7 +337,8 @@ class DownloadTracker():
             songDataDumps = eval(file.read().decode())
             file.close()
         except FileNotFoundError:
-            raise Exception('no such tracking file found: %s' % trackingFilePath)
+            raise Exception('no such tracking file found: %s' %
+                            trackingFilePath)
 
         # Save path to .spotdlTrackingFile
         self.saveFile = trackingFilePath
@@ -161,7 +346,7 @@ class DownloadTracker():
         # convert song data dumps to songObj's
         #! see, songObj.get_data_dump and songObj.from_dump for more details
         for dump in songDataDumps:
-            self.songObjList.append( SongObj.from_dump(dump) )
+            self.songObjList.append(SongObj.from_dump(dump))
 
     def load_song_list(self, songObjList: List[SongObj]) -> None:
         '''
@@ -197,9 +382,6 @@ class DownloadTracker():
                 remove(self.saveFile)
             return None
 
-
-
-
         # prepare datadumps of all songObj's yet to be downloaded
         songDataDumps = []
 
@@ -211,15 +393,13 @@ class DownloadTracker():
         if not self.saveFile:
             songName = self.songObjList[0].get_song_name()
 
-            for disallowedChar in ['/', '?', '\\', '*','|', '<', '>']:
+            for disallowedChar in ['/', '?', '\\', '*', '|', '<', '>']:
                 if disallowedChar in songName:
                     songName = songName.replace(disallowedChar, '')
 
             songName = songName.replace('"', "'").replace(': ', ' - ')
 
             self.saveFile = songName + '.spotdlTrackingFile'
-
-
 
         # backup to file
         #! we use 'wb' instead of 'w' to accommodate your fav K-pop/J-pop/Viking music

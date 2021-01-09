@@ -28,9 +28,8 @@ class SongObj():
         # check if URL is a playlist, user, artist or album, if yes raise an Exception,
         # else procede
         if not ('open.spotify.com' in spotifyURL and 'track' in spotifyURL):
-            raise Exception('passed URL is not that of a track: %s' % spotifyURL)
-
-
+            raise Exception(
+                'passed URL is not that of a track: %s' % spotifyURL)
 
         # query spotify for song, artist, album details
         spotifyClient = get_spotify_client()
@@ -43,8 +42,6 @@ class SongObj():
         albumId = rawTrackMeta['album']['id']
         rawAlbumMeta = spotifyClient.album(albumId)
 
-
-
         # get best match from the given provider
         songName = rawTrackMeta['name']
 
@@ -52,7 +49,7 @@ class SongObj():
 
         duration = round(
             rawTrackMeta['duration_ms'] / 1000,
-            ndigits = 3
+            ndigits=3
         )
 
         contributingArtists = []
@@ -67,19 +64,19 @@ class SongObj():
             duration
         )
 
-        return  cls(
+        return cls(
             rawTrackMeta, rawAlbumMeta,
             rawArtistMeta, youtubeLink
         )
 
     @classmethod
     def from_dump(cls, dataDump: dict):
-        rawTrackMeta  = dataDump['rawTrackMeta']
-        rawAlbumMeta  = dataDump['rawAlbumMeta']
+        rawTrackMeta = dataDump['rawTrackMeta']
+        rawAlbumMeta = dataDump['rawAlbumMeta']
         rawArtistMeta = dataDump['rawAlbumMeta']
-        youtubeLink   = dataDump['youtubeLink']
+        youtubeLink = dataDump['youtubeLink']
 
-        return  cls(
+        return cls(
             rawTrackMeta, rawAlbumMeta,
             rawArtistMeta, youtubeLink
         )
@@ -90,9 +87,9 @@ class SongObj():
         else:
             return False
 
-    #================================
-    #=== Interface Implementation ===
-    #================================
+    # ================================
+    # === Interface Implementation ===
+    # ================================
 
     def get_youtube_link(self) -> str:
         return self.__youtubeLink
@@ -132,7 +129,7 @@ class SongObj():
         returns duration of song in seconds.
         '''
 
-        return round(self.__rawTrackMeta['duration_ms'] / 1000, ndigits = 3)
+        return round(self.__rawTrackMeta['duration_ms'] / 1000, ndigits=3)
 
     #! 5. All involved artists
     def get_contributing_artists(self) -> List[str]:
@@ -154,9 +151,18 @@ class SongObj():
 
         return contributingArtists
 
+    #! 6. Display Name
+    def get_display_name(self) -> str:
+        ''''
+        returns songs's display name.
+        '''
+
+        return str(self.get_song_name()) + " - " + str(", ".join(self.get_contributing_artists()))
+
     #! Album Details:
 
     #! 1. Name
+
     def get_album_name(self) -> str:
         '''
         returns name of the album that the song belongs to.
@@ -214,8 +220,8 @@ class SongObj():
         #! internally the only reason this exists is that it helps in saving to disk
 
         return {
-            'youtubeLink'  : self.__youtubeLink,
-            'rawTrackMeta' : self.__rawTrackMeta,
-            'rawAlbumMeta' : self.__rawAlbumMeta,
+            'youtubeLink': self.__youtubeLink,
+            'rawTrackMeta': self.__rawTrackMeta,
+            'rawAlbumMeta': self.__rawAlbumMeta,
             'rawArtistMeta': self.__rawArtistMeta
         }

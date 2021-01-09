@@ -1,24 +1,24 @@
 from setuptools import setup
 
-long_desc = open('README.md', encoding = 'utf-8').read()
+long_desc = open('README.md', encoding='utf-8').read()
 
 setup(
     # 'spotify-downloader' was already taken (＞﹏＜)
-    name = "spotdl",
+    name="spotdl",
 
-    packages = [
+    packages=[
         'spotdl',
         'spotdl.search',
         'spotdl.download',
     ],
 
     #! PyPi follows Semantic Versioning - http://semver.org/
-    version = '3.2.1',
+    version='3.2.1',
 
-    install_requires = [
+    install_requires=[
         'spotipy',
         'pytube',
-        'tqdm',
+        'rich',
         'rapidfuzz',
         'requests',
         'mutagen',
@@ -77,7 +77,7 @@ setup(
         "Topic :: Utilities",
     ],
 
-    entry_points = {
+    entry_points={
         "console_scripts": ["spotdl = spotdl.__main__:console_entry_point"]
     }
 )
