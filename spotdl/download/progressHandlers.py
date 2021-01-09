@@ -112,8 +112,7 @@ class DisplayManager():
 
         self._richProgressBar = Progress(
             SizedTextColumn("[white]{task.description}", overflow="ellipsis", width=int(
-                self.console.width/3)),  # overflow='ellipsis',
-            # "[progress.description]{task.description}",
+                self.console.width/3)),
             SizedTextColumn("{task.fields[message]}",
                             width=18, style="nonimportant"),
             BarColumn(bar_width=None, finished_style="green"),
