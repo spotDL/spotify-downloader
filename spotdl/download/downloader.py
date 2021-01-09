@@ -212,6 +212,9 @@ class DownloadManager():
             if downloadedFilePath is None:
                 return None
 
+            if dispayProgressTracker:
+                dispayProgressTracker.notify_youtube_download_completion()
+
             # convert downloaded file to MP3 with normalization
 
             # ! -af loudnorm=I=-7:LRA applies EBR 128 loudness normalization algorithm with
@@ -251,7 +254,7 @@ class DownloadManager():
                     break
 
             if dispayProgressTracker:
-                dispayProgressTracker.notify_youtube_download_complete()
+                dispayProgressTracker.notify_conversion_completion()
 
             # embed song details
             # ! we save tags as both ID3 v2.3 and v2.4
