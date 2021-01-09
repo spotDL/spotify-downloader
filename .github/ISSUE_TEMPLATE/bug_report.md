@@ -10,6 +10,7 @@ assignees: ''
 <!--- Please search existing bugs before creating a new one -->
 <!--- Format your issue titles as 'Error: Description' -->
 <!--- example title: "FileNotFoundError: error while downloading individual songs." -->
+<!--- You can also talk to us on our Discord https://discord.gg/xCa23pwJWY -->
 
 ### Environment
 - **System OS:** <!--- Windows/OSX/Linux/Heroku/Docker --> 
