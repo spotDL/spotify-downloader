@@ -18,7 +18,7 @@ assignees: ''
 - **Python Version:** <!--- Python Version can be found by running "py -V" -->
 
 - **Install Source:** 
-<!--- Did you download from pip, the master branch on github, or a different branch? -->
+<!--- Did you download from pip, or from GitHub? -->
 <!--- Provide the command you used to install spotDL -->
 
 - **Version OR Commit hash:**
