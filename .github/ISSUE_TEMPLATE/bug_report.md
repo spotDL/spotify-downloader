@@ -10,6 +10,7 @@ assignees: ''
 <!--- Please search existing bugs before creating a new one -->
 <!--- Format your issue titles as 'Error: Description' -->
 <!--- example title: "FileNotFoundError: error while downloading individual songs." -->
+<!--- You can also talk to us on our Discord https://discord.gg/xCa23pwJWY -->
 
 ### Environment
 - **System OS:** <!--- Windows/OSX/Linux/Heroku/Docker --> 
@@ -17,7 +18,7 @@ assignees: ''
 - **Python Version:** <!--- Python Version can be found by running "py -V" -->
 
 - **Install Source:** 
-<!--- Did you download from pip, the master branch on github, or a different branch? -->
+<!--- Did you download from pip, or from GitHub? -->
 <!--- Provide the command you used to install spotDL -->
 
 - **Version OR Commit hash:**
