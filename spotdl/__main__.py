@@ -86,7 +86,6 @@ def console_entry_point():
         clientSecret='0f02b7c483c04257984695007a4a8d5c'
     )
 
-    # downloader = DownloadManager()
     with DownloadManager() as downloader:
 
         for request in sys.argv[1:]:

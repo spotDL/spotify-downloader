@@ -111,7 +111,6 @@ class DisplayManager():
             theme=custom_theme, color_system="truecolor" if not self.isLegacy else None)
 
         self._richProgressBar = Progress(
-            # SizedTextColumn("{task.fields[processID]}", style="nonimportant", width=7),
             SizedTextColumn("[white]{task.description}", overflow="ellipsis", width=int(
                 self.console.width/3)),  # overflow='ellipsis',
             # "[progress.description]{task.description}",
@@ -187,11 +186,11 @@ class DisplayManager():
         '''
         return _ProgressTracker(self, songObj)
 
-    def clear(self) -> None:
-        '''
-        clear the rich progress bar
-        '''
-        pass
+    # def clear(self) -> None:
+    #     '''
+    #     clear the rich progress bar
+    #     '''
+    #     pass
 
     def close(self) -> None:
         '''
@@ -200,11 +199,11 @@ class DisplayManager():
 
         self._richProgressBar.stop()
 
-    def reset(self) -> None:
-        '''
-        restart progress for new download instance
-        '''
-        pass
+    # def reset(self) -> None:
+    #     '''
+    #     restart progress for new download instance
+    #     '''
+    #     pass
 
 
 # ========================

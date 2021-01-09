@@ -42,8 +42,6 @@ class DownloadManager():
         self.displayManager = DisplayManager()
         self.downloadTracker = DownloadTracker()
 
-        self.displayManager.clear()
-
         if sys.platform == "win32":
             #! ProactorEventLoop is required on Windows to run subprocess asynchronously
             #! it is default since Python 3.8 but has to be changed for previous versions
@@ -83,7 +81,6 @@ class DownloadManager():
         self.downloadTracker.clear()
         self.downloadTracker.load_song_list([songObj])
 
-        self.displayManager.reset()
         self.displayManager.set_song_count_to(1)
 
         self._download_asynchronously([songObj])
@@ -100,7 +97,6 @@ class DownloadManager():
         self.downloadTracker.clear()
         self.downloadTracker.load_song_list(songObjList)
 
-        self.displayManager.reset()
         self.displayManager.set_song_count_to(len(songObjList))
 
         self._download_asynchronously(songObjList)
@@ -119,7 +115,6 @@ class DownloadManager():
 
         songObjList = self.downloadTracker.get_song_list()
 
-        self.displayManager.reset()
         self.displayManager.set_song_count_to(len(songObjList))
 
         self._download_asynchronously(songObjList)
