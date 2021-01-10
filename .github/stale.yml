@@ -6,8 +6,8 @@ daysUntilClose: 7
 
 # Issues with these labels will never be considered stale
 exemptLabels:
-  - feature-under-consideration
-  - next-rel-dev
+  - META
+  - High Priority
 
 # Label to use when marking an issue as stale
 staleLabel: stale
@@ -18,5 +18,4 @@ markComment: >
   any activity for the last 30 days.
 
 # Comment to post when closing a stale issue. Set to `false` to disable
-closeComment: >
-  This issue is being closed as it has been 'stale' for a week now.
+closeComment: false
