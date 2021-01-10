@@ -105,8 +105,11 @@ class SizedTextColumn(ProgressColumn):
 class DisplayManager():
     def __init__(self):
 
+        # ! Change color system if "legacy" windows terminal to prevent wrong colors displaying
         self.isLegacy = detect_legacy_windows()
 
+        # ! dumb_terminals automatically handled by rich. Color system is too but it is incorrect
+        # ! for legacy windows ... so no color for y'all.
         self.console = Console(
             theme=custom_theme, color_system="truecolor" if not self.isLegacy else None)
 

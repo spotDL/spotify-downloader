@@ -123,9 +123,7 @@ def console_entry_point():
                     downloader.download_single_song(song)
 
                 except Exception:
-                    print('No song named "%s" could be found on spotify' % request)
-
-    # downloader.close()
+                    print('No song named "%s" could be found on Spotify' % request)
 
 
 if __name__ == '__main__':
