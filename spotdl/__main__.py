@@ -118,12 +118,8 @@ def console_entry_point():
 
             else:
                 print('Searching for song "%s"...' % request)
-                try:
-                    song = search_for_song(request)
-                    downloader.download_single_song(song)
-
-                except Exception:
-                    print('No song named "%s" could be found on Spotify' % request)
+                song = search_for_song(request)
+                downloader.download_single_song(song)
 
 
 if __name__ == '__main__':
