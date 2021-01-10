@@ -1,4 +1,5 @@
-🚨Please review the [guidelines for contributing](../CONTRIBUTING.md) to this repository.
+🚨Please review our [guidelines for contributing](https://github.com/spotDL/spotify-downloader/blob/master/CONTRIBUTING.md) and [core values](https://github.com/spotDL/spotify-downloader/blob/master/Design%20Docs/CORE%20VALUES.md)
+
 
 ## Description
 <!--- Describe your changes in around 50 words. Please be concise and specific. -->
