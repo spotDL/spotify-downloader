@@ -7,13 +7,13 @@ interactions:
       Accept-Encoding:
       - gzip, deflate
       Authorization:
-      - Bearer BQBFAUlHzlOsi8i_1oHEPVcnQLGD9QyQhE9oYWpVvsvieSAduynnhXIZZNSma6OFLZKVqdLRhWvUpAY5eS4
+      - Bearer BQAE4t04ySY2DOfF2t6qf5_2ZsPrTmA158l6O63WGKTSzLQp8paIheU26wgC7wtS1LbZpg22hT2DPTajEX8
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       User-Agent:
-      - python-requests/2.25.0
+      - python-requests/2.25.1
     method: GET
     uri: https://api.spotify.com/v1/search?q=The+HU+-+Sugaan+Essenna&limit=10&offset=0&type=track
   response:
@@ -34,7 +34,7 @@ interactions:
       - 'true'
       access-control-allow-headers:
       - Accept, App-Platform, Authorization, Content-Type, Origin, Retry-After, Spotify-App-Version,
-        X-Cloud-Trace-Context, client-token
+        X-Cloud-Trace-Context, client-token, content-access-token
       access-control-allow-methods:
       - GET, POST, OPTIONS, PUT, DELETE, PATCH
       access-control-allow-origin:
@@ -48,7 +48,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Sat, 05 Dec 2020 14:02:49 GMT
+      - Sat, 09 Jan 2021 10:07:25 GMT
       server:
       - envoy
       strict-transport-security:

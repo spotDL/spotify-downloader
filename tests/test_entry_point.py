@@ -31,7 +31,7 @@ def patch_dependencies(mocker, monkeypatch):
     mocker.patch.object(DownloadManager, "close", autospec=True)
 
 
-@pytest.mark.parametrize("argument", ["-h", "--help", None])
+@pytest.mark.parametrize("argument", ["-h", "-H", "--help", None])
 def test_show_help(capsys, monkeypatch, argument):
     """The --help, -h switches or no arguments should display help message"""
 
@@ -62,7 +62,7 @@ def test_download_a_single_song(capsys, patch_dependencies, monkeypatch):
     console_entry_point()
 
     out, err = capsys.readouterr()
-    assert out == "Fetching Song...\n"
+    assert "Fetching Song...\n" in out
 
     assert DownloadManager.download_single_song.call_count == 1
     assert DownloadManager.download_multiple_songs.call_count == 0
@@ -83,7 +83,7 @@ def test_download_an_album(capsys, patch_dependencies, monkeypatch):
     console_entry_point()
 
     out, err = capsys.readouterr()
-    assert out == "Fetching Album...\n"
+    assert "Fetching Album...\n" in out
 
     assert DownloadManager.download_multiple_songs.call_count == 1
     assert DownloadManager.download_single_song.call_count == 0
@@ -100,14 +100,14 @@ def test_download_a_playlist(capsys, patch_dependencies, monkeypatch):
         "argv",
         [
             "dummy",
-            "https://open.spotify.com/playlist/37i9dQZF1DX1vrY9HPZioH",
+            "https://open.spotify.com/playlist/6ahTRKeqBqzQhZIhtIIE57",
         ],
     )
 
     console_entry_point()
 
     out, err = capsys.readouterr()
-    assert out == "Fetching Playlist...\n"
+    assert "Fetching Playlist...\n" in out
 
     assert DownloadManager.download_multiple_songs.call_count == 1
     assert DownloadManager.download_single_song.call_count == 0
@@ -177,12 +177,10 @@ def test_multiple_elements(capsys, patch_dependencies, monkeypatch):
     console_entry_point()
 
     out, err = capsys.readouterr()
-    assert (
-            out == 'Fetching Song...\n'
-                    'Fetching Song...\n'
-                   'Searching for song "The HU - Sugaan Essenna"...\n'
-                   'No song named "The HU - Sugaan Essenna" could be found on spotify\n'
-    )
+
+    assert 'Fetching Song...\n' in out
+    assert 'Searching for song "The HU - Sugaan Essenna"...\n' in out
+    assert 'No song named "The HU - Sugaan Essenna" could be found on spotify\n' in out
 
     assert DownloadManager.download_single_song.call_count == 2
     assert DownloadManager.download_multiple_songs.call_count == 0

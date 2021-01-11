@@ -74,7 +74,7 @@ def console_entry_point():
     Its super simple, rudimentary even but, it's dead simple & it works.
     '''
 
-    if '--help' in sys.argv or '-H' in sys.argv or len(sys.argv) == 1:
+    if '--help' in sys.argv or '-H' in sys.argv or '-h' in sys.argv or len(sys.argv) == 1:
         print(help_notice)
 
         #! We use 'return None' as a convenient exit/break from the function

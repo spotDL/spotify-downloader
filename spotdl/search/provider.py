@@ -8,6 +8,7 @@ from time import strptime
 from typing import List
 
 # ! the following are for the search provider to function
+import typing
 from rapidfuzz.fuzz import partial_ratio
 from ytmusicapi import YTMusic
 
@@ -206,7 +207,7 @@ def search_and_order_ytm_results(songName: str, songArtists: List[str],
         # Find album match
         # ! We assign an arbitrary value of 0 for album match in case of video results
         # ! from YouTube Music
-        albumMatch = 0
+        albumMatch = 0.0
 
         if result['type'] == 'song':
             albumMatch = match_percentage(result['album'], songAlbumName)
@@ -235,7 +236,7 @@ def get_ytm_search_query(songName: str, songArtists: List[str]) -> str:
 
 
 def search_and_get_best_match(songName: str, songArtists: List[str],
-                              songAlbumName: str, songDuration: int) -> str:
+                              songAlbumName: str, songDuration: int) -> typing.Optional[str]:
     '''
     `str` `songName` : name of song
 
