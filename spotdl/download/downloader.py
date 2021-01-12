@@ -132,7 +132,7 @@ class DownloadManager():
         tempFolder = Path('.', 'Temp')
 
         if not tempFolder.exists():
-            Path.mkdir(tempFolder)
+            tempFolder.mkdir()
 
         # build file name of converted file
         artistStr = ''
@@ -158,7 +158,7 @@ class DownloadManager():
         convertedFileName = convertedFileName.replace(
             '"', "'").replace(': ', ' - ')
 
-        convertedFilePath = Path('.', convertedFileName + '.mp3')
+        convertedFilePath = Path(".", f"{convertedFileName}.mp3")
 
         # if a song is already downloaded skip it
         if convertedFilePath.is_file():
@@ -191,10 +191,10 @@ class DownloadManager():
         downloadedFilePathString = await self._download_from_youtube(convertedFileName, tempFolder,
                                                                      trackAudioStream)
 
-        downloadedFilePath = Path(downloadedFilePathString)
-
-        if downloadedFilePath is None:
+        if downloadedFilePathString is None:
             return None
+
+        downloadedFilePath = Path(downloadedFilePathString)
 
         # convert downloaded file to MP3 with normalization
 
@@ -312,7 +312,8 @@ class DownloadManager():
             self.downloadTracker.notify_download_completion(songObj)
 
         # delete the unnecessary YouTube download File
-        downloadedFilePath.unlink()
+        if downloadedFilePath and downloadedFilePath.is_file():
+            downloadedFilePath.unlink()
 
     def close(self) -> None:
         '''
@@ -338,7 +339,7 @@ class DownloadManager():
     def _perform_audio_download(self, convertedFileName, tempFolder, trackAudioStream):
         # ! The actual download, if there is any error, it'll be here,
         try:
-            # ! pyTube will save the song in .\Temp\$songName.mp4, it doesn't save as '.mp3'
+            # ! pyTube will save the song in .\Temp\$songName.mp4 or .webm, it doesn't save as '.mp3'
             downloadedFilePath = trackAudioStream.download(
                 output_path=tempFolder,
                 filename=convertedFileName,
@@ -350,9 +351,10 @@ class DownloadManager():
             # ! downloadTrackers download queue and all is well...
             # !
             # ! None is again used as a convenient exit
-            tempFile = Path(tempFolder).glob(convertedFileName + '.*')
-            if tempFile.is_file():
-                tempFile.unlink()
+            tempFiles = Path(tempFolder).glob(convertedFileName + '.*')
+            for tempFile in tempFiles:
+                if tempFile.is_file():
+                    tempFile.unlink()
             return None
 
     async def _pool_download(self, song_obj: SongObj):
