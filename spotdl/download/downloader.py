@@ -353,8 +353,7 @@ class DownloadManager():
             # ! None is again used as a convenient exit
             tempFiles = Path(tempFolder).glob(convertedFileName + '.*')
             for tempFile in tempFiles:
-                if tempFile.is_file():
-                    tempFile.unlink()
+                tempFile.unlink()
             return None
 
     async def _pool_download(self, song_obj: SongObj):
