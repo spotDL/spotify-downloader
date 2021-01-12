@@ -149,4 +149,4 @@ will do their best to help you with your contributions.
         - spotDL v2 was far more feature rich than v3, what did 99% of users use spotDL for? To
         download songs. spotDL v3 got rid of all the additional, 'nice-to-have' features and
         focused solely on downloading songs. Some might even say that it's under-featured, we
-        can't really argue with that, but we have no intensions of changing that.
+        can't really argue with that, but we have no intentions of changing that.
