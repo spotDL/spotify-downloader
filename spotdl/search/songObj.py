@@ -5,8 +5,8 @@ from spotdl.search.spotifyClient import get_spotify_client
 
 
 class SongObj():
-    # ! This can be accessed as songObj.searchProvider. songObj acts like a namespace
-    # ! it allows us a convenient way of setting a search provider without using globals
+    #! This can be accessed as songObj.searchProvider. songObj acts like a namespace
+    #! it allows us a convenient way of setting a search provider without using globals
     searchProvider = search_and_get_best_match
 
     # ====================

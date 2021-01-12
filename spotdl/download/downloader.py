@@ -21,6 +21,8 @@ from typing import List
 from spotdl.search.songObj import SongObj
 from spotdl.download.progressHandlers import DisplayManager, DownloadTracker
 
+from spotdl.download.playlist import M3U8
+
 
 
 #==========================
@@ -75,7 +77,7 @@ class DownloadManager():
 
         self._download_asynchronously([songObj])
 
-    def download_multiple_songs(self, songObjList: List[SongObj]) -> None:
+    def download_multiple_songs(self, songObjList: List[SongObj], m3u8Maker: M3U8 = None) -> None:
         '''
         `list<songObj>` `songObjList` : list of songs to be downloaded
 
@@ -90,7 +92,7 @@ class DownloadManager():
         self.displayManager.reset()
         self.displayManager.set_song_count_to(len(songObjList))
 
-        self._download_asynchronously(songObjList)
+        self._download_asynchronously(songObjList, m3u8Maker)
 
     def resume_download_from_tracking_file(self, trackingFilePath: str) -> None:
         '''
@@ -111,7 +113,7 @@ class DownloadManager():
 
         self._download_asynchronously(songObjList)
 
-    async def download_song(self, songObj: SongObj) -> None:
+    async def download_song(self, songObj: SongObj, m3u8Maker:M3U8 = None) -> None:
         '''
         `songObj` `songObj` : song to be downloaded
 
@@ -124,11 +126,11 @@ class DownloadManager():
         Downloads, Converts, Normalizes song & embeds metadata as ID3 tags.
         '''
 
-        # ! all YouTube downloads are to .\Temp; they are then converted and put into .\ and
-        # ! finally followed up with ID3 metadata tags
+        #! all YouTube downloads are to .\Temp; they are then converted and put into .\ and
+        #! finally followed up with ID3 metadata tags
 
-        # ! we explicitly use the os.path.join function here to ensure download is
-        # ! platform agnostic
+        #! we explicitly use the os.path.join function here to ensure download is
+        #! platform agnostic
 
         # Create a .\Temp folder if not present
         tempFolder = join('.', 'Temp')
@@ -139,23 +141,23 @@ class DownloadManager():
         # build file name of converted file
         artistStr = ''
 
-        # ! we eliminate contributing artist names that are also in the song name, else we
-        # ! would end up with things like 'Jetta, Mastubs - I'd love to change the world
-        # ! (Mastubs REMIX).mp3' which is kinda an odd file name.
+        #! we eliminate contributing artist names that are also in the song name, else we
+        #! would end up with things like 'Jetta, Mastubs - I'd love to change the world
+        #! (Mastubs REMIX).mp3' which is kinda an odd file name.
         for artist in songObj.get_contributing_artists():
             if artist.lower() not in songObj.get_song_name().lower():
                 artistStr += artist + ', '
 
-        # ! the ...[:-2] is to avoid the last ', ' appended to artistStr
+        #! the ...[:-2] is to avoid the last ', ' appended to artistStr
         convertedFileName = artistStr[:-2] + ' - ' + songObj.get_song_name()
 
-        # ! this is windows specific (disallowed chars)
+        #! this is windows specific (disallowed chars)
         for disallowedChar in ['/', '?', '\\', '*', '|', '<', '>']:
             if disallowedChar in convertedFileName:
                 convertedFileName = convertedFileName.replace(disallowedChar, '')
 
-        # ! double quotes (") and semi-colons (:) are also disallowed characters but we would
-        # ! like to retain their equivalents, so they aren't removed in the prior loop
+        #! double quotes (") and semi-colons (:) are also disallowed characters but we would
+        #! like to retain their equivalents, so they aren't removed in the prior loop
         convertedFileName = convertedFileName.replace('"', "'").replace(': ', ' - ')
 
         convertedFilePath = join('.', convertedFileName) + '.mp3'
@@ -167,8 +169,8 @@ class DownloadManager():
             if self.downloadTracker:
                 self.downloadTracker.notify_download_completion(songObj)
 
-            # ! None is the default return value of all functions, we just explicitly define
-            # ! it here as a continent way to avoid executing the rest of the function.
+            #! None is the default return value of all functions, we just explicitly define
+            #! it here as a continent way to avoid executing the rest of the function.
             return None
 
         # download Audio from YouTube
@@ -194,25 +196,25 @@ class DownloadManager():
 
         # convert downloaded file to MP3 with normalization
 
-        # ! -af loudnorm=I=-7:LRA applies EBR 128 loudness normalization algorithm with
-        # ! intergrated loudness target (I) set to -17, using values lower than -15
-        # ! causes 'pumping' i.e. rhythmic variation in loudness that should not
-        # ! exist -loud parts exaggerate, soft parts left alone.
-        # !
-        # ! dynaudnorm applies dynamic non-linear RMS based normalization, this is what
-        # ! actually normalized the audio. The loudnorm filter just makes the apparent
-        # ! loudness constant
-        # !
-        # ! apad=pad_dur=2 adds 2 seconds of silence toward the end of the track, this is
-        # ! done because the loudnorm filter clips/cuts/deletes the last 1-2 seconds on
-        # ! occasion especially if the song is EDM-like, so we add a few extra seconds to
-        # ! combat that.
-        # !
-        # ! -acodec libmp3lame sets the encoded to 'libmp3lame' which is far better
-        # ! than the default 'mp3_mf', '-abr true' automatically determines and passes the
-        # ! audio encoding bitrate to the filters and encoder. This ensures that the
-        # ! sampled length of songs matches the actual length (i.e. a 5 min song won't display
-        # ! as 47 seconds long in your music player, yeah that was an issue earlier.)
+        #! -af loudnorm=I=-7:LRA applies EBR 128 loudness normalization algorithm with
+        #! intergrated loudness target (I) set to -17, using values lower than -15
+        #! causes 'pumping' i.e. rhythmic variation in loudness that should not
+        #! exist -loud parts exaggerate, soft parts left alone.
+        #!
+        #! dynaudnorm applies dynamic non-linear RMS based normalization, this is what
+        #! actually normalized the audio. The loudnorm filter just makes the apparent
+        #! loudness constant
+        #!
+        #! apad=pad_dur=2 adds 2 seconds of silence toward the end of the track, this is
+        #! done because the loudnorm filter clips/cuts/deletes the last 1-2 seconds on
+        #! occasion especially if the song is EDM-like, so we add a few extra seconds to
+        #! combat that.
+        #!
+        #! -acodec libmp3lame sets the encoded to 'libmp3lame' which is far better
+        #! than the default 'mp3_mf', '-abr true' automatically determines and passes the
+        #! audio encoding bitrate to the filters and encoder. This ensures that the
+        #! sampled length of songs matches the actual length (i.e. a 5 min song won't display
+        #! as 47 seconds long in your music player, yeah that was an issue earlier.)
 
         command = 'ffmpeg -v quiet -y -i "%s" -acodec libmp3lame -abr true ' \
                  f'-b:a {trackAudioStream.bitrate} ' \
@@ -225,56 +227,59 @@ class DownloadManager():
         process = await asyncio.subprocess.create_subprocess_shell(formattedCommand)
         _ = await process.communicate()
 
-        # ! Wait till converted file is actually created
+        #! Wait till converted file is actually created
         while True:
             if exists(convertedFilePath):
                 break
 
         if self.displayManager:
             self.displayManager.notify_conversion_completion()
+        
+        if m3u8Maker:
+            m3u8Maker.add_song(songObj.get_song_name(), f'.{convertedFilePath}')
 
         # embed song details
-        # ! we save tags as both ID3 v2.3 and v2.4
+        #! we save tags as both ID3 v2.3 and v2.4
 
-        # ! The simple ID3 tags
+        #! The simple ID3 tags
         audioFile = EasyID3(convertedFilePath)
 
-        # ! Get rid of all existing ID3 tags (if any exist)
+        #! Get rid of all existing ID3 tags (if any exist)
         audioFile.delete()
 
-        # ! song name
+        #! song name
         audioFile['title'] = songObj.get_song_name()
         audioFile['titlesort'] = songObj.get_song_name()
 
-        # ! track number
+        #! track number
         audioFile['tracknumber'] = str(songObj.get_track_number())
 
-        # ! genres (pretty pointless if you ask me)
-        # ! we only apply the first available genre as ID3 v2.3 doesn't support multiple
-        # ! genres and ~80% of the world PC's run Windows - an OS with no ID3 v2.4 support
+        #! genres (pretty pointless if you ask me)
+        #! we only apply the first available genre as ID3 v2.3 doesn't support multiple
+        #! genres and ~80% of the world PC's run Windows - an OS with no ID3 v2.4 support
         genres = songObj.get_genres()
 
         if len(genres) > 0:
             audioFile['genre'] = genres[0]
 
-        # ! all involved artists
+        #! all involved artists
         audioFile['artist'] = songObj.get_contributing_artists()
 
-        # ! album name
+        #! album name
         audioFile['album'] = songObj.get_album_name()
 
-        # ! album artist (all of 'em)
+        #! album artist (all of 'em)
         audioFile['albumartist'] = songObj.get_album_artists()
 
-        # ! album release date (to what ever precision available)
+        #! album release date (to what ever precision available)
         audioFile['date'] = songObj.get_album_release()
         audioFile['originaldate'] = songObj.get_album_release()
 
-        # ! save as both ID3 v2.3 & v2.4 as v2.3 isn't fully features and
-        # ! windows doesn't support v2.4 until later versions of Win10
+        #! save as both ID3 v2.3 & v2.4 as v2.3 isn't fully features and
+        #! windows doesn't support v2.4 until later versions of Win10
         audioFile.save(v2_version=3)
 
-        # ! setting the album art
+        #! setting the album art
         audioFile = ID3(convertedFilePath)
 
         rawAlbumArt = urlopen(songObj.get_album_cover_url()).read()
@@ -308,10 +313,10 @@ class DownloadManager():
         self.displayManager.close()
 
     async def _download_from_youtube(self, convertedFileName, tempFolder, trackAudioStream):
-        # ! The following function calls blocking code, which would block whole event loop.
-        # ! Therefore it has to be called in a separate thread via ThreadPoolExecutor. This
-        # ! is not a problem, since GIL is released for the I/O operations, so it shouldn't
-        # ! hurt performance.
+        #! The following function calls blocking code, which would block whole event loop.
+        #! Therefore it has to be called in a separate thread via ThreadPoolExecutor. This
+        #! is not a problem, since GIL is released for the I/O operations, so it shouldn't
+        #! hurt performance.
         return await self.loop.run_in_executor(
             self.thread_executor,
             self._perform_audio_download,
@@ -321,9 +326,9 @@ class DownloadManager():
         )
 
     def _perform_audio_download(self, convertedFileName, tempFolder, trackAudioStream):
-        # ! The actual download, if there is any error, it'll be here,
+        #! The actual download, if there is any error, it'll be here,
         try:
-            # ! pyTube will save the song in .\Temp\$songName.mp4, it doesn't save as '.mp3'
+            #! pyTube will save the song in .\Temp\$songName.mp4, it doesn't save as '.mp3'
             downloadedFilePath = trackAudioStream.download(
                 output_path=tempFolder,
                 filename=convertedFileName,
@@ -331,25 +336,25 @@ class DownloadManager():
             )
             return downloadedFilePath
         except:
-            # ! This is equivalent to a failed download, we do nothing, the song remains on
-            # ! downloadTrackers download queue and all is well...
-            # !
-            # ! None is again used as a convenient exit
+            #! This is equivalent to a failed download, we do nothing, the song remains on
+            #! downloadTrackers download queue and all is well...
+            #!
+            #! None is again used as a convenient exit
             fileName = join(tempFolder, convertedFileName) + '.mp4'
             if exists(fileName):
                 remove(fileName)
             return None
 
-    async def _pool_download(self, song_obj: SongObj):
-        # ! Run asynchronous task in a pool to make sure that all processes
-        # ! don't run at once.
+    async def _pool_download(self, song_obj: SongObj, m3u8Maker:M3U8 = None):
+        #! Run asynchronous task in a pool to make sure that all processes
+        #! don't run at once.
 
         # tasks that cannot acquire semaphore will wait here until it's free
         # only certain amount of tasks can acquire the semaphore at the same time
         async with self.semaphore:
-            return await self.download_song(song_obj)
+            return await self.download_song(song_obj, m3u8Maker)
 
-    def _download_asynchronously(self, song_obj_list):
-        tasks = [self._pool_download(song) for song in song_obj_list]
+    def _download_asynchronously(self, song_obj_list, m3u8Maker:M3U8 = None):
+        tasks = [self._pool_download(song, m3u8Maker) for song in song_obj_list]
         # call all task asynchronously, and wait until all are finished
         self.loop.run_until_complete(asyncio.gather(*tasks))
