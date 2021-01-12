@@ -14,7 +14,7 @@ contributions get accepted and which ones don't? That's what we're here to answe
 3. Most of the requirements we need for a contribution to be accepted overlap with each other, so our 5-point requirements is more of a 3.5-point requirements.
 
 4. Yes, there might be times when you can't both improve spotDL and stick to the requirements, in those rare cases, focus on improvement first and do your best ot meet the requirements.
-ometimes, you have to take a step back to take several forward.
+Sometimes, you have to take a step back to take several forward.
 
 5. Most of the requirements are subjective to an extent. In your view, your code might meet the
 requirements, in reality, from the experience handling many, many previous contributions, this
