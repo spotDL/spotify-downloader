@@ -1,28 +1,24 @@
 # What is this file?
 
 This is where we outline the fundamental ideas by which we decide what to do, what to keep and what
-to remove from spotify-downloader.
+to remove from spotDL.
 
-<br/><br/>
-
-# The deciding factors (our values):
+# The Deciding Factors - Our values:
 - Simplicity:
-    - What can we remove? Is this necessary to most (~80%) of users?
+    - What can we remove? Is this necessary to most (~80%+) of users?
     - Can we make it easier to use? Fewer steps?
 - Focused Functionality: 
-    - spotify-downloader is to download "content" from Spotify. Does this help doing that? (very
+    - spotDL is to download "content" from Spotify. Does this help doing that? (very
     narrow focus here people) A.K.A - is this a "need to have"?
     - if its a "nice to have", will most of the users use it? (note: its "most users **use**", not
     "most users **want**")
 - Users first, provided its maintainable:
     - Will this do good to the users? They might have not even thought about it, it might make
     things more complex (more understanding of spotdl required to use it) but will it benefit
-    the majority (~80%) of them in the process?
+    the majority (~80%+) of them in the process?
     - Provided it helps the users, if it has a big impact on maintainability, its still a no-no.
 
 If a contribution satisfies at least 2 of our deciding values it gets accepted, else, it doesn't.
-
-<br/><br/>
 
 # A few general notes
 1. The term 'users' is thrown around a lot. For a project like `FFmpeg`, users is that group of
@@ -32,8 +28,8 @@ download "content" from Spotify.
 
 2. The term 'maintainability' has also been given significant weight. This is used in 2 senses of
 the word:
-    - general simplicity - can I read the code ***once** and understand what is going on?
-    - industry standard maintainability measures (the same one outlined on betterCodeHub)
+    - General Simplicity - Can I read the code ***once** and understand what is going on?
+    - Industry standard maintainability measures (the same one outlined on betterCodeHub)
 
 3. The ideas outlined here are still very much a work in progress and is open to discussion but,
 we will stick to these. Some of the biggest companies & many more ambitious projects has all fallen
