@@ -1,12 +1,12 @@
-#===============
-#=== Imports ===
-#===============
+# ===============
+# === Imports ===
+# ===============
 import asyncio
 import concurrent.futures
 import sys
 
-from os import mkdir, remove
-from os.path import join, exists
+import typing
+from pathlib import Path
 
 from pytube import YouTube
 
@@ -22,16 +22,14 @@ from spotdl.search.songObj import SongObj
 from spotdl.download.progressHandlers import DisplayManager, DownloadTracker
 
 
-
-#==========================
-#=== Base functionality ===
-#==========================
-
+# ==========================
+# === Base functionality ===
+# ==========================
 
 
-#===========================================================
-#=== The Download Manager (the tyrannical boss lady/guy) ===
-#===========================================================
+# ===========================================================
+# === The Download Manager (the tyrannical boss lady/guy) ===
+# ===========================================================
 
 class DownloadManager():
     #! Big pool sizes on slow connections will lead to more incomplete downloads
@@ -45,7 +43,6 @@ class DownloadManager():
 
         self.displayManager.clear()
 
-
         if sys.platform == "win32":
             #! ProactorEventLoop is required on Windows to run subprocess asynchronously
             #! it is default since Python 3.8 but has to be changed for previous versions
@@ -56,7 +53,8 @@ class DownloadManager():
         self.semaphore = asyncio.Semaphore(self.poolSize)
 
         #! thread pool executor is used to run blocking (CPU-bound) code from a thread
-        self.thread_executor = concurrent.futures.ThreadPoolExecutor(max_workers=self.poolSize)
+        self.thread_executor = concurrent.futures.ThreadPoolExecutor(
+            max_workers=self.poolSize)
 
     def download_single_song(self, songObj: SongObj) -> None:
         '''
@@ -131,10 +129,10 @@ class DownloadManager():
         # ! platform agnostic
 
         # Create a .\Temp folder if not present
-        tempFolder = join('.', 'Temp')
+        tempFolder = Path('.', 'Temp')
 
-        if not exists(tempFolder):
-            mkdir(tempFolder)
+        if not tempFolder.exists():
+            Path.mkdir(tempFolder)
 
         # build file name of converted file
         artistStr = ''
@@ -152,16 +150,18 @@ class DownloadManager():
         # ! this is windows specific (disallowed chars)
         for disallowedChar in ['/', '?', '\\', '*', '|', '<', '>']:
             if disallowedChar in convertedFileName:
-                convertedFileName = convertedFileName.replace(disallowedChar, '')
+                convertedFileName = convertedFileName.replace(
+                    disallowedChar, '')
 
         # ! double quotes (") and semi-colons (:) are also disallowed characters but we would
         # ! like to retain their equivalents, so they aren't removed in the prior loop
-        convertedFileName = convertedFileName.replace('"', "'").replace(': ', ' - ')
+        convertedFileName = convertedFileName.replace(
+            '"', "'").replace(': ', ' - ')
 
-        convertedFilePath = join('.', convertedFileName) + '.mp3'
+        convertedFilePath = Path('.', convertedFileName + '.mp3')
 
         # if a song is already downloaded skip it
-        if exists(convertedFilePath):
+        if convertedFilePath.is_file():
             if self.displayManager:
                 self.displayManager.notify_download_skip()
             if self.downloadTracker:
@@ -180,15 +180,19 @@ class DownloadManager():
         else:
             youtubeHandler = YouTube(songObj.get_youtube_link())
 
-        trackAudioStream = youtubeHandler.streams.filter(only_audio=True).order_by('bitrate').last()
+        trackAudioStream = youtubeHandler.streams.filter(
+            only_audio=True).order_by('bitrate').last()
         if not trackAudioStream:
             print(f"Unable to get audio stream for \"{songObj.get_song_name()}\" "
                   f"by \"{songObj.get_contributing_artists()[0]}\" "
                   f"from video \"{songObj.get_youtube_link()}\"")
             return None
 
-        downloadedFilePath = await self._download_from_youtube(convertedFileName, tempFolder,
-                                                               trackAudioStream)
+        downloadedFilePathString = await self._download_from_youtube(convertedFileName, tempFolder,
+                                                                     trackAudioStream)
+
+        downloadedFilePath = Path(downloadedFilePathString)
+
         if downloadedFilePath is None:
             return None
 
@@ -215,11 +219,11 @@ class DownloadManager():
         # ! as 47 seconds long in your music player, yeah that was an issue earlier.)
 
         command = 'ffmpeg -v quiet -y -i "%s" -acodec libmp3lame -abr true ' \
-                 f'-b:a {trackAudioStream.bitrate} ' \
+            f'-b:a {trackAudioStream.bitrate} ' \
                   '-af "apad=pad_dur=2, dynaudnorm, loudnorm=I=-17" "%s"'
         formattedCommand = command % (
-            downloadedFilePath.replace('$', '\$'),
-            convertedFilePath.replace('$', '\$')
+            str(downloadedFilePath).replace('$', '\$'),
+            str(convertedFilePath).replace('$', '\$')
         )
 
         process = await asyncio.subprocess.create_subprocess_shell(formattedCommand)
@@ -227,7 +231,7 @@ class DownloadManager():
 
         # ! Wait till converted file is actually created
         while True:
-            if exists(convertedFilePath):
+            if convertedFilePath.is_file():
                 break
 
         if self.displayManager:
@@ -297,7 +301,7 @@ class DownloadManager():
             self.downloadTracker.notify_download_completion(songObj)
 
         # delete the unnecessary YouTube download File
-        remove(downloadedFilePath)
+        downloadedFilePath.unlink()
 
     def close(self) -> None:
         '''
@@ -335,9 +339,9 @@ class DownloadManager():
             # ! downloadTrackers download queue and all is well...
             # !
             # ! None is again used as a convenient exit
-            fileName = join(tempFolder, convertedFileName) + '.mp4'
-            if exists(fileName):
-                remove(fileName)
+            tempFile = Path(tempFolder).glob(convertedFileName + '.*')
+            if tempFile.is_file():
+                tempFile.unlink()
             return None
 
     async def _pool_download(self, song_obj: SongObj):
