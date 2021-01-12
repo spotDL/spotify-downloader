@@ -351,7 +351,7 @@ class DownloadManager():
             # ! downloadTrackers download queue and all is well...
             # !
             # ! None is again used as a convenient exit
-            tempFiles = Path(tempFolder).glob(convertedFileName + '.*')
+            tempFiles = Path(tempFolder).glob(f'{convertedFileName}.*')
             for tempFile in tempFiles:
                 tempFile.unlink()
             return None
