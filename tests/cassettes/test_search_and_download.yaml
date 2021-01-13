@@ -7,7 +7,7 @@ interactions:
       Accept-Encoding:
       - gzip, deflate
       Authorization:
-      - Bearer BQBFAUlHzlOsi8i_1oHEPVcnQLGD9QyQhE9oYWpVvsvieSAduynnhXIZZNSma6OFLZKVqdLRhWvUpAY5eS4
+      - Bearer BQAnh0YUT6zTactoLRdwBwU4RGRaa57Rs149ePgjER7cVO1AZq9Ze5EYoWK1f40TAcCw1wX9D3YN-nCBX2M
       Connection:
       - keep-alive
       Content-Type:
@@ -34,7 +34,7 @@ interactions:
       - 'true'
       access-control-allow-headers:
       - Accept, App-Platform, Authorization, Content-Type, Origin, Retry-After, Spotify-App-Version,
-        X-Cloud-Trace-Context, client-token
+        X-Cloud-Trace-Context, client-token, content-access-token
       access-control-allow-methods:
       - GET, POST, OPTIONS, PUT, DELETE, PATCH
       access-control-allow-origin:
@@ -48,7 +48,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Sat, 05 Dec 2020 14:02:49 GMT
+      - Wed, 13 Jan 2021 01:48:31 GMT
       server:
       - envoy
       strict-transport-security:

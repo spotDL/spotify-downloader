@@ -26,8 +26,10 @@ def patch_dependencies(mocker, monkeypatch):
     monkeypatch.setattr(spotifyClient, "initialize", new_initialize)
     monkeypatch.setattr(DownloadManager, "__init__", lambda _: None)
     mocker.patch.object(DownloadManager, "download_single_song", autospec=True)
-    mocker.patch.object(DownloadManager, "download_multiple_songs", autospec=True)
-    mocker.patch.object(DownloadManager, "resume_download_from_tracking_file", autospec=True)
+    mocker.patch.object(
+        DownloadManager, "download_multiple_songs", autospec=True)
+    mocker.patch.object(
+        DownloadManager, "resume_download_from_tracking_file", autospec=True)
     mocker.patch.object(DownloadManager, "close", autospec=True)
 
 
@@ -62,7 +64,7 @@ def test_download_a_single_song(capsys, patch_dependencies, monkeypatch):
     console_entry_point()
 
     out, err = capsys.readouterr()
-    assert out == "Fetching Song...\n"
+    assert out.startswith("Fetching Song...\n")
 
     assert DownloadManager.download_single_song.call_count == 1
     assert DownloadManager.download_multiple_songs.call_count == 0
@@ -83,7 +85,7 @@ def test_download_an_album(capsys, patch_dependencies, monkeypatch):
     console_entry_point()
 
     out, err = capsys.readouterr()
-    assert out == "Fetching Album...\n"
+    assert out.startswith("Fetching Album...\n")
 
     assert DownloadManager.download_multiple_songs.call_count == 1
     assert DownloadManager.download_single_song.call_count == 0
@@ -100,14 +102,14 @@ def test_download_a_playlist(capsys, patch_dependencies, monkeypatch):
         "argv",
         [
             "dummy",
-            "https://open.spotify.com/playlist/37i9dQZF1DX1vrY9HPZioH",
+            "https://open.spotify.com/playlist/0slbokxiWCo9egF9UhVmmI",
         ],
     )
 
     console_entry_point()
 
     out, err = capsys.readouterr()
-    assert out == "Fetching Playlist...\n"
+    assert out.startswith("Fetching Playlist...\n")
 
     assert DownloadManager.download_multiple_songs.call_count == 1
     assert DownloadManager.download_single_song.call_count == 0
@@ -125,13 +127,13 @@ def test_search_and_download(capsys, patch_dependencies, monkeypatch):
         ],
     )
 
+    # with pytest.raises(Exception, match="No song matches found on Spotify"):
     console_entry_point()
 
     out, err = capsys.readouterr()
-    assert (
-        out == 'Searching for song "The HU - Sugaan Essenna"...\n'
-        'No song named "The HU - Sugaan Essenna" could be found on spotify\n'
-    )
+    assert out == (
+        'Searching for song "The HU - Sugaan Essenna"...\n'
+        'No song matches found on Spotify\n')
 
     assert DownloadManager.download_multiple_songs.call_count == 0
     assert DownloadManager.download_single_song.call_count == 0
@@ -140,7 +142,8 @@ def test_search_and_download(capsys, patch_dependencies, monkeypatch):
 @pytest.mark.vcr()
 def test_use_tracking_file(capsys, patch_dependencies, monkeypatch, fs):
     """Fifth example - use a spotdlTrackingFile."""
-    fs.create_file("Back In Black.spotdlTrackingFile", contents=json.dumps(tracking_files.back_in_black))
+    fs.create_file("Back In Black.spotdlTrackingFile",
+                   contents=json.dumps(tracking_files.back_in_black))
     monkeypatch.setattr(
         sys,
         "argv",
@@ -178,10 +181,12 @@ def test_multiple_elements(capsys, patch_dependencies, monkeypatch):
 
     out, err = capsys.readouterr()
     assert (
-            out == 'Fetching Song...\n'
-                    'Fetching Song...\n'
-                   'Searching for song "The HU - Sugaan Essenna"...\n'
-                   'No song named "The HU - Sugaan Essenna" could be found on spotify\n'
+        out == 'Fetching Song...\n'
+        'Searching for: AC/DC - Back In Black\n'
+        'Fetching Song...\n'
+        'Searching for: AC/DC - You Shook Me All Night Long\n'
+        'Searching for song "The HU - Sugaan Essenna"...\n'
+        'No song matches found on Spotify\n'
     )
 
     assert DownloadManager.download_single_song.call_count == 2

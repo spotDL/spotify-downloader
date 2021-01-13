@@ -75,7 +75,7 @@ def console_entry_point():
     Its super simple, rudimentary even but, it's dead simple & it works.
     '''
 
-    if '--help' in sys.argv or '-H' in sys.argv or len(sys.argv) == 1:
+    if '--help' in sys.argv or '-h' in sys.argv or len(sys.argv) == 1:
         print(help_notice)
 
         #! We use 'return None' as a convenient exit/break from the function
@@ -118,8 +118,11 @@ def console_entry_point():
 
             else:
                 print('Searching for song "%s"...' % request)
-                song = search_for_song(request)
-                downloader.download_single_song(song)
+                try:
+                    song = search_for_song(request)
+                    downloader.download_single_song(song)
+                except Exception as e:
+                    print(e)
 
 
 if __name__ == '__main__':
