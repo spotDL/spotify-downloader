@@ -1,14 +1,14 @@
 #===============
 #=== Imports ===
 #===============
+import typing
+from pathlib import Path
 
 from tqdm import tqdm
 
 #! These are not used, they're here for static type checking using mypy
 from spotdl.search.songObj import SongObj
 from typing import List
-
-from os import remove
 
 
 
@@ -136,7 +136,7 @@ class DisplayManager():
 class DownloadTracker():
     def __init__(self):
         self.songObjList = []
-        self.saveFile = None
+        self.saveFile: typing.Optional[Path] = None
 
     def load_tracking_file(self, trackingFilePath: str) -> None:
         '''
@@ -148,20 +148,20 @@ class DownloadTracker():
         '''
 
         # Attempt to read .spotdlTrackingFile, raise exception if file can't be read
-        try:
-            file = open(trackingFilePath, 'rb')
-            songDataDumps = eval(file.read().decode())
-            file.close()
-        except FileNotFoundError:
-            raise Exception('no such tracking file found: %s' % trackingFilePath)
+        trackingFile = Path(trackingFilePath)
+        if not trackingFile.is_file():
+            raise FileNotFoundError(f'no such tracking file found: {trackingFilePath}')
+
+        with trackingFile.open('rb') as file_handle:
+            songDataDumps = eval(file_handle.read().decode())
 
         # Save path to .spotdlTrackingFile
-        self.saveFile = trackingFilePath
+        self.saveFile = trackingFile
 
         # convert song data dumps to songObj's
         #! see, songObj.get_data_dump and songObj.from_dump for more details
         for dump in songDataDumps:
-            self.songObjList.append( SongObj.from_dump(dump) )
+            self.songObjList.append(SongObj.from_dump(dump))
 
     def load_song_list(self, songObjList: List[SongObj]) -> None:
         '''
@@ -193,8 +193,8 @@ class DownloadTracker():
         # remove tracking file if no songs left in queue
         #! we use 'return None' as a convenient exit point
         if len(self.songObjList) == 0:
-            if self.saveFile:
-                remove(self.saveFile)
+            if self.saveFile and self.saveFile.is_file():
+                self.saveFile.unlink()
             return None
 
 
@@ -217,17 +217,14 @@ class DownloadTracker():
 
             songName = songName.replace('"', "'").replace(': ', ' - ')
 
-            self.saveFile = songName + '.spotdlTrackingFile'
+            self.saveFile = Path(songName + '.spotdlTrackingFile')
 
 
 
         # backup to file
         #! we use 'wb' instead of 'w' to accommodate your fav K-pop/J-pop/Viking music
-        file = open(self.saveFile, 'wb')
-        file.write(
-            str(songDataDumps).encode()
-        )
-        file.close()
+        with open(self.saveFile, 'wb') as file_handle:
+            file_handle.write(str(songDataDumps).encode())
 
     def notify_download_completion(self, songObj: SongObj) -> None:
         '''
