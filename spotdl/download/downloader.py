@@ -168,6 +168,8 @@ class DownloadManager():
                 self.displayManager.notify_download_skip()
             if self.downloadTracker:
                 self.downloadTracker.notify_download_completion(songObj)
+            if m3u8Maker:
+                m3u8Maker.add_song(songObj.get_song_name(), f'.{convertedFilePath}')     
 
             #! None is the default return value of all functions, we just explicitly define
             #! it here as a continent way to avoid executing the rest of the function.
