@@ -78,8 +78,13 @@ def test_download_single_song(setup):
     ]
 
 
-@pytest.mark.vcr()
-def test_download_multiple_songs(setup):
+def test_download_multiple_songs(pytestconfig, setup):
+    if not "--disable-vcr" in pytestconfig.invocation_params.args:
+        # this test is very similar to the other one, and the http request
+        # seems not deterministic so it can't be reliably capture into cassette,
+        # therefore run this test only when VCR is disabled
+        pytest.skip()
+
     song_objs = [
         create_song_obj(name="song1"),
         create_song_obj(name="song2"),
