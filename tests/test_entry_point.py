@@ -33,7 +33,7 @@ def patch_dependencies(mocker, monkeypatch):
     mocker.patch.object(DownloadManager, "close", autospec=True)
 
 
-@pytest.mark.parametrize("argument", ["-h", "--help", None])
+@pytest.mark.parametrize("argument", ["-h", "-H", "--help", None])
 def test_show_help(capsys, monkeypatch, argument):
     """The --help, -h switches or no arguments should display help message"""
 
@@ -64,7 +64,7 @@ def test_download_a_single_song(capsys, patch_dependencies, monkeypatch):
     console_entry_point()
 
     out, err = capsys.readouterr()
-    assert out.startswith("Fetching Song...\n")
+    assert "Fetching Song...\n" in out
 
     assert DownloadManager.download_single_song.call_count == 1
     assert DownloadManager.download_multiple_songs.call_count == 0
@@ -85,7 +85,7 @@ def test_download_an_album(capsys, patch_dependencies, monkeypatch):
     console_entry_point()
 
     out, err = capsys.readouterr()
-    assert out.startswith("Fetching Album...\n")
+    assert "Fetching Album...\n" in out
 
     assert DownloadManager.download_multiple_songs.call_count == 1
     assert DownloadManager.download_single_song.call_count == 0
@@ -109,7 +109,7 @@ def test_download_a_playlist(capsys, patch_dependencies, monkeypatch):
     console_entry_point()
 
     out, err = capsys.readouterr()
-    assert out.startswith("Fetching Playlist...\n")
+    assert "Fetching Playlist...\n" in out
 
     assert DownloadManager.download_multiple_songs.call_count == 1
     assert DownloadManager.download_single_song.call_count == 0

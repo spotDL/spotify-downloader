@@ -6,8 +6,8 @@ import concurrent.futures
 import sys
 import traceback
 
-from os import mkdir, remove
-from os.path import join, exists
+import typing
+from pathlib import Path
 
 from pytube import YouTube
 
@@ -142,47 +142,47 @@ class DownloadManager():
             # ! platform agnostic
 
             # Create a .\Temp folder if not present
-            tempFolder = join('.', 'Temp')
+            tempFolder = Path('.', 'Temp')
 
-            if not exists(tempFolder):
-                mkdir(tempFolder)
+            if not tempFolder.exists():
+                tempFolder.mkdir()
 
             # build file name of converted file
             artistStr = ''
 
-            # ! we eliminate contributing artist names that are also in the song name, else we
-            # ! would end up with things like 'Jetta, Mastubs - I'd love to change the world
-            # ! (Mastubs REMIX).mp3' which is kinda an odd file name.
+            #! we eliminate contributing artist names that are also in the song name, else we
+            #! would end up with things like 'Jetta, Mastubs - I'd love to change the world
+            #! (Mastubs REMIX).mp3' which is kinda an odd file name.
             for artist in songObj.get_contributing_artists():
                 if artist.lower() not in songObj.get_song_name().lower():
                     artistStr += artist + ', '
 
-            # ! the ...[:-2] is to avoid the last ', ' appended to artistStr
+            #! the ...[:-2] is to avoid the last ', ' appended to artistStr
             convertedFileName = artistStr[:-2] + \
                 ' - ' + songObj.get_song_name()
 
-            # ! this is windows specific (disallowed chars)
+            #! this is windows specific (disallowed chars)
             for disallowedChar in ['/', '?', '\\', '*', '|', '<', '>']:
                 if disallowedChar in convertedFileName:
                     convertedFileName = convertedFileName.replace(
                         disallowedChar, '')
 
-            # ! double quotes (") and semi-colons (:) are also disallowed characters but we would
-            # ! like to retain their equivalents, so they aren't removed in the prior loop
+            #! double quotes (") and semi-colons (:) are also disallowed characters but we would
+            #! like to retain their equivalents, so they aren't removed in the prior loop
             convertedFileName = convertedFileName.replace(
                 '"', "'").replace(': ', ' - ')
 
-            convertedFilePath = join('.', convertedFileName) + '.mp3'
+            convertedFilePath = Path(".", f"{convertedFileName}.mp3")
 
             # if a song is already downloaded skip it
-            if exists(convertedFilePath):
-                if dispayProgressTracker:
-                    dispayProgressTracker.notify_download_skip()
+            if convertedFilePath.is_file():
+                if self.displayManager:
+                    self.displayManager.notify_download_skip()
                 if self.downloadTracker:
                     self.downloadTracker.notify_download_completion(songObj)
 
-                # ! None is the default return value of all functions, we just explicitly define
-                # ! it here as a continent way to avoid executing the rest of the function.
+                #! None is the default return value of all functions, we just explicitly define
+                #! it here as a continent way to avoid executing the rest of the function.
                 return None
 
             # download Audio from YouTube
@@ -191,6 +191,7 @@ class DownloadManager():
                     url=songObj.get_youtube_link(),
                     on_progress_callback=dispayProgressTracker.pytube_progress_hook
                 )
+
             else:
                 youtubeHandler = YouTube(songObj.get_youtube_link())
 
@@ -202,50 +203,61 @@ class DownloadManager():
                       f"from video \"{songObj.get_youtube_link()}\"")
                 return None
 
-            downloadedFilePath = await self._download_from_youtube(convertedFileName, tempFolder,
-                                                                   trackAudioStream)
-            if downloadedFilePath is None:
+            downloadedFilePathString = await self._download_from_youtube(convertedFileName, tempFolder,
+                                                                         trackAudioStream)
+
+            if downloadedFilePathString is None:
                 return None
 
-            if dispayProgressTracker:
-                dispayProgressTracker.notify_youtube_download_completion()
+            downloadedFilePath = Path(downloadedFilePathString)
 
             # convert downloaded file to MP3 with normalization
 
-            # ! -af loudnorm=I=-7:LRA applies EBR 128 loudness normalization algorithm with
-            # ! intergrated loudness target (I) set to -17, using values lower than -15
-            # ! causes 'pumping' i.e. rhythmic variation in loudness that should not
-            # ! exist -loud parts exaggerate, soft parts left alone.
-            # !
-            # ! dynaudnorm applies dynamic non-linear RMS based normalization, this is what
-            # ! actually normalized the audio. The loudnorm filter just makes the apparent
-            # ! loudness constant
-            # !
-            # ! apad=pad_dur=2 adds 2 seconds of silence toward the end of the track, this is
-            # ! done because the loudnorm filter clips/cuts/deletes the last 1-2 seconds on
-            # ! occasion especially if the song is EDM-like, so we add a few extra seconds to
-            # ! combat that.
-            # !
-            # ! -acodec libmp3lame sets the encoded to 'libmp3lame' which is far better
-            # ! than the default 'mp3_mf', '-abr true' automatically determines and passes the
-            # ! audio encoding bitrate to the filters and encoder. This ensures that the
-            # ! sampled length of songs matches the actual length (i.e. a 5 min song won't display
-            # ! as 47 seconds long in your music player, yeah that was an issue earlier.)
+            #! -af loudnorm=I=-7:LRA applies EBR 128 loudness normalization algorithm with
+            #! intergrated loudness target (I) set to -17, using values lower than -15
+            #! causes 'pumping' i.e. rhythmic variation in loudness that should not
+            #! exist -loud parts exaggerate, soft parts left alone.
+            #!
+            #! dynaudnorm applies dynamic non-linear RMS based normalization, this is what
+            #! actually normalized the audio. The loudnorm filter just makes the apparent
+            #! loudness constant
+            #!
+            #! apad=pad_dur=2 adds 2 seconds of silence toward the end of the track, this is
+            #! done because the loudnorm filter clips/cuts/deletes the last 1-2 seconds on
+            #! occasion especially if the song is EDM-like, so we add a few extra seconds to
+            #! combat that.
+            #!
+            #! -acodec libmp3lame sets the encoded to 'libmp3lame' which is far better
+            #! than the default 'mp3_mf', '-abr true' automatically determines and passes the
+            #! audio encoding bitrate to the filters and encoder. This ensures that the
+            #! sampled length of songs matches the actual length (i.e. a 5 min song won't display
+            #! as 47 seconds long in your music player, yeah that was an issue earlier.)
 
             command = 'ffmpeg -v quiet -y -i "%s" -acodec libmp3lame -abr true ' \
                 f'-b:a {trackAudioStream.bitrate} ' \
                 '-af "apad=pad_dur=2, dynaudnorm, loudnorm=I=-17" "%s"'
-            formattedCommand = command % (
-                downloadedFilePath.replace('$', '\$'),
-                convertedFilePath.replace('$', '\$')
-            )
+
+            #! bash/ffmpeg on Unix systems need to have excape char (\) for special characters: \$
+            #! alternatively the quotes could be reversed (single <-> double) in the command then
+            #! the windows special characters needs escaping (^): ^\  ^&  ^|  ^>  ^<  ^^
+
+            if sys.platform == 'win32':
+                formattedCommand = command % (
+                    str(downloadedFilePath),
+                    str(convertedFilePath)
+                )
+            else:
+                formattedCommand = command % (
+                    str(downloadedFilePath).replace('$', '\$'),
+                    str(convertedFilePath).replace('$', '\$')
+                )
 
             process = await asyncio.subprocess.create_subprocess_shell(formattedCommand)
             _ = await process.communicate()
 
-            # ! Wait till converted file is actually created
+            #! Wait till converted file is actually created
             while True:
-                if exists(convertedFilePath):
+                if convertedFilePath.is_file():
                     break
 
             if dispayProgressTracker:
@@ -315,7 +327,8 @@ class DownloadManager():
                 self.downloadTracker.notify_download_completion(songObj)
 
             # delete the unnecessary YouTube download File
-            remove(downloadedFilePath)
+            if downloadedFilePath and downloadedFilePath.is_file():
+                downloadedFilePath.unlink()
 
         except Exception as e:
             tb = traceback.format_exc()
@@ -325,10 +338,10 @@ class DownloadManager():
                 raise e
 
     async def _download_from_youtube(self, convertedFileName, tempFolder, trackAudioStream):
-        # ! The following function calls blocking code, which would block whole event loop.
-        # ! Therefore it has to be called in a separate thread via ThreadPoolExecutor. This
-        # ! is not a problem, since GIL is released for the I/O operations, so it shouldn't
-        # ! hurt performance.
+        #! The following function calls blocking code, which would block whole event loop.
+        #! Therefore it has to be called in a separate thread via ThreadPoolExecutor. This
+        #! is not a problem, since GIL is released for the I/O operations, so it shouldn't
+        #! hurt performance.
         return await self.loop.run_in_executor(
             self.thread_executor,
             self._perform_audio_download,
@@ -338,9 +351,9 @@ class DownloadManager():
         )
 
     def _perform_audio_download(self, convertedFileName, tempFolder, trackAudioStream):
-        # ! The actual download, if there is any error, it'll be here,
+        #! The actual download, if there is any error, it'll be here,
         try:
-            # ! pyTube will save the song in .\Temp\$songName.mp4, it doesn't save as '.mp3'
+            #! pyTube will save the song in .\Temp\$songName.mp4 or .webm, it doesn't save as '.mp3'
             downloadedFilePath = trackAudioStream.download(
                 output_path=tempFolder,
                 filename=convertedFileName,
@@ -348,18 +361,18 @@ class DownloadManager():
             )
             return downloadedFilePath
         except:
-            # ! This is equivalent to a failed download, we do nothing, the song remains on
-            # ! downloadTrackers download queue and all is well...
-            # !
-            # ! None is again used as a convenient exit
-            fileName = join(tempFolder, convertedFileName) + '.mp4'
-            if exists(fileName):
-                remove(fileName)
+            #! This is equivalent to a failed download, we do nothing, the song remains on
+            #! downloadTrackers download queue and all is well...
+            #!
+            #! None is again used as a convenient exit
+            tempFiles = Path(tempFolder).glob(f'{convertedFileName}.*')
+            for tempFile in tempFiles:
+                tempFile.unlink()
             return None
 
     async def _pool_download(self, song_obj: SongObj):
-        # ! Run asynchronous task in a pool to make sure that all processes
-        # ! don't run at once.
+        #! Run asynchronous task in a pool to make sure that all processes
+        #! don't run at once.
 
         # tasks that cannot acquire semaphore will wait here until it's free
         # only certain amount of tasks can acquire the semaphore at the same time

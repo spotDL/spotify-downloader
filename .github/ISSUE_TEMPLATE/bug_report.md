@@ -25,7 +25,7 @@ assignees: ''
 <!--- If from pip, what is the version? Run "pip show spotdl" --> 
 <!--- If not from pip, what is the commit hash? -->
 
-------------------------------------------------------------
+---------
 
 ### Expected Behaviour
 <!--- What did you expect to happen? -->
@@ -38,7 +38,7 @@ assignees: ''
 2. 
 3. 
 
---------------------------------------------------------------------
+---------
 
 ### Traceback
 
@@ -47,6 +47,6 @@ assignees: ''
 
 ```
 
---------------------------------------------------------------------
+---------
 
 ### Any other information:

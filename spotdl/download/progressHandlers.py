@@ -33,8 +33,8 @@ from spotdl.search.songObj import SongObj
 from typing import List
 from datetime import datetime
 import time
-
-from os import remove
+import typing
+from pathlib import Path
 
 
 # =============
@@ -322,7 +322,7 @@ class _ProgressTracker():
 class DownloadTracker():
     def __init__(self):
         self.songObjList = []
-        self.saveFile = None
+        self.saveFile: typing.Optional[Path] = None
 
     def load_tracking_file(self, trackingFilePath: str) -> None:
         '''
@@ -333,17 +333,17 @@ class DownloadTracker():
         reads songsObj's from disk and prepares to track their download
         '''
 
-        # ! Attempt to read .spotdlTrackingFile, raise exception if file can't be read
-        try:
-            file = open(trackingFilePath, 'rb')
-            songDataDumps = eval(file.read().decode())
-            file.close()
-        except FileNotFoundError:
-            raise Exception('no such tracking file found: %s' %
-                            trackingFilePath)
+        # Attempt to read .spotdlTrackingFile, raise exception if file can't be read
+        trackingFile = Path(trackingFilePath)
+        if not trackingFile.is_file():
+            raise FileNotFoundError(
+                f'no such tracking file found: {trackingFilePath}')
+
+        with trackingFile.open('rb') as file_handle:
+            songDataDumps = eval(file_handle.read().decode())
 
         # Save path to .spotdlTrackingFile
-        self.saveFile = trackingFilePath
+        self.saveFile = trackingFile
 
         # convert song data dumps to songObj's
         # ! see, songObj.get_data_dump and songObj.from_dump for more details
@@ -380,8 +380,8 @@ class DownloadTracker():
         # remove tracking file if no songs left in queue
         # ! we use 'return None' as a convenient exit point
         if len(self.songObjList) == 0:
-            if self.saveFile:
-                remove(self.saveFile)
+            if self.saveFile and self.saveFile.is_file():
+                self.saveFile.unlink()
             return None
 
         # prepare datadumps of all songObj's yet to be downloaded
@@ -401,15 +401,12 @@ class DownloadTracker():
 
             songName = songName.replace('"', "'").replace(': ', ' - ')
 
-            self.saveFile = songName + '.spotdlTrackingFile'
+            self.saveFile = Path(songName + '.spotdlTrackingFile')
 
         # backup to file
-        # ! we use 'wb' instead of 'w' to accommodate your fav K-pop/J-pop/Viking music
-        file = open(self.saveFile, 'wb')
-        file.write(
-            str(songDataDumps).encode()
-        )
-        file.close()
+        #! we use 'wb' instead of 'w' to accommodate your fav K-pop/J-pop/Viking music
+        with open(self.saveFile, 'wb') as file_handle:
+            file_handle.write(str(songDataDumps).encode())
 
     def notify_download_completion(self, songObj: SongObj) -> None:
         '''
