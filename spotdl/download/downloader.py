@@ -177,7 +177,7 @@ class DownloadManager():
             # if a song is already downloaded skip it
             if convertedFilePath.is_file():
                 if self.displayManager:
-                    self.displayManager.notify_download_skip()
+                    dispayProgressTracker.notify_download_skip()
                 if self.downloadTracker:
                     self.downloadTracker.notify_download_completion(songObj)
 
