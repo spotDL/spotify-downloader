@@ -37,6 +37,7 @@ def create_song_obj(name="test song", artist="test artist") -> SongObj:
 
 class FakeProcess:
     """Instead of running ffmpeg, just fake it"""
+
     def __init__(self, command):
         command = shlex.split(command)
         self._input = Path(command[command.index("-i") + 1])
@@ -92,8 +93,12 @@ def test_download_multiple_songs(pytestconfig, setup):
     ]
     DownloadManager().download_multiple_songs(song_objs)
 
-    assert [file.basename for file in setup.directory.listdir() if file.isfile()] == [
-        "test artist - song1.mp3",
-        "test artist - song2.mp3",
-        "test artist - song3.mp3",
-    ]
+    assert sorted(
+        [file.basename for file in setup.directory.listdir() if file.isfile()]
+    ) == sorted(
+        [
+            "test artist - song1.mp3",
+            "test artist - song2.mp3",
+            "test artist - song3.mp3",
+        ]
+    )
