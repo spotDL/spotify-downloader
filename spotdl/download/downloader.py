@@ -244,61 +244,7 @@ class DownloadManager():
         if self.displayManager:
             self.displayManager.notify_conversion_completion()
 
-        # embed song details
-        #! we save tags as both ID3 v2.3 and v2.4
-
-        #! The simple ID3 tags
-        audioFile = EasyID3(convertedFilePath)
-
-        #! Get rid of all existing ID3 tags (if any exist)
-        audioFile.delete()
-
-        #! song name
-        audioFile['title'] = songObj.get_song_name()
-        audioFile['titlesort'] = songObj.get_song_name()
-
-        #! track number
-        audioFile['tracknumber'] = str(songObj.get_track_number())
-
-        #! genres (pretty pointless if you ask me)
-        #! we only apply the first available genre as ID3 v2.3 doesn't support multiple
-        #! genres and ~80% of the world PC's run Windows - an OS with no ID3 v2.4 support
-        genres = songObj.get_genres()
-
-        if len(genres) > 0:
-            audioFile['genre'] = genres[0]
-
-        #! all involved artists
-        audioFile['artist'] = songObj.get_contributing_artists()
-
-        #! album name
-        audioFile['album'] = songObj.get_album_name()
-
-        #! album artist (all of 'em)
-        audioFile['albumartist'] = songObj.get_album_artists()
-
-        #! album release date (to what ever precision available)
-        audioFile['date'] = songObj.get_album_release()
-        audioFile['originaldate'] = songObj.get_album_release()
-
-        #! save as both ID3 v2.3 & v2.4 as v2.3 isn't fully features and
-        #! windows doesn't support v2.4 until later versions of Win10
-        audioFile.save(v2_version=3)
-
-        #! setting the album art
-        audioFile = ID3(convertedFilePath)
-
-        rawAlbumArt = urlopen(songObj.get_album_cover_url()).read()
-
-        audioFile['APIC'] = AlbumCover(
-            encoding=3,
-            mime='image/jpeg',
-            type=3,
-            desc='Cover',
-            data=rawAlbumArt
-        )
-
-        audioFile.save(v2_version=3)
+        self.set_id3_data(convertedFilePath, songObj)
 
         # Do the necessary cleanup
         if self.displayManager:
@@ -310,6 +256,48 @@ class DownloadManager():
         # delete the unnecessary YouTube download File
         if downloadedFilePath and downloadedFilePath.is_file():
             downloadedFilePath.unlink()
+
+    def set_id3_data(self, convertedFilePath, songObj):
+        # embed song details
+        # ! we save tags as both ID3 v2.3 and v2.4
+        # ! The simple ID3 tags
+        audioFile = EasyID3(convertedFilePath)
+        # ! Get rid of all existing ID3 tags (if any exist)
+        audioFile.delete()
+        # ! song name
+        audioFile['title'] = songObj.get_song_name()
+        audioFile['titlesort'] = songObj.get_song_name()
+        # ! track number
+        audioFile['tracknumber'] = str(songObj.get_track_number())
+        # ! genres (pretty pointless if you ask me)
+        # ! we only apply the first available genre as ID3 v2.3 doesn't support multiple
+        # ! genres and ~80% of the world PC's run Windows - an OS with no ID3 v2.4 support
+        genres = songObj.get_genres()
+        if len(genres) > 0:
+            audioFile['genre'] = genres[0]
+        # ! all involved artists
+        audioFile['artist'] = songObj.get_contributing_artists()
+        # ! album name
+        audioFile['album'] = songObj.get_album_name()
+        # ! album artist (all of 'em)
+        audioFile['albumartist'] = songObj.get_album_artists()
+        # ! album release date (to what ever precision available)
+        audioFile['date'] = songObj.get_album_release()
+        audioFile['originaldate'] = songObj.get_album_release()
+        # ! save as both ID3 v2.3 & v2.4 as v2.3 isn't fully features and
+        # ! windows doesn't support v2.4 until later versions of Win10
+        audioFile.save(v2_version=3)
+        # ! setting the album art
+        audioFile = ID3(convertedFilePath)
+        rawAlbumArt = urlopen(songObj.get_album_cover_url()).read()
+        audioFile['APIC'] = AlbumCover(
+            encoding=3,
+            mime='image/jpeg',
+            type=3,
+            desc='Cover',
+            data=rawAlbumArt
+        )
+        audioFile.save(v2_version=3)
 
     def close(self) -> None:
         '''
