@@ -46,6 +46,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get install ffmpeg
+          ffmpeg --help
           python -m pip install .[test]
       - name: Run tests
         run: pytest tests/regressions.py --cov spotdl
