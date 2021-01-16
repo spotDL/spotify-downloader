@@ -73,16 +73,19 @@ ytmApiClient = YTMusic()
 
 
 def __parse_duration(duration: str) -> float:
-    if len(duration) > 5:
-        padded = duration.rjust(8, '0')
-        x = strptime(padded, '%H:%M:%S')
-    elif len(duration) > 2:
-        padded = duration.rjust(5, '0')
-        x = strptime(padded, '%M:%S')
-    else:
-        x = strptime(duration, '%S')
+    try:
+        if len(duration) > 5:
+            padded = duration.rjust(8, '0')
+            x = strptime(padded, '%H:%M:%S')
+        elif len(duration) > 2:
+            padded = duration.rjust(5, '0')
+            x = strptime(padded, '%M:%S')
+        else:
+            x = strptime(duration, '%S')
 
-    return timedelta(hours=x.tm_hour, minutes=x.tm_min, seconds=x.tm_sec).total_seconds()
+        return timedelta(hours=x.tm_hour, minutes=x.tm_min, seconds=x.tm_sec).total_seconds()
+    except (ValueError, TypeError):
+        return 0.0
 
 
 def __map_result_to_song_data(result: dict) -> dict:
