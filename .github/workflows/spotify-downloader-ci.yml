@@ -45,7 +45,7 @@ jobs:
           python-version: '3.8'
       - name: Install dependencies
         run: |
-          apt install ffmpeg
+          sudo apt-get install ffmpeg
           python -m pip install .[test]
       - name: Run tests
         run: pytest tests/regressions.py --cov spotdl
