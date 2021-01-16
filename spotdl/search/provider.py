@@ -73,6 +73,10 @@ ytmApiClient = YTMusic()
 
 
 def __parse_duration(duration: str) -> float:
+
+    # if duration is None:
+        # return 0
+
     if len(duration) > 5:
         padded = duration.rjust(8, '0')
         x = strptime(padded, '%H:%M:%S')
