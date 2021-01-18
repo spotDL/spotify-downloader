@@ -8,6 +8,7 @@ from time import strptime
 from typing import List
 
 # ! the following are for the search provider to function
+import typing
 from rapidfuzz.fuzz import partial_ratio
 from ytmusicapi import YTMusic
 
@@ -72,16 +73,19 @@ ytmApiClient = YTMusic()
 
 
 def __parse_duration(duration: str) -> float:
-    if len(duration) > 5:
-        padded = duration.rjust(8, '0')
-        x = strptime(padded, '%H:%M:%S')
-    elif len(duration) > 2:
-        padded = duration.rjust(5, '0')
-        x = strptime(padded, '%M:%S')
-    else:
-        x = strptime(duration, '%S')
+    try:
+        if len(duration) > 5:
+            padded = duration.rjust(8, '0')
+            x = strptime(padded, '%H:%M:%S')
+        elif len(duration) > 2:
+            padded = duration.rjust(5, '0')
+            x = strptime(padded, '%M:%S')
+        else:
+            x = strptime(duration, '%S')
 
-    return timedelta(hours=x.tm_hour, minutes=x.tm_min, seconds=x.tm_sec).total_seconds()
+        return timedelta(hours=x.tm_hour, minutes=x.tm_min, seconds=x.tm_sec).total_seconds()
+    except (ValueError, TypeError):
+        return 0.0
 
 
 def __map_result_to_song_data(result: dict) -> dict:
@@ -206,7 +210,7 @@ def search_and_order_ytm_results(songName: str, songArtists: List[str],
         # Find album match
         # ! We assign an arbitrary value of 0 for album match in case of video results
         # ! from YouTube Music
-        albumMatch = 0
+        albumMatch = 0.0
 
         if result['type'] == 'song':
             albumMatch = match_percentage(result['album'], songAlbumName)
@@ -235,7 +239,7 @@ def get_ytm_search_query(songName: str, songArtists: List[str]) -> str:
 
 
 def search_and_get_best_match(songName: str, songArtists: List[str],
-                              songAlbumName: str, songDuration: int) -> str:
+                              songAlbumName: str, songDuration: int) -> typing.Optional[str]:
     '''
     `str` `songName` : name of song
 

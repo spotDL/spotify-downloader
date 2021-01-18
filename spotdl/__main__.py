@@ -51,7 +51,7 @@ To download a playlist, run:
     ex. spotdl https://open.spotify.com/playlist/37i9dQZF1E8UXBoz02kGID?si=oGd5ctlyQ0qblj_bL6WWow
 
 To search for and download a song, run, with quotation marks:
-  Note: This is not accurate and often causes errors.
+Note: This is not accurate and often causes errors.
     spotdl [songQuery]
     ex. spotdl 'The Weeknd - Blinding Lights'
 
@@ -74,7 +74,7 @@ def console_entry_point():
     Its super simple, rudimentary even but, it's dead simple & it works.
     '''
 
-    if '--help' in sys.argv or '-H' in sys.argv or len(sys.argv) == 1:
+    if '--help' in sys.argv or '-H' in sys.argv or '-h' in sys.argv or len(sys.argv) == 1:
         print(help_notice)
 
         #! We use 'return None' as a convenient exit/break from the function
