@@ -18,7 +18,7 @@ Python (added to PATH)
 
 ffmpeg (added to PATH)
 
-All you have to do for Python is being sure that you selected "Add to PATH" option.
+All you have to do for Python is being sure that you selected "Add to PATH" option while Python installation.
 
 If you don't know how to add programs to PATH you can read this tutorial.
 
