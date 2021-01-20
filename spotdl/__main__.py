@@ -1,5 +1,6 @@
 #! Basic necessities to get the CLI running
 from spotdl.search import spotifyClient
+import signal
 import sys
 
 #! Song Search from different start points
@@ -86,6 +87,13 @@ def console_entry_point():
         )
 
     downloader = DownloadManager()
+
+    def gracefulExit(signal, frame):
+        downloader.close()
+        sys.exit(0)
+
+    signal.signal(signal.SIGINT, gracefulExit)
+    signal.signal(signal.SIGTERM, gracefulExit)
 
     for request in sys.argv[1:]:
         if 'open.spotify.com' in request and 'track' in request:
