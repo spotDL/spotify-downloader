@@ -7,7 +7,15 @@
 # Python
 __pycache__
 .mypy_cache
+
+# Environments
+.env
 .venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
 
 # vscode
 .vscode
