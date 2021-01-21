@@ -1,199 +1,61 @@
+# spotDL Installation Guide
 
+spotDL is a free and open source tool that downloads your Spotify playlists & music
+> **The fastest, easiest, and most accurate command-line music downloader**
 
-# spotDL Installation Guide:
+## Prerequisites
 
-spotDL is a free and open-source tool that fetches your Spotify playlist and downloads.
+- Python (added to PATH)
+- FFmpeg (added to PATH)
 
+### Adding Python to PATH
 
+When installing Python, ensure to select "**Add to PATH**".
 
-To start downloading type :
+![Add to PATH Image](https://i.imgur.com/jWq5EnV.png)
 
+### Installing FFpmeg
 
+- [Windows Tutorial](https://windowsloop.com/install-ffmpeg-windows-10/)
+- OSX - `brew install ffmpeg`
+- Linux - `sudo snap install ffmpeg`
 
-`spotDL [spotify album/song/playlist url]`
+### Verifying Versions
 
+`py -V` - Should return "Python 3.X.X"
 
+`FFmpeg -version` - Should return starting with "ffmpeg version 2020-12-01"
 
-Also, spotDL can queue links, query searches, playlists, etc. To queue links, separate them with space.
+## Installing spotDL
 
-Example: `spotDL link1 link2`
+You can install spotDL by opening a terminal and typing:
+`pip install spotdl`
 
-![Link queue](https://i.hizliresim.com/Q6E2jv.png)
+If you encounter errors, our `hotfix` branch may be able to help you:
 
+1. `pip install pip-autoremove`
+2. `pip-autoremove spotdl`
+3. `pip cache purge`
+4. `pip install https://codeload.github.com/spotDL/spotify-downloader/zip/hotfix`
 
+If you require further help, ask in our [Discord Server](https://discord.gg/xCa23pwJWY)
+![Discord Server](https://img.shields.io/discord/771628785447337985?color=7289da&label=DISCORD&style=for-the-badge)](<https://discord.gg/xCa23pwJWY>)
 
-To install and use spotDL, you will need :
+## Where does spotDL download songs?
 
+spotDL downloads files to the folder where you ran spotDL from.
 
+Open pwsh/powershell/cmd/terminal/similar in the folder you want files to download to, or cd to desired folder.
 
-**Python (added to PATH)**
+**Windows Shortcut:** Navigate to the folder you want the files to download to. SHIFT + RIGHT CLICK, then select "Open PowerShell window here"
 
-**FFmpeg (added to PATH)**
+![Windows PWSH](https://i.imgur.com/0kXMdia.png)
 
+## We have a public Discord server at **[discord.gg/xCa23pwJWY](https://discord.gg/xCa23pwJWY)!**
 
+[![Discord Server](https://img.shields.io/discord/771628785447337985?color=7289da&label=DISCORD&style=for-the-badge)](https://discord.gg/xCa23pwJWY)
 
-For Python be sure that you selected the '**add to path**' option while installing Python.
+## Installation Guide Authors
 
-
-
-For FFmpeg, if you are not sure how to add FFmpeg to the path you can read this tutorial: 
-
-blog.gregzaal.com/how-to-install-FFmpeg-on-windows/
-
-
-
-For FFmpeg be sure you place the FFmpeg folder somewhere you won't lose or delete it ( We recommend putting the FFmpeg folder to the system disk) and adding the “FFmpeg/bin” folder to the PATH.
-
-
-
-After everything is done, type **python** and **FFmpeg** to check versions.
-
-If you did install and added FFmpeg and Python to PATH correctly, you should get these messages as outputs :
-
-![FFpmeg output](https://i.hizliresim.com/hXUCLr.png)
-
-
-
-![Python output](https://i.hizliresim.com/CW8lba.png)
-
-
-
-Be sure that you type these commands in separate windows.
-
-
-
-Now it's time to installing spotDL:
-
-
-
-**
-
-
-
-# Instaling spotDL:
-
-**
-
-
-
-To download from the master, type :
-
-
-
-`pip install https://codeload.github.com/spotDL/spotify-downloader/zip/master` 
-
-in the terminal.
-
-
-
-Master is a stable version of spotDL. We recommend using master if you are not experiencing any problems.
-
-
-
-If you have some issues with master and you want to download from hotfix, type: 
-
-
-
-`pip install https://codeload.github.com/spotDL/spotify-downloader/zip/hotfix`
-
- in the terminal.
-
-
-
-Before switching to versions, ***(if you already installed spotDL before)*** you should make a clean install. 
-
-
-
-## CLEAN INSTALL FROM MASTER:
-
-`pip install pip-autoremove` 
-
-`pip-autoremove spotDL` 
-
-`pip cache purge` 
-
-`pip install https://codeload.github.com/spotDL/spotify-downloader/zip/master`
-
-`spotDL [trackUrl]`
-
-
-
-## **CLEAN INSTALL FROM HOTFIX:**
-
-`pip install pip-autoremove`
-
-`pip-autoremove spotdl`
-
-`pip cache purge`
-
-`pip install https://codeload.github.com/spotDL/spotify-downloader/zip/hotfix`
-
-`spotdl [trackUrl]`
-
-Select your desired version to install and try if you installed spotDL correctly:
-
-
-
-Type **spotDL** and see if the command line does see spotDL as a command. If it does not, check again.
-
-![spotDL output](https://i.hizliresim.com/ikbcd4.png)
-
-
-
-# But where do spotDL download songs?
-
-
-
-spotDL will download songs to where you did run cmd/Powershell
-
-
-
-In this example, we ran spotDL from cmd in Users/ Administrator
-
-![spotDL downloading song](https://i.hizliresim.com/rEjeWK.png)
-
-And spotDL did download song to:
-
-![spotDL downloaded songs](https://i.hizliresim.com/5pYEBd.png)
-
-Administrator folder. 
-
-
-
-To change the directory of the downloaded songs, you have to open cmd/Powershell from a different folder.
-
-
-
-Create a folder or use your existing folder. (it can be whatever folder you want).
-
-Then click the address bar of your folder.
-
-![Selecting folder address bar](https://i.hizliresim.com/jAMOQr.png)
-
-Type **cmd** or **Powershell** to address bar of your folder.
-
-![Type cmd in address bar](https://i.hizliresim.com/xWnnPI.png)
-
-
-
-
-
-And now it runs in your folder. Your downloaded songs will be here.
-
-![spotDl working on a different folder](https://i.hizliresim.com/PtgLGG.png)
-
-
-
-# Bug report :
-
-To report issues, open an issue to spotDL GitHub: [github.com/spotDL/spotify-downloader/issues]()
-
-
-
-# Discord:
-
-For support, you can join to spotDL Discord server: [discord.gg/AXypWnTp92]()
-
-
-
-NoSubwayzz from spotDl team
+- Initial Draft - [@commanderabdu](https://github.com/commanderabdu) - NoSubwayzz
+- Editing & Updating - [@Silverarmor](https://github.com/Silverarmor)
