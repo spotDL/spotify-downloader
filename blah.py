@@ -1,25 +1,37 @@
 from typing import final
 import urllib.request as requrl
 from re import findall
+from asyncio import run
+from time import perf_counter
 
-username = "mikhailZex"
+import asks
 
-data = requrl.urlopen(f"https://github.com/{username}")
-dataq = ""
+usernames = [
+    "mikhailZex",
+    "Silverarmor",
+    "phcreery",
+    "aasmpro",
+    "loftwah",
+    "BaseMax"
+]
+async def getUserData(username):
+    datavalues = {}
 
-x = 0
+    datahead = await asks.get(f"https://github.com/{username}")
+    data = datahead.content.decode()
 
-for line in data:
-    x += 1
-    bah = line.decode()
+    datavalues['name'] = findall('<span.+itemprop="name">(.+)</span>', data)
+    datavalues['username'] = findall('<span.+itemprop="additionalName">(.+)</span>', data)
+    datavalues['publicLinks'] = findall('<a rel="nofollow me".+href="(.+)">.+</a>', data)
+    datavalues['imageLink'] = findall('<img.+alt="Avatar".+src="(.+)".+/>', data)
 
-    if bah.strip() != "":
-        dataq += bah
+    return datavalues
 
-    if x == 500:
-        break
+async def printAll():
+    for username in usernames:
+        datavals = await getUserData(username)
+        print(datavals)
 
-while True:
-    q = input('re:')
-    print(findall(q, dataq))
-    print()
+st = perf_counter()
+run(printAll())
+print(perf_counter() - st)
