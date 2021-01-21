@@ -29,7 +29,10 @@ When installing Python, ensure to select "**Add to PATH**".
 ## Installing spotDL
 
 You can install spotDL by opening a terminal and typing:
-`pip install spotdl`
+
+```py
+pip install spotdl
+```
 
 If you encounter errors, our `hotfix` branch may be able to help you:
 
@@ -39,7 +42,8 @@ If you encounter errors, our `hotfix` branch may be able to help you:
 4. `pip install https://codeload.github.com/spotDL/spotify-downloader/zip/hotfix`
 
 If you require further help, ask in our [Discord Server](https://discord.gg/xCa23pwJWY)
-![Discord Server](https://img.shields.io/discord/771628785447337985?color=7289da&label=DISCORD&style=for-the-badge)](<https://discord.gg/xCa23pwJWY>)
+
+[![Discord Server](https://img.shields.io/discord/771628785447337985?color=7289da&label=DISCORD&style=for-the-badge)](https://discord.gg/xCa23pwJWY)
 
 ## Where does spotDL download songs?
 
@@ -51,7 +55,7 @@ Open pwsh/powershell/cmd/terminal/similar in the folder you want files to downlo
 
 ![Windows PWSH](https://i.imgur.com/0kXMdia.png)
 
-## We have a public Discord server at **[discord.gg/xCa23pwJWY](https://discord.gg/xCa23pwJWY)!**
+## Still got Questions? Join our Discord @ **[discord.gg/xCa23pwJWY](https://discord.gg/xCa23pwJWY)!**
 
 [![Discord Server](https://img.shields.io/discord/771628785447337985?color=7289da&label=DISCORD&style=for-the-badge)](https://discord.gg/xCa23pwJWY)
 
