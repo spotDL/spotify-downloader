@@ -14,7 +14,7 @@ When installing Python, ensure to select "**Add to PATH**".
 
 ![Add to PATH Image](static/ADD_TO_PATH.png)
 
-### Installing FFpmeg
+### Installing FFmpeg
 
 - [Windows Tutorial](https://windowsloop.com/install-ffmpeg-windows-10/)
 - OSX - `brew install ffmpeg`
@@ -22,7 +22,7 @@ When installing Python, ensure to select "**Add to PATH**".
 
 ### Verifying Versions
 
-`py -V` - Should return "Python 3.X.X"
+`py -V` - Should return "Python 3.X.X". Please ensure you have v3.6.X or greater.
 
 `FFmpeg -version` - Should return starting with "ffmpeg version 2020-12-01"
 
@@ -30,7 +30,7 @@ When installing Python, ensure to select "**Add to PATH**".
 
 You can install spotDL by opening a terminal and typing:
 
-```py
+```shell
 pip install spotdl
 ```
 
@@ -53,7 +53,7 @@ Open pwsh/powershell/cmd/terminal/similar in the folder you want files to downlo
 
 **Windows Shortcut:** Navigate to the folder you want the files to download to. `SHIFT + RIGHT CLICK`, then select "Open PowerShell window here"
 
-![Windows PWSH](static/POWEHSELL.png)
+![Windows PWSH](static/POWERSHELL.png)
 
 ## We have a public Discord server at **[discord.gg/xCa23pwJWY](https://discord.gg/xCa23pwJWY)!**
 
