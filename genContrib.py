@@ -85,9 +85,9 @@ async def get_table_row(user_list):
 async def get_contributing_for_given_version(user_list, version):
 
     if not version == "latest":
-        markdown = f'<details>\n<summary>\n\n## v{version}\n</summary>\n\n<table align="center">'
+        markdown = f'<details>\n<summary>\n\n### v{version}\n</summary>\n\n<table align="center">'
     else:
-        markdown = f'## Latest Release\n\n<table align="center">'
+        markdown = f'### Latest Release\n\n<table align="center">'
 
     user_list.sort()
 
@@ -123,7 +123,7 @@ async def get_contributing():
             version_contributors, version
         )
 
-    return markdown.replace('## v2', '## Upto v2.2.2')
+    return markdown.replace('### v2', '### Up to v2.2.2')
 
 async def print_contributing():
     q = await get_contributing()

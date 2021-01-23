@@ -169,7 +169,7 @@ pipx run spotdl ...
   ```
 
 ## The people who made this possible
-## Latest Release
+### Latest Release
 
 <table align="center">
 <tr>
@@ -208,7 +208,7 @@ pipx run spotdl ...
 </table><details>
 <summary>
 
-## v3.2
+### v3.2
 </summary>
 
 <table align="center">
@@ -291,7 +291,7 @@ pipx run spotdl ...
 </details><details>
 <summary>
 
-## v3.1
+### v3.1
 </summary>
 
 <table align="center">
@@ -399,7 +399,7 @@ pipx run spotdl ...
 </details><details>
 <summary>
 
-## Upto v2.2.2
+### Up to v2.2.2
 </summary>
 
 <table align="center">
