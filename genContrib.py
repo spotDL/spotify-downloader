@@ -6,10 +6,15 @@ from json import dumps
 
 import asks
 
-usernames = ["mikhailZex", "Silverarmor", "phcreery", "aasmpro", "loftwah", "BaseMax"]
+looked_up_users = {}
 
 
 async def get_public_user_data(username):
+    if username in looked_up_users:
+        return looked_up_users[username]
+
+    print(f'looking up @{username}')
+
     datavalues = {}
 
     datahead = await asks.get(f"https://github.com/{username}")
@@ -40,6 +45,8 @@ async def get_public_user_data(username):
     datavalues["githubProfile"] = f"https://github.com/{username}"
 
     datavalues["avatar"] = findall('<img.+alt="Avatar".+src="(.+)".+/>', data)[0]
+
+    looked_up_users[username] = datavalues
 
     return datavalues
 
@@ -78,9 +85,9 @@ async def get_table_row(user_list):
 async def get_contributing_for_given_version(user_list, version):
 
     if not version == "latest":
-        markdown = f'<details>\n<summary>\n\n# V{version}\n</summary>\n\n<table align="center">'
+        markdown = f'<details>\n<summary>\n\n## v{version}\n</summary>\n\n<table align="center">'
     else:
-        markdown = f'# V{version}\n\n<table align="center">'
+        markdown = f'## Latest Release\n\n<table align="center">'
 
     user_list.sort()
 
@@ -101,16 +108,22 @@ async def get_contributing():
     key_list.remove("latest")
     key_list.sort(reverse=True)
 
+    version_contributors = contributing_data['latest']
+    version_contributors.sort()
+
     markdown = await get_contributing_for_given_version(
-        contributing_data["latest"], "latest"
+        version_contributors, 'latest'
     )
 
     for version in key_list:
+        version_contributors = contributing_data[version]
+        version_contributors.sort()
+
         markdown += await get_contributing_for_given_version(
-            contributing_data[version], version
+            version_contributors, version
         )
 
-    return markdown
+    return markdown.replace('## v2', '## Upto v2.2.2')
 
 async def print_contributing():
     q = await get_contributing()
