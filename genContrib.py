@@ -74,7 +74,10 @@ async def get_table_row(user_list):
 
         if userdata["twitter"]:
             twitter = userdata["twitter"]
-            markdown += f'\t\t| <a href="{twitter}">twitter</a>\n'
+            if '\t\t| <a href="' not in markdown[-100:].split('\n')[-2]:
+                markdown += f'\t\t| <a href="{twitter}">twitter</a>\n'
+            else:
+                markdown += f'\t\t<br/>\n\t\t<a href="{twitter}">twitter</a>\n'
 
         markdown += "\t</td>\n"
 

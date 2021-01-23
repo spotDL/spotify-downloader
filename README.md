@@ -335,7 +335,8 @@ pipx run spotdl ...
                 <br/>
                 <a href="https://github.com/loftwah">github</a>
                 | <a href="https://www.beatsmiff.com">website</a>
-                | <a href="https://twitter.com/loftwah">twitter</a>
+                <br/>
+                <a href="https://twitter.com/loftwah">twitter</a>
         </td>
         <td align="center">
                 <img src="https://avatars.githubusercontent.com/u/44199644?s=460&amp;u=e883d3c6b87325820f336da4830dd45f1fa4c236&amp;v=4" width="100px"/>
@@ -588,7 +589,8 @@ pipx run spotdl ...
                 <br/>
                 <a href="https://github.com/cyberboysumanjay">github</a>
                 | <a href="https://visi.tk/sumanjay">website</a>
-                | <a href="https://twitter.com/cyberboysj">twitter</a>
+                <br/>
+                <a href="https://twitter.com/cyberboysj">twitter</a>
         </td>
         <td align="center">
                 <img src="https://avatars.githubusercontent.com/u/5459924?s=460&amp;v=4" width="100px"/>
@@ -639,7 +641,8 @@ pipx run spotdl ...
                 <br/>
                 <a href="https://github.com/linusg">github</a>
                 | <a href="https://linus.dev">website</a>
-                | <a href="https://twitter.com/linusgroh">twitter</a>
+                <br/>
+                <a href="https://twitter.com/linusgroh">twitter</a>
         </td>
         <td align="center">
                 <img src="https://avatars.githubusercontent.com/u/6644421?s=460&amp;u=e3f3c48585e3fffa5bc2acaab273508937ffe347&amp;v=4" width="100px"/>
@@ -656,7 +659,8 @@ pipx run spotdl ...
                 <br/>
                 <a href="https://github.com/m1guelpf">github</a>
                 | <a href="https://miguelpiedrafita.com">website</a>
-                | <a href="https://twitter.com/m1guelpf">twitter</a>
+                <br/>
+                <a href="https://twitter.com/m1guelpf">twitter</a>
         </td>
         <td align="center">
                 <img src="https://avatars.githubusercontent.com/u/10084011?s=460&amp;u=eb15d8716173444e5aa756cba4e979a812fe3578&amp;v=4" width="100px"/>
@@ -690,7 +694,8 @@ pipx run spotdl ...
                 <br/>
                 <a href="https://github.com/sdhutchins">github</a>
                 | <a href="http://www.shauritahutchins.com">website</a>
-                | <a href="https://twitter.com/shauritacodes">twitter</a>
+                <br/>
+                <a href="https://twitter.com/shauritacodes">twitter</a>
         </td>
         <td align="center">
                 <img src="https://avatars.githubusercontent.com/u/7334295?s=460&amp;u=cd60b6cb8282430630ae7a083d79ad3a31960524&amp;v=4" width="100px"/>
