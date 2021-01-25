@@ -4,7 +4,7 @@
 
 import typing
 from datetime import datetime
-from typing import List
+from typing import List, Tuple
 
 from ytmusicapi import YTMusic
 
@@ -20,6 +20,7 @@ from ytmusicapi import YTMusic
 # ! YTMusic api client
 ytmApiClient = YTMusic()
 
+
 # ========================================================================
 # === Background functions/Variables (Not meant to be called directly) ===
 # ========================================================================
@@ -29,10 +30,10 @@ def __parse_duration(duration: str) -> float:
     if len(duration) > 5:
         return 0.0
 
-    time_obj = datetime.strptime(duration, '%M:%S')
-    duration = time_obj - datetime(1900, 1, 1)
+    time_obj = datetime.strptime(duration, '%M:%S') - datetime(1900, 1, 1)
+    seconds = time_obj.total_seconds()
 
-    return duration.total_seconds()
+    return seconds
 
 
 def __map_result_to_song_data(result: dict) -> dict:
@@ -65,7 +66,7 @@ def __query_and_simplify(searchTerm: str) -> List[dict]:
 # =======================
 
 def search_and_order_ytm_results(songName: str, songArtists: List[str],
-                                 songDuration: float) -> dict:
+                                 songDuration: float) -> List[Tuple[float, str]]:
     '''
     `str` `songName` : name of song
 
@@ -103,7 +104,7 @@ def search_and_get_best_match(songName: str, songArtists: List[str],
 
     RETURNS `str` : link of the best match
     '''
-    
+
     results = search_and_order_ytm_results(
         songName, songArtists,
         songDuration
