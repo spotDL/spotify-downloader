@@ -208,7 +208,7 @@ class DownloadManager():
         #! than the default 'mp3_mf'
 
         formattedCommand = f'ffmpeg -v quiet -y -i "{downloadedFilePath}" -acodec libmp3lame ' \
-            f'-b:a {trackAudioStream.bitrate} -af "apad=pad_dur=2, loudnorm=I=-17" "{convertedFilePath}'
+            f'-b:a {trackAudioStream.bitrate} -af "apad=pad_dur=2, loudnorm=I=-17" "{convertedFilePath}"'
 
         process = await asyncio.subprocess.create_subprocess_shell(formattedCommand)
         _ = await process.communicate()
