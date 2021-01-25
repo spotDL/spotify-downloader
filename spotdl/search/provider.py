@@ -39,9 +39,9 @@ def __parse_duration(duration: str) -> float:
 
 def __map_result_to_song_data(result: dict) -> dict:
     song_data = {
-        'link': f'https://youtube.com/watch?v={result["videoId"]}',
+        'link': f'https://youtube.com/watch?v={result.get("videoId")}',
         'type': result['resultType'],
-        'length': __parse_duration(result['duration'])
+        'length': __parse_duration(result.get('duration', '0:0'))
     }
 
     return song_data
@@ -57,7 +57,7 @@ def __query_and_simplify(searchTerm: str) -> List[dict]:
     '''
 
     print(f'Searching For {searchTerm}')
-    searchResults = ytmApiClient.search(searchTerm, filter='videos')
+    searchResults = ytmApiClient.search(searchTerm)
 
     return list(map(__map_result_to_song_data, searchResults))
 
