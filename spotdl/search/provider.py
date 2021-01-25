@@ -114,4 +114,4 @@ def search_and_get_best_match(songName: str, songArtists: List[str],
 
     sorted_results = sorted(results, key=lambda x: x[0])
 
-    return sorted_results[0]
+    return sorted_results[0][1]
