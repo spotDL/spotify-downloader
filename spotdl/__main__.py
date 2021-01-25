@@ -116,7 +116,7 @@ def console_entry_point():
             downloader.resume_download_from_tracking_file(request)
 
         else:
-            print('Searching for song "%s"...' % request)
+            print('Searching spotify for "%s"...' % request)
             try:
                 song = search_for_song(request)
                 downloader.download_single_song(song)
