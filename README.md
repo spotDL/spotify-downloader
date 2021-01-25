@@ -1,4 +1,4 @@
-![logo](static/logo.png)
+<img align="right" src="static/logo.png" alt="logo"/>
 
 # spotDL
 
