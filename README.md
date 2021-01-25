@@ -1,4 +1,4 @@
-<img align="right" src="static/logo-transparent.png" alt="logo" width="301" height="139"/>
+<img align="right" src="static/logo-transparent.png" alt="logo" width="401" height="185"/>
 
 # spotDL
 
