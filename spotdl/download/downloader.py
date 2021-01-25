@@ -11,7 +11,7 @@ from pathlib import Path
 from pytube import YouTube
 
 from mutagen.easyid3 import EasyID3, ID3
-from mutagen.id3 import APIC as AlbumCover
+from mutagen.id3 import APIC as AlbumCover, COMM as Comment
 
 from urllib.request import urlopen
 
@@ -195,13 +195,9 @@ class DownloadManager():
         # convert downloaded file to MP3 with normalization
 
         #! -af loudnorm=I=-7:LRA applies EBR 128 loudness normalization algorithm with
-        #! intergrated loudness target (I) set to -17, using values lower than -15
+        #! intergrated loudness target (I) set to -17, using values higher than -15
         #! causes 'pumping' i.e. rhythmic variation in loudness that should not
         #! exist -loud parts exaggerate, soft parts left alone.
-        #!
-        #! dynaudnorm applies dynamic non-linear RMS based normalization, this is what
-        #! actually normalized the audio. The loudnorm filter just makes the apparent
-        #! loudness constant
         #!
         #! apad=pad_dur=2 adds 2 seconds of silence toward the end of the track, this is
         #! done because the loudnorm filter clips/cuts/deletes the last 1-2 seconds on
@@ -209,29 +205,10 @@ class DownloadManager():
         #! combat that.
         #!
         #! -acodec libmp3lame sets the encoded to 'libmp3lame' which is far better
-        #! than the default 'mp3_mf', '-abr true' automatically determines and passes the
-        #! audio encoding bitrate to the filters and encoder. This ensures that the
-        #! sampled length of songs matches the actual length (i.e. a 5 min song won't display
-        #! as 47 seconds long in your music player, yeah that was an issue earlier.)
+        #! than the default 'mp3_mf'
 
-        command = 'ffmpeg -v quiet -y -i "%s" -acodec libmp3lame -abr true ' \
-            f'-b:a {trackAudioStream.bitrate} ' \
-                  '-af "apad=pad_dur=2, dynaudnorm, loudnorm=I=-17" "%s"'
-
-        #! bash/ffmpeg on Unix systems need to have excape char (\) for special characters: \$
-        #! alternatively the quotes could be reversed (single <-> double) in the command then
-        #! the windows special characters needs escaping (^): ^\  ^&  ^|  ^>  ^<  ^^
-
-        if sys.platform == 'win32':
-            formattedCommand = command % (
-                str(downloadedFilePath),
-                str(convertedFilePath)
-            )
-        else:
-            formattedCommand = command % (
-                str(downloadedFilePath).replace('$', '\$'),
-                str(convertedFilePath).replace('$', '\$')
-            )
+        formattedCommand = f'ffmpeg -v quiet -y -i "{downloadedFilePath}" -acodec libmp3lame ' \
+            f'-b:a {trackAudioStream.bitrate} -af "apad=pad_dur=2, loudnorm=I=-17" "{convertedFilePath}'
 
         process = await asyncio.subprocess.create_subprocess_shell(formattedCommand)
         _ = await process.communicate()
@@ -257,7 +234,7 @@ class DownloadManager():
         if downloadedFilePath and downloadedFilePath.is_file():
             downloadedFilePath.unlink()
 
-    def set_id3_data(self, convertedFilePath, songObj):
+    def set_id3_data(self, convertedFilePath:str, songObj:SongObj):
         # embed song details
         # ! we save tags as both ID3 v2.3 and v2.4
         # ! The simple ID3 tags
@@ -289,6 +266,7 @@ class DownloadManager():
         audioFile.save(v2_version=3)
         # ! setting the album art
         audioFile = ID3(convertedFilePath)
+        
         rawAlbumArt = urlopen(songObj.get_album_cover_url()).read()
         audioFile['APIC'] = AlbumCover(
             encoding=3,
@@ -297,6 +275,14 @@ class DownloadManager():
             desc='Cover',
             data=rawAlbumArt
         )
+        # ! setting song links as comment (helpful for devs)
+        audioFile.add(
+            Comment(
+                encoding=3,
+                text = songObj.get_youtube_link()
+            )
+        )
+
         audioFile.save(v2_version=3)
 
     def close(self) -> None:
