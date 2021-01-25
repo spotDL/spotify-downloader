@@ -50,10 +50,7 @@ class SongObj():
 
         albumName = rawTrackMeta['album']['name']
 
-        duration = round(
-            rawTrackMeta['duration_ms'] / 1000,
-            ndigits = 3
-        )
+        duration = rawTrackMeta['duration_ms'] / 1000
 
         contributingArtists = []
 
@@ -63,7 +60,6 @@ class SongObj():
         youtubeLink = SongObj.searchProvider(
             songName,
             contributingArtists,
-            albumName,
             duration
         )
 
