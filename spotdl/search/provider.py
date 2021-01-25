@@ -83,15 +83,23 @@ def search_and_order_ytm_results(songName: str, songArtists: List[str],
     searchTerm = f'{songName} - {", ".join(songArtists)}'
     results = __query_and_simplify(searchTerm)
 
-    simplified_results = []
+    song_results = []
+    video_results = []
 
     for result in results:
         # calculate the time difference between the search result and provided song
         time_diff = abs(result['length'] - songDuration)
-        simplified_results.append((time_diff, result['link']))
+        
+        if result['type'] == 'song':
+            song_results.append((time_diff, result['link']))
+        else:
+            video_results.append((time_diff, result['link']))
+    
 
-    return simplified_results
+    #! Prefer Song Results over Video Results
+    found_results =  sorted(song_results, key=lambda x: x[0]) + sorted(video_results, key=lambda x: x[0])
 
+    return found_results
 
 def search_and_get_best_match(songName: str, songArtists: List[str],
                               songDuration: float) -> typing.Optional[str]:
@@ -113,6 +121,4 @@ def search_and_get_best_match(songName: str, songArtists: List[str],
     if len(results) == 0:
         return None
 
-    sorted_results = sorted(results, key=lambda x: x[0])
-
-    return sorted_results[0][1]
+    return results[0][1]
