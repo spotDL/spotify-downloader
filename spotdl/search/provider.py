@@ -28,9 +28,10 @@ ytmApiClient = YTMusic()
 
 def __parse_duration(duration: str) -> float:
     if len(duration) > 5:
-        return 0.0
-
-    time_obj = datetime.strptime(duration, '%M:%S') - datetime(1900, 1, 1)
+        time_obj = datetime.strptime(duration, '%H:%M:%S') - datetime(1900, 1, 1)
+    else:
+        time_obj = datetime.strptime(duration, '%M:%S') - datetime(1900, 1, 1)
+    
     seconds = time_obj.total_seconds()
 
     return seconds
