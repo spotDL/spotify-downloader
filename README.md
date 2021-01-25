@@ -59,6 +59,12 @@ You need to download FFmpeg to use this tool. Download and installation instruct
   $ pip install https://codeload.github.com/spotDL/spotify-downloader/zip/dev
   ```
 
+#### On Termux:
+  
+  ```
+  curl https://github.com/spotDL/spotify-downloader/raw/master/termux/setup_spotdl.sh | sh
+  ```
+
 ___YouTube Music must be available in your country for spotDL to work. This is because we use YouTube Music to filter search results. You can check if YouTube Music is available in your country, by visiting [YouTube Music](https://music.youtube.com).___
 
 ## Usage (Instructions for v3)
