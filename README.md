@@ -1,5 +1,4 @@
-<img align="right" src="static/logo-transparent.png" alt="logo" width="339" height="155"/>
-
+<a href="https://github.com/spotDL/spotify-downloader"><img align="right" src="static/logo-transparent.png" alt="logo" width="339" height="155"/></a>
 # spotDL
 
 > **The fastest, easiest, and most accurate command-line music downloader**
