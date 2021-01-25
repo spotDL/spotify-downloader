@@ -181,7 +181,13 @@ def __query_and_simplify(searchTerm: str, apiKey: str = ytmApiKey) -> List[dict]
         if data['musicResponsiveListItemFlexColumnRenderer']['text']['runs'][0]['text'] == 'Song':
             sData['name'] = dataKey
             sData['link'] = 'https://www.youtube.com/watch?v=' + data['videoId']
-            sData['artist'] = data['musicResponsiveListItemFlexColumnRenderer']['text']['runs'][2]['text']
+
+            sData['artist'] = ''
+            for possibleArtist in data['musicResponsiveListItemFlexColumnRenderer']['text']['runs'][2:]:
+                if possibleArtist['text'].strip().rstrip() == '•':
+                    break
+                sData['artist'] += possibleArtist['text']   
+            
             sData['album'] = data['musicResponsiveListItemFlexColumnRenderer']['text']['runs'][4]['text']
 
             minStr, secStr = data['musicResponsiveListItemFlexColumnRenderer']['text']['runs'][6]['text'].split(':')

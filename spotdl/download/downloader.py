@@ -221,7 +221,7 @@ class DownloadManager():
         if self.displayManager:
             self.displayManager.notify_conversion_completion()
 
-        self.set_id3_data(convertedFilePath, songObj)
+        self.set_id3_data(str(convertedFilePath), songObj)
 
         # Do the necessary cleanup
         if self.displayManager:
