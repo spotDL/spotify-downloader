@@ -8,6 +8,7 @@ from spotdl.search.songObj import SongObj
 
 #! The actual download stuff
 from spotdl.download.downloader import DownloadManager
+from spotdl.download.playlist import M3U8
 
 
 #! Usage is simple - call 'python __main__.py <links, search terms, tracking files seperated by spaces>
@@ -41,30 +42,23 @@ help_notice = '''
 To download a song run,
     spotdl [trackUrl]
     ex. spotdl https://open.spotify.com/track/0VjIjW4GlUZAMYd2vXMi3b?si=1stnMF5GSdClnIEARnJiiQ
-
 To download a album run,
     spotdl [albumUrl]
     ex. spotdl https://open.spotify.com/album/4yP0hdKOZPNshxUOjY0cZj?si=AssgQQrVTJqptFe7X92jNg
-
 To download a playlist, run:
     spotdl [playlistUrl]
     ex. spotdl https://open.spotify.com/playlist/37i9dQZF1E8UXBoz02kGID?si=oGd5ctlyQ0qblj_bL6WWow
-
 To search for and download a song, run, with quotation marks:
 Note: This is not accurate and often causes errors.
     spotdl [songQuery]
     ex. spotdl 'The Weeknd - Blinding Lights'
-
 To resume a failed/incomplete download, run:
     spotdl [pathToTrackingFile]
     ex. spotdl 'The Weeknd - Blinding Lights.spotdlTrackingFile'
-
     .spotdlTrackingFiles are automatically created when a download starts and deleted on completion
-
 You can queue up multiple download tasks by separating the arguments with spaces:
     spotdl [songQuery1] [albumUrl] [songQuery2] ... (order does not matter)
     ex. spotdl 'The Weeknd - Blinding Lights' https://open.spotify.com/playlist/37i9dQZF1E8UXBoz02kGID?si=oGd5ctlyQ0qblj_bL6WWow ...
-
 spotDL downloads up to 4 songs in parallel, so for a faster experience, download albums and playlist, rather than tracks.
 '''
 
@@ -79,6 +73,10 @@ def console_entry_point():
 
         #! We use 'return None' as a convenient exit/break from the function
         return None
+    
+    make_playlist = True
+    if '--no-make-playlist' in sys.argv:
+        make_playlist = False
 
     spotifyClient.initialize(
         clientId='4fe3fecfe5334023a1472516cc99d805',
@@ -103,18 +101,28 @@ def console_entry_point():
             print('Fetching Album...')
             songObjList = get_album_tracks(request)
 
-            downloader.download_multiple_songs(songObjList)
+            if make_playlist:
+                playlist_maker = M3U8()
+                downloader.download_multiple_songs(songObjList, playlist_maker)
+            else:
+                downloader.download_multiple_songs(songObjList)
 
         elif 'open.spotify.com' in request and 'playlist' in request:
             print('Fetching Playlist...')
             songObjList = get_playlist_tracks(request)
-
-            downloader.download_multiple_songs(songObjList)
+            
+            if make_playlist:
+                playlist_maker = M3U8()
+                downloader.download_multiple_songs(songObjList, playlist_maker)
+                
+            else:
+                downloader.download_multiple_songs(songObjList)
 
         elif request.endswith('.spotdlTrackingFile'):
             print('Preparing to resume download...')
             downloader.resume_download_from_tracking_file(request)
-
+        elif request == "--no-make-playlist":
+            pass
         else:
             print('Searching for song "%s"...' % request)
             try:
