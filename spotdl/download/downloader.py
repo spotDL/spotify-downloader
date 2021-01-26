@@ -170,7 +170,7 @@ class DownloadManager():
             #! double quotes (") and semi-colons (:) are also disallowed characters but we would
             #! like to retain their equivalents, so they aren't removed in the prior loop
             convertedFileName = convertedFileName.replace(
-                '"', "'").replace(': ', ' - ')
+                '"', "'").replace(':', '-')
 
             convertedFilePath = Path(".", f"{convertedFileName}.mp3")
 
@@ -210,6 +210,9 @@ class DownloadManager():
                 return None
 
             downloadedFilePath = Path(downloadedFilePathString)
+
+            if dispayProgressTracker:
+                dispayProgressTracker.notify_youtube_download_completion()
 
             # convert downloaded file to MP3 with normalization
 
