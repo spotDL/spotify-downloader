@@ -221,6 +221,7 @@ class _ProgressTracker():
         self.progress = 0
         self.oldProgress = 0
         self.downloadID = 0
+        self.status = ""
 
         self.taskID = self.parent._richProgressBar.add_task(description=songObj.get_display_name(), processID=str(
             self.downloadID), message="Download Started", total=100, completed=self.progress, start=False, visible=(not self.parent.quiet))
@@ -283,8 +284,8 @@ class _ProgressTracker():
         `tb` : traceback
         Freezes the progress bar and prints the traceback received
         '''
-        self.update(message='Error')
-        message = "Error: " + str(e) + "\t While downloading: " + \
+        self.update(message='Error ' + self.status)
+        message = "Error: " + str(e) + "\t While " + self.status + ": " + \
             self.songObj.get_display_name() + "\n" + str(tb)
         self.parent.print(message, color="red")
 
@@ -292,6 +293,8 @@ class _ProgressTracker():
         '''
         Called at every event.
         '''
+
+        self.status = message
 
         # The change in progress since last update
         delta = self.progress - self.oldProgress
