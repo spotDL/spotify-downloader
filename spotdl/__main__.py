@@ -1,14 +1,12 @@
 #! Basic necessities to get the CLI running
-from spotdl.search import spotifyClient
-import sys
+import argparse
 
-#! Song Search from different start points
-from spotdl.search.utils import get_playlist_tracks, get_album_tracks, search_for_song
-from spotdl.search.songObj import SongObj
-
-#! The actual download stuff
+# ! The actual download stuff
 from spotdl.download.downloader import DownloadManager
-
+from spotdl.search import spotifyClient
+from spotdl.search.songObj import SongObj
+# ! Song Search from different start points
+from spotdl.search.utils import get_playlist_tracks, get_album_tracks, search_for_song
 
 #! Usage is simple - call 'python __main__.py <links, search terms, tracking files seperated by spaces>
 #! Eg.
@@ -36,7 +34,7 @@ from spotdl.download.downloader import DownloadManager
 #!
 #! P.S. Tell me what you think. Up to your expectations?
 
-#! Script Help
+# ! Script Help
 help_notice = '''
 To download a song run,
     spotdl [trackUrl]
@@ -68,26 +66,22 @@ You can queue up multiple download tasks by separating the arguments with spaces
 spotDL downloads up to 4 songs in parallel, so for a faster experience, download albums and playlist, rather than tracks.
 '''
 
+
 def console_entry_point():
     '''
     This is where all the console processing magic happens.
     Its super simple, rudimentary even but, it's dead simple & it works.
     '''
-
-    if '--help' in sys.argv or '-H' in sys.argv or '-h' in sys.argv or len(sys.argv) == 1:
-        print(help_notice)
-
-        #! We use 'return None' as a convenient exit/break from the function
-        return None
+    arguments = parse_arguments()
 
     spotifyClient.initialize(
         clientId='4fe3fecfe5334023a1472516cc99d805',
         clientSecret='0f02b7c483c04257984695007a4a8d5c'
-        )
+    )
 
     downloader = DownloadManager()
 
-    for request in sys.argv[1:]:
+    for request in arguments.url:
         if 'open.spotify.com' in request and 'track' in request:
             print('Fetching Song...')
             song = SongObj.from_url(request)
@@ -125,6 +119,19 @@ def console_entry_point():
                 print('No song named "%s" could be found on spotify' % request)
 
     downloader.close()
+
+
+def parse_arguments():
+    parser = argparse.ArgumentParser(
+        prog="spotdl",
+        description=help_notice,
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+    parser.add_argument("url", type=str, nargs="+")
+
+    return parser.parse_args()
+
+
 
 if __name__ == '__main__':
     console_entry_point()
