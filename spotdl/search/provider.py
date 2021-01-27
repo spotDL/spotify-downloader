@@ -57,9 +57,10 @@ def __query_and_simplify(searchTerm: str) -> List[dict]:
     '''
 
     print(f'Searching For {searchTerm}')
-    searchResults = ytmApiClient.search(searchTerm, filter='videos')
-
-    return list(map(__map_result_to_song_data, searchResults))
+    video_Results = ytmApiClient.search(searchTerm, filter='videos', limit=10)
+    song_results = ytmApiClient.search(searchTerm, filter='songs', limit=10)
+    
+    return list(map(__map_result_to_song_data, song_results + video_Results))
 
 
 # =======================
@@ -73,7 +74,7 @@ def search_and_order_ytm_results(songName: str, songArtists: List[str],
 
     `list<str>` `songArtists` : list containing name of contributing artists
 
-    `int` `songDuration`
+    `float` `songDuration`
 
     RETURNS `dict`
 
@@ -93,7 +94,7 @@ def search_and_order_ytm_results(songName: str, songArtists: List[str],
         
         if result['type'] == 'song':
             song_results.append((time_diff, result['link']))
-        else:
+        elif result['type'] == 'video':
             video_results.append((time_diff, result['link']))
     
 
