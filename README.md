@@ -59,9 +59,8 @@ You need to download FFmpeg to use this tool. Download and installation instruct
   $ pip install https://codeload.github.com/spotDL/spotify-downloader/zip/dev
   ```
 
-- On Termux:
+#### On Termux:
   
-  Simply run the following command:
   ```
   curl -L https://github.com/spotDL/spotify-downloader/raw/master/termux/setup_spotdl.sh | sh
   ```
