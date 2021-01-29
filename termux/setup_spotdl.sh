@@ -2,10 +2,10 @@
 termux-setup-storage
 
 # update packages
-pkg update
+pkg update -y
 
 # install python and ffmpeg
-pkg install python ffmpeg
+pkg install -y python ffmpeg
 
 # install spotdl
 pip install -U spotdl
