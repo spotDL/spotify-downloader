@@ -21,8 +21,9 @@ def search_for_song(query: str) ->  SongObj:
         raise Exception('No song matches found on Spotify')
     else:
         for songResult in result['tracks']['items']:
-            songUrl = 'http://open.spotify.com/track/' + songResult['id']
-            song = SongObj.from_url(songUrl)
+            if songResult is not None:
+                songUrl = 'http://open.spotify.com/track/' + songResult['id']
+                song = SongObj.from_url(songUrl)
             
             if song.get_youtube_link() != None:
                 return song
