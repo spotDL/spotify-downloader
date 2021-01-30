@@ -215,7 +215,7 @@ class DownloadTracker():
                 if disallowedChar in songName:
                     songName = songName.replace(disallowedChar, '')
 
-            songName = songName.replace('"', "'").replace(': ', ' - ')
+            songName = songName.replace('"', "'").replace(':', ' - ')
 
             self.saveFile = Path(songName + '.spotdlTrackingFile')
 
