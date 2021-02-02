@@ -7,6 +7,7 @@ import sys
 
 import typing
 from pathlib import Path
+from time import sleep
 
 from pytube import YouTube
 
@@ -214,8 +215,8 @@ class DownloadManager():
         #! sampled length of songs matches the actual length (i.e. a 5 min song won't display
         #! as 47 seconds long in your music player, yeah that was an issue earlier.)
 
-        command = 'ffmpeg -v quiet -y -i "%s" -acodec libmp3lame -abr true ' \
-            f'-b:a {trackAudioStream.bitrate} ' \
+        command = 'ffmpeg  -y -i "%s" -acodec libmp3lame -abr true ' \
+                 f'-b:a {trackAudioStream.bitrate} ' \
                   '-af "apad=pad_dur=2, dynaudnorm, loudnorm=I=-17" "%s"'
 
         #! bash/ffmpeg on Unix systems need to have excape char (\) for special characters: \$
@@ -233,18 +234,23 @@ class DownloadManager():
                 str(convertedFilePath).replace('$', '\$')
             )
 
-        process = await asyncio.subprocess.create_subprocess_shell(formattedCommand)
-        _ = await process.communicate()
+        process = await asyncio.subprocess.create_subprocess_shell(formattedCommand,
+                 stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
+        proc_out, proc_err = await process.communicate()
 
-        #! Wait till converted file is actually created
-        while True:
-            if convertedFilePath.is_file():
-                break
-
-        if self.displayManager:
-            self.displayManager.notify_conversion_completion()
-
-        self.set_id3_data(convertedFilePath, songObj)
+        # ffmpeg is done ... how did it go?
+        if process.returncode == 127:
+            print(f"\nffmpeg was not found. spotDL can't continue", file=sys.stderr)
+            exit(1)
+        elif process.returncode != 0:
+            print(f"\nffmpeg returned an error ({process.returncode})", file=sys.stderr)
+            print(f"the ffmpeg command was \"{formattedCommand}\"", file=sys.stderr)
+            print(f'ffmpeg gave this output:\n=====\n{proc_err.decode("utf-8")}\n=====\n', file=sys.stderr)
+            convertedFilePath.unlink()
+        else:
+            if self.displayManager:
+                self.displayManager.notify_conversion_completion()
+            self.set_id3_data(convertedFilePath, songObj)
 
         # Do the necessary cleanup
         if self.displayManager:
