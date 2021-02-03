@@ -214,11 +214,11 @@ class DownloadManager():
         #! sampled length of songs matches the actual length (i.e. a 5 min song won't display
         #! as 47 seconds long in your music player, yeah that was an issue earlier.)
 
-        command = 'ffmpeg  -y -i "%s" -acodec libmp3lame -abr true ' \
+        command = 'ffmpeg -y -i "%s" -acodec libmp3lame -abr true ' \
                  f'-b:a {trackAudioStream.bitrate} ' \
                   '-af "apad=pad_dur=2, dynaudnorm, loudnorm=I=-17" "%s"'
 
-        #! bash/ffmpeg on Unix systems need to have excape char (\) for special characters: \$
+        #! bash/ffmpeg on Unix systems need to have escape char (\) for special characters: \$
         #! alternatively the quotes could be reversed (single <-> double) in the command then
         #! the windows special characters needs escaping (^): ^\  ^&  ^|  ^>  ^<  ^^
 
@@ -240,7 +240,7 @@ class DownloadManager():
         # ffmpeg is done ... how did it go?
         if process.returncode == 127:
             print(f"\nffmpeg was not found. spotDL can't continue", file=sys.stderr)
-            exit(1)
+            sys.exit(1)
         elif process.returncode != 0:
             print(f"\nffmpeg returned an error ({process.returncode})", file=sys.stderr)
             print(f"the ffmpeg command was \"{formattedCommand}\"", file=sys.stderr)
