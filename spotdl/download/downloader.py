@@ -246,15 +246,17 @@ class DownloadManager():
             print(f"the ffmpeg command was \"{formattedCommand}\"", file=sys.stderr)
             print(f'ffmpeg gave this output:\n=====\n{proc_err.decode("utf-8")}\n=====\n', file=sys.stderr)
             convertedFilePath.unlink()
-        else:
-            if self.displayManager:
-                self.displayManager.notify_conversion_completion()
+            convertedFilePath = None
+
+        # notify conversion completion
+        if self.displayManager:
+            self.displayManager.notify_conversion_completion()
+
+        # if a file was successfully downloaded, tag it
+        if convertedFilePath is not None:
             self.set_id3_data(convertedFilePath, songObj)
 
-        # Do the necessary cleanup
-        if self.displayManager:
-            self.displayManager.notify_download_completion()
-
+        # now notify download completion
         if self.downloadTracker:
             self.downloadTracker.notify_download_completion(songObj)
 
