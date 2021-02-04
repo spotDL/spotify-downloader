@@ -29,3 +29,22 @@ jobs:
           tox
         env:
           PLATFORM: ${{ matrix.platform }}
+
+  regressions:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+      - name: Install dependencies
+        run: |
+          sudo add-apt-repository ppa:jonathonf/ffmpeg-4 -y
+          sudo apt-get update
+          sudo apt install ffmpeg -y
+          python -m pip install -e .[test]
+      - name: Run tests
+        run: |
+          pytest tests/regressions.py
