@@ -14,8 +14,8 @@ if [ ! -d "$HOME/bin" ]; then
     mkdir "$HOME/bin"
 fi
 
-if [[ ! -f "$HOME/bin/termux-file-opener" ]]; then
-    touch $HOME/bin/termux-file-opener
+if [ ! -f "$HOME/bin/termux-url-opener" ]; then
+    touch $HOME/bin/termux-url-opener
 fi
 
-curl -L https://raw.githubusercontent.com/spotDL/spotify-downloader/master/termux/termux-url-opener > $HOME/bin/termux-file-opener
+curl -L https://raw.githubusercontent.com/spotDL/spotify-downloader/master/termux/termux-url-opener > $HOME/bin/termux-url-opener
