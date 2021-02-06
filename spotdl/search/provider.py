@@ -84,7 +84,7 @@ def __parse_duration(duration: str) -> float:
         return float(seconds)
 
     # ! This usually occurs when the wrong string is mistaken for the duration
-    except (ValueError, TypeError):
+    except (ValueError, TypeError, AttributeError):
         return 0.0
 
 
