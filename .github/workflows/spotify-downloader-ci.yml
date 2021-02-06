@@ -42,7 +42,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install tox
-      - name: Run tests
+      - name: Run mypy
         run: |
           tox -e mypy
 
@@ -58,7 +58,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install tox
-      - name: Run tests
+      - name: Run flake8
         run: |
           tox -e flake8
 
