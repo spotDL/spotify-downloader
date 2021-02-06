@@ -33,7 +33,7 @@ def patch_dependencies(mocker, monkeypatch):
     mocker.patch.object(DownloadManager, "close", autospec=True)
 
 
-@pytest.mark.parametrize("argument", ["-h", "-H", "--help", None])
+@pytest.mark.parametrize("argument", ["-h", "--help"])
 def test_show_help(capsys, monkeypatch, argument):
     """The --help, -h switches or no arguments should display help message"""
 
@@ -43,10 +43,12 @@ def test_show_help(capsys, monkeypatch, argument):
     if argument:
         cli_args.append(argument)
     monkeypatch.setattr(sys, "argv", cli_args)
-    console_entry_point()
+
+    with pytest.raises(SystemExit):
+        console_entry_point()
 
     out, _ = capsys.readouterr()
-    assert out == help_notice + "\n"
+    assert help_notice in out
 
 
 @pytest.mark.vcr()

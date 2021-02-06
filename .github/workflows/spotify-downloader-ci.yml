@@ -3,11 +3,7 @@
 
 name: spotify-downloader-ci
 
-on:
-  push:
-    branches: [ master, dev ]
-  pull_request:
-    branches: [ master, dev ]
+on: [push, pull_request]
 
 jobs:
   test:
@@ -33,3 +29,54 @@ jobs:
           tox
         env:
           PLATFORM: ${{ matrix.platform }}
+
+  mypy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+      - name: Install dependencies
+        run: |
+          python -m pip install tox
+      - name: Run mypy
+        run: |
+          tox -e mypy
+
+  flake8:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+      - name: Install dependencies
+        run: |
+          python -m pip install tox
+      - name: Run flake8
+        run: |
+          tox -e flake8
+
+  regressions:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+      - name: Install dependencies
+        run: |
+          sudo add-apt-repository ppa:jonathonf/ffmpeg-4 -y
+          sudo apt-get update
+          sudo apt install ffmpeg -y
+          python -m pip install -e .[test]
+      - name: Run tests
+        run: |
+          pytest tests/regressions.py

@@ -8,19 +8,16 @@ import traceback
 
 import typing
 from pathlib import Path
-
-from pytube import YouTube
+# ! The following are not used, they are just here for static typechecking with mypy
+from typing import List
+from urllib.request import urlopen
 
 from mutagen.easyid3 import EasyID3, ID3
 from mutagen.id3 import APIC as AlbumCover
+from pytube import YouTube
 
-from urllib.request import urlopen
-
-#! The following are not used, they are just here for static typechecking with mypy
-from typing import List
-
-from spotdl.search.songObj import SongObj
 from spotdl.download.progressHandlers import DisplayManager, DownloadTracker
+from spotdl.search.songObj import SongObj
 
 
 # ==========================
@@ -33,7 +30,7 @@ from spotdl.download.progressHandlers import DisplayManager, DownloadTracker
 # ===========================================================
 
 class DownloadManager():
-    #! Big pool sizes on slow connections will lead to more incomplete downloads
+    # ! Big pool sizes on slow connections will lead to more incomplete downloads
     poolSize = 4
 
     def __init__(self):
@@ -43,15 +40,15 @@ class DownloadManager():
         self.downloadTracker = DownloadTracker()
 
         if sys.platform == "win32":
-            #! ProactorEventLoop is required on Windows to run subprocess asynchronously
-            #! it is default since Python 3.8 but has to be changed for previous versions
+            # ! ProactorEventLoop is required on Windows to run subprocess asynchronously
+            # ! it is default since Python 3.8 but has to be changed for previous versions
             loop = asyncio.ProactorEventLoop()
             asyncio.set_event_loop(loop)
         self.loop = asyncio.get_event_loop()
-        #! semaphore is required to limit concurrent asyncio executions
+        # ! semaphore is required to limit concurrent asyncio executions
         self.semaphore = asyncio.Semaphore(self.poolSize)
 
-        #! thread pool executor is used to run blocking (CPU-bound) code from a thread
+        # ! thread pool executor is used to run blocking (CPU-bound) code from a thread
         self.thread_executor = concurrent.futures.ThreadPoolExecutor(
             max_workers=self.poolSize)
 
@@ -330,10 +327,10 @@ class DownloadManager():
         audioFile.save(v2_version=3)
 
     async def _download_from_youtube(self, convertedFileName, tempFolder, trackAudioStream):
-        #! The following function calls blocking code, which would block whole event loop.
-        #! Therefore it has to be called in a separate thread via ThreadPoolExecutor. This
-        #! is not a problem, since GIL is released for the I/O operations, so it shouldn't
-        #! hurt performance.
+        # ! The following function calls blocking code, which would block whole event loop.
+        # ! Therefore it has to be called in a separate thread via ThreadPoolExecutor. This
+        # ! is not a problem, since GIL is released for the I/O operations, so it shouldn't
+        # ! hurt performance.
         return await self.loop.run_in_executor(
             self.thread_executor,
             self._perform_audio_download,
@@ -343,28 +340,29 @@ class DownloadManager():
         )
 
     def _perform_audio_download(self, convertedFileName, tempFolder, trackAudioStream):
-        #! The actual download, if there is any error, it'll be here,
+        # ! The actual download, if there is any error, it'll be here,
         try:
-            #! pyTube will save the song in .\Temp\$songName.mp4 or .webm, it doesn't save as '.mp3'
+            # ! pyTube will save the song in .\Temp\$songName.mp4 or .webm,
+            # ! it doesn't save as '.mp3'
             downloadedFilePath = trackAudioStream.download(
                 output_path=tempFolder,
                 filename=convertedFileName,
                 skip_existing=False
             )
             return downloadedFilePath
-        except:
-            #! This is equivalent to a failed download, we do nothing, the song remains on
-            #! downloadTrackers download queue and all is well...
-            #!
-            #! None is again used as a convenient exit
+        except:  # noqa:E722
+            # ! This is equivalent to a failed download, we do nothing, the song remains on
+            # ! downloadTrackers download queue and all is well...
+            # !
+            # ! None is again used as a convenient exit
             tempFiles = Path(tempFolder).glob(f'{convertedFileName}.*')
             for tempFile in tempFiles:
                 tempFile.unlink()
             return None
 
     async def _pool_download(self, song_obj: SongObj):
-        #! Run asynchronous task in a pool to make sure that all processes
-        #! don't run at once.
+        # ! Run asynchronous task in a pool to make sure that all processes
+        # ! don't run at once.
 
         # tasks that cannot acquire semaphore will wait here until it's free
         # only certain amount of tasks can acquire the semaphore at the same time
