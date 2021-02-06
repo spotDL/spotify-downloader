@@ -8,31 +8,38 @@ from spotdl.search.songObj import SongObj
 # ! Song Search from different start points
 from spotdl.search.utils import get_playlist_tracks, get_album_tracks, search_for_song
 
-#! Usage is simple - call 'python __main__.py <links, search terms, tracking files seperated by spaces>
-#! Eg.
-#!      python __main__.py https://open.spotify.com/playlist/37i9dQZF1DWXhcuQw7KIeM?si=xubKHEBESM27RqGkqoXzgQ 'old gods of asgard Control' https://open.spotify.com/album/2YMWspDGtbDgYULXvVQFM6?si=gF5dOQm8QUSo-NdZVsFjAQ https://open.spotify.com/track/08mG3Y1vljYA6bvDt4Wqkj?si=SxezdxmlTx-CaVoucHmrUA
-#!
-#! Well, yeah its a pretty long example but, in theory, it should work like a charm.
-#!
-#! A '.spotdlTrackingFile' is automatically  created with the name of the first song in the playlist/album or
-#! the name of the song supplied. We don't really re re re-query YTM and SPotify as all relevant details are
-#! stored to disk.
-#!
-#! Files are cleaned up on download failure.
-#!
-#! All songs are normalized to standard base volume. the soft ones are made louder, the loud ones, softer.
-#!
-#! The progress bar is synched across multiple-processes (4 processes as of now), getting the progress bar to
-#! synch was an absolute pain, each process knows how much 'it' progressed, but the display has to be for the
-#! overall progress so, yeah... that took time.
-#!
-#! spotdl will show you its true speed on longer download's - so make sure you try downloading a playlist.
-#!
-#! still yet to try and package this but, in theory, there should be no errors.
-#!
-#!                                                          - cheerio! (Michael)
-#!
-#! P.S. Tell me what you think. Up to your expectations?
+# ! Usage is simple - call:
+#   'python __main__.py <links, search terms, tracking files separated by spaces>
+# ! Eg.
+# !      python __main__.py
+# !          https://open.spotify.com/playlist/37i9dQZF1DWXhcuQw7KIeM?si=xubKHEBESM27RqGkqoXzgQ
+# !          'old gods of asgard Control'
+# !          https://open.spotify.com/album/2YMWspDGtbDgYULXvVQFM6?si=gF5dOQm8QUSo-NdZVsFjAQ
+# !          https://open.spotify.com/track/08mG3Y1vljYA6bvDt4Wqkj?si=SxezdxmlTx-CaVoucHmrUA
+# !
+# ! Well, yeah its a pretty long example but, in theory, it should work like a charm.
+# !
+# ! A '.spotdlTrackingFile' is automatically  created with the name of the first song in the
+# ! playlist/album or the name of the song supplied. We don't really re re re-query YTM and Spotify
+# ! as all relevant details are stored to disk.
+# !
+# ! Files are cleaned up on download failure.
+# !
+# ! All songs are normalized to standard base volume. the soft ones are made louder,
+# ! the loud ones, softer.
+# !
+# ! The progress bar is synched across multiple-processes (4 processes as of now), getting the
+# ! progress bar to synch was an absolute pain, each process knows how much 'it' progressed,
+# ! but the display has to be for the overall progress so, yeah... that took time.
+# !
+# ! spotdl will show you its true speed on longer download's - so make sure you try
+# ! downloading a playlist.
+# !
+# ! still yet to try and package this but, in theory, there should be no errors.
+# !
+# !                                                          - cheerio! (Michael)
+# !
+# ! P.S. Tell me what you think. Up to your expectations?
 
 # ! Script Help
 help_notice = '''
@@ -61,9 +68,11 @@ To resume a failed/incomplete download, run:
 
 You can queue up multiple download tasks by separating the arguments with spaces:
     spotdl [songQuery1] [albumUrl] [songQuery2] ... (order does not matter)
-    ex. spotdl 'The Weeknd - Blinding Lights' https://open.spotify.com/playlist/37i9dQZF1E8UXBoz02kGID?si=oGd5ctlyQ0qblj_bL6WWow ...
+    ex. spotdl 'The Weeknd - Blinding Lights'
+            https://open.spotify.com/playlist/37i9dQZF1E8UXBoz02kGID?si=oGd5ctlyQ0qblj_bL6WWow ...
 
-spotDL downloads up to 4 songs in parallel, so for a faster experience, download albums and playlist, rather than tracks.
+spotDL downloads up to 4 songs in parallel, so for a faster experience,
+download albums and playlist, rather than tracks.
 '''
 
 
@@ -86,7 +95,7 @@ def console_entry_point():
             print('Fetching Song...')
             song = SongObj.from_url(request)
 
-            if song.get_youtube_link() != None:
+            if song.get_youtube_link() is not None:
                 downloader.download_single_song(song)
             else:
                 print('Skipping %s (%s) as no match could be found on youtube' % (
@@ -130,7 +139,6 @@ def parse_arguments():
     parser.add_argument("url", type=str, nargs="+")
 
     return parser.parse_args()
-
 
 
 if __name__ == '__main__':
