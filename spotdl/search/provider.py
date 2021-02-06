@@ -4,8 +4,7 @@
 
 # ! the following are for the search provider to function
 import typing
-from datetime import timedelta
-from time import strptime
+
 # ! Just for static typing
 from typing import List
 
@@ -73,17 +72,18 @@ ytmApiClient = YTMusic()
 
 
 def __parse_duration(duration: str) -> float:
+    '''
+    Convert string value of time (duration: 25:36:59) to a float value of seconds (92219.0)
+    '''
     try:
-        if len(duration) > 5:
-            padded = duration.rjust(8, '0')
-            x = strptime(padded, '%H:%M:%S')
-        elif len(duration) > 2:
-            padded = duration.rjust(5, '0')
-            x = strptime(padded, '%M:%S')
-        else:
-            x = strptime(duration, '%S')
+        # {(3600, "h"), (60, "m"), (1, "s")}
+        mapped = zip([3600, 60, 1], duration.split(":"))
+        seconds = 0
+        for x, t in mapped:
+            seconds += x * int(t)
+        return float(seconds)
 
-        return timedelta(hours=x.tm_hour, minutes=x.tm_min, seconds=x.tm_sec).total_seconds()
+    # ! This usually occurs when the wrong string is mistaken for the duration
     except (ValueError, TypeError):
         return 0.0
 
