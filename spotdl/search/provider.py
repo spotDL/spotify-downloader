@@ -95,7 +95,7 @@ def __map_result_to_song_data(result: dict) -> dict:
         'name': result['title'],
         'type': result['resultType'],
         'artist': artists,
-        'length': __parse_duration(result['duration']),
+        'length': __parse_duration(result.get('duration', None)),
         'link': f'https://www.youtube.com/watch?v={video_id}',
         'position': 0
     }
