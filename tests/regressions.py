@@ -1,6 +1,6 @@
 import sys
 
-from spotdl import console_entry_point
+from spotdl.__main__ import console_entry_point
 
 SONGS = {
     "https://open.spotify.com/track/6CN3e26iQSj1N5lomh0mfO": "Eminem - Like Toy Soldiers.mp3",
