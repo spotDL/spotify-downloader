@@ -150,10 +150,8 @@ class SongObj():
 
         return contributingArtists
 
-
-<< << << < HEAD
-   #! 6. Display Name
-   def get_display_name(self) -> str:
+    #! 6. Display Name
+    def get_display_name(self) -> str:
         ''''
         returns songs's display name.
         '''
@@ -164,12 +162,7 @@ class SongObj():
 
     #! 1. Name
 
-== == == =
-   # ! Album Details:
-
-   # ! 1. Name
->>>>>> > 6bba4641f0f17b210afc17384b6798fe722330f6
-   def get_album_name(self) -> str:
+    def get_album_name(self) -> str:
         '''
         returns name of the album that the song belongs to.
         '''
