@@ -73,14 +73,14 @@ ytmApiClient = YTMusic()
 
 def __parse_duration(duration: str) -> float:
     '''
-    Convert string value of time (duration: 25:36:59) to a float value of seconds (92219.0)
+    Convert string value of time (duration: "25:36:59") to a float value of seconds (92219.0)
     '''
     try:
-        # {(3600, "h"), (60, "m"), (1, "s")}
-        mapped = zip([3600, 60, 1], duration.split(":"))
+        # {(1, "s"), (60, "m"), (3600, "h")}
+        mappedIncrements = zip([1, 60, 3600], reversed(duration.split(":")))
         seconds = 0
-        for x, t in mapped:
-            seconds += x * int(t)
+        for multiple, time in mappedIncrements:
+            seconds += multiple * int(time)
         return float(seconds)
 
     # ! This usually occurs when the wrong string is mistaken for the duration
