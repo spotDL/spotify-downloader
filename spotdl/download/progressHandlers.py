@@ -24,7 +24,7 @@ from rich.console import (
     RenderGroup,
     RenderHook,
     detect_legacy_windows,
-    OverflowMethod
+    OverflowMethod,
 )
 from rich.highlighter import Highlighter
 from rich.text import Text
@@ -73,7 +73,7 @@ class SizedTextColumn(ProgressColumn):
         justify: JustifyMethod = "left",
         markup: bool = True,
         highlighter: Highlighter = None,
-        overflow: "OverflowMethod" = "ellipsis",
+        overflow: Optional[OverflowMethod] = None,
         width: int = 20
     ) -> None:
         self.text_format = text_format
@@ -81,7 +81,7 @@ class SizedTextColumn(ProgressColumn):
         self.style = style
         self.markup = markup
         self.highlighter = highlighter
-        self.overflow = overflow,
+        self.overflow = overflow
         self.width = width
         super().__init__()
 
