@@ -24,6 +24,7 @@ from rich.console import (
     RenderGroup,
     RenderHook,
     detect_legacy_windows,
+    OverflowMethod
 )
 from rich.highlighter import Highlighter
 from rich.text import Text
