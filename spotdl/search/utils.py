@@ -95,7 +95,7 @@ def get_playlist_tracks(playlistUrl: str) -> List[SongObj]:
         if playlistResponse['next']:
             playlistResponse = spotifyClient.playlist_tracks(
                 playlistUrl,
-                offset = playlistResponse['offset'] + playlistResponse['limit']
+                offset=playlistResponse['offset'] + playlistResponse['limit']
             )
         else:
             break
