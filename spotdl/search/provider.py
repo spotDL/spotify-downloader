@@ -2,13 +2,13 @@
 # === Imports ===
 # ===============
 
+# ! the following are for the search provider to function
+import typing
 from datetime import timedelta
 from time import strptime
 # ! Just for static typing
 from typing import List
 
-# ! the following are for the search provider to function
-import typing
 from rapidfuzz.fuzz import partial_ratio
 from ytmusicapi import YTMusic
 
@@ -48,7 +48,7 @@ def match_percentage(str1: str, str2: str, score_cutoff: float = 0) -> float:
 
     # ! we build new strings that contain only alphanumerical characters and spaces
     # ! and return the partial_ratio of that
-    except:
+    except:  # noqa:E722
         newStr1 = ''
 
         for eachLetter in str1:
@@ -95,7 +95,7 @@ def __map_result_to_song_data(result: dict) -> dict:
         'name': result['title'],
         'type': result['resultType'],
         'artist': artists,
-        'length': __parse_duration(result['duration']),
+        'length': __parse_duration(result.get('duration', None)),
         'link': f'https://www.youtube.com/watch?v={video_id}',
         'position': 0
     }
