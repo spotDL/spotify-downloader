@@ -135,11 +135,11 @@ class DownloadManager():
             if artist.lower() not in songObj.get_song_name().lower():
                 artistStr += artist + ', '
 
-        #! make sure that main artist is included in artistStr even if he 
-        #! is in the song name for example
-        #! Lil Baby - Never Recover (Lil Baby & Gunna, Drake).mp3
+        # make sure that main artist is included in artistStr even if he
+        # is in the song name for example
+        # Lil Baby - Never Recover (Lil Baby & Gunna, Drake).mp3
         if songObj.get_contributing_artists()[0].lower() not in artistStr.lower():
-            artistStr =  songObj.get_contributing_artists()[0] + ', ' + artistStr
+            artistStr = songObj.get_contributing_artists()[0] + ', ' + artistStr
 
         # ! the ...[:-2] is to avoid the last ', ' appended to artistStr
         convertedFileName = artistStr[:-2] + ' - ' + songObj.get_song_name()
