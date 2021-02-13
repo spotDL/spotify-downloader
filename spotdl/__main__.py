@@ -138,17 +138,5 @@ def parse_arguments():
     return parser.parse_args()
 
 
-
-def parse_arguments():
-    parser = argparse.ArgumentParser(
-        prog="spotdl",
-        description=help_notice,
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-    )
-    parser.add_argument("url", type=str, nargs="+")
-
-    return parser.parse_args()
-
-
 if __name__ == '__main__':
     console_entry_point()
