@@ -4,12 +4,6 @@
 
 # ! the following are for the search provider to function
 import typing
-<<<<<<< HEAD
-
-=======
-from datetime import timedelta
-from time import strptime
->>>>>>> fb2eddab9d922f136f7f832bc361c5740aaf4e1e
 # ! Just for static typing
 from typing import List
 
@@ -100,7 +94,7 @@ def _map_result_to_song_data(result: dict) -> dict:
         'name': result['title'],
         'type': result['resultType'],
         'artist': artists,
-        'length': __parse_duration(result.get('duration', None)),
+        'length': _parse_duration(result.get('duration', None)),
         'link': f'https://www.youtube.com/watch?v={video_id}',
         'position': 0
     }
@@ -127,7 +121,7 @@ def _query_and_simplify(searchTerm: str) -> List[dict]:
     print(f'Searching for: {searchTerm}')
     searchResult = ytmApiClient.search(searchTerm, filter='videos')
 
-    return list(map(__map_result_to_song_data, searchResult))
+    return list(map(_map_result_to_song_data, searchResult))
 
 
 # =======================
@@ -152,7 +146,7 @@ def search_and_order_ytm_results(songName: str, songArtists: List[str],
     that $matchValue can take is 100, the least value is unbound.
     '''
     # Query YTM
-    results = __query_and_simplify(get_ytm_search_query(songName, songArtists))
+    results = _query_and_simplify(get_ytm_search_query(songName, songArtists))
 
     # Assign an overall avg match value to each result
     linksWithMatchValue = {}
