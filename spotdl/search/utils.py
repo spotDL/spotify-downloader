@@ -82,6 +82,9 @@ def get_playlist_tracks(playlistUrl: str) -> List[SongObj]:
     while True:
 
         for songEntry in playlistResponse['items']:
+            if songEntry['track'] is None or songEntry['track']['id'] is None:
+                continue
+
             song = SongObj.from_url(
                 'https://open.spotify.com/track/' + songEntry['track']['id'])
 
@@ -92,7 +95,11 @@ def get_playlist_tracks(playlistUrl: str) -> List[SongObj]:
         if playlistResponse['next']:
             playlistResponse = spotifyClient.playlist_tracks(
                 playlistUrl,
+<<<<<<< HEAD
                 offset=len(playlistTracks)
+=======
+                offset=playlistResponse['offset'] + playlistResponse['limit']
+>>>>>>> fb2eddab9d922f136f7f832bc361c5740aaf4e1e
             )
         else:
             break

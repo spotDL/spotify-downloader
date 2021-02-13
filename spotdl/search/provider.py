@@ -4,7 +4,12 @@
 
 # ! the following are for the search provider to function
 import typing
+<<<<<<< HEAD
 
+=======
+from datetime import timedelta
+from time import strptime
+>>>>>>> fb2eddab9d922f136f7f832bc361c5740aaf4e1e
 # ! Just for static typing
 from typing import List
 
