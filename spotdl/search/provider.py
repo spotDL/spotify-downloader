@@ -71,7 +71,7 @@ def match_percentage(str1: str, str2: str, score_cutoff: float = 0) -> float:
 ytmApiClient = YTMusic()
 
 
-def __parse_duration(duration: str) -> float:
+def _parse_duration(duration: str) -> float:
     '''
     Convert string value of time (duration: "25:36:59") to a float value of seconds (92219.0)
     '''
@@ -88,7 +88,7 @@ def __parse_duration(duration: str) -> float:
         return 0.0
 
 
-def __map_result_to_song_data(result: dict) -> dict:
+def _map_result_to_song_data(result: dict) -> dict:
     artists = ", ".join(map(lambda a: a['name'], result['artists']))
     video_id = result['videoId']
     song_data = {
@@ -105,7 +105,7 @@ def __map_result_to_song_data(result: dict) -> dict:
     return song_data
 
 
-def __query_and_simplify(searchTerm: str) -> List[dict]:
+def _query_and_simplify(searchTerm: str) -> List[dict]:
     '''
     `str` `searchTerm` : the search term you would type into YTM's search bar
 
