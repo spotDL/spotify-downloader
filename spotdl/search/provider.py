@@ -79,8 +79,8 @@ def __parse_duration(duration: str) -> float:
         # {(1, "s"), (60, "m"), (3600, "h")}
         mappedIncrements = zip([1, 60, 3600], reversed(duration.split(":")))
         seconds = 0
-        for multiple, time in mappedIncrements:
-            seconds += multiple * int(time)
+        for multiplier, time in mappedIncrements:
+            seconds += multiplier * int(time)
         return float(seconds)
 
     # ! This usually occurs when the wrong string is mistaken for the duration
