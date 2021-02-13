@@ -95,7 +95,7 @@ def console_entry_point():
                 print('Fetching Song...')
                 song = SongObj.from_url(request)
 
-                if song.get_youtube_link() != None:
+                if song.get_youtube_link() is not None:
                     downloader.download_single_song(song)
                 else:
                     print('Skipping %s (%s) as no match could be found on youtube' % (
@@ -125,6 +125,18 @@ def console_entry_point():
                     downloader.download_single_song(song)
                 except Exception as e:
                     print(e)
+
+
+def parse_arguments():
+    parser = argparse.ArgumentParser(
+        prog="spotdl",
+        description=help_notice,
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+    parser.add_argument("url", type=str, nargs="+")
+
+    return parser.parse_args()
+
 
 
 def parse_arguments():
