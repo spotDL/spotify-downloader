@@ -4,8 +4,6 @@
 
 # ! the following are for the search provider to function
 import typing
-from datetime import timedelta
-from time import strptime
 # ! Just for static typing
 from typing import List
 
@@ -72,30 +70,31 @@ def match_percentage(str1: str, str2: str, score_cutoff: float = 0) -> float:
 ytmApiClient = YTMusic()
 
 
-def __parse_duration(duration: str) -> float:
+def _parse_duration(duration: str) -> float:
+    '''
+    Convert string value of time (duration: "25:36:59") to a float value of seconds (92219.0)
+    '''
     try:
-        if len(duration) > 5:
-            padded = duration.rjust(8, '0')
-            x = strptime(padded, '%H:%M:%S')
-        elif len(duration) > 2:
-            padded = duration.rjust(5, '0')
-            x = strptime(padded, '%M:%S')
-        else:
-            x = strptime(duration, '%S')
+        # {(1, "s"), (60, "m"), (3600, "h")}
+        mappedIncrements = zip([1, 60, 3600], reversed(duration.split(":")))
+        seconds = 0
+        for multiplier, time in mappedIncrements:
+            seconds += multiplier * int(time)
+        return float(seconds)
 
-        return timedelta(hours=x.tm_hour, minutes=x.tm_min, seconds=x.tm_sec).total_seconds()
-    except (ValueError, TypeError):
+    # ! This usually occurs when the wrong string is mistaken for the duration
+    except (ValueError, TypeError, AttributeError):
         return 0.0
 
 
-def __map_result_to_song_data(result: dict) -> dict:
+def _map_result_to_song_data(result: dict) -> dict:
     artists = ", ".join(map(lambda a: a['name'], result['artists']))
     video_id = result['videoId']
     song_data = {
         'name': result['title'],
         'type': result['resultType'],
         'artist': artists,
-        'length': __parse_duration(result.get('duration', None)),
+        'length': _parse_duration(result.get('duration', None)),
         'link': f'https://www.youtube.com/watch?v={video_id}',
         'position': 0
     }
@@ -105,7 +104,7 @@ def __map_result_to_song_data(result: dict) -> dict:
     return song_data
 
 
-def __query_and_simplify(searchTerm: str) -> List[dict]:
+def _query_and_simplify(searchTerm: str) -> List[dict]:
     '''
     `str` `searchTerm` : the search term you would type into YTM's search bar
 
@@ -122,7 +121,7 @@ def __query_and_simplify(searchTerm: str) -> List[dict]:
     print(f'Searching for: {searchTerm}')
     searchResult = ytmApiClient.search(searchTerm, filter='videos')
 
-    return list(map(__map_result_to_song_data, searchResult))
+    return list(map(_map_result_to_song_data, searchResult))
 
 
 # =======================
@@ -147,7 +146,7 @@ def search_and_order_ytm_results(songName: str, songArtists: List[str],
     that $matchValue can take is 100, the least value is unbound.
     '''
     # Query YTM
-    results = __query_and_simplify(get_ytm_search_query(songName, songArtists))
+    results = _query_and_simplify(get_ytm_search_query(songName, songArtists))
 
     # Assign an overall avg match value to each result
     linksWithMatchValue = {}
