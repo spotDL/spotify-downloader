@@ -93,7 +93,7 @@ def console_entry_point():
     if arguments.path:
         if not os.path.isdir(arguments.path):
             sys.exit("The output directory doesn't exist.")
-        print(f"Will download to: {os.path.abspath(arguments.path)}", )
+        print(f"Will download to: {os.path.abspath(arguments.path)}")
         os.chdir(arguments.path)
 
     downloader = DownloadManager()
