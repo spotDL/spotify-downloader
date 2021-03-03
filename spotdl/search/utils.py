@@ -82,7 +82,7 @@ def get_playlist_tracks(playlistUrl: str) -> List[SongObj]:
     while True:
 
         for songEntry in playlistResponse['items']:
-            if songEntry['track'] is None:
+            if songEntry['track'] is None or songEntry['track']['id'] is None:
                 continue
 
             song = SongObj.from_url(
