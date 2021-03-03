@@ -270,6 +270,8 @@ class DownloadManager():
         audioFile['titlesort'] = songObj.get_song_name()
         # ! track number
         audioFile['tracknumber'] = str(songObj.get_track_number())
+        # ! disc number
+        audioFile['discnumber'] = str(songObj.get_disc_number())
         # ! genres (pretty pointless if you ask me)
         # ! we only apply the first available genre as ID3 v2.3 doesn't support multiple
         # ! genres and ~80% of the world PC's run Windows - an OS with no ID3 v2.4 support
