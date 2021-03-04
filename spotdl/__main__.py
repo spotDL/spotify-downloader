@@ -66,6 +66,8 @@ You can queue up multiple download tasks by separating the arguments with spaces
     spotdl [songQuery1] [albumUrl] [songQuery2] ... (order does not matter)
     ex. spotdl 'The Weeknd - Blinding Lights' https://open.spotify.com/playlist/37i9dQZF1E8UXBoz02kGID?si=oGd5ctlyQ0qblj_bL6WWow ...
 
+You can use the --debug-termination flag to figure out where in the code spotdl got stuck.
+
 spotDL downloads up to 4 songs in parallel, so for a faster experience, download albums and playlist, rather than tracks.
 '''
 
@@ -88,7 +90,7 @@ def console_entry_point():
 
     downloader = DownloadManager()
 
-    if "--disable-signal-handling" not in sys.argv:
+    if "--debug-termination" not in sys.argv:
         def gracefulExit(signal, frame):
             downloader.close()
             sygis.exit(0)
