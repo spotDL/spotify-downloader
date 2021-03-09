@@ -90,21 +90,23 @@ def _parse_duration(duration: str) -> float:
 
 
 def _map_result_to_song_data(result: dict) -> dict:
-    artists = ", ".join(map(lambda a: a['name'], result['artists']))
-    video_id = result.get('videoId', None)
+    song_data = {}
+    if result['resultType'] in ['song', 'video']:
+        artists = ", ".join(map(lambda a: a['name'], result['artists']))
+        video_id = result['videoId']
+        song_data = {
+            'name': result['title'],
+            'type': result['resultType'],
+            'artist': artists,
+            'length': _parse_duration(result.get('duration', None)),
+            'link': f'https://www.youtube.com/watch?v={video_id}',
+            'position': 0
+        }
+        if 'album' in result:
+            song_data['album'] = result['album']['name']
+
     if video_id is None:
         return {}
-    song_data = {
-        'name': result['title'],
-        'type': result['resultType'],
-        'artist': artists,
-        'length': _parse_duration(result.get('duration', None)),
-        'link': f'https://www.youtube.com/watch?v={video_id}',
-        'position': 0
-    }
-    if 'album' in result:
-        song_data['album'] = result['album']['name']
-
     return song_data
 
 
@@ -123,7 +125,8 @@ def _query_and_simplify(searchTerm: str) -> List[dict]:
     # build and POST a query to YTM
 
     print(f'Searching for: {searchTerm}')
-    searchResult = ytmApiClient.search(searchTerm, filter='videos')
+
+    searchResult = ytmApiClient.search(searchTerm)
 
     return list(map(_map_result_to_song_data, searchResult))
 
@@ -171,6 +174,10 @@ def search_and_order_ytm_results(songName: str, songArtists: List[str],
         # ! troubles that arise from pythons handling of differently cased words, i.e.
         # ! 'Rhino' == 'rhino' is false though the word is same... so we lower-case both
         # ! sentences and replace any hypens(-)
+
+        if result is None: 
+            continue
+
         lowerSongName = songName.lower()
         lowerResultName = result['name'].lower()
 
