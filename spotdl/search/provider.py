@@ -125,7 +125,6 @@ def _query_and_simplify(searchTerm: str) -> List[dict]:
     # build and POST a query to YTM
 
     print(f'Searching for: {searchTerm}')
-
     searchResult = ytmApiClient.search(searchTerm)
 
     return list(map(_map_result_to_song_data, searchResult))
