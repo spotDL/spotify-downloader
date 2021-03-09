@@ -94,6 +94,8 @@ def _map_result_to_song_data(result: dict) -> dict:
     if result['resultType'] in ['song', 'video']:
         artists = ", ".join(map(lambda a: a['name'], result['artists']))
         video_id = result['videoId']
+        if video_id is None:
+            return {}
         song_data = {
             'name': result['title'],
             'type': result['resultType'],
@@ -105,8 +107,6 @@ def _map_result_to_song_data(result: dict) -> dict:
         if 'album' in result:
             song_data['album'] = result['album']['name']
 
-    if video_id is None:
-        return {}
     return song_data
 
 
