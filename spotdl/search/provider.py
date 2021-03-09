@@ -174,10 +174,6 @@ def search_and_order_ytm_results(songName: str, songArtists: List[str],
         # ! troubles that arise from pythons handling of differently cased words, i.e.
         # ! 'Rhino' == 'rhino' is false though the word is same... so we lower-case both
         # ! sentences and replace any hypens(-)
-
-        if result is None: 
-            continue
-
         lowerSongName = songName.lower()
         lowerResultName = result['name'].lower()
 
