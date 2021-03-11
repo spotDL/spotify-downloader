@@ -152,7 +152,7 @@ def search_and_order_ytm_results(songName: str, songArtists: List[str],
     linksWithMatchValue = {}
 
     for result in results:
-        # ! skip results without videoId, this happens if you are country restricted or 
+        # ! skip results without videoId, this happens if you are country restricted or
         # ! video is unavailabe
         if result.get('videoId') is None:
             continue
