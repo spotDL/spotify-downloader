@@ -270,11 +270,11 @@ def search_and_get_best_match(songName: str, songArtists: List[str],
     return sortedResults[0][0]
 
 
-def get_song_lyrics(songName: str, songArtists: List[str]) -> str:
+def get_song_lyrics(song_name: str, song_artists: List[str]) -> str:
     """
-    `str` `songName` : name of song
+    `str` `song_name` : name of song
 
-    `list<str>` `songArtists` : list containing name of contributing artists
+    `list<str>` `song_artists` : list containing name of contributing artists
 
     RETURNS `str`: Lyrics of the song.
 
@@ -284,29 +284,27 @@ def get_song_lyrics(songName: str, songArtists: List[str]) -> str:
     headers = {
         'Authorization': 'Bearer alXXDbPZtK1m2RrZ8I4k2Hn8Ahsd0Gh_o076HYvcdlBvmc0ULL1H8Z8xRlew5qaG',
     }
-    apiSearchUrl = 'https://api.genius.com/search'
-    searchQuery = f'{songName} {", ".join(songArtists)}'
+    api_search_url = 'https://api.genius.com/search'
+    search_query = f'{song_name} {", ".join(song_artists)}'
 
-    apiResponse = get(
-        apiSearchUrl,
-        params={'q': searchQuery},
+    api_response = get(
+        api_search_url,
+        params={'q': search_query},
         headers=headers
     ).json()
 
-    songId = apiResponse['response']['hits'][0]['result']['id']
-    songApiUrl = f'https://api.genius.com/songs/{songId}'
+    song_id = api_response['response']['hits'][0]['result']['id']
+    song_api_url = f'https://api.genius.com/songs/{song_id}'
 
-    apiResponse = get(
-        songApiUrl,
+    api_response = get(
+        song_api_url,
         headers=headers
     ).json()
 
-    songUrl = apiResponse['response']['song']['url']
+    song_url = api_response['response']['song']['url']
 
-    geniusPage = get(songUrl)
-    soup = BeautifulSoup(geniusPage.text, 'html.parser')
+    genius_page = get(song_url)
+    soup = BeautifulSoup(genius_page.text, 'html.parser')
     lyrics = soup.select_one('div.lyrics').get_text()
 
     return lyrics.strip()
-
-    

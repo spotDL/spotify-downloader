@@ -64,7 +64,7 @@ class SongObj():
             duration
         )
 
-        # try to get lyrics from Genius 
+        # try to get lyrics from Genius
         try:
             lyrics = get_song_lyrics(songName, contributingArtists)
         except (AttributeError, IndexError):

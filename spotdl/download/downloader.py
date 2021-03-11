@@ -298,7 +298,7 @@ class DownloadManager():
             desc='Cover',
             data=rawAlbumArt
         )
-        #! setting the lyrics
+        # ! setting the lyrics
         lyrics = songObj.get_lyrics()
         USLTOutput = USLT(encoding=3, lang=u'eng', desc=u'desc', text=lyrics)
         audioFile["USLT::'eng'"] = USLTOutput
