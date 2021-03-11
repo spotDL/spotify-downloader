@@ -90,7 +90,7 @@ def _parse_duration(duration: str) -> float:
 def _map_result_to_song_data(result: dict) -> dict:
     artists = ", ".join(map(lambda a: a['name'], result['artists']))
     video_id = result.get('videoId', None)
-    if video_id is None: 
+    if video_id is None:
         return {}
     song_data = {
         'name': result['title'],
