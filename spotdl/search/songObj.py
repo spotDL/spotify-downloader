@@ -159,7 +159,7 @@ class SongObj():
             contributingArtists.append(artist['name'])
 
         return contributingArtists
-    
+
     # ! 6. Lyrics
     def get_lyrics(self):
         '''
@@ -167,7 +167,6 @@ class SongObj():
         '''
 
         return self.__lyrics
-
 
     # ! Album Details:
 
