@@ -89,7 +89,9 @@ def _parse_duration(duration: str) -> float:
 
 def _map_result_to_song_data(result: dict) -> dict:
     artists = ", ".join(map(lambda a: a['name'], result['artists']))
-    video_id = result.get('videoId')
+    video_id = result.get('videoId', None)
+    if video_id is None: 
+        return {}
     song_data = {
         'name': result['title'],
         'type': result['resultType'],
@@ -154,7 +156,7 @@ def search_and_order_ytm_results(songName: str, songArtists: List[str],
     for result in results:
         # ! skip results without videoId, this happens if you are country restricted or
         # ! video is unavailabe
-        if result.get('videoId') is None:
+        if result == {}:
             continue
 
         # ! If there are no common words b/w the spotify and YouTube Music name, the song
