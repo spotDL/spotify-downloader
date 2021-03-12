@@ -1,8 +1,6 @@
-#! To handle terminal signals
+# ! Basic necessities to get the CLI running
 import signal
 import sys
-
-#! Song Search from different start points
 import argparse
 
 # ! The actual download stuff
