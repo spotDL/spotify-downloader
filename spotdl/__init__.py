@@ -1,4 +1,4 @@
-from .__main__ import console_entry_point	
+from .__main__ import console_entry_point
 
 __all__ = [
     'console_entry_point',
