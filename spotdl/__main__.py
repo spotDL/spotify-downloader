@@ -1,5 +1,6 @@
 #! To handle terminal signals
 import signal
+import sys
 
 #! Song Search from different start points
 import argparse
@@ -98,7 +99,7 @@ def console_entry_point():
     if not arguments.debug_termination:
         def gracefulExit(signal, frame):
             downloader.close()
-            sygis.exit(0)
+            sys.exit(0)
 
         signal.signal(signal.SIGINT, gracefulExit)
         signal.signal(signal.SIGTERM, gracefulExit)
