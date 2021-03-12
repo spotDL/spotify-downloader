@@ -1,9 +1,10 @@
-from spotdl.search.spotifyClient import get_spotify_client
-from spotdl.search.songObj import SongObj
-
 from typing import List
 
-def search_for_song(query: str) ->  SongObj:
+from spotdl.search.songObj import SongObj
+from spotdl.search.spotifyClient import get_spotify_client
+
+
+def search_for_song(query: str) -> SongObj:
     '''
     `str` `query` : what you'd type into spotify's search box
 
@@ -14,7 +15,7 @@ def search_for_song(query: str) ->  SongObj:
     spotifyClient = get_spotify_client()
 
     # get possible matches from spotify
-    result = spotifyClient.search(query, type = 'track')
+    result = spotifyClient.search(query, type='track')
 
     # return first result link or if no matches are found, raise and Exception
     if len(result['tracks']['items']) == 0:
@@ -23,12 +24,13 @@ def search_for_song(query: str) ->  SongObj:
         for songResult in result['tracks']['items']:
             songUrl = 'http://open.spotify.com/track/' + songResult['id']
             song = SongObj.from_url(songUrl)
-            
-            if song.get_youtube_link() != None:
+
+            if song.get_youtube_link() is not None:
                 return song
-        
+
         raise Exception('Could not match any of the results on YouTube')
-        
+
+
 def get_album_tracks(albumUrl: str) -> List[SongObj]:
     '''
     `str` `albumUrl` : Spotify Url of the album whose tracks are to be
@@ -47,20 +49,21 @@ def get_album_tracks(albumUrl: str) -> List[SongObj]:
 
         for track in trackResponse['items']:
             song = SongObj.from_url('https://open.spotify.com/track/' + track['id'])
-            
-            if song.get_youtube_link() != None:
+
+            if song.get_youtube_link() is not None:
                 albumTracks.append(song)
-        
+
         # check if more tracks are to be passed
         if trackResponse['next']:
             trackResponse = spotifyClient.album_tracks(
                 albumUrl,
-                offset = len(albumTracks)
+                offset=len(albumTracks)
             )
         else:
             break
-    
+
     return albumTracks
+
 
 def get_playlist_tracks(playlistUrl: str) -> List[SongObj]:
     '''
@@ -79,19 +82,22 @@ def get_playlist_tracks(playlistUrl: str) -> List[SongObj]:
     while True:
 
         for songEntry in playlistResponse['items']:
+            if songEntry['track'] is None or songEntry['track']['id'] is None:
+                continue
+
             song = SongObj.from_url(
                 'https://open.spotify.com/track/' + songEntry['track']['id'])
-            
-            if song.get_youtube_link() != None:
+
+            if song.get_youtube_link() is not None:
                 playlistTracks.append(song)
 
-        # check if more tracks are to be passed        
+        # check if more tracks are to be passed
         if playlistResponse['next']:
             playlistResponse = spotifyClient.playlist_tracks(
                 playlistUrl,
-                offset = len(playlistTracks)
+                offset=playlistResponse['offset'] + playlistResponse['limit']
             )
         else:
             break
-    
+
     return playlistTracks
