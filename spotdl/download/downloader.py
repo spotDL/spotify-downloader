@@ -10,7 +10,7 @@ from typing import List
 from urllib.request import urlopen
 
 from mutagen.easyid3 import EasyID3, ID3
-from mutagen.id3 import APIC as AlbumCover
+from mutagen.id3 import APIC as AlbumCover, USLT
 from pytube import YouTube
 
 from spotdl.download.progressHandlers import DisplayManager, DownloadTracker
@@ -300,6 +300,11 @@ class DownloadManager():
             desc='Cover',
             data=rawAlbumArt
         )
+        # ! setting the lyrics
+        lyrics = songObj.get_lyrics()
+        USLTOutput = USLT(encoding=3, lang=u'eng', desc=u'desc', text=lyrics)
+        audioFile["USLT::'eng'"] = USLTOutput
+
         audioFile.save(v2_version=3)
 
     def close(self) -> None:

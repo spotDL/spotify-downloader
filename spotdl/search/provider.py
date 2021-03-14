@@ -9,6 +9,8 @@ from typing import List
 
 from rapidfuzz.fuzz import partial_ratio
 from ytmusicapi import YTMusic
+from bs4 import BeautifulSoup
+from requests import get
 
 
 # ================================
@@ -273,3 +275,43 @@ def search_and_get_best_match(songName: str, songArtists: List[str],
     # ! In theory, the first 'TUPLE' in sortedResults should have the highest match
     # ! value, we send back only the link
     return sortedResults[0][0]
+
+
+def get_song_lyrics(song_name: str, song_artists: List[str]) -> str:
+    """
+    `str` `song_name` : name of song
+
+    `list<str>` `song_artists` : list containing name of contributing artists
+
+    RETURNS `str`: Lyrics of the song.
+
+    Gets the metadata of the song.
+    """
+
+    headers = {
+        'Authorization': 'Bearer alXXDbPZtK1m2RrZ8I4k2Hn8Ahsd0Gh_o076HYvcdlBvmc0ULL1H8Z8xRlew5qaG',
+    }
+    api_search_url = 'https://api.genius.com/search'
+    search_query = f'{song_name} {", ".join(song_artists)}'
+
+    api_response = get(
+        api_search_url,
+        params={'q': search_query},
+        headers=headers
+    ).json()
+
+    song_id = api_response['response']['hits'][0]['result']['id']
+    song_api_url = f'https://api.genius.com/songs/{song_id}'
+
+    api_response = get(
+        song_api_url,
+        headers=headers
+    ).json()
+
+    song_url = api_response['response']['song']['url']
+
+    genius_page = get(song_url)
+    soup = BeautifulSoup(genius_page.text, 'html.parser')
+    lyrics = soup.select_one('div.lyrics').get_text()
+
+    return lyrics.strip()
