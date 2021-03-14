@@ -73,7 +73,7 @@ jobs:
           python-version: 3.8
       - name: Install dependencies
         run: |
-          sudo add-apt-repository ppa:jonathonf/ffmpeg-4 -y
+          sudo add-apt-repository ppa:savoury1/ffmpeg4 -y
           sudo apt-get update
           sudo apt install ffmpeg -y
           python -m pip install -e .[test]
