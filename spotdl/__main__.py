@@ -6,7 +6,12 @@ from spotdl.download.downloader import DownloadManager
 from spotdl.search import spotifyClient
 from spotdl.search.songObj import SongObj
 # ! Song Search from different start points
-from spotdl.search.utils import get_playlist_tracks, get_album_tracks, search_for_song
+from spotdl.search.utils import (
+    get_playlist_tracks,
+    get_album_tracks,
+    get_artist_tracks,
+    search_for_song,
+)
 
 # ! Usage is simple - call:
 #   'python __main__.py <links, search terms, tracking files separated by spaces>
@@ -113,6 +118,12 @@ def console_entry_point():
             songObjList = get_playlist_tracks(request)
 
             downloader.download_multiple_songs(songObjList)
+
+        elif 'open.spotify.com' in request and 'artist' in request:
+            print('Fetching artist...')
+            artistObjList = get_artist_tracks(request)
+
+            downloader.download_multiple_songs(artistObjList)
 
         elif request.endswith('.spotdlTrackingFile'):
             print('Preparing to resume download...')
