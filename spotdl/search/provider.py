@@ -1,285 +1,203 @@
+"""
+Provides all defaults-layer functionality for `SongObj` generation except the `SongObj` class
+itself
+"""
+
 # ===============
 # === Imports ===
 # ===============
+import typing as ty
 
-# ! the following are for the search provider to function
-import typing
-# ! Just for static typing
-from typing import List
-
-from rapidfuzz.fuzz import partial_ratio
 from ytmusicapi import YTMusic
 from bs4 import BeautifulSoup
 from requests import get
 
 
-# ================================
-# === Note to readers / Coders ===
-# ================================
-
-# ! YTM search (the actual POST request), courtesy of Elliot G. (@rocketinventor)
-# ! result parsing and song matching system by @Mikhail-Zex
-# !
-# ! Essentially, Without Elliot, you wouldn't have a YTM search provider at all.
+# =============================
+# === main / defaults-layer ===
+# =============================
 
 
-# =======================
-# === helper function ===
-# =======================
+def get_youtube_link(
+    song_name: str, song_artists: ty.List["str"], album: str, song_duration: int
+) -> ty.Union[str, None]:
+    """
+    attempts to find "THE" youtube link to the song according to inputs
+    """
 
-def match_percentage(str1: str, str2: str, score_cutoff: float = 0) -> float:
-    '''
-    `str` `str1` : a random sentence
+    # !get search results from YTMusic
+    search_results = __query_ytmusic(song_name=song_name, song_artists=song_artists)
 
-    `str` `str2` : another random sentence
+    # !keep track of top result
+    # when a result has a higher "match score" than the top_match_score, the top_match_score
+    # and top_match_link are both updated, once all the results are checked, you end up with the
+    # topmost result which is theoretically the best/correct match
+    top_match_score = 0
+    top_match_link = None
 
-    `float` `score_cutoff` : minimum score required to consider it a match
-                             returns 0 when similarity < score_cutoff
+    for result in search_results:
+        # !calc avg match
 
-    RETURNS `float`
+        # each result contains the following, it would do well to note this somewhere, we'll be
+        # refering to these dict-keys a lot in the next few lines
+        #   - songName
+        #   - songArtists (list, lower case)
+        #   - albumName
+        #   - duration (number of seconds, int)
+        #   - link
 
-    A wrapper around `rapidfuzz.fuzz.partial_ratio` to handle UTF-8 encoded
-    emojis that usually cause errors
-    '''
+        # song name match
+        # name_match = common words in the name / total words in the bigger name
+        name_match = __common_elm_fraction(song_name, result["songName"])
 
-    # ! this will throw an error if either string contains a UTF-8 encoded emoji
-    try:
-        return partial_ratio(str1, str2, score_cutoff=score_cutoff)
+        # song artist match
+        # same as name_match but here its about the contributing artists instead
+        #
+        # `__common_elm_fraction` is case sensitive, the YTMusic results are strictly lowercase
+        # so we need to enseure that the input metadata is also lowercase
+        lower_case_artists = []
 
-    # ! we build new strings that contain only alphanumerical characters and spaces
-    # ! and return the partial_ratio of that
-    except:  # noqa:E722
-        newStr1 = ''
+        for artist in song_artists:
+            lower_case_artists.append(artist.lower())
 
-        for eachLetter in str1:
-            if eachLetter.isalnum() or eachLetter.isspace():
-                newStr1 += eachLetter
+        artist_match = __common_elm_fraction(lower_case_artists, result["songArtists"])
 
-        newStr2 = ''
+        # song duration match
+        # duration_match = 1 - (time delta in sec/60 sec), the idea is that 1 indicates the best
+        # possible score and 0 indicates the lease score, if a score is less than zero, the result
+        # will be dropped, if the time difference is greater than 1 min, is not the correct match
+        # anyways
+        duration_match = 1 - (abs(result["duration"] - song_duration) / 60)
 
-        for eachLetter in str2:
-            if eachLetter.isalnum() or eachLetter.isspace():
-                newStr2 += eachLetter
-
-        return partial_ratio(newStr1, newStr2, score_cutoff=score_cutoff)
-
-
-# ========================================================================
-# === Background functions/Variables (Not meant to be called directly) ===
-# ========================================================================
-
-# ! YTMusic api client
-ytmApiClient = YTMusic()
-
-
-def _parse_duration(duration: str) -> float:
-    '''
-    Convert string value of time (duration: "25:36:59") to a float value of seconds (92219.0)
-    '''
-    try:
-        # {(1, "s"), (60, "m"), (3600, "h")}
-        mappedIncrements = zip([1, 60, 3600], reversed(duration.split(":")))
-        seconds = 0
-        for multiplier, time in mappedIncrements:
-            seconds += multiplier * int(time)
-        return float(seconds)
-
-    # ! This usually occurs when the wrong string is mistaken for the duration
-    except (ValueError, TypeError, AttributeError):
-        return 0.0
-
-
-def _map_result_to_song_data(result: dict) -> dict:
-    song_data = {}
-    if result['resultType'] in ['song', 'video']:
-        artists = ", ".join(map(lambda a: a['name'], result['artists']))
-        video_id = result['videoId']
-        if video_id is None:
-            return {}
-        song_data = {
-            'name': result['title'],
-            'type': result['resultType'],
-            'artist': artists,
-            'length': _parse_duration(result.get('duration', None)),
-            'link': f'https://www.youtube.com/watch?v={video_id}',
-            'position': 0
-        }
-        if 'album' in result:
-            song_data['album'] = result['album']['name']
-
-    return song_data
-
-
-def _query_and_simplify(searchTerm: str) -> List[dict]:
-    '''
-    `str` `searchTerm` : the search term you would type into YTM's search bar
-
-    RETURNS `list<dict>`
-
-    For structure of dict, see comment at function declaration
-    '''
-
-    # ! For dict structure, see end of this function (~ln 268, ln 283) and chill, this
-    # ! function ain't soo big, there are plenty of comments and blank lines
-
-    # build and POST a query to YTM
-
-    print(f'Searching for: {searchTerm}')
-    searchResult = ytmApiClient.search(searchTerm)
-
-    return list(map(_map_result_to_song_data, searchResult))
-
-
-# =======================
-# === Search Provider ===
-# =======================
-
-def search_and_order_ytm_results(songName: str, songArtists: List[str],
-                                 songAlbumName: str, songDuration: int) -> dict:
-    '''
-    `str` `songName` : name of song
-
-    `list<str>` `songArtists` : list containing name of contributing artists
-
-    `str` `songAlbumName` : name of song's album
-
-    `int` `songDuration`
-
-    RETURNS `dict`
-
-    each entry in the result if formated as {'$YouTubeLink': $matchValue, ...}; Match value
-    indicates how good a match the result is the the given parameters. THe maximum value
-    that $matchValue can take is 100, the least value is unbound.
-    '''
-    # Query YTM
-    results = _query_and_simplify(get_ytm_search_query(songName, songArtists))
-
-    # Assign an overall avg match value to each result
-    linksWithMatchValue = {}
-
-    for result in results:
-        # ! skip results without videoId, this happens if you are country restricted or
-        # ! video is unavailabe
-        if result == {}:
+        if duration_match < 0:
+            # skip this result
             continue
 
-        # ! If there are no common words b/w the spotify and YouTube Music name, the song
-        # ! is a wrong match (Like Ruelle - Madness being matched to Ruelle - Monster, it
-        # ! happens without this conditional)
-
-        # ! most song results on youtube go by $artist - $songName, so if the spotify name
-        # ! has a '-', this function would return True, a common '-' is hardly a 'common
-        # ! word', so we get rid of it. Lower-caseing all the inputs is to get rid of the
-        # ! troubles that arise from pythons handling of differently cased words, i.e.
-        # ! 'Rhino' == 'rhino' is false though the word is same... so we lower-case both
-        # ! sentences and replace any hypens(-)
-        lowerSongName = songName.lower()
-        lowerResultName = result['name'].lower()
-
-        sentenceAWords = lowerSongName.replace('-', ' ').split(' ')
-
-        commonWord = False
-
-        # ! check for common word
-        for word in sentenceAWords:
-            if word != '' and word in lowerResultName:
-                commonWord = True
-
-        # ! if there are no common words, skip result
-        if not commonWord:
-            continue
-
-        # Find artist match
-        # ! match  = (no of artist names in result) / (no. of artist names on spotify) * 100
-        artistMatchNumber = 0
-
-        # ! we use fuzzy matching because YouTube spellings might be mucked up
-        if result['type'] == 'song':
-            for artist in songArtists:
-                if match_percentage(artist.lower(), result['artist'].lower(), 85):
-                    artistMatchNumber += 1
+        # album_match
+        # 1 if album name is the exact same, else the value is 0
+        #
+        # note that the albumName in the result will be lower case
+        if result["albumName"] == album.lower():
+            album_match = 1
         else:
-            # ! i.e if video
-            for artist in songArtists:
-                # ! something like match_percentage('rionos', 'aiobahn, rionos Motivation
-                # ! (remix)' would return 100, so we're absolutely corrent in matching
-                # ! artists to song name.
-                if match_percentage(artist.lower(), result['name'].lower(), 85):
-                    artistMatchNumber += 1
+            album_match = 0
 
-        # ! Skip if there are no artists in common, (else, results like 'Griffith Swank -
-        # ! Madness' will be the top match for 'Ruelle - Madness')
-        if artistMatchNumber == 0:
+        # avg match
+        avg_match = (name_match + artist_match + album_match + duration_match) / 4
+
+        # !update top match as required
+        if avg_match > top_match_score:
+            top_match_score = avg_match
+            top_match_link = result["link"]
+
+    # top_match_link is always a str but mypy doesn't recognize it as such, so we wrap it in a
+    # str() conversion so mypy will shut up
+    return str(top_match_link)
+
+
+# ================================================
+# === support / background / private functions ===
+# ================================================
+def __query_ytmusic(song_name: str, song_artists: ty.List[str]) -> list:
+    """
+    query YTMusic with "{artist names} - {song name}" and returns simplified song and video results
+    as a `list[dict]`, each `dict` containing the following (in lower case):
+        - songName
+        - songArtists (list, lower case)
+        - albumName
+        - duration (number of seconds, int)
+        - link
+
+    NOTE: returns an empty string for album name if album name is not found.
+    """
+
+    # !construct a search string
+    artist_str = ""
+    for artist in song_artists:
+        artist_str += artist + ", "
+
+    # `[:-2]` removes trailing comma; eg. "Aiobahn, Rionos, " --> "Aiobahn, Rionos - Motivation"
+    query = artist_str[:-2] + " - " + song_name
+
+    # !create a YTMusic client
+    ytm_client = YTMusic()
+
+    # !search for both song and video results
+    search_results = ytm_client.search(query=query, filter="videos")
+    search_results += ytm_client.search(query=query, filter="songs")
+
+    # all the simplified results will be stored in this
+    collected_results = []
+
+    # !simplify each result
+    for result in search_results:
+        # !contributing_artists
+        r_artists = []
+        for r_artist in result["artists"]:
+            r_artists.append(r_artist["name"].lower())
+
+        # !album_name
+        r_album_name = ""
+        if result["resultType"] == "song":
+            r_album_name = result["album"]["name"].lower()
+
+        # !duration
+        try:
+            # hh:mm:ss --> [ss, mm, hh]
+            duration_bits = list(reversed(result["duration"].split(":")))
+        
+        # These errors get thrown when the duration returned is not in the form hh:mm:ss 
+        except (TypeError, ValueError, AttributeError):
             continue
 
-        artistMatch = (artistMatchNumber / len(songArtists)) * 100
+        if len(duration_bits) > 3:
+            raise ValueError(f"supplied duration {result['duration']} is 1D+ in length")
 
-        # Find name match
-        nameMatch = round(match_percentage(result['name'], songName), ndigits=3)
+        r_duration = 0
+        for i in range(len(duration_bits)):
+            # basically do seconds*1 + mins*60 +  hours * 3600
+            r_duration += int(duration_bits[i]) * (60 ** i)
+            
+        collected_results.append(
+            {
+                "songName": result["title"],
+                "songArtists": r_artists,
+                "albumName": r_album_name,
+                "duration": r_duration,
+                "link": f"https://www.youtube.com/watch?v={result['videoId']}",
+            }
+        )
 
-        # Find album match
-        # ! We assign an arbitrary value of 0 for album match in case of video results
-        # ! from YouTube Music
-        albumMatch = 0.0
-
-        if result['type'] == 'song':
-            albumMatch = match_percentage(result['album'], songAlbumName)
-
-        # Find duration match
-        # ! time match = 100 - (delta(duration)**2 / original duration * 100)
-        # ! difference in song duration (delta) is usually of the magnitude of a few
-        # ! seconds, we need to amplify the delta if it is to have any meaningful impact
-        # ! wen we calculate the avg match value
-        delta = result['length'] - songDuration
-        nonMatchValue = (delta ** 2) / songDuration * 100
-
-        timeMatch = 100 - nonMatchValue
-
-        # the results along with the avg Match
-        avgMatch = (artistMatch + albumMatch + nameMatch + timeMatch) / 4
-
-        linksWithMatchValue[result['link']] = avgMatch
-
-    return linksWithMatchValue
+    return collected_results
 
 
-def get_ytm_search_query(songName: str, songArtists: List[str]) -> str:
-    joined_artists = ', '.join(songArtists)
-    return f'{joined_artists} - {songName}'
+def __common_elm_fraction(one: ty.Union[list, str], two: ty.Union[list, str]) -> float:
+    """
+    returns (number of common elements)/(total elements is bigger list/sentence).
+
+    NOTE: in a sentence, each word is considered an element, i.e. "this is weird" ~ ["this", "is",
+    "Weird"] has 3 elements
+    """
+
+    # !convert sentences to lists, this helps in the case one is a sentence and the other a list
+    if isinstance(one, str):
+        one = one.split(" ")
+
+    if isinstance(two, str):
+        two = two.split(" ")
+
+    set1 = set(one)
+    set2 = set(two)
+
+    if len(set1) > len(set2):
+        greater_length = len(set1)
+    else:
+        greater_length = len(set2)
+
+    return len(set1.intersection(set2)) / greater_length
 
 
-def search_and_get_best_match(songName: str, songArtists: List[str],
-                              songAlbumName: str, songDuration: int) -> typing.Optional[str]:
-    '''
-    `str` `songName` : name of song
-
-    `list<str>` `songArtists` : list containing name of contributing artists
-
-    `str` `songAlbumName` : name of song's album
-
-    `int` `songDuration` : duration of the song
-
-    RETURNS `str` : link of the best match
-    '''
-
-    # ! This is lazy coding, sorry.
-    results = search_and_order_ytm_results(
-        songName, songArtists,
-        songAlbumName, songDuration
-    )
-
-    if len(results) == 0:
-        return None
-
-    resultItems = list(results.items())
-    sortedResults = sorted(resultItems, key=lambda x: x[1], reverse=True)
-
-    # ! In theory, the first 'TUPLE' in sortedResults should have the highest match
-    # ! value, we send back only the link
-    return sortedResults[0][0]
-
-
-def get_song_lyrics(song_name: str, song_artists: List[str]) -> str:
+def get_song_lyrics(song_name: str, song_artists: ty.List[str]) -> str:
     """
     `str` `song_name` : name of song
 
@@ -291,29 +209,24 @@ def get_song_lyrics(song_name: str, song_artists: List[str]) -> str:
     """
 
     headers = {
-        'Authorization': 'Bearer alXXDbPZtK1m2RrZ8I4k2Hn8Ahsd0Gh_o076HYvcdlBvmc0ULL1H8Z8xRlew5qaG',
+        "Authorization": "Bearer alXXDbPZtK1m2RrZ8I4k2Hn8Ahsd0Gh_o076HYvcdlBvmc0ULL1H8Z8xRlew5qaG",
     }
-    api_search_url = 'https://api.genius.com/search'
+    api_search_url = "https://api.genius.com/search"
     search_query = f'{song_name} {", ".join(song_artists)}'
 
     api_response = get(
-        api_search_url,
-        params={'q': search_query},
-        headers=headers
+        api_search_url, params={"q": search_query}, headers=headers
     ).json()
 
-    song_id = api_response['response']['hits'][0]['result']['id']
-    song_api_url = f'https://api.genius.com/songs/{song_id}'
+    song_id = api_response["response"]["hits"][0]["result"]["id"]
+    song_api_url = f"https://api.genius.com/songs/{song_id}"
 
-    api_response = get(
-        song_api_url,
-        headers=headers
-    ).json()
+    api_response = get(song_api_url, headers=headers).json()
 
-    song_url = api_response['response']['song']['url']
+    song_url = api_response["response"]["song"]["url"]
 
     genius_page = get(song_url)
-    soup = BeautifulSoup(genius_page.text, 'html.parser')
-    lyrics = soup.select_one('div.lyrics').get_text()
+    soup = BeautifulSoup(genius_page.text, "html.parser")
+    lyrics = soup.select_one("div.lyrics").get_text()
 
     return lyrics.strip()

@@ -1,13 +1,13 @@
 from typing import List
 
-from spotdl.search.provider import search_and_get_best_match, get_song_lyrics
+from spotdl.search.provider import get_youtube_link, get_song_lyrics
 from spotdl.search.spotifyClient import get_spotify_client
 
 
 class SongObj():
     # ! This can be accessed as songObj.searchProvider. songObj acts like a namespace
     # ! it allows us a convenient way of setting a search provider without using globals
-    searchProvider = search_and_get_best_match
+    searchProvider = get_youtube_link
 
     # ====================
     # === Constructors ===
@@ -63,6 +63,9 @@ class SongObj():
             albumName,
             duration
         )
+
+        if youtubeLink == None:
+            raise Exception(f'No youtube match could be found for {songName}')
 
         # try to get lyrics from Genius
         try:
