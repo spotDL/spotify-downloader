@@ -74,8 +74,8 @@ def get_artist_tracks(artistUrl: str) -> List[SongObj]:
     """
 
     spotifyClient = get_spotify_client()
-    artistTracks = []
-    albums = []
+    artistTracks: List = []
+    albums: List = []
     offset = 0
 
     artistResponse = spotifyClient.artist_albums(artistUrl)
