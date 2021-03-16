@@ -10,7 +10,7 @@ from typing import List
 from urllib.request import urlopen
 
 from mutagen.easyid3 import EasyID3, ID3
-from mutagen.id3 import APIC as AlbumCover
+from mutagen.id3 import APIC as AlbumCover, USLT
 from pytube import YouTube
 
 from spotdl.download.progressHandlers import DisplayManager, DownloadTracker
@@ -270,6 +270,8 @@ class DownloadManager():
         audioFile['titlesort'] = songObj.get_song_name()
         # ! track number
         audioFile['tracknumber'] = str(songObj.get_track_number())
+        # ! disc number
+        audioFile['discnumber'] = str(songObj.get_disc_number())
         # ! genres (pretty pointless if you ask me)
         # ! we only apply the first available genre as ID3 v2.3 doesn't support multiple
         # ! genres and ~80% of the world PC's run Windows - an OS with no ID3 v2.4 support
@@ -298,6 +300,11 @@ class DownloadManager():
             desc='Cover',
             data=rawAlbumArt
         )
+        # ! setting the lyrics
+        lyrics = songObj.get_lyrics()
+        USLTOutput = USLT(encoding=3, lang=u'eng', desc=u'desc', text=lyrics)
+        audioFile["USLT::'eng'"] = USLTOutput
+
         audioFile.save(v2_version=3)
 
     def close(self) -> None:
