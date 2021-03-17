@@ -17,7 +17,6 @@ from requests import get
 # === main / defaults-layer ===
 # =============================
 
-
 def get_youtube_link(
     song_name: str, song_artists: ty.List["str"], album: str, song_duration: int
 ) -> ty.Union[str, None]:
@@ -30,16 +29,16 @@ def get_youtube_link(
 
     # !keep track of top result
     # when a result has a higher "match score" than the top_match_score, the top_match_score
-    # and top_match_link are both updated, once all the results are checked, you end up with the
-    # topmost result which is theoretically the best/correct match
+    # and top_match_link are both updated, once all the results are checked, you end up with
+    # the top-most result which is theoretically the best/correct match
     top_match_score = 0
     top_match_link = None
 
     for result in search_results:
         # !calc avg match
 
-        # each result contains the following, it would do well to note this somewhere, we'll be
-        # refering to these dict-keys a lot in the next few lines
+        # each result contains the following, it would do well to note this somewhere, we'll
+        # be refering to these dict-keys a lot in the next few lines
         #   - songName
         #   - songArtists (list, lower case)
         #   - albumName
@@ -50,24 +49,20 @@ def get_youtube_link(
         # name_match = common words in the name / total words in the bigger name
         name_match = __common_elm_fraction(song_name, result["songName"])
 
+        if name_match < 0.1:
+            # skip result, it's probably not a good match
+            continue
+
         # song artist match
         # same as name_match but here its about the contributing artists instead
-        #
-        # `__common_elm_fraction` is case sensitive, the YTMusic results are strictly lowercase
-        # so we need to enseure that the input metadata is also lowercase
-        lower_case_artists = []
-
-        for artist in song_artists:
-            lower_case_artists.append(artist.lower())
-
-        artist_match = __common_elm_fraction(lower_case_artists, result["songArtists"])
+        artist_match = __common_elm_fraction(song_artists, result["songArtists"])
 
         # song duration match
-        # duration_match = 1 - (time delta in sec/60 sec), the idea is that 1 indicates the best
+        # duration_match = 1 - (time delta in sec/15 sec), the idea is that 1 indicates the best
         # possible score and 0 indicates the lease score, if a score is less than zero, the result
-        # will be dropped, if the time difference is greater than 1 min, is not the correct match
+        # will be dropped, if the time difference is greater than 15 sec, is not the correct match
         # anyways
-        duration_match = 1 - (abs(result["duration"] - song_duration) / 60)
+        duration_match = 1 - (abs(result["duration"] - song_duration) / 15)
 
         if duration_match < 0:
             # skip this result
@@ -93,7 +88,6 @@ def get_youtube_link(
     # top_match_link is always a str but mypy doesn't recognize it as such, so we wrap it in a
     # str() conversion so mypy will shut up
     return str(top_match_link)
-
 
 # ================================================
 # === support / background / private functions ===
@@ -186,8 +180,13 @@ def __common_elm_fraction(one: ty.Union[list, str], two: ty.Union[list, str]) ->
     if isinstance(two, str):
         two = two.split(" ")
 
-    set1 = set(one)
-    set2 = set(two)
+    set1 = set()
+    for each in one:
+        set1.add(each.lower())
+
+    set2 = set()
+    for each in two:
+        set2.add(each.lower())
 
     if len(set1) > len(set2):
         greater_length = len(set1)
@@ -195,7 +194,6 @@ def __common_elm_fraction(one: ty.Union[list, str], two: ty.Union[list, str]) ->
         greater_length = len(set2)
 
     return len(set1.intersection(set2)) / greater_length
-
 
 def get_song_lyrics(song_name: str, song_artists: ty.List[str]) -> str:
     """
