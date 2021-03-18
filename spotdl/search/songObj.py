@@ -1,6 +1,6 @@
 from typing import List
 
-from spotdl.search.provider import get_youtube_link, get_song_lyrics
+from spotdl.search.provider import get_youtube_link, get_song_lyrics #pylint: disable=unused-import
 from spotdl.search.spotifyClient import get_spotify_client
 
 
@@ -14,7 +14,7 @@ class SongObj():
     # ====================
     def __init__(self, rawTrackMeta, rawAlbumMeta, rawArtistMeta, youtubeLink, lyrics):
         self.__rawTrackMeta = rawTrackMeta
-        self.__rawAlbumMeta = rawArtistMeta
+        self.__rawAlbumMeta = rawAlbumMeta
         self.__rawArtistMeta = rawArtistMeta
         self.__youtubeLink = youtubeLink
         self.__lyrics = lyrics

@@ -17,6 +17,7 @@ from requests import get
 # === main / defaults-layer ===
 # =============================
 
+
 def get_youtube_link(
     song_name: str, song_artists: ty.List["str"], album: str, song_duration: int
 ) -> ty.Union[str, None]:
@@ -89,6 +90,7 @@ def get_youtube_link(
     # str() conversion so mypy will shut up
     return str(top_match_link)
 
+
 # ================================================
 # === support / background / private functions ===
 # ================================================
@@ -125,6 +127,20 @@ def __query_ytmusic(song_name: str, song_artists: ty.List[str]) -> list:
 
     # !simplify each result
     for result in search_results:
+        # !skip bad results (missing keys/NoneType results)
+        skip_result = False
+
+        for key in ["artists", "album", "resultType", "duration", "title"]:
+            if not (key in result.keys() and result[key] is not None):
+                # video results do not have album metadata
+                if not (result['resultType'] == 'video' and key == "album"):
+                    # placing the continue statement here will skip to the next
+                    # key and not the next result, hence the convoluted scheme
+                    skip_result = True
+
+        if skip_result:
+            continue
+
         # !contributing_artists
         r_artists = []
         for r_artist in result["artists"]:
@@ -139,11 +155,11 @@ def __query_ytmusic(song_name: str, song_artists: ty.List[str]) -> list:
         try:
             # hh:mm:ss --> [ss, mm, hh]
             duration_bits = list(reversed(result["duration"].split(":")))
-        
+
         # These errors get thrown when the duration returned is not in the form hh:mm:ss
         # Sometimes, duration itself is not returned, we can't evaluate such results,
         # they are dropped
-        except (TypeError, ValueError, AttributeError, KeyError):
+        except ValueError:
             continue
 
         if len(duration_bits) > 3:
@@ -153,7 +169,7 @@ def __query_ytmusic(song_name: str, song_artists: ty.List[str]) -> list:
         for i in range(len(duration_bits)):
             # basically do seconds*1 + mins*60 +  hours * 3600
             r_duration += int(duration_bits[i]) * (60 ** i)
-            
+
         collected_results.append(
             {
                 "songName": result["title"],
@@ -165,6 +181,7 @@ def __query_ytmusic(song_name: str, song_artists: ty.List[str]) -> list:
         )
 
     return collected_results
+
 
 def __common_elm_fraction(one: ty.Union[list, str], two: ty.Union[list, str]) -> float:
     """
@@ -195,6 +212,7 @@ def __common_elm_fraction(one: ty.Union[list, str], two: ty.Union[list, str]) ->
         greater_length = len(set2)
 
     return len(set1.intersection(set2)) / greater_length
+
 
 def get_song_lyrics(song_name: str, song_artists: ty.List[str]) -> str:
     """
@@ -229,3 +247,5 @@ def get_song_lyrics(song_name: str, song_artists: ty.List[str]) -> str:
     lyrics = soup.select_one("div.lyrics").get_text()
 
     return lyrics.strip()
+
+__query_ytmusic(song_name="You Shook Me All Night Long", song_artists=["AC/DC"])
