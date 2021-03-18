@@ -225,7 +225,9 @@ def search_and_order_ytm_results(songName: str, songArtists: List[str],
         albumMatch = 0.0
 
         if result['type'] == 'song':
-            albumMatch = match_percentage(result['album'], songAlbumName)
+            album = result.get('album')
+            if album:
+                albumMatch = match_percentage(album, songAlbumName)
 
         # Find duration match
         # ! time match = 100 - (delta(duration)**2 / original duration * 100)
