@@ -104,8 +104,10 @@ def _map_result_to_song_data(result: dict) -> dict:
             'link': f'https://www.youtube.com/watch?v={video_id}',
             'position': 0
         }
-        if 'album' in result:
-            song_data['album'] = result['album']['name']
+
+        album = result.get('album')
+        if album:
+            song_data['album'] = album['name']
 
     return song_data
 
