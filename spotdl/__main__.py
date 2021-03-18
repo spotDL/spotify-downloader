@@ -5,8 +5,8 @@ import sys
 
 # ! The actual download stuff
 from spotdl.download.downloader import DownloadManager
-from spotdl.search import spotifyClient
 from spotdl.search.songObj import SongObj
+from spotdl.search.spotifyClient import SpotifyClient
 # ! Song Search from different start points
 from spotdl.search.utils import (
     get_playlist_tracks,
@@ -90,9 +90,9 @@ def console_entry_point():
     '''
     arguments = parse_arguments()
 
-    spotifyClient.initialize(
-        clientId='4fe3fecfe5334023a1472516cc99d805',
-        clientSecret='0f02b7c483c04257984695007a4a8d5c'
+    SpotifyClient.init(
+        client_id='4fe3fecfe5334023a1472516cc99d805',
+        client_secret='0f02b7c483c04257984695007a4a8d5c'
     )
 
     if arguments.path:

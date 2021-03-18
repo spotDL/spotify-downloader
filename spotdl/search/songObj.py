@@ -1,7 +1,7 @@
 from typing import List
 
-from spotdl.search.provider import search_and_get_best_match, get_song_lyrics
-from spotdl.search.spotifyClient import get_spotify_client
+from spotdl.search.provider import search_and_get_best_match
+from spotdl.search.spotifyClient import SpotifyClient
 
 
 class SongObj():
@@ -32,7 +32,7 @@ class SongObj():
             raise Exception('passed URL is not that of a track: %s' % spotifyURL)
 
         # query spotify for song, artist, album details
-        spotifyClient = get_spotify_client()
+        spotifyClient = SpotifyClient()
 
         rawTrackMeta = spotifyClient.track(spotifyURL)
 
