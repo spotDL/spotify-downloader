@@ -140,8 +140,10 @@ def __query_ytmusic(song_name: str, song_artists: ty.List[str]) -> list:
             # hh:mm:ss --> [ss, mm, hh]
             duration_bits = list(reversed(result["duration"].split(":")))
         
-        # These errors get thrown when the duration returned is not in the form hh:mm:ss 
-        except (TypeError, ValueError, AttributeError):
+        # These errors get thrown when the duration returned is not in the form hh:mm:ss
+        # Sometimes, duration itself is not returned, we can't evaluate such results,
+        # they are dropped
+        except (TypeError, ValueError, AttributeError, KeyError):
             continue
 
         if len(duration_bits) > 3:
@@ -163,7 +165,6 @@ def __query_ytmusic(song_name: str, song_artists: ty.List[str]) -> list:
         )
 
     return collected_results
-
 
 def __common_elm_fraction(one: ty.Union[list, str], two: ty.Union[list, str]) -> float:
     """
