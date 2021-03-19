@@ -86,6 +86,14 @@ def get_youtube_link(
             top_match_score = avg_match
             top_match_link = result["link"]
 
+    if top_match_score < 0.75:
+        file = open("possible errors (delete when ever you want).txt", "ab")
+        file.write(
+            f"{song_artists[0][:15]:>15s} - {song_name[:40]:40s} "
+            f"{top_match_score:0.2f}pt {top_match_link}: {result['songName']}\n".encode(),
+        )
+        file.close()
+
     # top_match_link is always a str but mypy doesn't recognize it as such, so we wrap it in a
     # str() conversion so mypy will shut up
     return str(top_match_link)
@@ -133,7 +141,7 @@ def __query_ytmusic(song_name: str, song_artists: ty.List[str]) -> list:
         for key in ["artists", "album", "resultType", "duration", "title"]:
             if not (key in result.keys() and result[key] is not None):
                 # video results do not have album metadata
-                if not (result['resultType'] == 'video' and key == "album"):
+                if not (result["resultType"] == "video" and key == "album"):
                     # placing the continue statement here will skip to the next
                     # key and not the next result, hence the convoluted scheme
                     skip_result = True
@@ -247,5 +255,3 @@ def get_song_lyrics(song_name: str, song_artists: ty.List[str]) -> str:
     lyrics = soup.select_one("div.lyrics").get_text()
 
     return lyrics.strip()
-
-__query_ytmusic(song_name="You Shook Me All Night Long", song_artists=["AC/DC"])

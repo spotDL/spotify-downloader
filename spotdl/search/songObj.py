@@ -1,6 +1,6 @@
 from typing import List
 
-from spotdl.search.provider import get_youtube_link, get_song_lyrics #pylint: disable=unused-import
+from spotdl.search.provider import get_youtube_link, get_song_lyrics
 from spotdl.search.spotifyClient import get_spotify_client
 
 
@@ -64,7 +64,7 @@ class SongObj():
             duration
         )
 
-        if youtubeLink == None:
+        if youtubeLink is None:
             raise Exception(f'No youtube match could be found for {songName}')
 
         # try to get lyrics from Genius

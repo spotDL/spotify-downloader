@@ -3,6 +3,7 @@
 *.spotdlTrackingFile
 *.mp3
 *.mp4
+possible errors (delete when ever you want).txt
 
 # Python
 __pycache__
@@ -19,12 +20,6 @@ venv.bak/
 
 # vscode
 .vscode
-
-# MS Visio Pro
-externalTools/*
-
-# Getting rid of Hacks (for now, 04/09/2020)
-Hacks/*
 
 # setuptools
 spotdl.egg-info/*
