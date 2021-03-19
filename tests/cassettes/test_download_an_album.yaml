@@ -22547,7 +22547,7 @@ interactions:
         1RfyMj7l6w68V4CHGqcT+Hb0HwAAAP//AwBza28Zcc8CAA==
     headers:
       CF-Cache-Status:
-      - MISS
+      - REVALIDATED
       CF-Ray:
       - 632475beeb5b6985-BOM
       Cache-Control:
@@ -29796,12 +29796,14 @@ interactions:
       - '*/*'
       Accept-Encoding:
       - gzip, deflate
+      Authorization:
+      - Bearer alXXDbPZtK1m2RrZ8I4k2Hn8Ahsd0Gh_o076HYvcdlBvmc0ULL1H8Z8xRlew5qaG
       Connection:
       - keep-alive
       User-Agent:
       - python-requests/2.25.1
     method: GET
-    uri: https://genius.com/Berlinist-karasu-lyrics
+    uri: https://api.genius.com/songs/4164132
   response:
     body:
       string: !!binary |
@@ -30658,6 +30660,13 @@ interactions:
         kYMIKPpW9krlX+48fXp0+NQ6GNrW/kgbHVqWhrFNTNvWjsgQj4ad8oS88BT6rA/zCtBQs2QOa0f/
         AwAA//8DAF6WZVQI2QIA
     headers:
+      Access-Control-Allow-Headers:
+      - Origin, Access-Control-Request-Method, Access-Control-Request-Headers, Content-Type,
+        Accept, X-Auth-Token, Authorization
+      Access-Control-Allow-Methods:
+      - GET, PUT, POST, OPTIONS, DELETE
+      Access-Control-Allow-Origin:
+      - '*'
       CF-Cache-Status:
       - REVALIDATED
       CF-Ray:
@@ -44883,7 +44892,7 @@ interactions:
         iEMtx9EPqUEGRqe8Ji/CWL7swboCNNQ4ncDO0v8AAAD//wMAcS9YACzRAgA=
     headers:
       CF-Cache-Status:
-      - MISS
+      - REVALIDATED
       CF-Ray:
       - 632477dddae42e64-BOM
       Cache-Control:
@@ -55000,7 +55009,7 @@ interactions:
         CckCAA==
     headers:
       CF-Cache-Status:
-      - MISS
+      - REVALIDATED
       CF-Ray:
       - 632478bfdb1f2e00-BOM
       Cache-Control:
