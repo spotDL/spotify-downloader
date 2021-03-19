@@ -163,6 +163,27 @@ def test_use_tracking_file(capsys, patch_dependencies, monkeypatch, fs):
 
 
 @pytest.mark.vcr()
+def test_download_all_artist_tracks(capsys, patch_dependencies, monkeypatch):
+    """Sixth example - download all artist tracks"""
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "dummy",
+            "https://open.spotify.com/artist/6VTvaLJ9arNmKi8e1ekOwW",
+        ],
+    )
+
+    console_entry_point()
+
+    out, err = capsys.readouterr()
+    assert "Fetching artist...\n" in out
+
+    assert DownloadManager.download_multiple_songs.call_count == 1
+    assert DownloadManager.download_single_song.call_count == 0
+
+
+@pytest.mark.vcr()
 def test_multiple_elements(capsys, patch_dependencies, monkeypatch):
     """Last example - chaining tasks. Download two songs and search for one."""
     monkeypatch.setattr(

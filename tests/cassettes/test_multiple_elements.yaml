@@ -5191,7 +5191,7 @@ interactions:
         JDwEAA==
     headers:
       CF-Cache-Status:
-      - MISS
+      - REVALIDATED
       CF-Ray:
       - 631cfbf9bc2d2e28-BOM
       Cache-Control:
