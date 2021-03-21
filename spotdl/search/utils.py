@@ -73,7 +73,7 @@ def get_artist_tracks(artistUrl: str) -> List[SongObj]:
     returns a `list<songObj>` containing Url's of each track in the artist profile
     '''
 
-    spotifyClient = get_spotify_client()
+    spotifyClient = SpotifyClient()
     artistTracks = []
     offset = 0
 
