@@ -1,6 +1,6 @@
 from typing import List
 
-from spotdl.search.provider import search_and_get_best_match
+from spotdl.search.provider import search_and_get_best_match, get_song_lyrics
 from spotdl.search.spotifyClient import SpotifyClient
 
 
