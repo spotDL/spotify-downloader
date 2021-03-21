@@ -1,6 +1,6 @@
 from typing import List
 
-from spotdl.search.provider import search_and_get_best_match
+from spotdl.search.provider import search_and_get_best_match, get_song_lyrics
 from spotdl.search.spotifyClient import get_spotify_client
 
 
@@ -12,25 +12,24 @@ class SongObj():
     # ====================
     # === Constructors ===
     # ====================
-    def __init__(self, rawTrackMeta, rawAlbumMeta, rawArtistMeta, youtubeLink):
+    def __init__(self, rawTrackMeta, rawAlbumMeta, rawArtistMeta, youtubeLink, lyrics):
         self.__rawTrackMeta = rawTrackMeta
         self.__rawAlbumMeta = rawArtistMeta
         self.__rawArtistMeta = rawArtistMeta
         self.__youtubeLink = youtubeLink
+        self.__lyrics = lyrics
 
-    #! constructors here are a bit mucky, there are two different constructors for two
-    #! different use cases, hence the actual __init__ function does not exist
+    # ! constructors here are a bit mucky, there are two different constructors for two
+    # ! different use cases, hence the actual __init__ function does not exist
 
-    #! Note, since the following are class methods, an instance of songObj is initialized
-    #! and passed to them
+    # ! Note, since the following are class methods, an instance of songObj is initialized
+    # ! and passed to them
     @classmethod
     def from_url(cls, spotifyURL: str):
         # check if URL is a playlist, user, artist or album, if yes raise an Exception,
         # else procede
         if not ('open.spotify.com' in spotifyURL and 'track' in spotifyURL):
             raise Exception('passed URL is not that of a track: %s' % spotifyURL)
-
-
 
         # query spotify for song, artist, album details
         spotifyClient = get_spotify_client()
@@ -43,8 +42,6 @@ class SongObj():
         albumId = rawTrackMeta['album']['id']
         rawAlbumMeta = spotifyClient.album(albumId)
 
-
-
         # get best match from the given provider
         songName = rawTrackMeta['name']
 
@@ -52,7 +49,7 @@ class SongObj():
 
         duration = round(
             rawTrackMeta['duration_ms'] / 1000,
-            ndigits = 3
+            ndigits=3
         )
 
         contributingArtists = []
@@ -67,21 +64,30 @@ class SongObj():
             duration
         )
 
-        return  cls(
+        # try to get lyrics from Genius
+        try:
+            lyrics = get_song_lyrics(songName, contributingArtists)
+        except (AttributeError, IndexError):
+            lyrics = ""
+
+        return cls(
             rawTrackMeta, rawAlbumMeta,
-            rawArtistMeta, youtubeLink
+            rawArtistMeta, youtubeLink,
+            lyrics
         )
 
     @classmethod
     def from_dump(cls, dataDump: dict):
-        rawTrackMeta  = dataDump['rawTrackMeta']
-        rawAlbumMeta  = dataDump['rawAlbumMeta']
+        rawTrackMeta = dataDump['rawTrackMeta']
+        rawAlbumMeta = dataDump['rawAlbumMeta']
         rawArtistMeta = dataDump['rawAlbumMeta']
-        youtubeLink   = dataDump['youtubeLink']
+        youtubeLink = dataDump['youtubeLink']
+        lyrics = dataDump['lyrics']
 
-        return  cls(
+        return cls(
             rawTrackMeta, rawAlbumMeta,
-            rawArtistMeta, youtubeLink
+            rawArtistMeta, youtubeLink,
+            lyrics
         )
 
     def __eq__(self, comparedSong) -> bool:
@@ -90,16 +96,16 @@ class SongObj():
         else:
             return False
 
-    #================================
-    #=== Interface Implementation ===
-    #================================
+    # ================================
+    # === Interface Implementation ===
+    # ================================
 
     def get_youtube_link(self) -> str:
         return self.__youtubeLink
 
-    #! Song Details:
+    # ! Song Details:
 
-    #! 1. Name
+    # ! 1. Name
     def get_song_name(self) -> str:
         ''''
         returns songs's name.
@@ -107,7 +113,7 @@ class SongObj():
 
         return self.__rawTrackMeta['name']
 
-    #! 2. Track Number
+    # ! 2. Track Number
     def get_track_number(self) -> int:
         '''
         returns song's track number from album (as in weather its the first
@@ -116,7 +122,7 @@ class SongObj():
 
         return self.__rawTrackMeta['track_number']
 
-    #! 3. Genres
+    # ! 3. Genres
     def get_genres(self) -> List[str]:
         '''
         returns a list of possible genres for the given song, the first member
@@ -126,15 +132,15 @@ class SongObj():
 
         return self.__rawAlbumMeta['genres'] + self.__rawArtistMeta['genres']
 
-    #! 4. Duration
+    # ! 4. Duration
     def get_duration(self) -> float:
         '''
         returns duration of song in seconds.
         '''
 
-        return round(self.__rawTrackMeta['duration_ms'] / 1000, ndigits = 3)
+        return round(self.__rawTrackMeta['duration_ms'] / 1000, ndigits=3)
 
-    #! 5. All involved artists
+    # ! 5. All involved artists
     def get_contributing_artists(self) -> List[str]:
         '''
         returns a list of all artists who worked on the song.
@@ -153,10 +159,21 @@ class SongObj():
             contributingArtists.append(artist['name'])
 
         return contributingArtists
+    # ! 6. Disc Number
+    def get_disc_number(self) -> int:
+        return self.__rawTrackMeta['disc_number']
 
-    #! Album Details:
+    # ! 6. Lyrics
+    def get_lyrics(self):
+        '''
+        returns the lyrics of the song if found on Genius
+        '''
 
-    #! 1. Name
+        return self.__lyrics
+
+    # ! Album Details:
+
+    # ! 1. Name
     def get_album_name(self) -> str:
         '''
         returns name of the album that the song belongs to.
@@ -164,7 +181,7 @@ class SongObj():
 
         return self.__rawTrackMeta['album']['name']
 
-    #! 2. All involved artist
+    # ! 2. All involved artist
     def get_album_artists(self) -> List[str]:
         '''
         returns list of all artists who worked on the album that
@@ -179,7 +196,7 @@ class SongObj():
 
         return albumArtists
 
-    #! 3. Release Year/Date
+    # ! 3. Release Year/Date
     def get_album_release(self) -> str:
         '''
         returns date/year of album release depending on what data is available.
@@ -187,9 +204,9 @@ class SongObj():
 
         return self.__rawTrackMeta['album']['release_date']
 
-    #! Utilities for genuine use and also for metadata freaks:
+    # ! Utilities for genuine use and also for metadata freaks:
 
-    #! 1. Album Art URL
+    # ! 1. Album Art URL
     def get_album_cover_url(self) -> str:
         '''
         returns url of the biggest album art image available.
@@ -197,7 +214,7 @@ class SongObj():
 
         return self.__rawTrackMeta['album']['images'][0]['url']
 
-    #! 2. All the details the spotify-api can provide
+    # ! 2. All the details the spotify-api can provide
     def get_data_dump(self) -> dict:
         '''
         returns a dictionary containing the spotify-api responses as-is. The
@@ -211,11 +228,12 @@ class SongObj():
         have to look it up seperately when it's already been looked up once?
         '''
 
-        #! internally the only reason this exists is that it helps in saving to disk
+        # ! internally the only reason this exists is that it helps in saving to disk
 
         return {
-            'youtubeLink'  : self.__youtubeLink,
-            'rawTrackMeta' : self.__rawTrackMeta,
-            'rawAlbumMeta' : self.__rawAlbumMeta,
-            'rawArtistMeta': self.__rawArtistMeta
+            'youtubeLink': self.__youtubeLink,
+            'rawTrackMeta': self.__rawTrackMeta,
+            'rawAlbumMeta': self.__rawAlbumMeta,
+            'rawArtistMeta': self.__rawArtistMeta,
+            'lyrics': self.__lyrics
         }

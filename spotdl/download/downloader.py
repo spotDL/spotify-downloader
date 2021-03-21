@@ -4,22 +4,17 @@
 import asyncio
 import concurrent.futures
 import sys
-
-import typing
 from pathlib import Path
-
-from pytube import YouTube
-
-from mutagen.easyid3 import EasyID3, ID3
-from mutagen.id3 import APIC as AlbumCover
-
+# ! The following are not used, they are just here for static typechecking with mypy
+from typing import List
 from urllib.request import urlopen
 
-#! The following are not used, they are just here for static typechecking with mypy
-from typing import List
+from mutagen.easyid3 import EasyID3, ID3
+from mutagen.id3 import APIC as AlbumCover, USLT
+from pytube import YouTube
 
-from spotdl.search.songObj import SongObj
 from spotdl.download.progressHandlers import DisplayManager, DownloadTracker
+from spotdl.search.songObj import SongObj
 
 
 # ==========================
@@ -32,7 +27,7 @@ from spotdl.download.progressHandlers import DisplayManager, DownloadTracker
 # ===========================================================
 
 class DownloadManager():
-    #! Big pool sizes on slow connections will lead to more incomplete downloads
+    # ! Big pool sizes on slow connections will lead to more incomplete downloads
     poolSize = 4
 
     def __init__(self):
@@ -44,15 +39,15 @@ class DownloadManager():
         self.displayManager.clear()
 
         if sys.platform == "win32":
-            #! ProactorEventLoop is required on Windows to run subprocess asynchronously
-            #! it is default since Python 3.8 but has to be changed for previous versions
+            # ! ProactorEventLoop is required on Windows to run subprocess asynchronously
+            # ! it is default since Python 3.8 but has to be changed for previous versions
             loop = asyncio.ProactorEventLoop()
             asyncio.set_event_loop(loop)
         self.loop = asyncio.get_event_loop()
-        #! semaphore is required to limit concurrent asyncio executions
+        # ! semaphore is required to limit concurrent asyncio executions
         self.semaphore = asyncio.Semaphore(self.poolSize)
 
-        #! thread pool executor is used to run blocking (CPU-bound) code from a thread
+        # ! thread pool executor is used to run blocking (CPU-bound) code from a thread
         self.thread_executor = concurrent.futures.ThreadPoolExecutor(
             max_workers=self.poolSize)
 
@@ -118,11 +113,11 @@ class DownloadManager():
         Downloads, Converts, Normalizes song & embeds metadata as ID3 tags.
         '''
 
-        #! all YouTube downloads are to .\Temp; they are then converted and put into .\ and
-        #! finally followed up with ID3 metadata tags
+        # ! all YouTube downloads are to .\Temp; they are then converted and put into .\ and
+        # ! finally followed up with ID3 metadata tags
 
-        #! we explicitly use the os.path.join function here to ensure download is
-        #! platform agnostic
+        # ! we explicitly use the os.path.join function here to ensure download is
+        # ! platform agnostic
 
         # Create a .\Temp folder if not present
         tempFolder = Path('.', 'Temp')
@@ -133,24 +128,30 @@ class DownloadManager():
         # build file name of converted file
         artistStr = ''
 
-        #! we eliminate contributing artist names that are also in the song name, else we
-        #! would end up with things like 'Jetta, Mastubs - I'd love to change the world
-        #! (Mastubs REMIX).mp3' which is kinda an odd file name.
+        # ! we eliminate contributing artist names that are also in the song name, else we
+        # ! would end up with things like 'Jetta, Mastubs - I'd love to change the world
+        # ! (Mastubs REMIX).mp3' which is kinda an odd file name.
         for artist in songObj.get_contributing_artists():
             if artist.lower() not in songObj.get_song_name().lower():
                 artistStr += artist + ', '
 
-        #! the ...[:-2] is to avoid the last ', ' appended to artistStr
+        # make sure that main artist is included in artistStr even if they
+        # are in the song name, for example
+        # Lil Baby - Never Recover (Lil Baby & Gunna, Drake).mp3
+        if songObj.get_contributing_artists()[0].lower() not in artistStr.lower():
+            artistStr = songObj.get_contributing_artists()[0] + ', ' + artistStr
+
+        # ! the ...[:-2] is to avoid the last ', ' appended to artistStr
         convertedFileName = artistStr[:-2] + ' - ' + songObj.get_song_name()
 
-        #! this is windows specific (disallowed chars)
+        # ! this is windows specific (disallowed chars)
         for disallowedChar in ['/', '?', '\\', '*', '|', '<', '>']:
             if disallowedChar in convertedFileName:
                 convertedFileName = convertedFileName.replace(
                     disallowedChar, '')
 
-        #! double quotes (") and semi-colons (:) are also disallowed characters but we would
-        #! like to retain their equivalents, so they aren't removed in the prior loop
+        # ! double quotes (") and semi-colons (:) are also disallowed characters but we would
+        # ! like to retain their equivalents, so they aren't removed in the prior loop
         convertedFileName = convertedFileName.replace(
             '"', "'").replace(':', '-')
 
@@ -163,8 +164,8 @@ class DownloadManager():
             if self.downloadTracker:
                 self.downloadTracker.notify_download_completion(songObj)
 
-            #! None is the default return value of all functions, we just explicitly define
-            #! it here as a continent way to avoid executing the rest of the function.
+            # ! None is the default return value of all functions, we just explicitly define
+            # ! it here as a continent way to avoid executing the rest of the function.
             return None
 
         # download Audio from YouTube
@@ -194,33 +195,34 @@ class DownloadManager():
 
         # convert downloaded file to MP3 with normalization
 
-        #! -af loudnorm=I=-7:LRA applies EBR 128 loudness normalization algorithm with
-        #! intergrated loudness target (I) set to -17, using values lower than -15
-        #! causes 'pumping' i.e. rhythmic variation in loudness that should not
-        #! exist -loud parts exaggerate, soft parts left alone.
-        #!
-        #! dynaudnorm applies dynamic non-linear RMS based normalization, this is what
-        #! actually normalized the audio. The loudnorm filter just makes the apparent
-        #! loudness constant
-        #!
-        #! apad=pad_dur=2 adds 2 seconds of silence toward the end of the track, this is
-        #! done because the loudnorm filter clips/cuts/deletes the last 1-2 seconds on
-        #! occasion especially if the song is EDM-like, so we add a few extra seconds to
-        #! combat that.
-        #!
-        #! -acodec libmp3lame sets the encoded to 'libmp3lame' which is far better
-        #! than the default 'mp3_mf', '-abr true' automatically determines and passes the
-        #! audio encoding bitrate to the filters and encoder. This ensures that the
-        #! sampled length of songs matches the actual length (i.e. a 5 min song won't display
-        #! as 47 seconds long in your music player, yeah that was an issue earlier.)
+        # ! -af loudnorm=I=-7:LRA applies EBR 128 loudness normalization algorithm with
+        # ! intergrated loudness target (I) set to -17, using values lower than -15
+        # ! causes 'pumping' i.e. rhythmic variation in loudness that should not
+        # ! exist -loud parts exaggerate, soft parts left alone.
+        # !
+        # ! dynaudnorm applies dynamic non-linear RMS based normalization, this is what
+        # ! actually normalized the audio. The loudnorm filter just makes the apparent
+        # ! loudness constant
+        # !
+        # ! apad=pad_dur=2 adds 2 seconds of silence toward the end of the track, this is
+        # ! done because the loudnorm filter clips/cuts/deletes the last 1-2 seconds on
+        # ! occasion especially if the song is EDM-like, so we add a few extra seconds to
+        # ! combat that.
+        # !
+        # ! -acodec libmp3lame sets the encoded to 'libmp3lame' which is far better
+        # ! than the default 'mp3_mf', '-abr true' automatically determines and passes the
+        # ! audio encoding bitrate to the filters and encoder. This ensures that the
+        # ! sampled length of songs matches the actual length (i.e. a 5 min song won't display
+        # ! as 47 seconds long in your music player, yeah that was an issue earlier.)
 
-        command = 'ffmpeg -y -i "%s" -acodec libmp3lame -abr true ' \
-                 f'-b:a {trackAudioStream.bitrate} ' \
+
+        command = 'ffmpeg -v quiet -y -i "%s" -acodec libmp3lame -abr true ' \
+                  f'-b:a {trackAudioStream.bitrate} ' \
                   '-af "apad=pad_dur=2, dynaudnorm, loudnorm=I=-17" "%s"'
 
-        #! bash/ffmpeg on Unix systems need to have escape char (\) for special characters: \$
-        #! alternatively the quotes could be reversed (single <-> double) in the command then
-        #! the windows special characters needs escaping (^): ^\  ^&  ^|  ^>  ^<  ^^
+        # ! bash/ffmpeg on Unix systems need to have excape char (\) for special characters: \$
+        # ! alternatively the quotes could be reversed (single <-> double) in the command then
+        # ! the windows special characters needs escaping (^): ^\  ^&  ^|  ^>  ^<  ^^
 
         if sys.platform == 'win32':
             formattedCommand = command % (
@@ -229,8 +231,8 @@ class DownloadManager():
             )
         else:
             formattedCommand = command % (
-                str(downloadedFilePath).replace('$', '\$'),
-                str(convertedFilePath).replace('$', '\$')
+                str(downloadedFilePath).replace('$', r'\$'),
+                str(convertedFilePath).replace('$', r'\$')
             )
 
         process = await asyncio.subprocess.create_subprocess_shell(formattedCommand,
@@ -249,6 +251,7 @@ class DownloadManager():
             convertedFilePath = None
 
         # notify conversion completion
+
         if self.displayManager:
             self.displayManager.notify_conversion_completion()
 
@@ -276,6 +279,8 @@ class DownloadManager():
         audioFile['titlesort'] = songObj.get_song_name()
         # ! track number
         audioFile['tracknumber'] = str(songObj.get_track_number())
+        # ! disc number
+        audioFile['discnumber'] = str(songObj.get_disc_number())
         # ! genres (pretty pointless if you ask me)
         # ! we only apply the first available genre as ID3 v2.3 doesn't support multiple
         # ! genres and ~80% of the world PC's run Windows - an OS with no ID3 v2.4 support
@@ -304,6 +309,11 @@ class DownloadManager():
             desc='Cover',
             data=rawAlbumArt
         )
+        # ! setting the lyrics
+        lyrics = songObj.get_lyrics()
+        USLTOutput = USLT(encoding=3, lang=u'eng', desc=u'desc', text=lyrics)
+        audioFile["USLT::'eng'"] = USLTOutput
+
         audioFile.save(v2_version=3)
 
     def close(self) -> None:
@@ -315,10 +325,10 @@ class DownloadManager():
         self.displayManager.close()
 
     async def _download_from_youtube(self, convertedFileName, tempFolder, trackAudioStream):
-        #! The following function calls blocking code, which would block whole event loop.
-        #! Therefore it has to be called in a separate thread via ThreadPoolExecutor. This
-        #! is not a problem, since GIL is released for the I/O operations, so it shouldn't
-        #! hurt performance.
+        # ! The following function calls blocking code, which would block whole event loop.
+        # ! Therefore it has to be called in a separate thread via ThreadPoolExecutor. This
+        # ! is not a problem, since GIL is released for the I/O operations, so it shouldn't
+        # ! hurt performance.
         return await self.loop.run_in_executor(
             self.thread_executor,
             self._perform_audio_download,
@@ -328,28 +338,29 @@ class DownloadManager():
         )
 
     def _perform_audio_download(self, convertedFileName, tempFolder, trackAudioStream):
-        #! The actual download, if there is any error, it'll be here,
+        # ! The actual download, if there is any error, it'll be here,
         try:
-            #! pyTube will save the song in .\Temp\$songName.mp4 or .webm, it doesn't save as '.mp3'
+            # ! pyTube will save the song in .\Temp\$songName.mp4 or .webm,
+            # ! it doesn't save as '.mp3'
             downloadedFilePath = trackAudioStream.download(
                 output_path=tempFolder,
                 filename=convertedFileName,
                 skip_existing=False
             )
             return downloadedFilePath
-        except:
-            #! This is equivalent to a failed download, we do nothing, the song remains on
-            #! downloadTrackers download queue and all is well...
-            #!
-            #! None is again used as a convenient exit
+        except:  # noqa:E722
+            # ! This is equivalent to a failed download, we do nothing, the song remains on
+            # ! downloadTrackers download queue and all is well...
+            # !
+            # ! None is again used as a convenient exit
             tempFiles = Path(tempFolder).glob(f'{convertedFileName}.*')
             for tempFile in tempFiles:
                 tempFile.unlink()
             return None
 
     async def _pool_download(self, song_obj: SongObj):
-        #! Run asynchronous task in a pool to make sure that all processes
-        #! don't run at once.
+        # ! Run asynchronous task in a pool to make sure that all processes
+        # ! don't run at once.
 
         # tasks that cannot acquire semaphore will wait here until it's free
         # only certain amount of tasks can acquire the semaphore at the same time

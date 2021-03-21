@@ -31,7 +31,7 @@ def patch_dependencies(mocker, monkeypatch):
     mocker.patch.object(DownloadManager, "close", autospec=True)
 
 
-@pytest.mark.parametrize("argument", ["-h", "-H", "--help", None])
+@pytest.mark.parametrize("argument", ["-h", "--help"])
 def test_show_help(capsys, monkeypatch, argument):
     """The --help, -h switches or no arguments should display help message"""
 
@@ -41,10 +41,12 @@ def test_show_help(capsys, monkeypatch, argument):
     if argument:
         cli_args.append(argument)
     monkeypatch.setattr(sys, "argv", cli_args)
-    console_entry_point()
+
+    with pytest.raises(SystemExit):
+        console_entry_point()
 
     out, _ = capsys.readouterr()
-    assert out == help_notice + "\n"
+    assert help_notice in out
 
 
 @pytest.mark.vcr()
@@ -157,6 +159,27 @@ def test_use_tracking_file(capsys, patch_dependencies, monkeypatch, fs):
 
     assert DownloadManager.resume_download_from_tracking_file.call_count == 1
     assert DownloadManager.download_multiple_songs.call_count == 0
+    assert DownloadManager.download_single_song.call_count == 0
+
+
+@pytest.mark.vcr()
+def test_download_all_artist_tracks(capsys, patch_dependencies, monkeypatch):
+    """Sixth example - download all artist tracks"""
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "dummy",
+            "https://open.spotify.com/artist/6VTvaLJ9arNmKi8e1ekOwW",
+        ],
+    )
+
+    console_entry_point()
+
+    out, err = capsys.readouterr()
+    assert "Fetching artist...\n" in out
+
+    assert DownloadManager.download_multiple_songs.call_count == 1
     assert DownloadManager.download_single_song.call_count == 0
 
 
