@@ -104,8 +104,10 @@ def _map_result_to_song_data(result: dict) -> dict:
             'link': f'https://www.youtube.com/watch?v={video_id}',
             'position': 0
         }
-        if 'album' in result:
-            song_data['album'] = result['album']['name']
+
+        album = result.get('album')
+        if album:
+            song_data['album'] = album['name']
 
     return song_data
 
@@ -223,7 +225,9 @@ def search_and_order_ytm_results(songName: str, songArtists: List[str],
         albumMatch = 0.0
 
         if result['type'] == 'song':
-            albumMatch = match_percentage(result['album'], songAlbumName)
+            album = result.get('album')
+            if album:
+                albumMatch = match_percentage(album, songAlbumName)
 
         # Find duration match
         # ! time match = 100 - (delta(duration)**2 / original duration * 100)
