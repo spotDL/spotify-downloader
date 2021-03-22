@@ -30,7 +30,9 @@ class DownloadManager():
     # ! Big pool sizes on slow connections will lead to more incomplete downloads
     poolSize = 4
 
-    def __init__(self):
+    def __init__(self, sleep_interval):
+        # set sleep interval between tracks
+        self.sleep_interval = sleep_interval
 
         # start a server for objects shared across processes
         self.displayManager = DisplayManager()
@@ -356,6 +358,7 @@ class DownloadManager():
         # tasks that cannot acquire semaphore will wait here until it's free
         # only certain amount of tasks can acquire the semaphore at the same time
         async with self.semaphore:
+            await asyncio.sleep(self.sleep_interval * self.poolSize)
             return await self.download_song(song_obj)
 
     def _download_asynchronously(self, song_obj_list):
