@@ -6,7 +6,7 @@ import concurrent.futures
 import sys
 from pathlib import Path
 # ! The following are not used, they are just here for static typechecking with mypy
-from typing import List
+from typing import Any, List
 from urllib.request import urlopen
 
 from mutagen.easyid3 import EasyID3, ID3
@@ -15,6 +15,7 @@ from pytube import YouTube
 
 from spotdl.download.progressHandlers import DisplayManager, DownloadTracker
 from spotdl.search.songObj import SongObj
+from spotdl.download.ffmpeg import ffmpeg_check, ffmpeg_convert
 
 
 # ==========================
@@ -50,6 +51,12 @@ class DownloadManager():
         # ! thread pool executor is used to run blocking (CPU-bound) code from a thread
         self.thread_executor = concurrent.futures.ThreadPoolExecutor(
             max_workers=self.poolSize)
+
+        ffmpeg_available = self.loop.run_until_complete(ffmpeg_check())
+
+        if ffmpeg_available is False:
+            print("ffmpeg is not availabe, spotdl can't continue")
+            sys.exit(1)
 
     def download_single_song(self, songObj: SongObj) -> None:
         '''
@@ -155,7 +162,7 @@ class DownloadManager():
         convertedFileName = convertedFileName.replace(
             '"', "'").replace(':', '-')
 
-        convertedFilePath = Path(".", f"{convertedFileName}.mp3")
+        convertedFilePath: Any = Path(".", f"{convertedFileName}.mp3")
 
         # if a song is already downloaded skip it
         if convertedFilePath.is_file():
@@ -193,59 +200,30 @@ class DownloadManager():
 
         downloadedFilePath = Path(downloadedFilePathString)
 
-        # convert downloaded file to MP3 with normalization
+        ffmpeg_output = await ffmpeg_convert(
+            trackAudioStream=trackAudioStream,
+            downloadedFilePath=downloadedFilePath,
+            convertedFilePath=convertedFilePath
+        )
 
-        # ! -af loudnorm=I=-7:LRA applies EBR 128 loudness normalization algorithm with
-        # ! intergrated loudness target (I) set to -17, using values lower than -15
-        # ! causes 'pumping' i.e. rhythmic variation in loudness that should not
-        # ! exist -loud parts exaggerate, soft parts left alone.
-        # !
-        # ! dynaudnorm applies dynamic non-linear RMS based normalization, this is what
-        # ! actually normalized the audio. The loudnorm filter just makes the apparent
-        # ! loudness constant
-        # !
-        # ! apad=pad_dur=2 adds 2 seconds of silence toward the end of the track, this is
-        # ! done because the loudnorm filter clips/cuts/deletes the last 1-2 seconds on
-        # ! occasion especially if the song is EDM-like, so we add a few extra seconds to
-        # ! combat that.
-        # !
-        # ! -acodec libmp3lame sets the encoded to 'libmp3lame' which is far better
-        # ! than the default 'mp3_mf', '-abr true' automatically determines and passes the
-        # ! audio encoding bitrate to the filters and encoder. This ensures that the
-        # ! sampled length of songs matches the actual length (i.e. a 5 min song won't display
-        # ! as 47 seconds long in your music player, yeah that was an issue earlier.)
-
-        command = 'ffmpeg -v quiet -y -i "%s" -acodec libmp3lame -abr true ' \
-                  f'-b:a {trackAudioStream.bitrate} ' \
-                  '-af "apad=pad_dur=2, dynaudnorm, loudnorm=I=-17" "%s"'
-
-        # ! bash/ffmpeg on Unix systems need to have excape char (\) for special characters: \$
-        # ! alternatively the quotes could be reversed (single <-> double) in the command then
-        # ! the windows special characters needs escaping (^): ^\  ^&  ^|  ^>  ^<  ^^
-
-        if sys.platform == 'win32':
-            formattedCommand = command % (
-                str(downloadedFilePath),
-                str(convertedFilePath)
-            )
-        else:
-            formattedCommand = command % (
-                str(downloadedFilePath).replace('$', r'\$'),
-                str(convertedFilePath).replace('$', r'\$')
-            )
-
-        process = await asyncio.subprocess.create_subprocess_shell(formattedCommand)
-        _ = await process.communicate()
-
-        # ! Wait till converted file is actually created
-        while True:
-            if convertedFilePath.is_file():
-                break
+        # ffmpeg is done ... how did it go?
+        if ffmpeg_output.return_code == 127:
+            print("\nffmpeg was not found. spotDL can't continue", file=sys.stderr)
+            sys.exit(1)
+        elif ffmpeg_output.return_code != 0:
+            print(f"\nffmpeg returned an error ({ffmpeg_output.return_code})", file=sys.stderr)
+            print(f"the ffmpeg command was \"{ffmpeg_output.command}\"", file=sys.stderr)
+            print('ffmpeg gave this output:\n=====\n', file=sys.stderr)
+            print(f"{ffmpeg_output.proc_err.decode('utf-8')}\n=====\n", file=sys.stderr)
+            convertedFilePath.unlink()
+            convertedFilePath = None
 
         if self.displayManager:
             self.displayManager.notify_conversion_completion()
 
-        self.set_id3_data(convertedFilePath, songObj)
+        # if a file was successfully downloaded, tag it
+        if convertedFilePath is not None:
+            self.set_id3_data(convertedFilePath, songObj)
 
         # Do the necessary cleanup
         if self.displayManager:
