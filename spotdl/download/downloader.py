@@ -15,7 +15,7 @@ from pytube import YouTube
 
 from spotdl.download.progressHandlers import DisplayManager, DownloadTracker
 from spotdl.search.songObj import SongObj
-from spotdl.download.ffmpeg import FFmpeg
+from spotdl.download import ffmpeg
 
 
 # ==========================
@@ -52,7 +52,7 @@ class DownloadManager():
         self.thread_executor = concurrent.futures.ThreadPoolExecutor(
             max_workers=self.poolSize)
 
-        if FFmpeg.has_correct_version() is False:
+        if ffmpeg.has_correct_version() is False:
             print("ffmpeg was not found, spotdl can't continue")
             sys.exit(1)
 
@@ -198,7 +198,7 @@ class DownloadManager():
 
         downloadedFilePath = Path(downloadedFilePathString)
 
-        ffmpeg_success = await FFmpeg.convert(
+        ffmpeg_success = await ffmpeg.convert(
             trackAudioStream=trackAudioStream,
             downloadedFilePath=downloadedFilePath,
             convertedFilePath=convertedFilePath
