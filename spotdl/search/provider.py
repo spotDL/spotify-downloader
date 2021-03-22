@@ -6,7 +6,9 @@ itself
 # ===============
 # === Imports ===
 # ===============
-import typing as ty
+import typing
+
+from textwrap import shorten
 
 from ytmusicapi import YTMusic
 from bs4 import BeautifulSoup
@@ -19,8 +21,8 @@ from requests import get
 
 
 def get_youtube_link(
-    song_name: str, song_artists: ty.List["str"], album: str, song_duration: int
-) -> ty.Union[str, None]:
+    song_name: str, song_artists: typing.List["str"], album: str, song_duration: int
+) -> typing.Optional[str]:
     """
     attempts to find "THE" youtube link to the song according to inputs
     """
@@ -84,25 +86,27 @@ def get_youtube_link(
         # !update top match as required
         if avg_match > top_match_score:
             top_match_score = avg_match
-            top_match_link = result["link"]
+            # top_match_link is always a str but mypy doesn't recognize it as such, so we wrap it
+            # in a str() conversion so mypy will shut up on the final return statement
+            top_match_link = str(result["link"])
 
     if top_match_score < 0.75:
         file = open("possible errors (delete when ever you want).txt", "ab")
         file.write(
-            f"{song_artists[0][:15]:>15s} - {song_name[:40]:40s} "
+            f"{shorten(song_artists[0], 15):>15s} - {shorten(song_name, 40):40s} "
             f"{top_match_score:0.2f}pt {top_match_link}: {result['songName']}\n".encode(),
         )
         file.close()
 
-    # top_match_link is always a str but mypy doesn't recognize it as such, so we wrap it in a
-    # str() conversion so mypy will shut up
-    return str(top_match_link)
+    return top_match_link
 
 
 # ================================================
 # === support / background / private functions ===
 # ================================================
-def __query_ytmusic(song_name: str, song_artists: ty.List[str]) -> list:
+def __query_ytmusic(
+    song_name: str, song_artists: typing.List[str]
+) -> typing.List[dict]:
     """
     query YTMusic with "{artist names} - {song name}" and returns simplified song and video results
     as a `list[dict]`, each `dict` containing the following (in lower case):
@@ -139,7 +143,8 @@ def __query_ytmusic(song_name: str, song_artists: ty.List[str]) -> list:
         skip_result = False
 
         for key in ["artists", "album", "resultType", "duration", "title"]:
-            if not (key in result.keys() and result[key] is not None):
+            # NOTE: if key is not in the dict, NoneType is returned
+            if result.get(key) is None:
                 # video results do not have album metadata
                 if not (result["resultType"] == "video" and key == "album"):
                     # placing the continue statement here will skip to the next
@@ -191,7 +196,9 @@ def __query_ytmusic(song_name: str, song_artists: ty.List[str]) -> list:
     return collected_results
 
 
-def __common_elm_fraction(one: ty.Union[list, str], two: ty.Union[list, str]) -> float:
+def __common_elm_fraction(
+    one: typing.Union[list, str], two: typing.Union[list, str]
+) -> float:
     """
     returns (number of common elements)/(total elements is bigger list/sentence).
 
@@ -206,13 +213,9 @@ def __common_elm_fraction(one: ty.Union[list, str], two: ty.Union[list, str]) ->
     if isinstance(two, str):
         two = two.split(" ")
 
-    set1 = set()
-    for each in one:
-        set1.add(each.lower())
+    set1 = set(each.lower() for each in one)
 
-    set2 = set()
-    for each in two:
-        set2.add(each.lower())
+    set2 = set(each.lower() for each in two)
 
     if len(set1) > len(set2):
         greater_length = len(set1)
@@ -222,7 +225,7 @@ def __common_elm_fraction(one: ty.Union[list, str], two: ty.Union[list, str]) ->
     return len(set1.intersection(set2)) / greater_length
 
 
-def get_song_lyrics(song_name: str, song_artists: ty.List[str]) -> str:
+def get_song_lyrics(song_name: str, song_artists: typing.List[str]) -> str:
     """
     `str` `song_name` : name of song
 

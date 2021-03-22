@@ -65,8 +65,8 @@ class SongObj():
         )
 
         if youtubeLink is None:
-            raise Exception(f'No youtube match could be found for {songName}')
-
+            print(f'No youtube match could be found for {songName}')
+        
         # try to get lyrics from Genius
         try:
             lyrics = get_song_lyrics(songName, contributingArtists)
