@@ -6,7 +6,7 @@ import re
 
 class FFmpeg():
     @staticmethod
-    def check() -> bool:
+    def has_correct_version() -> bool:
         process = subprocess.Popen(
             ['ffmpeg', '-version'],
             shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
