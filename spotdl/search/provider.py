@@ -4,13 +4,13 @@
 
 # ! the following are for the search provider to function
 import typing
-from datetime import timedelta
-from time import strptime
 # ! Just for static typing
 from typing import List
 
 from rapidfuzz.fuzz import partial_ratio
 from ytmusicapi import YTMusic
+from bs4 import BeautifulSoup
+from requests import get
 
 
 # ================================
@@ -72,40 +72,47 @@ def match_percentage(str1: str, str2: str, score_cutoff: float = 0) -> float:
 ytmApiClient = YTMusic()
 
 
-def __parse_duration(duration: str) -> float:
+def _parse_duration(duration: str) -> float:
+    '''
+    Convert string value of time (duration: "25:36:59") to a float value of seconds (92219.0)
+    '''
     try:
-        if len(duration) > 5:
-            padded = duration.rjust(8, '0')
-            x = strptime(padded, '%H:%M:%S')
-        elif len(duration) > 2:
-            padded = duration.rjust(5, '0')
-            x = strptime(padded, '%M:%S')
-        else:
-            x = strptime(duration, '%S')
+        # {(1, "s"), (60, "m"), (3600, "h")}
+        mappedIncrements = zip([1, 60, 3600], reversed(duration.split(":")))
+        seconds = 0
+        for multiplier, time in mappedIncrements:
+            seconds += multiplier * int(time)
+        return float(seconds)
 
-        return timedelta(hours=x.tm_hour, minutes=x.tm_min, seconds=x.tm_sec).total_seconds()
-    except (ValueError, TypeError):
+    # ! This usually occurs when the wrong string is mistaken for the duration
+    except (ValueError, TypeError, AttributeError):
         return 0.0
 
 
-def __map_result_to_song_data(result: dict) -> dict:
-    artists = ", ".join(map(lambda a: a['name'], result['artists']))
-    video_id = result['videoId']
-    song_data = {
-        'name': result['title'],
-        'type': result['resultType'],
-        'artist': artists,
-        'length': __parse_duration(result.get('duration', None)),
-        'link': f'https://www.youtube.com/watch?v={video_id}',
-        'position': 0
-    }
-    if 'album' in result:
-        song_data['album'] = result['album']['name']
+def _map_result_to_song_data(result: dict) -> dict:
+    song_data = {}
+    if result['resultType'] in ['song', 'video']:
+        artists = ", ".join(map(lambda a: a['name'], result['artists']))
+        video_id = result['videoId']
+        if video_id is None:
+            return {}
+        song_data = {
+            'name': result['title'],
+            'type': result['resultType'],
+            'artist': artists,
+            'length': _parse_duration(result.get('duration', None)),
+            'link': f'https://www.youtube.com/watch?v={video_id}',
+            'position': 0
+        }
+
+        album = result.get('album')
+        if album:
+            song_data['album'] = album['name']
 
     return song_data
 
 
-def __query_and_simplify(searchTerm: str) -> List[dict]:
+def _query_and_simplify(searchTerm: str) -> List[dict]:
     '''
     `str` `searchTerm` : the search term you would type into YTM's search bar
 
@@ -120,9 +127,9 @@ def __query_and_simplify(searchTerm: str) -> List[dict]:
     # build and POST a query to YTM
 
     print(f'Searching for: {searchTerm}')
-    searchResult = ytmApiClient.search(searchTerm, filter='videos')
+    searchResult = ytmApiClient.search(searchTerm)
 
-    return list(map(__map_result_to_song_data, searchResult))
+    return list(map(_map_result_to_song_data, searchResult))
 
 
 # =======================
@@ -147,12 +154,17 @@ def search_and_order_ytm_results(songName: str, songArtists: List[str],
     that $matchValue can take is 100, the least value is unbound.
     '''
     # Query YTM
-    results = __query_and_simplify(get_ytm_search_query(songName, songArtists))
+    results = _query_and_simplify(get_ytm_search_query(songName, songArtists))
 
     # Assign an overall avg match value to each result
     linksWithMatchValue = {}
 
     for result in results:
+        # ! skip results without videoId, this happens if you are country restricted or
+        # ! video is unavailabe
+        if result == {}:
+            continue
+
         # ! If there are no common words b/w the spotify and YouTube Music name, the song
         # ! is a wrong match (Like Ruelle - Madness being matched to Ruelle - Monster, it
         # ! happens without this conditional)
@@ -213,7 +225,9 @@ def search_and_order_ytm_results(songName: str, songArtists: List[str],
         albumMatch = 0.0
 
         if result['type'] == 'song':
-            albumMatch = match_percentage(result['album'], songAlbumName)
+            album = result.get('album')
+            if album:
+                albumMatch = match_percentage(album, songAlbumName)
 
         # Find duration match
         # ! time match = 100 - (delta(duration)**2 / original duration * 100)
@@ -267,3 +281,43 @@ def search_and_get_best_match(songName: str, songArtists: List[str],
     # ! In theory, the first 'TUPLE' in sortedResults should have the highest match
     # ! value, we send back only the link
     return sortedResults[0][0]
+
+
+def get_song_lyrics(song_name: str, song_artists: List[str]) -> str:
+    """
+    `str` `song_name` : name of song
+
+    `list<str>` `song_artists` : list containing name of contributing artists
+
+    RETURNS `str`: Lyrics of the song.
+
+    Gets the metadata of the song.
+    """
+
+    headers = {
+        'Authorization': 'Bearer alXXDbPZtK1m2RrZ8I4k2Hn8Ahsd0Gh_o076HYvcdlBvmc0ULL1H8Z8xRlew5qaG',
+    }
+    api_search_url = 'https://api.genius.com/search'
+    search_query = f'{song_name} {", ".join(song_artists)}'
+
+    api_response = get(
+        api_search_url,
+        params={'q': search_query},
+        headers=headers
+    ).json()
+
+    song_id = api_response['response']['hits'][0]['result']['id']
+    song_api_url = f'https://api.genius.com/songs/{song_id}'
+
+    api_response = get(
+        song_api_url,
+        headers=headers
+    ).json()
+
+    song_url = api_response['response']['song']['url']
+
+    genius_page = get(song_url)
+    soup = BeautifulSoup(genius_page.text, 'html.parser')
+    lyrics = soup.select_one('div.lyrics').get_text()
+
+    return lyrics.strip()

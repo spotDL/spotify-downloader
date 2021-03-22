@@ -5,25 +5,25 @@ import pytest
 
 from spotdl.__main__ import console_entry_point, help_notice
 from spotdl.download.downloader import DownloadManager
-from spotdl.search import spotifyClient
+from spotdl.search.spotifyClient import SpotifyClient
 
 from tests.utils import tracking_files
 
-ORIGINAL_INITIALIZE = spotifyClient.initialize
+ORIGINAL_INITIALIZE = SpotifyClient.init
 
 
-def new_initialize(clientId, clientSecret):
+def new_initialize(client_id, client_secret):
     """This function allows calling `initialize()` multiple times"""
     try:
-        return spotifyClient.get_spotify_client()
+        return SpotifyClient()
     except:
-        return ORIGINAL_INITIALIZE(clientId, clientSecret)
+        return ORIGINAL_INITIALIZE(client_id, client_secret)
 
 
 @pytest.fixture()
 def patch_dependencies(mocker, monkeypatch):
     """This is a helper fixture to patch out everything that shouldn't be called here"""
-    monkeypatch.setattr(spotifyClient, "initialize", new_initialize)
+    monkeypatch.setattr(SpotifyClient, "init", new_initialize)
     monkeypatch.setattr(DownloadManager, "__init__", lambda _: None)
     mocker.patch.object(DownloadManager, "download_single_song", autospec=True)
     mocker.patch.object(

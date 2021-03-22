@@ -1,12 +1,19 @@
 #! Basic necessities to get the CLI running
 import argparse
+import os
+import sys
 
 # ! The actual download stuff
 from spotdl.download.downloader import DownloadManager
-from spotdl.search import spotifyClient
 from spotdl.search.songObj import SongObj
+from spotdl.search.spotifyClient import SpotifyClient
 # ! Song Search from different start points
-from spotdl.search.utils import get_playlist_tracks, get_album_tracks, search_for_song
+from spotdl.search.utils import (
+    get_playlist_tracks,
+    get_album_tracks,
+    get_artist_tracks,
+    search_for_song,
+)
 
 # ! Usage is simple - call:
 #   'python __main__.py <links, search terms, tracking files separated by spaces>
@@ -83,10 +90,16 @@ def console_entry_point():
     '''
     arguments = parse_arguments()
 
-    spotifyClient.initialize(
-        clientId='4fe3fecfe5334023a1472516cc99d805',
-        clientSecret='0f02b7c483c04257984695007a4a8d5c'
+    SpotifyClient.init(
+        client_id='4fe3fecfe5334023a1472516cc99d805',
+        client_secret='0f02b7c483c04257984695007a4a8d5c'
     )
+
+    if arguments.path:
+        if not os.path.isdir(arguments.path):
+            sys.exit("The output directory doesn't exist.")
+        print(f"Will download to: {os.path.abspath(arguments.path)}")
+        os.chdir(arguments.path)
 
     with DownloadManager() as downloader:
 
@@ -114,6 +127,12 @@ def console_entry_point():
 
                 downloader.download_multiple_songs(songObjList)
 
+            elif 'open.spotify.com' in request and 'artist' in request:
+                print('Fetching artist...')
+                artistObjList = get_artist_tracks(request)
+
+                downloader.download_multiple_songs(artistObjList)
+
             elif request.endswith('.spotdlTrackingFile'):
                 print('Preparing to resume download...')
                 downloader.resume_download_from_tracking_file(request)
@@ -133,7 +152,8 @@ def parse_arguments():
         description=help_notice,
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
-    parser.add_argument("url", type=str, nargs="+")
+    parser.add_argument("url", type=str, nargs="+", help="URL to a song/album/playlist")
+    parser.add_argument("-o", "--output", help="Output directory path", dest="path")
 
     return parser.parse_args()
 
