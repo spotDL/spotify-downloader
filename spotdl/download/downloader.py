@@ -6,7 +6,7 @@ import concurrent.futures
 import sys
 from pathlib import Path
 # ! The following are not used, they are just here for static typechecking with mypy
-from typing import Any, List
+from typing import List
 from urllib.request import urlopen
 
 from mutagen.easyid3 import EasyID3, ID3
@@ -15,7 +15,7 @@ from pytube import YouTube
 
 from spotdl.download.progressHandlers import DisplayManager, DownloadTracker
 from spotdl.search.songObj import SongObj
-from spotdl.download.ffmpeg import ffmpeg_check, ffmpeg_convert
+from spotdl.download.ffmpeg import FFmpeg
 
 
 # ==========================
@@ -52,10 +52,8 @@ class DownloadManager():
         self.thread_executor = concurrent.futures.ThreadPoolExecutor(
             max_workers=self.poolSize)
 
-        ffmpeg_available = self.loop.run_until_complete(ffmpeg_check())
-
-        if ffmpeg_available is False:
-            print("ffmpeg is not availabe, spotdl can't continue")
+        if FFmpeg.check() is False:
+            print("ffmpeg was not found, spotdl can't continue")
             sys.exit(1)
 
     def download_single_song(self, songObj: SongObj) -> None:
@@ -162,7 +160,7 @@ class DownloadManager():
         convertedFileName = convertedFileName.replace(
             '"', "'").replace(':', '-')
 
-        convertedFilePath: Any = Path(".", f"{convertedFileName}.mp3")
+        convertedFilePath = Path(".", f"{convertedFileName}.mp3")
 
         # if a song is already downloaded skip it
         if convertedFilePath.is_file():
@@ -200,29 +198,20 @@ class DownloadManager():
 
         downloadedFilePath = Path(downloadedFilePathString)
 
-        ffmpeg_output = await ffmpeg_convert(
+        ffmpeg_success = await FFmpeg.convert(
             trackAudioStream=trackAudioStream,
             downloadedFilePath=downloadedFilePath,
             convertedFilePath=convertedFilePath
         )
 
-        # ffmpeg is done ... how did it go?
-        if ffmpeg_output.return_code == 127:
-            print("\nffmpeg was not found. spotDL can't continue", file=sys.stderr)
-            sys.exit(1)
-        elif ffmpeg_output.return_code != 0:
-            print(f"\nffmpeg returned an error ({ffmpeg_output.return_code})", file=sys.stderr)
-            print(f"the ffmpeg command was \"{ffmpeg_output.command}\"", file=sys.stderr)
-            print('ffmpeg gave this output:\n=====\n', file=sys.stderr)
-            print(f"{ffmpeg_output.proc_err.decode('utf-8')}\n=====\n", file=sys.stderr)
-            convertedFilePath.unlink()
-            convertedFilePath = None
-
         if self.displayManager:
             self.displayManager.notify_conversion_completion()
 
-        # if a file was successfully downloaded, tag it
-        if convertedFilePath is not None:
+        if ffmpeg_success is False:
+            # delete the file that wasn't successfully converted
+            convertedFilePath.unlink()
+        else:
+            # if a file was successfully downloaded, tag it
             self.set_id3_data(convertedFilePath, songObj)
 
         # Do the necessary cleanup

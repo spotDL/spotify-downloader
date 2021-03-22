@@ -53,8 +53,15 @@ class FakeProcess:
         self._output.open("w").close()
         return (None, None)
 
+    async def wait(self):
+        return None
 
-async def fake_create_subprocess_shell(command):
+    @property
+    def returncode(self):
+        return 0
+
+
+async def fake_create_subprocess_shell(command, stdout=None, stderr=None):
     return FakeProcess(command)
 
 
