@@ -53,7 +53,7 @@ class DownloadManager():
             max_workers=self.poolSize)
 
         if ffmpeg.has_correct_version() is False:
-            print("ffmpeg was not found, spotdl can't continue")
+            print("FFmpeg was not found, spotDL cannot continue.")
             sys.exit(1)
 
     def download_single_song(self, songObj: SongObj) -> None:
