@@ -14,6 +14,7 @@ from rich.progress import (
     TaskID,
     ProgressColumn
 )
+from rich.progress import Task
 from rich.theme import Theme
 from rich.style import StyleType
 from rich.console import (
@@ -35,9 +36,6 @@ from typing import (
     List,
     Optional,
 )
-from datetime import datetime
-import time
-import typing
 from pathlib import Path
 from typing import List
 
@@ -120,7 +118,7 @@ class DisplayManager():
 
         self._richProgressBar = Progress(
             SizedTextColumn("[white]{task.description}", overflow="ellipsis", width=int(
-                self.console.width/3)),
+                self.console.width / 3)),
             SizedTextColumn("{task.fields[message]}",
                             width=18, style="nonimportant"),
             BarColumn(bar_width=None, finished_style="green"),
@@ -144,7 +142,7 @@ class DisplayManager():
     def print(self, *text, color="green"):
         '''
         `text` : `any`  Text to be printed to screen
-        Use this self.print to replace default print(). 
+        Use this self.print to replace default print().
         '''
 
         if self.quiet:
@@ -175,7 +173,7 @@ class DisplayManager():
 
         if self.songCount > 4:
             self.overallTaskID = self._richProgressBar.add_task(description='Total', processID='0', message=str(
-                self.overallCompletedTasks) + '/' + str(int(self.overallTotal/100)) + " complete", total=self.overallTotal, visible=(not self.quiet))
+                self.overallCompletedTasks) + '/' + str(int(self.overallTotal / 100)) + " complete", total=self.overallTotal, visible=(not self.quiet))
 
     def update_overall(self):
         '''
@@ -183,7 +181,7 @@ class DisplayManager():
         '''
 
         # If the overall progress bar exists
-        if self.overallTaskID != None:
+        if self.overallTaskID is not None:
             self._richProgressBar.update(self.overallTaskID, message=str(
                 self.overallCompletedTasks) + '/' + str(int(self.overallTotal/100)) + " complete", completed=self.overallProgress)
 
