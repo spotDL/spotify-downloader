@@ -6,7 +6,6 @@ import concurrent.futures
 import sys
 import traceback
 
-import typing
 from pathlib import Path
 # ! The following are not used, they are just here for static typechecking with mypy
 from typing import List
@@ -147,9 +146,9 @@ class DownloadManager():
             # build file name of converted file
             artistStr = ''
 
-            #! we eliminate contributing artist names that are also in the song name, else we
-            #! would end up with things like 'Jetta, Mastubs - I'd love to change the world
-            #! (Mastubs REMIX).mp3' which is kinda an odd file name.
+            # ! we eliminate contributing artist names that are also in the song name, else we
+            # ! would end up with things like 'Jetta, Mastubs - I'd love to change the world
+            # ! (Mastubs REMIX).mp3' which is kinda an odd file name.
             for artist in songObj.get_contributing_artists():
                 if artist.lower() not in songObj.get_song_name().lower():
                     artistStr += artist + ', '
@@ -160,18 +159,18 @@ class DownloadManager():
             if songObj.get_contributing_artists()[0].lower() not in artistStr.lower():
                 artistStr = songObj.get_contributing_artists()[0] + ', ' + artistStr
 
-            #! the ...[:-2] is to avoid the last ', ' appended to artistStr
+            # ! the ...[:-2] is to avoid the last ', ' appended to artistStr
             convertedFileName = artistStr[:-2] + \
                 ' - ' + songObj.get_song_name()
 
-            #! this is windows specific (disallowed chars)
+            # ! this is windows specific (disallowed chars)
             for disallowedChar in ['/', '?', '\\', '*', '|', '<', '>']:
                 if disallowedChar in convertedFileName:
                     convertedFileName = convertedFileName.replace(
                         disallowedChar, '')
 
-            #! double quotes (") and semi-colons (:) are also disallowed characters but we would
-            #! like to retain their equivalents, so they aren't removed in the prior loop
+            # ! double quotes (") and semi-colons (:) are also disallowed characters but we would
+            # ! like to retain their equivalents, so they aren't removed in the prior loop
             convertedFileName = convertedFileName.replace(
                 '"', "'").replace(':', '-')
 
@@ -184,8 +183,8 @@ class DownloadManager():
                 if self.downloadTracker:
                     self.downloadTracker.notify_download_completion(songObj)
 
-                #! None is the default return value of all functions, we just explicitly define
-                #! it here as a continent way to avoid executing the rest of the function.
+                # ! None is the default return value of all functions, we just explicitly define
+                # ! it here as a continent way to avoid executing the rest of the function.
                 return None
 
             # download Audio from YouTube
@@ -206,8 +205,11 @@ class DownloadManager():
                       f"from video \"{songObj.get_youtube_link()}\"")
                 return None
 
-            downloadedFilePathString = await self._download_from_youtube(convertedFileName, tempFolder,
-                                                                         trackAudioStream)
+            downloadedFilePathString = await self._download_from_youtube(
+                convertedFileName,
+                tempFolder,
+                trackAudioStream
+            )
 
             if downloadedFilePathString is None:
                 return None
@@ -219,33 +221,33 @@ class DownloadManager():
 
             # convert downloaded file to MP3 with normalization
 
-            #! -af loudnorm=I=-7:LRA applies EBR 128 loudness normalization algorithm with
-            #! intergrated loudness target (I) set to -17, using values lower than -15
-            #! causes 'pumping' i.e. rhythmic variation in loudness that should not
-            #! exist -loud parts exaggerate, soft parts left alone.
-            #!
-            #! dynaudnorm applies dynamic non-linear RMS based normalization, this is what
-            #! actually normalized the audio. The loudnorm filter just makes the apparent
-            #! loudness constant
-            #!
-            #! apad=pad_dur=2 adds 2 seconds of silence toward the end of the track, this is
-            #! done because the loudnorm filter clips/cuts/deletes the last 1-2 seconds on
-            #! occasion especially if the song is EDM-like, so we add a few extra seconds to
-            #! combat that.
-            #!
-            #! -acodec libmp3lame sets the encoded to 'libmp3lame' which is far better
-            #! than the default 'mp3_mf', '-abr true' automatically determines and passes the
-            #! audio encoding bitrate to the filters and encoder. This ensures that the
-            #! sampled length of songs matches the actual length (i.e. a 5 min song won't display
-            #! as 47 seconds long in your music player, yeah that was an issue earlier.)
+            # ! -af loudnorm=I=-7:LRA applies EBR 128 loudness normalization algorithm with
+            # ! intergrated loudness target (I) set to -17, using values lower than -15
+            # ! causes 'pumping' i.e. rhythmic variation in loudness that should not
+            # ! exist -loud parts exaggerate, soft parts left alone.
+            # !
+            # ! dynaudnorm applies dynamic non-linear RMS based normalization, this is what
+            # ! actually normalized the audio. The loudnorm filter just makes the apparent
+            # ! loudness constant
+            # !
+            # ! apad=pad_dur=2 adds 2 seconds of silence toward the end of the track, this is
+            # ! done because the loudnorm filter clips/cuts/deletes the last 1-2 seconds on
+            # ! occasion especially if the song is EDM-like, so we add a few extra seconds to
+            # ! combat that.
+            # !
+            # ! -acodec libmp3lame sets the encoded to 'libmp3lame' which is far better
+            # ! than the default 'mp3_mf', '-abr true' automatically determines and passes the
+            # ! audio encoding bitrate to the filters and encoder. This ensures that the
+            # ! sampled length of songs matches the actual length (i.e. a 5 min song won't display
+            # ! as 47 seconds long in your music player, yeah that was an issue earlier.)
 
             command = 'ffmpeg -v quiet -y -i "%s" -acodec libmp3lame -abr true ' \
                 f'-b:a {trackAudioStream.bitrate} ' \
                 '-af "apad=pad_dur=2, dynaudnorm, loudnorm=I=-17" "%s"'
 
-            #! bash/ffmpeg on Unix systems need to have excape char (\) for special characters: \$
-            #! alternatively the quotes could be reversed (single <-> double) in the command then
-            #! the windows special characters needs escaping (^): ^\  ^&  ^|  ^>  ^<  ^^
+            # ! bash/ffmpeg on Unix systems need to have excape char (\) for special characters: \$
+            # ! alternatively the quotes could be reversed (single <-> double) in the command then
+            # ! the windows special characters needs escaping (^): ^\  ^&  ^|  ^>  ^<  ^^
 
             if sys.platform == 'win32':
                 formattedCommand = command % (
@@ -261,7 +263,7 @@ class DownloadManager():
             process = await asyncio.subprocess.create_subprocess_shell(formattedCommand)
             _ = await process.communicate()
 
-            #! Wait till converted file is actually created
+            # ! Wait till converted file is actually created
             while True:
                 if convertedFilePath.is_file():
                     break
