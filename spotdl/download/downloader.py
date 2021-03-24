@@ -4,7 +4,10 @@
 import asyncio
 import concurrent.futures
 import sys
+from os import listdir
 from pathlib import Path
+from fuzzywuzzy import fuzz
+
 # ! The following are not used, they are just here for static typechecking with mypy
 from typing import List
 from urllib.request import urlopen
@@ -29,6 +32,9 @@ from spotdl.search.songObj import SongObj
 class DownloadManager():
     # ! Big pool sizes on slow connections will lead to more incomplete downloads
     poolSize = 4
+
+    # ! For determining whether a song has already been downloaded. 0-100
+    fuzzySearchMinScore = 90
 
     def __init__(self):
 
@@ -158,7 +164,12 @@ class DownloadManager():
         convertedFilePath = Path(".", f"{convertedFileName}.mp3")
 
         # if a song is already downloaded skip it
-        if convertedFilePath.is_file():
+
+        filesInCwd = [f for f in listdir(mypath) if isfile(join(mypath, f))]
+        fileScores = map(lambda x: fuzz.ratio(convertedFileName,x),filesInCwd)
+        maxScore = max(fileScores)
+
+        if maxScore >= fuzzySearchMinScore :
             if self.displayManager:
                 self.displayManager.notify_download_skip()
             if self.downloadTracker:
