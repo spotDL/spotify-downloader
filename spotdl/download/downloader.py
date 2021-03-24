@@ -165,11 +165,11 @@ class DownloadManager():
 
         # if a song is already downloaded skip it
 
-        filesInCwd = [f for f in listdir(mypath) if isfile(join(mypath, f))]
+        filesInCwd = [f for f in listdir(".") if Path(".",f).is_file()]
         fileScores = map(lambda x: fuzz.ratio(convertedFileName,x),filesInCwd)
         maxScore = max(fileScores)
 
-        if maxScore >= fuzzySearchMinScore :
+        if maxScore >= self.fuzzySearchMinScore :
             if self.displayManager:
                 self.displayManager.notify_download_skip()
             if self.downloadTracker:
