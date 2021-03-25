@@ -163,7 +163,8 @@ class DownloadManager():
 
             # ! double quotes (") and semi-colons (:) are also disallowed characters but we would
             # ! like to retain their equivalents, so they aren't removed in the prior loop
-            convertedFileName = convertedFileName.replace('"', "'").replace(':', '-')
+            convertedFileName = convertedFileName.replace(
+                '"', "'").replace(':', '-')
 
             convertedFilePath = Path(".", f"{convertedFileName}.mp3")
 
