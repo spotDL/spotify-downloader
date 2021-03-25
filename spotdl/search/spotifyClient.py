@@ -1,68 +1,53 @@
-# ===============
-# === Imports ===
-# ===============
-
 from spotipy import Spotify
 from spotipy.oauth2 import SpotifyClientCredentials
 
-# ===============
-# === Globals ===
-# ===============
 
-# ! Look through both initialize() and get_spotify_client() for need of masterClient
-masterClient = None
+class Singleton(type):
+    """
+    Singleton metaclass for SpotifyClient. Ensures that SpotifyClient is not
+    instantiated without prior initialization. Every other instantiation of
+    SpotifyClient will return the same instance.
+    """
+    _instance = None
 
+    def __call__(cls):
+        if cls._instance is None:
+            raise Exception('Spotify client not created. Call SpotifyClient.init'
+                            '(client_id, client_secret) first.')
+        return cls._instance
 
-# =========================
-# === The actual action ===
-# =========================
+    def init(cls, client_id: str, client_secret: str) -> "Singleton":
+        '''
+        `str` `client_id` : client id from your spotify account
 
-def initialize(clientId: str, clientSecret: str):
-    '''
-    `str` `clientId` : client id from your spotify account
+        `str` `client_secret` : client secret for your client id
 
-    `str` `clientSecret` : client secret for your client id
+        creates and caches a spotify client if a client doesn't exist. Can only be called
+        once, multiple calls will cause an Exception.
+        '''
 
-    RETURNS `~`
+        # check if initialization has been completed, if yes, raise an Exception
+        if cls._instance and cls._instance.is_initialized():
+            raise Exception('A spotify client has already been initialized')
 
-    creates and caches a spotify client iff. a client doesn't exist. Can only be called
-    once, multiple calls will cause an Exception.
-    '''
-
-    # check if initialization has been completed, if yes, raise an Exception
-    # ! None evaluates to False, objects evaluate to True.
-    global masterClient
-
-    if masterClient:
-        raise Exception('A spotify client has already been initialized')
-
-    # else create and cache a spotify client
-    else:
-        # create Oauth credentials for the SpotifyClient
         credentialManager = SpotifyClientCredentials(
-            client_id=clientId,
-            client_secret=clientSecret
+            client_id=client_id,
+            client_secret=client_secret
         )
-
-        client = Spotify(client_credentials_manager=credentialManager)
-
-        masterClient = client
+        cls._instance = super().__call__(client_credentials_manager=credentialManager)
+        return cls._instance
 
 
-def get_spotify_client():
-    '''
-    RETURNS `Spotify`
+class SpotifyClient(Spotify, metaclass=Singleton):
+    """
+    This is the Spotify client meant to be used in the app. Has to be initialized first by
+    calling `SpotifyClient.init(client_id, client_secret)`.
+    """
+    _initialized = False
 
-    returns a cached spotify client of type `spotipy.Spotify`, can only be called after a
-    call to `spotifyClient.initialize(clientId, clientSecret)`
-    '''
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._initialized = True
 
-    global masterClient
-
-    # ! None evaluates to False, Objects evaluate to True
-    if masterClient:
-        return masterClient
-
-    else:
-        raise Exception('Spotify client not created. Call spotifyClient.initialize'
-                        '(clientId, clientSecret) first.')
+    def is_intialized(self):
+        return self._initialized

@@ -32,6 +32,7 @@ def create_song_obj(name="test song", artist="test artist") -> SongObj:
         raw_album_meta,
         raw_artist_meta,
         "https://www.youtube.com/watch?v=Th_C95UMegc",
+        "test lyrics"
     )
 
 
@@ -72,7 +73,8 @@ def setup(tmpdir, monkeypatch):
 @pytest.mark.vcr()
 def test_download_single_song(setup):
     song_obj = create_song_obj()
-    DownloadManager().download_single_song(song_obj)
+    with DownloadManager() as dm:
+        dm.download_single_song(song_obj)
 
     assert [file.basename for file in setup.directory.listdir() if file.isfile()] == [
         "test artist - test song.mp3"
@@ -91,7 +93,8 @@ def test_download_multiple_songs(pytestconfig, setup):
         create_song_obj(name="song2"),
         create_song_obj(name="song3"),
     ]
-    DownloadManager().download_multiple_songs(song_objs)
+    with DownloadManager() as dm:
+        dm.download_multiple_songs(song_objs)
 
     assert sorted(
         [file.basename for file in setup.directory.listdir() if file.isfile()]

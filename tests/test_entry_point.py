@@ -5,30 +5,32 @@ import pytest
 
 from spotdl.__main__ import console_entry_point, help_notice
 from spotdl.download.downloader import DownloadManager
-from spotdl.search import spotifyClient
+from spotdl.search.spotifyClient import SpotifyClient
 
 from tests.utils import tracking_files
 
-ORIGINAL_INITIALIZE = spotifyClient.initialize
+ORIGINAL_INITIALIZE = SpotifyClient.init
 
 
-def new_initialize(clientId, clientSecret):
+def new_initialize(client_id, client_secret):
     """This function allows calling `initialize()` multiple times"""
     try:
-        return spotifyClient.get_spotify_client()
+        return SpotifyClient()
     except:
-        return ORIGINAL_INITIALIZE(clientId, clientSecret)
+        return ORIGINAL_INITIALIZE(client_id, client_secret)
 
 
 @pytest.fixture()
 def patch_dependencies(mocker, monkeypatch):
     """This is a helper fixture to patch out everything that shouldn't be called here"""
-    monkeypatch.setattr(spotifyClient, "initialize", new_initialize)
+    monkeypatch.setattr(SpotifyClient, "init", new_initialize)
     monkeypatch.setattr(DownloadManager, "__init__", lambda _: None)
     mocker.patch.object(DownloadManager, "download_single_song", autospec=True)
-    mocker.patch.object(DownloadManager, "download_multiple_songs", autospec=True)
-    mocker.patch.object(DownloadManager, "resume_download_from_tracking_file", autospec=True)
-    mocker.patch.object(DownloadManager, "close", autospec=True)
+    mocker.patch.object(
+        DownloadManager, "download_multiple_songs", autospec=True)
+    mocker.patch.object(
+        DownloadManager, "resume_download_from_tracking_file", autospec=True)
+    mocker.patch.object(DownloadManager, "__exit__", autospec=True)
 
 
 @pytest.mark.parametrize("argument", ["-h", "--help"])
@@ -102,7 +104,7 @@ def test_download_a_playlist(capsys, patch_dependencies, monkeypatch):
         "argv",
         [
             "dummy",
-            "https://open.spotify.com/playlist/6ahTRKeqBqzQhZIhtIIE57",
+            "https://open.spotify.com/playlist/0slbokxiWCo9egF9UhVmmI",
         ],
     )
 
@@ -127,13 +129,13 @@ def test_search_and_download(capsys, patch_dependencies, monkeypatch):
         ],
     )
 
+    # with pytest.raises(Exception, match="No song matches found on Spotify"):
     console_entry_point()
 
     out, err = capsys.readouterr()
-    assert (
-        out == 'Searching for song "The HU - Sugaan Essenna"...\n'
-        'No song named "The HU - Sugaan Essenna" could be found on spotify\n'
-    )
+    assert out == (
+        'Searching for song "The HU - Sugaan Essenna"...\n'
+        'No song matches found on Spotify\n')
 
     assert DownloadManager.download_multiple_songs.call_count == 0
     assert DownloadManager.download_single_song.call_count == 0
@@ -142,7 +144,8 @@ def test_search_and_download(capsys, patch_dependencies, monkeypatch):
 @pytest.mark.vcr()
 def test_use_tracking_file(capsys, patch_dependencies, monkeypatch, fs):
     """Fifth example - use a spotdlTrackingFile."""
-    fs.create_file("Back In Black.spotdlTrackingFile", contents=json.dumps(tracking_files.back_in_black))
+    fs.create_file("Back In Black.spotdlTrackingFile",
+                   contents=json.dumps(tracking_files.back_in_black))
     monkeypatch.setattr(
         sys,
         "argv",
@@ -179,10 +182,9 @@ def test_multiple_elements(capsys, patch_dependencies, monkeypatch):
     console_entry_point()
 
     out, err = capsys.readouterr()
-
     assert 'Fetching Song...\n' in out
     assert 'Searching for song "The HU - Sugaan Essenna"...\n' in out
-    assert 'No song named "The HU - Sugaan Essenna" could be found on spotify\n' in out
+    assert 'No song matches found on Spotify\n' in out
 
     assert DownloadManager.download_single_song.call_count == 2
     assert DownloadManager.download_multiple_songs.call_count == 0
