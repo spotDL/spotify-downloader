@@ -190,7 +190,7 @@ class DownloadManager():
                 # Checks if the overall path is too long
                 smallerPath = Path(".", "{smallerName}.mp3")
                 if len(str(smallerPath.resolve())) > 260:
-                    raise OSError("Path for this song cannot fit in 260 chars")
+                    raise OSError("Path for this song cannot fit in 260 characters")
                 convertedFilePath = smallerPath
 
             # if a song is already downloaded skip it
