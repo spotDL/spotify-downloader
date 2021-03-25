@@ -185,7 +185,7 @@ class DownloadManager():
                 # Checks if the file name is too long (Both Linux and Windows).
                 # +4 because the extension hasn't been added yet
                 if len(smallerName) + 4 > 256:
-                    raise OSError("File name for this song can't fir in 256 chars")
+                    raise OSError("File name for this song cannot fit in 256 characters")
 
                 # Checks if the overall path is too long
                 smallerPath = Path(".", "{smallerName}.mp3")
