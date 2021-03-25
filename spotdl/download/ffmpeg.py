@@ -86,4 +86,4 @@ async def convert(trackAudioStream, downloadedFilePath, convertedFilePath) -> bo
         print(f"{proc_err.decode('utf-8')}\n=====\n", file=sys.stderr)
         return False
 
-    return False
+    return True
