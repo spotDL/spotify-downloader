@@ -163,10 +163,35 @@ class DownloadManager():
 
             # ! double quotes (") and semi-colons (:) are also disallowed characters but we would
             # ! like to retain their equivalents, so they aren't removed in the prior loop
-            convertedFileName = convertedFileName.replace(
-                '"', "'").replace(':', '-')
+            convertedFileName = convertedFileName.replace('"', "'").replace(':', '-')
 
             convertedFilePath = Path(".", f"{convertedFileName}.mp3")
+
+            # 260 is the max path length in windows
+            if len(str(convertedFilePath.resolve())) > 260:
+                # Only use the first artist if the song path turns out to be too long
+                smallerName = f"{songObj.get_contributing_artists()[0]} - {songObj.get_song_name}"
+
+                # this is windows specific (disallowed chars)
+                for disallowedChar in ['/', '?', '\\', '*', '|', '<', '>']:
+                    if disallowedChar in smallerName:
+                        smallerName = smallerName.replace(disallowedChar, '')
+
+                # ! double quotes (") and semi-colons (:) are also disallowed characters
+                # ! but we would like to retain their equivalents, so they aren't removed
+                # ! in the prior loop
+                smallerName = smallerName.replace('"', "'").replace(':', '-')
+
+                # Checks if the file name is too long (Both Linux and Windows).
+                # +4 because the extension hasn't been added yet
+                if len(smallerName) + 4 > 256:
+                    raise OSError("File name for this song can't fir in 256 chars")
+
+                # Checks if the overall path is too long
+                smallerPath = Path(".", "{smallerName}.mp3")
+                if len(str(smallerPath.resolve())) > 260:
+                    raise OSError("Path for this song cannot fit in 260 chars")
+                convertedFilePath = smallerPath
 
             # if a song is already downloaded skip it
             if convertedFilePath.is_file():
