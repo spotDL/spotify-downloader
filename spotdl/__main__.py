@@ -3,7 +3,6 @@ import signal
 import sys
 import argparse
 import os
-import sys
 
 # ! The actual download stuff
 from spotdl.download.downloader import DownloadManager
