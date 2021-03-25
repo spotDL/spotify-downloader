@@ -30,7 +30,7 @@ def patch_dependencies(mocker, monkeypatch):
         DownloadManager, "download_multiple_songs", autospec=True)
     mocker.patch.object(
         DownloadManager, "resume_download_from_tracking_file", autospec=True)
-    mocker.patch.object(DownloadManager, "close", autospec=True)
+    mocker.patch.object(DownloadManager, "__exit__", autospec=True)
 
 
 @pytest.mark.parametrize("argument", ["-h", "--help"])
