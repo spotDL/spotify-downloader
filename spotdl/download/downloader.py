@@ -55,14 +55,6 @@ class DownloadManager():
         return self
 
     def __exit__(self, type, value, traceback):
-        self.close()
-
-    def close(self) -> None:
-        '''
-        RETURNS `~`
-        cleans up across all processes
-        '''
-
         self.displayManager.close()
 
     def download_single_song(self, songObj: SongObj) -> None:
