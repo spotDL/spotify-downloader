@@ -4,6 +4,8 @@
 import asyncio
 import concurrent.futures
 import sys
+import traceback
+
 from pathlib import Path
 # ! The following are not used, they are just here for static typechecking with mypy
 from typing import List
@@ -36,8 +38,6 @@ class DownloadManager():
         self.displayManager = DisplayManager()
         self.downloadTracker = DownloadTracker()
 
-        self.displayManager.clear()
-
         if sys.platform == "win32":
             # ! ProactorEventLoop is required on Windows to run subprocess asynchronously
             # ! it is default since Python 3.8 but has to be changed for previous versions
@@ -51,6 +51,12 @@ class DownloadManager():
         self.thread_executor = concurrent.futures.ThreadPoolExecutor(
             max_workers=self.poolSize)
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, type, value, traceback):
+        self.displayManager.close()
+
     def download_single_song(self, songObj: SongObj) -> None:
         '''
         `songObj` `song` : song to be downloaded
@@ -63,7 +69,6 @@ class DownloadManager():
         self.downloadTracker.clear()
         self.downloadTracker.load_song_list([songObj])
 
-        self.displayManager.reset()
         self.displayManager.set_song_count_to(1)
 
         self._download_asynchronously([songObj])
@@ -80,7 +85,6 @@ class DownloadManager():
         self.downloadTracker.clear()
         self.downloadTracker.load_song_list(songObjList)
 
-        self.displayManager.reset()
         self.displayManager.set_song_count_to(len(songObjList))
 
         self._download_asynchronously(songObjList)
@@ -99,7 +103,6 @@ class DownloadManager():
 
         songObjList = self.downloadTracker.get_song_list()
 
-        self.displayManager.reset()
         self.displayManager.set_song_count_to(len(songObjList))
 
         self._download_asynchronously(songObjList)
@@ -113,150 +116,173 @@ class DownloadManager():
         Downloads, Converts, Normalizes song & embeds metadata as ID3 tags.
         '''
 
-        # ! all YouTube downloads are to .\Temp; they are then converted and put into .\ and
-        # ! finally followed up with ID3 metadata tags
+        dispayProgressTracker = self.displayManager.new_progress_tracker(
+            songObj)
 
-        # ! we explicitly use the os.path.join function here to ensure download is
-        # ! platform agnostic
+        # ! since most errors are expected to happen within this function, we wrap in
+        # ! exception catcher to prevent blocking on multiple downloads
+        try:
 
-        # Create a .\Temp folder if not present
-        tempFolder = Path('.', 'Temp')
+            # ! all YouTube downloads are to .\Temp; they are then converted and put into .\ and
+            # ! finally followed up with ID3 metadata tags
 
-        if not tempFolder.exists():
-            tempFolder.mkdir()
+            # ! we explicitly use the os.path.join function here to ensure download is
+            # ! platform agnostic
 
-        # build file name of converted file
-        artistStr = ''
+            # Create a .\Temp folder if not present
+            tempFolder = Path('.', 'Temp')
 
-        # ! we eliminate contributing artist names that are also in the song name, else we
-        # ! would end up with things like 'Jetta, Mastubs - I'd love to change the world
-        # ! (Mastubs REMIX).mp3' which is kinda an odd file name.
-        for artist in songObj.get_contributing_artists():
-            if artist.lower() not in songObj.get_song_name().lower():
-                artistStr += artist + ', '
+            if not tempFolder.exists():
+                tempFolder.mkdir()
 
-        # make sure that main artist is included in artistStr even if they
-        # are in the song name, for example
-        # Lil Baby - Never Recover (Lil Baby & Gunna, Drake).mp3
-        if songObj.get_contributing_artists()[0].lower() not in artistStr.lower():
-            artistStr = songObj.get_contributing_artists()[0] + ', ' + artistStr
+            # build file name of converted file
+            artistStr = ''
 
-        # ! the ...[:-2] is to avoid the last ', ' appended to artistStr
-        convertedFileName = artistStr[:-2] + ' - ' + songObj.get_song_name()
+            # ! we eliminate contributing artist names that are also in the song name, else we
+            # ! would end up with things like 'Jetta, Mastubs - I'd love to change the world
+            # ! (Mastubs REMIX).mp3' which is kinda an odd file name.
+            for artist in songObj.get_contributing_artists():
+                if artist.lower() not in songObj.get_song_name().lower():
+                    artistStr += artist + ', '
 
-        # ! this is windows specific (disallowed chars)
-        for disallowedChar in ['/', '?', '\\', '*', '|', '<', '>']:
-            if disallowedChar in convertedFileName:
-                convertedFileName = convertedFileName.replace(
-                    disallowedChar, '')
+            # make sure that main artist is included in artistStr even if they
+            # are in the song name, for example
+            # Lil Baby - Never Recover (Lil Baby & Gunna, Drake).mp3
+            if songObj.get_contributing_artists()[0].lower() not in artistStr.lower():
+                artistStr = songObj.get_contributing_artists()[0] + ', ' + artistStr
 
-        # ! double quotes (") and semi-colons (:) are also disallowed characters but we would
-        # ! like to retain their equivalents, so they aren't removed in the prior loop
-        convertedFileName = convertedFileName.replace(
-            '"', "'").replace(':', '-')
+            # ! the ...[:-2] is to avoid the last ', ' appended to artistStr
+            convertedFileName = artistStr[:-2] + \
+                ' - ' + songObj.get_song_name()
 
-        convertedFilePath = Path(".", f"{convertedFileName}.mp3")
+            # ! this is windows specific (disallowed chars)
+            for disallowedChar in ['/', '?', '\\', '*', '|', '<', '>']:
+                if disallowedChar in convertedFileName:
+                    convertedFileName = convertedFileName.replace(
+                        disallowedChar, '')
 
-        # if a song is already downloaded skip it
-        if convertedFilePath.is_file():
-            if self.displayManager:
-                self.displayManager.notify_download_skip()
+            # ! double quotes (") and semi-colons (:) are also disallowed characters but we would
+            # ! like to retain their equivalents, so they aren't removed in the prior loop
+            convertedFileName = convertedFileName.replace(
+                '"', "'").replace(':', '-')
+
+            convertedFilePath = Path(".", f"{convertedFileName}.mp3")
+
+            # if a song is already downloaded skip it
+            if convertedFilePath.is_file():
+                if self.displayManager:
+                    dispayProgressTracker.notify_download_skip()
+                if self.downloadTracker:
+                    self.downloadTracker.notify_download_completion(songObj)
+
+                # ! None is the default return value of all functions, we just explicitly define
+                # ! it here as a continent way to avoid executing the rest of the function.
+                return None
+
+            # download Audio from YouTube
+            if dispayProgressTracker:
+                youtubeHandler = YouTube(
+                    url=songObj.get_youtube_link(),
+                    on_progress_callback=dispayProgressTracker.pytube_progress_hook
+                )
+
+            else:
+                youtubeHandler = YouTube(songObj.get_youtube_link())
+
+            trackAudioStream = youtubeHandler.streams.filter(
+                only_audio=True).order_by('bitrate').last()
+            if not trackAudioStream:
+                print(f"Unable to get audio stream for \"{songObj.get_song_name()}\" "
+                      f"by \"{songObj.get_contributing_artists()[0]}\" "
+                      f"from video \"{songObj.get_youtube_link()}\"")
+                return None
+
+            downloadedFilePathString = await self._download_from_youtube(
+                convertedFileName,
+                tempFolder,
+                trackAudioStream
+            )
+
+            if downloadedFilePathString is None:
+                return None
+
+            downloadedFilePath = Path(downloadedFilePathString)
+
+            if dispayProgressTracker:
+                dispayProgressTracker.notify_youtube_download_completion()
+
+            # convert downloaded file to MP3 with normalization
+
+            # ! -af loudnorm=I=-7:LRA applies EBR 128 loudness normalization algorithm with
+            # ! intergrated loudness target (I) set to -17, using values lower than -15
+            # ! causes 'pumping' i.e. rhythmic variation in loudness that should not
+            # ! exist -loud parts exaggerate, soft parts left alone.
+            # !
+            # ! dynaudnorm applies dynamic non-linear RMS based normalization, this is what
+            # ! actually normalized the audio. The loudnorm filter just makes the apparent
+            # ! loudness constant
+            # !
+            # ! apad=pad_dur=2 adds 2 seconds of silence toward the end of the track, this is
+            # ! done because the loudnorm filter clips/cuts/deletes the last 1-2 seconds on
+            # ! occasion especially if the song is EDM-like, so we add a few extra seconds to
+            # ! combat that.
+            # !
+            # ! -acodec libmp3lame sets the encoded to 'libmp3lame' which is far better
+            # ! than the default 'mp3_mf', '-abr true' automatically determines and passes the
+            # ! audio encoding bitrate to the filters and encoder. This ensures that the
+            # ! sampled length of songs matches the actual length (i.e. a 5 min song won't display
+            # ! as 47 seconds long in your music player, yeah that was an issue earlier.)
+
+            command = 'ffmpeg -v quiet -y -i "%s" -acodec libmp3lame -abr true ' \
+                f'-b:a {trackAudioStream.bitrate} ' \
+                '-af "apad=pad_dur=2, dynaudnorm, loudnorm=I=-17" "%s"'
+
+            # ! bash/ffmpeg on Unix systems need to have excape char (\) for special characters: \$
+            # ! alternatively the quotes could be reversed (single <-> double) in the command then
+            # ! the windows special characters needs escaping (^): ^\  ^&  ^|  ^>  ^<  ^^
+
+            if sys.platform == 'win32':
+                formattedCommand = command % (
+                    str(downloadedFilePath),
+                    str(convertedFilePath)
+                )
+            else:
+                formattedCommand = command % (
+                    str(downloadedFilePath).replace('$', '\$'),
+                    str(convertedFilePath).replace('$', '\$')
+                )
+
+            process = await asyncio.subprocess.create_subprocess_shell(formattedCommand)
+            _ = await process.communicate()
+
+            # ! Wait till converted file is actually created
+            while True:
+                if convertedFilePath.is_file():
+                    break
+
+            if dispayProgressTracker:
+                dispayProgressTracker.notify_conversion_completion()
+
+            # embed song details
+            self.set_id3_data(convertedFilePath, songObj)
+
+            # Do the necessary cleanup
+            if dispayProgressTracker:
+                dispayProgressTracker.notify_download_completion()
+
             if self.downloadTracker:
                 self.downloadTracker.notify_download_completion(songObj)
 
-            # ! None is the default return value of all functions, we just explicitly define
-            # ! it here as a continent way to avoid executing the rest of the function.
-            return None
+            # delete the unnecessary YouTube download File
+            if downloadedFilePath and downloadedFilePath.is_file():
+                downloadedFilePath.unlink()
 
-        # download Audio from YouTube
-        if self.displayManager:
-            youtubeHandler = YouTube(
-                url=songObj.get_youtube_link(),
-                on_progress_callback=self.displayManager.pytube_progress_hook
-            )
-        else:
-            youtubeHandler = YouTube(songObj.get_youtube_link())
-
-        trackAudioStream = youtubeHandler.streams.filter(
-            only_audio=True).order_by('bitrate').last()
-        if not trackAudioStream:
-            print(f"Unable to get audio stream for \"{songObj.get_song_name()}\" "
-                  f"by \"{songObj.get_contributing_artists()[0]}\" "
-                  f"from video \"{songObj.get_youtube_link()}\"")
-            return None
-
-        downloadedFilePathString = await self._download_from_youtube(convertedFileName, tempFolder,
-                                                                     trackAudioStream)
-
-        if downloadedFilePathString is None:
-            return None
-
-        downloadedFilePath = Path(downloadedFilePathString)
-
-        # convert downloaded file to MP3 with normalization
-
-        # ! -af loudnorm=I=-7:LRA applies EBR 128 loudness normalization algorithm with
-        # ! intergrated loudness target (I) set to -17, using values lower than -15
-        # ! causes 'pumping' i.e. rhythmic variation in loudness that should not
-        # ! exist -loud parts exaggerate, soft parts left alone.
-        # !
-        # ! dynaudnorm applies dynamic non-linear RMS based normalization, this is what
-        # ! actually normalized the audio. The loudnorm filter just makes the apparent
-        # ! loudness constant
-        # !
-        # ! apad=pad_dur=2 adds 2 seconds of silence toward the end of the track, this is
-        # ! done because the loudnorm filter clips/cuts/deletes the last 1-2 seconds on
-        # ! occasion especially if the song is EDM-like, so we add a few extra seconds to
-        # ! combat that.
-        # !
-        # ! -acodec libmp3lame sets the encoded to 'libmp3lame' which is far better
-        # ! than the default 'mp3_mf', '-abr true' automatically determines and passes the
-        # ! audio encoding bitrate to the filters and encoder. This ensures that the
-        # ! sampled length of songs matches the actual length (i.e. a 5 min song won't display
-        # ! as 47 seconds long in your music player, yeah that was an issue earlier.)
-
-        command = 'ffmpeg -v quiet -y -i "%s" -acodec libmp3lame -abr true ' \
-                  f'-b:a {trackAudioStream.bitrate} ' \
-                  '-af "apad=pad_dur=2, dynaudnorm, loudnorm=I=-17" "%s"'
-
-        # ! bash/ffmpeg on Unix systems need to have excape char (\) for special characters: \$
-        # ! alternatively the quotes could be reversed (single <-> double) in the command then
-        # ! the windows special characters needs escaping (^): ^\  ^&  ^|  ^>  ^<  ^^
-
-        if sys.platform == 'win32':
-            formattedCommand = command % (
-                str(downloadedFilePath),
-                str(convertedFilePath)
-            )
-        else:
-            formattedCommand = command % (
-                str(downloadedFilePath).replace('$', r'\$'),
-                str(convertedFilePath).replace('$', r'\$')
-            )
-
-        process = await asyncio.subprocess.create_subprocess_shell(formattedCommand)
-        _ = await process.communicate()
-
-        # ! Wait till converted file is actually created
-        while True:
-            if convertedFilePath.is_file():
-                break
-
-        if self.displayManager:
-            self.displayManager.notify_conversion_completion()
-
-        self.set_id3_data(convertedFilePath, songObj)
-
-        # Do the necessary cleanup
-        if self.displayManager:
-            self.displayManager.notify_download_completion()
-
-        if self.downloadTracker:
-            self.downloadTracker.notify_download_completion(songObj)
-
-        # delete the unnecessary YouTube download File
-        if downloadedFilePath and downloadedFilePath.is_file():
-            downloadedFilePath.unlink()
+        except Exception as e:
+            tb = traceback.format_exc()
+            if dispayProgressTracker:
+                dispayProgressTracker.notify_error(e, tb)
+            else:
+                raise e
 
     def set_id3_data(self, convertedFilePath, songObj):
         # embed song details
@@ -306,14 +332,6 @@ class DownloadManager():
         audioFile["USLT::'eng'"] = USLTOutput
 
         audioFile.save(v2_version=3)
-
-    def close(self) -> None:
-        '''
-        RETURNS `~`
-        cleans up across all processes
-        '''
-
-        self.displayManager.close()
 
     async def _download_from_youtube(self, convertedFileName, tempFolder, trackAudioStream):
         # ! The following function calls blocking code, which would block whole event loop.
