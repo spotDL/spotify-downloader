@@ -174,9 +174,18 @@ class SongObj():
 
         return self.__lyrics
 
+    # ! 6. Display Name
+    def get_display_name(self) -> str:
+        ''''
+        returns songs's display name.
+        '''
+
+        return str(str(", ".join(self.get_contributing_artists()) + " - " + self.get_song_name()))
+
     # ! Album Details:
 
     # ! 1. Name
+
     def get_album_name(self) -> str:
         '''
         returns name of the album that the song belongs to.
