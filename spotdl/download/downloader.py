@@ -316,6 +316,10 @@ class DownloadManager():
             trackAudioStream
         )
     def _filename_to_word_list(self, input: str) -> List[str]:
+        '''
+        This method converts a filename into a list of words
+        Used for matching two filenames in a word-based manner
+        '''
         output = input.lower()
         # ! We lop off the last four chars to get rid of the extension
         output = output[:-4]
@@ -324,6 +328,9 @@ class DownloadManager():
         return outputWords
 
     def _match_song_to_filename(self, songObj: SongObj, givenFilename: str) -> bool:
+        '''
+        To match a SongObj with an existing file on disk
+        '''
         generatedFilename = self._build_filename(songObj)
 
         # ! Turn both generated and given filenames into lists of words
