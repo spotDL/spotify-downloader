@@ -89,7 +89,7 @@ def test_download_long_song(setup):
         dm.download_single_song(song_obj)
 
     assert [file.basename for file in setup.directory.listdir() if file.isfile()] == [
-        "1 - test song.mp3"
+        "0 - test song.mp3"
     ]
 
 
