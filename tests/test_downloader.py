@@ -9,8 +9,8 @@ from spotdl.download.downloader import DownloadManager
 from spotdl.search.songObj import SongObj
 
 
-def create_song_obj(name="test song", artist="test artist") -> SongObj:
-    artists = [{"name": artist}]
+def create_song_obj(name="test song", artistsInput=["test artist"]) -> SongObj:
+    artists = map(lambda x: {"name": x},artistsInput)
     raw_track_meta = {
         "name": name,
         "album": {
@@ -78,6 +78,18 @@ def test_download_single_song(setup):
 
     assert [file.basename for file in setup.directory.listdir() if file.isfile()] == [
         "test artist - test song.mp3"
+    ]
+
+@pytest.mark.vcr()
+def test_download_long_song(setup):
+    # ! Generates a long list of artists, numbered 1 to 260
+    artists = list(map(lambda x:str(x),range(260)))
+    song_obj = create_song_obj(artistsInput=artists)
+    with DownloadManager() as dm:
+        dm.download_single_song(song_obj)
+
+    assert [file.basename for file in setup.directory.listdir() if file.isfile()] == [
+        "1 - test song.mp3"
     ]
 
 
