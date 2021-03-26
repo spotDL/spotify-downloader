@@ -134,7 +134,7 @@ class DownloadManager():
         # build file name of converted file
         convertedFileName = self._build_filename(songObj)
 
-        #convert into path
+        # convert into path
         convertedFilePath = Path(".", f"{convertedFileName}.mp3")
 
         # if a song is already downloaded skip it
@@ -142,7 +142,7 @@ class DownloadManager():
         filesInCwd = [f for f in listdir(".") if Path(".", f).is_file()]
         alreadyDownloaded = False
         for file in filesInCwd:
-            if self._match_song_to_filename(songObj,file):
+            if self._match_song_to_filename(songObj, file):
                 alreadyDownloaded = True
                 break
 
@@ -315,15 +315,15 @@ class DownloadManager():
             tempFolder,
             trackAudioStream
         )
-    def _filename_to_word_list(input:str)->List<str>:
+    def _filename_to_word_list(self, input: str) -> List[str]:
         output = input.lower()
         # ! We lop off the last four chars to get rid of the extension
         output = output[:-4]
-        output = re.sub(r"\s+"," ",output)
-        output = output.split(" ")
-        return output
+        output = re.sub(r"\s+", " ", output)
+        outputWords = output.split(" ")
+        return outputWords
 
-    def _match_song_to_filename(self, songObj:SongObj, givenFilename:str)->bool:
+    def _match_song_to_filename(self, songObj: SongObj, givenFilename: str) -> bool:
         generatedFilename = self._build_filename(songObj)
 
         # ! Turn both generated and given filenames into lists of words
@@ -333,16 +333,16 @@ class DownloadManager():
         sum = 0
         for i, word in enumerate(givenFileWordList):
             if word in generatedWordList:
-                sum++
-        average = sum/len(givenFileWordList)
+                sum += 1
+        average = sum / len(givenFileWordList)
 
         return average >= self.fuzzySearchMinScore
 
-    def _build_filename(songObj:SongObj)->str:
+    def _build_filename(self, songObj: SongObj) -> str:
         '''
         Builds a file name from a songObj
         '''
-        
+
         artistStr = ''
 
         # ! we eliminate contributing artist names that are also in the song name, else we
