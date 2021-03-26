@@ -171,7 +171,7 @@ class DownloadManager():
             # 260 is the max path length in windows
             if len(str(convertedFilePath.resolve())) > 260:
                 # Only use the first artist if the song path turns out to be too long
-                smallerName = f"{songObj.get_contributing_artists()[0]} - {songObj.get_song_name}"
+                smallerName = f"{songObj.get_contributing_artists()[0]} - {songObj.get_song_name()}"
 
                 # this is windows specific (disallowed chars)
                 for disallowedChar in ['/', '?', '\\', '*', '|', '<', '>']:
@@ -189,9 +189,10 @@ class DownloadManager():
                     raise OSError("File name for this song cannot fit in 256 characters")
 
                 # Checks if the overall path is too long
-                smallerPath = Path(".", "{smallerName}.mp3")
+                smallerPath = Path(".",  f"{smallerName}.mp3")
                 if len(str(smallerPath.resolve())) > 260:
                     raise OSError("Path for this song cannot fit in 260 characters")
+                convertedFileName = f"{smallerName}.mp3"
                 convertedFilePath = smallerPath
 
             # if a song is already downloaded skip it

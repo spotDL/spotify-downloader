@@ -9,8 +9,8 @@ from spotdl.download.downloader import DownloadManager
 from spotdl.search.songObj import SongObj
 
 
-def create_song_obj(name="test song", artistsInput=["test artist"]) -> SongObj:
-    artists = map(lambda x: {"name": x},artistsInput)
+def create_song_obj(name="test song", artistsInput:list=["test artist"]) -> SongObj:
+    artists = list(map(lambda x: {"name": x},artistsInput))
     raw_track_meta = {
         "name": name,
         "album": {
