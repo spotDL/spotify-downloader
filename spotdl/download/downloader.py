@@ -166,10 +166,29 @@ class DownloadManager():
             convertedFileName = convertedFileName.replace(
                 '"', "'").replace(':', '-')
 
+            # ! Checks if the file name is too long (256 in both Windows and Linux),
+            # ! with some room to spare for file extensions and dashes.
+            minFilenameLength = 0
+            minFilenameLength += len(songObj.get_song_name())
+            minFilenameLength += len(songObj.get_contributing_artists()[0])
+            minFilenameLength += len(" - .flac")
+            if minFilenameLength >= 256:
+                raise OSError("File name for this song cannot fit in 256 characters")
+
             convertedFilePath = Path(".", f"{convertedFileName}.mp3")
 
-            # 260 is the max path length in windows
-            if len(str(convertedFilePath.resolve())) > 260:
+            # ! Checks if a file path is too long
+            isPathInvalid = True
+            try:
+                # ! 260 is the path name length limit in Windows
+                if len(str(convertedFilePath.resolve())) < 260:
+                    isPathInvalid = False
+            except WindowsError:
+                pass
+
+            if isPathInvalid:
+                print("Path was too long. Using Small Path.")
+
                 # Only use the first artist if the song path turns out to be too long
                 smallerName = f"{songObj.get_contributing_artists()[0]} - {songObj.get_song_name()}"
 
@@ -183,13 +202,8 @@ class DownloadManager():
                 # ! in the prior loop
                 smallerName = smallerName.replace('"', "'").replace(':', '-')
 
-                # Checks if the file name is too long (Both Linux and Windows).
-                # +4 because the extension hasn't been added yet
-                if len(smallerName) + 4 > 256:
-                    raise OSError("File name for this song cannot fit in 256 characters")
-
                 # Checks if the overall path is too long
-                smallerPath = Path(".",  f"{smallerName}.mp3")
+                smallerPath = Path(".", f"{smallerName}.mp3")
                 if len(str(smallerPath.resolve())) > 260:
                     raise OSError("Path for this song cannot fit in 260 characters")
                 convertedFileName = f"{smallerName}.mp3"

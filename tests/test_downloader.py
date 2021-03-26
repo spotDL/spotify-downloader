@@ -81,8 +81,8 @@ def test_download_single_song(setup):
     ]
 
 @pytest.mark.vcr()
-def test_download_long_song(setup):
-    # ! Generates a long list of artists, numbered 1 to 260
+def test_download_long_artists_song(setup):
+    # ! Generates a long list of artists, numbered 1 to 260, to trigger filename length cases
     artists = list(map(lambda x:str(x),range(260)))
     song_obj = create_song_obj(artistsInput=artists)
     with DownloadManager() as dm:
@@ -91,6 +91,21 @@ def test_download_long_song(setup):
     assert [file.basename for file in setup.directory.listdir() if file.isfile()] == [
         "0 - test song.mp3"
     ]
+
+@pytest.mark.vcr()
+def test_download_long_name_song(setup):
+    # ! Generates a long title name,numbered 1 to 260, to trigger filename length cases
+    # ! In this case the program cannot save the song, and fails with an OSError
+    song = ''.join(list(map(lambda x:str(x),range(260))))
+    song_obj = create_song_obj(name=song)
+
+    failed = False
+    try:
+        with DownloadManager() as dm:
+            dm.download_single_song(song_obj)
+    except OSError:
+        failed = True
+    assert failed
 
 
 def test_download_multiple_songs(pytestconfig, setup):
