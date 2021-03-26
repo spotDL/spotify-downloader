@@ -4,9 +4,9 @@
 import asyncio
 import concurrent.futures
 import sys
+import re
 from os import listdir
 from pathlib import Path
-from fuzzywuzzy import fuzz
 
 # ! The following are not used, they are just here for static typechecking with mypy
 from typing import List
@@ -34,7 +34,7 @@ class DownloadManager():
     poolSize = 4
 
     # ! For determining whether a song has already been downloaded. 0-100
-    fuzzySearchMinScore = 90
+    fuzzySearchMinScore = 0.9
 
     def __init__(self):
 
@@ -132,44 +132,21 @@ class DownloadManager():
             tempFolder.mkdir()
 
         # build file name of converted file
-        artistStr = ''
+        convertedFileName = self._build_filename(songObj)
 
-        # ! we eliminate contributing artist names that are also in the song name, else we
-        # ! would end up with things like 'Jetta, Mastubs - I'd love to change the world
-        # ! (Mastubs REMIX).mp3' which is kinda an odd file name.
-        for artist in songObj.get_contributing_artists():
-            if artist.lower() not in songObj.get_song_name().lower():
-                artistStr += artist + ', '
-
-        # make sure that main artist is included in artistStr even if they
-        # are in the song name, for example
-        # Lil Baby - Never Recover (Lil Baby & Gunna, Drake).mp3
-        if songObj.get_contributing_artists()[0].lower() not in artistStr.lower():
-            artistStr = songObj.get_contributing_artists()[0] + ', ' + artistStr
-
-        # ! the ...[:-2] is to avoid the last ', ' appended to artistStr
-        convertedFileName = artistStr[:-2] + ' - ' + songObj.get_song_name()
-
-        # ! this is windows specific (disallowed chars)
-        for disallowedChar in ['/', '?', '\\', '*', '|', '<', '>']:
-            if disallowedChar in convertedFileName:
-                convertedFileName = convertedFileName.replace(
-                    disallowedChar, '')
-
-        # ! double quotes (") and semi-colons (:) are also disallowed characters but we would
-        # ! like to retain their equivalents, so they aren't removed in the prior loop
-        convertedFileName = convertedFileName.replace(
-            '"', "'").replace(':', '-')
-
+        #convert into path
         convertedFilePath = Path(".", f"{convertedFileName}.mp3")
 
         # if a song is already downloaded skip it
 
         filesInCwd = [f for f in listdir(".") if Path(".", f).is_file()]
-        fileScores = map(lambda x: fuzz.ratio(convertedFileName, x), filesInCwd)
-        maxScore = max(fileScores)
+        alreadyDownloaded = False
+        for file in filesInCwd:
+            if self._match_song_to_filename(songObj,file):
+                alreadyDownloaded = True
+                break
 
-        if maxScore >= self.fuzzySearchMinScore:
+        if alreadyDownloaded:
             if self.displayManager:
                 self.displayManager.notify_download_skip()
             if self.downloadTracker:
@@ -338,6 +315,63 @@ class DownloadManager():
             tempFolder,
             trackAudioStream
         )
+    def _filename_to_word_list(input:str)->List<str>:
+        output = input.lower()
+        # ! We lop off the last four chars to get rid of the extension
+        output = output[:-4]
+        output = re.sub(r"\s+"," ",output)
+        output = output.split(" ")
+        return output
+
+    def _match_song_to_filename(self, songObj:SongObj, givenFilename:str)->bool:
+        generatedFilename = self._build_filename(songObj)
+
+        # ! Turn both generated and given filenames into lists of words
+        generatedWordList = self._filename_to_word_list(generatedFilename)
+        givenFileWordList = self._filename_to_word_list(givenFilename)
+
+        sum = 0
+        for i, word in enumerate(givenFileWordList):
+            if word in generatedWordList:
+                sum++
+        average = sum/len(givenFileWordList)
+
+        return average >= self.fuzzySearchMinScore
+
+    def _build_filename(songObj:SongObj)->str:
+        '''
+        Builds a file name from a songObj
+        '''
+        
+        artistStr = ''
+
+        # ! we eliminate contributing artist names that are also in the song name, else we
+        # ! would end up with things like 'Jetta, Mastubs - I'd love to change the world
+        # ! (Mastubs REMIX).mp3' which is kinda an odd file name.
+        for artist in songObj.get_contributing_artists():
+            if artist.lower() not in songObj.get_song_name().lower():
+                artistStr += artist + ', '
+
+        # make sure that main artist is included in artistStr even if they
+        # are in the song name, for example
+        # Lil Baby - Never Recover (Lil Baby & Gunna, Drake).mp3
+        if songObj.get_contributing_artists()[0].lower() not in artistStr.lower():
+            artistStr = songObj.get_contributing_artists()[0] + ', ' + artistStr
+
+        # ! the ...[:-2] is to avoid the last ', ' appended to artistStr
+        convertedFileName = artistStr[:-2] + ' - ' + songObj.get_song_name()
+
+        # ! this is windows specific (disallowed chars)
+        for disallowedChar in ['/', '?', '\\', '*', '|', '<', '>']:
+            if disallowedChar in convertedFileName:
+                convertedFileName = convertedFileName.replace(
+                    disallowedChar, '')
+
+        # ! double quotes (") and semi-colons (:) are also disallowed characters but we would
+        # ! like to retain their equivalents, so they aren't removed in the prior loop
+        convertedFileName = convertedFileName.replace(
+            '"', "'").replace(':', '-')
+        return convertedFileName
 
     def _perform_audio_download(self, convertedFileName, tempFolder, trackAudioStream):
         # ! The actual download, if there is any error, it'll be here,
