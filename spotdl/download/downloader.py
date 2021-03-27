@@ -274,26 +274,14 @@ class DownloadManager():
             # ! sampled length of songs matches the actual length (i.e. a 5 min song won't display
             # ! as 47 seconds long in your music player, yeah that was an issue earlier.)
 
-            command = 'ffmpeg -v quiet -y -i "%s" -acodec libmp3lame -abr true ' \
-                f'-b:a {trackAudioStream.bitrate} ' \
-                '-af "apad=pad_dur=2, dynaudnorm, loudnorm=I=-17" "%s"'
-
-            # ! bash/ffmpeg on Unix systems need to have excape char (\) for special characters: \$
-            # ! alternatively the quotes could be reversed (single <-> double) in the command then
-            # ! the windows special characters needs escaping (^): ^\  ^&  ^|  ^>  ^<  ^^
-
-            if sys.platform == 'win32':
-                formattedCommand = command % (
-                    str(downloadedFilePath),
-                    str(convertedFilePath)
-                )
-            else:
-                formattedCommand = command % (
-                    str(downloadedFilePath).replace('$', '\$'),
-                    str(convertedFilePath).replace('$', '\$')
-                )
-
-            process = await asyncio.subprocess.create_subprocess_shell(formattedCommand)
+            process = await asyncio.subprocess.create_subprocess_exec(
+                "ffmpeg", "-v", "quiet", "-y", "-i",
+                str(downloadedFilePath),
+                "-acodec", "libmp3lame", "-abr", "true", "-b:a",
+                str(trackAudioStream.bitrate),
+                "-af", "apad=pad_dur=2 dynaudnorm loudnorm=I=-17",
+                str(convertedFilePath)
+            )
             _ = await process.communicate()
 
             # ! Wait till converted file is actually created
