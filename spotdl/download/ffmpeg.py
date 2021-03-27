@@ -13,7 +13,7 @@ def has_correct_version(skip_version_check: bool = False) -> bool:
     _, proc_out = process.communicate()
 
     if process.returncode == 127:
-        print("FFmpeg was not found, spotDL cannot continue.")
+        print("FFmpeg was not found, spotDL cannot continue.", file=sys.stderr)
         return False
 
     if skip_version_check is False:
