@@ -9,7 +9,6 @@ itself
 import typing
 
 from textwrap import shorten
-
 from ytmusicapi import YTMusic
 from bs4 import BeautifulSoup
 from requests import get
@@ -30,6 +29,9 @@ def get_youtube_link(
     # !get search results from YTMusic
     search_results = __query_ytmusic(song_name=song_name, song_artists=song_artists)
 
+    if len(search_results) == 0:
+        return None
+
     # !keep track of top result
     # when a result has a higher "match score" than the top_match_score, the top_match_score
     # and top_match_link are both updated, once all the results are checked, you end up with
@@ -49,16 +51,21 @@ def get_youtube_link(
         #   - link
 
         # song name match
-        # name_match = common words in the name / total words in the bigger name
-        name_match = __common_elm_fraction(song_name, result["songName"])
+        # name_match = common words in the name / total words in the supplied name
+        name_match = __common_elm_fraction(
+            source=song_name.split(" "), result=result["songName"].split(" ")
+        )
 
-        if name_match < 0.1:
-            # skip result, it's probably not a good match
+        if name_match < 0.25:
+            # skip result, it's probably not a good match, less than 1 out of 4 words
+            # from the supplied name are in the result
             continue
 
         # song artist match
         # same as name_match but here its about the contributing artists instead
-        artist_match = __common_elm_fraction(song_artists, result["songArtists"])
+        artist_match = __common_elm_fraction(
+            source=song_artists, result=result["songArtists"]
+        )
 
         # song duration match
         # duration_match = 1 - (time delta in sec/15 sec), the idea is that 1 indicates the best
@@ -72,11 +79,16 @@ def get_youtube_link(
             continue
 
         # album_match
-        # 1 if album name is the exact same, else the value is 0
+        # if results is a song: album_match = 1 if its a perfect match, else skip the result
+        # because, even if the other match scores are good, it's definitely a different song
+        #
+        # if result is an album: album_match = 0
         #
         # note that the albumName in the result will be lower case
         if result["albumName"] == album.lower():
             album_match = 1
+        elif result["albumName"] != "":
+            continue
         else:
             album_match = 0
 
@@ -91,10 +103,12 @@ def get_youtube_link(
             top_match_link = str(result["link"])
 
     if top_match_score < 0.75:
+        result_song_name = result["songName"]
+
         file = open("possible errors (delete when ever you want).txt", "ab")
         file.write(
             f"{shorten(song_artists[0], 15):>15s} - {shorten(song_name, 40):40s} "
-            f"{top_match_score:0.2f}pt {top_match_link}: {result['songName']}\n".encode(),
+            f"{top_match_score:0.2f}pt {top_match_link}: {result_song_name}\n".encode(),
         )
         file.close()
 
@@ -122,7 +136,7 @@ def __query_ytmusic(
     # !construct a search string
     artist_str = ""
     for artist in song_artists:
-        artist_str += artist + ", "
+        artist_str += artist.join(", ")
 
     # `[:-2]` removes trailing comma; eg. "Aiobahn, Rionos, " --> "Aiobahn, Rionos - Motivation"
     query = artist_str[:-2] + " - " + song_name
@@ -196,33 +210,61 @@ def __query_ytmusic(
     return collected_results
 
 
-def __common_elm_fraction(
-    one: typing.Union[list, str], two: typing.Union[list, str]
-) -> float:
-    """
-    returns (number of common elements)/(total elements is bigger list/sentence).
+def __prepare_list(list_str: typing.List[str]):
+    for word in list_str:
+        list_str.remove(word)
 
-    NOTE: in a sentence, each word is considered an element, i.e. "this is weird" ~ ["this", "is",
-    "Weird"] has 3 elements
-    """
+        if not word.isalnum():
+            n_word = word.lower()
 
-    # !convert sentences to lists, this helps in the case one is a sentence and the other a list
-    if isinstance(one, str):
-        one = one.split(" ")
+            for letter in n_word:
+                if not letter.isalnum():
+                    n_word = n_word.replace(letter, "")
 
-    if isinstance(two, str):
-        two = two.split(" ")
+            if n_word != "":
+                list_str.append(n_word)
 
-    set1 = set(each.lower() for each in one)
+        else:
+            list_str.append(word.lower())
 
-    set2 = set(each.lower() for each in two)
+    return list_str
 
-    if len(set1) > len(set2):
-        greater_length = len(set1)
-    else:
-        greater_length = len(set2)
 
-    return len(set1.intersection(set2)) / greater_length
+def __is_similar(word_a: str, word_b: str):
+    if word_a == word_b:
+        return True
+
+    # yes, you would expect an elif statement here, but that is apparently against pylint's
+    # sensibilities. See: https://stackoverflow.com/q/63755912
+    if len(word_a) != len(word_b):
+        return False
+
+    hit_count = 0
+
+    for _index in range(len(word_a)):
+        if word_a[_index] != word_b[_index]:
+            hit_count += 1
+
+    if hit_count < 2:
+        return True
+
+    return False
+
+
+def __common_elm_fraction(source: typing.List[str], result: typing.List[str]) -> float:
+
+    src = __prepare_list(source)
+    res = __prepare_list(result)
+
+    similar_word_count = 0
+
+    for src_word in src:
+        for res_word in res:
+            if __is_similar(src_word, res_word):
+                similar_word_count += 1
+                break
+
+    return similar_word_count / len(src)
 
 
 def get_song_lyrics(song_name: str, song_artists: typing.List[str]) -> str:
