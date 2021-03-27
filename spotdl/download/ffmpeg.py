@@ -80,10 +80,16 @@ async def convert(trackAudioStream, downloadedFilePath, convertedFilePath) -> bo
     _, proc_err = await process.communicate()
 
     if process.returncode != 0:
-        print(f"\nffmpeg returned an error ({process.returncode})", file=sys.stderr)
-        print(f"the ffmpeg command was \"{command}\"", file=sys.stderr)
-        print('ffmpeg gave this output:\n=====\n', file=sys.stderr)
-        print(f"{proc_err.decode('utf-8')}\n=====\n", file=sys.stderr)
+        message = (
+            f"ffmpeg returned an error ({process.returncode})"
+            f"\nthe ffmpeg command was \"{formattedCommand}\""
+            "\nffmpeg gave this output:"
+            "\n=====\n"
+            f"{proc_err.decode('utf-8')}"
+            "\n=====\n"
+        )
+
+        print(message, file=sys.stderr)
         return False
 
     return True
