@@ -21,7 +21,7 @@ def has_correct_version() -> bool:
     if result is None or len(result) < 1:
         print("Your ffmpeg version couldn't be detected")
     elif float(result[0]) < 4.3:
-        print(f"Your ffmpeg installation is too old, please update ({result[0]})")
+        print(f"Your ffmpeg installation is too old ({result[0]}), please update")
         return False
 
     return True
