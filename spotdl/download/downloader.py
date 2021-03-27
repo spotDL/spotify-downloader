@@ -53,10 +53,6 @@ class DownloadManager():
         self.thread_executor = concurrent.futures.ThreadPoolExecutor(
             max_workers=self.poolSize)
 
-        if ffmpeg.has_correct_version() is False:
-            print("FFmpeg was not found, spotDL cannot continue.")
-            sys.exit(1)
-
     def __enter__(self):
         return self
 

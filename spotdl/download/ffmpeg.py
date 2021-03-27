@@ -4,7 +4,7 @@ import sys
 import re
 
 
-def has_correct_version() -> bool:
+def has_correct_version(skip_version_check: bool = False) -> bool:
     process = subprocess.Popen(
         ['ffmpeg', '-version'],
         shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
@@ -13,16 +13,19 @@ def has_correct_version() -> bool:
     _, proc_out = process.communicate()
 
     if process.returncode == 127:
+        print("FFmpeg was not found, spotDL cannot continue.")
         return False
 
-    pattern = re.compile(r"([0-9]+\.[0-9]+)")
-    result = pattern.findall(proc_out.decode("utf-8"))
+    if skip_version_check is False:
+        result = re.findall(r"([0-9]+\.[0-9]+)", proc_out.decode("utf-8"))
 
-    if result is None or len(result) < 1:
-        print("Your ffmpeg version couldn't be detected")
-    elif float(result[0]) < 4.3:
-        print(f"Your ffmpeg installation is too old ({result[0]}), please update")
-        return False
+        if result is None or len(result) < 1:
+            print("Your ffmpeg version couldn't be detected", file=sys.stderr)
+            return False
+        elif float(result[0]) < 4.3:
+            print(f"Your ffmpeg installation is too old ({result[0]}), please update",
+                  file=sys.stderr)
+            return False
 
     return True
 
