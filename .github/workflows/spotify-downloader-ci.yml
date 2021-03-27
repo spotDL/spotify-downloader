@@ -73,13 +73,13 @@ jobs:
           python-version: 3.8
       - name: Install dependencies
         run: |
-          wget https://johnvansickle.com/ffmpeg/builds/ffmpeg-git-amd64-static.tar.xz
-          wget https://johnvansickle.com/ffmpeg/builds/ffmpeg-git-amd64-static.tar.xz.md5
-          md5sum -c ffmpeg-git-amd64-static.tar.xz.md5
-          tar xvf ffmpeg-git-amd64-static.tar.xz
+          wget -nv https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz
+          wget -nv https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz.md5
+          tar xf ffmpeg-release-amd64-static.tar.xz
           cd $(ls -d ffmpeg*/ | head -n 1)
           sudo mv ffmpeg ffprobe /usr/local/bin/
           cd ..
+          ffmpeg -version
           python -m pip install -e .[test]
       - name: Run tests
         run: |
