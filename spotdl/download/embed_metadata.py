@@ -71,7 +71,7 @@ def _set_id3_m4a(convertedFilePath, songObj):
     audioFile = MP4(convertedFilePath)
 
     _embed_basic_metadata(audioFile, songObj, "m4a")
-    _embed_mp3_metadata(audioFile, songObj, convertedFilePath, )
+    _embed_m4a_metadata(audioFile, songObj, convertedFilePath, )
 
     audioFile.save()
 
