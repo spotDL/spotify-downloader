@@ -17,13 +17,15 @@ def has_correct_version(skip_version_check: bool = False) -> bool:
         return False
 
     if skip_version_check is False:
-        result = re.findall(r"([0-9]+\.[0-9]+)", proc_out.decode("utf-8"))
+        result = re.search(r"ffmpeg version \w?(\d+\.)?(\d+)", proc_out.decode("utf-8"))
 
-        if result is None or len(result) < 1:
+        if result is None:
             print("Your ffmpeg version couldn't be detected", file=sys.stderr)
             return False
-        elif float(result[0]) < 4.3:
-            print(f"Your ffmpeg installation is too old ({result[0]}), please update",
+
+        version = result.group(0).replace("ffmpeg version ", "")
+        if float(version) < 4.3:
+            print(f"Your ffmpeg installation is too old ({version}), please update",
                   file=sys.stderr)
             return False
 
