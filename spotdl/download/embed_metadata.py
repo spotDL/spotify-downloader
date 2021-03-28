@@ -70,8 +70,8 @@ def _set_id3_m4a(convertedFilePath, songObj):
     # ! The simple ID3 tags
     audioFile = MP4(convertedFilePath)
 
-    _embed_basic_metadata(audioFile, songObj, "m4a")
-    _embed_m4a_metadata(audioFile, songObj, convertedFilePath, )
+    _embed_basic_metadata(audioFile, songObj, "m4a", M4A_TAG_PRESET)
+    _embed_m4a_metadata(audioFile, songObj)
 
     audioFile.save()
 
@@ -232,7 +232,7 @@ def _embed_basic_metadata(audioFile, songObj, encoding, preset=TAG_PRESET):
         if encoding in ["flac", "ogg", "opus"]:
             audioFile[preset["tracknumber"]] = str(track_number)
         else:
-            audioFile[preset["track_number"]] = str(track_number)
+            audioFile[preset["tracknumber"]] = [(track_number,0)]
 
 
 def _embed_ogg_metadata(audioFile, songObj):
