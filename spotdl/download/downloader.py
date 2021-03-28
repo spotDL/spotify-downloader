@@ -73,7 +73,10 @@ class DownloadManager():
 
         self._download_asynchronously([songObj], outputFormat)
 
-    def download_multiple_songs(self, songObjList: List[SongObj], outputFormat: str = "mp3") -> None:
+    def download_multiple_songs(self,
+                                songObjList: List[SongObj],
+                                outputFormat: str = "mp3"
+                                ) -> None:
         '''
         `list<songObj>` `songObjList` : list of songs to be downloaded
 
@@ -89,7 +92,9 @@ class DownloadManager():
 
         self._download_asynchronously(songObjList, outputFormat)
 
-    def resume_download_from_tracking_file(self, trackingFilePath: str, outputFormat: str = "mp3") -> None:
+    def resume_download_from_tracking_file(self,
+                                           trackingFilePath: str,
+                                           outputFormat: str = "mp3") -> None:
         '''
         `str` `trackingFilePath` : path to a .spotdlTrackingFile
 
