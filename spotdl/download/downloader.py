@@ -57,7 +57,7 @@ class DownloadManager():
     def __exit__(self, type, value, traceback):
         self.displayManager.close()
 
-    def download_single_song(self, songObj: SongObj, outputFormat: str) -> None:
+    def download_single_song(self, songObj: SongObj, outputFormat: str = "mp3") -> None:
         '''
         `songObj` `song` : song to be downloaded
 
@@ -73,7 +73,7 @@ class DownloadManager():
 
         self._download_asynchronously([songObj], outputFormat)
 
-    def download_multiple_songs(self, songObjList: List[SongObj], outputFormat: str) -> None:
+    def download_multiple_songs(self, songObjList: List[SongObj], outputFormat: str = "mp3") -> None:
         '''
         `list<songObj>` `songObjList` : list of songs to be downloaded
 
@@ -89,7 +89,7 @@ class DownloadManager():
 
         self._download_asynchronously(songObjList, outputFormat)
 
-    def resume_download_from_tracking_file(self, trackingFilePath: str, outputFormat: str) -> None:
+    def resume_download_from_tracking_file(self, trackingFilePath: str, outputFormat: str = "mp3") -> None:
         '''
         `str` `trackingFilePath` : path to a .spotdlTrackingFile
 
