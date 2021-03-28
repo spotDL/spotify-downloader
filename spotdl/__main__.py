@@ -113,7 +113,7 @@ def console_entry_point():
                 song = SongObj.from_url(request)
 
                 if song.get_youtube_link() is not None:
-                    downloader.download_single_song(song)
+                    downloader.download_single_song(song, arguments.format)
                 else:
                     print('Skipping %s (%s) as no match could be found on youtube' % (
                         song.get_song_name(), request
@@ -123,7 +123,7 @@ def console_entry_point():
                 print('Fetching Album...')
                 songObjList = get_album_tracks(request)
 
-                downloader.download_multiple_songs(songObjList)
+                downloader.download_multiple_songs(songObjList, arguments.format)
 
             elif 'open.spotify.com' in request and 'playlist' in request:
                 print('Fetching Playlist...')
@@ -135,17 +135,17 @@ def console_entry_point():
                 print('Fetching artist...')
                 artistObjList = get_artist_tracks(request)
 
-                downloader.download_multiple_songs(artistObjList)
+                downloader.download_multiple_songs(artistObjList, arguments.format)
 
             elif request.endswith('.spotdlTrackingFile'):
                 print('Preparing to resume download...')
-                downloader.resume_download_from_tracking_file(request)
+                downloader.resume_download_from_tracking_file(request, arguments.format)
 
             else:
                 print('Searching for song "%s"...' % request)
                 try:
                     song = search_for_song(request)
-                    downloader.download_single_song(song)
+                    downloader.download_single_song(song, arguments.format)
                 except Exception as e:
                     print(e)
 
@@ -158,6 +158,7 @@ def parse_arguments():
     )
     parser.add_argument("url", type=str, nargs="+", help="URL to a song/album/playlist")
     parser.add_argument("-o", "--output", help="Output directory path", dest="path")
+    parser.add_argument("-f", "--format", help="Output format", dest="format", default="mp3")
     parser.add_argument("--ignore-ffmpeg-version",
                         help="Ignore ffmpeg version", action="store_true")
 
