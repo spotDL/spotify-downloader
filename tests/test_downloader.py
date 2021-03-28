@@ -73,7 +73,7 @@ def setup(tmpdir, monkeypatch):
     monkeypatch.setattr(
         asyncio.subprocess, "create_subprocess_shell", fake_create_subprocess_shell
     )
-    monkeypatch.setattr(embed_metadata, "set_id3", lambda *_: None)
+    monkeypatch.setattr(embed_metadata, "set_id3_data", lambda *_: None)
     data = SimpleNamespace()
     data.directory = tmpdir
     yield data

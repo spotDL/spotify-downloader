@@ -40,7 +40,7 @@ for key in M4A_TAG_PRESET.keys():
     TAG_PRESET[key] = key
 
 
-def set_id3(convertedFilePath, songObj, outputFormat):
+def set_id3_data(convertedFilePath, songObj, outputFormat):
     if outputFormat == "mp3":
         _set_id3_mp3(convertedFilePath, songObj)
     elif outputFormat == "flac":

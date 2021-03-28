@@ -3,7 +3,7 @@
 # ===============
 import asyncio
 import concurrent.futures
-from spotdl.download.embed_metadata import set_id3
+from spotdl.download.embed_metadata import set_id3_data
 import sys
 import traceback
 
@@ -227,7 +227,7 @@ class DownloadManager():
                 convertedFilePath.unlink()
             else:
                 # if a file was successfully downloaded, tag it
-                set_id3(convertedFilePath, songObj, outputFormat)
+                set_id3_data(convertedFilePath, songObj, outputFormat)
 
             # Do the necessary cleanup
             if dispayProgressTracker:
