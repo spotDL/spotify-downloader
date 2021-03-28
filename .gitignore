@@ -3,6 +3,10 @@
 *.spotdlTrackingFile
 *.mp3
 *.mp4
+*.flac
+*.opus
+*.ogg
+Temp/
 
 # Python
 __pycache__
