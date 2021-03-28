@@ -56,7 +56,7 @@ def get_youtube_link(
             source=song_name.split(" "), result=result["songName"].split(" ")
         )
 
-        if name_match < 0.25:
+        if name_match < 0.1:
             # skip result, it's probably not a good match, less than 1 out of 4 words
             # from the supplied name are in the result
             continue
@@ -136,7 +136,7 @@ def __query_ytmusic(
     # !construct a search string
     artist_str = ""
     for artist in song_artists:
-        artist_str += artist.join(", ")
+        artist_str += artist + ", "
 
     # `[:-2]` removes trailing comma; eg. "Aiobahn, Rionos, " --> "Aiobahn, Rionos - Motivation"
     query = artist_str[:-2] + " - " + song_name
@@ -197,6 +197,25 @@ def __query_ytmusic(
             # basically do seconds*1 + mins*60 +  hours * 3600
             r_duration += int(duration_bits[i]) * (60 ** i)
 
+        skip_result = False
+
+        for skip_word in [
+            "festival",
+            "cover",
+            "male",
+            "female",
+            "switching vocals",
+            "amv",
+        ]:
+            if (
+                skip_word in result["title"].lower()
+                and skip_word not in song_name.lower()
+            ):
+                skip_result = True
+
+        if skip_result:
+            continue
+
         collected_results.append(
             {
                 "songName": result["title"],
@@ -210,7 +229,8 @@ def __query_ytmusic(
     return collected_results
 
 
-def __prepare_list(list_str: typing.List[str]):
+def __prepare_list(input_list: typing.List[str]):
+    list_str = input_list.copy()
     for word in list_str:
         list_str.remove(word)
 
@@ -264,7 +284,10 @@ def __common_elm_fraction(source: typing.List[str], result: typing.List[str]) ->
                 similar_word_count += 1
                 break
 
-    return similar_word_count / len(src)
+    if len(src) > len(res):
+        return similar_word_count / len(src)
+    else:
+        return similar_word_count / len(res)
 
 
 def get_song_lyrics(song_name: str, song_artists: typing.List[str]) -> str:
