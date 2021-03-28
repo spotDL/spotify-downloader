@@ -3,16 +3,14 @@
 # ===============
 import asyncio
 import concurrent.futures
+from spotdl.download.embed_metadata import set_id3
 import sys
 import traceback
 
 from pathlib import Path
 # ! The following are not used, they are just here for static typechecking with mypy
 from typing import List
-from urllib.request import urlopen
 
-from mutagen.easyid3 import EasyID3, ID3
-from mutagen.id3 import APIC as AlbumCover, USLT
 from pytube import YouTube
 
 from spotdl.download.progressHandlers import DisplayManager, DownloadTracker
@@ -59,7 +57,7 @@ class DownloadManager():
     def __exit__(self, type, value, traceback):
         self.displayManager.close()
 
-    def download_single_song(self, songObj: SongObj) -> None:
+    def download_single_song(self, songObj: SongObj, outputFormat: str) -> None:
         '''
         `songObj` `song` : song to be downloaded
 
@@ -73,9 +71,9 @@ class DownloadManager():
 
         self.displayManager.set_song_count_to(1)
 
-        self._download_asynchronously([songObj])
+        self._download_asynchronously([songObj], outputFormat)
 
-    def download_multiple_songs(self, songObjList: List[SongObj]) -> None:
+    def download_multiple_songs(self, songObjList: List[SongObj], outputFormat: str) -> None:
         '''
         `list<songObj>` `songObjList` : list of songs to be downloaded
 
@@ -89,9 +87,9 @@ class DownloadManager():
 
         self.displayManager.set_song_count_to(len(songObjList))
 
-        self._download_asynchronously(songObjList)
+        self._download_asynchronously(songObjList, outputFormat)
 
-    def resume_download_from_tracking_file(self, trackingFilePath: str) -> None:
+    def resume_download_from_tracking_file(self, trackingFilePath: str, outputFormat: str) -> None:
         '''
         `str` `trackingFilePath` : path to a .spotdlTrackingFile
 
@@ -107,11 +105,12 @@ class DownloadManager():
 
         self.displayManager.set_song_count_to(len(songObjList))
 
-        self._download_asynchronously(songObjList)
+        self._download_asynchronously(songObjList, outputFormat)
 
-    async def download_song(self, songObj: SongObj) -> None:
+    async def download_song(self, songObj: SongObj, outputFormat: str) -> None:
         '''
         `songObj` `songObj` : song to be downloaded
+        `str` `outputFormat` : output format
 
         RETURNS `~`
 
@@ -168,7 +167,7 @@ class DownloadManager():
             convertedFileName = convertedFileName.replace(
                 '"', "'").replace(':', '-')
 
-            convertedFilePath = Path(".", f"{convertedFileName}.mp3")
+            convertedFilePath = Path(".", f"{convertedFileName}.{outputFormat}")
 
             # if a song is already downloaded skip it
             if convertedFilePath.is_file():
@@ -216,7 +215,8 @@ class DownloadManager():
             ffmpeg_success = await ffmpeg.convert(
                 trackAudioStream=trackAudioStream,
                 downloadedFilePath=downloadedFilePath,
-                convertedFilePath=convertedFilePath
+                convertedFilePath=convertedFilePath,
+                outputFormat=outputFormat
             )
 
             if dispayProgressTracker:
@@ -227,7 +227,7 @@ class DownloadManager():
                 convertedFilePath.unlink()
             else:
                 # if a file was successfully downloaded, tag it
-                self.set_id3_data(convertedFilePath, songObj)
+                set_id3(convertedFilePath, songObj, outputFormat)
 
             # Do the necessary cleanup
             if dispayProgressTracker:
@@ -246,55 +246,6 @@ class DownloadManager():
                 dispayProgressTracker.notify_error(e, tb)
             else:
                 raise e
-
-    def set_id3_data(self, convertedFilePath, songObj):
-        # embed song details
-        # ! we save tags as both ID3 v2.3 and v2.4
-        # ! The simple ID3 tags
-        audioFile = EasyID3(convertedFilePath)
-        # ! Get rid of all existing ID3 tags (if any exist)
-        audioFile.delete()
-        # ! song name
-        audioFile['title'] = songObj.get_song_name()
-        audioFile['titlesort'] = songObj.get_song_name()
-        # ! track number
-        audioFile['tracknumber'] = str(songObj.get_track_number())
-        # ! disc number
-        audioFile['discnumber'] = str(songObj.get_disc_number())
-        # ! genres (pretty pointless if you ask me)
-        # ! we only apply the first available genre as ID3 v2.3 doesn't support multiple
-        # ! genres and ~80% of the world PC's run Windows - an OS with no ID3 v2.4 support
-        genres = songObj.get_genres()
-        if len(genres) > 0:
-            audioFile['genre'] = genres[0]
-        # ! all involved artists
-        audioFile['artist'] = songObj.get_contributing_artists()
-        # ! album name
-        audioFile['album'] = songObj.get_album_name()
-        # ! album artist (all of 'em)
-        audioFile['albumartist'] = songObj.get_album_artists()
-        # ! album release date (to what ever precision available)
-        audioFile['date'] = songObj.get_album_release()
-        audioFile['originaldate'] = songObj.get_album_release()
-        # ! save as both ID3 v2.3 & v2.4 as v2.3 isn't fully features and
-        # ! windows doesn't support v2.4 until later versions of Win10
-        audioFile.save(v2_version=3)
-        # ! setting the album art
-        audioFile = ID3(convertedFilePath)
-        rawAlbumArt = urlopen(songObj.get_album_cover_url()).read()
-        audioFile['APIC'] = AlbumCover(
-            encoding=3,
-            mime='image/jpeg',
-            type=3,
-            desc='Cover',
-            data=rawAlbumArt
-        )
-        # ! setting the lyrics
-        lyrics = songObj.get_lyrics()
-        USLTOutput = USLT(encoding=3, lang=u'eng', desc=u'desc', text=lyrics)
-        audioFile["USLT::'eng'"] = USLTOutput
-
-        audioFile.save(v2_version=3)
 
     async def _download_from_youtube(self, convertedFileName, tempFolder, trackAudioStream):
         # ! The following function calls blocking code, which would block whole event loop.
@@ -330,16 +281,16 @@ class DownloadManager():
                 tempFile.unlink()
             return None
 
-    async def _pool_download(self, song_obj: SongObj):
+    async def _pool_download(self, song_obj: SongObj, outputFormat: str):
         # ! Run asynchronous task in a pool to make sure that all processes
         # ! don't run at once.
 
         # tasks that cannot acquire semaphore will wait here until it's free
         # only certain amount of tasks can acquire the semaphore at the same time
         async with self.semaphore:
-            return await self.download_song(song_obj)
+            return await self.download_song(song_obj, outputFormat)
 
-    def _download_asynchronously(self, song_obj_list):
-        tasks = [self._pool_download(song) for song in song_obj_list]
+    def _download_asynchronously(self, song_obj_list, outputFormat):
+        tasks = [self._pool_download(song, outputFormat) for song in song_obj_list]
         # call all task asynchronously, and wait until all are finished
         self.loop.run_until_complete(asyncio.gather(*tasks))
