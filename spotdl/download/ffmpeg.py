@@ -32,7 +32,7 @@ def has_correct_version(skip_version_check: bool = False) -> bool:
     return True
 
 
-async def convert(trackAudioStream, downloadedFilePath, convertedFilePath) -> bool:
+async def convert(trackAudioStream, downloadedFilePath, convertedFilePath, outputFormat) -> bool:
     # convert downloaded file to MP3 with normalization
 
     # ! -af loudnorm=I=-7:LRA applies EBR 128 loudness normalization algorithm with
@@ -50,13 +50,27 @@ async def convert(trackAudioStream, downloadedFilePath, convertedFilePath) -> bo
     # ! combat that.
     # !
     # ! -acodec libmp3lame sets the encoded to 'libmp3lame' which is far better
-    # ! than the default 'mp3_mf', '-abr true' automatically determines and passes the
+    # ! than the default 'mp3_mf'
+    # !
+    # '-abr true' automatically determines and passes the
     # ! audio encoding bitrate to the filters and encoder. This ensures that the
     # ! sampled length of songs matches the actual length (i.e. a 5 min song won't display
     # ! as 47 seconds long in your music player, yeah that was an issue earlier.)
 
+    formats = {
+        "mp3": "-acodec libmp3lame",
+        "flac": "-c:a flac",
+        "ogg": "-c:a libvorbis",
+        "opus": "-c:a libopus"
+    }
+
+    if outputFormat is None:
+        outputFormatCommand = formats["mp3"]
+    else:
+        outputFormatCommand = formats[outputFormat]
+
     command = (
-        'ffmpeg -v quiet -y -i "%s" -acodec libmp3lame -abr true '
+        'ffmpeg -v quiet -y -i "%s" %s -abr true '
         f"-b:a {trackAudioStream.bitrate} "
         '-af "apad=pad_dur=2, dynaudnorm, loudnorm=I=-17" "%s"'
     )
@@ -68,11 +82,13 @@ async def convert(trackAudioStream, downloadedFilePath, convertedFilePath) -> bo
     if sys.platform == "win32":
         formattedCommand = command % (
             str(downloadedFilePath),
+            outputFormatCommand,
             str(convertedFilePath),
         )
     else:
         formattedCommand = command % (
             str(downloadedFilePath).replace("$", r"\$"),
+            outputFormatCommand,
             str(convertedFilePath).replace("$", r"\$"),
         )
 
