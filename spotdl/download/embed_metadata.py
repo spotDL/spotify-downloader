@@ -232,7 +232,7 @@ def _embed_basic_metadata(audioFile, songObj, encoding, preset=TAG_PRESET):
         if encoding in ["flac", "ogg", "opus"]:
             audioFile[preset["tracknumber"]] = str(track_number)
         else:
-            audioFile[preset["tracknumber"]] = [(track_number,0)]
+            audioFile[preset["tracknumber"]] = [(track_number, 0)]
 
 
 def _embed_ogg_metadata(audioFile, songObj):
