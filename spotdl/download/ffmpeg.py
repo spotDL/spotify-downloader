@@ -58,10 +58,11 @@ async def convert(trackAudioStream, downloadedFilePath, convertedFilePath, outpu
     # ! as 47 seconds long in your music player, yeah that was an issue earlier.)
 
     formats = {
-        "mp3": "-acodec libmp3lame",
-        "flac": "-c:a flac",
-        "ogg": "-c:a libvorbis",
-        "opus": "-c:a libopus"
+        "mp3": "-codec:a libmp3lame",
+        "flac": "-codec:a flac",
+        "ogg": "-codec:a libvorbis -q:a 5",
+        "opus": "-codec:a libopus",
+        "m4a": "-codec:a aac -vn",
     }
 
     if outputFormat is None:
