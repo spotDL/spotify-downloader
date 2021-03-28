@@ -59,7 +59,7 @@ def _set_id3_mp3(convertedFilePath, songObj):
     # ! The simple ID3 tags
     audioFile = EasyID3(convertedFilePath)
 
-    _embed_mp3_metadata(audioFile, songObj, convertedFilePath, )
+    _embed_mp3_metadata(audioFile, songObj, convertedFilePath)
 
     audioFile.save(v2_version=3)
 
