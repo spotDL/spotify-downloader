@@ -166,3 +166,36 @@ def get_playlist_tracks(playlistUrl: str) -> List[SongObj]:
             break
 
     return playlistTracks
+
+def get_saved_tracks() -> List[SongObj]:
+    '''
+    returns a `list<songObj>` containing Url's of each track in the user's saved tracks
+    '''
+
+    spotifyClient = SpotifyClient()
+    savedTracks = []
+
+    savedResponse = spotifyClient.current_user_saved_tracks()
+
+    # while loop to mimic do-while
+    while True:
+
+        for songEntry in savedResponse['items']:
+            if songEntry['track'] is None or songEntry['track']['id'] is None:
+                continue
+
+            song = SongObj.from_url(
+                'https://open.spotify.com/track/' + songEntry['track']['id'])
+
+            if song.get_youtube_link() is not None:
+                savedTracks.append(song)
+
+        # check if more tracks are to be passed
+        if savedResponse['next']:
+            savedResponse = spotifyClient.current_user_saved_tracks(
+                offset=savedResponse['offset'] + savedResponse['limit']
+            )
+        else:
+            break
+
+    return savedTracks

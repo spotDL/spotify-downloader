@@ -1,6 +1,6 @@
 from spotipy import Spotify
 from spotipy.oauth2 import SpotifyClientCredentials
-from spotdl.search.spotifyWebviewAuth import get_tokens
+from spotdl.search.spotifyUserAuth import SpotifyUserAuth
 
 
 class Singleton(type):
@@ -23,6 +23,9 @@ class Singleton(type):
 
         `str` `client_secret` : client secret for your client id
 
+        userAuth : Determines if the Authorization Code Flow or 
+                   the Client Credentials Flow is used
+
         creates and caches a spotify client if a client doesn't exist. Can only be called
         once, multiple calls will cause an Exception.
         '''
@@ -32,9 +35,9 @@ class Singleton(type):
             raise Exception('A spotify client has already been initialized')
         credentialManager = None
         if userAuth:
-            tokens = get_tokens(
-                client_id,
-                client_secret
+            credentialManager = SpotifyUserAuth(
+                client_id=client_id,
+                client_secret=client_secret
             )
         else:
             credentialManager = SpotifyClientCredentials(
@@ -43,16 +46,19 @@ class Singleton(type):
             )
         cls._instance = super().__call__(auth_manager=credentialManager)
         return cls._instance
+        
 
 
 class SpotifyClient(Spotify, metaclass=Singleton):
     """
     This is the Spotify client meant to be used in the app. Has to be initialized first by
-    calling `SpotifyClient.init(client_id, client_secret)`.
+    calling `SpotifyClient.init(client_id, client_secret, userAuth)`.
     """
     _initialized = False
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, userAuth=False, *args, **kwargs):
+        if userAuth:
+            self._userAuth = True
         super().__init__(*args, **kwargs)
         self._initialized = True
 

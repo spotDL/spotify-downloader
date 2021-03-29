@@ -13,6 +13,7 @@ from spotdl.search.utils import (
     get_playlist_tracks,
     get_album_tracks,
     get_artist_tracks,
+    get_saved_tracks,
     search_for_song,
 )
 
@@ -144,6 +145,12 @@ def console_entry_point():
             elif request.endswith('.spotdlTrackingFile'):
                 print('Preparing to resume download...')
                 downloader.resume_download_from_tracking_file(request)
+
+            elif request == "saved":
+                print('Fetching Saved Songs...')
+                songObjList = get_saved_tracks()
+
+                downloader.download_multiple_songs(songObjList)
 
             else:
                 print('Searching for song "%s"...' % request)
