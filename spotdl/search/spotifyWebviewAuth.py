@@ -4,11 +4,13 @@ import platform
 import urllib
 import asyncio
 import threading
-import http.client
-from concurrent.futures import ProcessPoolExecutor, wait, FIRST_COMPLETED
+import requests
+import base64
+from concurrent.futures import ProcessPoolExecutor, wait
 from time import sleep
-from spotipy.oauth2 import SpotifyOAuth
-from http.server import BaseHTTPRequestHandler, HTTPServer
+from spotipy.oauth2 import SpotifyAuthBase
+from http.server import BaseHTTPRequestHandler, HTTPServer 
+
 def _run_http_server()->(str,str):
     '''
         This function runs an HTTP server until a provided future resolves
@@ -26,14 +28,15 @@ def _run_http_server()->(str,str):
                         print(f'Auth Error: {parsedRequest.get("error")[0]}')
                         self.send_response(500)
                     else:
-                        self.send_response(200,
-                            '<html><head></head><body></body></html>'
-                        )
+                        self.send_response(201)
                         output['keepServing'] = False
                         output['data'] = (parsedRequest.get("code")[0],parsedRequest.get("state")[0])
                         
                 except:
                     print("Malformed request received by http server.")
+            elif self.path.startswith("/killServer"):
+                output['keepServing'] = False
+                self.send_response(201)
             else:
                 self.send_error(400)
             return None
@@ -41,7 +44,6 @@ def _run_http_server()->(str,str):
     server = HTTPServer(("127.0.0.1", 8080), CallbackHandler)
     while output.get("keepServing"):
         server.handle_request()
-        sleep(0.1)
     server.server_close()
     return output.get("data")
 
@@ -68,13 +70,14 @@ def _run_webview(loginURL:str):
     else:
         print("Could not determine platform. Attempting to start Login Window.")
         webview.start()
-    
-    
+    requests.get("http://127.0.0.1:8080/killServer")
 
-def get_user_auth_token(client_id:str, client_secret:str)->str:
+def get_tokens(client_id:str, client_secret:str):
     '''
-        This function prompts the user for login, then returns a Spotipy Credential Manager
+        The init function for SpotifyWebviewAuth
     '''
+    redirect_uri = 'http://127.0.0.1:8080/callback'
+
     # Creates state
     state = secrets.token_hex(32)
     
@@ -83,7 +86,7 @@ def get_user_auth_token(client_id:str, client_secret:str)->str:
         f'https://accounts.spotify.com/authorize?'
         f'client_id={client_id}&'
         f'response_type=code&'
-        f'redirect_uri=http%3A%2F%2F127.0.0.1%3A8080%2Fcallback&'
+        f'redirect_uri={urllib.parse.quote(redirect_uri)}&'
         f'state={state}&'
         f'scope=playlist-read-private%20playlist-read-collaborative%20user-library-read&'
         f'show_dialog=true'
@@ -96,21 +99,32 @@ def get_user_auth_token(client_id:str, client_secret:str)->str:
     # Two threads need to run side by side.
     # - A Webview window
     # - An http server to capture the OAuth callback
+    # Sadly, webview requires to be run as a separate process,
+    # So I had to use ProcessPoolExecutor instead of ThreadPoolExecutor
+
     with ProcessPoolExecutor(max_workers=2) as pool:
         webviewFuture = pool.submit(_run_webview,loginURL)
         httpFuture = pool.submit(_run_http_server)
-        results = wait([webviewFuture,httpFuture],return_when=FIRST_COMPLETED)
-        finishedFuture = results.done.pop()
-        if finishedFuture == webviewFuture:
-            raise Exception("User Rejected Authorization")
-        else:
-            returnedTuple = httpFuture.result()
-            code = returnedTuple[0]
-            returnedState = returnedTuple[1]
-
+        wait([webviewFuture,httpFuture])
+        if not httpFuture.result():
+            raise Exception("User Refused Authentication")
     
+    returnedCode = httpFuture.result()[0]
+    returnedState = httpFuture.result()[1]
+
     if returnedState != state:
         raise Exception("Detected attempt at CSRF")
     
-    print(code)
-    raise NotImplementedError("Coming Soon!")
+    authString = base64.b64encode(bytes(f"{client_id}:{client_secret}",'utf-8')).decode('utf-8')
+    tokens = requests.post('https://accounts.spotify.com/api/token',{
+        'grant_type': 'authorization_code',
+        'code': returnedCode,
+        'redirect_uri': 'http://127.0.0.1:8080/callback'
+    },headers={
+        'Authorization': f'Basic {authString}'
+    }).json()
+
+    if tokens.get("error"):
+        raise Exception(f'Authorization Error: {tokens.get("error")}')
+    
+    return tokens

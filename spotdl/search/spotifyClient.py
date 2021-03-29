@@ -1,6 +1,6 @@
 from spotipy import Spotify
 from spotipy.oauth2 import SpotifyClientCredentials
-from spotdl.search.spotifyUserClient import get_user_auth_token
+from spotdl.search.spotifyWebviewAuth import get_tokens
 
 
 class Singleton(type):
@@ -30,17 +30,19 @@ class Singleton(type):
         # check if initialization has been completed, if yes, raise an Exception
         if cls._instance and cls._instance.is_initialized():
             raise Exception('A spotify client has already been initialized')
+        credentialManager = None
         if userAuth:
-            authToken = get_user_auth_token(client_id,client_secret)
-            cls._instance = super().__call__(auth=authToken)
-            return cls._instance
+            tokens = get_tokens(
+                client_id,
+                client_secret
+            )
         else:
             credentialManager = SpotifyClientCredentials(
                 client_id=client_id,
                 client_secret=client_secret
             )
-            cls._instance = super().__call__(client_credentials_manager=credentialManager)
-            return cls._instance
+        cls._instance = super().__call__(auth_manager=credentialManager)
+        return cls._instance
 
 
 class SpotifyClient(Spotify, metaclass=Singleton):
