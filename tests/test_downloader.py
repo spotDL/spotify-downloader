@@ -74,6 +74,7 @@ def setup(tmpdir, monkeypatch):
         asyncio.subprocess, "create_subprocess_shell", fake_create_subprocess_shell
     )
     monkeypatch.setattr(embed_metadata, "set_id3_data", lambda *_: None)
+    monkeypatch.setattr(embed_metadata, "_set_id3_mp3", lambda *_: None)
     data = SimpleNamespace()
     data.directory = tmpdir
     yield data
