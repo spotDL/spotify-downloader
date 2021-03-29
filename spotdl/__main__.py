@@ -2,7 +2,6 @@
 import argparse
 import os
 import sys
-import asyncio
 
 # ! The actual download stuff
 from spotdl.download.downloader import DownloadManager
@@ -169,7 +168,12 @@ def parse_arguments():
     )
     parser.add_argument("url", type=str, nargs="+", help="URL to a song/album/playlist")
     parser.add_argument("-o", "--output", help="Output directory path", dest="path")
-    parser.add_argument("--user-auth", help="Use User Authentication", action='store_true', dest="userAuth")
+    parser.add_argument(
+        "--user-auth",
+        help="Use User Authentication",
+        action='store_true',
+        dest="userAuth"
+    )
 
     return parser.parse_args()
 

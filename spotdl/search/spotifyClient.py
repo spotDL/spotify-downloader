@@ -23,7 +23,7 @@ class Singleton(type):
 
         `str` `client_secret` : client secret for your client id
 
-        userAuth : Determines if the Authorization Code Flow or 
+        userAuth : Determines if the Authorization Code Flow or
                    the Client Credentials Flow is used
 
         creates and caches a spotify client if a client doesn't exist. Can only be called
@@ -46,7 +46,6 @@ class Singleton(type):
             )
         cls._instance = super().__call__(auth_manager=credentialManager)
         return cls._instance
-        
 
 
 class SpotifyClient(Spotify, metaclass=Singleton):

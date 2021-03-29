@@ -167,6 +167,7 @@ def get_playlist_tracks(playlistUrl: str) -> List[SongObj]:
 
     return playlistTracks
 
+
 def get_saved_tracks() -> List[SongObj]:
     '''
     returns a `list<songObj>` containing Url's of each track in the user's saved tracks
