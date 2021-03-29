@@ -1,5 +1,6 @@
 from spotipy import Spotify
 from spotipy.oauth2 import SpotifyClientCredentials
+from spotdl.search.spotifyUserClient import get_user_auth_token
 
 
 class Singleton(type):
@@ -16,7 +17,7 @@ class Singleton(type):
                             '(client_id, client_secret) first.')
         return cls._instance
 
-    def init(cls, client_id: str, client_secret: str) -> "Singleton":
+    def init(cls, client_id: str, client_secret: str, userAuth: bool) -> "Singleton":
         '''
         `str` `client_id` : client id from your spotify account
 
@@ -29,13 +30,17 @@ class Singleton(type):
         # check if initialization has been completed, if yes, raise an Exception
         if cls._instance and cls._instance.is_initialized():
             raise Exception('A spotify client has already been initialized')
-
-        credentialManager = SpotifyClientCredentials(
-            client_id=client_id,
-            client_secret=client_secret
-        )
-        cls._instance = super().__call__(client_credentials_manager=credentialManager)
-        return cls._instance
+        if userAuth:
+            authToken = get_user_auth_token(client_id,client_secret)
+            cls._instance = super().__call__(auth=authToken)
+            return cls._instance
+        else:
+            credentialManager = SpotifyClientCredentials(
+                client_id=client_id,
+                client_secret=client_secret
+            )
+            cls._instance = super().__call__(client_credentials_manager=credentialManager)
+            return cls._instance
 
 
 class SpotifyClient(Spotify, metaclass=Singleton):

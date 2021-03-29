@@ -2,6 +2,7 @@
 import argparse
 import os
 import sys
+import asyncio
 
 # ! The actual download stuff
 from spotdl.download.downloader import DownloadManager
@@ -62,6 +63,12 @@ To download a playlist, run:
     spotdl [playlistUrl]
     ex. spotdl https://open.spotify.com/playlist/37i9dQZF1E8UXBoz02kGID?si=oGd5ctlyQ0qblj_bL6WWow
 
+To download a private playlist, run:
+    spotdl --user-auth [playlistUrl]
+
+To download your saved songs, run:
+    spotdl --user-auth saved
+
 To search for and download a song, run, with quotation marks:
 Note: This is not accurate and often causes errors.
     spotdl [songQuery]
@@ -91,8 +98,9 @@ def console_entry_point():
     arguments = parse_arguments()
 
     SpotifyClient.init(
-        client_id='4fe3fecfe5334023a1472516cc99d805',
-        client_secret='0f02b7c483c04257984695007a4a8d5c'
+        client_id='0a5a8dc5e464485dbdaaa8f02f08f29d',
+        client_secret='eb4d2f5b2d94481ca3e4531bf0516173',
+        userAuth=arguments.userAuth
     )
 
     if arguments.path:
@@ -154,6 +162,7 @@ def parse_arguments():
     )
     parser.add_argument("url", type=str, nargs="+", help="URL to a song/album/playlist")
     parser.add_argument("-o", "--output", help="Output directory path", dest="path")
+    parser.add_argument("--user-auth", help="Use User Authentication", action='store_true', dest="userAuth")
 
     return parser.parse_args()
 
