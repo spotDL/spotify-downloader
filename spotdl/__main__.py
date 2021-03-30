@@ -99,7 +99,7 @@ def console_entry_point():
 
     SpotifyClient.init(
         client_id='4fe3fecfe5334023a1472516cc99d805',
-        client_secret='0f02b7c483c04257984695007a4a8d5c'
+        client_secret='0f02b7c483c04257984695007a4a8d5c',
         userAuth=arguments.userAuth
     )
 
