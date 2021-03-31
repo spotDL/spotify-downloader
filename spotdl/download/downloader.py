@@ -17,6 +17,7 @@ from pytube import YouTube
 
 from spotdl.download.progressHandlers import DisplayManager, DownloadTracker
 from spotdl.search.songObj import SongObj
+from spotdl.download import ffmpeg
 
 
 # ==========================
@@ -43,6 +44,7 @@ class DownloadManager():
             # ! it is default since Python 3.8 but has to be changed for previous versions
             loop = asyncio.ProactorEventLoop()
             asyncio.set_event_loop(loop)
+
         self.loop = asyncio.get_event_loop()
         # ! semaphore is required to limit concurrent asyncio executions
         self.semaphore = asyncio.Semaphore(self.poolSize)
@@ -206,65 +208,26 @@ class DownloadManager():
             if downloadedFilePathString is None:
                 return None
 
-            downloadedFilePath = Path(downloadedFilePathString)
-
             if dispayProgressTracker:
                 dispayProgressTracker.notify_youtube_download_completion()
 
-            # convert downloaded file to MP3 with normalization
+            downloadedFilePath = Path(downloadedFilePathString)
 
-            # ! -af loudnorm=I=-7:LRA applies EBR 128 loudness normalization algorithm with
-            # ! intergrated loudness target (I) set to -17, using values lower than -15
-            # ! causes 'pumping' i.e. rhythmic variation in loudness that should not
-            # ! exist -loud parts exaggerate, soft parts left alone.
-            # !
-            # ! dynaudnorm applies dynamic non-linear RMS based normalization, this is what
-            # ! actually normalized the audio. The loudnorm filter just makes the apparent
-            # ! loudness constant
-            # !
-            # ! apad=pad_dur=2 adds 2 seconds of silence toward the end of the track, this is
-            # ! done because the loudnorm filter clips/cuts/deletes the last 1-2 seconds on
-            # ! occasion especially if the song is EDM-like, so we add a few extra seconds to
-            # ! combat that.
-            # !
-            # ! -acodec libmp3lame sets the encoded to 'libmp3lame' which is far better
-            # ! than the default 'mp3_mf', '-abr true' automatically determines and passes the
-            # ! audio encoding bitrate to the filters and encoder. This ensures that the
-            # ! sampled length of songs matches the actual length (i.e. a 5 min song won't display
-            # ! as 47 seconds long in your music player, yeah that was an issue earlier.)
-
-            command = 'ffmpeg -v quiet -y -i "%s" -acodec libmp3lame -abr true ' \
-                f'-b:a {trackAudioStream.bitrate} ' \
-                '-af "apad=pad_dur=2, dynaudnorm, loudnorm=I=-17" "%s"'
-
-            # ! bash/ffmpeg on Unix systems need to have excape char (\) for special characters: \$
-            # ! alternatively the quotes could be reversed (single <-> double) in the command then
-            # ! the windows special characters needs escaping (^): ^\  ^&  ^|  ^>  ^<  ^^
-
-            if sys.platform == 'win32':
-                formattedCommand = command % (
-                    str(downloadedFilePath),
-                    str(convertedFilePath)
-                )
-            else:
-                formattedCommand = command % (
-                    str(downloadedFilePath).replace('$', '\$'),
-                    str(convertedFilePath).replace('$', '\$')
-                )
-
-            process = await asyncio.subprocess.create_subprocess_shell(formattedCommand)
-            _ = await process.communicate()
-
-            # ! Wait till converted file is actually created
-            while True:
-                if convertedFilePath.is_file():
-                    break
+            ffmpeg_success = await ffmpeg.convert(
+                trackAudioStream=trackAudioStream,
+                downloadedFilePath=downloadedFilePath,
+                convertedFilePath=convertedFilePath
+            )
 
             if dispayProgressTracker:
                 dispayProgressTracker.notify_conversion_completion()
 
-            # embed song details
-            self.set_id3_data(convertedFilePath, songObj)
+            if ffmpeg_success is False:
+                # delete the file that wasn't successfully converted
+                convertedFilePath.unlink()
+            else:
+                # if a file was successfully downloaded, tag it
+                self.set_id3_data(convertedFilePath, songObj)
 
             # Do the necessary cleanup
             if dispayProgressTracker:
