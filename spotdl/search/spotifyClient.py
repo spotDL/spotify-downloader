@@ -52,7 +52,7 @@ class Singleton(type):
 class SpotifyClient(Spotify, metaclass=Singleton):
     """
     This is the Spotify client meant to be used in the app. Has to be initialized first by
-    calling `SpotifyClient.init(client_id, client_secret, userAuth)`.
+    calling `SpotifyClient.init(client_id, client_secret, user_auth)`.
     """
     _initialized = False
 
