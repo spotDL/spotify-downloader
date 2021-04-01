@@ -7,6 +7,7 @@ import pytest
 
 from spotdl.download.downloader import DownloadManager
 from spotdl.search.songObj import SongObj
+from spotdl.download import ffmpeg
 
 
 def create_song_obj(name="test song", artistsInput:list=["test artist"]) -> SongObj:
@@ -53,14 +54,22 @@ class FakeProcess:
         self._output.open("w").close()
         return (None, None)
 
+    async def wait(self):
+        return None
 
-async def fake_create_subprocess_shell(command):
+    @property
+    def returncode(self):
+        return 0
+
+
+async def fake_create_subprocess_shell(command, stdout=None, stderr=None):
     return FakeProcess(command)
 
 
 @pytest.fixture()
 def setup(tmpdir, monkeypatch):
     monkeypatch.chdir(tmpdir)
+    monkeypatch.setattr(ffmpeg, "has_correct_version", lambda *_: True)
     monkeypatch.setattr(
         asyncio.subprocess, "create_subprocess_shell", fake_create_subprocess_shell
     )
