@@ -64,9 +64,6 @@ To download a playlist, run:
     spotdl [playlistUrl]
     ex. spotdl https://open.spotify.com/playlist/37i9dQZF1E8UXBoz02kGID?si=oGd5ctlyQ0qblj_bL6WWow
 
-To download a private playlist, run:
-    spotdl --user-auth [playlistUrl]
-
 To download your saved songs, run:
     spotdl --user-auth saved
 
