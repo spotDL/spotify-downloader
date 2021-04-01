@@ -2,7 +2,6 @@ __all__ = [
     'provider',
     'songObj',
     'spotifyClient',
-    'spotifyUserAuth',
     'utils'
 ]
 
