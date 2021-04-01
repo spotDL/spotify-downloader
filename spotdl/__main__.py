@@ -102,8 +102,8 @@ def console_entry_point():
         sys.exit(1)
 
     SpotifyClient.init(
-        client_id='4fe3fecfe5334023a1472516cc99d805',
-        client_secret='0f02b7c483c04257984695007a4a8d5c',
+        client_id = '4f7e80555b1f4dfeac079d1540e34a42',
+        client_secret = '2755008d77f248a5b485b57b1268d196',
         userAuth=arguments.userAuth
     )
 
