@@ -175,7 +175,6 @@ def get_saved_tracks() -> List[SongObj]:
     '''
 
     spotifyClient = SpotifyClient()
-    savedTracks = []
 
     initialRequest = spotifyClient.current_user_saved_tracks()
     librarySize = int(initialRequest["total"])
@@ -189,8 +188,8 @@ def get_saved_tracks() -> List[SongObj]:
                         offset=i
                     )
                 )
-        doneFutures = wait(futures).done
-        doneLists = map(lambda x: x.result()["items"],doneFutures)
+        doneFutures = wait(futures)[0]
+        doneLists = map(lambda x: x.result()["items"], doneFutures)
         songObjFutures = []
         for currList in doneLists:
             for songSimplified in currList:
@@ -200,10 +199,6 @@ def get_saved_tracks() -> List[SongObj]:
                         'https://open.spotify.com/track/' + songSimplified['track']['id']
                     )
                 )
-        doneSongObjsFutures = wait(songObjFutures).done
-        doneSongObjs = []
-        for songObjFuture in doneSongObjsFutures:
-            doneSongObjs.append(songObjFuture.result())
+        doneSongObjsFutures = wait(songObjFutures)[0]
+        doneSongObjs = list(map(lambda x: x.result(), doneSongObjsFutures))
         return doneSongObjs
-        
-
