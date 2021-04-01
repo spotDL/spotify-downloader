@@ -1,6 +1,5 @@
 from spotipy import Spotify
-from spotipy.oauth2 import SpotifyClientCredentials
-from spotdl.search.spotifyUserAuth import SpotifyUserAuth
+from spotipy.oauth2 import SpotifyClientCredentials, SpotifyOAuth
 
 
 class Singleton(type):
@@ -35,9 +34,11 @@ class Singleton(type):
             raise Exception('A spotify client has already been initialized')
         credentialManager = None
         if userAuth:
-            credentialManager = SpotifyUserAuth(
+            credentialManager = SpotifyOAuth(
                 client_id=client_id,
-                client_secret=client_secret
+                client_secret=client_secret,
+                redirect_uri="http://127.0.0.1:8080",
+                scope="playlist-read-private playlist-read-collaborative user-library-read"
             )
         else:
             credentialManager = SpotifyClientCredentials(
