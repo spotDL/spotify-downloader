@@ -15,6 +15,7 @@ from spotdl.search.utils import (
     get_saved_tracks,
     search_for_song,
 )
+from spotdl.download import ffmpeg
 
 # ! Usage is simple - call:
 #   'python __main__.py <links, search terms, tracking files separated by spaces>
@@ -97,6 +98,9 @@ def console_entry_point():
     '''
     arguments = parse_arguments()
 
+    if ffmpeg.has_correct_version(arguments.ignore_ffmpeg_version) is False:
+        sys.exit(1)
+
     SpotifyClient.init(
         client_id='4fe3fecfe5334023a1472516cc99d805',
         client_secret='0f02b7c483c04257984695007a4a8d5c',
@@ -174,6 +178,8 @@ def parse_arguments():
         action='store_true',
         dest="userAuth"
     )
+    parser.add_argument("--ignore-ffmpeg-version",
+                        help="Ignore ffmpeg version", action="store_true")
 
     return parser.parse_args()
 
