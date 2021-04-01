@@ -2,6 +2,7 @@ from typing import List
 
 from spotdl.search.songObj import SongObj
 from spotdl.search.spotifyClient import SpotifyClient
+from concurrent.futures import ThreadPoolExecutor, wait
 
 
 def search_for_song(query: str) -> SongObj:
@@ -176,27 +177,33 @@ def get_saved_tracks() -> List[SongObj]:
     spotifyClient = SpotifyClient()
     savedTracks = []
 
-    savedResponse = spotifyClient.current_user_saved_tracks()
+    initialRequest = spotifyClient.current_user_saved_tracks()
+    librarySize = int(initialRequest["total"])
+    with ThreadPoolExecutor() as pool:
+        futures = []
+        for i in range(librarySize):
+            if i % 20 == 0:
+                futures.append(
+                    pool.submit(
+                        spotifyClient.current_user_saved_tracks,
+                        offset=i
+                    )
+                )
+        doneFutures = wait(futures).done
+        doneLists = map(lambda x: x.result()["items"],doneFutures)
+        songObjFutures = []
+        for currList in doneLists:
+            for songSimplified in currList:
+                songObjFutures.append(
+                    pool.submit(
+                        SongObj.from_url,
+                        'https://open.spotify.com/track/' + songSimplified['track']['id']
+                    )
+                )
+        doneSongObjsFutures = wait(songObjFutures).done
+        doneSongObjs = []
+        for songObjFuture in doneSongObjsFutures:
+            doneSongObjs.append(songObjFuture.result())
+        return doneSongObjs
+        
 
-    # while loop to mimic do-while
-    while True:
-
-        for songEntry in savedResponse['items']:
-            if songEntry['track'] is None or songEntry['track']['id'] is None:
-                continue
-
-            song = SongObj.from_url(
-                'https://open.spotify.com/track/' + songEntry['track']['id'])
-
-            if song.get_youtube_link() is not None:
-                savedTracks.append(song)
-
-        # check if more tracks are to be passed
-        if savedResponse['next']:
-            savedResponse = spotifyClient.current_user_saved_tracks(
-                offset=savedResponse['offset'] + savedResponse['limit']
-            )
-        else:
-            break
-
-    return savedTracks
