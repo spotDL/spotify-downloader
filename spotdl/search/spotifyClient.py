@@ -16,7 +16,7 @@ class Singleton(type):
                             '(client_id, client_secret) first.')
         return cls._instance
 
-    def init(cls, client_id: str, client_secret: str, userAuth: bool) -> "Singleton":
+    def init(cls, client_id: str, client_secret: str, user_auth: bool) -> "Singleton":
         '''
         `str` `client_id` : client id from your spotify account
 
