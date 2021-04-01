@@ -151,9 +151,11 @@ def console_entry_point():
 
             elif request == "saved":
                 print('Fetching Saved Songs...')
-                songObjList = get_saved_tracks()
-
-                downloader.download_multiple_songs(songObjList)
+                if arguments.userAuth:
+                    songObjList = get_saved_tracks()
+                    downloader.download_multiple_songs(songObjList)
+                else:
+                    print("Cannot download saved songs without the --user-auth flag. Try again.")
 
             else:
                 print('Searching for song "%s"...' % request)

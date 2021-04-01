@@ -33,7 +33,7 @@ class Singleton(type):
         if cls._instance and cls._instance.is_initialized():
             raise Exception('A spotify client has already been initialized')
         credentialManager = None
-        if userAuth:
+        if user_auth:
             credentialManager = SpotifyOAuth(
                 client_id=client_id,
                 client_secret=client_secret,
