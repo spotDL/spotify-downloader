@@ -44,7 +44,7 @@ libpostproc    55. 10.100 / 55. 10.100
 
 def test_valid_version(fake_process):
     fake_process.register_subprocess(
-        ["ffmpeg", "-version"], stderr=valid_version
+        ["ffmpeg", "-version"], stdout=valid_version
     )
 
     assert ffmpeg.has_correct_version() == True
@@ -58,7 +58,7 @@ def test_invalid_version(fake_process, capsys):
     assert ffmpeg.has_correct_version() == False
 
     output, error = capsys.readouterr()
-    assert "Your ffmpeg version couldn't be detected" in error
+    assert "Your FFmpeg version couldn't be detected" in error
 
 
 def test_outdated_version(fake_process, capsys):
@@ -69,4 +69,4 @@ def test_outdated_version(fake_process, capsys):
     assert ffmpeg.has_correct_version() == False
 
     output, error = capsys.readouterr()
-    assert "Your ffmpeg installation is too old (1.0), please update" in error
+    assert "Your FFmpeg installation is too old (1.0), please update to 4.3+\n" in error
