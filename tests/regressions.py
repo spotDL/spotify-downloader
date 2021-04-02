@@ -1,6 +1,7 @@
 import sys
 
 from spotdl.__main__ import console_entry_point
+from spotdl.download import ffmpeg
 
 SONGS = {
     "https://open.spotify.com/track/6CN3e26iQSj1N5lomh0mfO": "Eminem - Like Toy Soldiers.mp3",
@@ -14,6 +15,7 @@ def test_regressions(monkeypatch, tmpdir):
     """
     monkeypatch.chdir(tmpdir)
     monkeypatch.setattr(sys, "argv", ["dummy", *SONGS.keys()])
+    monkeypatch.setattr(ffmpeg, "has_correct_version", lambda *_: True)
 
     console_entry_point()
 
