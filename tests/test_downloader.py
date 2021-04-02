@@ -105,7 +105,7 @@ def test_download_long_artists_song(setup):
 def test_download_long_name_song(setup):
     # ! Generates a long title name,numbered 1 to 260, to trigger filename length cases
     # ! In this case the program cannot save the song, and fails with an OSError
-    song = ''.join(list(map(lambda x:str(x),range(260))))
+    song = ''.join([str(i) for i in range(260)]d)
     song_obj = create_song_obj(name=song)
 
     with pytest.raises(OSError):
