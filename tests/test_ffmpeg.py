@@ -52,7 +52,7 @@ def test_valid_version(fake_process):
 
 def test_invalid_version(fake_process, capsys):
     fake_process.register_subprocess(
-        ["ffmpeg", "-version"], stderr=invalid_version
+        ["ffmpeg", "-version"], stdout=invalid_version
     )
 
     assert ffmpeg.has_correct_version() == False
@@ -63,7 +63,7 @@ def test_invalid_version(fake_process, capsys):
 
 def test_outdated_version(fake_process, capsys):
     fake_process.register_subprocess(
-        ["ffmpeg", "-version"], stderr=outdated_version
+        ["ffmpeg", "-version"], stdout=outdated_version
     )
 
     assert ffmpeg.has_correct_version() == False
