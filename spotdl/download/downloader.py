@@ -28,9 +28,9 @@ from spotdl.download import ffmpeg
 # === Helper function ===
 # ========================
 
-def _get_converted_file_path(song_obj:SongObj)->Path:
+def _get_converted_file_path(song_obj: SongObj) -> Path:
     # build file name of converted file
-    artistStr = ''
+    artist_str = ''
 
     # ! we eliminate contributing artist names that are also in the song name, else we
     # ! would end up with things like 'Jetta, Mastubs - I'd love to change the world
@@ -42,8 +42,8 @@ def _get_converted_file_path(song_obj:SongObj)->Path:
     # make sure that main artist is included in artistStr even if they
     # are in the song name, for example
     # Lil Baby - Never Recover (Lil Baby & Gunna, Drake).mp3
-    if songObj.get_contributing_artists()[0].lower() not in artist_str.lower():
-        artistStr = songObj.get_contributing_artists()[0] + ', ' + artist_str
+    if song_obj.get_contributing_artists()[0].lower() not in artist_str.lower():
+        artist_str = song_obj.get_contributing_artists()[0] + ', ' + artist_str
 
     # ! the ...[:-2] is to avoid the last ', ' appended to artistStr
     converted_file_name = artist_str[:-2] + \
@@ -53,11 +53,13 @@ def _get_converted_file_path(song_obj:SongObj)->Path:
     for disallowed_char in ['/', '?', '\\', '*', '|', '<', '>']:
         if disallowed_char in converted_file_name:
             converted_file_name = converted_file_name.replace(
-                disallowed_char, '')
+                disallowed_char,
+                ''
+            )
 
     # ! double quotes (") and semi-colons (:) are also disallowed characters but we would
     # ! like to retain their equivalents, so they aren't removed in the prior loop
-    converted_fileName = converted_file_name.replace(
+    converted_file_name = converted_file_name.replace(
         '"', "'").replace(':', '-')
 
     # ! Checks if the file name is too long (256 in both Windows and Linux),
@@ -69,7 +71,7 @@ def _get_converted_file_path(song_obj:SongObj)->Path:
     if min_filename_length >= 256:
         raise OSError("File name for this song cannot fit in 256 characters")
 
-    converted_file_path = Path(".", f"{convertedFileName}.mp3")
+    converted_file_path = Path(".", f"{converted_file_name}.mp3")
 
     # ! Checks if a file path is too long
     is_path_invalid = True
@@ -89,7 +91,7 @@ def _get_converted_file_path(song_obj:SongObj)->Path:
         # this is windows specific (disallowed chars)
         for disallowed_char in ['/', '?', '\\', '*', '|', '<', '>']:
             if disallowed_char in smaller_name:
-                smallerName = smaller_name.replace(disallowed_char, '')
+                smaller_name = smaller_name.replace(disallowed_char, '')
 
         # ! double quotes (") and semi-colons (:) are also disallowed characters
         # ! but we would like to retain their equivalents, so they aren't removed
@@ -102,7 +104,7 @@ def _get_converted_file_path(song_obj:SongObj)->Path:
             raise OSError("Path for this song cannot fit in 260 characters")
         converted_file_name = f"{smaller_name}.mp3"
         converted_file_path = smaller_path
-    
+
     return converted_file_path
 
 
@@ -139,7 +141,6 @@ class DownloadManager():
 
     def __exit__(self, type, value, traceback):
         self.displayManager.close()
-
 
     def download_single_song(self, songObj: SongObj) -> None:
         '''
