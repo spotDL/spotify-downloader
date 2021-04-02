@@ -108,13 +108,9 @@ def test_download_long_name_song(setup):
     song = ''.join(list(map(lambda x:str(x),range(260))))
     song_obj = create_song_obj(name=song)
 
-    failed = False
-    try:
+    with pytest.raises(OSError):
         with DownloadManager() as dm:
             dm.download_single_song(song_obj)
-    except OSError:
-        failed = True
-    assert failed
 
 
 def test_download_multiple_songs(pytestconfig, setup):
