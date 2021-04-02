@@ -24,6 +24,87 @@ from spotdl.download import ffmpeg
 # === Base functionality ===
 # ==========================
 
+# ========================
+# === Helper function ===
+# ========================
+
+def _get_converted_file_path()->Path:
+    # build file name of converted file
+    artistStr = ''
+
+    # ! we eliminate contributing artist names that are also in the song name, else we
+    # ! would end up with things like 'Jetta, Mastubs - I'd love to change the world
+    # ! (Mastubs REMIX).mp3' which is kinda an odd file name.
+    for artist in songObj.get_contributing_artists():
+        if artist.lower() not in songObj.get_song_name().lower():
+            artistStr += artist + ', '
+
+    # make sure that main artist is included in artistStr even if they
+    # are in the song name, for example
+    # Lil Baby - Never Recover (Lil Baby & Gunna, Drake).mp3
+    if songObj.get_contributing_artists()[0].lower() not in artistStr.lower():
+        artistStr = songObj.get_contributing_artists()[0] + ', ' + artistStr
+
+    # ! the ...[:-2] is to avoid the last ', ' appended to artistStr
+    convertedFileName = artistStr[:-2] + \
+        ' - ' + songObj.get_song_name()
+
+    # ! this is windows specific (disallowed chars)
+    for disallowedChar in ['/', '?', '\\', '*', '|', '<', '>']:
+        if disallowedChar in convertedFileName:
+            convertedFileName = convertedFileName.replace(
+                disallowedChar, '')
+
+    # ! double quotes (") and semi-colons (:) are also disallowed characters but we would
+    # ! like to retain their equivalents, so they aren't removed in the prior loop
+    convertedFileName = convertedFileName.replace(
+        '"', "'").replace(':', '-')
+
+    # ! Checks if the file name is too long (256 in both Windows and Linux),
+    # ! with some room to spare for file extensions and dashes.
+    minFilenameLength = 0
+    minFilenameLength += len(songObj.get_song_name())
+    minFilenameLength += len(songObj.get_contributing_artists()[0])
+    minFilenameLength += len(" - .flac")
+    if minFilenameLength >= 256:
+        raise OSError("File name for this song cannot fit in 256 characters")
+
+    convertedFilePath = Path(".", f"{convertedFileName}.mp3")
+
+    # ! Checks if a file path is too long
+    isPathInvalid = True
+    try:
+        # ! 260 is the path name length limit in Windows
+        if len(str(convertedFilePath.resolve())) < 260:
+            isPathInvalid = False
+    except WindowsError:
+        pass
+
+    if isPathInvalid:
+        print("Path was too long. Using Small Path.")
+
+        # Only use the first artist if the song path turns out to be too long
+        smallerName = f"{songObj.get_contributing_artists()[0]} - {songObj.get_song_name()}"
+
+        # this is windows specific (disallowed chars)
+        for disallowedChar in ['/', '?', '\\', '*', '|', '<', '>']:
+            if disallowedChar in smallerName:
+                smallerName = smallerName.replace(disallowedChar, '')
+
+        # ! double quotes (") and semi-colons (:) are also disallowed characters
+        # ! but we would like to retain their equivalents, so they aren't removed
+        # ! in the prior loop
+        smallerName = smallerName.replace('"', "'").replace(':', '-')
+
+        # Checks if the overall path is too long
+        smallerPath = Path(".", f"{smallerName}.mp3")
+        if len(str(smallerPath.resolve())) > 260:
+            raise OSError("Path for this song cannot fit in 260 characters")
+        convertedFileName = f"{smallerName}.mp3"
+        convertedFilePath = smallerPath
+    
+    return convertedFilePath
+
 
 # ===========================================================
 # === The Download Manager (the tyrannical boss lady/guy) ===
@@ -59,82 +140,6 @@ class DownloadManager():
     def __exit__(self, type, value, traceback):
         self.displayManager.close()
 
-    def _get_converted_file_path()->Path:
-        # build file name of converted file
-        artistStr = ''
-
-        # ! we eliminate contributing artist names that are also in the song name, else we
-        # ! would end up with things like 'Jetta, Mastubs - I'd love to change the world
-        # ! (Mastubs REMIX).mp3' which is kinda an odd file name.
-        for artist in songObj.get_contributing_artists():
-            if artist.lower() not in songObj.get_song_name().lower():
-                artistStr += artist + ', '
-
-        # make sure that main artist is included in artistStr even if they
-        # are in the song name, for example
-        # Lil Baby - Never Recover (Lil Baby & Gunna, Drake).mp3
-        if songObj.get_contributing_artists()[0].lower() not in artistStr.lower():
-            artistStr = songObj.get_contributing_artists()[0] + ', ' + artistStr
-
-        # ! the ...[:-2] is to avoid the last ', ' appended to artistStr
-        convertedFileName = artistStr[:-2] + \
-            ' - ' + songObj.get_song_name()
-
-        # ! this is windows specific (disallowed chars)
-        for disallowedChar in ['/', '?', '\\', '*', '|', '<', '>']:
-            if disallowedChar in convertedFileName:
-                convertedFileName = convertedFileName.replace(
-                    disallowedChar, '')
-
-        # ! double quotes (") and semi-colons (:) are also disallowed characters but we would
-        # ! like to retain their equivalents, so they aren't removed in the prior loop
-        convertedFileName = convertedFileName.replace(
-            '"', "'").replace(':', '-')
-
-        # ! Checks if the file name is too long (256 in both Windows and Linux),
-        # ! with some room to spare for file extensions and dashes.
-        minFilenameLength = 0
-        minFilenameLength += len(songObj.get_song_name())
-        minFilenameLength += len(songObj.get_contributing_artists()[0])
-        minFilenameLength += len(" - .flac")
-        if minFilenameLength >= 256:
-            raise OSError("File name for this song cannot fit in 256 characters")
-
-        convertedFilePath = Path(".", f"{convertedFileName}.mp3")
-
-        # ! Checks if a file path is too long
-        isPathInvalid = True
-        try:
-            # ! 260 is the path name length limit in Windows
-            if len(str(convertedFilePath.resolve())) < 260:
-                isPathInvalid = False
-        except WindowsError:
-            pass
-
-        if isPathInvalid:
-            print("Path was too long. Using Small Path.")
-
-            # Only use the first artist if the song path turns out to be too long
-            smallerName = f"{songObj.get_contributing_artists()[0]} - {songObj.get_song_name()}"
-
-            # this is windows specific (disallowed chars)
-            for disallowedChar in ['/', '?', '\\', '*', '|', '<', '>']:
-                if disallowedChar in smallerName:
-                    smallerName = smallerName.replace(disallowedChar, '')
-
-            # ! double quotes (") and semi-colons (:) are also disallowed characters
-            # ! but we would like to retain their equivalents, so they aren't removed
-            # ! in the prior loop
-            smallerName = smallerName.replace('"', "'").replace(':', '-')
-
-            # Checks if the overall path is too long
-            smallerPath = Path(".", f"{smallerName}.mp3")
-            if len(str(smallerPath.resolve())) > 260:
-                raise OSError("Path for this song cannot fit in 260 characters")
-            convertedFileName = f"{smallerName}.mp3"
-            convertedFilePath = smallerPath
-        
-        return convertedFilePath
 
     def download_single_song(self, songObj: SongObj) -> None:
         '''
