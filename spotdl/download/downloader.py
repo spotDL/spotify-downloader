@@ -28,7 +28,7 @@ from spotdl.download import ffmpeg
 # === Helper function ===
 # ========================
 
-def _get_converted_file_path()->Path:
+def _get_converted_file_path(songObj:SongObj)->Path:
     # build file name of converted file
     artistStr = ''
 
