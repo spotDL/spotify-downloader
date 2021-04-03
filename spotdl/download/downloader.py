@@ -80,7 +80,7 @@ def _get_converted_file_path(song_obj: SongObj) -> Path:
     for artist in song_obj.get_contributing_artists():
         if artist.lower() not in song_obj.get_song_name():
             artists_filtered.append(artist)
-        elif artist.lower() is song_obj.get_contributing_artists()[0]:
+        elif artist.lower() is song_obj.get_contributing_artists()[0].lower():
             artists_filtered.append(artist)
 
     artist_str = ", ".join(artists_filtered)
