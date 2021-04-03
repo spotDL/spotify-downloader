@@ -177,7 +177,7 @@ class SongObj():
         returns songs's display name.
         '''
 
-        return str(", ".join(self.get_contributing_artists()) + " - " + self.get_song_name())
+        return f"{', '.join(self.get_contributing_artists())} - {self.get_song_name()}"
 
     # ! Album Details:
 
