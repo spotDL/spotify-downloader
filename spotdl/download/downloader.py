@@ -75,7 +75,7 @@ def _get_converted_file_path(song_obj: SongObj) -> Path:
     
     artists_not_in_songname = list(
         filter(
-            lambda x: (x not in song_obj.get_song_name) or (x is song_obj.get_contributing_artists()[0]),
+            lambda x: (x.lower() not in song_obj.get_song_name().lower()) or (x.lower() is song_obj.get_contributing_artists()[0].lower()),
             song_obj.get_contributing_artists()
         )
     )
