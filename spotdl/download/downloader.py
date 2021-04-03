@@ -41,12 +41,13 @@ def _sanitize_filename(input_str: str) -> str:
     # ! double quotes (") and semi-colons (:) are also disallowed characters but we would
     # ! like to retain their equivalents, so they aren't removed in the prior loop
     output = output.replace('"', "'").replace(':', '-')
-    
+
     return output
 
-def _get_smaller_file_path(input: SongObj) -> Path:
+
+def _get_smaller_file_path(input_song: SongObj) -> Path:
     # Only use the first artist if the song path turns out to be too long
-    smaller_name = f"{song_obj.get_contributing_artists()[0]} - {song_obj.get_song_name()}.mp3"
+    smaller_name = f"{input_song.get_contributing_artists()[0]} - {input_song.get_song_name()}.mp3"
 
     # this is windows specific (disallowed chars)
     for disallowed_char in ['/', '?', '\\', '*', '|', '<', '>']:
@@ -59,28 +60,30 @@ def _get_smaller_file_path(input: SongObj) -> Path:
     smaller_name = _sanitize_filename(smaller_name.replace('"', "'").replace(':', '-'))
 
     try:
-        return Path(".",f"{smaller_name}.mp3").resolve()
-    except Error:
+        return Path(".", f"{smaller_name}.mp3").resolve()
+    except Exception:
         raise OSError("Cannot save song due to path issues.")
+
 
 def _get_converted_file_path(song_obj: SongObj) -> Path:
 
     # ! we eliminate contributing artist names that are also in the song name, else we
     # ! would end up with things like 'Jetta, Mastubs - I'd love to change the world
     # ! (Mastubs REMIX).mp3' which is kinda an odd file name.
-    
+
     # also make sure that main artist is included in artistStr even if they
     # are in the song name, for example
     # Lil Baby - Never Recover (Lil Baby & Gunna, Drake).mp3
-    
-    artists_not_in_songname = list(
-        filter(
-            lambda x: (x.lower() not in song_obj.get_song_name().lower()) or (x.lower() is song_obj.get_contributing_artists()[0].lower()),
-            song_obj.get_contributing_artists()
-        )
-    )
 
-    artist_str = ", ".join(artists_not_in_songname)
+    artists_filtered = []
+
+    for artist in song_obj.get_contributing_artists():
+        if artist.lower() not in song_obj.get_song_name():
+            artists_filtered.append(artist)
+        elif artist.lower() is song_obj.get_contributing_artists()[0]:
+            artists_filtered.append(artist)
+
+    artist_str = ", ".join(artists_filtered)
 
     converted_file_name = _sanitize_filename(f"{artist_str} - {song_obj.get_song_name()}.mp3")
 
@@ -89,7 +92,7 @@ def _get_converted_file_path(song_obj: SongObj) -> Path:
     # ! Checks if a file path is too long
     try:
         converted_file_path.resolve()
-    
+
     except WindowsError:
         print("Path was too long. Using Small Path.")
         return _get_smaller_file_path(song_obj)
