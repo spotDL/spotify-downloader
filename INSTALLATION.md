@@ -34,12 +34,6 @@ You can install spotDL by opening a terminal and typing:
 pip install spotdl
 ```
 
-If you encounter errors, our `hotfix` branch may be able to help you:
-
-1. `pip install pip-autoremove`
-2. `pip-autoremove spotdl`
-3. `pip cache purge`
-4. `pip install https://codeload.github.com/spotDL/spotify-downloader/zip/hotfix`
 
 If you require further help, ask in our [Discord Server](https://discord.gg/xCa23pwJWY)
 

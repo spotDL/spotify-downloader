@@ -10,7 +10,7 @@ def has_correct_version(skip_version_check: bool = False) -> bool:
         shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
     )
 
-    _, proc_out = process.communicate()
+    proc_out, _ = process.communicate()
 
     if process.returncode == 127:
         print("FFmpeg was not found, spotDL cannot continue.", file=sys.stderr)
@@ -20,12 +20,12 @@ def has_correct_version(skip_version_check: bool = False) -> bool:
         result = re.search(r"ffmpeg version \w?(\d+\.)?(\d+)", proc_out.decode("utf-8"))
 
         if result is None:
-            print("Your ffmpeg version couldn't be detected", file=sys.stderr)
+            print("Your FFmpeg version couldn't be detected", file=sys.stderr)
             return False
 
         version = result.group(0).replace("ffmpeg version ", "")
         if float(version) < 4.3:
-            print(f"Your ffmpeg installation is too old ({version}), please update",
+            print(f"Your FFmpeg installation is too old ({version}), please update to 4.3+\n",
                   file=sys.stderr)
             return False
 
