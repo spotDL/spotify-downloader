@@ -47,7 +47,7 @@ def _sanitize_filename(input_str: str) -> str:
 
 def _get_smaller_file_path(input_song: SongObj) -> Path:
     # Only use the first artist if the song path turns out to be too long
-    smaller_name = f"{input_song.get_contributing_artists()[0]} - {input_song.get_song_name()}.mp3"
+    smaller_name = f"{input_song.get_contributing_artists()[0]} - {input_song.get_song_name()}"
 
     # this is windows specific (disallowed chars)
     for disallowed_char in ['/', '?', '\\', '*', '|', '<', '>']:
@@ -89,11 +89,8 @@ def _get_converted_file_path(song_obj: SongObj) -> Path:
 
     converted_file_path = Path(".", f"{converted_file_name}")
 
-    # ! Checks if a file path is too long
-    try:
-        converted_file_path.resolve()
-
-    except WindowsError:
+    # ! Checks if a file name is too long (256 max on both linux and windows)
+    if len(str(converted_file_path.resolve().name)) > 256:
         print("Path was too long. Using Small Path.")
         return _get_smaller_file_path(song_obj)
 
