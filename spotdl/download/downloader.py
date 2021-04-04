@@ -60,9 +60,10 @@ def _get_smaller_file_path(input_song: SongObj) -> Path:
     smaller_name = _sanitize_filename(smaller_name.replace('"', "'").replace(':', '-'))
 
     try:
-        return Path(".", f"{smaller_name}.mp3").resolve()
-    except Exception:
-        raise OSError("Cannot save song due to path issues.")
+        return Path(f"{smaller_name}.mp3").resolve()
+    except WindowsError:
+        #Expected to happen in the rare case when the saved path is too long, even with the short filename
+        raise WindowsError("Cannot save song due to path issues.")
 
 
 def _get_converted_file_path(song_obj: SongObj) -> Path:
@@ -87,7 +88,7 @@ def _get_converted_file_path(song_obj: SongObj) -> Path:
 
     converted_file_name = _sanitize_filename(f"{artist_str} - {song_obj.get_song_name()}.mp3")
 
-    converted_file_path = Path(".", f"{converted_file_name}")
+    converted_file_path = Path(converted_file_name)
 
     # ! Checks if a file name is too long (256 max on both linux and windows)
     try:
