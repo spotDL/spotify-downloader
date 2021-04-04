@@ -10,19 +10,30 @@ from spotdl.search.songObj import SongObj
 from spotdl.download import ffmpeg
 
 
-def create_song_obj(name="test song", artistsInput:list=["test artist"]) -> SongObj:
-    artists = list(map(lambda x: {"name": x},artistsInput))
+def create_song_obj(name:str=None, artists_input:list=None) -> SongObj:
+    song_name = None
+    if name == None:
+        song_name = "test song"
+    else:
+        song_name = name
+
+
+    artist_map = None
+    if artists_input == None:
+        artist_objs = list(map(lambda x: {"name": x},["test artist"]))
+    else:
+        artist_objs = list(map(lambda x: {"name": x},artists_input))
     raw_track_meta = {
-        "name": name,
+        "name": song_name,
         "album": {
             "name": "test album",
-            "artists": artists,
+            "artists": artist_objs,
             "release_date": "2021",
             "images": [
                 {"url": "https://i.ytimg.com/vi_webp/iqKdEhx-dD4/hqdefault.webp"}
             ],
         },
-        "artists": artists,
+        "artists": artist_objs,
         "track_number": "1",
         "genres": ["test genre"],
     }
@@ -93,7 +104,7 @@ def test_download_single_song(setup):
 def test_download_long_artists_song(setup):
     # ! Generates a long list of artists, numbered 1 to 260, to trigger filename length cases
     artists = [str(i) for i in range(260)]
-    song_obj = create_song_obj(artistsInput=artists)
+    song_obj = create_song_obj(artists_input=artists)
     with DownloadManager() as dm:
         dm.download_single_song(song_obj)
 
