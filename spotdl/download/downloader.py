@@ -62,7 +62,8 @@ def _get_smaller_file_path(input_song: SongObj) -> Path:
     try:
         return Path(f"{smaller_name}.mp3").resolve()
     except WindowsError:
-        #Expected to happen in the rare case when the saved path is too long, even with the short filename
+        # Expected to happen in the rare case when the saved path is too long,
+        # even with the short filename
         raise WindowsError("Cannot save song due to path issues.")
 
 
