@@ -216,6 +216,7 @@ def search_and_order_ytm_results(songName: str, songArtists: List[str],
 
         artistMatch = (artistMatchNumber / len(songArtists)) * 100
 
+        # Find name match
         song_title = create_song_title(songName, songArtists)
         if result['type'] == 'song':
             song_name = f"{result['artist']} - {result['name']}"
