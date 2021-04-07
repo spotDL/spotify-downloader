@@ -4,9 +4,9 @@ import sys
 import re
 
 
-def has_correct_version(skip_version_check: bool = False) -> bool:
+def has_correct_version(skip_version_check: bool = False, ffmpeg_path: str = "ffmpeg") -> bool:
     process = subprocess.Popen(
-        ['ffmpeg', '-version'],
+        [ffmpeg_path, '-version'],
         shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
     )
 
@@ -32,7 +32,7 @@ def has_correct_version(skip_version_check: bool = False) -> bool:
     return True
 
 
-async def convert(trackAudioStream, downloadedFilePath, convertedFilePath) -> bool:
+async def convert(trackAudioStream, downloadedFilePath, convertedFilePath, ffmpegPath) -> bool:
     # convert downloaded file to MP3 with normalization
 
     # ! -af loudnorm=I=-7:LRA applies EBR 128 loudness normalization algorithm with
@@ -55,8 +55,11 @@ async def convert(trackAudioStream, downloadedFilePath, convertedFilePath) -> bo
     # ! sampled length of songs matches the actual length (i.e. a 5 min song won't display
     # ! as 47 seconds long in your music player, yeah that was an issue earlier.)
 
+    if ffmpegPath is None:
+        ffmpegPath = "ffmpeg"
+
     command = (
-        'ffmpeg -v quiet -y -i "%s" -acodec libmp3lame -abr true '
+        f'{ffmpegPath} -v quiet -y -i "%s" -acodec libmp3lame -abr true '
         f"-b:a {trackAudioStream.bitrate} "
         '-af "apad=pad_dur=2, dynaudnorm, loudnorm=I=-17" "%s"'
     )
