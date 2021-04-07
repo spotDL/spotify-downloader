@@ -10,7 +10,10 @@ def has_correct_version(skip_version_check: bool = False) -> bool:
         shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
     )
 
-    proc_out, _ = process.communicate()
+    if sys.platform == 'win32':
+        proc_out, _ = process.communicate()
+    else:
+        _, proc_out = process.communicate()
 
     if process.returncode == 127:
         print("FFmpeg was not found, spotDL cannot continue.", file=sys.stderr)
