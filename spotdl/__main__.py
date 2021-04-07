@@ -91,7 +91,10 @@ def console_entry_point():
     '''
     arguments = parse_arguments()
 
-    if ffmpeg.has_correct_version(arguments.ignore_ffmpeg_version, arguments.ffmpeg or "ffmpeg") is False:
+    if ffmpeg.has_correct_version(
+        arguments.ignore_ffmpeg_version,
+        arguments.ffmpeg or "ffmpeg"
+    ) is False:
         sys.exit(1)
 
     SpotifyClient.init(
