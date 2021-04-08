@@ -10,7 +10,6 @@ def has_correct_version(skip_version_check: bool = False) -> bool:
         shell=True,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
-        text=True,
         encoding="utf-8"
     )
 
