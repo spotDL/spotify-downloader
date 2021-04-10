@@ -15,6 +15,7 @@ from spotdl.search.utils import (
     get_artist_tracks,
     search_for_song,
 )
+from spotdl.download import ffmpeg
 
 # ! Usage is simple - call:
 #   'python __main__.py <links, search terms, tracking files separated by spaces>
@@ -93,9 +94,15 @@ def console_entry_point():
     '''
     arguments = parse_arguments()
 
+    if ffmpeg.has_correct_version(
+        arguments.ignore_ffmpeg_version,
+        arguments.ffmpeg or "ffmpeg"
+    ) is False:
+        sys.exit(1)
+
     SpotifyClient.init(
-        client_id='4fe3fecfe5334023a1472516cc99d805',
-        client_secret='0f02b7c483c04257984695007a4a8d5c'
+        client_id='5f573c9620494bae87890c0f08a60293',
+        client_secret='212476d9b0f3472eaa762d90b19b0ba8'
     )
 
     if arguments.path:
@@ -104,15 +111,15 @@ def console_entry_point():
         print(f"Will download to: {os.path.abspath(arguments.path)}")
         os.chdir(arguments.path)
 
-    if not arguments.debug_termination:
-        def gracefulExit(signal, frame):
-            downloader.close()
-            sys.exit(0)
+    with DownloadManager(arguments.ffmpeg) as downloader:
+        if not arguments.debug_termination:
+            def gracefulExit(signal, frame):
+                downloader.displayManager.close()
+                sys.exit(0)
 
-        signal.signal(signal.SIGINT, gracefulExit)
-        signal.signal(signal.SIGTERM, gracefulExit)
+            signal.signal(signal.SIGINT, gracefulExit)
+            signal.signal(signal.SIGTERM, gracefulExit)
 
-    with DownloadManager() as downloader:
         for request in arguments.url:
             if 'open.spotify.com' in request and 'track' in request:
                 print('Fetching Song...')
@@ -165,6 +172,9 @@ def parse_arguments():
     parser.add_argument("url", type=str, nargs="+", help="URL to a song/album/playlist")
     parser.add_argument("--debug-termination", action="store_true")
     parser.add_argument("-o", "--output", help="Output directory path", dest="path")
+    parser.add_argument("-f", "--ffmpeg", help="Path to ffmpeg", dest="ffmpeg")
+    parser.add_argument("--ignore-ffmpeg-version",
+                        help="Ignore ffmpeg version", action="store_true")
 
     return parser.parse_args()
 

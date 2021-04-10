@@ -73,9 +73,13 @@ jobs:
           python-version: 3.8
       - name: Install dependencies
         run: |
-          sudo add-apt-repository ppa:savoury1/ffmpeg4 -y
-          sudo apt-get update
-          sudo apt install ffmpeg -y
+          wget -nv https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz
+          wget -nv https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz.md5
+          tar xf ffmpeg-release-amd64-static.tar.xz
+          cd $(ls -d ffmpeg*/ | head -n 1)
+          sudo mv ffmpeg ffprobe /usr/local/bin/
+          cd ..
+          ffmpeg -version
           python -m pip install -e .[test]
       - name: Run tests
         run: |
