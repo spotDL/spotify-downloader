@@ -7,7 +7,3 @@ languages:
 #
 # Max depth refers to nesting of folders containing code.
 component_depth: 3
-
-# Folders to exclude
-exclude:
-- /dev utils/.*
