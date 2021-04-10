@@ -6,18 +6,21 @@ import re
 
 def has_correct_version(skip_version_check: bool = False, ffmpeg_path: str = "ffmpeg") -> bool:
     process = subprocess.Popen(
-        [ffmpeg_path, '-version'],
-        shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+        ['ffmpeg', '-version'],
+        shell=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        encoding="utf-8"
     )
 
-    proc_out, _ = process.communicate()
+    output = "".join(process.communicate())
 
     if process.returncode == 127:
         print("FFmpeg was not found, spotDL cannot continue.", file=sys.stderr)
         return False
 
     if skip_version_check is False:
-        result = re.search(r"ffmpeg version \w?(\d+\.)?(\d+)", proc_out.decode("utf-8"))
+        result = re.search(r"ffmpeg version \w?(\d+\.)?(\d+)", output)
 
         if result is None:
             print("Your FFmpeg version couldn't be detected", file=sys.stderr)
