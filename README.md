@@ -53,12 +53,6 @@ Download your Spotify playlists and songs along with album art and metadata
     pip install spotdl
     ```
 
-- Install directly from master: (Use if experiencing issues)
-
-    ```bash
-    pip install https://codeload.github.com/spotDL/spotify-downloader/zip/master
-    ```
-
 - Dev Version: **(NOT STABLE)**
 
     ```bash
