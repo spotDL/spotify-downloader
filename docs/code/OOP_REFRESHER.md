@@ -1,13 +1,13 @@
 <!-- refresher on Object Oriented Programing -->
 
-# Object Oriented Programing (*noun.*) 
+# Object Oriented Programing (*noun.*)
 
 It's a set of principles to handle complexity invented at Xerox Parc alongside
 the GUI. Theses principles are more important the bigger the codebase.
 
 We don't go into icky terminology here, just a couple of analogies.
 
-<br><br>
+---
 
 # Index
 
@@ -17,7 +17,7 @@ We don't go into icky terminology here, just a couple of analogies.
 4. [Inheritance](#Inheritance)
 5. [A Gist](#Gist) (for lazy guys & gals)
 
-<br><br>
+---
 
 # The principles
 
@@ -97,7 +97,7 @@ of proper abstraction might not be visible in this rather silly example, but be
 rest assured, the bigger your codebase gets the more dangerous lack of
 abstraction becomes.
 
-<br><br>
+---
 
 ## Encapsulation
 
@@ -156,7 +156,7 @@ better to manage complexity first and bother about flexibility/freedom later.
 Some coders enforce consistent abstraction via 'data hiding'. This author personally
 encourages such practices.
 
-<br><br>
+---
 
 ## Polymorphism
 
@@ -204,7 +204,7 @@ What's the difference? In the polymorphism based remake, the method to get area
 is standardized, this means that different shape classes that require deferent
 calculation to obtain the area can now be treated the exact same way.
 
-<br><br>
+---
 
 ## Inheritance
 
@@ -253,7 +253,7 @@ class tractor(object):
 
 The polymorphism followed here make these objects fairly manageable but for
 someone reading all of this code, he/she/them will have to read through
-the same set of code multiple times. This usually causes two problems - 
+the same set of code multiple times. This usually causes two problems -
 ballooning of code and confusion that arises from reading the same set of
 code again and again in the context of different variables - *was it `self.modelName`
 or `self.bikeName` or `self.model`? I'm confused...*
@@ -292,7 +292,7 @@ for which parent/super-parent defines a particular variable/function and
 which parent/super-parent modifies those same variables/functions leading to a
 confusing mess.
 
-<br><br>
+---
 
 # Gist
 

@@ -6,7 +6,7 @@ Various code guidelines we request you to follow through and through your code (
 you contribute here). Some will seem important and useful, others dumb and inconsequential but
 then... Whatever (no fancy reasons here).
 
-<br><br>
+---
 
 # Index
 
@@ -24,7 +24,7 @@ then... Whatever (no fancy reasons here).
 
 5. [Just how much of this is compulsory?](#Necessary-conventions)
 
-<br><br>
+---
 
 # Naming conventions
 
@@ -35,44 +35,44 @@ codebases. The following naming conventions are only for python.
 ## Variables
 
 - Use Camel case naming - Uppercase the first letter of each word after the first. eg,
-    - `songObject`
-    - `randomVariableThatNoOneCaresAbout`
+  - `songObject`
+  - `randomVariableThatNoOneCaresAbout`
 
-<br><br>
+---
 
 ## Functions
 
 - Use snake case - fully lowercase names with underscores instead of spaces. eg,
-    - `download`
-    - `save_to_disk`
-    - `songObj.get_contributing_artists`
+  - `download`
+  - `save_to_disk`
+  - `songObj.get_contributing_artists`
 
-<br><Br>
+---
 
 ## Classes
 
 - Capitalize the first letter of each word. eg,
-    - `DisplayManager`
-    - `SongObj`
-    - `Spotdl`
+  - `DisplayManager`
+  - `SongObj`
+  - `Spotdl`
 
-<br><br>
+---
 
 ## General
 
 - Use descriptive names - your names should convey the purpose. eg,
-    - `car` or `bus` instead of `fourTire` when you are referencing a 4-wheeled vehicle
-    - `download_song` instead of `get` you might also be *'getting'* song metadata - why the
+  - `car` or `bus` instead of `fourTire` when you are referencing a 4-wheeled vehicle
+  - `download_song` instead of `get` you might also be *'getting'* song metadata - why the
         confuse the reader?
-    - `DisplayManager` instead of `Manager` - *Was it 'DownloadManager' or just 'Manager'?
+  - `DisplayManager` instead of `Manager` - *Was it 'DownloadManager' or just 'Manager'?
         Crappy naming...*
 
 - Avoid abbreviations, if you can't use mnemonic abbreviations - stuff you can pronounce. eg,
-    - `cLine` instead of `cne`
-    - `DlManager` instead of `DlMngr`
-    - `download_from_spot` instead of `download_fr_spfy`
+  - `cLine` instead of `cne`
+  - `DlManager` instead of `DlMngr`
+  - `download_from_spot` instead of `download_fr_spfy`
 
-<br><br>
+---
 
 # Sizing
 
@@ -82,21 +82,21 @@ ruthlessly simplify and ensure proper abstraction (as it forces you to break-up 
 large classes/functions you might have)
 
 - Python
-    - Keep python lines ***under 90 columns in length***, i.e. 90 characters per line including indents
-    - Keep python modules ***under 200 lines of code***, excluding comments, empty lines, docstring's.
-    - Keep python classes ***under 100 lines of code***, excluding comments, empty lines, docstring's.
-    - Keep python functions ***under 75 lines of code***, excluding comments, empty lines, docstring's.
+  - Keep python lines ***under 90 columns in length***, i.e. 90 characters per line including indents
+  - Keep python modules ***under 200 lines of code***, excluding comments, empty lines, docstring's.
+  - Keep python classes ***under 100 lines of code***, excluding comments, empty lines, docstring's.
+  - Keep python functions ***under 75 lines of code***, excluding comments, empty lines, docstring's.
 
 - Markdown
-    - Keep Markdown lines ***under 100 columns in length***, i.e. 100 characters including spaces
-    - Keep Markdown files ***under 750 lines***, including comments and empty lines
+  - Keep Markdown lines ***under 100 columns in length***, i.e. 100 characters including spaces
+  - Keep Markdown files ***under 750 lines***, including comments and empty lines
 
 Counting lines of python code is arduous, so you can use the `totalLNC.py`, `funcLNC.py` &
 `classLNC.py` from the `.\dev utils\` folder to do the heavy lifting. Run them by passing
 them a folder name. eg, `python '.\dev Utils\classLNC.py' .\spotdl`, all these command line utils,
 count 90 characters as a line, so you can't cheat by just writing longer but fewer lines of code.
 
-<br><br>
+---
 
 # Documentation
 
@@ -105,30 +105,31 @@ over a function or class, referencing documentation is easier than ever before -
 write good in-line documentation.
 
 - Docstring's for functions
-    - Start with types of arg, arg name and purpose. Use markdown's code-syntax for arg type
+  - Start with types of arg, arg name and purpose. Use markdown's code-syntax for arg type
         and arg name, followed by a colon and description
-    - Note return type with `RETURNS` and an optional description of the same
-    - Describe the purpose of the given function, and other quirks
-    - Don't use coding terms except names of arg passed to function/class
+  - Note return type with `RETURNS` and an optional description of the same
+  - Describe the purpose of the given function, and other quirks
+  - Don't use coding terms except names of arg passed to function/class
 
 - Control flow comments
-    - Comment out control flow of your code before you start coding, use `#` for these comments
-    - Indent control flow comments as required
-    - Now, others who want to read your code don't have to put too much effort into figuring out
+  - Comment out control flow of your code before you start coding, use `#` for these comments
+  - Indent control flow comments as required
+  - Now, others who want to read your code don't have to put too much effort into figuring out
         the control flow
-    - Don't use coding terms or reference functions and variables here except the most basic ones
+  - Don't use coding terms or reference functions and variables here except the most basic ones
 
 - Notes about the code
-    - Underline quirky behavior or details related to your code using comments, differentiate these
+  - Underline quirky behavior or details related to your code using comments, differentiate these
         from control flow comments by starting them with `#!` instead of `#`
-    - Explain design decisions here
-    - Feel free to reference what ever you want
+  - Explain design decisions here
+  - Feel free to reference what ever you want
 
 - Your code itself
-    - Good code is it's own documentation
-    - Don't be afraid to visually block out your code using multiple constitutive blank lines
+  - Good code is it's own documentation
+  - Don't be afraid to visually block out your code using multiple constitutive blank lines
 
 - An Example,
+
     ```python
 
     def download_img(imageUrl, savePath = '.\img.jpg'):
@@ -185,20 +186,20 @@ write good in-line documentation.
                     errorCount += 1
     ```
 
-    - There are only 11 lines of code, yet the function is 47 lines long. Is it worth it? Absolutely.
+  - There are only 11 lines of code, yet the function is 47 lines long. Is it worth it? Absolutely.
     The next guy who comes along won't wonder why you attempt to download an image 10 times and
     won't get rid of the loop thinking it to be pointless, he/she/they wouldn't attempt to create
     the necessary file directories as required  - something that seems like a more functional
     addition to the function than the while loop - knowing why that was left out in the first place.
 
-    - The doc string allows someone who intends to use this function in their code a ready reference
+  - The doc string allows someone who intends to use this function in their code a ready reference
     to what each arg is used for and more importantly, just what the return value does. On just
     another random day who would have ever thought that a 'download' function returning True means
     that to download was successful?
 
-    - And the weird function structure makes sense without major head-whacking.
+  - And the weird function structure makes sense without major head-whacking.
 
-<br><br>
+---
 
 # Zero-base accounting
 
@@ -214,7 +215,7 @@ any sub-code (think class methods under a class) don't keep in line with the **P
 that bit gets deleted. Essentially, the **PURPOSES** file, helps enforce abstraction, encapsulation
 and zero-base accounting.
 
-<br><br>
+---
 
 # Necessary conventions
 
