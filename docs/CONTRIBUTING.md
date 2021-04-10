@@ -1,11 +1,13 @@
-# Which contributions get accepted and which ones don't?
+# CONTRIBUTING
+
+## Which contributions get accepted and which ones don't?
 
 For the sake of maintainability and ease-of-use standards, we are not able to accept all contributions that come to spotDL - don't get us wrong, **ALL CONTRIBUTIONS ARE WELCOME...** So just which
 contributions get accepted and which ones don't? That's what we're here to answer.
 
-<br><br>
+---
 
-# A short note to contributors
+## A short note to contributors
 
 1. Further on in this document, we use the term 'Users' interchangeably for both people who use spotDL as a command line tool and those who use spotDL as a library.
 
@@ -25,9 +27,9 @@ of effort into it, so please feel free to open an issue about what ever it is th
 contribute to get in touch with maintainers before you put in all that effort. The maintainer
 will do their best to help you with your contributions.
 
-<br><br>
+---
 
-# The basic requirements of any contribution
+## The basic requirements of any contribution
 
 1. **'Ease-of-use'** and **'minimal user-know-how'**
     - *If an application has a steep learning curve, I'd rather not use it* - Everybody
@@ -141,7 +143,7 @@ will do their best to help you with your contributions.
     make a fork of spotDL, well even put up a link to your fork for other who desperately need
     that 20% functionality.
 
-    - Subject your code to [Zero-base accounting](./Code%20Docs/codeGuidelines.md), it helps get
+    - Subject your code to [Zero-base accounting](/docs/code/CODE_GUIDELINES.md), it helps get
     rid of all the 20% features you feel tempted to build - it'll also spare you that much time
     and effort.
 
@@ -150,3 +152,42 @@ will do their best to help you with your contributions.
         download songs. spotDL v3 got rid of all the additional, 'nice-to-have' features and
         focused solely on downloading songs. Some might even say that it's under-featured, we
         can't really argue with that, but we have no intentions of changing that.
+
+---
+
+## Setup Local Environment for Development
+
+1. Clone this repository
+
+    ```bash
+    git clone https://github.com/spotDL/spotify-downloader.git
+    cd spotify-downloader
+    ```
+
+2. Setup venv (Optional)
+
+    - Windows
+
+        ```bash
+        py -3 -m venv env
+        .\.venv\Scripts\activate
+        ```
+
+    - Linux/macOS
+
+        ```bash
+        python3 -m venv .venv
+        source .venv/bin/activate
+        ```
+
+3. Install requirements
+
+    ```bash
+    pip install -e .
+    ```
+
+4. Use as command (no need to re-install after file changes)
+
+    ```bash
+    spotdl [ARGUMENTS]
+    ```

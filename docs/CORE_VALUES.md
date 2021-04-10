@@ -1,26 +1,30 @@
-# What is this file?
+# CORE VALUES
+
+## What is this file?
 
 This is where we outline the fundamental ideas by which we decide what to do, what to keep and what
 to remove from spotDL.
 
-# The Deciding Factors - Our values:
+## The Deciding Factors - Our values
+
 - Simplicity:
-    - What can we remove? Is this necessary to most (~80%+) of users?
-    - Can we make it easier to use? Fewer steps?
-- Focused Functionality: 
-    - spotDL is to download "content" from Spotify. Does this help doing that? (very
+  - What can we remove? Is this necessary to most (~80%+) of users?
+  - Can we make it easier to use? Fewer steps?
+- Focused Functionality:
+  - spotDL is to download "content" from Spotify. Does this help doing that? (very
     narrow focus here people) A.K.A - is this a "need to have"?
-    - if its a "nice to have", will most of the users use it? (note: its "most users **use**", not
+  - if its a "nice to have", will most of the users use it? (note: its "most users **use**", not
     "most users **want**")
 - Users first, provided its maintainable:
-    - Will this do good to the users? They might have not even thought about it, it might make
+  - Will this do good to the users? They might have not even thought about it, it might make
     things more complex (more understanding of spotdl required to use it) but will it benefit
     the majority (~80%+) of them in the process?
-    - Provided it helps the users, if it has a big impact on maintainability, its still a no-no.
+  - Provided it helps the users, if it has a big impact on maintainability, its still a no-no.
 
 If a contribution satisfies at least 2 of our deciding values it gets accepted, else, it doesn't.
 
-# A few general notes
+## A few general notes
+
 1. The term 'users' is thrown around a lot. For a project like `FFmpeg`, users is that group of
 coders who are unafraid of a command-prompt (it says so on the downloads page itself). Here,
 '***users***' refers not to developers but normal *homo sapiens* - just about anybody who wants to
