@@ -4,26 +4,33 @@ import sys
 import re
 
 
-def has_correct_version(skip_version_check: bool = False) -> bool:
+def has_correct_version(skip_version_check: bool = False, ffmpeg_path: str = "ffmpeg") -> bool:
     process = subprocess.Popen(
         ['ffmpeg', '-version'],
-        shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+        shell=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        encoding="utf-8"
     )
 
-    proc_out, _ = process.communicate()
+    output = "".join(process.communicate())
 
     if process.returncode == 127:
         print("FFmpeg was not found, spotDL cannot continue.", file=sys.stderr)
         return False
 
     if skip_version_check is False:
-        result = re.search(r"ffmpeg version \w?(\d+\.)?(\d+)", proc_out.decode("utf-8"))
+        result = re.search(r"ffmpeg version \w?(\d+\.)?(\d+)", output)
 
         if result is None:
             print("Your FFmpeg version couldn't be detected", file=sys.stderr)
             return False
 
         version = result.group(0).replace("ffmpeg version ", "")
+
+        # remove all non numeric characters from string example: n4.3
+        version = re.sub(r"[a-zA-Z]", "", version)
+
         if float(version) < 4.3:
             print(f"Your FFmpeg installation is too old ({version}), please update to 4.3+\n",
                   file=sys.stderr)
@@ -32,7 +39,7 @@ def has_correct_version(skip_version_check: bool = False) -> bool:
     return True
 
 
-async def convert(trackAudioStream, downloadedFilePath, convertedFilePath, outputFormat) -> bool:
+async def convert(trackAudioStream, downloadedFilePath, convertedFilePath, ffmpegPath, outputFormat) -> bool:
     # convert downloaded file to MP3 with normalization
 
     # ! -af loudnorm=I=-7:LRA applies EBR 128 loudness normalization algorithm with
@@ -52,7 +59,7 @@ async def convert(trackAudioStream, downloadedFilePath, convertedFilePath, outpu
     # ! -acodec libmp3lame sets the encoded to 'libmp3lame' which is far better
     # ! than the default 'mp3_mf'
     # !
-    # '-abr true' automatically determines and passes the
+    # ! '-abr true' automatically determines and passes the
     # ! audio encoding bitrate to the filters and encoder. This ensures that the
     # ! sampled length of songs matches the actual length (i.e. a 5 min song won't display
     # ! as 47 seconds long in your music player, yeah that was an issue earlier.)
@@ -70,8 +77,11 @@ async def convert(trackAudioStream, downloadedFilePath, convertedFilePath, outpu
     else:
         outputFormatCommand = formats[outputFormat]
 
+    if ffmpegPath is None:
+        ffmpegPath = "ffmpeg"
+
     command = (
-        'ffmpeg -v quiet -y -i "%s" %s -abr true '
+        f'{ffmpegPath} -v quiet -y -i "%s" {outputFormatCommand} -acodec libmp3lame -abr true '
         f"-b:a {trackAudioStream.bitrate} "
         '-af "apad=pad_dur=2, dynaudnorm, loudnorm=I=-17" "%s"'
     )
@@ -83,13 +93,11 @@ async def convert(trackAudioStream, downloadedFilePath, convertedFilePath, outpu
     if sys.platform == "win32":
         formattedCommand = command % (
             str(downloadedFilePath),
-            outputFormatCommand,
             str(convertedFilePath),
         )
     else:
         formattedCommand = command % (
             str(downloadedFilePath).replace("$", r"\$"),
-            outputFormatCommand,
             str(convertedFilePath).replace("$", r"\$"),
         )
 

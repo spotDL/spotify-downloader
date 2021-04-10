@@ -92,7 +92,10 @@ def console_entry_point():
     arguments = parse_arguments()
     args_dict = vars(arguments)
 
-    if ffmpeg.has_correct_version(arguments.ignore_ffmpeg_version) is False:
+    if ffmpeg.has_correct_version(
+        arguments.ignore_ffmpeg_version,
+        arguments.ffmpeg or "ffmpeg"
+    ) is False:
         sys.exit(1)
 
     SpotifyClient.init(
@@ -106,7 +109,7 @@ def console_entry_point():
         print(f"Will download to: {os.path.abspath(arguments.path)}")
         os.chdir(arguments.path)
 
-    with DownloadManager() as downloader:
+    with DownloadManager(arguments.ffmpeg) as downloader:
 
         for request in arguments.url:
             if 'open.spotify.com' in request and 'track' in request:
@@ -159,8 +162,9 @@ def parse_arguments():
     )
     parser.add_argument("url", type=str, nargs="+", help="URL to a song/album/playlist")
     parser.add_argument("-o", "--output", help="Output directory path", dest="path")
-    parser.add_argument("-f", "--output-format", help="Output format", dest="format",
+    parser.add_argument("-of", "--output-format", help="Output format", dest="format",
                         choices={"mp3", "m4a", "flac", "ogg", "opus"}, default="mp3")
+    parser.add_argument("-f", "--ffmpeg", help="Path to ffmpeg", dest="ffmpeg")
     parser.add_argument("--ignore-ffmpeg-version",
                         help="Ignore ffmpeg version", action="store_true")
 
