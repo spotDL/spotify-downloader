@@ -6,7 +6,7 @@ import re
 
 def has_correct_version(skip_version_check: bool = False, ffmpeg_path: str = "ffmpeg") -> bool:
     process = subprocess.Popen(
-        ['ffmpeg', '-version'],
+        [ffmpeg_path, '-version'],
         shell=True,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
@@ -39,7 +39,9 @@ def has_correct_version(skip_version_check: bool = False, ffmpeg_path: str = "ff
     return True
 
 
-async def convert(trackAudioStream, downloadedFilePath, convertedFilePath, ffmpegPath, outputFormat) -> bool:
+async def convert(
+    trackAudioStream, downloadedFilePath, convertedFilePath, ffmpegPath, outputFormat
+) -> bool:
     # convert downloaded file to MP3 with normalization
 
     # ! -af loudnorm=I=-7:LRA applies EBR 128 loudness normalization algorithm with
