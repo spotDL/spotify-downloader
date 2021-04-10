@@ -186,4 +186,4 @@ Interested in contributing? Check out our [CONTRIBUTING.md](docs/CONTRIBUTING.md
 
 ## License
 
-This is free software under the terms of MIT the license
+[MIT](/LICENSE)
