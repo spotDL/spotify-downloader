@@ -81,8 +81,8 @@ async def convert(trackAudioStream, downloadedFilePath, convertedFilePath, ffmpe
         ffmpegPath = "ffmpeg"
 
     command = (
-        f'{ffmpegPath} -v quiet -y -i "%s" {outputFormatCommand} -acodec libmp3lame -abr true '
-        f"-b:a {trackAudioStream.bitrate} "
+        f'{ffmpegPath} -v quiet -y -i "%s" {outputFormatCommand} '
+        f"-acodec libmp3lame -abr true -b:a {trackAudioStream.bitrate} "
         '-af "apad=pad_dur=2, dynaudnorm, loudnorm=I=-17" "%s"'
     )
 

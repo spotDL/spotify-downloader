@@ -32,7 +32,6 @@ class DownloadManager():
     poolSize = 4
 
     def __init__(self, ffmpeg_path: str = "ffmpeg"):
-    
         # start a server for objects shared across processes
         self.displayManager = DisplayManager()
         self.downloadTracker = DownloadTracker()
