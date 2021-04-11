@@ -1,9 +1,10 @@
-______________________________________________________________________
-
-name: Bug report about: Report bugs so we can fix them. title: Change this title, Poorly
-Formatted Issues will not be handled. labels: bug assignees: ''
-
-______________________________________________________________________
+---
+about: Report bugs so we can fix them.
+assignees: ''
+labels: bug
+name: Bug report
+title: Change this title, Poorly Formatted Issues will not be handled.
+---
 
 <!--- Please search existing bugs before creating a new one -->
 
