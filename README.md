@@ -170,7 +170,7 @@ Interested in contributing? Check out our [CONTRIBUTING.md](docs/CONTRIBUTING.md
 
 ## Contributors
 
-[![contributors](https://opencollective.com/spotDl/contributors.svg?width=890)](https://github.com/spotdl/spotify-downloader/graphs/contributors)
+[![contributors](https://contributors-img.web.app/image?repo=spotdl/spotify-downloader)](https://github.com/spotdl/spotify-downloader/graphs/contributors)
 
 ## Authors
 
