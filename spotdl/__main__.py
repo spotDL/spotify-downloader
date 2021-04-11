@@ -1,7 +1,8 @@
-#! Basic necessities to get the CLI running
+# ! Basic necessities to get the CLI running
+import signal
+import sys
 import argparse
 import os
-import sys
 
 # ! The actual download stuff
 from spotdl.download.downloader import DownloadManager
@@ -83,6 +84,8 @@ You can queue up multiple download tasks by separating the arguments with spaces
     ex. spotdl 'The Weeknd - Blinding Lights'
             https://open.spotify.com/playlist/37i9dQZF1E8UXBoz02kGID?si=oGd5ctlyQ0qblj_bL6WWow ...
 
+You can use the --debug-termination flag to figure out where in the code spotdl got stuck.
+
 spotDL downloads up to 4 songs in parallel, so for a faster experience,
 download albums and playlist, rather than tracks.
 '''
@@ -95,12 +98,15 @@ def console_entry_point():
     '''
     arguments = parse_arguments()
 
-    if ffmpeg.has_correct_version(arguments.ignore_ffmpeg_version) is False:
+    if ffmpeg.has_correct_version(
+        arguments.ignore_ffmpeg_version,
+        arguments.ffmpeg or "ffmpeg"
+    ) is False:
         sys.exit(1)
 
     SpotifyClient.init(
         client_id='5f573c9620494bae87890c0f08a60293',
-        client_secret='212476d9b0f3472eaa762d90b19b0ba8'
+        client_secret='212476d9b0f3472eaa762d90b19b0ba8',
         user_auth=arguments.userAuth
     )
 
@@ -110,7 +116,14 @@ def console_entry_point():
         print(f"Will download to: {os.path.abspath(arguments.path)}")
         os.chdir(arguments.path)
 
-    with DownloadManager() as downloader:
+    with DownloadManager(arguments.ffmpeg) as downloader:
+        if not arguments.debug_termination:
+            def gracefulExit(signal, frame):
+                downloader.displayManager.close()
+                sys.exit(0)
+
+            signal.signal(signal.SIGINT, gracefulExit)
+            signal.signal(signal.SIGTERM, gracefulExit)
 
         for request in arguments.url:
             if 'open.spotify.com' in request and 'track' in request:
@@ -170,6 +183,7 @@ def parse_arguments():
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     parser.add_argument("url", type=str, nargs="+", help="URL to a song/album/playlist")
+    parser.add_argument("--debug-termination", action="store_true")
     parser.add_argument("-o", "--output", help="Output directory path", dest="path")
     parser.add_argument(
         "--user-auth",
@@ -177,6 +191,7 @@ def parse_arguments():
         action='store_true',
         dest="userAuth"
     )
+    parser.add_argument("-f", "--ffmpeg", help="Path to ffmpeg", dest="ffmpeg")
     parser.add_argument("--ignore-ffmpeg-version",
                         help="Ignore ffmpeg version", action="store_true")
 

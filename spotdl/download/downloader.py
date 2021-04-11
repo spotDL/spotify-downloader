@@ -33,7 +33,7 @@ class DownloadManager():
     # ! Big pool sizes on slow connections will lead to more incomplete downloads
     poolSize = 4
 
-    def __init__(self):
+    def __init__(self, ffmpeg_path: str = "ffmpeg"):
 
         # start a server for objects shared across processes
         self.displayManager = DisplayManager()
@@ -52,6 +52,9 @@ class DownloadManager():
         # ! thread pool executor is used to run blocking (CPU-bound) code from a thread
         self.thread_executor = concurrent.futures.ThreadPoolExecutor(
             max_workers=self.poolSize)
+
+        # ! ffmpeg path
+        self.ffmpeg_path = ffmpeg_path
 
     def __enter__(self):
         return self
@@ -216,7 +219,8 @@ class DownloadManager():
             ffmpeg_success = await ffmpeg.convert(
                 trackAudioStream=trackAudioStream,
                 downloadedFilePath=downloadedFilePath,
-                convertedFilePath=convertedFilePath
+                convertedFilePath=convertedFilePath,
+                ffmpegPath=self.ffmpeg_path
             )
 
             if dispayProgressTracker:
