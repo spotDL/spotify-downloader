@@ -83,7 +83,7 @@ async def convert(
 
     command = (
         f'{ffmpegPath} -v quiet -y -i "%s" {outputFormatCommand} '
-        f"-acodec libmp3lame -abr true -b:a {trackAudioStream.bitrate} "
+        f"-abr true -b:a {trackAudioStream.bitrate} "
         '-af "apad=pad_dur=2, dynaudnorm, loudnorm=I=-17" "%s"'
     )
 
