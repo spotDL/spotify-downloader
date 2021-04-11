@@ -38,6 +38,7 @@ TAG_PRESET = {}
 for key in M4A_TAG_PRESET.keys():
     TAG_PRESET[key] = key
 
+
 def _set_id3_mp3(convertedFilePath, songObj):
     # embed song details
     # ! we save tags as both ID3 v2.3 and v2.4
@@ -173,8 +174,9 @@ def _embed_m4a_metadata(audioFile, songObj):
     except IndexError:
         pass
 
+
 def _embed_basic_metadata(audioFile, songObj, encoding, preset=TAG_PRESET):
-    
+
     # set main artist
     main_artist = songObj.get_contributing_artists()[0]
     if main_artist:
@@ -263,8 +265,8 @@ SET_ID3_FUNCTIONS = {
     "m4a": _set_id3_m4a
 }
 
+
 def set_id3_data(convertedFilePath, songObj, outputFormat):
     function = SET_ID3_FUNCTIONS.get(outputFormat)
     if function:
         function(convertedFilePath, songObj)
-
