@@ -9,7 +9,7 @@ import traceback
 
 from pathlib import Path
 # ! The following are not used, they are just here for static typechecking with mypy
-from typing import List
+from typing import List, Optional
 
 from pytube import YouTube
 
@@ -31,7 +31,7 @@ class DownloadManager():
     # ! Big pool sizes on slow connections will lead to more incomplete downloads
     poolSize = 4
 
-    def __init__(self, ffmpeg_path: str = "ffmpeg"):
+    def __init__(self, arguments: Optional[dict] = None):
         # start a server for objects shared across processes
         self.displayManager = DisplayManager()
         self.downloadTracker = DownloadTracker()
@@ -50,8 +50,13 @@ class DownloadManager():
         self.thread_executor = concurrent.futures.ThreadPoolExecutor(
             max_workers=self.poolSize)
 
-        # ! ffmpeg path
-        self.ffmpeg_path = ffmpeg_path
+        if arguments is None:
+            arguments = {}
+
+        arguments.setdefault("ffmpeg_path", "ffmpeg")
+        arguments.setdefault("format", "mp3")
+
+        self.arguments = arguments
 
     def __enter__(self):
         return self
@@ -59,7 +64,7 @@ class DownloadManager():
     def __exit__(self, type, value, traceback):
         self.displayManager.close()
 
-    def download_single_song(self, songObj: SongObj, arguments: dict = {}) -> None:
+    def download_single_song(self, songObj: SongObj) -> None:
         '''
         `songObj` `song` : song to be downloaded
 
@@ -73,11 +78,10 @@ class DownloadManager():
 
         self.displayManager.set_song_count_to(1)
 
-        self._download_asynchronously([songObj], arguments)
+        self._download_asynchronously([songObj])
 
     def download_multiple_songs(self,
                                 songObjList: List[SongObj],
-                                arguments: dict = {},
                                 ) -> None:
         '''
         `list<songObj>` `songObjList` : list of songs to be downloaded
@@ -92,11 +96,9 @@ class DownloadManager():
 
         self.displayManager.set_song_count_to(len(songObjList))
 
-        self._download_asynchronously(songObjList, arguments)
+        self._download_asynchronously(songObjList)
 
-    def resume_download_from_tracking_file(self,
-                                           trackingFilePath: str,
-                                           arguments: dict = {}) -> None:
+    def resume_download_from_tracking_file(self, trackingFilePath: str) -> None:
         '''
         `str` `trackingFilePath` : path to a .spotdlTrackingFile
 
@@ -112,12 +114,11 @@ class DownloadManager():
 
         self.displayManager.set_song_count_to(len(songObjList))
 
-        self._download_asynchronously(songObjList, arguments)
+        self._download_asynchronously(songObjList)
 
-    async def download_song(self, songObj: SongObj, arguments: dict = {}) -> None:
+    async def download_song(self, songObj: SongObj) -> None:
         '''
         `songObj` `songObj` : song to be downloaded
-        `dict` `arguments` : output format
 
         RETURNS `~`
 
@@ -126,8 +127,6 @@ class DownloadManager():
 
         dispayProgressTracker = self.displayManager.new_progress_tracker(
             songObj)
-
-        arguments.setdefault("format", "mp3")
 
         # ! since most errors are expected to happen within this function, we wrap in
         # ! exception catcher to prevent blocking on multiple downloads
@@ -176,7 +175,7 @@ class DownloadManager():
             convertedFileName = convertedFileName.replace(
                 '"', "'").replace(':', '-')
 
-            convertedFilePath = Path(".", f"{convertedFileName}.{arguments['format']}")
+            convertedFilePath = Path(".", f"{convertedFileName}.{self.arguments['format']}")
 
             # if a song is already downloaded skip it
             if convertedFilePath.is_file():
@@ -225,8 +224,8 @@ class DownloadManager():
                 trackAudioStream=trackAudioStream,
                 downloadedFilePath=downloadedFilePath,
                 convertedFilePath=convertedFilePath,
-                outputFormat=arguments['format'],
-                ffmpegPath=self.ffmpeg_path
+                outputFormat=self.arguments['format'],
+                ffmpegPath=self.arguments['ffmpeg_path']
             )
 
             if dispayProgressTracker:
@@ -237,7 +236,7 @@ class DownloadManager():
                 convertedFilePath.unlink()
             else:
                 # if a file was successfully downloaded, tag it
-                set_id3_data(convertedFilePath, songObj, arguments['format'])
+                set_id3_data(convertedFilePath, songObj, self.arguments['format'])
 
             # Do the necessary cleanup
             if dispayProgressTracker:
@@ -291,16 +290,16 @@ class DownloadManager():
                 tempFile.unlink()
             return None
 
-    async def _pool_download(self, song_obj: SongObj, arguments: dict):
+    async def _pool_download(self, song_obj: SongObj):
         # ! Run asynchronous task in a pool to make sure that all processes
         # ! don't run at once.
 
         # tasks that cannot acquire semaphore will wait here until it's free
         # only certain amount of tasks can acquire the semaphore at the same time
         async with self.semaphore:
-            return await self.download_song(song_obj, arguments)
+            return await self.download_song(song_obj)
 
-    def _download_asynchronously(self, song_obj_list, arguments):
-        tasks = [self._pool_download(song, arguments) for song in song_obj_list]
+    def _download_asynchronously(self, song_obj_list):
+        tasks = [self._pool_download(song) for song in song_obj_list]
         # call all task asynchronously, and wait until all are finished
         self.loop.run_until_complete(asyncio.gather(*tasks))

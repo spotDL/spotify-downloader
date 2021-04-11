@@ -112,7 +112,7 @@ def console_entry_point():
         print(f"Will download to: {os.path.abspath(arguments.path)}")
         os.chdir(arguments.path)
 
-    with DownloadManager(arguments.ffmpeg) as downloader:
+    with DownloadManager(args_dict) as downloader:
         if not arguments.debug_termination:
             def gracefulExit(signal, frame):
                 downloader.displayManager.close()
@@ -127,7 +127,7 @@ def console_entry_point():
                 song = SongObj.from_url(request)
 
                 if song.get_youtube_link() is not None:
-                    downloader.download_single_song(song, args_dict)
+                    downloader.download_single_song(song)
                 else:
                     print('Skipping %s (%s) as no match could be found on youtube' % (
                         song.get_song_name(), request
@@ -137,29 +137,29 @@ def console_entry_point():
                 print('Fetching Album...')
                 songObjList = get_album_tracks(request)
 
-                downloader.download_multiple_songs(songObjList, args_dict)
+                downloader.download_multiple_songs(songObjList)
 
             elif 'open.spotify.com' in request and 'playlist' in request:
                 print('Fetching Playlist...')
                 songObjList = get_playlist_tracks(request)
 
-                downloader.download_multiple_songs(songObjList, args_dict)
+                downloader.download_multiple_songs(songObjList)
 
             elif 'open.spotify.com' in request and 'artist' in request:
                 print('Fetching artist...')
                 artistObjList = get_artist_tracks(request)
 
-                downloader.download_multiple_songs(artistObjList, args_dict)
+                downloader.download_multiple_songs(artistObjList)
 
             elif request.endswith('.spotdlTrackingFile'):
                 print('Preparing to resume download...')
-                downloader.resume_download_from_tracking_file(request, args_dict)
+                downloader.resume_download_from_tracking_file(request)
 
             else:
                 print('Searching for song "%s"...' % request)
                 try:
                     song = search_for_song(request)
-                    downloader.download_single_song(song, args_dict)
+                    downloader.download_single_song(song)
                 except Exception as e:
                     print(e)
 
