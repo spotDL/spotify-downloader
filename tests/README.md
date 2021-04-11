@@ -41,3 +41,7 @@ pytest --disable-vcr
 Whenever the server response will change and affect the tests behavior, the stored
 responses can be updated by wiping the [tests/cassetes](tests/cassetes) directory and
 running `pytest` again (without `--disable-vcr`).
+
+## Debugging the application
+
+You can use the `--debug-termination` flag to show additional output when terminating the program. This is helpful when the program freezes.
