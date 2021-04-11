@@ -1,3 +1,5 @@
+<!--- mdformat-toc start --slug=github --->
+
 <div align="center">
 
 <img src="/docs/static/logo-transparent.png" alt="spotDL" width="200" />
@@ -21,12 +23,12 @@ Download your Spotify playlists and songs along with album art and metadata
 
 1. Downloads music from YouTube as an MP3 file
 2. Applies basic metadata gathered from Spotify such as:
-    - Track Name
-    - Track Number
-    - Album
-    - Album Cover
-    - Genre
-    - and more!
+   - Track Name
+   - Track Number
+   - Album
+   - Album Cover
+   - Genre
+   - and more!
 
 > _⚠ We have dropped the active development of spotDL v2 due to support and maintainability. No focused efforts will be made to resolve v2 specific issues._
 
@@ -49,17 +51,19 @@ Download your Spotify playlists and songs along with album art and metadata
 
 - Recommended Stable Version:
 
-    ```bash
-    pip install spotdl
-    ```
+  ```bash
+  pip install spotdl
+  ```
 
 - Dev Version: **(NOT STABLE)**
 
-    ```bash
-    pip install https://codeload.github.com/spotDL/spotify-downloader/zip/dev
-    ```
+  ```bash
+  pip install https://codeload.github.com/spotDL/spotify-downloader/zip/dev
+  ```
 
-If you have trouble installing spotdl take a look at the extended installation guide [here](/docs/INSTALLATION.md) or ask for help in our [discord server](https://discord.gg/xCa23pwJWY)
+If you have trouble installing spotdl take a look at the extended installation guide
+[here](/docs/INSTALLATION.md) or ask for help in our
+[discord server](https://discord.gg/xCa23pwJWY)
 
 #### On Termux
 
@@ -71,85 +75,87 @@ curl -L https://raw.githubusercontent.com/spotDL/spotify-downloader/master/termu
 
 - #### To download a song, run
 
-    ```bash
-    spotdl [trackUrl]
-    ```
+  ```bash
+  spotdl [trackUrl]
+  ```
 
-    example:
+  example:
 
-    ```bash
-    spotdl https://open.spotify.com/track/0VjIjW4GlUZAMYd2vXMi3b?si=1stnMF5GSdClnIEARnJiiQ
-    ```
+  ```bash
+  spotdl https://open.spotify.com/track/0VjIjW4GlUZAMYd2vXMi3b?si=1stnMF5GSdClnIEARnJiiQ
+  ```
 
 - #### To download an album, run
 
-    ```bash
-    spotdl [albumUrl]
-    ```
+  ```bash
+  spotdl [albumUrl]
+  ```
 
-    example:
+  example:
 
-    ```bash
-    spotdl https://open.spotify.com/album/4yP0hdKOZPNshxUOjY0cZj?si=AssgQQrVTJqptFe7X92jNg
-    ```
+  ```bash
+  spotdl https://open.spotify.com/album/4yP0hdKOZPNshxUOjY0cZj?si=AssgQQrVTJqptFe7X92jNg
+  ```
 
 - #### To download a playlist, run
 
-    ```bash
-    spotdl [playlistUrl]
-    ```
+  ```bash
+  spotdl [playlistUrl]
+  ```
 
-    example:
+  example:
 
-    ```bash
-    spotdl https://open.spotify.com/playlist/37i9dQZF1E8UXBoz02kGID?si=oGd5ctlyQ0qblj_bL6WWow
-    ```
+  ```bash
+  spotdl https://open.spotify.com/playlist/37i9dQZF1E8UXBoz02kGID?si=oGd5ctlyQ0qblj_bL6WWow
+  ```
 
 - #### To search for and download a song, run, **with quotation marks**
 
-    ```bash
-    spotdl '[songQuery]'
-    ```
+  ```bash
+  spotdl '[songQuery]'
+  ```
 
-    example:
+  example:
 
-    ```bash
-    spotdl 'The Weeknd - Blinding Lights'
-    ```
+  ```bash
+  spotdl 'The Weeknd - Blinding Lights'
+  ```
 
-    > _Note: This is not accurate and often causes errors._
+  > _Note: This is not accurate and often causes errors._
 
 - #### To resume a failed/incomplete download, run
 
-    ```bash
-    spotdl [pathToTrackingFile]
-    ```
+  ```bash
+  spotdl [pathToTrackingFile]
+  ```
 
-    example:
+  example:
 
-    ```bash
-    spotdl 'The Weeknd - Blinding Lights.spotdlTrackingFile'
-    ```
+  ```bash
+  spotdl 'The Weeknd - Blinding Lights.spotdlTrackingFile'
+  ```
 
-    > _Note: `.spotdlTrackingFile`s are automatically created when a download starts and deleted on completion_
+  > _Note: `.spotdlTrackingFile`s are automatically created when a download starts and deleted on completion_
 
 - #### You can queue up multiple download tasks by separating the arguments with spaces
 
-    ```bash
-    spotdl [songQuery1] [albumUrl] [songQuery2] ... (order does not matter)
-    ```
+  ```bash
+  spotdl [songQuery1] [albumUrl] [songQuery2] ... (order does not matter)
+  ```
 
-    example:
+  example:
 
-    ```bash
-    spotdl 'The Weeknd - Blinding Lights' https://open.spotify.com/playlist/37i9dQZF1E8UXBoz02kGID?si=oGd5ctlyQ0qblj_bL6WWow ...
-    ```
+  ```bash
+  spotdl 'The Weeknd - Blinding Lights' https://open.spotify.com/playlist/37i9dQZF1E8UXBoz02kGID?si=oGd5ctlyQ0qblj_bL6WWow ...
+  ```
 
-    > _Note: spotDL downloads up to 4 songs in parallel, so for a faster experience, download albums and playlist, rather than tracks._
+  > _Note: spotDL downloads up to 4 songs in parallel, so for a faster experience, download albums and playlist, rather than tracks._
 
 ## `pipx` Isolated Environment Alternative
 
-For users who are not familiar with `pipx`, it can be used to run scripts **without** installing the spotDL package and all the dependencies globally with pip. (Effectively skipping over the [spotDL Installation](#Installing-spotDL) step)
+For users who are not familiar with `pipx`, it can be used to run scripts **without**
+installing the spotDL package and all the dependencies globally with pip. (Effectively
+skipping over the [spotDL Installation](#Installing-spotDL) step)
 
 First, you will need to install `pipx` by running:
 
@@ -166,7 +172,9 @@ pipx run spotdl ...
 
 ## Contributor Guide
 
-Interested in contributing? Check out our [CONTRIBUTING.md](docs/CONTRIBUTING.md) to find resources around contributing along with a guide on how to set up a development environment.
+Interested in contributing? Check out our [CONTRIBUTING.md](docs/CONTRIBUTING.md) to find
+resources around contributing along with a guide on how to set up a development
+environment.
 
 ## Contributors
 
@@ -175,7 +183,8 @@ Interested in contributing? Check out our [CONTRIBUTING.md](docs/CONTRIBUTING.md
 ## Authors
 
 1. [@ritiek](https://github.com/ritiek) for creating and maintaining spotDL for 4 years
-2. [@rocketinventor](https://github.com/rocketinventor) for figuring out YouTube Music querying
+2. [@rocketinventor](https://github.com/rocketinventor) for figuring out YouTube Music
+   querying
 3. [@MikhailZex](https://github.com/MikhailZex) for, never mind...
 
 ## License

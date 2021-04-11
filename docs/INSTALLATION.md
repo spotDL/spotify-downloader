@@ -1,6 +1,9 @@
+<!--- mdformat-toc start --slug=github --->
+
 # spotDL Installation Guide
 
 spotDL is a free and open source tool that downloads your Spotify playlists & music
+
 > **The fastest, easiest, and most accurate command-line music downloader**
 
 ## Prerequisites
@@ -42,9 +45,11 @@ If you require further help, ask in our [Discord Server](https://discord.gg/xCa2
 
 spotDL downloads files to the folder where you ran spotDL from.
 
-Open pwsh/powershell/cmd/terminal/similar in the folder you want files to download to, or cd to desired folder.
+Open pwsh/powershell/cmd/terminal/similar in the folder you want files to download to, or
+cd to desired folder.
 
-**Windows Shortcut:** Navigate to the folder you want the files to download to. `SHIFT + RIGHT CLICK`, then select "Open PowerShell window here"
+**Windows Shortcut:** Navigate to the folder you want the files to download to.
+`SHIFT + RIGHT CLICK`, then select "Open PowerShell window here"
 
 ![Windows PWSH](/docs/static/POWERSHELL.png)
 
