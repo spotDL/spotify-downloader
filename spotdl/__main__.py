@@ -104,6 +104,12 @@ def console_entry_point():
     ) is False:
         sys.exit(1)
 
+    for request in arguments.url:
+        if 'saved' == request and not arguments.userAuth:
+            arguments.userAuth = True
+            print("Detected 'saved' in command line, but no --user-auth flag. Please use it in future.")
+            print("Please Log In...")
+
     SpotifyClient.init(
         client_id='5f573c9620494bae87890c0f08a60293',
         client_secret='212476d9b0f3472eaa762d90b19b0ba8',
@@ -161,11 +167,8 @@ def console_entry_point():
 
             elif request == "saved":
                 print('Fetching Saved Songs...')
-                if arguments.userAuth:
-                    songObjList = get_saved_tracks()
-                    downloader.download_multiple_songs(songObjList)
-                else:
-                    print("Cannot download saved songs without the --user-auth flag. Try again.")
+                songObjList = get_saved_tracks()
+                downloader.download_multiple_songs(songObjList)
 
             else:
                 print('Searching for song "%s"...' % request)
