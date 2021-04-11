@@ -127,8 +127,7 @@ class DownloadManager():
         dispayProgressTracker = self.displayManager.new_progress_tracker(
             songObj)
 
-        if arguments.get("format") is None:
-            arguments["format"] = "mp3"
+        arguments.setdefault("format", "mp3")
 
         # ! since most errors are expected to happen within this function, we wrap in
         # ! exception catcher to prevent blocking on multiple downloads
