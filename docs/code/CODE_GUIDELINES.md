@@ -222,5 +222,5 @@ and zero-base accounting.
 Now, now, you don't expect us to follow all of these while writing code do you? Nope we don't -
 that's a lot to ask. But we absolutely need you to follow [Naming conventions](#Naming-conventions)
 and [Zero-base accounting](#Zero-base-accounting). We also ask that you do your level best to
-comply with other guidelines, but feel free to be flexible in that. We have no intension to accept
+comply with other guidelines, but feel free to be flexible in that. We have no intention to accept
 code that totally disregards the conventions.
