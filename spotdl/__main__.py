@@ -107,7 +107,7 @@ def console_entry_point():
     for request in arguments.url:
         if 'saved' == request and not arguments.userAuth:
             arguments.userAuth = True
-            print("Detected 'saved' in command line, but no --user-auth flag. Please use it in future.")
+            print("Detected 'saved' in command line, but no --user-auth flag. Enabling Anyways.")
             print("Please Log In...")
 
     SpotifyClient.init(
