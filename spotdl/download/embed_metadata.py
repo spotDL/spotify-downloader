@@ -7,7 +7,6 @@ from mutagen.id3 import APIC as AlbumCover, USLT
 from mutagen.oggopus import OggOpus
 from mutagen.oggvorbis import OggVorbis
 
-
 import base64
 
 # Apple has specific tags - see mutagen docs -
@@ -38,20 +37,6 @@ M4A_TAG_PRESET = {
 TAG_PRESET = {}
 for key in M4A_TAG_PRESET.keys():
     TAG_PRESET[key] = key
-
-
-def set_id3_data(convertedFilePath, songObj, outputFormat):
-    if outputFormat == "mp3":
-        _set_id3_mp3(convertedFilePath, songObj)
-    elif outputFormat == "flac":
-        _set_id3_flac(convertedFilePath, songObj)
-    elif outputFormat == "opus":
-        _set_id3_opus(convertedFilePath, songObj)
-    elif outputFormat == "ogg":
-        _set_id3_ogg(convertedFilePath, songObj)
-    elif outputFormat == "m4a":
-        _set_id3_m4a(convertedFilePath, songObj)
-
 
 def _set_id3_mp3(convertedFilePath, songObj):
     # embed song details
@@ -188,9 +173,8 @@ def _embed_m4a_metadata(audioFile, songObj):
     except IndexError:
         pass
 
-
 def _embed_basic_metadata(audioFile, songObj, encoding, preset=TAG_PRESET):
-
+    
     # set main artist
     main_artist = songObj.get_contributing_artists()[0]
     if main_artist:
@@ -269,3 +253,18 @@ def _embed_cover(audioFile, songObj, encoding):
         encoded_data = base64.b64encode(image_data)
         vcomment_value = encoded_data.decode("ascii")
         audioFile["metadata_block_picture"] = [vcomment_value]
+
+
+SET_ID3_FUNCTIONS = {
+    "mp3": _set_id3_mp3,
+    "flac": _set_id3_flac,
+    "opus": _set_id3_opus,
+    "ogg": _set_id3_ogg,
+    "m4a": _set_id3_m4a
+}
+
+def set_id3_data(convertedFilePath, songObj, outputFormat):
+    function = SET_ID3_FUNCTIONS.get(outputFormat)
+    if function:
+        function(convertedFilePath, songObj)
+
