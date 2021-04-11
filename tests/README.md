@@ -44,4 +44,5 @@ running `pytest` again (without `--disable-vcr`).
 
 ## Debugging the application
 
-You can use the `--debug-termination` flag to show additional output when terminating the program. This is helpful when the program freezes.
+You can use the `--debug-termination` flag to show additional output when terminating the
+program. This is helpful when the program freezes.
