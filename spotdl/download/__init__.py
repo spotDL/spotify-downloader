@@ -1,4 +1,6 @@
 __all__ = [
     'progressHandlers',
-    'downloader'
+    'downloader',
+    'ffmpeg',
+    'embed_metadata'
 ]
