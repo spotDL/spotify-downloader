@@ -34,8 +34,8 @@ Download your Spotify playlists and songs along with album art and metadata
 
 ## Prerequisites
 
-- Python (added to PATH)
-- FFmpeg (added to PATH)
+- Python 3.6 or above (added to PATH)
+- FFmpeg 4.3 or above (added to PATH)
 
 > **_YouTube Music must be available in your country for spotDL to work. This is because we use YouTube Music to filter search results. You can check if YouTube Music is available in your country, by visiting [YouTube Music](https://music.youtube.com)._**
 
