@@ -1,6 +1,9 @@
+<!--- mdformat-toc start --slug=github --->
+
 # spotDL Installation Guide
 
 spotDL is a free and open source tool that downloads your Spotify playlists & music
+
 > **The fastest, easiest, and most accurate command-line music downloader**
 
 ## Prerequisites
@@ -12,7 +15,7 @@ spotDL is a free and open source tool that downloads your Spotify playlists & mu
 
 When installing Python, ensure to select "**Add to PATH**".
 
-![Add to PATH Image](static/ADD_TO_PATH.png)
+![Add to PATH Image](/docs/static/ADD_TO_PATH.png)
 
 ### Installing FFmpeg
 
@@ -34,7 +37,6 @@ You can install spotDL by opening a terminal and typing:
 pip install spotdl
 ```
 
-
 If you require further help, ask in our [Discord Server](https://discord.gg/xCa23pwJWY)
 
 [![Discord Server](https://img.shields.io/discord/771628785447337985?color=7289da&label=DISCORD&style=for-the-badge)](https://discord.gg/xCa23pwJWY)
@@ -43,11 +45,13 @@ If you require further help, ask in our [Discord Server](https://discord.gg/xCa2
 
 spotDL downloads files to the folder where you ran spotDL from.
 
-Open pwsh/powershell/cmd/terminal/similar in the folder you want files to download to, or cd to desired folder.
+Open pwsh/powershell/cmd/terminal/similar in the folder you want files to download to, or
+cd to desired folder.
 
-**Windows Shortcut:** Navigate to the folder you want the files to download to. `SHIFT + RIGHT CLICK`, then select "Open PowerShell window here"
+**Windows Shortcut:** Navigate to the folder you want the files to download to.
+`SHIFT + RIGHT CLICK`, then select "Open PowerShell window here"
 
-![Windows PWSH](static/POWERSHELL.png)
+![Windows PWSH](/docs/static/POWERSHELL.png)
 
 ## We have a public Discord server at **[discord.gg/xCa23pwJWY](https://discord.gg/xCa23pwJWY)!**
 
