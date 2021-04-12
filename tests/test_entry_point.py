@@ -25,7 +25,7 @@ def new_initialize(client_id, client_secret):
 def patch_dependencies(mocker, monkeypatch):
     """This is a helper fixture to patch out everything that shouldn't be called here"""
     monkeypatch.setattr(SpotifyClient, "init", new_initialize)
-    monkeypatch.setattr(DownloadManager, "__init__", lambda _: None)
+    monkeypatch.setattr(DownloadManager, "__init__", lambda *_: None)
     monkeypatch.setattr(ffmpeg, "has_correct_version", lambda *_: True)
     mocker.patch.object(DownloadManager, "download_single_song", autospec=True)
     mocker.patch.object(

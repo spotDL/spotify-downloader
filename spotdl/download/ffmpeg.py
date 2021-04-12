@@ -4,26 +4,32 @@ import sys
 import re
 
 
-def has_correct_version(skip_version_check: bool = False) -> bool:
-    process = subprocess.Popen(
-        ['ffmpeg', '-version'],
-        shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
-    )
-
-    proc_out, _ = process.communicate()
-
-    if process.returncode == 127:
+def has_correct_version(skip_version_check: bool = False, ffmpeg_path: str = "ffmpeg") -> bool:
+    try:
+        process = subprocess.Popen(
+            ['ffmpeg', '-version'],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            encoding="utf-8"
+        )
+    except FileNotFoundError:
         print("FFmpeg was not found, spotDL cannot continue.", file=sys.stderr)
         return False
 
+    output = "".join(process.communicate())
+
     if skip_version_check is False:
-        result = re.search(r"ffmpeg version \w?(\d+\.)?(\d+)", proc_out.decode("utf-8"))
+        result = re.search(r"ffmpeg version \w?(\d+\.)?(\d+)", output)
 
         if result is None:
             print("Your FFmpeg version couldn't be detected", file=sys.stderr)
             return False
 
         version = result.group(0).replace("ffmpeg version ", "")
+
+        # remove all non numeric characters from string example: n4.3
+        version = re.sub(r"[a-zA-Z]", "", version)
+
         if float(version) < 4.3:
             print(f"Your FFmpeg installation is too old ({version}), please update to 4.3+\n",
                   file=sys.stderr)
@@ -32,7 +38,7 @@ def has_correct_version(skip_version_check: bool = False) -> bool:
     return True
 
 
-async def convert(trackAudioStream, downloadedFilePath, convertedFilePath) -> bool:
+async def convert(trackAudioStream, downloadedFilePath, convertedFilePath, ffmpegPath) -> bool:
     # convert downloaded file to MP3 with normalization
 
     # ! -af loudnorm=I=-7:LRA applies EBR 128 loudness normalization algorithm with
@@ -55,8 +61,11 @@ async def convert(trackAudioStream, downloadedFilePath, convertedFilePath) -> bo
     # ! sampled length of songs matches the actual length (i.e. a 5 min song won't display
     # ! as 47 seconds long in your music player, yeah that was an issue earlier.)
 
+    if ffmpegPath is None:
+        ffmpegPath = "ffmpeg"
+
     command = (
-        'ffmpeg -v quiet -y -i "%s" -acodec libmp3lame -abr true '
+        f'{ffmpegPath} -v quiet -y -i "%s" -acodec libmp3lame -abr true '
         f"-b:a {trackAudioStream.bitrate} "
         '-af "apad=pad_dur=2, dynaudnorm, loudnorm=I=-17" "%s"'
     )
