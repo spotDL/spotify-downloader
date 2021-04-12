@@ -221,11 +221,11 @@ class DownloadManager():
             downloadedFilePath = Path(downloadedFilePathString)
 
             ffmpeg_success = await ffmpeg.convert(
-                trackAudioStream=trackAudioStream,
-                downloadedFilePath=downloadedFilePath,
-                convertedFilePath=convertedFilePath,
-                outputFormat=self.arguments['format'],
-                ffmpegPath=self.arguments['ffmpeg_path']
+                track_audio_stream=trackAudioStream,
+                downloaded_file_path=downloadedFilePath,
+                converted_file_path=convertedFilePath,
+                output_format=self.arguments['format'],
+                ffmpeg_path=self.arguments['ffmpeg_path']
             )
 
             if dispayProgressTracker:

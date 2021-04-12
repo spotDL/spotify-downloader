@@ -39,7 +39,8 @@ def has_correct_version(skip_version_check: bool = False, ffmpeg_path: str = "ff
 
 
 async def convert(
-    trackAudioStream, downloadedFilePath, convertedFilePath, ffmpegPath, outputFormat
+    track_audio_stream, downloaded_file_path, converted_file_path,
+    ffmpeg_path, output_format
 ) -> bool:
     # convert downloaded file to MP3 with normalization
 
@@ -73,17 +74,17 @@ async def convert(
         "m4a": "-codec:a aac -vn",
     }
 
-    if outputFormat is None:
+    if output_format is None:
         outputFormatCommand = formats["mp3"]
     else:
-        outputFormatCommand = formats[outputFormat]
+        outputFormatCommand = formats[output_format]
 
-    if ffmpegPath is None:
-        ffmpegPath = "ffmpeg"
+    if ffmpeg_path is None:
+        ffmpeg_path = "ffmpeg"
 
     command = (
-        f'{ffmpegPath} -v quiet -y -i "%s" {outputFormatCommand} '
-        f"-abr true -b:a {trackAudioStream.bitrate} "
+        f'{ffmpeg_path} -v quiet -y -i "%s" {outputFormatCommand} '
+        f"-abr true -b:a {track_audio_stream.bitrate} "
         '-af "apad=pad_dur=2, dynaudnorm, loudnorm=I=-17" "%s"'
     )
 
@@ -93,13 +94,13 @@ async def convert(
 
     if sys.platform == "win32":
         formattedCommand = command % (
-            str(downloadedFilePath),
-            str(convertedFilePath),
+            str(downloaded_file_path),
+            str(converted_file_path),
         )
     else:
         formattedCommand = command % (
-            str(downloadedFilePath).replace("$", r"\$"),
-            str(convertedFilePath).replace("$", r"\$"),
+            str(downloaded_file_path).replace("$", r"\$"),
+            str(converted_file_path).replace("$", r"\$"),
         )
 
     process = await asyncio.subprocess.create_subprocess_shell(
