@@ -154,7 +154,7 @@ def search_and_order_ytm_results(songName: str, songArtists: List[str],
     that $matchValue can take is 100, the least value is unbound.
     '''
     # Query YTM
-    results = _query_and_simplify(get_ytm_search_query(songName, songArtists))
+    results = _query_and_simplify(create_song_title(songName, songArtists))
 
     # Assign an overall avg match value to each result
     linksWithMatchValue = {}
@@ -217,7 +217,12 @@ def search_and_order_ytm_results(songName: str, songArtists: List[str],
         artistMatch = (artistMatchNumber / len(songArtists)) * 100
 
         # Find name match
-        nameMatch = round(match_percentage(result['name'], songName), ndigits=3)
+        song_title = create_song_title(songName, songArtists)
+        if result['type'] == 'song':
+            song_name = f"{result['artist']} - {result['name']}"
+            nameMatch = round(match_percentage(song_name, song_title), ndigits=3)
+        else:
+            nameMatch = round(match_percentage(result['name'], song_title), ndigits=3)
 
         # Find album match
         # ! We assign an arbitrary value of 0 for album match in case of video results
@@ -239,15 +244,20 @@ def search_and_order_ytm_results(songName: str, songArtists: List[str],
 
         timeMatch = 100 - nonMatchValue
 
-        # the results along with the avg Match
-        avgMatch = (artistMatch + albumMatch + nameMatch + timeMatch) / 4
+        # Don't add albumMatch to avgMatch if we don't have information about the album
+        # name in the metadata
+        if result['type'] == 'song':
+            avgMatch = (artistMatch + albumMatch + nameMatch + timeMatch) / 4
+        else:
+            avgMatch = (artistMatch + nameMatch + timeMatch) / 3
 
+        # the results along with the avg Match
         linksWithMatchValue[result['link']] = avgMatch
 
     return linksWithMatchValue
 
 
-def get_ytm_search_query(songName: str, songArtists: List[str]) -> str:
+def create_song_title(songName: str, songArtists: List[str]) -> str:
     joined_artists = ', '.join(songArtists)
     return f'{joined_artists} - {songName}'
 
