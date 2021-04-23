@@ -7,6 +7,8 @@
 *.opus
 *.ogg
 Temp/
+*.mp4
+.cache
 
 # Python
 __pycache__
