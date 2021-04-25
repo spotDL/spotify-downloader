@@ -16,7 +16,8 @@ from mutagen.easyid3 import EasyID3, ID3
 from mutagen.id3 import APIC as AlbumCover, USLT
 from pytube import YouTube
 
-from spotdl.download.progressHandlers import DisplayManager, DownloadTracker
+from spotdl.download.progressuiHandlers import DisplayManager
+from spotdl.download.trackingfileHandlers import DownloadTracker
 from spotdl.search.songObj import SongObj
 from spotdl.download import ffmpeg
 
