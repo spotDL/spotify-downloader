@@ -1,14 +1,12 @@
 from typing import List
 
-from spotdl.search.provider import search_and_get_best_match, get_song_lyrics
-from spotdl.search.spotifyClient import SpotifyClient
+# from spotdl.search.audioProvider import search_and_get_best_match
+import spotdl.search.audioProvider as audioProvider
+import spotdl.search.metadataProvider as metadataProvider
 
 
 class SongObj():
-    # ! This can be accessed as songObj.searchProvider. songObj acts like a namespace
-    # ! it allows us a convenient way of setting a search provider without using globals
-    searchProvider = search_and_get_best_match
-
+    
     # ====================
     # === Constructors ===
     # ====================
@@ -28,45 +26,28 @@ class SongObj():
     def from_url(cls, spotifyURL: str):
         # check if URL is a playlist, user, artist or album, if yes raise an Exception,
         # else procede
-        if not ('open.spotify.com' in spotifyURL and 'track' in spotifyURL):
-            raise Exception('passed URL is not that of a track: %s' % spotifyURL)
 
-        # query spotify for song, artist, album details
-        spotifyClient = SpotifyClient()
+        # Get the Song Metadata
+        rawTrackMeta, rawArtistMeta, rawAlbumMeta = metadataProvider.from_url(spotifyURL)
 
-        rawTrackMeta = spotifyClient.track(spotifyURL)
-
-        primaryArtistId = rawTrackMeta['artists'][0]['id']
-        rawArtistMeta = spotifyClient.artist(primaryArtistId)
-
-        albumId = rawTrackMeta['album']['id']
-        rawAlbumMeta = spotifyClient.album(albumId)
-
-        # get best match from the given provider
-        songName = rawTrackMeta['name']
-
-        albumName = rawTrackMeta['album']['name']
-
-        duration = round(
-            rawTrackMeta['duration_ms'] / 1000,
-            ndigits=3
-        )
-
+        songName = rawTrackMeta["name"]
+        albumName = rawTrackMeta["album"]["name"]
         contributingArtists = []
+        for artist in rawTrackMeta["artists"]:
+            contributingArtists.append(artist["name"])
+        duration = round(rawTrackMeta["duration_ms"] / 1000, ndigits=3)
 
-        for artist in rawTrackMeta['artists']:
-            contributingArtists.append(artist['name'])
-
-        youtubeLink = SongObj.searchProvider(
+        # Get the song's downloadable audio link
+        youtubeLink = audioProvider.search_and_get_best_match(
             songName,
             contributingArtists,
             albumName,
             duration
         )
 
-        # try to get lyrics from Genius
+        # (try to) Get lyrics from Genius
         try:
-            lyrics = get_song_lyrics(songName, contributingArtists)
+            lyrics = metadataProvider.get_song_lyrics(songName, contributingArtists)
         except (AttributeError, IndexError):
             lyrics = ""
 
