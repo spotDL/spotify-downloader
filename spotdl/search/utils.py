@@ -80,8 +80,8 @@ def get_artist_tracks(artistUrl: str) -> List[SongObj]:
         for album in artistResponse["items"]:
             # get albums and singles
             if not (
-                album["album_group"] == "appears_on"
-                and album["album_type"] in ["album", "compilation"]
+                (album["album_group"] == "appears_on")
+                and (album["album_type"] in ["album", "compilation"])
             ):
                 artistTracks.extend(get_album_tracks(album["id"]))
             # get features from other artists albums

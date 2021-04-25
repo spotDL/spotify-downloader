@@ -10,8 +10,6 @@ from typing import List
 
 from rapidfuzz.fuzz import partial_ratio
 from ytmusicapi import YTMusic
-from bs4 import BeautifulSoup
-from requests import get
 
 
 # ================================
