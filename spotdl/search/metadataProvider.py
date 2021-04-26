@@ -4,7 +4,7 @@ from spotdl.search.spotifyClient import SpotifyClient
 from typing import List
 
 
-def from_url(spotifyURL):
+def from_url(spotifyURL: str):
     if not ("open.spotify.com" in spotifyURL and "track" in spotifyURL):
         raise Exception("passed URL is not that of a track: %s" % spotifyURL)
 
