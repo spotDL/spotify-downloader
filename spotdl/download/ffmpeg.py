@@ -58,7 +58,7 @@ async def convert(
 
     command = (
         f'{ffmpegPath} -v quiet -y -i "%s" -acodec libmp3lame -abr true '
-        f"-b:a {trackAudioStream.bitrate} "
+        f"-q:a 0 "
         f'"%s"'
     )
 
