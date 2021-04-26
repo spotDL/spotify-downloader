@@ -20,5 +20,5 @@ def test_regressions(monkeypatch, tmpdir):
     console_entry_point()
 
     assert sorted(
-        [file.basename for file in tmpdir.listdir() if file.isfile()]
+        [file.basename for file in tmpdir.listdir() if file.isfile() and file.basename.startswith(".") is False]
     ) == sorted([*SONGS.values()])
