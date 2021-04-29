@@ -186,6 +186,11 @@ def search_and_get_best_match(songName: str, songArtists: List[str],
 
     # Merge songs and video results
     results = {**songs, **videos}
+
+    # No matches found
+    if len(results) == 0:
+        return None
+
     resultItems = list(results.items())
 
     # Sort results by highest score
