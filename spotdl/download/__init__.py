@@ -1,4 +1,1 @@
-__all__ = [
-    'progressHandlers',
-    'downloader'
-]
+__all__ = ["progressHandlers", "downloader"]

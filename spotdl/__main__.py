@@ -8,6 +8,7 @@ import os
 from spotdl.download.downloader import DownloadManager
 from spotdl.search.songObj import SongObj
 from spotdl.search.spotifyClient import SpotifyClient
+
 # ! Song Search from different start points
 from spotdl.search.utils import (
     get_playlist_tracks,
@@ -51,7 +52,7 @@ from spotdl.download import ffmpeg
 # ! P.S. Tell me what you think. Up to your expectations?
 
 # ! Script Help
-help_notice = '''
+help_notice = """
 To download a song run,
     spotdl [trackUrl]
     ex. spotdl https://open.spotify.com/track/0VjIjW4GlUZAMYd2vXMi3b?si=1stnMF5GSdClnIEARnJiiQ
@@ -84,25 +85,27 @@ You can use the --debug-termination flag to figure out where in the code spotdl 
 
 spotDL downloads up to 4 songs in parallel, so for a faster experience,
 download albums and playlist, rather than tracks.
-'''
+"""
 
 
 def console_entry_point():
-    '''
+    """
     This is where all the console processing magic happens.
     Its super simple, rudimentary even but, it's dead simple & it works.
-    '''
+    """
     arguments = parse_arguments()
 
-    if ffmpeg.has_correct_version(
-        arguments.ignore_ffmpeg_version,
-        arguments.ffmpeg or "ffmpeg"
-    ) is False:
+    if (
+        ffmpeg.has_correct_version(
+            arguments.ignore_ffmpeg_version, arguments.ffmpeg or "ffmpeg"
+        )
+        is False
+    ):
         sys.exit(1)
 
     SpotifyClient.init(
-        client_id='5f573c9620494bae87890c0f08a60293',
-        client_secret='212476d9b0f3472eaa762d90b19b0ba8'
+        client_id="5f573c9620494bae87890c0f08a60293",
+        client_secret="212476d9b0f3472eaa762d90b19b0ba8",
     )
 
     if arguments.path:
@@ -113,6 +116,7 @@ def console_entry_point():
 
     with DownloadManager(arguments.ffmpeg) as downloader:
         if not arguments.debug_termination:
+
             def gracefulExit(signal, frame):
                 downloader.displayManager.close()
                 sys.exit(0)
@@ -121,37 +125,38 @@ def console_entry_point():
             signal.signal(signal.SIGTERM, gracefulExit)
 
         for request in arguments.url:
-            if 'open.spotify.com' in request and 'track' in request:
-                print('Fetching Song...')
+            if "open.spotify.com" in request and "track" in request:
+                print("Fetching Song...")
                 song = SongObj.from_url(request)
 
                 if song.get_youtube_link() is not None:
                     downloader.download_single_song(song)
                 else:
-                    print('Skipping %s (%s) as no match could be found on youtube' % (
-                        song.get_song_name(), request
-                    ))
+                    print(
+                        "Skipping %s (%s) as no match could be found on youtube"
+                        % (song.get_song_name(), request)
+                    )
 
-            elif 'open.spotify.com' in request and 'album' in request:
-                print('Fetching Album...')
+            elif "open.spotify.com" in request and "album" in request:
+                print("Fetching Album...")
                 songObjList = get_album_tracks(request)
 
                 downloader.download_multiple_songs(songObjList)
 
-            elif 'open.spotify.com' in request and 'playlist' in request:
-                print('Fetching Playlist...')
+            elif "open.spotify.com" in request and "playlist" in request:
+                print("Fetching Playlist...")
                 songObjList = get_playlist_tracks(request)
 
                 downloader.download_multiple_songs(songObjList)
 
-            elif 'open.spotify.com' in request and 'artist' in request:
-                print('Fetching artist...')
+            elif "open.spotify.com" in request and "artist" in request:
+                print("Fetching artist...")
                 artistObjList = get_artist_tracks(request)
 
                 downloader.download_multiple_songs(artistObjList)
 
-            elif request.endswith('.spotdlTrackingFile'):
-                print('Preparing to resume download...')
+            elif request.endswith(".spotdlTrackingFile"):
+                print("Preparing to resume download...")
                 downloader.resume_download_from_tracking_file(request)
 
             else:
@@ -173,11 +178,12 @@ def parse_arguments():
     parser.add_argument("--debug-termination", action="store_true")
     parser.add_argument("-o", "--output", help="Output directory path", dest="path")
     parser.add_argument("-f", "--ffmpeg", help="Path to ffmpeg", dest="ffmpeg")
-    parser.add_argument("--ignore-ffmpeg-version",
-                        help="Ignore ffmpeg version", action="store_true")
+    parser.add_argument(
+        "--ignore-ffmpeg-version", help="Ignore ffmpeg version", action="store_true"
+    )
 
     return parser.parse_args()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     console_entry_point()

@@ -4,13 +4,15 @@ import sys
 import re
 
 
-def has_correct_version(skip_version_check: bool = False, ffmpeg_path: str = "ffmpeg") -> bool:
+def has_correct_version(
+    skip_version_check: bool = False, ffmpeg_path: str = "ffmpeg"
+) -> bool:
     try:
         process = subprocess.Popen(
-            ['ffmpeg', '-version'],
+            ["ffmpeg", "-version"],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
-            encoding="utf-8"
+            encoding="utf-8",
         )
     except FileNotFoundError:
         print("FFmpeg was not found, spotDL cannot continue.", file=sys.stderr)
@@ -31,14 +33,18 @@ def has_correct_version(skip_version_check: bool = False, ffmpeg_path: str = "ff
         version = re.sub(r"[a-zA-Z]", "", version)
 
         if float(version) < 4.3:
-            print(f"Your FFmpeg installation is too old ({version}), please update to 4.3+\n",
-                  file=sys.stderr)
+            print(
+                f"Your FFmpeg installation is too old ({version}), please update to 4.3+\n",
+                file=sys.stderr,
+            )
             return False
 
     return True
 
 
-async def convert(trackAudioStream, downloadedFilePath, convertedFilePath, ffmpegPath) -> bool:
+async def convert(
+    trackAudioStream, downloadedFilePath, convertedFilePath, ffmpegPath
+) -> bool:
     # convert downloaded file to MP3 with normalization
 
     # ! -af loudnorm=I=-7:LRA applies EBR 128 loudness normalization algorithm with
@@ -96,7 +102,7 @@ async def convert(trackAudioStream, downloadedFilePath, convertedFilePath, ffmpe
     if process.returncode != 0:
         message = (
             f"ffmpeg returned an error ({process.returncode})"
-            f"\nthe ffmpeg command was \"{formattedCommand}\""
+            f'\nthe ffmpeg command was "{formattedCommand}"'
             "\nffmpeg gave this output:"
             "\n=====\n"
             f"{proc_err.decode('utf-8')}"
