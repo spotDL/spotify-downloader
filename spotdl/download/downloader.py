@@ -24,6 +24,83 @@ from spotdl.download import ffmpeg
 # === Base functionality ===
 # ==========================
 
+# ========================
+# === Helper function ===
+# ========================
+
+def _sanitize_filename(input_str: str) -> str:
+    # ! this is windows specific (disallowed chars)
+    output = input_str
+    for disallowed_char in ['/', '?', '\\', '*', '|', '<', '>']:
+        if disallowed_char in output:
+            output = output.replace(
+                disallowed_char,
+                ''
+            )
+
+    # ! double quotes (") and semi-colons (:) are also disallowed characters but we would
+    # ! like to retain their equivalents, so they aren't removed in the prior loop
+    output = output.replace('"', "'").replace(':', '-')
+
+    return output
+
+
+def _get_smaller_file_path(input_song: SongObj) -> Path:
+    # Only use the first artist if the song path turns out to be too long
+    smaller_name = f"{input_song.get_contributing_artists()[0]} - {input_song.get_song_name()}"
+
+    # this is windows specific (disallowed chars)
+    for disallowed_char in ['/', '?', '\\', '*', '|', '<', '>']:
+        if disallowed_char in smaller_name:
+            smaller_name = smaller_name.replace(disallowed_char, '')
+
+    # ! double quotes (") and semi-colons (:) are also disallowed characters
+    # ! but we would like to retain their equivalents, so they aren't removed
+    # ! in the prior loop
+    smaller_name = _sanitize_filename(smaller_name.replace('"', "'").replace(':', '-'))
+
+    try:
+        return Path(f"{smaller_name}.mp3").resolve()
+    except WindowsError:
+        # Expected to happen in the rare case when the saved path is too long,
+        # even with the short filename
+        raise WindowsError("Cannot save song due to path issues.")
+
+
+def _get_converted_file_path(song_obj: SongObj) -> Path:
+
+    # ! we eliminate contributing artist names that are also in the song name, else we
+    # ! would end up with things like 'Jetta, Mastubs - I'd love to change the world
+    # ! (Mastubs REMIX).mp3' which is kinda an odd file name.
+
+    # also make sure that main artist is included in artistStr even if they
+    # are in the song name, for example
+    # Lil Baby - Never Recover (Lil Baby & Gunna, Drake).mp3
+
+    artists_filtered = []
+
+    for artist in song_obj.get_contributing_artists():
+        if artist.lower() not in song_obj.get_song_name():
+            artists_filtered.append(artist)
+        elif artist.lower() is song_obj.get_contributing_artists()[0].lower():
+            artists_filtered.append(artist)
+
+    artist_str = ", ".join(artists_filtered)
+
+    converted_file_name = _sanitize_filename(f"{artist_str} - {song_obj.get_song_name()}.mp3")
+
+    converted_file_path = Path(converted_file_name)
+
+    # ! Checks if a file name is too long (256 max on both linux and windows)
+    try:
+        if len(str(converted_file_path.resolve().name)) > 256:
+            print("Path was too long. Using Small Path.")
+            return _get_smaller_file_path(song_obj)
+    except WindowsError:
+        return _get_smaller_file_path(song_obj)
+
+    return converted_file_path
+
 
 # ===========================================================
 # === The Download Manager (the tyrannical boss lady/guy) ===
@@ -140,38 +217,8 @@ class DownloadManager():
             if not tempFolder.exists():
                 tempFolder.mkdir()
 
-            # build file name of converted file
-            artistStr = ''
-
-            # ! we eliminate contributing artist names that are also in the song name, else we
-            # ! would end up with things like 'Jetta, Mastubs - I'd love to change the world
-            # ! (Mastubs REMIX).mp3' which is kinda an odd file name.
-            for artist in songObj.get_contributing_artists():
-                if artist.lower() not in songObj.get_song_name().lower():
-                    artistStr += artist + ', '
-
-            # make sure that main artist is included in artistStr even if they
-            # are in the song name, for example
-            # Lil Baby - Never Recover (Lil Baby & Gunna, Drake).mp3
-            if songObj.get_contributing_artists()[0].lower() not in artistStr.lower():
-                artistStr = songObj.get_contributing_artists()[0] + ', ' + artistStr
-
-            # ! the ...[:-2] is to avoid the last ', ' appended to artistStr
-            convertedFileName = artistStr[:-2] + \
-                ' - ' + songObj.get_song_name()
-
-            # ! this is windows specific (disallowed chars)
-            for disallowedChar in ['/', '?', '\\', '*', '|', '<', '>']:
-                if disallowedChar in convertedFileName:
-                    convertedFileName = convertedFileName.replace(
-                        disallowedChar, '')
-
-            # ! double quotes (") and semi-colons (:) are also disallowed characters but we would
-            # ! like to retain their equivalents, so they aren't removed in the prior loop
-            convertedFileName = convertedFileName.replace(
-                '"', "'").replace(':', '-')
-
-            convertedFilePath = Path(".", f"{convertedFileName}.mp3")
+            # get converted file path
+            convertedFilePath = _get_converted_file_path(songObj)
 
             # if a song is already downloaded skip it
             if convertedFilePath.is_file():
@@ -203,7 +250,7 @@ class DownloadManager():
                 return None
 
             downloadedFilePathString = await self._download_from_youtube(
-                convertedFileName,
+                convertedFilePath.name,
                 tempFolder,
                 trackAudioStream
             )
