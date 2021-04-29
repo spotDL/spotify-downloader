@@ -296,7 +296,7 @@ def order_ytm_results(
                 # result album name != songAlbumName
                 if match_percentage(
                     album.lower(), result['name'].lower()
-                ) > 95 and album.lower() != songAlbumName:
+                ) > 95 and album.lower() != songAlbumName.lower():
                     avgMatch = (artistMatch + nameMatch + timeMatch) / 3
                 # Add album to avgMatch if songName == result album
                 # and result album name == songAlbumName
