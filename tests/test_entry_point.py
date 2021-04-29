@@ -13,12 +13,12 @@ from tests.utils import tracking_files
 ORIGINAL_INITIALIZE = SpotifyClient.init
 
 
-def new_initialize(client_id, client_secret):
+def new_initialize(client_id, client_secret, user_auth):
     """This function allows calling `initialize()` multiple times"""
     try:
         return SpotifyClient()
     except:
-        return ORIGINAL_INITIALIZE(client_id, client_secret)
+        return ORIGINAL_INITIALIZE(client_id, client_secret, user_auth)
 
 
 @pytest.fixture()

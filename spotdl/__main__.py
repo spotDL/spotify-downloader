@@ -13,6 +13,7 @@ from spotdl.search.utils import (
     get_playlist_tracks,
     get_album_tracks,
     get_artist_tracks,
+    get_saved_tracks,
     search_for_song,
 )
 from spotdl.download import ffmpeg
@@ -64,6 +65,9 @@ To download a playlist, run:
     spotdl [playlistUrl]
     ex. spotdl https://open.spotify.com/playlist/37i9dQZF1E8UXBoz02kGID?si=oGd5ctlyQ0qblj_bL6WWow
 
+To download your saved songs, run:
+    spotdl --user-auth saved
+
 To search for and download a song, run, with quotation marks:
 Note: This is not accurate and often causes errors.
     spotdl [songQuery]
@@ -100,9 +104,16 @@ def console_entry_point():
     ) is False:
         sys.exit(1)
 
+    for request in arguments.url:
+        if 'saved' == request and not arguments.userAuth:
+            arguments.userAuth = True
+            print("Detected 'saved' in command line, but no --user-auth flag. Enabling Anyways.")
+            print("Please Log In...")
+
     SpotifyClient.init(
         client_id='5f573c9620494bae87890c0f08a60293',
-        client_secret='212476d9b0f3472eaa762d90b19b0ba8'
+        client_secret='212476d9b0f3472eaa762d90b19b0ba8',
+        user_auth=arguments.userAuth
     )
 
     if arguments.path:
@@ -154,6 +165,11 @@ def console_entry_point():
                 print('Preparing to resume download...')
                 downloader.resume_download_from_tracking_file(request)
 
+            elif request == "saved":
+                print('Fetching Saved Songs...')
+                songObjList = get_saved_tracks()
+                downloader.download_multiple_songs(songObjList)
+
             else:
                 print('Searching for song "%s"...' % request)
                 try:
@@ -172,6 +188,12 @@ def parse_arguments():
     parser.add_argument("url", type=str, nargs="+", help="URL to a song/album/playlist")
     parser.add_argument("--debug-termination", action="store_true")
     parser.add_argument("-o", "--output", help="Output directory path", dest="path")
+    parser.add_argument(
+        "--user-auth",
+        help="Use User Authentication",
+        action='store_true',
+        dest="userAuth"
+    )
     parser.add_argument("-f", "--ffmpeg", help="Path to ffmpeg", dest="ffmpeg")
     parser.add_argument("--ignore-ffmpeg-version",
                         help="Ignore ffmpeg version", action="store_true")
