@@ -266,8 +266,7 @@ def order_ytm_results(
         # Find name match
         song_title = create_song_title(songName, songArtists)
         if result['type'] == 'song':
-            song_name = f"{result['artist']} - {result['name']}"
-            nameMatch = round(match_percentage(song_name, song_title), ndigits=3)
+            nameMatch = round(match_percentage(result['name'], songName), ndigits=3)
         else:
             nameMatch = round(match_percentage(result['name'], song_title), ndigits=3)
 
