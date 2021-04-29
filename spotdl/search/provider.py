@@ -290,10 +290,22 @@ def order_ytm_results(
 
         timeMatch = 100 - nonMatchValue
 
+        if result['type'] == 'song':
+            if album is not None:
+                # Don't add albumMatch to avgMatch if songName == result and
+                # result album name != songAlbumName
+                if match_percentage(
+                    album.lower(), result['name'].lower()
+                ) > 95 and album.lower() != songAlbumName:
+                    avgMatch = (artistMatch + nameMatch + timeMatch) / 3
+                # Add album to avgMatch if songName == result album
+                # and result album name == songAlbumName
+                else:
+                    avgMatch = (artistMatch + albumMatch + nameMatch + timeMatch) / 4
+            else:
+                avgMatch = (artistMatch + nameMatch + timeMatch) / 3
         # Don't add albumMatch to avgMatch if we don't have information about the album
         # name in the metadata
-        if result['type'] == 'song':
-            avgMatch = (artistMatch + albumMatch + nameMatch + timeMatch) / 4
         else:
             avgMatch = (artistMatch + nameMatch + timeMatch) / 3
 
