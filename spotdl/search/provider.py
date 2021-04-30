@@ -251,7 +251,10 @@ def order_ytm_results(
         # ! we use fuzzy matching because YouTube spellings might be mucked up
         if result['type'] == 'song':
             for artist in songArtists:
-                if match_percentage(unidecode(artist.lower()), unidecode(result['artist']).lower(), 85):
+                if match_percentage(
+                        unidecode(artist.lower()),
+                        unidecode(result['artist']).lower(),
+                        85):
                     artistMatchNumber += 1
         else:
             # ! i.e if video
@@ -259,7 +262,10 @@ def order_ytm_results(
                 # ! something like match_percentage('rionos', 'aiobahn, rionos Motivation
                 # ! (remix)' would return 100, so we're absolutely corrent in matching
                 # ! artists to song name.
-                if match_percentage(unidecode(artist.lower()), unidecode(result['name']).lower(), 85):
+                if match_percentage(
+                        unidecode(artist.lower()),
+                        unidecode(result['name']).lower(),
+                        85):
                     artistMatchNumber += 1
 
         # ! Skip if there are no artists in common, (else, results like 'Griffith Swank -
@@ -273,9 +279,11 @@ def order_ytm_results(
         song_title = create_song_title(songName, songArtists)
 
         if result['type'] == 'song':
-            nameMatch = round(match_percentage(unidecode(result['name']), unidecode(songName)), ndigits=3)
+            nameMatch = round(match_percentage(
+                unidecode(result['name']), unidecode(songName)), ndigits=3)
         else:
-            nameMatch = round(match_percentage(unidecode(result['name']), unidecode(song_title)), ndigits=3)
+            nameMatch = round(match_percentage(
+                unidecode(result['name']), unidecode(song_title)), ndigits=3)
 
         # Find album match
         # ! We assign an arbitrary value of 0 for album match in case of video results
