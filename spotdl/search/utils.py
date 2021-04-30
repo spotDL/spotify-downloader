@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Dict
 
 from spotdl.search.songObj import SongObj
 from spotdl.search.spotifyClient import SpotifyClient
@@ -92,7 +92,7 @@ def get_artist_tracks(artistUrl: str) -> List[SongObj]:
                     'album', 'compilation']
             ):
                 trackResponse = spotifyClient.album_tracks(album['uri'])
-                albumTracks = {}
+                albumTracks: Dict[str, SongObj] = {}
 
                 # while loop acts like do-while
                 while True:
