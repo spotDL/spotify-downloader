@@ -92,19 +92,21 @@ def get_artist_tracks(artistUrl: str) -> List[SongObj]:
                     'album', 'compilation']
             ):
                 trackResponse = spotifyClient.album_tracks(album['uri'])
-                albumTracks = []
+                albumTracks = {}
 
                 # while loop acts like do-while
                 while True:
                     for track in trackResponse['items']:
-                        for artist in track['artists']:
-                            if artist['id'] == artistResponse['href'].split('/')[-2]:
-                                song = SongObj.from_url(
-                                    'https://open.spotify.com/track/' + track['id']
-                                )
+                        trackName = "".join(filter(str.isalnum, track['name'].lower()))
+                        if albumTracks.get(trackName) is None:
+                            for artist in track['artists']:
+                                if artist['id'] == artistResponse['href'].split('/')[-2]:
+                                    song = SongObj.from_url(
+                                        'https://open.spotify.com/track/' + track['id']
+                                    )
 
-                                if song.get_youtube_link() is not None:
-                                    albumTracks.append(song)
+                                    if song.get_youtube_link() is not None:
+                                        albumTracks[trackName] = song
 
                     # check if more tracks are to be passed
                     if trackResponse['next']:
@@ -115,7 +117,7 @@ def get_artist_tracks(artistUrl: str) -> List[SongObj]:
                     else:
                         break
 
-                artistTracks.extend(albumTracks)
+                artistTracks.extend(list(albumTracks.values()))
                 albums.append(albumName)
 
         offset += len(artistResponse['items'])
