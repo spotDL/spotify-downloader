@@ -7,7 +7,7 @@ import re
 def has_correct_version(skip_version_check: bool = False, ffmpeg_path: str = "ffmpeg") -> bool:
     try:
         process = subprocess.Popen(
-            ['ffmpeg', '-version'],
+            [ffmpeg_path, '-version'],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             encoding="utf-8"
@@ -38,7 +38,10 @@ def has_correct_version(skip_version_check: bool = False, ffmpeg_path: str = "ff
     return True
 
 
-async def convert(trackAudioStream, downloadedFilePath, convertedFilePath, ffmpegPath) -> bool:
+async def convert(
+    track_audio_stream, downloaded_file_path, converted_file_path,
+    ffmpeg_path, output_format
+) -> bool:
     # convert downloaded file to MP3 with normalization
 
     # ! -af loudnorm=I=-7:LRA applies EBR 128 loudness normalization algorithm with
@@ -56,17 +59,32 @@ async def convert(trackAudioStream, downloadedFilePath, convertedFilePath, ffmpe
     # ! combat that.
     # !
     # ! -acodec libmp3lame sets the encoded to 'libmp3lame' which is far better
-    # ! than the default 'mp3_mf', '-abr true' automatically determines and passes the
+    # ! than the default 'mp3_mf'
+    # !
+    # ! '-abr true' automatically determines and passes the
     # ! audio encoding bitrate to the filters and encoder. This ensures that the
     # ! sampled length of songs matches the actual length (i.e. a 5 min song won't display
     # ! as 47 seconds long in your music player, yeah that was an issue earlier.)
 
-    if ffmpegPath is None:
-        ffmpegPath = "ffmpeg"
+    formats = {
+        "mp3": "-codec:a libmp3lame",
+        "flac": "-codec:a flac",
+        "ogg": "-codec:a libvorbis -q:a 5",
+        "opus": "-codec:a libopus",
+        "m4a": "-codec:a aac -vn",
+    }
+
+    if output_format is None:
+        outputFormatCommand = formats["mp3"]
+    else:
+        outputFormatCommand = formats[output_format]
+
+    if ffmpeg_path is None:
+        ffmpeg_path = "ffmpeg"
 
     command = (
-        f'{ffmpegPath} -v quiet -y -i "%s" -acodec libmp3lame -abr true '
-        f"-b:a {trackAudioStream.bitrate} "
+        f'{ffmpeg_path} -v quiet -y -i "%s" {outputFormatCommand} '
+        f"-abr true -b:a {track_audio_stream.bitrate} "
         '-af "apad=pad_dur=2, dynaudnorm, loudnorm=I=-17" "%s"'
     )
 
@@ -76,13 +94,13 @@ async def convert(trackAudioStream, downloadedFilePath, convertedFilePath, ffmpe
 
     if sys.platform == "win32":
         formattedCommand = command % (
-            str(downloadedFilePath),
-            str(convertedFilePath),
+            str(downloaded_file_path),
+            str(converted_file_path),
         )
     else:
         formattedCommand = command % (
-            str(downloadedFilePath).replace("$", r"\$"),
-            str(convertedFilePath).replace("$", r"\$"),
+            str(downloaded_file_path).replace("$", r"\$"),
+            str(converted_file_path).replace("$", r"\$"),
         )
 
     process = await asyncio.subprocess.create_subprocess_shell(
