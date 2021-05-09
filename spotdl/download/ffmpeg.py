@@ -57,9 +57,7 @@ async def convert(
         ffmpegPath = "ffmpeg"
 
     command = (
-        f'{ffmpegPath} -v quiet -y -i "%s" -acodec libmp3lame -abr true '
-        f"-q:a 0 "
-        f'"%s"'
+        f'{ffmpegPath} -v quiet -y -i "%s" -acodec libmp3lame -abr true -q:a 0 "%s"'
     )
 
     # ! bash/ffmpeg on Unix systems need to have excape char (\) for special characters: \$
