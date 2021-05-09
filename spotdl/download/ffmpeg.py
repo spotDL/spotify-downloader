@@ -4,13 +4,15 @@ import sys
 import re
 
 
-def has_correct_version(skip_version_check: bool = False, ffmpeg_path: str = "ffmpeg") -> bool:
+def has_correct_version(
+    skip_version_check: bool = False, ffmpeg_path: str = "ffmpeg"
+) -> bool:
     try:
         process = subprocess.Popen(
-            ['ffmpeg', '-version'],
+            ["ffmpeg", "-version"],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
-            encoding="utf-8"
+            encoding="utf-8",
         )
     except FileNotFoundError:
         print("FFmpeg was not found, spotDL cannot continue.", file=sys.stderr)
@@ -31,30 +33,20 @@ def has_correct_version(skip_version_check: bool = False, ffmpeg_path: str = "ff
         version = re.sub(r"[a-zA-Z]", "", version)
 
         if float(version) < 4.3:
-            print(f"Your FFmpeg installation is too old ({version}), please update to 4.3+\n",
-                  file=sys.stderr)
+            print(
+                f"Your FFmpeg installation is too old ({version}), please update to 4.3+\n",
+                file=sys.stderr,
+            )
             return False
 
     return True
 
 
-async def convert(trackAudioStream, downloadedFilePath, convertedFilePath, ffmpegPath) -> bool:
-    # convert downloaded file to MP3 with normalization
+async def convert(
+    trackAudioStream, downloadedFilePath, convertedFilePath, ffmpegPath
+) -> bool:
+    # convert downloaded file to MP3
 
-    # ! -af loudnorm=I=-7:LRA applies EBR 128 loudness normalization algorithm with
-    # ! intergrated loudness target (I) set to -17, using values lower than -15
-    # ! causes 'pumping' i.e. rhythmic variation in loudness that should not
-    # ! exist -loud parts exaggerate, soft parts left alone.
-    # !
-    # ! dynaudnorm applies dynamic non-linear RMS based normalization, this is what
-    # ! actually normalized the audio. The loudnorm filter just makes the apparent
-    # ! loudness constant
-    # !
-    # ! apad=pad_dur=2 adds 2 seconds of silence toward the end of the track, this is
-    # ! done because the loudnorm filter clips/cuts/deletes the last 1-2 seconds on
-    # ! occasion especially if the song is EDM-like, so we add a few extra seconds to
-    # ! combat that.
-    # !
     # ! -acodec libmp3lame sets the encoded to 'libmp3lame' which is far better
     # ! than the default 'mp3_mf', '-abr true' automatically determines and passes the
     # ! audio encoding bitrate to the filters and encoder. This ensures that the
@@ -65,9 +57,7 @@ async def convert(trackAudioStream, downloadedFilePath, convertedFilePath, ffmpe
         ffmpegPath = "ffmpeg"
 
     command = (
-        f'{ffmpegPath} -v quiet -y -i "%s" -acodec libmp3lame -abr true '
-        f"-b:a {trackAudioStream.bitrate} "
-        '-af "apad=pad_dur=2, dynaudnorm, loudnorm=I=-17" "%s"'
+        f'{ffmpegPath} -v quiet -y -i "%s" -acodec libmp3lame -abr true -q:a 0 "%s"'
     )
 
     # ! bash/ffmpeg on Unix systems need to have excape char (\) for special characters: \$
@@ -96,7 +86,7 @@ async def convert(trackAudioStream, downloadedFilePath, convertedFilePath, ffmpe
     if process.returncode != 0:
         message = (
             f"ffmpeg returned an error ({process.returncode})"
-            f"\nthe ffmpeg command was \"{formattedCommand}\""
+            f'\nthe ffmpeg command was "{formattedCommand}"'
             "\nffmpeg gave this output:"
             "\n=====\n"
             f"{proc_err.decode('utf-8')}"
