@@ -9,7 +9,7 @@ def has_correct_version(
 ) -> bool:
     try:
         process = subprocess.Popen(
-            ["ffmpeg", "-version"],
+            [ffmpeg_path, "-version"],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             encoding="utf-8",
