@@ -56,40 +56,35 @@ async def convert(
     if ffmpegPath is None:
         ffmpegPath = "ffmpeg"
 
-    command = (
-        f'{ffmpegPath} -v quiet -y -i "%s" -acodec libmp3lame -abr true -q:a 0 "%s"'
-    )
-
     # ! bash/ffmpeg on Unix systems need to have excape char (\) for special characters: \$
     # ! alternatively the quotes could be reversed (single <-> double) in the command then
     # ! the windows special characters needs escaping (^): ^\  ^&  ^|  ^>  ^<  ^^
 
     if sys.platform == "win32":
-        formattedCommand = command % (
-            str(downloadedFilePath),
-            str(convertedFilePath),
-        )
+        downloadedFilePath = str(downloadedFilePath)
+        convertedFilePath = str(convertedFilePath)
     else:
-        formattedCommand = command % (
-            str(downloadedFilePath).replace("$", r"\$"),
-            str(convertedFilePath).replace("$", r"\$"),
-        )
+        downloadedFilePath = str(downloadedFilePath).replace("$", r"\$")
+        convertedFilePath = str(convertedFilePath).replace("$", r"\$")
 
-    process = await asyncio.subprocess.create_subprocess_shell(
-        formattedCommand,
+    arguments = ["-v", "quiet", "-i", downloadedFilePath, "-acodec", "libmp3lame", "-abr", "true", "-q:a", "0", convertedFilePath]
+
+    process = await asyncio.subprocess.create_subprocess_exec(
+        ffmpegPath,
+        *arguments,
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.PIPE,
     )
 
-    _, proc_err = await process.communicate()
+    proc_out, proc_err = await process.communicate()
 
     if process.returncode != 0:
         message = (
             f"ffmpeg returned an error ({process.returncode})"
-            f'\nthe ffmpeg command was "{formattedCommand}"'
+            f'\nffmpeg arguments: "{" ".join(arguments)}"'
             "\nffmpeg gave this output:"
             "\n=====\n"
-            f"{proc_err.decode('utf-8')}"
+            f"{''.join([proc_out, proc_err])}"
             "\n=====\n"
         )
 
