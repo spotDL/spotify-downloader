@@ -32,7 +32,7 @@ def has_correct_version(
         # remove all non numeric characters from string example: n4.3
         version = re.sub(r"[a-zA-Z]", "", version)
 
-        if float(version) < 4.3:
+        if float(version) < 4.2:
             print(
                 f"Your FFmpeg installation is too old ({version}), please update to 4.3+\n",
                 file=sys.stderr,
