@@ -85,7 +85,7 @@ async def convert(
             f'\nffmpeg arguments: "{" ".join(arguments)}"'
             "\nffmpeg gave this output:"
             "\n=====\n"
-            f"{''.join([proc_out, proc_err])}"
+            f"{''.join([proc_out.decode('utf-8'), proc_err.decode('utf-8')])}"
             "\n=====\n"
         )
 
