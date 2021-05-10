@@ -67,7 +67,8 @@ async def convert(
         downloadedFilePath = str(downloadedFilePath).replace("$", r"\$")
         convertedFilePath = str(convertedFilePath).replace("$", r"\$")
 
-    arguments = ["-v", "quiet", "-i", downloadedFilePath, "-acodec", "libmp3lame", "-abr", "true", "-q:a", "0", convertedFilePath]
+    arguments = ["-v", "quiet", "-i", downloadedFilePath, "-acodec",
+                 "libmp3lame", "-abr", "true", "-q:a", "0", convertedFilePath]
 
     process = await asyncio.subprocess.create_subprocess_exec(
         ffmpegPath,
