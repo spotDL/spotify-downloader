@@ -43,7 +43,7 @@ def has_correct_version(
 
 
 async def convert(
-    trackAudioStream, downloadedFilePath, convertedFilePath, ffmpegPath
+    downloadedFilePath, convertedFilePath, ffmpegPath
 ) -> bool:
     # convert downloaded file to MP3
 
