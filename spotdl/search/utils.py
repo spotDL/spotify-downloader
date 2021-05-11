@@ -80,7 +80,7 @@ def get_artist_tracks(artistUrl: str) -> List[SongObj]:
 
     artistResponse = spotifyClient.artist_albums(artistUrl)
 
-    # while loop acts like do-while
+    # loop until we get all tracks from all albums/playlists
     while True:
         for album in artistResponse['items']:
 
@@ -90,21 +90,38 @@ def get_artist_tracks(artistUrl: str) -> List[SongObj]:
             # join all characters into one string
             albumName = "".join(alphaNumericFilter)
 
-            # get albums and singles
+            # check if we've already downloaded album with this name
             if not (albumName in albums) and not (
+                # exclude compilation playlists
                 album['album_group'] == 'appears_on' and album['album_type'] in [
                     'album', 'compilation']
             ):
                 trackResponse = spotifyClient.album_tracks(album['uri'])
                 albumTracks: Dict[str, SongObj] = {}
 
-                # while loop acts like do-while
+                # loop until we get all tracks from playlist
                 while True:
                     for track in trackResponse['items']:
-                        trackName = "".join(filter(str.isalnum, track['name'].lower()))
+                        # return an iterable containing the string's alphanumeric characters
+                        alphaNumericFilter = filter(str.isalnum, track['name'].lower())
+
+                        # join all characters into one string
+                        trackName = "".join(alphaNumericFilter)
+
+                        # check if we've alredy downloaded this track
                         if albumTracks.get(trackName) is None:
                             for artist in track['artists']:
-                                if artist['id'] == artistResponse['href'].split('/')[-2]:
+                                # get artist id from url
+                                # https://api.spotify.com/v1/artists/1fZAAHNWdSM5gqbi9o5iEA/albums
+                                # split string
+                                # ['https:', '', 'api.spotify.com', 'v1', 'artists', '1fZAAHNWdSM5gqbi9o5iEA', 'albums']
+                                # get second element from the end
+                                # '1fZAAHNWdSM5gqbi9o5iEA'
+                                artistId = artistResponse['href'].split('/')[-2]
+
+                                # ignore tracks that are not from our artist by checking
+                                # the id
+                                if artist['id'] == artistId:
                                     song = SongObj.from_url(
                                         'https://open.spotify.com/track/' + track['id']
                                     )
