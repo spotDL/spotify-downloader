@@ -84,7 +84,11 @@ def get_artist_tracks(artistUrl: str) -> List[SongObj]:
     while True:
         for album in artistResponse['items']:
 
-            albumName = "".join(filter(str.isalnum, album['name'].lower()))
+            # return an iterable containing the string's alphanumeric characters
+            alphaNumericFilter = filter(str.isalnum, album['name'].lower())
+
+            # join all characters into one string
+            albumName = "".join(alphaNumericFilter)
 
             # get albums and singles
             if not (albumName in albums) and not (
