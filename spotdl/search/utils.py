@@ -74,8 +74,8 @@ def get_artist_tracks(artistUrl: str) -> List[SongObj]:
     '''
 
     spotifyClient = SpotifyClient()
-    artistTracks = []
     albums = []
+    albumTracks: Dict[str, SongObj] = {}
     offset = 0
 
     artistResponse = spotifyClient.artist_albums(artistUrl)
@@ -94,10 +94,9 @@ def get_artist_tracks(artistUrl: str) -> List[SongObj]:
             if not (albumName in albums) and not (
                 # exclude compilation playlists
                 album['album_group'] == 'appears_on' and album['album_type'] in [
-                    'album', 'compilation']
+                    'compilation']
             ):
                 trackResponse = spotifyClient.album_tracks(album['uri'])
-                albumTracks: Dict[str, SongObj] = {}
 
                 # loop until we get all tracks from playlist
                 while True:
@@ -138,7 +137,6 @@ def get_artist_tracks(artistUrl: str) -> List[SongObj]:
                     else:
                         break
 
-                artistTracks.extend(list(albumTracks.values()))
                 albums.append(albumName)
 
         offset += len(artistResponse['items'])
@@ -152,7 +150,7 @@ def get_artist_tracks(artistUrl: str) -> List[SongObj]:
         else:
             break
 
-    return artistTracks
+    return list(albumTracks.values())
 
 
 def get_playlist_tracks(playlistUrl: str) -> List[SongObj]:
