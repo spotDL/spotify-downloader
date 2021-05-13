@@ -37,7 +37,6 @@ def from_query(request: str):
     return songObjList
 
 
-
 # All other functions in this file call this one
 
 def songobj_from_spotify_url(spotifyURL: str):
@@ -58,11 +57,11 @@ def songobj_from_spotify_url(spotifyURL: str):
     duration = round(rawTrackMeta["duration_ms"] / 1000, ndigits=3)
 
     # Get the song's downloadable audio link
-    print(f"Searching YouTube for \"" + ", ".join(contributingArtists) + " - " + songName + "\"")
+    print("Searching YouTube for \"" + ", ".join(contributingArtists) + " - " + songName + "\"")
     youtubeLink = audioProvider.search_and_get_best_match(
         songName, contributingArtists, albumName, duration
     )
-    print(f"Found:", youtubeLink)
+    print("Found:", youtubeLink)
 
     # (try to) Get lyrics from Genius
     try:
@@ -71,7 +70,6 @@ def songobj_from_spotify_url(spotifyURL: str):
         lyrics = ""
 
     return SongObj(rawTrackMeta, rawAlbumMeta, rawArtistMeta, youtubeLink, lyrics)
-
 
 
 # =======================
@@ -86,7 +84,6 @@ def from_dump(dataDump: dict):
     lyrics = dataDump["lyrics"]
 
     return SongObj(rawTrackMeta, rawAlbumMeta, rawArtistMeta, youtubeLink, lyrics)
-
 
 
 def from_search_term(query: str) -> SongObj:

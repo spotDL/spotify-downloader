@@ -1,8 +1,5 @@
 from typing import List
 
-import spotdl.search.audioProvider as audioProvider
-import spotdl.search.metadataProvider as metadataProvider
-
 
 class SongObj:
 
@@ -16,7 +13,6 @@ class SongObj:
         self.__youtubeLink = youtubeLink
         self.__lyrics = lyrics
 
-
     # ===============
     # === Methods ===
     # ===============
@@ -26,7 +22,6 @@ class SongObj:
             return True
         else:
             return False
-
 
     # ================================
     # === Interface Implementation ===

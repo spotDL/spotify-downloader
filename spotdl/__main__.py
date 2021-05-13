@@ -6,7 +6,6 @@ import os
 
 # ! The actual download stuff
 from spotdl.download.downloader import DownloadManager
-from spotdl.search.songObj import SongObj
 from spotdl.search.spotifyClient import SpotifyClient
 import spotdl.search.songGatherer as songGatherer
 
@@ -126,7 +125,7 @@ def console_entry_point():
             else:
                 songObjList.append(songGatherer.from_query(request))
                 print()
-           
+
         downloader.download_multiple_songs(songObjList)
 
 
@@ -136,7 +135,7 @@ def parse_arguments():
         description=help_notice,
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
-    parser.add_argument("query", type=str, nargs="+", help="URL/Search for a song/album/artist/playlist")
+    parser.add_argument("query", type=str, nargs="+", help="URL/String for a song/album/playlist")
     parser.add_argument("--debug-termination", action="store_true")
     parser.add_argument("-o", "--output", help="Output directory path", dest="path")
     parser.add_argument("-f", "--ffmpeg", help="Path to ffmpeg", dest="ffmpeg")
