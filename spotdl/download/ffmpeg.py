@@ -45,22 +45,8 @@ def has_correct_version(
 async def convert(
     trackAudioStream, downloadedFilePath, convertedFilePath, ffmpegPath
 ) -> bool:
-    # convert downloaded file to MP3 with normalization
+    # convert downloaded file to MP3
 
-    # ! -af loudnorm=I=-7:LRA applies EBR 128 loudness normalization algorithm with
-    # ! intergrated loudness target (I) set to -17, using values lower than -15
-    # ! causes 'pumping' i.e. rhythmic variation in loudness that should not
-    # ! exist -loud parts exaggerate, soft parts left alone.
-    # !
-    # ! dynaudnorm applies dynamic non-linear RMS based normalization, this is what
-    # ! actually normalized the audio. The loudnorm filter just makes the apparent
-    # ! loudness constant
-    # !
-    # ! apad=pad_dur=2 adds 2 seconds of silence toward the end of the track, this is
-    # ! done because the loudnorm filter clips/cuts/deletes the last 1-2 seconds on
-    # ! occasion especially if the song is EDM-like, so we add a few extra seconds to
-    # ! combat that.
-    # !
     # ! -acodec libmp3lame sets the encoded to 'libmp3lame' which is far better
     # ! than the default 'mp3_mf', '-abr true' automatically determines and passes the
     # ! audio encoding bitrate to the filters and encoder. This ensures that the
@@ -71,9 +57,7 @@ async def convert(
         ffmpegPath = "ffmpeg"
 
     command = (
-        f'{ffmpegPath} -v quiet -y -i "%s" -acodec libmp3lame -abr true '
-        f"-b:a {trackAudioStream.bitrate} "
-        '-af "apad=pad_dur=2, dynaudnorm, loudnorm=I=-17" "%s"'
+        f'{ffmpegPath} -v quiet -y -i "%s" -acodec libmp3lame -abr true -q:a 0 "%s"'
     )
 
     # ! bash/ffmpeg on Unix systems need to have excape char (\) for special characters: \$
