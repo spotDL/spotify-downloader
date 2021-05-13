@@ -4,10 +4,7 @@
 
 # ! These are not used, they're here for static type checking using mypy
 from spotdl.search.songObj import SongObj
-from typing import (
-    List,
-    Optional,
-)
+import typing
 from pathlib import Path
 
 
@@ -19,7 +16,7 @@ from pathlib import Path
 class DownloadTracker:
     def __init__(self):
         self.songObjList = []
-        self.saveFile: Optional[Path] = None
+        self.saveFile: typing.Optional[Path] = None
 
     def load_tracking_file(self, trackingFilePath: str) -> None:
         """
@@ -46,7 +43,7 @@ class DownloadTracker:
         for dump in songDataDumps:
             self.songObjList.append(SongObj.from_dump(dump))
 
-    def load_song_list(self, songObjList: List[SongObj]) -> None:
+    def load_song_list(self, songObjList: typing.List[SongObj]) -> None:
         """
         `list<songOjb>` `songObjList` : songObj's being downloaded
 
@@ -59,7 +56,7 @@ class DownloadTracker:
 
         self.backup_to_disk()
 
-    def get_song_list(self) -> List[SongObj]:
+    def get_song_list(self) -> typing.List[SongObj]:
         """
         RETURNS `list<songObj>
 
