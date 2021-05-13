@@ -188,12 +188,18 @@ def test_multiple_elements(capsys, patch_dependencies, monkeypatch):
 
     out, err = capsys.readouterr()
     assert "Fetching Song...\n" in out
-    assert "Gathering Spotify Metadata for: https://open.spotify.com/track/08mG3Y1vljYA6bvDt4Wqkj?si=SxezdxmlTx-CaVoucHmrUA\n" in out
-    assert "Searching YouTube for \"AC/DC - Back In Black\"\n" in out
-    
+    assert (
+        "Gathering Spotify Metadata for: https://open.spotify.com/track/08mG3Y1vljYA6bvDt4Wqkj?si=SxezdxmlTx-CaVoucHmrUA\n"
+        in out
+    )
+    assert 'Searching YouTube for "AC/DC - Back In Black"\n' in out
+
     assert "Fetching Song...\n" in out
-    assert "Gathering Spotify Metadata for: https://open.spotify.com/track/2SiXAy7TuUkycRVbbWDEpo\n" in out
-    assert "Searching YouTube for \"AC/DC - You Shook Me All Night Long\"\n" in out
+    assert (
+        "Gathering Spotify Metadata for: https://open.spotify.com/track/2SiXAy7TuUkycRVbbWDEpo\n"
+        in out
+    )
+    assert 'Searching YouTube for "AC/DC - You Shook Me All Night Long"\n' in out
 
     assert 'Searching Spotify for song named "The HU - Sugaan Essenna"...\n' in out
     assert "No song matches found on Spotify\n" in out
