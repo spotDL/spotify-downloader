@@ -10,6 +10,7 @@ from typing import List
 # === Master Gatherer ===
 # =======================
 
+
 def from_query(request: str):
     songObjList = []
     if "open.spotify.com" in request and "track" in request:
@@ -40,15 +41,14 @@ def from_query(request: str):
 
 # All other functions in this file call this one
 
+
 def songobj_from_spotify_url(spotifyURL: str):
     # check if URL is a playlist, user, artist or album, if yes raise an Exception,
     # else procede
 
     # Get the Song Metadata
     print(f"Gathering Spotify Metadata for: {spotifyURL}")
-    rawTrackMeta, rawArtistMeta, rawAlbumMeta = metadataProvider.from_url(
-        spotifyURL
-    )
+    rawTrackMeta, rawArtistMeta, rawAlbumMeta = metadataProvider.from_url(spotifyURL)
 
     songName = rawTrackMeta["name"]
     albumName = rawTrackMeta["album"]["name"]
@@ -58,7 +58,13 @@ def songobj_from_spotify_url(spotifyURL: str):
     duration = round(rawTrackMeta["duration_ms"] / 1000, ndigits=3)
 
     # Get the song's downloadable audio link
-    print("Searching YouTube for \"" + ", ".join(contributingArtists) + " - " + songName + "\"")
+    print(
+        'Searching YouTube for "'
+        + ", ".join(contributingArtists)
+        + " - "
+        + songName
+        + '"'
+    )
     youtubeLink = audioProvider.search_and_get_best_match(
         songName, contributingArtists, albumName, duration
     )
@@ -76,6 +82,7 @@ def songobj_from_spotify_url(spotifyURL: str):
 # =======================
 # === Other Gatherers ===
 # =======================
+
 
 def from_dump(dataDump: dict):
     rawTrackMeta = dataDump["rawTrackMeta"]
@@ -129,7 +136,9 @@ def get_album_tracks(albumUrl: str) -> List[SongObj]:
     while True:
 
         for track in trackResponse["items"]:
-            song = songobj_from_spotify_url("https://open.spotify.com/track/" + track["id"])
+            song = songobj_from_spotify_url(
+                "https://open.spotify.com/track/" + track["id"]
+            )
 
             if song.get_youtube_link() is not None:
                 albumTracks.append(song)

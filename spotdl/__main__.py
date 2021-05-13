@@ -136,7 +136,9 @@ def parse_arguments():
         description=help_notice,
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
-    parser.add_argument("query", type=str, nargs="+", help="URL/String for a song/album/playlist")
+    parser.add_argument(
+        "query", type=str, nargs="+", help="URL/String for a song/album/playlist"
+    )
     parser.add_argument("--debug-termination", action="store_true")
     parser.add_argument("-o", "--output", help="Output directory path", dest="path")
     parser.add_argument("-f", "--ffmpeg", help="Path to ffmpeg", dest="ffmpeg")
