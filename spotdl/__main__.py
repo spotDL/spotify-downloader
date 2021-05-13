@@ -123,7 +123,7 @@ def console_entry_point():
                 print("Preparing to resume download...")
                 downloader.resume_download_from_tracking_file(request)
             else:
-                songObjList.append(songGatherer.from_query(request))
+                songObjList.extend(songGatherer.from_query(request))
                 print()
 
         downloader.download_multiple_songs(songObjList)

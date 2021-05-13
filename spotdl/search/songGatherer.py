@@ -13,7 +13,7 @@ from typing import List
 def from_query(request: str):
     if "open.spotify.com" in request and "track" in request:
         print("Fetching Song...")
-        songObjList = songobj_from_spotify_url(request)
+        songObjList = [songobj_from_spotify_url(request)]
 
     elif "open.spotify.com" in request and "album" in request:
         print("Fetching Album...")
@@ -30,7 +30,7 @@ def from_query(request: str):
     else:
         print('Searching Spotify for song named "%s"...' % request)
         try:
-            songObjList = from_search_term(request)
+            songObjList = [from_search_term(request)]
         except Exception as e:
             print(e)
 
