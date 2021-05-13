@@ -11,6 +11,7 @@ from typing import List
 # =======================
 
 def from_query(request: str):
+    songObjList = []
     if "open.spotify.com" in request and "track" in request:
         print("Fetching Song...")
         songObjList = [songobj_from_spotify_url(request)]

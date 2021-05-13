@@ -126,7 +126,8 @@ def console_entry_point():
                 songObjList.extend(songGatherer.from_query(request))
                 print()
 
-        downloader.download_multiple_songs(songObjList)
+        if len(songObjList) > 0:
+            downloader.download_multiple_songs(songObjList)
 
 
 def parse_arguments():
