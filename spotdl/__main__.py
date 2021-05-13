@@ -8,14 +8,15 @@ import os
 from spotdl.download.downloader import DownloadManager
 from spotdl.search.songObj import SongObj
 from spotdl.search.spotifyClient import SpotifyClient
+import spotdl.search.songGatherer as songGatherer
 
 # ! Song Search from different start points
-from spotdl.search.utils import (
-    get_playlist_tracks,
-    get_album_tracks,
-    get_artist_tracks,
-    search_for_song,
-)
+# from spotdl.search.utils import (
+#     get_playlist_tracks,
+#     get_album_tracks,
+#     get_artist_tracks,
+#     search_for_song,
+# )
 from spotdl.download import ffmpeg
 
 # ! Usage is simple - call:
@@ -124,48 +125,16 @@ def console_entry_point():
             signal.signal(signal.SIGINT, gracefulExit)
             signal.signal(signal.SIGTERM, gracefulExit)
 
+        songObjList = []
         for request in arguments.url:
-            if "open.spotify.com" in request and "track" in request:
-                print("Fetching Song...")
-                song = SongObj.from_url(request)
-
-                if song.get_youtube_link() is not None:
-                    downloader.download_single_song(song)
-                else:
-                    print(
-                        "Skipping %s (%s) as no match could be found on youtube"
-                        % (song.get_song_name(), request)
-                    )
-
-            elif "open.spotify.com" in request and "album" in request:
-                print("Fetching Album...")
-                songObjList = get_album_tracks(request)
-
-                downloader.download_multiple_songs(songObjList)
-
-            elif "open.spotify.com" in request and "playlist" in request:
-                print("Fetching Playlist...")
-                songObjList = get_playlist_tracks(request)
-
-                downloader.download_multiple_songs(songObjList)
-
-            elif "open.spotify.com" in request and "artist" in request:
-                print("Fetching artist...")
-                artistObjList = get_artist_tracks(request)
-
-                downloader.download_multiple_songs(artistObjList)
-
-            elif request.endswith(".spotdlTrackingFile"):
+            if request.endswith(".spotdlTrackingFile"):
                 print("Preparing to resume download...")
                 downloader.resume_download_from_tracking_file(request)
-
             else:
-                print('Searching for song "%s"...' % request)
-                try:
-                    song = search_for_song(request)
-                    downloader.download_single_song(song)
-                except Exception as e:
-                    print(e)
+                songObjList.append(songGatherer.from_query(request))
+                print()
+           
+        downloader.download_multiple_songs(songObjList)
 
 
 def parse_arguments():

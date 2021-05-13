@@ -28,7 +28,7 @@ class Singleton(type):
         creates and caches a spotify client if a client doesn't exist. Can only be called
         once, multiple calls will cause an Exception.
         """
-
+        
         # check if initialization has been completed, if yes, raise an Exception
         if cls._instance and cls._instance.is_initialized():
             raise Exception("A spotify client has already been initialized")

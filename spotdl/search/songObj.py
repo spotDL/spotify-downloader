@@ -17,56 +17,17 @@ class SongObj:
         self.__youtubeLink = youtubeLink
         self.__lyrics = lyrics
 
-    # ! constructors here are a bit mucky, there are two different constructors for two
-    # ! different use cases, hence the actual __init__ function does not exist
 
-    # ! Note, since the following are class methods, an instance of songObj is initialized
-    # ! and passed to them
-    @classmethod
-    def from_url(cls, spotifyURL: str):
-        # check if URL is a playlist, user, artist or album, if yes raise an Exception,
-        # else procede
-
-        # Get the Song Metadata
-        rawTrackMeta, rawArtistMeta, rawAlbumMeta = metadataProvider.from_url(
-            spotifyURL
-        )
-
-        songName = rawTrackMeta["name"]
-        albumName = rawTrackMeta["album"]["name"]
-        contributingArtists = []
-        for artist in rawTrackMeta["artists"]:
-            contributingArtists.append(artist["name"])
-        duration = round(rawTrackMeta["duration_ms"] / 1000, ndigits=3)
-
-        # Get the song's downloadable audio link
-        youtubeLink = audioProvider.search_and_get_best_match(
-            songName, contributingArtists, albumName, duration
-        )
-
-        # (try to) Get lyrics from Genius
-        try:
-            lyrics = metadataProvider.get_song_lyrics(songName, contributingArtists)
-        except (AttributeError, IndexError):
-            lyrics = ""
-
-        return cls(rawTrackMeta, rawAlbumMeta, rawArtistMeta, youtubeLink, lyrics)
-
-    @classmethod
-    def from_dump(cls, dataDump: dict):
-        rawTrackMeta = dataDump["rawTrackMeta"]
-        rawAlbumMeta = dataDump["rawAlbumMeta"]
-        rawArtistMeta = dataDump["rawAlbumMeta"]
-        youtubeLink = dataDump["youtubeLink"]
-        lyrics = dataDump["lyrics"]
-
-        return cls(rawTrackMeta, rawAlbumMeta, rawArtistMeta, youtubeLink, lyrics)
+    # ===============
+    # === Methods ===
+    # ===============
 
     def __eq__(self, comparedSong) -> bool:
         if comparedSong.get_data_dump() == self.get_data_dump():
             return True
         else:
             return False
+
 
     # ================================
     # === Interface Implementation ===

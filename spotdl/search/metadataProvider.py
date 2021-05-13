@@ -3,6 +3,10 @@ from bs4 import BeautifulSoup
 from spotdl.search.spotifyClient import SpotifyClient
 from typing import List
 
+from spotipy import Spotify
+from spotipy.oauth2 import SpotifyClientCredentials
+
+
 
 def from_url(spotifyURL: str):
     if not ("open.spotify.com" in spotifyURL and "track" in spotifyURL):

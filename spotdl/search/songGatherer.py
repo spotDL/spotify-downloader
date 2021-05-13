@@ -1,10 +1,95 @@
-from typing import List
-
 from spotdl.search.songObj import SongObj
 from spotdl.search.spotifyClient import SpotifyClient
+import spotdl.search.audioProvider as audioProvider
+import spotdl.search.metadataProvider as metadataProvider
+
+from typing import List
 
 
-def search_for_song(query: str) -> SongObj:
+# =======================
+# === Master Gatherer ===
+# =======================
+
+def from_query(request: str):
+    if "open.spotify.com" in request and "track" in request:
+        print("Fetching Song...")
+        songObjList = songobj_from_spotify_url(request)
+
+    elif "open.spotify.com" in request and "album" in request:
+        print("Fetching Album...")
+        songObjList = get_album_tracks(request)
+
+    elif "open.spotify.com" in request and "playlist" in request:
+        print("Fetching Playlist...")
+        songObjList = get_playlist_tracks(request)
+
+    elif "open.spotify.com" in request and "artist" in request:
+        print("Fetching artist...")
+        songObjList = get_artist_tracks(request)
+
+    else:
+        print('Searching Spotify for song named "%s"...' % request)
+        try:
+            songObjList = from_search_term(request)
+        except Exception as e:
+            print(e)
+
+    return songObjList
+
+
+
+# All other functions in this file call this one
+
+def songobj_from_spotify_url(spotifyURL: str):
+    # check if URL is a playlist, user, artist or album, if yes raise an Exception,
+    # else procede
+
+    # Get the Song Metadata
+    print(f"Gathering Spotify Metadata for: {spotifyURL}")
+    rawTrackMeta, rawArtistMeta, rawAlbumMeta = metadataProvider.from_url(
+        spotifyURL
+    )
+
+    songName = rawTrackMeta["name"]
+    albumName = rawTrackMeta["album"]["name"]
+    contributingArtists = []
+    for artist in rawTrackMeta["artists"]:
+        contributingArtists.append(artist["name"])
+    duration = round(rawTrackMeta["duration_ms"] / 1000, ndigits=3)
+
+    # Get the song's downloadable audio link
+    print(f"Searching YouTube for \"" + ", ".join(contributingArtists) + " - " + songName + "\"")
+    youtubeLink = audioProvider.search_and_get_best_match(
+        songName, contributingArtists, albumName, duration
+    )
+    print(f"Found:", youtubeLink)
+
+    # (try to) Get lyrics from Genius
+    try:
+        lyrics = metadataProvider.get_song_lyrics(songName, contributingArtists)
+    except (AttributeError, IndexError):
+        lyrics = ""
+
+    return SongObj(rawTrackMeta, rawAlbumMeta, rawArtistMeta, youtubeLink, lyrics)
+
+
+
+# =======================
+# === Other Gatherers ===
+# =======================
+
+def from_dump(dataDump: dict):
+    rawTrackMeta = dataDump["rawTrackMeta"]
+    rawAlbumMeta = dataDump["rawAlbumMeta"]
+    rawArtistMeta = dataDump["rawAlbumMeta"]
+    youtubeLink = dataDump["youtubeLink"]
+    lyrics = dataDump["lyrics"]
+
+    return SongObj(rawTrackMeta, rawAlbumMeta, rawArtistMeta, youtubeLink, lyrics)
+
+
+
+def from_search_term(query: str) -> SongObj:
     """
     `str` `query` : what you'd type into spotify's search box
     Queries Spotify for a song and returns the best match
@@ -22,7 +107,7 @@ def search_for_song(query: str) -> SongObj:
     else:
         for songResult in result["tracks"]["items"]:
             songUrl = "http://open.spotify.com/track/" + songResult["id"]
-            song = SongObj.from_url(songUrl)
+            song = songobj_from_spotify_url(songUrl)
 
             if song.get_youtube_link() is not None:
                 return song
@@ -46,7 +131,7 @@ def get_album_tracks(albumUrl: str) -> List[SongObj]:
     while True:
 
         for track in trackResponse["items"]:
-            song = SongObj.from_url("https://open.spotify.com/track/" + track["id"])
+            song = songobj_from_spotify_url("https://open.spotify.com/track/" + track["id"])
 
             if song.get_youtube_link() is not None:
                 albumTracks.append(song)
@@ -96,7 +181,7 @@ def get_artist_tracks(artistUrl: str) -> List[SongObj]:
                     for track in trackResponse["items"]:
                         for artist in track["artists"]:
                             if artist["id"] == artistResponse["href"].split("/")[-2]:
-                                song = SongObj.from_url(
+                                song = songobj_from_spotify_url(
                                     "https://open.spotify.com/track/" + track["id"]
                                 )
 
@@ -143,7 +228,7 @@ def get_playlist_tracks(playlistUrl: str) -> List[SongObj]:
             if songEntry["track"] is None or songEntry["track"]["id"] is None:
                 continue
 
-            song = SongObj.from_url(
+            song = songobj_from_spotify_url(
                 "https://open.spotify.com/track/" + songEntry["track"]["id"]
             )
 
