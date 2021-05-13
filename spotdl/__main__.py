@@ -10,13 +10,6 @@ from spotdl.search.songObj import SongObj
 from spotdl.search.spotifyClient import SpotifyClient
 import spotdl.search.songGatherer as songGatherer
 
-# ! Song Search from different start points
-# from spotdl.search.utils import (
-#     get_playlist_tracks,
-#     get_album_tracks,
-#     get_artist_tracks,
-#     search_for_song,
-# )
 from spotdl.download import ffmpeg
 
 # ! Usage is simple - call:
@@ -126,7 +119,7 @@ def console_entry_point():
             signal.signal(signal.SIGTERM, gracefulExit)
 
         songObjList = []
-        for request in arguments.url:
+        for request in arguments.query:
             if request.endswith(".spotdlTrackingFile"):
                 print("Preparing to resume download...")
                 downloader.resume_download_from_tracking_file(request)
@@ -143,7 +136,7 @@ def parse_arguments():
         description=help_notice,
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
-    parser.add_argument("url", type=str, nargs="+", help="URL to a song/album/playlist")
+    parser.add_argument("query", type=str, nargs="+", help="URL/Search for a song/album/artist/playlist")
     parser.add_argument("--debug-termination", action="store_true")
     parser.add_argument("-o", "--output", help="Output directory path", dest="path")
     parser.add_argument("-f", "--ffmpeg", help="Path to ffmpeg", dest="ffmpeg")
