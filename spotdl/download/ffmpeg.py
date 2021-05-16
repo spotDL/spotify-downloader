@@ -60,12 +60,8 @@ async def convert(
     # ! alternatively the quotes could be reversed (single <-> double) in the command then
     # ! the windows special characters needs escaping (^): ^\  ^&  ^|  ^>  ^<  ^^
 
-    if sys.platform == "win32":
-        downloadedFilePath = str(downloadedFilePath)
-        convertedFilePath = str(convertedFilePath)
-    else:
-        downloadedFilePath = str(downloadedFilePath).replace("$", r"\$")
-        convertedFilePath = str(convertedFilePath).replace("$", r"\$")
+    downloadedFilePath = str(downloadedFilePath)
+    convertedFilePath = str(convertedFilePath)
 
     arguments = ["-v", "quiet", "-i", downloadedFilePath, "-acodec",
                  "libmp3lame", "-abr", "true", "-q:a", "0", convertedFilePath]
