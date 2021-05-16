@@ -43,7 +43,7 @@ def has_correct_version(
 
 
 async def convert(
-    downloadedFilePath, convertedFilePath, ffmpegPath
+    downloaded_file_path, converted_file_path, ffmpeg_path
 ) -> bool:
     # convert downloaded file to MP3
 
@@ -53,21 +53,17 @@ async def convert(
     # ! sampled length of songs matches the actual length (i.e. a 5 min song won't display
     # ! as 47 seconds long in your music player, yeah that was an issue earlier.)
 
-    if ffmpegPath is None:
-        ffmpegPath = "ffmpeg"
+    if ffmpeg_path is None:
+        ffmpeg_path = "ffmpeg"
 
-    # ! bash/ffmpeg on Unix systems need to have excape char (\) for special characters: \$
-    # ! alternatively the quotes could be reversed (single <-> double) in the command then
-    # ! the windows special characters needs escaping (^): ^\  ^&  ^|  ^>  ^<  ^^
+    downloaded_file_path = str(downloaded_file_path)
+    converted_file_path = str(converted_file_path)
 
-    downloadedFilePath = str(downloadedFilePath)
-    convertedFilePath = str(convertedFilePath)
-
-    arguments = ["-v", "quiet", "-i", downloadedFilePath, "-acodec",
-                 "libmp3lame", "-abr", "true", "-q:a", "0", convertedFilePath]
+    arguments = ["-v", "quiet", "-i", downloaded_file_path, "-acodec",
+                 "libmp3lame", "-abr", "true", "-q:a", "0", converted_file_path]
 
     process = await asyncio.subprocess.create_subprocess_exec(
-        ffmpegPath,
+        ffmpeg_path,
         *arguments,
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.PIPE,
