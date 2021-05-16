@@ -125,12 +125,13 @@ def console_entry_point():
                 print('Fetching Song...')
                 song = SongObj.from_url(request)
 
-                if song.get_youtube_link() is not None:
-                    downloader.download_single_song(song)
-                else:
-                    print('Skipping %s (%s) as no match could be found on youtube' % (
-                        song.get_song_name(), request
-                    ))
+                if song is not None:
+                    if song.get_youtube_link() is not None:
+                        downloader.download_single_song(song)
+                    else:
+                        print('Skipping %s (%s) as no match could be found on youtube' % (
+                            song.get_song_name(), request
+                        ))
 
             elif 'open.spotify.com' in request and 'album' in request:
                 print('Fetching Album...')
