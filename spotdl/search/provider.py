@@ -296,7 +296,7 @@ def search_and_get_best_match(songName: str, songArtists: List[str],
 def create_file_name(song_name: str, song_artists: List[str]) -> str:
     # build file name of converted file
     # the main artist is always included
-    artistStr = song_artists[0].lower()
+    artistStr = song_artists[0]
 
     # ! we eliminate contributing artist names that are also in the song name, else we
     # ! would end up with things like 'Jetta, Mastubs - I'd love to change the world
