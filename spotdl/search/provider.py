@@ -295,23 +295,17 @@ def search_and_get_best_match(songName: str, songArtists: List[str],
 
 def create_file_name(song_name: str, song_artists: List[str]) -> str:
     # build file name of converted file
-    artistStr = ""
+    # the main artist is always included
+    artistStr = song_artists[0].lower()
 
     # ! we eliminate contributing artist names that are also in the song name, else we
     # ! would end up with things like 'Jetta, Mastubs - I'd love to change the world
     # ! (Mastubs REMIX).mp3' which is kinda an odd file name.
-    for artist in song_artists:
+    for artist in song_artists[1:]:
         if artist.lower() not in song_name.lower():
-            artistStr += artist + ", "
+            artistStr += ", " + artist
 
-    # make sure that main artist is included in artistStr even if they
-    # are in the song name, for example
-    # Lil Baby - Never Recover (Lil Baby & Gunna, Drake).mp3
-    if song_artists[0].lower() not in artistStr.lower():
-        artistStr = song_artists[0] + ", " + artistStr
-
-    # ! the ...[:-2] is to avoid the last ', ' appended to artistStr
-    convertedFileName = artistStr[:-2] + " - " + song_name
+    convertedFileName = artistStr + " - " + song_name
 
     # ! this is windows specific (disallowed chars)
     for disallowedChar in ["/", "?", "\\", "*", "|", "<", ">"]:
