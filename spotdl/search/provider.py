@@ -308,9 +308,7 @@ def create_file_name(song_name: str, song_artists: List[str]) -> str:
     convertedFileName = artistStr + " - " + song_name
 
     # ! this is windows specific (disallowed chars)
-    for disallowedChar in ["/", "?", "\\", "*", "|", "<", ">"]:
-        if disallowedChar in convertedFileName:
-            convertedFileName = convertedFileName.replace(disallowedChar, "")
+    convertedFileName = "".join(char for char in convertedFileName if char not in "/?\\*|<>")
 
     # ! double quotes (") and semi-colons (:) are also disallowed characters but we would
     # ! like to retain their equivalents, so they aren't removed in the prior loop
