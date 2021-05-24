@@ -3,6 +3,7 @@ import subprocess
 import sys
 import re
 
+
 def has_correct_version(
     skip_version_check: bool = False, ffmpeg_path: str = "ffmpeg"
 ) -> bool:
