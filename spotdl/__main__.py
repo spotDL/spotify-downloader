@@ -97,6 +97,7 @@ def console_entry_point():
     Its super simple, rudimentary even but, it's dead simple & it works.
     '''
     arguments = parse_arguments()
+    args_dict = vars(arguments)
 
     if ffmpeg.has_correct_version(
         arguments.ignore_ffmpeg_version,
@@ -122,7 +123,7 @@ def console_entry_point():
         print(f"Will download to: {os.path.abspath(arguments.path)}")
         os.chdir(arguments.path)
 
-    with DownloadManager(arguments.ffmpeg) as downloader:
+    with DownloadManager(args_dict) as downloader:
         if not arguments.debug_termination:
             def gracefulExit(signal, frame):
                 downloader.displayManager.close()
@@ -189,6 +190,8 @@ def parse_arguments():
     parser.add_argument("url", type=str, nargs="+", help="URL to a song/album/playlist")
     parser.add_argument("--debug-termination", action="store_true")
     parser.add_argument("-o", "--output", help="Output directory path", dest="path")
+    parser.add_argument("-of", "--output-format", help="Output format", dest="format",
+                        choices={"mp3", "m4a", "flac", "ogg", "opus"}, default="mp3")
     parser.add_argument(
         "--user-auth",
         help="Use User Authentication",

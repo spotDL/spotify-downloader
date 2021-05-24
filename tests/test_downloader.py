@@ -7,7 +7,7 @@ import pytest
 
 from spotdl.download.downloader import DownloadManager
 from spotdl.search.songObj import SongObj
-from spotdl.download import ffmpeg
+from spotdl.download import ffmpeg, downloader
 
 
 def create_song_obj(name="test song", artist="test artist") -> SongObj:
@@ -73,7 +73,7 @@ def setup(tmpdir, monkeypatch):
     monkeypatch.setattr(
         asyncio.subprocess, "create_subprocess_exec", fake_create_subprocess_exec
     )
-    monkeypatch.setattr(DownloadManager, "set_id3_data", lambda *_: None)
+    monkeypatch.setattr(downloader, "set_id3_data", lambda *_: None)
     data = SimpleNamespace()
     data.directory = tmpdir
     yield data

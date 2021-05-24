@@ -176,6 +176,7 @@ class SongObj():
             contributingArtists.append(artist['name'])
 
         return contributingArtists
+
     # ! 6. Disc Number
     def get_disc_number(self) -> int:
         return self.__rawTrackMeta['disc_number']

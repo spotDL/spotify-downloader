@@ -34,7 +34,7 @@ def has_correct_version(
 
         if float(version) < 4.2:
             print(
-                f"Your FFmpeg installation is too old ({version}), please update to 4.3+\n",
+                f"Your FFmpeg installation is too old ({version}), please update to 4.2+\n",
                 file=sys.stderr,
             )
             return False
@@ -43,30 +43,50 @@ def has_correct_version(
 
 
 async def convert(
-    downloaded_file_path, converted_file_path, ffmpeg_path
+    downloaded_file_path, converted_file_path, ffmpeg_path, output_format
 ) -> bool:
-    # convert downloaded file to MP3
-
-    # ! -acodec libmp3lame sets the encoded to 'libmp3lame' which is far better
-    # ! than the default 'mp3_mf', '-abr true' automatically determines and passes the
+    # ! '-abr true' automatically determines and passes the
     # ! audio encoding bitrate to the filters and encoder. This ensures that the
     # ! sampled length of songs matches the actual length (i.e. a 5 min song won't display
     # ! as 47 seconds long in your music player, yeah that was an issue earlier.)
 
-    if ffmpeg_path is None:
-        ffmpeg_path = "ffmpeg"
-
     downloaded_file_path = str(downloaded_file_path)
     converted_file_path = str(converted_file_path)
 
-    arguments = ["-v", "quiet", "-i", downloaded_file_path, "-acodec",
-                 "libmp3lame", "-abr", "true", "-q:a", "0", converted_file_path]
+    formats = {
+        "mp3": ["-codec:a", "libmp3lame"],
+        "flac": ["-codec:a", "flac"],
+        "ogg": ["-codec:a", "libvorbis"],
+        "opus": ["-codec:a", "libopus"],
+        "m4a": ["-codec:a", "aac", "-vn"],
+    }
+
+    if output_format is None:
+        output_format_command = formats["mp3"]
+    else:
+        output_format_command = formats[output_format]
+
+    if ffmpeg_path is None:
+        ffmpeg_path = "ffmpeg"
+
+    arguments = [
+        "-i",
+        downloaded_file_path,
+        *output_format_command,
+        "-abr",
+        "true",
+        "-q:a",
+        "0",
+        "-v",
+        "quiet",
+        converted_file_path,
+    ]
 
     process = await asyncio.subprocess.create_subprocess_exec(
         ffmpeg_path,
         *arguments,
         stdout=asyncio.subprocess.PIPE,
-        stderr=asyncio.subprocess.PIPE,
+        stderr=asyncio.subprocess.PIPE
     )
 
     proc_out, proc_err = await process.communicate()
