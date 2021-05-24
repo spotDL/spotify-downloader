@@ -65,8 +65,23 @@ To download a playlist, run:
     spotdl [playlistUrl]
     ex. spotdl https://open.spotify.com/playlist/37i9dQZF1E8UXBoz02kGID
 
+To download all songs from an artist run:
+    spotdl [artistUrl]
+    ex. spotdl https://open.spotify.com/artist/1fZAAHNWdSM5gqbi9o5iEA
+
 To download your saved songs, run:
     spotdl --user-auth saved
+
+To change output format run:
+    spotdl [songUrl] --output-format mp3/m4a/flac/opus/ogg
+    ex. spotdl [songUrl] --output-format opus
+
+To use ffmpeg binary that is not on PATH run:
+    spotdl [songUrl] --ffmpeg path/to/your/ffmpeg.exe
+    ex. spotdl [songUrl] --ffmpeg C:\ffmpeg\bin\ffmpeg.exe
+
+To ignore your ffmpeg version run:
+    spotdl --ignore-ffmpeg-version
 
 To search for and download a song, run, with quotation marks:
 Note: This is not accurate and often causes errors.

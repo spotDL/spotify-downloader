@@ -109,6 +109,17 @@ curl -L https://raw.githubusercontent.com/spotDL/spotify-downloader/master/termu
   spotdl https://open.spotify.com/playlist/37i9dQZF1E8UXBoz02kGID
   ```
 
+- #### To download all songs from an artist run
+
+  ```bash
+  spotdl [artistUrl]
+  ```
+
+  example:
+
+  ```bash
+  spotdl https://open.spotify.com/artist/1fZAAHNWdSM5gqbi9o5iEA
+  ```
 - #### To search for and download a song, run, **with quotation marks**
 
   ```bash
@@ -150,6 +161,36 @@ curl -L https://raw.githubusercontent.com/spotDL/spotify-downloader/master/termu
   ```
 
   > _Note: spotDL downloads up to 4 songs in parallel, so for a faster experience, download albums and playlist, rather than tracks._
+
+- #### To download songs with different output format run
+
+  ```bash
+  spotdl [songUrl] --output-format mp3/m4a/flac/opus/ogg
+  ```
+
+  example:
+
+  ```bash
+  spotdl [songUrl] --output-format opus
+  ```
+
+- #### To use ffmpeg binary that is not on PATH run
+
+  ```bash
+  spotdl [songUrl] --ffmpeg path/to/your/ffmpeg.exe
+  ```
+
+  example:
+
+  ```bash
+  spotdl [songUrl] --ffmpeg C:\ffmpeg\bin\ffmpeg.exe
+  ```
+
+- #### To ignore your ffmpeg version run
+
+  ```bash
+  spotdl [songUrl] --ignore-ffmpeg-version
+  ```
 
 ## `pipx` Isolated Environment Alternative
 
