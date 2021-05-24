@@ -40,8 +40,8 @@ def create_song_obj(name="test song", artist="test artist") -> SongObj:
 class FakeProcess:
     """Instead of running ffmpeg, just fake it"""
 
-    def __init__(self, command):
-        command = shlex.split(command)
+    def __init__(self, *args):
+        command = list(*args)
         self._input = Path(command[command.index("-i") + 1])
         self._output = Path(command[-1])
 
@@ -62,8 +62,8 @@ class FakeProcess:
         return 0
 
 
-async def fake_create_subprocess_shell(command, stdout=None, stderr=None):
-    return FakeProcess(command)
+async def fake_create_subprocess_exec(*args, stdout=None, stderr=None):
+    return FakeProcess(args)
 
 
 @pytest.fixture()
@@ -71,7 +71,7 @@ def setup(tmpdir, monkeypatch):
     monkeypatch.chdir(tmpdir)
     monkeypatch.setattr(ffmpeg, "has_correct_version", lambda *_: True)
     monkeypatch.setattr(
-        asyncio.subprocess, "create_subprocess_shell", fake_create_subprocess_shell
+        asyncio.subprocess, "create_subprocess_exec", fake_create_subprocess_exec
     )
     monkeypatch.setattr(downloader, "set_id3_data", lambda *_: None)
     data = SimpleNamespace()

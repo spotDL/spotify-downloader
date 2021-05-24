@@ -1,6 +1,11 @@
 from typing import List
+from pathlib import Path
 
-from spotdl.search.provider import search_and_get_best_match, get_song_lyrics
+from spotdl.search.provider import (
+    search_and_get_best_match,
+    get_song_lyrics,
+    create_file_name
+)
 from spotdl.search.spotifyClient import SpotifyClient
 
 
@@ -35,6 +40,18 @@ class SongObj():
         spotifyClient = SpotifyClient()
 
         rawTrackMeta = spotifyClient.track(spotifyURL)
+
+        convertedFileName = create_file_name(
+            rawTrackMeta['name'],
+            [artist['name'] for artist in rawTrackMeta['artists']]
+        )
+
+        convertedFilePath = Path(".", f"{convertedFileName}.mp3")
+
+        # if a song is already downloaded skip it
+        if convertedFilePath.is_file():
+            print(f"Skipping \"{convertedFileName}\" as it's already downloaded")
+            return None
 
         primaryArtistId = rawTrackMeta['artists'][0]['id']
         rawArtistMeta = spotifyClient.artist(primaryArtistId)

@@ -26,7 +26,7 @@ def search_for_song(query: str) -> SongObj:
             songUrl = 'http://open.spotify.com/track/' + songResult['id']
             song = SongObj.from_url(songUrl)
 
-            if song.get_youtube_link() is not None:
+            if song is not None and song.get_youtube_link() is not None:
                 return song
 
         raise Exception('Could not match any of the results on YouTube')
@@ -51,7 +51,7 @@ def get_album_tracks(albumUrl: str) -> List[SongObj]:
         for track in trackResponse['items']:
             song = SongObj.from_url('https://open.spotify.com/track/' + track['id'])
 
-            if song.get_youtube_link() is not None:
+            if song is not None and song.get_youtube_link() is not None:
                 albumTracks.append(song)
 
         # check if more tracks are to be passed
@@ -103,7 +103,7 @@ def get_artist_tracks(artistUrl: str) -> List[SongObj]:
                                     'https://open.spotify.com/track/' + track['id']
                                 )
 
-                                if song.get_youtube_link() is not None:
+                                if song is not None and song.get_youtube_link() is not None:
                                     albumTracks.append(song)
 
                     # check if more tracks are to be passed
@@ -154,7 +154,7 @@ def get_playlist_tracks(playlistUrl: str) -> List[SongObj]:
             song = SongObj.from_url(
                 'https://open.spotify.com/track/' + songEntry['track']['id'])
 
-            if song.get_youtube_link() is not None:
+            if song is not None and song.get_youtube_link() is not None:
                 playlistTracks.append(song)
 
         # check if more tracks are to be passed

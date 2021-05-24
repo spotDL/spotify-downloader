@@ -32,7 +32,7 @@ def has_correct_version(
         # remove all non numeric characters from string example: n4.3
         version = re.sub(r"[a-zA-Z]", "", version)
 
-        if float(version) < 4.3:
+        if float(version) < 4.2:
             print(
                 f"Your FFmpeg installation is too old ({version}), please update to 4.3+\n",
                 file=sys.stderr,
@@ -43,13 +43,8 @@ def has_correct_version(
 
 
 async def convert(
-    downloaded_file_path, converted_file_path,
-    ffmpeg_path, output_format
+    downloaded_file_path, converted_file_path, ffmpeg_path, output_format
 ) -> bool:
-    # convert downloaded file to MP3
-    # ! -acodec libmp3lame sets the encoded to 'libmp3lame' which is far better
-    # ! than the default 'mp3_mf'
-    # !
     # ! '-abr true' automatically determines and passes the
     # ! audio encoding bitrate to the filters and encoder. This ensures that the
     # ! sampled length of songs matches the actual length (i.e. a 5 min song won't display
@@ -64,47 +59,53 @@ async def convert(
     }
 
     if output_format is None:
-        outputFormatCommand = formats["mp3"]
+        output_format_command = formats["mp3"]
     else:
-        outputFormatCommand = formats[output_format]
+        output_format_command = formats[output_format]
 
     if ffmpeg_path is None:
         ffmpeg_path = "ffmpeg"
-
-    command = (
-        f'{ffmpeg_path} -v quiet -y -i "%s" {outputFormatCommand} -abr true -q:a 0 "%s"'
-    )
 
     # ! bash/ffmpeg on Unix systems need to have excape char (\) for special characters: \$
     # ! alternatively the quotes could be reversed (single <-> double) in the command then
     # ! the windows special characters needs escaping (^): ^\  ^&  ^|  ^>  ^<  ^^
 
     if sys.platform == "win32":
-        formattedCommand = command % (
-            str(downloaded_file_path),
-            str(converted_file_path),
-        )
+        downloaded_file_path = str(downloaded_file_path)
+        converted_file_path = str(downloaded_file_path)
     else:
-        formattedCommand = command % (
-            str(downloaded_file_path).replace("$", r"\$"),
-            str(converted_file_path).replace("$", r"\$"),
-        )
+        downloaded_file_path = str(downloaded_file_path).replace("$", r"\$")
+        converted_file_path = str(converted_file_path).replace("$", r"\$")
 
-    process = await asyncio.subprocess.create_subprocess_shell(
-        formattedCommand,
+    arguments = [
+        "-v",
+        "quiet",
+        "-i",
+        downloaded_file_path,
+        output_format_command,
+        "-abr",
+        "true",
+        "-q:a",
+        "0",
+        converted_file_path,
+    ]
+
+    process = await asyncio.subprocess.create_subprocess_exec(
+        ffmpeg_path,
+        *arguments,
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.PIPE,
     )
 
-    _, proc_err = await process.communicate()
+    proc_out, proc_err = await process.communicate()
 
     if process.returncode != 0:
         message = (
             f"ffmpeg returned an error ({process.returncode})"
-            f'\nthe ffmpeg command was "{formattedCommand}"'
+            f'\nffmpeg arguments: "{" ".join(arguments)}"'
             "\nffmpeg gave this output:"
             "\n=====\n"
-            f"{proc_err.decode('utf-8')}"
+            f"{''.join([proc_out.decode('utf-8'), proc_err.decode('utf-8')])}"
             "\n=====\n"
         )
 
