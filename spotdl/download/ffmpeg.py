@@ -50,6 +50,9 @@ async def convert(
     # ! sampled length of songs matches the actual length (i.e. a 5 min song won't display
     # ! as 47 seconds long in your music player, yeah that was an issue earlier.)
 
+    downloaded_file_path = str(downloaded_file_path)
+    converted_file_path = str(converted_file_path)
+
     formats = {
         "mp3": "-codec:a libmp3lame",
         "flac": "-codec:a flac",
