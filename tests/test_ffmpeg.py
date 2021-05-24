@@ -69,4 +69,4 @@ def test_outdated_version(fake_process, capsys):
     assert ffmpeg.has_correct_version() == False
 
     output, error = capsys.readouterr()
-    assert "Your FFmpeg installation is too old (1.0), please update to 4.3+\n" in error
+    assert "Your FFmpeg installation is too old (1.0), please update to 4.2+\n" in error
