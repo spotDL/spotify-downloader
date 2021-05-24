@@ -53,7 +53,7 @@ async def convert(
     formats = {
         "mp3": "-codec:a libmp3lame",
         "flac": "-codec:a flac",
-        "ogg": "-codec:a libvorbis -q:a 5",
+        "ogg": "-codec:a libvorbis",
         "opus": "-codec:a libopus",
         "m4a": "-codec:a aac -vn",
     }
@@ -65,17 +65,6 @@ async def convert(
 
     if ffmpeg_path is None:
         ffmpeg_path = "ffmpeg"
-
-    # ! bash/ffmpeg on Unix systems need to have excape char (\) for special characters: \$
-    # ! alternatively the quotes could be reversed (single <-> double) in the command then
-    # ! the windows special characters needs escaping (^): ^\  ^&  ^|  ^>  ^<  ^^
-
-    if sys.platform == "win32":
-        downloaded_file_path = str(downloaded_file_path)
-        converted_file_path = str(downloaded_file_path)
-    else:
-        downloaded_file_path = str(downloaded_file_path).replace("$", r"\$")
-        converted_file_path = str(converted_file_path).replace("$", r"\$")
 
     arguments = [
         "-v",
