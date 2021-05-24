@@ -88,8 +88,6 @@ async def convert(
         stderr=asyncio.subprocess.PIPE
     )
 
-    print(process.args)
-
     proc_out, proc_err = await process.communicate()
 
     if process.returncode != 0:
