@@ -2,6 +2,7 @@ from typing import List, Dict
 
 from spotdl.search.songObj import SongObj
 from spotdl.search.spotifyClient import SpotifyClient
+from concurrent.futures import ThreadPoolExecutor, wait
 
 
 def search_for_song(query: str) -> SongObj:
@@ -190,3 +191,38 @@ def get_playlist_tracks(playlistUrl: str) -> List[SongObj]:
             break
 
     return playlistTracks
+
+
+def get_saved_tracks() -> List[SongObj]:
+    '''
+    returns a `list<songObj>` containing Url's of each track in the user's saved tracks
+    '''
+
+    spotifyClient = SpotifyClient()
+
+    initialRequest = spotifyClient.current_user_saved_tracks()
+    librarySize = int(initialRequest["total"])
+    with ThreadPoolExecutor() as pool:
+        futures = []
+        for i in range(librarySize):
+            if i % 20 == 0:
+                futures.append(
+                    pool.submit(
+                        spotifyClient.current_user_saved_tracks,
+                        offset=i
+                    )
+                )
+        doneFutures = wait(futures)[0]
+        doneLists = map(lambda x: x.result()["items"], doneFutures)
+        songObjFutures = []
+        for currList in doneLists:
+            for songSimplified in currList:
+                songObjFutures.append(
+                    pool.submit(
+                        SongObj.from_url,
+                        'https://open.spotify.com/track/' + songSimplified['track']['id']
+                    )
+                )
+        doneSongObjsFutures = wait(songObjFutures)[0]
+        doneSongObjs = list(map(lambda x: x.result(), doneSongObjsFutures))
+        return doneSongObjs
