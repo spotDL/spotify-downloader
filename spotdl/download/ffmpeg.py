@@ -3,7 +3,6 @@ import subprocess
 import sys
 import re
 
-
 def has_correct_version(
     skip_version_check: bool = False, ffmpeg_path: str = "ffmpeg"
 ) -> bool:
@@ -54,11 +53,11 @@ async def convert(
     converted_file_path = str(converted_file_path)
 
     formats = {
-        "mp3": "-codec:a libmp3lame",
-        "flac": "-codec:a flac",
-        "ogg": "-codec:a libvorbis",
-        "opus": "-codec:a libopus",
-        "m4a": "-codec:a aac -vn",
+        "mp3": ["-codec:a", "libmp3lame"],
+        "flac": ["-codec:a", "flac"],
+        "ogg": ["-codec:a", "libvorbis"],
+        "opus": ["-codec:a", "libopus"],
+        "m4a": ["-codec:a", "aac", "-vn"],
     }
 
     if output_format is None:
@@ -70,15 +69,15 @@ async def convert(
         ffmpeg_path = "ffmpeg"
 
     arguments = [
-        "-v",
-        "quiet",
         "-i",
         downloaded_file_path,
-        output_format_command,
+        *output_format_command,
         "-abr",
         "true",
         "-q:a",
         "0",
+        "-v",
+        "quiet",
         converted_file_path,
     ]
 
@@ -86,8 +85,10 @@ async def convert(
         ffmpeg_path,
         *arguments,
         stdout=asyncio.subprocess.PIPE,
-        stderr=asyncio.subprocess.PIPE,
+        stderr=asyncio.subprocess.PIPE
     )
+
+    print(process.args)
 
     proc_out, proc_err = await process.communicate()
 
