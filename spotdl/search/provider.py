@@ -297,6 +297,12 @@ def order_ytm_results(
             nameMatch = round(match_percentage(
                 unidecode(result['name']), unidecode(song_title), 60), ndigits=3)
 
+        # skip results with name match of 0, these are obviously wrong
+        # but can be identified as correct later on due to other factors
+        # such as timeMatch or artistMatch
+        if nameMatch == 0:
+            continue
+
         # Find album match
         # ! We assign an arbitrary value of 0 for album match in case of video results
         # ! from YouTube Music
