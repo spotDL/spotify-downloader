@@ -82,7 +82,7 @@ curl -L https://raw.githubusercontent.com/spotDL/spotify-downloader/master/termu
   example:
 
   ```bash
-  spotdl https://open.spotify.com/track/0VjIjW4GlUZAMYd2vXMi3b?si=1stnMF5GSdClnIEARnJiiQ
+  spotdl https://open.spotify.com/track/0VjIjW4GlUZAMYd2vXMi3b
   ```
 
 - #### To download an album, run
@@ -94,7 +94,7 @@ curl -L https://raw.githubusercontent.com/spotDL/spotify-downloader/master/termu
   example:
 
   ```bash
-  spotdl https://open.spotify.com/album/4yP0hdKOZPNshxUOjY0cZj?si=AssgQQrVTJqptFe7X92jNg
+  spotdl https://open.spotify.com/album/4yP0hdKOZPNshxUOjY0cZj
   ```
 
 - #### To download a playlist, run
@@ -106,7 +106,7 @@ curl -L https://raw.githubusercontent.com/spotDL/spotify-downloader/master/termu
   example:
 
   ```bash
-  spotdl https://open.spotify.com/playlist/37i9dQZF1E8UXBoz02kGID?si=oGd5ctlyQ0qblj_bL6WWow
+  spotdl https://open.spotify.com/playlist/37i9dQZF1E8UXBoz02kGID
   ```
 
 - #### To search for and download a song, run, **with quotation marks**
@@ -146,7 +146,7 @@ curl -L https://raw.githubusercontent.com/spotDL/spotify-downloader/master/termu
   example:
 
   ```bash
-  spotdl 'The Weeknd - Blinding Lights' https://open.spotify.com/playlist/37i9dQZF1E8UXBoz02kGID?si=oGd5ctlyQ0qblj_bL6WWow ...
+  spotdl 'The Weeknd - Blinding Lights' https://open.spotify.com/playlist/37i9dQZF1E8UXBoz02kGID ...
   ```
 
   > _Note: spotDL downloads up to 4 songs in parallel, so for a faster experience, download albums and playlist, rather than tracks._

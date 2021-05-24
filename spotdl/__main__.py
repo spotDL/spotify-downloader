@@ -55,15 +55,15 @@ from spotdl.download import ffmpeg
 help_notice = '''
 To download a song run,
     spotdl [trackUrl]
-    ex. spotdl https://open.spotify.com/track/0VjIjW4GlUZAMYd2vXMi3b?si=1stnMF5GSdClnIEARnJiiQ
+    ex. spotdl https://open.spotify.com/track/0VjIjW4GlUZAMYd2vXMi3b
 
 To download a album run,
     spotdl [albumUrl]
-    ex. spotdl https://open.spotify.com/album/4yP0hdKOZPNshxUOjY0cZj?si=AssgQQrVTJqptFe7X92jNg
+    ex. spotdl https://open.spotify.com/album/4yP0hdKOZPNshxUOjY0cZj
 
 To download a playlist, run:
     spotdl [playlistUrl]
-    ex. spotdl https://open.spotify.com/playlist/37i9dQZF1E8UXBoz02kGID?si=oGd5ctlyQ0qblj_bL6WWow
+    ex. spotdl https://open.spotify.com/playlist/37i9dQZF1E8UXBoz02kGID
 
 To download your saved songs, run:
     spotdl --user-auth saved
@@ -82,7 +82,7 @@ To resume a failed/incomplete download, run:
 You can queue up multiple download tasks by separating the arguments with spaces:
     spotdl [songQuery1] [albumUrl] [songQuery2] ... (order does not matter)
     ex. spotdl 'The Weeknd - Blinding Lights'
-            https://open.spotify.com/playlist/37i9dQZF1E8UXBoz02kGID?si=oGd5ctlyQ0qblj_bL6WWow ...
+            https://open.spotify.com/playlist/37i9dQZF1E8UXBoz02kGID ...
 
 You can use the --debug-termination flag to figure out where in the code spotdl got stuck.
 
