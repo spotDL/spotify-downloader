@@ -268,6 +268,17 @@ def order_ytm_results(
                         85):
                     artistMatchNumber += 1
 
+            # we didn't find artist in the video title, so we fallback to
+            # detecting song artist in the channel name
+            # I am not sure if this won't create false positives
+            if artistMatchNumber == 0:
+                for artist in songArtists:
+                    if match_percentage(
+                            unidecode(artist.lower()),
+                            unidecode(result['artist'].lower()),
+                            85):
+                        artistMatchNumber += 1
+
         # ! Skip if there are no artists in common, (else, results like 'Griffith Swank -
         # ! Madness' will be the top match for 'Ruelle - Madness')
         if artistMatchNumber == 0:
