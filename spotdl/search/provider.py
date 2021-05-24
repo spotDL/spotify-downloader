@@ -286,15 +286,16 @@ def order_ytm_results(
 
         artistMatch = (artistMatchNumber / len(songArtists)) * 100
 
-        # Find name match
         song_title = create_song_title(songName, songArtists)
 
+        # Find name match and drop results below 60%
+        # this needs more testing
         if result['type'] == 'song':
             nameMatch = round(match_percentage(
-                unidecode(result['name']), unidecode(songName)), ndigits=3)
+                unidecode(result['name']), unidecode(songName), 60), ndigits=3)
         else:
             nameMatch = round(match_percentage(
-                unidecode(result['name']), unidecode(song_title)), ndigits=3)
+                unidecode(result['name']), unidecode(song_title), 60), ndigits=3)
 
         # Find album match
         # ! We assign an arbitrary value of 0 for album match in case of video results
