@@ -34,7 +34,7 @@ def has_correct_version(
 
         if float(version) < 4.2:
             print(
-                f"Your FFmpeg installation is too old ({version}), please update to 4.3+\n",
+                f"Your FFmpeg installation is too old ({version}), please update to 4.2+\n",
                 file=sys.stderr,
             )
             return False
