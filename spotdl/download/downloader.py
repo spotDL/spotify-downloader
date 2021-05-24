@@ -19,6 +19,7 @@ from pytube import YouTube
 from spotdl.download.progressHandlers import DisplayManager, DownloadTracker
 from spotdl.search.songObj import SongObj
 from spotdl.download import ffmpeg
+from spotdl.search.provider import create_file_name
 
 
 # ==========================
@@ -142,46 +143,12 @@ class DownloadManager:
             if not tempFolder.exists():
                 tempFolder.mkdir()
 
-            # build file name of converted file
-            artistStr = ""
-
-            # ! we eliminate contributing artist names that are also in the song name, else we
-            # ! would end up with things like 'Jetta, Mastubs - I'd love to change the world
-            # ! (Mastubs REMIX).mp3' which is kinda an odd file name.
-            for artist in songObj.get_contributing_artists():
-                if artist.lower() not in songObj.get_song_name().lower():
-                    artistStr += artist + ", "
-
-            # make sure that main artist is included in artistStr even if they
-            # are in the song name, for example
-            # Lil Baby - Never Recover (Lil Baby & Gunna, Drake).mp3
-            if songObj.get_contributing_artists()[0].lower() not in artistStr.lower():
-                artistStr = songObj.get_contributing_artists()[0] + ", " + artistStr
-
-            # ! the ...[:-2] is to avoid the last ', ' appended to artistStr
-            convertedFileName = artistStr[:-2] + " - " + songObj.get_song_name()
-
-            # ! this is windows specific (disallowed chars)
-            for disallowedChar in ["/", "?", "\\", "*", "|", "<", ">"]:
-                if disallowedChar in convertedFileName:
-                    convertedFileName = convertedFileName.replace(disallowedChar, "")
-
-            # ! double quotes (") and semi-colons (:) are also disallowed characters but we would
-            # ! like to retain their equivalents, so they aren't removed in the prior loop
-            convertedFileName = convertedFileName.replace('"', "'").replace(":", "-")
+            convertedFileName = create_file_name(
+                songObj.get_song_name(),
+                songObj.get_contributing_artists()
+            )
 
             convertedFilePath = Path(".", f"{convertedFileName}.mp3")
-
-            # if a song is already downloaded skip it
-            if convertedFilePath.is_file():
-                if self.displayManager:
-                    dispayProgressTracker.notify_download_skip()
-                if self.downloadTracker:
-                    self.downloadTracker.notify_download_completion(songObj)
-
-                # ! None is the default return value of all functions, we just explicitly define
-                # ! it here as a continent way to avoid executing the rest of the function.
-                return None
 
             # download Audio from YouTube
             if dispayProgressTracker:
