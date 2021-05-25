@@ -135,7 +135,7 @@ def console_entry_point():
         for request in arguments.url:
             if 'open.spotify.com' in request and 'track' in request:
                 print('Fetching Song...')
-                song = SongObj.from_url(request)
+                song = SongObj.from_url(request, arguments.format)
 
                 if song is not None:
                     if song.get_youtube_link() is not None:
@@ -147,19 +147,19 @@ def console_entry_point():
 
             elif 'open.spotify.com' in request and 'album' in request:
                 print('Fetching Album...')
-                songObjList = get_album_tracks(request)
+                songObjList = get_album_tracks(request, arguments.format)
 
                 downloader.download_multiple_songs(songObjList)
 
             elif 'open.spotify.com' in request and 'playlist' in request:
                 print('Fetching Playlist...')
-                songObjList = get_playlist_tracks(request)
+                songObjList = get_playlist_tracks(request, arguments.format)
 
                 downloader.download_multiple_songs(songObjList)
 
             elif 'open.spotify.com' in request and 'artist' in request:
                 print('Fetching artist...')
-                artistObjList = get_artist_tracks(request)
+                artistObjList = get_artist_tracks(request, arguments.format)
 
                 downloader.download_multiple_songs(artistObjList)
 
@@ -175,7 +175,7 @@ def console_entry_point():
             else:
                 print('Searching for song "%s"...' % request)
                 try:
-                    song = search_for_song(request)
+                    song = search_for_song(request, arguments.format)
                     downloader.download_single_song(song)
                 except Exception as e:
                     print(e)

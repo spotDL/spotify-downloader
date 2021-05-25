@@ -30,11 +30,14 @@ class SongObj():
     # ! Note, since the following are class methods, an instance of songObj is initialized
     # ! and passed to them
     @classmethod
-    def from_url(cls, spotifyURL: str):
+    def from_url(cls, spotifyURL: str, output_format: str = None):
         # check if URL is a playlist, user, artist or album, if yes raise an Exception,
         # else procede
         if not ('open.spotify.com' in spotifyURL and 'track' in spotifyURL):
             raise Exception('passed URL is not that of a track: %s' % spotifyURL)
+
+        if output_format is None:
+            output_format = "mp3"
 
         # query spotify for song, artist, album details
         spotifyClient = SpotifyClient()
@@ -46,7 +49,7 @@ class SongObj():
             [artist['name'] for artist in rawTrackMeta['artists']]
         )
 
-        convertedFilePath = Path(".", f"{convertedFileName}.mp3")
+        convertedFilePath = Path(".", f"{convertedFileName}.{output_format}")
 
         # if a song is already downloaded skip it
         if convertedFilePath.is_file():

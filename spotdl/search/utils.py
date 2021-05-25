@@ -5,7 +5,7 @@ from spotdl.search.spotifyClient import SpotifyClient
 from concurrent.futures import ThreadPoolExecutor, wait
 
 
-def search_for_song(query: str) -> SongObj:
+def search_for_song(query: str, output_format: str = None) -> SongObj:
     '''
     `str` `query` : what you'd type into spotify's search box
 
@@ -24,7 +24,7 @@ def search_for_song(query: str) -> SongObj:
     else:
         for songResult in result['tracks']['items']:
             songUrl = 'http://open.spotify.com/track/' + songResult['id']
-            song = SongObj.from_url(songUrl)
+            song = SongObj.from_url(songUrl, output_format)
 
             if song is not None and song.get_youtube_link() is not None:
                 return song
@@ -32,7 +32,7 @@ def search_for_song(query: str) -> SongObj:
         raise Exception('Could not match any of the results on YouTube')
 
 
-def get_album_tracks(albumUrl: str) -> List[SongObj]:
+def get_album_tracks(albumUrl: str, output_format: str = None) -> List[SongObj]:
     '''
     `str` `albumUrl` : Spotify Url of the album whose tracks are to be
     retrieved
@@ -49,7 +49,7 @@ def get_album_tracks(albumUrl: str) -> List[SongObj]:
     while True:
 
         for track in trackResponse['items']:
-            song = SongObj.from_url('https://open.spotify.com/track/' + track['id'])
+            song = SongObj.from_url('https://open.spotify.com/track/' + track['id'], output_format)
 
             if song is not None and song.get_youtube_link() is not None:
                 albumTracks.append(song)
@@ -66,7 +66,7 @@ def get_album_tracks(albumUrl: str) -> List[SongObj]:
     return albumTracks
 
 
-def get_artist_tracks(artistUrl: str) -> List[SongObj]:
+def get_artist_tracks(artistUrl: str, output_format: str = None) -> List[SongObj]:
     '''
     `str` `albumUrl` : Spotify Url of the artist whose tracks are to be
     retrieved
@@ -124,7 +124,7 @@ def get_artist_tracks(artistUrl: str) -> List[SongObj]:
                                 # the id
                                 if artist['id'] == artistId:
                                     song = SongObj.from_url(
-                                        'https://open.spotify.com/track/' + track['id']
+                                        'https://open.spotify.com/track/' + track['id'], output_format
                                     )
 
                                     if song is not None and song.get_youtube_link() is not None:
@@ -155,7 +155,7 @@ def get_artist_tracks(artistUrl: str) -> List[SongObj]:
     return list(albumTracks.values())
 
 
-def get_playlist_tracks(playlistUrl: str) -> List[SongObj]:
+def get_playlist_tracks(playlistUrl: str, output_format: str = None) -> List[SongObj]:
     '''
     `str` `playlistUrl` : Spotify Url of the album whose tracks are to be
     retrieved
@@ -193,7 +193,7 @@ def get_playlist_tracks(playlistUrl: str) -> List[SongObj]:
     return playlistTracks
 
 
-def get_saved_tracks() -> List[SongObj]:
+def get_saved_tracks(output_format: str = None) -> List[SongObj]:
     '''
     returns a `list<songObj>` containing Url's of each track in the user's saved tracks
     '''
@@ -220,7 +220,8 @@ def get_saved_tracks() -> List[SongObj]:
                 songObjFutures.append(
                     pool.submit(
                         SongObj.from_url,
-                        'https://open.spotify.com/track/' + songSimplified['track']['id']
+                        'https://open.spotify.com/track/' + songSimplified['track']['id'],
+                        output_format
                     )
                 )
         doneSongObjsFutures = wait(songObjFutures)[0]
