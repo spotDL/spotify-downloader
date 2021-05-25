@@ -178,7 +178,9 @@ def get_playlist_tracks(playlistUrl: str, output_format: str = None) -> List[Son
                 continue
 
             song = SongObj.from_url(
-                'https://open.spotify.com/track/' + songEntry['track']['id'])
+                'https://open.spotify.com/track/' + songEntry['track']['id'],
+                output_format
+            )
 
             if song is not None and song.get_youtube_link() is not None:
                 playlistTracks.append(song)
