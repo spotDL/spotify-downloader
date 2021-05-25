@@ -2,7 +2,6 @@ from typing import List, Dict, Optional
 
 from spotdl.search.songObj import SongObj
 from spotdl.search.spotifyClient import SpotifyClient
-from concurrent.futures import ThreadPoolExecutor, wait
 
 
 def search_for_song(query: str, output_format: str = None) -> Optional[SongObj]:
