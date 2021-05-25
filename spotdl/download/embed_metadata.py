@@ -56,7 +56,7 @@ def _set_id3_mp3(converted_file_path, song_obj):
     audio_file.add(
         Comment(
             encoding=3,
-            text = song_obj.get_youtube_link()
+            text=song_obj.get_youtube_link()
         )
     )
 

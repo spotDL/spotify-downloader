@@ -124,7 +124,8 @@ def get_artist_tracks(artistUrl: str, output_format: str = None) -> List[SongObj
                                 # the id
                                 if artist['id'] == artistId:
                                     song = SongObj.from_url(
-                                        'https://open.spotify.com/track/' + track['id'], output_format
+                                        'https://open.spotify.com/track/' + track['id'],
+                                        output_format
                                     )
 
                                     if song is not None and song.get_youtube_link() is not None:
