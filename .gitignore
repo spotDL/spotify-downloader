@@ -1,0 +1,49 @@
+# Spotdl dev related testing files
+*.log
+*.spotdlTrackingFile
+*.mp3
+*.m4a
+*.flac
+*.opus
+*.ogg
+Temp/
+*.mp4
+
+# Python
+__pycache__
+.mypy_cache
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# vscode
+.vscode
+
+# MS Visio Pro
+externalTools/*
+
+# Getting rid of Hacks (for now, 04/09/2020)
+Hacks/*
+
+# setuptools
+spotdl.egg-info/*
+
+# setuptools and PyInstaller
+build
+dist
+*.spec
+
+# Jetbrains IDEs; PyCharm/IntelliJ
+.idea
+
+# Tox
+.tox/
+
+# Cache
+.cache
