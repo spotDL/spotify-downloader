@@ -3,7 +3,7 @@ from urllib.request import urlopen
 from mutagen.easyid3 import EasyID3, ID3
 from mutagen.flac import Picture, FLAC
 from mutagen.mp4 import MP4, MP4Cover
-from mutagen.id3 import APIC as AlbumCover, USLT
+from mutagen.id3 import APIC as AlbumCover, USLT, COMM as Comment
 from mutagen.oggopus import OggOpus
 from mutagen.oggvorbis import OggVorbis
 
@@ -44,7 +44,21 @@ def _set_id3_mp3(converted_file_path, song_obj):
     # ! The simple ID3 tags
     audio_file = EasyID3(converted_file_path)
 
-    _embed_mp3_metadata(audio_file, song_obj, converted_file_path)
+    audio_file = _embed_mp3_metadata(audio_file, song_obj, converted_file_path)
+
+    # ! save as both ID3 v2.3 & v2.4 as v2.3 isn't fully features and
+    # ! windows doesn't support v2.4 until later versions of Win10
+    audio_file.save(v2_version=3)
+
+    audio_file = _embed_mp3_cover(audio_file, song_obj, converted_file_path)
+    audio_file = _embed_mp3_lyrics(audio_file, song_obj)
+    # ! setting song links as comment (helpful for devs)
+    audio_file.add(
+        Comment(
+            encoding=3,
+            text = song_obj.get_youtube_link()
+        )
+    )
 
     audio_file.save(v2_version=3)
 
@@ -55,8 +69,8 @@ def _set_id3_m4a(converted_file_path, song_obj):
     # ! The simple ID3 tags
     audio_file = MP4(converted_file_path)
 
-    _embed_basic_metadata(audio_file, song_obj, "m4a", M4A_TAG_PRESET)
-    _embed_m4a_metadata(audio_file, song_obj)
+    audio_file = _embed_basic_metadata(audio_file, song_obj, "m4a", M4A_TAG_PRESET)
+    audio_file = _embed_m4a_metadata(audio_file, song_obj)
 
     audio_file.save()
 
@@ -64,9 +78,9 @@ def _set_id3_m4a(converted_file_path, song_obj):
 def _set_id3_flac(converted_file_path, song_obj):
     audio_file = FLAC(converted_file_path)
 
-    _embed_basic_metadata(audio_file, song_obj, "flac")
-    _embed_ogg_metadata(audio_file, song_obj)
-    _embed_cover(audio_file, song_obj, "flac")
+    audio_file = _embed_basic_metadata(audio_file, song_obj, "flac")
+    audio_file = _embed_ogg_metadata(audio_file, song_obj)
+    audio_file = _embed_cover(audio_file, song_obj, "flac")
 
     audio_file.save()
 
@@ -74,9 +88,9 @@ def _set_id3_flac(converted_file_path, song_obj):
 def _set_id3_opus(converted_file_path, song_obj):
     audio_file = OggOpus(converted_file_path)
 
-    _embed_basic_metadata(audio_file, song_obj, "opus")
-    _embed_ogg_metadata(audio_file, song_obj)
-    _embed_cover(audio_file, song_obj, "opus")
+    audio_file = _embed_basic_metadata(audio_file, song_obj, "opus")
+    audio_file = _embed_ogg_metadata(audio_file, song_obj)
+    audio_file = _embed_cover(audio_file, song_obj, "opus")
 
     audio_file.save()
 
@@ -84,9 +98,9 @@ def _set_id3_opus(converted_file_path, song_obj):
 def _set_id3_ogg(converted_file_path, song_obj):
     audio_file = OggVorbis(converted_file_path)
 
-    _embed_basic_metadata(audio_file, song_obj, "ogg")
-    _embed_ogg_metadata(audio_file, song_obj)
-    _embed_cover(audio_file, song_obj, "ogg")
+    audio_file = _embed_basic_metadata(audio_file, song_obj, "ogg")
+    audio_file = _embed_ogg_metadata(audio_file, song_obj)
+    audio_file = _embed_cover(audio_file, song_obj, "ogg")
 
     audio_file.save()
 
@@ -126,10 +140,10 @@ def _embed_mp3_metadata(audio_file, song_obj, converted_file_path):
     audio_file['date'] = song_obj.get_album_release()
     audio_file['originaldate'] = song_obj.get_album_release()
 
-    # ! save as both ID3 v2.3 & v2.4 as v2.3 isn't fully features and
-    # ! windows doesn't support v2.4 until later versions of Win10
-    audio_file.save(v2_version=3)
+    return audio_file
 
+
+def _embed_mp3_cover(audio_file, song_obj, converted_file_path):
     # ! setting the album art
     audio_file = ID3(converted_file_path)
     rawAlbumArt = urlopen(song_obj.get_album_cover_url()).read()
@@ -141,10 +155,16 @@ def _embed_mp3_metadata(audio_file, song_obj, converted_file_path):
         data=rawAlbumArt
     )
 
+    return audio_file
+
+
+def _embed_mp3_lyrics(audio_file, song_obj):
     # ! setting the lyrics
     lyrics = song_obj.get_lyrics()
     USLTOutput = USLT(encoding=3, lang=u'eng', desc=u'desc', text=lyrics)
     audio_file["USLT::'eng'"] = USLTOutput
+
+    return audio_file
 
 
 def _embed_m4a_metadata(audio_file, song_obj):
@@ -172,6 +192,8 @@ def _embed_m4a_metadata(audio_file, song_obj):
         ]
     except IndexError:
         pass
+
+    return audio_file
 
 
 def _embed_basic_metadata(audio_file, song_obj, encoding, preset=TAG_PRESET):
@@ -219,6 +241,8 @@ def _embed_basic_metadata(audio_file, song_obj, encoding, preset=TAG_PRESET):
         else:
             audio_file[preset["tracknumber"]] = [(track_number, 0)]
 
+    return audio_file
+
 
 def _embed_ogg_metadata(audio_file, song_obj):
     # set year
@@ -235,6 +259,8 @@ def _embed_ogg_metadata(audio_file, song_obj):
     lyrics = song_obj.get_lyrics()
     if lyrics:
         audio_file["lyrics"] = lyrics
+
+    return audio_file
 
 
 def _embed_cover(audio_file, song_obj, encoding):
@@ -254,6 +280,8 @@ def _embed_cover(audio_file, song_obj, encoding):
         encoded_data = base64.b64encode(image_data)
         vcomment_value = encoded_data.decode("ascii")
         audio_file["metadata_block_picture"] = [vcomment_value]
+
+    return audio_file
 
 
 SET_ID3_FUNCTIONS = {
