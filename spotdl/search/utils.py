@@ -204,30 +204,29 @@ def get_saved_tracks(output_format: str = None) -> List[SongObj]:
 
     spotifyClient = SpotifyClient()
 
-    initialRequest = spotifyClient.current_user_saved_tracks()
-    librarySize = int(initialRequest["total"])
-    with ThreadPoolExecutor() as pool:
-        futures = []
-        for i in range(librarySize):
-            if i % 20 == 0:
-                futures.append(
-                    pool.submit(
-                        spotifyClient.current_user_saved_tracks,
-                        offset=i
-                    )
-                )
-        doneFutures = wait(futures)[0]
-        doneLists = map(lambda x: x.result()["items"], doneFutures)
-        songObjFutures = []
-        for currList in doneLists:
-            for songSimplified in currList:
-                songObjFutures.append(
-                    pool.submit(
-                        SongObj.from_url,
-                        'https://open.spotify.com/track/' + songSimplified['track']['id'],
-                        output_format
-                    )
-                )
-        doneSongObjsFutures = wait(songObjFutures)[0]
-        doneSongObjs = list(map(lambda x: x.result(), doneSongObjsFutures))
-        return doneSongObjs
+    savedTracks = []
+
+    savedTracksResponse = spotifyClient.current_user_saved_tracks()
+
+    while True:
+        for songEntry in savedTracksResponse['items']:
+            if songEntry['track'] is None or songEntry['track']['id'] is None:
+                continue
+
+            song = SongObj.from_url(
+                'https://open.spotify.com/track/' + songEntry['track']['id'],
+                output_format
+            )
+
+            if song is not None and song.get_youtube_link() is not None:
+                savedTracks.append(song)
+
+        # check if more tracks are to be passed
+        if savedTracksResponse['next']:
+            savedTracksResponse = spotifyClient.current_user_saved_tracks(
+                offset=savedTracksResponse['offset'] + savedTracksResponse['limit']
+            )
+        else:
+            break
+
+    return savedTracks
