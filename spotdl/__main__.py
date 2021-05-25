@@ -188,7 +188,7 @@ def parse_arguments():
         description=help_notice,
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
-    parser.add_argument("url", type=str, nargs="+", help="URL to a song/album/playlist")
+    parser.add_argument("url", type=str, nargs="+", help="URL to a song/album/playlist/artist")
     parser.add_argument("--debug-termination", action="store_true")
     parser.add_argument("-o", "--output", help="Output directory path", dest="path")
     parser.add_argument("-of", "--output-format", help="Output format", dest="format",
