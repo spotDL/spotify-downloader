@@ -176,7 +176,8 @@ def console_entry_point():
                 print('Searching for song "%s"...' % request)
                 try:
                     song = search_for_song(request, arguments.format)
-                    downloader.download_single_song(song)
+                    if song is not None:
+                        downloader.download_single_song(song)
                 except Exception as e:
                     print(e)
 

@@ -22,14 +22,13 @@ def search_for_song(query: str, output_format: str = None) -> SongObj:
     if len(result['tracks']['items']) == 0:
         raise Exception('No song matches found on Spotify')
     else:
-        for songResult in result['tracks']['items']:
-            songUrl = 'http://open.spotify.com/track/' + songResult['id']
-            song = SongObj.from_url(songUrl, output_format)
+        songUrl = 'http://open.spotify.com/track/' + result['tracks']['items'][0]['id']
+        song = SongObj.from_url(songUrl, output_format)
 
-            if song is not None and song.get_youtube_link() is not None:
+        if song is not None:
+            if song.get_youtube_link() is not None:
                 return song
-
-        raise Exception('Could not match any of the results on YouTube')
+            raise Exception('Could not match any of the results on YouTube')
 
 
 def get_album_tracks(albumUrl: str, output_format: str = None) -> List[SongObj]:
