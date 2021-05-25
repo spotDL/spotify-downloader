@@ -2,6 +2,11 @@
 *.log
 *.spotdlTrackingFile
 *.mp3
+*.m4a
+*.flac
+*.opus
+*.ogg
+Temp/
 *.mp4
 
 # Python
@@ -36,3 +41,9 @@ dist
 
 # Jetbrains IDEs; PyCharm/IntelliJ
 .idea
+
+# Tox
+.tox/
+
+# Cache
+.cache

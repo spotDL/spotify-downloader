@@ -34,8 +34,8 @@ Download your Spotify playlists and songs along with album art and metadata
 
 ## Prerequisites
 
-- Python 3.6 or above (added to PATH)
-- FFmpeg 4.3 or above (added to PATH)
+- Python 3.6.1 or above (added to PATH)
+- FFmpeg 4.2 or above (added to PATH)
 
 > **_YouTube Music must be available in your country for spotDL to work. This is because we use YouTube Music to filter search results. You can check if YouTube Music is available in your country, by visiting [YouTube Music](https://music.youtube.com)._**
 
@@ -82,7 +82,7 @@ curl -L https://raw.githubusercontent.com/spotDL/spotify-downloader/master/termu
   example:
 
   ```bash
-  spotdl https://open.spotify.com/track/0VjIjW4GlUZAMYd2vXMi3b?si=1stnMF5GSdClnIEARnJiiQ
+  spotdl https://open.spotify.com/track/0VjIjW4GlUZAMYd2vXMi3b
   ```
 
 - #### To download an album, run
@@ -94,7 +94,7 @@ curl -L https://raw.githubusercontent.com/spotDL/spotify-downloader/master/termu
   example:
 
   ```bash
-  spotdl https://open.spotify.com/album/4yP0hdKOZPNshxUOjY0cZj?si=AssgQQrVTJqptFe7X92jNg
+  spotdl https://open.spotify.com/album/4yP0hdKOZPNshxUOjY0cZj
   ```
 
 - #### To download a playlist, run
@@ -106,9 +106,20 @@ curl -L https://raw.githubusercontent.com/spotDL/spotify-downloader/master/termu
   example:
 
   ```bash
-  spotdl https://open.spotify.com/playlist/37i9dQZF1E8UXBoz02kGID?si=oGd5ctlyQ0qblj_bL6WWow
+  spotdl https://open.spotify.com/playlist/37i9dQZF1E8UXBoz02kGID
   ```
 
+- #### To download all songs from an artist run
+
+  ```bash
+  spotdl [artistUrl]
+  ```
+
+  example:
+
+  ```bash
+  spotdl https://open.spotify.com/artist/1fZAAHNWdSM5gqbi9o5iEA
+  ```
 - #### To search for and download a song, run, **with quotation marks**
 
   ```bash
@@ -146,10 +157,40 @@ curl -L https://raw.githubusercontent.com/spotDL/spotify-downloader/master/termu
   example:
 
   ```bash
-  spotdl 'The Weeknd - Blinding Lights' https://open.spotify.com/playlist/37i9dQZF1E8UXBoz02kGID?si=oGd5ctlyQ0qblj_bL6WWow ...
+  spotdl 'The Weeknd - Blinding Lights' https://open.spotify.com/playlist/37i9dQZF1E8UXBoz02kGID ...
   ```
 
   > _Note: spotDL downloads up to 4 songs in parallel, so for a faster experience, download albums and playlist, rather than tracks._
+
+- #### To download songs with different output format run
+
+  ```bash
+  spotdl [songUrl] --output-format mp3/m4a/flac/opus/ogg
+  ```
+
+  example:
+
+  ```bash
+  spotdl [songUrl] --output-format opus
+  ```
+
+- #### To use ffmpeg binary that is not on PATH run
+
+  ```bash
+  spotdl [songUrl] --ffmpeg path/to/your/ffmpeg.exe
+  ```
+
+  example:
+
+  ```bash
+  spotdl [songUrl] --ffmpeg C:\ffmpeg\bin\ffmpeg.exe
+  ```
+
+- #### To ignore your ffmpeg version run
+
+  ```bash
+  spotdl [songUrl] --ignore-ffmpeg-version
+  ```
 
 ## `pipx` Isolated Environment Alternative
 
