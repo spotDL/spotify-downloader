@@ -71,6 +71,7 @@ def songobj_from_spotify_url(spotifyURL: str):
     )
 
     convertedFilePath = Path(".", f"{convertedFileName}.mp3")
+    displayName = ", ".join(contributingArtists) + " - " + songName
 
     # if a song is already downloaded skip it
     if convertedFilePath.is_file():
@@ -79,11 +80,8 @@ def songobj_from_spotify_url(spotifyURL: str):
 
     # Get the song's downloadable audio link
     print(
-        'Searching YouTube for "'
-        + ", ".join(contributingArtists)
-        + " - "
-        + songName
-        + '"'
+        'Searching YouTube for "' + displayName + '"',
+        end="\r",
     )
     youtubeLink = audioProvider.search_and_get_best_match(
         songName, contributingArtists, albumName, duration
@@ -92,7 +90,10 @@ def songobj_from_spotify_url(spotifyURL: str):
         # raise Exception("Could not match any of the results on YouTube")
         print("Could not match any of the results on YouTube")
     else:
-        print("Found:", youtubeLink)
+        print(" " * (len(displayName) + 25), end="\r")
+        print(
+            'Found YouTube URL for "' + displayName + '" : ' + youtubeLink,
+        )
 
     # (try to) Get lyrics from Genius
     try:

@@ -155,8 +155,6 @@ def search_and_get_best_match(
 
     songTitle = create_song_title(songName, songArtists)
 
-    print(f"Searching for {songTitle}")
-
     # Query YTM by songs only first, this way if we get correct result on the first try
     # we don't have to make another request to ytmusic api that could result in us
     # getting rate limited sooner
