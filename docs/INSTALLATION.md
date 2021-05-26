@@ -27,7 +27,7 @@ When installing Python, ensure to select "**Add to PATH**".
 
 `py -V` - Should return "Python 3.X.X". Please ensure you have v3.6.1 or greater.
 
-`FFmpeg -version` - Should return starting with "ffmpeg version X.X.X"
+`FFmpeg -version` - Should return starting with "ffmpeg version YYYY-MM-DD"
 
 ## Installing spotDL
 

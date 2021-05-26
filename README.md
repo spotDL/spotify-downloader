@@ -120,6 +120,7 @@ curl -L https://raw.githubusercontent.com/spotDL/spotify-downloader/master/termu
   ```bash
   spotdl https://open.spotify.com/artist/1fZAAHNWdSM5gqbi9o5iEA
   ```
+
 - #### To search for and download a song, run, **with quotation marks**
 
   ```bash

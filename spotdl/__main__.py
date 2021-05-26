@@ -22,10 +22,10 @@ from spotdl.download import ffmpeg
 #   'python __main__.py <links, search terms, tracking files separated by spaces>
 # ! Eg.
 # !      python __main__.py
-# !          https://open.spotify.com/playlist/37i9dQZF1DWXhcuQw7KIeM?si=xubKHEBESM27RqGkqoXzgQ
+# !          https://open.spotify.com/playlist/37i9dQZF1DWXhcuQw7KIeM
 # !          'old gods of asgard Control'
-# !          https://open.spotify.com/album/2YMWspDGtbDgYULXvVQFM6?si=gF5dOQm8QUSo-NdZVsFjAQ
-# !          https://open.spotify.com/track/08mG3Y1vljYA6bvDt4Wqkj?si=SxezdxmlTx-CaVoucHmrUA
+# !          https://open.spotify.com/album/2YMWspDGtbDgYULXvVQFM6
+# !          https://open.spotify.com/track/08mG3Y1vljYA6bvDt4Wqkj
 # !
 # ! Well, yeah its a pretty long example but, in theory, it should work like a charm.
 # !
@@ -65,12 +65,12 @@ To download a playlist, run:
     spotdl [playlistUrl]
     ex. spotdl https://open.spotify.com/playlist/37i9dQZF1E8UXBoz02kGID
 
+To download your saved songs, run:
+    spotdl --user-auth saved
+
 To download all songs from an artist run:
     spotdl [artistUrl]
     ex. spotdl https://open.spotify.com/artist/1fZAAHNWdSM5gqbi9o5iEA
-
-To download your saved songs, run:
-    spotdl --user-auth saved
 
 To change output format run:
     spotdl [songUrl] --output-format mp3/m4a/flac/opus/ogg
@@ -150,7 +150,7 @@ def console_entry_point():
         for request in arguments.url:
             if 'open.spotify.com' in request and 'track' in request:
                 print('Fetching Song...')
-                song = SongObj.from_url(request)
+                song = SongObj.from_url(request, arguments.format)
 
                 if song is not None:
                     if song.get_youtube_link() is not None:
@@ -162,19 +162,19 @@ def console_entry_point():
 
             elif 'open.spotify.com' in request and 'album' in request:
                 print('Fetching Album...')
-                songObjList = get_album_tracks(request)
+                songObjList = get_album_tracks(request, arguments.format)
 
                 downloader.download_multiple_songs(songObjList)
 
             elif 'open.spotify.com' in request and 'playlist' in request:
                 print('Fetching Playlist...')
-                songObjList = get_playlist_tracks(request)
+                songObjList = get_playlist_tracks(request, arguments.format)
 
                 downloader.download_multiple_songs(songObjList)
 
             elif 'open.spotify.com' in request and 'artist' in request:
                 print('Fetching artist...')
-                artistObjList = get_artist_tracks(request)
+                artistObjList = get_artist_tracks(request, arguments.format)
 
                 downloader.download_multiple_songs(artistObjList)
 
@@ -190,8 +190,9 @@ def console_entry_point():
             else:
                 print('Searching for song "%s"...' % request)
                 try:
-                    song = search_for_song(request)
-                    downloader.download_single_song(song)
+                    song = search_for_song(request, arguments.format)
+                    if song is not None:
+                        downloader.download_single_song(song)
                 except Exception as e:
                     print(e)
 
@@ -202,7 +203,7 @@ def parse_arguments():
         description=help_notice,
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
-    parser.add_argument("url", type=str, nargs="+", help="URL to a song/album/playlist")
+    parser.add_argument("url", type=str, nargs="+", help="URL to a song/album/playlist/artist")
     parser.add_argument("--debug-termination", action="store_true")
     parser.add_argument("-o", "--output", help="Output directory path", dest="path")
     parser.add_argument("-of", "--output-format", help="Output format", dest="format",
