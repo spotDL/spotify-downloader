@@ -165,17 +165,6 @@ class DownloadManager:
                 ".", f"{convertedFileName}.{self.arguments['format']}"
             )
 
-            # if a song is already downloaded skip it
-            if convertedFilePath.is_file():
-                if self.displayManager:
-                    dispayProgressTracker.notify_download_skip()
-                if self.downloadTracker:
-                    self.downloadTracker.notify_download_completion(songObj)
-
-                # ! None is the default return value of all functions, we just explicitly define
-                # ! it here as a continent way to avoid executing the rest of the function.
-                return None
-
             # download Audio from YouTube
             if dispayProgressTracker:
                 youtubeHandler = YouTube(
