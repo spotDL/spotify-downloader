@@ -6,39 +6,39 @@ import spotdl.search.metadataProvider as metadataProvider
 from typing import List, Dict, Optional
 from concurrent.futures import ThreadPoolExecutor, wait
 from pathlib import Path
-
+import argparse
 
 # =======================
 # === Master Gatherer ===
 # =======================
 
 
-def from_query(request: str):
+def from_query(request: str, output_format: str = None):
     songObjList = []
     if "open.spotify.com" in request and "track" in request:
         print("Fetching Song...")
-        songObjList = [songobj_from_spotify_url(request)]
+        songObjList = [songobj_from_spotify_url(request, output_format)]
 
     elif "open.spotify.com" in request and "album" in request:
         print("Fetching Album...")
-        songObjList = get_album_tracks(request)
+        songObjList = get_album_tracks(request, output_format)
 
     elif "open.spotify.com" in request and "playlist" in request:
         print("Fetching Playlist...")
-        songObjList = get_playlist_tracks(request)
+        songObjList = get_playlist_tracks(request, output_format)
 
     elif "open.spotify.com" in request and "artist" in request:
         print("Fetching artist...")
-        songObjList = get_artist_tracks(request)
+        songObjList = get_artist_tracks(request, output_format)
 
     elif request == "saved":
         print("Fetching Saved Songs...")
-        songObjList = get_saved_tracks()
+        songObjList = get_saved_tracks(output_format)
 
     else:
         print('Searching Spotify for song named "%s"...' % request)
         try:
-            songObjList = from_search_term(request)
+            songObjList = from_search_term(request, output_format)
         except Exception as e:
             print(e)
 
@@ -88,7 +88,8 @@ def songobj_from_spotify_url(spotifyURL: str, output_format: str = None):
     )
     if youtubeLink is None:
         # raise Exception("Could not match any of the results on YouTube")
-        print("Could not match any of the results on YouTube")
+        print("Could not match any of the results on YouTube. Skipping")
+        return None
     else:
         print(" " * (len(displayName) + 25), end="\r")
         print(f'Found YouTube URL for "{displayName}" : {youtubeLink}')
@@ -117,7 +118,7 @@ def from_dump(dataDump: dict):
     return SongObj(rawTrackMeta, rawAlbumMeta, rawArtistMeta, youtubeLink, lyrics)
 
 
-def from_search_term(query: str, output_format: str = None) -> Optional[SongObj]:
+def from_search_term(query: str, output_format: str = None) -> List[SongObj]:
     """
     `str` `query` : what you'd type into Spotify's search box
     Queries Spotify for a song and returns the best match
@@ -137,14 +138,9 @@ def from_search_term(query: str, output_format: str = None) -> Optional[SongObj]
     else:
         songUrl = "http://open.spotify.com/track/" + result["tracks"]["items"][0]["id"]
         song = songobj_from_spotify_url(songUrl, output_format)
+        tracks.append(song)
 
-        if song is not None:
-            if song.get_youtube_link() is not None:
-                tracks.append(song)
-                return tracks
-            raise Exception("Could not match any of the results on YouTube")
-        else:
-            return None
+    return tracks
 
 
 def get_album_tracks(albumUrl: str, output_format: str = None) -> List[SongObj]:
@@ -164,7 +160,7 @@ def get_album_tracks(albumUrl: str, output_format: str = None) -> List[SongObj]:
 
         for track in trackResponse["items"]:
             song = songobj_from_spotify_url(
-                "https://open.spotify.com/track/" + track["id"]
+                "https://open.spotify.com/track/" + track["id"], output_format
             )
 
             if song is not None and song.get_youtube_link() is not None:
@@ -238,7 +234,8 @@ def get_artist_tracks(artistUrl: str, output_format: str = None) -> List[SongObj
                                 # the id
                                 if artist["id"] == artistId:
                                     song = songobj_from_spotify_url(
-                                        "https://open.spotify.com/track/" + track["id"]
+                                        "https://open.spotify.com/track/" + track["id"],
+                                        output_format,
                                     )
 
                                     if (
@@ -288,7 +285,8 @@ def get_playlist_tracks(playlistUrl: str, output_format: str = None) -> List[Son
                 continue
 
             song = songobj_from_spotify_url(
-                "https://open.spotify.com/track/" + songEntry["track"]["id"]
+                "https://open.spotify.com/track/" + songEntry["track"]["id"],
+                output_format,
             )
 
             if song is not None and song.get_youtube_link() is not None:
@@ -322,7 +320,7 @@ def get_saved_tracks(output_format: str = None) -> List[SongObj]:
             if songEntry["track"] is None or songEntry["track"]["id"] is None:
                 continue
 
-            song = SongObj.from_url(
+            song = songobj_from_spotify_url(
                 "https://open.spotify.com/track/" + songEntry["track"]["id"],
                 output_format,
             )

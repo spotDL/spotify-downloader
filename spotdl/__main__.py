@@ -151,7 +151,7 @@ def console_entry_point():
                 print("Preparing to resume download...")
                 downloader.resume_download_from_tracking_file(request)
             else:
-                songObjList.extend(songGatherer.from_query(request))
+                songObjList.extend(songGatherer.from_query(request, arguments.format))
                 # linefeed to visually separate output for each query
                 print()
 
