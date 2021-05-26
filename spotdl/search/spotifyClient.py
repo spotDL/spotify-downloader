@@ -40,8 +40,8 @@ class Singleton(type):
             credentialManager = SpotifyOAuth(
                 client_id=client_id,
                 client_secret=client_secret,
-                redirect_uri="http://127.0.0.1:8080",
-                scope="playlist-read-private playlist-read-collaborative user-library-read",
+                redirect_uri="http://127.0.0.1:8080/",
+                scope="user-library-read",
             )
         else:
             credentialManager = SpotifyClientCredentials(

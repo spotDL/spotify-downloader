@@ -15,10 +15,10 @@ from spotdl.download import ffmpeg
 #   'python __main__.py <links, search terms, tracking files separated by spaces>
 # ! Eg.
 # !      python __main__.py
-# !          https://open.spotify.com/playlist/37i9dQZF1DWXhcuQw7KIeM?si=xubKHEBESM27RqGkqoXzgQ
+# !          https://open.spotify.com/playlist/37i9dQZF1DWXhcuQw7KIeM
 # !          'old gods of asgard Control'
-# !          https://open.spotify.com/album/2YMWspDGtbDgYULXvVQFM6?si=gF5dOQm8QUSo-NdZVsFjAQ
-# !          https://open.spotify.com/track/08mG3Y1vljYA6bvDt4Wqkj?si=SxezdxmlTx-CaVoucHmrUA
+# !          https://open.spotify.com/album/2YMWspDGtbDgYULXvVQFM6
+# !          https://open.spotify.com/track/08mG3Y1vljYA6bvDt4Wqkj
 # !
 # ! Well, yeah its a pretty long example but, in theory, it should work like a charm.
 # !
@@ -58,12 +58,12 @@ To download a playlist, run:
     spotdl [playlistUrl]
     ex. spotdl https://open.spotify.com/playlist/37i9dQZF1E8UXBoz02kGID
 
+To download your saved songs, run:
+    spotdl --user-auth saved
+
 To download all songs from an artist run:
     spotdl [artistUrl]
     ex. spotdl https://open.spotify.com/artist/1fZAAHNWdSM5gqbi9o5iEA
-
-To download your saved songs, run:
-    spotdl --user-auth saved
 
 To change output format run:
     spotdl [songUrl] --output-format mp3/m4a/flac/opus/ogg
@@ -166,7 +166,7 @@ def parse_arguments():
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     parser.add_argument(
-        "query", type=str, nargs="+", help="URL/String for a song/album/playlist"
+        "query", type=str, nargs="+", help="URL/String for a song/album/playlist/artist"
     )
     parser.add_argument("--debug-termination", action="store_true")
     parser.add_argument("-o", "--output", help="Output directory path", dest="path")
