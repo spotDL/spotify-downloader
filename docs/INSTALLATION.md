@@ -8,8 +8,8 @@ spotDL is a free and open source tool that downloads your Spotify playlists & mu
 
 ## Prerequisites
 
-- Python (added to PATH)
-- FFmpeg (added to PATH)
+- Python 3.6.1 or above (added to PATH)
+- FFmpeg 4.2 or above (added to PATH)
 
 ### Adding Python to PATH
 
