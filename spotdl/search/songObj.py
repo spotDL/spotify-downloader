@@ -29,6 +29,7 @@ class SongObj:
     # ================================
 
     def get_youtube_link(self) -> str:
+        # if self.__youtubeLink:
         return self.__youtubeLink
 
     # ! Song Details:
@@ -137,9 +138,9 @@ class SongObj:
         return convertedFileName
 
     def get_file_name(self) -> str:
-
         return self.create_file_name(
-            song_name=self.get_song_name(), song_artists=self.__rawTrackMeta["artists"]
+            song_name=self.__rawTrackMeta["name"],
+            song_artists=[artist["name"] for artist in self.__rawTrackMeta["artists"]],
         )
 
     # ! Album Details:

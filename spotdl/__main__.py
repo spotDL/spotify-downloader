@@ -115,7 +115,7 @@ def console_entry_point():
     ):
         sys.exit(1)
 
-    for request in arguments.url:
+    for request in arguments.query:
         if "saved" == request and not arguments.userAuth:
             arguments.userAuth = True
             print(
