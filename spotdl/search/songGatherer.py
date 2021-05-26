@@ -38,7 +38,7 @@ def from_query(request: str):
     else:
         print('Searching Spotify for song named "%s"...' % request)
         try:
-            songObjList = [from_search_term(request)]
+            songObjList = from_search_term(request)
         except Exception as e:
             print(e)
 
@@ -118,7 +118,7 @@ def from_dump(dataDump: dict):
     return SongObj(rawTrackMeta, rawAlbumMeta, rawArtistMeta, youtubeLink, lyrics)
 
 
-def from_search_term(query: str) -> SongObj:
+def from_search_term(query: str) -> List[SongObj]:
     """
     `str` `query` : what you'd type into Spotify's search box
     Queries Spotify for a song and returns the best match
@@ -126,6 +126,8 @@ def from_search_term(query: str) -> SongObj:
 
     # get a spotify client
     spotifyClient = SpotifyClient()
+
+    tracks = []
 
     # get possible matches from spotify
     result = spotifyClient.search(query, type="track")
@@ -139,7 +141,9 @@ def from_search_term(query: str) -> SongObj:
             song = songobj_from_spotify_url(songUrl)
 
             if song is not None and song.get_youtube_link() is not None:
-                return song
+                # return song
+                tracks.append(song)
+    return tracks
 
 
 def get_album_tracks(albumUrl: str) -> List[SongObj]:
@@ -232,7 +236,7 @@ def get_artist_tracks(artistUrl: str) -> List[SongObj]:
                                 # ignore tracks that are not from our artist by checking
                                 # the id
                                 if artist["id"] == artistId:
-                                    song = SongObj.from_url(
+                                    song = songobj_from_spotify_url(
                                         "https://open.spotify.com/track/" + track["id"]
                                     )
 
@@ -324,7 +328,7 @@ def get_saved_tracks() -> List[SongObj]:
             for songSimplified in currList:
                 songObjFutures.append(
                     pool.submit(
-                        SongObj.from_url,
+                        songobj_from_spotify_url,
                         "https://open.spotify.com/track/"
                         + songSimplified["track"]["id"],
                     )
