@@ -14,10 +14,10 @@ from typing import List, Optional
 
 from pytube import YouTube
 
-from spotdl.download.progressHandlers import DisplayManager, DownloadTracker
+from spotdl.download.progressuiHandlers import DisplayManager
+from spotdl.download.trackingfileHandlers import DownloadTracker
 from spotdl.search.songObj import SongObj
 from spotdl.download import ffmpeg
-from spotdl.search.provider import create_file_name
 
 
 # ==========================
@@ -118,6 +118,20 @@ class DownloadManager:
 
         self._download_asynchronously(songObjList)
 
+    def _download_asynchronously(self, song_obj_list):
+        tasks = [self._pool_download(song) for song in song_obj_list]
+        # call all task asynchronously, and wait until all are finished
+        self.loop.run_until_complete(asyncio.gather(*tasks))
+
+    async def _pool_download(self, song_obj: SongObj):
+        # ! Run asynchronous task in a pool to make sure that all processes
+        # ! don't run at once.
+
+        # tasks that cannot acquire semaphore will wait here until it's free
+        # only certain amount of tasks can acquire the semaphore at the same time
+        async with self.semaphore:
+            return await self.download_song(song_obj)
+
     async def download_song(self, songObj: SongObj) -> None:
         """
         `songObj` `songObj` : song to be downloaded
@@ -145,12 +159,11 @@ class DownloadManager:
             if not tempFolder.exists():
                 tempFolder.mkdir()
 
-            convertedFileName = create_file_name(
-                songObj.get_song_name(),
-                songObj.get_contributing_artists()
-            )
+            convertedFileName = songObj.get_file_name()
 
-            convertedFilePath = Path(".", f"{convertedFileName}.{self.arguments['format']}")
+            convertedFilePath = Path(
+                ".", f"{convertedFileName}.{self.arguments['format']}"
+            )
 
             # if a song is already downloaded skip it
             if convertedFilePath.is_file():
@@ -186,7 +199,7 @@ class DownloadManager:
                 )
                 return None
 
-            downloadedFilePathString = await self._download_from_youtube(
+            downloadedFilePathString = await self._perform_audio_download_async(
                 convertedFileName, tempFolder, trackAudioStream
             )
 
@@ -201,8 +214,8 @@ class DownloadManager:
             ffmpeg_success = await ffmpeg.convert(
                 downloaded_file_path=downloadedFilePath,
                 converted_file_path=convertedFilePath,
-                output_format=self.arguments['format'],
-                ffmpeg_path=self.arguments['ffmpeg_path']
+                output_format=self.arguments["format"],
+                ffmpeg_path=self.arguments["ffmpeg_path"],
             )
 
             if dispayProgressTracker:
@@ -213,7 +226,7 @@ class DownloadManager:
                 convertedFilePath.unlink()
             else:
                 # if a file was successfully downloaded, tag it
-                set_id3_data(convertedFilePath, songObj, self.arguments['format'])
+                set_id3_data(convertedFilePath, songObj, self.arguments["format"])
 
             # Do the necessary cleanup
             if dispayProgressTracker:
@@ -233,7 +246,7 @@ class DownloadManager:
             else:
                 raise e
 
-    async def _download_from_youtube(
+    async def _perform_audio_download_async(
         self, convertedFileName, tempFolder, trackAudioStream
     ):
         # ! The following function calls blocking code, which would block whole event loop.
@@ -266,17 +279,3 @@ class DownloadManager:
             for tempFile in tempFiles:
                 tempFile.unlink()
             return None
-
-    async def _pool_download(self, song_obj: SongObj):
-        # ! Run asynchronous task in a pool to make sure that all processes
-        # ! don't run at once.
-
-        # tasks that cannot acquire semaphore will wait here until it's free
-        # only certain amount of tasks can acquire the semaphore at the same time
-        async with self.semaphore:
-            return await self.download_song(song_obj)
-
-    def _download_asynchronously(self, song_obj_list):
-        tasks = [self._pool_download(song) for song in song_obj_list]
-        # call all task asynchronously, and wait until all are finished
-        self.loop.run_until_complete(asyncio.gather(*tasks))

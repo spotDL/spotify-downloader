@@ -42,18 +42,15 @@ libswresample   3. 10.100 /  3. 10.100
 libpostproc    55. 10.100 / 55. 10.100
 """
 
+
 def test_valid_version(fake_process):
-    fake_process.register_subprocess(
-        ["ffmpeg", "-version"], stdout=valid_version
-    )
+    fake_process.register_subprocess(["ffmpeg", "-version"], stdout=valid_version)
 
     assert ffmpeg.has_correct_version() == True
 
 
 def test_invalid_version(fake_process, capsys):
-    fake_process.register_subprocess(
-        ["ffmpeg", "-version"], stdout=invalid_version
-    )
+    fake_process.register_subprocess(["ffmpeg", "-version"], stdout=invalid_version)
 
     assert ffmpeg.has_correct_version() == False
 
@@ -62,9 +59,7 @@ def test_invalid_version(fake_process, capsys):
 
 
 def test_outdated_version(fake_process, capsys):
-    fake_process.register_subprocess(
-        ["ffmpeg", "-version"], stdout=outdated_version
-    )
+    fake_process.register_subprocess(["ffmpeg", "-version"], stdout=outdated_version)
 
     assert ffmpeg.has_correct_version() == False
 
