@@ -9,7 +9,7 @@ def has_correct_version(
 ) -> bool:
     try:
         process = subprocess.Popen(
-            ["ffmpeg", "-version"],
+            [ffmpeg_path, "-version"],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             encoding="utf-8",
@@ -32,9 +32,9 @@ def has_correct_version(
         # remove all non numeric characters from string example: n4.3
         version = re.sub(r"[a-zA-Z]", "", version)
 
-        if float(version) < 4.3:
+        if float(version) < 4.2:
             print(
-                f"Your FFmpeg installation is too old ({version}), please update to 4.3+\n",
+                f"Your FFmpeg installation is too old ({version}), please update to 4.2+\n",
                 file=sys.stderr,
             )
             return False
@@ -43,53 +43,61 @@ def has_correct_version(
 
 
 async def convert(
-    trackAudioStream, downloadedFilePath, convertedFilePath, ffmpegPath
+    downloaded_file_path, converted_file_path, ffmpeg_path, output_format
 ) -> bool:
-    # convert downloaded file to MP3
-
-    # ! -acodec libmp3lame sets the encoded to 'libmp3lame' which is far better
-    # ! than the default 'mp3_mf', '-abr true' automatically determines and passes the
+    # ! '-abr true' automatically determines and passes the
     # ! audio encoding bitrate to the filters and encoder. This ensures that the
     # ! sampled length of songs matches the actual length (i.e. a 5 min song won't display
     # ! as 47 seconds long in your music player, yeah that was an issue earlier.)
 
-    if ffmpegPath is None:
-        ffmpegPath = "ffmpeg"
+    downloaded_file_path = str(downloaded_file_path)
+    converted_file_path = str(converted_file_path)
 
-    command = (
-        f'{ffmpegPath} -v quiet -y -i "%s" -acodec libmp3lame -abr true -q:a 0 "%s"'
-    )
+    formats = {
+        "mp3": ["-codec:a", "libmp3lame"],
+        "flac": ["-codec:a", "flac"],
+        "ogg": ["-codec:a", "libvorbis"],
+        "opus": ["-codec:a", "libopus"],
+        "m4a": ["-codec:a", "aac", "-vn"],
+    }
 
-    # ! bash/ffmpeg on Unix systems need to have excape char (\) for special characters: \$
-    # ! alternatively the quotes could be reversed (single <-> double) in the command then
-    # ! the windows special characters needs escaping (^): ^\  ^&  ^|  ^>  ^<  ^^
-
-    if sys.platform == "win32":
-        formattedCommand = command % (
-            str(downloadedFilePath),
-            str(convertedFilePath),
-        )
+    if output_format is None:
+        output_format_command = formats["mp3"]
     else:
-        formattedCommand = command % (
-            str(downloadedFilePath).replace("$", r"\$"),
-            str(convertedFilePath).replace("$", r"\$"),
-        )
+        output_format_command = formats[output_format]
 
-    process = await asyncio.subprocess.create_subprocess_shell(
-        formattedCommand,
+    if ffmpeg_path is None:
+        ffmpeg_path = "ffmpeg"
+
+    arguments = [
+        "-i",
+        downloaded_file_path,
+        *output_format_command,
+        "-abr",
+        "true",
+        "-q:a",
+        "0",
+        "-v",
+        "quiet",
+        converted_file_path,
+    ]
+
+    process = await asyncio.subprocess.create_subprocess_exec(
+        ffmpeg_path,
+        *arguments,
         stdout=asyncio.subprocess.PIPE,
-        stderr=asyncio.subprocess.PIPE,
+        stderr=asyncio.subprocess.PIPE
     )
 
-    _, proc_err = await process.communicate()
+    proc_out, proc_err = await process.communicate()
 
     if process.returncode != 0:
         message = (
             f"ffmpeg returned an error ({process.returncode})"
-            f'\nthe ffmpeg command was "{formattedCommand}"'
+            f'\nffmpeg arguments: "{" ".join(arguments)}"'
             "\nffmpeg gave this output:"
             "\n=====\n"
-            f"{proc_err.decode('utf-8')}"
+            f"{''.join([proc_out.decode('utf-8'), proc_err.decode('utf-8')])}"
             "\n=====\n"
         )
 

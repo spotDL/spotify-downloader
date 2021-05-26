@@ -48,15 +48,33 @@ from spotdl.download import ffmpeg
 help_notice = """
 To download a song run,
     spotdl [trackUrl]
-    ex. spotdl https://open.spotify.com/track/0VjIjW4GlUZAMYd2vXMi3b?si=1stnMF5GSdClnIEARnJiiQ
+    ex. spotdl https://open.spotify.com/track/0VjIjW4GlUZAMYd2vXMi3b
 
 To download a album run,
     spotdl [albumUrl]
-    ex. spotdl https://open.spotify.com/album/4yP0hdKOZPNshxUOjY0cZj?si=AssgQQrVTJqptFe7X92jNg
+    ex. spotdl https://open.spotify.com/album/4yP0hdKOZPNshxUOjY0cZj
 
 To download a playlist, run:
     spotdl [playlistUrl]
-    ex. spotdl https://open.spotify.com/playlist/37i9dQZF1E8UXBoz02kGID?si=oGd5ctlyQ0qblj_bL6WWow
+    ex. spotdl https://open.spotify.com/playlist/37i9dQZF1E8UXBoz02kGID
+
+To download all songs from an artist run:
+    spotdl [artistUrl]
+    ex. spotdl https://open.spotify.com/artist/1fZAAHNWdSM5gqbi9o5iEA
+
+To download your saved songs, run:
+    spotdl --user-auth saved
+
+To change output format run:
+    spotdl [songUrl] --output-format mp3/m4a/flac/opus/ogg
+    ex. spotdl [songUrl] --output-format opus
+
+To use ffmpeg binary that is not on PATH run:
+    spotdl [songUrl] --ffmpeg path/to/your/ffmpeg.exe
+    ex. spotdl [songUrl] --ffmpeg C:\ffmpeg\bin\ffmpeg.exe
+
+To ignore your ffmpeg version run:
+    spotdl --ignore-ffmpeg-version
 
 To search for and download a song, run, with quotation marks:
 Note: This is not accurate and often causes errors.
@@ -72,7 +90,7 @@ To resume a failed/incomplete download, run:
 You can queue up multiple download tasks by separating the arguments with spaces:
     spotdl [songQuery1] [albumUrl] [songQuery2] ... (order does not matter)
     ex. spotdl 'The Weeknd - Blinding Lights'
-            https://open.spotify.com/playlist/37i9dQZF1E8UXBoz02kGID?si=oGd5ctlyQ0qblj_bL6WWow ...
+            https://open.spotify.com/playlist/37i9dQZF1E8UXBoz02kGID ...
 
 You can use the --debug-termination flag to figure out where in the code spotdl got stuck.
 
@@ -87,6 +105,7 @@ def console_entry_point():
     Its super simple, rudimentary even but, it's dead simple & it works.
     """
     arguments = parse_arguments()
+    args_dict = vars(arguments)
 
     if (
         ffmpeg.has_correct_version(
@@ -96,9 +115,18 @@ def console_entry_point():
     ):
         sys.exit(1)
 
+    for request in arguments.url:
+        if "saved" == request and not arguments.userAuth:
+            arguments.userAuth = True
+            print(
+                "Detected 'saved' in command line, but no --user-auth flag. Enabling Anyways."
+            )
+            print("Please Log In...")
+
     SpotifyClient.init(
         client_id="5f573c9620494bae87890c0f08a60293",
         client_secret="212476d9b0f3472eaa762d90b19b0ba8",
+        user_auth=arguments.userAuth,
     )
 
     if arguments.path:
@@ -107,7 +135,7 @@ def console_entry_point():
         print(f"Will download to: {os.path.abspath(arguments.path)}")
         os.chdir(arguments.path)
 
-    with DownloadManager(arguments.ffmpeg) as downloader:
+    with DownloadManager(args_dict) as downloader:
         if not arguments.debug_termination:
 
             def gracefulExit(signal, frame):
@@ -141,6 +169,20 @@ def parse_arguments():
     )
     parser.add_argument("--debug-termination", action="store_true")
     parser.add_argument("-o", "--output", help="Output directory path", dest="path")
+    parser.add_argument(
+        "-of",
+        "--output-format",
+        help="Output format",
+        dest="format",
+        choices={"mp3", "m4a", "flac", "ogg", "opus"},
+        default="mp3",
+    )
+    parser.add_argument(
+        "--user-auth",
+        help="Use User Authentication",
+        action="store_true",
+        dest="userAuth",
+    )
     parser.add_argument("-f", "--ffmpeg", help="Path to ffmpeg", dest="ffmpeg")
     parser.add_argument(
         "--ignore-ffmpeg-version", help="Ignore ffmpeg version", action="store_true"

@@ -1,4 +1,5 @@
 from typing import List
+from pathlib import Path
 
 
 class SongObj:
@@ -107,6 +108,38 @@ class SongObj:
 
         return str(
             ", ".join(self.get_contributing_artists()) + " - " + self.get_song_name()
+        )
+
+    @staticmethod
+    def create_file_name(song_name: str, song_artists: List[str]) -> str:
+        # build file name of converted file
+        # the main artist is always included
+        artistStr = song_artists[0]
+
+        # ! we eliminate contributing artist names that are also in the song name, else we
+        # ! would end up with things like 'Jetta, Mastubs - I'd love to change the world
+        # ! (Mastubs REMIX).mp3' which is kinda an odd file name.
+        for artist in song_artists[1:]:
+            if artist.lower() not in song_name.lower():
+                artistStr += ", " + artist
+
+        convertedFileName = artistStr + " - " + song_name
+
+        # ! this is windows specific (disallowed chars)
+        convertedFileName = "".join(
+            char for char in convertedFileName if char not in "/?\\*|<>"
+        )
+
+        # ! double quotes (") and semi-colons (:) are also disallowed characters but we would
+        # ! like to retain their equivalents, so they aren't removed in the prior loop
+        convertedFileName = convertedFileName.replace('"', "'").replace(":", "-")
+
+        return convertedFileName
+
+    def get_file_name(self) -> str:
+
+        return self.create_file_name(
+            song_name=self.get_song_name(), song_artists=self.__rawTrackMeta["artists"]
         )
 
     # ! Album Details:

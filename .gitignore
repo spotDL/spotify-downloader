@@ -2,8 +2,12 @@
 *.log
 *.spotdlTrackingFile
 *.mp3
+*.m4a
+*.flac
+*.opus
+*.ogg
+Temp/
 *.mp4
-.cache
 
 # Python
 __pycache__
@@ -37,3 +41,9 @@ dist
 
 # Jetbrains IDEs; PyCharm/IntelliJ
 .idea
+
+# Tox
+.tox/
+
+# Cache
+.cache

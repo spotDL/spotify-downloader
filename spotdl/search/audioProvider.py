@@ -10,6 +10,9 @@ from typing import List
 
 from rapidfuzz.fuzz import partial_ratio
 from ytmusicapi import YTMusic
+from bs4 import BeautifulSoup
+from requests import get
+from unidecode import unidecode
 
 
 # ================================
@@ -91,30 +94,30 @@ def _parse_duration(duration: str) -> float:
 
 def _map_result_to_song_data(result: dict) -> dict:
     song_data = {}
-    if result["resultType"] in ["song", "video"]:
-        artists = ", ".join(map(lambda a: a["name"], result["artists"]))
-        video_id = result["videoId"]
-        if video_id is None:
-            return {}
-        song_data = {
-            "name": result["title"],
-            "type": result["resultType"],
-            "artist": artists,
-            "length": _parse_duration(result.get("duration", None)),
-            "link": f"https://www.youtube.com/watch?v={video_id}",
-            "position": 0,
-        }
+    artists = ", ".join(map(lambda a: a["name"], result["artists"]))
+    video_id = result["videoId"]
+    if video_id is None:
+        return {}
+    song_data = {
+        "name": result["title"],
+        "type": result["resultType"],
+        "artist": artists,
+        "length": _parse_duration(result.get("duration", None)),
+        "link": f"https://www.youtube.com/watch?v={video_id}",
+        "position": 0,
+    }
 
-        album = result.get("album")
-        if album:
-            song_data["album"] = album["name"]
+    album = result.get("album")
+    if album:
+        song_data["album"] = album["name"]
 
     return song_data
 
 
-def _query_and_simplify(searchTerm: str) -> List[dict]:
+def _query_and_simplify(searchTerm: str, filter: str) -> List[dict]:
     """
     `str` `searchTerm` : the search term you would type into YTM's search bar
+    `str` `filter` : Filter for item types
 
     RETURNS `list<dict>`
 
@@ -125,7 +128,7 @@ def _query_and_simplify(searchTerm: str) -> List[dict]:
     # ! function ain't soo big, there are plenty of comments and blank lines
 
     # build and POST a query to YTM
-    searchResult = ytmApiClient.search(searchTerm)
+    searchResult = ytmApiClient.search(searchTerm, filter=filter)
 
     return list(map(_map_result_to_song_data, searchResult))
 
@@ -135,9 +138,9 @@ def _query_and_simplify(searchTerm: str) -> List[dict]:
 # =======================
 
 
-def search_and_order_ytm_results(
+def search_and_get_best_match(
     songName: str, songArtists: List[str], songAlbumName: str, songDuration: int
-) -> dict:
+) -> typing.Optional[str]:
     """
     `str` `songName` : name of song
 
@@ -145,16 +148,69 @@ def search_and_order_ytm_results(
 
     `str` `songAlbumName` : name of song's album
 
-    `int` `songDuration`
+    `int` `songDuration` : duration of the song
 
-    RETURNS `dict`
-
-    each entry in the result if formated as {'$YouTubeLink': $matchValue, ...}; Match value
-    indicates how good a match the result is the the given parameters. THe maximum value
-    that $matchValue can take is 100, the least value is unbound.
+    RETURNS `str` : link of the best match
     """
-    # Query YTM
-    results = _query_and_simplify(create_song_title(songName, songArtists))
+
+    songTitle = create_song_title(songName, songArtists)
+
+    print(f"Searching for {songTitle}")
+
+    # Query YTM by songs only first, this way if we get correct result on the first try
+    # we don't have to make another request to ytmusic api that could result in us
+    # getting rate limited sooner
+    song_results = _query_and_simplify(songTitle, filter="songs")
+
+    # Order results
+    songs = order_ytm_results(
+        song_results, songName, songArtists, songAlbumName, songDuration
+    )
+
+    # song type results are always more accurate than video type, so if we get score of 80 or above
+    # we are almost 100% sure that this is the correct link
+    if len(songs) != 0:
+        # get the result with highest score
+        best_result = max(songs, key=lambda k: songs[k])
+
+        if songs[best_result] >= 80:
+            return best_result
+
+    # We didn't find the correct song on the first try so now we get video type results
+    # add them to song_results, and get the result with highest score
+    video_results = _query_and_simplify(
+        create_song_title(songName, songArtists), filter="videos"
+    )
+
+    # Order video results
+    videos = order_ytm_results(
+        video_results, songName, songArtists, songAlbumName, songDuration
+    )
+
+    # Merge songs and video results
+    results = {**songs, **videos}
+
+    # No matches found
+    if len(results) == 0:
+        return None
+
+    resultItems = list(results.items())
+
+    # Sort results by highest score
+    sortedResults = sorted(resultItems, key=lambda x: x[1], reverse=True)
+
+    # ! In theory, the first 'TUPLE' in sortedResults should have the highest match
+    # ! value, we send back only the link
+    return sortedResults[0][0]
+
+
+def order_ytm_results(
+    results: List[dict],
+    songName: str,
+    songArtists: List[str],
+    songAlbumName: str,
+    songDuration: int,
+) -> dict:
 
     # Assign an overall avg match value to each result
     linksWithMatchValue = {}
@@ -198,7 +254,9 @@ def search_and_order_ytm_results(
         # ! we use fuzzy matching because YouTube spellings might be mucked up
         if result["type"] == "song":
             for artist in songArtists:
-                if match_percentage(artist.lower(), result["artist"].lower(), 85):
+                if match_percentage(
+                    unidecode(artist.lower()), unidecode(result["artist"]).lower(), 85
+                ):
                     artistMatchNumber += 1
         else:
             # ! i.e if video
@@ -206,8 +264,22 @@ def search_and_order_ytm_results(
                 # ! something like match_percentage('rionos', 'aiobahn, rionos Motivation
                 # ! (remix)' would return 100, so we're absolutely corrent in matching
                 # ! artists to song name.
-                if match_percentage(artist.lower(), result["name"].lower(), 85):
+                if match_percentage(
+                    unidecode(artist.lower()), unidecode(result["name"]).lower(), 85
+                ):
                     artistMatchNumber += 1
+
+            # we didn't find artist in the video title, so we fallback to
+            # detecting song artist in the channel name
+            # I am not sure if this won't create false positives
+            if artistMatchNumber == 0:
+                for artist in songArtists:
+                    if match_percentage(
+                        unidecode(artist.lower()),
+                        unidecode(result["artist"].lower()),
+                        85,
+                    ):
+                        artistMatchNumber += 1
 
         # ! Skip if there are no artists in common, (else, results like 'Griffith Swank -
         # ! Madness' will be the top match for 'Ruelle - Madness')
@@ -216,13 +288,26 @@ def search_and_order_ytm_results(
 
         artistMatch = (artistMatchNumber / len(songArtists)) * 100
 
-        # Find name match
         song_title = create_song_title(songName, songArtists)
+
+        # Find name match and drop results below 60%
+        # this needs more testing
         if result["type"] == "song":
-            song_name = f"{result['artist']} - {result['name']}"
-            nameMatch = round(match_percentage(song_name, song_title), ndigits=3)
+            nameMatch = round(
+                match_percentage(unidecode(result["name"]), unidecode(songName), 60),
+                ndigits=3,
+            )
         else:
-            nameMatch = round(match_percentage(result["name"], song_title), ndigits=3)
+            nameMatch = round(
+                match_percentage(unidecode(result["name"]), unidecode(song_title), 60),
+                ndigits=3,
+            )
+
+        # skip results with name match of 0, these are obviously wrong
+        # but can be identified as correct later on due to other factors
+        # such as timeMatch or artistMatch
+        if nameMatch == 0:
+            continue
 
         # Find album match
         # ! We assign an arbitrary value of 0 for album match in case of video results
@@ -244,10 +329,23 @@ def search_and_order_ytm_results(
 
         timeMatch = 100 - nonMatchValue
 
+        if result["type"] == "song":
+            if album is not None:
+                # Don't add albumMatch to avgMatch if songName == result and
+                # result album name != songAlbumName
+                if (
+                    match_percentage(album.lower(), result["name"].lower()) > 95
+                    and album.lower() != songAlbumName.lower()
+                ):
+                    avgMatch = (artistMatch + nameMatch + timeMatch) / 3
+                # Add album to avgMatch if songName == result album
+                # and result album name == songAlbumName
+                else:
+                    avgMatch = (artistMatch + albumMatch + nameMatch + timeMatch) / 4
+            else:
+                avgMatch = (artistMatch + nameMatch + timeMatch) / 3
         # Don't add albumMatch to avgMatch if we don't have information about the album
         # name in the metadata
-        if result["type"] == "song":
-            avgMatch = (artistMatch + albumMatch + nameMatch + timeMatch) / 4
         else:
             avgMatch = (artistMatch + nameMatch + timeMatch) / 3
 
@@ -262,32 +360,62 @@ def create_song_title(songName: str, songArtists: List[str]) -> str:
     return f"{joined_artists} - {songName}"
 
 
-def search_and_get_best_match(
-    songName: str, songArtists: List[str], songAlbumName: str, songDuration: int
-) -> typing.Optional[str]:
-    """
-    `str` `songName` : name of song
+def create_file_name(song_name: str, song_artists: List[str]) -> str:
+    # build file name of converted file
+    # the main artist is always included
+    artistStr = song_artists[0]
 
-    `list<str>` `songArtists` : list containing name of contributing artists
+    # ! we eliminate contributing artist names that are also in the song name, else we
+    # ! would end up with things like 'Jetta, Mastubs - I'd love to change the world
+    # ! (Mastubs REMIX).mp3' which is kinda an odd file name.
+    for artist in song_artists[1:]:
+        if artist.lower() not in song_name.lower():
+            artistStr += ", " + artist
 
-    `str` `songAlbumName` : name of song's album
+    convertedFileName = artistStr + " - " + song_name
 
-    `int` `songDuration` : duration of the song
-
-    RETURNS `str` : link of the best match
-    """
-
-    # ! This is lazy coding, sorry.
-    results = search_and_order_ytm_results(
-        songName, songArtists, songAlbumName, songDuration
+    # ! this is windows specific (disallowed chars)
+    convertedFileName = "".join(
+        char for char in convertedFileName if char not in "/?\\*|<>"
     )
 
-    if len(results) == 0:
-        return None
+    # ! double quotes (") and semi-colons (:) are also disallowed characters but we would
+    # ! like to retain their equivalents, so they aren't removed in the prior loop
+    convertedFileName = convertedFileName.replace('"', "'").replace(":", "-")
 
-    resultItems = list(results.items())
-    sortedResults = sorted(resultItems, key=lambda x: x[1], reverse=True)
+    return convertedFileName
 
-    # ! In theory, the first 'TUPLE' in sortedResults should have the highest match
-    # ! value, we send back only the link
-    return sortedResults[0][0]
+
+def get_song_lyrics(song_name: str, song_artists: List[str]) -> str:
+    """
+    `str` `song_name` : name of song
+
+    `list<str>` `song_artists` : list containing name of contributing artists
+
+    RETURNS `str`: Lyrics of the song.
+
+    Gets the metadata of the song.
+    """
+
+    headers = {
+        "Authorization": "Bearer alXXDbPZtK1m2RrZ8I4k2Hn8Ahsd0Gh_o076HYvcdlBvmc0ULL1H8Z8xRlew5qaG",
+    }
+    api_search_url = "https://api.genius.com/search"
+    search_query = f'{song_name} {", ".join(song_artists)}'
+
+    api_response = get(
+        api_search_url, params={"q": search_query}, headers=headers
+    ).json()
+
+    song_id = api_response["response"]["hits"][0]["result"]["id"]
+    song_api_url = f"https://api.genius.com/songs/{song_id}"
+
+    api_response = get(song_api_url, headers=headers).json()
+
+    song_url = api_response["response"]["song"]["url"]
+
+    genius_page = get(song_url)
+    soup = BeautifulSoup(genius_page.text, "html.parser")
+    lyrics = soup.select_one("div.lyrics").get_text()
+
+    return lyrics.strip()
