@@ -22,10 +22,10 @@ from spotdl.download import ffmpeg
 #   'python __main__.py <links, search terms, tracking files separated by spaces>
 # ! Eg.
 # !      python __main__.py
-# !          https://open.spotify.com/playlist/37i9dQZF1DWXhcuQw7KIeM?si=xubKHEBESM27RqGkqoXzgQ
+# !          https://open.spotify.com/playlist/37i9dQZF1DWXhcuQw7KIeM
 # !          'old gods of asgard Control'
-# !          https://open.spotify.com/album/2YMWspDGtbDgYULXvVQFM6?si=gF5dOQm8QUSo-NdZVsFjAQ
-# !          https://open.spotify.com/track/08mG3Y1vljYA6bvDt4Wqkj?si=SxezdxmlTx-CaVoucHmrUA
+# !          https://open.spotify.com/album/2YMWspDGtbDgYULXvVQFM6
+# !          https://open.spotify.com/track/08mG3Y1vljYA6bvDt4Wqkj
 # !
 # ! Well, yeah its a pretty long example but, in theory, it should work like a charm.
 # !
@@ -55,15 +55,15 @@ from spotdl.download import ffmpeg
 help_notice = '''
 To download a song run,
     spotdl [trackUrl]
-    ex. spotdl https://open.spotify.com/track/0VjIjW4GlUZAMYd2vXMi3b?si=1stnMF5GSdClnIEARnJiiQ
+    ex. spotdl https://open.spotify.com/track/0VjIjW4GlUZAMYd2vXMi3b
 
 To download a album run,
     spotdl [albumUrl]
-    ex. spotdl https://open.spotify.com/album/4yP0hdKOZPNshxUOjY0cZj?si=AssgQQrVTJqptFe7X92jNg
+    ex. spotdl https://open.spotify.com/album/4yP0hdKOZPNshxUOjY0cZj
 
 To download a playlist, run:
     spotdl [playlistUrl]
-    ex. spotdl https://open.spotify.com/playlist/37i9dQZF1E8UXBoz02kGID?si=oGd5ctlyQ0qblj_bL6WWow
+    ex. spotdl https://open.spotify.com/playlist/37i9dQZF1E8UXBoz02kGID
 
 To download your saved songs, run:
     spotdl --user-auth saved
@@ -82,7 +82,7 @@ To resume a failed/incomplete download, run:
 You can queue up multiple download tasks by separating the arguments with spaces:
     spotdl [songQuery1] [albumUrl] [songQuery2] ... (order does not matter)
     ex. spotdl 'The Weeknd - Blinding Lights'
-            https://open.spotify.com/playlist/37i9dQZF1E8UXBoz02kGID?si=oGd5ctlyQ0qblj_bL6WWow ...
+            https://open.spotify.com/playlist/37i9dQZF1E8UXBoz02kGID ...
 
 You can use the --debug-termination flag to figure out where in the code spotdl got stuck.
 
