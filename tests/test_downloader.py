@@ -33,7 +33,7 @@ def create_song_obj(name="test song", artist="test artist") -> SongObj:
         raw_album_meta,
         raw_artist_meta,
         "https://www.youtube.com/watch?v=Th_C95UMegc",
-        "test lyrics"
+        "test lyrics",
     )
 
 

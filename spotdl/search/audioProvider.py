@@ -155,8 +155,6 @@ def search_and_get_best_match(
 
     songTitle = create_song_title(songName, songArtists)
 
-    print(f"Searching for {songTitle}")
-
     # Query YTM by songs only first, this way if we get correct result on the first try
     # we don't have to make another request to ytmusic api that could result in us
     # getting rate limited sooner
@@ -334,10 +332,8 @@ def order_ytm_results(
                 # Don't add albumMatch to avgMatch if songName == result and
                 # result album name != songAlbumName
                 if (
-                    match_percentage(
-                        album.lower(),
-                        result["name"].lower()
-                    ) > 95 and album.lower() != songAlbumName.lower()
+                    match_percentage(album.lower(), result["name"].lower()) > 95
+                    and album.lower() != songAlbumName.lower()
                 ):
                     avgMatch = (artistMatch + nameMatch + timeMatch) / 3
                 # Add album to avgMatch if songName == result album
@@ -360,30 +356,6 @@ def order_ytm_results(
 def create_song_title(songName: str, songArtists: List[str]) -> str:
     joined_artists = ", ".join(songArtists)
     return f"{joined_artists} - {songName}"
-
-
-def create_file_name(song_name: str, song_artists: List[str]) -> str:
-    # build file name of converted file
-    # the main artist is always included
-    artistStr = song_artists[0]
-
-    # ! we eliminate contributing artist names that are also in the song name, else we
-    # ! would end up with things like 'Jetta, Mastubs - I'd love to change the world
-    # ! (Mastubs REMIX).mp3' which is kinda an odd file name.
-    for artist in song_artists[1:]:
-        if artist.lower() not in song_name.lower():
-            artistStr += ", " + artist
-
-    convertedFileName = artistStr + " - " + song_name
-
-    # ! this is windows specific (disallowed chars)
-    convertedFileName = "".join(char for char in convertedFileName if char not in "/?\\*|<>")
-
-    # ! double quotes (") and semi-colons (:) are also disallowed characters but we would
-    # ! like to retain their equivalents, so they aren't removed in the prior loop
-    convertedFileName = convertedFileName.replace('"', "'").replace(":", "-")
-
-    return convertedFileName
 
 
 def get_song_lyrics(song_name: str, song_artists: List[str]) -> str:
