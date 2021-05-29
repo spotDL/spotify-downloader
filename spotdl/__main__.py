@@ -45,7 +45,7 @@ from spotdl.download import ffmpeg
 # ! P.S. Tell me what you think. Up to your expectations?
 
 # ! Script Help
-help_notice = """
+help_notice = """ # noqa: E501
 To download a song run,
     spotdl [trackUrl]
     ex. spotdl https://open.spotify.com/track/0VjIjW4GlUZAMYd2vXMi3b
