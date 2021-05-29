@@ -174,7 +174,7 @@ curl -L https://raw.githubusercontent.com/spotDL/spotify-downloader/master/termu
     spotdl https://www.youtube.com/watch?v=EO7XnC1YpVo|https://open.spotify.com/track/4fzsfWzRhPawzqhX8Qt9F3
     ```
 
-    > _Note: Urls have to be separated with |_
+    > _Note: Urls have to be separated with `|` and quoted properly ex. "YouTubeURL|SpotifyUrl"
 
 - #### To download songs with different output format run
 

@@ -66,9 +66,11 @@ To download all songs from an artist run:
     ex. spotdl https://open.spotify.com/artist/1fZAAHNWdSM5gqbi9o5iEA
 
 To download youtube video with metadata from spotify run:
-    spotdl YouTubeURL|SpotifyUrl
-    Urls have to be separated with |
-    ex. spotdl https://www.youtube.com/watch?v=EO7XnC1YpVo|https://open.spotify.com/track/4fzsfWzRhPawzqhX8Qt9F3
+    spotdl "YouTubeURL|SpotifyUrl"
+    ex. spotdl "https://www.youtube.com/watch?v=EO7XnC1YpVo|https://open.spotify.com/track/4fzsfWzRhPawzqhX8Qt9F3"
+
+    Note: urls that you pass have to be quoted properly ex. "YouTubeURL|SpotifyUrl"
+        if you won't do this you might get BrokenPipeError
 
 To change output format run:
     spotdl [songUrl] --output-format mp3/m4a/flac/opus/ogg
