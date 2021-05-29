@@ -15,7 +15,21 @@ import argparse
 
 def from_query(request: str, output_format: str = None):
     songObjList = []
-    if "open.spotify.com" in request and "track" in request:
+    if (
+        "youtube.com/watch?v=" in request
+        and "open.spotify.com" in request
+        and "track" in request
+        and ":" in request
+    ):
+        urls = request.split("|")
+
+        if len(urls) <= 1 or "youtube" not in urls[0] or "spotify" not in urls[1]:
+            print("Incorrect format used, please use youtubeURL|spotifyURL")
+        else:
+            print("Fetching YouTube video with spotify metadata")
+            songObjList = [get_youtube_meta_track(urls[0], urls[1], output_format)]
+
+    elif "open.spotify.com" in request and "track" in request:
         print("Fetching Song...")
         songObjList = [songobj_from_spotify_url(request, output_format)]
 
@@ -337,3 +351,39 @@ def get_saved_tracks(output_format: str = None) -> List[SongObj]:
             break
 
     return savedTracks
+
+
+def get_youtube_meta_track(youtubeURL: str, spotifyURL: str, outputFormat: str = None):
+    # check if URL is a playlist, user, artist or album, if yes raise an Exception,
+    # else procede
+
+    # Get the Song Metadata
+    print(f"Gathering Spotify Metadata for: {spotifyURL}")
+    rawTrackMeta, rawArtistMeta, rawAlbumMeta = metadataProvider.from_url(spotifyURL)
+
+    songName = rawTrackMeta["name"]
+    contributingArtists = []
+    for artist in rawTrackMeta["artists"]:
+        contributingArtists.append(artist["name"])
+
+    convertedFileName = SongObj.create_file_name(
+        songName, [artist["name"] for artist in rawTrackMeta["artists"]]
+    )
+
+    if outputFormat is None:
+        outputFormat = "mp3"
+
+    convertedFilePath = Path(".", f"{convertedFileName}.{outputFormat}")
+
+    # if a song is already downloaded skip it
+    if convertedFilePath.is_file():
+        print(f'Skipping "{convertedFileName}" as it\'s already downloaded')
+        return None
+
+    # (try to) Get lyrics from Genius
+    try:
+        lyrics = metadataProvider.get_song_lyrics(songName, contributingArtists)
+    except (AttributeError, IndexError):
+        lyrics = ""
+
+    return SongObj(rawTrackMeta, rawAlbumMeta, rawArtistMeta, youtubeURL, lyrics)
