@@ -106,7 +106,6 @@ def console_entry_point():
     Its super simple, rudimentary even but, it's dead simple & it works.
     """
 
-
     if sys.argv[1] in ["-v", "--version"]:
         version = pkg_resources.require("spotdl")[0].version
         print(version)
@@ -196,7 +195,12 @@ def parse_arguments():
     parser.add_argument(
         "--ignore-ffmpeg-version", help="Ignore ffmpeg version", action="store_true"
     )
-    parser.add_argument("-v", "--version", help="Show program's version number and exit", action="store_true")
+    parser.add_argument(
+        "-v",
+        "--version",
+        help="Show program's version number and exit",
+        action="store_true",
+    )
 
     return parser.parse_args()
 

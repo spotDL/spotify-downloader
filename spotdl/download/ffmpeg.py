@@ -86,7 +86,7 @@ async def convert(
         ffmpeg_path,
         *arguments,
         stdout=asyncio.subprocess.PIPE,
-        stderr=asyncio.subprocess.PIPE
+        stderr=asyncio.subprocess.PIPE,
     )
 
     proc_out, proc_err = await process.communicate()
