@@ -139,7 +139,7 @@ def _query_and_simplify(searchTerm: str, filter: str) -> List[dict]:
 
 
 def search_and_get_best_match(
-    songName: str, songArtists: List[str], songAlbumName: str, songDuration: int, isrcId: str
+    songName: str, songArtists: List[str], songAlbumName: str, songDuration: int, isrc: str
 ) -> typing.Optional[str]:
     """
     `str` `songName` : name of song
@@ -150,14 +150,14 @@ def search_and_get_best_match(
 
     `int` `songDuration` : duration of the song
 
-    `str` `isrcId` :  code for identifying sound recordings and music video recordings
+    `str` `isrc` :  code for identifying sound recordings and music video recordings
 
     RETURNS `str` : link of the best match
     """
 
-    # try to find the song by isrc
-    if isrcId is not None:
-        isrcResults = _query_and_simplify(isrcId, filter="songs")
+    # if isrc is not None then we try to find song with it
+    if isrc is not None:
+        isrcResults = _query_and_simplify(isrc, filter="songs")
 
         if len(isrcResults) >= 1:
             isrcResult = isrcResults[0]
