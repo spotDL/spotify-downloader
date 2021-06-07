@@ -159,7 +159,7 @@ def search_and_get_best_match(
     if isrc is not None:
         isrcResults = _query_and_simplify(isrc, filter="songs")
 
-        if len(isrcResults) >= 1:
+        if len(isrcResults) == 1:
             isrcResult = isrcResults[0]
 
             if isrcResult is not None:
