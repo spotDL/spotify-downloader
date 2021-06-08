@@ -106,7 +106,7 @@ def console_entry_point():
     Its super simple, rudimentary even but, it's dead simple & it works.
     """
 
-    if sys.argv[1] in ["-v", "--version"]:
+    if sys.argv[1] is not None and sys.argv[1] in ["-v", "--version"]:
         version = pkg_resources.require("spotdl")[0].version
         print(version)
         sys.exit(0)
