@@ -160,9 +160,9 @@ def _embed_mp3_lyrics(audio_file, song_obj):
 
 def _embed_m4a_metadata(audio_file, song_obj):
     # set year
-    year = song_obj.get_album_release().split("-")[0]
-    if year:
-        audio_file[M4A_TAG_PRESET["year"]] = year
+    years = song_obj.get_album_release().split("-")
+    if len(years) >= 1:
+        audio_file[M4A_TAG_PRESET["year"]] = years[0]
 
     # set youtube link as comment
     youtube_link = song_obj.get_youtube_link()
@@ -192,10 +192,10 @@ def _embed_m4a_metadata(audio_file, song_obj):
 def _embed_basic_metadata(audio_file, song_obj, encoding, preset=TAG_PRESET):
 
     # set main artist
-    main_artist = song_obj.get_contributing_artists()[0]
-    if main_artist:
-        audio_file[preset["artist"]] = main_artist
-        audio_file[preset["albumartist"]] = main_artist
+    artists = song_obj.get_contributing_artists()
+    if len(artists):
+        audio_file[preset["artist"]] = artists[0]
+        audio_file[preset["albumartist"]] = artists[0]
 
     # set song title
     song_title = song_obj.get_song_name()
@@ -214,9 +214,9 @@ def _embed_basic_metadata(audio_file, song_obj, encoding, preset=TAG_PRESET):
         audio_file[preset["originaldate"]] = release_data
 
     # set genre
-    genre = song_obj.get_genres()[0]
-    if genre:
-        audio_file[preset["genre"]] = genre
+    genres = song_obj.get_genres()
+    if len(genres) >= 1:
+        audio_file[preset["genre"]] = genres[0]
 
     # set disc number
     disc_number = song_obj.get_disc_number()
@@ -239,9 +239,9 @@ def _embed_basic_metadata(audio_file, song_obj, encoding, preset=TAG_PRESET):
 
 def _embed_ogg_metadata(audio_file, song_obj):
     # set year
-    year = song_obj.get_album_release().split("-")[0]
-    if year:
-        audio_file["year"] = year
+    years = song_obj.get_album_release().split("-")
+    if len(years) >= 1:
+        audio_file["year"] = years[0]
 
     # set youtube link as comment
     youtube_link = song_obj.get_youtube_link()
