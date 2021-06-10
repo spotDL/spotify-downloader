@@ -198,7 +198,7 @@ def parse_arguments():
     parser.add_argument(
         "-v",
         "--version",
-        help="Show program's version number and exit",
+        help="Show spotDL's version and exit",
         action="store_true",
     )
 
