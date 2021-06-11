@@ -88,7 +88,7 @@ async def convert(
         "-q:a",
         "0",
         "-v",
-        "quiet",
+        "debug",
         converted_file_path,
     ]
 
@@ -101,13 +101,15 @@ async def convert(
 
     proc_out, proc_err = await process.communicate()
 
+    out = b''.join([proc_out, proc_err])
+
     if process.returncode != 0:
         message = (
             f"ffmpeg returned an error ({process.returncode})"
             f'\nffmpeg arguments: "{" ".join(arguments)}"'
             "\nffmpeg gave this output:"
             "\n=====\n"
-            f"{''.join([proc_out.decode('utf-8'), proc_err.decode('utf-8')])}"
+            f"{out}"
             "\n=====\n"
         )
 
