@@ -99,9 +99,12 @@ async def convert(
         stderr=asyncio.subprocess.PIPE,
     )
 
-    proc_out, proc_err = await process.communicate()
+    proc_out = await process.communicate()
 
-    out = b''.join([proc_out, proc_err])
+    if proc_out[0] is not None and proc_out[1]:
+        out = str(b''.join(proc_out))
+    else:
+        out = ''
 
     if process.returncode != 0:
         message = (
