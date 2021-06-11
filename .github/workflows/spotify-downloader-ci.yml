@@ -12,7 +12,7 @@ jobs:
       max-parallel: 4
       matrix:
         platform: [ ubuntu-latest, macos-latest, windows-latest ]
-        python-version: [ 3.6, 3.7, 3.8, 3.9 ]
+        python-version: [ 3.6.7, 3.7, 3.8, 3.9 ]
 
     steps:
       - uses: actions/checkout@v2
@@ -73,12 +73,7 @@ jobs:
           python-version: 3.8
       - name: Install dependencies
         run: |
-          wget -nv https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz
-          wget -nv https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz.md5
-          tar xf ffmpeg-release-amd64-static.tar.xz
-          cd $(ls -d ffmpeg*/ | head -n 1)
-          sudo mv ffmpeg ffprobe /usr/local/bin/
-          cd ..
+          sudo apt install ffmpeg -y
           ffmpeg -version
           python -m pip install -e .[test]
       - name: Run tests

@@ -10,7 +10,8 @@ pip install -e .[test]
 
 ## Executing tests
 
-After installing all the required modules, just call the following command from the root directory:
+After installing all the required modules, just call the following command from the root
+directory:
 
 ```shell
 pytest
@@ -25,10 +26,11 @@ pytest --cov=spotdl
 ## Enable network communication
 
 To speed up the test execution, the network requests are mocked. That means that each HTTP
-request does not reach the server, and the response is faked by the [vcrpy](https://vcrpy.readthedocs.io/en/latest/index.html)
-module. This greatly increases the test performance - in my case <3 seconds vs ~50 seconds, but also
-may cause a problem whenever something changes in the real server response. It is recommended to run
-the test suite without mocked network from time to time (preferably on CI).
+request does not reach the server, and the response is faked by the
+[vcrpy](https://vcrpy.readthedocs.io/en/latest/index.html) module. This greatly increases
+the test performance - in my case \<3 seconds vs ~50 seconds, but also may cause a problem
+whenever something changes in the real server response. It is recommended to run the test
+suite without mocked network from time to time (preferably on CI).
 
 To run tests with a real network communication use this command:
 
@@ -36,5 +38,11 @@ To run tests with a real network communication use this command:
 pytest --disable-vcr
 ```
 
-Whenever the server response will change and affect the tests behavior, the stored responses can be updated
-by wiping the [tests/cassetes](tests/cassetes) directory and running `pytest` again (without `--disable-vcr`).
+Whenever the server response will change and affect the tests behavior, the stored
+responses can be updated by wiping the [tests/cassetes](tests/cassetes) directory and
+running `pytest` again (without `--disable-vcr`).
+
+## Debugging the application
+
+You can use the `--debug-termination` flag to show additional output when terminating the
+program. This is helpful when the program freezes.

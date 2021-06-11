@@ -13,25 +13,25 @@ from tests.utils import tracking_files
 ORIGINAL_INITIALIZE = SpotifyClient.init
 
 
-def new_initialize(client_id, client_secret):
+def new_initialize(client_id, client_secret, user_auth):
     """This function allows calling `initialize()` multiple times"""
     try:
         return SpotifyClient()
     except:
-        return ORIGINAL_INITIALIZE(client_id, client_secret)
+        return ORIGINAL_INITIALIZE(client_id, client_secret, user_auth)
 
 
 @pytest.fixture()
 def patch_dependencies(mocker, monkeypatch):
     """This is a helper fixture to patch out everything that shouldn't be called here"""
     monkeypatch.setattr(SpotifyClient, "init", new_initialize)
-    monkeypatch.setattr(DownloadManager, "__init__", lambda _: None)
+    monkeypatch.setattr(DownloadManager, "__init__", lambda *_: None)
     monkeypatch.setattr(ffmpeg, "has_correct_version", lambda *_: True)
     mocker.patch.object(DownloadManager, "download_single_song", autospec=True)
+    mocker.patch.object(DownloadManager, "download_multiple_songs", autospec=True)
     mocker.patch.object(
-        DownloadManager, "download_multiple_songs", autospec=True)
-    mocker.patch.object(
-        DownloadManager, "resume_download_from_tracking_file", autospec=True)
+        DownloadManager, "resume_download_from_tracking_file", autospec=True
+    )
     mocker.patch.object(DownloadManager, "__exit__", autospec=True)
 
 
@@ -70,8 +70,8 @@ def test_download_a_single_song(capsys, patch_dependencies, monkeypatch):
     out, err = capsys.readouterr()
     assert "Fetching Song...\n" in out
 
-    assert DownloadManager.download_single_song.call_count == 1
-    assert DownloadManager.download_multiple_songs.call_count == 0
+    assert DownloadManager.download_single_song.call_count == 0
+    assert DownloadManager.download_multiple_songs.call_count == 1
 
 
 @pytest.mark.vcr()
@@ -136,8 +136,9 @@ def test_search_and_download(capsys, patch_dependencies, monkeypatch):
 
     out, err = capsys.readouterr()
     assert out == (
-        'Searching for song "The HU - Sugaan Essenna"...\n'
-        'No song matches found on Spotify\n')
+        'Searching Spotify for song named "The HU - Sugaan Essenna"...\n'
+        "No song matches found on Spotify\n\n"
+    )
 
     assert DownloadManager.download_multiple_songs.call_count == 0
     assert DownloadManager.download_single_song.call_count == 0
@@ -146,8 +147,10 @@ def test_search_and_download(capsys, patch_dependencies, monkeypatch):
 @pytest.mark.vcr()
 def test_use_tracking_file(capsys, patch_dependencies, monkeypatch, fs):
     """Fifth example - use a spotdlTrackingFile."""
-    fs.create_file("Back In Black.spotdlTrackingFile",
-                   contents=json.dumps(tracking_files.back_in_black))
+    fs.create_file(
+        "Back In Black.spotdlTrackingFile",
+        contents=json.dumps(tracking_files.back_in_black),
+    )
     monkeypatch.setattr(
         sys,
         "argv",
@@ -160,7 +163,7 @@ def test_use_tracking_file(capsys, patch_dependencies, monkeypatch, fs):
     console_entry_point()
 
     out, err = capsys.readouterr()
-    assert out == 'Preparing to resume download...\n'
+    assert out == "Preparing to resume download...\n"
 
     assert DownloadManager.resume_download_from_tracking_file.call_count == 1
     assert DownloadManager.download_multiple_songs.call_count == 0
@@ -184,9 +187,28 @@ def test_multiple_elements(capsys, patch_dependencies, monkeypatch):
     console_entry_point()
 
     out, err = capsys.readouterr()
-    assert 'Fetching Song...\n' in out
-    assert 'Searching for song "The HU - Sugaan Essenna"...\n' in out
-    assert 'No song matches found on Spotify\n' in out
+    assert "Fetching Song...\n" in out
+    assert (
+        "Gathering Spotify Metadata for: https://open.spotify.com/track/08mG3Y1vljYA6bvDt4Wqkj?si=SxezdxmlTx-CaVoucHmrUA\n"
+        in out
+    )
+    assert (
+        'Found YouTube URL for "AC/DC - Back In Black" : https://www.youtube.com/watch?v=9vWNauaZAgg\n'
+        in out
+    )
 
-    assert DownloadManager.download_single_song.call_count == 2
-    assert DownloadManager.download_multiple_songs.call_count == 0
+    assert "Fetching Song...\n" in out
+    assert (
+        "Gathering Spotify Metadata for: https://open.spotify.com/track/2SiXAy7TuUkycRVbbWDEpo\n"
+        in out
+    )
+    assert (
+        'Found YouTube URL for "AC/DC - You Shook Me All Night Long" : https://www.youtube.com/watch?v=SP9t2Iq_zQ8\n'
+        in out
+    )
+
+    assert 'Searching Spotify for song named "The HU - Sugaan Essenna"...\n' in out
+    assert "No song matches found on Spotify\n" in out
+
+    assert DownloadManager.download_single_song.call_count == 0
+    assert DownloadManager.download_multiple_songs.call_count == 1
