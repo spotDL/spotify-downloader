@@ -61,6 +61,7 @@ def songobj_from_spotify_url(spotifyURL: str, output_format: str = None):
 
     songName = rawTrackMeta["name"]
     albumName = rawTrackMeta["album"]["name"]
+    isrc = rawTrackMeta["external_ids"].get("isrc")
     contributingArtists = []
     for artist in rawTrackMeta["artists"]:
         contributingArtists.append(artist["name"])
@@ -84,7 +85,7 @@ def songobj_from_spotify_url(spotifyURL: str, output_format: str = None):
     # Get the song's downloadable audio link
     print(f'Searching YouTube for "{displayName}"', end="\r")
     youtubeLink = audioProvider.search_and_get_best_match(
-        songName, contributingArtists, albumName, duration
+        songName, contributingArtists, albumName, duration, isrc
     )
     if youtubeLink is None:
         # raise Exception("Could not match any of the results on YouTube")
