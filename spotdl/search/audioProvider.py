@@ -323,6 +323,7 @@ def order_ytm_results(
         # ! We assign an arbitrary value of 0 for album match in case of video results
         # ! from YouTube Music
         albumMatch = 0.0
+        album = None
 
         if result["type"] == "song":
             album = result.get("album")

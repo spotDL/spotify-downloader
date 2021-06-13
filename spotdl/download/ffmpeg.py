@@ -23,23 +23,33 @@ def has_correct_version(
     if skip_version_check is False:
         result = re.search(r"ffmpeg version \w?(\d+\.)?(\d+)", output)
 
-        if result is None:
+        if result is not None:
+            version = result.group(0).replace("ffmpeg version ", "")
+
+            # remove all non numeric characters from string example: n4.3
+            version = re.sub(r"[a-zA-Z]", "", version)
+
+            if float(version) < 4.2:
+                print(
+                    f"Your FFmpeg installation is too old ({version}), please update to 4.2+\n",
+                    file=sys.stderr,
+                )
+                return False
+
+            return True
+        else:
+            # fallback to copyright date check
+            date_result = re.search(r"Copyright \(c\) \d\d\d\d\-\d\d\d\d", output)
+
+            if date_result is not None:
+                date = date_result.group(0)
+                if "2021" in date or "2020" in date:
+                    return True
+
             print("Your FFmpeg version couldn't be detected", file=sys.stderr)
             return False
-
-        version = result.group(0).replace("ffmpeg version ", "")
-
-        # remove all non numeric characters from string example: n4.3
-        version = re.sub(r"[a-zA-Z]", "", version)
-
-        if float(version) < 4.2:
-            print(
-                f"Your FFmpeg installation is too old ({version}), please update to 4.2+\n",
-                file=sys.stderr,
-            )
-            return False
-
-    return True
+    else:
+        return True
 
 
 async def convert(
@@ -78,7 +88,7 @@ async def convert(
         "-q:a",
         "0",
         "-v",
-        "quiet",
+        "debug",
         converted_file_path,
     ]
 
@@ -86,10 +96,15 @@ async def convert(
         ffmpeg_path,
         *arguments,
         stdout=asyncio.subprocess.PIPE,
-        stderr=asyncio.subprocess.PIPE
+        stderr=asyncio.subprocess.PIPE,
     )
 
-    proc_out, proc_err = await process.communicate()
+    proc_out = await process.communicate()
+
+    if proc_out[0] is not None and proc_out[1]:
+        out = str(b''.join(proc_out))
+    else:
+        out = ''
 
     if process.returncode != 0:
         message = (
@@ -97,7 +112,7 @@ async def convert(
             f'\nffmpeg arguments: "{" ".join(arguments)}"'
             "\nffmpeg gave this output:"
             "\n=====\n"
-            f"{''.join([proc_out.decode('utf-8'), proc_err.decode('utf-8')])}"
+            f"{out}"
             "\n=====\n"
         )
 
