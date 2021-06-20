@@ -126,8 +126,6 @@ def from_search_term(query: str, output_format: str = None) -> List[SongObj]:
     # get a spotify client
     spotifyClient = SpotifyClient()
 
-    tracks = []
-
     # get possible matches from spotify
     result = spotifyClient.search(query, type="track")
 
@@ -137,9 +135,7 @@ def from_search_term(query: str, output_format: str = None) -> List[SongObj]:
     else:
         songUrl = "http://open.spotify.com/track/" + result["tracks"]["items"][0]["id"]
         song = songobj_from_spotify_url(songUrl, output_format)
-        tracks.append(song)
-
-    return tracks
+        return [song] if song is not None else []
 
 
 def get_album_tracks(albumUrl: str, output_format: str = None) -> List[SongObj]:
