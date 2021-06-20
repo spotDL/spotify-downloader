@@ -265,35 +265,31 @@ def get_playlist_tracks(playlistUrl: str, output_format: str = None) -> List[Son
     """
 
     spotifyClient = SpotifyClient()
-    playlistTracks = []
-
     playlistResponse = spotifyClient.playlist_tracks(playlistUrl)
+    playlistTracks = playlistResponse['items']
+    tracks = []
 
     # while loop to mimic do-while
-    while True:
+    while playlistResponse['next']:
+        playlistResponse = spotifyClient.next(playlistResponse)
+        playlistTracks.extend(
+            [
+                track for track in playlistResponse['items']
+                # check if track has id
+                if track.get("track", {}).get("id") is not None
+            ]
+        )
 
-        for songEntry in playlistResponse["items"]:
-            if songEntry["track"] is None or songEntry["track"]["id"] is None:
-                continue
+    for track in playlistTracks:
+        song = songobj_from_spotify_url(
+            "https://open.spotify.com/track/" + track["track"]["id"],
+            output_format,
+        )
 
-            song = songobj_from_spotify_url(
-                "https://open.spotify.com/track/" + songEntry["track"]["id"],
-                output_format,
-            )
+        if song is not None and song.get_youtube_link() is not None:
+            tracks.append(song)
 
-            if song is not None and song.get_youtube_link() is not None:
-                playlistTracks.append(song)
-
-        # check if more tracks are to be passed
-        if playlistResponse["next"]:
-            playlistResponse = spotifyClient.playlist_tracks(
-                playlistUrl,
-                offset=playlistResponse["offset"] + playlistResponse["limit"],
-            )
-        else:
-            break
-
-    return playlistTracks
+    return tracks
 
 
 def get_saved_tracks(output_format: str = None) -> List[SongObj]:
