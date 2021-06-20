@@ -146,30 +146,27 @@ def get_album_tracks(albumUrl: str, output_format: str = None) -> List[SongObj]:
     """
 
     spotifyClient = SpotifyClient()
-    albumTracks = []
 
-    trackResponse = spotifyClient.album_tracks(albumUrl)
+    albumResponse = spotifyClient.album_tracks(albumUrl)
+    albumTracks = albumResponse['items']
+    tracks = []
 
-    # while loop acts like do-while
-    while True:
+    # Get all tracks from album
+    while albumResponse['next']:
+        albumResponse = spotifyClient.next(albumResponse)
+        albumTracks.extend(albumResponse['items'])
 
-        for track in trackResponse["items"]:
-            song = songobj_from_spotify_url(
-                "https://open.spotify.com/track/" + track["id"], output_format
-            )
+    # Create song objects from track ids
+    for track in albumTracks:
+        song = songobj_from_spotify_url(
+            "https://open.spotify.com/track/" + track["id"],
+            output_format
+        )
 
-            if song is not None and song.get_youtube_link() is not None:
-                albumTracks.append(song)
+        if song is not None and song.get_youtube_link() is not None:
+            tracks.append(song)
 
-        # check if more tracks are to be passed
-        if trackResponse["next"]:
-            trackResponse = spotifyClient.album_tracks(
-                albumUrl, offset=len(albumTracks)
-            )
-        else:
-            break
-
-    return albumTracks
+    return tracks
 
 
 def get_artist_tracks(artistUrl: str, output_format: str = None) -> List[SongObj]:
