@@ -3,10 +3,8 @@ from spotdl.search.spotifyClient import SpotifyClient
 import spotdl.search.audioProvider as audioProvider
 import spotdl.search.metadataProvider as metadataProvider
 
-from typing import List, Dict, Optional
-from concurrent.futures import ThreadPoolExecutor, wait
+from typing import List, Dict
 from pathlib import Path
-import argparse
 
 # =======================
 # === Master Gatherer ===
