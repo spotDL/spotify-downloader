@@ -177,84 +177,77 @@ def get_artist_tracks(artistUrl: str, output_format: str = None) -> List[SongObj
     """
 
     spotifyClient = SpotifyClient()
-    albums = []
-    albumTracks: Dict[str, SongObj] = {}
-    offset = 0
 
-    artistResponse = spotifyClient.artist_albums(artistUrl)
+    artistTracks = []
 
-    # loop until we get all tracks from all albums/playlists
-    while True:
-        for album in artistResponse["items"]:
+    artistResponse = spotifyClient.artist_albums(artistUrl, album_type='album,single')
+    albumsList = artistResponse['items']
+    albumsObject: Dict[str, str] = {}
+    # Fetch all artist albums
+    while artistResponse["next"]:
+        artistResponse = spotifyClient.next(artistResponse)
+        albumsList.extend(artistResponse['items'])
 
-            # return an iterable containing the string's alphanumeric characters
-            alphaNumericFilter = filter(str.isalnum, album["name"].lower())
+    # Remove duplicate albums
+    for album in albumsList:
+        # return an iterable containing the string's alphanumeric characters
+        alphaNumericFilter = filter(str.isalnum, album["name"].lower())
 
-            # join all characters into one string
-            albumName = "".join(alphaNumericFilter)
+        # join all characters into one string
+        albumName = "".join(alphaNumericFilter)
 
-            # check if we've already downloaded album with this name
-            if not (albumName in albums) and not (
-                # exclude compilation playlists
-                album["album_group"] == "appears_on"
-                and album["album_type"] in ["compilation"]
-            ):
-                trackResponse = spotifyClient.album_tracks(album["uri"])
+        if albumsObject.get(albumName) is None:
+            albumsObject[albumName] = album['uri']
 
-                # loop until we get all tracks from playlist
-                while True:
-                    for track in trackResponse["items"]:
-                        # return an iterable containing the string's alphanumeric characters
-                        alphaNumericFilter = filter(str.isalnum, track["name"].lower())
+    tracksList = []
+    tracksObject: Dict[str, str] = {}
+    # Fetch all tracks from all albums
+    for album_uri in albumsObject.values():
+        albumResponse = spotifyClient.album_tracks(album_uri)
+        albumTracks = albumResponse['items']
 
-                        # join all characters into one string
-                        trackName = "".join(alphaNumericFilter)
+        while albumResponse['next']:
+            spotifyClient.next(albumResponse)
+            albumTracks.extend(albumResponse['items'])
 
-                        # check if we've alredy downloaded this track
-                        if albumTracks.get(trackName) is None:
-                            for artist in track["artists"]:
-                                # get artist id from url
-                                # https://api.spotify.com/v1/artists/1fZAAHNWdSM5gqbi9o5iEA/albums
-                                # split string
-                                # ['https:', '', 'api.spotify.com',
-                                # 'v1', 'artists', '1fZAAHNWdSM5gqbi9o5iEA', 'albums']
-                                # get second element from the end
-                                # '1fZAAHNWdSM5gqbi9o5iEA'
-                                artistId = artistResponse["href"].split("/")[-2]
+        tracksList.extend(albumTracks)
 
-                                # ignore tracks that are not from our artist by checking
-                                # the id
-                                if artist["id"] == artistId:
-                                    song = songobj_from_spotify_url(
-                                        "https://open.spotify.com/track/" + track["id"],
-                                        output_format,
-                                    )
+    # Filter tracks to remove duplicates and songs without our artist
+    for track in tracksList:
+        # return an iterable containing the string's alphanumeric characters
+        alphaNumericFilter = filter(str.isalnum, track["name"].lower())
 
-                                    if (
-                                        song is not None
-                                        and song.get_youtube_link() is not None
-                                    ):
-                                        albumTracks[trackName] = song
+        # join all characters into one string
+        trackName = "".join(alphaNumericFilter)
 
-                    # check if more tracks are to be passed
-                    if trackResponse["next"]:
-                        trackResponse = spotifyClient.album_tracks(
-                            album["uri"], offset=len(albumTracks)
-                        )
-                    else:
-                        break
+        if tracksObject.get(trackName) is None:
+            for artist in track['artists']:
+                # get artist id from url
+                # https://api.spotify.com/v1/artists/1fZAAHNWdSM5gqbi9o5iEA/albums
+                #
+                # split string
+                #  ['https:', '', 'api.spotify.com', 'v1', 'artists', '1fZAAHNWdSM5gqbi9o5iEA', 'albums']
+                #
+                # get second element from the end
+                # '1fZAAHNWdSM5gqbi9o5iEA'
+                artistId = artistResponse["href"].split("/")[-2]
 
-                albums.append(albumName)
+                # ignore tracks that are not from our artist by checking
+                # the id
+                if artist["id"] == artistId:
+                    tracksObject[trackName] = track['uri']
 
-        offset += len(artistResponse["items"])
+    # Create song objects from track ids
+    for trackUri in tracksObject.values():
+        song = songobj_from_spotify_url(
+            f"https://open.spotify.com/track/{trackUri}",
+            output_format
+        )
 
-        # check if more albums are to be passed
-        if artistResponse["next"]:
-            artistResponse = spotifyClient.artist_albums(artistUrl, offset=offset)
-        else:
-            break
+        if song is not None and song.get_youtube_link() is not None:
+            artistTracks.append(song)
 
-    return list(albumTracks.values())
+    return artistTracks
 
 
 def get_playlist_tracks(playlistUrl: str, output_format: str = None) -> List[SongObj]:
