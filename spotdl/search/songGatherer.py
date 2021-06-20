@@ -225,7 +225,8 @@ def get_artist_tracks(artistUrl: str, output_format: str = None) -> List[SongObj
                 # https://api.spotify.com/v1/artists/1fZAAHNWdSM5gqbi9o5iEA/albums
                 #
                 # split string
-                #  ['https:', '', 'api.spotify.com', 'v1', 'artists', '1fZAAHNWdSM5gqbi9o5iEA', 'albums']
+                #  ['https:', '', 'api.spotify.com', 'v1', 'artists',
+                #  '1fZAAHNWdSM5gqbi9o5iEA', 'albums']
                 #
                 # get second element from the end
                 # '1fZAAHNWdSM5gqbi9o5iEA'
