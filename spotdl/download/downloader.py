@@ -76,8 +76,8 @@ def _get_converted_file_path(song_obj: SongObj, output_format: str = None) -> Pa
 
     artists_filtered = []
 
-    if format is None:
-        format = "mp3"
+    if output_format is None:
+        output_format = "mp3"
 
     for artist in song_obj.get_contributing_artists():
         if artist.lower() not in song_obj.get_song_name():
