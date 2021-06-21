@@ -49,10 +49,8 @@ def _get_smaller_file_path(input_song: SongObj) -> Path:
     # Only use the first artist if the song path turns out to be too long
     smaller_name = f"{input_song.get_contributing_artists()[0]} - {input_song.get_song_name()}"
 
-    # this is windows specific (disallowed chars)
-    for disallowed_char in ['/', '?', '\\', '*', '|', '<', '>']:
-        if disallowed_char in smaller_name:
-            smaller_name = smaller_name.replace(disallowed_char, '')
+    # ! this is windows specific (disallowed chars)
+    smaller_name = "".join(char for char in smaller_name if char not in "/?\\*|<>")
 
     # ! double quotes (") and semi-colons (:) are also disallowed characters
     # ! but we would like to retain their equivalents, so they aren't removed
