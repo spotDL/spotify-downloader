@@ -277,7 +277,7 @@ class DownloadManager:
                 return None
 
             downloadedFilePathString = await self._perform_audio_download_async(
-                convertedFileName, tempFolder, trackAudioStream
+                convertedFilePath.name, tempFolder, trackAudioStream
             )
 
             if downloadedFilePathString is None:
