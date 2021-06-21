@@ -41,7 +41,7 @@ def _sanitize_filename(input_str: str) -> str:
     return output
 
 
-def _get_smaller_file_path(input_song: SongObj) -> Path:
+def _get_smaller_file_path(input_song: SongObj, output_format: str) -> Path:
     # Only use the first artist if the song path turns out to be too long
     smaller_name = f"{input_song.get_contributing_artists()[0]} - {input_song.get_song_name()}"
 
@@ -57,14 +57,14 @@ def _get_smaller_file_path(input_song: SongObj) -> Path:
     smaller_name = _sanitize_filename(smaller_name)
 
     try:
-        return Path(f"{smaller_name}.mp3").resolve()
+        return Path(f"{smaller_name}.{output_format}").resolve()
     except WindowsError:
         # Expected to happen in the rare case when the saved path is too long,
         # even with the short filename
         raise WindowsError("Cannot save song due to path issues.")
 
 
-def _get_converted_file_path(song_obj: SongObj) -> Path:
+def _get_converted_file_path(song_obj: SongObj, output_format: str = None) -> Path:
 
     # ! we eliminate contributing artist names that are also in the song name, else we
     # ! would end up with things like 'Jetta, Mastubs - I'd love to change the world
@@ -76,6 +76,9 @@ def _get_converted_file_path(song_obj: SongObj) -> Path:
 
     artists_filtered = []
 
+    if format is None:
+        format = "mp3"
+
     for artist in song_obj.get_contributing_artists():
         if artist.lower() not in song_obj.get_song_name():
             artists_filtered.append(artist)
@@ -84,7 +87,7 @@ def _get_converted_file_path(song_obj: SongObj) -> Path:
 
     artist_str = ", ".join(artists_filtered)
 
-    converted_file_name = _sanitize_filename(f"{artist_str} - {song_obj.get_song_name()}.mp3")
+    converted_file_name = _sanitize_filename(f"{artist_str} - {song_obj.get_song_name()}.{output_format}")
 
     converted_file_path = Path(converted_file_name)
 
@@ -92,9 +95,9 @@ def _get_converted_file_path(song_obj: SongObj) -> Path:
     try:
         if len(str(converted_file_path.resolve().name)) > 256:
             print("Path was too long. Using Small Path.")
-            return _get_smaller_file_path(song_obj)
+            return _get_smaller_file_path(song_obj, output_format)
     except WindowsError:
-        return _get_smaller_file_path(song_obj)
+        return _get_smaller_file_path(song_obj, output_format)
 
     return converted_file_path
 
