@@ -29,7 +29,8 @@ from spotdl.download import ffmpeg
 # ========================
 
 def _sanitize_filename(input_str: str) -> str:
-    # ! this is windows specific (disallowed chars)
+    output = input_str
+
     # ! this is windows specific (disallowed chars)
     output = "".join(char for char in output if char not in "/?\\*|<>")
 
