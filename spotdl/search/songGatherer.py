@@ -69,6 +69,11 @@ def songobj_from_spotify_url(spotifyURL: str, output_format: str = None):
         songName, [artist["name"] for artist in rawTrackMeta["artists"]]
     )
 
+    if len(convertedFileName) > 250:
+        convertedFileName = SongObj.create_file_name(
+            songName, [rawTrackMeta["artists"][0]['name']]
+        )
+
     if output_format is None:
         output_format = "mp3"
 
