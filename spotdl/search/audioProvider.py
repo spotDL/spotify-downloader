@@ -139,7 +139,11 @@ def _query_and_simplify(searchTerm: str, filter: str) -> List[dict]:
 
 
 def search_and_get_best_match(
-    songName: str, songArtists: List[str], songAlbumName: str, songDuration: int, isrc: str
+    songName: str,
+    songArtists: List[str],
+    songAlbumName: str,
+    songDuration: int,
+    isrc: str,
 ) -> typing.Optional[str]:
     """
     `str` `songName` : name of song
@@ -163,7 +167,7 @@ def search_and_get_best_match(
             isrcResult = isrcResults[0]
 
             if isrcResult is not None:
-                return isrcResult['link']
+                return isrcResult["link"]
 
     songTitle = create_song_title(songName, songArtists)
 

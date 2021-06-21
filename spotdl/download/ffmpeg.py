@@ -102,9 +102,9 @@ async def convert(
     proc_out = await process.communicate()
 
     if proc_out[0] is not None and proc_out[1]:
-        out = str(b''.join(proc_out))
+        out = str(b"".join(proc_out))
     else:
-        out = ''
+        out = ""
 
     if process.returncode != 0:
         message = (
