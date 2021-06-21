@@ -87,7 +87,9 @@ def _get_converted_file_path(song_obj: SongObj, output_format: str = None) -> Pa
 
     artist_str = ", ".join(artists_filtered)
 
-    converted_file_name = _sanitize_filename(f"{artist_str} - {song_obj.get_song_name()}.{output_format}")
+    converted_file_name = _sanitize_filename(
+        f"{artist_str} - {song_obj.get_song_name()}.{output_format}"
+    )
 
     converted_file_path = Path(converted_file_name)
 
@@ -236,11 +238,7 @@ class DownloadManager:
             if not tempFolder.exists():
                 tempFolder.mkdir()
 
-            convertedFileName = songObj.get_file_name()
-
-            convertedFilePath = Path(
-                ".", f"{convertedFileName}.{self.arguments['format']}"
-            )
+            convertedFilePath = _get_converted_file_path(songObj, self.arguments["format"])
 
             # if a song is already downloaded skip it
             if convertedFilePath.is_file():
