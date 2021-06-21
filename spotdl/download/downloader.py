@@ -30,13 +30,8 @@ from spotdl.download import ffmpeg
 
 def _sanitize_filename(input_str: str) -> str:
     # ! this is windows specific (disallowed chars)
-    output = input_str
-    for disallowed_char in ['/', '?', '\\', '*', '|', '<', '>']:
-        if disallowed_char in output:
-            output = output.replace(
-                disallowed_char,
-                ''
-            )
+    # ! this is windows specific (disallowed chars)
+    output = "".join(char for char in output if char not in "/?\\*|<>")
 
     # ! double quotes (") and semi-colons (:) are also disallowed characters but we would
     # ! like to retain their equivalents, so they aren't removed in the prior loop
