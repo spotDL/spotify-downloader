@@ -57,7 +57,10 @@ def _get_smaller_file_path(input_song: SongObj) -> Path:
     # ! double quotes (") and semi-colons (:) are also disallowed characters
     # ! but we would like to retain their equivalents, so they aren't removed
     # ! in the prior loop
-    smaller_name = _sanitize_filename(smaller_name.replace('"', "'").replace(':', '-'))
+    smaller_name = smaller_name.replace('"', "'")
+    smaller_name = smaller_name.replace(':', '-')
+
+    smaller_name = _sanitize_filename(smaller_name)
 
     try:
         return Path(f"{smaller_name}.mp3").resolve()
