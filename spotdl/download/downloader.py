@@ -272,12 +272,6 @@ class DownloadManager:
                 )
                 return None
 
-<<<<<<< HEAD
-            downloadedFilePathString = await self._download_from_youtube(
-                convertedFilePath.name,
-                tempFolder,
-                trackAudioStream
-=======
             downloadedFilePathString = await self._perform_audio_download_async(
                 convertedFileName, tempFolder, trackAudioStream
 >>>>>>> 4ab975fe3de4097a6284adf5cbb032816f41938c
