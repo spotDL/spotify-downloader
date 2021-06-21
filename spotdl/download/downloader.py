@@ -98,7 +98,7 @@ def _get_converted_file_path(song_obj: SongObj, output_format: str = None) -> Pa
         if len(str(converted_file_path.resolve().name)) > 256:
             print("Path was too long. Using Small Path.")
             return _get_smaller_file_path(song_obj, output_format)
-    except WindowsError:
+    except OSError:
         return _get_smaller_file_path(song_obj, output_format)
 
     return converted_file_path
