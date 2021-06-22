@@ -30,7 +30,9 @@ Download your Spotify playlists and songs along with album art and metadata
    - Genre
    - and more!
 
-> _⚠ We have dropped the active development of spotDL v2 due to support and maintainability. No focused efforts will be made to resolve v2 specific issues._
+### Redesigned
+
+spotDL is being redesigned! This means we are currently not accepting new feature requests. You can talk to us on [our Discord](https://discord.gg/xCa23pwJWY) if there is anything further.
 
 ## Prerequisites
 
