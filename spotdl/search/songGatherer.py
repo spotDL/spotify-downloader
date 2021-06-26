@@ -213,21 +213,22 @@ def get_artist_tracks(artistUrl: str, output_format: str = None) -> List[SongObj
 
     tracksList = []
     tracksObject: Dict[str, str] = {}
+
     # Fetch all tracks from all albums
     for album_uri in albumsObject.values():
         albumResponse = spotifyClient.album_tracks(album_uri)
         albumTracks = albumResponse["items"]
 
         while albumResponse["next"]:
-            spotifyClient.next(albumResponse)
+            albumResponse = spotifyClient.next(albumResponse)
             albumTracks.extend(albumResponse["items"])
 
         tracksList.extend(albumTracks)
 
     # Filter tracks to remove duplicates and songs without our artist
     for track in tracksList:
-        # ignore tracks without id
-        if track.get("track") is None or track.get("uri") is None:
+        # ignore tracks without uri
+        if track.get("uri") is None:
             continue
 
         # return an iterable containing the string's alphanumeric characters
@@ -257,7 +258,7 @@ def get_artist_tracks(artistUrl: str, output_format: str = None) -> List[SongObj
     # Create song objects from track ids
     for trackUri in tracksObject.values():
         song = songobj_from_spotify_url(
-            f"https://open.spotify.com/track/{trackUri}", output_format
+            f"https://open.spotify.com/track/{trackUri.split(':')[-1]}", output_format
         )
 
         if song is not None and song.get_youtube_link() is not None:
