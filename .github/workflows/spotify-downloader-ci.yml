@@ -73,7 +73,7 @@ jobs:
           python-version: 3.8
       - name: Install dependencies
         run: |
-          sudo apt update -y
+          sudo apt update --fix-missing -y
           sudo apt install ffmpeg -y
           ffmpeg -version
           python -m pip install -e .[test]
