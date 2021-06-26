@@ -161,6 +161,13 @@ def get_album_tracks(albumUrl: str, output_format: str = None) -> List[SongObj]:
         albumResponse = spotifyClient.next(albumResponse)
         albumTracks.extend(albumResponse["items"])
 
+    # Remove songs  without id
+    albumTracks = [
+        track
+        for track in albumTracks
+        if track.get("track") is not None and track.get("id") is not None
+    ]
+
     # Create song objects from track ids
     for track in albumTracks:
         song = songobj_from_spotify_url(
@@ -187,6 +194,7 @@ def get_artist_tracks(artistUrl: str, output_format: str = None) -> List[SongObj
     artistResponse = spotifyClient.artist_albums(artistUrl, album_type="album,single")
     albumsList = artistResponse["items"]
     albumsObject: Dict[str, str] = {}
+
     # Fetch all artist albums
     while artistResponse["next"]:
         artistResponse = spotifyClient.next(artistResponse)
@@ -218,6 +226,10 @@ def get_artist_tracks(artistUrl: str, output_format: str = None) -> List[SongObj
 
     # Filter tracks to remove duplicates and songs without our artist
     for track in tracksList:
+        # ignore tracks without id
+        if track.get("track") is None or track.get("uri") is None:
+            continue
+
         # return an iterable containing the string's alphanumeric characters
         alphaNumericFilter = filter(str.isalnum, track["name"].lower())
 
@@ -269,14 +281,15 @@ def get_playlist_tracks(playlistUrl: str, output_format: str = None) -> List[Son
     # while loop to mimic do-while
     while playlistResponse["next"]:
         playlistResponse = spotifyClient.next(playlistResponse)
-        playlistTracks.extend(
-            [
-                track
-                for track in playlistResponse["items"]
-                # check if track has id
-                if track.get("track", {}).get("id") is not None
-            ]
-        )
+        playlistTracks.extend(playlistResponse["items"])
+
+    # Remove songs  without id
+    playlistTracks = [
+        track
+        for track in playlistTracks
+        if track.get("track") is not None
+        and track.get("track", {}).get("id") is not None
+    ]
 
     for track in playlistTracks:
         song = songobj_from_spotify_url(
@@ -303,14 +316,15 @@ def get_saved_tracks(output_format: str = None) -> List[SongObj]:
 
     while savedTracksResponse["next"]:
         savedTracksResponse = spotifyClient.next(savedTracksResponse)
-        savedTracks.extend(
-            [
-                track
-                for track in savedTracksResponse["items"]
-                # check if track has id
-                if track.get("track", {}).get("id") is not None
-            ]
-        )
+        savedTracks.extend(savedTracksResponse["items"])
+
+    # Remove songs  without id
+    savedTracks = [
+        track
+        for track in savedTracks
+        if track.get("track") is not None
+        and track.get("track", {}).get("id") is not None
+    ]
 
     for track in savedTracks:
         song = songobj_from_spotify_url(
