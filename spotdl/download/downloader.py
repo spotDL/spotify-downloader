@@ -28,6 +28,7 @@ from spotdl.download import ffmpeg
 # === Helper function ===
 # ========================
 
+
 def _sanitize_filename(input_str: str) -> str:
     output = input_str
 
@@ -36,14 +37,16 @@ def _sanitize_filename(input_str: str) -> str:
 
     # ! double quotes (") and semi-colons (:) are also disallowed characters but we would
     # ! like to retain their equivalents, so they aren't removed in the prior loop
-    output = output.replace('"', "'").replace(':', '-')
+    output = output.replace('"', "'").replace(":", "-")
 
     return output
 
 
 def _get_smaller_file_path(input_song: SongObj, output_format: str) -> Path:
     # Only use the first artist if the song path turns out to be too long
-    smaller_name = f"{input_song.get_contributing_artists()[0]} - {input_song.get_song_name()}"
+    smaller_name = (
+        f"{input_song.get_contributing_artists()[0]} - {input_song.get_song_name()}"
+    )
 
     # ! this is windows specific (disallowed chars)
     smaller_name = "".join(char for char in smaller_name if char not in "/?\\*|<>")
@@ -52,7 +55,7 @@ def _get_smaller_file_path(input_song: SongObj, output_format: str) -> Path:
     # ! but we would like to retain their equivalents, so they aren't removed
     # ! in the prior loop
     smaller_name = smaller_name.replace('"', "'")
-    smaller_name = smaller_name.replace(':', '-')
+    smaller_name = smaller_name.replace(":", "-")
 
     smaller_name = _sanitize_filename(smaller_name)
 
@@ -238,7 +241,9 @@ class DownloadManager:
             if not tempFolder.exists():
                 tempFolder.mkdir()
 
-            convertedFilePath = _get_converted_file_path(songObj, self.arguments["format"])
+            convertedFilePath = _get_converted_file_path(
+                songObj, self.arguments["format"]
+            )
 
             # if a song is already downloaded skip it
             if convertedFilePath.is_file():
