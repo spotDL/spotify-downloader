@@ -63,11 +63,11 @@ class SizedTextColumn(ProgressColumn):
         width: int = 20,
     ) -> None:
         self.text_format = text_format
-        self.justify = justify
+        self.justify: JustifyMethod = justify
         self.style = style
         self.markup = markup
         self.highlighter = highlighter
-        self.overflow = overflow
+        self.overflow: Optional[OverflowMethod] = overflow
         self.width = width
         super().__init__()
 

@@ -2,6 +2,7 @@
 import signal
 import sys
 import argparse
+import pkg_resources
 import os
 
 # ! The actual download stuff
@@ -111,6 +112,12 @@ def console_entry_point():
     This is where all the console processing magic happens.
     Its super simple, rudimentary even but, it's dead simple & it works.
     """
+
+    if len(sys.argv) >= 2 and sys.argv[1] in ["-v", "--version"]:
+        version = pkg_resources.require("spotdl")[0].version
+        print(version)
+        sys.exit(0)
+
     arguments = parse_arguments()
     args_dict = vars(arguments)
 
@@ -194,6 +201,12 @@ def parse_arguments():
     parser.add_argument("-f", "--ffmpeg", help="Path to ffmpeg", dest="ffmpeg")
     parser.add_argument(
         "--ignore-ffmpeg-version", help="Ignore ffmpeg version", action="store_true"
+    )
+    parser.add_argument(
+        "-v",
+        "--version",
+        help="Show spotDL's version and exit",
+        action="store_true",
     )
 
     return parser.parse_args()

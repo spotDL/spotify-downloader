@@ -3,10 +3,8 @@ from spotdl.search.spotifyClient import SpotifyClient
 import spotdl.search.audioProvider as audioProvider
 import spotdl.search.metadataProvider as metadataProvider
 
-from typing import List, Dict, Optional
-from concurrent.futures import ThreadPoolExecutor, wait
+from typing import List, Dict
 from pathlib import Path
-import argparse
 
 # =======================
 # === Master Gatherer ===
@@ -75,6 +73,7 @@ def songobj_from_spotify_url(spotifyURL: str, output_format: str = None):
 
     songName = rawTrackMeta["name"]
     albumName = rawTrackMeta["album"]["name"]
+    isrc = rawTrackMeta["external_ids"].get("isrc")
     contributingArtists = []
     for artist in rawTrackMeta["artists"]:
         contributingArtists.append(artist["name"])
@@ -83,6 +82,11 @@ def songobj_from_spotify_url(spotifyURL: str, output_format: str = None):
     convertedFileName = SongObj.create_file_name(
         songName, [artist["name"] for artist in rawTrackMeta["artists"]]
     )
+
+    if len(convertedFileName) > 250:
+        convertedFileName = SongObj.create_file_name(
+            songName, [rawTrackMeta["artists"][0]["name"]]
+        )
 
     if output_format is None:
         output_format = "mp3"
@@ -98,7 +102,7 @@ def songobj_from_spotify_url(spotifyURL: str, output_format: str = None):
     # Get the song's downloadable audio link
     print(f'Searching YouTube for "{displayName}"', end="\r")
     youtubeLink = audioProvider.search_and_get_best_match(
-        songName, contributingArtists, albumName, duration
+        songName, contributingArtists, albumName, duration, isrc
     )
     if youtubeLink is None:
         # raise Exception("Could not match any of the results on YouTube")
@@ -141,8 +145,6 @@ def from_search_term(query: str, output_format: str = None) -> List[SongObj]:
     # get a spotify client
     spotifyClient = SpotifyClient()
 
-    tracks = []
-
     # get possible matches from spotify
     result = spotifyClient.search(query, type="track")
 
@@ -152,9 +154,7 @@ def from_search_term(query: str, output_format: str = None) -> List[SongObj]:
     else:
         songUrl = "http://open.spotify.com/track/" + result["tracks"]["items"][0]["id"]
         song = songobj_from_spotify_url(songUrl, output_format)
-        tracks.append(song)
-
-    return tracks
+        return [song] if song is not None else []
 
 
 def get_album_tracks(albumUrl: str, output_format: str = None) -> List[SongObj]:
@@ -165,30 +165,33 @@ def get_album_tracks(albumUrl: str, output_format: str = None) -> List[SongObj]:
     """
 
     spotifyClient = SpotifyClient()
-    albumTracks = []
 
-    trackResponse = spotifyClient.album_tracks(albumUrl)
+    albumResponse = spotifyClient.album_tracks(albumUrl)
+    albumTracks = albumResponse["items"]
+    tracks = []
 
-    # while loop acts like do-while
-    while True:
+    # Get all tracks from album
+    while albumResponse["next"]:
+        albumResponse = spotifyClient.next(albumResponse)
+        albumTracks.extend(albumResponse["items"])
 
-        for track in trackResponse["items"]:
-            song = songobj_from_spotify_url(
-                "https://open.spotify.com/track/" + track["id"], output_format
-            )
+    # Remove songs  without id
+    albumTracks = [
+        track
+        for track in albumTracks
+        if track is not None and track.get("id") is not None
+    ]
 
-            if song is not None and song.get_youtube_link() is not None:
-                albumTracks.append(song)
+    # Create song objects from track ids
+    for track in albumTracks:
+        song = songobj_from_spotify_url(
+            "https://open.spotify.com/track/" + track["id"], output_format
+        )
 
-        # check if more tracks are to be passed
-        if trackResponse["next"]:
-            trackResponse = spotifyClient.album_tracks(
-                albumUrl, offset=len(albumTracks)
-            )
-        else:
-            break
+        if song is not None and song.get_youtube_link() is not None:
+            tracks.append(song)
 
-    return albumTracks
+    return tracks
 
 
 def get_artist_tracks(artistUrl: str, output_format: str = None) -> List[SongObj]:
@@ -199,84 +202,83 @@ def get_artist_tracks(artistUrl: str, output_format: str = None) -> List[SongObj
     """
 
     spotifyClient = SpotifyClient()
-    albums = []
-    albumTracks: Dict[str, SongObj] = {}
-    offset = 0
 
-    artistResponse = spotifyClient.artist_albums(artistUrl)
+    artistTracks = []
 
-    # loop until we get all tracks from all albums/playlists
-    while True:
-        for album in artistResponse["items"]:
+    artistResponse = spotifyClient.artist_albums(artistUrl, album_type="album,single")
+    albumsList = artistResponse["items"]
+    albumsObject: Dict[str, str] = {}
 
-            # return an iterable containing the string's alphanumeric characters
-            alphaNumericFilter = filter(str.isalnum, album["name"].lower())
+    # Fetch all artist albums
+    while artistResponse["next"]:
+        artistResponse = spotifyClient.next(artistResponse)
+        albumsList.extend(artistResponse["items"])
 
-            # join all characters into one string
-            albumName = "".join(alphaNumericFilter)
+    # Remove duplicate albums
+    for album in albumsList:
+        # return an iterable containing the string's alphanumeric characters
+        alphaNumericFilter = filter(str.isalnum, album["name"].lower())
 
-            # check if we've already downloaded album with this name
-            if not (albumName in albums) and not (
-                # exclude compilation playlists
-                album["album_group"] == "appears_on"
-                and album["album_type"] in ["compilation"]
-            ):
-                trackResponse = spotifyClient.album_tracks(album["uri"])
+        # join all characters into one string
+        albumName = "".join(alphaNumericFilter)
 
-                # loop until we get all tracks from playlist
-                while True:
-                    for track in trackResponse["items"]:
-                        # return an iterable containing the string's alphanumeric characters
-                        alphaNumericFilter = filter(str.isalnum, track["name"].lower())
+        if albumsObject.get(albumName) is None:
+            albumsObject[albumName] = album["uri"]
 
-                        # join all characters into one string
-                        trackName = "".join(alphaNumericFilter)
+    tracksList = []
+    tracksObject: Dict[str, str] = {}
 
-                        # check if we've alredy downloaded this track
-                        if albumTracks.get(trackName) is None:
-                            for artist in track["artists"]:
-                                # get artist id from url
-                                # https://api.spotify.com/v1/artists/1fZAAHNWdSM5gqbi9o5iEA/albums
-                                # split string
-                                # ['https:', '', 'api.spotify.com',
-                                # 'v1', 'artists', '1fZAAHNWdSM5gqbi9o5iEA', 'albums']
-                                # get second element from the end
-                                # '1fZAAHNWdSM5gqbi9o5iEA'
-                                artistId = artistResponse["href"].split("/")[-2]
+    # Fetch all tracks from all albums
+    for album_uri in albumsObject.values():
+        albumResponse = spotifyClient.album_tracks(album_uri)
+        albumTracks = albumResponse["items"]
 
-                                # ignore tracks that are not from our artist by checking
-                                # the id
-                                if artist["id"] == artistId:
-                                    song = songobj_from_spotify_url(
-                                        "https://open.spotify.com/track/" + track["id"],
-                                        output_format,
-                                    )
+        while albumResponse["next"]:
+            albumResponse = spotifyClient.next(albumResponse)
+            albumTracks.extend(albumResponse["items"])
 
-                                    if (
-                                        song is not None
-                                        and song.get_youtube_link() is not None
-                                    ):
-                                        albumTracks[trackName] = song
+        tracksList.extend(albumTracks)
 
-                    # check if more tracks are to be passed
-                    if trackResponse["next"]:
-                        trackResponse = spotifyClient.album_tracks(
-                            album["uri"], offset=len(albumTracks)
-                        )
-                    else:
-                        break
+    # Filter tracks to remove duplicates and songs without our artist
+    for track in tracksList:
+        # ignore tracks without uri
+        if track.get("uri") is None:
+            continue
 
-                albums.append(albumName)
+        # return an iterable containing the string's alphanumeric characters
+        alphaNumericFilter = filter(str.isalnum, track["name"].lower())
 
-        offset += len(artistResponse["items"])
+        # join all characters into one string
+        trackName = "".join(alphaNumericFilter)
 
-        # check if more albums are to be passed
-        if artistResponse["next"]:
-            artistResponse = spotifyClient.artist_albums(artistUrl, offset=offset)
-        else:
-            break
+        if tracksObject.get(trackName) is None:
+            for artist in track["artists"]:
+                # get artist id from url
+                # https://api.spotify.com/v1/artists/1fZAAHNWdSM5gqbi9o5iEA/albums
+                #
+                # split string
+                #  ['https:', '', 'api.spotify.com', 'v1', 'artists',
+                #  '1fZAAHNWdSM5gqbi9o5iEA', 'albums']
+                #
+                # get second element from the end
+                # '1fZAAHNWdSM5gqbi9o5iEA'
+                artistId = artistResponse["href"].split("/")[-2]
 
-    return list(albumTracks.values())
+                # ignore tracks that are not from our artist by checking
+                # the id
+                if artist["id"] == artistId:
+                    tracksObject[trackName] = track["uri"]
+
+    # Create song objects from track ids
+    for trackUri in tracksObject.values():
+        song = songobj_from_spotify_url(
+            f"https://open.spotify.com/track/{trackUri.split(':')[-1]}", output_format
+        )
+
+        if song is not None and song.get_youtube_link() is not None:
+            artistTracks.append(song)
+
+    return artistTracks
 
 
 def get_playlist_tracks(playlistUrl: str, output_format: str = None) -> List[SongObj]:
@@ -287,35 +289,33 @@ def get_playlist_tracks(playlistUrl: str, output_format: str = None) -> List[Son
     """
 
     spotifyClient = SpotifyClient()
-    playlistTracks = []
-
     playlistResponse = spotifyClient.playlist_tracks(playlistUrl)
+    playlistTracks = playlistResponse["items"]
+    tracks = []
 
     # while loop to mimic do-while
-    while True:
+    while playlistResponse["next"]:
+        playlistResponse = spotifyClient.next(playlistResponse)
+        playlistTracks.extend(playlistResponse["items"])
 
-        for songEntry in playlistResponse["items"]:
-            if songEntry["track"] is None or songEntry["track"]["id"] is None:
-                continue
+    # Remove songs  without id
+    playlistTracks = [
+        track
+        for track in playlistTracks
+        if track is not None and track.get("track") is not None
+        and track.get("track", {}).get("id") is not None
+    ]
 
-            song = songobj_from_spotify_url(
-                "https://open.spotify.com/track/" + songEntry["track"]["id"],
-                output_format,
-            )
+    for track in playlistTracks:
+        song = songobj_from_spotify_url(
+            "https://open.spotify.com/track/" + track["track"]["id"],
+            output_format,
+        )
 
-            if song is not None and song.get_youtube_link() is not None:
-                playlistTracks.append(song)
+        if song is not None and song.get_youtube_link() is not None:
+            tracks.append(song)
 
-        # check if more tracks are to be passed
-        if playlistResponse["next"]:
-            playlistResponse = spotifyClient.playlist_tracks(
-                playlistUrl,
-                offset=playlistResponse["offset"] + playlistResponse["limit"],
-            )
-        else:
-            break
-
-    return playlistTracks
+    return tracks
 
 
 def get_saved_tracks(output_format: str = None) -> List[SongObj]:
@@ -325,30 +325,30 @@ def get_saved_tracks(output_format: str = None) -> List[SongObj]:
 
     spotifyClient = SpotifyClient()
 
-    savedTracks = []
-
     savedTracksResponse = spotifyClient.current_user_saved_tracks()
+    savedTracks = savedTracksResponse["items"]
+    tracks = []
 
-    while True:
-        for songEntry in savedTracksResponse["items"]:
-            if songEntry["track"] is None or songEntry["track"]["id"] is None:
-                continue
+    while savedTracksResponse["next"]:
+        savedTracksResponse = spotifyClient.next(savedTracksResponse)
+        savedTracks.extend(savedTracksResponse["items"])
 
-            song = songobj_from_spotify_url(
-                "https://open.spotify.com/track/" + songEntry["track"]["id"],
-                output_format,
-            )
+    # Remove songs  without id
+    savedTracks = [
+        track
+        for track in savedTracks
+        if track is not None and track.get("track") is not None
+        and track.get("track", {}).get("id") is not None
+    ]
 
-            if song is not None and song.get_youtube_link() is not None:
-                savedTracks.append(song)
+    for track in savedTracks:
+        song = songobj_from_spotify_url(
+            "https://open.spotify.com/track/" + track["track"]["id"],
+            output_format,
+        )
 
-        # check if more tracks are to be passed
-        if savedTracksResponse["next"]:
-            savedTracksResponse = spotifyClient.current_user_saved_tracks(
-                offset=savedTracksResponse["offset"] + savedTracksResponse["limit"]
-            )
-        else:
-            break
+        if song is not None and song.get_youtube_link() is not None:
+            tracks.append(song)
 
     return savedTracks
 

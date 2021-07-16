@@ -139,7 +139,11 @@ def _query_and_simplify(searchTerm: str, filter: str) -> List[dict]:
 
 
 def search_and_get_best_match(
-    songName: str, songArtists: List[str], songAlbumName: str, songDuration: int
+    songName: str,
+    songArtists: List[str],
+    songAlbumName: str,
+    songDuration: int,
+    isrc: str,
 ) -> typing.Optional[str]:
     """
     `str` `songName` : name of song
@@ -150,8 +154,20 @@ def search_and_get_best_match(
 
     `int` `songDuration` : duration of the song
 
+    `str` `isrc` :  code for identifying sound recordings and music video recordings
+
     RETURNS `str` : link of the best match
     """
+
+    # if isrc is not None then we try to find song with it
+    if isrc is not None:
+        isrcResults = _query_and_simplify(isrc, filter="songs")
+
+        if len(isrcResults) == 1:
+            isrcResult = isrcResults[0]
+
+            if isrcResult is not None:
+                return isrcResult["link"]
 
     songTitle = create_song_title(songName, songArtists)
 
@@ -311,6 +327,7 @@ def order_ytm_results(
         # ! We assign an arbitrary value of 0 for album match in case of video results
         # ! from YouTube Music
         albumMatch = 0.0
+        album = None
 
         if result["type"] == "song":
             album = result.get("album")
