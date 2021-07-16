@@ -302,7 +302,8 @@ def get_playlist_tracks(playlistUrl: str, output_format: str = None) -> List[Son
     playlistTracks = [
         track
         for track in playlistTracks
-        if track is not None and track.get("track") is not None
+        if track is not None
+        and track.get("track") is not None
         and track.get("track", {}).get("id") is not None
     ]
 
@@ -337,7 +338,8 @@ def get_saved_tracks(output_format: str = None) -> List[SongObj]:
     savedTracks = [
         track
         for track in savedTracks
-        if track is not None and track.get("track") is not None
+        if track is not None
+        and track.get("track") is not None
         and track.get("track", {}).get("id") is not None
     ]
 
