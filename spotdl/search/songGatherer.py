@@ -19,7 +19,7 @@ def from_query(request: str, output_format: str = None):
         "youtube.com/watch?v=" in request
         and "open.spotify.com" in request
         and "track" in request
-        and ":" in request
+        and "|" in request
     ):
         urls = request.split("|")
 
