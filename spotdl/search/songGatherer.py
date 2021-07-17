@@ -22,7 +22,7 @@ def from_query(request: str, output_format: str = None):
         urls = request.split("|")
 
         if len(urls) <= 1 or "youtube" not in urls[0] or "spotify" not in urls[1]:
-            print("Incorrect format used, please use youtubeURL|spotifyURL")
+            print("Incorrect format used, please use YouTubeURL|SpotifyURL")
         else:
             print("Fetching YouTube video with spotify metadata")
             songObjList = [get_youtube_meta_track(urls[0], urls[1], output_format)]
