@@ -167,7 +167,7 @@ curl -L https://raw.githubusercontent.com/spotDL/spotify-downloader/master/termu
 
 - #### To download youtube video with metadata from spotify run:
     ```bash
-    spotdl YouTubeURL|SpotifyUrl
+    spotdl YouTubeURL|SpotifyURL
     ```
 
     example:
