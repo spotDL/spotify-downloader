@@ -167,7 +167,7 @@ def search_and_get_best_match(
             isrcResult = isrcResults[0]
 
             # !Some YouTube results don't provide a 'link'
-            if isrcResult is not None and 'link' in isrcResult:
+            if isrcResult is not None and "link" in isrcResult:
                 return isrcResult["link"]
 
     songTitle = create_song_title(songName, songArtists)
