@@ -9,19 +9,18 @@ from spotdl.search.songObj import SongObj
 from spotdl.download import ffmpeg, downloader
 
 
-def create_song_obj(name:str=None, artists_input:list=None) -> SongObj:
+def create_song_obj(name: str = None, artists_input: list = None) -> SongObj:
     song_name = None
     if name == None:
         song_name = "test song"
     else:
         song_name = name
 
-
     artist_map = None
     if artists_input == None:
-        artist_objs = list(map(lambda x: {"name": x},["test artist"]))
+        artist_objs = list(map(lambda x: {"name": x}, ["test artist"]))
     else:
-        artist_objs = list(map(lambda x: {"name": x},artists_input))
+        artist_objs = list(map(lambda x: {"name": x}, artists_input))
     raw_track_meta = {
         "name": song_name,
         "album": {
@@ -99,6 +98,7 @@ def test_download_single_song(setup):
         "test artist - test song.mp3"
     ]
 
+
 @pytest.mark.vcr()
 def test_download_long_artists_song(setup):
     # ! Generates a long list of artists, numbered 1 to 260, to trigger filename length cases
@@ -111,11 +111,12 @@ def test_download_long_artists_song(setup):
         "0 - test song.mp3"
     ]
 
+
 @pytest.mark.vcr()
 def test_download_long_name_song(setup):
     # ! Generates a long title name,numbered 1 to 260, to trigger filename length cases
     # ! In this case the program cannot save the song, and fails with an OSError
-    song = 'a' * 260
+    song = "a" * 260
     song_obj = create_song_obj(name=song)
 
     with pytest.raises(OSError):

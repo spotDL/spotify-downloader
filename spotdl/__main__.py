@@ -46,7 +46,7 @@ from spotdl.download import ffmpeg
 # ! P.S. Tell me what you think. Up to your expectations?
 
 # ! Script Help
-help_notice = """
+help_notice = """ # noqa: E501
 To download a song run,
     spotdl [trackUrl]
     ex. spotdl https://open.spotify.com/track/0VjIjW4GlUZAMYd2vXMi3b
@@ -65,6 +65,13 @@ To download your saved songs, run:
 To download all songs from an artist run:
     spotdl [artistUrl]
     ex. spotdl https://open.spotify.com/artist/1fZAAHNWdSM5gqbi9o5iEA
+
+To download youtube video with metadata from spotify run:
+    spotdl "YouTubeURL|SpotifyURL"
+    ex. spotdl "https://www.youtube.com/watch?v=EO7XnC1YpVo|https://open.spotify.com/track/4fzsfWzRhPawzqhX8Qt9F3"
+
+    Note: urls that you pass have to be quoted properly ex. "YouTubeURL|SpotifyUrl"
+        if you won't do this you might get BrokenPipeError
 
 To change output format run:
     spotdl [songUrl] --output-format mp3/m4a/flac/opus/ogg
