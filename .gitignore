@@ -6,8 +6,11 @@
 *.flac
 *.opus
 *.ogg
-Temp/
+*.wav
+spotdl-temp/
 *.mp4
+.spotdl-cache
+*.m3u
 
 # Python
 __pycache__
