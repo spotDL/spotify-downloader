@@ -1,14 +1,16 @@
-import json
 import sys
+import json
 
 import pytest
 
-from spotdl.__main__ import console_entry_point, help_notice
-from spotdl.download.downloader import DownloadManager
-from spotdl.search.spotifyClient import SpotifyClient
-from spotdl.download import ffmpeg
-
 from tests.utils import tracking_files
+
+from spotdl.download import ffmpeg
+from spotdl.search import SpotifyClient
+from spotdl.__main__ import console_entry_point
+from spotdl.parsers.argument_parser import help_notice
+from spotdl.download.downloader import DownloadManager
+
 
 ORIGINAL_INITIALIZE = SpotifyClient.init
 
@@ -178,7 +180,7 @@ def test_multiple_elements(capsys, patch_dependencies, monkeypatch):
         "argv",
         [
             "dummy",
-            "https://open.spotify.com/track/08mG3Y1vljYA6bvDt4Wqkj?si=SxezdxmlTx-CaVoucHmrUA",
+            "https://open.spotify.com/track/4EWCNWgDS8707fNSZ1oaA5",
             "https://open.spotify.com/track/2SiXAy7TuUkycRVbbWDEpo",
             "The HU - Sugaan Essenna",
         ],
@@ -189,11 +191,11 @@ def test_multiple_elements(capsys, patch_dependencies, monkeypatch):
     out, err = capsys.readouterr()
     assert "Fetching Song...\n" in out
     assert (
-        "Gathering Spotify Metadata for: https://open.spotify.com/track/08mG3Y1vljYA6bvDt4Wqkj?si=SxezdxmlTx-CaVoucHmrUA\n"
+        "Gathering Spotify Metadata for: https://open.spotify.com/track/4EWCNWgDS8707fNSZ1oaA5\n"
         in out
     )
     assert (
-        'Found YouTube URL for "AC/DC - Back In Black" : https://www.youtube.com/watch?v=9vWNauaZAgg\n'
+        'Found YouTube URL for "Kanye West - Heartless" : https://www.youtube.com/watch?v=s40BTpfAELs\n'
         in out
     )
 
