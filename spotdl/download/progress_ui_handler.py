@@ -169,24 +169,12 @@ class DisplayManager:
         """
         return _ProgressTracker(self, songObj)
 
-    # def clear(self) -> None:
-    #     '''
-    #     clear the rich progress bar
-    #     '''
-    #     pass
-
     def close(self) -> None:
         """
         clean up rich
         """
 
         self._rich_progress_bar.stop()
-
-    # def reset(self) -> None:
-    #     '''
-    #     restart progress for new download instance
-    #     '''
-    #     pass
 
 
 # ========================
