@@ -1,29 +1,19 @@
-# ===============
-# === Imports ===
-# ===============
+from typing import Optional
 
-from rich.console import Console
-from rich.progress import BarColumn, TimeRemainingColumn, Progress, ProgressColumn
-from rich.progress import Task
+from rich.text import Text
 from rich.theme import Theme
+from rich.progress import Task
+from rich.console import Console
 from rich.style import StyleType
+from rich.highlighter import Highlighter
+from rich.progress import BarColumn, TimeRemainingColumn, Progress, ProgressColumn
 from rich.console import (
     JustifyMethod,
     detect_legacy_windows,
     OverflowMethod,
 )
-from rich.highlighter import Highlighter
-from rich.text import Text
 
-# ! These are not used, they're here for static type checking using mypy
-from typing import (
-    Optional,
-)
-
-
-# =============
-# === Theme ===
-# =============
+from spotdl.search import SongObject
 
 custom_theme = Theme(
     {
@@ -42,11 +32,6 @@ custom_theme = Theme(
         "progress.remaining": "rgb(40,100,40)",
     }
 )
-
-
-# ========================================================
-# === Modified rich Text Column to Support Fixed Width ===
-# ========================================================
 
 
 class SizedTextColumn(ProgressColumn):
@@ -84,24 +69,19 @@ class SizedTextColumn(ProgressColumn):
         return text
 
 
-# =======================
-# === Display Manager ===
-# =======================
-
-
 class DisplayManager:
     def __init__(self):
 
         # ! Change color system if "legacy" windows terminal to prevent wrong colors displaying
-        self.isLegacy = detect_legacy_windows()
+        self.is_legacy = detect_legacy_windows()
 
         # ! dumb_terminals automatically handled by rich. Color system is too but it is incorrect
         # ! for legacy windows ... so no color for y'all.
         self.console = Console(
-            theme=custom_theme, color_system="truecolor" if not self.isLegacy else None
+            theme=custom_theme, color_system="truecolor" if not self.is_legacy else None
         )
 
-        self._richProgressBar = Progress(
+        self._rich_progress_bar = Progress(
             SizedTextColumn(
                 "[white]{task.description}",
                 overflow="ellipsis",
@@ -116,18 +96,18 @@ class DisplayManager:
             # ! the last refreshed display remains in the terminal with the cursor on
             # ! the following line. You can also make the progress display disappear on
             # ! exit by setting transient=True on the Progress constructor
-            transient=self.isLegacy,
+            transient=self.is_legacy,
         )
 
-        self.songCount = 0
-        self.overallTaskID = None
-        self.overallProgress = 0
-        self.overallTotal = 100
-        self.overallCompletedTasks = 0
+        self.song_count = 0
+        self.overall_task_id = None
+        self.overall_progress = 0
+        self.overall_total = 100
+        self.overall_completed_tasks = 0
         self.quiet = False
 
         # ! Basically a wrapper for rich's: with ... as ...
-        self._richProgressBar.__enter__()
+        self._rich_progress_bar.__enter__()
 
     def print(self, *text, color="green"):
         """
@@ -143,13 +123,13 @@ class DisplayManager:
             line += str(item) + " "
 
         if color:
-            self._richProgressBar.console.print(f"[{color}]{line}")
+            self._rich_progress_bar.console.print(f"[{color}]{line}")
         else:
-            self._richProgressBar.console.print(line)
+            self._rich_progress_bar.console.print(line)
 
-    def set_song_count_to(self, songCount: int) -> None:
+    def set_song_count_to(self, song_count: int) -> None:
         """
-        `int` `songCount` : number of songs being downloaded
+        `int` `song_count` : number of songs being downloaded
         RETURNS `~`
         sets the size of the progressbar based on the number of songs in the current
         download set
@@ -157,16 +137,16 @@ class DisplayManager:
 
         # ! all calculations are based of the arbitrary choice that 1 song consists of
         # ! 100 steps/points/iterations
-        self.songCount = songCount
+        self.song_count = song_count
 
-        self.overallTotal = 100 * songCount
+        self.overall_total = 100 * song_count
 
-        if self.songCount > 4:
-            self.overallTaskID = self._richProgressBar.add_task(
+        if self.song_count > 4:
+            self.overall_task_id = self._rich_progress_bar.add_task(
                 description="Total",
-                processID="0",
-                message=f"{self.overallCompletedTasks}/{int(self.overallTotal / 100)} complete",
-                total=self.overallTotal,
+                process_id="0",
+                message=f"{self.overall_completed_tasks}/{int(self.overall_total / 100)} complete",
+                total=self.overall_total,
                 visible=(not self.quiet),
             )
 
@@ -176,11 +156,11 @@ class DisplayManager:
         """
 
         # If the overall progress bar exists
-        if self.overallTaskID is not None:
-            self._richProgressBar.update(
-                self.overallTaskID,
-                message=f"{self.overallCompletedTasks}/{int(self.overallTotal / 100)} complete",
-                completed=self.overallProgress,
+        if self.overall_task_id is not None:
+            self._rich_progress_bar.update(
+                self.overall_task_id,
+                message=f"{self.overall_completed_tasks}/{int(self.overall_total / 100)} complete",
+                completed=self.overall_progress,
             )
 
     def new_progress_tracker(self, songObj):
@@ -200,7 +180,7 @@ class DisplayManager:
         clean up rich
         """
 
-        self._richProgressBar.stop()
+        self._rich_progress_bar.stop()
 
     # def reset(self) -> None:
     #     '''
@@ -215,18 +195,18 @@ class DisplayManager:
 
 
 class _ProgressTracker:
-    def __init__(self, parent, songObj):
+    def __init__(self, parent, song_object: SongObject):
         self.parent = parent
-        self.songObj = songObj
+        self.song_object = song_object
 
         self.progress = 0
-        self.oldProgress = 0
-        self.downloadID = 0
+        self.old_progress = 0
+        self.download_id = 0
         self.status = ""
 
-        self.taskID = self.parent._richProgressBar.add_task(
-            description=songObj.get_display_name(),
-            processID=str(self.downloadID),
+        self.task_id = self.parent._rich_progress_bar.add_task(
+            description=song_object.display_name,
+            process_id=str(self.download_id),
             message="Download Started",
             total=100,
             completed=self.progress,
@@ -294,7 +274,7 @@ class _ProgressTracker:
         """
         self.update(message="Error " + self.status)
 
-        message = f"Error: {e}\tWhile {self.status}: {self.songObj.get_display_name()}\n {str(tb)}"
+        message = f"Error: {e}\tWhile {self.status}: {self.song_object.display_name}\n {str(tb)}"
         self.parent.print(message, color="red")
 
     def update(self, message=""):
@@ -305,27 +285,27 @@ class _ProgressTracker:
         self.status = message
 
         # The change in progress since last update
-        delta = self.progress - self.oldProgress
+        delta = self.progress - self.old_progress
 
         # Update the progress bar
         # ! `start_task` called everytime to ensure progress is remove from indeterminate state
-        self.parent._richProgressBar.start_task(self.taskID)
-        self.parent._richProgressBar.update(
-            self.taskID,
-            description=self.songObj.get_display_name(),
-            processID=str(self.downloadID),
+        self.parent._rich_progress_bar.start_task(self.task_id)
+        self.parent._rich_progress_bar.update(
+            self.task_id,
+            description=self.song_object.display_name,
+            process_id=str(self.download_id),
             message=message,
             completed=self.progress,
         )
 
         # If task is complete
         if self.progress == 100 or message == "Error":
-            self.parent.overallCompletedTasks += 1
-            if self.parent.isLegacy:
-                self.parent._richProgressBar.remove_task(self.taskID)
+            self.parent.overall_completed_tasks += 1
+            if self.parent.is_legacy:
+                self.parent._rich_progress_bar.remove_task(self.task_id)
 
         # Update the overall progress bar
-        self.parent.overallProgress += delta
+        self.parent.overall_progress += delta
         self.parent.update_overall()
 
-        self.oldProgress = self.progress
+        self.old_progress = self.progress
