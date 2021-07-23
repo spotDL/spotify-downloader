@@ -34,7 +34,7 @@ class Singleton(type):
         """
 
         # check if initialization has been completed, if yes, raise an Exception
-        if cls._instance and cls._instance.is_initialized:
+        if isinstance(cls._instance, cls):
             raise Exception("A spotify client has already been initialized")
 
         credential_manager = None
@@ -77,7 +77,3 @@ class SpotifyClient(Spotify, metaclass=Singleton):
             self._user_auth = True
         super().__init__(*args, **kwargs)
         self._initialized = True
-
-    @property
-    def is_intialized(self):
-        return self._initialized
