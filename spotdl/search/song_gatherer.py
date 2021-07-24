@@ -75,7 +75,7 @@ def from_spotify_url(
     # Check if we found youtube url
     if youtube_link is None:
         print("Could not match any of the results on YouTube. Skipping")
-        raise LookupError(f"Could not match any of the results on YouTube")
+        raise LookupError("Could not match any of the results on YouTube for")
     else:
         print(" " * (len(display_name) + 25), end="\r")
         print(f'Found YouTube URL for "{display_name}" : {youtube_link}')
