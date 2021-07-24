@@ -215,6 +215,47 @@ def from_playlist(
         and track["track"].get("id") is not None
     ]
 
+    if playlist_response and generate_m3u is True:
+        playlist_data = spotify_client.playlist(playlist_url)
+
+        if playlist_data is not None:
+            playlist_name = playlist_data["name"]
+        else:
+            playlist_name = playlist_tracks[0]["track"]["name"]
+
+        playlist_file = Path(f"{playlist_name}.m3u")
+
+        playlist_text = ""
+        for track in playlist_tracks:
+            file_path = (
+                str(
+                    provider_utils._create_song_title(
+                        track["track"]["name"], [artist["name"] for artist in track["track"]["artists"]]
+                    )
+                )
+                + "."
+                + output_format
+                if output_format is not None
+                else "mp3"
+            )
+            if len(file_path) > 256:
+                file_path = (
+                    str(
+                        provider_utils._create_song_title(
+                            track.song_name, [track.contributing_artists[0]]
+                        )
+                    )
+                    + "."
+                    + output_format
+                    if output_format is not None
+                    else "mp3"
+                )
+
+            playlist_text += f"{file_path}\n"
+
+        with open(playlist_file, "w", encoding="utf-8") as file:
+            file.write(playlist_text)
+
     # Create song object for each track
     for track in playlist_tracks:
         song = from_spotify_url(
@@ -225,50 +266,6 @@ def from_playlist(
 
         if song is not None and song.youtube_link is not None:
             tracks.append(song)
-
-    if playlist_response and generate_m3u is True:
-        playlist_data = spotify_client.playlist(playlist_url)
-
-        if playlist_data is not None:
-            playlist_name = playlist_data["name"]
-        else:
-            playlist_name = tracks[0].song_name
-
-        playlist_file = Path(f"{playlist_name}.m3u")
-
-        if playlist_file.exists() is False:
-            playlist_text = ""
-            for track in tracks:
-                file_path = (
-                    str(
-                        provider_utils._create_song_title(
-                            track.song_name, track.contributing_artists
-                        )
-                    )
-                    + "."
-                    + output_format
-                    if output_format is not None
-                    else "mp3"
-                )
-                if len(file_path) > 256:
-                    file_path = (
-                        str(
-                            provider_utils._create_song_title(
-                                track.song_name, [track.contributing_artists[0]]
-                            )
-                        )
-                        + "."
-                        + output_format
-                        if output_format is not None
-                        else "mp3"
-                    )
-
-                playlist_text += f"{file_path}\n"
-
-            with open(playlist_file, "w", encoding="utf-8") as file:
-                file.write(playlist_text)
-        else:
-            print(f"{playlist_file.name} already exists")
 
     return tracks
 
