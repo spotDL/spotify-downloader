@@ -12,7 +12,7 @@ from spotdl.search import SongObject, SpotifyClient
 
 def from_spotify_url(
     spotify_url: str, output_format: str = None, use_youtube: bool = False
-) -> Optional[SongObject]:
+) -> SongObject:
     """
     Creates song object using spotfy url
 
@@ -33,7 +33,7 @@ def from_spotify_url(
     )
 
     if raw_track_meta is None:
-        return None
+        raise ValueError("Couldn't get metadata from url")
 
     song_name = raw_track_meta["name"]
     album_name = raw_track_meta["album"]["name"]
@@ -58,7 +58,7 @@ def from_spotify_url(
     # if a song is already downloaded skip it
     if converted_file_path.is_file():
         print(f'Skipping "{converted_file_name}" as it\'s already downloaded')
-        return None
+        raise OSError(f"{converted_file_name} already downloaded")
 
     # Get the song's downloadable audio link
     if use_youtube is True:
@@ -75,7 +75,7 @@ def from_spotify_url(
     # Check if we found youtube url
     if youtube_link is None:
         print("Could not match any of the results on YouTube. Skipping")
-        return None
+        raise LookupError(f"Could not match any of the results on YouTube")
     else:
         print(" " * (len(display_name) + 25), end="\r")
         print(f'Found YouTube URL for "{display_name}" : {youtube_link}')
@@ -111,8 +111,11 @@ def from_search_term(
         raise Exception("No song matches found on Spotify")
     else:
         song_url = "http://open.spotify.com/track/" + result["tracks"]["items"][0]["id"]
-        song = from_spotify_url(song_url, output_format, use_youtube)
-        return [song] if song is not None else []
+        try:
+            song = from_spotify_url(song_url, output_format, use_youtube)
+            return [song] if song.youtube_link is not None else []
+        except (LookupError, OSError, ValueError):
+            return []
 
 
 def from_album(
@@ -155,12 +158,17 @@ def from_album(
 
     # Create song objects from track ids
     for track in album_tracks:
-        song = from_spotify_url(
-            "https://open.spotify.com/track/" + track["id"], output_format, use_youtube
-        )
+        try:
+            song = from_spotify_url(
+                "https://open.spotify.com/track/" + track["id"],
+                output_format,
+                use_youtube,
+            )
 
-        if song is not None and song.youtube_link is not None:
-            tracks.append(song)
+            if song.youtube_link is not None:
+                tracks.append(song)
+        except (LookupError, OSError, ValueError):
+            pass
 
     return tracks
 
@@ -215,18 +223,19 @@ def from_playlist(
         and track["track"].get("id") is not None
     ]
 
-    if playlist_response and generate_m3u is True:
-        playlist_data = spotify_client.playlist(playlist_url)
+    playlist_text = ""
 
-        if playlist_data is not None:
-            playlist_name = playlist_data["name"]
-        else:
-            playlist_name = playlist_tracks[0]["track"]["name"]
-
-        playlist_file = Path(f"{playlist_name}.m3u")
-
-        playlist_text = ""
-        for track in playlist_tracks:
+    # Create song object for each track
+    for track in playlist_tracks:
+        try:
+            song = from_spotify_url(
+                "https://open.spotify.com/track/" + track["track"]["id"],
+                output_format,
+                use_youtube,
+            )
+        except (LookupError, ValueError):
+            continue
+        except OSError:
             file_path = (
                 str(
                     provider_utils._create_song_title(
@@ -253,20 +262,49 @@ def from_playlist(
                 )
 
             playlist_text += f"{file_path}\n"
+        else:
+            if song.youtube_link is not None:
+                tracks.append(song)
+
+                file_path = (
+                    str(
+                        provider_utils._create_song_title(
+                            track["track"]["name"],
+                            [artist["name"] for artist in track["track"]["artists"]],
+                        )
+                    )
+                    + "."
+                    + output_format
+                    if output_format is not None
+                    else "mp3"
+                )
+                if len(file_path) > 256:
+                    file_path = (
+                        str(
+                            provider_utils._create_song_title(
+                                track.song_name, [track.contributing_artists[0]]
+                            )
+                        )
+                        + "."
+                        + output_format
+                        if output_format is not None
+                        else "mp3"
+                    )
+
+                playlist_text += f"{file_path}\n"
+
+    if playlist_response and generate_m3u is True:
+        playlist_data = spotify_client.playlist(playlist_url)
+
+        if playlist_data is not None:
+            playlist_name = playlist_data["name"]
+        else:
+            playlist_name = playlist_tracks[0]["track"]["name"]
+
+        playlist_file = Path(f"{playlist_name}.m3u")
 
         with open(playlist_file, "w", encoding="utf-8") as file:
             file.write(playlist_text)
-
-    # Create song object for each track
-    for track in playlist_tracks:
-        song = from_spotify_url(
-            "https://open.spotify.com/track/" + track["track"]["id"],
-            output_format,
-            use_youtube,
-        )
-
-        if song is not None and song.youtube_link is not None:
-            tracks.append(song)
 
     return tracks
 
@@ -366,14 +404,17 @@ def from_artist(
 
     # Create song objects from track ids
     for trackUri in tracks_object.values():
-        song = from_spotify_url(
-            f"https://open.spotify.com/track/{trackUri.split(':')[-1]}",
-            output_format,
-            use_youtube,
-        )
+        try:
+            song = from_spotify_url(
+                f"https://open.spotify.com/track/{trackUri.split(':')[-1]}",
+                output_format,
+                use_youtube,
+            )
 
-        if song is not None and song.youtube_link is not None:
-            artist_tracks.append(song)
+            if song.youtube_link is not None:
+                artist_tracks.append(song)
+        except (LookupError, ValueError, OSError):
+            continue
 
     return artist_tracks
 
@@ -419,14 +460,17 @@ def from_saved_tracks(
 
     # Create song object for each track
     for track in saved_tracks:
-        song = from_spotify_url(
-            "https://open.spotify.com/track/" + track["track"]["id"],
-            output_format,
-            use_youtube,
-        )
+        try:
+            song = from_spotify_url(
+                "https://open.spotify.com/track/" + track["track"]["id"],
+                output_format,
+                use_youtube,
+            )
 
-        if song is not None and song.youtube_link is not None:
-            tracks.append(song)
+            if song.youtube_link is not None:
+                tracks.append(song)
+        except (LookupError, ValueError, OSError):
+            continue
 
     return tracks
 

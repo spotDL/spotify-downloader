@@ -54,7 +54,10 @@ def parse_request(
     elif "open.spotify.com" in request and "track" in request:
         print("Fetching Song...")
         song = song_gatherer.from_spotify_url(request, output_format, use_youtube)
-        song_list = [song] if song is not None else []
+        try:
+            song_list = [song] if song.youtube_link is not None else []
+        except (OSError, ValueError, LookupError):
+            song_list = []
     elif "open.spotify.com" in request and "album" in request:
         print("Fetching Album...")
         song_list = song_gatherer.from_album(request, output_format, use_youtube)
