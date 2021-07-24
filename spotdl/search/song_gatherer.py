@@ -1,5 +1,7 @@
+import concurrent.futures
+
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, List
 
 from spotdl.providers import (
     metadata_provider,
@@ -119,7 +121,10 @@ def from_search_term(
 
 
 def from_album(
-    album_url: str, output_format: str = None, use_youtube: bool = False
+    album_url: str,
+    output_format: str = None,
+    use_youtube: bool = False,
+    threads: int = 1,
 ) -> List[SongObject]:
     """
     Create and return list containing SongObject for every song in the album
@@ -156,19 +161,22 @@ def from_album(
         if track is not None and track.get("id") is not None
     ]
 
-    # Create song objects from track ids
-    for track in album_tracks:
+    def get_tracks(track):
         try:
-            song = from_spotify_url(
+            return from_spotify_url(
                 "https://open.spotify.com/track/" + track["id"],
                 output_format,
                 use_youtube,
             )
-
-            if song.youtube_link is not None:
-                tracks.append(song)
         except (LookupError, OSError, ValueError):
-            pass
+            return None
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=threads) as executor:
+        results = executor.map(get_tracks, album_tracks)
+
+    for song in results:
+        if song is not None and song.youtube_link is not None:
+            tracks.append(song)
 
     return tracks
 
@@ -178,6 +186,7 @@ def from_playlist(
     output_format: str = None,
     use_youtube: bool = False,
     generate_m3u: bool = False,
+    threads: int = 1,
 ) -> List[SongObject]:
     """
     Create and return list containing SongObject for every song in the playlist
@@ -223,10 +232,7 @@ def from_playlist(
         and track["track"].get("id") is not None
     ]
 
-    playlist_text = ""
-
-    # Create song object for each track
-    for track in playlist_tracks:
+    def get_song(track):
         try:
             song = from_spotify_url(
                 "https://open.spotify.com/track/" + track["track"]["id"],
@@ -234,38 +240,9 @@ def from_playlist(
                 use_youtube,
             )
         except (LookupError, ValueError):
-            continue
-        except OSError:
-            file_path = (
-                str(
-                    provider_utils._create_song_title(
-                        track["track"]["name"],
-                        [artist["name"] for artist in track["track"]["artists"]],
-                    )
-                )
-                + "."
-                + output_format
-                if output_format is not None
-                else "mp3"
-            )
-            if len(file_path) > 256:
-                file_path = (
-                    str(
-                        provider_utils._create_song_title(
-                            track.song_name, [track.contributing_artists[0]]
-                        )
-                    )
-                    + "."
-                    + output_format
-                    if output_format is not None
-                    else "mp3"
-                )
-
-            playlist_text += f"{file_path}\n"
+            return None, None
         else:
-            if song.youtube_link is not None:
-                tracks.append(song)
-
+            if generate_m3u:
                 file_path = (
                     str(
                         provider_utils._create_song_title(
@@ -291,7 +268,20 @@ def from_playlist(
                         else "mp3"
                     )
 
-                playlist_text += f"{file_path}\n"
+                return song, f"{file_path}\n"
+
+            return song, None
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=threads) as executor:
+        results = executor.map(get_song, playlist_tracks)
+
+    playlist_text = ""
+    for result in results:
+        if result[1] is not None:
+            playlist_text += result[1]
+
+        if result[0] is not None and result[0].youtube_link is not None:
+            tracks.append(result[0])
 
     if playlist_response and generate_m3u is True:
         playlist_data = spotify_client.playlist(playlist_url)
@@ -310,7 +300,10 @@ def from_playlist(
 
 
 def from_artist(
-    artist_url: str, output_format: str = None, use_youtube: bool = False
+    artist_url: str,
+    output_format: str = None,
+    use_youtube: bool = False,
+    threads: int = 1,
 ) -> List[SongObject]:
     """
     `str` `artist_url` : Spotify Url of the artist whose tracks are to be
@@ -403,24 +396,28 @@ def from_artist(
                     tracks_object[trackName] = track["uri"]
 
     # Create song objects from track ids
-    for trackUri in tracks_object.values():
+    def get_song(track_uri):
         try:
-            song = from_spotify_url(
-                f"https://open.spotify.com/track/{trackUri.split(':')[-1]}",
+            return from_spotify_url(
+                f"https://open.spotify.com/track/{track_uri.split(':')[-1]}",
                 output_format,
                 use_youtube,
             )
-
-            if song.youtube_link is not None:
-                artist_tracks.append(song)
         except (LookupError, ValueError, OSError):
-            continue
+            return None
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=threads) as executor:
+        results = executor.map(get_song, tracks_object.values())
+
+    for result in results:
+        if result is not None and result.youtube_link is not None:
+            artist_tracks.append(result)
 
     return artist_tracks
 
 
 def from_saved_tracks(
-    output_format: str = None, use_youtube: bool = False
+    output_format: str = None, use_youtube: bool = False, threads: int = 1
 ) -> List[SongObject]:
     """
     Create and return list containing SongObject for every song that user has saved
@@ -458,19 +455,22 @@ def from_saved_tracks(
         and track.get("track", {}).get("id") is not None
     ]
 
-    # Create song object for each track
-    for track in saved_tracks:
+    def get_song(track):
         try:
-            song = from_spotify_url(
+            return from_spotify_url(
                 "https://open.spotify.com/track/" + track["track"]["id"],
                 output_format,
                 use_youtube,
             )
-
-            if song.youtube_link is not None:
-                tracks.append(song)
         except (LookupError, ValueError, OSError):
-            continue
+            return None
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=threads) as executor:
+        results = executor.map(get_song, saved_tracks)
+
+    for result in results:
+        if result is not None and result.youtube_link is not None:
+            tracks.append(result)
 
     return tracks
 

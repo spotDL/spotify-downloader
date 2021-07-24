@@ -13,13 +13,17 @@ from spotdl.download import ffmpeg, set_id3_data, DisplayManager, DownloadTracke
 
 
 class DownloadManager:
-    # ! Big pool sizes on slow connections will lead to more incomplete downloads
-    pool_size = 4
-
     def __init__(self, arguments: Optional[dict] = None):
         # start a server for objects shared across processes
         self.display_manager = DisplayManager()
         self.download_tracker = DownloadTracker()
+
+        if arguments is None:
+            arguments = {}
+
+        arguments.setdefault("ffmpeg", "ffmpeg")
+        arguments.setdefault("output_format", "mp3")
+        arguments.setdefault("download_threads", 4)
 
         if sys.platform == "win32":
             # ! ProactorEventLoop is required on Windows to run subprocess asynchronously
@@ -29,18 +33,12 @@ class DownloadManager:
 
         self.loop = asyncio.get_event_loop()
         # ! semaphore is required to limit concurrent asyncio executions
-        self.semaphore = asyncio.Semaphore(self.pool_size)
+        self.semaphore = asyncio.Semaphore(arguments["download_threads"])
 
         # ! thread pool executor is used to run blocking (CPU-bound) code from a thread
         self.thread_executor = concurrent.futures.ThreadPoolExecutor(
-            max_workers=self.pool_size
+            max_workers=arguments["download_threads"]
         )
-
-        if arguments is None:
-            arguments = {}
-
-        arguments.setdefault("ffmpeg", "ffmpeg")
-        arguments.setdefault("output_format", "mp3")
 
         self.arguments = arguments
 
@@ -169,7 +167,6 @@ class DownloadManager:
                     url=song_object.youtube_link,
                     on_progress_callback=display_progress_tracker.pytube_progress_hook,
                 )
-
             else:
                 youtube_handler = YouTube(song_object.youtube_link)
 

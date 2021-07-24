@@ -105,6 +105,24 @@ def parse_arguments():
         "--ignore-ffmpeg-version", help="Ignore ffmpeg version", action="store_true"
     )
 
+    # Option to specify number of threads to use when downloading songs
+    parser.add_argument(
+        "-dt",
+        "--download-threads",
+        help="Number of threads used when downloading songs",
+        type=int,
+        default=4,
+    )
+
+    # Option to specify number of threads to use when searching for songs
+    parser.add_argument(
+        "-st",
+        "--search-threads",
+        help="Number of threads used when searching for songs",
+        type=int,
+        default=1,
+    )
+
     # Option to generate .m3u
     parser.add_argument(
         "--generate-m3u-file",

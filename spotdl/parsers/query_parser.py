@@ -6,7 +6,7 @@ from spotdl.providers import provider_utils, metadata_provider
 
 
 def parse_query(
-    query: List[str], format, use_youtube, generate_m3u
+    query: List[str], format, use_youtube, generate_m3u, threads
 ) -> List[SongObject]:
     """
     Parse query and return list containing song object
@@ -19,7 +19,9 @@ def parse_query(
         if request.endswith(".spotdlTrackingFile"):
             continue
 
-        songs_list.extend(parse_request(request, format, use_youtube, generate_m3u))
+        songs_list.extend(
+            parse_request(request, format, use_youtube, generate_m3u, threads)
+        )
 
         # linefeed to visually separate output for each query
         print()
@@ -32,6 +34,7 @@ def parse_request(
     output_format: str = None,
     use_youtube: bool = False,
     generate_m3u: bool = False,
+    threads: int = 1,
 ) -> List[SongObject]:
     song_list: List[SongObject] = []
     if (
@@ -60,18 +63,22 @@ def parse_request(
             song_list = []
     elif "open.spotify.com" in request and "album" in request:
         print("Fetching Album...")
-        song_list = song_gatherer.from_album(request, output_format, use_youtube)
+        song_list = song_gatherer.from_album(
+            request, output_format, use_youtube, threads
+        )
     elif "open.spotify.com" in request and "playlist" in request:
         print("Fetching Playlist...")
         song_list = song_gatherer.from_playlist(
-            request, output_format, use_youtube, generate_m3u
+            request, output_format, use_youtube, generate_m3u, threads
         )
     elif "open.spotify.com" in request and "artist" in request:
         print("Fetching artist...")
-        song_list = song_gatherer.from_artist(request, output_format, use_youtube)
+        song_list = song_gatherer.from_artist(
+            request, output_format, use_youtube, threads
+        )
     elif request == "saved":
         print("Fetching Saved Songs...")
-        song_list = song_gatherer.from_saved_tracks(output_format, use_youtube)
+        song_list = song_gatherer.from_saved_tracks(output_format, use_youtube, threads)
     else:
         print('Searching Spotify for song named "%s"...' % request)
         try:
