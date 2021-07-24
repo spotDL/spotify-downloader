@@ -213,7 +213,9 @@ class DownloadManager:
                 converted_file_path.unlink()
             else:
                 # if a file was successfully downloaded, tag it
-                set_id3_data(converted_file_path, song_object, self.arguments["output_format"])
+                set_id3_data(
+                    converted_file_path, song_object, self.arguments["output_format"]
+                )
 
             # Do the necessary cleanup
             if display_progress_tracker:

@@ -230,7 +230,8 @@ def from_playlist(
             file_path = (
                 str(
                     provider_utils._create_song_title(
-                        track["track"]["name"], [artist["name"] for artist in track["track"]["artists"]]
+                        track["track"]["name"],
+                        [artist["name"] for artist in track["track"]["artists"]],
                     )
                 )
                 + "."

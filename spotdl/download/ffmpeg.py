@@ -69,7 +69,7 @@ async def convert(
         "ogg": ["-codec:a", "libvorbis"],
         "opus": ["-codec:a", "libopus"],
         "m4a": ["-codec:a", "aac", "-vn"],
-        "wav": []
+        "wav": [],
     }
 
     if output_format is None:
