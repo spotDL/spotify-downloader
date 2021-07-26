@@ -5,10 +5,11 @@ import traceback
 import concurrent.futures
 
 from pathlib import Path
-from pytube import YouTube
+from youtube_dl import YoutubeDL
 from typing import List, Optional
 
 from spotdl.search import SongObject
+from spotdl.download.progress_ui_handler import YTDLLogger
 from spotdl.download import ffmpeg, set_id3_data, DisplayManager, DownloadTracker
 
 
@@ -161,31 +162,40 @@ class DownloadManager:
                 # ! it here as a continent way to avoid executing the rest of the function.
                 return None
 
-            # download Audio from YouTube
-            if display_progress_tracker:
-                youtube_handler = YouTube(
-                    url=song_object.youtube_link,
-                    on_progress_callback=display_progress_tracker.pytube_progress_hook,
-                )
+            if self.arguments["output_format"] == "m4a":
+                ytdl_format = "bestaudio[ext=m4a]"
             else:
-                youtube_handler = YouTube(song_object.youtube_link)
+                ytdl_format = "bestaudio"
 
-            track_audio_stream = (
-                youtube_handler.streams.filter(only_audio=True)
-                .order_by("bitrate")
-                .last()
+            # download Audio from YouTube
+            audio_handler = YoutubeDL(
+                {
+                    "format": ytdl_format,
+                    "outtmpl": f"{str(temp_folder)}/%(id)s.%(ext)s",
+                    "quiet": True,
+                    "no_warnings": True,
+                    "ignoreerrors": True,
+                    "logger": YTDLLogger(),
+                    "progress_hooks": [display_progress_tracker.ytdl_progress_hook]
+                    if display_progress_tracker
+                    else [],
+                }
             )
-            if not track_audio_stream:
+
+            try:
+                downloaded_file_path_string = await self._perform_audio_download_async(
+                    converted_file_path.name.split(".")[0],
+                    temp_folder,
+                    audio_handler,
+                    song_object.youtube_link,
+                )
+            except Exception:
                 print(
                     f'Unable to get audio stream for "{song_object.song_name}" '
                     f'by "{song_object.contributing_artists[0]}" '
                     f'from video "{song_object.youtube_link}"'
                 )
                 return None
-
-            downloaded_file_path_string = await self._perform_audio_download_async(
-                converted_file_path.name.split(".")[0], temp_folder, track_audio_stream
-            )
 
             if downloaded_file_path_string is None:
                 return None
@@ -195,12 +205,16 @@ class DownloadManager:
 
             downloaded_file_path = Path(downloaded_file_path_string)
 
-            ffmpeg_success = await ffmpeg.convert(
-                downloaded_file_path=downloaded_file_path,
-                converted_file_path=converted_file_path,
-                output_format=self.arguments["output_format"],
-                ffmpeg_path=self.arguments["ffmpeg"],
-            )
+            if self.arguments["output_format"] != "m4a":
+                ffmpeg_success = await ffmpeg.convert(
+                    downloaded_file_path=downloaded_file_path,
+                    converted_file_path=converted_file_path,
+                    output_format=self.arguments["output_format"],
+                    ffmpeg_path=self.arguments["ffmpeg"],
+                )
+            else:
+                downloaded_file_path.rename(converted_file_path)
+                ffmpeg_success = True
 
             if display_progress_tracker:
                 display_progress_tracker.notify_conversion_completion()
@@ -233,7 +247,7 @@ class DownloadManager:
                 raise e
 
     async def _perform_audio_download_async(
-        self, converted_file_name, temp_folder, track_audio_stream
+        self, converted_file_name, temp_folder, track_audio_stream, youtube_link
     ):
         # ! The following function calls blocking code, which would block whole event loop.
         # ! Therefore it has to be called in a separate thread via ThreadPoolExecutor. This
@@ -245,30 +259,27 @@ class DownloadManager:
             converted_file_name,
             temp_folder,
             track_audio_stream,
+            youtube_link,
         )
 
     def _perform_audio_download(
-        self, converted_file_name, temp_folder, track_audio_stream
+        self, converted_file_name, temp_folder, audio_handler, youtube_link
     ):
         # ! The actual download, if there is any error, it'll be here,
         try:
-            # ! pyTube will save the song in .\Temp\$songName.mp4 or .webm,
-            # ! it doesn't save as '.mp3'
-            downloaded_file_path = track_audio_stream.download(
-                output_path=temp_folder,
-                filename=converted_file_name,
-                skip_existing=False,
-            )
+            data = audio_handler.extract_info(youtube_link)
+            downloaded_file_path = Path(temp_folder / f"{data['id']}.{data['ext']}")
+
             return downloaded_file_path
-        except:  # noqa:E722
+        except Exception as e:  # noqa:E722
             # ! This is equivalent to a failed download, we do nothing, the song remains on
             # ! download_trackers download queue and all is well...
-            # !
-            # ! None is again used as a convenient exit
+
             temp_files = Path(temp_folder).glob(f"{converted_file_name}.*")
             for temp_file in temp_files:
                 temp_file.unlink()
-            return None
+
+            raise e
 
 
 # ========================

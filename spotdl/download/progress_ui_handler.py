@@ -34,6 +34,17 @@ custom_theme = Theme(
 )
 
 
+class YTDLLogger(object):
+    def debug(self, msg):
+        pass
+
+    def warning(self, msg):
+        pass
+
+    def error(self, msg):
+        pass
+
+
 class SizedTextColumn(ProgressColumn):
     """A column containing text."""
 
@@ -210,24 +221,22 @@ class _ProgressTracker:
         self.progress = 100
         self.update("Skipping")
 
-    def pytube_progress_hook(self, stream, chunk, bytes_remaining) -> None:
+    def ytdl_progress_hook(self, data) -> None:
         """
-        Progress hook built according to pytube's documentation. It is called each time
+        Progress hook for youtube-dl. It is called each time
         bytes are read from youtube.
         """
 
         # ! This will be called until download is complete, i.e we get an overall
 
-        fileSize = stream.filesize
+        if data["status"] == "downloading":
+            file_bytes = data["total_bytes"]
+            downloaded_bytes = data["downloaded_bytes"]
 
-        # ! How much of the file was downloaded this iteration scaled put of 90.
-        # ! It's scaled to 90 because, the arbitrary division of each songs 100
-        # ! iterations is (a) 90 for download (b) 5 for conversion & normalization
-        # ! and (c) 5 for ID3 tag embedding
-        iterFraction = len(chunk) / fileSize * 90
+            if file_bytes and downloaded_bytes:
+                self.progress = downloaded_bytes / file_bytes * 90
 
-        self.progress = self.progress + iterFraction
-        self.update("Downloading")
+            self.update("Downloading")
 
     def notify_youtube_download_completion(self) -> None:
         """
