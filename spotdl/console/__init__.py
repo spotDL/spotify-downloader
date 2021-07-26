@@ -82,7 +82,7 @@ def console_entry_point():
             arguments.query,
             arguments.output_format,
             arguments.use_youtube,
-            arguments.generate_m3u_file,
+            arguments.generate_m3u,
             arguments.search_threads,
         )
 

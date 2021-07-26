@@ -33,6 +33,22 @@ To use ffmpeg binary that is not on PATH run:
     spotdl [songUrl] --ffmpeg path/to/your/ffmpeg.exe
     ex. spotdl [songUrl] --ffmpeg C:\ffmpeg\bin\ffmpeg.exe
 
+To generate .m3u file for each playlist run:
+    spotdl [playlistUrl] --m3u
+    ex. spotdl https://open.spotify.com/playlist/37i9dQZF1E8UXBoz02kGID --m3u
+
+To use youtube instead of youtube music run:
+    spotdl [songUrl] --use-youtube
+    ex. spotdl https://open.spotify.com/track/4fzsfWzRhPawzqhX8Qt9F3 --use-youtube
+
+To change number of threads used when downloading songs run:
+    spotdl [songUrl] --dt [number]
+    ex. spotdl https://open.spotify.com/track/4fzsfWzRhPawzqhX8Qt9F3 --dt 8
+
+To change number of threads used when searching for songs run:
+    spotdl [songUrl] --st [number]
+    ex. spotdl https://open.spotify.com/track/4fzsfWzRhPawzqhX8Qt9F3 --st 8
+
 To ignore your ffmpeg version run:
     spotdl --ignore-ffmpeg-version
 
@@ -81,7 +97,7 @@ def parse_arguments():
     # Option to specify output format
     parser.add_argument(
         "--output-format",
-        "-of",
+        "--of",
         help="Output format",
         choices={"mp3", "m4a", "flac", "ogg", "opus", "wav"},
         default="mp3",
@@ -107,8 +123,8 @@ def parse_arguments():
 
     # Option to specify number of threads to use when downloading songs
     parser.add_argument(
-        "-dt",
         "--download-threads",
+        "--dt",
         help="Number of threads used when downloading songs",
         type=int,
         default=4,
@@ -116,8 +132,8 @@ def parse_arguments():
 
     # Option to specify number of threads to use when searching for songs
     parser.add_argument(
-        "-st",
         "--search-threads",
+        "--st",
         help="Number of threads used when searching for songs",
         type=int,
         default=1,
@@ -125,7 +141,8 @@ def parse_arguments():
 
     # Option to generate .m3u
     parser.add_argument(
-        "--generate-m3u-file",
+        "--generate-m3u",
+        "--m3u",
         help="Generate .m3u file for each playlist",
         action="store_true",
     )
