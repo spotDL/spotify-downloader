@@ -181,7 +181,7 @@ curl -L https://raw.githubusercontent.com/spotDL/spotify-downloader/master/termu
 - #### To download songs with different output format run
 
   ```bash
-  spotdl [songUrl] --output-format mp3/m4a/flac/opus/ogg
+  spotdl [songUrl] --output-format mp3/m4a/flac/opus/ogg/wav
   ```
 
   example:

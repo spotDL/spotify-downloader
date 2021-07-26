@@ -26,7 +26,7 @@ To download youtube video with metadata from spotify run:
     Note: urls that you pass have to be quoted properly ex. "YouTubeURL|SpotifyUrl"
 
 To change output format run:
-    spotdl [songUrl] --output-format mp3/m4a/flac/opus/ogg
+    spotdl [songUrl] --output-format mp3/m4a/flac/opus/ogg/wav
     ex. spotdl [songUrl] --output-format opus
 
 To use ffmpeg binary that is not on PATH run:
