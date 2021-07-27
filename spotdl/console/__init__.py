@@ -51,10 +51,10 @@ def console_entry_point():
 
     # Change directory if user specified correct output path
     if arguments.output:
-        if not os.path.isdir(arguments.path):
+        if not os.path.isdir(arguments.output):
             sys.exit("The output directory doesn't exist.")
         print(f"Will download to: {os.path.abspath(arguments.output)}")
-        os.chdir(arguments.path)
+        os.chdir(arguments.output)
 
     # Start download manager
     with DownloadManager(args_dict) as downloader:
