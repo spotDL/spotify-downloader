@@ -181,7 +181,7 @@ curl -L https://raw.githubusercontent.com/spotDL/spotify-downloader/master/termu
 - #### To download songs with different output format run
 
   ```bash
-  spotdl [songUrl] --output-format mp3/m4a/flac/opus/ogg
+  spotdl [songUrl] --output-format mp3/m4a/flac/opus/ogg/wav
   ```
 
   example:
@@ -200,6 +200,54 @@ curl -L https://raw.githubusercontent.com/spotDL/spotify-downloader/master/termu
 
   ```bash
   spotdl [songUrl] --ffmpeg C:\ffmpeg\bin\ffmpeg.exe
+  ```
+
+- #### To generate .m3u file for each playlist run
+
+  ```bash
+  spotdl [playlistUrl] --m3u
+  ```
+
+  example:
+
+  ```bash
+    spotdl https://open.spotify.com/playlist/37i9dQZF1E8UXBoz02kGID --m3u
+  ```
+
+- #### To use youtube instead of youtube music run
+
+  ```bash
+  spotdl [songUrl] --use-youtube
+  ```
+
+  example:
+
+  ```bash
+    spotdl https://open.spotify.com/track/4fzsfWzRhPawzqhX8Qt9F3 --use-youtube
+  ```
+
+- #### To change number of threads used when downloading songs run
+
+  ```bash
+  spotdl [songUrl] --dt [number]
+  ```
+
+  example:
+
+  ```bash
+  spotdl https://open.spotify.com/track/4fzsfWzRhPawzqhX8Qt9F3 --dt 8
+  ```
+
+- #### To change number of threads used when searching for songs run
+
+  ```bash
+  spotdl [songUrl] --st [number]
+  ```
+
+  example:
+
+  ```bash
+  spotdl https://open.spotify.com/track/4fzsfWzRhPawzqhX8Qt9F3 --st 8
   ```
 
 - #### To ignore your ffmpeg version run

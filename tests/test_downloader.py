@@ -5,22 +5,21 @@ from types import SimpleNamespace
 import pytest
 
 from spotdl.download.downloader import DownloadManager
-from spotdl.search.songObj import SongObj
+from spotdl.search import SongObject
 from spotdl.download import ffmpeg, downloader
 
 
-def create_song_obj(name: str = None, artists_input: list = None) -> SongObj:
-    song_name = None
+def create_song_obj(name: str = None, artists_input: list = None) -> SongObject:
     if name == None:
         song_name = "test song"
     else:
         song_name = name
 
-    artist_map = None
     if artists_input == None:
         artist_objs = list(map(lambda x: {"name": x}, ["test artist"]))
     else:
         artist_objs = list(map(lambda x: {"name": x}, artists_input))
+
     raw_track_meta = {
         "name": song_name,
         "album": {
@@ -35,9 +34,11 @@ def create_song_obj(name: str = None, artists_input: list = None) -> SongObj:
         "track_number": "1",
         "genres": ["test genre"],
     }
+
     raw_album_meta = {"genres": ["test genre"]}
     raw_artist_meta = {"genres": ["test artist genre"]}
-    return SongObj(
+
+    return SongObject(
         raw_track_meta,
         raw_album_meta,
         raw_artist_meta,
@@ -122,7 +123,6 @@ def test_download_long_name_song(setup):
     with pytest.raises(OSError):
         with DownloadManager() as dm:
             dm.download_single_song(song_obj)
-
 
 def test_download_multiple_songs(pytestconfig, setup):
     if not "--disable-vcr" in pytestconfig.invocation_params.args:
