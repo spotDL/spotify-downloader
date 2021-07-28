@@ -164,6 +164,8 @@ class DownloadManager:
 
             if self.arguments["output_format"] == "m4a":
                 ytdl_format = "bestaudio[ext=m4a]"
+            elif self.arguments["output_format"] == "opus":
+                ytdl_format = "bestaudio[ext=webm]"
             else:
                 ytdl_format = "bestaudio"
 
