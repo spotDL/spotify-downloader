@@ -7,13 +7,13 @@ interactions:
       Accept-Encoding:
       - gzip, deflate
       Authorization:
-      - Bearer BQDpFg45nzCOErhlbm4zFhzT9E60dAFUZ_zFvCL0lPTpUPkLddbFu7jsoehV0WDSuSedQ8rAmOCV-ddea04
+      - Bearer BQBbSe1hJOnpkb4G2InTMhA2mE7A3uZ05jxOiHTHKUNJlqUPy0mFp-z7-01Xe0NC_Ldg7uZrycpwAafON5c
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       User-Agent:
-      - python-requests/2.25.1
+      - python-requests/2.26.0
     method: GET
     uri: https://api.spotify.com/v1/search?q=The+HU+-+Sugaan+Essenna&limit=10&offset=0&type=track
   response:
@@ -48,7 +48,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Sat, 19 Jun 2021 11:12:50 GMT
+      - Mon, 26 Jul 2021 23:10:26 GMT
       server:
       - envoy
       strict-transport-security:

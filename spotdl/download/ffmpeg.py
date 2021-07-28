@@ -67,8 +67,9 @@ async def convert(
         "mp3": ["-codec:a", "libmp3lame"],
         "flac": ["-codec:a", "flac"],
         "ogg": ["-codec:a", "libvorbis"],
-        "opus": ["-codec:a", "libopus"],
+        "opus": ["-vn", "-c:a", "copy"],
         "m4a": ["-codec:a", "aac", "-vn"],
+        "wav": [],
     }
 
     if output_format is None:
@@ -79,7 +80,7 @@ async def convert(
     if ffmpeg_path is None:
         ffmpeg_path = "ffmpeg"
 
-    arguments = [
+    arguments = [  # type: ignore
         "-i",
         downloaded_file_path,
         *output_format_command,
@@ -101,7 +102,7 @@ async def convert(
 
     proc_out = await process.communicate()
 
-    if proc_out[0] is not None and proc_out[1]:
+    if proc_out[0] and proc_out[1]:
         out = str(b"".join(proc_out))
     else:
         out = ""

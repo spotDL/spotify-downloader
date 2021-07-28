@@ -1,7 +1,7 @@
 back_in_black = [
     {
-        "youtubeLink": "https://www.youtube.com/watch?v=9vWNauaZAgg",
-        "rawTrackMeta": {
+        "youtube_link": "https://www.youtube.com/watch?v=9vWNauaZAgg",
+        "raw_track_meta": {
             "album": {
                 "album_type": "album",
                 "artists": [
@@ -262,7 +262,7 @@ back_in_black = [
             "type": "track",
             "uri": "spotify:track:08mG3Y1vljYA6bvDt4Wqkj",
         },
-        "rawAlbumMeta": {
+        "raw_album_meta": {
             "external_urls": {
                 "spotify": "https://open.spotify.com/artist/711MCceyCBcFnzjGY4Q7Un"
             },
@@ -292,7 +292,7 @@ back_in_black = [
             "type": "artist",
             "uri": "spotify:artist:711MCceyCBcFnzjGY4Q7Un",
         },
-        "rawArtistMeta": {
+        "raw_artist_meta": {
             "external_urls": {
                 "spotify": "https://open.spotify.com/artist/711MCceyCBcFnzjGY4Q7Un"
             },
