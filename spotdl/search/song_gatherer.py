@@ -241,7 +241,7 @@ def from_playlist(
             )
         except (LookupError, ValueError):
             return None, None
-        else:
+        except OSError:
             if generate_m3u:
                 file_path = (
                     str(
@@ -268,8 +268,10 @@ def from_playlist(
                         else "mp3"
                     )
 
-                return song, f"{file_path}\n"
+                return None, f"{file_path}\n"
 
+            return None, None
+        else:
             return song, None
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=threads) as executor:
