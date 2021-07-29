@@ -302,14 +302,13 @@ def from_playlist(
 
             return None, None
 
-
     with concurrent.futures.ThreadPoolExecutor(max_workers=threads) as executor:
         results = executor.map(get_song, playlist_tracks)
 
     playlist_text = ""
     for result in results:
         if result[1] is not None:
-            playlist_text +=  "".join(char for char in result[1] if char not in "/?\\*|<>")
+            playlist_text += "".join(char for char in result[1] if char not in "/?\\*|<>")
 
         if result[0] is not None and result[0].youtube_link is not None:
             tracks.append(result[0])
