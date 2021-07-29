@@ -239,6 +239,36 @@ def from_playlist(
                 output_format,
                 use_youtube,
             )
+
+            if generate_m3u:
+                file_path = (
+                    str(
+                        provider_utils._create_song_title(
+                            track["track"]["name"],
+                            [artist["name"] for artist in track["track"]["artists"]],
+                        )
+                    )
+                    + "."
+                    + output_format
+                    if output_format is not None
+                    else "mp3"
+                )
+                if len(file_path) > 256:
+                    file_path = (
+                        str(
+                            provider_utils._create_song_title(
+                                track.song_name, [track.contributing_artists[0]]
+                            )
+                        )
+                        + "."
+                        + output_format
+                        if output_format is not None
+                        else "mp3"
+                    )
+
+                return song, f"{file_path}\n"
+
+            return song, None
         except (LookupError, ValueError):
             return None, None
         except OSError:
@@ -271,8 +301,7 @@ def from_playlist(
                 return None, f"{file_path}\n"
 
             return None, None
-        else:
-            return song, None
+
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=threads) as executor:
         results = executor.map(get_song, playlist_tracks)
@@ -280,7 +309,7 @@ def from_playlist(
     playlist_text = ""
     for result in results:
         if result[1] is not None:
-            playlist_text += result[1]
+            playlist_text +=  "".join(char for char in result[1] if char not in "/?\\*|<>")
 
         if result[0] is not None and result[0].youtube_link is not None:
             tracks.append(result[0])
