@@ -10,6 +10,7 @@ from spotdl.providers import (
     provider_utils,
 )
 from spotdl.search import SongObject, SpotifyClient
+from spotdl.providers.provider_utils import _get_converted_file_path
 
 
 def from_spotify_url(
@@ -241,30 +242,7 @@ def from_playlist(
             )
 
             if generate_m3u:
-                file_path = (
-                    str(
-                        provider_utils._create_song_title(
-                            track["track"]["name"],
-                            [artist["name"] for artist in track["track"]["artists"]],
-                        )
-                    )
-                    + "."
-                    + output_format
-                    if output_format is not None
-                    else "mp3"
-                )
-                if len(file_path) > 256:
-                    file_path = (
-                        str(
-                            provider_utils._create_song_title(
-                                track.song_name, [track.contributing_artists[0]]
-                            )
-                        )
-                        + "."
-                        + output_format
-                        if output_format is not None
-                        else "mp3"
-                    )
+                file_path = _get_converted_file_path(song, output_format)
 
                 return song, f"{file_path}\n"
 
@@ -285,6 +263,7 @@ def from_playlist(
                     if output_format is not None
                     else "mp3"
                 )
+
                 if len(file_path) > 256:
                     file_path = (
                         str(
