@@ -45,7 +45,7 @@ def search_and_get_best_match(
             if isrc_result is not None and isrc_result.watch_url is not None:
                 return isrc_result.watch_url
 
-    song_title = _create_song_title(song_name, song_artists)
+    song_title = _create_song_title(song_name, song_artists).lower()
 
     # Query YTM by songs only first, this way if we get correct result on the first try
     # we don't have to make another request to ytmusic api that could result in us
@@ -126,7 +126,7 @@ def _order_yt_results(
             continue
 
         artist_match = (artist_match_number / len(song_artists)) * 100
-        song_title = _create_song_title(song_name, song_artists)
+        song_title = _create_song_title(song_name, song_artists).lower()
         name_match = round(
             _match_percentage(
                 unidecode(result.title.lower()), unidecode(song_title), 60
