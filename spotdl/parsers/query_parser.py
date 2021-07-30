@@ -26,7 +26,15 @@ def parse_query(
         # linefeed to visually separate output for each query
         print()
 
-    return songs_list
+    # remove duplicates
+    seen_songs = set()
+    songs = []
+    for song in songs_list:
+        if song.file_name not in seen_songs:
+            songs.append(song)
+            seen_songs.add(song.file_name)
+
+    return songs
 
 
 def parse_request(
@@ -64,7 +72,7 @@ def parse_request(
     elif "open.spotify.com" in request and "album" in request:
         print("Fetching Album...")
         song_list = song_gatherer.from_album(
-            request, output_format, use_youtube, threads
+            request, output_format, use_youtube, generate_m3u, threads
         )
     elif "open.spotify.com" in request and "playlist" in request:
         print("Fetching Playlist...")

@@ -10,6 +10,7 @@ from spotdl.providers import (
     provider_utils,
 )
 from spotdl.search import SongObject, SpotifyClient
+from spotdl.providers.provider_utils import _get_converted_file_path
 
 
 def from_spotify_url(
@@ -124,6 +125,7 @@ def from_album(
     album_url: str,
     output_format: str = None,
     use_youtube: bool = False,
+    generate_m3u: bool = False,
     threads: int = 1,
 ) -> List[SongObject]:
     """
@@ -163,20 +165,77 @@ def from_album(
 
     def get_tracks(track):
         try:
-            return from_spotify_url(
+            song = from_spotify_url(
                 "https://open.spotify.com/track/" + track["id"],
                 output_format,
                 use_youtube,
             )
-        except (LookupError, OSError, ValueError):
-            return None
+
+            if generate_m3u:
+                file_path = _get_converted_file_path(song, output_format)
+
+                return song, f"{file_path}\n"
+
+            return song, None
+        except (LookupError, ValueError):
+            return None, None
+        except OSError:
+            if generate_m3u:
+                file_path = (
+                    str(
+                        provider_utils._create_song_title(
+                            track["name"],
+                            [artist["name"] for artist in track["artists"]],
+                        )
+                    )
+                    + "."
+                    + output_format
+                    if output_format is not None
+                    else "mp3"
+                )
+
+                if len(file_path) > 256:
+                    file_path = (
+                        str(
+                            provider_utils._create_song_title(
+                                track["name"], [track["artists"][0]["name"]]
+                            )
+                        )
+                        + "."
+                        + output_format
+                        if output_format is not None
+                        else "mp3"
+                    )
+
+                return None, f"{file_path}\n"
+
+            return None, None
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=threads) as executor:
         results = executor.map(get_tracks, album_tracks)
 
-    for song in results:
-        if song is not None and song.youtube_link is not None:
-            tracks.append(song)
+    album_text = ""
+    for result in results:
+        if result[1] is not None:
+            album_text += "".join(char for char in result[1] if char not in "/?\\*|<>")
+
+        if result[0] is not None and result[0].youtube_link is not None:
+            tracks.append(result[0])
+
+    if album_response and generate_m3u is True:
+        album_data = spotify_client.album(album_url)
+
+        if album_data is not None:
+            album_name = album_data["name"]
+        else:
+            album_name = album_tracks[0]["name"]
+
+        album_name = "".join(char for char in album_name if char not in "/?\\*|<>")
+
+        album_file = Path(f"{album_name}.m3u")
+
+        with open(album_file, "w", encoding="utf-8") as file:
+            file.write(album_text)
 
     return tracks
 
@@ -239,6 +298,13 @@ def from_playlist(
                 output_format,
                 use_youtube,
             )
+
+            if generate_m3u:
+                file_path = _get_converted_file_path(song, output_format)
+
+                return song, f"{file_path}\n"
+
+            return song, None
         except (LookupError, ValueError):
             return None, None
         except OSError:
@@ -255,11 +321,13 @@ def from_playlist(
                     if output_format is not None
                     else "mp3"
                 )
+
                 if len(file_path) > 256:
                     file_path = (
                         str(
                             provider_utils._create_song_title(
-                                track.song_name, [track.contributing_artists[0]]
+                                track["track"]["name"],
+                                [track["track"]["artists"][0]["name"]],
                             )
                         )
                         + "."
@@ -271,8 +339,6 @@ def from_playlist(
                 return None, f"{file_path}\n"
 
             return None, None
-        else:
-            return song, None
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=threads) as executor:
         results = executor.map(get_song, playlist_tracks)
@@ -280,7 +346,9 @@ def from_playlist(
     playlist_text = ""
     for result in results:
         if result[1] is not None:
-            playlist_text += result[1]
+            playlist_text += "".join(
+                char for char in result[1] if char not in "/?\\*|<>"
+            )
 
         if result[0] is not None and result[0].youtube_link is not None:
             tracks.append(result[0])
@@ -292,6 +360,10 @@ def from_playlist(
             playlist_name = playlist_data["name"]
         else:
             playlist_name = playlist_tracks[0]["track"]["name"]
+
+        playlist_name = "".join(
+            char for char in playlist_name if char not in "/?\\*|<>"
+        )
 
         playlist_file = Path(f"{playlist_name}.m3u")
 
