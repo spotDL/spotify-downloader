@@ -61,7 +61,7 @@ def search_and_get_best_match(
             ):
                 return isrc_result["link"]
 
-    song_title = _create_song_title(song_name, song_artists)
+    song_title = _create_song_title(song_name, song_artists).lower()
 
     # Query YTM by songs only first, this way if we get correct result on the first try
     # we don't have to make another request to ytmusic api that could result in us
@@ -85,7 +85,7 @@ def search_and_get_best_match(
     # We didn't find the correct song on the first try so now we get video type results
     # add them to song_results, and get the result with highest score
     video_results = _query_and_simplify(
-        _create_song_title(song_name, song_artists), filter="videos"
+        _create_song_title(song_name, song_artists).lower(), filter="videos"
     )
 
     # Order video results
@@ -194,7 +194,7 @@ def _order_ytm_results(
 
         artist_match = (artist_match_number / len(song_artists)) * 100
 
-        song_title = _create_song_title(song_name, song_artists)
+        song_title = _create_song_title(song_name, song_artists).lower()
 
         # Find name match and drop results below 60%
         # this needs more testing
