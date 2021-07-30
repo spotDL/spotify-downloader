@@ -42,7 +42,7 @@ class YTDLLogger(object):
         pass
 
     def error(self, msg):
-        pass
+        raise Exception(msg)
 
 
 class SizedTextColumn(ProgressColumn):

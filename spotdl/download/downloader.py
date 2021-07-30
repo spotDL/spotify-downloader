@@ -176,7 +176,6 @@ class DownloadManager:
                     "outtmpl": f"{str(temp_folder)}/%(id)s.%(ext)s",
                     "quiet": True,
                     "no_warnings": True,
-                    "ignoreerrors": True,
                     "logger": YTDLLogger(),
                     "progress_hooks": [display_progress_tracker.ytdl_progress_hook]
                     if display_progress_tracker
@@ -276,7 +275,6 @@ class DownloadManager:
         except Exception as e:  # noqa:E722
             # ! This is equivalent to a failed download, we do nothing, the song remains on
             # ! download_trackers download queue and all is well...
-
             temp_files = Path(temp_folder).glob(f"{converted_file_name}.*")
             for temp_file in temp_files:
                 temp_file.unlink()
