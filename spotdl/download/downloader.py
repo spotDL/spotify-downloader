@@ -11,7 +11,7 @@ from typing import List, Optional
 from spotdl.search import SongObject
 from spotdl.download.progress_ui_handler import YTDLLogger
 from spotdl.download import ffmpeg, set_id3_data, DisplayManager, DownloadTracker
-
+from spotdl.providers.provider_utils import _get_converted_file_path
 
 class DownloadManager:
     def __init__(self, arguments: Optional[dict] = None):
@@ -147,9 +147,7 @@ class DownloadManager:
             if not temp_folder.exists():
                 temp_folder.mkdir()
 
-            converted_file_path = _get_converted_file_path(
-                song_object, self.arguments["output_format"]
-            )
+            converted_file_path = _get_converted_file_path(song_object, self.arguments["output_format"])
 
             # if a song is already downloaded skip it
             if converted_file_path.is_file():
@@ -282,75 +280,3 @@ class DownloadManager:
                 temp_file.unlink()
 
             raise e
-
-
-# ========================
-# === Helper function ===
-# ========================
-
-
-def _sanitize_filename(input_str: str) -> str:
-    output = input_str
-
-    # ! this is windows specific (disallowed chars)
-    output = "".join(char for char in output if char not in "/?\\*|<>")
-
-    # ! double quotes (") and semi-colons (:) are also disallowed characters but we would
-    # ! like to retain their equivalents, so they aren't removed in the prior loop
-    output = output.replace('"', "'").replace(":", "-")
-
-    return output
-
-
-def _get_smaller_file_path(input_song: SongObject, output_format: str) -> Path:
-    # Only use the first artist if the song path turns out to be too long
-    smaller_name = f"{input_song.contributing_artists[0]} - {input_song.song_name}"
-
-    smaller_name = _sanitize_filename(smaller_name)
-
-    try:
-        return Path(f"{smaller_name}.{output_format}").resolve()
-    except (OSError, WindowsError):
-        # Expected to happen in the rare case when the saved path is too long,
-        # even with the short filename
-        raise OSError("Cannot save song due to path issues.")
-
-
-def _get_converted_file_path(song_obj: SongObject, output_format: str = None) -> Path:
-
-    # ! we eliminate contributing artist names that are also in the song name, else we
-    # ! would end up with things like 'Jetta, Mastubs - I'd love to change the world
-    # ! (Mastubs REMIX).mp3' which is kinda an odd file name.
-
-    # also make sure that main artist is included in artistStr even if they
-    # are in the song name, for example
-    # Lil Baby - Never Recover (Lil Baby & Gunna, Drake).mp3
-
-    artists_filtered = []
-
-    if output_format is None:
-        output_format = "mp3"
-
-    for artist in song_obj.contributing_artists:
-        if artist.lower() not in song_obj.song_name:
-            artists_filtered.append(artist)
-        elif artist.lower() is song_obj.contributing_artists[0].lower():
-            artists_filtered.append(artist)
-
-    artist_str = ", ".join(artists_filtered)
-
-    converted_file_name = _sanitize_filename(
-        f"{artist_str} - {song_obj.song_name}.{output_format}"
-    )
-
-    converted_file_path = Path(converted_file_name)
-
-    # ! Checks if a file name is too long (256 max on both linux and windows)
-    try:
-        if len(str(converted_file_path.resolve().name)) > 256:
-            print("Path was too long. Using Small Path.")
-            return _get_smaller_file_path(song_obj, output_format)
-    except (OSError, WindowsError):
-        return _get_smaller_file_path(song_obj, output_format)
-
-    return converted_file_path
