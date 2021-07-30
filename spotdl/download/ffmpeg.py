@@ -102,7 +102,7 @@ async def convert(
 
     proc_out = await process.communicate()
 
-    if proc_out[0] and proc_out[1]:
+    if proc_out[0] or proc_out[1]:
         out = str(b"".join(proc_out))
     else:
         out = ""
