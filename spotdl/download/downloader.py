@@ -13,6 +13,7 @@ from spotdl.download.progress_ui_handler import YTDLLogger
 from spotdl.download import ffmpeg, set_id3_data, DisplayManager, DownloadTracker
 from spotdl.providers.provider_utils import _get_converted_file_path
 
+
 class DownloadManager:
     def __init__(self, arguments: Optional[dict] = None):
         # start a server for objects shared across processes
@@ -147,7 +148,9 @@ class DownloadManager:
             if not temp_folder.exists():
                 temp_folder.mkdir()
 
-            converted_file_path = _get_converted_file_path(song_object, self.arguments["output_format"])
+            converted_file_path = _get_converted_file_path(
+                song_object, self.arguments["output_format"]
+            )
 
             # if a song is already downloaded skip it
             if converted_file_path.is_file():

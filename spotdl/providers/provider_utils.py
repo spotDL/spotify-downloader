@@ -104,6 +104,7 @@ def _get_song_lyrics(song_name: str, song_artists: List[str]) -> str:
     except:  # noqa: E722
         return ""
 
+
 def _sanitize_filename(input_str: str) -> str:
     output = input_str
 
