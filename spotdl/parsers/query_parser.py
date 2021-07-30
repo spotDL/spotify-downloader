@@ -26,7 +26,15 @@ def parse_query(
         # linefeed to visually separate output for each query
         print()
 
-    return songs_list
+    # remove duplicates
+    seen_songs = set()
+    songs = []
+    for song in songs_list:
+        if song.file_name not in seen_songs:
+            songs.append(song)
+            seen_songs.add(song.file_name)
+
+    return songs
 
 
 def parse_request(
