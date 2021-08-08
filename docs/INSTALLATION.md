@@ -21,7 +21,7 @@ When installing Python, ensure to select "**Add to PATH**".
 
 - [Windows Tutorial](https://windowsloop.com/install-ffmpeg-windows-10/)
 - OSX - `brew install ffmpeg`
-- Linux - `sudo snap install ffmpeg`
+- Linux - `sudo apt install ffmpeg` or use your distros package manager
 
 ### Verifying Versions
 
