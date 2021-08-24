@@ -126,7 +126,7 @@ def _get_smaller_file_path(input_song, output_format: str) -> Path:
 
     try:
         return Path(f"{smaller_name}.{output_format}").resolve()
-    except (OSError, WindowsError):
+    except OSError:
         # Expected to happen in the rare case when the saved path is too long,
         # even with the short filename
         raise OSError("Cannot save song due to path issues.")
@@ -166,7 +166,7 @@ def _get_converted_file_path(song_obj, output_format: str = None) -> Path:
         if len(str(converted_file_path.resolve().name)) > 256:
             print("Path was too long. Using Small Path.")
             return _get_smaller_file_path(song_obj, output_format)
-    except (OSError, WindowsError):
+    except OSError:
         return _get_smaller_file_path(song_obj, output_format)
 
     return converted_file_path
