@@ -5,7 +5,7 @@ import traceback
 import concurrent.futures
 
 from pathlib import Path
-from youtube_dl import YoutubeDL
+from yt_dlp import YoutubeDL
 from typing import List, Optional
 
 from spotdl.search import SongObject
