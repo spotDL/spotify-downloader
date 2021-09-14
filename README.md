@@ -73,6 +73,10 @@ If you have trouble installing spotdl take a look at the extended installation g
 curl -L https://raw.githubusercontent.com/spotDL/spotify-downloader/master/termux/setup_spotdl.sh | sh
 ```
 
+#### Arch
+
+There is an Arch User Repository (AUR) package for [spotdl](https://aur.archlinux.org/packages/python-spotdl/).
+
 ## Usage
 
 - #### To download a song, run
