@@ -75,7 +75,7 @@ curl -L https://raw.githubusercontent.com/spotDL/spotify-downloader/master/termu
 
 #### Arch
 
-There is an Arch User Repository (AUR) package for [spotdl](https://aur.archlinux.org/packages/python-spotdl/).
+There is an Arch User Repository (AUR) package for [spotDL](https://aur.archlinux.org/packages/python-spotdl/).
 
 ## Usage
 
