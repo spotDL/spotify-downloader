@@ -47,7 +47,7 @@ spotDL is being redesigned! This means we are currently not accepting new featur
 
 - [Windows Tutorial](https://windowsloop.com/install-ffmpeg-windows-10/)
 - OSX - `brew install ffmpeg`
-- Linux - `sudo snap install ffmpeg`
+- Linux - `sudo apt install ffmpeg`
 
 ### Installing spotDL
 
