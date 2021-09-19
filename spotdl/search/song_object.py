@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 
 class SongObject:
@@ -141,12 +141,17 @@ class SongObject:
     # ! Utilities for genuine use and also for metadata freaks:
 
     @property
-    def album_cover_url(self) -> str:
+    def album_cover_url(self) -> Optional[str]:
         """
         returns url of the biggest album art image available.
         """
 
-        return self._raw_track_meta["album"]["images"][0]["url"]
+        images = self._raw_track_meta["album"]["images"]
+
+        if len(images) > 0:
+            return images[0]["url"]
+
+        return None
 
     @property
     def data_dump(self) -> dict:
