@@ -19,16 +19,18 @@ Download your Spotify playlists and songs along with album art and metadata
 
 > The fastest, easiest, and most accurate command-line music downloader
 
+[![asciicast](https://asciinema.org/a/wDNFL5XGhdadUK2EnOkv46YMG.svg)](https://asciinema.org/a/wDNFL5XGhdadUK2EnOkv46YMG)
+
 ## What spotDL does
 
 1. Downloads music from YouTube as an MP3 file
 2. Applies basic metadata gathered from Spotify such as:
-   - Track Name
-   - Track Number
-   - Album
-   - Album Cover
-   - Genre
-   - and more!
+    - Track Name
+    - Track Number
+    - Album
+    - Album Cover
+    - Genre
+    - and more!
 
 ### Redesigned
 
@@ -36,8 +38,8 @@ spotDL is being redesigned! This means we are currently not accepting new featur
 
 ## Prerequisites
 
-- Python 3.6.1 or above (added to PATH)
-- FFmpeg 4.2 or above (added to PATH)
+-   Python 3.6.1 or above (added to PATH)
+-   FFmpeg 4.2 or above (added to PATH)
 
 > **_YouTube Music must be available in your country for spotDL to work. This is because we use YouTube Music to filter search results. You can check if YouTube Music is available in your country, by visiting [YouTube Music](https://music.youtube.com)._**
 
@@ -45,23 +47,23 @@ spotDL is being redesigned! This means we are currently not accepting new featur
 
 ### Installing FFmpeg
 
-- [Windows Tutorial](https://windowsloop.com/install-ffmpeg-windows-10/)
-- OSX - `brew install ffmpeg`
-- Linux - `sudo snap install ffmpeg`
+-   [Windows Tutorial](https://windowsloop.com/install-ffmpeg-windows-10/)
+-   OSX - `brew install ffmpeg`
+-   Linux - `sudo apt install ffmpeg`
 
 ### Installing spotDL
 
-- Recommended Stable Version:
+-   Recommended Stable Version:
 
-  ```bash
-  pip install spotdl
-  ```
+    ```bash
+    pip install spotdl
+    ```
 
-- Dev Version: **(NOT STABLE)**
+-   Dev Version: **(NOT STABLE)**
 
-  ```bash
-  pip install https://codeload.github.com/spotDL/spotify-downloader/zip/dev
-  ```
+    ```bash
+    pip install https://codeload.github.com/spotDL/spotify-downloader/zip/dev
+    ```
 
 If you have trouble installing spotdl take a look at the extended installation guide
 [here](/docs/INSTALLATION.md) or ask for help in our
@@ -73,99 +75,104 @@ If you have trouble installing spotdl take a look at the extended installation g
 curl -L https://raw.githubusercontent.com/spotDL/spotify-downloader/master/termux/setup_spotdl.sh | sh
 ```
 
+#### Arch
+
+There is an Arch User Repository (AUR) package for [spotDL](https://aur.archlinux.org/packages/python-spotdl/).
+
 ## Usage
 
-- #### To download a song, run
+-   #### To download a song, run
 
-  ```bash
-  spotdl [trackUrl]
-  ```
+    ```bash
+    spotdl [trackUrl]
+    ```
 
-  example:
+    example:
 
-  ```bash
-  spotdl https://open.spotify.com/track/0VjIjW4GlUZAMYd2vXMi3b
-  ```
+    ```bash
+    spotdl https://open.spotify.com/track/0VjIjW4GlUZAMYd2vXMi3b
+    ```
 
-- #### To download an album, run
+-   #### To download an album, run
 
-  ```bash
-  spotdl [albumUrl]
-  ```
+    ```bash
+    spotdl [albumUrl]
+    ```
 
-  example:
+    example:
 
-  ```bash
-  spotdl https://open.spotify.com/album/4yP0hdKOZPNshxUOjY0cZj
-  ```
+    ```bash
+    spotdl https://open.spotify.com/album/4yP0hdKOZPNshxUOjY0cZj
+    ```
 
-- #### To download a playlist, run
+-   #### To download a playlist, run
 
-  ```bash
-  spotdl [playlistUrl]
-  ```
+    ```bash
+    spotdl [playlistUrl]
+    ```
 
-  example:
+    example:
 
-  ```bash
-  spotdl https://open.spotify.com/playlist/37i9dQZF1E8UXBoz02kGID
-  ```
+    ```bash
+    spotdl https://open.spotify.com/playlist/37i9dQZF1E8UXBoz02kGID
+    ```
 
-- #### To download all songs from an artist run
+-   #### To download all songs from an artist run
 
-  ```bash
-  spotdl [artistUrl]
-  ```
+    ```bash
+    spotdl [artistUrl]
+    ```
 
-  example:
+    example:
 
-  ```bash
-  spotdl https://open.spotify.com/artist/1fZAAHNWdSM5gqbi9o5iEA
-  ```
+    ```bash
+    spotdl https://open.spotify.com/artist/1fZAAHNWdSM5gqbi9o5iEA
+    ```
 
-- #### To search for and download a song, run, **with quotation marks**
+-   #### To search for and download a song, run, **with quotation marks**
 
-  ```bash
-  spotdl '[songQuery]'
-  ```
+    ```bash
+    spotdl '[songQuery]'
+    ```
 
-  example:
+    example:
 
-  ```bash
-  spotdl 'The Weeknd - Blinding Lights'
-  ```
+    ```bash
+    spotdl 'The Weeknd - Blinding Lights'
+    ```
 
-  > _Note: This is not accurate and often causes errors._
+    > _Note: This is not accurate and often causes errors._
 
-- #### To resume a failed/incomplete download, run
+-   #### To resume a failed/incomplete download, run
 
-  ```bash
-  spotdl [pathToTrackingFile]
-  ```
+    ```bash
+    spotdl [pathToTrackingFile]
+    ```
 
-  example:
+    example:
 
-  ```bash
-  spotdl 'The Weeknd - Blinding Lights.spotdlTrackingFile'
-  ```
+    ```bash
+    spotdl 'The Weeknd - Blinding Lights.spotdlTrackingFile'
+    ```
 
-  > _Note: `.spotdlTrackingFile`s are automatically created when a download starts and deleted on completion_
+    > _Note: `.spotdlTrackingFile`s are automatically created when a download starts and deleted on completion_
 
-- #### You can queue up multiple download tasks by separating the arguments with spaces
+-   #### You can queue up multiple download tasks by separating the arguments with spaces
 
-  ```bash
-  spotdl [songQuery1] [albumUrl] [songQuery2] ... (order does not matter)
-  ```
+    ```bash
+    spotdl [songQuery1] [albumUrl] [songQuery2] ... (order does not matter)
+    ```
 
-  example:
+    example:
 
-  ```bash
-  spotdl 'The Weeknd - Blinding Lights' https://open.spotify.com/playlist/37i9dQZF1E8UXBoz02kGID ...
-  ```
+    ```bash
+    spotdl 'The Weeknd - Blinding Lights' https://open.spotify.com/playlist/37i9dQZF1E8UXBoz02kGID ...
+    ```
 
-  > _Note: spotDL downloads up to 4 songs in parallel, so for a faster experience, download albums and playlist, rather than tracks._
+    > _Note: spotDL downloads up to 4 songs in parallel, so for a faster experience, download albums and playlist, rather than tracks._
 
-- #### To download youtube video with metadata from spotify run:
+-   #### To download youtube video with metadata from spotify run:
+
     ```bash
     spotdl "YouTubeURL|SpotifyURL"
     ```
@@ -176,85 +183,85 @@ curl -L https://raw.githubusercontent.com/spotDL/spotify-downloader/master/termu
     spotdl "https://www.youtube.com/watch?v=EO7XnC1YpVo|https://open.spotify.com/track/4fzsfWzRhPawzqhX8Qt9F3"
     ```
 
-    > _Note: Urls have to be separated with `|` and quoted properly ex. "YouTubeURL|SpotifyUrl"
+    > Note: Urls have to be separated with `|` and quoted properly ex. "YouTubeURL|SpotifyUrl"
 
-- #### To download songs with different output format run
+-   #### To download songs with different output format run
 
-  ```bash
-  spotdl [songUrl] --output-format mp3/m4a/flac/opus/ogg/wav
-  ```
+    ```bash
+    spotdl [songUrl] --output-format mp3/m4a/flac/opus/ogg/wav
+    ```
 
-  example:
+    example:
 
-  ```bash
-  spotdl [songUrl] --output-format opus
-  ```
+    ```bash
+    spotdl [songUrl] --output-format opus
+    ```
 
-- #### To use ffmpeg binary that is not on PATH run
+-   #### To use ffmpeg binary that is not on PATH run
 
-  ```bash
-  spotdl [songUrl] --ffmpeg path/to/your/ffmpeg.exe
-  ```
+    ```bash
+    spotdl [songUrl] --ffmpeg path/to/your/ffmpeg.exe
+    ```
 
-  example:
+    example:
 
-  ```bash
-  spotdl [songUrl] --ffmpeg C:\ffmpeg\bin\ffmpeg.exe
-  ```
+    ```bash
+    spotdl [songUrl] --ffmpeg C:\ffmpeg\bin\ffmpeg.exe
+    ```
 
-- #### To generate .m3u file for each playlist run
+-   #### To generate .m3u file for each playlist run
 
-  ```bash
-  spotdl [playlistUrl] --m3u
-  ```
+    ```bash
+    spotdl [playlistUrl] --m3u
+    ```
 
-  example:
+    example:
 
-  ```bash
-    spotdl https://open.spotify.com/playlist/37i9dQZF1E8UXBoz02kGID --m3u
-  ```
+    ```bash
+      spotdl https://open.spotify.com/playlist/37i9dQZF1E8UXBoz02kGID --m3u
+    ```
 
-- #### To use youtube instead of youtube music run
+-   #### To use youtube instead of youtube music run
 
-  ```bash
-  spotdl [songUrl] --use-youtube
-  ```
+    ```bash
+    spotdl [songUrl] --use-youtube
+    ```
 
-  example:
+    example:
 
-  ```bash
-    spotdl https://open.spotify.com/track/4fzsfWzRhPawzqhX8Qt9F3 --use-youtube
-  ```
+    ```bash
+      spotdl https://open.spotify.com/track/4fzsfWzRhPawzqhX8Qt9F3 --use-youtube
+    ```
 
-- #### To change number of threads used when downloading songs run
+-   #### To change number of threads used when downloading songs run
 
-  ```bash
-  spotdl [songUrl] --dt [number]
-  ```
+    ```bash
+    spotdl [songUrl] --dt [number]
+    ```
 
-  example:
+    example:
 
-  ```bash
-  spotdl https://open.spotify.com/track/4fzsfWzRhPawzqhX8Qt9F3 --dt 8
-  ```
+    ```bash
+    spotdl https://open.spotify.com/track/4fzsfWzRhPawzqhX8Qt9F3 --dt 8
+    ```
 
-- #### To change number of threads used when searching for songs run
+-   #### To change number of threads used when searching for songs run
 
-  ```bash
-  spotdl [songUrl] --st [number]
-  ```
+    ```bash
+    spotdl [songUrl] --st [number]
+    ```
 
-  example:
+    example:
 
-  ```bash
-  spotdl https://open.spotify.com/track/4fzsfWzRhPawzqhX8Qt9F3 --st 8
-  ```
+    ```bash
+    spotdl https://open.spotify.com/track/4fzsfWzRhPawzqhX8Qt9F3 --st 8
+    ```
 
-- #### To ignore your ffmpeg version run
+-   #### To ignore your ffmpeg version run
 
-  ```bash
-  spotdl [songUrl] --ignore-ffmpeg-version
-  ```
+    ```bash
+    spotdl [songUrl] --ignore-ffmpeg-version
+    ```
 
 ## `pipx` Isolated Environment Alternative
 
