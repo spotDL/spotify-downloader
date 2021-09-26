@@ -143,10 +143,11 @@ def _embed_mp3_metadata(audio_file, song_object: SongObject):
 def _embed_mp3_cover(audio_file, song_object, converted_file_path):
     # ! setting the album art
     audio_file = ID3(converted_file_path)
-    rawAlbumArt = urlopen(song_object.album_cover_url).read()
-    audio_file["APIC"] = AlbumCover(
-        encoding=3, mime="image/jpeg", type=3, desc="Cover", data=rawAlbumArt
-    )
+    if song_object.album_cover_url:
+        rawAlbumArt = urlopen(song_object.album_cover_url).read()
+        audio_file["APIC"] = AlbumCover(
+            encoding=3, mime="image/jpeg", type=3, desc="Cover", data=rawAlbumArt
+        )
 
     return audio_file
 
@@ -178,15 +179,16 @@ def _embed_m4a_metadata(audio_file, song_object: SongObject):
 
     # Explicit values: Dirty: 4, Clean: 2, None: 0
     audio_file[M4A_TAG_PRESET["explicit"]] = (0,)
-    try:
-        audio_file[M4A_TAG_PRESET["albumart"]] = [
-            MP4Cover(
-                urlopen(song_object.album_cover_url).read(),
-                imageformat=MP4Cover.FORMAT_JPEG,
-            )
-        ]
-    except IndexError:
-        pass
+    if song_object.album_cover_url:
+        try:
+            audio_file[M4A_TAG_PRESET["albumart"]] = [
+                MP4Cover(
+                    urlopen(song_object.album_cover_url).read(),
+                    imageformat=MP4Cover.FORMAT_JPEG,
+                )
+            ]
+        except IndexError:
+            pass
 
     return audio_file
 
@@ -261,6 +263,9 @@ def _embed_ogg_metadata(audio_file, song_object: SongObject):
 
 
 def _embed_cover(audio_file, song_object, encoding):
+    if song_object.album_cover_url is None:
+        return audio_file
+
     image = Picture()
     image.type = 3
     image.desc = "Cover"
