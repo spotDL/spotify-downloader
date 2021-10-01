@@ -144,7 +144,8 @@ def _order_ytm_results(
 
         common_word = any(
             # ! check for common word
-            word != "" and word in lower_result_name for word in sentence_words
+            word != "" and word in lower_result_name
+            for word in sentence_words
         )
 
         # ! if there are no common words, skip result
@@ -238,8 +239,9 @@ def _order_ytm_results(
             if album is None:
                 average_match = (artist_match + name_match + time_match) / 3
             elif (
-                    _match_percentage(album.lower(), result["name"].lower()) > 95
-                    and album.lower() != song_album_name.lower()):
+                _match_percentage(album.lower(), result["name"].lower()) > 95
+                and album.lower() != song_album_name.lower()
+            ):
                 average_match = (artist_match + name_match + time_match) / 3
             else:
                 average_match = (

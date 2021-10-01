@@ -268,7 +268,9 @@ class _ProgressTracker:
         """
         self.update(message="Error " + self.status)
 
-        message = f'Error: {e}\tWhile {self.status}: {self.song_object.display_name}\n {tb}'
+        message = (
+            f"Error: {e}\tWhile {self.status}: {self.song_object.display_name}\n {tb}"
+        )
 
         self.parent.print(message, color="red")
 

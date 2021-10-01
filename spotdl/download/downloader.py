@@ -174,7 +174,7 @@ class DownloadManager:
             audio_handler = YoutubeDL(
                 {
                     "format": ytdl_format,
-                    "outtmpl": f'{temp_folder}/%(id)s.%(ext)s',
+                    "outtmpl": f"{temp_folder}/%(id)s.%(ext)s",
                     "quiet": True,
                     "no_warnings": True,
                     "logger": YTDLLogger(),
@@ -272,7 +272,7 @@ class DownloadManager:
             data = audio_handler.extract_info(youtube_link)
             return Path(temp_folder / f"{data['id']}.{data['ext']}")
         except Exception as e:
-            temp_files = Path(temp_folder).glob(f'{converted_file_name}.*')
+            temp_files = Path(temp_folder).glob(f"{converted_file_name}.*")
             for temp_file in temp_files:
                 temp_file.unlink()
             raise e
