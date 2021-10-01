@@ -129,10 +129,7 @@ class DisplayManager:
         if self.quiet:
             return
 
-        line = ""
-        for item in text:
-            line += str(item) + " "
-
+        line = "".join(str(item) + " " for item in text)
         if color:
             self._rich_progress_bar.console.print(f"[{color}]{line}")
         else:
@@ -271,7 +268,8 @@ class _ProgressTracker:
         """
         self.update(message="Error " + self.status)
 
-        message = f"Error: {e}\tWhile {self.status}: {self.song_object.display_name}\n {str(tb)}"
+        message = f'Error: {e}\tWhile {self.status}: {self.song_object.display_name}\n {tb}'
+
         self.parent.print(message, color="red")
 
     def update(self, message=""):

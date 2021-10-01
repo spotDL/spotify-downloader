@@ -35,9 +35,7 @@ M4A_TAG_PRESET = {
     "explicit": "rtng",
 }
 
-TAG_PRESET = {}
-for key in M4A_TAG_PRESET.keys():
-    TAG_PRESET[key] = key
+TAG_PRESET = {key: key for key in M4A_TAG_PRESET}
 
 
 def _set_id3_mp3(converted_file_path: str, song_object: SongObject):
@@ -269,7 +267,7 @@ def _embed_cover(audio_file, song_object, encoding):
 
     if encoding == "flac":
         audio_file.add_picture(image)
-    elif encoding == "ogg" or encoding == "opus":
+    elif encoding in ["ogg", "opus"]:
         # From the Mutagen docs (https://mutagen.readthedocs.io/en/latest/user/vcomment.html)
         image_data = image.write()
         encoded_data = base64.b64encode(image_data)
