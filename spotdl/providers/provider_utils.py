@@ -23,20 +23,18 @@ def _match_percentage(str1: str, str2: str, score_cutoff: float = 0) -> float:
     try:
         return fuzz.partial_ratio(str1, str2, score_cutoff=score_cutoff)
 
-    # ! we build new strings that contain only alphanumerical characters and spaces
-    # ! and return the partial_ratio of that
     except:  # noqa:E722
-        new_str1 = ""
+        new_str1 = "".join(
+            each_letter
+            for each_letter in str1
+            if each_letter.isalnum() or each_letter.isspace()
+        )
 
-        for each_letter in str1:
-            if each_letter.isalnum() or each_letter.isspace():
-                new_str1 += each_letter
-
-        new_str2 = ""
-
-        for each_letter in str2:
-            if each_letter.isalnum() or each_letter.isspace():
-                new_str2 += each_letter
+        new_str2 = "".join(
+            each_letter
+            for each_letter in str2
+            if each_letter.isalnum() or each_letter.isspace()
+        )
 
         return fuzz.partial_ratio(new_str1, new_str2, score_cutoff=score_cutoff)
 
@@ -48,13 +46,9 @@ def _parse_duration(duration: str) -> float:
     try:
         # {(1, "s"), (60, "m"), (3600, "h")}
         mapped_increments = zip([1, 60, 3600], reversed(duration.split(":")))
-        seconds = 0
-        for multiplier, time in mapped_increments:
-            seconds += multiplier * int(time)
-
+        seconds = sum(multiplier * int(time) for multiplier, time in mapped_increments)
         return float(seconds)
 
-    # ! This usually occurs when the wrong string is mistaken for the duration
     except (ValueError, TypeError, AttributeError):
         return 0.0
 

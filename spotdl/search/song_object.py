@@ -16,10 +16,7 @@ class SongObject:
     # Equals method
     # for example song_obj1 == song_obj2
     def __eq__(self, compared_song) -> bool:
-        if compared_song.data_dump == self.data_dump:
-            return True
-        else:
-            return False
+        return compared_song.data_dump == self.data_dump
 
     # ================================
     # === Interface Implementation ===
@@ -74,18 +71,7 @@ class SongObject:
         The first member of the list is likely the main artist.
         """
 
-        # we get rid of artist name that are in the song title so
-        # naming the song would be as easy as
-        # $contributingArtists + songName.mp3, we would want to end up with
-        # 'Jetta, Mastubs - I'd love to change the world (Mastubs remix).mp3'
-        # as a song name, it's dumb.
-
-        contributingArtists = []
-
-        for artist in self._raw_track_meta["artists"]:
-            contributingArtists.append(artist["name"])
-
-        return contributingArtists
+        return [artist["name"] for artist in self._raw_track_meta["artists"]]
 
     @property
     def disc_number(self) -> int:
@@ -123,12 +109,7 @@ class SongObject:
         artist.
         """
 
-        albumArtists = []
-
-        for artist in self._raw_track_meta["album"]["artists"]:
-            albumArtists.append(artist["name"])
-
-        return albumArtists
+        return [artist["name"] for artist in self._raw_track_meta["album"]["artists"]]
 
     @property
     def album_release(self) -> str:

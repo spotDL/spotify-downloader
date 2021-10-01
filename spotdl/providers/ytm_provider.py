@@ -56,7 +56,7 @@ def search_and_get_best_match(
             if (
                 isrc_result is not None
                 and "link" in isrc_result
-                and name_match is True
+                and name_match
                 and time_match > 90
             ):
                 return isrc_result["link"]
@@ -97,7 +97,7 @@ def search_and_get_best_match(
     results = {**songs, **videos}
 
     # No matches found
-    if len(results) == 0:
+    if not results:
         return None
 
     result_items = list(results.items())
@@ -142,12 +142,10 @@ def _order_ytm_results(
 
         sentence_words = lower_song_name.replace("-", " ").split(" ")
 
-        common_word = False
-
-        # ! check for common word
-        for word in sentence_words:
-            if word != "" and word in lower_result_name:
-                common_word = True
+        common_word = any(
+            # ! check for common word
+            word != "" and word in lower_result_name for word in sentence_words
+        )
 
         # ! if there are no common words, skip result
         if not common_word:
@@ -237,24 +235,16 @@ def _order_ytm_results(
         time_match = 100 - non_match_value
 
         if result["type"] == "song":
-            if album is not None:
-                # Don't add album_match to average_match if song_name == result and
-                # result album name != song_album_name
-                if (
-                    _match_percentage(album.lower(), result["name"].lower()) > 95
-                    and album.lower() != song_album_name.lower()
-                ):
-                    average_match = (artist_match + name_match + time_match) / 3
-                # Add album to average_match if song_name == result album
-                # and result album name == song_album_name
-                else:
-                    average_match = (
-                        artist_match + album_match + name_match + time_match
-                    ) / 4
-            else:
+            if album is None:
                 average_match = (artist_match + name_match + time_match) / 3
-        # Don't add album_match to average_match if we don't have information about the album
-        # name in the metadata
+            elif (
+                    _match_percentage(album.lower(), result["name"].lower()) > 95
+                    and album.lower() != song_album_name.lower()):
+                average_match = (artist_match + name_match + time_match) / 3
+            else:
+                average_match = (
+                    artist_match + album_match + name_match + time_match
+                ) / 4
         else:
             average_match = (artist_match + name_match + time_match) / 3
 
