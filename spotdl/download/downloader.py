@@ -270,6 +270,8 @@ class DownloadManager:
         # ! The actual download, if there is any error, it'll be here,
         try:
             data = audio_handler.extract_info(youtube_link)
+            # ! This is equivalent to a failed download, we do nothing, the song remains on
+            # ! download_trackers download queue and all is well...
             return Path(temp_folder / f"{data['id']}.{data['ext']}")
         except Exception as e:
             temp_files = Path(temp_folder).glob(f"{converted_file_name}.*")

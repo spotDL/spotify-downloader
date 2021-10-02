@@ -71,6 +71,11 @@ class SongObject:
         The first member of the list is likely the main artist.
         """
 
+        # we get rid of artist name that are in the song title so
+        # naming the song would be as easy as
+        # $contributingArtists + songName.mp3, we would want to end up with
+        # 'Jetta, Mastubs - I'd love to change the world (Mastubs remix).mp3'
+        # as a song name, it's dumb.
         return [artist["name"] for artist in self._raw_track_meta["artists"]]
 
     @property

@@ -20,11 +20,13 @@ def has_correct_version(
 
     output = "".join(process.communicate())
 
+    # remove all non numeric characters from string example: n4.3
     if skip_version_check:
         return True
 
     result = re.search(r"ffmpeg version \w?(\d+\.)?(\d+)", output)
 
+    # fallback to copyright date check
     if result is not None:
         version = result.group(0).replace("ffmpeg version ", "")
 
