@@ -124,6 +124,7 @@ def test_download_long_name_song(setup):
         with DownloadManager() as dm:
             dm.download_single_song(song_obj)
 
+
 def test_download_multiple_songs(pytestconfig, setup):
     if not "--disable-vcr" in pytestconfig.invocation_params.args:
         # this test is very similar to the other one, and the http request

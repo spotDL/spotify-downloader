@@ -64,7 +64,7 @@ def from_spotify_url(
         raise OSError(f"{converted_file_name} already downloaded")
 
     # Get the song's downloadable audio link
-    if use_youtube is True:
+    if use_youtube:
         print(f'Searching YouTube for "{display_name}"', end="\r")
         youtube_link = yt_provider.search_and_get_best_match(
             song_name, contributing_artists, duration, isrc
@@ -112,13 +112,12 @@ def from_search_term(
     # return first result link or if no matches are found, raise Exception
     if result is None or len(result.get("tracks", {}).get("items", [])) == 0:
         raise Exception("No song matches found on Spotify")
-    else:
-        song_url = "http://open.spotify.com/track/" + result["tracks"]["items"][0]["id"]
-        try:
-            song = from_spotify_url(song_url, output_format, use_youtube)
-            return [song] if song.youtube_link is not None else []
-        except (LookupError, OSError, ValueError):
-            return []
+    song_url = "http://open.spotify.com/track/" + result["tracks"]["items"][0]["id"]
+    try:
+        song = from_spotify_url(song_url, output_format, use_youtube)
+        return [song] if song.youtube_link is not None else []
+    except (LookupError, OSError, ValueError):
+        return []
 
 
 def from_album(

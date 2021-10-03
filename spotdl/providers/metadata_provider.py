@@ -2,7 +2,7 @@ from spotdl.search import SpotifyClient
 
 
 def from_url(spotify_url: str):
-    if not ("open.spotify.com" in spotify_url and "track" in spotify_url):
+    if "open.spotify.com" not in spotify_url or "track" not in spotify_url:
         raise Exception(f"passed URL is not that of a track: {spotify_url}")
 
     # query spotify for song, artist, album details

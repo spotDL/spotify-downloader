@@ -20,36 +20,38 @@ def has_correct_version(
 
     output = "".join(process.communicate())
 
-    if skip_version_check is False:
-        result = re.search(r"ffmpeg version \w?(\d+\.)?(\d+)", output)
-
-        if result is not None:
-            version = result.group(0).replace("ffmpeg version ", "")
-
-            # remove all non numeric characters from string example: n4.3
-            version = re.sub(r"[a-zA-Z]", "", version)
-
-            if float(version) < 4.2:
-                print(
-                    f"Your FFmpeg installation is too old ({version}), please update to 4.2+\n",
-                    file=sys.stderr,
-                )
-                return False
-
-            return True
-        else:
-            # fallback to copyright date check
-            date_result = re.search(r"Copyright \(c\) \d\d\d\d\-\d\d\d\d", output)
-
-            if date_result is not None:
-                date = date_result.group(0)
-                if "2021" in date or "2020" in date:
-                    return True
-
-            print("Your FFmpeg version couldn't be detected", file=sys.stderr)
-            return False
-    else:
+    # remove all non numeric characters from string example: n4.3
+    if skip_version_check:
         return True
+
+    result = re.search(r"ffmpeg version \w?(\d+\.)?(\d+)", output)
+
+    # fallback to copyright date check
+    if result is not None:
+        version = result.group(0).replace("ffmpeg version ", "")
+
+        # remove all non numeric characters from string example: n4.3
+        version = re.sub(r"[a-zA-Z]", "", version)
+
+        if float(version) < 4.2:
+            print(
+                f"Your FFmpeg installation is too old ({version}), please update to 4.2+\n",
+                file=sys.stderr,
+            )
+            return False
+
+        return True
+    else:
+        # fallback to copyright date check
+        date_result = re.search(r"Copyright \(c\) \d\d\d\d\-\d\d\d\d", output)
+
+        if date_result is not None:
+            date = date_result.group(0)
+            if "2021" in date or "2020" in date:
+                return True
+
+        print("Your FFmpeg version couldn't be detected", file=sys.stderr)
+        return False
 
 
 async def convert(

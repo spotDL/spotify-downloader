@@ -115,10 +115,7 @@ def get_youtube_meta_track(
     )
 
     song_name = raw_track_meta["name"]
-    contributing_artist = []
-    for artist in raw_track_meta["artists"]:
-        contributing_artist.append(artist["name"])
-
+    contributing_artist = [artist["name"] for artist in raw_track_meta["artists"]]
     converted_file_name = SongObject.create_file_name(
         song_name, [artist["name"] for artist in raw_track_meta["artists"]]
     )
