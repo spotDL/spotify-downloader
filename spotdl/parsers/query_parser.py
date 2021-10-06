@@ -109,7 +109,6 @@ def get_youtube_meta_track(
     # else procede
 
     # Get the Song Metadata
-    print(f"Gathering Spotify Metadata for: {spotify_url}")
     raw_track_meta, raw_artist_meta, raw_album_meta = metadata_provider.from_url(
         spotify_url
     )
