@@ -68,8 +68,6 @@ You can queue up multiple download tasks by separating the arguments with spaces
     ex. spotdl 'The Weeknd - Blinding Lights'
             https://open.spotify.com/playlist/37i9dQZF1E8UXBoz02kGID ...
 
-You can use the --debug-termination flag to figure out where in the code spotdl got stuck.
-
 spotDL downloads up to 4 songs in parallel, so for a faster experience,
 download albums and playlist, rather than tracks.
 """
@@ -87,9 +85,6 @@ def parse_arguments():
     parser.add_argument(
         "query", type=str, nargs="+", help="URL/String for a song/album/playlist/artist"
     )
-
-    # Option to enable debug termination
-    parser.add_argument("--debug-termination", action="store_true")
 
     # Option to specify output directory
     parser.add_argument("--output", "-o", help="Output directory path")
