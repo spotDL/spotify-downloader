@@ -130,7 +130,7 @@ def get_youtube_meta_track(
         print(f'Skipping "{converted_file_name}" as it\'s already downloaded')
         return None
 
-    # (try to) Get lyrics from Genius
+    # (try to) Get lyrics from musixmatch
     lyrics = provider_utils._get_song_lyrics(song_name, contributing_artist)
 
     return SongObject(

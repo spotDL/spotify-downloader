@@ -83,7 +83,7 @@ def from_spotify_url(
         print(" " * (len(display_name) + 25), end="\r")
         print(f'Found YouTube URL for "{display_name}" : {youtube_link}')
 
-    # (try to) Get lyrics from Genius
+    # (try to) Get lyrics from musixmatch
     lyrics = provider_utils._get_song_lyrics(song_name, contributing_artists)
 
     return SongObject(
