@@ -113,6 +113,15 @@ def parse_arguments():
         "--use-youtube", help="Use youtube instead of YTM", action="store_true"
     )
 
+    # Option to select a lyrics provider
+    parser.add_argument(
+        "--lyrics-provider",
+        help="Select a lyrics provider",
+        type=str,
+        choices=["genius", "musixmatch"],
+        default="musixmatch",
+    )
+
     # Option to specify path to local ffmpeg
     parser.add_argument("-f", "--ffmpeg", help="Path to ffmpeg", dest="ffmpeg")
 

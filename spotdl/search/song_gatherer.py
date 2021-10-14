@@ -8,13 +8,17 @@ from spotdl.providers import (
     yt_provider,
     ytm_provider,
     provider_utils,
+    lyrics_providers,
 )
 from spotdl.search import SongObject, SpotifyClient
 from spotdl.providers.provider_utils import _get_converted_file_path
 
 
 def from_spotify_url(
-    spotify_url: str, output_format: str = None, use_youtube: bool = False
+    spotify_url: str,
+    output_format: str = None,
+    use_youtube: bool = False,
+    lyrics_provider: str = None,
 ) -> SongObject:
     """
     Creates song object using spotfy url
@@ -83,8 +87,11 @@ def from_spotify_url(
         print(" " * (len(display_name) + 25), end="\r")
         print(f'Found YouTube URL for "{display_name}" : {youtube_link}')
 
-    # (try to) Get lyrics from musixmatch
-    lyrics = provider_utils._get_song_lyrics(song_name, contributing_artists)
+    # (try to) Get lyrics from musixmatch/genius
+    if lyrics_provider == "genius":
+        lyrics = lyrics_providers.get_lyrics_genius(song_name, contributing_artists)
+    elif lyrics_provider == "musixmatch":
+        lyrics = lyrics_providers.get_lyrics_musixmatch(song_name, contributing_artists)
 
     return SongObject(
         raw_track_meta, raw_album_meta, raw_artist_meta, youtube_link, lyrics
@@ -92,7 +99,10 @@ def from_spotify_url(
 
 
 def from_search_term(
-    query: str, output_format: str = None, use_youtube: bool = False
+    query: str,
+    output_format: str = None,
+    use_youtube: bool = False,
+    lyrics_provider: str = None,
 ) -> List[SongObject]:
     """
     Queries Spotify for a song and returns the best match
@@ -114,7 +124,7 @@ def from_search_term(
         raise Exception("No song matches found on Spotify")
     song_url = "http://open.spotify.com/track/" + result["tracks"]["items"][0]["id"]
     try:
-        song = from_spotify_url(song_url, output_format, use_youtube)
+        song = from_spotify_url(song_url, output_format, use_youtube, lyrics_provider)
         return [song] if song.youtube_link is not None else []
     except (LookupError, OSError, ValueError):
         return []
@@ -124,6 +134,7 @@ def from_album(
     album_url: str,
     output_format: str = None,
     use_youtube: bool = False,
+    lyrics_provider: str = None,
     generate_m3u: bool = False,
     threads: int = 1,
 ) -> List[SongObject]:
@@ -168,6 +179,7 @@ def from_album(
                 "https://open.spotify.com/track/" + track["id"],
                 output_format,
                 use_youtube,
+                lyrics_provider,
             )
 
             if generate_m3u:
@@ -243,6 +255,7 @@ def from_playlist(
     playlist_url: str,
     output_format: str = None,
     use_youtube: bool = False,
+    lyrics_provider: str = None,
     generate_m3u: bool = False,
     threads: int = 1,
 ) -> List[SongObject]:
@@ -296,6 +309,7 @@ def from_playlist(
                 "https://open.spotify.com/track/" + track["track"]["id"],
                 output_format,
                 use_youtube,
+                lyrics_provider,
             )
 
             if generate_m3u:
@@ -376,6 +390,7 @@ def from_artist(
     artist_url: str,
     output_format: str = None,
     use_youtube: bool = False,
+    lyrics_provider: str = None,
     threads: int = 1,
 ) -> List[SongObject]:
     """
@@ -475,6 +490,7 @@ def from_artist(
                 f"https://open.spotify.com/track/{track_uri.split(':')[-1]}",
                 output_format,
                 use_youtube,
+                lyrics_provider,
             )
         except (LookupError, ValueError, OSError):
             return None
@@ -490,7 +506,10 @@ def from_artist(
 
 
 def from_saved_tracks(
-    output_format: str = None, use_youtube: bool = False, threads: int = 1
+    output_format: str = None,
+    use_youtube: bool = False,
+    lyrics_provider: str = None,
+    threads: int = 1,
 ) -> List[SongObject]:
     """
     Create and return list containing SongObject for every song that user has saved
@@ -534,6 +553,7 @@ def from_saved_tracks(
                 "https://open.spotify.com/track/" + track["track"]["id"],
                 output_format,
                 use_youtube,
+                lyrics_provider,
             )
         except (LookupError, ValueError, OSError):
             return None
