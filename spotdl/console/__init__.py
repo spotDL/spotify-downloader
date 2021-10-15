@@ -58,6 +58,15 @@ def console_entry_point():
 
     # Start download manager
     with DownloadManager(args_dict) as downloader:
+        if not arguments.debug_termination:
+
+            def graceful_exit(signal, frame):
+                downloader.display_manager.close()
+                sys.exit(0)
+
+            signal.signal(signal.SIGINT, graceful_exit)
+            signal.signal(signal.SIGTERM, graceful_exit)
+
         # Find tracking files in queries
         tracking_files = [
             query for query in arguments.query if query.endswith(".spotdlTrackingFile")
