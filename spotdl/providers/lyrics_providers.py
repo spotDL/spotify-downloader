@@ -17,7 +17,8 @@ def get_lyrics_genius(song_name: str, song_artists: List[str]) -> str:
     """
     headers = {
         "Authorization": "Bearer alXXDbPZtK1m2RrZ8I4k2Hn8Ahsd0Gh_o076HYvcdlBvmc0ULL1H8Z8xRlew5qaG",
-    } | user_agent
+    } 
+    headers.update(user_agent)
 
     api_search_url = "https://api.genius.com/search"
     artist_str = ", ".join(
