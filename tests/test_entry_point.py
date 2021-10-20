@@ -85,6 +85,7 @@ def test_download_an_album(capsys, patch_dependencies, monkeypatch):
         [
             "dummy",
             "https://open.spotify.com/album/2YMWspDGtbDgYULXvVQFM6?si=gF5dOQm8QUSo-NdZVsFjAQ",
+            "--search-threads=1",
         ],
     )
 
@@ -109,6 +110,7 @@ def test_download_a_playlist(capsys, patch_dependencies, monkeypatch):
         [
             "dummy",
             "https://open.spotify.com/playlist/0slbokxiWCo9egF9UhVmmI",
+            "--search-threads=1"
         ],
     )
 
