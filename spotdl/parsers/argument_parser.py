@@ -145,7 +145,7 @@ def parse_arguments():
         "--st",
         help="Number of threads used when searching for songs",
         type=int,
-        default=1,
+        default=4,
     )
 
     # Option to generate .m3u

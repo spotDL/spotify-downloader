@@ -34,7 +34,6 @@ def from_spotify_url(
         output_format = "mp3"
 
     # Get the Song Metadata
-    print(f"Gathering Spotify Metadata for: {spotify_url}")
     raw_track_meta, raw_artist_meta, raw_album_meta = metadata_provider.from_url(
         spotify_url
     )
@@ -413,7 +412,7 @@ def from_artist(
     albums_object: Dict[str, str] = {}
 
     # Fetch all artist albums
-    while artist_response["next"]:
+    while artist_response and artist_response["next"]:
         response = spotify_client.next(artist_response)
         if response is None:
             break
@@ -529,7 +528,7 @@ def from_saved_tracks(
     tracks = []
 
     # Fetch all saved tracks
-    while saved_tracks_response["next"]:
+    while saved_tracks_response and saved_tracks_response["next"]:
         response = spotify_client.next(saved_tracks_response)
         # response is wrong, break
         if response is None:
