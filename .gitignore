@@ -48,5 +48,5 @@ dist
 # Tox
 .tox/
 
-# Cache
-.cache
+# Test Coverage
+.coverage
