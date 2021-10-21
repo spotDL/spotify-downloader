@@ -85,7 +85,7 @@ class SongObject:
     @property
     def lyrics(self):
         """
-        returns the lyrics of the song if found on Genius
+        returns the lyrics of the song if found on musixmatch
         """
 
         return self._lyrics
