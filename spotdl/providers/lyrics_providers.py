@@ -4,7 +4,8 @@ from typing import List
 from urllib.parse import quote
 
 user_agent = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36"
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 \
+(KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36"
 }
 
 
@@ -17,7 +18,7 @@ def get_lyrics_genius(song_name: str, song_artists: List[str]) -> str:
     """
     headers = {
         "Authorization": "Bearer alXXDbPZtK1m2RrZ8I4k2Hn8Ahsd0Gh_o076HYvcdlBvmc0ULL1H8Z8xRlew5qaG",
-    } 
+    }
     headers.update(user_agent)
 
     api_search_url = "https://api.genius.com/search"
