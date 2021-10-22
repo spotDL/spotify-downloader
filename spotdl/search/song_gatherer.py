@@ -271,7 +271,7 @@ def from_playlist(
     spotify_client = SpotifyClient()
     tracks = []
 
-    playlist_response = spotify_client.playlist_tracks(playlist_url)
+    playlist_response = spotify_client.playlist_items(playlist_url)
     if playlist_response is None:
         raise ValueError("Wrong playlist id")
 
