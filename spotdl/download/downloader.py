@@ -11,7 +11,10 @@ from typing import List, Optional
 from spotdl.search import SongObject
 from spotdl.download.progress_ui_handler import YTDLLogger
 from spotdl.download import ffmpeg, set_id3_data, DisplayManager, DownloadTracker
-from spotdl.providers.provider_utils import _get_converted_file_path
+from spotdl.providers.provider_utils import (
+    _get_converted_file_path,
+    _parse_path_template,
+)
 
 
 class DownloadManager:
@@ -26,6 +29,7 @@ class DownloadManager:
         arguments.setdefault("ffmpeg", "ffmpeg")
         arguments.setdefault("output_format", "mp3")
         arguments.setdefault("download_threads", 4)
+        arguments.setdefault("path_template", None)
 
         if sys.platform == "win32":
             # ! ProactorEventLoop is required on Windows to run subprocess asynchronously
@@ -148,9 +152,18 @@ class DownloadManager:
             if not temp_folder.exists():
                 temp_folder.mkdir()
 
-            converted_file_path = _get_converted_file_path(
-                song_object, self.arguments["output_format"]
-            )
+            if self.arguments["path_template"] is not None:
+                converted_file_path = _parse_path_template(
+                    self.arguments["path_template"],
+                    song_object,
+                    self.arguments["output_format"],
+                )
+            else:
+                converted_file_path = _get_converted_file_path(
+                    song_object, self.arguments["output_format"]
+                )
+
+            converted_file_path.parent.mkdir(parents=True, exist_ok=True)
 
             # if a song is already downloaded skip it
             if converted_file_path.is_file():

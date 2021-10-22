@@ -150,5 +150,5 @@ def get_youtube_meta_track(
         lyrics = lyrics_providers.get_lyrics_musixmatch(song_name, contributing_artist)
 
     return SongObject(
-        raw_track_meta, raw_album_meta, raw_artist_meta, youtube_url, lyrics
+        raw_track_meta, raw_album_meta, raw_artist_meta, youtube_url, lyrics, None
     )

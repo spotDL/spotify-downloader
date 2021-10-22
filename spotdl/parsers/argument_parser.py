@@ -122,6 +122,14 @@ def parse_arguments():
         default="musixmatch",
     )
 
+    # Option to provide path template for downloaded files
+    parser.add_argument(
+        "--path-template",
+        help="Path template for downloaded files",
+        type=str,
+        default=None,
+    )
+
     # Option to specify path to local ffmpeg
     parser.add_argument("-f", "--ffmpeg", help="Path to ffmpeg", dest="ffmpeg")
 

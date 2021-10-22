@@ -1,6 +1,7 @@
+import re
+
 from pathlib import Path
 from typing import List
-
 from thefuzz import fuzz
 
 
@@ -132,5 +133,31 @@ def _get_converted_file_path(song_obj, output_format: str = None) -> Path:
             return _get_smaller_file_path(song_obj, output_format)
     except OSError:
         return _get_smaller_file_path(song_obj, output_format)
+
+    return converted_file_path
+
+
+def _parse_path_template(path_template, song_object, output_format, short=False):
+    converted_file_name = path_template
+
+    converted_file_name = converted_file_name.format(
+        artist=_sanitize_filename(song_object.contributing_artists[0]),
+        title=_sanitize_filename(song_object.song_name),
+        album=_sanitize_filename(song_object.album_name),
+        playlist=_sanitize_filename(song_object.playlist_name) if song_object.playlist_name else "",
+        artists=_sanitize_filename(
+            ", ".join(song_object.contributing_artists)
+            if short is False
+            else song_object.contributing_artists[0]
+        ),
+        ext=_sanitize_filename(output_format),
+    )
+
+    if len(converted_file_name) > 250:
+        return _parse_path_template(
+            path_template, song_object, output_format, short=True
+        )
+
+    converted_file_path = Path(converted_file_name)
 
     return converted_file_path
