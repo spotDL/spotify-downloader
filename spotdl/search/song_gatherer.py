@@ -87,9 +87,10 @@ def from_spotify_url(
         print(f'Found YouTube URL for "{display_name}" : {youtube_link}')
 
     # (try to) Get lyrics from musixmatch/genius
+    # use musixmatch as the default provider
     if lyrics_provider == "genius":
         lyrics = lyrics_providers.get_lyrics_genius(song_name, contributing_artists)
-    elif lyrics_provider == "musixmatch":
+    else:
         lyrics = lyrics_providers.get_lyrics_musixmatch(song_name, contributing_artists)
 
     return SongObject(
@@ -270,7 +271,7 @@ def from_playlist(
     spotify_client = SpotifyClient()
     tracks = []
 
-    playlist_response = spotify_client.playlist_tracks(playlist_url)
+    playlist_response = spotify_client.playlist_items(playlist_url)
     if playlist_response is None:
         raise ValueError("Wrong playlist id")
 
