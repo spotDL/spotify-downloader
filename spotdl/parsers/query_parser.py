@@ -144,9 +144,10 @@ def get_youtube_meta_track(
         return None
 
     # (try to) Get lyrics from musixmatch/genius
+    # use musixmatch as the default provider
     if lyrics_provider == "genius":
         lyrics = lyrics_providers.get_lyrics_genius(song_name, contributing_artist)
-    elif lyrics_provider == "musixmatch":
+    else:
         lyrics = lyrics_providers.get_lyrics_musixmatch(song_name, contributing_artist)
 
     return SongObject(

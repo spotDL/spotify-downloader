@@ -103,7 +103,7 @@ def get_lyrics_musixmatch(
         lyrics = get_lyrics_musixmatch(song_name, song_artists, track_search=True)
         return lyrics
 
-    song_url = "https://www.musixmatch.com" + song_url_tag.get("href")
+    song_url = "https://www.musixmatch.com" + str(song_url_tag.get("href", ""))
     lyrics_resp = get(song_url, headers=user_agent)
     if not lyrics_resp.ok:
         return ""
