@@ -1,12 +1,12 @@
 from pathlib import Path
 from typing import List
 
-from thefuzz import fuzz
+from rapidfuzz import fuzz
 
 
 def _match_percentage(str1: str, str2: str, score_cutoff: float = 0) -> float:
     """
-    A wrapper around `thefuzz.fuzz.partial_ratio` to handle UTF-8 encoded
+    A wrapper around `rapidfuzz.fuzz.partial_ratio` to handle UTF-8 encoded
     emojis that usually cause errors
 
     `str` `str1` : a random sentence
@@ -19,12 +19,7 @@ def _match_percentage(str1: str, str2: str, score_cutoff: float = 0) -> float:
 
     # ! this will throw an error if either string contains a UTF-8 encoded emoji
     try:
-        partial_ratio = fuzz.partial_ratio(str1, str2)
-
-        if partial_ratio < score_cutoff:
-            return 0
-
-        return partial_ratio
+        return fuzz.partial_ratio(str1, str2, score_cutoff=score_cutoff)
 
     # ! we build new strings that contain only alphanumerical characters and spaces
     # ! and return the partial_ratio of that
@@ -41,12 +36,7 @@ def _match_percentage(str1: str, str2: str, score_cutoff: float = 0) -> float:
             if each_letter.isalnum() or each_letter.isspace()
         )
 
-        partial_ratio = fuzz.partial_ratio(new_str1, new_str2)
-
-        if partial_ratio < score_cutoff:
-            return 0
-
-        return partial_ratio
+        return fuzz.partial_ratio(new_str1, new_str2, score_cutoff=score_cutoff)
 
 
 def _parse_duration(duration: str) -> float:
