@@ -5,13 +5,20 @@ class SongObject:
 
     # Constructor
     def __init__(
-        self, raw_track_meta, raw_album_meta, raw_artist_meta, youtube_link, lyrics
+        self,
+        raw_track_meta,
+        raw_album_meta,
+        raw_artist_meta,
+        youtube_link,
+        lyrics,
+        playlist,
     ):
         self._raw_track_meta = raw_track_meta
         self._raw_album_meta = raw_album_meta
         self._raw_artist_meta = raw_artist_meta
         self._youtube_link = youtube_link
         self._lyrics = lyrics
+        self._playlist = playlist
 
     # Equals method
     # for example song_obj1 == song_obj2
@@ -140,6 +147,17 @@ class SongObject:
         return None
 
     @property
+    def playlist_name(self) -> Optional[str]:
+        """
+        returns name of the playlist that the song belongs to.
+        """
+
+        if self._playlist is None:
+            return None
+
+        return self._playlist["name"]
+
+    @property
     def data_dump(self) -> dict:
         """
         returns a dictionary containing the spotify-api responses as-is. The
@@ -161,6 +179,7 @@ class SongObject:
             "raw_album_meta": self._raw_album_meta,
             "raw_artist_meta": self._raw_artist_meta,
             "lyrics": self._lyrics,
+            "playlist": self._playlist,
         }
 
     @property

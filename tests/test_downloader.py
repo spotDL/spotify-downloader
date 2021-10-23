@@ -44,6 +44,7 @@ def create_song_obj(name: str = None, artists_input: list = None) -> SongObject:
         raw_artist_meta,
         "https://www.youtube.com/watch?v=Th_C95UMegc",
         "test lyrics",
+        None,
     )
 
 

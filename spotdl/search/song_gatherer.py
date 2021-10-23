@@ -19,6 +19,7 @@ def from_spotify_url(
     output_format: str = None,
     use_youtube: bool = False,
     lyrics_provider: str = None,
+    playlist: dict = None,
 ) -> SongObject:
     """
     Creates song object using spotfy url
@@ -94,7 +95,7 @@ def from_spotify_url(
         lyrics = lyrics_providers.get_lyrics_musixmatch(song_name, contributing_artists)
 
     return SongObject(
-        raw_track_meta, raw_album_meta, raw_artist_meta, youtube_link, lyrics
+        raw_track_meta, raw_album_meta, raw_artist_meta, youtube_link, lyrics, playlist
     )
 
 
@@ -124,7 +125,9 @@ def from_search_term(
         raise Exception("No song matches found on Spotify")
     song_url = "http://open.spotify.com/track/" + result["tracks"]["items"][0]["id"]
     try:
-        song = from_spotify_url(song_url, output_format, use_youtube, lyrics_provider)
+        song = from_spotify_url(
+            song_url, output_format, use_youtube, lyrics_provider, None
+        )
         return [song] if song.youtube_link is not None else []
     except (LookupError, OSError, ValueError):
         return []
@@ -180,6 +183,7 @@ def from_album(
                 output_format,
                 use_youtube,
                 lyrics_provider,
+                None,
             )
 
             if generate_m3u:
@@ -271,7 +275,8 @@ def from_playlist(
     spotify_client = SpotifyClient()
     tracks = []
 
-    playlist_response = spotify_client.playlist_items(playlist_url)
+    playlist_response = spotify_client.playlist_tracks(playlist_url)
+    playlist = spotify_client.playlist(playlist_url)
     if playlist_response is None:
         raise ValueError("Wrong playlist id")
 
@@ -310,6 +315,7 @@ def from_playlist(
                 output_format,
                 use_youtube,
                 lyrics_provider,
+                playlist,
             )
 
             if generate_m3u:
@@ -491,6 +497,7 @@ def from_artist(
                 output_format,
                 use_youtube,
                 lyrics_provider,
+                None,
             )
         except (LookupError, ValueError, OSError):
             return None
@@ -554,6 +561,7 @@ def from_saved_tracks(
                 output_format,
                 use_youtube,
                 lyrics_provider,
+                None,
             )
         except (LookupError, ValueError, OSError):
             return None
@@ -584,5 +592,5 @@ def from_dump(data_dump: dict) -> SongObject:
     lyrics = data_dump["lyrics"]
 
     return SongObject(
-        raw_track_meta, raw_album_meta, raw_artist_meta, youtube_link, lyrics
+        raw_track_meta, raw_album_meta, raw_artist_meta, youtube_link, lyrics, None
     )

@@ -110,7 +110,7 @@ def test_download_a_playlist(capsys, patch_dependencies, monkeypatch):
         [
             "dummy",
             "https://open.spotify.com/playlist/0slbokxiWCo9egF9UhVmmI",
-            "--search-threads=1"
+            "--search-threads=1",
         ],
     )
 
