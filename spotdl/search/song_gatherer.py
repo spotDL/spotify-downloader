@@ -88,9 +88,10 @@ def from_spotify_url(
         print(f'Found YouTube URL for "{display_name}" : {youtube_link}')
 
     # (try to) Get lyrics from musixmatch/genius
+    # use musixmatch as the default provider
     if lyrics_provider == "genius":
         lyrics = lyrics_providers.get_lyrics_genius(song_name, contributing_artists)
-    elif lyrics_provider == "musixmatch":
+    else:
         lyrics = lyrics_providers.get_lyrics_musixmatch(song_name, contributing_artists)
 
     return SongObject(
