@@ -271,7 +271,7 @@ There is an Arch User Repository (AUR) package for [spotDL](https://aur.archlinu
 
     example:
     ```bash
-    spotdl https://open.spotify.com/track/4fzsfWzRhPawzqhX8Qt9F3 --path-template '{artist}/{album}/{title} - {artist}.{ext}'
+    spotdl https://open.spotify.com/track/0VjIjW4GlUZAMYd2vXMi3b --path-template '{artist}/{album}/{title} - {artist}.{ext}'
     ```
 
     possible values:
