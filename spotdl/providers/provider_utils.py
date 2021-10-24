@@ -1,9 +1,9 @@
-import requests
+import re
 
-from typing import List
-from rapidfuzz import fuzz
-from bs4 import BeautifulSoup
 from pathlib import Path
+from typing import List
+
+from rapidfuzz import fuzz
 
 
 def _match_percentage(str1: str, str2: str, score_cutoff: float = 0) -> float:
@@ -26,17 +26,17 @@ def _match_percentage(str1: str, str2: str, score_cutoff: float = 0) -> float:
     # ! we build new strings that contain only alphanumerical characters and spaces
     # ! and return the partial_ratio of that
     except:  # noqa:E722
-        new_str1 = ""
+        new_str1 = "".join(
+            each_letter
+            for each_letter in str1
+            if each_letter.isalnum() or each_letter.isspace()
+        )
 
-        for each_letter in str1:
-            if each_letter.isalnum() or each_letter.isspace():
-                new_str1 += each_letter
-
-        new_str2 = ""
-
-        for each_letter in str2:
-            if each_letter.isalnum() or each_letter.isspace():
-                new_str2 += each_letter
+        new_str2 = "".join(
+            each_letter
+            for each_letter in str2
+            if each_letter.isalnum() or each_letter.isspace()
+        )
 
         return fuzz.partial_ratio(new_str1, new_str2, score_cutoff=score_cutoff)
 
@@ -48,10 +48,7 @@ def _parse_duration(duration: str) -> float:
     try:
         # {(1, "s"), (60, "m"), (3600, "h")}
         mapped_increments = zip([1, 60, 3600], reversed(duration.split(":")))
-        seconds = 0
-        for multiplier, time in mapped_increments:
-            seconds += multiplier * int(time)
-
+        seconds = sum(multiplier * int(time) for multiplier, time in mapped_increments)
         return float(seconds)
 
     # ! This usually occurs when the wrong string is mistaken for the duration
@@ -62,47 +59,6 @@ def _parse_duration(duration: str) -> float:
 def _create_song_title(song_name: str, song_artists: List[str]) -> str:
     joined_artists = ", ".join(song_artists)
     return f"{joined_artists} - {song_name}"
-
-
-def _get_song_lyrics(song_name: str, song_artists: List[str]) -> str:
-    """
-    `str` `song_name` : name of song
-
-    `list<str>` `song_artists` : list containing name of contributing artists
-
-    RETURNS `str`: Lyrics of the song.
-
-    Gets the metadata of the song.
-    """
-
-    headers = {
-        "Authorization": "Bearer alXXDbPZtK1m2RrZ8I4k2Hn8Ahsd0Gh_o076HYvcdlBvmc0ULL1H8Z8xRlew5qaG",
-    }
-    api_search_url = "https://api.genius.com/search"
-    search_query = f'{song_name} {", ".join(song_artists)}'
-
-    try:
-        api_response = requests.get(
-            api_search_url, params={"q": search_query}, headers=headers
-        ).json()
-
-        song_id = api_response["response"]["hits"][0]["result"]["id"]
-        song_api_url = f"https://api.genius.com/songs/{song_id}"
-
-        api_response = requests.get(song_api_url, headers=headers).json()
-
-        song_url = api_response["response"]["song"]["url"]
-
-        genius_page = requests.get(song_url)
-        soup = BeautifulSoup(genius_page.text, "html.parser")
-        lyrics_div = soup.select_one("div.lyrics")
-
-        if lyrics_div is not None:
-            return lyrics_div.get_text().strip()
-
-        return ""
-    except:  # noqa: E722
-        return ""
 
 
 def _sanitize_filename(input_str: str) -> str:
@@ -168,5 +124,31 @@ def _get_converted_file_path(song_obj, output_format: str = None) -> Path:
             return _get_smaller_file_path(song_obj, output_format)
     except OSError:
         return _get_smaller_file_path(song_obj, output_format)
+
+    return converted_file_path
+
+
+def _parse_path_template(path_template, song_object, output_format, short=False):
+    converted_file_name = path_template
+
+    converted_file_name = converted_file_name.format(
+        artist=_sanitize_filename(song_object.contributing_artists[0]),
+        title=_sanitize_filename(song_object.song_name),
+        album=_sanitize_filename(song_object.album_name),
+        playlist=_sanitize_filename(song_object.playlist_name) if song_object.playlist_name else "",
+        artists=_sanitize_filename(
+            ", ".join(song_object.contributing_artists)
+            if short is False
+            else song_object.contributing_artists[0]
+        ),
+        ext=_sanitize_filename(output_format),
+    )
+
+    if len(converted_file_name) > 250:
+        return _parse_path_template(
+            path_template, song_object, output_format, short=True
+        )
+
+    converted_file_path = Path(converted_file_name)
 
     return converted_file_path

@@ -72,10 +72,7 @@ class DownloadTracker:
             return None
 
         # prepare datadumps of all songObj's yet to be downloaded
-        song_data_dumps = []
-
-        for song in self.song_list:
-            song_data_dumps.append(song.data_dump)
+        song_data_dumps = [song.data_dump for song in self.song_list]
 
         # ! the default naming of a tracking file is $nameOfFirstSOng.spotdlTrackingFile,
         # ! it needs a little fixing because of disallowed characters in file naming

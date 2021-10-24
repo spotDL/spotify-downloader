@@ -11,7 +11,10 @@ from typing import List, Optional
 from spotdl.search import SongObject
 from spotdl.download.progress_ui_handler import YTDLLogger
 from spotdl.download import ffmpeg, set_id3_data, DisplayManager, DownloadTracker
-from spotdl.providers.provider_utils import _get_converted_file_path
+from spotdl.providers.provider_utils import (
+    _get_converted_file_path,
+    _parse_path_template,
+)
 
 
 class DownloadManager:
@@ -26,6 +29,7 @@ class DownloadManager:
         arguments.setdefault("ffmpeg", "ffmpeg")
         arguments.setdefault("output_format", "mp3")
         arguments.setdefault("download_threads", 4)
+        arguments.setdefault("path_template", None)
 
         if sys.platform == "win32":
             # ! ProactorEventLoop is required on Windows to run subprocess asynchronously
@@ -148,9 +152,18 @@ class DownloadManager:
             if not temp_folder.exists():
                 temp_folder.mkdir()
 
-            converted_file_path = _get_converted_file_path(
-                song_object, self.arguments["output_format"]
-            )
+            if self.arguments["path_template"] is not None:
+                converted_file_path = _parse_path_template(
+                    self.arguments["path_template"],
+                    song_object,
+                    self.arguments["output_format"],
+                )
+            else:
+                converted_file_path = _get_converted_file_path(
+                    song_object, self.arguments["output_format"]
+                )
+
+            converted_file_path.parent.mkdir(parents=True, exist_ok=True)
 
             # if a song is already downloaded skip it
             if converted_file_path.is_file():
@@ -174,7 +187,7 @@ class DownloadManager:
             audio_handler = YoutubeDL(
                 {
                     "format": ytdl_format,
-                    "outtmpl": f"{str(temp_folder)}/%(id)s.%(ext)s",
+                    "outtmpl": f"{temp_folder}/%(id)s.%(ext)s",
                     "quiet": True,
                     "no_warnings": True,
                     "logger": YTDLLogger(),
@@ -270,14 +283,11 @@ class DownloadManager:
         # ! The actual download, if there is any error, it'll be here,
         try:
             data = audio_handler.extract_info(youtube_link)
-            downloaded_file_path = Path(temp_folder / f"{data['id']}.{data['ext']}")
-
-            return downloaded_file_path
-        except Exception as e:  # noqa:E722
             # ! This is equivalent to a failed download, we do nothing, the song remains on
             # ! download_trackers download queue and all is well...
+            return Path(temp_folder / f"{data['id']}.{data['ext']}")
+        except Exception as e:
             temp_files = Path(temp_folder).glob(f"{converted_file_name}.*")
             for temp_file in temp_files:
                 temp_file.unlink()
-
             raise e

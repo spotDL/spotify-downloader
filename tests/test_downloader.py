@@ -44,6 +44,7 @@ def create_song_obj(name: str = None, artists_input: list = None) -> SongObject:
         raw_artist_meta,
         "https://www.youtube.com/watch?v=Th_C95UMegc",
         "test lyrics",
+        None,
     )
 
 
@@ -123,6 +124,7 @@ def test_download_long_name_song(setup):
     with pytest.raises(OSError):
         with DownloadManager() as dm:
             dm.download_single_song(song_obj)
+
 
 def test_download_multiple_songs(pytestconfig, setup):
     if not "--disable-vcr" in pytestconfig.invocation_params.args:

@@ -2,11 +2,11 @@ from typing import List
 from pathlib import Path
 
 from spotdl.search import SongObject, song_gatherer
-from spotdl.providers import provider_utils, metadata_provider
+from spotdl.providers import lyrics_providers, metadata_provider
 
 
 def parse_query(
-    query: List[str], format, use_youtube, generate_m3u, threads
+    query: List[str], format, use_youtube, generate_m3u, lyrics_provider, threads
 ) -> List[SongObject]:
     """
     Parse query and return list containing song object
@@ -20,7 +20,9 @@ def parse_query(
             continue
 
         songs_list.extend(
-            parse_request(request, format, use_youtube, generate_m3u, threads)
+            parse_request(
+                request, format, use_youtube, generate_m3u, lyrics_provider, threads
+            )
         )
 
         # linefeed to visually separate output for each query
@@ -42,6 +44,7 @@ def parse_request(
     output_format: str = None,
     use_youtube: bool = False,
     generate_m3u: bool = False,
+    lyrics_provider: str = None,
     threads: int = 1,
 ) -> List[SongObject]:
     song_list: List[SongObject] = []
@@ -59,12 +62,18 @@ def parse_request(
             print("Fetching YouTube video with spotify metadata")
             song_list = [
                 song
-                for song in [get_youtube_meta_track(urls[0], urls[1], output_format)]
+                for song in [
+                    get_youtube_meta_track(
+                        urls[0], urls[1], output_format, lyrics_provider
+                    )
+                ]
                 if song is not None
             ]
     elif "open.spotify.com" in request and "track" in request:
         print("Fetching Song...")
-        song = song_gatherer.from_spotify_url(request, output_format, use_youtube)
+        song = song_gatherer.from_spotify_url(
+            request, output_format, use_youtube, lyrics_provider
+        )
         try:
             song_list = [song] if song.youtube_link is not None else []
         except (OSError, ValueError, LookupError):
@@ -72,26 +81,28 @@ def parse_request(
     elif "open.spotify.com" in request and "album" in request:
         print("Fetching Album...")
         song_list = song_gatherer.from_album(
-            request, output_format, use_youtube, generate_m3u, threads
+            request, output_format, use_youtube, lyrics_provider, generate_m3u, threads
         )
     elif "open.spotify.com" in request and "playlist" in request:
         print("Fetching Playlist...")
         song_list = song_gatherer.from_playlist(
-            request, output_format, use_youtube, generate_m3u, threads
+            request, output_format, use_youtube, lyrics_provider, generate_m3u, threads
         )
     elif "open.spotify.com" in request and "artist" in request:
         print("Fetching artist...")
         song_list = song_gatherer.from_artist(
-            request, output_format, use_youtube, threads
+            request, output_format, use_youtube, lyrics_provider, threads
         )
     elif request == "saved":
         print("Fetching Saved Songs...")
-        song_list = song_gatherer.from_saved_tracks(output_format, use_youtube, threads)
+        song_list = song_gatherer.from_saved_tracks(
+            output_format, use_youtube, lyrics_provider, threads
+        )
     else:
         print('Searching Spotify for song named "%s"...' % request)
         try:
             song_list = song_gatherer.from_search_term(
-                request, output_format, use_youtube
+                request, output_format, use_youtube, lyrics_provider
             )
         except Exception as e:
             print(e)
@@ -103,22 +114,21 @@ def parse_request(
 
 
 def get_youtube_meta_track(
-    youtube_url: str, spotify_url: str, output_format: str = None
+    youtube_url: str,
+    spotify_url: str,
+    output_format: str = None,
+    lyrics_provider: str = None,
 ):
     # check if URL is a playlist, user, artist or album, if yes raise an Exception,
     # else procede
 
     # Get the Song Metadata
-    print(f"Gathering Spotify Metadata for: {spotify_url}")
     raw_track_meta, raw_artist_meta, raw_album_meta = metadata_provider.from_url(
         spotify_url
     )
 
     song_name = raw_track_meta["name"]
-    contributing_artist = []
-    for artist in raw_track_meta["artists"]:
-        contributing_artist.append(artist["name"])
-
+    contributing_artist = [artist["name"] for artist in raw_track_meta["artists"]]
     converted_file_name = SongObject.create_file_name(
         song_name, [artist["name"] for artist in raw_track_meta["artists"]]
     )
@@ -133,9 +143,13 @@ def get_youtube_meta_track(
         print(f'Skipping "{converted_file_name}" as it\'s already downloaded')
         return None
 
-    # (try to) Get lyrics from Genius
-    lyrics = provider_utils._get_song_lyrics(song_name, contributing_artist)
+    # (try to) Get lyrics from musixmatch/genius
+    # use musixmatch as the default provider
+    if lyrics_provider == "genius":
+        lyrics = lyrics_providers.get_lyrics_genius(song_name, contributing_artist)
+    else:
+        lyrics = lyrics_providers.get_lyrics_musixmatch(song_name, contributing_artist)
 
     return SongObject(
-        raw_track_meta, raw_album_meta, raw_artist_meta, youtube_url, lyrics
+        raw_track_meta, raw_album_meta, raw_artist_meta, youtube_url, lyrics, None
     )

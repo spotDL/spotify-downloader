@@ -1,25 +1,29 @@
-from typing import List
+from typing import List, Optional
 
 
 class SongObject:
 
     # Constructor
     def __init__(
-        self, raw_track_meta, raw_album_meta, raw_artist_meta, youtube_link, lyrics
+        self,
+        raw_track_meta,
+        raw_album_meta,
+        raw_artist_meta,
+        youtube_link,
+        lyrics,
+        playlist,
     ):
         self._raw_track_meta = raw_track_meta
         self._raw_album_meta = raw_album_meta
         self._raw_artist_meta = raw_artist_meta
         self._youtube_link = youtube_link
         self._lyrics = lyrics
+        self._playlist = playlist
 
     # Equals method
     # for example song_obj1 == song_obj2
     def __eq__(self, compared_song) -> bool:
-        if compared_song.data_dump == self.data_dump:
-            return True
-        else:
-            return False
+        return compared_song.data_dump == self.data_dump
 
     # ================================
     # === Interface Implementation ===
@@ -79,13 +83,7 @@ class SongObject:
         # $contributingArtists + songName.mp3, we would want to end up with
         # 'Jetta, Mastubs - I'd love to change the world (Mastubs remix).mp3'
         # as a song name, it's dumb.
-
-        contributingArtists = []
-
-        for artist in self._raw_track_meta["artists"]:
-            contributingArtists.append(artist["name"])
-
-        return contributingArtists
+        return [artist["name"] for artist in self._raw_track_meta["artists"]]
 
     @property
     def disc_number(self) -> int:
@@ -94,7 +92,7 @@ class SongObject:
     @property
     def lyrics(self):
         """
-        returns the lyrics of the song if found on Genius
+        returns the lyrics of the song if found on musixmatch
         """
 
         return self._lyrics
@@ -123,12 +121,7 @@ class SongObject:
         artist.
         """
 
-        albumArtists = []
-
-        for artist in self._raw_track_meta["album"]["artists"]:
-            albumArtists.append(artist["name"])
-
-        return albumArtists
+        return [artist["name"] for artist in self._raw_track_meta["album"]["artists"]]
 
     @property
     def album_release(self) -> str:
@@ -141,12 +134,28 @@ class SongObject:
     # ! Utilities for genuine use and also for metadata freaks:
 
     @property
-    def album_cover_url(self) -> str:
+    def album_cover_url(self) -> Optional[str]:
         """
         returns url of the biggest album art image available.
         """
 
-        return self._raw_track_meta["album"]["images"][0]["url"]
+        images = self._raw_track_meta["album"]["images"]
+
+        if len(images) > 0:
+            return images[0]["url"]
+
+        return None
+
+    @property
+    def playlist_name(self) -> Optional[str]:
+        """
+        returns name of the playlist that the song belongs to.
+        """
+
+        if self._playlist is None:
+            return None
+
+        return self._playlist["name"]
 
     @property
     def data_dump(self) -> dict:
@@ -170,6 +179,7 @@ class SongObject:
             "raw_album_meta": self._raw_album_meta,
             "raw_artist_meta": self._raw_artist_meta,
             "lyrics": self._lyrics,
+            "playlist": self._playlist,
         }
 
     @property

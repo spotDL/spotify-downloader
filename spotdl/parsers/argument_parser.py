@@ -29,7 +29,11 @@ To change output format run:
     spotdl [songUrl] --output-format mp3/m4a/flac/opus/ogg/wav
     ex. spotdl [songUrl] --output-format opus
 
-To use ffmpeg binary that is not on PATH run:
+To specifiy path template run:
+    spotdl [songUrl] -p 'template'
+    ex. spotdl [songUrl] -p "{playlist}/{artists}/{album} - {title} {artist}.{ext}"
+
+To use FFmpeg binary that is not on PATH run:
     spotdl [songUrl] --ffmpeg path/to/your/ffmpeg.exe
     ex. spotdl [songUrl] --ffmpeg C:\ffmpeg\bin\ffmpeg.exe
 
@@ -37,7 +41,7 @@ To generate .m3u file for each playlist run:
     spotdl [playlistUrl] --m3u
     ex. spotdl https://open.spotify.com/playlist/37i9dQZF1E8UXBoz02kGID --m3u
 
-To use youtube instead of youtube music run:
+To use Youtube instead of YouTube Music run:
     spotdl [songUrl] --use-youtube
     ex. spotdl https://open.spotify.com/track/4fzsfWzRhPawzqhX8Qt9F3 --use-youtube
 
@@ -113,6 +117,24 @@ def parse_arguments():
         "--use-youtube", help="Use youtube instead of YTM", action="store_true"
     )
 
+    # Option to select a lyrics provider
+    parser.add_argument(
+        "--lyrics-provider",
+        help="Select a lyrics provider",
+        type=str,
+        choices=["genius", "musixmatch"],
+        default="musixmatch",
+    )
+
+    # Option to provide path template for downloaded files
+    parser.add_argument(
+        "-p",
+        "--path-template",
+        help="Path template for downloaded files",
+        type=str,
+        default=None,
+    )
+
     # Option to specify path to local ffmpeg
     parser.add_argument("-f", "--ffmpeg", help="Path to ffmpeg", dest="ffmpeg")
 
@@ -136,7 +158,7 @@ def parse_arguments():
         "--st",
         help="Number of threads used when searching for songs",
         type=int,
-        default=1,
+        default=4,
     )
 
     # Option to generate .m3u

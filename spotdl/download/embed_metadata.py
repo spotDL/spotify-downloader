@@ -35,9 +35,7 @@ M4A_TAG_PRESET = {
     "explicit": "rtng",
 }
 
-TAG_PRESET = {}
-for key in M4A_TAG_PRESET.keys():
-    TAG_PRESET[key] = key
+TAG_PRESET = {key: key for key in M4A_TAG_PRESET}
 
 
 def _set_id3_mp3(converted_file_path: str, song_object: SongObject):
@@ -143,10 +141,11 @@ def _embed_mp3_metadata(audio_file, song_object: SongObject):
 def _embed_mp3_cover(audio_file, song_object, converted_file_path):
     # ! setting the album art
     audio_file = ID3(converted_file_path)
-    rawAlbumArt = urlopen(song_object.album_cover_url).read()
-    audio_file["APIC"] = AlbumCover(
-        encoding=3, mime="image/jpeg", type=3, desc="Cover", data=rawAlbumArt
-    )
+    if song_object.album_cover_url:
+        rawAlbumArt = urlopen(song_object.album_cover_url).read()
+        audio_file["APIC"] = AlbumCover(
+            encoding=3, mime="image/jpeg", type=3, desc="Cover", data=rawAlbumArt
+        )
 
     return audio_file
 
@@ -154,6 +153,9 @@ def _embed_mp3_cover(audio_file, song_object, converted_file_path):
 def _embed_mp3_lyrics(audio_file, song_object):
     # ! setting the lyrics
     lyrics = song_object.lyrics
+    if not lyrics:
+        return audio_file
+
     USLTOutput = USLT(encoding=3, lang=u"eng", desc=u"desc", text=lyrics)
     audio_file["USLT::'eng'"] = USLTOutput
 
@@ -178,15 +180,16 @@ def _embed_m4a_metadata(audio_file, song_object: SongObject):
 
     # Explicit values: Dirty: 4, Clean: 2, None: 0
     audio_file[M4A_TAG_PRESET["explicit"]] = (0,)
-    try:
-        audio_file[M4A_TAG_PRESET["albumart"]] = [
-            MP4Cover(
-                urlopen(song_object.album_cover_url).read(),
-                imageformat=MP4Cover.FORMAT_JPEG,
-            )
-        ]
-    except IndexError:
-        pass
+    if song_object.album_cover_url:
+        try:
+            audio_file[M4A_TAG_PRESET["albumart"]] = [
+                MP4Cover(
+                    urlopen(song_object.album_cover_url).read(),
+                    imageformat=MP4Cover.FORMAT_JPEG,
+                )
+            ]
+        except IndexError:
+            pass
 
     return audio_file
 
@@ -261,6 +264,9 @@ def _embed_ogg_metadata(audio_file, song_object: SongObject):
 
 
 def _embed_cover(audio_file, song_object, encoding):
+    if song_object.album_cover_url is None:
+        return audio_file
+
     image = Picture()
     image.type = 3
     image.desc = "Cover"
@@ -269,7 +275,7 @@ def _embed_cover(audio_file, song_object, encoding):
 
     if encoding == "flac":
         audio_file.add_picture(image)
-    elif encoding == "ogg" or encoding == "opus":
+    elif encoding in ["ogg", "opus"]:
         # From the Mutagen docs (https://mutagen.readthedocs.io/en/latest/user/vcomment.html)
         image_data = image.write()
         encoded_data = base64.b64encode(image_data)

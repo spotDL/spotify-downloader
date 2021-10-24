@@ -85,6 +85,7 @@ def test_download_an_album(capsys, patch_dependencies, monkeypatch):
         [
             "dummy",
             "https://open.spotify.com/album/2YMWspDGtbDgYULXvVQFM6?si=gF5dOQm8QUSo-NdZVsFjAQ",
+            "--search-threads=1",
         ],
     )
 
@@ -109,6 +110,7 @@ def test_download_a_playlist(capsys, patch_dependencies, monkeypatch):
         [
             "dummy",
             "https://open.spotify.com/playlist/0slbokxiWCo9egF9UhVmmI",
+            "--search-threads=1",
         ],
     )
 
@@ -191,19 +193,11 @@ def test_multiple_elements(capsys, patch_dependencies, monkeypatch):
     out, err = capsys.readouterr()
     assert "Fetching Song...\n" in out
     assert (
-        "Gathering Spotify Metadata for: https://open.spotify.com/track/4EWCNWgDS8707fNSZ1oaA5\n"
-        in out
-    )
-    assert (
         'Found YouTube URL for "Kanye West - Heartless" : https://www.youtube.com/watch?v=s40BTpfAELs\n'
         in out
     )
 
     assert "Fetching Song...\n" in out
-    assert (
-        "Gathering Spotify Metadata for: https://open.spotify.com/track/2SiXAy7TuUkycRVbbWDEpo\n"
-        in out
-    )
     assert (
         'Found YouTube URL for "AC/DC - You Shook Me All Night Long" : https://www.youtube.com/watch?v=SP9t2Iq_zQ8\n'
         in out

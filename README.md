@@ -263,6 +263,25 @@ There is an Arch User Repository (AUR) package for [spotDL](https://aur.archlinu
     spotdl [songUrl] --ignore-ffmpeg-version
     ```
 
+-   #### To use path template
+
+    ```bash
+    spotdl [songUrl] --path-template 'template'
+    ```
+
+    example:
+    ```bash
+    spotdl https://open.spotify.com/track/0VjIjW4GlUZAMYd2vXMi3b --path-template '{artist}/{album}/{title} - {artist}.{ext}'
+    ```
+
+    possible values:
+    - {artist}
+    - {artists}
+    - {title}
+    - {album}
+    - {ext}
+    - {playlist}
+
 ## `pipx` Isolated Environment Alternative
 
 For users who are not familiar with `pipx`, it can be used to run scripts **without**
