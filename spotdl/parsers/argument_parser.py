@@ -1,5 +1,7 @@
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
 
+import pkg_resources
+
 help_notice = r"""  # noqa: E501
 To download a song run,
     spotdl [trackUrl]
@@ -92,6 +94,10 @@ def parse_arguments():
         "query", type=str, nargs="+", help="URL/String for a song/album/playlist/artist"
     )
 
+    # Version
+    version = pkg_resources.require("spotdl")[0].version
+    parser.add_argument("--version", "-v", action="version", version=version)
+
     # Option to enable debug termination
     parser.add_argument("--debug-termination", action="store_true")
 
@@ -166,14 +172,6 @@ def parse_arguments():
         "--generate-m3u",
         "--m3u",
         help="Generate .m3u file for each playlist",
-        action="store_true",
-    )
-
-    # Option to print ffmpeg version
-    parser.add_argument(
-        "-v",
-        "--version",
-        help="Show spotDL's version and exit",
         action="store_true",
     )
 
