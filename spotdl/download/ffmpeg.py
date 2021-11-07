@@ -28,12 +28,13 @@ def has_correct_version(
 
     # fallback to copyright date check
     if result is not None:
-        version = result.group(0).replace("ffmpeg version ", "")
+        version_str = result.group(0)
 
         # remove all non numeric characters from string example: n4.3
-        version = re.sub(r"[a-zA-Z]", "", version)
+        version_str = re.sub(r"[a-zA-Z]", "", version_str)
+        version = float(version_str)
 
-        if float(version) < 4.2:
+        if version < 4.2:
             print(
                 f"Your FFmpeg installation is too old ({version}), please update to 4.2+\n",
                 file=sys.stderr,
@@ -43,12 +44,10 @@ def has_correct_version(
         return True
     else:
         # fallback to copyright date check
-        date_result = re.search(r"Copyright \(c\) \d\d\d\d\-\d\d\d\d", output)
+        date_result = re.search(r"Copyright \(c\) \d\d\d\d\-202\d", output)
 
         if date_result is not None:
-            date = date_result.group(0)
-            if "2021" in date or "2020" in date:
-                return True
+            return True
 
         print("Your FFmpeg version couldn't be detected", file=sys.stderr)
         return False
