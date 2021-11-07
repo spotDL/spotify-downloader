@@ -129,7 +129,7 @@ class DisplayManager:
         if self.quiet:
             return
 
-        line = "".join(str(item) + " " for item in text)
+        line = " ".join(str(item) for item in text)
         if color:
             self._rich_progress_bar.console.print(f"[{color}]{line}")
         else:
