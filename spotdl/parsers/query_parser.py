@@ -49,14 +49,14 @@ def parse_request(
 ) -> List[SongObject]:
     song_list: List[SongObject] = []
     if (
-        "youtube.com/watch?v=" in request
+        ("youtube.com/watch?v=" in request or "youtu.be/" in request)
         and "open.spotify.com" in request
         and "track" in request
         and "|" in request
     ):
         urls = request.split("|")
 
-        if len(urls) <= 1 or "youtube" not in urls[0] or "spotify" not in urls[1]:
+        if len(urls) <= 1 or "youtu" not in urls[0] or "spotify" not in urls[1]:
             print("Incorrect format used, please use YouTubeURL|SpotifyURL")
         else:
             print("Fetching YouTube video with spotify metadata")
