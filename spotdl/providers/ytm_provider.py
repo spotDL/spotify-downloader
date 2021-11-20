@@ -154,7 +154,7 @@ def _order_ytm_results(
 
         # Find artist match
         # ! match  = (no of artist names in result) / (no. of artist names on spotify) * 100
-        artist_match_number = 0
+        artist_match_number = 0.0
 
         # ! we use fuzzy matching because YouTube spellings might be mucked up
         if result["type"] == "song":
@@ -168,7 +168,7 @@ def _order_ytm_results(
                 # ! something like _match_percentage('rionos', 'aiobahn, rionos Motivation
                 # ! (remix)' would return 100, so we're absolutely corrent in matching
                 # ! artists to song name.
-                artist_match_number +=  _match_percentage(
+                artist_match_number += _match_percentage(
                     unidecode(artist.lower()), unidecode(result["name"]).lower()
                 )
 
@@ -180,9 +180,9 @@ def _order_ytm_results(
                     artist_match_number += _match_percentage(
                         unidecode(artist.lower()),
                         unidecode(result["artist"].lower()),
-                )
+                    )
 
-        artist_match = (artist_match_number / len(song_artists))
+        artist_match = artist_match_number / len(song_artists)
         if artist_match < 70:
             continue
 
