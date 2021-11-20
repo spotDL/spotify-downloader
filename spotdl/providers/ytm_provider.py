@@ -183,7 +183,6 @@ def _order_ytm_results(
                 )
 
         artist_match = (artist_match_number / len(song_artists))
-        print(artist_match)
         if artist_match < 70:
             continue
 
