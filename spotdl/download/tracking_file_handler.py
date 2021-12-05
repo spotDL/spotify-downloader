@@ -2,6 +2,7 @@ from pathlib import Path
 from typing import Optional, List
 
 from spotdl.search import SongObject, song_gatherer
+from spotdl.utils.song_name_utils import format_name
 
 
 class DownloadTracker:
@@ -79,9 +80,7 @@ class DownloadTracker:
         if not self.save_file:
             song_name = self.song_list[0].song_name
 
-            song_name = "".join(char for char in song_name if char not in "/?\\*|<>")
-
-            song_name = song_name.replace('"', "'").replace(":", " - ")
+            song_name = format_name(song_name)
 
             self.save_file = Path(song_name + ".spotdlTrackingFile")
 

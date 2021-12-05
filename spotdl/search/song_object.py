@@ -1,5 +1,7 @@
 from typing import List, Optional
 
+from spotdl.utils.song_name_utils import format_name
+
 
 class SongObject:
 
@@ -204,13 +206,4 @@ class SongObject:
 
         converted_file_name = artist_string + " - " + song_name
 
-        # ! this is windows specific (disallowed chars)
-        converted_file_name = "".join(
-            char for char in converted_file_name if char not in "/?\\*|<>"
-        )
-
-        # ! double quotes (") and semi-colons (:) are also disallowed characters but we would
-        # ! like to retain their equivalents, so they aren't removed in the prior loop
-        converted_file_name = converted_file_name.replace('"', "'").replace(":", "-")
-
-        return converted_file_name
+        return format_name(converted_file_name)
