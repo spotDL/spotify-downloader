@@ -23,7 +23,7 @@ def _match_percentage(str1: str, str2: str, score_cutoff: float = 0) -> float:
 
     # ! this will throw an error if either string contains a UTF-8 encoded emoji
     try:
-        return fuzz.partial_ratio(str1, str2, score_cutoff=score_cutoff)
+        return fuzz.partial_ratio(str1, str2, processor=None, score_cutoff=score_cutoff)
 
     # ! we build new strings that contain only alphanumerical characters and spaces
     # ! and return the partial_ratio of that
@@ -40,7 +40,7 @@ def _match_percentage(str1: str, str2: str, score_cutoff: float = 0) -> float:
             if each_letter.isalnum() or each_letter.isspace()
         )
 
-        return fuzz.partial_ratio(new_str1, new_str2, score_cutoff=score_cutoff)
+        return fuzz.partial_ratio(new_str1, new_str2, processor=None, score_cutoff=score_cutoff)
 
 
 def _parse_duration(duration: str) -> float:
@@ -128,7 +128,9 @@ def _parse_path_template(path_template, song_object, output_format, short=False)
         artist=_sanitize_filename(song_object.contributing_artists[0]),
         title=_sanitize_filename(song_object.song_name),
         album=_sanitize_filename(song_object.album_name),
-        playlist=_sanitize_filename(song_object.playlist_name) if song_object.playlist_name else "",
+        playlist=_sanitize_filename(song_object.playlist_name)
+        if song_object.playlist_name
+        else "",
         artists=_sanitize_filename(
             ", ".join(song_object.contributing_artists)
             if short is False

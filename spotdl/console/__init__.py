@@ -1,7 +1,6 @@
 import os
 import sys
 import signal
-import pkg_resources
 
 from spotdl.download import ffmpeg, DownloadManager
 from spotdl.parsers import parse_arguments, parse_query
@@ -14,13 +13,7 @@ def console_entry_point():
     Its super simple, rudimentary even but, it's dead simple & it works.
     """
 
-    # If -v parameter is specified print version and exit
-    if len(sys.argv) >= 2 and sys.argv[1] in ["-v", "--version"]:
-        version = pkg_resources.require("spotdl")[0].version
-        print(version)
-        sys.exit(0)
-
-    # Parser arguments
+    # Parse arguments
     arguments = parse_arguments()
 
     # Convert arguments to dict
