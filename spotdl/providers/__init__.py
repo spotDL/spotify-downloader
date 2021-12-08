@@ -6,3 +6,4 @@ from spotdl.providers.provider_utils import (
     _match_percentage,
     _parse_duration,
 )
+from spotdl.utils.song_name_utils import format_name
