@@ -19,8 +19,5 @@ RUN pip install --no-cache-dir .
 RUN mkdir -p /data/spotdl
 WORKDIR /data/spotdl
 
-# Environment variables
-ENV SPOTDL_SONG="" SPOTDL_OUTPUT_FORMAT="mp3"
-
-# Container start command
-CMD spotdl $SPOTDL_SONG --output-format $SPOTDL_OUTPUT_FORMAT --m3u
+# Entrypoint command
+ENTRYPOINT [ "spotdl" ]
