@@ -15,9 +15,9 @@ RUN python -m pip install --upgrade --no-cache-dir pip
 # Install spotdl
 RUN pip install --no-cache-dir .
 
-# Create data directory
-RUN mkdir -p /data
-WORKDIR /data
+# Create music directory
+RUN mkdir /music
+WORKDIR /music
 
 # Entrypoint command
 ENTRYPOINT [ "spotdl" ]
