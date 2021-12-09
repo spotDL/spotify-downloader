@@ -4,7 +4,7 @@ FROM python:3-alpine
 RUN apk add --no-cache ffmpeg g++
 
 # Create project directory
-WORKDIR /app/spotdl
+WORKDIR /app
 
 # Add source code files to WORKDIR
 ADD . .
@@ -16,8 +16,8 @@ RUN python -m pip install --upgrade --no-cache-dir pip
 RUN pip install --no-cache-dir .
 
 # Create data directory
-RUN mkdir -p /data/spotdl
-WORKDIR /data/spotdl
+RUN mkdir -p /data
+WORKDIR /data
 
 # Entrypoint command
 ENTRYPOINT [ "spotdl" ]
