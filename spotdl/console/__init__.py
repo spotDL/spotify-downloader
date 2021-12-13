@@ -1,5 +1,6 @@
 import os
 import sys
+from pathlib import Path
 import signal
 
 from spotdl.download import ffmpeg, DownloadManager
@@ -19,10 +20,15 @@ def console_entry_point():
     # Convert arguments to dict
     args_dict = vars(arguments)
 
+    if arguments.ffmpeg:
+        args_dict['ffmpeg'] = str(Path(arguments.ffmpeg).absolute())
+    else:
+        args_dict['ffmpeg'] = "ffmpeg" 
+
     # Check if ffmpeg has correct version, if not exit
     if (
         ffmpeg.has_correct_version(
-            arguments.ignore_ffmpeg_version, arguments.ffmpeg or "ffmpeg"
+            arguments.ignore_ffmpeg_version, args_dict['ffmpeg']
         )
         is False
     ):
