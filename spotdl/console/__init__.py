@@ -23,7 +23,7 @@ def console_entry_point():
     if arguments.ffmpeg:
         args_dict['ffmpeg'] = str(Path(arguments.ffmpeg).absolute())
     else:
-        args_dict['ffmpeg'] = "ffmpeg" 
+        args_dict['ffmpeg'] = "ffmpeg"
 
     # Check if ffmpeg has correct version, if not exit
     if (
