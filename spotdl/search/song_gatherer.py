@@ -12,6 +12,7 @@ from spotdl.providers import (
 )
 from spotdl.search import SongObject, SpotifyClient
 from spotdl.providers.provider_utils import _get_converted_file_path
+from spotdl.utils.song_name_utils import format_name
 
 
 def from_spotify_url(
@@ -232,7 +233,7 @@ def from_album(
     album_text = ""
     for result in results:
         if result[1] is not None:
-            album_text += "".join(char for char in result[1] if char not in "/?\\*|<>")
+            album_text += format_name(result[1])
 
         if result[0] is not None and result[0].youtube_link is not None:
             tracks.append(result[0])
@@ -245,7 +246,7 @@ def from_album(
         else:
             album_name = album_tracks[0]["name"]
 
-        album_name = "".join(char for char in album_name if char not in "/?\\*|<>")
+        album_name = format_name(album_name)
 
         album_file = Path(f"{album_name}.m3u")
 
@@ -365,9 +366,7 @@ def from_playlist(
     playlist_text = ""
     for result in results:
         if result[1] is not None:
-            playlist_text += "".join(
-                char for char in result[1] if char not in "/?\\*|<>"
-            )
+            playlist_text += format_name(result[1])
 
         if result[0] is not None and result[0].youtube_link is not None:
             tracks.append(result[0])
@@ -380,9 +379,7 @@ def from_playlist(
         else:
             playlist_name = playlist_tracks[0]["track"]["name"]
 
-        playlist_name = "".join(
-            char for char in playlist_name if char not in "/?\\*|<>"
-        )
+        playlist_name = format_name(playlist_name)
 
         playlist_file = Path(f"{playlist_name}.m3u")
 
