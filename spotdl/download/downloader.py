@@ -177,9 +177,9 @@ class DownloadManager:
                 return None
 
             if self.arguments["output_format"] == "m4a":
-                ytdl_format = "bestaudio[ext=m4a]"
+                ytdl_format = "bestaudio[ext=m4a]/bestaudio/best"
             elif self.arguments["output_format"] == "opus":
-                ytdl_format = "bestaudio[ext=webm]"
+                ytdl_format = "bestaudio[ext=webm]/bestaudio/best"
             else:
                 ytdl_format = "bestaudio"
 
@@ -220,7 +220,7 @@ class DownloadManager:
 
             downloaded_file_path = Path(downloaded_file_path_string)
 
-            if self.arguments["output_format"] != "m4a":
+            if downloaded_file_path.suffix == ".m4a" and self.arguments["output_format"] != "m4a":
                 ffmpeg_success = await ffmpeg.convert(
                     downloaded_file_path=downloaded_file_path,
                     converted_file_path=converted_file_path,
