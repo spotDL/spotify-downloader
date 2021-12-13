@@ -201,16 +201,7 @@ def from_album(
             return None, None
         except OSError:
             if generate_m3u:
-                song_obj = SongObject(
-                    {
-                        *track
-                    },
-                    album_response,
-                    {},
-                    None,
-                    "",
-                    None
-                )
+                song_obj = SongObject({*track}, album_response, {}, None, "", None)
                 file_path = _parse_path_template(path_template, song_obj, output_format)
 
                 return None, f"{file_path}\n"
@@ -321,14 +312,7 @@ def from_playlist(
         except OSError:
             if generate_m3u:
                 song_obj = SongObject(
-                    {
-                        *track["track"]
-                    },
-                    {},
-                    {},
-                    None,
-                    "",
-                    playlist_response
+                    {*track["track"]}, {}, {}, None, "", playlist_response
                 )
                 file_path = _parse_path_template(path_template, song_obj, output_format)
 

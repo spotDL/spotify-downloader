@@ -192,12 +192,16 @@ def _order_ytm_results(
         # this needs more testing
         if result["type"] == "song":
             name_match = round(
-                _match_percentage(unidecode(result["name"]), str(unidecode(song_name)), 60),
+                _match_percentage(
+                    unidecode(result["name"]), str(unidecode(song_name)), 60
+                ),
                 ndigits=3,
             )
         else:
             name_match = round(
-                _match_percentage(unidecode(result["name"]), str(unidecode(song_title)), 60),
+                _match_percentage(
+                    unidecode(result["name"]), str(unidecode(song_title)), 60
+                ),
                 ndigits=3,
             )
 

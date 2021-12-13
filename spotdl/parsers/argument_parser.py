@@ -78,7 +78,7 @@ You can use the --debug-termination flag to figure out where in the code spotdl 
 
 spotDL downloads up to 4 songs in parallel, so for a faster experience,
 download albums and playlist, rather than tracks.
-"""
+"""  # noqa: E501
 
 
 def parse_arguments():
