@@ -1,3 +1,5 @@
+import re
+
 from pathlib import Path
 from typing import List
 
@@ -143,5 +145,16 @@ def _parse_path_template(path_template, song_object, output_format, short=False)
         )
 
     converted_file_path = Path(converted_file_name)
+
+    santitized_parts = []
+    for part in converted_file_path.parts:
+        match = re.search(r"[^\.*](.*)[^\.*$]", part)
+        if match:
+            santitized_parts.append(match.group(0))
+        else:
+            santitized_parts.append(part)
+
+    # Join the parts of the path
+    converted_file_path = Path(*santitized_parts)
 
     return converted_file_path
