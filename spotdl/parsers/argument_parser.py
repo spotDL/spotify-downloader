@@ -2,7 +2,7 @@ from argparse import ArgumentParser, RawDescriptionHelpFormatter
 
 import pkg_resources
 
-help_notice = r"""  # noqa: E501
+help_notice = r"""
 To download a song run,
     spotdl [trackUrl]
     ex. spotdl https://open.spotify.com/track/0VjIjW4GlUZAMYd2vXMi3b

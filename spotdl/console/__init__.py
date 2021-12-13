@@ -84,6 +84,7 @@ def console_entry_point():
             arguments.generate_m3u,
             arguments.lyrics_provider,
             arguments.search_threads,
+            arguments.path_template
         )
 
         # Start downloading
