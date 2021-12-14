@@ -116,7 +116,7 @@ def _order_yt_results(
             # ! (remix)' would return 100, so we're absolutely corrent in matching
             # ! artists to song name.
             if _match_percentage(
-                unidecode(artist.lower()), unidecode(result.title).lower(), 85
+                str(unidecode(artist.lower())), str(unidecode(result.title).lower()), 85
             ):
                 artist_match_number += 1
 
@@ -129,7 +129,7 @@ def _order_yt_results(
         song_title = _create_song_title(song_name, song_artists).lower()
         name_match = round(
             _match_percentage(
-                unidecode(result.title.lower()), unidecode(song_title), 60
+                str(unidecode(result.title.lower())), str(unidecode(song_title)), 60
             ),
             ndigits=3,
         )

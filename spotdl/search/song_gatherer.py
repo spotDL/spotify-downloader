@@ -11,8 +11,11 @@ from spotdl.providers import (
     lyrics_providers,
 )
 from spotdl.search import SongObject, SpotifyClient
-from spotdl.providers.provider_utils import _get_converted_file_path
 from spotdl.utils.song_name_utils import format_name
+from spotdl.providers.provider_utils import (
+    _get_converted_file_path,
+    _parse_path_template,
+)
 
 
 def from_spotify_url(
@@ -141,6 +144,7 @@ def from_album(
     lyrics_provider: str = None,
     generate_m3u: bool = False,
     threads: int = 1,
+    path_template: str = None,
 ) -> List[SongObject]:
     """
     Create and return list containing SongObject for every song in the album
@@ -188,7 +192,7 @@ def from_album(
             )
 
             if generate_m3u:
-                file_path = _get_converted_file_path(song, output_format)
+                file_path = _parse_path_template(path_template, song, output_format)
 
                 return song, f"{file_path}\n"
 
@@ -197,31 +201,8 @@ def from_album(
             return None, None
         except OSError:
             if generate_m3u:
-                file_path = (
-                    str(
-                        provider_utils._create_song_title(
-                            track["name"],
-                            [artist["name"] for artist in track["artists"]],
-                        )
-                    )
-                    + "."
-                    + output_format
-                    if output_format is not None
-                    else "mp3"
-                )
-
-                if len(file_path) > 256:
-                    file_path = (
-                        str(
-                            provider_utils._create_song_title(
-                                track["name"], [track["artists"][0]["name"]]
-                            )
-                        )
-                        + "."
-                        + output_format
-                        if output_format is not None
-                        else "mp3"
-                    )
+                song_obj = SongObject({*track}, album_response, {}, None, "", None)
+                file_path = _parse_path_template(path_template, song_obj, output_format)
 
                 return None, f"{file_path}\n"
 
@@ -233,7 +214,7 @@ def from_album(
     album_text = ""
     for result in results:
         if result[1] is not None:
-            album_text += format_name(result[1])
+            album_text += result[1]
 
         if result[0] is not None and result[0].youtube_link is not None:
             tracks.append(result[0])
@@ -263,6 +244,7 @@ def from_playlist(
     lyrics_provider: str = None,
     generate_m3u: bool = False,
     threads: int = 1,
+    path_template: str = None,
 ) -> List[SongObject]:
     """
     Create and return list containing SongObject for every song in the playlist
@@ -320,7 +302,7 @@ def from_playlist(
             )
 
             if generate_m3u:
-                file_path = _get_converted_file_path(song, output_format)
+                file_path = _parse_path_template(path_template, song, output_format)
 
                 return song, f"{file_path}\n"
 
@@ -329,32 +311,10 @@ def from_playlist(
             return None, None
         except OSError:
             if generate_m3u:
-                file_path = (
-                    str(
-                        provider_utils._create_song_title(
-                            track["track"]["name"],
-                            [artist["name"] for artist in track["track"]["artists"]],
-                        )
-                    )
-                    + "."
-                    + output_format
-                    if output_format is not None
-                    else "mp3"
+                song_obj = SongObject(
+                    {*track["track"]}, {}, {}, None, "", playlist_response
                 )
-
-                if len(file_path) > 256:
-                    file_path = (
-                        str(
-                            provider_utils._create_song_title(
-                                track["track"]["name"],
-                                [track["track"]["artists"][0]["name"]],
-                            )
-                        )
-                        + "."
-                        + output_format
-                        if output_format is not None
-                        else "mp3"
-                    )
+                file_path = _parse_path_template(path_template, song_obj, output_format)
 
                 return None, f"{file_path}\n"
 
@@ -366,7 +326,7 @@ def from_playlist(
     playlist_text = ""
     for result in results:
         if result[1] is not None:
-            playlist_text += format_name(result[1])
+            playlist_text += result[1]
 
         if result[0] is not None and result[0].youtube_link is not None:
             tracks.append(result[0])
