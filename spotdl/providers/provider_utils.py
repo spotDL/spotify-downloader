@@ -40,7 +40,9 @@ def _match_percentage(str1: str, str2: str, score_cutoff: float = 0) -> float:
             if each_letter.isalnum() or each_letter.isspace()
         )
 
-        return fuzz.partial_ratio(new_str1, new_str2, processor=None, score_cutoff=score_cutoff)
+        return fuzz.partial_ratio(
+            new_str1, new_str2, processor=None, score_cutoff=score_cutoff
+        )
 
 
 def _parse_duration(duration: str) -> float:

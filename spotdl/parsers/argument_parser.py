@@ -2,7 +2,7 @@ from argparse import ArgumentParser, RawDescriptionHelpFormatter
 
 import pkg_resources
 
-help_notice = r"""  # noqa: E501
+help_notice = r"""
 To download a song run,
     spotdl [trackUrl]
     ex. spotdl https://open.spotify.com/track/0VjIjW4GlUZAMYd2vXMi3b
@@ -78,7 +78,7 @@ You can use the --debug-termination flag to figure out where in the code spotdl 
 
 spotDL downloads up to 4 songs in parallel, so for a faster experience,
 download albums and playlist, rather than tracks.
-"""
+"""  # noqa: E501
 
 
 def parse_arguments():

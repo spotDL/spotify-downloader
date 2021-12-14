@@ -68,11 +68,9 @@ async def convert(
         "mp3": ["-codec:a", "libmp3lame"],
         "flac": ["-codec:a", "flac"],
         "ogg": ["-codec:a", "libvorbis"],
-        "opus": [
-            "-vn", "-c:a", "copy"
-        ] if downloaded_file_path.endswith(".opus") else [
-            "-c:a", "libopus"
-        ],
+        "opus": ["-vn", "-c:a", "copy"]
+        if downloaded_file_path.endswith(".opus")
+        else ["-c:a", "libopus"],
         "m4a": ["-codec:a", "aac", "-vn"],
         "wav": [],
     }

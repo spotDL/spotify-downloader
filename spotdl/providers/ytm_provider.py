@@ -160,7 +160,7 @@ def _order_ytm_results(
         if result["type"] == "song":
             for artist in song_artists:
                 artist_match_number += _match_percentage(
-                    unidecode(artist.lower()), unidecode(result["artist"]).lower()
+                    str(unidecode(artist.lower())), unidecode(result["artist"].lower())
                 )
         else:
             # ! i.e if video
@@ -169,7 +169,7 @@ def _order_ytm_results(
                 # ! (remix)' would return 100, so we're absolutely corrent in matching
                 # ! artists to song name.
                 artist_match_number += _match_percentage(
-                    unidecode(artist.lower()), unidecode(result["name"]).lower()
+                    str(unidecode(artist.lower())), unidecode(result["name"].lower())
                 )
 
             # we didn't find artist in the video title, so we fallback to
@@ -178,7 +178,7 @@ def _order_ytm_results(
             if artist_match_number == 0:
                 for artist in song_artists:
                     artist_match_number += _match_percentage(
-                        unidecode(artist.lower()),
+                        str(unidecode(artist.lower())),
                         unidecode(result["artist"].lower()),
                     )
 
@@ -192,12 +192,16 @@ def _order_ytm_results(
         # this needs more testing
         if result["type"] == "song":
             name_match = round(
-                _match_percentage(unidecode(result["name"]), unidecode(song_name), 60),
+                _match_percentage(
+                    unidecode(result["name"]), str(unidecode(song_name)), 60
+                ),
                 ndigits=3,
             )
         else:
             name_match = round(
-                _match_percentage(unidecode(result["name"]), unidecode(song_title), 60),
+                _match_percentage(
+                    unidecode(result["name"]), str(unidecode(song_title)), 60
+                ),
                 ndigits=3,
             )
 

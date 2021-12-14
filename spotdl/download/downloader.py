@@ -220,16 +220,19 @@ class DownloadManager:
 
             downloaded_file_path = Path(downloaded_file_path_string)
 
-            if downloaded_file_path.suffix == ".m4a" and self.arguments["output_format"] != "m4a":
+            if (
+                downloaded_file_path.suffix == ".m4a"
+                and self.arguments["output_format"] == "m4a"
+            ):
+                downloaded_file_path.rename(converted_file_path)
+                ffmpeg_success = True
+            else:
                 ffmpeg_success = await ffmpeg.convert(
                     downloaded_file_path=downloaded_file_path,
                     converted_file_path=converted_file_path,
                     output_format=self.arguments["output_format"],
                     ffmpeg_path=self.arguments["ffmpeg"],
                 )
-            else:
-                downloaded_file_path.rename(converted_file_path)
-                ffmpeg_success = True
 
             if display_progress_tracker:
                 display_progress_tracker.notify_conversion_completion()
