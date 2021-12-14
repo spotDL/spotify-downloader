@@ -1,6 +1,8 @@
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
 
-help_notice = r"""  # noqa: E501
+import pkg_resources
+
+help_notice = r"""
 To download a song run,
     spotdl [trackUrl]
     ex. spotdl https://open.spotify.com/track/0VjIjW4GlUZAMYd2vXMi3b
@@ -76,7 +78,7 @@ You can use the --debug-termination flag to figure out where in the code spotdl 
 
 spotDL downloads up to 4 songs in parallel, so for a faster experience,
 download albums and playlist, rather than tracks.
-"""
+"""  # noqa: E501
 
 
 def parse_arguments():
@@ -91,6 +93,10 @@ def parse_arguments():
     parser.add_argument(
         "query", type=str, nargs="+", help="URL/String for a song/album/playlist/artist"
     )
+
+    # Version
+    version = pkg_resources.require("spotdl")[0].version
+    parser.add_argument("--version", "-v", action="version", version=version)
 
     # Option to enable debug termination
     parser.add_argument("--debug-termination", action="store_true")
@@ -166,14 +172,6 @@ def parse_arguments():
         "--generate-m3u",
         "--m3u",
         help="Generate .m3u file for each playlist",
-        action="store_true",
-    )
-
-    # Option to print ffmpeg version
-    parser.add_argument(
-        "-v",
-        "--version",
-        help="Show spotDL's version and exit",
         action="store_true",
     )
 

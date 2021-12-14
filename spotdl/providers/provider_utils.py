@@ -5,6 +5,8 @@ from typing import List
 
 from rapidfuzz import fuzz
 
+from spotdl.utils.song_name_utils import format_name
+
 
 def _match_percentage(str1: str, str2: str, score_cutoff: float = 0) -> float:
     """
@@ -21,7 +23,7 @@ def _match_percentage(str1: str, str2: str, score_cutoff: float = 0) -> float:
 
     # ! this will throw an error if either string contains a UTF-8 encoded emoji
     try:
-        return fuzz.partial_ratio(str1, str2, score_cutoff=score_cutoff)
+        return fuzz.partial_ratio(str1, str2, processor=None, score_cutoff=score_cutoff)
 
     # ! we build new strings that contain only alphanumerical characters and spaces
     # ! and return the partial_ratio of that
@@ -38,7 +40,9 @@ def _match_percentage(str1: str, str2: str, score_cutoff: float = 0) -> float:
             if each_letter.isalnum() or each_letter.isspace()
         )
 
-        return fuzz.partial_ratio(new_str1, new_str2, score_cutoff=score_cutoff)
+        return fuzz.partial_ratio(
+            new_str1, new_str2, processor=None, score_cutoff=score_cutoff
+        )
 
 
 def _parse_duration(duration: str) -> float:
@@ -58,20 +62,11 @@ def _parse_duration(duration: str) -> float:
 
 def _create_song_title(song_name: str, song_artists: List[str]) -> str:
     joined_artists = ", ".join(song_artists)
-    return f"{joined_artists} - {song_name}"
+    return _sanitize_filename(f"{joined_artists} - {song_name}")
 
 
 def _sanitize_filename(input_str: str) -> str:
-    output = input_str
-
-    # ! this is windows specific (disallowed chars)
-    output = "".join(char for char in output if char not in "/?\\*|<>")
-
-    # ! double quotes (") and semi-colons (:) are also disallowed characters but we would
-    # ! like to retain their equivalents, so they aren't removed in the prior loop
-    output = output.replace('"', "'").replace(":", "-")
-
-    return output
+    return format_name(input_str)
 
 
 def _get_smaller_file_path(input_song, output_format: str) -> Path:
@@ -135,7 +130,9 @@ def _parse_path_template(path_template, song_object, output_format, short=False)
         artist=_sanitize_filename(song_object.contributing_artists[0]),
         title=_sanitize_filename(song_object.song_name),
         album=_sanitize_filename(song_object.album_name),
-        playlist=_sanitize_filename(song_object.playlist_name) if song_object.playlist_name else "",
+        playlist=_sanitize_filename(song_object.playlist_name)
+        if song_object.playlist_name
+        else "",
         artists=_sanitize_filename(
             ", ".join(song_object.contributing_artists)
             if short is False
@@ -150,5 +147,16 @@ def _parse_path_template(path_template, song_object, output_format, short=False)
         )
 
     converted_file_path = Path(converted_file_name)
+
+    santitized_parts = []
+    for part in converted_file_path.parts:
+        match = re.search(r"[^\.*](.*)[^\.*$]", part)
+        if match:
+            santitized_parts.append(match.group(0))
+        else:
+            santitized_parts.append(part)
+
+    # Join the parts of the path
+    converted_file_path = Path(*santitized_parts)
 
     return converted_file_path

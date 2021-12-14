@@ -6,7 +6,13 @@ from spotdl.providers import lyrics_providers, metadata_provider
 
 
 def parse_query(
-    query: List[str], format, use_youtube, generate_m3u, lyrics_provider, threads
+    query: List[str],
+    format,
+    use_youtube,
+    generate_m3u,
+    lyrics_provider,
+    threads,
+    path_template,
 ) -> List[SongObject]:
     """
     Parse query and return list containing song object
@@ -21,7 +27,13 @@ def parse_query(
 
         songs_list.extend(
             parse_request(
-                request, format, use_youtube, generate_m3u, lyrics_provider, threads
+                request,
+                format,
+                use_youtube,
+                generate_m3u,
+                lyrics_provider,
+                threads,
+                path_template,
             )
         )
 
@@ -46,17 +58,18 @@ def parse_request(
     generate_m3u: bool = False,
     lyrics_provider: str = None,
     threads: int = 1,
+    path_template: str = None,
 ) -> List[SongObject]:
     song_list: List[SongObject] = []
     if (
-        "youtube.com/watch?v=" in request
+        ("youtube.com/watch?v=" in request or "youtu.be/" in request)
         and "open.spotify.com" in request
         and "track" in request
         and "|" in request
     ):
         urls = request.split("|")
 
-        if len(urls) <= 1 or "youtube" not in urls[0] or "spotify" not in urls[1]:
+        if len(urls) <= 1 or "youtu" not in urls[0] or "spotify" not in urls[1]:
             print("Incorrect format used, please use YouTubeURL|SpotifyURL")
         else:
             print("Fetching YouTube video with spotify metadata")
@@ -81,12 +94,24 @@ def parse_request(
     elif "open.spotify.com" in request and "album" in request:
         print("Fetching Album...")
         song_list = song_gatherer.from_album(
-            request, output_format, use_youtube, lyrics_provider, generate_m3u, threads
+            request,
+            output_format,
+            use_youtube,
+            lyrics_provider,
+            generate_m3u,
+            threads,
+            path_template,
         )
     elif "open.spotify.com" in request and "playlist" in request:
         print("Fetching Playlist...")
         song_list = song_gatherer.from_playlist(
-            request, output_format, use_youtube, lyrics_provider, generate_m3u, threads
+            request,
+            output_format,
+            use_youtube,
+            lyrics_provider,
+            generate_m3u,
+            threads,
+            path_template,
         )
     elif "open.spotify.com" in request and "artist" in request:
         print("Fetching artist...")

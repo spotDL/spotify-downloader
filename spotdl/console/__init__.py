@@ -1,7 +1,7 @@
 import os
 import sys
+from pathlib import Path
 import signal
-import pkg_resources
 
 from spotdl.download import ffmpeg, DownloadManager
 from spotdl.parsers import parse_arguments, parse_query
@@ -14,23 +14,20 @@ def console_entry_point():
     Its super simple, rudimentary even but, it's dead simple & it works.
     """
 
-    # If -v parameter is specified print version and exit
-    if len(sys.argv) >= 2 and sys.argv[1] in ["-v", "--version"]:
-        version = pkg_resources.require("spotdl")[0].version
-        print(version)
-        sys.exit(0)
-
-    # Parser arguments
+    # Parse arguments
     arguments = parse_arguments()
 
     # Convert arguments to dict
     args_dict = vars(arguments)
 
+    if arguments.ffmpeg:
+        args_dict["ffmpeg"] = str(Path(arguments.ffmpeg).absolute())
+    else:
+        args_dict["ffmpeg"] = "ffmpeg"
+
     # Check if ffmpeg has correct version, if not exit
     if (
-        ffmpeg.has_correct_version(
-            arguments.ignore_ffmpeg_version, arguments.ffmpeg or "ffmpeg"
-        )
+        ffmpeg.has_correct_version(arguments.ignore_ffmpeg_version, args_dict["ffmpeg"])
         is False
     ):
         sys.exit(1)
@@ -85,6 +82,7 @@ def console_entry_point():
             arguments.generate_m3u,
             arguments.lyrics_provider,
             arguments.search_threads,
+            arguments.path_template,
         )
 
         # Start downloading

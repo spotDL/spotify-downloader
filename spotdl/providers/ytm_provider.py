@@ -154,44 +154,37 @@ def _order_ytm_results(
 
         # Find artist match
         # ! match  = (no of artist names in result) / (no. of artist names on spotify) * 100
-        artist_match_number = 0
+        artist_match_number = 0.0
 
         # ! we use fuzzy matching because YouTube spellings might be mucked up
         if result["type"] == "song":
             for artist in song_artists:
-                if _match_percentage(
-                    unidecode(artist.lower()), unidecode(result["artist"]).lower(), 85
-                ):
-                    artist_match_number += 1
+                artist_match_number += _match_percentage(
+                    str(unidecode(artist.lower())), unidecode(result["artist"].lower())
+                )
         else:
             # ! i.e if video
             for artist in song_artists:
                 # ! something like _match_percentage('rionos', 'aiobahn, rionos Motivation
                 # ! (remix)' would return 100, so we're absolutely corrent in matching
                 # ! artists to song name.
-                if _match_percentage(
-                    unidecode(artist.lower()), unidecode(result["name"]).lower(), 85
-                ):
-                    artist_match_number += 1
+                artist_match_number += _match_percentage(
+                    str(unidecode(artist.lower())), unidecode(result["name"].lower())
+                )
 
             # we didn't find artist in the video title, so we fallback to
             # detecting song artist in the channel name
             # I am not sure if this won't create false positives
             if artist_match_number == 0:
                 for artist in song_artists:
-                    if _match_percentage(
-                        unidecode(artist.lower()),
+                    artist_match_number += _match_percentage(
+                        str(unidecode(artist.lower())),
                         unidecode(result["artist"].lower()),
-                        85,
-                    ):
-                        artist_match_number += 1
+                    )
 
-        # ! Skip if there are no artists in common, (else, results like 'Griffith Swank -
-        # ! Madness' will be the top match for 'Ruelle - Madness')
-        if artist_match_number == 0:
+        artist_match = artist_match_number / len(song_artists)
+        if artist_match < 70:
             continue
-
-        artist_match = (artist_match_number / len(song_artists)) * 100
 
         song_title = _create_song_title(song_name, song_artists).lower()
 
@@ -199,12 +192,16 @@ def _order_ytm_results(
         # this needs more testing
         if result["type"] == "song":
             name_match = round(
-                _match_percentage(unidecode(result["name"]), unidecode(song_name), 60),
+                _match_percentage(
+                    unidecode(result["name"]), str(unidecode(song_name)), 60
+                ),
                 ndigits=3,
             )
         else:
             name_match = round(
-                _match_percentage(unidecode(result["name"]), unidecode(song_title), 60),
+                _match_percentage(
+                    unidecode(result["name"]), str(unidecode(song_title)), 60
+                ),
                 ndigits=3,
             )
 

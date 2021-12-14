@@ -163,8 +163,6 @@ class DownloadManager:
                     song_object, self.arguments["output_format"]
                 )
 
-            converted_file_path.parent.mkdir(parents=True, exist_ok=True)
-
             # if a song is already downloaded skip it
             if converted_file_path.is_file():
                 if self.display_manager:
@@ -176,10 +174,12 @@ class DownloadManager:
                 # ! it here as a continent way to avoid executing the rest of the function.
                 return None
 
+            converted_file_path.parent.mkdir(parents=True, exist_ok=True)
+
             if self.arguments["output_format"] == "m4a":
-                ytdl_format = "bestaudio[ext=m4a]"
+                ytdl_format = "bestaudio[ext=m4a]/bestaudio/best"
             elif self.arguments["output_format"] == "opus":
-                ytdl_format = "bestaudio[ext=webm]"
+                ytdl_format = "bestaudio[ext=webm]/bestaudio/best"
             else:
                 ytdl_format = "bestaudio"
 
@@ -199,7 +199,7 @@ class DownloadManager:
 
             try:
                 downloaded_file_path_string = await self._perform_audio_download_async(
-                    converted_file_path.name.split(".")[0],
+                    converted_file_path.name.rsplit(".", 1)[0],
                     temp_folder,
                     audio_handler,
                     song_object.youtube_link,
@@ -220,16 +220,19 @@ class DownloadManager:
 
             downloaded_file_path = Path(downloaded_file_path_string)
 
-            if self.arguments["output_format"] != "m4a":
+            if (
+                downloaded_file_path.suffix == ".m4a"
+                and self.arguments["output_format"] == "m4a"
+            ):
+                downloaded_file_path.rename(converted_file_path)
+                ffmpeg_success = True
+            else:
                 ffmpeg_success = await ffmpeg.convert(
                     downloaded_file_path=downloaded_file_path,
                     converted_file_path=converted_file_path,
                     output_format=self.arguments["output_format"],
                     ffmpeg_path=self.arguments["ffmpeg"],
                 )
-            else:
-                downloaded_file_path.rename(converted_file_path)
-                ffmpeg_success = True
 
             if display_progress_tracker:
                 display_progress_tracker.notify_conversion_completion()

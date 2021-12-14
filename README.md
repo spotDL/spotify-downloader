@@ -38,8 +38,8 @@ spotDL is being redesigned! This means we are currently not accepting new featur
 
 ## Prerequisites
 
--   Python 3.6.1 or above (added to PATH)
--   FFmpeg 4.2 or above (added to PATH)
+- Python 3.6.1 or above (added to PATH)
+- FFmpeg 4.2 or above (added to PATH)
 
 > **_YouTube Music must be available in your country for spotDL to work. This is because we use YouTube Music to filter search results. You can check if YouTube Music is available in your country, by visiting [YouTube Music](https://music.youtube.com)._**
 
@@ -47,19 +47,19 @@ spotDL is being redesigned! This means we are currently not accepting new featur
 
 ### Installing FFmpeg
 
--   [Windows Tutorial](https://windowsloop.com/install-ffmpeg-windows-10/)
--   OSX - `brew install ffmpeg`
--   Linux - `sudo apt install ffmpeg`
+- [Windows Tutorial](https://windowsloop.com/install-ffmpeg-windows-10/)
+- OSX - `brew install ffmpeg`
+- Linux - `sudo apt install ffmpeg`
 
 ### Installing spotDL
 
--   Recommended Stable Version:
+- Recommended Stable Version:
 
     ```bash
     pip install spotdl
     ```
 
--   Dev Version: **(NOT STABLE)**
+- Dev Version: **(NOT STABLE)**
 
     ```bash
     pip install https://codeload.github.com/spotDL/spotify-downloader/zip/dev
@@ -81,7 +81,7 @@ There is an Arch User Repository (AUR) package for [spotDL](https://aur.archlinu
 
 ## Usage
 
--   #### To download a song, run
+- #### To download a song, run
 
     ```bash
     spotdl [trackUrl]
@@ -93,7 +93,7 @@ There is an Arch User Repository (AUR) package for [spotDL](https://aur.archlinu
     spotdl https://open.spotify.com/track/0VjIjW4GlUZAMYd2vXMi3b
     ```
 
--   #### To download an album, run
+- #### To download an album, run
 
     ```bash
     spotdl [albumUrl]
@@ -105,7 +105,7 @@ There is an Arch User Repository (AUR) package for [spotDL](https://aur.archlinu
     spotdl https://open.spotify.com/album/4yP0hdKOZPNshxUOjY0cZj
     ```
 
--   #### To download a playlist, run
+- #### To download a playlist, run
 
     ```bash
     spotdl [playlistUrl]
@@ -117,7 +117,7 @@ There is an Arch User Repository (AUR) package for [spotDL](https://aur.archlinu
     spotdl https://open.spotify.com/playlist/37i9dQZF1E8UXBoz02kGID
     ```
 
--   #### To download all songs from an artist run
+- #### To download all songs from an artist run
 
     ```bash
     spotdl [artistUrl]
@@ -129,7 +129,7 @@ There is an Arch User Repository (AUR) package for [spotDL](https://aur.archlinu
     spotdl https://open.spotify.com/artist/1fZAAHNWdSM5gqbi9o5iEA
     ```
 
--   #### To search for and download a song, run, **with quotation marks**
+- #### To search for and download a song, run, **with quotation marks**
 
     ```bash
     spotdl '[songQuery]'
@@ -143,7 +143,7 @@ There is an Arch User Repository (AUR) package for [spotDL](https://aur.archlinu
 
     > _Note: This is not accurate and often causes errors._
 
--   #### To resume a failed/incomplete download, run
+- #### To resume a failed/incomplete download, run
 
     ```bash
     spotdl [pathToTrackingFile]
@@ -157,7 +157,7 @@ There is an Arch User Repository (AUR) package for [spotDL](https://aur.archlinu
 
     > _Note: `.spotdlTrackingFile`s are automatically created when a download starts and deleted on completion_
 
--   #### You can queue up multiple download tasks by separating the arguments with spaces
+- #### You can queue up multiple download tasks by separating the arguments with spaces
 
     ```bash
     spotdl [songQuery1] [albumUrl] [songQuery2] ... (order does not matter)
@@ -171,7 +171,7 @@ There is an Arch User Repository (AUR) package for [spotDL](https://aur.archlinu
 
     > _Note: spotDL downloads up to 4 songs in parallel, so for a faster experience, download albums and playlist, rather than tracks._
 
--   #### To download youtube video with metadata from spotify run:
+- #### To download youtube video with metadata from spotify, run
 
     ```bash
     spotdl "YouTubeURL|SpotifyURL"
@@ -185,7 +185,7 @@ There is an Arch User Repository (AUR) package for [spotDL](https://aur.archlinu
 
     > Note: Urls have to be separated with `|` and quoted properly ex. "YouTubeURL|SpotifyUrl"
 
--   #### To download songs with different output format run
+- #### To download songs with different output format run
 
     ```bash
     spotdl [songUrl] --output-format mp3/m4a/flac/opus/ogg/wav
@@ -197,7 +197,7 @@ There is an Arch User Repository (AUR) package for [spotDL](https://aur.archlinu
     spotdl [songUrl] --output-format opus
     ```
 
--   #### To use ffmpeg binary that is not on PATH run
+- #### To use ffmpeg binary that is not on PATH run
 
     ```bash
     spotdl [songUrl] --ffmpeg path/to/your/ffmpeg.exe
@@ -209,7 +209,7 @@ There is an Arch User Repository (AUR) package for [spotDL](https://aur.archlinu
     spotdl [songUrl] --ffmpeg C:\ffmpeg\bin\ffmpeg.exe
     ```
 
--   #### To generate .m3u file for each playlist run
+- #### To generate .m3u file for each playlist run
 
     ```bash
     spotdl [playlistUrl] --m3u
@@ -221,7 +221,7 @@ There is an Arch User Repository (AUR) package for [spotDL](https://aur.archlinu
       spotdl https://open.spotify.com/playlist/37i9dQZF1E8UXBoz02kGID --m3u
     ```
 
--   #### To use youtube instead of youtube music run
+- #### To use youtube instead of youtube music run
 
     ```bash
     spotdl [songUrl] --use-youtube
@@ -233,7 +233,23 @@ There is an Arch User Repository (AUR) package for [spotDL](https://aur.archlinu
       spotdl https://open.spotify.com/track/4fzsfWzRhPawzqhX8Qt9F3 --use-youtube
     ```
 
--   #### To change number of threads used when downloading songs run
+- #### To manually choose a lyrics provider, run
+  
+    ```bash
+      spotdl [songUrl] --lyrics-provider lyrics_provider
+    ```
+
+    available lyrics providers:
+    - genius
+    - musixmatch
+
+    example:
+
+    ```bash
+      spotdl https://open.spotify.com/track/4fzsfWzRhPawzqhX8Qt9F3 --lyrics-provider genius
+    ```
+
+- #### To change number of threads used when downloading songs run
 
     ```bash
     spotdl [songUrl] --dt [number]
@@ -245,7 +261,7 @@ There is an Arch User Repository (AUR) package for [spotDL](https://aur.archlinu
     spotdl https://open.spotify.com/track/4fzsfWzRhPawzqhX8Qt9F3 --dt 8
     ```
 
--   #### To change number of threads used when searching for songs run
+- #### To change number of threads used when searching for songs run
 
     ```bash
     spotdl [songUrl] --st [number]
@@ -257,19 +273,20 @@ There is an Arch User Repository (AUR) package for [spotDL](https://aur.archlinu
     spotdl https://open.spotify.com/track/4fzsfWzRhPawzqhX8Qt9F3 --st 8
     ```
 
--   #### To ignore your ffmpeg version run
+- #### To ignore your ffmpeg version run
 
     ```bash
     spotdl [songUrl] --ignore-ffmpeg-version
     ```
 
--   #### To use path template
+- #### To use path template
 
     ```bash
     spotdl [songUrl] --path-template 'template'
     ```
 
     example:
+
     ```bash
     spotdl https://open.spotify.com/track/0VjIjW4GlUZAMYd2vXMi3b --path-template '{artist}/{album}/{title} - {artist}.{ext}'
     ```
