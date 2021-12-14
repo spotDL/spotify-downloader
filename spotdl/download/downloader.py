@@ -163,8 +163,6 @@ class DownloadManager:
                     song_object, self.arguments["output_format"]
                 )
 
-            converted_file_path.parent.mkdir(parents=True, exist_ok=True)
-
             # if a song is already downloaded skip it
             if converted_file_path.is_file():
                 if self.display_manager:
@@ -175,6 +173,8 @@ class DownloadManager:
                 # ! None is the default return value of all functions, we just explicitly define
                 # ! it here as a continent way to avoid executing the rest of the function.
                 return None
+
+            converted_file_path.parent.mkdir(parents=True, exist_ok=True)
 
             if self.arguments["output_format"] == "m4a":
                 ytdl_format = "bestaudio[ext=m4a]/bestaudio/best"
@@ -199,7 +199,7 @@ class DownloadManager:
 
             try:
                 downloaded_file_path_string = await self._perform_audio_download_async(
-                    converted_file_path.name.split(".")[0],
+                    converted_file_path.name.rsplit(".", 1)[0],
                     temp_folder,
                     audio_handler,
                     song_object.youtube_link,
