@@ -69,16 +69,31 @@ async def convert(
         "flac": ["-codec:a", "flac"],
         "ogg": ["-codec:a", "libvorbis"],
         "opus": ["-vn", "-c:a", "copy"]
-        if downloaded_file_path.endswith(".opus")
+        if downloaded_file_path.endswith(".webm")
         else ["-c:a", "libopus"],
         "m4a": ["-codec:a", "aac", "-vn"],
         "wav": [],
     }
 
+    bitrates = {
+        "mp3": ["-q:a", "0"],
+        "flac": [],
+        "ogg": ["-q:a", "5"],
+        "opus": []
+        if downloaded_file_path.endswith(".webm")
+        else ["-b:a", "160K"],
+        "m4a": []
+        if downloaded_file_path.endswith(".m4a")
+        else ["-b:a", "160K"],
+        "wav": [],
+    }
+
     if output_format is None:
         output_format_command = formats["mp3"]
+        output_bitrate = bitrates["mp3"]
     else:
         output_format_command = formats[output_format]
+        output_bitrate = bitrates[output_format]
 
     if ffmpeg_path is None:
         ffmpeg_path = "ffmpeg"
@@ -89,8 +104,7 @@ async def convert(
         *output_format_command,
         "-abr",
         "true",
-        "-q:a",
-        "0",
+        *output_bitrate,
         "-v",
         "debug",
         converted_file_path,
