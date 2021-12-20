@@ -192,7 +192,10 @@ def from_album(
             )
 
             if generate_m3u:
-                file_path = _parse_path_template(path_template, song, output_format)
+                if path_template:
+                    file_path = _parse_path_template(path_template, song, output_format)
+                else:
+                    file_path = _get_converted_file_path(song, output_format)
 
                 return song, f"{file_path}\n"
 
@@ -302,7 +305,10 @@ def from_playlist(
             )
 
             if generate_m3u:
-                file_path = _parse_path_template(path_template, song, output_format)
+                if path_template:
+                    file_path = _parse_path_template(path_template, song, output_format)
+                else:
+                    file_path = _get_converted_file_path(song, output_format)
 
                 return song, f"{file_path}\n"
 
