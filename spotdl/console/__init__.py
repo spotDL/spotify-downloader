@@ -2,7 +2,11 @@ import os
 import sys
 from pathlib import Path
 import signal
+import yaml
+import re
+import spotipy
 
+#from spotdl.auth import OpenSpotifySession
 from spotdl.download import ffmpeg, DownloadManager
 from spotdl.parsers import parse_arguments, parse_query
 from spotdl.search import SpotifyClient
@@ -19,6 +23,17 @@ def console_entry_point():
 
     # Convert arguments to dict
     args_dict = vars(arguments)
+
+    if os.path.isfile(args_dict["config"]):
+        with open(args_dict["config"], 'r') as f:
+            config = yaml.safe_load(f)
+        arguments.user_auth = True
+    else:
+        config = dict()
+        config["spotify"] = dict()
+        config["spotify"]["client_id"] = "5f573c9620494bae87890c0f08a60293"
+        config["spotify"]["client_secret"] = "212476d9b0f3472eaa762d90b19b0ba8"
+        arguments.user_auth = False
 
     if arguments.ffmpeg:
         args_dict["ffmpeg"] = str(Path(arguments.ffmpeg).absolute())
@@ -39,11 +54,12 @@ def console_entry_point():
         )
         print("Please Log In...")
 
+
     # Initialize spotify client
-    SpotifyClient.init(
-        client_id="5f573c9620494bae87890c0f08a60293",
-        client_secret="212476d9b0f3472eaa762d90b19b0ba8",
-        user_auth=arguments.user_auth,
+    spotify_client = SpotifyClient.init(
+        client_id = config["spotify"]["client_id"],
+        client_secret = config["spotify"]["client_secret"],
+        user_auth = arguments.user_auth,
     )
 
     # Change directory if user specified correct output path
@@ -53,6 +69,61 @@ def console_entry_point():
         print(f"Will download to: {os.path.abspath(arguments.output)}")
         os.chdir(arguments.output)
 
+    for query in arguments.query:
+        if query.startswith("regex:"):
+            base_directory = os.getcwd()
+            regexQuery = re.compile(query[6:518]);
+
+            try:
+                playlists = spotify_client.current_user_playlists()
+            except spotipy.SpotifyException as e:
+                if e.http_status == 401:
+                    print("Please authorize for fetch user playlists!")
+                    sys.exit(2)
+                else:
+                    print("Spotify error: ", e.msg)
+                    sys.exit(3)
+
+            while playlists:
+                for i, playlist in enumerate(playlists['items']):
+                    if regexQuery.match(playlist['name']):
+                        print("")
+                        print("Get playlist \"%s\"" % (playlist['name']))
+
+                        if arguments.output:
+                            playlist_directory = arguments.output + "/" + playlist['name']
+                        else:
+                            playlist_directory = base_directory + "/" + playlist['name']
+
+                        if not os.path.isdir(playlist_directory):
+                            try:
+                                os.mkdir(playlist_directory)
+                            except OSError:
+                                print (" - Creation of the directory %s failed" % playlist_directory)
+                            else:
+                                print (" - Successfully created the directory %s " % playlist_directory)
+
+                        os.chdir(playlist_directory)
+                        arguments.query = [playlist["external_urls"]["spotify"]]
+
+                        download(
+                            args_dict,
+                            arguments
+                        )
+
+                if playlists['next']:
+                    playlists = spotify_client.next(playlists)
+                else:
+                    playlists = None
+
+        else:
+            download(
+                args_dict,
+                arguments
+            )
+    sys.exit(1)
+
+def download(args_dict, arguments):
     # Start download manager
     with DownloadManager(args_dict) as downloader:
         if not arguments.debug_termination:

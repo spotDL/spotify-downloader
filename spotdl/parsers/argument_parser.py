@@ -101,6 +101,9 @@ def parse_arguments():
     # Option to enable debug termination
     parser.add_argument("--debug-termination", action="store_true")
 
+    # Option to define alternative configuration path
+    parser.add_argument('--config', default='config.yml', help='location of the config file')
+
     # Option to specify output directory
     parser.add_argument("--output", "-o", help="Output directory path")
 
