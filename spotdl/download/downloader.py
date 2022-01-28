@@ -1,298 +1,300 @@
-import sys
-import shutil
+import json
+import datetime
 import asyncio
-import traceback
+import sys
 import concurrent.futures
+import traceback
 
 from pathlib import Path
-from yt_dlp import YoutubeDL
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
-from spotdl.search import SongObject
-from spotdl.download.progress_ui_handler import YTDLLogger
-from spotdl.download import ffmpeg, set_id3_data, DisplayManager, DownloadTracker
-from spotdl.providers.provider_utils import (
-    _get_converted_file_path,
-    _parse_path_template,
-)
+from spotdl.types import Song
+from spotdl.utils.ffmpeg import FFmpeg
+from spotdl.utils.ffmpeg import FFmpegError
+from spotdl.utils.metadata import embed_metadata
+from spotdl.utils.formatter import create_file_name
+from spotdl.providers.audio.base import AudioProvider
+from spotdl.providers.lyrics import Genius, MusixMatch
+from spotdl.providers.lyrics.base import LyricsProvider
+from spotdl.providers.audio import YouTube, YouTubeMusic
+from spotdl.download.progress_handler import NAME_TO_LEVEL, ProgressHandler
+from spotdl.utils.config import get_errors_path, get_temp_path
 
 
-class DownloadManager:
-    def __init__(self, arguments: Optional[dict] = None):
-        # start a server for objects shared across processes
-        self.display_manager = DisplayManager()
-        self.download_tracker = DownloadTracker()
+AUDIO_PROVIDERS = {
+    "youtube": YouTube,
+    "youtube-music": YouTubeMusic,
+}
 
-        if arguments is None:
-            arguments = {}
+LYRICS_PROVIDERS = {
+    "genius": Genius,
+    "musixmatch": MusixMatch,
+}
 
-        arguments.setdefault("ffmpeg", "ffmpeg")
-        arguments.setdefault("output_format", "mp3")
-        arguments.setdefault("download_threads", 4)
-        arguments.setdefault("path_template", None)
 
-        if sys.platform == "win32":
-            # ! ProactorEventLoop is required on Windows to run subprocess asynchronously
-            # ! it is default since Python 3.8 but has to be changed for previous versions
-            loop = asyncio.ProactorEventLoop()
-            asyncio.set_event_loop(loop)
+class DownloaderError(Exception):
+    """
+    Base class for all exceptions related to downloaders.
+    """
 
-        self.loop = asyncio.get_event_loop()
-        # ! semaphore is required to limit concurrent asyncio executions
-        self.semaphore = asyncio.Semaphore(arguments["download_threads"])
 
-        # ! thread pool executor is used to run blocking (CPU-bound) code from a thread
+class Downloader:
+    def __init__(
+        self,
+        audio_provider: str = "youtube-music",
+        lyrics_provider: str = "musixmatch",
+        ffmpeg: str = "ffmpeg",
+        variable_bitrate: str = None,
+        constant_bitrate: str = None,
+        ffmpeg_args: Optional[List] = None,
+        output_format: str = "mp3",
+        threads: int = 4,
+        output: str = ".",
+        save_file: Optional[str] = None,
+        overwrite: str = "overwrite",
+        cookie_file: Optional[str] = None,
+        search_query: str = "{artists} - {title}",
+        filter_results: bool = True,
+        log_level: str = "INFO",
+        simple_tui: bool = False,
+        loop: Optional[asyncio.AbstractEventLoop] = None,
+    ):
+        """
+        Initialize the Downloader class.
+        """
+        audio_provider_class = AUDIO_PROVIDERS.get(audio_provider)
+        if audio_provider_class is None:
+            raise DownloaderError(f"Invalid audio provider: {audio_provider}")
+
+        lyrics_provider_class = LYRICS_PROVIDERS.get(lyrics_provider)
+        if lyrics_provider_class is None:
+            raise DownloaderError(f"Invalid lyrics provider: {lyrics_provider}")
+
+        self.temp_directory = get_temp_path()
+        if self.temp_directory.exists() is False:
+            self.temp_directory.mkdir()
+
+        if loop is None:
+            if sys.platform == "win32":
+                # ProactorEventLoop is required on Windows to run subprocess asynchronously
+                # it is default since Python 3.8 but has to be changed for previous versions
+                loop = asyncio.ProactorEventLoop()
+                asyncio.set_event_loop(loop)
+            self.loop = asyncio.get_event_loop()
+        else:
+            self.loop = loop
+
+        # semaphore is required to limit concurrent asyncio executions
+        self.semaphore = asyncio.Semaphore(threads)
+
+        # thread pool executor is used to run blocking (CPU-bound) code from a thread
         self.thread_executor = concurrent.futures.ThreadPoolExecutor(
-            max_workers=arguments["download_threads"]
+            max_workers=threads
         )
 
-        self.arguments = arguments
+        self.output = output
+        self.output_format = output_format
+        self.save_file = save_file
+        self.threads = threads
+        self.cookie_file = cookie_file
+        self.overwrite = overwrite
+        self.search_query = search_query
+        self.filter_results = filter_results
+        self.audio_provider_name = audio_provider
+        self.lyrics_provider_name = lyrics_provider
+        self.audio_provider_class = audio_provider_class
+        self.lyrics_provider: LyricsProvider = lyrics_provider_class()
+        self.ffmpeg = FFmpeg(
+            ffmpeg=ffmpeg,
+            output_format=output_format,
+            variable_bitrate=variable_bitrate,
+            constant_bitrate=constant_bitrate,
+            ffmpeg_args=["-abr", "true", "-v", "debug"]
+            if ffmpeg_args is None
+            else ffmpeg_args,
+        )
 
-    def __enter__(self):
-        return self
+        self.progress_handler = ProgressHandler(NAME_TO_LEVEL[log_level], simple_tui)
 
-    def __exit__(self, type, value, traceback):
-        self.display_manager.close()
+        self.progress_handler.debug("Downloader initialized")
 
-        temp_folder = Path("spotdl-temp")
-
-        if temp_folder.exists():
-            shutil.rmtree(temp_folder)
-
-    def download_single_song(self, song_object: SongObject) -> None:
+    def download_song(self, song: Song) -> None:
         """
-        `song_object` `song` : song to be downloaded
-
-        RETURNS `~`
-
-        downloads the given song
-        """
-
-        self.download_tracker.clear()
-        self.download_tracker.load_song_list([song_object])
-
-        self.display_manager.set_song_count_to(1)
-
-        self._download_asynchronously([song_object])
-
-    def download_multiple_songs(self, song_list: List[SongObject]) -> None:
-        """
-        `list<song_object>` `song_list` : list of songs to be downloaded
-
-        RETURNS `~`
-
-        downloads the given songs in parallel
+        Download a single song.
         """
 
-        self.download_tracker.clear()
-        self.download_tracker.load_song_list(song_list)
+        self.progress_handler.set_song_count(1)
 
-        self.display_manager.set_song_count_to(len(song_list))
+        self._download_asynchronously([song])
 
-        self._download_asynchronously(song_list)
-
-    def resume_download_from_tracking_file(self, tracking_file_path: str) -> None:
+    def download_multiple_songs(
+        self, songs: List[Song]
+    ) -> List[Tuple[Song, Optional[Path]]]:
         """
-        `str` `tracking_file_path` : path to a .spotdlTrackingFile
-
-        RETURNS `~`
-
-        downloads songs present on the .spotdlTrackingFile in parallel
+        Download multiple songs to the temp directory.
+        After that convert the songs to the output format with ffmpeg.
+        And move it to the output directory following the output format.
+        Embed metadata to the songs.
         """
 
-        self.download_tracker.clear()
-        self.download_tracker.load_tracking_file(tracking_file_path)
+        self.progress_handler.set_song_count(len(songs))
 
-        song_list = self.download_tracker.get_song_list()
+        return self._download_asynchronously(songs)
 
-        self.display_manager.set_song_count_to(len(song_list))
+    async def perform_audio_download_async(
+        self, song: Song, audio_provider
+    ) -> Tuple[Optional[Path], str]:
+        """
+        Download song to the temp directory.
+        """
 
-        self._download_asynchronously(song_list)
+        if song.download_url is None:
+            url = audio_provider.search(song)
+            if url is None:
+                raise LookupError(
+                    f"No results found for song: {song.name} - {song.artist}"
+                )
+        else:
+            url = song.download_url
 
-    def _download_asynchronously(self, song_obj_list):
-        tasks = [self._pool_download(song) for song in song_obj_list]
+        # The following function calls blocking code, which would block whole event loop.
+        # Therefore it has to be called in a separate thread via ThreadPoolExecutor. This
+        # is not a problem, since GIL is released for the I/O operations, so it shouldn't
+        # hurt performance.
+        return (
+            await self.loop.run_in_executor(
+                self.thread_executor, audio_provider.perform_audio_download, url
+            ),
+            url,
+        )
+
+    async def download_song_async(self, song: Song) -> Tuple[Song, Optional[Path]]:
+        """
+        Download a song to the temp directory.
+        After that convert the song to the output format with ffmpeg.
+        And move it to the output directory following the output format.
+        Embed metadata to the song.
+
+        Returns tuple containing the song object and the path to the song
+        if the song was downloaded successfully.
+        """
+
+        # Initialize the audio provider
+        audio_provider: AudioProvider = self.audio_provider_class(
+            output_directory=self.temp_directory,
+            output_format=self.output_format,
+            cookie_file=self.cookie_file,
+            search_query=self.search_query,
+            filter_results=self.filter_results,
+        )
+
+        # Initalize the progress tracker
+        display_progress_tracker = self.progress_handler.get_new_tracker(song)
+        audio_provider.add_progress_hook(display_progress_tracker.progress_hook)
+        try:
+            # Perform the actual download
+            try:
+                temp_file, url = await self.perform_audio_download_async(
+                    song, audio_provider
+                )
+            except LookupError as exception:
+                raise DownloaderError(
+                    "LookupError: Couldn't find download URL for song: "
+                    f"{song.display_name}"
+                ) from exception
+            except Exception as exception:
+                raise DownloaderError(
+                    "DownloaderError: Failed to get audio file for song: "
+                    f"{song.display_name}"
+                ) from exception
+
+            # Set the song's download url
+            song.download_url = url
+
+            # Song failed to download or something went wrong
+            if temp_file is None:
+                return song, None
+
+            display_progress_tracker.notify_download_complete()
+
+            output_file = create_file_name(song, self.output, self.output_format)
+            if output_file.exists() is False:
+                output_file.parent.mkdir(parents=True, exist_ok=True)
+
+            # Don't convert m4a files
+            # just move the file to the output directory
+            if temp_file.suffix == ".m4a" and self.output_format == "m4a":
+                temp_file.rename(output_file)
+                success = True
+                error_message = None
+            else:
+                success, error_message = await self.ffmpeg.convert(
+                    input_file=temp_file,
+                    output_file=output_file,
+                )
+                temp_file.unlink()
+
+            if success is False and error_message:
+                # If the conversion failed and there is an error message
+                # create a file with the error message
+                # and save it in the errors directory
+                # raise an exception with file path
+                file_name = (
+                    get_errors_path() / f"ffmpeg_error_{datetime.date.today()}.txt"
+                )
+                with open(file_name, "w", encoding="utf-8") as error_path:
+                    json.dump(error_message, error_path, ensure_ascii=False, indent=4)
+
+                raise FFmpegError(
+                    f"Failed to convert {song.name}, "
+                    f"you can find error here: {str(file_name.absolute())}"
+                )
+
+            display_progress_tracker.notify_conversion_complete()
+
+            lyrics = self.lyrics_provider.get_lyrics(song.name, song.artists)
+            if not lyrics:
+                self.progress_handler.debug(
+                    f"No lyrics found for {song.name} - {song.artist}"
+                )
+
+                lyrics = ""
+
+            try:
+                embed_metadata(output_file, song, self.output_format, lyrics)
+            except Exception as exception:
+                raise DownloaderError(
+                    "MetadataError: Failed to embed metadata to the song"
+                ) from exception
+
+            display_progress_tracker.notify_complete()
+
+            self.progress_handler.log(f'Downloaded "{song.display_name}": {url}')
+
+            return song, output_file
+        except Exception as exception:
+            display_progress_tracker.notify_error(traceback.format_exc(), exception)
+            return song, None
+
+    def _download_asynchronously(
+        self, songs: List[Song]
+    ) -> List[Tuple[Song, Optional[Path]]]:
+        """
+        Download multiple songs asynchronously.
+        """
+
+        tasks = [self.pool_download(song) for song in songs]
+
         # call all task asynchronously, and wait until all are finished
-        self.loop.run_until_complete(asyncio.gather(*tasks))
+        return list(self.loop.run_until_complete(asyncio.gather(*tasks)))
 
-    async def _pool_download(self, song_obj: SongObject):
-        # ! Run asynchronous task in a pool to make sure that all processes
-        # ! don't run at once.
+    async def pool_download(self, song: Song) -> Tuple[Song, Optional[Path]]:
+        """
+        Run asynchronous task in a pool to make sure that all processes
+        don't run at once.
+        """
 
         # tasks that cannot acquire semaphore will wait here until it's free
         # only certain amount of tasks can acquire the semaphore at the same time
         async with self.semaphore:
-            return await self.download_song(song_obj)
-
-    async def download_song(self, song_object: SongObject) -> None:
-        """
-        `song_object` `song_object` : song to be downloaded
-
-        RETURNS `~`
-
-        Downloads, Converts, Normalizes song & embeds metadata as ID3 tags.
-        """
-
-        display_progress_tracker = self.display_manager.new_progress_tracker(
-            song_object
-        )
-
-        # ! since most errors are expected to happen within this function, we wrap in
-        # ! exception catcher to prevent blocking on multiple downloads
-        try:
-
-            # ! all YouTube downloads are to .\Temp; they are then converted and put into .\ and
-            # ! finally followed up with ID3 metadata tags
-
-            # ! we explicitly use the os.path.join function here to ensure download is
-            # ! platform agnostic
-
-            # Create a spotdl-temp folder if not present
-            temp_folder = Path("spotdl-temp")
-
-            if not temp_folder.exists():
-                temp_folder.mkdir()
-
-            if self.arguments["path_template"] is not None:
-                converted_file_path = _parse_path_template(
-                    self.arguments["path_template"],
-                    song_object,
-                    self.arguments["output_format"],
-                )
-            else:
-                converted_file_path = _get_converted_file_path(
-                    song_object, self.arguments["output_format"]
-                )
-
-            # if a song is already downloaded skip it
-            if converted_file_path.is_file():
-                if self.display_manager:
-                    display_progress_tracker.notify_download_skip()
-                if self.download_tracker:
-                    self.download_tracker.notify_download_completion(song_object)
-
-                # ! None is the default return value of all functions, we just explicitly define
-                # ! it here as a continent way to avoid executing the rest of the function.
-                return None
-
-            converted_file_path.parent.mkdir(parents=True, exist_ok=True)
-
-            if self.arguments["output_format"] == "m4a":
-                ytdl_format = "bestaudio[ext=m4a]/bestaudio/best"
-            elif self.arguments["output_format"] == "opus":
-                ytdl_format = "bestaudio[ext=webm]/bestaudio/best"
-            else:
-                ytdl_format = "bestaudio"
-
-            # download Audio from YouTube
-            audio_handler = YoutubeDL(
-                {
-                    "format": ytdl_format,
-                    "outtmpl": f"{temp_folder}/%(id)s.%(ext)s",
-                    "quiet": True,
-                    "no_warnings": True,
-                    "encoding": "UTF-8",
-                    "logger": YTDLLogger(),
-                    "progress_hooks": [display_progress_tracker.ytdl_progress_hook]
-                    if display_progress_tracker
-                    else [],
-                }
-            )
-
-            try:
-                downloaded_file_path_string = await self._perform_audio_download_async(
-                    converted_file_path.name.rsplit(".", 1)[0],
-                    temp_folder,
-                    audio_handler,
-                    song_object.youtube_link,
-                )
-            except Exception:
-                print(
-                    f'Unable to get audio stream for "{song_object.song_name}" '
-                    f'by "{song_object.contributing_artists[0]}" '
-                    f'from video "{song_object.youtube_link}"'
-                )
-
-                return None
-
-            if downloaded_file_path_string is None:
-                return None
-
-            if display_progress_tracker:
-                display_progress_tracker.notify_youtube_download_completion()
-
-            downloaded_file_path = Path(downloaded_file_path_string)
-
-            if (
-                downloaded_file_path.suffix == ".m4a"
-                and self.arguments["output_format"] == "m4a"
-            ):
-                downloaded_file_path.rename(converted_file_path)
-                ffmpeg_success = True
-            else:
-                ffmpeg_success = await ffmpeg.convert(
-                    downloaded_file_path=downloaded_file_path,
-                    converted_file_path=converted_file_path,
-                    output_format=self.arguments["output_format"],
-                    ffmpeg_path=self.arguments["ffmpeg"],
-                )
-
-            if display_progress_tracker:
-                display_progress_tracker.notify_conversion_completion()
-
-            if ffmpeg_success is False:
-                # delete the file that wasn't successfully converted
-                converted_file_path.unlink()
-            else:
-                # if a file was successfully downloaded, tag it
-                set_id3_data(
-                    converted_file_path, song_object, self.arguments["output_format"]
-                )
-
-            # Do the necessary cleanup
-            if display_progress_tracker:
-                display_progress_tracker.notify_download_completion()
-
-            if self.download_tracker:
-                self.download_tracker.notify_download_completion(song_object)
-
-            # delete the unnecessary YouTube download File
-            if downloaded_file_path and downloaded_file_path.is_file():
-                downloaded_file_path.unlink()
-
-        except Exception as e:
-            tb = traceback.format_exc()
-            if display_progress_tracker:
-                display_progress_tracker.notify_error(e, tb)
-            else:
-                raise e
-
-    async def _perform_audio_download_async(
-        self, converted_file_name, temp_folder, track_audio_stream, youtube_link
-    ):
-        # ! The following function calls blocking code, which would block whole event loop.
-        # ! Therefore it has to be called in a separate thread via ThreadPoolExecutor. This
-        # ! is not a problem, since GIL is released for the I/O operations, so it shouldn't
-        # ! hurt performance.
-        return await self.loop.run_in_executor(
-            self.thread_executor,
-            self._perform_audio_download,
-            converted_file_name,
-            temp_folder,
-            track_audio_stream,
-            youtube_link,
-        )
-
-    def _perform_audio_download(
-        self, converted_file_name, temp_folder, audio_handler, youtube_link
-    ):
-        # ! The actual download, if there is any error, it'll be here,
-        try:
-            data = audio_handler.extract_info(youtube_link)
-            # ! This is equivalent to a failed download, we do nothing, the song remains on
-            # ! download_trackers download queue and all is well...
-            return Path(temp_folder / f"{data['id']}.{data['ext']}")
-        except Exception as e:
-            temp_files = Path(temp_folder).glob(f"{converted_file_name}.*")
-            for temp_file in temp_files:
-                temp_file.unlink()
-            raise e
+            return await self.download_song_async(song)

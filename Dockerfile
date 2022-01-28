@@ -1,28 +1,14 @@
-FROM python:3-alpine
+FROM python:3.9-alpine
 
-# Install ffmpeg and g++
-RUN apk add --no-cache ffmpeg g++ git
+RUN apk add --no-cache ffmpeg g++
+RUN python -m pip install --upgrade --no-cache-dir pip wheel
 
-# Create project directory
-WORKDIR /app
-
-# Add source code files to WORKDIR
+WORKDIR /spotdl
 ADD . .
 
-# Upgrade pip
-RUN python -m pip install --upgrade --no-cache-dir pip
+RUN pip install -e --no-cache-dir .
 
-# Install spotdl
-RUN pip install --no-cache-dir .
-
-# Create music directory
 RUN mkdir /music
-
-# Create a volume for the output directory
-VOLUME /music
-
-# Change CWD to /music
 WORKDIR /music
 
-# Entrypoint command
-ENTRYPOINT [ "spotdl" ]
+ENTRYPOINT ["spotdl"]
