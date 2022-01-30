@@ -129,6 +129,7 @@ def console_entry_point():
                 downloader=downloader,
             )
 
+        downloader.progress_handler.close()
     elif arguments.operation == "save":
         # Save the songs to a file
         save(
