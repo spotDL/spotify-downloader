@@ -206,7 +206,7 @@ class FFmpeg:
         self.variable_bitrate = variable_bitrate
         self.constant_bitrate = constant_bitrate
         self.ffmpeg_args = (
-            ["-abr", "true", "-v", "debug"] if ffmpeg_args is None else ffmpeg_args
+            ["-v", "debug"] if ffmpeg_args is None else ffmpeg_args
         )
 
     async def convert(
@@ -225,8 +225,11 @@ class FFmpeg:
         arguments: List[str] = [
             "-nostdin",
             "-y",
+            "-vn",
             "-i",
             str(input_file.resolve()),
+            "-movflags",
+            "+faststart",
         ]
 
         # Add output format to command

@@ -109,7 +109,7 @@ class Downloader:
             output_format=output_format,
             variable_bitrate=variable_bitrate,
             constant_bitrate=constant_bitrate,
-            ffmpeg_args=["-abr", "true", "-v", "debug"]
+            ffmpeg_args=["-v", "debug"]
             if ffmpeg_args is None
             else ffmpeg_args,
         )
