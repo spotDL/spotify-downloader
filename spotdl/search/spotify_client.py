@@ -20,7 +20,7 @@ class Singleton(type):
             )
         return cls._instance
 
-    def init(cls, client_id: str, client_secret: str, user_auth: bool) -> "Singleton":
+    def init(cls, client_id: str, client_secret: str, user_auth: bool, spotdl_cache_path: str) -> "Singleton":
         """
         `str` `client_id` : client id from your spotify account
 
@@ -38,7 +38,7 @@ class Singleton(type):
             raise Exception("A spotify client has already been initialized")
 
         credential_manager = None
-        cache_handler = CacheFileHandler(cache_path=".spotdl-cache")
+        cache_handler = CacheFileHandler(cache_path=spotdl_cache_path + "/.spotdl-cache")
 
         # Use SpotifyOAuth as auth manager
         if user_auth:

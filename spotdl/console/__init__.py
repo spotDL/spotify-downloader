@@ -60,6 +60,7 @@ def console_entry_point():
         client_id = config["spotify"]["client_id"],
         client_secret = config["spotify"]["client_secret"],
         user_auth = arguments.user_auth,
+        spotdl_cache_path = os.getcwd(),
     )
 
     # Change directory if user specified correct output path
@@ -70,9 +71,9 @@ def console_entry_point():
         os.chdir(arguments.output)
 
     for query in arguments.query:
-        if query.startswith("regex:"):
+        if query.startswith("playlists:"):
             base_directory = os.getcwd()
-            regexQuery = re.compile(query[6:518]);
+            regexQuery = re.compile(query[len("playlists:"):518]);
 
             try:
                 playlists = spotify_client.current_user_playlists()
@@ -105,6 +106,7 @@ def console_entry_point():
 
                         os.chdir(playlist_directory)
                         arguments.query = [playlist["external_urls"]["spotify"]]
+                        arguments.spotdl_cache = base_directory;
 
                         download(
                             args_dict,
@@ -121,7 +123,7 @@ def console_entry_point():
                 args_dict,
                 arguments
             )
-    sys.exit(1)
+    sys.exit(0)
 
 def download(args_dict, arguments):
     # Start download manager
