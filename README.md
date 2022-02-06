@@ -143,6 +143,20 @@ There is an Arch User Repository (AUR) package for [spotDL](https://aur.archlinu
 
     > _Note: This is not accurate and often causes errors._
 
+- #### Download all own playlists, names matches given regular expression
+
+    ```bash
+    spotdl --user-auth 'playlists:[regex]'
+    ```
+
+  example:
+
+    ```bash
+    spotdl --user-auth "playlists:^#\sMy\sPlaylists\s\-\s.*"
+    ```
+
+  This sample will download all playlist, name starts with `# My Playlists - `
+
 - #### To resume a failed/incomplete download, run
 
     ```bash
@@ -234,7 +248,7 @@ There is an Arch User Repository (AUR) package for [spotDL](https://aur.archlinu
     ```
 
 - #### To manually choose a lyrics provider, run
-  
+
     ```bash
       spotdl [songUrl] --lyrics-provider lyrics_provider
     ```
