@@ -313,6 +313,8 @@ There is an Arch User Repository (AUR) package for [spotDL](https://aur.archlinu
     - {ext}
     - {playlist}
 
+> **Tip**: If, for example, you have moved a downloaded file but do not want it to be downloaded again, create a file with the same name and the extension `.skip`. The download will then be skipped here.
+
 ## `pipx` Isolated Environment Alternative
 
 For users who are not familiar with `pipx`, it can be used to run scripts **without**
