@@ -71,6 +71,13 @@ def from_spotify_url(
         print(f'Skipping "{converted_file_name}" as it\'s already downloaded')
         raise OSError(f"{converted_file_name} already downloaded")
 
+    converted_file_skip_path = Path(".", f"{converted_file_name}.{output_format}.skip")
+
+    # if skip file exist, don not download
+    if converted_file_skip_path.is_file():
+        print(f'Skipping "{converted_file_name}" because skip file exists')
+        raise OSError(f"{converted_file_name} skip file exists")
+
     # Get the song's downloadable audio link
     if use_youtube:
         print(f'Searching YouTube for "{display_name}"', end="\r")
