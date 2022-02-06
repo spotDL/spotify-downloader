@@ -18,6 +18,9 @@ To download a playlist, run:
 To download your saved songs, run:
     spotdl --user-auth saved
 
+To download your playlists matching a regex name scheme, run (Sample all playlist names, start with '# My Playlists - '):
+    spotdl --user-auth "playlists:^#\sMy\sPlaylists\s\-\s.*"
+
 To download all songs from an artist run:
     spotdl [artistUrl]
     ex. spotdl https://open.spotify.com/artist/1fZAAHNWdSM5gqbi9o5iEA
