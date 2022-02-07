@@ -65,9 +65,12 @@ def from_spotify_url(
         )
 
     converted_file_path = Path(".", f"{converted_file_name}.{output_format}")
+    
+    # Alternate file path.
+    alternate_file_path = Path(".", f"{display_name}.{output_format}") 
 
     # if a song is already downloaded skip it
-    if converted_file_path.is_file():
+    if converted_file_path.is_file() or alternate_file_path.is_file():
         print(f'Skipping "{converted_file_name}" as it\'s already downloaded')
         raise OSError(f"{converted_file_name} already downloaded")
 
