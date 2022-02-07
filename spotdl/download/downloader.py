@@ -190,6 +190,7 @@ class DownloadManager:
                     "outtmpl": f"{temp_folder}/%(id)s.%(ext)s",
                     "quiet": True,
                     "no_warnings": True,
+                    "encoding": "UTF-8",
                     "logger": YTDLLogger(),
                     "progress_hooks": [display_progress_tracker.ytdl_progress_hook]
                     if display_progress_tracker
