@@ -146,7 +146,7 @@ def _order_yt_results(
         # ! seconds, we need to amplify the delta if it is to have any meaningful impact
         # ! wen we calculate the avg match value
         delta = result.length - song_duration  # ! check this
-        non_match_value = (delta ** 2) / song_duration * 100
+        non_match_value = (delta**2) / song_duration * 100
 
         time_match = 100 - non_match_value
 

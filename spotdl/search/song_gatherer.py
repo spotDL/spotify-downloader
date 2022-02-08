@@ -65,9 +65,9 @@ def from_spotify_url(
         )
 
     converted_file_path = Path(".", f"{converted_file_name}.{output_format}")
-    
+
     # Alternate file path.
-    alternate_file_path = Path(".", f"{display_name}.{output_format}") 
+    alternate_file_path = Path(".", f"{display_name}.{output_format}")
 
     # if a song is already downloaded skip it
     if converted_file_path.is_file() or alternate_file_path.is_file():
@@ -88,7 +88,9 @@ def from_spotify_url(
 
     # Check if we found youtube url
     if youtube_link is None:
-        print(f'Could not match any of the results on YouTube for "{display_name}". Skipping')
+        print(
+            f'Could not match any of the results on YouTube for "{display_name}". Skipping'
+        )
         raise LookupError("Could not match any of the results on YouTube for")
     else:
         print(" " * (len(display_name) + 25), end="\r")
@@ -209,7 +211,9 @@ def from_album(
             if generate_m3u:
                 song_obj = SongObject(track, album_response, {}, None, "", None)
                 if path_template:
-                    file_path = _parse_path_template(path_template, song_obj, output_format)
+                    file_path = _parse_path_template(
+                        path_template, song_obj, output_format
+                    )
                 else:
                     file_path = _get_converted_file_path(song_obj, output_format)
 
@@ -327,7 +331,9 @@ def from_playlist(
                     track["track"], {}, {}, None, "", playlist_response
                 )
                 if path_template:
-                    file_path = _parse_path_template(path_template, song_obj, output_format)
+                    file_path = _parse_path_template(
+                        path_template, song_obj, output_format
+                    )
                 else:
                     file_path = _get_converted_file_path(song_obj, output_format)
 

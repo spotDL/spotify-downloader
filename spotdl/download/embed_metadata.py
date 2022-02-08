@@ -157,7 +157,7 @@ def _embed_mp3_lyrics(audio_file, song_object):
     if not lyrics:
         return audio_file
 
-    USLTOutput = USLT(encoding=3, lang=u"eng", desc=u"desc", text=lyrics)
+    USLTOutput = USLT(encoding=3, lang="eng", desc="desc", text=lyrics)
     audio_file["USLT::'eng'"] = USLTOutput
 
     return audio_file
