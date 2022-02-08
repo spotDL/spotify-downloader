@@ -79,12 +79,8 @@ async def convert(
         "mp3": ["-q:a", "0"],
         "flac": [],
         "ogg": ["-q:a", "5"],
-        "opus": []
-        if downloaded_file_path.endswith(".webm")
-        else ["-b:a", "160K"],
-        "m4a": []
-        if downloaded_file_path.endswith(".m4a")
-        else ["-b:a", "160K"],
+        "opus": [] if downloaded_file_path.endswith(".webm") else ["-b:a", "160K"],
+        "m4a": [] if downloaded_file_path.endswith(".m4a") else ["-b:a", "160K"],
         "wav": [],
     }
 
