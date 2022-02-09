@@ -37,6 +37,9 @@ class AzLyrics(LyricsProvider):
         else:
             return None
 
+        if lyrics_url.strip() == "":
+            return None
+
         response = requests.get(lyrics_url)
         soup = BeautifulSoup(response.content, "html.parser")
 
