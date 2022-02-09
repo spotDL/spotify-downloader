@@ -1,0 +1,13 @@
+{
+    "cSpell.words": [
+        "isrc",
+        "pdoc",
+        "spotdl"
+    ],
+    "python.formatting.provider": "black",
+    "python.testing.pytestArgs": [
+        "tests"
+    ],
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestEnabled": true
+}

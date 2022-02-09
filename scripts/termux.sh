@@ -20,18 +20,14 @@ fi
 
 cat > $HOME/bin/termux-url-opener <<EOL
 #!/data/data/com.termux/files/usr/bin/bash
-
 SONGS="$HOME/storage/shared/songs"
 SPOTDL="/data/data/com.termux/files/usr/bin/spotdl"
-
 if [[ $1 == *"open.spotify.com"* ]]; then
     if [[ ! -d $SONGS ]]; then
         mkdir $SONGS
     fi
-
     cd $SONGS
     $SPOTDL "$1"
-
     read -n 1 -s -p "Press Any Key To Exit."
 fi
 EOL

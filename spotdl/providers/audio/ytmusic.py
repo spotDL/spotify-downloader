@@ -99,7 +99,7 @@ class YouTubeMusic(AudioProvider):
                     name_match = isrc_result["name"].lower() == song.name.lower()
 
                     delta = isrc_result["duration"] - song.duration
-                    non_match_value = (delta ** 2) / song.duration * 100
+                    non_match_value = (delta**2) / song.duration * 100
 
                     time_match = 100 - non_match_value
 
@@ -304,7 +304,7 @@ class YouTubeMusic(AudioProvider):
 
             # Calculate time match
             delta = result["duration"] - song.duration
-            non_match_value = (delta ** 2) / song.duration * 100
+            non_match_value = (delta**2) / song.duration * 100
 
             time_match = 100 - non_match_value
 

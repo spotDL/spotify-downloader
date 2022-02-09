@@ -187,7 +187,7 @@ class YouTube(AudioProvider):
 
             # Calculate time match
             time_match = (
-                100 - (result.length - song.duration ** 2) / song.duration * 100
+                100 - (result.length - song.duration**2) / song.duration * 100
             )
 
             average_match = (artist_match + name_match + time_match) / 3

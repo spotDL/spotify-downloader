@@ -1,0 +1,72 @@
+[tool.poetry]
+name = "spotdl"
+version = "4.0.0-alpha"
+description = "Download your Spotify playlists and songs along with album art and metadata"
+license = "MIT"
+authors = ["spotDL Team <spotdladmins@googlegroups.com>"]
+readme = "README.md"
+repository = "https://github.com/spotDL/spotdl-v4.git"
+
+classifiers = [
+    "Intended Audience :: End Users/Desktop",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Topic :: Multimedia",
+    "Topic :: Multimedia :: Sound/Audio",
+    "Topic :: Utilities",
+]
+
+[tool.poetry.dependencies]
+python = "^3.7"
+
+spotipy = "^2.19.0"
+ytmusicapi = "^0.20.0"
+pytube = "^11.0.2"
+yt-dlp = "^2022.1.21"
+mutagen = "^1.45.1"
+rich = "^11.1.0"
+beautifulsoup4 = "^4.10.0"
+requests = "^2.27.1"
+awesome-slugify = "^1.6.5"
+rapidfuzz = "^1.9.1"
+
+uvicorn = { version = "^0.17.1", optional = true }
+pydantic = { version = "^1.9.0", optional = true }
+fastapi = { version = "^0.73.0", optional = true }
+
+[tool.poetry.dev-dependencies]
+pytest = "^6.2.5"
+pytest-mock = "^3.7.0"
+pytest-vcr = "^1.0.2"
+pyfakefs = "^4.5.4"
+pytest-cov = "^3.0.0"
+pytest-subprocess = "^1.4.0"
+pytest-asyncio = "^0.17.2"
+mypy = "^0.931"
+pylint = "^2.12.2"
+black = "^22.1.0"
+mdformat-gfm = "^0.3.5"
+pdoc3 = "^0.10.0"
+
+[tool.poetry.extras]
+web = ["uvicorn", "pydantic", "fastapi"]
+
+[tool.poetry.scripts]
+spotdl = "spotdl:console_entry_point"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.pylint.format]
+limit-inference-results = 0
+fail-under = 9
+
+[mypy]
+ignore_missing_imports = true
