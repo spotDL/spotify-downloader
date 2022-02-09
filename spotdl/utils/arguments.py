@@ -12,7 +12,7 @@ from spotdl.download.downloader import (
 )
 
 
-OPERATIONS = ["download", "save", "preload", "web"]
+OPERATIONS = ["download", "save", "preload", "web", "sync"]
 
 
 def parse_arguments() -> Namespace:

@@ -4,6 +4,7 @@ import signal
 import logging
 
 from spotdl.console.save import save
+from spotdl.console.sync import sync
 from spotdl.download import Downloader
 from spotdl.console.preload import preload
 from spotdl.console.download import download
@@ -88,7 +89,7 @@ def console_entry_point():
         no_cache=settings["no_cache"],
     )
 
-    if arguments.operation in ["download", "preload"]:
+    if arguments.operation in ["download", "preload", "sync"]:
         # Initialize the downloader
         # for download, load and preload operations
         downloader = Downloader(
@@ -127,6 +128,12 @@ def console_entry_point():
                 query=arguments.query,
                 save_path=settings["save_file"],
                 downloader=downloader,
+            )
+        elif arguments.operation == "sync":
+            sync(
+                arguments.query,
+                downloader=downloader,
+                m3u_file=settings["m3u"],
             )
 
         downloader.progress_handler.close()
