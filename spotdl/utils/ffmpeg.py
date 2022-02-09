@@ -205,9 +205,7 @@ class FFmpeg:
         self.output_format = output_format
         self.variable_bitrate = variable_bitrate
         self.constant_bitrate = constant_bitrate
-        self.ffmpeg_args = (
-            ["-v", "debug"] if ffmpeg_args is None else ffmpeg_args
-        )
+        self.ffmpeg_args = ["-v", "debug"] if ffmpeg_args is None else ffmpeg_args
 
     async def convert(
         self,

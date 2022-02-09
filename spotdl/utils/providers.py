@@ -13,4 +13,6 @@ def match_percentage(str1: str, str2: str, score_cutoff: float = 0) -> float:
     # On error, use slugify to handle unicode characters
     except Exception:  # pylint: disable=broad-except
         slugify = Slugify(to_lower=True)
-        return fuzz.partial_ratio(str1, str2, score_cutoff=score_cutoff, processor=slugify)
+        return fuzz.partial_ratio(
+            str1, str2, score_cutoff=score_cutoff, processor=slugify
+        )
