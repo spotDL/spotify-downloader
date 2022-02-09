@@ -14,7 +14,7 @@ from spotdl.utils.ffmpeg import FFmpegError
 from spotdl.utils.metadata import embed_metadata
 from spotdl.utils.formatter import create_file_name
 from spotdl.providers.audio.base import AudioProvider
-from spotdl.providers.lyrics import Genius, MusixMatch
+from spotdl.providers.lyrics import Genius, MusixMatch, AzLyrics
 from spotdl.providers.lyrics.base import LyricsProvider
 from spotdl.providers.audio import YouTube, YouTubeMusic
 from spotdl.download.progress_handler import NAME_TO_LEVEL, ProgressHandler
@@ -29,6 +29,7 @@ AUDIO_PROVIDERS = {
 LYRICS_PROVIDERS = {
     "genius": Genius,
     "musixmatch": MusixMatch,
+    "azlyrics": AzLyrics,
 }
 
 
@@ -68,7 +69,8 @@ class Downloader:
 
         lyrics_provider_class = LYRICS_PROVIDERS.get(lyrics_provider)
         if lyrics_provider_class is None:
-            raise DownloaderError(f"Invalid lyrics provider: {lyrics_provider}")
+            raise DownloaderError(
+                f"Invalid lyrics provider: {lyrics_provider}")
 
         self.temp_directory = get_temp_path()
         if self.temp_directory.exists() is False:
@@ -114,7 +116,8 @@ class Downloader:
             else ffmpeg_args,
         )
 
-        self.progress_handler = ProgressHandler(NAME_TO_LEVEL[log_level], simple_tui)
+        self.progress_handler = ProgressHandler(
+            NAME_TO_LEVEL[log_level], simple_tui)
 
         self.progress_handler.debug("Downloader initialized")
 
@@ -190,7 +193,8 @@ class Downloader:
 
         # Initalize the progress tracker
         display_progress_tracker = self.progress_handler.get_new_tracker(song)
-        audio_provider.add_progress_hook(display_progress_tracker.progress_hook)
+        audio_provider.add_progress_hook(
+            display_progress_tracker.progress_hook)
         try:
             # Perform the actual download
             try:
@@ -217,7 +221,8 @@ class Downloader:
 
             display_progress_tracker.notify_download_complete()
 
-            output_file = create_file_name(song, self.output, self.output_format)
+            output_file = create_file_name(
+                song, self.output, self.output_format)
             if output_file.exists() is False:
                 output_file.parent.mkdir(parents=True, exist_ok=True)
 
@@ -240,10 +245,12 @@ class Downloader:
                 # and save it in the errors directory
                 # raise an exception with file path
                 file_name = (
-                    get_errors_path() / f"ffmpeg_error_{datetime.date.today()}.txt"
+                    get_errors_path() /
+                    f"ffmpeg_error_{datetime.date.today()}.txt"
                 )
                 with open(file_name, "w", encoding="utf-8") as error_path:
-                    json.dump(error_message, error_path, ensure_ascii=False, indent=4)
+                    json.dump(error_message, error_path,
+                              ensure_ascii=False, indent=4)
 
                 raise FFmpegError(
                     f"Failed to convert {song.name}, "
@@ -269,11 +276,13 @@ class Downloader:
 
             display_progress_tracker.notify_complete()
 
-            self.progress_handler.log(f'Downloaded "{song.display_name}": {url}')
+            self.progress_handler.log(
+                f'Downloaded "{song.display_name}": {url}')
 
             return song, output_file
         except Exception as exception:
-            display_progress_tracker.notify_error(traceback.format_exc(), exception)
+            display_progress_tracker.notify_error(
+                traceback.format_exc(), exception)
             return song, None
 
     def _download_asynchronously(
