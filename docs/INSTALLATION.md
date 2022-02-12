@@ -37,6 +37,21 @@ You can install spotDL by opening a terminal and typing:
 pip install spotdl
 ```
 
+## Installing spotDL from source
+
+```shell
+git clone git clone git@github.com:spotDL/spotify-downloader.git
+cd spotify-downloader/
+
+# creating a virtual python environment is recommended
+# This makes the application accessible in the cloned project directory's venv directory only (might be desirable in certain scenarios).
+python3 -m venv spotdl
+source spotdl/bin/activate
+
+python3 setup.py build
+python3 setup.py install
+```
+
 If you require further help, ask in our [Discord Server](https://discord.gg/xCa23pwJWY)
 
 [![Discord Server](https://img.shields.io/discord/771628785447337985?color=7289da&label=DISCORD&style=for-the-badge)](https://discord.gg/xCa23pwJWY)
