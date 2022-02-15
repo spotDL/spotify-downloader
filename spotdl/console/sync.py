@@ -1,4 +1,3 @@
-import json
 import glob
 import traceback
 
@@ -6,9 +5,9 @@ from pathlib import Path
 from typing import List, Optional
 
 from spotdl.download.downloader import Downloader
-from spotdl.types.song import Song
 from spotdl.utils.query import parse_query
 from spotdl.utils.formatter import create_file_name
+from spotdl.utils.m3u import create_m3u_file
 
 
 def sync(
