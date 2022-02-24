@@ -88,3 +88,11 @@ def console_entry_point():
         # Start downloading
         if len(song_list) > 0:
             downloader.download_multiple_songs(song_list)
+        for i in os.listdir():
+        if '.mp3' in i:
+            file_name, f_ext = os.path.splitext(i)
+            file_name = file_name.split('-')
+            file_name = file_name[1]
+            file_name = file_name.strip()
+            final_file_name = '{}{}'.format(file_name,f_ext)
+            os.rename(i, final_file_name)
