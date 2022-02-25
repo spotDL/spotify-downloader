@@ -59,7 +59,7 @@ def format_query(
     song: Song,
     template: str,
     santitize: bool,
-    file_extension: str = None,
+    file_extension: Optional[str] = None,
     short: bool = False,
 ) -> str:
     """
@@ -110,7 +110,7 @@ def create_search_query(
     song: Song,
     template: str,
     santitize: bool,
-    file_extension: str = None,
+    file_extension: Optional[str] = None,
     short: bool = False,
 ) -> str:
     """

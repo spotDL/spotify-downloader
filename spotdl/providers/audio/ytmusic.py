@@ -169,7 +169,7 @@ class YouTubeMusic(AudioProvider):
         Get results from YouTube Music API and simplify them
         """
 
-        results = self.client.search(search_term, filter=kwargs.get("filter"))
+        results = self.client.search(search_term, filter=kwargs.get("filter", "songs"))
 
         # Simplify results
         simplified_results = []

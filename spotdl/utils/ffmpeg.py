@@ -182,8 +182,8 @@ class FFmpeg:
         self,
         ffmpeg: str = "ffmpeg",
         output_format: str = "mp3",
-        variable_bitrate: str = None,
-        constant_bitrate: str = None,
+        variable_bitrate: Optional[str] = None,
+        constant_bitrate: Optional[str] = None,
         ffmpeg_args: Optional[List] = None,
     ):
         """

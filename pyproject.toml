@@ -23,7 +23,7 @@ classifiers = [
 ]
 
 [tool.poetry.dependencies]
-python = "^3.7"
+python = ">=3.7,<3.11"
 
 spotipy = "^2.19.0"
 ytmusicapi = "^0.20.0"

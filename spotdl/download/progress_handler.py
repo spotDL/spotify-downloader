@@ -85,7 +85,7 @@ class SizedTextColumn(ProgressColumn):
         style: StyleType = "none",
         justify: JustifyMethod = "left",
         markup: bool = True,
-        highlighter: Highlighter = None,
+        highlighter: Optional[Highlighter] = None,
         overflow: Optional[OverflowMethod] = None,
         width: int = 20,
     ) -> None:

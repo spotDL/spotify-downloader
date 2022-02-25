@@ -1,6 +1,9 @@
+from typing import Optional
+
 from spotipy import Spotify
 from spotipy.cache_handler import CacheFileHandler, MemoryCacheHandler
 from spotipy.oauth2 import SpotifyClientCredentials, SpotifyOAuth
+
 from spotdl.utils.config import get_cache_path
 
 
@@ -32,7 +35,7 @@ class Singleton(type):
         client_id: str,
         client_secret: str,
         user_auth: bool = False,
-        cache_path: str = None,
+        cache_path: Optional[str] = None,
         no_cache: bool = False,
         open_browser: bool = True,
     ) -> "Singleton":
@@ -80,8 +83,9 @@ class Singleton(type):
 
 class SpotifyClient(Spotify, metaclass=Singleton):
     """
-    This is the Spotify client meant to be used in the app. Has to be initialized first by
-    calling `SpotifyClient.init(client_id, client_secret, user_auth, cache_path, no_cache, open_browser)`.
+    This is the Spotify client meant to be used in the app.
+    Has to be initialized first by calling
+    `SpotifyClient.init(client_id, client_secret, user_auth, cache_path, no_cache, open_browser)`.
     """
 
     _initialized = False
