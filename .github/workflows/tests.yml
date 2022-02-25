@@ -23,7 +23,6 @@ jobs:
           poetry install -E web
       - name: Run tests
         run: |
-          poetry shell
-          pytest
+          poetry run pytest
         env:
           PLATFORM: ${{ matrix.platform }}
