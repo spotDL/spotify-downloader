@@ -22,7 +22,7 @@ class AzLyrics(LyricsProvider):
 
         url = f"https://search.azlyrics.com/search.php?q={song_name}+{artists}"
 
-        response = requests.get(url)
+        response = requests.get(url, headers=self.headers)
         soup = BeautifulSoup(response.content, "html.parser")
 
         td_tags = soup.find_all("td")
@@ -40,7 +40,7 @@ class AzLyrics(LyricsProvider):
         if lyrics_url.strip() == "":
             return None
 
-        response = requests.get(lyrics_url)
+        response = requests.get(lyrics_url, headers=self.headers)
         soup = BeautifulSoup(response.content, "html.parser")
 
         # Find all divs that don't have a class
