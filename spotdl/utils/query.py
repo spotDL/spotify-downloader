@@ -25,6 +25,7 @@ def parse_query(
     for request in query:
         if (
             "youtube.com/watch?v=" in request
+            or "youtu.be/" in request
             and "open.spotify.com" in request
             and "track" in request
             and "|" in request
@@ -33,6 +34,7 @@ def parse_query(
             if (
                 len(split_urls) <= 1
                 or "youtube" not in split_urls[0]
+                and "youtu.be" not in split_urls[0]
                 or "spotify" not in split_urls[1]
             ):
                 raise QueryError(
