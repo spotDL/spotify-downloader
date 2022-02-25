@@ -55,6 +55,7 @@ class YouTube(AudioProvider):
                 "outtmpl": f"{str(self.output_directory)}/%(id)s.%(ext)s",
                 "quiet": True,
                 "no_warnings": True,
+                "encoding": "UTF-8",
                 "logger": YTDLLogger(),
                 "cookiefile": self.cookie_file,
             }
