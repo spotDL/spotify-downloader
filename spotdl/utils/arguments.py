@@ -318,9 +318,12 @@ def parse_misc_options(parser: ArgumentParser) -> ArgumentParser:
         version=_version.__version__,
     )
 
-    # Add check version argument
+    # Add headless argument
     parser.add_argument(
-        "--check-for-updates", action="store_true", help="Check for new version."
+        "--headless",
+        action="store_true",
+        default=DEFAULT_CONFIG["headless"],
+        help="Run in headless mode.",
     )
 
     return parser
@@ -341,7 +344,11 @@ def parse_other_options(parser: ArgumentParser) -> ArgumentParser:
     parser.add_argument(
         "--generate-config",
         action="store_true",
-        help="Generate a config file. This will overwrite current config if present",
+        help="Generate a config file. This will overwrite current config if present.",
+    )
+
+    parser.add_argument(
+        "--check-for-updates", action="store_true", help="Check for new version."
     )
 
     return parser

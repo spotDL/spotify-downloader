@@ -99,4 +99,5 @@ DEFAULT_CONFIG = {
     "threads": 4,
     "no_cache": False,
     "cookie_file": None,
+    "headless": False,
 }

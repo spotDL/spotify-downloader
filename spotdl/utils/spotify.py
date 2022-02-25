@@ -23,7 +23,7 @@ class Singleton(type):
         if self._instance is None:
             raise SpotifyError(
                 "Spotify client not created. Call SpotifyClient.init"
-                "(client_id, client_secret, user_auth, cache_path, no_cache) first."
+                "(client_id, client_secret, user_auth, cache_path, no_cache, open_browser) first."
             )
         return self._instance
 
@@ -34,6 +34,7 @@ class Singleton(type):
         user_auth: bool = False,
         cache_path: str = None,
         no_cache: bool = False,
+        open_browser: bool = True,
     ) -> "Singleton":
         """
         Initializes the SpotifyClient.
@@ -58,6 +59,7 @@ class Singleton(type):
                 redirect_uri="http://127.0.0.1:8080/",
                 scope="user-library-read",
                 cache_handler=cache_handler,
+                open_browser=open_browser,
             )
         # Use SpotifyClientCredentials as auth manager
         else:
@@ -79,7 +81,7 @@ class Singleton(type):
 class SpotifyClient(Spotify, metaclass=Singleton):
     """
     This is the Spotify client meant to be used in the app. Has to be initialized first by
-    calling `SpotifyClient.init(client_id, client_secret, user_auth)`.
+    calling `SpotifyClient.init(client_id, client_secret, user_auth, cache_path, no_cache, open_browser)`.
     """
 
     _initialized = False

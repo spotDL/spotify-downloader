@@ -87,6 +87,7 @@ def console_entry_point():
         user_auth=settings["user_auth"],
         cache_path=settings["cache_path"],
         no_cache=settings["no_cache"],
+        open_browser=not settings["headless"],
     )
 
     if arguments.operation in ["download", "preload", "sync"]:
