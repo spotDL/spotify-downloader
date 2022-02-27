@@ -27,11 +27,10 @@ all involved. The community looks forward to your contributions. 🎉
 - [I Want To Contribute](#i-want-to-contribute)
 - [Reporting Bugs](#reporting-bugs)
 - [Suggesting Enhancements](#suggesting-enhancements)
-- [Your First Code Contribution](#your-first-code-contribution)
-- [Improving The Documentation](#improving-the-documentation)
-- [Styleguides](#styleguides)
-- [Commit Messages](#commit-messages)
-- [Join The Project Team](#join-the-project-team)
+- [Linting, Formatting and Type-checking](#Linting,-Formatting-and-Type-checking)
+- [Python Documentation](#Python-Documentation)
+- [Overview of the Project Structure](#Overview-of-the-Project-Structure)
+- [Join The Project Team](#Join-The-Project-Team)
 
 ## I Have a Question
 
@@ -219,7 +218,7 @@ Enhancement suggestions are tracked as
 
 Any submitted code is expected to have accompanying documentation
 
-### pdoc3: generating documentation
+#### pdoc3: generating documentation
 
 - We generate our documentation with [`pdoc3`](https://pdoc3.github.io/pdoc/)
 
@@ -247,7 +246,7 @@ Any submitted code is expected to have accompanying documentation
   pdoc --http : ./spotdl
   ```
 
-### DocString Formats
+#### DocString Formats
 
 - For functions
 
@@ -287,7 +286,7 @@ Any submitted code is expected to have accompanying documentation
   optional usage example for module/package preferably showcasing most commonly used functionality
   ```
 
-### Notes about pdoc3
+#### Notes about pdoc3
 
 - DocStrings are Inherited
 
@@ -316,7 +315,7 @@ Any submitted code is expected to have accompanying documentation
   [`..math::`](https://docutils.sourceforge.io/docs/ref/rst/directives.html#math) and
   [`..image::`](https://docutils.sourceforge.io/docs/ref/rst/directives.html#images)
 
-### Markdown formatting
+#### Markdown formatting
 
 - Markdown is formatted with [`mdformat-gfm`](https://pypi.org/project/mdformat-gfm/) and
   indexes are auto-generated with [`mdformat-toc`](https://pypi.org/project/mdformat-toc/)
@@ -350,13 +349,13 @@ Any submitted code is expected to have accompanying documentation
 | `console`   | Different user-facing operations like download, preload and web-ui |
 | `__init__`  | Contains spotdl class that simplifies the download process         |
 
-## Join The Project Team
+### Join The Project Team
 
 [![Discord Server](https://img.shields.io/discord/771628785447337985?color=7289da&label=DISCORD&style=for-the-badge)](https://discord.gg/xCa23pwJWY)
 
 <!-- omit in toc -->
 
-## Attribution
+### Attribution
 
 This guide is based on the **contributing-gen**.
 [Make your own](https://github.com/bttger/contributing-gen)!
