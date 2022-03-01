@@ -86,6 +86,18 @@ def test_create_file_name():
         "GB2LD2110301/Ropes - Dirty Palm....mp3"
     )
 
+    assert create_file_name(song, "{list-position}/{list-length} {title} - {artist}", "mp3",song_list=[song, 1, 2]) == Path(
+        "1/3 Ropes - Dirty Palm.mp3"
+    )
+
+    assert create_file_name(song, "{list-position}/{list-length} {title} - {artist}", "mp3",song_list=[song, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]) == Path(
+        "01/11 Ropes - Dirty Palm.mp3"
+    )
+
+    assert create_file_name(song, "{list-position}/{list-length} {title} - {artist}", "mp3",song_list=[1, 2, 3, 4, song, 6, 7, 8, 9, 10, 11]) == Path(
+        "05/11 Ropes - Dirty Palm.mp3"
+    )
+
 
 def test_parse_duration():
     """

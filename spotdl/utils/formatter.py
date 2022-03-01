@@ -22,6 +22,8 @@ VARS = [
     "{isrc}",
     "{track-id}",
     "{publisher}",
+    "{list-length}",
+    "{list-position}",
     "{output-ext}",
 ]
 
@@ -61,6 +63,7 @@ def format_query(
     santitize: bool,
     file_extension: Optional[str] = None,
     short: bool = False,
+    song_list: List[Song] = None,
 ) -> str:
     """
     Replace template variables with the actual values.
@@ -70,6 +73,11 @@ def format_query(
         raise ValueError("file_extension is None, but template contains {output-ext}")
 
     artists = ", ".join(song.artists)
+    position = (
+        str(song_list.index(song) + 1).zfill(len(str(len(song_list))))
+        if song_list
+        else ""
+    )
 
     formats = {
         "{title}": song.name,
@@ -88,6 +96,8 @@ def format_query(
         "{isrc}": song.isrc,
         "{track-id}": song.song_id,
         "{publisher}": song.publisher,
+        "{list-position}": position,
+        "{list-length}": len(song_list) if song_list else "",
         "{output-ext}": file_extension,
     }
 
@@ -126,7 +136,11 @@ def create_search_query(
 
 
 def create_file_name(
-    song: Song, template: str, file_extension: str, short: bool = False
+    song: Song,
+    template: str,
+    file_extension: str,
+    short: bool = False,
+    song_list: List[Song] = None,
 ) -> Path:
     """
     Create the file name for the song.
@@ -147,7 +161,9 @@ def create_file_name(
     if not template.endswith(".{output-ext}"):
         template += ".{output-ext}"
 
-    formatted_string = format_query(song, template, True, file_extension, short)
+    formatted_string = format_query(
+        song, template, True, file_extension, short, song_list=song_list
+    )
 
     # Parse template as Path object
     file = Path(formatted_string)
@@ -165,7 +181,9 @@ def create_file_name(
 
     # Check if the file name length is greater than 255
     if len(file.name) > 255:
-        return create_file_name(song, template, file_extension, short=True)
+        return create_file_name(
+            song, template, file_extension, short=True, song_list=song_list
+        )
 
     return file
 

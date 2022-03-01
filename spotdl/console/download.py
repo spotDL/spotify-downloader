@@ -29,7 +29,7 @@ def download(
         songs = []
         for song in songs_list:
             song_path = create_file_name(
-                song, downloader.output, downloader.output_format
+                song, downloader.output, downloader.output_format, song_list=songs_list
             )
 
             if Path(song_path).exists():

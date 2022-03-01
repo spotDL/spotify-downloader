@@ -167,7 +167,9 @@ class Downloader:
             url,
         )
 
-    async def download_song_async(self, song: Song) -> Tuple[Song, Optional[Path]]:
+    async def download_song_async(
+        self, song: Song, song_list: List[Song] = None
+    ) -> Tuple[Song, Optional[Path]]:
         """
         Download a song to the temp directory.
         After that convert the song to the output format with ffmpeg.
@@ -216,7 +218,9 @@ class Downloader:
 
             display_progress_tracker.notify_download_complete()
 
-            output_file = create_file_name(song, self.output, self.output_format)
+            output_file = create_file_name(
+                song, self.output, self.output_format, song_list=song_list
+            )
             if output_file.exists() is False:
                 output_file.parent.mkdir(parents=True, exist_ok=True)
 
@@ -282,12 +286,14 @@ class Downloader:
         Download multiple songs asynchronously.
         """
 
-        tasks = [self.pool_download(song) for song in songs]
+        tasks = [self.pool_download(song, songs) for song in songs]
 
         # call all task asynchronously, and wait until all are finished
         return list(self.loop.run_until_complete(asyncio.gather(*tasks)))
 
-    async def pool_download(self, song: Song) -> Tuple[Song, Optional[Path]]:
+    async def pool_download(
+        self, song: Song, song_list: List[Song] = None
+    ) -> Tuple[Song, Optional[Path]]:
         """
         Run asynchronous task in a pool to make sure that all processes
         don't run at once.
@@ -296,4 +302,4 @@ class Downloader:
         # tasks that cannot acquire semaphore will wait here until it's free
         # only certain amount of tasks can acquire the semaphore at the same time
         async with self.semaphore:
-            return await self.download_song_async(song)
+            return await self.download_song_async(song, song_list)
