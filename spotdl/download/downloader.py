@@ -2,6 +2,7 @@ import json
 import datetime
 import asyncio
 import sys
+import shutil
 import concurrent.futures
 import traceback
 
@@ -227,7 +228,7 @@ class Downloader:
             # Don't convert m4a files
             # just move the file to the output directory
             if temp_file.suffix == ".m4a" and self.output_format == "m4a":
-                temp_file.rename(output_file)
+                shutil.move(temp_file, output_file)
                 success = True
                 error_message = None
             else:
