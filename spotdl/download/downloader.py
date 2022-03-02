@@ -169,7 +169,7 @@ class Downloader:
         )
 
     async def download_song_async(
-        self, song: Song, song_list: List[Song] = None
+        self, song: Song, song_list: Optional[List[Song]] = None
     ) -> Tuple[Song, Optional[Path]]:
         """
         Download a song to the temp directory.
@@ -293,7 +293,7 @@ class Downloader:
         return list(self.loop.run_until_complete(asyncio.gather(*tasks)))
 
     async def pool_download(
-        self, song: Song, song_list: List[Song] = None
+        self, song: Song, song_list: Optional[List[Song]] = None
     ) -> Tuple[Song, Optional[Path]]:
         """
         Run asynchronous task in a pool to make sure that all processes

@@ -63,7 +63,7 @@ def format_query(
     santitize: bool,
     file_extension: Optional[str] = None,
     short: bool = False,
-    song_list: List[Song] = None,
+    song_list: Optional[List[Song]] = None,
 ) -> str:
     """
     Replace template variables with the actual values.
@@ -140,7 +140,7 @@ def create_file_name(
     template: str,
     file_extension: str,
     short: bool = False,
-    song_list: List[Song] = None,
+    song_list: Optional[List[Song]] = None,
 ) -> Path:
     """
     Create the file name for the song.
