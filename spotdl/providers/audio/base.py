@@ -3,6 +3,10 @@ from typing import Any, Callable, List, Optional
 
 from spotdl.types import Song
 
+class AudioProviderError(Exception):
+    """
+    Base class for all exceptions related to audio searching/downloading.
+    """
 
 class AudioProvider:
     def __init__(

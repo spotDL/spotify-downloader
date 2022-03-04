@@ -6,7 +6,7 @@ from slugify.main import Slugify
 from yt_dlp import YoutubeDL
 
 from spotdl.utils.providers import match_percentage
-from spotdl.providers.audio.base import AudioProvider
+from spotdl.providers.audio.base import AudioProvider, AudioProviderError
 from spotdl.types import Song
 from spotdl.utils.formatter import (
     create_song_title,
@@ -46,6 +46,11 @@ class YouTubeMusic(AudioProvider):
         self.name = "youtube-music"
         super().__init__(*args, **kwargs)
         self.client = YTMusic()
+
+        # Check if we are getting results from YouTube Music
+        test_results = self.get_results("a")
+        if len(test_results) == 0:
+            raise AudioProviderError("Could not connect to YouTube Music API. Use VPN or other audio provider.")
 
         if self.output_format == "m4a":
             ytdl_format = "bestaudio[ext=m4a]/bestaudio/best"
@@ -229,11 +234,6 @@ class YouTubeMusic(AudioProvider):
             # Find artist match
             artist_match_number = 0.0
             if result["type"] == "song":
-                # ! I don't remeber why I did this
-                # ! but it doesn't seem to work
-                # ! I probably had a reason for this
-                # ! but I don't remember it anymore
-                # ! I'm leaving it here for now
                 # Artist results has only one artist
                 # So we fallback to matching the song title
                 # if len(result["artists"].split(",")) == 1:
