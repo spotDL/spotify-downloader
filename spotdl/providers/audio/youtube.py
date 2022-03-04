@@ -2,15 +2,12 @@ from typing import Any, Callable, Dict, List, Optional
 from pathlib import Path
 
 from pytube import YouTube as PyTube, Search
-from slugify.main import Slugify
 from yt_dlp import YoutubeDL
 
-from spotdl.utils.formatter import create_song_title, create_search_query
+from spotdl.utils.formatter import create_song_title, create_search_query, slugify
 from spotdl.utils.providers import match_percentage
 from spotdl.providers.audio.base import AudioProvider
 from spotdl.types import Song
-
-slugify = Slugify(to_lower=True)
 
 
 class YTDLLogger:

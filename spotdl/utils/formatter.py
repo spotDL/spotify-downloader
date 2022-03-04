@@ -3,6 +3,7 @@ import re
 from typing import List, Optional
 from pathlib import Path
 
+from slugify.main import Slugify
 from spotdl.types import Song
 
 VARS = [
@@ -205,3 +206,11 @@ def parse_duration(duration: Optional[str]) -> float:
     # This usually occurs when the wrong string is mistaken for the duration
     except (ValueError, TypeError, AttributeError):
         return 0.0
+
+def slugify(value: str, to_lower=True) -> str:
+    """
+    Normalizes string, converts to lowercase, removes non-alpha characters,
+    and converts spaces to hyphens.
+    """
+
+    return Slugify(to_lower=to_lower)(value)

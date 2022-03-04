@@ -2,7 +2,6 @@ from typing import Any, Callable, Dict, List, Optional
 from pathlib import Path
 
 from ytmusicapi import YTMusic
-from slugify.main import Slugify
 from yt_dlp import YoutubeDL
 
 from spotdl.utils.providers import match_percentage
@@ -12,9 +11,8 @@ from spotdl.utils.formatter import (
     create_song_title,
     parse_duration,
     create_search_query,
+    slugify,
 )
-
-slugify = Slugify(to_lower=True)
 
 
 class YTDLLogger:
