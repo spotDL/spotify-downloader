@@ -48,7 +48,9 @@ class YouTubeMusic(AudioProvider):
         # Check if we are getting results from YouTube Music
         test_results = self.get_results("a")
         if len(test_results) == 0:
-            raise AudioProviderError("Could not connect to YouTube Music API. Use VPN or other audio provider.")
+            raise AudioProviderError(
+                "Could not connect to YouTube Music API. Use VPN or other audio provider."
+            )
 
         if self.output_format == "m4a":
             ytdl_format = "bestaudio[ext=m4a]/bestaudio/best"

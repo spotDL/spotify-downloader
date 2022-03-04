@@ -1,7 +1,7 @@
 import sys
 import os
 import ytmusicapi
-import PyInstaller.__main__ # type: ignore
+import PyInstaller.__main__  # type: ignore
 from pathlib import Path
 from spotdl._version import __version__
 

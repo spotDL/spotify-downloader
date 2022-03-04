@@ -207,6 +207,7 @@ def parse_duration(duration: Optional[str]) -> float:
     except (ValueError, TypeError, AttributeError):
         return 0.0
 
+
 def slugify(value: str, to_lower=True) -> str:
     """
     Normalizes string, converts to lowercase, removes non-alpha characters,
