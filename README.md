@@ -56,13 +56,13 @@ spotDL is being redesigned! This means we are currently not accepting new featur
 - Recommended Stable Version:
 
     ```bash
-    pip install spotdl
+    pip install spotdl #pip might be called pip3 depending on your platform
     ```
 
 - Dev Version: **(NOT STABLE)**
 
     ```bash
-    pip install https://codeload.github.com/spotDL/spotify-downloader/zip/dev
+    pip install https://codeload.github.com/spotDL/spotify-downloader/zip/dev #pip might be called pip3 depending on your platform
     ```
 
 If you have trouble installing spotdl take a look at the extended installation guide
