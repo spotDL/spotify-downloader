@@ -35,6 +35,9 @@ To specifiy path template run:
     spotdl [songUrl] -p 'template'
     ex. spotdl [songUrl] -p "{playlist}/{artists}/{album} - {title} {artist}.{ext}"
 
+To restrict filenames to ASCII only, run:
+    spotdl [songUrl] -r
+
 To use FFmpeg binary that is not on PATH run:
     spotdl [songUrl] --ffmpeg path/to/your/ffmpeg.exe
     ex. spotdl [songUrl] --ffmpeg C:\ffmpeg\bin\ffmpeg.exe
@@ -173,6 +176,14 @@ def parse_arguments():
         "--m3u",
         help="Generate .m3u file for each playlist",
         action="store_true",
+    )
+
+    # Option to restrict filenames for easier handling in the shell
+    parser.add_argument(
+        "--restrict",
+        "-r",
+        help="Restrict filenames to only ASCII",
+        action="store_true"
     )
 
     return parser.parse_args()

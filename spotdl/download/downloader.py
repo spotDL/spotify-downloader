@@ -14,6 +14,7 @@ from spotdl.download import ffmpeg, set_id3_data, DisplayManager, DownloadTracke
 from spotdl.providers.provider_utils import (
     _get_converted_file_path,
     _parse_path_template,
+    _restrict_filename
 )
 
 
@@ -162,6 +163,9 @@ class DownloadManager:
                 converted_file_path = _get_converted_file_path(
                     song_object, self.arguments["output_format"]
                 )
+
+            if self.arguments["restrict"] is not None:
+                converted_file_path = _restrict_filename(converted_file_path)
 
             # if a song is already downloaded skip it
             if converted_file_path.is_file():

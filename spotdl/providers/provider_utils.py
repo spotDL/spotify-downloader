@@ -7,6 +7,7 @@ from rapidfuzz import fuzz
 
 from spotdl.utils.song_name_utils import format_name
 
+import itertools
 
 def _match_percentage(str1: str, str2: str, score_cutoff: float = 0) -> float:
     """
@@ -160,3 +161,57 @@ def _parse_path_template(path_template, song_object, output_format, short=False)
     converted_file_path = Path(*santitized_parts)
 
     return converted_file_path
+
+# needed for sanitizing filenames in restricted mode
+ACCENT_CHARS = dict(zip('ÂÃÄÀÁÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖŐØŒÙÚÛÜŰÝÞßàáâãäåæçèéêëìíîïðñòóôõöőøœùúûüűýþÿ',
+                        itertools.chain('AAAAAA', ['AE'], 'CEEEEIIIIDNOOOOOOO', ['OE'], 'UUUUUY', ['TH', 'ss'],
+                                        'aaaaaa', ['ae'], 'ceeeeiiiionooooooo', ['oe'], 'uuuuuy', ['th'], 'y')))
+
+def _restrict_filename(pathobj):
+    """Sanitizes a string so it could be used as part of a filename.
+    If restricted is set, use a stricter subset of allowed characters.
+    Set is_id if this is not an arbitrary string, but an ID that should be kept
+    if possible.
+    """
+    # from: https://github.com/ytdl-org/youtube-dl/blob/master/youtube_dl/utils.py
+    def replace_insane(char):
+        if char in ACCENT_CHARS:
+            return ACCENT_CHARS[char]
+        if char == '?' or ord(char) < 32 or ord(char) == 127:
+            return ''
+        elif char == '"':
+            return ''
+        elif char == ':':
+            return '_-'
+        elif char in '\\/|*<>':
+            return '_'
+        if (char in '!&\'()[]{}$;`^,#' or char.isspace()):
+            return '_'
+        if ord(char) > 127:
+            return '_'
+        return char
+
+    # Handle timestamps
+    result = re.sub(r'[0-9]+(?::[0-9]+)+', lambda m: m.group(0).replace(':', '_'), pathobj.name)
+
+    # apply replacements
+    result = ''.join(map(replace_insane, result))
+
+    while '__' in result:
+        result = result.replace('__', '_')
+
+    result = result.strip('_')
+    # Common case of "Foreign band name - English song title"
+    if result.startswith('-_'):
+        result = result[2:]
+
+    if result.startswith('-'):
+        result = '_' + result[len('-'):]
+
+    result = result.lstrip('.')
+    result = result.replace('_-_', '-')
+
+    if not result:
+        result = '_'
+
+    return pathobj.with_name(result)
