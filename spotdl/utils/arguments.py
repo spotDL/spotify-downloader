@@ -1,6 +1,6 @@
 import sys
 
-from argparse import ArgumentParser, Namespace
+from argparse import _ArgumentGroup, ArgumentParser, Namespace
 
 from spotdl import _version
 from spotdl.download.progress_handler import NAME_TO_LEVEL
@@ -27,27 +27,33 @@ def parse_arguments() -> Namespace:
     )
 
     # Parse main options
-    parser = parse_main_options(parser)
+    main_options = parser.add_argument_group("Main options")
+    parse_main_options(main_options)
 
     # Parse spotify options
-    parser = parse_spotify_options(parser)
+    spotify_options = parser.add_argument_group("Spotify options")
+    parse_spotify_options(spotify_options)
 
     # Parse ffmpeg options
-    parser = parse_ffmpeg_options(parser)
+    ffmpeg_options = parser.add_argument_group("FFmpeg options")
+    parse_ffmpeg_options(ffmpeg_options)
 
     # Parse output options
-    parser = parse_output_options(parser)
+    output_options = parser.add_argument_group("Output options")
+    parse_output_options(output_options)
 
     # Parse misc options
-    parser = parse_misc_options(parser)
+    misc_options = parser.add_argument_group("Misc options")
+    parse_misc_options(misc_options)
 
     # Parse other options
-    parser = parse_other_options(parser)
+    other_options = parser.add_argument_group("Other options")
+    parse_other_options(other_options)
 
     return parser.parse_args()
 
 
-def parse_main_options(parser: ArgumentParser) -> ArgumentParser:
+def parse_main_options(parser: _ArgumentGroup):
     """
     Parse main options from the command line.
     """
@@ -68,7 +74,6 @@ def parse_main_options(parser: ArgumentParser) -> ArgumentParser:
     # Audio provider argument
     parser.add_argument(
         "--audio",
-        "-a",
         dest="audio_provider",
         choices=AUDIO_PROVIDERS.keys(),
         default=DEFAULT_CONFIG["audio_provider"],
@@ -78,7 +83,6 @@ def parse_main_options(parser: ArgumentParser) -> ArgumentParser:
     # Lyrics provider argument
     parser.add_argument(
         "--lyrics",
-        "-l",
         dest="lyrics_provider",
         choices=LYRICS_PROVIDERS.keys(),
         default=DEFAULT_CONFIG["lyrics_provider"],
@@ -88,7 +92,6 @@ def parse_main_options(parser: ArgumentParser) -> ArgumentParser:
     # Add config argument
     parser.add_argument(
         "--config",
-        "-c",
         action="store_true",
         help="Use the config file to download songs.",
     )
@@ -100,27 +103,19 @@ def parse_main_options(parser: ArgumentParser) -> ArgumentParser:
         help="The search query to use.",
     )
 
-    # Add filter results argument
-    parser.add_argument(
-        "--filter-results",
-        action="store_true",
-        default=True,
-        dest="filter_results",
-        help="Use this flag to filter results.",
-    )
-
     # Add don't filter results argument
     parser.add_argument(
         "--dont-filter-results",
         action="store_false",
         dest="filter_results",
-        help="Use this flag to disable filtering results.",
+        default=DEFAULT_CONFIG["filter_results"],
+        help="Disable filtering results.",
     )
 
     return parser
 
 
-def parse_spotify_options(parser: ArgumentParser) -> ArgumentParser:
+def parse_spotify_options(parser: _ArgumentGroup):
     """
     Parse spotify options from the command line.
     """
@@ -170,10 +165,8 @@ def parse_spotify_options(parser: ArgumentParser) -> ArgumentParser:
         help="Path to cookies file.",
     )
 
-    return parser
 
-
-def parse_ffmpeg_options(parser: ArgumentParser) -> ArgumentParser:
+def parse_ffmpeg_options(parser: _ArgumentGroup):
     """
     Parse ffmpeg options from the command line.
     """
@@ -234,10 +227,8 @@ def parse_ffmpeg_options(parser: ArgumentParser) -> ArgumentParser:
         help="Additional ffmpeg arguments.",
     )
 
-    return parser
 
-
-def parse_output_options(parser: ArgumentParser) -> ArgumentParser:
+def parse_output_options(parser: _ArgumentGroup):
     """
     Parse output options from the command line.
     """
@@ -245,7 +236,6 @@ def parse_output_options(parser: ArgumentParser) -> ArgumentParser:
     # Add output format argument
     parser.add_argument(
         "--format",
-        "-f",
         choices=FFMPEG_FORMATS.keys(),
         default=DEFAULT_CONFIG["format"],
         help="The format to download the song in.",
@@ -254,7 +244,6 @@ def parse_output_options(parser: ArgumentParser) -> ArgumentParser:
     # Add save file argument
     parser.add_argument(
         "--save-file",
-        "-s",
         type=str,
         default=DEFAULT_CONFIG["save_file"],
         help="The file to save/load the songs data from/to. It has to end with .spotdl",
@@ -285,10 +274,8 @@ def parse_output_options(parser: ArgumentParser) -> ArgumentParser:
         help="Overwrite existing files.",
     )
 
-    return parser
 
-
-def parse_misc_options(parser: ArgumentParser) -> ArgumentParser:
+def parse_misc_options(parser: _ArgumentGroup):
     """
     Parse misc options from the command line.
     """
@@ -309,15 +296,6 @@ def parse_misc_options(parser: ArgumentParser) -> ArgumentParser:
         help="Use a simple tui.",
     )
 
-    # Add version argument
-    parser.add_argument(
-        "--version",
-        "-v",
-        action="version",
-        help="Show the version number and exit.",
-        version=_version.__version__,
-    )
-
     # Add headless argument
     parser.add_argument(
         "--headless",
@@ -326,10 +304,7 @@ def parse_misc_options(parser: ArgumentParser) -> ArgumentParser:
         help="Run in headless mode.",
     )
 
-    return parser
-
-
-def parse_other_options(parser: ArgumentParser) -> ArgumentParser:
+def parse_other_options(parser: _ArgumentGroup):
     """
     Parse other options from the command line.
     These are used only as a placeholders
@@ -351,4 +326,10 @@ def parse_other_options(parser: ArgumentParser) -> ArgumentParser:
         "--check-for-updates", action="store_true", help="Check for new version."
     )
 
-    return parser
+    parser.add_argument(
+        "--version",
+        "-v",
+        action="version",
+        help="Show the version number and exit.",
+        version=_version.__version__,
+    )

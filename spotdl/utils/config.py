@@ -96,6 +96,7 @@ DEFAULT_CONFIG = {
     "client_secret": "212476d9b0f3472eaa762d90b19b0ba8",
     "user_auth": False,
     "search_query": "{artists} - {title}",
+    "filter_results": True,
     "threads": 4,
     "no_cache": False,
     "cookie_file": None,
