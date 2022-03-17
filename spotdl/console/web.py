@@ -204,6 +204,7 @@ def change_settings(settings: SettingsModel) -> bool:
         log_level="CRITICAL",
         simple_tui=True,
         # loop=app.loop,
+        restrict=settings["restrict"],
     )
 
     return True
@@ -232,6 +233,7 @@ def web(settings: Dict[str, Any]):
         log_level="CRITICAL",
         simple_tui=True,
         loop=loop,
+        restrict=settings["restrict"],
     )
 
     config = Config(app=app.server, port=8800, workers=1, loop=loop)  # type: ignore

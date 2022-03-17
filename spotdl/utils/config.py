@@ -101,4 +101,5 @@ DEFAULT_CONFIG = {
     "no_cache": False,
     "cookie_file": None,
     "headless": False,
+    "restrict": False,
 }

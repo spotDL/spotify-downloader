@@ -13,7 +13,7 @@ from spotdl.types import Song
 from spotdl.utils.ffmpeg import FFmpeg
 from spotdl.utils.ffmpeg import FFmpegError
 from spotdl.utils.metadata import embed_metadata
-from spotdl.utils.formatter import create_file_name
+from spotdl.utils.formatter import create_file_name, restrict_filename
 from spotdl.providers.audio.base import AudioProvider
 from spotdl.providers.lyrics import Genius, MusixMatch, AzLyrics
 from spotdl.providers.lyrics.base import LyricsProvider
@@ -60,6 +60,7 @@ class Downloader:
         log_level: str = "INFO",
         simple_tui: bool = False,
         loop: Optional[asyncio.AbstractEventLoop] = None,
+        restrict: bool = False,
     ):
         """
         Initialize the Downloader class.
@@ -113,6 +114,7 @@ class Downloader:
             constant_bitrate=constant_bitrate,
             ffmpeg_args=["-v", "debug"] if ffmpeg_args is None else ffmpeg_args,
         )
+        self.restrict = restrict
 
         self.progress_handler = ProgressHandler(NAME_TO_LEVEL[log_level], simple_tui)
 
@@ -222,6 +224,10 @@ class Downloader:
             output_file = create_file_name(
                 song, self.output, self.output_format, song_list=song_list
             )
+
+            if self.restrict is not None:
+                output_file = restrict_filename(output_file)
+
             if output_file.exists() is False:
                 output_file.parent.mkdir(parents=True, exist_ok=True)
 

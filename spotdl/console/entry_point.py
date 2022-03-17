@@ -109,6 +109,7 @@ def console_entry_point():
             cookie_file=settings["cookie_file"],
             log_level=settings["log_level"],
             simple_tui=settings["simple_tui"],
+            restrict=settings["restrict"],
         )
 
         def graceful_exit(_signal, _frame):

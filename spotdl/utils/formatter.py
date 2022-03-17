@@ -2,6 +2,7 @@ import re
 
 from typing import List, Optional
 from pathlib import Path
+from yt_dlp.utils import sanitize_filename
 
 from slugify.main import Slugify
 from spotdl.types import Song
@@ -215,3 +216,17 @@ def slugify(value: str, to_lower=True) -> str:
     """
 
     return Slugify(to_lower=to_lower)(value)
+
+
+def restrict_filename(pathobj: Path) -> Path:
+    """
+    Sanitizes the filename part of a Path object. Returns modified object.
+    """
+
+    result = sanitize_filename(pathobj.name, True, False)
+    result = result.replace('_-_', '-')
+
+    if not result:
+        result = '_'
+
+    return pathobj.with_name(result)

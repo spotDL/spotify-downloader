@@ -274,6 +274,15 @@ def parse_output_options(parser: _ArgumentGroup):
         help="Overwrite existing files.",
     )
 
+    # Option to restrict filenames for easier handling in the shell
+    parser.add_argument(
+        "--restrict",
+        default=DEFAULT_CONFIG["restrict"],
+        help="Restrict filenames to ASCII only",
+        action="store_true"
+    )
+
+
 
 def parse_misc_options(parser: _ArgumentGroup):
     """

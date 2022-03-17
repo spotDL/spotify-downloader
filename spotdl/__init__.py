@@ -35,6 +35,7 @@ class Spotdl:
         search_query: str = "{artist} - {title}",
         log_level: str = "INFO",
         simple_tui: bool = False,
+        restrict: bool = False,
     ):
         # Initialize spotify client
         SpotifyClient.init(
@@ -59,6 +60,7 @@ class Spotdl:
             filter_results=filter_results,
             log_level=log_level,
             simple_tui=simple_tui,
+            restrict=restrict,
         )
 
         self.audio_provider = audio_provider
