@@ -74,6 +74,7 @@ class SettingsModel(BaseModel):
     threads: Optional[int]
     browsers: Optional[List[str]]
     progress_handler: Optional[str]
+    restrict: Optional[bool]
 
 
 app = App()
@@ -201,10 +202,10 @@ def change_settings(settings: SettingsModel) -> bool:
         threads=settings_cpy["threads"],
         output=settings_cpy["output"],
         overwrite=settings_cpy["overwrite"],
+        restrict=settings_cpy["restrict"],
         log_level="CRITICAL",
         simple_tui=True,
         # loop=app.loop,
-        restrict=settings["restrict"],
     )
 
     return True
