@@ -279,9 +279,8 @@ def parse_output_options(parser: _ArgumentGroup):
         "--restrict",
         default=DEFAULT_CONFIG["restrict"],
         help="Restrict filenames to ASCII only",
-        action="store_true"
+        action="store_true",
     )
-
 
 
 def parse_misc_options(parser: _ArgumentGroup):
@@ -312,6 +311,7 @@ def parse_misc_options(parser: _ArgumentGroup):
         default=DEFAULT_CONFIG["headless"],
         help="Run in headless mode.",
     )
+
 
 def parse_other_options(parser: _ArgumentGroup):
     """

@@ -224,9 +224,9 @@ def restrict_filename(pathobj: Path) -> Path:
     """
 
     result = sanitize_filename(pathobj.name, True, False)
-    result = result.replace('_-_', '-')
+    result = result.replace("_-_", "-")
 
     if not result:
-        result = '_'
+        result = "_"
 
     return pathobj.with_name(result)
