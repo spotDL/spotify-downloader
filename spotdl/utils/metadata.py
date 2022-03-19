@@ -12,6 +12,11 @@ from mutagen.id3 import APIC as AlbumCover, USLT
 
 from spotdl.types import Song
 
+class MetadataError(Exception):
+    """
+    Base class for all exceptions related to metadata and id3 embedding.
+    """
+
 
 # Apple has specific tags - see mutagen docs -
 # http://mutagen.readthedocs.io/en/latest/api/mp4.html

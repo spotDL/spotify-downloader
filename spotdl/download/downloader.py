@@ -2,7 +2,6 @@ import json
 import datetime
 import asyncio
 import sys
-import shutil
 import concurrent.futures
 import traceback
 
@@ -10,9 +9,8 @@ from pathlib import Path
 from typing import List, Optional, Tuple
 
 from spotdl.types import Song
-from spotdl.utils.ffmpeg import FFmpeg
-from spotdl.utils.ffmpeg import FFmpegError
-from spotdl.utils.metadata import embed_metadata
+from spotdl.utils.ffmpeg import FFmpegError, convert_sync
+from spotdl.utils.metadata import embed_metadata, MetadataError
 from spotdl.utils.formatter import create_file_name, restrict_filename
 from spotdl.providers.audio.base import AudioProvider
 from spotdl.providers.lyrics import Genius, MusixMatch, AzLyrics
@@ -107,16 +105,22 @@ class Downloader:
         self.lyrics_provider_name = lyrics_provider
         self.audio_provider_class = audio_provider_class
         self.lyrics_provider: LyricsProvider = lyrics_provider_class()
-        self.ffmpeg = FFmpeg(
-            ffmpeg=ffmpeg,
-            output_format=output_format,
-            variable_bitrate=variable_bitrate,
-            constant_bitrate=constant_bitrate,
-            ffmpeg_args=["-v", "debug"] if ffmpeg_args is None else ffmpeg_args,
-        )
         self.restrict = restrict
+        self.ffmpeg = ffmpeg
+        self.variable_bitrate = variable_bitrate
+        self.constant_bitrate = constant_bitrate
+        self.ffmpeg_args = ffmpeg_args
 
         self.progress_handler = ProgressHandler(NAME_TO_LEVEL[log_level], simple_tui)
+
+        # Initialize the audio provider
+        self.audio_provider: AudioProvider = self.audio_provider_class(
+            output_directory=self.temp_directory,
+            output_format=self.output_format,
+            cookie_file=self.cookie_file,
+            search_query=self.search_query,
+            filter_results=self.filter_results,
+        )
 
         self.progress_handler.debug("Downloader initialized")
 
@@ -143,108 +147,80 @@ class Downloader:
 
         return self._download_asynchronously(songs)
 
-    async def perform_audio_download_async(
-        self, song: Song, audio_provider
-    ) -> Tuple[Optional[Path], str]:
+    def _download_asynchronously(
+        self, songs: List[Song]
+    ) -> List[Tuple[Song, Optional[Path]]]:
         """
-        Download song to the temp directory.
+        Download multiple songs asynchronously.
         """
 
-        if song.download_url is None:
-            url = audio_provider.search(song)
-            if url is None:
-                raise LookupError(
-                    f"No results found for song: {song.name} - {song.artist}"
-                )
-        else:
-            url = song.download_url
+        tasks = [self._pool_download(song, songs) for song in songs]
 
-        # The following function calls blocking code, which would block whole event loop.
-        # Therefore it has to be called in a separate thread via ThreadPoolExecutor. This
-        # is not a problem, since GIL is released for the I/O operations, so it shouldn't
-        # hurt performance.
-        return (
-            await self.loop.run_in_executor(
-                self.thread_executor, audio_provider.perform_audio_download, url
-            ),
-            url,
-        )
+        # call all task asynchronously, and wait until all are finished
+        return list(self.loop.run_until_complete(asyncio.gather(*tasks)))
 
-    async def download_song_async(
+    async def _pool_download(
         self, song: Song, song_list: Optional[List[Song]] = None
     ) -> Tuple[Song, Optional[Path]]:
         """
-        Download a song to the temp directory.
-        After that convert the song to the output format with ffmpeg.
-        And move it to the output directory following the output format.
-        Embed metadata to the song.
-
-        Returns tuple containing the song object and the path to the song
-        if the song was downloaded successfully.
+        Run asynchronous task in a pool to make sure that all processes
+        don't run at once.
         """
 
-        # Initialize the audio provider
-        audio_provider: AudioProvider = self.audio_provider_class(
-            output_directory=self.temp_directory,
-            output_format=self.output_format,
-            cookie_file=self.cookie_file,
-            search_query=self.search_query,
-            filter_results=self.filter_results,
-        )
+        # tasks that cannot acquire semaphore will wait here until it's free
+        # only certain amount of tasks can acquire the semaphore at the same time
+        async with self.semaphore:
+            # The following function calls blocking code, which would block whole event loop.
+            # Therefore it has to be called in a separate thread via ThreadPoolExecutor. This
+            # is not a problem, since GIL is released for the I/O operations, so it shouldn't
+            # hurt performance.
+            return await self.loop.run_in_executor(self.thread_executor, self.search_and_download, song, song_list)
+
+    def search_and_download(self, song: Song, song_list) -> Tuple[Song, Optional[Path]]:
+        """
+        Search for the song and download it.
+        """
 
         # Initalize the progress tracker
         display_progress_tracker = self.progress_handler.get_new_tracker(song)
-        audio_provider.add_progress_hook(display_progress_tracker.progress_hook)
+
         try:
-            # Perform the actual download
-            try:
-                temp_file, url = await self.perform_audio_download_async(
-                    song, audio_provider
+            if song.download_url is None:
+                url = self.audio_provider.search(song)
+                if url is None:
+                    raise LookupError(
+                        f"No results found for song: {song.name} - {song.artist}"
+                    )
+            else:
+                url = song.download_url
+
+            download_info = self.audio_provider.get_download_metadata(url)
+
+            if download_info is None:
+                raise LookupError(
+                    f"yt-dlp failed to get metadata for: {song.name} - {song.artist}"
                 )
-            except LookupError as exception:
-                raise DownloaderError(
-                    "LookupError: Couldn't find download URL for song: "
-                    f"{song.display_name}"
-                ) from exception
-            except Exception as exception:
-                raise DownloaderError(
-                    "DownloaderError: Failed to get audio file for song: "
-                    f"{song.display_name}"
-                ) from exception
-
-            # Set the song's download url
-            song.download_url = url
-
-            # Song failed to download or something went wrong
-            if temp_file is None:
-                return song, None
-
-            display_progress_tracker.notify_download_complete()
 
             output_file = create_file_name(
                 song, self.output, self.output_format, song_list=song_list
             )
 
-            if self.restrict is not None:
-                output_file = restrict_filename(output_file)
+            if output_file.exists() and self.overwrite == "skip":
+                display_progress_tracker.notify_download_skip()
+                return song, None
 
-            if output_file.exists() is False:
-                output_file.parent.mkdir(parents=True, exist_ok=True)
+            success, result = convert_sync(
+                (download_info["url"], download_info["ext"]),
+                output_file,
+                self.ffmpeg,
+                self.output_format,
+                self.variable_bitrate,
+                self.constant_bitrate,
+                self.ffmpeg_args,
+                display_progress_tracker.progress_hook
+            )
 
-            # Don't convert m4a files
-            # just move the file to the output directory
-            if temp_file.suffix == ".m4a" and self.output_format == "m4a":
-                shutil.move(temp_file, output_file)
-                success = True
-                error_message = None
-            else:
-                success, error_message = await self.ffmpeg.convert(
-                    input_file=temp_file,
-                    output_file=output_file,
-                )
-                temp_file.unlink()
-
-            if success is False and error_message:
+            if not success and result:
                 # If the conversion failed and there is an error message
                 # create a file with the error message
                 # and save it in the errors directory
@@ -253,14 +229,23 @@ class Downloader:
                     get_errors_path() / f"ffmpeg_error_{datetime.date.today()}.txt"
                 )
                 with open(file_name, "w", encoding="utf-8") as error_path:
-                    json.dump(error_message, error_path, ensure_ascii=False, indent=4)
+                    json.dump(result, error_path, ensure_ascii=False, indent=4)
 
                 raise FFmpegError(
-                    f"Failed to convert {song.name}, "
+                    f"Failed to convert {song.display_name}, "
                     f"you can find error here: {str(file_name.absolute())}"
                 )
 
-            display_progress_tracker.notify_conversion_complete()
+            # Set the song's download url
+            song.download_url = download_info["webpage_url"]
+
+            display_progress_tracker.notify_download_complete()
+
+            if self.restrict is True:
+                output_file = restrict_filename(output_file)
+
+            if output_file.exists() is False:
+                output_file.parent.mkdir(parents=True, exist_ok=True)
 
             lyrics = self.lyrics_provider.get_lyrics(song.name, song.artists)
             if not lyrics:
@@ -273,40 +258,15 @@ class Downloader:
             try:
                 embed_metadata(output_file, song, self.output_format, lyrics)
             except Exception as exception:
-                raise DownloaderError(
-                    "MetadataError: Failed to embed metadata to the song"
+                raise MetadataError(
+                    "Failed to embed metadata to the song"
                 ) from exception
 
             display_progress_tracker.notify_complete()
 
-            self.progress_handler.log(f'Downloaded "{song.display_name}": {url}')
+            self.progress_handler.log(f'Downloaded "{song.display_name}": {song.download_url}')
 
             return song, output_file
         except Exception as exception:
             display_progress_tracker.notify_error(traceback.format_exc(), exception)
             return song, None
-
-    def _download_asynchronously(
-        self, songs: List[Song]
-    ) -> List[Tuple[Song, Optional[Path]]]:
-        """
-        Download multiple songs asynchronously.
-        """
-
-        tasks = [self.pool_download(song, songs) for song in songs]
-
-        # call all task asynchronously, and wait until all are finished
-        return list(self.loop.run_until_complete(asyncio.gather(*tasks)))
-
-    async def pool_download(
-        self, song: Song, song_list: Optional[List[Song]] = None
-    ) -> Tuple[Song, Optional[Path]]:
-        """
-        Run asynchronous task in a pool to make sure that all processes
-        don't run at once.
-        """
-
-        # tasks that cannot acquire semaphore will wait here until it's free
-        # only certain amount of tasks can acquire the semaphore at the same time
-        async with self.semaphore:
-            return await self.download_song_async(song, song_list)

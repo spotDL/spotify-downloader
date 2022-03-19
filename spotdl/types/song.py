@@ -142,7 +142,7 @@ class Song:
         Returns a display name for the song.
         """
 
-        return f"{self.name} - {self.artist}"
+        return f"{self.artist} - {self.name}"
 
     @property
     def json(self) -> Dict[str, Any]:

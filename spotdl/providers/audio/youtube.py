@@ -1,34 +1,11 @@
-from typing import Any, Callable, Dict, List, Optional
-from pathlib import Path
+from typing import Any, Dict, List, Optional
 
 from pytube import YouTube as PyTube, Search
-from yt_dlp import YoutubeDL
 
 from spotdl.utils.formatter import create_song_title, create_search_query, slugify
 from spotdl.utils.providers import match_percentage
 from spotdl.providers.audio.base import AudioProvider
 from spotdl.types import Song
-
-
-class YTDLLogger:
-    def debug(self, msg):  # pylint: disable=R0201
-        """
-        YTDL uses this to print debug messages.
-        """
-        pass  # pylint: disable=W0107
-
-    def warning(self, msg):  # pylint: disable=R0201
-        """
-        YTDL uses this to print warnings.
-        """
-        pass  # pylint: disable=W0107
-
-    def error(self, msg):  # pylint: disable=R0201
-        """
-        YTDL uses this to print errors.
-        """
-        raise Exception(msg)
-
 
 class YouTube(AudioProvider):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
@@ -38,37 +15,6 @@ class YouTube(AudioProvider):
 
         self.name = "youtube"
         super().__init__(*args, **kwargs)
-
-        if self.output_format == "m4a":
-            ytdl_format = "bestaudio[ext=m4a]/bestaudio/best"
-        elif self.output_format == "opus":
-            ytdl_format = "bestaudio[ext=webm]/bestaudio/best"
-        else:
-            ytdl_format = "bestaudio"
-
-        self.audio_handler = YoutubeDL(
-            {
-                "format": ytdl_format,
-                "outtmpl": f"{str(self.output_directory)}/%(id)s.%(ext)s",
-                "quiet": True,
-                "no_warnings": True,
-                "encoding": "UTF-8",
-                "logger": YTDLLogger(),
-                "cookiefile": self.cookie_file,
-            }
-        )
-
-    def perform_audio_download(self, url: str) -> Optional[Path]:
-        """
-        Download a song from YouTube Music and save it to the output directory.
-        """
-
-        data = self.audio_handler.extract_info(url)
-
-        if data:
-            return Path(self.output_directory / f"{data['id']}.{data['ext']}")
-
-        return None
 
     def search(self, song: Song) -> Optional[str]:
         """
@@ -194,13 +140,3 @@ class YouTube(AudioProvider):
             links_with_match_value[result.watch_url] = average_match
 
         return links_with_match_value
-
-    def add_progress_hook(self, hook: Callable) -> None:
-        """
-        Add a progress hook to the yt-dlp.
-        """
-
-        super().add_progress_hook(hook)
-
-        for progress_hook in self.progress_hooks:
-            self.audio_handler.add_progress_hook(progress_hook)

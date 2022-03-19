@@ -1,5 +1,7 @@
 from pathlib import Path
-from typing import Any, Callable, List, Optional
+from typing import Any, Dict, List, Optional
+
+from yt_dlp import YoutubeDL
 
 from spotdl.types import Song
 
@@ -8,6 +10,25 @@ class AudioProviderError(Exception):
     """
     Base class for all exceptions related to audio searching/downloading.
     """
+
+class YTDLLogger:
+    def debug(self, msg):  # pylint: disable=R0201
+        """
+        YTDL uses this to print debug messages.
+        """
+        pass  # pylint: disable=W0107
+
+    def warning(self, msg):  # pylint: disable=R0201
+        """
+        YTDL uses this to print warnings.
+        """
+        pass  # pylint: disable=W0107
+
+    def error(self, msg):  # pylint: disable=R0201
+        """
+        YTDL uses this to print errors.
+        """
+        raise Exception(msg)
 
 
 class AudioProvider:
@@ -30,6 +51,25 @@ class AudioProvider:
         self.search_query = search_query
         self.filter_results = filter_results
 
+        if self.output_format == "m4a":
+            ytdl_format = "bestaudio[ext=m4a]/bestaudio/best"
+        elif self.output_format == "opus":
+            ytdl_format = "bestaudio[ext=webm]/bestaudio/best"
+        else:
+            ytdl_format = "bestaudio"
+
+        self.audio_handler = YoutubeDL(
+            {
+                "format": ytdl_format,
+                "outtmpl": f"{str(self.output_directory)}/%(id)s.%(ext)s",
+                "quiet": True,
+                "no_warnings": True,
+                "encoding": "UTF-8",
+                "logger": YTDLLogger(),
+                "cookiefile": self.cookie_file,
+            }
+        )
+
     def search(self, song: Song) -> Optional[str]:
         """
         Search for a song and return best match.
@@ -51,16 +91,15 @@ class AudioProvider:
 
         raise NotImplementedError
 
-    def perform_audio_download(self, url: str) -> Optional[Path]:
+    def get_download_metadata(self, url: str) -> Dict:
         """
-        Perform audio download.
-        """
-
-        raise NotImplementedError
-
-    def add_progress_hook(self, hook: Callable) -> None:
-        """
-        Add a hook to be called when the download progress changes.
+        Get metadata for a download.
         """
 
-        self.progress_hooks.append(hook)
+        data = self.audio_handler.extract_info(url, download=False)
+
+        if data:
+            return data
+
+        raise AudioProviderError(f"No metadata found for the provided url {url}")
+

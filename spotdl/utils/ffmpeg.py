@@ -6,11 +6,12 @@ import stat
 import platform
 import asyncio
 
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Callable, Dict, List, Optional, Tuple
 from pathlib import Path
 
 import requests
 from spotdl.utils.config import get_spotdl_path
+from spotdl.utils.formatter import to_ms
 
 FFMPEG_URLS = {
     "windows": {
@@ -34,8 +35,15 @@ FFMPEG_FORMATS = {
     "flac": ["-codec:a", "flac"],
     "ogg": ["-codec:a", "libvorbis"],
     "opus": ["-vn", "-c:a", "copy"],
-    "m4a": ["-codec:a", "aac", "-vn"],
+    "m4a": ["-c:a", "copy"],
 }
+
+DUR_REGEX = re.compile(
+    r"Duration: (?P<hour>\d{2}):(?P<min>\d{2}):(?P<sec>\d{2})\.(?P<ms>\d{2})"
+)
+TIME_REGEX = re.compile(
+    r"out_time=(?P<hour>\d{2}):(?P<min>\d{2}):(?P<sec>\d{2})\.(?P<ms>\d{2})"
+)
 
 
 class FFmpegError(Exception):
@@ -177,97 +185,184 @@ def download_ffmpeg() -> Path:
     return ffmpeg_path
 
 
-class FFmpeg:
-    def __init__(
-        self,
-        ffmpeg: str = "ffmpeg",
-        output_format: str = "mp3",
-        variable_bitrate: Optional[str] = None,
-        constant_bitrate: Optional[str] = None,
-        ffmpeg_args: Optional[List] = None,
-    ):
-        """
-        Initialize the FFmpeg class.
-        Will throw an error if FFmpeg is not installed.
-        """
+async def convert(
+    input_file: Path | Tuple[str, str],
+    output_file: Path,
+    ffmpeg: str = "ffmpeg",
+    output_format: str = "mp3",
+    variable_bitrate: Optional[str] = None,
+    constant_bitrate: Optional[str] = None,
+    ffmpeg_args: Optional[List] = None,
+) -> Tuple[bool, Optional[Dict[str, Any]]]:
+    """
+    Convert the input file to the output file asynchronously.
+    Input file is a path to a file or a tuple of (url, file_format).
 
-        if is_ffmpeg_installed(ffmpeg) is False:
-            # ffmpeg is not installed
-            # check if ffmpeg is in spotdl path
-            spotdl_ffmpeg = str(get_local_ffmpeg())
-            if os.path.isfile(spotdl_ffmpeg) and os.access(spotdl_ffmpeg, os.X_OK):
-                self.ffmpeg = spotdl_ffmpeg
-            else:
-                raise FFmpegError("FFmpeg is not installed")
-        else:
-            self.ffmpeg = ffmpeg
+    Returns tuple containing conversion status
+    and error dictionary if conversion failed.
+    """
 
-        self.output_format = output_format
-        self.variable_bitrate = variable_bitrate
-        self.constant_bitrate = constant_bitrate
-        self.ffmpeg_args = ["-v", "debug"] if ffmpeg_args is None else ffmpeg_args
+    # Initialize ffmpeg command
+    # -i is the input file
+    arguments: List[str] = [
+        "-nostdin",
+        "-y",
+        "-i",
+        str(input_file.resolve()) if isinstance(input_file, Path) else input_file[0],
+        "-movflags",
+        "+faststart",
+        "-v",
+        "debug"
+    ]
 
-    async def convert(
-        self,
-        input_file: Path,
-        output_file: Path,
-    ) -> Tuple[bool, Optional[Dict[str, Any]]]:
-        """
-        Convert the input file to the output file.
-        Returns tuple containing conversion status
-        and error dictionary if conversion failed.
-        """
+    file_format = (
+        str(input_file.suffix).split(".")[1]
+        if isinstance(input_file, Path)
+        else input_file[1]
+    )
 
-        # Initialize ffmpeg command
-        # -i is the input file
-        arguments: List[str] = [
-            "-nostdin",
-            "-y",
-            "-vn",
-            "-i",
-            str(input_file.resolve()),
-            "-movflags",
-            "+faststart",
-        ]
+    # Add output format to command
+    # -c:a is used if the file is not an matroska container
+    # and we want to convert to opus
+    # otherwise we use arguments from FFMPEG_FORMATS
+    if output_format == "opus" and file_format != "webm":
+        arguments.extend(["-c:a", "libopus"])
+    else:
+        arguments.extend(FFMPEG_FORMATS[output_format])
 
-        # Add output format to command
-        # -c:a is used if the file is not an matroska container
-        # and we want to convert to opus
-        # otherwise we use arguments from FFMPEG_FORMATS
-        if self.output_format == "opus" and input_file.suffix != ".webm":
-            arguments.extend(["-c:a", "libopus"])
-        else:
-            arguments.extend(FFMPEG_FORMATS[self.output_format])
+    # Add variable bitrate if specified
+    if variable_bitrate:
+        arguments.extend(["-q:a", variable_bitrate])
 
-        # Add variable bitrate if specified
-        if self.variable_bitrate:
-            arguments.extend(["-q:a", self.variable_bitrate])
+    # Add constant bitrate if specified
+    if constant_bitrate:
+        arguments.extend(["-b:a", constant_bitrate])
 
-        # Add constant bitrate if specified
-        if self.constant_bitrate:
-            arguments.extend(["-b:a", self.constant_bitrate])
+    # Add other ffmpeg arguments if specified
+    if ffmpeg_args:
+        arguments.extend(ffmpeg_args)
 
-        # Add other ffmpeg arguments if specified
-        if self.ffmpeg_args:
-            arguments.extend(self.ffmpeg_args)
+    # Add output file at the end
+    arguments.append(str(output_file.resolve()))
 
-        # Add output file at the end
-        arguments.append(str(output_file.resolve()))
-
-        # Run ffmpeg
-        process = await asyncio.subprocess.create_subprocess_exec(  # pylint: disable=no-member
-            self.ffmpeg,
+    # Run ffmpeg
+    process = (
+        await asyncio.subprocess.create_subprocess_exec(  # pylint: disable=no-member
+            ffmpeg,
             *arguments,
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
         )
+    )
 
+    # Wait for process to finish
+    proc_out = await process.communicate()
+
+    if process.returncode != 0:
+        # get version and build year
+        version = get_ffmpeg_version(ffmpeg)
+
+        # join stdout and stderr and decode to utf-8
+        message = b"".join(proc_out).decode("utf-8")
+
+        # return error dictionary
+        return False, {
+            "error": message,
+            "arguments": arguments,
+            "ffmpeg": ffmpeg,
+            "version": version[0],
+            "build_year": version[1],
+        }
+
+    return True, None
+
+
+def convert_sync(
+    input_file: Path | Tuple[str, str],
+    output_file: Path,
+    ffmpeg: str = "ffmpeg",
+    output_format: str = "mp3",
+    variable_bitrate: Optional[str] = None,
+    constant_bitrate: Optional[str] = None,
+    ffmpeg_args: Optional[List] = None,
+    progress_handler: Optional[Callable] = None,
+) -> Tuple[bool, Optional[Dict[str, Any]]]:
+    """
+    Convert the input file to the output file synchronously.
+    Input file is a path to a file or a tuple of (url, file_format).
+
+    If progress_handler is specified, it will be called with
+    the progress percentage as argument.
+
+    Returns tuple containing conversion status
+    and error dictionary if conversion failed.
+    """
+
+    # Initialize ffmpeg command
+    # -i is the input file
+    arguments: List[str] = [
+        "-nostdin",
+        "-y",
+        "-i",
+        str(input_file.resolve()) if isinstance(input_file, Path) else input_file[0],
+        "-movflags",
+        "+faststart",
+        "-v",
+        "debug",
+        "-progress",
+        "-",
+        "-nostats"
+    ]
+
+    file_format = (
+        str(input_file.suffix).split(".")[1]
+        if isinstance(input_file, Path)
+        else input_file[1]
+    )
+
+    # Add output format to command
+    # -c:a is used if the file is not an matroska container
+    # and we want to convert to opus
+    # otherwise we use arguments from FFMPEG_FORMATS
+    if output_format == "opus" and file_format != "webm":
+        arguments.extend(["-c:a", "libopus"])
+    else:
+        arguments.extend(FFMPEG_FORMATS[output_format])
+
+    # Add variable bitrate if specified
+    if variable_bitrate:
+        arguments.extend(["-q:a", variable_bitrate])
+
+    # Add constant bitrate if specified
+    if constant_bitrate:
+        arguments.extend(["-b:a", constant_bitrate])
+
+    # Add other ffmpeg arguments if specified
+    if ffmpeg_args:
+        arguments.extend(ffmpeg_args)
+
+    # Add output file at the end
+    arguments.append(str(output_file.resolve()))
+
+    total_dur = None
+    stderr = []
+
+    # Run ffmpeg
+    process = subprocess.Popen(  # pylint: disable=no-member
+        [ffmpeg, *arguments],
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        universal_newlines=False,
+    )
+
+    if not progress_handler:
         # Wait for process to finish
-        proc_out = await process.communicate()
+        proc_out = process.communicate()
 
         if process.returncode != 0:
             # get version and build year
-            version = self.version
+            version = get_ffmpeg_version(ffmpeg)
 
             # join stdout and stderr and decode to utf-8
             message = b"".join(proc_out).decode("utf-8")
@@ -276,19 +371,54 @@ class FFmpeg:
             return False, {
                 "error": message,
                 "arguments": arguments,
-                "ffmpeg": self.ffmpeg,
+                "ffmpeg": ffmpeg,
                 "version": version[0],
                 "build_year": version[1],
             }
 
         return True, None
 
-    @property
-    def version(self) -> Tuple[Optional[float], Optional[int]]:
-        """
-        Get ffmpeg version.
-        Returns tuple containing version float and build year.
-        Throws exception if version and build year cannot be retrieved.
-        """
+    progress_handler(0)
 
-        return get_ffmpeg_version(self.ffmpeg)
+    stderr_buffer = []
+    while True:
+        if process.stdout is None:
+            continue
+
+        stderr_line = (
+            process.stdout.readline().decode("utf-8", errors="replace").strip()
+        )
+
+        if stderr_line == "" and process.poll() is not None:
+            break
+
+        stderr_buffer.append(stderr_line.strip())
+
+        stderr = "\n".join(stderr_buffer)
+
+        total_dur_match = DUR_REGEX.search(stderr_line)
+        if total_dur is None and total_dur_match:
+            total_dur = total_dur_match.groupdict()
+            total_dur = to_ms(**total_dur)
+            continue
+        if total_dur:
+            progress_time = TIME_REGEX.search(stderr_line)
+            if progress_time:
+                elapsed_time = to_ms(**progress_time.groupdict())
+                progress_handler(int(elapsed_time / total_dur * 100))
+
+    if process.returncode != 0:
+        # get version and build year
+        version = get_ffmpeg_version(ffmpeg)
+
+        return False, {
+            "error": str("\n".join(stderr)),
+            "arguments": arguments,
+            "ffmpeg": ffmpeg,
+            "version": version[0],
+            "build_year": version[1],
+        }
+
+    progress_handler(100)
+
+    return True, None

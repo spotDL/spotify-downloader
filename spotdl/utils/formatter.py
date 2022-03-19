@@ -209,6 +209,34 @@ def parse_duration(duration: Optional[str]) -> float:
         return 0.0
 
 
+def to_ms(
+    string: Optional[str] = None, precision: Optional[int] = None, **kwargs
+) -> float:
+    """
+    Convert a string to milliseconds.
+    You can either pass a string, or a set of keyword args ("hour", "min", "sec", "ms") to convert.
+    If "precision" is set, the result is rounded to the number of decimals given.
+    From: https://gist.github.com/Hellowlol/5f8545e999259b4371c91ac223409209
+    """
+
+    if string:
+        hour = int(string[0:2])
+        minute = int(string[3:5])
+        sec = int(string[6:8])
+        ms = int(string[10:11])
+    else:
+        hour = int(kwargs.get("hour", 0))
+        minute = int(kwargs.get("min", 0))
+        sec = int(kwargs.get("sec", 0))
+        ms = int(kwargs.get("ms", 0))
+
+    result = (hour * 60 * 60 * 1000) + (minute * 60 * 1000) + (sec * 1000) + ms
+    if precision and isinstance(precision, int):
+        return round(result, precision)
+
+    return result
+
+
 def slugify(value: str, to_lower=True) -> str:
     """
     Normalizes string, converts to lowercase, removes non-alpha characters,

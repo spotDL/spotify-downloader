@@ -1,5 +1,3 @@
-__version__ = "4.0.0"
-
 import concurrent.futures
 
 from pathlib import Path
@@ -11,6 +9,8 @@ from spotdl.console import console_entry_point
 from spotdl.utils.query import parse_query
 from spotdl.download import Downloader
 from spotdl.types import Song
+from spotdl._version import __version__
+from spotdl.utils.ffmpeg import convert
 
 
 class Spotdl:
@@ -111,22 +111,6 @@ class Spotdl:
         """
 
         self.downloader.download_song(song)
-
-    async def download_no_convert(self, song: Song) -> Tuple[Optional[Path], str]:
-        """
-        Download song without converting it.
-        """
-
-        # Initialize the audio provider
-        audio_provider: AudioProvider = self.downloader.audio_provider_class(
-            output_directory=self.downloader.temp_directory,
-            output_format=self.downloader.output_format,
-            cookie_file=self.downloader.cookie_file,
-            search_query=self.downloader.search_query,
-            filter_results=self.downloader.filter_results,
-        )
-
-        return await self.downloader.perform_audio_download_async(song, audio_provider)
 
     def download_list(self, songs: List[Song]) -> None:
         """
