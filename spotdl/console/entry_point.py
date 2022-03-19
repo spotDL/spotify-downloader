@@ -110,6 +110,7 @@ def console_entry_point():
             log_level=settings["log_level"],
             simple_tui=settings["simple_tui"],
             restrict=settings["restrict"],
+            print_errors=settings["print_errors"],
         )
 
         def graceful_exit(_signal, _frame):

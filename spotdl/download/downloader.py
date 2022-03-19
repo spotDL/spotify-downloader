@@ -59,6 +59,7 @@ class Downloader:
         simple_tui: bool = False,
         loop: Optional[asyncio.AbstractEventLoop] = None,
         restrict: bool = False,
+        print_errors: bool = False,
     ):
         """
         Initialize the Downloader class.
@@ -104,16 +105,15 @@ class Downloader:
         self.audio_provider_name = audio_provider
         self.lyrics_provider_name = lyrics_provider
         self.audio_provider_class = audio_provider_class
-        self.lyrics_provider: LyricsProvider = lyrics_provider_class()
-        self.restrict = restrict
         self.ffmpeg = ffmpeg
         self.variable_bitrate = variable_bitrate
         self.constant_bitrate = constant_bitrate
         self.ffmpeg_args = ffmpeg_args
-
+        self.restrict = restrict
+        self.print_errors = print_errors
+        self.errors: List[str] = []
+        self.lyrics_provider: LyricsProvider = lyrics_provider_class()
         self.progress_handler = ProgressHandler(NAME_TO_LEVEL[log_level], simple_tui)
-
-        # Initialize the audio provider
         self.audio_provider: AudioProvider = self.audio_provider_class(
             output_directory=self.temp_directory,
             output_format=self.output_format,
@@ -124,14 +124,20 @@ class Downloader:
 
         self.progress_handler.debug("Downloader initialized")
 
-    def download_song(self, song: Song) -> None:
+    def download_song(self, song: Song) -> Tuple[Song, Optional[Path]]:
         """
         Download a single song.
         """
 
         self.progress_handler.set_song_count(1)
 
-        self._download_asynchronously([song])
+        results = self._download_asynchronously([song])
+
+        if self.print_errors:
+            for error in self.errors:
+                self.progress_handler.error(error)
+
+        return results[0]
 
     def download_multiple_songs(
         self, songs: List[Song]
@@ -145,7 +151,13 @@ class Downloader:
 
         self.progress_handler.set_song_count(len(songs))
 
-        return self._download_asynchronously(songs)
+        results = self._download_asynchronously(songs)
+
+        if self.print_errors:
+            for error in self.errors:
+                self.progress_handler.error(error)
+
+        return results
 
     def _download_asynchronously(
         self, songs: List[Song]
@@ -299,4 +311,7 @@ class Downloader:
             return song, output_file
         except Exception as exception:
             display_progress_tracker.notify_error(traceback.format_exc(), exception)
+            self.errors.append(
+                f"{song.url} - {exception.__class__.__name__}: {exception}"
+            )
             return song, None

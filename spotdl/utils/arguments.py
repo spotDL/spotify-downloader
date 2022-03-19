@@ -282,6 +282,14 @@ def parse_output_options(parser: _ArgumentGroup):
         action="store_true",
     )
 
+    # Option to print errors on exit, useful for long playlist
+    parser.add_argument(
+        "--print-errors",
+        default=DEFAULT_CONFIG["print_errors"],
+        help="Print errors (wrong songs, failed downloads etc) on exit, useful for long playlist",
+        action="store_true",
+    )
+
 
 def parse_misc_options(parser: _ArgumentGroup):
     """

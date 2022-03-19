@@ -102,4 +102,5 @@ DEFAULT_CONFIG = {
     "cookie_file": None,
     "headless": False,
     "restrict": False,
+    "print_errors": False,
 }
