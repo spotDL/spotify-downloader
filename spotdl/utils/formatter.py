@@ -5,7 +5,6 @@ from pathlib import Path
 from yt_dlp.utils import sanitize_filename
 
 from spotdl.types import Song
-from spotdl.types.song import SongList
 
 VARS = [
     "{title}",
@@ -64,7 +63,6 @@ def format_query(
     template: str,
     santitize: bool,
     file_extension: Optional[str] = None,
-    song_list: Optional[SongList] = None,
     short: bool = False,
 ) -> str:
     """
@@ -76,11 +74,19 @@ def format_query(
 
     if (
         any(k in template for k in ["{list-length}", "{list-position}", "{list-name}"])
-        and song_list is None
+        and song.song_list is None
     ):
-        raise ValueError(
-            "song_list is None, but template contains {list-length}, {list-position} or {list-name}"
-        )
+        # If the template contains {list-length} or {list-position} or {list-name},
+        # but the song_list is None, replace them with empty strings
+        for k in ["{list-length}", "{list-position}", "{list-name}"]:
+            template = template.replace(k, "")
+            template = template.replace(r"//", r"/")
+
+    # If template has only {output-ext}, fix it
+    # This can happen if the template consits of only list values
+    # and song.song_list is None
+    if template in ["/.{output-ext}", ".{output-ext}"]:
+        template = "{artists} - {title}.{output-ext}"
 
     artists = ", ".join(song.artists)
 
@@ -105,16 +111,16 @@ def format_query(
         "{output-ext}": file_extension,
     }
 
-    if song_list and any(
+    if song.song_list and any(
         k in template for k in ["{list-length}", "{list-position}", "{list-name}"]
     ):
         formats.update(
             {
-                "{list-name}": song_list.name,  # type: ignore
-                "{list-position}": str(song_list.songs.index(song) + 1).zfill(
-                    len(str(song_list.length))
+                "{list-name}": song.song_list.name,  # type: ignore
+                "{list-position}": str(song.song_list.songs.index(song) + 1).zfill(
+                    len(str(song.song_list.length))
                 ),
-                "{list-length}": song_list.length,
+                "{list-length}": song.song_list.length,
             }
         )
 
@@ -156,7 +162,6 @@ def create_file_name(
     song: Song,
     template: str,
     file_extension: str,
-    song_list: Optional[SongList] = None,
     short: bool = False,
 ) -> Path:
     """
@@ -183,7 +188,6 @@ def create_file_name(
         template=template,
         santitize=True,
         file_extension=file_extension,
-        song_list=song_list,
         short=short,
     )
 
@@ -207,7 +211,6 @@ def create_file_name(
             song,
             template,
             file_extension,
-            song_list,
             short=True,
         )
 

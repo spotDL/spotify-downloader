@@ -399,11 +399,11 @@ def convert_sync(
         if total_dur is None and total_dur_match:
             total_dur = to_ms(**total_dur_match.groupdict())  # type: ignore
             continue
-        if isinstance(total_dur, float):
+        if total_dur:
             progress_time = TIME_REGEX.search(stderr_line)
             if progress_time:
                 elapsed_time = to_ms(**progress_time.groupdict())  # type: ignore
-                progress_handler(int(elapsed_time / total_dur * 100))
+                progress_handler(int(elapsed_time / total_dur * 100))  # type: ignore
 
     if process.returncode != 0:
         # get version and build year

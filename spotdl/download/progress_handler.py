@@ -341,7 +341,6 @@ class SongTracker:
         delta = self.progress - self.old_progress
 
         if not self.parent.simple_tui:
-
             # Update the progress bar
             # `start_task` called everytime to ensure progress is remove from indeterminate state
             self.parent.rich_progress_bar.start_task(self.task_id)
@@ -356,23 +355,21 @@ class SongTracker:
             if self.progress == 100 or message == "Error":
                 self.parent.overall_completed_tasks += 1
                 self.parent.rich_progress_bar.remove_task(self.task_id)
-
-            # Update the overall progress bar
-            self.parent.overall_progress += delta
-            self.parent.update_overall()
-
-            self.old_progress = self.progress
         else:
             # If task is complete
             if self.progress == 100 or message == "Error":
                 self.parent.overall_completed_tasks += 1
 
-            # Update the overall progress bar
-            self.parent.overall_progress += delta
-            self.old_progress = self.progress
-
             self.parent.log(f"{self.song.name} - {self.song.artist}: {message}")
-            self.parent.update_overall()
+
+        # Update the overall progress bar
+        if self.parent.song_count == self.parent.overall_completed_tasks:
+            self.parent.overall_progress = self.parent.song_count * 100
+        else:
+            self.parent.overall_progress += delta
+
+        self.parent.update_overall()
+        self.old_progress = self.progress
 
     def notify_error(self, message: str, traceback: Exception) -> None:
         """

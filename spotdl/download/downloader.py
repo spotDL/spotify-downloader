@@ -154,14 +154,12 @@ class Downloader:
         Download multiple songs asynchronously.
         """
 
-        tasks = [self.pool_download(song, songs) for song in songs]
+        tasks = [self.pool_download(song) for song in songs]
 
         # call all task asynchronously, and wait until all are finished
         return list(self.loop.run_until_complete(asyncio.gather(*tasks)))
 
-    async def pool_download(
-        self, song: Song, song_list: Optional[List[Song]] = None
-    ) -> Tuple[Song, Optional[Path]]:
+    async def pool_download(self, song: Song) -> Tuple[Song, Optional[Path]]:
         """
         Run asynchronous task in a pool to make sure that all processes
         don't run at once.
@@ -175,10 +173,10 @@ class Downloader:
             # is not a problem, since GIL is released for the I/O operations, so it shouldn't
             # hurt performance.
             return await self.loop.run_in_executor(
-                self.thread_executor, self.search_and_download, song, song_list
+                self.thread_executor, self.search_and_download, song
             )
 
-    def search_and_download(self, song: Song, song_list) -> Tuple[Song, Optional[Path]]:
+    def search_and_download(self, song: Song) -> Tuple[Song, Optional[Path]]:
         """
         Search for the song and download it.
         """
@@ -193,13 +191,8 @@ class Downloader:
             data.update((k, v) for k, v in new_data.items() if v is not None)
             song = Song(**data)
 
-        # Initalize the progress tracker
-        display_progress_tracker = self.progress_handler.get_new_tracker(song)
-
         # Create the output file path
-        output_file = create_file_name(
-            song, self.output, self.output_format, song_list=song_list
-        )
+        output_file = create_file_name(song, self.output, self.output_format)
 
         # Restrict the filename if needed
         if self.restrict is True:
@@ -209,12 +202,16 @@ class Downloader:
         # we can skip the download
         if output_file.exists() and self.overwrite == "skip":
             self.progress_handler.log(f"Skipping {song.display_name}")
-            display_progress_tracker.notify_download_skip()
+            self.progress_handler.overall_completed_tasks += 1
+            self.progress_handler.update_overall()
             return song, None
 
         # Don't skip if the file exists and overwrite is set to force
         if output_file.exists() and self.overwrite == "force":
             self.progress_handler.debug(f"Overwriting {song.display_name}")
+
+        # Initalize the progress tracker
+        display_progress_tracker = self.progress_handler.get_new_tracker(song)
 
         # Create the output directory if it doesn't exist
         output_file.parent.mkdir(parents=True, exist_ok=True)
