@@ -1,5 +1,5 @@
 from rapidfuzz import fuzz
-from slugify.main import Slugify
+from slugify import slugify
 
 
 def match_percentage(str1: str, str2: str, score_cutoff: float = 0) -> float:
@@ -11,8 +11,7 @@ def match_percentage(str1: str, str2: str, score_cutoff: float = 0) -> float:
     try:
         return fuzz.partial_ratio(str1, str2, score_cutoff=score_cutoff, processor=None)
     # On error, use slugify to handle unicode characters
-    except Exception:  # pylint: disable=broad-except
-        slugify = Slugify(to_lower=True)
+    except Exception:
         return fuzz.partial_ratio(
             str1, str2, score_cutoff=score_cutoff, processor=slugify
         )

@@ -37,7 +37,7 @@ class Song:
     explicit: bool
     publisher: str
     url: str
-    copyright: Optional[str]
+    copyright_text: Optional[str]
     download_url: Optional[str] = None
     song_list: Optional["SongList"] = None
 
@@ -76,7 +76,7 @@ class Song:
             artist=raw_track_meta["artists"][0]["name"],
             album_name=raw_album_meta["name"],
             album_artist=raw_album_meta["artists"][0]["name"],
-            copyright=raw_album_meta["copyrights"][0]["text"]
+            copyright_text=raw_album_meta["copyrights"][0]["text"]
             if raw_album_meta["copyrights"]
             else None,
             genres=raw_album_meta["genres"] + raw_artist_meta["genres"],
@@ -181,6 +181,9 @@ class SongList:
 
     @classmethod
     def from_url(cls, url: str):
+        """
+        Initialize a SongList object from a URL.
+        """
         raise NotImplementedError
 
     @staticmethod

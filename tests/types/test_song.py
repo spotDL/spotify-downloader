@@ -39,7 +39,7 @@ def test_song_init():
         explicit=True,
         download_url="test",
         artist="test",
-        copyright="test",
+        copyright_text="test",
         disc_count=1,
         publisher="test",
         url="test",
@@ -167,7 +167,7 @@ def test_song_from_data_dump():
             "download_url": null,
             "artist" : "Dirty Palm",
             "disc_count": 1,
-            "copyright": "",
+            "copyright_text": "",
             "publisher": "",
             "url": "https://open.spotify.com/track/1t2qKa8K72IBC8yQlhD9bU"
         }
@@ -229,7 +229,7 @@ def test_song_from_dict():
             "download_url": None,
             "artist": "Dirty Palm",
             "disc_count": 1,
-            "copyright": "",
+            "copyright_text": "",
             "publisher": "",
             "url": "https://open.spotify.com/track/1t2qKa8K72IBC8yQlhD9bU",
         }

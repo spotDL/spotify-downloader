@@ -4,7 +4,6 @@ from typing import List, Optional
 from pathlib import Path
 from yt_dlp.utils import sanitize_filename
 
-from slugify.main import Slugify
 from spotdl.types import Song
 from spotdl.types.song import SongList
 
@@ -248,27 +247,20 @@ def to_ms(
         hour = int(string[0:2])
         minute = int(string[3:5])
         sec = int(string[6:8])
-        ms = int(string[10:11])
+        milliseconds = int(string[10:11])
     else:
         hour = int(kwargs.get("hour", 0))
         minute = int(kwargs.get("min", 0))
         sec = int(kwargs.get("sec", 0))
-        ms = int(kwargs.get("ms", 0))
+        milliseconds = int(kwargs.get("ms", 0))
 
-    result = (hour * 60 * 60 * 1000) + (minute * 60 * 1000) + (sec * 1000) + ms
+    result = (
+        (hour * 60 * 60 * 1000) + (minute * 60 * 1000) + (sec * 1000) + milliseconds
+    )
     if precision and isinstance(precision, int):
         return round(result, precision)
 
     return result
-
-
-def slugify(value: str, to_lower=True) -> str:
-    """
-    Normalizes string, converts to lowercase, removes non-alpha characters,
-    and converts spaces to hyphens.
-    """
-
-    return Slugify(to_lower=to_lower)(value)
 
 
 def restrict_filename(pathobj: Path) -> Path:

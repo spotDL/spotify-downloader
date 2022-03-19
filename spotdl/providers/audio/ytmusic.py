@@ -1,6 +1,7 @@
 from typing import Any, Dict, List, Optional
 
 from ytmusicapi import YTMusic
+from slugify import slugify
 
 from spotdl.utils.providers import match_percentage
 from spotdl.providers.audio.base import AudioProvider, AudioProviderError
@@ -9,7 +10,6 @@ from spotdl.utils.formatter import (
     create_song_title,
     parse_duration,
     create_search_query,
-    slugify,
 )
 
 

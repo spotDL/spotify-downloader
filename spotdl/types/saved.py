@@ -20,9 +20,9 @@ class Saved(SongList):
         Will throw an exception if users is not logged in.
         """
 
-        metadata = Saved.get_metadata()
+        metadata = Saved.get_metadata("saved")
 
-        urls = cls.get_urls()
+        urls = cls.get_urls("saved")
 
         # Remove songs without id
         # and create Song objects
@@ -35,7 +35,7 @@ class Saved(SongList):
         )
 
     @staticmethod
-    def get_urls() -> List[str]:
+    def get_urls(_: str) -> List[str]:
         """
         Returns a list of urls of all saved tracks.
         """
@@ -74,11 +74,15 @@ class Saved(SongList):
         Create a basic list with only the required metadata and urls.
         """
 
-        metadata = cls.get_metadata()
-        urls = cls.get_urls()
+        metadata = cls.get_metadata("saved")
+        urls = cls.get_urls("saved")
 
         return cls(**metadata, urls=urls, songs=[])
 
     @staticmethod
-    def get_metadata() -> Dict[str, Any]:
-        return {"name": "Saved tracks", "url": "saved"}
+    def get_metadata(url: str) -> Dict[str, Any]:
+        """
+        Returns metadata for a saved list.
+        """
+
+        return {"name": "Saved tracks", "url": url}

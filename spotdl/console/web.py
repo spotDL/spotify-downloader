@@ -138,7 +138,7 @@ async def download_search(
     Search for song and download the first result.
     """
 
-    song, path = await app.downloader._pool_download(Song.from_search_term(query))
+    song, path = await app.downloader.pool_download(Song.from_search_term(query))
 
     if return_file is True:
         if path is None:
@@ -157,7 +157,7 @@ async def download_objects(
     Download songs using Song objects.
     """
 
-    song_obj, path = await app.downloader._pool_download(Song(**song.dict()))
+    song_obj, path = await app.downloader.pool_download(Song(**song.dict()))
 
     if return_file is True:
         if path is None:

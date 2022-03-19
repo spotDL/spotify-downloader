@@ -154,12 +154,12 @@ class Downloader:
         Download multiple songs asynchronously.
         """
 
-        tasks = [self._pool_download(song, songs) for song in songs]
+        tasks = [self.pool_download(song, songs) for song in songs]
 
         # call all task asynchronously, and wait until all are finished
         return list(self.loop.run_until_complete(asyncio.gather(*tasks)))
 
-    async def _pool_download(
+    async def pool_download(
         self, song: Song, song_list: Optional[List[Song]] = None
     ) -> Tuple[Song, Optional[Path]]:
         """
@@ -242,7 +242,8 @@ class Downloader:
                 )
 
             self.progress_handler.debug(
-                f"Downloading {song.display_name} using {url}, actual url: {download_info['url']}, format: {download_info['format']}"
+                f"Downloading {song.display_name} using {url}, "
+                f"actual url: {download_info['url']}, format: {download_info['format']}"
             )
 
             success, result = convert_sync(

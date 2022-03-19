@@ -1,8 +1,9 @@
 from typing import Any, Dict, List, Optional
 
 from pytube import YouTube as PyTube, Search
+from slugify import slugify
 
-from spotdl.utils.formatter import create_song_title, create_search_query, slugify
+from spotdl.utils.formatter import create_song_title, create_search_query
 from spotdl.utils.providers import match_percentage
 from spotdl.providers.audio.base import AudioProvider
 from spotdl.types import Song

@@ -6,7 +6,7 @@ import stat
 import platform
 import asyncio
 
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 from pathlib import Path
 
 import requests
@@ -186,7 +186,7 @@ def download_ffmpeg() -> Path:
 
 
 async def convert(
-    input_file: Path | Tuple[str, str],
+    input_file: Union[Path, Tuple[str, str]],
     output_file: Path,
     ffmpeg: str = "ffmpeg",
     output_format: str = "mp3",
@@ -278,7 +278,7 @@ async def convert(
 
 
 def convert_sync(
-    input_file: Path | Tuple[str, str],
+    input_file: Union[Path, Tuple[str, str]],
     output_file: Path,
     ffmpeg: str = "ffmpeg",
     output_format: str = "mp3",
@@ -344,9 +344,6 @@ def convert_sync(
     # Add output file at the end
     arguments.append(str(output_file.resolve()))
 
-    total_dur = None
-    stderr = []
-
     # Run ffmpeg
     process = subprocess.Popen(  # pylint: disable=no-member
         [ffmpeg, *arguments],
@@ -381,6 +378,8 @@ def convert_sync(
     progress_handler(0)
 
     stderr_buffer = []
+    total_dur = None
+    stderr: str = ""
     while True:
         if process.stdout is None:
             continue
@@ -398,13 +397,12 @@ def convert_sync(
 
         total_dur_match = DUR_REGEX.search(stderr_line)
         if total_dur is None and total_dur_match:
-            total_dur = total_dur_match.groupdict()
-            total_dur = to_ms(**total_dur)
+            total_dur = to_ms(**total_dur_match.groupdict())  # type: ignore
             continue
-        if total_dur:
+        if isinstance(total_dur, float):
             progress_time = TIME_REGEX.search(stderr_line)
             if progress_time:
-                elapsed_time = to_ms(**progress_time.groupdict())
+                elapsed_time = to_ms(**progress_time.groupdict())  # type: ignore
                 progress_handler(int(elapsed_time / total_dur * 100))
 
     if process.returncode != 0:

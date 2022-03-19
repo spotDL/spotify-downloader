@@ -1,7 +1,7 @@
 import json
 import concurrent.futures
 
-from typing import Dict, List, Optional, Tuple
+from typing import List, Optional
 
 from spotdl.types import Song, Playlist, Album, Artist, Saved
 from spotdl.types.song import SongList
@@ -60,7 +60,7 @@ def parse_query(
             for album_url in Artist.get_albums(request):
                 urls.extend(Album.get_urls(album_url))
         elif request == "saved":
-            urls.extend(Saved.get_urls())
+            urls.extend(Saved.get_urls("saved"))
         elif request.endswith(".spotdl"):
             with open(request, "r", encoding="utf-8") as m3u_file:
                 for track in json.load(m3u_file):
@@ -95,7 +95,7 @@ def create_empty_song(
     explicit: Optional[bool] = None,
     publisher: Optional[str] = None,
     url: Optional[str] = None,
-    copyright: Optional[str] = None,
+    copyright_text: Optional[str] = None,
     download_url: Optional[str] = None,
     song_list: Optional["SongList"] = None,
 ) -> Song:
@@ -122,7 +122,7 @@ def create_empty_song(
         explicit=explicit,  # type: ignore
         publisher=publisher,  # type: ignore
         url=url,  # type: ignore
-        copyright=copyright,
+        copyright_text=copyright_text,
         download_url=download_url,
         song_list=song_list,
     )
@@ -183,6 +183,8 @@ def get_simple_songs(
             songs.append(Song.from_search_term(request))
 
     for song_list in lists:
-        songs.extend([create_empty_song(url=url, song_list=song_list) for url in song_list.urls])  # type: ignore
+        songs.extend(
+            [create_empty_song(url=url, song_list=song_list) for url in song_list.urls]
+        )  # type: ignore
 
     return songs

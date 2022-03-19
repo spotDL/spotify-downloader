@@ -56,7 +56,7 @@ class Artist(SongList):
             album = Album.from_url(album_url)
             albums.append(album)
             for track in album.songs:
-                track_name = slugify(track.name, to_lower=True)  # type: ignore
+                track_name = slugify(track.name)  # type: ignore
                 if track_name not in known_tracks:
                     tracks.append(track)
                     urls.append(track.url)
@@ -103,7 +103,7 @@ class Artist(SongList):
         if artist_albums is not None:
             for album in artist_albums["items"]:
                 albums.append(album["external_urls"]["spotify"])
-                known_albums.add(slugify(album["name"], to_lower=True))  # type: ignore
+                known_albums.add(slugify(album["name"]))  # type: ignore
 
             # Fetch all artist albums
             while artist_albums and artist_albums["next"]:
@@ -112,7 +112,7 @@ class Artist(SongList):
                     break
 
                 for album in artist_albums["items"]:
-                    album_name = slugify(album["name"], to_lower=True)  # type: ignore
+                    album_name = slugify(album["name"])  # type: ignore
 
                     if album_name in known_albums:
                         albums.extend([item["uri"] for item in artist_albums["items"]])
