@@ -7,6 +7,7 @@ from spotdl.utils.providers import match_percentage
 from spotdl.providers.audio.base import AudioProvider
 from spotdl.types import Song
 
+
 class YouTube(AudioProvider):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         """

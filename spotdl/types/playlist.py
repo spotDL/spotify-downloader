@@ -1,5 +1,7 @@
 from dataclasses import dataclass
-from typing import List
+from typing import Any, Dict, List
+
+from spotdl.types.song import SongList
 from spotdl.utils.spotify import SpotifyClient
 from spotdl.types.song import Song
 
@@ -11,10 +13,7 @@ class PlaylistError(Exception):
 
 
 @dataclass(frozen=True)
-class Playlist:
-    name: str
-    url: str
-    tracks: List[Song]
+class Playlist(SongList):
     description: str
     author_url: str
     author_name: str
@@ -24,11 +23,8 @@ class Playlist:
         """
         Load playlist info and tracks from a Spotify playlist URL.
         """
-        spotify_client = SpotifyClient()
 
-        playlist = spotify_client.playlist(url)
-        if playlist is None:
-            raise PlaylistError("Invalid playlist URL.")
+        metadata = Playlist.get_metadata(url)
 
         # Get urls
         urls = cls.get_urls(url)
@@ -38,21 +34,10 @@ class Playlist:
         tracks = [Song.from_url(url) for url in urls]
 
         return cls(
-            name=playlist["name"],
-            url=url,
-            tracks=tracks,
-            description=playlist["description"],
-            author_url=playlist["external_urls"]["spotify"],
-            author_name=playlist["owner"]["display_name"],
+            **metadata,
+            songs=tracks,
+            urls=urls,
         )
-
-    @property
-    def length(self) -> int:
-        """
-        Get Playlist length (number of tracks).
-        """
-
-        return len(self.tracks)
 
     @staticmethod
     def get_urls(url: str) -> List[str]:
@@ -87,3 +72,23 @@ class Playlist:
             for track in tracks
             if track and track.get("track", {}).get("id")
         ]
+
+    @staticmethod
+    def get_metadata(url: str) -> Dict[str, Any]:
+        """
+        Get metadata for a playlist.
+        """
+
+        spotify_client = SpotifyClient()
+
+        playlist = spotify_client.playlist(url)
+        if playlist is None:
+            raise PlaylistError("Invalid playlist URL.")
+
+        return {
+            "name": playlist["name"],
+            "url": url,
+            "description": playlist["description"],
+            "author_url": playlist["external_urls"]["spotify"],
+            "author_name": playlist["owner"]["display_name"],
+        }

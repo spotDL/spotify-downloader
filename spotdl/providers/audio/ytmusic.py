@@ -12,6 +12,7 @@ from spotdl.utils.formatter import (
     slugify,
 )
 
+
 class YouTubeMusic(AudioProvider):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         """

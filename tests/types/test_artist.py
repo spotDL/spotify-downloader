@@ -23,15 +23,16 @@ def test_artist_init():
 
     artist = Artist(
         name="test",
-        tracks=[],
+        songs=[],
+        urls=[],
         albums=[],
         genres=[],
-        artist_id="test",
+        url="test",
     )
 
     assert artist.name == "test"
-    assert artist.artist_id == "test"
-    assert artist.tracks == []
+    assert artist.url == "test"
+    assert artist.songs == []
     assert artist.albums == []
     assert artist.genres == []
 
@@ -44,10 +45,10 @@ def test_artist_wrong_init():
     with pytest.raises(TypeError):
         Artist(
             name="test",
-            tracks=[],
+            songs=[],
             albums=[],
             genres=[],
-            artist_id="test",
+            url="test",
             wrong_key="test",  # type: ignore
         )
 
@@ -61,7 +62,7 @@ def test_artist_from_url():
     artist = Artist.from_url("https://open.spotify.com/artist/1FPC2zwfMHhrP3frOfaai6")
 
     assert artist.name == "Kontinuum"
-    assert artist.artist_id == "1FPC2zwfMHhrP3frOfaai6"
-    assert len(artist.tracks) > 5
+    assert artist.url == "https://open.spotify.com/artist/1FPC2zwfMHhrP3frOfaai6"
+    assert len(artist.songs) > 5
     assert len(artist.albums) > 2
     assert len(artist.genres) >= 1

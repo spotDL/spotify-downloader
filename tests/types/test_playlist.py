@@ -24,7 +24,8 @@ def test_playlist_init():
     playlist = Playlist(
         name="test",
         url="test",
-        tracks=[],
+        songs=[],
+        urls=[],
         description="test",
         author_url="test",
         author_name="test",
@@ -32,7 +33,7 @@ def test_playlist_init():
 
     assert playlist.name == "test"
     assert playlist.url == "test"
-    assert playlist.tracks == []
+    assert playlist.songs == []
     assert playlist.description == "test"
     assert playlist.author_url == "test"
     assert playlist.author_name == "test"
@@ -47,7 +48,7 @@ def test_playlist_wrong_init():
         Playlist(
             name=1,
             url="test",
-            tracks=[],
+            songs=[],
             description="test",
         )  # type: ignore
 
@@ -64,7 +65,7 @@ def test_playlist_from_url():
 
     assert playlist.name == "Top 10 NCS Songs Episode 2"
     assert playlist.url == "https://open.spotify.com/playlist/5LkNhFidYyyjRWwnkcMbQs"
-    assert len(playlist.tracks) == 10
+    assert len(playlist.songs) == 10
     assert playlist.description == ""
 
 

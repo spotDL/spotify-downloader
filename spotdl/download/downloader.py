@@ -174,17 +174,53 @@ class Downloader:
             # Therefore it has to be called in a separate thread via ThreadPoolExecutor. This
             # is not a problem, since GIL is released for the I/O operations, so it shouldn't
             # hurt performance.
-            return await self.loop.run_in_executor(self.thread_executor, self.search_and_download, song, song_list)
+            return await self.loop.run_in_executor(
+                self.thread_executor, self.search_and_download, song, song_list
+            )
 
     def search_and_download(self, song: Song, song_list) -> Tuple[Song, Optional[Path]]:
         """
         Search for the song and download it.
         """
 
+        # Check if we have all the metadata
+        # and that the song object is not a placeholder
+        # If it's None extract the current metadata
+        # And reinitialize the song object
+        if song.name is None and song.url:
+            data = song.json
+            new_data = Song.from_url(data["url"]).json
+            data.update((k, v) for k, v in new_data.items() if v is not None)
+            song = Song(**data)
+
         # Initalize the progress tracker
         display_progress_tracker = self.progress_handler.get_new_tracker(song)
 
+        # Create the output file path
+        output_file = create_file_name(
+            song, self.output, self.output_format, song_list=song_list
+        )
+
+        # Restrict the filename if needed
+        if self.restrict is True:
+            output_file = restrict_filename(output_file)
+
+        # If the file already exists and we don't want to overwrite it,
+        # we can skip the download
+        if output_file.exists() and self.overwrite == "skip":
+            self.progress_handler.log(f"Skipping {song.display_name}")
+            display_progress_tracker.notify_download_skip()
+            return song, None
+
+        # Don't skip if the file exists and overwrite is set to force
+        if output_file.exists() and self.overwrite == "force":
+            self.progress_handler.debug(f"Overwriting {song.display_name}")
+
+        # Create the output directory if it doesn't exist
+        output_file.parent.mkdir(parents=True, exist_ok=True)
+
         try:
+            # Search for the download url if it's none
             if song.download_url is None:
                 url = self.audio_provider.search(song)
                 if url is None:
@@ -194,20 +230,20 @@ class Downloader:
             else:
                 url = song.download_url
 
+            # Get the download metadata using yt-dlp
             download_info = self.audio_provider.get_download_metadata(url)
 
             if download_info is None:
+                self.progress_handler.debug(
+                    f"No download info found for {song.display_name}, url: {url}"
+                )
                 raise LookupError(
                     f"yt-dlp failed to get metadata for: {song.name} - {song.artist}"
                 )
 
-            output_file = create_file_name(
-                song, self.output, self.output_format, song_list=song_list
+            self.progress_handler.debug(
+                f"Downloading {song.display_name} using {url}, actual url: {download_info['url']}, format: {download_info['format']}"
             )
-
-            if output_file.exists() and self.overwrite == "skip":
-                display_progress_tracker.notify_download_skip()
-                return song, None
 
             success, result = convert_sync(
                 (download_info["url"], download_info["ext"]),
@@ -217,7 +253,7 @@ class Downloader:
                 self.variable_bitrate,
                 self.constant_bitrate,
                 self.ffmpeg_args,
-                display_progress_tracker.progress_hook
+                display_progress_tracker.progress_hook,
             )
 
             if not success and result:
@@ -241,12 +277,6 @@ class Downloader:
 
             display_progress_tracker.notify_download_complete()
 
-            if self.restrict is True:
-                output_file = restrict_filename(output_file)
-
-            if output_file.exists() is False:
-                output_file.parent.mkdir(parents=True, exist_ok=True)
-
             lyrics = self.lyrics_provider.get_lyrics(song.name, song.artists)
             if not lyrics:
                 self.progress_handler.debug(
@@ -264,7 +294,9 @@ class Downloader:
 
             display_progress_tracker.notify_complete()
 
-            self.progress_handler.log(f'Downloaded "{song.display_name}": {song.download_url}')
+            self.progress_handler.log(
+                f'Downloaded "{song.display_name}": {song.download_url}'
+            )
 
             return song, output_file
         except Exception as exception:

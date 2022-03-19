@@ -11,6 +11,7 @@ class AudioProviderError(Exception):
     Base class for all exceptions related to audio searching/downloading.
     """
 
+
 class YTDLLogger:
     def debug(self, msg):  # pylint: disable=R0201
         """
@@ -102,4 +103,3 @@ class AudioProvider:
             return data
 
         raise AudioProviderError(f"No metadata found for the provided url {url}")
-

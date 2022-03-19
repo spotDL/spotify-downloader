@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from typing import Any, Dict, List
+from spotdl.types.song import SongList
 from spotdl.utils.spotify import SpotifyClient
 from spotdl.types.song import Song
 
@@ -11,10 +12,7 @@ class AlbumError(Exception):
 
 
 @dataclass(frozen=True)
-class Album:
-    name: str
-    url: str
-    tracks: List[Song]
+class Album(SongList):
     artist: Dict[str, Any]
 
     @classmethod
@@ -23,13 +21,7 @@ class Album:
         Parse an album from a Spotify URL.
         """
 
-        spotify_client = SpotifyClient()
-
-        album_metadata = spotify_client.album(url)
-        if album_metadata is None:
-            raise AlbumError(
-                "Couldn't get metadata, check if you have passed correct album id"
-            )
+        metadata = Album.get_metadata(url)
 
         urls = cls.get_urls(url)
 
@@ -38,19 +30,10 @@ class Album:
         songs: List[Song] = [Song.from_url(url) for url in urls]
 
         return cls(
-            name=album_metadata["name"],
-            url=url,
-            tracks=songs,
-            artist=album_metadata["artists"][0],
+            **metadata,
+            songs=songs,
+            urls=urls,
         )
-
-    @property
-    def length(self) -> int:
-        """
-        Get Album length (number of tracks).
-        """
-
-        return len(self.tracks)
 
     @staticmethod
     def get_urls(url: str) -> List[str]:
@@ -86,3 +69,23 @@ class Album:
             for track in tracks
             if track and track.get("id")
         ]
+
+    @staticmethod
+    def get_metadata(url) -> Dict[str, Any]:
+        """
+        Get metadata for album.
+        """
+
+        spotify_client = SpotifyClient()
+
+        album_metadata = spotify_client.album(url)
+        if album_metadata is None:
+            raise AlbumError(
+                "Couldn't get metadata, check if you have passed correct album id"
+            )
+
+        return {
+            "name": album_metadata["name"],
+            "artist": album_metadata["artists"][0],
+            "url": url,
+        }

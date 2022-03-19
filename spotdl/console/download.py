@@ -1,12 +1,10 @@
 import traceback
 
-from pathlib import Path
 from typing import List, Optional
 
 from spotdl.download.downloader import Downloader
-from spotdl.utils.query import parse_query
-from spotdl.utils.formatter import create_file_name
 from spotdl.utils.m3u import create_m3u_file
+from spotdl.utils.query import get_simple_songs
 
 
 def download(
@@ -19,31 +17,17 @@ def download(
     """
 
     try:
-        songs_list = parse_query(query, downloader.threads)
+        # Parse the query
+        songs = get_simple_songs(query)
+
+        results = downloader.download_multiple_songs(songs)
 
         if m3u_file:
+            song_list = [song for song, _ in results]
             create_m3u_file(
-                m3u_file, songs_list, downloader.output, downloader.output_format, False
+                m3u_file, song_list, downloader.output, downloader.output_format, False
             )
 
-        songs = []
-        for song in songs_list:
-            song_path = create_file_name(
-                song, downloader.output, downloader.output_format, song_list=songs_list
-            )
-
-            if Path(song_path).exists():
-                if downloader.overwrite == "force":
-                    downloader.progress_handler.log(f"Overwriting {song.display_name}")
-                    songs.append(song)
-                else:
-                    downloader.progress_handler.warn(
-                        f"{song.display_name} already exists."
-                    )
-            else:
-                songs.append(song)
-
-        downloader.download_multiple_songs(songs)
     except Exception as exception:
         downloader.progress_handler.debug(traceback.format_exc())
         downloader.progress_handler.error(str(exception))

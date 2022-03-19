@@ -212,7 +212,7 @@ async def convert(
         "-movflags",
         "+faststart",
         "-v",
-        "debug"
+        "debug",
     ]
 
     file_format = (
@@ -311,7 +311,7 @@ def convert_sync(
         "debug",
         "-progress",
         "-",
-        "-nostats"
+        "-nostats",
     ]
 
     file_format = (

@@ -1,9 +1,10 @@
 import json
 import concurrent.futures
 
-from typing import List
+from typing import Dict, List, Optional, Tuple
 
 from spotdl.types import Song, Playlist, Album, Artist, Saved
+from spotdl.types.song import SongList
 
 
 class QueryError(Exception):
@@ -71,5 +72,117 @@ def parse_query(
     with concurrent.futures.ThreadPoolExecutor(max_workers=threads) as executor:
         for song in executor.map(Song.from_url, urls):
             songs.append(song)
+
+    return songs
+
+
+def create_empty_song(
+    name: Optional[str] = None,
+    artists: Optional[List[str]] = None,
+    album_name: Optional[str] = None,
+    album_artist: Optional[str] = None,
+    genres: Optional[List[str]] = None,
+    disc_number: Optional[int] = None,
+    disc_count: Optional[int] = None,
+    duration: Optional[int] = None,
+    year: Optional[int] = None,
+    date: Optional[str] = None,
+    track_number: Optional[int] = None,
+    tracks_count: Optional[int] = None,
+    isrc: Optional[str] = None,
+    song_id: Optional[str] = None,
+    cover_url: Optional[str] = None,
+    explicit: Optional[bool] = None,
+    publisher: Optional[str] = None,
+    url: Optional[str] = None,
+    copyright: Optional[str] = None,
+    download_url: Optional[str] = None,
+    song_list: Optional["SongList"] = None,
+) -> Song:
+    """
+    Create an empty song.
+    """
+    return Song(
+        name=name,  # type: ignore
+        artists=artists,  # type: ignore
+        artist=None if artists is None else artists[0],  # type: ignore
+        album_name=album_name,  # type: ignore
+        album_artist=album_artist,  # type: ignore
+        genres=genres,  # type: ignore
+        disc_number=disc_number,  # type: ignore
+        disc_count=disc_count,  # type: ignore
+        duration=duration,  # type: ignore
+        year=year,  # type: ignore
+        date=date,  # type: ignore
+        track_number=track_number,  # type: ignore
+        tracks_count=tracks_count,  # type: ignore
+        isrc=isrc,  # type: ignore
+        song_id=song_id,  # type: ignore
+        cover_url=cover_url,  # type: ignore
+        explicit=explicit,  # type: ignore
+        publisher=publisher,  # type: ignore
+        url=url,  # type: ignore
+        copyright=copyright,
+        download_url=download_url,
+        song_list=song_list,
+    )
+
+
+def get_simple_songs(
+    query: List[str],
+) -> List[Song]:
+    """
+    Parse query and return list containing simple song objects
+    """
+
+    songs: List[Song] = []
+    lists: List[SongList] = []
+    for request in query:
+        if (
+            "youtube.com/watch?v=" in request
+            or "youtu.be/" in request
+            and "open.spotify.com" in request
+            and "track" in request
+            and "|" in request
+        ):
+            split_urls = request.split("|")
+            if (
+                len(split_urls) <= 1
+                or "youtube" not in split_urls[0]
+                and "youtu.be" not in split_urls[0]
+                or "spotify" not in split_urls[1]
+            ):
+                raise QueryError(
+                    "Incorrect format used, please use YouTubeURL|SpotifyURL"
+                )
+
+            songs.append(
+                Song.from_dict(
+                    {
+                        "url": split_urls[1],
+                        "download_url": split_urls[0],
+                    }
+                )
+            )
+        elif "open.spotify.com" in request and "track" in request:
+            songs.append(Song(url=request))  # type: ignore
+        elif "open.spotify.com" in request and "playlist" in request:
+            lists.append(Playlist.create_basic_list(request))
+        elif "open.spotify.com" in request and "album" in request:
+            lists.append(Album.create_basic_list(request))
+        elif "open.spotify.com" in request and "artist" in request:
+            lists.append(Artist.create_basic_list(request))
+        elif request == "saved":
+            lists.append(Saved.create_basic_list())
+        elif request.endswith(".spotdl"):
+            with open(request, "r", encoding="utf-8") as save_file:
+                for track in json.load(save_file):
+                    # Append to songs
+                    songs.append(Song.from_dict(track))
+        else:
+            songs.append(Song.from_search_term(request))
+
+    for song_list in lists:
+        songs.extend([create_empty_song(url=url, song_list=song_list) for url in song_list.urls])  # type: ignore
 
     return songs

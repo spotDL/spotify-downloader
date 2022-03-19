@@ -16,7 +16,6 @@ class SongError(Exception):
 class Song:
     """
     Song class. Contains all the information about a song.
-    Frozen to prevent accidental modification.
     """
 
     name: str
@@ -40,6 +39,7 @@ class Song:
     url: str
     copyright: Optional[str]
     download_url: Optional[str] = None
+    song_list: Optional["SongList"] = None
 
     @classmethod
     def from_url(cls, url: str) -> "Song":
@@ -151,3 +151,50 @@ class Song:
         """
 
         return asdict(self)
+
+
+@dataclass(frozen=True)
+class SongList:
+    name: str
+    url: str
+    urls: List[str]
+    songs: List[Song]
+
+    @property
+    def length(self) -> int:
+        """
+        Get list length (number of songs).
+        """
+
+        return len(self.songs)
+
+    @classmethod
+    def create_basic_list(cls, url: str):
+        """
+        Create a basic list with only the required metadata and urls.
+        """
+
+        metadata = cls.get_metadata(url)
+        urls = cls.get_urls(url)
+
+        return cls(**metadata, urls=urls, songs=[])
+
+    @classmethod
+    def from_url(cls, url: str):
+        raise NotImplementedError
+
+    @staticmethod
+    def get_urls(url: str) -> List[str]:
+        """
+        Get urls for all songs in url.
+        """
+
+        raise NotImplementedError
+
+    @staticmethod
+    def get_metadata(url: str) -> Dict[str, Any]:
+        """
+        Get metadata for list.
+        """
+
+        raise NotImplementedError

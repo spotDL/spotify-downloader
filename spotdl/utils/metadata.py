@@ -12,6 +12,7 @@ from mutagen.id3 import APIC as AlbumCover, USLT
 
 from spotdl.types import Song
 
+
 class MetadataError(Exception):
     """
     Base class for all exceptions related to metadata and id3 embedding.

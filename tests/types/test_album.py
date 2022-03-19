@@ -21,7 +21,7 @@ def test_album_init():
     Test if Playlist class is initialized correctly.
     """
 
-    Album(name="test", url="test", tracks=[], artist={"name": "test"})
+    Album(name="test", url="test", songs=[], artist={"name": "test"}, urls=[])
 
 
 def test_album_wrong_init():
@@ -47,7 +47,7 @@ def test_album_from_url():
     assert album.name == "NCS: The Best of 2017"
     assert album.url == "https://open.spotify.com/album/4MQnUDGXmHOvnsWCpzeqWT"
     assert album.artist["name"] == "Various Artists"
-    assert len(album.tracks) == 16
+    assert len(album.songs) == 16
 
 
 @pytest.mark.vcr()

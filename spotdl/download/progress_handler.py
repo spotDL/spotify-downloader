@@ -382,7 +382,7 @@ class SongTracker:
         self.update("Error")
 
         self.parent.debug(message)
-        self.parent.error(f"{traceback.__class__.__name__}: \"{self.song.display_name}\" - {traceback}")
+        self.parent.error(f"{traceback.__class__.__name__}: {traceback}")
 
     def notify_download_complete(self, status="Embeding metadata") -> None:
         """
@@ -413,6 +413,6 @@ class SongTracker:
         Updates the progress.
         """
 
-        self.progress = int(progress * .95)
+        self.progress = int(progress * 0.95)
 
         self.update("Downloading")
