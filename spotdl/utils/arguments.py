@@ -290,7 +290,6 @@ def parse_output_options(parser: _ArgumentGroup):
         action="store_true",
     )
 
-
 def parse_misc_options(parser: _ArgumentGroup):
     """
     Parse misc options from the command line.
