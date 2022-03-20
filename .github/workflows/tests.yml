@@ -16,11 +16,10 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
+      - uses: FedericoCarboni/setup-ffmpeg@v1
+        id: setup-ffmpeg
       - name: Install dependencies
         run: |
-          sudo apt update -y
-          sudo apt install ffmpeg -y
-          ffmpeg -version
           python -m pip install --upgrade pip
           pip install poetry
           poetry install -E web
