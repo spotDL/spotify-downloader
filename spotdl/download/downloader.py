@@ -51,10 +51,10 @@ class Downloader:
         threads: int = 4,
         output: str = ".",
         save_file: Optional[str] = None,
-        overwrite: str = "overwrite",
+        overwrite: str = "skip",
         cookie_file: Optional[str] = None,
-        search_query: str = "{artists} - {title}",
         filter_results: bool = True,
+        search_query: str = "{artists} - {title}",
         log_level: str = "INFO",
         simple_tui: bool = False,
         loop: Optional[asyncio.AbstractEventLoop] = None,
@@ -156,6 +156,8 @@ class Downloader:
         if self.print_errors:
             for error in self.errors:
                 self.progress_handler.error(error)
+
+        print(self.errors)
 
         return results
 

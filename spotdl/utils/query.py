@@ -165,7 +165,7 @@ def get_simple_songs(
                 )
             )
         elif "open.spotify.com" in request and "track" in request:
-            songs.append(Song(url=request))  # type: ignore
+            songs.append(create_empty_song(url=request))  # type: ignore
         elif "open.spotify.com" in request and "playlist" in request:
             lists.append(Playlist.create_basic_list(request))
         elif "open.spotify.com" in request and "album" in request:

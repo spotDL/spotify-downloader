@@ -1,5 +1,5 @@
 import pytest
-import asyncio
+import subprocess
 
 from pathlib import Path
 
@@ -16,7 +16,7 @@ class FakeProcess:
         self._input = Path(command[command.index("-i") + 1])
         self._output = Path(command[-1])
 
-    async def communicate(self):
+    def communicate(self):
         """
         Ensure that the file has been download, and create empty output file,
         to avoid infinite loop.
@@ -25,7 +25,7 @@ class FakeProcess:
         self._output.open("w").close()
         return (None, None)
 
-    async def wait(self):
+    def wait(self):
         return None
 
     @property
@@ -33,15 +33,29 @@ class FakeProcess:
         return 0
 
 
-def new_initialize(client_id, client_secret, user_auth):
+def new_initialize(
+    client_id,
+    client_secret,
+    user_auth=False,
+    cache_path=None,
+    no_cache=False,
+    open_browser=False,
+):
     """This function allows calling `initialize()` multiple times"""
     try:
         return SpotifyClient()
     except:
-        return ORIGINAL_INITIALIZE(client_id, client_secret, user_auth)
+        return ORIGINAL_INITIALIZE(
+            client_id=client_id,
+            client_secret=client_secret,
+            user_auth=user_auth,
+            cache_path=cache_path,
+            no_cache=no_cache,
+            open_browser=open_browser,
+        )
 
 
-async def fake_create_subprocess_exec(*args, stdout=None, stderr=None):
+def fake_create_subprocess_exec(*args, stdout=None, stderr=None, **kwargs):
     return FakeProcess(args)
 
 
@@ -52,6 +66,4 @@ def patch_dependencies(monkeypatch):
     """
 
     monkeypatch.setattr(SpotifyClient, "init", new_initialize)
-    monkeypatch.setattr(
-        asyncio.subprocess, "create_subprocess_exec", fake_create_subprocess_exec
-    )
+    monkeypatch.setattr(subprocess, "Popen", fake_create_subprocess_exec)
