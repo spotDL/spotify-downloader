@@ -16,8 +16,8 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
-      - uses: FedericoCarboni/setup-ffmpeg@v1
-        id: setup-ffmpeg
+      # - uses: FedericoCarboni/setup-ffmpeg@v1
+      #   id: setup-ffmpeg
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
