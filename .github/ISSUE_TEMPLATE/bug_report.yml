@@ -10,7 +10,7 @@ body:
 
 - type: dropdown
   attributes:
-    label: System OS
+    label: System Operating System (OS)
     description: OS not listed here? Please let us know below
     options:
       - Windows
@@ -31,6 +31,7 @@ body:
       - 3.7 (CPython)
       - 3.8 (CPython)
       - 3.9 (CPython)
+      - 3.10 (CPython)
   validations:
     required: true
 
@@ -41,6 +42,8 @@ body:
     options:
       - pip / PyPi
       - GitHub
+      - Termux Installation Script (spotDL provided)
+      - Arch User Repository (Unofficial)
   validations:
     required: true
 
@@ -50,7 +53,7 @@ body:
     description: |
       Supply version if installed from pip, found via `pip show spotdl`
       or supply commit hash if installed from GitHub
-    placeholder: v4.x.x or hash-value
+    placeholder: v3.x.x or hash-value
   validations:
     required: true
 
@@ -62,6 +65,8 @@ body:
 - type: textarea
   attributes:
     label: Steps to reproduce
+    description: Please ensure to include Spotify links and the actual command 
+    you used.
     placeholder: |
       1.
       2.
