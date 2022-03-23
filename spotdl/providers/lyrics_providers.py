@@ -1,3 +1,5 @@
+import re
+
 from requests import get
 from bs4 import BeautifulSoup
 from typing import List
@@ -56,6 +58,12 @@ def get_lyrics_genius(song_name: str, song_artists: List[str]) -> str:
 
     lyrics_containers = soup.select("div[class^=Lyrics__Container]")
     lyrics = "\n".join(con.get_text() for con in lyrics_containers)
+
+    # cleaning the lyrics by removing unwanted texts like [Intro] etc and unwanted newlines
+    # and then returning clean lyrics like get_lyrics_musixmatch()
+    lyrics = re.sub(r"(\[.*?])*", "", lyrics)
+    lyrics = re.sub('\n\n+', '\n\n', lyrics)
+
     return lyrics.strip()
 
 
@@ -70,7 +78,7 @@ def get_lyrics_musixmatch(
     Gets the lyrics of the song.
     """
     # remove artist names that are already in the song_name
-    # we do not use SongObject.create_file_name beacause it
+    # we do not use SongObject.create_file_name because it
     # removes '/' etc from the artist and song names.
     artists_str = ", ".join(
         artist for artist in song_artists if artist.lower() not in song_name.lower()
@@ -79,6 +87,7 @@ def get_lyrics_musixmatch(
     # quote the query so that it's safe to use in a url
     # e.g "Au/Ra" -> "Au%2FRa"
     query = quote(f"{song_name} - {artists_str}", safe="")
+
 
     # search the `tracks page` if track_search is True
     if track_search:
@@ -96,7 +105,7 @@ def get_lyrics_musixmatch(
     # All Results page, therefore, we use `track_search` to
     # search the tracks page.
     if song_url_tag is None:
-        # track_serach being True means we are already searching the tracks page.
+        # track_search being True means we are already searching the tracks page.
         if track_search:
             return ""
 
