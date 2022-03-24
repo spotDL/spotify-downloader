@@ -65,8 +65,9 @@ body:
 - type: textarea
   attributes:
     label: Steps to reproduce
-    description: Please ensure to include Spotify links and the actual command 
-    you used.
+    description: |
+      Please ensure to include Spotify links and the actual command 
+      you used.
     placeholder: |
       1.
       2.
