@@ -11,7 +11,7 @@ from spotdl.console.download import download
 from spotdl.utils.config import DEFAULT_CONFIG
 from spotdl.utils.ffmpeg import download_ffmpeg
 from spotdl.utils.config import get_config_file
-from spotdl.utils.version import check_for_updates
+from spotdl.utils.github import check_for_updates
 from spotdl.utils.arguments import parse_arguments
 from spotdl.utils.spotify import SpotifyClient, SpotifyError
 from spotdl.download.downloader import DownloaderError

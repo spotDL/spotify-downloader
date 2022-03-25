@@ -1,10 +1,7 @@
 import asyncio
 import logging
 import os
-import re
-import urllib.request
 import json
-import sys
 
 from typing import Any, Dict, List, Optional, Tuple, Union
 from pathlib import Path
@@ -21,6 +18,7 @@ import nest_asyncio
 from spotdl.download.downloader import Downloader, DownloaderError
 from spotdl.download.progress_handler import NAME_TO_LEVEL, ProgressHandler
 from spotdl.types.song import Song
+from spotdl.utils.github import download_github_dir
 from spotdl.utils.query import parse_query
 from spotdl.utils.search import get_search_results
 from spotdl.utils.config import get_spotdl_path
@@ -32,6 +30,7 @@ ALLOWED_ORIGINS = [
     "http://localhost:8080",
     "*",
 ]
+
 
 class App:
     server: Any
@@ -92,6 +91,7 @@ class SettingsModel(BaseModel):
     user_auth: Optional[bool]
     threads: Optional[int]
 
+
 app = App()
 app.server = FastAPI()
 app.server.add_middleware(
@@ -106,7 +106,7 @@ nest_asyncio.apply()
 
 
 class WSProgressHandler:
-    instances = []
+    instances: List["WSProgressHandler"] = []
 
     def __init__(self, websocket: WebSocket, client_id: str):
         self.client_id = client_id
@@ -369,139 +369,6 @@ def change_settings(settings: SettingsModel) -> bool:
     return True
 
 
-def create_github_url(url):
-    """
-    From the given url, produce a URL that is compatible with Github's REST API. Can handle blob or tree paths.
-    """
-    repo_only_url = re.compile(
-        r"https:\/\/github\.com\/[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}\/[a-zA-Z0-9]+$"
-    )
-    re_branch = re.compile("/(tree|blob)/(.+?)/")
-
-    # Check if the given url is a url to a GitHub repo. If it is, tell the
-    # user to use 'git clone' to download it
-    if re.match(repo_only_url, url):
-        print(
-            "✘ The given url is a complete repository. Use 'git clone' to download the repository",
-            "red",
-        )
-        sys.exit()
-
-    # extract the branch name from the given url (e.g master)
-    branch = re_branch.search(url)
-    if branch:
-        download_dirs = url[branch.end() :]
-        api_url = (
-            url[: branch.start()].replace("github.com", "api.github.com/repos", 1)
-            + "/contents/"
-            + download_dirs
-            + "?ref="
-            + branch.group(2)
-        )
-        return api_url, download_dirs
-
-    raise ValueError("The given url is not a valid GitHub url")
-
-
-# Modification of https://github.com/sdushantha/gitdir/blob/master/gitdir/gitdir.py
-def download_github_dir(repo_url, flatten=False, output_dir="./"):
-    """Downloads the files and directories in repo_url. If flatten is specified, the contents of any and all
-    sub-directories will be pulled upwards into the root folder."""
-
-    # generate the url which returns the JSON data
-    api_url, download_dirs = create_github_url(repo_url)
-
-    # To handle file names.
-    if not flatten:
-        if len(download_dirs.split(".")) == 0:
-            dir_out = os.path.join(output_dir, download_dirs)
-        else:
-            dir_out = os.path.join(output_dir, "/".join(download_dirs.split("/")[:-1]))
-    else:
-        dir_out = output_dir
-
-    try:
-        opener = urllib.request.build_opener()
-        opener.addheaders = [("User-agent", "Mozilla/5.0")]
-        urllib.request.install_opener(opener)
-        response = urllib.request.urlretrieve(api_url)
-    except KeyboardInterrupt:
-        # when CTRL+C is pressed during the execution of this script,
-        # bring the cursor to the beginning, erase the current line, and dont make a new line
-        print("✘ Got interrupted")
-        sys.exit()
-
-    if not flatten:
-        # make a directory with the name which is taken from
-        # the actual repo
-        os.makedirs(dir_out, exist_ok=True)
-
-    # total files count
-    total_files = 0
-
-    with open(response[0], "r") as f:
-        data = json.load(f)
-        # getting the total number of files so that we
-        # can use it for the output information later
-        total_files += len(data)
-
-        # If the data is a file, download it as one.
-        if isinstance(data, dict) and data["type"] == "file":
-            try:
-                # download the file
-                opener = urllib.request.build_opener()
-                opener.addheaders = [("User-agent", "Mozilla/5.0")]
-                urllib.request.install_opener(opener)
-                urllib.request.urlretrieve(
-                    data["download_url"], os.path.join(dir_out, data["name"])
-                )
-                # bring the cursor to the beginning, erase the current line, and dont make a new line
-                print("Downloaded: " + "{}".format(data["name"]))
-
-                return total_files
-            except KeyboardInterrupt:
-                # when CTRL+C is pressed during the execution of this script,
-                # bring the cursor to the beginning, erase the current line, and dont make a new line
-                print("✘ Got interrupted")
-                sys.exit()
-
-        for file in data:
-            file_url = file["download_url"]
-            file_name = file["name"]
-
-            if flatten:
-                path = os.path.basename(file["path"])
-            else:
-                path = file["path"]
-            dirname = os.path.dirname(path)
-
-            if dirname != "":
-                os.makedirs(os.path.dirname(path), exist_ok=True)
-            else:
-                pass
-
-            if file_url is not None:
-                try:
-                    opener = urllib.request.build_opener()
-                    opener.addheaders = [("User-agent", "Mozilla/5.0")]
-                    urllib.request.install_opener(opener)
-                    # download the file
-                    urllib.request.urlretrieve(file_url, path)
-
-                    # bring the cursor to the beginning, erase the current line, and dont make a new line
-                    print("Downloaded: " + "{}".format(file_name), end="\n")
-
-                except KeyboardInterrupt:
-                    # when CTRL+C is pressed during the execution of this script,
-                    # bring the cursor to the beginning, erase the current line, and dont make a new line
-                    print("✘ Got interrupted")
-                    sys.exit()
-            else:
-                download_github_dir(file["html_url"], flatten, dir_out)
-
-    return total_files
-
-
 class SPAStaticFiles(StaticFiles):
     async def get_response(self, path: str, scope):
         response = await super().get_response(path, scope)
@@ -515,13 +382,17 @@ def web(settings: Dict[str, Any]):
     Run the web server.
     """
 
-    web_app_dir = str((get_spotdl_path() / "web_app").absolute())
+    web_app_dir = str(get_spotdl_path().absolute())
 
     # Get web client from CDN (github for now)
-    download_github_dir("https://github.com/phcreery/web-ui/tree/master/dist", output_dir=web_app_dir)
+    download_github_dir(
+        "https://github.com/phcreery/web-ui/tree/master/dist", output_dir=web_app_dir
+    )
 
     # Serve web client SPA
-    app.server.mount("/", SPAStaticFiles(directory=web_app_dir, html=True), name="whatever")
+    app.server.mount(
+        "/", SPAStaticFiles(directory=web_app_dir + "/dist", html=True), name="static"
+    )
 
     loop = asyncio.new_event_loop()
     app.loop = loop
