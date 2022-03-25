@@ -1,18 +1,37 @@
 import asyncio
+import logging
+import os
+import re
+import urllib.request
+import json
+import sys
 
 from typing import Any, Dict, List, Optional, Tuple, Union
 from pathlib import Path
 
-from fastapi import FastAPI
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException
 from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel  # pylint: disable=E0611
 from uvicorn import Config, Server
 
-from spotdl.download.downloader import Downloader
+import nest_asyncio
+
+from spotdl.download.downloader import Downloader, DownloaderError
+from spotdl.download.progress_handler import NAME_TO_LEVEL, ProgressHandler
 from spotdl.types.song import Song
 from spotdl.utils.query import parse_query
 from spotdl.utils.search import get_search_results
+from spotdl.utils.config import get_spotdl_path
 
+ALLOWED_ORIGINS = [
+    "http://localhost:8800",
+    "https://127.0.0.1:8800",
+    "http://localhost:3000",
+    "http://localhost:8080",
+    "*",
+]
 
 class App:
     server: Any
@@ -55,7 +74,7 @@ class SettingsModel(BaseModel):
     A settings object used for types and validation.
     """
 
-    verbose: Optional[bool]
+    log_level: Optional[str]
     cache_path: Optional[str]
     audio_provider: Optional[str]
     lyrics_provider: Optional[str]
@@ -72,13 +91,77 @@ class SettingsModel(BaseModel):
     client_secret: Optional[str]
     user_auth: Optional[bool]
     threads: Optional[int]
-    browsers: Optional[List[str]]
-    progress_handler: Optional[str]
-    restrict: Optional[bool]
-
 
 app = App()
 app.server = FastAPI()
+app.server.add_middleware(
+    CORSMiddleware,
+    allow_origins=ALLOWED_ORIGINS,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+nest_asyncio.apply()
+
+
+class WSProgressHandler:
+    instances = []
+
+    def __init__(self, websocket: WebSocket, client_id: str):
+        self.client_id = client_id
+        self.websocket = websocket
+
+    async def connect(self):
+        connection = {"client_id": self.client_id, "websocket": self.websocket}
+        logging.info(f"Connecting WebSocket: {connection}")
+        await self.websocket.accept()
+        WSProgressHandler.instances.append(self)
+
+    @classmethod
+    def get(cls, client_id: str):
+        try:
+            instance = next(
+                inst for inst in cls.instances if inst.client_id == client_id
+            )
+            return instance
+        except:
+            logging.warn(
+                "Error while accessing websocket instance. Websocket not created"
+            )
+            return None
+
+    async def send_update(self, message: str):
+        logging.debug(f"Sending {self.client_id}: {message}")
+        await self.websocket.send_text(message)
+
+    def update(self, progress_handler_instance, message):
+        """Callback function from ProgressHandler's SongTracker, called on every update
+
+        Args:
+            progress_handler_instance (SongTracker): SongTracker instance
+            message (str): Update message
+        """
+        update_message = {
+            "song": progress_handler_instance.song.json,
+            "progress": progress_handler_instance.parent.overall_progress
+            / progress_handler_instance.parent.overall_total,
+            "message": message,
+        }
+        asyncio.run(self.send_update(json.dumps(update_message)))
+
+
+@app.server.websocket("/api/ws")
+async def websocket_endpoint(websocket: WebSocket, client_id: str):
+    # await ws_connection_manager.connect(websocket, client_id)
+    await WSProgressHandler(websocket, client_id).connect()
+
+    try:
+        while True:
+            data = await websocket.receive_text()
+            logging.debug(f"Client {client_id} said: {data}")
+    except WebSocketDisconnect:
+        logging.info(f"Disconnecting WebSocket: {client_id}")
 
 
 @app.server.get("/api/song/search")
@@ -130,7 +213,7 @@ def change_output(output: str) -> bool:
     return True
 
 
-@app.server.post("/api/download/search")
+@app.server.post("/api/downloader/download/search")
 async def download_search(
     query: str, return_file: bool = False
 ) -> Union[Tuple[Song, Optional[Path]], FileResponse]:
@@ -168,6 +251,76 @@ async def download_objects(
     return song_obj, path
 
 
+@app.server.post("/api/download/url")
+async def download_url(url: str, client_id: str) -> Optional[str]:
+    """
+    Download songs using Song url.
+    """
+
+    app.downloader.output = f"web/sessions/{client_id}"
+
+    # Initiate realtime updates if websocket from client is connected
+    ws_instance = WSProgressHandler.get(client_id)
+    if ws_instance is not None:
+        app.downloader.progress_handler = ProgressHandler(
+            NAME_TO_LEVEL[app.settings["log_level"]],
+            simple_tui=True,
+            update_callback=ws_instance.update,
+        )
+
+    try:
+        # Fetch song metadata
+        song = Song.from_url(url)
+
+        # Download Song
+        song_obj, path = await app.downloader.pool_download(song)
+
+        if path is None:
+            exc = DownloaderError(f"Failure downloading {song.name}")
+            logging.warn(f"Error downloading! {exc}")
+            raise HTTPException(status_code=500, detail=f"Error downloading: {exc}")
+
+        # Strip Filename
+        filename = os.path.basename(path)
+
+        return filename
+
+    except Exception as exception:
+        logging.warn(f"Error downloading! {exception}")
+        raise HTTPException(status_code=500, detail=f"Error downloading: {exception}")
+
+
+@app.server.get("/api/download/file")
+async def download_file(file: str, client_id: str):
+    """
+    Download file using path.
+    """
+    # Return FileResponse, filename specified to return as attachment
+    return FileResponse(f"web/sessions/{client_id}/{file}", filename=file)
+
+
+@app.server.post("/api/download/multiple_search")
+def download_multiple_search(query: List[str]) -> List[Tuple[Song, Optional[Path]]]:
+    """
+    Search for song and download the first result.
+    """
+
+    return app.downloader.download_multiple_songs(parse_query(query))
+
+
+@app.server.post("/api/download/multiple_objects")
+def download_multiple_objects(
+    songs: List[SongModel],
+) -> List[Tuple[Song, Optional[Path]]]:
+    """
+    Download songs using Song objects.
+    """
+
+    return app.downloader.download_multiple_songs(
+        [Song.from_dict(song.dict()) for song in songs]
+    )
+
+
 @app.server.get("/api/settings")
 def get_settings() -> SettingsModel:
     """
@@ -183,11 +336,17 @@ def change_settings(settings: SettingsModel) -> bool:
     Change downloader settings by reinitializing the downloader.
     """
 
+    settings_dict = settings.dict()
+
+    print("changing settings from ", app.settings, "\nto\n", settings_dict)
+
     # Create shallow copy of settings
     settings_cpy = app.settings.copy()
 
     # Update settings with new settings that are not None
     settings_cpy.update({k: v for k, v in settings.dict().items() if v is not None})
+
+    print("applying settings", settings_cpy)
 
     # Re-initialize downloader
     app.downloader = Downloader(
@@ -202,13 +361,153 @@ def change_settings(settings: SettingsModel) -> bool:
         threads=settings_cpy["threads"],
         output=settings_cpy["output"],
         overwrite=settings_cpy["overwrite"],
-        restrict=settings_cpy["restrict"],
         log_level="CRITICAL",
         simple_tui=True,
-        # loop=app.loop,
+        loop=app.loop,
     )
 
     return True
+
+
+def create_github_url(url):
+    """
+    From the given url, produce a URL that is compatible with Github's REST API. Can handle blob or tree paths.
+    """
+    repo_only_url = re.compile(
+        r"https:\/\/github\.com\/[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}\/[a-zA-Z0-9]+$"
+    )
+    re_branch = re.compile("/(tree|blob)/(.+?)/")
+
+    # Check if the given url is a url to a GitHub repo. If it is, tell the
+    # user to use 'git clone' to download it
+    if re.match(repo_only_url, url):
+        print(
+            "✘ The given url is a complete repository. Use 'git clone' to download the repository",
+            "red",
+        )
+        sys.exit()
+
+    # extract the branch name from the given url (e.g master)
+    branch = re_branch.search(url)
+    if branch:
+        download_dirs = url[branch.end() :]
+        api_url = (
+            url[: branch.start()].replace("github.com", "api.github.com/repos", 1)
+            + "/contents/"
+            + download_dirs
+            + "?ref="
+            + branch.group(2)
+        )
+        return api_url, download_dirs
+
+    raise ValueError("The given url is not a valid GitHub url")
+
+
+# Modification of https://github.com/sdushantha/gitdir/blob/master/gitdir/gitdir.py
+def download_github_dir(repo_url, flatten=False, output_dir="./"):
+    """Downloads the files and directories in repo_url. If flatten is specified, the contents of any and all
+    sub-directories will be pulled upwards into the root folder."""
+
+    # generate the url which returns the JSON data
+    api_url, download_dirs = create_github_url(repo_url)
+
+    # To handle file names.
+    if not flatten:
+        if len(download_dirs.split(".")) == 0:
+            dir_out = os.path.join(output_dir, download_dirs)
+        else:
+            dir_out = os.path.join(output_dir, "/".join(download_dirs.split("/")[:-1]))
+    else:
+        dir_out = output_dir
+
+    try:
+        opener = urllib.request.build_opener()
+        opener.addheaders = [("User-agent", "Mozilla/5.0")]
+        urllib.request.install_opener(opener)
+        response = urllib.request.urlretrieve(api_url)
+    except KeyboardInterrupt:
+        # when CTRL+C is pressed during the execution of this script,
+        # bring the cursor to the beginning, erase the current line, and dont make a new line
+        print("✘ Got interrupted")
+        sys.exit()
+
+    if not flatten:
+        # make a directory with the name which is taken from
+        # the actual repo
+        os.makedirs(dir_out, exist_ok=True)
+
+    # total files count
+    total_files = 0
+
+    with open(response[0], "r") as f:
+        data = json.load(f)
+        # getting the total number of files so that we
+        # can use it for the output information later
+        total_files += len(data)
+
+        # If the data is a file, download it as one.
+        if isinstance(data, dict) and data["type"] == "file":
+            try:
+                # download the file
+                opener = urllib.request.build_opener()
+                opener.addheaders = [("User-agent", "Mozilla/5.0")]
+                urllib.request.install_opener(opener)
+                urllib.request.urlretrieve(
+                    data["download_url"], os.path.join(dir_out, data["name"])
+                )
+                # bring the cursor to the beginning, erase the current line, and dont make a new line
+                print("Downloaded: " + "{}".format(data["name"]))
+
+                return total_files
+            except KeyboardInterrupt:
+                # when CTRL+C is pressed during the execution of this script,
+                # bring the cursor to the beginning, erase the current line, and dont make a new line
+                print("✘ Got interrupted")
+                sys.exit()
+
+        for file in data:
+            file_url = file["download_url"]
+            file_name = file["name"]
+
+            if flatten:
+                path = os.path.basename(file["path"])
+            else:
+                path = file["path"]
+            dirname = os.path.dirname(path)
+
+            if dirname != "":
+                os.makedirs(os.path.dirname(path), exist_ok=True)
+            else:
+                pass
+
+            if file_url is not None:
+                try:
+                    opener = urllib.request.build_opener()
+                    opener.addheaders = [("User-agent", "Mozilla/5.0")]
+                    urllib.request.install_opener(opener)
+                    # download the file
+                    urllib.request.urlretrieve(file_url, path)
+
+                    # bring the cursor to the beginning, erase the current line, and dont make a new line
+                    print("Downloaded: " + "{}".format(file_name), end="\n")
+
+                except KeyboardInterrupt:
+                    # when CTRL+C is pressed during the execution of this script,
+                    # bring the cursor to the beginning, erase the current line, and dont make a new line
+                    print("✘ Got interrupted")
+                    sys.exit()
+            else:
+                download_github_dir(file["html_url"], flatten, dir_out)
+
+    return total_files
+
+
+class SPAStaticFiles(StaticFiles):
+    async def get_response(self, path: str, scope):
+        response = await super().get_response(path, scope)
+        if response.status_code == 404:
+            response = await super().get_response(".", scope)
+        return response
 
 
 def web(settings: Dict[str, Any]):
@@ -216,9 +515,19 @@ def web(settings: Dict[str, Any]):
     Run the web server.
     """
 
+    web_app_dir = str((get_spotdl_path() / "web_app").absolute())
+
+    # Get web client from CDN (github for now)
+    download_github_dir("https://github.com/phcreery/web-ui/tree/master/dist", output_dir=web_app_dir)
+
+    # Serve web client SPA
+    app.server.mount("/", SPAStaticFiles(directory=web_app_dir, html=True), name="whatever")
+
     loop = asyncio.new_event_loop()
-    app.settings = settings
     app.loop = loop
+
+    app.settings = settings
+
     app.downloader = Downloader(
         audio_provider=settings["audio_provider"],
         lyrics_provider=settings["lyrics_provider"],
@@ -231,10 +540,9 @@ def web(settings: Dict[str, Any]):
         threads=settings["threads"],
         output=settings["output"],
         overwrite=settings["overwrite"],
-        log_level="CRITICAL",
+        log_level=settings["log_level"],
         simple_tui=True,
         loop=loop,
-        restrict=settings["restrict"],
     )
 
     config = Config(app=app.server, port=8800, workers=1, loop=loop)  # type: ignore

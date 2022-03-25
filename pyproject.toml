@@ -25,6 +25,11 @@ classifiers = [
 [tool.poetry.dependencies]
 python = ">=3.7,<3.11"
 
+uvicorn = { version = "^0.17.1", optional = true }
+pydantic = { version = "^1.9.0", optional = true }
+fastapi = { version = "^0.73.0", optional = true }
+nest_asyncio = { version = "^1.5.4", optional = true }
+
 spotipy = "^2.19.0"
 ytmusicapi = "^0.20.0"
 pytube = "^11.0.2"
@@ -34,10 +39,6 @@ rich = "^11.1.0"
 beautifulsoup4 = "^4.10.0"
 requests = "^2.27.1"
 rapidfuzz = "^1.9.1"
-
-uvicorn = { version = "^0.17.1", optional = true }
-pydantic = { version = "^1.9.0", optional = true }
-fastapi = { version = "^0.73.0", optional = true }
 python-slugify = "^6.1.1"
 
 [tool.poetry.dev-dependencies]
@@ -55,7 +56,7 @@ mdformat-gfm = "^0.3.5"
 pdoc3 = "^0.10.0"
 
 [tool.poetry.extras]
-web = ["uvicorn", "pydantic", "fastapi"]
+web = ["uvicorn", "pydantic", "fastapi", "nest_asyncio"]
 
 [tool.poetry.scripts]
 spotdl = "spotdl:console_entry_point"

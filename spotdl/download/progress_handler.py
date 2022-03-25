@@ -1,6 +1,6 @@
 import logging
 
-from typing import Optional, List
+from typing import Any, Callable, Optional, List
 
 from rich.text import Text
 from rich.theme import Theme
@@ -120,7 +120,12 @@ class SizedTextColumn(ProgressColumn):
 
 
 class ProgressHandler:
-    def __init__(self, log_level: int = INFO, simple_tui: bool = False):
+    def __init__(
+        self,
+        log_level: int = INFO,
+        simple_tui: bool = False,
+        update_callback: Optional[Callable[[Any, str], None]] = None,
+    ):
         """
         Initialize the progress handler.
         """
@@ -130,6 +135,7 @@ class ProgressHandler:
         self.overall_progress = 0
         self.overall_total = 100
         self.overall_completed_tasks = 0
+        self.update_callback = update_callback
         self.previous_overall = self.overall_completed_tasks
 
         if log_level not in LEVEL_TO_NAME:
@@ -370,6 +376,9 @@ class SongTracker:
 
         self.parent.update_overall()
         self.old_progress = self.progress
+
+        if self.parent.update_callback:
+            self.parent.update_callback(self, message)
 
     def notify_error(self, message: str, traceback: Exception) -> None:
         """
