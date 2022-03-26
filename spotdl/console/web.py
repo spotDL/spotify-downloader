@@ -113,6 +113,10 @@ class WSProgressHandler:
         self.websocket = websocket
 
     async def connect(self):
+        """
+        Called when a new client connects to the websocket.
+        """
+
         connection = {"client_id": self.client_id, "websocket": self.websocket}
         logging.info(f"Connecting WebSocket: {connection}")
         await self.websocket.accept()
@@ -120,6 +124,10 @@ class WSProgressHandler:
 
     @classmethod
     def get(cls, client_id: str):
+        """
+        Get a WSProgressHandler instance by client_id.
+        """
+
         try:
             instance = next(
                 inst for inst in cls.instances if inst.client_id == client_id
@@ -132,6 +140,10 @@ class WSProgressHandler:
             return None
 
     async def send_update(self, message: str):
+        """
+        Send an update to the client.
+        """
+
         logging.debug(f"Sending {self.client_id}: {message}")
         await self.websocket.send_text(message)
 
@@ -153,6 +165,10 @@ class WSProgressHandler:
 
 @app.server.websocket("/api/ws")
 async def websocket_endpoint(websocket: WebSocket, client_id: str):
+    """
+    Websocket endpoint.
+    """
+
     # await ws_connection_manager.connect(websocket, client_id)
     await WSProgressHandler(websocket, client_id).connect()
 
@@ -371,6 +387,10 @@ def change_settings(settings: SettingsModel) -> bool:
 
 class SPAStaticFiles(StaticFiles):
     async def get_response(self, path: str, scope):
+        """
+        Serve static files from the SPA.
+        """
+
         response = await super().get_response(path, scope)
         if response.status_code == 404:
             response = await super().get_response(".", scope)
