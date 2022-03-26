@@ -1,12 +1,15 @@
 import json
 import datetime
 import asyncio
+from shlex import quote
 import sys
 import concurrent.futures
 import traceback
 
 from pathlib import Path
 from typing import List, Optional, Tuple
+
+from yt_dlp.postprocessor.sponsorblock import SponsorBlockPP
 
 from spotdl.types import Song
 from spotdl.utils.ffmpeg import FFmpegError, convert_sync
@@ -31,6 +34,17 @@ LYRICS_PROVIDERS = {
     "azlyrics": AzLyrics,
 }
 
+SPONSOR_BLOCK_CATEGORIES = {
+    "sponsor": "Sponsor",
+    "intro": "Intermission/Intro Animation",
+    "outro": "Endcards/Credits",
+    "selfpromo": "Unpaid/Self Promotion",
+    "preview": "Preview/Recap",
+    "filler": "Filler Tangent",
+    "interaction": "Interaction Reminder",
+    "music_offtopic": "Non-Music Section",
+}
+
 
 class DownloaderError(Exception):
     """
@@ -46,7 +60,7 @@ class Downloader:
         ffmpeg: str = "ffmpeg",
         variable_bitrate: Optional[str] = None,
         constant_bitrate: Optional[str] = None,
-        ffmpeg_args: Optional[List] = None,
+        ffmpeg_args: Optional[str] = None,
         output_format: str = "mp3",
         threads: int = 4,
         output: str = ".",
@@ -60,6 +74,7 @@ class Downloader:
         loop: Optional[asyncio.AbstractEventLoop] = None,
         restrict: bool = False,
         print_errors: bool = False,
+        sponsor_block: bool = False,
     ):
         """
         Initialize the Downloader class.
@@ -112,6 +127,7 @@ class Downloader:
         self.restrict = restrict
         self.print_errors = print_errors
         self.errors: List[str] = []
+        self.sponsor_block = sponsor_block
         self.lyrics_provider: LyricsProvider = lyrics_provider_class()
         self.progress_handler = ProgressHandler(NAME_TO_LEVEL[log_level], simple_tui)
         self.audio_provider: AudioProvider = self.audio_provider_class(
@@ -156,8 +172,6 @@ class Downloader:
         if self.print_errors:
             for error in self.errors:
                 self.progress_handler.error(error)
-
-        print(self.errors)
 
         return results
 
@@ -257,6 +271,28 @@ class Downloader:
                 f"actual url: {download_info['url']}, format: {download_info['format']}"
             )
 
+            if self.sponsor_block:
+                post_processor = SponsorBlockPP(
+                    self.audio_provider.audio_handler, SPONSOR_BLOCK_CATEGORIES
+                )
+                _, download_info = post_processor.run(download_info)
+                chapters = download_info["sponsorblock_chapters"]
+                if len(chapters) > 0:
+                    self.progress_handler.debug(
+                        f"Found {len(chapters)} SponsorBlock chapters for {song.display_name}"
+                    )
+                    self.progress_handler.debug(f"Chapters: {chapters}")
+                    skip_args = ""
+                    for chapter in chapters:
+                        skip_args += '''-af "aselect='not(between(t, {}, {}))', asetpts=N/SR/TB"'''.format(
+                            chapter["start_time"], chapter["end_time"]
+                        )
+
+                    if self.ffmpeg_args is None:
+                        self.ffmpeg_args = skip_args
+                    else:
+                        self.ffmpeg_args += " " + skip_args
+
             success, result = convert_sync(
                 (download_info["url"], download_info["ext"]),
                 output_file,
@@ -274,7 +310,7 @@ class Downloader:
                 # and save it in the errors directory
                 # raise an exception with file path
                 file_name = (
-                    get_errors_path() / f"ffmpeg_error_{datetime.date.today()}.txt"
+                    get_errors_path() / f"ffmpeg_error_{datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S')}.txt"
                 )
                 with open(file_name, "w", encoding="utf-8") as error_path:
                     json.dump(result, error_path, ensure_ascii=False, indent=4)
@@ -285,17 +321,14 @@ class Downloader:
                 )
 
             # Set the song's download url
-            song.download_url = download_info["webpage_url"]
+            if song.download_url is None:
+                song.download_url = download_info["webpage_url"]
 
             display_progress_tracker.notify_download_complete()
 
-            lyrics = self.lyrics_provider.get_lyrics(song.name, song.artists)
+            lyrics = self.lyrics_provider.get_lyrics(song.name, song.artists) or ""
             if not lyrics:
-                self.progress_handler.debug(
-                    f"No lyrics found for {song.name} - {song.artist}"
-                )
-
-                lyrics = ""
+                self.progress_handler.debug(f"No lyrics found for {song.display_name}")
 
             try:
                 embed_metadata(output_file, song, self.output_format, lyrics)

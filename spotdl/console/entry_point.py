@@ -111,6 +111,7 @@ def console_entry_point():
             simple_tui=settings["simple_tui"],
             restrict=settings["restrict"],
             print_errors=settings["print_errors"],
+            sponsor_block=settings["sponsor_block"],
         )
 
         def graceful_exit(_signal, _frame):

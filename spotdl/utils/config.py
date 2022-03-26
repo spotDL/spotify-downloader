@@ -103,4 +103,5 @@ DEFAULT_CONFIG = {
     "headless": False,
     "restrict": False,
     "print_errors": False,
+    "sponsor_block": False,
 }

@@ -157,12 +157,7 @@ def get_simple_songs(
                 )
 
             songs.append(
-                Song.from_dict(
-                    {
-                        "url": split_urls[1],
-                        "download_url": split_urls[0],
-                    }
-                )
+                create_empty_song(url=split_urls[1], download_url=split_urls[0])
             )
         elif "open.spotify.com" in request and "track" in request:
             songs.append(create_empty_song(url=request))  # type: ignore

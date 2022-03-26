@@ -26,7 +26,7 @@ class Spotdl:
         ffmpeg: str = "ffmpeg",
         variable_bitrate: Optional[str] = None,
         constant_bitrate: Optional[str] = None,
-        ffmpeg_args: Optional[List] = None,
+        ffmpeg_args: Optional[str] = None,
         output_format: str = "mp3",
         threads: int = 4,
         output: str = ".",

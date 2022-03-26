@@ -71,6 +71,9 @@ class AudioProvider:
             }
         )
 
+        if not hasattr(self, "name") or not self.name:  # type: ignore
+            raise NotImplementedError("Provider must have a name attribute.")
+
     def search(self, song: Song) -> Optional[str]:
         """
         Search for a song and return best match.

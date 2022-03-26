@@ -222,9 +222,9 @@ def parse_ffmpeg_options(parser: _ArgumentGroup):
     # Additional ffmpeg arguments
     parser.add_argument(
         "--ffmpeg-args",
-        nargs="*",
+        type=str,
         default=DEFAULT_CONFIG["ffmpeg_args"],
-        help="Additional ffmpeg arguments.",
+        help="Additional ffmpeg arguments passed as a string.",
     )
 
 
@@ -287,6 +287,14 @@ def parse_output_options(parser: _ArgumentGroup):
         "--print-errors",
         default=DEFAULT_CONFIG["print_errors"],
         help="Print errors (wrong songs, failed downloads etc) on exit, useful for long playlist",
+        action="store_true",
+    )
+
+    # Option to use sponsor block
+    parser.add_argument(
+        "--sponsor-block",
+        default=DEFAULT_CONFIG["sponsor_block"],
+        help="Use the sponsor block to download songs from yt/ytm.",
         action="store_true",
     )
 

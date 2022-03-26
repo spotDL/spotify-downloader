@@ -5,6 +5,7 @@ import subprocess
 import stat
 import platform
 import asyncio
+import shlex
 
 from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 from pathlib import Path
@@ -192,7 +193,7 @@ async def convert(
     output_format: str = "mp3",
     variable_bitrate: Optional[str] = None,
     constant_bitrate: Optional[str] = None,
-    ffmpeg_args: Optional[List] = None,
+    ffmpeg_args: Optional[str] = None,
 ) -> Tuple[bool, Optional[Dict[str, Any]]]:
     """
     Convert the input file to the output file asynchronously.
@@ -240,7 +241,7 @@ async def convert(
 
     # Add other ffmpeg arguments if specified
     if ffmpeg_args:
-        arguments.extend(ffmpeg_args)
+        arguments.extend(shlex.split(ffmpeg_args))
 
     # Add output file at the end
     arguments.append(str(output_file.resolve()))
@@ -284,7 +285,7 @@ def convert_sync(
     output_format: str = "mp3",
     variable_bitrate: Optional[str] = None,
     constant_bitrate: Optional[str] = None,
-    ffmpeg_args: Optional[List] = None,
+    ffmpeg_args: Optional[str] = None,
     progress_handler: Optional[Callable] = None,
 ) -> Tuple[bool, Optional[Dict[str, Any]]]:
     """
@@ -339,7 +340,7 @@ def convert_sync(
 
     # Add other ffmpeg arguments if specified
     if ffmpeg_args:
-        arguments.extend(ffmpeg_args)
+        arguments.extend(shlex.split(ffmpeg_args))
 
     # Add output file at the end
     arguments.append(str(output_file.resolve()))
@@ -410,7 +411,7 @@ def convert_sync(
         version = get_ffmpeg_version(ffmpeg)
 
         return False, {
-            "error": str("\n".join(stderr)),
+            "error": stderr,
             "arguments": arguments,
             "ffmpeg": ffmpeg,
             "version": version[0],
