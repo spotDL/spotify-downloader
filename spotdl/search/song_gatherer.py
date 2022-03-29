@@ -2,6 +2,7 @@ import concurrent.futures
 
 from pathlib import Path
 from typing import Dict, List
+import platform
 
 from spotdl.providers import (
     metadata_provider,
@@ -58,6 +59,16 @@ def from_spotify_url(
         song_name, [artist["name"] for artist in raw_track_meta["artists"]]
     )
 
+    # Ensure file name doesnt contain forbidden characters
+    filesystem_display_name = display_name  # Create copy of display_name for filesystem use
+    if platform.system() == 'Windows':
+        for forbidden_letter in ['<', '>', ':', '"', '/', '\\', '|', '?', '*']:
+            converted_file_name = converted_file_name.replace(forbidden_letter, '')
+            filesystem_display_name = filesystem_display_name.replace(forbidden_letter, '')
+    else:  # Linux or MacOS
+        converted_file_name = converted_file_name.replace('/', '')
+        filesystem_display_name = filesystem_display_name.replace('/', '')
+
     # If song name is too long use only first artist
     if len(converted_file_name) > 250:
         converted_file_name = SongObject.create_file_name(
@@ -67,7 +78,7 @@ def from_spotify_url(
     converted_file_path = Path(".", f"{converted_file_name}.{output_format}")
 
     # Alternate file path.
-    alternate_file_path = Path(".", f"{display_name}.{output_format}")
+    alternate_file_path = Path(".", f"{filesystem_display_name}.{output_format}")
 
     # if a song is already downloaded skip it
     if converted_file_path.is_file() or alternate_file_path.is_file():
