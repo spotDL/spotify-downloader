@@ -134,7 +134,7 @@ class WSProgressHandler:
             )
             return instance
         except StopIteration:
-            logging.warn(
+            logging.warning(
                 "Error while accessing websocket instance. Websocket not created"
             )
             return None
@@ -293,7 +293,7 @@ async def download_url(url: str, client_id: str) -> Optional[str]:
 
         if path is None:
             exc = DownloaderError(f"Failure downloading {song.name}")
-            logging.warn("Error downloading! %s", exc)
+            logging.warning("Error downloading! %s", exc)
             raise HTTPException(status_code=500, detail=f"Error downloading: {exc}")
 
         # Strip Filename
@@ -302,7 +302,7 @@ async def download_url(url: str, client_id: str) -> Optional[str]:
         return filename
 
     except Exception as exception:
-        logging.warn("Error downloading! %s", exception)
+        logging.warning("Error downloading! %s", exception)
         raise HTTPException(
             status_code=500, detail=f"Error downloading: {exception}"
         ) from exception

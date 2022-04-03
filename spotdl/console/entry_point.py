@@ -8,8 +8,8 @@ from spotdl.console.sync import sync
 from spotdl.download import Downloader
 from spotdl.console.preload import preload
 from spotdl.console.download import download
-from spotdl.utils.config import DEFAULT_CONFIG
-from spotdl.utils.ffmpeg import download_ffmpeg
+from spotdl.utils.config import DEFAULT_CONFIG, ConfigError, get_config
+from spotdl.utils.ffmpeg import download_ffmpeg, is_ffmpeg_installed
 from spotdl.utils.config import get_config_file
 from spotdl.utils.github import check_for_updates
 from spotdl.utils.arguments import parse_arguments
@@ -27,6 +27,19 @@ def console_entry_point():
     logging.getLogger("urllib3").setLevel(logging.WARNING)
     logging.getLogger("spotipy").setLevel(logging.WARNING)
     logging.getLogger("asyncio").setLevel(logging.WARNING)
+
+    if getattr(sys, "frozen", False) and len(sys.argv) == 1:
+        # If the application is frozen, we check for ffmpeg
+        # if it's not present download it create config file
+        if is_ffmpeg_installed() is False:
+            download_ffmpeg()
+
+        try:
+            get_config()
+        except ConfigError:
+            config_path = get_config_file()
+            with open(config_path, "w", encoding="utf-8") as config_file:
+                json.dump(DEFAULT_CONFIG, config_file, indent=4)
 
     # Download ffmpeg if the `--download-ffmpeg` flag is passed
     # This is done before the argument parser so it doesn't require `operation`
@@ -73,10 +86,6 @@ def console_entry_point():
         else:
             settings[key] = config[key]
 
-    # Don't log too much when running web ui
-    if arguments.operation == "web":
-        settings["log_level"] = "CRITICAL"
-
     if arguments.query and "saved" in arguments.query and not settings["user_auth"]:
         raise SpotifyError("You must be logged in to use the saved query.")
 
@@ -89,6 +98,24 @@ def console_entry_point():
         no_cache=settings["no_cache"],
         open_browser=not settings["headless"],
     )
+
+    # If the application is frozen start web ui
+    if getattr(sys, "frozen", False) and len(sys.argv) == 1:
+        from spotdl.console.web import (  # pylint: disable=C0415,C0410,W0707,W0611
+            web,
+        )
+
+        # Don't log too much when running web ui
+        settings["log_level"] = "CRITICAL"
+
+        # Start web ui
+        web(settings)
+
+        return None
+
+    # Don't log too much when running web ui
+    if arguments.operation == "web":
+        settings["log_level"] = "CRITICAL"
 
     if arguments.operation in ["download", "preload", "sync"]:
         # Initialize the downloader
