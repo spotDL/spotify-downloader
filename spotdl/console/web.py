@@ -274,7 +274,7 @@ async def download_url(url: str, client_id: str) -> Optional[str]:
     Download songs using Song url.
     """
 
-    app.downloader.output = f"web/sessions/{client_id}"
+    app.downloader.output = str((get_spotdl_path() / f"web/sessions/{client_id}").absolute())
 
     # Initiate realtime updates if websocket from client is connected
     ws_instance = WSProgressHandler.get(client_id)
@@ -315,7 +315,7 @@ async def download_file(file: str, client_id: str):
     Download file using path.
     """
     # Return FileResponse, filename specified to return as attachment
-    return FileResponse(f"web/sessions/{client_id}/{file}", filename=file)
+    return FileResponse(str((get_spotdl_path() / f"web/sessions/{client_id}/{file}").absolute()) , filename=file)
 
 
 @app.server.post("/api/download/multiple_search")
