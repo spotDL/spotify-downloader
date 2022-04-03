@@ -60,6 +60,7 @@ types-requests = "^2.27.16"
 types-setuptools = "^57.4.11"
 types-toml = "^0.10.4"
 types-ujson = "^4.2.1"
+pyinstaller = "^4.10"
 
 [tool.poetry.extras]
 web = ["uvicorn", "pydantic", "fastapi", "nest_asyncio"]
