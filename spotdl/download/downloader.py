@@ -1,7 +1,6 @@
 import json
 import datetime
 import asyncio
-from shlex import quote
 import sys
 import concurrent.futures
 import traceback
@@ -284,8 +283,9 @@ class Downloader:
                     self.progress_handler.debug(f"Chapters: {chapters}")
                     skip_args = ""
                     for chapter in chapters:
-                        skip_args += '''-af "aselect='not(between(t, {}, {}))', asetpts=N/SR/TB"'''.format(
-                            chapter["start_time"], chapter["end_time"]
+                        skip_args += (
+                            f"""-af "aselect='not(between(t, {chapter["start_time"]},"""
+                            f''' {chapter["end_time"]}))', asetpts=N/SR/TB"'''
                         )
 
                     if self.ffmpeg_args is None:
@@ -310,7 +310,8 @@ class Downloader:
                 # and save it in the errors directory
                 # raise an exception with file path
                 file_name = (
-                    get_errors_path() / f"ffmpeg_error_{datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S')}.txt"
+                    get_errors_path()
+                    / f"ffmpeg_error_{datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S')}.txt"
                 )
                 with open(file_name, "w", encoding="utf-8") as error_path:
                     json.dump(result, error_path, ensure_ascii=False, indent=4)

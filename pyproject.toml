@@ -54,6 +54,12 @@ pylint = "^2.12.2"
 black = "^22.1.0"
 mdformat-gfm = "^0.3.5"
 pdoc3 = "^0.10.0"
+types-orjson = "^3.6.2"
+types-python-slugify = "^5.0.3"
+types-requests = "^2.27.16"
+types-setuptools = "^57.4.11"
+types-toml = "^0.10.4"
+types-ujson = "^4.2.1"
 
 [tool.poetry.extras]
 web = ["uvicorn", "pydantic", "fastapi", "nest_asyncio"]

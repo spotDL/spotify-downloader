@@ -1,8 +1,9 @@
 from typing import Tuple
 
-import requests
 import re
 import os
+
+import requests
 
 
 from spotdl import _version
@@ -86,7 +87,8 @@ def check_for_updates(repo: str = REPO) -> str:
 
 def create_github_url(url: str = WEB_APP_URL):
     """
-    From the given url, produce a URL that is compatible with Github's REST API. Can handle blob or tree paths.
+    From the given url, produce a URL that is compatible with Github's REST API.
+    Can handle blob or tree paths.
     """
 
     repo_only_url = re.compile(
@@ -121,7 +123,8 @@ def download_github_dir(
     repo_url: str = WEB_APP_URL, flatten: bool = False, output_dir: str = "./"
 ):
     """
-    Downloads the files and directories in repo_url. If flatten is specified, the contents of any and all
+    Downloads the files and directories in repo_url.
+    If flatten is specified, the contents of any and all
     sub-directories will be pulled upwards into the root folder.
 
     Modification of https://github.com/sdushantha/gitdir/blob/master/gitdir/gitdir.py
@@ -156,7 +159,7 @@ def download_github_dir(
             os.makedirs(dirname, exist_ok=True)
 
         if file_url is not None:
-            with open(path, "wb") as f:
-                f.write(requests.get(file_url).content)
+            with open(path, "wb") as new_file:
+                new_file.write(requests.get(file_url).content)
         else:
             download_github_dir(file["html_url"], flatten, output_dir)

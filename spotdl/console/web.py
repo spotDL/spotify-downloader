@@ -118,7 +118,7 @@ class WSProgressHandler:
         """
 
         connection = {"client_id": self.client_id, "websocket": self.websocket}
-        logging.info(f"Connecting WebSocket: {connection}")
+        logging.info("Connecting WebSocket: %s", connection)
         await self.websocket.accept()
         WSProgressHandler.instances.append(self)
 
@@ -133,7 +133,7 @@ class WSProgressHandler:
                 inst for inst in cls.instances if inst.client_id == client_id
             )
             return instance
-        except:
+        except StopIteration:
             logging.warn(
                 "Error while accessing websocket instance. Websocket not created"
             )
@@ -144,7 +144,7 @@ class WSProgressHandler:
         Send an update to the client.
         """
 
-        logging.debug(f"Sending {self.client_id}: {message}")
+        logging.debug("Sending %s: %s", self.client_id, message)
         await self.websocket.send_text(message)
 
     def update(self, progress_handler_instance, message):
@@ -175,9 +175,9 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
     try:
         while True:
             data = await websocket.receive_text()
-            logging.debug(f"Client {client_id} said: {data}")
+            logging.debug("Client %s said: %s", client_id, data)
     except WebSocketDisconnect:
-        logging.info(f"Disconnecting WebSocket: {client_id}")
+        logging.info("Disconnecting WebSocket: %s", client_id)
 
 
 @app.server.get("/api/song/search")
@@ -289,11 +289,11 @@ async def download_url(url: str, client_id: str) -> Optional[str]:
         song = Song.from_url(url)
 
         # Download Song
-        song_obj, path = await app.downloader.pool_download(song)
+        _, path = await app.downloader.pool_download(song)
 
         if path is None:
             exc = DownloaderError(f"Failure downloading {song.name}")
-            logging.warn(f"Error downloading! {exc}")
+            logging.warn("Error downloading! %s", exc)
             raise HTTPException(status_code=500, detail=f"Error downloading: {exc}")
 
         # Strip Filename
@@ -302,8 +302,10 @@ async def download_url(url: str, client_id: str) -> Optional[str]:
         return filename
 
     except Exception as exception:
-        logging.warn(f"Error downloading! {exception}")
-        raise HTTPException(status_code=500, detail=f"Error downloading: {exception}")
+        logging.warn("Error downloading! %s", exception)
+        raise HTTPException(
+            status_code=500, detail=f"Error downloading: {exception}"
+        ) from exception
 
 
 @app.server.get("/api/download/file")
