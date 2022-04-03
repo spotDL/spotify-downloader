@@ -2,6 +2,7 @@ import asyncio
 import logging
 import os
 import json
+import webbrowser
 
 from typing import Any, Dict, List, Optional, Tuple, Union
 from pathlib import Path
@@ -440,6 +441,8 @@ def web(settings: Dict[str, Any]):
     config = Config(app=app.server, port=8800, workers=1, loop=loop)  # type: ignore
 
     server = Server(config)
+
+    webbrowser.open("http://localhost:8800")
 
     loop.run_until_complete(server.serve())
 
