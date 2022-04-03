@@ -29,7 +29,7 @@ def create_m3u_file(
 
     m3u_content = create_m3u_content(song_list, template, file_extension, short)
 
-    with open(file_name, "w") as m3u_file:
+    with open(file_name, "w", encoding="utf-8") as m3u_file:
         m3u_file.write(m3u_content)
 
     return m3u_content
