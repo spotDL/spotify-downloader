@@ -64,14 +64,18 @@ def parse_main_options(parser: _ArgumentGroup):
         # Add mode argument
         parser.add_argument(
             "operation",
-            choices=OPERATIONS, help="The operation to perform.",
+            choices=OPERATIONS,
+            help="The operation to perform.",
         )
 
     # Add query argument
     parser.add_argument(
         "query",
-        nargs="+" if len(sys.argv) > 1 and "web" != sys.argv[1]
-        or not getattr(sys, "frozen", False) else "?",
+        nargs="+"
+        if len(sys.argv) > 1
+        and "web" != sys.argv[1]
+        or not getattr(sys, "frozen", False)
+        else "?",
         type=str,
         help="URL for a song/playlist/album/artist/etc. to download.",
     )
