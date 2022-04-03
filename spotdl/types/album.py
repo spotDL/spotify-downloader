@@ -1,3 +1,7 @@
+"""
+Artist module for retrieving artist data from Spotify.
+"""
+
 from dataclasses import dataclass
 from typing import Any, Dict, List
 from spotdl.types.song import SongList
@@ -19,6 +23,12 @@ class Album(SongList):
     def from_url(cls, url: str) -> "Album":
         """
         Parse an album from a Spotify URL.
+
+        ### Arguments
+        - url: The URL of the album.
+
+        ### Returns
+        - The Album object.
         """
 
         metadata = Album.get_metadata(url)
@@ -39,6 +49,12 @@ class Album(SongList):
     def get_urls(url: str) -> List[str]:
         """
         Get urls for all songs in album.
+
+        ### Arguments
+        - url: The URL of the album.
+
+        ### Returns
+        - A list of urls.
         """
 
         spotify_client = SpotifyClient()
@@ -71,9 +87,15 @@ class Album(SongList):
         ]
 
     @staticmethod
-    def get_metadata(url) -> Dict[str, Any]:
+    def get_metadata(url: str) -> Dict[str, Any]:
         """
         Get metadata for album.
+
+        ### Arguments
+        - url: The URL of the album.
+
+        ### Returns
+        - A dictionary with metadata.
         """
 
         spotify_client = SpotifyClient()

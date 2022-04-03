@@ -15,5 +15,6 @@ PyInstaller.__main__.run(
         f"{locales_path}{os.pathsep}ytmusicapi/locales",
         "--name",
         f"spotdl-{__version__}-{sys.platform}",
+        "--console",
     ]
 )

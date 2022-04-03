@@ -1,3 +1,7 @@
+"""
+Artist module for retrieving artist data from Spotify.
+"""
+
 from dataclasses import dataclass
 from typing import Any, Dict, List, Set
 
@@ -30,6 +34,12 @@ class Artist(SongList):
     def from_url(cls, url: str) -> "Artist":
         """
         Creates an Artist object from a URL.
+
+        ### Arguments
+        - url: The URL of the artist.
+
+        ### Returns
+        - The Artist object.
         """
 
         if "open.spotify.com" not in url or "artist" not in url:
@@ -73,6 +83,12 @@ class Artist(SongList):
     def get_urls(url: str) -> List[str]:
         """
         Get urls for all songs for artist.
+
+        ### Arguments
+        - url: The URL of the artist.
+
+        ### Returns
+        - List of urls for all songs for artist.
         """
 
         albums = Artist.get_albums(url)
@@ -87,6 +103,12 @@ class Artist(SongList):
     def get_albums(url: str) -> List[str]:
         """
         Returns a list with album urls.
+
+        ### Arguments
+        - url: The URL of the artist.
+
+        ### Returns
+        - List of album urls.
         """
 
         # query spotify for artist details
@@ -125,6 +147,12 @@ class Artist(SongList):
     def get_metadata(url: str) -> Dict[str, Any]:
         """
         Get metadata for artist.
+
+        ### Arguments
+        - url: The URL of the artist.
+
+        ### Returns
+        - Dict with metadata for artist.
         """
 
         # query spotify for artist details

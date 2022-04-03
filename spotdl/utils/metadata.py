@@ -1,3 +1,14 @@
+"""
+Module for embedding metadata into audio files using Mutagen.
+
+    >>> embed_metadata(
+            output_file Path("test.mp3"),
+            song: song_object,
+            file_format: "mp3",
+            lyrics: str = "",
+        )
+"""
+
 import base64
 
 from pathlib import Path
@@ -48,6 +59,14 @@ TAG_PRESET = {key: key for key in M4A_TAG_PRESET}
 
 
 def _set_id3_mp3(output_file: Path, song: Song, lyrics: str = ""):
+    """
+    Set ID3 tags for MP3 files.
+
+    ### Arguments
+    - output_file: Path to the output file.
+    - song: Song object.
+    - lyrics: Lyrics to embed.
+    """
     audio_file = EasyID3(str(output_file.resolve()))
 
     audio_file = _embed_mp3_metadata(audio_file, song)
@@ -60,6 +79,15 @@ def _set_id3_mp3(output_file: Path, song: Song, lyrics: str = ""):
 
 
 def _set_id3_m4a(output_file: Path, song: Song, lyrics: str = ""):
+    """
+    Set ID3 tags for M4A files.
+
+    ### Arguments
+    - output_file: Path to the output file.
+    - song: Song object.
+    - lyrics: Lyrics to embed.
+    """
+
     audio_file = MP4(str(output_file.resolve()))
 
     audio_file = _embed_basic_metadata(audio_file, song, "m4a", M4A_TAG_PRESET)
@@ -69,6 +97,15 @@ def _set_id3_m4a(output_file: Path, song: Song, lyrics: str = ""):
 
 
 def _set_id3_flac(output_file: Path, song: Song, lyrics: str = ""):
+    """
+    Set ID3 tags for FLAC files.
+
+    ### Arguments
+    - output_file: Path to the output file.
+    - song: Song object.
+    - lyrics: Lyrics to embed.
+    """
+
     audio_file = FLAC(str(output_file.resolve()))
 
     audio_file = _embed_basic_metadata(audio_file, song, "flac")
@@ -79,6 +116,15 @@ def _set_id3_flac(output_file: Path, song: Song, lyrics: str = ""):
 
 
 def _set_id3_opus(output_file: Path, song: Song, lyrics: str = ""):
+    """
+    Set ID3 tags for Opus files.
+
+    ### Arguments
+    - output_file: Path to the output file.
+    - song: Song object.
+    - lyrics: Lyrics to embed.
+    """
+
     audio_file = OggOpus(str(output_file.resolve()))
 
     audio_file = _embed_basic_metadata(audio_file, song, "opus")
@@ -89,6 +135,15 @@ def _set_id3_opus(output_file: Path, song: Song, lyrics: str = ""):
 
 
 def _set_id3_ogg(output_file: Path, song: Song, lyrics: str = ""):
+    """
+    Set ID3 tags for OGG files.
+
+    ### Arguments
+    - output_file: Path to the output file.
+    - song: Song object.
+    - lyrics: Lyrics to embed.
+    """
+
     audio_file = OggVorbis(str(output_file.resolve()))
 
     audio_file = _embed_basic_metadata(audio_file, song, "ogg")
@@ -99,6 +154,17 @@ def _set_id3_ogg(output_file: Path, song: Song, lyrics: str = ""):
 
 
 def _embed_mp3_metadata(audio_file, song: Song):
+    """
+    Embed basic metadata into the audio file.
+
+    ### Arguments
+    - audio_file: Mutagen audio file object.
+    - song: Song object.
+
+    ### Returns
+    - Modified audio_file object.
+    """
+
     audio_file.delete()
 
     audio_file["title"] = song.name
@@ -122,6 +188,17 @@ def _embed_mp3_metadata(audio_file, song: Song):
 
 
 def _embed_mp3_cover(file_path, song: Song):
+    """
+    Embed cover into the audio file.
+
+    ### Arguments
+    - file_path: Path to the audio file.
+    - song: Song object.
+
+    ### Returns
+    - Modified audio_file object.
+    """
+
     audio_file = ID3(file_path)
     if song.cover_url:
         with urlopen(song.cover_url) as raw_album_art:
@@ -137,6 +214,17 @@ def _embed_mp3_cover(file_path, song: Song):
 
 
 def _embed_mp3_lyrics(audio_file, lyrics: str = ""):
+    """
+    Embed lyrics into the audio file.
+
+    ### Arguments
+    - audio_file: Mutagen audio file object.
+    - lyrics: Lyrics to embed.
+
+    ### Returns
+    - Modified audio_file object.
+    """
+
     uslt_output = USLT(encoding=3, lang="eng", desc="desc", text=lyrics)
     audio_file["USLT::'eng'"] = uslt_output
 
@@ -144,6 +232,18 @@ def _embed_mp3_lyrics(audio_file, lyrics: str = ""):
 
 
 def _embed_m4a_metadata(audio_file, song: Song, lyrics: str = ""):
+    """
+    Embed basic metadata into the audio file.
+
+    ### Arguments
+    - audio_file: Mutagen audio file object.
+    - song: Song object.
+    - lyrics: Lyrics to embed.
+
+    ### Returns
+    - Modified audio_file object.
+    """
+
     audio_file[M4A_TAG_PRESET["year"]] = str(song.year)
     audio_file[M4A_TAG_PRESET["lyrics"]] = lyrics
     audio_file[M4A_TAG_PRESET["explicit"]] = (4 if song.explicit is True else 2,)
@@ -164,6 +264,19 @@ def _embed_m4a_metadata(audio_file, song: Song, lyrics: str = ""):
 
 
 def _embed_basic_metadata(audio_file, song: Song, encoding, preset=TAG_PRESET):
+    """
+    Embed basic metadata into the audio file.
+
+    ### Arguments
+    - audio_file: Mutagen audio file object.
+    - song: Song object.
+    - encoding: Encoding of the audio file.
+    - preset: Preset of the audio file.
+
+    ### Returns
+    - Modified audio_file object.
+    """
+
     album_name = song.album_name
     if album_name:
         audio_file[preset["album"]] = album_name
@@ -196,6 +309,18 @@ def _embed_basic_metadata(audio_file, song: Song, encoding, preset=TAG_PRESET):
 
 
 def _embed_ogg_metadata(audio_file, song: Song, lyrics: str = ""):
+    """
+    Embed basic metadata into the audio file.
+
+    ### Arguments
+    - audio_file: Mutagen audio file object.
+    - song: Song object.
+    - lyrics: Lyrics to embed.
+
+    ### Returns
+    - Modified audio_file object.
+    """
+
     audio_file["year"] = str(song.year)
     audio_file["lyrics"] = lyrics
 
@@ -203,6 +328,18 @@ def _embed_ogg_metadata(audio_file, song: Song, lyrics: str = ""):
 
 
 def _embed_cover(audio_file, song: Song, encoding: str):
+    """
+    Embed cover into the audio file.
+
+    ### Arguments
+    - audio_file: Mutagen audio file object.
+    - song: Song object.
+    - encoding: Encoding of the audio file.
+
+    ### Returns
+    - Modified audio_file object.
+    """
+
     if song.cover_url is None:
         return audio_file
 
@@ -239,6 +376,12 @@ def embed_metadata(
 ) -> None:
     """
     Embeds metadata into the output file.
+
+    ### Arguments
+    - output_file: Path to the output file.
+    - song: Song object.
+    - file_format: File format of the output file.
+    - lyrics: Lyrics to embed.
     """
 
     function = AVAILABLE_FORMATS.get(file_format)

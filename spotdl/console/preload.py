@@ -1,3 +1,7 @@
+"""
+Preload module for the console.
+"""
+
 import json
 import concurrent.futures
 
@@ -5,7 +9,7 @@ from typing import List
 
 from spotdl.download.downloader import Downloader
 from spotdl.providers.audio.base import AudioProvider
-from spotdl.utils.query import parse_query
+from spotdl.utils.search import parse_query
 
 
 def preload(
@@ -14,7 +18,16 @@ def preload(
     save_path: str,
 ) -> None:
     """
-    Search
+    Use audio provider to find the download links for the songs
+    and save them to the disk.
+
+    ### Arguments
+    - query: list of strings to search for.
+    - downloader: Already initialized downloader instance.
+    - save_path: Path to the file to save the metadata to.
+
+    ### Notes
+    - This function is multi-threaded.
     """
 
     # Parse the query

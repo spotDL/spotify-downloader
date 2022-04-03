@@ -6,7 +6,6 @@ from typing import List, Optional, Tuple
 
 from spotdl.utils.spotify import SpotifyClient
 from spotdl.console import console_entry_point
-from spotdl.utils.query import parse_query
 from spotdl.download import Downloader
 from spotdl.types import Song
 from spotdl._version import __version__

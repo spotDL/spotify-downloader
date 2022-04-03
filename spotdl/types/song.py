@@ -1,3 +1,7 @@
+"""
+Song module that hold the Song and SongList classes.
+"""
+
 import json
 
 from dataclasses import dataclass, asdict
@@ -45,6 +49,12 @@ class Song:
     def from_url(cls, url: str) -> "Song":
         """
         Creates a Song object from a URL.
+
+        ### Arguments
+        - url: The URL of the song.
+
+        ### Returns
+        - The Song object.
         """
 
         if "open.spotify.com" not in url or "track" not in url:
@@ -99,6 +109,12 @@ class Song:
     def from_search_term(cls, search_term: str) -> "Song":
         """
         Creates a list of Song objects from a search term.
+
+        ### Arguments
+        - search_term: The search term to use.
+
+        ### Returns
+        - The Song object.
         """
 
         spotify_client = SpotifyClient()
@@ -119,6 +135,12 @@ class Song:
     def from_data_dump(cls, data: str) -> "Song":
         """
         Create a Song object from a data dump.
+
+        ### Arguments
+        - data: The data dump.
+
+        ### Returns
+        - The Song object.
         """
 
         # Create dict from json string
@@ -131,6 +153,12 @@ class Song:
     def from_dict(cls, data: Dict[str, Any]) -> "Song":
         """
         Create a Song object from a dictionary.
+
+        ### Arguments
+        - data: The dictionary.
+
+        ### Returns
+        - The Song object.
         """
 
         # Return product object
@@ -140,6 +168,9 @@ class Song:
     def display_name(self) -> str:
         """
         Returns a display name for the song.
+
+        ### Returns
+        - The display name.
         """
 
         return f"{self.artist} - {self.name}"
@@ -148,6 +179,9 @@ class Song:
     def json(self) -> Dict[str, Any]:
         """
         Returns a dictionary of the song's data.
+
+        ### Returns
+        - The dictionary.
         """
 
         return asdict(self)
@@ -164,14 +198,23 @@ class SongList:
     def length(self) -> int:
         """
         Get list length (number of songs).
+
+        ### Returns
+        - The list length.
         """
 
         return len(self.songs)
 
     @classmethod
-    def create_basic_list(cls, url: str):
+    def create_basic_list(cls, url: str) -> "SongList":
         """
         Create a basic list with only the required metadata and urls.
+
+        ### Arguments
+        - url: The url of the list.
+
+        ### Returns
+        - The SongList object.
         """
 
         metadata = cls.get_metadata(url)
@@ -180,16 +223,26 @@ class SongList:
         return cls(**metadata, urls=urls, songs=[])
 
     @classmethod
-    def from_url(cls, url: str):
+    def from_url(cls, url: str) -> "SongList":
         """
         Initialize a SongList object from a URL.
+
+        ### Arguments
+        - url: The URL of the list.
         """
+
         raise NotImplementedError
 
     @staticmethod
     def get_urls(url: str) -> List[str]:
         """
         Get urls for all songs in url.
+
+        ### Arguments
+        - url: The URL of the list.
+
+        ### Returns
+        - The list of urls.
         """
 
         raise NotImplementedError
@@ -198,6 +251,12 @@ class SongList:
     def get_metadata(url: str) -> Dict[str, Any]:
         """
         Get metadata for list.
+
+        ### Arguments
+        - url: The URL of the list.
+
+        ### Returns
+        - The metadata.
         """
 
         raise NotImplementedError

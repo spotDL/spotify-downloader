@@ -1,3 +1,8 @@
+"""
+Module for converting audio files to different formats
+and checking for ffmpeg binary, and downloading it if not found.
+"""
+
 import os
 import re
 import shutil
@@ -56,6 +61,12 @@ class FFmpegError(Exception):
 def is_ffmpeg_installed(ffmpeg: str = "ffmpeg") -> bool:
     """
     Check if ffmpeg is installed.
+
+    ### Arguments
+    - ffmpeg: ffmpeg executable to check
+
+    ### Returns
+    - True if ffmpeg is installed, False otherwise.
     """
 
     if ffmpeg == "ffmpeg":
@@ -72,7 +83,9 @@ def is_ffmpeg_installed(ffmpeg: str = "ffmpeg") -> bool:
 def get_ffmpeg_path() -> Optional[Path]:
     """
     Get path to global ffmpeg binary or a local ffmpeg binary.
-    Or None if not found.
+
+    ### Returns
+    - Path to ffmpeg binary or None if not found.
     """
 
     # Check if ffmpeg is installed
@@ -87,6 +100,16 @@ def get_ffmpeg_path() -> Optional[Path]:
 def get_ffmpeg_version(ffmpeg: str = "ffmpeg") -> Tuple[Optional[float], Optional[int]]:
     """
     Get ffmpeg version.
+
+    ### Arguments
+    - ffmpeg: ffmpeg executable to check
+
+    ### Returns
+    - Tuple of optional version and optional year.
+
+    ### Errors
+    - FFmpegError if ffmpeg is not installed.
+    - FFmpegError if ffmpeg version is not found.
     """
 
     # Check if ffmpeg is installed
@@ -141,7 +164,10 @@ def get_ffmpeg_version(ffmpeg: str = "ffmpeg") -> Tuple[Optional[float], Optiona
 
 def get_local_ffmpeg() -> Optional[Path]:
     """
-    Get local ffmpeg binary path or None if not found.
+    Get local ffmpeg binary path.
+
+    ### Returns
+    - Path to ffmpeg binary or None if not found.
     """
 
     ffmpeg_path = Path(
@@ -157,8 +183,14 @@ def get_local_ffmpeg() -> Optional[Path]:
 def download_ffmpeg() -> Path:
     """
     Download ffmpeg binary to spotdl directory.
-    And set executable permission. (Linux/Mac only)
-    Returns ffmpeg path.
+
+    ### Returns
+    - Path to ffmpeg binary.
+
+    ### Notes
+    - ffmpeg is downloaded from github releases
+        for current platform and architecture.
+    - executable permission is set for ffmpeg binary.
     """
 
     os_name = platform.system().lower()
@@ -197,10 +229,21 @@ async def convert(
 ) -> Tuple[bool, Optional[Dict[str, Any]]]:
     """
     Convert the input file to the output file asynchronously.
-    Input file is a path to a file or a tuple of (url, file_format).
 
-    Returns tuple containing conversion status
-    and error dictionary if conversion failed.
+    ### Arguments
+    - input_file: Path to input file or tuple of (url, file_format)
+    - output_file: Path to output file
+    - ffmpeg: ffmpeg executable to use
+    - output_format: output format
+    - variable_bitrate: variable bitrate
+    - constant_bitrate: constant bitrate
+    - ffmpeg_args: ffmpeg arguments
+
+    ### Returns
+    - Tuple of conversion status and error dictionary.
+
+    ### Notes
+    - Make sure to check if ffmpeg is installed before calling this function.
     """
 
     # Initialize ffmpeg command
@@ -286,17 +329,26 @@ def convert_sync(
     variable_bitrate: Optional[str] = None,
     constant_bitrate: Optional[str] = None,
     ffmpeg_args: Optional[str] = None,
-    progress_handler: Optional[Callable] = None,
+    progress_handler: Optional[Callable[[int], None]] = None,
 ) -> Tuple[bool, Optional[Dict[str, Any]]]:
     """
-    Convert the input file to the output file synchronously.
-    Input file is a path to a file or a tuple of (url, file_format).
+    Convert the input file to the output file synchronously with progress handler.
 
-    If progress_handler is specified, it will be called with
-    the progress percentage as argument.
+    ### Arguments
+    - input_file: Path to input file or tuple of (url, file_format).
+    - output_file: Path to output file.
+    - ffmpeg: ffmpeg executable to use.
+    - output_format: output format.
+    - variable_bitrate: variable bitrate.
+    - constant_bitrate: constant bitrate.
+    - ffmpeg_args: ffmpeg arguments.
+    - progress_handler: progress handler, has to accept an integer as argument.
 
-    Returns tuple containing conversion status
-    and error dictionary if conversion failed.
+    ### Returns
+    - Tuple of conversion status and error dictionary.
+
+    ### Notes
+    - Make sure to check if ffmpeg is installed before calling this function.
     """
 
     # Initialize ffmpeg command
@@ -346,7 +398,7 @@ def convert_sync(
     arguments.append(str(output_file.resolve()))
 
     # Run ffmpeg
-    process = subprocess.Popen(  # pylint: disable=no-member
+    process = subprocess.Popen(
         [ffmpeg, *arguments],
         stdin=subprocess.PIPE,
         stdout=subprocess.PIPE,

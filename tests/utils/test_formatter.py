@@ -89,7 +89,7 @@ def test_create_file_name():
     assert create_file_name(song, "{isrc}.../...{title} - {artist}...", "mp3") == Path(
         "GB2LD2110301/Ropes - Dirty Palm....mp3"
     )
-    print(song.song_list)
+
     assert create_file_name(
         song,
         "{list-position}/{list-length} {title} - {artist}",

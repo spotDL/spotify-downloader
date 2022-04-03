@@ -1,3 +1,7 @@
+"""
+Base module for all other lyrics providers.
+"""
+
 from typing import List, Optional
 
 
@@ -6,6 +10,7 @@ class LyricsProvider:
         """
         Base class for all lyrics providers
         """
+
         self.headers = {
             "Connection": "keep-alive",
             "Pragma": "no-cache",
@@ -23,5 +28,14 @@ class LyricsProvider:
     def get_lyrics(self, name: str, artists: List[str], **kwargs) -> Optional[str]:
         """
         Returns the lyrics for the given song.
+
+        ### Arguments
+        - name: The name of the song.
+        - artists: The artists of the song.
+        - kwargs: Additional arguments.
+
+        ### Returns
+        - The lyrics of the song or None if no lyrics were found.
         """
+
         raise NotImplementedError

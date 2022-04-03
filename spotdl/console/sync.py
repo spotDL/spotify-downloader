@@ -1,3 +1,7 @@
+"""
+Sync module for the console.
+"""
+
 import glob
 import traceback
 
@@ -5,7 +9,7 @@ from pathlib import Path
 from typing import List, Optional
 
 from spotdl.download.downloader import Downloader
-from spotdl.utils.query import parse_query
+from spotdl.utils.search import parse_query
 from spotdl.utils.formatter import create_file_name
 from spotdl.utils.m3u import create_m3u_file
 
@@ -16,7 +20,15 @@ def sync(
     m3u_file: Optional[None] = None,
 ) -> None:
     """
-    Get tracks from playlists/albums/tracks and save them to a file.
+    Removes the songs that are no longer present in the list and downloads the new ones.
+
+    ### Arguments
+    - query: list of strings to search for.
+    - downloader: Already initialized downloader instance.
+    - m3u_file: Path to the file to save the metadata to.
+
+    ### Notes
+    - notes if any
     """
 
     # Parse the query

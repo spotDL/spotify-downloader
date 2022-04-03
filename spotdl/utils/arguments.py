@@ -1,3 +1,7 @@
+"""
+Module that handles the command line arguments.
+"""
+
 import sys
 
 from argparse import _ArgumentGroup, ArgumentParser, Namespace
@@ -18,6 +22,9 @@ OPERATIONS = ["download", "save", "preload", "web", "sync"]
 def parse_arguments() -> Namespace:
     """
     Parse arguments from the command line.
+
+    ### Returns
+    - A Namespace object containing the parsed arguments.
     """
 
     # Initialize argument parser
@@ -56,29 +63,37 @@ def parse_arguments() -> Namespace:
 def parse_main_options(parser: _ArgumentGroup):
     """
     Parse main options from the command line.
+
+    ### Arguments
+    - parser: The argument parser to add the options to.
     """
 
-    if not getattr(sys, "frozen", False) and len(sys.argv) != 1:
-        # Don't add positional argument if environment is frozen
-
-        # Add mode argument
-        parser.add_argument(
-            "operation",
-            choices=OPERATIONS,
-            help="The operation to perform.",
-        )
+    # Add operation argument
+    operation = parser.add_argument(
+        "operation",
+        choices=OPERATIONS,
+        help="The operation to perform.",
+    )
 
     # Add query argument
-    parser.add_argument(
+    query = parser.add_argument(
         "query",
-        nargs="+"
-        if len(sys.argv) > 1
-        and "web" != sys.argv[1]
-        or not getattr(sys, "frozen", False)
-        else "?",
+        nargs="+",
         type=str,
         help="URL for a song/playlist/album/artist/etc. to download.",
     )
+
+    try:
+        is_web = sys.argv[1] == "web"
+    except IndexError:
+        is_web = False
+
+    is_frozen = getattr(sys, "frozen", False)
+    if (is_frozen and len(sys.argv) < 2) or (len(sys.argv) > 1 and is_web):
+        if not is_web or (is_frozen and not is_web):
+            parser._remove_action(operation)  # pylint: disable=protected-access
+
+        parser._remove_action(query)  # pylint: disable=protected-access
 
     # Audio provider argument
     parser.add_argument(
@@ -121,12 +136,13 @@ def parse_main_options(parser: _ArgumentGroup):
         help="Disable filtering results.",
     )
 
-    return parser
-
 
 def parse_spotify_options(parser: _ArgumentGroup):
     """
     Parse spotify options from the command line.
+
+    ### Arguments
+    - parser: The argument parser to add the options to.
     """
 
     # Add login argument
@@ -178,6 +194,9 @@ def parse_spotify_options(parser: _ArgumentGroup):
 def parse_ffmpeg_options(parser: _ArgumentGroup):
     """
     Parse ffmpeg options from the command line.
+
+    ### Arguments
+    - parser: The argument parser to add the options to.
     """
 
     # Add ffmpeg executable argument
@@ -240,6 +259,9 @@ def parse_ffmpeg_options(parser: _ArgumentGroup):
 def parse_output_options(parser: _ArgumentGroup):
     """
     Parse output options from the command line.
+
+    ### Arguments
+    - parser: The argument parser to add the options to.
     """
 
     # Add output format argument
@@ -311,6 +333,9 @@ def parse_output_options(parser: _ArgumentGroup):
 def parse_misc_options(parser: _ArgumentGroup):
     """
     Parse misc options from the command line.
+
+    ### Arguments
+    - parser: The argument parser to add the options to.
     """
 
     # Add verbose argument
@@ -341,7 +366,9 @@ def parse_misc_options(parser: _ArgumentGroup):
 def parse_other_options(parser: _ArgumentGroup):
     """
     Parse other options from the command line.
-    These are used only as a placeholders
+
+    ### Arguments
+    - parser: The argument parser to add the options to.
     """
 
     parser.add_argument(

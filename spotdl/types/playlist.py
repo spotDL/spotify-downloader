@@ -1,3 +1,7 @@
+"""
+Playlist module for retrieving playlist data from Spotify.
+"""
+
 from dataclasses import dataclass
 from typing import Any, Dict, List
 
@@ -22,6 +26,12 @@ class Playlist(SongList):
     def from_url(cls, url: str) -> "Playlist":
         """
         Load playlist info and tracks from a Spotify playlist URL.
+
+        ### Arguments
+        - url: The URL of the playlist.
+
+        ### Returns
+        - The Playlist object.
         """
 
         metadata = Playlist.get_metadata(url)
@@ -43,8 +53,12 @@ class Playlist(SongList):
     def get_urls(url: str) -> List[str]:
         """
         Get URLs of all tracks in a playlist.
-        Useful for fetching the playlist.
-        In multithreaded fashion.
+
+        ### Arguments
+        - url: The URL of the playlist.
+
+        ### Returns
+        - A list of urls.
         """
 
         spotify_client = SpotifyClient()
@@ -77,6 +91,12 @@ class Playlist(SongList):
     def get_metadata(url: str) -> Dict[str, Any]:
         """
         Get metadata for a playlist.
+
+        ### Arguments
+        - url: The URL of the playlist.
+
+        ### Returns
+        - A dictionary with metadata.
         """
 
         spotify_client = SpotifyClient()

@@ -1,8 +1,12 @@
+"""
+Save module for the console.
+"""
+
 import json
 
 from typing import List
 
-from spotdl.utils.query import parse_query
+from spotdl.utils.search import parse_query
 
 
 def save(
@@ -11,7 +15,15 @@ def save(
     threads: int = 1,
 ) -> None:
     """
-    Get tracks from playlists/albums/tracks and save them to a file.
+    Save metadata from spotify to the disk.
+
+    ### Arguments
+    - query: list of strings to search for.
+    - save_path: Path to the file to save the metadata to.
+    - threads: Number of threads to use.
+
+    ### Notes
+    - This function is multi-threaded.
     """
 
     # Parse the query

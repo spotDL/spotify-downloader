@@ -1,3 +1,7 @@
+"""
+Base audio provider module.
+"""
+
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
@@ -43,6 +47,16 @@ class AudioProvider:
     ) -> None:
         """
         Base class for audio providers.
+
+        ### Arguments
+        - output_directory: The directory to save the downloaded songs to.
+        - output_format: The format to save the downloaded songs in.
+        - cookie_file: The path to a file containing cookies to be used by YTDL.
+        - search_query: The query to use when searching for songs.
+        - filter_results: Whether to filter results.
+
+        ### Errors
+        - raises `NotImplementedError` if self.name is not set.
         """
 
         self.output_format = output_format
@@ -77,6 +91,12 @@ class AudioProvider:
     def search(self, song: Song) -> Optional[str]:
         """
         Search for a song and return best match.
+
+        ### Arguments
+        - song: The song to search for.
+
+        ### Returns
+        - The url of the best match or None if no match was found.
         """
 
         raise NotImplementedError
@@ -84,6 +104,13 @@ class AudioProvider:
     def get_results(self, search_term: str, **kwargs):
         """
         Get results from audio provider.
+
+        ### Arguments
+        - search_term: The search term to use.
+        - kwargs: Additional arguments.
+
+        ### Returns
+        - A list of results.
         """
 
         raise NotImplementedError
@@ -91,13 +118,26 @@ class AudioProvider:
     def order_results(self, results, song: Song):
         """
         Order results.
+
+        ### Arguments
+        - results: The results to order.
+        - song: The song to order for.
+
+        ### Returns
+        - The ordered results.
         """
 
         raise NotImplementedError
 
     def get_download_metadata(self, url: str) -> Dict:
         """
-        Get metadata for a download.
+        Get metadata for a download using yt-dlp.
+
+        ### Arguments
+        - url: The url to get metadata for.
+
+        ### Returns
+        - A dictionary containing the metadata.
         """
 
         data = self.audio_handler.extract_info(url, download=False)

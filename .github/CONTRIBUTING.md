@@ -226,12 +226,10 @@ Any submitted code is expected to have accompanying documentation
   pip install pdoc3
   ```
 
-  `pdoc3` requires that all development packages be installed **from a wheel**
+  `pdoc3` requires that all development packages are installed
 
   ```
-  pip install wheel
-  python setup.py bdist_wheel
-  pip install ./dist/spotdl-4.0.0-py3-none-any.whl[web]
+  poetry install -E web
   ```
 
   generate docs with

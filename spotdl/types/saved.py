@@ -1,3 +1,7 @@
+"""
+Saved module for handing the saved tracks from user library
+"""
+
 from dataclasses import dataclass
 from typing import Any, Dict, List
 from spotdl.types.song import SongList
@@ -35,9 +39,15 @@ class Saved(SongList):
         )
 
     @staticmethod
-    def get_urls(_: str) -> List[str]:
+    def get_urls(_: str = "saved") -> List[str]:
         """
         Returns a list of urls of all saved tracks.
+
+        ### Arguments
+        - _: not required, but used to match the signature of the other get_urls methods.
+
+        ### Returns
+        - A list of urls.
         """
 
         spotify_client = SpotifyClient()
@@ -69,9 +79,12 @@ class Saved(SongList):
         ]
 
     @classmethod
-    def create_basic_list(cls):
+    def create_basic_list(cls) -> "Saved":
         """
         Create a basic list with only the required metadata and urls.
+
+        ### Returns
+        - The Saved object.
         """
 
         metadata = cls.get_metadata("saved")
@@ -80,9 +93,12 @@ class Saved(SongList):
         return cls(**metadata, urls=urls, songs=[])
 
     @staticmethod
-    def get_metadata(url: str) -> Dict[str, Any]:
+    def get_metadata(url: str = "saved") -> Dict[str, Any]:
         """
         Returns metadata for a saved list.
+
+        ### Arguments
+        - url: Not required, but used to match the signature of the other get_metadata methods.
         """
 
         return {"name": "Saved tracks", "url": url}

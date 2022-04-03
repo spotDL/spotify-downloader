@@ -1,3 +1,9 @@
+"""
+Module related to managing reading and writing to the config file.
+
+Default config - spotdl.utils.config.DEFAULT_CONFIG
+"""
+
 from pathlib import Path
 from typing import Any, Dict
 
@@ -13,9 +19,15 @@ class ConfigError(Exception):
 
 def get_spotdl_path() -> Path:
     """
-    Returns the path to the spotdl folder.
-    If the spotdl directory does not exist, it will be created.
+    Get the path to the spotdl folder.
+
+    ### Returns
+    - The path to the spotdl folder.
+
+    ### Notes
+    - If the spotdl directory does not exist, it will be created.
     """
+
     spotdl_path = Path(os.path.expanduser("~"), ".spotdl")
     if not spotdl_path.exists():
         os.mkdir(spotdl_path)
@@ -25,22 +37,34 @@ def get_spotdl_path() -> Path:
 
 def get_config_file() -> Path:
     """
-    Returns the path to the config file.
+    Get config file path
+
+    ### Returns
+    - The path to the config file.
     """
+
     return get_spotdl_path() / "config.json"
 
 
 def get_cache_path() -> Path:
     """
-    Returns the path to the spotipy cache file
+    Get the path to the cache folder.
+
+    ### Returns
+    - The path to the spotipy cache file.
     """
+
     return get_spotdl_path() / ".spotipy"
 
 
 def get_temp_path() -> Path:
     """
-    Returns the path to the spotdl temp folder.
+    Get the path to the temp folder.
+
+    ### Returns
+    - The path to the temp folder.
     """
+
     temp_path = get_spotdl_path() / "temp"
     if not temp_path.exists():
         os.mkdir(temp_path)
@@ -50,8 +74,15 @@ def get_temp_path() -> Path:
 
 def get_errors_path() -> Path:
     """
-    Returns the path to the spotdl errors folder.
+    Get the path to the errors folder.
+
+    ### Returns
+    - The path to the errors folder.
+
+    ### Notes
+    - If the errors directory does not exist, it will be created.
     """
+
     errors_path = get_spotdl_path() / "errors"
 
     if not errors_path.exists():
@@ -62,7 +93,13 @@ def get_errors_path() -> Path:
 
 def get_config() -> Dict[str, Any]:
     """
-    Returns the config object.
+    Get the config.
+
+    ### Returns
+    - The dictionary with the config.
+
+    ### Errors
+    - ConfigError: If the config file does not exist.
     """
 
     config_path = get_config_file()

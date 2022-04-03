@@ -1,3 +1,7 @@
+"""
+MusixMatch lyrics provider.
+"""
+
 from typing import List, Optional
 from urllib.parse import quote
 
@@ -12,6 +16,14 @@ class MusixMatch(LyricsProvider):
     def get_lyrics(self, name: str, artists: List[str], **kwargs) -> Optional[str]:
         """
         Try to get lyrics from musixmatch
+
+        ### Arguments
+        - name: The name of the song.
+        - artists: The artists of the song.
+        - kwargs: Additional arguments.
+
+        ### Returns
+        - The lyrics of the song or None if no lyrics were found.
         """
 
         try:

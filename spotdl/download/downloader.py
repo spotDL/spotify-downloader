@@ -1,3 +1,7 @@
+"""
+Downloader module, this is where all the downloading pre/post processing happens etc.
+"""
+
 import json
 import datetime
 import asyncio
@@ -77,6 +81,31 @@ class Downloader:
     ):
         """
         Initialize the Downloader class.
+
+        ### Arguments
+        - audio_provider: The audio provider to use.
+        - lyrics_provider: The lyrics provider to use.
+        - ffmpeg: The ffmpeg executable to use.
+        - variable_bitrate: The variable bitrate to use.
+        - constant_bitrate: The constant bitrate to use.
+        - ffmpeg_args: The ffmpeg arguments to use.
+        - output_format: The output format to use.
+        - threads: The number of threads to use.
+        - output: The output directory to use.
+        - save_file: The save file to use when saving/loading song metadata.
+        - overwrite: The overwrite mode to use (force/skip).
+        - cookie_file: The cookie file to use for yt-dlp.
+        - filter_results: Whether to filter results.
+        - search_query: The search query to use.
+        - log_level: The log level to use.
+        - simple_tui: Whether to use simple tui.
+        - loop: The event loop to use.
+        - restrict: Whether to restrict the filename to ASCII characters.
+        - print_errors: Whether to print errors on exit.
+        - sponsor_block: Whether to remove sponsor segments using sponsor block postprocessor.
+
+        ### Notes
+        - `search-query` uses the same format as `output`.
         """
         audio_provider_class = AUDIO_PROVIDERS.get(audio_provider)
         if audio_provider_class is None:
@@ -142,15 +171,17 @@ class Downloader:
     def download_song(self, song: Song) -> Tuple[Song, Optional[Path]]:
         """
         Download a single song.
+
+        ### Arguments
+        - song: The song to download.
+
+        ### Returns
+        - tuple with the song and the path to the downloaded file if successful.
         """
 
         self.progress_handler.set_song_count(1)
 
-        results = self._download_asynchronously([song])
-
-        if self.print_errors:
-            for error in self.errors:
-                self.progress_handler.error(error)
+        results = self.download_multiple_songs([song])
 
         return results[0]
 
@@ -159,14 +190,20 @@ class Downloader:
     ) -> List[Tuple[Song, Optional[Path]]]:
         """
         Download multiple songs to the temp directory.
-        After that convert the songs to the output format with ffmpeg.
-        And move it to the output directory following the output format.
-        Embed metadata to the songs.
+
+        ### Arguments
+        - songs: The songs to download.
+
+        ### Returns
+        - list of tuples with the song and the path to the downloaded file if successful.
         """
 
         self.progress_handler.set_song_count(len(songs))
 
-        results = self._download_asynchronously(songs)
+        tasks = [self.pool_download(song) for song in songs]
+
+        # call all task asynchronously, and wait until all are finished
+        results = list(self.loop.run_until_complete(asyncio.gather(*tasks)))
 
         if self.print_errors:
             for error in self.errors:
@@ -174,22 +211,18 @@ class Downloader:
 
         return results
 
-    def _download_asynchronously(
-        self, songs: List[Song]
-    ) -> List[Tuple[Song, Optional[Path]]]:
-        """
-        Download multiple songs asynchronously.
-        """
-
-        tasks = [self.pool_download(song) for song in songs]
-
-        # call all task asynchronously, and wait until all are finished
-        return list(self.loop.run_until_complete(asyncio.gather(*tasks)))
-
     async def pool_download(self, song: Song) -> Tuple[Song, Optional[Path]]:
         """
-        Run asynchronous task in a pool to make sure that all processes
-        don't run at once.
+        Run asynchronous task in a pool to make sure that all processes.
+
+        ### Arguments
+        - song: The song to download.
+
+        ### Returns
+        - tuple with the song and the path to the downloaded file if successful.
+
+        ### Notes
+        - This method calls `self.search_and_download` in a new thread.
         """
 
         # tasks that cannot acquire semaphore will wait here until it's free
@@ -206,6 +239,15 @@ class Downloader:
     def search_and_download(self, song: Song) -> Tuple[Song, Optional[Path]]:
         """
         Search for the song and download it.
+
+        ### Arguments
+        - song: The song to download.
+
+        ### Returns
+        - tuple with the song and the path to the downloaded file if successful.
+
+        ### Notes
+        - This function is synchronous.
         """
 
         # Check if we have all the metadata

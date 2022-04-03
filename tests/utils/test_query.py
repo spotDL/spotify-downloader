@@ -1,6 +1,6 @@
 import pytest
 
-from spotdl.utils.query import parse_query
+from spotdl.utils.search import parse_query
 from spotdl.types.saved import SavedError
 
 

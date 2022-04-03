@@ -1,3 +1,7 @@
+"""
+YTMusic module for downloading and searching songs.
+"""
+
 from typing import Any, Dict, List, Optional
 
 from ytmusicapi import YTMusic
@@ -17,6 +21,10 @@ class YouTubeMusic(AudioProvider):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         """
         Initialize the YouTube Music API
+
+        ### Arguments
+        - args: Arguments passed to the `AudioProvider` class.
+        - kwargs: Keyword arguments passed to the `AudioProvider` class.
         """
 
         self.name = "youtube-music"
@@ -33,8 +41,12 @@ class YouTubeMusic(AudioProvider):
     def search(self, song: Song) -> Optional[str]:
         """
         Search for a song on YouTube Music.
-        Return the link to the song if found.
-        Or return None if not found.
+
+        ### Arguments
+        - song: The song to search for.
+
+        ### Returns
+        - The url of the best match or None if no match was found.
         """
 
         if self.search_query:
@@ -119,9 +131,16 @@ class YouTubeMusic(AudioProvider):
     def get_results(self, search_term: str, **kwargs) -> List[Dict[str, Any]]:
         """
         Get results from YouTube Music API and simplify them
+
+        ### Arguments
+        - search_term: The search term to search for.
+        - kwargs: other keyword arguments passed to the `YTMusic.search` method.
+
+        ### Returns
+        - A list of simplified results (dicts)
         """
 
-        results = self.client.search(search_term, filter=kwargs.get("filter", "songs"))
+        results = self.client.search(search_term, **kwargs)
 
         # Simplify results
         simplified_results = []
@@ -147,6 +166,13 @@ class YouTubeMusic(AudioProvider):
     ) -> Dict[str, Any]:
         """
         Filter results based on the song's metadata.
+
+        ### Arguments
+        - results: The results to filter.
+        - song: The song to filter by.
+
+        ### Returns
+        - A dict of filtered results.
         """
 
         # Slugify some variables

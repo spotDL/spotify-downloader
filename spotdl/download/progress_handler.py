@@ -1,3 +1,7 @@
+"""
+Module that holds the ProgressHandler class and Song Tracker class.
+"""
+
 import logging
 
 from typing import Any, Callable, Optional, List
@@ -91,6 +95,15 @@ class SizedTextColumn(ProgressColumn):
     ) -> None:
         """
         A column containing text.
+
+        ### Arguments
+        - text_format: The format string to use for the text.
+        - style: The style to use for the text.
+        - justify: The justification to use for the text.
+        - markup: Whether or not the text should be rendered as markup.
+        - highlighter: A Highlighter to use for highlighting the text.
+        - overflow: The overflow method to use for truncating the text.
+        - width: The maximum width of the text.
         """
 
         self.text_format = text_format
@@ -105,6 +118,12 @@ class SizedTextColumn(ProgressColumn):
     def render(self, task: Task) -> Text:
         """
         Render the Column.
+
+        ### Arguments
+        - task: The Task to render.
+
+        ### Returns
+        - A Text object.
         """
 
         _text = self.text_format.format(task=task)
@@ -128,6 +147,11 @@ class ProgressHandler:
     ):
         """
         Initialize the progress handler.
+
+        ### Arguments
+        - log_level: The log level to use.
+        - simple_tui: Whether or not to use the simple TUI.
+        - update_callback: A callback to call when the progress bar is updated.
         """
 
         self.songs: List[Song] = []
@@ -188,6 +212,9 @@ class ProgressHandler:
     def add_song(self, song: Song) -> None:
         """
         Adds a song to the list of songs.
+
+        ### Arguments
+        - song: The song to add.
         """
 
         self.songs.append(song)
@@ -196,6 +223,9 @@ class ProgressHandler:
     def set_songs(self, songs: List[Song]) -> None:
         """
         Sets the list of songs to be downloaded.
+
+        ### Arguments
+        - songs: The list of songs to download.
         """
 
         self.songs = songs
@@ -204,6 +234,9 @@ class ProgressHandler:
     def set_song_count(self, count: int) -> None:
         """
         Set the number of songs to download.
+
+        ### Arguments
+        - count: The number of songs to download.
         """
 
         self.song_count = count
@@ -224,6 +257,9 @@ class ProgressHandler:
     def debug(self, message: str) -> None:
         """
         Debug message.
+
+        ### Arguments
+        - message: The message to log.
         """
 
         if not self.simple_tui:
@@ -237,6 +273,9 @@ class ProgressHandler:
     def log(self, message: str) -> None:
         """
         Log message.
+
+        ### Arguments
+        - message: The message to log.
         """
 
         if not self.simple_tui:
@@ -250,6 +289,9 @@ class ProgressHandler:
     def warn(self, message: str) -> None:
         """
         Warning message.
+
+        ### Arguments
+        - message: The message to log.
         """
 
         if not self.simple_tui:
@@ -263,6 +305,9 @@ class ProgressHandler:
     def error(self, message: str) -> None:
         """
         Error message.
+
+        ### Arguments
+        - message: The message to log.
         """
 
         if not self.simple_tui:
@@ -295,9 +340,15 @@ class ProgressHandler:
                 )
                 self.previous_overall = self.overall_completed_tasks
 
-    def get_new_tracker(self, song: Song):
+    def get_new_tracker(self, song: Song) -> "SongTracker":
         """
         Get a new progress tracker.
+
+        ### Arguments
+        - song: The song to track.
+
+        ### Returns
+        - A new progress tracker.
         """
 
         return SongTracker(self, song)
@@ -317,6 +368,9 @@ class SongTracker:
     def __init__(self, parent, song: Song) -> None:
         """
         Initialize the Tui Song Tracker.
+
+        ### Arguments
+        - parent: The parent Tui Progress Handler.
         """
 
         self.parent = parent
@@ -339,6 +393,9 @@ class SongTracker:
     def update(self, message=""):
         """
         Called at every event.
+
+        ### Arguments
+        - message: The message to display.
         """
 
         self.status = message
@@ -383,6 +440,10 @@ class SongTracker:
     def notify_error(self, message: str, traceback: Exception) -> None:
         """
         Logs an error message.
+
+        ### Arguments
+        - message: The message to log.
+        - traceback: The traceback of the error.
         """
 
         self.update("Error")
@@ -393,6 +454,9 @@ class SongTracker:
     def notify_download_complete(self, status="Embeding metadata") -> None:
         """
         Notifies the progress handler that the song has been downloaded.
+
+        ### Arguments
+        - status: The status to display.
         """
 
         self.progress = 95
@@ -401,6 +465,9 @@ class SongTracker:
     def notify_complete(self, status="Done") -> None:
         """
         Notifies the progress handler that the song has been downloaded and converted.
+
+        ### Arguments
+        - status: The status to display.
         """
 
         self.progress = 100
@@ -409,6 +476,9 @@ class SongTracker:
     def notify_download_skip(self, status="Skipped") -> None:
         """
         Notifies the progress handler that the song has been skipped.
+
+        ### Arguments
+        - status: The status to display.
         """
 
         self.progress = 100
@@ -417,6 +487,9 @@ class SongTracker:
     def progress_hook(self, progress: int) -> None:
         """
         Updates the progress.
+
+        ### Arguments
+        - progress: The progress to update to.
         """
 
         self.progress = int(progress * 0.95)

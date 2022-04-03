@@ -1,3 +1,11 @@
+"""
+Module for interacting with Spotify API.
+To use this module, you must have a Spotify API key and Spotify API secret.
+
+    >>> import spotdl.utils.spotify
+    >>> spotify.Spotify.init(client_id, client_secret)
+"""
+
 from typing import Optional
 
 from spotipy import Spotify
@@ -22,7 +30,14 @@ class Singleton(type):
 
     _instance = None
 
-    def __call__(self):
+    def __call__(self) -> "SpotifyClient":
+        """
+        Call method for Singleton metaclass.
+
+        ### Returns
+        - The instance of the SpotifyClient.
+        """
+
         if self._instance is None:
             raise SpotifyError(
                 "Spotify client not created. Call SpotifyClient.init"
@@ -41,6 +56,17 @@ class Singleton(type):
     ) -> "Singleton":
         """
         Initializes the SpotifyClient.
+
+        ### Arguments
+        - client_id: The client ID of the application.
+        - client_secret: The client secret of the application.
+        - user_auth: Whether or not to use user authentication.
+        - cache_path: The path to the cache file.
+        - no_cache: Whether or not to use the cache.
+        - open_browser: Whether or not to open the browser.
+
+        ### Returns
+        - The instance of the SpotifyClient.
         """
 
         # check if initialization has been completed, if yes, raise an Exception
@@ -91,5 +117,12 @@ class SpotifyClient(Spotify, metaclass=Singleton):
     _initialized = False
 
     def __init__(self, *args, **kwargs):
+        """
+        Initializes the SpotifyClient.
+
+        ### Arguments
+        - auth_manager: The auth manager to use.
+        """
+
         super().__init__(*args, **kwargs)
         self._initialized = True

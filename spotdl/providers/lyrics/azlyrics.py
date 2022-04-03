@@ -1,3 +1,7 @@
+"""
+AZLyrics lyrics module.
+"""
+
 from typing import List, Optional
 
 from bs4 import BeautifulSoup
@@ -11,6 +15,13 @@ class AzLyrics(LyricsProvider):
     def get_lyrics(self, name: str, artists: List[str], **_) -> Optional[str]:
         """
         Try to get lyrics from azlyrics
+
+        ### Arguments
+        - name: The name of the song.
+        - artists: The artists of the song.
+
+        ### Returns
+        - The lyrics of the song or None if no lyrics were found.
         """
 
         # Join every artist by comma in artists

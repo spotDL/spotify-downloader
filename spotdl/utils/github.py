@@ -1,3 +1,8 @@
+"""
+Module for getting information about the current version of spotdl
+from GitHub, downloading the latest version, and checking for updates.
+"""
+
 from typing import Tuple
 
 import re
@@ -16,9 +21,14 @@ WEB_APP_URL = "https://github.com/spotdl/web-ui/tree/master/dist"
 def get_status(start: str, end: str, repo: str = REPO) -> Tuple[str, int, int]:
     """
     Get the status of a commit range.
-    Start and end are the commit hashes/tags/branches.
 
-    Returns tuple of (status, ahead_by, behind_by)
+    ### Arguments
+    - start: the starting commit/branch/tag
+    - end: the ending commit/branch/tag
+    - repo: the repo to check (defaults to spotdl/spotify-downloader)
+
+    ### Returns
+    - tuple of (status, ahead_by, behind_by)
     """
 
     url = f"https://api.github.com/repos/{repo}/compare/{start}...{end}"
@@ -42,6 +52,12 @@ def get_status(start: str, end: str, repo: str = REPO) -> Tuple[str, int, int]:
 def check_for_updates(repo: str = REPO) -> str:
     """
     Check for updates to the current version.
+
+    ### Arguments
+    - repo: the repo to check (defaults to spotdl/spotify-downloader)
+
+    ### Returns
+    - the latest version
     """
 
     message = ""
@@ -88,7 +104,12 @@ def check_for_updates(repo: str = REPO) -> str:
 def create_github_url(url: str = WEB_APP_URL):
     """
     From the given url, produce a URL that is compatible with Github's REST API.
-    Can handle blob or tree paths.
+
+    ### Arguments
+    - url: the url to convert
+
+    ### Notes
+    - Can handle blob or tree paths.
     """
 
     repo_only_url = re.compile(
@@ -124,10 +145,14 @@ def download_github_dir(
 ):
     """
     Downloads the files and directories in repo_url.
-    If flatten is specified, the contents of any and all
-    sub-directories will be pulled upwards into the root folder.
 
-    Modification of https://github.com/sdushantha/gitdir/blob/master/gitdir/gitdir.py
+    ### Arguments
+    - repo_url: the url to the repo to download
+    - flatten: whether to flatten the directory structure
+    - output_dir: the directory to download the files to
+
+    ### Notes
+    - Modification of https://github.com/sdushantha/gitdir/blob/master/gitdir/gitdir.py
     """
 
     # generate the url which returns the JSON data

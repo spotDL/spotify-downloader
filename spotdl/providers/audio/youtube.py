@@ -1,3 +1,7 @@
+"""
+Youtube module for downloading and searching songs.
+"""
+
 from typing import Any, Dict, List, Optional
 
 from pytube import YouTube as PyTube, Search
@@ -13,6 +17,10 @@ class YouTube(AudioProvider):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         """
         Initialize YouTube provider
+
+        ### Arguments
+        - args: Arguments passed to the `AudioProvider` class.
+        - kwargs: Keyword arguments passed to the `AudioProvider` class.
         """
 
         self.name = "youtube"
@@ -21,8 +29,12 @@ class YouTube(AudioProvider):
     def search(self, song: Song) -> Optional[str]:
         """
         Search for a video on YouTube.
-        Return the link to the song if found.
-        Or return None if not found.
+
+        ### Arguments
+        - song: The song to search for.
+
+        ### Returns
+        - The url of the best match or None if no match was found.
         """
 
         if self.search_query:
@@ -72,12 +84,25 @@ class YouTube(AudioProvider):
     def get_results(search_term: str, **_) -> Optional[List[PyTube]]:
         """
         Get results from YouTube
+
+        ### Arguments
+        - search_term: The search term to search for.
+
+        ### Returns
+        - A list of YouTube results if found, None otherwise.
         """
         return Search(search_term).results
 
     def order_results(self, results: List[PyTube], song: Song) -> Dict[str, Any]:
         """
         Filter results based on the song's metadata.
+
+        ### Arguments
+        - results: The results to order.
+        - song: The song to order for.
+
+        ### Returns
+        - The ordered results.
         """
 
         # Assign an overall avg match value to each result

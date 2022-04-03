@@ -1,3 +1,7 @@
+"""
+Genius Lyrics module.
+"""
+
 from typing import List, Optional
 
 import requests
@@ -11,6 +15,13 @@ class Genius(LyricsProvider):
     def get_lyrics(self, name: str, artists: List[str], **_) -> Optional[str]:
         """
         Try to get lyrics from genius
+
+        ### Arguments
+        - name: The name of the song.
+        - artists: The artists of the song.
+
+        ### Returns
+        - The lyrics of the song or None if no lyrics were found.
         """
 
         try:

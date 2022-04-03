@@ -1,3 +1,9 @@
+"""
+Module for formatting songs into strings.
+Contains functions to create search queries and song titles
+and file names.
+"""
+
 import re
 
 from typing import List, Optional
@@ -32,6 +38,17 @@ VARS = [
 def create_song_title(song_name: str, song_artists: List[str]) -> str:
     """
     Create the song title.
+
+    ### Arguments
+    - song_name: the name of the song
+    - song_artists: the list of artists of the song
+
+    ### Returns
+    - the song title
+
+    ### Notes
+    - Example: "Artist1, Artist2 - Song Name"
+
     """
 
     joined_artists = ", ".join(song_artists)
@@ -44,6 +61,12 @@ def create_song_title(song_name: str, song_artists: List[str]) -> str:
 def sanitize_string(string: str) -> str:
     """
     Sanitize the filename to be used in the file system.
+
+    ### Arguments
+    - string: the string to sanitize
+
+    ### Returns
+    - the sanitized string
     """
 
     output = string
@@ -67,6 +90,16 @@ def format_query(
 ) -> str:
     """
     Replace template variables with the actual values.
+
+    ### Arguments
+    - song: the song object
+    - template: the template string
+    - santitize: whether to sanitize the string
+    - file_extension: the file extension to use
+    - short: whether to use the short version of the template
+
+    ### Returns
+    - the formatted string
     """
 
     if "{output-ext}" in template and file_extension is None:
@@ -148,6 +181,16 @@ def create_search_query(
 ) -> str:
     """
     Create the search query for the song.
+
+    ### Arguments
+    - song: the song object
+    - template: the template string
+    - santitize: whether to sanitize the string
+    - file_extension: the file extension to use
+    - short: whether to use the short version of the template
+
+    ### Returns
+    - the formatted string
     """
 
     # If template does not contain any of the keys,
@@ -165,8 +208,16 @@ def create_file_name(
     short: bool = False,
 ) -> Path:
     """
-    Create the file name for the song.
-    Replaces template variables with the actual values.
+    Create the file name for the song, by replacing template variables with the actual values.
+
+    ### Arguments
+    - song: the song object
+    - template: the template string
+    - file_extension: the file extension to use
+    - short: whether to use the short version of the template
+
+    ### Returns
+    - the formatted string as a Path object
     """
 
     # If template does not contain any of the keys,
@@ -197,7 +248,7 @@ def create_file_name(
     santitized_parts = []
     for part in file.parts:
         match = re.search(r"[^\.*](.*)[^\.*$]", part)
-        if match:
+        if match and part != ".spotdl":
             santitized_parts.append(match.group(0))
         else:
             santitized_parts.append(part)
@@ -220,6 +271,12 @@ def create_file_name(
 def parse_duration(duration: Optional[str]) -> float:
     """
     Convert string value of time (duration: "25:36:59") to a float value of seconds (92219.0)
+
+    ### Arguments
+    - duration: the string value of time
+
+    ### Returns
+    - the float value of seconds
     """
 
     if duration is None:
@@ -241,9 +298,19 @@ def to_ms(
 ) -> float:
     """
     Convert a string to milliseconds.
-    You can either pass a string, or a set of keyword args ("hour", "min", "sec", "ms") to convert.
-    If "precision" is set, the result is rounded to the number of decimals given.
-    From: https://gist.github.com/Hellowlol/5f8545e999259b4371c91ac223409209
+
+    ### Arguments
+    - string: the string to convert
+    - precision: the number of decimals to round to
+    - kwargs: the keyword args to convert
+
+    ### Returns
+    - the milliseconds
+
+    ### Notes
+    - You can either pass a string, or a set of keyword args ("hour", "min", "sec", "ms") to convert.
+    - If "precision" is set, the result is rounded to the number of decimals given.
+    - From: https://gist.github.com/Hellowlol/5f8545e999259b4371c91ac223409209
     """
 
     if string:
@@ -269,6 +336,15 @@ def to_ms(
 def restrict_filename(pathobj: Path) -> Path:
     """
     Sanitizes the filename part of a Path object. Returns modified object.
+
+    ### Arguments
+    - pathobj: the Path object to sanitize
+
+    ### Returns
+    - the modified Path object
+
+    ### Notes
+    - Based on the `sanitize_filename` function from yt-dlp
     """
 
     result = sanitize_filename(pathobj.name, True, False)
