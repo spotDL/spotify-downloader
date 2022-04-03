@@ -406,7 +406,7 @@ def web(settings: Dict[str, Any]):
 
     # Get web client from CDN (github for now)
     download_github_dir(
-        "https://github.com/phcreery/web-ui/tree/master/dist", output_dir=web_app_dir
+        "https://github.com/spotdl/web-ui/tree/master/dist", output_dir=web_app_dir
     )
 
     # Serve web client SPA
@@ -415,10 +415,9 @@ def web(settings: Dict[str, Any]):
     )
 
     loop = asyncio.new_event_loop()
+
     app.loop = loop
-
     app.settings = settings
-
     app.downloader = Downloader(
         audio_provider=settings["audio_provider"],
         lyrics_provider=settings["lyrics_provider"],
