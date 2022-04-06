@@ -206,7 +206,7 @@ class SongList:
         return len(self.songs)
 
     @classmethod
-    def create_basic_list(cls, url: str) -> "SongList":
+    def create_basic_list(cls, url: str):
         """
         Create a basic list with only the required metadata and urls.
 

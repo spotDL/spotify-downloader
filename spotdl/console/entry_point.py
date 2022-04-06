@@ -13,7 +13,7 @@ from spotdl.download import Downloader
 from spotdl.console.preload import preload
 from spotdl.console.download import download
 from spotdl.utils.config import DEFAULT_CONFIG, ConfigError, get_config
-from spotdl.utils.ffmpeg import download_ffmpeg, is_ffmpeg_installed
+from spotdl.utils.ffmpeg import FFmpegError, download_ffmpeg, is_ffmpeg_installed
 from spotdl.utils.config import get_config_file
 from spotdl.utils.github import check_for_updates
 from spotdl.utils.arguments import parse_arguments
@@ -90,6 +90,13 @@ def console_entry_point():
         else:
             settings[key] = config[key]
 
+    # Check if ffmpeg is installed
+    if is_ffmpeg_installed() is False:
+        raise FFmpegError(
+            "FFmpeg is not installed. Please run `spotdl --download-ffmpeg` to install it, "
+            "or `spotdl --ffmpeg /path/to/ffmpeg` to specify the path to ffmpeg."
+        )
+
     # Initialize spotify client
     SpotifyClient.init(
         client_id=settings["client_id"],
@@ -113,6 +120,12 @@ def console_entry_point():
         web(settings)
 
         return None
+
+    # Check if save file is present and if it's valid
+    if isinstance(settings["save_file"], str) and not settings["save_file"].endswith(
+        ".spotdl"
+    ):
+        raise DownloaderError("Save file has to end with .spotdl")
 
     # Don't log too much when running web ui
     if arguments.operation == "web":
@@ -151,10 +164,6 @@ def console_entry_point():
 
         signal.signal(signal.SIGINT, graceful_exit)
         signal.signal(signal.SIGTERM, graceful_exit)
-
-        if arguments.operation == "preload":
-            if not settings["save_file"].endswith(".spotdl"):
-                raise DownloaderError("Save file has to end with .spotdl")
 
         if arguments.operation == "download":
             download(arguments.query, downloader=downloader, m3u_file=settings["m3u"])

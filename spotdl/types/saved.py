@@ -79,7 +79,7 @@ class Saved(SongList):
         ]
 
     @classmethod
-    def create_basic_list(cls) -> "Saved":
+    def create_basic_list(cls, url: str = "saved") -> "Saved":
         """
         Create a basic list with only the required metadata and urls.
 
@@ -87,8 +87,8 @@ class Saved(SongList):
         - The Saved object.
         """
 
-        metadata = cls.get_metadata("saved")
-        urls = cls.get_urls("saved")
+        metadata = cls.get_metadata(url)
+        urls = cls.get_urls(url)
 
         return cls(**metadata, urls=urls, songs=[])
 

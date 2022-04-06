@@ -30,7 +30,7 @@ class Singleton(type):
 
     _instance = None
 
-    def __call__(self) -> "SpotifyClient":
+    def __call__(self):
         """
         Call method for Singleton metaclass.
 

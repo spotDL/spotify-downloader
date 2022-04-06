@@ -210,8 +210,8 @@ class Downloader:
                 self.progress_handler.error(error)
 
         if self.save_file:
-            with open(self.save_file, "w", encoding="utf-8") as f:
-                json.dump([song.json for song, _ in results], f, indent=4)
+            with open(self.save_file, "w", encoding="utf-8") as save_file:
+                json.dump([song.json for song, _ in results], save_file, indent=4)
 
         return results
 
