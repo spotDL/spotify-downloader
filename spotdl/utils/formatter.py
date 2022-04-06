@@ -5,6 +5,7 @@ and file names.
 """
 
 import re
+import warnings
 
 from typing import List, Optional
 from pathlib import Path
@@ -31,6 +32,7 @@ VARS = [
     "{publisher}",
     "{list-length}",
     "{list-position}",
+    "{list-name}",
     "{output-ext}",
 ]
 
@@ -258,6 +260,24 @@ def create_file_name(
 
     # Check if the file name length is greater than 255
     if len(file.name) > 255:
+        # If the file name length is greater than 255,
+        # and we are already using the short version of the template,
+        # fallback to default template
+        if short is True:
+            warnings.warn("`short` is True, but the file name is too long. Using the default template.")
+            return create_file_name(
+                song=song,
+                template="/{artist} - {title}.{output-ext}",
+                file_extension=file_extension,
+                short=short,
+            )
+
+        # This will probably never occur, but just in case
+        if short is True and template == "/{artist} - {title}.{output-ext}":
+            raise RecursionError(
+                f'\"{song.display_name} is too long to be shortened. File a bug report on GitHub'
+            )
+
         return create_file_name(
             song,
             template,
