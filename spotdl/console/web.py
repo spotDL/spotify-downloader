@@ -503,6 +503,10 @@ def change_settings(settings: SettingsModel) -> bool:
 
 
 class SPAStaticFiles(StaticFiles):
+    """
+    Override the static files to serve the index.html and other assets.
+    """
+
     async def get_response(self, path: str, scope: Scope) -> Response:
         """
         Serve static files from the SPA.
@@ -518,6 +522,7 @@ class SPAStaticFiles(StaticFiles):
         response = await super().get_response(path, scope)
         if response.status_code == 404:
             response = await super().get_response(".", scope)
+
         return response
 
 

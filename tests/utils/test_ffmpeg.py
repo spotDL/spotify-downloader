@@ -79,6 +79,10 @@ def test_download_ffmpeg(monkeypatch, tmp_path):
     """
 
     class MockResponse:
+        """
+        Mock response for requests.get.
+        """
+
         content = b"\0"
 
     monkeypatch.setattr(spotdl.utils.ffmpeg, "get_spotdl_path", lambda *_: tmp_path)

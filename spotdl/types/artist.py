@@ -99,6 +99,23 @@ class Artist(SongList):
 
         return urls
 
+    @classmethod
+    def create_basic_list(cls, url: str) -> "Artist":
+        """
+        Create a basic list with only the required metadata and urls.
+
+        ### Arguments
+        - url: The url of the list.
+
+        ### Returns
+        - The SongList object.
+        """
+
+        metadata = Artist.get_metadata(url)
+        urls = Artist.get_urls(url)
+
+        return cls(**metadata, urls=urls, songs=[], albums=[])
+
     @staticmethod
     def get_albums(url: str) -> List[str]:
         """

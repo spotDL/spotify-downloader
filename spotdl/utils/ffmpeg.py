@@ -398,78 +398,77 @@ def convert_sync(
     arguments.append(str(output_file.resolve()))
 
     # Run ffmpeg
-    process = subprocess.Popen(
+    with subprocess.Popen(
         [ffmpeg, *arguments],
         stdin=subprocess.PIPE,
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
         universal_newlines=False,
-    )
+    ) as process:
+        if not progress_handler:
+            # Wait for process to finish
+            proc_out = process.communicate()
 
-    if not progress_handler:
-        # Wait for process to finish
-        proc_out = process.communicate()
+            if process.returncode != 0:
+                # get version and build year
+                version = get_ffmpeg_version(ffmpeg)
+
+                # join stdout and stderr and decode to utf-8
+                message = b"".join(proc_out).decode("utf-8")
+
+                # return error dictionary
+                return False, {
+                    "error": message,
+                    "arguments": arguments,
+                    "ffmpeg": ffmpeg,
+                    "version": version[0],
+                    "build_year": version[1],
+                }
+
+            return True, None
+
+        progress_handler(0)
+
+        stderr_buffer = []
+        total_dur = None
+        stderr: str = ""
+        while True:
+            if process.stdout is None:
+                continue
+
+            stderr_line = (
+                process.stdout.readline().decode("utf-8", errors="replace").strip()
+            )
+
+            if stderr_line == "" and process.poll() is not None:
+                break
+
+            stderr_buffer.append(stderr_line.strip())
+
+            stderr = "\n".join(stderr_buffer)
+
+            total_dur_match = DUR_REGEX.search(stderr_line)
+            if total_dur is None and total_dur_match:
+                total_dur = to_ms(**total_dur_match.groupdict())  # type: ignore
+                continue
+            if total_dur:
+                progress_time = TIME_REGEX.search(stderr_line)
+                if progress_time:
+                    elapsed_time = to_ms(**progress_time.groupdict())  # type: ignore
+                    progress_handler(int(elapsed_time / total_dur * 100))  # type: ignore
 
         if process.returncode != 0:
             # get version and build year
             version = get_ffmpeg_version(ffmpeg)
 
-            # join stdout and stderr and decode to utf-8
-            message = b"".join(proc_out).decode("utf-8")
-
-            # return error dictionary
             return False, {
-                "error": message,
+                "error": stderr,
                 "arguments": arguments,
                 "ffmpeg": ffmpeg,
                 "version": version[0],
                 "build_year": version[1],
             }
 
+        progress_handler(100)
+
         return True, None
-
-    progress_handler(0)
-
-    stderr_buffer = []
-    total_dur = None
-    stderr: str = ""
-    while True:
-        if process.stdout is None:
-            continue
-
-        stderr_line = (
-            process.stdout.readline().decode("utf-8", errors="replace").strip()
-        )
-
-        if stderr_line == "" and process.poll() is not None:
-            break
-
-        stderr_buffer.append(stderr_line.strip())
-
-        stderr = "\n".join(stderr_buffer)
-
-        total_dur_match = DUR_REGEX.search(stderr_line)
-        if total_dur is None and total_dur_match:
-            total_dur = to_ms(**total_dur_match.groupdict())  # type: ignore
-            continue
-        if total_dur:
-            progress_time = TIME_REGEX.search(stderr_line)
-            if progress_time:
-                elapsed_time = to_ms(**progress_time.groupdict())  # type: ignore
-                progress_handler(int(elapsed_time / total_dur * 100))  # type: ignore
-
-    if process.returncode != 0:
-        # get version and build year
-        version = get_ffmpeg_version(ffmpeg)
-
-        return False, {
-            "error": stderr,
-            "arguments": arguments,
-            "ffmpeg": ffmpeg,
-            "version": version[0],
-            "build_year": version[1],
-        }
-
-    progress_handler(100)
-
-    return True, None

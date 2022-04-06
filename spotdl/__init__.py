@@ -1,3 +1,8 @@
+"""
+Init module for spotdl. This module contains the main entry point for spotdl.
+And Spotdl class
+"""
+
 import asyncio
 import concurrent.futures
 from pathlib import Path
@@ -7,11 +12,22 @@ from typing import List, Optional, Tuple
 from spotdl.utils.spotify import SpotifyClient
 from spotdl.console import console_entry_point
 from spotdl.download import Downloader
+from spotdl.utils.search import parse_query
 from spotdl.types import Song
 from spotdl._version import __version__
 
 
 class Spotdl:
+    """
+    Spotdl class, which simplifies the process of downloading songs from Spotify.
+
+    >>> from spotdl import Spotdl
+    >>> spotdl = Spotdl(client_id='your-client-id', client_secret='your-client-secret')
+    >>> songs = spotdl.search(['joji - test drive',
+    >>>     'https://open.spotify.com/track/4cOdK2wGLETKBW3PvgPWqT'])
+    >>> spotdl.download_songs(songs)
+    """
+
     def __init__(
         self,
         client_id: str,
@@ -39,7 +55,43 @@ class Spotdl:
         loop: Optional[asyncio.AbstractEventLoop] = None,
         restrict: bool = False,
         print_errors: bool = False,
+        sponsor_block: bool = False,
     ):
+        """
+        Initialize the Spotdl class
+
+        ### Arguments
+        - client_id: Spotify client id
+        - client_secret: Spotify client secret
+        - user_auth: If true, user will be prompted to authenticate
+        - cache_path: Path to cache directory
+        - no_cache: If true, no cache will be used
+        - headless: If true, no browser will be opened
+        - audio_provider: The audio provider to use.
+        - lyrics_provider: The lyrics provider to use.
+        - ffmpeg: The ffmpeg executable to use.
+        - variable_bitrate: The variable bitrate to use.
+        - constant_bitrate: The constant bitrate to use.
+        - ffmpeg_args: The ffmpeg arguments to use.
+        - output_format: The output format to use.
+        - threads: The number of threads to use.
+        - output: The output directory to use.
+        - save_file: The save file to use when saving/loading song metadata.
+        - overwrite: The overwrite mode to use (force/skip).
+        - cookie_file: The cookie file to use for yt-dlp.
+        - filter_results: Whether to filter results.
+        - search_query: The search query to use.
+        - log_level: The log level to use.
+        - simple_tui: Whether to use simple tui.
+        - loop: The event loop to use.
+        - restrict: Whether to restrict the filename to ASCII characters.
+        - print_errors: Whether to print errors on exit.
+        - sponsor_block: Whether to remove sponsor segments using sponsor block postprocessor.
+
+        ### Notes
+        - `search-query` uses the same format as `output`.
+        """
+
         # Initialize spotify client
         SpotifyClient.init(
             client_id=client_id,
@@ -71,11 +123,37 @@ class Spotdl:
             loop=loop,
             restrict=restrict,
             print_errors=print_errors,
+            sponsor_block=sponsor_block,
         )
+
+    def search(self, query: List[str]) -> List[Song]:
+        """
+        Search for songs.
+
+        ### Arguments
+        - query: List of search queries
+
+        ### Returns
+        - A list of Song objects
+
+        ### Notes
+        - query can be a list of song titles, urls, uris
+        """
+
+        return parse_query(query, self.downloader.threads)
 
     def get_download_urls(self, songs: List[Song]) -> List[Optional[str]]:
         """
         Get the download urls for a list of songs.
+
+        ### Arguments
+        - songs: List of Song objects
+
+        ### Returns
+        - A list of urls if successful.
+
+        ### Notes
+        - This function is multi-threaded.
         """
 
         urls = []
@@ -101,6 +179,12 @@ class Spotdl:
     def download(self, song: Song) -> Tuple[Song, Optional[Path]]:
         """
         Download and convert song to the output format.
+
+        ### Arguments
+        - song: Song object
+
+        ### Returns
+        - A tuple containing the song and the path to the downloaded file if successful.
         """
 
         return self.downloader.download_song(song)
@@ -108,6 +192,12 @@ class Spotdl:
     def download_songs(self, songs: List[Song]) -> List[Tuple[Song, Optional[Path]]]:
         """
         Download and convert songs to the output format.
+
+        ### Arguments
+        - songs: List of Song objects
+
+        ### Returns
+        - A list of tuples containing the song and the path to the downloaded file if successful.
         """
 
         return self.downloader.download_multiple_songs(songs)

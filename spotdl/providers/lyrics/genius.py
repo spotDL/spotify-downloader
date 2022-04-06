@@ -12,6 +12,10 @@ from spotdl.providers.lyrics.base import LyricsProvider
 
 
 class Genius(LyricsProvider):
+    """
+    Genius lyrics provider class.
+    """
+
     def get_lyrics(self, name: str, artists: List[str], **_) -> Optional[str]:
         """
         Try to get lyrics from genius

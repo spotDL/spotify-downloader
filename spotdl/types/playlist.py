@@ -18,6 +18,10 @@ class PlaylistError(Exception):
 
 @dataclass(frozen=True)
 class Playlist(SongList):
+    """
+    Playlist class for retrieving playlist data from Spotify.
+    """
+
     description: str
     author_url: str
     author_name: str

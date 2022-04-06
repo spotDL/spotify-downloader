@@ -17,6 +17,10 @@ class AudioProviderError(Exception):
 
 
 class YTDLLogger:
+    """
+    Custom YT-dlp logger.
+    """
+
     def debug(self, msg):  # pylint: disable=R0201
         """
         YTDL uses this to print debug messages.
@@ -37,6 +41,11 @@ class YTDLLogger:
 
 
 class AudioProvider:
+    """
+    Base class for all other providers. Provides some common functionality.
+    Handles the yt-dlp audio handler.
+    """
+
     def __init__(
         self,
         output_directory: str,
@@ -85,7 +94,7 @@ class AudioProvider:
             }
         )
 
-        if not hasattr(self, "name") or not self.name:  # type: ignore
+        if not hasattr(self, "name"):  # type: ignore
             raise NotImplementedError("Provider must have a name attribute.")
 
     def search(self, song: Song) -> Optional[str]:

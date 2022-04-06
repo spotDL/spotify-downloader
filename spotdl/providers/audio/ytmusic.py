@@ -18,6 +18,10 @@ from spotdl.utils.formatter import (
 
 
 class YouTubeMusic(AudioProvider):
+    """
+    YouTube Music audio provider class
+    """
+
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         """
         Initialize the YouTube Music API

@@ -83,6 +83,10 @@ class ProgressHandlerError(Exception):
 
 
 class SizedTextColumn(ProgressColumn):
+    """
+    Custom sized text column based on the Rich library.
+    """
+
     def __init__(
         self,
         text_format: str,
@@ -139,6 +143,10 @@ class SizedTextColumn(ProgressColumn):
 
 
 class ProgressHandler:
+    """
+    Class for handing the progress of a download, including the progress bar.
+    """
+
     def __init__(
         self,
         log_level: int = INFO,
@@ -365,6 +373,10 @@ class ProgressHandler:
 
 
 class SongTracker:
+    """
+    Class to track the progress of a song.
+    """
+
     def __init__(self, parent, song: Song) -> None:
         """
         Initialize the Tui Song Tracker.

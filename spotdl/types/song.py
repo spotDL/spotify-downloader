@@ -189,6 +189,10 @@ class Song:
 
 @dataclass(frozen=True)
 class SongList:
+    """
+    SongList class. Base class for all other song lists subclasses.
+    """
+
     name: str
     url: str
     urls: List[str]

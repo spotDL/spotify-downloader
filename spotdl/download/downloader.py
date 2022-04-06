@@ -56,6 +56,11 @@ class DownloaderError(Exception):
 
 
 class Downloader:
+    """
+    Downloader class, this is where all the downloading pre/post processing happens etc.
+    It handles the downloading/moving songs, multthreading, metadata embedding etc.
+    """
+
     def __init__(
         self,
         audio_provider: str = "youtube-music",
@@ -107,6 +112,7 @@ class Downloader:
         ### Notes
         - `search-query` uses the same format as `output`.
         """
+
         audio_provider_class = AUDIO_PROVIDERS.get(audio_provider)
         if audio_provider_class is None:
             raise DownloaderError(f"Invalid audio provider: {audio_provider}")

@@ -17,16 +17,20 @@ class SavedError(Exception):
 
 @dataclass(frozen=True)
 class Saved(SongList):
+    """
+    Saved class for handling the saved tracks from user library.
+    """
+
     @classmethod
-    def load(cls):
+    def from_url(cls, url: str = "saved") -> "Saved":
         """
         Loads saved tracks from Spotify.
         Will throw an exception if users is not logged in.
         """
 
-        metadata = Saved.get_metadata("saved")
+        metadata = Saved.get_metadata(url)
 
-        urls = cls.get_urls("saved")
+        urls = cls.get_urls(url)
 
         # Remove songs without id
         # and create Song objects

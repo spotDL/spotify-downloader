@@ -6,9 +6,13 @@ from typing import List, Optional
 
 
 class LyricsProvider:
+    """
+    Base class for all other lyrics providers.
+    """
+
     def __init__(self):
         """
-        Base class for all lyrics providers
+        Init the lyrics provider class and set headers.
         """
 
         self.headers = {

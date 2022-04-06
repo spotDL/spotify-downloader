@@ -17,6 +17,10 @@ class AlbumError(Exception):
 
 @dataclass(frozen=True)
 class Album(SongList):
+    """
+    Album class for retrieving album data from Spotify.
+    """
+
     artist: Dict[str, Any]
 
     @classmethod

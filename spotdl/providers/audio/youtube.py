@@ -14,6 +14,10 @@ from spotdl.types import Song
 
 
 class YouTube(AudioProvider):
+    """
+    YouTube audio provider class
+    """
+
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         """
         Initialize YouTube provider
@@ -81,7 +85,9 @@ class YouTube(AudioProvider):
         return sorted_results[0][0]
 
     @staticmethod
-    def get_results(search_term: str, **_) -> Optional[List[PyTube]]:
+    def get_results(
+        search_term: str,
+    ) -> Optional[List[PyTube]]:  # pylint: disable=W0221
         """
         Get results from YouTube
 
@@ -91,6 +97,7 @@ class YouTube(AudioProvider):
         ### Returns
         - A list of YouTube results if found, None otherwise.
         """
+
         return Search(search_term).results
 
     def order_results(self, results: List[PyTube], song: Song) -> Dict[str, Any]:

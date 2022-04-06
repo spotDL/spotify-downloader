@@ -13,6 +13,10 @@ from spotdl.providers.lyrics.base import LyricsProvider
 
 
 class MusixMatch(LyricsProvider):
+    """
+    MusixMatch lyrics provider class.
+    """
+
     def get_lyrics(self, name: str, artists: List[str], **kwargs) -> Optional[str]:
         """
         Try to get lyrics from musixmatch
