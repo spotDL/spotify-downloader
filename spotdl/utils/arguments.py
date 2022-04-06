@@ -118,14 +118,18 @@ def parse_main_options(parser: _ArgumentGroup):
     parser.add_argument(
         "--config",
         action="store_true",
-        help="Use the config file to download songs.",
+        help=(
+            "Use the config file to download songs. "
+            "It's located under `C:\\Users\\user\\.spotdl\\config.json` "
+            "or `~/.spotdl/config.json` under linux"
+        ),
     )
 
     # Add search query argument
     parser.add_argument(
         "--search-query",
         default=DEFAULT_CONFIG["search_query"],
-        help="The search query to use.",
+        help=f"The search query to use, available variables: {', '.join(VARS)}",
     )
 
     # Add don't filter results argument
@@ -287,7 +291,7 @@ def parse_output_options(parser: _ArgumentGroup):
         "--output",
         type=str,
         default=DEFAULT_CONFIG["output"],
-        help=f"Specify the downloaded file name format, available variables are: {', '.join(VARS)}",
+        help=f"Specify the downloaded file name format, available variables: {', '.join(VARS)}",
     )
 
     # Add m3u argument
