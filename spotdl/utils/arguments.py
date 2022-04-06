@@ -10,6 +10,7 @@ from spotdl import _version
 from spotdl.download.progress_handler import NAME_TO_LEVEL
 from spotdl.utils.ffmpeg import FFMPEG_FORMATS
 from spotdl.utils.config import DEFAULT_CONFIG
+from spotdl.utils.formatter import VARS
 from spotdl.download.downloader import (
     AUDIO_PROVIDERS,
     LYRICS_PROVIDERS,
@@ -286,7 +287,7 @@ def parse_output_options(parser: _ArgumentGroup):
         "--output",
         type=str,
         default=DEFAULT_CONFIG["output"],
-        help="Specify the downloaded file name format.",
+        help=f"Specify the downloaded file name format, available variables are: {', '.join(VARS)}",
     )
 
     # Add m3u argument

@@ -209,6 +209,10 @@ class Downloader:
             for error in self.errors:
                 self.progress_handler.error(error)
 
+        if self.save_file:
+            with open(self.save_file, "w", encoding="utf-8") as f:
+                json.dump([song.json for song, _ in results], f, indent=4)
+
         return results
 
     async def pool_download(self, song: Song) -> Tuple[Song, Optional[Path]]:
