@@ -163,7 +163,7 @@ class Spotdl:
         - This function is multi-threaded.
         """
 
-        urls = []
+        urls: List[Optional[str]] = []
         with concurrent.futures.ThreadPoolExecutor(
             max_workers=self.downloader.threads
         ) as executor:
@@ -173,7 +173,7 @@ class Spotdl:
             for future in concurrent.futures.as_completed(future_to_song):
                 song = future_to_song[future]
                 try:
-                    data = future.result()
+                    data, _ = future.result()
                     urls.append(data)
                 except Exception as exc:
                     self.downloader.progress_handler.error(

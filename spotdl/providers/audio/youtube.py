@@ -74,7 +74,7 @@ class YouTube(AudioProvider):
 
     @staticmethod
     def get_results(
-        search_term: str,
+        search_term: str, **_
     ) -> Optional[List[PyTube]]:  # pylint: disable=W0221
         """
         Get results from YouTube
