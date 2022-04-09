@@ -5,6 +5,7 @@ And Spotdl class
 
 import asyncio
 import concurrent.futures
+
 from pathlib import Path
 
 from typing import List, Optional, Tuple
@@ -36,8 +37,8 @@ class Spotdl:
         cache_path: Optional[str] = None,
         no_cache: bool = False,
         headless: bool = False,
-        audio_provider: str = "youtube-music",
-        lyrics_provider: str = "musixmatch",
+        audio_providers: Optional[List[str]] = None,
+        lyrics_providers: Optional[List[str]] = None,
         ffmpeg: str = "ffmpeg",
         variable_bitrate: Optional[str] = None,
         constant_bitrate: Optional[str] = None,
@@ -67,8 +68,8 @@ class Spotdl:
         - cache_path: Path to cache directory
         - no_cache: If true, no cache will be used
         - headless: If true, no browser will be opened
-        - audio_provider: The audio provider to use.
-        - lyrics_provider: The lyrics provider to use.
+        - audio_providers: The audio providers to use.
+        - lyrics_providers: The lyrics providers to use.
         - ffmpeg: The ffmpeg executable to use.
         - variable_bitrate: The variable bitrate to use.
         - constant_bitrate: The constant bitrate to use.
@@ -92,6 +93,12 @@ class Spotdl:
         - `search-query` uses the same format as `output`.
         """
 
+        if audio_providers is None:
+            audio_providers = ["youtube-music"]
+
+        if lyrics_providers is None:
+            lyrics_providers = ["musixmatch"]
+
         # Initialize spotify client
         SpotifyClient.init(
             client_id=client_id,
@@ -104,9 +111,9 @@ class Spotdl:
 
         # Initialize downloader
         self.downloader = Downloader(
-            audio_provider=audio_provider,
+            audio_providers=audio_providers,
+            lyrics_providers=lyrics_providers,
             search_query=search_query,
-            lyrics_provider=lyrics_provider,
             ffmpeg=ffmpeg,
             variable_bitrate=variable_bitrate,
             constant_bitrate=constant_bitrate,
@@ -161,8 +168,7 @@ class Spotdl:
             max_workers=self.downloader.threads
         ) as executor:
             future_to_song = {
-                executor.submit(self.downloader.audio_provider.search, song): song
-                for song in songs
+                executor.submit(self.downloader.search, song): song for song in songs
             }
             for future in concurrent.futures.as_completed(future_to_song):
                 song = future_to_song[future]

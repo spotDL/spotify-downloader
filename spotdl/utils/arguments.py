@@ -99,19 +99,21 @@ def parse_main_options(parser: _ArgumentGroup):
     # Audio provider argument
     parser.add_argument(
         "--audio",
-        dest="audio_provider",
-        choices=AUDIO_PROVIDERS.keys(),
-        default=DEFAULT_CONFIG["audio_provider"],
-        help="The audio provider to use.",
+        dest="audio_providers",
+        nargs="*",
+        choices=AUDIO_PROVIDERS,
+        default=DEFAULT_CONFIG["audio_providers"],
+        help="The audio provider to use. You can provide more than one for fallback.",
     )
 
     # Lyrics provider argument
     parser.add_argument(
         "--lyrics",
-        dest="lyrics_provider",
+        dest="lyrics_providers",
+        nargs="*",
         choices=LYRICS_PROVIDERS.keys(),
-        default=DEFAULT_CONFIG["lyrics_provider"],
-        help="The lyrics provider to use.",
+        default=DEFAULT_CONFIG["lyrics_providers"],
+        help="The lyrics provider to use. You can provide more than one for fallback.",
     )
 
     # Add config argument

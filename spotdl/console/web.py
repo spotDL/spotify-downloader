@@ -483,8 +483,8 @@ def change_settings(settings: SettingsModel) -> bool:
 
     # Re-initialize downloader
     app.downloader = Downloader(
-        audio_provider=settings_cpy["audio_provider"],
-        lyrics_provider=settings_cpy["lyrics_provider"],
+        audio_providers=settings_cpy["audio_providers"],
+        lyrics_providers=settings_cpy["lyrics_providers"],
         ffmpeg=settings_cpy["ffmpeg"],
         variable_bitrate=settings_cpy["variable_bitrate"],
         constant_bitrate=settings_cpy["constant_bitrate"],
@@ -553,8 +553,8 @@ def web(settings: Dict[str, Any]):
     app.loop = loop
     app.settings = settings
     app.downloader = Downloader(
-        audio_provider=settings["audio_provider"],
-        lyrics_provider=settings["lyrics_provider"],
+        audio_providers=settings["audio_providers"],
+        lyrics_providers=settings["lyrics_providers"],
         ffmpeg=settings["ffmpeg"],
         variable_bitrate=settings["variable_bitrate"],
         constant_bitrate=settings["constant_bitrate"],

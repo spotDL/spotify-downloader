@@ -1,14 +1,11 @@
-import os
 import pytest
 
 from spotipy.oauth2 import SpotifyOauthError
 from types import SimpleNamespace
-from tests.conftest import new_initialize
 
 from spotdl import Spotdl
 from spotdl.types.song import Song
 from spotdl.utils.config import DEFAULT_CONFIG
-from spotdl.utils.spotify import SpotifyClient
 import spotdl.utils.config
 
 
@@ -47,8 +44,8 @@ def test_get_urls():
         cache_path=DEFAULT_CONFIG["cache_path"],
         no_cache=DEFAULT_CONFIG["no_cache"],
         headless=DEFAULT_CONFIG["headless"],
-        audio_provider=DEFAULT_CONFIG["audio_provider"],
-        lyrics_provider=DEFAULT_CONFIG["lyrics_provider"],
+        audio_providers=DEFAULT_CONFIG["audio_providers"],
+        lyrics_providers=DEFAULT_CONFIG["lyrics_providers"],
         ffmpeg=DEFAULT_CONFIG["ffmpeg"],
         variable_bitrate=DEFAULT_CONFIG["variable_bitrate"],
         constant_bitrate=DEFAULT_CONFIG["constant_bitrate"],

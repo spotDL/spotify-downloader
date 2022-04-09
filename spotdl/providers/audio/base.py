@@ -2,8 +2,7 @@
 Base audio provider module.
 """
 
-from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Dict, Optional
 
 from yt_dlp import YoutubeDL
 
@@ -48,7 +47,6 @@ class AudioProvider:
 
     def __init__(
         self,
-        output_directory: str,
         output_format: str = "mp3",
         cookie_file: Optional[str] = None,
         search_query: str = "{artists} - {title}",
@@ -69,8 +67,6 @@ class AudioProvider:
         """
 
         self.output_format = output_format
-        self.output_directory = Path(output_directory)
-        self.progress_hooks: List[Any] = []
         self.cookie_file = cookie_file
         self.search_query = search_query
         self.filter_results = filter_results
@@ -85,7 +81,6 @@ class AudioProvider:
         self.audio_handler = YoutubeDL(
             {
                 "format": ytdl_format,
-                "outtmpl": f"{str(self.output_directory)}/%(id)s.%(ext)s",
                 "quiet": True,
                 "no_warnings": True,
                 "encoding": "UTF-8",
@@ -93,9 +88,6 @@ class AudioProvider:
                 "cookiefile": self.cookie_file,
             }
         )
-
-        if not hasattr(self, "name"):  # type: ignore
-            raise NotImplementedError("Provider must have a name attribute.")
 
     def search(self, song: Song) -> Optional[str]:
         """

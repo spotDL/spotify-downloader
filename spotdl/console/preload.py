@@ -4,18 +4,18 @@ Preload module for the console.
 
 import json
 import concurrent.futures
+from pathlib import Path
 
 from typing import List
 
 from spotdl.download.downloader import Downloader
-from spotdl.providers.audio.base import AudioProvider
 from spotdl.utils.search import parse_query
 
 
 def preload(
     query: List[str],
     downloader: Downloader,
-    save_path: str,
+    save_path: Path,
 ) -> None:
     """
     Use audio provider to find the download links for the songs
@@ -33,26 +33,17 @@ def preload(
     # Parse the query
     songs = parse_query(query, downloader.threads)
 
-    # Initialize the audio provider
-    audio_provider: AudioProvider = downloader.audio_provider_class(
-        output_directory=downloader.temp_directory,
-        output_format=downloader.output_format,
-        cookie_file=downloader.cookie_file,
-        search_query=downloader.search_query,
-        filter_results=downloader.filter_results,
-    )
-
     save_data = []
     with concurrent.futures.ThreadPoolExecutor(
         max_workers=downloader.threads
     ) as executor:
         future_to_song = {
-            executor.submit(audio_provider.search, song): song for song in songs
+            executor.submit(downloader.search, song): song for song in songs
         }
         for future in concurrent.futures.as_completed(future_to_song):
             song = future_to_song[future]
             try:
-                data = future.result()
+                data, _ = future.result()
                 if data is None:
                     downloader.progress_handler.error(
                         f"Could not find a match for {song.display_name}"

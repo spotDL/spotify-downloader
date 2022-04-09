@@ -31,7 +31,6 @@ class YouTubeMusic(AudioProvider):
         - kwargs: Keyword arguments passed to the `AudioProvider` class.
         """
 
-        self.name = "youtube-music"
         super().__init__(*args, **kwargs)
         self.client = YTMusic()
 

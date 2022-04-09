@@ -101,7 +101,7 @@ class Singleton(type):
         self.user_auth = user_auth
 
         # Create instance
-        self._instance = super().__call__(self, auth_manager=credential_manager)
+        self._instance = super().__call__(auth_manager=credential_manager)
 
         # Return instance
         return self._instance

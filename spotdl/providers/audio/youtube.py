@@ -18,18 +18,6 @@ class YouTube(AudioProvider):
     YouTube audio provider class
     """
 
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        """
-        Initialize YouTube provider
-
-        ### Arguments
-        - args: Arguments passed to the `AudioProvider` class.
-        - kwargs: Keyword arguments passed to the `AudioProvider` class.
-        """
-
-        self.name = "youtube"
-        super().__init__(*args, **kwargs)
-
     def search(self, song: Song) -> Optional[str]:
         """
         Search for a video on YouTube.

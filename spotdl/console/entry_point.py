@@ -138,8 +138,8 @@ def console_entry_point():
         # Initialize the downloader
         # for download, load and preload operations
         downloader = Downloader(
-            audio_provider=settings["audio_provider"],
-            lyrics_provider=settings["lyrics_provider"],
+            audio_providers=settings["audio_providers"],
+            lyrics_providers=settings["lyrics_providers"],
             ffmpeg=settings["ffmpeg"],
             variable_bitrate=settings["variable_bitrate"],
             constant_bitrate=settings["constant_bitrate"],

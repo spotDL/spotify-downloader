@@ -10,7 +10,7 @@ import concurrent.futures
 import traceback
 
 from pathlib import Path
-from typing import List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple, Type
 
 from yt_dlp.postprocessor.sponsorblock import SponsorBlockPP
 
@@ -23,15 +23,15 @@ from spotdl.providers.lyrics import Genius, MusixMatch, AzLyrics
 from spotdl.providers.lyrics.base import LyricsProvider
 from spotdl.providers.audio import YouTube, YouTubeMusic
 from spotdl.download.progress_handler import NAME_TO_LEVEL, ProgressHandler
-from spotdl.utils.config import get_errors_path, get_temp_path
+from spotdl.utils.config import get_errors_path
 
 
-AUDIO_PROVIDERS = {
+AUDIO_PROVIDERS: Dict[str, Type[AudioProvider]] = {
     "youtube": YouTube,
     "youtube-music": YouTubeMusic,
 }
 
-LYRICS_PROVIDERS = {
+LYRICS_PROVIDERS: Dict[str, Type[LyricsProvider]] = {
     "genius": Genius,
     "musixmatch": MusixMatch,
     "azlyrics": AzLyrics,
@@ -63,8 +63,8 @@ class Downloader:
 
     def __init__(
         self,
-        audio_provider: str = "youtube-music",
-        lyrics_provider: str = "musixmatch",
+        audio_providers: Optional[List[str]] = None,
+        lyrics_providers: Optional[List[str]] = None,
         ffmpeg: str = "ffmpeg",
         variable_bitrate: Optional[str] = None,
         constant_bitrate: Optional[str] = None,
@@ -88,8 +88,8 @@ class Downloader:
         Initialize the Downloader class.
 
         ### Arguments
-        - audio_provider: The audio provider to use.
-        - lyrics_provider: The lyrics provider to use.
+        - audio_provider: Audio providers to use.
+        - lyrics_provider: The lyrics providers to use.
         - ffmpeg: The ffmpeg executable to use.
         - variable_bitrate: The variable bitrate to use.
         - constant_bitrate: The constant bitrate to use.
@@ -111,19 +111,32 @@ class Downloader:
 
         ### Notes
         - `search-query` uses the same format as `output`.
+        - if `audio_provider` or `lyrics_provider` is a list, then if no match is found,
+            the next provider in the list will be used.
         """
 
-        audio_provider_class = AUDIO_PROVIDERS.get(audio_provider)
-        if audio_provider_class is None:
-            raise DownloaderError(f"Invalid audio provider: {audio_provider}")
+        if audio_providers is None:
+            audio_providers = ["youtube-music"]
 
-        lyrics_provider_class = LYRICS_PROVIDERS.get(lyrics_provider)
-        if lyrics_provider_class is None:
-            raise DownloaderError(f"Invalid lyrics provider: {lyrics_provider}")
+        if lyrics_providers is None:
+            lyrics_providers = ["musixmatch"]
 
-        self.temp_directory = get_temp_path()
-        if self.temp_directory.exists() is False:
-            self.temp_directory.mkdir()
+        audio_providers_classes: List[Type[AudioProvider]] = []
+        lyrics_providers_classes: List[Type[LyricsProvider]] = []
+
+        for provider in audio_providers:
+            new_audio_provider = AUDIO_PROVIDERS.get(provider)
+            if new_audio_provider is None:
+                raise DownloaderError(f"Invalid audio provider: {provider}")
+
+            audio_providers_classes.append(new_audio_provider)
+
+        for provider in lyrics_providers:
+            new_lyrics_provider = LYRICS_PROVIDERS.get(provider)
+            if new_lyrics_provider is None:
+                raise DownloaderError(f"Invalid lyrics provider: {provider}")
+
+            lyrics_providers_classes.append(new_lyrics_provider)
 
         if loop is None:
             if sys.platform == "win32":
@@ -151,9 +164,6 @@ class Downloader:
         self.overwrite = overwrite
         self.search_query = search_query
         self.filter_results = filter_results
-        self.audio_provider_name = audio_provider
-        self.lyrics_provider_name = lyrics_provider
-        self.audio_provider_class = audio_provider_class
         self.ffmpeg = ffmpeg
         self.variable_bitrate = variable_bitrate
         self.constant_bitrate = constant_bitrate
@@ -162,15 +172,22 @@ class Downloader:
         self.print_errors = print_errors
         self.errors: List[str] = []
         self.sponsor_block = sponsor_block
-        self.lyrics_provider: LyricsProvider = lyrics_provider_class()
         self.progress_handler = ProgressHandler(NAME_TO_LEVEL[log_level], simple_tui)
-        self.audio_provider: AudioProvider = self.audio_provider_class(
-            output_directory=self.temp_directory,
-            output_format=self.output_format,
-            cookie_file=self.cookie_file,
-            search_query=self.search_query,
-            filter_results=self.filter_results,
-        )
+
+        self.audio_providers: List[AudioProvider] = []
+        for audio_provider_class in audio_providers_classes:
+            self.audio_providers.append(
+                audio_provider_class(
+                    output_format=self.output_format,
+                    cookie_file=self.cookie_file,
+                    search_query=self.search_query,
+                    filter_results=self.filter_results,
+                )
+            )
+
+        self.lyrics_providers: List[LyricsProvider] = []
+        for lyrics_provider_class in lyrics_providers_classes:
+            self.lyrics_providers.append(lyrics_provider_class())
 
         self.progress_handler.debug("Downloader initialized")
 
@@ -246,6 +263,58 @@ class Downloader:
                 self.thread_executor, self.search_and_download, song
             )
 
+    def search(self, song: Song) -> Tuple[str, AudioProvider]:
+        """
+        Search for a song using all available providers.
+
+        ### Arguments
+        - song: The song to search for.
+
+        ### Returns
+        - tuple with download url and audio provider if successful.
+        """
+
+        for audio_provider in self.audio_providers:
+            url = audio_provider.search(song)
+            if url:
+                self.progress_handler.debug(
+                    f"Found {song.display_name} by {song.artist} on "
+                    f"{audio_provider.__class__.__name__}"
+                )
+                return url, audio_provider
+
+            self.progress_handler.debug(
+                f"{audio_provider.__class__.__name__} failed to find {song.display_name}"
+            )
+
+        raise LookupError(f"No results found for song: {song.display_name}")
+
+    def search_lyrics(self, song: Song) -> str:
+        """
+        Search for lyrics using all available providers.
+
+        ### Arguments
+        - song: The song to search for.
+
+        ### Returns
+        - lyrics if successful.
+        """
+
+        for lyrics_provider in self.lyrics_providers:
+            lyrics = lyrics_provider.get_lyrics(song.name, song.artists)
+            if lyrics:
+                self.progress_handler.debug(
+                    f"Found lyrics for {song.display_name} on {lyrics_provider.__class__.__name__}"
+                )
+                return lyrics
+
+            self.progress_handler.debug(
+                f"{lyrics_provider.__class__.__name__} failed to find lyrics "
+                f"for {song.display_name}"
+            )
+
+        raise LookupError(f"No lyrics found for song: {song.display_name}")
+
     def search_and_download(self, song: Song) -> Tuple[Song, Optional[Path]]:
         """
         Search for the song and download it.
@@ -296,18 +365,19 @@ class Downloader:
         output_file.parent.mkdir(parents=True, exist_ok=True)
 
         try:
-            # Search for the download url if it's none
             if song.download_url is None:
-                url = self.audio_provider.search(song)
-                if url is None:
-                    raise LookupError(
-                        f"No results found for song: {song.name} - {song.artist}"
-                    )
+                url, audio_provider = self.search(song)
             else:
                 url = song.download_url
+                audio_provider = AudioProvider(
+                    output_format=self.output_format,
+                    cookie_file=self.cookie_file,
+                    search_query=self.search_query,
+                    filter_results=self.filter_results,
+                )
 
             # Get the download metadata using yt-dlp
-            download_info = self.audio_provider.get_download_metadata(url)
+            download_info = audio_provider.get_download_metadata(url)
 
             if download_info is None:
                 self.progress_handler.debug(
@@ -319,12 +389,12 @@ class Downloader:
 
             self.progress_handler.debug(
                 f"Downloading {song.display_name} using {url}, "
-                f"actual url: {download_info['url']}, format: {download_info['format']}"
+                f"audio provider: {audio_provider.__class__.__name__}"
             )
 
             if self.sponsor_block:
                 post_processor = SponsorBlockPP(
-                    self.audio_provider.audio_handler, SPONSOR_BLOCK_CATEGORIES
+                    audio_provider.audio_handler, SPONSOR_BLOCK_CATEGORIES
                 )
                 _, download_info = post_processor.run(download_info)
                 chapters = download_info["sponsorblock_chapters"]
@@ -379,9 +449,14 @@ class Downloader:
 
             display_progress_tracker.notify_download_complete()
 
-            lyrics = self.lyrics_provider.get_lyrics(song.name, song.artists) or ""
-            if not lyrics:
-                self.progress_handler.debug(f"No lyrics found for {song.display_name}")
+            try:
+                lyrics = self.search_lyrics(song)
+            except LookupError:
+                self.progress_handler.debug(
+                    f"No lyrics found for {song.display_name}, "
+                    f"lyrics providers: {self.lyrics_providers}"
+                )
+                lyrics = ""
 
             try:
                 embed_metadata(output_file, song, self.output_format, lyrics)

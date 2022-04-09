@@ -12,7 +12,7 @@ class LyricsProvider:
 
     def __init__(self):
         """
-        Init the lyrics provider class and set headers.
+        Init the lyrics provider searchand set headers.
         """
 
         self.headers = {
