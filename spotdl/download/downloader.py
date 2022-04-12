@@ -398,7 +398,6 @@ class Downloader:
                 )
                 _, download_info = post_processor.run(download_info)
                 chapters = download_info["sponsorblock_chapters"]
-                chapters.reverse()
                 if len(chapters) > 0:
                     self.progress_handler.debug(
                         f"Found {len(chapters)} SponsorBlock chapters for {song.display_name}"
