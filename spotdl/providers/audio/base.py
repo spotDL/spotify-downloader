@@ -147,3 +147,14 @@ class AudioProvider:
             return data
 
         raise AudioProviderError(f"No metadata found for the provided url {url}")
+
+    @property
+    def name(self) -> str:
+        """
+        Get the name of the provider.
+
+        ### Returns
+        - The name of the provider.
+        """
+
+        return self.__class__.__name__

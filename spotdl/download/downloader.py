@@ -279,12 +279,12 @@ class Downloader:
             if url:
                 self.progress_handler.debug(
                     f"Found {song.display_name} by {song.artist} on "
-                    f"{audio_provider.__class__.__name__}"
+                    f"{audio_provider.name}"
                 )
                 return url, audio_provider
 
             self.progress_handler.debug(
-                f"{audio_provider.__class__.__name__} failed to find {song.display_name}"
+                f"{audio_provider.name} failed to find {song.display_name}"
             )
 
         raise LookupError(f"No results found for song: {song.display_name}")
@@ -304,12 +304,12 @@ class Downloader:
             lyrics = lyrics_provider.get_lyrics(song.name, song.artists)
             if lyrics:
                 self.progress_handler.debug(
-                    f"Found lyrics for {song.display_name} on {lyrics_provider.__class__.__name__}"
+                    f"Found lyrics for {song.display_name} on {lyrics_provider.name}"
                 )
                 return lyrics
 
             self.progress_handler.debug(
-                f"{lyrics_provider.__class__.__name__} failed to find lyrics "
+                f"{lyrics_provider.name} failed to find lyrics "
                 f"for {song.display_name}"
             )
 
@@ -389,7 +389,7 @@ class Downloader:
 
             self.progress_handler.debug(
                 f"Downloading {song.display_name} using {url}, "
-                f"audio provider: {audio_provider.__class__.__name__}"
+                f"audio provider: {audio_provider.name}"
             )
 
             if self.sponsor_block:
@@ -398,18 +398,19 @@ class Downloader:
                 )
                 _, download_info = post_processor.run(download_info)
                 chapters = download_info["sponsorblock_chapters"]
+                chapters.reverse()
                 if len(chapters) > 0:
                     self.progress_handler.debug(
                         f"Found {len(chapters)} SponsorBlock chapters for {song.display_name}"
                     )
-                    self.progress_handler.debug(f"Chapters: {chapters}")
-                    skip_args = ""
-                    for chapter in chapters:
-                        skip_args += (
-                            f"""-af "aselect='not(between(t, {chapter["start_time"]},"""
-                            f''' {chapter["end_time"]}))', asetpts=N/SR/TB"'''
-                        )
+                    skip_args = '-af "'
 
+                    skip_args += ",".join(
+                        f"""aselect='not(between(t, {chapter["start_time"]},{chapter["end_time"]}))'"""
+                        for chapter in chapters
+                    )
+
+                    skip_args += ', asetpts=N/SR/TB"'
                     if self.ffmpeg_args is None:
                         self.ffmpeg_args = skip_args
                     else:
@@ -454,7 +455,8 @@ class Downloader:
             except LookupError:
                 self.progress_handler.debug(
                     f"No lyrics found for {song.display_name}, "
-                    f"lyrics providers: {self.lyrics_providers}"
+                    "lyrics providers: "
+                    f"{', '.join([lprovider.name for lprovider in self.lyrics_providers])}"
                 )
                 lyrics = ""
 

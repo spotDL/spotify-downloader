@@ -43,3 +43,11 @@ class LyricsProvider:
         """
 
         raise NotImplementedError
+
+    @property
+    def name(self) -> str:
+        """
+        Returns the name of the lyrics provider.
+        """
+
+        return self.__class__.__name__
