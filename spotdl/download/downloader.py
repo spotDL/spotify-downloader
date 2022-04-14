@@ -405,7 +405,7 @@ class Downloader:
                     skip_args = '-af "'
 
                     skip_args += ",".join(
-                        f"""aselect='not(between(t, {chapter["start_time"]},{chapter["end_time"]}))'"""
+                        f"""aselect='not(between(t, {chapter["start_time"]},{chapter["end_time"]}))'"""  # pylint: disable=line-too-long
                         for chapter in chapters
                     )
 

@@ -30,7 +30,7 @@ class Singleton(type):
 
     _instance = None
 
-    def __call__(self):
+    def __call__(self):  # pylint: disable=bad-mcs-method-argument
         """
         Call method for Singleton metaclass.
 
@@ -45,7 +45,7 @@ class Singleton(type):
             )
         return self._instance
 
-    def init(
+    def init(  # pylint: disable=bad-mcs-method-argument
         self,
         client_id: str,
         client_secret: str,
@@ -101,7 +101,10 @@ class Singleton(type):
         self.user_auth = user_auth
 
         # Create instance
-        self._instance = super().__call__(auth_manager=credential_manager, status_forcelist=(429, 500, 502, 503, 504, 404))
+        self._instance = super().__call__(
+            auth_manager=credential_manager,
+            status_forcelist=(429, 500, 502, 503, 504, 404),
+        )
 
         # Return instance
         return self._instance
