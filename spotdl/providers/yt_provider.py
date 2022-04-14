@@ -117,7 +117,9 @@ def _order_yt_results(
             if _match_percentage(
                 str(unidecode(artist.lower())), str(unidecode(result.title).lower()), 85
             ) or _match_percentage(
-                str(unidecode(artist.lower())), str(unidecode(result.author).lower()), 85
+                str(unidecode(artist.lower())),
+                str(unidecode(result.author).lower()),
+                85,
             ):
                 artist_match_number += 1
 
@@ -133,13 +135,16 @@ def _order_yt_results(
             max(
                 # case where artist is included in title
                 _match_percentage(
-                    str(unidecode(song_title.lower())), str(unidecode(result.title.lower())), 60
+                    str(unidecode(song_title.lower())),
+                    str(unidecode(result.title.lower())),
+                    60,
                 ),
-
                 # case where artist is author and video title is only the track name
                 _match_percentage(
-                    str(unidecode(song_name.lower())), str(unidecode(result.title.lower())), 60
-                )
+                    str(unidecode(song_name.lower())),
+                    str(unidecode(result.title.lower())),
+                    60,
+                ),
             ),
             ndigits=3,
         )
@@ -156,7 +161,7 @@ def _order_yt_results(
         # ! seconds, we need to amplify the delta if it is to have any meaningful impact
         # ! wen we calculate the avg match value
         delta = result.length - song_duration  # ! check this
-        non_match_value = (delta ** 2) / song_duration * 100
+        non_match_value = (delta**2) / song_duration * 100
 
         time_match = 100 - non_match_value
 

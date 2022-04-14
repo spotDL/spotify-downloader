@@ -60,14 +60,18 @@ def from_spotify_url(
     )
 
     # Ensure file name doesnt contain forbidden characters
-    filesystem_display_name = display_name  # Create copy of display_name for filesystem use
-    if platform.system() == 'Windows':
-        for forbidden_letter in ['<', '>', ':', '"', '/', '\\', '|', '?', '*']:
-            converted_file_name = converted_file_name.replace(forbidden_letter, '')
-            filesystem_display_name = filesystem_display_name.replace(forbidden_letter, '')
+    filesystem_display_name = (
+        display_name  # Create copy of display_name for filesystem use
+    )
+    if platform.system() == "Windows":
+        for forbidden_letter in ["<", ">", ":", '"', "/", "\\", "|", "?", "*"]:
+            converted_file_name = converted_file_name.replace(forbidden_letter, "")
+            filesystem_display_name = filesystem_display_name.replace(
+                forbidden_letter, ""
+            )
     else:  # Linux or MacOS
-        converted_file_name = converted_file_name.replace('/', '')
-        filesystem_display_name = filesystem_display_name.replace('/', '')
+        converted_file_name = converted_file_name.replace("/", "")
+        filesystem_display_name = filesystem_display_name.replace("/", "")
 
     # If song name is too long use only first artist
     if len(converted_file_name) > 250:
