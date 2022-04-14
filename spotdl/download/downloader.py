@@ -142,9 +142,11 @@ class Downloader:
             if sys.platform == "win32":
                 # ProactorEventLoop is required on Windows to run subprocess asynchronously
                 # it is default since Python 3.8 but has to be changed for previous versions
-                loop = asyncio.ProactorEventLoop()
-                asyncio.set_event_loop(loop)
-            self.loop = asyncio.get_event_loop()
+                self.loop = asyncio.ProactorEventLoop()
+            else:
+                self.loop = asyncio.new_event_loop()
+
+            asyncio.set_event_loop(self.loop)
         else:
             self.loop = loop
 
