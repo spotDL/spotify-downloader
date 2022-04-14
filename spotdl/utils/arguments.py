@@ -395,6 +395,12 @@ def parse_other_options(parser: _ArgumentGroup):
     )
 
     parser.add_argument(
+        "--profile",
+        action="store_true",
+        help="Run in profile mode. Useful for debugging.",
+    )
+
+    parser.add_argument(
         "--version",
         "-v",
         action="version",

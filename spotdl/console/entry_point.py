@@ -6,6 +6,8 @@ import sys
 import json
 import signal
 import logging
+import cProfile
+import pstats
 
 from spotdl.console.save import save
 from spotdl.console.sync import sync
@@ -21,7 +23,7 @@ from spotdl.utils.spotify import SpotifyClient, SpotifyError
 from spotdl.download.downloader import DownloaderError
 
 
-def console_entry_point():
+def entry_point():
     """
     Console entry point for spotdl. This is where the magic happens.
     """
@@ -202,3 +204,21 @@ def console_entry_point():
         web(settings)
 
     return None
+
+
+def console_entry_point():
+    """
+    Wrapper around `entry_point` so we can profile the code
+    """
+
+    if "--profile" in sys.argv:
+        with cProfile.Profile() as profile:
+            entry_point()
+
+        stats = pstats.Stats(profile)
+        stats.sort_stats(pstats.SortKey.TIME)
+
+        # Use snakeviz to visualize the profile
+        stats.dump_stats("spotdl.profile")
+    else:
+        entry_point()
