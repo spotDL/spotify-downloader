@@ -211,6 +211,7 @@ class DownloadManager:
                     f'by "{song_object.contributing_artists[0]}" '
                     f'from video "{song_object.youtube_link}"'
                 )
+
                 return None
 
             if downloaded_file_path_string is None:

@@ -28,7 +28,7 @@ def search_and_get_best_match(
 
     `str` `song_album_name` : name of song's album
 
-    `int` `song_duration` : duration of the song
+    `int` `song_duration` : duration of the song, in seconds
 
     `str` `isrc` :  code for identifying sound recordings and music video recordings
 
@@ -79,7 +79,6 @@ def _order_yt_results(
     song_artists: List[str],
     song_duration: int,
 ) -> dict:
-
     # Assign an overall avg match value to each result
     links_with_match_value = {}
 
@@ -114,9 +113,13 @@ def _order_yt_results(
         for artist in song_artists:
             # ! something like _match_percentage('rionos', 'aiobahn, rionos Motivation
             # ! (remix)' would return 100, so we're absolutely corrent in matching
-            # ! artists to song name.
+            # ! artists to song name. Also allow for matching artist to video author.
             if _match_percentage(
                 str(unidecode(artist.lower())), str(unidecode(result.title).lower()), 85
+            ) or _match_percentage(
+                str(unidecode(artist.lower())),
+                str(unidecode(result.author).lower()),
+                85,
             ):
                 artist_match_number += 1
 
@@ -126,10 +129,22 @@ def _order_yt_results(
             continue
 
         artist_match = (artist_match_number / len(song_artists)) * 100
-        song_title = _create_song_title(song_name, song_artists).lower()
+
+        song_title = _create_song_title(song_name, song_artists)
         name_match = round(
-            _match_percentage(
-                str(unidecode(result.title.lower())), str(unidecode(song_title)), 60
+            max(
+                # case where artist is included in title
+                _match_percentage(
+                    str(unidecode(song_title.lower())),
+                    str(unidecode(result.title.lower())),
+                    60,
+                ),
+                # case where artist is author and video title is only the track name
+                _match_percentage(
+                    str(unidecode(song_name.lower())),
+                    str(unidecode(result.title.lower())),
+                    60,
+                ),
             ),
             ndigits=3,
         )

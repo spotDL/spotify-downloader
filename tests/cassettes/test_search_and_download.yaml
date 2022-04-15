@@ -5,9 +5,9 @@ interactions:
       Accept:
       - '*/*'
       Accept-Encoding:
-      - gzip, deflate
+      - gzip, deflate, br
       Authorization:
-      - Bearer BQB1gZrZ0TxRf2frYIlKOntPTFTpnQvwhQztgs6Uw4FtLliR73iLHY6Huqq_JMuOkpdWOlyuNgp9b1ELhoU
+      - Bearer BQBsPxGhEDptm5mNPjcO7_XSAY_Z9G8_dYmSSWS-mtvVRsHLZNsPYchwvV5dyANKPJ8HrZJPv51XFNSfmmc
       Connection:
       - keep-alive
       Content-Type:
@@ -48,7 +48,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Tue, 08 Feb 2022 12:22:44 GMT
+      - Thu, 14 Apr 2022 14:13:31 GMT
       server:
       - envoy
       strict-transport-security:

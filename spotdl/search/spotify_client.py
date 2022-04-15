@@ -58,7 +58,10 @@ class Singleton(type):
             )
 
         # Create instance
-        cls._instance = super().__call__(auth_manager=credential_manager)
+        cls._instance = super().__call__(
+            auth_manager=credential_manager,
+            status_forcelist=(429, 500, 502, 503, 504, 404),
+        )
 
         # Return instance
         return cls._instance
