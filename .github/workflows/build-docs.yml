@@ -25,6 +25,6 @@ jobs:
           pip install setuptools wheel poetry portray
           poetry install -E web
 
-      - name: Build
+      - name: Build and deploy
         run: |
-          portray on_github_pages
+          poetry run portray on_github_pages
