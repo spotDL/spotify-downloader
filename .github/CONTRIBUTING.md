@@ -220,13 +220,13 @@ Any submitted code is expected to have accompanying documentation
 
 #### pdoc3: generating documentation
 
-- We generate our documentation with [`pdoc3`](https://pdoc3.github.io/pdoc/)
+- We generate our documentation with [`portray`](https://timothycrosley.github.io/portray/)
 
   ```
-  pip install pdoc3
+  pip install portray
   ```
 
-  `pdoc3` requires that all development packages are installed
+  `portray` requires that all development packages are installed
 
   ```
   poetry install -E web
@@ -235,13 +235,13 @@ Any submitted code is expected to have accompanying documentation
   generate docs with
 
   ```
-  pdoc -o ./docs --html ./spotdl
+  portray as_html
   ```
 
   view docs live-time while editing with
 
   ```
-  pdoc --http : ./spotdl
+  portray in_browser
   ```
 
 #### DocString Formats
