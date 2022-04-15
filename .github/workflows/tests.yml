@@ -4,6 +4,7 @@ on: [push, pull_request]
 
 jobs:
   test:
+    if: "!contains(github.event.commits[0].message, '[skip ci]')"
     runs-on: ${{ matrix.platform }}
     strategy:
       matrix:

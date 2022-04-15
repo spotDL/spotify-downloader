@@ -8,6 +8,7 @@ on:
 
 jobs:
   update_release_draft:
+    if: "!contains(github.event.commits[0].message, '[skip ci]')"
     runs-on: ubuntu-latest
     steps:
       # Drafts your next Release notes as Pull Requests are merged into "master"
