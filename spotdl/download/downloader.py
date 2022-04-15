@@ -13,6 +13,7 @@ from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Type
 
 from yt_dlp.postprocessor.sponsorblock import SponsorBlockPP
+from yt_dlp.postprocessor.modify_chapters import ModifyChaptersPP
 
 from spotdl.types import Song
 from spotdl.utils.ffmpeg import FFmpegError, convert_sync
@@ -394,29 +395,6 @@ class Downloader:
                 f"audio provider: {audio_provider.name}"
             )
 
-            if self.sponsor_block:
-                post_processor = SponsorBlockPP(
-                    audio_provider.audio_handler, SPONSOR_BLOCK_CATEGORIES
-                )
-                _, download_info = post_processor.run(download_info)
-                chapters = download_info["sponsorblock_chapters"]
-                if len(chapters) > 0:
-                    self.progress_handler.debug(
-                        f"Found {len(chapters)} SponsorBlock chapters for {song.display_name}"
-                    )
-                    skip_args = '-af "'
-
-                    skip_args += ",".join(
-                        f"""aselect='not(between(t, {chapter["start_time"]},{chapter["end_time"]}))'"""  # pylint: disable=line-too-long
-                        for chapter in chapters
-                    )
-
-                    skip_args += ', asetpts=N/SR/TB"'
-                    if self.ffmpeg_args is None:
-                        self.ffmpeg_args = skip_args
-                    else:
-                        self.ffmpeg_args += " " + skip_args
-
             success, result = convert_sync(
                 (download_info["url"], download_info["ext"]),
                 output_file,
@@ -445,11 +423,35 @@ class Downloader:
                     f"you can find error here: {str(file_name.absolute())}"
                 )
 
+            download_info["filepath"] = str(output_file)
+
             # Set the song's download url
             if song.download_url is None:
                 song.download_url = download_info["webpage_url"]
 
             display_progress_tracker.notify_download_complete()
+
+            if self.sponsor_block:
+                post_processor = SponsorBlockPP(
+                    audio_provider.audio_handler, SPONSOR_BLOCK_CATEGORIES
+                )
+
+                _, download_info = post_processor.run(download_info)
+                chapters = download_info["sponsorblock_chapters"]
+                if len(chapters) > 0:
+                    self.progress_handler.log(
+                        f"Removing {len(chapters)} sponsor segments for {song.display_name}"
+                    )
+
+                    modify_chapters = ModifyChaptersPP(
+                        audio_provider.audio_handler,
+                        remove_sponsor_segments=SPONSOR_BLOCK_CATEGORIES,
+                    )
+
+                    files_to_delete, download_info = modify_chapters.run(download_info)
+
+                    for file_to_delete in files_to_delete:
+                        Path(file_to_delete).unlink()
 
             try:
                 lyrics = self.search_lyrics(song)
