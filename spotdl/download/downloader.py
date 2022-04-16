@@ -415,8 +415,12 @@ class Downloader:
                     get_errors_path()
                     / f"ffmpeg_error_{datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S')}.txt"
                 )
+
                 with open(file_name, "w", encoding="utf-8") as error_path:
                     json.dump(result, error_path, ensure_ascii=False, indent=4)
+
+                # Remove the file that failed to convert
+                output_file.unlink()
 
                 raise FFmpegError(
                     f"Failed to convert {song.display_name}, "
