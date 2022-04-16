@@ -11,7 +11,6 @@ jobs:
         platform: [ ubuntu-latest, macos-latest, windows-latest ]
         python-version: [ "3.7", "3.8", "3.9", "3.10" ]
 
-
     steps:
       - uses: actions/checkout@v2
 
@@ -36,7 +35,7 @@ jobs:
       - uses: FedericoCarboni/setup-ffmpeg@v1
         id: setup-ffmpeg
         with:
-        token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Install dependencies
         run: poetry install -E web

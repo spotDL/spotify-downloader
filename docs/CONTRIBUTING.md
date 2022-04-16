@@ -288,7 +288,7 @@ Any submitted code is expected to have accompanying documentation
 
 - DocStrings are Inherited
 
-  ```python
+  ```
   class A:
       def test(self):
           """Docstring for A."""
@@ -304,7 +304,7 @@ Any submitted code is expected to have accompanying documentation
 
 - You can write DocStrings for variables with `#:` comment above the variable
 
-  ```python
+  ```
   #: an example variable to demonstrate DocStrings
   example_var_1 = 1
   ```

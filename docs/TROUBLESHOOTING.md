@@ -4,7 +4,8 @@ As common issues or questions are encountered solutions will be added to this gu
 
 ## pkg_resources.DistributionNotFound
 
-Sometimes not all packages are installed but are required by yt-dlp for example: `brotli` or `websockets`
+Sometimes not all packages are installed but are required by yt-dlp for example: `brotli` or
+`websockets`
 
 ### Error message
 
@@ -16,7 +17,7 @@ Sometimes not all packages are installed but are required by yt-dlp for example:
 
 ## HTTP Error 404
 
-https://github.com/plamere/spotipy/issues/795#issuecomment-1100321148
+<https://github.com/plamere/spotipy/issues/795#issuecomment-1100321148>
 
 ### Error message
 
@@ -30,8 +31,8 @@ Update spotdl to the latest version which contains workaround.
 
 ## Failed to install `RapidFuzz` on termux
 
-https://github.com/spotDL/spotify-downloader/issues/1485
-https://github.com/maxbachmann/RapidFuzz/issues/195
+<https://github.com/spotDL/spotify-downloader/issues/1485>
+<https://github.com/maxbachmann/RapidFuzz/issues/195>
 
 ### Error message
 
@@ -64,9 +65,9 @@ pip install rapidfuzz==1.9.1
 pip install spotdl
 ```
 
-## ssl.SSLError: [SSL: CERTIFICATE_VERIFY_FAILED]
+## ssl.SSLError: \[SSL: CERTIFICATE_VERIFY_FAILED\]
 
-https://stackoverflow.com/questions/27835619/urllib-and-ssl-certificate-verify-failed-error
+<https://stackoverflow.com/questions/27835619/urllib-and-ssl-certificate-verify-failed-error>
 
 ### Error message
 
@@ -74,11 +75,11 @@ https://stackoverflow.com/questions/27835619/urllib-and-ssl-certificate-verify-f
 
 ### Solution
 
-https://stackoverflow.com/questions/27835619/urllib-and-ssl-certificate-verify-failed-error
+<https://stackoverflow.com/questions/27835619/urllib-and-ssl-certificate-verify-failed-error>
 
 ## RecursionError
 
-https://github.com/spotDL/spotify-downloader/issues/1493
+<https://github.com/spotDL/spotify-downloader/issues/1493>
 
 ### Error message
 
@@ -92,8 +93,7 @@ Update spotdl
 
 ## spotdl: command not found
 
-If you see this error after installing spotdl, that means
-that the bin folder is not on `$PATH`
+If you see this error after installing spotdl, that means that the bin folder is not on `$PATH`
 
 ### Solution
 
@@ -105,8 +105,7 @@ Then run `source ~/.bashrc`
 
 #### `.zshrc`
 
-Add `export PATH=~/.local/bin:$PATH` at the bottom of `~/.zshrc`
-Then run `source ~/.zshrc`
+Add `export PATH=~/.local/bin:$PATH` at the bottom of `~/.zshrc` Then run `source ~/.zshrc`
 
 ## RuntimeWarning
 
@@ -124,7 +123,7 @@ warn(RuntimeWarning(msg))
 
 You can ignore this error or just run spotdl directly
 
-## Not found '_raw_ecb.so'
+## Not found '\_raw_ecb.so'
 
 This error is specific for M1 Macs only.
 
@@ -145,17 +144,16 @@ Cannot load '_raw_ecb.abi3.so': dlopen(/opt/homebrew/lib/python3.9/site-packages
 
 Possible solutions:
 
-https://discord.com/channels/771628785447337985/871006150357823498
-https://discord.com/channels/771628785447337985/939475659238043738
-
+<https://discord.com/channels/771628785447337985/871006150357823498>
+<https://discord.com/channels/771628785447337985/939475659238043738>
 
 ## 'spotdl' is not recognized
 
-Python/(site packages) is not added to PATH correctly.
-You need to install Python from https://www.python.org/downloads/
+Python/(site packages) is not added to PATH correctly. You need to install Python from
+<https://www.python.org/downloads/>
 
-Or you are using python from microsoft store. If so uninstall it
-and restart cmd. If this doesn't work reinstall python.
+Or you are using python from microsoft store. If so uninstall it and restart cmd. If this
+doesn't work reinstall python.
 
 ### Error message
 
@@ -167,6 +165,5 @@ operable program or batch file.
 ### Solution
 
 Ensure to add to PATH when installing:
-https://i.imgur.com/jWq5EnV.png
-
+![python install](https://i.imgur.com/jWq5EnV.png)
 
