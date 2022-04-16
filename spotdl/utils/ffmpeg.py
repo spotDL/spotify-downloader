@@ -40,8 +40,8 @@ FFMPEG_FORMATS = {
     "mp3": ["-codec:a", "libmp3lame"],
     "flac": ["-codec:a", "flac"],
     "ogg": ["-codec:a", "libvorbis"],
-    "opus": ["-vn", "-c:a", "copy"],
-    "m4a": ["-c:a", "copy"],
+    "opus": ["-codec:a", "libopus"],
+    "m4a": ["-codec:a", "aac"],
 }
 
 DUR_REGEX = re.compile(
@@ -380,7 +380,16 @@ def convert_sync(
     if output_format == "opus" and file_format != "webm":
         arguments.extend(["-c:a", "libopus"])
     else:
-        arguments.extend(FFMPEG_FORMATS[output_format])
+        # If additional arguments are specified and output format is m4a
+        # Convert the m4a instead of moving the stream
+        if (variable_bitrate or constant_bitrate or ffmpeg_args) and output_format in [
+            "m4a",
+            "opus",
+        ]:
+            arguments.extend(FFMPEG_FORMATS[output_format])
+        else:
+            # Copy the audio stream to the output file
+            arguments.extend(["-vn", "-c:a", "copy"])
 
     # Add variable bitrate if specified
     if variable_bitrate:
