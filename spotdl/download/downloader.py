@@ -67,8 +67,7 @@ class Downloader:
         audio_providers: Optional[List[str]] = None,
         lyrics_providers: Optional[List[str]] = None,
         ffmpeg: str = "ffmpeg",
-        variable_bitrate: Optional[str] = None,
-        constant_bitrate: Optional[str] = None,
+        bitrate: Optional[str] = None,
         ffmpeg_args: Optional[str] = None,
         output_format: str = "mp3",
         threads: int = 4,
@@ -168,8 +167,7 @@ class Downloader:
         self.search_query = search_query
         self.filter_results = filter_results
         self.ffmpeg = ffmpeg
-        self.variable_bitrate = variable_bitrate
-        self.constant_bitrate = constant_bitrate
+        self.bitrate = bitrate
         self.ffmpeg_args = ffmpeg_args
         self.restrict = restrict
         self.print_errors = print_errors
@@ -400,8 +398,7 @@ class Downloader:
                 output_file,
                 self.ffmpeg,
                 self.output_format,
-                self.variable_bitrate,
-                self.constant_bitrate,
+                self.bitrate,
                 self.ffmpeg_args,
                 display_progress_tracker.progress_hook,
             )

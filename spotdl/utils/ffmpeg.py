@@ -223,8 +223,7 @@ async def convert(
     output_file: Path,
     ffmpeg: str = "ffmpeg",
     output_format: str = "mp3",
-    variable_bitrate: Optional[str] = None,
-    constant_bitrate: Optional[str] = None,
+    bitrate: Optional[str] = None,
     ffmpeg_args: Optional[str] = None,
 ) -> Tuple[bool, Optional[Dict[str, Any]]]:
     """
@@ -274,13 +273,9 @@ async def convert(
     else:
         arguments.extend(FFMPEG_FORMATS[output_format])
 
-    # Add variable bitrate if specified
-    if variable_bitrate:
-        arguments.extend(["-q:a", variable_bitrate])
-
     # Add constant bitrate if specified
-    if constant_bitrate:
-        arguments.extend(["-b:a", constant_bitrate])
+    if bitrate:
+        arguments.extend(["-b:a", bitrate])
 
     # Add other ffmpeg arguments if specified
     if ffmpeg_args:
@@ -326,8 +321,7 @@ def convert_sync(
     output_file: Path,
     ffmpeg: str = "ffmpeg",
     output_format: str = "mp3",
-    variable_bitrate: Optional[str] = None,
-    constant_bitrate: Optional[str] = None,
+    bitrate: Optional[str] = None,
     ffmpeg_args: Optional[str] = None,
     progress_handler: Optional[Callable[[int], None]] = None,
 ) -> Tuple[bool, Optional[Dict[str, Any]]]:
@@ -382,7 +376,7 @@ def convert_sync(
     else:
         # If additional arguments are specified and output format is m4a
         # Convert the m4a instead of moving the stream
-        if (variable_bitrate or constant_bitrate or ffmpeg_args) and output_format in [
+        if (bitrate or ffmpeg_args) and output_format in [
             "m4a",
             "opus",
         ]:
@@ -391,13 +385,9 @@ def convert_sync(
             # Copy the audio stream to the output file
             arguments.extend(["-vn", "-c:a", "copy"])
 
-    # Add variable bitrate if specified
-    if variable_bitrate:
-        arguments.extend(["-q:a", variable_bitrate])
-
     # Add constant bitrate if specified
-    if constant_bitrate:
-        arguments.extend(["-b:a", constant_bitrate])
+    if bitrate:
+        arguments.extend(["-b:a", bitrate])
 
     # Add other ffmpeg arguments if specified
     if ffmpeg_args:

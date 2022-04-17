@@ -220,18 +220,9 @@ def parse_ffmpeg_options(parser: _ArgumentGroup):
         type=int,
         help="The number of threads to use when downloading songs.",
     )
-
-    # Add variable bitrate argument
-    parser.add_argument(
-        "--variable-bitrate",
-        choices=["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"],
-        default=DEFAULT_CONFIG["variable_bitrate"],
-        help="The variable bitrate to use for the output file.",
-    )
-
     # Add constant bit rate argument
     parser.add_argument(
-        "--constant-bitrate",
+        "--bitrate",
         choices=[
             "8k",
             "16k",
@@ -250,7 +241,7 @@ def parse_ffmpeg_options(parser: _ArgumentGroup):
             "256k",
             "320k",
         ],
-        default=DEFAULT_CONFIG["constant_bitrate"],
+        default=DEFAULT_CONFIG["bitrate"],
         help="The constant bitrate to use for the output file.",
     )
 
