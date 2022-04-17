@@ -286,7 +286,10 @@ def _embed_basic_metadata(audio_file, song: Song, encoding, preset=TAG_PRESET):
     audio_file[preset["title"]] = song.name
     audio_file[preset["date"]] = song.date
     audio_file[preset["originaldate"]] = song.date
-    audio_file[preset["genre"]] = song.genres[0]
+    
+    if len(song.genres) > 0:
+        audio_file[preset["genre"]] = song.genres[0]
+
     if song.copyright_text:
         audio_file[preset["copyright"]] = song.copyright_text
 
