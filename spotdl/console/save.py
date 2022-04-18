@@ -39,9 +39,8 @@ def save(
         json.dump(save_data, save_file, indent=4, ensure_ascii=False)
 
     if m3u_file:
-        song_list = [song for song in songs]
         create_m3u_file(
-            m3u_file, song_list, downloader.output, downloader.output_format, False
+            m3u_file, songs, downloader.output, downloader.output_format, False
         )
 
     downloader.progress_handler.log(

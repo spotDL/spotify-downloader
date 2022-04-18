@@ -10,7 +10,7 @@ def test_find_isrc_song():
 
     results = provider.get_results("GB2LD2210068")
 
-    assert results[0]["link"] == "https://youtube.com/watch?v=0h6XAAwX8II"
+    assert results[0].link == "https://youtube.com/watch?v=0h6XAAwX8II"
 
 
 def test_find_song():
