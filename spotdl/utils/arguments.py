@@ -242,6 +242,7 @@ def parse_ffmpeg_options(parser: _ArgumentGroup):
             "320k",
         ],
         default=DEFAULT_CONFIG["bitrate"],
+        type=str.lower,
         help="The constant bitrate to use for the output file.",
     )
 
