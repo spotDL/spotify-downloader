@@ -338,6 +338,11 @@ class Downloader:
             data = song.json
             new_data = Song.from_url(data["url"]).json
             data.update((k, v) for k, v in new_data.items() if v is not None)
+
+            # Reinitialize the correct song list object
+            data["song_list"] = song.song_list.__class__(**data["song_list"])
+
+            # Reinitialize the song object
             song = Song(**data)
 
         # Create the output file path

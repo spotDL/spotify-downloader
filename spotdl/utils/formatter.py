@@ -152,7 +152,7 @@ def format_query(
         formats.update(
             {
                 "{list-name}": song.song_list.name,  # type: ignore
-                "{list-position}": str(song.song_list.songs.index(song) + 1).zfill(
+                "{list-position}": str(song.song_list.urls.index(song.url) + 1).zfill(
                     len(str(song.song_list.length))
                 ),
                 "{list-length}": song.song_list.length,
