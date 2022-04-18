@@ -4,15 +4,17 @@ Save module for the console.
 
 import json
 
-from typing import List
+from typing import List, Optional
 
 from spotdl.utils.search import parse_query
+from spotdl.utils.m3u import create_m3u_file
 
 
 def save(
     query: List[str],
     save_path: str,
-    threads: int = 1,
+    downloader,
+    m3u_file: Optional[str] = None,
 ) -> None:
     """
     Save metadata from spotify to the disk.
@@ -27,7 +29,7 @@ def save(
     """
 
     # Parse the query
-    songs = parse_query(query, threads)
+    songs = parse_query(query, downloader.threads)
 
     # Convert the songs to JSON
     save_data = [song.json for song in songs]
@@ -36,6 +38,12 @@ def save(
     with open(save_path, "w", encoding="utf-8") as save_file:
         json.dump(save_data, save_file, indent=4, ensure_ascii=False)
 
-    print(
+    if m3u_file:
+        song_list = [song for song in songs]
+        create_m3u_file(
+            m3u_file, song_list, downloader.output, downloader.output_format, False
+        )
+
+    downloader.progress_handler.log(
         f"Saved {len(save_data)} song{'s' if len(save_data) > 1 else ''} to {save_path}"
     )

@@ -133,63 +133,6 @@ def entry_point():
     if arguments.operation == "web":
         settings["log_level"] = "CRITICAL"
 
-    if arguments.operation in ["download", "preload", "sync"]:
-        if arguments.query and "saved" in arguments.query and not settings["user_auth"]:
-            raise SpotifyError("You must be logged in to use the saved query.")
-
-        # Initialize the downloader
-        # for download, load and preload operations
-        downloader = Downloader(
-            audio_providers=settings["audio_providers"],
-            lyrics_providers=settings["lyrics_providers"],
-            ffmpeg=settings["ffmpeg"],
-            bitrate=settings["bitrate"],
-            ffmpeg_args=settings["ffmpeg_args"],
-            output_format=settings["format"],
-            save_file=settings["save_file"],
-            threads=settings["threads"],
-            output=settings["output"],
-            overwrite=settings["overwrite"],
-            search_query=settings["search_query"],
-            cookie_file=settings["cookie_file"],
-            log_level=settings["log_level"],
-            simple_tui=settings["simple_tui"],
-            restrict=settings["restrict"],
-            print_errors=settings["print_errors"],
-            sponsor_block=settings["sponsor_block"],
-        )
-
-        def graceful_exit(_signal, _frame):
-            downloader.progress_handler.close()
-            sys.exit(0)
-
-        signal.signal(signal.SIGINT, graceful_exit)
-        signal.signal(signal.SIGTERM, graceful_exit)
-
-        if arguments.operation == "download":
-            download(arguments.query, downloader=downloader, m3u_file=settings["m3u"])
-        elif arguments.operation == "preload":
-            preload(
-                query=arguments.query,
-                save_path=settings["save_file"],
-                downloader=downloader,
-            )
-        elif arguments.operation == "sync":
-            sync(
-                arguments.query,
-                downloader=downloader,
-                m3u_file=settings["m3u"],
-            )
-
-        downloader.progress_handler.close()
-    elif arguments.operation == "save":
-        # Save the songs to a file
-        save(
-            query=arguments.query,
-            save_path=settings["save_file"],
-            threads=settings["threads"],
-        )
-    elif arguments.operation == "web":
         try:
             from spotdl.console.web import (  # pylint: disable=C0415,C0410,W0707,W0611
                 web,
@@ -201,6 +144,66 @@ def entry_point():
             ) from exception
 
         web(settings)
+
+        return None
+
+    if arguments.query and "saved" in arguments.query and not settings["user_auth"]:
+        raise SpotifyError("You must be logged in to use the saved query.")
+
+    # Initialize the downloader
+    # for download, load and preload operations
+    downloader = Downloader(
+        audio_providers=settings["audio_providers"],
+        lyrics_providers=settings["lyrics_providers"],
+        ffmpeg=settings["ffmpeg"],
+        bitrate=settings["bitrate"],
+        ffmpeg_args=settings["ffmpeg_args"],
+        output_format=settings["format"],
+        save_file=settings["save_file"],
+        threads=settings["threads"],
+        output=settings["output"],
+        overwrite=settings["overwrite"],
+        search_query=settings["search_query"],
+        cookie_file=settings["cookie_file"],
+        log_level=settings["log_level"],
+        simple_tui=settings["simple_tui"],
+        restrict=settings["restrict"],
+        print_errors=settings["print_errors"],
+        sponsor_block=settings["sponsor_block"],
+    )
+
+    def graceful_exit(_signal, _frame):
+        downloader.progress_handler.close()
+        sys.exit(0)
+
+    signal.signal(signal.SIGINT, graceful_exit)
+    signal.signal(signal.SIGTERM, graceful_exit)
+
+    if arguments.operation == "download":
+        download(arguments.query, downloader=downloader, m3u_file=settings["m3u"])
+    elif arguments.operation == "preload":
+        preload(
+            query=arguments.query,
+            save_path=settings["save_file"],
+            downloader=downloader,
+            m3u_file=settings["m3u"],
+        )
+    elif arguments.operation == "sync":
+        sync(
+            arguments.query,
+            downloader=downloader,
+            m3u_file=settings["m3u"],
+        )
+    elif arguments.operation == "save":
+        # Save the songs to a file
+        save(
+            query=arguments.query,
+            save_path=settings["save_file"],
+            downloader=downloader,
+            m3u_file=settings["m3u"],
+        )
+
+    downloader.progress_handler.close()
 
     return None
 

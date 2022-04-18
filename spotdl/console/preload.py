@@ -6,16 +6,18 @@ import json
 import concurrent.futures
 from pathlib import Path
 
-from typing import List
+from typing import List, Optional
 
 from spotdl.download.downloader import Downloader
 from spotdl.utils.search import parse_query
+from spotdl.utils.m3u import create_m3u_file
 
 
 def preload(
     query: List[str],
     downloader: Downloader,
     save_path: Path,
+    m3u_file: Optional[str] = None,
 ) -> None:
     """
     Use audio provider to find the download links for the songs
@@ -62,6 +64,12 @@ def preload(
     # Save the songs to a file
     with open(save_path, "w", encoding="utf-8") as save_file:
         json.dump(save_data, save_file, indent=4, ensure_ascii=False)
+
+    if m3u_file:
+        song_list = [song for song in songs]
+        create_m3u_file(
+            m3u_file, song_list, downloader.output, downloader.output_format, False
+        )
 
     downloader.progress_handler.log(
         f"Saved {len(save_data)} song{'s' if len(save_data) > 1 else ''} to {save_path}"
