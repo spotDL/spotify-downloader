@@ -149,10 +149,15 @@ def format_query(
     if song.song_list and any(
         k in template for k in ["{list-length}", "{list-position}", "{list-name}"]
     ):
+        try:
+            index = song.song_list.songs.index(song)
+        except ValueError:
+            index = song.song_list.urls.index(song.url)
+
         formats.update(
             {
                 "{list-name}": song.song_list.name,  # type: ignore
-                "{list-position}": str(song.song_list.urls.index(song.url) + 1).zfill(
+                "{list-position}": str(index + 1).zfill(
                     len(str(song.song_list.length))
                 ),
                 "{list-length}": song.song_list.length,
