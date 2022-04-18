@@ -58,7 +58,7 @@ class YouTubeMusic(AudioProvider):
             )
         else:
             # search for song using isrc if it's available
-            if song.isrc is not None:
+            if song.isrc:
                 isrc_results = self.get_results(song.isrc, filter="songs")
 
                 if len(isrc_results) == 1:

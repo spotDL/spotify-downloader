@@ -35,12 +35,12 @@ class Song:
     date: str
     track_number: int
     tracks_count: int
-    isrc: str
     song_id: str
     cover_url: str
     explicit: bool
     publisher: str
     url: str
+    isrc: Optional[str]
     copyright_text: Optional[str]
     download_url: Optional[str] = None
     song_list: Optional["SongList"] = None
@@ -97,7 +97,7 @@ class Song:
             date=raw_album_meta["release_date"],
             track_number=raw_track_meta["track_number"],
             tracks_count=raw_album_meta["total_tracks"],
-            isrc=raw_track_meta["external_ids"]["isrc"],
+            isrc=raw_track_meta.get("external_ids", {}).get("isrc"),
             song_id=raw_track_meta["id"],
             explicit=raw_track_meta["explicit"],
             publisher=raw_album_meta["label"],
