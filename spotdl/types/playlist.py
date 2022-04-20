@@ -88,7 +88,9 @@ class Playlist(SongList):
         return [
             track["track"]["external_urls"]["spotify"]
             for track in tracks
-            if track and track.get("track", {}).get("id")
+            if track is not None
+            and track.get("track") is not None
+            and track.get("track").get("id")
         ]
 
     @staticmethod
