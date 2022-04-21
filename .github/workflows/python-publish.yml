@@ -114,6 +114,7 @@ jobs:
 
           run: |
             cd /spotdl
+            apt update
             apt install python python-pip
             pip install poetry
             poetry install -E web
