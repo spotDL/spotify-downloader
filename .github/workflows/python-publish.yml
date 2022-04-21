@@ -100,13 +100,8 @@ jobs:
           arch: aarch64
           distro: ubuntu_latest
 
-          # Create an artifacts directory
-          setup: |
-            mkdir -p "${PWD}/artifacts"
-
           # Mount the artifacts directory as /artifacts in the container
           dockerRunArgs: |
-            --volume "${PWD}/artifacts:/artifacts"
             --volume "${PWD}/:/spotdl"
 
           # The shell to run commands with in the container
@@ -119,13 +114,12 @@ jobs:
             pip install poetry
             poetry install -E web
             poetry run python ./scripts/build.py
-            cd dist
-            for file in dist/spotdl*; do echo cp "$file" "/artifacts/${file}-aarch64"; done
+            for file in dist/spotdl*; do cp "$file" "${file}-aarch64"; done
 
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            ${PWD}/artifacts/*
+            dist/spotdl*
 
 
