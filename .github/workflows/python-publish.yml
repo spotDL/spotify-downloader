@@ -96,6 +96,9 @@ jobs:
       - name: test
         run: |
           ls -laR
+          cd ..
+          echo "1"
+          ls -la
       - uses: uraimo/run-on-arch-action@v2
         name: Run commands
         id: runcmd
@@ -110,7 +113,7 @@ jobs:
           # Mount the artifacts directory as /artifacts in the container
           dockerRunArgs: |
             --volume "${PWD}/artifacts:/artifacts"
-            --volume "${PWD}/spotdl-v4:/spotdl"
+            --volume "${PWD}/:/spotdl"
 
           # The shell to run commands with in the container
           shell: /bin/sh
