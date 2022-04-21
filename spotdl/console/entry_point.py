@@ -77,11 +77,11 @@ def entry_point():
     arguments = parse_arguments()
 
     # Get the config file
+    # It will automatically load if the `load_config` is set to True
+    # in the config file
     config = {}
-    if arguments.config:
-        # Load the config file
-        with open(get_config_file(), "r", encoding="utf-8") as config_file:
-            config = json.load(config_file)
+    if arguments.config or (get_config_file().exists() and get_config()["load_config"]):
+        config = get_config()
 
     # Create settings dict
     # Settings from config file will override the ones from the command line
@@ -110,7 +110,12 @@ def entry_point():
     )
 
     # If the application is frozen start web ui
-    if getattr(sys, "frozen", False) and len(sys.argv) == 1:
+    # or if the operation is `web`
+    if (
+        getattr(sys, "frozen", False)
+        and len(sys.argv) == 1
+        or arguments.operation == "web"
+    ):
         from spotdl.console.web import (  # pylint: disable=C0415,C0410,W0707,W0611
             web,
         )
@@ -128,24 +133,6 @@ def entry_point():
         ".spotdl"
     ):
         raise DownloaderError("Save file has to end with .spotdl")
-
-    # Don't log too much when running web ui
-    if arguments.operation == "web":
-        settings["log_level"] = "CRITICAL"
-
-        try:
-            from spotdl.console.web import (  # pylint: disable=C0415,C0410,W0707,W0611
-                web,
-            )
-        except ModuleNotFoundError as exception:
-            raise Exception(
-                "To use the web interface, you need to install web package with"
-                "`pip install spotdl[web]`"
-            ) from exception
-
-        web(settings)
-
-        return None
 
     if arguments.query and "saved" in arguments.query and not settings["user_auth"]:
         raise SpotifyError("You must be logged in to use the saved query.")
@@ -190,7 +177,7 @@ def entry_point():
         )
     elif arguments.operation == "sync":
         sync(
-            arguments.query,
+            query=arguments.query,
             downloader=downloader,
             m3u_file=settings["m3u"],
         )
