@@ -93,6 +93,9 @@ jobs:
     name: Build on ubuntu-latest aarch64
     steps:
       - uses: actions/checkout@v2
+      - name: test
+        run: |
+          ls -laR
       - uses: uraimo/run-on-arch-action@v2
         name: Run commands
         id: runcmd
