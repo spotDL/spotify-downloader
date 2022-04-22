@@ -1,7 +1,7 @@
 FROM python:3-alpine
 
 # Install ffmpeg and g++
-RUN apk add --no-cache ffmpeg g++
+RUN apk add --no-cache ffmpeg g++ git
 
 # Create project directory
 WORKDIR /app
