@@ -115,7 +115,7 @@ def get_config() -> Dict[str, Any]:
 
 
 DEFAULT_CONFIG = {
-    "load_config": False,
+    "default_config": False,
     "log_level": "INFO",
     "simple_tui": False,
     "cache_path": str(get_cache_path()),

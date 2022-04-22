@@ -80,7 +80,7 @@ def entry_point():
     # It will automatically load if the `load_config` is set to True
     # in the config file
     config = {}
-    if arguments.config or (get_config_file().exists() and get_config()["load_config"]):
+    if arguments.config or (get_config_file().exists() and get_config()["default_config"]):
         config = get_config()
 
     # Create settings dict
