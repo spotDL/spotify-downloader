@@ -85,8 +85,8 @@ class SettingsModel(BaseModel):
 
     log_level: Optional[str]
     cache_path: Optional[str]
-    audio_provider: Optional[str]
-    lyrics_provider: Optional[str]
+    audio_providers: Optional[List[str]]
+    lyrics_providers: Optional[List[str]]
     ffmpeg: Optional[str]
     variable_bitrate: Optional[int]
     constant_bitrate: Optional[int]
@@ -460,7 +460,7 @@ def get_settings() -> SettingsModel:
 @app.server.post("/api/settings/update")
 def change_settings(settings: SettingsModel) -> bool:
     """
-    Change downloader settings by reinitializing the downloader.
+    Change downloader settings by re-initializing the downloader.
 
     ### Arguments
     - settings: The settings to change.
