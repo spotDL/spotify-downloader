@@ -151,7 +151,7 @@ class Downloader:
             self.loop = loop
 
         # semaphore is required to limit concurrent asyncio executions
-        self.semaphore = asyncio.Semaphore(threads)
+        self.semaphore = asyncio.Semaphore(threads, loop=self.loop)
 
         # thread pool executor is used to run blocking (CPU-bound) code from a thread
         self.thread_executor = concurrent.futures.ThreadPoolExecutor(
