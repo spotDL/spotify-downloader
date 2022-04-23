@@ -80,7 +80,9 @@ def entry_point():
     # It will automatically load if the `load_config` is set to True
     # in the config file
     config = {}
-    if arguments.config or (get_config_file().exists() and get_config()["default_config"]):
+    if arguments.config or (
+        get_config_file().exists() and get_config().get("load_config")
+    ):
         config = get_config()
 
     # Create settings dict
@@ -88,7 +90,8 @@ def entry_point():
     settings = {}
     for key in DEFAULT_CONFIG:
         if config.get(key) is None:
-            settings[key] = arguments.__dict__[key]
+            # If the key is not in the arguments dict, use the default value
+            settings[key] = arguments.__dict__.get(key) or DEFAULT_CONFIG[key]
         else:
             settings[key] = config[key]
 
