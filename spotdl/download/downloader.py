@@ -278,10 +278,6 @@ class Downloader:
         for audio_provider in self.audio_providers:
             url = audio_provider.search(song)
             if url:
-                self.progress_handler.debug(
-                    f"Found {song.display_name} by {song.artist} on "
-                    f"{audio_provider.name}"
-                )
                 return url, audio_provider
 
             self.progress_handler.debug(
