@@ -383,13 +383,6 @@ def parse_other_options(parser: _ArgumentGroup):
     )
 
     parser.add_argument(
-        "--default-config",
-        action="store_false",
-        default=DEFAULT_CONFIG["default_config"],
-        help="Use defaults. Skip loading stored config.",
-    )
-
-    parser.add_argument(
         "--check-for-updates", action="store_true", help="Check for new version."
     )
 
