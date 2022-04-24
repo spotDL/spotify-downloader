@@ -123,8 +123,9 @@ def entry_point():
             web,
         )
 
-        # Don't log too much when running web ui
-        settings["log_level"] = "CRITICAL"
+        # Don't log too much when running web ui & default logging argument
+        if arguments.__dict__.get("log_level") is None:
+            settings["log_level"] = "CRITICAL"
 
         # Start web ui
         web(settings)

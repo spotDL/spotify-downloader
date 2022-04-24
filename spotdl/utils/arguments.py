@@ -340,7 +340,6 @@ def parse_misc_options(parser: _ArgumentGroup):
     # Add verbose argument
     parser.add_argument(
         "--log-level",
-        default=DEFAULT_CONFIG["log_level"],
         choices=NAME_TO_LEVEL.keys(),
         help="Select log level.",
     )
