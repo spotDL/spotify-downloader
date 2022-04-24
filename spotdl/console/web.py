@@ -184,8 +184,7 @@ class WSProgressHandler:
         """
         update_message = {
             "song": progress_handler_instance.song.json,
-            "progress": progress_handler_instance.parent.overall_progress
-            / progress_handler_instance.parent.overall_total,
+            "progress": progress_handler_instance.progress,
             "message": message,
         }
         asyncio.run(self.send_update(json.dumps(update_message)))
@@ -471,15 +470,13 @@ def change_settings(settings: SettingsModel) -> bool:
 
     settings_dict = settings.dict()
 
-    print("changing settings from ", app.settings, "\nto\n", settings_dict)
-
     # Create shallow copy of settings
     settings_cpy = app.settings.copy()
 
     # Update settings with new settings that are not None
     settings_cpy.update({k: v for k, v in settings.dict().items() if v is not None})
 
-    print("applying settings", settings_cpy)
+    logging.debug(f'Applying settings: {settings_cpy}')
 
     # Re-initialize downloader
     app.downloader = Downloader(
