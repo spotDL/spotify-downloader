@@ -474,9 +474,9 @@ def change_settings(settings: SettingsModel) -> bool:
     settings_cpy = app.settings.copy()
 
     # Update settings with new settings that are not None
-    settings_cpy.update({k: v for k, v in settings.dict().items() if v is not None})
+    settings_cpy.update({k: v for k, v in settings_dict.items() if v is not None})
 
-    logging.debug(f'Applying settings: {settings_cpy}')
+    logging.debug("Applying settings: %s", {settings_cpy})
 
     # Re-initialize downloader
     app.downloader = Downloader(
