@@ -5,6 +5,7 @@ Downloader module, this is where all the downloading pre/post processing happens
 import json
 import datetime
 import asyncio
+import shutil
 import sys
 import concurrent.futures
 import traceback
@@ -16,7 +17,7 @@ from yt_dlp.postprocessor.sponsorblock import SponsorBlockPP
 from yt_dlp.postprocessor.modify_chapters import ModifyChaptersPP
 
 from spotdl.types import Song
-from spotdl.utils.ffmpeg import FFmpegError, convert_sync
+from spotdl.utils.ffmpeg import FFmpegError, convert_sync, get_ffmpeg_path
 from spotdl.utils.metadata import embed_metadata, MetadataError
 from spotdl.utils.formatter import create_file_name, restrict_filename
 from spotdl.providers.audio.base import AudioProvider
@@ -157,6 +158,15 @@ class Downloader:
         self.thread_executor = concurrent.futures.ThreadPoolExecutor(
             max_workers=threads
         )
+
+        # If ffmpeg is the default value and it's not installed
+        # try to use the spotdl's ffmpeg
+        if ffmpeg == "ffmpeg" and shutil.which("ffmpeg") is None:
+            ffmpeg_exec = get_ffmpeg_path()
+            if ffmpeg_exec is None:
+                raise DownloaderError("ffmpeg is not installed")
+
+            ffmpeg = str(ffmpeg_exec.absolute())
 
         self.output = output
         self.output_format = output_format

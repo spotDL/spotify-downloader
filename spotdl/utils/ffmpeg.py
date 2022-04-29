@@ -72,14 +72,20 @@ def is_ffmpeg_installed(ffmpeg: str = "ffmpeg") -> bool:
     """
 
     if ffmpeg == "ffmpeg":
-        # use shutil.which to find ffmpeg in system path
-        return shutil.which("ffmpeg") is not None
+        global_ffmpeg = shutil.which("ffmpeg")
+        if global_ffmpeg is None:
+            ffmpeg_path = get_ffmpeg_path()
+        else:
+            ffmpeg_path = Path(global_ffmpeg)
+    else:
+        ffmpeg_path = Path(ffmpeg)
 
-    abs_path = str(Path(ffmpeg).absolute())
+    if ffmpeg_path is None:
+        return False
 
     # else check if path to ffmpeg is valid
     # and if ffmpeg has the correct access rights
-    return os.path.isfile(abs_path) and os.access(abs_path, os.X_OK)
+    return ffmpeg_path.exists() and os.access(ffmpeg_path, os.X_OK)
 
 
 def get_ffmpeg_path() -> Optional[Path]:
