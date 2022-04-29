@@ -425,8 +425,12 @@ class Downloader:
                     / f"ffmpeg_error_{datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S')}.txt"
                 )
 
+                error_message = ""
+                for key, value in result.items():
+                    error_message += f"### {key}:\n{str(value).strip()}\n\n"
+
                 with open(file_name, "w", encoding="utf-8") as error_path:
-                    json.dump(result, error_path, ensure_ascii=False, indent=4)
+                    error_path.write(error_message)
 
                 # Remove the file that failed to convert
                 output_file.unlink()
