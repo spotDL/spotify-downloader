@@ -50,6 +50,8 @@ DUR_REGEX = re.compile(
 TIME_REGEX = re.compile(
     r"out_time=(?P<hour>\d{2}):(?P<min>\d{2}):(?P<sec>\d{2})\.(?P<ms>\d{2})"
 )
+VERSION_REGEX = re.compile(r"ffmpeg version \w?(\d+\.)?(\d+)")
+YEAR_REGEX = re.compile(r"Copyright \(c\) \d\d\d\d\-\d\d\d\d")
 
 
 class FFmpegError(Exception):
@@ -128,8 +130,8 @@ def get_ffmpeg_version(ffmpeg: str = "ffmpeg") -> Tuple[Optional[float], Optiona
         output = "".join(process.communicate())
 
     # Search for version and build year in output
-    version_result = re.search(r"ffmpeg version \w?(\d+\.)?(\d+)", output)
-    year_result = re.search(r"Copyright \(c\) \d\d\d\d\-\d\d\d\d", output)
+    version_result = VERSION_REGEX.search(output)
+    year_result = YEAR_REGEX.search(output)
 
     build_year = None
     version = None
