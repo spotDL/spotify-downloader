@@ -132,6 +132,9 @@ class Downloader:
 
             audio_providers_classes.append(new_audio_provider)
 
+        if len(audio_providers_classes) == 0:
+            raise DownloaderError("No audio providers specified. Please specify at least one.")
+
         for provider in lyrics_providers:
             new_lyrics_provider = LYRICS_PROVIDERS.get(provider)
             if new_lyrics_provider is None:
