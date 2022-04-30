@@ -17,7 +17,8 @@ from spotdl.utils.m3u import create_m3u_file
 def sync(
     query: List[str],
     downloader: Downloader,
-    m3u_file: Optional[None] = None,
+    save_path: Path,
+    m3u_file: Optional[str] = None,
 ) -> None:
     """
     Removes the songs that are no longer present in the list and downloads the new ones.
@@ -25,10 +26,8 @@ def sync(
     ### Arguments
     - query: list of strings to search for.
     - downloader: Already initialized downloader instance.
+    - save_path: Path to save the songs to.
     - m3u_file: Path to the file to save the metadata to.
-
-    ### Notes
-    - notes if any
     """
 
     # Parse the query

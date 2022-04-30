@@ -5,15 +5,17 @@ Save module for the console.
 import json
 
 from typing import List, Optional
+from pathlib import Path
 
+from spotdl.download.downloader import Downloader
 from spotdl.utils.search import parse_query
 from spotdl.utils.m3u import create_m3u_file
 
 
 def save(
     query: List[str],
-    save_path: str,
-    downloader,
+    downloader: Downloader,
+    save_path: Path,
     m3u_file: Optional[str] = None,
 ) -> None:
     """
@@ -21,8 +23,9 @@ def save(
 
     ### Arguments
     - query: list of strings to search for.
-    - save_path: Path to the file to save the metadata to.
-    - threads: Number of threads to use.
+    - downloader: Already initialized downloader instance.
+    - save_path: Path to save the songs to.
+    - m3u_file: Path to the m3u file to save the songs to.
 
     ### Notes
     - This function is multi-threaded.
@@ -38,6 +41,7 @@ def save(
     with open(save_path, "w", encoding="utf-8") as save_file:
         json.dump(save_data, save_file, indent=4, ensure_ascii=False)
 
+    # Create an m3u file if requested
     if m3u_file:
         create_m3u_file(
             m3u_file, songs, downloader.output, downloader.output_format, False

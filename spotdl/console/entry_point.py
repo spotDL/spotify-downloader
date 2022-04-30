@@ -9,11 +9,11 @@ import logging
 import cProfile
 import pstats
 
-from spotdl.console.save import save
-from spotdl.console.sync import sync
-from spotdl.download import Downloader
-from spotdl.console.preload import preload
 from spotdl.console.download import download
+from spotdl.console.preload import preload
+from spotdl.console.sync import sync
+from spotdl.console.save import save
+from spotdl.download import Downloader
 from spotdl.utils.config import DEFAULT_CONFIG, ConfigError, get_config
 from spotdl.utils.ffmpeg import FFmpegError, download_ffmpeg, is_ffmpeg_installed
 from spotdl.utils.config import get_config_file
@@ -21,6 +21,14 @@ from spotdl.utils.github import check_for_updates
 from spotdl.utils.arguments import parse_arguments
 from spotdl.utils.spotify import SpotifyClient, SpotifyError
 from spotdl.download.downloader import DownloaderError
+
+
+OPEARTIONS = {
+    "download": download,
+    "preload": preload,
+    "sync": sync,
+    "save": save,
+}
 
 
 def entry_point():
@@ -170,29 +178,14 @@ def entry_point():
     signal.signal(signal.SIGINT, graceful_exit)
     signal.signal(signal.SIGTERM, graceful_exit)
 
-    if arguments.operation == "download":
-        download(arguments.query, downloader=downloader, m3u_file=settings["m3u"])
-    elif arguments.operation == "preload":
-        preload(
-            query=arguments.query,
-            save_path=settings["save_file"],
-            downloader=downloader,
-            m3u_file=settings["m3u"],
-        )
-    elif arguments.operation == "sync":
-        sync(
-            query=arguments.query,
-            downloader=downloader,
-            m3u_file=settings["m3u"],
-        )
-    elif arguments.operation == "save":
-        # Save the songs to a file
-        save(
-            query=arguments.query,
-            save_path=settings["save_file"],
-            downloader=downloader,
-            m3u_file=settings["m3u"],
-        )
+    # Pick the operation to perform
+    # based on the name and run it!
+    OPEARTIONS[arguments.operation](
+        query=arguments.query,
+        save_path=settings["save_file"],
+        downloader=downloader,
+        m3u_file=settings["m3u"],
+    )
 
     downloader.progress_handler.close()
 
