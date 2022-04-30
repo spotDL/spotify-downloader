@@ -90,7 +90,14 @@ def parse_main_options(parser: _ArgumentGroup):
         is_web = False
 
     is_frozen = getattr(sys, "frozen", False)
+
+    # If the program is frozen, we and user didn't pass any arguments,
+    # or if the user is using the web interface, we don't need to parse
+    # the query
     if (is_frozen and len(sys.argv) < 2) or (len(sys.argv) > 1 and is_web):
+        # If we are running the web interface
+        # or we are in the frozen env and not running web interface
+        # don't remove the operation from the arg parser
         if not is_web or (is_frozen and not is_web):
             parser._remove_action(operation)  # pylint: disable=protected-access
 
@@ -276,8 +283,13 @@ def parse_output_options(parser: _ArgumentGroup):
         "--save-file",
         type=str,
         default=DEFAULT_CONFIG["save_file"],
-        help="The file to save/load the songs data from/to. It has to end with .spotdl",
-        required=len(sys.argv) > 1 and sys.argv[1] in ["save", "preload"],
+        help=(
+            "The file to save/load the songs data from/to. "
+            "It has to end with .spotdl. "
+            "If combined with the download operation, it will save the songs data to the file. "
+            "Required for save/preload/sync"
+        ),
+        required=len(sys.argv) > 1 and sys.argv[1] in ["save", "preload", "sync"],
     )
 
     # Add name format argument
