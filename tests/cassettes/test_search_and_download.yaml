@@ -7,7 +7,7 @@ interactions:
       Accept-Encoding:
       - gzip, deflate, br
       Authorization:
-      - Bearer BQBsPxGhEDptm5mNPjcO7_XSAY_Z9G8_dYmSSWS-mtvVRsHLZNsPYchwvV5dyANKPJ8HrZJPv51XFNSfmmc
+      - Bearer BQBskKQmL-xSqawTL0YTQysg0DoIEraX_-DmeQ7-1Up7YcqXT-aSrQWFUH_r9PF7iy47lkguKbzzcMHWM1U
       Connection:
       - keep-alive
       Content-Type:
@@ -25,7 +25,7 @@ interactions:
         5mk3fQEAAP//AwArFp7t9AAAAA==
     headers:
       Alt-Svc:
-      - clear
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
       Transfer-Encoding:
       - chunked
       Via:
@@ -48,7 +48,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Thu, 14 Apr 2022 14:13:31 GMT
+      - Wed, 11 May 2022 13:54:11 GMT
       server:
       - envoy
       strict-transport-security:

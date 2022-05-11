@@ -46,7 +46,7 @@ def search_and_get_best_match(
         if len(isrc_results) == 1:
             isrc_result = isrc_results[0]
 
-            name_match = isrc_result["name"].lower() == song_name.lower()
+            name_match = _match_percentage(isrc_result["name"].lower(), song_name.lower())
 
             delta = isrc_result["length"] - song_duration
             non_match_value = (delta**2) / song_duration * 100
@@ -56,7 +56,7 @@ def search_and_get_best_match(
             if (
                 isrc_result is not None
                 and "link" in isrc_result
-                and name_match
+                and name_match > 90
                 and time_match > 90
             ):
                 return isrc_result["link"]
