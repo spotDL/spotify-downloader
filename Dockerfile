@@ -17,6 +17,11 @@ RUN pip install --no-cache-dir .
 
 # Create music directory
 RUN mkdir /music
+
+# Create a volume for the output directory
+VOLUME /music
+
+# Change CWD to /music
 WORKDIR /music
 
 # Entrypoint command
