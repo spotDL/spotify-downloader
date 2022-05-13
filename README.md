@@ -79,6 +79,18 @@ curl -L https://raw.githubusercontent.com/spotDL/spotify-downloader/master/termu
 
 There is an Arch User Repository (AUR) package for [spotDL](https://aur.archlinux.org/packages/python-spotdl/).
 
+## Docker usage
+
+1. Build image:
+```bash
+docker build --rm -t spotdl .
+```
+
+2. Launch container with spotDL parameters (see section below). You need to create mapped volume to access song files
+```bash
+docker run --rm -v ~/music-spotdl:/music --name spotdl spotdl [trackUrl]
+```
+
 ## Usage
 
 - #### To download a song, run
