@@ -43,6 +43,6 @@ jobs:
 
       - name: Run tests
         run: |
-          poetry run pytest
+          poetry run pytest --disable-vcr
         env:
           PLATFORM: ${{ matrix.platform }}
