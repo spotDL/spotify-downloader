@@ -61,7 +61,10 @@ class AzLyrics(LyricsProvider):
         # Find all divs that don't have a class
         div_tags = soup.find_all("div", class_=False, id_=False)
 
-        lyrics = div_tags[1].get_text()
+        # Find the div with the longest text
+        lyrics_div = sorted(div_tags, key=lambda x: len(x.text))[-1]
+
+        lyrics = lyrics_div.get_text()
 
         # Remove the 3 first new lines
         lyrics = lyrics[3:]
