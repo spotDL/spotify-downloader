@@ -9,4 +9,6 @@ lyrics = "[Verse 1]\nMore than lovers\nDestined to find, one another\nLike light
 def test_get_genius_lyrics():
     genius = Genius()
 
-    assert genius.get_lyrics("Linked", ["Jim Yosef"]) == lyrics
+    res_lyrics = genius.get_lyrics("Linked", ["Jim Yosef"])
+
+    assert res_lyrics is not None and res_lyrics.lower() == lyrics.lower()
