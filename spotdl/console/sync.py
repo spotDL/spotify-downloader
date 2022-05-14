@@ -17,7 +17,7 @@ from spotdl.utils.m3u import create_m3u_file
 def sync(
     query: List[str],
     downloader: Downloader,
-    save_path: Path,
+    save_path: Path,  # pylint: disable=W0613
     m3u_file: Optional[str] = None,
 ) -> None:
     """

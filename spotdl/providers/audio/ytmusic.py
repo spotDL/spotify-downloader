@@ -64,7 +64,9 @@ class YouTubeMusic(AudioProvider):
                 if len(isrc_results) == 1:
                     isrc_result = isrc_results[0]
 
-                    name_match = match_percentage(isrc_result["name"].lower(), song.name.lower())
+                    name_match = match_percentage(
+                        isrc_result["name"].lower(), song.name.lower()
+                    )
 
                     delta = isrc_result["duration"] - song.duration
                     non_match_value = (delta**2) / song.duration * 100
