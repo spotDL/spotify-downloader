@@ -49,7 +49,7 @@ class AudioProvider:
         self,
         output_format: str = "mp3",
         cookie_file: Optional[str] = None,
-        search_query: str = "{artists} - {title}",
+        search_query: Optional[str] = None,
         filter_results: bool = True,
     ) -> None:
         """

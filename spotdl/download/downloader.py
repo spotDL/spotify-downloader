@@ -77,7 +77,7 @@ class Downloader:
         overwrite: str = "skip",
         cookie_file: Optional[str] = None,
         filter_results: bool = True,
-        search_query: str = "{artists} - {title}",
+        search_query: Optional[str] = None,
         log_level: str = "INFO",
         simple_tui: bool = False,
         loop: Optional[asyncio.AbstractEventLoop] = None,
