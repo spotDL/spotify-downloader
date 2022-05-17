@@ -276,7 +276,6 @@ class YouTubeMusic(AudioProvider):
 
             # Find album match
             album_match = 0.0
-            album = None
 
             # Calculate album match only for songs
             if result["type"] == "song":
