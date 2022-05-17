@@ -1,16 +1,16 @@
-import pytest
+# import pytest
 
 from spotdl.providers.audio import YouTubeMusic
 from spotdl.types.song import Song
 
 
-@pytest.mark.vcr()
-def test_find_isrc_song():
-    provider = YouTubeMusic()
+# @pytest.mark.vcr()
+# def test_find_isrc_song():
+#     provider = YouTubeMusic()
 
-    results = provider.get_results("GB2LD2210068")
+#     results = provider.get_results("GB2LD2210068")
 
-    assert results[0]["link"] == "https://youtube.com/watch?v=0h6XAAwX8II"
+#     assert results[0]["link"] == "https://youtube.com/watch?v=0h6XAAwX8II"
 
 
 def test_find_song():
