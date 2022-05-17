@@ -120,7 +120,7 @@ DEFAULT_CONFIG = {
     "simple_tui": False,
     "cache_path": str(get_cache_path()),
     "audio_providers": ["youtube-music"],
-    "lyrics_providers": ["musixmatch"],
+    "lyrics_providers": ["musixmatch", "genius"],
     "ffmpeg": "ffmpeg",
     "bitrate": None,
     "ffmpeg_args": None,
