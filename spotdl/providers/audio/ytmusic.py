@@ -65,7 +65,7 @@ class YouTubeMusic(AudioProvider):
                     isrc_result = isrc_results[0]
 
                     name_match = match_percentage(
-                        isrc_result["name"].lower(), song.name.lower()
+                        slugify(isrc_result["name"]), slugify(song.name)
                     )
 
                     delta = isrc_result["duration"] - song.duration
@@ -195,9 +195,12 @@ class YouTubeMusic(AudioProvider):
         for result in results:
             # Slugify result title
             slug_result_name = slugify(result["name"])
+            slug_result_album = (
+                slugify(result["album"]) if result.get("album") else None
+            )
 
             # check for common words in result name
-            sentence_words = slug_song_name.replace("-", " ").split(" ")
+            sentence_words = slug_song_name.split("-")
             common_word = any(
                 word != "" and word in slug_result_name for word in sentence_words
             )
@@ -277,9 +280,8 @@ class YouTubeMusic(AudioProvider):
 
             # Calculate album match only for songs
             if result["type"] == "song":
-                album = result.get("album")
-                if album:
-                    album_match = match_percentage(slugify(album), slug_album_name)
+                if slug_result_album:
+                    album_match = match_percentage(slug_result_album, slug_album_name)
 
             # Calculate time match
             delta = result["duration"] - song.duration
@@ -287,26 +289,20 @@ class YouTubeMusic(AudioProvider):
 
             time_match = 100 - non_match_value
 
-            if result["type"] == "song":
-                if album is None:
-                    # Don't use album match
-                    # If we didn't find album for the result,
-                    average_match = (artist_match + name_match + time_match) / 3
-                elif (
-                    match_percentage(album.lower(), result["name"].lower()) > 95
-                    and album.lower() != song.album_name.lower()
-                ):
-                    # If the album name is similar to the result song name,
-                    # But the album name is different from the song album name
-                    # We don't use album match
-                    average_match = (artist_match + name_match + time_match) / 3
-                else:
-                    average_match = (
-                        artist_match + album_match + name_match + time_match
-                    ) / 4
-            else:
-                # Don't use album match for videos
-                average_match = (artist_match + name_match + time_match) / 3
+            average_match = (artist_match + name_match + time_match) / 3
+
+            if (
+                result["type"] == "song"
+                and slug_result_album
+                and match_percentage(slug_album_name, slug_result_name) > 95
+                and slug_result_album == slug_album_name
+            ):
+                # If the result album name is similar to the song album name
+                # and the result album name is the same as the song album name
+                # we add album match to the average match
+                average_match = (
+                    artist_match + album_match + name_match + time_match
+                ) / 4
 
             # the results along with the avg Match
             links_with_match_value[result["link"]] = average_match
