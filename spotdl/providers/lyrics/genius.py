@@ -53,13 +53,24 @@ class Genius(LyricsProvider):
             )
 
             song_url = song_response.json()["response"]["song"]["url"]
-            genius_page_response = requests.get(song_url, headers=headers)
-            if not genius_page_response.ok:
+
+            counter = 0
+            soup = None
+            while counter > 5:
+                genius_page_response = requests.get(song_url, headers=self.headers)
+
+                if not genius_page_response.ok:
+                    counter += 1
+                    continue
+
+                soup = BeautifulSoup(
+                    genius_page_response.text.replace("<br/>", "\n"), "html.parser"
+                )
+                break
+
+            if soup is None:
                 return None
 
-            soup = BeautifulSoup(
-                genius_page_response.text.replace("<br/>", "\n"), "html.parser"
-            )
             lyrics_div = soup.select_one("div.lyrics")
 
             if lyrics_div is not None:
