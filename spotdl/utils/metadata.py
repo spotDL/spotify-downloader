@@ -173,7 +173,7 @@ def _embed_mp3_metadata(audio_file, song: Song):
     audio_file["discnumber"] = [song.disc_number, song.disc_count]
     audio_file["artist"] = song.artists
     audio_file["album"] = song.album_name
-    audio_file["albumartist"] = song.artists
+    audio_file["albumartist"] = song.artist
     audio_file["date"] = song.date
     audio_file["originaldate"] = song.date
     audio_file["encodedby"] = song.publisher
