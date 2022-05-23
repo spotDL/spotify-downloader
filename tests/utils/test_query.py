@@ -58,6 +58,7 @@ def test_parse_artist():
     assert len(songs) > 1
 
 
+@pytest.mark.vcr()
 def test_parse_saved():
     with pytest.raises(SavedError):
         parse_query(SAVED)

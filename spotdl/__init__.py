@@ -26,7 +26,8 @@ class Spotdl:
     >>> spotdl = Spotdl(client_id='your-client-id', client_secret='your-client-secret')
     >>> songs = spotdl.search(['joji - test drive',
     >>>     'https://open.spotify.com/track/4cOdK2wGLETKBW3PvgPWqT'])
-    >>> spotdl.download_songs(songs)
+    >>> results = spotdl.download_songs(songs)
+    >>> song, path = spotd.download(songs[0])
     """
 
     def __init__(
