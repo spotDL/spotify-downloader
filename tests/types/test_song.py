@@ -131,7 +131,7 @@ def test_song_from_search_term():
     assert song.track_number == 1
     assert song.tracks_count == 1
     assert song.isrc == "GB2LD2110301"
-    assert song.song_id == "1t2qKa8K72IBC8yQlhD9bU"
+    assert song.song_id == "4SN9kQlguIcjPtMNQJwD30"
     assert (
         song.cover_url
         == "https://i.scdn.co/image/ab67616d0000b273fe2cb38e4d2412dbb0e54332"
