@@ -63,6 +63,6 @@ def test_artist_from_url():
 
     assert artist.name == "Kontinuum"
     assert artist.url == "https://open.spotify.com/artist/1FPC2zwfMHhrP3frOfaai6"
-    assert len(artist.songs) > 5
+    assert len(artist.songs) > 1
     assert len(artist.albums) > 2
     assert len(artist.genres) >= 1
