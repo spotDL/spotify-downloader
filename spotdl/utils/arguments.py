@@ -81,7 +81,10 @@ def parse_main_options(parser: _ArgumentGroup):
         "query",
         nargs="+",
         type=str,
-        help="URL for a song/playlist/album/artist/etc. to download.",
+        help=(
+            "Spotify URL for a song/playlist/album/artist/etc. to download."
+            "For manual audio matching, you can use the format 'YouTubeURL|SpotifyURL'"
+        ),
     )
 
     try:
