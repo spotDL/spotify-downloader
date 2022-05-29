@@ -3,6 +3,8 @@ import subprocess
 
 from pathlib import Path
 
+from spotdl.download.downloader import Downloader
+from spotdl.utils import ffmpeg
 from spotdl.utils.spotify import SpotifyClient
 
 ORIGINAL_INITIALIZE = SpotifyClient.init
@@ -60,10 +62,14 @@ def fake_create_subprocess_exec(*args, stdout=None, stderr=None, **kwargs):
 
 
 @pytest.fixture()
-def patch_dependencies(monkeypatch):
+def patch_dependencies(mocker, monkeypatch):
     """
     This function is called before each test.
     """
 
     monkeypatch.setattr(SpotifyClient, "init", new_initialize)
     monkeypatch.setattr(subprocess, "Popen", fake_create_subprocess_exec)
+    monkeypatch.setattr(ffmpeg, "get_ffmpeg_version", lambda *_: (4.4, 2022))
+
+    mocker.patch.object(Downloader, "download_song", autospec=True)
+    mocker.patch.object(Downloader, "download_multiple_songs", autospec=True)
