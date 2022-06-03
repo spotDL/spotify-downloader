@@ -1,0 +1,125 @@
+interactions:
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate, br
+      Connection:
+      - keep-alive
+      User-Agent:
+      - python-requests/2.27.1
+    method: GET
+    uri: https://api.github.com/repos/spotdl/spotify-downloader/compare/master...dev
+  response:
+    body:
+      string: !!binary |
+        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
+        dmCMMQAA
+    headers:
+      Accept-Ranges:
+      - bytes
+      Access-Control-Allow-Origin:
+      - '*'
+      Access-Control-Expose-Headers:
+      - ETag, Link, Location, Retry-After, X-GitHub-OTP, X-RateLimit-Limit, X-RateLimit-Remaining,
+        X-RateLimit-Used, X-RateLimit-Resource, X-RateLimit-Reset, X-OAuth-Scopes,
+        X-Accepted-OAuth-Scopes, X-Poll-Interval, X-GitHub-Media-Type, X-GitHub-SSO,
+        X-GitHub-Request-Id, Deprecation, Sunset
+      Cache-Control:
+      - public, max-age=60, s-maxage=60
+      Content-Encoding:
+      - gzip
+      Content-Length:
+      - '2799'
+      Content-Security-Policy:
+      - default-src 'none'
+      Content-Type:
+      - application/json; charset=utf-8
+      Date:
+      - Fri, 03 Jun 2022 21:26:24 GMT
+      ETag:
+      - W/"8023ad38c7483e1b4c8f9b15c206cefb79aab1fb0e6d7fb18c9d388da6cd0284"
+      Last-Modified:
+      - Wed, 25 May 2022 13:56:48 GMT
+      Referrer-Policy:
+      - origin-when-cross-origin, strict-origin-when-cross-origin
+      Server:
+      - GitHub.com
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubdomains; preload
+      Vary:
+      - Accept, Accept-Encoding, Accept, X-Requested-With
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - deny
+      X-GitHub-Media-Type:
+      - github.v3; format=json
+      X-GitHub-Request-Id:
+      - 4A7C:0DB7:2139F17:2205CCA:629A7C80
+      X-RateLimit-Limit:
+      - '60'
+      X-RateLimit-Remaining:
+      - '56'
+      X-RateLimit-Reset:
+      - '1654293709'
+      X-RateLimit-Resource:
+      - core
+      X-RateLimit-Used:
+      - '4'
+      X-XSS-Protection:
+      - '0'
+    status:
+      code: 200
+      message: OK
+version: 1
