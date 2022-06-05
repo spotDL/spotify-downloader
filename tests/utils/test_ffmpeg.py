@@ -73,19 +73,48 @@ def test_get_none_local_ffmpeg(monkeypatch):
     assert get_local_ffmpeg() is None
 
 
-def test_download_ffmpeg(monkeypatch, tmp_path):
+def test_download_ffmpeg(monkeypatch, tmpdir):
     """
     Test download_ffmpeg function.
     """
 
-    class MockResponse:
-        """
-        Mock response for requests.get.
-        """
-
-        content = b"\0"
-
-    monkeypatch.setattr(spotdl.utils.ffmpeg, "get_spotdl_path", lambda *_: tmp_path)
-    monkeypatch.setattr(requests, "get", lambda *_, **__: MockResponse)
+    monkeypatch.setattr(spotdl.utils.ffmpeg, "get_spotdl_path", lambda *_: tmpdir)
 
     assert download_ffmpeg() is not None
+
+@pytest.mark.vcr()
+def test_convert_sync(tmpdir, monkeypatch):
+    """
+    Test convert_sync function.
+    """
+
+    monkeypatch.chdir(tmpdir)
+    monkeypatch.setattr(spotdl.utils.ffmpeg, "get_spotdl_path", lambda *_: tmpdir)
+
+    assert convert_sync(
+        input_file=("https://dl8.webmfiles.org/big-buck-bunny_trailer.webm", "webm"),
+        output_file=Path(tmpdir, "test.mp3"),
+    ) == (True, None)
+
+    assert convert_sync(
+        input_file=Path(tmpdir, "test.mp3"),
+        output_file=Path(tmpdir, "test.m4a"),
+        output_format="m4a",
+        bitrate="320K",
+    ) == (True, None)
+
+
+
+@pytest.mark.vcr()
+async def test_convert_async(tmpdir, monkeypatch):
+    """
+    Test convert_async function.
+    """
+
+    monkeypatch.chdir(tmpdir)
+    monkeypatch.setattr(spotdl.utils.ffmpeg, "get_spotdl_path", lambda *_: tmpdir)
+
+    assert await convert(
+        input_file=("https://dl8.webmfiles.org/big-buck-bunny_trailer.webm", "webm"),
+        output_file=Path(tmpdir, "test.mp3"),
+    ) == (True, None)
