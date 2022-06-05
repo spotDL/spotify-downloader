@@ -5,7 +5,7 @@ import re
 
 from spotdl.console.entry_point import console_entry_point, entry_point
 from spotdl.utils.spotify import SpotifyClient
-from tests.conftest import new_initialize
+from tests.conftest import new_initialize, clean_ansi_sequence
 
 @pytest.mark.parametrize("argument", ["-h", "--help"])
 def test_show_help(capsys, monkeypatch, argument):
@@ -65,6 +65,7 @@ def test_download_song(capsys, monkeypatch, tmpdir):
     console_entry_point()
 
     out, _ = capsys.readouterr()
+    out = clean_ansi_sequence(out)
 
     assert 'Downloaded "Jim Yosef - Linked": https://www.youtube.com/watch?v=sJpzMSHKUqI' in out
 
@@ -85,6 +86,8 @@ def test_preload_song(capsys, monkeypatch, tmpdir):
     console_entry_point()
 
     out, _ = capsys.readouterr()
+
+    out = clean_ansi_sequence(out)
 
     assert 'Saved 1 song to test.spotdl' in out
 
