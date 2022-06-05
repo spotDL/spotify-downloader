@@ -1,9 +1,11 @@
 import pathlib
-from spotdl.utils.ffmpeg import *
+import pytest
+
 import spotdl.utils.ffmpeg
 import spotdl.utils.config
 
-import pytest
+from spotdl.utils.ffmpeg import *
+from yt_dlp import YoutubeDL
 
 ffmpeg_stdout = """
 ffmpeg version 4.3.1-2020-11-19-essentials_build-www.gyan.dev Copyright (c) 2000-2020 the FFmpeg developers
@@ -83,7 +85,7 @@ def test_download_ffmpeg(monkeypatch, tmpdir):
     assert download_ffmpeg() is not None
 
 @pytest.mark.vcr()
-def test_convert_sync(tmpdir, monkeypatch):
+async def test_convert_sync(tmpdir, monkeypatch):
     """
     Test convert_sync function.
     """
@@ -91,8 +93,11 @@ def test_convert_sync(tmpdir, monkeypatch):
     monkeypatch.chdir(tmpdir)
     monkeypatch.setattr(spotdl.utils.ffmpeg, "get_spotdl_path", lambda *_: tmpdir)
 
+    yt = YoutubeDL()
+    download_info = yt.extract_info("https://www.youtube.com/watch?v=h-nHdqC3pPs")
+
     assert convert_sync(
-        input_file=("https://dl8.webmfiles.org/big-buck-bunny_trailer.webm", "webm"),
+        input_file=(download_info["url"], download_info["ext"]),
         output_file=Path(tmpdir, "test.mp3"),
     ) == (True, None)
 
@@ -103,18 +108,8 @@ def test_convert_sync(tmpdir, monkeypatch):
         bitrate="320K",
     ) == (True, None)
 
-
-
-@pytest.mark.vcr()
-async def test_convert_async(tmpdir, monkeypatch):
-    """
-    Test convert_async function.
-    """
-
-    monkeypatch.chdir(tmpdir)
-    monkeypatch.setattr(spotdl.utils.ffmpeg, "get_spotdl_path", lambda *_: tmpdir)
-
     assert await convert(
-        input_file=("https://dl8.webmfiles.org/big-buck-bunny_trailer.webm", "webm"),
+        input_file=(download_info["url"], download_info["ext"]),
         output_file=Path(tmpdir, "test.mp3"),
     ) == (True, None)
+
