@@ -67,7 +67,7 @@ def test_download_song(capsys, monkeypatch, tmpdir):
     out, _ = capsys.readouterr()
     out = clean_ansi_sequence(out)
 
-    assert 'Downloaded "Jim Yosef - Linked": https://www.youtube.com/watch?v=sJpzMSHKUqI' in out
+    assert 'Downloaded "Jim Yosef - Linked"' in out
 
 @pytest.mark.vcr()
 def test_preload_song(capsys, monkeypatch, tmpdir):
@@ -95,6 +95,6 @@ def test_preload_song(capsys, monkeypatch, tmpdir):
         data = json.load(f)
 
     assert data[0]["name"] == "Linked"
-    assert data[0]["download_url"] == "https://youtube.com/watch?v=sJpzMSHKUqI"
+    assert data[0]["download_url"] is not None
 
 
