@@ -94,7 +94,7 @@ async def test_convert_sync(tmpdir, monkeypatch):
     monkeypatch.setattr(spotdl.utils.ffmpeg, "get_spotdl_path", lambda *_: tmpdir)
 
     yt = YoutubeDL()
-    download_info = yt.extract_info("https://www.youtube.com/watch?v=h-nHdqC3pPs")
+    download_info = yt.extract_info("https://www.youtube.com/watch?v=h-nHdqC3pPs", download=False)
 
     assert convert_sync(
         input_file=(download_info["url"], download_info["ext"]),
