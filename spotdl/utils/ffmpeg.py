@@ -242,8 +242,7 @@ async def convert(
     - output_file: Path to output file
     - ffmpeg: ffmpeg executable to use
     - output_format: output format
-    - variable_bitrate: variable bitrate
-    - constant_bitrate: constant bitrate
+    - bitrate: constant bitrate
     - ffmpeg_args: ffmpeg arguments
 
     ### Returns
@@ -310,7 +309,7 @@ async def convert(
         version = get_ffmpeg_version(ffmpeg)
 
         # join stdout and stderr and decode to utf-8
-        message = b"".join(proc_out).decode("utf-8")
+        message = b"".join([out for out in proc_out if out]).decode("utf-8")
 
         # return error dictionary
         return False, {
@@ -341,8 +340,7 @@ def convert_sync(
     - output_file: Path to output file.
     - ffmpeg: ffmpeg executable to use.
     - output_format: output format.
-    - variable_bitrate: variable bitrate.
-    - constant_bitrate: constant bitrate.
+    - bitrate: constant bitrate.
     - ffmpeg_args: ffmpeg arguments.
     - progress_handler: progress handler, has to accept an integer as argument.
 
@@ -416,7 +414,7 @@ def convert_sync(
                 version = get_ffmpeg_version(ffmpeg)
 
                 # join stdout and stderr and decode to utf-8
-                message = b"".join(proc_out).decode("utf-8")
+                message = b"".join([out for out in proc_out if out]).decode("utf-8")
 
                 # return error dictionary
                 return False, {
