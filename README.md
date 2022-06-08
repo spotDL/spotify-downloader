@@ -299,6 +299,16 @@ There is an Arch User Repository (AUR) package for [spotDL](https://aur.archlinu
     - {ext}
     - {playlist}
 
+## `docker` Run without installing python 
+
+clone the repo and build the image
+
+```
+ docker build -t spotdl .  
+ docker run --expose 80 -v /path-on-local-system/music:/music -it --entrypoint /bin/sh  spotdl
+``` 
+
+
 ## `pipx` Isolated Environment Alternative
 
 For users who are not familiar with `pipx`, it can be used to run scripts **without**
