@@ -100,7 +100,9 @@ def set_id3_mp3(output_file: Path, song: Song):
             )
 
     if song.lyrics:
-        audio_file["USLT::'eng'"] = USLT(encoding=3, lang="eng", desc="desc", text=song.lyrics)
+        audio_file["USLT::'eng'"] = USLT(
+            encoding=3, lang="eng", desc="desc", text=song.lyrics
+        )
 
     audio_file.add(Comment(encoding=3, text=song.download_url))
 
@@ -313,9 +315,7 @@ AVAILABLE_FORMATS = {
 }
 
 
-def embed_metadata(
-    output_file: Path, song: Song, file_format: str
-) -> None:
+def embed_metadata(output_file: Path, song: Song, file_format: str) -> None:
     """
     Embeds metadata into the output file.
 
