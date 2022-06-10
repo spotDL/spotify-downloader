@@ -59,6 +59,8 @@ class Genius(LyricsProvider):
             while counter > 5:
                 genius_page_response = requests.get(song_url, headers=self.headers)
 
+                print(genius_page_response.text)
+
                 if not genius_page_response.ok:
                     counter += 1
                     continue
@@ -80,4 +82,6 @@ class Genius(LyricsProvider):
             lyrics = "\n".join(con.get_text() for con in lyrics_containers)
             return lyrics.strip()
         except Exception:
+            import traceback
+            traceback.print_exc()
             return None
