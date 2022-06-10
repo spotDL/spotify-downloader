@@ -84,10 +84,9 @@ def test_download_ffmpeg(monkeypatch, tmpdir):
 
     assert download_ffmpeg() is not None
 
-@pytest.mark.vcr()
-async def test_convert_sync(tmpdir, monkeypatch):
+def test_convert(tmpdir, monkeypatch):
     """
-    Test convert_sync function.
+    Test convert function.
     """
 
     monkeypatch.chdir(tmpdir)
@@ -100,20 +99,14 @@ async def test_convert_sync(tmpdir, monkeypatch):
 
     download_info = yt.extract_info("https://www.youtube.com/watch?v=h-nHdqC3pPs", download=False)
 
-    assert convert_sync(
+    assert convert(
         input_file=(download_info["url"], download_info["ext"]),
         output_file=Path(tmpdir, "test.mp3"),
     ) == (True, None)
 
-    assert convert_sync(
+    assert convert(
         input_file=Path(tmpdir, "test.mp3"),
         output_file=Path(tmpdir, "test.m4a"),
         output_format="m4a",
         bitrate="320K",
     ) == (True, None)
-
-    assert await convert(
-        input_file=(download_info["url"], download_info["ext"]),
-        output_file=Path(tmpdir, "test.mp3"),
-    ) == (True, None)
-

@@ -17,7 +17,7 @@ from yt_dlp.postprocessor.sponsorblock import SponsorBlockPP
 from yt_dlp.postprocessor.modify_chapters import ModifyChaptersPP
 
 from spotdl.types import Song
-from spotdl.utils.ffmpeg import FFmpegError, convert_sync, get_ffmpeg_path
+from spotdl.utils.ffmpeg import FFmpegError, convert, get_ffmpeg_path
 from spotdl.utils.metadata import embed_metadata, MetadataError
 from spotdl.utils.formatter import create_file_name, restrict_filename
 from spotdl.providers.audio.base import AudioProvider
@@ -242,7 +242,7 @@ class Downloader:
         tasks = [self.pool_download(song) for song in songs]
 
         # call all task asynchronously, and wait until all are finished
-        results = list(self.loop.run_until_complete(asyncio.gather(*tasks)))
+        results = list(self.loop.run_until_complete(self._aggregate_tasks(tasks)))
 
         if self.print_errors:
             for error in self.errors:
@@ -410,7 +410,7 @@ class Downloader:
                 f"audio provider: {audio_provider.name}"
             )
 
-            success, result = convert_sync(
+            success, result = convert(
                 (download_info["url"], download_info["ext"]),
                 output_file,
                 self.ffmpeg,
@@ -505,3 +505,10 @@ class Downloader:
                 f"{song.url} - {exception.__class__.__name__}: {exception}"
             )
             return song, None
+
+    async def _aggregate_tasks(self, tasks):
+        """
+        Aggregate the futures and return the results
+        """
+
+        return await asyncio.gather(*(task for task in tasks))
