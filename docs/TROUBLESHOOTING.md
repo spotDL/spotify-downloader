@@ -7,11 +7,11 @@ As common issues or questions are encountered solutions will be added to this gu
 Sometimes not all packages are installed but are required by yt-dlp for example: `brotli` or
 `websockets`
 
-### Error message
+##### Error message
 
 `pkg_resources.DistributionNotFound: The 'websockets' distribution was not found and is required by yt-dlp`
 
-### Solution
+##### Solution
 
 `pip install brotli websockets yt-dlp -U`
 
@@ -19,11 +19,11 @@ Sometimes not all packages are installed but are required by yt-dlp for example:
 
 <https://github.com/plamere/spotipy/issues/795#issuecomment-1100321148>
 
-### Error message
+#### Error message
 
 `HTTP Error for GET to URL with Params: {} returned 404 due to None`
 
-### Solution
+#### Solution
 
 Update spotdl to the latest version which contains workaround.
 
@@ -34,7 +34,7 @@ Update spotdl to the latest version which contains workaround.
 <https://github.com/spotDL/spotify-downloader/issues/1485>
 <https://github.com/maxbachmann/RapidFuzz/issues/195>
 
-### Error message
+#### Error message
 
 ```
 ld.lld: error: unable to find library -lgcc
@@ -48,7 +48,7 @@ or
 ERROR: Could not build wheels for cmake, ninja, which is required to install pyproject.toml-based projects
 ```
 
-### Solution
+#### Solution
 
 ```bash
 # Setup its-pointless repo
@@ -69,11 +69,11 @@ pip install spotdl
 
 <https://stackoverflow.com/questions/27835619/urllib-and-ssl-certificate-verify-failed-error>
 
-### Error message
+#### Error message
 
 `urllib.error.URLError: <urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed (_ssl.c:847)>`
 
-### Solution
+#### Solution
 
 <https://stackoverflow.com/questions/27835619/urllib-and-ssl-certificate-verify-failed-error>
 
@@ -81,11 +81,11 @@ pip install spotdl
 
 <https://github.com/spotDL/spotify-downloader/issues/1493>
 
-### Error message
+#### Error message
 
 `RecursionError: maximum recursion depth exceeded`
 
-### Solution
+#### Solution
 
 Update spotdl
 
@@ -95,7 +95,7 @@ Update spotdl
 
 If you see this error after installing spotdl, that means that the bin folder is not on `$PATH`
 
-### Solution
+#### Solution
 
 #### `.bashrc`
 
@@ -111,7 +111,7 @@ Add `export PATH=~/.local/bin:$PATH` at the bottom of `~/.zshrc` Then run `sourc
 
 This happens when running spotdl using `python -m`.
 
-### Error message
+#### Error message
 
 ```
 RuntimeWarning: 'spotdl.__main__' found in sys.modules after import of package 'spotdl',
@@ -119,7 +119,7 @@ but prior to execution of 'spotdl.__main__'; this may result in unpredictable be
 warn(RuntimeWarning(msg))
 ```
 
-### Solution
+#### Solution
 
 You can ignore this error or just run spotdl directly
 
@@ -130,7 +130,7 @@ This error is specific for M1 Macs only.
 https://discord.com/channels/771628785447337985/871006150357823498
 https://discord.com/channels/771628785447337985/939475659238043738
 
-### Error message
+#### Error message
 
 ```
 aise OSError("Cannot load native module '%s': %s" % (name, ", ".join(attempts)))
@@ -140,7 +140,7 @@ Cannot load '_raw_ecb.abi3.so': dlopen(/opt/homebrew/lib/python3.9/site-packages
 /opt/homebrew/lib/python3.9/site-packages/Cryptodome/Cipher/_raw_ecb.abi3.so: mach-o, but wrong architecture, Not found '_raw_ecb.so'
 ```
 
-### Solution
+#### Solution
 
 Possible solutions:
 
@@ -155,14 +155,14 @@ Python/(site packages) is not added to PATH correctly. You need to install Pytho
 Or you are using python from microsoft store. If so uninstall it and restart cmd. If this
 doesn't work reinstall python.
 
-### Error message
+#### Error message
 
 ```
 'spotdl' is not recognized as an internal or external command,
 operable program or batch file.
 ```
 
-### Solution
+#### Solution
 
 Ensure to add to PATH when installing:
 ![python install](https://i.imgur.com/jWq5EnV.png)

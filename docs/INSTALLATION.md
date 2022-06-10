@@ -6,10 +6,8 @@ spotDL is a free and open source tool that downloads your Spotify playlists & mu
 
 ## Using spotDL
 
-<details>
-    <summary style="font-size:1.25em">
-        <strong>Using prebuilt executable</strong>
-    </summary>
+
+# Using prebuilt executable
 
 ### Downloading the executable
 
@@ -19,18 +17,13 @@ You can download the latest version from from the [Releases Tab](https://github.
 
 Web UI will start by default if no arguments are passed to the command line (after double-clicking for example)
 
-![Web UI](/docs/images/WEB_UI.png)
+![Web UI](images/WEB_UI.png)
 
 ### Running the cli
 
 To use the command line interface just open your terminal and run `./spotdl-vX.X.X operation [urls]`
 
-</details>
-
-<details>
-    <summary style="font-size:1.25em">
-        <strong>Using python</strong>
-    </summary>
+# Using python
 
 ### Prerequisites
 
@@ -42,7 +35,7 @@ To use the command line interface just open your terminal and run `./spotdl-vX.X
 
 When installing Python, ensure to select "**Add to PATH**".
 
-![Add to PATH Image](/docs/images/ADD_TO_PATH.png)
+![Add to PATH Image](images/ADD_TO_PATH.png)
 
 ### Installing FFmpeg
 
@@ -69,9 +62,6 @@ If you require further help, ask in our [Discord Server](https://discord.gg/xCa2
 
 [![Discord Server](https://img.shields.io/discord/771628785447337985?color=7289da&label=DISCORD&style=for-the-badge)](https://discord.gg/xCa23pwJWY)
 
-</details>
-
-
 ## Where does spotDL download songs?
 
 spotDL downloads files to the folder where you ran spotDL from.
@@ -82,7 +72,7 @@ cd to desired folder.
 **Windows Shortcut:** Navigate to the folder you want the files to download to.
 `SHIFT + RIGHT CLICK`, then select "Open PowerShell window here"
 
-![Windows PWSH](/docs/images/POWERSHELL.png)
+![Windows PWSH](images/POWERSHELL.png)
 
 ## We have a public Discord server at **[discord.gg/xCa23pwJWY](https://discord.gg/xCa23pwJWY)!**
 

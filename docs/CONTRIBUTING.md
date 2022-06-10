@@ -186,13 +186,13 @@ Enhancement suggestions are tracked as
 
 - We use [`pylint`](https://pypi.org/project/pylint/) for linting and expect a score above `9`
 
-  ```
+  ```bash
   pylint --limit-inference-results 0 --fail-under 9 ./spotdl
   ```
 
 - We use [`black`](https://pypi.org/project/black/) for code formatting
 
-  ```
+  ```bash
   black ./spotdl
   ```
 
@@ -200,17 +200,17 @@ Enhancement suggestions are tracked as
 
   To install type-stubs the first time around
 
-  ```
+  ```bash
   mypy --install-types --non-interactive
   ```
 
-  ```
+  ```bash
   mypy ./spotdl
   ```
 
 - You can install these basic tools with
 
-  ```
+  ```bash
   pip install --force-reinstall --upgrade mypy black pylint
   ```
 
@@ -218,30 +218,30 @@ Enhancement suggestions are tracked as
 
 Any submitted code is expected to have accompanying documentation
 
-#### pdoc3: generating documentation
+#### mkdocs: generating documentation
 
-- We generate our documentation with [`portray`](https://timothycrosley.github.io/portray/)
+- We generate our documentation with [`mkdocs`](https://www.mkdocs.org/)
 
+  ```bash
+  pip install mkdocs
   ```
-  pip install portray
-  ```
 
-  `portray` requires that all development packages are installed
+  `mkdocs` requires that all development packages are installed
 
-  ```
+  ```bash
   poetry install -E web
   ```
 
   generate docs with
 
-  ```
-  portray as_html
+  ```bash
+  mkdocs build --strict
   ```
 
   view docs live-time while editing with
 
-  ```
-  portray in_browser
+  ```bash
+  mkdocs serve
   ```
 
 #### DocString Formats
@@ -284,7 +284,7 @@ Any submitted code is expected to have accompanying documentation
   optional usage example for module/package preferably showcasing most commonly used functionality
   ```
 
-#### Notes about pdoc3
+#### Notes about docstrings
 
 - DocStrings are Inherited
 

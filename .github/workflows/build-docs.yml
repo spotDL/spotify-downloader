@@ -38,4 +38,4 @@ jobs:
 
       - name: Build and deploy
         run: |
-          poetry run portray on_github_pages --force --ignore_version
+          poetry run mkdocs gh-deploy --force
