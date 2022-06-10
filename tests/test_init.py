@@ -4,6 +4,7 @@ from spotipy.oauth2 import SpotifyOauthError
 from types import SimpleNamespace
 
 from spotdl import Spotdl
+
 # from spotdl.types.song import Song
 # from spotdl.utils.config import DEFAULT_CONFIG
 import spotdl.utils.config

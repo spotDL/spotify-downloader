@@ -7,6 +7,7 @@ from spotdl.console.entry_point import console_entry_point, entry_point
 from spotdl.utils.spotify import SpotifyClient
 from tests.conftest import new_initialize, clean_ansi_sequence
 
+
 @pytest.mark.parametrize("argument", ["-h", "--help"])
 def test_show_help(capsys, monkeypatch, argument):
     """
@@ -26,6 +27,7 @@ def test_show_help(capsys, monkeypatch, argument):
 
     out, _ = capsys.readouterr()
     assert "usage: spotdl [-h]" in out
+
 
 @pytest.mark.parametrize("argument", ["-v", "--version"])
 def test_show_version(capsys, monkeypatch, argument):
@@ -48,6 +50,7 @@ def test_show_version(capsys, monkeypatch, argument):
 
     assert re.match(r"\d{1,2}\.\d{1,2}\.\d{1,3}", out) is not None
 
+
 @pytest.mark.vcr()
 def test_download_song(capsys, monkeypatch, tmpdir):
     """
@@ -56,7 +59,11 @@ def test_download_song(capsys, monkeypatch, tmpdir):
 
     # `dummy` is an initial argument, which represents file path.
     # in real word sys.argv when no arguments are supplied contains just the script file path
-    cli_args = ["dummy", "download", "https://open.spotify.com/track/2Ikdgh3J5vCRmnCL3Xcrtv"]
+    cli_args = [
+        "dummy",
+        "download",
+        "https://open.spotify.com/track/2Ikdgh3J5vCRmnCL3Xcrtv",
+    ]
 
     monkeypatch.setattr(sys, "argv", cli_args)
     monkeypatch.setattr(SpotifyClient, "init", new_initialize)
@@ -69,6 +76,7 @@ def test_download_song(capsys, monkeypatch, tmpdir):
 
     assert 'Downloaded "Jim Yosef - Linked"' in out
 
+
 @pytest.mark.vcr()
 def test_preload_song(capsys, monkeypatch, tmpdir):
     """
@@ -77,7 +85,13 @@ def test_preload_song(capsys, monkeypatch, tmpdir):
 
     # `dummy` is an initial argument, which represents file path.
     # in real word sys.argv when no arguments are supplied contains just the script file path
-    cli_args = ["dummy", "preload", "https://open.spotify.com/track/2Ikdgh3J5vCRmnCL3Xcrtv", "--save-file", "test.spotdl"]
+    cli_args = [
+        "dummy",
+        "preload",
+        "https://open.spotify.com/track/2Ikdgh3J5vCRmnCL3Xcrtv",
+        "--save-file",
+        "test.spotdl",
+    ]
 
     monkeypatch.setattr(sys, "argv", cli_args)
     monkeypatch.setattr(SpotifyClient, "init", new_initialize)
@@ -89,12 +103,10 @@ def test_preload_song(capsys, monkeypatch, tmpdir):
 
     out = clean_ansi_sequence(out)
 
-    assert 'Saved 1 song to test.spotdl' in out
+    assert "Saved 1 song to test.spotdl" in out
 
     with open("test.spotdl", "r") as f:
         data = json.load(f)
 
     assert data[0]["name"] == "Linked"
     assert data[0]["download_url"] is not None
-
-

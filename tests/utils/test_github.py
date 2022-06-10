@@ -1,7 +1,13 @@
 import pytest
 
 from spotdl import _version
-from spotdl.utils.github import check_for_updates, create_github_url, download_github_dir, get_status, WEB_APP_URL
+from spotdl.utils.github import (
+    check_for_updates,
+    create_github_url,
+    download_github_dir,
+    get_status,
+    WEB_APP_URL,
+)
 
 
 @pytest.mark.vcr()
@@ -9,6 +15,7 @@ def test_get_status():
     status = get_status("master", "dev", "spotdl/spotify-downloader")
 
     assert None not in status
+
 
 @pytest.mark.vcr()
 def test_get_status_fail():
@@ -23,17 +30,20 @@ def test_check_for_updates(monkeypatch):
 
     assert message != ""
 
+
 @pytest.mark.vcr()
 def test_check_for_updates_fail(monkeypatch):
     monkeypatch.setattr(_version, "__version__", "3.9.4")
     with pytest.raises(RuntimeError):
         check_for_updates("spotdl/spotify-downloader-fail")
 
+
 @pytest.mark.vcr()
 def test_create_github_url():
     url = create_github_url(WEB_APP_URL)
 
     assert url == "https://api.github.com/repos/spotdl/web-ui/contents/dist?ref=master"
+
 
 @pytest.mark.vcr()
 def test_download_github_dir(tmpdir, monkeypatch):

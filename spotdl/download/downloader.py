@@ -506,7 +506,8 @@ class Downloader:
             )
             return song, None
 
-    async def _aggregate_tasks(self, tasks):
+    @staticmethod
+    async def _aggregate_tasks(tasks):
         """
         Aggregate the futures and return the results
         """

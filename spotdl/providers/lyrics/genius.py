@@ -7,7 +7,6 @@ from typing import List, Optional
 import requests
 
 from bs4 import BeautifulSoup
-
 from spotdl.providers.lyrics.base import LyricsProvider
 
 
@@ -82,6 +81,4 @@ class Genius(LyricsProvider):
             lyrics = "\n".join(con.get_text() for con in lyrics_containers)
             return lyrics.strip()
         except Exception:
-            import traceback
-            traceback.print_exc()
             return None

@@ -1,6 +1,11 @@
 import pytest
 
-from spotdl.utils.search import parse_query, get_search_results, create_empty_song, get_simple_songs
+from spotdl.utils.search import (
+    parse_query,
+    get_search_results,
+    create_empty_song,
+    get_simple_songs,
+)
 from spotdl.types.saved import SavedError
 
 
@@ -70,10 +75,12 @@ def test_parse_query():
 
     assert len(songs) > 1
 
+
 @pytest.mark.vcr()
 def test_get_search_results():
     results = get_search_results("test")
     assert len(results) > 1
+
 
 def test_create_empty_song():
     song = create_empty_song("test")
@@ -82,6 +89,7 @@ def test_create_empty_song():
     assert song.download_url == None
     assert song.duration == None
     assert song.artists == None
+
 
 @pytest.mark.vcr()
 def test_get_simple_songs():

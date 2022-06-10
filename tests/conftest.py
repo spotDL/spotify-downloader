@@ -75,13 +75,14 @@ def patch_dependencies(mocker, monkeypatch):
     mocker.patch.object(Downloader, "download_song", autospec=True)
     mocker.patch.object(Downloader, "download_multiple_songs", autospec=True)
 
+
 def clean_ansi_sequence(text):
     """
     Remove ANSI escape sequences from text
     """
 
     return re.sub(
-        r'(?:\x1B[@-Z\\-_]|[\x80-\x9A\x9C-\x9F]|(?:\x1B\[|\x9B)[0-?]*[ -/]*[@-~])',
-        '',
+        r"(?:\x1B[@-Z\\-_]|[\x80-\x9A\x9C-\x9F]|(?:\x1B\[|\x9B)[0-?]*[ -/]*[@-~])",
+        "",
         text,
     )

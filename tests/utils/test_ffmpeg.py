@@ -84,6 +84,7 @@ def test_download_ffmpeg(monkeypatch, tmpdir):
 
     assert download_ffmpeg() is not None
 
+
 def test_convert(tmpdir, monkeypatch):
     """
     Test convert function.
@@ -92,12 +93,16 @@ def test_convert(tmpdir, monkeypatch):
     monkeypatch.chdir(tmpdir)
     monkeypatch.setattr(spotdl.utils.ffmpeg, "get_spotdl_path", lambda *_: tmpdir)
 
-    yt = YoutubeDL({
-        "format": "bestaudio",
-        "encoding": "UTF-8",
-    })
+    yt = YoutubeDL(
+        {
+            "format": "bestaudio",
+            "encoding": "UTF-8",
+        }
+    )
 
-    download_info = yt.extract_info("https://www.youtube.com/watch?v=h-nHdqC3pPs", download=False)
+    download_info = yt.extract_info(
+        "https://www.youtube.com/watch?v=h-nHdqC3pPs", download=False
+    )
 
     assert convert(
         input_file=(download_info["url"], download_info["ext"]),

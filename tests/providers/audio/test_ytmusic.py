@@ -8,4 +8,7 @@ from spotdl.types.song import Song
 def find_songs():
     provider = YouTubeMusic()
 
-    assert provider.search(Song.from_search_term("Lost Identities Moments")) == "https://youtube.com/watch?v=0h6XAAwX8II"
+    assert (
+        provider.search(Song.from_search_term("Lost Identities Moments"))
+        == "https://youtube.com/watch?v=0h6XAAwX8II"
+    )
