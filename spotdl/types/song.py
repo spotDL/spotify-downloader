@@ -44,6 +44,7 @@ class Song:
     copyright_text: Optional[str]
     download_url: Optional[str] = None
     song_list: Optional["SongList"] = None
+    lyrics: Optional[str] = None
 
     @classmethod
     def from_url(cls, url: str) -> "Song":

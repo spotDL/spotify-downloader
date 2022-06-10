@@ -476,17 +476,16 @@ class Downloader:
                         Path(file_to_delete).unlink()
 
             try:
-                lyrics = self.search_lyrics(song)
+                song.lyrics = self.search_lyrics(song)
             except LookupError:
                 self.progress_handler.debug(
                     f"No lyrics found for {song.display_name}, "
                     "lyrics providers: "
                     f"{', '.join([lprovider.name for lprovider in self.lyrics_providers])}"
                 )
-                lyrics = ""
 
             try:
-                embed_metadata(output_file, song, self.output_format, lyrics)
+                embed_metadata(output_file, song, self.output_format)
             except Exception as exception:
                 raise MetadataError(
                     "Failed to embed metadata to the song"
