@@ -6,8 +6,8 @@ daysUntilClose: 7
 
 # Issues with these labels will never be considered stale
 exemptLabels:
-  - task list
-  - task
+  - META
+  - High Priority
 
 # Label to use when marking an issue as stale
 staleLabel: stale
