@@ -10,7 +10,6 @@ import cProfile
 import pstats
 
 from spotdl.console.download import download
-from spotdl.console.preload import preload
 from spotdl.console.sync import sync
 from spotdl.console.save import save
 from spotdl.download import Downloader
@@ -25,7 +24,6 @@ from spotdl.download.downloader import DownloaderError
 
 OPEARTIONS = {
     "download": download,
-    "preload": preload,
     "sync": sync,
     "save": save,
 }
@@ -183,6 +181,7 @@ def entry_point():
     OPEARTIONS[arguments.operation](
         query=arguments.query,
         save_path=settings["save_file"],
+        preload=settings["preload"],
         downloader=downloader,
         m3u_file=settings["m3u"],
     )

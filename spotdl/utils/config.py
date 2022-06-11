@@ -141,4 +141,5 @@ DEFAULT_CONFIG = {
     "restrict": False,
     "print_errors": False,
     "sponsor_block": False,
+    "preload": False
 }

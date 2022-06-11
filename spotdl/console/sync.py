@@ -19,6 +19,7 @@ def sync(
     downloader: Downloader,
     save_path: Path,  # pylint: disable=W0613
     m3u_file: Optional[str] = None,
+    **_,
 ) -> None:
     """
     Removes the songs that are no longer present in the list and downloads the new ones.

@@ -17,7 +17,7 @@ from spotdl.download.downloader import (
 )
 
 
-OPERATIONS = ["download", "save", "preload", "web", "sync"]
+OPERATIONS = ["download", "save", "web", "sync"]
 
 
 def parse_arguments() -> Namespace:
@@ -293,6 +293,14 @@ def parse_output_options(parser: _ArgumentGroup):
             "Required for save/preload/sync"
         ),
         required=len(sys.argv) > 1 and sys.argv[1] in ["save", "preload", "sync"],
+    )
+
+    # Add preload argument
+    parser.add_argument(
+        "--preload",
+        action="store_true",
+        default=DEFAULT_CONFIG["preload"],
+        help="Preload the download url to speed up the download process.",
     )
 
     # Add name format argument
