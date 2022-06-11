@@ -106,7 +106,8 @@ def set_id3_mp3(output_file: Path, song: Song):
             encoding=3, lang="eng", desc="desc", text=song.lyrics
         )
 
-    audio_file.add(Comment(encoding=3, text=song.download_url))
+    if song.download_url:
+        audio_file.add(Comment(encoding=3, text=song.download_url))
 
     audio_file.save(v2_version=3)
 
