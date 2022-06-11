@@ -18,6 +18,7 @@ def download(
     downloader: Downloader,
     save_path: Optional[Path] = None,
     m3u_file: Optional[str] = None,
+    **_
 ) -> None:
     """
     Find songs with the provided audio provider and save them to the disk.
