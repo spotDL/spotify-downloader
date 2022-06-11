@@ -2,8 +2,10 @@
 Module for interacting with Spotify API.
 To use this module, you must have a Spotify API key and Spotify API secret.
 
-    import spotdl.utils.spotify
-    spotify.Spotify.init(client_id, client_secret)
+```python
+import spotdl.utils.spotify
+spotify.Spotify.init(client_id, client_secret)
+```
 """
 
 from typing import Optional

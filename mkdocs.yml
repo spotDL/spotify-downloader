@@ -6,6 +6,16 @@ repo_url: "https://github.com/spotDL/spotdl-v4"
 repo_name: "spotdl/spotdl-v4"
 site_dir: "site"
 
+nav:
+- Home: index.md
+- Usage:
+  - Installation: installation.md
+  - Troubleshooting: troubleshooting.md
+- Development:
+  - Code Of Conduct: CODE_OF_CONDUCT.md
+  - Contributing: CONTRIBUTING.md
+- Code Reference: reference/
+
 theme:
   name: material
   features:
@@ -29,23 +39,6 @@ theme:
   - navigation.tabs
   - navigation.top
 
-markdown_extensions:
-- admonition
-- pymdownx.details
-- pymdownx.emoji
-- pymdownx.magiclink
-- pymdownx.snippets:
-    check_paths: true
-- pymdownx.superfences
-- pymdownx.highlight:
-    use_pygments: true
-    pygments_lang_class: true
-- pymdownx.tabbed:
-    alternate_style: true
-- pymdownx.tasklist
-- toc:
-    permalink: "¤"
-
 plugins:
 - search
 - gen-files:
@@ -62,13 +55,22 @@ plugins:
             ignore_init_summary: yes
           merge_init_into_class: yes
           show_submodules: no
+    watch:
+    - spotdl
 
-nav:
-- Home: index.md
-- Usage:
-  - Installation: installation.md
-  - Troubleshooting: troubleshooting.md
-- Code Reference: reference/
-- Development:
-  - Code Of Conduct: CODE_OF_CONDUCT.md
-  - Contributing: CONTRIBUTING.md
+markdown_extensions:
+- admonition
+- pymdownx.details
+- pymdownx.emoji
+- pymdownx.magiclink
+- pymdownx.snippets:
+    check_paths: true
+- pymdownx.superfences
+- pymdownx.highlight:
+    use_pygments: true
+    pygments_lang_class: true
+- pymdownx.tabbed:
+    alternate_style: true
+- pymdownx.tasklist
+- toc:
+    permalink: "¤"

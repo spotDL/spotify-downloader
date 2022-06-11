@@ -1,11 +1,13 @@
 """
 Module for embedding metadata into audio files using Mutagen.
 
-    embed_metadata(
-        output_file=Path("test.mp3"),
-        song=song_object,
-        file_format="mp3",
-    )
+```python
+embed_metadata(
+    output_file=Path("test.mp3"),
+    song=song_object,
+    file_format="mp3",
+)
+```
 """
 
 import base64

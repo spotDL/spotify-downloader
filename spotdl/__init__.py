@@ -22,12 +22,17 @@ class Spotdl:
     """
     Spotdl class, which simplifies the process of downloading songs from Spotify.
 
+    ```python
     from spotdl import Spotdl
+
     spotdl = Spotdl(client_id='your-client-id', client_secret='your-client-secret')
+
     songs = spotdl.search(['joji - test drive',
         'https://open.spotify.com/track/4cOdK2wGLETKBW3PvgPWqT'])
+
     results = spotdl.download_songs(songs)
     song, path = spotd.download(songs[0])
+    ```
     """
 
     def __init__(
