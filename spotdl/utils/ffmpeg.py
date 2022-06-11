@@ -282,7 +282,11 @@ def convert(
     if output_format == "opus" and file_format != "webm":
         arguments.extend(["-c:a", "libopus"])
     else:
-        if output_format in ["m4a", "opus"] and not (bitrate or ffmpeg_args):
+        if (
+            (output_format == "opus" and file_format == "opus")
+            or (output_format == "m4a" and file_format == "m4a")
+            and not (bitrate or ffmpeg_args)
+        ):
             # Copy the audio stream to the output file
             arguments.extend(["-vn", "-c:a", "copy"])
         else:
