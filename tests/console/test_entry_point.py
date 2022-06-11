@@ -87,10 +87,11 @@ def test_preload_song(capsys, monkeypatch, tmpdir):
     # in real word sys.argv when no arguments are supplied contains just the script file path
     cli_args = [
         "dummy",
-        "preload",
+        "save",
         "https://open.spotify.com/track/2Ikdgh3J5vCRmnCL3Xcrtv",
         "--save-file",
         "test.spotdl",
+        "--preload"
     ]
 
     monkeypatch.setattr(sys, "argv", cli_args)
