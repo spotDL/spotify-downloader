@@ -4,7 +4,7 @@ Module that holds the ProgressHandler class and Song Tracker class.
 
 import logging
 
-from typing import Any, Callable, Optional, List
+from typing import Any, Callable, Dict, Optional, List
 
 from rich.text import Text
 from rich.theme import Theme
@@ -471,6 +471,17 @@ class SongTracker:
         - status: The status to display.
         """
 
+        self.progress = 50
+        self.update(status)
+
+    def notify_conversion_complete(self, status="Converting") -> None:
+        """
+        Notifies the progress handler that the song has been converted.
+
+        ### Arguments
+        - status: The status to display.
+        """
+
         self.progress = 95
         self.update(status)
 
@@ -496,7 +507,7 @@ class SongTracker:
         self.progress = 100
         self.update(status)
 
-    def progress_hook(self, progress: int) -> None:
+    def ffmpeg_progress_hook(self, progress: int) -> None:
         """
         Updates the progress.
 
@@ -504,6 +515,23 @@ class SongTracker:
         - progress: The progress to update to.
         """
 
-        self.progress = int(progress * 0.95)
+        self.progress = 50 + int(progress * 0.45)
 
-        self.update("Downloading")
+        self.update("Converting")
+
+    def yt_dlp_progress_hook(self, data: Dict[str, Any]) -> None:
+        """
+        Updates the progress.
+
+        ### Arguments
+        - progress: The progress to update to.
+        """
+
+        if data["status"] == "downloading":
+            file_bytes = data["total_bytes"]
+            downloaded_bytes = data["downloaded_bytes"]
+
+            if file_bytes and downloaded_bytes:
+                self.progress = downloaded_bytes / file_bytes * 50
+
+            self.update("Downloading")

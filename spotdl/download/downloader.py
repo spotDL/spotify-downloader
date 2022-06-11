@@ -25,7 +25,7 @@ from spotdl.providers.lyrics import Genius, MusixMatch, AzLyrics
 from spotdl.providers.lyrics.base import LyricsProvider
 from spotdl.providers.audio import YouTube, YouTubeMusic
 from spotdl.download.progress_handler import NAME_TO_LEVEL, ProgressHandler
-from spotdl.utils.config import get_errors_path
+from spotdl.utils.config import get_errors_path, get_temp_path
 
 
 AUDIO_PROVIDERS: Dict[str, Type[AudioProvider]] = {
@@ -359,6 +359,7 @@ class Downloader:
 
         # Create the output file path
         output_file = create_file_name(song, self.output, self.output_format)
+        temp_folder = get_temp_path()
 
         # Restrict the filename if needed
         if self.restrict is True:
@@ -394,30 +395,41 @@ class Downloader:
                     filter_results=self.filter_results,
                 )
 
-            # Get the download metadata using yt-dlp
-            download_info = audio_provider.get_download_metadata(url)
-
-            if download_info is None:
-                self.progress_handler.debug(
-                    f"No download info found for {song.display_name}, url: {url}"
-                )
-                raise LookupError(
-                    f"yt-dlp failed to get metadata for: {song.name} - {song.artist}"
-                )
-
             self.progress_handler.debug(
                 f"Downloading {song.display_name} using {url}, "
                 f"audio provider: {audio_provider.name}"
             )
 
+            # Add progress hook to the audio provider
+            audio_provider.audio_handler.add_progress_hook(
+                display_progress_tracker.yt_dlp_progress_hook
+            )
+
+            # Download the song using yt-dlp
+            download_info = audio_provider.get_download_metadata(url, download=True)
+            temp_file = Path(
+                temp_folder / f"{download_info['id']}.{download_info['ext']}"
+            )
+
+            if download_info is None:
+                self.progress_handler.debug(
+                    f"No download info found for {song.display_name}, url: {url}"
+                )
+
+                raise LookupError(
+                    f"yt-dlp failed to get metadata for: {song.name} - {song.artist}"
+                )
+
+            display_progress_tracker.notify_download_complete()
+
             success, result = convert(
-                (download_info["url"], download_info["ext"]),
+                temp_file,
                 output_file,
                 self.ffmpeg,
                 self.output_format,
                 self.bitrate,
                 self.ffmpeg_args,
-                display_progress_tracker.progress_hook,
+                display_progress_tracker.ffmpeg_progress_hook,
             )
 
             if not success and result:
@@ -438,7 +450,11 @@ class Downloader:
                     error_path.write(error_message)
 
                 # Remove the file that failed to convert
-                output_file.unlink()
+                if output_file.exists():
+                    output_file.unlink()
+
+                if temp_file.exists():
+                    temp_file.unlink()
 
                 raise FFmpegError(
                     f"Failed to convert {song.display_name}, "
@@ -451,7 +467,7 @@ class Downloader:
             if song.download_url is None:
                 song.download_url = download_info["webpage_url"]
 
-            display_progress_tracker.notify_download_complete()
+            display_progress_tracker.notify_conversion_complete()
 
             if self.sponsor_block:
                 post_processor = SponsorBlockPP(

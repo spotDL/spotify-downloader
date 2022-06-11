@@ -7,6 +7,7 @@ from typing import Dict, Optional
 from yt_dlp import YoutubeDL
 
 from spotdl.types import Song
+from spotdl.utils.config import get_temp_path
 
 
 class AudioProviderError(Exception):
@@ -86,6 +87,7 @@ class AudioProvider:
                 "encoding": "UTF-8",
                 "logger": YTDLLogger(),
                 "cookiefile": self.cookie_file,
+                "outtmpl": f"{get_temp_path()}/%(id)s.%(ext)s",
             }
         )
 
@@ -130,7 +132,7 @@ class AudioProvider:
 
         raise NotImplementedError
 
-    def get_download_metadata(self, url: str) -> Dict:
+    def get_download_metadata(self, url: str, download: bool = False) -> Dict:
         """
         Get metadata for a download using yt-dlp.
 
@@ -141,7 +143,7 @@ class AudioProvider:
         - A dictionary containing the metadata.
         """
 
-        data = self.audio_handler.extract_info(url, download=False)
+        data = self.audio_handler.extract_info(url, download=download)
 
         if data:
             return data
