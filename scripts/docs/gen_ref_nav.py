@@ -7,7 +7,7 @@ import mkdocs_gen_files
 nav = mkdocs_gen_files.Nav()
 
 IGNORE = (
-    ('_version',),
+    ("_version",),
     # ('__init__',)
 )
 
