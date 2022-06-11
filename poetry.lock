@@ -550,17 +550,6 @@ Markdown = ">=3.3"
 mkdocs = ">=1.1"
 
 [[package]]
-name = "mkdocs-coverage"
-version = "0.2.5"
-description = "MkDocs plugin to integrate your coverage HTML report into your site."
-category = "dev"
-optional = false
-python-versions = ">=3.6.2"
-
-[package.dependencies]
-mkdocs = ">=1.2"
-
-[[package]]
 name = "mkdocs-gen-files"
 version = "0.3.4"
 description = "MkDocs plugin to programmatically generate documentation pages during the build"
@@ -1381,7 +1370,7 @@ web = ["uvicorn", "pydantic", "fastapi", "nest_asyncio"]
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7,<3.11"
-content-hash = "f307cb1e352850e215a0784021fde7de58e255b916957b513ef23dd59c61e2be"
+content-hash = "fdad32444e0be374e66003bad71a54ef0c4d5720c47bcaf129b51672e374599c"
 
 [metadata.files]
 altgraph = [
@@ -1827,10 +1816,6 @@ mkdocs = [
 mkdocs-autorefs = [
     {file = "mkdocs-autorefs-0.4.1.tar.gz", hash = "sha256:70748a7bd025f9ecd6d6feeba8ba63f8e891a1af55f48e366d6d6e78493aba84"},
     {file = "mkdocs_autorefs-0.4.1-py3-none-any.whl", hash = "sha256:a2248a9501b29dc0cc8ba4c09f4f47ff121945f6ce33d760f145d6f89d313f5b"},
-]
-mkdocs-coverage = [
-    {file = "mkdocs-coverage-0.2.5.tar.gz", hash = "sha256:6a9a796a50b873a62f273d4ac43f41f1f96c1c6c2154038ab6072e253818490a"},
-    {file = "mkdocs_coverage-0.2.5-py3-none-any.whl", hash = "sha256:d94a5c020ff37bd59b7bd27424df1ce57e5437597a627edcf6116366f96997e6"},
 ]
 mkdocs-gen-files = [
     {file = "mkdocs-gen-files-0.3.4.tar.gz", hash = "sha256:c69188486bdc1e74bd2b9b7ebbde9f9eb21052ae7762f1b35420cfbfc6d7122e"},
