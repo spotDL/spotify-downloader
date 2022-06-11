@@ -43,6 +43,6 @@ jobs:
 
       - name: Run tests
         run: |
-          poetry run pytest --disable-vcr -vvv --vcr-record=none --ignore tests/utils/test_github.py --ignore tests/providers/lyrics/test_azlyrics.py
+          poetry run pytest --disable-vcr -vvv --vcr-record=none --ignore tests/utils/test_github.py --ignore tests/providers/lyrics/
         env:
           PLATFORM: ${{ matrix.platform }}
