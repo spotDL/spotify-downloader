@@ -517,6 +517,8 @@ class SongTracker:
 
         if not self.parent.simple_tui:
             self.progress = 50 + int(progress * 0.45)
+        else:
+            self.progress = 50
 
         self.update("Converting")
 
@@ -532,7 +534,9 @@ class SongTracker:
             file_bytes = data["total_bytes"]
             downloaded_bytes = data["downloaded_bytes"]
 
-            if file_bytes and downloaded_bytes and not self.parent.simple_tui:
+            if self.parent.simple_tui:
+                self.progress = 50
+            elif file_bytes and downloaded_bytes:
                 self.progress = downloaded_bytes / file_bytes * 50
 
             self.update("Downloading")
