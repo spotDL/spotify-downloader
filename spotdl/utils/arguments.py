@@ -2,6 +2,7 @@
 Module that handles the command line arguments.
 """
 
+import argparse
 import sys
 
 from argparse import _ArgumentGroup, ArgumentParser, Namespace
@@ -32,6 +33,11 @@ def parse_arguments() -> Namespace:
     parser = ArgumentParser(
         prog="spotdl",
         description="Download your Spotify playlists and songs along with album art and metadata",
+        formatter_class=argparse.RawTextHelpFormatter,
+        epilog=(
+            "For more information, visit https://spotdl.github.io/spotdl-v4/ "
+            "or join our Discord server: https://discord.com/invite/xCa23pwJWY"
+        ),
     )
 
     # Parse main options
@@ -73,7 +79,15 @@ def parse_main_options(parser: _ArgumentGroup):
     operation = parser.add_argument(
         "operation",
         choices=OPERATIONS,
-        help="The operation to perform.",
+        metavar=tuple(OPERATIONS),
+        help=(
+            "The operation to perform.\n"
+            "download: Download the songs to the disk and embed metadata.\n"
+            "save: Saves the songs metadata to a file for further use.\n"
+            "web: Starts a web interface to simplify the download process.\n"
+            "sync: removes songs that are no longer present, downloads new ones"
+        ),
+
     )
 
     # Add query argument
@@ -132,8 +146,8 @@ def parse_main_options(parser: _ArgumentGroup):
         action="store_true",
         help=(
             "Use the config file to download songs. "
-            "It's located under `C:\\Users\\user\\.spotdl\\config.json` "
-            "or `~/.spotdl/config.json` under linux"
+            "It's located under C:\\Users\\user\\.spotdl\\config.json "
+            "or ~/.spotdl/config.json under linux"
         ),
     )
 
