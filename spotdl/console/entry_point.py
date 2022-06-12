@@ -8,6 +8,7 @@ import signal
 import logging
 import cProfile
 import pstats
+import traceback
 
 from spotdl.console.download import download
 from spotdl.console.sync import sync
@@ -187,15 +188,23 @@ def entry_point():
     signal.signal(signal.SIGINT, graceful_exit)
     signal.signal(signal.SIGTERM, graceful_exit)
 
-    # Pick the operation to perform
-    # based on the name and run it!
-    OPEARTIONS[arguments.operation](
-        query=arguments.query,
-        save_path=settings["save_file"],
-        preload=settings["preload"],
-        downloader=downloader,
-        m3u_file=settings["m3u"],
-    )
+    try:
+        # Pick the operation to perform
+        # based on the name and run it!
+        OPEARTIONS[arguments.operation](
+            query=arguments.query,
+            save_path=settings["save_file"],
+            preload=settings["preload"],
+            downloader=downloader,
+            m3u_file=settings["m3u"],
+        )
+    except Exception as exception:
+        downloader.progress_handler.debug(traceback.format_exc())
+        downloader.progress_handler.error(str(exception))
+
+        downloader.progress_handler.close()
+
+        sys.exit(1)
 
     downloader.progress_handler.close()
 

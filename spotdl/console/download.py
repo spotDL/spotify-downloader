@@ -2,7 +2,6 @@
 Download module for the console.
 """
 
-import traceback
 import json
 
 from typing import List, Optional
@@ -30,23 +29,18 @@ def download(
     - m3u_file: Path to the m3u file to save the songs to.
     """
 
-    try:
-        # Parse the query
-        songs = get_simple_songs(query)
+    # Parse the query
+    songs = get_simple_songs(query)
 
-        results = downloader.download_multiple_songs(songs)
+    results = downloader.download_multiple_songs(songs)
 
-        if m3u_file:
-            song_list = [song for song, _ in results]
-            create_m3u_file(
-                m3u_file, song_list, downloader.output, downloader.output_format, False
-            )
+    if m3u_file:
+        song_list = [song for song, _ in results]
+        create_m3u_file(
+            m3u_file, song_list, downloader.output, downloader.output_format, False
+        )
 
-        if save_path:
-            # Save the songs to a file
-            with open(save_path, "w", encoding="utf-8") as save_file:
-                json.dump(songs, save_file, indent=4, ensure_ascii=False)
-
-    except Exception as exception:
-        downloader.progress_handler.debug(traceback.format_exc())
-        downloader.progress_handler.error(str(exception))
+    if save_path:
+        # Save the songs to a file
+        with open(save_path, "w", encoding="utf-8") as save_file:
+            json.dump(songs, save_file, indent=4, ensure_ascii=False)

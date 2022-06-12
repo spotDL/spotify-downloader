@@ -110,52 +110,46 @@ def sync(
             else:
                 downloader.progress_handler.debug(f"{file} does not exist.")
 
-        try:
-            to_download = []
-            for song in songs_list:
-                song_path = create_file_name(
-                    song, downloader.output, downloader.output_format
-                )
-                if Path(song_path).exists():
-                    if downloader.overwrite == "force":
-                        downloader.progress_handler.log(
-                            f"Overwriting {song.display_name}"
-                        )
-                        to_download.append(song)
-                else:
+        to_download = []
+        for song in songs_list:
+            song_path = create_file_name(
+                song, downloader.output, downloader.output_format
+            )
+            if Path(song_path).exists():
+                if downloader.overwrite == "force":
+                    downloader.progress_handler.log(f"Overwriting {song.display_name}")
                     to_download.append(song)
+            else:
+                to_download.append(song)
 
-            if len(to_download) == 0:
-                downloader.progress_handler.log("Nothing to do...")
-                return None
-
-            if m3u_file:
-                create_m3u_file(
-                    m3u_file,
-                    songs_list,
-                    downloader.output,
-                    downloader.output_format,
-                    False,
-                )
-
-            with open(query[0], "w", encoding="utf-8") as save_file:
-                json.dump(
-                    {
-                        "type": "sync",
-                        "query": sync_data["query"],
-                        "songs": [song.json for song in songs_list],
-                    },
-                    save_file,
-                    indent=4,
-                    ensure_ascii=False,
-                )
-
-            downloader.download_multiple_songs(to_download)
+        if len(to_download) == 0:
+            downloader.progress_handler.log("Nothing to do...")
             return None
-        except Exception as exception:
-            downloader.progress_handler.debug(traceback.format_exc())
-            downloader.progress_handler.error(str(exception))
-            return None
+
+        if m3u_file:
+            create_m3u_file(
+                m3u_file,
+                songs_list,
+                downloader.output,
+                downloader.output_format,
+                False,
+            )
+
+        with open(query[0], "w", encoding="utf-8") as save_file:
+            json.dump(
+                {
+                    "type": "sync",
+                    "query": sync_data["query"],
+                    "songs": [song.json for song in songs_list],
+                },
+                save_file,
+                indent=4,
+                ensure_ascii=False,
+            )
+
+        downloader.download_multiple_songs(to_download)
+
+        return None
 
     raise ValueError(
         "Wrong combination of arguments. "
