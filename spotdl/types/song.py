@@ -104,7 +104,7 @@ class Song:
             publisher=raw_album_meta["label"],
             url=raw_track_meta["external_urls"]["spotify"],
             cover_url=raw_album_meta["images"][0]["url"]
-            if len(raw_album_meta["images"]) > 0
+            if raw_album_meta["images"]
             else None,
         )
 

@@ -13,6 +13,7 @@ def test_ytm_search():
         == "https://youtube.com/watch?v=0h6XAAwX8II"
     )
 
+
 @pytest.mark.vcr()
 def test_ytm_get_results():
     provider = YouTubeMusic()

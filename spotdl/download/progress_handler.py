@@ -434,8 +434,8 @@ class SongTracker:
             # If task is complete
             if self.progress == 100 or message == "Error":
                 self.parent.overall_completed_tasks += 1
-
-            self.parent.log(f"{self.song.name} - {self.song.artist}: {message}")
+            if delta:
+                self.parent.log(f"{self.song.name} - {self.song.artist}: {message}")
 
         # Update the overall progress bar
         if self.parent.song_count == self.parent.overall_completed_tasks:
@@ -515,7 +515,8 @@ class SongTracker:
         - progress: The progress to update to.
         """
 
-        self.progress = 50 + int(progress * 0.45)
+        if not self.parent.simple_tui:
+            self.progress = 50 + int(progress * 0.45)
 
         self.update("Converting")
 
@@ -531,7 +532,7 @@ class SongTracker:
             file_bytes = data["total_bytes"]
             downloaded_bytes = data["downloaded_bytes"]
 
-            if file_bytes and downloaded_bytes:
+            if file_bytes and downloaded_bytes and not self.parent.simple_tui:
                 self.progress = downloaded_bytes / file_bytes * 50
 
             self.update("Downloading")

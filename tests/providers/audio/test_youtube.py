@@ -3,6 +3,7 @@ import pytest
 from spotdl.providers.audio.youtube import YouTube
 from spotdl.types.song import Song
 
+
 @pytest.mark.vcr()
 def test_yt_search():
     provider = YouTube()
@@ -20,4 +21,3 @@ def test_yt_get_results():
     results = provider.get_results("Lost Identities Moments")
 
     assert results and len(results) > 5
-
