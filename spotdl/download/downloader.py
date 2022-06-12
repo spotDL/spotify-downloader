@@ -188,18 +188,8 @@ class Downloader:
         self.print_errors = print_errors
         self.errors: List[str] = []
         self.sponsor_block = sponsor_block
+        self.audio_providers_classes = audio_providers_classes
         self.progress_handler = ProgressHandler(NAME_TO_LEVEL[log_level], simple_tui)
-
-        self.audio_providers: List[AudioProvider] = []
-        for audio_provider_class in audio_providers_classes:
-            self.audio_providers.append(
-                audio_provider_class(
-                    output_format=self.output_format,
-                    cookie_file=self.cookie_file,
-                    search_query=self.search_query,
-                    filter_results=self.filter_results,
-                )
-            )
 
         self.lyrics_providers: List[LyricsProvider] = []
         for lyrics_provider_class in lyrics_providers_classes:
@@ -290,7 +280,18 @@ class Downloader:
         - tuple with download url and audio provider if successful.
         """
 
-        for audio_provider in self.audio_providers:
+        audio_providers: List[AudioProvider] = []
+        for audio_provider_class in self.audio_providers_classes:
+            audio_providers.append(
+                audio_provider_class(
+                    output_format=self.output_format,
+                    cookie_file=self.cookie_file,
+                    search_query=self.search_query,
+                    filter_results=self.filter_results,
+                )
+            )
+
+        for audio_provider in audio_providers:
             url = audio_provider.search(song)
             if url:
                 return url, audio_provider
