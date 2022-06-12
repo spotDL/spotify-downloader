@@ -87,7 +87,6 @@ def parse_main_options(parser: _ArgumentGroup):
             "web: Starts a web interface to simplify the download process.\n"
             "sync: removes songs that are no longer present, downloads new ones"
         ),
-
     )
 
     # Add query argument
