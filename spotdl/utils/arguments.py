@@ -292,7 +292,7 @@ def parse_output_options(parser: _ArgumentGroup):
             "If combined with the download operation, it will save the songs data to the file. "
             "Required for save/preload/sync"
         ),
-        required=len(sys.argv) > 1 and sys.argv[1] in ["save", "preload", "sync"],
+        required=len(sys.argv) > 1 and sys.argv[1] in ["save"],
     )
 
     # Add preload argument

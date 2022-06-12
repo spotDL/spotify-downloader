@@ -33,7 +33,7 @@ for path in Path("spotdl").glob("**/*.py"):
     nav[parts] = doc_path.as_posix()
 
     with mkdocs_gen_files.open(full_doc_path, "w") as fd:
-        if parts == ('__init__',):
+        if parts == ("__init__",):
             fd.write("::: spotdl")
             continue
 
