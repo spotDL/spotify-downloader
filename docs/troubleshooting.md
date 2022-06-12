@@ -2,16 +2,53 @@
 
 As common issues or questions are encountered solutions will be added to this guide.
 
+## 'spotdl' is not recognized
+
+Python/(site packages) is not added to PATH correctly. You need to install Python from
+<https://www.python.org/downloads/>
+
+Or you are using python from microsoft store. If so uninstall it and restart cmd. If this
+doesn't work reinstall python.
+
+#### Error message
+
+```
+'spotdl' is not recognized as an internal or external command,
+operable program or batch file.
+```
+
+#### Solution
+
+Ensure to add to PATH when installing:
+![python install](https://i.imgur.com/jWq5EnV.png)
+
+## spotdl: command not found
+
+If you see this error after installing spotdl, that means that the bin folder is not on `$PATH`
+
+#### Solution
+
+#### `.bashrc`
+
+Add `export PATH=~/.local/bin:$PATH` at the bottom of `~/.bashrc`
+
+Then run `source ~/.bashrc`
+
+#### `.zshrc`
+
+Add `export PATH=~/.local/bin:$PATH` at the bottom of `~/.zshrc` Then run `source ~/.zshrc`
+
+
 ## pkg_resources.DistributionNotFound
 
 Sometimes not all packages are installed but are required by yt-dlp for example: `brotli` or
 `websockets`
 
-##### Error message
+#### Error message
 
 `pkg_resources.DistributionNotFound: The 'websockets' distribution was not found and is required by yt-dlp`
 
-##### Solution
+#### Solution
 
 `pip install brotli websockets yt-dlp -U`
 
@@ -91,22 +128,6 @@ Update spotdl
 
 `pip install spotdl -U`
 
-## spotdl: command not found
-
-If you see this error after installing spotdl, that means that the bin folder is not on `$PATH`
-
-#### Solution
-
-#### `.bashrc`
-
-Add `export PATH=~/.local/bin:$PATH` at the bottom of `~/.bashrc`
-
-Then run `source ~/.bashrc`
-
-#### `.zshrc`
-
-Add `export PATH=~/.local/bin:$PATH` at the bottom of `~/.zshrc` Then run `source ~/.zshrc`
-
 ## RuntimeWarning
 
 This happens when running spotdl using `python -m`.
@@ -146,24 +167,3 @@ Possible solutions:
 
 <https://discord.com/channels/771628785447337985/871006150357823498>
 <https://discord.com/channels/771628785447337985/939475659238043738>
-
-## 'spotdl' is not recognized
-
-Python/(site packages) is not added to PATH correctly. You need to install Python from
-<https://www.python.org/downloads/>
-
-Or you are using python from microsoft store. If so uninstall it and restart cmd. If this
-doesn't work reinstall python.
-
-#### Error message
-
-```
-'spotdl' is not recognized as an internal or external command,
-operable program or batch file.
-```
-
-#### Solution
-
-Ensure to add to PATH when installing:
-![python install](https://i.imgur.com/jWq5EnV.png)
-
