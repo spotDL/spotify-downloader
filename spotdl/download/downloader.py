@@ -432,6 +432,10 @@ class Downloader:
                 display_progress_tracker.ffmpeg_progress_hook,
             )
 
+            # Remove the temp file
+            if temp_file.exists():
+                temp_file.unlink()
+
             if not success and result:
                 # If the conversion failed and there is an error message
                 # create a file with the error message
@@ -452,9 +456,6 @@ class Downloader:
                 # Remove the file that failed to convert
                 if output_file.exists():
                     output_file.unlink()
-
-                if temp_file.exists():
-                    temp_file.unlink()
 
                 raise FFmpegError(
                     f"Failed to convert {song.display_name}, "
