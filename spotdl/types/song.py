@@ -36,7 +36,7 @@ class Song:
     track_number: int
     tracks_count: int
     song_id: str
-    cover_url: str
+    cover_url: Optional[str]
     explicit: bool
     publisher: str
     url: str
@@ -103,7 +103,9 @@ class Song:
             explicit=raw_track_meta["explicit"],
             publisher=raw_album_meta["label"],
             url=raw_track_meta["external_urls"]["spotify"],
-            cover_url=raw_album_meta["images"][0]["url"],
+            cover_url=raw_album_meta["images"][0]["url"]
+            if len(raw_album_meta["images"]) > 0
+            else None,
         )
 
     @classmethod

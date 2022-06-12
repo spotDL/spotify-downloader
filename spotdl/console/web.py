@@ -71,7 +71,7 @@ class SongModel(BaseModel):
     tracks_count: int
     isrc: str
     song_id: str
-    cover_url: str
+    cover_url: Optional[str]
     explicit: bool
     publisher: str
     url: str
