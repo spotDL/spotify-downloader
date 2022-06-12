@@ -385,7 +385,7 @@ class SongTracker:
         - parent: The parent Tui Progress Handler.
         """
 
-        self.parent = parent
+        self.parent: "ProgressHandler" = parent
         self.song = song
 
         self.progress: int = 0
