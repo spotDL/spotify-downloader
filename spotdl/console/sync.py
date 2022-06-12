@@ -3,8 +3,6 @@ Sync module for the console.
 """
 
 import json
-import glob
-import traceback
 
 from pathlib import Path
 from typing import List, Optional
@@ -41,7 +39,7 @@ def sync(
     # Query and save file
     # Create initial sync file
     if query and save_path:
-        if any([req for req in query if req.endswith(".spotdl")]):
+        if any(req for req in query if req.endswith(".spotdl")):
             # If the query contains a .spotdl file, and we are about to create
             # .spotdl file, raise an error.
             raise ValueError(
