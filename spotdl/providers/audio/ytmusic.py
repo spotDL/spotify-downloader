@@ -34,13 +34,6 @@ class YouTubeMusic(AudioProvider):
         super().__init__(*args, **kwargs)
         self.client = YTMusic()
 
-        # Check if we are getting results from YouTube Music
-        test_results = self.get_results("a")
-        if len(test_results) == 0:
-            raise AudioProviderError(
-                "Could not connect to YouTube Music API. Use VPN or other audio provider."
-            )
-
     def search(self, song: Song) -> Optional[str]:
         """
         Search for a song on YouTube Music.

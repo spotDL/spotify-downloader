@@ -13,6 +13,8 @@ from spotdl.console.download import download
 from spotdl.console.sync import sync
 from spotdl.console.save import save
 from spotdl.download import Downloader
+from spotdl.providers.audio.base import AudioProviderError
+from spotdl.providers.audio.ytmusic import YouTubeMusic
 from spotdl.utils.config import DEFAULT_CONFIG, ConfigError, get_config
 from spotdl.utils.ffmpeg import FFmpegError, download_ffmpeg, is_ffmpeg_installed
 from spotdl.utils.config import get_config_file
@@ -107,6 +109,15 @@ def entry_point():
             "FFmpeg is not installed. Please run `spotdl --download-ffmpeg` to install it, "
             "or `spotdl --ffmpeg /path/to/ffmpeg` to specify the path to ffmpeg."
         )
+
+    if "youtube-music" in settings["audio_providers"]:
+        # Check if we are getting results from YouTube Music
+        ytm = YouTubeMusic(settings)
+        test_results = ytm.get_results("a")
+        if len(test_results) == 0:
+            raise AudioProviderError(
+                "Could not connect to YouTube Music API. Use VPN or other audio provider."
+            )
 
     # Initialize spotify client
     SpotifyClient.init(
