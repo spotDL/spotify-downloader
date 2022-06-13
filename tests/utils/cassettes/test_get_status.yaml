@@ -86,7 +86,7 @@ interactions:
       Content-Type:
       - application/json; charset=utf-8
       Date:
-      - Fri, 10 Jun 2022 13:48:57 GMT
+      - Mon, 13 Jun 2022 16:09:23 GMT
       ETag:
       - W/"8023ad38c7483e1b4c8f9b15c206cefb79aab1fb0e6d7fb18c9d388da6cd0284"
       Last-Modified:
@@ -106,17 +106,17 @@ interactions:
       X-GitHub-Media-Type:
       - github.v3; format=json
       X-GitHub-Request-Id:
-      - BB9F:8F38:2075317:218CEC6:62A34BC9
+      - BBBE:E351:3972DD:3C239F:62A76133
       X-RateLimit-Limit:
       - '60'
       X-RateLimit-Remaining:
-      - '55'
+      - '59'
       X-RateLimit-Reset:
-      - '1654871502'
+      - '1655140163'
       X-RateLimit-Resource:
       - core
       X-RateLimit-Used:
-      - '5'
+      - '1'
       X-XSS-Protection:
       - '0'
     status:

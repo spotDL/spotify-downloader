@@ -53,7 +53,7 @@ interactions:
       Content-Type:
       - application/json; charset=utf-8
       Date:
-      - Fri, 10 Jun 2022 13:48:58 GMT
+      - Mon, 13 Jun 2022 16:09:24 GMT
       ETag:
       - W/"f7ec066d02e6fcd1dc91e2fa3ca32af69a28a5faab14e56ab653493586c78d54"
       Last-Modified:
@@ -73,17 +73,17 @@ interactions:
       X-GitHub-Media-Type:
       - github.v3; format=json
       X-GitHub-Request-Id:
-      - BBB1:D386:6043DC:669302:62A34BC9
+      - BBD0:1075:68AAA4:6BD4AA:62A76134
       X-RateLimit-Limit:
       - '60'
       X-RateLimit-Remaining:
-      - '53'
+      - '57'
       X-RateLimit-Reset:
-      - '1654871502'
+      - '1655140163'
       X-RateLimit-Resource:
       - core
       X-RateLimit-Used:
-      - '7'
+      - '3'
       X-XSS-Protection:
       - '0'
     status:
@@ -354,7 +354,7 @@ interactions:
       Content-Type:
       - application/json; charset=utf-8
       Date:
-      - Fri, 10 Jun 2022 13:48:58 GMT
+      - Mon, 13 Jun 2022 16:09:24 GMT
       ETag:
       - W/"80d912e04395524f53c2ab5fbf5dd2d8f6ec8f0c0a49c6b814f113280e53f483"
       Last-Modified:
@@ -376,17 +376,17 @@ interactions:
       X-GitHub-Media-Type:
       - github.v3; format=json
       X-GitHub-Request-Id:
-      - BBC4:DFB0:21E493A:2301403:62A34BCA
+      - BBB3:3720:3E8002:413D3D:62A76134
       X-RateLimit-Limit:
       - '60'
       X-RateLimit-Remaining:
-      - '52'
+      - '56'
       X-RateLimit-Reset:
-      - '1654871502'
+      - '1655140163'
       X-RateLimit-Resource:
       - core
       X-RateLimit-Used:
-      - '8'
+      - '4'
       X-XSS-Protection:
       - '0'
     status:
@@ -646,12 +646,14 @@ interactions:
       - public, max-age=60, s-maxage=60
       Content-Encoding:
       - gzip
+      Content-Length:
+      - '12744'
       Content-Security-Policy:
       - default-src 'none'
       Content-Type:
       - application/json; charset=utf-8
       Date:
-      - Fri, 10 Jun 2022 13:48:58 GMT
+      - Mon, 13 Jun 2022 16:09:25 GMT
       ETag:
       - W/"ab226881385c25ce2adda5b9d33f1d315bf962b6e79ac6bfce9f64e81e59d93f"
       Last-Modified:
@@ -662,8 +664,6 @@ interactions:
       - GitHub.com
       Strict-Transport-Security:
       - max-age=31536000; includeSubdomains; preload
-      Transfer-Encoding:
-      - chunked
       Vary:
       - Accept, Accept-Encoding, Accept, X-Requested-With
       X-Content-Type-Options:
@@ -673,17 +673,17 @@ interactions:
       X-GitHub-Media-Type:
       - github.v3; format=json
       X-GitHub-Request-Id:
-      - BBB5:3C50:3343506:347F30C:62A34BCA
+      - BBB0:A1A0:648CFF:67A181:62A76135
       X-RateLimit-Limit:
       - '60'
       X-RateLimit-Remaining:
-      - '51'
+      - '55'
       X-RateLimit-Reset:
-      - '1654871502'
+      - '1655140163'
       X-RateLimit-Resource:
       - core
       X-RateLimit-Used:
-      - '9'
+      - '5'
       X-XSS-Protection:
       - '0'
     status:
