@@ -63,7 +63,7 @@ def test_download_song(capsys, monkeypatch, tmpdir):
         "dummy",
         "download",
         "https://open.spotify.com/track/2Ikdgh3J5vCRmnCL3Xcrtv",
-        "--no-cache"
+        "--no-cache",
     ]
 
     monkeypatch.setattr(sys, "argv", cli_args)
@@ -93,7 +93,7 @@ def test_preload_song(capsys, monkeypatch, tmpdir):
         "--save-file",
         "test.spotdl",
         "--preload",
-        "--no-cache"
+        "--no-cache",
     ]
 
     monkeypatch.setattr(sys, "argv", cli_args)
