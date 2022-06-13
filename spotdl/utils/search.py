@@ -233,7 +233,7 @@ def get_simple_songs(
                 or "spotify" not in split_urls[1]
             ):
                 raise QueryError(
-                    "Incorrect format used, please use \"YouTubeURL|SpotifyURL\""
+                    'Incorrect format used, please use "YouTubeURL|SpotifyURL"'
                 )
 
             songs.append(
