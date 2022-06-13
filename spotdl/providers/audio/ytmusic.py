@@ -143,7 +143,7 @@ class YouTubeMusic(AudioProvider):
         # Simplify results
         simplified_results = []
         for result in results:
-            if result.get("videoId") is None:
+            if result is None or result.get("videoId") is None:
                 continue
 
             simplified_results.append(
@@ -151,7 +151,9 @@ class YouTubeMusic(AudioProvider):
                     "name": result["title"],
                     "type": result["resultType"],
                     "link": f"https://youtube.com/watch?v={result['videoId']}",
-                    "album": result.get("album", {}).get("name"),
+                    "album": result.get("album", {}).get("name")
+                    if result.get("album")
+                    else None,
                     "duration": parse_duration(result.get("duration")),
                     "artists": ", ".join(map(lambda a: a["name"], result["artists"])),
                 }
