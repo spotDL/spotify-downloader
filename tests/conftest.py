@@ -53,7 +53,7 @@ def new_initialize(
             client_secret=client_secret,
             user_auth=user_auth,
             cache_path=cache_path,
-            no_cache=no_cache,
+            no_cache=True,
             open_browser=open_browser,
         )
 
