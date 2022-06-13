@@ -41,7 +41,7 @@ def new_initialize(
     client_secret,
     user_auth=False,
     cache_path=None,
-    no_cache=False,
+    no_cache=True,
     open_browser=False,
 ):
     """This function allows calling `initialize()` multiple times"""
