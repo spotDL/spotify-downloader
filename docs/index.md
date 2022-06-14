@@ -2,7 +2,7 @@
 
 Download your Spotify playlists and songs along with album art and metadata
 
-# Quick Start
+## Quick Start
 
 ### Installing spotDL
 
