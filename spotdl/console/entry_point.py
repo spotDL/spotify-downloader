@@ -97,10 +97,10 @@ def entry_point():
     # Create settings dict
     # Settings from config file will override the ones from the command line
     settings = {}
-    for key in DEFAULT_CONFIG:
+    for key, value in DEFAULT_CONFIG.items():
         if config.get(key) is None:
             # If the key is not in the arguments dict, use the default value
-            settings[key] = arguments.__dict__.get(key) or DEFAULT_CONFIG[key]
+            settings[key] = arguments.__dict__.get(key) or value
         else:
             settings[key] = config[key]
 
