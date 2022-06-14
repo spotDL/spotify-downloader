@@ -4,26 +4,23 @@ spotDL is a free and open source tool that downloads your Spotify playlists & mu
 
 > **The fastest, easiest, and most accurate command-line music downloader**
 
-## Using spotDL
+## Using Prebuilt Executable
 
-
-# Using prebuilt executable
-
-### Downloading the executable
+### Download The Executable
 
 You can download the latest version from from the [Releases Tab](https://github.com/spotDL/spotify-downloader/releases)
 
-### Running web ui
+### Running Web UI (User Interface)
 
-Web UI will start by default if no arguments are passed to the command line (after double-clicking for example)
+The Web UI will start by default if no arguments are passed to the command line (after double clicking for example)
 
 ![Web UI](images/WEB_UI.png)
 
-### Running the cli
+### Running the CLI (Command Line Interface)
 
 To use the command line interface just open your terminal and run `./spotdl-vX.X.X operation [urls]`
 
-# Using python
+## Using Python
 
 ### Prerequisites
 
@@ -44,7 +41,7 @@ When installing Python, ensure to select "**Add to PATH**".
 - Linux - `sudo apt install ffmpeg` or use your distros package manager
 - Using spotDL - `spotdl --download-ffmpeg` - this will download FFmpeg to spotdl directory.
 
-### Verifying Versions
+### Verify Versions
 
 `python -V` - Should return "Python 3.X.X". Please ensure you have v3.7 or greater.
 
