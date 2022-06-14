@@ -35,7 +35,7 @@ def parse_arguments() -> Namespace:
         description="Download your Spotify playlists and songs along with album art and metadata",
         formatter_class=argparse.RawTextHelpFormatter,
         epilog=(
-            "For more information, visit https://spotdl.github.io/spotdl-v4/ "
+            "For more information, visit https://spotdl.github.io/spotify-downloader/ "
             "or join our Discord server: https://discord.com/invite/xCa23pwJWY"
         ),
     )
