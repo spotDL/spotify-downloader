@@ -18,6 +18,7 @@ body:
       - Linux
       - Docker
       - Termux (Android)
+      - Other
   validations:
     required: true
 
@@ -31,6 +32,7 @@ body:
       - 3.7 (CPython)
       - 3.8 (CPython)
       - 3.9 (CPython)
+      - 3.10 (CPython)
   validations:
     required: true
 
@@ -41,6 +43,7 @@ body:
     options:
       - pip / PyPi
       - GitHub
+      - Other
   validations:
     required: true
 
@@ -61,7 +64,7 @@ body:
 
 - type: textarea
   attributes:
-    label: Steps to reproduce
+    label: Steps to reproduce - Ensure to include actual links!
     placeholder: |
       1.
       2.
@@ -73,8 +76,9 @@ body:
 - type: textarea
   attributes:
     label: Traceback
-    description: Copy and paste the complete error message outputted by spotDL
+    description: Copy and paste the complete output from spotDL
     render: text
+    placeholder: Do this even if there is no error!
   validations:
     required: true
 
