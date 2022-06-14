@@ -4,8 +4,10 @@ Module that handles the command line arguments.
 
 import argparse
 import sys
+import textwrap
 
 from argparse import _ArgumentGroup, ArgumentParser, Namespace
+from typing import List
 
 from spotdl import _version
 from spotdl.download.progress_handler import NAME_TO_LEVEL
@@ -21,6 +23,25 @@ from spotdl.download.downloader import (
 OPERATIONS = ["download", "save", "web", "sync"]
 
 
+class SmartFormatter(argparse.HelpFormatter):
+    """
+    Class that overrides the default help formatter.
+    """
+
+    def _split_lines(self, text: str, width: int) -> List[str]:
+        """
+        Split the text in multiple lines if a line starts
+        with a N|
+        """
+
+        if text.startswith("N|"):
+            return text[2:].splitlines()
+
+        text = self._whitespace_matcher.sub(" ", text).strip()
+
+        return textwrap.wrap(text, width)
+
+
 def parse_arguments() -> Namespace:
     """
     Parse arguments from the command line.
@@ -33,7 +54,7 @@ def parse_arguments() -> Namespace:
     parser = ArgumentParser(
         prog="spotdl",
         description="Download your Spotify playlists and songs along with album art and metadata",
-        formatter_class=argparse.RawTextHelpFormatter,
+        formatter_class=SmartFormatter,
         epilog=(
             "For more information, visit https://spotdl.github.io/spotify-downloader/ "
             "or join our Discord server: https://discord.com/invite/xCa23pwJWY"
@@ -80,11 +101,11 @@ def parse_main_options(parser: _ArgumentGroup):
         "operation",
         choices=OPERATIONS,
         help=(
-            "The operation to perform.\n"
+            "N|The operation to perform.\n"
             "download: Download the songs to the disk and embed metadata.\n"
             "save: Saves the songs metadata to a file for further use.\n"
             "web: Starts a web interface to simplify the download process.\n"
-            "sync: removes songs that are no longer present, downloads new ones"
+            "sync: removes songs that are no longer present, downloads new ones\n"
         ),
     )
 
