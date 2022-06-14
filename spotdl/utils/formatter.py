@@ -9,6 +9,7 @@ import warnings
 
 from typing import List, Optional
 from pathlib import Path
+from slugify import slugify
 from yt_dlp.utils import sanitize_filename
 
 from spotdl.types import Song
@@ -123,12 +124,21 @@ def format_query(
     if template in ["/.{output-ext}", ".{output-ext}"]:
         template = "{artists} - {title}.{output-ext}"
 
-    artists = ", ".join(song.artists)
+    # Remove artists from the list that are already in the title
+    artists = [
+        artist for artist in song.artists if slugify(artist) not in slugify(song.name)
+    ]
+
+    # Add the main artist again to the list
+    if len(artists) == 0 or artists[0] != song.artists[0]:
+        artists.insert(0, song.artists[0])
+
+    artists_str = ", ".join(artists)
 
     # the code below is valid, song_list is actually checked for None
     formats = {
         "{title}": song.name,
-        "{artists}": song.artists[0] if short is True else artists,
+        "{artists}": song.artists[0] if short is True else artists_str,
         "{artist}": song.artists[0],
         "{album}": song.album_name,
         "{album-artist}": song.album_artist,
@@ -270,8 +280,9 @@ def create_file_name(
         # fallback to default template
         if short is True:
             warnings.warn(
-                "`short` is True, but the file name is too long. Using the default template."
+                f"{song.display_name}: File name is too long. Using the default template."
             )
+
             return create_file_name(
                 song=song,
                 template="/{artist} - {title}.{output-ext}",
@@ -355,6 +366,7 @@ def to_ms(
     result = (
         (hour * 60 * 60 * 1000) + (minute * 60 * 1000) + (sec * 1000) + milliseconds
     )
+
     if precision and isinstance(precision, int):
         return round(result, precision)
 
