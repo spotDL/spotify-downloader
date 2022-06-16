@@ -74,3 +74,7 @@ markdown_extensions:
 - pymdownx.tasklist
 - toc:
     permalink: "¤"
+
+extra:
+  version:
+    provider: latest

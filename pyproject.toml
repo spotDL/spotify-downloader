@@ -68,6 +68,7 @@ pymdown-extensions = "^9.5"
 mkdocs-gen-files = "^0.3.4"
 mkdocs-literate-nav = "^0.4.1"
 mkdocs-section-index = "^0.3.4"
+mike = "^1.1.2"
 
 [tool.poetry.extras]
 web = ["uvicorn", "pydantic", "fastapi", "nest_asyncio"]
