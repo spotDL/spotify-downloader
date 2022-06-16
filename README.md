@@ -20,7 +20,7 @@ Download your Spotify playlists and songs along with album art and metadata
 
 ---
 
-**[Read the documentation on ReadTheDocs!](https://spotify-downloader.readthedocs.io/en/latest/)**
+**[Read the documentation on ReadTheDocs!](https://spotdl.readthedocs.io/projects/spotify-downloader/en/latest/)**
 
 ---
 
@@ -37,8 +37,7 @@ Download your Spotify playlists and songs along with album art and metadata
 _spotDL_ can be installed by running `pip install spotdl`.
 
 
-If you want to use the Web UI (User Interface), install with
-`pip install 'spotdl[web]'`.
+If you want to use the Web UI (User Interface), install with `pip install 'spotdl[web]'`.
 
 ## Usage
 

@@ -15,7 +15,7 @@ Download your Spotify playlists and songs along with album art and metadata
 
 ---
 
-**[Read the documentation on ReadTheDocs!](https://spotify-downloader.readthedocs.io/en/latest/)**
+**[Read the documentation on ReadTheDocs!](https://spotdl.readthedocs.io/projects/spotify-downloader/en/latest/)**
 
 ---
 
@@ -58,13 +58,14 @@ python -m spotdl [urls]
 
 ### Further information can be found in our docs:
 
-- [Installation](https://spotify-downloader.readthedocs.io/en/latest/installation/)
-- [Usage](https://spotify-downloader.readthedocs.io/en/latest/usage/)
-- [Troubleshooting / FAQ Guide](https://spotify-downloader.readthedocs.io/en/latest/troubleshooting/)
+- [Installation](https://spotdl.readthedocs.io/projects/spotify-downloader/en/latest/installation/)
+- [Usage](https://spotdl.readthedocs.io/projects/spotify-downloader/en/latest/usage/)
+- [Troubleshooting / FAQ Guide](https://spotdl.readthedocs.io/projects/spotify-downloader/en/latest/troubleshooting/)
+- [Code of Conduct](https://spotdl.readthedocs.io/projects/spotify-downloader/en/latest/CODE_OF_CONDUCT/)
 
 ## Contributing
 
-Interested in contributing? Check out our [CONTRIBUTING.md](https://spotify-downloader.readthedocs.io/en/latest/CONTRIBUTING/) to find
+Interested in contributing? Check out our [CONTRIBUTING.md](https://spotdl.readthedocs.io/projects/spotify-downloader/en/latest/CONTRIBUTING/) to find
 resources around contributing along with a guide on how to set up a development environment.
 
 ## License
