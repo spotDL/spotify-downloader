@@ -1,9 +1,5 @@
 # spotDL Installation Guide
 
-spotDL is a free and open source tool that downloads your Spotify playlists & music
-
-> **The fastest, easiest, and most accurate command-line music downloader**
-
 ## Using Prebuilt Executable
 
 ### Download The Executable

@@ -10,6 +10,7 @@ nav:
 - Home: index.md
 - Usage:
   - Installation: installation.md
+  - Usage: usage.md
   - Troubleshooting: troubleshooting.md
 - Development:
   - Code Of Conduct: CODE_OF_CONDUCT.md
@@ -63,14 +64,14 @@ markdown_extensions:
 - pymdownx.details
 - pymdownx.emoji
 - pymdownx.magiclink
+- pymdownx.tasklist
+- pymdownx.superfences
 - pymdownx.snippets:
     check_paths: true
-- pymdownx.superfences
+- pymdownx.tabbed:
+    alternate_style: true
 - pymdownx.highlight:
     use_pygments: true
     pygments_lang_class: true
-- pymdownx.tabbed:
-    alternate_style: true
-- pymdownx.tasklist
 - toc:
     permalink: "¤"
