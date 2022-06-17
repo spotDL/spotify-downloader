@@ -24,7 +24,9 @@ jobs:
           cache: 'poetry'
 
       - name: Install dependencies
-        run: poetry install -E web
+        run: |
+          poetry env use ${{ matrix.python-version }}
+          poetry install -E web
 
       - uses: FedericoCarboni/setup-ffmpeg@v1
         id: setup-ffmpeg

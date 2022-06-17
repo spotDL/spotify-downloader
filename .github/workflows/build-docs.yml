@@ -24,7 +24,9 @@ jobs:
           cache: 'poetry'
 
       - name: Install dependencies
-        run: poetry install -E web
+        run: |
+          poetry env use "3.10"
+          poetry install -E web
 
       - name: Build and deploy
         run: |
