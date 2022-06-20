@@ -55,24 +55,12 @@ class YouTubeMusic(AudioProvider):
                 isrc_results = self.get_results(song.isrc, filter="songs")
 
                 if len(isrc_results) == 1:
-                    isrc_result = isrc_results[0]
+                    isrc_result = self.order_results([isrc_results[0]], song)
 
-                    name_match = fuzz.partial_token_sort_ratio(
-                        slugify(isrc_result["name"]), slugify(song.name)
-                    )
+                    isrc_link, isrc_score = isrc_result.popitem()
 
-                    delta = isrc_result["duration"] - song.duration
-                    non_match_value = (delta**2) / song.duration * 100
-
-                    time_match = 100 - non_match_value
-
-                    if (
-                        isrc_result
-                        and isrc_result.get("link")
-                        and name_match > 90
-                        and time_match > 90
-                    ):
-                        return isrc_result["link"]
+                    if isrc_score > 90:
+                        return isrc_link
 
             search_query = create_song_title(song.name, song.artists).lower()
 
