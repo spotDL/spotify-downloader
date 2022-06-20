@@ -74,6 +74,7 @@ def test_get_none_local_ffmpeg(monkeypatch):
     # Assert is None because ffmpeg is not installed
     assert get_local_ffmpeg() is None
 
+
 def test_get_local_ffmpeg(monkeypatch):
     """
     Test get_local_ffmpeg function.
@@ -93,6 +94,7 @@ def test_get_local_ffmpeg(monkeypatch):
         assert str(local_ffmpeg).endswith("ffmpeg")
     elif platform_str == "Windows":
         assert str(local_ffmpeg).endswith("ffmpeg.exe")
+
 
 def test_download_ffmpeg(monkeypatch, tmpdir):
     """

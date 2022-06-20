@@ -177,7 +177,9 @@ def get_local_ffmpeg() -> Optional[Path]:
     - Path to ffmpeg binary or None if not found.
     """
 
-    ffmpeg_path = Path(get_spotdl_path()) / ("ffmpeg" + (".exe" if platform.system() == "Windows" else ""))
+    ffmpeg_path = Path(get_spotdl_path()) / (
+        "ffmpeg" + (".exe" if platform.system() == "Windows" else "")
+    )
 
     if ffmpeg_path.is_file():
         return ffmpeg_path
