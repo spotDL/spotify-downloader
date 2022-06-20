@@ -147,7 +147,9 @@ class YouTube(AudioProvider):
                 continue
 
             # Calculate name match
-            name_match = fuzz.partial_token_sort_ratio(slug_result_name, slug_song_title)
+            name_match = fuzz.partial_token_sort_ratio(
+                slug_result_name, slug_song_title
+            )
 
             # Drop results with name match lower than 50%
             if name_match < 50:

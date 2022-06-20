@@ -111,10 +111,7 @@ class YouTubeMusic(AudioProvider):
                 videos = {video_results[0]["link"]: 100}
 
         # Merge songs and video results
-        results = {
-            **songs,
-            **videos
-        }
+        results = {**songs, **videos}
 
         # No matches found
         if not results:
