@@ -7,10 +7,10 @@ import os
 
 
 @pytest.fixture()
-def setup(tmp_path, monkeypatch):
-    monkeypatch.setattr(os.path, "expanduser", lambda *_: tmp_path)
+def setup(tmpdir, monkeypatch):
+    monkeypatch.setattr(os.path, "expanduser", lambda *_: tmpdir)
     data = SimpleNamespace()
-    data.directory = tmp_path
+    data.directory = tmpdir
     yield data
 
 
@@ -47,7 +47,7 @@ def test_get_temp_path(setup):
     assert get_temp_path() == Path(setup.directory, ".spotdl", "temp")
 
 
-def test_get_config_not_created():
+def test_get_config_not_created(setup):
     """
     Tests if exception is raised if config file does not exist.
     """

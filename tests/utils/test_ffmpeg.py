@@ -75,6 +75,27 @@ def test_get_none_local_ffmpeg(monkeypatch):
     assert get_local_ffmpeg() is None
 
 
+def test_get_local_ffmpeg(monkeypatch):
+    """
+    Test get_local_ffmpeg function.
+    """
+
+    monkeypatch.setattr(os.path, "isfile", lambda *_: True)
+
+    platform_str = platform.system()
+
+    local_ffmpeg = get_local_ffmpeg()
+
+    assert local_ffmpeg is not None
+
+    if platform_str == "Linux":
+        assert str(local_ffmpeg).endswith("ffmpeg")
+    elif platform_str == "Darwin":
+        assert str(local_ffmpeg).endswith("ffmpeg")
+    elif platform_str == "Windows":
+        assert str(local_ffmpeg).endswith("ffmpeg.exe")
+
+
 def test_download_ffmpeg(monkeypatch, tmpdir):
     """
     Test download_ffmpeg function.

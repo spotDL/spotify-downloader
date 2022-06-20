@@ -25,7 +25,7 @@ from spotdl.utils.spotify import SpotifyClient, SpotifyError
 from spotdl.download.downloader import DownloaderError
 
 
-OPEARTIONS = {
+OPERATIONS = {
     "download": download,
     "sync": sync,
     "save": save,
@@ -105,7 +105,7 @@ def entry_point():
             settings[key] = config[key]
 
     # Check if ffmpeg is installed
-    if is_ffmpeg_installed() is False:
+    if is_ffmpeg_installed(settings["ffmpeg"]) is False:
         raise FFmpegError(
             "FFmpeg is not installed. Please run `spotdl --download-ffmpeg` to install it, "
             "or `spotdl --ffmpeg /path/to/ffmpeg` to specify the path to ffmpeg."
@@ -191,7 +191,7 @@ def entry_point():
     try:
         # Pick the operation to perform
         # based on the name and run it!
-        OPEARTIONS[arguments.operation](
+        OPERATIONS[arguments.operation](
             query=arguments.query,
             save_path=settings["save_file"],
             preload=settings["preload"],

@@ -14,27 +14,20 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: "3.x"
 
       - name: Install poetry
-        uses: snok/install-poetry@v1
-        with:
-          virtualenvs-create: true
-          virtualenvs-in-project: true
+        run: pipx install poetry
 
-      - name: Load cached venv
-        id: cached-poetry-dependencies
-        uses: actions/cache@v2
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v4
         with:
-          path: .venv
-          key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
+          python-version: "3.10"
+          cache: 'poetry'
 
       - name: Install dependencies
-        run: poetry install -E web
-        if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+        run: |
+          poetry env use "3.10"
+          poetry install
 
       - name: Install twine
         run: pip install twine
@@ -55,29 +48,21 @@ jobs:
         platform: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.platform }}
     steps:
-      - uses: actions/checkout@v2
-
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: "3.9"
+      - uses: actions/checkout@v3
 
       - name: Install poetry
-        uses: snok/install-poetry@v1
-        with:
-          virtualenvs-create: true
-          virtualenvs-in-project: true
+        run: pipx install poetry
 
-      - name: Load cached venv
-        id: cached-poetry-dependencies
-        uses: actions/cache@v2
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v4
         with:
-          path: .venv
-          key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
+          python-version: "3.10"
+          cache: 'poetry'
 
       - name: Install dependencies
-        run: poetry install -E web
-        if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+        run: |
+          poetry env use "3.10"
+          poetry install
 
       - name: Build executable
         run: poetry run python ./scripts/build.py
@@ -112,7 +97,7 @@ jobs:
             apt update
             apt install python3 python3-pip -y
             pip install poetry
-            poetry install -E web
+            poetry install
             poetry run python ./scripts/build.py
             for file in dist/spotdl*; do cp "$file" "${file}-aarch64"; done
 

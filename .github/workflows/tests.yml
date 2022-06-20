@@ -12,34 +12,26 @@ jobs:
         python-version: [ "3.7", "3.10" ]
 
     steps:
-      - uses: actions/checkout@v2
-
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
-        with:
-          python-version: ${{ matrix.python-version }}
+      - uses: actions/checkout@v3
 
       - name: Install poetry
-        uses: snok/install-poetry@v1
-        with:
-          virtualenvs-create: true
-          virtualenvs-in-project: true
+        run: pipx install poetry
 
-      - name: Load cached venv
-        id: cached-poetry-dependencies
-        uses: actions/cache@v2
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
         with:
-          path: .venv
-          key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
+          python-version: ${{ matrix.python-version }}
+          cache: 'poetry'
+
+      - name: Install dependencies
+        run: |
+          poetry env use ${{ matrix.python-version }}
+          poetry install
 
       - uses: FedericoCarboni/setup-ffmpeg@v1
         id: setup-ffmpeg
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Install dependencies
-        run: poetry install -E web
-        if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
 
       - name: Run tests
         run: |

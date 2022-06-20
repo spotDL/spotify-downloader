@@ -25,19 +25,22 @@ class YTDLLogger:
         """
         YTDL uses this to print debug messages.
         """
+
         pass  # pylint: disable=W0107
 
     def warning(self, msg):  # pylint: disable=R0201
         """
         YTDL uses this to print warnings.
         """
+
         pass  # pylint: disable=W0107
 
     def error(self, msg):  # pylint: disable=R0201
         """
         YTDL uses this to print errors.
         """
-        raise Exception(msg)
+
+        raise AudioProviderError(msg)
 
 
 class AudioProvider:
@@ -88,6 +91,7 @@ class AudioProvider:
                 "logger": YTDLLogger(),
                 "cookiefile": self.cookie_file,
                 "outtmpl": f"{get_temp_path()}/%(id)s.%(ext)s",
+                "retries": 5,
             }
         )
 
@@ -143,10 +147,14 @@ class AudioProvider:
         - A dictionary containing the metadata.
         """
 
-        data = self.audio_handler.extract_info(url, download=download)
+        try:
 
-        if data:
-            return data
+            data = self.audio_handler.extract_info(url, download=download)
+
+            if data:
+                return data
+        except Exception as exception:
+            raise AudioProviderError(f"YT-DLP download error - {url}") from exception
 
         raise AudioProviderError(f"No metadata found for the provided url {url}")
 
