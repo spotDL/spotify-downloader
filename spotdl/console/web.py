@@ -267,7 +267,7 @@ def search_search(query: str) -> List[Song]:
     - returns a list of Song objects.
     """
 
-    return get_search_results(query)
+    return parse_query([query], app.downloader.threads)
 
 
 @app.server.post("/api/downloader/change_output")
