@@ -82,9 +82,9 @@ Docker documentation: <https://docs.docker.com/>
 
 ### Docker Hub image
 
-- pull docker image from docker hub: `docker pull spotDL/spotify-downloader`
+- pull docker image from docker hub: `docker pull spotdl/spotify-downloader`
 
-- download a song using docker image: `docker run --rm -v $(pwd):/music spotDL/spotify-downloader download https://open.spotify.com/track/0VjIjW4GlUZAMYd2vXMi3b`
+- download a song using docker image: `docker run --rm -v $(pwd):/music spotdl/spotify-downloader download https://open.spotify.com/track/0VjIjW4GlUZAMYd2vXMi3b`
 
 - create a docker container
 
@@ -92,7 +92,7 @@ Docker documentation: <https://docs.docker.com/>
 docker create \
   --name=spotdl \
   -v <path to data>:/music \
-  spotDL/spotify-downloader
+  spotdl/spotify-downloader
 ```
 
 ### Docker compose
