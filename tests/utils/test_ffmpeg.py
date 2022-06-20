@@ -80,7 +80,8 @@ def test_get_local_ffmpeg(monkeypatch):
     Test get_local_ffmpeg function.
     """
 
-    monkeypatch.setattr(pathlib.Path, "isfile", lambda *_: True)
+    monkeypatch.setattr(os.path, "isfile", lambda *_: True)
+    monkeypatch.setattr(pathlib.Path, "is_file", lambda *_: True)
 
     platform_str = platform.system()
 
