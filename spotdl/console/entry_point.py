@@ -25,7 +25,7 @@ from spotdl.utils.spotify import SpotifyClient, SpotifyError
 from spotdl.download.downloader import DownloaderError
 
 
-OPEARTIONS = {
+OPERATIONS = {
     "download": download,
     "sync": sync,
     "save": save,
@@ -191,7 +191,7 @@ def entry_point():
     try:
         # Pick the operation to perform
         # based on the name and run it!
-        OPEARTIONS[arguments.operation](
+        OPERATIONS[arguments.operation](
             query=arguments.query,
             save_path=settings["save_file"],
             preload=settings["preload"],
