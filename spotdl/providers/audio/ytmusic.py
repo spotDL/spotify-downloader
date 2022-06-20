@@ -78,25 +78,25 @@ class YouTubeMusic(AudioProvider):
 
         # Query YTM by songs only first, this way if we get correct result on the first try
         # we don't have to make another request
-        # song_results = self.get_results(search_query, filter="songs")
+        song_results = self.get_results(search_query, filter="songs")
 
-        # if self.filter_results:
-        #     # Order results
-        #     songs = self.order_results(song_results, song)
-        # else:
-        #     songs = {}
-        #     if len(song_results) > 0:
-        #         songs = {song_results[0]["link"]: 100}
+        if self.filter_results:
+            # Order results
+            songs = self.order_results(song_results, song)
+        else:
+            songs = {}
+            if len(song_results) > 0:
+                songs = {song_results[0]["link"]: 100}
 
-        # # song type results are always more accurate than video type,
-        # # so if we get score of 80 or above
-        # # we are almost 100% sure that this is the correct link
-        # if len(songs) != 0:
-        #     # get the result with highest score
-        #     best_result = max(songs, key=lambda k: songs[k])
+        # song type results are always more accurate than video type,
+        # so if we get score of 80 or above
+        # we are almost 100% sure that this is the correct link
+        if len(songs) != 0:
+            # get the result with highest score
+            best_result = max(songs, key=lambda k: songs[k])
 
-        #     if songs[best_result] >= 80:
-        #         return best_result
+            if songs[best_result] >= 80:
+                return best_result
 
         # We didn't find the correct song on the first try so now we get video type results
         # add them to song_results, and get the result with highest score
@@ -112,7 +112,7 @@ class YouTubeMusic(AudioProvider):
 
         # Merge songs and video results
         results = {
-            # **songs,
+            **songs,
             **videos
         }
 
