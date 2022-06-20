@@ -26,7 +26,6 @@ from spotdl.download.progress_handler import NAME_TO_LEVEL, ProgressHandler, Son
 from spotdl.types.song import Song
 from spotdl.utils.github import download_github_dir
 from spotdl.utils.search import parse_query
-from spotdl.utils.search import get_search_results
 from spotdl.utils.config import get_spotdl_path
 
 ALLOWED_ORIGINS = [
