@@ -45,11 +45,11 @@ Download your Spotify playlists and songs along with album art and metadata
 - Docker
     - Build image:
     ```bash
-    docker build --rm -t spotdl .
+    docker build -t spotdl .
     ```
     - Launch container with spotDL parameters (see section below). You need to create mapped volume to access song files
     ```bash
-    docker run --rm -v ~/music-spotdl:/music --name spotdl spotdl [trackUrl]
+    docker run --rm -v $(pwd):/music spotdl download [trackUrl]
     ```
 
 ### Installing FFmpeg
