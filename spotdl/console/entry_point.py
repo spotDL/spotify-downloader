@@ -105,7 +105,7 @@ def entry_point():
             settings[key] = config[key]
 
     # Check if ffmpeg is installed
-    if is_ffmpeg_installed() is False:
+    if is_ffmpeg_installed(settings["ffmpeg"]) is False:
         raise FFmpegError(
             "FFmpeg is not installed. Please run `spotdl --download-ffmpeg` to install it, "
             "or `spotdl --ffmpeg /path/to/ffmpeg` to specify the path to ffmpeg."
