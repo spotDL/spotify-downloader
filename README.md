@@ -34,10 +34,30 @@ Download your Spotify playlists and songs along with album art and metadata
 
 ## Installation
 
-_spotDL_ can be installed by running `pip install spotdl`.
+- Python
+    - _spotDL_ can be installed by running `pip install spotdl`.
+- Prebuilt Executable
+    - You can download the latest version from from the [Releases Tab](https://github.com/spotDL/spotify-downloader/releases)
+- On Termux
+    - `curl -L https://raw.githubusercontent.com/spotDL/spotify-downloader/master/termux/setup_spotdl.sh | sh`
+- Arch
+    - There is an Arch User Repository (AUR) package for [spotDL](https://aur.archlinux.org/packages/python-spotdl/).
+- Docker
+    - Build image:
+    ```bash
+    docker build --rm -t spotdl .
+    ```
+    - Launch container with spotDL parameters (see section below). You need to create mapped volume to access song files
+    ```bash
+    docker run --rm -v ~/music-spotdl:/music --name spotdl spotdl [trackUrl]
+    ```
 
+### Installing FFmpeg
 
-If you want to use the Web UI (User Interface), install with `pip install 'spotdl[web]'`.
+- [Windows Tutorial](https://windowsloop.com/install-ffmpeg-windows-10/)
+- OSX - `brew install ffmpeg`
+- Linux - `sudo apt install ffmpeg` or use your distros package manager
+- Using spotDL - `spotdl --download-ffmpeg` - this will download FFmpeg to spotdl directory.
 
 ## Usage
 
