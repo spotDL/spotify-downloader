@@ -56,11 +56,11 @@ class YouTubeMusic(AudioProvider):
 
                 if len(isrc_results) == 1:
                     isrc_result = self.order_results([isrc_results[0]], song)
+                    if len(isrc_result) == 1:
+                        isrc_link, isrc_score = isrc_result.popitem()
 
-                    isrc_link, isrc_score = isrc_result.popitem()
-
-                    if isrc_score > 90:
-                        return isrc_link
+                        if isrc_score > 90:
+                            return isrc_link
 
             search_query = create_song_title(song.name, song.artists).lower()
 
