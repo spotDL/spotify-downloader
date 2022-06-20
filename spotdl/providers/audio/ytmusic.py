@@ -6,8 +6,8 @@ from typing import Any, Dict, List, Optional
 
 from ytmusicapi import YTMusic
 from slugify import slugify
+from rapidfuzz import fuzz
 
-from spotdl.utils.providers import match_percentage
 from spotdl.providers.audio.base import AudioProvider
 from spotdl.types import Song
 from spotdl.utils.formatter import (
@@ -57,7 +57,7 @@ class YouTubeMusic(AudioProvider):
                 if len(isrc_results) == 1:
                     isrc_result = isrc_results[0]
 
-                    name_match = match_percentage(
+                    name_match = fuzz.partial_token_sort_ratio(
                         slugify(isrc_result["name"]), slugify(song.name)
                     )
 
@@ -78,25 +78,25 @@ class YouTubeMusic(AudioProvider):
 
         # Query YTM by songs only first, this way if we get correct result on the first try
         # we don't have to make another request
-        song_results = self.get_results(search_query, filter="songs")
+        # song_results = self.get_results(search_query, filter="songs")
 
-        if self.filter_results:
-            # Order results
-            songs = self.order_results(song_results, song)
-        else:
-            songs = {}
-            if len(song_results) > 0:
-                songs = {song_results[0]["link"]: 100}
+        # if self.filter_results:
+        #     # Order results
+        #     songs = self.order_results(song_results, song)
+        # else:
+        #     songs = {}
+        #     if len(song_results) > 0:
+        #         songs = {song_results[0]["link"]: 100}
 
-        # song type results are always more accurate than video type,
-        # so if we get score of 80 or above
-        # we are almost 100% sure that this is the correct link
-        if len(songs) != 0:
-            # get the result with highest score
-            best_result = max(songs, key=lambda k: songs[k])
+        # # song type results are always more accurate than video type,
+        # # so if we get score of 80 or above
+        # # we are almost 100% sure that this is the correct link
+        # if len(songs) != 0:
+        #     # get the result with highest score
+        #     best_result = max(songs, key=lambda k: songs[k])
 
-            if songs[best_result] >= 80:
-                return best_result
+        #     if songs[best_result] >= 80:
+        #         return best_result
 
         # We didn't find the correct song on the first try so now we get video type results
         # add them to song_results, and get the result with highest score
@@ -111,7 +111,10 @@ class YouTubeMusic(AudioProvider):
                 videos = {video_results[0]["link"]: 100}
 
         # Merge songs and video results
-        results = {**songs, **videos}
+        results = {
+            # **songs,
+            **videos
+        }
 
         # No matches found
         if not results:
@@ -190,6 +193,7 @@ class YouTubeMusic(AudioProvider):
         for result in results:
             # Slugify result title
             slug_result_name = slugify(result["name"])
+            slug_result_artists = slugify(result["artists"])
             slug_result_album = (
                 slugify(result["album"]) if result.get("album") else None
             )
@@ -204,66 +208,58 @@ class YouTubeMusic(AudioProvider):
             if not common_word:
                 continue
 
-            # Artist divide number
-            artist_divide_number = len(song.artists)
+            artist_match_number = 0
+            for artist in song.artists:
+                artist_match_number += (
+                    1
+                    if slugify(artist).replace("-", "")
+                    in (
+                        slug_song_artist
+                        if result["type"] == "song"
+                        else slug_result_name
+                    ).replace("-", "")
+                    else 0
+                )
 
-            # Find artist match
-            artist_match_number = 0.0
-            if result["type"] == "song":
-                # Artist results has only one artist
-                # So we fallback to matching the song title
-                # if len(result["artists"].split(",")) == 1:
-                #     for artist in song.artists:
-                #         artist_match_number += match_percentage(
-                #             slugify(artist), slug_result_name
-                #         )
-                # else:
-                #     for artist in song.artists:
-                #         artist_match_number += match_percentage(
-                #             slugify(artist), slugify(result["artists"])
-                #         )
+            artist_match = artist_match_number * 100 / len(song.artists)
 
-                for artist in song.artists:
-                    artist_match_number += match_percentage(
-                        slugify(artist), slugify(result["artists"])
-                    )
-            else:
-                for artist in song.artists:
-                    artist_match_number += match_percentage(
-                        slugify(artist), slug_result_name
-                    )
+            # If we didn't find any artist match,
+            # we fallback to channel name match
+            if artist_match <= 50 and result["type"] != "song":
+                channel_name_match = fuzz.partial_token_sort_ratio(
+                    slugify(song.artist),
+                    slug_result_artists,
+                )
 
-                # If we didn't find any artist match,
-                # we fallback to channel name match
-                if artist_match_number <= 50:
-                    channel_name_match = match_percentage(
-                        slugify(song.artist),
-                        slugify(result["artists"]),
-                    )
-                    if channel_name_match > artist_match_number:
-                        artist_match_number = channel_name_match
-                        artist_divide_number = 1
+                if channel_name_match > artist_match_number:
+                    artist_match = channel_name_match
 
             # skip results with artist match lower than 70%
-            artist_match = artist_match_number / artist_divide_number
             if artist_match < 70:
                 continue
 
             # Calculate name match
             # for different result types
             if result["type"] == "song":
-                name_match = match_percentage(slug_result_name, slug_song_name)
+                name_match = fuzz.partial_token_sort_ratio(
+                    slug_result_name,
+                    slug_song_name,
+                )
             else:
                 # We are almost certain that this result
                 # contains the correct song artist
                 # so if the title doesn't contain the song artist in it
                 # we append slug_song_artist to the title
                 if artist_match > 90 and slug_song_artist not in slug_result_name:
-                    name_match = match_percentage(
-                        f"{slug_song_artist}-{slug_result_name}", slug_song_title
+                    name_match = fuzz.partial_token_sort_ratio(
+                        f"{slug_song_artist}-{slug_result_name}",
+                        slug_song_title,
                     )
                 else:
-                    name_match = match_percentage(slug_result_name, slug_song_title)
+                    name_match = fuzz.partial_token_sort_ratio(
+                        slug_result_name,
+                        slug_song_title,
+                    )
 
             # Drop results with name match lower than 50%
             if name_match < 50:
@@ -275,7 +271,7 @@ class YouTubeMusic(AudioProvider):
             # Calculate album match only for songs
             if result["type"] == "song":
                 if slug_result_album:
-                    album_match = match_percentage(slug_result_album, slug_album_name)
+                    album_match = fuzz.partial_ratio(slug_result_album, slug_album_name)
 
             # Calculate time match
             delta = result["duration"] - song.duration
@@ -288,7 +284,7 @@ class YouTubeMusic(AudioProvider):
             if (
                 result["type"] == "song"
                 and slug_result_album
-                and match_percentage(slug_album_name, slug_result_name) > 95
+                and fuzz.partial_ratio(slug_album_name, slug_result_name) > 95
                 and slug_result_album == slug_album_name
             ):
                 # If the result album name is similar to the song album name

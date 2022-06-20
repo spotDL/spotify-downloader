@@ -5,10 +5,10 @@ Youtube module for downloading and searching songs.
 from typing import Any, Dict, List, Optional
 
 from pytube import YouTube as PyTube, Search
+from rapidfuzz import fuzz
 from slugify import slugify
 
 from spotdl.utils.formatter import create_song_title, create_search_query
-from spotdl.utils.providers import match_percentage
 from spotdl.providers.audio.base import AudioProvider
 from spotdl.types import Song
 
@@ -137,7 +137,7 @@ class YouTube(AudioProvider):
             # Calculate artist match for each artist
             # in the song's artist list
             for artist in song.artists:
-                artist_match_number += match_percentage(
+                artist_match_number += fuzz.partial_token_sort_ratio(
                     slugify(artist), slug_result_name
                 )
 
@@ -147,7 +147,7 @@ class YouTube(AudioProvider):
                 continue
 
             # Calculate name match
-            name_match = match_percentage(slug_result_name, slug_song_title)
+            name_match = fuzz.partial_token_sort_ratio(slug_result_name, slug_song_title)
 
             # Drop results with name match lower than 50%
             if name_match < 50:
