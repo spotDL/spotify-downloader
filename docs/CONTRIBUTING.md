@@ -229,7 +229,7 @@ Any submitted code is expected to have accompanying documentation
   `mkdocs` requires that all development packages are installed
 
   ```bash
-  poetry install -E web
+  poetry install
   ```
 
   generate docs with

@@ -26,7 +26,7 @@ jobs:
       - name: Install dependencies
         run: |
           poetry env use "3.10"
-          poetry install -E web
+          poetry install
 
       - name: Build and deploy
         run: |

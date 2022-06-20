@@ -26,7 +26,7 @@ jobs:
       - name: Install dependencies
         run: |
           poetry env use ${{ matrix.python-version }}
-          poetry install -E web
+          poetry install
 
       - uses: FedericoCarboni/setup-ffmpeg@v1
         id: setup-ffmpeg

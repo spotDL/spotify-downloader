@@ -27,7 +27,7 @@ jobs:
       - name: Install dependencies
         run: |
           poetry env use "3.10"
-          poetry install -E web
+          poetry install
 
       - name: Install twine
         run: pip install twine
@@ -62,7 +62,7 @@ jobs:
       - name: Install dependencies
         run: |
           poetry env use "3.10"
-          poetry install -E web
+          poetry install
 
       - name: Build executable
         run: poetry run python ./scripts/build.py
@@ -97,7 +97,7 @@ jobs:
             apt update
             apt install python3 python3-pip -y
             pip install poetry
-            poetry install -E web
+            poetry install
             poetry run python ./scripts/build.py
             for file in dist/spotdl*; do cp "$file" "${file}-aarch64"; done
 
