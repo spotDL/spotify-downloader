@@ -23,4 +23,4 @@ jobs:
         with:
           context: .
           push: true
-          tags: spotDL/spotify-downloader:latest
+          tags: spotdl/spotify-downloader:latest
