@@ -29,7 +29,7 @@ To use the command line interface just open your terminal and run `./spotdl-vX.X
 
 - Python 3.7 or above (added to PATH)
 - FFmpeg 4.2 or above (added to PATH)
-- Visual C++ 2019 redistributable (on Windows)
+- [Visual C++ 2019 redistributable](https://docs.microsoft.com/pl-pl/cpp/windows/latest-supported-vc-redist?view=msvc-170#visual-studio-2015-2017-2019-and-2022) (on Windows)
 
 ### Adding Python to PATH
 
