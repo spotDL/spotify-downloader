@@ -81,6 +81,7 @@ def test_get_local_ffmpeg(monkeypatch):
     """
 
     monkeypatch.setattr(os.path, "isfile", lambda *_: True)
+    monkeypatch.setattr(pathlib.Path, "is_file", lambda *_: True)
 
     platform_str = platform.system()
 
