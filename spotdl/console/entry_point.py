@@ -17,7 +17,12 @@ from spotdl.download import Downloader
 from spotdl.providers.audio.base import AudioProviderError
 from spotdl.providers.audio.ytmusic import YouTubeMusic
 from spotdl.utils.config import DEFAULT_CONFIG, ConfigError, get_config
-from spotdl.utils.ffmpeg import FFmpegError, download_ffmpeg, get_local_ffmpeg, is_ffmpeg_installed
+from spotdl.utils.ffmpeg import (
+    FFmpegError,
+    download_ffmpeg,
+    get_local_ffmpeg,
+    is_ffmpeg_installed,
+)
 from spotdl.utils.config import get_config_file
 from spotdl.utils.github import check_for_updates
 from spotdl.utils.arguments import parse_arguments
