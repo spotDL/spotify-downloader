@@ -6,7 +6,9 @@ license = "MIT"
 authors = ["spotDL Team <spotdladmins@googlegroups.com>"]
 readme = "README.md"
 repository = "https://github.com/spotDL/spotify-downloader.git"
-
+homepage = "https://github.com/spotDL/spotify-downloader/"
+documentation = "https://spotdl.readthedocs.io/en/latest/"
+keywords = ["spotify", "downloader", "spotdl", "music"]
 classifiers = [
     "Intended Audience :: End Users/Desktop",
     "License :: OSI Approved :: MIT License",
