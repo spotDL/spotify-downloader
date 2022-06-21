@@ -17,7 +17,12 @@ from spotdl.download import Downloader
 from spotdl.providers.audio.base import AudioProviderError
 from spotdl.providers.audio.ytmusic import YouTubeMusic
 from spotdl.utils.config import DEFAULT_CONFIG, ConfigError, get_config
-from spotdl.utils.ffmpeg import FFmpegError, download_ffmpeg, is_ffmpeg_installed
+from spotdl.utils.ffmpeg import (
+    FFmpegError,
+    download_ffmpeg,
+    get_local_ffmpeg,
+    is_ffmpeg_installed,
+)
 from spotdl.utils.config import get_config_file
 from spotdl.utils.github import check_for_updates
 from spotdl.utils.arguments import parse_arguments
@@ -60,7 +65,20 @@ def entry_point():
     # This is done before the argument parser so it doesn't require `operation`
     # and `query` to be passed. Exit after downloading ffmpeg
     if "--download-ffmpeg" in sys.argv:
-        download_ffmpeg()
+        if get_local_ffmpeg() is not None:
+            overwrite_ffmpeg = input(
+                "FFmpeg is already installed. Do you want to overwrite it? (y/N): "
+            )
+
+            if overwrite_ffmpeg.lower() == "y":
+                local_ffmpeg = download_ffmpeg()
+
+                if local_ffmpeg.is_file():
+                    print(
+                        f"FFmpeg successfully downloaded to {local_ffmpeg.absolute()}"
+                    )
+                else:
+                    print("FFmpeg download failed")
 
         return None
 
@@ -70,8 +88,17 @@ def entry_point():
     # and `query` to be passed. exit after downloading ffmpeg
     if "--generate-config" in sys.argv:
         config_path = get_config_file()
+        if config_path.exists():
+            overwrite_config = input("Config file already exists. Overwrite? (y/N): ")
+
+            if overwrite_config.lower() != "y":
+                print("Exiting...")
+                return None
+
         with open(config_path, "w", encoding="utf-8") as config_file:
             json.dump(DEFAULT_CONFIG, config_file, indent=4)
+
+        print(f"Config file generated at {config_path}")
 
         return None
 
