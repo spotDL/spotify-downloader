@@ -70,15 +70,15 @@ def entry_point():
                 "FFmpeg is already installed. Do you want to overwrite it? (y/N): "
             )
 
-            if overwrite_ffmpeg.lower() != "y":
-                return None
+            if overwrite_ffmpeg.lower() == "y":
+                local_ffmpeg = download_ffmpeg()
 
-        local_ffmpeg = download_ffmpeg()
-
-        if local_ffmpeg.is_file():
-            print(f"FFmpeg successfully downloaded to {local_ffmpeg.absolute()}")
-        else:
-            print("FFmpeg download failed")
+                if local_ffmpeg.is_file():
+                    print(
+                        f"FFmpeg successfully downloaded to {local_ffmpeg.absolute()}"
+                    )
+                else:
+                    print("FFmpeg download failed")
 
         return None
 
