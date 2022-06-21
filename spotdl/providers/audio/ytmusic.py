@@ -60,6 +60,7 @@ class YouTubeMusic(AudioProvider):
                         isrc_link, isrc_score = isrc_result.popitem()
 
                         if isrc_score > 90:
+                            # print(f"# RETURN URL - {isrc_link} - isrc score")
                             return isrc_link
 
             search_query = create_song_title(song.name, song.artists).lower()
@@ -84,6 +85,7 @@ class YouTubeMusic(AudioProvider):
             best_result = max(songs, key=lambda k: songs[k])
 
             if songs[best_result] >= 80:
+                # print(f"# RETURN URL - {best_result} - song >= 80")
                 return best_result
 
         # We didn't find the correct song on the first try so now we get video type results
@@ -109,6 +111,8 @@ class YouTubeMusic(AudioProvider):
 
         # Sort results by highest score
         sorted_results = sorted(result_items, key=lambda x: x[1], reverse=True)
+
+        # print(f"# RETURN URL - {sorted_results[0][0]} - sorted")
 
         # Get the result with highest score
         # and return the link
@@ -189,7 +193,20 @@ class YouTubeMusic(AudioProvider):
                 word != "" and word in slug_result_name for word in sentence_words
             )
 
+            # DEBUG CODE
+            # print(f"#############################")
+            # print(f"slug_result_name: {slug_result_name}")
+            # print(f"slug_result_artists: {slug_result_artists}")
+            # print(f"slug_result_album: {slug_result_album}")
+            # print(f"slug_song_name: {slug_song_name}")
+            # print(f"slug_album_name: {slug_album_name}")
+            # print(f"slug_song_artist: {slug_song_artist}")
+            # print(f"slug_song_title: {slug_song_title}")
+            # print(f"URL - {result['link']}")
+            # print("-----------------------------")
+
             # skip results that have no common words in their name
+            # print(f"common_word: {common_word}")
             if not common_word:
                 continue
 
@@ -198,15 +215,12 @@ class YouTubeMusic(AudioProvider):
                 artist_match_number += (
                     1
                     if slugify(artist).replace("-", "")
-                    in (
-                        slug_song_artist
-                        if result["type"] == "song"
-                        else slug_result_name
-                    ).replace("-", "")
+                    in slug_result_name.replace("-", "")
                     else 0
                 )
 
             artist_match = artist_match_number * 100 / len(song.artists)
+            # print("first artist_match: ", artist_match)
 
             # If we didn't find any artist match,
             # we fallback to channel name match
@@ -218,9 +232,11 @@ class YouTubeMusic(AudioProvider):
 
                 if channel_name_match > artist_match_number:
                     artist_match = channel_name_match
+                    # print("second artist_match: ", artist_match)
 
             # skip results with artist match lower than 70%
             if artist_match < 70:
+                # print("! artist_match < 70 - skipping")
                 continue
 
             # Calculate name match
@@ -247,7 +263,9 @@ class YouTubeMusic(AudioProvider):
                     )
 
             # Drop results with name match lower than 50%
+            # print(f"name_match: {name_match}")
             if name_match < 50:
+                # print("! name_match < 50 - skipping")
                 continue
 
             # Find album match
@@ -261,10 +279,14 @@ class YouTubeMusic(AudioProvider):
             # Calculate time match
             delta = result["duration"] - song.duration
             non_match_value = (delta**2) / song.duration * 100
-
             time_match = 100 - non_match_value
 
+            # Calculate total match
             average_match = (artist_match + name_match + time_match) / 3
+
+            # print(f"album_match: {album_match}")
+            # print(f"time_match: {time_match}")
+            # print(f"average_match: {average_match}")
 
             if (
                 result["type"] == "song"
