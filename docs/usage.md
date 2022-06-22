@@ -67,8 +67,9 @@
     spotdl download 'The Weeknd - Blinding Lights'
     ```
 
-??? info "Youtube link with spotify metadata"
-    To download youtube video with metadata from spotify, run
+??? info "YouTube link with Spotify metadata"
+    To download YouTube video with metadata from Spotify, run
+    > Noting the quote `"` are required
 
     ```bash
     spotdl download "YouTubeURL|SpotifyURL"
@@ -95,9 +96,10 @@ spotdl download 'The Weeknd - Blinding Lights' https://open.spotify.com/playlist
 
 ## Syncing
 
-Sync function for the console. It will download the songs and remove the ones that are no longer present in the playlists/albums/etc
+Sync function for the console. Keep local files up to date with playlists/albums/etc. 
+This will download new songs and remove the ones that are no longer present in the playlists/albums/etc
 
-??? info "Init sync"
+??? info "Initialise Synchronisation"
     To create the sync file run
 
     ```bash
@@ -193,7 +195,7 @@ If you don't want config to load automatically change `load_config` option in co
 
 ```json
 {
-    "load_config": false,
+    "load_config": true,
     "log_level": "INFO",
     "simple_tui": false,
     "cache_path": "C:\\Users\\username\\.spotdl\\.spotipy",
