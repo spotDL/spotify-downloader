@@ -8,7 +8,7 @@ spotDL is a free and open source tool that downloads your Spotify playlists & mu
 
 > This is our recommended installation method.
 
-Install Visual C++ Redistributible (link below) and then proceed to install Python & FFmpeg
+If you are on Windows, Install Visual C++ Redistributible (link below) and then proceed to install Python & FFmpeg
 
 ### Prerequisites to spotDL
 
@@ -47,8 +47,7 @@ We reccomend the above option, but if you want to install FFmpeg system-wide,
 
 - [Windows Tutorial](https://windowsloop.com/install-ffmpeg-windows-10/)
 - OSX - `brew install ffmpeg`
-- Linux - `sudo apt install ffmpeg` or use your distro's package manager 
-
+- Linux - `sudo apt install ffmpeg` or use your distro's package manager
 
 If you require further help, ask in our [Discord Server](https://discord.gg/xCa23pwJWY)
 
