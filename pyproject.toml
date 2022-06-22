@@ -67,6 +67,7 @@ pymdown-extensions = "^9.5"
 mkdocs-gen-files = "^0.3.4"
 mkdocs-literate-nav = "^0.4.1"
 mkdocs-section-index = "^0.3.4"
+mike = {url = "https://github.com/jimporter/mike/archive/refs/heads/master.zip"}
 
 [tool.poetry.scripts]
 spotdl = "spotdl:console_entry_point"

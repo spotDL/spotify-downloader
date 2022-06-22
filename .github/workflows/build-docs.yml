@@ -28,6 +28,11 @@ jobs:
           poetry env use "3.10"
           poetry install
 
+      - name: Extract branch name
+        shell: bash
+        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+        id: extract_branch
+
       - name: Build and deploy
         run: |
-          poetry run mkdocs gh-deploy --force
+          poetry run mike deploy --push {{ steps.extract_branch.outputs.branch }}
