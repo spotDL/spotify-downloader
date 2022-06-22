@@ -1,5 +1,9 @@
 <!--- mdformat-toc start --slug=github --->
 
+<!--- 
+!!! IF EDITING THE README, ENSURE TO COPY THE WHOLE FILE TO index.md in `/docs/`
+--->
+
 <div align="center">
 
 # spotDL v4
@@ -7,12 +11,11 @@
 Download your Spotify playlists and songs along with album art and metadata
 
 [![MIT License](https://img.shields.io/apm/l/atomic-design-ui.svg?style=flat-square&color=44CC11)](https://github.com/spotDL/spotify-downloader/blob/master/LICENSE)
-[![pypi version](https://img.shields.io/pypi/pyversions/spotDL?color=%2344CC11&style=flat-square)](https://pypi.org/project/spotdl/)
+[![PyPI version](https://img.shields.io/pypi/pyversions/spotDL?color=%2344CC11&style=flat-square)](https://pypi.org/project/spotdl/)
 ![GitHub commits since latest release (by date)](https://img.shields.io/github/commits-since/spotDL/spotify-downloader/latest?color=44CC11&style=flat-square)
 [![PyPi downloads](https://img.shields.io/pypi/dw/spotDL?label=downloads@pypi&color=344CC11&style=flat-square)](https://pypi.org/project/spotdl/)
 ![Contributors](https://img.shields.io/github/contributors/spotDL/spotify-downloader?style=flat-square)
 [![Discord](https://img.shields.io/discord/771628785447337985?label=discord&logo=discord&style=flat-square)](https://discord.gg/xCa23pwJWY)
-
 
 </div>
 
@@ -20,44 +23,58 @@ Download your Spotify playlists and songs along with album art and metadata
 
 ---
 
-**[Read the documentation on ReadTheDocs!](https://spotdl.readthedocs.io/projects/spotify-downloader/en/latest/)**
+**[Read the documentation on ReadTheDocs!](http://spotdl.rtfd.io/)**
 
 ---
 
 ## Prerequisites
 
+- [Visual C++ 2019 redistributable](https://docs.microsoft.com/pl-pl/cpp/windows/latest-supported-vc-redist?view=msvc-170#visual-studio-2015-2017-2019-and-2022) **(on Windows)**
 - Python 3.7 or above (added to PATH)
-- FFmpeg 4.2 or above (added to PATH)
-- Visual C++ 2019 redistributable (on Windows)
 
 > **_YouTube Music must be available in your country for spotDL to work. This is because we use YouTube Music to filter search results. You can check if YouTube Music is available in your country, by visiting [YouTube Music](https://music.youtube.com)._**
 
 ## Installation
 
-- Python
-    - _spotDL_ can be installed by running `pip install spotdl`.
+Refer to our [Installation Guide](https://spotdl.rtfd.io/en/latest/installation/) for more details
+
+
+- Python (**Recommended**)
+  - _spotDL_ can be installed by running `pip install spotdl`.
+  > Change `pip` to `pip3` on *UNIX based systems.
+
+### Other options
+
 - Prebuilt Executable
-    - You can download the latest version from from the [Releases Tab](https://github.com/spotDL/spotify-downloader/releases)
+  - You can download the latest version from from the [Releases Tab](https://github.com/spotDL/spotify-downloader/releases)
 - On Termux
-    - `curl -L https://raw.githubusercontent.com/spotDL/spotify-downloader/master/termux/setup_spotdl.sh | sh`
+  - `curl -L https://raw.githubusercontent.com/spotDL/spotify-downloader/master/termux/setup_spotdl.sh | sh`
 - Arch
-    - There is an Arch User Repository (AUR) package for [spotDL](https://aur.archlinux.org/packages/python-spotdl/).
+  - There is an Arch User Repository (AUR) package for [spotDL](https://aur.archlinux.org/packages/python-spotdl/).
 - Docker
-    - Build image:
+  - Build image:
+
     ```bash
     docker build -t spotdl .
     ```
+
     - Launch container with spotDL parameters (see section below). You need to create mapped volume to access song files
+
     ```bash
     docker run --rm -v $(pwd):/music spotdl download [trackUrl]
     ```
 
+
 ### Installing FFmpeg
+
+If using FFmpeg only for spotDL, you can install FFmpeg to your local directory.  
+`spotdl --download-ffmpeg` will download FFmpeg to your spotDL installation directory.
+
+We reccomend the above option, but if you want to install FFmpeg system-wide,
 
 - [Windows Tutorial](https://windowsloop.com/install-ffmpeg-windows-10/)
 - OSX - `brew install ffmpeg`
-- Linux - `sudo apt install ffmpeg` or use your distros package manager
-- Using spotDL - `spotdl --download-ffmpeg` - this will download FFmpeg to spotdl directory.
+- Linux - `sudo apt install ffmpeg` or use your distro's package manager
 
 ## Usage
 
@@ -67,8 +84,9 @@ To get started right away:
 spotdl download [urls]
 ```
 
-To start Web UI:
-```
+To start the Web UI:
+
+```sh
 spotdl web
 ```
 
@@ -80,13 +98,11 @@ python -m spotdl [urls]
 
 ---
 
-### Further information can be found in our docs:
+### Further information can be found in our documentation
 
-- [Installation](docs/installation.md)
-- [Usage](docs/usage.md)
-- [Code of Conduct](docs/CODE_OF_CONDUCT.md)
-- [Troubleshooting / FAQ Guide](docs/troubleshooting.md)
+**[Read the documentation on ReadTheDocs!](http://spotdl.rtfd.io/)**
 
+---
 
 ## Contributing
 
