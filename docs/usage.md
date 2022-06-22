@@ -179,24 +179,13 @@ spotdl --generate-config
 
 ### Loading config
 
-To load the config file, run
+Config file gets loaded automatically if it already exists, or if you've passed `--config` flag
 
-```bash
-spotdl [operation] [query] --config
-```
-
-example:
-
-```bash
-spotdl download 'The Weeknd - Blinding Lights' --config
-```
-
-To automatically load the config file, add the `load_config` field to the config file
-and set it to `true`
+If you don't want config to load automatically change `load_config` option in config file to false
 
 ```json
 {
-    "load_config": true
+    "load_config": false
 }
 ```
 
@@ -204,6 +193,7 @@ and set it to `true`
 
 ```json
 {
+    "load_config": false,
     "log_level": "INFO",
     "simple_tui": false,
     "cache_path": "C:\\Users\\username\\.spotdl\\.spotipy",
