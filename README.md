@@ -58,7 +58,7 @@ Refer to our [Installation Guide](https://spotdl.rtfd.io/en/latest/installation/
     docker build -t spotdl .
     ```
 
-    - Launch container with spotDL parameters (see section below). You need to create mapped volume to access song files
+  - Launch container with spotDL parameters (see section below). You need to create mapped volume to access song files
 
     ```bash
     docker run --rm -v $(pwd):/music spotdl download [trackUrl]
