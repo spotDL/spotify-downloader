@@ -1,0 +1,1987 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Download your Spotify playlists and songs along with album art and metadata">
+      
+      
+        <meta name="author" content="xnetcat">
+      
+      
+        <link rel="canonical" href="https://spotdl.github.io/spotify-downloader/CONTRIBUTING/">
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.3.0, mkdocs-material-8.3.7">
+    
+    
+      
+        <title>Contributing - spotDL</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.4a0965b7.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.cbb835fc.min.css">
+        
+      
+      
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("..",location),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="purple">
+  
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#contributing-to-spotdl" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="spotDL" class="md-header__button md-logo" aria-label="spotDL" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            spotDL
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Contributing
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      <form class="md-header__option" data-md-component="palette">
+        
+          
+          
+          <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="purple"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+          
+            <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5c-.84 0-1.65.15-2.39.42L12 2M3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29L3.34 7m.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14L3.36 17M20.65 7l-1.77 3.79a7.023 7.023 0 0 0-2.38-4.15l4.15.36m-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29L20.64 17M12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44L12 22Z"/></svg>
+            </label>
+          
+        
+          
+          
+          <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="black" data-md-color-accent="lime"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_2">
+          
+            <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3 3.19.09m3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95 2.06.05m-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31Z"/></svg>
+            </label>
+          
+        
+      </form>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/spotDL/spotify-downloader" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    spotdl/spotify-downloader
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-tabs__inner md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+
+
+  <li class="md-tabs__item">
+    <a href=".." class="md-tabs__link">
+      Home
+    </a>
+  </li>
+
+      
+        
+  
+  
+
+
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../installation/" class="md-tabs__link">
+        Usage
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+    
+  
+
+
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../CODE_OF_CONDUCT/" class="md-tabs__link md-tabs__link--active">
+        Development
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+
+
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../reference/" class="md-tabs__link">
+        Code Reference
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="spotDL" class="md-nav__button md-logo" aria-label="spotDL" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    spotDL
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/spotDL/spotify-downloader" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    spotdl/spotify-downloader
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        Home
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2" type="checkbox" id="__nav_2" >
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_2">
+          Usage
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Usage" data-md-level="1">
+        <label class="md-nav__title" for="__nav_2">
+          <span class="md-nav__icon md-icon"></span>
+          Usage
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../installation/" class="md-nav__link">
+        Installation
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../usage/" class="md-nav__link">
+        Usage
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../troubleshooting/" class="md-nav__link">
+        Troubleshooting
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3" type="checkbox" id="__nav_3" checked>
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_3">
+          Development
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Development" data-md-level="1">
+        <label class="md-nav__title" for="__nav_3">
+          <span class="md-nav__icon md-icon"></span>
+          Development
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../CODE_OF_CONDUCT/" class="md-nav__link">
+        Code Of Conduct
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Contributing
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        Contributing
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#table-of-contents" class="md-nav__link">
+    Table of Contents
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#i-have-a-question" class="md-nav__link">
+    I Have a Question
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#i-want-to-contribute" class="md-nav__link">
+    I Want To Contribute
+  </a>
+  
+    <nav class="md-nav" aria-label="I Want To Contribute">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#legal-notice" class="md-nav__link">
+    Legal Notice 
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reporting-bugs" class="md-nav__link">
+    Reporting Bugs
+  </a>
+  
+    <nav class="md-nav" aria-label="Reporting Bugs">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#before-submitting-a-bug-report" class="md-nav__link">
+    Before Submitting a Bug Report
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-do-i-submit-a-good-bug-report" class="md-nav__link">
+    How Do I Submit a Good Bug Report?
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#suggesting-enhancements" class="md-nav__link">
+    Suggesting Enhancements
+  </a>
+  
+    <nav class="md-nav" aria-label="Suggesting Enhancements">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#before-submitting-an-enhancement" class="md-nav__link">
+    Before Submitting an Enhancement
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-do-i-submit-a-good-enhancement-suggestion" class="md-nav__link">
+    How Do I Submit a Good Enhancement Suggestion?
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#linting-formatting-and-type-checking" class="md-nav__link">
+    Linting, Formatting and Type-checking
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#python-documentation" class="md-nav__link">
+    Python Documentation
+  </a>
+  
+    <nav class="md-nav" aria-label="Python Documentation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#mkdocs-generating-documentation" class="md-nav__link">
+    mkdocs: generating documentation
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#docstring-formats" class="md-nav__link">
+    DocString Formats
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#notes-about-docstrings" class="md-nav__link">
+    Notes about docstrings
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#markdown-formatting" class="md-nav__link">
+    Markdown formatting
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#overview-of-the-project-structure" class="md-nav__link">
+    Overview of the Project Structure
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#join-the-project-team" class="md-nav__link">
+    Join The Project Team
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#attribution" class="md-nav__link">
+    Attribution
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4" type="checkbox" id="__nav_4" >
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_4">
+          Code Reference
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Code Reference" data-md-level="1">
+        <label class="md-nav__title" for="__nav_4">
+          <span class="md-nav__icon md-icon"></span>
+          Code Reference
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/" class="md-nav__link">
+        __init__
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_2" type="checkbox" id="__nav_4_2" >
+      
+      
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../reference/providers/">providers</a>
+          
+            <label for="__nav_4_2">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" aria-label="providers" data-md-level="2">
+        <label class="md-nav__title" for="__nav_4_2">
+          <span class="md-nav__icon md-icon"></span>
+          providers
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_2_1" type="checkbox" id="__nav_4_2_1" >
+      
+      
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../reference/providers/audio/">audio</a>
+          
+            <label for="__nav_4_2_1">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" aria-label="audio" data-md-level="3">
+        <label class="md-nav__title" for="__nav_4_2_1">
+          <span class="md-nav__icon md-icon"></span>
+          audio
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/providers/audio/ytmusic/" class="md-nav__link">
+        ytmusic
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/providers/audio/base/" class="md-nav__link">
+        base
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/providers/audio/youtube/" class="md-nav__link">
+        youtube
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_2_2" type="checkbox" id="__nav_4_2_2" >
+      
+      
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../reference/providers/lyrics/">lyrics</a>
+          
+            <label for="__nav_4_2_2">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" aria-label="lyrics" data-md-level="3">
+        <label class="md-nav__title" for="__nav_4_2_2">
+          <span class="md-nav__icon md-icon"></span>
+          lyrics
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/providers/lyrics/azlyrics/" class="md-nav__link">
+        azlyrics
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/providers/lyrics/genius/" class="md-nav__link">
+        genius
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/providers/lyrics/base/" class="md-nav__link">
+        base
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/providers/lyrics/musixmatch/" class="md-nav__link">
+        musixmatch
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_3" type="checkbox" id="__nav_4_3" >
+      
+      
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../reference/utils/">utils</a>
+          
+            <label for="__nav_4_3">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" aria-label="utils" data-md-level="2">
+        <label class="md-nav__title" for="__nav_4_3">
+          <span class="md-nav__icon md-icon"></span>
+          utils
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/utils/search/" class="md-nav__link">
+        search
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/utils/formatter/" class="md-nav__link">
+        formatter
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/utils/github/" class="md-nav__link">
+        github
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/utils/config/" class="md-nav__link">
+        config
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/utils/m3u/" class="md-nav__link">
+        m3u
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/utils/metadata/" class="md-nav__link">
+        metadata
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/utils/arguments/" class="md-nav__link">
+        arguments
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/utils/ffmpeg/" class="md-nav__link">
+        ffmpeg
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/utils/spotify/" class="md-nav__link">
+        spotify
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_4" type="checkbox" id="__nav_4_4" >
+      
+      
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../reference/types/">types</a>
+          
+            <label for="__nav_4_4">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" aria-label="types" data-md-level="2">
+        <label class="md-nav__title" for="__nav_4_4">
+          <span class="md-nav__icon md-icon"></span>
+          types
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/types/playlist/" class="md-nav__link">
+        playlist
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/types/artist/" class="md-nav__link">
+        artist
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/types/song/" class="md-nav__link">
+        song
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/types/saved/" class="md-nav__link">
+        saved
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/types/album/" class="md-nav__link">
+        album
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_5" type="checkbox" id="__nav_4_5" >
+      
+      
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../reference/console/">console</a>
+          
+            <label for="__nav_4_5">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" aria-label="console" data-md-level="2">
+        <label class="md-nav__title" for="__nav_4_5">
+          <span class="md-nav__icon md-icon"></span>
+          console
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/console/sync/" class="md-nav__link">
+        sync
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/console/download/" class="md-nav__link">
+        download
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/console/web/" class="md-nav__link">
+        web
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/console/save/" class="md-nav__link">
+        save
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/console/entry_point/" class="md-nav__link">
+        entry_point
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_6" type="checkbox" id="__nav_4_6" >
+      
+      
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../reference/download/">download</a>
+          
+            <label for="__nav_4_6">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" aria-label="download" data-md-level="2">
+        <label class="md-nav__title" for="__nav_4_6">
+          <span class="md-nav__icon md-icon"></span>
+          download
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/download/progress_handler/" class="md-nav__link">
+        progress_handler
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/download/downloader/" class="md-nav__link">
+        downloader
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#table-of-contents" class="md-nav__link">
+    Table of Contents
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#i-have-a-question" class="md-nav__link">
+    I Have a Question
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#i-want-to-contribute" class="md-nav__link">
+    I Want To Contribute
+  </a>
+  
+    <nav class="md-nav" aria-label="I Want To Contribute">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#legal-notice" class="md-nav__link">
+    Legal Notice 
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reporting-bugs" class="md-nav__link">
+    Reporting Bugs
+  </a>
+  
+    <nav class="md-nav" aria-label="Reporting Bugs">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#before-submitting-a-bug-report" class="md-nav__link">
+    Before Submitting a Bug Report
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-do-i-submit-a-good-bug-report" class="md-nav__link">
+    How Do I Submit a Good Bug Report?
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#suggesting-enhancements" class="md-nav__link">
+    Suggesting Enhancements
+  </a>
+  
+    <nav class="md-nav" aria-label="Suggesting Enhancements">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#before-submitting-an-enhancement" class="md-nav__link">
+    Before Submitting an Enhancement
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-do-i-submit-a-good-enhancement-suggestion" class="md-nav__link">
+    How Do I Submit a Good Enhancement Suggestion?
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#linting-formatting-and-type-checking" class="md-nav__link">
+    Linting, Formatting and Type-checking
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#python-documentation" class="md-nav__link">
+    Python Documentation
+  </a>
+  
+    <nav class="md-nav" aria-label="Python Documentation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#mkdocs-generating-documentation" class="md-nav__link">
+    mkdocs: generating documentation
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#docstring-formats" class="md-nav__link">
+    DocString Formats
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#notes-about-docstrings" class="md-nav__link">
+    Notes about docstrings
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#markdown-formatting" class="md-nav__link">
+    Markdown formatting
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#overview-of-the-project-structure" class="md-nav__link">
+    Overview of the Project Structure
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#join-the-project-team" class="md-nav__link">
+    Join The Project Team
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#attribution" class="md-nav__link">
+    Attribution
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content" data-md-component="content">
+            <article class="md-content__inner md-typeset">
+              
+                
+  <a href="https://github.com/spotDL/spotify-downloader/edit/master/docs/CONTRIBUTING.md" title="Edit this page" class="md-content__button md-icon">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25Z"/></svg>
+  </a>
+
+
+
+<!-- omit in toc -->
+
+<h1 id="contributing-to-spotdl">Contributing to spotdl<a class="headerlink" href="#contributing-to-spotdl" title="Permanent link">¤</a></h1>
+<p>First off, thanks for taking the time to contribute! ❤️</p>
+<p>All types of contributions are encouraged and valued. See the
+<a href="#table-of-contents">Table of Contents</a> for different ways to help and details about how this
+project handles them. Please make sure to read the relevant section before making your
+contribution. It will make it a lot easier for us maintainers and smooth out the experience for
+everyone involved. The community looks forward to your contributions. 🎉</p>
+<blockquote>
+<p>And if you like the project, but just don't have time to contribute, that's fine. There are
+other easy ways to support the project and show your appreciation, which we would also be
+very happy about:</p>
+<ul>
+<li>Star the project</li>
+<li>Tweet about it</li>
+<li>Refer this project in your project's readme</li>
+<li>Mention the project at local meetups and tell your friends/colleagues</li>
+</ul>
+</blockquote>
+<!-- omit in toc -->
+
+<h2 id="table-of-contents">Table of Contents<a class="headerlink" href="#table-of-contents" title="Permanent link">¤</a></h2>
+<ul>
+<li><a href="#i-have-a-question">I Have a Question</a></li>
+<li><a href="#i-want-to-contribute">I Want To Contribute</a></li>
+<li><a href="#reporting-bugs">Reporting Bugs</a></li>
+<li><a href="#suggesting-enhancements">Suggesting Enhancements</a></li>
+<li><a href="#Linting,-Formatting-and-Type-checking">Linting, Formatting and Type-checking</a></li>
+<li><a href="#Python-Documentation">Python Documentation</a></li>
+<li><a href="#Overview-of-the-Project-Structure">Overview of the Project Structure</a></li>
+<li><a href="#Join-The-Project-Team">Join The Project Team</a></li>
+</ul>
+<h2 id="i-have-a-question">I Have a Question<a class="headerlink" href="#i-have-a-question" title="Permanent link">¤</a></h2>
+<blockquote>
+<p>If you want to ask a question, we assume that you have read the available
+<a href="https://github.com/spotDL/spotify-downloader/">Documentation</a>.</p>
+</blockquote>
+<p>Before you ask a question, it is best to search for existing
+<a href="https://github.com/spotDL/spotify-downloader/issues">Issues</a> that might help you. In case you
+have found a suitable issue and still need clarification, you can write your question in this
+issue. It is also advisable to search the internet for answers first.</p>
+<p>If you then still feel the need to ask a question and need clarification, we recommend the
+following:</p>
+<ul>
+<li>Open an <a href="https://github.com/spotDL/spotify-downloader/issues/new">Issue</a>.</li>
+<li>Provide as much context as you can about what you're running into.</li>
+<li>Provide project and platform versions (nodejs, npm, etc), depending on what seems relevant.</li>
+</ul>
+<p>We will then take care of the issue as soon as possible.</p>
+<!--
+You might want to create a separate issue tag for questions and include it in this description. People should then tag their issues accordingly.
+
+Depending on how large the project is, you may want to outsource the questioning, e.g. to Stack Overflow or Gitter. You may add additional contact and information possibilities:
+- IRC
+- Slack
+- Gitter
+- Stack Overflow tag
+- Blog
+- FAQ
+- Roadmap
+- E-Mail List
+- Forum
+-->
+
+<h2 id="i-want-to-contribute">I Want To Contribute<a class="headerlink" href="#i-want-to-contribute" title="Permanent link">¤</a></h2>
+<blockquote>
+<h3 id="legal-notice">Legal Notice <!-- omit in toc --><a class="headerlink" href="#legal-notice" title="Permanent link">¤</a></h3>
+<p>When contributing to this project, you must agree that you have authored 100% of the content,
+that you have the necessary rights to the content and that the content you contribute may be
+provided under the project license.</p>
+</blockquote>
+<h3 id="reporting-bugs">Reporting Bugs<a class="headerlink" href="#reporting-bugs" title="Permanent link">¤</a></h3>
+<!-- omit in toc -->
+
+<h4 id="before-submitting-a-bug-report">Before Submitting a Bug Report<a class="headerlink" href="#before-submitting-a-bug-report" title="Permanent link">¤</a></h4>
+<p>A good bug report shouldn't leave others needing to chase you up for more information.
+Therefore, we ask you to investigate carefully, collect information and describe the issue in
+detail in your report. Please complete the following steps in advance to help us fix any
+potential bug as fast as possible.</p>
+<ul>
+<li>Make sure that you are using the latest version.</li>
+<li>Determine if your bug is really a bug and not an error on your side e.g. using incompatible
+  environment components/versions (Make sure that you have read the
+  <a href="https://github.com/spotDL/spotify-downloader/">documentation</a>. If you are looking for
+  support, you might want to check <a href="#i-have-a-question">this section</a>).</li>
+<li>To see if other users have experienced (and potentially already solved) the same issue you
+  are having, check if there is not already a bug report existing for your bug or error in the
+  <a href="https://github.com/spotDL/spotify-downloader/issues?q=label%3Abug">bug tracker</a>.</li>
+<li>Also make sure to search the internet (including Stack Overflow) to see if users outside of
+  the GitHub community have discussed the issue.</li>
+<li>Collect information about the bug:</li>
+<li>Stack trace (Traceback)</li>
+<li>OS, Platform and Version (Windows, Linux, macOS, x86, ARM)</li>
+<li>Version of the interpreter, compiler, SDK, runtime environment, package manager, depending on
+  what seems relevant.</li>
+<li>Possibly your input and the output</li>
+<li>Can you reliably reproduce the issue? And can you also reproduce it with older versions?</li>
+</ul>
+<!-- omit in toc -->
+
+<h4 id="how-do-i-submit-a-good-bug-report">How Do I Submit a Good Bug Report?<a class="headerlink" href="#how-do-i-submit-a-good-bug-report" title="Permanent link">¤</a></h4>
+<blockquote>
+<p>You must never report security related issues, vulnerabilities or bugs to the issue tracker,
+or elsewhere in public. Instead sensitive bugs must be sent by discord to xnetcat#8144.</p>
+</blockquote>
+<!-- You may add a PGP key to allow the messages to be sent encrypted as well. -->
+
+<p>We use GitHub issues to track bugs and errors. If you run into an issue with the project:</p>
+<ul>
+<li>Open an <a href="https://github.com/spotDL/spotify-downloader/issues/new">Issue</a>. (Since we can't be
+  sure at this point whether it is a bug or not, we ask you not to talk about a bug yet and not
+  to label the issue.)</li>
+<li>Explain the behavior you would expect and the actual behavior.</li>
+<li>Please provide as much context as possible and describe the <em>reproduction steps</em> that someone
+  else can follow to recreate the issue on their own. This usually includes your code. For good
+  bug reports you should isolate the problem and create a reduced test case.</li>
+<li>Provide the information you collected in the previous section.</li>
+</ul>
+<p>Once it's filed:</p>
+<ul>
+<li>The project team will label the issue accordingly.</li>
+<li>A team member will try to reproduce the issue with your provided steps. If there are no
+  reproduction steps or no obvious way to reproduce the issue, the team will ask you for those
+  steps and mark the issue as <code>needs-repro</code>. Bugs with the <code>needs-repro</code> tag will not be
+  addressed until they are reproduced.</li>
+<li>If the team is able to reproduce the issue, it will be marked <code>needs-fix</code>, as well as
+  possibly other tags (such as <code>critical</code>), and the issue will be left to be
+  <a href="#your-first-code-contribution">implemented by someone</a>.</li>
+</ul>
+<!-- You might want to create an issue template for bugs and errors that can be used as a guide and that defines the structure of the information to be included. If you do so, reference it here in the description. -->
+
+<h3 id="suggesting-enhancements">Suggesting Enhancements<a class="headerlink" href="#suggesting-enhancements" title="Permanent link">¤</a></h3>
+<p>This section guides you through submitting an enhancement suggestion for spotdl, <strong>including
+completely new features and minor improvements to existing functionality</strong>. Following these
+guidelines will help maintainers and the community to understand your suggestion and find
+related suggestions.</p>
+<!-- omit in toc -->
+
+<h4 id="before-submitting-an-enhancement">Before Submitting an Enhancement<a class="headerlink" href="#before-submitting-an-enhancement" title="Permanent link">¤</a></h4>
+<ul>
+<li>Make sure that you are using the latest version.</li>
+<li>Read the <a href="https://github.com/spotDL/spotify-downloader/">documentation</a> carefully and find
+  out if the functionality is already covered, maybe by an individual configuration.</li>
+<li>Perform a <a href="https://github.com/spotDL/spotify-downloader/issues">search</a> to see if the
+  enhancement has already been suggested. If it has, add a comment to the existing issue
+  instead of opening a new one.</li>
+<li>Find out whether your idea fits with the scope and aims of the project. It's up to you to
+  make a strong case to convince the project's developers of the merits of this feature. Keep
+  in mind that we want features that will be useful to the majority of our users and not just a
+  small subset. If you're just targeting a minority of users, consider writing an add-on/plugin
+  library.</li>
+</ul>
+<!-- omit in toc -->
+
+<h4 id="how-do-i-submit-a-good-enhancement-suggestion">How Do I Submit a Good Enhancement Suggestion?<a class="headerlink" href="#how-do-i-submit-a-good-enhancement-suggestion" title="Permanent link">¤</a></h4>
+<p>Enhancement suggestions are tracked as
+<a href="https://github.com/spotDL/spotify-downloader/issues">GitHub issues</a>.</p>
+<ul>
+<li>Use a <strong>clear and descriptive title</strong> for the issue to identify the suggestion.</li>
+<li>Provide a <strong>step-by-step description of the suggested enhancement</strong> in as many details as
+  possible.</li>
+<li><strong>Describe the current behavior</strong> and <strong>explain which behavior you expected to see instead</strong>
+  and why. At this point you can also tell which alternatives do not work for you.</li>
+<li>You may want to <strong>include screenshots and animated GIFs</strong> which help you demonstrate the
+  steps or point out the part which the suggestion is related to. You can use
+  <a href="https://www.cockos.com/licecap/">this tool</a> to record GIFs on macOS and Windows, and
+  <a href="https://github.com/colinkeenan/silentcast">this tool</a> or
+  <a href="https://github.com/GNOME/byzanz">this tool</a> on Linux.
+      <!-- this should only be included if the project has a GUI --></li>
+<li><strong>Explain why this enhancement would be useful</strong> to most spotdl users. You may also want to
+  point out the other projects that solved it better and which could serve as inspiration.</li>
+</ul>
+<!-- You might want to create an issue template for enhancement suggestions that can be used as a guide and that defines the structure of the information to be included. If you do so, reference it here in the description. -->
+
+<h3 id="linting-formatting-and-type-checking">Linting, Formatting and Type-checking<a class="headerlink" href="#linting-formatting-and-type-checking" title="Permanent link">¤</a></h3>
+<ul>
+<li>We use <a href="https://pypi.org/project/pylint/"><code>pylint</code></a> for linting and expect a score above <code>9</code></li>
+</ul>
+<div class="language-bash highlight"><pre><span></span><code>pylint --limit-inference-results <span class="m">0</span> --fail-under <span class="m">9</span> ./spotdl
+</code></pre></div>
+<ul>
+<li>We use <a href="https://pypi.org/project/black/"><code>black</code></a> for code formatting</li>
+</ul>
+<div class="language-bash highlight"><pre><span></span><code>black ./spotdl
+</code></pre></div>
+<ul>
+<li>We use <a href="https://pypi.org/project/mypy/"><code>mypy</code></a> for type-checking and expect no errors at all</li>
+</ul>
+<p>To install type-stubs the first time around</p>
+<div class="language-bash highlight"><pre><span></span><code>mypy --install-types --non-interactive
+</code></pre></div>
+<div class="language-bash highlight"><pre><span></span><code>mypy ./spotdl
+</code></pre></div>
+<ul>
+<li>You can install these basic tools with</li>
+</ul>
+<div class="language-bash highlight"><pre><span></span><code>pip install --force-reinstall --upgrade mypy black pylint
+</code></pre></div>
+<h3 id="python-documentation">Python Documentation<a class="headerlink" href="#python-documentation" title="Permanent link">¤</a></h3>
+<p>Any submitted code is expected to have accompanying documentation</p>
+<h4 id="mkdocs-generating-documentation">mkdocs: generating documentation<a class="headerlink" href="#mkdocs-generating-documentation" title="Permanent link">¤</a></h4>
+<ul>
+<li>We generate our documentation with <a href="https://www.mkdocs.org/"><code>mkdocs</code></a></li>
+</ul>
+<div class="language-bash highlight"><pre><span></span><code>pip install mkdocs
+</code></pre></div>
+<p><code>mkdocs</code> requires that all development packages are installed</p>
+<div class="language-bash highlight"><pre><span></span><code>poetry install
+</code></pre></div>
+<p>generate docs with</p>
+<div class="language-bash highlight"><pre><span></span><code>mkdocs build --strict
+</code></pre></div>
+<p>view docs live-time while editing with</p>
+<div class="language-bash highlight"><pre><span></span><code>mkdocs serve
+</code></pre></div>
+<h4 id="docstring-formats">DocString Formats<a class="headerlink" href="#docstring-formats" title="Permanent link">¤</a></h4>
+<ul>
+<li>For functions</li>
+</ul>
+<div class="language-text highlight"><pre><span></span><code>one-liner about functions purpose
+
+### Args (optional)
+- arg_name: description
+
+### Returns (optional)
+- return value description
+
+### Errors (only if there are known unhandled Errors/thrown Errors)
+- known errors
+
+### Notes (optional)
+- notes if any
+</code></pre></div>
+<ul>
+<li>For Classes</li>
+</ul>
+<div class="language-text highlight"><pre><span></span><code>one-liner about class purpose
+
+### Attributes
+- attribute: description
+
+### Notes (optional)
+- notes if any
+</code></pre></div>
+<ul>
+<li>For modules/package <code>__init__</code></li>
+</ul>
+<div class="language-text highlight"><pre><span></span><code>at max 3 lines about module/package purpose
+
+optional usage example for module/package preferably showcasing most commonly used functionality
+</code></pre></div>
+<h4 id="notes-about-docstrings">Notes about docstrings<a class="headerlink" href="#notes-about-docstrings" title="Permanent link">¤</a></h4>
+<ul>
+<li>DocStrings are Inherited</li>
+</ul>
+<div class="language-text highlight"><pre><span></span><code>class A:
+    def test(self):
+        &quot;&quot;&quot;Docstring for A.&quot;&quot;&quot;
+        pass
+
+class B(A):
+    def test(self):
+        pass
+
+# B.test.__doc__ acc. to normal python  : None
+# B.test.__doc__ acc. to normal pdoc3   : Docstring for A.
+</code></pre></div>
+<ul>
+<li>You can write DocStrings for variables with <code>#:</code> comment above the variable</li>
+</ul>
+<div class="language-text highlight"><pre><span></span><code>#: an example variable to demonstrate DocStrings
+example_var_1 = 1
+</code></pre></div>
+<ul>
+<li>You can use the reST directives
+  <a href="https://docutils.sourceforge.io/docs/ref/rst/directives.html#math"><code>..math::</code></a> and
+  <a href="https://docutils.sourceforge.io/docs/ref/rst/directives.html#images"><code>..image::</code></a></li>
+</ul>
+<h4 id="markdown-formatting">Markdown formatting<a class="headerlink" href="#markdown-formatting" title="Permanent link">¤</a></h4>
+<ul>
+<li>Markdown is formatted with <a href="https://pypi.org/project/mdformat-gfm/"><code>mdformat-gfm</code></a> and
+  indexes are auto-generated with <a href="https://pypi.org/project/mdformat-toc/"><code>mdformat-toc</code></a></li>
+</ul>
+<div class="language-text highlight"><pre><span></span><code>pip install mdformat-gfm mdformat-toc
+</code></pre></div>
+<ul>
+<li>Create an Index using the following comment, the index will be updated when mdformat is run</li>
+</ul>
+<div class="language-markdown highlight"><pre><span></span><code>&lt;!-- mdformat-toc start --no-anchors --&gt;
+</code></pre></div>
+<ul>
+<li>
+<p>Preferably use empty lines between points on ordered &amp; un-ordered lists</p>
+</li>
+<li>
+<p>Format your markdown using</p>
+</li>
+</ul>
+<div class="language-text highlight"><pre><span></span><code>mdformat --wrap 95 --number ./
+</code></pre></div>
+<h3 id="overview-of-the-project-structure">Overview of the Project Structure<a class="headerlink" href="#overview-of-the-project-structure" title="Permanent link">¤</a></h3>
+<table>
+<thead>
+<tr>
+<th>sub-package</th>
+<th>purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>utils</code></td>
+<td>Contains commonly used functions</td>
+</tr>
+<tr>
+<td><code>types</code></td>
+<td>Custom data types used in the spotdl project</td>
+</tr>
+<tr>
+<td><code>providers</code></td>
+<td>Different Providers to obtain info (like song details) from</td>
+</tr>
+<tr>
+<td><code>download</code></td>
+<td>Download manager</td>
+</tr>
+<tr>
+<td><code>console</code></td>
+<td>Different user-facing operations like download, preload and web-ui</td>
+</tr>
+<tr>
+<td><code>__init__</code></td>
+<td>Contains spotdl class that simplifies the download process</td>
+</tr>
+</tbody>
+</table>
+<h3 id="join-the-project-team">Join The Project Team<a class="headerlink" href="#join-the-project-team" title="Permanent link">¤</a></h3>
+<p><a href="https://discord.gg/xCa23pwJWY"><img alt="Discord Server" src="https://img.shields.io/discord/771628785447337985?color=7289da&amp;label=DISCORD&amp;style=for-the-badge" /></a></p>
+<!-- omit in toc -->
+
+<h3 id="attribution">Attribution<a class="headerlink" href="#attribution" title="Permanent link">¤</a></h3>
+<p>This guide is based on the <strong>contributing-gen</strong>.
+<a href="https://github.com/bttger/contributing-gen">Make your own</a>!</p>
+
+              
+            </article>
+            
+          </div>
+        </div>
+        
+          <a href="#" class="md-top md-icon" data-md-component="top" hidden>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12Z"/></svg>
+            Back to top
+          </a>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+    <nav class="md-footer__inner md-grid" aria-label="Footer" >
+      
+        
+        <a href="../CODE_OF_CONDUCT/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Code Of Conduct" rel="prev">
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+          </div>
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              Code Of Conduct
+            </div>
+          </div>
+        </a>
+      
+      
+        
+        <a href="../reference/" class="md-footer__link md-footer__link--next" aria-label="Next: __init__" rel="next">
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              __init__
+            </div>
+          </div>
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"/></svg>
+          </div>
+        </a>
+      
+    </nav>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.tabs", "navigation.top"], "search": "../assets/javascripts/workers/search.b97dbffb.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.0238f547.min.js"></script>
+      
+    
+  </body>
+</html>

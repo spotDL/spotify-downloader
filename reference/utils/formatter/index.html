@@ -1,0 +1,2790 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Download your Spotify playlists and songs along with album art and metadata">
+      
+      
+        <meta name="author" content="xnetcat">
+      
+      
+        <link rel="canonical" href="https://spotdl.github.io/spotify-downloader/reference/utils/formatter/">
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.3.0, mkdocs-material-8.3.7">
+    
+    
+      
+        <title>formatter - spotDL</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.4a0965b7.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.cbb835fc.min.css">
+        
+      
+      
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="purple">
+  
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#spotdl.utils.formatter" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="spotDL" class="md-header__button md-logo" aria-label="spotDL" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            spotDL
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              formatter
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      <form class="md-header__option" data-md-component="palette">
+        
+          
+          
+          <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="purple"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+          
+            <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5c-.84 0-1.65.15-2.39.42L12 2M3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29L3.34 7m.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14L3.36 17M20.65 7l-1.77 3.79a7.023 7.023 0 0 0-2.38-4.15l4.15.36m-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29L20.64 17M12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44L12 22Z"/></svg>
+            </label>
+          
+        
+          
+          
+          <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="black" data-md-color-accent="lime"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_2">
+          
+            <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3 3.19.09m3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95 2.06.05m-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31Z"/></svg>
+            </label>
+          
+        
+      </form>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/spotDL/spotify-downloader" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    spotdl/spotify-downloader
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-tabs__inner md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+
+
+  <li class="md-tabs__item">
+    <a href="../../.." class="md-tabs__link">
+      Home
+    </a>
+  </li>
+
+      
+        
+  
+  
+
+
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../installation/" class="md-tabs__link">
+        Usage
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+
+
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../CODE_OF_CONDUCT/" class="md-tabs__link">
+        Development
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+    
+  
+
+
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../" class="md-tabs__link md-tabs__link--active">
+        Code Reference
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="spotDL" class="md-nav__button md-logo" aria-label="spotDL" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    spotDL
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/spotDL/spotify-downloader" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    spotdl/spotify-downloader
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        Home
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2" type="checkbox" id="__nav_2" >
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_2">
+          Usage
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Usage" data-md-level="1">
+        <label class="md-nav__title" for="__nav_2">
+          <span class="md-nav__icon md-icon"></span>
+          Usage
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../installation/" class="md-nav__link">
+        Installation
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../usage/" class="md-nav__link">
+        Usage
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../troubleshooting/" class="md-nav__link">
+        Troubleshooting
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3" type="checkbox" id="__nav_3" >
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_3">
+          Development
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Development" data-md-level="1">
+        <label class="md-nav__title" for="__nav_3">
+          <span class="md-nav__icon md-icon"></span>
+          Development
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../CODE_OF_CONDUCT/" class="md-nav__link">
+        Code Of Conduct
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../CONTRIBUTING/" class="md-nav__link">
+        Contributing
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4" type="checkbox" id="__nav_4" checked>
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_4">
+          Code Reference
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Code Reference" data-md-level="1">
+        <label class="md-nav__title" for="__nav_4">
+          <span class="md-nav__icon md-icon"></span>
+          Code Reference
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../" class="md-nav__link">
+        __init__
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_2" type="checkbox" id="__nav_4_2" >
+      
+      
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../../providers/">providers</a>
+          
+            <label for="__nav_4_2">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" aria-label="providers" data-md-level="2">
+        <label class="md-nav__title" for="__nav_4_2">
+          <span class="md-nav__icon md-icon"></span>
+          providers
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_2_1" type="checkbox" id="__nav_4_2_1" >
+      
+      
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../../providers/audio/">audio</a>
+          
+            <label for="__nav_4_2_1">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" aria-label="audio" data-md-level="3">
+        <label class="md-nav__title" for="__nav_4_2_1">
+          <span class="md-nav__icon md-icon"></span>
+          audio
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../providers/audio/ytmusic/" class="md-nav__link">
+        ytmusic
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../providers/audio/base/" class="md-nav__link">
+        base
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../providers/audio/youtube/" class="md-nav__link">
+        youtube
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_2_2" type="checkbox" id="__nav_4_2_2" >
+      
+      
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../../providers/lyrics/">lyrics</a>
+          
+            <label for="__nav_4_2_2">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" aria-label="lyrics" data-md-level="3">
+        <label class="md-nav__title" for="__nav_4_2_2">
+          <span class="md-nav__icon md-icon"></span>
+          lyrics
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../providers/lyrics/azlyrics/" class="md-nav__link">
+        azlyrics
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../providers/lyrics/genius/" class="md-nav__link">
+        genius
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../providers/lyrics/base/" class="md-nav__link">
+        base
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../providers/lyrics/musixmatch/" class="md-nav__link">
+        musixmatch
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_3" type="checkbox" id="__nav_4_3" checked>
+      
+      
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../">utils</a>
+          
+            <label for="__nav_4_3">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" aria-label="utils" data-md-level="2">
+        <label class="md-nav__title" for="__nav_4_3">
+          <span class="md-nav__icon md-icon"></span>
+          utils
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../search/" class="md-nav__link">
+        search
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          formatter
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        formatter
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#spotdl.utils.formatter" class="md-nav__link">
+    spotdl.utils.formatter
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#spotdl.utils.formatter.create_file_name" class="md-nav__link">
+    create_file_name()
+  </a>
+  
+    <nav class="md-nav" aria-label="create_file_name()">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#spotdl.utils.formatter.create_file_name--arguments" class="md-nav__link">
+    Arguments
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spotdl.utils.formatter.create_file_name--returns" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#spotdl.utils.formatter.create_search_query" class="md-nav__link">
+    create_search_query()
+  </a>
+  
+    <nav class="md-nav" aria-label="create_search_query()">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#spotdl.utils.formatter.create_search_query--arguments" class="md-nav__link">
+    Arguments
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spotdl.utils.formatter.create_search_query--returns" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#spotdl.utils.formatter.create_song_title" class="md-nav__link">
+    create_song_title()
+  </a>
+  
+    <nav class="md-nav" aria-label="create_song_title()">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#spotdl.utils.formatter.create_song_title--arguments" class="md-nav__link">
+    Arguments
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spotdl.utils.formatter.create_song_title--returns" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spotdl.utils.formatter.create_song_title--notes" class="md-nav__link">
+    Notes
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#spotdl.utils.formatter.format_query" class="md-nav__link">
+    format_query()
+  </a>
+  
+    <nav class="md-nav" aria-label="format_query()">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#spotdl.utils.formatter.format_query--arguments" class="md-nav__link">
+    Arguments
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spotdl.utils.formatter.format_query--returns" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#spotdl.utils.formatter.parse_duration" class="md-nav__link">
+    parse_duration()
+  </a>
+  
+    <nav class="md-nav" aria-label="parse_duration()">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#spotdl.utils.formatter.parse_duration--arguments" class="md-nav__link">
+    Arguments
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spotdl.utils.formatter.parse_duration--returns" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#spotdl.utils.formatter.restrict_filename" class="md-nav__link">
+    restrict_filename()
+  </a>
+  
+    <nav class="md-nav" aria-label="restrict_filename()">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#spotdl.utils.formatter.restrict_filename--arguments" class="md-nav__link">
+    Arguments
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spotdl.utils.formatter.restrict_filename--returns" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spotdl.utils.formatter.restrict_filename--notes" class="md-nav__link">
+    Notes
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#spotdl.utils.formatter.sanitize_string" class="md-nav__link">
+    sanitize_string()
+  </a>
+  
+    <nav class="md-nav" aria-label="sanitize_string()">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#spotdl.utils.formatter.sanitize_string--arguments" class="md-nav__link">
+    Arguments
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spotdl.utils.formatter.sanitize_string--returns" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#spotdl.utils.formatter.to_ms" class="md-nav__link">
+    to_ms()
+  </a>
+  
+    <nav class="md-nav" aria-label="to_ms()">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#spotdl.utils.formatter.to_ms--arguments" class="md-nav__link">
+    Arguments
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spotdl.utils.formatter.to_ms--returns" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spotdl.utils.formatter.to_ms--notes" class="md-nav__link">
+    Notes
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../github/" class="md-nav__link">
+        github
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../config/" class="md-nav__link">
+        config
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../m3u/" class="md-nav__link">
+        m3u
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../metadata/" class="md-nav__link">
+        metadata
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../arguments/" class="md-nav__link">
+        arguments
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ffmpeg/" class="md-nav__link">
+        ffmpeg
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../spotify/" class="md-nav__link">
+        spotify
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_4" type="checkbox" id="__nav_4_4" >
+      
+      
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../../types/">types</a>
+          
+            <label for="__nav_4_4">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" aria-label="types" data-md-level="2">
+        <label class="md-nav__title" for="__nav_4_4">
+          <span class="md-nav__icon md-icon"></span>
+          types
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../types/playlist/" class="md-nav__link">
+        playlist
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../types/artist/" class="md-nav__link">
+        artist
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../types/song/" class="md-nav__link">
+        song
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../types/saved/" class="md-nav__link">
+        saved
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../types/album/" class="md-nav__link">
+        album
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_5" type="checkbox" id="__nav_4_5" >
+      
+      
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../../console/">console</a>
+          
+            <label for="__nav_4_5">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" aria-label="console" data-md-level="2">
+        <label class="md-nav__title" for="__nav_4_5">
+          <span class="md-nav__icon md-icon"></span>
+          console
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../console/sync/" class="md-nav__link">
+        sync
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../console/download/" class="md-nav__link">
+        download
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../console/web/" class="md-nav__link">
+        web
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../console/save/" class="md-nav__link">
+        save
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../console/entry_point/" class="md-nav__link">
+        entry_point
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_6" type="checkbox" id="__nav_4_6" >
+      
+      
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../../download/">download</a>
+          
+            <label for="__nav_4_6">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" aria-label="download" data-md-level="2">
+        <label class="md-nav__title" for="__nav_4_6">
+          <span class="md-nav__icon md-icon"></span>
+          download
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../download/progress_handler/" class="md-nav__link">
+        progress_handler
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../download/downloader/" class="md-nav__link">
+        downloader
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#spotdl.utils.formatter" class="md-nav__link">
+    spotdl.utils.formatter
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#spotdl.utils.formatter.create_file_name" class="md-nav__link">
+    create_file_name()
+  </a>
+  
+    <nav class="md-nav" aria-label="create_file_name()">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#spotdl.utils.formatter.create_file_name--arguments" class="md-nav__link">
+    Arguments
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spotdl.utils.formatter.create_file_name--returns" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#spotdl.utils.formatter.create_search_query" class="md-nav__link">
+    create_search_query()
+  </a>
+  
+    <nav class="md-nav" aria-label="create_search_query()">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#spotdl.utils.formatter.create_search_query--arguments" class="md-nav__link">
+    Arguments
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spotdl.utils.formatter.create_search_query--returns" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#spotdl.utils.formatter.create_song_title" class="md-nav__link">
+    create_song_title()
+  </a>
+  
+    <nav class="md-nav" aria-label="create_song_title()">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#spotdl.utils.formatter.create_song_title--arguments" class="md-nav__link">
+    Arguments
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spotdl.utils.formatter.create_song_title--returns" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spotdl.utils.formatter.create_song_title--notes" class="md-nav__link">
+    Notes
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#spotdl.utils.formatter.format_query" class="md-nav__link">
+    format_query()
+  </a>
+  
+    <nav class="md-nav" aria-label="format_query()">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#spotdl.utils.formatter.format_query--arguments" class="md-nav__link">
+    Arguments
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spotdl.utils.formatter.format_query--returns" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#spotdl.utils.formatter.parse_duration" class="md-nav__link">
+    parse_duration()
+  </a>
+  
+    <nav class="md-nav" aria-label="parse_duration()">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#spotdl.utils.formatter.parse_duration--arguments" class="md-nav__link">
+    Arguments
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spotdl.utils.formatter.parse_duration--returns" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#spotdl.utils.formatter.restrict_filename" class="md-nav__link">
+    restrict_filename()
+  </a>
+  
+    <nav class="md-nav" aria-label="restrict_filename()">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#spotdl.utils.formatter.restrict_filename--arguments" class="md-nav__link">
+    Arguments
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spotdl.utils.formatter.restrict_filename--returns" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spotdl.utils.formatter.restrict_filename--notes" class="md-nav__link">
+    Notes
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#spotdl.utils.formatter.sanitize_string" class="md-nav__link">
+    sanitize_string()
+  </a>
+  
+    <nav class="md-nav" aria-label="sanitize_string()">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#spotdl.utils.formatter.sanitize_string--arguments" class="md-nav__link">
+    Arguments
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spotdl.utils.formatter.sanitize_string--returns" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#spotdl.utils.formatter.to_ms" class="md-nav__link">
+    to_ms()
+  </a>
+  
+    <nav class="md-nav" aria-label="to_ms()">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#spotdl.utils.formatter.to_ms--arguments" class="md-nav__link">
+    Arguments
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spotdl.utils.formatter.to_ms--returns" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spotdl.utils.formatter.to_ms--notes" class="md-nav__link">
+    Notes
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content" data-md-component="content">
+            <article class="md-content__inner md-typeset">
+              
+                
+  <a href="https://github.com/spotDL/edit/master/docs/spotdl/utils/formatter.py" title="Edit this page" class="md-content__button md-icon">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25Z"/></svg>
+  </a>
+
+
+
+  <h1>formatter</h1>
+
+<div class="doc doc-object doc-module">
+
+
+<a id="spotdl.utils.formatter"></a>
+  <div class="doc doc-contents first">
+  
+      <p>Module for formatting songs into strings.
+Contains functions to create search queries and song titles
+and file names.</p>
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h2 id="spotdl.utils.formatter.create_file_name" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">create_file_name</span><span class="p">(</span><span class="n">song</span><span class="p">,</span> <span class="n">template</span><span class="p">,</span> <span class="n">file_extension</span><span class="p">,</span> <span class="n">short</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
+
+<a href="#spotdl.utils.formatter.create_file_name" class="headerlink" title="Permanent link">¤</a></h2>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Create the file name for the song, by replacing template variables with the actual values.</p>
+<h5 id="spotdl.utils.formatter.create_file_name--arguments">Arguments<a class="headerlink" href="#spotdl.utils.formatter.create_file_name--arguments" title="Permanent link">¤</a></h5>
+<ul>
+<li>song: the song object</li>
+<li>template: the template string</li>
+<li>file_extension: the file extension to use</li>
+<li>short: whether to use the short version of the template</li>
+</ul>
+<h5 id="spotdl.utils.formatter.create_file_name--returns">Returns<a class="headerlink" href="#spotdl.utils.formatter.create_file_name--returns" title="Permanent link">¤</a></h5>
+<ul>
+<li>the formatted string as a Path object</li>
+</ul>
+
+      <details class="quote">
+        <summary>Source code in <code>spotdl/utils/formatter.py</code></summary>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">221</span>
+<span class="normal">222</span>
+<span class="normal">223</span>
+<span class="normal">224</span>
+<span class="normal">225</span>
+<span class="normal">226</span>
+<span class="normal">227</span>
+<span class="normal">228</span>
+<span class="normal">229</span>
+<span class="normal">230</span>
+<span class="normal">231</span>
+<span class="normal">232</span>
+<span class="normal">233</span>
+<span class="normal">234</span>
+<span class="normal">235</span>
+<span class="normal">236</span>
+<span class="normal">237</span>
+<span class="normal">238</span>
+<span class="normal">239</span>
+<span class="normal">240</span>
+<span class="normal">241</span>
+<span class="normal">242</span>
+<span class="normal">243</span>
+<span class="normal">244</span>
+<span class="normal">245</span>
+<span class="normal">246</span>
+<span class="normal">247</span>
+<span class="normal">248</span>
+<span class="normal">249</span>
+<span class="normal">250</span>
+<span class="normal">251</span>
+<span class="normal">252</span>
+<span class="normal">253</span>
+<span class="normal">254</span>
+<span class="normal">255</span>
+<span class="normal">256</span>
+<span class="normal">257</span>
+<span class="normal">258</span>
+<span class="normal">259</span>
+<span class="normal">260</span>
+<span class="normal">261</span>
+<span class="normal">262</span>
+<span class="normal">263</span>
+<span class="normal">264</span>
+<span class="normal">265</span>
+<span class="normal">266</span>
+<span class="normal">267</span>
+<span class="normal">268</span>
+<span class="normal">269</span>
+<span class="normal">270</span>
+<span class="normal">271</span>
+<span class="normal">272</span>
+<span class="normal">273</span>
+<span class="normal">274</span>
+<span class="normal">275</span>
+<span class="normal">276</span>
+<span class="normal">277</span>
+<span class="normal">278</span>
+<span class="normal">279</span>
+<span class="normal">280</span>
+<span class="normal">281</span>
+<span class="normal">282</span>
+<span class="normal">283</span>
+<span class="normal">284</span>
+<span class="normal">285</span>
+<span class="normal">286</span>
+<span class="normal">287</span>
+<span class="normal">288</span>
+<span class="normal">289</span>
+<span class="normal">290</span>
+<span class="normal">291</span>
+<span class="normal">292</span>
+<span class="normal">293</span>
+<span class="normal">294</span>
+<span class="normal">295</span>
+<span class="normal">296</span>
+<span class="normal">297</span>
+<span class="normal">298</span>
+<span class="normal">299</span>
+<span class="normal">300</span>
+<span class="normal">301</span>
+<span class="normal">302</span>
+<span class="normal">303</span>
+<span class="normal">304</span>
+<span class="normal">305</span>
+<span class="normal">306</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">create_file_name</span><span class="p">(</span>
+    <span class="n">song</span><span class="p">:</span> <span class="n">Song</span><span class="p">,</span>
+    <span class="n">template</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">file_extension</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">short</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create the file name for the song, by replacing template variables with the actual values.</span>
+
+<span class="sd">    ### Arguments</span>
+<span class="sd">    - song: the song object</span>
+<span class="sd">    - template: the template string</span>
+<span class="sd">    - file_extension: the file extension to use</span>
+<span class="sd">    - short: whether to use the short version of the template</span>
+
+<span class="sd">    ### Returns</span>
+<span class="sd">    - the formatted string as a Path object</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># If template does not contain any of the keys,</span>
+    <span class="c1"># append {artists} - {title}.{output-ext} to it</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">key</span> <span class="ow">in</span> <span class="n">template</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">VARS</span><span class="p">):</span>
+        <span class="n">template</span> <span class="o">+=</span> <span class="s2">&quot;/</span><span class="si">{artists}</span><span class="s2"> - </span><span class="si">{title}</span><span class="s2">.{output-ext}&quot;</span>
+
+    <span class="c1"># If template ends with a slash. Does not have a file name with extension</span>
+    <span class="c1"># at the end of the template, append {artists} - {title}.{output-ext} to it</span>
+    <span class="k">if</span> <span class="n">template</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">template</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;</span><span class="se">\\</span><span class="s2">&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">template</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\\\\</span><span class="s2">&quot;</span><span class="p">):</span>
+        <span class="n">template</span> <span class="o">+=</span> <span class="s2">&quot;/</span><span class="si">{artists}</span><span class="s2"> - </span><span class="si">{title}</span><span class="s2">.{output-ext}&quot;</span>
+
+    <span class="c1"># If template does not end with {output-ext}, append it to the end of the template</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">template</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.{output-ext}&quot;</span><span class="p">):</span>
+        <span class="n">template</span> <span class="o">+=</span> <span class="s2">&quot;.{output-ext}&quot;</span>
+
+    <span class="n">formatted_string</span> <span class="o">=</span> <span class="n">format_query</span><span class="p">(</span>
+        <span class="n">song</span><span class="o">=</span><span class="n">song</span><span class="p">,</span>
+        <span class="n">template</span><span class="o">=</span><span class="n">template</span><span class="p">,</span>
+        <span class="n">santitize</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">file_extension</span><span class="o">=</span><span class="n">file_extension</span><span class="p">,</span>
+        <span class="n">short</span><span class="o">=</span><span class="n">short</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Parse template as Path object</span>
+    <span class="n">file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">formatted_string</span><span class="p">)</span>
+
+    <span class="n">santitized_parts</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">file</span><span class="o">.</span><span class="n">parts</span><span class="p">:</span>
+        <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;[^\.*](.*)[^\.*$]&quot;</span><span class="p">,</span> <span class="n">part</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">match</span> <span class="ow">and</span> <span class="n">part</span> <span class="o">!=</span> <span class="s2">&quot;.spotdl&quot;</span><span class="p">:</span>
+            <span class="n">santitized_parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">santitized_parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">part</span><span class="p">)</span>
+
+    <span class="c1"># Join the parts of the path</span>
+    <span class="n">file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="o">*</span><span class="n">santitized_parts</span><span class="p">)</span>
+
+    <span class="c1"># Check if the file name length is greater than 255</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">file</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">255</span><span class="p">:</span>
+        <span class="c1"># If the file name length is greater than 255,</span>
+        <span class="c1"># and we are already using the short version of the template,</span>
+        <span class="c1"># fallback to default template</span>
+        <span class="k">if</span> <span class="n">short</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">song</span><span class="o">.</span><span class="n">display_name</span><span class="si">}</span><span class="s2">: File name is too long. Using the default template.&quot;</span>
+            <span class="p">)</span>
+
+            <span class="k">return</span> <span class="n">create_file_name</span><span class="p">(</span>
+                <span class="n">song</span><span class="o">=</span><span class="n">song</span><span class="p">,</span>
+                <span class="n">template</span><span class="o">=</span><span class="s2">&quot;/</span><span class="si">{artist}</span><span class="s2"> - </span><span class="si">{title}</span><span class="s2">.{output-ext}&quot;</span><span class="p">,</span>
+                <span class="n">file_extension</span><span class="o">=</span><span class="n">file_extension</span><span class="p">,</span>
+                <span class="n">short</span><span class="o">=</span><span class="n">short</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="c1"># This will probably never occur, but just in case</span>
+        <span class="k">if</span> <span class="n">short</span> <span class="ow">is</span> <span class="kc">True</span> <span class="ow">and</span> <span class="n">template</span> <span class="o">==</span> <span class="s2">&quot;/</span><span class="si">{artist}</span><span class="s2"> - </span><span class="si">{title}</span><span class="s2">.{output-ext}&quot;</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RecursionError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">&#39;&quot;</span><span class="si">{</span><span class="n">song</span><span class="o">.</span><span class="n">display_name</span><span class="si">}</span><span class="s1"> is too long to be shortened. File a bug report on GitHub&#39;</span>
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">create_file_name</span><span class="p">(</span>
+            <span class="n">song</span><span class="p">,</span>
+            <span class="n">template</span><span class="p">,</span>
+            <span class="n">file_extension</span><span class="p">,</span>
+            <span class="n">short</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">file</span>
+</code></pre></div></td></tr></table></div>
+      </details>
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h2 id="spotdl.utils.formatter.create_search_query" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">create_search_query</span><span class="p">(</span><span class="n">song</span><span class="p">,</span> <span class="n">template</span><span class="p">,</span> <span class="n">santitize</span><span class="p">,</span> <span class="n">file_extension</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">short</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
+
+<a href="#spotdl.utils.formatter.create_search_query" class="headerlink" title="Permanent link">¤</a></h2>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Create the search query for the song.</p>
+<h5 id="spotdl.utils.formatter.create_search_query--arguments">Arguments<a class="headerlink" href="#spotdl.utils.formatter.create_search_query--arguments" title="Permanent link">¤</a></h5>
+<ul>
+<li>song: the song object</li>
+<li>template: the template string</li>
+<li>santitize: whether to sanitize the string</li>
+<li>file_extension: the file extension to use</li>
+<li>short: whether to use the short version of the template</li>
+</ul>
+<h5 id="spotdl.utils.formatter.create_search_query--returns">Returns<a class="headerlink" href="#spotdl.utils.formatter.create_search_query--returns" title="Permanent link">¤</a></h5>
+<ul>
+<li>the formatted string</li>
+</ul>
+
+      <details class="quote">
+        <summary>Source code in <code>spotdl/utils/formatter.py</code></summary>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">192</span>
+<span class="normal">193</span>
+<span class="normal">194</span>
+<span class="normal">195</span>
+<span class="normal">196</span>
+<span class="normal">197</span>
+<span class="normal">198</span>
+<span class="normal">199</span>
+<span class="normal">200</span>
+<span class="normal">201</span>
+<span class="normal">202</span>
+<span class="normal">203</span>
+<span class="normal">204</span>
+<span class="normal">205</span>
+<span class="normal">206</span>
+<span class="normal">207</span>
+<span class="normal">208</span>
+<span class="normal">209</span>
+<span class="normal">210</span>
+<span class="normal">211</span>
+<span class="normal">212</span>
+<span class="normal">213</span>
+<span class="normal">214</span>
+<span class="normal">215</span>
+<span class="normal">216</span>
+<span class="normal">217</span>
+<span class="normal">218</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">create_search_query</span><span class="p">(</span>
+    <span class="n">song</span><span class="p">:</span> <span class="n">Song</span><span class="p">,</span>
+    <span class="n">template</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">santitize</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="n">file_extension</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">short</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create the search query for the song.</span>
+
+<span class="sd">    ### Arguments</span>
+<span class="sd">    - song: the song object</span>
+<span class="sd">    - template: the template string</span>
+<span class="sd">    - santitize: whether to sanitize the string</span>
+<span class="sd">    - file_extension: the file extension to use</span>
+<span class="sd">    - short: whether to use the short version of the template</span>
+
+<span class="sd">    ### Returns</span>
+<span class="sd">    - the formatted string</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># If template does not contain any of the keys,</span>
+    <span class="c1"># append {artist} - {title} at the beggining of the template</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">key</span> <span class="ow">in</span> <span class="n">template</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">VARS</span><span class="p">):</span>
+        <span class="n">template</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{artist}</span><span class="s2"> - </span><span class="si">{title}</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">template</span>
+
+    <span class="k">return</span> <span class="n">format_query</span><span class="p">(</span><span class="n">song</span><span class="p">,</span> <span class="n">template</span><span class="p">,</span> <span class="n">santitize</span><span class="p">,</span> <span class="n">file_extension</span><span class="p">,</span> <span class="n">short</span><span class="o">=</span><span class="n">short</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+      </details>
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h2 id="spotdl.utils.formatter.create_song_title" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">create_song_title</span><span class="p">(</span><span class="n">song_name</span><span class="p">,</span> <span class="n">song_artists</span><span class="p">)</span></code>
+
+<a href="#spotdl.utils.formatter.create_song_title" class="headerlink" title="Permanent link">¤</a></h2>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Create the song title.</p>
+<h5 id="spotdl.utils.formatter.create_song_title--arguments">Arguments<a class="headerlink" href="#spotdl.utils.formatter.create_song_title--arguments" title="Permanent link">¤</a></h5>
+<ul>
+<li>song_name: the name of the song</li>
+<li>song_artists: the list of artists of the song</li>
+</ul>
+<h5 id="spotdl.utils.formatter.create_song_title--returns">Returns<a class="headerlink" href="#spotdl.utils.formatter.create_song_title--returns" title="Permanent link">¤</a></h5>
+<ul>
+<li>the song title</li>
+</ul>
+<h5 id="spotdl.utils.formatter.create_song_title--notes">Notes<a class="headerlink" href="#spotdl.utils.formatter.create_song_title--notes" title="Permanent link">¤</a></h5>
+<ul>
+<li>Example: "Artist1, Artist2 - Song Name"</li>
+</ul>
+
+      <details class="quote">
+        <summary>Source code in <code>spotdl/utils/formatter.py</code></summary>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">41</span>
+<span class="normal">42</span>
+<span class="normal">43</span>
+<span class="normal">44</span>
+<span class="normal">45</span>
+<span class="normal">46</span>
+<span class="normal">47</span>
+<span class="normal">48</span>
+<span class="normal">49</span>
+<span class="normal">50</span>
+<span class="normal">51</span>
+<span class="normal">52</span>
+<span class="normal">53</span>
+<span class="normal">54</span>
+<span class="normal">55</span>
+<span class="normal">56</span>
+<span class="normal">57</span>
+<span class="normal">58</span>
+<span class="normal">59</span>
+<span class="normal">60</span>
+<span class="normal">61</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">create_song_title</span><span class="p">(</span><span class="n">song_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">song_artists</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create the song title.</span>
+
+<span class="sd">    ### Arguments</span>
+<span class="sd">    - song_name: the name of the song</span>
+<span class="sd">    - song_artists: the list of artists of the song</span>
+
+<span class="sd">    ### Returns</span>
+<span class="sd">    - the song title</span>
+
+<span class="sd">    ### Notes</span>
+<span class="sd">    - Example: &quot;Artist1, Artist2 - Song Name&quot;</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">joined_artists</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">song_artists</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">song_artists</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">joined_artists</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="n">song_name</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="k">return</span> <span class="n">song_name</span>
+</code></pre></div></td></tr></table></div>
+      </details>
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h2 id="spotdl.utils.formatter.format_query" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">format_query</span><span class="p">(</span><span class="n">song</span><span class="p">,</span> <span class="n">template</span><span class="p">,</span> <span class="n">santitize</span><span class="p">,</span> <span class="n">file_extension</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">short</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
+
+<a href="#spotdl.utils.formatter.format_query" class="headerlink" title="Permanent link">¤</a></h2>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Replace template variables with the actual values.</p>
+<h5 id="spotdl.utils.formatter.format_query--arguments">Arguments<a class="headerlink" href="#spotdl.utils.formatter.format_query--arguments" title="Permanent link">¤</a></h5>
+<ul>
+<li>song: the song object</li>
+<li>template: the template string</li>
+<li>santitize: whether to sanitize the string</li>
+<li>file_extension: the file extension to use</li>
+<li>short: whether to use the short version of the template</li>
+</ul>
+<h5 id="spotdl.utils.formatter.format_query--returns">Returns<a class="headerlink" href="#spotdl.utils.formatter.format_query--returns" title="Permanent link">¤</a></h5>
+<ul>
+<li>the formatted string</li>
+</ul>
+
+      <details class="quote">
+        <summary>Source code in <code>spotdl/utils/formatter.py</code></summary>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 87</span>
+<span class="normal"> 88</span>
+<span class="normal"> 89</span>
+<span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span>
+<span class="normal">127</span>
+<span class="normal">128</span>
+<span class="normal">129</span>
+<span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span>
+<span class="normal">149</span>
+<span class="normal">150</span>
+<span class="normal">151</span>
+<span class="normal">152</span>
+<span class="normal">153</span>
+<span class="normal">154</span>
+<span class="normal">155</span>
+<span class="normal">156</span>
+<span class="normal">157</span>
+<span class="normal">158</span>
+<span class="normal">159</span>
+<span class="normal">160</span>
+<span class="normal">161</span>
+<span class="normal">162</span>
+<span class="normal">163</span>
+<span class="normal">164</span>
+<span class="normal">165</span>
+<span class="normal">166</span>
+<span class="normal">167</span>
+<span class="normal">168</span>
+<span class="normal">169</span>
+<span class="normal">170</span>
+<span class="normal">171</span>
+<span class="normal">172</span>
+<span class="normal">173</span>
+<span class="normal">174</span>
+<span class="normal">175</span>
+<span class="normal">176</span>
+<span class="normal">177</span>
+<span class="normal">178</span>
+<span class="normal">179</span>
+<span class="normal">180</span>
+<span class="normal">181</span>
+<span class="normal">182</span>
+<span class="normal">183</span>
+<span class="normal">184</span>
+<span class="normal">185</span>
+<span class="normal">186</span>
+<span class="normal">187</span>
+<span class="normal">188</span>
+<span class="normal">189</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">format_query</span><span class="p">(</span>
+    <span class="n">song</span><span class="p">:</span> <span class="n">Song</span><span class="p">,</span>
+    <span class="n">template</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">santitize</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="n">file_extension</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">short</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Replace template variables with the actual values.</span>
+
+<span class="sd">    ### Arguments</span>
+<span class="sd">    - song: the song object</span>
+<span class="sd">    - template: the template string</span>
+<span class="sd">    - santitize: whether to sanitize the string</span>
+<span class="sd">    - file_extension: the file extension to use</span>
+<span class="sd">    - short: whether to use the short version of the template</span>
+
+<span class="sd">    ### Returns</span>
+<span class="sd">    - the formatted string</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="s2">&quot;{output-ext}&quot;</span> <span class="ow">in</span> <span class="n">template</span> <span class="ow">and</span> <span class="n">file_extension</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;file_extension is None, but template contains {output-ext}&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="p">(</span>
+        <span class="nb">any</span><span class="p">(</span><span class="n">k</span> <span class="ow">in</span> <span class="n">template</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;{list-length}&quot;</span><span class="p">,</span> <span class="s2">&quot;{list-position}&quot;</span><span class="p">,</span> <span class="s2">&quot;{list-name}&quot;</span><span class="p">])</span>
+        <span class="ow">and</span> <span class="n">song</span><span class="o">.</span><span class="n">song_list</span> <span class="ow">is</span> <span class="kc">None</span>
+    <span class="p">):</span>
+        <span class="c1"># If the template contains {list-length} or {list-position} or {list-name},</span>
+        <span class="c1"># but the song_list is None, replace them with empty strings</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;{list-length}&quot;</span><span class="p">,</span> <span class="s2">&quot;{list-position}&quot;</span><span class="p">,</span> <span class="s2">&quot;{list-name}&quot;</span><span class="p">]:</span>
+            <span class="n">template</span> <span class="o">=</span> <span class="n">template</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="n">template</span> <span class="o">=</span> <span class="n">template</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;//&quot;</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
+
+    <span class="c1"># If template has only {output-ext}, fix it</span>
+    <span class="c1"># This can happen if the template consits of only list values</span>
+    <span class="c1"># and song.song_list is None</span>
+    <span class="k">if</span> <span class="n">template</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;/.{output-ext}&quot;</span><span class="p">,</span> <span class="s2">&quot;.{output-ext}&quot;</span><span class="p">]:</span>
+        <span class="n">template</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{artists}</span><span class="s2"> - </span><span class="si">{title}</span><span class="s2">.{output-ext}&quot;</span>
+
+    <span class="c1"># Remove artists from the list that are already in the title</span>
+    <span class="n">artists</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">artist</span> <span class="k">for</span> <span class="n">artist</span> <span class="ow">in</span> <span class="n">song</span><span class="o">.</span><span class="n">artists</span> <span class="k">if</span> <span class="n">slugify</span><span class="p">(</span><span class="n">artist</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">slugify</span><span class="p">(</span><span class="n">song</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+    <span class="p">]</span>
+
+    <span class="c1"># Add the main artist again to the list</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">artists</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">artists</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">song</span><span class="o">.</span><span class="n">artists</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+        <span class="n">artists</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">song</span><span class="o">.</span><span class="n">artists</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+    <span class="n">artists_str</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">artists</span><span class="p">)</span>
+
+    <span class="c1"># the code below is valid, song_list is actually checked for None</span>
+    <span class="n">formats</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;</span><span class="si">{title}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="n">song</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+        <span class="s2">&quot;</span><span class="si">{artists}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="n">song</span><span class="o">.</span><span class="n">artists</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">short</span> <span class="ow">is</span> <span class="kc">True</span> <span class="k">else</span> <span class="n">artists_str</span><span class="p">,</span>
+        <span class="s2">&quot;</span><span class="si">{artist}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="n">song</span><span class="o">.</span><span class="n">artists</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+        <span class="s2">&quot;</span><span class="si">{album}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="n">song</span><span class="o">.</span><span class="n">album_name</span><span class="p">,</span>
+        <span class="s2">&quot;{album-artist}&quot;</span><span class="p">:</span> <span class="n">song</span><span class="o">.</span><span class="n">album_artist</span><span class="p">,</span>
+        <span class="s2">&quot;</span><span class="si">{genre}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="n">song</span><span class="o">.</span><span class="n">genres</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">song</span><span class="o">.</span><span class="n">genres</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;{disc-number}&quot;</span><span class="p">:</span> <span class="n">song</span><span class="o">.</span><span class="n">disc_number</span><span class="p">,</span>
+        <span class="s2">&quot;{disc-count}&quot;</span><span class="p">:</span> <span class="n">song</span><span class="o">.</span><span class="n">disc_count</span><span class="p">,</span>
+        <span class="s2">&quot;</span><span class="si">{duration}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="n">song</span><span class="o">.</span><span class="n">duration</span><span class="p">,</span>
+        <span class="s2">&quot;</span><span class="si">{year}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="n">song</span><span class="o">.</span><span class="n">year</span><span class="p">,</span>
+        <span class="s2">&quot;{original-date}&quot;</span><span class="p">:</span> <span class="n">song</span><span class="o">.</span><span class="n">date</span><span class="p">,</span>
+        <span class="s2">&quot;{track-number}&quot;</span><span class="p">:</span> <span class="n">song</span><span class="o">.</span><span class="n">track_number</span><span class="p">,</span>
+        <span class="s2">&quot;{tracks-count}&quot;</span><span class="p">:</span> <span class="n">song</span><span class="o">.</span><span class="n">tracks_count</span><span class="p">,</span>
+        <span class="s2">&quot;</span><span class="si">{isrc}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="n">song</span><span class="o">.</span><span class="n">isrc</span><span class="p">,</span>
+        <span class="s2">&quot;{track-id}&quot;</span><span class="p">:</span> <span class="n">song</span><span class="o">.</span><span class="n">song_id</span><span class="p">,</span>
+        <span class="s2">&quot;</span><span class="si">{publisher}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="n">song</span><span class="o">.</span><span class="n">publisher</span><span class="p">,</span>
+        <span class="s2">&quot;{output-ext}&quot;</span><span class="p">:</span> <span class="n">file_extension</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="k">if</span> <span class="n">song</span><span class="o">.</span><span class="n">song_list</span> <span class="ow">and</span> <span class="nb">any</span><span class="p">(</span>
+        <span class="n">k</span> <span class="ow">in</span> <span class="n">template</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;{list-length}&quot;</span><span class="p">,</span> <span class="s2">&quot;{list-position}&quot;</span><span class="p">,</span> <span class="s2">&quot;{list-name}&quot;</span><span class="p">]</span>
+    <span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">index</span> <span class="o">=</span> <span class="n">song</span><span class="o">.</span><span class="n">song_list</span><span class="o">.</span><span class="n">songs</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">song</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="n">index</span> <span class="o">=</span> <span class="n">song</span><span class="o">.</span><span class="n">song_list</span><span class="o">.</span><span class="n">urls</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">song</span><span class="o">.</span><span class="n">url</span><span class="p">)</span>
+
+        <span class="n">formats</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;{list-name}&quot;</span><span class="p">:</span> <span class="n">song</span><span class="o">.</span><span class="n">song_list</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
+                <span class="s2">&quot;{list-position}&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span>
+                    <span class="nb">len</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">song</span><span class="o">.</span><span class="n">song_list</span><span class="o">.</span><span class="n">length</span><span class="p">))</span>
+                <span class="p">),</span>
+                <span class="s2">&quot;{list-length}&quot;</span><span class="p">:</span> <span class="n">song</span><span class="o">.</span><span class="n">song_list</span><span class="o">.</span><span class="n">length</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">santitize</span><span class="p">:</span>
+        <span class="c1"># sanitize the values in formats dict</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">formats</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">continue</span>
+
+            <span class="n">formats</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">sanitize_string</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+
+    <span class="c1"># Replace all the keys with the values</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">formats</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">template</span> <span class="o">=</span> <span class="n">template</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">template</span>
+</code></pre></div></td></tr></table></div>
+      </details>
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h2 id="spotdl.utils.formatter.parse_duration" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">parse_duration</span><span class="p">(</span><span class="n">duration</span><span class="p">)</span></code>
+
+<a href="#spotdl.utils.formatter.parse_duration" class="headerlink" title="Permanent link">¤</a></h2>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Convert string value of time (duration: "25:36:59") to a float value of seconds (92219.0)</p>
+<h5 id="spotdl.utils.formatter.parse_duration--arguments">Arguments<a class="headerlink" href="#spotdl.utils.formatter.parse_duration--arguments" title="Permanent link">¤</a></h5>
+<ul>
+<li>duration: the string value of time</li>
+</ul>
+<h5 id="spotdl.utils.formatter.parse_duration--returns">Returns<a class="headerlink" href="#spotdl.utils.formatter.parse_duration--returns" title="Permanent link">¤</a></h5>
+<ul>
+<li>the float value of seconds</li>
+</ul>
+
+      <details class="quote">
+        <summary>Source code in <code>spotdl/utils/formatter.py</code></summary>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">309</span>
+<span class="normal">310</span>
+<span class="normal">311</span>
+<span class="normal">312</span>
+<span class="normal">313</span>
+<span class="normal">314</span>
+<span class="normal">315</span>
+<span class="normal">316</span>
+<span class="normal">317</span>
+<span class="normal">318</span>
+<span class="normal">319</span>
+<span class="normal">320</span>
+<span class="normal">321</span>
+<span class="normal">322</span>
+<span class="normal">323</span>
+<span class="normal">324</span>
+<span class="normal">325</span>
+<span class="normal">326</span>
+<span class="normal">327</span>
+<span class="normal">328</span>
+<span class="normal">329</span>
+<span class="normal">330</span>
+<span class="normal">331</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">parse_duration</span><span class="p">(</span><span class="n">duration</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert string value of time (duration: &quot;25:36:59&quot;) to a float value of seconds (92219.0)</span>
+
+<span class="sd">    ### Arguments</span>
+<span class="sd">    - duration: the string value of time</span>
+
+<span class="sd">    ### Returns</span>
+<span class="sd">    - the float value of seconds</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">duration</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mf">0.0</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c1"># {(1, &quot;s&quot;), (60, &quot;m&quot;), (3600, &quot;h&quot;)}</span>
+        <span class="n">mapped_increments</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">60</span><span class="p">,</span> <span class="mi">3600</span><span class="p">],</span> <span class="nb">reversed</span><span class="p">(</span><span class="n">duration</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)))</span>
+        <span class="n">seconds</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">multiplier</span> <span class="o">*</span> <span class="nb">int</span><span class="p">(</span><span class="n">time</span><span class="p">)</span> <span class="k">for</span> <span class="n">multiplier</span><span class="p">,</span> <span class="n">time</span> <span class="ow">in</span> <span class="n">mapped_increments</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">seconds</span><span class="p">)</span>
+
+    <span class="c1"># This usually occurs when the wrong string is mistaken for the duration</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">,</span> <span class="ne">AttributeError</span><span class="p">):</span>
+        <span class="k">return</span> <span class="mf">0.0</span>
+</code></pre></div></td></tr></table></div>
+      </details>
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h2 id="spotdl.utils.formatter.restrict_filename" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">restrict_filename</span><span class="p">(</span><span class="n">pathobj</span><span class="p">)</span></code>
+
+<a href="#spotdl.utils.formatter.restrict_filename" class="headerlink" title="Permanent link">¤</a></h2>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Sanitizes the filename part of a Path object. Returns modified object.</p>
+<h5 id="spotdl.utils.formatter.restrict_filename--arguments">Arguments<a class="headerlink" href="#spotdl.utils.formatter.restrict_filename--arguments" title="Permanent link">¤</a></h5>
+<ul>
+<li>pathobj: the Path object to sanitize</li>
+</ul>
+<h5 id="spotdl.utils.formatter.restrict_filename--returns">Returns<a class="headerlink" href="#spotdl.utils.formatter.restrict_filename--returns" title="Permanent link">¤</a></h5>
+<ul>
+<li>the modified Path object</li>
+</ul>
+<h5 id="spotdl.utils.formatter.restrict_filename--notes">Notes<a class="headerlink" href="#spotdl.utils.formatter.restrict_filename--notes" title="Permanent link">¤</a></h5>
+<ul>
+<li>Based on the <code>sanitize_filename</code> function from yt-dlp</li>
+</ul>
+
+      <details class="quote">
+        <summary>Source code in <code>spotdl/utils/formatter.py</code></summary>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">376</span>
+<span class="normal">377</span>
+<span class="normal">378</span>
+<span class="normal">379</span>
+<span class="normal">380</span>
+<span class="normal">381</span>
+<span class="normal">382</span>
+<span class="normal">383</span>
+<span class="normal">384</span>
+<span class="normal">385</span>
+<span class="normal">386</span>
+<span class="normal">387</span>
+<span class="normal">388</span>
+<span class="normal">389</span>
+<span class="normal">390</span>
+<span class="normal">391</span>
+<span class="normal">392</span>
+<span class="normal">393</span>
+<span class="normal">394</span>
+<span class="normal">395</span>
+<span class="normal">396</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">restrict_filename</span><span class="p">(</span><span class="n">pathobj</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Sanitizes the filename part of a Path object. Returns modified object.</span>
+
+<span class="sd">    ### Arguments</span>
+<span class="sd">    - pathobj: the Path object to sanitize</span>
+
+<span class="sd">    ### Returns</span>
+<span class="sd">    - the modified Path object</span>
+
+<span class="sd">    ### Notes</span>
+<span class="sd">    - Based on the `sanitize_filename` function from yt-dlp</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">result</span> <span class="o">=</span> <span class="n">sanitize_filename</span><span class="p">(</span><span class="n">pathobj</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;_-_&quot;</span><span class="p">,</span> <span class="s2">&quot;-&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">result</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="s2">&quot;_&quot;</span>
+
+    <span class="k">return</span> <span class="n">pathobj</span><span class="o">.</span><span class="n">with_name</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+      </details>
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h2 id="spotdl.utils.formatter.sanitize_string" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">sanitize_string</span><span class="p">(</span><span class="n">string</span><span class="p">)</span></code>
+
+<a href="#spotdl.utils.formatter.sanitize_string" class="headerlink" title="Permanent link">¤</a></h2>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Sanitize the filename to be used in the file system.</p>
+<h5 id="spotdl.utils.formatter.sanitize_string--arguments">Arguments<a class="headerlink" href="#spotdl.utils.formatter.sanitize_string--arguments" title="Permanent link">¤</a></h5>
+<ul>
+<li>string: the string to sanitize</li>
+</ul>
+<h5 id="spotdl.utils.formatter.sanitize_string--returns">Returns<a class="headerlink" href="#spotdl.utils.formatter.sanitize_string--returns" title="Permanent link">¤</a></h5>
+<ul>
+<li>the sanitized string</li>
+</ul>
+
+      <details class="quote">
+        <summary>Source code in <code>spotdl/utils/formatter.py</code></summary>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">64</span>
+<span class="normal">65</span>
+<span class="normal">66</span>
+<span class="normal">67</span>
+<span class="normal">68</span>
+<span class="normal">69</span>
+<span class="normal">70</span>
+<span class="normal">71</span>
+<span class="normal">72</span>
+<span class="normal">73</span>
+<span class="normal">74</span>
+<span class="normal">75</span>
+<span class="normal">76</span>
+<span class="normal">77</span>
+<span class="normal">78</span>
+<span class="normal">79</span>
+<span class="normal">80</span>
+<span class="normal">81</span>
+<span class="normal">82</span>
+<span class="normal">83</span>
+<span class="normal">84</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">sanitize_string</span><span class="p">(</span><span class="n">string</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Sanitize the filename to be used in the file system.</span>
+
+<span class="sd">    ### Arguments</span>
+<span class="sd">    - string: the string to sanitize</span>
+
+<span class="sd">    ### Returns</span>
+<span class="sd">    - the sanitized string</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">output</span> <span class="o">=</span> <span class="n">string</span>
+
+    <span class="c1"># this is windows specific (disallowed chars)</span>
+    <span class="n">output</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">char</span> <span class="k">for</span> <span class="n">char</span> <span class="ow">in</span> <span class="n">output</span> <span class="k">if</span> <span class="n">char</span> <span class="ow">not</span> <span class="ow">in</span> <span class="s2">&quot;/?</span><span class="se">\\</span><span class="s2">*|&lt;&gt;&quot;</span><span class="p">)</span>
+
+    <span class="c1"># double quotes (&quot;) and semi-colons (:) are also disallowed characters but we would</span>
+    <span class="c1"># like to retain their equivalents, so they aren&#39;t removed in the prior loop</span>
+    <span class="n">output</span> <span class="o">=</span> <span class="n">output</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;&quot;&#39;</span><span class="p">,</span> <span class="s2">&quot;&#39;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">,</span> <span class="s2">&quot;-&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">output</span>
+</code></pre></div></td></tr></table></div>
+      </details>
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h2 id="spotdl.utils.formatter.to_ms" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">to_ms</span><span class="p">(</span><span class="n">string</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></code>
+
+<a href="#spotdl.utils.formatter.to_ms" class="headerlink" title="Permanent link">¤</a></h2>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Convert a string to milliseconds.</p>
+<h5 id="spotdl.utils.formatter.to_ms--arguments">Arguments<a class="headerlink" href="#spotdl.utils.formatter.to_ms--arguments" title="Permanent link">¤</a></h5>
+<ul>
+<li>string: the string to convert</li>
+<li>precision: the number of decimals to round to</li>
+<li>kwargs: the keyword args to convert</li>
+</ul>
+<h5 id="spotdl.utils.formatter.to_ms--returns">Returns<a class="headerlink" href="#spotdl.utils.formatter.to_ms--returns" title="Permanent link">¤</a></h5>
+<ul>
+<li>the milliseconds</li>
+</ul>
+<h5 id="spotdl.utils.formatter.to_ms--notes">Notes<a class="headerlink" href="#spotdl.utils.formatter.to_ms--notes" title="Permanent link">¤</a></h5>
+<ul>
+<li>You can either pass a string,</li>
+<li>or a set of keyword args ("hour", "min", "sec", "ms") to convert.</li>
+<li>If "precision" is set, the result is rounded to the number of decimals given.</li>
+<li>From: <a href="https://gist.github.com/Hellowlol/5f8545e999259b4371c91ac223409209">https://gist.github.com/Hellowlol/5f8545e999259b4371c91ac223409209</a></li>
+</ul>
+
+      <details class="quote">
+        <summary>Source code in <code>spotdl/utils/formatter.py</code></summary>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">334</span>
+<span class="normal">335</span>
+<span class="normal">336</span>
+<span class="normal">337</span>
+<span class="normal">338</span>
+<span class="normal">339</span>
+<span class="normal">340</span>
+<span class="normal">341</span>
+<span class="normal">342</span>
+<span class="normal">343</span>
+<span class="normal">344</span>
+<span class="normal">345</span>
+<span class="normal">346</span>
+<span class="normal">347</span>
+<span class="normal">348</span>
+<span class="normal">349</span>
+<span class="normal">350</span>
+<span class="normal">351</span>
+<span class="normal">352</span>
+<span class="normal">353</span>
+<span class="normal">354</span>
+<span class="normal">355</span>
+<span class="normal">356</span>
+<span class="normal">357</span>
+<span class="normal">358</span>
+<span class="normal">359</span>
+<span class="normal">360</span>
+<span class="normal">361</span>
+<span class="normal">362</span>
+<span class="normal">363</span>
+<span class="normal">364</span>
+<span class="normal">365</span>
+<span class="normal">366</span>
+<span class="normal">367</span>
+<span class="normal">368</span>
+<span class="normal">369</span>
+<span class="normal">370</span>
+<span class="normal">371</span>
+<span class="normal">372</span>
+<span class="normal">373</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">to_ms</span><span class="p">(</span>
+    <span class="n">string</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">precision</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert a string to milliseconds.</span>
+
+<span class="sd">    ### Arguments</span>
+<span class="sd">    - string: the string to convert</span>
+<span class="sd">    - precision: the number of decimals to round to</span>
+<span class="sd">    - kwargs: the keyword args to convert</span>
+
+<span class="sd">    ### Returns</span>
+<span class="sd">    - the milliseconds</span>
+
+<span class="sd">    ### Notes</span>
+<span class="sd">    - You can either pass a string,</span>
+<span class="sd">    - or a set of keyword args (&quot;hour&quot;, &quot;min&quot;, &quot;sec&quot;, &quot;ms&quot;) to convert.</span>
+<span class="sd">    - If &quot;precision&quot; is set, the result is rounded to the number of decimals given.</span>
+<span class="sd">    - From: https://gist.github.com/Hellowlol/5f8545e999259b4371c91ac223409209</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">string</span><span class="p">:</span>
+        <span class="n">hour</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">string</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">])</span>
+        <span class="n">minute</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">string</span><span class="p">[</span><span class="mi">3</span><span class="p">:</span><span class="mi">5</span><span class="p">])</span>
+        <span class="n">sec</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">string</span><span class="p">[</span><span class="mi">6</span><span class="p">:</span><span class="mi">8</span><span class="p">])</span>
+        <span class="n">milliseconds</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">string</span><span class="p">[</span><span class="mi">10</span><span class="p">:</span><span class="mi">11</span><span class="p">])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">hour</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;hour&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+        <span class="n">minute</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;min&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+        <span class="n">sec</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;sec&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+        <span class="n">milliseconds</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ms&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+
+    <span class="n">result</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">(</span><span class="n">hour</span> <span class="o">*</span> <span class="mi">60</span> <span class="o">*</span> <span class="mi">60</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">minute</span> <span class="o">*</span> <span class="mi">60</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">sec</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">)</span> <span class="o">+</span> <span class="n">milliseconds</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">precision</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">precision</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">round</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">precision</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">result</span>
+</code></pre></div></td></tr></table></div>
+      </details>
+  </div>
+
+</div>
+
+
+
+  </div>
+
+  </div>
+
+</div>
+
+              
+            </article>
+            
+          </div>
+        </div>
+        
+          <a href="#" class="md-top md-icon" data-md-component="top" hidden>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12Z"/></svg>
+            Back to top
+          </a>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+    <nav class="md-footer__inner md-grid" aria-label="Footer" >
+      
+        
+        <a href="../search/" class="md-footer__link md-footer__link--prev" aria-label="Previous: search" rel="prev">
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+          </div>
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              search
+            </div>
+          </div>
+        </a>
+      
+      
+        
+        <a href="../github/" class="md-footer__link md-footer__link--next" aria-label="Next: github" rel="next">
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              github
+            </div>
+          </div>
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"/></svg>
+          </div>
+        </a>
+      
+    </nav>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.tabs", "navigation.top"], "search": "../../../assets/javascripts/workers/search.b97dbffb.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.0238f547.min.js"></script>
+      
+    
+  </body>
+</html>
