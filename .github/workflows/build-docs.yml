@@ -44,4 +44,4 @@ jobs:
 
       - name: Build and deploy
         run: |
-          poetry run mike deploy --push {{ steps.extract_branch.outputs.branch }}
+          poetry run mike deploy --push ${{ steps.extract_branch.outputs.branch }}
