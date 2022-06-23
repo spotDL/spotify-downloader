@@ -94,9 +94,7 @@ def entry_point():
             download_path = download_ffmpeg()
 
             if download_path.is_file():
-                print(
-                    f"FFmpeg successfully downloaded to {download_path.absolute()}"
-                )
+                print(f"FFmpeg successfully downloaded to {download_path.absolute()}")
             else:
                 print("FFmpeg download failed")
 
