@@ -52,6 +52,12 @@ def entry_point():
     # Install rich traceback
     install(show_locals=True)
 
+    # Create config file if it doesn't exist
+    if get_config_file().is_file() is False:
+        config_path = get_config_file()
+        with open(config_path, "w", encoding="utf-8") as config_file:
+            json.dump(DEFAULT_CONFIG, config_file, indent=4)
+
     if getattr(sys, "frozen", False) and len(sys.argv) == 1:
         # If the application is frozen, we check for ffmpeg
         # if it's not present download it create config file
