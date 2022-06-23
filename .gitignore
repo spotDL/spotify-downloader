@@ -131,6 +131,7 @@ dmypy.json
 # Misc
 *.temp*
 *temp.*
+temp/
 
 # VS Code
 .vscode
