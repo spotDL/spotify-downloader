@@ -140,14 +140,20 @@ def entry_point():
         config = get_config()
 
     # Create settings dict
-    # Settings from config file will override the ones from the command line
+    # If the setting in config file is the same as
+    # the default setting, it will be ignored
+    # and argument value will be used
     settings = {}
     for key, value in DEFAULT_CONFIG.items():
-        if config.get(key) is None:
-            # If the key is not in the arguments dict, use the default value
-            settings[key] = arguments.__dict__.get(key) or value
+        argument_key_val = arguments.__dict__.get(key)
+        config_key_val = config.get(key)
+
+        if argument_key_val is not None and config_key_val == value:
+            settings[key] = argument_key_val
+        elif argument_key_val is None and config_key_val != value:
+            settings[key] = config_key_val
         else:
-            settings[key] = config[key]
+            settings[key] = value
 
     # Check if ffmpeg is installed
     if is_ffmpeg_installed(settings["ffmpeg"]) is False:
