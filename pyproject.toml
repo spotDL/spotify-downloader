@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "spotdl"
-version = "4.0.0"
+version = "4.0.0-rc.1"
 description = "Download your Spotify playlists and songs along with album art and metadata"
 license = "MIT"
 authors = ["spotDL Team <spotdladmins@googlegroups.com>"]
@@ -8,7 +8,7 @@ maintainers = ["xnetcat <xnetcat.dev@gmail.com>"]
 readme = "README.md"
 repository = "https://github.com/spotDL/spotify-downloader.git"
 homepage = "https://github.com/spotDL/spotify-downloader/"
-documentation = "https://spotdl.readthedocs.io/en/latest/"
+documentation = "https://spotdl.rtfd.io/en/latest/"
 keywords = ["spotify", "downloader", "spotdl", "music"]
 classifiers = [
     "Intended Audience :: End Users/Desktop",
