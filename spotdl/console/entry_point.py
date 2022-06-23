@@ -144,7 +144,7 @@ def entry_point():
         test_results = ytm.get_results("a")
         if len(test_results) == 0:
             raise AudioProviderError(
-                "Could not connect to YouTube Music API. Use VPN or other audio provider."
+                "Could not connect to YouTube Music API. Use a VPN or other audio provider."
             )
 
     # Initialize spotify client
@@ -184,7 +184,7 @@ def entry_point():
         raise DownloaderError("Save file has to end with .spotdl")
 
     if arguments.query and "saved" in arguments.query and not settings["user_auth"]:
-        raise SpotifyError("You must be logged in to use the saved query.")
+        raise SpotifyError("You must be logged in to use the saved query. Log in by adding the --user-auth flag")
 
     # Initialize the downloader
     # for download, load and preload operations
