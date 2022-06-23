@@ -8,7 +8,8 @@ import signal
 import logging
 import cProfile
 import pstats
-import traceback
+
+from rich.traceback import install
 
 from spotdl.console.download import download
 from spotdl.console.sync import sync
@@ -48,6 +49,9 @@ def entry_point():
     logging.getLogger("spotipy").setLevel(logging.WARNING)
     logging.getLogger("asyncio").setLevel(logging.WARNING)
 
+    # Install rich traceback
+    install(show_locals=True)
+
     if getattr(sys, "frozen", False) and len(sys.argv) == 1:
         # If the application is frozen, we check for ffmpeg
         # if it's not present download it create config file
@@ -65,7 +69,7 @@ def entry_point():
     # This is done before the argument parser so it doesn't require `operation`
     # and `query` to be passed. Exit after downloading ffmpeg
     if "--download-ffmpeg" in sys.argv:
-        if get_local_ffmpeg() is not None:
+        if get_local_ffmpeg() is not None or is_ffmpeg_installed():
             overwrite_ffmpeg = input(
                 "FFmpeg is already installed. Do you want to overwrite it? (y/N): "
             )
@@ -79,6 +83,16 @@ def entry_point():
                     )
                 else:
                     print("FFmpeg download failed")
+        else:
+            print("Downloading FFmpeg...")
+            download_path = download_ffmpeg()
+
+            if download_path.is_file():
+                print(
+                    f"FFmpeg successfully downloaded to {download_path.absolute()}"
+                )
+            else:
+                print("FFmpeg download failed")
 
         return None
 
@@ -229,12 +243,9 @@ Log in by adding the --user-auth flag"
             m3u_file=settings["m3u"],
         )
     except Exception as exception:
-        downloader.progress_handler.debug(traceback.format_exc())
-        downloader.progress_handler.error(str(exception))
-
         downloader.progress_handler.close()
 
-        sys.exit(1)
+        sys.exit(exception)
 
     downloader.progress_handler.close()
 
