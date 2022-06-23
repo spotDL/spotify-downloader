@@ -29,6 +29,11 @@ jobs:
           poetry env use "3.10"
           poetry install
 
+      - name: Configure Git user
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+
       - name: Install twine
         run: pip install twine
 
