@@ -34,4 +34,4 @@ jobs:
 
       - name: Build and deploy
         run: |
-          poetry run mkdocs deploy
+          poetry run mkdocs gh-deploy --force
