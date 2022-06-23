@@ -9,21 +9,21 @@ interactions:
       Connection:
       - keep-alive
       User-Agent:
-      - python-requests/2.27.1
+      - python-requests/2.28.0
     method: GET
     uri: https://api.github.com/repos/spotdl/web-ui/contents/dist?ref=master
   response:
     body:
       string: !!binary |
-        H4sIAAAAAAAAA7WU3Y7bIBCF34XrNGAMTohU9aaXfYNqteJnqNES2zK46e4q7754E6Vmpa1iJ71B
-        AjSHmTPf8PMVNXIPaIdkCBADWqFOxjrtjQsRXw5DLdMZUURJwUsOyljBGNsqK7emUrQUoqLbDS8Z
-        ZdwmleBekipZoaH3KbKOsQs7jGXn1r9crAe11u0e99C1AYeujd9/4AOoL4PDum0iNDHgSQbferBf
-        9zJE6JN2Hff+MdedaOZqsQfAp8ipYFJJIR9ErkguBeFRMuAZXpj20PhWmtNzzeD9CsXnbnTduLGg
-        R++ap4B2ryiAt/e2K+U8T3JRkWNTJs/MbsjxuLqwaOVvlzBYp+UDkPnNmUqmJLFCE1nIamOM3ADX
-        tAANvNCG05JLClQVFyoLTrbVzWROUlmOp/KtyvDMC1zM6KibGL3emZzRy7z28nCe1yFAfx7N99HN
-        x2w6YXkJZ9Ct83BX0j+1fxHus/26Fvd/NnjKvGsM/Fm/y+Z/cHZxIp5ZLQRQwypJCRdclaxK+wqE
-        IHbDBDEatChGw0//MBPFzbz/zeOOuGfF3Uj7DFfuSHtWwf+C/TPvb2B9hluLWZ94czw+vAEMcfkp
-        bAgAAA==
+        H4sIAAAAAAAAA7WU3Y7bIBCF34XrNBgC/olU9aaXfYNqtRrMUKN1bMvgprurvPviTeSalbaKnfTG
+        kkFzmHP4hp+vpIEDkj0B59A7siEd+Cr8a+s8nRZdBWEtUYmCQu4kKm0KIUSuDOQ6VXxXFCnPM7kT
+        XEgTVJx9CarJhgx9HSor7zu3pxQ6u/1lfTWobdkeaI9d66jrWv/9Bz2i+jJYWraNx8Y7OuvgW4/m
+        6wGcxz5oV/5QP8a6M81YzfeI9Fw5FwwqoeSDyBXNhSI6Sjq6IAvdHpu6BX0+rhnqekP8czemru1o
+        6LG2zZMj+1fisDb3jiv0vExylcnxUmbHLL6Q02kzsWjgtw0YbMPnA5DxzoVKoSAxRZkAgzTTGjKU
+        JWdYomSllnwngSNXbKKSySRPbyZz1sp6PFXdqgjP2OBqRkfdwOj1ycSMTvPaw/Eyr4PD/jKa76Mb
+        j9l8wmILF9CNrfGupH8a/yrcF+d1Le7/vOA587bR+Gf7Lhu/wdHGmfgUEh2eX+AsZ2VR8DSTwArG
+        DAqdZDrPRC4gE9lEvCj4zbz/7eOOuEfmbqR9QSp3pD1y8L9g/yz7G1hfkNZq1mfZnE4Pb5GLdbZs
+        CAAA
     headers:
       Accept-Ranges:
       - bytes
@@ -39,17 +39,17 @@ interactions:
       Content-Encoding:
       - gzip
       Content-Length:
-      - '460'
+      - '459'
       Content-Security-Policy:
       - default-src 'none'
       Content-Type:
       - application/json; charset=utf-8
       Date:
-      - Mon, 13 Jun 2022 16:09:26 GMT
+      - Thu, 23 Jun 2022 08:18:37 GMT
       ETag:
-      - W/"34d1020044fbdae468b964bb413ad025d8bc3feb"
+      - W/"f8cdc0f451221d831923f4d09941b5035462a57c"
       Last-Modified:
-      - Sun, 08 May 2022 14:40:32 GMT
+      - Wed, 22 Jun 2022 03:56:32 GMT
       Referrer-Policy:
       - origin-when-cross-origin, strict-origin-when-cross-origin
       Server:
@@ -65,17 +65,17 @@ interactions:
       X-GitHub-Media-Type:
       - github.v3; format=json
       X-GitHub-Request-Id:
-      - BB94:3721:65E0BE:68F4DF:62A76136
+      - BBB6:C2FD:1813AF0:18A5106:62B421DD
       X-RateLimit-Limit:
       - '60'
       X-RateLimit-Remaining:
-      - '53'
+      - '49'
       X-RateLimit-Reset:
-      - '1655140163'
+      - '1655974548'
       X-RateLimit-Resource:
       - core
       X-RateLimit-Used:
-      - '7'
+      - '11'
       X-XSS-Protection:
       - '0'
     status:
@@ -91,7 +91,7 @@ interactions:
       Connection:
       - keep-alive
       User-Agent:
-      - python-requests/2.27.1
+      - python-requests/2.28.0
     method: GET
     uri: https://api.github.com/repos/spotDL/web-ui/contents/dist/assets?ref=master
   response:
@@ -128,11 +128,11 @@ interactions:
       Content-Type:
       - application/json; charset=utf-8
       Date:
-      - Mon, 13 Jun 2022 16:09:26 GMT
+      - Thu, 23 Jun 2022 08:18:37 GMT
       ETag:
-      - W/"34d1020044fbdae468b964bb413ad025d8bc3feb"
+      - W/"f8cdc0f451221d831923f4d09941b5035462a57c"
       Last-Modified:
-      - Sun, 08 May 2022 14:40:32 GMT
+      - Wed, 22 Jun 2022 03:56:32 GMT
       Referrer-Policy:
       - origin-when-cross-origin, strict-origin-when-cross-origin
       Server:
@@ -148,17 +148,17 @@ interactions:
       X-GitHub-Media-Type:
       - github.v3; format=json
       X-GitHub-Request-Id:
-      - BBAD:A1A1:92F5C9:968CF5:62A76136
+      - BBCA:115CF:19BE58F:1A8A06A:62B421DD
       X-RateLimit-Limit:
       - '60'
       X-RateLimit-Remaining:
-      - '52'
+      - '48'
       X-RateLimit-Reset:
-      - '1655140163'
+      - '1655974547'
       X-RateLimit-Resource:
       - core
       X-RateLimit-Used:
-      - '8'
+      - '12'
       X-XSS-Protection:
       - '0'
     status:
@@ -174,7 +174,7 @@ interactions:
       Connection:
       - keep-alive
       User-Agent:
-      - python-requests/2.27.1
+      - python-requests/2.28.0
     method: GET
     uri: https://raw.githubusercontent.com/spotDL/web-ui/master/dist/assets/index.4eba417f.js
   response:
@@ -341,11 +341,11 @@ interactions:
       Content-Type:
       - text/plain; charset=utf-8
       Date:
-      - Mon, 13 Jun 2022 16:09:27 GMT
+      - Thu, 23 Jun 2022 08:18:37 GMT
       ETag:
       - W/"8eb4f5be0f9aaf084b61890a38756fb363a60afe9482289e67c699a73cb8b2bb"
       Expires:
-      - Mon, 13 Jun 2022 16:14:27 GMT
+      - Thu, 23 Jun 2022 08:23:37 GMT
       Source-Age:
       - '0'
       Strict-Transport-Security:
@@ -361,15 +361,15 @@ interactions:
       X-Content-Type-Options:
       - nosniff
       X-Fastly-Request-ID:
-      - 89ef0482fa8da2a7904a9ee1c6dd0f8c4db616f7
+      - 2c979ebb8cf7f17e676af3d254984e98c4e69d18
       X-Frame-Options:
       - deny
       X-GitHub-Request-Id:
-      - CB00:BB91:221E93:23BA15:62A76136
+      - D642:1822:843F81:8D0178:62B41C84
       X-Served-By:
-      - cache-fra19160-FRA
+      - cache-fra19174-FRA
       X-Timer:
-      - S1655136567.936290,VS0,VE153
+      - S1655972318.781364,VS0,VE147
       X-XSS-Protection:
       - 1; mode=block
     status:
@@ -385,7 +385,7 @@ interactions:
       Connection:
       - keep-alive
       User-Agent:
-      - python-requests/2.27.1
+      - python-requests/2.28.0
     method: GET
     uri: https://raw.githubusercontent.com/spotDL/web-ui/master/dist/assets/index.53bc559c.css
   response:
@@ -543,11 +543,11 @@ interactions:
       Content-Type:
       - text/plain; charset=utf-8
       Date:
-      - Mon, 13 Jun 2022 16:09:27 GMT
+      - Thu, 23 Jun 2022 08:18:38 GMT
       ETag:
       - W/"486adcb555d3e796424b394006501eafac76f116ea4cd93ef3ab24e627d1ac26"
       Expires:
-      - Mon, 13 Jun 2022 16:14:27 GMT
+      - Thu, 23 Jun 2022 08:23:38 GMT
       Source-Age:
       - '0'
       Strict-Transport-Security:
@@ -563,15 +563,15 @@ interactions:
       X-Content-Type-Options:
       - nosniff
       X-Fastly-Request-ID:
-      - a518de4acad611d9ddf1ef900b17b654c5004ab2
+      - e3b793650e54a801d6c789a110bab85ca1884a56
       X-Frame-Options:
       - deny
       X-GitHub-Request-Id:
-      - EA0C:46F8:230A09:24AB0F:62A76137
+      - 1CAA:A680:824C97:8B0A7F:62B41C84
       X-Served-By:
-      - cache-fra19150-FRA
+      - cache-fra19145-FRA
       X-Timer:
-      - S1655136567.274283,VS0,VE162
+      - S1655972318.045794,VS0,VE167
       X-XSS-Protection:
       - 1; mode=block
     status:
@@ -587,7 +587,7 @@ interactions:
       Connection:
       - keep-alive
       User-Agent:
-      - python-requests/2.27.1
+      - python-requests/2.28.0
     method: GET
     uri: https://raw.githubusercontent.com/spotDL/web-ui/master/dist/assets/spotdl.5dcb64c0.svg
   response:
@@ -621,11 +621,11 @@ interactions:
       Content-Type:
       - image/svg+xml
       Date:
-      - Mon, 13 Jun 2022 16:09:27 GMT
+      - Thu, 23 Jun 2022 08:18:38 GMT
       ETag:
       - W/"ba05a314710d31d5da12bb4ada79e89c4c91bb0143742e557f1bbe5521d38a9c"
       Expires:
-      - Mon, 13 Jun 2022 16:14:27 GMT
+      - Thu, 23 Jun 2022 08:23:38 GMT
       Source-Age:
       - '0'
       Strict-Transport-Security:
@@ -641,15 +641,15 @@ interactions:
       X-Content-Type-Options:
       - nosniff
       X-Fastly-Request-ID:
-      - 5eb2a4c1860a24fca3e667871b347a84be73ddb0
+      - c4d1bb282ecc23e22fce1604cd7ec736e9eddb5a
       X-Frame-Options:
       - deny
       X-GitHub-Request-Id:
-      - 4E70:13EE8:114A67:12B4CC:62A76137
+      - FB86:2B05:3F30B2:46B311:62B41C84
       X-Served-By:
-      - cache-fra19146-FRA
+      - cache-fra19169-FRA
       X-Timer:
-      - S1655136568.629111,VS0,VE159
+      - S1655972318.341483,VS0,VE306
       X-XSS-Protection:
       - 1; mode=block
     status:
@@ -665,7 +665,7 @@ interactions:
       Connection:
       - keep-alive
       User-Agent:
-      - python-requests/2.27.1
+      - python-requests/2.28.0
     method: GET
     uri: https://raw.githubusercontent.com/spotDL/web-ui/master/dist/assets/vendor.aaf30075.js
   response:
@@ -1460,11 +1460,11 @@ interactions:
       Content-Type:
       - text/plain; charset=utf-8
       Date:
-      - Mon, 13 Jun 2022 16:09:28 GMT
+      - Thu, 23 Jun 2022 08:18:38 GMT
       ETag:
       - W/"1ffc7fbf65c6566a4290f24ba2ae087a5ec9c3df518a6657179aeacf28911d90"
       Expires:
-      - Mon, 13 Jun 2022 16:14:28 GMT
+      - Thu, 23 Jun 2022 08:23:38 GMT
       Source-Age:
       - '0'
       Strict-Transport-Security:
@@ -1480,15 +1480,15 @@ interactions:
       X-Content-Type-Options:
       - nosniff
       X-Fastly-Request-ID:
-      - 9911b81fe8a84e1225a5a41f56bf8c44785e06c6
+      - 17b8a1dd4a4e4de7563ccc785bc0f0f7422f4669
       X-Frame-Options:
       - deny
       X-GitHub-Request-Id:
-      - 8EF2:BB8F:51424:65A7E:62A76137
+      - 9A6E:FFC4:150D96:1BE4DB:62B41C85
       X-Served-By:
-      - cache-fra19160-FRA
+      - cache-fra19145-FRA
       X-Timer:
-      - S1655136568.975387,VS0,VE167
+      - S1655972319.766356,VS0,VE139
       X-XSS-Protection:
       - 1; mode=block
     status:
@@ -1504,7 +1504,7 @@ interactions:
       Connection:
       - keep-alive
       User-Agent:
-      - python-requests/2.27.1
+      - python-requests/2.28.0
     method: GET
     uri: https://raw.githubusercontent.com/spotDL/web-ui/master/dist/favicon.ico
   response:
@@ -1791,11 +1791,11 @@ interactions:
       Content-Type:
       - image/vnd.microsoft.icon
       Date:
-      - Mon, 13 Jun 2022 16:09:28 GMT
+      - Thu, 23 Jun 2022 08:18:39 GMT
       ETag:
       - W/"296fad3cf5b4f828eb9272a78ca3a8c6a70eeeeaaae8805ac0d77009a009c84c"
       Expires:
-      - Mon, 13 Jun 2022 16:14:28 GMT
+      - Thu, 23 Jun 2022 08:23:39 GMT
       Source-Age:
       - '0'
       Strict-Transport-Security:
@@ -1811,15 +1811,15 @@ interactions:
       X-Content-Type-Options:
       - nosniff
       X-Fastly-Request-ID:
-      - 0fab29ae6982e2535988ee1c7d88d3156884f6ba
+      - ebd4ca981b21406624725528b1ffd522a6605106
       X-Frame-Options:
       - deny
       X-GitHub-Request-Id:
-      - 32AC:13EE6:19F66:2DACB:62A76138
+      - 4EA0:1139A:3AD986:425CFD:62B421DF
       X-Served-By:
-      - cache-fra19126-FRA
+      - cache-fra19152-FRA
       X-Timer:
-      - S1655136568.355284,VS0,VE192
+      - S1655972319.050607,VS0,VE139
       X-XSS-Protection:
       - 1; mode=block
     status:
@@ -1835,18 +1835,18 @@ interactions:
       Connection:
       - keep-alive
       User-Agent:
-      - python-requests/2.27.1
+      - python-requests/2.28.0
     method: GET
     uri: https://raw.githubusercontent.com/spotDL/web-ui/master/dist/index.html
   response:
     body:
       string: !!binary |
-        H4sIAAAAAAAAA2WRTU/DMAyG7/sVIWfWdtqqgZT0wscVDuPA0UvcNZAmVWI69u9Jm8GkcUn8yn4f
-        27K4eXx52L2/PrGOetssxPQxC+4gOTreLBgTHYKeghT2SMBUByEiSf62e17ecVaek9a4TxbQSm6U
-        d5x1AVvJyxbGSRfpudTOIAc9Sj4aPA4+EGepitAl8NFo6qTGZMTlLG6ZcYYM2GVUYFGuiuoCI0MW
-        mzh40laUWeVMVMEMxOg0pEa9118WU5vgY/TBHIxjMag0IsS0TyyN0/hdbHAPm9W2LT4ib0SZEf9W
-        zLAhxR70365n0IhO+1AAtOuq2tYz6RoQ6WQxdoh07c5j1Ou9qut7VaiY3aL8PYTYe306A7UZmdGS
-        wzBM0yaZE7Mh1yXjdNsfI171GOsBAAA=
+        H4sIAAAAAAAAA2WRwU7DMAyG73uKkDNrN23VQEp6YXBCgsM4cPQSdzWkSZWEjr09aTOYNC6Jf9n/
+        Z1sWN9uXh9376yNrY2fqmRg/ZsAeJEfL6xljokXQY5DCDiMw1YIPGCV/2z3N7zgrz0lD9pN5NJKT
+        cpaz1mMjednAMOoiPZfaCWShQ8kHwmPvfOQsVUW0CXwkHVupMRlxPolbRpYigZkHBQblslhcYJGi
+        wTr0Lm6fRZlVzgTlqY8snvrUqHP6y2Bq410IztOBLAtepREhpH1CSVbjd7HGPayXm6b4CLwWZUb8
+        WzHD+hQ70H+7nkEDWu18AdCsFotNNZGuASGeDIYWMV678xjVaq+q6l4VKmS3KH8PIfZOn85ATQMj
+        LTn0/ThtkjkxGXJdMk63/QEV9PBs7AEAAA==
     headers:
       Accept-Ranges:
       - bytes
@@ -1859,17 +1859,17 @@ interactions:
       Content-Encoding:
       - gzip
       Content-Length:
-      - '308'
+      - '310'
       Content-Security-Policy:
       - default-src 'none'; style-src 'unsafe-inline'; sandbox
       Content-Type:
       - text/plain; charset=utf-8
       Date:
-      - Mon, 13 Jun 2022 16:09:28 GMT
+      - Thu, 23 Jun 2022 08:18:39 GMT
       ETag:
-      - W/"fe308c95276499e393a12b5ec03457307fb5ea4b5ff6ee05188e5e9ebb14f51d"
+      - W/"2e520050c8761c4c80563517098f3d2784464f9ffb5dc46629f568faea0a990e"
       Expires:
-      - Mon, 13 Jun 2022 16:14:28 GMT
+      - Thu, 23 Jun 2022 08:23:39 GMT
       Source-Age:
       - '0'
       Strict-Transport-Security:
@@ -1885,15 +1885,15 @@ interactions:
       X-Content-Type-Options:
       - nosniff
       X-Fastly-Request-ID:
-      - 139d5b0dab4cfa6fd548c8a20c334462f9b95531
+      - c3de5a74e36d7cae9579ef514ba5ec2b50791cfc
       X-Frame-Options:
       - deny
       X-GitHub-Request-Id:
-      - 2454:37E1:3FCF3:42F4D:62A76138
+      - CB5A:A680:824CDA:8B0ACB:62B41C85
       X-Served-By:
-      - cache-fra19152-FRA
+      - cache-fra19148-FRA
       X-Timer:
-      - S1655136569.713329,VS0,VE154
+      - S1655972319.314905,VS0,VE146
       X-XSS-Protection:
       - 1; mode=block
     status:
