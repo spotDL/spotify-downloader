@@ -184,8 +184,10 @@ def entry_point():
         raise DownloaderError("Save file has to end with .spotdl")
 
     if arguments.query and "saved" in arguments.query and not settings["user_auth"]:
-        raise SpotifyError("You must be logged in to use the saved query. \
-Log in by adding the --user-auth flag")
+        raise SpotifyError(
+            "You must be logged in to use the saved query. \
+Log in by adding the --user-auth flag"
+        )
 
     # Initialize the downloader
     # for download, load and preload operations
