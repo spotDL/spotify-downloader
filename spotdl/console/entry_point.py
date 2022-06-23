@@ -49,8 +49,8 @@ def entry_point():
     logging.getLogger("spotipy").setLevel(logging.WARNING)
     logging.getLogger("asyncio").setLevel(logging.WARNING)
 
-    # Install rich traceback
-    install(show_locals=True)
+    # Install rich traceback handler
+    install(show_locals=False, extra_lines=1)
 
     # Create config file if it doesn't exist
     if get_config_file().is_file() is False:
