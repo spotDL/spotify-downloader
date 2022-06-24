@@ -43,7 +43,8 @@ body:
     options:
       - pip / PyPi
       - GitHub
-      - Other
+      - Termux Installation Script (spotDL provided)
+      - Arch User Repository (Unofficial)
   validations:
     required: true
 
