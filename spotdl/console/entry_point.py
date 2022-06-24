@@ -10,6 +10,7 @@ import cProfile
 import pstats
 
 from rich.traceback import install
+from rich.console import Console
 
 from spotdl.console.download import download
 from spotdl.console.sync import sync
@@ -46,8 +47,11 @@ def entry_point():
     # Don't log too much
     logging.getLogger("requests").setLevel(logging.WARNING)
     logging.getLogger("urllib3").setLevel(logging.WARNING)
-    logging.getLogger("spotipy").setLevel(logging.WARNING)
+    logging.getLogger("spotipy").setLevel(logging.NOTSET)
     logging.getLogger("asyncio").setLevel(logging.WARNING)
+
+    # Create a console
+    console = Console()
 
     # Install rich traceback handler
     install(show_locals=False, extra_lines=1)
@@ -255,7 +259,9 @@ Log in by adding the --user-auth flag"
     except Exception as exception:
         downloader.progress_handler.close()
 
-        sys.exit(exception)
+        console.print_exception(show_locals=False, extra_lines=1)
+
+        sys.exit(1)
 
     downloader.progress_handler.close()
 
