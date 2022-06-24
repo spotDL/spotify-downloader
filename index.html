@@ -1422,22 +1422,32 @@ YOU MUST REMOVE DIV ALIGN TAG.
 </ul>
 <h3 id="other-options">Other options<a class="headerlink" href="#other-options" title="Permanent link">¤</a></h3>
 <ul>
-<li>Prebuilt Executable</li>
+<li>Prebuilt Executable<ul>
 <li>You can download the latest version from from the <a href="https://github.com/spotDL/spotify-downloader/releases">Releases Tab</a></li>
-<li>On Termux</li>
+</ul>
+</li>
+<li>On Termux<ul>
 <li><code>curl -L https://raw.githubusercontent.com/spotDL/spotify-downloader/master/termux/setup_spotdl.sh | sh</code></li>
-<li>Arch</li>
+</ul>
+</li>
+<li>Arch<ul>
 <li>There is an Arch User Repository (AUR) package for <a href="https://aur.archlinux.org/packages/python-spotdl/">spotDL</a>.</li>
-<li>Docker</li>
+</ul>
+</li>
+<li>
+<p>Docker</p>
+<ul>
 <li>
 <p>Build image:</p>
 <div class="language-bash highlight"><pre><span></span><code>docker build -t spotdl .
 </code></pre></div>
-<ul>
-<li>Launch container with spotDL parameters (see section below). You need to create mapped volume to access song files</li>
-</ul>
+</li>
+<li>
+<p>Launch container with spotDL parameters (see section below). You need to create mapped volume to access song files</p>
 <div class="language-bash highlight"><pre><span></span><code>docker run --rm -v <span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>:/music spotdl download <span class="o">[</span>trackUrl<span class="o">]</span>
 </code></pre></div>
+</li>
+</ul>
 </li>
 </ul>
 <h3 id="installing-ffmpeg">Installing FFmpeg<a class="headerlink" href="#installing-ffmpeg" title="Permanent link">¤</a></h3>
