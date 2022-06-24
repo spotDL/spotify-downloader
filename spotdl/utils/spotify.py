@@ -16,6 +16,8 @@ from spotipy.oauth2 import SpotifyClientCredentials, SpotifyOAuth
 
 from spotdl.utils.config import get_cache_path
 
+cache = {}
+
 
 class SpotifyError(Exception):
     """
@@ -101,6 +103,7 @@ class Singleton(type):
             )
 
         self.user_auth = user_auth
+        self.no_cache = no_cache
 
         # Create instance
         self._instance = super().__call__(
@@ -131,3 +134,25 @@ class SpotifyClient(Spotify, metaclass=Singleton):
 
         super().__init__(*args, **kwargs)
         self._initialized = True
+
+    def _get(self, url, args=None, payload=None, **kwargs):
+        """
+        Overrides the get method of the SpotifyClient.
+        Allows us to cache requests
+        """
+
+        use_cache = not self.no_cache  # type: ignore # pylint: disable=E1101
+
+        if args:
+            kwargs.update(args)
+
+        if use_cache:
+            if cache.get(url) is not None:
+                return cache[url]
+
+        response = self._internal_call("GET", url, payload, kwargs)
+
+        if use_cache:
+            cache[url] = response
+
+        return response

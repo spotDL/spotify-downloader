@@ -256,7 +256,7 @@ Log in by adding the --user-auth flag"
             downloader=downloader,
             m3u_file=settings["m3u"],
         )
-    except Exception as exception:
+    except Exception:
         downloader.progress_handler.close()
 
         console.print_exception(show_locals=False, extra_lines=1)

@@ -230,7 +230,7 @@ def parse_spotify_options(parser: _ArgumentGroup):
         "--no-cache",
         action="store_true",
         default=DEFAULT_CONFIG["no_cache"],
-        help="Disable caching.",
+        help="Disable caching (both requests and token).",
     )
 
     # Add cookie file argument
