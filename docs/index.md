@@ -43,23 +43,23 @@ Refer to our [Installation Guide](https://spotdl.rtfd.io/en/latest/installation/
 ### Other options
 
 - Prebuilt Executable
-  - You can download the latest version from from the [Releases Tab](https://github.com/spotDL/spotify-downloader/releases)
+    - You can download the latest version from from the [Releases Tab](https://github.com/spotDL/spotify-downloader/releases)
 - On Termux
-  - `curl -L https://raw.githubusercontent.com/spotDL/spotify-downloader/master/termux/setup_spotdl.sh | sh`
+    - `curl -L https://raw.githubusercontent.com/spotDL/spotify-downloader/master/termux/setup_spotdl.sh | sh`
 - Arch
-  - There is an Arch User Repository (AUR) package for [spotDL](https://aur.archlinux.org/packages/python-spotdl/).
+    - There is an Arch User Repository (AUR) package for [spotDL](https://aur.archlinux.org/packages/python-spotdl/).
 - Docker
-  - Build image:
+    - Build image:
 
-    ```bash
-    docker build -t spotdl .
-    ```
+        ```bash
+        docker build -t spotdl .
+        ```
 
     - Launch container with spotDL parameters (see section below). You need to create mapped volume to access song files
 
-    ```bash
-    docker run --rm -v $(pwd):/music spotdl download [trackUrl]
-    ```
+        ```bash
+        docker run --rm -v $(pwd):/music spotdl download [trackUrl]
+        ```
 
 
 ### Installing FFmpeg
