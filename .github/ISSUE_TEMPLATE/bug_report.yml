@@ -1,4 +1,4 @@
-name: Bug Report 
+name: Bug Report
 
 title: Change this title, poorly formatted issues will not be handled
 
@@ -10,7 +10,7 @@ body:
 
 - type: dropdown
   attributes:
-    label: System Operating System (OS)
+    label: System OS
     description: OS not listed here? Please let us know below
     options:
       - Windows
@@ -18,6 +18,7 @@ body:
       - Linux
       - Docker
       - Termux (Android)
+      - Other
   validations:
     required: true
 
@@ -53,7 +54,7 @@ body:
     description: |
       Supply version if installed from pip, found via `pip show spotdl`
       or supply commit hash if installed from GitHub
-    placeholder: v3.x.x or hash-value
+    placeholder: v4.x.x or hash-value
   validations:
     required: true
 
@@ -64,10 +65,7 @@ body:
 
 - type: textarea
   attributes:
-    label: Steps to reproduce
-    description: |
-      Please ensure to include Spotify links and the actual command 
-      you used.
+    label: Steps to reproduce - Ensure to include actual links!
     placeholder: |
       1.
       2.
@@ -79,11 +77,12 @@ body:
 - type: textarea
   attributes:
     label: Traceback
-    description: Copy and paste the complete error message outputted by spotDL
+    description: Copy and paste the complete output from spotDL
     render: text
+    placeholder: Do this even if there is no error!
   validations:
     required: true
-    
+
 
 - type: textarea
   attributes:
@@ -92,4 +91,4 @@ body:
       Note anything else you can provide regarding the issue you're running into.
 
       If you didn't include your Python version, OS or installation source in the dropdowns
-      earlier, note said details here. 
+      earlier, note said details here.

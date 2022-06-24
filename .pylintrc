@@ -1,0 +1,10 @@
+[MASTER]
+disable=
+    R0902, # too-many-instance-attributes
+    R0913, # too-many-arguments
+    R0915, # too-many-statements
+    R0912, # too-many-branches
+    R0801, # duplicate-code
+    R0903, # too-few-public-methods
+    R0914, # too-many-locals
+    W0703, # broad-except

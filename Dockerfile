@@ -1,19 +1,27 @@
 FROM python:3-alpine
 
-# Install ffmpeg and g++
-RUN apk add --no-cache ffmpeg g++ git
+LABEL maintainer="xnetcat (Jakub)"
 
-# Create project directory
-WORKDIR /app
+# Install dependencies
+RUN apk add --no-cache \
+    ca-certificates \
+    ffmpeg \
+    openssl \
+    aria2 \
+    g++ \
+    git \
+    py3-cffi \
+    libffi-dev \
+    zlib-dev
+
+# Install poetry and update pip/wheel
+RUN pip install --upgrade pip poetry wheel
 
 # Add source code files to WORKDIR
 ADD . .
 
-# Upgrade pip
-RUN python -m pip install --upgrade --no-cache-dir pip
-
-# Install spotdl
-RUN pip install --no-cache-dir .
+# Install requirements
+RUN poetry install
 
 # Create music directory
 RUN mkdir /music
@@ -25,4 +33,4 @@ VOLUME /music
 WORKDIR /music
 
 # Entrypoint command
-ENTRYPOINT [ "spotdl" ]
+ENTRYPOINT ["poetry", "run", "spotdl"]

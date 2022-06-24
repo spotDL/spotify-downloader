@@ -1,0 +1,98 @@
+interactions:
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate, br
+      Accept-Language:
+      - en-US;q=0.8,en;q=0.7
+      Cache-Control:
+      - no-cache
+      Connection:
+      - keep-alive
+      Pragma:
+      - no-cache
+      Sec-Fetch-Dest:
+      - empty
+      Sec-Fetch-Mode:
+      - cors
+      Sec-Fetch-Site:
+      - same-origin
+      User-Agent:
+      - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like
+        Gecko) Chrome/91.0.4472.164 Safari/537.36
+      sec-ch-ua:
+      - '" Not;A Brand";v="99", "Google Chrome";v="91", "Chromium";v="91"'
+    method: GET
+    uri: https://search.azlyrics.com/search.php?q=shockwave+%5B'Marshmello'%5D
+  response:
+    body:
+      string: !!binary |
+        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
+    headers:
+      Access-Control-Allow-Headers:
+      - DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range
+      Access-Control-Allow-Origin:
+      - https://www.azlyrics.com
+      Connection:
+      - keep-alive
+      Content-Encoding:
+      - gzip
+      Content-Type:
+      - text/html; charset=UTF-8
+      Date:
+      - Thu, 23 Jun 2022 08:17:53 GMT
+      Server:
+      - nginx
+      Transfer-Encoding:
+      - chunked
+    status:
+      code: 200
+      message: OK
+version: 1

@@ -1,0 +1,41 @@
+name: Standard code checks (MyPy/Pylint/Black)
+
+on: [push, pull_request]
+
+jobs:
+  checks:
+    if: "!contains(github.event.commits[0].message, '[skip ci]')"
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install poetry
+        run: pipx install poetry
+
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+          cache: 'poetry'
+
+      - name: Install dependencies
+        run: |
+          poetry env use "3.10"
+          poetry install
+
+      - name: Check for docstring's
+        run: |
+          poetry run pylint --limit-inference-results 0 --disable all --enable missing-function-docstring missing-module-docstring missing-class-docstring empty-docstring ./spotdl
+
+      - name: Run Pylint check
+        run: |
+          poetry run pylint --fail-under 10 --limit-inference-results 0 ./spotdl
+
+      - name: Run MyPy check
+        run: |
+          poetry run mypy --ignore-missing-imports --follow-imports silent --install-types --non-interactive ./spotdl
+
+      - name: Run Black check
+        run: |
+          poetry run black --check ./spotdl

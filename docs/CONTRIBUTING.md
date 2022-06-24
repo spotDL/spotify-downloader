@@ -1,215 +1,359 @@
-<!--- mdformat-toc start --slug=github --->
+<!-- omit in toc -->
 
-# CONTRIBUTING
+# Contributing to spotdl
 
-## Which contributions get accepted and which ones don't?
+First off, thanks for taking the time to contribute! ❤️
 
-For the sake of maintainability and ease-of-use standards, we are not able to accept all
-contributions that come to spotDL - don't get us wrong,
-**ALL CONTRIBUTIONS ARE WELCOME...** So just which contributions get accepted and which
-ones don't? That's what we're here to answer.
+All types of contributions are encouraged and valued. See the
+[Table of Contents](#table-of-contents) for different ways to help and details about how this
+project handles them. Please make sure to read the relevant section before making your
+contribution. It will make it a lot easier for us maintainers and smooth out the experience for
+everyone involved. The community looks forward to your contributions. 🎉
 
-______________________________________________________________________
+> And if you like the project, but just don't have time to contribute, that's fine. There are
+> other easy ways to support the project and show your appreciation, which we would also be
+> very happy about:
+>
+> - Star the project
+> - Tweet about it
+> - Refer this project in your project's readme
+> - Mention the project at local meetups and tell your friends/colleagues
 
-## A short note to contributors
+<!-- omit in toc -->
 
-1. Further on in this document, we use the term 'Users' interchangeably for both people who
-   use spotDL as a command line tool and those who use spotDL as a library.
+## Table of Contents
 
-2. These requirements are aimed at helping future contributors (people like you) more than
-   its aimed at users, code quality and other such things.
+- [I Have a Question](#i-have-a-question)
+- [I Want To Contribute](#i-want-to-contribute)
+- [Reporting Bugs](#reporting-bugs)
+- [Suggesting Enhancements](#suggesting-enhancements)
+- [Linting, Formatting and Type-checking](#Linting,-Formatting-and-Type-checking)
+- [Python Documentation](#Python-Documentation)
+- [Overview of the Project Structure](#Overview-of-the-Project-Structure)
+- [Join The Project Team](#Join-The-Project-Team)
 
-3. Most of the requirements we need for a contribution to be accepted overlap with each
-   other, so our 5-point requirements is more of a 3.5-point requirements.
+## I Have a Question
 
-4. Yes, there might be times when you can't both improve spotDL and stick to the
-   requirements, in those rare cases, focus on improvement first and do your best ot meet the
-   requirements. Sometimes, you have to take a step back to take several forward.
+> If you want to ask a question, we assume that you have read the available
+> [Documentation](https://github.com/spotDL/spotify-downloader/).
 
-5. Most of the requirements are subjective to an extent. In your view, your code might meet
-   the requirements, in reality, from the experience handling many, many previous
-   contributions, this might not be the case.
+Before you ask a question, it is best to search for existing
+[Issues](https://github.com/spotDL/spotify-downloader/issues) that might help you. In case you
+have found a suitable issue and still need clarification, you can write your question in this
+issue. It is also advisable to search the internet for answers first.
 
-6. The maintainers have no obligation to accept your contribution just because you put in a
-   lot of effort into it, so please feel free to open an issue about what ever it is that you
-   wish to contribute to get in touch with maintainers before you put in all that effort.
-   The maintainer will do their best to help you with your contributions.
+If you then still feel the need to ask a question and need clarification, we recommend the
+following:
 
-______________________________________________________________________
+- Open an [Issue](https://github.com/spotDL/spotify-downloader/issues/new).
+- Provide as much context as you can about what you're running into.
+- Provide project and platform versions (nodejs, npm, etc), depending on what seems relevant.
 
-## The basic requirements of any contribution
+We will then take care of the issue as soon as possible.
 
-1. **'Ease-of-use'** and **'minimal user-know-how'**
+<!--
+You might want to create a separate issue tag for questions and include it in this description. People should then tag their issues accordingly.
 
-   - *If an application has a steep learning curve, I'd rather not use it* - Everybody
+Depending on how large the project is, you may want to outsource the questioning, e.g. to Stack Overflow or Gitter. You may add additional contact and information possibilities:
+- IRC
+- Slack
+- Gitter
+- Stack Overflow tag
+- Blog
+- FAQ
+- Roadmap
+- E-Mail List
+- Forum
+-->
 
-   - Your users might not always be fellow programmers, ensure that your contribution makes
-     spotDL easier to use both as a tool and as a library or at least don't make it harder.
-     Making it easier to user means shallow learning curves and fewer steps as a script and
-     'self-contained code' as a library, that way users (coders) don't need to peek lower-level
-     code to understand just what the hell your code does, neither do future contributors have
-     to peek too - They are the guys who actually need to understand your code.
+## I Want To Contribute
 
-   - eg.
+> ### Legal Notice <!-- omit in toc -->
+>
+> When contributing to this project, you must agree that you have authored 100% of the content,
+> that you have the necessary rights to the content and that the content you contribute may be
+> provided under the project license.
 
-     - spotDL v2 used a unix style command-line interface, spotDL v3 uses a much simpler command
-       line interface that doesn't require any of the unix style input flags like `-d` or
-       `--download`, for a user, thats less stuff to type (easier to use) and also less stuff to
-       know - if the user is not a programmer, he/she/them don't have to learn to type unix-style
-       commands.
+### Reporting Bugs
 
-     - every function has a standardized docStrings and type definitions, library users (other
-       coders) don't need to look at the source code to either figure out the type of inputs to
-       be passed or what the function does. Thats less things they have to look, refer or figure
-       out. As a programmer you've probably wished that people wrote code like that, you and I we
-       might as well start.
+<!-- omit in toc -->
 
-2. **Minimum steps** b/w the user and the end result
+#### Before Submitting a Bug Report
 
-   - *'Civilization progresses by increasing the number of important actions that one can
-     perform without thinking'* - Alfred North Whitehead
+A good bug report shouldn't leave others needing to chase you up for more information.
+Therefore, we ask you to investigate carefully, collect information and describe the issue in
+detail in your report. Please complete the following steps in advance to help us fix any
+potential bug as fast as possible.
 
-   - You can put in as many intermediate steps as you require internally to get something done
-     but, you either decrease the steps b/w the user and what the user wants or at least, don't
-     increase the number of steps.
+- Make sure that you are using the latest version.
+- Determine if your bug is really a bug and not an error on your side e.g. using incompatible
+  environment components/versions (Make sure that you have read the
+  [documentation](https://github.com/spotDL/spotify-downloader/). If you are looking for
+  support, you might want to check [this section](#i-have-a-question)).
+- To see if other users have experienced (and potentially already solved) the same issue you
+  are having, check if there is not already a bug report existing for your bug or error in the
+  [bug tracker](https://github.com/spotDL/spotify-downloader/issues?q=label%3Abug).
+- Also make sure to search the internet (including Stack Overflow) to see if users outside of
+  the GitHub community have discussed the issue.
+- Collect information about the bug:
+- Stack trace (Traceback)
+- OS, Platform and Version (Windows, Linux, macOS, x86, ARM)
+- Version of the interpreter, compiler, SDK, runtime environment, package manager, depending on
+  what seems relevant.
+- Possibly your input and the output
+- Can you reliably reproduce the issue? And can you also reproduce it with older versions?
 
-   - eg.
+<!-- omit in toc -->
 
-     - In early revisions of spotDL, search utilities written to get playlist tracks returned
-       spotify links which the user (programmer during use as a library) had to then pass to a
-       `SongObj` constructor and then further pass the song object to the downloader. Now, the
-       search utilities to get playlist tracks directly returns a list of `SongObj` - thereby,
-       eliminating 1 step b/w the user (programmer) and the end result even though there is the
-       additional intermediate step of passing the spotify links to the `SongObj`.
+#### How Do I Submit a Good Bug Report?
 
-     - In spotDL v2 command line, the user (the guy downloading songs) would first have to run
-       `spotdl --list $playlistLink` to write all songUrl's to a text file and then pass the text
-       file to the spotDL script in the next step which would then re-query spotify for song
-       details and proceed to download the song. In spotDL v3, all you have to do is run
-       `spotdl $thing` where 'thing' might be a song, album, playlist or a song search query and
-       it goes about getting the requisite tracks and downloading them eliminating 2-3 steps b/w
-       the user (guy downloading songs) and the end result (downloaded, tagged songs)
+> You must never report security related issues, vulnerabilities or bugs to the issue tracker,
+> or elsewhere in public. Instead sensitive bugs must be sent by discord to xnetcat#8144.
 
-3. **Simplicity** and **readability** of code
+<!-- You may add a PGP key to allow the messages to be sent encrypted as well. -->
 
-   - *The primary job of a programmed is to manage complexity* - Code Complete, Steve McConnell
+We use GitHub issues to track bugs and errors. If you run into an issue with the project:
 
-   - Look man, seriously, software can get insanely complicated. In the real world there are
-     physical limits to complexity, there is no such limit in software - thing can get as
-     complicated as you wish but, the human brain is not designed to understand 'systems'. We
-     have no intuitive feel for 'software systems' like we do for running down the stairs (try
-     running down the stairs while looking at your feet, you'll understand just how intuitively
-     you move around), in other terms - you can slowly put together complex systems but,
-     others can't understand them the way you do. Beyond a point even you can't predict how
-     everything will work together. Every programmer at some point of time has fixed a bug only
-     to realize that the fix created another bug - that your biological incapability to
-     understand systems. So, make it a point to keep things simple when you code, and simplify
-     your code later.
+- Open an [Issue](https://github.com/spotDL/spotify-downloader/issues/new). (Since we can't be
+  sure at this point whether it is a bug or not, we ask you not to talk about a bug yet and not
+  to label the issue.)
+- Explain the behavior you would expect and the actual behavior.
+- Please provide as much context as possible and describe the *reproduction steps* that someone
+  else can follow to recreate the issue on their own. This usually includes your code. For good
+  bug reports you should isolate the problem and create a reduced test case.
+- Provide the information you collected in the previous section.
 
-   - Your not going to stick around forever, eventually someone else has to take over. Make
-     their job easier, write code that is 'easy to understand and contribute to'
+Once it's filed:
 
-   - eg.
+- The project team will label the issue accordingly.
+- A team member will try to reproduce the issue with your provided steps. If there are no
+  reproduction steps or no obvious way to reproduce the issue, the team will ask you for those
+  steps and mark the issue as `needs-repro`. Bugs with the `needs-repro` tag will not be
+  addressed until they are reproduced.
+- If the team is able to reproduce the issue, it will be marked `needs-fix`, as well as
+  possibly other tags (such as `critical`), and the issue will be left to be
+  [implemented by someone](#your-first-code-contribution).
 
-     - spotDL v3 was written from scratch, why? To simplify it. The fact that it went from
-       approx. 47 files in v2 to just around 12 files in v3 with almost no loss of functionality
-       is a good measure of the effort that went into simplifying spotDL.
+<!-- You might want to create an issue template for bugs and errors that can be used as a guide and that defines the structure of the information to be included. If you do so, reference it here in the description. -->
 
-     - almost all naming, be it of functions, variables or classes in v3 is meant to describe the
-       functionality of that variable/function/class to some extent. As tempting as it is to
-       name variables like `x`, they got more descriptive names like `totalSongCount`. Most
-       function run into a 100+ lines while the actual code is just 33 lines and with a little
-       'smart coding' possibly reducible to 20 odd lines, why? The code is written to be 'read
-       and understood' not to 'save disk space' - your writing for the next contributor, not just
-       for some feature you want.
+### Suggesting Enhancements
 
-4. Documentation, Documentation, some
-   **more documentation; Write documentation into your code.**
+This section guides you through submitting an enhancement suggestion for spotdl, **including
+completely new features and minor improvements to existing functionality**. Following these
+guidelines will help maintainers and the community to understand your suggestion and find
+related suggestions.
 
-   - *good code is its own best documentation* - Code Complete, Steve McConnell
+<!-- omit in toc -->
 
-   - In an ideal world, people would write such clear, readable, understandable code that there
-     would be no need for documentation. Have a doubt? Read the source code... We don't live
-     in that world. You know the code you wrote better than anyone else, write documentation
-     for it. It doesn't have to be much - what are the inputs, what is the type of each input,
-     what does that bit of code do, any special quirky behavior to look out for - thats all you
-     need to put down. This will help users (other programmers using spotDL as a library)
+#### Before Submitting an Enhancement
 
-   - The hardest part of contributing is going through old code and figuring out what does
-     what, help out future contributors with that - use comments, use them as much as possible.
-     Put in reminders when your leveraging some weird python behavior, put in notes on just
-     what a particularly important code-block is doing, notes about docString-less functions
-     that have been imported and used and just about anything that could use additional notes
-     about it.
+- Make sure that you are using the latest version.
+- Read the [documentation](https://github.com/spotDL/spotify-downloader/) carefully and find
+  out if the functionality is already covered, maybe by an individual configuration.
+- Perform a [search](https://github.com/spotDL/spotify-downloader/issues) to see if the
+  enhancement has already been suggested. If it has, add a comment to the existing issue
+  instead of opening a new one.
+- Find out whether your idea fits with the scope and aims of the project. It's up to you to
+  make a strong case to convince the project's developers of the merits of this feature. Keep
+  in mind that we want features that will be useful to the majority of our users and not just a
+  small subset. If you're just targeting a minority of users, consider writing an add-on/plugin
+  library.
 
-   - eg.
+<!-- omit in toc -->
 
-     - every single function in spotDL v3 has a markdown formatted docString that describes the
-       basics required for documentation.
+#### How Do I Submit a Good Enhancement Suggestion?
 
-     - every single place in spotDL v3 where python interpreting `None` as `False` has been used,
-       has an accompanying comment - `#! python evaluvates 'None' as 'False'` - its simple,
-       right? WRONG. Not a lot of python programmers even know about this 'behavior quirk' of
-       python.
+Enhancement suggestions are tracked as
+[GitHub issues](https://github.com/spotDL/spotify-downloader/issues).
 
-5. Justified existence
+- Use a **clear and descriptive title** for the issue to identify the suggestion.
+- Provide a **step-by-step description of the suggested enhancement** in as many details as
+  possible.
+- **Describe the current behavior** and **explain which behavior you expected to see instead**
+  and why. At this point you can also tell which alternatives do not work for you.
+- You may want to **include screenshots and animated GIFs** which help you demonstrate the
+  steps or point out the part which the suggestion is related to. You can use
+  [this tool](https://www.cockos.com/licecap/) to record GIFs on macOS and Windows, and
+  [this tool](https://github.com/colinkeenan/silentcast) or
+  [this tool](https://github.com/GNOME/byzanz) on Linux.
+      <!-- this should only be included if the project has a GUI -->
+- **Explain why this enhancement would be useful** to most spotdl users. You may also want to
+  point out the other projects that solved it better and which could serve as inspiration.
 
-   - *I write/accept code for 80% of users, not the 20% with special needs* - A maintainer,
-     Vue.js
+<!-- You might want to create an issue template for enhancement suggestions that can be used as a guide and that defines the structure of the information to be included. If you do so, reference it here in the description. -->
 
-   - The bigger a program gets, the harder it is to manage, improve, extend and maintain. From
-     experience the **Pareto principle** applies to code too - 20% of the code accounts form
-     80% of the functionality - So, in the name of maintainability, don't bother writing the
-     remaining 80% of code that provides only 20% of the functionality. If you are hellbent of
-     doing so, make a fork of spotDL, well even put up a link to your fork for other who
-     desperately need that 20% functionality.
+### Linting, Formatting and Type-checking
 
-   - Subject your code to [Zero-base accounting](/docs/code/CODE_GUIDELINES.md), it helps get
-     rid of all the 20% features you feel tempted to build - it'll also spare you that much
-     time and effort.
+- We use [`pylint`](https://pypi.org/project/pylint/) for linting and expect a score above `9`
 
-   - eg.
+  ```bash
+  pylint --limit-inference-results 0 --fail-under 9 ./spotdl
+  ```
 
-     - spotDL v2 was far more feature rich than v3, what did 99% of users use spotDL for? To
-       download songs. spotDL v3 got rid of all the additional, 'nice-to-have' features and
-       focused solely on downloading songs. Some might even say that it's under-featured, we
-       can't really argue with that, but we have no intentions of changing that.
+- We use [`black`](https://pypi.org/project/black/) for code formatting
 
-______________________________________________________________________
+  ```bash
+  black ./spotdl
+  ```
 
-## Setup Local Environment for Development
+- We use [`mypy`](https://pypi.org/project/mypy/) for type-checking and expect no errors at all
 
-1. Clone this repository
+  To install type-stubs the first time around
 
-   ```bash
-   git clone https://github.com/spotDL/spotify-downloader.git
-   cd spotify-downloader
-   ```
+  ```bash
+  mypy --install-types --non-interactive
+  ```
 
-2. Setup venv (Optional)
+  ```bash
+  mypy ./spotdl
+  ```
 
-   - Windows
+- You can install these basic tools with
 
-     ```bash
-     py -3 -m venv env
-     .\.venv\Scripts\activate
-     ```
+  ```bash
+  pip install --force-reinstall --upgrade mypy black pylint
+  ```
 
-   - Linux/macOS
+### Python Documentation
 
-     ```bash
-     python3 -m venv .venv
-     source .venv/bin/activate
-     ```
+Any submitted code is expected to have accompanying documentation
 
-3. Install requirements
+#### mkdocs: generating documentation
 
-   ```bash
-   pip install -e .
-   ```
+- We generate our documentation with [`mkdocs`](https://www.mkdocs.org/)
 
-4. Use as command (no need to re-install after file changes)
+  ```bash
+  pip install mkdocs
+  ```
 
-   ```bash
-   spotdl [ARGUMENTS]
-   ```
+  `mkdocs` requires that all development packages are installed
+
+  ```bash
+  poetry install
+  ```
+
+  generate docs with
+
+  ```bash
+  mkdocs build --strict
+  ```
+
+  view docs live-time while editing with
+
+  ```bash
+  mkdocs serve
+  ```
+
+#### DocString Formats
+
+- For functions
+
+  ```
+  one-liner about functions purpose
+
+  ### Args (optional)
+  - arg_name: description
+
+  ### Returns (optional)
+  - return value description
+
+  ### Errors (only if there are known unhandled Errors/thrown Errors)
+  - known errors
+
+  ### Notes (optional)
+  - notes if any
+  ```
+
+- For Classes
+
+  ```
+  one-liner about class purpose
+
+  ### Attributes
+  - attribute: description
+
+  ### Notes (optional)
+  - notes if any
+  ```
+
+- For modules/package `__init__`
+
+  ```
+  at max 3 lines about module/package purpose
+
+  optional usage example for module/package preferably showcasing most commonly used functionality
+  ```
+
+#### Notes about docstrings
+
+- DocStrings are Inherited
+
+  ```
+  class A:
+      def test(self):
+          """Docstring for A."""
+          pass
+
+  class B(A):
+      def test(self):
+          pass
+
+  # B.test.__doc__ acc. to normal python  : None
+  # B.test.__doc__ acc. to normal pdoc3   : Docstring for A.
+  ```
+
+- You can write DocStrings for variables with `#:` comment above the variable
+
+  ```
+  #: an example variable to demonstrate DocStrings
+  example_var_1 = 1
+  ```
+
+- You can use the reST directives
+  [`..math::`](https://docutils.sourceforge.io/docs/ref/rst/directives.html#math) and
+  [`..image::`](https://docutils.sourceforge.io/docs/ref/rst/directives.html#images)
+
+#### Markdown formatting
+
+- Markdown is formatted with [`mdformat-gfm`](https://pypi.org/project/mdformat-gfm/) and
+  indexes are auto-generated with [`mdformat-toc`](https://pypi.org/project/mdformat-toc/)
+
+  ```
+  pip install mdformat-gfm mdformat-toc
+  ```
+
+- Create an Index using the following comment, the index will be updated when mdformat is run
+
+  ```markdown
+  <!-- mdformat-toc start --no-anchors -->
+  ```
+
+- Preferably use empty lines between points on ordered & un-ordered lists
+
+- Format your markdown using
+
+  ```
+  mdformat --wrap 95 --number ./
+  ```
+
+### Overview of the Project Structure
+
+| sub-package | purpose                                                            |
+| ----------- | ------------------------------------------------------------------ |
+| `utils`     | Contains commonly used functions                                   |
+| `types`     | Custom data types used in the spotdl project                       |
+| `providers` | Different Providers to obtain info (like song details) from        |
+| `download`  | Download manager                                                   |
+| `console`   | Different user-facing operations like download, preload and web-ui |
+| `__init__`  | Contains spotdl class that simplifies the download process         |
+
+### Join The Project Team
+
+[![Discord Server](https://img.shields.io/discord/771628785447337985?color=7289da&label=DISCORD&style=for-the-badge)](https://discord.gg/xCa23pwJWY)
+
+<!-- omit in toc -->
+
+### Attribution
+
+This guide is based on the **contributing-gen**.
+[Make your own](https://github.com/bttger/contributing-gen)!

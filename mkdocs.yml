@@ -1,0 +1,77 @@
+site_name: spotDL
+site_description: Download your Spotify playlists and songs along with album art and metadata
+site_author: xnetcat
+site_url: "https://spotdl.github.io/spotify-downloader"
+repo_url: "https://github.com/spotDL/spotify-downloader"
+repo_name: "spotdl/spotify-downloader"
+site_dir: "site"
+
+nav:
+- Home: index.md
+- Usage:
+  - Installation: installation.md
+  - Usage: usage.md
+  - Troubleshooting: troubleshooting.md
+- Development:
+  - Code Of Conduct: CODE_OF_CONDUCT.md
+  - Contributing: CONTRIBUTING.md
+- Code Reference: reference/
+
+theme:
+  name: material
+  features:
+    - content.code.annotate
+  palette:
+  - media: "(prefers-color-scheme: light)"
+    scheme: default
+    primary: teal
+    accent: purple
+    toggle:
+      icon: material/weather-sunny
+      name: Switch to dark mode
+  - media: "(prefers-color-scheme: dark)"
+    scheme: slate
+    primary: black
+    accent: lime
+    toggle:
+      icon: material/weather-night
+      name: Switch to light mode
+  features:
+  - navigation.tabs
+  - navigation.top
+
+plugins:
+- search
+- gen-files:
+    scripts:
+    - scripts/docs/gen_ref_nav.py
+- literate-nav:
+    nav_file: SUMMARY.md
+- section-index
+- mkdocstrings:
+    handlers:
+      python:
+        options:
+          docstring_options:
+            ignore_init_summary: yes
+          merge_init_into_class: yes
+          show_submodules: no
+    watch:
+    - spotdl
+
+markdown_extensions:
+- admonition
+- pymdownx.details
+- pymdownx.emoji
+- pymdownx.magiclink
+- pymdownx.tasklist
+- pymdownx.superfences
+- pymdownx.snippets:
+    check_paths: true
+- pymdownx.tabbed:
+    alternate_style: true
+- pymdownx.highlight:
+    use_pygments: true
+    pygments_lang_class: true
+- toc:
+    permalink: "¤"

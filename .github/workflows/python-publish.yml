@@ -5,28 +5,107 @@ name: Upload Python Package
 
 on:
   release:
-    types: 
+    types:
       - published
-      
+
 jobs:
   deploy:
-
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: '3.x'
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install setuptools wheel twine
-    - name: Build and publish
-      env:
-        TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
-        TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
-      run: |
-        python setup.py sdist bdist_wheel
-        twine upload dist/*
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          submodules: recursive
+
+      - name: Install poetry
+        run: pipx install poetry
+
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+          cache: 'poetry'
+
+      - name: Install dependencies
+        run: |
+          poetry env use "3.10"
+          poetry install
+
+      - name: Install twine
+        run: pip install twine
+
+      - name: Build
+        run: |
+          poetry build
+
+      - name: Publish on Pip
+        env:
+          TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
+          TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+        run: twine upload dist/*
+
+  build:
+    strategy:
+      matrix:
+        platform: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install poetry
+        run: pipx install poetry
+
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+          cache: 'poetry'
+
+      - name: Install dependencies
+        run: |
+          poetry env use "3.10"
+          poetry install
+
+      - name: Build executable
+        run: poetry run python ./scripts/build.py
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            dist/*
+
+  build-arm:
+    runs-on: ubuntu-latest
+    name: Build on ubuntu-latest aarch64
+    steps:
+      - uses: actions/checkout@v2
+      - uses: uraimo/run-on-arch-action@v2
+        name: Run commands
+        id: runcmd
+        with:
+          arch: aarch64
+          distro: ubuntu_latest
+
+          # Mount the artifacts directory as /artifacts in the container
+          dockerRunArgs: |
+            --volume "${PWD}/:/spotdl"
+
+          # The shell to run commands with in the container
+          shell: /bin/sh
+
+          run: |
+            cd /spotdl
+            apt update
+            apt install python3 python3-pip -y
+            pip install poetry
+            poetry install
+            poetry run python ./scripts/build.py
+            for file in dist/spotdl*; do cp "$file" "${file}-aarch64"; done
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            dist/spotdl*
