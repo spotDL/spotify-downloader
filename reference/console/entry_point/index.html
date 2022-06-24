@@ -1324,13 +1324,7 @@
 
       <details class="quote">
         <summary>Source code in <code>spotdl/console/entry_point.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">265</span>
-<span class="normal">266</span>
-<span class="normal">267</span>
-<span class="normal">268</span>
-<span class="normal">269</span>
-<span class="normal">270</span>
-<span class="normal">271</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">271</span>
 <span class="normal">272</span>
 <span class="normal">273</span>
 <span class="normal">274</span>
@@ -1339,7 +1333,13 @@
 <span class="normal">277</span>
 <span class="normal">278</span>
 <span class="normal">279</span>
-<span class="normal">280</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">console_entry_point</span><span class="p">():</span>
+<span class="normal">280</span>
+<span class="normal">281</span>
+<span class="normal">282</span>
+<span class="normal">283</span>
+<span class="normal">284</span>
+<span class="normal">285</span>
+<span class="normal">286</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">console_entry_point</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Wrapper around `entry_point` so we can profile the code</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1377,8 +1377,7 @@
 
       <details class="quote">
         <summary>Source code in <code>spotdl/console/entry_point.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 41</span>
-<span class="normal"> 42</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 42</span>
 <span class="normal"> 43</span>
 <span class="normal"> 44</span>
 <span class="normal"> 45</span>
@@ -1598,7 +1597,13 @@
 <span class="normal">259</span>
 <span class="normal">260</span>
 <span class="normal">261</span>
-<span class="normal">262</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">entry_point</span><span class="p">():</span>
+<span class="normal">262</span>
+<span class="normal">263</span>
+<span class="normal">264</span>
+<span class="normal">265</span>
+<span class="normal">266</span>
+<span class="normal">267</span>
+<span class="normal">268</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">entry_point</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Console entry point for spotdl. This is where the magic happens.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1606,8 +1611,11 @@
     <span class="c1"># Don&#39;t log too much</span>
     <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;requests&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span><span class="p">)</span>
     <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;urllib3&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span><span class="p">)</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;spotipy&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span><span class="p">)</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;spotipy&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">NOTSET</span><span class="p">)</span>
     <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;asyncio&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span><span class="p">)</span>
+
+    <span class="c1"># Create a console</span>
+    <span class="n">console</span> <span class="o">=</span> <span class="n">Console</span><span class="p">()</span>
 
     <span class="c1"># Install rich traceback handler</span>
     <span class="n">install</span><span class="p">(</span><span class="n">show_locals</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">extra_lines</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
@@ -1815,7 +1823,9 @@
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exception</span><span class="p">:</span>
         <span class="n">downloader</span><span class="o">.</span><span class="n">progress_handler</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
-        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="n">exception</span><span class="p">)</span>
+        <span class="n">console</span><span class="o">.</span><span class="n">print_exception</span><span class="p">(</span><span class="n">show_locals</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">extra_lines</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 
     <span class="n">downloader</span><span class="o">.</span><span class="n">progress_handler</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
