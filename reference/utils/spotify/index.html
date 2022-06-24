@@ -1511,9 +1511,7 @@ SpotifyClient will return the same instance.</p>
 
       <details class="quote">
         <summary>Source code in <code>spotdl/utils/spotify.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">35</span>
-<span class="normal">36</span>
-<span class="normal">37</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">37</span>
 <span class="normal">38</span>
 <span class="normal">39</span>
 <span class="normal">40</span>
@@ -1524,7 +1522,9 @@ SpotifyClient will return the same instance.</p>
 <span class="normal">45</span>
 <span class="normal">46</span>
 <span class="normal">47</span>
-<span class="normal">48</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>  <span class="c1"># pylint: disable=bad-mcs-method-argument</span>
+<span class="normal">48</span>
+<span class="normal">49</span>
+<span class="normal">50</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>  <span class="c1"># pylint: disable=bad-mcs-method-argument</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Call method for Singleton metaclass.</span>
 
@@ -1573,9 +1573,7 @@ SpotifyClient will return the same instance.</p>
 
       <details class="quote">
         <summary>Source code in <code>spotdl/utils/spotify.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 50</span>
-<span class="normal"> 51</span>
-<span class="normal"> 52</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 52</span>
 <span class="normal"> 53</span>
 <span class="normal"> 54</span>
 <span class="normal"> 55</span>
@@ -1635,7 +1633,10 @@ SpotifyClient will return the same instance.</p>
 <span class="normal">109</span>
 <span class="normal">110</span>
 <span class="normal">111</span>
-<span class="normal">112</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">init</span><span class="p">(</span>  <span class="c1"># pylint: disable=bad-mcs-method-argument</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">init</span><span class="p">(</span>  <span class="c1"># pylint: disable=bad-mcs-method-argument</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">client_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">client_secret</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -1689,6 +1690,7 @@ SpotifyClient will return the same instance.</p>
         <span class="p">)</span>
 
     <span class="bp">self</span><span class="o">.</span><span class="n">user_auth</span> <span class="o">=</span> <span class="n">user_auth</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">no_cache</span> <span class="o">=</span> <span class="n">no_cache</span>
 
     <span class="c1"># Create instance</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_instance</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__call__</span><span class="p">(</span>
@@ -1739,16 +1741,16 @@ Has to be initialized first by calling
 
           <details class="quote">
             <summary>Source code in <code>spotdl/utils/spotify.py</code></summary>
-            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">124</span>
-<span class="normal">125</span>
-<span class="normal">126</span>
-<span class="normal">127</span>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">127</span>
 <span class="normal">128</span>
 <span class="normal">129</span>
 <span class="normal">130</span>
 <span class="normal">131</span>
 <span class="normal">132</span>
-<span class="normal">133</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Initializes the SpotifyClient.</span>
 

@@ -1820,7 +1820,7 @@
             <span class="n">downloader</span><span class="o">=</span><span class="n">downloader</span><span class="p">,</span>
             <span class="n">m3u_file</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s2">&quot;m3u&quot;</span><span class="p">],</span>
         <span class="p">)</span>
-    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exception</span><span class="p">:</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
         <span class="n">downloader</span><span class="o">.</span><span class="n">progress_handler</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
         <span class="n">console</span><span class="o">.</span><span class="n">print_exception</span><span class="p">(</span><span class="n">show_locals</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">extra_lines</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
