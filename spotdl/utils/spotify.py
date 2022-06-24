@@ -8,7 +8,7 @@ spotify.Spotify.init(client_id, client_secret)
 ```
 """
 
-from typing import Optional
+from typing import Dict, Optional
 
 from spotipy import Spotify
 from spotipy.cache_handler import CacheFileHandler, MemoryCacheHandler
@@ -16,7 +16,7 @@ from spotipy.oauth2 import SpotifyClientCredentials, SpotifyOAuth
 
 from spotdl.utils.config import get_cache_path
 
-cache = {}
+cache: Dict[str, Dict] = {}
 
 
 class SpotifyError(Exception):

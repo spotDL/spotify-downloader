@@ -96,7 +96,7 @@ spotdl download 'The Weeknd - Blinding Lights' https://open.spotify.com/playlist
 
 ## Syncing
 
-Sync function for the console. Keep local files up to date with playlists/albums/etc. 
+Sync function for the console. Keep local files up to date with playlists/albums/etc.
 This will download new songs and remove the ones that are no longer present in the playlists/albums/etc
 
 ??? info "Initialise Synchronisation"
@@ -245,19 +245,15 @@ Main options:
                         save: Saves the songs metadata to a file for further use.
                         web: Starts a web interface to simplify the download process.
                         sync: removes songs that are no longer present, downloads new ones
-  query                 Spotify URL for a song/playlist/album/artist/etc. to download.For manual audio
-                        matching, you can use the format 'YouTubeURL|SpotifyURL'
+  query                 Spotify URL for a song/playlist/album/artist/etc. to download.For manual audio matching, you can use the format 'YouTubeURL|SpotifyURL'
   --audio [{youtube,youtube-music} ...]
                         The audio provider to use. You can provide more than one for fallback.
   --lyrics [{genius,musixmatch,azlyrics} ...]
                         The lyrics provider to use. You can provide more than one for fallback.
-  --config              Use the config file to download songs. It's located under
-                        C:\Users\user\.spotdl\config.json or ~/.spotdl/config.json under linux
+  --config              Use the config file to download songs. It's located under C:\Users\user\.spotdl\config.json or ~/.spotdl/config.json under linux
   --search-query SEARCH_QUERY
-                        The search query to use, available variables: {title}, {artists}, {artist},
-                        {album}, {album-artist}, {genre}, {disc-number}, {disc-count}, {duration},
-                        {year}, {original-date}, {track-number}, {tracks-count}, {isrc}, {track-id},
-                        {publisher}, {list-length}, {list-position}, {list-name}, {output-ext}
+                        The search query to use, available variables: {title}, {artists}, {artist}, {album}, {album-artist}, {genre}, {disc-number}, {disc-count}, {duration}, {year}, {original-
+                        date}, {track-number}, {tracks-count}, {isrc}, {track-id}, {publisher}, {list-length}, {list-position}, {list-name}, {output-ext}
   --dont-filter-results
                         Disable filtering results.
 
@@ -269,7 +265,7 @@ Spotify options:
                         The client secret to use when logging in to Spotify.
   --cache-path CACHE_PATH
                         The path where spotipy cache file will be stored.
-  --no-cache            Disable caching.
+  --no-cache            Disable caching (both requests and token).
   --cookie-file COOKIE_FILE
                         Path to cookies file.
 
@@ -285,21 +281,16 @@ Output options:
   --format {mp3,flac,ogg,opus,m4a}
                         The format to download the song in.
   --save-file SAVE_FILE
-                        The file to save/load the songs data from/to. It has to end with .spotdl. If
-                        combined with the download operation, it will save the songs data to the file.
-                        Required for save/preload/sync
+                        The file to save/load the songs data from/to. It has to end with .spotdl. If combined with the download operation, it will save the songs data to the file. Required for
+                        save/preload/sync
   --preload             Preload the download url to speed up the download process.
-  --output OUTPUT       Specify the downloaded file name format, available variables: {title},
-                        {artists}, {artist}, {album}, {album-artist}, {genre}, {disc-number}, {disc-
-                        count}, {duration}, {year}, {original-date}, {track-number}, {tracks-count},
-                        {isrc}, {track-id}, {publisher}, {list-length}, {list-position}, {list-name},
-                        {output-ext}
+  --output OUTPUT       Specify the downloaded file name format, available variables: {title}, {artists}, {artist}, {album}, {album-artist}, {genre}, {disc-number}, {disc-count}, {duration},
+                        {year}, {original-date}, {track-number}, {tracks-count}, {isrc}, {track-id}, {publisher}, {list-length}, {list-position}, {list-name}, {output-ext}
   --m3u M3U             Name of the m3u file to save the songs to.
-  --overwrite {force,skip}
+  --overwrite {skip,force}
                         Overwrite existing files.
   --restrict            Restrict filenames to ASCII only
-  --print-errors        Print errors (wrong songs, failed downloads etc) on exit, useful for long
-                        playlist
+  --print-errors        Print errors (wrong songs, failed downloads etc) on exit, useful for long playlist
   --sponsor-block       Use the sponsor block to download songs from yt/ytm.
 
 Misc options:

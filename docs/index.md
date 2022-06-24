@@ -1,6 +1,6 @@
 <!--- mdformat-toc start --slug=github --->
 
-<!--- 
+<!---
 !!! IF EDITING THE README, ENSURE TO COPY THE WHOLE FILE TO index.md in `/docs/`
 YOU MUST REMOVE DIV ALIGN TAG.
 --->
@@ -38,7 +38,7 @@ Refer to our [Installation Guide](https://spotdl.rtfd.io/en/latest/installation/
 
 - Python (**Recommended**)
   - _spotDL_ can be installed by running `pip install spotdl`.
-  > Change `pip` to `pip3` on *UNIX based systems.
+  > On some systems you might have to change `pip` to `pip3`.
 
 ### Other options
 
@@ -64,7 +64,7 @@ Refer to our [Installation Guide](https://spotdl.rtfd.io/en/latest/installation/
 
 ### Installing FFmpeg
 
-If using FFmpeg only for spotDL, you can install FFmpeg to your local directory.  
+If using FFmpeg only for spotDL, you can install FFmpeg to your local directory.
 `spotdl --download-ffmpeg` will download FFmpeg to your spotDL installation directory.
 
 We reccomend the above option, but if you want to install FFmpeg system-wide,
