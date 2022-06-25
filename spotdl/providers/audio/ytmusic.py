@@ -291,7 +291,9 @@ class YouTubeMusic(AudioProvider):
             if (
                 result["type"] == "song"
                 and slug_result_album
-                and fuzz.partial_ratio(slug_album_name, slug_result_name) > 95
+                and fuzz.partial_ratio(
+                    slug_album_name, slug_result_name, score_cutoff=95
+                )
                 and slug_result_album == slug_album_name
             ):
                 # If the result album name is similar to the song album name

@@ -65,42 +65,6 @@ Update spotdl to the latest version which contains workaround.
 
 `pip install -U spotdl`
 
-## Failed to install `RapidFuzz` on termux
-
-<https://github.com/spotDL/spotify-downloader/issues/1485>
-<https://github.com/maxbachmann/RapidFuzz/issues/195>
-
-### Error Message
-
-```
-ld.lld: error: unable to find library -lgcc
-clang-13: error: linker command failed with exit code 1 (use -v to see invocation)
-ninja: build stopped: subcommand failed.
-```
-
-or
-
-```
-ERROR: Could not build wheels for cmake, ninja, which is required to install pyproject.toml-based projects
-```
-
-### Solution
-
-```bash
-# Setup its-pointless repo
-curl -LO https://its-pointless.github.io/setup-pointless-repo.sh
-bash setup-pointless-repo.sh
-
-# Install numpy
-pkg install numpy
-
-# install rapidfuzz (v1.9.1 for now)
-pip install rapidfuzz==1.9.1
-
-# Install spotdl
-pip install spotdl
-```
-
 ## ssl.SSLError: \[SSL: CERTIFICATE_VERIFY_FAILED\]
 
 <https://stackoverflow.com/questions/27835619/urllib-and-ssl-certificate-verify-failed-error>
