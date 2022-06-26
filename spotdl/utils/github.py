@@ -3,6 +3,7 @@ Module for getting information about the current version of spotdl
 from GitHub, downloading the latest version, and checking for updates.
 """
 
+import logging
 from typing import Tuple
 
 import re
@@ -161,6 +162,12 @@ def download_github_dir(
     dir_out = output_dir
 
     response = requests.get(api_url).json()
+
+    if "rate limit" in response["message"]:
+        logging.error(
+            "You have been rate limited by Github API attempting to update web client. Proceeding with cached web client. Please try again later."
+        )
+        return
 
     if not flatten:
         # make a directory with the name which is taken from
