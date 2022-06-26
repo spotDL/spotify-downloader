@@ -29,6 +29,9 @@ from spotdl.utils.search import parse_query
 from spotdl.utils.search import get_search_results
 from spotdl.utils.config import get_spotdl_path
 
+import mimetypes
+
+
 ALLOWED_ORIGINS = [
     "http://localhost:8800",
     "https://127.0.0.1:8800",
@@ -188,6 +191,28 @@ class WSProgressHandler:
             "message": message,
         }
         asyncio.run(self.send_update(json.dumps(update_message)))
+
+
+def fix_mime_types():
+    """Fix incorrect entries in the `mimetypes` registry.
+    On Windows, the Python standard library's `mimetypes` reads in
+    mappings from file extension to MIME type from the Windows
+    registry. Other applications can and do write incorrect values
+    to this registry, which causes `mimetypes.guess_type` to return
+    incorrect values, which causes spotDL to fail to render on
+    the frontend.
+    This method hard-codes the correct mappings for certain MIME
+    types that are known to be either used by TensorBoard or
+    problematic in general.
+    """
+    # Known to be problematic when Visual Studio is installed:
+    # <https://github.com/tensorflow/tensorboard/issues/3120>
+    # https://github.com/spotDL/spotify-downloader/issues/1540
+    mimetypes.add_type("application/javascript", ".js")
+    # Not known to be problematic, but used by spotDL:
+    mimetypes.add_type("text/css", ".css")
+    mimetypes.add_type("image/svg+xml", ".svg")
+    mimetypes.add_type("text/html", ".html")
 
 
 @app.server.websocket("/api/ws")
@@ -530,6 +555,8 @@ def web(settings: Dict[str, Any]):
     ### Arguments
     - settings: Settings dictionary, based on the `SettingsModel` class.
     """
+
+    fix_mime_types()
 
     web_app_dir = str(get_spotdl_path().absolute())
 
