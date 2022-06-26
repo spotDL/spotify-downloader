@@ -212,10 +212,12 @@ class YouTubeMusic(AudioProvider):
 
             artist_match_number = 0
             for artist in song.artists:
+                # print("artist no replace", slugify(artist))
+                # print("result name no rpl", (slug_result_name if result["type"] != "song" else slug_result_artists))
                 artist_match_number += (
                     1
                     if slugify(artist).replace("-", "")
-                    in slug_result_name.replace("-", "")
+                    in (slug_result_name if result["type"] != "song" else slug_result_artists).replace("-", "")
                     else 0
                 )
 
