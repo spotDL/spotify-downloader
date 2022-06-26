@@ -163,7 +163,7 @@ def download_github_dir(
 
     response = requests.get(api_url).json()
 
-    if "message" in response.keys() and "rate limit" in response["message"]:
+    if type(response) is dict and "message" in response.keys() and "rate limit" in response["message"]:
         logging.error(
             "You have been rate limited by Github API attempting to update web client. Proceeding with cached web client. Please try again later. See https://docs.github.com/en/rest/overview/resources-in-the-rest-api#rate-limiting"
         )
