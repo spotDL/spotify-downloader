@@ -11,6 +11,9 @@ import webbrowser
 from typing import Any, Dict, List, Optional, Tuple, Union
 from pathlib import Path
 
+import mimetypes
+
+
 from fastapi import FastAPI, Response, WebSocket, WebSocketDisconnect, HTTPException
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
@@ -28,8 +31,6 @@ from spotdl.utils.github import download_github_dir
 from spotdl.utils.search import parse_query
 from spotdl.utils.search import get_search_results
 from spotdl.utils.config import get_spotdl_path
-
-import mimetypes
 
 
 ALLOWED_ORIGINS = [

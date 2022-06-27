@@ -155,7 +155,9 @@ def entry_point():
         if argument_val is not None and config_val == default_value:
             settings[key] = argument_val
         elif (
-            argument_val is None and config_val != default_value and config_val != None
+            argument_val is None
+            and config_val != default_value
+            and config_val is not None
         ):
             settings[key] = config_val
         else:
