@@ -229,7 +229,7 @@ All changes will now affect the venv installation of the spotdl cli.
   To install type-stubs the first time around
 
   ```bash
-  mypy --install-types --non-interactive
+  mypy --ignore-missing-imports --follow-imports silent --install-types --non-interactive ./spotdl
   ```
 
   ```bash
