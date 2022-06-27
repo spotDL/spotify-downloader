@@ -218,10 +218,11 @@ class YouTubeMusic(AudioProvider):
                 #     (slug_result_name if result["type"] != "song" else slug_result_artists))
                 artist_match_number += (
                     1
-                    if slugify(artist).replace("-", "")
-                    in (
-                        slug_result_name if result["type"] != "song" else
-                        slug_result_artists).replace("-", "")
+                    if slugify(artist)
+                    in [
+                        slug_result_name,
+                        slug_result_artists,
+                    ]
                     else 0
                 )
 
