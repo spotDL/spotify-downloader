@@ -1324,9 +1324,7 @@
 
       <details class="quote">
         <summary>Source code in <code>spotdl/console/entry_point.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">271</span>
-<span class="normal">272</span>
-<span class="normal">273</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">273</span>
 <span class="normal">274</span>
 <span class="normal">275</span>
 <span class="normal">276</span>
@@ -1339,7 +1337,9 @@
 <span class="normal">283</span>
 <span class="normal">284</span>
 <span class="normal">285</span>
-<span class="normal">286</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">console_entry_point</span><span class="p">():</span>
+<span class="normal">286</span>
+<span class="normal">287</span>
+<span class="normal">288</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">console_entry_point</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Wrapper around `entry_point` so we can profile the code</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1603,7 +1603,9 @@
 <span class="normal">265</span>
 <span class="normal">266</span>
 <span class="normal">267</span>
-<span class="normal">268</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">entry_point</span><span class="p">():</span>
+<span class="normal">268</span>
+<span class="normal">269</span>
+<span class="normal">270</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">entry_point</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Console entry point for spotdl. This is where the magic happens.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1612,7 +1614,7 @@
     <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;requests&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span><span class="p">)</span>
     <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;urllib3&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span><span class="p">)</span>
     <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;spotipy&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">NOTSET</span><span class="p">)</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;asyncio&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span><span class="p">)</span>
+    <span class="c1"># logging.getLogger(&quot;asyncio&quot;).setLevel(logging.WARNING)</span>
 
     <span class="c1"># Create a console</span>
     <span class="n">console</span> <span class="o">=</span> <span class="n">Console</span><span class="p">()</span>
@@ -1712,16 +1714,18 @@
     <span class="c1"># the default setting, it will be ignored</span>
     <span class="c1"># and argument value will be used</span>
     <span class="n">settings</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">DEFAULT_CONFIG</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-        <span class="n">argument_key_val</span> <span class="o">=</span> <span class="n">arguments</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
-        <span class="n">config_key_val</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">default_value</span> <span class="ow">in</span> <span class="n">DEFAULT_CONFIG</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">argument_val</span> <span class="o">=</span> <span class="n">arguments</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="n">config_val</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">argument_key_val</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">config_key_val</span> <span class="o">==</span> <span class="n">value</span><span class="p">:</span>
-            <span class="n">settings</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">argument_key_val</span>
-        <span class="k">elif</span> <span class="n">argument_key_val</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">config_key_val</span> <span class="o">!=</span> <span class="n">value</span><span class="p">:</span>
-            <span class="n">settings</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">config_key_val</span>
+        <span class="k">if</span> <span class="n">argument_val</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">config_val</span> <span class="o">==</span> <span class="n">default_value</span><span class="p">:</span>
+            <span class="n">settings</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">argument_val</span>
+        <span class="k">elif</span> <span class="p">(</span>
+            <span class="n">argument_val</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">config_val</span> <span class="o">!=</span> <span class="n">default_value</span> <span class="ow">and</span> <span class="n">config_val</span> <span class="o">!=</span> <span class="kc">None</span>
+        <span class="p">):</span>
+            <span class="n">settings</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">config_val</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">settings</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="n">settings</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">default_value</span>
 
     <span class="c1"># Check if ffmpeg is installed</span>
     <span class="k">if</span> <span class="n">is_ffmpeg_installed</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="s2">&quot;ffmpeg&quot;</span><span class="p">])</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
