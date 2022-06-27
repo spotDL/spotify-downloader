@@ -110,7 +110,7 @@ docker create \
 ### Termux
 
 We have a dedicated Termux installation script
-`curl -L https://raw.githubusercontent.com/spotDL/spotify-downloader/master/termux/setup_spotdl.sh | sh`
+`curl -L https://raw.githubusercontent.com/spotDL/spotify-downloader/master/scripts/termux.sh | sh`
 
 ### Arch User Repository (AUR) package
 
