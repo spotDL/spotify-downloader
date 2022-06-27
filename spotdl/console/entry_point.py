@@ -48,7 +48,7 @@ def entry_point():
     logging.getLogger("requests").setLevel(logging.WARNING)
     logging.getLogger("urllib3").setLevel(logging.WARNING)
     logging.getLogger("spotipy").setLevel(logging.NOTSET)
-    logging.getLogger("asyncio").setLevel(logging.WARNING)
+    # logging.getLogger("asyncio").setLevel(logging.WARNING)
 
     # Create a console
     console = Console()
@@ -148,16 +148,18 @@ def entry_point():
     # the default setting, it will be ignored
     # and argument value will be used
     settings = {}
-    for key, value in DEFAULT_CONFIG.items():
-        argument_key_val = arguments.__dict__.get(key)
-        config_key_val = config.get(key)
+    for key, default_value in DEFAULT_CONFIG.items():
+        argument_val = arguments.__dict__.get(key)
+        config_val = config.get(key)
 
-        if argument_key_val is not None and config_key_val == value:
-            settings[key] = argument_key_val
-        elif argument_key_val is None and config_key_val != value:
-            settings[key] = config_key_val
+        if argument_val is not None and config_val == default_value:
+            settings[key] = argument_val
+        elif (
+            argument_val is None and config_val != default_value and config_val != None
+        ):
+            settings[key] = config_val
         else:
-            settings[key] = value
+            settings[key] = default_value
 
     # Check if ffmpeg is installed
     if is_ffmpeg_installed(settings["ffmpeg"]) is False:

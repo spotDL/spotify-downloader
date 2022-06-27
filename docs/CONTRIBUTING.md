@@ -182,6 +182,34 @@ Enhancement suggestions are tracked as
 
 <!-- You might want to create an issue template for enhancement suggestions that can be used as a guide and that defines the structure of the information to be included. If you do so, reference it here in the description. -->
 
+### Developing
+
+Fork the repository on Github and then clone it.
+
+```bash
+git clone [your username]/spotify-downloader
+cd spotify-downloader
+```
+
+(Optional) Create a virtual environment
+
+```bash
+python3 -m venv .venv
+```
+
+Activate the virtual environment.
+ - Linux: `source .venv/bin/activate`
+ - Windows: `.venv\Scripts\activate`
+
+> See [Python's official venv docs](https://docs.python.org/3/library/venv.html) for advanced virtual environment setup.
+
+Then, to install spotDL in-place and editable, run the following
+```
+pip install -e .
+```
+
+All changes will now affect the venv installation of the spotdl cli.
+
 ### Linting, Formatting and Type-checking
 
 - We use [`pylint`](https://pypi.org/project/pylint/) for linting and expect a score above `9`

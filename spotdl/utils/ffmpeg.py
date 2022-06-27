@@ -162,10 +162,6 @@ def get_ffmpeg_version(ffmpeg: str = "ffmpeg") -> Tuple[Optional[float], Optiona
         # get the highest build year
         build_year = max(build_years)
 
-    # No version and year was found, raise error
-    if version is None and build_year is None:
-        raise FFmpegError("Could not get ffmpeg version.")
-
     return (version, build_year)
 
 
