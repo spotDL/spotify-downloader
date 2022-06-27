@@ -21,21 +21,21 @@ class YTDLLogger:
     Custom YT-dlp logger.
     """
 
-    def debug(self, msg):  # pylint: disable=R0201
+    def debug(self, msg):
         """
         YTDL uses this to print debug messages.
         """
 
         pass  # pylint: disable=W0107
 
-    def warning(self, msg):  # pylint: disable=R0201
+    def warning(self, msg):
         """
         YTDL uses this to print warnings.
         """
 
         pass  # pylint: disable=W0107
 
-    def error(self, msg):  # pylint: disable=R0201
+    def error(self, msg):
         """
         YTDL uses this to print errors.
         """
