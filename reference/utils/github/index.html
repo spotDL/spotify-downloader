@@ -1808,7 +1808,13 @@ from GitHub, downloading the latest version, and checking for updates.</p>
 <span class="normal">194</span>
 <span class="normal">195</span>
 <span class="normal">196</span>
-<span class="normal">197</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">download_github_dir</span><span class="p">(</span>
+<span class="normal">197</span>
+<span class="normal">198</span>
+<span class="normal">199</span>
+<span class="normal">200</span>
+<span class="normal">201</span>
+<span class="normal">202</span>
+<span class="normal">203</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">download_github_dir</span><span class="p">(</span>
     <span class="n">repo_url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">WEB_APP_URL</span><span class="p">,</span> <span class="n">flatten</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;./&quot;</span>
 <span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -1830,9 +1836,15 @@ from GitHub, downloading the latest version, and checking for updates.</p>
 
     <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">api_url</span><span class="p">)</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
 
-    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">response</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">dict</span> <span class="ow">and</span> <span class="s2">&quot;message&quot;</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="ow">and</span> <span class="s2">&quot;rate limit&quot;</span> <span class="ow">in</span> <span class="n">response</span><span class="p">[</span><span class="s2">&quot;message&quot;</span><span class="p">]:</span>
+    <span class="k">if</span> <span class="p">(</span>
+        <span class="nb">type</span><span class="p">(</span><span class="n">response</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">dict</span>
+        <span class="ow">and</span> <span class="s2">&quot;message&quot;</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+        <span class="ow">and</span> <span class="s2">&quot;rate limit&quot;</span> <span class="ow">in</span> <span class="n">response</span><span class="p">[</span><span class="s2">&quot;message&quot;</span><span class="p">]</span>
+    <span class="p">):</span>
         <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-            <span class="s2">&quot;You have been rate limited by Github API attempting to update web client. Proceeding with cached web client. Please try again later. See https://docs.github.com/en/rest/overview/resources-in-the-rest-api#rate-limiting&quot;</span>
+            <span class="sd">&quot;&quot;&quot;You have been rate limited by Github API attempting to update web client.</span>
+<span class="sd">Proceeding with cached web client. Please try again later.</span>
+<span class="sd">See https://docs.github.com/en/rest/overview/resources-in-the-rest-api#rate-limiting&quot;&quot;&quot;</span>
         <span class="p">)</span>
         <span class="k">return</span>
 

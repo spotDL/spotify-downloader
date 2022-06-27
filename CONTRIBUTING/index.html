@@ -1784,7 +1784,7 @@ related suggestions.</p>
 <li>We use <a href="https://pypi.org/project/mypy/"><code>mypy</code></a> for type-checking and expect no errors at all</li>
 </ul>
 <p>To install type-stubs the first time around</p>
-<div class="language-bash highlight"><pre><span></span><code>mypy --install-types --non-interactive
+<div class="language-bash highlight"><pre><span></span><code>mypy --ignore-missing-imports --follow-imports silent --install-types --non-interactive ./spotdl
 </code></pre></div>
 <div class="language-bash highlight"><pre><span></span><code>mypy ./spotdl
 </code></pre></div>

@@ -1821,14 +1821,7 @@
 <span class="normal">306</span>
 <span class="normal">307</span>
 <span class="normal">308</span>
-<span class="normal">309</span>
-<span class="normal">310</span>
-<span class="normal">311</span>
-<span class="normal">312</span>
-<span class="normal">313</span>
-<span class="normal">314</span>
-<span class="normal">315</span>
-<span class="normal">316</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">order_results</span><span class="p">(</span>
+<span class="normal">309</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">order_results</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span> <span class="n">results</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]],</span> <span class="n">song</span><span class="p">:</span> <span class="n">Song</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -1887,19 +1880,12 @@
 
         <span class="n">artist_match_number</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="k">for</span> <span class="n">artist</span> <span class="ow">in</span> <span class="n">song</span><span class="o">.</span><span class="n">artists</span><span class="p">:</span>
-            <span class="c1"># print(&quot;artist no replace&quot;, slugify(artist))</span>
-            <span class="c1"># print(</span>
-            <span class="c1">#     &quot;result name no rpl&quot;,</span>
-            <span class="c1">#     (slug_result_name if result[&quot;type&quot;] != &quot;song&quot; else slug_result_artists))</span>
-            <span class="n">artist_match_number</span> <span class="o">+=</span> <span class="p">(</span>
-                <span class="mi">1</span>
-                <span class="k">if</span> <span class="n">slugify</span><span class="p">(</span><span class="n">artist</span><span class="p">)</span>
-                <span class="ow">in</span> <span class="p">[</span>
-                    <span class="n">slug_result_name</span><span class="p">,</span>
-                    <span class="n">slug_result_artists</span><span class="p">,</span>
-                <span class="p">]</span>
-                <span class="k">else</span> <span class="mi">0</span>
-            <span class="p">)</span>
+            <span class="c1"># print(&quot;song.artist&quot;, artist)</span>
+            <span class="c1"># print(&quot;slugify artist&quot;, slugify(artist))</span>
+            <span class="k">for</span> <span class="n">slugified_result</span> <span class="ow">in</span> <span class="p">[</span><span class="n">slug_result_name</span><span class="p">,</span> <span class="n">slug_result_artists</span><span class="p">]:</span>
+                <span class="n">artist_match_number</span> <span class="o">+=</span> <span class="p">(</span>
+                    <span class="mi">1</span> <span class="k">if</span> <span class="n">slugify</span><span class="p">(</span><span class="n">artist</span><span class="p">)</span> <span class="ow">in</span> <span class="n">slugified_result</span> <span class="k">else</span> <span class="mi">0</span>
+                <span class="p">)</span>
 
         <span class="n">artist_match</span> <span class="o">=</span> <span class="n">artist_match_number</span> <span class="o">*</span> <span class="mi">100</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">song</span><span class="o">.</span><span class="n">artists</span><span class="p">)</span>
         <span class="c1"># print(&quot;first artist_match: &quot;, artist_match)</span>

@@ -1324,9 +1324,7 @@
 
       <details class="quote">
         <summary>Source code in <code>spotdl/console/entry_point.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">273</span>
-<span class="normal">274</span>
-<span class="normal">275</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">275</span>
 <span class="normal">276</span>
 <span class="normal">277</span>
 <span class="normal">278</span>
@@ -1339,7 +1337,9 @@
 <span class="normal">285</span>
 <span class="normal">286</span>
 <span class="normal">287</span>
-<span class="normal">288</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">console_entry_point</span><span class="p">():</span>
+<span class="normal">288</span>
+<span class="normal">289</span>
+<span class="normal">290</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">console_entry_point</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Wrapper around `entry_point` so we can profile the code</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1605,7 +1605,9 @@
 <span class="normal">267</span>
 <span class="normal">268</span>
 <span class="normal">269</span>
-<span class="normal">270</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">entry_point</span><span class="p">():</span>
+<span class="normal">270</span>
+<span class="normal">271</span>
+<span class="normal">272</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">entry_point</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Console entry point for spotdl. This is where the magic happens.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1721,7 +1723,9 @@
         <span class="k">if</span> <span class="n">argument_val</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">config_val</span> <span class="o">==</span> <span class="n">default_value</span><span class="p">:</span>
             <span class="n">settings</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">argument_val</span>
         <span class="k">elif</span> <span class="p">(</span>
-            <span class="n">argument_val</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">config_val</span> <span class="o">!=</span> <span class="n">default_value</span> <span class="ow">and</span> <span class="n">config_val</span> <span class="o">!=</span> <span class="kc">None</span>
+            <span class="n">argument_val</span> <span class="ow">is</span> <span class="kc">None</span>
+            <span class="ow">and</span> <span class="n">config_val</span> <span class="o">!=</span> <span class="n">default_value</span>
+            <span class="ow">and</span> <span class="n">config_val</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
         <span class="p">):</span>
             <span class="n">settings</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">config_val</span>
         <span class="k">else</span><span class="p">:</span>
