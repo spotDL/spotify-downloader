@@ -311,7 +311,6 @@ def parse_output_options(parser: _ArgumentGroup):
     # Add preload argument
     parser.add_argument(
         "--preload",
-        action="store_true",
         help="Preload the download url to speed up the download process.",
     )
 
