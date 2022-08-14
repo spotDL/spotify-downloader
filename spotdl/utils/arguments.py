@@ -12,7 +12,6 @@ from typing import List
 from spotdl import _version
 from spotdl.download.progress_handler import NAME_TO_LEVEL
 from spotdl.utils.ffmpeg import FFMPEG_FORMATS
-from spotdl.utils.config import DEFAULT_CONFIG
 from spotdl.utils.formatter import VARS
 from spotdl.download.downloader import (
     AUDIO_PROVIDERS,
@@ -145,7 +144,6 @@ def parse_main_options(parser: _ArgumentGroup):
         dest="audio_providers",
         nargs="*",
         choices=AUDIO_PROVIDERS,
-        default=DEFAULT_CONFIG["audio_providers"],
         help="The audio provider to use. You can provide more than one for fallback.",
     )
 
@@ -155,7 +153,6 @@ def parse_main_options(parser: _ArgumentGroup):
         dest="lyrics_providers",
         nargs="*",
         choices=LYRICS_PROVIDERS.keys(),
-        default=DEFAULT_CONFIG["lyrics_providers"],
         help="The lyrics provider to use. You can provide more than one for fallback.",
     )
 
@@ -173,16 +170,13 @@ def parse_main_options(parser: _ArgumentGroup):
     # Add search query argument
     parser.add_argument(
         "--search-query",
-        default=DEFAULT_CONFIG["search_query"],
         help=f"The search query to use, available variables: {', '.join(VARS)}",
     )
 
     # Add don't filter results argument
     parser.add_argument(
         "--dont-filter-results",
-        action="store_false",
         dest="filter_results",
-        default=DEFAULT_CONFIG["filter_results"],
         help="Disable filtering results.",
     )
 
@@ -198,22 +192,18 @@ def parse_spotify_options(parser: _ArgumentGroup):
     # Add login argument
     parser.add_argument(
         "--user-auth",
-        action="store_true",
-        default=DEFAULT_CONFIG["user_auth"],
         help="Login to Spotify using OAuth.",
     )
 
     # Add client id argument
     parser.add_argument(
         "--client-id",
-        default=DEFAULT_CONFIG["client_id"],
         help="The client id to use when logging in to Spotify.",
     )
 
     # Add client secret argument
     parser.add_argument(
         "--client-secret",
-        default=DEFAULT_CONFIG["client_secret"],
         help="The client secret to use when logging in to Spotify.",
     )
 
@@ -221,22 +211,18 @@ def parse_spotify_options(parser: _ArgumentGroup):
     parser.add_argument(
         "--cache-path",
         type=str,
-        default=DEFAULT_CONFIG["cache_path"],
         help="The path where spotipy cache file will be stored.",
     )
 
     # Add no cache argument
     parser.add_argument(
         "--no-cache",
-        action="store_true",
-        default=DEFAULT_CONFIG["no_cache"],
         help="Disable caching (both requests and token).",
     )
 
     # Add cookie file argument
     parser.add_argument(
         "--cookie-file",
-        default=DEFAULT_CONFIG["cookie_file"],
         help="Path to cookies file.",
     )
 
@@ -252,14 +238,12 @@ def parse_ffmpeg_options(parser: _ArgumentGroup):
     # Add ffmpeg executable argument
     parser.add_argument(
         "--ffmpeg",
-        default=DEFAULT_CONFIG["ffmpeg"],
         help="The ffmpeg executable to use.",
     )
 
     # Add search threads argument
     parser.add_argument(
         "--threads",
-        default=DEFAULT_CONFIG["threads"],
         type=int,
         help="The number of threads to use when downloading songs.",
     )
@@ -284,7 +268,6 @@ def parse_ffmpeg_options(parser: _ArgumentGroup):
             "256k",
             "320k",
         ],
-        default=DEFAULT_CONFIG["bitrate"],
         type=str.lower,
         help="The constant bitrate to use for the output file.",
     )
@@ -293,7 +276,6 @@ def parse_ffmpeg_options(parser: _ArgumentGroup):
     parser.add_argument(
         "--ffmpeg-args",
         type=str,
-        default=DEFAULT_CONFIG["ffmpeg_args"],
         help="Additional ffmpeg arguments passed as a string.",
     )
 
@@ -310,7 +292,6 @@ def parse_output_options(parser: _ArgumentGroup):
     parser.add_argument(
         "--format",
         choices=FFMPEG_FORMATS.keys(),
-        default=DEFAULT_CONFIG["format"],
         help="The format to download the song in.",
     )
 
@@ -318,7 +299,6 @@ def parse_output_options(parser: _ArgumentGroup):
     parser.add_argument(
         "--save-file",
         type=str,
-        default=DEFAULT_CONFIG["save_file"],
         help=(
             "The file to save/load the songs data from/to. "
             "It has to end with .spotdl. "
@@ -332,7 +312,6 @@ def parse_output_options(parser: _ArgumentGroup):
     parser.add_argument(
         "--preload",
         action="store_true",
-        default=DEFAULT_CONFIG["preload"],
         help="Preload the download url to speed up the download process.",
     )
 
@@ -340,7 +319,6 @@ def parse_output_options(parser: _ArgumentGroup):
     parser.add_argument(
         "--output",
         type=str,
-        default=DEFAULT_CONFIG["output"],
         help=f"Specify the downloaded file name format, available variables: {', '.join(VARS)}",
     )
 
@@ -348,7 +326,6 @@ def parse_output_options(parser: _ArgumentGroup):
     parser.add_argument(
         "--m3u",
         type=str,
-        default=DEFAULT_CONFIG["m3u"],
         help="Name of the m3u file to save the songs to.",
     )
 
@@ -356,32 +333,25 @@ def parse_output_options(parser: _ArgumentGroup):
     parser.add_argument(
         "--overwrite",
         choices={"force", "skip"},
-        default=DEFAULT_CONFIG["overwrite"],
         help="Overwrite existing files.",
     )
 
     # Option to restrict filenames for easier handling in the shell
     parser.add_argument(
         "--restrict",
-        default=DEFAULT_CONFIG["restrict"],
         help="Restrict filenames to ASCII only",
-        action="store_true",
     )
 
     # Option to print errors on exit, useful for long playlist
     parser.add_argument(
         "--print-errors",
-        default=DEFAULT_CONFIG["print_errors"],
         help="Print errors (wrong songs, failed downloads etc) on exit, useful for long playlist",
-        action="store_true",
     )
 
     # Option to use sponsor block
     parser.add_argument(
         "--sponsor-block",
-        default=DEFAULT_CONFIG["sponsor_block"],
         help="Use the sponsor block to download songs from yt/ytm.",
-        action="store_true",
     )
 
 
@@ -403,16 +373,12 @@ def parse_misc_options(parser: _ArgumentGroup):
     # Add simple tui argument
     parser.add_argument(
         "--simple-tui",
-        action="store_true",
-        default=DEFAULT_CONFIG["simple_tui"],
         help="Use a simple tui.",
     )
 
     # Add headless argument
     parser.add_argument(
         "--headless",
-        action="store_true",
-        default=DEFAULT_CONFIG["headless"],
         help="Run in headless mode.",
     )
 
