@@ -70,7 +70,7 @@ Refer to our [Installation Guide](https://spotdl.rtfd.io/en/latest/installation/
 If using FFmpeg only for spotDL, you can install FFmpeg to your local directory.  
 `spotdl --download-ffmpeg` will download FFmpeg to your spotDL installation directory.
 
-We reccomend the above option, but if you want to install FFmpeg system-wide,
+We recommend the above option, but if you want to install FFmpeg system-wide,
 
 - [Windows Tutorial](https://windowsloop.com/install-ffmpeg-windows-10/)
 - OSX - `brew install ffmpeg`
