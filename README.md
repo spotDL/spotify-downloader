@@ -46,7 +46,7 @@ Refer to our [Installation Guide](https://spotdl.rtfd.io/en/latest/installation/
 ### Other options
 
 - Prebuilt Executable
-  - You can download the latest version from from the [Releases Tab](https://github.com/spotDL/spotify-downloader/releases)
+  - You can download the latest version from the [Releases Tab](https://github.com/spotDL/spotify-downloader/releases)
 - On Termux
   - `curl -L https://raw.githubusercontent.com/spotDL/spotify-downloader/master/scripts/termux.sh | sh`
 - Arch
