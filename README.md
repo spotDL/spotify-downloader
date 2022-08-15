@@ -46,7 +46,7 @@ Refer to our [Installation Guide](https://spotdl.rtfd.io/en/latest/installation/
 ### Other options
 
 - Prebuilt Executable
-  - You can download the latest version from from the [Releases Tab](https://github.com/spotDL/spotify-downloader/releases)
+  - You can download the latest version from the [Releases Tab](https://github.com/spotDL/spotify-downloader/releases)
 - On Termux
   - `curl -L https://raw.githubusercontent.com/spotDL/spotify-downloader/master/scripts/termux.sh | sh`
 - Arch
@@ -70,7 +70,7 @@ Refer to our [Installation Guide](https://spotdl.rtfd.io/en/latest/installation/
 If using FFmpeg only for spotDL, you can install FFmpeg to your local directory.  
 `spotdl --download-ffmpeg` will download FFmpeg to your spotDL installation directory.
 
-We reccomend the above option, but if you want to install FFmpeg system-wide,
+We recommend the above option, but if you want to install FFmpeg system-wide,
 
 - [Windows Tutorial](https://windowsloop.com/install-ffmpeg-windows-10/)
 - OSX - `brew install ffmpeg`
