@@ -183,6 +183,7 @@ def entry_point():
     SpotifyClient.init(
         client_id=settings["client_id"],
         client_secret=settings["client_secret"],
+        auth_token=settings["auth_token"],
         user_auth=settings["user_auth"],
         cache_path=settings["cache_path"],
         no_cache=settings["no_cache"],
