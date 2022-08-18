@@ -217,6 +217,8 @@ def parse_spotify_options(parser: _ArgumentGroup):
     # Add no cache argument
     parser.add_argument(
         "--no-cache",
+        action="store_const",
+        const=True,
         help="Disable caching (both requests and token).",
     )
 
@@ -311,6 +313,8 @@ def parse_output_options(parser: _ArgumentGroup):
     # Add preload argument
     parser.add_argument(
         "--preload",
+        action="store_const",
+        const=True,
         help="Preload the download url to speed up the download process.",
     )
 
@@ -338,18 +342,24 @@ def parse_output_options(parser: _ArgumentGroup):
     # Option to restrict filenames for easier handling in the shell
     parser.add_argument(
         "--restrict",
+        action="store_const",
+        const=True,
         help="Restrict filenames to ASCII only",
     )
 
     # Option to print errors on exit, useful for long playlist
     parser.add_argument(
         "--print-errors",
+        action="store_const",
+        const=True,
         help="Print errors (wrong songs, failed downloads etc) on exit, useful for long playlist",
     )
 
     # Option to use sponsor block
     parser.add_argument(
         "--sponsor-block",
+        action="store_const",
+        const=True,
         help="Use the sponsor block to download songs from yt/ytm.",
     )
 
@@ -372,12 +382,16 @@ def parse_misc_options(parser: _ArgumentGroup):
     # Add simple tui argument
     parser.add_argument(
         "--simple-tui",
+        action="store_const",
+        const=True,
         help="Use a simple tui.",
     )
 
     # Add headless argument
     parser.add_argument(
         "--headless",
+        action="store_const",
+        const=True,
         help="Run in headless mode.",
     )
 
