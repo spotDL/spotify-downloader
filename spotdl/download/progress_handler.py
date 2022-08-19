@@ -463,7 +463,7 @@ class SongTracker:
         self.parent.debug(message)
         self.parent.error(f"{traceback.__class__.__name__}: {traceback}")
 
-    def notify_download_complete(self, status="Embeding metadata") -> None:
+    def notify_download_complete(self, status="Embedding metadata") -> None:
         """
         Notifies the progress handler that the song has been downloaded.
 
