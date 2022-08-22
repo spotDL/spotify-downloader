@@ -216,6 +216,7 @@ If you don't want config to load automatically change `load_config` option in co
     "overwrite": "skip",
     "client_id": "5f573c9620494bae87890c0f08a60293",
     "client_secret": "212476d9b0f3472eaa762d90b19b0ba8",
+    "auth_token": null,
     "user_auth": false,
     "search_query": null,
     "filter_results": true,
@@ -263,6 +264,8 @@ Spotify options:
                         The client id to use when logging in to Spotify.
   --client-secret CLIENT_SECRET
                         The client secret to use when logging in to Spotify.
+  --auth-token AUTH_TOKEN
+                        The authorisation token to use directly to log in to Spotify.
   --cache-path CACHE_PATH
                         The path where spotipy cache file will be stored.
   --no-cache            Disable caching (both requests and token).

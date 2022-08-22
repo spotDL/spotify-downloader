@@ -39,6 +39,7 @@ class FakeProcess:
 def new_initialize(
     client_id,
     client_secret,
+    auth_token=None,
     user_auth=False,
     cache_path=None,
     no_cache=True,
@@ -51,6 +52,7 @@ def new_initialize(
         return ORIGINAL_INITIALIZE(
             client_id=client_id,
             client_secret=client_secret,
+            auth_token=auth_token,
             user_auth=user_auth,
             cache_path=cache_path,
             no_cache=True,
