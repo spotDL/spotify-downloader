@@ -1324,8 +1324,7 @@
 
       <details class="quote">
         <summary>Source code in <code>spotdl/console/entry_point.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">270</span>
-<span class="normal">271</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">271</span>
 <span class="normal">272</span>
 <span class="normal">273</span>
 <span class="normal">274</span>
@@ -1339,7 +1338,8 @@
 <span class="normal">282</span>
 <span class="normal">283</span>
 <span class="normal">284</span>
-<span class="normal">285</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">console_entry_point</span><span class="p">():</span>
+<span class="normal">285</span>
+<span class="normal">286</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">console_entry_point</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Wrapper around `entry_point` so we can profile the code</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1602,7 +1602,8 @@
 <span class="normal">264</span>
 <span class="normal">265</span>
 <span class="normal">266</span>
-<span class="normal">267</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">entry_point</span><span class="p">():</span>
+<span class="normal">267</span>
+<span class="normal">268</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">entry_point</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Console entry point for spotdl. This is where the magic happens.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1741,6 +1742,7 @@
     <span class="n">SpotifyClient</span><span class="o">.</span><span class="n">init</span><span class="p">(</span>
         <span class="n">client_id</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s2">&quot;client_id&quot;</span><span class="p">],</span>
         <span class="n">client_secret</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s2">&quot;client_secret&quot;</span><span class="p">],</span>
+        <span class="n">auth_token</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s2">&quot;auth_token&quot;</span><span class="p">],</span>
         <span class="n">user_auth</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s2">&quot;user_auth&quot;</span><span class="p">],</span>
         <span class="n">cache_path</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s2">&quot;cache_path&quot;</span><span class="p">],</span>
         <span class="n">no_cache</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s2">&quot;no_cache&quot;</span><span class="p">],</span>

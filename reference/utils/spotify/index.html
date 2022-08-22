@@ -1549,7 +1549,7 @@ SpotifyClient will return the same instance.</p>
 
 
 <h3 id="spotdl.utils.spotify.Singleton.init" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">init</span><span class="p">(</span><span class="n">client_id</span><span class="p">,</span> <span class="n">client_secret</span><span class="p">,</span> <span class="n">user_auth</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">cache_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">no_cache</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">open_browser</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></code>
+<code class="highlight language-python"><span class="n">init</span><span class="p">(</span><span class="n">client_id</span><span class="p">,</span> <span class="n">client_secret</span><span class="p">,</span> <span class="n">auth_token</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">user_auth</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">cache_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">no_cache</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">open_browser</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></code>
 
 <a href="#spotdl.utils.spotify.Singleton.init" class="headerlink" title="Permanent link">¤</a></h3>
 
@@ -1561,6 +1561,7 @@ SpotifyClient will return the same instance.</p>
 <ul>
 <li>client_id: The client ID of the application.</li>
 <li>client_secret: The client secret of the application.</li>
+<li>auth_token: The access token to use.</li>
 <li>user_auth: Whether or not to use user authentication.</li>
 <li>cache_path: The path to the cache file.</li>
 <li>no_cache: Whether or not to use the cache.</li>
@@ -1636,10 +1637,16 @@ SpotifyClient will return the same instance.</p>
 <span class="normal">112</span>
 <span class="normal">113</span>
 <span class="normal">114</span>
-<span class="normal">115</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">init</span><span class="p">(</span>  <span class="c1"># pylint: disable=bad-mcs-method-argument</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">init</span><span class="p">(</span>  <span class="c1"># pylint: disable=bad-mcs-method-argument</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">client_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">client_secret</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">auth_token</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">user_auth</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">cache_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">no_cache</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -1651,6 +1658,7 @@ SpotifyClient will return the same instance.</p>
 <span class="sd">    ### Arguments</span>
 <span class="sd">    - client_id: The client ID of the application.</span>
 <span class="sd">    - client_secret: The client secret of the application.</span>
+<span class="sd">    - auth_token: The access token to use.</span>
 <span class="sd">    - user_auth: Whether or not to use user authentication.</span>
 <span class="sd">    - cache_path: The path to the cache file.</span>
 <span class="sd">    - no_cache: Whether or not to use the cache.</span>
@@ -1688,12 +1696,15 @@ SpotifyClient will return the same instance.</p>
             <span class="n">client_secret</span><span class="o">=</span><span class="n">client_secret</span><span class="p">,</span>
             <span class="n">cache_handler</span><span class="o">=</span><span class="n">cache_handler</span><span class="p">,</span>
         <span class="p">)</span>
+    <span class="k">if</span> <span class="n">auth_token</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">credential_manager</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="bp">self</span><span class="o">.</span><span class="n">user_auth</span> <span class="o">=</span> <span class="n">user_auth</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">no_cache</span> <span class="o">=</span> <span class="n">no_cache</span>
 
     <span class="c1"># Create instance</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_instance</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__call__</span><span class="p">(</span>
+        <span class="n">auth</span><span class="o">=</span><span class="n">auth_token</span><span class="p">,</span>
         <span class="n">auth_manager</span><span class="o">=</span><span class="n">credential_manager</span><span class="p">,</span>
         <span class="n">status_forcelist</span><span class="o">=</span><span class="p">(</span><span class="mi">429</span><span class="p">,</span> <span class="mi">500</span><span class="p">,</span> <span class="mi">502</span><span class="p">,</span> <span class="mi">503</span><span class="p">,</span> <span class="mi">504</span><span class="p">,</span> <span class="mi">404</span><span class="p">),</span>
     <span class="p">)</span>
@@ -1736,25 +1747,28 @@ Has to be initialized first by calling
   
       <h5 id="spotdl.utils.spotify.SpotifyClient--arguments">Arguments<a class="headerlink" href="#spotdl.utils.spotify.SpotifyClient--arguments" title="Permanent link">¤</a></h5>
 <ul>
+<li>auth: The access token to use.</li>
 <li>auth_manager: The auth manager to use.</li>
 </ul>
 
           <details class="quote">
             <summary>Source code in <code>spotdl/utils/spotify.py</code></summary>
-            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">127</span>
-<span class="normal">128</span>
-<span class="normal">129</span>
-<span class="normal">130</span>
-<span class="normal">131</span>
-<span class="normal">132</span>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">132</span>
 <span class="normal">133</span>
 <span class="normal">134</span>
 <span class="normal">135</span>
-<span class="normal">136</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Initializes the SpotifyClient.</span>
 
 <span class="sd">    ### Arguments</span>
+<span class="sd">    - auth: The access token to use.</span>
 <span class="sd">    - auth_manager: The auth manager to use.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
