@@ -43,4 +43,6 @@ def download(
     if save_path:
         # Save the songs to a file
         with open(save_path, "w", encoding="utf-8") as save_file:
-            json.dump(songs, save_file, indent=4, ensure_ascii=False)
+            json.dump(
+                [song.json for song in songs], save_file, indent=4, ensure_ascii=False
+            )

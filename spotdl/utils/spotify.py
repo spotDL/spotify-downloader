@@ -53,6 +53,7 @@ class Singleton(type):
         self,
         client_id: str,
         client_secret: str,
+        auth_token: Optional[str] = None,
         user_auth: bool = False,
         cache_path: Optional[str] = None,
         no_cache: bool = False,
@@ -64,6 +65,7 @@ class Singleton(type):
         ### Arguments
         - client_id: The client ID of the application.
         - client_secret: The client secret of the application.
+        - auth_token: The access token to use.
         - user_auth: Whether or not to use user authentication.
         - cache_path: The path to the cache file.
         - no_cache: Whether or not to use the cache.
@@ -101,12 +103,15 @@ class Singleton(type):
                 client_secret=client_secret,
                 cache_handler=cache_handler,
             )
+        if auth_token is not None:
+            credential_manager = None
 
         self.user_auth = user_auth
         self.no_cache = no_cache
 
         # Create instance
         self._instance = super().__call__(
+            auth=auth_token,
             auth_manager=credential_manager,
             status_forcelist=(429, 500, 502, 503, 504, 404),
         )
@@ -129,6 +134,7 @@ class SpotifyClient(Spotify, metaclass=Singleton):
         Initializes the SpotifyClient.
 
         ### Arguments
+        - auth: The access token to use.
         - auth_manager: The auth manager to use.
         """
 

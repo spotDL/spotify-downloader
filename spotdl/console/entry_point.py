@@ -144,21 +144,16 @@ def entry_point():
         config = get_config()
 
     # Create settings dict
-    # If the setting in config file is the same as
-    # the default setting, it will be ignored
-    # and argument value will be used
+    # Argument value has always the priority, then the config file
+    # value, and if neither are set, use default value
     settings = {}
     for key, default_value in DEFAULT_CONFIG.items():
         argument_val = arguments.__dict__.get(key)
         config_val = config.get(key)
 
-        if argument_val is not None and config_val == default_value:
+        if argument_val is not None:
             settings[key] = argument_val
-        elif (
-            argument_val is None
-            and config_val != default_value
-            and config_val is not None
-        ):
+        elif config_val is not None:
             settings[key] = config_val
         else:
             settings[key] = default_value
@@ -183,6 +178,7 @@ def entry_point():
     SpotifyClient.init(
         client_id=settings["client_id"],
         client_secret=settings["client_secret"],
+        auth_token=settings["auth_token"],
         user_auth=settings["user_auth"],
         cache_path=settings["cache_path"],
         no_cache=settings["no_cache"],
