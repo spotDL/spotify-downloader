@@ -210,7 +210,6 @@ def parse_spotify_options(parser: _ArgumentGroup):
     # Add auth token argument
     parser.add_argument(
         "--auth-token",
-        default=DEFAULT_CONFIG["auth_token"],
         help="The authorisation token to use directly to log in to Spotify.",
     )
 
