@@ -1412,10 +1412,10 @@
 
     <span class="c1"># extract value from js code</span>
     <span class="n">js_code</span> <span class="o">=</span> <span class="n">resp</span><span class="o">.</span><span class="n">text</span>
-    <span class="n">start_index</span> <span class="o">=</span> <span class="n">js_code</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;value</span><span class="se">\&quot;</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="mi">9</span>
-    <span class="n">end_index</span> <span class="o">=</span> <span class="n">js_code</span><span class="p">[</span><span class="n">start_index</span><span class="p">:]</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\&quot;</span><span class="s2">);&quot;</span><span class="p">)</span>
+    <span class="n">start_index</span> <span class="o">=</span> <span class="n">js_code</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;value&quot;&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="mi">9</span>
+    <span class="n">end_index</span> <span class="o">=</span> <span class="n">js_code</span><span class="p">[</span><span class="n">start_index</span><span class="p">:]</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;&quot;);&#39;</span><span class="p">)</span>
 
-    <span class="bp">self</span><span class="o">.</span><span class="n">x_code</span> <span class="o">=</span> <span class="n">js_code</span><span class="p">[</span><span class="n">start_index</span><span class="p">:</span><span class="n">start_index</span><span class="o">+</span><span class="n">end_index</span><span class="p">]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">x_code</span> <span class="o">=</span> <span class="n">js_code</span><span class="p">[</span><span class="n">start_index</span> <span class="p">:</span> <span class="n">start_index</span> <span class="o">+</span> <span class="n">end_index</span><span class="p">]</span>
 </code></pre></div></td></tr></table></div>
           </details>
 
@@ -1506,7 +1506,9 @@
 <span class="normal">85</span>
 <span class="normal">86</span>
 <span class="normal">87</span>
-<span class="normal">88</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_lyrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">artists</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="o">**</span><span class="n">_</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="normal">88</span>
+<span class="normal">89</span>
+<span class="normal">90</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_lyrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">artists</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="o">**</span><span class="n">_</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Try to get lyrics from azlyrics</span>
 
@@ -1526,7 +1528,9 @@
         <span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_code</span><span class="p">,</span>
     <span class="p">}</span>
 
-    <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;https://search.azlyrics.com/search.php&quot;</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+        <span class="s2">&quot;https://search.azlyrics.com/search.php&quot;</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span>
+    <span class="p">)</span>
     <span class="n">soup</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">content</span><span class="p">,</span> <span class="s2">&quot;html.parser&quot;</span><span class="p">)</span>
 
     <span class="n">td_tags</span> <span class="o">=</span> <span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s2">&quot;td&quot;</span><span class="p">)</span>
