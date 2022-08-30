@@ -30,10 +30,10 @@ class AzLyrics(LyricsProvider):
 
         # extract value from js code
         js_code = resp.text
-        start_index = js_code.find("value\"") + 9
-        end_index = js_code[start_index:].find("\");")
+        start_index = js_code.find('value"') + 9
+        end_index = js_code[start_index:].find('");')
 
-        self.x_code = js_code[start_index:start_index+end_index]
+        self.x_code = js_code[start_index : start_index + end_index]
 
     def get_lyrics(self, name: str, artists: List[str], **_) -> Optional[str]:
         """
@@ -55,7 +55,9 @@ class AzLyrics(LyricsProvider):
             "x": self.x_code,
         }
 
-        response = self.session.get("https://search.azlyrics.com/search.php", params=params)
+        response = self.session.get(
+            "https://search.azlyrics.com/search.php", params=params
+        )
         soup = BeautifulSoup(response.content, "html.parser")
 
         td_tags = soup.find_all("td")

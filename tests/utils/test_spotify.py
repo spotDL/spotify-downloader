@@ -3,7 +3,6 @@ import pytest
 from spotdl.utils.spotify import SpotifyClient, SpotifyError
 
 
-
 def test_init(patch_dependencies):
     """
     Test SpotifyClient initialization

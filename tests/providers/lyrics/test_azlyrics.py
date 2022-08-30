@@ -15,4 +15,4 @@ def test_get_azlyrics_lyrics():
 
     assert result is not None
 
-    assert  fuzz.ratio(result, lyrics) > 80
+    assert fuzz.ratio(result, lyrics) > 80

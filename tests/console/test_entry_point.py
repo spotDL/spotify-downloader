@@ -66,7 +66,7 @@ def test_download_song(capsys, monkeypatch, tmpdir):
         "https://open.spotify.com/track/2Ikdgh3J5vCRmnCL3Xcrtv",
         "--no-cache",
         "--log-level",
-        "DEBUG"
+        "DEBUG",
     ]
 
     monkeypatch.setattr(sys, "argv", cli_args)
@@ -98,7 +98,7 @@ def test_preload_song(capsys, monkeypatch, tmpdir):
         "--preload",
         "--no-cache",
         "--log-level",
-        "DEBUG"
+        "DEBUG",
     ]
 
     monkeypatch.setattr(sys, "argv", cli_args)
