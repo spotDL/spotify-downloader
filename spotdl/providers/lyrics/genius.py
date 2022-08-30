@@ -55,10 +55,8 @@ class Genius(LyricsProvider):
 
             counter = 0
             soup = None
-            while counter > 5:
+            while counter < 4:
                 genius_page_response = requests.get(song_url, headers=self.headers)
-
-                print(genius_page_response.text)
 
                 if not genius_page_response.ok:
                     counter += 1
@@ -67,6 +65,7 @@ class Genius(LyricsProvider):
                 soup = BeautifulSoup(
                     genius_page_response.text.replace("<br/>", "\n"), "html.parser"
                 )
+
                 break
 
             if soup is None:
