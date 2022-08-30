@@ -1,7 +1,8 @@
-import pytest
-import json
 import sys
+import json
 import re
+
+import pytest
 
 from spotdl.console.entry_point import console_entry_point, entry_point
 from spotdl.utils.spotify import SpotifyClient
@@ -64,6 +65,8 @@ def test_download_song(capsys, monkeypatch, tmpdir):
         "download",
         "https://open.spotify.com/track/2Ikdgh3J5vCRmnCL3Xcrtv",
         "--no-cache",
+        "--log-level",
+        "DEBUG"
     ]
 
     monkeypatch.setattr(sys, "argv", cli_args)
@@ -94,6 +97,8 @@ def test_preload_song(capsys, monkeypatch, tmpdir):
         "test.spotdl",
         "--preload",
         "--no-cache",
+        "--log-level",
+        "DEBUG"
     ]
 
     monkeypatch.setattr(sys, "argv", cli_args)
@@ -108,7 +113,7 @@ def test_preload_song(capsys, monkeypatch, tmpdir):
 
     assert "Saved 1 song to test.spotdl" in out
 
-    with open("test.spotdl", "r") as f:
+    with open("test.spotdl", "r", encoding="utf-8") as f:
         data = json.load(f)
 
     assert data[0]["name"] == "Linked"
