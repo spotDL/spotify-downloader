@@ -1196,6 +1196,13 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#spotdl.download.downloader.Downloader.aggregate_tasks" class="md-nav__link">
+    aggregate_tasks()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#spotdl.download.downloader.Downloader.download_multiple_songs" class="md-nav__link">
     download_multiple_songs()
   </a>
@@ -1468,6 +1475,13 @@
           <li class="md-nav__item">
   <a href="#spotdl.download.downloader.Downloader--notes" class="md-nav__link">
     Notes
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spotdl.download.downloader.Downloader.aggregate_tasks" class="md-nav__link">
+    aggregate_tasks()
   </a>
   
 </li>
@@ -2032,6 +2046,46 @@ It handles the downloading/moving songs, multthreading, metadata embedding etc.<
 
 
 
+<h3 id="spotdl.download.downloader.Downloader.aggregate_tasks" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">aggregate_tasks</span><span class="p">(</span><span class="n">tasks</span><span class="p">)</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-staticmethod"><code>staticmethod</code></small>
+      <small class="doc doc-label doc-label-async"><code>async</code></small>
+  </span>
+
+<a href="#spotdl.download.downloader.Downloader.aggregate_tasks" class="headerlink" title="Permanent link">¤</a></h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Aggregate the futures and return the results</p>
+
+      <details class="quote">
+        <summary>Source code in <code>spotdl/download/downloader.py</code></summary>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">526</span>
+<span class="normal">527</span>
+<span class="normal">528</span>
+<span class="normal">529</span>
+<span class="normal">530</span>
+<span class="normal">531</span>
+<span class="normal">532</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@staticmethod</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">aggregate_tasks</span><span class="p">(</span><span class="n">tasks</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Aggregate the futures and return the results</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">task</span> <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">tasks</span><span class="p">))</span>
+</code></pre></div></td></tr></table></div>
+      </details>
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
 <h3 id="spotdl.download.downloader.Downloader.download_multiple_songs" class="doc doc-heading">
 <code class="highlight language-python"><span class="n">download_multiple_songs</span><span class="p">(</span><span class="n">songs</span><span class="p">)</span></code>
 
@@ -2098,7 +2152,7 @@ It handles the downloading/moving songs, multthreading, metadata embedding etc.<
     <span class="n">tasks</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">pool_download</span><span class="p">(</span><span class="n">song</span><span class="p">)</span> <span class="k">for</span> <span class="n">song</span> <span class="ow">in</span> <span class="n">songs</span><span class="p">]</span>
 
     <span class="c1"># call all task asynchronously, and wait until all are finished</span>
-    <span class="n">results</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">run_until_complete</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_aggregate_tasks</span><span class="p">(</span><span class="n">tasks</span><span class="p">)))</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">loop</span><span class="o">.</span><span class="n">run_until_complete</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">aggregate_tasks</span><span class="p">(</span><span class="n">tasks</span><span class="p">)))</span>
 
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">print_errors</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">error</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">errors</span><span class="p">:</span>
