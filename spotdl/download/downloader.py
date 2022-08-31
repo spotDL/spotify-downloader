@@ -232,7 +232,7 @@ class Downloader:
         tasks = [self.pool_download(song) for song in songs]
 
         # call all task asynchronously, and wait until all are finished
-        results = list(self.loop.run_until_complete(self._aggregate_tasks(tasks)))
+        results = list(self.loop.run_until_complete(self.aggregate_tasks(tasks)))
 
         if self.print_errors:
             for error in self.errors:
@@ -524,7 +524,7 @@ class Downloader:
             return song, None
 
     @staticmethod
-    async def _aggregate_tasks(tasks):
+    async def aggregate_tasks(tasks):
         """
         Aggregate the futures and return the results
         """
