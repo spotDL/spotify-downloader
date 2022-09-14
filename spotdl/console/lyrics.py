@@ -22,6 +22,10 @@ providers: List[LyricsProvider] = [
 
 # TODO: Get default lyrics provider or ask the user to pass in a provider. Or try with them until one returns the lyrics.
 def set_lyrics(path: Path):
+    """
+    This function runs when the Lyrics operation is ran on the console.
+    It sets the lyrics for the specified song or the songs in the specified path.
+    """
 
     console = Console()
     if path.is_file():
