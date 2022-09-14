@@ -5,14 +5,14 @@ Sync Lyrics module for the console
 import sys
 import os
 from pathlib import Path
-from rich.console import Console
 from mutagen.easyid3 import ID3, EasyID3
 from mutagen.id3 import USLT
-from typing import List
+from rich.console import Console
 
 from spotdl.providers.lyrics import Genius, AzLyrics, MusixMatch
 from spotdl.providers.lyrics.base import LyricsProvider
 
+from typing import List
 
 providers: List[LyricsProvider] = [
     Genius(),
@@ -63,6 +63,59 @@ def set_lyrics(path: Path):
         console.print(
             f"[bold red]Could not find lyrics for [bold bright_yellow]{song_name}."
         )
+
+    # * Path is a directory
+
+    # Search for MP3s
+    console.print(f"[bold yellow]Looking for songs in {str(path.resolve())}")
+    for filename in os.listdir(str(path.resolve())):
+        if filename.endswith(".mp3"):
+            # Get song data with file metadata
+
+            song_path = None
+            if str(path.resolve()).endswith("\\"):
+                song_path = os.path.join(path.resolve()[:-1], filename)
+
+            else:
+                song_path = os.path.join(path.resolve(), filename)
+
+            song_file = EasyID3(song_path)
+            song_name = song_file.get("title")[0]
+            song_artists = parse_artists(song_file.get("artist")[0])
+
+            song_file.save()
+
+            lyrics = None
+
+            with console.status(
+                f"[bold]Getting lyrics for [bold green]{song_name}[/bold green][/bold] by [bold green]{song_artists[0]}[/bold green]"
+            ):
+                for provider in providers:
+                    lyrics = provider.get_lyrics(name=song_name, artists=song_artists)
+
+                    if lyrics == None:
+                        continue
+
+                    break
+
+            if lyrics != None:
+                with console.status("[bold bright_yellow]Setting lyrics..."):
+                    if path.name.endswith(".mp3"):
+                        song_file = ID3(str(path.resolve()))
+                        song_file["USLT::'eng'"] = USLT(
+                            encoding=3, lang="eng", desc="desc", text=lyrics
+                        )
+                        song_file.save(v2_version=3)
+
+                console.print(
+                    f"[bold green]Succesfully applied lyrics to [/ bold green][bold bright_yellow]{song_name}[/bold bright_yellow] by [bold bright_yellow]{song_artists[0]}[/bold bright_yellow]."
+                )
+                continue
+
+            console.print(
+                f"[bold red]Could not find lyrics for [bold bright_yellow]{song_name}[/bold bright_yellow] by [bold bright_yellow]{song_artists[0]}[/bold bright_yellow]."
+            )
+
     return None
 
 

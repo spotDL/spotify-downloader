@@ -261,7 +261,6 @@ Log in by adding the --user-auth flag"
             set_lyrics(path)
 
             return None
-            # set_lyrics()
 
         OPERATIONS[arguments.operation](
             query=arguments.query,
