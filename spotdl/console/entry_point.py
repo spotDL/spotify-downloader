@@ -9,9 +9,9 @@ import logging
 import cProfile
 import pstats
 
+from pathlib import Path
 from rich.traceback import install
 from rich.console import Console
-from pathlib import Path
 from spotdl.console import lyrics
 
 from spotdl.console.download import download

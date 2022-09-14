@@ -2,9 +2,9 @@
 Sync Lyrics module for the console
 """
 
-import sys
 import os
 from pathlib import Path
+from typing import List
 from mutagen.easyid3 import ID3, EasyID3
 from mutagen.id3 import USLT
 from rich.console import Console
@@ -12,7 +12,6 @@ from rich.console import Console
 from spotdl.providers.lyrics import Genius, AzLyrics, MusixMatch
 from spotdl.providers.lyrics.base import LyricsProvider
 
-from typing import List
 
 providers: List[LyricsProvider] = [
     Genius(),
@@ -20,8 +19,8 @@ providers: List[LyricsProvider] = [
     MusixMatch(),
 ]
 
-# TODO: Get default lyrics provider or ask the user to pass in a provider. Or try with them until one returns the lyrics.
-def set_lyrics(path: Path):
+
+def set_lyrics(path: Path) -> None:
     """
     This function runs when the Lyrics operation is ran on the console.
     It sets the lyrics for the specified song or the songs in the specified path.
@@ -58,7 +57,7 @@ def set_lyrics(path: Path):
                     console.print(
                         f"[bold green]sSuccesfully applied lyrics to [/ bold green] [bold bright_yellow]{song_name}[/bold bright_yellow] by [bold bright_yellow]{song_artists[0]}[/bold bright_yellow]."
                     )
-                    return
+                    return None
 
         console.print(
             f"[bold red]Could not find lyrics for [bold bright_yellow]{song_name}."
@@ -93,12 +92,12 @@ def set_lyrics(path: Path):
                 for provider in providers:
                     lyrics = provider.get_lyrics(name=song_name, artists=song_artists)
 
-                    if lyrics == None:
+                    if lyrics is None:
                         continue
 
                     break
 
-            if lyrics != None:
+            if lyrics is not None:
                 with console.status("[bold bright_yellow]Setting lyrics..."):
                     if path.name.endswith(".mp3"):
                         song_file = ID3(str(path.resolve()))
