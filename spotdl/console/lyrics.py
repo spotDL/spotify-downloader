@@ -114,7 +114,7 @@ def set_lyrics(path: Path) -> None:
                 )
                 continue
 
-                error_songs += 1
+            error_songs += 1
             console.print(
                 f"[bold red]Could not find lyrics for [bold bright_yellow]{song_name}[/bold bright_yellow] by [bold bright_yellow]{song_artists[0]}[/bold bright_yellow]."
             )
