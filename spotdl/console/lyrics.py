@@ -67,6 +67,8 @@ def set_lyrics(path: Path) -> None:
 
     # Search for MP3s
     console.print(f"[bold yellow]Looking for songs in {str(path.resolve())}")
+    ok_songs = 0
+    error_songs = 0
     for filename in os.listdir(str(path.resolve())):
         if filename.endswith(".mp3"):
             # Get song data with file metadata
@@ -106,15 +108,20 @@ def set_lyrics(path: Path) -> None:
                         )
                         song_file.save(v2_version=3)
 
+                ok_songs += 1
                 console.print(
                     f"[bold green]Succesfully applied lyrics to [/ bold green][bold bright_yellow]{song_name}[/bold bright_yellow] by [bold bright_yellow]{song_artists[0]}[/bold bright_yellow]."
                 )
                 continue
 
+                error_songs += 1
             console.print(
                 f"[bold red]Could not find lyrics for [bold bright_yellow]{song_name}[/bold bright_yellow] by [bold bright_yellow]{song_artists[0]}[/bold bright_yellow]."
             )
 
+    console.print(
+        f"Applied lyrics for [bold green]{ok_songs}[/bold green] songs. Couldn't find lyrics for [bold red]{error_songs}[/bold red] songs.\n[bold bright_blue]Total Songs:[/bold bright_blue] {ok_songs + error_songs}"
+    )
     return None
 
 
