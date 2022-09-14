@@ -73,7 +73,7 @@ def set_lyrics(path: Path) -> None:
 
             song_path = None
             if str(path.resolve()).endswith("\\"):
-                song_path = os.path.join(path.resolve()[:-1], filename)
+                song_path = os.path.join(str(path.resolve())[:-1], filename)
 
             else:
                 song_path = os.path.join(path.resolve(), filename)
