@@ -11,10 +11,13 @@ import pstats
 
 from rich.traceback import install
 from rich.console import Console
+from pathlib import Path
+from spotdl.console import lyrics
 
 from spotdl.console.download import download
 from spotdl.console.sync import sync
 from spotdl.console.save import save
+from spotdl.console.lyrics import set_lyrics
 from spotdl.download import Downloader
 from spotdl.providers.audio.base import AudioProviderError
 from spotdl.providers.audio.ytmusic import YouTubeMusic
@@ -36,6 +39,7 @@ OPERATIONS = {
     "download": download,
     "sync": sync,
     "save": save,
+    "lyrics": lyrics,
 }
 
 
@@ -249,6 +253,16 @@ Log in by adding the --user-auth flag"
     try:
         # Pick the operation to perform
         # based on the name and run it!
+
+        if arguments.operation == "lyrics":
+            path = Path(sys.argv[-1])
+
+            # TODO: Show required parameter name as "path" and not query
+            set_lyrics(path)
+
+            return None
+            # set_lyrics()
+
         OPERATIONS[arguments.operation](
             query=arguments.query,
             save_path=settings["save_file"],
