@@ -260,8 +260,8 @@ Log in by adding the --user-auth flag"
             # TODO: Show required parameter name as "path" and not query
             set_lyrics(path)
 
-            # Pylint gives an error of too much return statements.
-            # Using an if/else statement would avoid the use of a return.
+            #! Pylint gives an error of too much return statements.
+            #! Using an if/else statement would avoid the use of a return.
             return None
 
         OPERATIONS[arguments.operation](
