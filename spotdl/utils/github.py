@@ -3,17 +3,15 @@ Module for getting information about the current version of spotdl
 from GitHub, downloading the latest version, and checking for updates.
 """
 
-import logging
-from typing import Tuple
-
 import re
 import os
+import logging
+
+from typing import Tuple
 
 import requests
 
-
 from spotdl import _version
-
 
 REPO = "spotdl/spotify-downloader"
 WEB_APP_URL = "https://github.com/spotdl/web-ui/tree/master/dist"
@@ -34,7 +32,7 @@ def get_status(start: str, end: str, repo: str = REPO) -> Tuple[str, int, int]:
 
     url = f"https://api.github.com/repos/{repo}/compare/{start}...{end}"
 
-    response = requests.get(url)
+    response = requests.get(url, timeout=10)
 
     if response.status_code != 200:
         raise RuntimeError(
@@ -65,7 +63,7 @@ def check_for_updates(repo: str = REPO) -> str:
 
     url = f"https://api.github.com/repos/{repo}/releases/latest"
 
-    response = requests.get(url)
+    response = requests.get(url, timeout=10)
 
     if response.status_code != 200:
         raise RuntimeError(
@@ -161,19 +159,19 @@ def download_github_dir(
 
     dir_out = output_dir
 
-    response = requests.get(api_url).json()
+    response = requests.get(api_url, timeout=10).json()
 
     if (
-        type(response) is dict
+        isinstance(response, dict)
         and "message" in response.keys()
         and "rate limit" in response["message"]
     ):
         logging.error(
-            """You have been rate limited by Github API attempting to update web client.
-Proceeding with cached web client. Please try again later.
-See https://docs.github.com/en/rest/overview/resources-in-the-rest-api#rate-limiting"""
+            "You have been rate limited by Github API attempting to update web client."
+            "Proceeding with cached web client. Please try again later."
+            "See https://docs.github.com/en/rest/overview/resources-in-the-rest-api#rate-limiting"
         )
-        return
+        return None
 
     if not flatten:
         # make a directory with the name which is taken from
@@ -198,6 +196,6 @@ See https://docs.github.com/en/rest/overview/resources-in-the-rest-api#rate-limi
 
         if file_url is not None:
             with open(path, "wb") as new_file:
-                new_file.write(requests.get(file_url).content)
+                new_file.write(requests.get(file_url, timeout=10).content)
         else:
             download_github_dir(file["html_url"], flatten, output_dir)
