@@ -11,7 +11,7 @@ import concurrent.futures
 import traceback
 
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Type
+from typing import Dict, List, Optional, Tuple, Type, Union
 
 from yt_dlp.postprocessor.sponsorblock import SponsorBlockPP
 from yt_dlp.postprocessor.modify_chapters import ModifyChaptersPP
@@ -144,17 +144,14 @@ class Downloader:
 
             lyrics_providers_classes.append(new_lyrics_provider)
 
-        if loop is None:
-            if sys.platform == "win32":
-                # ProactorEventLoop is required on Windows to run subprocess asynchronously
-                # it is default since Python 3.8 but has to be changed for previous versions
-                self.loop = asyncio.ProactorEventLoop()
-            else:
-                self.loop = asyncio.new_event_loop()
+        self.loop: Union[asyncio.AbstractEventLoop, asyncio.ProactorEventLoop] = (
+            loop or asyncio.ProactorEventLoop()
+            if sys.platform == "win32"
+            else asyncio.new_event_loop()
+        )
 
+        if loop is None:
             asyncio.set_event_loop(self.loop)
-        else:
-            self.loop = loop
 
         # semaphore is required to limit concurrent asyncio executions
         self.semaphore = asyncio.Semaphore(threads)
