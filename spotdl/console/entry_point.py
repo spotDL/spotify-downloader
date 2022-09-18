@@ -47,6 +47,7 @@ def entry_point():
     logging.getLogger("requests").setLevel(logging.WARNING)
     logging.getLogger("urllib3").setLevel(logging.WARNING)
     logging.getLogger("spotipy").setLevel(logging.NOTSET)
+    logging.getLogger("uvicorn").propagate = False
     # logging.getLogger("asyncio").setLevel(logging.WARNING)
 
     # Create a console
@@ -142,10 +143,6 @@ def entry_point():
         and len(sys.argv) == 1
         or arguments.operation == "web"
     ):
-        # Don't log too much when running web ui & default logging argument
-        if arguments.__dict__.get("log_level") is None:
-            settings["log_level"] = "CRITICAL"
-
         # Start web ui
         web(settings)
 
