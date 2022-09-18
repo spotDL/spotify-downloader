@@ -72,6 +72,6 @@ jobs:
 
       - name: Run tests
         run: |
-          poetry run pytest -vvv --disable-vcr --vcr-record=none
+          poetry run pytest -vvv --disable-vcr --vcr-record=none --ignore tests/providers/lyrics/test_genius.py
         env:
           PLATFORM: ${{ matrix.platform }}
