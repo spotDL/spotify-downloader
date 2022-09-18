@@ -11,7 +11,7 @@ import concurrent.futures
 import traceback
 
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Type, Union
+from typing import Dict, List, Optional, Tuple, Type
 
 from yt_dlp.postprocessor.sponsorblock import SponsorBlockPP
 from yt_dlp.postprocessor.modify_chapters import ModifyChaptersPP
