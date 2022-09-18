@@ -15,21 +15,20 @@ from rich.console import Console
 from spotdl.console.download import download
 from spotdl.console.sync import sync
 from spotdl.console.save import save
+from spotdl.console.web import web
 from spotdl.download import Downloader
 from spotdl.providers.audio.base import AudioProviderError
 from spotdl.providers.audio.ytmusic import YouTubeMusic
-from spotdl.utils.config import DEFAULT_CONFIG, ConfigError, get_config
+from spotdl.utils.config import DEFAULT_CONFIG, ConfigError, get_config, get_config_file
+from spotdl.utils.arguments import parse_arguments
+from spotdl.utils.spotify import SpotifyClient, SpotifyError
+from spotdl.utils.console import ACTIONS
+from spotdl.download.downloader import DownloaderError
 from spotdl.utils.ffmpeg import (
     FFmpegError,
     download_ffmpeg,
-    get_local_ffmpeg,
     is_ffmpeg_installed,
 )
-from spotdl.utils.config import get_config_file
-from spotdl.utils.github import check_for_updates
-from spotdl.utils.arguments import parse_arguments
-from spotdl.utils.spotify import SpotifyClient, SpotifyError
-from spotdl.download.downloader import DownloaderError
 
 
 OPERATIONS = {
@@ -75,61 +74,12 @@ def entry_point():
             with open(config_path, "w", encoding="utf-8") as config_file:
                 json.dump(DEFAULT_CONFIG, config_file, indent=4)
 
-    # Download ffmpeg if the `--download-ffmpeg` flag is passed
-    # This is done before the argument parser so it doesn't require `operation`
-    # and `query` to be passed. Exit after downloading ffmpeg
-    if "--download-ffmpeg" in sys.argv:
-        if get_local_ffmpeg() is not None or is_ffmpeg_installed():
-            overwrite_ffmpeg = input(
-                "FFmpeg is already installed. Do you want to overwrite it? (y/N): "
-            )
-
-            if overwrite_ffmpeg.lower() == "y":
-                local_ffmpeg = download_ffmpeg()
-
-                if local_ffmpeg.is_file():
-                    print(
-                        f"FFmpeg successfully downloaded to {local_ffmpeg.absolute()}"
-                    )
-                else:
-                    print("FFmpeg download failed")
-        else:
-            print("Downloading FFmpeg...")
-            download_path = download_ffmpeg()
-
-            if download_path.is_file():
-                print(f"FFmpeg successfully downloaded to {download_path.absolute()}")
-            else:
-                print("FFmpeg download failed")
-
-        return None
-
-    # Generate the config file if it doesn't exist
-    # or overwrite the current config file if the `--overwrite-config` flag is passed
-    # This is done before the argument parser so it doesn't requires `operation`
-    # and `query` to be passed. exit after downloading ffmpeg
-    if "--generate-config" in sys.argv:
-        config_path = get_config_file()
-        if config_path.exists():
-            overwrite_config = input("Config file already exists. Overwrite? (y/N): ")
-
-            if overwrite_config.lower() != "y":
-                print("Exiting...")
-                return None
-
-        with open(config_path, "w", encoding="utf-8") as config_file:
-            json.dump(DEFAULT_CONFIG, config_file, indent=4)
-
-        print(f"Config file generated at {config_path}")
-
-        return None
-
-    # Get information about the current version and display it
-    # Exit after displaying the version
-    if "--check-for-updates" in sys.argv:
-        check_for_updates()
-
-        return None
+    # Check if sys.argv contains an action
+    # If it does, we run the action and exit
+    for func_name, func in ACTIONS.items():
+        if func_name in sys.argv:
+            func()
+            return None
 
     # Parse the arguments
     arguments = parse_arguments()
@@ -192,10 +142,6 @@ def entry_point():
         and len(sys.argv) == 1
         or arguments.operation == "web"
     ):
-        from spotdl.console.web import (  # pylint: disable=C0415,C0410,W0707,W0611
-            web,
-        )
-
         # Don't log too much when running web ui & default logging argument
         if arguments.__dict__.get("log_level") is None:
             settings["log_level"] = "CRITICAL"
@@ -213,8 +159,8 @@ def entry_point():
 
     if arguments.query and "saved" in arguments.query and not settings["user_auth"]:
         raise SpotifyError(
-            "You must be logged in to use the saved query. \
-Log in by adding the --user-auth flag"
+            "You must be logged in to use the saved query. "
+            "Log in by adding the --user-auth flag"
         )
 
     # Initialize the downloader

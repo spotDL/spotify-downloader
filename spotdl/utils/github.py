@@ -199,3 +199,5 @@ def download_github_dir(
                 new_file.write(requests.get(file_url, timeout=10).content)
         else:
             download_github_dir(file["html_url"], flatten, output_dir)
+
+    return None
