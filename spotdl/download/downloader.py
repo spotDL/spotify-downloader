@@ -16,7 +16,7 @@ from typing import Dict, List, Optional, Tuple, Type, Union
 from yt_dlp.postprocessor.sponsorblock import SponsorBlockPP
 from yt_dlp.postprocessor.modify_chapters import ModifyChaptersPP
 
-from spotdl.types import Song
+from spotdl.types import Song, SongList
 from spotdl.utils.ffmpeg import FFmpegError, convert, get_ffmpeg_path
 from spotdl.utils.metadata import embed_metadata, MetadataError
 from spotdl.utils.formatter import create_file_name, restrict_filename
@@ -350,7 +350,11 @@ class Downloader:
 
             if data.get("song_list"):
                 # Reinitialize the correct song list object
-                data["song_list"] = song.song_list.__class__(**data["song_list"])
+                song_list: Type[SongList] = song.song_list.__class__(
+                    **data["song_list"]
+                )
+                data["song_list"] = song_list
+                data["list_position"] = song_list.urls.index(song.url)
 
             # Reinitialize the song object
             song = Song(**data)
