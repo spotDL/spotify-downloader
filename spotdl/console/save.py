@@ -3,12 +3,12 @@ Save module for the console.
 """
 
 import json
-import concurrent.futures
 
 from typing import List, Optional
 from pathlib import Path
 
 from spotdl.download.downloader import Downloader
+from spotdl.types.song import Song
 from spotdl.utils.search import parse_query
 from spotdl.utils.m3u import create_m3u_file
 
@@ -38,32 +38,45 @@ def save(
     songs = parse_query(query, downloader.threads)
     save_data = [song.json for song in songs]
 
-    if preload:
-        save_data = []
-        with concurrent.futures.ThreadPoolExecutor(
-            max_workers=downloader.threads
-        ) as executor:
-            future_to_song = {
-                executor.submit(downloader.search, song): song for song in songs
-            }
-            for future in concurrent.futures.as_completed(future_to_song):
-                song = future_to_song[future]
-                try:
-                    data, _ = future.result()
-                    if data is None:
-                        downloader.progress_handler.error(
-                            f"Could not find a match for {song.display_name}"
-                        )
-                        continue
+    def process_song(song: Song):
+        try:
+            data, _ = downloader.search(song)
+            if data is None:
+                downloader.progress_handler.error(
+                    f"Could not find a match for {song.display_name}"
+                )
 
-                    downloader.progress_handler.log(
-                        f"Found url for {song.display_name}: {data}"
-                    )
-                    save_data.append({**song.json, "download_url": data})
-                except Exception as exc:
-                    downloader.progress_handler.error(
-                        f"{song} generated an exception: {exc}"
-                    )
+                return None
+
+            downloader.progress_handler.log(
+                f"Found url for {song.display_name}: {data}"
+            )
+
+            return {**song.json, "download_url": data}
+        except Exception as exception:
+            downloader.progress_handler.error(
+                f"{song} generated an exception: {exception}"
+            )
+
+        return None
+
+    async def pool_worker(song: Song):
+        async with downloader.semaphore:
+            # The following function calls blocking code, which would block whole event loop.
+            # Therefore it has to be called in a separate thread via ThreadPoolExecutor. This
+            # is not a problem, since GIL is released for the I/O operations, so it shouldn't
+            # hurt performance.
+            return await downloader.loop.run_in_executor(
+                downloader.thread_executor, process_song, song
+            )
+
+    if preload:
+        tasks = [pool_worker(song) for song in songs]
+
+        # call all task asynchronously, and wait until all are finished
+        save_data = list(
+            downloader.loop.run_until_complete(downloader.aggregate_tasks(tasks))
+        )
 
     # Save the songs to a file
     with open(save_path, "w", encoding="utf-8") as save_file:
