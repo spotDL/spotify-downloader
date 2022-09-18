@@ -144,10 +144,10 @@ class Downloader:
 
             lyrics_providers_classes.append(new_lyrics_provider)
 
-        self.loop: Union[asyncio.AbstractEventLoop, asyncio.ProactorEventLoop] = (
-            loop or asyncio.ProactorEventLoop()
-            if sys.platform == "win32"
-            else asyncio.new_event_loop()
+        self.loop = loop or (
+            asyncio.new_event_loop()
+            if sys.platform != "win32"
+            else asyncio.ProactorEventLoop()  # type: ignore
         )
 
         if loop is None:
