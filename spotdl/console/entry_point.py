@@ -9,10 +9,8 @@ import logging
 import cProfile
 import pstats
 
-from pathlib import Path
 from rich.traceback import install
 from rich.console import Console
-from spotdl.console import lyrics
 
 from spotdl.console.download import download
 from spotdl.console.sync import sync
@@ -38,7 +36,7 @@ OPERATIONS = {
     "download": download,
     "sync": sync,
     "save": save,
-    "lyrics": lyrics,
+    "lyrics": set_lyrics,
 }
 
 
@@ -197,16 +195,6 @@ def entry_point():
         # Pick the operation to perform
         # based on the name and run it!
 
-        if arguments.operation == "lyrics":
-            path = Path(sys.argv[-1])
-
-            # TODO: Show required parameter name as "path" and not query
-            set_lyrics(path)
-
-            #! Pylint gives an error of too much return statements.
-            #! Using an if/else statement would avoid the use of a return.
-            return None
-
         OPERATIONS[arguments.operation](
             query=arguments.query,
             save_path=settings["save_file"],
@@ -214,6 +202,7 @@ def entry_point():
             downloader=downloader,
             m3u_file=settings["m3u"],
         )
+
     except Exception:
         downloader.progress_handler.close()
 
