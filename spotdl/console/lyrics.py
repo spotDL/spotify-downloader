@@ -78,6 +78,14 @@ def set_lyrics(query: List[str], *args, **kwargs) -> None:
             song_path = Path(os.path.join(str(path.resolve()), filename))
 
             song_name, song_artists = get_song_metadata(song_path)
+
+            if song_name is None:
+                console.print(
+                    f"[bold red]Could not find metadata for {path.name}. Applying metadata..."
+                )
+                apply_metadata(path, lyrics)
+                continue
+
             lyrics = search_lyrics(
                 console=console, song_name=song_name, song_artists=song_artists
             )
