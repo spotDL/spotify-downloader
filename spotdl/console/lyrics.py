@@ -272,7 +272,7 @@ def get_song_metadata(path: Path) -> Union[Optional[str], List[str]]:
 
         return song_name, song_artists
 
-    except Exception as e:
+    except Exception:
         return None, None
 
 
