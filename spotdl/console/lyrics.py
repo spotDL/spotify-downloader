@@ -15,8 +15,8 @@ from rich.console import Console
 
 from spotdl.providers.lyrics import Genius, AzLyrics, MusixMatch
 from spotdl.providers.lyrics.base import LyricsProvider
-from spotdl.utils.metadata import M4A_TAG_PRESET, TAG_PRESET
-
+from spotdl.utils.metadata import M4A_TAG_PRESET, TAG_PRESET, embed_metadata
+from spotdl.types.song import Song
 
 providers: List[LyricsProvider] = [
     Genius(),
@@ -44,6 +44,13 @@ def set_lyrics(query: List[str], *args, **kwargs) -> None:
 
         if path.is_file():
             song_name, song_artists = get_song_metadata(path)
+
+            if song_name is None:
+                console.print(
+                    f"[bold red]Could not find metadata for {path.name}. Applying metadata..."
+                )
+                apply_metadata(path=path, console=console)
+                continue
 
             lyrics = search_lyrics(
                 console=console,
@@ -222,36 +229,67 @@ def get_song_metadata(path: Path) -> Union[Optional[str], List[str]]:
     song_name = None
     song_artists = []
 
-    if path.name.endswith(".mp3"):
-        song_file = EasyID3(str(path.resolve()))
-        song_name = song_file.get("title")[0]
-        song_artists = parse_artists(song_file.get("artist")[0])
+    try:
+        if path.name.endswith(".mp3"):
+            song_file = EasyID3(str(path.resolve()))
+            song_name = song_file.get("title")[0]
+            song_artists = parse_artists(song_file.get("artist")[0])
 
-        song_file.save()
+            song_file.save()
 
-    if path.name.endswith(".m4a"):
-        song_file = MP4(str(path.resolve()))
-        song_name = song_file[M4A_TAG_PRESET["title"]][0]
-        song_artists = song_file[M4A_TAG_PRESET["artist"]]
+        if path.name.endswith(".m4a"):
+            song_file = MP4(str(path.resolve()))
+            song_name = song_file[M4A_TAG_PRESET["title"]][0]
+            song_artists = song_file[M4A_TAG_PRESET["artist"]]
 
-        song_file.save()
+            song_file.save()
 
-    if path.name.endswith(".flac"):
-        song_file = FLAC(str(path.resolve()))
+        if path.name.endswith(".flac"):
+            song_file = FLAC(str(path.resolve()))
 
-        song_name = song_file[TAG_PRESET["title"]][0]
-        song_artists = song_file[TAG_PRESET["artist"]]
+            song_name = song_file[TAG_PRESET["title"]][0]
+            song_artists = song_file[TAG_PRESET["artist"]]
 
-    if path.name.endswith(".opus"):
-        song_file = OggOpus(str(path.resolve()))
+        if path.name.endswith(".opus"):
+            song_file = OggOpus(str(path.resolve()))
 
-        song_name = song_file[TAG_PRESET["title"]][0]
-        song_artists = song_file[TAG_PRESET["artist"]]
+            song_name = song_file[TAG_PRESET["title"]][0]
+            song_artists = song_file[TAG_PRESET["artist"]]
 
-    if path.name.endswith(".ogg"):
-        song_file = OggVorbis(str(path.resolve()))
+        if path.name.endswith(".ogg"):
+            song_file = OggVorbis(str(path.resolve()))
 
-        song_name = song_file[TAG_PRESET["title"]][0]
-        song_artists = song_file[TAG_PRESET["artist"]]
+            song_name = song_file[TAG_PRESET["title"]][0]
+            song_artists = song_file[TAG_PRESET["artist"]]
 
-    return song_name, song_artists
+        return song_name, song_artists
+
+    except Exception as e:
+        return None, None
+
+
+def apply_metadata(path: Path, console: Console):
+    """Applies the metadata (including lyrics) to the specified song based on filename."""
+
+    # Search for song object
+    filename_data = os.path.splitext(str(path.resolve()))
+    song_filename = filename_data[0]
+
+    # Remove the dot from the extension
+    song_ext = filename_data[1].replace(".", "")
+
+    song_obj = None
+    with console.status(
+        f"[bold yellow]Searching for song called: [bold bright_blue]{song_filename}[/bold bright_blue]..."
+    ):
+        #! Might or might not match the actual song
+        song_obj = Song.from_search_term(song_filename)
+
+    with console.status(
+        f"[bold yellow]Embedding data from [bold bright_blue]{song_obj.name}[/bold bright_blue] by [bold bright_blue]{song_obj.artist}[/bold bright_blue] into [bold bright_blue]{path.name}[/ bold bright_blue] "
+    ):
+        embed_metadata(output_file=path, song=song_obj, file_format=song_ext)
+
+    console.print(
+        f"[bold green]Succesfully applied metadata to [bold bright_blue]{path.name}!"
+    )
