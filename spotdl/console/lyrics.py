@@ -34,76 +34,98 @@ def set_lyrics(query: List[str], *args, **kwargs) -> None:
     # TODO: Fix issue where if the specified path in console ends with \,
     # path.resolve() adds in a quotation at the end. Raising an error.
 
-    console = Console()
+    try:
+        console = Console()
 
-    ok_songs = 0
-    error_songs = 0
+        ok_songs = 0
+        error_songs = 0
 
-    for location in query:
-        path = Path(location)
+        for location in query:
+            path = Path(location)
 
-        if path.is_file():
-            song_name, song_artists = get_song_metadata(path)
+            if path.is_file():
+                if not path.name.endswith(".mp3", ".m4a", ".flac", ".opus", ".ogg"):
+                    continue
 
-            if song_name is None:
-                console.print(
-                    f"[bold red]Could not find metadata for {path.name}. Applying metadata..."
+                song_name, song_artists = get_song_metadata(path)
+
+                if song_name is None:
+                    console.print(
+                        f"[bold red]Could not find metadata for {path.name}. Applying metadata..."
+                    )
+                    apply_metadata(path=path, console=console)
+                    continue
+
+                lyrics = search_lyrics(
+                    console=console,
+                    song_name=song_name,
+                    song_artists=song_artists,
+                    current=0,
+                    total=1,
                 )
-                apply_metadata(path=path, console=console)
+
+                if lyrics is None:
+                    error_songs += 1
+                    console.print(
+                        f"[bold red]Could not find lyrics for [bold bright_yellow]{song_name}."
+                    )
+                    continue
+
+                apply_lyrics(path=path, console=console, lyrics=lyrics)
+                ok_songs += 1
                 continue
 
-            lyrics = search_lyrics(
-                console=console,
-                song_name=song_name,
-                song_artists=song_artists,
-            )
+            # * Path is a directory
 
-            if lyrics is None:
-                error_songs += 1
-                console.print(
-                    f"[bold red]Could not find lyrics for [bold bright_yellow]{song_name}."
+            # Search for music files
+            console.print(f"[bold yellow]Looking for songs in {str(path.resolve())}")
+
+            song_filenames = os.listdir(str(path.resolve()))
+            for i, filename in enumerate(song_filenames):
+                song_path = Path(os.path.join(str(path.resolve()), filename))
+
+                if not song_path.name.endswith(
+                    ".mp3", ".m4a", ".flac", ".opus", ".ogg"
+                ):
+                    continue
+
+                song_name, song_artists = get_song_metadata(song_path)
+
+                if song_name is None:
+                    console.print(
+                        f"[bold red]Could not find metadata for {song_path.name}. Applying metadata..."
+                    )
+                    apply_metadata(path=song_path, console=console)
+                    continue
+
+                lyrics = search_lyrics(
+                    current=i,
+                    total=len(song_filenames),
+                    console=console,
+                    song_name=song_name,
+                    song_artists=song_artists,
                 )
-                continue
 
-            apply_lyrics(path=path, console=console, lyrics=lyrics)
-            ok_songs += 1
-            continue
+                if lyrics is None:
+                    error_songs += 1
+                    console.print(
+                        f"[bold red]Could not find lyrics for [bold bright_yellow]{song_name}."
+                    )
+                    continue
 
-        # * Path is a directory
+                apply_lyrics(path=song_path, console=console, lyrics=lyrics)
+                ok_songs += 1
 
-        # Search for music files
-        console.print(f"[bold yellow]Looking for songs in {str(path.resolve())}")
+            # * Runs at the end of all files in the dir. Show a summary of what was done.
 
-        for filename in os.listdir(str(path.resolve())):
-            song_path = Path(os.path.join(str(path.resolve()), filename))
+    except Exception:
+        console.print_exception()
 
-            song_name, song_artists = get_song_metadata(song_path)
-
-            if song_name is None:
-                console.print(
-                    f"[bold red]Could not find metadata for {path.name}. Applying metadata..."
-                )
-                apply_metadata(path, lyrics)
-                continue
-
-            lyrics = search_lyrics(
-                console=console, song_name=song_name, song_artists=song_artists
-            )
-
-            if lyrics is None:
-                error_songs += 1
-                console.print(
-                    f"[bold red]Could not find lyrics for [bold bright_yellow]{song_name}."
-                )
-                continue
-
-            apply_lyrics(path=song_path, console=console, lyrics=lyrics)
-            ok_songs += 1
-
-        # * Runs at the end of all files in the dir. Show a summary of what was done.
+    finally:
         console.print(
             f"Applied lyrics for [bold green]{ok_songs}[/bold green] songs. Couldn't find lyrics for [bold red]{error_songs}[/bold red] songs.\n[bold bright_blue]Total Songs:[/bold bright_blue] {ok_songs + error_songs}"
         )
+
         return None
 
 
@@ -116,7 +138,11 @@ def parse_artists(artists: str) -> List[str]:
 
 
 def search_lyrics(
-    console: Console, song_name: str, song_artists: List[str]
+    console: Console,
+    song_name: str,
+    song_artists: List[str],
+    current: int = 0,
+    total: int = 0,
 ) -> Optional[str]:
     """Searches the lyrics for a song with the specified name and artists.
 
@@ -142,7 +168,7 @@ def search_lyrics(
     """
 
     with console.status(
-        f"[bold]Getting lyrics for [bold green]{song_name}[/bold green][/bold] by [bold green]{song_artists[0]}[/bold green]"
+        f"[bold]Getting lyrics for [bold green]{song_name}[/bold green][/bold] by [bold green]{song_artists[0]}[/bold green] [bold cyan]({current + 1}/{total})"
     ):
 
         lyrics = None
