@@ -255,6 +255,7 @@ Log in by adding the --user-auth flag"
             preload=settings["preload"],
             downloader=downloader,
             m3u_file=settings["m3u"],
+            archive=settings["archive"],
         )
     except Exception:
         downloader.progress_handler.close()

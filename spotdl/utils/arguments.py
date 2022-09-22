@@ -369,6 +369,13 @@ def parse_output_options(parser: _ArgumentGroup):
         help="Use the sponsor block to download songs from yt/ytm.",
     )
 
+    # Add archive_file argument
+    parser.add_argument(
+        "--archive",
+        type=str,
+        help="Specify the file name for an archive of already downloaded songs",
+    )
+
 
 def parse_misc_options(parser: _ArgumentGroup):
     """
