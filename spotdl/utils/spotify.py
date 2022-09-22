@@ -8,6 +8,7 @@ spotify.Spotify.init(client_id, client_secret)
 ```
 """
 
+from json import dumps
 from typing import Dict, Optional
 
 from spotipy import Spotify
@@ -153,12 +154,16 @@ class SpotifyClient(Spotify, metaclass=Singleton):
             kwargs.update(args)
 
         if use_cache:
-            if cache.get(url) is not None:
-                return cache[url]
+            cache_key = dict(kwargs)
+            cache_key["url"] = url
+            cache_key["data"] = dumps(payload)
+            cache_key = dumps(cache_key)
+            if cache.get(cache_key) is not None:
+                return cache[cache_key]
 
         response = self._internal_call("GET", url, payload, kwargs)
 
         if use_cache:
-            cache[url] = response
+            cache[cache_key] = response
 
         return response
