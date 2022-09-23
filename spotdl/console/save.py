@@ -19,7 +19,7 @@ def save(
     save_path: Path,
     m3u_file: Optional[str] = None,
     preload: bool = False,
-    **_,
+    **kwargs,
 ) -> None:
     """
     Save metadata from spotify to the disk.

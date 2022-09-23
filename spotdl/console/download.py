@@ -45,7 +45,7 @@ def download(
         for result in results:
             if result[1]:
                 url_archive.add(result[0].url)
-        archive.save(archive)
+        url_archive.save(archive)
 
     if m3u_file:
         song_list = [song for song, _ in results]
