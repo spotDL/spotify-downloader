@@ -3,11 +3,11 @@ name: Tests (Pytest)
 on: [push, pull_request]
 
 jobs:
-  test:
+  test-vcr:
     if: "!contains(github.event.commits[0].message, '[skip ci]')"
     runs-on: ${{ matrix.platform }}
     strategy:
-      max-parallel: 2
+      max-parallel: 4
       matrix:
         platform: [ ubuntu-latest, macos-latest, windows-latest ]
         python-version: [ "3.7", "3.10" ]
@@ -36,6 +36,42 @@ jobs:
 
       - name: Run tests
         run: |
-          poetry run pytest --disable-vcr -vvv --vcr-record=none --ignore tests/utils/test_github.py --ignore tests/providers/lyrics/
+          poetry run pytest -vvv
+        env:
+          PLATFORM: ${{ matrix.platform }}
+
+  test:
+    if: "!contains(github.event.commits[0].message, '[skip ci]')"
+    runs-on: ${{ matrix.platform }}
+    strategy:
+      max-parallel: 1
+      matrix:
+        platform: [ ubuntu-latest, macos-latest, windows-latest ]
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install poetry
+        run: pipx install poetry
+
+      - name: Set up Python "3.10"
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+          cache: 'poetry'
+
+      - name: Install dependencies
+        run: |
+          poetry env use "3.10"
+          poetry install
+
+      - uses: FedericoCarboni/setup-ffmpeg@v1
+        id: setup-ffmpeg
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Run tests
+        run: |
+          poetry run pytest -vvv --disable-vcr --vcr-record=none --ignore tests/providers/lyrics
         env:
           PLATFORM: ${{ matrix.platform }}
