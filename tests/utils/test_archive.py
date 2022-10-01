@@ -2,6 +2,7 @@ import pytest
 
 from spotdl.utils.archive import Archive
 
+
 def test_load_archive(tmpdir, monkeypatch):
     monkeypatch.chdir(tmpdir)
     archive1 = Archive(["a", "b", "c"])

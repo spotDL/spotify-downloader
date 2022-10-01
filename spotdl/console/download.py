@@ -34,8 +34,8 @@ def download(
     # Parse the query
     songs = get_simple_songs(query)
 
+    url_archive: Archive = Archive()
     if archive:
-        url_archive: Archive = Archive()
         url_archive.load(archive)
         songs = [song for song in songs if song.url not in url_archive]
 
