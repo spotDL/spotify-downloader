@@ -143,4 +143,5 @@ DEFAULT_CONFIG = {
     "print_errors": False,
     "sponsor_block": False,
     "preload": False,
+    "archive": None,
 }

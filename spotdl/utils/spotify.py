@@ -8,6 +8,7 @@ spotify.Spotify.init(client_id, client_secret)
 ```
 """
 
+from json import dumps
 from typing import Dict, Optional
 
 from spotipy import Spotify
@@ -15,8 +16,6 @@ from spotipy.cache_handler import CacheFileHandler, MemoryCacheHandler
 from spotipy.oauth2 import SpotifyClientCredentials, SpotifyOAuth
 
 from spotdl.utils.config import get_cache_path
-
-cache: Dict[str, Dict] = {}
 
 
 class SpotifyError(Exception):
@@ -128,6 +127,7 @@ class SpotifyClient(Spotify, metaclass=Singleton):
     """
 
     _initialized = False
+    cache: Dict[str, Optional[Dict]] = {}
 
     def __init__(self, *args, **kwargs):
         """
@@ -152,13 +152,18 @@ class SpotifyClient(Spotify, metaclass=Singleton):
         if args:
             kwargs.update(args)
 
+        cache_key = None
         if use_cache:
-            if cache.get(url) is not None:
-                return cache[url]
+            key_obj = dict(kwargs)
+            key_obj["url"] = url
+            key_obj["data"] = dumps(payload)
+            cache_key = dumps(key_obj)
+            if self.cache.get(cache_key) is not None:
+                return self.cache[cache_key]
 
         response = self._internal_call("GET", url, payload, kwargs)
 
-        if use_cache:
-            cache[url] = response
+        if use_cache and cache_key is not None:
+            self.cache[cache_key] = response
 
         return response
