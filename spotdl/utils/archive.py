@@ -22,11 +22,14 @@ class Archive(Set):
         ### Returns
         - if the file exists
         """
+
         if not exists(file):
             return False
+
         with open(file, "r", encoding="utf-8") as archive:
             self.clear()
             self.update([line.strip() for line in archive])
+
         return True
 
     def save(self, file: str) -> bool:
@@ -36,7 +39,9 @@ class Archive(Set):
         ### Arguments
         - file: the file name of the archive
         """
+
         with open(file, "w", encoding="utf-8") as archive:
             for element in sorted(self):
                 archive.write(f"{element}\n")
+
         return True
