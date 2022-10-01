@@ -15,6 +15,7 @@ from rich.console import Console
 from spotdl.console.download import download
 from spotdl.console.sync import sync
 from spotdl.console.save import save
+from spotdl.console.lyrics import set_lyrics
 from spotdl.console.web import web
 from spotdl.download import Downloader
 from spotdl.providers.audio.base import AudioProviderError
@@ -35,6 +36,7 @@ OPERATIONS = {
     "download": download,
     "sync": sync,
     "save": save,
+    "lyrics": set_lyrics,
 }
 
 
@@ -192,6 +194,7 @@ def entry_point():
     try:
         # Pick the operation to perform
         # based on the name and run it!
+
         OPERATIONS[arguments.operation](
             query=arguments.query,
             save_path=settings["save_file"],
@@ -200,6 +203,7 @@ def entry_point():
             m3u_file=settings["m3u"],
             archive=settings["archive"],
         )
+
     except Exception:
         downloader.progress_handler.close()
 
