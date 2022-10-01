@@ -1,6 +1,6 @@
-from spotdl.utils.spotify import SpotifyClient, SpotifyError
-
 import pytest
+
+from spotdl.utils.spotify import SpotifyClient, SpotifyError
 
 
 def test_init(patch_dependencies):
@@ -12,6 +12,7 @@ def test_init(patch_dependencies):
         client_id="client_id",
         client_secret="client_secret",
         user_auth=False,
+        no_cache=True,
     )
 
     assert SpotifyClient._instance is not None
@@ -28,9 +29,11 @@ def test_multiple_init():
             client_id="client_id",
             client_secret="client_secret",
             user_auth=False,
+            no_cache=True,
         )
         SpotifyClient.init(
             client_id="client_id",
             client_secret="client_secret",
             user_auth=False,
+            no_cache=True,
         )

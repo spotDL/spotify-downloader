@@ -44,5 +44,8 @@ def download(
         # Save the songs to a file
         with open(save_path, "w", encoding="utf-8") as save_file:
             json.dump(
-                [song.json for song in songs], save_file, indent=4, ensure_ascii=False
+                [song.json for song, _ in results],
+                save_file,
+                indent=4,
+                ensure_ascii=False,
             )
