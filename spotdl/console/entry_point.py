@@ -198,6 +198,7 @@ def entry_point():
             preload=settings["preload"],
             downloader=downloader,
             m3u_file=settings["m3u"],
+            archive=settings["archive"],
         )
     except Exception:
         downloader.progress_handler.close()
