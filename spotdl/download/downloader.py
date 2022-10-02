@@ -389,16 +389,16 @@ class Downloader:
             song_meta = get_song_metadata(output_file)
             if song_meta is None:
                 self.progress_handler.debug(
-                    f"Metadata not found for {song.display_name}, "
-                    "overwriting file"
+                    f"Metadata not found for {song.display_name}, " "overwriting file"
                 )
             else:
                 self.progress_handler.debug(
-                    f"Metadata found for {song.display_name}, "
-                    "overwriting file"
+                    f"Metadata found for {song.display_name}, " "overwriting file"
                 )
 
-            embed_metadata(output_file=output_file, song=song, file_format=self.output_format)
+            embed_metadata(
+                output_file=output_file, song=song, file_format=self.output_format
+            )
 
             return song, output_file
 

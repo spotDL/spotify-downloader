@@ -16,17 +16,15 @@ from pathlib import Path
 from typing import Any, Dict, Optional
 from urllib.request import urlopen
 
-from mutagen import MutagenError, File
+from mutagen import File
 from mutagen.oggopus import OggOpus
 from mutagen.mp4 import MP4, MP4Cover
 from mutagen.flac import Picture, FLAC
 from mutagen.oggvorbis import OggVorbis
 from mutagen.easyid3 import EasyID3, ID3
 from mutagen.id3 import APIC as AlbumCover, USLT, COMM as Comment, ID3NoHeaderError
-from spotdl.download.downloader import Downloader
 
 from spotdl.types import Song
-from spotdl.utils.search import create_empty_song, get_search_results
 
 
 class MetadataError(Exception):
