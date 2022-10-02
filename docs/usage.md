@@ -294,7 +294,7 @@ Output options:
   --output OUTPUT       Specify the downloaded file name format, available variables: {title}, {artists}, {artist}, {album}, {album-artist}, {genre}, {disc-number}, {disc-count}, {duration},
                         {year}, {original-date}, {track-number}, {tracks-count}, {isrc}, {track-id}, {publisher}, {list-length}, {list-position}, {list-name}, {output-ext}
   --m3u M3U             Name of the m3u file to save the songs to.
-  --overwrite {force,skip}
+  --overwrite {skip,force,meta}
                         Overwrite existing files.
   --restrict            Restrict filenames to ASCII only
   --print-errors        Print errors (wrong songs, failed downloads etc) on exit, useful for long playlist

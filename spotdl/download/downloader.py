@@ -18,7 +18,7 @@ from yt_dlp.postprocessor.modify_chapters import ModifyChaptersPP
 
 from spotdl.types import Song, SongList
 from spotdl.utils.ffmpeg import FFmpegError, convert, get_ffmpeg_path
-from spotdl.utils.metadata import embed_metadata, MetadataError
+from spotdl.utils.metadata import embed_metadata, MetadataError, get_song_metadata
 from spotdl.utils.formatter import create_file_name, restrict_filename
 from spotdl.providers.audio.base import AudioProvider
 from spotdl.providers.lyrics import Genius, MusixMatch, AzLyrics
@@ -359,6 +359,16 @@ class Downloader:
             # Reinitialize the song object
             song = Song(**data)
 
+        # Find song lyrics and add them to the song object
+        try:
+            song.lyrics = self.search_lyrics(song)
+        except LookupError:
+            self.progress_handler.debug(
+                f"No lyrics found for {song.display_name}, "
+                "lyrics providers: "
+                f"{', '.join([lprovider.name for lprovider in self.lyrics_providers])}"
+            )
+
         # Create the output file path
         output_file = create_file_name(song, self.output, self.output_format)
         temp_folder = get_temp_path()
@@ -374,6 +384,23 @@ class Downloader:
             self.progress_handler.overall_completed_tasks += 1
             self.progress_handler.update_overall()
             return song, None
+
+        if output_file.exists() and self.overwrite == "metadata":
+            song_meta = get_song_metadata(output_file)
+            if song_meta is None:
+                self.progress_handler.debug(
+                    f"Metadata not found for {song.display_name}, "
+                    "overwriting file"
+                )
+            else:
+                self.progress_handler.debug(
+                    f"Metadata found for {song.display_name}, "
+                    "overwriting file"
+                )
+
+            embed_metadata(output_file=output_file, song=song, file_format=self.output_format)
+
+            return song, output_file
 
         # Don't skip if the file exists and overwrite is set to force
         if output_file.exists() and self.overwrite == "force":
@@ -493,15 +520,6 @@ class Downloader:
 
                     for file_to_delete in files_to_delete:
                         Path(file_to_delete).unlink()
-
-            try:
-                song.lyrics = self.search_lyrics(song)
-            except LookupError:
-                self.progress_handler.debug(
-                    f"No lyrics found for {song.display_name}, "
-                    "lyrics providers: "
-                    f"{', '.join([lprovider.name for lprovider in self.lyrics_providers])}"
-                )
 
             try:
                 embed_metadata(output_file, song, self.output_format)
