@@ -203,8 +203,9 @@ If you don't want config to load automatically change `load_config` option in co
         "youtube-music"
     ],
     "lyrics_providers": [
+        "genius",
+        "azlyrics"
         "musixmatch",
-        "genius"
     ],
     "ffmpeg": "ffmpeg",
     "bitrate": null,
@@ -227,7 +228,8 @@ If you don't want config to load automatically change `load_config` option in co
     "restrict": false,
     "print_errors": false,
     "sponsor_block": false,
-    "preload": false
+    "preload": false,
+    "archive": null
 }
 ```
 
@@ -240,12 +242,13 @@ options:
   -h, --help            show this help message and exit
 
 Main options:
-  {download,save,web,sync}
+  {download,save,web,sync,meta}
                         The operation to perform.
                         download: Download the songs to the disk and embed metadata.
                         save: Saves the songs metadata to a file for further use.
                         web: Starts a web interface to simplify the download process.
-                        sync: removes songs that are no longer present, downloads new ones
+                        sync: Removes songs that are no longer present, downloads new ones
+                        meta: Update your audio files with metadata
   query                 Spotify URL for a song/playlist/album/artist/etc. to download.For manual audio matching, you can use the format 'YouTubeURL|SpotifyURL'
   --audio [{youtube,youtube-music} ...]
                         The audio provider to use. You can provide more than one for fallback.
@@ -255,11 +258,12 @@ Main options:
   --search-query SEARCH_QUERY
                         The search query to use, available variables: {title}, {artists}, {artist}, {album}, {album-artist}, {genre}, {disc-number}, {disc-count}, {duration}, {year}, {original-
                         date}, {track-number}, {tracks-count}, {isrc}, {track-id}, {publisher}, {list-length}, {list-position}, {list-name}, {output-ext}
-  --dont-filter-results
+  --dont-filter-results FILTER_RESULTS
                         Disable filtering results.
 
 Spotify options:
-  --user-auth           Login to Spotify using OAuth.
+  --user-auth USER_AUTH
+                        Login to Spotify using OAuth.
   --client-id CLIENT_ID
                         The client id to use when logging in to Spotify.
   --client-secret CLIENT_SECRET
@@ -290,7 +294,7 @@ Output options:
   --output OUTPUT       Specify the downloaded file name format, available variables: {title}, {artists}, {artist}, {album}, {album-artist}, {genre}, {disc-number}, {disc-count}, {duration},
                         {year}, {original-date}, {track-number}, {tracks-count}, {isrc}, {track-id}, {publisher}, {list-length}, {list-position}, {list-name}, {output-ext}
   --m3u M3U             Name of the m3u file to save the songs to.
-  --overwrite {skip,force}
+  --overwrite {force,skip}
                         Overwrite existing files.
   --restrict            Restrict filenames to ASCII only
   --print-errors        Print errors (wrong songs, failed downloads etc) on exit, useful for long playlist

@@ -13,16 +13,20 @@ embed_metadata(
 import base64
 
 from pathlib import Path
+from typing import Any, Dict, Optional
 from urllib.request import urlopen
 
+from mutagen import MutagenError, File
 from mutagen.oggopus import OggOpus
 from mutagen.mp4 import MP4, MP4Cover
 from mutagen.flac import Picture, FLAC
 from mutagen.oggvorbis import OggVorbis
 from mutagen.easyid3 import EasyID3, ID3
-from mutagen.id3 import APIC as AlbumCover, USLT, COMM as Comment
+from mutagen.id3 import APIC as AlbumCover, USLT, COMM as Comment, ID3NoHeaderError
+from spotdl.download.downloader import Downloader
 
 from spotdl.types import Song
+from spotdl.utils.search import create_empty_song, get_search_results
 
 
 class MetadataError(Exception):
@@ -68,7 +72,15 @@ def set_id3_mp3(output_file: Path, song: Song):
     - song: Song object.
     """
 
-    audio_file = EasyID3(str(output_file.resolve()))
+    try:
+        audio_file = EasyID3(str(output_file.resolve()))
+    except ID3NoHeaderError as exc:
+        audio_file = File(str(output_file.resolve()), easy=True)
+        if audio_file is None:
+            raise MetadataError("Unable to load file.") from exc
+
+        audio_file.add_tags()
+
     audio_file.delete()
 
     audio_file["title"] = song.name
@@ -331,3 +343,36 @@ def embed_metadata(output_file: Path, song: Song, file_format: str) -> None:
     function = AVAILABLE_FORMATS.get(file_format)
     if function:
         function(output_file, song)
+
+
+def get_song_metadata(path: Path) -> Optional[Dict[str, Any]]:
+    """
+    Get song metadata.
+
+    ### Arguments
+    - path: Path to the song.
+
+    ### Returns
+    - Tuple containing the song name and a dict with other metadata.
+
+    ### Raises
+    - OSError: If the file is not found.
+    - MetadataError: If the file is not a valid audio file.
+    """
+
+    if path.exists() is False:
+        raise OSError(f"File not found: {path}")
+
+    audio_file = File(str(path.resolve()), easy=True)
+
+    if audio_file is None or audio_file == {}:
+        return None
+
+    song_meta = {}
+    for key in TAG_PRESET:
+        song_meta[key] = audio_file.get(key)
+
+    if path.suffix == ".mp3":
+        song_meta["lyrics"] = audio_file.get("USLT::'eng'")
+
+    return song_meta

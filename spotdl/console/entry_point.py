@@ -15,7 +15,7 @@ from rich.console import Console
 from spotdl.console.download import download
 from spotdl.console.sync import sync
 from spotdl.console.save import save
-from spotdl.console.lyrics import set_lyrics
+from spotdl.console.meta import meta
 from spotdl.console.web import web
 from spotdl.download import Downloader
 from spotdl.providers.audio.base import AudioProviderError
@@ -36,7 +36,7 @@ OPERATIONS = {
     "download": download,
     "sync": sync,
     "save": save,
-    "lyrics": set_lyrics,
+    "meta": meta,
 }
 
 

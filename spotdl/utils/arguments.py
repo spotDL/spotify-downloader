@@ -19,7 +19,7 @@ from spotdl.download.downloader import (
 )
 
 
-OPERATIONS = ["download", "save", "web", "sync", "lyrics"]
+OPERATIONS = ["download", "save", "web", "sync", "meta"]
 
 
 class SmartFormatter(argparse.HelpFormatter):
@@ -104,8 +104,8 @@ def parse_main_options(parser: _ArgumentGroup):
             "download: Download the songs to the disk and embed metadata.\n"
             "save: Saves the songs metadata to a file for further use.\n"
             "web: Starts a web interface to simplify the download process.\n"
-            "sync: removes songs that are no longer present, downloads new ones\n"
-            "lyrics: Adds the lyrics to the specified song or paths.\n"
+            "sync: Removes songs that are no longer present, downloads new ones\n"
+            "meta: Update your audio files with metadata\n"
         ),
     )
 
