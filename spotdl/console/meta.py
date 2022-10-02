@@ -103,6 +103,8 @@ def meta(query: List[str], downloader: Downloader, **_) -> None:
 
         downloader.progress_handler.log(f"Applied metadata to {file.name}")
 
+        return None
+
     async def pool_worker(file_path: Path) -> None:
         async with downloader.semaphore:
             # The following function calls blocking code, which would block whole event loop.
