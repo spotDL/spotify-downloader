@@ -138,6 +138,8 @@ class YouTubeMusic(AudioProvider):
             if result is None or result.get("videoId") is None:
                 continue
 
+            artists_names = list(map(lambda a: a["name"], result["artists"]))
+
             simplified_results.append(
                 {
                     "name": result["title"],
@@ -147,7 +149,8 @@ class YouTubeMusic(AudioProvider):
                     if result.get("album")
                     else None,
                     "duration": parse_duration(result.get("duration")),
-                    "artists": ", ".join(map(lambda a: a["name"], result["artists"])),
+                    "artists": ", ".join(artists_names),
+                    "artists_list": artists_names,
                 }
             )
 
@@ -233,6 +236,23 @@ class YouTubeMusic(AudioProvider):
                 if channel_name_match > artist_match_number:
                     artist_match = channel_name_match
                     # print("second artist_match: ", artist_match)
+
+            # if the result doesn't have the same number of artists but has
+            # the same main artist and similar name
+            # we add 30% to the artist match
+            if (
+                artist_match
+                <= 70
+                < fuzz.partial_token_sort_ratio(
+                    slug_result_name,
+                    slug_song_name,
+                )
+                and result["type"] == "song"
+                and len(result["artists_list"]) < len(song.artists)
+                and slugify(result["artists_list"][0]) == slug_song_artist
+            ):
+                artist_match = artist_match + 30
+                # print("hacky artist_match: ", artist_match)
 
             # skip results with artist match lower than 70%
             if artist_match < 70:
