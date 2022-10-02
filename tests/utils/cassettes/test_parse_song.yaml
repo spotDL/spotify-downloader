@@ -7,7 +7,7 @@ interactions:
       Accept-Encoding:
       - gzip, deflate, br
       Authorization:
-      - Bearer BQD2HmAYV7G_JV0yUwvOwFwnCjc_Fa7QRrxWvHHiu0NQ9vqtoNHzqRmF9z55LRWDLnqkyJ5txlLcXmDYg7y4i_mXurCV7e6AAbVYlz6Vv6kNS6FQLyU
+      - Bearer BQAPxqkzMGiBNiGpUVKnk-ghsrhXi7Y6IjXVL1IPIboq75ZOVngWrntJhPkUvkhCydplViIJT82-hNQwcxAR3Ha-uUklphUsKmnTD17aPlxqaPi04dw
       Connection:
       - keep-alive
       Content-Type:
@@ -57,7 +57,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Sun, 02 Oct 2022 15:23:03 GMT
+      - Sun, 02 Oct 2022 17:00:31 GMT
       server:
       - envoy
       strict-transport-security:
@@ -77,7 +77,7 @@ interactions:
       Accept-Encoding:
       - gzip, deflate, br
       Authorization:
-      - Bearer BQD2HmAYV7G_JV0yUwvOwFwnCjc_Fa7QRrxWvHHiu0NQ9vqtoNHzqRmF9z55LRWDLnqkyJ5txlLcXmDYg7y4i_mXurCV7e6AAbVYlz6Vv6kNS6FQLyU
+      - Bearer BQAPxqkzMGiBNiGpUVKnk-ghsrhXi7Y6IjXVL1IPIboq75ZOVngWrntJhPkUvkhCydplViIJT82-hNQwcxAR3Ha-uUklphUsKmnTD17aPlxqaPi04dw
       Connection:
       - keep-alive
       Content-Type:
@@ -115,13 +115,13 @@ interactions:
       access-control-max-age:
       - '604800'
       cache-control:
-      - public, max-age=82729
+      - public, max-age=77804
       content-encoding:
       - gzip
       content-type:
       - application/json; charset=utf-8
       date:
-      - Sun, 02 Oct 2022 15:23:03 GMT
+      - Sun, 02 Oct 2022 17:00:31 GMT
       server:
       - envoy
       strict-transport-security:
@@ -141,7 +141,7 @@ interactions:
       Accept-Encoding:
       - gzip, deflate, br
       Authorization:
-      - Bearer BQD2HmAYV7G_JV0yUwvOwFwnCjc_Fa7QRrxWvHHiu0NQ9vqtoNHzqRmF9z55LRWDLnqkyJ5txlLcXmDYg7y4i_mXurCV7e6AAbVYlz6Vv6kNS6FQLyU
+      - Bearer BQAPxqkzMGiBNiGpUVKnk-ghsrhXi7Y6IjXVL1IPIboq75ZOVngWrntJhPkUvkhCydplViIJT82-hNQwcxAR3Ha-uUklphUsKmnTD17aPlxqaPi04dw
       Connection:
       - keep-alive
       Content-Type:
@@ -227,13 +227,13 @@ interactions:
       access-control-max-age:
       - '604800'
       cache-control:
-      - public, max-age=72449
+      - public, max-age=72752
       content-encoding:
       - gzip
       content-type:
       - application/json; charset=utf-8
       date:
-      - Sun, 02 Oct 2022 15:23:03 GMT
+      - Sun, 02 Oct 2022 17:00:31 GMT
       server:
       - envoy
       strict-transport-security:

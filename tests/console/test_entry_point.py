@@ -67,6 +67,8 @@ def test_download_song(capsys, monkeypatch, tmpdir):
         "--no-cache",
         "--log-level",
         "DEBUG",
+        "--lyrics",
+        "genius",
     ]
 
     monkeypatch.setattr(sys, "argv", cli_args)
@@ -99,6 +101,8 @@ def test_preload_song(capsys, monkeypatch, tmpdir):
         "--no-cache",
         "--log-level",
         "DEBUG",
+        "--lyrics",
+        "genius",
     ]
 
     monkeypatch.setattr(sys, "argv", cli_args)
