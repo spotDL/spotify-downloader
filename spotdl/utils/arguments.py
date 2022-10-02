@@ -342,7 +342,7 @@ def parse_output_options(parser: _ArgumentGroup):
     # Add overwrite argument
     parser.add_argument(
         "--overwrite",
-        choices={"force", "skip"},
+        choices={"force", "skip", "metadata"},
         help="Overwrite existing files.",
     )
 
