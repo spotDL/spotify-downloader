@@ -16,9 +16,9 @@ from typing import Dict, List, Optional, Tuple, Type
 from yt_dlp.postprocessor.sponsorblock import SponsorBlockPP
 from yt_dlp.postprocessor.modify_chapters import ModifyChaptersPP
 
-from spotdl.types import Song
+from spotdl.types import Song, SongList
 from spotdl.utils.ffmpeg import FFmpegError, convert, get_ffmpeg_path
-from spotdl.utils.metadata import embed_metadata, MetadataError
+from spotdl.utils.metadata import embed_metadata, MetadataError, get_song_metadata
 from spotdl.utils.formatter import create_file_name, restrict_filename
 from spotdl.providers.audio.base import AudioProvider
 from spotdl.providers.lyrics import Genius, MusixMatch, AzLyrics
@@ -144,17 +144,14 @@ class Downloader:
 
             lyrics_providers_classes.append(new_lyrics_provider)
 
-        if loop is None:
-            if sys.platform == "win32":
-                # ProactorEventLoop is required on Windows to run subprocess asynchronously
-                # it is default since Python 3.8 but has to be changed for previous versions
-                self.loop = asyncio.ProactorEventLoop()
-            else:
-                self.loop = asyncio.new_event_loop()
+        self.loop = loop or (
+            asyncio.new_event_loop()
+            if sys.platform != "win32"
+            else asyncio.ProactorEventLoop()  # type: ignore
+        )
 
+        if loop is None:
             asyncio.set_event_loop(self.loop)
-        else:
-            self.loop = loop
 
         # semaphore is required to limit concurrent asyncio executions
         self.semaphore = asyncio.Semaphore(threads)
@@ -232,7 +229,7 @@ class Downloader:
         tasks = [self.pool_download(song) for song in songs]
 
         # call all task asynchronously, and wait until all are finished
-        results = list(self.loop.run_until_complete(self._aggregate_tasks(tasks)))
+        results = list(self.loop.run_until_complete(self.aggregate_tasks(tasks)))
 
         if self.print_errors:
             for error in self.errors:
@@ -353,10 +350,24 @@ class Downloader:
 
             if data.get("song_list"):
                 # Reinitialize the correct song list object
-                data["song_list"] = song.song_list.__class__(**data["song_list"])
+                song_list: Type[SongList] = song.song_list.__class__(
+                    **data["song_list"]
+                )
+                data["song_list"] = song_list
+                data["list_position"] = song_list.urls.index(song.url)
 
             # Reinitialize the song object
             song = Song(**data)
+
+        # Find song lyrics and add them to the song object
+        try:
+            song.lyrics = self.search_lyrics(song)
+        except LookupError:
+            self.progress_handler.debug(
+                f"No lyrics found for {song.display_name}, "
+                "lyrics providers: "
+                f"{', '.join([lprovider.name for lprovider in self.lyrics_providers])}"
+            )
 
         # Create the output file path
         output_file = create_file_name(song, self.output, self.output_format)
@@ -373,6 +384,23 @@ class Downloader:
             self.progress_handler.overall_completed_tasks += 1
             self.progress_handler.update_overall()
             return song, None
+
+        if output_file.exists() and self.overwrite == "metadata":
+            song_meta = get_song_metadata(output_file)
+            if song_meta is None:
+                self.progress_handler.debug(
+                    f"Metadata not found for {song.display_name}, " "overwriting file"
+                )
+            else:
+                self.progress_handler.debug(
+                    f"Metadata found for {song.display_name}, " "overwriting file"
+                )
+
+            embed_metadata(
+                output_file=output_file, song=song, file_format=self.output_format
+            )
+
+            return song, output_file
 
         # Don't skip if the file exists and overwrite is set to force
         if output_file.exists() and self.overwrite == "force":
@@ -494,15 +522,6 @@ class Downloader:
                         Path(file_to_delete).unlink()
 
             try:
-                song.lyrics = self.search_lyrics(song)
-            except LookupError:
-                self.progress_handler.debug(
-                    f"No lyrics found for {song.display_name}, "
-                    "lyrics providers: "
-                    f"{', '.join([lprovider.name for lprovider in self.lyrics_providers])}"
-                )
-
-            try:
                 embed_metadata(output_file, song, self.output_format)
             except Exception as exception:
                 raise MetadataError(
@@ -524,7 +543,7 @@ class Downloader:
             return song, None
 
     @staticmethod
-    async def _aggregate_tasks(tasks):
+    async def aggregate_tasks(tasks):
         """
         Aggregate the futures and return the results
         """

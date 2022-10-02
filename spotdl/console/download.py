@@ -10,6 +10,7 @@ from pathlib import Path
 from spotdl.download.downloader import Downloader
 from spotdl.utils.m3u import create_m3u_file
 from spotdl.utils.search import get_simple_songs
+from spotdl.utils.archive import Archive
 
 
 def download(
@@ -17,6 +18,7 @@ def download(
     downloader: Downloader,
     save_path: Optional[Path] = None,
     m3u_file: Optional[str] = None,
+    archive: Optional[str] = None,
     **_
 ) -> None:
     """
@@ -32,7 +34,18 @@ def download(
     # Parse the query
     songs = get_simple_songs(query)
 
+    url_archive: Archive = Archive()
+    if archive:
+        url_archive.load(archive)
+        songs = [song for song in songs if song.url not in url_archive]
+
     results = downloader.download_multiple_songs(songs)
+
+    if archive:
+        for result in results:
+            if result[1]:
+                url_archive.add(result[0].url)
+        url_archive.save(archive)
 
     if m3u_file:
         song_list = [song for song, _ in results]
@@ -44,5 +57,8 @@ def download(
         # Save the songs to a file
         with open(save_path, "w", encoding="utf-8") as save_file:
             json.dump(
-                [song.json for song in songs], save_file, indent=4, ensure_ascii=False
+                [song.json for song, _ in results],
+                save_file,
+                indent=4,
+                ensure_ascii=False,
             )

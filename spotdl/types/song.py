@@ -36,14 +36,15 @@ class Song:
     track_number: int
     tracks_count: int
     song_id: str
-    cover_url: Optional[str]
     explicit: bool
     publisher: str
     url: str
     isrc: Optional[str]
+    cover_url: Optional[str]
     copyright_text: Optional[str]
     download_url: Optional[str] = None
     song_list: Optional["SongList"] = None
+    list_position: Optional[int] = None
     lyrics: Optional[str] = None
 
     @classmethod

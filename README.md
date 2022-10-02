@@ -1,6 +1,6 @@
 <!--- mdformat-toc start --slug=github --->
 
-<!--- 
+<!---
 !!! IF EDITING THE README, ENSURE TO COPY THE WHOLE FILE TO index.md in `/docs/`
 --->
 
@@ -25,7 +25,7 @@ Download your Spotify playlists and songs along with album art and metadata
 
 Please note that v4 is still being worked on, is **not yet fully stable** and unreleased.
 
-To install v4's latest release candidate run `pip install -U --force spotdl==4.0.0rc3`
+To install v4's latest release candidate run `pip install -U --force spotdl==4.0.0rc4`
 > This is correct, the below commands will not install v4.
 
 To install v3 or downgrade to it, run `pip install -U --force spotdl==3.9.6`
@@ -77,7 +77,7 @@ Refer to our [Installation Guide](https://spotdl.rtfd.io/en/latest/installation/
 
 ### Installing FFmpeg
 
-If using FFmpeg only for spotDL, you can install FFmpeg to your local directory.  
+If using FFmpeg only for spotDL, you can install FFmpeg to your local directory.
 `spotdl --download-ffmpeg` will download FFmpeg to your spotDL installation directory.
 
 We recommend the above option, but if you want to install FFmpeg system-wide,

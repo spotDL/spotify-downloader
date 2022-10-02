@@ -9,7 +9,7 @@ interactions:
       Connection:
       - keep-alive
       User-Agent:
-      - python-requests/2.28.0
+      - python-requests/2.28.1
     method: GET
     uri: https://api.github.com/repos/spotdl/spotify-downloader-fail/releases/latest
   response:
@@ -35,7 +35,7 @@ interactions:
       Content-Type:
       - application/json; charset=utf-8
       Date:
-      - Thu, 23 Jun 2022 08:18:37 GMT
+      - Sun, 02 Oct 2022 16:59:57 GMT
       Referrer-Policy:
       - origin-when-cross-origin, strict-origin-when-cross-origin
       Server:
@@ -51,17 +51,17 @@ interactions:
       X-GitHub-Media-Type:
       - github.v3; format=json
       X-GitHub-Request-Id:
-      - BBEE:6FF5:4ED1AA:58E7F6:62B421DC
+      - F38F:5879:7E7D538:806A872:6339C38D
       X-RateLimit-Limit:
       - '60'
       X-RateLimit-Remaining:
-      - '50'
+      - '45'
       X-RateLimit-Reset:
-      - '1655974548'
+      - '1664732454'
       X-RateLimit-Resource:
       - core
       X-RateLimit-Used:
-      - '10'
+      - '15'
       X-XSS-Protection:
       - '0'
     status:

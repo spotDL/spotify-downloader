@@ -7,95 +7,95 @@ interactions:
       Accept-Encoding:
       - gzip, deflate, br
       Authorization:
-      - Bearer BQDfz9ppb85lYnWSTeITHQIWdv5T77bQQHpwtkwabt1Vni2fb-zT3EzcHLwIE6BYyoQ5meyUaUsqgRf7z5ZtdqasOKsPVXfop_pIUZX0mtJgwusZcK0
+      - Bearer BQAPxqkzMGiBNiGpUVKnk-ghsrhXi7Y6IjXVL1IPIboq75ZOVngWrntJhPkUvkhCydplViIJT82-hNQwcxAR3Ha-uUklphUsKmnTD17aPlxqaPi04dw
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       User-Agent:
-      - python-requests/2.28.0
+      - python-requests/2.28.1
     method: GET
     uri: https://api.spotify.com/v1/playlists/78Lg6HmUqlTnmipvNxc536?additional_types=track
   response:
     body:
       string: !!binary |
-        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
-        a/ZHlQ+Nn9269/f/AwAA//8DABcKffEcpwAA
+        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
+        97pmf1T50ITplXt//z8AAAD//wMAMZn0whanAAA=
     headers:
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
@@ -121,9 +121,9 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Thu, 23 Jun 2022 08:18:42 GMT
+      - Sun, 02 Oct 2022 17:00:04 GMT
       etag:
-      - '"MC-IjFjYjYxNWJkOWRkMWJmMzMxZjRkYjcwYWY5MzVhZDU2Ig=="'
+      - '"MC-IjYyOTk3NDc4MmU4MWQzZjQ4NGI0MDhlNzA5MGMyMmQ1Ig=="'
       server:
       - envoy
       strict-transport-security:
@@ -143,88 +143,88 @@ interactions:
       Accept-Encoding:
       - gzip, deflate, br
       Authorization:
-      - Bearer BQDfz9ppb85lYnWSTeITHQIWdv5T77bQQHpwtkwabt1Vni2fb-zT3EzcHLwIE6BYyoQ5meyUaUsqgRf7z5ZtdqasOKsPVXfop_pIUZX0mtJgwusZcK0
+      - Bearer BQAPxqkzMGiBNiGpUVKnk-ghsrhXi7Y6IjXVL1IPIboq75ZOVngWrntJhPkUvkhCydplViIJT82-hNQwcxAR3Ha-uUklphUsKmnTD17aPlxqaPi04dw
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       User-Agent:
-      - python-requests/2.28.0
+      - python-requests/2.28.1
     method: GET
     uri: https://api.spotify.com/v1/playlists/78Lg6HmUqlTnmipvNxc536/tracks?limit=100&offset=0&additional_types=track%2Cepisode
   response:
     body:
       string: !!binary |
-        H4sIAAAAAAAAAOxdaW/jOBL9Pr/Ca2Dn02Si+wjQGMRHbMdHlPhKslgElEQliuUjkmzHHvR/X6mc
-        dmxHEuVDdnagRoPotoqPxSJZrEdS1N+/ZTLZFxsb2cyF9w/XHTkX5+doZP7pjIauacz+1Ib98wl9
-        PrLQzDId1zkXpdqzUO6336zWoG+OJo13jWeFc9dGWs/5a2gYDnZ/UL9bZt90f9AU9TvSddM1hwNk
-        PbmzEXZ+gOi/mTwemc5Qx9k/fCVMF/cdX4v/ZP72/u/94uXD+hNyQTWGYugzmj6j+BbDXlDeX+oR
-        Mi4F1ZkvuMjr/YjfXWz7ZY5ty1l94j37qNtanYcjPFir9NjB9jlDiwNxOsOjvuYJTBnxzRJeRAa/
-        ZT/Qfv7xq8A4VvQxnQjQJZipL2pNlvRNCrI+9ufPY9uEXz8UuPCfXhBq81GXrOk8WUMNWT6AgSwH
-        f/w+ss0+smdP2tAa2v7DwdiyPp5Bm641ALLUcX/D8PDb01Jlxxw8W3iptC9gu34nW+0H5PaM36YL
-        +HPq3RDeXitTnLemj6XrZpvRr+vT7Argzz9Wy47TtB+ah2Gv4X20bhzRAeovbJWz0BzZzvrTpSUX
-        pa8/3OwCC5kLUuV/Zv672iATZFpItfCT1/Q9/KtpVkUiWyZmu/j94pwr2WPUaHM217i77LT5qdi7
-        b3VXNFspNFaT+KhOGOwK2Ed7xBDso2cc1DtfsPn8Ap5K4KiNVrDW9PS01PSBp+I5gJ0jVRAFWtAp
-        74/KiKykSobKijTDcYaga7SgUrIhytx6205N3X35KG7FPmFKsdTuStGYYrZUyisuhlICt7NOnMTT
-        WxsqpIcvR5gytJBtro6wrI0tjBz8pCMXf0xDtHBGU2e0FCb2NLKxZjrefAcZdDRblXSHrj8Nwlzp
-        P6dXny0HM3jOlSdfRrIvcBE9XD4nphCfepBxG8+fbj1w4/rS2J40yo9GeNHdfOhK/yL6z6xuOtrT
-        YNxXsb3WIbL62EZ+2PS0CIsYVvD6//Lpr9hpfYqGVh1Zpma6QU8+2tvUNwMi07E1qGcpx9QKlEwx
-        3vj62pP2jqmg45/z1amFlP78svf6Zr93LFN5ldzcbhHVYiiFQW7GU0Sx4MgnyktkR8PR2P/JhbrT
-        0ucDG09MPH36cGyfwdJquOTaY7z+a2BnWHbRRcbQMA8eX0QZ+FeQNzF1PHxyX7zCBl4XXQvdVjRe
-        5PltxY8T4nJaTOPytRZL4/I0Lv//jsvFXPt50Ck/4t7MVIQGmjqKQpX3jstDYL/O7jEEk4/Ladab
-        FJGs6pomy6omcxwncyzLnzQu31Kpo8TlWxuKFJc3hrb74vXkTM3XkBifi2cUc0bJp4/Po4dNGp//
-        s+JzWuYZXjxKfE6L3lAT6MTic3ZU7+i9u6paLnS4eX/y1m1YjcJe8XkI5GZcRRQjx+dh3mIjTme+
-        Q5weZeik43RGTuP0tRZL4/TY8wnNizXJbJWfVd2udt712+K9NX45TJwegh0Up8cRXfqF2tBxM83e
-        bP9AnVT7zcjqoAypcSM1nSth3H+tsObt9bw10zpXB2JIwdiBDCmG6NLy1/j9AOyIUPHTsSNmVm5d
-        8Tdi31Cfx9XhnEPKqH+7NzsKgf0aW8UQTJ4dIYE2GEaQKUGgVJ1nBC/o53nmtLsWWyp1FHa0taFI
-        7KjrBTs408WZpusNFayT6JEMUYB4enoUPW6OSY/IDn03ekScn2JPZJHT2A78KLrGa53/kDSU5MN3
-        paGk2Sj2tBU2ae1CQSMrm8wWEcNQFH8cCipTFMvIiVFQbnrP3ubbzEvXHSvmRCo1Uc+e70VBQyA3
-        KQNRjExBQ13yBgflmW/AQaMsnTQHZYWUg661WMpBUw56GA56MjrEtmoDgRnbfX4w1ptVOffASC/7
-        rDUv6FAI7Nc5PoZg8nSIk1mBk/xjUywriCylsqLOCapxUjq0pVJHoUNbG4pEhzoL7kIkQRR3RjOn
-        J0HRoyUlQSckQckc4uJoUT5ahE57XTypCJ1/mD84aHKZf7t7GCsyUksYv/b2O8QVDLkZUBHFyBH6
-        hpfYiMvZz2N2JzzDFWHfpONyPn23Yr3F0rg8/iLPKF+6lF3dVbvTIT2qVhwqf/V+oB2KYOzAHYoY
-        okt3UDANw6PsAzdTxmiCB/vH5yQrJLlHRBd71zOqNWeUByQNX0rdm8Fb70Cn6EKwA5lRDNFlCxTL
-        /yoUD0CLCFU/IS1irzSxyF9OBgy+rEuv7cbYem3tT4uCYQNoEVnwCGfoMCNzPFZlSpAkTGkcjyjB
-        YwCnPUO3nVLHOUO3raFItKg+812b7ZKIEefHATT7DYhR5Hg56uE5oivfjRgRZ6jYU1msiWyXLYzI
-        mie1S0T04bsSUdJ8FHviCp+2dmGhkdVNhoUKgvzpNJN+lYgWxeT2iShpLhQdrBrtMnUrXFNdg8Vd
-        Yy8WGgK5SR+IYmQW+sUpb/BQ7vM46el4aJSFk+Wh3AXFpzx0rcVSHpry0P8bHircKpR2WZBHOXST
-        79QdNHvuUPPDtEAIdlALxBFdtsAdxg6qjQcHMD2p+ie8Z8F9N+np++3YmRbfK9INypeV6v4nFkNg
-        vwZYMQST56IyS3OGygtYl1hRl3iDF2heZ067RbelUkfholsbisRFFc/BoZ5pWTHIKHNG82FiR7xp
-        IXLApGT0n0tGiU58R3sTJ6XYs1f03LWDoaOrnNC7c57H+TwMlzQhlVghMULK9PR+V78d9vui89yX
-        X9V5Yxb0qt4WhDQE8guPIInFuNvii2fe3Bn9bMLTMdIoEyfLSPkLOt0ZXW+xlJHGnkvESY/H7OSB
-        Hk/lkdUqX1/Wp6+Nw/ChEOwgPhRHdOkRLi00yHSR1Vtp5fUOsAUjIhkgFiPKXhayf3hpEdISpDVI
-        65DeQHoHaQvSNqSPfpq7hDQHKeDkACd3BSmg5cqQViC9hrQBKSDnADnXhBTwc11IHyCFUvJQSh7w
-        84CZB8w8YOZB2zxomwfMPGDmO5ACWh7Q8oBWAA0LoEmhCinkLUDeAsgU85CCZBFKLIKGV1DiFeS9
-        glxXUFYJNCyBHUqgZwnylkDPEkiWoNalW0gXuaC+JdCwBBqWQZ8ySJZBpgwyZbB5BZArgFyBWldA
-        sgKYFdCwAvLXUOI11Oha8dMq5KpCXaqgVRXqUgXJKuBUocQq6FMFO9SgXjWoVw1sUoNcNdCzBvI1
-        KLcG5dZAzxpYvgY1qgNCHfLWQf86aFIHTeqgSR3Q6lCjOmhSB83rgF8H5Dog1wG5DhrW7yFdlALa
-        NqCsBuA3AL8B2jYAuQGYDbBGA5AbkOsGLKBAXgXyKpBXAd0U0E0BBAVqqoA+CuigQOm3kPcO8O9A
-        5g6eNuH3JlivCRZoAn4T8JugWxPwm4DfBE2aYIEmaNiEsppQ6yZo2wIbtgChBRq2oDe2AKEFeVug
-        SQsQWoDQAoQWaNUCnDbo1gacNujchrq04WkHtO2Ath3A7ID9uyB5Dzo/AsIj6PzYzSaztMKX66+j
-        3A01ESU0e+MtG1/OCvreSyshsF/pQgzB5JdWNM77p4Y0nkeYVjleljT/IhjqpEsrWyp1lKWVrQ1F
-        Wlq5Qjr5DVDeX1ahuMMsq3Crz7ZcVokeLMdcViFGJjvSfGKsFTsoI4VkOxD96ErHIPppKJaGYmko
-        loZihwvF4h9hoRmBSfw23MZNSeJonpMpmkpsxVB8LjsiOy3WdDzTJk1OujYqQ2evFcMQyM11HqIY
-        ecVwPeDYWC0UQ99vXtZhtIyQ+iP27EPqHMsyzUhIlilNkpDOipKEJZVCKs+rrM5StM4zmNWovzRT
-        /8EbvBdyygJDcTKnIiyJkpePMigJCf6O2sqiVaLLklHtmPSyJEOny5JrLZYuS8aOfRnHYKShgMfv
-        xcLooVeS9bo7rh9mWTIEO2hZMo7o0u3kvQKGwwMc0iBVPtG7vLRLKs/Nco071GCKj06RmbbYhwOd
-        UArGDjyhFEP0c08XDUxsZWqenz7A4SSCAU53QoaqubQyn3Qeh45VaFSYa+dNGO3/JZIQ2IBddrJg
-        8ss4jCiyqqgLGvJmY15CEqtTgiixJ13G2VKpoyzjbG0o0jLOzSDze+aG+BY7f0aJ3+Km4+jhcsyF
-        HLI/320hhzg7xZ7GoiaxHRZxoiuc2E1eJM+96zEk0lwUe9IiTVm7nECKrHQyb2pQIiV83lSc9Edf
-        KDq5gzFcjun13p/ZabXZepzy1wpqu/OAM3Tb3OgVDLnJG4hiZJq76ZA3iK7wLS7yijBwsvxT8P6m
-        /HOtxVL+GX/vpXfZqDc09+GOFsa23RmKpVbz7kDHYoKxA4/FxBD9nFMwMjJVPDnAmRhC7U94r7F8
-        w6u3De5lnpNl814xrcmlss/R1497jYNhAyIpsuARtrIlQzNYAXG8SCNd5nRdVimWFk/KgbZU6jhb
-        2dsaisSBKoOJOdBMdd0lhdAg/ow+0H72XjcaR46Yo+5nk7zKrvvZJCcZ25tG+tJdNrMja5xMcC7K
-        whFfo5al5L7IKNZbj53pg1lEL/e3lVm+zVzVlM5+e1DBkF/2oEhi5OA8wFNsXrT72Uqni8+jbJx0
-        fM5IaXy+1mJpfB57LuGlWfuqMZj26MJsmJtUG0r/QS8fJj4PwQ6Kz+OIrswpTh8fYn+IVPkTXiil
-        TngrPxzbzZrKSfOJ9u52tP7+F0oFw36d4WMIHuFCKQGrKsvLNM1oGlIlCWFMCdJpw/MtlTrOhVLb
-        GooUnpexZWmIeJ8U738snaVPH5tHD5djxuZEl7JjbE50kLE9aZQf3SE0j65wQl/C4CXhaC+UMjTP
-        Jbdujrrcq4gNriw3Fceo2tp8MrH3WzcPhvyybk4SI4fmm15i84Kjb7FuHmHgw8fljP91Wkbw43KW
-        uaDSc1vrLZbG5fHvyUs/gHGijzBy948M3569Vy95WTFZXep22M877vazfAh2kOXjiC4t33zBmYqT
-        uR5b+ADfqidZ4IR3G7FqsSBwVvfltlgU73PFYR1Lz/vfbRQM+zW4iiGYPC0yZJXFusEgzTB0Bssi
-        Sxm0xJz2BbwtlToKLdraUCRatPiwQGbk/pmpVAjkyF+jo86Yb/AVkuhBk36F5J/3KUaiA9/RzsQ5
-        KfbkRZy6drB1dK0TOsEleQP9KEyUoWmKkcTkvviCG3m93R+VtNvWw5TviIOhqTzsxURDIDcZBFEs
-        7hdfNh3zJh/9DvtEUWbemY8uem7WMvuLLkYvJvPswOsbq/XLDg3DwfDTQgDsMBw7a0Iw9wAM/dvP
-        /wEAAP//AwA/DBb6Q5gAAA==
+        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
+        H/8DAAD//wMA4f7BTz2YAAA=
     headers:
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
@@ -250,9 +250,9 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Thu, 23 Jun 2022 08:18:42 GMT
+      - Sun, 02 Oct 2022 17:00:04 GMT
       etag:
-      - '"MC-IjU3MzIxYzZiYjY5NzYyMmMwZDk0ZjFlOTgwZWFjYzM4Ig=="'
+      - '"MC-ImUzMWQ4OWVkZmNlYTU0ZGNjODM0OWFjNDFlMjI4ZjQ1Ig=="'
       server:
       - envoy
       strict-transport-security:
@@ -272,13 +272,13 @@ interactions:
       Accept-Encoding:
       - gzip, deflate, br
       Authorization:
-      - Bearer BQDfz9ppb85lYnWSTeITHQIWdv5T77bQQHpwtkwabt1Vni2fb-zT3EzcHLwIE6BYyoQ5meyUaUsqgRf7z5ZtdqasOKsPVXfop_pIUZX0mtJgwusZcK0
+      - Bearer BQAPxqkzMGiBNiGpUVKnk-ghsrhXi7Y6IjXVL1IPIboq75ZOVngWrntJhPkUvkhCydplViIJT82-hNQwcxAR3Ha-uUklphUsKmnTD17aPlxqaPi04dw
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       User-Agent:
-      - python-requests/2.28.0
+      - python-requests/2.28.1
     method: GET
     uri: https://api.spotify.com/v1/tracks/5KwlaPmzAkjqrxVliPj8tB
   response:
@@ -294,8 +294,8 @@ interactions:
         H0txE4p8zHAciWQItlUWj3luak6BvxI20Kt4vWTiWsnomw0rQKfd1sLUx27Yf+/T+ft10UJ1uV2d
         Llfb3Wq5WpffLOmNk/dKgZj5bpSGHqL1UBWYUsBzC7ihyDX6Vu5TgaBNQrCPhdEDQBiSUTkiDF9N
         SMGM+qLlydj4+kkbaUZu8WbYLYPtNlbhQ3XwJSNgGj7frpZPdPNI8HRp83FTostES0e3UQkaOc6T
-        KcwlsQ/IvjBHl1JJ4iQtnlx8o26XQYrWGGWuvBlRSoiIi/beTKj2iIBL2kODCMhpk2j3DwAA//8D
-        AO6btG9iCAAA
+        KcwlsQ/IvjBHl1JJ4iQtnlx8o1bGKFpjlLnyZEQpISIuunszoNoiAi5ZD/0hIKdNod0/AAAA//8D
+        AH1vBy9hCAAA
     headers:
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
@@ -321,7 +321,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Thu, 23 Jun 2022 08:18:42 GMT
+      - Sun, 02 Oct 2022 17:00:04 GMT
       server:
       - envoy
       strict-transport-security:
@@ -341,25 +341,25 @@ interactions:
       Accept-Encoding:
       - gzip, deflate, br
       Authorization:
-      - Bearer BQDfz9ppb85lYnWSTeITHQIWdv5T77bQQHpwtkwabt1Vni2fb-zT3EzcHLwIE6BYyoQ5meyUaUsqgRf7z5ZtdqasOKsPVXfop_pIUZX0mtJgwusZcK0
+      - Bearer BQAPxqkzMGiBNiGpUVKnk-ghsrhXi7Y6IjXVL1IPIboq75ZOVngWrntJhPkUvkhCydplViIJT82-hNQwcxAR3Ha-uUklphUsKmnTD17aPlxqaPi04dw
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       User-Agent:
-      - python-requests/2.28.0
+      - python-requests/2.28.1
     method: GET
     uri: https://api.spotify.com/v1/artists/0xf6qjIweClwZGJSU2dJMw
   response:
     body:
       string: !!binary |
-        H4sIAAAAAAAAAJySwU+DMBTG7/4VhPMyKIziOOrBuMST8aIxpoMH1JS2liKby/53SynLFjOzrLd+
-        7/X7fW3f7sbzfNhoUJywj06x1vcyb2dUo7dSaFpuB8WvtZZtFgRCAp+7wjwXTUCUpq0Owk2Jvz4f
-        e7hn/evD6vklKlZPvW+M9rOBUQrGRA/q2L9WUA5b3jE2GyUtNGGDFi+X6eFwBVyBPflmNqShvPKg
-        aHzv3ZYnn0NIIulJxm/kYrbnclofWliXf1saUk1JplsArWo9SHgRumuYhzwJZOLkBTdZAmsQkDVO
-        McIoNAsSWC9JiHAMAGGeR3EIESpIAhh859fTQtcOYV/lLzyOroEnKF1cDDeIM3CEr4GXKL29GG4Q
-        A9x9OScNWM4dIz/ETJVVpZAdI4pqO7MRtqLeyrF1HIGxs1PUam5KsrGWnZvi/S8AAAD//wMAN87B
-        nigDAAA=
+        H4sIAAAAAAAAAJySwU/DIBTG7/4VTc/LCt3KXI96MC7xZLxojGHta4uhgJTazWX/u5SyZYupWcaN
+        7z2+3we83U0QhLAxoAXlH63mTRikwc6qVm+UNKzY9kpYGaOaNIqkAjH1hWkm64hqwxoToU1Bvj4f
+        O7jn3evD6vklzldPXWiN9pOeUUjOZQf61L/SUPRb0XI+GSQjDeW9NkcJOh4uQWhwJ9/shtZMlAHk
+        dRi8u/LB5xiSKnaW8Rv7mM1YTufDcufyb0tNy0OSwy2AlZXpJTJH/hr2Ic8C2ThZLmyWyBlEdE0W
+        BBOM7IIE1kuKMJkBAMqyeIYgxjlNgEDo/TqWm8oj3Kv8hc/ia+AJXswvhlvECByTa+AFXtxeDLeI
+        Hu6/XNAaHOeO0x9qp8qpSqqWU82Mm9l46USzVUPrMAJDZ6uZ0/yUpEMtHZvi/S8AAAD//wMAuyXA
+        PygDAAA=
     headers:
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
@@ -379,13 +379,13 @@ interactions:
       access-control-max-age:
       - '604800'
       cache-control:
-      - public, max-age=80910
+      - public, max-age=72764
       content-encoding:
       - gzip
       content-type:
       - application/json; charset=utf-8
       date:
-      - Thu, 23 Jun 2022 08:18:42 GMT
+      - Sun, 02 Oct 2022 17:00:04 GMT
       server:
       - envoy
       strict-transport-security:
@@ -405,32 +405,32 @@ interactions:
       Accept-Encoding:
       - gzip, deflate, br
       Authorization:
-      - Bearer BQDfz9ppb85lYnWSTeITHQIWdv5T77bQQHpwtkwabt1Vni2fb-zT3EzcHLwIE6BYyoQ5meyUaUsqgRf7z5ZtdqasOKsPVXfop_pIUZX0mtJgwusZcK0
+      - Bearer BQAPxqkzMGiBNiGpUVKnk-ghsrhXi7Y6IjXVL1IPIboq75ZOVngWrntJhPkUvkhCydplViIJT82-hNQwcxAR3Ha-uUklphUsKmnTD17aPlxqaPi04dw
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       User-Agent:
-      - python-requests/2.28.0
+      - python-requests/2.28.1
     method: GET
     uri: https://api.spotify.com/v1/albums/4GruaNU4r4NRAVU5w7kXTW
   response:
     body:
       string: !!binary |
-        H4sIAAAAAAAAAKxVTU/bQBC98yssH3oCbCe28yGhCjig0hZFpaFVq8pa2+tkyfqD3XWcgPLfu961
-        NzHBbqBwy8zw3uzMm+enI03TAfbz2GPrDOraWNMpSmYY6sciRRiijJbx39oTj/AYXDFIEoC9nGCR
-        kXGeoVnKULQWKHPGMjo2jDSDyWmVOA3S2JCQhrmK3If7TwW8xMWvq+vbaS+8/lroAmpzLJnmBEYN
-        MJChBtbSquBoG16FhEKB012UgFhO4AKDR0BoHVeTkVx1OCdIzks2NJbZcfvDNtofOdQlQBj4GHox
-        IAtYj1cmgzRbEzSbPxs641MXbD3TcrWby1vtCwtP9zq8FDzHr/yvyW53ar0o3NmunmeBqHVMx7FG
-        I8dyHXsg2Y7aRXGgJEoBGvYVycHN1Cb2zbfzu6lTDBY/v//YUsxgQmBjVgfpo8SmbeACphJHZ0kM
-        ZrC5kTkst1SGXNtUksCNfng3QZjwVgwBYADfHbiWG5r8z+8N+kN/GPn9gdWz7cgNA8v1zVE0GNn1
-        hgoUsnlF0VjslrxvvoXcgmbvYHJO0ULu2m/gtoeO9YqH70iTHw2UPFzKcjHqZicpBgTJm9WzNMvL
-        n0wIzxExAjEEFHohYFDdxIllnlhDfa/AywgMEEVpIkpDsJY1LGVc44yAYCHUYMmo+l1P6H+FaUjI
-        j2kUUcjOzA8YxYidOaYyNAbjhh5fNutuw35X094x7vc174MNvMvEO4z8bWYunit1KYffYeqiIEQ0
-        8JI89iFRypGJnADGlebJhfb6Lr8VlYWrDKMAiXOLAKZwJ9O61sOWKjRmOJ8LDCbx4/ni/oGs7jCa
-        3A/ZhXqiojtkn1K1bZAKqlrmP8uoh9MA4P2nv3j1IsPvdolg4VWGlOQYq5zo7sUVKGGIki3ac1WI
-        9LhrYkoSurhYYT+1QSfV13jblC7vuwzWReIBaU6fFQrjEU2r7+FWzaWTSH/ak3GZGrd9WTd/AQAA
-        //8DACoDB5P/CQAA
+        H4sIAAAAAAAAAKxVXW+bMBR9769APOypLZAA+ZCqqe1DtW6ronXppk0TMmASN+ajtglJq/z3GRuc
+        0BSWduUN38s51/eee3g60jQdYD+PPbbOoK6NNZ2iZIahfixChCHKaHn+W3viJ/wMrhgkCcBeTrCI
+        yHMeoVnKULQWKHPGMjo2jDSDyWkVOA3S2JCQhrmK3If7TwW8xMWvq+vbaS+8/lroAmpzLJnmBEYN
+        MJChBtbSquBoG16FhEKB052UgFh24AKDR0Bofa46I7nq45wg2S9Z0FhGx+0X22h/ZFOXAGHgY+jF
+        gCxg3V4ZDNJsTdBs/qzpjHddsPVMy9VuLm+1Lyw83avwUvAcv/KryW51arwo3JmunmeByHVMx7FG
+        I8dyHXsg2Y7aRXGgJEoBGvYVycHN1Cb2zbfzu6lTDBY/v//YUsxgQmCjVwfpo8SmbeACphJHZ0oM
+        ZrA5kTksp1QeubapJIEb9fBqgjDhpRgCwAC+O3AtNzT54/cG/aE/jPz+wOrZduSGgeX65igajOx6
+        QgUK2byiaAx2S94330JuQbN3MDmnaCF37Tdw20PHesXFd6TJlwZKHi5lORi1s5MUA4LkzupZmuXl
+        KxPCEw3SCcQQUOiFgEG1EyeWeWIN9b0ELyMwQBSliUgNwVrmsJRxjTMCgoVQgyVP1Xvdof8VpiEh
+        P6ZRRCE7Mz9gFCN25pjK0BiMG3p82ay7DftdTXvHuN/XvA828C4T7zDyt5m5uK7UpWx+h6mLhBDR
+        wEvy2IdEKUcGcgIYV5onB9rru3xXVBSuMowCJNYtApjCnUjrWA8bqtCY4XwuMJjEj+eL+weyusNo
+        cj9kF+qKiu6QeUrVtkEqqGqY/0yjHk4DgPev/uLWiwjf2yWChVcZUpJjrGKiuhdHoIQhUrZoz1Uh
+        wuOujilJ6GJjy6+d2qCT6m+8LUqX+61Mqr5AmtNnicJ4RNHqf7hVc+kk0p/2ZFyGxm1/1s1fAAAA
+        //8DANyM0cH/CQAA
     headers:
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
@@ -450,13 +450,13 @@ interactions:
       access-control-max-age:
       - '604800'
       cache-control:
-      - public, max-age=83812
+      - public, max-age=79988
       content-encoding:
       - gzip
       content-type:
       - application/json; charset=utf-8
       date:
-      - Thu, 23 Jun 2022 08:18:42 GMT
+      - Sun, 02 Oct 2022 17:00:04 GMT
       server:
       - envoy
       strict-transport-security:
@@ -476,30 +476,30 @@ interactions:
       Accept-Encoding:
       - gzip, deflate, br
       Authorization:
-      - Bearer BQDfz9ppb85lYnWSTeITHQIWdv5T77bQQHpwtkwabt1Vni2fb-zT3EzcHLwIE6BYyoQ5meyUaUsqgRf7z5ZtdqasOKsPVXfop_pIUZX0mtJgwusZcK0
+      - Bearer BQAPxqkzMGiBNiGpUVKnk-ghsrhXi7Y6IjXVL1IPIboq75ZOVngWrntJhPkUvkhCydplViIJT82-hNQwcxAR3Ha-uUklphUsKmnTD17aPlxqaPi04dw
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       User-Agent:
-      - python-requests/2.28.0
+      - python-requests/2.28.1
     method: GET
     uri: https://api.spotify.com/v1/tracks/3pMVdkRKbHDV4zmvqWNlND
   response:
     body:
       string: !!binary |
-        H4sIAAAAAAAAAKRU226bQBB971cgnpNwNQ48upbipolltYorparQAmuz9XLJ7mLsRP73wrJA7Bgb
+        H4sIAAAAAAAAAKRU226bQBB971cgnpNwNS48upbipollNYorparQAmuz9XLJ7mLsRP73wrJA7Bgb
         p7wxM5w5nDkzb18kSQbYyyJZcqS34q1+d9k2hWVQpiheYihfiSRhiDJaZn6LD4oo3DBIYoDdjGDa
-        QvEcTROGFluOFTKWUkdRkhTGNyJx4yeRUsEq6mZhvfz9lsOvOH++u//5pAf3j7kswHZXdb+QwMUe
-        IEjRHt5aE5C0C7PBQgFHOlcWg6jSY4TBKyC0zTRKVR3bREZQpWBFzKnyzqmf3El/aqHXAGHgYehG
-        gKxgLXmd7lS8p97ljJXh6GkZzyfPcLVFM2sKcjqbqRPBRDTqJXWJRrvgBJDQ+UxRBJbw0F0hRMuQ
-        lUHLVN+pi/d4Faz8IC4oKRxEAZ41tDQrUIvH04eGZqj6ANhe4Pu27fm2aZq2aRiDdl45Clgo2ggN
-        jpEw1M+R0KCqX0CiaHOChGV+ioN5O9AuEuLAlc0WTBPCwsKB0kPJqN4GmUAMAYVuAFhVp6va8FrV
+        QvEcTROGFluOFTKWUkdRkhTGNyJx4yeRUsEq6mZhvfz9nsNvOH++vXt80oO7h1wWYLurul9I4GIP
+        EKRoD2+tCUjahdlgoYAjnSuLQVTpMcLgFRDaZhqlqo5tIiOoUrAi5lR559RP7qQ/tdBrgDDwMHQj
+        QFawlrxOdyreU+9yxspw9LSM55NnuNqimTUFOZ3N1IlgIhr1krpEo11wAkjofKYoAkt46K4QomXI
+        yqBlqu/UxXu8ClZ+EBeUFA6iAM8aWpoVqMXj6UNDM1R9AGwv8H3b9nzbNE3bNIxBO68cBSwUbYQG
+        x0gY6udIaFDVLyBRtDlBwjI/xcH8OtAuEuLAlc0WTBPCwsKB0n3JqN4GmUAMAYVuAFhVp6va8FrV
         r1X7WImbEugjipKYFwdgW1exhBXmZgT4K24HrY43y8avloh+2LQy6XTbm5v72C377706f8cuWqw+
         N6zXBeu6Xx3X6/LbJTxy8m7JAaK+G2eRB0kzVDnICGCFBdyomrQ90AdDnoGbFCMfccMvAKZQRMWI
-        UPBuQjKixOeU70b6w1gbFm63tHbYHYPtN1buQ8VIH+fB6sd3bzKem6/R+uXXFE/HbYs+E60c3QXF
-        YcQ4T5ZQFyc+wPvCnFxOOU3SDAOCGP9X/bYKErhGMHfFDYkzjHmc0/wwqcYrPF3BHhqFp5wuqXb/
-        AAAA//8DABJmr29yCAAA
+        UPBuQjKixOeUb0f6/VgbFm63tHbYHYPtN1buQ8VIH+bB6ucPbzKem6/R+uXXFE/HbYs+E60c3QXF
+        YcQ4T5ZQFyc+wPvCnFxOOU3SDAOCGP9XvYoRuEYwd8UJiTOMeZyz/DCoxio8XaEe+oSnnC6ldv8A
+        AAD//wMAa9MY8nEIAAA=
     headers:
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
@@ -525,7 +525,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Thu, 23 Jun 2022 08:18:42 GMT
+      - Sun, 02 Oct 2022 17:00:04 GMT
       server:
       - envoy
       strict-transport-security:
@@ -545,25 +545,916 @@ interactions:
       Accept-Encoding:
       - gzip, deflate, br
       Authorization:
-      - Bearer BQDfz9ppb85lYnWSTeITHQIWdv5T77bQQHpwtkwabt1Vni2fb-zT3EzcHLwIE6BYyoQ5meyUaUsqgRf7z5ZtdqasOKsPVXfop_pIUZX0mtJgwusZcK0
+      - Bearer BQAPxqkzMGiBNiGpUVKnk-ghsrhXi7Y6IjXVL1IPIboq75ZOVngWrntJhPkUvkhCydplViIJT82-hNQwcxAR3Ha-uUklphUsKmnTD17aPlxqaPi04dw
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       User-Agent:
-      - python-requests/2.28.0
+      - python-requests/2.28.1
     method: GET
     uri: https://api.spotify.com/v1/artists/0xf6qjIweClwZGJSU2dJMw
   response:
     body:
       string: !!binary |
-        H4sIAAAAAAAAAJySwU+DMBTG7/4VhPMyKIziOOrBuMST8aIxpoMH1JS2liKby/53SynLFjOzrLd+
-        7/X7fW3f7sbzfNhoUJywj06x1vcyb2dUo7dSaFpuB8WvtZZtFgRCAp+7wjwXTUCUpq0Owk2Jvz4f
-        e7hn/evD6vklKlZPvW+M9rOBUQrGRA/q2L9WUA5b3jE2GyUtNGGDFi+X6eFwBVyBPflmNqShvPKg
-        aHzv3ZYnn0NIIulJxm/kYrbnclofWliXf1saUk1JplsArWo9SHgRumuYhzwJZOLkBTdZAmsQkDVO
-        McIoNAsSWC9JiHAMAGGeR3EIESpIAhh859fTQtcOYV/lLzyOroEnKF1cDDeIM3CEr4GXKL29GG4Q
-        A9x9OScNWM4dIz/ETJVVpZAdI4pqO7MRtqLeyrF1HIGxs1PUam5KsrGWnZvi/S8AAAD//wMAN87B
-        nigDAAA=
+        H4sIAAAAAAAAAJySwU/DIBTG7/4VTc/LCt3KXI96MC7xZLxojGHta4uhgJTazWX/u5SyZYupWcaN
+        7z2+3we83U0QhLAxoAXlH63mTRikwc6qVm+UNKzY9kpYGaOaNIqkAjH1hWkm64hqwxoToU1Bvj4f
+        O7jn3evD6vklzldPXWiN9pOeUUjOZQf61L/SUPRb0XI+GSQjDeW9NkcJOh4uQWhwJ9/shtZMlAHk
+        dRi8u/LB5xiSKnaW8Rv7mM1YTufDcufyb0tNy0OSwy2AlZXpJTJH/hr2Ic8C2ThZLmyWyBlEdE0W
+        BBOM7IIE1kuKMJkBAMqyeIYgxjlNgEDo/TqWm8oj3Kv8hc/ia+AJXswvhlvECByTa+AFXtxeDLeI
+        Hu6/XNAaHOeO0x9qp8qpSqqWU82Mm9l46USzVUPrMAJDZ6uZ0/yUpEMtHZvi/S8AAAD//wMAuyXA
+        PygDAAA=
+    headers:
+      Alt-Svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      Transfer-Encoding:
+      - chunked
+      Via:
+      - HTTP/2 edgeproxy, 1.1 google
+      access-control-allow-credentials:
+      - 'true'
+      access-control-allow-headers:
+      - Accept, App-Platform, Authorization, Content-Type, Origin, Retry-After, Spotify-App-Version,
+        X-Cloud-Trace-Context, client-token, content-access-token
+      access-control-allow-methods:
+      - GET, POST, OPTIONS, PUT, DELETE, PATCH
+      access-control-allow-origin:
+      - '*'
+      access-control-max-age:
+      - '604800'
+      cache-control:
+      - public, max-age=81827
+      content-encoding:
+      - gzip
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Sun, 02 Oct 2022 17:00:04 GMT
+      server:
+      - envoy
+      strict-transport-security:
+      - max-age=31536000
+      x-content-type-options:
+      - nosniff
+      x-robots-tag:
+      - noindex, nofollow
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate, br
+      Authorization:
+      - Bearer BQAPxqkzMGiBNiGpUVKnk-ghsrhXi7Y6IjXVL1IPIboq75ZOVngWrntJhPkUvkhCydplViIJT82-hNQwcxAR3Ha-uUklphUsKmnTD17aPlxqaPi04dw
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      User-Agent:
+      - python-requests/2.28.1
+    method: GET
+    uri: https://api.spotify.com/v1/albums/7BUgnVHZekyiP6NawsPP0H
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAAAKxVXU/bMBR951dEedgTECdN2qUSmgRIYwyqaggmMU2Rk7itV+cD2+kHiP8+x07c
+        hpKsMHjj3ttzru899+TpwDBMSMIiCfg6R6YxNEyG0ylB5qFMUY4ZZ2X8l/EkIiKGVhzRFJKgoERm
+        VFxkWJ5xPFlLlBnnORtaVpaj9LhKHEdZYilIC6wm/Yc/35bojCzvv17e3Drx5fXSlFDPh4ppRtGk
+        AQZz3MBa2BUca8OrkHAscbqLUpioCZwS+Agpq+N6MoqrDhcUq3mphoYqO2x/2LPxWw11ATGBIUFB
+        Aukc1eNVySjL1xRPZy+GzsXUJZsD7IExOrsxrnh8vNPhmeQ5fOOvxtvd6fXieGu7ZpFHstYDnmf7
+        vmcPfBcotoN2UewpiVKA1uD0dpreXdyj+RqP+yO4ZOMxuNhQTFFKUWNWe+mjxGZt4BKmEkdnSQKn
+        qLmRGSq3VIb6LtCSII1+RDdRnIpWLAlgwbA/6Nv9GIi/0Bn07B5wPOiHcRT5fhj5ruv6bq/n1Rta
+        4pjPKorGYjfkPfAechsBZ29yQdFC3nffwe1+9uw3PHxLmuJokOIRUlaL0Tc7yiifCQkaV+p4ZDbP
+        8oJAirkUoByUSRFBkKEghhzp2zgCzhHwzZ2CIKcowgxnqSyN4VrV8IwLrXMKo7lUha2i+v96Uv8r
+        UEtBfskmE4b4CfhEcIL5iQe0sXGUNHT5uml3G/eHmveWgX+sie9t5F1m3mHo7zN1+VylTzX8DnOX
+        BTFmUZAWSYioVo5KFBRyobRALdT2Pccb6Cxa5QRHWJ7dBBKGtjKta91vqVJjVi+/vovnP76HF+d3
+        7mOyePg5IqNz/URNt88+lWrbIDVUtcx/lrGAZBEku0/vvH5ZIe53gdEyqAwqLQjROdnlq6vQApEl
+        G7SX6pDpYdfktDRMebnlr73asNPq67xpylR3rs2qfkBWsBeF0oBk0/r7uFF16SjKp3bkXKaGbV/a
+        578AAAD//wMAomvUkw8KAAA=
+    headers:
+      Alt-Svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      Transfer-Encoding:
+      - chunked
+      Via:
+      - HTTP/2 edgeproxy, 1.1 google
+      access-control-allow-credentials:
+      - 'true'
+      access-control-allow-headers:
+      - Accept, App-Platform, Authorization, Content-Type, Origin, Retry-After, Spotify-App-Version,
+        X-Cloud-Trace-Context, client-token, content-access-token
+      access-control-allow-methods:
+      - GET, POST, OPTIONS, PUT, DELETE, PATCH
+      access-control-allow-origin:
+      - '*'
+      access-control-max-age:
+      - '604800'
+      cache-control:
+      - public, max-age=73036
+      content-encoding:
+      - gzip
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Sun, 02 Oct 2022 17:00:05 GMT
+      server:
+      - envoy
+      strict-transport-security:
+      - max-age=31536000
+      x-content-type-options:
+      - nosniff
+      x-robots-tag:
+      - noindex, nofollow
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate, br
+      Authorization:
+      - Bearer BQAPxqkzMGiBNiGpUVKnk-ghsrhXi7Y6IjXVL1IPIboq75ZOVngWrntJhPkUvkhCydplViIJT82-hNQwcxAR3Ha-uUklphUsKmnTD17aPlxqaPi04dw
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      User-Agent:
+      - python-requests/2.28.1
+    method: GET
+    uri: https://api.spotify.com/v1/tracks/4wX3QCU2hWtuPiv8GSakrz
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAAAKxV21KjQBB99ysonqPABMjlcS/qqrWaSlat2tqiBpiE2QyXmhliopV/lwwDmCiE
+        RPNGd+d0z+k+3S8niqJC4qahqgyVl+yr+Hb4KkEbo8pwNCNI7Ugn5ZhxtvH8lX/IrGjJEY0gcVJK
+        WAUlfCyJOZ6uBFbAecKGmhYnKDqTjjMvDrUcVjOs3k0fTy5nrk+v75f+6OcjSQNVgq07Rb6AoukW
+        IEzwFt7CkJCsDrPEwr5A2hcWwTDn4yZmXBnPV5WrpCpPWTlSinMK88qGuX/Y9Mp15+tZ1X/f9sfs
+        3E7D/7+6eHT1PFl59+efY7UGc5fVfWElq1doeTyhTQ9cK/+K0V1ATKBLkBNCOkfFEBfuWrZbcr1R
+        jQZWl5Nz67YXTt1Zeh0/m/AuCUdFa0/a07xBY3VwEkhyvCcohDO0q9cA4VnAN0bb1N+wS7bqyqry
+        /CgrSRMgGnTtnm3Yvp79XNDrQtuYAmAPdNvWXd8CtmkOLAuYVb+esM8DmebdeFdFdPXjijCQDg4o
+        IkvTUIRtHlWD2beMg4jYmcpSAQ8Bokh5QMqYZ2ON/KKBFBEEGXJ8yPNAoBuDU8M41XsfhTgJRR5m
+        OI5EsA+LRaXymGfTzSn05mIejMJeqk0cAml9J7WNc1g/32K6PzoPnxbW/tNwkLLanIVWR6H2JNTs
+        r8PPQTmoX8Rh4548gsPG7d7qBHx0AA6kr/5RUmSNi1/1MfOcKA1dREtRqH5KIc8k5IQiFgCg65bw
+        oGVCsIfFxphCwpC0yvZg/013VMyoJ0q++AZufhgDXe+CQSWWmqa2a6nQsWY+PXZH3/+A4IGnd3jR
+        vxjDOX2uUrTpZr4R6qAEjGxlYwhzSOxBsk1M83ZTkzhJCaSYi8ca/dxI0QKjJ0du4SglRNhFne9a
+        VQ6LcOewu5MiXMM6rtavAAAA//8DAKl4vF0GCwAA
+    headers:
+      Alt-Svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      Transfer-Encoding:
+      - chunked
+      Via:
+      - HTTP/2 edgeproxy, 1.1 google
+      access-control-allow-credentials:
+      - 'true'
+      access-control-allow-headers:
+      - Accept, App-Platform, Authorization, Content-Type, Origin, Retry-After, Spotify-App-Version,
+        X-Cloud-Trace-Context, client-token, content-access-token
+      access-control-allow-methods:
+      - GET, POST, OPTIONS, PUT, DELETE, PATCH
+      access-control-allow-origin:
+      - '*'
+      access-control-max-age:
+      - '604800'
+      cache-control:
+      - public, max-age=7200
+      content-encoding:
+      - gzip
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Sun, 02 Oct 2022 17:00:05 GMT
+      server:
+      - envoy
+      strict-transport-security:
+      - max-age=31536000
+      x-content-type-options:
+      - nosniff
+      x-robots-tag:
+      - noindex, nofollow
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate, br
+      Authorization:
+      - Bearer BQAPxqkzMGiBNiGpUVKnk-ghsrhXi7Y6IjXVL1IPIboq75ZOVngWrntJhPkUvkhCydplViIJT82-hNQwcxAR3Ha-uUklphUsKmnTD17aPlxqaPi04dw
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      User-Agent:
+      - python-requests/2.28.1
+    method: GET
+    uri: https://api.spotify.com/v1/artists/157L8iTHgbdrKVxdQEXluh
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAAAJySX2uDMBTF3/cpxOdSG//P98FgfRkbYzDGiBo1LJoQr2ul9LsvJrGsFEdp3nLu
+        ved3SO7hznFcsgciO8y+Bsl618mcg1KV3gsOtBonxW0ARJ95HhekW9vCuuCthyXQHjwUJduUvj7W
+        eSmf3vbl88M7GxpXGR1XE6PijPEdkX/9G0mq6doNjK2MBBwwmzQ/SIM0Oo3XpJNEz344n1qZh0/J
+        sKBnwX6QzdYvhdM+tNQu/7a0uJ7hc3RC6wYmKQ43Nrt6vbNAKk5RdiqLpw08nMdJjGK0UYdEJPfT
+        OCFJgcOqKP0oLKo8z9P7cONavx0tobEI/RCX8MC/BR6hJLwarhALcBTfAq9Qkl4NV4gJbr+8wy3R
+        nC3vwXn5Hs33CC4GhiUFvakmlAujML1mB0znIKnW7JpkppYt7e7xFwAA//8DAGAXgw4eAwAA
+    headers:
+      Alt-Svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      Transfer-Encoding:
+      - chunked
+      Via:
+      - HTTP/2 edgeproxy, 1.1 google
+      access-control-allow-credentials:
+      - 'true'
+      access-control-allow-headers:
+      - Accept, App-Platform, Authorization, Content-Type, Origin, Retry-After, Spotify-App-Version,
+        X-Cloud-Trace-Context, client-token, content-access-token
+      access-control-allow-methods:
+      - GET, POST, OPTIONS, PUT, DELETE, PATCH
+      access-control-allow-origin:
+      - '*'
+      access-control-max-age:
+      - '604800'
+      cache-control:
+      - public, max-age=79043
+      content-encoding:
+      - gzip
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Sun, 02 Oct 2022 17:00:05 GMT
+      server:
+      - envoy
+      strict-transport-security:
+      - max-age=31536000
+      x-content-type-options:
+      - nosniff
+      x-robots-tag:
+      - noindex, nofollow
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate, br
+      Authorization:
+      - Bearer BQAPxqkzMGiBNiGpUVKnk-ghsrhXi7Y6IjXVL1IPIboq75ZOVngWrntJhPkUvkhCydplViIJT82-hNQwcxAR3Ha-uUklphUsKmnTD17aPlxqaPi04dw
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      User-Agent:
+      - python-requests/2.28.1
+    method: GET
+    uri: https://api.spotify.com/v1/albums/2yHTF5O7mfbguKoz4aPpmQ
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAAALRW207bQBB95yssP/QJ8CWxc5FQH1ApBQREoYBUVdbansTbrC/aXYcElH+vvWs7
+        McEmDZQ3ZiZnZs+cmfHLgaKoiLhp6PBlAqoyVFSGoykB9VC4KMeMs9z+S3nJLJkNFhxohIiTUiI8
+        0p55WBJzPFkKlIDzhA01LU4gOi4cx14cahJSM6zeVR/fnU9dn17eL/zRt0eSBqqAWh3KTAGFSQ0M
+        JbiGNTcKONaEVyBhX+C0B0UolAxcxYwr49mydFTUyGSlOaVYEiYrGkrvsPllq8PP5VC/vumP2Zmd
+        hn9+dPDo4vlu6d2f7c9hA16dw/agisMLWOxHX/OjVspvKco5wgS5BJwQ0RmU8pROL06WFE+DV6Ll
+        GeMim6kbA+X6dLxV3Gm9Q+//4Hazpqqh2N/op5omnoi1dMsyBgPLHJgDSyY6aJbBjiLIx1Yzl+d3
+        Z9ZNL5y40/Qyfu6i2yQcrVNMIaJQY2gnReTYrAlcwBRyaA0J0RTqfQgg701usrt6JQRSqyerxvOj
+        rBRNAGjItXu2Yft69ueavQ6yjYlp2gPdtnXXt0y72x1YltktO/SEfR4UKWo9XSfv6PskN0A3d06e
+        pWhIbnf3yN3tW8Y/PHxDmtmogMxTqng9pQ8BUFAeQBnzbPzAl+4kTlKCKOZCgT1ho0AAMXB8xKGa
+        iyPDONJ76laAk1DwMMNxJEJ9JFepymOeiZ1T5M2ELAxprf4vqfqoQjUJ+TWeTBjwE/0LwSHmJ5Ze
+        7TIOYU2Yb9+69l39qTdvY2d/7u3b+f613sCWRb7fLZTv/T88t93Fj/Dcevo2eX4/8I07uSfF7Y8t
+        loAUeMvdFAE+Zp4TpaELtJpO6Ugp4tk0O3JoTNPUdavywiIh2MNit00QYbDhaWzpbg0Vc6x1nx47
+        o9OfZvDA01s8738foxl9XquoTLdLL+VmaIKsoIpGvhvGHBJ7iGw/vX3FipBsSc4xPDnFGYhSQiqf
+        KPPNXlQKESFrtNfyEO5hG3WVNlSxHvNfW+VZjIrPn3VRqlymubEMEg+IU/YqUGx5UXT1FbKWdb62
+        5THY0nPuGjZ9z6z+AgAA//8DADTXjUOrDAAA
+    headers:
+      Alt-Svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      Transfer-Encoding:
+      - chunked
+      Via:
+      - HTTP/2 edgeproxy, 1.1 google
+      access-control-allow-credentials:
+      - 'true'
+      access-control-allow-headers:
+      - Accept, App-Platform, Authorization, Content-Type, Origin, Retry-After, Spotify-App-Version,
+        X-Cloud-Trace-Context, client-token, content-access-token
+      access-control-allow-methods:
+      - GET, POST, OPTIONS, PUT, DELETE, PATCH
+      access-control-allow-origin:
+      - '*'
+      access-control-max-age:
+      - '604800'
+      cache-control:
+      - public, max-age=76222
+      content-encoding:
+      - gzip
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Sun, 02 Oct 2022 17:00:05 GMT
+      server:
+      - envoy
+      strict-transport-security:
+      - max-age=31536000
+      x-content-type-options:
+      - nosniff
+      x-robots-tag:
+      - noindex, nofollow
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate, br
+      Authorization:
+      - Bearer BQAPxqkzMGiBNiGpUVKnk-ghsrhXi7Y6IjXVL1IPIboq75ZOVngWrntJhPkUvkhCydplViIJT82-hNQwcxAR3Ha-uUklphUsKmnTD17aPlxqaPi04dw
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      User-Agent:
+      - python-requests/2.28.1
+    method: GET
+    uri: https://api.spotify.com/v1/tracks/5YzYsavACqRYuP9abGeejk
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAAAKRU226bQBB971cgnpNwNbe3pq1SKX5omyiqVVVoYddm6+XS3cWXRP73wrJA7Bgb
+        p7wxZzgznDkzLx8URQUkKlNVCZSX6q19D/m2QHVQZThbEKReSZByzDirkV/ygyqKNhzRDJCwpIT1
+        VAJjRc7xfCu4Es4LFmhaXqDsRgI3cZ5qDa1mTNyphx+/LiJI75828PuXn6RMVEm2u2rrJRTN9whB
+        gff4VoakZEOcHReGgulcWgbSRo9pzrjysNz2UCdVU7IHSoobCZvOggYPTv3lTvndKr0CmICIoDAF
+        dIlazVt4UPKRgtdD1qzHaeaYJU0nWQkf7v3bmekla9mJLDRK65qNDdFJIin0maQULNChvRKEFwmv
+        g46tv1KX7PVVdRXDrGpJEyQaiBzXMRyoV09kupbtW47tmV7kWZbjWnpkudB2onk/rzWGPJFlpAbH
+        mrD09zVhIN28oImqzIkmHPtdPdjexLhIiANXdmvwhBnOs3ZsFBEEGAoh4A1s6oZ/rdvXhnksJSwo
+        ihuCOhmCdptUnvPK05yCeClcYLTxbsfEtZLRNwtWg8Gwq4Wnj92w/16n8/fron0ac7tGXa7BuzVw
+        tS6/WdIbJ++VCjGLw6xMI0S7qaqwpIBXHghTkWtatuH6AkGbguAYC6PPAWFIRuWMMHw1IhUzGouW
+        727N6WfDrxatcl037YHJjpurMKI2mT3PGFh9/PT3x6z85oPoDqE/y77EmJE2lh6iEjRynidTWEjy
+        GJB9YY4tpVrkRUkAxVz84qSJUbTCaB3Ki5GVhIi4aO7NfDqHCLhhPbSHgIIhgXb/AAAA//8DADVj
+        ns9hCAAA
+    headers:
+      Alt-Svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      Transfer-Encoding:
+      - chunked
+      Via:
+      - HTTP/2 edgeproxy, 1.1 google
+      access-control-allow-credentials:
+      - 'true'
+      access-control-allow-headers:
+      - Accept, App-Platform, Authorization, Content-Type, Origin, Retry-After, Spotify-App-Version,
+        X-Cloud-Trace-Context, client-token, content-access-token
+      access-control-allow-methods:
+      - GET, POST, OPTIONS, PUT, DELETE, PATCH
+      access-control-allow-origin:
+      - '*'
+      access-control-max-age:
+      - '604800'
+      cache-control:
+      - public, max-age=7200
+      content-encoding:
+      - gzip
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Sun, 02 Oct 2022 17:00:05 GMT
+      server:
+      - envoy
+      strict-transport-security:
+      - max-age=31536000
+      x-content-type-options:
+      - nosniff
+      x-robots-tag:
+      - noindex, nofollow
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate, br
+      Authorization:
+      - Bearer BQAPxqkzMGiBNiGpUVKnk-ghsrhXi7Y6IjXVL1IPIboq75ZOVngWrntJhPkUvkhCydplViIJT82-hNQwcxAR3Ha-uUklphUsKmnTD17aPlxqaPi04dw
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      User-Agent:
+      - python-requests/2.28.1
+    method: GET
+    uri: https://api.spotify.com/v1/artists/157L8iTHgbdrKVxdQEXluh
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAAAJySX2uDMBTF3/cpxOdSG//P98FgfRkbYzDGiBo1LJoQr2ul9LsvJrGsFEdp3nLu
+        ved3SO7hznFcsgciO8y+Bsl618mcg1KV3gsOtBonxW0ARJ95HhekW9vCuuCthyXQHjwUJduUvj7W
+        eSmf3vbl88M7GxpXGR1XE6PijPEdkX/9G0mq6doNjK2MBBwwmzQ/SIM0Oo3XpJNEz344n1qZh0/J
+        sKBnwX6QzdYvhdM+tNQu/7a0uJ7hc3RC6wYmKQ43Nrt6vbNAKk5RdiqLpw08nMdJjGK0UYdEJPfT
+        OCFJgcOqKP0oLKo8z9P7cONavx0tobEI/RCX8MC/BR6hJLwarhALcBTfAq9Qkl4NV4gJbr+8wy3R
+        nC3vwXn5Hs33CC4GhiUFvakmlAujML1mB0znIKnW7JpkppYt7e7xFwAA//8DAGAXgw4eAwAA
+    headers:
+      Alt-Svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      Transfer-Encoding:
+      - chunked
+      Via:
+      - HTTP/2 edgeproxy, 1.1 google
+      access-control-allow-credentials:
+      - 'true'
+      access-control-allow-headers:
+      - Accept, App-Platform, Authorization, Content-Type, Origin, Retry-After, Spotify-App-Version,
+        X-Cloud-Trace-Context, client-token, content-access-token
+      access-control-allow-methods:
+      - GET, POST, OPTIONS, PUT, DELETE, PATCH
+      access-control-allow-origin:
+      - '*'
+      access-control-max-age:
+      - '604800'
+      cache-control:
+      - public, max-age=75399
+      content-encoding:
+      - gzip
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Sun, 02 Oct 2022 17:00:05 GMT
+      server:
+      - envoy
+      strict-transport-security:
+      - max-age=31536000
+      x-content-type-options:
+      - nosniff
+      x-robots-tag:
+      - noindex, nofollow
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate, br
+      Authorization:
+      - Bearer BQAPxqkzMGiBNiGpUVKnk-ghsrhXi7Y6IjXVL1IPIboq75ZOVngWrntJhPkUvkhCydplViIJT82-hNQwcxAR3Ha-uUklphUsKmnTD17aPlxqaPi04dw
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      User-Agent:
+      - python-requests/2.28.1
+    method: GET
+    uri: https://api.spotify.com/v1/albums/3TLn62urm5nudSK9BY28hw
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAAAKxVXU/bMBR951dEedgTkO+0qYSmDU2bBJrYQGjVNEVO4jZenY/ZTqFD/Pc5duI0
+        lGQZgzfuvT3n+t5zTx6ONE0HOKqykO1KqGsLTacoX2OoH4sUYYgyWse/aw88wmPwnkGSAxxWBIuM
+        jPMMLQuGVjuBkjJW0oVhFCXMT5vEaVxkhoQ0LG92OUc3n9ZRQi5u75MvH77hKtUF1OOxZEoJXPXA
+        QIl6WFurgaNDeA0SSgTOeFEOMjmBy4Iy7XqzaxNqNJKsDVcEyYHJjhYyuxh+2aP2Q051CxAGEYZh
+        BsgGtvOVybgodwSt0ydTZ3zsgs02rUD7fH590Ny5oDie/oOr/Z7UVlGyt1S9KmNR65meZwWBZ88c
+        z5ZER8NamKiEWneGc3OZ+3ZFMi+vkuuL4P3Snqd3HcUa5gT2JjRJFjU2HQIXMI0mRksysIb9PaSw
+        3k0d8l1TCQH3+uHdxEnOWzEEgAEif+ZbfmLyv4hP0A0c353b82juOP7MMSNnlrh+tGo3dIcSljYU
+        vZ125I75EnILmvZkck4xQO67L+B25571Dw/fkyY/FSh5WhV3p3qLKCpyGSyLssKAICZ0Z4kYgRgC
+        CsMEMKiu4cR0TyxbPygISwJjCViXJkA6gM4KxiXOCIg3tIPu/m8H9L+6NCTk22K1opCdmW8wyhA7
+        80xlYwxmPTk+b9HjNv2qVr1n169r2ZNte9S6R+z7ZRYu3it1Kac/YuWiIEE0DvMqiyBR0pGJigDG
+        pRbKjdqOa80ClYX3JUYxEue2ApjCvczgXqdtVYjM8Ja/lxRs353/+rqsrgIQfYTw50Y9UdFNWaiU
+        7RCkgmq2+dcyGuIiBvjw6c9dvUjwu90ieBc2fpRXGKucaO7ZDShdiJIO7akoRHoxNjClCF1cbP1r
+        r/XnvPkOd03p8r7rYFskHlBU9EmhMB7RtPocdmKunUT604GK69Ri6MP6+AcAAP//AwDjQ0eE9QkA
+        AA==
+    headers:
+      Alt-Svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      Transfer-Encoding:
+      - chunked
+      Via:
+      - HTTP/2 edgeproxy, 1.1 google
+      access-control-allow-credentials:
+      - 'true'
+      access-control-allow-headers:
+      - Accept, App-Platform, Authorization, Content-Type, Origin, Retry-After, Spotify-App-Version,
+        X-Cloud-Trace-Context, client-token, content-access-token
+      access-control-allow-methods:
+      - GET, POST, OPTIONS, PUT, DELETE, PATCH
+      access-control-allow-origin:
+      - '*'
+      access-control-max-age:
+      - '604800'
+      cache-control:
+      - public, max-age=74178
+      content-encoding:
+      - gzip
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Sun, 02 Oct 2022 17:00:05 GMT
+      server:
+      - envoy
+      strict-transport-security:
+      - max-age=31536000
+      x-content-type-options:
+      - nosniff
+      x-robots-tag:
+      - noindex, nofollow
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate, br
+      Authorization:
+      - Bearer BQAPxqkzMGiBNiGpUVKnk-ghsrhXi7Y6IjXVL1IPIboq75ZOVngWrntJhPkUvkhCydplViIJT82-hNQwcxAR3Ha-uUklphUsKmnTD17aPlxqaPi04dw
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      User-Agent:
+      - python-requests/2.28.1
+    method: GET
+    uri: https://api.spotify.com/v1/tracks/08z6EsebfUH0Q6J0Wf3eWf
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAAAKxV21LbMBB95ytSPwOWbMe5vFEIUFp6mYHJdDodj2yviYhiu5KcEJj8ex35RkLs
+        XCBv3t2cXZ3ds/ty1GpphLnJRGv1Wy/pV/HtyHkMS6MmaPjAQDvOnVxSIcXS8yf/Q2qFJwk8JMxJ
+        OBMVlPKJOJI0mCuskZSx6Ot6FEN4mjtOvWiiZ7A6is+vznrSl+5wFuH46xeBzi+ftBxscVzkG3EI
+        VgBJTFfwpjiHFHWYJRb1FdK2sJBMMj4uaBAAh1C2roFMIaxCSsqy1JUj4TSjMquwn/n7Ta9dHH88
+        u3gwvpmju2fj52/SjUZXwx/hv/HsfezWYK6zuy2sZHdw/elicDilTU9ctP4WQzwllBGXgTMhfAzF
+        OBfuWr53ZHupH900L73OoH02DQ04u+0+3n9P2ONd0dyj3Yleook6uBwoZ3lL0IQ8wLpyR0AfRnJp
+        tC30il22UldaleeHaUm6AtGJa3dsbPso/blGx8Rg9Kw2uD1kd7uAPKtNkN0z7apfM+rLUZ7mzYBX
+        RZjosCIwIGOPItI0DUXY1kE1WN023ouItaksNXA7X64WXky7xoEBEeD4RGYBBsLWCcYn2NwU4sQc
+        PCpoFKpgn8yLKBnJdKolJ95YzQEu7KXK1CnIrW8ktnT26+daTfWmA/FuQW0/DnspapfDsNNZ2HoU
+        avbX/gehHNQP4rJxTx7AZeN+3+kIbD4BexJY/6xcZo2rX/Op8JwwmbjAS3lofsKJTMXkTFSsYdu9
+        bEmlrYgZ9ajaGQFhAnJr3iDqv+qPRgX3VMlXn41vF6iHcKfTq2RT09bdmqoUraPusz0Q4Ab31+iX
+        fYOGgQnDoEqxSz+z3VAHpWAKYTSFCIdFHmGrxGzeb1ocxQkjnEr1SGxlRg5TCjMn379hwpiyq/re
+        tKgcEuXOYNcnRLn6dRwt/gMAAP//AwBHoLEMCgsAAA==
+    headers:
+      Alt-Svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      Transfer-Encoding:
+      - chunked
+      Via:
+      - HTTP/2 edgeproxy, 1.1 google
+      access-control-allow-credentials:
+      - 'true'
+      access-control-allow-headers:
+      - Accept, App-Platform, Authorization, Content-Type, Origin, Retry-After, Spotify-App-Version,
+        X-Cloud-Trace-Context, client-token, content-access-token
+      access-control-allow-methods:
+      - GET, POST, OPTIONS, PUT, DELETE, PATCH
+      access-control-allow-origin:
+      - '*'
+      access-control-max-age:
+      - '604800'
+      cache-control:
+      - public, max-age=7200
+      content-encoding:
+      - gzip
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Sun, 02 Oct 2022 17:00:06 GMT
+      server:
+      - envoy
+      strict-transport-security:
+      - max-age=31536000
+      x-content-type-options:
+      - nosniff
+      x-robots-tag:
+      - noindex, nofollow
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate, br
+      Authorization:
+      - Bearer BQAPxqkzMGiBNiGpUVKnk-ghsrhXi7Y6IjXVL1IPIboq75ZOVngWrntJhPkUvkhCydplViIJT82-hNQwcxAR3Ha-uUklphUsKmnTD17aPlxqaPi04dw
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      User-Agent:
+      - python-requests/2.28.1
+    method: GET
+    uri: https://api.spotify.com/v1/artists/0pCGA9tdtbWwo1pKIs0CFx
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAAAJySy2rDMBBF9/0K43WIrcSP2LuS0gf9gC5KKbI9sgWyJORxHoT8e2XZCQ0lJUQ7
+        3dHccyXN4cHzfNghGEnFd29E53u5d7Cq1TutkLP9oPgNou7yIFAa5HwqzEvVBtQg7zAI9frlMcMK
+        i4+tIvr9rQvXzzvfGh1nA4MpIdQWzG//xgAbtrIXYjZKqJCKQSNpHJPs3F6DNOB6P+2GtlzWHlSt
+        73258snpHJNqfpFyQ6ag3bWkzodXzuXfIy2tT0lO9wBeNzhISRROF7FPeRHIxikrabMEziCgRZIm
+        JCGhXRBDsaBsVRRFGpUFCRNaZqRakjKj/uS35RU2E8K9yl/4cnEPPCZpdDPcIq7ASXIPnJF0dTPc
+        Igb49OWStuA4T5wxMCDRewW6ATl+k1a6F9RwdOMbZU7EvR57xlkYT/aGO20al3ys5dcG+vgDAAD/
+        /wMAERBDQzMDAAA=
+    headers:
+      Alt-Svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      Transfer-Encoding:
+      - chunked
+      Via:
+      - HTTP/2 edgeproxy, 1.1 google
+      access-control-allow-credentials:
+      - 'true'
+      access-control-allow-headers:
+      - Accept, App-Platform, Authorization, Content-Type, Origin, Retry-After, Spotify-App-Version,
+        X-Cloud-Trace-Context, client-token, content-access-token
+      access-control-allow-methods:
+      - GET, POST, OPTIONS, PUT, DELETE, PATCH
+      access-control-allow-origin:
+      - '*'
+      access-control-max-age:
+      - '604800'
+      cache-control:
+      - public, max-age=83777
+      content-encoding:
+      - gzip
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Sun, 02 Oct 2022 17:00:05 GMT
+      server:
+      - envoy
+      strict-transport-security:
+      - max-age=31536000
+      x-content-type-options:
+      - nosniff
+      x-robots-tag:
+      - noindex, nofollow
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate, br
+      Authorization:
+      - Bearer BQAPxqkzMGiBNiGpUVKnk-ghsrhXi7Y6IjXVL1IPIboq75ZOVngWrntJhPkUvkhCydplViIJT82-hNQwcxAR3Ha-uUklphUsKmnTD17aPlxqaPi04dw
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      User-Agent:
+      - python-requests/2.28.1
+    method: GET
+    uri: https://api.spotify.com/v1/albums/33Fc7E5Avn2eAM8jUNuljT
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAAALRW31ObQBB+96+gPPRJ5UgCCZlxOk6MWlutnepkOp0Oc4ElOXP8KByJ0cn/XrgD
+        EkxAGq1v7m6+3fv2212eDyRJxnQcuyZbBiBLfUmOiDehIB9yV8hIxKLU/kt6TiyJDR4ZhB6mZhxS
+        7hH2xBMFPiPOkqNMGQuivqL4AXjHmePY8l1FQCooGFycGsxm49HCV4MvnyM0OH+UOdTqUGSahuCU
+        wHBASlhzNYOLqvAyJGJznPogD7uCgTPiOBCCx6RLwHPw8oCCIpE0N8chEcSJyvrC269+4erwfblU
+        h7OrJbp7at3+xD1/ejH65v2ZLfbnsgKvzGV9UMHl8PLD2XA/AquftZJ+C3nOMaF4TMF0cTiDXKjC
+        afnBMiST6Qv5soRznq2F1I50M/ghfWX28VaFg3KjGv7qdrO6ornE3uitHAcWj9WQpqmGoamoZ3RF
+        toNqSTQURDrKSrt9bnWH2unca8Hpde/h/iamD3frFBPwQihx1UgdKXZUBc5hMmnUhrh4AuWOTCHt
+        UmrSO6iQBC3Vk1Rj2V5SisIBFDzWu7qq2yj5G7e6bRVaRkeDsYH0Xg+Q1dEw0o22nndoQWw2zVKU
+        GrtO3kb7JFcBtRonT1JUJNc7e+Tu9DT1Hx6+Ic1kaEDkSaQsGlNM7PUyXXuhmE458IOY4pAwrjxe
+        pRwCBRyBaWMGxVAcqeqR2pa3AswgBItExPd4qI2XIob5LBE5C7E143JQhbX4P6forcpUBOQn33Ei
+        YCfoIyUuYScaKvYZA7ckyN13r35fv+v929jb73sHG9/CRvewZqXvdxfFu/8P33U38i18157BTb5f
+        D9x5M/ckuf652RoQUq+5oTzAJpFlerE7hrCYU+GIQ8ySuTbF+LR03chXKG9dQIlF+HZzMI1gw1PZ
+        1GYt5ROtoN6TPoxg7Nxfou/6FRo5bRg5ax3l6Zp0U+yIKsgCKh+d18Iik/oWpttP371kuStZk3MC
+        CzM7AF5MaeHj5e3sQaEMHrJGeykL7u7XUVZoQuYLMv21lh9EL/v6WRcli3WaGvMg/gA/jl4E8j3P
+        iy6+P9ZyThe3OAdbOk5d/aovmdVfAAAA//8DAONWDOm5DAAA
+    headers:
+      Alt-Svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      Transfer-Encoding:
+      - chunked
+      Via:
+      - HTTP/2 edgeproxy, 1.1 google
+      access-control-allow-credentials:
+      - 'true'
+      access-control-allow-headers:
+      - Accept, App-Platform, Authorization, Content-Type, Origin, Retry-After, Spotify-App-Version,
+        X-Cloud-Trace-Context, client-token, content-access-token
+      access-control-allow-methods:
+      - GET, POST, OPTIONS, PUT, DELETE, PATCH
+      access-control-allow-origin:
+      - '*'
+      access-control-max-age:
+      - '604800'
+      cache-control:
+      - public, max-age=83917
+      content-encoding:
+      - gzip
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Sun, 02 Oct 2022 17:00:05 GMT
+      server:
+      - envoy
+      strict-transport-security:
+      - max-age=31536000
+      x-content-type-options:
+      - nosniff
+      x-robots-tag:
+      - noindex, nofollow
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate, br
+      Authorization:
+      - Bearer BQAPxqkzMGiBNiGpUVKnk-ghsrhXi7Y6IjXVL1IPIboq75ZOVngWrntJhPkUvkhCydplViIJT82-hNQwcxAR3Ha-uUklphUsKmnTD17aPlxqaPi04dw
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      User-Agent:
+      - python-requests/2.28.1
+    method: GET
+    uri: https://api.spotify.com/v1/tracks/2kdmWdQomm7sgm9jbzNy61
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAAAKxVS1PbMBC+91dkfAZsOYnzuEFogYEW0gMcOh2PbK0TNfJjJDkPmPz3OrLskIAd
+        B8jNu5tvV9/ut/vyrdUyMPPS0GgNWy/ZV/HtylUCG6MhaDRhYJxoJ5dUSLHx/NF/yKywlMAjzNyU
+        M7GFUj6RxJIGK4U1lTIRQ9OME4jOtOPMj0MzhzWtZHR1PpBEek+LGCW3N8Ia/VgaGmx9UuSbcgh2
+        AHFCd/DmSEOKKswSixKFdCgswmHOxyUNAuAQydY14DlE25CSsjz11pFymlOZVzjM/cO6165Pvp5d
+        Z/xg+eeXg+QC348efwq8mjxaz59jtwJzn91DYSW7vwEEvkujT9Ba98x1628xyHNMGfYYuCHmMyhG
+        unBXct6Q8Y2GzI5cUrRYjlOx+L686d/j0fXD7bho8LfmZG/QRBWcBtJMHwgK8QT21TsFOpnKjdHp
+        WK/YZTt1ZVX5JMpKMhWIiT2n5yCHWNnPs3vtQRt1Aq/rAOm3e6TfDboO6hI72PZrQYmc6jRvhnxb
+        RNv6WBEILPuIIrI0NUU4nQ/V0Ol30VFE7E1lqYOHbMHgGWWs6BwHBliAS7DMI2wLdU6RfYq674W4
+        CQefChpHKpjgVRElY5mNteTYn6lBQIW9lJm6B9r6RmMb57B6sNVYv3clPq2owxfiKEk1uQ6NbsPB
+        y1CxwI6/CuWkfhGXtYvyA1zWLvlGl6D6DhxJYvXTtNZq979BqPDdKA094KVEDJJyLDNBuWGum0Gm
+        elt5YJkw6lO1OALMBGirbhIlr3pkUMF9VfLVhX13aQ0s1G87W+lUtLZZY5WqTXtGwicyjsOwJybh
+        4J/3/GvloG2KJj3N90MVlILRDa0NES6Lfcx2ialYckYSJynDnEr1ynZu4zCnsHD1Eo5SxpRd1fem
+        ReWQKHeOuj8hyjWs4mj9HwAA//8DALsaXtETCwAA
+    headers:
+      Alt-Svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      Transfer-Encoding:
+      - chunked
+      Via:
+      - HTTP/2 edgeproxy, 1.1 google
+      access-control-allow-credentials:
+      - 'true'
+      access-control-allow-headers:
+      - Accept, App-Platform, Authorization, Content-Type, Origin, Retry-After, Spotify-App-Version,
+        X-Cloud-Trace-Context, client-token, content-access-token
+      access-control-allow-methods:
+      - GET, POST, OPTIONS, PUT, DELETE, PATCH
+      access-control-allow-origin:
+      - '*'
+      access-control-max-age:
+      - '604800'
+      cache-control:
+      - public, max-age=7200
+      content-encoding:
+      - gzip
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Sun, 02 Oct 2022 17:00:05 GMT
+      server:
+      - envoy
+      strict-transport-security:
+      - max-age=31536000
+      x-content-type-options:
+      - nosniff
+      x-robots-tag:
+      - noindex, nofollow
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate, br
+      Authorization:
+      - Bearer BQAPxqkzMGiBNiGpUVKnk-ghsrhXi7Y6IjXVL1IPIboq75ZOVngWrntJhPkUvkhCydplViIJT82-hNQwcxAR3Ha-uUklphUsKmnTD17aPlxqaPi04dw
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      User-Agent:
+      - python-requests/2.28.1
+    method: GET
+    uri: https://api.spotify.com/v1/artists/0pCGA9tdtbWwo1pKIs0CFx
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAAAJySy2rDMBBF9/0K43WIrcSP2LuS0gf9gC5KKbI9sgWyJORxHoT8e2XZCQ0lJUQ7
+        3dHccyXN4cHzfNghGEnFd29E53u5d7Cq1TutkLP9oPgNou7yIFAa5HwqzEvVBtQg7zAI9frlMcMK
+        i4+tIvr9rQvXzzvfGh1nA4MpIdQWzG//xgAbtrIXYjZKqJCKQSNpHJPs3F6DNOB6P+2GtlzWHlSt
+        73258snpHJNqfpFyQ6ag3bWkzodXzuXfIy2tT0lO9wBeNzhISRROF7FPeRHIxikrabMEziCgRZIm
+        JCGhXRBDsaBsVRRFGpUFCRNaZqRakjKj/uS35RU2E8K9yl/4cnEPPCZpdDPcIq7ASXIPnJF0dTPc
+        Igb49OWStuA4T5wxMCDRewW6ATl+k1a6F9RwdOMbZU7EvR57xlkYT/aGO20al3ys5dcG+vgDAAD/
+        /wMAERBDQzMDAAA=
+    headers:
+      Alt-Svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      Transfer-Encoding:
+      - chunked
+      Via:
+      - HTTP/2 edgeproxy, 1.1 google
+      access-control-allow-credentials:
+      - 'true'
+      access-control-allow-headers:
+      - Accept, App-Platform, Authorization, Content-Type, Origin, Retry-After, Spotify-App-Version,
+        X-Cloud-Trace-Context, client-token, content-access-token
+      access-control-allow-methods:
+      - GET, POST, OPTIONS, PUT, DELETE, PATCH
+      access-control-allow-origin:
+      - '*'
+      access-control-max-age:
+      - '604800'
+      cache-control:
+      - public, max-age=76627
+      content-encoding:
+      - gzip
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Sun, 02 Oct 2022 17:00:06 GMT
+      server:
+      - envoy
+      strict-transport-security:
+      - max-age=31536000
+      x-content-type-options:
+      - nosniff
+      x-robots-tag:
+      - noindex, nofollow
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate, br
+      Authorization:
+      - Bearer BQAPxqkzMGiBNiGpUVKnk-ghsrhXi7Y6IjXVL1IPIboq75ZOVngWrntJhPkUvkhCydplViIJT82-hNQwcxAR3Ha-uUklphUsKmnTD17aPlxqaPi04dw
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      User-Agent:
+      - python-requests/2.28.1
+    method: GET
+    uri: https://api.spotify.com/v1/albums/4txi1wxQuswExI8OaCHPKQ
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAAALRW207bQBB95yssP/QJsDexnYuEKhragqCQtBI8VJW1sdfJNuuLvOtcQPn3rnft
+        TQzYWIHyxszkzOyZMzN+OtI0HZJpFrpskyBdG2o6xdGMIP1YuFKGKaO5/bf2xC3chtYMpREkbpYS
+        4ZF27qFJzHCwEShzxhI6NIw4QdFp4Tj14tCQkIaZjL6fD5jPpg+rGCTXV9QcfVvrAmp7LDPNUxRU
+        wGCCK1hLUMDROrwCCfsCpzkogqFk4AIHAUpRxLRLBJcoKgMURTJpac5SLImTlQ2ld1j/wu3xx3Lp
+        TMamd34xSL7Au9H9Dwo3s3vz8XAua/CqXDYHKS5/IkThTRYdSGL907baHynRJcQETglyQ5guUClW
+        6fTiZJPi2fyZhBnnXWTrmMDSbke/tBvmn76ocFRtVstfjferUw3G/l5/9SzxRKxt2jYYDGwAupYl
+        sx3Vy6KlKPJxNiy2xmC1nmR09XV91b+Do8vx9WSXYoaiFFW4aqWQHJvWgQuYQh6NISGcoWpH5ijv
+        Um5yLFNJglTq4dV4fsRLMQSAAadOzwGOb/K/aafXHXSBFUxtB/n9bs/v24HtANvvBGWHVthn8yJF
+        pbG75F3zkOQAmZ3WyXmKmuSOdUBuq88F1P7he9LkQ4NkHi5l2Rg1tWO+/OACEyLtSZxkBKaYCekJ
+        ivQUEQQpcn3IkJqKE9A5Abb+IsBNUuRhiuNIhPpwI2NYzLjKWQq9hdADkFb1f8nRe6VpSMjPcRBQ
+        xM7MTwSHmJ3ZplpqDIUVRb5+/JqX9ocewb3l/bHHsPVBbHUUG3b6YcdRvvv/8N10KN/Dd+Mt3Of7
+        7cDaw3kg0c1PLnaBlHvDIRUBPqaeG2XhFKVqVqUjSyHjs+3KEQIDvp06yovWCcEeFisugISiPU9t
+        Y9u1VUy10Vn44YM/icOwR2fh4O/08XbjgJ2WynRtOir3RB2kgira+WYYdUnsQfLy6TWbVvj4rlxi
+        tHKLMxBlhCifqO/VJihpiJAd2nNdCPewiTMlCl1syfzXdnkWo+IbaFeULneqOgzlA+KMPgsUy14U
+        rb5CdnrOt7e8CS+EnLuGdd8z238AAAD//wMAOd5ZF8MMAAA=
     headers:
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
@@ -589,7 +1480,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Thu, 23 Jun 2022 08:18:42 GMT
+      - Sun, 02 Oct 2022 17:00:06 GMT
       server:
       - envoy
       strict-transport-security:
@@ -609,904 +1500,13 @@ interactions:
       Accept-Encoding:
       - gzip, deflate, br
       Authorization:
-      - Bearer BQDfz9ppb85lYnWSTeITHQIWdv5T77bQQHpwtkwabt1Vni2fb-zT3EzcHLwIE6BYyoQ5meyUaUsqgRf7z5ZtdqasOKsPVXfop_pIUZX0mtJgwusZcK0
+      - Bearer BQAPxqkzMGiBNiGpUVKnk-ghsrhXi7Y6IjXVL1IPIboq75ZOVngWrntJhPkUvkhCydplViIJT82-hNQwcxAR3Ha-uUklphUsKmnTD17aPlxqaPi04dw
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       User-Agent:
-      - python-requests/2.28.0
-    method: GET
-    uri: https://api.spotify.com/v1/albums/7BUgnVHZekyiP6NawsPP0H
-  response:
-    body:
-      string: !!binary |
-        H4sIAAAAAAAAAKxVXU/bMBR951dEedgTECdN2qUSmgRIYwyqaggmMU2Rk7itV+cD2+kHiP8+x07c
-        hpKsMHjj3ttzru899+TpwDBMSMIiCfg6R6YxNEyG0ylB5qFMUY4ZZ2X8l/EkIiKGVhzRFJKgoERm
-        VFxkWJ5xPFlLlBnnORtaVpaj9LhKHEdZYilIC6wm/Yc/35bojCzvv17e3Drx5fXSlFDPh4ppRtGk
-        AQZz3MBa2BUca8OrkHAscbqLUpioCZwS+Agpq+N6MoqrDhcUq3mphoYqO2x/2LPxWw11ATGBIUFB
-        Aukc1eNVySjL1xRPZy+GzsXUJZsD7IExOrsxrnh8vNPhmeQ5fOOvxtvd6fXieGu7ZpFHstYDnmf7
-        vmcPfBcotoN2UewpiVKA1uD0dpreXdyj+RqP+yO4ZOMxuNhQTFFKUWNWe+mjxGZt4BKmEkdnSQKn
-        qLmRGSq3VIb6LtCSII1+RDdRnIpWLAlgwbA/6Nv9GIi/0Bn07B5wPOiHcRT5fhj5ruv6bq/n1Rta
-        4pjPKorGYjfkPfAechsBZ29yQdFC3nffwe1+9uw3PHxLmuJokOIRUlaL0Tc7yiifCQkaV+p4ZDbP
-        8oJAirkUoC27NSkiCDIUxJAjfRxHwDkCvrlTEOQURZjhLJWlMVyrGp5xIXZOYTSXsrBVVP9fj+p/
-        FWopyC/ZZMIQPwGfCE4wP/GAdjaOkoYwX3ftbuf+UPfecvCPdfG9nbzLzTsc/X2uLp+rBKqG3+Hu
-        siDGLArSIgkR1cpRiYJCLpQWqIXavud4A51Fq5zgCMu7m0DC0Famda37LVVqzOrl13fx/Mf38OL8
-        zn1MFg8/R2R0rp+o6fbZp1JtG6SGqpb5zzIWkCyCZPfpnecvK8T9LjBaBpVDpQUhOie7fHUVWiCy
-        ZIP2Uh0yPeyanJaGKS+3/LVXO3ZafZ43TZnqzstgXSQfkBXsRaE0INm0/kBuVF06ivKpHTmXqWHb
-        p/b5LwAAAP//AwBm+U6vEAoAAA==
-    headers:
-      Alt-Svc:
-      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
-      Transfer-Encoding:
-      - chunked
-      Via:
-      - HTTP/2 edgeproxy, 1.1 google
-      access-control-allow-credentials:
-      - 'true'
-      access-control-allow-headers:
-      - Accept, App-Platform, Authorization, Content-Type, Origin, Retry-After, Spotify-App-Version,
-        X-Cloud-Trace-Context, client-token, content-access-token
-      access-control-allow-methods:
-      - GET, POST, OPTIONS, PUT, DELETE, PATCH
-      access-control-allow-origin:
-      - '*'
-      access-control-max-age:
-      - '604800'
-      cache-control:
-      - public, max-age=76324
-      content-encoding:
-      - gzip
-      content-type:
-      - application/json; charset=utf-8
-      date:
-      - Thu, 23 Jun 2022 08:18:42 GMT
-      server:
-      - envoy
-      strict-transport-security:
-      - max-age=31536000
-      x-content-type-options:
-      - nosniff
-      x-robots-tag:
-      - noindex, nofollow
-    status:
-      code: 200
-      message: OK
-- request:
-    body: null
-    headers:
-      Accept:
-      - '*/*'
-      Accept-Encoding:
-      - gzip, deflate, br
-      Authorization:
-      - Bearer BQDfz9ppb85lYnWSTeITHQIWdv5T77bQQHpwtkwabt1Vni2fb-zT3EzcHLwIE6BYyoQ5meyUaUsqgRf7z5ZtdqasOKsPVXfop_pIUZX0mtJgwusZcK0
-      Connection:
-      - keep-alive
-      Content-Type:
-      - application/json
-      User-Agent:
-      - python-requests/2.28.0
-    method: GET
-    uri: https://api.spotify.com/v1/tracks/4wX3QCU2hWtuPiv8GSakrz
-  response:
-    body:
-      string: !!binary |
-        H4sIAAAAAAAAAKxV21KjQBB99ysonqPABMjlcS/qqrWaSlat2tqiBpiE2QyXmhliopV/lwwDmCiE
-        RPNGd+d0z+k+3S8niqJC4qahqgyVl+yr+Hb4KkEbo8pwNCNI7Ugn5ZhxtvH8lX/IrGjJEY0gcVJK
-        WAUlfCyJOZ6uBFbAecKGmhYnKDqTjjMvDrUcVjOs3k0fTy5nrk+v75f+6OcjSQNVgq07Rb6AoukW
-        IEzwFt7CkJCsDrPEwr5A2hcWwTDn4yZmXBnPV5WrpCpPWTlSinMK88qGuX/Y9Mp15+tZ1X/f9sfs
-        3E7D/7+6eHT1PFl59+efY7UGc5fVfWElq1doeTyhTQ9cK/+K0V1ATKBLkBNCOkfFEBfuWrZbcr1R
-        jQZWl5Nz67YXTt1Zeh0/m/AuCUdFa0/a07xBY3VwEkhyvCcohDO0q9cA4VnAN0bb1N+wS7bqyqry
-        /CgrSRMgGnTtnm3Yvp79XNDrQtuYAmAPdNvWXd8CtmkOLAuYVb+esM8DmebdeFdFdPXjijCQDg4o
-        IkvTUIRtHlWD2beMg4jYmcpSAQ8Bokh5QMqYZ2ON/KKBFBEEGXJ8yPNAoBuDU8M41XsfhTgJRR5m
-        OI5EsA+LRaXymGfTzSn05mIejMJeqk0cAml9J7WNc1g/32K6PzoPnxbW/tNwkLLanIVWR6H2JNTs
-        r8PPQTmoX8Rh4548gsPG7d7qBHx0AA6kr/5RUmSNi1/1MfOcKA1dREtRqH5KIc8k5IQiFgCg65bw
-        oGVCsIfFxphCwpC0yvZg/013VMyoJ0q++AZufhgDXe+CQSWWmqa2a6nQsWY+PXZH3/+A4IGnd3jR
-        vxjDOX2uUrTpZr4R6qAEjGxlYwhzSOxBsk1M83ZTkzhJCaSYi8daIDdStMDoyZFbOEoJEXZR57tW
-        lcMi3Dns7qQI17COq/UrAAAA//8DAADb4EMGCwAA
-    headers:
-      Alt-Svc:
-      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
-      Transfer-Encoding:
-      - chunked
-      Via:
-      - HTTP/2 edgeproxy, 1.1 google
-      access-control-allow-credentials:
-      - 'true'
-      access-control-allow-headers:
-      - Accept, App-Platform, Authorization, Content-Type, Origin, Retry-After, Spotify-App-Version,
-        X-Cloud-Trace-Context, client-token, content-access-token
-      access-control-allow-methods:
-      - GET, POST, OPTIONS, PUT, DELETE, PATCH
-      access-control-allow-origin:
-      - '*'
-      access-control-max-age:
-      - '604800'
-      cache-control:
-      - public, max-age=7200
-      content-encoding:
-      - gzip
-      content-type:
-      - application/json; charset=utf-8
-      date:
-      - Thu, 23 Jun 2022 08:18:42 GMT
-      server:
-      - envoy
-      strict-transport-security:
-      - max-age=31536000
-      x-content-type-options:
-      - nosniff
-      x-robots-tag:
-      - noindex, nofollow
-    status:
-      code: 200
-      message: OK
-- request:
-    body: null
-    headers:
-      Accept:
-      - '*/*'
-      Accept-Encoding:
-      - gzip, deflate, br
-      Authorization:
-      - Bearer BQDfz9ppb85lYnWSTeITHQIWdv5T77bQQHpwtkwabt1Vni2fb-zT3EzcHLwIE6BYyoQ5meyUaUsqgRf7z5ZtdqasOKsPVXfop_pIUZX0mtJgwusZcK0
-      Connection:
-      - keep-alive
-      Content-Type:
-      - application/json
-      User-Agent:
-      - python-requests/2.28.0
-    method: GET
-    uri: https://api.spotify.com/v1/artists/157L8iTHgbdrKVxdQEXluh
-  response:
-    body:
-      string: !!binary |
-        H4sIAAAAAAAAAJySUWuDMBSF3/crxOdSjTNqfR8M1pexMQZjjKhRw6IJ8bpWSv/7YoxlpThK85Zz
-        7z3fIbmHO8dx6R6oagn/6hXvXCd1DlrVeicFsHIYFbcGkF3qeULSdm0L61w0HlHAOvAQjrcJe32s
-        skI9ve2L54d33teuNjquRkYpOBc7qv7614qW47XtOV9NEgggfNSCIME4OI1XtFXUzH44n0aZh0/J
-        iGRnwX6QzdYthTM+rDAu/7Y0pJrhc3TKqhpGKQp9m12/3lkgHScvWp3FMwYeyaI4QhHy9aGYZkES
-        xTTOSVjmRYDDvMyyLNmEvmv9dqyA2iLMQ1zC74Nb4BjF4dVwjViAo+gWeIni5Gq4Roxw++Utaajh
-        bEUHzsv3MH2PFLLnRDEwm4o3RoRBTr3TDkydvWJGs2uSTrV0aXePvwAAAP//AwA8V9XFHgMAAA==
-    headers:
-      Alt-Svc:
-      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
-      Transfer-Encoding:
-      - chunked
-      Via:
-      - HTTP/2 edgeproxy, 1.1 google
-      access-control-allow-credentials:
-      - 'true'
-      access-control-allow-headers:
-      - Accept, App-Platform, Authorization, Content-Type, Origin, Retry-After, Spotify-App-Version,
-        X-Cloud-Trace-Context, client-token, content-access-token
-      access-control-allow-methods:
-      - GET, POST, OPTIONS, PUT, DELETE, PATCH
-      access-control-allow-origin:
-      - '*'
-      access-control-max-age:
-      - '604800'
-      cache-control:
-      - public, max-age=83368
-      content-encoding:
-      - gzip
-      content-type:
-      - application/json; charset=utf-8
-      date:
-      - Thu, 23 Jun 2022 08:18:43 GMT
-      server:
-      - envoy
-      strict-transport-security:
-      - max-age=31536000
-      x-content-type-options:
-      - nosniff
-      x-robots-tag:
-      - noindex, nofollow
-    status:
-      code: 200
-      message: OK
-- request:
-    body: null
-    headers:
-      Accept:
-      - '*/*'
-      Accept-Encoding:
-      - gzip, deflate, br
-      Authorization:
-      - Bearer BQDfz9ppb85lYnWSTeITHQIWdv5T77bQQHpwtkwabt1Vni2fb-zT3EzcHLwIE6BYyoQ5meyUaUsqgRf7z5ZtdqasOKsPVXfop_pIUZX0mtJgwusZcK0
-      Connection:
-      - keep-alive
-      Content-Type:
-      - application/json
-      User-Agent:
-      - python-requests/2.28.0
-    method: GET
-    uri: https://api.spotify.com/v1/albums/2yHTF5O7mfbguKoz4aPpmQ
-  response:
-    body:
-      string: !!binary |
-        H4sIAAAAAAAAALRW207bQBB95yssP/QJ8CWxc5FQH1ApBQREoYBUVdbansTbrC/aXYcElH+vvWs7
-        McEmDZQ3ZiZnZs+cmfHLgaKoiLhp6PBlAqoyVFSGoykB9VC4KMeMs9z+S3nJLJkNFhxohIiTUiI8
-        0p55WBJzPFkKlIDzhA01LU4gOi4cx14cahJSM6zeVR/fnU9dn17eL/zRt0eSBqqAWh3KTAGFSQ0M
-        JbiGNTcKONaEVyBhX+C0B0UolAxcxYwr49mydFTUyGSlOaVYEiYrGkrvsPllq8PP5VC/vumP2Zmd
-        hn9+dPDo4vlu6d2f7c9hA16dw/agisMLWOxHX/OjVspvKco5wgS5BJwQ0RmU8pROL06WFE+DV6Ll
-        GeMim6kbA+X6dLxV3Gm9Q+//4Hazpqqh2N/op5omnoi1dMsyBgPLHJgDSyY6aJbBjiLIx1Yzl+d3
-        Z9ZNL5y40/Qyfu6i2yQcrVNMIaJQY2gnReTYrAlcwBRyaA0J0RTqfQgg701usrt6JQRSqyerxvOj
-        rBRNAGjItXu2Yft69ueavQ6yjYlp2gPdtnXXt0y72x1YltktO/SEfR4UKWo9XSfv6PskN0A3d06e
-        pWhIbnf3yN3tW8Y/PHxDmtmogMxTqng9pQ8BUFAeQBnzbPzAl+4kTlKCKOZCgR1bGCkQQAwcH3Go
-        BuPIMI70nroV4CQUPMxwHIlQH8ldqvKYZ2rnFHkzoQtDWqv/S64+KlFNQn6NJxMG/ET/QnCI+Yml
-        V8uMQ1hT5tvHrn1Zf+rR21jan3v8dj6ArUewZZPvdwzle/8Pz22H8SM8t96+TZ7fD3zjUO5Jcftj
-        iy0gBd5yOEWAj5nnRGnoAq2mUzpSing2zY4cGtM0dd2qvLBICPawWG4TRBhseBpbultDxRxr3afH
-        zuj0pxk88PQWz/vfx2hGn9cqKtPt0ku5GZogK6iike+GMYfEHiLbT2/fsSIkW5JzDE9OcQeilJDK
-        J8p8sxeVQkTIGu21PIR72EZdpQ1VrMf811Z5F6Pi+2ddlCqXaW4sg8QD4pS9ChRbXhRdfYasZZ2v
-        bXkMtvScu4ZNHzSrvwAAAP//AwBjvH0WrAwAAA==
-    headers:
-      Alt-Svc:
-      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
-      Transfer-Encoding:
-      - chunked
-      Via:
-      - HTTP/2 edgeproxy, 1.1 google
-      access-control-allow-credentials:
-      - 'true'
-      access-control-allow-headers:
-      - Accept, App-Platform, Authorization, Content-Type, Origin, Retry-After, Spotify-App-Version,
-        X-Cloud-Trace-Context, client-token, content-access-token
-      access-control-allow-methods:
-      - GET, POST, OPTIONS, PUT, DELETE, PATCH
-      access-control-allow-origin:
-      - '*'
-      access-control-max-age:
-      - '604800'
-      cache-control:
-      - public, max-age=76902
-      content-encoding:
-      - gzip
-      content-type:
-      - application/json; charset=utf-8
-      date:
-      - Thu, 23 Jun 2022 08:18:42 GMT
-      server:
-      - envoy
-      strict-transport-security:
-      - max-age=31536000
-      x-content-type-options:
-      - nosniff
-      x-robots-tag:
-      - noindex, nofollow
-    status:
-      code: 200
-      message: OK
-- request:
-    body: null
-    headers:
-      Accept:
-      - '*/*'
-      Accept-Encoding:
-      - gzip, deflate, br
-      Authorization:
-      - Bearer BQDfz9ppb85lYnWSTeITHQIWdv5T77bQQHpwtkwabt1Vni2fb-zT3EzcHLwIE6BYyoQ5meyUaUsqgRf7z5ZtdqasOKsPVXfop_pIUZX0mtJgwusZcK0
-      Connection:
-      - keep-alive
-      Content-Type:
-      - application/json
-      User-Agent:
-      - python-requests/2.28.0
-    method: GET
-    uri: https://api.spotify.com/v1/tracks/5YzYsavACqRYuP9abGeejk
-  response:
-    body:
-      string: !!binary |
-        H4sIAAAAAAAAAKRU226bQBB971cgnpNwNbe3pq1SKX5omyiqVVVoYddm6+XS3cWXRP73wrJA7Bgb
-        p7wxZzgznDkzLx8URQUkKlNVCZSX6q19D/m2QHVQZThbEKReSZByzDirkV/ygyqKNhzRDJCwpIT1
-        VAJjRc7xfCu4Es4LFmhaXqDsRgI3cZ5qDa1mTNyphx+/LiJI75828PuXn6RMVEm2u2rrJRTN9whB
-        gff4VoakZEOcHReGgulcWgbSRo9pzrjysNz2UCdVU7IHSoobCZvOggYPTv3lTvndKr0CmICIoDAF
-        dIlazVt4UPKRgtdD1qzHaeaYJU0nWQkf7v3bmekla9mJLDRK65qNDdFJIin0maQULNChvRKEFwmv
-        g46tv1KX7PVVdRXDrGpJEyQaiBzXMRyoV09kupbtW47tmV7kWZbjWnpkudB2onk/rzWGPJFlpAbH
-        mrD09zVhIN28oImqzIkmHPtdPdjexLhIiANXdmvwhBnOs3ZsFBEEGAoh4A1s6oZ/rdvXhnksJSwo
-        ihuCOhmCdptUnvPK05yCeClcYLTxbsfEtZLRNwtWg8Gwq4Wnj92w/16n8/fron0ac7tGXa7BuzVw
-        tS6/WdIbJ++VCjGLw6xMI0S7qaqwpIBXHghTkWtatuH6AkGbguAYC6PPAWFIRuWMMHw1IhUzGouW
-        727N6WfDrxatcl037YHJjpurMKI2mT3PGFh9/PT3x6z85oPoDqE/y77EmJE2lh6iEjRynidTWEjy
-        GJB9YY4tpVrkRUkAxVz8ouU0QYpWGK1DeTKykhARF929GVBnEQE3tIf+EFAwpNDuHwAAAP//AwDj
-        FCfbYggAAA==
-    headers:
-      Alt-Svc:
-      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
-      Transfer-Encoding:
-      - chunked
-      Via:
-      - HTTP/2 edgeproxy, 1.1 google
-      access-control-allow-credentials:
-      - 'true'
-      access-control-allow-headers:
-      - Accept, App-Platform, Authorization, Content-Type, Origin, Retry-After, Spotify-App-Version,
-        X-Cloud-Trace-Context, client-token, content-access-token
-      access-control-allow-methods:
-      - GET, POST, OPTIONS, PUT, DELETE, PATCH
-      access-control-allow-origin:
-      - '*'
-      access-control-max-age:
-      - '604800'
-      cache-control:
-      - public, max-age=7200
-      content-encoding:
-      - gzip
-      content-type:
-      - application/json; charset=utf-8
-      date:
-      - Thu, 23 Jun 2022 08:18:42 GMT
-      server:
-      - envoy
-      strict-transport-security:
-      - max-age=31536000
-      x-content-type-options:
-      - nosniff
-      x-robots-tag:
-      - noindex, nofollow
-    status:
-      code: 200
-      message: OK
-- request:
-    body: null
-    headers:
-      Accept:
-      - '*/*'
-      Accept-Encoding:
-      - gzip, deflate, br
-      Authorization:
-      - Bearer BQDfz9ppb85lYnWSTeITHQIWdv5T77bQQHpwtkwabt1Vni2fb-zT3EzcHLwIE6BYyoQ5meyUaUsqgRf7z5ZtdqasOKsPVXfop_pIUZX0mtJgwusZcK0
-      Connection:
-      - keep-alive
-      Content-Type:
-      - application/json
-      User-Agent:
-      - python-requests/2.28.0
-    method: GET
-    uri: https://api.spotify.com/v1/artists/157L8iTHgbdrKVxdQEXluh
-  response:
-    body:
-      string: !!binary |
-        H4sIAAAAAAAAAJySUWuDMBSF3/crxOdSjTNqfR8M1pexMQZjjKhRw6IJ8bpWSv/7YoxlpThK85Zz
-        7z3fIbmHO8dx6R6oagn/6hXvXCd1DlrVeicFsHIYFbcGkF3qeULSdm0L61w0HlHAOvAQjrcJe32s
-        skI9ve2L54d33teuNjquRkYpOBc7qv7614qW47XtOV9NEgggfNSCIME4OI1XtFXUzH44n0aZh0/J
-        iGRnwX6QzdYthTM+rDAu/7Y0pJrhc3TKqhpGKQp9m12/3lkgHScvWp3FMwYeyaI4QhHy9aGYZkES
-        xTTOSVjmRYDDvMyyLNmEvmv9dqyA2iLMQ1zC74Nb4BjF4dVwjViAo+gWeIni5Gq4Roxw++Utaajh
-        bEUHzsv3MH2PFLLnRDEwm4o3RoRBTr3TDkydvWJGs2uSTrV0aXePvwAAAP//AwA8V9XFHgMAAA==
-    headers:
-      Alt-Svc:
-      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
-      Transfer-Encoding:
-      - chunked
-      Via:
-      - HTTP/2 edgeproxy, 1.1 google
-      access-control-allow-credentials:
-      - 'true'
-      access-control-allow-headers:
-      - Accept, App-Platform, Authorization, Content-Type, Origin, Retry-After, Spotify-App-Version,
-        X-Cloud-Trace-Context, client-token, content-access-token
-      access-control-allow-methods:
-      - GET, POST, OPTIONS, PUT, DELETE, PATCH
-      access-control-allow-origin:
-      - '*'
-      access-control-max-age:
-      - '604800'
-      cache-control:
-      - public, max-age=85436
-      content-encoding:
-      - gzip
-      content-type:
-      - application/json; charset=utf-8
-      date:
-      - Thu, 23 Jun 2022 08:18:43 GMT
-      server:
-      - envoy
-      strict-transport-security:
-      - max-age=31536000
-      x-content-type-options:
-      - nosniff
-      x-robots-tag:
-      - noindex, nofollow
-    status:
-      code: 200
-      message: OK
-- request:
-    body: null
-    headers:
-      Accept:
-      - '*/*'
-      Accept-Encoding:
-      - gzip, deflate, br
-      Authorization:
-      - Bearer BQDfz9ppb85lYnWSTeITHQIWdv5T77bQQHpwtkwabt1Vni2fb-zT3EzcHLwIE6BYyoQ5meyUaUsqgRf7z5ZtdqasOKsPVXfop_pIUZX0mtJgwusZcK0
-      Connection:
-      - keep-alive
-      Content-Type:
-      - application/json
-      User-Agent:
-      - python-requests/2.28.0
-    method: GET
-    uri: https://api.spotify.com/v1/albums/3TLn62urm5nudSK9BY28hw
-  response:
-    body:
-      string: !!binary |
-        H4sIAAAAAAAAAKxV207bQBB95yssP/QJ8N2JI6GqRVUrgSpaEGpUVdbansTbrC/dXQdSxL/X3rU3
-        CcGuS+GNmck5szNnjh+ONE1HJKqykG9K0LWZpjOcLwnoxyJFOWacNfHv2kMdqWNwz4HmiIQVJSIj
-        43WGlQXHi41ASTkv2cwwihLy0zZxGheZISENy5tcTvHNp2WU0Ivb++TLh2+kSnUB9XgsmVIKiz0w
-        VOI9rLXVwrE+vBYJJwJnuChHmZzAZcG4dr3adAk1GknWhSuK5cBkRzOZnfW/7FH7Iae6RpigiECY
-        IbqCbr4yGRflhuJl+mTqvB67YLNNK9A+n18fNHcuKI7H/+Bqtye1VZzsLFWvyljUeqbnWUHg2RPH
-        syXRUb8WRiqh0Z3h3Fzmvl3RzMur5PoieD+3p+ndlmIJOYW9CY2SRYPN+sAFTKuJwZIMLWF/Dyk0
-        u2lCvmsqIZC9fupu4iSvWzEEgIEif+JbfmLWf1E9QTdwfHdqT6Op4/gTx4ycSeL60aLb0B1OeNpS
-        7O10S+6YLyG3wLRHk9cUPeS++wJud+pZ//DwHWnWpwKSp1Px9lRvMcNFLoNlUVYEUcyF7mwxIJ0C
-        AcQgTBAHdQ4npnti2fpBQVhSiCViU5ogaQE6L3itcU5RvBJqsGRU/d9N6H+FaUjIt8ViwYCfmW8I
-        zjA/80zlYxyyPT0+79HDPv2qXr3j16/r2aN9e9C7B/z7ZR4u3iuFKac/4OWiIMEsDvMqi4Aq6chE
-        RRGvpRbKjdqOa00ClYX7kuAYi3tbIMJgJ9O713FbFSIzvPnvOUPrd+e/vs6rqwBFHwF+rtQTFd2Y
-        hUrZ9kEqqHabfy1jISliRA6f/tzZi0R9t2sMd2FrSHlFiMqJ5p7dgNKFKNmiPRWFSM+GBqYUoYuL
-        bX7tdQadtx/ibVO6vO8m2BWJBxQVe1IojEc0rb6HWzE3TiL96UDFTWrW92V9/AMAAP//AwDs2IZe
-        9gkAAA==
-    headers:
-      Alt-Svc:
-      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
-      Transfer-Encoding:
-      - chunked
-      Via:
-      - HTTP/2 edgeproxy, 1.1 google
-      access-control-allow-credentials:
-      - 'true'
-      access-control-allow-headers:
-      - Accept, App-Platform, Authorization, Content-Type, Origin, Retry-After, Spotify-App-Version,
-        X-Cloud-Trace-Context, client-token, content-access-token
-      access-control-allow-methods:
-      - GET, POST, OPTIONS, PUT, DELETE, PATCH
-      access-control-allow-origin:
-      - '*'
-      access-control-max-age:
-      - '604800'
-      cache-control:
-      - public, max-age=75156
-      content-encoding:
-      - gzip
-      content-type:
-      - application/json; charset=utf-8
-      date:
-      - Thu, 23 Jun 2022 08:18:43 GMT
-      server:
-      - envoy
-      strict-transport-security:
-      - max-age=31536000
-      x-content-type-options:
-      - nosniff
-      x-robots-tag:
-      - noindex, nofollow
-    status:
-      code: 200
-      message: OK
-- request:
-    body: null
-    headers:
-      Accept:
-      - '*/*'
-      Accept-Encoding:
-      - gzip, deflate, br
-      Authorization:
-      - Bearer BQDfz9ppb85lYnWSTeITHQIWdv5T77bQQHpwtkwabt1Vni2fb-zT3EzcHLwIE6BYyoQ5meyUaUsqgRf7z5ZtdqasOKsPVXfop_pIUZX0mtJgwusZcK0
-      Connection:
-      - keep-alive
-      Content-Type:
-      - application/json
-      User-Agent:
-      - python-requests/2.28.0
-    method: GET
-    uri: https://api.spotify.com/v1/tracks/08z6EsebfUH0Q6J0Wf3eWf
-  response:
-    body:
-      string: !!binary |
-        H4sIAAAAAAAAAKxV21LiQBB99yvYPKuZJBAIb66irrvupUqL2traSk2SjoxMLjszAdHi3zeZXBAk
-        IaC8pbs53XO6T/fLUaejYOokgdIZdl7Sr/LbFosYMqPCSfhAQTkunEwQLnjm+VP8IbXCkwAWYmon
-        jPIVlPTxOBLEX0isiRAxH6pqFEN4WjhO3ShQc1gVxedXZ5bwhDOeR1r89QtH55dPSgG2PC7zTRj4
-        a4A4Jmt4M62A5HWYFRbxJNKusBAHOR8XxPeBQSg614BnEK5CKsry1CtHwkhOZV7hMPcPm167PP54
-        drXR9GaB7p71n7/xIJpcjX+E/6bz97Fbg7nJ7q6wit3R9aeL0eGUNj1x2flbDvEME4odCnaA2RTK
-        cS7dtXy3ZDvTj2oYl25/1DubhTqc3Q4e778n9PGubO5Re6IzNF4HVwAVLO8ICvADbCp3AuRhIjKj
-        2UWv2KVrdaVVuV6YlqRKEBU7Zt/UTA+lP0fvGxroVrcHjoXMwQCQ2+1hZFqGuerXnHhiUqR5M+Cr
-        Igx0WBEaIH2PItI0DUWY3YNq6A562l5EbExlpYHbRbZaWDntCgMKmIPtYZEH6EjrnmjaiWZsC7Fj
-        Bi7hJAplsIcXZZSIRDrVgmF3KudAK+2VyuQpKKxvJJY5h/VzLad624F4t6B2H4e9FNXmMLQ6CzuP
-        Qs3+2v8gVIP6QVw27skDuGzc762OwPYTsCeB9c8qZNa4+hWPcNcOk8ABVslD8RKGRSomO5Cxumla
-        +ZJKWxFT4hK5M3xMORTWokHEe9UfhXDmypKvPuvfLpCFtH7fWsmmpq3tmioVraLBszni4Pj31+iX
-        eYPGvgFjf5WiTT/z3VAHJWFKYTSFcJtGLqbrxGzfb0ocxQnFjAj5yG4/NzKYEZjbxf4NE0qlXdb3
-        pkXVkEh3Drs5IdI1rONo+R8AAP//AwCTBZELCgsAAA==
-    headers:
-      Alt-Svc:
-      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
-      Transfer-Encoding:
-      - chunked
-      Via:
-      - HTTP/2 edgeproxy, 1.1 google
-      access-control-allow-credentials:
-      - 'true'
-      access-control-allow-headers:
-      - Accept, App-Platform, Authorization, Content-Type, Origin, Retry-After, Spotify-App-Version,
-        X-Cloud-Trace-Context, client-token, content-access-token
-      access-control-allow-methods:
-      - GET, POST, OPTIONS, PUT, DELETE, PATCH
-      access-control-allow-origin:
-      - '*'
-      access-control-max-age:
-      - '604800'
-      cache-control:
-      - public, max-age=7200
-      content-encoding:
-      - gzip
-      content-type:
-      - application/json; charset=utf-8
-      date:
-      - Thu, 23 Jun 2022 08:18:43 GMT
-      server:
-      - envoy
-      strict-transport-security:
-      - max-age=31536000
-      x-content-type-options:
-      - nosniff
-      x-robots-tag:
-      - noindex, nofollow
-    status:
-      code: 200
-      message: OK
-- request:
-    body: null
-    headers:
-      Accept:
-      - '*/*'
-      Accept-Encoding:
-      - gzip, deflate, br
-      Authorization:
-      - Bearer BQDfz9ppb85lYnWSTeITHQIWdv5T77bQQHpwtkwabt1Vni2fb-zT3EzcHLwIE6BYyoQ5meyUaUsqgRf7z5ZtdqasOKsPVXfop_pIUZX0mtJgwusZcK0
-      Connection:
-      - keep-alive
-      Content-Type:
-      - application/json
-      User-Agent:
-      - python-requests/2.28.0
-    method: GET
-    uri: https://api.spotify.com/v1/artists/0pCGA9tdtbWwo1pKIs0CFx
-  response:
-    body:
-      string: !!binary |
-        H4sIAAAAAAAAAJySy2rDMBBF9/0K43WIrcSPxLuS0gf9gC5KKZI9tgWyJORxHoT8e2XZCQ3FJUQ7
-        3ZHuuRrN8cHzfNgjGEnFd2dE63uZd7Sq1VutkJeHXvFrRN1mQaA0yPlYmOeqCahB3mIQ6s3L4xoL
-        ZB87RfT7Wxtunve+NTrNekaphFA7ML/9awNlv5WdELNBQoVU9BpJoziKL9crkAbc3U+7oQ2XlQdF
-        43tfrnx2usSkml+l3JIxaDuV1Pnwwrn8e6Sh1TnJ+R3Aqxp7KYnC8SG2lVeBbJy8kDZL4AwCypI0
-        IQkJ7YIY2IKWK8ZYGuWMhAnN16RYknxN/dFvxwusR4Tryl/4cnEPPLadvhluERNwktwDL0m6uhlu
-        ET18/HJJG3CcJ16WYECi9wp0C3L4Jq10J6jh6MY3WjkRD3q4M8zCcLIz3GnjuGRDLZsa6NMPAAAA
-        //8DAAuXKiozAwAA
-    headers:
-      Alt-Svc:
-      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
-      Transfer-Encoding:
-      - chunked
-      Via:
-      - HTTP/2 edgeproxy, 1.1 google
-      access-control-allow-credentials:
-      - 'true'
-      access-control-allow-headers:
-      - Accept, App-Platform, Authorization, Content-Type, Origin, Retry-After, Spotify-App-Version,
-        X-Cloud-Trace-Context, client-token, content-access-token
-      access-control-allow-methods:
-      - GET, POST, OPTIONS, PUT, DELETE, PATCH
-      access-control-allow-origin:
-      - '*'
-      access-control-max-age:
-      - '604800'
-      cache-control:
-      - public, max-age=82682
-      content-encoding:
-      - gzip
-      content-type:
-      - application/json; charset=utf-8
-      date:
-      - Thu, 23 Jun 2022 08:18:43 GMT
-      server:
-      - envoy
-      strict-transport-security:
-      - max-age=31536000
-      x-content-type-options:
-      - nosniff
-      x-robots-tag:
-      - noindex, nofollow
-    status:
-      code: 200
-      message: OK
-- request:
-    body: null
-    headers:
-      Accept:
-      - '*/*'
-      Accept-Encoding:
-      - gzip, deflate, br
-      Authorization:
-      - Bearer BQDfz9ppb85lYnWSTeITHQIWdv5T77bQQHpwtkwabt1Vni2fb-zT3EzcHLwIE6BYyoQ5meyUaUsqgRf7z5ZtdqasOKsPVXfop_pIUZX0mtJgwusZcK0
-      Connection:
-      - keep-alive
-      Content-Type:
-      - application/json
-      User-Agent:
-      - python-requests/2.28.0
-    method: GET
-    uri: https://api.spotify.com/v1/albums/33Fc7E5Avn2eAM8jUNuljT
-  response:
-    body:
-      string: !!binary |
-        H4sIAAAAAAAAALRWbVObQBD+7q+gfOgnlQMCeZlxOk6MWlutnepkOp0Oc4ElOXO8FI7E6OS/F+4C
-        CSYgjdZv7m6e3Xv22V2eDyRJxnSUeBZbhCBLPUmOiT+mIB9yV8RIzOLM/kt6Ti2pDR4ZRD6mVhJR
-        7hH21BOHASPugqNMGAvjnqIEIfjHK8exHXiKgFRQ2L847TKHjYbzQA2/fI5R//xR5lDLQ5FpEoFb
-        AsMhKWHN1BVcXIW3QiIOx6kP8rEnGDgjrgsR+Ey6BDwDPw8oKBJJc3MSEUGcqKwnvL3qFy4P35dL
-        dTC9WqC7J+32J+4Ek4vhN//PdL4/lxV4ZS7rgwouB5cfzgb7EVj9rKX0W8hzhgnFIwqWh6Mp5EIV
-        TjsIFxEZT17Il6Wc82waUlvSTf+H9JU5x1sV9suNavir283qiuYSZ6O3chLaPNZAhqF2u4aKOt22
-        yHZQLYmGgshGWdH1c7s9ME5nvgan152H+5uEPtytU4zBj6DEVSN1ZNhxFTiHWUmjNsTDYyh3ZAJZ
-        lzKT2UKFJGipnrQa2/HTUhQOoOCR2TZV00Hp30hr6ypo3ZYBoy4yOx1AdsvAyOzqZt6hOXHYZJWi
-        1Nh1ch3tk1wFpDVOnqaoSG629sjd6hjqPzx8Q5rp0IDIk0pZNKaY2OtFtvYiMZ1yGIQJxRFhXHm6
-        xo0RUMAxWA5mUEzFkaoeqbq8FWCFEdgkJoHPQx28EDEsYKnKWYTtKdeDKqzF/zlHb5WmIiA/Ba4b
-        AztBHynxCDsxULHQGHglRe4+fPUL+10P4Mbift9D2PgYNjqINTt9v8Mo3v1/+K47km/hu/YObvL9
-        euDOo7knyfXPXe0BIfWaI8oDHBLblp94I4iKORWOJMIsnWtLjI9mmt18h/LWhZTYhK83F9MYNjyV
-        TW3WUj7RCuo8mYMYRu79JfpuXqGhq8PQXesoT9ekm2JHVEEWUPnovBYWWzSwMd1++u4ty13pmpwR
-        mFurC+AnlBY+Xt7OHhTK4CFrtJey4O5eHWWFJmS+ILNfG/lF9FefP+uiZLFOM2MexB8QJPGLQL7n
-        edHFB8haztniFudgS8eZq1f1KbP8CwAA//8DAKaBruS6DAAA
-    headers:
-      Alt-Svc:
-      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
-      Transfer-Encoding:
-      - chunked
-      Via:
-      - HTTP/2 edgeproxy, 1.1 google
-      access-control-allow-credentials:
-      - 'true'
-      access-control-allow-headers:
-      - Accept, App-Platform, Authorization, Content-Type, Origin, Retry-After, Spotify-App-Version,
-        X-Cloud-Trace-Context, client-token, content-access-token
-      access-control-allow-methods:
-      - GET, POST, OPTIONS, PUT, DELETE, PATCH
-      access-control-allow-origin:
-      - '*'
-      access-control-max-age:
-      - '604800'
-      cache-control:
-      - public, max-age=73629
-      content-encoding:
-      - gzip
-      content-type:
-      - application/json; charset=utf-8
-      date:
-      - Thu, 23 Jun 2022 08:18:42 GMT
-      server:
-      - envoy
-      strict-transport-security:
-      - max-age=31536000
-      x-content-type-options:
-      - nosniff
-      x-robots-tag:
-      - noindex, nofollow
-    status:
-      code: 200
-      message: OK
-- request:
-    body: null
-    headers:
-      Accept:
-      - '*/*'
-      Accept-Encoding:
-      - gzip, deflate, br
-      Authorization:
-      - Bearer BQDfz9ppb85lYnWSTeITHQIWdv5T77bQQHpwtkwabt1Vni2fb-zT3EzcHLwIE6BYyoQ5meyUaUsqgRf7z5ZtdqasOKsPVXfop_pIUZX0mtJgwusZcK0
-      Connection:
-      - keep-alive
-      Content-Type:
-      - application/json
-      User-Agent:
-      - python-requests/2.28.0
-    method: GET
-    uri: https://api.spotify.com/v1/tracks/2kdmWdQomm7sgm9jbzNy61
-  response:
-    body:
-      string: !!binary |
-        H4sIAAAAAAAAAKxVS1PbMBC+91dkfAZsOYnzuEFogYEW0gMcOh2PbK0TNfJjJDkPmPz3OrLskIAd
-        B8jNu5tvV9/ut/vyrdUyMPPS0GgNWy/ZV/HtylUCG6MhaDRhYJxoJ5dUSLHx/NF/yKywlMAjzNyU
-        M7GFUj6RxJIGK4U1lTIRQ9OME4jOtOPMj0MzhzWtZHR1PpBEek+LGCW3N8Ia/VgaGmx9UuSbcgh2
-        AHFCd/DmSEOKKswSixKFdCgswmHOxyUNAuAQydY14DlE25CSsjz11pFymlOZVzjM/cO6165Pvp5d
-        Z/xg+eeXg+QC348efwq8mjxaz59jtwJzn91DYSW7vwEEvkujT9Ba98x1628xyHNMGfYYuCHmMyhG
-        unBXct6Q8Y2GzI5cUrRYjlOx+L686d/j0fXD7bho8LfmZG/QRBWcBtJMHwgK8QT21TsFOpnKjdHp
-        WK/YZTt1ZVX5JMpKMhWIiT2n5yCHWNnPs3vtQRt1Aq/rAOm3e6TfDboO6hI72PZrQYmc6jRvhnxb
-        RNv6WBEILPuIIrI0NUU4nQ/V0Ol30VFE7E1lqYOHbMHgGWWs6BwHBliAS7DMI2wLdU6RfYq674W4
-        CQefChpHKpjgVRElY5mNteTYn6lBQIW9lJm6B9r6RmMb57B6sNVYv3clPq2owxfiKEk1uQ6NbsPB
-        y1CxwI6/CuWkfhGXtYvyA1zWLvlGl6D6DhxJYvXTtNZq979BqPDdKA094KVEDJJyLDNBuWGum0Gm
-        elt5YJkw6lO1OALMBGirbhIlr3pkUMF9VfLVhX13aQ0s1G87W+lUtLZZY5WqTXtGwicyjsOwJybh
-        4J/3/GvloG2KJj3N90MVlILRDa0NES6Lfcx2ialYckYSJynDnEr1ynbOerbH5hQWrt7CUcqYsqsC
-        3/SonBLlzmH3R0S5hlUkrf8DAAD//wMAYc/spBQLAAA=
-    headers:
-      Alt-Svc:
-      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
-      Transfer-Encoding:
-      - chunked
-      Via:
-      - HTTP/2 edgeproxy, 1.1 google
-      access-control-allow-credentials:
-      - 'true'
-      access-control-allow-headers:
-      - Accept, App-Platform, Authorization, Content-Type, Origin, Retry-After, Spotify-App-Version,
-        X-Cloud-Trace-Context, client-token, content-access-token
-      access-control-allow-methods:
-      - GET, POST, OPTIONS, PUT, DELETE, PATCH
-      access-control-allow-origin:
-      - '*'
-      access-control-max-age:
-      - '604800'
-      cache-control:
-      - public, max-age=7200
-      content-encoding:
-      - gzip
-      content-type:
-      - application/json; charset=utf-8
-      date:
-      - Thu, 23 Jun 2022 08:18:43 GMT
-      server:
-      - envoy
-      strict-transport-security:
-      - max-age=31536000
-      x-content-type-options:
-      - nosniff
-      x-robots-tag:
-      - noindex, nofollow
-    status:
-      code: 200
-      message: OK
-- request:
-    body: null
-    headers:
-      Accept:
-      - '*/*'
-      Accept-Encoding:
-      - gzip, deflate, br
-      Authorization:
-      - Bearer BQDfz9ppb85lYnWSTeITHQIWdv5T77bQQHpwtkwabt1Vni2fb-zT3EzcHLwIE6BYyoQ5meyUaUsqgRf7z5ZtdqasOKsPVXfop_pIUZX0mtJgwusZcK0
-      Connection:
-      - keep-alive
-      Content-Type:
-      - application/json
-      User-Agent:
-      - python-requests/2.28.0
-    method: GET
-    uri: https://api.spotify.com/v1/artists/0pCGA9tdtbWwo1pKIs0CFx
-  response:
-    body:
-      string: !!binary |
-        H4sIAAAAAAAAAJySy2rDMBBF9/0K43WIrcSPxLuS0gf9gC5KKZI9tgWyJORxHoT8e2XZCQ3FJUQ7
-        3ZHuuRrN8cHzfNgjGEnFd2dE63uZd7Sq1VutkJeHXvFrRN1mQaA0yPlYmOeqCahB3mIQ6s3L4xoL
-        ZB87RfT7Wxtunve+NTrNekaphFA7ML/9awNlv5WdELNBQoVU9BpJoziKL9crkAbc3U+7oQ2XlQdF
-        43tfrnx2usSkml+l3JIxaDuV1Pnwwrn8e6Sh1TnJ+R3Aqxp7KYnC8SG2lVeBbJy8kDZL4AwCypI0
-        IQkJ7YIY2IKWK8ZYGuWMhAnN16RYknxN/dFvxwusR4Tryl/4cnEPPLadvhluERNwktwDL0m6uhlu
-        ET18/HJJG3CcJ16WYECi9wp0C3L4Jq10J6jh6MY3WjkRD3q4M8zCcLIz3GnjuGRDLZsa6NMPAAAA
-        //8DAAuXKiozAwAA
-    headers:
-      Alt-Svc:
-      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
-      Transfer-Encoding:
-      - chunked
-      Via:
-      - HTTP/2 edgeproxy, 1.1 google
-      access-control-allow-credentials:
-      - 'true'
-      access-control-allow-headers:
-      - Accept, App-Platform, Authorization, Content-Type, Origin, Retry-After, Spotify-App-Version,
-        X-Cloud-Trace-Context, client-token, content-access-token
-      access-control-allow-methods:
-      - GET, POST, OPTIONS, PUT, DELETE, PATCH
-      access-control-allow-origin:
-      - '*'
-      access-control-max-age:
-      - '604800'
-      cache-control:
-      - public, max-age=78063
-      content-encoding:
-      - gzip
-      content-type:
-      - application/json; charset=utf-8
-      date:
-      - Thu, 23 Jun 2022 08:18:43 GMT
-      server:
-      - envoy
-      strict-transport-security:
-      - max-age=31536000
-      x-content-type-options:
-      - nosniff
-      x-robots-tag:
-      - noindex, nofollow
-    status:
-      code: 200
-      message: OK
-- request:
-    body: null
-    headers:
-      Accept:
-      - '*/*'
-      Accept-Encoding:
-      - gzip, deflate, br
-      Authorization:
-      - Bearer BQDfz9ppb85lYnWSTeITHQIWdv5T77bQQHpwtkwabt1Vni2fb-zT3EzcHLwIE6BYyoQ5meyUaUsqgRf7z5ZtdqasOKsPVXfop_pIUZX0mtJgwusZcK0
-      Connection:
-      - keep-alive
-      Content-Type:
-      - application/json
-      User-Agent:
-      - python-requests/2.28.0
-    method: GET
-    uri: https://api.spotify.com/v1/albums/4txi1wxQuswExI8OaCHPKQ
-  response:
-    body:
-      string: !!binary |
-        H4sIAAAAAAAAALRW207bQBB95yssP/QJsDexnYuEKhragqCQtBI8VJW1scfJNuuLvOtcQPn32ru2
-        EwM2VqC8MTM5M3vmzIyfjhRFxXSa+DbfRKAqQ0VlJJhRUI+FK+aEcZbZfytPqSW1wZpDHGBqJzEV
-        HmlPPSwKOfE2AmXOecSGmhZGEJzmjlMn9DUJqenR6Pv5gLt8+rAKUXR9xfTRt7UqoLbHMtM8Bq8C
-        hiNSwVqiHI7V4eVIxBU4zUEB9iUDF8TzIIaAK5eAlxAUASVFMmlhTmIiiZOVDaV3WP/C7fHHcmlN
-        xrpzfjGIvuC70f0Phjeze/3xcC5r8KpcNgeVXP4EYPgmCQ4ksf5pW+WPlOgSE4qnFGwfxwsoxCqd
-        ThhtYjKbP5MwT3kX2To6MpTb0S/lhrunLyocVZvV8lfj/erKBhN3r79qEjki1tRNEw0GJkJdw5DZ
-        jupl0VIU2ThrBl8TtFpPErb6ur7q3+HR5fh6sksxgyCGCletFJJhszpwAZPLozHExzOodmQOWZcy
-        k2XopSRopZ60GscN0lI0AaDhqdWzkOXq6d+00+sOusjwpqYFbr/bc/umZ1rIdDte0aEVcfk8T1Fp
-        7C55Vz8kOQK90zp5mqImuWUckNvopwJq//A9aaZDAzJPKmXZmHJqx+nywwtCqbRHYZRQHBMupIcs
-        YYyBAmZgu5hDORYnqHOCTPVFgB3F4BBGwkCEungjY3jIU5nzGDsLIQgkreX/BUnv1aYmIT+HnseA
-        n+mfKPEJPzP1cqtx8CuSfP36NW/tD72Ce9v7Y69h64vY6io2LPXDrqN89//hu+lSvofvxmO4z/fb
-        gbWX80Cim5+cLwMp94ZLKgJcwhw7SPwpxOWsSkcSY57Oti1HCA3S9dQpvbCOKHGI2HEepgz2PLWN
-        bddWMdVaZ+H6D+4k9P0em/mDv9PH242Fdloq0rXpqNwTdZAlVN7ON8OYTUMH05dPr1m1wpfuyiWB
-        lZ3fgSChtPSJ+l5tQikNEbJDe64L4R42cVaKQhVbMvu1WdzFIP8I2hWlyp2aGYsg8YAwYc8CxbIX
-        RZefITs9Z9tb3oQXQs5cw7oPmu0/AAAA//8DAG7NcAnEDAAA
-    headers:
-      Alt-Svc:
-      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
-      Transfer-Encoding:
-      - chunked
-      Via:
-      - HTTP/2 edgeproxy, 1.1 google
-      access-control-allow-credentials:
-      - 'true'
-      access-control-allow-headers:
-      - Accept, App-Platform, Authorization, Content-Type, Origin, Retry-After, Spotify-App-Version,
-        X-Cloud-Trace-Context, client-token, content-access-token
-      access-control-allow-methods:
-      - GET, POST, OPTIONS, PUT, DELETE, PATCH
-      access-control-allow-origin:
-      - '*'
-      access-control-max-age:
-      - '604800'
-      cache-control:
-      - public, max-age=82118
-      content-encoding:
-      - gzip
-      content-type:
-      - application/json; charset=utf-8
-      date:
-      - Thu, 23 Jun 2022 08:18:43 GMT
-      server:
-      - envoy
-      strict-transport-security:
-      - max-age=31536000
-      x-content-type-options:
-      - nosniff
-      x-robots-tag:
-      - noindex, nofollow
-    status:
-      code: 200
-      message: OK
-- request:
-    body: null
-    headers:
-      Accept:
-      - '*/*'
-      Accept-Encoding:
-      - gzip, deflate, br
-      Authorization:
-      - Bearer BQDfz9ppb85lYnWSTeITHQIWdv5T77bQQHpwtkwabt1Vni2fb-zT3EzcHLwIE6BYyoQ5meyUaUsqgRf7z5ZtdqasOKsPVXfop_pIUZX0mtJgwusZcK0
-      Connection:
-      - keep-alive
-      Content-Type:
-      - application/json
-      User-Agent:
-      - python-requests/2.28.0
+      - python-requests/2.28.1
     method: GET
     uri: https://api.spotify.com/v1/tracks/7gHs73wELdeycvS48JfIos
   response:
@@ -1558,7 +1558,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Thu, 23 Jun 2022 08:18:43 GMT
+      - Sun, 02 Oct 2022 17:00:06 GMT
       server:
       - envoy
       strict-transport-security:
@@ -1578,25 +1578,25 @@ interactions:
       Accept-Encoding:
       - gzip, deflate, br
       Authorization:
-      - Bearer BQDfz9ppb85lYnWSTeITHQIWdv5T77bQQHpwtkwabt1Vni2fb-zT3EzcHLwIE6BYyoQ5meyUaUsqgRf7z5ZtdqasOKsPVXfop_pIUZX0mtJgwusZcK0
+      - Bearer BQAPxqkzMGiBNiGpUVKnk-ghsrhXi7Y6IjXVL1IPIboq75ZOVngWrntJhPkUvkhCydplViIJT82-hNQwcxAR3Ha-uUklphUsKmnTD17aPlxqaPi04dw
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       User-Agent:
-      - python-requests/2.28.0
+      - python-requests/2.28.1
     method: GET
     uri: https://api.spotify.com/v1/artists/7vk5e3vY1uw9plTHJAMwjN
   response:
     body:
       string: !!binary |
-        H4sIAAAAAAAAAJySX2/CIBTF3/cpGp6NFdvSP2++LUu2pyXLsiwLtbeWiUAotTPG7z5K0cwYFyNv
-        nHs5vwPc/UMQIPgxoAXlX53mLQqKYG9Vq7dKGlbvBgU1xqi2CEOpQEx9YbqUm5Bqw1oTptt1AtH2
-        HXd9rvjr49Piuf9+QdboMBkYteRc9qD/+jca6mErOs4no2SkoXzQohjnEc7IyWAFQoM7/WETc1ga
-        LYNGdi2g4NN1HO1OWaliZ1G32Kdtr8V1PqxyLv+2bOjqGOZ4GWCrxgwSiWf+NvY9zwLZOMtK2Cyh
-        MwhpSVKCCZ7ZBQmU87yicVJXmNRxOY/zEvAsIThD3q9nlWk8wj3MJTya3wNPcBrfDLeIK3BM7oHX
-        OM1uhlvEAPdfLugGHGfBqQjeKF+DHn9ISdVxqplx45u5XMjs1Ng+jsHY2WnmND8pxVgrrg304RcA
-        AP//AwCVe/RiMwMAAA==
+        H4sIAAAAAAAAAJySUW/CIBSF3/crCM/GSm2p9s23Zcn2tGRZlmWh9tYyEQildsb430cpmhnjYuSN
+        cy/nO8DdPyCE4ceCkUx8tUY0GOVo71SnN1pZXu16BdfW6iaPIqVBjkNhvFSbiBnLGxtl23UK0+07
+        abu5Fq+PT4vn7vsFO6PDqGdUSgjVgfnrXxuo+q1shRgNklWWiV6bpjHNMhqfDFYgDfjTHy6xgKU1
+        CtWqbQCjT99xtDtlZZqfRd2SkLa5Ftf78NK7/NuyYatjmONlgK9q20s0mYTbuPc8C+TiLEvpskTe
+        IGIFzSihZOIWpFDE85IlaVUSWiVFnMwLIJOUkhkOfh0vbR0Q/mEu4dP4HnhKsuRmuENcgRN6D7wi
+        2exmuEP08PDlkm3AcxaCSfTGxBrM8ENa6VYww60f35nPhe1OD+3DGAydreFeC5OSD7X82kAffgEA
+        AP//AwDydp8DMwMAAA==
     headers:
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
@@ -1616,13 +1616,13 @@ interactions:
       access-control-max-age:
       - '604800'
       cache-control:
-      - public, max-age=83061
+      - public, max-age=74254
       content-encoding:
       - gzip
       content-type:
       - application/json; charset=utf-8
       date:
-      - Thu, 23 Jun 2022 08:18:43 GMT
+      - Sun, 02 Oct 2022 17:00:06 GMT
       server:
       - envoy
       strict-transport-security:
@@ -1642,13 +1642,13 @@ interactions:
       Accept-Encoding:
       - gzip, deflate, br
       Authorization:
-      - Bearer BQDfz9ppb85lYnWSTeITHQIWdv5T77bQQHpwtkwabt1Vni2fb-zT3EzcHLwIE6BYyoQ5meyUaUsqgRf7z5ZtdqasOKsPVXfop_pIUZX0mtJgwusZcK0
+      - Bearer BQAPxqkzMGiBNiGpUVKnk-ghsrhXi7Y6IjXVL1IPIboq75ZOVngWrntJhPkUvkhCydplViIJT82-hNQwcxAR3Ha-uUklphUsKmnTD17aPlxqaPi04dw
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       User-Agent:
-      - python-requests/2.28.0
+      - python-requests/2.28.1
     method: GET
     uri: https://api.spotify.com/v1/albums/5HMjpBO0v78ayq5lreAyDd
   response:
@@ -1670,20 +1670,20 @@ interactions:
         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
-        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
+        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
     headers:
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
@@ -1703,13 +1703,13 @@ interactions:
       access-control-max-age:
       - '604800'
       cache-control:
-      - public, max-age=74993
+      - public, max-age=78374
       content-encoding:
       - gzip
       content-type:
       - application/json; charset=utf-8
       date:
-      - Thu, 23 Jun 2022 08:18:43 GMT
+      - Sun, 02 Oct 2022 17:00:06 GMT
       server:
       - envoy
       strict-transport-security:
@@ -1729,13 +1729,13 @@ interactions:
       Accept-Encoding:
       - gzip, deflate, br
       Authorization:
-      - Bearer BQDfz9ppb85lYnWSTeITHQIWdv5T77bQQHpwtkwabt1Vni2fb-zT3EzcHLwIE6BYyoQ5meyUaUsqgRf7z5ZtdqasOKsPVXfop_pIUZX0mtJgwusZcK0
+      - Bearer BQAPxqkzMGiBNiGpUVKnk-ghsrhXi7Y6IjXVL1IPIboq75ZOVngWrntJhPkUvkhCydplViIJT82-hNQwcxAR3Ha-uUklphUsKmnTD17aPlxqaPi04dw
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       User-Agent:
-      - python-requests/2.28.0
+      - python-requests/2.28.1
     method: GET
     uri: https://api.spotify.com/v1/tracks/4B2kkxg3wKSTZw5JPaUtzQ
   response:
@@ -1752,8 +1752,8 @@ interactions:
         TtL9lAX7aFVEiUikQy0Y8mZyDMzCXopMngFlfaGwzDmoH2s51K8dh3fr6e3DsJOg2hyFVieh7iDU
         bK3dj0E5nh9EYeN23IPCxt3e6gA0rf8daax/nJJY49rXfcI9N0yCEWalNnQ/YUikSnIDGQuBA+ye
         9OBlTIlH5L4YI8qxsqo2Ef9Zl3TCmSdLPj+Bl0PQB6mC7UozNc1t11opZ6NzAmez5cRafP1x97Do
-        Xtyin+LxW5WiTVfzxVAHJWFUSxtDuEsjD9FNYl7dbXocxQlFjAj5RhvmRpaOAF64avWGCaXSLst7
-        0aFyRqQ7h90eEOka1FG0/g8AAP//AwAJ6U+XAgsAAA==
+        Xtyin+LxW5WiTVfzxVAHJWFUSxtDuEsjD9FNYl7dbXocxQlFjAj5RujkRpaOAF64avWGCaXSLst7
+        0aFyRqQ7h90eEOka1FG0/g8AAP//AwD5UR2lAgsAAA==
     headers:
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
@@ -1779,7 +1779,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Thu, 23 Jun 2022 08:18:44 GMT
+      - Sun, 02 Oct 2022 17:00:06 GMT
       server:
       - envoy
       strict-transport-security:
@@ -1799,24 +1799,24 @@ interactions:
       Accept-Encoding:
       - gzip, deflate, br
       Authorization:
-      - Bearer BQDfz9ppb85lYnWSTeITHQIWdv5T77bQQHpwtkwabt1Vni2fb-zT3EzcHLwIE6BYyoQ5meyUaUsqgRf7z5ZtdqasOKsPVXfop_pIUZX0mtJgwusZcK0
+      - Bearer BQAPxqkzMGiBNiGpUVKnk-ghsrhXi7Y6IjXVL1IPIboq75ZOVngWrntJhPkUvkhCydplViIJT82-hNQwcxAR3Ha-uUklphUsKmnTD17aPlxqaPi04dw
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       User-Agent:
-      - python-requests/2.28.0
+      - python-requests/2.28.1
     method: GET
     uri: https://api.spotify.com/v1/artists/2sf28o6euxEDpYkG9dMtuM
   response:
     body:
       string: !!binary |
-        H4sIAAAAAAAAAJyS0W6DIBSG7/cUxuumFqug3m7LrvoAy7IsqEclQyCIa5um7z5E2qxZ2jTljv8c
-        /u8HzuEpCELYGdCC8q9R8yEMiuBgVasPShrW7Ccl7IxRQxFFUoFY+sKykn1EtWGDieKhiTOJYdy9
-        vqj377e83phxE1qj42JiNJJzuQX917/T0ExbMXK+mCUjDeWThgiJk+x8vAWhwZ39sBvaM9EGUPdh
-        8OnKJ6dzTKrYRcof5IMO15I6H1Y7l5stPW1PSU73ANZ2ZpJwsvIXsU95EcjGqWphs0TOIKIlJhhh
-        tLILUijxukFVjklCKC6rlK7yrAYUV6H327LadB7hXuU/fB0/Ak8RSe6GW8QVOMKPwBtEsrvhFjHB
-        /ZcL2oPjPNuPlVLMv6OkGjnVzLipTXMnmr2aW+cRmDtHzZzmp6SYa8W1OT7+AgAA//8DAI463zAq
+        H4sIAAAAAAAAAJySTW7CMBCF9z1FlDUiOATnZ9tWXXGAqqoqk0wSq45tOZMCQty9jmNQUQVCeOc3
+        4/c923N4CoIQdghGMvE1GNGHQREcrGr1Xivk9X5UwhZR90UUKQ1y7gvzUnURM8h7jOK+jjNFYdi9
+        vuj377e8WuOwDq3RcTYyaiWE2oL5698aqMetHISYTRIqZGLUSEYSEp+PNyANuLMfdsM6LpsAqi4M
+        Pl355HSOyTS/SPlDfND+WlLnwyvncrOlY80pyekewJsWR4kmC38R+5QXgWycspI2S+QMIrahKSWU
+        LOyCFWzosiZlTtMkZXRTrtgizyogcRl6vy2vsPUI9yr/4cv4EfiKpMndcIu4Aif0EXhN0uxuuEWM
+        cP/lknXgOM/2Y5WS0+9opQfBDEc3tZQ4Efd6ap1GYOocDHean5JiqhXX5vj4CwAA//8DAJW00Toq
         AwAA
     headers:
       Alt-Svc:
@@ -1837,13 +1837,13 @@ interactions:
       access-control-max-age:
       - '604800'
       cache-control:
-      - public, max-age=83526
+      - public, max-age=79147
       content-encoding:
       - gzip
       content-type:
       - application/json; charset=utf-8
       date:
-      - Thu, 23 Jun 2022 08:18:44 GMT
+      - Sun, 02 Oct 2022 17:00:06 GMT
       server:
       - envoy
       strict-transport-security:
@@ -1863,13 +1863,13 @@ interactions:
       Accept-Encoding:
       - gzip, deflate, br
       Authorization:
-      - Bearer BQDfz9ppb85lYnWSTeITHQIWdv5T77bQQHpwtkwabt1Vni2fb-zT3EzcHLwIE6BYyoQ5meyUaUsqgRf7z5ZtdqasOKsPVXfop_pIUZX0mtJgwusZcK0
+      - Bearer BQAPxqkzMGiBNiGpUVKnk-ghsrhXi7Y6IjXVL1IPIboq75ZOVngWrntJhPkUvkhCydplViIJT82-hNQwcxAR3Ha-uUklphUsKmnTD17aPlxqaPi04dw
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       User-Agent:
-      - python-requests/2.28.0
+      - python-requests/2.28.1
     method: GET
     uri: https://api.spotify.com/v1/albums/0Lt1PzvVZoslDNI2Jsq6pW
   response:
@@ -1883,13 +1883,13 @@ interactions:
         ywSPJ8+4y3jnJROAbin93q1yxfyTrQp71XHt+KvBZnXliLG/MWE1jT0RawHL0jsdSzf1FpDZDuqJ
         sSMtsj3WwBXTB4+zHw8RJef9z8Yl/WPHP9cpxihMUKVXO3Ekw6Z14AKmIEhTSADHqDqRCcqmlJns
         FigpQSr18Go8P+SlaAJAg0PbsXXbB/xvaDim4Tjm0PFtD3Z0w2rDtukD22mbxYTm2GeTPEVlsOvk
-        JtgnuY6AsXNynqImud3aI3erben/8PANavKlQTIPp7IcTLm3N6FyqNxI6VPjKE4JTDATxGvZwpgg
-        giBFrg8ZKpfiGDjHoKNuBbhxgjxMMRfTLNSHSxnDIsZJzhLoTQUddGkt/y9a9FZmahLyQzQaUcRO
-        wSHBAWanFihVjaGgQsiXj16zar/r8dtQ7/c9gjsfwqZj2KDk+x1F+dz/0+amA/mWNjfewM02vx7Y
-        cDD3bHXzo3MNkDxvOKAiwMfUc8M0GKKkXFLpSBPI+FK7cncM4AC7XXrRIibYw0LaRpBQtOGpHe1u
-        gxXrrLXOjOl0MTbnX27vHubW5QB+Z49f12wq0u0yUykQdZAlVD7QV8OoSyIPku2nv6iwwsMlcobR
-        3M3FP0wJKX2iuhdHUBJDhKzRnrNCuLtNHSspoQpxzH5tFccwzL981kWpUkozYxEkHhCl9Fmg0HhR
-        dPntsWZzJtryFGzROHN1675iVn8BAAD//wMAsA9uO7IMAAA=
+        JtgnuY6AsXNynqImud3aI3erben/8PANavKlQTIPp7IcTLm3N6FyqNxI6VPjKE4JTDATxNNFlWqC
+        CIIUuT5kqFyKY+Acg466FeDGCfIwxVxMs1AfLmUMixgnOUugNxV00KW1/L9o0VuZqUnID9FoRBE7
+        BYcEB5idWqBUNYaCCiFfPnrNqv2ux29Dvd/3CO58CJuOYYOS73cU5XP/T5ubDuRb2tx4Azfb/Hpg
+        w8Hcs9XNj841QPK84YCKAB9Tzw3TYIiSckmlI00g40vtyt0xgAPsdulFi5hgDwtpG0FC0YandrS7
+        DVass9Y6M6bTxdicf7m9e5hblwP4nT1+XbOpSLfLTKVA1EGWUPlAXw2jLok8SLaf/qLCCg+XyBlG
+        czcX/zAlpPSJ6l4cQUkMEbJGe84K4e42daykhCrEMfu1VRzDMP/yWRelSinNjEWQeECU0meBQuNF
+        0eW3x5rNmWjLU7BF48zVrfuKWf0FAAD//wMAmNVGc7IMAAA=
     headers:
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
@@ -1909,13 +1909,13 @@ interactions:
       access-control-max-age:
       - '604800'
       cache-control:
-      - public, max-age=72508
+      - public, max-age=74214
       content-encoding:
       - gzip
       content-type:
       - application/json; charset=utf-8
       date:
-      - Thu, 23 Jun 2022 08:18:44 GMT
+      - Sun, 02 Oct 2022 17:00:06 GMT
       server:
       - envoy
       strict-transport-security:
@@ -1935,30 +1935,30 @@ interactions:
       Accept-Encoding:
       - gzip, deflate, br
       Authorization:
-      - Bearer BQDfz9ppb85lYnWSTeITHQIWdv5T77bQQHpwtkwabt1Vni2fb-zT3EzcHLwIE6BYyoQ5meyUaUsqgRf7z5ZtdqasOKsPVXfop_pIUZX0mtJgwusZcK0
+      - Bearer BQAPxqkzMGiBNiGpUVKnk-ghsrhXi7Y6IjXVL1IPIboq75ZOVngWrntJhPkUvkhCydplViIJT82-hNQwcxAR3Ha-uUklphUsKmnTD17aPlxqaPi04dw
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       User-Agent:
-      - python-requests/2.28.0
+      - python-requests/2.28.1
     method: GET
     uri: https://api.spotify.com/v1/tracks/7MTZVwYiEahXQIyCU2FLPV
   response:
     body:
       string: !!binary |
-        H4sIAAAAAAAAAKRU226bQBB971dYPCfhYi6Gt6Rpo6hJ6qSplbSq0AKLWXm5aHfBdSL/e2FZIHaM
-        jVPemBnOHM6cmddPo5EEsJfH0sgZvZZvzbvLVhmsghJFyRxD6UQkCUOU0SrzW3xQRuFfBkkCsJsT
-        TDsonqNZylC44lgRYxl1ZDnNYHImEmd+Gss1rGwtzu9u73z2/KCaOSGz1Lp6/PEgCbD1SdMvIjDc
-        AAQZ2sArVAFJ+zBbLBRwpENlCYhrPS4hCEffYNGlWqnqll0iJ6iWsGbm1Hln31+uR38apQuAMPAw
-        dGNAFrDRvEn3Sj5Q8GrIsmZ/N7z7Oz16ubBt9DRFuDifvggmotEgrSs02gcngITQB4piMIfb9oog
-        mkesCpq68kZdvMGrZOUHSUlJ5iAy8EzLVM1AKR9Ps8b+JPTDsQl0w1JBYOtBYHvKWLW6eS1RwCLR
-        Rmiwi8RY+RgJFSraESTKNntImPqHOOgTQz1KiC1XtmtwnRQo8ZHXnQYCMQQUugFgdYmmqMapYpyq
-        +q4SNyPQRxSlCS8OwKqpYikrfc0I8BfcCWoTb/eMXywRfbdkVdLpdzb39a479t8rdfiGHbVTQ+7X
-        oOvVe7t6Ltfxd0v4Y+/NkgJEfTfJYw+SdqpSkBPASg+4Ma/VLNust6ucRoaRj7jZQ4ApFFExIxS8
-        GZGEKPE55asL7eZSsRXVnky6afdMdthcuRFl6/bx12z5jL6A6On+evX5p/b1ZjrrWgwZaW3pPigO
-        08xzXwl1ceoDvClM32JKWZrlGBDE+G8atbjl7hUILl1xOpIcYx7nDN8NqbUJT9ew2x7hKadPpfU/
-        AAAA//8DAHuP9j5qCAAA
+        H4sIAAAAAAAAAKRU226bQBB971cgnpNwMQbDW9K0UdQkddLUSlpVaIHFrLxctLvgOpH/vbAsEDvG
+        xilvzAxnDmfOzOsnSZIB9vJYlhzptXxr3l22ymAVlClK5hjKJyJJGKKMVpnf4oMyCv8ySBKA3Zxg
+        2kHxHM1ShsIVx4oYy6ijKGkGkzOROPPTWKlhFWtxfnd757PnB83MCZml1tXjjwdZgK1Pmn4RgeEG
+        IMjQBl6hCUjah9lioYAjHSpLQFzrcQlBKH2DRZdqpapbdomcoFrCmplT5519f7mW/jRKFwBh4GHo
+        xoAsYKN5k+6VfKDg1ZAV3f4+9u7vjOjlwrbR0xTh4nz6IpiIRoO0rtBoH5wAEkIfKIrBHG7bK4Jo
+        HrEqaBrqG3XxBq+SlR8kJSWFgyjAMy1TMwO1fDzdGvmT0A9HJjDGlgYC2wgC21NHmtXNa4kCFok2
+        QoNdJEbqx0hoUNWPIFG22UPCND7EwZiMtaOE2HJluwbXSYESH3ndaSAQQ0ChGwBWl+iqNj5Vx6ea
+        savEzQj0EUVpwosDsGqqWMpKXzMC/AV3gtbE2z3jF0tE3y1ZlXT6nc19veuO/fdKHb5hR+3UkPs1
+        6Hr13q6ey3X83RL+2Huz5ABR303y2IOknaoc5ASw0gNuzGt1yzbr7SqnkWHkI272EGAKRVTMCAVv
+        RiQjSnxO+epCv7lUbVWzJ5Nu2j2THTZXbkTFun38NVs+oy8gerq/Xn3+qX+9mc66FkNGWlu6D4rD
+        NPPcV0JdnPoAbwrTt5hylmY5BgQx/puaWQcJLBBcuuJ0JDnGPM4ZvhtSaxOermG3PcJTTp9K638A
+        AAD//wMAWc0is2oIAAA=
     headers:
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
@@ -1984,7 +1984,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Thu, 23 Jun 2022 08:18:43 GMT
+      - Sun, 02 Oct 2022 17:00:07 GMT
       server:
       - envoy
       strict-transport-security:
@@ -2004,25 +2004,25 @@ interactions:
       Accept-Encoding:
       - gzip, deflate, br
       Authorization:
-      - Bearer BQDfz9ppb85lYnWSTeITHQIWdv5T77bQQHpwtkwabt1Vni2fb-zT3EzcHLwIE6BYyoQ5meyUaUsqgRf7z5ZtdqasOKsPVXfop_pIUZX0mtJgwusZcK0
+      - Bearer BQAPxqkzMGiBNiGpUVKnk-ghsrhXi7Y6IjXVL1IPIboq75ZOVngWrntJhPkUvkhCydplViIJT82-hNQwcxAR3Ha-uUklphUsKmnTD17aPlxqaPi04dw
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       User-Agent:
-      - python-requests/2.28.0
+      - python-requests/2.28.1
     method: GET
     uri: https://api.spotify.com/v1/artists/7kANMNctYR16urrVo7GTSR
   response:
     body:
       string: !!binary |
-        H4sIAAAAAAAAAJySUWvDIBSF3/crJM+lqa3RkLfBYA9jfejGYIwxNDGJzKgY066U/vcZk5aW0VHq
-        m+dez3fUu7sDIOI/jltF5VdnZRuBDOy86vXWaCfKba9EtXOmzeJYG66mY2Ga6yam1onWxeT7fvm8
-        zN37CuLO2jdNHl9fVpE32k96Rqml1BtuT/1ry8t+qzopJ4PktKOy1xKUpvh4uuLK8nD0w29oI1QF
-        eNFE4DOUD0bHlNSIs5BrOOZsLwUNPqIILv+2NLQ6JDlcg4uqdr2E0Wy8h3/Js0A+Tl4onyUOBjFl
-        mGCI4cwvnnC2WDCYl3NGWIJQimaMzEmKExaNfhtRuHpEhFf5C1/Mb4EnkKCr4R5xAQ7xLfASkvRq
-        uEf08PHLFW144DxwWoInvh6+x2jTSWqFC1OLUBDd1gy9wwwMnZ0VQRvHJBtq2aU53v8CAAD//wMA
-        ToAFYCoDAAA=
+        H4sIAAAAAAAAAJySUWvDIBSF3/crJM+lqWmiJW+DwR7G+tCNwRhjaGISmVExpl0p/e8zxpaW0VHq
+        m+dez3fUu7sDIGI/lhlJxFdvRBeBHOyc6vROK8ur7aBEjbW6y+NYaSanoTAtVBsTY3lnY/x9v3xe
+        FvZ9BVFvzJvCj68vq8gZ7ScDo1JCqA0zp/6NYdWwlb0Qk1GyyhIxaBmCCTyerpk0zB/9cBvSclkD
+        VrYR+PTlg9ExJdH8LOQahpzdpaDeh5fe5d+WltSHJIdrMF43dpBQOgv3cC95FsjFKUrpssTeICYU
+        YQQRnLnFMkbncwqLKqGYZmm6SGcUJ3iBMhoFvw0vbRMQ/lX+wufJLfAM4vRquENcgEN0C7yCeHE1
+        3CEGePhySVrmOQ+MVOCJrcfv0Ur3ghhu/dSmyIt2q8fecQbGzt5wr4UxycdafmmO978AAAD//wMA
+        2JTfryoDAAA=
     headers:
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
@@ -2042,13 +2042,13 @@ interactions:
       access-control-max-age:
       - '604800'
       cache-control:
-      - public, max-age=78844
+      - public, max-age=74898
       content-encoding:
       - gzip
       content-type:
       - application/json; charset=utf-8
       date:
-      - Thu, 23 Jun 2022 08:18:44 GMT
+      - Sun, 02 Oct 2022 17:00:07 GMT
       server:
       - envoy
       strict-transport-security:
@@ -2068,32 +2068,32 @@ interactions:
       Accept-Encoding:
       - gzip, deflate, br
       Authorization:
-      - Bearer BQDfz9ppb85lYnWSTeITHQIWdv5T77bQQHpwtkwabt1Vni2fb-zT3EzcHLwIE6BYyoQ5meyUaUsqgRf7z5ZtdqasOKsPVXfop_pIUZX0mtJgwusZcK0
+      - Bearer BQAPxqkzMGiBNiGpUVKnk-ghsrhXi7Y6IjXVL1IPIboq75ZOVngWrntJhPkUvkhCydplViIJT82-hNQwcxAR3Ha-uUklphUsKmnTD17aPlxqaPi04dw
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       User-Agent:
-      - python-requests/2.28.0
+      - python-requests/2.28.1
     method: GET
     uri: https://api.spotify.com/v1/albums/29O5bQN4hzB99iXPilvAPz
   response:
     body:
       string: !!binary |
         H4sIAAAAAAAAAKxV207bQBB95yssP/QJ8CW+xJFQRelFqJCGSxG0qqy1vY5XrC/aXQcC4t9r79qb
-        mGA3UHhjZnLO7MyZ48cdRVEBDsrUZ8sCqspEUSnK5hiquzxFGKKM1vHfymMVqWLwnkGSAeyXBPOM
+        mGA3UHjLzHDO7MyZ48cdRVEBDsrUZ8sCqspEUSnK5hiquzxFGKKM1vHfymMVqWLwnkGSAeyXBPOM
         iFcZWuQMxUuOkjBW0Imm5QXM9pvEfpinmoDU3NvD6ek0ZDfnhlMScpW73y4vzlUO9bQrmBIC4w4Y
         KFAHa2E0cLQPr0FCEccZLspAKibwGYJY+Q4XbUKORpC14ZIgMTDR0URkJ/0ve1L+iKkuAMIgwNBP
-        AbmF7XxFMsyLJUHz5NnUWTV2zmbqhq1Mjy6UExbtb3R4xHl2X/mr2Xp3cr8oWluvWhYhr7V12zY8
-        zzbM8dgSbDv9qthSE7UCNdP7YQdnUyt5+OR56HqG8OJw9rCimMOMwM6sthJIjU37wDlMo47BkhTM
-        YXcjCay3VIccS5eSwJ1+qm7CKKta0TiABgLHdQwn0qu/wHRH4TgO45EDLNs1QORZUeQF+shw2w3d
-        oYglDUVnsSvykf4WcgPq5tbkFUUPuWO9gdsa28YrHr4mzepooOCppCwWI4/2OFugLERBa11FXpQY
-        EMS49ka8UZVADAGFfgQYlHexp9t7hqVuFPgFgSGiKM94aQSWooblrNI5IyC85YowRFT+307pf8Wp
-        CciPeRxTyA70DxiliB3YunQ1BtOOJl927GHXflfnXnPv93XwrV180MkH3Pxtjs7fK8Qppj/g7Lwg
-        QjT0szINIJHSEYmSAFZJzRcbNV3PaQ+bb6/AKET85mKAKVzL9O51u61ykWnu6eWvq7sb9AUk12fH
-        y6Of5teT2ZV8oqTbZqFCtn2QEqrd5r/KqI/zEODNp/edPk9Wt7tA8M5vjCkrMZY53uCLW5Da4CUr
-        tOfC4OnJ0NCkKlR+tfWv7daos+arvGpKFTdeB9si/oC8pM8KufnwpuV3cSXo2k2ER20ouU5N+r6w
-        T38BAAD//wMAUWnPvAgKAAA=
+        AbmF7XxFMsyLJUHz5NnUWTV2zmbqhq1Mjy6UExbtb3R4xHl2X/lfs/Xu5H5RtLZetSxCXmvrtm14
+        nm2Y47El2Hb6VbGlJmoFaqb3ww7Oplby8Mnz0PUM4cXh7GFFMYcZgZ1ZbSWQGpv2gXOYRh2DJSmY
+        w+5GElhvqQ45li4lgTv9VN2EUVa1onEADQSO6xhOpFd/gemOwnEcxiMHWLZrgMizosgL9JHhthu6
+        QxFLGorOYlfkI/0t5AbUza3JK4oecsd6A7c1to1XPHxNmtXRQMFTSVksRh7tcbZAWYiC1rqKvCgx
+        IIhx7dk8RiCGgEI/AgzKs9jT7T3DUjcK/ILAEFGUZ7w0AktRw3JWyZwREN5yQRgiKn+3Q/pfbWoC
+        8mMexxSyA/0DRiliB7YuTY3BtCPJlw172LTf1bjXzPt9DXxrEx808gEzf5uh8/cKbYrpDxg7L4gQ
+        Df2sTANIpHREoiSAVVLzxUZN13Pau+bbKzAKET+5GGAK1zK9e91uq1xkmnt6+evq7gZ9Acn12fHy
+        6Kf59WR2JZ8o6bZZqJBtH6SEarf5rzLq4zwEePPpfZfPk9XtLhC88xtfykqMZY43+OIWpDZ4yQrt
+        uTB4ejI0NKkKlV8tt6DWp7Pmo7xqShU3XgfbIv6AvKTPCrn58KblZ3El6NpNhEdtKLlOTfo+sE9/
+        AQAA//8DACN5oCsHCgAA
     headers:
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
@@ -2113,13 +2113,13 @@ interactions:
       access-control-max-age:
       - '604800'
       cache-control:
-      - public, max-age=74711
+      - public, max-age=77068
       content-encoding:
       - gzip
       content-type:
       - application/json; charset=utf-8
       date:
-      - Thu, 23 Jun 2022 08:18:44 GMT
+      - Sun, 02 Oct 2022 17:00:07 GMT
       server:
       - envoy
       strict-transport-security:
@@ -2139,13 +2139,13 @@ interactions:
       Accept-Encoding:
       - gzip, deflate, br
       Authorization:
-      - Bearer BQDfz9ppb85lYnWSTeITHQIWdv5T77bQQHpwtkwabt1Vni2fb-zT3EzcHLwIE6BYyoQ5meyUaUsqgRf7z5ZtdqasOKsPVXfop_pIUZX0mtJgwusZcK0
+      - Bearer BQAPxqkzMGiBNiGpUVKnk-ghsrhXi7Y6IjXVL1IPIboq75ZOVngWrntJhPkUvkhCydplViIJT82-hNQwcxAR3Ha-uUklphUsKmnTD17aPlxqaPi04dw
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       User-Agent:
-      - python-requests/2.28.0
+      - python-requests/2.28.1
     method: GET
     uri: https://api.spotify.com/v1/tracks/4aW4j7ef4H9SPsfKrczvvr
   response:
@@ -2161,8 +2161,8 @@ interactions:
         YMJJuUZVcoR2TZZIRWlqwRBeSxuYTbxdMnmtVPTDhlWg329raepjN+y/9+n8/bpooYbcrkGXq+9u
         9Vyty2+W8sbJe6VFhOMgyeMQWDtULcoZEqUFgljmWpbjuZZEYJtRgok0+gJRDiqqRkSidxPSCGdY
         tvz91rqfGdNyyRy7G3bPYIeNVfpQt9Ev+98EFvZ8+vTIF3cMPxcF60oMmWjt6D4qSaPGeTKFBzTF
-        iO4Lc3QptSzNcooYEfIf7VrZcu8KAptA3Ywkp1TGZXsfJtR6RMI17aFBJOT3SfT6BgAA//8DAH9R
-        3I5iCAAA
+        iO4Lc3QptSzNcooYEfIfp3WMQUFgE6iTkeSUyrjs7sOAWotIuGY99IeE/D6FXt8AAAD//wMA55XK
+        12EIAAA=
     headers:
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
@@ -2188,7 +2188,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Thu, 23 Jun 2022 08:18:44 GMT
+      - Sun, 02 Oct 2022 17:00:07 GMT
       server:
       - envoy
       strict-transport-security:
@@ -2208,25 +2208,25 @@ interactions:
       Accept-Encoding:
       - gzip, deflate, br
       Authorization:
-      - Bearer BQDfz9ppb85lYnWSTeITHQIWdv5T77bQQHpwtkwabt1Vni2fb-zT3EzcHLwIE6BYyoQ5meyUaUsqgRf7z5ZtdqasOKsPVXfop_pIUZX0mtJgwusZcK0
+      - Bearer BQAPxqkzMGiBNiGpUVKnk-ghsrhXi7Y6IjXVL1IPIboq75ZOVngWrntJhPkUvkhCydplViIJT82-hNQwcxAR3Ha-uUklphUsKmnTD17aPlxqaPi04dw
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       User-Agent:
-      - python-requests/2.28.0
+      - python-requests/2.28.1
     method: GET
     uri: https://api.spotify.com/v1/artists/58yUFNnwk1DyoBvKNPmYdH
   response:
     body:
       string: !!binary |
-        H4sIAAAAAAAAAJySXWvCMBSG7/crSq/FGms/7OWQMRjIbnYxxhixOW3D8kWa6or435emUSbiEHOX
-        95y8z5vk7B+CIIQfA1pg9tVp1oZBEeytavVWSUOrflDCxhjVFlEkFYipL0xLySOsDW1NlOT929Na
-        7L7RqpeP25f1K38nz6E1OkwGRiUZkzvQf/0bDdWwFR1jk1Ey0mA2aHGWZNnpdA1Cgzv6YTeYU1EH
-        QHgYfLry0eiUEit6FnKLfM72WlDnQ4lz+beF4/qY5HgNoHVjBildzPw97EueBbJxSiJslsgZRHiT
-        ZilK0cwuSGCzzEm6mKMyn0NOEJT5BpEYQRZ6vx0lpvEI9yqX8Hh+DzxB2eJmuEVcgaP0HniFsvxm
-        uEUMcP/lAnNwnBW0HKQYf0dJ1TGsqXFDGy+daHo1to4jMHZ2mjrNT0kx1oprY3z4BQAA//8DABrW
-        yVcpAwAA
+        H4sIAAAAAAAAAJySUWvCMBSF3/crSp7Fmmrb2MchYzCQvexhjDFic9uGpUlJU10R//vSNMpEHGLe
+        cu7N+U6Su38IAgQ/BrSk4qvTokVBFuytavW2UYYX/aCgypimzcJQNSCnvjDNVR1SbXhrwpj0b09r
+        ufvGq149bl/Wr/U7e0bW6DAZGIUSQu1A//WvNBTDVnZCTEbJKEPFoM1JHC1Pp0uQGtzRD7uhNZdl
+        AKxGwacrH41OKWnDz0Jusc/ZXgvqfDhzLv+21LQ8JjleA3hZmUFKFjN/D/uSZ4FsnJxJmyV0BiHd
+        JGmCEzyzC2LYLAlLFhHOSQSEYcjJBrM5hhR5vx1npvII9yqX8Hl0DzzG6eJmuEVcgePkHniBU3Iz
+        3CIGuP9ySWtwnBW0NSg5/k6jmk5QzY0b2vE3kOmbsXUcgbGz09xpfkqysZZdG+PDLwAAAP//AwBy
+        5CnzKQMAAA==
     headers:
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
@@ -2246,13 +2246,13 @@ interactions:
       access-control-max-age:
       - '604800'
       cache-control:
-      - public, max-age=80124
+      - public, max-age=79570
       content-encoding:
       - gzip
       content-type:
       - application/json; charset=utf-8
       date:
-      - Thu, 23 Jun 2022 08:18:44 GMT
+      - Sun, 02 Oct 2022 17:00:07 GMT
       server:
       - envoy
       strict-transport-security:
@@ -2272,13 +2272,13 @@ interactions:
       Accept-Encoding:
       - gzip, deflate, br
       Authorization:
-      - Bearer BQDfz9ppb85lYnWSTeITHQIWdv5T77bQQHpwtkwabt1Vni2fb-zT3EzcHLwIE6BYyoQ5meyUaUsqgRf7z5ZtdqasOKsPVXfop_pIUZX0mtJgwusZcK0
+      - Bearer BQAPxqkzMGiBNiGpUVKnk-ghsrhXi7Y6IjXVL1IPIboq75ZOVngWrntJhPkUvkhCydplViIJT82-hNQwcxAR3Ha-uUklphUsKmnTD17aPlxqaPi04dw
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       User-Agent:
-      - python-requests/2.28.0
+      - python-requests/2.28.1
     method: GET
     uri: https://api.spotify.com/v1/albums/3bv5lCourSLb48zvcxtVcm
   response:
@@ -2292,12 +2292,12 @@ interactions:
         njMJ5oFiOxoWxYGSaARoTaLKo+d5ye6uo2nwVOFH8R2nW4olZAx6szpIHw02HwKXMK04RktStIT+
         RlbQbKkJ+VNbS4L2+qm7wXFWt2JJAAtF/sx3/Niu/yJ3NnF8iKKJN3ccF2MUBQECsP1g1m3ogcRi
         1VL0Frsln9jvIXfAdg8mrykGyP3pO7ingee84eE70qyPBhRPLWW1GH2zl0ApRuo4zSIvSooYEVJ4
-        ri+DDCggDmGMBOijOHHsk4lj7hWEBQNMOKldoCmN0VrViFzUIhcM4XspB0dF9f/diP5XmZaC/Jwn
-        CQdxZn+iJCXizLO1owlIe4J83a3HHftDXXvHuT/WvQ928DEXH3Hy97m5fK4Sphr+iKvLgphwHGZl
-        GgHTylGJkiFRKy1UC3VdL/BdnYXHghJM5L0liHLYyQyu9bClSo1ZU/Rj+mcGyfRyfnfLkyuGn6qK
-        6SdqukP2qVQ7BKmh2mX+s4yHNMeI7j/91bOXmfpuKwIPYetIWUmpzsnuXl2BFoYs2aK9VIVML8Ym
-        piVhyottfu11Dp21n+NtU6a67ybYFckH5CV/USiNRzatP4hbNTdOovxpT8ZNajH0ad38BQAA//8D
-        ACU3YjMACgAA
+        rowxoIA4hDESoG/ixLFPJo65VxAWDDDhpDaBpjRGa1UjclFrXDCE76UaHBXV/3cT+l9hWgryc54k
+        HMSZ/YmSlIgzz9aGJiDt6fF1sx437A817R3j/ljzPtjAx0x8xMjfZ+byuUqXavgjpi4LYsJxmJVp
+        BEwrRyVKhkSttFAt1HW9wHd1Fh4LSjCR55YgymEnM7jWw5YqNWZN0Y/pnxkk08v53S1Prhh+qiqm
+        n6jpDtmnUu0QpIZql/nPMh7SHCO6//RXr15m6rutCDyErSFlJaU6J7t7dQVaGLJki/ZSFTK9GJuY
+        loQpL7b5tdcZdNZ+jbdNmeq+m2BXJB+Ql/xFoTQe2bT+Hm7V3DiJ8qc9GTepxdCXdfMXAAD//wMA
+        zLTry/8JAAA=
     headers:
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
@@ -2317,13 +2317,13 @@ interactions:
       access-control-max-age:
       - '604800'
       cache-control:
-      - public, max-age=73298
+      - public, max-age=74439
       content-encoding:
       - gzip
       content-type:
       - application/json; charset=utf-8
       date:
-      - Thu, 23 Jun 2022 08:18:44 GMT
+      - Sun, 02 Oct 2022 17:00:07 GMT
       server:
       - envoy
       strict-transport-security:
@@ -2343,13 +2343,13 @@ interactions:
       Accept-Encoding:
       - gzip, deflate, br
       Authorization:
-      - Bearer BQDfz9ppb85lYnWSTeITHQIWdv5T77bQQHpwtkwabt1Vni2fb-zT3EzcHLwIE6BYyoQ5meyUaUsqgRf7z5ZtdqasOKsPVXfop_pIUZX0mtJgwusZcK0
+      - Bearer BQAPxqkzMGiBNiGpUVKnk-ghsrhXi7Y6IjXVL1IPIboq75ZOVngWrntJhPkUvkhCydplViIJT82-hNQwcxAR3Ha-uUklphUsKmnTD17aPlxqaPi04dw
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       User-Agent:
-      - python-requests/2.28.0
+      - python-requests/2.28.1
     method: GET
     uri: https://api.spotify.com/v1/tracks/5eNCdUmpGcQTYw5V7noiPY
   response:
@@ -2366,8 +2366,8 @@ interactions:
         nIRhT+LIYATLdaWKWGSjLRj0nuQwGKW9kpo8B4X1jc42znHzcMvRfu9IfFpVHx+IvWTV5Th0Og2N
         h6Fhee1/FKop/SIOW5fkARy27vhOh6D1DOzJY/PrCqm1rn8VEe45URq6mFXqUFHKoMi05IQyFuh2
         Jj7pwcuEEo/IveFDynFhLfpE0Ks2qYQzT5Z8fgquzoBh6MC2atU0dLdbb6WgtQH+/R3dh8m5d3P3
-        +DyYWlFMrh/rFF3amq+GJigJU/S0NYQ7NPYg3SamZcepSZykFDIi5Evza6Rma2xB8LNTLOIopVTa
-        ZZFv+lRNinTnsLtjIl3jJqLW/wEAAP//AwAwaTtyEgsAAA==
+        +DyYWlFMrh/rFF3amq+GJigJU/S0NYQ7NPYg3SamZcepSZykFDIi5Evt3MbwguBnp9jDUUqptMsa
+        37SpGhTpzlF3p0S6xk08rf8DAAD//wMARwaQshELAAA=
     headers:
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
@@ -2393,7 +2393,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Thu, 23 Jun 2022 08:18:44 GMT
+      - Sun, 02 Oct 2022 17:00:07 GMT
       server:
       - envoy
       strict-transport-security:
@@ -2413,24 +2413,24 @@ interactions:
       Accept-Encoding:
       - gzip, deflate, br
       Authorization:
-      - Bearer BQDfz9ppb85lYnWSTeITHQIWdv5T77bQQHpwtkwabt1Vni2fb-zT3EzcHLwIE6BYyoQ5meyUaUsqgRf7z5ZtdqasOKsPVXfop_pIUZX0mtJgwusZcK0
+      - Bearer BQAPxqkzMGiBNiGpUVKnk-ghsrhXi7Y6IjXVL1IPIboq75ZOVngWrntJhPkUvkhCydplViIJT82-hNQwcxAR3Ha-uUklphUsKmnTD17aPlxqaPi04dw
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       User-Agent:
-      - python-requests/2.28.0
+      - python-requests/2.28.1
     method: GET
     uri: https://api.spotify.com/v1/artists/157L8iTHgbdrKVxdQEXluh
   response:
     body:
       string: !!binary |
-        H4sIAAAAAAAAAJySUWuDMBSF3/crxOdSjTNqfR8M1pexMQZjjKhRw6IJ8bpWSv/7YoxlpThK85Zz
-        7z3fIbmHO8dx6R6oagn/6hXvXCd1DlrVeicFsHIYFbcGkF3qeULSdm0L61w0HlHAOvAQjrcJe32s
-        skI9ve2L54d33teuNjquRkYpOBc7qv7614qW47XtOV9NEgggfNSCIME4OI1XtFXUzH44n0aZh0/J
-        iGRnwX6QzdYthTM+rDAu/7Y0pJrhc3TKqhpGKQp9m12/3lkgHScvWp3FMwYeyaI4QhHy9aGYZkES
-        xTTOSVjmRYDDvMyyLNmEvmv9dqyA2iLMQ1zC74Nb4BjF4dVwjViAo+gWeIni5Gq4Roxw++Utaajh
-        bEUHzsv3MH2PFLLnRDEwm4o3RoRBTr3TDkydvWJGs2uSTrV0aXePvwAAAP//AwA8V9XFHgMAAA==
+        H4sIAAAAAAAAAJySX2uDMBTF3/cpxOdSG//P98FgfRkbYzDGiBo1LJoQr2ul9LsvJrGsFEdp3nLu
+        ved3SO7hznFcsgciO8y+Bsl618mcg1KV3gsOtBonxW0ARJ95HhekW9vCuuCthyXQHjwUJduUvj7W
+        eSmf3vbl88M7GxpXGR1XE6PijPEdkX/9G0mq6doNjK2MBBwwmzQ/SIM0Oo3XpJNEz344n1qZh0/J
+        sKBnwX6QzdYvhdM+tNQu/7a0uJ7hc3RC6wYmKQ43Nrt6vbNAKk5RdiqLpw08nMdJjGK0UYdEJPfT
+        OCFJgcOqKP0oLKo8z9P7cONavx0tobEI/RCX8MC/BR6hJLwarhALcBTfAq9Qkl4NV4gJbr+8wy3R
+        nC3vwXn5Hs33CC4GhiUFvakmlAujML1mB0znIKnW7JpkppYt7e7xFwAA//8DAGAXgw4eAwAA
     headers:
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
@@ -2450,13 +2450,13 @@ interactions:
       access-control-max-age:
       - '604800'
       cache-control:
-      - public, max-age=78103
+      - public, max-age=80726
       content-encoding:
       - gzip
       content-type:
       - application/json; charset=utf-8
       date:
-      - Thu, 23 Jun 2022 08:18:44 GMT
+      - Sun, 02 Oct 2022 17:00:07 GMT
       server:
       - envoy
       strict-transport-security:
@@ -2476,33 +2476,33 @@ interactions:
       Accept-Encoding:
       - gzip, deflate, br
       Authorization:
-      - Bearer BQDfz9ppb85lYnWSTeITHQIWdv5T77bQQHpwtkwabt1Vni2fb-zT3EzcHLwIE6BYyoQ5meyUaUsqgRf7z5ZtdqasOKsPVXfop_pIUZX0mtJgwusZcK0
+      - Bearer BQAPxqkzMGiBNiGpUVKnk-ghsrhXi7Y6IjXVL1IPIboq75ZOVngWrntJhPkUvkhCydplViIJT82-hNQwcxAR3Ha-uUklphUsKmnTD17aPlxqaPi04dw
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       User-Agent:
-      - python-requests/2.28.0
+      - python-requests/2.28.1
     method: GET
     uri: https://api.spotify.com/v1/albums/43bED64lWhQEE7XBEoMe8g
   response:
     body:
       string: !!binary |
-        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
+        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
+        lidhQ8y5a9L2SbP6CwAA//8DAC6kB2C3DAAA
     headers:
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
@@ -2522,13 +2522,13 @@ interactions:
       access-control-max-age:
       - '604800'
       cache-control:
-      - public, max-age=77409
+      - public, max-age=77102
       content-encoding:
       - gzip
       content-type:
       - application/json; charset=utf-8
       date:
-      - Thu, 23 Jun 2022 08:18:44 GMT
+      - Sun, 02 Oct 2022 17:00:07 GMT
       server:
       - envoy
       strict-transport-security:

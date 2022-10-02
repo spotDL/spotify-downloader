@@ -19,7 +19,7 @@ from spotdl.download.downloader import (
 )
 
 
-OPERATIONS = ["download", "save", "web", "sync"]
+OPERATIONS = ["download", "save", "web", "sync", "meta"]
 
 
 class SmartFormatter(argparse.HelpFormatter):
@@ -104,7 +104,8 @@ def parse_main_options(parser: _ArgumentGroup):
             "download: Download the songs to the disk and embed metadata.\n"
             "save: Saves the songs metadata to a file for further use.\n"
             "web: Starts a web interface to simplify the download process.\n"
-            "sync: removes songs that are no longer present, downloads new ones\n"
+            "sync: Removes songs that are no longer present, downloads new ones\n"
+            "meta: Update your audio files with metadata\n"
         ),
     )
 
@@ -341,7 +342,7 @@ def parse_output_options(parser: _ArgumentGroup):
     # Add overwrite argument
     parser.add_argument(
         "--overwrite",
-        choices={"force", "skip"},
+        choices={"force", "skip", "metadata"},
         help="Overwrite existing files.",
     )
 
@@ -367,6 +368,13 @@ def parse_output_options(parser: _ArgumentGroup):
         action="store_const",
         const=True,
         help="Use the sponsor block to download songs from yt/ytm.",
+    )
+
+    # Add archive_file argument
+    parser.add_argument(
+        "--archive",
+        type=str,
+        help="Specify the file name for an archive of already downloaded songs",
     )
 
 

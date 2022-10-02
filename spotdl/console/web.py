@@ -3,16 +3,14 @@ Web module for the console.
 """
 
 import asyncio
-import logging
 import os
 import json
 import webbrowser
 
-from typing import Any, Dict, List, Optional, Tuple, Union
-from pathlib import Path
+from typing import Any, Dict, List, Optional
 
 import mimetypes
-
+import nest_asyncio
 
 from fastapi import FastAPI, Response, WebSocket, WebSocketDisconnect, HTTPException
 from fastapi.responses import FileResponse
@@ -22,13 +20,10 @@ from pydantic import BaseModel  # pylint: disable=E0611
 from uvicorn import Config, Server
 from starlette.types import Scope
 
-import nest_asyncio
-
 from spotdl.download.downloader import Downloader, DownloaderError
 from spotdl.download.progress_handler import NAME_TO_LEVEL, ProgressHandler, SongTracker
 from spotdl.types.song import Song
 from spotdl.utils.github import download_github_dir
-from spotdl.utils.search import parse_query
 from spotdl.utils.search import get_search_results
 from spotdl.utils.config import get_spotdl_path
 
@@ -106,17 +101,32 @@ class SettingsModel(BaseModel):
     threads: Optional[int]
 
 
+class SPAStaticFiles(StaticFiles):
+    """
+    Override the static files to serve the index.html and other assets.
+    """
+
+    async def get_response(self, path: str, scope: Scope) -> Response:
+        """
+        Serve static files from the SPA.
+
+        ### Arguments
+        - path: The path to the file.
+        - scope: The scope of the request.
+
+        ### Returns
+        - returns the response.
+        """
+
+        response = await super().get_response(path, scope)
+        if response.status_code == 404:
+            response = await super().get_response(".", scope)
+
+        return response
+
+
 app = App()
 app.server = FastAPI()
-app.server.add_middleware(
-    CORSMiddleware,
-    allow_origins=ALLOWED_ORIGINS,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-nest_asyncio.apply()
 
 
 class WSProgressHandler:
@@ -144,7 +154,7 @@ class WSProgressHandler:
         """
 
         connection = {"client_id": self.client_id, "websocket": self.websocket}
-        logging.info("Connecting WebSocket: %s", connection)
+        app.downloader.progress_handler.log(f"Connecting WebSocket: {connection}")
         await self.websocket.accept()
         WSProgressHandler.instances.append(self)
 
@@ -163,7 +173,7 @@ class WSProgressHandler:
             )
             return instance
         except StopIteration:
-            logging.warning(
+            app.downloader.progress_handler.error(
                 "Error while accessing websocket instance. Websocket not created"
             )
             return None
@@ -176,7 +186,7 @@ class WSProgressHandler:
         - message: The message to send.
         """
 
-        logging.debug("Sending %s: %s", self.client_id, message)
+        app.downloader.progress_handler.debug(f"Sending {self.client_id}: {message}")
         await self.websocket.send_text(message)
 
     def update(self, progress_handler_instance: SongTracker, message: str):
@@ -216,7 +226,7 @@ def fix_mime_types():
     mimetypes.add_type("text/html", ".html")
 
 
-@app.server.websocket("/api/ws")
+@app.server.websocket("/api/ws")  #
 async def websocket_endpoint(websocket: WebSocket, client_id: str):
     """
     Websocket endpoint.
@@ -231,27 +241,12 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
     try:
         while True:
             data = await websocket.receive_text()
-            logging.debug("Client %s said: %s", client_id, data)
+            app.downloader.progress_handler.debug(f"Client {client_id} said: {data}")
     except WebSocketDisconnect:
-        logging.info("Disconnecting WebSocket: %s", client_id)
+        app.downloader.progress_handler.log(f"Disconnecting WebSocket: {client_id}")
 
 
-@app.server.get("/api/song/search")
-def song_from_search(query: str) -> Song:
-    """
-    Search for a song on spotify using search query.
-
-    ### Arguments
-    - query: The search query.
-
-    ### Returns
-    - returns the first result as a Song object.
-    """
-
-    return Song.from_search_term(query)
-
-
-@app.server.get("/api/song/url")
+@app.server.get("/api/song/url")  #
 def song_from_url(url: str) -> Song:
     """
     Search for a song on spotify using url.
@@ -266,23 +261,8 @@ def song_from_url(url: str) -> Song:
     return Song.from_url(url)
 
 
-@app.server.post("/api/songs/query")
-def query_search(query: List[str]) -> List[Song]:
-    """
-    Parse a list of search queries.
-
-    ### Arguments
-    - query: The query to parse.
-
-    ### Returns
-    - returns a list of Song objects.
-    """
-
-    return parse_query(query)
-
-
-@app.server.get("/api/songs/search")
-def search_search(query: str) -> List[Song]:
+@app.server.get("/api/songs/search")  #
+def query_search(query: str) -> List[Song]:
     """
     Parse search term and return list of Song objects.
 
@@ -297,78 +277,7 @@ def search_search(query: str) -> List[Song]:
     return get_search_results(query)
 
 
-@app.server.post("/api/downloader/change_output")
-def change_output(output: str) -> bool:
-    """
-    Change output folder
-
-    ### Arguments
-    - output: The output folder.
-
-    ### Returns
-    - returns True if the output folder was changed.
-    """
-
-    app.downloader.output = output
-
-    return True
-
-
-@app.server.post("/api/downloader/download/search")
-async def download_search(
-    query: str, return_file: bool = False
-) -> Union[Tuple[Song, Optional[Path]], FileResponse]:
-    """
-    Search for song and download the first result.
-
-    ### Arguments
-    - query: The query to search.
-    - return_file: If True, return the file instead of the song.
-
-    ### Returns
-    - returns a Tuple of Song and Path if return_file is True.
-    - returns a FileResponse if return_file is False.
-    """
-
-    song, path = await app.downloader.pool_download(Song.from_search_term(query))
-
-    if return_file is True:
-        if path is None:
-            raise ValueError("No file found")
-
-        return FileResponse(path)
-
-    return song, path
-
-
-@app.server.post("/api/download/objects")
-async def download_objects(
-    song: SongModel, return_file: bool = False
-) -> Union[Tuple[Song, Optional[Path]], FileResponse]:
-    """
-    Download songs using Song objects.
-
-    ### Arguments
-    - song: The Song object.
-    - return_file: If True, return the file instead of the song.
-
-    ### Returns
-    - returns a Tuple of Song and Path if return_file is True.
-    - returns a FileResponse if return_file is False.
-    """
-
-    song_obj, path = await app.downloader.pool_download(Song(**song.dict()))
-
-    if return_file is True:
-        if path is None:
-            raise ValueError("No file found")
-
-        return FileResponse(path)
-
-    return song_obj, path
-
-
-@app.server.post("/api/download/url")
+@app.server.post("/api/download/url")  #
 async def download_url(url: str, client_id: str) -> Optional[str]:
     """
     Download songs using Song url.
@@ -403,7 +312,7 @@ async def download_url(url: str, client_id: str) -> Optional[str]:
 
         if path is None:
             exc = DownloaderError(f"Failure downloading {song.name}")
-            logging.warning("Error downloading! %s", exc)
+            app.downloader.progress_handler.error(f"Error downloading! {exc}")
             raise HTTPException(status_code=500, detail=f"Error downloading: {exc}")
 
         # Strip Filename
@@ -412,13 +321,13 @@ async def download_url(url: str, client_id: str) -> Optional[str]:
         return filename
 
     except Exception as exception:
-        logging.warning("Error downloading! %s", exception)
+        app.downloader.progress_handler.error(f"Error downloading! {exception}")
         raise HTTPException(
             status_code=500, detail=f"Error downloading: {exception}"
         ) from exception
 
 
-@app.server.get("/api/download/file")
+@app.server.get("/api/download/file")  #
 async def download_file(file: str, client_id: str) -> FileResponse:
     """
     Download file using path.
@@ -437,41 +346,7 @@ async def download_file(file: str, client_id: str) -> FileResponse:
     )
 
 
-@app.server.post("/api/download/multiple_search")
-def download_multiple_search(query: List[str]) -> List[Tuple[Song, Optional[Path]]]:
-    """
-    Search for song and download the first result.
-
-    ### Arguments
-    - query: The query to search.
-
-    ### Returns
-    - returns a list of Tuple of Song and Path if the song was downloaded.
-    """
-
-    return app.downloader.download_multiple_songs(parse_query(query))
-
-
-@app.server.post("/api/download/multiple_objects")
-def download_multiple_objects(
-    songs: List[SongModel],
-) -> List[Tuple[Song, Optional[Path]]]:
-    """
-    Download songs using Song objects.
-
-    ### Arguments
-    - songs: The list of Song objects.
-
-    ### Returns
-    - returns a list of Tuple of Song and Path if the song was downloaded.
-    """
-
-    return app.downloader.download_multiple_songs(
-        [Song.from_dict(song.dict()) for song in songs]
-    )
-
-
-@app.server.get("/api/settings")
+@app.server.get("/api/settings")  #
 def get_settings() -> SettingsModel:
     """
     Return the settings object.
@@ -483,7 +358,7 @@ def get_settings() -> SettingsModel:
     return SettingsModel(**app.settings)
 
 
-@app.server.post("/api/settings/update")
+@app.server.post("/api/settings/update")  #
 def change_settings(settings: SettingsModel) -> bool:
     """
     Change downloader settings by re-initializing the downloader.
@@ -503,7 +378,7 @@ def change_settings(settings: SettingsModel) -> bool:
     # Update settings with new settings that are not None
     settings_cpy.update({k: v for k, v in settings_dict.items() if v is not None})
 
-    logging.debug("Applying settings: %s", {settings_cpy})
+    app.downloader.progress_handler.debug(f"Applying settings: {settings_cpy}")
 
     # Re-initialize downloader
     app.downloader = Downloader(
@@ -525,30 +400,6 @@ def change_settings(settings: SettingsModel) -> bool:
     return True
 
 
-class SPAStaticFiles(StaticFiles):
-    """
-    Override the static files to serve the index.html and other assets.
-    """
-
-    async def get_response(self, path: str, scope: Scope) -> Response:
-        """
-        Serve static files from the SPA.
-
-        ### Arguments
-        - path: The path to the file.
-        - scope: The scope of the request.
-
-        ### Returns
-        - returns the response.
-        """
-
-        response = await super().get_response(path, scope)
-        if response.status_code == 404:
-            response = await super().get_response(".", scope)
-
-        return response
-
-
 def web(settings: Dict[str, Any]):
     """
     Run the web server.
@@ -557,13 +408,22 @@ def web(settings: Dict[str, Any]):
     - settings: Settings dictionary, based on the `SettingsModel` class.
     """
 
+    app.loop = asyncio.new_event_loop()
+    app.settings = settings
+    app.server.add_middleware(
+        CORSMiddleware,
+        allow_origins=ALLOWED_ORIGINS,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+
     fix_mime_types()
+    nest_asyncio.apply(app.loop)
 
-    web_app_dir = str(get_spotdl_path().absolute())
-
+    # Download web app from GitHub
     print("Updating web app")
-
-    # Get web client from CDN (github for now)
+    web_app_dir = str(get_spotdl_path().absolute())
     download_github_dir(
         "https://github.com/spotdl/web-ui/tree/master/dist", output_dir=web_app_dir
     )
@@ -573,10 +433,6 @@ def web(settings: Dict[str, Any]):
         "/", SPAStaticFiles(directory=web_app_dir + "/dist", html=True), name="static"
     )
 
-    loop = asyncio.new_event_loop()
-
-    app.loop = loop
-    app.settings = settings
     app.downloader = Downloader(
         audio_providers=settings["audio_providers"],
         lyrics_providers=settings["lyrics_providers"],
@@ -590,15 +446,14 @@ def web(settings: Dict[str, Any]):
         overwrite=settings["overwrite"],
         log_level=settings["log_level"],
         simple_tui=True,
-        loop=loop,
+        loop=app.loop,
     )
 
-    config = Config(app=app.server, port=8800, workers=1, loop=loop)  # type: ignore
-
+    config = Config(app=app.server, port=8800, workers=1, loop=app.loop)  # type: ignore
     server = Server(config)
 
     webbrowser.open("http://localhost:8800")
 
-    loop.run_until_complete(server.serve())
+    app.loop.run_until_complete(server.serve())
 
     app.downloader.progress_handler.close()
