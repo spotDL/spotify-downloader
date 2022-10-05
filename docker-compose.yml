@@ -1,6 +1,6 @@
-version: '3'
+version: "3"
 services:
   spotdl:
-    image: "spotDL/spotify-downloader"
+    image: "spotdl/spotify-downloader"
     volumes:
       - .:/music
