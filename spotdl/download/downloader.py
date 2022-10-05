@@ -80,10 +80,10 @@ class Downloader:
         search_query: Optional[str] = None,
         log_level: str = "INFO",
         simple_tui: bool = False,
-        loop: Optional[asyncio.AbstractEventLoop] = None,
         restrict: bool = False,
         print_errors: bool = False,
         sponsor_block: bool = False,
+        loop: Optional[asyncio.AbstractEventLoop] = None,
     ):
         """
         Initialize the Downloader class.
