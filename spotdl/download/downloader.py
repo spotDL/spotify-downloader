@@ -16,7 +16,7 @@ from typing import Dict, List, Optional, Tuple, Type
 from yt_dlp.postprocessor.sponsorblock import SponsorBlockPP
 from yt_dlp.postprocessor.modify_chapters import ModifyChaptersPP
 
-from spotdl.types import Song, SongList
+from spotdl.types import Song
 from spotdl.utils.ffmpeg import FFmpegError, convert, get_ffmpeg_path
 from spotdl.utils.metadata import embed_metadata, MetadataError, get_song_metadata
 from spotdl.utils.formatter import create_file_name, restrict_filename
@@ -26,6 +26,7 @@ from spotdl.providers.lyrics.base import LyricsProvider
 from spotdl.providers.audio import YouTube, YouTubeMusic
 from spotdl.download.progress_handler import NAME_TO_LEVEL, ProgressHandler
 from spotdl.utils.config import get_errors_path, get_temp_path
+from spotdl.utils.search import reinit_song
 
 
 AUDIO_PROVIDERS: Dict[str, Type[AudioProvider]] = {
@@ -344,20 +345,7 @@ class Downloader:
         # If it's None extract the current metadata
         # And reinitialize the song object
         if song.name is None and song.url:
-            data = song.json
-            new_data = Song.from_url(data["url"]).json
-            data.update((k, v) for k, v in new_data.items() if v is not None)
-
-            if data.get("song_list"):
-                # Reinitialize the correct song list object
-                song_list: Type[SongList] = song.song_list.__class__(
-                    **data["song_list"]
-                )
-                data["song_list"] = song_list
-                data["list_position"] = song_list.urls.index(song.url)
-
-            # Reinitialize the song object
-            song = Song(**data)
+            song = reinit_song(song)
 
         # Find song lyrics and add them to the song object
         try:

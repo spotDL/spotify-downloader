@@ -68,59 +68,14 @@ def parse_query(
     - List of song objects
     """
 
-    urls: List[str] = []
-    songs: List[Song] = []
-    for request in query:
-        if (
-            "youtube.com/watch?v=" in request
-            or "youtu.be/" in request
-            and "open.spotify.com" in request
-            and "track" in request
-            and "|" in request
-        ):
-            split_urls = request.split("|")
-            if (
-                len(split_urls) <= 1
-                or "youtube" not in split_urls[0]
-                and "youtu.be" not in split_urls[0]
-                or "spotify" not in split_urls[1]
-            ):
-                raise QueryError(
-                    "Incorrect format used, please use YouTubeURL|SpotifyURL"
-                )
+    songs: List[Song] = get_simple_songs(query)
 
-            songs.append(
-                Song.from_dict(
-                    {
-                        **Song.from_url(split_urls[1]).json,
-                        "download_url": split_urls[0],
-                    }
-                )
-            )
-        elif "open.spotify.com" in request and "track" in request:
-            urls.append(request)
-        elif "open.spotify.com" in request and "playlist" in request:
-            urls.extend(Playlist.get_urls(request))
-        elif "open.spotify.com" in request and "album" in request:
-            urls.extend(Album.get_urls(request))
-        elif "open.spotify.com" in request and "artist" in request:
-            for album_url in Artist.get_albums(request):
-                urls.extend(Album.get_urls(album_url))
-        elif request == "saved":
-            urls.extend(Saved.get_urls("saved"))
-        elif request.endswith(".spotdl"):
-            with open(request, "r", encoding="utf-8") as m3u_file:
-                for track in json.load(m3u_file):
-                    # Append to songs
-                    songs.append(Song.from_dict(track))
-        else:
-            songs.append(Song.from_search_term(request))
-
+    results = []
     with concurrent.futures.ThreadPoolExecutor(max_workers=threads) as executor:
-        for song in executor.map(Song.from_url, urls):
-            songs.append(song)
+        for song in executor.map(reinit_song, songs):
+            results.append(song)
 
-    return songs
+    return results
 
 
 def create_empty_song(
@@ -263,3 +218,30 @@ def get_simple_songs(
         )  # type: ignore
 
     return songs
+
+
+def reinit_song(song: Song) -> Song:
+    """
+    Update song object with new data
+    from Spotify
+
+    ### Arguments
+    - song: Song object
+
+    ### Returns
+    - Updated song object
+    """
+
+    data = song.json
+    new_data = Song.from_url(data["url"]).json
+    data.update((k, v) for k, v in new_data.items() if v is not None)
+
+    if data.get("song_list"):
+        # Reinitialize the correct song list object
+        if song.song_list:
+            song_list = song.song_list.__class__(**data["song_list"])
+            data["song_list"] = song_list
+            data["list_position"] = song_list.urls.index(song.url)
+
+    # return reinitialized song object
+    return Song(**data)
