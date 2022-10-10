@@ -300,7 +300,7 @@ class Downloader:
 
         raise LookupError(f"No results found for song: {song.display_name}")
 
-    def search_lyrics(self, song: Song) -> str:
+    def search_lyrics(self, song: Song) -> Optional[str]:
         """
         Search for lyrics using all available providers.
 
@@ -308,7 +308,7 @@ class Downloader:
         - song: The song to search for.
 
         ### Returns
-        - lyrics if successful.
+        - lyrics if successful else None.
         """
 
         for lyrics_provider in self.lyrics_providers:
@@ -324,7 +324,8 @@ class Downloader:
                 f"for {song.display_name}"
             )
 
-        raise LookupError(f"No lyrics found for song: {song.display_name}")
+        self.progress_handler.log(f"No lyrics found for song: {song.display_name}")
+        return None
 
     def search_and_download(self, song: Song) -> Tuple[Song, Optional[Path]]:
         """
