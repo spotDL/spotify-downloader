@@ -1510,7 +1510,11 @@ If song already has metadata, missing metadata is added</p>
 <span class="normal">118</span>
 <span class="normal">119</span>
 <span class="normal">120</span>
-<span class="normal">121</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">meta</span><span class="p">(</span><span class="n">query</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">downloader</span><span class="p">:</span> <span class="n">Downloader</span><span class="p">,</span> <span class="o">**</span><span class="n">_</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">meta</span><span class="p">(</span><span class="n">query</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">downloader</span><span class="p">:</span> <span class="n">Downloader</span><span class="p">,</span> <span class="o">**</span><span class="n">_</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This function applies metadata to the selected songs</span>
 <span class="sd">    based on the file name.</span>
@@ -1595,7 +1599,11 @@ If song already has metadata, missing metadata is added</p>
                 <span class="sa">f</span><span class="s2">&quot;Fetching lyrics for </span><span class="si">{</span><span class="n">song</span><span class="o">.</span><span class="n">display_name</span><span class="si">}</span><span class="s2">&quot;</span>
             <span class="p">)</span>
             <span class="n">lyrics</span> <span class="o">=</span> <span class="n">downloader</span><span class="o">.</span><span class="n">search_lyrics</span><span class="p">(</span><span class="n">song</span><span class="p">)</span>
-            <span class="n">song</span><span class="o">.</span><span class="n">lyrics</span> <span class="o">=</span> <span class="n">lyrics</span>
+            <span class="k">if</span> <span class="n">lyrics</span><span class="p">:</span>
+                <span class="n">song</span><span class="o">.</span><span class="n">lyrics</span> <span class="o">=</span> <span class="n">lyrics</span>
+                <span class="n">downloader</span><span class="o">.</span><span class="n">progress_handler</span><span class="o">.</span><span class="n">log</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;No lyrics found for song: </span><span class="si">{</span><span class="n">song</span><span class="o">.</span><span class="n">display_name</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
 
         <span class="c1"># Apply metadata to the song</span>
         <span class="n">embed_metadata</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">song</span><span class="p">,</span> <span class="n">file</span><span class="o">.</span><span class="n">suffix</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>

@@ -1366,8 +1366,7 @@
 
       <details class="quote">
         <summary>Source code in <code>spotdl/console/entry_point.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">219</span>
-<span class="normal">220</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">220</span>
 <span class="normal">221</span>
 <span class="normal">222</span>
 <span class="normal">223</span>
@@ -1381,7 +1380,8 @@
 <span class="normal">231</span>
 <span class="normal">232</span>
 <span class="normal">233</span>
-<span class="normal">234</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">console_entry_point</span><span class="p">():</span>
+<span class="normal">234</span>
+<span class="normal">235</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">console_entry_point</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Wrapper around `entry_point` so we can profile the code</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1592,7 +1592,8 @@
 <span class="normal">213</span>
 <span class="normal">214</span>
 <span class="normal">215</span>
-<span class="normal">216</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">entry_point</span><span class="p">():</span>
+<span class="normal">216</span>
+<span class="normal">217</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">entry_point</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Console entry point for spotdl. This is where the magic happens.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1723,12 +1724,13 @@
         <span class="n">bitrate</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s2">&quot;bitrate&quot;</span><span class="p">],</span>
         <span class="n">ffmpeg_args</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s2">&quot;ffmpeg_args&quot;</span><span class="p">],</span>
         <span class="n">output_format</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s2">&quot;format&quot;</span><span class="p">],</span>
-        <span class="n">save_file</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s2">&quot;save_file&quot;</span><span class="p">],</span>
         <span class="n">threads</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s2">&quot;threads&quot;</span><span class="p">],</span>
         <span class="n">output</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">],</span>
+        <span class="n">save_file</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s2">&quot;save_file&quot;</span><span class="p">],</span>
         <span class="n">overwrite</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s2">&quot;overwrite&quot;</span><span class="p">],</span>
-        <span class="n">search_query</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s2">&quot;search_query&quot;</span><span class="p">],</span>
         <span class="n">cookie_file</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s2">&quot;cookie_file&quot;</span><span class="p">],</span>
+        <span class="n">filter_results</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s2">&quot;filter_results&quot;</span><span class="p">],</span>
+        <span class="n">search_query</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s2">&quot;search_query&quot;</span><span class="p">],</span>
         <span class="n">log_level</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s2">&quot;log_level&quot;</span><span class="p">],</span>
         <span class="n">simple_tui</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s2">&quot;simple_tui&quot;</span><span class="p">],</span>
         <span class="n">restrict</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s2">&quot;restrict&quot;</span><span class="p">],</span>

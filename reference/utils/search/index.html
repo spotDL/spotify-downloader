@@ -1302,6 +1302,33 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#spotdl.utils.search.reinit_song" class="md-nav__link">
+    reinit_song()
+  </a>
+  
+    <nav class="md-nav" aria-label="reinit_song()">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#spotdl.utils.search.reinit_song--arguments" class="md-nav__link">
+    Arguments
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spotdl.utils.search.reinit_song--returns" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1512,6 +1539,33 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#spotdl.utils.search.reinit_song" class="md-nav__link">
+    reinit_song()
+  </a>
+  
+    <nav class="md-nav" aria-label="reinit_song()">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#spotdl.utils.search.reinit_song--arguments" class="md-nav__link">
+    Arguments
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spotdl.utils.search.reinit_song--returns" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1622,7 +1676,52 @@ or by parsing a query.</p>
 
       <details class="quote">
         <summary>Source code in <code>spotdl/utils/search.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">126</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 81</span>
+<span class="normal"> 82</span>
+<span class="normal"> 83</span>
+<span class="normal"> 84</span>
+<span class="normal"> 85</span>
+<span class="normal"> 86</span>
+<span class="normal"> 87</span>
+<span class="normal"> 88</span>
+<span class="normal"> 89</span>
+<span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span>
 <span class="normal">127</span>
 <span class="normal">128</span>
 <span class="normal">129</span>
@@ -1653,52 +1752,7 @@ or by parsing a query.</p>
 <span class="normal">154</span>
 <span class="normal">155</span>
 <span class="normal">156</span>
-<span class="normal">157</span>
-<span class="normal">158</span>
-<span class="normal">159</span>
-<span class="normal">160</span>
-<span class="normal">161</span>
-<span class="normal">162</span>
-<span class="normal">163</span>
-<span class="normal">164</span>
-<span class="normal">165</span>
-<span class="normal">166</span>
-<span class="normal">167</span>
-<span class="normal">168</span>
-<span class="normal">169</span>
-<span class="normal">170</span>
-<span class="normal">171</span>
-<span class="normal">172</span>
-<span class="normal">173</span>
-<span class="normal">174</span>
-<span class="normal">175</span>
-<span class="normal">176</span>
-<span class="normal">177</span>
-<span class="normal">178</span>
-<span class="normal">179</span>
-<span class="normal">180</span>
-<span class="normal">181</span>
-<span class="normal">182</span>
-<span class="normal">183</span>
-<span class="normal">184</span>
-<span class="normal">185</span>
-<span class="normal">186</span>
-<span class="normal">187</span>
-<span class="normal">188</span>
-<span class="normal">189</span>
-<span class="normal">190</span>
-<span class="normal">191</span>
-<span class="normal">192</span>
-<span class="normal">193</span>
-<span class="normal">194</span>
-<span class="normal">195</span>
-<span class="normal">196</span>
-<span class="normal">197</span>
-<span class="normal">198</span>
-<span class="normal">199</span>
-<span class="normal">200</span>
-<span class="normal">201</span>
-<span class="normal">202</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">create_empty_song</span><span class="p">(</span>
+<span class="normal">157</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">create_empty_song</span><span class="p">(</span>
     <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">artists</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">album_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1894,7 +1948,52 @@ or by parsing a query.</p>
 
       <details class="quote">
         <summary>Source code in <code>spotdl/utils/search.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">205</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">160</span>
+<span class="normal">161</span>
+<span class="normal">162</span>
+<span class="normal">163</span>
+<span class="normal">164</span>
+<span class="normal">165</span>
+<span class="normal">166</span>
+<span class="normal">167</span>
+<span class="normal">168</span>
+<span class="normal">169</span>
+<span class="normal">170</span>
+<span class="normal">171</span>
+<span class="normal">172</span>
+<span class="normal">173</span>
+<span class="normal">174</span>
+<span class="normal">175</span>
+<span class="normal">176</span>
+<span class="normal">177</span>
+<span class="normal">178</span>
+<span class="normal">179</span>
+<span class="normal">180</span>
+<span class="normal">181</span>
+<span class="normal">182</span>
+<span class="normal">183</span>
+<span class="normal">184</span>
+<span class="normal">185</span>
+<span class="normal">186</span>
+<span class="normal">187</span>
+<span class="normal">188</span>
+<span class="normal">189</span>
+<span class="normal">190</span>
+<span class="normal">191</span>
+<span class="normal">192</span>
+<span class="normal">193</span>
+<span class="normal">194</span>
+<span class="normal">195</span>
+<span class="normal">196</span>
+<span class="normal">197</span>
+<span class="normal">198</span>
+<span class="normal">199</span>
+<span class="normal">200</span>
+<span class="normal">201</span>
+<span class="normal">202</span>
+<span class="normal">203</span>
+<span class="normal">204</span>
+<span class="normal">205</span>
 <span class="normal">206</span>
 <span class="normal">207</span>
 <span class="normal">208</span>
@@ -1909,52 +2008,7 @@ or by parsing a query.</p>
 <span class="normal">217</span>
 <span class="normal">218</span>
 <span class="normal">219</span>
-<span class="normal">220</span>
-<span class="normal">221</span>
-<span class="normal">222</span>
-<span class="normal">223</span>
-<span class="normal">224</span>
-<span class="normal">225</span>
-<span class="normal">226</span>
-<span class="normal">227</span>
-<span class="normal">228</span>
-<span class="normal">229</span>
-<span class="normal">230</span>
-<span class="normal">231</span>
-<span class="normal">232</span>
-<span class="normal">233</span>
-<span class="normal">234</span>
-<span class="normal">235</span>
-<span class="normal">236</span>
-<span class="normal">237</span>
-<span class="normal">238</span>
-<span class="normal">239</span>
-<span class="normal">240</span>
-<span class="normal">241</span>
-<span class="normal">242</span>
-<span class="normal">243</span>
-<span class="normal">244</span>
-<span class="normal">245</span>
-<span class="normal">246</span>
-<span class="normal">247</span>
-<span class="normal">248</span>
-<span class="normal">249</span>
-<span class="normal">250</span>
-<span class="normal">251</span>
-<span class="normal">252</span>
-<span class="normal">253</span>
-<span class="normal">254</span>
-<span class="normal">255</span>
-<span class="normal">256</span>
-<span class="normal">257</span>
-<span class="normal">258</span>
-<span class="normal">259</span>
-<span class="normal">260</span>
-<span class="normal">261</span>
-<span class="normal">262</span>
-<span class="normal">263</span>
-<span class="normal">264</span>
-<span class="normal">265</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_simple_songs</span><span class="p">(</span>
+<span class="normal">220</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_simple_songs</span><span class="p">(</span>
     <span class="n">query</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Song</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -2046,74 +2100,29 @@ or by parsing a query.</p>
 
       <details class="quote">
         <summary>Source code in <code>spotdl/utils/search.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 56</span>
-<span class="normal"> 57</span>
-<span class="normal"> 58</span>
-<span class="normal"> 59</span>
-<span class="normal"> 60</span>
-<span class="normal"> 61</span>
-<span class="normal"> 62</span>
-<span class="normal"> 63</span>
-<span class="normal"> 64</span>
-<span class="normal"> 65</span>
-<span class="normal"> 66</span>
-<span class="normal"> 67</span>
-<span class="normal"> 68</span>
-<span class="normal"> 69</span>
-<span class="normal"> 70</span>
-<span class="normal"> 71</span>
-<span class="normal"> 72</span>
-<span class="normal"> 73</span>
-<span class="normal"> 74</span>
-<span class="normal"> 75</span>
-<span class="normal"> 76</span>
-<span class="normal"> 77</span>
-<span class="normal"> 78</span>
-<span class="normal"> 79</span>
-<span class="normal"> 80</span>
-<span class="normal"> 81</span>
-<span class="normal"> 82</span>
-<span class="normal"> 83</span>
-<span class="normal"> 84</span>
-<span class="normal"> 85</span>
-<span class="normal"> 86</span>
-<span class="normal"> 87</span>
-<span class="normal"> 88</span>
-<span class="normal"> 89</span>
-<span class="normal"> 90</span>
-<span class="normal"> 91</span>
-<span class="normal"> 92</span>
-<span class="normal"> 93</span>
-<span class="normal"> 94</span>
-<span class="normal"> 95</span>
-<span class="normal"> 96</span>
-<span class="normal"> 97</span>
-<span class="normal"> 98</span>
-<span class="normal"> 99</span>
-<span class="normal">100</span>
-<span class="normal">101</span>
-<span class="normal">102</span>
-<span class="normal">103</span>
-<span class="normal">104</span>
-<span class="normal">105</span>
-<span class="normal">106</span>
-<span class="normal">107</span>
-<span class="normal">108</span>
-<span class="normal">109</span>
-<span class="normal">110</span>
-<span class="normal">111</span>
-<span class="normal">112</span>
-<span class="normal">113</span>
-<span class="normal">114</span>
-<span class="normal">115</span>
-<span class="normal">116</span>
-<span class="normal">117</span>
-<span class="normal">118</span>
-<span class="normal">119</span>
-<span class="normal">120</span>
-<span class="normal">121</span>
-<span class="normal">122</span>
-<span class="normal">123</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">parse_query</span><span class="p">(</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">56</span>
+<span class="normal">57</span>
+<span class="normal">58</span>
+<span class="normal">59</span>
+<span class="normal">60</span>
+<span class="normal">61</span>
+<span class="normal">62</span>
+<span class="normal">63</span>
+<span class="normal">64</span>
+<span class="normal">65</span>
+<span class="normal">66</span>
+<span class="normal">67</span>
+<span class="normal">68</span>
+<span class="normal">69</span>
+<span class="normal">70</span>
+<span class="normal">71</span>
+<span class="normal">72</span>
+<span class="normal">73</span>
+<span class="normal">74</span>
+<span class="normal">75</span>
+<span class="normal">76</span>
+<span class="normal">77</span>
+<span class="normal">78</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">parse_query</span><span class="p">(</span>
     <span class="n">query</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
     <span class="n">threads</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Song</span><span class="p">]:</span>
@@ -2128,59 +2137,94 @@ or by parsing a query.</p>
 <span class="sd">    - List of song objects</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">urls</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">songs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Song</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">request</span> <span class="ow">in</span> <span class="n">query</span><span class="p">:</span>
-        <span class="k">if</span> <span class="p">(</span>
-            <span class="s2">&quot;youtube.com/watch?v=&quot;</span> <span class="ow">in</span> <span class="n">request</span>
-            <span class="ow">or</span> <span class="s2">&quot;youtu.be/&quot;</span> <span class="ow">in</span> <span class="n">request</span>
-            <span class="ow">and</span> <span class="s2">&quot;open.spotify.com&quot;</span> <span class="ow">in</span> <span class="n">request</span>
-            <span class="ow">and</span> <span class="s2">&quot;track&quot;</span> <span class="ow">in</span> <span class="n">request</span>
-            <span class="ow">and</span> <span class="s2">&quot;|&quot;</span> <span class="ow">in</span> <span class="n">request</span>
-        <span class="p">):</span>
-            <span class="n">split_urls</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;|&quot;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="p">(</span>
-                <span class="nb">len</span><span class="p">(</span><span class="n">split_urls</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">1</span>
-                <span class="ow">or</span> <span class="s2">&quot;youtube&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">split_urls</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-                <span class="ow">and</span> <span class="s2">&quot;youtu.be&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">split_urls</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-                <span class="ow">or</span> <span class="s2">&quot;spotify&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">split_urls</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-            <span class="p">):</span>
-                <span class="k">raise</span> <span class="n">QueryError</span><span class="p">(</span>
-                    <span class="s2">&quot;Incorrect format used, please use YouTubeURL|SpotifyURL&quot;</span>
-                <span class="p">)</span>
+    <span class="n">songs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Song</span><span class="p">]</span> <span class="o">=</span> <span class="n">get_simple_songs</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
 
-            <span class="n">songs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="n">Song</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span>
-                    <span class="p">{</span>
-                        <span class="o">**</span><span class="n">Song</span><span class="o">.</span><span class="n">from_url</span><span class="p">(</span><span class="n">split_urls</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">json</span><span class="p">,</span>
-                        <span class="s2">&quot;download_url&quot;</span><span class="p">:</span> <span class="n">split_urls</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-                    <span class="p">}</span>
-                <span class="p">)</span>
-            <span class="p">)</span>
-        <span class="k">elif</span> <span class="s2">&quot;open.spotify.com&quot;</span> <span class="ow">in</span> <span class="n">request</span> <span class="ow">and</span> <span class="s2">&quot;track&quot;</span> <span class="ow">in</span> <span class="n">request</span><span class="p">:</span>
-            <span class="n">urls</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="s2">&quot;open.spotify.com&quot;</span> <span class="ow">in</span> <span class="n">request</span> <span class="ow">and</span> <span class="s2">&quot;playlist&quot;</span> <span class="ow">in</span> <span class="n">request</span><span class="p">:</span>
-            <span class="n">urls</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">Playlist</span><span class="o">.</span><span class="n">get_urls</span><span class="p">(</span><span class="n">request</span><span class="p">))</span>
-        <span class="k">elif</span> <span class="s2">&quot;open.spotify.com&quot;</span> <span class="ow">in</span> <span class="n">request</span> <span class="ow">and</span> <span class="s2">&quot;album&quot;</span> <span class="ow">in</span> <span class="n">request</span><span class="p">:</span>
-            <span class="n">urls</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">Album</span><span class="o">.</span><span class="n">get_urls</span><span class="p">(</span><span class="n">request</span><span class="p">))</span>
-        <span class="k">elif</span> <span class="s2">&quot;open.spotify.com&quot;</span> <span class="ow">in</span> <span class="n">request</span> <span class="ow">and</span> <span class="s2">&quot;artist&quot;</span> <span class="ow">in</span> <span class="n">request</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">album_url</span> <span class="ow">in</span> <span class="n">Artist</span><span class="o">.</span><span class="n">get_albums</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
-                <span class="n">urls</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">Album</span><span class="o">.</span><span class="n">get_urls</span><span class="p">(</span><span class="n">album_url</span><span class="p">))</span>
-        <span class="k">elif</span> <span class="n">request</span> <span class="o">==</span> <span class="s2">&quot;saved&quot;</span><span class="p">:</span>
-            <span class="n">urls</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">Saved</span><span class="o">.</span><span class="n">get_urls</span><span class="p">(</span><span class="s2">&quot;saved&quot;</span><span class="p">))</span>
-        <span class="k">elif</span> <span class="n">request</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.spotdl&quot;</span><span class="p">):</span>
-            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">m3u_file</span><span class="p">:</span>
-                <span class="k">for</span> <span class="n">track</span> <span class="ow">in</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">m3u_file</span><span class="p">):</span>
-                    <span class="c1"># Append to songs</span>
-                    <span class="n">songs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Song</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">track</span><span class="p">))</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">songs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Song</span><span class="o">.</span><span class="n">from_search_term</span><span class="p">(</span><span class="n">request</span><span class="p">))</span>
-
+    <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">with</span> <span class="n">concurrent</span><span class="o">.</span><span class="n">futures</span><span class="o">.</span><span class="n">ThreadPoolExecutor</span><span class="p">(</span><span class="n">max_workers</span><span class="o">=</span><span class="n">threads</span><span class="p">)</span> <span class="k">as</span> <span class="n">executor</span><span class="p">:</span>
-        <span class="k">for</span> <span class="n">song</span> <span class="ow">in</span> <span class="n">executor</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">Song</span><span class="o">.</span><span class="n">from_url</span><span class="p">,</span> <span class="n">urls</span><span class="p">):</span>
-            <span class="n">songs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">song</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">song</span> <span class="ow">in</span> <span class="n">executor</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">reinit_song</span><span class="p">,</span> <span class="n">songs</span><span class="p">):</span>
+            <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">song</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">songs</span>
+    <span class="k">return</span> <span class="n">results</span>
+</code></pre></div></td></tr></table></div>
+      </details>
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h2 id="spotdl.utils.search.reinit_song" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">reinit_song</span><span class="p">(</span><span class="n">song</span><span class="p">)</span></code>
+
+<a href="#spotdl.utils.search.reinit_song" class="headerlink" title="Permanent link">¤</a></h2>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Update song object with new data
+from Spotify</p>
+<h5 id="spotdl.utils.search.reinit_song--arguments">Arguments<a class="headerlink" href="#spotdl.utils.search.reinit_song--arguments" title="Permanent link">¤</a></h5>
+<ul>
+<li>song: Song object</li>
+</ul>
+<h5 id="spotdl.utils.search.reinit_song--returns">Returns<a class="headerlink" href="#spotdl.utils.search.reinit_song--returns" title="Permanent link">¤</a></h5>
+<ul>
+<li>Updated song object</li>
+</ul>
+
+      <details class="quote">
+        <summary>Source code in <code>spotdl/utils/search.py</code></summary>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">223</span>
+<span class="normal">224</span>
+<span class="normal">225</span>
+<span class="normal">226</span>
+<span class="normal">227</span>
+<span class="normal">228</span>
+<span class="normal">229</span>
+<span class="normal">230</span>
+<span class="normal">231</span>
+<span class="normal">232</span>
+<span class="normal">233</span>
+<span class="normal">234</span>
+<span class="normal">235</span>
+<span class="normal">236</span>
+<span class="normal">237</span>
+<span class="normal">238</span>
+<span class="normal">239</span>
+<span class="normal">240</span>
+<span class="normal">241</span>
+<span class="normal">242</span>
+<span class="normal">243</span>
+<span class="normal">244</span>
+<span class="normal">245</span>
+<span class="normal">246</span>
+<span class="normal">247</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">reinit_song</span><span class="p">(</span><span class="n">song</span><span class="p">:</span> <span class="n">Song</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Song</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Update song object with new data</span>
+<span class="sd">    from Spotify</span>
+
+<span class="sd">    ### Arguments</span>
+<span class="sd">    - song: Song object</span>
+
+<span class="sd">    ### Returns</span>
+<span class="sd">    - Updated song object</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">data</span> <span class="o">=</span> <span class="n">song</span><span class="o">.</span><span class="n">json</span>
+    <span class="n">new_data</span> <span class="o">=</span> <span class="n">Song</span><span class="o">.</span><span class="n">from_url</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;url&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">json</span>
+    <span class="n">data</span><span class="o">.</span><span class="n">update</span><span class="p">((</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">new_data</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;song_list&quot;</span><span class="p">):</span>
+        <span class="c1"># Reinitialize the correct song list object</span>
+        <span class="k">if</span> <span class="n">song</span><span class="o">.</span><span class="n">song_list</span><span class="p">:</span>
+            <span class="n">song_list</span> <span class="o">=</span> <span class="n">song</span><span class="o">.</span><span class="n">song_list</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="o">**</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;song_list&quot;</span><span class="p">])</span>
+            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;song_list&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">song_list</span>
+            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;list_position&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">song_list</span><span class="o">.</span><span class="n">urls</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">song</span><span class="o">.</span><span class="n">url</span><span class="p">)</span>
+
+    <span class="c1"># return reinitialized song object</span>
+    <span class="k">return</span> <span class="n">Song</span><span class="p">(</span><span class="o">**</span><span class="n">data</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
       </details>
   </div>
