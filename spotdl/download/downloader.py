@@ -324,7 +324,6 @@ class Downloader:
                 f"for {song.display_name}"
             )
 
-        self.progress_handler.log(f"No lyrics found for song: {song.display_name}")
         return None
 
     def search_and_download(self, song: Song) -> Tuple[Song, Optional[Path]]:
@@ -349,14 +348,16 @@ class Downloader:
             song = reinit_song(song)
 
         # Find song lyrics and add them to the song object
-        try:
-            song.lyrics = self.search_lyrics(song)
-        except LookupError:
+        lyrics = self.search_lyrics(song)
+        if song.lyrics is None:
             self.progress_handler.debug(
                 f"No lyrics found for {song.display_name}, "
                 "lyrics providers: "
                 f"{', '.join([lprovider.name for lprovider in self.lyrics_providers])}"
             )
+        else:
+            song.lyrics = lyrics
+            self.progress_handler.log(f"No lyrics found for song: {song.display_name}")
 
         # Create the output file path
         output_file = create_file_name(song, self.output, self.output_format)
