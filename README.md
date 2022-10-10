@@ -25,7 +25,7 @@ Download your Spotify playlists and songs along with album art and metadata
 
 Please note that v4 is still being worked on, is **not yet fully stable** and unreleased.
 
-To install v4's latest release candidate run `pip install -U --force spotdl==4.0.0rc4`
+To install v4's latest release candidate run `pip install -U --force spotdl==4.0.0rc5`
 > This is correct, the below commands will not install v4.
 
 To install v3 or downgrade to it, run `pip install -U --force spotdl==3.9.6`
