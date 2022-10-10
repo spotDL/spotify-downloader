@@ -96,7 +96,11 @@ def meta(query: List[str], downloader: Downloader, **_) -> None:
                 f"Fetching lyrics for {song.display_name}"
             )
             lyrics = downloader.search_lyrics(song)
-            song.lyrics = lyrics
+            if lyrics:
+                song.lyrics = lyrics
+                downloader.progress_handler.log(
+                    f"No lyrics found for song: {song.display_name}"
+                )
 
         # Apply metadata to the song
         embed_metadata(file, song, file.suffix.split(".")[-1])

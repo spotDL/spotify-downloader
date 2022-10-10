@@ -16,7 +16,7 @@ from typing import Dict, List, Optional, Tuple, Type
 from yt_dlp.postprocessor.sponsorblock import SponsorBlockPP
 from yt_dlp.postprocessor.modify_chapters import ModifyChaptersPP
 
-from spotdl.types import Song, SongList
+from spotdl.types import Song
 from spotdl.utils.ffmpeg import FFmpegError, convert, get_ffmpeg_path
 from spotdl.utils.metadata import embed_metadata, MetadataError, get_song_metadata
 from spotdl.utils.formatter import create_file_name, restrict_filename
@@ -26,6 +26,7 @@ from spotdl.providers.lyrics.base import LyricsProvider
 from spotdl.providers.audio import YouTube, YouTubeMusic
 from spotdl.download.progress_handler import NAME_TO_LEVEL, ProgressHandler
 from spotdl.utils.config import get_errors_path, get_temp_path
+from spotdl.utils.search import reinit_song
 
 
 AUDIO_PROVIDERS: Dict[str, Type[AudioProvider]] = {
@@ -80,10 +81,10 @@ class Downloader:
         search_query: Optional[str] = None,
         log_level: str = "INFO",
         simple_tui: bool = False,
-        loop: Optional[asyncio.AbstractEventLoop] = None,
         restrict: bool = False,
         print_errors: bool = False,
         sponsor_block: bool = False,
+        loop: Optional[asyncio.AbstractEventLoop] = None,
     ):
         """
         Initialize the Downloader class.
@@ -299,7 +300,7 @@ class Downloader:
 
         raise LookupError(f"No results found for song: {song.display_name}")
 
-    def search_lyrics(self, song: Song) -> str:
+    def search_lyrics(self, song: Song) -> Optional[str]:
         """
         Search for lyrics using all available providers.
 
@@ -307,7 +308,7 @@ class Downloader:
         - song: The song to search for.
 
         ### Returns
-        - lyrics if successful.
+        - lyrics if successful else None.
         """
 
         for lyrics_provider in self.lyrics_providers:
@@ -323,7 +324,7 @@ class Downloader:
                 f"for {song.display_name}"
             )
 
-        raise LookupError(f"No lyrics found for song: {song.display_name}")
+        return None
 
     def search_and_download(self, song: Song) -> Tuple[Song, Optional[Path]]:
         """
@@ -344,30 +345,19 @@ class Downloader:
         # If it's None extract the current metadata
         # And reinitialize the song object
         if song.name is None and song.url:
-            data = song.json
-            new_data = Song.from_url(data["url"]).json
-            data.update((k, v) for k, v in new_data.items() if v is not None)
-
-            if data.get("song_list"):
-                # Reinitialize the correct song list object
-                song_list: Type[SongList] = song.song_list.__class__(
-                    **data["song_list"]
-                )
-                data["song_list"] = song_list
-                data["list_position"] = song_list.urls.index(song.url)
-
-            # Reinitialize the song object
-            song = Song(**data)
+            song = reinit_song(song)
 
         # Find song lyrics and add them to the song object
-        try:
-            song.lyrics = self.search_lyrics(song)
-        except LookupError:
+        lyrics = self.search_lyrics(song)
+        if song.lyrics is None:
             self.progress_handler.debug(
                 f"No lyrics found for {song.display_name}, "
                 "lyrics providers: "
                 f"{', '.join([lprovider.name for lprovider in self.lyrics_providers])}"
             )
+        else:
+            song.lyrics = lyrics
+            self.progress_handler.log(f"No lyrics found for song: {song.display_name}")
 
         # Create the output file path
         output_file = create_file_name(song, self.output, self.output_format)

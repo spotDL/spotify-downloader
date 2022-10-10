@@ -35,7 +35,7 @@ interactions:
       Content-Type:
       - application/json; charset=utf-8
       Date:
-      - Sun, 02 Oct 2022 16:59:57 GMT
+      - Mon, 10 Oct 2022 09:05:28 GMT
       Referrer-Policy:
       - origin-when-cross-origin, strict-origin-when-cross-origin
       Server:
@@ -51,17 +51,17 @@ interactions:
       X-GitHub-Media-Type:
       - github.v3; format=json
       X-GitHub-Request-Id:
-      - F38F:5879:7E7D538:806A872:6339C38D
+      - FA2D:3E40:C001A:C2A91:6343E058
       X-RateLimit-Limit:
       - '60'
       X-RateLimit-Remaining:
-      - '45'
+      - '53'
       X-RateLimit-Reset:
-      - '1664732454'
+      - '1665395794'
       X-RateLimit-Resource:
       - core
       X-RateLimit-Used:
-      - '15'
+      - '7'
       X-XSS-Protection:
       - '0'
     status:

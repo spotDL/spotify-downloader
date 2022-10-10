@@ -178,6 +178,8 @@ def parse_main_options(parser: _ArgumentGroup):
     parser.add_argument(
         "--dont-filter-results",
         dest="filter_results",
+        action="store_const",
+        const=False,
         help="Disable filtering results.",
     )
 
@@ -193,6 +195,8 @@ def parse_spotify_options(parser: _ArgumentGroup):
     # Add login argument
     parser.add_argument(
         "--user-auth",
+        action="store_const",
+        const=True,
         help="Login to Spotify using OAuth.",
     )
 
