@@ -349,7 +349,7 @@ class Downloader:
 
         # Find song lyrics and add them to the song object
         lyrics = self.search_lyrics(song)
-        if song.lyrics is None:
+        if lyrics is None:
             self.progress_handler.debug(
                 f"No lyrics found for {song.display_name}, "
                 "lyrics providers: "
@@ -357,7 +357,6 @@ class Downloader:
             )
         else:
             song.lyrics = lyrics
-            self.progress_handler.log(f"No lyrics found for song: {song.display_name}")
 
         # Create the output file path
         output_file = create_file_name(song, self.output, self.output_format)
