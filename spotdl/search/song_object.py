@@ -144,7 +144,11 @@ class SongObject:
         images = self._raw_track_meta["album"]["images"]
 
         if len(images) > 0:
-            return images[0]["url"]
+            # Sort images by highest resolution
+            sorted_images = sorted(
+                images, key=lambda i: i["height"] * i["width"], reverse=True
+            )
+            return sorted_images[0]["url"]
 
         return None
 
