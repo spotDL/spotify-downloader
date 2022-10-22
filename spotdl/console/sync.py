@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import List, Optional
 
 from spotdl.download.downloader import Downloader
-from spotdl.utils.search import parse_query
+from spotdl.utils.search import parse_query, reinit_song
 from spotdl.utils.formatter import create_file_name
 from spotdl.utils.m3u import create_m3u_file
 from spotdl.types.song import Song
@@ -87,7 +87,9 @@ def sync(
 
         # Get all the old files based on the songs from sync file
         old_files = [
-            create_file_name(Song(**song), downloader.output, downloader.output_format)
+            create_file_name(
+                Song.from_dict(song), downloader.output, downloader.output_format
+            )
             for song in sync_data["songs"]
         ]
 

@@ -165,6 +165,24 @@ class Song:
         - The Song object.
         """
 
+        # Reinitialize the correct song list object
+        if data.get("song_list"):
+            # Find the correct song list class
+            # based on the class attributes
+            song_list_class = next(
+                (
+                    list_class
+                    for list_class in SongList.__subclasses__()
+                    if list(list_class.__match_args__) == list(data["song_list"].keys())
+                )
+            )
+
+            # Reinitialize the song list object
+            song_list = song_list_class(**data["song_list"])
+
+            data["song_list"] = song_list
+            data["list_position"] = song_list.urls.index(data["url"])
+
         # Return product object
         return cls(**data)
 
