@@ -4,8 +4,6 @@
 !!! IF EDITING THE README, ENSURE TO COPY THE WHOLE FILE TO index.md in `/docs/`
 --->
 
-<div align="center">
-
 # spotDL v4
 
 Download your Spotify playlists and songs along with album art and metadata
@@ -16,8 +14,6 @@ Download your Spotify playlists and songs along with album art and metadata
 [![PyPi downloads](https://img.shields.io/pypi/dw/spotDL?label=downloads@pypi&color=344CC11&style=flat-square)](https://pypi.org/project/spotdl/)
 ![Contributors](https://img.shields.io/github/contributors/spotDL/spotify-downloader?style=flat-square)
 [![Discord](https://img.shields.io/discord/771628785447337985?label=discord&logo=discord&style=flat-square)](https://discord.gg/xCa23pwJWY)
-
-</div>
 
 > A new and improved version of spotDL: still the fastest, easiest and most accurate command-line music downloader
 
