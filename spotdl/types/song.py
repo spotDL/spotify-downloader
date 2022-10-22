@@ -104,7 +104,9 @@ class Song:
             explicit=raw_track_meta["explicit"],
             publisher=raw_album_meta["label"],
             url=raw_track_meta["external_urls"]["spotify"],
-            cover_url=raw_album_meta["images"][0]["url"]
+            cover_url=max(
+                raw_album_meta["images"], key=lambda i: i["width"] * i["height"]
+            )["url"]
             if raw_album_meta["images"]
             else None,
         )
