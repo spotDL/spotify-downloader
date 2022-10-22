@@ -4,9 +4,9 @@ Artist module for retrieving artist data from Spotify.
 
 from dataclasses import dataclass
 from typing import Any, Dict, List
-from spotdl.types.song import SongList
+
+from spotdl.types.song import SongList, Song
 from spotdl.utils.spotify import SpotifyClient
-from spotdl.types.song import Song
 
 
 class AlbumError(Exception):

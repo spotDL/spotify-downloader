@@ -87,7 +87,9 @@ def sync(
 
         # Get all the old files based on the songs from sync file
         old_files = [
-            create_file_name(Song(**song), downloader.output, downloader.output_format)
+            create_file_name(
+                Song.from_dict(song), downloader.output, downloader.output_format
+            )
             for song in sync_data["songs"]
         ]
 

@@ -104,7 +104,9 @@ class Song:
             explicit=raw_track_meta["explicit"],
             publisher=raw_album_meta["label"],
             url=raw_track_meta["external_urls"]["spotify"],
-            cover_url=raw_album_meta["images"][0]["url"]
+            cover_url=max(
+                raw_album_meta["images"], key=lambda i: i["width"] * i["height"]
+            )["url"]
             if raw_album_meta["images"]
             else None,
         )
@@ -164,6 +166,24 @@ class Song:
         ### Returns
         - The Song object.
         """
+
+        # Reinitialize the correct song list object
+        if data.get("song_list"):
+            # Find the correct song list class
+            # based on the class attributes
+            song_list_class = next(
+                (
+                    list_class
+                    for list_class in SongList.__subclasses__()
+                    if list(list_class.__match_args__) == list(data["song_list"].keys())
+                )
+            )
+
+            # Reinitialize the song list object
+            song_list = song_list_class(**data["song_list"])
+
+            data["song_list"] = song_list
+            data["list_position"] = song_list.urls.index(data["url"])
 
         # Return product object
         return cls(**data)

@@ -148,7 +148,7 @@ def format_query(
         "{duration}": song.duration,
         "{year}": song.year,
         "{original-date}": song.date,
-        "{track-number}": song.track_number,
+        "{track-number}": f"{song.track_number:02d}",
         "{tracks-count}": song.tracks_count,
         "{isrc}": song.isrc,
         "{track-id}": song.song_id,

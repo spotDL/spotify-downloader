@@ -2,8 +2,9 @@
 
 <!---
 !!! IF EDITING THE README, ENSURE TO COPY THE WHOLE FILE TO index.md in `/docs/`
-YOU MUST REMOVE DIV ALIGN TAG.
 --->
+
+<div align="center">
 
 # spotDL v4
 
@@ -15,6 +16,8 @@ Download your Spotify playlists and songs along with album art and metadata
 [![PyPi downloads](https://img.shields.io/pypi/dw/spotDL?label=downloads@pypi&color=344CC11&style=flat-square)](https://pypi.org/project/spotdl/)
 ![Contributors](https://img.shields.io/github/contributors/spotDL/spotify-downloader?style=flat-square)
 [![Discord](https://img.shields.io/discord/771628785447337985?label=discord&logo=discord&style=flat-square)](https://discord.gg/xCa23pwJWY)
+
+</div>
 
 > A new and improved version of spotDL: still the fastest, easiest and most accurate command-line music downloader
 
@@ -43,23 +46,23 @@ Refer to our [Installation Guide](https://spotdl.rtfd.io/en/latest/installation/
 ### Other options
 
 - Prebuilt Executable
-    - You can download the latest version from from the [Releases Tab](https://github.com/spotDL/spotify-downloader/releases)
+  - You can download the latest version from the [Releases Tab](https://github.com/spotDL/spotify-downloader/releases)
 - On Termux
-    - `curl -L https://raw.githubusercontent.com/spotDL/spotify-downloader/master/scripts/termux.sh | sh`
+  - `curl -L https://raw.githubusercontent.com/spotDL/spotify-downloader/master/scripts/termux.sh | sh`
 - Arch
-    - There is an Arch User Repository (AUR) package for [spotDL](https://aur.archlinux.org/packages/python-spotdl/).
+  - There is an Arch User Repository (AUR) package for [spotDL](https://aur.archlinux.org/packages/python-spotdl/).
 - Docker
-    - Build image:
+  - Build image:
 
-        ```bash
-        docker build -t spotdl .
-        ```
+    ```bash
+    docker build -t spotdl .
+    ```
 
-    - Launch container with spotDL parameters (see section below). You need to create mapped volume to access song files
+  - Launch container with spotDL parameters (see section below). You need to create mapped volume to access song files
 
-        ```bash
-        docker run --rm -v $(pwd):/music spotdl download [trackUrl]
-        ```
+    ```bash
+    docker run --rm -v $(pwd):/music spotdl download [trackUrl]
+    ```
 
 
 ### Installing FFmpeg
@@ -67,7 +70,7 @@ Refer to our [Installation Guide](https://spotdl.rtfd.io/en/latest/installation/
 If using FFmpeg only for spotDL, you can install FFmpeg to your local directory.
 `spotdl --download-ffmpeg` will download FFmpeg to your spotDL installation directory.
 
-We reccomend the above option, but if you want to install FFmpeg system-wide,
+We recommend the above option, but if you want to install FFmpeg system-wide,
 
 - [Windows Tutorial](https://windowsloop.com/install-ffmpeg-windows-10/)
 - OSX - `brew install ffmpeg`
@@ -103,9 +106,9 @@ python -m spotdl [urls]
 
 ## Contributing
 
-Interested in contributing? Check out our [CONTRIBUTING.md](CONTRIBUTING.md) to find
+Interested in contributing? Check out our [CONTRIBUTING.md](docs/CONTRIBUTING.md) to find
 resources around contributing along with a guide on how to set up a development environment.
 
 ## License
 
-This project is Licensed under the [MIT](./LICENSE) License.
+This project is Licensed under the [MIT](/LICENSE) License.

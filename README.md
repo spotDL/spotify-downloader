@@ -21,16 +21,6 @@ Download your Spotify playlists and songs along with album art and metadata
 
 > A new and improved version of spotDL: still the fastest, easiest and most accurate command-line music downloader
 
-# Release Candidate Phase
-
-Please note that v4 is still being worked on, is **not yet fully stable** and unreleased.
-
-To install v4's latest release candidate run `pip install -U --force spotdl==4.0.0rc5`
-> This is correct, the below commands will not install v4.
-
-To install v3 or downgrade to it, run `pip install -U --force spotdl==3.9.6`
-The documentation/instructions for v3 can be found [here](https://github.com/spotDL/spotify-downloader/blob/v3/README.md)
-
 ---
 
 **[Read the documentation on ReadTheDocs!](http://spotdl.rtfd.io/)**

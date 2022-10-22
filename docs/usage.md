@@ -256,14 +256,13 @@ Main options:
                         The lyrics provider to use. You can provide more than one for fallback.
   --config              Use the config file to download songs. It's located under C:\Users\user\.spotdl\config.json or ~/.spotdl/config.json under linux
   --search-query SEARCH_QUERY
-                        The search query to use, available variables: {title}, {artists}, {artist}, {album}, {album-artist}, {genre}, {disc-number}, {disc-count}, {duration}, {year}, {original-
-                        date}, {track-number}, {tracks-count}, {isrc}, {track-id}, {publisher}, {list-length}, {list-position}, {list-name}, {output-ext}
-  --dont-filter-results FILTER_RESULTS
+                        The search query to use, available variables: {title}, {artists}, {artist}, {album}, {album-artist}, {genre}, {disc-number}, {disc-count}, {duration}, {year},
+                        {original-date}, {track-number}, {tracks-count}, {isrc}, {track-id}, {publisher}, {list-length}, {list-position}, {list-name}, {output-ext}
+  --dont-filter-results
                         Disable filtering results.
 
 Spotify options:
-  --user-auth USER_AUTH
-                        Login to Spotify using OAuth.
+  --user-auth           Login to Spotify using OAuth.
   --client-id CLIENT_ID
                         The client id to use when logging in to Spotify.
   --client-secret CLIENT_SECRET
@@ -288,13 +287,13 @@ Output options:
   --format {mp3,flac,ogg,opus,m4a}
                         The format to download the song in.
   --save-file SAVE_FILE
-                        The file to save/load the songs data from/to. It has to end with .spotdl. If combined with the download operation, it will save the songs data to the file. Required for
-                        save/preload/sync
+                        The file to save/load the songs data from/to. It has to end with .spotdl. If combined with the download operation, it will save the songs data to the file.
+                        Required for save/preload/sync
   --preload             Preload the download url to speed up the download process.
-  --output OUTPUT       Specify the downloaded file name format, available variables: {title}, {artists}, {artist}, {album}, {album-artist}, {genre}, {disc-number}, {disc-count}, {duration},
-                        {year}, {original-date}, {track-number}, {tracks-count}, {isrc}, {track-id}, {publisher}, {list-length}, {list-position}, {list-name}, {output-ext}
+  --output OUTPUT       Specify the downloaded file name format, available variables: {title}, {artists}, {artist}, {album}, {album-artist}, {genre}, {disc-number}, {disc-count},
+                        {duration}, {year}, {original-date}, {track-number}, {tracks-count}, {isrc}, {track-id}, {publisher}, {list-length}, {list-position}, {list-name}, {output-ext}
   --m3u M3U             Name of the m3u file to save the songs to.
-  --overwrite {skip,force,meta}
+  --overwrite {skip,force,metadata}
                         Overwrite existing files.
   --restrict            Restrict filenames to ASCII only
   --print-errors        Print errors (wrong songs, failed downloads etc) on exit, useful for long playlist
