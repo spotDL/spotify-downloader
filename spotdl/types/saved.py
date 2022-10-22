@@ -4,8 +4,7 @@ Saved module for handing the saved tracks from user library
 
 from dataclasses import dataclass
 from typing import Any, Dict, List
-from spotdl.types.song import SongList
-from spotdl.types.song import Song
+from spotdl.types.song import SongList, Song
 from spotdl.utils.spotify import SpotifyClient
 
 
