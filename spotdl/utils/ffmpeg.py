@@ -15,6 +15,7 @@ from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 from pathlib import Path
 
 import requests
+
 from spotdl.utils.config import get_spotdl_path
 from spotdl.utils.formatter import to_ms
 
@@ -37,7 +38,7 @@ FFMPEG_URLS = {
 
 FFMPEG_FORMATS = {
     "mp3": ["-codec:a", "libmp3lame"],
-    "flac": ["-codec:a", "flac"],
+    "flac": ["-codec:a", "flac", "-sample_fmt", "s16"],
     "ogg": ["-codec:a", "libvorbis"],
     "opus": ["-codec:a", "libopus"],
     "m4a": ["-codec:a", "aac"],

@@ -13,7 +13,7 @@ embed_metadata(
 import base64
 
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Union
 from urllib.request import urlopen
 
 from mutagen import File
@@ -22,6 +22,7 @@ from mutagen.mp4 import MP4, MP4Cover
 from mutagen.flac import Picture, FLAC
 from mutagen.oggvorbis import OggVorbis
 from mutagen.easyid3 import EasyID3, ID3
+from mutagen.mp3 import ID3FileType
 from mutagen.id3 import APIC as AlbumCover, USLT, COMM as Comment, ID3NoHeaderError
 
 from spotdl.types import Song
@@ -71,13 +72,17 @@ def set_id3_mp3(output_file: Path, song: Song):
     """
 
     try:
-        audio_file = EasyID3(str(output_file.resolve()))
+        audio_file: Union[EasyID3, ID3FileType] = EasyID3(str(output_file.resolve()))
     except ID3NoHeaderError as exc:
-        audio_file = File(str(output_file.resolve()), easy=True)
-        if audio_file is None:
+        unknown_file: Optional[ID3FileType] = File(
+            str(output_file.resolve()), easy=True
+        )
+
+        if unknown_file is None:
             raise MetadataError("Unable to load file.") from exc
 
-        audio_file.add_tags()
+        unknown_file.add_tags()
+        audio_file = unknown_file
 
     audio_file.delete()
 
@@ -100,10 +105,10 @@ def set_id3_mp3(output_file: Path, song: Song):
 
     audio_file.save(v2_version=3)
 
-    audio_file = ID3(str(output_file.resolve()))
+    temp_audio_file: ID3 = ID3(str(output_file.resolve()))
     if song.cover_url:
         with urlopen(song.cover_url) as raw_album_art:
-            audio_file["APIC"] = AlbumCover(
+            temp_audio_file["APIC"] = AlbumCover(
                 encoding=3,
                 mime="image/jpeg",
                 type=3,
@@ -112,14 +117,14 @@ def set_id3_mp3(output_file: Path, song: Song):
             )
 
     if song.lyrics:
-        audio_file["USLT::'eng'"] = USLT(
+        temp_audio_file["USLT::'eng'"] = USLT(
             encoding=3, lang="eng", desc="desc", text=song.lyrics
         )
 
     if song.download_url:
-        audio_file.add(Comment(encoding=3, text=song.download_url))
+        temp_audio_file.add(Comment(encoding=3, text=song.download_url))
 
-    audio_file.save(v2_version=3)
+    temp_audio_file.save(v2_version=3)
 
 
 def set_id3_m4a(output_file: Path, song: Song):
