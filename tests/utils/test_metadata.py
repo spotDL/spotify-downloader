@@ -6,7 +6,6 @@ import spotdl.utils.config
 from pathlib import Path
 
 from yt_dlp import YoutubeDL
-from mutagen.mp3 import MP3
 
 from spotdl.utils.ffmpeg import convert
 from spotdl.utils.metadata import embed_metadata
@@ -72,6 +71,7 @@ def test_embed_metadata(tmpdir, monkeypatch, output_format):
 
     output_file = Path(tmpdir / f"test.{output_format}")
 
+    assert download_info is not None
     assert convert(
         input_file=(download_info["url"], download_info["ext"]),
         output_file=output_file,
