@@ -145,8 +145,8 @@ class YouTubeMusic(AudioProvider):
                     "name": result["title"],
                     "type": result["resultType"],
                     "link": (
-                        f'https://{"music" if result["resultType"] == "song" else "www"}.',
-                        f".youtube.com/watch?v={result['videoId']}",
+                        f'https://{"music" if result["resultType"] == "song" else "www"}'
+                        f".youtube.com/watch?v={result['videoId']}"
                     ),
                     "album": result.get("album", {}).get("name")
                     if result.get("album")
