@@ -36,8 +36,8 @@ def test_ytm_search():
             }
         )
     ) in [
-        "https://youtube.com/watch?v=nfyk-V5CoIE",
-        "https://youtube.com/watch?v=bNXMlIogpXc",
+        "https://music.youtube.com/watch?v=nfyk-V5CoIE",
+        "https://music.youtube.com/watch?v=bNXMlIogpXc",
     ]
 
 
