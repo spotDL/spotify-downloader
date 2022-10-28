@@ -22,8 +22,9 @@ from mutagen.mp4 import MP4, MP4Cover
 from mutagen.flac import Picture, FLAC
 from mutagen.oggvorbis import OggVorbis
 from mutagen.easyid3 import EasyID3, ID3
-from mutagen.id3 import APIC as AlbumCover, USLT, COMM as Comment, ID3NoHeaderError
+from mutagen.id3 import APIC as AlbumCover, USLT, COMM as Comment, ID3NoHeaderError, WOAS
 
+from spotdl.utils.search import get_search_results
 from spotdl.types import Song
 
 
@@ -73,11 +74,22 @@ def set_id3_mp3(output_file: Path, song: Song):
     try:
         audio_file = EasyID3(str(output_file.resolve()))
     except ID3NoHeaderError as exc:
-        audio_file = File(str(output_file.resolve()), easy=True)
+        audio_file = get_audio_file(output_file, easy_id3=True)
         if audio_file is None:
             raise MetadataError("Unable to load file.") from exc
 
         audio_file.add_tags()
+
+    # TODO This code is partially redundant
+    # The "comment" from the old file (output_file) should be saved, not thrown away, since it saves the download_url.
+    # Yet, this happens for "download --overwrite metadata" and is a bug.
+    # The lines below remembers the download_url from the "comment" of the output file, therefore and fixes it.
+    # However, this is quite redundant since it temporarily creates a new audio_file, just like ~10 lines above - only
+    # it's not an EasyID3 audio_file.
+    if not song.download_url:
+        ID3_audio_file = find_song(output_file)
+        song.download_url = ID3_audio_file.download_url
+    ###
 
     audio_file.delete()
 
@@ -117,7 +129,12 @@ def set_id3_mp3(output_file: Path, song: Song):
         )
 
     if song.download_url:
-        audio_file.add(Comment(encoding=3, text=song.download_url))
+        audio_file.add(WOAS(url=(song.download_url)))
+
+    # Add YouTubeURL|SpotifyURL as Comment
+    if song.download_url or song.url:
+        url_info = str(song.download_url or "") + "|" + str(song.url or "")
+        audio_file.add(Comment(encoding=3, text=url_info))
 
     audio_file.save(v2_version=3)
 
@@ -153,8 +170,12 @@ def set_id3_m4a(output_file: Path, song: Song):
         except IndexError:
             pass
 
-    if song.download_url:
-        audio_file[M4A_TAG_PRESET["comment"]] = song.download_url
+    # If file doesn't have a comment yet, create one in the from of YouTubeURL|SpotifyURL
+    if not audio_file.get(M4A_TAG_PRESET["comment"]):
+
+        if song.download_url or song.url:
+            url_info = str(song.download_url or "") + "|" + str(song.url or "")
+            audio_file[M4A_TAG_PRESET["comment"]] = url_info
 
     audio_file.save()
 
@@ -278,8 +299,11 @@ def _embed_ogg_metadata(audio_file, song: Song):
     if song.lyrics:
         audio_file["lyrics"] = song.lyrics
 
-    if song.download_url:
-        audio_file["comment"] = song.download_url
+    # If file doesn't have a comment yet, create one in the from of YouTubeURL|SpotifyURL
+    if not audio_file.get("comment"):
+        if song.download_url or song.url:
+            url_info = str(song.download_url or "") + "|" + str(song.url or "")
+            audio_file["comment"] = url_info
 
     return audio_file
 
@@ -361,7 +385,7 @@ def get_song_metadata(path: Path) -> Optional[Dict[str, Any]]:
     if path.exists() is False:
         raise OSError(f"File not found: {path}")
 
-    audio_file = File(str(path.resolve()), easy=True)
+    audio_file = get_audio_file(path, easy_id3=True)
 
     if audio_file is None or audio_file == {}:
         return None
@@ -374,3 +398,70 @@ def get_song_metadata(path: Path) -> Optional[Dict[str, Any]]:
         song_meta["lyrics"] = audio_file.get("USLT::'eng'")
 
     return song_meta
+
+
+def get_audio_file(path: Path, easy_id3: bool):
+    """
+    Creates an audio_file from a path
+
+    ### Arguments
+    - path: Path to the song.
+    - easy_id3: Use True for EasyID3, False for regualar ID3.
+
+    ### Returns
+    - Corresponding audio_file object.
+
+    ### Raises
+    - OSError: If the file is not found.
+    """
+
+    if path.exists() is False:
+        raise OSError(f"File not found: {path}")
+
+    audio_file = File(str(path.resolve()), easy=easy_id3)
+
+    return audio_file
+
+
+def find_song(path: Path) -> Song:
+    """
+    Matches an audio file with a spotify URL in order to create a Song object.
+
+    ### Arguments
+    - path: The path to the audio file.
+
+    ### Returns
+    - The Song object.
+    """
+
+    download_url = ""
+    audio_file = get_audio_file(path, easy_id3=False)
+
+    # Try to match song by URL
+    if audio_file.get("COMM::XXX") is not None:
+        comment = str(audio_file.get("COMM::XXX"))
+
+        # Resolve "comment" tag and remember it
+        url = ""
+        if "|" in comment:
+            download_url, url = comment.split("|", 1)
+        else:
+            download_url = comment
+
+        if url:
+            # Remove 's' from https://
+            if url[4] == 's':
+                url = url.replace('s', '', 1)
+
+            try:
+                song = Song.from_url(url)
+                song.download_url = download_url
+                return song
+            except Exception:
+                pass
+
+    # Matching by URL didn't work, match song by name
+    song = get_search_results(str(path).rsplit(".", 1)[0])[0]
+    if download_url:
+        song.download_url = download_url
+    return song

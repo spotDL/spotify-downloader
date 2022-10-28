@@ -7,8 +7,8 @@ from typing import List
 
 from spotdl.download.downloader import Downloader
 from spotdl.utils.ffmpeg import FFMPEG_FORMATS
-from spotdl.utils.metadata import embed_metadata, get_song_metadata
-from spotdl.utils.search import create_empty_song, get_search_results
+from spotdl.utils.metadata import embed_metadata, get_song_metadata, find_song
+from spotdl.utils.search import create_empty_song
 
 
 def meta(query: List[str], downloader: Downloader, **_) -> None:
@@ -63,7 +63,7 @@ def meta(query: List[str], downloader: Downloader, **_) -> None:
             or song_meta["title"][0] == ""
             or song_meta["tracknumber"][0] == ""
         ):
-            song = get_search_results(file.name.rsplit(".", 1)[0])[0]
+            song = find_song(Path(test_path))
         else:
             try:
                 song = create_empty_song(
@@ -87,7 +87,7 @@ def meta(query: List[str], downloader: Downloader, **_) -> None:
                     copyright_text=song_meta["copyright"],
                 )
             except Exception:
-                song = get_search_results(file.name.rsplit(".", 1)[0])[0]
+                song = find_song(Path(test_path))
 
         # Check if the song has lyric
         # if not use downloader to find lyrics
@@ -99,7 +99,7 @@ def meta(query: List[str], downloader: Downloader, **_) -> None:
             if lyrics:
                 song.lyrics = lyrics
                 downloader.progress_handler.log(
-                    f"No lyrics found for song: {song.display_name}"
+                    f"Found lyrics for song: {song.display_name}"
                 )
 
         # Apply metadata to the song

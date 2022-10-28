@@ -18,7 +18,12 @@ from yt_dlp.postprocessor.modify_chapters import ModifyChaptersPP
 
 from spotdl.types import Song
 from spotdl.utils.ffmpeg import FFmpegError, convert, get_ffmpeg_path
-from spotdl.utils.metadata import embed_metadata, MetadataError, get_song_metadata
+from spotdl.utils.metadata import (
+    embed_metadata,
+    MetadataError,
+    get_song_metadata,
+    get_audio_file,
+)
 from spotdl.utils.formatter import create_file_name, restrict_filename
 from spotdl.providers.audio.base import AudioProvider
 from spotdl.providers.lyrics import Genius, MusixMatch, AzLyrics
@@ -227,7 +232,22 @@ class Downloader:
 
         self.progress_handler.set_song_count(len(songs))
 
-        tasks = [self.pool_download(song) for song in songs]
+        # Gather already present songs
+        present_songs = []
+        paths = Path(".").glob("*")
+
+        for path in paths:
+            if path.is_file() and path.suffix == self.output_format:
+                audio_file = get_audio_file(path, easy_id3=False)
+
+                if audio_file.get("COMM::XXX") is not None:
+                    comment = str(audio_file.get("COMM::XXX"))
+
+                    if "|" in comment:
+                        url = comment.split("|", 1)[1]
+                        present_songs.append((path, url))
+
+        tasks = [self.pool_download(song, present_songs) for song in songs]
 
         # call all task asynchronously, and wait until all are finished
         results = list(self.loop.run_until_complete(self.aggregate_tasks(tasks)))
@@ -242,7 +262,9 @@ class Downloader:
 
         return results
 
-    async def pool_download(self, song: Song) -> Tuple[Song, Optional[Path]]:
+    async def pool_download(
+        self, song: Song, present_songs: (Path, str)
+    ) -> Tuple[Song, Optional[Path]]:
         """
         Run asynchronous task in a pool to make sure that all processes.
 
@@ -264,7 +286,7 @@ class Downloader:
             # is not a problem, since GIL is released for the I/O operations, so it shouldn't
             # hurt performance.
             return await self.loop.run_in_executor(
-                self.thread_executor, self.search_and_download, song
+                self.thread_executor, self.search_and_download, song, present_songs
             )
 
     def search(self, song: Song) -> Tuple[str, AudioProvider]:
@@ -326,7 +348,9 @@ class Downloader:
 
         return None
 
-    def search_and_download(self, song: Song) -> Tuple[Song, Optional[Path]]:
+    def search_and_download(
+        self, song: Song, present_songs: (Path, str)
+    ) -> Tuple[Song, Optional[Path]]:
         """
         Search for the song and download it.
 
@@ -377,11 +401,11 @@ class Downloader:
         if output_file.exists() and self.overwrite == "metadata":
             song_meta = get_song_metadata(output_file)
             if song_meta is None:
-                self.progress_handler.debug(
+                self.progress_handler.log(
                     f"Metadata not found for {song.display_name}, " "overwriting file"
                 )
             else:
-                self.progress_handler.debug(
+                self.progress_handler.log(
                     f"Metadata found for {song.display_name}, " "overwriting file"
                 )
 
@@ -393,7 +417,54 @@ class Downloader:
 
         # Don't skip if the file exists and overwrite is set to force
         if output_file.exists() and self.overwrite == "force":
-            self.progress_handler.debug(f"Overwriting {song.display_name}")
+            self.progress_handler.log(f"Overwriting {song.display_name}")
+
+        # Check if there is an already existing audio file, with the same spotify URL in its
+        # metadata, but saved under a different name. If so, save its path.
+        present_path = ""
+        if not output_file.exists():
+            for (path, url) in present_songs:
+                if url == song.url:
+                    present_path = path
+                    break
+
+        if present_path != "":
+
+            # Print warning that the songs metadata is outdated
+            if self.overwrite == "skip":
+                self.progress_handler.log(f"Skipping {song.display_name}")
+                self.progress_handler.warn(
+                    f"Metadata of {song.display_name} is outdated. "
+                    f"Use spotdl meta to update."
+                )
+                self.progress_handler.overall_completed_tasks += 1
+                self.progress_handler.update_overall()
+                return song, None
+
+            # Update filename and other metadata
+            if self.overwrite == "metadata":
+                present_path.replace(output_file.with_suffix(self.output_format))
+
+                song_meta = get_song_metadata(output_file)
+                if song_meta is None:
+                    self.progress_handler.debug(
+                        f"Metadata not found for {song.display_name}, "
+                        "overwriting file"
+                    )
+                else:
+                    self.progress_handler.debug(
+                        f"Metadata found for {song.display_name}, " "overwriting file"
+                    )
+
+                embed_metadata(
+                    output_file=output_file, song=song, file_format=self.output_format
+                )
+                return song, output_file
+
+            # Delete old file with outdated filename
+            if self.overwrite == "force":
+                self.progress_handler.debug(f"Overwriting {present_path}")
+                present_path.unlink()
 
         # Initalize the progress tracker
         display_progress_tracker = self.progress_handler.get_new_tracker(song)
