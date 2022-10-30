@@ -87,8 +87,7 @@ class SettingsModel(BaseModel):
     audio_providers: Optional[List[str]]
     lyrics_providers: Optional[List[str]]
     ffmpeg: Optional[str]
-    variable_bitrate: Optional[int]
-    constant_bitrate: Optional[int]
+    bitrate: Optional[str]
     ffmpeg_args: Optional[List[str]]
     format: Optional[str]
     save_file: Optional[str]
@@ -216,10 +215,12 @@ def fix_mime_types():
     types that are known to be either used by TensorBoard or
     problematic in general.
     """
+
     # Known to be problematic when Visual Studio is installed:
     # <https://github.com/tensorflow/tensorboard/issues/3120>
     # https://github.com/spotDL/spotify-downloader/issues/1540
     mimetypes.add_type("application/javascript", ".js")
+
     # Not known to be problematic, but used by spotDL:
     mimetypes.add_type("text/css", ".css")
     mimetypes.add_type("image/svg+xml", ".svg")

@@ -93,8 +93,7 @@ class Downloader:
         - audio_provider: Audio providers to use.
         - lyrics_provider: The lyrics providers to use.
         - ffmpeg: The ffmpeg executable to use.
-        - variable_bitrate: The variable bitrate to use.
-        - constant_bitrate: The constant bitrate to use.
+        - bitrate: The constant bitrate to use.
         - ffmpeg_args: The ffmpeg arguments to use.
         - output_format: The output format to use.
         - threads: The number of threads to use.
