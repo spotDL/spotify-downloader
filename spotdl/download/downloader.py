@@ -357,6 +357,9 @@ class Downloader:
         else:
             song.lyrics = lyrics
 
+        # Initalize the progress tracker
+        display_progress_tracker = self.progress_handler.get_new_tracker(song)
+
         # Create the output file path
         output_file = create_file_name(song, self.output, self.output_format)
         temp_folder = get_temp_path()
@@ -369,33 +372,22 @@ class Downloader:
         # we can skip the download
         if output_file.exists() and self.overwrite == "skip":
             self.progress_handler.log(f"Skipping {song.display_name}")
-            self.progress_handler.overall_completed_tasks += 1
-            self.progress_handler.update_overall()
+            display_progress_tracker.notify_download_skip()
             return song, None
 
         if output_file.exists() and self.overwrite == "metadata":
-            song_meta = get_song_metadata(output_file)
-            if song_meta is None:
-                self.progress_handler.debug(
-                    f"Metadata not found for {song.display_name}, " "overwriting file"
-                )
-            else:
-                self.progress_handler.debug(
-                    f"Metadata found for {song.display_name}, " "overwriting file"
-                )
-
             embed_metadata(
                 output_file=output_file, song=song, file_format=self.output_format
             )
+
+            self.progress_handler.log(f"Updated metadata for {song.display_name}")
+            display_progress_tracker.notify_complete()
 
             return song, output_file
 
         # Don't skip if the file exists and overwrite is set to force
         if output_file.exists() and self.overwrite == "force":
             self.progress_handler.debug(f"Overwriting {song.display_name}")
-
-        # Initalize the progress tracker
-        display_progress_tracker = self.progress_handler.get_new_tracker(song)
 
         # Create the output directory if it doesn't exist
         output_file.parent.mkdir(parents=True, exist_ok=True)
@@ -524,7 +516,9 @@ class Downloader:
 
             return song, output_file
         except Exception as exception:
-            display_progress_tracker.notify_error(traceback.format_exc(), exception)
+            display_progress_tracker.notify_error(
+                traceback.format_exc(), exception, True
+            )
             self.errors.append(
                 f"{song.url} - {exception.__class__.__name__}: {exception}"
             )
