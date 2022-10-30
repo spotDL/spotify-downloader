@@ -18,7 +18,7 @@ from yt_dlp.postprocessor.modify_chapters import ModifyChaptersPP
 
 from spotdl.types import Song
 from spotdl.utils.ffmpeg import FFmpegError, convert, get_ffmpeg_path
-from spotdl.utils.metadata import embed_metadata, MetadataError, get_song_metadata
+from spotdl.utils.metadata import embed_metadata, MetadataError
 from spotdl.utils.formatter import create_file_name, restrict_filename
 from spotdl.providers.audio.base import AudioProvider
 from spotdl.providers.lyrics import Genius, MusixMatch, AzLyrics
@@ -443,7 +443,16 @@ class Downloader:
 
             # Remove the temp file
             if temp_file.exists():
-                temp_file.unlink()
+                try:
+                    temp_file.unlink()
+                except (PermissionError, OSError) as exc:
+                    self.progress_handler.debug(
+                        f"Could not remove temp file: {temp_file}, error: {exc}"
+                    )
+
+                    raise DownloaderError(
+                        "Could not remove temp file, possible duplicate song"
+                    ) from exc
 
             if not success and result:
                 # If the conversion failed and there is an error message
