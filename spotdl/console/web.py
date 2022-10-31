@@ -2,6 +2,7 @@
 Web module for the console.
 """
 
+import logging
 import sys
 import asyncio
 import webbrowser
@@ -13,6 +14,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from uvicorn import Config, Server
 
 from spotdl.download.downloader import Downloader
+from spotdl.download.progress_handler import NAME_TO_LEVEL
 from spotdl.utils.github import download_github_dir
 from spotdl.utils.config import get_spotdl_path
 from spotdl.utils.web import (
@@ -45,8 +47,16 @@ def web(settings: Dict[str, Any]):
     # Apply the fix for mime types
     fix_mime_types()
 
-    # Initialize the web server
+    # Set up the app loggers
+    uvicorn_logger = logging.getLogger("uvicorn")
+    uvicorn_logger.propagate = False
+
+    spotipy_logger = logging.getLogger("spotipy")
+    spotipy_logger.setLevel(logging.NOTSET)
+
+    # Initialize the web server settings
     app_state.settings = settings
+    app_state.logger = uvicorn_logger
     app_state.loop = (
         asyncio.new_event_loop()
         if sys.platform != "win32"
@@ -107,6 +117,7 @@ def web(settings: Dict[str, Any]):
         host=settings["host"],
         port=settings["port"],
         workers=1,
+        log_level=NAME_TO_LEVEL[settings["log_level"]],
         loop=app_state.loop,  # type: ignore
     )
 

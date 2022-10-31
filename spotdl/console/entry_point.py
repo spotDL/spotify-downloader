@@ -49,8 +49,7 @@ def entry_point():
     logging.getLogger("requests").setLevel(logging.WARNING)
     logging.getLogger("urllib3").setLevel(logging.WARNING)
     logging.getLogger("spotipy").setLevel(logging.NOTSET)
-    logging.getLogger("uvicorn").propagate = False
-    # logging.getLogger("asyncio").setLevel(logging.WARNING)
+    logging.getLogger("asyncio").setLevel(logging.WARNING)
 
     # Create a console
     console = Console()

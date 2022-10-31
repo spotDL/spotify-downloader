@@ -5,6 +5,7 @@ FastAPI routes/classes etc.
 
 
 import asyncio
+import logging
 import os
 from typing import Dict, Any, List, Optional
 
@@ -27,7 +28,7 @@ from spotdl.download.progress_handler import NAME_TO_LEVEL, ProgressHandler, Son
 
 from spotdl.types.song import Song
 from spotdl.download.downloader import Downloader
-from spotdl.utils.search import get_search_results
+from spotdl.utils.search import get_search_results, parse_query
 from spotdl.utils.config import get_spotdl_path
 from spotdl._version import __version__
 
@@ -89,7 +90,7 @@ class WSProgressHandler:
         # Add the connection to the list of connections
         app_state.ws_instances.append(self)
 
-        app_state.downloader.progress_handler.log(f"Client {self.client_id} connected")
+        app_state.logger.info(f"Client {self.client_id} connected")
 
     async def send_update(self, update: Dict[str, Any]):
         """
@@ -136,7 +137,7 @@ class WSProgressHandler:
             if instance.client_id == client_id:
                 return instance
 
-        app_state.downloader.progress_handler.error(f"Client {client_id} not found")
+        app_state.logger.error(f"Client {client_id} not found")
 
         return None
 
@@ -152,6 +153,7 @@ class ApplicationState:
     downloader: Downloader
     settings: Dict[str, Any]
     ws_instances: List[WSProgressHandler] = []
+    logger: logging.Logger
 
 
 router = APIRouter()
@@ -191,14 +193,21 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
             len(app_state.ws_instances) == 0
             and app_state.settings["keep_alive"] is False
         ):
-            app_state.downloader.progress_handler.log(
-                "No active connections, exiting..."
+            app_state.logger.debug(
+                "No active connections, waiting 1s before shutting down"
             )
 
-            # Perform a clean exit
-            app_state.server.force_exit = True
-            app_state.server.should_exit = True
-            await app_state.server.shutdown()
+            await asyncio.sleep(1)
+
+            # Wait 5 seconds before shutting down
+            # This is to prevent the server from shutting down when a client
+            # disconnects and reconnects quickly (e.g. when refreshing the page)
+            if len(app_state.ws_instances) == 0:
+                # Perform a clean exit
+                app_state.logger.info("Shutting down server, no active connections")
+                app_state.server.force_exit = True
+                app_state.server.should_exit = True
+                await app_state.server.shutdown()
 
 
 @router.get("/api/song/url")
@@ -228,7 +237,6 @@ def query_search(query: str) -> List[Song]:
     - returns a list of Song objects.
     """
 
-    # return parse_query([query], app.downloader.threads)
     return get_search_results(query)
 
 
@@ -266,7 +274,7 @@ async def download_url(
         _, path = await state.downloader.pool_download(song)
 
         if path is None:
-            state.downloader.progress_handler.error(f"Failure downloading {song.name}")
+            state.logger.error(f"Failure downloading {song.name}")
 
             raise HTTPException(
                 status_code=500, detail=f"Error downloading: {song.name}"
@@ -278,7 +286,7 @@ async def download_url(
         return filename
 
     except Exception as exception:
-        state.downloader.progress_handler.error(f"Error downloading! {exception}")
+        state.logger.error(f"Error downloading! {exception}")
 
         raise HTTPException(
             status_code=500, detail=f"Error downloading: {exception}"
@@ -337,7 +345,7 @@ def update_settings(
     # Update settings with new settings that are not None
     settings_cpy.update({k: v for k, v in settings.items() if v is not None})
 
-    state.downloader.progress_handler.debug(f"Applying settings: {settings_cpy}")
+    state.logger.info(f"Applying settings: {settings_cpy}")
 
     # Re-initialize downloader
     state.downloader = Downloader(
