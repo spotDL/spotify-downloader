@@ -404,7 +404,7 @@ def parse_web_options(parser: _ArgumentGroup):
     # Add port argument
     parser.add_argument(
         "--port",
-        type=str,
+        type=int,
         help="The port to run the web server on.",
     )
 
