@@ -239,7 +239,7 @@ def convert(
     - output_file: Path to output file.
     - ffmpeg: ffmpeg executable to use.
     - output_format: output format.
-    - bitrate: constant bitrate.
+    - bitrate: constant/variable bitrate.
     - ffmpeg_args: ffmpeg arguments.
     - progress_handler: progress handler, has to accept an integer as argument.
 
@@ -289,9 +289,14 @@ def convert(
         else:
             arguments.extend(FFMPEG_FORMATS[output_format])
 
-    # Add constant bitrate if specified
+    # Add bitrate if specified
     if bitrate:
-        arguments.extend(["-b:a", bitrate])
+        # Check if bitrate is an integer
+        # if it is then use it as variable bitrate
+        if bitrate.isdigit():
+            arguments.extend(["-q:a", bitrate])
+        else:
+            arguments.extend(["-b:a", bitrate])
 
     # Add other ffmpeg arguments if specified
     if ffmpeg_args:

@@ -278,8 +278,8 @@ Spotify options:
 FFmpeg options:
   --ffmpeg FFMPEG       The ffmpeg executable to use.
   --threads THREADS     The number of threads to use when downloading songs.
-  --bitrate {8k,16k,24k,32k,40k,48k,64k,80k,96k,112k,128k,160k,192k,224k,256k,320k}
-                        The constant bitrate to use for the output file.
+  --bitrate {8k,16k,24k,32k,40k,48k,64k,80k,96k,112k,128k,160k,192k,224k,256k,320k,0,1,2,3,4,5,6,7,8,9,0}
+                        The constant/variable bitrate to use for the output file.
   --ffmpeg-args FFMPEG_ARGS
                         Additional ffmpeg arguments passed as a string.
 
