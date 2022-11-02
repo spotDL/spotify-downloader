@@ -287,7 +287,10 @@ def parse_ffmpeg_options(parser: _ArgumentGroup):
         ]
         + list(map(str, range(0, 10))),
         type=str.lower,
-        help="The constant/variable bitrate to use for the output file. Values from 0 to 9 are variable bitrates.",
+        help=(
+            "The constant/variable bitrate to use for the output file."
+            " Values from 0 to 9 are variable bitrates."
+        ),
     )
 
     # Additional ffmpeg arguments
