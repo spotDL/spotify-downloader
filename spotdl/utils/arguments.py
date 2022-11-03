@@ -55,7 +55,7 @@ def parse_arguments() -> Namespace:
         description="Download your Spotify playlists and songs along with album art and metadata",
         formatter_class=SmartFormatter,
         epilog=(
-            "For more information, visit https://spotdl.readthedocs.io/en/latest// "
+            "For more information, visit http://spotdl.rtfd.io/ "
             "or join our Discord server: https://discord.com/invite/xCa23pwJWY"
         ),
     )
