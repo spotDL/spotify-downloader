@@ -449,16 +449,21 @@ class SongTracker:
         if self.parent.update_callback:
             self.parent.update_callback(self, message)
 
-    def notify_error(self, message: str, traceback: Exception) -> None:
+    def notify_error(
+        self, message: str, traceback: Exception, finish: bool = False
+    ) -> None:
         """
         Logs an error message.
 
         ### Arguments
         - message: The message to log.
         - traceback: The traceback of the error.
+        - finish: Whether to finish the task.
         """
 
         self.update("Error")
+        if finish:
+            self.progress = 100
 
         self.parent.debug(message)
         self.parent.error(f"{traceback.__class__.__name__}: {traceback}")

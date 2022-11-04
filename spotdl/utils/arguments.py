@@ -76,6 +76,10 @@ def parse_arguments() -> Namespace:
     output_options = parser.add_argument_group("Output options")
     parse_output_options(output_options)
 
+    # Parse web options
+    web_options = parser.add_argument_group("Web options")
+    parse_web_options(web_options)
+
     # Parse misc options
     misc_options = parser.add_argument_group("Misc options")
     parse_misc_options(misc_options)
@@ -280,9 +284,13 @@ def parse_ffmpeg_options(parser: _ArgumentGroup):
             "224k",
             "256k",
             "320k",
-        ],
+        ]
+        + list(map(str, range(0, 10))),
         type=str.lower,
-        help="The constant bitrate to use for the output file.",
+        help=(
+            "The constant/variable bitrate to use for the output file."
+            " Values from 0 to 9 are variable bitrates."
+        ),
     )
 
     # Additional ffmpeg arguments
@@ -379,6 +387,44 @@ def parse_output_options(parser: _ArgumentGroup):
         "--archive",
         type=str,
         help="Specify the file name for an archive of already downloaded songs",
+    )
+
+
+def parse_web_options(parser: _ArgumentGroup):
+    """
+    Parse web options from the command line.
+
+    ### Arguments
+    - parser: The argument parser to add the options to.
+    """
+
+    # Add host argument
+    parser.add_argument(
+        "--host",
+        type=str,
+        help="The host to use for the web server.",
+    )
+
+    # Add port argument
+    parser.add_argument(
+        "--port",
+        type=int,
+        help="The port to run the web server on.",
+    )
+
+    # Add keep alive argument
+    parser.add_argument(
+        "--keep-alive",
+        action="store_const",
+        const=True,
+        help="Keep the web server alive even when no clients are connected.",
+    )
+
+    # Add allowed origins argument
+    parser.add_argument(
+        "--allowed-origins",
+        nargs="*",
+        help="The allowed origins for the web server.",
     )
 
 

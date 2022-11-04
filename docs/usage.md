@@ -278,8 +278,8 @@ Spotify options:
 FFmpeg options:
   --ffmpeg FFMPEG       The ffmpeg executable to use.
   --threads THREADS     The number of threads to use when downloading songs.
-  --bitrate {8k,16k,24k,32k,40k,48k,64k,80k,96k,112k,128k,160k,192k,224k,256k,320k}
-                        The constant bitrate to use for the output file.
+  --bitrate {8k,16k,24k,32k,40k,48k,64k,80k,96k,112k,128k,160k,192k,224k,256k,320k,0,1,2,3,4,5,6,7,8,9,0}
+                        The constant/variable bitrate to use for the output file.
   --ffmpeg-args FFMPEG_ARGS
                         Additional ffmpeg arguments passed as a string.
 
@@ -293,12 +293,19 @@ Output options:
   --output OUTPUT       Specify the downloaded file name format, available variables: {title}, {artists}, {artist}, {album}, {album-artist}, {genre}, {disc-number}, {disc-count},
                         {duration}, {year}, {original-date}, {track-number}, {tracks-count}, {isrc}, {track-id}, {publisher}, {list-length}, {list-position}, {list-name}, {output-ext}
   --m3u M3U             Name of the m3u file to save the songs to.
-  --overwrite {skip,force,metadata}
+  --overwrite {skip,metadata,force}
                         Overwrite existing files.
   --restrict            Restrict filenames to ASCII only
   --print-errors        Print errors (wrong songs, failed downloads etc) on exit, useful for long playlist
   --sponsor-block       Use the sponsor block to download songs from yt/ytm.
   --archive ARCHIVE     Specify the file name for an archive of already downloaded songs
+
+Web options:
+  --host HOST           The host to use for the web server.
+  --port PORT           The port to run the web server on.
+  --keep-alive          Keep the web server alive even when no clients are connected.
+  --allowed-origins [ALLOWED_ORIGINS ...]
+                        The allowed origins for the web server.
 
 Misc options:
   --log-level {CRITICAL,FATAL,ERROR,WARN,WARNING,INFO,DEBUG,NOTSET}

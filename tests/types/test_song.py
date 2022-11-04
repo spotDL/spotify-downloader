@@ -1,5 +1,7 @@
 from spotdl.types.song import Song
+from spotdl.types.album import Album
 from spotdl.utils.spotify import SpotifyClient
+
 
 import pytest
 
@@ -229,9 +231,25 @@ def test_song_from_dict():
             "copyright_text": "",
             "publisher": "",
             "url": "https://open.spotify.com/track/1t2qKa8K72IBC8yQlhD9bU",
+            "song_list": {
+                "name": "test",
+                "url": "https://open.spotify.com/album/fakealbum",
+                "urls": ["https://open.spotify.com/track/1t2qKa8K72IBC8yQlhD9bU"],
+                "songs": [],
+                "artist": {
+                    "external_urls": {"spotify": ""},
+                    "href": "",
+                    "id": "",
+                    "name": "",
+                    "type": "",
+                    "uri": "",
+                },
+            },
         }
     )
 
+    assert song.song_list is not None
+    assert isinstance(song.song_list, Album)
     assert song.name == "Ropes"
     assert song.artists == ["Dirty Palm", "Chandler Jewels"]
     assert song.album_name == "Ropes"

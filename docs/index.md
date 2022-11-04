@@ -25,7 +25,7 @@ Download your Spotify playlists and songs along with album art and metadata
 
 ## Prerequisites
 
-- [Visual C++ 2019 redistributable](https://docs.microsoft.com/pl-pl/cpp/windows/latest-supported-vc-redist?view=msvc-170#visual-studio-2015-2017-2019-and-2022) **(on Windows)**
+- [Visual C++ 2019 redistributable](https://docs.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist?view=msvc-170#visual-studio-2015-2017-2019-and-2022) **(on Windows)**
 - Python 3.7 or above (added to PATH)
 
 > **_YouTube Music must be available in your country for spotDL to work. This is because we use YouTube Music to filter search results. You can check if YouTube Music is available in your country, by visiting [YouTube Music](https://music.youtube.com)._**

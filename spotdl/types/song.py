@@ -175,7 +175,8 @@ class Song:
                 (
                     list_class
                     for list_class in SongList.__subclasses__()
-                    if list(list_class.__match_args__) == list(data["song_list"].keys())
+                    if list(list_class.__dataclass_fields__.keys())
+                    == list(data["song_list"].keys())
                 )
             )
 
