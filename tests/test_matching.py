@@ -19,11 +19,15 @@ from tests.conftest import new_initialize
         ),
         (
             "https://open.spotify.com/track/0QsZ3W21xNvnUnUMbiAY4z",
-            "https://music.youtube.com/watch?v=hy3kaD5zsew",
+            "https://www.youtube.com/watch?v=UlYwnX5DO2Y",
         ),
         (
             "https://open.spotify.com/track/6kUB88CQG4dAOkUmURwBLA",
-            "https://music.youtube.com/watch?v=_IS-Tvbvjn0"
+            "https://music.youtube.com/watch?v=_IS-Tvbvjn0",
+        ),
+        (
+            "https://open.spotify.com/track/6cmm1LMvZdB5zsCwX5BjqE",
+            "https://music.youtube.com/watch?v=DQ514qIthSc",
         )
     ],
 )
