@@ -231,7 +231,7 @@ class YouTubeMusic(AudioProvider):
             if not common_word:
                 continue
 
-            artist_match_number = 0
+            artist_match_number = 0.0
             for artist in song.artists:
                 slug_song_artist = slugify(artist)
                 # print(f"song artist: {artist}, slug: {slug_song_artist}")
