@@ -19,12 +19,12 @@ from tests.conftest import new_initialize
         ),
         (
             "https://open.spotify.com/track/0QsZ3W21xNvnUnUMbiAY4z",
-            "https://www.youtube.com/watch?v=UlYwnX5DO2Y",
+            "https://music.youtube.com/watch?v=hy3kaD5zsew",
         ),
         (
-            "https://open.spotify.com/track/1zi7xx7UVEFkmKfv06H8x0",
-            "https://www.youtube.com/watch?v=5LFB3qdmZBM",
-        ),
+            "https://open.spotify.com/track/6kUB88CQG4dAOkUmURwBLA",
+            "https://music.youtube.com/watch?v=_IS-Tvbvjn0"
+        )
     ],
 )
 def test_ytmusic_matching(monkeypatch, query, expected):
