@@ -19,12 +19,12 @@ operable program or batch file.
 
 ### Solution
 
-Ensure to add to PATH when installing:
-![python install](https://i.imgur.com/jWq5EnV.png)
+Ensure to add to PATH when installing: ![python install](https://i.imgur.com/jWq5EnV.png)
 
 ## spotdl: command not found
 
-If you see this error after installing spotdl, that means that the bin (Binaries) folder is not on `$PATH`
+If you see this error after installing spotdl, that means that the bin (Binaries) folder is not
+on `$PATH`
 
 ### Solution
 
