@@ -394,9 +394,12 @@ class Downloader:
 
         try:
             if song.download_url is None:
-                url, audio_provider = self.search(song)
+                download_url, audio_provider = self.search(song)
             else:
-                url = song.download_url
+                # If the song object already has a download url
+                # we can skip the search, and just reinitialize the base
+                # audio provider to download the song
+                download_url = song.download_url
                 audio_provider = AudioProvider(
                     output_format=self.output_format,
                     cookie_file=self.cookie_file,
@@ -405,7 +408,7 @@ class Downloader:
                 )
 
             self.progress_handler.debug(
-                f"Downloading {song.display_name} using {url}, "
+                f"Downloading {song.display_name} using {download_url}, "
                 f"audio provider: {audio_provider.name}"
             )
 
@@ -415,14 +418,14 @@ class Downloader:
             )
 
             # Download the song using yt-dlp
-            download_info = audio_provider.get_download_metadata(url, download=True)
+            download_info = audio_provider.get_download_metadata(download_url, download=True)
             temp_file = Path(
                 temp_folder / f"{download_info['id']}.{download_info['ext']}"
             )
 
             if download_info is None:
                 self.progress_handler.debug(
-                    f"No download info found for {song.display_name}, url: {url}"
+                    f"No download info found for {song.display_name}, url: {download_url}"
                 )
 
                 raise LookupError(
@@ -484,7 +487,7 @@ class Downloader:
 
             # Set the song's download url
             if song.download_url is None:
-                song.download_url = download_info["webpage_url"]
+                song.download_url = download_url
 
             display_progress_tracker.notify_conversion_complete()
 
