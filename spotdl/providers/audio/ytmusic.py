@@ -309,7 +309,7 @@ class YouTubeMusic(AudioProvider):
                 continue
 
             test_str1 = slug_result_name
-            test_str2 = slug_song_name
+            test_str2 = slug_song_name if result["type"] == "song" else slug_song_title
 
             # check if the artist is in the song name
             # but not in the result name
