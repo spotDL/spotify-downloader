@@ -52,7 +52,7 @@ class YouTubeMusic(AudioProvider):
         else:
             # search for song using isrc if it's available
             if song.isrc:
-                isrc_results = self.get_results(song.isrc, filter="songs")
+                isrc_results = self.get_results(song.isrc, filter="songs", ignore_spelling=True)
 
                 if len(isrc_results) == 1:
                     isrc_result = self.order_results([isrc_results[0]], song)
@@ -63,11 +63,13 @@ class YouTubeMusic(AudioProvider):
                             # print(f"# RETURN URL - {isrc_link} - isrc score")
                             return isrc_link
 
+                        # print(f"! no match found for isrc {song.name} - {song.isrc}")
+
             search_query = create_song_title(song.name, song.artists).lower()
 
         # Query YTM by songs only first, this way if we get correct result on the first try
         # we don't have to make another request
-        song_results = self.get_results(search_query, filter="songs")
+        song_results = self.get_results(search_query, filter="songs", ignore_spelling=True)
 
         if self.filter_results:
             # Order results
@@ -90,7 +92,7 @@ class YouTubeMusic(AudioProvider):
 
         # We didn't find the correct song on the first try so now we get video type results
         # add them to song_results, and get the result with highest score
-        video_results = self.get_results(search_query, filter="videos")
+        video_results = self.get_results(search_query, filter="videos", ignore_spelling=True)
 
         if self.filter_results:
             # Order video results
@@ -176,7 +178,7 @@ class YouTubeMusic(AudioProvider):
         # Slugify some variables
         slug_song_name = slugify(song.name)
         slug_album_name = slugify(song.album_name)
-        slug_song_artist = slugify(song.artist)
+        slug_song_main_artist = slugify(song.artist)
         slug_song_title = slugify(
             create_song_title(song.name, song.artists)
             if not self.search_query
@@ -206,7 +208,7 @@ class YouTubeMusic(AudioProvider):
             # print(f"slug_result_album: {slug_result_album}")
             # print(f"slug_song_name: {slug_song_name}")
             # print(f"slug_album_name: {slug_album_name}")
-            # print(f"slug_song_artist: {slug_song_artist}")
+            # print(f"slug_song_main_artist: {slug_song_main_artist}")
             # print(f"slug_song_title: {slug_song_title}")
             # print(f"URL - {result['link']}")
             # print("-----------------------------")
@@ -218,14 +220,12 @@ class YouTubeMusic(AudioProvider):
 
             artist_match_number = 0
             for artist in song.artists:
-                # print("song.artist", artist)
-                # print("slugify artist", slugify(artist))
-                for slugified_result in [slug_result_name, slug_result_artists]:
-                    artist_match_number += (
-                        1 if slugify(artist) in slugified_result else 0
-                    )
+                slug_song_artist = slugify(artist)
+                # print(f"song artist: {artist}, slug: {slug_song_artist}")
 
-            artist_match = artist_match_number * 100 / len(song.artists)
+                artist_match_number += fuzz.partial_token_sort_ratio(slug_song_artist, slug_result_artists)
+
+            artist_match = artist_match_number / len(song.artists)
             # print("first artist_match: ", artist_match)
 
             # If we didn't find any artist match,
@@ -238,7 +238,32 @@ class YouTubeMusic(AudioProvider):
 
                 if channel_name_match > artist_match_number:
                     artist_match = channel_name_match
-                    # print("second artist_match: ", artist_match)
+                    # print("? second artist_match: ", artist_match)
+
+            # If artist match is lower than 70%,
+            # but the song name is almost the same as the result name,
+            # we increase the artist match by 10%, we do the same
+            # for the album name
+            if artist_match < 70 and result["type"] == "song":
+                if (
+                    fuzz.partial_token_sort_ratio(
+                        slug_result_name,
+                        slug_song_name,
+                    )
+                    >= 80
+                ):
+                    artist_match += 10
+                    # print("? song name artist_match: ", artist_match)
+
+                if slug_result_album:
+                    if (
+                        fuzz.partial_token_sort_ratio(
+                            slug_result_album, slug_album_name
+                        )
+                        >= 80
+                    ):
+                        artist_match += 10
+                        # print("? album artist_match: ", artist_match)
 
             # if the result doesn't have the same number of artists but has
             # the same main artist and similar name
@@ -252,10 +277,12 @@ class YouTubeMusic(AudioProvider):
                 )
                 and result["type"] == "song"
                 and len(result["artists_list"]) < len(song.artists)
-                and slugify(result["artists_list"][0]) == slug_song_artist
+                and slugify(result["artists_list"][0]) == slug_song_main_artist
             ):
                 artist_match = artist_match + 30
-                # print("hacky artist_match: ", artist_match)
+                # print("? hacky artist_match: ", artist_match)
+
+            # print("final artist_match: ", artist_match)
 
             # skip results with artist match lower than 70%
             if artist_match < 70:
@@ -273,10 +300,10 @@ class YouTubeMusic(AudioProvider):
                 # We are almost certain that this result
                 # contains the correct song artist
                 # so if the title doesn't contain the song artist in it
-                # we append slug_song_artist to the title
-                if artist_match > 90 and slug_song_artist not in slug_result_name:
+                # we append slug_song_main_artist to the title
+                if artist_match > 90 and slug_song_main_artist not in slug_result_name:
                     name_match = fuzz.partial_token_sort_ratio(
-                        f"{slug_song_artist}-{slug_result_name}",
+                        f"{slug_song_main_artist}-{slug_result_name}",
                         slug_song_title,
                     )
                 else:
@@ -297,7 +324,9 @@ class YouTubeMusic(AudioProvider):
             # Calculate album match only for songs
             if result["type"] == "song":
                 if slug_result_album:
-                    album_match = fuzz.partial_ratio(slug_result_album, slug_album_name)
+                    album_match = fuzz.partial_token_sort_ratio(
+                        slug_result_album, slug_album_name
+                    )
 
             # Calculate time match
             delta = result["duration"] - song.duration
