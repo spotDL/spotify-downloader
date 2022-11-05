@@ -418,7 +418,9 @@ class Downloader:
             )
 
             # Download the song using yt-dlp
-            download_info = audio_provider.get_download_metadata(download_url, download=True)
+            download_info = audio_provider.get_download_metadata(
+                download_url, download=True
+            )
             temp_file = Path(
                 temp_folder / f"{download_info['id']}.{download_info['ext']}"
             )

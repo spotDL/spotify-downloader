@@ -52,7 +52,9 @@ class YouTubeMusic(AudioProvider):
         else:
             # search for song using isrc if it's available
             if song.isrc:
-                isrc_results = self.get_results(song.isrc, filter="songs", ignore_spelling=True)
+                isrc_results = self.get_results(
+                    song.isrc, filter="songs", ignore_spelling=True
+                )
 
                 if len(isrc_results) == 1:
                     isrc_result = self.order_results([isrc_results[0]], song)
@@ -69,7 +71,9 @@ class YouTubeMusic(AudioProvider):
 
         # Query YTM by songs only first, this way if we get correct result on the first try
         # we don't have to make another request
-        song_results = self.get_results(search_query, filter="songs", ignore_spelling=True)
+        song_results = self.get_results(
+            search_query, filter="songs", ignore_spelling=True
+        )
 
         if self.filter_results:
             # Order results
@@ -92,7 +96,9 @@ class YouTubeMusic(AudioProvider):
 
         # We didn't find the correct song on the first try so now we get video type results
         # add them to song_results, and get the result with highest score
-        video_results = self.get_results(search_query, filter="videos", ignore_spelling=True)
+        video_results = self.get_results(
+            search_query, filter="videos", ignore_spelling=True
+        )
 
         if self.filter_results:
             # Order video results
@@ -221,7 +227,6 @@ class YouTubeMusic(AudioProvider):
             # print(f"slug_result_album: {slug_result_album}")
             # print("-----------------------------")
 
-
             # skip results that have no common words in their name
             if not common_word:
                 continue
@@ -266,12 +271,7 @@ class YouTubeMusic(AudioProvider):
                 # Check if the song album name is very similar to the result album name
                 # if it is, we increase the artist match
                 if slug_result_album:
-                    if (
-                        fuzz.ratio(
-                            slug_result_album, slug_song_album_name
-                        )
-                        >= 80
-                    ):
+                    if fuzz.ratio(slug_result_album, slug_song_album_name) >= 80:
                         artist_match += 10
                         # print("? album artist_match: ", artist_match)
 
@@ -322,7 +322,10 @@ class YouTubeMusic(AudioProvider):
             # same thing for for song name
             for artist in song.artists:
                 slug_result_artist = slugify(artist)
-                if slug_result_artist in test_str1 and not slug_result_artist in test_str2:
+                if (
+                    slug_result_artist in test_str1
+                    and not slug_result_artist in test_str2
+                ):
                     test_str2 += f"-{slug_result_artist}"
 
             # print(f"test_str1: {test_str1}")
@@ -352,9 +355,7 @@ class YouTubeMusic(AudioProvider):
             # Calculate album match only for songs
             if result["type"] == "song":
                 if slug_result_album:
-                    album_match = fuzz.ratio(
-                        slug_result_album, slug_song_album_name
-                    )
+                    album_match = fuzz.ratio(slug_result_album, slug_song_album_name)
 
             # Calculate time match
             delta = result["duration"] - song.duration
