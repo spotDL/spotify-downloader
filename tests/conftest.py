@@ -10,6 +10,8 @@ from spotdl.utils.spotify import SpotifyClient
 
 ORIGINAL_INITIALIZE = SpotifyClient.init
 
+SpotifyClient.init("5f573c9620494bae87890c0f08a60293", "212476d9b0f3472eaa762d90b19b0ba8")
+
 
 class FakeProcess:
     """Instead of running ffmpeg, just fake it"""
