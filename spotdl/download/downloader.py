@@ -421,6 +421,7 @@ class Downloader:
             download_info = audio_provider.get_download_metadata(
                 download_url, download=True
             )
+
             temp_file = Path(
                 temp_folder / f"{download_info['id']}.{download_info['ext']}"
             )
@@ -441,7 +442,7 @@ class Downloader:
                 output_file,
                 self.ffmpeg,
                 self.output_format,
-                self.bitrate,
+                self.bitrate if self.bitrate else f"{int(download_info['abr'])}k",
                 self.ffmpeg_args,
                 display_progress_tracker.ffmpeg_progress_hook,
             )
