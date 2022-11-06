@@ -39,10 +39,15 @@ class YouTube(AudioProvider):
                 isrc_results = self.get_results(song.isrc)
 
                 if isrc_results and len(isrc_results) == 1:
-                    isrc_result = isrc_results[0]
+                    isrc_result = self.order_results(isrc_results, song)
+                    if len(isrc_result) == 1:
+                        isrc_link, isrc_score = isrc_result.popitem()
 
-                    if isrc_result and isrc_result.watch_url is not None:
-                        return isrc_result.watch_url
+                        if isrc_score > 90:
+                            # print(f"# RETURN URL - {isrc_link} - isrc score")
+                            return isrc_link
+
+                    # print(f"No results for ISRC: {song.isrc}")
 
             search_query = create_song_title(song.name, song.artists).lower()
 
@@ -55,10 +60,10 @@ class YouTube(AudioProvider):
             return None
 
         if self.filter_results:
-            ordered_results = {results[0].watch_url: 100}
-        else:
             # Order results
             ordered_results = self.order_results(results, song)
+        else:
+            ordered_results = {results[0].watch_url: 100}
 
         # No matches found
         if len(ordered_results) == 0:
@@ -107,60 +112,124 @@ class YouTube(AudioProvider):
 
         # Slugify song title
         slug_song_name = slugify(song.name)
+        slug_song_main_artist = slugify(song.artist)
+        slug_song_artists = slugify(", ".join(song.artists))
         slug_song_title = slugify(
             create_song_title(song.name, song.artists)
             if not self.search_query
             else create_search_query(song, self.search_query, False, None, True)
         )
 
+        # DEBUG CODE
+        # print(f"#############################")
+        # print(f"slug_song_name: {slug_song_name}")
+        # print(f"slug_song_main_artist: {slug_song_main_artist}")
+        # print(f"slug_song_title: {slug_song_title}")
+        # print(f"slug_song_duration: {song.duration}")
+        # print(f"slug_song_artists: {slug_song_artists}")
+        # print(f"#############################")
+
         for result in results:
             # Skip results without id
             if result.video_id is None:
                 continue
 
-            # Slugify some variables
+            # Slugify result title
             slug_result_name = slugify(result.title)
-            sentence_words = slug_song_name.replace("-", " ").split(" ")
+            slug_result_channel = slugify(result.author)
 
-            # Check for common words in result name
+            # check for common words in result name
+            sentence_words = slug_song_name.split("-")
             common_word = any(
                 word != "" and word in slug_result_name for word in sentence_words
             )
+
+            # print("-----------------------------")
+            # print(f"sentence_words: {sentence_words}")
+            # print(f"common_word: {common_word}")
+            # print(f"result link: {result.watch_url}")
+            # print(f"result duration: {result.length}")
+            # print(f"slug_result_name: {slug_result_name}")
+            # print(f"slug_result_channel: {slug_result_channel}")
+            # print("-----------------------------")
 
             # skip results that have no common words in their name
             if not common_word:
                 continue
 
             # Find artist match
-            artist_match_number = 0.0
+            artist_match = fuzz.ratio(slug_song_artists, slug_result_name)
 
-            # Calculate artist match for each artist
-            # in the song's artist list
-            for artist in song.artists:
-                artist_match_number += fuzz.partial_token_sort_ratio(
-                    slugify(artist), slug_result_name
+            # print(f"first artist match: {artist_match}")
+
+            if artist_match < 70:
+                # Try to use channel name instead
+                # with the main artist name
+                main_artist_match = fuzz.ratio(
+                    slug_song_main_artist, slug_result_channel
                 )
 
+                # print(f"main_artist_match: {main_artist_match}")
+
+                # If the main artist name is in the channel name
+                # we add 30% to the artist match
+                if main_artist_match > 70:
+                    artist_match += 30
+                    # print(f"new artist_match: {artist_match}")
+
             # skip results with artist match lower than 70%
-            artist_match = artist_match_number / len(song.artists)
             if artist_match < 70:
+                # print(f"! artist match lower than 70% {artist_match}, skipping")
                 continue
 
+            # print(f"final artist_match: {artist_match}")
+
             # Calculate name match
-            name_match = fuzz.partial_token_sort_ratio(
-                slug_result_name, slug_song_title
-            )
+            test_str1 = slug_result_name
+            test_str2 = slug_song_title
+
+            # check if the artist is in the song name
+            # but not in the result name
+            # if it is, we add the artist to the result name
+            for artist in song.artists:
+                slug_song_artist = slugify(artist)
+                if slug_song_artist in test_str2 and not slug_song_artist in test_str1:
+                    test_str1 += f"-{slug_song_artist}"
+
+            # same thing for for song name
+            for artist in song.artists:
+                slug_result_artist = slugify(artist)
+                if (
+                    slug_result_artist in test_str1
+                    and not slug_result_artist in test_str2
+                ):
+                    test_str2 += f"-{slug_result_artist}"
+
+            # calculate the name match
+            name_match = fuzz.ratio(test_str1, test_str2)
 
             # Drop results with name match lower than 50%
             if name_match < 50:
+                # print("! name_match < 50, skipping")
                 continue
 
+            # print(f"name_match: {name_match}")
+
             # Calculate time match
-            time_match = (
-                100 - (result.length - song.duration**2) / song.duration * 100
+            time_match = 100 - (
+                ((result.length - song.duration) ** 2) / song.duration * 100
             )
 
+            # print(f"time_match: {time_match}")
+
+            # Drop results with time match lower than 50%
+            if time_match < 50:
+                # print("! time_match < 50, skipping")
+                continue
+
             average_match = (artist_match + name_match + time_match) / 3
+
+            # print(f"average_match: {average_match}")
 
             # the results along with the avg Match
             links_with_match_value[result.watch_url] = average_match
