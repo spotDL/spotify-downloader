@@ -52,7 +52,6 @@ def test_show_version(capsys, monkeypatch, argument):
     assert re.match(r"\d{1,2}\.\d{1,2}\.\d{1,3}", out) is not None
 
 
-@pytest.mark.vcr()
 def test_download_song(capsys, monkeypatch, tmpdir):
     """
     This test checks if the song is downloaded correctly
@@ -84,7 +83,6 @@ def test_download_song(capsys, monkeypatch, tmpdir):
     assert 'Downloaded "Jim Yosef - Linked"' in out
 
 
-@pytest.mark.vcr()
 def test_preload_song(capsys, monkeypatch, tmpdir):
     """
     This test checks if the song is preloaded correctly.

@@ -34,7 +34,7 @@ interactions:
       Content-Type:
       - application/json; charset=utf-8
       Date:
-      - Sun, 06 Nov 2022 13:44:19 GMT
+      - Sun, 06 Nov 2022 16:20:14 GMT
       Referrer-Policy:
       - origin-when-cross-origin, strict-origin-when-cross-origin
       Server:
@@ -50,84 +50,17 @@ interactions:
       X-GitHub-Media-Type:
       - github.v3; format=json
       X-GitHub-Request-Id:
-      - 74D5:F3CE:997FBA6:9BD2A14:6367BA33
+      - 748E:D859:800F6AA:8227832:6367DEBD
       X-RateLimit-Limit:
       - '60'
       X-RateLimit-Remaining:
-      - '58'
-      X-RateLimit-Reset:
-      - '1667745858'
-      X-RateLimit-Resource:
-      - core
-      X-RateLimit-Used:
-      - '2'
-      X-XSS-Protection:
-      - '0'
-    status:
-      code: 404
-      message: Not Found
-- request:
-    body: null
-    headers:
-      Accept:
-      - '*/*'
-      Accept-Encoding:
-      - gzip, deflate, br
-      Connection:
-      - keep-alive
-      User-Agent:
-      - python-requests/2.28.1
-    method: GET
-    uri: https://api.github.com/repos/spotdl/spotify-downloader-fail/compare/master...dev
-  response:
-    body:
-      string: !!binary |
-        H4sIAAAAAAAAAzXJMQ6AIBBE0auYtVXoPYClVzCoGyURlrBDLIx3l0Kr+ZN3U2BVtzMNNAmaUUrc
-        qKNN1hI4wsFLnEs+qx9A0sHaamp2j6MsZpVgMytsjeCh/7b1J5e5xyX9Z/S8NY8gBm4AAAA=
-    headers:
-      Access-Control-Allow-Origin:
-      - '*'
-      Access-Control-Expose-Headers:
-      - ETag, Link, Location, Retry-After, X-GitHub-OTP, X-RateLimit-Limit, X-RateLimit-Remaining,
-        X-RateLimit-Used, X-RateLimit-Resource, X-RateLimit-Reset, X-OAuth-Scopes,
-        X-Accepted-OAuth-Scopes, X-Poll-Interval, X-GitHub-Media-Type, X-GitHub-SSO,
-        X-GitHub-Request-Id, Deprecation, Sunset
-      Content-Encoding:
-      - gzip
-      Content-Length:
-      - '110'
-      Content-Security-Policy:
-      - default-src 'none'
-      Content-Type:
-      - application/json; charset=utf-8
-      Date:
-      - Sun, 06 Nov 2022 16:08:36 GMT
-      Referrer-Policy:
-      - origin-when-cross-origin, strict-origin-when-cross-origin
-      Server:
-      - GitHub.com
-      Strict-Transport-Security:
-      - max-age=31536000; includeSubdomains; preload
-      Vary:
-      - Accept-Encoding, Accept, X-Requested-With
-      X-Content-Type-Options:
-      - nosniff
-      X-Frame-Options:
-      - deny
-      X-GitHub-Media-Type:
-      - github.v3; format=json
-      X-GitHub-Request-Id:
-      - 74A9:6D4D:21D02C:226E6D:6367DC04
-      X-RateLimit-Limit:
-      - '60'
-      X-RateLimit-Remaining:
-      - '58'
+      - '49'
       X-RateLimit-Reset:
       - '1667754515'
       X-RateLimit-Resource:
       - core
       X-RateLimit-Used:
-      - '2'
+      - '11'
       X-XSS-Protection:
       - '0'
     status:
