@@ -36,7 +36,7 @@ from tests.conftest import new_initialize
         (
             "https://open.spotify.com/track/2Ikdgh3J5vCRmnCL3Xcrtv",
             "https://music.youtube.com/watch?v=sJpzMSHKUqI",
-        )
+        ),
     ],
 )
 def test_ytmusic_matching(monkeypatch, query, expected):

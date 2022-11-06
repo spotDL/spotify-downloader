@@ -3,7 +3,7 @@ Artist module for retrieving artist data from Spotify.
 """
 
 from dataclasses import dataclass
-from typing import Any, Dict, List, Set, Tuple
+from typing import Any, Dict, List, Set
 
 from slugify import slugify
 
