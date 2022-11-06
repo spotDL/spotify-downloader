@@ -20,27 +20,6 @@ class Saved(SongList):
     Saved class for handling the saved tracks from user library.
     """
 
-    @classmethod
-    def from_url(cls, url: str = "saved") -> "Saved":
-        """
-        Loads saved tracks from Spotify.
-        Will throw an exception if users is not logged in.
-        """
-
-        metadata = Saved.get_metadata(url)
-
-        urls = cls.get_urls(url)
-
-        # Remove songs without id
-        # and create Song objects
-        tracks = [Song.from_url(url) for url in urls]
-
-        return cls(
-            **metadata,
-            songs=tracks,
-            urls=urls,
-        )
-
     @staticmethod
     def get_urls(_: str = "saved") -> List[str]:
         """

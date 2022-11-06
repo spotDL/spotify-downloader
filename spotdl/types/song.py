@@ -252,15 +252,30 @@ class SongList:
         return cls(**metadata, urls=urls, songs=[])
 
     @classmethod
-    def from_url(cls, url: str) -> "SongList":
+    def from_url(cls, url: str):
         """
-        Initialize a SongList object from a URL.
+        Parse an album from a Spotify URL.
 
         ### Arguments
-        - url: The URL of the list.
+        - url: The URL of the album.
+
+        ### Returns
+        - The Album object.
         """
 
-        raise NotImplementedError
+        metadata = cls.get_metadata(url)
+
+        urls = cls.get_urls(url)
+
+        # Remove songs without id (country restricted/local tracks)
+        # And create song object for each track
+        songs: List[Song] = [Song.from_url(url) for url in urls]
+
+        return cls(
+            **metadata,
+            songs=songs,
+            urls=urls,
+        )
 
     @staticmethod
     def get_urls(url: str) -> List[str]:
