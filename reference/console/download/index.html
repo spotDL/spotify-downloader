@@ -15,7 +15,7 @@
         <link rel="canonical" href="https://spotdl.github.io/spotify-downloader/reference/console/download/">
       
       <link rel="icon" href="../../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.4.1, mkdocs-material-8.5.7">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-8.5.7">
     
     
       
@@ -774,6 +774,20 @@
   
   
     <li class="md-nav__item">
+      <a href="../../utils/web/" class="md-nav__link">
+        web
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../utils/ffmpeg/" class="md-nav__link">
         ffmpeg
       </a>
@@ -1437,7 +1451,13 @@
 <span class="normal">61</span>
 <span class="normal">62</span>
 <span class="normal">63</span>
-<span class="normal">64</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">download</span><span class="p">(</span>
+<span class="normal">64</span>
+<span class="normal">65</span>
+<span class="normal">66</span>
+<span class="normal">67</span>
+<span class="normal">68</span>
+<span class="normal">69</span>
+<span class="normal">70</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">download</span><span class="p">(</span>
     <span class="n">query</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
     <span class="n">downloader</span><span class="p">:</span> <span class="n">Downloader</span><span class="p">,</span>
     <span class="n">save_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1469,12 +1489,18 @@
         <span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">result</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
                 <span class="n">url_archive</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">url</span><span class="p">)</span>
+
         <span class="n">url_archive</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">archive</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">m3u_file</span><span class="p">:</span>
         <span class="n">song_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">song</span> <span class="k">for</span> <span class="n">song</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">results</span><span class="p">]</span>
-        <span class="n">create_m3u_file</span><span class="p">(</span>
-            <span class="n">m3u_file</span><span class="p">,</span> <span class="n">song_list</span><span class="p">,</span> <span class="n">downloader</span><span class="o">.</span><span class="n">output</span><span class="p">,</span> <span class="n">downloader</span><span class="o">.</span><span class="n">output_format</span><span class="p">,</span> <span class="kc">False</span>
+        <span class="n">gen_m3u_files</span><span class="p">(</span>
+            <span class="n">query</span><span class="p">,</span>
+            <span class="n">m3u_file</span><span class="p">,</span>
+            <span class="n">song_list</span><span class="p">,</span>
+            <span class="n">downloader</span><span class="o">.</span><span class="n">output</span><span class="p">,</span>
+            <span class="n">downloader</span><span class="o">.</span><span class="n">output_format</span><span class="p">,</span>
+            <span class="kc">False</span><span class="p">,</span>
         <span class="p">)</span>
 
     <span class="k">if</span> <span class="n">save_path</span><span class="p">:</span>

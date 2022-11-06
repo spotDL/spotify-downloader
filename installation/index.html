@@ -15,7 +15,7 @@
         <link rel="canonical" href="https://spotdl.github.io/spotify-downloader/installation/">
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.4.1, mkdocs-material-8.5.7">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-8.5.7">
     
     
       
@@ -958,6 +958,20 @@
   
   
     <li class="md-nav__item">
+      <a href="../reference/utils/web/" class="md-nav__link">
+        web
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../reference/utils/ffmpeg/" class="md-nav__link">
         ffmpeg
       </a>
@@ -1603,10 +1617,12 @@
 <blockquote>
 <p>This is our recommended installation method.</p>
 </blockquote>
-<p>If you are on Windows, Install Visual C++ Redistributible (link below) and then proceed to install Python &amp; FFmpeg</p>
+<p>If you are on Windows, Install Visual C++ Redistributible (link below) and then proceed to
+install Python &amp; FFmpeg</p>
 <h3 id="prerequisites-to-spotdl">Prerequisites to spotDL<a class="headerlink" href="#prerequisites-to-spotdl" title="Permanent link">¤</a></h3>
 <ul>
-<li><a href="https://docs.microsoft.com/pl-pl/cpp/windows/latest-supported-vc-redist?view=msvc-170#visual-studio-2015-2017-2019-and-2022">Visual C++ 2019 redistributable</a> (on Windows)</li>
+<li><a href="https://docs.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist?view=msvc-170#visual-studio-2015-2017-2019-and-2022">Visual C++ 2019 redistributable</a>
+  (on Windows)</li>
 <li>Python 3.7 or above (added to PATH)</li>
 <li>FFmpeg 4.2 or above (added to PATH)</li>
 </ul>
@@ -1618,7 +1634,8 @@
 <p><img alt="Add to PATH Image" src="../images/ADD_TO_PATH.png" /></p>
 <h3 id="installing-spotdl">Installing spotDL<a class="headerlink" href="#installing-spotdl" title="Permanent link">¤</a></h3>
 <blockquote>
-<p>If you are not on Windows (e.g. OSX/UNIX), replace <code>pip</code> with <code>pip3</code> and <code>python</code> with <code>python3</code> in all commands.</p>
+<p>If you are not on Windows (e.g. OSX/UNIX), replace <code>pip</code> with <code>pip3</code> and <code>python</code> with
+<code>python3</code> in all commands.</p>
 </blockquote>
 <p>Firstly, open a terminal. On Windows: Command Prompt, OSX: "Terminal", *UNIX: Bash or Zsh.</p>
 <p>Verify you have installed Python correctly via <code>python -V</code>. Ensure you have v3.7 or greater.</p>
@@ -1638,12 +1655,15 @@
 <p><a href="https://discord.gg/xCa23pwJWY"><img alt="Discord Server" src="https://img.shields.io/discord/771628785447337985?color=7289da&amp;label=DISCORD&amp;style=for-the-badge" /></a></p>
 <h2 id="using-prebuilt-executable">Using Prebuilt Executable<a class="headerlink" href="#using-prebuilt-executable" title="Permanent link">¤</a></h2>
 <h3 id="download-the-executable">Download the executable<a class="headerlink" href="#download-the-executable" title="Permanent link">¤</a></h3>
-<p>You can download the latest version from from the <a href="https://github.com/spotDL/spotify-downloader/releases">Releases Tab</a></p>
+<p>You can download the latest version from from the
+<a href="https://github.com/spotDL/spotify-downloader/releases">Releases Tab</a></p>
 <h3 id="running-web-ui">Running Web UI<a class="headerlink" href="#running-web-ui" title="Permanent link">¤</a></h3>
-<p>Web UI will start by default if no arguments are passed to the command line (after double-clicking for example)</p>
+<p>Web UI will start by default if no arguments are passed to the command line (after
+double-clicking for example)</p>
 <p><img alt="Web UI" src="../images/WEB_UI.png" /></p>
 <h3 id="running-the-cli">Running the CLI<a class="headerlink" href="#running-the-cli" title="Permanent link">¤</a></h3>
-<p>To use the command line interface just open your terminal and run <code>./spotdl-vX.X.X operation [urls]</code></p>
+<p>To use the command line interface just open your terminal and run
+<code>./spotdl-vX.X.X operation [urls]</code></p>
 <h2 id="docker-setup">Docker Setup<a class="headerlink" href="#docker-setup" title="Permanent link">¤</a></h2>
 <p>spotDL provides a Docker image.</p>
 <p>Install Docker: <a href="https://docs.docker.com/engine/installation/">https://docs.docker.com/engine/installation/</a></p>
@@ -1653,7 +1673,8 @@
 <ul>
 <li>Build docker image <code>docker build -t spotdl .</code></li>
 <li>List spotdl options: <code>docker run --rm spotdl --help</code></li>
-<li>Download a song: <code>docker run --rm -v $(pwd):/music spotdl download https://open.spotify.com/track/0VjIjW4GlUZAMYd2vXMi3b</code></li>
+<li>Download a song:
+  <code>docker run --rm -v $(pwd):/music spotdl download https://open.spotify.com/track/0VjIjW4GlUZAMYd2vXMi3b</code></li>
 </ul>
 <h3 id="docker-hub-image">Docker Hub Image<a class="headerlink" href="#docker-hub-image" title="Permanent link">¤</a></h3>
 <ul>
@@ -1661,7 +1682,8 @@
 <p>Pull docker image from Docker hub: <code>docker pull spotdl/spotify-downloader</code></p>
 </li>
 <li>
-<p>Download a song using Docker image: <code>docker run --rm -v $(pwd):/music spotdl/spotify-downloader download https://open.spotify.com/track/0VjIjW4GlUZAMYd2vXMi3b</code></p>
+<p>Download a song using Docker image:
+  <code>docker run --rm -v $(pwd):/music spotdl/spotify-downloader download https://open.spotify.com/track/0VjIjW4GlUZAMYd2vXMi3b</code></p>
 </li>
 <li>
 <p>Create a Docker container</p>
@@ -1675,7 +1697,8 @@
 <h3 id="docker-compose">Docker Compose<a class="headerlink" href="#docker-compose" title="Permanent link">¤</a></h3>
 <ul>
 <li>Create a container using Docker Compose: <code>docker-compose up --no-start</code></li>
-<li>Download a song using Docker compose: <code>docker-compose run --rm spotdl download https://open.spotify.com/track/0VjIjW4GlUZAMYd2vXMi3b</code></li>
+<li>Download a song using Docker compose:
+  <code>docker-compose run --rm spotdl download https://open.spotify.com/track/0VjIjW4GlUZAMYd2vXMi3b</code></li>
 </ul>
 <h2 id="other-installation-methods">Other Installation Methods<a class="headerlink" href="#other-installation-methods" title="Permanent link">¤</a></h2>
 <h3 id="termux">Termux<a class="headerlink" href="#termux" title="Permanent link">¤</a></h3>
@@ -1685,8 +1708,8 @@
 <p><a href="https://aur.archlinux.org/packages/python-spotdl">You can find the AUR Package here</a></p>
 <h2 id="where-does-spotdl-download-songs">Where does spotDL download songs?<a class="headerlink" href="#where-does-spotdl-download-songs" title="Permanent link">¤</a></h2>
 <p>spotDL downloads files to the folder where you ran spotDL from.</p>
-<p>Open pwsh/powershell/cmd/terminal/similar in the folder you want files to download to, or
-cd to desired folder.</p>
+<p>Open pwsh/powershell/cmd/terminal/similar in the folder you want files to download to, or cd to
+desired folder.</p>
 <p><strong>Windows Shortcut:</strong> Navigate to the folder you want the files to download to.
 <code>SHIFT + RIGHT CLICK</code>, then select "Open PowerShell window here"</p>
 <p><img alt="Windows PWSH" src="../images/POWERSHELL.png" /></p>

@@ -15,7 +15,7 @@
         <link rel="canonical" href="https://spotdl.github.io/spotify-downloader/reference/utils/arguments/">
       
       <link rel="icon" href="../../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.4.1, mkdocs-material-8.5.7">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-8.5.7">
     
     
       
@@ -945,10 +945,44 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#spotdl.utils.arguments.parse_web_options" class="md-nav__link">
+    parse_web_options()
+  </a>
+  
+    <nav class="md-nav" aria-label="parse_web_options()">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#spotdl.utils.arguments.parse_web_options--arguments" class="md-nav__link">
+    Arguments
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
       
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../web/" class="md-nav__link">
+        web
+      </a>
     </li>
   
 
@@ -1578,6 +1612,26 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#spotdl.utils.arguments.parse_web_options" class="md-nav__link">
+    parse_web_options()
+  </a>
+  
+    <nav class="md-nav" aria-label="parse_web_options()">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#spotdl.utils.arguments.parse_web_options--arguments" class="md-nav__link">
+    Arguments
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1723,7 +1777,11 @@
 <span class="normal">84</span>
 <span class="normal">85</span>
 <span class="normal">86</span>
-<span class="normal">87</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">parse_arguments</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Namespace</span><span class="p">:</span>
+<span class="normal">87</span>
+<span class="normal">88</span>
+<span class="normal">89</span>
+<span class="normal">90</span>
+<span class="normal">91</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">parse_arguments</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Namespace</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Parse arguments from the command line.</span>
 
@@ -1737,7 +1795,7 @@
         <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Download your Spotify playlists and songs along with album art and metadata&quot;</span><span class="p">,</span>
         <span class="n">formatter_class</span><span class="o">=</span><span class="n">SmartFormatter</span><span class="p">,</span>
         <span class="n">epilog</span><span class="o">=</span><span class="p">(</span>
-            <span class="s2">&quot;For more information, visit https://spotdl.github.io/spotify-downloader/ &quot;</span>
+            <span class="s2">&quot;For more information, visit http://spotdl.rtfd.io/ &quot;</span>
             <span class="s2">&quot;or join our Discord server: https://discord.com/invite/xCa23pwJWY&quot;</span>
         <span class="p">),</span>
     <span class="p">)</span>
@@ -1757,6 +1815,10 @@
     <span class="c1"># Parse output options</span>
     <span class="n">output_options</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">add_argument_group</span><span class="p">(</span><span class="s2">&quot;Output options&quot;</span><span class="p">)</span>
     <span class="n">parse_output_options</span><span class="p">(</span><span class="n">output_options</span><span class="p">)</span>
+
+    <span class="c1"># Parse web options</span>
+    <span class="n">web_options</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">add_argument_group</span><span class="p">(</span><span class="s2">&quot;Web options&quot;</span><span class="p">)</span>
+    <span class="n">parse_web_options</span><span class="p">(</span><span class="n">web_options</span><span class="p">)</span>
 
     <span class="c1"># Parse misc options</span>
     <span class="n">misc_options</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">add_argument_group</span><span class="p">(</span><span class="s2">&quot;Misc options&quot;</span><span class="p">)</span>
@@ -1793,11 +1855,7 @@
 
       <details class="quote">
         <summary>Source code in <code>spotdl/utils/arguments.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">243</span>
-<span class="normal">244</span>
-<span class="normal">245</span>
-<span class="normal">246</span>
-<span class="normal">247</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">247</span>
 <span class="normal">248</span>
 <span class="normal">249</span>
 <span class="normal">250</span>
@@ -1843,7 +1901,15 @@
 <span class="normal">290</span>
 <span class="normal">291</span>
 <span class="normal">292</span>
-<span class="normal">293</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">parse_ffmpeg_options</span><span class="p">(</span><span class="n">parser</span><span class="p">:</span> <span class="n">_ArgumentGroup</span><span class="p">):</span>
+<span class="normal">293</span>
+<span class="normal">294</span>
+<span class="normal">295</span>
+<span class="normal">296</span>
+<span class="normal">297</span>
+<span class="normal">298</span>
+<span class="normal">299</span>
+<span class="normal">300</span>
+<span class="normal">301</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">parse_ffmpeg_options</span><span class="p">(</span><span class="n">parser</span><span class="p">:</span> <span class="n">_ArgumentGroup</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Parse ffmpeg options from the command line.</span>
 
@@ -1883,9 +1949,13 @@
             <span class="s2">&quot;224k&quot;</span><span class="p">,</span>
             <span class="s2">&quot;256k&quot;</span><span class="p">,</span>
             <span class="s2">&quot;320k&quot;</span><span class="p">,</span>
-        <span class="p">],</span>
+        <span class="p">]</span>
+        <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">))),</span>
         <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="o">.</span><span class="n">lower</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The constant bitrate to use for the output file.&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;The constant/variable bitrate to use for the output file.&quot;</span>
+            <span class="s2">&quot; Values from 0 to 9 are variable bitrates.&quot;</span>
+        <span class="p">),</span>
     <span class="p">)</span>
 
     <span class="c1"># Additional ffmpeg arguments</span>
@@ -1920,11 +1990,7 @@
 
       <details class="quote">
         <summary>Source code in <code>spotdl/utils/arguments.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 90</span>
-<span class="normal"> 91</span>
-<span class="normal"> 92</span>
-<span class="normal"> 93</span>
-<span class="normal"> 94</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 94</span>
 <span class="normal"> 95</span>
 <span class="normal"> 96</span>
 <span class="normal"> 97</span>
@@ -2014,7 +2080,11 @@
 <span class="normal">181</span>
 <span class="normal">182</span>
 <span class="normal">183</span>
-<span class="normal">184</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">parse_main_options</span><span class="p">(</span><span class="n">parser</span><span class="p">:</span> <span class="n">_ArgumentGroup</span><span class="p">):</span>
+<span class="normal">184</span>
+<span class="normal">185</span>
+<span class="normal">186</span>
+<span class="normal">187</span>
+<span class="normal">188</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">parse_main_options</span><span class="p">(</span><span class="n">parser</span><span class="p">:</span> <span class="n">_ArgumentGroup</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Parse main options from the command line.</span>
 
@@ -2042,7 +2112,7 @@
         <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;+&quot;</span><span class="p">,</span>
         <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="p">(</span>
-            <span class="s2">&quot;Spotify URL for a song/playlist/album/artist/etc. to download.&quot;</span>
+            <span class="s2">&quot;Spotify URL for a song/playlist/album/artist/etc. to download. &quot;</span>
             <span class="s2">&quot;For manual audio matching, you can use the format &#39;YouTubeURL|SpotifyURL&#39;&quot;</span>
         <span class="p">),</span>
     <span class="p">)</span>
@@ -2135,36 +2205,36 @@
 
       <details class="quote">
         <summary>Source code in <code>spotdl/utils/arguments.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">385</span>
-<span class="normal">386</span>
-<span class="normal">387</span>
-<span class="normal">388</span>
-<span class="normal">389</span>
-<span class="normal">390</span>
-<span class="normal">391</span>
-<span class="normal">392</span>
-<span class="normal">393</span>
-<span class="normal">394</span>
-<span class="normal">395</span>
-<span class="normal">396</span>
-<span class="normal">397</span>
-<span class="normal">398</span>
-<span class="normal">399</span>
-<span class="normal">400</span>
-<span class="normal">401</span>
-<span class="normal">402</span>
-<span class="normal">403</span>
-<span class="normal">404</span>
-<span class="normal">405</span>
-<span class="normal">406</span>
-<span class="normal">407</span>
-<span class="normal">408</span>
-<span class="normal">409</span>
-<span class="normal">410</span>
-<span class="normal">411</span>
-<span class="normal">412</span>
-<span class="normal">413</span>
-<span class="normal">414</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">parse_misc_options</span><span class="p">(</span><span class="n">parser</span><span class="p">:</span> <span class="n">_ArgumentGroup</span><span class="p">):</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">440</span>
+<span class="normal">441</span>
+<span class="normal">442</span>
+<span class="normal">443</span>
+<span class="normal">444</span>
+<span class="normal">445</span>
+<span class="normal">446</span>
+<span class="normal">447</span>
+<span class="normal">448</span>
+<span class="normal">449</span>
+<span class="normal">450</span>
+<span class="normal">451</span>
+<span class="normal">452</span>
+<span class="normal">453</span>
+<span class="normal">454</span>
+<span class="normal">455</span>
+<span class="normal">456</span>
+<span class="normal">457</span>
+<span class="normal">458</span>
+<span class="normal">459</span>
+<span class="normal">460</span>
+<span class="normal">461</span>
+<span class="normal">462</span>
+<span class="normal">463</span>
+<span class="normal">464</span>
+<span class="normal">465</span>
+<span class="normal">466</span>
+<span class="normal">467</span>
+<span class="normal">468</span>
+<span class="normal">469</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">parse_misc_options</span><span class="p">(</span><span class="n">parser</span><span class="p">:</span> <span class="n">_ArgumentGroup</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Parse misc options from the command line.</span>
 
@@ -2220,43 +2290,43 @@
 
       <details class="quote">
         <summary>Source code in <code>spotdl/utils/arguments.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">417</span>
-<span class="normal">418</span>
-<span class="normal">419</span>
-<span class="normal">420</span>
-<span class="normal">421</span>
-<span class="normal">422</span>
-<span class="normal">423</span>
-<span class="normal">424</span>
-<span class="normal">425</span>
-<span class="normal">426</span>
-<span class="normal">427</span>
-<span class="normal">428</span>
-<span class="normal">429</span>
-<span class="normal">430</span>
-<span class="normal">431</span>
-<span class="normal">432</span>
-<span class="normal">433</span>
-<span class="normal">434</span>
-<span class="normal">435</span>
-<span class="normal">436</span>
-<span class="normal">437</span>
-<span class="normal">438</span>
-<span class="normal">439</span>
-<span class="normal">440</span>
-<span class="normal">441</span>
-<span class="normal">442</span>
-<span class="normal">443</span>
-<span class="normal">444</span>
-<span class="normal">445</span>
-<span class="normal">446</span>
-<span class="normal">447</span>
-<span class="normal">448</span>
-<span class="normal">449</span>
-<span class="normal">450</span>
-<span class="normal">451</span>
-<span class="normal">452</span>
-<span class="normal">453</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">parse_other_options</span><span class="p">(</span><span class="n">parser</span><span class="p">:</span> <span class="n">_ArgumentGroup</span><span class="p">):</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">472</span>
+<span class="normal">473</span>
+<span class="normal">474</span>
+<span class="normal">475</span>
+<span class="normal">476</span>
+<span class="normal">477</span>
+<span class="normal">478</span>
+<span class="normal">479</span>
+<span class="normal">480</span>
+<span class="normal">481</span>
+<span class="normal">482</span>
+<span class="normal">483</span>
+<span class="normal">484</span>
+<span class="normal">485</span>
+<span class="normal">486</span>
+<span class="normal">487</span>
+<span class="normal">488</span>
+<span class="normal">489</span>
+<span class="normal">490</span>
+<span class="normal">491</span>
+<span class="normal">492</span>
+<span class="normal">493</span>
+<span class="normal">494</span>
+<span class="normal">495</span>
+<span class="normal">496</span>
+<span class="normal">497</span>
+<span class="normal">498</span>
+<span class="normal">499</span>
+<span class="normal">500</span>
+<span class="normal">501</span>
+<span class="normal">502</span>
+<span class="normal">503</span>
+<span class="normal">504</span>
+<span class="normal">505</span>
+<span class="normal">506</span>
+<span class="normal">507</span>
+<span class="normal">508</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">parse_other_options</span><span class="p">(</span><span class="n">parser</span><span class="p">:</span> <span class="n">_ArgumentGroup</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Parse other options from the command line.</span>
 
@@ -2319,15 +2389,7 @@
 
       <details class="quote">
         <summary>Source code in <code>spotdl/utils/arguments.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">296</span>
-<span class="normal">297</span>
-<span class="normal">298</span>
-<span class="normal">299</span>
-<span class="normal">300</span>
-<span class="normal">301</span>
-<span class="normal">302</span>
-<span class="normal">303</span>
-<span class="normal">304</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">304</span>
 <span class="normal">305</span>
 <span class="normal">306</span>
 <span class="normal">307</span>
@@ -2405,7 +2467,24 @@
 <span class="normal">379</span>
 <span class="normal">380</span>
 <span class="normal">381</span>
-<span class="normal">382</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">parse_output_options</span><span class="p">(</span><span class="n">parser</span><span class="p">:</span> <span class="n">_ArgumentGroup</span><span class="p">):</span>
+<span class="normal">382</span>
+<span class="normal">383</span>
+<span class="normal">384</span>
+<span class="normal">385</span>
+<span class="normal">386</span>
+<span class="normal">387</span>
+<span class="normal">388</span>
+<span class="normal">389</span>
+<span class="normal">390</span>
+<span class="normal">391</span>
+<span class="normal">392</span>
+<span class="normal">393</span>
+<span class="normal">394</span>
+<span class="normal">395</span>
+<span class="normal">396</span>
+<span class="normal">397</span>
+<span class="normal">398</span>
+<span class="normal">399</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">parse_output_options</span><span class="p">(</span><span class="n">parser</span><span class="p">:</span> <span class="n">_ArgumentGroup</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Parse output options from the command line.</span>
 
@@ -2452,7 +2531,16 @@
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;--m3u&quot;</span><span class="p">,</span>
         <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Name of the m3u file to save the songs to.&quot;</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;?&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Name of the m3u file to save the songs to. &quot;</span>
+            <span class="s2">&quot;Defaults to </span><span class="si">{list[0]}</span><span class="s2">.m3u &quot;</span>
+            <span class="s2">&quot;If you want to generate a m3u for each list in the query use {list-name}, &quot;</span>
+            <span class="s2">&quot;If you want to generate a m3u file based on the first list in the query use </span><span class="si">{list[0]}</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;, (0 is the first list in the query, 1 is the second, etc. &quot;</span>
+            <span class="s2">&quot;songs don&#39;t count towards the list number) &quot;</span>
+        <span class="p">),</span>
+        <span class="n">const</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">{list[0]}</span><span class="s2">.m3u&quot;</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="c1"># Add overwrite argument</span>
@@ -2518,11 +2606,7 @@
 
       <details class="quote">
         <summary>Source code in <code>spotdl/utils/arguments.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">187</span>
-<span class="normal">188</span>
-<span class="normal">189</span>
-<span class="normal">190</span>
-<span class="normal">191</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">191</span>
 <span class="normal">192</span>
 <span class="normal">193</span>
 <span class="normal">194</span>
@@ -2571,7 +2655,11 @@
 <span class="normal">237</span>
 <span class="normal">238</span>
 <span class="normal">239</span>
-<span class="normal">240</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">parse_spotify_options</span><span class="p">(</span><span class="n">parser</span><span class="p">:</span> <span class="n">_ArgumentGroup</span><span class="p">):</span>
+<span class="normal">240</span>
+<span class="normal">241</span>
+<span class="normal">242</span>
+<span class="normal">243</span>
+<span class="normal">244</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">parse_spotify_options</span><span class="p">(</span><span class="n">parser</span><span class="p">:</span> <span class="n">_ArgumentGroup</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Parse spotify options from the command line.</span>
 
@@ -2631,6 +2719,103 @@
 
 </div>
 
+<div class="doc doc-object doc-function">
+
+
+
+<h2 id="spotdl.utils.arguments.parse_web_options" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">parse_web_options</span><span class="p">(</span><span class="n">parser</span><span class="p">)</span></code>
+
+<a href="#spotdl.utils.arguments.parse_web_options" class="headerlink" title="Permanent link">¤</a></h2>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Parse web options from the command line.</p>
+<h5 id="spotdl.utils.arguments.parse_web_options--arguments">Arguments<a class="headerlink" href="#spotdl.utils.arguments.parse_web_options--arguments" title="Permanent link">¤</a></h5>
+<ul>
+<li>parser: The argument parser to add the options to.</li>
+</ul>
+
+      <details class="quote">
+        <summary>Source code in <code>spotdl/utils/arguments.py</code></summary>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">402</span>
+<span class="normal">403</span>
+<span class="normal">404</span>
+<span class="normal">405</span>
+<span class="normal">406</span>
+<span class="normal">407</span>
+<span class="normal">408</span>
+<span class="normal">409</span>
+<span class="normal">410</span>
+<span class="normal">411</span>
+<span class="normal">412</span>
+<span class="normal">413</span>
+<span class="normal">414</span>
+<span class="normal">415</span>
+<span class="normal">416</span>
+<span class="normal">417</span>
+<span class="normal">418</span>
+<span class="normal">419</span>
+<span class="normal">420</span>
+<span class="normal">421</span>
+<span class="normal">422</span>
+<span class="normal">423</span>
+<span class="normal">424</span>
+<span class="normal">425</span>
+<span class="normal">426</span>
+<span class="normal">427</span>
+<span class="normal">428</span>
+<span class="normal">429</span>
+<span class="normal">430</span>
+<span class="normal">431</span>
+<span class="normal">432</span>
+<span class="normal">433</span>
+<span class="normal">434</span>
+<span class="normal">435</span>
+<span class="normal">436</span>
+<span class="normal">437</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">parse_web_options</span><span class="p">(</span><span class="n">parser</span><span class="p">:</span> <span class="n">_ArgumentGroup</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Parse web options from the command line.</span>
+
+<span class="sd">    ### Arguments</span>
+<span class="sd">    - parser: The argument parser to add the options to.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Add host argument</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--host&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The host to use for the web server.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Add port argument</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--port&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The port to run the web server on.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Add keep alive argument</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--keep-alive&quot;</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_const&quot;</span><span class="p">,</span>
+        <span class="n">const</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Keep the web server alive even when no clients are connected.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Add allowed origins argument</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--allowed-origins&quot;</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;*&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;The allowed origins for the web server.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+      </details>
+  </div>
+
+</div>
+
 
 
   </div>
@@ -2679,13 +2864,13 @@
       
       
         
-        <a href="../ffmpeg/" class="md-footer__link md-footer__link--next" aria-label="Next: ffmpeg" rel="next">
+        <a href="../web/" class="md-footer__link md-footer__link--next" aria-label="Next: web" rel="next">
           <div class="md-footer__title">
             <div class="md-ellipsis">
               <span class="md-footer__direction">
                 Next
               </span>
-              ffmpeg
+              web
             </div>
           </div>
           <div class="md-footer__button md-icon">

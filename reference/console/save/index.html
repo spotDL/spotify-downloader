@@ -15,7 +15,7 @@
         <link rel="canonical" href="https://spotdl.github.io/spotify-downloader/reference/console/save/">
       
       <link rel="icon" href="../../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.4.1, mkdocs-material-8.5.7">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-8.5.7">
     
     
       
@@ -762,6 +762,20 @@
     <li class="md-nav__item">
       <a href="../../utils/arguments/" class="md-nav__link">
         arguments
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../utils/web/" class="md-nav__link">
+        web
       </a>
     </li>
   
@@ -1556,8 +1570,8 @@
         <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">save_data</span><span class="p">,</span> <span class="n">save_file</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">ensure_ascii</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">m3u_file</span><span class="p">:</span>
-        <span class="n">create_m3u_file</span><span class="p">(</span>
-            <span class="n">m3u_file</span><span class="p">,</span> <span class="n">songs</span><span class="p">,</span> <span class="n">downloader</span><span class="o">.</span><span class="n">output</span><span class="p">,</span> <span class="n">downloader</span><span class="o">.</span><span class="n">output_format</span><span class="p">,</span> <span class="kc">False</span>
+        <span class="n">gen_m3u_files</span><span class="p">(</span>
+            <span class="n">query</span><span class="p">,</span> <span class="n">m3u_file</span><span class="p">,</span> <span class="n">songs</span><span class="p">,</span> <span class="n">downloader</span><span class="o">.</span><span class="n">output</span><span class="p">,</span> <span class="n">downloader</span><span class="o">.</span><span class="n">output_format</span><span class="p">,</span> <span class="kc">False</span>
         <span class="p">)</span>
 
     <span class="n">downloader</span><span class="o">.</span><span class="n">progress_handler</span><span class="o">.</span><span class="n">log</span><span class="p">(</span>

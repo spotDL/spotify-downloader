@@ -15,7 +15,7 @@
         <link rel="canonical" href="https://spotdl.github.io/spotify-downloader/CONTRIBUTING/">
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.4.1, mkdocs-material-8.5.7">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-8.5.7">
     
     
       
@@ -604,13 +604,6 @@
   
 </li>
         
-          <li class="md-nav__item">
-  <a href="#markdown-formatting" class="md-nav__link">
-    Markdown formatting
-  </a>
-  
-</li>
-        
       </ul>
     </nav>
   
@@ -960,6 +953,20 @@
     <li class="md-nav__item">
       <a href="../reference/utils/arguments/" class="md-nav__link">
         arguments
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/utils/web/" class="md-nav__link">
+        web
       </a>
     </li>
   
@@ -1564,13 +1571,6 @@
   
 </li>
         
-          <li class="md-nav__item">
-  <a href="#markdown-formatting" class="md-nav__link">
-    Markdown formatting
-  </a>
-  
-</li>
-        
       </ul>
     </nav>
   
@@ -1802,19 +1802,13 @@ related suggestions.</p>
 <div class="language-bash highlight"><pre><span></span><code>git clone <span class="o">[</span>your username<span class="o">]</span>/spotify-downloader
 <span class="nb">cd</span> spotify-downloader
 </code></pre></div>
-<p>(Optional) Create a virtual environment</p>
-<div class="language-bash highlight"><pre><span></span><code>python3 -m venv .venv
+<p><strong>Install poetry</strong></p>
+<div class="language-text highlight"><pre><span></span><code>pip install poetry
 </code></pre></div>
-<p>Activate the virtual environment.
- - Linux: <code>source .venv/bin/activate</code>
- - Windows: <code>.venv\Scripts\activate</code></p>
-<blockquote>
-<p>See <a href="https://docs.python.org/3/library/venv.html">Python's official venv docs</a> for advanced virtual environment setup.</p>
-</blockquote>
-<p>Then, to install spotDL in-place and editable, run the following
-<div class="language-text highlight"><pre><span></span><code>pip install -e .
-</code></pre></div></p>
-<p>All changes will now affect the venv installation of the spotdl cli.</p>
+<p><strong>Then, to install spotDL in-place and editable, run the following</strong></p>
+<div class="language-text highlight"><pre><span></span><code>poetry install
+</code></pre></div>
+<p>All changes will now affect the poetry installation of the spotdl cli.</p>
 <h3 id="linting-formatting-and-type-checking">Linting, Formatting and Type-checking<a class="headerlink" href="#linting-formatting-and-type-checking" title="Permanent link">¤</a></h3>
 <ul>
 <li>We use <a href="https://pypi.org/project/pylint/"><code>pylint</code></a> for linting and expect a score above <code>9</code></li>
@@ -1904,42 +1898,6 @@ optional usage example for module/package preferably showcasing most commonly us
 class B(A):
     def test(self):
         pass
-
-# B.test.__doc__ acc. to normal python  : None
-# B.test.__doc__ acc. to normal pdoc3   : Docstring for A.
-</code></pre></div>
-<ul>
-<li>You can write DocStrings for variables with <code>#:</code> comment above the variable</li>
-</ul>
-<div class="language-text highlight"><pre><span></span><code>#: an example variable to demonstrate DocStrings
-example_var_1 = 1
-</code></pre></div>
-<ul>
-<li>You can use the reST directives
-  <a href="https://docutils.sourceforge.io/docs/ref/rst/directives.html#math"><code>..math::</code></a> and
-  <a href="https://docutils.sourceforge.io/docs/ref/rst/directives.html#images"><code>..image::</code></a></li>
-</ul>
-<h4 id="markdown-formatting">Markdown formatting<a class="headerlink" href="#markdown-formatting" title="Permanent link">¤</a></h4>
-<ul>
-<li>Markdown is formatted with <a href="https://pypi.org/project/mdformat-gfm/"><code>mdformat-gfm</code></a> and
-  indexes are auto-generated with <a href="https://pypi.org/project/mdformat-toc/"><code>mdformat-toc</code></a></li>
-</ul>
-<div class="language-text highlight"><pre><span></span><code>pip install mdformat-gfm mdformat-toc
-</code></pre></div>
-<ul>
-<li>Create an Index using the following comment, the index will be updated when mdformat is run</li>
-</ul>
-<div class="language-markdown highlight"><pre><span></span><code>&lt;!-- mdformat-toc start --no-anchors --&gt;
-</code></pre></div>
-<ul>
-<li>
-<p>Preferably use empty lines between points on ordered &amp; un-ordered lists</p>
-</li>
-<li>
-<p>Format your markdown using</p>
-</li>
-</ul>
-<div class="language-text highlight"><pre><span></span><code>mdformat --wrap 95 --number ./
 </code></pre></div>
 <h3 id="overview-of-the-project-structure">Overview of the Project Structure<a class="headerlink" href="#overview-of-the-project-structure" title="Permanent link">¤</a></h3>
 <table>

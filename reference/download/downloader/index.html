@@ -15,7 +15,7 @@
         <link rel="canonical" href="https://spotdl.github.io/spotify-downloader/reference/download/downloader/">
       
       <link rel="icon" href="../../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.4.1, mkdocs-material-8.5.7">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-8.5.7">
     
     
       
@@ -762,6 +762,20 @@
     <li class="md-nav__item">
       <a href="../../utils/arguments/" class="md-nav__link">
         arguments
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../utils/web/" class="md-nav__link">
+        web
       </a>
     </li>
   
@@ -1781,8 +1795,7 @@ It handles the downloading/moving songs, multthreading, metadata embedding etc.<
 <li>audio_provider: Audio providers to use.</li>
 <li>lyrics_provider: The lyrics providers to use.</li>
 <li>ffmpeg: The ffmpeg executable to use.</li>
-<li>variable_bitrate: The variable bitrate to use.</li>
-<li>constant_bitrate: The constant bitrate to use.</li>
+<li>bitrate: The bitrate to use.</li>
 <li>ffmpeg_args: The ffmpeg arguments to use.</li>
 <li>output_format: The output format to use.</li>
 <li>threads: The number of threads to use.</li>
@@ -1936,8 +1949,7 @@ It handles the downloading/moving songs, multthreading, metadata embedding etc.<
 <span class="normal">192</span>
 <span class="normal">193</span>
 <span class="normal">194</span>
-<span class="normal">195</span>
-<span class="normal">196</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+<span class="normal">195</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">audio_providers</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">lyrics_providers</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1966,8 +1978,7 @@ It handles the downloading/moving songs, multthreading, metadata embedding etc.<
 <span class="sd">    - audio_provider: Audio providers to use.</span>
 <span class="sd">    - lyrics_provider: The lyrics providers to use.</span>
 <span class="sd">    - ffmpeg: The ffmpeg executable to use.</span>
-<span class="sd">    - variable_bitrate: The variable bitrate to use.</span>
-<span class="sd">    - constant_bitrate: The constant bitrate to use.</span>
+<span class="sd">    - bitrate: The bitrate to use.</span>
 <span class="sd">    - ffmpeg_args: The ffmpeg arguments to use.</span>
 <span class="sd">    - output_format: The output format to use.</span>
 <span class="sd">    - threads: The number of threads to use.</span>
@@ -2103,13 +2114,13 @@ It handles the downloading/moving songs, multthreading, metadata embedding etc.<
 
       <details class="quote">
         <summary>Source code in <code>spotdl/download/downloader.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">534</span>
-<span class="normal">535</span>
-<span class="normal">536</span>
-<span class="normal">537</span>
-<span class="normal">538</span>
-<span class="normal">539</span>
-<span class="normal">540</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@staticmethod</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">542</span>
+<span class="normal">543</span>
+<span class="normal">544</span>
+<span class="normal">545</span>
+<span class="normal">546</span>
+<span class="normal">547</span>
+<span class="normal">548</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@staticmethod</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">aggregate_tasks</span><span class="p">(</span><span class="n">tasks</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Aggregate the futures and return the results</span>
@@ -2146,7 +2157,8 @@ It handles the downloading/moving songs, multthreading, metadata embedding etc.<
 
       <details class="quote">
         <summary>Source code in <code>spotdl/download/downloader.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">215</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">214</span>
+<span class="normal">215</span>
 <span class="normal">216</span>
 <span class="normal">217</span>
 <span class="normal">218</span>
@@ -2173,8 +2185,7 @@ It handles the downloading/moving songs, multthreading, metadata embedding etc.<
 <span class="normal">239</span>
 <span class="normal">240</span>
 <span class="normal">241</span>
-<span class="normal">242</span>
-<span class="normal">243</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">download_multiple_songs</span><span class="p">(</span>
+<span class="normal">242</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">download_multiple_songs</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span> <span class="n">songs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Song</span><span class="p">]</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Song</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]]]:</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -2233,7 +2244,8 @@ It handles the downloading/moving songs, multthreading, metadata embedding etc.<
 
       <details class="quote">
         <summary>Source code in <code>spotdl/download/downloader.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">198</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">197</span>
+<span class="normal">198</span>
 <span class="normal">199</span>
 <span class="normal">200</span>
 <span class="normal">201</span>
@@ -2247,8 +2259,7 @@ It handles the downloading/moving songs, multthreading, metadata embedding etc.<
 <span class="normal">209</span>
 <span class="normal">210</span>
 <span class="normal">211</span>
-<span class="normal">212</span>
-<span class="normal">213</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">download_song</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">song</span><span class="p">:</span> <span class="n">Song</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Song</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]]:</span>
+<span class="normal">212</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">download_song</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">song</span><span class="p">:</span> <span class="n">Song</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Song</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]]:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Download a single song.</span>
 
@@ -2302,7 +2313,8 @@ It handles the downloading/moving songs, multthreading, metadata embedding etc.<
 
       <details class="quote">
         <summary>Source code in <code>spotdl/download/downloader.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">245</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">244</span>
+<span class="normal">245</span>
 <span class="normal">246</span>
 <span class="normal">247</span>
 <span class="normal">248</span>
@@ -2324,8 +2336,7 @@ It handles the downloading/moving songs, multthreading, metadata embedding etc.<
 <span class="normal">264</span>
 <span class="normal">265</span>
 <span class="normal">266</span>
-<span class="normal">267</span>
-<span class="normal">268</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">pool_download</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">song</span><span class="p">:</span> <span class="n">Song</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Song</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]]:</span>
+<span class="normal">267</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">pool_download</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">song</span><span class="p">:</span> <span class="n">Song</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Song</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]]:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Run asynchronous task in a pool to make sure that all processes.</span>
 
@@ -2379,7 +2390,8 @@ It handles the downloading/moving songs, multthreading, metadata embedding etc.<
 
       <details class="quote">
         <summary>Source code in <code>spotdl/download/downloader.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">270</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">269</span>
+<span class="normal">270</span>
 <span class="normal">271</span>
 <span class="normal">272</span>
 <span class="normal">273</span>
@@ -2409,8 +2421,7 @@ It handles the downloading/moving songs, multthreading, metadata embedding etc.<
 <span class="normal">297</span>
 <span class="normal">298</span>
 <span class="normal">299</span>
-<span class="normal">300</span>
-<span class="normal">301</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">search</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">song</span><span class="p">:</span> <span class="n">Song</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">AudioProvider</span><span class="p">]:</span>
+<span class="normal">300</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">search</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">song</span><span class="p">:</span> <span class="n">Song</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">AudioProvider</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Search for a song using all available providers.</span>
 
@@ -2476,7 +2487,8 @@ It handles the downloading/moving songs, multthreading, metadata embedding etc.<
 
       <details class="quote">
         <summary>Source code in <code>spotdl/download/downloader.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">329</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">328</span>
+<span class="normal">329</span>
 <span class="normal">330</span>
 <span class="normal">331</span>
 <span class="normal">332</span>
@@ -2679,7 +2691,15 @@ It handles the downloading/moving songs, multthreading, metadata embedding etc.<
 <span class="normal">529</span>
 <span class="normal">530</span>
 <span class="normal">531</span>
-<span class="normal">532</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">search_and_download</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">song</span><span class="p">:</span> <span class="n">Song</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Song</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]]:</span>
+<span class="normal">532</span>
+<span class="normal">533</span>
+<span class="normal">534</span>
+<span class="normal">535</span>
+<span class="normal">536</span>
+<span class="normal">537</span>
+<span class="normal">538</span>
+<span class="normal">539</span>
+<span class="normal">540</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">search_and_download</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">song</span><span class="p">:</span> <span class="n">Song</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Song</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]]:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Search for the song and download it.</span>
 
@@ -2711,6 +2731,9 @@ It handles the downloading/moving songs, multthreading, metadata embedding etc.<
     <span class="k">else</span><span class="p">:</span>
         <span class="n">song</span><span class="o">.</span><span class="n">lyrics</span> <span class="o">=</span> <span class="n">lyrics</span>
 
+    <span class="c1"># Initalize the progress tracker</span>
+    <span class="n">display_progress_tracker</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">progress_handler</span><span class="o">.</span><span class="n">get_new_tracker</span><span class="p">(</span><span class="n">song</span><span class="p">)</span>
+
     <span class="c1"># Create the output file path</span>
     <span class="n">output_file</span> <span class="o">=</span> <span class="n">create_file_name</span><span class="p">(</span><span class="n">song</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_format</span><span class="p">)</span>
     <span class="n">temp_folder</span> <span class="o">=</span> <span class="n">get_temp_path</span><span class="p">()</span>
@@ -2723,24 +2746,16 @@ It handles the downloading/moving songs, multthreading, metadata embedding etc.<
     <span class="c1"># we can skip the download</span>
     <span class="k">if</span> <span class="n">output_file</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">overwrite</span> <span class="o">==</span> <span class="s2">&quot;skip&quot;</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">progress_handler</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Skipping </span><span class="si">{</span><span class="n">song</span><span class="o">.</span><span class="n">display_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">progress_handler</span><span class="o">.</span><span class="n">overall_completed_tasks</span> <span class="o">+=</span> <span class="mi">1</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">progress_handler</span><span class="o">.</span><span class="n">update_overall</span><span class="p">()</span>
+        <span class="n">display_progress_tracker</span><span class="o">.</span><span class="n">notify_download_skip</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">song</span><span class="p">,</span> <span class="kc">None</span>
 
     <span class="k">if</span> <span class="n">output_file</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">overwrite</span> <span class="o">==</span> <span class="s2">&quot;metadata&quot;</span><span class="p">:</span>
-        <span class="n">song_meta</span> <span class="o">=</span> <span class="n">get_song_metadata</span><span class="p">(</span><span class="n">output_file</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">song_meta</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">progress_handler</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Metadata not found for </span><span class="si">{</span><span class="n">song</span><span class="o">.</span><span class="n">display_name</span><span class="si">}</span><span class="s2">, &quot;</span> <span class="s2">&quot;overwriting file&quot;</span>
-            <span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">progress_handler</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Metadata found for </span><span class="si">{</span><span class="n">song</span><span class="o">.</span><span class="n">display_name</span><span class="si">}</span><span class="s2">, &quot;</span> <span class="s2">&quot;overwriting file&quot;</span>
-            <span class="p">)</span>
-
         <span class="n">embed_metadata</span><span class="p">(</span>
             <span class="n">output_file</span><span class="o">=</span><span class="n">output_file</span><span class="p">,</span> <span class="n">song</span><span class="o">=</span><span class="n">song</span><span class="p">,</span> <span class="n">file_format</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">output_format</span>
         <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">progress_handler</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Updated metadata for </span><span class="si">{</span><span class="n">song</span><span class="o">.</span><span class="n">display_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">display_progress_tracker</span><span class="o">.</span><span class="n">notify_complete</span><span class="p">()</span>
 
         <span class="k">return</span> <span class="n">song</span><span class="p">,</span> <span class="n">output_file</span>
 
@@ -2748,17 +2763,17 @@ It handles the downloading/moving songs, multthreading, metadata embedding etc.<
     <span class="k">if</span> <span class="n">output_file</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">overwrite</span> <span class="o">==</span> <span class="s2">&quot;force&quot;</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">progress_handler</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Overwriting </span><span class="si">{</span><span class="n">song</span><span class="o">.</span><span class="n">display_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
-    <span class="c1"># Initalize the progress tracker</span>
-    <span class="n">display_progress_tracker</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">progress_handler</span><span class="o">.</span><span class="n">get_new_tracker</span><span class="p">(</span><span class="n">song</span><span class="p">)</span>
-
     <span class="c1"># Create the output directory if it doesn&#39;t exist</span>
     <span class="n">output_file</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="k">try</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">song</span><span class="o">.</span><span class="n">download_url</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">url</span><span class="p">,</span> <span class="n">audio_provider</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">song</span><span class="p">)</span>
+            <span class="n">download_url</span><span class="p">,</span> <span class="n">audio_provider</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">song</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">url</span> <span class="o">=</span> <span class="n">song</span><span class="o">.</span><span class="n">download_url</span>
+            <span class="c1"># If the song object already has a download url</span>
+            <span class="c1"># we can skip the search, and just reinitialize the base</span>
+            <span class="c1"># audio provider to download the song</span>
+            <span class="n">download_url</span> <span class="o">=</span> <span class="n">song</span><span class="o">.</span><span class="n">download_url</span>
             <span class="n">audio_provider</span> <span class="o">=</span> <span class="n">AudioProvider</span><span class="p">(</span>
                 <span class="n">output_format</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">output_format</span><span class="p">,</span>
                 <span class="n">cookie_file</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cookie_file</span><span class="p">,</span>
@@ -2767,7 +2782,7 @@ It handles the downloading/moving songs, multthreading, metadata embedding etc.<
             <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">progress_handler</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Downloading </span><span class="si">{</span><span class="n">song</span><span class="o">.</span><span class="n">display_name</span><span class="si">}</span><span class="s2"> using </span><span class="si">{</span><span class="n">url</span><span class="si">}</span><span class="s2">, &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;Downloading </span><span class="si">{</span><span class="n">song</span><span class="o">.</span><span class="n">display_name</span><span class="si">}</span><span class="s2"> using </span><span class="si">{</span><span class="n">download_url</span><span class="si">}</span><span class="s2">, &quot;</span>
             <span class="sa">f</span><span class="s2">&quot;audio provider: </span><span class="si">{</span><span class="n">audio_provider</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="p">)</span>
 
@@ -2777,14 +2792,17 @@ It handles the downloading/moving songs, multthreading, metadata embedding etc.<
         <span class="p">)</span>
 
         <span class="c1"># Download the song using yt-dlp</span>
-        <span class="n">download_info</span> <span class="o">=</span> <span class="n">audio_provider</span><span class="o">.</span><span class="n">get_download_metadata</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">download</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">download_info</span> <span class="o">=</span> <span class="n">audio_provider</span><span class="o">.</span><span class="n">get_download_metadata</span><span class="p">(</span>
+            <span class="n">download_url</span><span class="p">,</span> <span class="n">download</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
+
         <span class="n">temp_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span>
             <span class="n">temp_folder</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">download_info</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">download_info</span><span class="p">[</span><span class="s1">&#39;ext&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="p">)</span>
 
         <span class="k">if</span> <span class="n">download_info</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">progress_handler</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;No download info found for </span><span class="si">{</span><span class="n">song</span><span class="o">.</span><span class="n">display_name</span><span class="si">}</span><span class="s2">, url: </span><span class="si">{</span><span class="n">url</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;No download info found for </span><span class="si">{</span><span class="n">song</span><span class="o">.</span><span class="n">display_name</span><span class="si">}</span><span class="s2">, url: </span><span class="si">{</span><span class="n">download_url</span><span class="si">}</span><span class="s2">&quot;</span>
             <span class="p">)</span>
 
             <span class="k">raise</span> <span class="ne">LookupError</span><span class="p">(</span>
@@ -2798,14 +2816,23 @@ It handles the downloading/moving songs, multthreading, metadata embedding etc.<
             <span class="n">output_file</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">ffmpeg</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">output_format</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">bitrate</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bitrate</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">bitrate</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">download_info</span><span class="p">[</span><span class="s1">&#39;abr&#39;</span><span class="p">])</span><span class="si">}</span><span class="s2">k&quot;</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">ffmpeg_args</span><span class="p">,</span>
             <span class="n">display_progress_tracker</span><span class="o">.</span><span class="n">ffmpeg_progress_hook</span><span class="p">,</span>
         <span class="p">)</span>
 
         <span class="c1"># Remove the temp file</span>
         <span class="k">if</span> <span class="n">temp_file</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
-            <span class="n">temp_file</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">temp_file</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
+            <span class="k">except</span> <span class="p">(</span><span class="ne">PermissionError</span><span class="p">,</span> <span class="ne">OSError</span><span class="p">)</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">progress_handler</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Could not remove temp file: </span><span class="si">{</span><span class="n">temp_file</span><span class="si">}</span><span class="s2">, error: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
+
+                <span class="k">raise</span> <span class="n">DownloaderError</span><span class="p">(</span>
+                    <span class="s2">&quot;Could not remove temp file, possible duplicate song&quot;</span>
+                <span class="p">)</span> <span class="kn">from</span> <span class="nn">exc</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">success</span> <span class="ow">and</span> <span class="n">result</span><span class="p">:</span>
             <span class="c1"># If the conversion failed and there is an error message</span>
@@ -2837,7 +2864,7 @@ It handles the downloading/moving songs, multthreading, metadata embedding etc.<
 
         <span class="c1"># Set the song&#39;s download url</span>
         <span class="k">if</span> <span class="n">song</span><span class="o">.</span><span class="n">download_url</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">song</span><span class="o">.</span><span class="n">download_url</span> <span class="o">=</span> <span class="n">download_info</span><span class="p">[</span><span class="s2">&quot;webpage_url&quot;</span><span class="p">]</span>
+            <span class="n">song</span><span class="o">.</span><span class="n">download_url</span> <span class="o">=</span> <span class="n">download_url</span>
 
         <span class="n">display_progress_tracker</span><span class="o">.</span><span class="n">notify_conversion_complete</span><span class="p">()</span>
 
@@ -2878,7 +2905,9 @@ It handles the downloading/moving songs, multthreading, metadata embedding etc.<
 
         <span class="k">return</span> <span class="n">song</span><span class="p">,</span> <span class="n">output_file</span>
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exception</span><span class="p">:</span>
-        <span class="n">display_progress_tracker</span><span class="o">.</span><span class="n">notify_error</span><span class="p">(</span><span class="n">traceback</span><span class="o">.</span><span class="n">format_exc</span><span class="p">(),</span> <span class="n">exception</span><span class="p">)</span>
+        <span class="n">display_progress_tracker</span><span class="o">.</span><span class="n">notify_error</span><span class="p">(</span>
+            <span class="n">traceback</span><span class="o">.</span><span class="n">format_exc</span><span class="p">(),</span> <span class="n">exception</span><span class="p">,</span> <span class="kc">True</span>
+        <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">errors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">song</span><span class="o">.</span><span class="n">url</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="n">exception</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">exception</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="p">)</span>
@@ -2913,7 +2942,8 @@ It handles the downloading/moving songs, multthreading, metadata embedding etc.<
 
       <details class="quote">
         <summary>Source code in <code>spotdl/download/downloader.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">303</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">302</span>
+<span class="normal">303</span>
 <span class="normal">304</span>
 <span class="normal">305</span>
 <span class="normal">306</span>
@@ -2936,8 +2966,7 @@ It handles the downloading/moving songs, multthreading, metadata embedding etc.<
 <span class="normal">323</span>
 <span class="normal">324</span>
 <span class="normal">325</span>
-<span class="normal">326</span>
-<span class="normal">327</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">search_lyrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">song</span><span class="p">:</span> <span class="n">Song</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="normal">326</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">search_lyrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">song</span><span class="p">:</span> <span class="n">Song</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Search for lyrics using all available providers.</span>
 

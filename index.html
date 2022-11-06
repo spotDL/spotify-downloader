@@ -15,7 +15,7 @@
         <link rel="canonical" href="https://spotdl.github.io/spotify-downloader/">
       
       <link rel="icon" href="assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.4.1, mkdocs-material-8.5.7">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-8.5.7">
     
     
       
@@ -874,6 +874,20 @@
   
   
     <li class="md-nav__item">
+      <a href="reference/utils/web/" class="md-nav__link">
+        web
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
       <a href="reference/utils/ffmpeg/" class="md-nav__link">
         ffmpeg
       </a>
@@ -1443,21 +1457,26 @@
 <img alt="Contributors" src="https://img.shields.io/github/contributors/spotDL/spotify-downloader?style=flat-square" />
 <a href="https://discord.gg/xCa23pwJWY"><img alt="Discord" src="https://img.shields.io/discord/771628785447337985?label=discord&amp;logo=discord&amp;style=flat-square" /></a></p>
 <blockquote>
-<p>A new and improved version of spotDL: still the fastest, easiest and most accurate command-line music downloader</p>
+<p>A new and improved version of spotDL: still the fastest, easiest and most accurate
+command-line music downloader</p>
 </blockquote>
 <hr />
 <p><strong><a href="http://spotdl.rtfd.io/">Read the documentation on ReadTheDocs!</a></strong></p>
 <hr />
 <h2 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">¤</a></h2>
 <ul>
-<li><a href="https://docs.microsoft.com/pl-pl/cpp/windows/latest-supported-vc-redist?view=msvc-170#visual-studio-2015-2017-2019-and-2022">Visual C++ 2019 redistributable</a> <strong>(on Windows)</strong></li>
+<li><a href="https://docs.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist?view=msvc-170#visual-studio-2015-2017-2019-and-2022">Visual C++ 2019 redistributable</a>
+  <strong>(on Windows)</strong></li>
 <li>Python 3.7 or above (added to PATH)</li>
 </ul>
 <blockquote>
-<p><strong><em>YouTube Music must be available in your country for spotDL to work. This is because we use YouTube Music to filter search results. You can check if YouTube Music is available in your country, by visiting <a href="https://music.youtube.com">YouTube Music</a>.</em></strong></p>
+<p><strong><em>YouTube Music must be available in your country for spotDL to work. This is because we use
+YouTube Music to filter search results. You can check if YouTube Music is available in your
+country, by visiting <a href="https://music.youtube.com">YouTube Music</a>.</em></strong></p>
 </blockquote>
 <h2 id="installation">Installation<a class="headerlink" href="#installation" title="Permanent link">¤</a></h2>
-<p>Refer to our <a href="https://spotdl.rtfd.io/en/latest/installation/">Installation Guide</a> for more details</p>
+<p>Refer to our <a href="https://spotdl.rtfd.io/en/latest/installation/">Installation Guide</a> for more
+details</p>
 <ul>
 <li>Python (<strong>Recommended</strong>)</li>
 <li><em>spotDL</em> can be installed by running <code>pip install spotdl</code>.<blockquote>
@@ -1468,11 +1487,13 @@
 <h3 id="other-options">Other options<a class="headerlink" href="#other-options" title="Permanent link">¤</a></h3>
 <ul>
 <li>Prebuilt Executable</li>
-<li>You can download the latest version from the <a href="https://github.com/spotDL/spotify-downloader/releases">Releases Tab</a></li>
+<li>You can download the latest version from the
+    <a href="https://github.com/spotDL/spotify-downloader/releases">Releases Tab</a></li>
 <li>On Termux</li>
 <li><code>curl -L https://raw.githubusercontent.com/spotDL/spotify-downloader/master/scripts/termux.sh | sh</code></li>
 <li>Arch</li>
-<li>There is an Arch User Repository (AUR) package for <a href="https://aur.archlinux.org/packages/python-spotdl/">spotDL</a>.</li>
+<li>There is an Arch User Repository (AUR) package for
+    <a href="https://aur.archlinux.org/packages/python-spotdl/">spotDL</a>.</li>
 <li>Docker</li>
 <li>
 <p>Build image:</p>
@@ -1480,7 +1501,8 @@
 </code></pre></div>
 </li>
 <li>
-<p>Launch container with spotDL parameters (see section below). You need to create mapped volume to access song files</p>
+<p>Launch container with spotDL parameters (see section below). You need to create mapped
+    volume to access song files</p>
 <div class="language-bash highlight"><pre><span></span><code>docker run --rm -v <span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>:/music spotdl download <span class="o">[</span>trackUrl<span class="o">]</span>
 </code></pre></div>
 </li>

@@ -15,7 +15,7 @@
         <link rel="canonical" href="https://spotdl.github.io/spotify-downloader/reference/types/playlist/">
       
       <link rel="icon" href="../../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.4.1, mkdocs-material-8.5.7">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-8.5.7">
     
     
       
@@ -600,33 +600,6 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#spotdl.types.playlist.Playlist.from_url" class="md-nav__link">
-    from_url()
-  </a>
-  
-    <nav class="md-nav" aria-label="from_url()">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#spotdl.types.playlist.Playlist.from_url--arguments" class="md-nav__link">
-    Arguments
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#spotdl.types.playlist.Playlist.from_url--returns" class="md-nav__link">
-    Returns
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#spotdl.types.playlist.Playlist.get_metadata" class="md-nav__link">
     get_metadata()
   </a>
@@ -902,6 +875,20 @@
     <li class="md-nav__item">
       <a href="../../utils/arguments/" class="md-nav__link">
         arguments
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../utils/web/" class="md-nav__link">
+        web
       </a>
     </li>
   
@@ -1394,33 +1381,6 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#spotdl.types.playlist.Playlist.from_url" class="md-nav__link">
-    from_url()
-  </a>
-  
-    <nav class="md-nav" aria-label="from_url()">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#spotdl.types.playlist.Playlist.from_url--arguments" class="md-nav__link">
-    Arguments
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#spotdl.types.playlist.Playlist.from_url--returns" class="md-nav__link">
-    Returns
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#spotdl.types.playlist.Playlist.get_metadata" class="md-nav__link">
     get_metadata()
   </a>
@@ -1567,91 +1527,6 @@
 
 
 
-<h3 id="spotdl.types.playlist.Playlist.from_url" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">from_url</span><span class="p">(</span><span class="n">url</span><span class="p">)</span></code>
-  
-  <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-classmethod"><code>classmethod</code></small>
-  </span>
-
-<a href="#spotdl.types.playlist.Playlist.from_url" class="headerlink" title="Permanent link">¤</a></h3>
-
-
-  <div class="doc doc-contents ">
-  
-      <p>Load playlist info and tracks from a Spotify playlist URL.</p>
-<h6 id="spotdl.types.playlist.Playlist.from_url--arguments">Arguments<a class="headerlink" href="#spotdl.types.playlist.Playlist.from_url--arguments" title="Permanent link">¤</a></h6>
-<ul>
-<li>url: The URL of the playlist.</li>
-</ul>
-<h6 id="spotdl.types.playlist.Playlist.from_url--returns">Returns<a class="headerlink" href="#spotdl.types.playlist.Playlist.from_url--returns" title="Permanent link">¤</a></h6>
-<ul>
-<li>The Playlist object.</li>
-</ul>
-
-      <details class="quote">
-        <summary>Source code in <code>spotdl/types/playlist.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">28</span>
-<span class="normal">29</span>
-<span class="normal">30</span>
-<span class="normal">31</span>
-<span class="normal">32</span>
-<span class="normal">33</span>
-<span class="normal">34</span>
-<span class="normal">35</span>
-<span class="normal">36</span>
-<span class="normal">37</span>
-<span class="normal">38</span>
-<span class="normal">39</span>
-<span class="normal">40</span>
-<span class="normal">41</span>
-<span class="normal">42</span>
-<span class="normal">43</span>
-<span class="normal">44</span>
-<span class="normal">45</span>
-<span class="normal">46</span>
-<span class="normal">47</span>
-<span class="normal">48</span>
-<span class="normal">49</span>
-<span class="normal">50</span>
-<span class="normal">51</span>
-<span class="normal">52</span>
-<span class="normal">53</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@classmethod</span>
-<span class="k">def</span> <span class="nf">from_url</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Playlist&quot;</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Load playlist info and tracks from a Spotify playlist URL.</span>
-
-<span class="sd">    ### Arguments</span>
-<span class="sd">    - url: The URL of the playlist.</span>
-
-<span class="sd">    ### Returns</span>
-<span class="sd">    - The Playlist object.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="n">metadata</span> <span class="o">=</span> <span class="n">Playlist</span><span class="o">.</span><span class="n">get_metadata</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
-
-    <span class="c1"># Get urls</span>
-    <span class="n">urls</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">get_urls</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
-
-    <span class="c1"># Remove songs without id (country restricted/local tracks)</span>
-    <span class="c1"># And create song object for each track</span>
-    <span class="n">tracks</span> <span class="o">=</span> <span class="p">[</span><span class="n">Song</span><span class="o">.</span><span class="n">from_url</span><span class="p">(</span><span class="n">url</span><span class="p">)</span> <span class="k">for</span> <span class="n">url</span> <span class="ow">in</span> <span class="n">urls</span><span class="p">]</span>
-
-    <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
-        <span class="o">**</span><span class="n">metadata</span><span class="p">,</span>
-        <span class="n">songs</span><span class="o">=</span><span class="n">tracks</span><span class="p">,</span>
-        <span class="n">urls</span><span class="o">=</span><span class="n">urls</span><span class="p">,</span>
-    <span class="p">)</span>
-</code></pre></div></td></tr></table></div>
-      </details>
-  </div>
-
-</div>
-
-<div class="doc doc-object doc-function">
-
-
-
 <h3 id="spotdl.types.playlist.Playlist.get_metadata" class="doc doc-heading">
 <code class="highlight language-python"><span class="n">get_metadata</span><span class="p">(</span><span class="n">url</span><span class="p">)</span></code>
   
@@ -1676,31 +1551,31 @@
 
       <details class="quote">
         <summary>Source code in <code>spotdl/types/playlist.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 95</span>
-<span class="normal"> 96</span>
-<span class="normal"> 97</span>
-<span class="normal"> 98</span>
-<span class="normal"> 99</span>
-<span class="normal">100</span>
-<span class="normal">101</span>
-<span class="normal">102</span>
-<span class="normal">103</span>
-<span class="normal">104</span>
-<span class="normal">105</span>
-<span class="normal">106</span>
-<span class="normal">107</span>
-<span class="normal">108</span>
-<span class="normal">109</span>
-<span class="normal">110</span>
-<span class="normal">111</span>
-<span class="normal">112</span>
-<span class="normal">113</span>
-<span class="normal">114</span>
-<span class="normal">115</span>
-<span class="normal">116</span>
-<span class="normal">117</span>
-<span class="normal">118</span>
-<span class="normal">119</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@staticmethod</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">68</span>
+<span class="normal">69</span>
+<span class="normal">70</span>
+<span class="normal">71</span>
+<span class="normal">72</span>
+<span class="normal">73</span>
+<span class="normal">74</span>
+<span class="normal">75</span>
+<span class="normal">76</span>
+<span class="normal">77</span>
+<span class="normal">78</span>
+<span class="normal">79</span>
+<span class="normal">80</span>
+<span class="normal">81</span>
+<span class="normal">82</span>
+<span class="normal">83</span>
+<span class="normal">84</span>
+<span class="normal">85</span>
+<span class="normal">86</span>
+<span class="normal">87</span>
+<span class="normal">88</span>
+<span class="normal">89</span>
+<span class="normal">90</span>
+<span class="normal">91</span>
+<span class="normal">92</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@staticmethod</span>
 <span class="k">def</span> <span class="nf">get_metadata</span><span class="p">(</span><span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get metadata for a playlist.</span>
@@ -1759,7 +1634,34 @@
 
       <details class="quote">
         <summary>Source code in <code>spotdl/types/playlist.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">55</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span>
+<span class="normal">33</span>
+<span class="normal">34</span>
+<span class="normal">35</span>
+<span class="normal">36</span>
+<span class="normal">37</span>
+<span class="normal">38</span>
+<span class="normal">39</span>
+<span class="normal">40</span>
+<span class="normal">41</span>
+<span class="normal">42</span>
+<span class="normal">43</span>
+<span class="normal">44</span>
+<span class="normal">45</span>
+<span class="normal">46</span>
+<span class="normal">47</span>
+<span class="normal">48</span>
+<span class="normal">49</span>
+<span class="normal">50</span>
+<span class="normal">51</span>
+<span class="normal">52</span>
+<span class="normal">53</span>
+<span class="normal">54</span>
+<span class="normal">55</span>
 <span class="normal">56</span>
 <span class="normal">57</span>
 <span class="normal">58</span>
@@ -1770,34 +1672,7 @@
 <span class="normal">63</span>
 <span class="normal">64</span>
 <span class="normal">65</span>
-<span class="normal">66</span>
-<span class="normal">67</span>
-<span class="normal">68</span>
-<span class="normal">69</span>
-<span class="normal">70</span>
-<span class="normal">71</span>
-<span class="normal">72</span>
-<span class="normal">73</span>
-<span class="normal">74</span>
-<span class="normal">75</span>
-<span class="normal">76</span>
-<span class="normal">77</span>
-<span class="normal">78</span>
-<span class="normal">79</span>
-<span class="normal">80</span>
-<span class="normal">81</span>
-<span class="normal">82</span>
-<span class="normal">83</span>
-<span class="normal">84</span>
-<span class="normal">85</span>
-<span class="normal">86</span>
-<span class="normal">87</span>
-<span class="normal">88</span>
-<span class="normal">89</span>
-<span class="normal">90</span>
-<span class="normal">91</span>
-<span class="normal">92</span>
-<span class="normal">93</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@staticmethod</span>
+<span class="normal">66</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@staticmethod</span>
 <span class="k">def</span> <span class="nf">get_urls</span><span class="p">(</span><span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get URLs of all tracks in a playlist.</span>
