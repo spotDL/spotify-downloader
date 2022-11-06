@@ -10,7 +10,7 @@ from pathlib import Path
 from spotdl.download.downloader import Downloader
 from spotdl.types.song import Song
 from spotdl.utils.search import parse_query
-from spotdl.utils.m3u import create_m3u_file
+from spotdl.utils.m3u import gen_m3u_files
 
 
 def save(
@@ -84,8 +84,8 @@ def save(
         json.dump(save_data, save_file, indent=4, ensure_ascii=False)
 
     if m3u_file:
-        create_m3u_file(
-            m3u_file, songs, downloader.output, downloader.output_format, False
+        gen_m3u_files(
+            query, m3u_file, songs, downloader.output, downloader.output_format, False
         )
 
     downloader.progress_handler.log(

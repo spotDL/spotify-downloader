@@ -18,7 +18,7 @@ from yt_dlp.postprocessor.modify_chapters import ModifyChaptersPP
 
 from spotdl.types import Song
 from spotdl.utils.ffmpeg import FFmpegError, convert, get_ffmpeg_path
-from spotdl.utils.metadata import embed_metadata, MetadataError, get_song_metadata
+from spotdl.utils.metadata import embed_metadata, MetadataError
 from spotdl.utils.formatter import create_file_name, restrict_filename
 from spotdl.providers.audio.base import AudioProvider
 from spotdl.providers.lyrics import Genius, MusixMatch, AzLyrics
@@ -93,8 +93,7 @@ class Downloader:
         - audio_provider: Audio providers to use.
         - lyrics_provider: The lyrics providers to use.
         - ffmpeg: The ffmpeg executable to use.
-        - variable_bitrate: The variable bitrate to use.
-        - constant_bitrate: The constant bitrate to use.
+        - bitrate: The bitrate to use.
         - ffmpeg_args: The ffmpeg arguments to use.
         - output_format: The output format to use.
         - threads: The number of threads to use.
@@ -358,6 +357,9 @@ class Downloader:
         else:
             song.lyrics = lyrics
 
+        # Initalize the progress tracker
+        display_progress_tracker = self.progress_handler.get_new_tracker(song)
+
         # Create the output file path
         output_file = create_file_name(song, self.output, self.output_format)
         temp_folder = get_temp_path()
@@ -370,24 +372,16 @@ class Downloader:
         # we can skip the download
         if output_file.exists() and self.overwrite == "skip":
             self.progress_handler.log(f"Skipping {song.display_name}")
-            self.progress_handler.overall_completed_tasks += 1
-            self.progress_handler.update_overall()
+            display_progress_tracker.notify_download_skip()
             return song, None
 
         if output_file.exists() and self.overwrite == "metadata":
-            song_meta = get_song_metadata(output_file)
-            if song_meta is None:
-                self.progress_handler.debug(
-                    f"Metadata not found for {song.display_name}, " "overwriting file"
-                )
-            else:
-                self.progress_handler.debug(
-                    f"Metadata found for {song.display_name}, " "overwriting file"
-                )
-
             embed_metadata(
                 output_file=output_file, song=song, file_format=self.output_format
             )
+
+            self.progress_handler.log(f"Updated metadata for {song.display_name}")
+            display_progress_tracker.notify_complete()
 
             return song, output_file
 
@@ -395,17 +389,17 @@ class Downloader:
         if output_file.exists() and self.overwrite == "force":
             self.progress_handler.debug(f"Overwriting {song.display_name}")
 
-        # Initalize the progress tracker
-        display_progress_tracker = self.progress_handler.get_new_tracker(song)
-
         # Create the output directory if it doesn't exist
         output_file.parent.mkdir(parents=True, exist_ok=True)
 
         try:
             if song.download_url is None:
-                url, audio_provider = self.search(song)
+                download_url, audio_provider = self.search(song)
             else:
-                url = song.download_url
+                # If the song object already has a download url
+                # we can skip the search, and just reinitialize the base
+                # audio provider to download the song
+                download_url = song.download_url
                 audio_provider = AudioProvider(
                     output_format=self.output_format,
                     cookie_file=self.cookie_file,
@@ -414,7 +408,7 @@ class Downloader:
                 )
 
             self.progress_handler.debug(
-                f"Downloading {song.display_name} using {url}, "
+                f"Downloading {song.display_name} using {download_url}, "
                 f"audio provider: {audio_provider.name}"
             )
 
@@ -424,14 +418,17 @@ class Downloader:
             )
 
             # Download the song using yt-dlp
-            download_info = audio_provider.get_download_metadata(url, download=True)
+            download_info = audio_provider.get_download_metadata(
+                download_url, download=True
+            )
+
             temp_file = Path(
                 temp_folder / f"{download_info['id']}.{download_info['ext']}"
             )
 
             if download_info is None:
                 self.progress_handler.debug(
-                    f"No download info found for {song.display_name}, url: {url}"
+                    f"No download info found for {song.display_name}, url: {download_url}"
                 )
 
                 raise LookupError(
@@ -445,14 +442,23 @@ class Downloader:
                 output_file,
                 self.ffmpeg,
                 self.output_format,
-                self.bitrate,
+                self.bitrate if self.bitrate else f"{int(download_info['abr'])}k",
                 self.ffmpeg_args,
                 display_progress_tracker.ffmpeg_progress_hook,
             )
 
             # Remove the temp file
             if temp_file.exists():
-                temp_file.unlink()
+                try:
+                    temp_file.unlink()
+                except (PermissionError, OSError) as exc:
+                    self.progress_handler.debug(
+                        f"Could not remove temp file: {temp_file}, error: {exc}"
+                    )
+
+                    raise DownloaderError(
+                        "Could not remove temp file, possible duplicate song"
+                    ) from exc
 
             if not success and result:
                 # If the conversion failed and there is an error message
@@ -484,7 +490,7 @@ class Downloader:
 
             # Set the song's download url
             if song.download_url is None:
-                song.download_url = download_info["webpage_url"]
+                song.download_url = download_url
 
             display_progress_tracker.notify_conversion_complete()
 
@@ -525,7 +531,9 @@ class Downloader:
 
             return song, output_file
         except Exception as exception:
-            display_progress_tracker.notify_error(traceback.format_exc(), exception)
+            display_progress_tracker.notify_error(
+                traceback.format_exc(), exception, True
+            )
             self.errors.append(
                 f"{song.url} - {exception.__class__.__name__}: {exception}"
             )

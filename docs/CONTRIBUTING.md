@@ -191,24 +191,19 @@ git clone [your username]/spotify-downloader
 cd spotify-downloader
 ```
 
-(Optional) Create a virtual environment
+**Install poetry**
 
-```bash
-python3 -m venv .venv
+```
+pip install poetry
 ```
 
-Activate the virtual environment.
- - Linux: `source .venv/bin/activate`
- - Windows: `.venv\Scripts\activate`
+**Then, to install spotDL in-place and editable, run the following**
 
-> See [Python's official venv docs](https://docs.python.org/3/library/venv.html) for advanced virtual environment setup.
-
-Then, to install spotDL in-place and editable, run the following
 ```
-pip install -e .
+poetry install
 ```
 
-All changes will now affect the venv installation of the spotdl cli.
+All changes will now affect the poetry installation of the spotdl cli.
 
 ### Linting, Formatting and Type-checking
 
@@ -325,43 +320,6 @@ Any submitted code is expected to have accompanying documentation
   class B(A):
       def test(self):
           pass
-
-  # B.test.__doc__ acc. to normal python  : None
-  # B.test.__doc__ acc. to normal pdoc3   : Docstring for A.
-  ```
-
-- You can write DocStrings for variables with `#:` comment above the variable
-
-  ```
-  #: an example variable to demonstrate DocStrings
-  example_var_1 = 1
-  ```
-
-- You can use the reST directives
-  [`..math::`](https://docutils.sourceforge.io/docs/ref/rst/directives.html#math) and
-  [`..image::`](https://docutils.sourceforge.io/docs/ref/rst/directives.html#images)
-
-#### Markdown formatting
-
-- Markdown is formatted with [`mdformat-gfm`](https://pypi.org/project/mdformat-gfm/) and
-  indexes are auto-generated with [`mdformat-toc`](https://pypi.org/project/mdformat-toc/)
-
-  ```
-  pip install mdformat-gfm mdformat-toc
-  ```
-
-- Create an Index using the following comment, the index will be updated when mdformat is run
-
-  ```markdown
-  <!-- mdformat-toc start --no-anchors -->
-  ```
-
-- Preferably use empty lines between points on ordered & un-ordered lists
-
-- Format your markdown using
-
-  ```
-  mdformat --wrap 95 --number ./
   ```
 
 ### Overview of the Project Structure

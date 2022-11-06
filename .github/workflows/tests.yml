@@ -36,7 +36,7 @@ jobs:
 
       - name: Run tests
         run: |
-          poetry run pytest -vvv
+          poetry run pytest -vvv --ignore tests/test_matching.py
         env:
           PLATFORM: ${{ matrix.platform }}
 

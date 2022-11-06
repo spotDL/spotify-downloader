@@ -49,8 +49,7 @@ def entry_point():
     logging.getLogger("requests").setLevel(logging.WARNING)
     logging.getLogger("urllib3").setLevel(logging.WARNING)
     logging.getLogger("spotipy").setLevel(logging.NOTSET)
-    logging.getLogger("uvicorn").propagate = False
-    # logging.getLogger("asyncio").setLevel(logging.WARNING)
+    logging.getLogger("asyncio").setLevel(logging.WARNING)
 
     # Create a console
     console = Console()
@@ -79,9 +78,9 @@ def entry_point():
 
     # Check if sys.argv contains an action
     # If it does, we run the action and exit
-    for func_name, func in ACTIONS.items():
-        if func_name in sys.argv:
-            func()
+    for action_name, action in ACTIONS.items():
+        if action_name in sys.argv:
+            action()
             return None
 
     # Parse the arguments

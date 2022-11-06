@@ -20,25 +20,12 @@ def setup(tmp_path, monkeypatch):
     yield data
 
 
-def test_init_wrong_spotify_credentials():
-    """
-    Tests if exception is raised if no spotify credentials are given.
-    """
-
-    # Test if exception is raised if no spotify credentials are given.
-    with pytest.raises(TypeError):
-        Spotdl()  # type: ignore
-
-    # Test if credentials are None
-    with pytest.raises(SpotifyOauthError):
-        Spotdl(None, None)  # type: ignore
-
-
-@pytest.mark.vcr()
-def test_get_urls():
+def test_get_urls(monkeypatch):
     """
     Tests if spotdl can be initialized correctly.
     """
+
+    monkeypatch.setattr(SpotifyClient, "init", new_initialize)
 
     # Test if spotdl can be initialized with spotify credentials.
     spotdl = Spotdl(
@@ -74,7 +61,6 @@ def test_get_urls():
     assert len(urls) == 1
 
 
-@pytest.mark.vcr()
 def test_download(setup, monkeypatch):
     """
     Tests if spotdl can be initialized correctly.

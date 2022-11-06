@@ -10,7 +10,7 @@ from typing import List, Optional
 from spotdl.download.downloader import Downloader
 from spotdl.utils.search import parse_query
 from spotdl.utils.formatter import create_file_name
-from spotdl.utils.m3u import create_m3u_file
+from spotdl.utils.m3u import gen_m3u_files
 from spotdl.types.song import Song
 
 
@@ -65,9 +65,15 @@ def sync(
         # Perform initial download
         downloader.download_multiple_songs(songs_list)
 
+        # Create m3u file
         if m3u_file:
-            create_m3u_file(
-                m3u_file, songs_list, downloader.output, downloader.output_format, False
+            gen_m3u_files(
+                query,
+                m3u_file,
+                songs_list,
+                downloader.output,
+                downloader.output_format,
+                False,
             )
 
         return None
@@ -83,69 +89,79 @@ def sync(
             raise ValueError("Sync file is not a valid sync file.")
 
         # Parse the query
-        songs_list = parse_query(sync_data["query"], downloader.threads)
-
-        # Get all the old files based on the songs from sync file
-        old_files = [
-            create_file_name(
-                Song.from_dict(song), downloader.output, downloader.output_format
-            )
-            for song in sync_data["songs"]
-        ]
-
-        # Get all output file names
+        new_songs = parse_query(sync_data["query"], downloader.threads)
         new_files = [
             create_file_name(song, downloader.output, downloader.output_format)
-            for song in songs_list
+            for song in new_songs
+        ]
+
+        # Get all the old files based on the songs from sync file
+        old_songs = [Song.from_dict(song) for song in sync_data["songs"]]
+        old_files = [
+            create_file_name(song, downloader.output, downloader.output_format)
+            for song in old_songs
         ]
 
         # Get all files that are no longer in the song lists
         to_delete = set(old_files) - set(new_files)
 
-        # Delete all files that are no longer in the song lists
-        for file in to_delete:
-            if file.exists():
-                downloader.progress_handler.log(f"Deleting {file}")
-                file.unlink()
-            else:
-                downloader.progress_handler.debug(f"{file} does not exist.")
-
+        # Get all files that are new and have to be downloaded
         to_download = []
-        for song in songs_list:
+        for song in new_songs:
             song_path = create_file_name(
                 song, downloader.output, downloader.output_format
             )
+
+            # Skip the songs that are already downloaded
             if Path(song_path).exists():
+                # Add the song to the to_download list
+                # if overwrite is set to force
                 if downloader.overwrite == "force":
                     downloader.progress_handler.log(f"Overwriting {song.display_name}")
                     to_download.append(song)
             else:
+                # Add the song to the to_download list
                 to_download.append(song)
 
-        if len(to_download) == 0:
-            downloader.progress_handler.log("Nothing to do...")
-            return None
+        downloader.progress_handler.log(
+            f"Found {len(to_download)} songs to download and {len(to_delete)} files to delete."
+        )
 
+        # Delete all files that are no longer in the song lists
+        for file in to_delete:
+            if file.exists():
+                file.unlink()
+                downloader.progress_handler.log(f"Removed {file}")
+            else:
+                downloader.progress_handler.debug(f"{file} does not exist.")
+
+        # Create m3u file
         if m3u_file:
-            create_m3u_file(
+            gen_m3u_files(
+                query,
                 m3u_file,
-                songs_list,
+                new_songs,
                 downloader.output,
                 downloader.output_format,
                 False,
             )
 
+        # Write the new sync file
         with open(query[0], "w", encoding="utf-8") as save_file:
             json.dump(
                 {
                     "type": "sync",
                     "query": sync_data["query"],
-                    "songs": [song.json for song in songs_list],
+                    "songs": [song.json for song in new_songs],
                 },
                 save_file,
                 indent=4,
                 ensure_ascii=False,
             )
+
+        if len(to_download) == 0:
+            downloader.progress_handler.log("Nothing to do...")
+            return None
 
         downloader.download_multiple_songs(to_download)
 

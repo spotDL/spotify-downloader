@@ -5,7 +5,7 @@ Playlist module for retrieving playlist data from Spotify.
 from dataclasses import dataclass
 from typing import Any, Dict, List
 
-from spotdl.types.song import SongList, Song
+from spotdl.types.song import SongList
 from spotdl.utils.spotify import SpotifyClient
 
 
@@ -24,33 +24,6 @@ class Playlist(SongList):
     description: str
     author_url: str
     author_name: str
-
-    @classmethod
-    def from_url(cls, url: str) -> "Playlist":
-        """
-        Load playlist info and tracks from a Spotify playlist URL.
-
-        ### Arguments
-        - url: The URL of the playlist.
-
-        ### Returns
-        - The Playlist object.
-        """
-
-        metadata = Playlist.get_metadata(url)
-
-        # Get urls
-        urls = cls.get_urls(url)
-
-        # Remove songs without id (country restricted/local tracks)
-        # And create song object for each track
-        tracks = [Song.from_url(url) for url in urls]
-
-        return cls(
-            **metadata,
-            songs=tracks,
-            urls=urls,
-        )
 
     @staticmethod
     def get_urls(url: str) -> List[str]:
