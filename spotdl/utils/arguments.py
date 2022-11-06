@@ -13,6 +13,7 @@ from spotdl import _version
 from spotdl.download.progress_handler import NAME_TO_LEVEL
 from spotdl.utils.ffmpeg import FFMPEG_FORMATS
 from spotdl.utils.formatter import VARS
+from spotdl.utils.config import DEFAULT_CONFIG
 from spotdl.download.downloader import (
     AUDIO_PROVIDERS,
     LYRICS_PROVIDERS,
@@ -348,7 +349,15 @@ def parse_output_options(parser: _ArgumentGroup):
     parser.add_argument(
         "--m3u",
         type=str,
-        help="Name of the m3u file to save the songs to.",
+        nargs="?",
+        help=(
+            "Name of the m3u file to save the songs to. "
+            "Defaults to {list[0]}.m3u "
+            "If you want to generate a m3u for each list in the query use {list-name}, "
+            "If you want to generate a m3u file based on the first list in the query use {list[0]}, "
+            "(0 is the first list in the query, 1 is the second, etc. songs don't count towards the list number) "
+        ),
+        const="{list[0]}.m3u",
     )
 
     # Add overwrite argument

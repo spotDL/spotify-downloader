@@ -10,7 +10,7 @@ from typing import List, Optional
 from spotdl.download.downloader import Downloader
 from spotdl.utils.search import parse_query
 from spotdl.utils.formatter import create_file_name
-from spotdl.utils.m3u import create_m3u_file
+from spotdl.utils.m3u import gen_m3u_files
 from spotdl.types.song import Song
 
 
@@ -67,8 +67,13 @@ def sync(
 
         # Create m3u file
         if m3u_file:
-            create_m3u_file(
-                m3u_file, songs_list, downloader.output, downloader.output_format, False
+            gen_m3u_files(
+                query,
+                m3u_file,
+                songs_list,
+                downloader.output,
+                downloader.output_format,
+                False,
             )
 
         return None
@@ -132,7 +137,8 @@ def sync(
 
         # Create m3u file
         if m3u_file:
-            create_m3u_file(
+            gen_m3u_files(
+                query,
                 m3u_file,
                 new_songs,
                 downloader.output,
