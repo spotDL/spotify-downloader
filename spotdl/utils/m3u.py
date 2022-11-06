@@ -90,13 +90,13 @@ def gen_m3u_files(
 
     # Create a songs list from the lists and the song_list
     songs_lists = []
-    for list in lists:
+    for list_obj in lists:
         songs = []
         for song in song_list:
-            if song.url in list.urls:
+            if song.url in list_obj.urls:
                 songs.append(song)
 
-        songs_lists.append((list.name, songs))
+        songs_lists.append((list_obj.name, songs))
 
     if "{list}" in file_name:
         for list_name, new_song_list in songs_lists:
