@@ -312,9 +312,7 @@ class YouTubeMusic(AudioProvider):
 
             # check if the artist match is higher than 100%
             # if it is, we set it to 100% (this shouldn't happen)
-            if artist_match > 100:
-                # print("! artist_match > 100 - setting to 100")
-                artist_match = 100
+            artist_match = min(artist_match, 100)
 
             test_str1 = slug_result_name
             test_str2 = slug_song_name if result["type"] == "song" else slug_song_title
