@@ -65,7 +65,7 @@ class YouTubeMusic(AudioProvider):
                             # print(f"# RETURN URL - {isrc_link} - isrc score")
                             return isrc_link
 
-                        # print(f"! no match found for isrc {song.name} - {song.isrc}")
+                        # print(f"# no match found for isrc {song.name} - {song.isrc}")
 
             search_query = create_song_title(song.name, song.artists).lower()
 
@@ -120,11 +120,41 @@ class YouTubeMusic(AudioProvider):
         # Sort results by highest score
         sorted_results = sorted(result_items, key=lambda x: x[1], reverse=True)
 
-        # print(f"# RETURN URL - {sorted_results[0][0]} - sorted")
+        last_simlar_index = 0
+        best_score = sorted_results[0][1]
 
-        # Get the result with highest score
-        # and return the link
-        return sorted_results[0][0]
+        # Get few results with score close to the best score
+        for index, (_, score) in enumerate(sorted_results):
+            if (best_score - score) > 8:
+                last_simlar_index = index
+                break
+
+        # Get the best results from the similar results
+        best_results = sorted_results[:last_simlar_index]
+
+        # If we have only one result, return it
+        if len(best_results) == 1:
+            # print(f"# RETURN URL - {sorted_results[0][0]} - sorted, no best results")
+            return sorted_results[0][0]
+
+        # print(f"# best results: {best_results}")
+
+        # If we have more than one result,
+        # return the one with the highest score
+        # and most views
+        views_data = [
+            self.client.get_song(best_result[0].split("=")[1])["videoDetails"][
+                "viewCount"
+            ]
+            for best_result in best_results
+        ]
+
+        # print(f"# views_data: {views_data}")
+
+        best_result = best_results[views_data.index(str(max(map(int, views_data))))]
+
+        # print(f"# RETURN URL - {best_result[0]} - sorted, best results")
+        return best_result[0]
 
     def get_results(self, search_term: str, **kwargs) -> List[Dict[str, Any]]:
         """
@@ -424,8 +454,6 @@ class YouTubeMusic(AudioProvider):
             time_match = 100 - non_match_value
 
             # print(f"? time_match: {time_match}")
-
-            # TODO! Calculate views match
 
             # Calculate total match
             average_match = (artist_match + name_match) / 2
