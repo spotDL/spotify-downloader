@@ -201,15 +201,10 @@ class YouTube(AudioProvider):
 
                 slug_main_artist = slug_song_main_artist.replace("-", "")
 
-                main_artist_match = (
-                    True
-                    if slug_main_artist
-                    in [
-                        slug_result_name.replace("-", ""),
-                        slug_result_channel.replace("-", ""),
-                    ]
-                    else False
-                )
+                main_artist_match = slug_main_artist in [
+                    slug_result_name.replace("-", ""),
+                    slug_result_channel.replace("-", ""),
+                ]
 
                 # print(f"main_artist_match: {main_artist_match}")
 
