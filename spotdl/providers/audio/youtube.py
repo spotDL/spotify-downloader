@@ -74,8 +74,36 @@ class YouTube(AudioProvider):
         # Sort results by highest score
         sorted_results = sorted(result_items, key=lambda x: x[1], reverse=True)
 
-        # Return the first result
-        return sorted_results[0][0]
+        last_simlar_index = 0
+        best_score, _ = sorted_results[0][1]
+
+        # Get few results with score close to the best score
+        for index, (_, (score, _)) in enumerate(sorted_results):
+            if (best_score - score) > 8:
+                last_simlar_index = index
+                break
+
+        # Get the best results from the similar results
+        best_results = sorted_results[:last_simlar_index]
+
+        # If we have only one result, return it
+        if len(best_results) == 1:
+            # print(f"# RETURN URL - {sorted_results[0][0]} - sorted, no best results")
+            return sorted_results[0][0]
+
+        # print(f"# best results: {best_results}")
+
+        # If we have more than one result,
+        # return the one with the highest score
+        # and most views
+        views_data = [best_result[1][1] for best_result in best_results]
+
+        # print(f"# views_data: {views_data}")
+
+        best_result = best_results[views_data.index(max(views_data))]
+
+        # print(f"# RETURN URL - {best_result[0]} - sorted, best results")
+        return best_result[0]
 
     @staticmethod
     def get_results(
@@ -158,7 +186,9 @@ class YouTube(AudioProvider):
                 continue
 
             # Find artist match
-            artist_match = fuzz.ratio(slug_song_artists, slug_result_name)
+            artist_match = fuzz.ratio(
+                f"{slug_song_artists}-{slug_song_name}", slug_result_name
+            )
 
             # print(f"first artist match: {artist_match}")
 
@@ -169,11 +199,18 @@ class YouTube(AudioProvider):
                     slug_song_main_artist, slug_result_channel
                 )
 
+                slug_main_artist = slug_song_main_artist.replace("-", "")
+
+                main_artist_match = slug_main_artist in [
+                    slug_result_name.replace("-", ""),
+                    slug_result_channel.replace("-", ""),
+                ]
+
                 # print(f"main_artist_match: {main_artist_match}")
 
                 # If the main artist name is in the channel name
                 # we add 30% to the artist match
-                if main_artist_match > 70:
+                if main_artist_match:
                     artist_match += 30
                     # print(f"new artist_match: {artist_match}")
 
@@ -232,6 +269,6 @@ class YouTube(AudioProvider):
             # print(f"average_match: {average_match}")
 
             # the results along with the avg Match
-            links_with_match_value[result.watch_url] = average_match
+            links_with_match_value[result.watch_url] = (average_match, result.views)
 
         return links_with_match_value
