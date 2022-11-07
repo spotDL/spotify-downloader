@@ -481,7 +481,8 @@ class YouTubeMusic(AudioProvider):
                 # we skip the result
                 # print("! time_match < 50 and average_match < 85 - skipping")
                 continue
-            elif time_match < 50:
+
+            if time_match < 50:
                 # If the time match is lower than 50% but the average match is higher than 85%
                 # we add time match to the average match
 

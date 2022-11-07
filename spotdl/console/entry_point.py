@@ -20,7 +20,7 @@ from spotdl.console.web import web
 from spotdl.download import Downloader
 from spotdl.providers.audio.base import AudioProviderError
 from spotdl.providers.audio.ytmusic import YouTubeMusic
-from spotdl.utils.config import DEFAULT_CONFIG, ConfigError, get_config, get_config_file
+from spotdl.utils.config import DEFAULT_CONFIG, get_config, get_config_file
 from spotdl.utils.arguments import parse_arguments
 from spotdl.utils.spotify import SpotifyClient, SpotifyError
 from spotdl.utils.console import ACTIONS
