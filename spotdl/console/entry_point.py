@@ -69,13 +69,6 @@ def entry_point():
         if is_ffmpeg_installed() is False:
             download_ffmpeg()
 
-        try:
-            get_config()
-        except ConfigError:
-            config_path = get_config_file()
-            with open(config_path, "w", encoding="utf-8") as config_file:
-                json.dump(DEFAULT_CONFIG, config_file, indent=4)
-
     # Check if sys.argv contains an action
     # If it does, we run the action and exit
     for action_name, action in ACTIONS.items():
