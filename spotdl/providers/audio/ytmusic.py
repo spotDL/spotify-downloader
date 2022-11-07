@@ -151,10 +151,9 @@ class YouTubeMusic(AudioProvider):
 
         # print(f"# views_data: {views_data}")
 
-        best_result = best_results[views_data.index(str(max(map(int, views_data))))]
-
         # print(f"# RETURN URL - {best_result[0]} - sorted, best results")
-        return best_result[0]
+        best_result_index = views_data.index(str(max(map(int, views_data))))
+        return best_results[best_result_index][0]
 
     def get_results(self, search_term: str, **kwargs) -> List[Dict[str, Any]]:
         """
@@ -325,11 +324,11 @@ class YouTubeMusic(AudioProvider):
                 # we fallback to matching all song artist names
                 # with the result's title
                 if artist_match <= 50:
-                    artist_title_match = 0
+                    artist_title_match = 0.0
                     for artist in song.artists:
                         slug_artist = slugify(artist).replace("-", "")
                         if slug_artist in slug_result_name.replace("-", ""):
-                            artist_title_match += 1
+                            artist_title_match += 1.0
 
                     artist_title_match = (artist_title_match / len(song.artists)) * 100
                     # print(f"? artist_title_match: {artist_title_match}")
@@ -410,14 +409,14 @@ class YouTubeMusic(AudioProvider):
                 ) and not slug_result_artist in test_str2.replace("-", ""):
                     test_str2 += f"-{slug_result_artist}"
 
-            test_str1 = test_str1.split("-")
-            test_str2 = test_str2.split("-")
+            test_str1_list = test_str1.split("-")
+            test_str2_list = test_str2.split("-")
 
-            test_str1.sort()
-            test_str2.sort()
+            test_str1_list.sort()
+            test_str2_list.sort()
 
-            test_str1 = "-".join(test_str1)
-            test_str2 = "-".join(test_str2)
+            test_str1 = "-".join(test_str1_list)
+            test_str2 = "-".join(test_str2_list)
 
             # print(f"test_str1: {test_str1}")
             # print(f"test_str2: {test_str2}")
