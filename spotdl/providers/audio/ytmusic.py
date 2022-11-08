@@ -123,7 +123,6 @@ class YouTubeMusic(AudioProvider):
 
         return best_url
 
-
     def get_results(self, search_term: str, **kwargs) -> List[Dict[str, Any]]:
         """
         Get results from YouTube Music API and simplify them
