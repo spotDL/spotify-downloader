@@ -74,7 +74,7 @@ class YouTube(AudioProvider):
         # Sort results by highest score
         sorted_results = sorted(result_items, key=lambda x: x[1], reverse=True)
 
-        last_simlar_index = 0
+        last_simlar_index = 1
         best_score, _ = sorted_results[0][1]
 
         # Get few results with score close to the best score
