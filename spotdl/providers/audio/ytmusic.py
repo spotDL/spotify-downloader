@@ -2,7 +2,7 @@
 YTMusic module for downloading and searching songs.
 """
 
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 from itertools import zip_longest
 
 from ytmusicapi import YTMusic
@@ -66,7 +66,7 @@ class YouTubeMusic(AudioProvider):
                             # print(f"# RETURN URL - {isrc_link} - isrc score")
                             return isrc_link
 
-                        # print(f"# no match found for isrc {song.name} - {song.isrc}")
+                # print(f"# no match found for isrc {song.name} - {song.isrc}")
 
             search_query = create_song_title(song.name, song.artists).lower()
 
@@ -82,18 +82,18 @@ class YouTubeMusic(AudioProvider):
         else:
             songs = {}
             if len(song_results) > 0:
-                songs = {song_results[0]["link"]: 100}
+                songs = {song_results[0]["link"]: 100.0}
 
         # song type results are always more accurate than video type,
         # so if we get score of 80 or above
         # we are almost 100% sure that this is the correct link
         if len(songs) != 0:
             # get the result with highest score
-            best_result = max(songs, key=lambda k: songs[k])
+            best_url, best_score = self.get_best_match(songs)
 
-            if songs[best_result] >= 80:
-                # print(f"# RETURN URL - {best_result} - song >= 80")
-                return best_result
+            if best_score >= 80:
+                # print(f"# RETURN URL - {best_url} - score >= 80")
+                return best_url
 
         # We didn't find the correct song on the first try so now we get video type results
         # add them to song_results, and get the result with highest score
@@ -107,7 +107,7 @@ class YouTubeMusic(AudioProvider):
         else:
             videos = {}
             if len(video_results) > 0:
-                videos = {video_results[0]["link"]: 100}
+                videos = {video_results[0]["link"]: 100.0}
 
         # Merge songs and video results
         results = {**songs, **videos}
@@ -116,50 +116,12 @@ class YouTubeMusic(AudioProvider):
         if not results:
             return None
 
-        result_items = list(results.items())
+        # get the result with highest score
+        best_url, best_score = self.get_best_match(results)
 
-        # Sort results by highest score
-        sorted_results = sorted(result_items, key=lambda x: x[1], reverse=True)
+        # print(f"# RETURN URL - {best_url} /w video results - score {best_score}")
 
-        last_simlar_index = 1
-        best_score = sorted_results[0][1]
-
-        # Get few results with score close to the best score
-        for index, (_, score) in enumerate(sorted_results):
-            if (best_score - score) > 8:
-                last_simlar_index = index
-                break
-
-        # print(f"# last_simlar_index: {last_simlar_index}")
-        # print(f"# sorted_results: {sorted_results}")
-
-        # Get the best results from the similar results
-        best_results = sorted_results[:last_simlar_index]
-
-        # If we have only one result, return it
-        if len(best_results) == 1:
-            # print(f"# RETURN URL - {sorted_results[0][0]} - sorted, no best results")
-            return sorted_results[0][0]
-
-        # print(f"# best results: {best_results}")
-
-        # If we have more than one result,
-        # return the one with the highest score
-        # and most views
-        views_data = [
-            self.client.get_song(best_result[0].split("=")[1])["videoDetails"][
-                "viewCount"
-            ]
-            for best_result in best_results
-        ]
-
-        # print(f"# views_data: {views_data}")
-
-        best_result_index = views_data.index(str(max(map(int, views_data))))
-        best_result = best_results[best_result_index]
-
-        # print(f"# RETURN URL - {best_result[0]} - sorted, best results")
-        return best_result[0]
+        return best_url
 
     def get_results(self, search_term: str, **kwargs) -> List[Dict[str, Any]]:
         """
@@ -230,7 +192,7 @@ class YouTubeMusic(AudioProvider):
         )
 
         # DEBUG CODE
-        # print(f"#############################")
+        # print("#############################")
         # print(f"song.name: {song.name}")
         # print(f"song.album_name: {song.album_name}")
         # print(f"song.artist: {song.artist}")
@@ -245,7 +207,7 @@ class YouTubeMusic(AudioProvider):
         # print(f"slug_song_duration: {song.duration}")
         # print(f"slug_song_artists: {slug_song_artists}")
         # print(f"sentence_words: {sentence_words}")
-        # print(f"#############################")
+        # print("#############################")
 
         # Assign an overall avg match value to each result
         links_with_match_value = {}
@@ -272,7 +234,7 @@ class YouTubeMusic(AudioProvider):
                 slug_song_artist = slugify(artist).replace("-", "")
                 if slug_song_artist in test_str2.replace(
                     "-", ""
-                ) and not slug_song_artist in test_str1.replace("-", ""):
+                ) and slug_song_artist not in test_str1.replace("-", ""):
                     test_str1 += f"-{slug_song_artist}"
 
             # same thing for for song name
@@ -280,7 +242,7 @@ class YouTubeMusic(AudioProvider):
                 slug_result_artist = slugify(artist).replace("-", "")
                 if slug_result_artist in test_str1.replace(
                     "-", ""
-                ) and not slug_result_artist in test_str2.replace("-", ""):
+                ) and slug_result_artist not in test_str2.replace("-", ""):
                     test_str2 += f"-{slug_result_artist}"
 
             test_str1_list = test_str1.split("-")
@@ -553,7 +515,7 @@ class YouTubeMusic(AudioProvider):
                 # if the result is an isrc result
                 # or has really good average/album match
                 # we don't add time match
-                if average_match < 85 and not album_match > 75:
+                if average_match < 85 and album_match <= 75:
                     average_match = (average_match + time_match) / 2
                     # print(f"? average_match with time_match, not isrc: {average_match}")
 
@@ -563,3 +525,54 @@ class YouTubeMusic(AudioProvider):
             links_with_match_value[result["link"]] = average_match
 
         return links_with_match_value
+
+    def get_best_match(self, results: Dict[str, float]) -> Tuple[str, float]:
+        """
+        Get the best match from the results
+        using views and average match
+        """
+
+        result_items = list(results.items())
+
+        # Sort results by highest score
+        sorted_results = sorted(result_items, key=lambda x: x[1], reverse=True)
+
+        last_simlar_index = 1
+        best_score = sorted_results[0][1]
+
+        # Get few results with score close to the best score
+        for index, (_, score) in enumerate(sorted_results):
+            if (best_score - score) > 8:
+                last_simlar_index = index
+                break
+
+        # print(f"# last_simlar_index: {last_simlar_index}")
+        # print(f"# sorted_results: {sorted_results}")
+
+        # Get the best results from the similar results
+        best_results = sorted_results[:last_simlar_index]
+
+        # If we have only one result, return it
+        if len(best_results) == 1:
+            # print(f"# get_best_match URL - {sorted_results[0][0]} - only 1 result")
+            return sorted_results[0][0], sorted_results[0][1]
+
+        # print(f"# best results: {best_results}")
+
+        # If we have more than one result,
+        # return the one with the highest score
+        # and most views
+        views_data = [
+            self.client.get_song(best_result[0].split("=")[1])["videoDetails"][
+                "viewCount"
+            ]
+            for best_result in best_results
+        ]
+
+        # print(f"# views_data: {views_data}")
+
+        best_result_index = views_data.index(str(max(map(int, views_data))))
+        best_result = best_results[best_result_index]
+
+        # print(f"# get_best_match URL - {best_result[0]} - sorted by views")
+        return best_result[0], best_result[1]
