@@ -255,7 +255,7 @@ class ProgressHandler:
                 self.overall_task_id = self.rich_progress_bar.add_task(
                     description="Total",
                     message=(
-                        f"{self.overall_completed_tasks}/{int(self.overall_total / 100)}"
+                        f"{self.overall_completed_tasks}/{int(self.overall_total / 100)} "
                         "complete"
                     ),
                     total=self.overall_total,

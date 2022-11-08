@@ -57,7 +57,7 @@ class YouTubeMusic(AudioProvider):
                 )
 
                 if len(isrc_results) == 1:
-                    isrc_result = self.order_results([isrc_results[0]], song)
+                    isrc_result = self.order_results([isrc_results[0]], song, True)
                     if len(isrc_result) == 1:
                         isrc_link, isrc_score = isrc_result.popitem()
 
@@ -65,7 +65,7 @@ class YouTubeMusic(AudioProvider):
                             # print(f"# RETURN URL - {isrc_link} - isrc score")
                             return isrc_link
 
-                        # print(f"! no match found for isrc {song.name} - {song.isrc}")
+                        # print(f"# no match found for isrc {song.name} - {song.isrc}")
 
             search_query = create_song_title(song.name, song.artists).lower()
 
@@ -120,11 +120,40 @@ class YouTubeMusic(AudioProvider):
         # Sort results by highest score
         sorted_results = sorted(result_items, key=lambda x: x[1], reverse=True)
 
-        # print(f"# RETURN URL - {sorted_results[0][0]} - sorted")
+        last_simlar_index = 0
+        best_score = sorted_results[0][1]
 
-        # Get the result with highest score
-        # and return the link
-        return sorted_results[0][0]
+        # Get few results with score close to the best score
+        for index, (_, score) in enumerate(sorted_results):
+            if (best_score - score) > 8:
+                last_simlar_index = index
+                break
+
+        # Get the best results from the similar results
+        best_results = sorted_results[:last_simlar_index]
+
+        # If we have only one result, return it
+        if len(best_results) == 1:
+            # print(f"# RETURN URL - {sorted_results[0][0]} - sorted, no best results")
+            return sorted_results[0][0]
+
+        # print(f"# best results: {best_results}")
+
+        # If we have more than one result,
+        # return the one with the highest score
+        # and most views
+        views_data = [
+            self.client.get_song(best_result[0].split("=")[1])["videoDetails"][
+                "viewCount"
+            ]
+            for best_result in best_results
+        ]
+
+        # print(f"# views_data: {views_data}")
+
+        # print(f"# RETURN URL - {best_result[0]} - sorted, best results")
+        best_result_index = views_data.index(str(max(map(int, views_data))))
+        return best_results[best_result_index][0]
 
     def get_results(self, search_term: str, **kwargs) -> List[Dict[str, Any]]:
         """
@@ -168,7 +197,7 @@ class YouTubeMusic(AudioProvider):
         return simplified_results
 
     def order_results(
-        self, results: List[Dict[str, Any]], song: Song
+        self, results: List[Dict[str, Any]], song: Song, is_isrc: bool = False
     ) -> Dict[str, Any]:
         """
         Filter results based on the song's metadata.
@@ -176,6 +205,7 @@ class YouTubeMusic(AudioProvider):
         ### Arguments
         - results: The results to filter.
         - song: The song to filter by.
+        - is_isrc: Whether the results are from an isrc search.
 
         ### Returns
         - A dict of filtered results.
@@ -194,9 +224,16 @@ class YouTubeMusic(AudioProvider):
 
         # DEBUG CODE
         # print(f"#############################")
+        # print(f"song.name: {song.name}")
+        # print(f"song.album_name: {song.album_name}")
+        # print(f"song.artist: {song.artist}")
+        # print(f"song.artists: {song.artists}")
+        # print(f"song.isrc: {song.isrc}")
+        # print(f"song.duration: {song.duration}")
         # print(f"slug_song_name: {slug_song_name}")
         # print(f"slug_song_album_name: {slug_song_album_name}")
         # print(f"slug_song_main_artist: {slug_song_main_artist}")
+        # print(f"slug_song_artists: {slug_song_artists}")
         # print(f"slug_song_title: {slug_song_title}")
         # print(f"slug_song_duration: {song.duration}")
         # print(f"slug_song_artists: {slug_song_artists}")
@@ -224,6 +261,7 @@ class YouTubeMusic(AudioProvider):
             # print(f"result link: {result['link']}")
             # print(f"result type: {result['type']}")
             # print(f"result duration: {result['duration']}")
+            # print(f"result artists_list: {result['artists_list']}")
             # print(f"slug_result_name: {slug_result_name}")
             # print(f"slug_result_artists: {slug_result_artists}")
             # print(f"slug_result_album: {slug_result_album}")
@@ -237,18 +275,37 @@ class YouTubeMusic(AudioProvider):
             main_artist_match = fuzz.ratio(
                 slug_song_main_artist, slugify(result["artists_list"][0])
             )
-            # print(f"main_artist_match: {main_artist_match}")
+            # print(f"? main_artist_match: {main_artist_match}")
 
             artist_match_number = main_artist_match
             if len(song.artists) > 1:
                 # match the song's artists with the result's artists
-                artists_match = fuzz.ratio(slug_song_artists, slug_result_artists)
-                # print(f"artists_match: {artists_match}")
+
+                if len(song.artists) == len(result["artists_list"]):
+                    artists_match = fuzz.ratio(slug_song_artists, slug_result_artists)
+                    # print(f"exact artists_match: {artists_match}")
+                else:
+                    # Sort list1
+                    artist1_list = list(map(slugify, song.artists))
+                    artist1_list.sort()
+
+                    # Sort list2
+                    artist2_list = list(map(slugify, result["artists_list"]))
+                    artist2_list.sort()
+
+                    # Zip two sorted lists
+                    zipped_lists = list(zip(song.artists, result["artists_list"]))
+
+                    artist_match = 0.0
+                    for artist1, artist2 in zipped_lists:
+                        artist_match += fuzz.ratio(slugify(artist1), slugify(artist2))
+
+                    artists_match = artist_match / len(zipped_lists)
 
                 artist_match_number += artists_match
 
             artist_match = artist_match_number / (2 if len(song.artists) > 1 else 1)
-            # print("first artist_match: ", artist_match)
+            # print("? first artist_match: ", artist_match)
 
             # additional checks for results that are not songs
             if artist_match <= 50 and result["type"] != "song":
@@ -262,6 +319,23 @@ class YouTubeMusic(AudioProvider):
                 if channel_name_match > artist_match_number:
                     artist_match = channel_name_match
                     # print("? second artist_match: ", artist_match)
+
+                # If artist match is still too low,
+                # we fallback to matching all song artist names
+                # with the result's title
+                if artist_match <= 50:
+                    artist_title_match = 0.0
+                    for artist in song.artists:
+                        slug_artist = slugify(artist).replace("-", "")
+                        if slug_artist in slug_result_name.replace("-", ""):
+                            artist_title_match += 1.0
+
+                    artist_title_match = (artist_title_match / len(song.artists)) * 100
+                    # print(f"? artist_title_match: {artist_title_match}")
+
+                    if artist_title_match > artist_match:
+                        artist_match = artist_title_match
+                        # print("? third artist_match: ", artist_match)
 
             # additional checks for results that are songs
             if artist_match < 70 and result["type"] == "song":
@@ -303,7 +377,7 @@ class YouTubeMusic(AudioProvider):
                         artist_match += 15 if len(song.artists[1:]) <= 2 else 10
                         # print("? other artist artist_match: ", artist_match)
 
-            # print("final artist_match: ", artist_match)
+            # print("? final artist_match: ", artist_match)
 
             # skip results with artist match lower than 70%
             if artist_match < 70:
@@ -321,18 +395,28 @@ class YouTubeMusic(AudioProvider):
             # but not in the result name
             # if it is, we add the artist to the result name
             for artist in song.artists:
-                slug_song_artist = slugify(artist)
-                if slug_song_artist in test_str2 and not slug_song_artist in test_str1:
+                slug_song_artist = slugify(artist).replace("-", "")
+                if slug_song_artist in test_str2.replace(
+                    "-", ""
+                ) and not slug_song_artist in test_str1.replace("-", ""):
                     test_str1 += f"-{slug_song_artist}"
 
             # same thing for for song name
             for artist in song.artists:
-                slug_result_artist = slugify(artist)
-                if (
-                    slug_result_artist in test_str1
-                    and not slug_result_artist in test_str2
-                ):
+                slug_result_artist = slugify(artist).replace("-", "")
+                if slug_result_artist in test_str1.replace(
+                    "-", ""
+                ) and not slug_result_artist in test_str2.replace("-", ""):
                     test_str2 += f"-{slug_result_artist}"
+
+            test_str1_list = test_str1.split("-")
+            test_str2_list = test_str2.split("-")
+
+            test_str1_list.sort()
+            test_str2_list.sort()
+
+            test_str1 = "-".join(test_str1_list)
+            test_str2 = "-".join(test_str2_list)
 
             # print(f"test_str1: {test_str1}")
             # print(f"test_str2: {test_str2}")
@@ -368,33 +452,45 @@ class YouTubeMusic(AudioProvider):
             non_match_value = (delta**2) / song.duration * 100
             time_match = 100 - non_match_value
 
-            # drop results with time match lower than 50%
-            # print(f"time_match: {time_match}")
-            if time_match < 45:
-                # print("! time_match < 45 - skipping")
-                continue
+            # print(f"? time_match: {time_match}")
 
             # Calculate total match
-            average_match = (artist_match + name_match + time_match) / 3
+            average_match = (artist_match + name_match) / 2
 
-            # print(f"album_match: {album_match}")
-            # print(f"time_match: {time_match}")
-            # print(f"average_match: {average_match}")
+            # print(f"? album_match: {album_match}")
+            # print(f"? time_match: {time_match}")
+            # print(f"? average_match (only artist and name): {average_match}")
 
             if (
                 result["type"] == "song"
                 and slug_result_album
                 and fuzz.partial_ratio(
-                    slug_song_album_name, slug_result_name, score_cutoff=95
+                    slug_song_album_name, slug_result_name, score_cutoff=85
                 )
-                and slug_result_album == slug_song_album_name
             ):
                 # If the result album name is similar to the song album name
-                # and the result album name is the same as the song album name
-                # we add album match to the average match
-                average_match = (
-                    artist_match + album_match + name_match + time_match
-                ) / 4
+                # and average match is higher than 80%
+                # we add album match to the total match
+                average_match = average_match + album_match / 2
+
+                # print(f"? average_match with album_match: {average_match}")
+
+            if time_match < 50 and average_match < 85:
+                # If the time match is lower than 50% and the average match is lower than 85%
+                # we skip the result
+                # print("! time_match < 50 and average_match < 85 - skipping")
+                continue
+
+            if time_match < 50:
+                # If the time match is lower than 50% but the average match is higher than 85%
+                # we add time match to the average match
+
+                # if the result is an isrc result we don't add time match
+                if not is_isrc:
+                    average_match = (average_match + time_match) / 2
+                    # print(f"? average_match with time_match, not isrc: {average_match}")
+
+            # print(f"? final average_match: {average_match}")
 
             # the results along with the avg Match
             links_with_match_value[result["link"]] = average_match

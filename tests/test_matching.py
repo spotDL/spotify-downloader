@@ -36,7 +36,19 @@ from tests.conftest import new_initialize
         (
             "https://open.spotify.com/track/2Ikdgh3J5vCRmnCL3Xcrtv",
             "https://music.youtube.com/watch?v=sJpzMSHKUqI",
-        )
+        ),
+        (
+            "https://open.spotify.com/track/4uOHYc6dCVLcNdQBRUlA0G",
+            "https://www.youtube.com/watch?v=Mb3tyjibXCg",
+        ),
+        (
+            # this song is bugged on ytmusic for some reason
+            # it doesn't show up in search results
+            # so we can only find the lyrics version of it
+            # which is fine but not ideal
+            "https://open.spotify.com/track/1zi7xx7UVEFkmKfv06H8x0",
+            "https://www.youtube.com/watch?v=ki0Ocze98U8",
+        ),
     ],
 )
 def test_ytmusic_matching(monkeypatch, query, expected):

@@ -117,6 +117,14 @@ def gen_m3u_files(
             file_extension,
             short,
         )
+    else:
+        create_m3u_file(
+            file_name,
+            song_list,
+            template,
+            file_extension,
+            short,
+        )
 
 
 def create_m3u_file(
