@@ -15,7 +15,7 @@
         <link rel="canonical" href="https://spotdl.github.io/spotify-downloader/reference/types/artist/">
       
       <link rel="icon" href="../../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-8.5.7">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-8.5.8">
     
     
       
@@ -26,7 +26,7 @@
       <link rel="stylesheet" href="../../../assets/stylesheets/main.20d9efc8.min.css">
       
         
-        <link rel="stylesheet" href="../../../assets/stylesheets/palette.cbb835fc.min.css">
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.815d1a91.min.css">
         
       
       
@@ -1951,7 +1951,11 @@ Frozen to prevent accidental modification.</p>
 <span class="normal">157</span>
 <span class="normal">158</span>
 <span class="normal">159</span>
-<span class="normal">160</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@staticmethod</span>
+<span class="normal">160</span>
+<span class="normal">161</span>
+<span class="normal">162</span>
+<span class="normal">163</span>
+<span class="normal">164</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@staticmethod</span>
 <span class="k">def</span> <span class="nf">get_albums</span><span class="p">(</span><span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Returns a list with album urls.</span>
@@ -1968,32 +1972,36 @@ Frozen to prevent accidental modification.</p>
 
     <span class="n">artist_albums</span> <span class="o">=</span> <span class="n">spotify_client</span><span class="o">.</span><span class="n">artist_albums</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">album_type</span><span class="o">=</span><span class="s2">&quot;album,single&quot;</span><span class="p">)</span>
 
-    <span class="n">albums</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="c1"># check if there is response</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">artist_albums</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">ArtistError</span><span class="p">(</span>
+            <span class="s2">&quot;Couldn&#39;t get albums, check if you have passed correct artist id&quot;</span>
+        <span class="p">)</span>
 
     <span class="c1"># get artist albums and remove duplicates</span>
     <span class="c1"># duplicates can occur if the artist has the same album available in</span>
     <span class="c1"># different countries</span>
+    <span class="n">albums</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
     <span class="n">known_albums</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
-    <span class="k">if</span> <span class="n">artist_albums</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">album</span> <span class="ow">in</span> <span class="n">artist_albums</span><span class="p">[</span><span class="s2">&quot;items&quot;</span><span class="p">]:</span>
+        <span class="n">albums</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">album</span><span class="p">[</span><span class="s2">&quot;external_urls&quot;</span><span class="p">][</span><span class="s2">&quot;spotify&quot;</span><span class="p">])</span>
+        <span class="n">known_albums</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">slugify</span><span class="p">(</span><span class="n">album</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]))</span>
+
+    <span class="c1"># Fetch all artist albums</span>
+    <span class="k">while</span> <span class="n">artist_albums</span> <span class="ow">and</span> <span class="n">artist_albums</span><span class="p">[</span><span class="s2">&quot;next&quot;</span><span class="p">]:</span>
+        <span class="n">artist_albums</span> <span class="o">=</span> <span class="n">spotify_client</span><span class="o">.</span><span class="n">next</span><span class="p">(</span><span class="n">artist_albums</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">artist_albums</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">break</span>
+
         <span class="k">for</span> <span class="n">album</span> <span class="ow">in</span> <span class="n">artist_albums</span><span class="p">[</span><span class="s2">&quot;items&quot;</span><span class="p">]:</span>
-            <span class="n">albums</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">album</span><span class="p">[</span><span class="s2">&quot;external_urls&quot;</span><span class="p">][</span><span class="s2">&quot;spotify&quot;</span><span class="p">])</span>
-            <span class="n">known_albums</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">slugify</span><span class="p">(</span><span class="n">album</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]))</span>  <span class="c1"># type: ignore</span>
+            <span class="n">album_name</span> <span class="o">=</span> <span class="n">slugify</span><span class="p">(</span><span class="n">album</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">])</span>
 
-        <span class="c1"># Fetch all artist albums</span>
-        <span class="k">while</span> <span class="n">artist_albums</span> <span class="ow">and</span> <span class="n">artist_albums</span><span class="p">[</span><span class="s2">&quot;next&quot;</span><span class="p">]:</span>
-            <span class="n">artist_albums</span> <span class="o">=</span> <span class="n">spotify_client</span><span class="o">.</span><span class="n">next</span><span class="p">(</span><span class="n">artist_albums</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">artist_albums</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">break</span>
+            <span class="k">if</span> <span class="n">album_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">known_albums</span><span class="p">:</span>
+                <span class="n">albums</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">album</span><span class="p">[</span><span class="s2">&quot;external_urls&quot;</span><span class="p">][</span><span class="s2">&quot;spotify&quot;</span><span class="p">])</span>
 
-            <span class="k">for</span> <span class="n">album</span> <span class="ow">in</span> <span class="n">artist_albums</span><span class="p">[</span><span class="s2">&quot;items&quot;</span><span class="p">]:</span>
-                <span class="n">album_name</span> <span class="o">=</span> <span class="n">slugify</span><span class="p">(</span><span class="n">album</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">])</span>  <span class="c1"># type: ignore</span>
+                <span class="n">known_albums</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">album_name</span><span class="p">)</span>
 
-                <span class="k">if</span> <span class="n">album_name</span> <span class="ow">in</span> <span class="n">known_albums</span><span class="p">:</span>
-                    <span class="n">albums</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">item</span><span class="p">[</span><span class="s2">&quot;uri&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">artist_albums</span><span class="p">[</span><span class="s2">&quot;items&quot;</span><span class="p">]])</span>
-
-                    <span class="n">known_albums</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">album_name</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">albums</span>
+    <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">albums</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
       </details>
   </div>
@@ -2028,11 +2036,7 @@ Frozen to prevent accidental modification.</p>
 
       <details class="quote">
         <summary>Source code in <code>spotdl/types/artist.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">162</span>
-<span class="normal">163</span>
-<span class="normal">164</span>
-<span class="normal">165</span>
-<span class="normal">166</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">166</span>
 <span class="normal">167</span>
 <span class="normal">168</span>
 <span class="normal">169</span>
@@ -2055,7 +2059,11 @@ Frozen to prevent accidental modification.</p>
 <span class="normal">186</span>
 <span class="normal">187</span>
 <span class="normal">188</span>
-<span class="normal">189</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@staticmethod</span>
+<span class="normal">189</span>
+<span class="normal">190</span>
+<span class="normal">191</span>
+<span class="normal">192</span>
+<span class="normal">193</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@staticmethod</span>
 <span class="k">def</span> <span class="nf">get_metadata</span><span class="p">(</span><span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get metadata for artist.</span>
@@ -2281,7 +2289,7 @@ Frozen to prevent accidental modification.</p>
     <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.tabs", "navigation.top"], "search": "../../../assets/javascripts/workers/search.16e2a7d4.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.8492ddcf.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.d6c3db9e.min.js"></script>
       
     
   </body>
