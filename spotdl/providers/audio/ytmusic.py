@@ -219,6 +219,7 @@ class YouTubeMusic(AudioProvider):
 
         # Slugify some variables
         slug_song_name = slugify(song.name)
+        sentence_words = slug_song_name.split("-")
         slug_song_album_name = slugify(song.album_name)
         slug_song_main_artist = slugify(song.artist)
         slug_song_artists = slugify(", ".join(song.artists))
@@ -243,6 +244,7 @@ class YouTubeMusic(AudioProvider):
         # print(f"slug_song_title: {slug_song_title}")
         # print(f"slug_song_duration: {song.duration}")
         # print(f"slug_song_artists: {slug_song_artists}")
+        # print(f"sentence_words: {sentence_words}")
         # print(f"#############################")
 
         # Assign an overall avg match value to each result
@@ -256,7 +258,6 @@ class YouTubeMusic(AudioProvider):
             )
 
             # check for common words in result name
-            sentence_words = slug_song_name.split("-")
             common_word = any(
                 word != "" and word in slug_result_name for word in sentence_words
             )
@@ -530,13 +531,11 @@ class YouTubeMusic(AudioProvider):
             if (
                 result["type"] == "song"
                 and slug_result_album
-                and fuzz.partial_ratio(
-                    slug_song_album_name, slug_result_name, score_cutoff=85
-                )
+                and average_match > 80
+                and time_match > 80
             ):
-                # If the result album name is similar to the song album name
-                # and average match is higher than 80%
-                # we add album match to the total match
+                # we are almost certain that this is the correct result
+                # so we add the album match to the average match
                 average_match = average_match + album_match / 2
 
                 # print(f"? average_match with album_match: {average_match}")
@@ -551,8 +550,10 @@ class YouTubeMusic(AudioProvider):
                 # If the time match is lower than 50% but the average match is higher than 85%
                 # we add time match to the average match
 
-                # if the result is an isrc result we don't add time match
-                if average_match > 85:
+                # if the result is an isrc result
+                # or has really good average/album match
+                # we don't add time match
+                if average_match < 85 and not album_match > 75:
                     average_match = (average_match + time_match) / 2
                     # print(f"? average_match with time_match, not isrc: {average_match}")
 
