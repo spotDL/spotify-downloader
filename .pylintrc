@@ -8,3 +8,4 @@ disable=
     R0903, # too-few-public-methods
     R0914, # too-many-locals
     W0703, # broad-except
+    W0640, # cell-var-from-loop

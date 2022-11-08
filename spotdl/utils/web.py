@@ -90,7 +90,7 @@ class WSProgressHandler:
         # Add the connection to the list of connections
         app_state.ws_instances.append(self)
 
-        app_state.logger.info(f"Client {self.client_id} connected")
+        app_state.logger.info("Client %s connected", self.client_id)
 
     async def send_update(self, update: Dict[str, Any]):
         """
@@ -137,7 +137,7 @@ class WSProgressHandler:
             if instance.client_id == client_id:
                 return instance
 
-        app_state.logger.error(f"Client {client_id} not found")
+        app_state.logger.error("Client %s not found", client_id)
 
         return None
 

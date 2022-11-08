@@ -20,7 +20,7 @@ from spotdl.console.web import web
 from spotdl.download import Downloader
 from spotdl.providers.audio.base import AudioProviderError
 from spotdl.providers.audio.ytmusic import YouTubeMusic
-from spotdl.utils.config import DEFAULT_CONFIG, ConfigError, get_config, get_config_file
+from spotdl.utils.config import DEFAULT_CONFIG, get_config, get_config_file
 from spotdl.utils.arguments import parse_arguments
 from spotdl.utils.spotify import SpotifyClient, SpotifyError
 from spotdl.utils.console import ACTIONS
@@ -68,13 +68,6 @@ def entry_point():
         # if it's not present download it create config file
         if is_ffmpeg_installed() is False:
             download_ffmpeg()
-
-        try:
-            get_config()
-        except ConfigError:
-            config_path = get_config_file()
-            with open(config_path, "w", encoding="utf-8") as config_file:
-                json.dump(DEFAULT_CONFIG, config_file, indent=4)
 
     # Check if sys.argv contains an action
     # If it does, we run the action and exit

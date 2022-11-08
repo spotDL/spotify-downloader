@@ -103,6 +103,9 @@ def parse_main_options(parser: _ArgumentGroup):
     operation = parser.add_argument(
         "operation",
         choices=OPERATIONS,
+        default="download",
+        const="download",
+        nargs="?",
         help=(
             "N|The operation to perform.\n"
             "download: Download the songs to the disk and embed metadata.\n"
