@@ -49,6 +49,38 @@ from tests.conftest import new_initialize
             "https://open.spotify.com/track/1zi7xx7UVEFkmKfv06H8x0",
             "https://www.youtube.com/watch?v=ki0Ocze98U8",
         ),
+        (
+            "https://open.spotify.com/track/2eaSMmKfigsm96aTUJMoIk",
+            "https://music.youtube.com/watch?v=A-PjXUzhFDk",
+        ),
+        (
+            "https://open.spotify.com/track/3rwdcyPQ37SSsf1loOpux9",
+            "https://music.youtube.com/watch?v=OWAVbUpr8b4",
+        ),
+        (
+            "https://open.spotify.com/track/760xwlNMwa6IZGff1eBhFW",
+            "https://music.youtube.com/watch?v=Apej0F8ack0",
+        ),
+        (
+            "https://open.spotify.com/track/07paTkxx4R7rmiGjqm84RM",
+            "https://music.youtube.com/watch?v=f-VuVq0I0-U",
+        ),
+        (
+            "https://open.spotify.com/track/6fAmcQ6DjLDA0uHnbdAQmJ",
+            "https://music.youtube.com/watch?v=8WIPgiDVeDs",
+        ),
+        (
+            "https://open.spotify.com/track/70C4NyhjD5OZUMzvWZ3njJ",
+            "https://music.youtube.com/watch?v=LLbew85exp0",
+        ),
+        (
+            "https://open.spotify.com/track/6l0oJ8fzG0WEplj5uBqwzm",
+            "https://music.youtube.com/watch?v=AoXNtriCLt4",
+        ),
+        (
+            "https://open.spotify.com/track/2cqRMfCvT9WIdUiaIVB6EJ",
+            "https://music.youtube.com/watch?v=gXElRbmTm2c",
+        ),
     ],
 )
 def test_ytmusic_matching(monkeypatch, query, expected):

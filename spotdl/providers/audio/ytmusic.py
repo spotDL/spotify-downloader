@@ -3,6 +3,7 @@ YTMusic module for downloading and searching songs.
 """
 
 from typing import Any, Dict, List, Optional
+from itertools import zip_longest
 
 from ytmusicapi import YTMusic
 from slugify import slugify
@@ -120,7 +121,7 @@ class YouTubeMusic(AudioProvider):
         # Sort results by highest score
         sorted_results = sorted(result_items, key=lambda x: x[1], reverse=True)
 
-        last_simlar_index = 0
+        last_simlar_index = 1
         best_score = sorted_results[0][1]
 
         # Get few results with score close to the best score
@@ -128,6 +129,9 @@ class YouTubeMusic(AudioProvider):
             if (best_score - score) > 8:
                 last_simlar_index = index
                 break
+
+        # print(f"# last_simlar_index: {last_simlar_index}")
+        # print(f"# sorted_results: {sorted_results}")
 
         # Get the best results from the similar results
         best_results = sorted_results[:last_simlar_index]
@@ -151,9 +155,11 @@ class YouTubeMusic(AudioProvider):
 
         # print(f"# views_data: {views_data}")
 
-        # print(f"# RETURN URL - {best_result[0]} - sorted, best results")
         best_result_index = views_data.index(str(max(map(int, views_data))))
-        return best_results[best_result_index][0]
+        best_result = best_results[best_result_index]
+
+        # print(f"# RETURN URL - {best_result[0]} - sorted, best results")
+        return best_result[0]
 
     def get_results(self, search_term: str, **kwargs) -> List[Dict[str, Any]]:
         """
@@ -255,6 +261,36 @@ class YouTubeMusic(AudioProvider):
                 word != "" and word in slug_result_name for word in sentence_words
             )
 
+            test_str1 = slug_result_name
+            test_str2 = slug_song_name if result["type"] == "song" else slug_song_title
+
+            # check if the artist is in the song name
+            # but not in the result name
+            # if it is, we add the artist to the result name
+            for artist in song.artists:
+                slug_song_artist = slugify(artist).replace("-", "")
+                if slug_song_artist in test_str2.replace(
+                    "-", ""
+                ) and not slug_song_artist in test_str1.replace("-", ""):
+                    test_str1 += f"-{slug_song_artist}"
+
+            # same thing for for song name
+            for artist in song.artists:
+                slug_result_artist = slugify(artist).replace("-", "")
+                if slug_result_artist in test_str1.replace(
+                    "-", ""
+                ) and not slug_result_artist in test_str2.replace("-", ""):
+                    test_str2 += f"-{slug_result_artist}"
+
+            test_str1_list = test_str1.split("-")
+            test_str2_list = test_str2.split("-")
+
+            test_str1_list.sort()
+            test_str2_list.sort()
+
+            test_str1 = "-".join(test_str1_list)
+            test_str2 = "-".join(test_str2_list)
+
             # print("-----------------------------")
             # print(f"sentence_words: {sentence_words}")
             # print(f"common_word: {common_word}")
@@ -265,6 +301,8 @@ class YouTubeMusic(AudioProvider):
             # print(f"slug_result_name: {slug_result_name}")
             # print(f"slug_result_artists: {slug_result_artists}")
             # print(f"slug_result_album: {slug_result_album}")
+            # print(f"test_str1: {test_str1}")
+            # print(f"test_str2: {test_str2}")
             # print("-----------------------------")
 
             # skip results that have no common words in their name
@@ -275,6 +313,7 @@ class YouTubeMusic(AudioProvider):
             main_artist_match = fuzz.ratio(
                 slug_song_main_artist, slugify(result["artists_list"][0])
             )
+
             # print(f"? main_artist_match: {main_artist_match}")
 
             artist_match_number = main_artist_match
@@ -285,22 +324,42 @@ class YouTubeMusic(AudioProvider):
                     artists_match = fuzz.ratio(slug_song_artists, slug_result_artists)
                     # print(f"exact artists_match: {artists_match}")
                 else:
-                    # Sort list1
-                    artist1_list = list(map(slugify, song.artists))
-                    artist1_list.sort()
+                    artists_match = artist_match_number
+                    if (len(result["artists_list"]) * 100) / len(
+                        song.artists
+                    ) > 60 and len(song.artists) > 2:
+                        # Sort list1
+                        artist1_list = list(map(slugify, song.artists))
+                        artist1_list.sort()
 
-                    # Sort list2
-                    artist2_list = list(map(slugify, result["artists_list"]))
-                    artist2_list.sort()
+                        # Sort list2
+                        artist2_list = list(map(slugify, result["artists_list"]))
+                        artist2_list.sort()
 
-                    # Zip two sorted lists
-                    zipped_lists = list(zip(song.artists, result["artists_list"]))
+                        # print(f"artist1_list: {artist1_list}")
+                        # print(f"artist2_list: {artist2_list}")
 
-                    artist_match = 0.0
-                    for artist1, artist2 in zipped_lists:
-                        artist_match += fuzz.ratio(slugify(artist1), slugify(artist2))
+                        list_map = {
+                            value: index for index, value in enumerate(artist2_list)
+                        }
+                        # print(f"list_map: {list_map}")
 
-                    artists_match = artist_match / len(zipped_lists)
+                        # Sort list2 based on list1
+                        artist1_list = sorted(
+                            artist1_list,
+                            key=lambda x: list_map.get(x, -1),
+                            reverse=True,
+                        )
+
+                        # print(f"artist1_list after sorting: {artist1_list}")
+
+                        artists_match = 0.0
+                        for artist1, artist2 in zip_longest(artist1_list, artist2_list):
+                            artists_match += fuzz.ratio(artist1, artist2)
+
+                        artists_match = artists_match / len(artist1_list)
+
+                        # print(f"artists_match: {artists_match}/{len(artist2_list)})")
 
                 artist_match_number += artists_match
 
@@ -342,10 +401,10 @@ class YouTubeMusic(AudioProvider):
                 # Check if the song name is very similar to the result name
                 if (
                     fuzz.ratio(
-                        slug_result_name,
-                        slug_song_name,
+                        test_str1,
+                        test_str2,
                     )
-                    >= 85
+                    >= 75
                 ):
                     # If it is, we increase the artist match
                     artist_match += 10
@@ -353,11 +412,13 @@ class YouTubeMusic(AudioProvider):
 
                     # if the result doesn't have the same number of artists but has
                     # the same main artist and similar name
-                    # we add 30% to the artist match
-                    if (
-                        len(result["artists_list"]) < len(song.artists)
-                        and slugify(result["artists_list"][0]) == slug_song_main_artist
-                    ):
+                    # we add 25% to the artist match
+                    if len(result["artists_list"]) < len(
+                        song.artists
+                    ) and slug_song_main_artist.replace("-", "") in [
+                        slug_result_artists.replace("-", ""),
+                        slug_result_name.replace("-", ""),
+                    ]:
                         artist_match += 25
                         # print("? hacky artist_match: ", artist_match)
 
@@ -371,11 +432,49 @@ class YouTubeMusic(AudioProvider):
                 # Check if other song artists are in the result name
                 # if they are, we increase the artist match
                 # (main artist is already checked, so we skip it)
-                for artist in song.artists[1:]:
-                    slug_song_artist = slugify(artist)
-                    if slug_song_artist in slug_result_name:
+                artists_to_check = (
+                    song.artists[1:] if main_artist_match > 50 else song.artists
+                )
+                for artist in artists_to_check:
+                    slug_song_artist = slugify(artist).replace("-", "")
+                    if slug_song_artist in test_str2.replace("-", ""):
                         artist_match += 15 if len(song.artists[1:]) <= 2 else 10
                         # print("? other artist artist_match: ", artist_match)
+
+                # if the artist match is still too low,
+                # we fallback to matching all song artist names
+                # with the result's title with rapidfuzz
+                if artist_match <= 70:
+                    # artists from title without title words
+                    clean_title1 = [
+                        artist
+                        for artist in map(slugify, song.artists)
+                        if artist.replace("-", "")
+                        not in slug_song_name.replace("-", "")
+                    ]
+
+                    # artists from result name without title words
+                    clean_title2 = [
+                        artist
+                        for artist in map(slugify, result["artists_list"])
+                        if artist.replace("-", "")
+                        not in slug_result_name.replace("-", "")
+                    ]
+
+                    clean_title1.sort()
+                    clean_title2.sort()
+
+                    # print(f"clean_title1: {clean_title1}")
+                    # print(f"clean_title2: {clean_title2}")
+
+                    artist_title_match = fuzz.ratio(
+                        "-".join(clean_title1),
+                        "-".join(clean_title2),
+                    )
+
+                    if artist_title_match > artist_match:
+                        artist_match = artist_title_match
+                        # print("? fourth artist_match: ", artist_match)
 
             # print("? final artist_match: ", artist_match)
 
@@ -387,39 +486,6 @@ class YouTubeMusic(AudioProvider):
             # check if the artist match is higher than 100%
             # if it is, we set it to 100% (this shouldn't happen)
             artist_match = min(artist_match, 100)
-
-            test_str1 = slug_result_name
-            test_str2 = slug_song_name if result["type"] == "song" else slug_song_title
-
-            # check if the artist is in the song name
-            # but not in the result name
-            # if it is, we add the artist to the result name
-            for artist in song.artists:
-                slug_song_artist = slugify(artist).replace("-", "")
-                if slug_song_artist in test_str2.replace(
-                    "-", ""
-                ) and not slug_song_artist in test_str1.replace("-", ""):
-                    test_str1 += f"-{slug_song_artist}"
-
-            # same thing for for song name
-            for artist in song.artists:
-                slug_result_artist = slugify(artist).replace("-", "")
-                if slug_result_artist in test_str1.replace(
-                    "-", ""
-                ) and not slug_result_artist in test_str2.replace("-", ""):
-                    test_str2 += f"-{slug_result_artist}"
-
-            test_str1_list = test_str1.split("-")
-            test_str2_list = test_str2.split("-")
-
-            test_str1_list.sort()
-            test_str2_list.sort()
-
-            test_str1 = "-".join(test_str1_list)
-            test_str2 = "-".join(test_str2_list)
-
-            # print(f"test_str1: {test_str1}")
-            # print(f"test_str2: {test_str2}")
 
             # Calculate name match
             if artist_match >= 75:
@@ -481,12 +547,12 @@ class YouTubeMusic(AudioProvider):
                 # print("! time_match < 50 and average_match < 85 - skipping")
                 continue
 
-            if time_match < 50:
+            if time_match < 50 and not is_isrc:
                 # If the time match is lower than 50% but the average match is higher than 85%
                 # we add time match to the average match
 
                 # if the result is an isrc result we don't add time match
-                if not is_isrc:
+                if average_match > 85:
                     average_match = (average_match + time_match) / 2
                     # print(f"? average_match with time_match, not isrc: {average_match}")
 
