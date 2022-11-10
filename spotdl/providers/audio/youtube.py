@@ -123,7 +123,9 @@ class YouTube(AudioProvider):
 
         return Search(search_term).results
 
-    def order_results(self, results: List[PyTube], song: Song) -> Dict[str, Tuple[float, int]]:
+    def order_results(
+        self, results: List[PyTube], song: Song
+    ) -> Dict[str, Tuple[float, int]]:
         """
         Filter results based on the song's metadata.
 

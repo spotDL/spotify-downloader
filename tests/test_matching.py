@@ -83,8 +83,8 @@ from tests.conftest import new_initialize
         ),
         (
             "https://open.spotify.com/track/7eJMfftS33KTjuF7lTsMCx",
-            "https://music.youtube.com/watch?v=WB4Nmh76fAc"
-        )
+            "https://music.youtube.com/watch?v=WB4Nmh76fAc",
+        ),
     ],
 )
 def test_ytmusic_matching(monkeypatch, query, expected):
