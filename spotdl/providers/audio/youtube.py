@@ -43,7 +43,7 @@ class YouTube(AudioProvider):
                     if len(isrc_result) == 1:
                         isrc_link, isrc_score = isrc_result.popitem()
 
-                        if isrc_score > 90:
+                        if isrc_score[0] > 90:
                             # print(f"# RETURN URL - {isrc_link} - isrc score")
                             return isrc_link
 

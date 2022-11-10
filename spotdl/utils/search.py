@@ -220,7 +220,7 @@ def get_simple_songs(
     return songs
 
 
-def reinit_song(song: Song, playlist_numbering: bool) -> Song:
+def reinit_song(song: Song, playlist_numbering: bool = False) -> Song:
     """
     Update song object with new data
     from Spotify
@@ -246,8 +246,9 @@ def reinit_song(song: Song, playlist_numbering: bool) -> Song:
                 data["track_number"] = data["list_position"] + 1
                 data["tracks_count"] = len(song_list.urls)
                 data["album_name"] = song_list.name
-                data["album_artist"] = song_list.author_name
-                data["cover_url"] = song_list.cover_url
+                if isinstance(song_list, Playlist):
+                    data["album_artist"] = song_list.author_name
+                    data["cover_url"] = song_list.cover_url
                 data["disc_number"] = 1
                 data["disc_count"] = 1
 

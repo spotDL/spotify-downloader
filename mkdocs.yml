@@ -21,6 +21,8 @@ theme:
   name: material
   features:
     - content.code.annotate
+    - navigation.tabs
+    - navigation.top
   palette:
   - media: "(prefers-color-scheme: light)"
     scheme: default
@@ -36,9 +38,6 @@ theme:
     toggle:
       icon: material/weather-night
       name: Switch to light mode
-  features:
-  - navigation.tabs
-  - navigation.top
 
 plugins:
 - search

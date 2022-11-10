@@ -85,7 +85,7 @@ class Downloader:
         print_errors: bool = False,
         sponsor_block: bool = False,
         loop: Optional[asyncio.AbstractEventLoop] = None,
-        playlist_numbering: bool = False
+        playlist_numbering: bool = False,
     ):
         """
         Initialize the Downloader class.

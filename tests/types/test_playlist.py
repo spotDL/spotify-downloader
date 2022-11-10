@@ -16,6 +16,7 @@ def test_playlist_init():
         description="test",
         author_url="test",
         author_name="test",
+        cover_url="test"
     )
 
     assert playlist.name == "test"

@@ -84,6 +84,7 @@ class Playlist(SongList):
         if playlist is None:
             raise PlaylistError("Invalid playlist URL.")
 
+        print(playlist["images"])
         return {
             "name": playlist["name"],
             "url": url,
@@ -91,6 +92,9 @@ class Playlist(SongList):
             "author_url": playlist["external_urls"]["spotify"],
             "author_name": playlist["owner"]["display_name"],
             "cover_url": max(
-                playlist["images"], key=lambda i: i["width"] * i["height"]
-            )["url"]
+                playlist["images"],
+                key=lambda i: 0
+                if i["width"] is None or i["height"] is None
+                else i["width"] * i["height"],
+            )["url"],
         }
