@@ -23,6 +23,73 @@ class Album(SongList):
 
     artist: Dict[str, Any]
 
+    @classmethod
+    def search(cls, search_term: str):
+        """
+        Searches for Album from a search term.
+
+        ### Arguments
+        - search_term: The search term to use.
+
+        ### Returns
+        - The raw search results
+        """
+
+        spotify_client = SpotifyClient()
+        raw_search_results = spotify_client.search(search_term, type="album")
+
+        if (
+            raw_search_results is None
+            or len(raw_search_results.get("albums", {}).get("items", [])) == 0
+        ):
+            raise AlbumError("No album matches found on spotify")
+
+        return raw_search_results
+
+    @classmethod
+    def from_search_term(cls, search_term: str) -> "Album":
+        """
+        Creates an Album object from a search term.
+
+        ### Arguments
+        - search_term: The search term to use.
+
+        ### Returns
+        - The Album object.
+        """
+
+        raw_search_results = Album.search(search_term)
+
+        return Album.create_basic_list(
+            "http://open.spotify.com/album/"
+            + raw_search_results["albums"]["items"][0]["id"]
+        )
+
+    @classmethod
+    def list_from_search_term(cls, search_term: str) -> "List[Album]":
+        """
+        Creates a list of Album objects from a search term.
+
+        ### Arguments
+        - search_term: The search term to use.
+
+        ### Returns
+        - The list of Album objects.
+        """
+
+        raw_search_results = Album.search(search_term)
+
+        albums = []
+        for idx, _ in enumerate(raw_search_results):
+            albums.append(
+                Album.create_basic_object(
+                    "http://open.spotify.com/album/"
+                    + raw_search_results["albums"]["items"][idx]["id"]
+                )
+            )
+
+        return albums
+
     @staticmethod
     def get_urls(url: str) -> List[str]:
         """

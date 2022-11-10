@@ -25,6 +25,48 @@ class Playlist(SongList):
     author_url: str
     author_name: str
 
+    @classmethod
+    def search(cls, search_term: str):
+        """
+        Searches for Playlist from a search term.
+
+        ### Arguments
+        - search_term: The search term to use.
+
+        ### Returns
+        - The raw search results
+        """
+
+        raise NotImplementedError
+
+    @classmethod
+    def from_search_term(cls, search_term: str) -> "Playlist":
+        """
+        Creates a Playlist object from a search term.
+
+        ### Arguments
+        - search_term: The search term to use.
+
+        ### Returns
+        - The Playlist object.
+        """
+
+        raise NotImplementedError
+
+    @classmethod
+    def list_from_search_term(cls, search_term: str) -> "List[Playlist]":
+        """
+        Creates a list of Playlist objects from a search term.
+
+        ### Arguments
+        - search_term: The search term to use.
+
+        ### Returns
+        - The list of Playlist objects.
+        """
+
+        raise NotImplementedError
+
     @staticmethod
     def get_urls(url: str) -> List[str]:
         """

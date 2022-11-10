@@ -78,6 +78,48 @@ class Artist(SongList):
             urls=urls,
         )
 
+    @classmethod
+    def search(cls, search_term: str):
+        """
+        Searches for Artist from a search term.
+
+        ### Arguments
+        - search_term: The search term to use.
+
+        ### Returns
+        - The raw search results
+        """
+
+        raise NotImplementedError
+
+    @classmethod
+    def from_search_term(cls, search_term: str) -> "Artist":
+        """
+        Creates a Artist object from a search term.
+
+        ### Arguments
+        - search_term: The search term to use.
+
+        ### Returns
+        - The Artist object.
+        """
+
+        raise NotImplementedError
+
+    @classmethod
+    def list_from_search_term(cls, search_term: str) -> "List[Artist]":
+        """
+        Creates a list of Artist objects from a search term.
+
+        ### Arguments
+        - search_term: The search term to use.
+
+        ### Returns
+        - The list of Artist objects.
+        """
+
+        raise NotImplementedError
+
     @staticmethod
     def get_urls(url: str) -> List[str]:
         """

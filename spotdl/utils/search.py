@@ -10,9 +10,8 @@ import concurrent.futures
 
 from typing import List, Optional
 
-from spotdl.utils.spotify import SpotifyClient
 from spotdl.types import Playlist, Album, Artist, Saved
-from spotdl.types.song import SongList, SongError, Song
+from spotdl.types.song import SongList, Song
 
 
 class QueryError(Exception):
@@ -32,25 +31,7 @@ def get_search_results(search_term: str) -> List[Song]:
     - a list of Song objects
     """
 
-    spotify_client = SpotifyClient()
-    raw_search_results = spotify_client.search(search_term)
-
-    if (
-        raw_search_results is None
-        or len(raw_search_results.get("tracks", {}).get("items", [])) == 0
-    ):
-        raise SongError("No songs matches found on spotify")
-
-    songs = []
-    for index, _ in enumerate(raw_search_results["tracks"]["items"]):
-        songs.append(
-            Song.from_url(
-                "http://open.spotify.com/track/"
-                + raw_search_results["tracks"]["items"][index]["id"]
-            )
-        )
-
-    return songs
+    return Song.list_from_search_term(search_term)
 
 
 def parse_query(
@@ -202,6 +183,8 @@ def get_simple_songs(
             lists.append(Album.create_basic_list(request))
         elif "open.spotify.com" in request and "artist" in request:
             lists.append(Artist.create_basic_list(request))
+        elif "album:" in request:
+            lists.append(Album.from_search_term(request))
         elif request == "saved":
             lists.append(Saved.create_basic_list())
         elif request.endswith(".spotdl"):

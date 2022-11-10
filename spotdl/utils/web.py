@@ -27,6 +27,7 @@ from fastapi import (
 from spotdl.download.progress_handler import NAME_TO_LEVEL, ProgressHandler, SongTracker
 
 from spotdl.types.song import Song
+from spotdl.types.album import Album
 from spotdl.download.downloader import Downloader
 from spotdl.utils.search import get_search_results
 from spotdl.utils.config import get_spotdl_path
@@ -238,6 +239,21 @@ def query_search(query: str) -> List[Song]:
     """
 
     return get_search_results(query)
+
+
+@router.get("/api/albums/search")
+def query_search_albums(query: str) -> List[Album]:
+    """
+    Parse search term and return list of Album objects.
+
+    ### Arguments
+    - query: The query to parse.
+
+    ### Returns
+    - returns a list of Album objects.
+    """
+
+    return Album.list_from_search_term(query)
 
 
 @router.post("/api/download/url")
