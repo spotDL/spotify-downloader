@@ -211,7 +211,6 @@ class Song:
 
         return asdict(self)
 
-
 @dataclass(frozen=True)
 class SongList:
     """

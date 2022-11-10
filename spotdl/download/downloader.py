@@ -85,6 +85,7 @@ class Downloader:
         print_errors: bool = False,
         sponsor_block: bool = False,
         loop: Optional[asyncio.AbstractEventLoop] = None,
+        playlist_numbering: bool = False
     ):
         """
         Initialize the Downloader class.
@@ -187,6 +188,7 @@ class Downloader:
         self.sponsor_block = sponsor_block
         self.audio_providers_classes = audio_providers_classes
         self.progress_handler = ProgressHandler(NAME_TO_LEVEL[log_level], simple_tui)
+        self.playlist_numbering = playlist_numbering
 
         self.lyrics_providers: List[LyricsProvider] = []
         for lyrics_provider_class in lyrics_providers_classes:
@@ -344,7 +346,7 @@ class Downloader:
         # If it's None extract the current metadata
         # And reinitialize the song object
         if song.name is None and song.url:
-            song = reinit_song(song)
+            song = reinit_song(song, self.playlist_numbering)
 
         # Find song lyrics and add them to the song object
         lyrics = self.search_lyrics(song)
