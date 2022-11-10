@@ -80,7 +80,7 @@ class Album(SongList):
         raw_search_results = Album.search(search_term)
 
         albums = []
-        for idx, _ in enumerate(raw_search_results):
+        for idx, _ in enumerate(raw_search_results["albums"]["items"]):
             albums.append(
                 Album.create_basic_object(
                     "http://open.spotify.com/album/"

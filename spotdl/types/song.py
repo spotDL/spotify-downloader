@@ -167,7 +167,7 @@ class Song:
         raw_search_results = Song.search(search_term)
 
         songs = []
-        for idx, _ in enumerate(raw_search_results):
+        for idx, _ in enumerate(raw_search_results["tracks"]["items"]):
             songs.append(
                 Song.from_url(
                     "http://open.spotify.com/track/"
