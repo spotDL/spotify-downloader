@@ -2,7 +2,7 @@
 Youtube module for downloading and searching songs.
 """
 
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple
 
 from pytube import YouTube as PyTube, Search
 from rapidfuzz import fuzz
@@ -63,7 +63,7 @@ class YouTube(AudioProvider):
             # Order results
             ordered_results = self.order_results(results, song)
         else:
-            ordered_results = {results[0].watch_url: (100.0, 9e9)}
+            ordered_results = {results[0].watch_url: (100.0, 9_000_000_000.0)}
 
         # No matches found
         if len(ordered_results) == 0:
