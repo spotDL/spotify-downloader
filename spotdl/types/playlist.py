@@ -37,35 +37,16 @@ class Playlist(SongList):
         - The raw search results
         """
 
-        raise NotImplementedError
+        spotify_client = SpotifyClient()
+        raw_search_results = spotify_client.search(search_term, type="playlist")
 
-    @classmethod
-    def from_search_term(cls, search_term: str) -> "Playlist":
-        """
-        Creates a Playlist object from a search term.
+        if (
+            raw_search_results is None
+            or len(raw_search_results.get("playlists", {}).get("items", [])) == 0
+        ):
+            raise PlaylistError("No playlist matches found on spotify")
 
-        ### Arguments
-        - search_term: The search term to use.
-
-        ### Returns
-        - The Playlist object.
-        """
-
-        raise NotImplementedError
-
-    @classmethod
-    def list_from_search_term(cls, search_term: str) -> "List[Playlist]":
-        """
-        Creates a list of Playlist objects from a search term.
-
-        ### Arguments
-        - search_term: The search term to use.
-
-        ### Returns
-        - The list of Playlist objects.
-        """
-
-        raise NotImplementedError
+        return raw_search_results
 
     @staticmethod
     def get_urls(url: str) -> List[str]:

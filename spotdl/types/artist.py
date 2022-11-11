@@ -90,35 +90,16 @@ class Artist(SongList):
         - The raw search results
         """
 
-        raise NotImplementedError
+        spotify_client = SpotifyClient()
+        raw_search_results = spotify_client.search(search_term, type="artist")
 
-    @classmethod
-    def from_search_term(cls, search_term: str) -> "Artist":
-        """
-        Creates a Artist object from a search term.
+        if (
+            raw_search_results is None
+            or len(raw_search_results.get("artists", {}).get("items", [])) == 0
+        ):
+            raise ArtistError("No artist matches found on spotify")
 
-        ### Arguments
-        - search_term: The search term to use.
-
-        ### Returns
-        - The Artist object.
-        """
-
-        raise NotImplementedError
-
-    @classmethod
-    def list_from_search_term(cls, search_term: str) -> "List[Artist]":
-        """
-        Creates a list of Artist objects from a search term.
-
-        ### Arguments
-        - search_term: The search term to use.
-
-        ### Returns
-        - The list of Artist objects.
-        """
-
-        raise NotImplementedError
+        return raw_search_results
 
     @staticmethod
     def get_urls(url: str) -> List[str]:

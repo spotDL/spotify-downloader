@@ -123,6 +123,8 @@ def parse_main_options(parser: _ArgumentGroup):
         type=str,
         help=(
             "Spotify URL for a song/playlist/album/artist/etc. to download. "
+            "For album searching, include 'album:' and optional 'artist:' tags "
+            "(ie. 'album:the album name' or 'artist:the artist album: the album'). "
             "For manual audio matching, you can use the format 'YouTubeURL|SpotifyURL'"
         ),
     )

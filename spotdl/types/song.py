@@ -111,8 +111,8 @@ class Song:
             else None,
         )
 
-    @classmethod
-    def search(cls, search_term: str):
+    @staticmethod
+    def search(search_term: str):
         """
         Searches for Songs from a search term.
 
@@ -358,7 +358,13 @@ class SongList:
         - The SongList object.
         """
 
-        raise NotImplementedError
+        list_type = cls.__name__.lower()
+        raw_search_results = cls.search(search_term)
+
+        return cls.create_basic_list(
+            f"http://open.spotify.com/{list_type}/"
+            + raw_search_results[f"{list_type}s"]["items"][0]["id"]
+        )
 
     @classmethod
     def list_from_search_term(cls, search_term: str):
@@ -372,7 +378,19 @@ class SongList:
         - The list of SongList objects.
         """
 
-        raise NotImplementedError
+        list_type = cls.__name__.lower()
+        raw_search_results = cls.search(search_term)
+
+        songlist = []
+        for idx, _ in enumerate(raw_search_results[f"{list_type}s"]["items"]):
+            songlist.append(
+                cls.create_basic_object(
+                    f"http://open.spotify.com/{list_type}/"
+                    + raw_search_results[f"{list_type}s"]["items"][idx]["id"]
+                )
+            )
+
+        return songlist
 
     @staticmethod
     def get_urls(url: str) -> List[str]:
