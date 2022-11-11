@@ -84,7 +84,6 @@ class Playlist(SongList):
         if playlist is None:
             raise PlaylistError("Invalid playlist URL.")
 
-        print(playlist["images"])
         return {
             "name": playlist["name"],
             "url": url,
