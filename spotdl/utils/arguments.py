@@ -403,6 +403,17 @@ def parse_output_options(parser: _ArgumentGroup):
         help="Specify the file name for an archive of already downloaded songs",
     )
 
+    # Option to set the track number & album of tracks in a playlist to their index in the playlist
+    # & the name of playlist respectively.
+    parser.add_argument(
+        "--playlist-numbering",
+        action="store_const",
+        dest="playlist_numbering",
+        const=True,
+        help="Sets each track in a playlist to have the playlist's name as its album,\
+            and album art as the playlist's icon",
+    )
+
 
 def parse_web_options(parser: _ArgumentGroup):
     """

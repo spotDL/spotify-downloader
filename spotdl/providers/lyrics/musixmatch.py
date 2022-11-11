@@ -46,7 +46,7 @@ class MusixMatch(LyricsProvider):
                 query += "/tracks"
 
             search_url = f"https://www.musixmatch.com/search/{query}"
-            search_resp = requests.get(search_url, headers=self.headers)
+            search_resp = requests.get(search_url, headers=self.headers, timeout=10)
 
             search_soup = BeautifulSoup(search_resp.text, "html.parser")
             song_url_tag = search_soup.select_one("a[href^='/lyrics/']")
@@ -63,7 +63,7 @@ class MusixMatch(LyricsProvider):
                 return lyrics
 
             song_url = "https://www.musixmatch.com" + str(song_url_tag.get("href", ""))
-            lyrics_resp = requests.get(song_url, headers=self.headers)
+            lyrics_resp = requests.get(song_url, headers=self.headers, timeout=10)
 
             lyrics_soup = BeautifulSoup(lyrics_resp.text, "html.parser")
             lyrics_paragraphs = lyrics_soup.select("p.mxm-lyrics__content")

@@ -43,12 +43,13 @@ class Genius(LyricsProvider):
                 "https://api.genius.com/search",
                 params={"q": f"{name} {artist_str}"},
                 headers=headers,
+                timeout=10,
             )
 
             song_id = search_response.json()["response"]["hits"][0]["result"]["id"]
 
             song_response = requests.get(
-                f"https://api.genius.com/songs/{song_id}", headers=headers
+                f"https://api.genius.com/songs/{song_id}", headers=headers, timeout=10
             )
 
             song_url = song_response.json()["response"]["song"]["url"]
@@ -56,7 +57,9 @@ class Genius(LyricsProvider):
             counter = 0
             soup = None
             while counter < 4:
-                genius_page_response = requests.get(song_url, headers=self.headers)
+                genius_page_response = requests.get(
+                    song_url, headers=self.headers, timeout=10
+                )
 
                 if not genius_page_response.ok:
                     counter += 1

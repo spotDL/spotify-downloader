@@ -262,7 +262,8 @@ false
     "print_errors": false,
     "sponsor_block": false,
     "preload": false,
-    "archive": null
+    "archive": null,
+    "playlist_numbering": false
 }
 ```
 
@@ -332,6 +333,7 @@ Output options:
   --print-errors        Print errors (wrong songs, failed downloads etc) on exit, useful for long playlist
   --sponsor-block       Use the sponsor block to download songs from yt/ytm.
   --archive ARCHIVE     Specify the file name for an archive of already downloaded songs
+  --playlist-numbering  When downloading a playlist, convert all tracks into a single album, using the playlist icon as the album art.
 
 Web options:
   --host HOST           The host to use for the web server.
