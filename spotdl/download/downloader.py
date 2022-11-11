@@ -110,6 +110,7 @@ class Downloader:
         - restrict: Whether to restrict the filename to ASCII characters.
         - print_errors: Whether to print errors on exit.
         - sponsor_block: Whether to remove sponsor segments using sponsor block postprocessor.
+        - playlist_numbering: Whether to convert tracks in a playlist into an album
 
         ### Notes
         - `search-query` uses the same format as `output`.

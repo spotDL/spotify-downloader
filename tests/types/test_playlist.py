@@ -27,7 +27,7 @@ def test_playlist_init():
     assert playlist.author_name == "test"
 
 
-def test_playlist_wrong_init():
+def test_playlist_wrong_initget_results():
     """
     Tests if Playlist class raises exception when initialized with wrong parameters.
     """

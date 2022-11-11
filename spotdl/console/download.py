@@ -29,6 +29,7 @@ def download(
     - downloader: Already initialized downloader instance.
     - save_path: Path to save the songs to or None.
     - m3u_file: Path to the m3u file to save the songs to.
+    - archive: Path to the archive file to save the songs to.
     """
 
     # Parse the query

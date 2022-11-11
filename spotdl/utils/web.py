@@ -294,7 +294,7 @@ async def download_url(
 
 
 @router.get("/api/download/file")
-async def download_file(file: str) -> FileResponse:
+async def download_file(file: str, client_id: str) -> FileResponse:
     """
     Download file using path.
 
@@ -306,7 +306,7 @@ async def download_file(file: str) -> FileResponse:
     """
 
     return FileResponse(
-        str((get_spotdl_path() / f"web/sessions/{file}").absolute()),
+        str((get_spotdl_path() / f"web/sessions/{client_id}/{file}").absolute()),
         filename=file,
     )
 

@@ -227,6 +227,7 @@ def reinit_song(song: Song, playlist_numbering: bool = False) -> Song:
 
     ### Arguments
     - song: Song object
+    - playlist_numbering: bool, default value is False
 
     ### Returns
     - Updated song object

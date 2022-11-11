@@ -59,7 +59,7 @@ from tests.conftest import new_initialize
         ),
         (
             "https://open.spotify.com/track/760xwlNMwa6IZGff1eBhFW",
-            "https://music.youtube.com/watch?v=7xRMrGO-OLo",
+            "https://music.youtube.com/watch?v=Apej0F8ack0",
         ),
         (
             "https://open.spotify.com/track/07paTkxx4R7rmiGjqm84RM",
@@ -80,6 +80,10 @@ from tests.conftest import new_initialize
         (
             "https://open.spotify.com/track/2cqRMfCvT9WIdUiaIVB6EJ",
             "https://music.youtube.com/watch?v=gXElRbmTm2c",
+        ),
+        (
+            "https://open.spotify.com/track/7eJMfftS33KTjuF7lTsMCx",
+            "https://music.youtube.com/watch?v=WB4Nmh76fAc",
         ),
     ],
 )
