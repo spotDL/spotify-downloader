@@ -63,7 +63,7 @@ class YouTube(AudioProvider):
             # Order results
             ordered_results = self.order_results(results, song)
         else:
-            ordered_results = {results[0].watch_url: (100.0, 9_000_000_000.0)}
+            ordered_results = {results[0].watch_url: (100.0, 9_000_000_000)}
 
         # No matches found
         if len(ordered_results) == 0:
