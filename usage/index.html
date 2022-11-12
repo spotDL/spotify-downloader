@@ -1545,6 +1545,18 @@ example:
 spotdl download &#39;The Weeknd - Blinding Lights&#39;
 ```
 </code></pre></div>
+<p>??? Search info To search for and download an album, run, with quotation marks</p>
+<div class="language-bash highlight"><pre><span></span><code>spotdl download <span class="s1">&#39;album:[albumName]&#39;</span>
+</code></pre></div>
+<p>example:</p>
+<div class="language-bash highlight"><pre><span></span><code>spotdl download <span class="s1">&#39;album:After Hours&#39;</span>
+</code></pre></div>
+<p>You can include the artist tag to narrow down a search</p>
+<div class="language-bash highlight"><pre><span></span><code>spotdl download <span class="s1">&#39;artist:[artistName] album:[albumName]&#39;</span>
+</code></pre></div>
+<p>example:</p>
+<div class="language-bash highlight"><pre><span></span><code>spotdl download <span class="s1">&#39;artist:The Weeknd album:After Hours&#39;</span>
+</code></pre></div>
 <p>??? info "YouTube link with Spotify metadata" To download YouTube video with metadata from
 Spotify, run &gt; Noting the quote <code>"</code> are required</p>
 <div class="language-text highlight"><pre><span></span><code>```bash
@@ -1667,7 +1679,8 @@ false</p>
 <span class="w">    </span><span class="nt">&quot;print_errors&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w"></span>
 <span class="w">    </span><span class="nt">&quot;sponsor_block&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w"></span>
 <span class="w">    </span><span class="nt">&quot;preload&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nt">&quot;archive&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;archive&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;playlist_numbering&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w"></span>
 <span class="p">}</span><span class="w"></span>
 </code></pre></div>
 <h2 id="cli-command-line-interface">CLI (Command Line Interface)<a class="headerlink" href="#cli-command-line-interface" title="Permanent link">¤</a></h2>
@@ -1733,6 +1746,7 @@ Output options:
   --print-errors        Print errors (wrong songs, failed downloads etc) on exit, useful for long playlist
   --sponsor-block       Use the sponsor block to download songs from yt/ytm.
   --archive ARCHIVE     Specify the file name for an archive of already downloaded songs
+  --playlist-numbering  When downloading a playlist, convert all tracks into a single album, using the playlist icon as the album art.
 
 Web options:
   --host HOST           The host to use for the web server.
@@ -1832,7 +1846,7 @@ Other options:
       <div class="md-dialog__inner md-typeset"></div>
     </div>
     
-    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.tabs", "navigation.top"], "search": "../assets/javascripts/workers/search.16e2a7d4.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
+    <script id="__config" type="application/json">{"base": "..", "features": ["content.code.annotate", "navigation.tabs", "navigation.top"], "search": "../assets/javascripts/workers/search.16e2a7d4.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
     
     
       <script src="../assets/javascripts/bundle.d6c3db9e.min.js"></script>

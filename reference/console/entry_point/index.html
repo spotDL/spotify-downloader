@@ -1384,8 +1384,7 @@
 
       <details class="quote">
         <summary>Source code in <code>spotdl/console/entry_point.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">212</span>
-<span class="normal">213</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">213</span>
 <span class="normal">214</span>
 <span class="normal">215</span>
 <span class="normal">216</span>
@@ -1399,7 +1398,8 @@
 <span class="normal">224</span>
 <span class="normal">225</span>
 <span class="normal">226</span>
-<span class="normal">227</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">console_entry_point</span><span class="p">():</span>
+<span class="normal">227</span>
+<span class="normal">228</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">console_entry_point</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Wrapper around `entry_point` so we can profile the code</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1603,7 +1603,8 @@
 <span class="normal">206</span>
 <span class="normal">207</span>
 <span class="normal">208</span>
-<span class="normal">209</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">entry_point</span><span class="p">():</span>
+<span class="normal">209</span>
+<span class="normal">210</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">entry_point</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Console entry point for spotdl. This is where the magic happens.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1738,6 +1739,7 @@
         <span class="n">restrict</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s2">&quot;restrict&quot;</span><span class="p">],</span>
         <span class="n">print_errors</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s2">&quot;print_errors&quot;</span><span class="p">],</span>
         <span class="n">sponsor_block</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s2">&quot;sponsor_block&quot;</span><span class="p">],</span>
+        <span class="n">playlist_numbering</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s2">&quot;playlist_numbering&quot;</span><span class="p">],</span>
     <span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">graceful_exit</span><span class="p">(</span><span class="n">_signal</span><span class="p">,</span> <span class="n">_frame</span><span class="p">):</span>
@@ -1861,7 +1863,7 @@
       <div class="md-dialog__inner md-typeset"></div>
     </div>
     
-    <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.tabs", "navigation.top"], "search": "../../../assets/javascripts/workers/search.16e2a7d4.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
+    <script id="__config" type="application/json">{"base": "../../..", "features": ["content.code.annotate", "navigation.tabs", "navigation.top"], "search": "../../../assets/javascripts/workers/search.16e2a7d4.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
     
     
       <script src="../../../assets/javascripts/bundle.d6c3db9e.min.js"></script>

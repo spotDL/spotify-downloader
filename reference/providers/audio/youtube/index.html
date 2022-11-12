@@ -1803,7 +1803,11 @@
 <span class="normal">271</span>
 <span class="normal">272</span>
 <span class="normal">273</span>
-<span class="normal">274</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">order_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">results</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">PyTube</span><span class="p">],</span> <span class="n">song</span><span class="p">:</span> <span class="n">Song</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="normal">274</span>
+<span class="normal">275</span>
+<span class="normal">276</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">order_results</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span> <span class="n">results</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">PyTube</span><span class="p">],</span> <span class="n">song</span><span class="p">:</span> <span class="n">Song</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Filter results based on the song&#39;s metadata.</span>
 
@@ -1816,7 +1820,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c1"># Assign an overall avg match value to each result</span>
-    <span class="n">links_with_match_value</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">links_with_match_value</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
 
     <span class="c1"># Slugify song title</span>
     <span class="n">slug_song_name</span> <span class="o">=</span> <span class="n">slugify</span><span class="p">(</span><span class="n">song</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
@@ -2087,10 +2091,10 @@
         <span class="k">if</span> <span class="n">song</span><span class="o">.</span><span class="n">isrc</span><span class="p">:</span>
             <span class="n">isrc_results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_results</span><span class="p">(</span><span class="n">song</span><span class="o">.</span><span class="n">isrc</span><span class="p">)</span>
 
-            <span class="k">if</span> <span class="n">isrc_results</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">isrc_results</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">isrc_results</span><span class="p">:</span>
                 <span class="n">isrc_result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">order_results</span><span class="p">(</span><span class="n">isrc_results</span><span class="p">,</span> <span class="n">song</span><span class="p">)</span>
                 <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">isrc_result</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-                    <span class="n">isrc_link</span><span class="p">,</span> <span class="n">isrc_score</span> <span class="o">=</span> <span class="n">isrc_result</span><span class="o">.</span><span class="n">popitem</span><span class="p">()</span>
+                    <span class="n">isrc_link</span><span class="p">,</span> <span class="p">(</span><span class="n">isrc_score</span><span class="p">,</span> <span class="n">_</span><span class="p">)</span> <span class="o">=</span> <span class="n">isrc_result</span><span class="o">.</span><span class="n">popitem</span><span class="p">()</span>
 
                     <span class="k">if</span> <span class="n">isrc_score</span> <span class="o">&gt;</span> <span class="mi">90</span><span class="p">:</span>
                         <span class="c1"># print(f&quot;# RETURN URL - {isrc_link} - isrc score&quot;)</span>
@@ -2112,7 +2116,7 @@
         <span class="c1"># Order results</span>
         <span class="n">ordered_results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">order_results</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">song</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">ordered_results</span> <span class="o">=</span> <span class="p">{</span><span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">watch_url</span><span class="p">:</span> <span class="mi">100</span><span class="p">}</span>
+        <span class="n">ordered_results</span> <span class="o">=</span> <span class="p">{</span><span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">watch_url</span><span class="p">:</span> <span class="p">(</span><span class="mf">100.0</span><span class="p">,</span> <span class="mi">9_000_000_000</span><span class="p">)}</span>
 
     <span class="c1"># No matches found</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ordered_results</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
@@ -2253,7 +2257,7 @@
       <div class="md-dialog__inner md-typeset"></div>
     </div>
     
-    <script id="__config" type="application/json">{"base": "../../../..", "features": ["navigation.tabs", "navigation.top"], "search": "../../../../assets/javascripts/workers/search.16e2a7d4.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
+    <script id="__config" type="application/json">{"base": "../../../..", "features": ["content.code.annotate", "navigation.tabs", "navigation.top"], "search": "../../../../assets/javascripts/workers/search.16e2a7d4.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
     
     
       <script src="../../../../assets/javascripts/bundle.d6c3db9e.min.js"></script>
