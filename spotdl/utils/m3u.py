@@ -148,8 +148,6 @@ def create_m3u_file(
     - the m3u content as a string
     """
 
-    print(f"Creating {file_name}...")
-
     m3u_content = create_m3u_content(song_list, template, file_extension, short)
 
     with open(file_name, "w", encoding="utf-8") as m3u_file:
