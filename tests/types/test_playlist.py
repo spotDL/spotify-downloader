@@ -56,6 +56,7 @@ def test_playlist_from_url():
     assert len(playlist.songs) == 10
     assert playlist.description == ""
 
+
 @pytest.mark.vcr()
 def test_playlist_from_string():
     """

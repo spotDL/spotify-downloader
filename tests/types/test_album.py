@@ -36,6 +36,7 @@ def test_album_from_url():
     assert album.artist["name"] == "Various Artists"
     assert len(album.songs) == 16
 
+
 @pytest.mark.vcr()
 def test_album_from_string():
     """
@@ -48,6 +49,7 @@ def test_album_from_string():
     assert album.url == "http://open.spotify.com/album/0bUTHlWbkSQysoM3VsWldT"
     assert album.artist["name"] == "Gorillaz"
     assert len(album.urls) == 15
+
 
 @pytest.mark.vcr()
 def test_album_length():

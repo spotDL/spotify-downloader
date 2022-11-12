@@ -54,6 +54,7 @@ def test_artist_from_url():
     assert len(artist.albums) > 2
     assert len(artist.genres) >= 1
 
+
 @pytest.mark.vcr()
 def test_artist_from_string():
     """
