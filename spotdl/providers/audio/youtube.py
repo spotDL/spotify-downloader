@@ -2,7 +2,7 @@
 Youtube module for downloading and searching songs.
 """
 
-from typing import Any, Dict, List, Optional
+from typing import Dict, List, Optional, Tuple
 
 from pytube import YouTube as PyTube, Search
 from rapidfuzz import fuzz
@@ -38,10 +38,10 @@ class YouTube(AudioProvider):
             if song.isrc:
                 isrc_results = self.get_results(song.isrc)
 
-                if isrc_results and len(isrc_results) == 1:
+                if isrc_results:
                     isrc_result = self.order_results(isrc_results, song)
                     if len(isrc_result) == 1:
-                        isrc_link, isrc_score = isrc_result.popitem()
+                        isrc_link, (isrc_score, _) = isrc_result.popitem()
 
                         if isrc_score > 90:
                             # print(f"# RETURN URL - {isrc_link} - isrc score")
@@ -63,7 +63,7 @@ class YouTube(AudioProvider):
             # Order results
             ordered_results = self.order_results(results, song)
         else:
-            ordered_results = {results[0].watch_url: 100}
+            ordered_results = {results[0].watch_url: (100.0, 9_000_000_000)}
 
         # No matches found
         if len(ordered_results) == 0:
@@ -123,7 +123,9 @@ class YouTube(AudioProvider):
 
         return Search(search_term).results
 
-    def order_results(self, results: List[PyTube], song: Song) -> Dict[str, Any]:
+    def order_results(
+        self, results: List[PyTube], song: Song
+    ) -> Dict[str, Tuple[float, int]]:
         """
         Filter results based on the song's metadata.
 
@@ -136,7 +138,7 @@ class YouTube(AudioProvider):
         """
 
         # Assign an overall avg match value to each result
-        links_with_match_value = {}
+        links_with_match_value: Dict[str, Tuple[float, int]] = {}
 
         # Slugify song title
         slug_song_name = slugify(song.name)

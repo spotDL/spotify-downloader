@@ -138,7 +138,7 @@ def sync(
         # Create m3u file
         if m3u_file:
             gen_m3u_files(
-                query,
+                sync_data["query"],
                 m3u_file,
                 new_songs,
                 downloader.output,

@@ -53,3 +53,16 @@ def test_artist_from_url():
     assert len(artist.songs) > 1
     assert len(artist.albums) > 2
     assert len(artist.genres) >= 1
+
+
+@pytest.mark.vcr()
+def test_artist_from_string():
+    """
+    Test if Artist class can be initialized from string.
+    """
+
+    artist = Artist.from_search_term("artist:gorillaz")
+
+    assert artist.name == "Gorillaz"
+    assert artist.url == "http://open.spotify.com/artist/3AA28KZvwAUcZuOKwyblJQ"
+    assert len(artist.urls) > 1

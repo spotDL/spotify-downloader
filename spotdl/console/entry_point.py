@@ -175,6 +175,7 @@ def entry_point():
         restrict=settings["restrict"],
         print_errors=settings["print_errors"],
         sponsor_block=settings["sponsor_block"],
+        playlist_numbering=settings["playlist_numbering"],
     )
 
     def graceful_exit(_signal, _frame):

@@ -24,6 +24,30 @@ class Playlist(SongList):
     description: str
     author_url: str
     author_name: str
+    cover_url: str
+
+    @classmethod
+    def search(cls, search_term: str):
+        """
+        Searches for Playlist from a search term.
+
+        ### Arguments
+        - search_term: The search term to use.
+
+        ### Returns
+        - The raw search results
+        """
+
+        spotify_client = SpotifyClient()
+        raw_search_results = spotify_client.search(search_term, type="playlist")
+
+        if (
+            raw_search_results is None
+            or len(raw_search_results.get("playlists", {}).get("items", [])) == 0
+        ):
+            raise PlaylistError("No playlist matches found on spotify")
+
+        return raw_search_results
 
     @staticmethod
     def get_urls(url: str) -> List[str]:
@@ -89,4 +113,10 @@ class Playlist(SongList):
             "description": playlist["description"],
             "author_url": playlist["external_urls"]["spotify"],
             "author_name": playlist["owner"]["display_name"],
+            "cover_url": max(
+                playlist["images"],
+                key=lambda i: 0
+                if i["width"] is None or i["height"] is None
+                else i["width"] * i["height"],
+            )["url"],
         }

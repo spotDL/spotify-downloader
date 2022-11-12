@@ -148,4 +148,5 @@ DEFAULT_CONFIG = {
     "host": "localhost",
     "keep_alive": False,
     "allowed_origins": None,
+    "playlist_numbering": False,
 }

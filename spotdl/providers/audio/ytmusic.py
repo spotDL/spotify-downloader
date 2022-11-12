@@ -166,7 +166,7 @@ class YouTubeMusic(AudioProvider):
 
     def order_results(
         self, results: List[Dict[str, Any]], song: Song, is_isrc: bool = False
-    ) -> Dict[str, Any]:
+    ) -> Dict[str, float]:
         """
         Filter results based on the song's metadata.
 

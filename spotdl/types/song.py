@@ -111,6 +111,28 @@ class Song:
             else None,
         )
 
+    @staticmethod
+    def search(search_term: str):
+        """
+        Searches for Songs from a search term.
+
+        ### Arguments
+        - search_term: The search term to use.
+
+        ### Returns
+        - The raw search results
+        """
+        spotify_client = SpotifyClient()
+        raw_search_results = spotify_client.search(search_term)
+
+        if (
+            raw_search_results is None
+            or len(raw_search_results.get("tracks", {}).get("items", [])) == 0
+        ):
+            raise SongError("No songs matches found on spotify")
+
+        return raw_search_results
+
     @classmethod
     def from_search_term(cls, search_term: str) -> "Song":
         """
@@ -123,19 +145,37 @@ class Song:
         - The Song object.
         """
 
-        spotify_client = SpotifyClient()
-        raw_search_results = spotify_client.search(search_term)
-
-        if (
-            raw_search_results is None
-            or len(raw_search_results.get("tracks", {}).get("items", [])) == 0
-        ):
-            raise SongError("No songs matches found on spotify")
+        raw_search_results = Song.search(search_term)
 
         return Song.from_url(
             "http://open.spotify.com/track/"
             + raw_search_results["tracks"]["items"][0]["id"]
         )
+
+    @classmethod
+    def list_from_search_term(cls, search_term: str) -> "List[Song]":
+        """
+        Creates a list of Song objects from a search term.
+
+        ### Arguments
+        - search_term: The search term to use.
+
+        ### Returns
+        - The list of Song objects.
+        """
+
+        raw_search_results = Song.search(search_term)
+
+        songs = []
+        for idx, _ in enumerate(raw_search_results["tracks"]["items"]):
+            songs.append(
+                Song.from_url(
+                    "http://open.spotify.com/track/"
+                    + raw_search_results["tracks"]["items"][idx]["id"]
+                )
+            )
+
+        return songs
 
     @classmethod
     def from_data_dump(cls, data: str) -> "Song":
@@ -235,6 +275,21 @@ class SongList:
         return len(self.songs)
 
     @classmethod
+    def create_basic_object(cls, url: str):
+        """
+        Create a basic list with only the required metadata.
+
+        ### Arguments
+        - url: The url of the list.
+
+        ### Returns
+        - The SongList object.
+        """
+        metadata = cls.get_metadata(url)
+
+        return cls(**metadata, urls=[], songs=[])
+
+    @classmethod
     def create_basic_list(cls, url: str):
         """
         Create a basic list with only the required metadata and urls.
@@ -276,6 +331,66 @@ class SongList:
             songs=songs,
             urls=urls,
         )
+
+    @classmethod
+    def search(cls, search_term: str):
+        """
+        Searches for SongList from a search term.
+
+        ### Arguments
+        - search_term: The search term to use.
+
+        ### Returns
+        - The raw search results
+        """
+
+        raise NotImplementedError
+
+    @classmethod
+    def from_search_term(cls, search_term: str):
+        """
+        Creates a SongList object from a search term.
+
+        ### Arguments
+        - search_term: The search term to use.
+
+        ### Returns
+        - The SongList object.
+        """
+
+        list_type = cls.__name__.lower()
+        raw_search_results = cls.search(search_term)
+
+        return cls.create_basic_list(
+            f"http://open.spotify.com/{list_type}/"
+            + raw_search_results[f"{list_type}s"]["items"][0]["id"]
+        )
+
+    @classmethod
+    def list_from_search_term(cls, search_term: str):
+        """
+        Creates a list of SongList objects from a search term.
+
+        ### Arguments
+        - search_term: The search term to use.
+
+        ### Returns
+        - The list of SongList objects.
+        """
+
+        list_type = cls.__name__.lower()
+        raw_search_results = cls.search(search_term)
+
+        songlist = []
+        for idx, _ in enumerate(raw_search_results[f"{list_type}s"]["items"]):
+            songlist.append(
+                cls.create_basic_object(
+                    f"http://open.spotify.com/{list_type}/"
+                    + raw_search_results[f"{list_type}s"]["items"][idx]["id"]
+                )
+            )
+
+        return songlist
 
     @staticmethod
     def get_urls(url: str) -> List[str]:

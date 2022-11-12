@@ -16,6 +16,7 @@ def test_playlist_init():
         description="test",
         author_url="test",
         author_name="test",
+        cover_url="test",
     )
 
     assert playlist.name == "test"
@@ -26,7 +27,7 @@ def test_playlist_init():
     assert playlist.author_name == "test"
 
 
-def test_playlist_wrong_init():
+def test_playlist_wrong_initget_results():
     """
     Tests if Playlist class raises exception when initialized with wrong parameters.
     """
@@ -54,6 +55,19 @@ def test_playlist_from_url():
     assert playlist.url == "https://open.spotify.com/playlist/5LkNhFidYyyjRWwnkcMbQs"
     assert len(playlist.songs) == 10
     assert playlist.description == ""
+
+
+@pytest.mark.vcr()
+def test_playlist_from_string():
+    """
+    Test if Playlist class can be initialized from string.
+    """
+
+    playlist = Playlist.from_search_term("playlist:this is gorillaz")
+
+    assert playlist.name == "This Is Gorillaz"
+    assert playlist.url == "http://open.spotify.com/playlist/37i9dQZF1DZ06evO25rXbO"
+    assert len(playlist.urls) > 1
 
 
 @pytest.mark.vcr()

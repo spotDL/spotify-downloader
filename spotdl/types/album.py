@@ -23,6 +23,29 @@ class Album(SongList):
 
     artist: Dict[str, Any]
 
+    @classmethod
+    def search(cls, search_term: str):
+        """
+        Searches for Album from a search term.
+
+        ### Arguments
+        - search_term: The search term to use.
+
+        ### Returns
+        - The raw search results
+        """
+
+        spotify_client = SpotifyClient()
+        raw_search_results = spotify_client.search(search_term, type="album")
+
+        if (
+            raw_search_results is None
+            or len(raw_search_results.get("albums", {}).get("items", [])) == 0
+        ):
+            raise AlbumError("No album matches found on spotify")
+
+        return raw_search_results
+
     @staticmethod
     def get_urls(url: str) -> List[str]:
         """
