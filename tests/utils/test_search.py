@@ -16,6 +16,7 @@ YT = [
     "https://www.youtube.com/watch?v=BZKwsPIhVO8|https://open.spotify.com/track/4B2kkxg3wKSTZw5JPaUtzQ"
 ]
 ARTIST = ["https://open.spotify.com/artist/1FPC2zwfMHhrP3frOfaai6"]
+ALBUM_SEARCH = ["album:demon days"]
 
 QUERY = SONG + PLAYLIST + ALBUM + YT + ARTIST
 
@@ -62,6 +63,11 @@ def test_parse_artist():
 
     assert len(songs) > 1
 
+@pytest.mark.vcr()
+def test_parse_album_search():
+    songs = parse_query(ALBUM_SEARCH)
+
+    assert len(songs) > 1
 
 @pytest.mark.vcr()
 def test_parse_saved():

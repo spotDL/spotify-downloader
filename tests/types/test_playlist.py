@@ -56,6 +56,18 @@ def test_playlist_from_url():
     assert len(playlist.songs) == 10
     assert playlist.description == ""
 
+@pytest.mark.vcr()
+def test_playlist_from_string():
+    """
+    Test if Playlist class can be initialized from string.
+    """
+
+    playlist = Playlist.from_search_term("playlist:this is gorillaz")
+
+    assert playlist.name == "This Is Gorillaz"
+    assert playlist.url == "http://open.spotify.com/playlist/37i9dQZF1DZ06evO25rXbO"
+    assert len(playlist.urls) > 1
+
 
 @pytest.mark.vcr()
 def test_playlist_length():

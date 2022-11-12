@@ -78,6 +78,29 @@ class Artist(SongList):
             urls=urls,
         )
 
+    @classmethod
+    def search(cls, search_term: str):
+        """
+        Searches for Artist from a search term.
+
+        ### Arguments
+        - search_term: The search term to use.
+
+        ### Returns
+        - The raw search results
+        """
+
+        spotify_client = SpotifyClient()
+        raw_search_results = spotify_client.search(search_term, type="artist")
+
+        if (
+            raw_search_results is None
+            or len(raw_search_results.get("artists", {}).get("items", [])) == 0
+        ):
+            raise ArtistError("No artist matches found on spotify")
+
+        return raw_search_results
+
     @staticmethod
     def get_urls(url: str) -> List[str]:
         """

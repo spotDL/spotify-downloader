@@ -72,6 +72,30 @@ spotdl download 'The Weeknd - Blinding Lights'
 ```
 ````
 
+??? Search info To search for and download an album, run, with quotation marks
+
+```bash
+spotdl download 'album:[albumName]'
+```
+
+example:
+
+```bash
+spotdl download 'album:After Hours'
+```
+
+You can include the artist tag to narrow down a search
+
+```bash
+spotdl download 'artist:[artistName] album:[albumName]'
+```
+
+example:
+
+```bash
+spotdl download 'artist:The Weeknd album:After Hours'
+```
+
 ??? info "YouTube link with Spotify metadata" To download YouTube video with metadata from
 Spotify, run > Noting the quote `"` are required
 
