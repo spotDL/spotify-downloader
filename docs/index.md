@@ -108,9 +108,9 @@ ______________________________________________________________________
 
 ## Contributing
 
-Interested in contributing? Check out our [CONTRIBUTING.md](docs/CONTRIBUTING.md) to find
+Interested in contributing? Check out our [CONTRIBUTING.md](CONTRIBUTING) to find
 resources around contributing along with a guide on how to set up a development environment.
 
 ## License
 
-This project is Licensed under the [MIT](/LICENSE) License.
+This project is Licensed under the [MIT](https://github.com/spotDL/spotify-downloader/blob/master/LICENSE) License.
