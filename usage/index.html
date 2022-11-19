@@ -1488,87 +1488,63 @@
 
 <h1 id="spotdl-usage-examples">spotDL usage examples<a class="headerlink" href="#spotdl-usage-examples" title="Permanent link">¤</a></h1>
 <h2 id="downloading">Downloading<a class="headerlink" href="#downloading" title="Permanent link">¤</a></h2>
-<p>??? Song info To download a song, run</p>
-<div class="language-text highlight"><pre><span></span><code>```bash
-spotdl download [trackUrl]
-```
-
-example:
-
-```bash
-spotdl download https://open.spotify.com/track/0VjIjW4GlUZAMYd2vXMi3b
-```
+<details class="song info">
+<summary>Song</summary>
+<p>To download a song, run</p>
+<div class="language-bash highlight"><pre><span></span><code>spotdl download <span class="o">[</span>trackUrl<span class="o">]</span>
 </code></pre></div>
-<p>??? Album info To download an album, run</p>
-<div class="language-text highlight"><pre><span></span><code>```bash
-spotdl download [albumUrl]
-```
-
-example:
-
-```bash
-spotdl download https://open.spotify.com/album/4yP0hdKOZPNshxUOjY0cZj
-```
+<p>example:</p>
+<div class="language-bash highlight"><pre><span></span><code>spotdl download https://open.spotify.com/track/0VjIjW4GlUZAMYd2vXMi3b
 </code></pre></div>
-<p>??? Playlist info To download a playlist, run</p>
-<div class="language-text highlight"><pre><span></span><code>```bash
-spotdl download [playlistUrl]
-```
-
-example:
-
-```bash
-spotdl download https://open.spotify.com/playlist/37i9dQZF1E8UXBoz02kGID
-```
-</code></pre></div>
-<details class="artist info to download all songs from an artist run">
-<summary>Artist</summary>
 </details>
-<div class="language-text highlight"><pre><span></span><code>```bash
-spotdl download [artistUrl]
-```
-
-example:
-
-```bash
-spotdl download https://open.spotify.com/artist/1Xyo4u8uXC1ZmMpatF05PJ
-```
-</code></pre></div>
-<p>??? Search info To search for and download a song, run, with quotation marks</p>
-<div class="language-text highlight"><pre><span></span><code>```bash
-spotdl download &#39;[songQuery]&#39;
-```
-
-example:
-
-```bash
-spotdl download &#39;The Weeknd - Blinding Lights&#39;
-```
-</code></pre></div>
-<p>??? Search info To search for and download an album, run, with quotation marks</p>
-<div class="language-bash highlight"><pre><span></span><code>spotdl download <span class="s1">&#39;album:[albumName]&#39;</span>
+<details class="album info">
+<summary>Album</summary>
+<p>To download an album, run</p>
+<div class="language-bash highlight"><pre><span></span><code>spotdl download <span class="o">[</span>albumUrl<span class="o">]</span>
 </code></pre></div>
 <p>example:</p>
-<div class="language-bash highlight"><pre><span></span><code>spotdl download <span class="s1">&#39;album:After Hours&#39;</span>
+<div class="language-bash highlight"><pre><span></span><code>spotdl download https://open.spotify.com/album/4yP0hdKOZPNshxUOjY0cZj
 </code></pre></div>
-<p>You can include the artist tag to narrow down a search</p>
-<div class="language-bash highlight"><pre><span></span><code>spotdl download <span class="s1">&#39;artist:[artistName] album:[albumName]&#39;</span>
+</details>
+<details class="playlist info">
+<summary>Playlist</summary>
+<p>To download a playlist, run</p>
+<div class="language-bash highlight"><pre><span></span><code>spotdl download <span class="o">[</span>playlistUrl<span class="o">]</span>
 </code></pre></div>
 <p>example:</p>
-<div class="language-bash highlight"><pre><span></span><code>spotdl download <span class="s1">&#39;artist:The Weeknd album:After Hours&#39;</span>
+<div class="language-bash highlight"><pre><span></span><code>spotdl download https://open.spotify.com/playlist/37i9dQZF1E8UXBoz02kGID
 </code></pre></div>
-<p>??? info "YouTube link with Spotify metadata" To download YouTube video with metadata from
-Spotify, run &gt; Noting the quote <code>"</code> are required</p>
-<div class="language-text highlight"><pre><span></span><code>```bash
-spotdl download &quot;YouTubeURL|SpotifyURL&quot;
-```
-
-example:
-
-```bash
-spotdl download &quot;https://www.youtube.com/watch?v=XXYlFuWEuKI|https://open.spotify.com/track/0VjIjW4GlUZAMYd2vXMi3b?si=b5c0790edc8f4904&quot;
-```
+</details>
+<details class="artist info">
+<summary>Artist</summary>
+<p>To download all songs from an artist run</p>
+<div class="language-bash highlight"><pre><span></span><code>spotdl download <span class="o">[</span>artistUrl<span class="o">]</span>
 </code></pre></div>
+<p>example:</p>
+<div class="language-bash highlight"><pre><span></span><code>spotdl download https://open.spotify.com/artist/1Xyo4u8uXC1ZmMpatF05PJ
+</code></pre></div>
+</details>
+<details class="search info">
+<summary>Search</summary>
+<p>To search for and download a song, run, with quotation marks</p>
+<div class="language-bash highlight"><pre><span></span><code>spotdl download <span class="s1">&#39;[songQuery]&#39;</span>
+</code></pre></div>
+<p>example:</p>
+<div class="language-bash highlight"><pre><span></span><code>spotdl download <span class="s1">&#39;The Weeknd - Blinding Lights&#39;</span>
+</code></pre></div>
+</details>
+<details class="info">
+<summary>YouTube link with Spotify metadata</summary>
+<p>To download YouTube video with metadata from Spotify, run</p>
+<blockquote>
+<p>Noting the quote <code>"</code> are required</p>
+</blockquote>
+<div class="language-bash highlight"><pre><span></span><code>spotdl download <span class="s2">&quot;YouTubeURL|SpotifyURL&quot;</span>
+</code></pre></div>
+<p>example:</p>
+<div class="language-bash highlight"><pre><span></span><code>spotdl download <span class="s2">&quot;https://www.youtube.com/watch?v=XXYlFuWEuKI|https://open.spotify.com/track/0VjIjW4GlUZAMYd2vXMi3b?si=b5c0790edc8f4904&quot;</span>
+</code></pre></div>
+</details>
 <p>You can queue up multiple download tasks by separating the arguments with spaces</p>
 <div class="language-bash highlight"><pre><span></span><code>spotdl download <span class="o">[</span>songQuery1<span class="o">]</span> <span class="o">[</span>albumUrl<span class="o">]</span> <span class="o">[</span>songQuery2<span class="o">]</span> ... <span class="o">(</span>order does not matter<span class="o">)</span>
 </code></pre></div>
@@ -1576,32 +1552,29 @@ spotdl download &quot;https://www.youtube.com/watch?v=XXYlFuWEuKI|https://open.s
 <div class="language-bash highlight"><pre><span></span><code>spotdl download <span class="s1">&#39;The Weeknd - Blinding Lights&#39;</span> https://open.spotify.com/playlist/37i9dQZF1E8UXBoz02kGID ...
 </code></pre></div>
 <h2 id="syncing">Syncing<a class="headerlink" href="#syncing" title="Permanent link">¤</a></h2>
-<p>Sync function for the console. Keep local files up to date with playlists/albums/etc. This will
-download new songs and remove the ones that are no longer present in the playlists/albums/etc</p>
-<p>??? info "Initialise Synchronisation" To create the sync file run</p>
-<div class="language-text highlight"><pre><span></span><code>```bash
-spotdl sync [query] --save-file [fileName]
-```
-
-example:
-
-```bash
-spotdl sync https://open.spotify.com/playlist/37i9dQZF1E8UXBoz02kGID --save-file &#39;the-weeknd.sync.spotdl&#39;
-```
-
-&gt; Note: The sync file has to end with .spotdl
+<p>Sync function for the console. Keep local files up to date with playlists/albums/etc.
+This will download new songs and remove the ones that are no longer present in the playlists/albums/etc</p>
+<details class="info">
+<summary>Initialise Synchronisation</summary>
+<p>To create the sync file run</p>
+<div class="language-bash highlight"><pre><span></span><code>spotdl sync <span class="o">[</span>query<span class="o">]</span> --save-file <span class="o">[</span>fileName<span class="o">]</span>
 </code></pre></div>
-<p>??? info "Syncing" To sync the songs run</p>
-<div class="language-text highlight"><pre><span></span><code>```bash
-spotdl sync [fileName]
-```
-
-example:
-
-```bash
-spotdl sync &#39;the-weeknd.sync.spotdl&#39;
-```
+<p>example:</p>
+<div class="language-bash highlight"><pre><span></span><code>spotdl sync https://open.spotify.com/playlist/37i9dQZF1E8UXBoz02kGID --save-file <span class="s1">&#39;the-weeknd.sync.spotdl&#39;</span>
 </code></pre></div>
+<blockquote>
+<p>Note: The sync file has to end with .spotdl</p>
+</blockquote>
+</details>
+<details class="info">
+<summary>Syncing</summary>
+<p>To sync the songs run</p>
+<div class="language-bash highlight"><pre><span></span><code>spotdl sync <span class="o">[</span>fileName<span class="o">]</span>
+</code></pre></div>
+<p>example:</p>
+<div class="language-bash highlight"><pre><span></span><code>spotdl sync <span class="s1">&#39;the-weeknd.sync.spotdl&#39;</span>
+</code></pre></div>
+</details>
 <h2 id="saving">Saving<a class="headerlink" href="#saving" title="Permanent link">¤</a></h2>
 <p>Saves the songs metadata to a file for further use.</p>
 <div class="language-bash highlight"><pre><span></span><code>spotdl save <span class="o">[</span>query<span class="o">]</span> --save-file <span class="o">[</span>fileName<span class="o">]</span>
@@ -1609,25 +1582,23 @@ spotdl sync &#39;the-weeknd.sync.spotdl&#39;
 <p>example:</p>
 <div class="language-bash highlight"><pre><span></span><code>spotdl save <span class="s1">&#39;The Weeknd - Blinding Lights&#39;</span> --save-file <span class="s1">&#39;the-weeknd.spotdl&#39;</span>
 </code></pre></div>
-<p>??? info "Preloading" Preload the download url to speed up the download process.</p>
-<div class="language-text highlight"><pre><span></span><code>```bash
-spotdl save [query] --save-file [fileName] --preload
-```
-
-example:
-
-```bash
-spotdl save &#39;The Weeknd - Blinding Lights&#39; --save-file &#39;the-weeknd.spotdl&#39; --preload
-```
+<details class="info">
+<summary>Preloading</summary>
+<p>Preload the download url to speed up the download process.</p>
+<div class="language-bash highlight"><pre><span></span><code>spotdl save <span class="o">[</span>query<span class="o">]</span> --save-file <span class="o">[</span>fileName<span class="o">]</span> --preload
 </code></pre></div>
+<p>example:</p>
+<div class="language-bash highlight"><pre><span></span><code>spotdl save <span class="s1">&#39;The Weeknd - Blinding Lights&#39;</span> --save-file <span class="s1">&#39;the-weeknd.spotdl&#39;</span> --preload
+</code></pre></div>
+</details>
 <h2 id="web-ui-user-interface">Web UI (User Interface)<a class="headerlink" href="#web-ui-user-interface" title="Permanent link">¤</a></h2>
 <p>To start the web UI, run</p>
 <div class="language-bash highlight"><pre><span></span><code>spotdl web
 </code></pre></div>
 <h2 id="config-file">Config file<a class="headerlink" href="#config-file" title="Permanent link">¤</a></h2>
 <h3 id="config-file-location">Config file location<a class="headerlink" href="#config-file-location" title="Permanent link">¤</a></h3>
-<p>The config file is located at <code>C:\Users\user\.spotdl\config.json</code> or <code>~/.spotdl/config.json</code>
-under linux</p>
+<p>The config file is located at <code>C:\Users\user\.spotdl\config.json</code>
+or <code>~/.spotdl/config.json</code> under linux</p>
 <h3 id="generate-a-config-file">Generate a config file<a class="headerlink" href="#generate-a-config-file" title="Permanent link">¤</a></h3>
 <p>To generate a config file, run</p>
 <div class="language-bash highlight"><pre><span></span><code>spotdl --generate-config
@@ -1637,8 +1608,7 @@ under linux</p>
 </blockquote>
 <h3 id="loading-config">Loading config<a class="headerlink" href="#loading-config" title="Permanent link">¤</a></h3>
 <p>Config file gets loaded automatically if it already exists, or if you've passed <code>--config</code> flag</p>
-<p>If you don't want config to load automatically change <code>load_config</code> option in config file to
-false</p>
+<p>If you don't want config to load automatically change <code>load_config</code> option in config file to false</p>
 <div class="language-json highlight"><pre><span></span><code><span class="p">{</span><span class="w"></span>
 <span class="w">    </span><span class="nt">&quot;load_config&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w"></span>
 <span class="p">}</span><span class="w"></span>
