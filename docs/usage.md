@@ -2,114 +2,84 @@
 
 ## Downloading
 
-??? Song info To download a song, run
+??? Song info
+    To download a song, run
 
-````
-```bash
-spotdl download [trackUrl]
-```
+    ```bash
+    spotdl download [trackUrl]
+    ```
 
-example:
+    example:
 
-```bash
-spotdl download https://open.spotify.com/track/0VjIjW4GlUZAMYd2vXMi3b
-```
-````
+    ```bash
+    spotdl download https://open.spotify.com/track/0VjIjW4GlUZAMYd2vXMi3b
+    ```
 
-??? Album info To download an album, run
+??? Album info
+    To download an album, run
 
-````
-```bash
-spotdl download [albumUrl]
-```
+    ```bash
+    spotdl download [albumUrl]
+    ```
 
-example:
+    example:
 
-```bash
-spotdl download https://open.spotify.com/album/4yP0hdKOZPNshxUOjY0cZj
-```
-````
+    ```bash
+    spotdl download https://open.spotify.com/album/4yP0hdKOZPNshxUOjY0cZj
+    ```
 
-??? Playlist info To download a playlist, run
+??? Playlist info
+    To download a playlist, run
 
-````
-```bash
-spotdl download [playlistUrl]
-```
+    ```bash
+    spotdl download [playlistUrl]
+    ```
 
-example:
+    example:
 
-```bash
-spotdl download https://open.spotify.com/playlist/37i9dQZF1E8UXBoz02kGID
-```
-````
+    ```bash
+    spotdl download https://open.spotify.com/playlist/37i9dQZF1E8UXBoz02kGID
+    ```
 
-??? Artist info To download all songs from an artist run
+??? Artist info
+    To download all songs from an artist run
 
-````
-```bash
-spotdl download [artistUrl]
-```
+    ```bash
+    spotdl download [artistUrl]
+    ```
 
-example:
+    example:
 
-```bash
-spotdl download https://open.spotify.com/artist/1Xyo4u8uXC1ZmMpatF05PJ
-```
-````
+    ```bash
+    spotdl download https://open.spotify.com/artist/1Xyo4u8uXC1ZmMpatF05PJ
+    ```
 
-??? Search info To search for and download a song, run, with quotation marks
+??? Search info
+    To search for and download a song, run, with quotation marks
 
-````
-```bash
-spotdl download '[songQuery]'
-```
+    ```bash
+    spotdl download '[songQuery]'
+    ```
 
-example:
+    example:
 
-```bash
-spotdl download 'The Weeknd - Blinding Lights'
-```
-````
+    ```bash
+    spotdl download 'The Weeknd - Blinding Lights'
+    ```
 
-??? Search info To search for and download an album, run, with quotation marks
+??? info "YouTube link with Spotify metadata"
+    To download YouTube video with metadata from Spotify, run
+    > Noting the quote `"` are required
 
-```bash
-spotdl download 'album:[albumName]'
-```
+    ```bash
+    spotdl download "YouTubeURL|SpotifyURL"
+    ```
 
-example:
+    example:
 
-```bash
-spotdl download 'album:After Hours'
-```
-
-You can include the artist tag to narrow down a search
-
-```bash
-spotdl download 'artist:[artistName] album:[albumName]'
-```
-
-example:
-
-```bash
-spotdl download 'artist:The Weeknd album:After Hours'
-```
-
-??? info "YouTube link with Spotify metadata" To download YouTube video with metadata from
-Spotify, run > Noting the quote `"` are required
-
-````
-```bash
-spotdl download "YouTubeURL|SpotifyURL"
-```
-
-example:
-
-```bash
-spotdl download "https://www.youtube.com/watch?v=XXYlFuWEuKI|https://open.spotify.com/track/0VjIjW4GlUZAMYd2vXMi3b?si=b5c0790edc8f4904"
-```
-````
+    ```bash
+    spotdl download "https://www.youtube.com/watch?v=XXYlFuWEuKI|https://open.spotify.com/track/0VjIjW4GlUZAMYd2vXMi3b?si=b5c0790edc8f4904"
+    ```
 
 You can queue up multiple download tasks by separating the arguments with spaces
 
@@ -123,40 +93,39 @@ example:
 spotdl download 'The Weeknd - Blinding Lights' https://open.spotify.com/playlist/37i9dQZF1E8UXBoz02kGID ...
 ```
 
+
 ## Syncing
 
-Sync function for the console. Keep local files up to date with playlists/albums/etc. This will
-download new songs and remove the ones that are no longer present in the playlists/albums/etc
+Sync function for the console. Keep local files up to date with playlists/albums/etc.
+This will download new songs and remove the ones that are no longer present in the playlists/albums/etc
 
-??? info "Initialise Synchronisation" To create the sync file run
+??? info "Initialise Synchronisation"
+    To create the sync file run
 
-````
-```bash
-spotdl sync [query] --save-file [fileName]
-```
+    ```bash
+    spotdl sync [query] --save-file [fileName]
+    ```
 
-example:
+    example:
 
-```bash
-spotdl sync https://open.spotify.com/playlist/37i9dQZF1E8UXBoz02kGID --save-file 'the-weeknd.sync.spotdl'
-```
+    ```bash
+    spotdl sync https://open.spotify.com/playlist/37i9dQZF1E8UXBoz02kGID --save-file 'the-weeknd.sync.spotdl'
+    ```
 
-> Note: The sync file has to end with .spotdl
-````
+    > Note: The sync file has to end with .spotdl
 
-??? info "Syncing" To sync the songs run
+??? info "Syncing"
+    To sync the songs run
 
-````
-```bash
-spotdl sync [fileName]
-```
+    ```bash
+    spotdl sync [fileName]
+    ```
 
-example:
+    example:
 
-```bash
-spotdl sync 'the-weeknd.sync.spotdl'
-```
-````
+    ```bash
+    spotdl sync 'the-weeknd.sync.spotdl'
+    ```
 
 ## Saving
 
@@ -172,19 +141,18 @@ example:
 spotdl save 'The Weeknd - Blinding Lights' --save-file 'the-weeknd.spotdl'
 ```
 
-??? info "Preloading" Preload the download url to speed up the download process.
+??? info "Preloading"
+    Preload the download url to speed up the download process.
 
-````
-```bash
-spotdl save [query] --save-file [fileName] --preload
-```
+    ```bash
+    spotdl save [query] --save-file [fileName] --preload
+    ```
 
-example:
+    example:
 
-```bash
-spotdl save 'The Weeknd - Blinding Lights' --save-file 'the-weeknd.spotdl' --preload
-```
-````
+    ```bash
+    spotdl save 'The Weeknd - Blinding Lights' --save-file 'the-weeknd.spotdl' --preload
+    ```
 
 ## Web UI (User Interface)
 
@@ -198,8 +166,8 @@ spotdl web
 
 ### Config file location
 
-The config file is located at `C:\Users\user\.spotdl\config.json` or `~/.spotdl/config.json`
-under linux
+The config file is located at `C:\Users\user\.spotdl\config.json`
+or `~/.spotdl/config.json` under linux
 
 ### Generate a config file
 
@@ -215,8 +183,7 @@ spotdl --generate-config
 
 Config file gets loaded automatically if it already exists, or if you've passed `--config` flag
 
-If you don't want config to load automatically change `load_config` option in config file to
-false
+If you don't want config to load automatically change `load_config` option in config file to false
 
 ```json
 {
