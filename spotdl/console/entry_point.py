@@ -20,7 +20,7 @@ from spotdl.console.web import web
 from spotdl.download import Downloader
 from spotdl.providers.audio.base import AudioProviderError
 from spotdl.providers.audio.ytmusic import YouTubeMusic
-from spotdl.utils.config import DEFAULT_CONFIG, ConfigError, get_config, get_config_file
+from spotdl.utils.config import DEFAULT_CONFIG, get_config, get_config_file
 from spotdl.utils.arguments import parse_arguments
 from spotdl.utils.spotify import SpotifyClient, SpotifyError
 from spotdl.utils.console import ACTIONS
@@ -49,8 +49,7 @@ def entry_point():
     logging.getLogger("requests").setLevel(logging.WARNING)
     logging.getLogger("urllib3").setLevel(logging.WARNING)
     logging.getLogger("spotipy").setLevel(logging.NOTSET)
-    logging.getLogger("uvicorn").propagate = False
-    # logging.getLogger("asyncio").setLevel(logging.WARNING)
+    logging.getLogger("asyncio").setLevel(logging.WARNING)
 
     # Create a console
     console = Console()
@@ -70,18 +69,11 @@ def entry_point():
         if is_ffmpeg_installed() is False:
             download_ffmpeg()
 
-        try:
-            get_config()
-        except ConfigError:
-            config_path = get_config_file()
-            with open(config_path, "w", encoding="utf-8") as config_file:
-                json.dump(DEFAULT_CONFIG, config_file, indent=4)
-
     # Check if sys.argv contains an action
     # If it does, we run the action and exit
-    for func_name, func in ACTIONS.items():
-        if func_name in sys.argv:
-            func()
+    for action_name, action in ACTIONS.items():
+        if action_name in sys.argv:
+            action()
             return None
 
     # Parse the arguments
@@ -183,6 +175,7 @@ def entry_point():
         restrict=settings["restrict"],
         print_errors=settings["print_errors"],
         sponsor_block=settings["sponsor_block"],
+        playlist_numbering=settings["playlist_numbering"],
     )
 
     def graceful_exit(_signal, _frame):

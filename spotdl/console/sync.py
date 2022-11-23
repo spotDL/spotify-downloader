@@ -10,7 +10,7 @@ from typing import List, Optional
 from spotdl.download.downloader import Downloader
 from spotdl.utils.search import parse_query
 from spotdl.utils.formatter import create_file_name
-from spotdl.utils.m3u import create_m3u_file
+from spotdl.utils.m3u import gen_m3u_files
 from spotdl.types.song import Song
 
 
@@ -65,9 +65,15 @@ def sync(
         # Perform initial download
         downloader.download_multiple_songs(songs_list)
 
+        # Create m3u file
         if m3u_file:
-            create_m3u_file(
-                m3u_file, songs_list, downloader.output, downloader.output_format, False
+            gen_m3u_files(
+                query,
+                m3u_file,
+                songs_list,
+                downloader.output,
+                downloader.output_format,
+                False,
             )
 
         return None
@@ -83,7 +89,7 @@ def sync(
             raise ValueError("Sync file is not a valid sync file.")
 
         # Parse the query
-        songs_list = parse_query(sync_data["query"], downloader.threads)
+        songs_playlist = parse_query(sync_data["query"], downloader.threads)
 
         # Get the names and URLs of previously downloaded songs from the sync file
         old_files = []
@@ -93,12 +99,11 @@ def sync(
             )
             old_files.append((file_name, entry["url"]))
 
-        new_urls = [song.url for song in songs_list]
+        new_urls = [song.url for song in songs_playlist]
 
-        # Get all files whoose URL is no longer part of the latest playlist
+        # Delete all song files whoose URL is no longer part of the latest playlist
         to_delete = [path for (path, url) in old_files if url not in new_urls]
 
-        # Delete all song files that are no longer in the playlist
         for file in to_delete:
             if file.exists():
                 downloader.progress_handler.log(f"Deleting {file}")
@@ -106,32 +111,37 @@ def sync(
             else:
                 downloader.progress_handler.debug(f"{file} does not exist.")
 
-        # Check if the playlist is empty
         if len(to_delete) == 0:
             downloader.progress_handler.log("Nothing to delete...")
+        else:
+            downloader.progress_handler.log(
+                f"{len(to_delete)} old songs were deleted."
+            )
 
         if m3u_file:
-            create_m3u_file(
+            gen_m3u_files(
+                sync_data["query"],
                 m3u_file,
-                songs_list,
+                songs_playlist,
                 downloader.output,
                 downloader.output_format,
                 False,
             )
 
+        # Write the new sync file
         with open(query[0], "w", encoding="utf-8") as save_file:
             json.dump(
                 {
                     "type": "sync",
                     "query": sync_data["query"],
-                    "songs": [song.json for song in songs_list],
+                    "songs": [song.json for song in songs_playlist],
                 },
                 save_file,
                 indent=4,
                 ensure_ascii=False,
             )
 
-        downloader.download_multiple_songs(songs_list)
+        downloader.download_multiple_songs(songs_playlist)
 
         return None
 

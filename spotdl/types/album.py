@@ -5,7 +5,7 @@ Artist module for retrieving artist data from Spotify.
 from dataclasses import dataclass
 from typing import Any, Dict, List
 
-from spotdl.types.song import SongList, Song
+from spotdl.types.song import SongList
 from spotdl.utils.spotify import SpotifyClient
 
 
@@ -24,30 +24,27 @@ class Album(SongList):
     artist: Dict[str, Any]
 
     @classmethod
-    def from_url(cls, url: str) -> "Album":
+    def search(cls, search_term: str):
         """
-        Parse an album from a Spotify URL.
+        Searches for Album from a search term.
 
         ### Arguments
-        - url: The URL of the album.
+        - search_term: The search term to use.
 
         ### Returns
-        - The Album object.
+        - The raw search results
         """
 
-        metadata = Album.get_metadata(url)
+        spotify_client = SpotifyClient()
+        raw_search_results = spotify_client.search(search_term, type="album")
 
-        urls = cls.get_urls(url)
+        if (
+            raw_search_results is None
+            or len(raw_search_results.get("albums", {}).get("items", [])) == 0
+        ):
+            raise AlbumError("No album matches found on spotify")
 
-        # Remove songs without id (country restricted/local tracks)
-        # And create song object for each track
-        songs: List[Song] = [Song.from_url(url) for url in urls]
-
-        return cls(
-            **metadata,
-            songs=songs,
-            urls=urls,
-        )
+        return raw_search_results
 
     @staticmethod
     def get_urls(url: str) -> List[str]:

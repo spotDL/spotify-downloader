@@ -5,7 +5,7 @@ Playlist module for retrieving playlist data from Spotify.
 from dataclasses import dataclass
 from typing import Any, Dict, List
 
-from spotdl.types.song import SongList, Song
+from spotdl.types.song import SongList
 from spotdl.utils.spotify import SpotifyClient
 
 
@@ -24,33 +24,30 @@ class Playlist(SongList):
     description: str
     author_url: str
     author_name: str
+    cover_url: str
 
     @classmethod
-    def from_url(cls, url: str) -> "Playlist":
+    def search(cls, search_term: str):
         """
-        Load playlist info and tracks from a Spotify playlist URL.
+        Searches for Playlist from a search term.
 
         ### Arguments
-        - url: The URL of the playlist.
+        - search_term: The search term to use.
 
         ### Returns
-        - The Playlist object.
+        - The raw search results
         """
 
-        metadata = Playlist.get_metadata(url)
+        spotify_client = SpotifyClient()
+        raw_search_results = spotify_client.search(search_term, type="playlist")
 
-        # Get urls
-        urls = cls.get_urls(url)
+        if (
+            raw_search_results is None
+            or len(raw_search_results.get("playlists", {}).get("items", [])) == 0
+        ):
+            raise PlaylistError("No playlist matches found on spotify")
 
-        # Remove songs without id (country restricted/local tracks)
-        # And create song object for each track
-        tracks = [Song.from_url(url) for url in urls]
-
-        return cls(
-            **metadata,
-            songs=tracks,
-            urls=urls,
-        )
+        return raw_search_results
 
     @staticmethod
     def get_urls(url: str) -> List[str]:
@@ -116,4 +113,10 @@ class Playlist(SongList):
             "description": playlist["description"],
             "author_url": playlist["external_urls"]["spotify"],
             "author_name": playlist["owner"]["display_name"],
+            "cover_url": max(
+                playlist["images"],
+                key=lambda i: 0
+                if i["width"] is None or i["height"] is None
+                else i["width"] * i["height"],
+            )["url"],
         }

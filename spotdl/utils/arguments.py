@@ -55,7 +55,7 @@ def parse_arguments() -> Namespace:
         description="Download your Spotify playlists and songs along with album art and metadata",
         formatter_class=SmartFormatter,
         epilog=(
-            "For more information, visit https://spotdl.github.io/spotify-downloader/ "
+            "For more information, visit http://spotdl.rtfd.io/ "
             "or join our Discord server: https://discord.com/invite/xCa23pwJWY"
         ),
     )
@@ -75,6 +75,10 @@ def parse_arguments() -> Namespace:
     # Parse output options
     output_options = parser.add_argument_group("Output options")
     parse_output_options(output_options)
+
+    # Parse web options
+    web_options = parser.add_argument_group("Web options")
+    parse_web_options(web_options)
 
     # Parse misc options
     misc_options = parser.add_argument_group("Misc options")
@@ -99,6 +103,9 @@ def parse_main_options(parser: _ArgumentGroup):
     operation = parser.add_argument(
         "operation",
         choices=OPERATIONS,
+        default="download",
+        const="download",
+        nargs="?",
         help=(
             "N|The operation to perform.\n"
             "download: Download the songs to the disk and embed metadata.\n"
@@ -115,7 +122,9 @@ def parse_main_options(parser: _ArgumentGroup):
         nargs="+",
         type=str,
         help=(
-            "Spotify URL for a song/playlist/album/artist/etc. to download."
+            "Spotify URL for a song/playlist/album/artist/etc. to download. "
+            "For album searching, include 'album:' and optional 'artist:' tags "
+            "(ie. 'album:the album name' or 'artist:the artist album: the album'). "
             "For manual audio matching, you can use the format 'YouTubeURL|SpotifyURL'"
         ),
     )
@@ -280,9 +289,13 @@ def parse_ffmpeg_options(parser: _ArgumentGroup):
             "224k",
             "256k",
             "320k",
-        ],
+        ]
+        + list(map(str, range(0, 10))),
         type=str.lower,
-        help="The constant bitrate to use for the output file.",
+        help=(
+            "The constant/variable bitrate to use for the output file."
+            " Values from 0 to 9 are variable bitrates."
+        ),
     )
 
     # Additional ffmpeg arguments
@@ -340,7 +353,16 @@ def parse_output_options(parser: _ArgumentGroup):
     parser.add_argument(
         "--m3u",
         type=str,
-        help="Name of the m3u file to save the songs to.",
+        nargs="?",
+        help=(
+            "Name of the m3u file to save the songs to. "
+            "Defaults to {list[0]}.m3u "
+            "If you want to generate a m3u for each list in the query use {list-name}, "
+            "If you want to generate a m3u file based on the first list in the query use {list[0]}"
+            ", (0 is the first list in the query, 1 is the second, etc. "
+            "songs don't count towards the list number) "
+        ),
+        const="{list[0]}.m3u",
     )
 
     # Add overwrite argument
@@ -379,6 +401,55 @@ def parse_output_options(parser: _ArgumentGroup):
         "--archive",
         type=str,
         help="Specify the file name for an archive of already downloaded songs",
+    )
+
+    # Option to set the track number & album of tracks in a playlist to their index in the playlist
+    # & the name of playlist respectively.
+    parser.add_argument(
+        "--playlist-numbering",
+        action="store_const",
+        dest="playlist_numbering",
+        const=True,
+        help="Sets each track in a playlist to have the playlist's name as its album,\
+            and album art as the playlist's icon",
+    )
+
+
+def parse_web_options(parser: _ArgumentGroup):
+    """
+    Parse web options from the command line.
+
+    ### Arguments
+    - parser: The argument parser to add the options to.
+    """
+
+    # Add host argument
+    parser.add_argument(
+        "--host",
+        type=str,
+        help="The host to use for the web server.",
+    )
+
+    # Add port argument
+    parser.add_argument(
+        "--port",
+        type=int,
+        help="The port to run the web server on.",
+    )
+
+    # Add keep alive argument
+    parser.add_argument(
+        "--keep-alive",
+        action="store_const",
+        const=True,
+        help="Keep the web server alive even when no clients are connected.",
+    )
+
+    # Add allowed origins argument
+    parser.add_argument(
+        "--allowed-origins",
+        nargs="*",
+        help="The allowed origins for the web server.",
     )
 
 

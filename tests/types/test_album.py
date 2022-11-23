@@ -1,20 +1,6 @@
 import pytest
 
 from spotdl.types.album import Album
-from spotdl.utils.spotify import SpotifyClient
-
-
-def test_setup(patch_dependencies):
-    """
-    Sets up the tests.
-    """
-
-    SpotifyClient.init(
-        client_id="5f573c9620494bae87890c0f08a60293",
-        client_secret="212476d9b0f3472eaa762d90b19b0ba8",
-        user_auth=False,
-        no_cache=True,
-    )
 
 
 def test_album_init():
@@ -49,6 +35,20 @@ def test_album_from_url():
     assert album.url == "https://open.spotify.com/album/4MQnUDGXmHOvnsWCpzeqWT"
     assert album.artist["name"] == "Various Artists"
     assert len(album.songs) == 16
+
+
+@pytest.mark.vcr()
+def test_album_from_string():
+    """
+    Test if Album class can be initialized from string.
+    """
+
+    album = Album.from_search_term("album:demon days")
+
+    assert album.name == "Demon Days"
+    assert album.url == "http://open.spotify.com/album/0bUTHlWbkSQysoM3VsWldT"
+    assert album.artist["name"] == "Gorillaz"
+    assert len(album.urls) == 15
 
 
 @pytest.mark.vcr()

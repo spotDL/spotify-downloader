@@ -10,7 +10,6 @@ import concurrent.futures
 
 from typing import List, Optional
 
-from spotdl.utils.spotify import SpotifyClient
 from spotdl.types import Playlist, Album, Artist, Saved
 from spotdl.types.song import SongList, SongError, Song
 
@@ -32,25 +31,7 @@ def get_search_results(search_term: str) -> List[Song]:
     - a list of Song objects
     """
 
-    spotify_client = SpotifyClient()
-    raw_search_results = spotify_client.search(search_term)
-
-    if (
-        raw_search_results is None
-        or len(raw_search_results.get("tracks", {}).get("items", [])) == 0
-    ):
-        raise SongError("No song matches found on spotify")
-
-    songs = []
-    for index, _ in enumerate(raw_search_results["tracks"]["items"]):
-        songs.append(
-            Song.from_url(
-                "http://open.spotify.com/track/"
-                + raw_search_results["tracks"]["items"][index]["id"]
-            )
-        )
-
-    return songs
+    return Song.list_from_search_term(search_term)
 
 
 def parse_query(
@@ -202,6 +183,8 @@ def get_simple_songs(
             lists.append(Album.create_basic_list(request))
         elif "open.spotify.com" in request and "artist" in request:
             lists.append(Artist.create_basic_list(request))
+        elif "album:" in request:
+            lists.append(Album.from_search_term(request))
         elif request == "saved":
             lists.append(Saved.create_basic_list())
         elif request.endswith(".spotdl"):
@@ -220,13 +203,14 @@ def get_simple_songs(
     return songs
 
 
-def reinit_song(song: Song) -> Song:
+def reinit_song(song: Song, playlist_numbering: bool = False) -> Song:
     """
     Update song object with new data
     from Spotify
 
     ### Arguments
     - song: Song object
+    - playlist_numbering: bool, default value is False
 
     ### Returns
     - Updated song object
@@ -242,6 +226,15 @@ def reinit_song(song: Song) -> Song:
             song_list = song.song_list.__class__(**data["song_list"])
             data["song_list"] = song_list
             data["list_position"] = song_list.urls.index(song.url)
+            if playlist_numbering:
+                data["track_number"] = data["list_position"] + 1
+                data["tracks_count"] = len(song_list.urls)
+                data["album_name"] = song_list.name
+                if isinstance(song_list, Playlist):
+                    data["album_artist"] = song_list.author_name
+                    data["cover_url"] = song_list.cover_url
+                data["disc_number"] = 1
+                data["disc_count"] = 1
 
     # return reinitialized song object
     return Song(**data)

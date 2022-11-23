@@ -1,20 +1,8 @@
 from spotdl.types.song import Song
-from spotdl.utils.spotify import SpotifyClient
+from spotdl.types.album import Album
+
 
 import pytest
-
-
-def test_setup(patch_dependencies):
-    """
-    Sets up the tests.
-    """
-
-    SpotifyClient.init(
-        client_id="5f573c9620494bae87890c0f08a60293",
-        client_secret="212476d9b0f3472eaa762d90b19b0ba8",
-        user_auth=False,
-        no_cache=True,
-    )
 
 
 def test_song_init():
@@ -229,9 +217,25 @@ def test_song_from_dict():
             "copyright_text": "",
             "publisher": "",
             "url": "https://open.spotify.com/track/1t2qKa8K72IBC8yQlhD9bU",
+            "song_list": {
+                "name": "test",
+                "url": "https://open.spotify.com/album/fakealbum",
+                "urls": ["https://open.spotify.com/track/1t2qKa8K72IBC8yQlhD9bU"],
+                "songs": [],
+                "artist": {
+                    "external_urls": {"spotify": ""},
+                    "href": "",
+                    "id": "",
+                    "name": "",
+                    "type": "",
+                    "uri": "",
+                },
+            },
         }
     )
 
+    assert song.song_list is not None
+    assert isinstance(song.song_list, Album)
     assert song.name == "Ropes"
     assert song.artists == ["Dirty Palm", "Chandler Jewels"]
     assert song.album_name == "Ropes"

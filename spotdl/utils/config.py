@@ -144,4 +144,9 @@ DEFAULT_CONFIG = {
     "sponsor_block": False,
     "preload": False,
     "archive": None,
+    "port": 8800,
+    "host": "localhost",
+    "keep_alive": False,
+    "allowed_origins": None,
+    "playlist_numbering": False,
 }

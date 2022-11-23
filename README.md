@@ -19,25 +19,29 @@ Download your Spotify playlists and songs along with album art and metadata
 
 </div>
 
-> A new and improved version of spotDL: still the fastest, easiest and most accurate command-line music downloader
+> A new and improved version of spotDL: still the fastest, easiest and most accurate
+> command-line music downloader
 
----
+______________________________________________________________________
 
 **[Read the documentation on ReadTheDocs!](http://spotdl.rtfd.io/)**
 
----
+______________________________________________________________________
 
 ## Prerequisites
 
-- [Visual C++ 2019 redistributable](https://docs.microsoft.com/pl-pl/cpp/windows/latest-supported-vc-redist?view=msvc-170#visual-studio-2015-2017-2019-and-2022) **(on Windows)**
+- [Visual C++ 2019 redistributable](https://docs.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist?view=msvc-170#visual-studio-2015-2017-2019-and-2022)
+  **(on Windows)**
 - Python 3.7 or above (added to PATH)
 
-> **_YouTube Music must be available in your country for spotDL to work. This is because we use YouTube Music to filter search results. You can check if YouTube Music is available in your country, by visiting [YouTube Music](https://music.youtube.com)._**
+> **_YouTube Music must be available in your country for spotDL to work. This is because we use
+> YouTube Music to filter search results. You can check if YouTube Music is available in your
+> country, by visiting [YouTube Music](https://music.youtube.com)._**
 
 ## Installation
 
-Refer to our [Installation Guide](https://spotdl.rtfd.io/en/latest/installation/) for more details
-
+Refer to our [Installation Guide](https://spotdl.rtfd.io/en/latest/installation/) for more
+details
 
 - Python (**Recommended**)
   - _spotDL_ can be installed by running `pip install spotdl`.
@@ -46,11 +50,13 @@ Refer to our [Installation Guide](https://spotdl.rtfd.io/en/latest/installation/
 ### Other options
 
 - Prebuilt Executable
-  - You can download the latest version from the [Releases Tab](https://github.com/spotDL/spotify-downloader/releases)
+  - You can download the latest version from the
+    [Releases Tab](https://github.com/spotDL/spotify-downloader/releases)
 - On Termux
   - `curl -L https://raw.githubusercontent.com/spotDL/spotify-downloader/master/scripts/termux.sh | sh`
 - Arch
-  - There is an Arch User Repository (AUR) package for [spotDL](https://aur.archlinux.org/packages/python-spotdl/).
+  - There is an Arch User Repository (AUR) package for
+    [spotDL](https://aur.archlinux.org/packages/python-spotdl/).
 - Docker
   - Build image:
 
@@ -58,12 +64,12 @@ Refer to our [Installation Guide](https://spotdl.rtfd.io/en/latest/installation/
     docker build -t spotdl .
     ```
 
-  - Launch container with spotDL parameters (see section below). You need to create mapped volume to access song files
+  - Launch container with spotDL parameters (see section below). You need to create mapped
+    volume to access song files
 
     ```bash
     docker run --rm -v $(pwd):/music spotdl download [trackUrl]
     ```
-
 
 ### Installing FFmpeg
 
@@ -96,13 +102,13 @@ You can run _spotDL_ as a package if running it as a script doesn't work:
 python -m spotdl [urls]
 ```
 
----
+______________________________________________________________________
 
 ### Further information can be found in our documentation
 
 **[Read the documentation on ReadTheDocs!](http://spotdl.rtfd.io/)**
 
----
+______________________________________________________________________
 
 ## Contributing
 

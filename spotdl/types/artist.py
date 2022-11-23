@@ -78,6 +78,29 @@ class Artist(SongList):
             urls=urls,
         )
 
+    @classmethod
+    def search(cls, search_term: str):
+        """
+        Searches for Artist from a search term.
+
+        ### Arguments
+        - search_term: The search term to use.
+
+        ### Returns
+        - The raw search results
+        """
+
+        spotify_client = SpotifyClient()
+        raw_search_results = spotify_client.search(search_term, type="artist")
+
+        if (
+            raw_search_results is None
+            or len(raw_search_results.get("artists", {}).get("items", [])) == 0
+        ):
+            raise ArtistError("No artist matches found on spotify")
+
+        return raw_search_results
+
     @staticmethod
     def get_urls(url: str) -> List[str]:
         """
@@ -132,32 +155,36 @@ class Artist(SongList):
 
         artist_albums = spotify_client.artist_albums(url, album_type="album,single")
 
-        albums: List[str] = []
+        # check if there is response
+        if not artist_albums:
+            raise ArtistError(
+                "Couldn't get albums, check if you have passed correct artist id"
+            )
 
         # get artist albums and remove duplicates
         # duplicates can occur if the artist has the same album available in
         # different countries
+        albums: Set[str] = set()
         known_albums: Set[str] = set()
-        if artist_albums is not None:
+        for album in artist_albums["items"]:
+            albums.add(album["external_urls"]["spotify"])
+            known_albums.add(slugify(album["name"]))
+
+        # Fetch all artist albums
+        while artist_albums and artist_albums["next"]:
+            artist_albums = spotify_client.next(artist_albums)
+            if artist_albums is None:
+                break
+
             for album in artist_albums["items"]:
-                albums.append(album["external_urls"]["spotify"])
-                known_albums.add(slugify(album["name"]))  # type: ignore
+                album_name = slugify(album["name"])
 
-            # Fetch all artist albums
-            while artist_albums and artist_albums["next"]:
-                artist_albums = spotify_client.next(artist_albums)
-                if artist_albums is None:
-                    break
+                if album_name not in known_albums:
+                    albums.add(album["external_urls"]["spotify"])
 
-                for album in artist_albums["items"]:
-                    album_name = slugify(album["name"])  # type: ignore
+                    known_albums.add(album_name)
 
-                    if album_name in known_albums:
-                        albums.extend([item["uri"] for item in artist_albums["items"]])
-
-                        known_albums.add(album_name)
-
-        return albums
+        return list(albums)
 
     @staticmethod
     def get_metadata(url: str) -> Dict[str, Any]:

@@ -1,20 +1,6 @@
 from spotdl.types import Artist
-from spotdl.utils.spotify import SpotifyClient
 
 import pytest
-
-
-def test_setup(patch_dependencies):
-    """
-    Sets up the tests.
-    """
-
-    SpotifyClient.init(
-        client_id="5f573c9620494bae87890c0f08a60293",
-        client_secret="212476d9b0f3472eaa762d90b19b0ba8",
-        user_auth=False,
-        no_cache=True,
-    )
 
 
 def test_artist_init():
@@ -67,3 +53,16 @@ def test_artist_from_url():
     assert len(artist.songs) > 1
     assert len(artist.albums) > 2
     assert len(artist.genres) >= 1
+
+
+@pytest.mark.vcr()
+def test_artist_from_string():
+    """
+    Test if Artist class can be initialized from string.
+    """
+
+    artist = Artist.from_search_term("artist:gorillaz")
+
+    assert artist.name == "Gorillaz"
+    assert artist.url == "http://open.spotify.com/artist/3AA28KZvwAUcZuOKwyblJQ"
+    assert len(artist.urls) > 1
