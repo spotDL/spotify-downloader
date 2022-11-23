@@ -13,12 +13,18 @@ import traceback
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Type
 
+from mutagen import File
+
 from yt_dlp.postprocessor.sponsorblock import SponsorBlockPP
 from yt_dlp.postprocessor.modify_chapters import ModifyChaptersPP
 
 from spotdl.types import Song
 from spotdl.utils.ffmpeg import FFmpegError, convert, get_ffmpeg_path
-from spotdl.utils.metadata import embed_metadata, MetadataError, get_song_metadata
+from spotdl.utils.metadata import (
+    embed_metadata,
+    MetadataError,
+    get_song_metadata,
+)
 from spotdl.utils.formatter import create_file_name, restrict_filename
 from spotdl.providers.audio.base import AudioProvider
 from spotdl.providers.lyrics import Genius, MusixMatch, AzLyrics
@@ -58,10 +64,29 @@ class DownloaderError(Exception):
     """
 
 
+class KnownSong:
+    """
+    Represents a song file already present in the output directory. Used for determining
+    which songs to skip when downloading.
+    """
+
+    def __init__(self, path: Path = None, spotify_url: str = ""):
+        """
+        Initialize the Downloader class.
+
+        ### Arguments
+        path: Path to the file.
+        spotify_url: The songs corresponding URL on spotify.
+        """
+
+        self.path = path
+        self.spotify_url = spotify_url
+
+
 class Downloader:
     """
     Downloader class, this is where all the downloading pre/post processing happens etc.
-    It handles the downloading/moving songs, multthreading, metadata embedding etc.
+    It handles the downloading/moving songs, multithreading, metadata embedding etc.
     """
 
     def __init__(
@@ -85,6 +110,7 @@ class Downloader:
         print_errors: bool = False,
         sponsor_block: bool = False,
         loop: Optional[asyncio.AbstractEventLoop] = None,
+        known_songs: KnownSong = [],
     ):
         """
         Initialize the Downloader class.
@@ -93,8 +119,7 @@ class Downloader:
         - audio_provider: Audio providers to use.
         - lyrics_provider: The lyrics providers to use.
         - ffmpeg: The ffmpeg executable to use.
-        - variable_bitrate: The variable bitrate to use.
-        - constant_bitrate: The constant bitrate to use.
+        - bitrate: The bit rate to use.
         - ffmpeg_args: The ffmpeg arguments to use.
         - output_format: The output format to use.
         - threads: The number of threads to use.
@@ -106,10 +131,11 @@ class Downloader:
         - search_query: The search query to use.
         - log_level: The log level to use.
         - simple_tui: Whether to use simple tui.
-        - loop: The event loop to use.
         - restrict: Whether to restrict the filename to ASCII characters.
         - print_errors: Whether to print errors on exit.
         - sponsor_block: Whether to remove sponsor segments using sponsor block postprocessor.
+        - loop: The event loop to use.
+        - known_songs: List of song files already present in the output directory.
 
         ### Notes
         - `search-query` uses the same format as `output`.
@@ -171,6 +197,19 @@ class Downloader:
 
             ffmpeg = str(ffmpeg_exec.absolute())
 
+        # Gather already present songs
+        # todo: When fixed, use output dir instead of "."
+        paths = Path(".").glob("." + output_format)
+        for path in paths:
+            if path.is_file():
+                audio_file = File(str(path.resolve()), easy=False)
+
+                if audio_file.get("COMM::XXX") is not None:
+                    comment = str(audio_file.get("COMM::XXX"))
+                    if "|" in comment:
+                        url = comment.split("|", 1)[1]
+                        known_songs.append(KnownSong(path, url))
+
         self.output = output
         self.output_format = output_format
         self.save_file = save_file
@@ -188,6 +227,7 @@ class Downloader:
         self.sponsor_block = sponsor_block
         self.audio_providers_classes = audio_providers_classes
         self.progress_handler = ProgressHandler(NAME_TO_LEVEL[log_level], simple_tui)
+        self.known_songs = known_songs
 
         self.lyrics_providers: List[LyricsProvider] = []
         for lyrics_provider_class in lyrics_providers_classes:
@@ -260,7 +300,7 @@ class Downloader:
         # only certain amount of tasks can acquire the semaphore at the same time
         async with self.semaphore:
             # The following function calls blocking code, which would block whole event loop.
-            # Therefore it has to be called in a separate thread via ThreadPoolExecutor. This
+            # Therefore, it has to be called in a separate thread via ThreadPoolExecutor. This
             # is not a problem, since GIL is released for the I/O operations, so it shouldn't
             # hurt performance.
             return await self.loop.run_in_executor(
@@ -377,11 +417,11 @@ class Downloader:
         if output_file.exists() and self.overwrite == "metadata":
             song_meta = get_song_metadata(output_file)
             if song_meta is None:
-                self.progress_handler.debug(
+                self.progress_handler.log(
                     f"Metadata not found for {song.display_name}, " "overwriting file"
                 )
             else:
-                self.progress_handler.debug(
+                self.progress_handler.log(
                     f"Metadata found for {song.display_name}, " "overwriting file"
                 )
 
@@ -393,7 +433,54 @@ class Downloader:
 
         # Don't skip if the file exists and overwrite is set to force
         if output_file.exists() and self.overwrite == "force":
-            self.progress_handler.debug(f"Overwriting {song.display_name}")
+            self.progress_handler.log(f"Overwriting {song.display_name}")
+
+        # Check if there is an already existing song file, with the same spotify URL in its
+        # metadata, but saved under a different name. If so, save its path.
+        known_path = ""
+        if not output_file.exists():
+            for song_file in self.known_songs:
+                if song_file.spotify_url == song.url:
+                    known_path = song_file.path
+                    break
+
+        if known_path != "":
+
+            # Print warning that the songs metadata is outdated
+            if self.overwrite == "skip":
+                self.progress_handler.log(f"Skipping {song.display_name}")
+                self.progress_handler.warn(
+                    f"Metadata of {song.display_name} is outdated. "
+                    f"Use spotdl meta to update."
+                )
+                self.progress_handler.overall_completed_tasks += 1
+                self.progress_handler.update_overall()
+                return song, None
+
+            # Update filename and other metadata
+            if self.overwrite == "metadata":
+                known_path.replace(output_file.with_suffix(self.output_format))
+
+                song_meta = get_song_metadata(output_file)
+                if song_meta is None:
+                    self.progress_handler.debug(
+                        f"Metadata not found for {song.display_name}, "
+                        "overwriting file"
+                    )
+                else:
+                    self.progress_handler.debug(
+                        f"Metadata found for {song.display_name}, " "overwriting file"
+                    )
+
+                embed_metadata(
+                    output_file=output_file, song=song, file_format=self.output_format
+                )
+                return song, output_file
+
+            # Delete old file with outdated filename
+            if self.overwrite == "force":
+                self.progress_handler.debug(f"Overwriting {known_path}")
+                known_path.unlink()
 
         # Initalize the progress tracker
         display_progress_tracker = self.progress_handler.get_new_tracker(song)

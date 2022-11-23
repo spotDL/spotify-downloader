@@ -39,7 +39,7 @@ def get_search_results(search_term: str) -> List[Song]:
         raw_search_results is None
         or len(raw_search_results.get("tracks", {}).get("items", [])) == 0
     ):
-        raise SongError("No songs matches found on spotify")
+        raise SongError("No song matches found on spotify")
 
     songs = []
     for index, _ in enumerate(raw_search_results["tracks"]["items"]):
