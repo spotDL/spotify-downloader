@@ -484,7 +484,12 @@ class Downloader:
             # Delete old file with outdated filename
             if self.overwrite == "force":
                 self.progress_handler.debug(f"Overwriting {known_path}")
-                known_path.unlink()
+                try:
+                    known_path.unlink()
+                except (PermissionError, OSError) as exc:
+                    self.progress_handler.debug(
+                        f"Could not remove temp file: {known_path}, error: {exc}"
+                    )
 
         # Initalize the progress tracker
         display_progress_tracker = self.progress_handler.get_new_tracker(song)

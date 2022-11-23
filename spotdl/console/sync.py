@@ -107,7 +107,12 @@ def sync(
         for file in to_delete:
             if file.exists():
                 downloader.progress_handler.log(f"Deleting {file}")
-                file.unlink()
+                try:
+                    file.unlink()
+                except (PermissionError, OSError) as exc:
+                    downloader.progress_handler.debug(
+                        f"Could not remove temp file: {file}, error: {exc}"
+                    )
             else:
                 downloader.progress_handler.debug(f"{file} does not exist.")
 
