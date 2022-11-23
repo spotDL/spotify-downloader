@@ -63,10 +63,30 @@ class DownloaderError(Exception):
     """
 
 
+class KnownSong:
+    """
+    Represents a song file already present in the output directory. Used for determining
+    which songs to skip when downloading.
+    """
+
+    def __init__(self, path: Path = None, spotify_url: str = ""):
+        """
+        Initialize the Downloader class.
+
+        ### Arguments
+        path: Path to the file.
+        spotify_url: The songs corresponding URL on spotify.
+        """
+
+        self.path = path
+        self.spotify_url = spotify_url
+        print("1111")
+
+
 class Downloader:
     """
     Downloader class, this is where all the downloading pre/post processing happens etc.
-    It handles the downloading/moving songs, multthreading, metadata embedding etc.
+    It handles the downloading/moving songs, multithreading, metadata embedding etc.
     """
 
     def __init__(
@@ -90,6 +110,7 @@ class Downloader:
         print_errors: bool = False,
         sponsor_block: bool = False,
         loop: Optional[asyncio.AbstractEventLoop] = None,
+        known_songs: KnownSong = [],
     ):
         """
         Initialize the Downloader class.
@@ -98,8 +119,7 @@ class Downloader:
         - audio_provider: Audio providers to use.
         - lyrics_provider: The lyrics providers to use.
         - ffmpeg: The ffmpeg executable to use.
-        - variable_bitrate: The variable bitrate to use.
-        - constant_bitrate: The constant bitrate to use.
+        - bitrate: The bit rate to use.
         - ffmpeg_args: The ffmpeg arguments to use.
         - output_format: The output format to use.
         - threads: The number of threads to use.
@@ -111,10 +131,11 @@ class Downloader:
         - search_query: The search query to use.
         - log_level: The log level to use.
         - simple_tui: Whether to use simple tui.
-        - loop: The event loop to use.
         - restrict: Whether to restrict the filename to ASCII characters.
         - print_errors: Whether to print errors on exit.
         - sponsor_block: Whether to remove sponsor segments using sponsor block postprocessor.
+        - loop: The event loop to use.
+        - known_songs: List of song files already present in the output directory.
 
         ### Notes
         - `search-query` uses the same format as `output`.
@@ -176,6 +197,23 @@ class Downloader:
 
             ffmpeg = str(ffmpeg_exec.absolute())
 
+        # Gather already present songs
+        print(output)
+        print(output_format)
+        paths = Path(".").glob("*") # maybe match for suffix here? todo nr1; also use output dir instead of "."
+        for path in paths:
+            print(path)
+            if path.is_file() and path.suffix == ("." + output_format):
+                print("match found")
+                audio_file = get_audio_file(path, easy_id3=False)
+
+                if audio_file.get("COMM::XXX") is not None:
+                    comment = str(audio_file.get("COMM::XXX"))
+                    print(comment)
+                    if "|" in comment:
+                        url = comment.split("|", 1)[1]
+                        known_songs.append(KnownSong(path, url))
+
         self.output = output
         self.output_format = output_format
         self.save_file = save_file
@@ -193,6 +231,7 @@ class Downloader:
         self.sponsor_block = sponsor_block
         self.audio_providers_classes = audio_providers_classes
         self.progress_handler = ProgressHandler(NAME_TO_LEVEL[log_level], simple_tui)
+        self.known_songs = known_songs
 
         self.lyrics_providers: List[LyricsProvider] = []
         for lyrics_provider_class in lyrics_providers_classes:
@@ -232,22 +271,7 @@ class Downloader:
 
         self.progress_handler.set_song_count(len(songs))
 
-        # Gather already present songs
-        present_songs = []
-        paths = Path(".").glob("*")
-
-        for path in paths:
-            if path.is_file() and path.suffix == self.output_format:
-                audio_file = get_audio_file(path, easy_id3=False)
-
-                if audio_file.get("COMM::XXX") is not None:
-                    comment = str(audio_file.get("COMM::XXX"))
-
-                    if "|" in comment:
-                        url = comment.split("|", 1)[1]
-                        present_songs.append((path, url))
-
-        tasks = [self.pool_download(song, present_songs) for song in songs]
+        tasks = [self.pool_download(song) for song in songs]
 
         # call all task asynchronously, and wait until all are finished
         results = list(self.loop.run_until_complete(self.aggregate_tasks(tasks)))
@@ -262,9 +286,7 @@ class Downloader:
 
         return results
 
-    async def pool_download(
-        self, song: Song, present_songs: (Path, str)
-    ) -> Tuple[Song, Optional[Path]]:
+    async def pool_download(self, song: Song) -> Tuple[Song, Optional[Path]]:
         """
         Run asynchronous task in a pool to make sure that all processes.
 
@@ -282,11 +304,11 @@ class Downloader:
         # only certain amount of tasks can acquire the semaphore at the same time
         async with self.semaphore:
             # The following function calls blocking code, which would block whole event loop.
-            # Therefore it has to be called in a separate thread via ThreadPoolExecutor. This
+            # Therefore, it has to be called in a separate thread via ThreadPoolExecutor. This
             # is not a problem, since GIL is released for the I/O operations, so it shouldn't
             # hurt performance.
             return await self.loop.run_in_executor(
-                self.thread_executor, self.search_and_download, song, present_songs
+                self.thread_executor, self.search_and_download, song
             )
 
     def search(self, song: Song) -> Tuple[str, AudioProvider]:
@@ -348,9 +370,7 @@ class Downloader:
 
         return None
 
-    def search_and_download(
-        self, song: Song, present_songs: (Path, str)
-    ) -> Tuple[Song, Optional[Path]]:
+    def search_and_download(self, song: Song) -> Tuple[Song, Optional[Path]]:
         """
         Search for the song and download it.
 
@@ -419,16 +439,20 @@ class Downloader:
         if output_file.exists() and self.overwrite == "force":
             self.progress_handler.log(f"Overwriting {song.display_name}")
 
-        # Check if there is an already existing audio file, with the same spotify URL in its
+        # Check if there is an already existing song file, with the same spotify URL in its
         # metadata, but saved under a different name. If so, save its path.
-        present_path = ""
+        known_path = ""
         if not output_file.exists():
-            for (path, url) in present_songs:
-                if url == song.url:
-                    present_path = path
+            print(len(self.known_songs))
+            for song_file in self.known_songs:
+                print(song_file)
+                print(song.url)
+                if song_file.spotify_url == song.url:
+                    known_path = song_file.path
+                    print("Namechange!")
                     break
 
-        if present_path != "":
+        if known_path != "":
 
             # Print warning that the songs metadata is outdated
             if self.overwrite == "skip":
@@ -443,7 +467,7 @@ class Downloader:
 
             # Update filename and other metadata
             if self.overwrite == "metadata":
-                present_path.replace(output_file.with_suffix(self.output_format))
+                known_path.replace(output_file.with_suffix(self.output_format))
 
                 song_meta = get_song_metadata(output_file)
                 if song_meta is None:
@@ -463,8 +487,8 @@ class Downloader:
 
             # Delete old file with outdated filename
             if self.overwrite == "force":
-                self.progress_handler.debug(f"Overwriting {present_path}")
-                present_path.unlink()
+                self.progress_handler.debug(f"Overwriting {known_path}")
+                known_path.unlink()
 
         # Initalize the progress tracker
         display_progress_tracker = self.progress_handler.get_new_tracker(song)
