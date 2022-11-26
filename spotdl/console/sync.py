@@ -101,7 +101,7 @@ def sync(
 
         new_urls = [song.url for song in songs_playlist]
 
-        # Delete all song files whoose URL is no longer part of the latest playlist
+        # Delete all song files whose URL is no longer part of the latest playlist
         to_delete = [path for (path, url) in old_files if url not in new_urls]
 
         for file in to_delete:

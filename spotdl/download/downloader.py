@@ -196,7 +196,7 @@ class Downloader:
             ffmpeg = str(ffmpeg_exec.absolute())
 
         # Gather already present songs
-        # todo: When fixed, use output dir instead of "."
+        # todo: Use output dir instead of "." directory
         paths = Path(".").glob("." + output_format)
         for path in paths:
             if path.is_file():
