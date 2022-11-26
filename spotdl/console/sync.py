@@ -89,58 +89,45 @@ def sync(
             raise ValueError("Sync file is not a valid sync file.")
 
         # Parse the query
-        new_songs = parse_query(sync_data["query"], downloader.threads)
-        new_files = [
-            create_file_name(song, downloader.output, downloader.output_format)
-            for song in new_songs
-        ]
+        songs_playlist = parse_query(sync_data["query"], downloader.threads)
 
-        # Get all the old files based on the songs from sync file
-        old_songs = [Song.from_dict(song) for song in sync_data["songs"]]
-        old_files = [
-            create_file_name(song, downloader.output, downloader.output_format)
-            for song in old_songs
-        ]
-
-        # Get all files that are no longer in the song lists
-        to_delete = set(old_files) - set(new_files)
-
-        # Get all files that are new and have to be downloaded
-        to_download = []
-        for song in new_songs:
-            song_path = create_file_name(
-                song, downloader.output, downloader.output_format
+        # Get the names and URLs of previously downloaded songs from the sync file
+        old_files = []
+        for entry in sync_data["songs"]:
+            file_name = create_file_name(
+                Song.from_dict(entry), downloader.output, downloader.output_format
             )
+            old_files.append((file_name, entry["url"]))
 
-            # Skip the songs that are already downloaded
-            if Path(song_path).exists():
-                # Add the song to the to_download list
-                # if overwrite is set to force
-                if downloader.overwrite == "force":
-                    downloader.progress_handler.log(f"Overwriting {song.display_name}")
-                    to_download.append(song)
-            else:
-                # Add the song to the to_download list
-                to_download.append(song)
+        new_urls = [song.url for song in songs_playlist]
 
-        downloader.progress_handler.log(
-            f"Found {len(to_download)} songs to download and {len(to_delete)} files to delete."
-        )
+        # Delete all song files whoose URL is no longer part of the latest playlist
+        to_delete = [path for (path, url) in old_files if url not in new_urls]
 
-        # Delete all files that are no longer in the song lists
         for file in to_delete:
             if file.exists():
-                file.unlink()
-                downloader.progress_handler.log(f"Removed {file}")
+                downloader.progress_handler.log(f"Deleting {file}")
+                try:
+                    file.unlink()
+                except (PermissionError, OSError) as exc:
+                    downloader.progress_handler.debug(
+                        f"Could not remove temp file: {file}, error: {exc}"
+                    )
             else:
                 downloader.progress_handler.debug(f"{file} does not exist.")
 
-        # Create m3u file
+        if len(to_delete) == 0:
+            downloader.progress_handler.log("Nothing to delete...")
+        else:
+            downloader.progress_handler.log(
+                f"{len(to_delete)} old songs were deleted."
+            )
+
         if m3u_file:
             gen_m3u_files(
                 sync_data["query"],
                 m3u_file,
-                new_songs,
+                songs_playlist,
                 downloader.output,
                 downloader.output_format,
                 False,
@@ -152,18 +139,14 @@ def sync(
                 {
                     "type": "sync",
                     "query": sync_data["query"],
-                    "songs": [song.json for song in new_songs],
+                    "songs": [song.json for song in songs_playlist],
                 },
                 save_file,
                 indent=4,
                 ensure_ascii=False,
             )
 
-        if len(to_download) == 0:
-            downloader.progress_handler.log("Nothing to do...")
-            return None
-
-        downloader.download_multiple_songs(to_download)
+        downloader.download_multiple_songs(songs_playlist)
 
         return None
 
