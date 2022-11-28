@@ -250,15 +250,16 @@ Main options:
                         web: Starts a web interface to simplify the download process.
                         sync: Removes songs that are no longer present, downloads new ones
                         meta: Update your audio files with metadata
-  query                 Spotify URL for a song/playlist/album/artist/etc. to download.For manual audio matching, you can use the format 'YouTubeURL|SpotifyURL'
+  query                 Spotify URL for a song/playlist/album/artist/etc. to download. For album searching, include 'album:' and optional 'artist:' tags (ie. 'album:the album name' or 'artist:the artist album: the album').
+                        For manual audio matching, you can use the format 'YouTubeURL|SpotifyURL'
   --audio [{youtube,youtube-music} ...]
                         The audio provider to use. You can provide more than one for fallback.
   --lyrics [{genius,musixmatch,azlyrics} ...]
                         The lyrics provider to use. You can provide more than one for fallback.
   --config              Use the config file to download songs. It's located under C:\Users\user\.spotdl\config.json or ~/.spotdl/config.json under linux
   --search-query SEARCH_QUERY
-                        The search query to use, available variables: {title}, {artists}, {artist}, {album}, {album-artist}, {genre}, {disc-number}, {disc-count}, {duration}, {year},
-                        {original-date}, {track-number}, {tracks-count}, {isrc}, {track-id}, {publisher}, {list-length}, {list-position}, {list-name}, {output-ext}
+                        The search query to use, available variables: {title}, {artists}, {artist}, {album}, {album-artist}, {genre}, {disc-number}, {disc-count}, {duration}, {year}, {original-date}, {track-number},
+                        {tracks-count}, {isrc}, {track-id}, {publisher}, {list-length}, {list-position}, {list-name}, {output-ext}
   --dont-filter-results
                         Disable filtering results.
 
@@ -279,28 +280,30 @@ Spotify options:
 FFmpeg options:
   --ffmpeg FFMPEG       The ffmpeg executable to use.
   --threads THREADS     The number of threads to use when downloading songs.
-  --bitrate {8k,16k,24k,32k,40k,48k,64k,80k,96k,112k,128k,160k,192k,224k,256k,320k,0,1,2,3,4,5,6,7,8,9,0}
-                        The constant/variable bitrate to use for the output file.
+  --bitrate {8k,16k,24k,32k,40k,48k,64k,80k,96k,112k,128k,160k,192k,224k,256k,320k,0,1,2,3,4,5,6,7,8,9}
+                        The constant/variable bitrate to use for the output file. Values from 0 to 9 are variable bitrates.
   --ffmpeg-args FFMPEG_ARGS
                         Additional ffmpeg arguments passed as a string.
+  --preserve-original-audio
+                        Preserve the original audio stream in case of m4a and opus files. This option might overwrite the bitrate option. Adding additional ffmpeg arguments might make this option useless.
 
 Output options:
   --format {mp3,flac,ogg,opus,m4a}
                         The format to download the song in.
   --save-file SAVE_FILE
-                        The file to save/load the songs data from/to. It has to end with .spotdl. If combined with the download operation, it will save the songs data to the file.
-                        Required for save/preload/sync
+                        The file to save/load the songs data from/to. It has to end with .spotdl. If combined with the download operation, it will save the songs data to the file. Required for save/preload/sync
   --preload             Preload the download url to speed up the download process.
-  --output OUTPUT       Specify the downloaded file name format, available variables: {title}, {artists}, {artist}, {album}, {album-artist}, {genre}, {disc-number}, {disc-count},
-                        {duration}, {year}, {original-date}, {track-number}, {tracks-count}, {isrc}, {track-id}, {publisher}, {list-length}, {list-position}, {list-name}, {output-ext}
-  --m3u M3U             Name of the m3u file to save the songs to.
+  --output OUTPUT       Specify the downloaded file name format, available variables: {title}, {artists}, {artist}, {album}, {album-artist}, {genre}, {disc-number}, {disc-count}, {duration}, {year}, {original-date}, {track-
+                        number}, {tracks-count}, {isrc}, {track-id}, {publisher}, {list-length}, {list-position}, {list-name}, {output-ext}
+  --m3u [M3U]           Name of the m3u file to save the songs to. Defaults to {list[0]}.m3u If you want to generate a m3u for each list in the query use {list-name}, If you want to generate a m3u file based on the first
+                        list in the query use {list[0]}, (0 is the first list in the query, 1 is the second, etc. songs don't count towards the list number)
   --overwrite {skip,metadata,force}
                         Overwrite existing files.
   --restrict            Restrict filenames to ASCII only
   --print-errors        Print errors (wrong songs, failed downloads etc) on exit, useful for long playlist
   --sponsor-block       Use the sponsor block to download songs from yt/ytm.
   --archive ARCHIVE     Specify the file name for an archive of already downloaded songs
-  --playlist-numbering  When downloading a playlist, convert all tracks into a single album, using the playlist icon as the album art.
+  --playlist-numbering  Sets each track in a playlist to have the playlist's name as its album, and album art as the playlist's icon
 
 Web options:
   --host HOST           The host to use for the web server.

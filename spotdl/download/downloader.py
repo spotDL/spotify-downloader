@@ -86,6 +86,7 @@ class Downloader:
         sponsor_block: bool = False,
         loop: Optional[asyncio.AbstractEventLoop] = None,
         playlist_numbering: bool = False,
+        preserve_original_audio: bool = False,
     ):
         """
         Initialize the Downloader class.
@@ -111,6 +112,7 @@ class Downloader:
         - print_errors: Whether to print errors on exit.
         - sponsor_block: Whether to remove sponsor segments using sponsor block postprocessor.
         - playlist_numbering: Whether to convert tracks in a playlist into an album
+        - preserve_original_audio: Whether to preserve the original audio file
 
         ### Notes
         - `search-query` uses the same format as `output`.
@@ -190,6 +192,7 @@ class Downloader:
         self.audio_providers_classes = audio_providers_classes
         self.progress_handler = ProgressHandler(NAME_TO_LEVEL[log_level], simple_tui)
         self.playlist_numbering = playlist_numbering
+        self.preserve_original_audio = preserve_original_audio
 
         self.lyrics_providers: List[LyricsProvider] = []
         for lyrics_provider_class in lyrics_providers_classes:
@@ -440,14 +443,23 @@ class Downloader:
 
             display_progress_tracker.notify_download_complete()
 
+            bitrate: Optional[str] = (
+                self.bitrate if self.bitrate else f"{int(download_info['abr'])}k"
+            )
+
+            # Ignore the bitrate if the preserve original audio
+            # option is set to true
+            if self.preserve_original_audio:
+                bitrate = None
+
             success, result = convert(
-                temp_file,
-                output_file,
-                self.ffmpeg,
-                self.output_format,
-                self.bitrate if self.bitrate else f"{int(download_info['abr'])}k",
-                self.ffmpeg_args,
-                display_progress_tracker.ffmpeg_progress_hook,
+                input_file=temp_file,
+                output_file=output_file,
+                ffmpeg=self.ffmpeg,
+                output_format=self.output_format,
+                bitrate=bitrate,
+                ffmpeg_args=self.ffmpeg_args,
+                progress_handler=display_progress_tracker.ffmpeg_progress_hook,
             )
 
             # Remove the temp file

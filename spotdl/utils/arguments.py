@@ -293,8 +293,8 @@ def parse_ffmpeg_options(parser: _ArgumentGroup):
         + list(map(str, range(0, 10))),
         type=str.lower,
         help=(
-            "The constant/variable bitrate to use for the output file."
-            " Values from 0 to 9 are variable bitrates."
+            "The constant/variable bitrate to use for the output file. "
+            "Values from 0 to 9 are variable bitrates. "
         ),
     )
 
@@ -303,6 +303,18 @@ def parse_ffmpeg_options(parser: _ArgumentGroup):
         "--ffmpeg-args",
         type=str,
         help="Additional ffmpeg arguments passed as a string.",
+    )
+
+    # Preserve original audio stream
+    parser.add_argument(
+        "--preserve-original-audio",
+        action="store_const",
+        const=True,
+        help=(
+            "Preserve the original audio stream in case of m4a and opus files. "
+            "This option might overwrite the bitrate option. "
+            "Adding additional ffmpeg arguments might make this option useless."
+        ),
     )
 
 
