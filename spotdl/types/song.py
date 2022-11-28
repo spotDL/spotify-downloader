@@ -272,7 +272,7 @@ class SongList:
         - The list length.
         """
 
-        return len(self.songs)
+        return max(len(self.urls), len(self.songs))
 
     @classmethod
     def create_basic_object(cls, url: str):
