@@ -1499,8 +1499,7 @@
 <span class="normal">127</span>
 <span class="normal">128</span>
 <span class="normal">129</span>
-<span class="normal">130</span>
-<span class="normal">131</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">web</span><span class="p">(</span><span class="n">settings</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]):</span>
+<span class="normal">130</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">web</span><span class="p">(</span><span class="n">settings</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Run the web server.</span>
 
@@ -1555,7 +1554,6 @@
         <span class="n">print_errors</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s2">&quot;print_errors&quot;</span><span class="p">],</span>
         <span class="n">sponsor_block</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s2">&quot;sponsor_block&quot;</span><span class="p">],</span>
         <span class="n">loop</span><span class="o">=</span><span class="n">app_state</span><span class="o">.</span><span class="n">loop</span><span class="p">,</span>
-        <span class="n">preserve_original_audio</span><span class="o">=</span><span class="n">settings</span><span class="p">[</span><span class="s2">&quot;preserve_original_audio&quot;</span><span class="p">],</span>
     <span class="p">)</span>
 
     <span class="n">app_state</span><span class="o">.</span><span class="n">api</span> <span class="o">=</span> <span class="n">FastAPI</span><span class="p">(</span>

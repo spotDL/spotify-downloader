@@ -2146,7 +2146,7 @@ and checking for ffmpeg binary, and downloading it if not found.</p>
         <span class="k">raise</span> <span class="n">FFmpegError</span><span class="p">(</span><span class="s2">&quot;FFmpeg binary is not available for your system.&quot;</span><span class="p">)</span>
 
     <span class="c1"># Download binary and save it to a file in spotdl directory</span>
-    <span class="n">ffmpeg_binary</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">ffmpeg_url</span><span class="p">,</span> <span class="n">allow_redirects</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span><span class="o">.</span><span class="n">content</span>
+    <span class="n">ffmpeg_binary</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">ffmpeg_url</span><span class="p">,</span> <span class="n">allow_redirects</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">content</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">ffmpeg_path</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">ffmpeg_file</span><span class="p">:</span>
         <span class="n">ffmpeg_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">ffmpeg_binary</span><span class="p">)</span>
 

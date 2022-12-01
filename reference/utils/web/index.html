@@ -2730,7 +2730,8 @@ problematic in general.</p>
 
       <details class="quote">
         <summary>Source code in <code>spotdl/utils/web.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">393</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">392</span>
+<span class="normal">393</span>
 <span class="normal">394</span>
 <span class="normal">395</span>
 <span class="normal">396</span>
@@ -2750,8 +2751,7 @@ problematic in general.</p>
 <span class="normal">410</span>
 <span class="normal">411</span>
 <span class="normal">412</span>
-<span class="normal">413</span>
-<span class="normal">414</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">fix_mime_types</span><span class="p">():</span>
+<span class="normal">413</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">fix_mime_types</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;Fix incorrect entries in the `mimetypes` registry.</span>
 <span class="sd">    On Windows, the Python standard library&#39;s `mimetypes` reads in</span>
 <span class="sd">    mappings from file extension to MIME type from the Windows</span>
@@ -3105,8 +3105,7 @@ problematic in general.</p>
 <span class="normal">386</span>
 <span class="normal">387</span>
 <span class="normal">388</span>
-<span class="normal">389</span>
-<span class="normal">390</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@router</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/api/settings/update&quot;</span><span class="p">)</span>
+<span class="normal">389</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@router</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/api/settings/update&quot;</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">update_settings</span><span class="p">(</span>
     <span class="n">settings</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">state</span><span class="p">:</span> <span class="n">ApplicationState</span> <span class="o">=</span> <span class="n">Depends</span><span class="p">(</span><span class="n">get_current_state</span><span class="p">)</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
@@ -3149,7 +3148,6 @@ problematic in general.</p>
         <span class="n">print_errors</span><span class="o">=</span><span class="n">settings_cpy</span><span class="p">[</span><span class="s2">&quot;print_errors&quot;</span><span class="p">],</span>
         <span class="n">sponsor_block</span><span class="o">=</span><span class="n">settings_cpy</span><span class="p">[</span><span class="s2">&quot;sponsor_block&quot;</span><span class="p">],</span>
         <span class="n">loop</span><span class="o">=</span><span class="n">state</span><span class="o">.</span><span class="n">loop</span><span class="p">,</span>
-        <span class="n">preserve_original_audio</span><span class="o">=</span><span class="n">settings_cpy</span><span class="p">[</span><span class="s2">&quot;preserve_original_audio&quot;</span><span class="p">],</span>
     <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">settings_cpy</span>
