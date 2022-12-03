@@ -391,7 +391,9 @@ class SongTracker:
         # Clean up the song name
         # from weird unicode characters
         self.song_name = "".join(
-            char for char in self.song.name if char not in [chr(i) for i in range(769, 880)]
+            char
+            for char in self.song.name
+            if char not in [chr(i) for i in range(769, 880)]
         )
 
         self.progress: int = 0
