@@ -388,6 +388,14 @@ class SongTracker:
         self.parent: "ProgressHandler" = parent
         self.song = song
 
+        # Clean up the song name
+        # from weird unicode characters
+        self.song_name = "".join(
+            char
+            for char in self.song.name
+            if char not in [chr(i) for i in range(769, 880)]
+        )
+
         self.progress: int = 0
         self.old_progress: int = 0
         self.status = ""
