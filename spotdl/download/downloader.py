@@ -545,7 +545,15 @@ class Downloader:
             )
 
             return song, output_file
-        except Exception as exception:
+        except (Exception, UnicodeEncodeError) as exception:
+            if isinstance(exception, UnicodeEncodeError):
+                exception_cause = exception
+                exception = DownloaderError(
+                    "You may need to add PYTHONIOENCODING=utf-8 to your environment"
+                )
+
+                exception.__cause__ = exception_cause
+
             display_progress_tracker.notify_error(
                 traceback.format_exc(), exception, True
             )
