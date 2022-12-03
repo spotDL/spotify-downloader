@@ -13,6 +13,7 @@ import json
 
 import platformdirs
 
+
 class ConfigError(Exception):
     """
     Base class for all exceptions related to config.
