@@ -8,8 +8,10 @@ from pathlib import Path
 from typing import Any, Dict
 
 import os
+import platform
 import json
 
+import platformdirs
 
 class ConfigError(Exception):
     """
@@ -27,6 +29,13 @@ def get_spotdl_path() -> Path:
     ### Notes
     - If the spotdl directory does not exist, it will be created.
     """
+
+    # Check if os is linux
+    if platform.system() == "Linux":
+        # if platform is linux, and XDG DATA HOME spotdl folder exists, use it
+        user_data_dir = Path(platformdirs.user_data_dir("spotdl", "spotDL"))
+        if user_data_dir.exists():
+            return user_data_dir
 
     spotdl_path = Path(os.path.expanduser("~"), ".spotdl")
     if not spotdl_path.exists():

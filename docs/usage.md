@@ -169,6 +169,8 @@ spotdl web
 The config file is located at `C:\Users\user\.spotdl\config.json`
 or `~/.spotdl/config.json` under linux
 
+> Note: If you want to use XDG_DATA_HOME directory, run `mkdir $XDG_DATA_HOME/spotdl`, next time you run spotdl it will be automatically used.
+
 ### Generate a config file
 
 To generate a config file, run
