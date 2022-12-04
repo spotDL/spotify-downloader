@@ -11,7 +11,7 @@ import concurrent.futures
 from typing import List, Optional
 
 from spotdl.types import Playlist, Album, Artist, Saved
-from spotdl.types.song import SongList, SongError, Song
+from spotdl.types.song import SongList, Song
 
 
 class QueryError(Exception):

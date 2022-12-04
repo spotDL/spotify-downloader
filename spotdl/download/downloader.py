@@ -107,7 +107,7 @@ class Downloader:
         sponsor_block: bool = False,
         loop: Optional[asyncio.AbstractEventLoop] = None,
         playlist_numbering: bool = False,
-        known_songs: KnownSong = [],
+        known_songs: KnownSong = None,
     ):
         """
         Initialize the Downloader class.
@@ -197,16 +197,18 @@ class Downloader:
 
         # Gather already present songs
         # todo: Use output dir instead of "." directory
-        paths = Path(".").glob("." + output_format)
-        for path in paths:
-            if path.is_file():
-                audio_file = File(str(path.resolve()), easy=False)
+        if known_songs is None:
+            known_songs = []
+            paths = Path(".").glob("." + output_format)
+            for path in paths:
+                if path.is_file():
+                    audio_file = File(str(path.resolve()), easy=False)
 
-                if audio_file.get("COMM::XXX") is not None:
-                    comment = str(audio_file.get("COMM::XXX"))
-                    if "|" in comment:
-                        url = comment.split("|", 1)[1]
-                        known_songs.append(KnownSong(path, url))
+                    if audio_file.get("COMM::XXX") is not None:
+                        comment = str(audio_file.get("COMM::XXX"))
+                        if "|" in comment:
+                            url = comment.split("|", 1)[1]
+                            known_songs.append(KnownSong(path, url))
 
         self.output = output
         self.output_format = output_format
