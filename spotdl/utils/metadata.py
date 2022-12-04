@@ -16,14 +16,15 @@ from pathlib import Path
 from typing import Any, Dict, Optional, Union
 from urllib.request import urlopen
 
-from mutagen import File
+from mutagen._file import File
 from mutagen.oggopus import OggOpus
 from mutagen.mp4 import MP4, MP4Cover
 from mutagen.flac import Picture, FLAC
 from mutagen.oggvorbis import OggVorbis
-from mutagen.easyid3 import EasyID3, ID3
-from mutagen.mp3 import ID3FileType
-from mutagen.id3 import APIC as AlbumCover, USLT, COMM as Comment, ID3NoHeaderError, WOAS
+from mutagen.easyid3 import EasyID3
+from mutagen.id3 import ID3, ID3FileType
+from mutagen.id3._frames import APIC as AlbumCover, USLT, COMM as Comment, WOAS
+from mutagen.id3._util import ID3NoHeaderError
 
 from spotdl.utils.search import get_search_results
 from spotdl.types import Song

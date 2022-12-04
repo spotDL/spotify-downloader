@@ -211,7 +211,7 @@ def download_ffmpeg() -> Path:
         raise FFmpegError("FFmpeg binary is not available for your system.")
 
     # Download binary and save it to a file in spotdl directory
-    ffmpeg_binary = requests.get(ffmpeg_url, allow_redirects=True).content
+    ffmpeg_binary = requests.get(ffmpeg_url, allow_redirects=True, timeout=10).content
     with open(ffmpeg_path, "wb") as ffmpeg_file:
         ffmpeg_file.write(ffmpeg_binary)
 

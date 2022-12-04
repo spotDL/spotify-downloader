@@ -384,6 +384,7 @@ def update_settings(
         print_errors=settings_cpy["print_errors"],
         sponsor_block=settings_cpy["sponsor_block"],
         loop=state.loop,
+        preserve_original_audio=settings_cpy["preserve_original_audio"],
     )
 
     return settings_cpy
