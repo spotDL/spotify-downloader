@@ -29,7 +29,7 @@ jobs:
           poetry env use ${{ matrix.python-version }}
           poetry install
 
-      - uses: FedericoCarboni/setup-ffmpeg@v1
+      - uses: FedericoCarboni/setup-ffmpeg@v2
         id: setup-ffmpeg
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
