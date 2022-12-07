@@ -113,10 +113,14 @@ class Playlist(SongList):
             "description": playlist["description"],
             "author_url": playlist["external_urls"]["spotify"],
             "author_name": playlist["owner"]["display_name"],
-            "cover_url": (max(
-                playlist["images"],
-                key=lambda i: 0
-                if i["width"] is None or i["height"] is None
-                else i["width"] * i["height"],
-            )["url"] if (len(playlist["images"]) > 0) else ""),
+            "cover_url": (
+                max(
+                    playlist["images"],
+                    key=lambda i: 0
+                    if i["width"] is None or i["height"] is None
+                    else i["width"] * i["height"],
+                )["url"]
+                if (len(playlist["images"]) > 0)
+                else ""
+            ),
         }
