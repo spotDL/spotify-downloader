@@ -472,7 +472,7 @@ class Downloader:
                     )
 
                     raise DownloaderError(
-                        "Could not remove temp file, possible duplicate song"
+                        f"Could not remove temp file: {temp_file}, possible duplicate song"
                     ) from exc
 
             if not success and result:
@@ -509,25 +509,34 @@ class Downloader:
 
             display_progress_tracker.notify_conversion_complete()
 
+            # SponsorBlock post processor
             if self.sponsor_block:
+                # Initialize the sponsorblock post processor
                 post_processor = SponsorBlockPP(
                     audio_provider.audio_handler, SPONSOR_BLOCK_CATEGORIES
                 )
 
+                # Run the post processor to get the sponsor segments
                 _, download_info = post_processor.run(download_info)
                 chapters = download_info["sponsorblock_chapters"]
+
+                # If there are sponsor segments, remove them
                 if len(chapters) > 0:
                     self.progress_handler.log(
                         f"Removing {len(chapters)} sponsor segments for {song.display_name}"
                     )
 
+                    # Initialize the modify chapters post processor
                     modify_chapters = ModifyChaptersPP(
                         audio_provider.audio_handler,
                         remove_sponsor_segments=SPONSOR_BLOCK_CATEGORIES,
                     )
 
+                    # Run the post processor to remove the sponsor segments
+                    # this returns a list of files to delete
                     files_to_delete, download_info = modify_chapters.run(download_info)
 
+                    # Delete the files that were created by the post processor
                     for file_to_delete in files_to_delete:
                         Path(file_to_delete).unlink()
 
