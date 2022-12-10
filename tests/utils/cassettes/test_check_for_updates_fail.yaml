@@ -35,7 +35,7 @@ interactions:
       Content-Type:
       - application/json; charset=utf-8
       Date:
-      - Sun, 06 Nov 2022 16:20:18 GMT
+      - Sat, 03 Dec 2022 17:30:17 GMT
       Referrer-Policy:
       - origin-when-cross-origin, strict-origin-when-cross-origin
       Server:
@@ -51,19 +51,21 @@ interactions:
       X-GitHub-Media-Type:
       - github.v3; format=json
       X-GitHub-Request-Id:
-      - 7513:AE31:9F009DD:A16CE60:6367DEC2
+      - CC7A:2AC2:BFA30DB:C23FC60:638B87A9
       X-RateLimit-Limit:
       - '60'
       X-RateLimit-Remaining:
-      - '45'
+      - '53'
       X-RateLimit-Reset:
-      - '1667754515'
+      - '1670091605'
       X-RateLimit-Resource:
       - core
       X-RateLimit-Used:
-      - '15'
+      - '7'
       X-XSS-Protection:
       - '0'
+      x-github-api-version-selected:
+      - '2022-11-28'
     status:
       code: 404
       message: Not Found

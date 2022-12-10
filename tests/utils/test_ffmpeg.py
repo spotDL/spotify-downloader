@@ -126,6 +126,8 @@ def test_convert(tmpdir, monkeypatch):
         "https://www.youtube.com/watch?v=h-nHdqC3pPs", download=False
     )
 
+    assert download_info is not None
+
     assert convert(
         input_file=(download_info["url"], download_info["ext"]),
         output_file=Path(tmpdir, "test.mp3"),

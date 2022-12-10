@@ -40,10 +40,10 @@ theme:
       name: Switch to light mode
 
 plugins:
-- search
 - gen-files:
     scripts:
     - scripts/docs/gen_ref_nav.py
+- search
 - literate-nav:
     nav_file: SUMMARY.md
 - section-index

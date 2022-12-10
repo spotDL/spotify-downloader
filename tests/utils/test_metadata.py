@@ -30,14 +30,14 @@ def test_embed_metadata(tmpdir, monkeypatch, output_format):
     monkeypatch.chdir(tmpdir)
     monkeypatch.setattr(spotdl.utils.ffmpeg, "get_spotdl_path", lambda *_: tmpdir)
 
-    yt = YoutubeDL(
+    youtube = YoutubeDL(
         {
             "format": "bestaudio",
             "encoding": "UTF-8",
         }
     )
 
-    download_info = yt.extract_info(
+    download_info = youtube.extract_info(
         "https://www.youtube.com/watch?v=h-nHdqC3pPs", download=False
     )
 

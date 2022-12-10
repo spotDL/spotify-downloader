@@ -272,10 +272,16 @@ class YouTubeMusic(AudioProvider):
             if not common_word:
                 continue
 
-            # match the song's main artist with the result's main artist
-            main_artist_match = fuzz.ratio(
-                slug_song_main_artist, slugify(result["artists_list"][0])
-            )
+            # initialize match value to 0
+            main_artist_match = 0.0
+
+            # check if artists list is not empty
+            # if it isn't perform initial match
+            # on the main artists
+            if result["artists_list"]:
+                main_artist_match = fuzz.ratio(
+                    slug_song_main_artist, slugify(result["artists_list"][0])
+                )
 
             # print(f"? main_artist_match: {main_artist_match}")
 
