@@ -31,15 +31,6 @@ def test_parse_song():
     assert len(songs) == 1
     assert song.download_url == None
 
-
-@pytest.mark.vcr()
-def test_parse_playlist():
-    songs = parse_query(PLAYLIST)
-
-    assert len(songs) > 1
-    assert songs[1].url == "https://open.spotify.com/track/3pMVdkRKbHDV4zmvqWNlND"
-
-
 @pytest.mark.vcr()
 def test_parse_album():
     songs = parse_query(ALBUM)
