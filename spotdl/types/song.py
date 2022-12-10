@@ -129,7 +129,7 @@ class Song:
             raw_search_results is None
             or len(raw_search_results.get("tracks", {}).get("items", [])) == 0
         ):
-            raise SongError("No songs matches found on spotify")
+            raise SongError(f"No songs matches found on spotify: {search_term}")
 
         return raw_search_results
 
@@ -272,7 +272,7 @@ class SongList:
         - The list length.
         """
 
-        return len(self.songs)
+        return max(len(self.urls), len(self.songs))
 
     @classmethod
     def create_basic_object(cls, url: str):

@@ -211,7 +211,7 @@ def download_ffmpeg() -> Path:
         raise FFmpegError("FFmpeg binary is not available for your system.")
 
     # Download binary and save it to a file in spotdl directory
-    ffmpeg_binary = requests.get(ffmpeg_url, allow_redirects=True).content
+    ffmpeg_binary = requests.get(ffmpeg_url, allow_redirects=True, timeout=10).content
     with open(ffmpeg_path, "wb") as ffmpeg_file:
         ffmpeg_file.write(ffmpeg_binary)
 
@@ -326,41 +326,42 @@ def convert(
 
                 # return error dictionary
                 return False, {
-                    "error": message,
+                    "return_code": process.returncode,
                     "arguments": arguments,
                     "ffmpeg": ffmpeg,
                     "version": version[0],
                     "build_year": version[1],
+                    "error": message,
                 }
 
             return True, None
 
         progress_handler(0)
 
-        stderr_buffer = []
+        out_buffer = []
         total_dur = None
-        stderr: str = ""
+        out: str = ""
         while True:
             if process.stdout is None:
                 continue
 
-            stderr_line = (
+            out_line = (
                 process.stdout.readline().decode("utf-8", errors="replace").strip()
             )
 
-            if stderr_line == "" and process.poll() is not None:
+            if out_line == "" and process.poll() is not None:
                 break
 
-            stderr_buffer.append(stderr_line.strip())
+            out_buffer.append(out_line.strip())
 
-            stderr = "\n".join(stderr_buffer)
+            out = "\n".join(out_buffer)
 
-            total_dur_match = DUR_REGEX.search(stderr_line)
+            total_dur_match = DUR_REGEX.search(out_line)
             if total_dur is None and total_dur_match:
                 total_dur = to_ms(**total_dur_match.groupdict())  # type: ignore
                 continue
             if total_dur:
-                progress_time = TIME_REGEX.search(stderr_line)
+                progress_time = TIME_REGEX.search(out_line)
                 if progress_time:
                     elapsed_time = to_ms(**progress_time.groupdict())  # type: ignore
                     progress_handler(int(elapsed_time / total_dur * 100))  # type: ignore
@@ -370,11 +371,12 @@ def convert(
             version = get_ffmpeg_version(ffmpeg)
 
             return False, {
-                "error": stderr,
+                "return_code": process.returncode,
                 "arguments": arguments,
                 "ffmpeg": ffmpeg,
                 "version": version[0],
                 "build_year": version[1],
+                "error": out,
             }
 
         progress_handler(100)
