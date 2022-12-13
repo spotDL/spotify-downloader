@@ -78,4 +78,4 @@ def test_embed_metadata(tmpdir, monkeypatch, output_format):
         output_format=output_format,
     ) == (True, None)
 
-    embed_metadata(output_file, song, output_format)
+    embed_metadata(output_file, song)

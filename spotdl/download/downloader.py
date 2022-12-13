@@ -13,14 +13,12 @@ import traceback
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Type
 
-from mutagen import File
-
 from yt_dlp.postprocessor.sponsorblock import SponsorBlockPP
 from yt_dlp.postprocessor.modify_chapters import ModifyChaptersPP
 
 from spotdl.types import Song
 from spotdl.utils.ffmpeg import FFmpegError, convert, get_ffmpeg_path
-from spotdl.utils.metadata import embed_metadata, MetadataError, get_song_metadata
+from spotdl.utils.metadata import embed_metadata, MetadataError
 from spotdl.utils.formatter import create_file_name, restrict_filename
 from spotdl.providers.audio.base import AudioProvider
 from spotdl.providers.lyrics import Genius, MusixMatch, AzLyrics
@@ -28,7 +26,11 @@ from spotdl.providers.lyrics.base import LyricsProvider
 from spotdl.providers.audio import YouTube, YouTubeMusic
 from spotdl.download.progress_handler import NAME_TO_LEVEL, ProgressHandler
 from spotdl.utils.config import get_errors_path, get_temp_path
-from spotdl.utils.search import reinit_song
+from spotdl.utils.search import (
+    get_search_results,
+    get_song_from_file_metadata,
+    reinit_song,
+)
 
 
 AUDIO_PROVIDERS: Dict[str, Type[AudioProvider]] = {
@@ -60,25 +62,6 @@ class DownloaderError(Exception):
     """
 
 
-class KnownSong:
-    """
-    Represents a song file already present in the output directory. Used for determining
-    which songs to skip when downloading.
-    """
-
-    def __init__(self, path: Path = None, spotify_url: str = ""):
-        """
-        Initialize the Downloader class.
-
-        ### Arguments
-        path: Path to the file.
-        spotify_url: The songs corresponding URL on spotify.
-        """
-
-        self.path = path
-        self.spotify_url = spotify_url
-
-
 class Downloader:
     """
     Downloader class, this is where all the downloading pre/post processing happens etc.
@@ -108,7 +91,7 @@ class Downloader:
         loop: Optional[asyncio.AbstractEventLoop] = None,
         playlist_numbering: bool = False,
         preserve_original_audio: bool = False,
-        known_songs: KnownSong = None,
+        scan_for_songs: bool = False,
     ):
         """
         Initialize the Downloader class.
@@ -133,9 +116,9 @@ class Downloader:
         - print_errors: Whether to print errors on exit.
         - sponsor_block: Whether to remove sponsor segments using sponsor block postprocessor.
         - loop: The event loop to use.
-        - playlist_numbering: Whether to convert tracks in a playlist into an album
-        - preserve_original_audio: Whether to preserve the original audio file
-        - known_songs: List of song files already present in the output directory.
+        - playlist_numbering: Whether to convert tracks in a playlist into an album.
+        - preserve_original_audio: Whether to preserve the original audio file.
+        - scan_for_songs: Whether to scan the base output directory for known songs.
 
         ### Notes
         - `search-query` uses the same format as `output`.
@@ -197,21 +180,6 @@ class Downloader:
 
             ffmpeg = str(ffmpeg_exec.absolute())
 
-        # Gather already present songs
-        # todo: Use output dir instead of "." directory
-        if known_songs is None:
-            known_songs = []
-            paths = Path(".").glob("." + output_format)
-            for path in paths:
-                if path.is_file():
-                    audio_file = File(str(path.resolve()), easy=False)
-
-                    if audio_file.get("COMM::XXX") is not None:
-                        comment = str(audio_file.get("COMM::XXX"))
-                        if "|" in comment:
-                            url = comment.split("|", 1)[1]
-                            known_songs.append(KnownSong(path, url))
-
         self.output = output
         self.output_format = output_format
         self.save_file = save_file
@@ -231,7 +199,31 @@ class Downloader:
         self.progress_handler = ProgressHandler(NAME_TO_LEVEL[log_level], simple_tui)
         self.playlist_numbering = playlist_numbering
         self.preserve_original_audio = preserve_original_audio
-        self.known_songs = known_songs
+        self.scan_for_songs = scan_for_songs
+
+        # Gather already present songs
+        self.known_songs: Dict[str, Path] = {}
+        if self.scan_for_songs:
+            self.progress_handler.log(
+                "Scanning for known songs, this might take a while..."
+            )
+
+            # Get the base directory from the path template
+            # Path("/Music/test/{artist}/{artists} - {title}.{output-ext}") -> "/Music/test"
+            base_dir = self.output.split("{", 1)[0]
+            paths = Path(base_dir).glob(f"**/*.{self.output_format}")
+            for path in paths:
+                song = get_song_from_file_metadata(path)
+                if song is None:
+                    search_results = get_search_results(path.stem)
+                    if len(search_results) == 0:
+                        continue
+
+                    temp_song = search_results[0]
+                    self.known_songs[temp_song.url] = path
+
+                else:
+                    self.known_songs[song.url] = path
 
         self.lyrics_providers: List[LyricsProvider] = []
         for lyrics_provider_class in lyrics_providers_classes:
@@ -413,88 +405,66 @@ class Downloader:
         if self.restrict is True:
             output_file = restrict_filename(output_file)
 
+        # Check if there is an already existing song file, with the same spotify URL in its
+        # metadata, but saved under a different name. If so, save its path.
+        dup_song_path = None
+        if song.url in self.known_songs:
+            dup_song_path = self.known_songs[song.url]
+
+            # If the duplicate song is the same as the output file, we don't need
+            # to set the dup_song_path to None
+            if dup_song_path.absolute() == output_file.absolute():
+                dup_song_path = None
+
+            if dup_song_path and dup_song_path.exists():
+                self.progress_handler.debug(
+                    f"Found duplicate song for {song.display_name} at {dup_song_path}"
+                )
+
         # If the file already exists and we don't want to overwrite it,
         # we can skip the download
-        if output_file.exists() and self.overwrite == "skip":
-            self.progress_handler.log(f"Skipping {song.display_name}")
+        if output_file.exists() or dup_song_path and self.overwrite == "skip":
+            self.progress_handler.log(
+                f"Skipping {song.display_name}{' (outdated)' if dup_song_path else ''}"
+            )
             display_progress_tracker.notify_download_skip()
             return song, None
 
-        if output_file.exists() and self.overwrite == "metadata":
-            song_meta = get_song_metadata(output_file)
-            if song_meta is None:
-                self.progress_handler.log(
-                    f"Metadata not found for {song.display_name}, " "overwriting file"
-                )
-            else:
-                self.progress_handler.log(
-                    f"Metadata found for {song.display_name}, " "overwriting file"
-                )
-
-            embed_metadata(
-                output_file=output_file, song=song, file_format=self.output_format
+        # Don't skip if the file exists and overwrite is set to force
+        if output_file.exists() or dup_song_path and self.overwrite == "force":
+            self.progress_handler.log(
+                f"Overwriting {song.display_name}{' (outdated)' if dup_song_path else ''}"
             )
 
-            self.progress_handler.log(f"Updated metadata for {song.display_name}")
+            # If the duplicate song path is not None, we can delete the old file
+            if dup_song_path is not None:
+                try:
+                    dup_song_path.unlink()
+                except (PermissionError, OSError) as exc:
+                    self.progress_handler.debug(
+                        f"Could not remove duplicate file: {dup_song_path}, error: {exc}"
+                    )
+
+        # If the file already exists and we want to overwrite the metadata,
+        # we can skip the download
+        if output_file.exists() or dup_song_path and self.overwrite == "metadata":
+            # Move the old file to the new location
+            if dup_song_path:
+                dup_song_path.replace(output_file.with_suffix(f".{self.output_format}"))
+
+            # Update the metadata
+            embed_metadata(output_file=output_file, song=song)
+
+            self.progress_handler.log(
+                f"Updated metadata for {song.display_name}"
+                f", moved to new location: {output_file}"
+                if dup_song_path
+                else ""
+            )
+
             display_progress_tracker.notify_complete()
 
             return song, output_file
-
-        # Don't skip if the file exists and overwrite is set to force
-        if output_file.exists() and self.overwrite == "force":
-            self.progress_handler.log(f"Overwriting {song.display_name}")
-
-        # Check if there is an already existing song file, with the same spotify URL in its
-        # metadata, but saved under a different name. If so, save its path.
-        known_path = ""
-        if not output_file.exists():
-            for song_file in self.known_songs:
-                if song_file.spotify_url == song.url:
-                    known_path = song_file.path
-                    break
-
-        if known_path != "":
-
-            # Print warning that the songs metadata is outdated
-            if self.overwrite == "skip":
-                self.progress_handler.log(f"Skipping {song.display_name}")
-                self.progress_handler.warn(
-                    f"Metadata of {song.display_name} is outdated. "
-                    f"Use spotdl meta to update."
-                )
-                self.progress_handler.overall_completed_tasks += 1
-                self.progress_handler.update_overall()
-                return song, None
-
-            # Update filename and other metadata
-            if self.overwrite == "metadata":
-                known_path.replace(output_file.with_suffix(self.output_format))
-
-                song_meta = get_song_metadata(output_file)
-                if song_meta is None:
-                    self.progress_handler.debug(
-                        f"Metadata not found for {song.display_name}, "
-                        "overwriting file"
-                    )
-                else:
-                    self.progress_handler.debug(
-                        f"Metadata found for {song.display_name}, " "overwriting file"
-                    )
-
-                embed_metadata(
-                    output_file=output_file, song=song, file_format=self.output_format
-                )
-                return song, output_file
-
-            # Delete old file with outdated filename
-            if self.overwrite == "force":
-                self.progress_handler.debug(f"Overwriting {known_path}")
-                try:
-                    known_path.unlink()
-                except (PermissionError, OSError) as exc:
-                    self.progress_handler.debug(
-                        f"Could not remove temp file: {known_path}, error: {exc}"
-                    )
 
         # Initalize the progress tracker
         display_progress_tracker = self.progress_handler.get_new_tracker(song)
@@ -541,7 +511,7 @@ class Downloader:
                     f"No download info found for {song.display_name}, url: {download_url}"
                 )
 
-                raise LookupError(
+                raise DownloaderError(
                     f"yt-dlp failed to get metadata for: {song.name} - {song.artist}"
                 )
 
@@ -645,13 +615,17 @@ class Downloader:
                         Path(file_to_delete).unlink()
 
             try:
-                embed_metadata(output_file, song, self.output_format)
+                embed_metadata(output_file, song)
             except Exception as exception:
+                print(exception)
                 raise MetadataError(
                     "Failed to embed metadata to the song"
                 ) from exception
 
             display_progress_tracker.notify_complete()
+
+            # Add the song to the known songs
+            self.known_songs[song.url] = output_file
 
             self.progress_handler.log(
                 f'Downloaded "{song.display_name}": {song.download_url}'

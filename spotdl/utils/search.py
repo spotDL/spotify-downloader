@@ -7,11 +7,13 @@ To use this module you must first initialize the SpotifyClient.
 
 import json
 import concurrent.futures
+from pathlib import Path
 
 from typing import List, Optional
 
 from spotdl.types import Playlist, Album, Artist, Saved
 from spotdl.types.song import SongList, Song
+from spotdl.utils.metadata import get_file_metadata
 
 
 class QueryError(Exception):
@@ -238,3 +240,43 @@ def reinit_song(song: Song, playlist_numbering: bool = False) -> Song:
 
     # return reinitialized song object
     return Song(**data)
+
+
+def get_song_from_file_metadata(file: Path) -> Optional[Song]:
+    """
+    Get song based on the file metadata or file name
+
+    ### Arguments
+    - file: Path to file
+
+    ### Returns
+    - Song object
+    """
+
+    file_metadata = get_file_metadata(file)
+
+    if file_metadata is None:
+        return None
+
+    disc_number, disc_count = file_metadata["discnumber"].split("/")
+    track_number, tracks_count = file_metadata["tracknumber"].split("/")
+
+    return create_empty_song(
+        name=file_metadata["title"],
+        artists=[
+            artist.strip() for artist in file_metadata["artist"].strip().split("/")
+        ],
+        album_name=file_metadata["album"],
+        album_artist=file_metadata["albumartist"],
+        genres=[file_metadata["genre"]],
+        disc_number=int(disc_number),
+        disc_count=int(disc_count),
+        duration=int(file_metadata["duration"]),
+        year=int(file_metadata["year"]),
+        track_number=int(track_number),
+        tracks_count=int(tracks_count),
+        isrc=file_metadata["isrc"],
+        publisher=file_metadata["publisher"],
+        url=file_metadata["url"],
+        copyright_text=file_metadata["copyright"],
+    )

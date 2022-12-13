@@ -119,9 +119,7 @@ def sync(
         if len(to_delete) == 0:
             downloader.progress_handler.log("Nothing to delete...")
         else:
-            downloader.progress_handler.log(
-                f"{len(to_delete)} old songs were deleted."
-            )
+            downloader.progress_handler.log(f"{len(to_delete)} old songs were deleted.")
 
         if m3u_file:
             gen_m3u_files(

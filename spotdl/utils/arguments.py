@@ -426,6 +426,14 @@ def parse_output_options(parser: _ArgumentGroup):
             and album art as the playlist's icon",
     )
 
+    # Option to scan the output directory for existing files
+    parser.add_argument(
+        "--scan-for-songs",
+        action="store_const",
+        const=True,
+        help="Scan the output directory for existing files",
+    )
+
 
 def parse_web_options(parser: _ArgumentGroup):
     """
