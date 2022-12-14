@@ -412,22 +412,20 @@ class Downloader:
 
         # Check if there is an already existing song file, with the same spotify URL in its
         # metadata, but saved under a different name. If so, save its path.
-        dup_song_paths: List[Path] = []
-        if song.url in self.known_songs:
-            dup_song_paths = self.known_songs[song.url]
+        dup_song_paths: List[Path] = self.known_songs.get(song.url, [])
 
-            # Remove files from the list that have the same path as the output file
-            dup_song_paths = [
-                dup_song_path
-                for dup_song_path in dup_song_paths
-                if dup_song_path.absolute() != output_file.absolute()
-            ]
+        # Remove files from the list that have the same path as the output file
+        dup_song_paths = [
+            dup_song_path
+            for dup_song_path in dup_song_paths
+            if dup_song_path.absolute() != output_file.absolute()
+        ]
 
-            for dup_song_path in dup_song_paths:
-                if dup_song_path.exists():
-                    self.progress_handler.debug(
-                        f"Found duplicate song for {song.display_name} at {dup_song_path}"
-                    )
+        for dup_song_path in dup_song_paths:
+            if dup_song_path.exists():
+                self.progress_handler.debug(
+                    f"Found duplicate song for {song.display_name} at {dup_song_path}"
+                )
 
         # If the file already exists and we don't want to overwrite it,
         # we can skip the download
