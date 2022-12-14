@@ -202,7 +202,7 @@ class Downloader:
         self.scan_for_songs = scan_for_songs
 
         # Gather already present songs
-        self.known_songs: Dict[str, Path] = {}
+        self.known_songs: Dict[str, List[Path]] = {}
         if self.scan_for_songs:
             self.progress_handler.log(
                 "Scanning for known songs, this might take a while..."
@@ -213,17 +213,22 @@ class Downloader:
             base_dir = self.output.split("{", 1)[0]
             paths = Path(base_dir).glob(f"**/*.{self.output_format}")
             for path in paths:
+                # Try to get the song from the metadata
                 song = get_song_from_file_metadata(path)
-                if song is None:
+
+                # If the songs doesn't have metadata, try to get it from the filename
+                if song is None or song.url is None:
                     search_results = get_search_results(path.stem)
                     if len(search_results) == 0:
                         continue
 
-                    temp_song = search_results[0]
-                    self.known_songs[temp_song.url] = path
+                    song = search_results[0]
 
+                known_paths = self.known_songs.get(song.url)
+                if known_paths is None:
+                    self.known_songs[song.url] = [path]
                 else:
-                    self.known_songs[song.url] = path
+                    self.known_songs[song.url].append(path)
 
         self.lyrics_providers: List[LyricsProvider] = []
         for lyrics_provider_class in lyrics_providers_classes:
@@ -407,37 +412,40 @@ class Downloader:
 
         # Check if there is an already existing song file, with the same spotify URL in its
         # metadata, but saved under a different name. If so, save its path.
-        dup_song_path = None
+        dup_song_paths: List[Path] = []
         if song.url in self.known_songs:
-            dup_song_path = self.known_songs[song.url]
+            dup_song_paths = self.known_songs[song.url]
 
-            # If the duplicate song is the same as the output file, we don't need
-            # to set the dup_song_path to None
-            if dup_song_path.absolute() == output_file.absolute():
-                dup_song_path = None
+            # Remove files from the list that have the same path as the output file
+            dup_song_paths = [
+                dup_song_path
+                for dup_song_path in dup_song_paths
+                if dup_song_path.absolute() != output_file.absolute()
+            ]
 
-            if dup_song_path and dup_song_path.exists():
-                self.progress_handler.debug(
-                    f"Found duplicate song for {song.display_name} at {dup_song_path}"
-                )
+            for dup_song_path in dup_song_paths:
+                if dup_song_path.exists():
+                    self.progress_handler.debug(
+                        f"Found duplicate song for {song.display_name} at {dup_song_path}"
+                    )
 
         # If the file already exists and we don't want to overwrite it,
         # we can skip the download
-        if output_file.exists() or dup_song_path and self.overwrite == "skip":
+        if output_file.exists() or dup_song_paths and self.overwrite == "skip":
             self.progress_handler.log(
-                f"Skipping {song.display_name}{' (outdated)' if dup_song_path else ''}"
+                f"Skipping {song.display_name}{' (outdated)' if dup_song_paths else ''}"
             )
             display_progress_tracker.notify_download_skip()
             return song, None
 
         # Don't skip if the file exists and overwrite is set to force
-        if output_file.exists() or dup_song_path and self.overwrite == "force":
+        if output_file.exists() or dup_song_paths and self.overwrite == "force":
             self.progress_handler.log(
-                f"Overwriting {song.display_name}{' (outdated)' if dup_song_path else ''}"
+                f"Overwriting {song.display_name}{' (outdated)' if dup_song_paths else ''}"
             )
 
             # If the duplicate song path is not None, we can delete the old file
-            if dup_song_path is not None:
+            for dup_song_path in dup_song_paths:
                 try:
                     dup_song_path.unlink()
                 except (PermissionError, OSError) as exc:
@@ -447,10 +455,32 @@ class Downloader:
 
         # If the file already exists and we want to overwrite the metadata,
         # we can skip the download
-        if output_file.exists() or dup_song_path and self.overwrite == "metadata":
-            # Move the old file to the new location
-            if dup_song_path:
-                dup_song_path.replace(output_file.with_suffix(f".{self.output_format}"))
+        if output_file.exists() or dup_song_paths and self.overwrite == "metadata":
+            most_recent_duplicate: Optional[Path] = None
+            if dup_song_paths:
+                # Get the most recent duplicate song path and remove the rest
+                most_recent_duplicate = max(
+                    dup_song_paths,
+                    key=lambda dup_song_path: dup_song_path.stat().st_mtime,
+                )
+
+                # Remove the rest of the duplicate song paths
+                for old_song_path in dup_song_paths:
+                    if most_recent_duplicate == old_song_path:
+                        continue
+
+                    try:
+                        old_song_path.unlink()
+                    except (PermissionError, OSError) as exc:
+                        self.progress_handler.debug(
+                            f"Could not remove duplicate file: {old_song_path}, error: {exc}"
+                        )
+
+                # Move the old file to the new location
+                if most_recent_duplicate:
+                    most_recent_duplicate.replace(
+                        output_file.with_suffix(f".{self.output_format}")
+                    )
 
             # Update the metadata
             embed_metadata(output_file=output_file, song=song)
@@ -458,7 +488,7 @@ class Downloader:
             self.progress_handler.log(
                 f"Updated metadata for {song.display_name}"
                 f", moved to new location: {output_file}"
-                if dup_song_path
+                if most_recent_duplicate
                 else ""
             )
 
@@ -625,7 +655,7 @@ class Downloader:
             display_progress_tracker.notify_complete()
 
             # Add the song to the known songs
-            self.known_songs[song.url] = output_file
+            self.known_songs.get(song.url, []).append(output_file)
 
             self.progress_handler.log(
                 f'Downloaded "{song.display_name}": {song.download_url}'
