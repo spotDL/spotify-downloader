@@ -20,7 +20,7 @@ import requests
 from mutagen._file import File
 from mutagen.mp4 import MP4Cover
 from mutagen.flac import Picture
-from mutagen.id3._frames import APIC, WOAS, USLT
+from mutagen.id3._frames import APIC, WOAS, USLT, COMM
 from mutagen.id3 import ID3
 
 from spotdl.types import Song
@@ -65,7 +65,7 @@ MP3_TAG_PRESET = {
     "title": "TIT2",
     "year": "TDRC",
     "originaldate": "TDOR",
-    "comment": "COMM",
+    "comment": "COMM::XXX",
     "group": "TIT1",
     "writer": "TEXT",
     "genre": "TCON",
@@ -77,7 +77,7 @@ MP3_TAG_PRESET = {
     "encodedby": "TENC",
     "copyright": "TCOP",
     "tempo": "TBPM",
-    "lyrics": "USLT",
+    "lyrics": "USLT::XXX",
     "woas": "WOAS",
     "explicit": "NULL",
 }
@@ -111,7 +111,7 @@ def embed_metadata(output_file: Path, song: Song):
         raise MetadataError("Unable to load file.") from exc
 
     # Embed basic metadata
-    audio_file[tag_preset["artist"]] = song.artist
+    audio_file[tag_preset["artist"]] = song.artists
     audio_file[tag_preset["albumartist"]] = song.artist
     audio_file[tag_preset["title"]] = song.name
     audio_file[tag_preset["date"]] = song.date
@@ -124,13 +124,16 @@ def embed_metadata(output_file: Path, song: Song):
         audio_file[tag_preset["album"]] = album_name
 
     if len(song.genres) > 0:
-        audio_file[tag_preset["genre"]] = song.genres[0]
+        audio_file[tag_preset["genre"]] = song.genres
 
     if song.copyright_text:
         audio_file[tag_preset["copyright"]] = song.copyright_text
 
     if song.lyrics and encoding != "mp3":
         audio_file[tag_preset["lyrics"]] = song.lyrics
+
+    if song.download_url and encoding != "mp3":
+        audio_file[tag_preset["comment"]] = song.download_url
 
     # Embed some metadata in format specific ways
     if encoding in ["flac", "ogg", "opus"]:
@@ -140,26 +143,32 @@ def embed_metadata(output_file: Path, song: Song):
 
         audio_file[tag_preset["discnumber"]] = zfilled_disc_number
         audio_file[tag_preset["tracknumber"]] = zfilled_track_number
+        audio_file[tag_preset["woas"]] = song.url
     elif encoding == "m4a":
         audio_file[tag_preset["discnumber"]] = [(song.disc_number, song.disc_count)]
         audio_file[tag_preset["tracknumber"]] = [(song.track_number, song.tracks_count)]
         audio_file[tag_preset["explicit"]] = (4 if song.explicit is True else 2,)
+        audio_file[tag_preset["woas"]] = song.url.encode("utf-8")
+    elif encoding == "mp3":
+        audio_file["tracknumber"] = f"{str(song.track_number)}/{str(song.tracks_count)}"
+        audio_file["discnumber"] = f"{str(song.disc_number)}/{str(song.disc_count)}"
 
     # Mp3 specific encoding
     if encoding == "mp3":
-        audio_file.save(v2_version=3)
+        audio_file.save()
 
         audio_file = ID3(str(output_file.resolve()))
 
         audio_file.add(WOAS(encoding=3, url=song.url))
-        audio_file.add(USLT(encoding=3, text=song.lyrics))
-    elif encoding == "m4a":
-        audio_file[tag_preset["woas"]] = song.url.encode("utf-8")
-    else:
-        audio_file[tag_preset["woas"]] = song.url
+
+        if song.lyrics:
+            audio_file.add(USLT(encoding=3, text=song.lyrics))
+
+        if song.download_url:
+            audio_file.add(COMM(encoding=3, text=song.download_url))
 
     # Embed album art
-    audio_file = embed_cover(audio_file, song, encoding)
+    # audio_file = embed_cover(audio_file, song, encoding)
 
     audio_file.save()
 
@@ -238,8 +247,6 @@ def get_file_metadata(path: Path) -> Optional[Dict[str, Any]]:
 
     if audio_file is None or audio_file == {}:
         return None
-
-    print(audio_file.keys())
 
     song_meta = {}
     for key in TAG_PRESET:
