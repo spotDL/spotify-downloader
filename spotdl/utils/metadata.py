@@ -84,6 +84,33 @@ MP3_TAG_PRESET = {
 
 TAG_PRESET = {key: key for key in M4A_TAG_PRESET}
 
+TAG_TO_SONG = {
+    "title": "name",
+    "artist": "artists",
+    "album": "album_name",
+    "albumartist": "album_artist",
+    "genre": "genres",
+    "discnumber": "disc_number",
+    "year": "year",
+    "date": "date",
+    "tracknumber": "track_number",
+    "encodedby": "publisher",
+    "woas": "url",
+    "copyright": "copyright_text",
+    "lyrics": "lyrics",
+}
+
+M4A_TO_SONG = {
+    value: TAG_TO_SONG.get(key)
+    for key, value in M4A_TAG_PRESET.items()
+    if TAG_TO_SONG.get(key)
+}
+MP3_TO_SONG = {
+    value: TAG_TO_SONG.get(key)
+    for key, value in MP3_TAG_PRESET.items()
+    if TAG_TO_SONG.get(key)
+}
+
 
 def embed_metadata(output_file: Path, song: Song):
     """
@@ -248,16 +275,91 @@ def get_file_metadata(path: Path) -> Optional[Dict[str, Any]]:
     if audio_file is None or audio_file == {}:
         return None
 
-    song_meta = {}
+    song_meta: Dict[str, Any] = {}
     for key in TAG_PRESET:
         if path.suffix == ".m4a":
-            song_meta[key] = audio_file.get(M4A_TAG_PRESET[key])
+            val = audio_file.get(M4A_TAG_PRESET[key])
         elif path.suffix == ".mp3":
-            if key == "albumart":
-                song_meta[key] = audio_file.get(MP3_TAG_PRESET[key]).data
-            else:
-                song_meta[key] = audio_file.get(MP3_TAG_PRESET[key])
+            val = audio_file.get(MP3_TAG_PRESET[key])
         else:
-            song_meta[key] = audio_file.get(key)
+            val = audio_file.get(key)
+
+        # If the tag is empty, skip it
+        if val is None:
+            # If the tag is empty but it's key is in the
+            # song object, set it to None
+            empty_key = TAG_TO_SONG.get(key)
+            if empty_key:
+                song_meta[empty_key] = None
+
+            continue
+
+        # MP3 specific decoding
+        if path.suffix == ".mp3":
+            if key == "woas":
+                song_meta["url"] = val.url
+            elif key == "year":
+                song_meta["year"] = int(str(val.text[0])[:4])
+            elif key == "date":
+                song_meta["date"] = str(val.text[0])
+            elif key == "tracknumber":
+                count = val.text[0].split("/")
+                if len(count) == 2:
+                    song_meta["track_number"] = int(count[0])
+                    song_meta["tracks_count"] = int(count[1])
+                else:
+                    song_meta["track_number"] = val.text[0]
+            elif key == "discnumber":
+                count = val.text[0].split("/")
+                if len(count) == 2:
+                    song_meta["disc_number"] = int(count[0])
+                    song_meta["discs_count"] = int(count[1])
+                else:
+                    song_meta["disc_number"] = val.text[0]
+            else:
+                meta_key = TAG_TO_SONG.get(key)
+                if meta_key:
+                    song_meta[meta_key] = (
+                    val.text[0] if len(val.text) == 1 else val.text
+                )
+
+        # M4A specific decoding
+        elif path.suffix == ".m4a":
+            if key == "woas":
+                song_meta["url"] = val[0].decode("utf-8")
+            elif key == "explicit":
+                song_meta["explicit"] = val == [4] if val else None
+            elif key == "year":
+                song_meta["year"] = int(str(val[0])[:4])
+            elif key == "discnumber":
+                song_meta["disc_number"] = val[0][0]
+                song_meta["disc_count"] = val[0][1]
+            elif key == "tracknumber":
+                song_meta["track_number"] = val[0][0]
+                song_meta["tracks_count"] = val[0][1]
+            else:
+                meta_key = TAG_TO_SONG.get(key)
+                if meta_key:
+                    song_meta[meta_key] = (
+                    val[0] if len(val) == 1 else val
+                )
+
+        # FLAC, OGG, OPUS specific decoding
+        else:
+            if key == "originaldate":
+                song_meta["year"] = int(str(val[0])[:4])
+            elif key == "tracknumber":
+                song_meta["track_number"] = int(val[0])
+            elif key == "discnumber":
+                song_meta["disc_count"] = int(val[0])
+            else:
+                meta_key = TAG_TO_SONG.get(key)
+                if meta_key:
+                    song_meta[meta_key] = (
+                    val[0] if len(val) == 1 else val
+                )
+
+    # Add main artist to the song meta object
+    song_meta["artist"] = song_meta["artists"][0]
 
     return song_meta
