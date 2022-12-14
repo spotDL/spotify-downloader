@@ -1,6 +1,5 @@
 import pytest
 
-from spotipy.oauth2 import SpotifyOauthError
 from types import SimpleNamespace
 
 from spotdl import Spotdl
