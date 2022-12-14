@@ -320,8 +320,8 @@ def get_file_metadata(path: Path) -> Optional[Dict[str, Any]]:
                 meta_key = TAG_TO_SONG.get(key)
                 if meta_key:
                     song_meta[meta_key] = (
-                    val.text[0] if len(val.text) == 1 else val.text
-                )
+                        val.text[0] if len(val.text) == 1 else val.text
+                    )
 
         # M4A specific decoding
         elif path.suffix == ".m4a":
@@ -340,9 +340,7 @@ def get_file_metadata(path: Path) -> Optional[Dict[str, Any]]:
             else:
                 meta_key = TAG_TO_SONG.get(key)
                 if meta_key:
-                    song_meta[meta_key] = (
-                    val[0] if len(val) == 1 else val
-                )
+                    song_meta[meta_key] = val[0] if len(val) == 1 else val
 
         # FLAC, OGG, OPUS specific decoding
         else:
@@ -355,9 +353,7 @@ def get_file_metadata(path: Path) -> Optional[Dict[str, Any]]:
             else:
                 meta_key = TAG_TO_SONG.get(key)
                 if meta_key:
-                    song_meta[meta_key] = (
-                    val[0] if len(val) == 1 else val
-                )
+                    song_meta[meta_key] = val[0] if len(val) == 1 else val
 
     # Add main artist to the song meta object
     song_meta["artist"] = song_meta["artists"][0]
