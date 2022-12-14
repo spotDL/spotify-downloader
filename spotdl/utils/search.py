@@ -64,6 +64,7 @@ def parse_query(
 def create_empty_song(
     name: Optional[str] = None,
     artists: Optional[List[str]] = None,
+    artist: Optional[str] = None,
     album_name: Optional[str] = None,
     album_artist: Optional[str] = None,
     genres: Optional[List[str]] = None,
@@ -83,6 +84,7 @@ def create_empty_song(
     copyright_text: Optional[str] = None,
     download_url: Optional[str] = None,
     song_list: Optional["SongList"] = None,
+    lyrics: Optional[str] = None,
 ) -> Song:
     """
     Create an empty song.
@@ -109,6 +111,7 @@ def create_empty_song(
     - copyright_text: Copyright text
     - download_url: Download URL
     - song_list: Song list
+    - lyrics: Lyrics
 
     ### Returns
     - Song object
@@ -117,7 +120,7 @@ def create_empty_song(
     return Song(
         name=name,  # type: ignore
         artists=artists,  # type: ignore
-        artist=None if artists is None else artists[0],  # type: ignore
+        artist=artist if artist else (artists[0] if artists else None),  # type: ignore
         album_name=album_name,  # type: ignore
         album_artist=album_artist,  # type: ignore
         genres=genres,  # type: ignore
@@ -137,6 +140,7 @@ def create_empty_song(
         copyright_text=copyright_text,
         download_url=download_url,
         song_list=song_list,
+        lyrics=lyrics,
     )
 
 
@@ -258,25 +262,4 @@ def get_song_from_file_metadata(file: Path) -> Optional[Song]:
     if file_metadata is None:
         return None
 
-    disc_number, disc_count = file_metadata["discnumber"].split("/")
-    track_number, tracks_count = file_metadata["tracknumber"].split("/")
-
-    return create_empty_song(
-        name=file_metadata["title"],
-        artists=[
-            artist.strip() for artist in file_metadata["artist"].strip().split("/")
-        ],
-        album_name=file_metadata["album"],
-        album_artist=file_metadata["albumartist"],
-        genres=[file_metadata["genre"]],
-        disc_number=int(disc_number),
-        disc_count=int(disc_count),
-        duration=int(file_metadata["duration"]),
-        year=int(file_metadata["year"]),
-        track_number=int(track_number),
-        tracks_count=int(tracks_count),
-        isrc=file_metadata["isrc"],
-        publisher=file_metadata["publisher"],
-        url=file_metadata["url"],
-        copyright_text=file_metadata["copyright"],
-    )
+    return create_empty_song(**file_metadata)
