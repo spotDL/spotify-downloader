@@ -313,7 +313,7 @@ def get_file_metadata(path: Path) -> Optional[Dict[str, Any]]:
                 count = val.text[0].split("/")
                 if len(count) == 2:
                     song_meta["disc_number"] = int(count[0])
-                    song_meta["discs_count"] = int(count[1])
+                    song_meta["disc_count"] = int(count[1])
                 else:
                     song_meta["disc_number"] = val.text[0]
             else:
