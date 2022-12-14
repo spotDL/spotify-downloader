@@ -433,7 +433,7 @@ class Downloader:
         # we can skip the download
         if output_file.exists() or dup_song_paths and self.overwrite == "skip":
             self.progress_handler.log(
-                f"Skipping {song.display_name}{' (outdated)' if dup_song_paths else ''}"
+                f"Skipping {song.display_name}{' (duplicate)' if dup_song_paths else ''}"
             )
             display_progress_tracker.notify_download_skip()
             return song, None
@@ -441,7 +441,7 @@ class Downloader:
         # Don't skip if the file exists and overwrite is set to force
         if output_file.exists() or dup_song_paths and self.overwrite == "force":
             self.progress_handler.log(
-                f"Overwriting {song.display_name}{' (outdated)' if dup_song_paths else ''}"
+                f"Overwriting {song.display_name}{' (duplicate)' if dup_song_paths else ''}"
             )
 
             # If the duplicate song path is not None, we can delete the old file
