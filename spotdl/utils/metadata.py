@@ -260,7 +260,7 @@ def get_file_metadata(path: Path) -> Optional[Dict[str, Any]]:
     - path: Path to the song.
 
     ### Returns
-    - Tuple containing the song name and a dict with other metadata.
+    - Dict of song metadata.
 
     ### Raises
     - OSError: If the file is not found.
