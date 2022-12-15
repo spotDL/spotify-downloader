@@ -5,6 +5,7 @@ from spotdl.types.playlist import Playlist
 
 PLAYLIST = "https://open.spotify.com/playlist/5LkNhFidYyyjRWwnkcMbQs"
 
+
 def test_create_m3u_content():
     playlist = Playlist.from_url(PLAYLIST)
     content = create_m3u_content(

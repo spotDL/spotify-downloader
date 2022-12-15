@@ -160,4 +160,5 @@ DEFAULT_CONFIG = {
     "allowed_origins": None,
     "playlist_numbering": False,
     "preserve_original_audio": False,
+    "scan_for_songs": False,
 }

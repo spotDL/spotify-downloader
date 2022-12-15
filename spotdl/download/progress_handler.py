@@ -392,7 +392,7 @@ class SongTracker:
         # from weird unicode characters
         self.song_name = "".join(
             char
-            for char in self.song.name
+            for char in self.song.display_name
             if char not in [chr(i) for i in range(769, 880)]
         )
 
@@ -402,7 +402,7 @@ class SongTracker:
 
         if not self.parent.simple_tui:
             self.task_id = self.parent.rich_progress_bar.add_task(
-                description=song.display_name,
+                description=self.song_name,
                 message="Download Started",
                 total=100,
                 completed=self.progress,
@@ -429,7 +429,7 @@ class SongTracker:
             self.parent.rich_progress_bar.start_task(self.task_id)
             self.parent.rich_progress_bar.update(
                 self.task_id,
-                description=self.song.display_name,
+                description=self.song_name,
                 message=message,
                 completed=self.progress,
             )
@@ -443,7 +443,7 @@ class SongTracker:
             if self.progress == 100 or message == "Error":
                 self.parent.overall_completed_tasks += 1
             if delta:
-                self.parent.log(f"{self.song.name} - {self.song.artist}: {message}")
+                self.parent.log(f"{self.song_name} - {self.song.artist}: {message}")
 
         # Update the overall progress bar
         if self.parent.song_count == self.parent.overall_completed_tasks:

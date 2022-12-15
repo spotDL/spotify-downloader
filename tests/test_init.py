@@ -1,6 +1,5 @@
 import pytest
 
-from spotipy.oauth2 import SpotifyOauthError
 from types import SimpleNamespace
 
 from spotdl import Spotdl
@@ -92,7 +91,7 @@ def test_download(setup, monkeypatch):
         log_level="DEBUG",
         simple_tui=True,
         restrict=DEFAULT_CONFIG["restrict"],
-        print_errors=DEFAULT_CONFIG["print_errors"],
+        print_errors=True,
     )
 
     song = {

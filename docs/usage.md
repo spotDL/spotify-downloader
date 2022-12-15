@@ -201,14 +201,8 @@ If you don't want config to load automatically change `load_config` option in co
     "log_level": "INFO",
     "simple_tui": false,
     "cache_path": "C:\\Users\\username\\.spotdl\\.spotipy",
-    "audio_providers": [
-        "youtube-music"
-    ],
-    "lyrics_providers": [
-        "genius",
-        "azlyrics"
-        "musixmatch",
-    ],
+    "audio_providers": ["youtube-music"],
+    "lyrics_providers": ["genius", "azlyrics", "musixmatch"],
     "ffmpeg": "ffmpeg",
     "bitrate": null,
     "ffmpeg_args": null,
@@ -232,7 +226,13 @@ If you don't want config to load automatically change `load_config` option in co
     "sponsor_block": false,
     "preload": false,
     "archive": null,
-    "playlist_numbering": false
+    "port": 8800,
+    "host": "localhost",
+    "keep_alive": false,
+    "allowed_origins": null,
+    "playlist_numbering": false,
+    "preserve_original_audio": false,
+    "scan_for_songs": false,
 }
 ```
 
@@ -252,16 +252,16 @@ Main options:
                         web: Starts a web interface to simplify the download process.
                         sync: Removes songs that are no longer present, downloads new ones
                         meta: Update your audio files with metadata
-  query                 Spotify URL for a song/playlist/album/artist/etc. to download. For album searching, include 'album:' and optional 'artist:' tags (ie. 'album:the album name' or 'artist:the artist album: the album').
-                        For manual audio matching, you can use the format 'YouTubeURL|SpotifyURL'
+  query                 Spotify URL for a song/playlist/album/artist/etc. to download. For album searching, include 'album:' and optional 'artist:' tags (ie. 'album:the album name' or 'artist:the artist album: the album'). For manual audio matching,
+                        you can use the format 'YouTubeURL|SpotifyURL'
   --audio [{youtube,youtube-music} ...]
                         The audio provider to use. You can provide more than one for fallback.
   --lyrics [{genius,musixmatch,azlyrics} ...]
                         The lyrics provider to use. You can provide more than one for fallback.
   --config              Use the config file to download songs. It's located under C:\Users\user\.spotdl\config.json or ~/.spotdl/config.json under linux
   --search-query SEARCH_QUERY
-                        The search query to use, available variables: {title}, {artists}, {artist}, {album}, {album-artist}, {genre}, {disc-number}, {disc-count}, {duration}, {year}, {original-date}, {track-number},
-                        {tracks-count}, {isrc}, {track-id}, {publisher}, {list-length}, {list-position}, {list-name}, {output-ext}
+                        The search query to use, available variables: {title}, {artists}, {artist}, {album}, {album-artist}, {genre}, {disc-number}, {disc-count}, {duration}, {year}, {original-date}, {track-number}, {tracks-count}, {isrc}, {track-id},
+                        {publisher}, {list-length}, {list-position}, {list-name}, {output-ext}
   --dont-filter-results
                         Disable filtering results.
 
@@ -295,17 +295,18 @@ Output options:
   --save-file SAVE_FILE
                         The file to save/load the songs data from/to. It has to end with .spotdl. If combined with the download operation, it will save the songs data to the file. Required for save/preload/sync
   --preload             Preload the download url to speed up the download process.
-  --output OUTPUT       Specify the downloaded file name format, available variables: {title}, {artists}, {artist}, {album}, {album-artist}, {genre}, {disc-number}, {disc-count}, {duration}, {year}, {original-date}, {track-
-                        number}, {tracks-count}, {isrc}, {track-id}, {publisher}, {list-length}, {list-position}, {list-name}, {output-ext}
-  --m3u [M3U]           Name of the m3u file to save the songs to. Defaults to {list[0]}.m3u If you want to generate a m3u for each list in the query use {list-name}, If you want to generate a m3u file based on the first
-                        list in the query use {list[0]}, (0 is the first list in the query, 1 is the second, etc. songs don't count towards the list number)
-  --overwrite {skip,metadata,force}
+  --output OUTPUT       Specify the downloaded file name format, available variables: {title}, {artists}, {artist}, {album}, {album-artist}, {genre}, {disc-number}, {disc-count}, {duration}, {year}, {original-date}, {track-number}, {tracks-count},
+                        {isrc}, {track-id}, {publisher}, {list-length}, {list-position}, {list-name}, {output-ext}
+  --m3u [M3U]           Name of the m3u file to save the songs to. Defaults to {list[0]}.m3u If you want to generate a m3u for each list in the query use {list-name}, If you want to generate a m3u file based on the first list in the query use
+                        {list[0]}, (0 is the first list in the query, 1 is the second, etc. songs don't count towards the list number)
+  --overwrite {force,metadata,skip}
                         Overwrite existing files.
   --restrict            Restrict filenames to ASCII only
   --print-errors        Print errors (wrong songs, failed downloads etc) on exit, useful for long playlist
   --sponsor-block       Use the sponsor block to download songs from yt/ytm.
   --archive ARCHIVE     Specify the file name for an archive of already downloaded songs
   --playlist-numbering  Sets each track in a playlist to have the playlist's name as its album, and album art as the playlist's icon
+  --scan-for-songs      Scan the output directory for existing files
 
 Web options:
   --host HOST           The host to use for the web server.
