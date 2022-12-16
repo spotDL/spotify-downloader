@@ -174,10 +174,12 @@ class AudioProvider:
                             # print(f"# RETURN URL - {isrc_result.url} - isrc score")
                             return isrc_result.url
 
-                # print(f"# no match found for isrc {song.name} - {song.isrc}")
+                # print(f"# no match found for isrc {song.display_name} - {song.isrc}")
 
         results: Dict[Result, float] = {}
         for options in self.GET_RESULTS_OPTS:
+            # print(f"# SEARCHING - {search_query} - {options}")
+
             # Query YTM by songs only first, this way if we get correct result on the first try
             # we don't have to make another request
             search_results = self.get_results(search_query, **options)
@@ -264,6 +266,9 @@ class AudioProvider:
             slug_result_artists = (
                 slugify(", ".join(result.artists)) if result.artists else ""
             )
+            slug_result_main_artist = (
+                slugify(result.artists[0]) if result.artists else ""
+            )
             slug_result_album = slugify(result.album) if result.album else None
 
             # check for common words in result name
@@ -307,9 +312,10 @@ class AudioProvider:
             # print(f"result name: {result.name}")
             # print(f"result type: {result.verified}")
             # print(f"result duration: {result.duration}")
-            # print(f"result artists_list: {result.artists}")
+            # print(f"result artists: {result.artists}")
             # print(f"slug_result_name: {slug_result_name}")
             # print(f"slug_result_artists: {slug_result_artists}")
+            # print(f"slug_result_main_artist: {slug_result_main_artist}")
             # print(f"slug_result_album: {slug_result_album}")
             # print(f"test_str1: {test_str1}")
             # print(f"test_str2: {test_str2}")
@@ -331,8 +337,24 @@ class AudioProvider:
                     slug_song_main_artist, slugify(result.artists[0])
                 )
 
-            # print(f"? main_artist_match: {main_artist_match}")
+                # Result has only one artist, but song has multiple artists
+                # we can assume that other artists are joined in the main artist
+                if len(song.artists) > 1 and len(result.artists) == 1:
+                    for artist in map(slugify, song.artists[1:]):
+                        temp_artis_list = slugify(artist).split("-")
+                        temp_main_artist_list = slug_result_main_artist.split("-")
 
+                        temp_artis_list.sort()
+                        temp_main_artist_list.sort()
+
+                        artist = "-".join(temp_artis_list)
+                        res_main_artist = "-".join(temp_main_artist_list)
+
+                        if artist in res_main_artist:
+                            main_artist_match += 100 / len(song.artists)
+                            # print(f"? found artist in main artist, match: {main_artist_match}")
+
+            # print(f"? main_artist_match: {main_artist_match}")
             artist_match_number = main_artist_match
             if len(song.artists) > 1:
                 # match the song's artists with the result's artists
@@ -525,7 +547,7 @@ class AudioProvider:
                 )
 
             # Drop results with name match lower than 50%
-            # print(f"name_match: {name_match}")
+            # print(f"? name_match: {name_match}")
             if name_match < 50:
                 # print("! name_match < 50 - skipping")
                 continue
@@ -581,6 +603,7 @@ class AudioProvider:
                     average_match = (average_match + time_match) / 2
                     # print(f"? average_match with time_match, not isrc: {average_match}")
 
+            average_match = min(average_match, 100)
             # print(f"? final average_match: {average_match}")
 
             # the results along with the avg Match
