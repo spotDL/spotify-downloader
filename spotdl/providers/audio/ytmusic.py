@@ -33,7 +33,7 @@ class YouTubeMusic(AudioProvider):
         """
 
         super().__init__(*args, **kwargs)
-        self.client = YTMusic()
+        self.client = YTMusic(language="de")
 
     def get_results(self, search_term: str, **kwargs) -> List[Result]:
         """
