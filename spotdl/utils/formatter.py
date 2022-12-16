@@ -15,7 +15,7 @@ import pykakasi
 from slugify import slugify as py_slugify
 from yt_dlp.utils import sanitize_filename
 
-from spotdl.types import Song
+from spotdl.types.song import Song
 
 VARS = [
     "{title}",
