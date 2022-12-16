@@ -107,6 +107,10 @@ from tests.conftest import new_initialize
                 "https://music.youtube.com/watch?v=OtdCiuyE40g",
             ],
         ),
+        (
+            "https://open.spotify.com/track/4Ga9D6SHCVUNsOLPVSZf9v",
+            ["https://music.youtube.com/watch?v=dXTu59q8sBk"],
+        ),
     ],
 )
 def test_ytmusic_matching(monkeypatch, query, expected):
