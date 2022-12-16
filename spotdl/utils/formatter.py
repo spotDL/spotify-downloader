@@ -9,7 +9,10 @@ import warnings
 
 from typing import List, Optional
 from pathlib import Path
-from slugify import slugify
+
+import pykakasi
+
+from slugify import slugify as py_slugify
 from yt_dlp.utils import sanitize_filename
 
 from spotdl.types import Song
@@ -36,6 +39,8 @@ VARS = [
     "{list-name}",
     "{output-ext}",
 ]
+
+KKS = pykakasi.kakasi()
 
 
 def create_song_title(song_name: str, song_artists: List[str]) -> str:
@@ -82,6 +87,39 @@ def sanitize_string(string: str) -> str:
     output = output.replace('"', "'").replace(":", "-")
 
     return output
+
+
+def slugify(string: str) -> str:
+    """
+    Slugify the string.
+
+    ### Arguments
+    - string: the string to slugify
+
+    ### Returns
+    - the slugified string
+    """
+
+    # Workaround for japanese characters
+    # because slugify incorrectly converts them
+    # to latin characters
+    results = KKS.convert(string)
+
+    # Same as above but in for loop
+    result = ""
+    for index, item in enumerate(results):
+        result += item["hepburn"]
+        if not (
+            item["kana"] == item["hepburn"]
+            or item["kana"] == item["hepburn"]
+            or (
+                item == results[-1]
+                or results[index + 1]["kana"] == results[index + 1]["hepburn"]
+            )
+        ):
+            result += "-"
+
+    return py_slugify(result)
 
 
 def format_query(

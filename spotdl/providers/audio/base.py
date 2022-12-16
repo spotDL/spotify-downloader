@@ -7,7 +7,6 @@ import re
 from typing import Any, Dict, List, Optional, Tuple
 from itertools import zip_longest
 
-from slugify import slugify
 from rapidfuzz import fuzz
 from yt_dlp import YoutubeDL
 
@@ -17,6 +16,7 @@ from spotdl.utils.config import get_temp_path
 from spotdl.utils.formatter import (
     create_song_title,
     create_search_query,
+    slugify,
 )
 
 
@@ -171,7 +171,7 @@ class AudioProvider:
                         isrc_result, isrc_score = sorted_isrc_results.popitem()
 
                         if isrc_score > 90:
-                            # print(f"# RETURN URL - {isrc_link} - isrc score")
+                            # print(f"# RETURN URL - {isrc_result.url} - isrc score")
                             return isrc_result.url
 
                 # print(f"# no match found for isrc {song.name} - {song.isrc}")
@@ -255,7 +255,6 @@ class AudioProvider:
         # print(f"slug_song_duration: {song.duration}")
         # print(f"slug_song_artists: {slug_song_artists}")
         # print(f"sentence_words: {sentence_words}")
-        # print("#############################")
 
         # Assign an overall avg match value to each result
         links_with_match_value = {}
@@ -303,12 +302,12 @@ class AudioProvider:
             test_str2 = "-".join(test_str2_list)
 
             # print("-----------------------------")
-            # print(f"sentence_words: {sentence_words}")
             # print(f"common_word: {common_word}")
-            # print(f"result link: {result['link']}")
-            # print(f"result type: {result['type']}")
-            # print(f"result duration: {result['duration']}")
-            # print(f"result artists_list: {result['artists_list']}")
+            # print(f"result link: {result.url}")
+            # print(f"result name: {result.name}")
+            # print(f"result type: {result.verified}")
+            # print(f"result duration: {result.duration}")
+            # print(f"result artists_list: {result.artists}")
             # print(f"slug_result_name: {slug_result_name}")
             # print(f"slug_result_artists: {slug_result_artists}")
             # print(f"slug_result_album: {slug_result_album}")
@@ -318,6 +317,7 @@ class AudioProvider:
 
             # skip results that have no common words in their name
             if not common_word:
+                # print("! common_word is False")
                 continue
 
             # initialize match value to 0

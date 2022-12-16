@@ -88,6 +88,18 @@ from tests.conftest import new_initialize
             "https://open.spotify.com/track/7eJMfftS33KTjuF7lTsMCx",
             ["https://music.youtube.com/watch?v=WB4Nmh76fAc"],
         ),
+        (
+            "https://open.spotify.com/track/0g77PyAARN09C2nrT4xXoh",
+            ["https://music.youtube.com/watch?v=Epa70sgG-Bk"],
+        ),
+        (
+            "https://open.spotify.com/track/5Vat0DViW71v08UMea4CKF",
+            ["https://music.youtube.com/watch?v=ysHhL3NyEUk"],
+        ),
+        (
+            "https://open.spotify.com/track/37SWjZ2lBhi2zBgLX8lpMb",
+            ["https://music.youtube.com/watch?v=bt8BIf3QHqU"],
+        ),
     ],
 )
 def test_ytmusic_matching(monkeypatch, query, expected):
