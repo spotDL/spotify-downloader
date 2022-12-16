@@ -445,6 +445,7 @@ class Downloader:
             # If the duplicate song path is not None, we can delete the old file
             for dup_song_path in dup_song_paths:
                 try:
+                    self.progress_handler.log(f"Removing duplicate file: {dup_song_path}")
                     dup_song_path.unlink()
                 except (PermissionError, OSError) as exc:
                     self.progress_handler.debug(
@@ -468,6 +469,7 @@ class Downloader:
                         continue
 
                     try:
+                        self.progress_handler.log(f"Removing duplicate file: {old_song_path}")
                         old_song_path.unlink()
                     except (PermissionError, OSError) as exc:
                         self.progress_handler.debug(
@@ -493,9 +495,6 @@ class Downloader:
             display_progress_tracker.notify_complete()
 
             return song, output_file
-
-        # Initalize the progress tracker
-        display_progress_tracker = self.progress_handler.get_new_tracker(song)
 
         # Create the output directory if it doesn't exist
         output_file.parent.mkdir(parents=True, exist_ok=True)
