@@ -125,9 +125,7 @@ class Song:
         spotify_client = SpotifyClient()
         raw_search_results = spotify_client.search(search_term)
 
-        if (
-            raw_search_results is None
-        ):
+        if raw_search_results is None:
             raise SongError(f"Spotipy error, no response: {search_term}")
 
         return raw_search_results
