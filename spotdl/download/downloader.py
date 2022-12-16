@@ -429,7 +429,7 @@ class Downloader:
 
         # If the file already exists and we don't want to overwrite it,
         # we can skip the download
-        if output_file.exists() or dup_song_paths and self.overwrite == "skip":
+        if (output_file.exists() or dup_song_paths) and self.overwrite == "skip":
             self.progress_handler.log(
                 f"Skipping {song.display_name}{' (duplicate)' if dup_song_paths else ''}"
             )
@@ -437,7 +437,7 @@ class Downloader:
             return song, None
 
         # Don't skip if the file exists and overwrite is set to force
-        if output_file.exists() or dup_song_paths and self.overwrite == "force":
+        if (output_file.exists() or dup_song_paths) and self.overwrite == "force":
             self.progress_handler.log(
                 f"Overwriting {song.display_name}{' (duplicate)' if dup_song_paths else ''}"
             )
@@ -456,7 +456,7 @@ class Downloader:
 
         # If the file already exists and we want to overwrite the metadata,
         # we can skip the download
-        if output_file.exists() or dup_song_paths and self.overwrite == "metadata":
+        if (output_file.exists() or dup_song_paths) and self.overwrite == "metadata":
             most_recent_duplicate: Optional[Path] = None
             if dup_song_paths:
                 # Get the most recent duplicate song path and remove the rest
