@@ -381,7 +381,12 @@ def parse_output_options(parser: _ArgumentGroup):
     parser.add_argument(
         "--overwrite",
         choices={"force", "skip", "metadata"},
-        help="Overwrite existing files.",
+        help=(
+            "How to handle existing/duplicate files. "
+            "(When combined with --scan-for-songs force will remove "
+            "all duplicates, and metadata will only apply metadata to the "
+            "latest song and will remove the rest. )"
+        ),
     )
 
     # Option to restrict filenames for easier handling in the shell
@@ -431,7 +436,12 @@ def parse_output_options(parser: _ArgumentGroup):
         "--scan-for-songs",
         action="store_const",
         const=True,
-        help="Scan the output directory for existing files",
+        help=(
+            "Scan the output directory for existing files. "
+            "This option should be combined with the --overwrite option "
+            "to control how existing files are handled. (Output directory is the last directory "
+            "that is not a template variable in the output template)"
+        ),
     )
 
 

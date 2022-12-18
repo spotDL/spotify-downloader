@@ -418,14 +418,14 @@ class Downloader:
         dup_song_paths = [
             dup_song_path
             for dup_song_path in dup_song_paths
-            if dup_song_path.absolute() != output_file.absolute()
+            if (dup_song_path.absolute() != output_file.absolute())
+            and dup_song_path.exists()
         ]
 
-        for dup_song_path in dup_song_paths:
-            if dup_song_path.exists():
-                self.progress_handler.debug(
-                    f"Found duplicate song for {song.display_name} at {dup_song_path}"
-                )
+        if dup_song_paths:
+            self.progress_handler.debug(
+                f"Found duplicate songs for {song.display_name} at {dup_song_paths}"
+            )
 
         # If the file already exists and we don't want to overwrite it,
         # we can skip the download
