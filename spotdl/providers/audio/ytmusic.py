@@ -51,7 +51,11 @@ class YouTubeMusic(AudioProvider):
         # Simplify results
         results = []
         for result in search_results:
-            if result is None or result.get("videoId") is None:
+            if (
+                result is None
+                or result.get("videoId") is None
+                or result.get("artists") in [[], None]
+            ):
                 continue
 
             isrc_result = ISRC_REGEX.search(search_term)
