@@ -27,7 +27,10 @@ from tests.conftest import new_initialize
         ),
         (
             "https://open.spotify.com/track/6cmm1LMvZdB5zsCwX5BjqE",
-            ["https://music.youtube.com/watch?v=DQ514qIthSc"],
+            [
+                "https://music.youtube.com/watch?v=DQ514qIthSc",
+                "https://www.youtube.com/watch?v=ehZECQUvMhE",
+            ],
         ),
         (
             "https://open.spotify.com/track/4n7jnSxVLd8QioibtTDBDq",
