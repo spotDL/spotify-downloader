@@ -1423,7 +1423,7 @@ testing = ["flake8 (<5)", "func-timeout", "jaraco.functools", "jaraco.itertools"
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7,<=3.11"
-content-hash = "a947f7d4f95601cf49d759c2946e914bcb0c7ae3697c7915c5b39d2c155b69b5"
+content-hash = "602885b499103f13ae6d58c5f665360a39d0ba615d0c046a36518b98c9cae9a6"
 
 [metadata.files]
 altgraph = [
