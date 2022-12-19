@@ -482,6 +482,17 @@ def parse_web_options(parser: _ArgumentGroup):
         help="The allowed origins for the web server.",
     )
 
+    # Add use output directory argument
+    parser.add_argument(
+        "--web-use-output-dir",
+        action="store_const",
+        const=True,
+        help=(
+            "Use the output directory instead of the session directory for downloads. ("
+            "This might cause issues if you have multiple users using the web-ui at the same time)"
+        ),
+    )
+
 
 def parse_misc_options(parser: _ArgumentGroup):
     """
