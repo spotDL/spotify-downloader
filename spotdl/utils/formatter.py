@@ -317,6 +317,12 @@ def create_file_name(
         # and we are already using the short version of the template,
         # fallback to default template
         if short is True:
+            # This will probably never occur, but just in case
+            if template == "/{artist} - {title}.{output-ext}":
+                raise RecursionError(
+                    f'"{song.display_name} is too long to be shortened. File a bug report on GitHub'
+                )
+
             warnings.warn(
                 f"{song.display_name}: File name is too long. Using the default template."
             )
@@ -326,12 +332,6 @@ def create_file_name(
                 template="/{artist} - {title}.{output-ext}",
                 file_extension=file_extension,
                 short=short,
-            )
-
-        # This will probably never occur, but just in case
-        if short is True and template == "/{artist} - {title}.{output-ext}":
-            raise RecursionError(
-                f'"{song.display_name} is too long to be shortened. File a bug report on GitHub'
             )
 
         return create_file_name(
