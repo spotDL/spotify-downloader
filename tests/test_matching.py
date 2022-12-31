@@ -50,7 +50,10 @@ from tests.conftest import new_initialize
             # so we can only find the lyrics version of it
             # which is fine but not ideal
             "https://open.spotify.com/track/1zi7xx7UVEFkmKfv06H8x0",
-            ["https://www.youtube.com/watch?v=ki0Ocze98U8"],
+            [
+                "https://www.youtube.com/watch?v=ki0Ocze98U8",
+                "https://www.youtube.com/watch?v=2Hr8Ae6yc9A",
+            ],
         ),
         (
             "https://open.spotify.com/track/2eaSMmKfigsm96aTUJMoIk",
@@ -121,6 +124,10 @@ from tests.conftest import new_initialize
         (
             "https://open.spotify.com/track/4Ga9D6SHCVUNsOLPVSZf9v",
             ["https://music.youtube.com/watch?v=dXTu59q8sBk"],
+        ),
+        (
+            "https://open.spotify.com/track/5PjdY0CKGZdEuoNab3yDmX",
+            ["https://music.youtube.com/watch?v=XfEMj-z3TtA"],
         ),
     ],
 )
