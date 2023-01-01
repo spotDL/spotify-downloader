@@ -114,6 +114,7 @@ MP3_TO_SONG = {
 
 LRC_REGEX = re.compile(r"(\[\d{2}:\d{2}.\d{2,3}\])")
 
+
 def embed_metadata(output_file: Path, song: Song):
     """
     Set ID3 tags for generic files (FLAC, OPUS, OGG)
@@ -249,6 +250,7 @@ def embed_cover(audio_file, song: Song, encoding: str):
         )
 
     return audio_file
+
 
 def embed_lyrics(audio_file, song: Song, encoding: str):
     """
