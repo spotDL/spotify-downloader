@@ -50,6 +50,7 @@ def entry_point():
     logging.getLogger("urllib3").setLevel(logging.WARNING)
     logging.getLogger("spotipy").setLevel(logging.NOTSET)
     logging.getLogger("asyncio").setLevel(logging.WARNING)
+    logging.getLogger("syncedlyrics").setLevel(logging.WARNING)
 
     # Create a console
     console = Console()

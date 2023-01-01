@@ -1194,6 +1194,18 @@ typing-extensions = {version = ">=3.10.0", markers = "python_version < \"3.10\""
 full = ["itsdangerous", "jinja2", "python-multipart", "pyyaml", "requests"]
 
 [[package]]
+name = "syncedlyrics"
+version = "0.2.1"
+description = "Get an LRC format (synchronized) lyrics for your music"
+category = "main"
+optional = false
+python-versions = ">=3.6,<4.0"
+
+[package.dependencies]
+rapidfuzz = ">=2.13.2,<3.0.0"
+requests = ">=2.28.1,<3.0.0"
+
+[[package]]
 name = "text-unidecode"
 version = "1.3"
 description = "The most basic Text::Unidecode port"
@@ -1424,7 +1436,7 @@ testing = ["flake8 (<5)", "func-timeout", "jaraco.functools", "jaraco.itertools"
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7,<3.12"
-content-hash = "f7bacf06aa9775c17a20e1a61a7dcfb48aa41a1b5042f5ebfde34cec301ba460"
+content-hash = "dd6c45939b0197710c61ac390cf838421a9ed116f2e3cde3717bc709e64bce5e"
 
 [metadata.files]
 altgraph = [
@@ -2375,6 +2387,10 @@ spotipy = [
 starlette = [
     {file = "starlette-0.19.1-py3-none-any.whl", hash = "sha256:5a60c5c2d051f3a8eb546136aa0c9399773a689595e099e0877704d5888279bf"},
     {file = "starlette-0.19.1.tar.gz", hash = "sha256:c6d21096774ecb9639acad41b86b7706e52ba3bf1dc13ea4ed9ad593d47e24c7"},
+]
+syncedlyrics = [
+    {file = "syncedlyrics-0.2.1-py3-none-any.whl", hash = "sha256:b6bea1f2a1e326f9358e5c0e85bcd6c4aff7dfe79727a3df37162bdc34c004f5"},
+    {file = "syncedlyrics-0.2.1.tar.gz", hash = "sha256:48889175e4ff5505fdaff9df55369b72175509db8f81201923c50ef38a31671f"},
 ]
 text-unidecode = [
     {file = "text-unidecode-1.3.tar.gz", hash = "sha256:bad6603bb14d279193107714b288be206cac565dfa49aa5b105294dd5c4aab93"},

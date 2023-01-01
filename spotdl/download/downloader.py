@@ -21,7 +21,7 @@ from spotdl.utils.ffmpeg import FFmpegError, convert, get_ffmpeg_path
 from spotdl.utils.metadata import embed_metadata, MetadataError
 from spotdl.utils.formatter import create_file_name, restrict_filename
 from spotdl.providers.audio.base import AudioProvider
-from spotdl.providers.lyrics import Genius, MusixMatch, AzLyrics
+from spotdl.providers.lyrics import Genius, MusixMatch, AzLyrics, Synced
 from spotdl.providers.lyrics.base import LyricsProvider
 from spotdl.providers.audio import YouTube, YouTubeMusic
 from spotdl.download.progress_handler import NAME_TO_LEVEL, ProgressHandler
@@ -42,6 +42,7 @@ LYRICS_PROVIDERS: Dict[str, Type[LyricsProvider]] = {
     "genius": Genius,
     "musixmatch": MusixMatch,
     "azlyrics": AzLyrics,
+    "synced": Synced,
 }
 
 SPONSOR_BLOCK_CATEGORIES = {
