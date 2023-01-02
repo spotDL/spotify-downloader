@@ -11,6 +11,7 @@ spotify.Spotify.init(client_id, client_secret)
 from json import dumps
 from typing import Dict, Optional
 
+import requests
 from spotipy import Spotify
 from spotipy.cache_handler import CacheFileHandler, MemoryCacheHandler
 from spotipy.oauth2 import SpotifyClientCredentials, SpotifyOAuth
@@ -141,7 +142,7 @@ class SpotifyClient(Spotify, metaclass=Singleton):
         super().__init__(*args, **kwargs)
         self._initialized = True
 
-    def _get(self, url, args=None, payload=None, **kwargs):
+    def _get(self, url, args=None, payload=None, retries=3, **kwargs):
         """
         Overrides the get method of the SpotifyClient.
         Allows us to cache requests
@@ -161,7 +162,15 @@ class SpotifyClient(Spotify, metaclass=Singleton):
             if self.cache.get(cache_key) is not None:
                 return self.cache[cache_key]
 
-        response = self._internal_call("GET", url, payload, kwargs)
+        # Wrap in a try-except and retry up to `retries` times.
+        response = None
+        while response is None:
+            try:
+                response = self._internal_call("GET", url, payload, kwargs)
+            except requests.exceptions.Timeout as exc:
+                retries -= 1
+                if retries <= 0:
+                    raise exc
 
         if use_cache and cache_key is not None:
             self.cache[cache_key] = response
