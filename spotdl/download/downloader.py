@@ -551,7 +551,7 @@ class Downloader:
             bitrate = self.bitrate
             if self.bitrate == "disable":
                 bitrate = None
-            elif self.bitrate == "auto":
+            elif self.bitrate == "auto" or self.bitrate is None:
                 bitrate = f"{int(download_info['abr'])}k"
 
             success, result = convert(
