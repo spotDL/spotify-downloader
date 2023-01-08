@@ -14,7 +14,8 @@ class Synced(LyricsProvider):
     Currently supported websites: Deezer, NetEase
     """
 
-    def get_lyrics(self, name: str, artists: List[str], **kwargs) -> Optional[str]:
+    # pylint: disable=R0201
+    def get_lyrics(self, name: str, artists: List[str], **_) -> Optional[str]:
         """
         Try to get lyrics using syncedlyrics
 
