@@ -313,7 +313,7 @@ async def download_url(
 @router.get("/api/download/file")
 async def download_file(
     file: str, state: ApplicationState = Depends(get_current_state)
-) -> FileResponse:
+):
     """
     Download file using path.
 
