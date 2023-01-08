@@ -153,6 +153,7 @@ class AudioProvider:
 
         # Create initial search query
         search_query = create_song_title(song.name, song.artists).lower()
+        isrc_result: Optional[Result] = None
 
         if self.search_query:
             search_query = create_search_query(
@@ -170,7 +171,7 @@ class AudioProvider:
                     if len(sorted_isrc_results) == 1:
                         isrc_result, isrc_score = sorted_isrc_results.popitem()
 
-                        if isrc_score > 90:
+                        if isrc_score > 80:
                             # print(f"# RETURN URL - {isrc_result.url} - isrc score")
                             return isrc_result.url
 
@@ -183,6 +184,14 @@ class AudioProvider:
             # Query YTM by songs only first, this way if we get correct result on the first try
             # we don't have to make another request
             search_results = self.get_results(search_query, **options)
+
+            # If isrc result is in the results, return it
+            # Since this is array of results, we need to check if the url is the same
+            if isrc_result and any(
+                result.url == isrc_result.url for result in search_results
+            ):
+                # print(f"# RETURN URL - {isrc_result.url} - isrc result in results")
+                return isrc_result.url
 
             if self.filter_results:
                 # Order results
