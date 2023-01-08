@@ -47,7 +47,11 @@ from tests.conftest import new_initialize
             # so we can only find the lyrics version of it
             # which is fine but not ideal
             "https://open.spotify.com/track/1zi7xx7UVEFkmKfv06H8x0",
-            ["https://www.youtube.com/watch?v=ki0Ocze98U8"],
+            [
+                "https://www.youtube.com/watch?v=ki0Ocze98U8",
+                "https://www.youtube.com/watch?v=2Hr8Ae6yc9A",
+                "https://www.youtube.com/watch?v=p55-ZrnPDH8",
+            ],
         ),
         (
             "https://open.spotify.com/track/2eaSMmKfigsm96aTUJMoIk",
