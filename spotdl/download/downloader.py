@@ -429,7 +429,9 @@ class Downloader:
         # we can skip the download
         if (output_file.exists() or dup_song_paths) and self.overwrite == "skip":
             self.progress_handler.log(
-                f"Skipping {song.display_name}{' (duplicate)' if dup_song_paths else ''}"
+                f"Skipping {song.display_name}"
+                f"{' (duplicate)' if dup_song_paths else ''}"
+                " (file already exists)"
             )
             display_progress_tracker.notify_download_skip()
             return song, None
