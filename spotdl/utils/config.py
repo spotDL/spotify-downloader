@@ -159,7 +159,6 @@ DEFAULT_CONFIG = {
     "keep_alive": False,
     "allowed_origins": None,
     "playlist_numbering": False,
-    "preserve_original_audio": False,
     "scan_for_songs": False,
     "web_use_output_dir": False,
 }

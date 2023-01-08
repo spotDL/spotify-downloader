@@ -91,7 +91,6 @@ class Downloader:
         sponsor_block: bool = False,
         loop: Optional[asyncio.AbstractEventLoop] = None,
         playlist_numbering: bool = False,
-        preserve_original_audio: bool = False,
         scan_for_songs: bool = False,
     ):
         """
@@ -118,7 +117,6 @@ class Downloader:
         - sponsor_block: Whether to remove sponsor segments using sponsor block postprocessor.
         - loop: The event loop to use.
         - playlist_numbering: Whether to convert tracks in a playlist into an album.
-        - preserve_original_audio: Whether to preserve the original audio file.
         - scan_for_songs: Whether to scan the base output directory for known songs.
 
         ### Notes
@@ -199,7 +197,6 @@ class Downloader:
         self.audio_providers_classes = audio_providers_classes
         self.progress_handler = ProgressHandler(NAME_TO_LEVEL[log_level], simple_tui)
         self.playlist_numbering = playlist_numbering
-        self.preserve_original_audio = preserve_original_audio
         self.scan_for_songs = scan_for_songs
 
         # Gather already present songs
@@ -549,14 +546,13 @@ class Downloader:
 
             display_progress_tracker.notify_download_complete()
 
-            bitrate: Optional[str] = (
-                self.bitrate if self.bitrate else f"{int(download_info['abr'])}k"
-            )
-
-            # Ignore the bitrate if the preserve original audio
-            # option is set to true
-            if self.preserve_original_audio:
+            # Ignore the bitrate if the bitrate is set to auto for m4a/opus
+            # or if bitrate is set to disabled
+            bitrate = self.bitrate
+            if self.bitrate == "disable":
                 bitrate = None
+            elif self.bitrate == "auto":
+                bitrate = f"{int(download_info['abr'])}k"
 
             success, result = convert(
                 input_file=temp_file,

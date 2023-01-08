@@ -62,7 +62,6 @@ class Spotdl:
         restrict: bool = False,
         print_errors: bool = False,
         sponsor_block: bool = False,
-        preserve_original_audio: bool = False,
     ):
         """
         Initialize the Spotdl class
@@ -93,7 +92,6 @@ class Spotdl:
         - restrict: Whether to restrict the filename to ASCII characters.
         - print_errors: Whether to print errors on exit.
         - sponsor_block: Whether to remove sponsor segments using sponsor block postprocessor.
-        - preserve_original_audio: Whether to preserve the original audio file.
 
         ### Notes
         - `search-query` uses the same format as `output`.
@@ -136,7 +134,6 @@ class Spotdl:
             restrict=restrict,
             print_errors=print_errors,
             sponsor_block=sponsor_block,
-            preserve_original_audio=preserve_original_audio,
         )
 
     def search(self, query: List[str]) -> List[Song]:

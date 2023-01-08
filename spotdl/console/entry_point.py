@@ -177,7 +177,6 @@ def entry_point():
         print_errors=settings["print_errors"],
         sponsor_block=settings["sponsor_block"],
         playlist_numbering=settings["playlist_numbering"],
-        preserve_original_audio=settings["preserve_original_audio"],
         scan_for_songs=settings["scan_for_songs"],
     )
 
