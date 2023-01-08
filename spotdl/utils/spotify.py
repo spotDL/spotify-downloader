@@ -58,6 +58,7 @@ class Singleton(type):
         cache_path: Optional[str] = None,
         no_cache: bool = False,
         open_browser: bool = True,
+        max_retries: int = 3,
     ) -> "Singleton":
         """
         Initializes the SpotifyClient.
@@ -108,6 +109,7 @@ class Singleton(type):
 
         self.user_auth = user_auth
         self.no_cache = no_cache
+        self.max_retries = max_retries
 
         # Create instance
         self._instance = super().__call__(
@@ -142,7 +144,7 @@ class SpotifyClient(Spotify, metaclass=Singleton):
         super().__init__(*args, **kwargs)
         self._initialized = True
 
-    def _get(self, url, args=None, payload=None, retries=3, **kwargs):
+    def _get(self, url, args=None, payload=None, **kwargs):
         """
         Overrides the get method of the SpotifyClient.
         Allows us to cache requests
@@ -164,6 +166,7 @@ class SpotifyClient(Spotify, metaclass=Singleton):
 
         # Wrap in a try-except and retry up to `retries` times.
         response = None
+        retries = self.max_retries  # type: ignore # pylint: disable=E1101
         while response is None:
             try:
                 response = self._internal_call("GET", url, payload, kwargs)

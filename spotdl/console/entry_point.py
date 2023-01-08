@@ -129,6 +129,7 @@ def entry_point():
         cache_path=settings["cache_path"],
         no_cache=settings["no_cache"],
         open_browser=not settings["headless"],
+        max_retries=settings["max_retries"],
     )
 
     # If the application is frozen start web ui

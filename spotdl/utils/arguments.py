@@ -248,6 +248,13 @@ def parse_spotify_options(parser: _ArgumentGroup):
         help="Path to cookies file.",
     )
 
+    # Add max retries argument
+    parser.add_argument(
+        "--max-retries",
+        type=int,
+        help="The maximum number of retries to perform when getting metadata.",
+    )
+
 
 def parse_ffmpeg_options(parser: _ArgumentGroup):
     """

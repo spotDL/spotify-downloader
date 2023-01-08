@@ -147,6 +147,7 @@ DEFAULT_CONFIG = {
     "filter_results": True,
     "threads": 4,
     "no_cache": False,
+    "max_retries": 3,
     "cookie_file": None,
     "headless": False,
     "restrict": False,
