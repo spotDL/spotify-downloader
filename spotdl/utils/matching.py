@@ -1,3 +1,7 @@
+"""
+Module for all things matching related
+"""
+
 from typing import List
 
 from spotdl.utils.formatter import slugify
