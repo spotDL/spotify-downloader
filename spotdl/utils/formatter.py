@@ -42,6 +42,10 @@ VARS = [
 
 KKS = pykakasi.kakasi()
 
+JAP_REGEX = (
+    "[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uff9f\u4e00-\u9faf\u3400-\u4dbf]"
+)
+
 
 def create_song_title(song_name: str, song_artists: List[str]) -> str:
     """
@@ -100,12 +104,20 @@ def slugify(string: str) -> str:
     - the slugified string
     """
 
+    # Check if japanese character is in the string
+    if not re.search(JAP_REGEX, string):
+        return py_slugify(string)
+
     # Workaround for japanese characters
     # because slugify incorrectly converts them
     # to latin characters
-    results = KKS.convert(string)
+    normal_slug = py_slugify(
+        string,
+        regex_pattern=JAP_REGEX,
+    )
 
-    # Same as above but in for loop
+    results = KKS.convert(normal_slug)
+
     result = ""
     for index, item in enumerate(results):
         result += item["hepburn"]
