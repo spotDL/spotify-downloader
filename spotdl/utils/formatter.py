@@ -104,10 +104,6 @@ def slugify(string: str) -> str:
     - the slugified string
     """
 
-    # Check if japanese character is in the string
-    if not re.search(JAP_REGEX, string):
-        return py_slugify(string)
-
     # Workaround for japanese characters
     # because slugify incorrectly converts them
     # to latin characters

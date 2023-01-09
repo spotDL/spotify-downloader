@@ -22,7 +22,10 @@ from tests.conftest import new_initialize
         (
             # WHOKILLEDXIX - spy?
             "https://open.spotify.com/track/0QsZ3W21xNvnUnUMbiAY4z",
-            ["https://www.youtube.com/watch?v=UlYwnX5DO2Y"],
+            [
+                "https://www.youtube.com/watch?v=UlYwnX5DO2Y",
+                "https://music.youtube.com/watch?v=hy3kaD5zsew",
+            ],
         ),
         (
             # Slushii, Marshmello - Twinbow
@@ -181,12 +184,12 @@ from tests.conftest import new_initialize
         (
             # SB Maffija - Kapuśniak
             "https://open.spotify.com/track/1ZIiF3VCX4zbIiiiUPndW7",
-            ["https://music.youtube.com/watch?v=Rvc-cLis_X4"],
+            ["https://www.youtube.com/watch?v=GmiyIaE-Liw"],
         ),
         (
             # SB Maffija - Dzieci we mgle
             "https://open.spotify.com/track/13UorE0BauUBREWFJNmnYR",
-            ["https://music.youtube.com/watch?v=jLlRchjuFVU"],
+            ["https://www.youtube.com/watch?v=jLlRchjuFVU"],
         ),
         (
             # club2020 - club2020

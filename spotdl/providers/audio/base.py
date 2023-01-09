@@ -154,7 +154,7 @@ class AudioProvider:
 
         # Create initial search query
         search_query = create_song_title(song.name, song.artists).lower()
-        isrc_result: Optional[Result] = None
+        isrc_urls: List[str] = []
 
         if self.search_query:
             search_query = create_search_query(
@@ -167,6 +167,7 @@ class AudioProvider:
                     song.isrc, filter="songs", ignore_spelling=True
                 )
 
+                isrc_urls = [result.url for result in isrc_results]
                 sorted_isrc_results = self.order_results(isrc_results, song)
 
                 # get the best result, if the score is above 80 return it
@@ -190,11 +191,15 @@ class AudioProvider:
             # we don't have to make another request
             search_results = self.get_results(search_query, **options)
 
-            # If isrc result is in the results, return it
-            # Since this is array of results, we need to check if the url is the same
-            if isrc_result and any(
-                result.url == isrc_result.url for result in search_results
-            ):
+            # Check if any of the search results is in the
+            # first isrc results, since they are not hashable we have to check
+            # by name
+            isrc_result = next(
+                (result for result in search_results if result.url in isrc_urls),
+                None,
+            )
+
+            if isrc_result:
                 # print(f"# RETURN URL - {isrc_result.url} - isrc result in results")
                 return isrc_result.url
 
@@ -290,11 +295,6 @@ class AudioProvider:
             # Slugify result album
             slug_result_album = slugify(result.album) if result.album else None
 
-            # check for common words in result name
-            common_word = any(
-                word != "" and word in slug_result_name for word in sentence_words
-            )
-
             test_str1 = slug_result_name
             test_str2 = slug_song_name if result.verified else slug_song_title
 
@@ -306,8 +306,12 @@ class AudioProvider:
             test_str1 = sort_string(test_str1.split("-"), "-")
             test_str2 = sort_string(test_str2.split("-"), "-")
 
+            # check for common words in result name
+            common_word = any(
+                word != "" and word in slug_result_name for word in sentence_words
+            )
+
             # print("-----------------------------")
-            # print(f"result: {result}")
             # print(f"common_word: {common_word}")
             # print(f"result link: {result.url}")
             # print(f"result name: {result.name}")
@@ -523,6 +527,25 @@ class AudioProvider:
                     if artist_title_match > artist_match:
                         artist_match = artist_title_match
                         # print("? fourth artist_match: ", artist_match)
+
+            # last check before we give up
+            # check artist +title vs first artist and title
+            # since it's the last resort and we only have one artist
+            # we will ignore this if the score is lower than 80%
+            if (
+                artist_match < 70
+                and result.artists
+                and len(result.artists) == 1
+                and len(song.artists) > 1
+            ):
+                last_artist_match = fuzz.ratio(
+                    slug_result_name,
+                    slugify(create_song_title(song.name, [song.artist])),
+                )
+
+                # print(f"? last artist_match: {last_artist_match}")
+                if last_artist_match >= 80:
+                    artist_match = (artist_match + last_artist_match) / 2
 
             # print("? final artist_match: ", artist_match)
 
