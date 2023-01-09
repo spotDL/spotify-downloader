@@ -62,6 +62,8 @@ from tests.conftest import new_initialize
                 "https://www.youtube.com/watch?v=ki0Ocze98U8",
                 "https://www.youtube.com/watch?v=2Hr8Ae6yc9A",
                 "https://www.youtube.com/watch?v=p55-ZrnPDH8",
+                "https://www.youtube.com/watch?v=UqEsGWU9hh4",
+                "https://www.youtube.com/watch?v=H4kTNq0npEQ",
             ],
         ),
         (
@@ -245,7 +247,10 @@ from tests.conftest import new_initialize
         (
             # Eartha Kitt - Santa Baby
             "https://open.spotify.com/track/1foCxQtxBweJtZmdxhEHVO",
-            ["https://music.youtube.com/watch?v=zGz75FVo5lM", "https://music.youtube.com/watch?v=bTne-ZY8g9c"],
+            [
+                "https://music.youtube.com/watch?v=zGz75FVo5lM",
+                "https://music.youtube.com/watch?v=bTne-ZY8g9c",
+            ],
         ),
         (
             # Mor - חצי שלי
@@ -256,6 +261,11 @@ from tests.conftest import new_initialize
             # Ortega - האסל
             "https://open.spotify.com/track/4aw1tuId1O5iKvZRHvB3vg",
             ["https://music.youtube.com/watch?v=oPy1ovNxF2M"],
+        ),
+        (
+            # NAV, Travis Scott - Champion
+            "https://open.spotify.com/track/6nO3tr47nr2P7f3hXb8JIo",
+            ["https://www.youtube.com/watch?v=YFSwJuJqekw"],
         ),
     ],
 )
