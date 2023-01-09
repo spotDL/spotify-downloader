@@ -233,6 +233,30 @@ from tests.conftest import new_initialize
             "https://open.spotify.com/track/5CfVW6OUB6Uh9X6XVpdNYE",
             ["https://music.youtube.com/watch?v=tfTOTXOlplY"],
         ),
+        (
+            # Loud Luxury - Body (Dzeko Remix)
+            "https://open.spotify.com/track/3ATwxbyPDsZWvlBdnyKNPQ",
+            [
+                "https://music.youtube.com/watch?v=U4OSUSK5_rU",
+                "https://music.youtube.com/watch?v=5QubA-k2Vig",
+                "https://music.youtube.com/watch?v=bBQ9dujVLQ0",
+            ],
+        ),
+        (
+            # Eartha Kitt - Santa Baby
+            "https://open.spotify.com/track/1foCxQtxBweJtZmdxhEHVO",
+            ["https://music.youtube.com/watch?v=zGz75FVo5lM"],
+        ),
+        (
+            # Mor - חצי שלי
+            "https://open.spotify.com/track/1ZEsqzNBQqyC7VLRTUDopj",
+            ["https://music.youtube.com/watch?v=Lx1-PPRJgjA"],
+        ),
+        (
+            # Ortega - האסל
+            "https://open.spotify.com/track/4aw1tuId1O5iKvZRHvB3vg",
+            ["https://music.youtube.com/watch?v=oPy1ovNxF2M"],
+        ),
     ],
 )
 def test_ytmusic_matching(monkeypatch, query, expected):

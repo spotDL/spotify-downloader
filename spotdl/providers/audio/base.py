@@ -171,21 +171,21 @@ class AudioProvider:
                 sorted_isrc_results = self.order_results(isrc_results, song)
 
                 # get the best result, if the score is above 80 return it
-                sorted_isrc_results = sorted(
+                best_isrc_results = sorted(
                     sorted_isrc_results.items(), key=lambda x: x[1], reverse=True
                 )
 
-                if len(sorted_isrc_results) > 0:
-                    best_isrc = sorted_isrc_results[0]
-                    if best_isrc[1] > 80:
-                        # print(f"best isrc - {best_isrc[0].url}")
+                if len(best_isrc_results) > 0:
+                    best_isrc = best_isrc_results[0]
+                    if best_isrc[1] > 80.0:
+                        print(f"best isrc - {best_isrc[0].url}")
                         return best_isrc[0].url
 
-                # print(f"# no match found for isrc {song.display_name} - {song.isrc}")
+                print(f"# no match found for isrc {song.display_name} - {song.isrc}")
 
         results: Dict[Result, float] = {}
         for options in self.GET_RESULTS_OPTS:
-            # print(f"# SEARCHING - {search_query} - {options}")
+            print(f"# SEARCHING - {search_query} - {options}")
 
             # Query YTM by songs only first, this way if we get correct result on the first try
             # we don't have to make another request
@@ -200,7 +200,7 @@ class AudioProvider:
             )
 
             if isrc_result:
-                # print(f"# RETURN URL - {isrc_result.url} - isrc result in results")
+                print(f"# RETURN URL - {isrc_result.url} - isrc result in results")
                 return isrc_result.url
 
             if self.filter_results:
@@ -219,7 +219,7 @@ class AudioProvider:
                 best_url, best_score = self.get_best_match(new_results)
 
                 if best_score >= 80:
-                    # print(f"# RETURN URL - {best_url} - score >= 80")
+                    print(f"# RETURN URL - {best_url} - score >= 80")
                     return best_url
 
                 # Update final results with new results
@@ -232,7 +232,7 @@ class AudioProvider:
         # get the result with highest score
         best_url, best_score = self.get_best_match(results)
 
-        # print(f"# RETURN URL - {best_url} /w video results - score {best_score}")
+        print(f"# RETURN URL - {best_url} /w video results - score {best_score}")
 
         return best_url
 
@@ -261,20 +261,20 @@ class AudioProvider:
         )
 
         # DEBUG CODE
-        # print("#############################")
-        # print(f"song.name: {song.name}")
-        # print(f"song.album_name: {song.album_name}")
-        # print(f"song.artist: {song.artist}")
-        # print(f"song.artists: {song.artists}")
-        # print(f"song.isrc: {song.isrc}")
-        # print(f"song.duration: {song.duration}")
-        # print(f"slug_song_name: {slug_song_name}")
-        # print(f"slug_song_album_name: {slug_song_album_name}")
-        # print(f"slug_song_main_artist: {slug_song_main_artist}")
-        # print(f"slug_song_artists: {slug_song_artists}")
-        # print(f"slug_song_title: {slug_song_title}")
-        # print(f"slug_song_duration: {song.duration}")
-        # print(f"sentence_words: {sentence_words}")
+        print("#############################")
+        print(f"song.name: {song.name}")
+        print(f"song.album_name: {song.album_name}")
+        print(f"song.artist: {song.artist}")
+        print(f"song.artists: {song.artists}")
+        print(f"song.isrc: {song.isrc}")
+        print(f"song.duration: {song.duration}")
+        print(f"slug_song_name: {slug_song_name}")
+        print(f"slug_song_album_name: {slug_song_album_name}")
+        print(f"slug_song_main_artist: {slug_song_main_artist}")
+        print(f"slug_song_artists: {slug_song_artists}")
+        print(f"slug_song_title: {slug_song_title}")
+        print(f"slug_song_duration: {song.duration}")
+        print(f"sentence_words: {sentence_words}")
 
         # Assign an overall avg match value to each result
         links_with_match_value = {}
@@ -311,25 +311,25 @@ class AudioProvider:
                 word != "" and word in slug_result_name for word in sentence_words
             )
 
-            # print("-----------------------------")
-            # print(f"common_word: {common_word}")
-            # print(f"result link: {result.url}")
-            # print(f"result name: {result.name}")
-            # print(f"result is verified: {result.verified}")
-            # print(f"result is isrc search: {result.isrc_search}")
-            # print(f"result duration: {result.duration}")
-            # print(f"result artists: {result.artists}")
-            # print(f"slug_result_name: {slug_result_name}")
-            # print(f"slug_result_artists: {slug_result_artists}")
-            # print(f"slug_result_main_artist: {slug_result_main_artist}")
-            # print(f"slug_result_album: {slug_result_album}")
-            # print(f"test_str1: {test_str1}")
-            # print(f"test_str2: {test_str2}")
-            # print("-----------------------------")
+            print("-----------------------------")
+            print(f"common_word: {common_word}")
+            print(f"result link: {result.url}")
+            print(f"result name: {result.name}")
+            print(f"result is verified: {result.verified}")
+            print(f"result is isrc search: {result.isrc_search}")
+            print(f"result duration: {result.duration}")
+            print(f"result artists: {result.artists}")
+            print(f"slug_result_name: {slug_result_name}")
+            print(f"slug_result_artists: {slug_result_artists}")
+            print(f"slug_result_main_artist: {slug_result_main_artist}")
+            print(f"slug_result_album: {slug_result_album}")
+            print(f"test_str1: {test_str1}")
+            print(f"test_str2: {test_str2}")
+            print("-----------------------------")
 
             # skip results that have no common words in their name
             if not common_word:
-                # print("! common_word is False")
+                print("! common_word is False")
                 continue
 
             # initialize match value to 0
@@ -354,15 +354,17 @@ class AudioProvider:
 
                         if artist in res_main_artist:
                             main_artist_match += 100 / len(song.artists)
-                            # print(f"? artist in main artist, match: {main_artist_match}")
+                            print(
+                                f"? artist in main artist, match: {main_artist_match}"
+                            )
 
-            # print(f"? main_artist_match: {main_artist_match}")
+            print(f"? main_artist_match: {main_artist_match}")
             artist_match_number = main_artist_match
             if len(song.artists) > 1:
                 # match the song's artists with the result's artists
                 if result.artists and len(song.artists) == len(result.artists):
                     artists_match = fuzz.ratio(slug_song_artists, slug_result_artists)
-                    # print(f"? exact artists_match: {artists_match}")
+                    print(f"? exact artists_match: {artists_match}")
                 else:
                     artists_match = artist_match_number
                     if (
@@ -378,13 +380,13 @@ class AudioProvider:
                         artist2_list = list(map(slugify, result.artists))
                         artist2_list.sort()
 
-                        # print(f"artist1_list: {artist1_list}")
-                        # print(f"artist2_list: {artist2_list}")
+                        print(f"artist1_list: {artist1_list}")
+                        print(f"artist2_list: {artist2_list}")
 
                         list_map = {
                             value: index for index, value in enumerate(artist2_list)
                         }
-                        # print(f"list_map: {list_map}")
+                        print(f"list_map: {list_map}")
 
                         # Sort list2 based on list1
                         artist1_list = sorted(
@@ -398,22 +400,24 @@ class AudioProvider:
                         # elements that don't have pair will be matched with none
                         artist2_list.reverse()
 
-                        # print(f"artist1_list after sorting: {artist1_list}")
+                        print(f"artist1_list after sorting: {artist1_list}")
 
                         artists_match = 0.0
                         for artist1, artist2 in zip_longest(artist1_list, artist2_list):
                             artist12_match = fuzz.ratio(artist1, artist2)
-                            # print(f"12match 1: {artist1}, 2: {artist2}: {artist12_match}")
+                            print(
+                                f"12match 1: {artist1}, 2: {artist2}: {artist12_match}"
+                            )
                             artists_match += artist12_match
 
                         artists_match = artists_match / len(artist1_list)
 
-                        # print(f"artists_match: {artists_match}")
+                        print(f"artists_match: {artists_match}")
 
                 artist_match_number += artists_match
 
             artist_match = artist_match_number / (2 if len(song.artists) > 1 else 1)
-            # print("? first artist_match: ", artist_match)
+            print("? first artist_match: ", artist_match)
 
             # additional checks for results that are not songs
             if artist_match <= 50 and not result.verified:
@@ -426,7 +430,7 @@ class AudioProvider:
 
                 if channel_name_match > artist_match_number:
                     artist_match = channel_name_match
-                    # print("? second artist_match: ", artist_match)
+                    print("? second artist_match: ", artist_match)
 
                 # If artist match is still too low,
                 # we fallback to matching all song artist names
@@ -439,11 +443,11 @@ class AudioProvider:
                             artist_title_match += 1.0
 
                     artist_title_match = (artist_title_match / len(song.artists)) * 100
-                    # print(f"? artist_title_match: {artist_title_match}")
+                    print(f"? artist_title_match: {artist_title_match}")
 
                     if artist_title_match > artist_match:
                         artist_match = artist_title_match
-                        # print("? third artist_match: ", artist_match)
+                        print("? third artist_match: ", artist_match)
 
             # additional checks for results that are songs
             if artist_match < 70 and result.verified:
@@ -457,7 +461,7 @@ class AudioProvider:
                 ):
                     # If it is, we increase the artist match
                     artist_match += 10
-                    # print("? song name artist_match: ", artist_match)
+                    print("? song name artist_match: ", artist_match)
 
                     # if the result doesn't have the same number of artists but has
                     # the same main artist and similar name
@@ -472,14 +476,14 @@ class AudioProvider:
                         ]
                     ):
                         artist_match += 25
-                        # print("? hacky artist_match: ", artist_match)
+                        print("? hacky artist_match: ", artist_match)
 
                 # Check if the song album name is very similar to the result album name
                 # if it is, we increase the artist match
                 if slug_result_album:
                     if fuzz.ratio(slug_result_album, slug_song_album_name) >= 85:
                         artist_match += 10
-                        # print("? album artist_match: ", artist_match)
+                        print("? album artist_match: ", artist_match)
 
                 # Check if other song artists are in the result name
                 # if they are, we increase the artist match
@@ -491,7 +495,7 @@ class AudioProvider:
                     slug_song_artist = slugify(artist).replace("-", "")
                     if slug_song_artist in test_str2.replace("-", ""):
                         artist_match += 5
-                        # print("? other artist artist_match: ", artist_match)
+                        print("? other artist artist_match: ", artist_match)
 
                 # if the artist match is still too low,
                 # we fallback to matching all song artist names
@@ -516,17 +520,17 @@ class AudioProvider:
                         not in slug_result_name.replace("-", "")
                     ]
 
-                    clean_title1 = sort_string(clean_title1, "-")
-                    clean_title2 = sort_string(clean_title2, "-")
+                    clean_title_str1 = sort_string(clean_title1, "-")
+                    clean_title_str2 = sort_string(clean_title2, "-")
 
-                    # print(f"clean_title1: {clean_title1}")
-                    # print(f"clean_title2: {clean_title2}")
+                    print(f"clean_title_str1: {clean_title_str1}")
+                    print(f"clean_title_str2: {clean_title_str2}")
 
-                    artist_title_match = fuzz.ratio(clean_title1, clean_title2)
+                    artist_title_match = fuzz.ratio(clean_title_str1, clean_title_str2)
 
                     if artist_title_match > artist_match:
                         artist_match = artist_title_match
-                        # print("? fourth artist_match: ", artist_match)
+                        print("? fourth artist_match: ", artist_match)
 
             # last check before we give up
             # check artist +title vs first artist and title
@@ -543,15 +547,15 @@ class AudioProvider:
                     slugify(create_song_title(song.name, [song.artist])),
                 )
 
-                # print(f"? last artist_match: {last_artist_match}")
+                print(f"? last artist_match: {last_artist_match}")
                 if last_artist_match >= 80:
                     artist_match = (artist_match + last_artist_match) / 2
 
-            # print("? final artist_match: ", artist_match)
+            print("? final artist_match: ", artist_match)
 
             # skip results with artist match lower than 70%
             if artist_match < 70:
-                # print("! artist_match < 70 - skipping")
+                print("! artist_match < 70 - skipping")
                 continue
 
             # check if the artist match is higher than 100%
@@ -571,9 +575,9 @@ class AudioProvider:
                 )
 
             # Drop results with name match lower than 50%
-            # print(f"? name_match: {name_match}")
+            print(f"? name_match: {name_match}")
             if name_match <= 50:
-                # print("! name_match <= 50 - skipping")
+                print("! name_match <= 50 - skipping")
                 continue
 
             # Find album match
@@ -590,14 +594,14 @@ class AudioProvider:
             else:
                 time_match = 100 - (song.duration - result.duration)
 
-            # print(f"? time_match: {time_match}")
+            print(f"? time_match: {time_match}")
 
             # Calculate total match
             average_match = (artist_match + name_match) / 2
 
-            # print(f"? album_match: {album_match}")
-            # print(f"? time_match: {time_match}")
-            # print(f"? average_match (only artist and name): {average_match}")
+            print(f"? album_match: {album_match}")
+            print(f"? time_match: {time_match}")
+            print(f"? average_match (only artist and name): {average_match}")
 
             if (
                 result.verified
@@ -610,12 +614,12 @@ class AudioProvider:
                 # so we add the album match to the average match
                 average_match = (average_match + album_match) / 2
 
-                # print(f"? average_match with album_match: {average_match}")
+                print(f"? average_match with album_match: {average_match}")
 
             if time_match < 50 and average_match < 75:
                 # If the time match is lower than 50% and the average match is lower than 75%
                 # we skip the result
-                # print("! time_match < 50 and average_match < 75 - skipping")
+                print("! time_match < 50 and average_match < 75 - skipping")
                 continue
 
             if (
@@ -627,10 +631,10 @@ class AudioProvider:
                 # and the average match is higher than 50%
                 # we add the time match to the average match
                 average_match = (average_match + time_match) / 2
-                # print(f"? average_match with time_match: {average_match}")
+                print(f"? average_match with time_match: {average_match}")
 
             average_match = min(average_match, 100)
-            # print(f"? final average_match: {average_match}")
+            print(f"? final average_match: {average_match}")
 
             # the results along with the avg Match
             links_with_match_value[result] = average_match
@@ -666,19 +670,19 @@ class AudioProvider:
             1,
         )
 
-        # print(f"# last_simlar_index: {last_simlar_index}")
-        # print(f"# sorted_results: {sorted_results}")
+        print(f"# last_simlar_index: {last_simlar_index}")
+        print(f"# sorted_results: {sorted_results}")
 
         # Get the best results from the similar results
         best_results = sorted_results[:last_simlar_index]
 
         # If we have only one result, return it
         if len(best_results) == 1:
-            # print(f"# get_best_match URL - {sorted_results[0][0]} - only 1 result")
+            print(f"# get_best_match URL - {sorted_results[0][0]} - only 1 result")
             return sorted_results[0][0].url, sorted_results[0][1]
 
         # print best results but only url and score
-        # print(f"# best results: {[(r.url, s) for r, s in best_results]}")
+        print(f"# best results: {[(r.url, s) for r, s in best_results]}")
 
         # Initial best result based on the average match
         best_result = best_results[0]
@@ -693,7 +697,7 @@ class AudioProvider:
             # but is a verified result or is an isrc result
             # we return the best result
 
-            # print(f"# best - {best_result[0].url}: {best_result[0]} - best result")
+            print(f"# best - {best_result[0].url}: {best_result[0]} - best result")
 
             return best_result[0].url, best_result[1]
 
@@ -708,14 +712,14 @@ class AudioProvider:
                 for best_result in best_results
             ]
 
-            # print(f"# views: {views}")
+            print(f"# views: {views}")
 
             best_result = best_results[views.index(max(views))]
 
-            # print(f"# best match - {best_result[0].url}: {best_result[1]} - by views")
+            print(f"# best match - {best_result[0].url}: {best_result[1]} - by views")
             return best_result[0].url, best_result[1]
 
-        # print(f"# best match - {best_result[0].url}: {best_result[1]} - default")
+        print(f"# best match - {best_result[0].url}: {best_result[1]} - default")
         return best_result[0].url, best_result[1]
 
     def get_download_metadata(self, url: str, download: bool = False) -> Dict:
