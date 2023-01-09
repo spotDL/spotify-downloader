@@ -401,15 +401,22 @@ class AudioProvider:
                             reverse=True,
                         )
 
+                        # Reverse second list to match list 1
+                        # this way if one list has more elements
+                        # elements that don't have pair will be matched with none
+                        artist2_list.reverse()
+
                         # print(f"artist1_list after sorting: {artist1_list}")
 
                         artists_match = 0.0
                         for artist1, artist2 in zip_longest(artist1_list, artist2_list):
-                            artists_match += fuzz.ratio(artist1, artist2)
+                            artist12_match = fuzz.ratio(artist1, artist2)
+                            # print(f"artist12_match 1: {artist1}, 2: {artist2}: {artist12_match}")
+                            artists_match += artist12_match
 
                         artists_match = artists_match / len(artist1_list)
 
-                        # print(f"artists_match: {artists_match}/{len(artist2_list)})")
+                        # print(f"artists_match: {artists_match}")
 
                 artist_match_number += artists_match
 
