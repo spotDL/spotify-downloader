@@ -10,22 +10,27 @@ from tests.conftest import new_initialize
     "query, expected",
     [
         (
+            # Mata - Piszę to na matmie
             "https://open.spotify.com/track/0l9XhUIYk2EjT6MHdh4wJU",
             ["https://music.youtube.com/watch?v=TIULUkt30Os"],
         ),
         (
+            # Antoha MC - Бом
             "https://open.spotify.com/track/1OdYXTMwjl4f4g4ch05CEq",
             ["https://music.youtube.com/watch?v=5uwTXzxOseg"],
         ),
         (
+            # WHOKILLEDXIX - spy?
             "https://open.spotify.com/track/0QsZ3W21xNvnUnUMbiAY4z",
             ["https://www.youtube.com/watch?v=UlYwnX5DO2Y"],
         ),
         (
+            # Slushii, Marshmello - Twinbow
             "https://open.spotify.com/track/6kUB88CQG4dAOkUmURwBLA",
             ["https://music.youtube.com/watch?v=_IS-Tvbvjn0"],
         ),
         (
+            # Jay Sean, Lil Wayne - Down
             "https://open.spotify.com/track/6cmm1LMvZdB5zsCwX5BjqE",
             [
                 "https://music.youtube.com/watch?v=DQ514qIthSc",
@@ -33,22 +38,22 @@ from tests.conftest import new_initialize
             ],
         ),
         (
+            # Alan Walker - On My Way
             "https://open.spotify.com/track/4n7jnSxVLd8QioibtTDBDq",
             ["https://music.youtube.com/watch?v=Hkvopu9hVd8"],
         ),
         (
+            # Jim Yosef, Anna Yvette - Linked
             "https://open.spotify.com/track/2Ikdgh3J5vCRmnCL3Xcrtv",
             ["https://music.youtube.com/watch?v=sJpzMSHKUqI"],
         ),
         (
+            # Mata, FUNDACJA 420 PATOPROHIBICJA (28.01.2022)
             "https://open.spotify.com/track/4uOHYc6dCVLcNdQBRUlA0G",
             ["https://www.youtube.com/watch?v=Mb3tyjibXCg"],
         ),
         (
-            # this song is bugged on ytmusic for some reason
-            # it doesn't show up in search results
-            # so we can only find the lyrics version of it
-            # which is fine but not ideal
+            # Drake, Wizkid, Kyla - One Dance
             "https://open.spotify.com/track/1zi7xx7UVEFkmKfv06H8x0",
             [
                 "https://www.youtube.com/watch?v=ki0Ocze98U8",
@@ -57,10 +62,12 @@ from tests.conftest import new_initialize
             ],
         ),
         (
+            # Потап и Настя - Чумачечая весна
             "https://open.spotify.com/track/2eaSMmKfigsm96aTUJMoIk",
             ["https://music.youtube.com/watch?v=A-PjXUzhFDk"],
         ),
         (
+            # Cash Cash - Surrender
             "https://open.spotify.com/track/3rwdcyPQ37SSsf1loOpux9",
             [
                 "https://music.youtube.com/watch?v=OWAVbUpr8b4",
@@ -69,22 +76,27 @@ from tests.conftest import new_initialize
             ],
         ),
         (
+            # De Vet Du - Listen to Pantamera
             "https://open.spotify.com/track/760xwlNMwa6IZGff1eBhFW",
             ["https://music.youtube.com/watch?v=Apej0F8ack0"],
         ),
         (
+            # Lisa Hannigan - Amhrán Na Farraige
             "https://open.spotify.com/track/07paTkxx4R7rmiGjqm84RM",
             ["https://music.youtube.com/watch?v=f-VuVq0I0-U"],
         ),
         (
+            # Pavel Petrov - Granger Says
             "https://open.spotify.com/track/6fAmcQ6DjLDA0uHnbdAQmJ",
             ["https://music.youtube.com/watch?v=8WIPgiDVeDs"],
         ),
         (
+            # Billy Joel - Piano Man
             "https://open.spotify.com/track/70C4NyhjD5OZUMzvWZ3njJ",
             ["https://music.youtube.com/watch?v=LLbew85exp0"],
         ),
         (
+            # George Frideric Handel Solomon, HWV 67: Sinfonia The Arrival of the Queen of Sheba
             "https://open.spotify.com/track/6l0oJ8fzG0WEplj5uBqwzm",
             [
                 "https://music.youtube.com/watch?v=AoXNtriCLt4",
@@ -93,10 +105,12 @@ from tests.conftest import new_initialize
             ],
         ),
         (
+            # Angelo Badalamenti - Blue Frank
             "https://open.spotify.com/track/2cqRMfCvT9WIdUiaIVB6EJ",
             ["https://music.youtube.com/watch?v=gXElRbmTm2c"],
         ),
         (
+            # Powfu - death bed (coffee for your head)
             "https://open.spotify.com/track/7eJMfftS33KTjuF7lTsMCx",
             [
                 "https://music.youtube.com/watch?v=WB4Nmh76fAc",
@@ -104,18 +118,22 @@ from tests.conftest import new_initialize
             ],
         ),
         (
+            # Ai kamano - 螺旋の塔
             "https://open.spotify.com/track/0g77PyAARN09C2nrT4xXoh",
             ["https://music.youtube.com/watch?v=Epa70sgG-Bk"],
         ),
         (
+            # Ai kamano - 解憶
             "https://open.spotify.com/track/5Vat0DViW71v08UMea4CKF",
             ["https://music.youtube.com/watch?v=ysHhL3NyEUk"],
         ),
         (
+            # Ai kamano, 庫太郎 - POPCORN
             "https://open.spotify.com/track/37SWjZ2lBhi2zBgLX8lpMb",
             ["https://music.youtube.com/watch?v=bt8BIf3QHqU"],
         ),
         (
+            # Ai kamano - 光
             "https://open.spotify.com/track/6fyzS9YbkUhmEmJ52s19Ob",
             [
                 "https://music.youtube.com/watch?v=duhkbnJ_DJ4",
@@ -123,16 +141,94 @@ from tests.conftest import new_initialize
             ],
         ),
         (
+            # JR Kenna - Proper Sensi
             "https://open.spotify.com/track/4Ga9D6SHCVUNsOLPVSZf9v",
             ["https://music.youtube.com/watch?v=dXTu59q8sBk"],
         ),
         (
+            # The Kid LAROI - STAY (with Justin Bieber)
             "https://open.spotify.com/track/5PjdY0CKGZdEuoNab3yDmX",
             ["https://music.youtube.com/watch?v=XfEMj-z3TtA"],
         ),
         (
+            # Noa Kirel, Shahar Saul - מיליון דולר
             "https://open.spotify.com/track/02WuyBR56QN3B6ZC0BeC3f",
             ["https://music.youtube.com/watch?v=lFMoDtmus8s"],
+        ),
+        (
+            # Hodak - zapach zimy i papierosów
+            "https://open.spotify.com/track/4gUhTVOMZBQSYB51TdeZQV",
+            ["https://www.youtube.com/watch?v=bS_dalKyQl8"],
+        ),
+        (
+            # Quebonafide - Refren trochę jak Lana Del Rey
+            "https://open.spotify.com/track/0bJPQcJGw4G8ffS3VIjHWI",
+            ["https://music.youtube.com/watch?v=r-DSwyTkMBE"],
+        ),
+        (
+            # Quebonafide - GAZPROM
+            "https://open.spotify.com/track/46RBT9mCXUZEZa0CyA0thr",
+            ["https://music.youtube.com/watch?v=3edPRi_CDmc"],
+        ),
+        (
+            # 2115 - ROTTWEILER
+            "https://open.spotify.com/track/7lHG7rbO1xjaWOoqF5gpXW",
+            [
+                "https://music.youtube.com/watch?v=rrqR-bSQYRg",
+                "https://music.youtube.com/watch?v=JBz8PGZ8eR0",
+            ],
+        ),
+        (
+            # SB Maffija - Kapuśniak
+            "https://open.spotify.com/track/1ZIiF3VCX4zbIiiiUPndW7",
+            ["https://music.youtube.com/watch?v=Rvc-cLis_X4"],
+        ),
+        (
+            # SB Maffija - Dzieci we mgle
+            "https://open.spotify.com/track/13UorE0BauUBREWFJNmnYR",
+            ["https://music.youtube.com/watch?v=jLlRchjuFVU"],
+        ),
+        (
+            # club2020 - club2020
+            "https://open.spotify.com/track/0zmxM4MXfisJRTQcPa1wbv",
+            [
+                "https://music.youtube.com/watch?v=SycVE-wvQUI",
+                "https://music.youtube.com/watch?v=Y_yLrxkgU0k",
+            ],
+        ),
+        (
+            # Mata - Młody Bachor (outro)
+            "https://open.spotify.com/track/5IU8x0JVDXxVSX5IJ9YbEH",
+            [
+                "https://music.youtube.com/watch?v=c4tyHYLs2eE",
+                "https://music.youtube.com/watch?v=WxpLE7sLdMU",
+            ],
+        ),
+        (
+            # Mata - 67-410
+            "https://open.spotify.com/track/2w8C31hIPvJMPD4MDdNTro",
+            [
+                "https://music.youtube.com/watch?v=ecSYydwNRZM",
+                "https://music.youtube.com/watch?v=1P3D0AemwaY",
+            ],
+        ),
+        (
+            # Pezet - Tatuaże i Motocykle
+            "https://open.spotify.com/track/4F3N8BizzYmHbUee1ASmhc",
+            [
+                "https://music.youtube.com/watch?v=vG0XOE3uGMk",
+                "https://music.youtube.com/watch?v=AkYXIuPS4yA",
+            ],
+        ),
+        (
+            # Oki - Fresh Water Soda
+            "https://open.spotify.com/track/1iNTYA9OCTFVObcmLTSf02",
+            ["https://music.youtube.com/watch?v=m6hioRq2GdE"],
+        ),
+        (
+            # Young Igi - Scam
+            "https://open.spotify.com/track/5CfVW6OUB6Uh9X6XVpdNYE",
+            ["https://music.youtube.com/watch?v=tfTOTXOlplY"],
         ),
     ],
 )
