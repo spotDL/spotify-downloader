@@ -411,7 +411,7 @@ class AudioProvider:
                         artists_match = 0.0
                         for artist1, artist2 in zip_longest(artist1_list, artist2_list):
                             artist12_match = fuzz.ratio(artist1, artist2)
-                            # print(f"artist12_match 1: {artist1}, 2: {artist2}: {artist12_match}")
+                            # print(f"12match 1: {artist1}, 2: {artist2}: {artist12_match}")
                             artists_match += artist12_match
 
                         artists_match = artists_match / len(artist1_list)
@@ -454,7 +454,7 @@ class AudioProvider:
                         # print("? third artist_match: ", artist_match)
 
             # additional checks for results that are songs
-            if artist_match < 60 and result.verified:
+            if artist_match < 70 and result.verified:
                 # Check if the song name is very similar to the result name
                 if (
                     fuzz.ratio(
@@ -600,7 +600,7 @@ class AudioProvider:
             ):
                 # we are almost certain that this is the correct result
                 # so we add the album match to the average match
-                average_match = average_match + album_match / 2
+                average_match = (average_match + album_match) / 2
 
                 # print(f"? average_match with album_match: {average_match}")
 
@@ -649,7 +649,6 @@ class AudioProvider:
         last_simlar_index = 1
         best_score = sorted_results[0][1]
 
-        # Above code but minified
         last_simlar_index = next(
             (
                 index
@@ -686,7 +685,8 @@ class AudioProvider:
             # but is a verified result or is an isrc result
             # we return the best result
 
-            # print(f"# best match - {best_result[0].url}: {best_result[0]} - best result")
+            # print(f"# best - {best_result[0].url}: {best_result[0]} - best result")
+
             return best_result[0].url, best_result[1]
 
         # If we have more than one result,
