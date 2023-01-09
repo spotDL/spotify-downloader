@@ -18,6 +18,7 @@ from spotdl.utils.formatter import (
     create_search_query,
     slugify,
 )
+from spotdl.utils.matching import fill_string, sort_string
 
 
 class AudioProviderError(Exception):
@@ -166,14 +167,18 @@ class AudioProvider:
                     song.isrc, filter="songs", ignore_spelling=True
                 )
 
-                if len(isrc_results) == 1:
-                    sorted_isrc_results = self.order_results([isrc_results[0]], song)
-                    if len(sorted_isrc_results) == 1:
-                        isrc_result, isrc_score = sorted_isrc_results.popitem()
+                sorted_isrc_results = self.order_results(isrc_results, song)
 
-                        if isrc_score > 80:
-                            # print(f"# RETURN URL - {isrc_result.url} - isrc score")
-                            return isrc_result.url
+                # get the best result, if the score is above 80 return it
+                sorted_isrc_results = sorted(
+                    sorted_isrc_results.items(), key=lambda x: x[1], reverse=True
+                )
+
+                if len(sorted_isrc_results) > 0:
+                    best_isrc = sorted_isrc_results[0]
+                    if best_isrc[1] > 80:
+                        # print(f"best isrc - {best_isrc[0].url}")
+                        return best_isrc[0].url
 
                 # print(f"# no match found for isrc {song.display_name} - {song.isrc}")
 
@@ -264,7 +269,6 @@ class AudioProvider:
         # print(f"slug_song_artists: {slug_song_artists}")
         # print(f"slug_song_title: {slug_song_title}")
         # print(f"slug_song_duration: {song.duration}")
-        # print(f"slug_song_artists: {slug_song_artists}")
         # print(f"sentence_words: {sentence_words}")
 
         # Assign an overall avg match value to each result
@@ -272,12 +276,18 @@ class AudioProvider:
         for result in results:
             # Slugify result title
             slug_result_name = slugify(result.name)
+
+            # Slugify all result artists and join them into one string
             slug_result_artists = (
                 slugify(", ".join(result.artists)) if result.artists else ""
             )
+
+            # Slugify result main artist
             slug_result_main_artist = (
                 slugify(result.artists[0]) if result.artists else ""
             )
+
+            # Slugify result album
             slug_result_album = slugify(result.album) if result.album else None
 
             # check for common words in result name
@@ -288,34 +298,16 @@ class AudioProvider:
             test_str1 = slug_result_name
             test_str2 = slug_song_name if result.verified else slug_song_title
 
-            # check if the artist is in the song name
-            # but not in the result name
-            # if it is, we add the artist to the result name
-            for artist in song.artists:
-                slug_song_artist = slugify(artist).replace("-", "")
-                if slug_song_artist in test_str2.replace(
-                    "-", ""
-                ) and slug_song_artist not in test_str1.replace("-", ""):
-                    test_str1 += f"-{slug_song_artist}"
+            # Fill strings with missing artists
+            test_str1 = fill_string(song.artists, test_str1, test_str2)
+            test_str2 = fill_string(song.artists, test_str2, test_str1)
 
-            # same thing for for song name
-            for artist in song.artists:
-                slug_result_artist = slugify(artist).replace("-", "")
-                if slug_result_artist in test_str1.replace(
-                    "-", ""
-                ) and slug_result_artist not in test_str2.replace("-", ""):
-                    test_str2 += f"-{slug_result_artist}"
-
-            test_str1_list = test_str1.split("-")
-            test_str2_list = test_str2.split("-")
-
-            test_str1_list.sort()
-            test_str2_list.sort()
-
-            test_str1 = "-".join(test_str1_list)
-            test_str2 = "-".join(test_str2_list)
+            # Sort both strings and then joint them
+            test_str1 = sort_string(test_str1.split("-"), "-")
+            test_str2 = sort_string(test_str2.split("-"), "-")
 
             # print("-----------------------------")
+            # print(f"result: {result}")
             # print(f"common_word: {common_word}")
             # print(f"result link: {result.url}")
             # print(f"result name: {result.name}")
@@ -351,14 +343,10 @@ class AudioProvider:
                 # we can assume that other artists are joined in the main artist
                 if len(song.artists) > 1 and len(result.artists) == 1:
                     for artist in map(slugify, song.artists[1:]):
-                        temp_artis_list = slugify(artist).split("-")
-                        temp_main_artist_list = slug_result_main_artist.split("-")
-
-                        temp_artis_list.sort()
-                        temp_main_artist_list.sort()
-
-                        artist = "-".join(temp_artis_list)
-                        res_main_artist = "-".join(temp_main_artist_list)
+                        artist = sort_string(slugify(artist).split("-"), "-")
+                        res_main_artist = sort_string(
+                            slug_result_main_artist.split("-"), "-"
+                        )
 
                         if artist in res_main_artist:
                             main_artist_match += 100 / len(song.artists)
@@ -524,16 +512,13 @@ class AudioProvider:
                         not in slug_result_name.replace("-", "")
                     ]
 
-                    clean_title1.sort()
-                    clean_title2.sort()
+                    clean_title1 = sort_string(clean_title1, "-")
+                    clean_title2 = sort_string(clean_title2, "-")
 
                     # print(f"clean_title1: {clean_title1}")
                     # print(f"clean_title2: {clean_title2}")
 
-                    artist_title_match = fuzz.ratio(
-                        "-".join(clean_title1),
-                        "-".join(clean_title2),
-                    )
+                    artist_title_match = fuzz.ratio(clean_title1, clean_title2)
 
                     if artist_title_match > artist_match:
                         artist_match = artist_title_match
