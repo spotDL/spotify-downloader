@@ -245,7 +245,7 @@ from tests.conftest import new_initialize
         (
             # Eartha Kitt - Santa Baby
             "https://open.spotify.com/track/1foCxQtxBweJtZmdxhEHVO",
-            ["https://music.youtube.com/watch?v=zGz75FVo5lM"],
+            ["https://music.youtube.com/watch?v=zGz75FVo5lM", "https://music.youtube.com/watch?v=bTne-ZY8g9c"],
         ),
         (
             # Mor - חצי שלי
