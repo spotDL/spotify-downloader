@@ -267,6 +267,52 @@ from tests.conftest import new_initialize
             "https://open.spotify.com/track/6nO3tr47nr2P7f3hXb8JIo",
             ["https://www.youtube.com/watch?v=YFSwJuJqekw"],
         ),
+        (
+            # Tuna - י'א 2"
+            "https://open.spotify.com/track/2PpTUW96jjJYr8ib8RUnUu",
+            ["https://music.youtube.com/watch?v=u95kB6jydVs"],
+        ),
+        (
+            # SZA - Open Arms (feat. Travis Scott)
+            "https://open.spotify.com/track/6koKhrBBcExADvWuOgceNZ",
+            [
+                "https://music.youtube.com/watch?v=wXWetf0ZKUg",
+                "https://music.youtube.com/watch?v=bHVAX4i1q5A",
+            ],
+        ),
+        (
+            # Wham! - Last Christmas
+            "https://open.spotify.com/track/2FRnf9qhLbvw8fu4IBXx78",
+            [
+                "https://music.youtube.com/watch?v=vBpDfOtqIh4",
+                "https://music.youtube.com/watch?v=GJvGf_ifiKw",
+            ],
+        ),
+        (
+            # Frank Sinatra - Have Yourself A Merry Little Christmas - Remastered 1999
+            "https://open.spotify.com/track/2FPfeYlrbSBR8PwCU0zaqq",
+            ["https://music.youtube.com/watch?v=H0PlzYqYVL8"],
+        ),
+        (
+            # Avi Aburomi - לפני שבאת
+            "https://open.spotify.com/track/7tWgxEH1z52KwaNWQByFGv",
+            ["https://music.youtube.com/watch?v=ElCCPx8x_w0"],
+        ),
+        (
+            # Avi Aburomi - אומרים עליה
+            "https://open.spotify.com/track/6sBhmg0OdVOxJ3lOXJaW3J",
+            ["https://music.youtube.com/watch?v=LfD4z-7arZQ"],
+        ),
+        (
+            # Gwen Stefani - You Make It Feel Like Christmas (feat. Blake Shelton)
+            "https://open.spotify.com/track/2OQ6a4CfUeYskpTTgyawyJ",
+            ["https://music.youtube.com/watch?v=foazQajBRIc"],
+        ),
+        (
+            # Avi Aburomi - מחכה לך
+            "https://open.spotify.com/track/5ittjnOocNZ5dRoRXMMGAC",
+            ["https://music.youtube.com/watch?v=AZXGnKwRA2A"],
+        ),
     ],
 )
 def test_ytmusic_matching(monkeypatch, query, expected):
