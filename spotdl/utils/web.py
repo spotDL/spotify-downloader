@@ -212,7 +212,7 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
                 await app_state.server.shutdown()
 
 
-@router.get("/api/song/url")
+@router.get("/api/song/url", response_model=None)
 def song_from_url(url: str) -> Song:
     """
     Search for a song on spotify using url.
@@ -227,7 +227,7 @@ def song_from_url(url: str) -> Song:
     return Song.from_url(url)
 
 
-@router.get("/api/songs/search")
+@router.get("/api/songs/search", response_model=None)
 def query_search(query: str) -> List[Song]:
     """
     Parse search term and return list of Song objects.
@@ -242,7 +242,7 @@ def query_search(query: str) -> List[Song]:
     return get_search_results(query)
 
 
-@router.get("/api/albums/search")
+@router.get("/api/albums/search", response_model=None)
 def query_search_albums(query: str) -> List[Album]:
     """
     Parse search term and return list of Album objects.
