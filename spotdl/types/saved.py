@@ -84,3 +84,17 @@ class Saved(SongList):
         """
 
         return {"name": "Saved tracks", "url": url}
+
+    @classmethod
+    def search(cls, _: str):
+        """
+        Search for a saved list.
+
+        ### Arguments
+        - search_term: The search term.
+
+        ### Returns
+        - The Saved object.
+        """
+
+        return cls.create_basic_list()

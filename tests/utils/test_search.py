@@ -31,6 +31,7 @@ def test_parse_song():
     assert len(songs) == 1
     assert song.download_url == None
 
+
 @pytest.mark.vcr()
 def test_parse_album():
     songs = parse_query(ALBUM)
