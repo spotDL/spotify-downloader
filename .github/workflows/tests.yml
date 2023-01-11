@@ -65,6 +65,10 @@ jobs:
           poetry env use "3.10"
           poetry install
 
+      - name: Enable debug logging
+        run: |
+          sed -i 's/# print(/print(/g' spotdl/providers/audio/base.py
+
       - uses: FedericoCarboni/setup-ffmpeg@v1
         id: setup-ffmpeg
         with:
