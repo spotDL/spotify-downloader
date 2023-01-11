@@ -306,7 +306,10 @@ from tests.conftest import new_initialize
         (
             # Gwen Stefani - You Make It Feel Like Christmas (feat. Blake Shelton)
             "https://open.spotify.com/track/2OQ6a4CfUeYskpTTgyawyJ",
-            ["https://music.youtube.com/watch?v=foazQajBRIc"],
+            [
+                "https://music.youtube.com/watch?v=foazQajBRIc",
+                "https://music.youtube.com/watch?v=Rh-KqEkj86g",
+            ],
         ),
         (
             # Avi Aburomi - מחכה לך
