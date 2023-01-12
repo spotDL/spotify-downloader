@@ -106,7 +106,7 @@ def slugify(string: str) -> str:
     """
 
     # Replace ambiguous characters
-    string = ''.join(chr(AMBIGUOUS_CHARACTERS.get(str(ord(c)), ord(c))) for c in string)
+    string = "".join(chr(AMBIGUOUS_CHARACTERS.get(str(ord(c)), ord(c))) for c in string)
 
     if not JAP_REGEX.search(string):
         # If string doesn't have japanese characters

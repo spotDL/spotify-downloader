@@ -1,3 +1,11 @@
+"""
+Module for holding static variables that are used throughout the project.
+And are for the most part, not likely to change.
+(Also holds really large variables, so pylint is disabled here)
+"""
+
+# pylint: skip-file
+
 # Source: https://github.com/hediet/vscode-unicode-data/blob/main/out/ambiguous.json
 AMBIGUOUS_CHARACTERS = {
     "8232": 32,
