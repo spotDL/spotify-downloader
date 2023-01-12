@@ -8,9 +8,9 @@ site_dir: "site"
 
 nav:
 - Home: index.md
+- Installation: installation.md
 - Usage:
-  - Installation: installation.md
-  - Usage: usage.md
+  - Usage examples: usage.md
   - Troubleshooting: troubleshooting.md
 - Development:
   - Code Of Conduct: CODE_OF_CONDUCT.md
@@ -23,6 +23,8 @@ theme:
     - content.code.annotate
     - navigation.tabs
     - navigation.top
+    - toc.integrate
+
   palette:
   - media: "(prefers-color-scheme: light)"
     scheme: default
@@ -55,8 +57,6 @@ plugins:
             ignore_init_summary: yes
           merge_init_into_class: yes
           show_submodules: no
-    watch:
-    - spotdl
 
 markdown_extensions:
 - admonition
@@ -74,3 +74,6 @@ markdown_extensions:
     pygments_lang_class: true
 - toc:
     permalink: "¤"
+
+watch:
+- spotdl
