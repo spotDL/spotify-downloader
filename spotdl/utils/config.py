@@ -147,6 +147,7 @@ DEFAULT_CONFIG = {
     "filter_results": True,
     "threads": 4,
     "no_cache": False,
+    "max_retries": 3,
     "cookie_file": None,
     "headless": False,
     "restrict": False,
@@ -159,5 +160,6 @@ DEFAULT_CONFIG = {
     "keep_alive": False,
     "allowed_origins": None,
     "playlist_numbering": False,
-    "preserve_original_audio": False,
+    "scan_for_songs": False,
+    "web_use_output_dir": False,
 }

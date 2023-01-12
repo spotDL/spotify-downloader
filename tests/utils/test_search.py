@@ -69,7 +69,6 @@ def test_parse_saved():
         parse_query(SAVED)
 
 
-@pytest.mark.vcr()
 def test_parse_query():
     songs = parse_query(QUERY)
 

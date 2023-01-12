@@ -125,11 +125,8 @@ class Song:
         spotify_client = SpotifyClient()
         raw_search_results = spotify_client.search(search_term)
 
-        if (
-            raw_search_results is None
-            or len(raw_search_results.get("tracks", {}).get("items", [])) == 0
-        ):
-            raise SongError(f"No songs matches found on spotify: {search_term}")
+        if raw_search_results is None:
+            raise SongError(f"Spotipy error, no response: {search_term}")
 
         return raw_search_results
 
@@ -167,7 +164,7 @@ class Song:
         raw_search_results = Song.search(search_term)
 
         songs = []
-        for idx, _ in enumerate(raw_search_results["tracks"]["items"]):
+        for idx, _ in enumerate(raw_search_results.get("tracks", []).get("items", [])):
             songs.append(
                 Song.from_url(
                     "http://open.spotify.com/track/"

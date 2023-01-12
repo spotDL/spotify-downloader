@@ -77,8 +77,7 @@ def test_download_song(capsys, monkeypatch, tmpdir):
 
     console_entry_point()
 
-    out, _ = capsys.readouterr()
-    out = clean_ansi_sequence(out)
+    out = "".join([clean_ansi_sequence(out) for out in capsys.readouterr()])
 
     assert 'Downloaded "Jim Yosef - Linked"' in out
 
@@ -111,9 +110,7 @@ def test_preload_song(capsys, monkeypatch, tmpdir):
 
     console_entry_point()
 
-    out, _ = capsys.readouterr()
-
-    out = clean_ansi_sequence(out)
+    out = "".join([clean_ansi_sequence(out) for out in capsys.readouterr()])
 
     assert "Saved 1 song to test.spotdl" in out
 
