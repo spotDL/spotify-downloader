@@ -72,6 +72,7 @@ jobs:
           gsed -i 's/# print(/print(/g' spotdl/providers/audio/base.py
 
       - name: Enable debug logging
+        if: runner.os != 'macOS'
         run: |
           sed -i 's/# print(/print(/g' spotdl/providers/audio/base.py
 
