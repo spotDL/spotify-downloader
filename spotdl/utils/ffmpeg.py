@@ -280,7 +280,7 @@ def convert(
         arguments.extend(["-c:a", "libopus"])
     else:
         if (
-            (output_format == "opus" and file_format == "opus")
+            (output_format == "opus" and file_format == "webm")
             or (output_format == "m4a" and file_format == "m4a")
             and not (bitrate or ffmpeg_args)
         ):
