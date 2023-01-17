@@ -7,11 +7,13 @@ and file names.
 import re
 import warnings
 
+from functools import lru_cache
 from typing import List, Optional
 from pathlib import Path
 
 import pykakasi
 
+from rapidfuzz import fuzz
 from slugify import slugify as py_slugify
 from yt_dlp.utils import sanitize_filename
 
@@ -94,6 +96,7 @@ def sanitize_string(string: str) -> str:
     return output
 
 
+@lru_cache()
 def slugify(string: str) -> str:
     """
     Slugify the string.
@@ -449,3 +452,20 @@ def restrict_filename(pathobj: Path) -> Path:
         result = "_"
 
     return pathobj.with_name(result)
+
+
+@lru_cache()
+def ratio(string1: str, string2: str) -> float:
+    """
+    Wrapper for fuzz.ratio
+    with lru_cache
+
+    ### Arguments
+    - string1: the first string
+    - string2: the second string
+
+    ### Returns
+    - the ratio
+    """
+
+    return fuzz.ratio(string1, string2)
