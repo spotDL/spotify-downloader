@@ -65,17 +65,6 @@ jobs:
           poetry env use "3.10"
           poetry install
 
-      - name: Enable debug logging on Mac
-        if: runner.os == 'macOS'
-        run: |
-          brew install gnu-sed
-          gsed -i 's/# print(/print(/g' spotdl/providers/audio/base.py
-
-      - name: Enable debug logging
-        if: runner.os != 'macOS'
-        run: |
-          sed -i 's/# print(/print(/g' spotdl/providers/audio/base.py
-
       - uses: FedericoCarboni/setup-ffmpeg@v1
         id: setup-ffmpeg
         with:
