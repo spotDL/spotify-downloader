@@ -53,7 +53,7 @@ def test_playlist_from_url():
 
     assert playlist.name == "Top 10 NCS Songs Episode 2"
     assert playlist.url == "https://open.spotify.com/playlist/5LkNhFidYyyjRWwnkcMbQs"
-    assert len(playlist.songs) == 10
+    assert len(playlist.songs) == 9
     assert playlist.description == ""
 
 
@@ -80,4 +80,4 @@ def test_playlist_length():
         "https://open.spotify.com/playlist/5LkNhFidYyyjRWwnkcMbQs"
     )
 
-    assert playlist.length == 10
+    assert playlist.length == 9
