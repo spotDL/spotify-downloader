@@ -194,12 +194,12 @@ def create_settings(
     # https://github.com/python/mypy/issues/8890
     # https://github.com/python/mypy/issues/5382
     spotify_options = SpotifyOptions(
-        **create_settings_type(arguments, config, SPOTIFY_OPTIONS) # type: ignore
+        **create_settings_type(arguments, config, SPOTIFY_OPTIONS)  # type: ignore
     )
     downloader_options = DownloaderOptions(
-        **create_settings_type(arguments, config, DOWNLOADER_OPTIONS) # type: ignore
+        **create_settings_type(arguments, config, DOWNLOADER_OPTIONS)  # type: ignore
     )
-    web_options = WebOptions(**create_settings_type(arguments, config, WEB_OPTIONS)) # type: ignore
+    web_options = WebOptions(**create_settings_type(arguments, config, WEB_OPTIONS))  # type: ignore
 
     return spotify_options, downloader_options, web_options
 
@@ -252,7 +252,7 @@ WEB_OPTIONS: WebOptions = {
 
 # Type: ignore because of the issues above
 DEFAULT_CONFIG: SpotDLOptions = {
-    **SPOTIFY_OPTIONS, # type: ignore
-    **DOWNLOADER_OPTIONS, # type: ignore
-    **WEB_OPTIONS, # type: ignore
+    **SPOTIFY_OPTIONS,  # type: ignore
+    **DOWNLOADER_OPTIONS,  # type: ignore
+    **WEB_OPTIONS,  # type: ignore
 }

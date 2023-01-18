@@ -100,7 +100,7 @@ class Downloader:
         self.settings: DownloaderOptions = DownloaderOptions(
             **create_settings_type(
                 Namespace(config=False), dict(settings), DOWNLOADER_OPTIONS
-            ) # type: ignore
+            )  # type: ignore
         )
 
         # If no audio providers specified, raise an error
@@ -491,7 +491,9 @@ class Downloader:
                 filter_results=self.settings["filter_results"],
             )
 
-            self.progress_handler.debug(f"Downloading {song.display_name} using {download_url}")
+            self.progress_handler.debug(
+                f"Downloading {song.display_name} using {download_url}"
+            )
 
             # Add progress hook to the audio provider
             audio_downloader.audio_handler.add_progress_hook(
