@@ -4,7 +4,7 @@ Module for creating m3u content and writing it to a file.
 
 from typing import List, Optional
 
-from spotdl.types.song import Song
+from spotdl.types.song import Song, SongList
 from spotdl.utils.formatter import create_file_name
 
 
@@ -71,7 +71,7 @@ def gen_m3u_files(
     dup_lists = [result.song_list for result in songs]
 
     # Remove duplicates
-    list_of_lists = []
+    list_of_lists: List[SongList] = []
     for song_list in dup_lists:
         if song_list is None:
             continue
@@ -82,13 +82,11 @@ def gen_m3u_files(
     if "{list}" in file_name:
         # Create multiple m3u files if there are multiple lists
         for song_list in list_of_lists:
-            list_name = song_list.__class__.__name__
-
             create_m3u_file(
                 file_name.format(
-                    list=list_name,
+                    list=song_list.name,
                 ),
-                song_list,
+                song_list.songs,
                 template,
                 file_extension,
                 short,
@@ -96,7 +94,7 @@ def gen_m3u_files(
     elif "{list[" in file_name and "]}" in file_name:
         # Create a single m3u file for specified song list name
         create_m3u_file(
-            file_name.format(list=[list_name for list_name, _ in list_of_lists]),
+            file_name.format(list=[song_list.name for song_list in list_of_lists]),
             songs,
             template,
             file_extension,

@@ -100,7 +100,7 @@ class Downloader:
         self.settings: DownloaderOptions = DownloaderOptions(
             **create_settings_type(
                 Namespace(config=False), dict(settings), DOWNLOADER_OPTIONS
-            )
+            ) # type: ignore
         )
 
         # If no audio providers specified, raise an error
@@ -153,22 +153,22 @@ class Downloader:
 
         # Initialize lyrics providers
         self.lyrics_providers: List[LyricsProvider] = []
-        for provider in self.settings["lyrics_providers"]:
-            provider_class = LYRICS_PROVIDERS.get(provider)
-            if provider_class is None:
-                raise DownloaderError(f"Invalid lyrics provider: {provider}")
+        for lyrics_provider in self.settings["lyrics_providers"]:
+            lyrics_class = LYRICS_PROVIDERS.get(lyrics_provider)
+            if lyrics_class is None:
+                raise DownloaderError(f"Invalid lyrics provider: {lyrics_provider}")
 
-            self.lyrics_providers.append(provider_class())
+            self.lyrics_providers.append(lyrics_class())
 
         # Initialize audio providers
         self.audio_providers: List[AudioProvider] = []
-        for provider in self.settings["audio_providers"]:
-            provider_class = AUDIO_PROVIDERS.get(provider)
-            if provider_class is None:
-                raise DownloaderError(f"Invalid audio provider: {provider}")
+        for audio_provider in self.settings["audio_providers"]:
+            audio_class = AUDIO_PROVIDERS.get(audio_provider)
+            if audio_class is None:
+                raise DownloaderError(f"Invalid audio provider: {audio_provider}")
 
             self.audio_providers.append(
-                provider_class(
+                audio_class(
                     output_format=self.settings["format"],
                     cookie_file=self.settings["cookie_file"],
                     search_query=self.settings["search_query"],
@@ -524,7 +524,6 @@ class Downloader:
 
             # Ignore the bitrate if the bitrate is set to auto for m4a/opus
             # or if bitrate is set to disabled
-            bitrate = self.settings["bitrate"]
             if self.settings["bitrate"] == "disable":
                 bitrate = None
             elif self.settings["bitrate"] == "auto" or self.settings["bitrate"] is None:
@@ -623,7 +622,6 @@ class Downloader:
             try:
                 embed_metadata(output_file, song)
             except Exception as exception:
-                print(exception)
                 raise MetadataError(
                     "Failed to embed metadata to the song"
                 ) from exception

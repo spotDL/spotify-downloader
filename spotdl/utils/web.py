@@ -385,7 +385,7 @@ def update_settings(
 
     state.logger.info(f"Applying settings: {settings_cpy}")
 
-    new_settings = DownloaderOptions(**settings_cpy)
+    new_settings = DownloaderOptions(**settings_cpy) # type: ignore
 
     # Re-initialize downloader
     state.downloader = Downloader(

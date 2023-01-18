@@ -1,3 +1,7 @@
+"""
+Module for functions related to downloading songs.
+"""
+
 from spotdl.providers.audio import YouTubeMusic
 
 
