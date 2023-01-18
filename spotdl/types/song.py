@@ -73,6 +73,9 @@ class Song:
                 "Couldn't get metadata, check if you have passed correct track id"
             )
 
+        if raw_track_meta["duration_ms"] == 0 or raw_track_meta["name"].strip() == "":
+            raise SongError(f"Track no longer exists: {url}")
+
         # get artist info
         primary_artist_id = raw_track_meta["artists"][0]["id"]
         raw_artist_meta: Dict[str, Any] = spotify_client.artist(primary_artist_id)  # type: ignore

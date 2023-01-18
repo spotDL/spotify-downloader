@@ -87,6 +87,7 @@ class Playlist(SongList):
             if track is not None
             and track.get("track") is not None
             and track.get("track").get("id")
+            and track.get("track").get("duration_ms") != 0
         ]
 
     @staticmethod
