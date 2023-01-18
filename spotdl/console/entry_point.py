@@ -66,7 +66,9 @@ def console_entry_point():
     # If it does, we run the action and exit
     try:
         action_to_run = next(
-            action() for action_name, action in ACTIONS.items() if action_name in sys.argv
+            action()
+            for action_name, action in ACTIONS.items()
+            if action_name in sys.argv
         )
     except StopIteration:
         action_to_run = None

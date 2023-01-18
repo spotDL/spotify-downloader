@@ -84,7 +84,11 @@ def save(
 
     if m3u_file:
         gen_m3u_files(
-            songs, m3u_file, downloader.settings["output"], downloader.settings["format"], False
+            songs,
+            m3u_file,
+            downloader.settings["output"],
+            downloader.settings["format"],
+            False,
         )
 
     downloader.progress_handler.log(

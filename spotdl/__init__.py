@@ -46,7 +46,9 @@ class Spotdl:
         cache_path: Optional[str] = None,
         no_cache: bool = False,
         headless: bool = False,
-        downloader_settings: Optional[Union[DownloaderOptionalOptions, DownloaderOptions]] = None,
+        downloader_settings: Optional[
+            Union[DownloaderOptionalOptions, DownloaderOptions]
+        ] = None,
         loop: Optional[asyncio.AbstractEventLoop] = None,
     ):
         """
