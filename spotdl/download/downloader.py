@@ -11,13 +11,17 @@ import concurrent.futures
 import traceback
 
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Type
+from argparse import Namespace
+from typing import Dict, List, Optional, Tuple, Type, Union
 
 from yt_dlp.postprocessor.sponsorblock import SponsorBlockPP
 from yt_dlp.postprocessor.modify_chapters import ModifyChaptersPP
 
 from spotdl.types import Song
+from spotdl.types.options import DownloaderOptionalOptions, DownloaderOptions
+from spotdl.utils.archive import Archive
 from spotdl.utils.ffmpeg import FFmpegError, convert, get_ffmpeg_path
+from spotdl.utils.m3u import gen_m3u_files
 from spotdl.utils.metadata import embed_metadata, MetadataError
 from spotdl.utils.formatter import create_file_name, restrict_filename
 from spotdl.providers.audio.base import AudioProvider
@@ -25,12 +29,13 @@ from spotdl.providers.lyrics import Genius, MusixMatch, AzLyrics, Synced
 from spotdl.providers.lyrics.base import LyricsProvider
 from spotdl.providers.audio import YouTube, YouTubeMusic
 from spotdl.download.progress_handler import NAME_TO_LEVEL, ProgressHandler
-from spotdl.utils.config import get_errors_path, get_temp_path
-from spotdl.utils.search import (
-    get_search_results,
-    get_song_from_file_metadata,
-    reinit_song,
+from spotdl.utils.config import (
+    get_errors_path,
+    get_temp_path,
+    create_settings_type,
+    DOWNLOADER_OPTIONS,
 )
+from spotdl.utils.search import gather_known_songs, reinit_song
 
 
 AUDIO_PROVIDERS: Dict[str, Type[AudioProvider]] = {
@@ -71,53 +76,15 @@ class Downloader:
 
     def __init__(
         self,
-        audio_providers: Optional[List[str]] = None,
-        lyrics_providers: Optional[List[str]] = None,
-        ffmpeg: str = "ffmpeg",
-        bitrate: Optional[str] = None,
-        ffmpeg_args: Optional[str] = None,
-        output_format: str = "mp3",
-        threads: int = 4,
-        output: str = ".",
-        save_file: Optional[str] = None,
-        overwrite: str = "skip",
-        cookie_file: Optional[str] = None,
-        filter_results: bool = True,
-        search_query: Optional[str] = None,
-        log_level: str = "INFO",
-        simple_tui: bool = False,
-        restrict: bool = False,
-        print_errors: bool = False,
-        sponsor_block: bool = False,
+        settings: Optional[Union[DownloaderOptionalOptions, DownloaderOptions]] = None,
         loop: Optional[asyncio.AbstractEventLoop] = None,
-        playlist_numbering: bool = False,
-        scan_for_songs: bool = False,
     ):
         """
         Initialize the Downloader class.
 
         ### Arguments
-        - audio_provider: Audio providers to use.
-        - lyrics_provider: The lyrics providers to use.
-        - ffmpeg: The ffmpeg executable to use.
-        - bitrate: The bit rate to use.
-        - ffmpeg_args: The ffmpeg arguments to use.
-        - output_format: The output format to use.
-        - threads: The number of threads to use.
-        - output: The output directory to use.
-        - save_file: The save file to use when saving/loading song metadata.
-        - overwrite: The overwrite mode to use (force/skip).
-        - cookie_file: The cookie file to use for yt-dlp.
-        - filter_results: Whether to filter results.
-        - search_query: The search query to use.
-        - log_level: The log level to use.
-        - simple_tui: Whether to use simple tui.
-        - restrict: Whether to restrict the filename to ASCII characters.
-        - print_errors: Whether to print errors on exit.
-        - sponsor_block: Whether to remove sponsor segments using sponsor block postprocessor.
+        - settings: The settings to use.
         - loop: The event loop to use.
-        - playlist_numbering: Whether to convert tracks in a playlist into an album.
-        - scan_for_songs: Whether to scan the base output directory for known songs.
 
         ### Notes
         - `search-query` uses the same format as `output`.
@@ -125,33 +92,32 @@ class Downloader:
             the next provider in the list will be used.
         """
 
-        if audio_providers is None:
-            audio_providers = ["youtube-music"]
+        if settings is None:
+            settings = {}
 
-        if lyrics_providers is None:
-            lyrics_providers = ["musixmatch"]
+        # Create settings dictionary, fill in missing values with defaults
+        # from spotdl.types.options.DOWNLOADER_OPTIONS
+        self.settings: DownloaderOptions = DownloaderOptions(
+            **create_settings_type(
+                Namespace(config=False), dict(settings), DOWNLOADER_OPTIONS
+            )
+        )
 
-        audio_providers_classes: List[Type[AudioProvider]] = []
-        lyrics_providers_classes: List[Type[LyricsProvider]] = []
-
-        for provider in audio_providers:
-            new_audio_provider = AUDIO_PROVIDERS.get(provider)
-            if new_audio_provider is None:
-                raise DownloaderError(f"Invalid audio provider: {provider}")
-
-            audio_providers_classes.append(new_audio_provider)
-
-        if len(audio_providers_classes) == 0:
+        # If no audio providers specified, raise an error
+        if len(self.settings["audio_providers"]) == 0:
             raise DownloaderError(
                 "No audio providers specified. Please specify at least one."
             )
 
-        for provider in lyrics_providers:
-            new_lyrics_provider = LYRICS_PROVIDERS.get(provider)
-            if new_lyrics_provider is None:
-                raise DownloaderError(f"Invalid lyrics provider: {provider}")
+        # If ffmpeg is the default value and it's not installed
+        # try to use the spotdl's ffmpeg
+        self.ffmpeg = self.settings["ffmpeg"]
+        if self.ffmpeg == "ffmpeg" and shutil.which("ffmpeg") is None:
+            ffmpeg_exec = get_ffmpeg_path()
+            if ffmpeg_exec is None:
+                raise DownloaderError("ffmpeg is not installed")
 
-            lyrics_providers_classes.append(new_lyrics_provider)
+            self.ffmpeg = str(ffmpeg_exec.absolute())
 
         self.loop = loop or (
             asyncio.new_event_loop()
@@ -163,74 +129,60 @@ class Downloader:
             asyncio.set_event_loop(self.loop)
 
         # semaphore is required to limit concurrent asyncio executions
-        self.semaphore = asyncio.Semaphore(threads)
+        self.semaphore = asyncio.Semaphore(self.settings["threads"])
 
         # thread pool executor is used to run blocking (CPU-bound) code from a thread
         self.thread_executor = concurrent.futures.ThreadPoolExecutor(
-            max_workers=threads
+            max_workers=self.settings["threads"]
         )
 
-        # If ffmpeg is the default value and it's not installed
-        # try to use the spotdl's ffmpeg
-        if ffmpeg == "ffmpeg" and shutil.which("ffmpeg") is None:
-            ffmpeg_exec = get_ffmpeg_path()
-            if ffmpeg_exec is None:
-                raise DownloaderError("ffmpeg is not installed")
-
-            ffmpeg = str(ffmpeg_exec.absolute())
-
-        self.output = output
-        self.output_format = output_format
-        self.save_file = save_file
-        self.threads = threads
-        self.cookie_file = cookie_file
-        self.overwrite = overwrite
-        self.search_query = search_query
-        self.filter_results = filter_results
-        self.ffmpeg = ffmpeg
-        self.bitrate = bitrate
-        self.ffmpeg_args = ffmpeg_args
-        self.restrict = restrict
-        self.print_errors = print_errors
-        self.errors: List[str] = []
-        self.sponsor_block = sponsor_block
-        self.audio_providers_classes = audio_providers_classes
-        self.progress_handler = ProgressHandler(NAME_TO_LEVEL[log_level], simple_tui)
-        self.playlist_numbering = playlist_numbering
-        self.scan_for_songs = scan_for_songs
+        self.progress_handler = ProgressHandler(
+            NAME_TO_LEVEL[self.settings["log_level"]], self.settings["simple_tui"]
+        )
 
         # Gather already present songs
         self.known_songs: Dict[str, List[Path]] = {}
-        if self.scan_for_songs:
+        if self.settings["scan_for_songs"]:
             self.progress_handler.log(
                 "Scanning for known songs, this might take a while..."
             )
 
-            # Get the base directory from the path template
-            # Path("/Music/test/{artist}/{artists} - {title}.{output-ext}") -> "/Music/test"
-            base_dir = self.output.split("{", 1)[0]
-            paths = Path(base_dir).glob(f"**/*.{self.output_format}")
-            for path in paths:
-                # Try to get the song from the metadata
-                song = get_song_from_file_metadata(path)
+            self.known_songs = gather_known_songs(
+                self.settings["output"], self.settings["format"]
+            )
 
-                # If the songs doesn't have metadata, try to get it from the filename
-                if song is None or song.url is None:
-                    search_results = get_search_results(path.stem)
-                    if len(search_results) == 0:
-                        continue
-
-                    song = search_results[0]
-
-                known_paths = self.known_songs.get(song.url)
-                if known_paths is None:
-                    self.known_songs[song.url] = [path]
-                else:
-                    self.known_songs[song.url].append(path)
-
+        # Initialize lyrics providers
         self.lyrics_providers: List[LyricsProvider] = []
-        for lyrics_provider_class in lyrics_providers_classes:
-            self.lyrics_providers.append(lyrics_provider_class())
+        for provider in self.settings["lyrics_providers"]:
+            provider_class = LYRICS_PROVIDERS.get(provider)
+            if provider_class is None:
+                raise DownloaderError(f"Invalid lyrics provider: {provider}")
+
+            self.lyrics_providers.append(provider_class())
+
+        # Initialize audio providers
+        self.audio_providers: List[AudioProvider] = []
+        for provider in self.settings["audio_providers"]:
+            provider_class = AUDIO_PROVIDERS.get(provider)
+            if provider_class is None:
+                raise DownloaderError(f"Invalid audio provider: {provider}")
+
+            self.audio_providers.append(
+                provider_class(
+                    output_format=self.settings["format"],
+                    cookie_file=self.settings["cookie_file"],
+                    search_query=self.settings["search_query"],
+                    filter_results=self.settings["filter_results"],
+                )
+            )
+
+        # Initialize list of errors
+        self.errors: List[str] = []
+
+        # Initialize archive
+        self.url_archive = Archive()
+        if self.settings["archive"]:
+            self.url_archive.load(self.settings["archive"])
 
         self.progress_handler.debug("Downloader initialized")
 
@@ -264,19 +216,44 @@ class Downloader:
         - list of tuples with the song and the path to the downloaded file if successful.
         """
 
+        if self.settings["archive"]:
+            songs = [song for song in songs if song.url not in self.url_archive]
+
         self.progress_handler.set_song_count(len(songs))
 
+        # Create tasks list
         tasks = [self.pool_download(song) for song in songs]
 
-        # call all task asynchronously, and wait until all are finished
-        results = list(self.loop.run_until_complete(self.aggregate_tasks(tasks)))
+        # Call all task asynchronously, and wait until all are finished
+        results = list(self.loop.run_until_complete(asyncio.gather(*tasks)))
 
-        if self.print_errors:
+        # Print errors
+        if self.settings["print_errors"]:
             for error in self.errors:
                 self.progress_handler.error(error)
 
-        if self.save_file:
-            with open(self.save_file, "w", encoding="utf-8") as save_file:
+        # Save archive
+        if self.settings["archive"]:
+            for result in results:
+                if result[1]:
+                    self.url_archive.add(result[0].url)
+
+            self.url_archive.save(self.settings["archive"])
+
+        # Create m3u playlist
+        if self.settings["m3u"]:
+            song_list = [song for song, _ in results]
+            gen_m3u_files(
+                song_list,
+                self.settings["m3u"],
+                self.settings["output"],
+                self.settings["format"],
+                False,
+            )
+
+        # Save results to a file
+        if self.settings["save_file"]:
+            with open(self.settings["save_file"], "w", encoding="utf-8") as save_file:
                 json.dump([song.json for song, _ in results], save_file, indent=4)
 
         return results
@@ -317,18 +294,7 @@ class Downloader:
         - tuple with download url and audio provider if successful.
         """
 
-        audio_providers: List[AudioProvider] = []
-        for audio_provider_class in self.audio_providers_classes:
-            audio_providers.append(
-                audio_provider_class(
-                    output_format=self.output_format,
-                    cookie_file=self.cookie_file,
-                    search_query=self.search_query,
-                    filter_results=self.filter_results,
-                )
-            )
-
-        for audio_provider in audio_providers:
+        for audio_provider in self.audio_providers:
             url = audio_provider.search(song)
             if url:
                 return url, audio_provider
@@ -384,7 +350,7 @@ class Downloader:
         # If it's None extract the current metadata
         # And reinitialize the song object
         if song.name is None and song.url:
-            song = reinit_song(song, self.playlist_numbering)
+            song = reinit_song(song, self.settings["playlist_numbering"])
 
         # Find song lyrics and add them to the song object
         lyrics = self.search_lyrics(song)
@@ -401,11 +367,13 @@ class Downloader:
         display_progress_tracker = self.progress_handler.get_new_tracker(song)
 
         # Create the output file path
-        output_file = create_file_name(song, self.output, self.output_format)
+        output_file = create_file_name(
+            song, self.settings["output"], self.settings["format"]
+        )
         temp_folder = get_temp_path()
 
         # Restrict the filename if needed
-        if self.restrict is True:
+        if self.settings["restrict"] is True:
             output_file = restrict_filename(output_file)
 
         # Check if there is an already existing song file, with the same spotify URL in its
@@ -427,7 +395,9 @@ class Downloader:
 
         # If the file already exists and we don't want to overwrite it,
         # we can skip the download
-        if (output_file.exists() or dup_song_paths) and self.overwrite == "skip":
+        if (output_file.exists() or dup_song_paths) and self.settings[
+            "overwrite"
+        ] == "skip":
             self.progress_handler.log(
                 f"Skipping {song.display_name}"
                 f"{' (duplicate)' if dup_song_paths else ''}"
@@ -437,7 +407,9 @@ class Downloader:
             return song, None
 
         # Don't skip if the file exists and overwrite is set to force
-        if (output_file.exists() or dup_song_paths) and self.overwrite == "force":
+        if (output_file.exists() or dup_song_paths) and self.settings[
+            "overwrite"
+        ] == "force":
             self.progress_handler.log(
                 f"Overwriting {song.display_name}{' (duplicate)' if dup_song_paths else ''}"
             )
@@ -456,7 +428,9 @@ class Downloader:
 
         # If the file already exists and we want to overwrite the metadata,
         # we can skip the download
-        if (output_file.exists() or dup_song_paths) and self.overwrite == "metadata":
+        if (output_file.exists() or dup_song_paths) and self.settings[
+            "overwrite"
+        ] == "metadata":
             most_recent_duplicate: Optional[Path] = None
             if dup_song_paths:
                 # Get the most recent duplicate song path and remove the rest
@@ -483,7 +457,7 @@ class Downloader:
                 # Move the old file to the new location
                 if most_recent_duplicate:
                     most_recent_duplicate.replace(
-                        output_file.with_suffix(f".{self.output_format}")
+                        output_file.with_suffix(f".{self.settings['format']}")
                     )
 
             # Update the metadata
@@ -512,10 +486,10 @@ class Downloader:
                 # audio provider to download the song
                 download_url = song.download_url
                 audio_provider = AudioProvider(
-                    output_format=self.output_format,
-                    cookie_file=self.cookie_file,
-                    search_query=self.search_query,
-                    filter_results=self.filter_results,
+                    output_format=self.settings["format"],
+                    cookie_file=self.settings["cookie_file"],
+                    search_query=self.settings["search_query"],
+                    filter_results=self.settings["filter_results"],
                 )
 
             self.progress_handler.debug(
@@ -550,19 +524,21 @@ class Downloader:
 
             # Ignore the bitrate if the bitrate is set to auto for m4a/opus
             # or if bitrate is set to disabled
-            bitrate = self.bitrate
-            if self.bitrate == "disable":
+            bitrate = self.settings["bitrate"]
+            if self.settings["bitrate"] == "disable":
                 bitrate = None
-            elif self.bitrate == "auto" or self.bitrate is None:
+            elif self.settings["bitrate"] == "auto" or self.settings["bitrate"] is None:
                 bitrate = f"{int(download_info['abr'])}k"
+            else:
+                bitrate = str(self.settings["bitrate"])
 
             success, result = convert(
                 input_file=temp_file,
                 output_file=output_file,
                 ffmpeg=self.ffmpeg,
-                output_format=self.output_format,
+                output_format=self.settings["format"],
                 bitrate=bitrate,
-                ffmpeg_args=self.ffmpeg_args,
+                ffmpeg_args=self.settings["ffmpeg_args"],
                 progress_handler=display_progress_tracker.ffmpeg_progress_hook,
             )
 
@@ -614,7 +590,7 @@ class Downloader:
             display_progress_tracker.notify_conversion_complete()
 
             # SponsorBlock post processor
-            if self.sponsor_block:
+            if self.settings["sponsor_block"]:
                 # Initialize the sponsorblock post processor
                 post_processor = SponsorBlockPP(
                     audio_provider.audio_handler, SPONSOR_BLOCK_CATEGORIES
@@ -678,11 +654,3 @@ class Downloader:
                 f"{song.url} - {exception.__class__.__name__}: {exception}"
             )
             return song, None
-
-    @staticmethod
-    async def aggregate_tasks(tasks):
-        """
-        Aggregate the futures and return the results
-        """
-
-        return await asyncio.gather(*(task for task in tasks))

@@ -8,14 +8,17 @@ import concurrent.futures
 
 from pathlib import Path
 
-from typing import List, Optional, Tuple
+from typing import List, Optional, Tuple, Union
 
-from spotdl.utils.spotify import SpotifyClient
 from spotdl.console import console_entry_point
+from spotdl.types.options import DownloaderOptionalOptions, DownloaderOptions
+from spotdl.utils.spotify import SpotifyClient
 from spotdl.download import Downloader
 from spotdl.utils.search import parse_query
 from spotdl.types import Song
 from spotdl._version import __version__
+
+__all__ = ["Spotdl", "console_entry_point", "__version__"]
 
 
 class Spotdl:
@@ -43,25 +46,8 @@ class Spotdl:
         cache_path: Optional[str] = None,
         no_cache: bool = False,
         headless: bool = False,
-        audio_providers: Optional[List[str]] = None,
-        lyrics_providers: Optional[List[str]] = None,
-        ffmpeg: str = "ffmpeg",
-        bitrate: Optional[str] = None,
-        ffmpeg_args: Optional[str] = None,
-        output_format: str = "mp3",
-        threads: int = 4,
-        output: str = ".",
-        save_file: Optional[str] = None,
-        overwrite: str = "skip",
-        cookie_file: Optional[str] = None,
-        filter_results: bool = True,
-        search_query: Optional[str] = None,
-        log_level: str = "INFO",
-        simple_tui: bool = False,
+        downloader_settings: Optional[Union[DownloaderOptionalOptions, DownloaderOptions]] = None,
         loop: Optional[asyncio.AbstractEventLoop] = None,
-        restrict: bool = False,
-        print_errors: bool = False,
-        sponsor_block: bool = False,
     ):
         """
         Initialize the Spotdl class
@@ -73,35 +59,12 @@ class Spotdl:
         - cache_path: Path to cache directory
         - no_cache: If true, no cache will be used
         - headless: If true, no browser will be opened
-        - audio_providers: The audio providers to use.
-        - lyrics_providers: The lyrics providers to use.
-        - ffmpeg: The ffmpeg executable to use.
-        - bitrate: The constant/variable bitrate to use.
-        - ffmpeg_args: The ffmpeg arguments to use.
-        - output_format: The output format to use.
-        - threads: The number of threads to use.
-        - output: The output directory to use.
-        - save_file: The save file to use when saving/loading song metadata.
-        - overwrite: The overwrite mode to use (force/skip).
-        - cookie_file: The cookie file to use for yt-dlp.
-        - filter_results: Whether to filter results.
-        - search_query: The search query to use.
-        - log_level: The log level to use.
-        - simple_tui: Whether to use simple tui.
-        - loop: The event loop to use.
-        - restrict: Whether to restrict the filename to ASCII characters.
-        - print_errors: Whether to print errors on exit.
-        - sponsor_block: Whether to remove sponsor segments using sponsor block postprocessor.
-
-        ### Notes
-        - `search-query` uses the same format as `output`.
+        - downloader_settings: Settings for the downloader
+        - loop: Event loop to use
         """
 
-        if audio_providers is None:
-            audio_providers = ["youtube-music"]
-
-        if lyrics_providers is None:
-            lyrics_providers = ["musixmatch"]
+        if downloader_settings is None:
+            downloader_settings = {}
 
         # Initialize spotify client
         SpotifyClient.init(
@@ -110,30 +73,13 @@ class Spotdl:
             user_auth=user_auth,
             cache_path=cache_path,
             no_cache=no_cache,
-            open_browser=not headless,
+            headless=headless,
         )
 
         # Initialize downloader
         self.downloader = Downloader(
-            audio_providers=audio_providers,
-            lyrics_providers=lyrics_providers,
-            search_query=search_query,
-            ffmpeg=ffmpeg,
-            bitrate=bitrate,
-            ffmpeg_args=ffmpeg_args,
-            output_format=output_format,
-            threads=threads,
-            output=output,
-            save_file=save_file,
-            overwrite=overwrite,
-            cookie_file=cookie_file,
-            filter_results=filter_results,
-            log_level=log_level,
-            simple_tui=simple_tui,
+            settings=downloader_settings,
             loop=loop,
-            restrict=restrict,
-            print_errors=print_errors,
-            sponsor_block=sponsor_block,
         )
 
     def search(self, query: List[str]) -> List[Song]:
@@ -150,7 +96,7 @@ class Spotdl:
         - query can be a list of song titles, urls, uris
         """
 
-        return parse_query(query, self.downloader.threads)
+        return parse_query(query, self.downloader.settings["threads"])
 
     def get_download_urls(self, songs: List[Song]) -> List[Optional[str]]:
         """
@@ -168,7 +114,7 @@ class Spotdl:
 
         urls: List[Optional[str]] = []
         with concurrent.futures.ThreadPoolExecutor(
-            max_workers=self.downloader.threads
+            max_workers=self.downloader.settings["threads"]
         ) as executor:
             future_to_song = {
                 executor.submit(self.downloader.search, song): song for song in songs

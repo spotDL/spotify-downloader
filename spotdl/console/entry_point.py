@@ -3,11 +3,8 @@ Module that holds the entry point for the console.
 """
 
 import sys
-import json
 import signal
 import logging
-import cProfile
-import pstats
 
 from rich.traceback import install
 from rich.console import Console
@@ -18,12 +15,10 @@ from spotdl.console.save import save
 from spotdl.console.meta import meta
 from spotdl.console.web import web
 from spotdl.download import Downloader
-from spotdl.providers.audio.base import AudioProviderError
-from spotdl.providers.audio.ytmusic import YouTubeMusic
-from spotdl.utils.config import DEFAULT_CONFIG, get_config, get_config_file
+from spotdl.utils.config import create_settings
 from spotdl.utils.arguments import parse_arguments
 from spotdl.utils.spotify import SpotifyClient, SpotifyError
-from spotdl.utils.console import ACTIONS
+from spotdl.utils.console import ACTIONS, generate_initial_config, is_executable
 from spotdl.download.downloader import DownloaderError
 from spotdl.utils.ffmpeg import (
     FFmpegError,
@@ -40,7 +35,7 @@ OPERATIONS = {
 }
 
 
-def entry_point():
+def console_entry_point():
     """
     Console entry point for spotdl. This is where the magic happens.
     """
@@ -56,101 +51,67 @@ def entry_point():
     console = Console()
 
     # Install rich traceback handler
-    install(show_locals=False, extra_lines=1)
+    install(show_locals=False, extra_lines=1, console=console)
 
     # Create config file if it doesn't exist
-    if get_config_file().is_file() is False:
-        config_path = get_config_file()
-        with open(config_path, "w", encoding="utf-8") as config_file:
-            json.dump(DEFAULT_CONFIG, config_file, indent=4)
+    generate_initial_config()
 
-    if getattr(sys, "frozen", False) and len(sys.argv) == 1:
-        # If the application is frozen, we check for ffmpeg
-        # if it's not present download it create config file
+    # If the application is frozen, we check for ffmpeg
+    # if it's not present download it create config file
+    if is_executable():
         if is_ffmpeg_installed() is False:
             download_ffmpeg()
 
     # Check if sys.argv contains an action
     # If it does, we run the action and exit
-    for action_name, action in ACTIONS.items():
-        if action_name in sys.argv:
-            action()
-            return None
+    try:
+        action_to_run = next(
+            action() for action_name, action in ACTIONS.items() if action_name in sys.argv
+        )
+    except StopIteration:
+        action_to_run = None
+
+    if action_to_run:
+        action_to_run()
+        return None
 
     # Parse the arguments
     arguments = parse_arguments()
 
-    # Get the config file
-    # It will automatically load if the `load_config` is set to True
-    # in the config file
-    config = {}
-    if arguments.config or (
-        get_config_file().exists() and get_config().get("load_config")
-    ):
-        config = get_config()
+    spotify_settings, downloader_settings, web_settings = create_settings(arguments)
 
-    # Create settings dict
-    # Argument value has always the priority, then the config file
-    # value, and if neither are set, use default value
-    settings = {}
-    for key, default_value in DEFAULT_CONFIG.items():
-        argument_val = arguments.__dict__.get(key)
-        config_val = config.get(key)
-
-        if argument_val is not None:
-            settings[key] = argument_val
-        elif config_val is not None:
-            settings[key] = config_val
-        else:
-            settings[key] = default_value
+    downloader_settings.setdefault("ffmpeg", "ffmpeg")
 
     # Check if ffmpeg is installed
-    if is_ffmpeg_installed(settings["ffmpeg"]) is False:
+    if is_ffmpeg_installed(downloader_settings["ffmpeg"]) is False:
         raise FFmpegError(
             "FFmpeg is not installed. Please run `spotdl --download-ffmpeg` to install it, "
             "or `spotdl --ffmpeg /path/to/ffmpeg` to specify the path to ffmpeg."
         )
 
-    if "youtube-music" in settings["audio_providers"]:
-        # Check if we are getting results from YouTube Music
-        ytm = YouTubeMusic(settings)
-        test_results = ytm.get_results("a")
-        if len(test_results) == 0:
-            raise AudioProviderError(
-                "Could not connect to YouTube Music API. Use a VPN or other audio provider."
-            )
-
     # Initialize spotify client
-    SpotifyClient.init(
-        client_id=settings["client_id"],
-        client_secret=settings["client_secret"],
-        auth_token=settings["auth_token"],
-        user_auth=settings["user_auth"],
-        cache_path=settings["cache_path"],
-        no_cache=settings["no_cache"],
-        open_browser=not settings["headless"],
-        max_retries=settings["max_retries"],
-    )
+    SpotifyClient.init(**spotify_settings)
 
     # If the application is frozen start web ui
     # or if the operation is `web`
-    if (
-        getattr(sys, "frozen", False)
-        and len(sys.argv) == 1
-        or arguments.operation == "web"
-    ):
+    if is_executable() or arguments.operation == "web":
         # Start web ui
-        web(settings)
+        web(web_settings, downloader_settings)
 
         return None
 
     # Check if save file is present and if it's valid
-    if isinstance(settings["save_file"], str) and not settings["save_file"].endswith(
-        ".spotdl"
-    ):
+    if isinstance(downloader_settings["save_file"], str) and not downloader_settings[
+        "save_file"
+    ].endswith(".spotdl"):
         raise DownloaderError("Save file has to end with .spotdl")
 
-    if arguments.query and "saved" in arguments.query and not settings["user_auth"]:
+    # Check if the user is logged in
+    if (
+        arguments.query
+        and "saved" in arguments.query
+        and not spotify_settings["user_auth"]
+    ):
         raise SpotifyError(
             "You must be logged in to use the saved query. "
             "Log in by adding the --user-auth flag"
@@ -158,28 +119,7 @@ def entry_point():
 
     # Initialize the downloader
     # for download, load and preload operations
-    downloader = Downloader(
-        audio_providers=settings["audio_providers"],
-        lyrics_providers=settings["lyrics_providers"],
-        ffmpeg=settings["ffmpeg"],
-        bitrate=settings["bitrate"],
-        ffmpeg_args=settings["ffmpeg_args"],
-        output_format=settings["format"],
-        threads=settings["threads"],
-        output=settings["output"],
-        save_file=settings["save_file"],
-        overwrite=settings["overwrite"],
-        cookie_file=settings["cookie_file"],
-        filter_results=settings["filter_results"],
-        search_query=settings["search_query"],
-        log_level=settings["log_level"],
-        simple_tui=settings["simple_tui"],
-        restrict=settings["restrict"],
-        print_errors=settings["print_errors"],
-        sponsor_block=settings["sponsor_block"],
-        playlist_numbering=settings["playlist_numbering"],
-        scan_for_songs=settings["scan_for_songs"],
-    )
+    downloader = Downloader(downloader_settings)
 
     def graceful_exit(_signal, _frame):
         downloader.progress_handler.close()
@@ -191,14 +131,9 @@ def entry_point():
     try:
         # Pick the operation to perform
         # based on the name and run it!
-
         OPERATIONS[arguments.operation](
             query=arguments.query,
-            save_path=settings["save_file"],
-            preload=settings["preload"],
             downloader=downloader,
-            m3u_file=settings["m3u"],
-            archive=settings["archive"],
         )
 
     except Exception:
@@ -211,21 +146,3 @@ def entry_point():
     downloader.progress_handler.close()
 
     return None
-
-
-def console_entry_point():
-    """
-    Wrapper around `entry_point` so we can profile the code
-    """
-
-    if "--profile" in sys.argv:
-        with cProfile.Profile() as profile:
-            entry_point()
-
-        stats = pstats.Stats(profile)
-        stats.sort_stats(pstats.SortKey.TIME)
-
-        # Use snakeviz to visualize the profile
-        stats.dump_stats("spotdl.profile")
-    else:
-        entry_point()

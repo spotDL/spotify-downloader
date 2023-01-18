@@ -2,24 +2,19 @@
 Save module for the console.
 """
 
+import asyncio
 import json
+from typing import List
 
-from typing import List, Optional
-from pathlib import Path
-
-from spotdl.download.downloader import Downloader
+from spotdl.download.downloader import Downloader, DownloaderError
 from spotdl.types.song import Song
-from spotdl.utils.search import parse_query
 from spotdl.utils.m3u import gen_m3u_files
+from spotdl.utils.search import parse_query
 
 
 def save(
     query: List[str],
     downloader: Downloader,
-    save_path: Path,
-    m3u_file: Optional[str] = None,
-    preload: bool = False,
-    **_,
 ) -> None:
     """
     Save metadata from spotify to the disk.
@@ -35,8 +30,14 @@ def save(
     - This function is multi-threaded.
     """
 
+    save_path = downloader.settings["save_file"]
+    m3u_file = downloader.settings["m3u"]
+
+    if save_path is None:
+        raise DownloaderError("Save file is not specified")
+
     # Parse the query
-    songs = parse_query(query, downloader.threads)
+    songs = parse_query(query, downloader.settings["threads"])
     save_data = [song.json for song in songs]
 
     def process_song(song: Song):
@@ -71,13 +72,11 @@ def save(
                 downloader.thread_executor, process_song, song
             )
 
-    if preload:
+    if downloader.settings["preload"]:
         tasks = [pool_worker(song) for song in songs]
 
         # call all task asynchronously, and wait until all are finished
-        save_data = list(
-            downloader.loop.run_until_complete(downloader.aggregate_tasks(tasks))
-        )
+        save_data = list(downloader.loop.run_until_complete(asyncio.gather(*tasks)))
 
     # Save the songs to a file
     with open(save_path, "w", encoding="utf-8") as save_file:
@@ -85,7 +84,7 @@ def save(
 
     if m3u_file:
         gen_m3u_files(
-            query, m3u_file, songs, downloader.output, downloader.output_format, False
+            songs, m3u_file, downloader.settings["output"], downloader.settings["format"], False
         )
 
     downloader.progress_handler.log(

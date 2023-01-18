@@ -2,6 +2,8 @@
 Sync Lyrics module for the console
 """
 
+import asyncio
+
 from pathlib import Path
 from typing import List
 
@@ -11,7 +13,7 @@ from spotdl.utils.metadata import embed_metadata, get_file_metadata
 from spotdl.utils.search import get_search_results, get_song_from_file_metadata
 
 
-def meta(query: List[str], downloader: Downloader, **_) -> None:
+def meta(query: List[str], downloader: Downloader) -> None:
     """
     This function applies metadata to the selected songs
     based on the file name.
@@ -112,4 +114,4 @@ def meta(query: List[str], downloader: Downloader, **_) -> None:
     tasks = [pool_worker(path) for path in paths]
 
     # call all task asynchronously, and wait until all are finished
-    downloader.loop.run_until_complete(downloader.aggregate_tasks(tasks))
+    downloader.loop.run_until_complete(asyncio.gather(*tasks))

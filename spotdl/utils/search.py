@@ -9,7 +9,7 @@ import json
 import concurrent.futures
 from pathlib import Path
 
-from typing import List, Optional
+from typing import Dict, List, Optional
 
 from spotdl.types import Playlist, Album, Artist, Saved
 from spotdl.types.song import SongList, Song
@@ -263,3 +263,42 @@ def get_song_from_file_metadata(file: Path) -> Optional[Song]:
         return None
 
     return create_empty_song(**file_metadata)
+
+
+def gather_known_songs(output: str, output_format: str) -> Dict[str, List[Path]]:
+    """
+    Gather all known songs from the output directory
+
+    ### Arguments
+    - output: Output path template
+    - output_format: Output format
+
+    ### Returns
+    - Dictionary containing all known songs and their paths
+    """
+
+    # Get the base directory from the path template
+    # Path("/Music/test/{artist}/{artists} - {title}.{output-ext}") -> "/Music/test"
+    base_dir = output.split("{", 1)[0]
+    paths = Path(base_dir).glob(f"**/*.{output_format}")
+
+    known_songs: Dict[str, List[Path]] = {}
+    for path in paths:
+        # Try to get the song from the metadata
+        song = get_song_from_file_metadata(path)
+
+        # If the songs doesn't have metadata, try to get it from the filename
+        if song is None or song.url is None:
+            search_results = get_search_results(path.stem)
+            if len(search_results) == 0:
+                continue
+
+            song = search_results[0]
+
+        known_paths = known_songs.get(song.url)
+        if known_paths is None:
+            known_songs[song.url] = [path]
+        else:
+            known_songs[song.url].append(path)
+
+    return known_songs

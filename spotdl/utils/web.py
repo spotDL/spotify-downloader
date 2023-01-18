@@ -7,6 +7,7 @@ FastAPI routes/classes etc.
 import asyncio
 import logging
 import os
+
 from pathlib import Path
 from typing import Dict, Any, List, Optional
 
@@ -25,10 +26,15 @@ from fastapi import (
     WebSocket,
     WebSocketDisconnect,
 )
-from spotdl.download.progress_handler import NAME_TO_LEVEL, ProgressHandler, SongTracker
 
+from spotdl.download.progress_handler import NAME_TO_LEVEL, ProgressHandler, SongTracker
 from spotdl.types.song import Song
 from spotdl.types.album import Album
+from spotdl.types.options import (
+    WebOptions,
+    DownloaderOptions,
+    DownloaderOptionalOptions,
+)
 from spotdl.download.downloader import Downloader
 from spotdl.utils.search import get_search_results
 from spotdl.utils.config import get_spotdl_path
@@ -153,7 +159,8 @@ class ApplicationState:
     server: Server
     loop: asyncio.AbstractEventLoop
     downloader: Downloader
-    settings: Dict[str, Any]
+    web_settings: WebOptions
+    downloader_settings: DownloaderOptions
     ws_instances: List[WSProgressHandler] = []
     logger: logging.Logger
 
@@ -193,7 +200,7 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
 
         if (
             len(app_state.ws_instances) == 0
-            and app_state.settings["keep_alive"] is False
+            and app_state.web_settings["keep_alive"] is False
         ):
             app_state.logger.debug(
                 "No active connections, waiting 1s before shutting down"
@@ -271,17 +278,17 @@ async def download_url(
     - returns the file path if the song was downloaded.
     """
 
-    if state.settings.get("web_use_output_dir", False):
-        state.downloader.output = state.settings["output"]
+    if state.web_settings.get("web_use_output_dir", False):
+        state.downloader.settings["output"] = state.downloader_settings["output"]
     else:
-        state.downloader.output = str(
+        state.downloader.settings["output"] = str(
             (get_spotdl_path() / f"web/sessions/{client_id}").absolute()
         )
 
     ws_instance = WSProgressHandler.get_instance(client_id)
     if ws_instance is not None:
         state.downloader.progress_handler = ProgressHandler(
-            NAME_TO_LEVEL[state.settings["log_level"]],
+            NAME_TO_LEVEL[state.downloader_settings["log_level"]],
             simple_tui=True,
             update_callback=ws_instance.song_update,
         )
@@ -325,10 +332,12 @@ async def download_file(
     """
 
     expected_path = str((get_spotdl_path() / "web/sessions").absolute())
-    if state.settings.get("web_use_output_dir", False):
-        expected_path = str(Path(state.settings["output"].split("{", 1)[0]).absolute())
+    if state.web_settings.get("web_use_output_dir", False):
+        expected_path = str(
+            Path(state.downloader_settings["output"].split("{", 1)[0]).absolute()
+        )
 
-    if (not file.endswith(state.settings["format"])) or (
+    if (not file.endswith(state.downloader_settings["format"])) or (
         not file.startswith(expected_path)
     ):
         raise HTTPException(status_code=400, detail="Invalid download path.")
@@ -342,7 +351,7 @@ async def download_file(
 @router.get("/api/settings")
 def get_settings(
     state: ApplicationState = Depends(get_current_state),
-) -> Dict[str, Any]:
+) -> DownloaderOptions:
     """
     Get the settings.
 
@@ -350,13 +359,14 @@ def get_settings(
     - returns the settings.
     """
 
-    return state.settings
+    return state.downloader_settings
 
 
 @router.post("/api/settings/update")
 def update_settings(
-    settings: Dict[str, Any], state: ApplicationState = Depends(get_current_state)
-) -> Dict[str, Any]:
+    settings: DownloaderOptionalOptions,
+    state: ApplicationState = Depends(get_current_state),
+) -> DownloaderOptions:
     """
     Change downloader settings by re-initializing the downloader.
 
@@ -368,37 +378,22 @@ def update_settings(
     """
 
     # Create shallow copy of settings
-    settings_cpy = state.settings.copy()
+    settings_cpy = state.downloader_settings.copy()
 
     # Update settings with new settings that are not None
-    settings_cpy.update({k: v for k, v in settings.items() if v is not None})
+    settings_cpy.update({k: v for k, v in settings.items() if v is not None})  # type: ignore
 
     state.logger.info(f"Applying settings: {settings_cpy}")
 
+    new_settings = DownloaderOptions(**settings_cpy)
+
     # Re-initialize downloader
     state.downloader = Downloader(
-        audio_providers=settings_cpy["audio_providers"],
-        lyrics_providers=settings_cpy["lyrics_providers"],
-        ffmpeg=settings_cpy["ffmpeg"],
-        bitrate=settings_cpy["bitrate"],
-        ffmpeg_args=settings_cpy["ffmpeg_args"],
-        output_format=settings_cpy["format"],
-        threads=settings_cpy["threads"],
-        output=settings_cpy["output"],
-        save_file=settings_cpy["save_file"],
-        overwrite=settings_cpy["overwrite"],
-        cookie_file=settings_cpy["cookie_file"],
-        filter_results=settings_cpy["filter_results"],
-        search_query=settings_cpy["search_query"],
-        log_level=settings_cpy["log_level"],
-        simple_tui=True,
-        restrict=settings_cpy["restrict"],
-        print_errors=settings_cpy["print_errors"],
-        sponsor_block=settings_cpy["sponsor_block"],
+        new_settings,
         loop=state.loop,
     )
 
-    return settings_cpy
+    return new_settings
 
 
 def fix_mime_types():

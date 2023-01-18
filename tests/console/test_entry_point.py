@@ -4,7 +4,7 @@ import re
 
 import pytest
 
-from spotdl.console.entry_point import console_entry_point, entry_point
+from spotdl.console.entry_point import console_entry_point
 from spotdl.utils.spotify import SpotifyClient
 from tests.conftest import new_initialize, clean_ansi_sequence
 
@@ -24,7 +24,7 @@ def test_show_help(capsys, monkeypatch, argument):
     monkeypatch.setattr(sys, "argv", cli_args)
 
     with pytest.raises(SystemExit):
-        entry_point()
+        console_entry_point()
 
     out, _ = capsys.readouterr()
     assert "usage: spotdl [-h]" in out
@@ -45,7 +45,7 @@ def test_show_version(capsys, monkeypatch, argument):
     monkeypatch.setattr(sys, "argv", cli_args)
 
     with pytest.raises(SystemExit):
-        entry_point()
+        console_entry_point()
 
     out, _ = capsys.readouterr()
 
@@ -113,6 +113,8 @@ def test_preload_song(capsys, monkeypatch, tmpdir):
     out = "".join([clean_ansi_sequence(out) for out in capsys.readouterr()])
 
     assert "Saved 1 song to test.spotdl" in out
+
+    print(tmpdir.listdir())
 
     with open("test.spotdl", "r", encoding="utf-8") as f:
         data = json.load(f)

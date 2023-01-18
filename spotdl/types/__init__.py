@@ -7,3 +7,9 @@ from spotdl.types.playlist import Playlist
 from spotdl.types.album import Album
 from spotdl.types.artist import Artist
 from spotdl.types.saved import Saved
+from spotdl.types.options import (
+    SpotifyOptions,
+    DownloaderOptions,
+    WebOptions,
+    SpotDLOptions,
+)

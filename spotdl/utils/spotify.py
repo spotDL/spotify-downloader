@@ -12,6 +12,7 @@ from json import dumps
 from typing import Dict, Optional
 
 import requests
+
 from spotipy import Spotify
 from spotipy.cache_handler import CacheFileHandler, MemoryCacheHandler
 from spotipy.oauth2 import SpotifyClientCredentials, SpotifyOAuth
@@ -53,12 +54,12 @@ class Singleton(type):
         self,
         client_id: str,
         client_secret: str,
-        auth_token: Optional[str] = None,
         user_auth: bool = False,
-        cache_path: Optional[str] = None,
         no_cache: bool = False,
-        open_browser: bool = True,
+        headless: bool = False,
         max_retries: int = 3,
+        auth_token: Optional[str] = None,
+        cache_path: Optional[str] = None,
     ) -> "Singleton":
         """
         Initializes the SpotifyClient.
@@ -95,7 +96,7 @@ class Singleton(type):
                 redirect_uri="http://127.0.0.1:8080/",
                 scope="user-library-read",
                 cache_handler=cache_handler,
-                open_browser=open_browser,
+                open_browser=not headless,
             )
         # Use SpotifyClientCredentials as auth manager
         else:

@@ -4,14 +4,22 @@ Module related to managing reading and writing to the config file.
 Default config - spotdl.utils.config.DEFAULT_CONFIG
 """
 
-from pathlib import Path
-from typing import Any, Dict
-
 import os
 import platform
 import json
 
+from argparse import Namespace
+from pathlib import Path
+from typing import Any, Dict, Tuple, Union
+
 import platformdirs
+
+from spotdl.types.options import (
+    SpotifyOptions,
+    DownloaderOptions,
+    WebOptions,
+    SpotDLOptions,
+)
 
 
 class ConfigError(Exception):
@@ -124,42 +132,123 @@ def get_config() -> Dict[str, Any]:
         return json.load(config_file)
 
 
-DEFAULT_CONFIG = {
-    "load_config": True,
-    "log_level": "INFO",
-    "simple_tui": False,
+def create_settings_type(
+    arguments: Namespace,
+    config: Dict[str, Any],
+    default: Union[SpotifyOptions, DownloaderOptions, WebOptions],
+) -> Dict[str, Any]:
+    """
+    Create settings dict
+    Argument value has always the priority, then the config file
+    value, and if neither are set, use default value
+
+    ### Arguments
+    - arguments: Namespace from argparse
+    - default: dict
+
+    ### Returns
+    - settings: dict
+    """
+
+    settings = {}
+    for key, default_value in default.items():
+        argument_val = arguments.__dict__.get(key)
+        config_val = config.get(key)
+
+        if argument_val is not None:
+            settings[key] = argument_val
+        elif config_val is not None:
+            settings[key] = config_val
+        else:
+            settings[key] = default_value
+
+    return settings
+
+
+def create_settings(
+    arguments: Namespace,
+) -> Tuple[SpotifyOptions, DownloaderOptions, WebOptions]:
+    """
+    Create settings dicts for Spotify, Downloader and Web
+    based on the arguments and config file (if enabled)
+
+    ### Arguments
+    - arguments: Namespace from argparse
+
+    ### Returns
+    - spotify_options: SpotifyOptions
+    - downloader_options: DownloaderOptions
+    - web_options: WebOptions
+    """
+
+    # Get the config file
+    # It will automatically load if the `load_config` is set to True
+    # in the config file
+    config = {}
+    if arguments.config or (
+        get_config_file().exists() and get_config().get("load_config")
+    ):
+        config = get_config()
+
+    spotify_options = SpotifyOptions(
+        **create_settings_type(arguments, config, SPOTIFY_OPTIONS)
+    )
+    downloader_options = DownloaderOptions(
+        **create_settings_type(arguments, config, DOWNLOADER_OPTIONS)
+    )
+    web_options = WebOptions(**create_settings_type(arguments, config, WEB_OPTIONS))
+
+    return spotify_options, downloader_options, web_options
+
+
+SPOTIFY_OPTIONS: SpotifyOptions = {
+    "client_id": "5f573c9620494bae87890c0f08a60293",
+    "client_secret": "212476d9b0f3472eaa762d90b19b0ba8",
+    "auth_token": None,
+    "user_auth": False,
+    "headless": False,
     "cache_path": str(get_cache_path()),
+    "no_cache": False,
+    "max_retries": 3,
+}
+
+DOWNLOADER_OPTIONS: DownloaderOptions = {
     "audio_providers": ["youtube-music"],
     "lyrics_providers": ["genius", "azlyrics", "musixmatch"],
+    "playlist_numbering": False,
+    "scan_for_songs": False,
+    "m3u": None,
+    "output": "{artists} - {title}.{output-ext}",
+    "overwrite": "skip",
+    "search_query": None,
     "ffmpeg": "ffmpeg",
     "bitrate": None,
     "ffmpeg_args": None,
     "format": "mp3",
     "save_file": None,
-    "m3u": None,
-    "output": "{artists} - {title}.{output-ext}",
-    "overwrite": "skip",
-    "client_id": "5f573c9620494bae87890c0f08a60293",
-    "client_secret": "212476d9b0f3472eaa762d90b19b0ba8",
-    "auth_token": None,
-    "user_auth": False,
-    "search_query": None,
     "filter_results": True,
     "threads": 4,
-    "no_cache": False,
-    "max_retries": 3,
     "cookie_file": None,
-    "headless": False,
     "restrict": False,
     "print_errors": False,
     "sponsor_block": False,
     "preload": False,
     "archive": None,
+    "load_config": True,
+    "log_level": "INFO",
+    "simple_tui": False,
+}
+
+WEB_OPTIONS: WebOptions = {
+    "web_use_output_dir": False,
     "port": 8800,
     "host": "localhost",
     "keep_alive": False,
     "allowed_origins": None,
-    "playlist_numbering": False,
-    "scan_for_songs": False,
-    "web_use_output_dir": False,
+}
+
+DEFAULT_CONFIG: SpotDLOptions = {
+    **SPOTIFY_OPTIONS,
+    **DOWNLOADER_OPTIONS,
+    **WEB_OPTIONS,
 }

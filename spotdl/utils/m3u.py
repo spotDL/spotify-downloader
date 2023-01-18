@@ -5,10 +5,6 @@ Module for creating m3u content and writing it to a file.
 from typing import List, Optional
 
 from spotdl.types.song import Song
-from spotdl.types.playlist import Playlist
-from spotdl.types.album import Album
-from spotdl.types.artist import Artist
-from spotdl.types.saved import Saved
 from spotdl.utils.formatter import create_file_name
 
 
@@ -36,9 +32,8 @@ def create_m3u_content(
 
 
 def gen_m3u_files(
-    query: List[str],
+    songs: List[Song],
     file_name: Optional[str],
-    song_list: List[Song],
     template: str,
     file_extension: str,
     short: bool = False,
@@ -50,7 +45,7 @@ def gen_m3u_files(
     - query: the query
     - file_name: the file name to use
     - song_list: the list of songs
-    - template: the template to use
+    - template: the output file template to use
     - file_extension: the file extension to use
     - short: whether to use the short version of the template
     """
@@ -72,55 +67,46 @@ def gen_m3u_files(
     if not file_name.endswith(".m3u"):
         file_name += ".m3u"
 
-    lists = []
-    for request in query:
-        if "open.spotify.com" in request and "playlist" in request:
-            lists.append(Playlist.create_basic_list(request))
-        elif "open.spotify.com" in request and "album" in request:
-            lists.append(Album.create_basic_list(request))
-        elif "open.spotify.com" in request and "artist" in request:
-            lists.append(Artist.create_basic_list(request))
-        elif request == "saved":
-            lists.append(Saved.create_basic_list())
+    # Get song lists from song objects
+    dup_lists = [result.song_list for result in songs]
 
-    if len(lists) == 0 and "{list" in template:
-        raise ValueError(
-            "You must provide a playlist/album/artist/saved to use {list} in the template."
-        )
+    # Remove duplicates
+    list_of_lists = []
+    for song_list in dup_lists:
+        if song_list is None:
+            continue
 
-    # Create a songs list from the lists and the song_list
-    songs_lists = []
-    for list_obj in lists:
-        songs = []
-        for song in song_list:
-            if song.url in list_obj.urls:
-                songs.append(song)
-
-        songs_lists.append((list_obj.name, songs))
+        if song_list.url not in [list.url for list in list_of_lists]:
+            list_of_lists.append(song_list)
 
     if "{list}" in file_name:
-        for list_name, new_song_list in songs_lists:
+        # Create multiple m3u files if there are multiple lists
+        for song_list in list_of_lists:
+            list_name = song_list.__class__.__name__
+
             create_m3u_file(
                 file_name.format(
                     list=list_name,
                 ),
-                new_song_list,
+                song_list,
                 template,
                 file_extension,
                 short,
             )
     elif "{list[" in file_name and "]}" in file_name:
+        # Create a single m3u file for specified song list name
         create_m3u_file(
-            file_name.format(list=[list_name for list_name, _ in songs_lists]),
-            song_list,
+            file_name.format(list=[list_name for list_name, _ in list_of_lists]),
+            songs,
             template,
             file_extension,
             short,
         )
     else:
+        # Use the provided file name
         create_m3u_file(
             file_name,
-            song_list,
+            songs,
             template,
             file_extension,
             short,

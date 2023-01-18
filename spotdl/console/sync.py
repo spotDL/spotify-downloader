@@ -4,8 +4,7 @@ Sync module for the console.
 
 import json
 
-from pathlib import Path
-from typing import List, Optional
+from typing import List
 
 from spotdl.download.downloader import Downloader
 from spotdl.utils.search import parse_query
@@ -17,9 +16,6 @@ from spotdl.types.song import Song
 def sync(
     query: List[str],
     downloader: Downloader,
-    save_path: Optional[Path] = None,
-    m3u_file: Optional[str] = None,
-    **_,
 ) -> None:
     """
     Sync function for the console.
@@ -34,7 +30,11 @@ def sync(
     - m3u_file: Path to the file to save the metadata to.
     """
 
-    downloader.save_file = None
+    save_path = downloader.settings["save_file"]
+    downloader.settings["save_file"] = None
+
+    m3u_file = downloader.settings["m3u"]
+    downloader.settings["m3u"] = None
 
     # Query and save file
     # Create initial sync file
@@ -47,7 +47,7 @@ def sync(
             )
 
         # Parse the query
-        songs_list = parse_query(query, downloader.threads)
+        songs_list = parse_query(query, downloader.settings["threads"])
 
         # Create sync file
         with open(save_path, "w", encoding="utf-8") as save_file:
@@ -68,11 +68,10 @@ def sync(
         # Create m3u file
         if m3u_file:
             gen_m3u_files(
-                query,
-                m3u_file,
                 songs_list,
-                downloader.output,
-                downloader.output_format,
+                m3u_file,
+                downloader.settings["output"],
+                downloader.settings["format"],
                 False,
             )
 
@@ -89,13 +88,15 @@ def sync(
             raise ValueError("Sync file is not a valid sync file.")
 
         # Parse the query
-        songs_playlist = parse_query(sync_data["query"], downloader.threads)
+        songs_playlist = parse_query(sync_data["query"], downloader.settings["threads"])
 
         # Get the names and URLs of previously downloaded songs from the sync file
         old_files = []
         for entry in sync_data["songs"]:
             file_name = create_file_name(
-                Song.from_dict(entry), downloader.output, downloader.output_format
+                Song.from_dict(entry),
+                downloader.settings["output"],
+                downloader.settings["format"],
             )
             old_files.append((file_name, entry["url"]))
 
@@ -123,11 +124,10 @@ def sync(
 
         if m3u_file:
             gen_m3u_files(
-                sync_data["query"],
-                m3u_file,
                 songs_playlist,
-                downloader.output,
-                downloader.output_format,
+                m3u_file,
+                downloader.settings["output"],
+                downloader.settings["format"],
                 False,
             )
 

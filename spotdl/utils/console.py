@@ -2,6 +2,7 @@
 Module for holding console related actions.
 """
 
+import sys
 import json
 
 from spotdl.utils.config import DEFAULT_CONFIG, get_config_file
@@ -11,6 +12,40 @@ from spotdl.utils.ffmpeg import (
     is_ffmpeg_installed,
     download_ffmpeg as ffmpeg_download,
 )
+
+
+def is_frozen():
+    """
+    Check if the application is frozen.
+
+    ### Returns
+    - `True` if the application is frozen, `False` otherwise.
+    """
+
+    return getattr(sys, "frozen", False)
+
+
+def is_executable():
+    """
+    Check if the application is an prebuilt executable.
+    And has been launched with double click.
+
+    ### Returns
+    - `True` if the application is an prebuilt executable, `False` otherwise.
+    """
+
+    return is_frozen() and len(sys.argv) == 1
+
+
+def generate_initial_config():
+    """
+    Generate the initial config file if it doesn't exist.
+    """
+
+    if get_config_file().is_file() is False:
+        config_path = get_config_file()
+        with open(config_path, "w", encoding="utf-8") as config_file:
+            json.dump(DEFAULT_CONFIG, config_file, indent=4)
 
 
 def generate_config():

@@ -47,6 +47,7 @@ fastapi = "!= 0.89.0"
 platformdirs = "^2.6.2"
 pykakasi = "^2.2.1"
 syncedlyrics = "^0.2.1"
+typing-extensions = "^4.4.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^7.2.0"

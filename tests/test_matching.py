@@ -81,9 +81,12 @@ from tests.conftest import new_initialize
             ],
         ),
         (
-            # De Vet Du - Listen to Pantamera
+            # De Vet Du - Pantamera
             "https://open.spotify.com/track/760xwlNMwa6IZGff1eBhFW",
-            ["https://music.youtube.com/watch?v=Apej0F8ack0"],
+            [
+                "https://music.youtube.com/watch?v=Apej0F8ack0",
+                "https://music.youtube.com/watch?v=7xRMrGO-OLo",
+            ],
         ),
         (
             # Lisa Hannigan - Amhrán Na Farraige
