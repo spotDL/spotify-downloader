@@ -42,7 +42,7 @@ def save(
 
     def process_song(song: Song):
         try:
-            data, _ = downloader.search(song)
+            data = downloader.search(song)
             if data is None:
                 downloader.progress_handler.error(
                     f"Could not find a match for {song.display_name}"

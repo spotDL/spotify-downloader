@@ -124,7 +124,7 @@ class Spotdl:
             for future in concurrent.futures.as_completed(future_to_song):
                 song = future_to_song[future]
                 try:
-                    data, _ = future.result()
+                    data = future.result()
                     urls.append(data)
                 except Exception as exc:
                     self.downloader.progress_handler.error(
