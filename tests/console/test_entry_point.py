@@ -114,8 +114,6 @@ def test_preload_song(capsys, monkeypatch, tmpdir):
 
     assert "Saved 1 song to test.spotdl" in out
 
-    print(tmpdir.listdir())
-
     with open("test.spotdl", "r", encoding="utf-8") as f:
         data = json.load(f)
 

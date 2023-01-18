@@ -283,7 +283,7 @@ class Downloader:
                 self.thread_executor, self.search_and_download, song
             )
 
-    def search(self, song: Song) -> Tuple[str, AudioProvider]:
+    def search(self, song: Song) -> str:
         """
         Search for a song using all available providers.
 
@@ -297,7 +297,7 @@ class Downloader:
         for audio_provider in self.audio_providers:
             url = audio_provider.search(song)
             if url:
-                return url, audio_provider
+                return url
 
             self.progress_handler.debug(
                 f"{audio_provider.name} failed to find {song.display_name}"
@@ -479,31 +479,27 @@ class Downloader:
 
         try:
             if song.download_url is None:
-                download_url, audio_provider = self.search(song)
+                download_url = self.search(song)
             else:
-                # If the song object already has a download url
-                # we can skip the search, and just reinitialize the base
-                # audio provider to download the song
                 download_url = song.download_url
-                audio_provider = AudioProvider(
-                    output_format=self.settings["format"],
-                    cookie_file=self.settings["cookie_file"],
-                    search_query=self.settings["search_query"],
-                    filter_results=self.settings["filter_results"],
-                )
 
-            self.progress_handler.debug(
-                f"Downloading {song.display_name} using {download_url}, "
-                f"audio provider: {audio_provider.name}"
+            # Initialize audio downloader
+            audio_downloader = AudioProvider(
+                output_format=self.settings["format"],
+                cookie_file=self.settings["cookie_file"],
+                search_query=self.settings["search_query"],
+                filter_results=self.settings["filter_results"],
             )
 
+            self.progress_handler.debug(f"Downloading {song.display_name} using {download_url}")
+
             # Add progress hook to the audio provider
-            audio_provider.audio_handler.add_progress_hook(
+            audio_downloader.audio_handler.add_progress_hook(
                 display_progress_tracker.yt_dlp_progress_hook
             )
 
             # Download the song using yt-dlp
-            download_info = audio_provider.get_download_metadata(
+            download_info = audio_downloader.get_download_metadata(
                 download_url, download=True
             )
 
@@ -592,7 +588,7 @@ class Downloader:
             if self.settings["sponsor_block"]:
                 # Initialize the sponsorblock post processor
                 post_processor = SponsorBlockPP(
-                    audio_provider.audio_handler, SPONSOR_BLOCK_CATEGORIES
+                    audio_downloader.audio_handler, SPONSOR_BLOCK_CATEGORIES
                 )
 
                 # Run the post processor to get the sponsor segments
@@ -607,7 +603,7 @@ class Downloader:
 
                     # Initialize the modify chapters post processor
                     modify_chapters = ModifyChaptersPP(
-                        audio_provider.audio_handler,
+                        audio_downloader.audio_handler,
                         remove_sponsor_segments=SPONSOR_BLOCK_CATEGORIES,
                     )
 
