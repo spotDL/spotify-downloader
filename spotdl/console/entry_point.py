@@ -6,9 +6,6 @@ import sys
 import signal
 import logging
 
-from rich.traceback import install
-from rich.console import Console
-
 from spotdl.console.download import download
 from spotdl.console.sync import sync
 from spotdl.console.save import save
@@ -18,6 +15,7 @@ from spotdl.download import Downloader
 from spotdl.utils.config import create_settings
 from spotdl.utils.arguments import parse_arguments
 from spotdl.utils.spotify import SpotifyClient, SpotifyError
+from spotdl.utils.logging import init_logging
 from spotdl.utils.console import ACTIONS, generate_initial_config, is_executable
 from spotdl.download.downloader import DownloaderError
 from spotdl.utils.ffmpeg import (
@@ -34,27 +32,24 @@ OPERATIONS = {
     "meta": meta,
 }
 
+logger = logging.getLogger(__name__)
+
 
 def console_entry_point():
     """
     Console entry point for spotdl. This is where the magic happens.
     """
 
-    # Don't log too much
-    logging.getLogger("requests").setLevel(logging.WARNING)
-    logging.getLogger("urllib3").setLevel(logging.WARNING)
-    logging.getLogger("spotipy").setLevel(logging.WARNING)
-    logging.getLogger("asyncio").setLevel(logging.WARNING)
-    logging.getLogger("syncedlyrics").setLevel(logging.WARNING)
-
-    # Create a console
-    console = Console()
-
-    # Install rich traceback handler
-    install(show_locals=False, extra_lines=1, console=console)
-
     # Create config file if it doesn't exist
     generate_initial_config()
+
+    # Parse the arguments
+    arguments = parse_arguments()
+
+    # Create settings dicts
+    spotify_settings, downloader_settings, web_settings = create_settings(arguments)
+
+    init_logging(downloader_settings["log_level"])
 
     # If the application is frozen, we check for ffmpeg
     # if it's not present download it create config file
@@ -76,13 +71,6 @@ def console_entry_point():
     if action_to_run:
         action_to_run()
         return None
-
-    # Parse the arguments
-    arguments = parse_arguments()
-
-    spotify_settings, downloader_settings, web_settings = create_settings(arguments)
-
-    downloader_settings.setdefault("ffmpeg", "ffmpeg")
 
     # Check if ffmpeg is installed
     if is_ffmpeg_installed(downloader_settings["ffmpeg"]) is False:
@@ -137,11 +125,10 @@ def console_entry_point():
             query=arguments.query,
             downloader=downloader,
         )
-
     except Exception:
         downloader.progress_handler.close()
 
-        console.print_exception(show_locals=False, extra_lines=1)
+        logger.exception("An error occurred")
 
         sys.exit(1)
 

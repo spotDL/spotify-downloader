@@ -9,6 +9,7 @@ import shutil
 import sys
 import concurrent.futures
 import traceback
+import logging
 
 from pathlib import Path
 from argparse import Namespace
@@ -61,6 +62,8 @@ SPONSOR_BLOCK_CATEGORIES = {
     "music_offtopic": "Non-Music Section",
 }
 
+logger = logging.getLogger(__name__)
+
 
 class DownloaderError(Exception):
     """
@@ -103,6 +106,8 @@ class Downloader:
             )  # type: ignore
         )
 
+        logger.debug("Downloader settings: %s", self.settings)
+
         # If no audio providers specified, raise an error
         if len(self.settings["audio_providers"]) == 0:
             raise DownloaderError(
@@ -118,6 +123,8 @@ class Downloader:
                 raise DownloaderError("ffmpeg is not installed")
 
             self.ffmpeg = str(ffmpeg_exec.absolute())
+
+        logger.debug("FFmpeg path: %s", self.ffmpeg)
 
         self.loop = loop or (
             asyncio.new_event_loop()
@@ -136,20 +143,18 @@ class Downloader:
             max_workers=self.settings["threads"]
         )
 
-        self.progress_handler = ProgressHandler(
-            NAME_TO_LEVEL[self.settings["log_level"]], self.settings["simple_tui"]
-        )
+        self.progress_handler = ProgressHandler(self.settings["simple_tui"])
 
         # Gather already present songs
         self.known_songs: Dict[str, List[Path]] = {}
         if self.settings["scan_for_songs"]:
-            self.progress_handler.log(
-                "Scanning for known songs, this might take a while..."
-            )
+            logger.info("Scanning for known songs, this might take a while...")
 
             self.known_songs = gather_known_songs(
                 self.settings["output"], self.settings["format"]
             )
+
+        logger.debug("Known songs: %s", self.known_songs)
 
         # Initialize lyrics providers
         self.lyrics_providers: List[LyricsProvider] = []
@@ -183,8 +188,9 @@ class Downloader:
         self.url_archive = Archive()
         if self.settings["archive"]:
             self.url_archive.load(self.settings["archive"])
+        logger.debug("Archive: %d urls", len(self.url_archive))
 
-        self.progress_handler.debug("Downloader initialized")
+        logger.debug("Downloader initialized")
 
     def download_song(self, song: Song) -> Tuple[Song, Optional[Path]]:
         """
@@ -216,8 +222,11 @@ class Downloader:
         - list of tuples with the song and the path to the downloaded file if successful.
         """
 
+        logger.debug("Downloading %d songs", len(songs))
+
         if self.settings["archive"]:
             songs = [song for song in songs if song.url not in self.url_archive]
+            logger.debug("Filtered %d songs with archive", len(songs))
 
         self.progress_handler.set_song_count(len(songs))
 
@@ -230,7 +239,7 @@ class Downloader:
         # Print errors
         if self.settings["print_errors"]:
             for error in self.errors:
-                self.progress_handler.error(error)
+                logger.error(error)
 
         # Save archive
         if self.settings["archive"]:
@@ -239,6 +248,11 @@ class Downloader:
                     self.url_archive.add(result[0].url)
 
             self.url_archive.save(self.settings["archive"])
+            logger.info(
+                "Saved archive with %d urls to %s",
+                len(self.url_archive),
+                self.settings["archive"],
+            )
 
         # Create m3u playlist
         if self.settings["m3u"]:
@@ -255,6 +269,8 @@ class Downloader:
         if self.settings["save_file"]:
             with open(self.settings["save_file"], "w", encoding="utf-8") as save_file:
                 json.dump([song.json for song, _ in results], save_file, indent=4)
+
+            logger.info("Saved results to %s", self.settings["save_file"])
 
         return results
 
@@ -299,9 +315,7 @@ class Downloader:
             if url:
                 return url
 
-            self.progress_handler.debug(
-                f"{audio_provider.name} failed to find {song.display_name}"
-            )
+            logger.debug("%s failed to find %s", audio_provider.name, song.display_name)
 
         raise LookupError(f"No results found for song: {song.display_name}")
 
@@ -319,14 +333,16 @@ class Downloader:
         for lyrics_provider in self.lyrics_providers:
             lyrics = lyrics_provider.get_lyrics(song.name, song.artists)
             if lyrics:
-                self.progress_handler.debug(
-                    f"Found lyrics for {song.display_name} on {lyrics_provider.name}"
+                logger.debug(
+                    "Found lyrics for %s on %s", song.display_name, lyrics_provider.name
                 )
+
                 return lyrics
 
-            self.progress_handler.debug(
-                f"{lyrics_provider.name} failed to find lyrics "
-                f"for {song.display_name}"
+            logger.debug(
+                "%s failed to find lyrics for %s",
+                lyrics_provider.name,
+                song.display_name,
             )
 
         return None
@@ -351,17 +367,6 @@ class Downloader:
         # And reinitialize the song object
         if song.name is None and song.url:
             song = reinit_song(song, self.settings["playlist_numbering"])
-
-        # Find song lyrics and add them to the song object
-        lyrics = self.search_lyrics(song)
-        if lyrics is None:
-            self.progress_handler.debug(
-                f"No lyrics found for {song.display_name}, "
-                "lyrics providers: "
-                f"{', '.join([lprovider.name for lprovider in self.lyrics_providers])}"
-            )
-        else:
-            song.lyrics = lyrics
 
         # Initalize the progress tracker
         display_progress_tracker = self.progress_handler.get_new_tracker(song)
@@ -389,8 +394,8 @@ class Downloader:
         ]
 
         if dup_song_paths:
-            self.progress_handler.debug(
-                f"Found duplicate songs for {song.display_name} at {dup_song_paths}"
+            logger.debug(
+                "Found duplicate songs for %s at %s", song.display_name, dup_song_paths
             )
 
         # If the file already exists and we don't want to overwrite it,
@@ -398,11 +403,12 @@ class Downloader:
         if (output_file.exists() or dup_song_paths) and self.settings[
             "overwrite"
         ] == "skip":
-            self.progress_handler.log(
-                f"Skipping {song.display_name}"
-                f"{' (duplicate)' if dup_song_paths else ''}"
-                " (file already exists)"
+            logger.info(
+                "Skipping %s (file already exists) %s",
+                song.display_name,
+                "(duplicate)" if dup_song_paths else "",
             )
+
             display_progress_tracker.notify_download_skip()
             return song, None
 
@@ -410,21 +416,35 @@ class Downloader:
         if (output_file.exists() or dup_song_paths) and self.settings[
             "overwrite"
         ] == "force":
-            self.progress_handler.log(
-                f"Overwriting {song.display_name}{' (duplicate)' if dup_song_paths else ''}"
+            logger.info(
+                "Overwriting %s %s",
+                song.display_name,
+                " (duplicate)" if dup_song_paths else "",
             )
 
             # If the duplicate song path is not None, we can delete the old file
             for dup_song_path in dup_song_paths:
                 try:
-                    self.progress_handler.log(
-                        f"Removing duplicate file: {dup_song_path}"
-                    )
+                    logger.info("Removing duplicate file: %s", dup_song_path)
+
                     dup_song_path.unlink()
                 except (PermissionError, OSError) as exc:
-                    self.progress_handler.debug(
-                        f"Could not remove duplicate file: {dup_song_path}, error: {exc}"
+                    logger.debug(
+                        "Could not remove duplicate file: %s, error: %s",
+                        dup_song_path,
+                        exc,
                     )
+
+        # Find song lyrics and add them to the song object
+        lyrics = self.search_lyrics(song)
+        if lyrics is None:
+            logger.debug(
+                "No lyrics found for %s, lyrics providers: %s",
+                song.display_name,
+                ", ".join([lprovider.name for lprovider in self.lyrics_providers]),
+            )
+        else:
+            song.lyrics = lyrics
 
         # If the file already exists and we want to overwrite the metadata,
         # we can skip the download
@@ -445,13 +465,13 @@ class Downloader:
                         continue
 
                     try:
-                        self.progress_handler.log(
-                            f"Removing duplicate file: {old_song_path}"
-                        )
+                        logger.info("Removing duplicate file: %s", old_song_path)
                         old_song_path.unlink()
                     except (PermissionError, OSError) as exc:
-                        self.progress_handler.debug(
-                            f"Could not remove duplicate file: {old_song_path}, error: {exc}"
+                        logger.debug(
+                            "Could not remove duplicate file: %s, error: %s",
+                            old_song_path,
+                            exc,
                         )
 
                 # Move the old file to the new location
@@ -463,7 +483,7 @@ class Downloader:
             # Update the metadata
             embed_metadata(output_file=output_file, song=song)
 
-            self.progress_handler.log(
+            logger.info(
                 f"Updated metadata for {song.display_name}"
                 f", moved to new location: {output_file}"
                 if most_recent_duplicate
@@ -491,9 +511,7 @@ class Downloader:
                 filter_results=self.settings["filter_results"],
             )
 
-            self.progress_handler.debug(
-                f"Downloading {song.display_name} using {download_url}"
-            )
+            logger.debug("Downloading %s using %s", song.display_name, download_url)
 
             # Add progress hook to the audio provider
             audio_downloader.audio_handler.add_progress_hook(
@@ -510,8 +528,10 @@ class Downloader:
             )
 
             if download_info is None:
-                self.progress_handler.debug(
-                    f"No download info found for {song.display_name}, url: {download_url}"
+                logger.debug(
+                    "No download info found for %s, url: %s",
+                    song.display_name,
+                    download_url,
                 )
 
                 raise DownloaderError(
@@ -544,8 +564,8 @@ class Downloader:
                 try:
                     temp_file.unlink()
                 except (PermissionError, OSError) as exc:
-                    self.progress_handler.debug(
-                        f"Could not remove temp file: {temp_file}, error: {exc}"
+                    logger.debug(
+                        "Could not remove temp file: %s, error: %s", temp_file, exc
                     )
 
                     raise DownloaderError(
@@ -599,8 +619,10 @@ class Downloader:
 
                 # If there are sponsor segments, remove them
                 if len(chapters) > 0:
-                    self.progress_handler.log(
-                        f"Removing {len(chapters)} sponsor segments for {song.display_name}"
+                    logger.info(
+                        "Removing %s sponsor segments for %s",
+                        len(chapters),
+                        song.display_name,
                     )
 
                     # Initialize the modify chapters post processor
@@ -629,9 +651,7 @@ class Downloader:
             # Add the song to the known songs
             self.known_songs.get(song.url, []).append(output_file)
 
-            self.progress_handler.log(
-                f'Downloaded "{song.display_name}": {song.download_url}'
-            )
+            logger.info('Downloaded "%s": %s', song.display_name, song.download_url)
 
             return song, output_file
         except (Exception, UnicodeEncodeError) as exception:

@@ -75,6 +75,8 @@ THEME = Theme(
     }
 )
 
+logger = logging.getLogger(__name__)
+
 
 class ProgressHandlerError(Exception):
     """
@@ -149,7 +151,6 @@ class ProgressHandler:
 
     def __init__(
         self,
-        log_level: int = INFO,
         simple_tui: bool = False,
         update_callback: Optional[Callable[[Any, str], None]] = None,
     ):
@@ -157,7 +158,6 @@ class ProgressHandler:
         Initialize the progress handler.
 
         ### Arguments
-        - log_level: The log level to use.
         - simple_tui: Whether or not to use the simple TUI.
         - update_callback: A callback to call when the progress bar is updated.
         """
@@ -170,12 +170,8 @@ class ProgressHandler:
         self.update_callback = update_callback
         self.previous_overall = self.overall_completed_tasks
 
-        if log_level not in LEVEL_TO_NAME:
-            raise ProgressHandlerError(f"Invalid log level: {log_level}")
-
-        self.log_level = log_level
         self.simple_tui = simple_tui
-        self.quiet = self.log_level < 10
+        self.quiet = logger.level < 10
         self.overall_task_id: Optional[TaskID] = None
 
         if not self.simple_tui:
@@ -210,12 +206,6 @@ class ProgressHandler:
 
             # Basically a wrapper for rich's: with ... as ...
             self.rich_progress_bar.__enter__()
-        else:
-            logging.basicConfig(
-                format="%(asctime)s - %(levelname)s - %(message)s",
-                datefmt="%H:%M:%S",
-                level=self.log_level,
-            )
 
     def add_song(self, song: Song) -> None:
         """
@@ -262,70 +252,6 @@ class ProgressHandler:
                     visible=(not self.quiet),
                 )
 
-    def debug(self, message: str) -> None:
-        """
-        Debug message.
-
-        ### Arguments
-        - message: The message to log.
-        """
-
-        if not self.simple_tui:
-            if self.log_level > DEBUG:
-                return
-
-            self.rich_progress_bar.console.print(f"[blue]{message}")
-        else:
-            logging.debug(message)
-
-    def log(self, message: str) -> None:
-        """
-        Log message.
-
-        ### Arguments
-        - message: The message to log.
-        """
-
-        if not self.simple_tui:
-            if self.log_level > INFO:
-                return
-
-            self.rich_progress_bar.console.print(f"[green]{message}")
-        else:
-            logging.info(message)
-
-    def warn(self, message: str) -> None:
-        """
-        Warning message.
-
-        ### Arguments
-        - message: The message to log.
-        """
-
-        if not self.simple_tui:
-            if self.log_level > WARNING:
-                return
-
-            self.rich_progress_bar.console.print(f"[yellow]{message}")
-        else:
-            logging.warning(message)
-
-    def error(self, message: str) -> None:
-        """
-        Error message.
-
-        ### Arguments
-        - message: The message to log.
-        """
-
-        if not self.simple_tui:
-            if self.log_level > ERROR:
-                return
-
-            self.rich_progress_bar.console.print(f"[red]{message}")
-        else:
-            logging.error(message)
-
     def update_overall(self) -> None:
         """
         Update the overall progress bar.
@@ -343,7 +269,7 @@ class ProgressHandler:
                 )
         else:
             if self.previous_overall != self.overall_completed_tasks:
-                logging.info(
+                logger.info(
                     "%s/%s complete", self.overall_completed_tasks, self.song_count
                 )
                 self.previous_overall = self.overall_completed_tasks
@@ -368,8 +294,8 @@ class ProgressHandler:
 
         if not self.simple_tui:
             self.rich_progress_bar.stop()
-        else:
-            logging.shutdown()
+
+        logging.shutdown()
 
 
 class SongTracker:
@@ -443,7 +369,7 @@ class SongTracker:
             if self.progress == 100 or message == "Error":
                 self.parent.overall_completed_tasks += 1
             if delta:
-                self.parent.log(f"{self.song_name} - {self.song.artist}: {message}")
+                logger.info("%s - %s: %s", self.song_name, self.song.artist, message)
 
         # Update the overall progress bar
         if self.parent.song_count == self.parent.overall_completed_tasks:
@@ -473,8 +399,10 @@ class SongTracker:
         if finish:
             self.progress = 100
 
-        self.parent.debug(message)
-        self.parent.error(f"{traceback.__class__.__name__}: {traceback}")
+        if logger.level == logging.DEBUG:
+            logger.error(message)
+        else:
+            logger.error("%s: %s", traceback.__class__.__name__, traceback)
 
     def notify_download_complete(self, status="Converting") -> None:
         """
