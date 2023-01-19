@@ -2,16 +2,13 @@
 Module for holding console related actions.
 """
 
-import sys
 import json
+import sys
 
 from spotdl.utils.config import DEFAULT_CONFIG, get_config_file
+from spotdl.utils.ffmpeg import download_ffmpeg as ffmpeg_download
+from spotdl.utils.ffmpeg import get_local_ffmpeg, is_ffmpeg_installed
 from spotdl.utils.github import check_for_updates as get_update_status
-from spotdl.utils.ffmpeg import (
-    get_local_ffmpeg,
-    is_ffmpeg_installed,
-    download_ffmpeg as ffmpeg_download,
-)
 
 
 def is_frozen():

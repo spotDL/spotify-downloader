@@ -3,10 +3,9 @@ Module for getting information about the current version of spotdl
 from GitHub, downloading the latest version, and checking for updates.
 """
 
-import re
-import os
 import logging
-
+import os
+import re
 from typing import Tuple
 
 import requests

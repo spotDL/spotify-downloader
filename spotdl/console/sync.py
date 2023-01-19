@@ -3,14 +3,13 @@ Sync module for the console.
 """
 
 import json
-
 from typing import List
 
 from spotdl.download.downloader import Downloader
-from spotdl.utils.search import parse_query
+from spotdl.types.song import Song
 from spotdl.utils.formatter import create_file_name
 from spotdl.utils.m3u import gen_m3u_files
-from spotdl.types.song import Song
+from spotdl.utils.search import parse_query
 
 
 def sync(

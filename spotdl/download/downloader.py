@@ -2,42 +2,40 @@
 Downloader module, this is where all the downloading pre/post processing happens etc.
 """
 
-import json
-import datetime
 import asyncio
+import concurrent.futures
+import datetime
+import json
+import logging
 import shutil
 import sys
-import concurrent.futures
 import traceback
-import logging
-
-from pathlib import Path
 from argparse import Namespace
+from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Type, Union
 
-from yt_dlp.postprocessor.sponsorblock import SponsorBlockPP
 from yt_dlp.postprocessor.modify_chapters import ModifyChaptersPP
+from yt_dlp.postprocessor.sponsorblock import SponsorBlockPP
 
+from spotdl.download.progress_handler import ProgressHandler
+from spotdl.providers.audio import YouTube, YouTubeMusic
+from spotdl.providers.audio.base import AudioProvider
+from spotdl.providers.lyrics import AzLyrics, Genius, MusixMatch, Synced
+from spotdl.providers.lyrics.base import LyricsProvider
 from spotdl.types import Song
 from spotdl.types.options import DownloaderOptionalOptions, DownloaderOptions
 from spotdl.utils.archive import Archive
-from spotdl.utils.ffmpeg import FFmpegError, convert, get_ffmpeg_path
-from spotdl.utils.m3u import gen_m3u_files
-from spotdl.utils.metadata import embed_metadata, MetadataError
-from spotdl.utils.formatter import create_file_name, restrict_filename
-from spotdl.providers.audio.base import AudioProvider
-from spotdl.providers.lyrics import Genius, MusixMatch, AzLyrics, Synced
-from spotdl.providers.lyrics.base import LyricsProvider
-from spotdl.providers.audio import YouTube, YouTubeMusic
-from spotdl.download.progress_handler import NAME_TO_LEVEL, ProgressHandler
 from spotdl.utils.config import (
+    DOWNLOADER_OPTIONS,
+    create_settings_type,
     get_errors_path,
     get_temp_path,
-    create_settings_type,
-    DOWNLOADER_OPTIONS,
 )
+from spotdl.utils.ffmpeg import FFmpegError, convert, get_ffmpeg_path
+from spotdl.utils.formatter import create_file_name, restrict_filename
+from spotdl.utils.m3u import gen_m3u_files
+from spotdl.utils.metadata import MetadataError, embed_metadata
 from spotdl.utils.search import gather_known_songs, reinit_song
-
 
 AUDIO_PROVIDERS: Dict[str, Type[AudioProvider]] = {
     "youtube": YouTube,

@@ -3,8 +3,8 @@ Result is a class that contains all the information about a result from search
 perfoermed by audio provider.
 """
 
-from dataclasses import dataclass, asdict
 import json
+from dataclasses import asdict, dataclass
 from typing import Any, Dict, Optional, Tuple
 
 

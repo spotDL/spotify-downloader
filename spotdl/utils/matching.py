@@ -10,8 +10,8 @@ from spotdl.types.song import Song
 from spotdl.utils.formatter import (
     create_search_query,
     create_song_title,
-    slugify,
     ratio,
+    slugify,
 )
 
 

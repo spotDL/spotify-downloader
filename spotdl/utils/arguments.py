@@ -5,19 +5,14 @@ Module that handles the command line arguments.
 import argparse
 import sys
 import textwrap
-
-from argparse import _ArgumentGroup, ArgumentParser, Namespace
+from argparse import ArgumentParser, Namespace, _ArgumentGroup
 from typing import List
 
 from spotdl import _version
+from spotdl.download.downloader import AUDIO_PROVIDERS, LYRICS_PROVIDERS
 from spotdl.download.progress_handler import NAME_TO_LEVEL
 from spotdl.utils.ffmpeg import FFMPEG_FORMATS
 from spotdl.utils.formatter import VARS
-from spotdl.download.downloader import (
-    AUDIO_PROVIDERS,
-    LYRICS_PROVIDERS,
-)
-
 
 OPERATIONS = ["download", "save", "web", "sync", "meta"]
 

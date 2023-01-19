@@ -2,26 +2,26 @@
 Web module for the console.
 """
 
+import asyncio
 import logging
 import sys
-import asyncio
 import webbrowser
 
-from fastapi import FastAPI, Depends
+from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from uvicorn import Config, Server
 
 from spotdl._version import __version__
-from spotdl.utils.config import get_spotdl_path
-from spotdl.types.options import WebOptions, DownloaderOptions
 from spotdl.download.downloader import Downloader
-from spotdl.utils.github import download_github_dir
 from spotdl.download.progress_handler import NAME_TO_LEVEL
+from spotdl.types.options import DownloaderOptions, WebOptions
+from spotdl.utils.config import get_spotdl_path
+from spotdl.utils.github import download_github_dir
 from spotdl.utils.web import (
     ALLOWED_ORIGINS,
     SPAStaticFiles,
-    fix_mime_types,
     app_state,
+    fix_mime_types,
     get_current_state,
     router,
 )

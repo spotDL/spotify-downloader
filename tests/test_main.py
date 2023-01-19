@@ -1,8 +1,8 @@
-import pytest
-
 import re
 
-from spotdl.__main__ import console_entry_point, __version__
+import pytest
+
+from spotdl.__main__ import __version__, console_entry_point
 
 
 def test_check_version():

@@ -3,7 +3,6 @@ Sync Lyrics module for the console
 """
 
 import asyncio
-
 from pathlib import Path
 from typing import List
 

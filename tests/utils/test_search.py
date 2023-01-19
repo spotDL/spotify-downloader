@@ -2,12 +2,11 @@ import pytest
 
 from spotdl.types.saved import SavedError
 from spotdl.utils.search import (
-    parse_query,
-    get_search_results,
     create_empty_song,
+    get_search_results,
     get_simple_songs,
+    parse_query,
 )
-
 
 SONG = ["https://open.spotify.com/track/2Ikdgh3J5vCRmnCL3Xcrtv"]
 PLAYLIST = ["https://open.spotify.com/playlist/78Lg6HmUqlTnmipvNxc536"]

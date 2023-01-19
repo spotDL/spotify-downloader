@@ -6,13 +6,11 @@ and file names.
 
 import re
 import warnings
-
 from functools import lru_cache
-from typing import List, Optional
 from pathlib import Path
+from typing import List, Optional
 
 import pykakasi
-
 from rapidfuzz import fuzz
 from slugify import slugify as py_slugify
 from yt_dlp.utils import sanitize_filename

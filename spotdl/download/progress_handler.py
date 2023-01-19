@@ -3,27 +3,21 @@ Module that holds the ProgressHandler class and Song Tracker class.
 """
 
 import logging
+from typing import Any, Callable, Dict, List, Optional
 
-from typing import Any, Callable, Dict, Optional, List
-
-from rich.text import Text
-from rich.theme import Theme
-from rich.progress import Task
-from rich.console import Console
-from rich.style import StyleType
+from rich.console import Console, JustifyMethod, OverflowMethod, detect_legacy_windows
 from rich.highlighter import Highlighter
 from rich.progress import (
     BarColumn,
-    TimeRemainingColumn,
     Progress,
     ProgressColumn,
+    Task,
     TaskID,
+    TimeRemainingColumn,
 )
-from rich.console import (
-    JustifyMethod,
-    detect_legacy_windows,
-    OverflowMethod,
-)
+from rich.style import StyleType
+from rich.text import Text
+from rich.theme import Theme
 
 from spotdl.types.song import Song
 

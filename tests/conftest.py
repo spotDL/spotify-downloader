@@ -1,8 +1,8 @@
-import pytest
-import subprocess
 import re
-
+import subprocess
 from pathlib import Path
+
+import pytest
 
 from spotdl.download.downloader import Downloader
 from spotdl.utils import ffmpeg

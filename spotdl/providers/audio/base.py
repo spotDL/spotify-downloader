@@ -3,7 +3,6 @@ Base audio provider module.
 """
 
 import re
-
 from typing import Any, Dict, List, Optional, Tuple
 
 from yt_dlp import YoutubeDL
@@ -11,20 +10,16 @@ from yt_dlp import YoutubeDL
 from spotdl.types import Song
 from spotdl.types.result import Result
 from spotdl.utils.config import get_temp_path
-from spotdl.utils.formatter import (
-    create_song_title,
-    create_search_query,
-)
-
+from spotdl.utils.formatter import create_search_query, create_song_title
 from spotdl.utils.matching import (
-    calc_album_match,
-    calc_name_match,
-    calc_time_match,
-    calc_main_artist_match,
-    calc_artists_match,
     artists_match_fixup1,
     artists_match_fixup2,
     artists_match_fixup3,
+    calc_album_match,
+    calc_artists_match,
+    calc_main_artist_match,
+    calc_name_match,
+    calc_time_match,
     check_common_word,
     get_best_matches,
 )

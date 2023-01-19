@@ -1,11 +1,11 @@
 import pathlib
+
 import pytest
-
-import spotdl.utils.ffmpeg
-import spotdl.utils.config
-
-from spotdl.utils.ffmpeg import *
 from yt_dlp import YoutubeDL
+
+import spotdl.utils.config
+import spotdl.utils.ffmpeg
+from spotdl.utils.ffmpeg import *
 
 ffmpeg_stdout = """
 ffmpeg version 4.3.1-2020-11-19-essentials_build-www.gyan.dev Copyright (c) 2000-2020 the FFmpeg developers

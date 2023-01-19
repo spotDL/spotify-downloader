@@ -6,8 +6,8 @@ import logging
 
 from rich.console import Console
 from rich.logging import RichHandler
-from rich.traceback import install
 from rich.theme import Theme
+from rich.traceback import install
 
 
 class SpotdlFormatter(logging.Formatter):

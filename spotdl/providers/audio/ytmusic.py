@@ -6,7 +6,7 @@ from typing import Any, Dict, List
 
 from ytmusicapi import YTMusic
 
-from spotdl.providers.audio.base import AudioProvider, ISRC_REGEX
+from spotdl.providers.audio.base import ISRC_REGEX, AudioProvider
 from spotdl.types.result import Result
 from spotdl.utils.formatter import parse_duration
 

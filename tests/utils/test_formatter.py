@@ -1,10 +1,11 @@
 from pathlib import Path
+
 from spotdl.types.song import Song, SongList
 from spotdl.utils.formatter import (
-    create_song_title,
-    sanitize_string,
     create_file_name,
+    create_song_title,
     parse_duration,
+    sanitize_string,
 )
 
 

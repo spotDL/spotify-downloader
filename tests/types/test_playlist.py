@@ -1,6 +1,6 @@
-from spotdl.types.playlist import Playlist
-
 import pytest
+
+from spotdl.types.playlist import Playlist
 
 
 def test_playlist_init():

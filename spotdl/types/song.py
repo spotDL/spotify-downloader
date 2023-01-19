@@ -3,9 +3,8 @@ Song module that hold the Song and SongList classes.
 """
 
 import json
-
-from dataclasses import dataclass, asdict
-from typing import Dict, Any, List, Optional
+from dataclasses import asdict, dataclass
+from typing import Any, Dict, List, Optional
 
 from spotdl.utils.spotify import SpotifyClient
 

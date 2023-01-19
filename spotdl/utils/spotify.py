@@ -12,7 +12,6 @@ from json import dumps
 from typing import Dict, Optional
 
 import requests
-
 from spotipy import Spotify
 from spotipy.cache_handler import CacheFileHandler, MemoryCacheHandler
 from spotipy.oauth2 import SpotifyClientCredentials, SpotifyOAuth

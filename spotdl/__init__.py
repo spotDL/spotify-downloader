@@ -5,18 +5,16 @@ And Spotdl class
 
 import asyncio
 import concurrent.futures
-
 from pathlib import Path
-
 from typing import List, Optional, Tuple, Union
 
-from spotdl.console import console_entry_point
-from spotdl.types.options import DownloaderOptionalOptions, DownloaderOptions
-from spotdl.utils.spotify import SpotifyClient
-from spotdl.download import Downloader
-from spotdl.utils.search import parse_query
-from spotdl.types import Song
 from spotdl._version import __version__
+from spotdl.console import console_entry_point
+from spotdl.download import Downloader
+from spotdl.types import Song
+from spotdl.types.options import DownloaderOptionalOptions, DownloaderOptions
+from spotdl.utils.search import parse_query
+from spotdl.utils.spotify import SpotifyClient
 
 __all__ = ["Spotdl", "console_entry_point", "__version__"]
 

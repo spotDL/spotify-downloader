@@ -5,14 +5,13 @@ or by parsing a query.
 To use this module you must first initialize the SpotifyClient.
 """
 
-import json
 import concurrent.futures
+import json
 from pathlib import Path
-
 from typing import Dict, List, Optional
 
-from spotdl.types import Playlist, Album, Artist, Saved
-from spotdl.types.song import SongList, Song
+from spotdl.types import Album, Artist, Playlist, Saved
+from spotdl.types.song import Song, SongList
 from spotdl.utils.metadata import get_file_metadata
 
 

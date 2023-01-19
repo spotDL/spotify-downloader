@@ -6,39 +6,37 @@ FastAPI routes/classes etc.
 
 import asyncio
 import logging
-import os
-
-from pathlib import Path
-from typing import Dict, Any, List, Optional
-
 import mimetypes
+import os
+from pathlib import Path
+from typing import Any, Dict, List, Optional
 
-from starlette.types import Scope
-from uvicorn import Server
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
 from fastapi import (
-    Response,
-    FastAPI,
     APIRouter,
     Depends,
+    FastAPI,
     HTTPException,
+    Response,
     WebSocket,
     WebSocketDisconnect,
 )
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
+from starlette.types import Scope
+from uvicorn import Server
 
+from spotdl._version import __version__
+from spotdl.download.downloader import Downloader
 from spotdl.download.progress_handler import NAME_TO_LEVEL, ProgressHandler, SongTracker
-from spotdl.types.song import Song
 from spotdl.types.album import Album
 from spotdl.types.options import (
-    WebOptions,
-    DownloaderOptions,
     DownloaderOptionalOptions,
+    DownloaderOptions,
+    WebOptions,
 )
-from spotdl.download.downloader import Downloader
-from spotdl.utils.search import get_search_results
+from spotdl.types.song import Song
 from spotdl.utils.config import get_spotdl_path
-from spotdl._version import __version__
+from spotdl.utils.search import get_search_results
 
 ALLOWED_ORIGINS = [
     "http://localhost:8800",

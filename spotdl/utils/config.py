@@ -4,10 +4,9 @@ Module related to managing reading and writing to the config file.
 Default config - spotdl.utils.config.DEFAULT_CONFIG
 """
 
+import json
 import os
 import platform
-import json
-
 from argparse import Namespace
 from pathlib import Path
 from typing import Any, Dict, Tuple, Union
@@ -15,10 +14,10 @@ from typing import Any, Dict, Tuple, Union
 import platformdirs
 
 from spotdl.types.options import (
-    SpotifyOptions,
     DownloaderOptions,
-    WebOptions,
     SpotDLOptions,
+    SpotifyOptions,
+    WebOptions,
 )
 
 

@@ -1,6 +1,6 @@
-from spotdl.types import Artist
-
 import pytest
+
+from spotdl.types import Artist
 
 
 def test_artist_init():

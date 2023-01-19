@@ -7,8 +7,8 @@ from typing import Any, Dict, List, Set
 
 from slugify import slugify
 
-from spotdl.types.song import SongList, Song
 from spotdl.types.album import Album
+from spotdl.types.song import Song, SongList
 from spotdl.utils.spotify import SpotifyClient
 
 

@@ -1,12 +1,12 @@
-import sys
 import json
 import re
+import sys
 
 import pytest
 
 from spotdl.console.entry_point import console_entry_point
 from spotdl.utils.spotify import SpotifyClient
-from tests.conftest import new_initialize, clean_ansi_sequence
+from tests.conftest import clean_ansi_sequence, new_initialize
 
 
 @pytest.mark.parametrize("argument", ["-h", "--help"])

@@ -4,7 +4,8 @@ Youtube module for downloading and searching songs.
 
 from typing import Any, Dict, List, Optional
 
-from pytube import YouTube as PyTube, Search
+from pytube import Search
+from pytube import YouTube as PyTube
 
 from spotdl.providers.audio.base import AudioProvider
 from spotdl.types.result import Result

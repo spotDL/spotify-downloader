@@ -1,12 +1,11 @@
-import pytest
-
-import spotdl.utils.ffmpeg
-import spotdl.utils.config
-
 from pathlib import Path
 
+import pytest
 from yt_dlp import YoutubeDL
 
+import spotdl.utils.config
+import spotdl.utils.ffmpeg
+from spotdl.types.song import Song
 from spotdl.utils.ffmpeg import convert
 from spotdl.utils.metadata import (
     M4A_TAG_PRESET,
@@ -14,7 +13,6 @@ from spotdl.utils.metadata import (
     embed_metadata,
     get_file_metadata,
 )
-from spotdl.types.song import Song
 
 
 @pytest.mark.parametrize(

@@ -4,9 +4,8 @@ AZLyrics lyrics module.
 
 from typing import List, Optional
 
-from bs4 import BeautifulSoup
-
 import requests
+from bs4 import BeautifulSoup
 
 from spotdl.providers.lyrics.base import LyricsProvider
 

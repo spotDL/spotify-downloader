@@ -4,15 +4,14 @@ and checking for ffmpeg binary, and downloading it if not found.
 """
 
 import os
-import re
-import shutil
-import subprocess
-import stat
 import platform
+import re
 import shlex
-
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+import shutil
+import stat
+import subprocess
 from pathlib import Path
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
 import requests
 

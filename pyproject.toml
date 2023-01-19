@@ -80,6 +80,12 @@ mkdocs-section-index = "^0.3.4"
 [tool.poetry.scripts]
 spotdl = "spotdl:console_entry_point"
 
+[tool.poetry.group.dev.dependencies]
+isort = "^5.11.4"
+
+[tool.isort]
+profile = "black"
+
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"

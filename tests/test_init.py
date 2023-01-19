@@ -3,7 +3,6 @@ from types import SimpleNamespace
 import pytest
 
 import spotdl.utils.config
-
 from spotdl import Spotdl
 from spotdl.types.song import Song
 from spotdl.utils.config import DEFAULT_CONFIG, DOWNLOADER_OPTIONS

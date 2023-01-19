@@ -12,17 +12,15 @@ embed_metadata(
 
 import base64
 import re
-
 from pathlib import Path
 from typing import Any, Dict, Optional
 
 import requests
-
 from mutagen._file import File
-from mutagen.mp4 import MP4Cover
 from mutagen.flac import Picture
-from mutagen.id3._frames import APIC, WOAS, USLT, COMM
 from mutagen.id3 import ID3
+from mutagen.id3._frames import APIC, COMM, USLT, WOAS
+from mutagen.mp4 import MP4Cover
 
 from spotdl.types import Song
 

@@ -39,3 +39,7 @@ jobs:
       - name: Run Black check
         run: |
           poetry run black --check ./spotdl
+
+      - name: Run isort check
+        run: |
+          poetry run isort --check --diff ./spotdl
