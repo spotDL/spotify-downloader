@@ -43,7 +43,7 @@ def console_entry_point():
     # Don't log too much
     logging.getLogger("requests").setLevel(logging.WARNING)
     logging.getLogger("urllib3").setLevel(logging.WARNING)
-    logging.getLogger("spotipy").setLevel(logging.NOTSET)
+    logging.getLogger("spotipy").setLevel(logging.WARNING)
     logging.getLogger("asyncio").setLevel(logging.WARNING)
     logging.getLogger("syncedlyrics").setLevel(logging.WARNING)
 
