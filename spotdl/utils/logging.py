@@ -9,6 +9,8 @@ from rich.logging import RichHandler
 from rich.theme import Theme
 from rich.traceback import install
 
+__all__ = ["init_logging", "SpotdlFormatter"]
+
 
 class SpotdlFormatter(logging.Formatter):
     """

@@ -4,12 +4,17 @@ Save module for the console.
 
 import asyncio
 import json
+import logging
 from typing import List
 
 from spotdl.download.downloader import Downloader, DownloaderError
 from spotdl.types.song import Song
 from spotdl.utils.m3u import gen_m3u_files
 from spotdl.utils.search import parse_query
+
+__all__ = ["save"]
+
+logger = logging.getLogger(__name__)
 
 
 def save(
@@ -44,21 +49,15 @@ def save(
         try:
             data = downloader.search(song)
             if data is None:
-                downloader.progress_handler.error(
-                    f"Could not find a match for {song.display_name}"
-                )
+                logger.error("Could not find a match for %s", song.display_name)
 
                 return None
 
-            downloader.progress_handler.log(
-                f"Found url for {song.display_name}: {data}"
-            )
+            logger.info("Found url for %s: %s", song.display_name, data)
 
             return {**song.json, "download_url": data}
         except Exception as exception:
-            downloader.progress_handler.error(
-                f"{song} generated an exception: {exception}"
-            )
+            logger.error("%s generated an exception: %s", song.display_name, exception)
 
         return None
 
@@ -91,6 +90,9 @@ def save(
             False,
         )
 
-    downloader.progress_handler.log(
-        f"Saved {len(save_data)} song{'s' if len(save_data) > 1 else ''} to {save_path}"
+    logger.info(
+        "Saved %s song%s to %s",
+        len(save_data),
+        "s" if len(save_data) > 1 else "",
+        save_path,
     )

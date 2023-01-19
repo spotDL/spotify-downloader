@@ -14,6 +14,24 @@ from spotdl.utils.formatter import (
     slugify,
 )
 
+__all__ = [
+    "fill_string",
+    "create_clean_string",
+    "sort_string",
+    "based_sort",
+    "check_common_word",
+    "create_match_strings",
+    "get_best_matches",
+    "calc_main_artist_match",
+    "calc_artists_match",
+    "artists_match_fixup1",
+    "artists_match_fixup2",
+    "artists_match_fixup3",
+    "calc_name_match",
+    "calc_time_match",
+    "calc_album_match",
+]
+
 
 def fill_string(strings: List[str], main_string: str, string_to_check: str) -> str:
     """

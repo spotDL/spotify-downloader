@@ -6,6 +6,10 @@ And are for the most part, not likely to change.
 
 # pylint: skip-file
 
+__all__ = [
+    "AMBIGUOUS_CHARACTERS",
+]
+
 # Source: https://github.com/hediet/vscode-unicode-data/blob/main/out/ambiguous.json
 AMBIGUOUS_CHARACTERS = {
     "8232": 32,

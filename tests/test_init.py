@@ -47,10 +47,12 @@ def test_get_urls(monkeypatch):
     assert len(urls) == 1
 
 
-def test_download(setup, monkeypatch):
+def test_download(setup, monkeypatch, tmpdir):
     """
     Tests if spotdl can be initialized correctly.
     """
+
+    monkeypatch.chdir(tmpdir)
 
     monkeypatch.setattr(SpotifyClient, "init", new_initialize)
 

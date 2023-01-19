@@ -10,6 +10,8 @@ from spotdl.providers.audio.base import ISRC_REGEX, AudioProvider
 from spotdl.types.result import Result
 from spotdl.utils.formatter import parse_duration
 
+__all__ = ["YouTubeMusic"]
+
 
 class YouTubeMusic(AudioProvider):
     """

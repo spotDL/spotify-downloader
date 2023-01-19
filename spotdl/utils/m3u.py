@@ -7,6 +7,12 @@ from typing import List, Optional
 from spotdl.types.song import Song, SongList
 from spotdl.utils.formatter import create_file_name
 
+__all__ = [
+    "create_m3u_content",
+    "gen_m3u_files",
+    "create_m3u_file",
+]
+
 
 def create_m3u_content(
     song_list: List[Song], template: str, file_extension: str, short: bool = False

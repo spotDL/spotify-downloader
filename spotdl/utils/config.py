@@ -20,6 +20,22 @@ from spotdl.types.options import (
     WebOptions,
 )
 
+__all__ = [
+    "ConfigError",
+    "get_spotdl_path",
+    "get_config_file",
+    "get_cache_path",
+    "get_temp_path",
+    "get_errors_path",
+    "get_config",
+    "create_settings_type",
+    "create_settings",
+    "SPOTIFY_OPTIONS",
+    "DOWNLOADER_OPTIONS",
+    "WEB_OPTIONS",
+    "DEFAULT_CONFIG",
+]
+
 
 class ConfigError(Exception):
     """

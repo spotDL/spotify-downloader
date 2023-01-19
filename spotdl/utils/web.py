@@ -27,7 +27,7 @@ from uvicorn import Server
 
 from spotdl._version import __version__
 from spotdl.download.downloader import Downloader
-from spotdl.download.progress_handler import NAME_TO_LEVEL, ProgressHandler, SongTracker
+from spotdl.download.progress_handler import ProgressHandler, SongTracker
 from spotdl.types.album import Album
 from spotdl.types.options import (
     DownloaderOptionalOptions,
@@ -37,6 +37,25 @@ from spotdl.types.options import (
 from spotdl.types.song import Song
 from spotdl.utils.config import get_spotdl_path
 from spotdl.utils.search import get_search_results
+
+__all__ = [
+    "ALLOWED_ORIGINS",
+    "SPAStaticFiles",
+    "WSProgressHandler",
+    "ApplicationState",
+    "router",
+    "app_state",
+    "get_current_state",
+    "websocket_endpoint",
+    "song_from_url",
+    "query_search",
+    "query_search_albums",
+    "download_url",
+    "download_file",
+    "get_settings",
+    "update_settings",
+    "fix_mime_types",
+]
 
 ALLOWED_ORIGINS = [
     "http://localhost:8800",
@@ -286,7 +305,6 @@ async def download_url(
     ws_instance = WSProgressHandler.get_instance(client_id)
     if ws_instance is not None:
         state.downloader.progress_handler = ProgressHandler(
-            NAME_TO_LEVEL[state.downloader_settings["log_level"]],
             simple_tui=True,
             update_callback=ws_instance.song_update,
         )

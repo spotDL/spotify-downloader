@@ -21,6 +21,16 @@ from rich.theme import Theme
 
 from spotdl.types.song import Song
 
+__all__ = [
+    "ProgressHandler",
+    "SongTracker",
+    "LEVEL_TO_NAME",
+    "NAME_TO_LEVEL",
+    "ProgressHandlerError",
+    "SizedTextColumn",
+    "THEME",
+]
+
 # https://github.com/python/cpython/blob/3.10/Lib/logging/__init__.py
 CRITICAL = 50
 FATAL = CRITICAL

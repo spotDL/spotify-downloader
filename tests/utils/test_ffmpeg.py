@@ -1,4 +1,8 @@
+import os
 import pathlib
+import platform
+import shutil
+from pathlib import Path
 
 import pytest
 from yt_dlp import YoutubeDL

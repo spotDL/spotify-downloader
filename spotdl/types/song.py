@@ -8,6 +8,8 @@ from typing import Any, Dict, List, Optional
 
 from spotdl.utils.spotify import SpotifyClient
 
+__all__ = ["Song", "SongList", "SongError"]
+
 
 class SongError(Exception):
     """

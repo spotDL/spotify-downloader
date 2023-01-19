@@ -9,6 +9,8 @@ from bs4 import BeautifulSoup
 
 from spotdl.providers.lyrics.base import LyricsProvider
 
+__all__ = ["AzLyrics"]
+
 
 class AzLyrics(LyricsProvider):
     """

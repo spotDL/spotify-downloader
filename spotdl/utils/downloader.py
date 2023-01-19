@@ -4,6 +4,8 @@ Module for functions related to downloading songs.
 
 from spotdl.providers.audio import YouTubeMusic
 
+__all__ = ["check_ytmusic_connection"]
+
 
 def check_ytmusic_connection() -> bool:
     """

@@ -18,6 +18,21 @@ from yt_dlp.utils import sanitize_filename
 from spotdl.types.song import Song
 from spotdl.utils.static import AMBIGUOUS_CHARACTERS
 
+__all__ = [
+    "VARS",
+    "JAP_REGEX",
+    "create_song_title",
+    "sanitize_string",
+    "slugify",
+    "format_query",
+    "create_search_query",
+    "create_file_name",
+    "parse_duration",
+    "to_ms",
+    "restrict_filename",
+    "ratio",
+]
+
 VARS = [
     "{title}",
     "{artists}",

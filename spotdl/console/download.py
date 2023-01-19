@@ -7,6 +7,8 @@ from typing import List
 from spotdl.download.downloader import Downloader
 from spotdl.utils.search import get_simple_songs
 
+__all__ = ["download"]
+
 
 def download(
     query: List[str],

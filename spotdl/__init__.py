@@ -5,18 +5,21 @@ And Spotdl class
 
 import asyncio
 import concurrent.futures
+import logging
 from pathlib import Path
 from typing import List, Optional, Tuple, Union
 
 from spotdl._version import __version__
 from spotdl.console import console_entry_point
-from spotdl.download import Downloader
-from spotdl.types import Song
+from spotdl.download.downloader import Downloader
 from spotdl.types.options import DownloaderOptionalOptions, DownloaderOptions
+from spotdl.types.song import Song
 from spotdl.utils.search import parse_query
 from spotdl.utils.spotify import SpotifyClient
 
 __all__ = ["Spotdl", "console_entry_point", "__version__"]
+
+logger = logging.getLogger(__name__)
 
 
 class Spotdl:
@@ -125,9 +128,7 @@ class Spotdl:
                     data = future.result()
                     urls.append(data)
                 except Exception as exc:
-                    self.downloader.progress_handler.error(
-                        f"{song} generated an exception: {exc}"
-                    )
+                    logger.error("%s generated an exception: %s", song, exc)
 
         return urls
 

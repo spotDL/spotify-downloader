@@ -3,6 +3,7 @@ Sync Lyrics module for the console
 """
 
 import asyncio
+import logging
 from pathlib import Path
 from typing import List
 
@@ -10,6 +11,10 @@ from spotdl.download.downloader import Downloader
 from spotdl.utils.ffmpeg import FFMPEG_FORMATS
 from spotdl.utils.metadata import embed_metadata, get_file_metadata
 from spotdl.utils.search import get_search_results, get_song_from_file_metadata
+
+__all__ = ["meta"]
+
+logger = logging.getLogger(__name__)
 
 
 def meta(query: List[str], downloader: Downloader) -> None:
@@ -31,7 +36,7 @@ def meta(query: List[str], downloader: Downloader) -> None:
     for path in query:
         test_path = Path(path)
         if not test_path.exists():
-            downloader.progress_handler.error("Path does not exist: " + path)
+            logger.error("Path does not exist: %s", path)
             continue
 
         if test_path.is_dir():
@@ -39,9 +44,7 @@ def meta(query: List[str], downloader: Downloader) -> None:
                 paths.extend(test_path.glob(f"*.{out_format}"))
         elif test_path.is_file():
             if test_path.suffix.split(".")[-1] not in FFMPEG_FORMATS:
-                downloader.progress_handler.error(
-                    "File is not a supported audio format: " + path
-                )
+                logger.error("File is not a supported audio format: %s", path)
                 continue
 
             paths.append(test_path)
@@ -54,7 +57,7 @@ def meta(query: List[str], downloader: Downloader) -> None:
             and song_meta["lyrics"] is not None
             and song_meta["title"][0] != ""
         ):
-            downloader.progress_handler.log("Song already has metadata: " + file.name)
+            logger.info("Song already has metadata: %s", file.name)
             return None
 
         # Check if we have metadata if not use spotify
@@ -73,9 +76,7 @@ def meta(query: List[str], downloader: Downloader) -> None:
         except Exception:
             search_results = get_search_results(file.stem)
             if not search_results:
-                downloader.progress_handler.error(
-                    f"Could not find metadata for {file.name}"
-                )
+                logger.error("Could not find metadata for %s", file.name)
                 return None
 
             song = search_results[0]
@@ -83,20 +84,16 @@ def meta(query: List[str], downloader: Downloader) -> None:
         # Check if the song has lyric
         # if not use downloader to find lyrics
         if song_meta is None or song_meta.get("lyrics") is None:
-            downloader.progress_handler.debug(
-                f"Fetching lyrics for {song.display_name}"
-            )
+            logger.debug("Fetching lyrics for %s", song.display_name)
             lyrics = downloader.search_lyrics(song)
             if lyrics:
                 song.lyrics = lyrics
-                downloader.progress_handler.log(
-                    f"Found lyrics for song: {song.display_name}"
-                )
+                logger.info("Found lyrics for song: %s", song.display_name)
 
         # Apply metadata to the song
         embed_metadata(file, song)
 
-        downloader.progress_handler.log(f"Applied metadata to {file.name}")
+        logger.info("Applied metadata to %s", file.name)
 
         return None
 

@@ -7,6 +7,8 @@ import json
 from dataclasses import asdict, dataclass
 from typing import Any, Dict, Optional, Tuple
 
+__all__ = ["Result"]
+
 
 @dataclass(frozen=True, eq=True)
 class Result:

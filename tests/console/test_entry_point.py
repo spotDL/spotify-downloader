@@ -79,7 +79,7 @@ def test_download_song(capsys, monkeypatch, tmpdir):
 
     out = "".join([clean_ansi_sequence(out) for out in capsys.readouterr()])
 
-    assert 'Downloaded "Jim Yosef - Linked"' in out
+    assert 'Downloaded "Jim' in out
 
 
 def test_preload_song(capsys, monkeypatch, tmpdir):

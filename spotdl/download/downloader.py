@@ -18,12 +18,10 @@ from yt_dlp.postprocessor.modify_chapters import ModifyChaptersPP
 from yt_dlp.postprocessor.sponsorblock import SponsorBlockPP
 
 from spotdl.download.progress_handler import ProgressHandler
-from spotdl.providers.audio import YouTube, YouTubeMusic
-from spotdl.providers.audio.base import AudioProvider
-from spotdl.providers.lyrics import AzLyrics, Genius, MusixMatch, Synced
-from spotdl.providers.lyrics.base import LyricsProvider
-from spotdl.types import Song
+from spotdl.providers.audio import AudioProvider, YouTube, YouTubeMusic
+from spotdl.providers.lyrics import AzLyrics, Genius, LyricsProvider, MusixMatch, Synced
 from spotdl.types.options import DownloaderOptionalOptions, DownloaderOptions
+from spotdl.types.song import Song
 from spotdl.utils.archive import Archive
 from spotdl.utils.config import (
     DOWNLOADER_OPTIONS,
@@ -36,6 +34,14 @@ from spotdl.utils.formatter import create_file_name, restrict_filename
 from spotdl.utils.m3u import gen_m3u_files
 from spotdl.utils.metadata import MetadataError, embed_metadata
 from spotdl.utils.search import gather_known_songs, reinit_song
+
+__all__ = [
+    "AUDIO_PROVIDERS",
+    "LYRICS_PROVIDERS",
+    "Downloader",
+    "DownloaderError",
+    "SPONSOR_BLOCK_CATEGORIES",
+]
 
 AUDIO_PROVIDERS: Dict[str, Type[AudioProvider]] = {
     "youtube": YouTube,
@@ -152,7 +158,7 @@ class Downloader:
                 self.settings["output"], self.settings["format"]
             )
 
-        logger.debug("Known songs: %s", self.known_songs)
+        logger.debug("Found %s known songs", len(self.known_songs))
 
         # Initialize lyrics providers
         self.lyrics_providers: List[LyricsProvider] = []

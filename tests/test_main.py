@@ -2,7 +2,7 @@ import re
 
 import pytest
 
-from spotdl.__main__ import __version__, console_entry_point
+from spotdl.__main__ import __version__
 
 
 def test_check_version():

@@ -22,7 +22,22 @@ from mutagen.id3 import ID3
 from mutagen.id3._frames import APIC, COMM, USLT, WOAS
 from mutagen.mp4 import MP4Cover
 
-from spotdl.types import Song
+from spotdl.types.song import Song
+
+__all__ = [
+    "MetadataError",
+    "M4A_TAG_PRESET",
+    "MP3_TAG_PRESET",
+    "TAG_PRESET",
+    "TAG_TO_SONG",
+    "M4A_TO_SONG",
+    "MP3_TO_SONG",
+    "LRC_REGEX",
+    "embed_metadata",
+    "embed_cover",
+    "embed_lyrics",
+    "get_file_metadata",
+]
 
 
 class MetadataError(Exception):

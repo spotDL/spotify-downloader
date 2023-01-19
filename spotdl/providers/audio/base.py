@@ -7,8 +7,8 @@ from typing import Any, Dict, List, Optional, Tuple
 
 from yt_dlp import YoutubeDL
 
-from spotdl.types import Song
 from spotdl.types.result import Result
+from spotdl.types.song import Song
 from spotdl.utils.config import get_temp_path
 from spotdl.utils.formatter import create_search_query, create_song_title
 from spotdl.utils.matching import (
@@ -23,6 +23,8 @@ from spotdl.utils.matching import (
     check_common_word,
     get_best_matches,
 )
+
+__all__ = ["AudioProviderError", "AudioProvider", "ISRC_REGEX", "YTDLLogger"]
 
 
 class AudioProviderError(Exception):

@@ -11,6 +11,8 @@ from spotdl.types.album import Album
 from spotdl.types.song import Song, SongList
 from spotdl.utils.spotify import SpotifyClient
 
+__all__ = ["Artist", "ArtistError"]
+
 
 class ArtistError(Exception):
     """

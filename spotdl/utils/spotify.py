@@ -18,6 +18,11 @@ from spotipy.oauth2 import SpotifyClientCredentials, SpotifyOAuth
 
 from spotdl.utils.config import get_cache_path
 
+__all__ = [
+    "SpotifyError",
+    "SpotifyClient",
+]
+
 
 class SpotifyError(Exception):
     """

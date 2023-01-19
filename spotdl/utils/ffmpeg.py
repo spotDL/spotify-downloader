@@ -18,6 +18,22 @@ import requests
 from spotdl.utils.config import get_spotdl_path
 from spotdl.utils.formatter import to_ms
 
+__all__ = [
+    "FFMPEG_URLS",
+    "FFMPEG_FORMATS",
+    "DUR_REGEX",
+    "TIME_REGEX",
+    "VERSION_REGEX",
+    "YEAR_REGEX",
+    "FFmpegError",
+    "is_ffmpeg_installed",
+    "get_ffmpeg_path",
+    "get_ffmpeg_version",
+    "get_local_ffmpeg",
+    "download_ffmpeg",
+    "convert",
+]
+
 FFMPEG_URLS = {
     "windows": {
         "amd64": "https://github.com/eugeneware/ffmpeg-static/releases/download/b4.4/win32-x64",

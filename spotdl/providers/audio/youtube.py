@@ -10,6 +10,8 @@ from pytube import YouTube as PyTube
 from spotdl.providers.audio.base import AudioProvider
 from spotdl.types.result import Result
 
+__all__ = ["YouTube"]
+
 
 class YouTube(AudioProvider):
     """

@@ -11,14 +11,15 @@ from spotdl.console.meta import meta
 from spotdl.console.save import save
 from spotdl.console.sync import sync
 from spotdl.console.web import web
-from spotdl.download import Downloader
-from spotdl.download.downloader import DownloaderError
+from spotdl.download.downloader import Downloader, DownloaderError
 from spotdl.utils.arguments import parse_arguments
 from spotdl.utils.config import create_settings
 from spotdl.utils.console import ACTIONS, generate_initial_config, is_executable
 from spotdl.utils.ffmpeg import FFmpegError, download_ffmpeg, is_ffmpeg_installed
 from spotdl.utils.logging import init_logging
 from spotdl.utils.spotify import SpotifyClient, SpotifyError
+
+__all__ = ["console_entry_point", "OPERATIONS"]
 
 OPERATIONS = {
     "download": download,

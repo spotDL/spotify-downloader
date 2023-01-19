@@ -10,9 +10,23 @@ import json
 from pathlib import Path
 from typing import Dict, List, Optional
 
-from spotdl.types import Album, Artist, Playlist, Saved
+from spotdl.types.album import Album
+from spotdl.types.artist import Artist
+from spotdl.types.playlist import Playlist
+from spotdl.types.saved import Saved
 from spotdl.types.song import Song, SongList
 from spotdl.utils.metadata import get_file_metadata
+
+__all__ = [
+    "QueryError",
+    "get_search_results",
+    "parse_query",
+    "create_empty_song",
+    "get_simple_songs",
+    "reinit_song",
+    "get_song_from_file_metadata",
+    "gather_known_songs",
+]
 
 
 class QueryError(Exception):

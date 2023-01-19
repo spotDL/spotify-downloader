@@ -26,6 +26,8 @@ from spotdl.utils.web import (
     router,
 )
 
+__all__ = ["web"]
+
 
 def web(web_settings: WebOptions, downloader_settings: DownloaderOptions):
     """

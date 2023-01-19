@@ -10,6 +10,16 @@ from spotdl.utils.ffmpeg import download_ffmpeg as ffmpeg_download
 from spotdl.utils.ffmpeg import get_local_ffmpeg, is_ffmpeg_installed
 from spotdl.utils.github import check_for_updates as get_update_status
 
+__all__ = [
+    "is_frozen",
+    "is_executable",
+    "generate_initial_config",
+    "generate_config",
+    "check_for_updates",
+    "download_ffmpeg",
+    "ACTIONS",
+]
+
 
 def is_frozen():
     """

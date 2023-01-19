@@ -3,6 +3,7 @@ Sync module for the console.
 """
 
 import json
+import logging
 from typing import List
 
 from spotdl.download.downloader import Downloader
@@ -10,6 +11,10 @@ from spotdl.types.song import Song
 from spotdl.utils.formatter import create_file_name
 from spotdl.utils.m3u import gen_m3u_files
 from spotdl.utils.search import parse_query
+
+__all__ = ["sync"]
+
+logger = logging.getLogger(__name__)
 
 
 def sync(
@@ -106,20 +111,18 @@ def sync(
 
         for file in to_delete:
             if file.exists():
-                downloader.progress_handler.log(f"Deleting {file}")
+                logger.info("Deleting %s", file)
                 try:
                     file.unlink()
                 except (PermissionError, OSError) as exc:
-                    downloader.progress_handler.debug(
-                        f"Could not remove temp file: {file}, error: {exc}"
-                    )
+                    logger.debug("Could not remove temp file: %s, error: %s", file, exc)
             else:
-                downloader.progress_handler.debug(f"{file} does not exist.")
+                logger.debug("%s does not exist.", file)
 
         if len(to_delete) == 0:
-            downloader.progress_handler.log("Nothing to delete...")
+            logger.info("Nothing to delete...")
         else:
-            downloader.progress_handler.log(f"{len(to_delete)} old songs were deleted.")
+            logger.info("%s old songs were deleted.", len(to_delete))
 
         if m3u_file:
             gen_m3u_files(

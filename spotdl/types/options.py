@@ -8,6 +8,17 @@ from typing import List, Optional
 
 from typing_extensions import TypedDict
 
+__all__ = [
+    "SpotifyOptions",
+    "DownloaderOptions",
+    "WebOptions",
+    "SpotDLOptions",
+    "SpotifyOptionalOptions",
+    "DownloaderOptionalOptions",
+    "WebOptionalOptions",
+    "SpotDLOptionalOptions",
+]
+
 
 class SpotifyOptions(TypedDict):
     """

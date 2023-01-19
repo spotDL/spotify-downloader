@@ -14,6 +14,8 @@ from spotdl.download.progress_handler import NAME_TO_LEVEL
 from spotdl.utils.ffmpeg import FFMPEG_FORMATS
 from spotdl.utils.formatter import VARS
 
+__all__ = ["OPERATIONS", "SmartFormatter", "parse_arguments"]
+
 OPERATIONS = ["download", "save", "web", "sync", "meta"]
 
 

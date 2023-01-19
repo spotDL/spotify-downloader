@@ -12,6 +12,15 @@ import requests
 
 from spotdl import _version
 
+__all__ = [
+    "REPO",
+    "WEB_APP_URL",
+    "get_status",
+    "check_for_updates",
+    "create_github_url",
+    "download_github_dir",
+]
+
 REPO = "spotdl/spotify-downloader"
 WEB_APP_URL = "https://github.com/spotdl/web-ui/tree/master/dist"
 

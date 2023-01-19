@@ -8,6 +8,8 @@ import syncedlyrics
 
 from spotdl.providers.lyrics.base import LyricsProvider
 
+__all__ = ["Synced"]
+
 
 class Synced(LyricsProvider):
     """
