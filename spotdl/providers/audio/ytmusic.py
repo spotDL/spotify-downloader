@@ -71,6 +71,7 @@ class YouTubeMusic(AudioProvider):
                     ),
                     verified=result.get("resultType") == "song",
                     name=result["title"],
+                    result_id=result["videoId"],
                     author=result["artists"][0]["name"],
                     artists=tuple(map(lambda a: a["name"], result["artists"])),
                     duration=parse_duration(result.get("duration")),

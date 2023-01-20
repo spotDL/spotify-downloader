@@ -24,6 +24,7 @@ class Result:
     name: str  # Name of the result
     duration: float  # Duration of the result in seconds
     author: str  # Author of the result
+    result_id: str  # ID of the result
 
     # Search related fields
     isrc_search: Optional[

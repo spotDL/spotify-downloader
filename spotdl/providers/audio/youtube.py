@@ -54,6 +54,7 @@ class YouTube(AudioProvider):
                         author=result.author,
                         search_query=search_term,
                         views=result.views,
+                        result_id=result.video_id,
                     )
                 )
 
