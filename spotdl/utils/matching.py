@@ -112,7 +112,7 @@ def sort_string(strings: List[str], join_str: str) -> str:
 
 
 def based_sort(
-    strings: List[str], based_on: List[str], reverse: bool = False
+    strings: List[str], based_on: List[str]
 ) -> Tuple[List[str], List[str]]:
     """
     Sort strings in list based on the order of strings in `based_on` list
@@ -133,8 +133,10 @@ def based_sort(
     strings = sorted(
         strings,
         key=lambda x: list_map.get(x, -1),
-        reverse=reverse,
+        reverse=True,
     )
+
+    based_on.reverse()
 
     return strings, based_on
 
