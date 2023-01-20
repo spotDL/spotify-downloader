@@ -169,7 +169,7 @@ class AudioProvider:
         - The url of the best match or None if no match was found.
         """
 
-        debug = create_debug_logger(logger, self.name,song.song_id)
+        debug = create_debug_logger(logger, self.name, song.song_id)
 
         # Create initial search query
         search_query = create_song_title(song.name, song.artists).lower()
@@ -226,9 +226,7 @@ class AudioProvider:
             )
 
             if isrc_result:
-                debug(
-                    f"Best ISRC result is {isrc_result.url}"
-                )
+                debug(f"Best ISRC result is {isrc_result.url}")
 
                 return isrc_result.url
 
