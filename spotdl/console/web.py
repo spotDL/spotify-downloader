@@ -34,7 +34,8 @@ def web(web_settings: WebOptions, downloader_settings: DownloaderOptions):
     Run the web server.
 
     ### Arguments
-    - settings: Settings dictionary, based on the `SettingsModel` class.
+    - web_settings: Web server settings.
+    - downloader_settings: Downloader settings.
     """
 
     # Apply the fix for mime types

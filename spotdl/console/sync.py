@@ -30,8 +30,6 @@ def sync(
     ### Arguments
     - query: list of strings to search for.
     - downloader: Already initialized downloader instance.
-    - save_path: Path to save the songs to.
-    - m3u_file: Path to the file to save the metadata to.
     """
 
     save_path = downloader.settings["save_file"]

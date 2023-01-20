@@ -27,9 +27,6 @@ def save(
     ### Arguments
     - query: list of strings to search for.
     - downloader: Already initialized downloader instance.
-    - save_path: Path to save the songs to.
-    - m3u_file: Path to the m3u file to save the songs to.
-    - preload: If True, preload the songs.
 
     ### Notes
     - This function is multi-threaded.

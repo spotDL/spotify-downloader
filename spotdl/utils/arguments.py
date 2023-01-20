@@ -16,7 +16,7 @@ from spotdl.utils.formatter import VARS
 
 __all__ = ["OPERATIONS", "SmartFormatter", "parse_arguments"]
 
-OPERATIONS = ["download", "save", "web", "sync", "meta"]
+OPERATIONS = ["download", "save", "web", "sync", "meta", "url"]
 
 
 class SmartFormatter(argparse.HelpFormatter):
@@ -110,6 +110,7 @@ def parse_main_options(parser: _ArgumentGroup):
             "web: Starts a web interface to simplify the download process.\n"
             "sync: Removes songs that are no longer present, downloads new ones\n"
             "meta: Update your audio files with metadata\n"
+            "url: Get the download URL for songs\n"
         ),
     )
 

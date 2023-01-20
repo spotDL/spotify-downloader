@@ -10,6 +10,7 @@ from spotdl.console.download import download
 from spotdl.console.meta import meta
 from spotdl.console.save import save
 from spotdl.console.sync import sync
+from spotdl.console.url import url
 from spotdl.console.web import web
 from spotdl.download.downloader import Downloader, DownloaderError
 from spotdl.utils.arguments import parse_arguments
@@ -26,6 +27,7 @@ OPERATIONS = {
     "sync": sync,
     "save": save,
     "meta": meta,
+    "url": url,
 }
 
 logger = logging.getLogger(__name__)
