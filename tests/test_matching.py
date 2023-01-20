@@ -64,6 +64,7 @@ from tests.conftest import new_initialize
                 "https://www.youtube.com/watch?v=p55-ZrnPDH8",
                 "https://www.youtube.com/watch?v=UqEsGWU9hh4",
                 "https://www.youtube.com/watch?v=H4kTNq0npEQ",
+                "https://www.youtube.com/watch?v=rk2hmQF4oDc",
             ],
         ),
         (
