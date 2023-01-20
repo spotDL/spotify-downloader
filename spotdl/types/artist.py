@@ -5,8 +5,8 @@ Artist module for retrieving artist data from Spotify.
 from dataclasses import dataclass
 from typing import Any, Dict, List, Set
 
-from slugify import slugify
 
+from spotdl.utils.formatter import slugify
 from spotdl.types.album import Album
 from spotdl.types.song import Song, SongList
 from spotdl.utils.spotify import SpotifyClient
