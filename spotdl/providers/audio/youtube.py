@@ -49,6 +49,11 @@ class YouTube(AudioProvider):
                 except Exception:
                     duration = 0
 
+                try:
+                    views = result.views
+                except Exception:
+                    views = 0
+
                 results.append(
                     Result(
                         source=self.name,
@@ -58,7 +63,7 @@ class YouTube(AudioProvider):
                         duration=duration,
                         author=result.author,
                         search_query=search_term,
-                        views=result.views,
+                        views=views,
                         result_id=result.video_id,
                     )
                 )
