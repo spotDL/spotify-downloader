@@ -5,7 +5,8 @@ Module that holds the ProgressHandler class and Song Tracker class.
 import logging
 from typing import Any, Callable, Dict, List, Optional
 
-from rich.console import Console, JustifyMethod, OverflowMethod, detect_legacy_windows
+from rich import get_console
+from rich.console import JustifyMethod, OverflowMethod
 from rich.highlighter import Highlighter
 from rich.progress import (
     BarColumn,
@@ -17,7 +18,6 @@ from rich.progress import (
 )
 from rich.style import StyleType
 from rich.text import Text
-from rich.theme import Theme
 
 from spotdl.types.song import Song
 
@@ -28,7 +28,6 @@ __all__ = [
     "NAME_TO_LEVEL",
     "ProgressHandlerError",
     "SizedTextColumn",
-    "THEME",
 ]
 
 # https://github.com/python/cpython/blob/3.10/Lib/logging/__init__.py
@@ -60,24 +59,6 @@ NAME_TO_LEVEL = {
     "DEBUG": DEBUG,
     "NOTSET": NOTSET,
 }
-
-THEME = Theme(
-    {
-        "bar.back": "grey23",
-        "bar.complete": "rgb(165,66,129)",
-        "bar.finished": "rgb(114,156,31)",
-        "bar.pulse": "rgb(165,66,129)",
-        "general": "green",
-        "nonimportant": "rgb(40,100,40)",
-        "progress.data.speed": "red",
-        "progress.description": "none",
-        "progress.download": "green",
-        "progress.filesize": "green",
-        "progress.filesize.total": "green",
-        "progress.percentage": "green",
-        "progress.remaining": "rgb(40,100,40)",
-    }
-)
 
 logger = logging.getLogger(__name__)
 
@@ -175,24 +156,17 @@ class ProgressHandler:
         self.previous_overall = self.overall_completed_tasks
 
         self.simple_tui = simple_tui
-        self.quiet = logger.level < 10
+        self.quiet = logger.getEffectiveLevel() < 10
         self.overall_task_id: Optional[TaskID] = None
 
         if not self.simple_tui:
-            # Change color system if "legacy" windows terminal to prevent wrong colors displaying
-            self.is_legacy = detect_legacy_windows()
-
-            # dumb_terminals automatically handled by rich. Color system is too but it is incorrect
-            # for legacy windows ... so no color for y'all.
-            self.console = Console(
-                theme=THEME, color_system="truecolor" if not self.is_legacy else None
-            )
+            console = get_console()
 
             self.rich_progress_bar = Progress(
                 SizedTextColumn(
                     "[white]{task.description}",
                     overflow="ellipsis",
-                    width=int(self.console.width / 3),
+                    width=int(console.width / 3),
                 ),
                 SizedTextColumn(
                     "{task.fields[message]}", width=18, style="nonimportant"
@@ -200,12 +174,11 @@ class ProgressHandler:
                 BarColumn(bar_width=None, finished_style="green"),
                 "[progress.percentage]{task.percentage:>3.0f}%",
                 TimeRemainingColumn(),
-                console=self.console,
                 # Normally when you exit the progress context manager (or call stop())
                 # the last refreshed display remains in the terminal with the cursor on
                 # the following line. You can also make the progress display disappear on
                 # exit by setting transient=True on the Progress constructor
-                transient=self.is_legacy,
+                transient=True,
             )
 
             # Basically a wrapper for rich's: with ... as ...

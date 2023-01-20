@@ -4,12 +4,35 @@ Module for logging
 
 import logging
 
-from rich.console import Console
+from rich import get_console
 from rich.logging import RichHandler
 from rich.theme import Theme
 from rich.traceback import install
 
 __all__ = ["init_logging", "SpotdlFormatter"]
+
+THEME = Theme(
+    {
+        "bar.back": "grey23",
+        "bar.complete": "rgb(165,66,129)",
+        "bar.finished": "rgb(114,156,31)",
+        "bar.pulse": "rgb(165,66,129)",
+        "general": "green",
+        "nonimportant": "rgb(40,100,40)",
+        "progress.data.speed": "red",
+        "progress.description": "none",
+        "progress.download": "green",
+        "progress.filesize": "green",
+        "progress.filesize.total": "green",
+        "progress.percentage": "green",
+        "progress.remaining": "rgb(40,100,40)",
+        "logging.level.debug": "blue",
+        "logging.level.info": "green",
+        "logging.level.warning": "yellow",
+        "logging.level.error": "red",
+        "logging.level.critical": "bold red",
+    }
+)
 
 
 class SpotdlFormatter(logging.Formatter):
@@ -61,17 +84,8 @@ def init_logging(log_level: str):
     logging.getLogger("syncedlyrics").setLevel(logging.WARNING)
 
     # Create console
-    console = Console(
-        theme=Theme(
-            {
-                "logging.level.debug": "blue",
-                "logging.level.info": "green",
-                "logging.level.warning": "yellow",
-                "logging.level.error": "red",
-                "logging.level.critical": "bold red",
-            }
-        )
-    )
+    console = get_console()
+    console.push_theme(THEME)
 
     # Create a rich handler
     rich_handler = RichHandler(
