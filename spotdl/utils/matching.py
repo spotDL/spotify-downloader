@@ -3,7 +3,8 @@ Module for all things matching related
 """
 
 from itertools import zip_longest
-from typing import Dict, List, Optional, Tuple
+from logging import Logger
+from typing import Callable, Dict, List, Optional, Tuple
 
 from spotdl.types.result import Result
 from spotdl.types.song import Song
@@ -15,6 +16,7 @@ from spotdl.utils.formatter import (
 )
 
 __all__ = [
+    "create_debug_logger",
     "fill_string",
     "create_clean_string",
     "sort_string",
@@ -31,6 +33,37 @@ __all__ = [
     "calc_time_match",
     "calc_album_match",
 ]
+
+
+def create_debug_logger(
+    logger: Logger, provider_name: str, song_id: str, result_id: Optional[str] = None
+) -> Callable[[str], None]:
+    """
+    Create a debug logger for matching
+
+    ### Arguments
+    - provider_name: name of provider
+    - song_id: song id
+    - result_id: result id
+
+    ### Returns
+    - debug logger
+    """
+
+    def debug(message: str) -> None:
+        """
+        Debug logger for matching
+
+        ### Arguments
+        - message: message to log
+        """
+
+        if result_id is None:
+            logger.debug("[%s][%s] %s", provider_name, song_id, message)
+        else:
+            logger.debug("[%s][%s][%s] %s", provider_name, song_id, result_id, message)
+
+    return debug
 
 
 def fill_string(strings: List[str], main_string: str, string_to_check: str) -> str:
