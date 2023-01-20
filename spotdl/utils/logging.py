@@ -9,7 +9,54 @@ from rich.logging import RichHandler
 from rich.theme import Theme
 from rich.traceback import install
 
-__all__ = ["init_logging", "SpotdlFormatter"]
+__all__ = [
+    "CRITICAL",
+    "FATAL",
+    "ERROR",
+    "WARNING",
+    "WARN",
+    "INFO",
+    "MATCH",
+    "DEBUG",
+    "NOTSET",
+    "init_logging",
+    "SpotdlFormatter",
+    "LEVEL_TO_NAME",
+    "NAME_TO_LEVEL",
+]
+
+# https://github.com/python/cpython/blob/3.10/Lib/logging/__init__.py
+CRITICAL = 50
+FATAL = CRITICAL
+ERROR = 40
+WARNING = 30
+WARN = WARNING
+INFO = 20
+MATCH = 15
+DEBUG = 10
+NOTSET = 0
+
+LEVEL_TO_NAME = {
+    CRITICAL: "CRITICAL",
+    ERROR: "ERROR",
+    WARNING: "WARNING",
+    INFO: "INFO",
+    MATCH: "MATCH",
+    DEBUG: "DEBUG",
+    NOTSET: "NOTSET",
+}
+
+NAME_TO_LEVEL = {
+    "CRITICAL": CRITICAL,
+    "FATAL": FATAL,
+    "ERROR": ERROR,
+    "WARN": WARNING,
+    "WARNING": WARNING,
+    "INFO": INFO,
+    "MATCH": MATCH,
+    "DEBUG": DEBUG,
+    "NOTSET": NOTSET,
+}
 
 THEME = Theme(
     {
@@ -49,19 +96,22 @@ class SpotdlFormatter(logging.Formatter):
 
         result = super().format(record)
 
-        if record.levelno == logging.DEBUG:
+        if record.levelno == DEBUG:
             return f"[blue]{result}"
 
-        if record.levelno == logging.INFO:
+        if record.levelno == MATCH:
+            return f"[magenta]{result}"
+
+        if record.levelno == INFO:
             return f"[green]{result}"
 
-        if record.levelno == logging.WARNING:
+        if record.levelno == WARNING:
             return f"[yellow]{result}"
 
-        if record.levelno == logging.ERROR:
+        if record.levelno == ERROR:
             return f"[red]{result}"
 
-        if record.levelno == logging.CRITICAL:
+        if record.levelno == CRITICAL:
             return f"[bold red]{result}"
 
         return result
@@ -86,6 +136,9 @@ def init_logging(log_level: str):
     # Create console
     console = get_console()
     console.push_theme(THEME)
+
+    # Add matching level loggers
+    logging.addLevelName(MATCH, "MATCH")
 
     # Create a rich handler
     rich_handler = RichHandler(
