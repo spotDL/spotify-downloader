@@ -44,13 +44,18 @@ class YouTube(AudioProvider):
         results = []
         for result in search_results:
             if result.watch_url:
+                try:
+                    duration = result.length
+                except Exception:
+                    duration = 0
+
                 results.append(
                     Result(
                         source=self.name,
                         url=result.watch_url,
                         verified=False,
                         name=result.title,
-                        duration=result.length,
+                        duration=duration,
                         author=result.author,
                         search_query=search_term,
                         views=result.views,
