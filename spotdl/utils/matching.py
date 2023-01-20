@@ -111,9 +111,7 @@ def sort_string(strings: List[str], join_str: str) -> str:
     return f"{join_str}".join(final_str)
 
 
-def based_sort(
-    strings: List[str], based_on: List[str]
-) -> Tuple[List[str], List[str]]:
+def based_sort(strings: List[str], based_on: List[str]) -> Tuple[List[str], List[str]]:
     """
     Sort strings in list based on the order of strings in `based_on` list
 

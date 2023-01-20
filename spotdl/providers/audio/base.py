@@ -2,8 +2,8 @@
 Base audio provider module.
 """
 
-import re
 import logging
+import re
 from typing import Any, Dict, List, Optional, Tuple
 
 from yt_dlp import YoutubeDL
