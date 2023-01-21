@@ -28,6 +28,8 @@ from spotdl.utils.web import (
 
 __all__ = ["web"]
 
+logger = logging.getLogger(__name__)
+
 
 def web(web_settings: WebOptions, downloader_settings: DownloaderOptions):
     """
@@ -68,7 +70,7 @@ def web(web_settings: WebOptions, downloader_settings: DownloaderOptions):
     )
 
     # Download web app from GitHub
-    print("Updating web app \n")
+    logger.info("Updating web app \n")
     web_app_dir = str(get_spotdl_path().absolute())
     download_github_dir(
         "https://github.com/spotdl/web-ui/tree/master/dist",

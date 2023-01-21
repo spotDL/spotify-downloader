@@ -4,6 +4,7 @@ Module for holding console related actions.
 
 import json
 import sys
+import logging
 
 from spotdl.utils.config import DEFAULT_CONFIG, get_config_file
 from spotdl.utils.ffmpeg import download_ffmpeg as ffmpeg_download
@@ -19,6 +20,8 @@ __all__ = [
     "download_ffmpeg",
     "ACTIONS",
 ]
+
+logger = logging.getLogger(__name__)
 
 
 def is_frozen():
@@ -67,13 +70,13 @@ def generate_config():
         overwrite_config = input("Config file already exists. Overwrite? (y/N): ")
 
         if overwrite_config.lower() != "y":
-            print("Exiting...")
+            logger.info("Exiting...")
             return None
 
     with open(config_path, "w", encoding="utf-8") as config_file:
         json.dump(DEFAULT_CONFIG, config_file, indent=4)
 
-    print(f"Config file generated at {config_path}")
+    logger.info("Config file generated at %s", config_path)
 
     return None
 
@@ -85,7 +88,7 @@ def check_for_updates():
 
     version_message = get_update_status()
 
-    print(version_message)
+    logger.info(version_message)
 
 
 def download_ffmpeg():
@@ -102,17 +105,17 @@ def download_ffmpeg():
             local_ffmpeg = ffmpeg_download()
 
             if local_ffmpeg.is_file():
-                print(f"FFmpeg successfully downloaded to {local_ffmpeg.absolute()}")
+                logger.info("FFmpeg successfully downloaded to %s", local_ffmpeg.absolute())
             else:
-                print("FFmpeg download failed")
+                logger.error("FFmpeg download failed")
     else:
-        print("Downloading FFmpeg...")
+        logger.info("Downloading FFmpeg...")
         download_path = ffmpeg_download()
 
         if download_path.is_file():
-            print(f"FFmpeg successfully downloaded to {download_path.absolute()}")
+            logger.info("FFmpeg successfully downloaded to %s", download_path.absolute())
         else:
-            print("FFmpeg download failed")
+            logger.error("FFmpeg download failed")
 
 
 ACTIONS = {
