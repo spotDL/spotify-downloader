@@ -7,10 +7,7 @@ import spotdl.utils.config
 import spotdl.utils.ffmpeg
 from spotdl.types.song import Song
 from spotdl.utils.ffmpeg import convert
-from spotdl.utils.metadata import (
-    embed_metadata,
-    get_file_metadata,
-)
+from spotdl.utils.metadata import embed_metadata, get_file_metadata
 
 
 @pytest.mark.parametrize(

@@ -5,7 +5,9 @@ Module for logging
 import logging
 
 from rich import get_console
+from rich.console import ConsoleRenderable
 from rich.logging import RichHandler
+from rich.text import Text
 from rich.theme import Theme
 from rich.traceback import install
 
@@ -87,8 +89,6 @@ class SpotdlFormatter(logging.Formatter):
     A custom logger for spotdl.
     """
 
-    highlight = RichHandler.HIGHLIGHTER_CLASS()
-
     def format(self, record: logging.LogRecord) -> str:
         """
         Format a log record.
@@ -118,6 +118,48 @@ class SpotdlFormatter(logging.Formatter):
         return msg
 
 
+class SpotdlHandler(RichHandler):
+    """
+    A custom logging handler for spotdl.
+    In this case, it's just a wrapper around the rich handler.
+    To not highlight keywords in info messages
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def render_message(
+        self, record: logging.LogRecord, message: str
+    ) -> "ConsoleRenderable":
+        """Render message text in to Text.
+
+        ### Arguments
+        - record: logging Record.
+        - message: String containing log message.
+
+        ### Returns
+        - ConsoleRenderable: Renderable to display log message.
+        """
+
+        use_markup = getattr(record, "markup", self.markup)
+        message_text = Text.from_markup(message) if use_markup else Text(message)
+
+        highlighter = getattr(record, "highlighter", self.highlighter)
+
+        # Don't highlight info messages
+        if highlighter and record.levelno != INFO:
+            message_text = highlighter(message_text)
+
+        if self.keywords is None:
+            self.keywords = self.KEYWORDS
+
+        # Don't highlight keywords in info messages
+        if self.keywords and record.levelno != INFO:
+            message_text.highlight_words(self.keywords, "logging.keyword")
+
+        return message_text
+
+
 def init_logging(log_level: str):
     """
     Initialize logging for spotdl.
@@ -142,7 +184,7 @@ def init_logging(log_level: str):
     logging.addLevelName(MATCH, "MATCH")
 
     # Create a rich handler
-    rich_handler = RichHandler(
+    rich_handler = SpotdlHandler(
         show_time=log_level == "DEBUG",
         log_time_format="[%X]",
         omit_repeated_times=False,
