@@ -200,6 +200,7 @@ def test_song_from_dict():
         {
             "name": "Ropes",
             "artists": ["Dirty Palm", "Chandler Jewels"],
+            "album_id": "4SN9kQlguIasvwv",
             "album_name": "Ropes",
             "album_artist": "Dirty Palm",
             "genres": ["gaming edm", "melbourne bounce international"],

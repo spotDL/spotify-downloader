@@ -8,8 +8,6 @@ import spotdl.utils.ffmpeg
 from spotdl.types.song import Song
 from spotdl.utils.ffmpeg import convert
 from spotdl.utils.metadata import (
-    M4A_TAG_PRESET,
-    TAG_PRESET,
     embed_metadata,
     get_file_metadata,
 )
@@ -47,6 +45,7 @@ def test_embed_metadata(tmpdir, monkeypatch, output_format):
     song_obj = {
         "name": "Ropes",
         "artists": ["Dirty Palm", "Chandler Jewels"],
+        "album_id": "15b3456b34562b3456b34",
         "album_name": "Ropes",
         "album_artist": "Dirty Palm",
         "genres": ["gaming edm", "melbourne bounce international"],
