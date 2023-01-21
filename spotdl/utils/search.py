@@ -7,6 +7,7 @@ To use this module you must first initialize the SpotifyClient.
 
 import concurrent.futures
 import json
+import logging
 from pathlib import Path
 from typing import Dict, List, Optional
 
@@ -27,6 +28,8 @@ __all__ = [
     "get_song_from_file_metadata",
     "gather_known_songs",
 ]
+
+logger = logging.getLogger(__name__)
 
 
 class QueryError(Exception):
@@ -199,7 +202,7 @@ def get_simple_songs(
                 create_empty_song(url=split_urls[1], download_url=split_urls[0])
             )
         elif "open.spotify.com" in request and "track" in request:
-            songs.append(create_empty_song(url=request))  # type: ignore
+            songs.append(create_empty_song(url=request))
         elif "open.spotify.com" in request and "playlist" in request:
             lists.append(Playlist.create_basic_list(request))
         elif "open.spotify.com" in request and "album" in request:
@@ -219,6 +222,13 @@ def get_simple_songs(
             songs.append(Song.from_search_term(request))
 
     for song_list in lists:
+        logger.debug(
+            "Found %s songs in %s (%s)",
+            len(song_list.urls),
+            song_list.name,
+            song_list.__class__.__name__,
+        )
+
         songs.extend(
             [create_empty_song(url=url, song_list=song_list) for url in song_list.urls]
         )  # type: ignore
