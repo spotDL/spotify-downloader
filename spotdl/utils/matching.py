@@ -2,9 +2,9 @@
 Module for all things matching related
 """
 
+import logging
 from itertools import zip_longest
-from logging import Logger
-from typing import Callable, Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple
 
 from spotdl.types.result import Result
 from spotdl.types.song import Song
@@ -14,9 +14,9 @@ from spotdl.utils.formatter import (
     ratio,
     slugify,
 )
+from spotdl.utils.logging import MATCH
 
 __all__ = [
-    "create_debug_logger",
     "fill_string",
     "create_clean_string",
     "sort_string",
@@ -34,36 +34,18 @@ __all__ = [
     "calc_album_match",
 ]
 
+logger = logging.getLogger(__name__)
 
-def create_debug_logger(
-    logger: Logger, provider_name: str, song_id: str, result_id: Optional[str] = None
-) -> Callable[[str], None]:
+
+def debug(song_id: str, result_id: str, message: str) -> None:
     """
-    Create a debug logger for matching
+    Log a message with MATCH level
 
     ### Arguments
-    - provider_name: name of provider
-    - song_id: song id
-    - result_id: result id
-
-    ### Returns
-    - debug logger
+    - message: message to log
     """
 
-    def debug(message: str) -> None:
-        """
-        Debug logger for matching
-
-        ### Arguments
-        - message: message to log
-        """
-
-        if result_id is None:
-            logger.debug("[%s][%s] %s", provider_name, song_id, message)
-        else:
-            logger.debug("[%s][%s][%s] %s", provider_name, song_id, result_id, message)
-
-    return debug
+    logger.log(MATCH, "[%s|%s] %s", song_id, result_id, message)
 
 
 def fill_string(strings: List[str], main_string: str, string_to_check: str) -> str:
@@ -592,3 +574,147 @@ def calc_album_match(song: Song, result: Result) -> float:
         return 0.0
 
     return ratio(slugify(song.album_name), slugify(result.album))
+
+
+def order_results(
+    results: List[Result], song: Song, search_query: Optional[str] = None
+) -> Dict[Result, float]:
+    """
+    Order results.
+
+    ### Arguments
+    - results: The results to order.
+    - song: The song to order for.
+    - search_query: The search query.
+
+    ### Returns
+    - The ordered results.
+    """
+
+    # Assign an overall avg match value to each result
+    links_with_match_value = {}
+
+    # Iterate over all results
+    for result in results:
+        # skip results that have no common words in their name
+        if not check_common_word(song, result):
+            debug(
+                song.song_id, result.result_id, "Skipping result due to no common words"
+            )
+
+            continue
+
+        # Calculate match value for main artist
+        artists_match = calc_main_artist_match(song, result)
+
+        debug(song.song_id, result.result_id, f"Main artist match: {artists_match}")
+
+        # Calculate match value for all artists
+        artists_match += calc_artists_match(song, result)
+        debug(song.song_id, result.result_id, f"Artists match: {artists_match}")
+
+        # Calculate initial artist match value
+        artists_match = artists_match / (2 if len(song.artists) > 1 else 1)
+        debug(song.song_id, result.result_id, f"Initial artists match: {artists_match}")
+
+        # First attempt to fix artist match
+        artists_match = artists_match_fixup1(song, result, artists_match)
+        debug(
+            song.song_id,
+            result.result_id,
+            f"Artists match after fixup1: {artists_match}",
+        )
+
+        # Second attempt to fix artist match
+        artists_match = artists_match_fixup2(song, result, artists_match)
+        debug(
+            song.song_id,
+            result.result_id,
+            f"Artists match after fixup2: {artists_match}",
+        )
+
+        # Third attempt to fix artist match
+        artists_match = artists_match_fixup3(song, result, artists_match)
+        debug(
+            song.song_id,
+            result.result_id,
+            f"Artists match after fixup3: {artists_match}",
+        )
+
+        # Calculate name match
+        name_match = calc_name_match(song, result, search_query)
+        debug(song.song_id, result.result_id, f"Name match: {name_match}")
+
+        # Calculate album match
+        album_match = calc_album_match(song, result)
+        debug(song.song_id, result.result_id, f"Album match: {album_match}")
+
+        # Calculate time match
+        time_match = calc_time_match(song, result)
+        debug(song.song_id, result.result_id, f"Time match: {time_match}")
+
+        # Ignore results with name match lower than 50%
+        if name_match <= 50:
+            debug(
+                song.song_id,
+                result.result_id,
+                "Skipping result due to name match lower than 50%",
+            )
+            continue
+
+        # Ignore results with artists match lower than 70%
+        if artists_match < 70:
+            debug(
+                song.song_id,
+                result.result_id,
+                "Skipping result due to artists match lower than 70%",
+            )
+            continue
+
+        # Calculate total match
+        average_match = (artists_match + name_match) / 2
+        debug(song.song_id, result.result_id, f"Average match: {average_match}")
+
+        if (
+            result.verified
+            and not result.isrc_search
+            and result.album
+            and album_match <= 80
+        ):
+            # we are almost certain that this is the correct result
+            # so we add the album match to the average match
+            average_match = (average_match + album_match) / 2
+            debug(
+                song.song_id,
+                result.result_id,
+                f"Average match /w album match: {average_match}",
+            )
+
+        # If the time match is lower than 50%
+        # and the average match is lower than 75%
+        # we skip the result
+        if time_match < 50 and average_match < 75:
+            debug(
+                song.song_id,
+                result.result_id,
+                "Skipping result due to time match < 50% and average match < 75%",
+            )
+            continue
+
+        if not result.isrc_search and average_match <= 75 >= time_match:
+            # Don't add time to avg match if average match is not the best
+            # (lower than 75%)
+            average_match = (average_match + time_match) / 2
+            debug(
+                song.song_id,
+                result.result_id,
+                f"Average match /w time match: {average_match}",
+            )
+
+        average_match = min(average_match, 100)
+        debug(song.song_id, result.result_id, f"Final average match: {average_match}")
+
+        # the results along with the avg Match
+        links_with_match_value[result] = average_match
+
+    return links_with_match_value

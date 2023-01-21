@@ -12,19 +12,7 @@ from spotdl.types.result import Result
 from spotdl.types.song import Song
 from spotdl.utils.config import get_temp_path
 from spotdl.utils.formatter import create_search_query, create_song_title
-from spotdl.utils.matching import (
-    artists_match_fixup1,
-    artists_match_fixup2,
-    artists_match_fixup3,
-    calc_album_match,
-    calc_artists_match,
-    calc_main_artist_match,
-    calc_name_match,
-    calc_time_match,
-    check_common_word,
-    create_debug_logger,
-    get_best_matches,
-)
+from spotdl.utils.matching import get_best_matches, order_results
 
 __all__ = ["AudioProviderError", "AudioProvider", "ISRC_REGEX", "YTDLLogger"]
 
@@ -169,8 +157,6 @@ class AudioProvider:
         - The url of the best match or None if no match was found.
         """
 
-        debug = create_debug_logger(logger, self.name, song.song_id)
-
         # Create initial search query
         search_query = create_song_title(song.name, song.artists).lower()
         if self.search_query:
@@ -178,7 +164,7 @@ class AudioProvider:
                 song, self.search_query, False, None, True
             )
 
-        debug(f"Searching for {search_query}")
+        logger.debug("[%s] Searching for %s", song.song_id, search_query)
 
         isrc_urls: List[str] = []
 
@@ -189,32 +175,48 @@ class AudioProvider:
             )
 
             isrc_urls = [result.url for result in isrc_results]
-            sorted_isrc_results = self.order_results(isrc_results, song)
-            debug(f"Found {len(isrc_results)} results for ISRC {song.isrc}")
-
-            # get the best result, if the score is above 80 return it
-            best_isrc_results = sorted(
-                sorted_isrc_results.items(), key=lambda x: x[1], reverse=True
+            sorted_isrc_results = order_results(isrc_results, song, self.search_query)
+            logger.debug(
+                "[%s] Found %s results for ISRC %s",
+                song.song_id,
+                len(isrc_results),
+                song.isrc,
             )
-            debug(f"Filtered to {len(best_isrc_results)} ISRC results")
 
-            if len(best_isrc_results) > 0:
-                best_isrc = best_isrc_results[0]
-                if best_isrc[1] > 80.0:
-                    debug(
-                        f"Best ISRC result is {best_isrc[0].url} with score {best_isrc[1]}"
-                    )
+            if len(isrc_results) > 0:
+                # get the best result, if the score is above 80 return it
+                best_isrc_results = sorted(
+                    sorted_isrc_results.items(), key=lambda x: x[1], reverse=True
+                )
+                logger.debug(
+                    "[%s] Filtered to %s ISRC results",
+                    song.song_id,
+                    len(best_isrc_results),
+                )
 
-                    return best_isrc[0].url
+                if len(best_isrc_results) > 0:
+                    best_isrc = best_isrc_results[0]
+                    if best_isrc[1] > 80.0:
+                        logger.debug(
+                            "[%s] Best ISRC result is %s with score %s",
+                            song.song_id,
+                            best_isrc[0].url,
+                            best_isrc[1],
+                        )
+
+                        return best_isrc[0].url
 
         results: Dict[Result, float] = {}
         for options in self.GET_RESULTS_OPTS:
             # Query YTM by songs only first, this way if we get correct result on the first try
             # we don't have to make another request
             search_results = self.get_results(search_query, **options)
-            debug(
-                f"Found {len(search_results)} results for search query "
-                f"{search_query} with options {options}"
+            logger.debug(
+                "[%s] Found %s results for search query %s with options %s",
+                song.song_id,
+                len(search_results),
+                search_query,
+                options,
             )
 
             # Check if any of the search results is in the
@@ -226,19 +228,21 @@ class AudioProvider:
             )
 
             if isrc_result:
-                debug(f"Best ISRC result is {isrc_result.url}")
+                logger.debug(
+                    "[%s] Best ISRC result is %s", song.song_id, isrc_result.url
+                )
 
                 return isrc_result.url
 
             if self.filter_results:
                 # Order results
-                new_results = self.order_results(search_results, song)
+                new_results = order_results(search_results, song, self.search_query)
             else:
                 new_results = {}
                 if len(new_results) > 0:
                     new_results = {search_results[0]: 100.0}
 
-            debug(f"Filtered to {len(new_results)} results")
+            logger.debug("[%s] Filtered to %s results", song.song_id, len(new_results))
 
             # song type results are always more accurate than video type,
             # so if we get score of 80 or above
@@ -246,10 +250,20 @@ class AudioProvider:
             if len(new_results) != 0:
                 # get the result with highest score
                 best_url, best_score = self.get_best_match(new_results)
-                debug(f"Best result is {best_url} with score {best_score}")
+                logger.debug(
+                    "[%s] Best result is %s with score %s",
+                    song.song_id,
+                    best_url,
+                    best_score,
+                )
 
                 if best_score >= 80:
-                    debug(f"Returning best result {best_url} with score {best_score}")
+                    logger.debug(
+                        "[%s] Returning best result %s with score %s",
+                        song.song_id,
+                        best_url,
+                        best_score,
+                    )
 
                     return best_url
 
@@ -258,124 +272,19 @@ class AudioProvider:
 
         # No matches found
         if not results:
-            debug("No results found")
+            logger.debug("[%s] No results found", song.song_id)
             return None
 
         # get the result with highest score
         best_url, best_score = self.get_best_match(results)
-        debug(f"Returning best result {best_url} with score {best_score}")
+        logger.debug(
+            "[%s] Returning best result %s with score %s",
+            song.song_id,
+            best_url,
+            best_score,
+        )
 
         return best_url
-
-    def order_results(self, results: List[Result], song: Song) -> Dict[Result, float]:
-        """
-        Order results.
-
-        ### Arguments
-        - results: The results to order.
-        - song: The song to order for.
-
-        ### Returns
-        - The ordered results.
-        """
-
-        # Assign an overall avg match value to each result
-        links_with_match_value = {}
-
-        # Iterate over all results
-        for result in results:
-            debug = create_debug_logger(
-                logger, self.name, song.song_id, result.result_id
-            )
-
-            # skip results that have no common words in their name
-            if not check_common_word(song, result):
-                debug("Skipping result due to no common words")
-
-                continue
-
-            # Calculate match value for main artist
-            artists_match = calc_main_artist_match(song, result)
-
-            debug(f"Main artist match: {artists_match}")
-
-            # Calculate match value for all artists
-            artists_match += calc_artists_match(song, result)
-            debug(f"Artists match: {artists_match}")
-
-            # Calculate initial artist match value
-            artists_match = artists_match / (2 if len(song.artists) > 1 else 1)
-            debug(f"Initial artists match: {artists_match}")
-
-            # First attempt to fix artist match
-            artists_match = artists_match_fixup1(song, result, artists_match)
-            debug(f"Artists match after fixup1: {artists_match}")
-
-            # Second attempt to fix artist match
-            artists_match = artists_match_fixup2(song, result, artists_match)
-            debug(f"Artists match after fixup2: {artists_match}")
-
-            # Third attempt to fix artist match
-            artists_match = artists_match_fixup3(song, result, artists_match)
-            debug(f"Artists match after fixup3: {artists_match}")
-
-            # Calculate name match
-            name_match = calc_name_match(song, result, self.search_query)
-            debug(f"Name match: {name_match}")
-
-            # Calculate album match
-            album_match = calc_album_match(song, result)
-            debug(f"Album match: {album_match}")
-
-            # Calculate time match
-            time_match = calc_time_match(song, result)
-            debug(f"Time match: {time_match}")
-
-            # Ignore results with name match lower than 50%
-            if name_match <= 50:
-                debug("Skipping result due to name match lower than 50%")
-                continue
-
-            # Ignore results with artists match lower than 70%
-            if artists_match < 70:
-                debug("Skipping result due to artists match lower than 70%")
-                continue
-
-            # Calculate total match
-            average_match = (artists_match + name_match) / 2
-            debug(f"Average match: {average_match}")
-
-            if (
-                result.verified
-                and not result.isrc_search
-                and result.album
-                and album_match <= 80
-            ):
-                # we are almost certain that this is the correct result
-                # so we add the album match to the average match
-                average_match = (average_match + album_match) / 2
-                debug(f"Average match /w album match: {average_match}")
-
-            # If the time match is lower than 50%
-            # and the average match is lower than 75%
-            # we skip the result
-            if time_match < 50 and average_match < 75:
-                debug("Skipping result due to time match < 50% and average match < 75%")
-                continue
-
-            if not result.isrc_search and average_match <= 75 >= time_match:
-                # Don't add time to avg match if average match is not the best
-                # (lower than 75%)
-                average_match = (average_match + time_match) / 2
-                debug(f"Average match /w time match: {average_match}")
-
-            average_match = min(average_match, 100)
-            debug(f"Final average match: {average_match}")
-
-            # the results along with the avg Match
-            links_with_match_value[result] = average_match
-
-        return links_with_match_value
 
     def get_best_match(self, results: Dict[Result, float]) -> Tuple[str, float]:
         """
