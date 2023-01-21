@@ -12,6 +12,7 @@ def test_song_init():
     song = Song(
         name="test",
         artists=["test"],
+        album_id="test",
         album_name="test",
         album_artist="test",
         genres=["test"],
@@ -35,6 +36,7 @@ def test_song_init():
 
     assert song.name == "test"
     assert song.artists == ["test"]
+    assert song.album_id == "test"
     assert song.album_name == "test"
     assert song.album_artist == "test"
     assert song.genres == ["test"]
@@ -47,7 +49,7 @@ def test_song_init():
     assert song.isrc == "test"
     assert song.song_id == "test"
     assert song.cover_url == "test"
-    assert song.explicit == True
+    assert song.explicit is True
     assert song.download_url == "test"
 
 
@@ -135,6 +137,7 @@ def test_song_from_data_dump():
         {
             "name": "Ropes",
             "artists": ["Dirty Palm", "Chandler Jewels"],
+            "album_id": "4SN9kQlguIcjPtMNQJwD30",
             "album_name": "Ropes",
             "album_artist": "Dirty Palm",
             "genres": ["gaming edm", "melbourne bounce international"],

@@ -75,6 +75,7 @@ def test_download(setup, monkeypatch, tmpdir):
         "name": "Nobody Else",
         "artists": ["Abstrakt"],
         "artist": "Abstrakt",
+        "album_id": "6ZQZ5Z1NQZJQY5Y7YJZJYJ",
         "album_name": "Nobody Else",
         "album_artist": "Abstrakt",
         "genres": [],

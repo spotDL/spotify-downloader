@@ -38,6 +38,7 @@ def test_create_file_name():
     song_dict = {
         "name": "Ropes",
         "artists": ["Dirty Palm", "Chandler Jewels"],
+        "album_id": "test",
         "album_name": "Ropes",
         "album_artist": "Dirty Palm",
         "genres": ["gaming edm", "melbourne bounce international"],
