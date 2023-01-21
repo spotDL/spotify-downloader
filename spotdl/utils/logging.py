@@ -96,25 +96,26 @@ class SpotdlFormatter(logging.Formatter):
 
         result = super().format(record)
 
+        msg = result
         if record.levelno == DEBUG:
-            return f"[blue]{result}"
+            msg = f"[blue]{result}"
 
         if record.levelno == MATCH:
-            return f"[magenta]{result}"
+            msg = f"[magenta]{result}"
 
         if record.levelno == INFO:
-            return f"[green]{result}"
+            msg = f"[green]{result}"
 
         if record.levelno == WARNING:
-            return f"[yellow]{result}"
+            msg = f"[yellow]{result}"
 
         if record.levelno == ERROR:
-            return f"[red]{result}"
+            msg = f"[red]{result}"
 
         if record.levelno == CRITICAL:
-            return f"[bold red]{result}"
+            msg = f"[bold red]{result}"
 
-        return result
+        return msg
 
 
 def init_logging(log_level: str):
