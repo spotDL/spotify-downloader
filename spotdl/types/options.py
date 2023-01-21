@@ -64,6 +64,7 @@ class DownloaderOptions(TypedDict):
     load_config: bool
     log_level: str
     simple_tui: bool
+    fetch_albums: bool
 
 
 class WebOptions(TypedDict):
@@ -128,6 +129,7 @@ class DownloaderOptionalOptions(TypedDict, total=False):
     load_config: bool
     log_level: str
     simple_tui: bool
+    fetch_albums: bool
 
 
 class WebOptionalOptions(TypedDict, total=False):

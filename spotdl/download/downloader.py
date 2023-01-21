@@ -33,7 +33,7 @@ from spotdl.utils.ffmpeg import FFmpegError, convert, get_ffmpeg_path
 from spotdl.utils.formatter import create_file_name, restrict_filename
 from spotdl.utils.m3u import gen_m3u_files
 from spotdl.utils.metadata import MetadataError, embed_metadata
-from spotdl.utils.search import gather_known_songs, reinit_song
+from spotdl.utils.search import gather_known_songs, reinit_song, songs_from_albums
 
 __all__ = [
     "AUDIO_PROVIDERS",
@@ -225,6 +225,21 @@ class Downloader:
         ### Returns
         - list of tuples with the song and the path to the downloaded file if successful.
         """
+
+        if self.settings["fetch_albums"]:
+            albums = set(song.album_id for song in songs)
+            logger.info(
+                "Fetching %d album%s", len(albums), "s" if len(albums) > 1 else ""
+            )
+
+            songs.extend(songs_from_albums(list(albums)))
+
+            # Remove duplicates
+            return_obj = {}
+            for song in songs:
+                return_obj[song.url] = song
+
+            songs = list(return_obj.values())
 
         logger.debug("Downloading %d songs", len(songs))
 

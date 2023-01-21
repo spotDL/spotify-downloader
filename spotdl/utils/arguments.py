@@ -442,6 +442,14 @@ def parse_output_options(parser: _ArgumentGroup):
         ),
     )
 
+    # Option to fetch all albums from songs in query
+    parser.add_argument(
+        "--fetch-albums",
+        action="store_const",
+        const=True,
+        help="Fetch all albums from songs in query",
+    )
+
 
 def parse_web_options(parser: _ArgumentGroup):
     """

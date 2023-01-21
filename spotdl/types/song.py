@@ -26,6 +26,7 @@ class Song:
     name: str
     artists: List[str]
     artist: str
+    album_id: str
     album_name: str
     album_artist: str
     genres: List[str]
@@ -90,6 +91,7 @@ class Song:
             name=raw_track_meta["name"],
             artists=[artist["name"] for artist in raw_track_meta["artists"]],
             artist=raw_track_meta["artists"][0]["name"],
+            album_id=album_id,
             album_name=raw_album_meta["name"],
             album_artist=raw_album_meta["artists"][0]["name"],
             copyright_text=raw_album_meta["copyrights"][0]["text"]

@@ -255,6 +255,7 @@ DOWNLOADER_OPTIONS: DownloaderOptions = {
     "load_config": True,
     "log_level": "INFO",
     "simple_tui": False,
+    "fetch_albums": False,
 }
 
 WEB_OPTIONS: WebOptions = {

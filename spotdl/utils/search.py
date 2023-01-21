@@ -78,6 +78,7 @@ def create_empty_song(
     name: Optional[str] = None,
     artists: Optional[List[str]] = None,
     artist: Optional[str] = None,
+    album_id: Optional[str] = None,
     album_name: Optional[str] = None,
     album_artist: Optional[str] = None,
     genres: Optional[List[str]] = None,
@@ -105,6 +106,8 @@ def create_empty_song(
     ### Arguments
     - name: Name of the song
     - artists: List of artists
+    - artist: Name of the artist
+    - album_id: Spotify album ID
     - album_name: Name of the album
     - album_artist: Name of the album artist
     - genres: List of genres
@@ -134,6 +137,7 @@ def create_empty_song(
         name=name,  # type: ignore
         artists=artists,  # type: ignore
         artist=artist if artist else (artists[0] if artists else None),  # type: ignore
+        album_id=album_id,  # type: ignore
         album_name=album_name,  # type: ignore
         album_artist=album_artist,  # type: ignore
         genres=genres,  # type: ignore
@@ -218,6 +222,28 @@ def get_simple_songs(
         songs.extend(
             [create_empty_song(url=url, song_list=song_list) for url in song_list.urls]
         )  # type: ignore
+
+    return songs
+
+
+def songs_from_albums(alubms: List[str]):
+    """
+    Get all songs from albums ids/urls/etc.
+
+    ### Arguments
+    - albums: List of albums ids
+
+    ### Returns
+    - List of songs
+    """
+
+    songs = []
+    for album_id in alubms:
+        album = Album.create_basic_list(album_id)
+
+        songs.extend(
+            [create_empty_song(url=url, song_list=album) for url in album.urls]
+        )
 
     return songs
 
