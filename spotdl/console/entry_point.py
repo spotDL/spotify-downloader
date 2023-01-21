@@ -41,6 +41,21 @@ def console_entry_point():
     # Create config file if it doesn't exist
     generate_initial_config()
 
+    # Check if sys.argv contains an action
+    # If it does, we run the action and exit
+    try:
+        action_to_run = next(
+            action
+            for action_name, action in ACTIONS.items()
+            if action_name in sys.argv
+        )
+    except StopIteration:
+        action_to_run = None
+
+    if action_to_run:
+        action_to_run()
+        return None
+
     # Parse the arguments
     arguments = parse_arguments()
 
@@ -54,21 +69,6 @@ def console_entry_point():
     if is_executable():
         if is_ffmpeg_installed() is False:
             download_ffmpeg()
-
-    # Check if sys.argv contains an action
-    # If it does, we run the action and exit
-    try:
-        action_to_run = next(
-            action()
-            for action_name, action in ACTIONS.items()
-            if action_name in sys.argv
-        )
-    except StopIteration:
-        action_to_run = None
-
-    if action_to_run:
-        action_to_run()
-        return None
 
     # Check if ffmpeg is installed
     if is_ffmpeg_installed(downloader_settings["ffmpeg"]) is False:
