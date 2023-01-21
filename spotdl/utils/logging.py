@@ -16,8 +16,8 @@ __all__ = [
     "WARNING",
     "WARN",
     "INFO",
-    "MATCH",
     "DEBUG",
+    "MATCH",
     "NOTSET",
     "init_logging",
     "SpotdlFormatter",
@@ -32,8 +32,8 @@ ERROR = 40
 WARNING = 30
 WARN = WARNING
 INFO = 20
-MATCH = 15
 DEBUG = 10
+MATCH = 5
 NOTSET = 0
 
 LEVEL_TO_NAME = {
