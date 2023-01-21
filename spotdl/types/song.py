@@ -26,7 +26,6 @@ class Song:
     name: str
     artists: List[str]
     artist: str
-    album_id: str
     album_name: str
     album_artist: str
     genres: List[str]
@@ -48,6 +47,9 @@ class Song:
     song_list: Optional["SongList"] = None
     list_position: Optional[int] = None
     lyrics: Optional[str] = None
+    # Added in v4.1.0, not supported in previous versions
+    # in the next major version, these will be made required
+    album_id: Optional[str] = None
 
     @classmethod
     def from_url(cls, url: str) -> "Song":
