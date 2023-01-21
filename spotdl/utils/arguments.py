@@ -450,6 +450,13 @@ def parse_output_options(parser: _ArgumentGroup):
         help="Fetch all albums from songs in query",
     )
 
+    # Option to change the id3 separator
+    parser.add_argument(
+        "--id3-separator",
+        type=str,
+        help="Change the separator used in the id3 tags. Only supported for mp3 files.",
+    )
+
 
 def parse_web_options(parser: _ArgumentGroup):
     """

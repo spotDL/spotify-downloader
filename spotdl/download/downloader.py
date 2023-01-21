@@ -659,7 +659,7 @@ class Downloader:
                         Path(file_to_delete).unlink()
 
             try:
-                embed_metadata(output_file, song)
+                embed_metadata(output_file, song, self.settings["id3_separator"])
             except Exception as exception:
                 raise MetadataError(
                     "Failed to embed metadata to the song"

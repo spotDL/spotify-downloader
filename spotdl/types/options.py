@@ -65,6 +65,7 @@ class DownloaderOptions(TypedDict):
     log_level: str
     simple_tui: bool
     fetch_albums: bool
+    id3_separator: str
 
 
 class WebOptions(TypedDict):
@@ -130,6 +131,7 @@ class DownloaderOptionalOptions(TypedDict, total=False):
     log_level: str
     simple_tui: bool
     fetch_albums: bool
+    id3_separator: str
 
 
 class WebOptionalOptions(TypedDict, total=False):

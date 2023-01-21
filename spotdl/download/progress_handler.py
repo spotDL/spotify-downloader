@@ -344,8 +344,8 @@ class SongTracker:
         if finish:
             self.progress = 100
 
-        if logger.level == logging.DEBUG:
-            logger.error(message)
+        if logger.getEffectiveLevel() == logging.DEBUG:
+            logger.exception(message)
         else:
             logger.error("%s: %s", traceback.__class__.__name__, traceback)
 

@@ -256,6 +256,7 @@ DOWNLOADER_OPTIONS: DownloaderOptions = {
     "log_level": "INFO",
     "simple_tui": False,
     "fetch_albums": False,
+    "id3_separator": "/",
 }
 
 WEB_OPTIONS: WebOptions = {
