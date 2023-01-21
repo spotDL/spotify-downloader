@@ -3,8 +3,8 @@ Module for holding console related actions.
 """
 
 import json
-import sys
 import logging
+import sys
 
 from spotdl.utils.config import DEFAULT_CONFIG, get_config_file
 from spotdl.utils.ffmpeg import download_ffmpeg as ffmpeg_download
@@ -105,7 +105,9 @@ def download_ffmpeg():
             local_ffmpeg = ffmpeg_download()
 
             if local_ffmpeg.is_file():
-                logger.info("FFmpeg successfully downloaded to %s", local_ffmpeg.absolute())
+                logger.info(
+                    "FFmpeg successfully downloaded to %s", local_ffmpeg.absolute()
+                )
             else:
                 logger.error("FFmpeg download failed")
     else:
@@ -113,7 +115,9 @@ def download_ffmpeg():
         download_path = ffmpeg_download()
 
         if download_path.is_file():
-            logger.info("FFmpeg successfully downloaded to %s", download_path.absolute())
+            logger.info(
+                "FFmpeg successfully downloaded to %s", download_path.absolute()
+            )
         else:
             logger.error("FFmpeg download failed")
 
