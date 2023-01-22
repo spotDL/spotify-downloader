@@ -227,11 +227,7 @@ class Downloader:
         """
 
         if self.settings["fetch_albums"]:
-            albums = set()
-            for song in songs:
-                songmeta = Song.from_url(song.url)
-                if songmeta.album_id is not None:
-                    albums.add(songmeta.album_id)
+            albums = set(str(Song.from_url(song.url).album_id) for song in songs if Song.from_url(song.url).album_id is not None)
             logger.info(
                 "Fetching %d album%s", len(albums), "s" if len(albums) > 1 else ""
             )
