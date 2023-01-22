@@ -222,7 +222,7 @@ def get_simple_songs(
             songs.append(Song.from_search_term(request))
 
     for song_list in lists:
-        logger.debug(
+        logger.info(
             "Found %s songs in %s (%s)",
             len(song_list.urls),
             song_list.name,
