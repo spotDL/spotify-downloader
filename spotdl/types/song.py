@@ -258,7 +258,7 @@ class Song:
         - The Song object.
         """
 
-        song_data = {}
+        song_data: Dict[str, Any] = {}
         for key in cls.__dataclass_fields__:  # pylint: disable=E1101
             song_data.setdefault(key, kwargs.get(key))
 
