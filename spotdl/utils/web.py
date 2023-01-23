@@ -28,7 +28,6 @@ from uvicorn import Server
 from spotdl._version import __version__
 from spotdl.download.downloader import Downloader
 from spotdl.download.progress_handler import ProgressHandler, SongTracker
-from spotdl.types.album import Album
 from spotdl.types.options import (
     DownloaderOptionalOptions,
     DownloaderOptions,
@@ -49,7 +48,6 @@ __all__ = [
     "websocket_endpoint",
     "song_from_url",
     "query_search",
-    "query_search_albums",
     "download_url",
     "download_file",
     "get_settings",
@@ -264,21 +262,6 @@ def query_search(query: str) -> List[Song]:
     """
 
     return get_search_results(query)
-
-
-@router.get("/api/albums/search", response_model=None)
-def query_search_albums(query: str) -> List[Album]:
-    """
-    Parse search term and return list of Album objects.
-
-    ### Arguments
-    - query: The query to parse.
-
-    ### Returns
-    - returns a list of Album objects.
-    """
-
-    return Album.list_from_search_term(query)
 
 
 @router.post("/api/download/url")
