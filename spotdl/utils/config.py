@@ -257,6 +257,7 @@ DOWNLOADER_OPTIONS: DownloaderOptions = {
     "simple_tui": False,
     "fetch_albums": False,
     "id3_separator": "/",
+    "ytm_data": False,
 }
 
 WEB_OPTIONS: WebOptions = {

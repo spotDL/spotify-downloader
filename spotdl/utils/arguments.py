@@ -110,7 +110,7 @@ def parse_main_options(parser: _ArgumentGroup):
             "web: Starts a web interface to simplify the download process.\n"
             "sync: Removes songs that are no longer present, downloads new ones\n"
             "meta: Update your audio files with metadata\n"
-            "url: Get the download URL for songs\n"
+            "url: Get the download URL for songs\n\n"
         ),
     )
 
@@ -120,10 +120,14 @@ def parse_main_options(parser: _ArgumentGroup):
         nargs="+",
         type=str,
         help=(
-            "Spotify URL for a song/playlist/album/artist/etc. to download. "
-            "For album searching, include 'album:' and optional 'artist:' tags "
-            "(ie. 'album:the album name' or 'artist:the artist album: the album'). "
-            "For manual audio matching, you can use the format 'YouTubeURL|SpotifyURL'"
+            "N|Spotify/YouTube URL for a song/playlist/album/artist/etc. to download.\n"
+            "For album searching, include 'album:' and optional 'artist:' tags\n"
+            "(ie. 'album:the album name' or 'artist:the artist album: the album').\n"
+            "For manual audio matching, you can use the format 'YouTubeURL|SpotifyURL'\n"
+            "You can only use album/playlist/tracks urls when "
+            "downloading/matching youtube urls.\n"
+            "When using youtube url without spotify url, "
+            "you won't be able to use `--fetch-albums` option.\n\n"
         ),
     )
 
@@ -455,6 +459,15 @@ def parse_output_options(parser: _ArgumentGroup):
         "--id3-separator",
         type=str,
         help="Change the separator used in the id3 tags. Only supported for mp3 files.",
+    )
+
+    # Option to use ytm data instead of spotify data
+    # when downloading using ytm link
+    parser.add_argument(
+        "--ytm-data",
+        action="store_const",
+        const=True,
+        help="Use ytm data instead of spotify data when downloading using ytm link",
     )
 
 

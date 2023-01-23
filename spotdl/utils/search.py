@@ -11,6 +11,8 @@ import logging
 from pathlib import Path
 from typing import Dict, List, Optional
 
+from ytmusicapi import YTMusic
+
 from spotdl.types.album import Album
 from spotdl.types.artist import Artist
 from spotdl.types.playlist import Playlist
@@ -26,9 +28,12 @@ __all__ = [
     "reinit_song",
     "get_song_from_file_metadata",
     "gather_known_songs",
+    "create_ytm_album",
+    "create_ytm_playlist",
 ]
 
 logger = logging.getLogger(__name__)
+client = YTMusic()
 
 
 class QueryError(Exception):
@@ -54,6 +59,7 @@ def get_search_results(search_term: str) -> List[Song]:
 def parse_query(
     query: List[str],
     threads: int = 1,
+    use_ytm_data: bool = False,
 ) -> List[Song]:
     """
     Parse query and return list containing song object
@@ -66,7 +72,7 @@ def parse_query(
     - List of song objects
     """
 
-    songs: List[Song] = get_simple_songs(query)
+    songs: List[Song] = get_simple_songs(query, use_ytm_data=use_ytm_data)
 
     results = []
     with concurrent.futures.ThreadPoolExecutor(max_workers=threads) as executor:
@@ -78,6 +84,7 @@ def parse_query(
 
 def get_simple_songs(
     query: List[str],
+    use_ytm_data: bool = False,
 ) -> List[Song]:
     """
     Parse query and return list containing simple song objects
@@ -93,8 +100,7 @@ def get_simple_songs(
     lists: List[SongList] = []
     for request in query:
         if (
-            "youtube.com/watch?v=" in request
-            or "youtu.be/" in request
+            ("youtube.com/watch?v=" in request or "youtu.be/" in request)
             and "open.spotify.com" in request
             and "track" in request
             and "|" in request
@@ -102,8 +108,7 @@ def get_simple_songs(
             split_urls = request.split("|")
             if (
                 len(split_urls) <= 1
-                or "youtube" not in split_urls[0]
-                and "youtu.be" not in split_urls[0]
+                or not ("youtube" in split_urls[0] or "youtu.be" in split_urls[0])
                 or "spotify" not in split_urls[1]
             ):
                 raise QueryError(
@@ -113,6 +118,60 @@ def get_simple_songs(
             songs.append(
                 Song.from_missing_data(url=split_urls[1], download_url=split_urls[0])
             )
+        elif (
+            "https://music.youtube.com/playlist?list=" in request
+            or "https://music.youtube.com/browse/VLPL" in request
+        ):
+            split_urls = request.split("|")
+            if len(split_urls) == 1:
+                if "?list=OLAK5uy_" in request:
+                    lists.append(create_ytm_album(request, fetch_songs=False))
+                elif "?list=PL" in request or "browse/VLPL" in request:
+                    lists.append(create_ytm_playlist(request, fetch_songs=False))
+            else:
+                if ("spotify" not in split_urls[1]) or not any(
+                    x in split_urls[0]
+                    for x in ["?list=PL", "?list=OLAK5uy_", "browse/VLPL"]
+                ):
+                    raise QueryError(
+                        'Incorrect format used, please use "YouTubeMusicURL|SpotifyURL". '
+                        "Currently only supports YouTube Music playlists and albums."
+                    )
+
+                if ("open.spotify.com" in request and "album" in request) and (
+                    "?list=OLAK5uy_" in request
+                ):
+                    ytm_list: SongList = create_ytm_album(
+                        split_urls[0], fetch_songs=False
+                    )
+                    spot_list = Album.from_url(split_urls[1], fetch_songs=False)
+                elif ("open.spotify.com" in request and "playlist" in request) and (
+                    "?list=PL" in request or "browse/VLPL" in request
+                ):
+                    ytm_list = create_ytm_playlist(split_urls[0], fetch_songs=False)
+                    spot_list = Playlist.from_url(split_urls[1], fetch_songs=False)
+                else:
+                    raise QueryError(
+                        f"URLs are not of the same type, {split_urls[0]} is not "
+                        f"the same type as {split_urls[1]}."
+                    )
+
+                if ytm_list.length != spot_list.length:
+                    raise QueryError(
+                        f"The YouTube Music ({ytm_list.length}) "
+                        f"and Spotify ({spot_list.length}) lists have different lengths. "
+                    )
+
+                if use_ytm_data:
+                    for index, song in enumerate(ytm_list.songs):
+                        song.url = spot_list.songs[index].url
+
+                    lists.append(ytm_list)
+                else:
+                    for index, song in enumerate(spot_list.songs):
+                        song.download_url = ytm_list.songs[index].download_url
+
+                    lists.append(spot_list)
         elif "open.spotify.com" in request and "track" in request:
             songs.append(Song.from_url(url=request))
         elif "open.spotify.com" in request and "playlist" in request:
@@ -143,11 +202,13 @@ def get_simple_songs(
 
         for song in song_list.songs:
             if song.song_list:
-                songs.append(Song.from_missing_data(**song.json))
+                final_song = Song.from_missing_data(**song.json)
             else:
                 song_data = song.json
                 song_data["song_list"] = song_list
-                songs.append(Song.from_missing_data(**song_data))
+                final_song = Song.from_missing_data(**song_data)
+
+            songs.append(Song.from_dict(final_song.json))
 
     return songs
 
@@ -192,8 +253,20 @@ def reinit_song(song: Song, playlist_numbering: bool = False) -> Song:
     """
 
     data = song.json
-    new_data = Song.from_url(data["url"]).json
-    data.update((k, v) for k, v in new_data.items() if v is not None)
+    if data.get("url"):
+        new_data = Song.from_url(data["url"]).json
+    elif data.get("name") and data.get("artist"):
+        new_data = Song.from_search_term(data["name"]).json
+    else:
+        raise QueryError("Song object is missing required data to be reinitialized")
+
+    for key in Song.__dataclass_fields__:  # type: ignore # pylint: disable=E1101
+        val = data.get(key)
+        new_val = new_data.get(key)
+        if new_val is not None and val is None:
+            data[key] = new_val
+        elif new_val is not None and val is not None:
+            data[key] = val
 
     if data.get("song_list"):
         # Reinitialize the correct song list object
@@ -271,3 +344,114 @@ def gather_known_songs(output: str, output_format: str) -> Dict[str, List[Path]]
             known_songs[song.url].append(path)
 
     return known_songs
+
+
+def create_ytm_album(url: str, fetch_songs: bool = True) -> Album:
+    """
+    Creates a list of Song objects from an album query.
+
+    ### Arguments
+    - album_query: the url of the album
+
+    ### Returns
+    - a list of Song objects
+    """
+
+    if "?list=" not in url or not url.startswith("https://music.youtube.com/"):
+        raise ValueError(f"Invalid album url: {url}")
+
+    browse_id = client.get_album_browse_id(url.split("?list=")[1].split("&")[0])
+    if browse_id is None:
+        raise ValueError(f"Invalid album url: {url}")
+
+    album = client.get_album(browse_id)
+
+    if album is None:
+        raise ValueError(f"Couldn't fetch album: {url}")
+
+    metadata = {
+        "artist": album["artists"][0]["name"],
+        "name": album["title"],
+        "url": url,
+    }
+
+    songs = []
+    for track in album["tracks"]:
+        artists = [artist["name"] for artist in track["artists"]]
+        song = Song.from_missing_data(
+            name=track["title"],
+            artists=artists,
+            artist=artists[0],
+            album_name=metadata["name"],
+            album_artist=metadata["artist"],
+            duration=track["duration_seconds"],
+            download_url=f"https://music.youtube.com/watch?v={track['videoId']}",
+        )
+
+        if fetch_songs:
+            song = Song.from_search_term(f"{song.artist} - {song.name}")
+
+        songs.append(song)
+
+    return Album(**metadata, songs=songs, urls=[song.url for song in songs])
+
+
+def create_ytm_playlist(url: str, fetch_songs: bool = True) -> Playlist:
+    """
+    Returns a playlist object from a youtube playlist url
+
+    ### Arguments
+    - url: the url of the playlist
+
+    ### Returns
+    - a Playlist object
+    """
+
+    if not ("?list=" in url or "/browse/VLPL" in url) or not url.startswith(
+        "https://music.youtube.com/"
+    ):
+        raise ValueError(f"Invalid playlist url: {url}")
+
+    if "/browse/VLPL" in url:
+        playlist_id = url.split("/browse/")[1]
+    else:
+        playlist_id = url.split("?list=")[1]
+    playlist = client.get_playlist(playlist_id, None)  # type: ignore
+
+    if playlist is None:
+        raise ValueError(f"Couldn't fetch playlist: {url}")
+
+    metadata = {
+        "description": playlist["description"]
+        if playlist["description"] is not None
+        else "",
+        "author_url": f"https://music.youtube.com/channel/{playlist['author']['id']}",
+        "author_name": playlist["author"]["name"],
+        "cover_url": playlist["thumbnails"][0]["url"],
+        "name": playlist["title"],
+        "url": url,
+    }
+
+    songs = []
+    for track in playlist["tracks"]:
+        if track["videoId"] is None:
+            continue
+
+        song = Song.from_missing_data(
+            name=track["title"],
+            artists=[artist["name"] for artist in track["artists"]],
+            artist=track["artists"][0]["name"],
+            album_name=track.get("album", {}).get("name")
+            if track.get("album") is not None
+            else None,
+            duration=track["duration_seconds"],
+            explicit=track["isExplicit"],
+            download_url=f"https://music.youtube.com/watch?v={track['videoId']}",
+        )
+
+        if fetch_songs:
+            song = reinit_song(song)
+
+        songs.append(song)
+
+    return Playlist(**metadata, songs=songs, urls=[song.url for song in songs])

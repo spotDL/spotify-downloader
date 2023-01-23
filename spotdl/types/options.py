@@ -66,6 +66,7 @@ class DownloaderOptions(TypedDict):
     simple_tui: bool
     fetch_albums: bool
     id3_separator: str
+    ytm_data: bool
 
 
 class WebOptions(TypedDict):
@@ -132,6 +133,7 @@ class DownloaderOptionalOptions(TypedDict, total=False):
     simple_tui: bool
     fetch_albums: bool
     id3_separator: str
+    ytm_data: bool
 
 
 class WebOptionalOptions(TypedDict, total=False):
