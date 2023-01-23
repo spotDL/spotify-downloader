@@ -22,7 +22,6 @@ __all__ = [
     "QueryError",
     "get_search_results",
     "parse_query",
-    "create_empty_song",
     "get_simple_songs",
     "reinit_song",
     "get_song_from_file_metadata",
@@ -77,93 +76,6 @@ def parse_query(
     return results
 
 
-def create_empty_song(
-    name: Optional[str] = None,
-    artists: Optional[List[str]] = None,
-    artist: Optional[str] = None,
-    album_id: Optional[str] = None,
-    album_name: Optional[str] = None,
-    album_artist: Optional[str] = None,
-    genres: Optional[List[str]] = None,
-    disc_number: Optional[int] = None,
-    disc_count: Optional[int] = None,
-    duration: Optional[int] = None,
-    year: Optional[int] = None,
-    date: Optional[str] = None,
-    track_number: Optional[int] = None,
-    tracks_count: Optional[int] = None,
-    isrc: Optional[str] = None,
-    song_id: Optional[str] = None,
-    cover_url: Optional[str] = None,
-    explicit: Optional[bool] = None,
-    publisher: Optional[str] = None,
-    url: Optional[str] = None,
-    copyright_text: Optional[str] = None,
-    download_url: Optional[str] = None,
-    song_list: Optional["SongList"] = None,
-    lyrics: Optional[str] = None,
-) -> Song:
-    """
-    Create an empty song.
-
-    ### Arguments
-    - name: Name of the song
-    - artists: List of artists
-    - artist: Name of the artist
-    - album_id: Spotify album ID
-    - album_name: Name of the album
-    - album_artist: Name of the album artist
-    - genres: List of genres
-    - disc_number: Disc number
-    - disc_count: Disc count
-    - duration: Duration of the song in seconds
-    - year: Year of release
-    - date: Date of release
-    - track_number: Track number
-    - tracks_count: Number of tracks
-    - isrc: ISRC code
-    - song_id: Spotify song ID
-    - cover_url: URL of the cover art
-    - explicit: Explicit flag
-    - publisher: Publisher
-    - url: URL of the song
-    - copyright_text: Copyright text
-    - download_url: Download URL
-    - song_list: Song list
-    - lyrics: Lyrics
-
-    ### Returns
-    - Song object
-    """
-
-    return Song(
-        name=name,  # type: ignore
-        artists=artists,  # type: ignore
-        artist=artist if artist else (artists[0] if artists else None),  # type: ignore
-        album_id=album_id,  # type: ignore
-        album_name=album_name,  # type: ignore
-        album_artist=album_artist,  # type: ignore
-        genres=genres,  # type: ignore
-        disc_number=disc_number,  # type: ignore
-        disc_count=disc_count,  # type: ignore
-        duration=duration,  # type: ignore
-        year=year,  # type: ignore
-        date=date,  # type: ignore
-        track_number=track_number,  # type: ignore
-        tracks_count=tracks_count,  # type: ignore
-        isrc=isrc,  # type: ignore
-        song_id=song_id,  # type: ignore
-        cover_url=cover_url,  # type: ignore
-        explicit=explicit,  # type: ignore
-        publisher=publisher,  # type: ignore
-        url=url,  # type: ignore
-        copyright_text=copyright_text,
-        download_url=download_url,
-        song_list=song_list,
-        lyrics=lyrics,
-    )
-
-
 def get_simple_songs(
     query: List[str],
 ) -> List[Song]:
@@ -199,20 +111,20 @@ def get_simple_songs(
                 )
 
             songs.append(
-                create_empty_song(url=split_urls[1], download_url=split_urls[0])
+                Song.from_missing_data(url=split_urls[1], download_url=split_urls[0])
             )
         elif "open.spotify.com" in request and "track" in request:
-            songs.append(create_empty_song(url=request))
+            songs.append(Song.from_url(url=request))
         elif "open.spotify.com" in request and "playlist" in request:
-            lists.append(Playlist.create_basic_list(request))
+            lists.append(Playlist.from_url(request, fetch_songs=False))
         elif "open.spotify.com" in request and "album" in request:
-            lists.append(Album.create_basic_list(request))
+            lists.append(Album.from_url(request, fetch_songs=False))
         elif "open.spotify.com" in request and "artist" in request:
-            lists.append(Artist.create_basic_list(request))
+            lists.append(Artist.from_url(request, fetch_songs=False))
         elif "album:" in request:
             lists.append(Album.from_search_term(request))
         elif request == "saved":
-            lists.append(Saved.create_basic_list())
+            lists.append(Saved.from_url(request, fetch_songs=False))
         elif request.endswith(".spotdl"):
             with open(request, "r", encoding="utf-8") as save_file:
                 for track in json.load(save_file):
@@ -222,16 +134,20 @@ def get_simple_songs(
             songs.append(Song.from_search_term(request))
 
     for song_list in lists:
-        logger.debug(
+        logger.info(
             "Found %s songs in %s (%s)",
             len(song_list.urls),
             song_list.name,
             song_list.__class__.__name__,
         )
 
-        songs.extend(
-            [create_empty_song(url=url, song_list=song_list) for url in song_list.urls]
-        )  # type: ignore
+        for song in song_list.songs:
+            if song.song_list:
+                songs.append(Song.from_missing_data(**song.json))
+            else:
+                song_data = song.json
+                song_data["song_list"] = song_list
+                songs.append(Song.from_missing_data(**song_data))
 
     return songs
 
@@ -249,11 +165,15 @@ def songs_from_albums(alubms: List[str]):
 
     songs = []
     for album_id in alubms:
-        album = Album.create_basic_list(album_id)
+        album = Album.from_url(album_id, fetch_songs=False)
 
-        songs.extend(
-            [create_empty_song(url=url, song_list=album) for url in album.urls]
-        )
+        for song in album.songs:
+            if song.song_list:
+                songs.append(Song.from_missing_data(**song.json))
+            else:
+                song_data = song.json
+                song_data["song_list"] = album
+                songs.append(Song.from_missing_data(**song_data))
 
     return songs
 
@@ -311,7 +231,7 @@ def get_song_from_file_metadata(file: Path) -> Optional[Song]:
     if file_metadata is None:
         return None
 
-    return create_empty_song(**file_metadata)
+    return Song.from_missing_data(**file_metadata)
 
 
 def gather_known_songs(output: str, output_format: str) -> Dict[str, List[Path]]:

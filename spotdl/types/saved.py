@@ -3,9 +3,9 @@ Saved module for handing the saved tracks from user library
 """
 
 from dataclasses import dataclass
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Tuple
 
-from spotdl.types.song import SongList
+from spotdl.types.song import Song, SongList
 from spotdl.utils.spotify import SpotifyClient
 
 __all__ = ["Saved", "SavedError"]
@@ -24,20 +24,23 @@ class Saved(SongList):
     """
 
     @staticmethod
-    def get_urls(_: str = "saved") -> List[str]:
+    def get_metadata(url: str = "saved") -> Tuple[Dict[str, Any], List[Song]]:
         """
-        Returns a list of urls of all saved tracks.
+        Returns metadata for a saved list.
 
         ### Arguments
-        - _: not required, but used to match the signature of the other get_urls methods.
+        - url: Not required, but used to match the signature of the other get_metadata methods.
 
         ### Returns
-        - A list of urls.
+        - metadata: A dictionary containing the metadata for the saved list.
+        - songs: A list of Song objects.
         """
+
+        metadata = {"name": "Saved tracks", "url": url}
 
         spotify_client = SpotifyClient()
         if spotify_client.user_auth is False:  # type: ignore
-            raise SavedError("You must be logged in to use this function.")
+            raise SavedError("You must be logged in to use this function")
 
         saved_tracks_response = spotify_client.current_user_saved_tracks()
         if saved_tracks_response is None:
@@ -48,56 +51,45 @@ class Saved(SongList):
         # Fetch all saved tracks
         while saved_tracks_response and saved_tracks_response["next"]:
             response = spotify_client.next(saved_tracks_response)
-            # response is wrong, break
             if response is None:
                 break
 
             saved_tracks_response = response
             saved_tracks.extend(saved_tracks_response["items"])
 
-        # Remove songs without id
-        # and return urls
-        return [
-            "https://open.spotify.com/track/" + track["track"]["id"]
-            for track in saved_tracks
-            if track and track.get("track", {}).get("id")
-        ]
+        songs = []
+        for track in saved_tracks:
+            if track["track"]["is_local"]:
+                continue
 
-    @classmethod
-    def create_basic_list(cls, url: str = "saved") -> "Saved":
-        """
-        Create a basic list with only the required metadata and urls.
+            track_meta = track["track"]
+            album_meta = track_meta["album"]
 
-        ### Returns
-        - The Saved object.
-        """
+            release_date = album_meta["release_date"]
+            artists = artists = [artist["name"] for artist in track_meta["artists"]]
 
-        metadata = cls.get_metadata(url)
-        urls = cls.get_urls(url)
+            song = Song.from_missing_data(
+                name=track_meta["name"],
+                artists=artists,
+                artist=artists[0],
+                album_id=album_meta["id"],
+                album_name=album_meta["name"],
+                album_artist=album_meta["artists"][0]["name"],
+                disc_number=track_meta["disc_number"],
+                duration=track_meta["duration_ms"],
+                year=release_date[:4],
+                date=release_date,
+                track_number=track_meta["track_number"],
+                tracks_count=album_meta["total_tracks"],
+                song_id=track_meta["id"],
+                explicit=track_meta["explicit"],
+                url=track_meta["external_urls"]["spotify"],
+                isrc=track_meta["external_ids"]["isrc"],
+                cover_url=max(
+                    album_meta["images"], key=lambda i: i["width"] * i["height"]
+                )["url"],
+            )
 
-        return cls(**metadata, urls=urls, songs=[])
+            songs.append(song)
 
-    @staticmethod
-    def get_metadata(url: str = "saved") -> Dict[str, Any]:
-        """
-        Returns metadata for a saved list.
-
-        ### Arguments
-        - url: Not required, but used to match the signature of the other get_metadata methods.
-        """
-
-        return {"name": "Saved tracks", "url": url}
-
-    @classmethod
-    def search(cls, _: str):
-        """
-        Search for a saved list.
-
-        ### Arguments
-        - search_term: The search term.
-
-        ### Returns
-        - The Saved object.
-        """
-
-        return cls.create_basic_list()
+        return metadata, songs

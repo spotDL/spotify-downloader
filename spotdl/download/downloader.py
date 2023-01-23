@@ -384,7 +384,9 @@ class Downloader:
         # and that the song object is not a placeholder
         # If it's None extract the current metadata
         # And reinitialize the song object
-        if song.name is None and song.url:
+        # Force song reinitialization if we are fetching albums
+        # they have most metadata but not all
+        if (song.name is None and song.url) or self.settings["fetch_albums"]:
             song = reinit_song(song, self.settings["playlist_numbering"])
 
         # Initalize the progress tracker
