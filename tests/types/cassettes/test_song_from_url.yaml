@@ -7,13 +7,13 @@ interactions:
       Accept-Encoding:
       - gzip, deflate, br
       Authorization:
-      - Bearer BQDdyrsUjry9_dGHQILqwNVLdSi8XzOIin9_8-tf8Zz0qwX6id_xI5h-JiTknRKDsc0o3TwplBzlyKRd3ej3nCV_rAJPEwTM45fxx10FvcWmuYMXS4M
+      - Bearer BQAEZqN1NKB_M1Ejy1bh2kA7-WuwbThzNjN4Ni_9YdE6nsc0SSOLk-ZowNaQlmpQ9BDIHto6-ai7OD3aeC-ZI1qZYZJRp3ExQFDKZrTIXd-UHKBP_b4
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       User-Agent:
-      - python-requests/2.28.1
+      - python-requests/2.28.2
     method: GET
     uri: https://api.spotify.com/v1/tracks/1t2qKa8K72IBC8yQlhD9bU
   response:
@@ -57,7 +57,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Mon, 09 Jan 2023 18:51:29 GMT
+      - Mon, 23 Jan 2023 16:13:27 GMT
       server:
       - envoy
       strict-transport-security:
@@ -77,25 +77,25 @@ interactions:
       Accept-Encoding:
       - gzip, deflate, br
       Authorization:
-      - Bearer BQDdyrsUjry9_dGHQILqwNVLdSi8XzOIin9_8-tf8Zz0qwX6id_xI5h-JiTknRKDsc0o3TwplBzlyKRd3ej3nCV_rAJPEwTM45fxx10FvcWmuYMXS4M
+      - Bearer BQAEZqN1NKB_M1Ejy1bh2kA7-WuwbThzNjN4Ni_9YdE6nsc0SSOLk-ZowNaQlmpQ9BDIHto6-ai7OD3aeC-ZI1qZYZJRp3ExQFDKZrTIXd-UHKBP_b4
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       User-Agent:
-      - python-requests/2.28.1
+      - python-requests/2.28.2
     method: GET
     uri: https://api.spotify.com/v1/artists/4cZvsAtZm91PBC0tXlDrP0
   response:
     body:
       string: !!binary |
-        H4sIAAAAAAAAAJyS0W6CMBSG7/cUTa+NUIWC3G3zAbxcXJalyAGalJaUg84Y332loNmyuBi5If17
-        +n/nb8/piRAKXwhWC/XZW9VRkpGTU53etQZleRwUWiO2XRYEpgU9nzbmO9MEwqLsMIh22333jNtm
-        xTYvryG+qbXdhNQZnWcDozRKmQPYn/61hXJY6l6p2SihQaEGLWbpcnE9XYG24I++u4VopK4IFA2d
-        EdqAyk1vNRD30zsgUvs0KI0erD68wQV1zSFa+SvGnk1JultRvI8svMu/JY2oLr1egoKsahwkHoVT
-        UnfXvxpy7ewK7XoJvEEgcp5wxlnoPoghB8aLnOU8LyBNBJRpslzxiHM6+R1kgfWE8Pf2F75cPAKP
-        WRLdDXeIG3DGH4GXLEnvhjvEAJ+eXIsGPGctLR7JRqhmfKDWtL0SVqKf7Ni3RfHYjtXjFIyVvZVe
-        mwYlG/eyW7N+/gYAAP//AwAOFG50TgMAAA==
+        H4sIAAAAAAAAAJyS326CMBTG7/cUDddGqEJR7rb5AF4uLstS4ABN+oeUg84Y332loNmyuBi5If16
+        +v3O157TEyEBfCFYzeVnb2UXkIycnOr0rjUoquOgBA1i22VhaFrQ82ljXhgVcouiwzAudvvuGXdq
+        TbcvrxG+yY3dRoEzOs8GRmWkNAewP/0bC9Ww1L2Us1FCg1wOWrKIEno9XYO24I++uwVXQtcEShXM
+        SKBA5qa3Goj76QKI0D4NCqMHqw9vcEFdc/BW/Iqxp1OS7lYU7yNK7/JvieL1pddLUBB1g4PE4mhK
+        6u76V0OunaLUrpfQG4Q8ZymjjEbugwRyoKzMac7yElYph2qVLtcsZiyY/A6ixGZC+Hv7C18uHoEn
+        NI3vhjvEDThlj8Armq7uhjvEAJ+eXHMFnrMRFo9ky6UaH6g1bS+5FegnO/FtBXhsx+pxCsbK3gqv
+        TYOSjXvZrVk/fwMAAP//AwC0ly4/TgMAAA==
     headers:
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
@@ -115,13 +115,13 @@ interactions:
       access-control-max-age:
       - '604800'
       cache-control:
-      - public, max-age=81598
+      - public, max-age=73782
       content-encoding:
       - gzip
       content-type:
       - application/json; charset=utf-8
       date:
-      - Mon, 09 Jan 2023 18:51:29 GMT
+      - Mon, 23 Jan 2023 16:13:27 GMT
       server:
       - envoy
       strict-transport-security:
@@ -141,13 +141,13 @@ interactions:
       Accept-Encoding:
       - gzip, deflate, br
       Authorization:
-      - Bearer BQDdyrsUjry9_dGHQILqwNVLdSi8XzOIin9_8-tf8Zz0qwX6id_xI5h-JiTknRKDsc0o3TwplBzlyKRd3ej3nCV_rAJPEwTM45fxx10FvcWmuYMXS4M
+      - Bearer BQAEZqN1NKB_M1Ejy1bh2kA7-WuwbThzNjN4Ni_9YdE6nsc0SSOLk-ZowNaQlmpQ9BDIHto6-ai7OD3aeC-ZI1qZYZJRp3ExQFDKZrTIXd-UHKBP_b4
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       User-Agent:
-      - python-requests/2.28.1
+      - python-requests/2.28.2
     method: GET
     uri: https://api.spotify.com/v1/albums/0cgpcZCPvGGXOCpXVqPrvJ
   response:
@@ -187,13 +187,13 @@ interactions:
       access-control-max-age:
       - '604800'
       cache-control:
-      - public, max-age=80607
+      - public, max-age=72065
       content-encoding:
       - gzip
       content-type:
       - application/json; charset=utf-8
       date:
-      - Mon, 09 Jan 2023 18:51:29 GMT
+      - Mon, 23 Jan 2023 16:13:27 GMT
       server:
       - envoy
       strict-transport-security:

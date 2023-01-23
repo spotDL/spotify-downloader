@@ -333,7 +333,7 @@ class SongList:
 
         list_type = cls.__name__.lower()
         spotify_client = SpotifyClient()
-        raw_search_results = spotify_client.search(search_term, type="playlist")
+        raw_search_results = spotify_client.search(search_term, type=list_type)
 
         if (
             raw_search_results is None
