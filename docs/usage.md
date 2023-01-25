@@ -109,7 +109,7 @@ This will download new songs and remove the ones that are no longer present in t
     example:
 
     ```bash
-    spotdl sync https://open.spotify.com/playlist/37i9dQZF1E8UXBoz02kGID --save-file 'the-weeknd.sync.spotdl'
+    spotdl sync https://open.spotify.com/playlist/37i9dQZF1E8UXBoz02kGID --save-file "the-weeknd.sync.spotdl"
     ```
 
     > Note: The sync file has to end with .spotdl
@@ -124,7 +124,7 @@ This will download new songs and remove the ones that are no longer present in t
     example:
 
     ```bash
-    spotdl sync 'the-weeknd.sync.spotdl'
+    spotdl sync "the-weeknd.sync.spotdl"
     ```
 
 ## Saving
