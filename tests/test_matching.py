@@ -299,7 +299,7 @@ from tests.conftest import new_initialize
         (
             # Frank Sinatra - Have Yourself A Merry Little Christmas - Remastered 1999
             "https://open.spotify.com/track/2FPfeYlrbSBR8PwCU0zaqq",
-            ["https://music.youtube.com/watch?v=H0PlzYqYVL8"],
+            ["https://music.youtube.com/watch?v=H0PlzYqYVL8", "https://music.youtube.com/watch?v=pvA7-EjaSPI"],
         ),
         (
             # Avi Aburomi - לפני שבאת
