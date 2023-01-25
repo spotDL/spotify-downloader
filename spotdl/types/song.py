@@ -320,7 +320,7 @@ class SongList:
         return cls(**metadata, urls=urls, songs=songs)
 
     @classmethod
-    def from_search_term(cls, search_term: str):
+    def from_search_term(cls, search_term: str, fetch_songs: bool = True):
         """
         Creates a SongList object from a search term.
 
@@ -343,9 +343,10 @@ class SongList:
                 f"No {list_type} matches found on spotify for '{search_term}'"
             )
 
+        list_id = raw_search_results[f"{list_type}s"]["items"][0]["id"]
         return cls.from_url(
-            f"http://open.spotify.com/{list_type}/"
-            + raw_search_results[f"{list_type}s"]["items"][0]["id"]
+            f"http://open.spotify.com/{list_type}/{list_id}",
+            fetch_songs,
         )
 
     @property

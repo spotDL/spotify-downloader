@@ -3,7 +3,6 @@ Module which contains the web server related function
 FastAPI routes/classes etc.
 """
 
-
 import asyncio
 import logging
 import mimetypes

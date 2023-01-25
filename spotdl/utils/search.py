@@ -181,7 +181,11 @@ def get_simple_songs(
         elif "open.spotify.com" in request and "artist" in request:
             lists.append(Artist.from_url(request, fetch_songs=False))
         elif "album:" in request:
-            lists.append(Album.from_search_term(request))
+            lists.append(Album.from_search_term(request, fetch_songs=False))
+        elif "playlist:" in request:
+            lists.append(Playlist.from_search_term(request, fetch_songs=False))
+        elif "artist:" in request:
+            lists.append(Artist.from_search_term(request, fetch_songs=False))
         elif request == "saved":
             lists.append(Saved.from_url(request, fetch_songs=False))
         elif request.endswith(".spotdl"):
