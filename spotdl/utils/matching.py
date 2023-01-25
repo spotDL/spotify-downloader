@@ -63,13 +63,15 @@ def fill_string(strings: List[str], main_string: str, string_to_check: str) -> s
     - string with strings from `strings` list
     """
 
-    final_str = main_string.replace("-", "")
+    final_str = main_string
+    test_str = final_str.replace("-", "")
     simple_test_str = string_to_check.replace("-", "")
     for string in strings:
         slug_str = slugify(string).replace("-", "")
 
-        if slug_str in simple_test_str and slug_str not in final_str:
+        if slug_str in simple_test_str and slug_str not in test_str:
             final_str += f"-{slug_str}"
+            test_str += slug_str
 
     return final_str
 
@@ -205,9 +207,9 @@ def create_match_strings(
     test_str1 = fill_string(song.artists, test_str1, test_str2)
     test_str2 = fill_string(song.artists, test_str2, test_str1)
 
-    # Sort both strings and then joint them
-    test_str1 = sort_string(test_str1.split("-"), "-")
-    test_str2 = sort_string(test_str2.split("-"), "-")
+    # Sort both strings and then join them
+    test_str1, test_str2 = based_sort(test_str1.split("-"), test_str2.split("-"))
+    test_str1, test_str2 = "-".join(test_str1), "-".join(test_str2)
 
     return test_str1, test_str2
 
@@ -338,7 +340,7 @@ def artists_match_fixup1(song: Song, result: Result, score: float) -> float:
     - new score
     """
 
-    # If we have a verified result, we don't need to fix anything
+    # If we have a verified result, we don't have to fix anything
     if result.verified or score > 50:
         return score
 
@@ -522,20 +524,38 @@ def calc_name_match(
     # Create match strings that will be used
     # to calculate name match value
     match_str1, match_str2 = create_match_strings(song, result, search_query)
+    result_name, song_name = slugify(result.name), slugify(song.name)
+
+    result_name, song_name = based_sort(result_name.split("-"), song_name.split("-"))
+    result_name, song_name = "-".join(result_name), "-".join(song_name)
 
     # Calculate initial name match
-    name_match = ratio(
-        slugify(result.name),
-        slugify(song.name),
+    name_match = ratio(result_name, song_name)
+
+    debug(song.song_id, result.result_id, f"MATCH STRINGS: {match_str1} - {match_str2}")
+    debug(
+        song.song_id,
+        result.result_id,
+        f"SLUG MATCH STRINGS: {song_name} - {result_name}",
     )
+    debug(song.song_id, result.result_id, f"First name match: {name_match}")
 
     # If name match is lower than 60%,
     # we try to match using the test strings
     if name_match <= 75:
-        name_match = ratio(
+        second_name_match = ratio(
             match_str1,
             match_str2,
         )
+
+        debug(
+            song.song_id,
+            result.result_id,
+            f"Second name match: {second_name_match}",
+        )
+
+        if second_name_match > name_match:
+            name_match = second_name_match
 
     return name_match
 
@@ -596,6 +616,12 @@ def order_results(
 
     # Iterate over all results
     for result in results:
+        debug(
+            song.song_id,
+            result.result_id,
+            f"Calculating match value for {result.url} - {result.json}",
+        )
+
         # skip results that have no common words in their name
         if not check_common_word(song, result):
             debug(
@@ -643,15 +669,15 @@ def order_results(
 
         # Calculate name match
         name_match = calc_name_match(song, result, search_query)
-        debug(song.song_id, result.result_id, f"Name match: {name_match}")
+        debug(song.song_id, result.result_id, f"Final name match: {name_match}")
 
         # Calculate album match
         album_match = calc_album_match(song, result)
-        debug(song.song_id, result.result_id, f"Album match: {album_match}")
+        debug(song.song_id, result.result_id, f"Final album match: {album_match}")
 
         # Calculate time match
         time_match = calc_time_match(song, result)
-        debug(song.song_id, result.result_id, f"Time match: {time_match}")
+        debug(song.song_id, result.result_id, f"Final time match: {time_match}")
 
         # Ignore results with name match lower than 50%
         if name_match <= 50:

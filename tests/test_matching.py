@@ -53,7 +53,10 @@ from tests.conftest import new_initialize
         (
             # Mata, FUNDACJA 420 PATOPROHIBICJA (28.01.2022)
             "https://open.spotify.com/track/4uOHYc6dCVLcNdQBRUlA0G",
-            ["https://www.youtube.com/watch?v=Mb3tyjibXCg"],
+            [
+                "https://www.youtube.com/watch?v=Mb3tyjibXCg",
+                "https://music.youtube.com/watch?v=cv2xuKqL35Q",
+            ],
         ),
         (
             # Drake, Wizkid, Kyla - One Dance
@@ -65,6 +68,7 @@ from tests.conftest import new_initialize
                 "https://www.youtube.com/watch?v=UqEsGWU9hh4",
                 "https://www.youtube.com/watch?v=H4kTNq0npEQ",
                 "https://www.youtube.com/watch?v=rk2hmQF4oDc",
+                "https://www.youtube.com/watch?v=iAbnEUA0wpA",
             ],
         ),
         (
