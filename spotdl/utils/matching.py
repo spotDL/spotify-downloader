@@ -208,8 +208,8 @@ def create_match_strings(
     test_str2 = fill_string(song.artists, test_str2, test_str1)
 
     # Sort both strings and then join them
-    test_str1, test_str2 = based_sort(test_str1.split("-"), test_str2.split("-"))
-    test_str1, test_str2 = "-".join(test_str1), "-".join(test_str2)
+    test_list1, test_list2 = based_sort(test_str1.split("-"), test_str2.split("-"))
+    test_str1, test_str2 = "-".join(test_list1), "-".join(test_list2)
 
     return test_str1, test_str2
 
@@ -526,8 +526,8 @@ def calc_name_match(
     match_str1, match_str2 = create_match_strings(song, result, search_query)
     result_name, song_name = slugify(result.name), slugify(song.name)
 
-    result_name, song_name = based_sort(result_name.split("-"), song_name.split("-"))
-    result_name, song_name = "-".join(result_name), "-".join(song_name)
+    res_list, song_list = based_sort(result_name.split("-"), song_name.split("-"))
+    result_name, song_name = "-".join(res_list), "-".join(song_list)
 
     # Calculate initial name match
     name_match = ratio(result_name, song_name)
