@@ -31,13 +31,13 @@ jobs:
     steps:
       - name: Checkout dev branch for nightly build
         uses: actions/checkout@v2
-        if: ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && !wants_production_build) }}
+        if: ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && !inputs.wants_production_build) }}
         with:
           ref: "refs/heads/dev"
 
       - name: Checkout main branch for production build
         uses: actions/checkout@v2
-        if: ${{ github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && wants_production_build) }}
+        if: ${{ github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && inputs.wants_production_build) }}
         with:
           ref: "refs/heads/master"
 
@@ -47,7 +47,7 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
-            type=raw,value=latest,priority=100,enable=${{ github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && wants_production_build) }}
+            type=raw,value=latest,priority=100,enable=${{ github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && inputs.wants_production_build) }}
             type=semver,enable=true,priority=200,pattern={{raw}}
             type=sha,enable=true,priority=300,prefix=nightly-,suffix=,format=short
 
