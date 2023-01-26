@@ -7,11 +7,12 @@ on:
   schedule:
     - cron: "0 0 * * *"
   workflow_dispatch:
-    wants_production_build:
-      description: "Production build instead of nightly?"
-      required: false
-      default: false
-      type: boolean
+    inputs:
+      wants_production_build:
+        description: "Production build instead of nightly?"
+        required: false
+        default: false
+        type: boolean
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
