@@ -6,6 +6,7 @@ on:
       - published
   schedule:
     - cron: "0 0 * * *"
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -24,7 +25,7 @@ jobs:
     steps:
       - name: Checkout dev branch for nightly build
         uses: actions/checkout@v2
-        if: ${{ github.event_name == 'schedule' }}
+        if: ${{ (github.event_name == 'schedule') || (github.event_name == 'workflow_dispatch') }}
         with:
           ref: "refs/heads/dev"
 
