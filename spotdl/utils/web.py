@@ -126,6 +126,8 @@ class Client:
             settings=self.downloader_settings, loop=app_state.loop
         )
 
+        self.downloader.progress_handler.web_ui = True
+
     async def connect(self):
         """
         Called when a new client connects to the websocket.

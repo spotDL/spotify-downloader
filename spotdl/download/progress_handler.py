@@ -106,6 +106,7 @@ class ProgressHandler:
         self,
         simple_tui: bool = False,
         update_callback: Optional[Callable[[Any, str], None]] = None,
+        web_ui: bool = False,
     ):
         """
         Initialize the progress handler.
@@ -124,6 +125,7 @@ class ProgressHandler:
         self.previous_overall = self.overall_completed_tasks
 
         self.simple_tui = simple_tui
+        self.web_ui = web_ui
         self.quiet = logger.getEffectiveLevel() < 10
         self.overall_task_id: Optional[TaskID] = None
 
@@ -289,6 +291,7 @@ class SongTracker:
         - message: The message to display.
         """
 
+        old_message = self.status
         self.status = message
 
         # The change in progress since last update
@@ -313,8 +316,13 @@ class SongTracker:
             # If task is complete
             if self.progress == 100 or message == "Error":
                 self.parent.overall_completed_tasks += 1
-            if delta:
-                logger.info("%s - %s: %s", self.song_name, self.song.artist, message)
+
+            # When running web ui print progress
+            # only one time when downloading/converting/embedding
+            if self.parent.web_ui and old_message != self.status:
+                logger.info("%s: %s", self.song_name, message)
+            elif not self.parent.web_ui and delta:
+                logger.info("%s: %s", self.song_name, message)
 
         # Update the overall progress bar
         if self.parent.song_count == self.parent.overall_completed_tasks:
@@ -401,10 +409,10 @@ class SongTracker:
         - progress: The progress to update to.
         """
 
-        if not self.parent.simple_tui:
-            self.progress = 50 + int(progress * 0.45)
-        else:
+        if self.parent.simple_tui and not self.parent.web_ui:
             self.progress = 50
+        else:
+            self.progress = 50 + int(progress * 0.45)
 
         self.update("Converting")
 
@@ -420,7 +428,7 @@ class SongTracker:
             file_bytes = data["total_bytes"]
             downloaded_bytes = data["downloaded_bytes"]
 
-            if self.parent.simple_tui:
+            if self.parent.simple_tui and not self.parent.web_ui:
                 self.progress = 50
             elif file_bytes and downloaded_bytes:
                 self.progress = downloaded_bytes / file_bytes * 50
