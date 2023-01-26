@@ -7,14 +7,16 @@ import asyncio
 import logging
 import mimetypes
 import os
+from argparse import Namespace
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 
 from fastapi import (
     APIRouter,
     Depends,
     FastAPI,
     HTTPException,
+    Query,
     Response,
     WebSocket,
     WebSocketDisconnect,
@@ -33,17 +35,23 @@ from spotdl.types.options import (
     WebOptions,
 )
 from spotdl.types.song import Song
-from spotdl.utils.config import get_spotdl_path
+from spotdl.utils.config import (
+    DOWNLOADER_OPTIONS,
+    SpotDLOptions,
+    create_settings_type,
+    get_spotdl_path,
+)
 from spotdl.utils.search import get_search_results
 
 __all__ = [
     "ALLOWED_ORIGINS",
     "SPAStaticFiles",
-    "WSProgressHandler",
+    "Client",
     "ApplicationState",
     "router",
     "app_state",
     "get_current_state",
+    "get_client",
     "websocket_endpoint",
     "song_from_url",
     "query_search",
@@ -86,21 +94,37 @@ class SPAStaticFiles(StaticFiles):
         return response
 
 
-class WSProgressHandler:
+class Client:
     """
-    Handles song updates.
+    Holds the client's state.
     """
 
-    def __init__(self, websocket: WebSocket, client_id: str):
+    def __init__(
+        self,
+        websocket: WebSocket,
+        client_id: str,
+    ):
         """
         Initialize the WebSocket handler.
         ### Arguments
         - websocket: The WebSocket instance.
         - client_id: The client's ID.
+        - downloader_settings: The downloader settings.
         """
+
+        self.downloader_settings = DownloaderOptions(
+            **create_settings_type(
+                Namespace(config=False),
+                dict(app_state.downloader_settings),
+                DOWNLOADER_OPTIONS,
+            )  # type: ignore
+        )
 
         self.websocket = websocket
         self.client_id = client_id
+        self.downloader = Downloader(
+            settings=self.downloader_settings, loop=app_state.loop
+        )
 
     async def connect(self):
         """
@@ -110,8 +134,7 @@ class WSProgressHandler:
         await self.websocket.accept()
 
         # Add the connection to the list of connections
-        app_state.ws_instances.append(self)
-
+        app_state.clients.append(self)
         app_state.logger.info("Client %s connected", self.client_id)
 
     async def send_update(self, update: Dict[str, Any]):
@@ -144,7 +167,7 @@ class WSProgressHandler:
         )
 
     @classmethod
-    def get_instance(cls, client_id: str) -> Optional["WSProgressHandler"]:
+    def get_instance(cls, client_id: str) -> Optional["Client"]:
         """
         Get the WebSocket instance for a client.
 
@@ -155,7 +178,7 @@ class WSProgressHandler:
         - returns the WebSocket instance.
         """
 
-        for instance in app_state.ws_instances:
+        for instance in app_state.clients:
             if instance.client_id == client_id:
                 return instance
 
@@ -172,10 +195,9 @@ class ApplicationState:
     api: FastAPI
     server: Server
     loop: asyncio.AbstractEventLoop
-    downloader: Downloader
     web_settings: WebOptions
     downloader_settings: DownloaderOptions
-    ws_instances: List[WSProgressHandler] = []
+    clients: List[Client] = []
     logger: logging.Logger
 
 
@@ -194,26 +216,48 @@ def get_current_state() -> ApplicationState:
     return app_state
 
 
+def get_client(client_id: Union[str, None] = Query(default=None)) -> Client:
+    """
+    Get the client's state.
+
+    ### Arguments
+    - client_id: The client's ID.
+
+    ### Returns
+    - returns the client's state.
+    """
+
+    if client_id is None:
+        raise HTTPException(status_code=400, detail="client_id is required")
+
+    instance = Client.get_instance(client_id)
+    if instance is None:
+        raise HTTPException(status_code=404, detail="client not found")
+
+    return instance
+
+
 @router.websocket("/api/ws")
 async def websocket_endpoint(websocket: WebSocket, client_id: str):
     """
     Websocket endpoint.
+
     ### Arguments
     - websocket: The WebSocket instance.
     """
 
-    await WSProgressHandler(websocket, client_id).connect()
+    await Client(websocket, client_id).connect()
 
     try:
         while True:
             await websocket.receive_json()
     except WebSocketDisconnect:
-        instance = WSProgressHandler.get_instance(client_id)
+        instance = Client.get_instance(client_id)
         if instance:
-            app_state.ws_instances.remove(instance)
+            app_state.clients.remove(instance)
 
         if (
-            len(app_state.ws_instances) == 0
+            len(app_state.clients) == 0
             and app_state.web_settings["keep_alive"] is False
         ):
             app_state.logger.debug(
@@ -225,7 +269,7 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
             # Wait 1 second before shutting down
             # This is to prevent the server from shutting down when a client
             # disconnects and reconnects quickly (e.g. when refreshing the page)
-            if len(app_state.ws_instances) == 0:
+            if len(app_state.clients) == 0:
                 # Perform a clean exit
                 app_state.logger.info("Shutting down server, no active connections")
                 app_state.server.force_exit = True
@@ -265,7 +309,9 @@ def query_search(query: str) -> List[Song]:
 
 @router.post("/api/download/url")
 async def download_url(
-    url: str, client_id: str, state: ApplicationState = Depends(get_current_state)
+    url: str,
+    client: Client = Depends(get_client),
+    state: ApplicationState = Depends(get_current_state),
 ) -> Optional[str]:
     """
     Download songs using Song url.
@@ -278,25 +324,23 @@ async def download_url(
     """
 
     if state.web_settings.get("web_use_output_dir", False):
-        state.downloader.settings["output"] = state.downloader_settings["output"]
+        client.downloader.settings["output"] = client.downloader_settings["output"]
     else:
-        state.downloader.settings["output"] = str(
-            (get_spotdl_path() / f"web/sessions/{client_id}").absolute()
+        client.downloader.settings["output"] = str(
+            (get_spotdl_path() / f"web/sessions/{client.client_id}").absolute()
         )
 
-    ws_instance = WSProgressHandler.get_instance(client_id)
-    if ws_instance is not None:
-        state.downloader.progress_handler = ProgressHandler(
-            simple_tui=True,
-            update_callback=ws_instance.song_update,
-        )
+    client.downloader.progress_handler = ProgressHandler(
+        simple_tui=True,
+        update_callback=client.song_update,
+    )
 
     try:
         # Fetch song metadata
         song = Song.from_url(url)
 
         # Download Song
-        _, path = await state.downloader.pool_download(song)
+        _, path = await client.downloader.pool_download(song)
 
         if path is None:
             state.logger.error(f"Failure downloading {song.name}")
@@ -317,13 +361,16 @@ async def download_url(
 
 @router.get("/api/download/file")
 async def download_file(
-    file: str, state: ApplicationState = Depends(get_current_state)
+    file: str,
+    client: Client = Depends(get_client),
+    state: ApplicationState = Depends(get_current_state),
 ):
     """
     Download file using path.
 
     ### Arguments
     - file: The file path.
+    - client: The client's state.
 
     ### Returns
     - returns the file response, filename specified to return as attachment.
@@ -332,10 +379,10 @@ async def download_file(
     expected_path = str((get_spotdl_path() / "web/sessions").absolute())
     if state.web_settings.get("web_use_output_dir", False):
         expected_path = str(
-            Path(state.downloader_settings["output"].split("{", 1)[0]).absolute()
+            Path(client.downloader_settings["output"].split("{", 1)[0]).absolute()
         )
 
-    if (not file.endswith(state.downloader_settings["format"])) or (
+    if (not file.endswith(client.downloader_settings["format"])) or (
         not file.startswith(expected_path)
     ):
         raise HTTPException(status_code=400, detail="Invalid download path.")
@@ -348,35 +395,41 @@ async def download_file(
 
 @router.get("/api/settings")
 def get_settings(
-    state: ApplicationState = Depends(get_current_state),
+    client: Client = Depends(get_client),
 ) -> DownloaderOptions:
     """
-    Get the settings.
+    Get client settings.
+
+    ### Arguments
+    - client: The client's state.
 
     ### Returns
     - returns the settings.
     """
 
-    return state.downloader_settings
+    return client.downloader_settings
 
 
 @router.post("/api/settings/update")
 def update_settings(
     settings: DownloaderOptionalOptions,
+    client: Client = Depends(get_client),
     state: ApplicationState = Depends(get_current_state),
 ) -> DownloaderOptions:
     """
-    Change downloader settings by re-initializing the downloader.
+    Update client settings, and re-initialize downloader.
 
     ### Arguments
     - settings: The settings to change.
+    - client: The client's state.
+    - state: The application state.
 
     ### Returns
     - returns True if the settings were changed.
     """
 
     # Create shallow copy of settings
-    settings_cpy = state.downloader_settings.copy()
+    settings_cpy = client.downloader_settings.copy()
 
     # Update settings with new settings that are not None
     settings_cpy.update({k: v for k, v in settings.items() if v is not None})  # type: ignore
@@ -386,7 +439,7 @@ def update_settings(
     new_settings = DownloaderOptions(**settings_cpy)  # type: ignore
 
     # Re-initialize downloader
-    state.downloader = Downloader(
+    client.downloader = Downloader(
         new_settings,
         loop=state.loop,
     )

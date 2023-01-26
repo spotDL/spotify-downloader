@@ -12,7 +12,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from uvicorn import Config, Server
 
 from spotdl._version import __version__
-from spotdl.download.downloader import Downloader
 from spotdl.types.options import DownloaderOptions, WebOptions
 from spotdl.utils.config import get_spotdl_path
 from spotdl.utils.github import download_github_dir
@@ -22,6 +21,7 @@ from spotdl.utils.web import (
     SPAStaticFiles,
     app_state,
     fix_mime_types,
+    get_client,
     get_current_state,
     router,
 )
@@ -52,7 +52,6 @@ def web(web_settings: WebOptions, downloader_settings: DownloaderOptions):
 
     # Initialize the web server settings
     app_state.web_settings = web_settings
-    app_state.downloader_settings = downloader_settings
     app_state.logger = uvicorn_logger
 
     # Create the event loop
@@ -64,16 +63,11 @@ def web(web_settings: WebOptions, downloader_settings: DownloaderOptions):
 
     downloader_settings["simple_tui"] = True
 
-    app_state.downloader = Downloader(
-        settings=downloader_settings,
-        loop=app_state.loop,
-    )
-
     # Download web app from GitHub
     logger.info("Updating web app \n")
     web_app_dir = str(get_spotdl_path().absolute())
     download_github_dir(
-        "https://github.com/spotdl/web-ui/tree/master/dist",
+        "https://github.com/spotdl/web-ui/tree/dev/dist",
         output_dir=web_app_dir,
     )
 
@@ -114,6 +108,8 @@ def web(web_settings: WebOptions, downloader_settings: DownloaderOptions):
     )
 
     app_state.server = Server(config)
+
+    app_state.downloader_settings = downloader_settings
 
     # Open the web browser
     webbrowser.open(f"http://{web_settings['host']}:{web_settings['port']}/")
