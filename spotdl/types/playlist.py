@@ -82,7 +82,7 @@ class Playlist(SongList):
 
         songs = []
         for track in tracks:
-            if track["track"]["is_local"]:
+            if not isinstance(track, dict) or track.get("track", {}).get("is_local"):
                 continue
 
             track_meta = track.get("track", {})

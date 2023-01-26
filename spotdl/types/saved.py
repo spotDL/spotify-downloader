@@ -59,7 +59,7 @@ class Saved(SongList):
 
         songs = []
         for track in saved_tracks:
-            if track["track"]["is_local"]:
+            if not isinstance(track, dict) or track.get("track", {}).get("is_local"):
                 continue
 
             track_meta = track["track"]

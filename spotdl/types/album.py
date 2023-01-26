@@ -74,7 +74,7 @@ class Album(SongList):
 
         songs = []
         for track in tracks:
-            if track["is_local"]:
+            if not isinstance(track, dict) or track.get("is_local"):
                 continue
 
             release_date = album_metadata["release_date"]
