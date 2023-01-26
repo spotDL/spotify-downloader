@@ -40,11 +40,10 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          flavor: |
-            latest=true
           tags: |
-            type=semver,enable=true,priority=100,pattern={{raw}}
-            type=sha,enable=true,priority=200,prefix=nightly-,suffix=,format=short
+            type=raw,value=latest,priority=100,enable=${{ github.event_name == 'release' }}
+            type=semver,enable=true,priority=200,pattern={{raw}}
+            type=sha,enable=true,priority=300,prefix=nightly-,suffix=,format=short
 
       - name: Set up QEMU for multi-arch builds
         uses: docker/setup-qemu-action@v2
