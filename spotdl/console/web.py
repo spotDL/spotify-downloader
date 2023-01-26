@@ -21,7 +21,6 @@ from spotdl.utils.web import (
     SPAStaticFiles,
     app_state,
     fix_mime_types,
-    get_client,
     get_current_state,
     router,
 )

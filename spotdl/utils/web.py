@@ -37,7 +37,6 @@ from spotdl.types.options import (
 from spotdl.types.song import Song
 from spotdl.utils.config import (
     DOWNLOADER_OPTIONS,
-    SpotDLOptions,
     create_settings_type,
     get_spotdl_path,
 )
