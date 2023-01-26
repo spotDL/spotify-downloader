@@ -49,7 +49,7 @@ jobs:
           tags: |
             type=raw,value=latest,priority=100,enable=${{ github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && inputs.wants_production_build) }}
             type=semver,priority=200,pattern={{raw}},enable=${{ github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && inputs.wants_production_build) }}
-            type=sha,priority=300,prefix=nightly-,suffix=,format=short,enable=${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && !inputs.wants_production_build) }}
+            type=raw,value=nightly,priority=300,enable=${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && !inputs.wants_production_build) }}
 
       - name: Set up QEMU for multi-arch builds
         uses: docker/setup-qemu-action@v2
