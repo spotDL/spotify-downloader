@@ -4,7 +4,7 @@ Options types have all the fields marked as required.
 Settings types have all the fields marked as optional.
 """
 
-from typing import List, Optional
+from typing import List, Optional, Union
 
 from typing_extensions import TypedDict
 
@@ -49,7 +49,7 @@ class DownloaderOptions(TypedDict):
     overwrite: str
     search_query: Optional[str]
     ffmpeg: str
-    bitrate: Optional[int]
+    bitrate: Optional[Union[str, int]]
     ffmpeg_args: Optional[str]
     format: str
     save_file: Optional[str]
@@ -79,6 +79,7 @@ class WebOptions(TypedDict):
     host: str
     keep_alive: bool
     allowed_origins: Optional[List[str]]
+    keep_sessions: bool
 
 
 class SpotDLOptions(SpotifyOptions, DownloaderOptions, WebOptions):
@@ -116,7 +117,7 @@ class DownloaderOptionalOptions(TypedDict, total=False):
     overwrite: str
     search_query: Optional[str]
     ffmpeg: str
-    bitrate: Optional[int]
+    bitrate: Optional[Union[str, int]]
     ffmpeg_args: Optional[str]
     format: str
     save_file: Optional[str]
@@ -146,6 +147,7 @@ class WebOptionalOptions(TypedDict, total=False):
     host: str
     keep_alive: bool
     allowed_origins: Optional[str]
+    keep_sessions: bool
 
 
 class SpotDLOptionalOptions(

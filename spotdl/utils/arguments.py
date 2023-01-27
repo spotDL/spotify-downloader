@@ -519,6 +519,14 @@ def parse_web_options(parser: _ArgumentGroup):
         ),
     )
 
+    # Add keep sessions argument
+    parser.add_argument(
+        "--keep-sessions",
+        action="store_const",
+        const=True,
+        help="Keep the session directory after the web server is closed.",
+    )
+
 
 def parse_misc_options(parser: _ArgumentGroup):
     """

@@ -266,6 +266,7 @@ WEB_OPTIONS: WebOptions = {
     "host": "localhost",
     "keep_alive": False,
     "allowed_origins": None,
+    "keep_sessions": False,
 }
 
 # Type: ignore because of the issues above

@@ -7,6 +7,7 @@ import asyncio
 import logging
 import mimetypes
 import os
+import shutil
 from argparse import Namespace
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
@@ -292,6 +293,22 @@ def song_from_url(url: str) -> Song:
     """
 
     return Song.from_url(url)
+
+
+@router.on_event("shutdown")
+async def shutdown_event():
+    """
+    Called when the server is shutting down.
+    """
+
+    if (
+        not app_state.web_settings["keep_sessions"]
+        and not app_state.web_settings["web_use_output_dir"]
+    ):
+        app_state.logger.info("Removing sessions directories")
+        sessions_dir = Path(get_spotdl_path(), "web/sessions")
+        if sessions_dir.exists():
+            shutil.rmtree(sessions_dir)
 
 
 @router.get("/api/songs/search", response_model=None)
