@@ -164,10 +164,7 @@ class AudioProvider:
                 song, self.search_query, False, None, True
             )
 
-        log_song = song.json
-        log_song["lyrics"] = None
-
-        logger.debug("[%s] Searching for %s - %s", song.song_id, search_query, log_song)
+        logger.debug("[%s] Searching for %s", song.song_id, search_query)
 
         isrc_urls: List[str] = []
 
