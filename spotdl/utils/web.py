@@ -447,6 +447,17 @@ def update_settings(
 
     return new_settings
 
+@router.get("/api/version")
+def get_version() -> str:
+    """
+    Get the current version of spotDL.
+
+    ### Returns
+    - returns the version.
+    """
+
+    return __version__
+
 
 def fix_mime_types():
     """Fix incorrect entries in the `mimetypes` registry.
