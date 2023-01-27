@@ -113,7 +113,9 @@ class Playlist(SongList):
                 isrc=track_meta.get("external_ids", {}).get("isrc"),
                 cover_url=max(
                     album_meta["images"], key=lambda i: i["width"] * i["height"]
-                )["url"],
+                )["url"]
+                if (len(album_meta["images"]) > 0)
+                else None,
             )
 
             songs.append(song)
