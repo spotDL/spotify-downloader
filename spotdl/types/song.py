@@ -224,19 +224,21 @@ class Song:
 
         # Reinitialize the correct song list object
         if data.get("song_list"):
-            # Find the correct song list class
-            # based on the class attributes
-            song_list_class = next(
-                (
-                    list_class
-                    for list_class in SongList.__subclasses__()
-                    if list(list_class.__dataclass_fields__.keys())
-                    == list(data["song_list"].keys())
+            song_list = data["song_list"]
+            if not issubclass(type(song_list), SongList):
+                # Find the correct song list class
+                # based on the class attributes
+                song_list_class = next(
+                    (
+                        list_class
+                        for list_class in SongList.__subclasses__()
+                        if list(list_class.__dataclass_fields__.keys())
+                        == list(data["song_list"].keys())
+                    )
                 )
-            )
 
-            # Reinitialize the song list object
-            song_list = song_list_class(**data["song_list"])
+                # Reinitialize the song list object
+                song_list = song_list_class(**data["song_list"])
 
             data["song_list"] = song_list
             data["list_position"] = song_list.urls.index(data["url"])
