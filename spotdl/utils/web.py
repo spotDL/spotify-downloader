@@ -40,6 +40,7 @@ from spotdl.utils.config import (
     create_settings_type,
     get_spotdl_path,
 )
+from spotdl.utils.github import get_latest_version, get_status
 from spotdl.utils.search import get_search_results
 
 __all__ = [
@@ -447,16 +448,28 @@ def update_settings(
 
     return new_settings
 
-@router.get("/api/version")
-def get_version() -> str:
+
+@router.get("/api/check_update")
+def check_update() -> bool:
     """
-    Get the current version of spotDL.
+    Check for update.
 
     ### Returns
-    - returns the version.
+    - returns True if there is an update.
     """
 
-    return __version__
+    try:
+        _, ahead, _ = get_status(__version__, "master")
+        if ahead > 0:
+            return True
+    except Exception:
+        latest_version = get_latest_version()
+        latest_tuple = tuple(latest_version.replace("v", "").split("."))
+        current_tuple = tuple(__version__.split("."))
+        if latest_tuple > current_tuple:
+            return True
+
+    return False
 
 
 def fix_mime_types():
