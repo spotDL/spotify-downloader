@@ -99,6 +99,8 @@ def get_simple_songs(
     songs: List[Song] = []
     lists: List[SongList] = []
     for request in query:
+        logger.debug("Processing query: %s", request)
+
         if (
             ("youtube.com/watch?v=" in request or "youtu.be/" in request)
             and "open.spotify.com" in request
@@ -206,13 +208,14 @@ def get_simple_songs(
 
         for song in song_list.songs:
             if song.song_list:
-                final_song = Song.from_missing_data(**song.json)
+                song_data = song.json
             else:
                 song_data = song.json
                 song_data["song_list"] = song_list
-                final_song = Song.from_missing_data(**song_data)
 
-            songs.append(Song.from_dict(final_song.json))
+            songs.append(Song.from_dict(song_data))
+
+    logger.debug("Found %s songs in %s lists", len(songs), len(lists))
 
     return songs
 
