@@ -18,7 +18,7 @@ class YouTube(AudioProvider):
     YouTube audio provider class
     """
 
-    SUPPORTS_ISRC = True
+    SUPPORTS_ISRC = False
     GET_RESULTS_OPTS: List[Dict[str, Any]] = [{}]
 
     def get_results(
