@@ -28,7 +28,6 @@ from fastapi.staticfiles import StaticFiles
 from starlette.types import Scope
 from uvicorn import Server
 
-from spotdl.utils.arguments import create_parser
 from spotdl._version import __version__
 from spotdl.download.downloader import Downloader
 from spotdl.download.progress_handler import ProgressHandler, SongTracker
@@ -38,6 +37,7 @@ from spotdl.types.options import (
     WebOptions,
 )
 from spotdl.types.song import Song
+from spotdl.utils.arguments import create_parser
 from spotdl.utils.config import (
     DOWNLOADER_OPTIONS,
     create_settings_type,
@@ -530,11 +530,11 @@ def get_options() -> Dict[str, Any]:
         "generate_config",
         "check_for_updates",
         "profile",
-        "version"
+        "version",
     ]
 
     options = {}
-    for action in parser._actions: # pylint: disable=protected-access
+    for action in parser._actions:  # pylint: disable=protected-access
         if action.dest in forbidden_actions:
             continue
 
@@ -545,11 +545,13 @@ def get_options() -> Dict[str, Any]:
         if action_type is not None:
             if hasattr(action_type, "__objclass__"):
                 print(action_type)
-                action_type = action_type.__objclass__.__name__ # type: ignore
+                action_type = action_type.__objclass__.__name__  # type: ignore
             else:
-                action_type = action_type.__name__ # type: ignore
+                action_type = action_type.__name__  # type: ignore
 
-        if isinstance(action, argparse._StoreConstAction): # pylint: disable=protected-access
+        if isinstance(
+            action, argparse._StoreConstAction
+        ):  # pylint: disable=protected-access
             action_type = "bool"
 
         if choices is not None and action.nargs == "*":
