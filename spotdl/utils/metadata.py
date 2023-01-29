@@ -102,7 +102,7 @@ def set_id3_mp3(output_file: Path, song: Song):
 
     genres = song.genres
     if len(genres) > 0:
-        audio_file["genre"] = genres[0]
+        audio_file["genre"] = genres[0].title()
 
     audio_file.save(v2_version=3)
 
@@ -244,7 +244,7 @@ def _embed_basic_metadata(audio_file, song: Song, encoding, preset=TAG_PRESET):
     audio_file[preset["originaldate"]] = song.date
 
     if len(song.genres) > 0:
-        audio_file[preset["genre"]] = song.genres[0]
+        audio_file[preset["genre"]] = song.genres[0].title()
 
     if song.copyright_text:
         audio_file[preset["copyright"]] = song.copyright_text
