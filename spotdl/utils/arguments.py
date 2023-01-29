@@ -38,56 +38,6 @@ class SmartFormatter(argparse.HelpFormatter):
         return textwrap.wrap(text, width)
 
 
-def parse_arguments() -> Namespace:
-    """
-    Parse arguments from the command line.
-
-    ### Returns
-    - A Namespace object containing the parsed arguments.
-    """
-
-    # Initialize argument parser
-    parser = ArgumentParser(
-        prog="spotdl",
-        description="Download your Spotify playlists and songs along with album art and metadata",
-        formatter_class=SmartFormatter,
-        epilog=(
-            "For more information, visit http://spotdl.rtfd.io/ "
-            "or join our Discord server: https://discord.com/invite/xCa23pwJWY"
-        ),
-    )
-
-    # Parse main options
-    main_options = parser.add_argument_group("Main options")
-    parse_main_options(main_options)
-
-    # Parse spotify options
-    spotify_options = parser.add_argument_group("Spotify options")
-    parse_spotify_options(spotify_options)
-
-    # Parse ffmpeg options
-    ffmpeg_options = parser.add_argument_group("FFmpeg options")
-    parse_ffmpeg_options(ffmpeg_options)
-
-    # Parse output options
-    output_options = parser.add_argument_group("Output options")
-    parse_output_options(output_options)
-
-    # Parse web options
-    web_options = parser.add_argument_group("Web options")
-    parse_web_options(web_options)
-
-    # Parse misc options
-    misc_options = parser.add_argument_group("Misc options")
-    parse_misc_options(misc_options)
-
-    # Parse other options
-    other_options = parser.add_argument_group("Other options")
-    parse_other_options(other_options)
-
-    return parser.parse_args()
-
-
 def parse_main_options(parser: _ArgumentGroup):
     """
     Parse main options from the command line.
@@ -183,6 +133,7 @@ def parse_main_options(parser: _ArgumentGroup):
     parser.add_argument(
         "--search-query",
         help=f"The search query to use, available variables: {', '.join(VARS)}",
+        type=str,
     )
 
     # Add don't filter results argument
@@ -215,18 +166,21 @@ def parse_spotify_options(parser: _ArgumentGroup):
     parser.add_argument(
         "--client-id",
         help="The client id to use when logging in to Spotify.",
+        type=str,
     )
 
     # Add client secret argument
     parser.add_argument(
         "--client-secret",
         help="The client secret to use when logging in to Spotify.",
+        type=str,
     )
 
     # Add auth token argument
     parser.add_argument(
         "--auth-token",
         help="The authorisation token to use directly to log in to Spotify.",
+        type=str,
     )
 
     # Add cache path argument
@@ -244,17 +198,19 @@ def parse_spotify_options(parser: _ArgumentGroup):
         help="Disable caching (both requests and token).",
     )
 
-    # Add cookie file argument
-    parser.add_argument(
-        "--cookie-file",
-        help="Path to cookies file.",
-    )
-
     # Add max retries argument
     parser.add_argument(
         "--max-retries",
         type=int,
         help="The maximum number of retries to perform when getting metadata.",
+    )
+
+    # Add headless argument
+    parser.add_argument(
+        "--headless",
+        action="store_const",
+        const=True,
+        help="Run in headless mode.",
     )
 
 
@@ -270,6 +226,7 @@ def parse_ffmpeg_options(parser: _ArgumentGroup):
     parser.add_argument(
         "--ffmpeg",
         help="The ffmpeg executable to use.",
+        type=str,
     )
 
     # Add search threads argument
@@ -333,6 +290,7 @@ def parse_output_options(parser: _ArgumentGroup):
         "--format",
         choices=FFMPEG_FORMATS.keys(),
         help="The format to download the song in.",
+        type=str,
     )
 
     # Add save file argument
@@ -389,6 +347,7 @@ def parse_output_options(parser: _ArgumentGroup):
             "all duplicates, and metadata will only apply metadata to the "
             "latest song and will remove the rest. )"
         ),
+        type=str,
     )
 
     # Option to restrict filenames for easier handling in the shell
@@ -468,6 +427,13 @@ def parse_output_options(parser: _ArgumentGroup):
         action="store_const",
         const=True,
         help="Use ytm data instead of spotify data when downloading using ytm link",
+    )
+
+    # Add cookie file argument
+    parser.add_argument(
+        "--cookie-file",
+        help="Path to cookies file.",
+        type=str,
     )
 
 
@@ -551,14 +517,6 @@ def parse_misc_options(parser: _ArgumentGroup):
         help="Use a simple tui.",
     )
 
-    # Add headless argument
-    parser.add_argument(
-        "--headless",
-        action="store_const",
-        const=True,
-        help="Run in headless mode.",
-    )
-
 
 def parse_other_options(parser: _ArgumentGroup):
     """
@@ -597,3 +555,71 @@ def parse_other_options(parser: _ArgumentGroup):
         help="Show the version number and exit.",
         version=_version.__version__,
     )
+
+
+def create_parser() -> ArgumentParser:
+    """
+    Parse arguments from the command line.
+
+    ### Returns
+    - A Namespace object containing the parsed arguments.
+    """
+
+    # Initialize argument parser
+    parser = ArgumentParser(
+        prog="spotdl",
+        description="Download your Spotify playlists and songs along with album art and metadata",
+        formatter_class=SmartFormatter,
+        epilog=(
+            "For more information, visit http://spotdl.rtfd.io/ "
+            "or join our Discord server: https://discord.com/invite/xCa23pwJWY"
+        ),
+    )
+
+    # Parse main options
+    main_options = parser.add_argument_group("Main options")
+    parse_main_options(main_options)
+
+    # Parse spotify options
+    spotify_options = parser.add_argument_group("Spotify options")
+    parse_spotify_options(spotify_options)
+
+    # Parse ffmpeg options
+    ffmpeg_options = parser.add_argument_group("FFmpeg options")
+    parse_ffmpeg_options(ffmpeg_options)
+
+    # Parse output options
+    output_options = parser.add_argument_group("Output options")
+    parse_output_options(output_options)
+
+    # Parse web options
+    web_options = parser.add_argument_group("Web options")
+    parse_web_options(web_options)
+
+    # Parse misc options
+    misc_options = parser.add_argument_group("Misc options")
+    parse_misc_options(misc_options)
+
+    # Parse other options
+    other_options = parser.add_argument_group("Other options")
+    parse_other_options(other_options)
+
+    return parser
+
+
+def parse_arguments() -> Namespace:
+    """
+    Parse arguments from the command line.
+
+    ### Arguments
+    - parser: The argument parser to parse the arguments from.
+
+    ### Returns
+    - A Namespace object containing the parsed arguments.
+    """
+
+    # Create parser
+    parser = create_parser()
+
+    # Parse arguments
+    return parser.parse_args()
