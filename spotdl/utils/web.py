@@ -3,6 +3,7 @@ Module which contains the web server related function
 FastAPI routes/classes etc.
 """
 
+import argparse
 import asyncio
 import logging
 import mimetypes
@@ -27,6 +28,7 @@ from fastapi.staticfiles import StaticFiles
 from starlette.types import Scope
 from uvicorn import Server
 
+from spotdl.utils.arguments import create_parser
 from spotdl._version import __version__
 from spotdl.download.downloader import Downloader
 from spotdl.download.progress_handler import ProgressHandler, SongTracker
@@ -487,6 +489,80 @@ def check_update() -> bool:
             return True
 
     return False
+
+
+@router.get("/api/options_model")
+def get_options() -> Dict[str, Any]:
+    """
+    Get options model (possible settings).
+
+    ### Returns
+    - returns the options.
+    """
+
+    parser = create_parser()
+
+    # Forbidden actions
+    forbidden_actions = [
+        "help",
+        "operation",
+        "version",
+        "config",
+        "user_auth",
+        "client_id",
+        "client_secret",
+        "auth_token",
+        "cache_path",
+        "no_cache",
+        "cookie_file",
+        "ffmpeg",
+        "archive",
+        "host",
+        "port",
+        "keep_alive",
+        "allowed_origins",
+        "web_use_output_dir",
+        "keep_sessions",
+        "log_level",
+        "simple_tui",
+        "headless",
+        "download_ffmpeg",
+        "generate_config",
+        "check_for_updates",
+        "profile",
+        "version"
+    ]
+
+    options = {}
+    for action in parser._actions: # pylint: disable=protected-access
+        if action.dest in forbidden_actions:
+            continue
+
+        default = app_state.downloader_settings.get(action.dest, None)
+        choices = list(action.choices) if action.choices else None
+
+        action_type = action.type
+        if action_type is not None:
+            if hasattr(action_type, "__objclass__"):
+                print(action_type)
+                action_type = action_type.__objclass__.__name__ # type: ignore
+            else:
+                action_type = action_type.__name__ # type: ignore
+
+        if isinstance(action, argparse._StoreConstAction): # pylint: disable=protected-access
+            action_type = "bool"
+
+        if choices is not None and action.nargs == "*":
+            action_type = "list"
+
+        options[action.dest] = {
+            "type": action_type,
+            "choices": choices,
+            "default": default,
+            "help": action.help,
+        }
+
+    return options
 
 
 def fix_mime_types():
