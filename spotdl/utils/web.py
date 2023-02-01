@@ -541,24 +541,23 @@ def get_options() -> Dict[str, Any]:
         default = app_state.downloader_settings.get(action.dest, None)
         choices = list(action.choices) if action.choices else None
 
-        action_type = action.type
-        if action_type is not None:
-            if hasattr(action_type, "__objclass__"):
-                print(action_type)
-                action_type = action_type.__objclass__.__name__  # type: ignore
+        type_name = ""
+        if action.type is not None:
+            if hasattr(action.type, "__objclass__"):
+                type_name: str = action.type.__objclass__.__name__  # type: ignore
             else:
-                action_type = action_type.__name__  # type: ignore
+                type_name: str = action.type.__name__  # type: ignore
 
         if isinstance(
             action, argparse._StoreConstAction  # pylint: disable=protected-access
         ):
-            action_type = "bool"
+            type_name = "bool"
 
         if choices is not None and action.nargs == "*":
-            action_type = "list"
+            type_name = "list"
 
         options[action.dest] = {
-            "type": action_type,
+            "type": type_name,
             "choices": choices,
             "default": default,
             "help": action.help,
