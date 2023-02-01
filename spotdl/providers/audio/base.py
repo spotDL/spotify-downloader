@@ -259,7 +259,7 @@ class AudioProvider:
 
                 if best_score >= 80 and best_result.verified:
                     logger.debug(
-                        "[%s] Returning verified best " "result %s with score %s",
+                        "[%s] Returning verified best result %s with score %s",
                         song.song_id,
                         best_result.url,
                         best_score,
