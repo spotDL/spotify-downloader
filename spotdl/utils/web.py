@@ -550,8 +550,8 @@ def get_options() -> Dict[str, Any]:
                 action_type = action_type.__name__  # type: ignore
 
         if isinstance(
-            action, argparse._StoreConstAction
-        ):  # pylint: disable=protected-access
+            action, argparse._StoreConstAction  # pylint: disable=protected-access
+        ):
             action_type = "bool"
 
         if choices is not None and action.nargs == "*":
