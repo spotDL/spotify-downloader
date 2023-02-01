@@ -249,23 +249,23 @@ class AudioProvider:
             # we are almost 100% sure that this is the correct link
             if len(new_results) != 0:
                 # get the result with highest score
-                best_url, best_score = self.get_best_match(new_results)
+                best_result, best_score = self.get_best_result(new_results)
                 logger.debug(
                     "[%s] Best result is %s with score %s",
                     song.song_id,
-                    best_url,
+                    best_result.url,
                     best_score,
                 )
 
-                if best_score >= 80:
+                if best_score >= 80 and best_result.verified:
                     logger.debug(
-                        "[%s] Returning best result %s with score %s",
+                        "[%s] Returning verified best " "result %s with score %s",
                         song.song_id,
-                        best_url,
+                        best_result.url,
                         best_score,
                     )
 
-                    return best_url
+                    return best_result.url
 
                 # Update final results with new results
                 results.update(new_results)
@@ -276,17 +276,17 @@ class AudioProvider:
             return None
 
         # get the result with highest score
-        best_url, best_score = self.get_best_match(results)
+        best_result, best_score = self.get_best_result(results)
         logger.debug(
             "[%s] Returning best result %s with score %s",
             song.song_id,
-            best_url,
+            best_result.url,
             best_score,
         )
 
-        return best_url
+        return best_result.url
 
-    def get_best_match(self, results: Dict[Result, float]) -> Tuple[str, float]:
+    def get_best_result(self, results: Dict[Result, float]) -> Tuple[Result, float]:
         """
         Get the best match from the results
         using views and average match
@@ -302,21 +302,15 @@ class AudioProvider:
 
         # If we have only one result, return it
         if len(best_results) == 1:
-            return best_results[0][0].url, best_results[0][1]
+            return best_results[0][0], best_results[0][1]
 
         # Initial best result based on the average match
         best_result = best_results[0]
 
-        # If the best result has a score higher than 90%
-        # or if the best result has a score higher than 80%
-        # but is a verified result or is an isrc result
-        # we return the best result
-        if best_result[1] > 90 or (
-            best_result[1] > 80
-            and best_result[0].verified
-            or best_result[0].isrc_search
-        ):
-            return best_result[0].url, best_result[1]
+        # If the best result has a score higher than 80%
+        # and it's a isrc search, return it
+        if best_result[1] > 80 and best_result[0].isrc_search:
+            return best_result[0], best_result[1]
 
         # If we have more than one result,
         # return the one with the highest score
@@ -331,9 +325,9 @@ class AudioProvider:
 
             best_result = best_results[views.index(max(views))]
 
-            return best_result[0].url, best_result[1]
+            return best_result[0], best_result[1]
 
-        return best_result[0].url, best_result[1]
+        return best_result[0], best_result[1]
 
     def get_download_metadata(self, url: str, download: bool = False) -> Dict:
         """
