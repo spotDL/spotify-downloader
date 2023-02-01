@@ -386,21 +386,26 @@ class Downloader:
         # And reinitialize the song object
         # Force song reinitialization if we are fetching albums
         # they have most metadata but not all
-        if (
-            (song.name is None and song.url)
-            or self.settings["fetch_albums"]
-            or None
-            in [song.genres, song.disc_count, song.tracks_count, song.track_number]
-        ):
+
+        reinitialized = False
+
+        try:
+            # Create the output file path
+            output_file = create_file_name(
+                song, self.settings["output"], self.settings["format"]
+            )
+        except Exception:
             song = reinit_song(song, self.settings["playlist_numbering"])
+            output_file = create_file_name(
+                song, self.settings["output"], self.settings["format"]
+            )
+
+            reinitialized = True
 
         # Initalize the progress tracker
         display_progress_tracker = self.progress_handler.get_new_tracker(song)
 
-        # Create the output file path
-        output_file = create_file_name(
-            song, self.settings["output"], self.settings["format"]
-        )
+        # Create the temp folder path
         temp_folder = get_temp_path()
 
         # Restrict the filename if needed
@@ -437,6 +442,15 @@ class Downloader:
 
             display_progress_tracker.notify_download_skip()
             return song, None
+
+        if (
+            (song.name is None and song.url)
+            or (self.settings["fetch_albums"] and reinitialized is False)
+            or None
+            in [song.genres, song.disc_count, song.tracks_count, song.track_number]
+        ):
+            song = reinit_song(song, self.settings["playlist_numbering"])
+            reinitialized = True
 
         # Don't skip if the file exists and overwrite is set to force
         if (output_file.exists() or dup_song_paths) and self.settings[
