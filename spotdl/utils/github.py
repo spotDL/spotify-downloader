@@ -26,6 +26,12 @@ REPO = "spotdl/spotify-downloader"
 WEB_APP_URL = "https://github.com/spotdl/web-ui/tree/master/dist"
 
 
+class RateLimitError(Exception):
+    """
+    Raised when the GitHub API rate limit is exceeded.
+    """
+
+
 def get_status(start: str, end: str, repo: str = REPO) -> Tuple[str, int, int]:
     """
     Get the status of a commit range.
@@ -44,6 +50,9 @@ def get_status(start: str, end: str, repo: str = REPO) -> Tuple[str, int, int]:
     response = requests.get(url, timeout=10)
 
     if response.status_code != 200:
+        if response.status_code == 403:
+            raise RateLimitError("GitHub API rate limit exceeded.")
+
         raise RuntimeError(
             f"Failed to get commit count. Status code: {response.status_code}"
         )
@@ -73,6 +82,9 @@ def get_latest_version(repo: str = REPO) -> str:
     response = requests.get(url, timeout=10)
 
     if response.status_code != 200:
+        if response.status_code == 403:
+            raise RateLimitError("GitHub API rate limit exceeded.")
+
         raise RuntimeError(
             f"Failed to get commit count. Status code: {response.status_code}"
         )
@@ -109,6 +121,12 @@ def check_for_updates(repo: str = REPO) -> str:
         message = "Couldn't check for updates. You might be running a dev version.\n"
         message += "Current version: " + current_version + "\n"
         message += "Latest version: " + latest_version
+        return message
+    except RateLimitError:
+        message = "GitHub API rate limit exceeded. Couldn't check for updates.\n"
+        message += "Current version: " + current_version + "\n"
+        message += "Latest version: " + latest_version + "\n"
+        message += "Please try again later."
         return message
 
     for branch in ["master", "dev"]:

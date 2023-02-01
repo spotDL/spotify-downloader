@@ -43,7 +43,7 @@ from spotdl.utils.config import (
     create_settings_type,
     get_spotdl_path,
 )
-from spotdl.utils.github import get_latest_version, get_status
+from spotdl.utils.github import RateLimitError, get_latest_version, get_status
 from spotdl.utils.search import get_search_results
 
 __all__ = [
@@ -481,12 +481,14 @@ def check_update() -> bool:
         _, ahead, _ = get_status(__version__, "master")
         if ahead > 0:
             return True
-    except Exception:
+    except RuntimeError:
         latest_version = get_latest_version()
         latest_tuple = tuple(latest_version.replace("v", "").split("."))
         current_tuple = tuple(__version__.split("."))
         if latest_tuple > current_tuple:
             return True
+    except RateLimitError:
+        return True
 
     return False
 
