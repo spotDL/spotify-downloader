@@ -167,7 +167,9 @@ def embed_metadata(output_file: Path, song: Song, id3_separator: str = "/"):
         audio_file[tag_preset["album"]] = album_name
 
     if len(song.genres) > 0:
-        audio_file[tag_preset["genre"]] = [genre.title() for genre in song.genres if genre]
+        audio_file[tag_preset["genre"]] = [
+            genre.title() for genre in song.genres if genre
+        ]
 
     if song.copyright_text:
         audio_file[tag_preset["copyright"]] = song.copyright_text
