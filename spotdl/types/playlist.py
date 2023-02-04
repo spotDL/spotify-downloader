@@ -82,8 +82,10 @@ class Playlist(SongList):
 
         songs = []
         for track in tracks:
-            if not isinstance(track, dict) or (
-                track.get("track") and track["track"].get("is_local")
+            if (
+                not isinstance(track, dict)
+                or track.get("track") is None
+                or track.get("track", {}).get("is_local")
             ):
                 continue
 
