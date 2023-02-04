@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "spotdl"
-version = "4.0.7"
+version = "4.1.0"
 description = "Download your Spotify playlists and songs along with album art and metadata"
 license = "MIT"
 authors = ["spotDL Team <spotdladmins@googlegroups.com>"]
@@ -36,23 +36,24 @@ ytmusicapi = [
 pytube = "^12.1.2"
 yt-dlp = "^2023.1.6"
 mutagen = "^1.46.0"
-rich = "^13.0.1"
+rich = "^13.1.0"
 beautifulsoup4 = "^4.11.1"
-requests = "^2.28.1"
+requests = "^2.28.2"
 rapidfuzz = "^2.13.7"
 python-slugify = "^7.0.0"
 uvicorn = "^0.20.0"
 pydantic = "^1.10.4"
-fastapi = "!= 0.89.0"
+fastapi = "^0.89.1"
 platformdirs = "^2.6.2"
 pykakasi = "^2.2.1"
 syncedlyrics = "^0.2.1"
+typing-extensions = "^4.4.0"
 
 [tool.poetry.dev-dependencies]
-pytest = "^7.2.0"
+pytest = "^7.2.1"
 pytest-mock = "^3.10.0"
 pytest-vcr = "^1.0.2"
-pyfakefs = "^5.0.0"
+pyfakefs = "^5.1.0"
 pytest-cov = "^4.0.0"
 pytest-subprocess = "^1.4.2"
 pytest-asyncio = "^0.20.3"
@@ -62,22 +63,28 @@ black = "^22.12.0"
 mdformat-gfm = "^0.3.5"
 types-orjson = "^3.6.2"
 types-python-slugify = "^7.0.0.1"
-types-requests = "^2.28.11.7"
-types-setuptools = "^65.6.0.3"
+types-requests = "^2.28.11.8"
+types-setuptools = "^65.7.0.3"
 types-toml = "^0.10.8.1"
 types-ujson = "^5.7.0.0"
 pyinstaller = "^5.7.0"
 mkdocs = "^1.4.2"
-mkdocs-material = "^9.0.3"
+mkdocs-material = "^9.0.5"
 mkdocstrings = "^0.19.1"
 mkdocstrings-python = "^0.8.3"
-pymdown-extensions = "^9.9"
+pymdown-extensions = "^9.9.1"
 mkdocs-gen-files = "^0.4.0"
 mkdocs-literate-nav = "^0.6.0"
 mkdocs-section-index = "^0.3.4"
 
 [tool.poetry.scripts]
 spotdl = "spotdl:console_entry_point"
+
+[tool.poetry.group.dev.dependencies]
+isort = "^5.11.4"
+
+[tool.isort]
+profile = "black"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

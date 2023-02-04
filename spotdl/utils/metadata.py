@@ -11,22 +11,33 @@ embed_metadata(
 """
 
 import base64
-
+import re
 from pathlib import Path
-from typing import Any, Dict, Optional, Union
-from urllib.request import urlopen
+from typing import Any, Dict, Optional
 
+import requests
 from mutagen._file import File
-from mutagen.oggopus import OggOpus
-from mutagen.mp4 import MP4, MP4Cover
-from mutagen.flac import Picture, FLAC
-from mutagen.oggvorbis import OggVorbis
-from mutagen.easyid3 import EasyID3
-from mutagen.id3 import ID3, ID3FileType
-from mutagen.id3._frames import APIC as AlbumCover, USLT, COMM as Comment
-from mutagen.id3._util import ID3NoHeaderError
+from mutagen.flac import Picture
+from mutagen.id3 import ID3
+from mutagen.id3._frames import APIC, COMM, USLT, WOAS
+from mutagen.mp4 import MP4Cover
 
-from spotdl.types import Song
+from spotdl.types.song import Song
+
+__all__ = [
+    "MetadataError",
+    "M4A_TAG_PRESET",
+    "MP3_TAG_PRESET",
+    "TAG_PRESET",
+    "TAG_TO_SONG",
+    "M4A_TO_SONG",
+    "MP3_TO_SONG",
+    "LRC_REGEX",
+    "embed_metadata",
+    "embed_cover",
+    "embed_lyrics",
+    "get_file_metadata",
+]
 
 
 class MetadataError(Exception):
@@ -58,298 +69,262 @@ M4A_TAG_PRESET = {
     "tempo": "tmpo",
     "lyrics": "\xa9lyr",
     "explicit": "rtng",
+    "woas": "----:spotdl:WOAS",
+}
+
+MP3_TAG_PRESET = {
+    "album": "TALB",
+    "artist": "TPE1",
+    "date": "TDRC",
+    "title": "TIT2",
+    "year": "TDRC",
+    "originaldate": "TDOR",
+    "comment": "COMM::XXX",
+    "group": "TIT1",
+    "writer": "TEXT",
+    "genre": "TCON",
+    "tracknumber": "TRCK",
+    "albumartist": "TPE2",
+    "discnumber": "TPOS",
+    "cpil": "TCMP",
+    "albumart": "APIC",
+    "encodedby": "TENC",
+    "copyright": "TCOP",
+    "tempo": "TBPM",
+    "lyrics": "USLT::XXX",
+    "woas": "WOAS",
+    "explicit": "NULL",
 }
 
 TAG_PRESET = {key: key for key in M4A_TAG_PRESET}
 
-
-def set_id3_mp3(output_file: Path, song: Song):
-    """
-    Set ID3 tags for MP3 files.
-
-    ### Arguments
-    - output_file: Path to the output file.
-    - song: Song object.
-    """
-
-    try:
-        audio_file: Union[EasyID3, ID3FileType] = EasyID3(str(output_file.resolve()))
-    except ID3NoHeaderError as exc:
-        unknown_file: Optional[ID3FileType] = File(
-            str(output_file.resolve()), easy=True
-        )
-
-        if unknown_file is None:
-            raise MetadataError("Unable to load file.") from exc
-
-        unknown_file.add_tags()
-        audio_file = unknown_file
-
-    audio_file.delete()
-
-    audio_file["title"] = song.name
-    audio_file["titlesort"] = song.name
-    audio_file["tracknumber"] = [song.track_number, song.tracks_count]
-    audio_file["discnumber"] = [song.disc_number, song.disc_count]
-    audio_file["artist"] = song.artists
-    audio_file["album"] = song.album_name
-    audio_file["albumartist"] = song.album_artist
-    audio_file["date"] = song.date
-    audio_file["originaldate"] = song.date
-    audio_file["encodedby"] = song.publisher
-    if song.copyright_text:
-        audio_file["copyright"] = song.copyright_text
-
-    genres = song.genres
-    if len(genres) > 0:
-        audio_file["genre"] = genres[0].title()
-
-    audio_file.save(v2_version=3)
-
-    temp_audio_file: ID3 = ID3(str(output_file.resolve()))
-    if song.cover_url:
-        with urlopen(song.cover_url) as raw_album_art:
-            temp_audio_file["APIC"] = AlbumCover(
-                encoding=3,
-                mime="image/jpeg",
-                type=3,
-                desc="Cover",
-                data=raw_album_art.read(),
-            )
-
-    if song.lyrics:
-        temp_audio_file["USLT::'eng'"] = USLT(
-            encoding=3, lang="eng", desc="desc", text=song.lyrics
-        )
-
-    if song.download_url:
-        temp_audio_file.add(Comment(encoding=3, text=song.download_url))
-
-    temp_audio_file.save(v2_version=3)
-
-
-def set_id3_m4a(output_file: Path, song: Song):
-    """
-    Set ID3 tags for M4A files.
-
-    ### Arguments
-    - output_file: Path to the output file.
-    - song: Song object.
-    """
-
-    audio_file = MP4(str(output_file.resolve()))
-
-    audio_file = _embed_basic_metadata(audio_file, song, "m4a", M4A_TAG_PRESET)
-
-    audio_file[M4A_TAG_PRESET["year"]] = str(song.year)
-    audio_file[M4A_TAG_PRESET["explicit"]] = (4 if song.explicit is True else 2,)
-
-    if song.lyrics:
-        audio_file[M4A_TAG_PRESET["lyrics"]] = song.lyrics
-
-    if song.cover_url:
-        try:
-            with urlopen(song.cover_url) as raw_album_art:
-                audio_file[M4A_TAG_PRESET["albumart"]] = [
-                    MP4Cover(
-                        raw_album_art.read(),
-                        imageformat=MP4Cover.FORMAT_JPEG,
-                    )
-                ]
-        except IndexError:
-            pass
-
-    if song.download_url:
-        audio_file[M4A_TAG_PRESET["comment"]] = song.download_url
-
-    audio_file.save()
-
-
-def set_id3_flac(output_file: Path, song: Song):
-    """
-    Set ID3 tags for FLAC files.
-
-    ### Arguments
-    - output_file: Path to the output file.
-    - song: Song object.
-    """
-
-    audio_file = FLAC(str(output_file.resolve()))
-
-    audio_file = _embed_basic_metadata(audio_file, song, "flac")
-    audio_file = _embed_ogg_metadata(audio_file, song)
-    audio_file = _embed_cover(audio_file, song, "flac")
-
-    audio_file.save()
-
-
-def set_id3_opus(output_file: Path, song: Song):
-    """
-    Set ID3 tags for Opus files.
-
-    ### Arguments
-    - output_file: Path to the output file.
-    - song: Song object.
-    """
-
-    audio_file = OggOpus(str(output_file.resolve()))
-
-    audio_file = _embed_basic_metadata(audio_file, song, "opus")
-    audio_file = _embed_ogg_metadata(audio_file, song)
-    audio_file = _embed_cover(audio_file, song, "opus")
-
-    audio_file.save()
-
-
-def set_id3_ogg(output_file: Path, song: Song):
-    """
-    Set ID3 tags for OGG files.
-
-    ### Arguments
-    - output_file: Path to the output file.
-    - song: Song object.
-    """
-
-    audio_file = OggVorbis(str(output_file.resolve()))
-
-    audio_file = _embed_basic_metadata(audio_file, song, "ogg")
-    audio_file = _embed_ogg_metadata(audio_file, song)
-    audio_file = _embed_cover(audio_file, song, "ogg")
-
-    audio_file.save()
-
-
-def _embed_basic_metadata(audio_file, song: Song, encoding, preset=TAG_PRESET):
-    """
-    Embed basic metadata into the audio file.
-
-    ### Arguments
-    - audio_file: Mutagen audio file object.
-    - song: Song object.
-    - encoding: Encoding of the audio file.
-    - preset: Preset of the audio file.
-
-    ### Returns
-    - Modified audio_file object.
-    """
-
-    album_name = song.album_name
-    if album_name:
-        audio_file[preset["album"]] = album_name
-
-    audio_file[preset["artist"]] = song.artist
-    audio_file[preset["albumartist"]] = song.artist
-    audio_file[preset["title"]] = song.name
-    audio_file[preset["date"]] = song.date
-    audio_file[preset["originaldate"]] = song.date
-
-    if len(song.genres) > 0:
-        audio_file[preset["genre"]] = song.genres[0].title()
-
-    if song.copyright_text:
-        audio_file[preset["copyright"]] = song.copyright_text
-
-    if encoding in ["flac", "ogg", "opus"]:
-        zfilled_disc_number = str(song.disc_number).zfill(len(str(song.disc_count)))
-        audio_file[preset["discnumber"]] = zfilled_disc_number
-    else:
-        audio_file[preset["discnumber"]] = [(song.disc_number, song.disc_count)]
-
-    if encoding in ["flac", "ogg", "opus"]:
-        zfilled_track_number = str(song.track_number).zfill(len(str(song.tracks_count)))
-        audio_file[preset["tracknumber"]] = zfilled_track_number
-    else:
-        audio_file[preset["tracknumber"]] = [(song.track_number, song.tracks_count)]
-
-    if encoding == "m4a":
-        audio_file[preset["encodedby"]] = song.publisher
-
-    return audio_file
-
-
-def _embed_ogg_metadata(audio_file, song: Song):
-    """
-    Embed basic metadata into the ogg file.
-
-    ### Arguments
-    - audio_file: Mutagen audio file object.
-    - song: Song object.
-
-    ### Returns
-    - Modified audio_file object.
-    """
-
-    audio_file["year"] = str(song.year)
-
-    if song.lyrics:
-        audio_file["lyrics"] = song.lyrics
-
-    if song.download_url:
-        audio_file["comment"] = song.download_url
-
-    return audio_file
-
-
-def _embed_cover(audio_file, song: Song, encoding: str):
-    """
-    Embed cover into the audio file.
-
-    ### Arguments
-    - audio_file: Mutagen audio file object.
-    - song: Song object.
-    - encoding: Encoding of the audio file.
-
-    ### Returns
-    - Modified audio_file object.
-    """
-
-    if song.cover_url is None:
-        return audio_file
-
-    image = Picture()
-    image.type = 3
-    image.desc = "Cover"
-    image.mime = "image/jpeg"
-
-    with urlopen(song.cover_url) as raw_album_art:
-        image.data = raw_album_art.read()
-
-    if encoding == "flac":
-        audio_file.add_picture(image)
-    elif encoding in ["ogg", "opus"]:
-        image_data = image.write()
-        encoded_data = base64.b64encode(image_data)
-        vcomment_value = encoded_data.decode("ascii")
-        audio_file["metadata_block_picture"] = [vcomment_value]
-
-    return audio_file
-
-
-AVAILABLE_FORMATS = {
-    "mp3": set_id3_mp3,
-    "flac": set_id3_flac,
-    "opus": set_id3_opus,
-    "ogg": set_id3_ogg,
-    "m4a": set_id3_m4a,
+TAG_TO_SONG = {
+    "title": "name",
+    "artist": "artists",
+    "album": "album_name",
+    "albumartist": "album_artist",
+    "genre": "genres",
+    "discnumber": "disc_number",
+    "year": "year",
+    "date": "date",
+    "tracknumber": "track_number",
+    "encodedby": "publisher",
+    "woas": "url",
+    "copyright": "copyright_text",
+    "lyrics": "lyrics",
 }
 
+M4A_TO_SONG = {
+    value: TAG_TO_SONG.get(key)
+    for key, value in M4A_TAG_PRESET.items()
+    if TAG_TO_SONG.get(key)
+}
+MP3_TO_SONG = {
+    value: TAG_TO_SONG.get(key)
+    for key, value in MP3_TAG_PRESET.items()
+    if TAG_TO_SONG.get(key)
+}
 
-def embed_metadata(output_file: Path, song: Song, file_format: str) -> None:
+LRC_REGEX = re.compile(r"(\[\d{2}:\d{2}.\d{2,3}\])")
+
+
+def embed_metadata(output_file: Path, song: Song, id3_separator: str = "/"):
     """
-    Embeds metadata into the output file.
+    Set ID3 tags for generic files (FLAC, OPUS, OGG)
 
     ### Arguments
     - output_file: Path to the output file.
     - song: Song object.
-    - file_format: File format of the output file.
     """
 
-    function = AVAILABLE_FORMATS.get(file_format)
-    if function:
-        function(output_file, song)
+    # Get the file extension for the output file
+    encoding = output_file.suffix[1:]
+
+    # Get the tag preset for the file extension
+    tag_preset = TAG_PRESET if encoding != "m4a" else M4A_TAG_PRESET
+
+    try:
+        audio_file = File(str(output_file.resolve()), easy=(encoding == "mp3"))
+
+        if audio_file is None:
+            raise MetadataError(
+                f"Unrecognized file format for {output_file} from {song.url}"
+            )
+    except Exception as exc:
+        raise MetadataError("Unable to load file.") from exc
+
+    # Embed basic metadata
+    audio_file[tag_preset["artist"]] = song.artists
+    audio_file[tag_preset["albumartist"]] = song.artist
+    audio_file[tag_preset["title"]] = song.name
+    audio_file[tag_preset["date"]] = song.date
+    audio_file[tag_preset["originaldate"]] = song.date
+    audio_file[tag_preset["encodedby"]] = song.publisher
+
+    # Embed metadata that isn't always present
+    album_name = song.album_name
+    if album_name:
+        audio_file[tag_preset["album"]] = album_name
+
+    if len(song.genres) > 0:
+        audio_file[tag_preset["genre"]] = [genre.title() for genre in song.genres]
+
+    if song.copyright_text:
+        audio_file[tag_preset["copyright"]] = song.copyright_text
+
+    if song.download_url and encoding != "mp3":
+        audio_file[tag_preset["comment"]] = song.download_url
+
+    # Embed some metadata in format specific ways
+    if encoding in ["flac", "ogg", "opus"]:
+        # Zero fill the disc and track numbers
+        zfilled_disc_number = str(song.disc_number).zfill(len(str(song.disc_count)))
+        zfilled_track_number = str(song.track_number).zfill(len(str(song.tracks_count)))
+
+        audio_file[tag_preset["discnumber"]] = zfilled_disc_number
+        audio_file[tag_preset["tracknumber"]] = zfilled_track_number
+        audio_file[tag_preset["woas"]] = song.url
+    elif encoding == "m4a":
+        audio_file[tag_preset["discnumber"]] = [(song.disc_number, song.disc_count)]
+        audio_file[tag_preset["tracknumber"]] = [(song.track_number, song.tracks_count)]
+        audio_file[tag_preset["explicit"]] = (4 if song.explicit is True else 2,)
+        audio_file[tag_preset["woas"]] = song.url.encode("utf-8")
+    elif encoding == "mp3":
+        audio_file["tracknumber"] = f"{str(song.track_number)}/{str(song.tracks_count)}"
+        audio_file["discnumber"] = f"{str(song.disc_number)}/{str(song.disc_count)}"
+
+    # Mp3 specific encoding
+    if encoding == "mp3":
+        if id3_separator != "/":
+            audio_file.save(v23_sep=id3_separator, v2_version=3)
+        else:
+            audio_file.save()
+
+        audio_file = ID3(str(output_file.resolve()))
+
+        audio_file.add(WOAS(encoding=3, url=song.url))
+
+        if song.download_url:
+            audio_file.add(COMM(encoding=3, text=song.download_url))
+
+    # Embed album art
+    audio_file = embed_cover(audio_file, song, encoding)
+
+    # Embed lyrics
+    audio_file = embed_lyrics(audio_file, song, encoding)
+
+    audio_file.save()
 
 
-def get_song_metadata(path: Path) -> Optional[Dict[str, Any]]:
+def embed_cover(audio_file, song: Song, encoding: str):
+    """
+    Embed the album art in the audio file.
+
+    ### Arguments
+    - audio_file: Audio file object.
+    - song: Song object.
+    """
+
+    if not song.cover_url:
+        return audio_file
+
+    # Try to download the cover art
+    try:
+        cover_data = requests.get(song.cover_url, timeout=10).content
+    except Exception:
+        return audio_file
+
+    # Create the image object for the file type
+    if encoding in ["flac", "ogg", "opus"]:
+        picture = Picture()
+        picture.type = 3
+        picture.desc = "Cover"
+        picture.mime = "image/jpeg"
+        picture.data = cover_data
+
+        if encoding in ["ogg", "opus"]:
+            image_data = picture.write()
+            encoded_data = base64.b64encode(image_data)
+            vcomment_value = encoded_data.decode("ascii")
+            audio_file["metadata_block_picture"] = [vcomment_value]
+        elif encoding == "flac":
+            audio_file.add_picture(picture)
+    elif encoding == "m4a":
+        audio_file[M4A_TAG_PRESET["albumart"]] = [
+            MP4Cover(
+                cover_data,
+                imageformat=MP4Cover.FORMAT_JPEG,
+            )
+        ]
+    elif encoding == "mp3":
+        audio_file["APIC"] = APIC(
+            encoding=3,
+            mime="image/jpeg",
+            type=3,
+            desc="Cover",
+            data=cover_data,
+        )
+
+    return audio_file
+
+
+def embed_lyrics(audio_file, song: Song, encoding: str):
+    """
+    Detect lyrics type (lrc or txt) and embed them in the audio file.
+
+    ### Arguments
+    - audio_file: Audio file object.
+    - song: Song object.
+    - encoding: Encoding type.
+    """
+
+    lyrics = song.lyrics
+    if not lyrics:
+        return audio_file
+
+    tag_preset = TAG_PRESET if encoding != "m4a" else M4A_TAG_PRESET
+
+    if encoding == "mp3":
+        audio_file.add(USLT(encoding=3, text=song.lyrics))
+    else:
+        audio_file[tag_preset["lyrics"]] = song.lyrics
+
+    # Check if the lyrics are in lrc format
+    # using regex on the first 5 lines
+    # lrc_lines = lyrics.splitlines()[:5]
+    # lrc_lines = [line for line in lrc_lines if line and LRC_REGEX.match(line)]
+
+    # if len(lrc_lines) == 0:
+    #     # Lyrics are not in lrc format
+    #     # Embed them normally
+    #     if encoding == "mp3":
+    #         audio_file.add(USLT(encoding=3, text=song.lyrics))
+    #     else:
+    #         audio_file[tag_preset["lyrics"]] = song.lyrics
+    # else:
+    #     # Lyrics are in lrc format
+    #     # Embed them as SYLT id3 tag
+    #     if encoding == "mp3":
+    #         lrc_data = []
+    #         for line in lyrics.splitlines():
+    #             time_tag = line.split("]", 1)[0] + "]"
+    #             text = line.replace(time_tag, "")
+
+    #             time_tag = time_tag.replace("[", "")
+    #             time_tag = time_tag.replace("]", "")
+    #             time_tag = time_tag.replace(".", ":")
+    #             minute, sec, millisecond = time_tag.split(":")
+    #             time = to_ms(min=minute, sec=sec, ms=millisecond)
+    #             lrc_data.append((text, time))
+
+    #         audio_file.add(SYLT(encoding=3, text=lrc_data, format=1, type=1))
+    #     else:
+    #         audio_file[tag_preset["lyrics"]] = song.lyrics
+
+    return audio_file
+
+
+def get_file_metadata(path: Path) -> Optional[Dict[str, Any]]:
     """
     Get song metadata.
 
@@ -357,7 +332,7 @@ def get_song_metadata(path: Path) -> Optional[Dict[str, Any]]:
     - path: Path to the song.
 
     ### Returns
-    - Tuple containing the song name and a dict with other metadata.
+    - Dict of song metadata.
 
     ### Raises
     - OSError: If the file is not found.
@@ -367,16 +342,92 @@ def get_song_metadata(path: Path) -> Optional[Dict[str, Any]]:
     if path.exists() is False:
         raise OSError(f"File not found: {path}")
 
-    audio_file = File(str(path.resolve()), easy=True)
+    audio_file = File(str(path.resolve()))
 
     if audio_file is None or audio_file == {}:
         return None
 
-    song_meta = {}
+    song_meta: Dict[str, Any] = {}
     for key in TAG_PRESET:
-        song_meta[key] = audio_file.get(key)
+        if path.suffix == ".m4a":
+            val = audio_file.get(M4A_TAG_PRESET[key])
+        elif path.suffix == ".mp3":
+            val = audio_file.get(MP3_TAG_PRESET[key])
+        else:
+            val = audio_file.get(key)
 
-    if path.suffix == ".mp3":
-        song_meta["lyrics"] = audio_file.get("USLT::'eng'")
+        # If the tag is empty, skip it
+        if val is None:
+            # If the tag is empty but it's key is in the
+            # song object, set it to None
+            empty_key = TAG_TO_SONG.get(key)
+            if empty_key:
+                song_meta[empty_key] = None
+
+            continue
+
+        # MP3 specific decoding
+        if path.suffix == ".mp3":
+            if key == "woas":
+                song_meta["url"] = val.url
+            elif key == "year":
+                song_meta["year"] = int(str(val.text[0])[:4])
+            elif key == "date":
+                song_meta["date"] = str(val.text[0])
+            elif key == "tracknumber":
+                count = val.text[0].split("/")
+                if len(count) == 2:
+                    song_meta["track_number"] = int(count[0])
+                    song_meta["tracks_count"] = int(count[1])
+                else:
+                    song_meta["track_number"] = val.text[0]
+            elif key == "discnumber":
+                count = val.text[0].split("/")
+                if len(count) == 2:
+                    song_meta["disc_number"] = int(count[0])
+                    song_meta["disc_count"] = int(count[1])
+                else:
+                    song_meta["disc_number"] = val.text[0]
+            else:
+                meta_key = TAG_TO_SONG.get(key)
+                if meta_key:
+                    song_meta[meta_key] = (
+                        val.text[0] if len(val.text) == 1 else val.text
+                    )
+
+        # M4A specific decoding
+        elif path.suffix == ".m4a":
+            if key == "woas":
+                song_meta["url"] = val[0].decode("utf-8")
+            elif key == "explicit":
+                song_meta["explicit"] = val == [4] if val else None
+            elif key == "year":
+                song_meta["year"] = int(str(val[0])[:4])
+            elif key == "discnumber":
+                song_meta["disc_number"] = val[0][0]
+                song_meta["disc_count"] = val[0][1]
+            elif key == "tracknumber":
+                song_meta["track_number"] = val[0][0]
+                song_meta["tracks_count"] = val[0][1]
+            else:
+                meta_key = TAG_TO_SONG.get(key)
+                if meta_key:
+                    song_meta[meta_key] = val[0] if len(val) == 1 else val
+
+        # FLAC, OGG, OPUS specific decoding
+        else:
+            if key == "originaldate":
+                song_meta["year"] = int(str(val[0])[:4])
+            elif key == "tracknumber":
+                song_meta["track_number"] = int(val[0])
+            elif key == "discnumber":
+                song_meta["disc_count"] = int(val[0])
+            else:
+                meta_key = TAG_TO_SONG.get(key)
+                if meta_key:
+                    song_meta[meta_key] = val[0] if len(val) == 1 else val
+
+    # Add main artist to the song meta object
+    song_meta["artist"] = song_meta["artists"][0]
 
     return song_meta

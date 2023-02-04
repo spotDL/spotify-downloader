@@ -2,11 +2,11 @@ import pytest
 
 from spotdl import _version
 from spotdl.utils.github import (
+    WEB_APP_URL,
     check_for_updates,
     create_github_url,
     download_github_dir,
     get_status,
-    WEB_APP_URL,
 )
 
 

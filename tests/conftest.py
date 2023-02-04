@@ -1,8 +1,8 @@
-import pytest
-import subprocess
 import re
-
+import subprocess
 from pathlib import Path
+
+import pytest
 
 from spotdl.download.downloader import Downloader
 from spotdl.utils import ffmpeg
@@ -47,7 +47,8 @@ def new_initialize(
     user_auth=False,
     cache_path=None,
     no_cache=True,
-    open_browser=False,
+    headless=True,
+    max_retries=3,
 ):
     """This function allows calling `initialize()` multiple times"""
     try:
@@ -59,8 +60,9 @@ def new_initialize(
             auth_token=auth_token,
             user_auth=user_auth,
             cache_path=cache_path,
-            no_cache=True,
-            open_browser=open_browser,
+            no_cache=no_cache,
+            headless=headless,
+            max_retries=max_retries,
         )
 
 

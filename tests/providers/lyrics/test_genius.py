@@ -1,5 +1,4 @@
 import pytest
-
 from rapidfuzz import fuzz
 
 from spotdl.providers.lyrics.genius import Genius

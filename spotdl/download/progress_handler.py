@@ -3,77 +3,32 @@ Module that holds the ProgressHandler class and Song Tracker class.
 """
 
 import logging
+from typing import Any, Callable, Dict, List, Optional
 
-from typing import Any, Callable, Dict, Optional, List
-
-from rich.text import Text
-from rich.theme import Theme
-from rich.progress import Task
-from rich.console import Console
-from rich.style import StyleType
+from rich import get_console
+from rich.console import JustifyMethod, OverflowMethod
 from rich.highlighter import Highlighter
 from rich.progress import (
     BarColumn,
-    TimeRemainingColumn,
     Progress,
     ProgressColumn,
+    Task,
     TaskID,
+    TimeRemainingColumn,
 )
-from rich.console import (
-    JustifyMethod,
-    detect_legacy_windows,
-    OverflowMethod,
-)
+from rich.style import StyleType
+from rich.text import Text
 
 from spotdl.types.song import Song
 
-# https://github.com/python/cpython/blob/3.10/Lib/logging/__init__.py
-CRITICAL = 50
-FATAL = CRITICAL
-ERROR = 40
-WARNING = 30
-WARN = WARNING
-INFO = 20
-DEBUG = 10
-NOTSET = 0
+__all__ = [
+    "ProgressHandler",
+    "SongTracker",
+    "ProgressHandlerError",
+    "SizedTextColumn",
+]
 
-LEVEL_TO_NAME = {
-    CRITICAL: "CRITICAL",
-    ERROR: "ERROR",
-    WARNING: "WARNING",
-    INFO: "INFO",
-    DEBUG: "DEBUG",
-    NOTSET: "NOTSET",
-}
-
-NAME_TO_LEVEL = {
-    "CRITICAL": CRITICAL,
-    "FATAL": FATAL,
-    "ERROR": ERROR,
-    "WARN": WARNING,
-    "WARNING": WARNING,
-    "INFO": INFO,
-    "DEBUG": DEBUG,
-    "NOTSET": NOTSET,
-}
-
-THEME = Theme(
-    {
-        "bar.back": "grey23",
-        "bar.complete": "rgb(165,66,129)",
-        "bar.finished": "rgb(114,156,31)",
-        "bar.pulse": "rgb(165,66,129)",
-        "general": "green",
-        "nonimportant": "rgb(40,100,40)",
-        "progress.data.speed": "red",
-        "progress.description": "none",
-        "progress.download": "green",
-        "progress.filesize": "green",
-        "progress.filesize.total": "green",
-        "progress.percentage": "green",
-        "progress.remaining": "rgb(40,100,40)",
-    }
-)
+logger = logging.getLogger(__name__)
 
 
 class ProgressHandlerError(Exception):
@@ -149,15 +104,14 @@ class ProgressHandler:
 
     def __init__(
         self,
-        log_level: int = INFO,
         simple_tui: bool = False,
         update_callback: Optional[Callable[[Any, str], None]] = None,
+        web_ui: bool = False,
     ):
         """
         Initialize the progress handler.
 
         ### Arguments
-        - log_level: The log level to use.
         - simple_tui: Whether or not to use the simple TUI.
         - update_callback: A callback to call when the progress bar is updated.
         """
@@ -170,29 +124,19 @@ class ProgressHandler:
         self.update_callback = update_callback
         self.previous_overall = self.overall_completed_tasks
 
-        if log_level not in LEVEL_TO_NAME:
-            raise ProgressHandlerError(f"Invalid log level: {log_level}")
-
-        self.log_level = log_level
         self.simple_tui = simple_tui
-        self.quiet = self.log_level < 10
+        self.web_ui = web_ui
+        self.quiet = logger.getEffectiveLevel() < 10
         self.overall_task_id: Optional[TaskID] = None
 
         if not self.simple_tui:
-            # Change color system if "legacy" windows terminal to prevent wrong colors displaying
-            self.is_legacy = detect_legacy_windows()
-
-            # dumb_terminals automatically handled by rich. Color system is too but it is incorrect
-            # for legacy windows ... so no color for y'all.
-            self.console = Console(
-                theme=THEME, color_system="truecolor" if not self.is_legacy else None
-            )
+            console = get_console()
 
             self.rich_progress_bar = Progress(
                 SizedTextColumn(
                     "[white]{task.description}",
                     overflow="ellipsis",
-                    width=int(self.console.width / 3),
+                    width=int(console.width / 3),
                 ),
                 SizedTextColumn(
                     "{task.fields[message]}", width=18, style="nonimportant"
@@ -200,22 +144,15 @@ class ProgressHandler:
                 BarColumn(bar_width=None, finished_style="green"),
                 "[progress.percentage]{task.percentage:>3.0f}%",
                 TimeRemainingColumn(),
-                console=self.console,
                 # Normally when you exit the progress context manager (or call stop())
                 # the last refreshed display remains in the terminal with the cursor on
                 # the following line. You can also make the progress display disappear on
                 # exit by setting transient=True on the Progress constructor
-                transient=self.is_legacy,
+                transient=True,
             )
 
             # Basically a wrapper for rich's: with ... as ...
             self.rich_progress_bar.__enter__()
-        else:
-            logging.basicConfig(
-                format="%(asctime)s - %(levelname)s - %(message)s",
-                datefmt="%H:%M:%S",
-                level=self.log_level,
-            )
 
     def add_song(self, song: Song) -> None:
         """
@@ -262,70 +199,6 @@ class ProgressHandler:
                     visible=(not self.quiet),
                 )
 
-    def debug(self, message: str) -> None:
-        """
-        Debug message.
-
-        ### Arguments
-        - message: The message to log.
-        """
-
-        if not self.simple_tui:
-            if self.log_level > DEBUG:
-                return
-
-            self.rich_progress_bar.console.print(f"[blue]{message}")
-        else:
-            logging.debug(message)
-
-    def log(self, message: str) -> None:
-        """
-        Log message.
-
-        ### Arguments
-        - message: The message to log.
-        """
-
-        if not self.simple_tui:
-            if self.log_level > INFO:
-                return
-
-            self.rich_progress_bar.console.print(f"[green]{message}")
-        else:
-            logging.info(message)
-
-    def warn(self, message: str) -> None:
-        """
-        Warning message.
-
-        ### Arguments
-        - message: The message to log.
-        """
-
-        if not self.simple_tui:
-            if self.log_level > WARNING:
-                return
-
-            self.rich_progress_bar.console.print(f"[yellow]{message}")
-        else:
-            logging.warning(message)
-
-    def error(self, message: str) -> None:
-        """
-        Error message.
-
-        ### Arguments
-        - message: The message to log.
-        """
-
-        if not self.simple_tui:
-            if self.log_level > ERROR:
-                return
-
-            self.rich_progress_bar.console.print(f"[red]{message}")
-        else:
-            logging.error(message)
-
     def update_overall(self) -> None:
         """
         Update the overall progress bar.
@@ -343,7 +216,7 @@ class ProgressHandler:
                 )
         else:
             if self.previous_overall != self.overall_completed_tasks:
-                logging.info(
+                logger.info(
                     "%s/%s complete", self.overall_completed_tasks, self.song_count
                 )
                 self.previous_overall = self.overall_completed_tasks
@@ -368,8 +241,8 @@ class ProgressHandler:
 
         if not self.simple_tui:
             self.rich_progress_bar.stop()
-        else:
-            logging.shutdown()
+
+        logging.shutdown()
 
 
 class SongTracker:
@@ -392,7 +265,7 @@ class SongTracker:
         # from weird unicode characters
         self.song_name = "".join(
             char
-            for char in self.song.name
+            for char in self.song.display_name
             if char not in [chr(i) for i in range(769, 880)]
         )
 
@@ -402,7 +275,7 @@ class SongTracker:
 
         if not self.parent.simple_tui:
             self.task_id = self.parent.rich_progress_bar.add_task(
-                description=song.display_name,
+                description=self.song_name,
                 message="Download Started",
                 total=100,
                 completed=self.progress,
@@ -418,6 +291,7 @@ class SongTracker:
         - message: The message to display.
         """
 
+        old_message = self.status
         self.status = message
 
         # The change in progress since last update
@@ -429,7 +303,7 @@ class SongTracker:
             self.parent.rich_progress_bar.start_task(self.task_id)
             self.parent.rich_progress_bar.update(
                 self.task_id,
-                description=self.song.display_name,
+                description=self.song_name,
                 message=message,
                 completed=self.progress,
             )
@@ -442,8 +316,13 @@ class SongTracker:
             # If task is complete
             if self.progress == 100 or message == "Error":
                 self.parent.overall_completed_tasks += 1
-            if delta:
-                self.parent.log(f"{self.song.name} - {self.song.artist}: {message}")
+
+            # When running web ui print progress
+            # only one time when downloading/converting/embedding
+            if self.parent.web_ui and old_message != self.status:
+                logger.info("%s: %s", self.song_name, message)
+            elif not self.parent.web_ui and delta:
+                logger.info("%s: %s", self.song_name, message)
 
         # Update the overall progress bar
         if self.parent.song_count == self.parent.overall_completed_tasks:
@@ -473,8 +352,10 @@ class SongTracker:
         if finish:
             self.progress = 100
 
-        self.parent.debug(message)
-        self.parent.error(f"{traceback.__class__.__name__}: {traceback}")
+        if logger.getEffectiveLevel() == logging.DEBUG:
+            logger.exception(message)
+        else:
+            logger.error("%s: %s", traceback.__class__.__name__, traceback)
 
     def notify_download_complete(self, status="Converting") -> None:
         """
@@ -528,10 +409,10 @@ class SongTracker:
         - progress: The progress to update to.
         """
 
-        if not self.parent.simple_tui:
-            self.progress = 50 + int(progress * 0.45)
-        else:
+        if self.parent.simple_tui and not self.parent.web_ui:
             self.progress = 50
+        else:
+            self.progress = 50 + int(progress * 0.45)
 
         self.update("Converting")
 
@@ -547,7 +428,7 @@ class SongTracker:
             file_bytes = data["total_bytes"]
             downloaded_bytes = data["downloaded_bytes"]
 
-            if self.parent.simple_tui:
+            if self.parent.simple_tui and not self.parent.web_ui:
                 self.progress = 50
             elif file_bytes and downloaded_bytes:
                 self.progress = downloaded_bytes / file_bytes * 50

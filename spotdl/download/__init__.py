@@ -1,5 +1,3 @@
 """
-Download module that holds the downloader and progress handler classes.
+Download module that holds the downloader and progress handler modules.
 """
-
-from spotdl.download.downloader import Downloader

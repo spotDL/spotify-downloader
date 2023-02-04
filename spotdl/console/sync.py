@@ -3,23 +3,23 @@ Sync module for the console.
 """
 
 import json
-
-from pathlib import Path
-from typing import List, Optional
+import logging
+from typing import List
 
 from spotdl.download.downloader import Downloader
-from spotdl.utils.search import parse_query
+from spotdl.types.song import Song
 from spotdl.utils.formatter import create_file_name
 from spotdl.utils.m3u import gen_m3u_files
-from spotdl.types.song import Song
+from spotdl.utils.search import parse_query
+
+__all__ = ["sync"]
+
+logger = logging.getLogger(__name__)
 
 
 def sync(
     query: List[str],
     downloader: Downloader,
-    save_path: Optional[Path] = None,
-    m3u_file: Optional[str] = None,
-    **_,
 ) -> None:
     """
     Sync function for the console.
@@ -30,11 +30,13 @@ def sync(
     ### Arguments
     - query: list of strings to search for.
     - downloader: Already initialized downloader instance.
-    - save_path: Path to save the songs to.
-    - m3u_file: Path to the file to save the metadata to.
     """
 
-    downloader.save_file = None
+    save_path = downloader.settings["save_file"]
+    downloader.settings["save_file"] = None
+
+    m3u_file = downloader.settings["m3u"]
+    downloader.settings["m3u"] = None
 
     # Query and save file
     # Create initial sync file
@@ -47,7 +49,7 @@ def sync(
             )
 
         # Parse the query
-        songs_list = parse_query(query, downloader.threads)
+        songs_list = parse_query(query, downloader.settings["threads"])
 
         # Create sync file
         with open(save_path, "w", encoding="utf-8") as save_file:
@@ -68,11 +70,10 @@ def sync(
         # Create m3u file
         if m3u_file:
             gen_m3u_files(
-                query,
-                m3u_file,
                 songs_list,
-                downloader.output,
-                downloader.output_format,
+                m3u_file,
+                downloader.settings["output"],
+                downloader.settings["format"],
                 False,
             )
 
@@ -89,60 +90,44 @@ def sync(
             raise ValueError("Sync file is not a valid sync file.")
 
         # Parse the query
-        new_songs = parse_query(sync_data["query"], downloader.threads)
-        new_files = [
-            create_file_name(song, downloader.output, downloader.output_format)
-            for song in new_songs
-        ]
+        songs_playlist = parse_query(sync_data["query"], downloader.settings["threads"])
 
-        # Get all the old files based on the songs from sync file
-        old_songs = [Song.from_dict(song) for song in sync_data["songs"]]
-        old_files = [
-            create_file_name(song, downloader.output, downloader.output_format)
-            for song in old_songs
-        ]
-
-        # Get all files that are no longer in the song lists
-        to_delete = set(old_files) - set(new_files)
-
-        # Get all files that are new and have to be downloaded
-        to_download = []
-        for song in new_songs:
-            song_path = create_file_name(
-                song, downloader.output, downloader.output_format
+        # Get the names and URLs of previously downloaded songs from the sync file
+        old_files = []
+        for entry in sync_data["songs"]:
+            file_name = create_file_name(
+                Song.from_dict(entry),
+                downloader.settings["output"],
+                downloader.settings["format"],
             )
+            old_files.append((file_name, entry["url"]))
 
-            # Skip the songs that are already downloaded
-            if Path(song_path).exists():
-                # Add the song to the to_download list
-                # if overwrite is set to force
-                if downloader.overwrite == "force":
-                    downloader.progress_handler.log(f"Overwriting {song.display_name}")
-                    to_download.append(song)
-            else:
-                # Add the song to the to_download list
-                to_download.append(song)
+        new_urls = [song.url for song in songs_playlist]
 
-        downloader.progress_handler.log(
-            f"Found {len(to_download)} songs to download and {len(to_delete)} files to delete."
-        )
+        # Delete all song files whose URL is no longer part of the latest playlist
+        to_delete = [path for (path, url) in old_files if url not in new_urls]
 
-        # Delete all files that are no longer in the song lists
         for file in to_delete:
             if file.exists():
-                file.unlink()
-                downloader.progress_handler.log(f"Removed {file}")
+                logger.info("Deleting %s", file)
+                try:
+                    file.unlink()
+                except (PermissionError, OSError) as exc:
+                    logger.debug("Could not remove temp file: %s, error: %s", file, exc)
             else:
-                downloader.progress_handler.debug(f"{file} does not exist.")
+                logger.debug("%s does not exist.", file)
 
-        # Create m3u file
+        if len(to_delete) == 0:
+            logger.info("Nothing to delete...")
+        else:
+            logger.info("%s old songs were deleted.", len(to_delete))
+
         if m3u_file:
             gen_m3u_files(
-                sync_data["query"],
+                songs_playlist,
                 m3u_file,
-                new_songs,
-                downloader.output,
-                downloader.output_format,
+                downloader.settings["output"],
+                downloader.settings["format"],
                 False,
             )
 
@@ -152,18 +137,14 @@ def sync(
                 {
                     "type": "sync",
                     "query": sync_data["query"],
-                    "songs": [song.json for song in new_songs],
+                    "songs": [song.json for song in songs_playlist],
                 },
                 save_file,
                 indent=4,
                 ensure_ascii=False,
             )
 
-        if len(to_download) == 0:
-            downloader.progress_handler.log("Nothing to do...")
-            return None
-
-        downloader.download_multiple_songs(to_download)
+        downloader.download_multiple_songs(songs_playlist)
 
         return None
 

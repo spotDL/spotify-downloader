@@ -1,13 +1,8 @@
 import pytest
 
 from spotdl.types.saved import SavedError
-from spotdl.utils.search import (
-    parse_query,
-    get_search_results,
-    create_empty_song,
-    get_simple_songs,
-)
-
+from spotdl.types.song import Song
+from spotdl.utils.search import get_search_results, get_simple_songs, parse_query
 
 SONG = ["https://open.spotify.com/track/2Ikdgh3J5vCRmnCL3Xcrtv"]
 PLAYLIST = ["https://open.spotify.com/playlist/78Lg6HmUqlTnmipvNxc536"]
@@ -69,7 +64,6 @@ def test_parse_saved():
         parse_query(SAVED)
 
 
-@pytest.mark.vcr()
 def test_parse_query():
     songs = parse_query(QUERY)
 
@@ -83,7 +77,7 @@ def test_get_search_results():
 
 
 def test_create_empty_song():
-    song = create_empty_song("test")
+    song = Song.from_missing_data(name="test")
     assert song.name == "test"
     assert song.url == None
     assert song.download_url == None
