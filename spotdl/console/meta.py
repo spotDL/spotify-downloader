@@ -103,9 +103,7 @@ def meta(query: List[str], downloader: Downloader) -> None:
             # Therefore it has to be called in a separate thread via ThreadPoolExecutor. This
             # is not a problem, since GIL is released for the I/O operations, so it shouldn't
             # hurt performance.
-            await downloader.loop.run_in_executor(
-                downloader.thread_executor, process_file, file_path
-            )
+            await downloader.loop.run_in_executor(None, process_file, file_path)
 
     tasks = [pool_worker(path) for path in paths]
 

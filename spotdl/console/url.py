@@ -52,9 +52,7 @@ def url(
             # Therefore it has to be called in a separate thread via ThreadPoolExecutor. This
             # is not a problem, since GIL is released for the I/O operations, so it shouldn't
             # hurt performance.
-            return await downloader.loop.run_in_executor(
-                downloader.thread_executor, process_song, song
-            )
+            return await downloader.loop.run_in_executor(None, process_song, song)
 
     tasks = [pool_worker(song) for song in songs]
     downloader.loop.run_until_complete(asyncio.gather(*tasks))
