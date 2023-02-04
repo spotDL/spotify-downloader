@@ -3,7 +3,6 @@ Downloader module, this is where all the downloading pre/post processing happens
 """
 
 import asyncio
-import concurrent.futures
 import datetime
 import json
 import logging
