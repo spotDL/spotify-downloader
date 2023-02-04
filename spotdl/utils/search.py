@@ -99,7 +99,7 @@ def get_simple_songs(
     songs: List[Song] = []
     lists: List[SongList] = []
     for request in query:
-        logger.debug("Processing query: %s", request)
+        logger.info("Processing query: %s", request)
 
         if (
             ("youtube.com/watch?v=" in request or "youtu.be/" in request)
