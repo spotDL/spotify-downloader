@@ -7,12 +7,15 @@ import pytest
 from spotdl.download.downloader import Downloader
 from spotdl.utils import ffmpeg
 from spotdl.utils.spotify import SpotifyClient
+from spotdl.utils.logging import init_logging
 
 ORIGINAL_INITIALIZE = SpotifyClient.init
 
 SpotifyClient.init(
     "5f573c9620494bae87890c0f08a60293", "212476d9b0f3472eaa762d90b19b0ba8"
 )
+
+init_logging("MATCH")
 
 
 class FakeProcess:
