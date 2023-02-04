@@ -110,13 +110,6 @@ class AudioProvider:
             }
         )
 
-        logger.debug("Initialized audio provider %s", self.name)
-        logger.debug("Output format: %s", self.output_format)
-        logger.debug("Cookie file: %s", self.cookie_file)
-        logger.debug("Search query: %s", self.search_query)
-        logger.debug("Filter results: %s", self.filter_results)
-        logger.debug("YTDL format: %s", ytdl_format)
-
     def get_results(self, search_term: str, **kwargs) -> List[Result]:
         """
         Get results from audio provider.
