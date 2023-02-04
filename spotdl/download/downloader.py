@@ -142,11 +142,6 @@ class Downloader:
         # semaphore is required to limit concurrent asyncio executions
         self.semaphore = asyncio.Semaphore(self.settings["threads"])
 
-        # thread pool executor is used to run blocking (CPU-bound) code from a thread
-        self.thread_executor = concurrent.futures.ThreadPoolExecutor(
-            max_workers=self.settings["threads"]
-        )
-
         self.progress_handler = ProgressHandler(self.settings["simple_tui"])
 
         # Gather already present songs
@@ -310,13 +305,7 @@ class Downloader:
         # tasks that cannot acquire semaphore will wait here until it's free
         # only certain amount of tasks can acquire the semaphore at the same time
         async with self.semaphore:
-            # The following function calls blocking code, which would block whole event loop.
-            # Therefore, it has to be called in a separate thread via ThreadPoolExecutor. This
-            # is not a problem, since GIL is released for the I/O operations, so it shouldn't
-            # hurt performance.
-            return await self.loop.run_in_executor(
-                self.thread_executor, self.search_and_download, song
-            )
+            return await self.loop.run_in_executor(None, self.search_and_download, song)
 
     def search(self, song: Song) -> str:
         """
