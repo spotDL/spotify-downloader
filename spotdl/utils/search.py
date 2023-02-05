@@ -220,7 +220,7 @@ def get_simple_songs(
     return songs
 
 
-def songs_from_albums(alubms: List[str]):
+def songs_from_albums(albums: List[str]):
     """
     Get all songs from albums ids/urls/etc.
 
@@ -232,7 +232,7 @@ def songs_from_albums(alubms: List[str]):
     """
 
     songs = []
-    for album_id in alubms:
+    for album_id in albums:
         album = Album.from_url(album_id, fetch_songs=False)
 
         for song in album.songs:
