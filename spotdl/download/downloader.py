@@ -568,12 +568,21 @@ class Downloader:
 
             display_progress_tracker.notify_download_complete()
 
+            print(download_info["url"])
+
             # Ignore the bitrate if the bitrate is set to auto for m4a/opus
             # or if bitrate is set to disabled
             if self.settings["bitrate"] == "disable":
                 bitrate = None
             elif self.settings["bitrate"] == "auto" or self.settings["bitrate"] is None:
-                bitrate = f"{int(download_info['abr'])}k"
+                # Ignore the bitrate if the input and output formats are the same
+                # and the input format is m4a/opus
+                if (temp_file.suffix == ".m4a" and output_file.suffix == ".m4a") or (
+                    temp_file.suffix == ".opus" and output_file.suffix == ".opus"
+                ):
+                    bitrate = None
+                else:
+                    bitrate = f"{int(download_info['abr'])}k"
             else:
                 bitrate = str(self.settings["bitrate"])
 

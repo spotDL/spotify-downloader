@@ -179,7 +179,7 @@ def parse_spotify_options(parser: _ArgumentGroup):
     # Add auth token argument
     parser.add_argument(
         "--auth-token",
-        help="The authorisation token to use directly to log in to Spotify.",
+        help="The authorization token to use directly to log in to Spotify.",
         type=str,
     )
 
@@ -265,7 +265,7 @@ def parse_ffmpeg_options(parser: _ArgumentGroup):
             "Values from 0 to 9 are variable bitrates. "
             "Auto will use the bitrate of the original file. "
             "Disable will disable the bitrate option. "
-            "(In case of m4a and opus files, this option will skip the conversion)"
+            "(In case of m4a and opus files, auto and disable will skip the conversion)"
         ),
     )
 
