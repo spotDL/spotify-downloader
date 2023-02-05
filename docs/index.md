@@ -104,7 +104,7 @@ python -m spotdl [urls]
 Our app downloads music from YouTube as a source for music downloads. This method is used to avoid any issues related to downloading music from Spotify.
 
 > **Note**
-> Our use of YouTube as a source for music downloads is subject to their terms of service and copyright policies.
+> Users are responsible for their actions and potential legal consequences. We do not support unauthorized downloading of copyrighted material and take no responsibility for user actions.
 
 ### Audio quality
 

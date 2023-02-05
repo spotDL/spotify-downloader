@@ -93,13 +93,35 @@ example:
 spotdl download 'The Weeknd - Blinding Lights' https://open.spotify.com/playlist/37i9dQZF1E8UXBoz02kGID ...
 ```
 
+## Audio formats and quality
+
+### Preserving original audio
+
+### YouTube Music Premium
+
+YouTube Music Premium users can use their account to download songs with higher bitrate (256kbps).
+
+To download music in higher quality follow the steps below:
+
+1. Get cookies.txt for https://music.youtube.com.
+> You can use [Get cookies.txt extension](https://chrome.google.com/webstore/detail/get-cookiestxt/bgaddhkoddajcdgocldbbfleckgcbcid) for this.
+
+2. Add `--cookie-file cookies.txt` option to the SpotDL command line options
+> Replace cookies.txt with the actual name of your cookies file
+
+> **Note**
+> To get the best audio possible you should use **M4A**/**OPUS** audio format
+> with `--bitrate disable`
+
+
+
 
 ## Syncing
 
 Sync function for the console. Keep local files up to date with playlists/albums/etc.
 This will download new songs and remove the ones that are no longer present in the playlists/albums/etc
 
-??? info "Initialise Synchronisation"
+??? info "Initialize Synchronization"
     To create the sync file run
 
     ```bash
@@ -164,7 +186,7 @@ spotdl web
 
 ### Download location
 
-By default web ui downloads files to a special directory, to overwrite this behaviour
+By default web ui downloads files to a special directory, to overwrite this behavior
 add option `--web-use-output-dir` this will change to output directory back to `--output`
 
 ## Config file
@@ -294,7 +316,7 @@ Spotify options:
   --client-secret CLIENT_SECRET
                         The client secret to use when logging in to Spotify.
   --auth-token AUTH_TOKEN
-                        The authorisation token to use directly to log in to Spotify.
+                        The authorization token to use directly to log in to Spotify.
   --cache-path CACHE_PATH
                         The path where spotipy cache file will be stored.
   --no-cache            Disable caching (both requests and token).
