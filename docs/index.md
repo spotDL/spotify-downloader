@@ -2,6 +2,7 @@
 
 <!---
 !!! IF EDITING THE README, ENSURE TO COPY THE WHOLE FILE TO index.md in `/docs/`
+ALSO MAKE SURE TO REMOVE ANY HTML TAGS
 --->
 
 # spotDL v4
@@ -98,13 +99,18 @@ You can run _spotDL_ as a package if running it as a script doesn't work:
 python -m spotdl [urls]
 ```
 
-______________________________________________________________________
+## Music sourcing and audio quality
 
-### Further information can be found in our documentation
+Our app downloads music from YouTube as a source for music downloads. This method is used to avoid any issues related to downloading music from Spotify.
 
-**[Read the documentation on ReadTheDocs!](http://spotdl.rtfd.io/)**
+> **Note**
+> Our use of YouTube as a source for music downloads is subject to their terms of service and copyright policies.
 
-______________________________________________________________________
+### Audio quality
+
+Spotdl downloads music from YouTube and is designed to always download the highest possible bitrate, which is 128 kbps for regular users and 256 kbps for YouTube Music premium users.
+
+Check [Audio Formats](USAGE#audio-formats-and-quality) page for more info.
 
 ## Contributing
 
