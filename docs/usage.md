@@ -106,7 +106,7 @@ To download music in higher quality follow the steps below:
 1. Get cookies.txt for https://music.youtube.com.
 > You can use [Get cookies.txt extension](https://chrome.google.com/webstore/detail/get-cookiestxt/bgaddhkoddajcdgocldbbfleckgcbcid) for this.
 
-2. Add `--cookie-file cookies.txt` option to the SpotDL command line options
+2. Add `--cookie-file cookies.txt` option to your spotDL command line options
 > Replace cookies.txt with the actual name of your cookies file
 
 > **Note**
