@@ -99,7 +99,7 @@ spotdl download 'The Weeknd - Blinding Lights' https://open.spotify.com/playlist
 
 #### YouTube Music Premium
 
-YouTube Music Premium users can use their account to download songs with higher bitrate (256kbps).
+YouTube Music Premium users can use their account to download songs with a higher bitrate (256kbps).
 
 To download music in higher quality follow the steps below:
 
