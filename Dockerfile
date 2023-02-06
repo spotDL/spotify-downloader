@@ -15,7 +15,7 @@ RUN apk add --no-cache \
     zlib-dev
 
 # Install poetry and update pip/wheel
-RUN pip install --upgrade pip poetry wheel
+RUN pip install --upgrade pip poetry wheel spotipy
 
 # Copy requirements files
 COPY poetry.lock pyproject.toml /

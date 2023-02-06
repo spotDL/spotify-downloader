@@ -7,6 +7,7 @@ FastAPI routes/classes etc.
 import asyncio
 import logging
 import os
+from pathlib import Path
 from typing import Dict, Any, List, Optional
 
 import mimetypes
@@ -200,7 +201,7 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
 
             await asyncio.sleep(1)
 
-            # Wait 5 seconds before shutting down
+            # Wait 1 second before shutting down
             # This is to prevent the server from shutting down when a client
             # disconnects and reconnects quickly (e.g. when refreshing the page)
             if len(app_state.ws_instances) == 0:
@@ -270,9 +271,12 @@ async def download_url(
     - returns the file path if the song was downloaded.
     """
 
-    state.downloader.output = str(
-        (get_spotdl_path() / f"web/sessions/{client_id}").absolute()
-    )
+    if state.settings.get("web_use_output_dir", False):
+        state.downloader.output = state.settings["output"]
+    else:
+        state.downloader.output = str(
+            (get_spotdl_path() / f"web/sessions/{client_id}").absolute()
+        )
 
     ws_instance = WSProgressHandler.get_instance(client_id)
     if ws_instance is not None:
@@ -296,10 +300,7 @@ async def download_url(
                 status_code=500, detail=f"Error downloading: {song.name}"
             )
 
-        # Strip Filename
-        filename = os.path.basename(path)
-
-        return filename
+        return str(path.absolute())
 
     except Exception as exception:
         state.logger.error(f"Error downloading! {exception}")
@@ -310,7 +311,9 @@ async def download_url(
 
 
 @router.get("/api/download/file")
-async def download_file(file: str, client_id: str) -> FileResponse:
+async def download_file(
+    file: str, state: ApplicationState = Depends(get_current_state)
+):
     """
     Download file using path.
 
@@ -321,9 +324,18 @@ async def download_file(file: str, client_id: str) -> FileResponse:
     - returns the file response, filename specified to return as attachment.
     """
 
+    expected_path = str((get_spotdl_path() / "web/sessions").absolute())
+    if state.settings.get("web_use_output_dir", False):
+        expected_path = str(Path(state.settings["output"].split("{", 1)[0]).absolute())
+
+    if (not file.endswith(state.settings["format"])) or (
+        not file.startswith(expected_path)
+    ):
+        raise HTTPException(status_code=400, detail="Invalid download path.")
+
     return FileResponse(
-        str((get_spotdl_path() / f"web/sessions/{client_id}/{file}").absolute()),
-        filename=file,
+        file,
+        filename=os.path.basename(file),
     )
 
 
@@ -384,7 +396,6 @@ def update_settings(
         print_errors=settings_cpy["print_errors"],
         sponsor_block=settings_cpy["sponsor_block"],
         loop=state.loop,
-        preserve_original_audio=settings_cpy["preserve_original_audio"],
     )
 
     return settings_cpy

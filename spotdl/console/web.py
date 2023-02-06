@@ -83,7 +83,6 @@ def web(settings: Dict[str, Any]):
         print_errors=settings["print_errors"],
         sponsor_block=settings["sponsor_block"],
         loop=app_state.loop,
-        preserve_original_audio=settings["preserve_original_audio"],
     )
 
     app_state.api = FastAPI(

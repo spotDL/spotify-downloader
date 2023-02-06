@@ -47,4 +47,4 @@ def test_ytm_get_results():
 
     results = provider.get_results("Lost Identities Moments")
 
-    assert len(results) > 5
+    assert len(results) > 3

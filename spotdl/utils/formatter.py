@@ -9,10 +9,13 @@ import warnings
 
 from typing import List, Optional
 from pathlib import Path
-from slugify import slugify
+
+import pykakasi
+
+from slugify import slugify as py_slugify
 from yt_dlp.utils import sanitize_filename
 
-from spotdl.types import Song
+from spotdl.types.song import Song
 
 VARS = [
     "{title}",
@@ -36,6 +39,12 @@ VARS = [
     "{list-name}",
     "{output-ext}",
 ]
+
+KKS = pykakasi.kakasi()
+
+JAP_REGEX = (
+    "[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uff9f\u4e00-\u9faf\u3400-\u4dbf]"
+)
 
 
 def create_song_title(song_name: str, song_artists: List[str]) -> str:
@@ -82,6 +91,43 @@ def sanitize_string(string: str) -> str:
     output = output.replace('"', "'").replace(":", "-")
 
     return output
+
+
+def slugify(string: str) -> str:
+    """
+    Slugify the string.
+
+    ### Arguments
+    - string: the string to slugify
+
+    ### Returns
+    - the slugified string
+    """
+
+    # Workaround for japanese characters
+    # because slugify incorrectly converts them
+    # to latin characters
+    normal_slug = py_slugify(
+        string,
+        regex_pattern=JAP_REGEX,
+    )
+
+    results = KKS.convert(normal_slug)
+
+    result = ""
+    for index, item in enumerate(results):
+        result += item["hepburn"]
+        if not (
+            item["kana"] == item["hepburn"]
+            or item["kana"] == item["hepburn"]
+            or (
+                item == results[-1]
+                or results[index + 1]["kana"] == results[index + 1]["hepburn"]
+            )
+        ):
+            result += "-"
+
+    return py_slugify(result)
 
 
 def format_query(
@@ -279,6 +325,12 @@ def create_file_name(
         # and we are already using the short version of the template,
         # fallback to default template
         if short is True:
+            # This will probably never occur, but just in case
+            if template == "/{artist} - {title}.{output-ext}":
+                raise RecursionError(
+                    f'"{song.display_name} is too long to be shortened. File a bug report on GitHub'
+                )
+
             warnings.warn(
                 f"{song.display_name}: File name is too long. Using the default template."
             )
@@ -288,12 +340,6 @@ def create_file_name(
                 template="/{artist} - {title}.{output-ext}",
                 file_extension=file_extension,
                 short=short,
-            )
-
-        # This will probably never occur, but just in case
-        if short is True and template == "/{artist} - {title}.{output-ext}":
-            raise RecursionError(
-                f'"{song.display_name} is too long to be shortened. File a bug report on GitHub'
             )
 
         return create_file_name(

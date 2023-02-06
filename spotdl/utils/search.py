@@ -7,11 +7,13 @@ To use this module you must first initialize the SpotifyClient.
 
 import json
 import concurrent.futures
+from pathlib import Path
 
 from typing import List, Optional
 
 from spotdl.types import Playlist, Album, Artist, Saved
 from spotdl.types.song import SongList, Song
+from spotdl.utils.metadata import get_file_metadata
 
 
 class QueryError(Exception):
@@ -62,6 +64,7 @@ def parse_query(
 def create_empty_song(
     name: Optional[str] = None,
     artists: Optional[List[str]] = None,
+    artist: Optional[str] = None,
     album_name: Optional[str] = None,
     album_artist: Optional[str] = None,
     genres: Optional[List[str]] = None,
@@ -81,6 +84,7 @@ def create_empty_song(
     copyright_text: Optional[str] = None,
     download_url: Optional[str] = None,
     song_list: Optional["SongList"] = None,
+    lyrics: Optional[str] = None,
 ) -> Song:
     """
     Create an empty song.
@@ -107,6 +111,7 @@ def create_empty_song(
     - copyright_text: Copyright text
     - download_url: Download URL
     - song_list: Song list
+    - lyrics: Lyrics
 
     ### Returns
     - Song object
@@ -115,7 +120,7 @@ def create_empty_song(
     return Song(
         name=name,  # type: ignore
         artists=artists,  # type: ignore
-        artist=None if artists is None else artists[0],  # type: ignore
+        artist=artist if artist else (artists[0] if artists else None),  # type: ignore
         album_name=album_name,  # type: ignore
         album_artist=album_artist,  # type: ignore
         genres=genres,  # type: ignore
@@ -135,6 +140,7 @@ def create_empty_song(
         copyright_text=copyright_text,
         download_url=download_url,
         song_list=song_list,
+        lyrics=lyrics,
     )
 
 
@@ -238,3 +244,22 @@ def reinit_song(song: Song, playlist_numbering: bool = False) -> Song:
 
     # return reinitialized song object
     return Song(**data)
+
+
+def get_song_from_file_metadata(file: Path) -> Optional[Song]:
+    """
+    Get song based on the file metadata or file name
+
+    ### Arguments
+    - file: Path to file
+
+    ### Returns
+    - Song object
+    """
+
+    file_metadata = get_file_metadata(file)
+
+    if file_metadata is None:
+        return None
+
+    return create_empty_song(**file_metadata)

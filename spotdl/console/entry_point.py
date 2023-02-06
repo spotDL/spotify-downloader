@@ -50,6 +50,7 @@ def entry_point():
     logging.getLogger("urllib3").setLevel(logging.WARNING)
     logging.getLogger("spotipy").setLevel(logging.NOTSET)
     logging.getLogger("asyncio").setLevel(logging.WARNING)
+    logging.getLogger("syncedlyrics").setLevel(logging.WARNING)
 
     # Create a console
     console = Console()
@@ -128,6 +129,7 @@ def entry_point():
         cache_path=settings["cache_path"],
         no_cache=settings["no_cache"],
         open_browser=not settings["headless"],
+        max_retries=settings["max_retries"],
     )
 
     # If the application is frozen start web ui
@@ -176,7 +178,7 @@ def entry_point():
         print_errors=settings["print_errors"],
         sponsor_block=settings["sponsor_block"],
         playlist_numbering=settings["playlist_numbering"],
-        preserve_original_audio=settings["preserve_original_audio"],
+        scan_for_songs=settings["scan_for_songs"],
     )
 
     def graceful_exit(_signal, _frame):

@@ -248,6 +248,13 @@ def parse_spotify_options(parser: _ArgumentGroup):
         help="Path to cookies file.",
     )
 
+    # Add max retries argument
+    parser.add_argument(
+        "--max-retries",
+        type=int,
+        help="The maximum number of retries to perform when getting metadata.",
+    )
+
 
 def parse_ffmpeg_options(parser: _ArgumentGroup):
     """
@@ -273,6 +280,8 @@ def parse_ffmpeg_options(parser: _ArgumentGroup):
     parser.add_argument(
         "--bitrate",
         choices=[
+            "auto",
+            "disable",
             "8k",
             "16k",
             "24k",
@@ -295,6 +304,9 @@ def parse_ffmpeg_options(parser: _ArgumentGroup):
         help=(
             "The constant/variable bitrate to use for the output file. "
             "Values from 0 to 9 are variable bitrates. "
+            "Auto will use the bitrate of the original file. "
+            "Disable will disable the bitrate option. "
+            "(In case of m4a and opus files, this option will skip the conversion)"
         ),
     )
 
@@ -303,18 +315,6 @@ def parse_ffmpeg_options(parser: _ArgumentGroup):
         "--ffmpeg-args",
         type=str,
         help="Additional ffmpeg arguments passed as a string.",
-    )
-
-    # Preserve original audio stream
-    parser.add_argument(
-        "--preserve-original-audio",
-        action="store_const",
-        const=True,
-        help=(
-            "Preserve the original audio stream in case of m4a and opus files. "
-            "This option might overwrite the bitrate option. "
-            "Adding additional ffmpeg arguments might make this option useless."
-        ),
     )
 
 
@@ -381,7 +381,12 @@ def parse_output_options(parser: _ArgumentGroup):
     parser.add_argument(
         "--overwrite",
         choices={"force", "skip", "metadata"},
-        help="Overwrite existing files.",
+        help=(
+            "How to handle existing/duplicate files. "
+            "(When combined with --scan-for-songs force will remove "
+            "all duplicates, and metadata will only apply metadata to the "
+            "latest song and will remove the rest. )"
+        ),
     )
 
     # Option to restrict filenames for easier handling in the shell
@@ -426,6 +431,19 @@ def parse_output_options(parser: _ArgumentGroup):
             and album art as the playlist's icon",
     )
 
+    # Option to scan the output directory for existing files
+    parser.add_argument(
+        "--scan-for-songs",
+        action="store_const",
+        const=True,
+        help=(
+            "Scan the output directory for existing files. "
+            "This option should be combined with the --overwrite option "
+            "to control how existing files are handled. (Output directory is the last directory "
+            "that is not a template variable in the output template)"
+        ),
+    )
+
 
 def parse_web_options(parser: _ArgumentGroup):
     """
@@ -462,6 +480,17 @@ def parse_web_options(parser: _ArgumentGroup):
         "--allowed-origins",
         nargs="*",
         help="The allowed origins for the web server.",
+    )
+
+    # Add use output directory argument
+    parser.add_argument(
+        "--web-use-output-dir",
+        action="store_const",
+        const=True,
+        help=(
+            "Use the output directory instead of the session directory for downloads. ("
+            "This might cause issues if you have multiple users using the web-ui at the same time)"
+        ),
     )
 
 

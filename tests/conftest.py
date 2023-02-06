@@ -48,6 +48,7 @@ def new_initialize(
     cache_path=None,
     no_cache=True,
     open_browser=False,
+    max_retries=3,
 ):
     """This function allows calling `initialize()` multiple times"""
     try:
@@ -61,6 +62,7 @@ def new_initialize(
             cache_path=cache_path,
             no_cache=True,
             open_browser=open_browser,
+            max_retries=max_retries,
         )
 
 
