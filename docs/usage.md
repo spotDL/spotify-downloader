@@ -93,7 +93,7 @@ example:
 spotdl download 'The Weeknd - Blinding Lights' https://open.spotify.com/playlist/37i9dQZF1E8UXBoz02kGID ...
 ```
 
-## Audio formats and quality
+## Audio Formats and Quality
 
 ### Preserving Original Audio
 
