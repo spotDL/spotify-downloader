@@ -95,7 +95,7 @@ spotdl download 'The Weeknd - Blinding Lights' https://open.spotify.com/playlist
 
 ## Audio formats and quality
 
-### Preserving original audio
+### Preserving Original Audio
 
 #### YouTube Music Premium
 
