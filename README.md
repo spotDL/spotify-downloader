@@ -105,7 +105,7 @@ python -m spotdl [urls]
 
 ## Music sourcing and audio quality
 
-SpotDL uses YouTube as a source for music downloads. This method is used to avoid any issues related to downloading music from Spotify.
+spotDL uses YouTube as a source for music downloads. This method is used to avoid any issues related to downloading music from Spotify.
 
 > **Note**
 > Users are responsible for their actions and potential legal consequences. We do not support unauthorized downloading of copyrighted material and take no responsibility for user actions.
