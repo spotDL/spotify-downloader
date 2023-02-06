@@ -184,7 +184,7 @@ To start the web UI, run
 spotdl web
 ```
 
-### Download location
+### Download Location
 
 By default web ui downloads files to a special directory, to overwrite this behavior
 add option `--web-use-output-dir`, which will make output directory follow `--output`
