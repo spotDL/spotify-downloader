@@ -103,7 +103,7 @@ You can run _spotDL_ as a package if running it as a script doesn't work:
 python -m spotdl [urls]
 ```
 
-## Music sourcing and audio quality
+## Music Sourcing and Audio Quality
 
 spotDL uses YouTube as a source for music downloads. This method is used to avoid any issues related to downloading music from Spotify.
 
