@@ -187,7 +187,7 @@ spotdl web
 ### Download location
 
 By default web ui downloads files to a special directory, to overwrite this behavior
-add option `--web-use-output-dir` this will change to output directory back to `--output`
+add option `--web-use-output-dir`, which will make output directory follow `--output`
 
 ## Config file
 
