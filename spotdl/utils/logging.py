@@ -7,6 +7,7 @@ import logging
 from rich import get_console
 from rich.console import ConsoleRenderable
 from rich.logging import RichHandler
+from rich.markup import escape
 from rich.text import Text
 from rich.theme import Theme
 from rich.traceback import install
@@ -94,7 +95,7 @@ class SpotdlFormatter(logging.Formatter):
         Format a log record.
         """
 
-        result = super().format(record)
+        result = escape(super().format(record))
 
         msg = result
         if record.levelno == DEBUG:

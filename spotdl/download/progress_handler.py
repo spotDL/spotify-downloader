@@ -8,6 +8,7 @@ from typing import Any, Callable, Dict, List, Optional
 from rich import get_console
 from rich.console import JustifyMethod, OverflowMethod
 from rich.highlighter import Highlighter
+from rich.markup import escape
 from rich.progress import (
     BarColumn,
     Progress,
@@ -275,7 +276,7 @@ class SongTracker:
 
         if not self.parent.simple_tui:
             self.task_id = self.parent.rich_progress_bar.add_task(
-                description=self.song_name,
+                description=escape(self.song_name),
                 message="Download Started",
                 total=100,
                 completed=self.progress,
@@ -303,7 +304,7 @@ class SongTracker:
             self.parent.rich_progress_bar.start_task(self.task_id)
             self.parent.rich_progress_bar.update(
                 self.task_id,
-                description=self.song_name,
+                description=escape(self.song_name),
                 message=message,
                 completed=self.progress,
             )
