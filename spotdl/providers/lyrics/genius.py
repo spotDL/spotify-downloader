@@ -5,9 +5,11 @@ Genius Lyrics module.
 from typing import List, Optional
 
 import requests
-
 from bs4 import BeautifulSoup
+
 from spotdl.providers.lyrics.base import LyricsProvider
+
+__all__ = ["Genius"]
 
 
 class Genius(LyricsProvider):

@@ -3,9 +3,11 @@ Result is a class that contains all the information about a result from search
 perfoermed by audio provider.
 """
 
-from dataclasses import dataclass, asdict
 import json
+from dataclasses import asdict, dataclass
 from typing import Any, Dict, Optional, Tuple
+
+__all__ = ["Result"]
 
 
 @dataclass(frozen=True, eq=True)
@@ -22,6 +24,7 @@ class Result:
     name: str  # Name of the result
     duration: float  # Duration of the result in seconds
     author: str  # Author of the result
+    result_id: str  # ID of the result
 
     # Search related fields
     isrc_search: Optional[

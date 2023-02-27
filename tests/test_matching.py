@@ -1,7 +1,7 @@
 import pytest
 
-from spotdl.types.song import Song
 from spotdl.providers.audio.ytmusic import YouTubeMusic
+from spotdl.types.song import Song
 from spotdl.utils.spotify import SpotifyClient
 from tests.conftest import new_initialize
 
@@ -53,7 +53,10 @@ from tests.conftest import new_initialize
         (
             # Mata, FUNDACJA 420 PATOPROHIBICJA (28.01.2022)
             "https://open.spotify.com/track/4uOHYc6dCVLcNdQBRUlA0G",
-            ["https://www.youtube.com/watch?v=Mb3tyjibXCg"],
+            [
+                "https://www.youtube.com/watch?v=Mb3tyjibXCg",
+                "https://music.youtube.com/watch?v=cv2xuKqL35Q",
+            ],
         ),
         (
             # Drake, Wizkid, Kyla - One Dance
@@ -64,6 +67,8 @@ from tests.conftest import new_initialize
                 "https://www.youtube.com/watch?v=p55-ZrnPDH8",
                 "https://www.youtube.com/watch?v=UqEsGWU9hh4",
                 "https://www.youtube.com/watch?v=H4kTNq0npEQ",
+                "https://www.youtube.com/watch?v=rk2hmQF4oDc",
+                "https://www.youtube.com/watch?v=iAbnEUA0wpA",
             ],
         ),
         (
@@ -81,9 +86,12 @@ from tests.conftest import new_initialize
             ],
         ),
         (
-            # De Vet Du - Listen to Pantamera
+            # De Vet Du - Pantamera
             "https://open.spotify.com/track/760xwlNMwa6IZGff1eBhFW",
-            ["https://music.youtube.com/watch?v=Apej0F8ack0"],
+            [
+                "https://music.youtube.com/watch?v=Apej0F8ack0",
+                "https://music.youtube.com/watch?v=7xRMrGO-OLo",
+            ],
         ),
         (
             # Lisa Hannigan - Amhrán Na Farraige
@@ -291,7 +299,10 @@ from tests.conftest import new_initialize
         (
             # Frank Sinatra - Have Yourself A Merry Little Christmas - Remastered 1999
             "https://open.spotify.com/track/2FPfeYlrbSBR8PwCU0zaqq",
-            ["https://music.youtube.com/watch?v=H0PlzYqYVL8"],
+            [
+                "https://music.youtube.com/watch?v=H0PlzYqYVL8",
+                "https://music.youtube.com/watch?v=pvA7-EjaSPI",
+            ],
         ),
         (
             # Avi Aburomi - לפני שבאת

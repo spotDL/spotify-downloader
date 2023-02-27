@@ -4,11 +4,12 @@ AZLyrics lyrics module.
 
 from typing import List, Optional
 
+import requests
 from bs4 import BeautifulSoup
 
-import requests
-
 from spotdl.providers.lyrics.base import LyricsProvider
+
+__all__ = ["AzLyrics"]
 
 
 class AzLyrics(LyricsProvider):

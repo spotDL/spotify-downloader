@@ -3,11 +3,12 @@ Song module that hold the Song and SongList classes.
 """
 
 import json
-
-from dataclasses import dataclass, asdict
-from typing import Dict, Any, List, Optional
+from dataclasses import asdict, dataclass
+from typing import Any, Dict, List, Optional, Tuple
 
 from spotdl.utils.spotify import SpotifyClient
+
+__all__ = ["Song", "SongList", "SongError"]
 
 
 class SongError(Exception):
@@ -16,7 +17,13 @@ class SongError(Exception):
     """
 
 
-@dataclass()
+class SongListError(Exception):
+    """
+    Base class for all exceptions related to song lists.
+    """
+
+
+@dataclass
 class Song:
     """
     Song class. Contains all the information about a song.
@@ -47,6 +54,10 @@ class Song:
     list_position: Optional[int] = None
     lyrics: Optional[str] = None
 
+    # Added in v4.1.0, not supported in previous versions
+    # in the next major version, these will be made required
+    album_id: Optional[str] = None
+
     @classmethod
     def from_url(cls, url: str) -> "Song":
         """
@@ -73,6 +84,9 @@ class Song:
                 "Couldn't get metadata, check if you have passed correct track id"
             )
 
+        if raw_track_meta["duration_ms"] == 0 or raw_track_meta["name"].strip() == "":
+            raise SongError(f"Track no longer exists: {url}")
+
         # get artist info
         primary_artist_id = raw_track_meta["artists"][0]["id"]
         raw_artist_meta: Dict[str, Any] = spotify_client.artist(primary_artist_id)  # type: ignore
@@ -86,6 +100,7 @@ class Song:
             name=raw_track_meta["name"],
             artists=[artist["name"] for artist in raw_track_meta["artists"]],
             artist=raw_track_meta["artists"][0]["name"],
+            album_id=album_id,
             album_name=raw_album_meta["name"],
             album_artist=raw_album_meta["artists"][0]["name"],
             copyright_text=raw_album_meta["copyrights"][0]["text"]
@@ -143,6 +158,9 @@ class Song:
         """
 
         raw_search_results = Song.search(search_term)
+
+        if len(raw_search_results["tracks"]["items"]) == 0:
+            raise SongError(f"No results found for: {search_term}")
 
         return Song.from_url(
             "http://open.spotify.com/track/"
@@ -206,25 +224,47 @@ class Song:
 
         # Reinitialize the correct song list object
         if data.get("song_list"):
-            # Find the correct song list class
-            # based on the class attributes
-            song_list_class = next(
-                (
-                    list_class
-                    for list_class in SongList.__subclasses__()
-                    if list(list_class.__dataclass_fields__.keys())
-                    == list(data["song_list"].keys())
+            song_list = data["song_list"]
+            if not issubclass(type(song_list), SongList):
+                # Find the correct song list class
+                # based on the class attributes
+                song_list_class = next(
+                    (
+                        list_class
+                        for list_class in SongList.__subclasses__()
+                        if list(list_class.__dataclass_fields__.keys())
+                        == list(data["song_list"].keys())
+                    )
                 )
-            )
 
-            # Reinitialize the song list object
-            song_list = song_list_class(**data["song_list"])
+                # Reinitialize the song list object
+                song_list = song_list_class(**data["song_list"])
 
             data["song_list"] = song_list
             data["list_position"] = song_list.urls.index(data["url"])
 
         # Return product object
         return cls(**data)
+
+    @classmethod
+    def from_missing_data(cls, **kwargs) -> "Song":
+        """
+        Create a Song object from a dictionary with missing data.
+        For example, data dict doesn't contain all the required
+        attributes for the Song class.
+
+        ### Arguments
+        - data: The dictionary.
+
+        ### Returns
+        - The Song object.
+        """
+
+        song_data: Dict[str, Any] = {}
+        for key in cls.__dataclass_fields__:  # pylint: disable=E1101
+            song_data.setdefault(key, kwargs.get(key))
+
+        return cls(**song_data)
 
     @property
     def display_name(self) -> str:
@@ -260,91 +300,29 @@ class SongList:
     urls: List[str]
     songs: List[Song]
 
-    @property
-    def length(self) -> int:
-        """
-        Get list length (number of songs).
-
-        ### Returns
-        - The list length.
-        """
-
-        return max(len(self.urls), len(self.songs))
-
     @classmethod
-    def create_basic_object(cls, url: str):
+    def from_url(cls, url: str, fetch_songs: bool = True):
         """
-        Create a basic list with only the required metadata.
+        Create a SongList object from a url.
 
         ### Arguments
         - url: The url of the list.
-
-        ### Returns
-        - The SongList object.
-        """
-        metadata = cls.get_metadata(url)
-
-        return cls(**metadata, urls=[], songs=[])
-
-    @classmethod
-    def create_basic_list(cls, url: str):
-        """
-        Create a basic list with only the required metadata and urls.
-
-        ### Arguments
-        - url: The url of the list.
+        - fetch_songs: Whether to fetch missing metadata for songs.
 
         ### Returns
         - The SongList object.
         """
 
-        metadata = cls.get_metadata(url)
-        urls = cls.get_urls(url)
+        metadata, songs = cls.get_metadata(url)
+        urls = [song.url for song in songs]
 
-        return cls(**metadata, urls=urls, songs=[])
+        if fetch_songs:
+            songs = [Song.from_url(song.url) for song in songs]
 
-    @classmethod
-    def from_url(cls, url: str):
-        """
-        Parse an album from a Spotify URL.
-
-        ### Arguments
-        - url: The URL of the album.
-
-        ### Returns
-        - The Album object.
-        """
-
-        metadata = cls.get_metadata(url)
-
-        urls = cls.get_urls(url)
-
-        # Remove songs without id (country restricted/local tracks)
-        # And create song object for each track
-        songs: List[Song] = [Song.from_url(url) for url in urls]
-
-        return cls(
-            **metadata,
-            songs=songs,
-            urls=urls,
-        )
+        return cls(**metadata, urls=urls, songs=songs)
 
     @classmethod
-    def search(cls, search_term: str):
-        """
-        Searches for SongList from a search term.
-
-        ### Arguments
-        - search_term: The search term to use.
-
-        ### Returns
-        - The raw search results
-        """
-
-        raise NotImplementedError
-
-    @classmethod
-    def from_search_term(cls, search_term: str):
+    def from_search_term(cls, search_term: str, fetch_songs: bool = True):
         """
         Creates a SongList object from a search term.
 
@@ -356,60 +334,52 @@ class SongList:
         """
 
         list_type = cls.__name__.lower()
-        raw_search_results = cls.search(search_term)
+        spotify_client = SpotifyClient()
+        raw_search_results = spotify_client.search(search_term, type=list_type)
 
-        return cls.create_basic_list(
-            f"http://open.spotify.com/{list_type}/"
-            + raw_search_results[f"{list_type}s"]["items"][0]["id"]
-        )
-
-    @classmethod
-    def list_from_search_term(cls, search_term: str):
-        """
-        Creates a list of SongList objects from a search term.
-
-        ### Arguments
-        - search_term: The search term to use.
-
-        ### Returns
-        - The list of SongList objects.
-        """
-
-        list_type = cls.__name__.lower()
-        raw_search_results = cls.search(search_term)
-
-        songlist = []
-        for idx, _ in enumerate(raw_search_results[f"{list_type}s"]["items"]):
-            songlist.append(
-                cls.create_basic_object(
-                    f"http://open.spotify.com/{list_type}/"
-                    + raw_search_results[f"{list_type}s"]["items"][idx]["id"]
-                )
+        if (
+            raw_search_results is None
+            or len(raw_search_results.get(f"{list_type}s", {}).get("items", [])) == 0
+        ):
+            raise SongListError(
+                f"No {list_type} matches found on spotify for '{search_term}'"
             )
 
-        return songlist
+        list_id = raw_search_results[f"{list_type}s"]["items"][0]["id"]
+        return cls.from_url(
+            f"http://open.spotify.com/{list_type}/{list_id}",
+            fetch_songs,
+        )
 
-    @staticmethod
-    def get_urls(url: str) -> List[str]:
+    @property
+    def length(self) -> int:
         """
-        Get urls for all songs in url.
-
-        ### Arguments
-        - url: The URL of the list.
+        Get list length (number of songs).
 
         ### Returns
-        - The list of urls.
+        - The list length.
         """
 
-        raise NotImplementedError
+        return max(len(self.urls), len(self.songs))
+
+    @property
+    def json(self) -> Dict[str, Any]:
+        """
+        Returns a dictionary of the song list's data.
+
+        ### Returns
+        - The dictionary.
+        """
+
+        return asdict(self)
 
     @staticmethod
-    def get_metadata(url: str) -> Dict[str, Any]:
+    def get_metadata(url: str) -> Tuple[Dict[str, Any], List[Song]]:
         """
-        Get metadata for list.
+        Get metadata for a song list.
 
         ### Arguments
-        - url: The URL of the list.
+        - url: The url of the song list.
 
         ### Returns
         - The metadata.

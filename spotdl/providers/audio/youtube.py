@@ -4,10 +4,13 @@ Youtube module for downloading and searching songs.
 
 from typing import Any, Dict, List, Optional
 
-from pytube import YouTube as PyTube, Search
+from pytube import Search
+from pytube import YouTube as PyTube
 
 from spotdl.providers.audio.base import AudioProvider
 from spotdl.types.result import Result
+
+__all__ = ["YouTube"]
 
 
 class YouTube(AudioProvider):
@@ -15,7 +18,7 @@ class YouTube(AudioProvider):
     YouTube audio provider class
     """
 
-    SUPPORTS_ISRC = True
+    SUPPORTS_ISRC = False
     GET_RESULTS_OPTS: List[Dict[str, Any]] = [{}]
 
     def get_results(
@@ -41,16 +44,27 @@ class YouTube(AudioProvider):
         results = []
         for result in search_results:
             if result.watch_url:
+                try:
+                    duration = result.length
+                except Exception:
+                    duration = 0
+
+                try:
+                    views = result.views
+                except Exception:
+                    views = 0
+
                 results.append(
                     Result(
                         source=self.name,
                         url=result.watch_url,
                         verified=False,
                         name=result.title,
-                        duration=result.length,
+                        duration=duration,
                         author=result.author,
                         search_query=search_term,
-                        views=result.views,
+                        views=views,
+                        result_id=result.video_id,
                     )
                 )
 

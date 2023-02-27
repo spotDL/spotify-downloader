@@ -1,7 +1,7 @@
 import pytest
 
-from spotdl.utils.m3u import create_m3u_content, create_m3u_file
 from spotdl.types.playlist import Playlist
+from spotdl.utils.m3u import create_m3u_content, create_m3u_file
 
 PLAYLIST = "https://open.spotify.com/playlist/5LkNhFidYyyjRWwnkcMbQs"
 

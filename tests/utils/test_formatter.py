@@ -1,10 +1,11 @@
 from pathlib import Path
+
 from spotdl.types.song import Song, SongList
 from spotdl.utils.formatter import (
-    create_song_title,
-    sanitize_string,
     create_file_name,
+    create_song_title,
     parse_duration,
+    sanitize_string,
 )
 
 
@@ -37,6 +38,7 @@ def test_create_file_name():
     song_dict = {
         "name": "Ropes",
         "artists": ["Dirty Palm", "Chandler Jewels"],
+        "album_id": "test",
         "album_name": "Ropes",
         "album_artist": "Dirty Palm",
         "genres": ["gaming edm", "melbourne bounce international"],

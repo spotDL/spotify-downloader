@@ -6,16 +6,32 @@ and file names.
 
 import re
 import warnings
-
-from typing import List, Optional
+from functools import lru_cache
 from pathlib import Path
+from typing import List, Optional
 
 import pykakasi
-
+from rapidfuzz import fuzz
 from slugify import slugify as py_slugify
 from yt_dlp.utils import sanitize_filename
 
 from spotdl.types.song import Song
+from spotdl.utils.static import AMBIGUOUS_CHARACTERS
+
+__all__ = [
+    "VARS",
+    "JAP_REGEX",
+    "create_song_title",
+    "sanitize_string",
+    "slugify",
+    "format_query",
+    "create_search_query",
+    "create_file_name",
+    "parse_duration",
+    "to_ms",
+    "restrict_filename",
+    "ratio",
+]
 
 VARS = [
     "{title}",
@@ -42,7 +58,7 @@ VARS = [
 
 KKS = pykakasi.kakasi()
 
-JAP_REGEX = (
+JAP_REGEX = re.compile(
     "[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uff9f\u4e00-\u9faf\u3400-\u4dbf]"
 )
 
@@ -93,6 +109,7 @@ def sanitize_string(string: str) -> str:
     return output
 
 
+@lru_cache()
 def slugify(string: str) -> str:
     """
     Slugify the string.
@@ -104,12 +121,20 @@ def slugify(string: str) -> str:
     - the slugified string
     """
 
+    # Replace ambiguous characters
+    string = "".join(chr(AMBIGUOUS_CHARACTERS.get(str(ord(c)), ord(c))) for c in string)
+
+    if not JAP_REGEX.search(string):
+        # If string doesn't have japanese characters
+        # return early
+        return py_slugify(string)
+
     # Workaround for japanese characters
     # because slugify incorrectly converts them
     # to latin characters
     normal_slug = py_slugify(
         string,
-        regex_pattern=JAP_REGEX,
+        regex_pattern=JAP_REGEX.pattern,
     )
 
     results = KKS.convert(normal_slug)
@@ -440,3 +465,20 @@ def restrict_filename(pathobj: Path) -> Path:
         result = "_"
 
     return pathobj.with_name(result)
+
+
+@lru_cache()
+def ratio(string1: str, string2: str) -> float:
+    """
+    Wrapper for fuzz.ratio
+    with lru_cache
+
+    ### Arguments
+    - string1: the first string
+    - string2: the second string
+
+    ### Returns
+    - the ratio
+    """
+
+    return fuzz.ratio(string1, string2)

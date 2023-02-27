@@ -15,6 +15,7 @@ def test_ytm_search():
                     "name": "Nobody Else",
                     "artists": ["Abstrakt"],
                     "artist": "Abstrakt",
+                    "album_id": "0kx3ml8bdAYrQtcIwvkhp8",
                     "album_name": "Nobody Else",
                     "album_artist": "Abstrakt",
                     "genres": [],

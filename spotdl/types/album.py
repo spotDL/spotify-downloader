@@ -3,10 +3,12 @@ Artist module for retrieving artist data from Spotify.
 """
 
 from dataclasses import dataclass
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Tuple
 
-from spotdl.types.song import SongList
+from spotdl.types.song import Song, SongList
 from spotdl.utils.spotify import SpotifyClient
+
+__all__ = ["Album", "AlbumError"]
 
 
 class AlbumError(Exception):
@@ -23,42 +25,31 @@ class Album(SongList):
 
     artist: Dict[str, Any]
 
-    @classmethod
-    def search(cls, search_term: str):
-        """
-        Searches for Album from a search term.
-
-        ### Arguments
-        - search_term: The search term to use.
-
-        ### Returns
-        - The raw search results
-        """
-
-        spotify_client = SpotifyClient()
-        raw_search_results = spotify_client.search(search_term, type="album")
-
-        if (
-            raw_search_results is None
-            or len(raw_search_results.get("albums", {}).get("items", [])) == 0
-        ):
-            raise AlbumError("No album matches found on spotify")
-
-        return raw_search_results
-
     @staticmethod
-    def get_urls(url: str) -> List[str]:
+    def get_metadata(url: str) -> Tuple[Dict[str, Any], List[Song]]:
         """
-        Get urls for all songs in album.
+        Get metadata for album.
 
         ### Arguments
         - url: The URL of the album.
 
         ### Returns
-        - A list of urls.
+        - A dictionary with metadata.
         """
 
         spotify_client = SpotifyClient()
+
+        album_metadata = spotify_client.album(url)
+        if album_metadata is None:
+            raise AlbumError(
+                "Couldn't get metadata, check if you have passed correct album id"
+            )
+
+        metadata = {
+            "name": album_metadata["name"],
+            "artist": album_metadata["artists"][0],
+            "url": url,
+        }
 
         album_response = spotify_client.album_tracks(url)
         if album_response is None:
@@ -81,34 +72,42 @@ class Album(SongList):
         if album_response is None:
             raise AlbumError(f"Failed to get album response: {url}")
 
-        return [
-            track["external_urls"]["spotify"]
-            for track in tracks
-            if track and track.get("id")
-        ]
+        songs = []
+        for track in tracks:
+            if not isinstance(track, dict) or track.get("is_local"):
+                continue
 
-    @staticmethod
-    def get_metadata(url: str) -> Dict[str, Any]:
-        """
-        Get metadata for album.
+            release_date = album_metadata["release_date"]
+            artists = artists = [artist["name"] for artist in track["artists"]]
 
-        ### Arguments
-        - url: The URL of the album.
-
-        ### Returns
-        - A dictionary with metadata.
-        """
-
-        spotify_client = SpotifyClient()
-
-        album_metadata = spotify_client.album(url)
-        if album_metadata is None:
-            raise AlbumError(
-                "Couldn't get metadata, check if you have passed correct album id"
+            song = Song.from_missing_data(
+                name=track["name"],
+                artists=artists,
+                artist=artists[0],
+                album_id=album_metadata["id"],
+                album_name=album_metadata["name"],
+                album_artist=album_metadata["artists"][0]["name"],
+                disc_number=track["disc_number"],
+                disc_count=int(album_metadata["tracks"]["items"][-1]["disc_number"]),
+                duration=track["duration_ms"],
+                year=release_date[:4],
+                date=release_date,
+                track_number=track["track_number"],
+                tracks_count=album_metadata["total_tracks"],
+                song_id=track["id"],
+                explicit=track["explicit"],
+                publisher=album_metadata["label"],
+                url=track["external_urls"]["spotify"],
+                cover_url=max(
+                    album_metadata["images"], key=lambda i: i["width"] * i["height"]
+                )["url"]
+                if album_metadata["images"]
+                else None,
+                copyright_text=album_metadata["copyrights"][0]["text"]
+                if album_metadata["copyrights"]
+                else None,
             )
 
-        return {
-            "name": album_metadata["name"],
-            "artist": album_metadata["artists"][0],
-            "url": url,
-        }
+            songs.append(song)
+
+        return metadata, songs

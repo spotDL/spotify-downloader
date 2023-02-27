@@ -5,6 +5,8 @@ Module for archiving sets of data
 from pathlib import Path
 from typing import Set
 
+__all__ = ["Archive"]
+
 
 class Archive(Set):
     """

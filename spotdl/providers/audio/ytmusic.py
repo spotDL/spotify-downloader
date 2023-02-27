@@ -6,9 +6,11 @@ from typing import Any, Dict, List
 
 from ytmusicapi import YTMusic
 
-from spotdl.providers.audio.base import AudioProvider, ISRC_REGEX
+from spotdl.providers.audio.base import ISRC_REGEX, AudioProvider
 from spotdl.types.result import Result
 from spotdl.utils.formatter import parse_duration
+
+__all__ = ["YouTubeMusic"]
 
 
 class YouTubeMusic(AudioProvider):
@@ -69,6 +71,7 @@ class YouTubeMusic(AudioProvider):
                     ),
                     verified=result.get("resultType") == "song",
                     name=result["title"],
+                    result_id=result["videoId"],
                     author=result["artists"][0]["name"],
                     artists=tuple(map(lambda a: a["name"], result["artists"])),
                     duration=parse_duration(result.get("duration")),

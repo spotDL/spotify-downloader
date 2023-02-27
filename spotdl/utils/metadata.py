@@ -12,19 +12,32 @@ embed_metadata(
 
 import base64
 import re
-
 from pathlib import Path
 from typing import Any, Dict, Optional
 
 import requests
-
 from mutagen._file import File
-from mutagen.mp4 import MP4Cover
 from mutagen.flac import Picture
-from mutagen.id3._frames import APIC, WOAS, USLT, COMM
 from mutagen.id3 import ID3
+from mutagen.id3._frames import APIC, COMM, USLT, WOAS
+from mutagen.mp4 import MP4Cover
 
-from spotdl.types import Song
+from spotdl.types.song import Song
+
+__all__ = [
+    "MetadataError",
+    "M4A_TAG_PRESET",
+    "MP3_TAG_PRESET",
+    "TAG_PRESET",
+    "TAG_TO_SONG",
+    "M4A_TO_SONG",
+    "MP3_TO_SONG",
+    "LRC_REGEX",
+    "embed_metadata",
+    "embed_cover",
+    "embed_lyrics",
+    "get_file_metadata",
+]
 
 
 class MetadataError(Exception):
@@ -115,7 +128,7 @@ MP3_TO_SONG = {
 LRC_REGEX = re.compile(r"(\[\d{2}:\d{2}.\d{2,3}\])")
 
 
-def embed_metadata(output_file: Path, song: Song):
+def embed_metadata(output_file: Path, song: Song, id3_separator: str = "/"):
     """
     Set ID3 tags for generic files (FLAC, OPUS, OGG)
 
@@ -154,7 +167,9 @@ def embed_metadata(output_file: Path, song: Song):
         audio_file[tag_preset["album"]] = album_name
 
     if len(song.genres) > 0:
-        audio_file[tag_preset["genre"]] = song.genres
+        audio_file[tag_preset["genre"]] = [
+            genre.title() for genre in song.genres if genre
+        ]
 
     if song.copyright_text:
         audio_file[tag_preset["copyright"]] = song.copyright_text
@@ -182,7 +197,10 @@ def embed_metadata(output_file: Path, song: Song):
 
     # Mp3 specific encoding
     if encoding == "mp3":
-        audio_file.save()
+        if id3_separator != "/":
+            audio_file.save(v23_sep=id3_separator, v2_version=3)
+        else:
+            audio_file.save()
 
         audio_file = ID3(str(output_file.resolve()))
 

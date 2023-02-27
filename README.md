@@ -12,6 +12,7 @@
 **spotDL** finds songs from Spotify playlists on YouTube and downloads them - along with album art, lyrics and metadata.
 
 
+[![MIT License](https://img.shields.io/github/license/spotdl/spotify-downloader?color=44CC11&style=flat-square)](https://github.com/spotDL/spotify-downloader/blob/master/LICENSE)
 [![PyPI version](https://img.shields.io/pypi/pyversions/spotDL?color=%2344CC11&style=flat-square)](https://pypi.org/project/spotdl/)
 [![PyPi downloads](https://img.shields.io/pypi/dw/spotDL?label=downloads@pypi&color=344CC11&style=flat-square)](https://pypi.org/project/spotdl/)
 ![Contributors](https://img.shields.io/github/contributors/spotDL/spotify-downloader?style=flat-square)
@@ -72,6 +73,7 @@ FFmpeg is required for spotDL. If using FFmpeg only for spotDL, you can simply i
 `spotdl --download-ffmpeg`
 
 We recommend the above option, but if you want to install FFmpeg system-wide,
+follow these instructions
 
 - [Windows Tutorial](https://windowsloop.com/install-ffmpeg-windows-10/)
 - OSX - `brew install ffmpeg`
@@ -110,16 +112,18 @@ To update the directory in the future, use:
 `spotdl {filename}.spotdl`
 - `meta`: Updates metadata for the provided song files.
 
+## Music Sourcing and Audio Quality
 
+spotDL uses YouTube as a source for music downloads. This method is used to avoid any issues related to downloading music from Spotify.
 
+> **Note**
+> Users are responsible for their actions and potential legal consequences. We do not support unauthorized downloading of copyrighted material and take no responsibility for user actions.
 
-______________________________________________________________________
+### Audio Quality
 
-### Further information can be found in our documentation!
+spotDL downloads music from YouTube and is designed to always download the highest possible bitrate; which is 128 kbps for regular users and 256 kbps for YouTube Music premium users.
 
-**[Read the documentation on ReadTheDocs!](http://spotdl.rtfd.io/)**
-
-______________________________________________________________________
+Check the [Audio Formats](docs/USAGE.md#audio-formats-and-quality) page for more info.
 
 ## Contributing
 

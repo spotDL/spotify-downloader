@@ -7,13 +7,13 @@ interactions:
       Accept-Encoding:
       - gzip, deflate, br
       Authorization:
-      - Bearer BQDdyrsUjry9_dGHQILqwNVLdSi8XzOIin9_8-tf8Zz0qwX6id_xI5h-JiTknRKDsc0o3TwplBzlyKRd3ej3nCV_rAJPEwTM45fxx10FvcWmuYMXS4M
+      - Bearer BQAEZqN1NKB_M1Ejy1bh2kA7-WuwbThzNjN4Ni_9YdE6nsc0SSOLk-ZowNaQlmpQ9BDIHto6-ai7OD3aeC-ZI1qZYZJRp3ExQFDKZrTIXd-UHKBP_b4
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       User-Agent:
-      - python-requests/2.28.1
+      - python-requests/2.28.2
     method: GET
     uri: https://api.spotify.com/v1/tracks/4B2kkxg3wKSTZw5JPaUtzQ
   response:
@@ -30,8 +30,8 @@ interactions:
         TtL9lAX7aFVEiUikQy0Y8mZyDMzCXopMngFlfaGwzDmoH2s51K8dh3fr6e3DsJOg2hyFVieh7iDU
         bK3dj0E5nh9EYeN23IPCxt3e6gA0rf8daax/nJJY49rXfcI9N0yCEWalNnQ/YUikSnIDGQuBA+ye
         9OBlTIlH5L4YI8qxsqo2Ef9Zl3TCmSdLPj+Bl0PQB6mC7UozNc1t11opZ6NzAmez5cRafP1x97Do
-        Xtyin+LxW5WiTVfzxVAHJWFUSxtDuEsjD9FNYl7dbXocxQlFjAj5xm5uY+kE4IWrNm+YUCrtsroX
-        DSpHRLpz1O35kK5BHUPr/wAAAP//AwBcBaMgAQsAAA==
+        Xtyin+LxW5WiTVfzxVAHJWFUSxtDuEsjD9FNYl7dbXocxQlFjAj5xk5uY+kE4IWrNm+YUCrtsroX
+        DSpHRLpz1O35kK5BHUPr/wAAAP//AwASUyFKAQsAAA==
     headers:
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
@@ -57,7 +57,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Mon, 09 Jan 2023 18:52:15 GMT
+      - Mon, 23 Jan 2023 16:14:15 GMT
       server:
       - envoy
       strict-transport-security:
@@ -77,24 +77,24 @@ interactions:
       Accept-Encoding:
       - gzip, deflate, br
       Authorization:
-      - Bearer BQDdyrsUjry9_dGHQILqwNVLdSi8XzOIin9_8-tf8Zz0qwX6id_xI5h-JiTknRKDsc0o3TwplBzlyKRd3ej3nCV_rAJPEwTM45fxx10FvcWmuYMXS4M
+      - Bearer BQAEZqN1NKB_M1Ejy1bh2kA7-WuwbThzNjN4Ni_9YdE6nsc0SSOLk-ZowNaQlmpQ9BDIHto6-ai7OD3aeC-ZI1qZYZJRp3ExQFDKZrTIXd-UHKBP_b4
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       User-Agent:
-      - python-requests/2.28.1
+      - python-requests/2.28.2
     method: GET
     uri: https://api.spotify.com/v1/artists/2sf28o6euxEDpYkG9dMtuM
   response:
     body:
       string: !!binary |
-        H4sIAAAAAAAAAJyS0W6CMBSG7/cUhGsjFrAgt9uyKx9gWZalwgGalbYph6kxvvtKqWZm0Rh71/+c
-        /t/f9hyegiCEHYKRTHwNRvRhUAQHq1q91wp5vR+VsEXUfRFFSoOc+8K8VF3EDPIeo7iv41xRGHav
-        L/r9+21VrXFYh9boOBsZtRJCbcH89W8N1ONWDkLMJgkVMjFqJM+ShJyPNyANuLMfdsM6LpsAqi4M
-        Pl355HSOyTS/SPlDfND+WlLnwyvncrOlY80pyekewJsWR4mmC38R+5QXgWycspI2S+QMIrahGSWU
-        LOyCJWxoUpNyRbM0Y3RTLtlilVdA4jL0flteYesR7lX+w5P4EfiSZOndcIu4Aif0EXhNsvxuuEWM
-        cP/lknXgOM/2Y5WS0+9opQfBDEc3tTRxIu711DqNwNQ5GO40PyXFVCuuzfHxFwAA//8DAGidnkMq
+        H4sIAAAAAAAAAJySTW7DIBCF9z2F5XUUG8fBP9u26ioHqKqqIvbYRsWAMG5iRbl7MZCoUZUoCjve
+        wPsezByegiCEvQbFCfsaFRvCoAwORjX6IIWmzTQrYae1HMooEhL40heWlegjojQddJQMTZILDOP+
+        9UW+f78V9UaPm9AYHRczoxGMiR2ov/6dgmbe8pGxhZO00ITNGsrzuEjP11vgCuzdD7MhPeVtAHUf
+        Bp+2fHI6xySSXqT8QT7ocC2p9aG1dbl5pCftKcnpHUDbTs8STmP/EPOVF4FMnKrmJktkDSKyxRlG
+        GMVmwRq2eNWgqsBZmhG8rdYkLvIaUFKF3m9Ha915hP2V//BV8gh8jbL0brhBXIEj/Ai8QVl+N9wg
+        ZrhvOSc9WM6zaawQ3HVHCjkyoqie3F9ZUU/SHXUj4E6OilrNT0npauW1OT7+AgAA//8DALdrNFgq
         AwAA
     headers:
       Alt-Svc:
@@ -115,13 +115,13 @@ interactions:
       access-control-max-age:
       - '604800'
       cache-control:
-      - public, max-age=72094
+      - public, max-age=74921
       content-encoding:
       - gzip
       content-type:
       - application/json; charset=utf-8
       date:
-      - Mon, 09 Jan 2023 18:52:16 GMT
+      - Mon, 23 Jan 2023 16:14:15 GMT
       server:
       - envoy
       strict-transport-security:
@@ -141,13 +141,13 @@ interactions:
       Accept-Encoding:
       - gzip, deflate, br
       Authorization:
-      - Bearer BQDdyrsUjry9_dGHQILqwNVLdSi8XzOIin9_8-tf8Zz0qwX6id_xI5h-JiTknRKDsc0o3TwplBzlyKRd3ej3nCV_rAJPEwTM45fxx10FvcWmuYMXS4M
+      - Bearer BQAEZqN1NKB_M1Ejy1bh2kA7-WuwbThzNjN4Ni_9YdE6nsc0SSOLk-ZowNaQlmpQ9BDIHto6-ai7OD3aeC-ZI1qZYZJRp3ExQFDKZrTIXd-UHKBP_b4
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       User-Agent:
-      - python-requests/2.28.1
+      - python-requests/2.28.2
     method: GET
     uri: https://api.spotify.com/v1/albums/0Lt1PzvVZoslDNI2Jsq6pW
   response:
@@ -187,13 +187,13 @@ interactions:
       access-control-max-age:
       - '604800'
       cache-control:
-      - public, max-age=74281
+      - public, max-age=75619
       content-encoding:
       - gzip
       content-type:
       - application/json; charset=utf-8
       date:
-      - Mon, 09 Jan 2023 18:52:16 GMT
+      - Mon, 23 Jan 2023 16:14:15 GMT
       server:
       - envoy
       strict-transport-security:

@@ -3,9 +3,12 @@ Synced lyrics provider using the syncedlyrics library
 """
 
 from typing import List, Optional
+
 import syncedlyrics
 
 from spotdl.providers.lyrics.base import LyricsProvider
+
+__all__ = ["Synced"]
 
 
 class Synced(LyricsProvider):

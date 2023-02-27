@@ -4,20 +4,35 @@ and checking for ffmpeg binary, and downloading it if not found.
 """
 
 import os
-import re
-import shutil
-import subprocess
-import stat
 import platform
+import re
 import shlex
-
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+import shutil
+import stat
+import subprocess
 from pathlib import Path
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
 import requests
 
 from spotdl.utils.config import get_spotdl_path
 from spotdl.utils.formatter import to_ms
+
+__all__ = [
+    "FFMPEG_URLS",
+    "FFMPEG_FORMATS",
+    "DUR_REGEX",
+    "TIME_REGEX",
+    "VERSION_REGEX",
+    "YEAR_REGEX",
+    "FFmpegError",
+    "is_ffmpeg_installed",
+    "get_ffmpeg_path",
+    "get_ffmpeg_version",
+    "get_local_ffmpeg",
+    "download_ffmpeg",
+    "convert",
+]
 
 FFMPEG_URLS = {
     "windows": {
@@ -280,7 +295,7 @@ def convert(
         arguments.extend(["-c:a", "libopus"])
     else:
         if (
-            (output_format == "opus" and file_format == "opus")
+            (output_format == "opus" and file_format == "webm")
             or (output_format == "m4a" and file_format == "m4a")
             and not (bitrate or ffmpeg_args)
         ):

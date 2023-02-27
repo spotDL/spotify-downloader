@@ -1,18 +1,21 @@
-import pytest
-import subprocess
 import re
-
+import subprocess
 from pathlib import Path
+
+import pytest
 
 from spotdl.download.downloader import Downloader
 from spotdl.utils import ffmpeg
 from spotdl.utils.spotify import SpotifyClient
+from spotdl.utils.logging import init_logging
 
 ORIGINAL_INITIALIZE = SpotifyClient.init
 
 SpotifyClient.init(
     "5f573c9620494bae87890c0f08a60293", "212476d9b0f3472eaa762d90b19b0ba8"
 )
+
+init_logging("MATCH")
 
 
 class FakeProcess:
@@ -47,7 +50,7 @@ def new_initialize(
     user_auth=False,
     cache_path=None,
     no_cache=True,
-    open_browser=False,
+    headless=True,
     max_retries=3,
 ):
     """This function allows calling `initialize()` multiple times"""
@@ -60,8 +63,8 @@ def new_initialize(
             auth_token=auth_token,
             user_auth=user_auth,
             cache_path=cache_path,
-            no_cache=True,
-            open_browser=open_browser,
+            no_cache=no_cache,
+            headless=headless,
             max_retries=max_retries,
         )
 

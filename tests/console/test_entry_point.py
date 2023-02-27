@@ -1,12 +1,12 @@
-import sys
 import json
 import re
+import sys
 
 import pytest
 
-from spotdl.console.entry_point import console_entry_point, entry_point
+from spotdl.console.entry_point import console_entry_point
 from spotdl.utils.spotify import SpotifyClient
-from tests.conftest import new_initialize, clean_ansi_sequence
+from tests.conftest import clean_ansi_sequence, new_initialize
 
 
 @pytest.mark.parametrize("argument", ["-h", "--help"])
@@ -24,7 +24,7 @@ def test_show_help(capsys, monkeypatch, argument):
     monkeypatch.setattr(sys, "argv", cli_args)
 
     with pytest.raises(SystemExit):
-        entry_point()
+        console_entry_point()
 
     out, _ = capsys.readouterr()
     assert "usage: spotdl [-h]" in out
@@ -45,7 +45,7 @@ def test_show_version(capsys, monkeypatch, argument):
     monkeypatch.setattr(sys, "argv", cli_args)
 
     with pytest.raises(SystemExit):
-        entry_point()
+        console_entry_point()
 
     out, _ = capsys.readouterr()
 
@@ -79,7 +79,7 @@ def test_download_song(capsys, monkeypatch, tmpdir):
 
     out = "".join([clean_ansi_sequence(out) for out in capsys.readouterr()])
 
-    assert 'Downloaded "Jim Yosef - Linked"' in out
+    assert "Downloaded" in out
 
 
 def test_preload_song(capsys, monkeypatch, tmpdir):

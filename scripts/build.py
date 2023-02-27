@@ -1,8 +1,10 @@
-import sys
 import os
-import ytmusicapi
-import PyInstaller.__main__  # type: ignore
+import sys
 from pathlib import Path
+
+import PyInstaller.__main__  # type: ignore
+import ytmusicapi
+
 from spotdl._version import __version__
 
 locales_path = str((Path(ytmusicapi.__file__).parent / "locales"))
