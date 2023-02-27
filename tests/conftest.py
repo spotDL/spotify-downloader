@@ -6,8 +6,8 @@ import pytest
 
 from spotdl.download.downloader import Downloader
 from spotdl.utils import ffmpeg
-from spotdl.utils.spotify import SpotifyClient
 from spotdl.utils.logging import init_logging
+from spotdl.utils.spotify import SpotifyClient
 
 ORIGINAL_INITIALIZE = SpotifyClient.init
 
