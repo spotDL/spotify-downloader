@@ -566,8 +566,6 @@ class Downloader:
 
             display_progress_tracker.notify_download_complete()
 
-            print(download_info["url"])
-
             # Ignore the bitrate if the bitrate is set to auto for m4a/opus
             # or if bitrate is set to disabled
             if self.settings["bitrate"] == "disable":
