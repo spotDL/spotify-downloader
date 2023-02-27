@@ -368,15 +368,7 @@ class Downloader:
         - This function is synchronous.
         """
 
-        # Check if we have all the metadata
-        # and that the song object is not a placeholder
-        # If it's None extract the current metadata
-        # And reinitialize the song object
-        # Force song reinitialization if we are fetching albums
-        # they have most metadata but not all
-
         reinitialized = False
-
         try:
             # Create the output file path
             output_file = create_file_name(
@@ -431,6 +423,12 @@ class Downloader:
             display_progress_tracker.notify_download_skip()
             return song, None
 
+        # Check if we have all the metadata
+        # and that the song object is not a placeholder
+        # If it's None extract the current metadata
+        # And reinitialize the song object
+        # Force song reinitialization if we are fetching albums
+        # they have most metadata but not all
         if (
             (song.name is None and song.url)
             or (self.settings["fetch_albums"] and reinitialized is False)
