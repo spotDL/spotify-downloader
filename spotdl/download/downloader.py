@@ -404,6 +404,7 @@ class Downloader:
             and dup_song_path.exists()
         ]
 
+        file_exists = output_file.exists() or dup_song_paths
         if dup_song_paths:
             logger.debug(
                 "Found duplicate songs for %s at %s", song.display_name, dup_song_paths
@@ -411,7 +412,7 @@ class Downloader:
 
         # If the file already exists and we don't want to overwrite it,
         # we can skip the download
-        if (output_file.exists() or dup_song_paths) and self.settings[
+        if file_exists and self.settings[
             "overwrite"
         ] == "skip":
             logger.info(
@@ -421,7 +422,7 @@ class Downloader:
             )
 
             display_progress_tracker.notify_download_skip()
-            return song, None
+            return song, output_file
 
         # Check if we have all the metadata
         # and that the song object is not a placeholder
@@ -439,7 +440,7 @@ class Downloader:
             reinitialized = True
 
         # Don't skip if the file exists and overwrite is set to force
-        if (output_file.exists() or dup_song_paths) and self.settings[
+        if file_exists and self.settings[
             "overwrite"
         ] == "force":
             logger.info(
@@ -474,7 +475,7 @@ class Downloader:
 
         # If the file already exists and we want to overwrite the metadata,
         # we can skip the download
-        if (output_file.exists() or dup_song_paths) and self.settings[
+        if file_exists and self.settings[
             "overwrite"
         ] == "metadata":
             most_recent_duplicate: Optional[Path] = None
