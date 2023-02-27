@@ -273,6 +273,33 @@ If you don't want config to load automatically change `load_config` option in co
 }
 ```
 
+#### `output` variables
+
+The `output` key supports several variables:
+
+| Variable | Explanation | Example |
+|----------|-------------|---------|
+| `{title}` |  | Dark Horse |
+| `{artists}` |  | Katy Perry, Juicy J |
+| `{artist}` | The first of `{artists}` | Katy Perry |
+| `{album}` |  | PRISM |
+| `{album-artist}` |  | Katy Perry |
+| `{genre}` |  | dance pop |
+| `{disc-number}` | Useful for multi-disc releases | 1 |
+| `{disc-count}` |  | 1 |
+| `{duration}` | In seconds | 215.672 |
+| `{year}` |  | 2013 |
+| `{original-date}` |  | 2013-01-01 |
+| `{track-number}` |  | 06 |
+| `{tracks-count}` |  | 13 |
+| `{isrc}` |  | USUM71311296 |
+| `{track-id}` | Spotify song ID | 4jbmgIyjGoXjY01XxatOx6 |
+| `{publisher}` | Publishing label | Capitol Records (CAP) |
+| `{list-length}` |  |  |
+| `{list-position}` |  |  |
+| `{list-name}` |  |  |
+| `{output-ext}` | File extension | mp3 |
+
 ## CLI (Command Line Interface)
 
 ### Command line options
