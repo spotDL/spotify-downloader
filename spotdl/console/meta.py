@@ -70,9 +70,9 @@ def meta(query: List[str], downloader: Downloader) -> None:
             ):
                 song = get_song_from_file_metadata(file)
                 if song is None:
-                    raise Exception
+                    raise ValueError(f"Could not find metadata for {file.name}")
             else:
-                raise Exception
+                raise ValueError("Song already has metadata")
         except Exception:
             search_results = get_search_results(file.stem)
             if not search_results:

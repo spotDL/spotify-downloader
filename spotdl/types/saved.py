@@ -44,7 +44,7 @@ class Saved(SongList):
 
         saved_tracks_response = spotify_client.current_user_saved_tracks()
         if saved_tracks_response is None:
-            raise Exception("Couldn't get saved tracks")
+            raise SavedError("Couldn't get saved tracks")
 
         saved_tracks = saved_tracks_response["items"]
 

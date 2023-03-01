@@ -144,7 +144,7 @@ def embed_metadata(output_file: Path, song: Song, id3_separator: str = "/"):
     tag_preset = TAG_PRESET if encoding != "m4a" else M4A_TAG_PRESET
 
     try:
-        audio_file = File(str(output_file.resolve()), easy=(encoding == "mp3"))
+        audio_file = File(str(output_file.resolve()), easy=encoding == "mp3")
 
         if audio_file is None:
             raise MetadataError(
