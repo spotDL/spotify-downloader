@@ -95,9 +95,17 @@ spotdl download 'The Weeknd - Blinding Lights' https://open.spotify.com/playlist
 
 ## Audio Formats and Quality
 
-### Preserving Original Audio
+Files are downloaded in MP3 format for the best compatibility across different platforms/players, but spotDL also supports other output formats like M4A and OPUS.
 
-#### YouTube Music Premium
+> Note: spotDL never downloads songs in a bitrate higher than 128kbps, except for those with YTMusic Premium, where 256 kbps is available for M4A format.
+
+Note that using the `--bitrate` flag will convert the file to the specified bitrate, so it may result in larger file sizes with no significant change in quality. If you prefer smaller file sizes, consider using the default bitrate or a lower value.
+
+Converting files might not be ideal for some users who prefer the files in their original quality.
+
+Alternatively, you can use the `--bitrate disable` option to skip the conversion step for certain file formats such as **M4A**/**OPUS**.
+
+### YouTube Music Premium
 
 YouTube Music Premium users can use their account to download songs with a higher bitrate (256kbps).
 
