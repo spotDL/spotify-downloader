@@ -2,12 +2,21 @@
 Base audio provider module.
 """
 
-from typing import Dict, Optional
+import logging
+import re
+from typing import Any, Dict, List, Optional, Tuple
 
 from yt_dlp import YoutubeDL
 
-from spotdl.types import Song
+from spotdl.types.result import Result
+from spotdl.types.song import Song
 from spotdl.utils.config import get_temp_path
+from spotdl.utils.formatter import create_search_query, create_song_title
+from spotdl.utils.matching import get_best_matches, order_results
+
+__all__ = ["AudioProviderError", "AudioProvider", "ISRC_REGEX", "YTDLLogger"]
+
+logger = logging.getLogger(__name__)
 
 
 class AudioProviderError(Exception):
@@ -43,11 +52,17 @@ class YTDLLogger:
         raise AudioProviderError(msg)
 
 
+ISRC_REGEX = re.compile(r"^[A-Z]{2}-?\w{3}-?\d{2}-?\d{5}$")
+
+
 class AudioProvider:
     """
     Base class for all other providers. Provides some common functionality.
     Handles the yt-dlp audio handler.
     """
+
+    SUPPORTS_ISRC: bool
+    GET_RESULTS_OPTS: List[Dict[str, Any]]
 
     def __init__(
         self,
@@ -95,20 +110,7 @@ class AudioProvider:
             }
         )
 
-    def search(self, song: Song) -> Optional[str]:
-        """
-        Search for a song and return best match.
-
-        ### Arguments
-        - song: The song to search for.
-
-        ### Returns
-        - The url of the best match or None if no match was found.
-        """
-
-        raise NotImplementedError
-
-    def get_results(self, search_term: str, **kwargs):
+    def get_results(self, search_term: str, **kwargs) -> List[Result]:
         """
         Get results from audio provider.
 
@@ -122,19 +124,203 @@ class AudioProvider:
 
         raise NotImplementedError
 
-    def order_results(self, results, song: Song):
+    def get_views(self, url: str) -> int:
         """
-        Order results.
+        Get the number of views for a video.
 
         ### Arguments
-        - results: The results to order.
-        - song: The song to order for.
+        - url: The url of the video.
 
         ### Returns
-        - The ordered results.
+        - The number of views.
         """
 
-        raise NotImplementedError
+        data = self.get_download_metadata(url)
+
+        return data["view_count"]
+
+    def search(self, song: Song) -> Optional[str]:
+        """
+        Search for a song and return best match.
+
+        ### Arguments
+        - song: The song to search for.
+
+        ### Returns
+        - The url of the best match or None if no match was found.
+        """
+
+        # Create initial search query
+        search_query = create_song_title(song.name, song.artists).lower()
+        if self.search_query:
+            search_query = create_search_query(
+                song, self.search_query, False, None, True
+            )
+
+        logger.debug("[%s] Searching for %s", song.song_id, search_query)
+
+        isrc_urls: List[str] = []
+
+        # search for song using isrc if it's available
+        if song.isrc and self.SUPPORTS_ISRC and not self.search_query:
+            isrc_results = self.get_results(
+                song.isrc, filter="songs", ignore_spelling=True
+            )
+
+            isrc_urls = [result.url for result in isrc_results]
+            sorted_isrc_results = order_results(isrc_results, song, self.search_query)
+            logger.debug(
+                "[%s] Found %s results for ISRC %s",
+                song.song_id,
+                len(isrc_results),
+                song.isrc,
+            )
+
+            if len(isrc_results) > 0:
+                # get the best result, if the score is above 80 return it
+                best_isrc_results = sorted(
+                    sorted_isrc_results.items(), key=lambda x: x[1], reverse=True
+                )
+                logger.debug(
+                    "[%s] Filtered to %s ISRC results",
+                    song.song_id,
+                    len(best_isrc_results),
+                )
+
+                if len(best_isrc_results) > 0:
+                    best_isrc = best_isrc_results[0]
+                    if best_isrc[1] > 80.0:
+                        logger.debug(
+                            "[%s] Best ISRC result is %s with score %s",
+                            song.song_id,
+                            best_isrc[0].url,
+                            best_isrc[1],
+                        )
+
+                        return best_isrc[0].url
+
+        results: Dict[Result, float] = {}
+        for options in self.GET_RESULTS_OPTS:
+            # Query YTM by songs only first, this way if we get correct result on the first try
+            # we don't have to make another request
+            search_results = self.get_results(search_query, **options)
+            logger.debug(
+                "[%s] Found %s results for search query %s with options %s",
+                song.song_id,
+                len(search_results),
+                search_query,
+                options,
+            )
+
+            # Check if any of the search results is in the
+            # first isrc results, since they are not hashable we have to check
+            # by name
+            isrc_result = next(
+                (result for result in search_results if result.url in isrc_urls),
+                None,
+            )
+
+            if isrc_result:
+                logger.debug(
+                    "[%s] Best ISRC result is %s", song.song_id, isrc_result.url
+                )
+
+                return isrc_result.url
+
+            if self.filter_results:
+                # Order results
+                new_results = order_results(search_results, song, self.search_query)
+            else:
+                new_results = {}
+                if len(new_results) > 0:
+                    new_results = {search_results[0]: 100.0}
+
+            logger.debug("[%s] Filtered to %s results", song.song_id, len(new_results))
+
+            # song type results are always more accurate than video type,
+            # so if we get score of 80 or above
+            # we are almost 100% sure that this is the correct link
+            if len(new_results) != 0:
+                # get the result with highest score
+                best_result, best_score = self.get_best_result(new_results)
+                logger.debug(
+                    "[%s] Best result is %s with score %s",
+                    song.song_id,
+                    best_result.url,
+                    best_score,
+                )
+
+                if best_score >= 80 and best_result.verified:
+                    logger.debug(
+                        "[%s] Returning verified best result %s with score %s",
+                        song.song_id,
+                        best_result.url,
+                        best_score,
+                    )
+
+                    return best_result.url
+
+                # Update final results with new results
+                results.update(new_results)
+
+        # No matches found
+        if not results:
+            logger.debug("[%s] No results found", song.song_id)
+            return None
+
+        # get the result with highest score
+        best_result, best_score = self.get_best_result(results)
+        logger.debug(
+            "[%s] Returning best result %s with score %s",
+            song.song_id,
+            best_result.url,
+            best_score,
+        )
+
+        return best_result.url
+
+    def get_best_result(self, results: Dict[Result, float]) -> Tuple[Result, float]:
+        """
+        Get the best match from the results
+        using views and average match
+
+        ### Arguments
+        - results: A dictionary of results and their scores
+
+        ### Returns
+        - The best match URL and its score
+        """
+
+        best_results = get_best_matches(results, 8)
+
+        # If we have only one result, return it
+        if len(best_results) == 1:
+            return best_results[0][0], best_results[0][1]
+
+        # Initial best result based on the average match
+        best_result = best_results[0]
+
+        # If the best result has a score higher than 80%
+        # and it's a isrc search, return it
+        if best_result[1] > 80 and best_result[0].isrc_search:
+            return best_result[0], best_result[1]
+
+        # If we have more than one result,
+        # return the one with the highest score
+        # and most views
+        if len(best_results) > 1:
+            views = []
+            for best_result in best_results:
+                if best_result[0].views:
+                    views.append(best_result[0].views)
+                else:
+                    views.append(self.get_views(best_result[0].url))
+
+            best_result = best_results[views.index(max(views))]
+
+            return best_result[0], best_result[1]
+
+        return best_result[0], best_result[1]
 
     def get_download_metadata(self, url: str, download: bool = False) -> Dict:
         """
@@ -148,7 +334,6 @@ class AudioProvider:
         """
 
         try:
-
             data = self.audio_handler.extract_info(url, download=download)
 
             if data:

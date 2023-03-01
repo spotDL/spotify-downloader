@@ -1,13 +1,11 @@
-import pytest
-
-from spotipy.oauth2 import SpotifyOauthError
 from types import SimpleNamespace
 
-from spotdl import Spotdl
+import pytest
 
-from spotdl.types.song import Song
-from spotdl.utils.config import DEFAULT_CONFIG
 import spotdl.utils.config
+from spotdl import Spotdl
+from spotdl.types.song import Song
+from spotdl.utils.config import DEFAULT_CONFIG, DOWNLOADER_OPTIONS
 from spotdl.utils.spotify import SpotifyClient
 from tests.conftest import new_initialize
 
@@ -27,78 +25,57 @@ def test_get_urls(monkeypatch):
 
     monkeypatch.setattr(SpotifyClient, "init", new_initialize)
 
+    settings = DOWNLOADER_OPTIONS.copy()
+    settings["simple_tui"] = True
+    settings["log_level"] = "DEBUG"
+
     # Test if spotdl can be initialized with spotify credentials.
-    spotdl = Spotdl(
+    spotdl_client = Spotdl(
         client_id=DEFAULT_CONFIG["client_id"],
         client_secret=DEFAULT_CONFIG["client_secret"],
         user_auth=DEFAULT_CONFIG["user_auth"],
         cache_path=DEFAULT_CONFIG["cache_path"],
         no_cache=True,
         headless=DEFAULT_CONFIG["headless"],
-        audio_providers=DEFAULT_CONFIG["audio_providers"],
-        lyrics_providers=DEFAULT_CONFIG["lyrics_providers"],
-        ffmpeg=DEFAULT_CONFIG["ffmpeg"],
-        bitrate=DEFAULT_CONFIG["bitrate"],
-        ffmpeg_args=DEFAULT_CONFIG["ffmpeg_args"],
-        output_format=DEFAULT_CONFIG["format"],
-        threads=DEFAULT_CONFIG["threads"],
-        output=DEFAULT_CONFIG["output"],
-        save_file=DEFAULT_CONFIG["save_file"],
-        overwrite=DEFAULT_CONFIG["overwrite"],
-        cookie_file=DEFAULT_CONFIG["cookie_file"],
-        filter_results=DEFAULT_CONFIG["filter_results"],
-        search_query=DEFAULT_CONFIG["search_query"],
-        log_level="DEBUG",
-        simple_tui=True,
-        restrict=DEFAULT_CONFIG["restrict"],
-        print_errors=DEFAULT_CONFIG["print_errors"],
+        downloader_settings=settings,
     )
 
-    urls = spotdl.get_download_urls(
+    urls = spotdl_client.get_download_urls(
         [Song.from_url("https://open.spotify.com/track/0kx3ml8bdAYrQtcIwvkhp8")]
     )
 
     assert len(urls) == 1
 
 
-def test_download(setup, monkeypatch):
+def test_download(setup, monkeypatch, tmpdir):
     """
     Tests if spotdl can be initialized correctly.
     """
 
+    monkeypatch.chdir(tmpdir)
+
     monkeypatch.setattr(SpotifyClient, "init", new_initialize)
 
+    settings = DOWNLOADER_OPTIONS.copy()
+    settings["simple_tui"] = True
+    settings["log_level"] = "DEBUG"
+
     # Test if spotdl can be initialized with spotify credentials.
-    spotdl = Spotdl(
+    spotdl_client = Spotdl(
         client_id=DEFAULT_CONFIG["client_id"],
         client_secret=DEFAULT_CONFIG["client_secret"],
         user_auth=DEFAULT_CONFIG["user_auth"],
         cache_path=DEFAULT_CONFIG["cache_path"],
         no_cache=True,
         headless=DEFAULT_CONFIG["headless"],
-        audio_providers=DEFAULT_CONFIG["audio_providers"],
-        lyrics_providers=DEFAULT_CONFIG["lyrics_providers"],
-        ffmpeg=DEFAULT_CONFIG["ffmpeg"],
-        bitrate=DEFAULT_CONFIG["bitrate"],
-        ffmpeg_args=DEFAULT_CONFIG["ffmpeg_args"],
-        output_format=DEFAULT_CONFIG["format"],
-        threads=DEFAULT_CONFIG["threads"],
-        output=str(setup.directory.absolute()),
-        save_file=DEFAULT_CONFIG["save_file"],
-        overwrite=DEFAULT_CONFIG["overwrite"],
-        cookie_file=DEFAULT_CONFIG["cookie_file"],
-        filter_results=DEFAULT_CONFIG["filter_results"],
-        search_query=DEFAULT_CONFIG["search_query"],
-        log_level="DEBUG",
-        simple_tui=True,
-        restrict=DEFAULT_CONFIG["restrict"],
-        print_errors=DEFAULT_CONFIG["print_errors"],
+        downloader_settings=settings,
     )
 
     song = {
         "name": "Nobody Else",
         "artists": ["Abstrakt"],
         "artist": "Abstrakt",
+        "album_id": "6ZQZ5Z1NQZJQY5Y7YJZJYJ",
         "album_name": "Nobody Else",
         "album_artist": "Abstrakt",
         "genres": [],
@@ -120,4 +97,4 @@ def test_download(setup, monkeypatch):
         "song_list": None,
     }
 
-    assert None not in spotdl.download(Song.from_dict(song))
+    assert None not in spotdl_client.download(Song.from_dict(song))

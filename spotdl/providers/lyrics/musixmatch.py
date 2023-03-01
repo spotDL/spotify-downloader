@@ -6,10 +6,11 @@ from typing import List, Optional
 from urllib.parse import quote
 
 import requests
-
 from bs4 import BeautifulSoup
 
 from spotdl.providers.lyrics.base import LyricsProvider
+
+__all__ = ["MusixMatch"]
 
 
 class MusixMatch(LyricsProvider):

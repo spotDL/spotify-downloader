@@ -197,13 +197,19 @@ cd spotify-downloader
 pip install poetry
 ```
 
-**Then, to install spotDL in-place and editable, run the following**
+**Then, to install spotDL in-place, run the following**
 
 ```
 poetry install
 ```
 
-All changes will now affect the poetry installation of the spotdl cli.
+**Then, to activate virtual environment run the following**
+
+```
+poetry shell
+```
+
+All changes will now affect the poetry installation of the spotDL cli.
 
 ### Linting, Formatting and Type-checking
 

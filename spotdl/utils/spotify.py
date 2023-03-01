@@ -11,11 +11,17 @@ spotify.Spotify.init(client_id, client_secret)
 from json import dumps
 from typing import Dict, Optional
 
+import requests
 from spotipy import Spotify
 from spotipy.cache_handler import CacheFileHandler, MemoryCacheHandler
 from spotipy.oauth2 import SpotifyClientCredentials, SpotifyOAuth
 
 from spotdl.utils.config import get_cache_path
+
+__all__ = [
+    "SpotifyError",
+    "SpotifyClient",
+]
 
 
 class SpotifyError(Exception):
@@ -52,11 +58,12 @@ class Singleton(type):
         self,
         client_id: str,
         client_secret: str,
-        auth_token: Optional[str] = None,
         user_auth: bool = False,
-        cache_path: Optional[str] = None,
         no_cache: bool = False,
-        open_browser: bool = True,
+        headless: bool = False,
+        max_retries: int = 3,
+        auth_token: Optional[str] = None,
+        cache_path: Optional[str] = None,
     ) -> "Singleton":
         """
         Initializes the SpotifyClient.
@@ -93,7 +100,7 @@ class Singleton(type):
                 redirect_uri="http://127.0.0.1:8080/",
                 scope="user-library-read",
                 cache_handler=cache_handler,
-                open_browser=open_browser,
+                open_browser=not headless,
             )
         # Use SpotifyClientCredentials as auth manager
         else:
@@ -107,6 +114,7 @@ class Singleton(type):
 
         self.user_auth = user_auth
         self.no_cache = no_cache
+        self.max_retries = max_retries
 
         # Create instance
         self._instance = super().__call__(
@@ -161,7 +169,16 @@ class SpotifyClient(Spotify, metaclass=Singleton):
             if self.cache.get(cache_key) is not None:
                 return self.cache[cache_key]
 
-        response = self._internal_call("GET", url, payload, kwargs)
+        # Wrap in a try-except and retry up to `retries` times.
+        response = None
+        retries = self.max_retries  # type: ignore # pylint: disable=E1101
+        while response is None:
+            try:
+                response = self._internal_call("GET", url, payload, kwargs)
+            except (requests.exceptions.Timeout, requests.ConnectionError) as exc:
+                retries -= 1
+                if retries <= 0:
+                    raise exc
 
         if use_cache and cache_key is not None:
             self.cache[cache_key] = response

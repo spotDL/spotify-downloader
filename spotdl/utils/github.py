@@ -3,18 +3,33 @@ Module for getting information about the current version of spotdl
 from GitHub, downloading the latest version, and checking for updates.
 """
 
-import re
-import os
 import logging
-
+import os
+import re
 from typing import Tuple
 
 import requests
 
 from spotdl import _version
 
+__all__ = [
+    "REPO",
+    "WEB_APP_URL",
+    "get_status",
+    "check_for_updates",
+    "get_latest_version",
+    "create_github_url",
+    "download_github_dir",
+]
+
 REPO = "spotdl/spotify-downloader"
 WEB_APP_URL = "https://github.com/spotdl/web-ui/tree/master/dist"
+
+
+class RateLimitError(Exception):
+    """
+    Raised when the GitHub API rate limit is exceeded.
+    """
 
 
 def get_status(start: str, end: str, repo: str = REPO) -> Tuple[str, int, int]:
@@ -35,6 +50,9 @@ def get_status(start: str, end: str, repo: str = REPO) -> Tuple[str, int, int]:
     response = requests.get(url, timeout=10)
 
     if response.status_code != 200:
+        if response.status_code == 403:
+            raise RateLimitError("GitHub API rate limit exceeded.")
+
         raise RuntimeError(
             f"Failed to get commit count. Status code: {response.status_code}"
         )
@@ -46,6 +64,34 @@ def get_status(start: str, end: str, repo: str = REPO) -> Tuple[str, int, int]:
         data["ahead_by"],
         data["behind_by"],
     )
+
+
+def get_latest_version(repo: str = REPO) -> str:
+    """
+    Get the latest version of spotdl.
+
+    ### Arguments
+    - repo: the repo to check (defaults to spotdl/spotify-downloader)
+
+    ### Returns
+    - the latest version
+    """
+
+    url = f"https://api.github.com/repos/{repo}/releases/latest"
+
+    response = requests.get(url, timeout=10)
+
+    if response.status_code != 200:
+        if response.status_code == 403:
+            raise RateLimitError("GitHub API rate limit exceeded.")
+
+        raise RuntimeError(
+            f"Failed to get commit count. Status code: {response.status_code}"
+        )
+
+    data = response.json()
+
+    return data["name"]  # returns "vx.x.x"
 
 
 def check_for_updates(repo: str = REPO) -> str:
@@ -61,27 +107,27 @@ def check_for_updates(repo: str = REPO) -> str:
 
     message = ""
 
-    url = f"https://api.github.com/repos/{repo}/releases/latest"
-
-    response = requests.get(url, timeout=10)
-
-    if response.status_code != 200:
-        raise RuntimeError(
-            f"Failed to get commit count. Status code: {response.status_code}"
-        )
-
-    data = response.json()
-
-    latest_version = data["name"]  # returns "vx.x.x"
+    latest_version = get_latest_version(repo)
     current_version = f"v{_version.__version__}"  # returns "vx.x.x"
 
     if latest_version != current_version:
         message = f"New version available: {latest_version}.\n\n"
     else:
         message = "No updates available.\n\n"
-
-    master = get_status(current_version, "master")
-    dev = get_status(current_version, "dev")
+    try:
+        master = get_status(current_version, "master")
+        dev = get_status(current_version, "dev")
+    except RuntimeError:
+        message = "Couldn't check for updates. You might be running a dev version.\n"
+        message += "Current version: " + current_version + "\n"
+        message += "Latest version: " + latest_version
+        return message
+    except RateLimitError:
+        message = "GitHub API rate limit exceeded. Couldn't check for updates.\n"
+        message += "Current version: " + current_version + "\n"
+        message += "Latest version: " + latest_version + "\n"
+        message += "Please try again later."
+        return message
 
     for branch in ["master", "dev"]:
         name = branch.capitalize()

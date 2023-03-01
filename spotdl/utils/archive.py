@@ -2,8 +2,10 @@
 Module for archiving sets of data
 """
 
-from os.path import exists
+from pathlib import Path
 from typing import Set
+
+__all__ = ["Archive"]
 
 
 class Archive(Set):
@@ -23,7 +25,7 @@ class Archive(Set):
         - if the file exists
         """
 
-        if not exists(file):
+        if not Path(file).exists():
             return False
 
         with open(file, "r", encoding="utf-8") as archive:

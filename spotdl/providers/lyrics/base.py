@@ -4,6 +4,8 @@ Base module for all other lyrics providers.
 
 from typing import List, Optional
 
+__all__ = ["LyricsProvider"]
+
 
 class LyricsProvider:
     """

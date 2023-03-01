@@ -1,9 +1,10 @@
-from spotdl.utils.config import *
-from types import SimpleNamespace
+import os
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
-import os
+
+from spotdl.utils.config import *
 
 
 @pytest.fixture()
