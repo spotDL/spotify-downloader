@@ -277,7 +277,8 @@ If you don't want config to load automatically change `load_config` option in co
     "port": 8800,
     "host": "localhost",
     "keep_alive": false,
-    "allowed_origins": null
+    "allowed_origins": null,
+    "keep_sessions": false
 }
 ```
 
@@ -287,25 +288,25 @@ The `output` key supports several variables:
 
 | Variable | Explanation | Example |
 |----------|-------------|---------|
-| `{title}` |  | Dark Horse |
-| `{artists}` |  | Katy Perry, Juicy J |
-| `{artist}` | The first of `{artists}` | Katy Perry |
-| `{album}` |  | PRISM |
-| `{album-artist}` |  | Katy Perry |
-| `{genre}` |  | dance pop |
+| `{title}` | Song title | Dark Horse |
+| `{artists}` | Song artists | Katy Perry, Juicy J |
+| `{artist}` | Primary artist | Katy Perry |
+| `{album}` | Album name | PRISM |
+| `{album-artist}` | Primary artist of the album | Katy Perry |
+| `{genre}` | Genre | dance pop |
 | `{disc-number}` | Useful for multi-disc releases | 1 |
-| `{disc-count}` |  | 1 |
-| `{duration}` | In seconds | 215.672 |
-| `{year}` |  | 2013 |
-| `{original-date}` |  | 2013-01-01 |
-| `{track-number}` |  | 06 |
-| `{tracks-count}` |  | 13 |
-| `{isrc}` |  | USUM71311296 |
+| `{disc-count}` | Total number of discs in the album | 1 |
+| `{duration}` | Duration of the song in seconds | 215.672 |
+| `{year}` | Year of release | 2013 |
+| `{original-date}` | Date of original release | 2013-01-01 |
+| `{track-number}` | Track number in the album | 06 |
+| `{tracks-count}` | Total number of tracks in the album | 13 |
+| `{isrc} `| International Standard Recording Code | USUM71311296 |
 | `{track-id}` | Spotify song ID | 4jbmgIyjGoXjY01XxatOx6 |
-| `{publisher}` | Publishing label | Capitol Records (CAP) |
-| `{list-length}` |  |  |
-| `{list-position}` |  |  |
-| `{list-name}` |  |  |
+| `{publisher} `| Record label | Capitol Records (CAP) |
+| `{list-length}` | Number of items in a playlist | 10 |
+| `{list-position}` | Position of the song in a playlist | 1 |
+| `{list-name}` | Name of the playlist | Saved |
 | `{output-ext}` | File extension | mp3 |
 
 ## CLI (Command Line Interface)
@@ -339,8 +340,8 @@ Main options:
                         The lyrics provider to use. You can provide more than one for fallback.
   --config              Use the config file to download songs. It's located under C:\Users\user\.spotdl\config.json or ~/.spotdl/config.json under linux
   --search-query SEARCH_QUERY
-                        The search query to use, available variables: {title}, {artists}, {artist}, {album}, {album-artist}, {genre}, {disc-number}, {disc-count}, {duration}, {year}, {original-date},
-                        {track-number}, {tracks-count}, {isrc}, {track-id}, {publisher}, {list-length}, {list-position}, {list-name}, {output-ext}
+                        The search query to use, available variables: {title}, {artists}, {artist}, {album}, {album-artist}, {genre}, {disc-number}, {disc-count}, {duration}, {year}, {original-date}, {track-number},
+                        {tracks-count}, {isrc}, {track-id}, {publisher}, {list-length}, {list-position}, {list-name}, {output-ext}
   --dont-filter-results
                         Disable filtering results.
 
@@ -355,17 +356,16 @@ Spotify options:
   --cache-path CACHE_PATH
                         The path where spotipy cache file will be stored.
   --no-cache            Disable caching (both requests and token).
-  --cookie-file COOKIE_FILE
-                        Path to cookies file.
   --max-retries MAX_RETRIES
                         The maximum number of retries to perform when getting metadata.
+  --headless            Run in headless mode.
 
 FFmpeg options:
   --ffmpeg FFMPEG       The ffmpeg executable to use.
   --threads THREADS     The number of threads to use when downloading songs.
   --bitrate {auto,disable,8k,16k,24k,32k,40k,48k,64k,80k,96k,112k,128k,160k,192k,224k,256k,320k,0,1,2,3,4,5,6,7,8,9}
-                        The constant/variable bitrate to use for the output file. Values from 0 to 9 are variable bitrates. Auto will use the bitrate of the original file. Disable will disable the
-                        bitrate option. (In case of m4a and opus files, this option will skip the conversion)
+                        The constant/variable bitrate to use for the output file. Values from 0 to 9 are variable bitrates. Auto will use the bitrate of the original file. Disable will disable the bitrate option. (In case
+                        of m4a and opus files, auto and disable will skip the conversion)
   --ffmpeg-args FFMPEG_ARGS
                         Additional ffmpeg arguments passed as a string.
 
@@ -373,27 +373,27 @@ Output options:
   --format {mp3,flac,ogg,opus,m4a}
                         The format to download the song in.
   --save-file SAVE_FILE
-                        The file to save/load the songs data from/to. It has to end with .spotdl. If combined with the download operation, it will save the songs data to the file. Required for
-                        save/preload/sync
+                        The file to save/load the songs data from/to. It has to end with .spotdl. If combined with the download operation, it will save the songs data to the file. Required for save/preload/sync
   --preload             Preload the download url to speed up the download process.
-  --output OUTPUT       Specify the downloaded file name format, available variables: {title}, {artists}, {artist}, {album}, {album-artist}, {genre}, {disc-number}, {disc-count}, {duration}, {year},
-                        {original-date}, {track-number}, {tracks-count}, {isrc}, {track-id}, {publisher}, {list-length}, {list-position}, {list-name}, {output-ext}
-  --m3u [M3U]           Name of the m3u file to save the songs to. Defaults to {list[0]}.m3u If you want to generate a m3u for each list in the query use {list}, If you want to generate a m3u file
-                        based on the first list in the query use {list[0]}, (0 is the first list in the query, 1 is the second, etc. songs don't count towards the list number)
+  --output OUTPUT       Specify the downloaded file name format, available variables: {title}, {artists}, {artist}, {album}, {album-artist}, {genre}, {disc-number}, {disc-count}, {duration}, {year}, {original-date}, {track-
+                        number}, {tracks-count}, {isrc}, {track-id}, {publisher}, {list-length}, {list-position}, {list-name}, {output-ext}
+  --m3u [M3U]           Name of the m3u file to save the songs to. Defaults to {list[0]}.m3u If you want to generate a m3u for each list in the query use {list}, If you want to generate a m3u file based on the first list in
+                        the query use {list[0]}, (0 is the first list in the query, 1 is the second, etc. songs don't count towards the list number)
   --overwrite {metadata,skip,force}
-                        How to handle existing/duplicate files. (When combined with --scan-for-songs force will remove all duplicates, and metadata will only apply metadata to the latest song and
-                        will remove the rest. )
+                        How to handle existing/duplicate files. (When combined with --scan-for-songs force will remove all duplicates, and metadata will only apply metadata to the latest song and will remove the rest. )
   --restrict            Restrict filenames to ASCII only
   --print-errors        Print errors (wrong songs, failed downloads etc) on exit, useful for long playlist
   --sponsor-block       Use the sponsor block to download songs from yt/ytm.
   --archive ARCHIVE     Specify the file name for an archive of already downloaded songs
   --playlist-numbering  Sets each track in a playlist to have the playlist's name as its album, and album art as the playlist's icon
-  --scan-for-songs      Scan the output directory for existing files. This option should be combined with the --overwrite option to control how existing files are handled. (Output directory is the
-                        last directory that is not a template variable in the output template)
+  --scan-for-songs      Scan the output directory for existing files. This option should be combined with the --overwrite option to control how existing files are handled. (Output directory is the last directory that is not
+                        a template variable in the output template)
   --fetch-albums        Fetch all albums from songs in query
   --id3-separator ID3_SEPARATOR
                         Change the separator used in the id3 tags. Only supported for mp3 files.
   --ytm-data            Use ytm data instead of spotify data when downloading using ytm link
+  --cookie-file COOKIE_FILE
+                        Path to cookies file.
 
 Web options:
   --host HOST           The host to use for the web server.
@@ -402,12 +402,12 @@ Web options:
   --allowed-origins [ALLOWED_ORIGINS ...]
                         The allowed origins for the web server.
   --web-use-output-dir  Use the output directory instead of the session directory for downloads. (This might cause issues if you have multiple users using the web-ui at the same time)
+  --keep-sessions       Keep the session directory after the web server is closed.
 
 Misc options:
   --log-level {CRITICAL,FATAL,ERROR,WARN,WARNING,INFO,MATCH,DEBUG,NOTSET}
                         Select log level.
   --simple-tui          Use a simple tui.
-  --headless            Run in headless mode.
 
 Other options:
   --download-ffmpeg     Download ffmpeg to spotdl directory.
