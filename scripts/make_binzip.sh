@@ -14,9 +14,11 @@ touch -t 200001010101 zip/spotdl/*.py zip/spotdl/**/*.py
 mv zip/spotdl/__main__.py zip/
 cd zip
 zip -q -r spotdl spotdl/**.py spotdl/**/* spotdl/**/*.py __main__.py
+mv spotdl.zip ../spotdl.zip
+cd ..
 rm -rf zip
 
-echo '#!'"$PYTHON" > spotdl_bin
-cat spotdl.zip >> spotdl_bin
+echo '#!'"$PYTHON" > spotDL
+cat spotdl.zip >> spotDL
 rm spotdl.zip
-chmod a+x spotdl_bin
+chmod a+x spotDL

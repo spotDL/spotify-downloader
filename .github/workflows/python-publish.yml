@@ -70,11 +70,15 @@ jobs:
       - name: Build executable
         run: poetry run python ./scripts/build.py
 
+      - name: Build cross-platform binary
+        run: ./scripts/make_binzip.sh
+
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
           files: |
             dist/*
+            spotDL
 
   build-arm:
     runs-on: ubuntu-latest
