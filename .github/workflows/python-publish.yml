@@ -71,7 +71,9 @@ jobs:
         run: poetry run python ./scripts/build.py
 
       - name: Build cross-platform binary
-        run: ./scripts/make_binzip.sh
+        run: |
+          chmod u+x ./scripts/make_binzip.sh
+          ./scripts/make_binzip.sh
 
       - name: Release
         uses: softprops/action-gh-release@v1
