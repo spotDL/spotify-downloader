@@ -30,11 +30,12 @@ ______________________________________________________________________
 
 Refer to our [Installation Guide](https://spotdl.rtfd.io/en/latest/installation/) for more details.
 
-### Python (Recommended)
+### Python (Recommended Method)
   - _spotDL_ can be installed by running `pip install spotdl`.
   > On some systems you might have to change `pip` to `pip3`.
 
-### Other options
+<details>
+    <summary style="font-size:1.25em"><strong>Other options</strong></summary>
 
 - Prebuilt executable
   - You can download the latest version from the
@@ -59,13 +60,16 @@ Refer to our [Installation Guide](https://spotdl.rtfd.io/en/latest/installation/
     ```
 
  - Build from source
-	```
+	```bash
 	git clone https://github.com/spotDL/spotify-downloader && cd spotify-downloader
 	pip install poetry
 	poetry install
 	python3 scripts/build.py
 	```
 	An executable is created in `spotify-downloader/dist/`.
+
+</details>
+
 
 ### Installing FFmpeg
 
@@ -81,7 +85,7 @@ follow these instructions
 
 ## Usage
 
-Without options:
+Using SpotDL without options::
 ```sh
 spotdl [urls]
 ```
@@ -96,21 +100,30 @@ spotdl [operation] [options] QUERY
 ```
 
 There are different **operations** spotDL can perform. The *default* is `download`, which simply downloads the songs from YouTube and embeds metadata.
-The **query** is usually list of Spotify URLs, but for other operations it might be a list of files.
+
+The **query** for spotDL is usually a list of Spotify URLs, but for some operations like **sync**, only a single link or file is required.
 For a list of all **options** use ```spotdl -h```
 
-**Supported operations:**
+<details>
+<summary style="font-size:1em"><strong>Supported operations</strong></summary>
+
 - `save`: Saves only the metadata from Spotify without downloading anything.
-Usage:
-`spotdl --save-file {filename}.spotdl save query`
+    - Usage:
+        `spotdl save [query] --save-file {filename}.spotdl`
+
 - `web`: Starts a web interface instead of using the command line. However, it has limited features and only supports downloading single songs.
+
 - `sync`: Updates directories. Compares the directory with the current state of the playlist. Newly added songs will be downloaded and removed songs will be deleted. No other songs will be downloaded and no other files will be deleted.
-Usage:
-For the initial download, a *sync file* has to be created:
-`spotdl --save-file {filename}.spotdl sync query`
-To update the directory in the future, use:
-`spotdl {filename}.spotdl`
+
+    - Usage:
+        `spotdl sync [query] --save-file {filename}.spotdl`
+
+        This create a new **sync** file, to update the directory in the future, use:
+
+        `spotdl sync {filename}.spotdl`
+
 - `meta`: Updates metadata for the provided song files.
+</details>
 
 ## Music Sourcing and Audio Quality
 

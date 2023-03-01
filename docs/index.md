@@ -2,10 +2,9 @@
 <!--- mdformat-toc start --slug=github --->
 
 <!---
-!!! IF EDITING THE README, ENSURE TO COPY THE WHOLE FILE TO index.md in `/docs/`
+!!! IF EDITING THE README, ENSURE TO COPY THE WHOLE FILE TO index.md in `/docs/` AND REMOVE THE REFERENCES TO ReadTheDocs THERE.
 --->
 
-<div align="center">
 
 # spotDL v4
 
@@ -19,16 +18,20 @@
 [![Discord](https://img.shields.io/discord/771628785447337985?label=discord&logo=discord&style=flat-square)](https://discord.gg/xCa23pwJWY)
 
 > spotDL: The fastest, easiest and most accurate command-line music downloader.
-</div>
+
+______________________________________________________________________
+**[Read the documentation on ReadTheDocs!](https://spotdl.readthedocs.io)**
+______________________________________________________________________
 
 
 ## Installation
 
 Refer to our [Installation Guide](https://spotdl.rtfd.io/en/latest/installation/) for more details.
 
-### Python (Recommended)
+### Python (Recommended Method)
   - _spotDL_ can be installed by running `pip install spotdl`.
   > On some systems you might have to change `pip` to `pip3`.
+
 
 ### Other options
 
@@ -55,7 +58,7 @@ Refer to our [Installation Guide](https://spotdl.rtfd.io/en/latest/installation/
     ```
 
  - Build from source
-	```
+	```bash
 	git clone https://github.com/spotDL/spotify-downloader && cd spotify-downloader
 	pip install poetry
 	poetry install
@@ -63,12 +66,14 @@ Refer to our [Installation Guide](https://spotdl.rtfd.io/en/latest/installation/
 	```
 	An executable is created in `spotify-downloader/dist/`.
 
+
 ### Installing FFmpeg
 
 FFmpeg is required for spotDL. If using FFmpeg only for spotDL, you can simply install FFmpeg to your spotDL installation directory:
 `spotdl --download-ffmpeg`
 
 We recommend the above option, but if you want to install FFmpeg system-wide,
+follow these instructions
 
 - [Windows Tutorial](https://windowsloop.com/install-ffmpeg-windows-10/)
 - OSX - `brew install ffmpeg`
@@ -76,7 +81,7 @@ We recommend the above option, but if you want to install FFmpeg system-wide,
 
 ## Usage
 
-Without options:
+Using SpotDL without options::
 ```sh
 spotdl [urls]
 ```
@@ -91,34 +96,42 @@ spotdl [operation] [options] QUERY
 ```
 
 There are different **operations** spotDL can perform. The *default* is `download`, which simply downloads the songs from YouTube and embeds metadata.
-The **query** is usually list of Spotify URLs, but for other operations it might be a list of files.
+
+The **query** for spotDL is usually a list of Spotify URLs, but for some operations like **sync**, only a single link or file is required.
 For a list of all **options** use ```spotdl -h```
 
-**Supported operations:**
+#### Supported operations
+
 - `save`: Saves only the metadata from Spotify without downloading anything.
-Usage:
-`spotdl --save-file {filename}.spotdl save query`
+    - Usage:
+        `spotdl save [query] --save-file {filename}.spotdl`
+
 - `web`: Starts a web interface instead of using the command line. However, it has limited features and only supports downloading single songs.
+
 - `sync`: Updates directories. Compares the directory with the current state of the playlist. Newly added songs will be downloaded and removed songs will be deleted. No other songs will be downloaded and no other files will be deleted.
-Usage:
-For the initial download, a *sync file* has to be created:
-`spotdl --save-file {filename}.spotdl sync query`
-To update the directory in the future, use:
-`spotdl {filename}.spotdl`
+
+    - Usage:
+        `spotdl sync [query] --save-file {filename}.spotdl`
+
+        This create a new **sync** file, to update the directory in the future, use:
+
+        `spotdl sync {filename}.spotdl`
+
 - `meta`: Updates metadata for the provided song files.
+</details>
 
-## Music sourcing and audio quality
+## Music Sourcing and Audio Quality
 
-Our app downloads music from YouTube as a source for music downloads. This method is used to avoid any issues related to downloading music from Spotify.
+spotDL uses YouTube as a source for music downloads. This method is used to avoid any issues related to downloading music from Spotify.
 
 > **Note**
 > Users are responsible for their actions and potential legal consequences. We do not support unauthorized downloading of copyrighted material and take no responsibility for user actions.
 
-### Audio quality
+### Audio Quality
 
-Spotdl downloads music from YouTube and is designed to always download the highest possible bitrate, which is 128 kbps for regular users and 256 kbps for YouTube Music premium users.
+spotDL downloads music from YouTube and is designed to always download the highest possible bitrate; which is 128 kbps for regular users and 256 kbps for YouTube Music premium users.
 
-Check [Audio Formats](USAGE#audio-formats-and-quality) page for more info.
+Check the [Audio Formats](docs/USAGE.md#audio-formats-and-quality) page for more info.
 
 ## Contributing
 
