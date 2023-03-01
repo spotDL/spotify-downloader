@@ -67,6 +67,7 @@ class DownloaderOptions(TypedDict):
     fetch_albums: bool
     id3_separator: str
     ytm_data: bool
+    add_unavailable: bool
 
 
 class WebOptions(TypedDict):
@@ -135,6 +136,7 @@ class DownloaderOptionalOptions(TypedDict, total=False):
     fetch_albums: bool
     id3_separator: str
     ytm_data: bool
+    add_unavailable: bool
 
 
 class WebOptionalOptions(TypedDict, total=False):
