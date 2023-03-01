@@ -1,0 +1,3828 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Download your Spotify playlists and songs along with album art and metadata">
+      
+      
+        <meta name="author" content="xnetcat">
+      
+      
+        <link rel="canonical" href="https://spotdl.github.io/spotify-downloader/reference/utils/matching/">
+      
+      
+        <link rel="prev" href="../downloader/">
+      
+      
+        <link rel="next" href="../web/">
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.0.15">
+    
+    
+      
+        <title>matching - spotDL</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.113286f1.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.a0c5b2b5.min.css">
+      
+      
+
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="purple">
+  
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#spotdl.utils.matching" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="spotDL" class="md-header__button md-logo" aria-label="spotDL" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            spotDL
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              matching
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      <form class="md-header__option" data-md-component="palette">
+        
+          
+          <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="purple"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+          
+            <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5c-.84 0-1.65.15-2.39.42L12 2M3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29L3.34 7m.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14L3.36 17M20.65 7l-1.77 3.79a7.023 7.023 0 0 0-2.38-4.15l4.15.36m-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29L20.64 17M12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44L12 22Z"/></svg>
+            </label>
+          
+        
+          
+          <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="black" data-md-color-accent="lime"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_2">
+          
+            <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3 3.19.09m3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95 2.06.05m-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31Z"/></svg>
+            </label>
+          
+        
+      </form>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/spotDL/spotify-downloader" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.3.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    spotdl/spotify-downloader
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+
+
+  <li class="md-tabs__item">
+    <a href="../../.." class="md-tabs__link">
+      Home
+    </a>
+  </li>
+
+      
+        
+  
+  
+
+
+  <li class="md-tabs__item">
+    <a href="../../../installation/" class="md-tabs__link">
+      Installation
+    </a>
+  </li>
+
+      
+        
+  
+  
+
+
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../usage/" class="md-tabs__link">
+        Usage
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+
+
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../CODE_OF_CONDUCT/" class="md-tabs__link">
+        Development
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+    
+  
+
+
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../" class="md-tabs__link md-tabs__link--active">
+        Code Reference
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="spotDL" class="md-nav__button md-logo" aria-label="spotDL" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    spotDL
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/spotDL/spotify-downloader" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.3.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    spotdl/spotify-downloader
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        Home
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../installation/" class="md-nav__link">
+        Installation
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+          Usage
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_3">
+          <span class="md-nav__icon md-icon"></span>
+          Usage
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../usage/" class="md-nav__link">
+        Usage examples
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../troubleshooting/" class="md-nav__link">
+        Troubleshooting
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+          Development
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_4">
+          <span class="md-nav__icon md-icon"></span>
+          Development
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../CODE_OF_CONDUCT/" class="md-nav__link">
+        Code Of Conduct
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../CONTRIBUTING/" class="md-nav__link">
+        Contributing
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+      
+      
+      
+        <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+          Code Reference
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+        <label class="md-nav__title" for="__nav_5">
+          <span class="md-nav__icon md-icon"></span>
+          Code Reference
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../" class="md-nav__link">
+        __init__
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_2" >
+      
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../../download/">download</a>
+          
+            <label for="__nav_5_2">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_2_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_5_2">
+          <span class="md-nav__icon md-icon"></span>
+          download
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../download/progress_handler/" class="md-nav__link">
+        progress_handler
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../download/downloader/" class="md-nav__link">
+        downloader
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3" checked>
+      
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../">utils</a>
+          
+            <label for="__nav_5_3">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_3_label" aria-expanded="true">
+        <label class="md-nav__title" for="__nav_5_3">
+          <span class="md-nav__icon md-icon"></span>
+          utils
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../search/" class="md-nav__link">
+        search
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../arguments/" class="md-nav__link">
+        arguments
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../metadata/" class="md-nav__link">
+        metadata
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../archive/" class="md-nav__link">
+        archive
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../config/" class="md-nav__link">
+        config
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../m3u/" class="md-nav__link">
+        m3u
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../static/" class="md-nav__link">
+        static
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../github/" class="md-nav__link">
+        github
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../spotify/" class="md-nav__link">
+        spotify
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../logging/" class="md-nav__link">
+        logging
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../console/" class="md-nav__link">
+        console
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../formatter/" class="md-nav__link">
+        formatter
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ffmpeg/" class="md-nav__link">
+        ffmpeg
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../downloader/" class="md-nav__link">
+        downloader
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          matching
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        matching
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#spotdl.utils.matching" class="md-nav__link">
+    spotdl.utils.matching
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#spotdl.utils.matching.artists_match_fixup1" class="md-nav__link">
+    artists_match_fixup1()
+  </a>
+  
+    <nav class="md-nav" aria-label="artists_match_fixup1()">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#spotdl.utils.matching.artists_match_fixup1--arguments" class="md-nav__link">
+    Arguments
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spotdl.utils.matching.artists_match_fixup1--returns" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#spotdl.utils.matching.artists_match_fixup2" class="md-nav__link">
+    artists_match_fixup2()
+  </a>
+  
+    <nav class="md-nav" aria-label="artists_match_fixup2()">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#spotdl.utils.matching.artists_match_fixup2--arguments" class="md-nav__link">
+    Arguments
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spotdl.utils.matching.artists_match_fixup2--returns" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#spotdl.utils.matching.artists_match_fixup3" class="md-nav__link">
+    artists_match_fixup3()
+  </a>
+  
+    <nav class="md-nav" aria-label="artists_match_fixup3()">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#spotdl.utils.matching.artists_match_fixup3--arguments" class="md-nav__link">
+    Arguments
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spotdl.utils.matching.artists_match_fixup3--returns" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#spotdl.utils.matching.based_sort" class="md-nav__link">
+    based_sort()
+  </a>
+  
+    <nav class="md-nav" aria-label="based_sort()">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#spotdl.utils.matching.based_sort--arguments" class="md-nav__link">
+    Arguments
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spotdl.utils.matching.based_sort--returns" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#spotdl.utils.matching.calc_album_match" class="md-nav__link">
+    calc_album_match()
+  </a>
+  
+    <nav class="md-nav" aria-label="calc_album_match()">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#spotdl.utils.matching.calc_album_match--arguments" class="md-nav__link">
+    Arguments
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spotdl.utils.matching.calc_album_match--returns" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#spotdl.utils.matching.calc_artists_match" class="md-nav__link">
+    calc_artists_match()
+  </a>
+  
+    <nav class="md-nav" aria-label="calc_artists_match()">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#spotdl.utils.matching.calc_artists_match--arguments" class="md-nav__link">
+    Arguments
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spotdl.utils.matching.calc_artists_match--returns" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#spotdl.utils.matching.calc_main_artist_match" class="md-nav__link">
+    calc_main_artist_match()
+  </a>
+  
+    <nav class="md-nav" aria-label="calc_main_artist_match()">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#spotdl.utils.matching.calc_main_artist_match--arguments" class="md-nav__link">
+    Arguments
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spotdl.utils.matching.calc_main_artist_match--returns" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#spotdl.utils.matching.calc_name_match" class="md-nav__link">
+    calc_name_match()
+  </a>
+  
+    <nav class="md-nav" aria-label="calc_name_match()">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#spotdl.utils.matching.calc_name_match--arguments" class="md-nav__link">
+    Arguments
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spotdl.utils.matching.calc_name_match--returns" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#spotdl.utils.matching.calc_time_match" class="md-nav__link">
+    calc_time_match()
+  </a>
+  
+    <nav class="md-nav" aria-label="calc_time_match()">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#spotdl.utils.matching.calc_time_match--arguments" class="md-nav__link">
+    Arguments
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spotdl.utils.matching.calc_time_match--returns" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#spotdl.utils.matching.check_common_word" class="md-nav__link">
+    check_common_word()
+  </a>
+  
+    <nav class="md-nav" aria-label="check_common_word()">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#spotdl.utils.matching.check_common_word--arguments" class="md-nav__link">
+    Arguments
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spotdl.utils.matching.check_common_word--returns" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#spotdl.utils.matching.create_clean_string" class="md-nav__link">
+    create_clean_string()
+  </a>
+  
+    <nav class="md-nav" aria-label="create_clean_string()">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#spotdl.utils.matching.create_clean_string--arguments" class="md-nav__link">
+    Arguments
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spotdl.utils.matching.create_clean_string--returns" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#spotdl.utils.matching.create_match_strings" class="md-nav__link">
+    create_match_strings()
+  </a>
+  
+    <nav class="md-nav" aria-label="create_match_strings()">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#spotdl.utils.matching.create_match_strings--arguments" class="md-nav__link">
+    Arguments
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spotdl.utils.matching.create_match_strings--returns" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#spotdl.utils.matching.debug" class="md-nav__link">
+    debug()
+  </a>
+  
+    <nav class="md-nav" aria-label="debug()">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#spotdl.utils.matching.debug--arguments" class="md-nav__link">
+    Arguments
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#spotdl.utils.matching.fill_string" class="md-nav__link">
+    fill_string()
+  </a>
+  
+    <nav class="md-nav" aria-label="fill_string()">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#spotdl.utils.matching.fill_string--arguments" class="md-nav__link">
+    Arguments
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spotdl.utils.matching.fill_string--returns" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#spotdl.utils.matching.get_best_matches" class="md-nav__link">
+    get_best_matches()
+  </a>
+  
+    <nav class="md-nav" aria-label="get_best_matches()">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#spotdl.utils.matching.get_best_matches--arguments" class="md-nav__link">
+    Arguments
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spotdl.utils.matching.get_best_matches--returns" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#spotdl.utils.matching.order_results" class="md-nav__link">
+    order_results()
+  </a>
+  
+    <nav class="md-nav" aria-label="order_results()">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#spotdl.utils.matching.order_results--arguments" class="md-nav__link">
+    Arguments
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spotdl.utils.matching.order_results--returns" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#spotdl.utils.matching.sort_string" class="md-nav__link">
+    sort_string()
+  </a>
+  
+    <nav class="md-nav" aria-label="sort_string()">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#spotdl.utils.matching.sort_string--arguments" class="md-nav__link">
+    Arguments
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spotdl.utils.matching.sort_string--returns" class="md-nav__link">
+    Returns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../web/" class="md-nav__link">
+        web
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_4" >
+      
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../../providers/">providers</a>
+          
+            <label for="__nav_5_4">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_4_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_5_4">
+          <span class="md-nav__icon md-icon"></span>
+          providers
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_4_1" >
+      
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../../providers/audio/">audio</a>
+          
+            <label for="__nav_5_4_1">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_5_4_1_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_5_4_1">
+          <span class="md-nav__icon md-icon"></span>
+          audio
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../providers/audio/base/" class="md-nav__link">
+        base
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../providers/audio/youtube/" class="md-nav__link">
+        youtube
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../providers/audio/ytmusic/" class="md-nav__link">
+        ytmusic
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_4_2" >
+      
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../../providers/lyrics/">lyrics</a>
+          
+            <label for="__nav_5_4_2">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_5_4_2_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_5_4_2">
+          <span class="md-nav__icon md-icon"></span>
+          lyrics
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../providers/lyrics/azlyrics/" class="md-nav__link">
+        azlyrics
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../providers/lyrics/genius/" class="md-nav__link">
+        genius
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../providers/lyrics/base/" class="md-nav__link">
+        base
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../providers/lyrics/musixmatch/" class="md-nav__link">
+        musixmatch
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../providers/lyrics/synced/" class="md-nav__link">
+        synced
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_5" >
+      
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../../types/">types</a>
+          
+            <label for="__nav_5_5">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_5_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_5_5">
+          <span class="md-nav__icon md-icon"></span>
+          types
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../types/artist/" class="md-nav__link">
+        artist
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../types/result/" class="md-nav__link">
+        result
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../types/saved/" class="md-nav__link">
+        saved
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../types/options/" class="md-nav__link">
+        options
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../types/album/" class="md-nav__link">
+        album
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../types/song/" class="md-nav__link">
+        song
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../types/playlist/" class="md-nav__link">
+        playlist
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_6" >
+      
+      
+      
+        
+        
+        <div class="md-nav__link md-nav__link--index ">
+          <a href="../../console/">console</a>
+          
+            <label for="__nav_5_6">
+              <span class="md-nav__icon md-icon"></span>
+            </label>
+          
+        </div>
+      
+      <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_6_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_5_6">
+          <span class="md-nav__icon md-icon"></span>
+          console
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../console/download/" class="md-nav__link">
+        download
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../console/sync/" class="md-nav__link">
+        sync
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../console/save/" class="md-nav__link">
+        save
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../console/url/" class="md-nav__link">
+        url
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../console/entry_point/" class="md-nav__link">
+        entry_point
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../console/meta/" class="md-nav__link">
+        meta
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../console/web/" class="md-nav__link">
+        web
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+  <h1>matching</h1>
+
+<div class="doc doc-object doc-module">
+
+
+<a id="spotdl.utils.matching"></a>
+  <div class="doc doc-contents first">
+  
+      <p>Module for all things matching related</p>
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h2 id="spotdl.utils.matching.artists_match_fixup1" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">artists_match_fixup1</span><span class="p">(</span><span class="n">song</span><span class="p">,</span> <span class="n">result</span><span class="p">,</span> <span class="n">score</span><span class="p">)</span></code>
+
+<a href="#spotdl.utils.matching.artists_match_fixup1" class="headerlink" title="Permanent link">¤</a></h2>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Multiple fixes to the artists score for
+not verified results to improve the accuracy</p>
+<h5 id="spotdl.utils.matching.artists_match_fixup1--arguments">Arguments<a class="headerlink" href="#spotdl.utils.matching.artists_match_fixup1--arguments" title="Permanent link">¤</a></h5>
+<ul>
+<li>song: song to match</li>
+<li>result: result to match</li>
+<li>score: current score</li>
+</ul>
+<h5 id="spotdl.utils.matching.artists_match_fixup1--returns">Returns<a class="headerlink" href="#spotdl.utils.matching.artists_match_fixup1--returns" title="Permanent link">¤</a></h5>
+<ul>
+<li>new score</li>
+</ul>
+
+      <details class="quote">
+        <summary>Source code in <code>spotdl/utils/matching.py</code></summary>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">329</span>
+<span class="normal">330</span>
+<span class="normal">331</span>
+<span class="normal">332</span>
+<span class="normal">333</span>
+<span class="normal">334</span>
+<span class="normal">335</span>
+<span class="normal">336</span>
+<span class="normal">337</span>
+<span class="normal">338</span>
+<span class="normal">339</span>
+<span class="normal">340</span>
+<span class="normal">341</span>
+<span class="normal">342</span>
+<span class="normal">343</span>
+<span class="normal">344</span>
+<span class="normal">345</span>
+<span class="normal">346</span>
+<span class="normal">347</span>
+<span class="normal">348</span>
+<span class="normal">349</span>
+<span class="normal">350</span>
+<span class="normal">351</span>
+<span class="normal">352</span>
+<span class="normal">353</span>
+<span class="normal">354</span>
+<span class="normal">355</span>
+<span class="normal">356</span>
+<span class="normal">357</span>
+<span class="normal">358</span>
+<span class="normal">359</span>
+<span class="normal">360</span>
+<span class="normal">361</span>
+<span class="normal">362</span>
+<span class="normal">363</span>
+<span class="normal">364</span>
+<span class="normal">365</span>
+<span class="normal">366</span>
+<span class="normal">367</span>
+<span class="normal">368</span>
+<span class="normal">369</span>
+<span class="normal">370</span>
+<span class="normal">371</span>
+<span class="normal">372</span>
+<span class="normal">373</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">artists_match_fixup1</span><span class="p">(</span><span class="n">song</span><span class="p">:</span> <span class="n">Song</span><span class="p">,</span> <span class="n">result</span><span class="p">:</span> <span class="n">Result</span><span class="p">,</span> <span class="n">score</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Multiple fixes to the artists score for</span>
+<span class="sd">    not verified results to improve the accuracy</span>
+
+<span class="sd">    ### Arguments</span>
+<span class="sd">    - song: song to match</span>
+<span class="sd">    - result: result to match</span>
+<span class="sd">    - score: current score</span>
+
+<span class="sd">    ### Returns</span>
+<span class="sd">    - new score</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># If we have a verified result, we don&#39;t have to fix anything</span>
+    <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">verified</span> <span class="ow">or</span> <span class="n">score</span> <span class="o">&gt;</span> <span class="mi">50</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">score</span>
+
+    <span class="c1"># If we didn&#39;t find any artist match,</span>
+    <span class="c1"># we fallback to channel name match</span>
+    <span class="n">channel_name_match</span> <span class="o">=</span> <span class="n">ratio</span><span class="p">(</span>
+        <span class="n">slugify</span><span class="p">(</span><span class="n">song</span><span class="o">.</span><span class="n">artist</span><span class="p">),</span>
+        <span class="n">slugify</span><span class="p">(</span><span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">artists</span><span class="p">))</span> <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">artists</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">channel_name_match</span> <span class="o">&gt;</span> <span class="n">score</span><span class="p">:</span>
+        <span class="n">score</span> <span class="o">=</span> <span class="n">channel_name_match</span>
+
+    <span class="c1"># If artist match is still too low,</span>
+    <span class="c1"># we fallback to matching all song artist names</span>
+    <span class="c1"># with the result&#39;s title</span>
+    <span class="k">if</span> <span class="n">score</span> <span class="o">&lt;=</span> <span class="mi">50</span><span class="p">:</span>
+        <span class="n">artist_title_match</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="k">for</span> <span class="n">artist</span> <span class="ow">in</span> <span class="n">song</span><span class="o">.</span><span class="n">artists</span><span class="p">:</span>
+            <span class="n">slug_artist</span> <span class="o">=</span> <span class="n">slugify</span><span class="p">(</span><span class="n">artist</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">slug_artist</span> <span class="ow">in</span> <span class="n">slugify</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">):</span>
+                <span class="n">artist_title_match</span> <span class="o">+=</span> <span class="mf">1.0</span>
+
+        <span class="n">artist_title_match</span> <span class="o">=</span> <span class="p">(</span><span class="n">artist_title_match</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">song</span><span class="o">.</span><span class="n">artists</span><span class="p">))</span> <span class="o">*</span> <span class="mi">100</span>
+
+        <span class="k">if</span> <span class="n">artist_title_match</span> <span class="o">&gt;</span> <span class="n">score</span><span class="p">:</span>
+            <span class="n">score</span> <span class="o">=</span> <span class="n">artist_title_match</span>
+
+    <span class="k">return</span> <span class="n">score</span>
+</code></pre></div></td></tr></table></div>
+      </details>
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h2 id="spotdl.utils.matching.artists_match_fixup2" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">artists_match_fixup2</span><span class="p">(</span><span class="n">song</span><span class="p">,</span> <span class="n">result</span><span class="p">,</span> <span class="n">score</span><span class="p">,</span> <span class="n">search_query</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+
+<a href="#spotdl.utils.matching.artists_match_fixup2" class="headerlink" title="Permanent link">¤</a></h2>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Multiple fixes to the artists score for
+verified results to improve the accuracy</p>
+<h5 id="spotdl.utils.matching.artists_match_fixup2--arguments">Arguments<a class="headerlink" href="#spotdl.utils.matching.artists_match_fixup2--arguments" title="Permanent link">¤</a></h5>
+<ul>
+<li>song: song to match</li>
+<li>result: result to match</li>
+<li>score: current score</li>
+</ul>
+<h5 id="spotdl.utils.matching.artists_match_fixup2--returns">Returns<a class="headerlink" href="#spotdl.utils.matching.artists_match_fixup2--returns" title="Permanent link">¤</a></h5>
+<ul>
+<li>new score</li>
+</ul>
+
+      <details class="quote">
+        <summary>Source code in <code>spotdl/utils/matching.py</code></summary>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">376</span>
+<span class="normal">377</span>
+<span class="normal">378</span>
+<span class="normal">379</span>
+<span class="normal">380</span>
+<span class="normal">381</span>
+<span class="normal">382</span>
+<span class="normal">383</span>
+<span class="normal">384</span>
+<span class="normal">385</span>
+<span class="normal">386</span>
+<span class="normal">387</span>
+<span class="normal">388</span>
+<span class="normal">389</span>
+<span class="normal">390</span>
+<span class="normal">391</span>
+<span class="normal">392</span>
+<span class="normal">393</span>
+<span class="normal">394</span>
+<span class="normal">395</span>
+<span class="normal">396</span>
+<span class="normal">397</span>
+<span class="normal">398</span>
+<span class="normal">399</span>
+<span class="normal">400</span>
+<span class="normal">401</span>
+<span class="normal">402</span>
+<span class="normal">403</span>
+<span class="normal">404</span>
+<span class="normal">405</span>
+<span class="normal">406</span>
+<span class="normal">407</span>
+<span class="normal">408</span>
+<span class="normal">409</span>
+<span class="normal">410</span>
+<span class="normal">411</span>
+<span class="normal">412</span>
+<span class="normal">413</span>
+<span class="normal">414</span>
+<span class="normal">415</span>
+<span class="normal">416</span>
+<span class="normal">417</span>
+<span class="normal">418</span>
+<span class="normal">419</span>
+<span class="normal">420</span>
+<span class="normal">421</span>
+<span class="normal">422</span>
+<span class="normal">423</span>
+<span class="normal">424</span>
+<span class="normal">425</span>
+<span class="normal">426</span>
+<span class="normal">427</span>
+<span class="normal">428</span>
+<span class="normal">429</span>
+<span class="normal">430</span>
+<span class="normal">431</span>
+<span class="normal">432</span>
+<span class="normal">433</span>
+<span class="normal">434</span>
+<span class="normal">435</span>
+<span class="normal">436</span>
+<span class="normal">437</span>
+<span class="normal">438</span>
+<span class="normal">439</span>
+<span class="normal">440</span>
+<span class="normal">441</span>
+<span class="normal">442</span>
+<span class="normal">443</span>
+<span class="normal">444</span>
+<span class="normal">445</span>
+<span class="normal">446</span>
+<span class="normal">447</span>
+<span class="normal">448</span>
+<span class="normal">449</span>
+<span class="normal">450</span>
+<span class="normal">451</span>
+<span class="normal">452</span>
+<span class="normal">453</span>
+<span class="normal">454</span>
+<span class="normal">455</span>
+<span class="normal">456</span>
+<span class="normal">457</span>
+<span class="normal">458</span>
+<span class="normal">459</span>
+<span class="normal">460</span>
+<span class="normal">461</span>
+<span class="normal">462</span>
+<span class="normal">463</span>
+<span class="normal">464</span>
+<span class="normal">465</span>
+<span class="normal">466</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">artists_match_fixup2</span><span class="p">(</span>
+    <span class="n">song</span><span class="p">:</span> <span class="n">Song</span><span class="p">,</span> <span class="n">result</span><span class="p">:</span> <span class="n">Result</span><span class="p">,</span> <span class="n">score</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">search_query</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Multiple fixes to the artists score for</span>
+<span class="sd">    verified results to improve the accuracy</span>
+
+<span class="sd">    ### Arguments</span>
+<span class="sd">    - song: song to match</span>
+<span class="sd">    - result: result to match</span>
+<span class="sd">    - score: current score</span>
+
+<span class="sd">    ### Returns</span>
+<span class="sd">    - new score</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">score</span> <span class="o">&gt;</span> <span class="mi">70</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">result</span><span class="o">.</span><span class="n">verified</span><span class="p">:</span>
+        <span class="c1"># Don&#39;t fixup the score</span>
+        <span class="c1"># if the artist match is already high</span>
+        <span class="c1"># or if the result is not verified</span>
+        <span class="k">return</span> <span class="n">score</span>
+
+    <span class="c1"># Slugify some variables</span>
+    <span class="n">slug_song_artist</span> <span class="o">=</span> <span class="n">slugify</span><span class="p">(</span><span class="n">song</span><span class="o">.</span><span class="n">artists</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">slug_song_name</span> <span class="o">=</span> <span class="n">slugify</span><span class="p">(</span><span class="n">song</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+    <span class="n">slug_result_name</span> <span class="o">=</span> <span class="n">slugify</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+    <span class="n">slug_result_artists</span> <span class="o">=</span> <span class="n">slugify</span><span class="p">(</span><span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">artists</span><span class="p">))</span> <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">artists</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+
+    <span class="c1"># Check if the main artist is simlar</span>
+    <span class="n">has_main_artist</span> <span class="o">=</span> <span class="p">(</span><span class="n">score</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">song</span><span class="o">.</span><span class="n">artists</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="mi">1</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mi">50</span>
+
+    <span class="n">match_str1</span><span class="p">,</span> <span class="n">match_str2</span> <span class="o">=</span> <span class="n">create_match_strings</span><span class="p">(</span><span class="n">song</span><span class="p">,</span> <span class="n">result</span><span class="p">,</span> <span class="n">search_query</span><span class="p">)</span>
+
+    <span class="c1"># Add 10 points to the score</span>
+    <span class="c1"># if the name match is greater than 75%</span>
+    <span class="k">if</span> <span class="n">ratio</span><span class="p">(</span><span class="n">match_str1</span><span class="p">,</span> <span class="n">match_str2</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">75</span><span class="p">:</span>
+        <span class="n">score</span> <span class="o">+=</span> <span class="mi">10</span>
+
+    <span class="c1"># If the result doesn&#39;t have the same number of artists but has</span>
+    <span class="c1"># the same main artist and similar name</span>
+    <span class="c1"># we add 25% to the artist match</span>
+    <span class="k">if</span> <span class="p">(</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">artists</span>
+        <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">artists</span><span class="p">)</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">song</span><span class="o">.</span><span class="n">artists</span><span class="p">)</span>
+        <span class="ow">and</span> <span class="n">slug_song_artist</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="ow">in</span> <span class="p">[</span>
+            <span class="n">slug_result_artists</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
+            <span class="n">slug_result_name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
+        <span class="p">]</span>
+    <span class="p">):</span>
+        <span class="n">score</span> <span class="o">+=</span> <span class="mi">25</span>
+
+    <span class="c1"># Check if the song album name is very similar to the result album name</span>
+    <span class="c1"># if it is, we increase the artist match</span>
+    <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">album</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="n">ratio</span><span class="p">(</span>
+                <span class="n">slugify</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">album</span><span class="p">),</span>
+                <span class="n">slugify</span><span class="p">(</span><span class="n">song</span><span class="o">.</span><span class="n">album_name</span><span class="p">),</span>
+            <span class="p">)</span>
+            <span class="o">&gt;=</span> <span class="mi">85</span>
+        <span class="p">):</span>
+            <span class="n">score</span> <span class="o">+=</span> <span class="mi">10</span>
+
+    <span class="c1"># Check if other song artists are in the result name</span>
+    <span class="c1"># if they are, we increase the artist match</span>
+    <span class="c1"># (main artist is already checked, so we skip it)</span>
+    <span class="n">artists_to_check</span> <span class="o">=</span> <span class="n">song</span><span class="o">.</span><span class="n">artists</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">has_main_artist</span><span class="p">)</span> <span class="p">:]</span>
+    <span class="k">for</span> <span class="n">artist</span> <span class="ow">in</span> <span class="n">artists_to_check</span><span class="p">:</span>
+        <span class="n">artist</span> <span class="o">=</span> <span class="n">slugify</span><span class="p">(</span><span class="n">artist</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">artist</span> <span class="ow">in</span> <span class="n">match_str2</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">):</span>
+            <span class="n">score</span> <span class="o">+=</span> <span class="mi">5</span>
+
+    <span class="c1"># if the artist match is still too low,</span>
+    <span class="c1"># we fallback to matching all song artist names</span>
+    <span class="c1"># with the result&#39;s artists</span>
+    <span class="k">if</span> <span class="n">score</span> <span class="o">&lt;=</span> <span class="mi">70</span><span class="p">:</span>
+        <span class="c1"># Artists from song/result name without the song/result name words</span>
+        <span class="n">artist_list1</span> <span class="o">=</span> <span class="n">create_clean_string</span><span class="p">(</span><span class="n">song</span><span class="o">.</span><span class="n">artists</span><span class="p">,</span> <span class="n">slug_song_name</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="n">artist_list2</span> <span class="o">=</span> <span class="n">create_clean_string</span><span class="p">(</span>
+            <span class="nb">list</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">artists</span><span class="p">)</span> <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">artists</span> <span class="k">else</span> <span class="p">[</span><span class="n">result</span><span class="o">.</span><span class="n">author</span><span class="p">],</span>
+            <span class="n">slug_result_name</span><span class="p">,</span>
+            <span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">artist_title_match</span> <span class="o">=</span> <span class="n">ratio</span><span class="p">(</span><span class="n">artist_list1</span><span class="p">,</span> <span class="n">artist_list2</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">artist_title_match</span> <span class="o">&gt;</span> <span class="n">score</span><span class="p">:</span>
+            <span class="n">score</span> <span class="o">=</span> <span class="n">artist_title_match</span>
+
+    <span class="k">return</span> <span class="n">score</span>
+</code></pre></div></td></tr></table></div>
+      </details>
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h2 id="spotdl.utils.matching.artists_match_fixup3" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">artists_match_fixup3</span><span class="p">(</span><span class="n">song</span><span class="p">,</span> <span class="n">result</span><span class="p">,</span> <span class="n">score</span><span class="p">)</span></code>
+
+<a href="#spotdl.utils.matching.artists_match_fixup3" class="headerlink" title="Permanent link">¤</a></h2>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Calculate match percentage based result's name
+and song's title if the result has exactly one artist
+and the song has more than one artist</p>
+<h5 id="spotdl.utils.matching.artists_match_fixup3--arguments">Arguments<a class="headerlink" href="#spotdl.utils.matching.artists_match_fixup3--arguments" title="Permanent link">¤</a></h5>
+<ul>
+<li>song: song to match</li>
+<li>result: result to match</li>
+<li>score: current score</li>
+</ul>
+<h5 id="spotdl.utils.matching.artists_match_fixup3--returns">Returns<a class="headerlink" href="#spotdl.utils.matching.artists_match_fixup3--returns" title="Permanent link">¤</a></h5>
+<ul>
+<li>new score</li>
+</ul>
+
+      <details class="quote">
+        <summary>Source code in <code>spotdl/utils/matching.py</code></summary>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">469</span>
+<span class="normal">470</span>
+<span class="normal">471</span>
+<span class="normal">472</span>
+<span class="normal">473</span>
+<span class="normal">474</span>
+<span class="normal">475</span>
+<span class="normal">476</span>
+<span class="normal">477</span>
+<span class="normal">478</span>
+<span class="normal">479</span>
+<span class="normal">480</span>
+<span class="normal">481</span>
+<span class="normal">482</span>
+<span class="normal">483</span>
+<span class="normal">484</span>
+<span class="normal">485</span>
+<span class="normal">486</span>
+<span class="normal">487</span>
+<span class="normal">488</span>
+<span class="normal">489</span>
+<span class="normal">490</span>
+<span class="normal">491</span>
+<span class="normal">492</span>
+<span class="normal">493</span>
+<span class="normal">494</span>
+<span class="normal">495</span>
+<span class="normal">496</span>
+<span class="normal">497</span>
+<span class="normal">498</span>
+<span class="normal">499</span>
+<span class="normal">500</span>
+<span class="normal">501</span>
+<span class="normal">502</span>
+<span class="normal">503</span>
+<span class="normal">504</span>
+<span class="normal">505</span>
+<span class="normal">506</span>
+<span class="normal">507</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">artists_match_fixup3</span><span class="p">(</span><span class="n">song</span><span class="p">:</span> <span class="n">Song</span><span class="p">,</span> <span class="n">result</span><span class="p">:</span> <span class="n">Result</span><span class="p">,</span> <span class="n">score</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate match percentage based result&#39;s name</span>
+<span class="sd">    and song&#39;s title if the result has exactly one artist</span>
+<span class="sd">    and the song has more than one artist</span>
+
+<span class="sd">    ### Arguments</span>
+<span class="sd">    - song: song to match</span>
+<span class="sd">    - result: result to match</span>
+<span class="sd">    - score: current score</span>
+
+<span class="sd">    ### Returns</span>
+<span class="sd">    - new score</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="p">(</span>
+        <span class="n">score</span> <span class="o">&gt;</span> <span class="mi">70</span>
+        <span class="ow">or</span> <span class="ow">not</span> <span class="n">result</span><span class="o">.</span><span class="n">artists</span>
+        <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">artists</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span>
+        <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">song</span><span class="o">.</span><span class="n">artists</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+    <span class="p">):</span>
+        <span class="c1"># Don&#39;t fixup the score</span>
+        <span class="c1"># if the score is already high</span>
+        <span class="c1"># or if the result has more than one artist</span>
+        <span class="c1"># or if the song has only one artist</span>
+        <span class="k">return</span> <span class="n">score</span>
+
+    <span class="n">artists_score_fixup</span> <span class="o">=</span> <span class="n">ratio</span><span class="p">(</span>
+        <span class="n">slugify</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">name</span><span class="p">),</span>
+        <span class="n">slugify</span><span class="p">(</span><span class="n">create_song_title</span><span class="p">(</span><span class="n">song</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="p">[</span><span class="n">song</span><span class="o">.</span><span class="n">artist</span><span class="p">])),</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">artists_score_fixup</span> <span class="o">&gt;=</span> <span class="mi">80</span><span class="p">:</span>
+        <span class="n">score</span> <span class="o">=</span> <span class="p">(</span><span class="n">score</span> <span class="o">+</span> <span class="n">artists_score_fixup</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+
+    <span class="c1"># Make sure that the score is not higher than 100</span>
+    <span class="n">score</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">score</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">score</span>
+</code></pre></div></td></tr></table></div>
+      </details>
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h2 id="spotdl.utils.matching.based_sort" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">based_sort</span><span class="p">(</span><span class="n">strings</span><span class="p">,</span> <span class="n">based_on</span><span class="p">)</span></code>
+
+<a href="#spotdl.utils.matching.based_sort" class="headerlink" title="Permanent link">¤</a></h2>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Sort strings in list based on the order of strings in <code>based_on</code> list</p>
+<h5 id="spotdl.utils.matching.based_sort--arguments">Arguments<a class="headerlink" href="#spotdl.utils.matching.based_sort--arguments" title="Permanent link">¤</a></h5>
+<ul>
+<li>strings: strings to sort</li>
+<li>based_on: strings to sort <code>strings</code> list based on</li>
+</ul>
+<h5 id="spotdl.utils.matching.based_sort--returns">Returns<a class="headerlink" href="#spotdl.utils.matching.based_sort--returns" title="Permanent link">¤</a></h5>
+<ul>
+<li>sorted list of strings</li>
+</ul>
+
+      <details class="quote">
+        <summary>Source code in <code>spotdl/utils/matching.py</code></summary>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span>
+<span class="normal">149</span>
+<span class="normal">150</span>
+<span class="normal">151</span>
+<span class="normal">152</span>
+<span class="normal">153</span>
+<span class="normal">154</span>
+<span class="normal">155</span>
+<span class="normal">156</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">based_sort</span><span class="p">(</span><span class="n">strings</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">based_on</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Sort strings in list based on the order of strings in `based_on` list</span>
+
+<span class="sd">    ### Arguments</span>
+<span class="sd">    - strings: strings to sort</span>
+<span class="sd">    - based_on: strings to sort `strings` list based on</span>
+
+<span class="sd">    ### Returns</span>
+<span class="sd">    - sorted list of strings</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">strings</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+    <span class="n">based_on</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+
+    <span class="n">list_map</span> <span class="o">=</span> <span class="p">{</span><span class="n">value</span><span class="p">:</span> <span class="n">index</span> <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">based_on</span><span class="p">)}</span>
+
+    <span class="n">strings</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
+        <span class="n">strings</span><span class="p">,</span>
+        <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">list_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span>
+        <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">based_on</span><span class="o">.</span><span class="n">reverse</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">strings</span><span class="p">,</span> <span class="n">based_on</span>
+</code></pre></div></td></tr></table></div>
+      </details>
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h2 id="spotdl.utils.matching.calc_album_match" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">calc_album_match</span><span class="p">(</span><span class="n">song</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span></code>
+
+<a href="#spotdl.utils.matching.calc_album_match" class="headerlink" title="Permanent link">¤</a></h2>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Calculate album match percentage</p>
+<h5 id="spotdl.utils.matching.calc_album_match--arguments">Arguments<a class="headerlink" href="#spotdl.utils.matching.calc_album_match--arguments" title="Permanent link">¤</a></h5>
+<ul>
+<li>song: song to match</li>
+<li>result: result to match</li>
+</ul>
+<h5 id="spotdl.utils.matching.calc_album_match--returns">Returns<a class="headerlink" href="#spotdl.utils.matching.calc_album_match--returns" title="Permanent link">¤</a></h5>
+<ul>
+<li>album match percentage</li>
+</ul>
+
+      <details class="quote">
+        <summary>Source code in <code>spotdl/utils/matching.py</code></summary>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">581</span>
+<span class="normal">582</span>
+<span class="normal">583</span>
+<span class="normal">584</span>
+<span class="normal">585</span>
+<span class="normal">586</span>
+<span class="normal">587</span>
+<span class="normal">588</span>
+<span class="normal">589</span>
+<span class="normal">590</span>
+<span class="normal">591</span>
+<span class="normal">592</span>
+<span class="normal">593</span>
+<span class="normal">594</span>
+<span class="normal">595</span>
+<span class="normal">596</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">calc_album_match</span><span class="p">(</span><span class="n">song</span><span class="p">:</span> <span class="n">Song</span><span class="p">,</span> <span class="n">result</span><span class="p">:</span> <span class="n">Result</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate album match percentage</span>
+
+<span class="sd">    ### Arguments</span>
+<span class="sd">    - song: song to match</span>
+<span class="sd">    - result: result to match</span>
+
+<span class="sd">    ### Returns</span>
+<span class="sd">    - album match percentage</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">result</span><span class="o">.</span><span class="n">album</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mf">0.0</span>
+
+    <span class="k">return</span> <span class="n">ratio</span><span class="p">(</span><span class="n">slugify</span><span class="p">(</span><span class="n">song</span><span class="o">.</span><span class="n">album_name</span><span class="p">),</span> <span class="n">slugify</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">album</span><span class="p">))</span>
+</code></pre></div></td></tr></table></div>
+      </details>
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h2 id="spotdl.utils.matching.calc_artists_match" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">calc_artists_match</span><span class="p">(</span><span class="n">song</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span></code>
+
+<a href="#spotdl.utils.matching.calc_artists_match" class="headerlink" title="Permanent link">¤</a></h2>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Check if all artists are present in list of artists</p>
+<h5 id="spotdl.utils.matching.calc_artists_match--arguments">Arguments<a class="headerlink" href="#spotdl.utils.matching.calc_artists_match--arguments" title="Permanent link">¤</a></h5>
+<ul>
+<li>song: song to match</li>
+<li>result: result to match</li>
+</ul>
+<h5 id="spotdl.utils.matching.calc_artists_match--returns">Returns<a class="headerlink" href="#spotdl.utils.matching.calc_artists_match--returns" title="Permanent link">¤</a></h5>
+<ul>
+<li>artists match percentage</li>
+</ul>
+
+      <details class="quote">
+        <summary>Source code in <code>spotdl/utils/matching.py</code></summary>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">283</span>
+<span class="normal">284</span>
+<span class="normal">285</span>
+<span class="normal">286</span>
+<span class="normal">287</span>
+<span class="normal">288</span>
+<span class="normal">289</span>
+<span class="normal">290</span>
+<span class="normal">291</span>
+<span class="normal">292</span>
+<span class="normal">293</span>
+<span class="normal">294</span>
+<span class="normal">295</span>
+<span class="normal">296</span>
+<span class="normal">297</span>
+<span class="normal">298</span>
+<span class="normal">299</span>
+<span class="normal">300</span>
+<span class="normal">301</span>
+<span class="normal">302</span>
+<span class="normal">303</span>
+<span class="normal">304</span>
+<span class="normal">305</span>
+<span class="normal">306</span>
+<span class="normal">307</span>
+<span class="normal">308</span>
+<span class="normal">309</span>
+<span class="normal">310</span>
+<span class="normal">311</span>
+<span class="normal">312</span>
+<span class="normal">313</span>
+<span class="normal">314</span>
+<span class="normal">315</span>
+<span class="normal">316</span>
+<span class="normal">317</span>
+<span class="normal">318</span>
+<span class="normal">319</span>
+<span class="normal">320</span>
+<span class="normal">321</span>
+<span class="normal">322</span>
+<span class="normal">323</span>
+<span class="normal">324</span>
+<span class="normal">325</span>
+<span class="normal">326</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">calc_artists_match</span><span class="p">(</span><span class="n">song</span><span class="p">:</span> <span class="n">Song</span><span class="p">,</span> <span class="n">result</span><span class="p">:</span> <span class="n">Result</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Check if all artists are present in list of artists</span>
+
+<span class="sd">    ### Arguments</span>
+<span class="sd">    - song: song to match</span>
+<span class="sd">    - result: result to match</span>
+
+<span class="sd">    ### Returns</span>
+<span class="sd">    - artists match percentage</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">artist_match_number</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+    <span class="c1"># Result has only one artist, return 0.0</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">song</span><span class="o">.</span><span class="n">artists</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">result</span><span class="o">.</span><span class="n">artists</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">artist_match_number</span>
+
+    <span class="n">slug_song_artists</span> <span class="o">=</span> <span class="n">slugify</span><span class="p">(</span><span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">song</span><span class="o">.</span><span class="n">artists</span><span class="p">))</span>
+    <span class="n">slug_result_artists</span> <span class="o">=</span> <span class="n">slugify</span><span class="p">(</span><span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">artists</span><span class="p">))</span> <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">artists</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+
+    <span class="c1"># match the song&#39;s artists with the result&#39;s artists</span>
+    <span class="c1"># if the number of artists is the same</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">song</span><span class="o">.</span><span class="n">artists</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">artists</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">ratio</span><span class="p">(</span><span class="n">slug_song_artists</span><span class="p">,</span> <span class="n">slug_result_artists</span><span class="p">)</span>
+
+    <span class="c1"># Calculate the percentage of artists that are present in the result</span>
+    <span class="n">artists_percentage</span> <span class="o">=</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">artists</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">song</span><span class="o">.</span><span class="n">artists</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">artists_percentage</span> <span class="o">&gt;</span> <span class="mi">60</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">song</span><span class="o">.</span><span class="n">artists</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="c1"># Create lists of artists in song and result</span>
+        <span class="c1"># After that sort them based on the order of the result&#39;s artists</span>
+        <span class="n">artist1_list</span><span class="p">,</span> <span class="n">artist2_list</span> <span class="o">=</span> <span class="n">based_sort</span><span class="p">(</span>
+            <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">slugify</span><span class="p">,</span> <span class="n">song</span><span class="o">.</span><span class="n">artists</span><span class="p">)),</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">slugify</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">artists</span><span class="p">))</span>
+        <span class="p">)</span>
+
+        <span class="n">artists_match</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="k">for</span> <span class="n">artist1</span><span class="p">,</span> <span class="n">artist2</span> <span class="ow">in</span> <span class="n">zip_longest</span><span class="p">(</span><span class="n">artist1_list</span><span class="p">,</span> <span class="n">artist2_list</span><span class="p">):</span>
+            <span class="n">artist12_match</span> <span class="o">=</span> <span class="n">ratio</span><span class="p">(</span><span class="n">artist1</span><span class="p">,</span> <span class="n">artist2</span><span class="p">)</span>
+            <span class="n">artists_match</span> <span class="o">+=</span> <span class="n">artist12_match</span>
+
+        <span class="n">artist_match_number</span> <span class="o">=</span> <span class="n">artists_match</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">artist1_list</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">artist_match_number</span>
+</code></pre></div></td></tr></table></div>
+      </details>
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h2 id="spotdl.utils.matching.calc_main_artist_match" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">calc_main_artist_match</span><span class="p">(</span><span class="n">song</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span></code>
+
+<a href="#spotdl.utils.matching.calc_main_artist_match" class="headerlink" title="Permanent link">¤</a></h2>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Check if main artist is present in list of artists</p>
+<h5 id="spotdl.utils.matching.calc_main_artist_match--arguments">Arguments<a class="headerlink" href="#spotdl.utils.matching.calc_main_artist_match--arguments" title="Permanent link">¤</a></h5>
+<ul>
+<li>main_artist: main artist to check</li>
+<li>artists: list of artists to check</li>
+</ul>
+<h5 id="spotdl.utils.matching.calc_main_artist_match--returns">Returns<a class="headerlink" href="#spotdl.utils.matching.calc_main_artist_match--returns" title="Permanent link">¤</a></h5>
+<ul>
+<li>True if main artist is present in list of artists, False otherwise</li>
+</ul>
+
+      <details class="quote">
+        <summary>Source code in <code>spotdl/utils/matching.py</code></summary>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">245</span>
+<span class="normal">246</span>
+<span class="normal">247</span>
+<span class="normal">248</span>
+<span class="normal">249</span>
+<span class="normal">250</span>
+<span class="normal">251</span>
+<span class="normal">252</span>
+<span class="normal">253</span>
+<span class="normal">254</span>
+<span class="normal">255</span>
+<span class="normal">256</span>
+<span class="normal">257</span>
+<span class="normal">258</span>
+<span class="normal">259</span>
+<span class="normal">260</span>
+<span class="normal">261</span>
+<span class="normal">262</span>
+<span class="normal">263</span>
+<span class="normal">264</span>
+<span class="normal">265</span>
+<span class="normal">266</span>
+<span class="normal">267</span>
+<span class="normal">268</span>
+<span class="normal">269</span>
+<span class="normal">270</span>
+<span class="normal">271</span>
+<span class="normal">272</span>
+<span class="normal">273</span>
+<span class="normal">274</span>
+<span class="normal">275</span>
+<span class="normal">276</span>
+<span class="normal">277</span>
+<span class="normal">278</span>
+<span class="normal">279</span>
+<span class="normal">280</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">calc_main_artist_match</span><span class="p">(</span><span class="n">song</span><span class="p">:</span> <span class="n">Song</span><span class="p">,</span> <span class="n">result</span><span class="p">:</span> <span class="n">Result</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Check if main artist is present in list of artists</span>
+
+<span class="sd">    ### Arguments</span>
+<span class="sd">    - main_artist: main artist to check</span>
+<span class="sd">    - artists: list of artists to check</span>
+
+<span class="sd">    ### Returns</span>
+<span class="sd">    - True if main artist is present in list of artists, False otherwise</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">main_artist_match</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+    <span class="c1"># Result has no artists, return 0.0</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">result</span><span class="o">.</span><span class="n">artists</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">main_artist_match</span>
+
+    <span class="n">slug_song_main_artist</span> <span class="o">=</span> <span class="n">slugify</span><span class="p">(</span><span class="n">song</span><span class="o">.</span><span class="n">artists</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">slug_result_main_artist</span> <span class="o">=</span> <span class="n">slugify</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">artists</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+    <span class="c1"># Result has only one artist, but song has multiple artists</span>
+    <span class="c1"># we can assume that other artists are in the main artist name</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">song</span><span class="o">.</span><span class="n">artists</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">artists</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">artist</span> <span class="ow">in</span> <span class="nb">map</span><span class="p">(</span><span class="n">slugify</span><span class="p">,</span> <span class="n">song</span><span class="o">.</span><span class="n">artists</span><span class="p">[</span><span class="mi">1</span><span class="p">:]):</span>
+            <span class="n">artist</span> <span class="o">=</span> <span class="n">sort_string</span><span class="p">(</span><span class="n">slugify</span><span class="p">(</span><span class="n">artist</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">),</span> <span class="s2">&quot;-&quot;</span><span class="p">)</span>
+
+            <span class="n">res_main_artist</span> <span class="o">=</span> <span class="n">sort_string</span><span class="p">(</span><span class="n">slug_result_main_artist</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">),</span> <span class="s2">&quot;-&quot;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">artist</span> <span class="ow">in</span> <span class="n">res_main_artist</span><span class="p">:</span>
+                <span class="n">main_artist_match</span> <span class="o">+=</span> <span class="mi">100</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">song</span><span class="o">.</span><span class="n">artists</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">main_artist_match</span>
+
+    <span class="c1"># Match main result artist with main song artist</span>
+    <span class="k">return</span> <span class="n">ratio</span><span class="p">(</span><span class="n">slug_song_main_artist</span><span class="p">,</span> <span class="n">slug_result_main_artist</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+      </details>
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h2 id="spotdl.utils.matching.calc_name_match" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">calc_name_match</span><span class="p">(</span><span class="n">song</span><span class="p">,</span> <span class="n">result</span><span class="p">,</span> <span class="n">search_query</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+
+<a href="#spotdl.utils.matching.calc_name_match" class="headerlink" title="Permanent link">¤</a></h2>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Calculate name match percentage</p>
+<h5 id="spotdl.utils.matching.calc_name_match--arguments">Arguments<a class="headerlink" href="#spotdl.utils.matching.calc_name_match--arguments" title="Permanent link">¤</a></h5>
+<ul>
+<li>song: song to match</li>
+<li>result: result to match</li>
+</ul>
+<h5 id="spotdl.utils.matching.calc_name_match--returns">Returns<a class="headerlink" href="#spotdl.utils.matching.calc_name_match--returns" title="Permanent link">¤</a></h5>
+<ul>
+<li>name match percentage</li>
+</ul>
+
+      <details class="quote">
+        <summary>Source code in <code>spotdl/utils/matching.py</code></summary>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">510</span>
+<span class="normal">511</span>
+<span class="normal">512</span>
+<span class="normal">513</span>
+<span class="normal">514</span>
+<span class="normal">515</span>
+<span class="normal">516</span>
+<span class="normal">517</span>
+<span class="normal">518</span>
+<span class="normal">519</span>
+<span class="normal">520</span>
+<span class="normal">521</span>
+<span class="normal">522</span>
+<span class="normal">523</span>
+<span class="normal">524</span>
+<span class="normal">525</span>
+<span class="normal">526</span>
+<span class="normal">527</span>
+<span class="normal">528</span>
+<span class="normal">529</span>
+<span class="normal">530</span>
+<span class="normal">531</span>
+<span class="normal">532</span>
+<span class="normal">533</span>
+<span class="normal">534</span>
+<span class="normal">535</span>
+<span class="normal">536</span>
+<span class="normal">537</span>
+<span class="normal">538</span>
+<span class="normal">539</span>
+<span class="normal">540</span>
+<span class="normal">541</span>
+<span class="normal">542</span>
+<span class="normal">543</span>
+<span class="normal">544</span>
+<span class="normal">545</span>
+<span class="normal">546</span>
+<span class="normal">547</span>
+<span class="normal">548</span>
+<span class="normal">549</span>
+<span class="normal">550</span>
+<span class="normal">551</span>
+<span class="normal">552</span>
+<span class="normal">553</span>
+<span class="normal">554</span>
+<span class="normal">555</span>
+<span class="normal">556</span>
+<span class="normal">557</span>
+<span class="normal">558</span>
+<span class="normal">559</span>
+<span class="normal">560</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">calc_name_match</span><span class="p">(</span>
+    <span class="n">song</span><span class="p">:</span> <span class="n">Song</span><span class="p">,</span> <span class="n">result</span><span class="p">:</span> <span class="n">Result</span><span class="p">,</span> <span class="n">search_query</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate name match percentage</span>
+
+<span class="sd">    ### Arguments</span>
+<span class="sd">    - song: song to match</span>
+<span class="sd">    - result: result to match</span>
+
+<span class="sd">    ### Returns</span>
+<span class="sd">    - name match percentage</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Create match strings that will be used</span>
+    <span class="c1"># to calculate name match value</span>
+    <span class="n">match_str1</span><span class="p">,</span> <span class="n">match_str2</span> <span class="o">=</span> <span class="n">create_match_strings</span><span class="p">(</span><span class="n">song</span><span class="p">,</span> <span class="n">result</span><span class="p">,</span> <span class="n">search_query</span><span class="p">)</span>
+    <span class="n">result_name</span><span class="p">,</span> <span class="n">song_name</span> <span class="o">=</span> <span class="n">slugify</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">name</span><span class="p">),</span> <span class="n">slugify</span><span class="p">(</span><span class="n">song</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="n">res_list</span><span class="p">,</span> <span class="n">song_list</span> <span class="o">=</span> <span class="n">based_sort</span><span class="p">(</span><span class="n">result_name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">),</span> <span class="n">song_name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">))</span>
+    <span class="n">result_name</span><span class="p">,</span> <span class="n">song_name</span> <span class="o">=</span> <span class="s2">&quot;-&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">res_list</span><span class="p">),</span> <span class="s2">&quot;-&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">song_list</span><span class="p">)</span>
+
+    <span class="c1"># Calculate initial name match</span>
+    <span class="n">name_match</span> <span class="o">=</span> <span class="n">ratio</span><span class="p">(</span><span class="n">result_name</span><span class="p">,</span> <span class="n">song_name</span><span class="p">)</span>
+
+    <span class="n">debug</span><span class="p">(</span><span class="n">song</span><span class="o">.</span><span class="n">song_id</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">result_id</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;MATCH STRINGS: </span><span class="si">{</span><span class="n">match_str1</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="n">match_str2</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">debug</span><span class="p">(</span>
+        <span class="n">song</span><span class="o">.</span><span class="n">song_id</span><span class="p">,</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">result_id</span><span class="p">,</span>
+        <span class="sa">f</span><span class="s2">&quot;SLUG MATCH STRINGS: </span><span class="si">{</span><span class="n">song_name</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="n">result_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">debug</span><span class="p">(</span><span class="n">song</span><span class="o">.</span><span class="n">song_id</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">result_id</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;First name match: </span><span class="si">{</span><span class="n">name_match</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="c1"># If name match is lower than 60%,</span>
+    <span class="c1"># we try to match using the test strings</span>
+    <span class="k">if</span> <span class="n">name_match</span> <span class="o">&lt;=</span> <span class="mi">75</span><span class="p">:</span>
+        <span class="n">second_name_match</span> <span class="o">=</span> <span class="n">ratio</span><span class="p">(</span>
+            <span class="n">match_str1</span><span class="p">,</span>
+            <span class="n">match_str2</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">debug</span><span class="p">(</span>
+            <span class="n">song</span><span class="o">.</span><span class="n">song_id</span><span class="p">,</span>
+            <span class="n">result</span><span class="o">.</span><span class="n">result_id</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;Second name match: </span><span class="si">{</span><span class="n">second_name_match</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">second_name_match</span> <span class="o">&gt;</span> <span class="n">name_match</span><span class="p">:</span>
+            <span class="n">name_match</span> <span class="o">=</span> <span class="n">second_name_match</span>
+
+    <span class="k">return</span> <span class="n">name_match</span>
+</code></pre></div></td></tr></table></div>
+      </details>
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h2 id="spotdl.utils.matching.calc_time_match" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">calc_time_match</span><span class="p">(</span><span class="n">song</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span></code>
+
+<a href="#spotdl.utils.matching.calc_time_match" class="headerlink" title="Permanent link">¤</a></h2>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Calculate time difference between song and result</p>
+<h5 id="spotdl.utils.matching.calc_time_match--arguments">Arguments<a class="headerlink" href="#spotdl.utils.matching.calc_time_match--arguments" title="Permanent link">¤</a></h5>
+<ul>
+<li>song: song to match</li>
+<li>result: result to match</li>
+</ul>
+<h5 id="spotdl.utils.matching.calc_time_match--returns">Returns<a class="headerlink" href="#spotdl.utils.matching.calc_time_match--returns" title="Permanent link">¤</a></h5>
+<ul>
+<li>time difference between song and result</li>
+</ul>
+
+      <details class="quote">
+        <summary>Source code in <code>spotdl/utils/matching.py</code></summary>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">563</span>
+<span class="normal">564</span>
+<span class="normal">565</span>
+<span class="normal">566</span>
+<span class="normal">567</span>
+<span class="normal">568</span>
+<span class="normal">569</span>
+<span class="normal">570</span>
+<span class="normal">571</span>
+<span class="normal">572</span>
+<span class="normal">573</span>
+<span class="normal">574</span>
+<span class="normal">575</span>
+<span class="normal">576</span>
+<span class="normal">577</span>
+<span class="normal">578</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">calc_time_match</span><span class="p">(</span><span class="n">song</span><span class="p">:</span> <span class="n">Song</span><span class="p">,</span> <span class="n">result</span><span class="p">:</span> <span class="n">Result</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate time difference between song and result</span>
+
+<span class="sd">    ### Arguments</span>
+<span class="sd">    - song: song to match</span>
+<span class="sd">    - result: result to match</span>
+
+<span class="sd">    ### Returns</span>
+<span class="sd">    - time difference between song and result</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">duration</span> <span class="o">&gt;</span> <span class="n">song</span><span class="o">.</span><span class="n">duration</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">100</span> <span class="o">-</span> <span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">duration</span> <span class="o">-</span> <span class="n">song</span><span class="o">.</span><span class="n">duration</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="mi">100</span> <span class="o">-</span> <span class="p">(</span><span class="n">song</span><span class="o">.</span><span class="n">duration</span> <span class="o">-</span> <span class="n">result</span><span class="o">.</span><span class="n">duration</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+      </details>
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h2 id="spotdl.utils.matching.check_common_word" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">check_common_word</span><span class="p">(</span><span class="n">song</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span></code>
+
+<a href="#spotdl.utils.matching.check_common_word" class="headerlink" title="Permanent link">¤</a></h2>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Check if a word is present in a sentence</p>
+<h5 id="spotdl.utils.matching.check_common_word--arguments">Arguments<a class="headerlink" href="#spotdl.utils.matching.check_common_word--arguments" title="Permanent link">¤</a></h5>
+<ul>
+<li>song: song to match</li>
+<li>result: result to match</li>
+</ul>
+<h5 id="spotdl.utils.matching.check_common_word--returns">Returns<a class="headerlink" href="#spotdl.utils.matching.check_common_word--returns" title="Permanent link">¤</a></h5>
+<ul>
+<li>True if word is present in sentence, False otherwise</li>
+</ul>
+
+      <details class="quote">
+        <summary>Source code in <code>spotdl/utils/matching.py</code></summary>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">159</span>
+<span class="normal">160</span>
+<span class="normal">161</span>
+<span class="normal">162</span>
+<span class="normal">163</span>
+<span class="normal">164</span>
+<span class="normal">165</span>
+<span class="normal">166</span>
+<span class="normal">167</span>
+<span class="normal">168</span>
+<span class="normal">169</span>
+<span class="normal">170</span>
+<span class="normal">171</span>
+<span class="normal">172</span>
+<span class="normal">173</span>
+<span class="normal">174</span>
+<span class="normal">175</span>
+<span class="normal">176</span>
+<span class="normal">177</span>
+<span class="normal">178</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">check_common_word</span><span class="p">(</span><span class="n">song</span><span class="p">:</span> <span class="n">Song</span><span class="p">,</span> <span class="n">result</span><span class="p">:</span> <span class="n">Result</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Check if a word is present in a sentence</span>
+
+<span class="sd">    ### Arguments</span>
+<span class="sd">    - song: song to match</span>
+<span class="sd">    - result: result to match</span>
+
+<span class="sd">    ### Returns</span>
+<span class="sd">    - True if word is present in sentence, False otherwise</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">sentence_words</span> <span class="o">=</span> <span class="n">slugify</span><span class="p">(</span><span class="n">song</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">)</span>
+    <span class="n">to_check</span> <span class="o">=</span> <span class="n">slugify</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">sentence_words</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">word</span> <span class="o">!=</span> <span class="s2">&quot;&quot;</span> <span class="ow">and</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">to_check</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="k">return</span> <span class="kc">False</span>
+</code></pre></div></td></tr></table></div>
+      </details>
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h2 id="spotdl.utils.matching.create_clean_string" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">create_clean_string</span><span class="p">(</span><span class="n">words</span><span class="p">,</span> <span class="n">string</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">join_str</span><span class="o">=</span><span class="s1">&#39;-&#39;</span><span class="p">)</span></code>
+
+<a href="#spotdl.utils.matching.create_clean_string" class="headerlink" title="Permanent link">¤</a></h2>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Create a string with strings from <code>words</code> list
+if they are not yet present in <code>string</code></p>
+<h5 id="spotdl.utils.matching.create_clean_string--arguments">Arguments<a class="headerlink" href="#spotdl.utils.matching.create_clean_string--arguments" title="Permanent link">¤</a></h5>
+<ul>
+<li>words: strings to check</li>
+<li>string: string to check if strings are present in</li>
+<li>sort: sort strings in list</li>
+<li>join_str: string to join strings with</li>
+</ul>
+<h5 id="spotdl.utils.matching.create_clean_string--returns">Returns<a class="headerlink" href="#spotdl.utils.matching.create_clean_string--returns" title="Permanent link">¤</a></h5>
+<ul>
+<li>string with strings from <code>words</code> list</li>
+</ul>
+
+      <details class="quote">
+        <summary>Source code in <code>spotdl/utils/matching.py</code></summary>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 79</span>
+<span class="normal"> 80</span>
+<span class="normal"> 81</span>
+<span class="normal"> 82</span>
+<span class="normal"> 83</span>
+<span class="normal"> 84</span>
+<span class="normal"> 85</span>
+<span class="normal"> 86</span>
+<span class="normal"> 87</span>
+<span class="normal"> 88</span>
+<span class="normal"> 89</span>
+<span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">create_clean_string</span><span class="p">(</span>
+    <span class="n">words</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">string</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">sort</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">join_str</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;-&quot;</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create a string with strings from `words` list</span>
+<span class="sd">    if they are not yet present in `string`</span>
+
+<span class="sd">    ### Arguments</span>
+<span class="sd">    - words: strings to check</span>
+<span class="sd">    - string: string to check if strings are present in</span>
+<span class="sd">    - sort: sort strings in list</span>
+<span class="sd">    - join_str: string to join strings with</span>
+
+<span class="sd">    ### Returns</span>
+<span class="sd">    - string with strings from `words` list</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">string</span> <span class="o">=</span> <span class="n">slugify</span><span class="p">(</span><span class="n">string</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+    <span class="n">final</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">words</span><span class="p">:</span>
+        <span class="n">word</span> <span class="o">=</span> <span class="n">slugify</span><span class="p">(</span><span class="n">word</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">string</span><span class="p">:</span>
+            <span class="k">continue</span>
+
+        <span class="n">final</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">word</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">sort</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">sort_string</span><span class="p">(</span><span class="n">final</span><span class="p">,</span> <span class="n">join_str</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">join_str</span><span class="si">}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">final</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+      </details>
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h2 id="spotdl.utils.matching.create_match_strings" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">create_match_strings</span><span class="p">(</span><span class="n">song</span><span class="p">,</span> <span class="n">result</span><span class="p">,</span> <span class="n">search_query</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+
+<a href="#spotdl.utils.matching.create_match_strings" class="headerlink" title="Permanent link">¤</a></h2>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Create strings based on song and result to match
+fill strings with missing artists</p>
+<h5 id="spotdl.utils.matching.create_match_strings--arguments">Arguments<a class="headerlink" href="#spotdl.utils.matching.create_match_strings--arguments" title="Permanent link">¤</a></h5>
+<ul>
+<li>song: song to match</li>
+<li>result: result to match</li>
+</ul>
+<h5 id="spotdl.utils.matching.create_match_strings--returns">Returns<a class="headerlink" href="#spotdl.utils.matching.create_match_strings--returns" title="Permanent link">¤</a></h5>
+<ul>
+<li>tuple of strings to match</li>
+</ul>
+
+      <details class="quote">
+        <summary>Source code in <code>spotdl/utils/matching.py</code></summary>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">181</span>
+<span class="normal">182</span>
+<span class="normal">183</span>
+<span class="normal">184</span>
+<span class="normal">185</span>
+<span class="normal">186</span>
+<span class="normal">187</span>
+<span class="normal">188</span>
+<span class="normal">189</span>
+<span class="normal">190</span>
+<span class="normal">191</span>
+<span class="normal">192</span>
+<span class="normal">193</span>
+<span class="normal">194</span>
+<span class="normal">195</span>
+<span class="normal">196</span>
+<span class="normal">197</span>
+<span class="normal">198</span>
+<span class="normal">199</span>
+<span class="normal">200</span>
+<span class="normal">201</span>
+<span class="normal">202</span>
+<span class="normal">203</span>
+<span class="normal">204</span>
+<span class="normal">205</span>
+<span class="normal">206</span>
+<span class="normal">207</span>
+<span class="normal">208</span>
+<span class="normal">209</span>
+<span class="normal">210</span>
+<span class="normal">211</span>
+<span class="normal">212</span>
+<span class="normal">213</span>
+<span class="normal">214</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">create_match_strings</span><span class="p">(</span>
+    <span class="n">song</span><span class="p">:</span> <span class="n">Song</span><span class="p">,</span> <span class="n">result</span><span class="p">:</span> <span class="n">Result</span><span class="p">,</span> <span class="n">search_query</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create strings based on song and result to match</span>
+<span class="sd">    fill strings with missing artists</span>
+
+<span class="sd">    ### Arguments</span>
+<span class="sd">    - song: song to match</span>
+<span class="sd">    - result: result to match</span>
+
+<span class="sd">    ### Returns</span>
+<span class="sd">    - tuple of strings to match</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">slug_song_name</span> <span class="o">=</span> <span class="n">slugify</span><span class="p">(</span><span class="n">song</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+    <span class="n">slug_song_title</span> <span class="o">=</span> <span class="n">slugify</span><span class="p">(</span>
+        <span class="n">create_song_title</span><span class="p">(</span><span class="n">song</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">song</span><span class="o">.</span><span class="n">artists</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">search_query</span>
+        <span class="k">else</span> <span class="n">create_search_query</span><span class="p">(</span><span class="n">song</span><span class="p">,</span> <span class="n">search_query</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="n">test_str1</span> <span class="o">=</span> <span class="n">slugify</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+    <span class="n">test_str2</span> <span class="o">=</span> <span class="n">slug_song_name</span> <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">verified</span> <span class="k">else</span> <span class="n">slug_song_title</span>
+
+    <span class="c1"># Fill strings with missing artists</span>
+    <span class="n">test_str1</span> <span class="o">=</span> <span class="n">fill_string</span><span class="p">(</span><span class="n">song</span><span class="o">.</span><span class="n">artists</span><span class="p">,</span> <span class="n">test_str1</span><span class="p">,</span> <span class="n">test_str2</span><span class="p">)</span>
+    <span class="n">test_str2</span> <span class="o">=</span> <span class="n">fill_string</span><span class="p">(</span><span class="n">song</span><span class="o">.</span><span class="n">artists</span><span class="p">,</span> <span class="n">test_str2</span><span class="p">,</span> <span class="n">test_str1</span><span class="p">)</span>
+
+    <span class="c1"># Sort both strings and then join them</span>
+    <span class="n">test_list1</span><span class="p">,</span> <span class="n">test_list2</span> <span class="o">=</span> <span class="n">based_sort</span><span class="p">(</span><span class="n">test_str1</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">),</span> <span class="n">test_str2</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">))</span>
+    <span class="n">test_str1</span><span class="p">,</span> <span class="n">test_str2</span> <span class="o">=</span> <span class="s2">&quot;-&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">test_list1</span><span class="p">),</span> <span class="s2">&quot;-&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">test_list2</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">test_str1</span><span class="p">,</span> <span class="n">test_str2</span>
+</code></pre></div></td></tr></table></div>
+      </details>
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h2 id="spotdl.utils.matching.debug" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">debug</span><span class="p">(</span><span class="n">song_id</span><span class="p">,</span> <span class="n">result_id</span><span class="p">,</span> <span class="n">message</span><span class="p">)</span></code>
+
+<a href="#spotdl.utils.matching.debug" class="headerlink" title="Permanent link">¤</a></h2>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Log a message with MATCH level</p>
+<h5 id="spotdl.utils.matching.debug--arguments">Arguments<a class="headerlink" href="#spotdl.utils.matching.debug--arguments" title="Permanent link">¤</a></h5>
+<ul>
+<li>message: message to log</li>
+</ul>
+
+      <details class="quote">
+        <summary>Source code in <code>spotdl/utils/matching.py</code></summary>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">40</span>
+<span class="normal">41</span>
+<span class="normal">42</span>
+<span class="normal">43</span>
+<span class="normal">44</span>
+<span class="normal">45</span>
+<span class="normal">46</span>
+<span class="normal">47</span>
+<span class="normal">48</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">debug</span><span class="p">(</span><span class="n">song_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">result_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Log a message with MATCH level</span>
+
+<span class="sd">    ### Arguments</span>
+<span class="sd">    - message: message to log</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">MATCH</span><span class="p">,</span> <span class="s2">&quot;[</span><span class="si">%s</span><span class="s2">|</span><span class="si">%s</span><span class="s2">] </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">song_id</span><span class="p">,</span> <span class="n">result_id</span><span class="p">,</span> <span class="n">message</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+      </details>
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h2 id="spotdl.utils.matching.fill_string" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">fill_string</span><span class="p">(</span><span class="n">strings</span><span class="p">,</span> <span class="n">main_string</span><span class="p">,</span> <span class="n">string_to_check</span><span class="p">)</span></code>
+
+<a href="#spotdl.utils.matching.fill_string" class="headerlink" title="Permanent link">¤</a></h2>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Create a string with strings from <code>strings</code> list
+if they are not yet present in main_string
+but are present in string_to_check</p>
+<h5 id="spotdl.utils.matching.fill_string--arguments">Arguments<a class="headerlink" href="#spotdl.utils.matching.fill_string--arguments" title="Permanent link">¤</a></h5>
+<ul>
+<li>strings: strings to check</li>
+<li>main_string: string to add strings to</li>
+<li>string_to_check: string to check if strings are present in</li>
+</ul>
+<h5 id="spotdl.utils.matching.fill_string--returns">Returns<a class="headerlink" href="#spotdl.utils.matching.fill_string--returns" title="Permanent link">¤</a></h5>
+<ul>
+<li>string with strings from <code>strings</code> list</li>
+</ul>
+
+      <details class="quote">
+        <summary>Source code in <code>spotdl/utils/matching.py</code></summary>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">51</span>
+<span class="normal">52</span>
+<span class="normal">53</span>
+<span class="normal">54</span>
+<span class="normal">55</span>
+<span class="normal">56</span>
+<span class="normal">57</span>
+<span class="normal">58</span>
+<span class="normal">59</span>
+<span class="normal">60</span>
+<span class="normal">61</span>
+<span class="normal">62</span>
+<span class="normal">63</span>
+<span class="normal">64</span>
+<span class="normal">65</span>
+<span class="normal">66</span>
+<span class="normal">67</span>
+<span class="normal">68</span>
+<span class="normal">69</span>
+<span class="normal">70</span>
+<span class="normal">71</span>
+<span class="normal">72</span>
+<span class="normal">73</span>
+<span class="normal">74</span>
+<span class="normal">75</span>
+<span class="normal">76</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">fill_string</span><span class="p">(</span><span class="n">strings</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">main_string</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">string_to_check</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create a string with strings from `strings` list</span>
+<span class="sd">    if they are not yet present in main_string</span>
+<span class="sd">    but are present in string_to_check</span>
+
+<span class="sd">    ### Arguments</span>
+<span class="sd">    - strings: strings to check</span>
+<span class="sd">    - main_string: string to add strings to</span>
+<span class="sd">    - string_to_check: string to check if strings are present in</span>
+
+<span class="sd">    ### Returns</span>
+<span class="sd">    - string with strings from `strings` list</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">final_str</span> <span class="o">=</span> <span class="n">main_string</span>
+    <span class="n">test_str</span> <span class="o">=</span> <span class="n">final_str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="n">simple_test_str</span> <span class="o">=</span> <span class="n">string_to_check</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">string</span> <span class="ow">in</span> <span class="n">strings</span><span class="p">:</span>
+        <span class="n">slug_str</span> <span class="o">=</span> <span class="n">slugify</span><span class="p">(</span><span class="n">string</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">slug_str</span> <span class="ow">in</span> <span class="n">simple_test_str</span> <span class="ow">and</span> <span class="n">slug_str</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">test_str</span><span class="p">:</span>
+            <span class="n">final_str</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;-</span><span class="si">{</span><span class="n">slug_str</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="n">test_str</span> <span class="o">+=</span> <span class="n">slug_str</span>
+
+    <span class="k">return</span> <span class="n">final_str</span>
+</code></pre></div></td></tr></table></div>
+      </details>
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h2 id="spotdl.utils.matching.get_best_matches" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">get_best_matches</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">score_threshold</span><span class="p">)</span></code>
+
+<a href="#spotdl.utils.matching.get_best_matches" class="headerlink" title="Permanent link">¤</a></h2>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Get best matches from a list of results</p>
+<h5 id="spotdl.utils.matching.get_best_matches--arguments">Arguments<a class="headerlink" href="#spotdl.utils.matching.get_best_matches--arguments" title="Permanent link">¤</a></h5>
+<ul>
+<li>results: list of results to match</li>
+<li>score_threshold: threshold to match results</li>
+</ul>
+<h5 id="spotdl.utils.matching.get_best_matches--returns">Returns<a class="headerlink" href="#spotdl.utils.matching.get_best_matches--returns" title="Permanent link">¤</a></h5>
+<ul>
+<li>list of best matches</li>
+</ul>
+
+      <details class="quote">
+        <summary>Source code in <code>spotdl/utils/matching.py</code></summary>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">217</span>
+<span class="normal">218</span>
+<span class="normal">219</span>
+<span class="normal">220</span>
+<span class="normal">221</span>
+<span class="normal">222</span>
+<span class="normal">223</span>
+<span class="normal">224</span>
+<span class="normal">225</span>
+<span class="normal">226</span>
+<span class="normal">227</span>
+<span class="normal">228</span>
+<span class="normal">229</span>
+<span class="normal">230</span>
+<span class="normal">231</span>
+<span class="normal">232</span>
+<span class="normal">233</span>
+<span class="normal">234</span>
+<span class="normal">235</span>
+<span class="normal">236</span>
+<span class="normal">237</span>
+<span class="normal">238</span>
+<span class="normal">239</span>
+<span class="normal">240</span>
+<span class="normal">241</span>
+<span class="normal">242</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_best_matches</span><span class="p">(</span>
+    <span class="n">results</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">Result</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span> <span class="n">score_threshold</span><span class="p">:</span> <span class="nb">float</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Result</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get best matches from a list of results</span>
+
+<span class="sd">    ### Arguments</span>
+<span class="sd">    - results: list of results to match</span>
+<span class="sd">    - score_threshold: threshold to match results</span>
+
+<span class="sd">    ### Returns</span>
+<span class="sd">    - list of best matches</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">result_items</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">results</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+
+    <span class="c1"># Sort results by highest score</span>
+    <span class="n">sorted_results</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">result_items</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">best_score</span> <span class="o">=</span> <span class="n">sorted_results</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="p">[</span>
+        <span class="n">result</span>
+        <span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">sorted_results</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">best_score</span> <span class="o">-</span> <span class="n">result</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">&lt;=</span> <span class="n">score_threshold</span>
+    <span class="p">]</span>
+</code></pre></div></td></tr></table></div>
+      </details>
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h2 id="spotdl.utils.matching.order_results" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">order_results</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">song</span><span class="p">,</span> <span class="n">search_query</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+
+<a href="#spotdl.utils.matching.order_results" class="headerlink" title="Permanent link">¤</a></h2>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Order results.</p>
+<h5 id="spotdl.utils.matching.order_results--arguments">Arguments<a class="headerlink" href="#spotdl.utils.matching.order_results--arguments" title="Permanent link">¤</a></h5>
+<ul>
+<li>results: The results to order.</li>
+<li>song: The song to order for.</li>
+<li>search_query: The search query.</li>
+</ul>
+<h5 id="spotdl.utils.matching.order_results--returns">Returns<a class="headerlink" href="#spotdl.utils.matching.order_results--returns" title="Permanent link">¤</a></h5>
+<ul>
+<li>The ordered results.</li>
+</ul>
+
+      <details class="quote">
+        <summary>Source code in <code>spotdl/utils/matching.py</code></summary>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">599</span>
+<span class="normal">600</span>
+<span class="normal">601</span>
+<span class="normal">602</span>
+<span class="normal">603</span>
+<span class="normal">604</span>
+<span class="normal">605</span>
+<span class="normal">606</span>
+<span class="normal">607</span>
+<span class="normal">608</span>
+<span class="normal">609</span>
+<span class="normal">610</span>
+<span class="normal">611</span>
+<span class="normal">612</span>
+<span class="normal">613</span>
+<span class="normal">614</span>
+<span class="normal">615</span>
+<span class="normal">616</span>
+<span class="normal">617</span>
+<span class="normal">618</span>
+<span class="normal">619</span>
+<span class="normal">620</span>
+<span class="normal">621</span>
+<span class="normal">622</span>
+<span class="normal">623</span>
+<span class="normal">624</span>
+<span class="normal">625</span>
+<span class="normal">626</span>
+<span class="normal">627</span>
+<span class="normal">628</span>
+<span class="normal">629</span>
+<span class="normal">630</span>
+<span class="normal">631</span>
+<span class="normal">632</span>
+<span class="normal">633</span>
+<span class="normal">634</span>
+<span class="normal">635</span>
+<span class="normal">636</span>
+<span class="normal">637</span>
+<span class="normal">638</span>
+<span class="normal">639</span>
+<span class="normal">640</span>
+<span class="normal">641</span>
+<span class="normal">642</span>
+<span class="normal">643</span>
+<span class="normal">644</span>
+<span class="normal">645</span>
+<span class="normal">646</span>
+<span class="normal">647</span>
+<span class="normal">648</span>
+<span class="normal">649</span>
+<span class="normal">650</span>
+<span class="normal">651</span>
+<span class="normal">652</span>
+<span class="normal">653</span>
+<span class="normal">654</span>
+<span class="normal">655</span>
+<span class="normal">656</span>
+<span class="normal">657</span>
+<span class="normal">658</span>
+<span class="normal">659</span>
+<span class="normal">660</span>
+<span class="normal">661</span>
+<span class="normal">662</span>
+<span class="normal">663</span>
+<span class="normal">664</span>
+<span class="normal">665</span>
+<span class="normal">666</span>
+<span class="normal">667</span>
+<span class="normal">668</span>
+<span class="normal">669</span>
+<span class="normal">670</span>
+<span class="normal">671</span>
+<span class="normal">672</span>
+<span class="normal">673</span>
+<span class="normal">674</span>
+<span class="normal">675</span>
+<span class="normal">676</span>
+<span class="normal">677</span>
+<span class="normal">678</span>
+<span class="normal">679</span>
+<span class="normal">680</span>
+<span class="normal">681</span>
+<span class="normal">682</span>
+<span class="normal">683</span>
+<span class="normal">684</span>
+<span class="normal">685</span>
+<span class="normal">686</span>
+<span class="normal">687</span>
+<span class="normal">688</span>
+<span class="normal">689</span>
+<span class="normal">690</span>
+<span class="normal">691</span>
+<span class="normal">692</span>
+<span class="normal">693</span>
+<span class="normal">694</span>
+<span class="normal">695</span>
+<span class="normal">696</span>
+<span class="normal">697</span>
+<span class="normal">698</span>
+<span class="normal">699</span>
+<span class="normal">700</span>
+<span class="normal">701</span>
+<span class="normal">702</span>
+<span class="normal">703</span>
+<span class="normal">704</span>
+<span class="normal">705</span>
+<span class="normal">706</span>
+<span class="normal">707</span>
+<span class="normal">708</span>
+<span class="normal">709</span>
+<span class="normal">710</span>
+<span class="normal">711</span>
+<span class="normal">712</span>
+<span class="normal">713</span>
+<span class="normal">714</span>
+<span class="normal">715</span>
+<span class="normal">716</span>
+<span class="normal">717</span>
+<span class="normal">718</span>
+<span class="normal">719</span>
+<span class="normal">720</span>
+<span class="normal">721</span>
+<span class="normal">722</span>
+<span class="normal">723</span>
+<span class="normal">724</span>
+<span class="normal">725</span>
+<span class="normal">726</span>
+<span class="normal">727</span>
+<span class="normal">728</span>
+<span class="normal">729</span>
+<span class="normal">730</span>
+<span class="normal">731</span>
+<span class="normal">732</span>
+<span class="normal">733</span>
+<span class="normal">734</span>
+<span class="normal">735</span>
+<span class="normal">736</span>
+<span class="normal">737</span>
+<span class="normal">738</span>
+<span class="normal">739</span>
+<span class="normal">740</span>
+<span class="normal">741</span>
+<span class="normal">742</span>
+<span class="normal">743</span>
+<span class="normal">744</span>
+<span class="normal">745</span>
+<span class="normal">746</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">order_results</span><span class="p">(</span>
+    <span class="n">results</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Result</span><span class="p">],</span> <span class="n">song</span><span class="p">:</span> <span class="n">Song</span><span class="p">,</span> <span class="n">search_query</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="n">Result</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Order results.</span>
+
+<span class="sd">    ### Arguments</span>
+<span class="sd">    - results: The results to order.</span>
+<span class="sd">    - song: The song to order for.</span>
+<span class="sd">    - search_query: The search query.</span>
+
+<span class="sd">    ### Returns</span>
+<span class="sd">    - The ordered results.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Assign an overall avg match value to each result</span>
+    <span class="n">links_with_match_value</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="c1"># Iterate over all results</span>
+    <span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
+        <span class="n">debug</span><span class="p">(</span>
+            <span class="n">song</span><span class="o">.</span><span class="n">song_id</span><span class="p">,</span>
+            <span class="n">result</span><span class="o">.</span><span class="n">result_id</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;Calculating match value for </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">url</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">json</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># skip results that have no common words in their name</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">check_common_word</span><span class="p">(</span><span class="n">song</span><span class="p">,</span> <span class="n">result</span><span class="p">):</span>
+            <span class="n">debug</span><span class="p">(</span>
+                <span class="n">song</span><span class="o">.</span><span class="n">song_id</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">result_id</span><span class="p">,</span> <span class="s2">&quot;Skipping result due to no common words&quot;</span>
+            <span class="p">)</span>
+
+            <span class="k">continue</span>
+
+        <span class="c1"># Calculate match value for main artist</span>
+        <span class="n">artists_match</span> <span class="o">=</span> <span class="n">calc_main_artist_match</span><span class="p">(</span><span class="n">song</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span>
+
+        <span class="n">debug</span><span class="p">(</span><span class="n">song</span><span class="o">.</span><span class="n">song_id</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">result_id</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Main artist match: </span><span class="si">{</span><span class="n">artists_match</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Calculate match value for all artists</span>
+        <span class="n">artists_match</span> <span class="o">+=</span> <span class="n">calc_artists_match</span><span class="p">(</span><span class="n">song</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span>
+        <span class="n">debug</span><span class="p">(</span><span class="n">song</span><span class="o">.</span><span class="n">song_id</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">result_id</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Artists match: </span><span class="si">{</span><span class="n">artists_match</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Calculate initial artist match value</span>
+        <span class="n">artists_match</span> <span class="o">=</span> <span class="n">artists_match</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">song</span><span class="o">.</span><span class="n">artists</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">debug</span><span class="p">(</span><span class="n">song</span><span class="o">.</span><span class="n">song_id</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">result_id</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Initial artists match: </span><span class="si">{</span><span class="n">artists_match</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="c1"># First attempt to fix artist match</span>
+        <span class="n">artists_match</span> <span class="o">=</span> <span class="n">artists_match_fixup1</span><span class="p">(</span><span class="n">song</span><span class="p">,</span> <span class="n">result</span><span class="p">,</span> <span class="n">artists_match</span><span class="p">)</span>
+        <span class="n">debug</span><span class="p">(</span>
+            <span class="n">song</span><span class="o">.</span><span class="n">song_id</span><span class="p">,</span>
+            <span class="n">result</span><span class="o">.</span><span class="n">result_id</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;Artists match after fixup1: </span><span class="si">{</span><span class="n">artists_match</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Second attempt to fix artist match</span>
+        <span class="n">artists_match</span> <span class="o">=</span> <span class="n">artists_match_fixup2</span><span class="p">(</span><span class="n">song</span><span class="p">,</span> <span class="n">result</span><span class="p">,</span> <span class="n">artists_match</span><span class="p">)</span>
+        <span class="n">debug</span><span class="p">(</span>
+            <span class="n">song</span><span class="o">.</span><span class="n">song_id</span><span class="p">,</span>
+            <span class="n">result</span><span class="o">.</span><span class="n">result_id</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;Artists match after fixup2: </span><span class="si">{</span><span class="n">artists_match</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Third attempt to fix artist match</span>
+        <span class="n">artists_match</span> <span class="o">=</span> <span class="n">artists_match_fixup3</span><span class="p">(</span><span class="n">song</span><span class="p">,</span> <span class="n">result</span><span class="p">,</span> <span class="n">artists_match</span><span class="p">)</span>
+        <span class="n">debug</span><span class="p">(</span>
+            <span class="n">song</span><span class="o">.</span><span class="n">song_id</span><span class="p">,</span>
+            <span class="n">result</span><span class="o">.</span><span class="n">result_id</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;Artists match after fixup3: </span><span class="si">{</span><span class="n">artists_match</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Calculate name match</span>
+        <span class="n">name_match</span> <span class="o">=</span> <span class="n">calc_name_match</span><span class="p">(</span><span class="n">song</span><span class="p">,</span> <span class="n">result</span><span class="p">,</span> <span class="n">search_query</span><span class="p">)</span>
+        <span class="n">debug</span><span class="p">(</span><span class="n">song</span><span class="o">.</span><span class="n">song_id</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">result_id</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Final name match: </span><span class="si">{</span><span class="n">name_match</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Calculate album match</span>
+        <span class="n">album_match</span> <span class="o">=</span> <span class="n">calc_album_match</span><span class="p">(</span><span class="n">song</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span>
+        <span class="n">debug</span><span class="p">(</span><span class="n">song</span><span class="o">.</span><span class="n">song_id</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">result_id</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Final album match: </span><span class="si">{</span><span class="n">album_match</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Calculate time match</span>
+        <span class="n">time_match</span> <span class="o">=</span> <span class="n">calc_time_match</span><span class="p">(</span><span class="n">song</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span>
+        <span class="n">debug</span><span class="p">(</span><span class="n">song</span><span class="o">.</span><span class="n">song_id</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">result_id</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Final time match: </span><span class="si">{</span><span class="n">time_match</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Ignore results with name match lower than 50%</span>
+        <span class="k">if</span> <span class="n">name_match</span> <span class="o">&lt;=</span> <span class="mi">50</span><span class="p">:</span>
+            <span class="n">debug</span><span class="p">(</span>
+                <span class="n">song</span><span class="o">.</span><span class="n">song_id</span><span class="p">,</span>
+                <span class="n">result</span><span class="o">.</span><span class="n">result_id</span><span class="p">,</span>
+                <span class="s2">&quot;Skipping result due to name match lower than 50%&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">continue</span>
+
+        <span class="c1"># Ignore results with artists match lower than 70%</span>
+        <span class="k">if</span> <span class="n">artists_match</span> <span class="o">&lt;</span> <span class="mi">70</span><span class="p">:</span>
+            <span class="n">debug</span><span class="p">(</span>
+                <span class="n">song</span><span class="o">.</span><span class="n">song_id</span><span class="p">,</span>
+                <span class="n">result</span><span class="o">.</span><span class="n">result_id</span><span class="p">,</span>
+                <span class="s2">&quot;Skipping result due to artists match lower than 70%&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">continue</span>
+
+        <span class="c1"># Calculate total match</span>
+        <span class="n">average_match</span> <span class="o">=</span> <span class="p">(</span><span class="n">artists_match</span> <span class="o">+</span> <span class="n">name_match</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+        <span class="n">debug</span><span class="p">(</span><span class="n">song</span><span class="o">.</span><span class="n">song_id</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">result_id</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Average match: </span><span class="si">{</span><span class="n">average_match</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="n">result</span><span class="o">.</span><span class="n">verified</span>
+            <span class="ow">and</span> <span class="ow">not</span> <span class="n">result</span><span class="o">.</span><span class="n">isrc_search</span>
+            <span class="ow">and</span> <span class="n">result</span><span class="o">.</span><span class="n">album</span>
+            <span class="ow">and</span> <span class="n">album_match</span> <span class="o">&lt;=</span> <span class="mi">80</span>
+        <span class="p">):</span>
+            <span class="c1"># we are almost certain that this is the correct result</span>
+            <span class="c1"># so we add the album match to the average match</span>
+            <span class="n">average_match</span> <span class="o">=</span> <span class="p">(</span><span class="n">average_match</span> <span class="o">+</span> <span class="n">album_match</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+            <span class="n">debug</span><span class="p">(</span>
+                <span class="n">song</span><span class="o">.</span><span class="n">song_id</span><span class="p">,</span>
+                <span class="n">result</span><span class="o">.</span><span class="n">result_id</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">&quot;Average match /w album match: </span><span class="si">{</span><span class="n">average_match</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="c1"># If the time match is lower than 50%</span>
+        <span class="c1"># and the average match is lower than 75%</span>
+        <span class="c1"># we skip the result</span>
+        <span class="k">if</span> <span class="n">time_match</span> <span class="o">&lt;</span> <span class="mi">50</span> <span class="ow">and</span> <span class="n">average_match</span> <span class="o">&lt;</span> <span class="mi">75</span><span class="p">:</span>
+            <span class="n">debug</span><span class="p">(</span>
+                <span class="n">song</span><span class="o">.</span><span class="n">song_id</span><span class="p">,</span>
+                <span class="n">result</span><span class="o">.</span><span class="n">result_id</span><span class="p">,</span>
+                <span class="s2">&quot;Skipping result due to time match &lt; 50</span><span class="si">% a</span><span class="s2">nd average match &lt; 75%&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">continue</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">result</span><span class="o">.</span><span class="n">isrc_search</span> <span class="ow">and</span> <span class="n">average_match</span> <span class="o">&lt;=</span> <span class="mi">75</span> <span class="o">&gt;=</span> <span class="n">time_match</span><span class="p">:</span>
+            <span class="c1"># Don&#39;t add time to avg match if average match is not the best</span>
+            <span class="c1"># (lower than 75%)</span>
+            <span class="n">average_match</span> <span class="o">=</span> <span class="p">(</span><span class="n">average_match</span> <span class="o">+</span> <span class="n">time_match</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+            <span class="n">debug</span><span class="p">(</span>
+                <span class="n">song</span><span class="o">.</span><span class="n">song_id</span><span class="p">,</span>
+                <span class="n">result</span><span class="o">.</span><span class="n">result_id</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">&quot;Average match /w time match: </span><span class="si">{</span><span class="n">average_match</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="n">average_match</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">average_match</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+        <span class="n">debug</span><span class="p">(</span><span class="n">song</span><span class="o">.</span><span class="n">song_id</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">result_id</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Final average match: </span><span class="si">{</span><span class="n">average_match</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="c1"># the results along with the avg Match</span>
+        <span class="n">links_with_match_value</span><span class="p">[</span><span class="n">result</span><span class="p">]</span> <span class="o">=</span> <span class="n">average_match</span>
+
+    <span class="k">return</span> <span class="n">links_with_match_value</span>
+</code></pre></div></td></tr></table></div>
+      </details>
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h2 id="spotdl.utils.matching.sort_string" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">sort_string</span><span class="p">(</span><span class="n">strings</span><span class="p">,</span> <span class="n">join_str</span><span class="p">)</span></code>
+
+<a href="#spotdl.utils.matching.sort_string" class="headerlink" title="Permanent link">¤</a></h2>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Sort strings in list and join them with <code>join</code> string</p>
+<h5 id="spotdl.utils.matching.sort_string--arguments">Arguments<a class="headerlink" href="#spotdl.utils.matching.sort_string--arguments" title="Permanent link">¤</a></h5>
+<ul>
+<li>strings: strings to sort</li>
+<li>join: string to join strings with</li>
+</ul>
+<h5 id="spotdl.utils.matching.sort_string--returns">Returns<a class="headerlink" href="#spotdl.utils.matching.sort_string--returns" title="Permanent link">¤</a></h5>
+<ul>
+<li>joined sorted string</li>
+</ul>
+
+      <details class="quote">
+        <summary>Source code in <code>spotdl/utils/matching.py</code></summary>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span>
+<span class="normal">127</span>
+<span class="normal">128</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">sort_string</span><span class="p">(</span><span class="n">strings</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">join_str</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Sort strings in list and join them with `join` string</span>
+
+<span class="sd">    ### Arguments</span>
+<span class="sd">    - strings: strings to sort</span>
+<span class="sd">    - join: string to join strings with</span>
+
+<span class="sd">    ### Returns</span>
+<span class="sd">    - joined sorted string</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">final_str</span> <span class="o">=</span> <span class="n">strings</span>
+    <span class="n">final_str</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">join_str</span><span class="si">}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">final_str</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+      </details>
+  </div>
+
+</div>
+
+
+
+  </div>
+
+  </div>
+
+</div>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+          <a href="#" class="md-top md-icon" data-md-component="top" hidden>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12Z"/></svg>
+            Back to top
+          </a>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": "../../..", "features": ["content.code.annotate", "navigation.tabs", "navigation.top", "toc.integrate"], "search": "../../../assets/javascripts/workers/search.208ed371.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.2a6f1dda.min.js"></script>
+      
+    
+  </body>
+</html>
