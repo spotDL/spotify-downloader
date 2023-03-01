@@ -257,7 +257,7 @@ class Downloader:
         # Save archive
         if self.settings["archive"]:
             for result in results:
-                if result[1]:
+                if result[1] or self.settings["add_unavailable"]:
                     self.url_archive.add(result[0].url)
 
             self.url_archive.save(self.settings["archive"])
@@ -269,7 +269,12 @@ class Downloader:
 
         # Create m3u playlist
         if self.settings["m3u"]:
-            song_list = [song for song, _ in results]
+            song_list = [
+                song
+                for song, path in results
+                if path or self.settings["add_unavailable"]
+            ]
+
             gen_m3u_files(
                 song_list,
                 self.settings["m3u"],

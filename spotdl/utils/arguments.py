@@ -235,6 +235,7 @@ def parse_ffmpeg_options(parser: _ArgumentGroup):
         type=int,
         help="The number of threads to use when downloading songs.",
     )
+
     # Add constant bit rate argument
     parser.add_argument(
         "--bitrate",
@@ -337,6 +338,13 @@ def parse_output_options(parser: _ArgumentGroup):
         const="{list[0]}.m3u",
     )
 
+    # Add cookie file argument
+    parser.add_argument(
+        "--cookie-file",
+        help="Path to cookies file.",
+        type=str,
+    )
+
     # Add overwrite argument
     parser.add_argument(
         "--overwrite",
@@ -426,14 +434,15 @@ def parse_output_options(parser: _ArgumentGroup):
         "--ytm-data",
         action="store_const",
         const=True,
-        help="Use ytm data instead of spotify data when downloading using ytm link",
+        help="Use ytm data instead of spotify data when downloading using ytm link.",
     )
 
-    # Add cookie file argument
+    # Option whether to add unavailable songs to the m3u file
     parser.add_argument(
-        "--cookie-file",
-        help="Path to cookies file.",
-        type=str,
+        "--add-unavailable",
+        action="store_const",
+        const=True,
+        help="Add unavailable songs to the m3u/archive files when downloading",
     )
 
 

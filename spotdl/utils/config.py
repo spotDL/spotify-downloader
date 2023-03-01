@@ -258,6 +258,7 @@ DOWNLOADER_OPTIONS: DownloaderOptions = {
     "fetch_albums": False,
     "id3_separator": "/",
     "ytm_data": False,
+    "add_unavailable": False,
 }
 
 WEB_OPTIONS: WebOptions = {

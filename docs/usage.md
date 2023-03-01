@@ -273,6 +273,7 @@ If you don't want config to load automatically change `load_config` option in co
     "fetch_albums": false,
     "id3_separator": "/",
     "ytm_data": false,
+    "add_unavailable": false,
     "web_use_output_dir": false,
     "port": 8800,
     "host": "localhost",
@@ -379,6 +380,8 @@ Output options:
                         number}, {tracks-count}, {isrc}, {track-id}, {publisher}, {list-length}, {list-position}, {list-name}, {output-ext}
   --m3u [M3U]           Name of the m3u file to save the songs to. Defaults to {list[0]}.m3u If you want to generate a m3u for each list in the query use {list}, If you want to generate a m3u file based on the first list in
                         the query use {list[0]}, (0 is the first list in the query, 1 is the second, etc. songs don't count towards the list number)
+  --cookie-file COOKIE_FILE
+                        Path to cookies file.
   --overwrite {metadata,skip,force}
                         How to handle existing/duplicate files. (When combined with --scan-for-songs force will remove all duplicates, and metadata will only apply metadata to the latest song and will remove the rest. )
   --restrict            Restrict filenames to ASCII only
@@ -391,9 +394,8 @@ Output options:
   --fetch-albums        Fetch all albums from songs in query
   --id3-separator ID3_SEPARATOR
                         Change the separator used in the id3 tags. Only supported for mp3 files.
-  --ytm-data            Use ytm data instead of spotify data when downloading using ytm link
-  --cookie-file COOKIE_FILE
-                        Path to cookies file.
+  --ytm-data            Use ytm data instead of spotify data when downloading using ytm link.
+  --add-unavailable     Add unavailable songs to the m3u/archive files when downloading.
 
 Web options:
   --host HOST           The host to use for the web server.
