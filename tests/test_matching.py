@@ -43,7 +43,10 @@ from tests.conftest import new_initialize
         (
             # Alan Walker - On My Way
             "https://open.spotify.com/track/4n7jnSxVLd8QioibtTDBDq",
-            ["https://music.youtube.com/watch?v=Hkvopu9hVd8", "https://music.youtube.com/watch?v=ZM8rAsTT7yE"],
+            [
+                "https://music.youtube.com/watch?v=Hkvopu9hVd8",
+                "https://music.youtube.com/watch?v=ZM8rAsTT7yE",
+            ],
         ),
         (
             # Jim Yosef, Anna Yvette - Linked

@@ -8,7 +8,10 @@ And are for the most part, not likely to change.
 
 __all__ = [
     "AMBIGUOUS_CHARACTERS",
+    "BAD_CHARS",
 ]
+
+BAD_CHARS = [12441, 12442] + list(range(769, 880))
 
 # Source: https://github.com/hediet/vscode-unicode-data/blob/main/out/ambiguous.json
 AMBIGUOUS_CHARACTERS = {

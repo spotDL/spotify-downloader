@@ -21,6 +21,7 @@ from rich.style import StyleType
 from rich.text import Text
 
 from spotdl.types.song import Song
+from spotdl.utils.static import BAD_CHARS
 
 __all__ = [
     "ProgressHandler",
@@ -267,7 +268,7 @@ class SongTracker:
         self.song_name = "".join(
             char
             for char in self.song.display_name
-            if char not in [chr(i) for i in range(769, 880)]
+            if char not in [chr(i) for i in BAD_CHARS]
         )
 
         self.progress: int = 0
