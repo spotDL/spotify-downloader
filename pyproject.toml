@@ -40,7 +40,7 @@ rich = "^13.3.1"
 beautifulsoup4 = "^4.11.2"
 requests = "^2.28.2"
 rapidfuzz = "^2.13.7"
-python-slugify = "^7.0.0"
+python-slugify = {extras = ["unidecode"], version = "^8.0.1"}
 uvicorn = "^0.20.0"
 pydantic = "^1.10.5"
 fastapi = "^0.89.1"

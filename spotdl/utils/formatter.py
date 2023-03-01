@@ -16,11 +16,11 @@ from slugify import slugify as py_slugify
 from yt_dlp.utils import sanitize_filename
 
 from spotdl.types.song import Song
-from spotdl.utils.static import AMBIGUOUS_CHARACTERS
 
 __all__ = [
     "VARS",
     "JAP_REGEX",
+    "DISALLOWED_REGEX",
     "create_song_title",
     "sanitize_string",
     "slugify",
@@ -61,6 +61,8 @@ KKS = pykakasi.kakasi()
 JAP_REGEX = re.compile(
     "[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uff9f\u4e00-\u9faf\u3400-\u4dbf]"
 )
+
+DISALLOWED_REGEX = re.compile(r"[^-a-zA-Z0-9\!\@\$]+")
 
 
 def create_song_title(song_name: str, song_artists: List[str]) -> str:
@@ -122,12 +124,10 @@ def slugify(string: str) -> str:
     """
 
     # Replace ambiguous characters
-    string = "".join(chr(AMBIGUOUS_CHARACTERS.get(str(ord(c)), ord(c))) for c in string)
-
     if not JAP_REGEX.search(string):
         # If string doesn't have japanese characters
         # return early
-        return py_slugify(string)
+        return py_slugify(string, regex_pattern=DISALLOWED_REGEX.pattern)
 
     # Workaround for japanese characters
     # because slugify incorrectly converts them
@@ -152,7 +152,7 @@ def slugify(string: str) -> str:
         ):
             result += "-"
 
-    return py_slugify(result)
+    return py_slugify(result, regex_pattern=DISALLOWED_REGEX.pattern)
 
 
 def format_query(
