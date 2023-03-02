@@ -427,9 +427,11 @@ class SongTracker:
         """
 
         if data["status"] == "downloading":
-            file_bytes = data["total_bytes"]
-            downloaded_bytes = data["downloaded_bytes"]
+            file_bytes = data.get("total_bytes")
+            if file_bytes is None:
+                file_bytes = data.get("total_bytes_estimate")
 
+            downloaded_bytes = data.get("downloaded_bytes")
             if self.parent.simple_tui and not self.parent.web_ui:
                 self.progress = 50
             elif file_bytes and downloaded_bytes:
