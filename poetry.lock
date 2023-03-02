@@ -2918,7 +2918,8 @@ category = "main"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "master.tar.gz", hash = "sha256:96c8d2c64d92cec68cdbecd6a1ed7b140edda346d917d5f3033ced176e0c4a79"},
+    {file = "yt-dlp-2023.2.17.tar.gz", hash = "sha256:9af92de5effc193bdb51216d9ebf28874d96180d202fae752b0d9f2a63380f3a"},
+    {file = "yt_dlp-2023.2.17-py2.py3-none-any.whl", hash = "sha256:3b2df037c80922f0f83f63ee2f9253496b4a8668c0fe8d2a836ba9040f853b07"},
 ]
 
 [package.dependencies]
@@ -2928,10 +2929,6 @@ certifi = "*"
 mutagen = "*"
 pycryptodomex = "*"
 websockets = "*"
-
-[package.source]
-type = "url"
-url = "https://github.com/yt-dlp/yt-dlp/archive/master.tar.gz"
 
 [[package]]
 name = "ytmusicapi"
@@ -2988,4 +2985,4 @@ testing = ["big-O", "flake8 (<5)", "jaraco.functools", "jaraco.itertools", "more
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.7.2,<3.12"
-content-hash = "aa77ab8361d5a38124fbf3acd1a8999e5315a7856b9b30a92f123c742123aedb"
+content-hash = "f9ca4c4cdd70ff875c9a7edd01b621cb5f19908ce4ec13e61e18c0067b887efd"
