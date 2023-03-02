@@ -34,7 +34,7 @@ ytmusicapi = [
     {version = "^0.24.0", python = ">=3.8"},
 ]
 pytube = "^12.1.2"
-yt-dlp = "^2023.2.17"
+yt-dlp = {url = "https://github.com/yt-dlp/yt-dlp/archive/master.tar.gz"}
 mutagen = "^1.46.0"
 rich = "^13.3.1"
 beautifulsoup4 = "^4.11.2"
