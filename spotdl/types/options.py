@@ -68,6 +68,7 @@ class DownloaderOptions(TypedDict):
     id3_separator: str
     ytm_data: bool
     add_unavailable: bool
+    geo_bypass: bool
 
 
 class WebOptions(TypedDict):
@@ -137,6 +138,7 @@ class DownloaderOptionalOptions(TypedDict, total=False):
     id3_separator: str
     ytm_data: bool
     add_unavailable: bool
+    geo_bypass: bool
 
 
 class WebOptionalOptions(TypedDict, total=False):

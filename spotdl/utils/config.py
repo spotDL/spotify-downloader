@@ -259,6 +259,7 @@ DOWNLOADER_OPTIONS: DownloaderOptions = {
     "id3_separator": "/",
     "ytm_data": False,
     "add_unavailable": False,
+    "geo_bypass": False,
 }
 
 WEB_OPTIONS: WebOptions = {
