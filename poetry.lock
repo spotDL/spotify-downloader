@@ -1043,14 +1043,14 @@ test = ["coverage", "pytest (>=6.0,<7.0)", "pytest-cov"]
 
 [[package]]
 name = "mdit-py-plugins"
-version = "0.3.4"
+version = "0.3.5"
 description = "Collection of plugins for markdown-it-py"
 category = "dev"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "mdit-py-plugins-0.3.4.tar.gz", hash = "sha256:3278aab2e2b692539082f05e1243f24742194ffd92481f48844f057b51971283"},
-    {file = "mdit_py_plugins-0.3.4-py3-none-any.whl", hash = "sha256:4f1441264ac5cb39fa40a5901921c2acf314ea098d75629750c138f80d552cdf"},
+    {file = "mdit-py-plugins-0.3.5.tar.gz", hash = "sha256:eee0adc7195e5827e17e02d2a258a2ba159944a0748f59c5099a4a27f78fcf6a"},
+    {file = "mdit_py_plugins-0.3.5-py3-none-any.whl", hash = "sha256:ca9a0714ea59a24b2b044a1831f48d817dd0c817e84339f20e7889f392d77c4e"},
 ]
 
 [package.dependencies]
@@ -1163,14 +1163,14 @@ mkdocs = ">=1.0.3"
 
 [[package]]
 name = "mkdocs-material"
-version = "9.0.15"
+version = "9.1.0"
 description = "Documentation that simply works"
 category = "dev"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "mkdocs_material-9.0.15-py3-none-any.whl", hash = "sha256:734bcf6af9759888385ee15952c2e8a475d8568ded20965da321f0d8117dfe8f"},
-    {file = "mkdocs_material-9.0.15.tar.gz", hash = "sha256:d856bc67bc0115b1f258ca012724e17b72a9aea9b8b4d287c38460704f14eeb4"},
+    {file = "mkdocs_material-9.1.0-py3-none-any.whl", hash = "sha256:7b8a84594611e6b2c5391d996ccc2b3a2b410acd1027a65ce7533a3a43ff612b"},
+    {file = "mkdocs_material-9.1.0.tar.gz", hash = "sha256:8ce03306df37fc49300f0f1feea6f111004579c2050b5f6cb4924bbb4ca1ef1c"},
 ]
 
 [package.dependencies]
@@ -1692,14 +1692,14 @@ test = ["coverage[toml] (>=5.2)", "py-cpuinfo", "pytest", "pytest-benchmark", "p
 
 [[package]]
 name = "pylint"
-version = "2.16.2"
+version = "2.16.3"
 description = "python code static checker"
 category = "dev"
 optional = false
 python-versions = ">=3.7.2"
 files = [
-    {file = "pylint-2.16.2-py3-none-any.whl", hash = "sha256:ff22dde9c2128cd257c145cfd51adeff0be7df4d80d669055f24a962b351bbe4"},
-    {file = "pylint-2.16.2.tar.gz", hash = "sha256:13b2c805a404a9bf57d002cd5f054ca4d40b0b87542bdaba5e05321ae8262c84"},
+    {file = "pylint-2.16.3-py3-none-any.whl", hash = "sha256:3e803be66e3a34c76b0aa1a3cf4714b538335e79bd69718d34fcf36d8fff2a2b"},
+    {file = "pylint-2.16.3.tar.gz", hash = "sha256:0decdf8dfe30298cd9f8d82e9a1542da464db47da60e03641631086671a03621"},
 ]
 
 [package.dependencies]
@@ -1737,14 +1737,14 @@ markdown = ">=3.2"
 
 [[package]]
 name = "pytest"
-version = "7.2.1"
+version = "7.2.2"
 description = "pytest: simple powerful testing with Python"
 category = "dev"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "pytest-7.2.1-py3-none-any.whl", hash = "sha256:c7c6ca206e93355074ae32f7403e8ea12163b1163c976fee7d4d84027c162be5"},
-    {file = "pytest-7.2.1.tar.gz", hash = "sha256:d45e0952f3727241918b8fd0f376f5ff6b301cc0777c6f9a556935c92d8a7d42"},
+    {file = "pytest-7.2.2-py3-none-any.whl", hash = "sha256:130328f552dcfac0b1cec75c12e3f005619dc5f874f0a06e8ff7263f0ee6225e"},
+    {file = "pytest-7.2.2.tar.gz", hash = "sha256:c99ab0c73aceb050f68929bc93af19ab6db0558791c6a0715723abe9d0ade9d4"},
 ]
 
 [package.dependencies]
@@ -2912,14 +2912,14 @@ typing-extensions = {version = ">=3.7.4", markers = "python_version < \"3.8\""}
 
 [[package]]
 name = "yt-dlp"
-version = "2023.2.17"
+version = "2023.3.3"
 description = "A youtube-dl fork with additional features and patches"
 category = "main"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "yt-dlp-2023.2.17.tar.gz", hash = "sha256:9af92de5effc193bdb51216d9ebf28874d96180d202fae752b0d9f2a63380f3a"},
-    {file = "yt_dlp-2023.2.17-py2.py3-none-any.whl", hash = "sha256:3b2df037c80922f0f83f63ee2f9253496b4a8668c0fe8d2a836ba9040f853b07"},
+    {file = "yt-dlp-2023.3.3.tar.gz", hash = "sha256:77fd35ed8f59b580cff5161b13dd77ee9925619a73553b7c03eb2b0adea71fb7"},
+    {file = "yt_dlp-2023.3.3-py2.py3-none-any.whl", hash = "sha256:b1ae1a0571e3f1d14b893a0983fcd66faa5f896997fc6262ce00a5a880e9e6ae"},
 ]
 
 [package.dependencies]
@@ -2985,4 +2985,4 @@ testing = ["big-O", "flake8 (<5)", "jaraco.functools", "jaraco.itertools", "more
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.7.2,<3.12"
-content-hash = "f9ca4c4cdd70ff875c9a7edd01b621cb5f19908ce4ec13e61e18c0067b887efd"
+content-hash = "5fd2c157e8770a6525526c48b287e705086c138110f9b6563681fd280a63ac37"
