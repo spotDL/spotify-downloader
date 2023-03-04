@@ -3,9 +3,9 @@ import sys
 from pathlib import Path
 
 import PyInstaller.__main__  # type: ignore
-import ytmusicapi
-import yt_dlp
 import pykakasi
+import yt_dlp
+import ytmusicapi
 
 from spotdl._version import __version__
 
