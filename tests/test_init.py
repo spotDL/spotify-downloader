@@ -28,6 +28,7 @@ def test_get_urls(monkeypatch):
     settings = DOWNLOADER_OPTIONS.copy()
     settings["simple_tui"] = True
     settings["log_level"] = "DEBUG"
+    settings["lyrics_providers"] = ["genius", "musixmatch"]
 
     # Test if spotdl can be initialized with spotify credentials.
     spotdl_client = Spotdl(
@@ -59,6 +60,7 @@ def test_download(setup, monkeypatch, tmpdir):
     settings = DOWNLOADER_OPTIONS.copy()
     settings["simple_tui"] = True
     settings["log_level"] = "DEBUG"
+    settings["lyrics_providers"] = ["genius", "musixmatch"]
 
     # Test if spotdl can be initialized with spotify credentials.
     spotdl_client = Spotdl(
