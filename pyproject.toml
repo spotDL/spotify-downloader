@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "spotdl"
-version = "4.1.1"
+version = "4.1.2"
 description = "Download your Spotify playlists and songs along with album art and metadata"
 license = "MIT"
 authors = ["spotDL Team <spotdladmins@googlegroups.com>"]
@@ -34,7 +34,7 @@ ytmusicapi = [
     {version = "^0.24.0", python = ">=3.8"},
 ]
 pytube = "^12.1.2"
-yt-dlp = {url = "https://github.com/yt-dlp/yt-dlp/archive/master.tar.gz"}
+yt-dlp = "^2023.3.3"
 mutagen = "^1.46.0"
 rich = "^13.3.1"
 beautifulsoup4 = "^4.11.2"
@@ -50,7 +50,7 @@ syncedlyrics = "^0.2.2"
 typing-extensions = "^4.5.0"
 
 [tool.poetry.dev-dependencies]
-pytest = "^7.2.1"
+pytest = "^7.2.2"
 pytest-mock = "^3.10.0"
 pytest-vcr = "^1.0.2"
 pyfakefs = "^5.1.0"
@@ -58,7 +58,7 @@ pytest-cov = "^4.0.0"
 pytest-subprocess = "^1.5.0"
 pytest-asyncio = "^0.20.3"
 mypy = "^0.991"
-pylint = "^2.16.2"
+pylint = "^2.16.3"
 black = "^22.12.0"
 mdformat-gfm = "^0.3.5"
 types-orjson = "^3.6.2"
@@ -69,7 +69,7 @@ types-toml = "^0.10.8.5"
 types-ujson = "^5.7.0.1"
 pyinstaller = "^5.8.0"
 mkdocs = "^1.4.2"
-mkdocs-material = "^9.0.15"
+mkdocs-material = "^9.1.0"
 mkdocstrings = "^0.19.1"
 mkdocstrings-python = "^0.8.3"
 pymdown-extensions = "^9.9.2"

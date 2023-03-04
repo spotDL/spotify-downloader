@@ -45,7 +45,7 @@ def test_embed_metadata(tmpdir, monkeypatch, output_format):
         "album_id": "15b3456b34562b3456b34",
         "album_name": "Ropes",
         "album_artist": "Dirty Palm",
-        "genres": ["gaming edm", "melbourne bounce international"],
+        "genres": ["Gaming Edm", "Melbourne Bounce International"],
         "disc_number": 1,
         "duration": 188,
         "year": 2021,

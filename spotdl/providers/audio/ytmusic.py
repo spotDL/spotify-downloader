@@ -4,6 +4,8 @@ YTMusic module for downloading and searching songs.
 
 from typing import Any, Dict, List
 
+from requests import session
+from yt_dlp.utils import GeoUtils
 from ytmusicapi import YTMusic
 
 from spotdl.providers.audio.base import ISRC_REGEX, AudioProvider
@@ -34,7 +36,14 @@ class YouTubeMusic(AudioProvider):
         """
 
         super().__init__(*args, **kwargs)
-        self.client = YTMusic(language="de")
+
+        client_session = session()
+        if kwargs.get("geo_bypass"):
+            client_session.headers.update(
+                {"X-Forwarded-For": GeoUtils.random_ipv4("US")}
+            )
+
+        self.client = YTMusic(language="de", requests_session=client_session)  # type: ignore
 
     def get_results(self, search_term: str, **kwargs) -> List[Result]:
         """

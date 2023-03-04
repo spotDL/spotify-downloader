@@ -727,9 +727,9 @@ def order_results(
             )
             continue
 
-        if not result.isrc_search and average_match <= 75 >= time_match:
+        if not result.isrc_search and average_match <= 85 >= time_match:
             # Don't add time to avg match if average match is not the best
-            # (lower than 75%)
+            # (lower than 85%)
             average_match = (average_match + time_match) / 2
             debug(
                 song.song_id,

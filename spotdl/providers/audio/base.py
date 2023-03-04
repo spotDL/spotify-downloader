@@ -70,6 +70,7 @@ class AudioProvider:
         cookie_file: Optional[str] = None,
         search_query: Optional[str] = None,
         filter_results: bool = True,
+        geo_bypass: bool = False,
     ) -> None:
         """
         Base class for audio providers.
@@ -89,6 +90,7 @@ class AudioProvider:
         self.cookie_file = cookie_file
         self.search_query = search_query
         self.filter_results = filter_results
+        self.geo_bypass = geo_bypass
 
         if self.output_format == "m4a":
             ytdl_format = "bestaudio[ext=m4a]/bestaudio/best"
@@ -107,6 +109,7 @@ class AudioProvider:
                 "cookiefile": self.cookie_file,
                 "outtmpl": f"{get_temp_path()}/%(id)s.%(ext)s",
                 "retries": 5,
+                "geo_bypass": self.geo_bypass,
             }
         )
 

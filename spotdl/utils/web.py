@@ -488,7 +488,7 @@ def check_update() -> bool:
         if latest_tuple > current_tuple:
             return True
     except RateLimitError:
-        return True
+        return False
 
     return False
 

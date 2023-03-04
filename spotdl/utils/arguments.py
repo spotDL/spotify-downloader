@@ -526,6 +526,14 @@ def parse_misc_options(parser: _ArgumentGroup):
         help="Use a simple tui.",
     )
 
+    # Add geo bypass argument
+    parser.add_argument(
+        "--geo-bypass",
+        action="store_const",
+        const=True,
+        help="Bypass geo restrictions.",
+    )
+
 
 def parse_other_options(parser: _ArgumentGroup):
     """
