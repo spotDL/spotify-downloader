@@ -260,6 +260,7 @@ DOWNLOADER_OPTIONS: DownloaderOptions = {
     "ytm_data": False,
     "add_unavailable": False,
     "geo_bypass": False,
+    "generate_lrc": False,
 }
 
 WEB_OPTIONS: WebOptions = {

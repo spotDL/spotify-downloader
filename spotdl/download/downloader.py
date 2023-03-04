@@ -13,6 +13,8 @@ from argparse import Namespace
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Type, Union
 
+from syncedlyrics import search as syncedlyrics_search
+from syncedlyrics.utils import is_lrc_valid, save_lrc_file
 from yt_dlp.postprocessor.modify_chapters import ModifyChaptersPP
 from yt_dlp.postprocessor.sponsorblock import SponsorBlockPP
 
@@ -680,6 +682,21 @@ class Downloader:
                 raise MetadataError(
                     "Failed to embed metadata to the song"
                 ) from exception
+
+            if self.settings["generate_lrc"]:
+                if is_lrc_valid(song.lyrics):
+                    lrc_data = song.lyrics
+                else:
+                    try:
+                        lrc_data = syncedlyrics_search(song.display_name)
+                    except Exception:
+                        lrc_data = None
+
+                if lrc_data:
+                    save_lrc_file(output_file.with_suffix(".lrc"), lrc_data)
+                    logger.debug("Saved lrc file for %s", song.display_name)
+                else:
+                    logger.debug("No lrc file found for %s", song.display_name)
 
             display_progress_tracker.notify_complete()
 

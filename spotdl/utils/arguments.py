@@ -115,7 +115,11 @@ def parse_main_options(parser: _ArgumentGroup):
         dest="lyrics_providers",
         nargs="*",
         choices=LYRICS_PROVIDERS.keys(),
-        help="The lyrics provider to use. You can provide more than one for fallback.",
+        help=(
+            "The lyrics provider to use. You can provide more than one for fallback. "
+            "Synced lyrics might not work correctly with some music players. "
+            "For such cases it's better to use `--generate-lrc` option."
+        ),
     )
 
     # Add config argument
@@ -443,6 +447,17 @@ def parse_output_options(parser: _ArgumentGroup):
         action="store_const",
         const=True,
         help="Add unavailable songs to the m3u/archive files when downloading",
+    )
+
+    # Generate lrc files
+    parser.add_argument(
+        "--generate-lrc",
+        action="store_const",
+        const=True,
+        help=(
+            "Generate lrc files for downloaded songs. "
+            "Requires `synced` provider to be present in the lyrics providers list."
+        ),
     )
 
 

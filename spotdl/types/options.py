@@ -69,6 +69,7 @@ class DownloaderOptions(TypedDict):
     ytm_data: bool
     add_unavailable: bool
     geo_bypass: bool
+    generate_lrc: bool
 
 
 class WebOptions(TypedDict):
@@ -139,6 +140,7 @@ class DownloaderOptionalOptions(TypedDict, total=False):
     ytm_data: bool
     add_unavailable: bool
     geo_bypass: bool
+    generate_lrc: bool
 
 
 class WebOptionalOptions(TypedDict, total=False):
