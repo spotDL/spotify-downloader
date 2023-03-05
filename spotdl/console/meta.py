@@ -54,8 +54,9 @@ def meta(query: List[str], downloader: Downloader) -> None:
 
         if (
             song_meta
-            and song_meta["lyrics"] is not None
-            and song_meta["title"][0] != ""
+            and song_meta.get("lyrics") is not None
+            and len(song_meta.get("title"), []) > 0
+            and song_meta.get("title")[0] != ""
         ):
             logger.info("Song already has metadata: %s", file.name)
             return None
@@ -65,8 +66,10 @@ def meta(query: List[str], downloader: Downloader) -> None:
         try:
             if (
                 song_meta is None
-                or song_meta["title"][0] == ""
-                or song_meta["tracknumber"][0] == ""
+                or len(song_meta.get("title")) == 0
+                or song_meta.get("title")[0] == ""
+                or len(song_meta.get("tracknumber")) == 0
+                or song_meta.get("tracknumber")[0] == ""
             ):
                 song = get_song_from_file_metadata(file)
                 if song is None:
