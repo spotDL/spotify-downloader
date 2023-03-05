@@ -261,6 +261,7 @@ DOWNLOADER_OPTIONS: DownloaderOptions = {
     "add_unavailable": False,
     "geo_bypass": False,
     "generate_lrc": False,
+    "force_update_metadata": False,
 }
 
 WEB_OPTIONS: WebOptions = {

@@ -70,6 +70,7 @@ class DownloaderOptions(TypedDict):
     add_unavailable: bool
     geo_bypass: bool
     generate_lrc: bool
+    force_update_metadata: bool
 
 
 class WebOptions(TypedDict):
@@ -141,6 +142,7 @@ class DownloaderOptionalOptions(TypedDict, total=False):
     add_unavailable: bool
     geo_bypass: bool
     generate_lrc: bool
+    force_update_metadata: bool
 
 
 class WebOptionalOptions(TypedDict, total=False):

@@ -460,6 +460,14 @@ def parse_output_options(parser: _ArgumentGroup):
         ),
     )
 
+    # Force update metadata
+    parser.add_argument(
+        "--force-update-metadata",
+        action="store_const",
+        const=True,
+        help="Force update metadata for songs that already have metadata.",
+    )
+
 
 def parse_web_options(parser: _ArgumentGroup):
     """
