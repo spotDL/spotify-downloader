@@ -68,7 +68,9 @@ def meta(query: List[str], downloader: Downloader) -> None:
                 or not song_meta.get("name")
                 or not song_meta.get("tracknumber")
             ):
-                song = get_song_from_file_metadata(file, downloader.settings["id3_separator"])
+                song = get_song_from_file_metadata(
+                    file, downloader.settings["id3_separator"]
+                )
                 if song is None:
                     raise ValueError(f"Could not find metadata for {file.name}")
             else:
