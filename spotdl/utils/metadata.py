@@ -112,6 +112,7 @@ TAG_TO_SONG = {
     "woas": "url",
     "copyright": "copyright_text",
     "lyrics": "lyrics",
+    "albumart": "album_art",
 }
 
 M4A_TO_SONG = {
@@ -167,9 +168,7 @@ def embed_metadata(output_file: Path, song: Song, id3_separator: str = "/"):
         audio_file[tag_preset["album"]] = album_name
 
     if len(song.genres) > 0:
-        audio_file[tag_preset["genre"]] = [
-            genre.title() for genre in song.genres if genre
-        ]
+        audio_file[tag_preset["genre"]] = song.genres[0].title()
 
     if song.copyright_text:
         audio_file[tag_preset["copyright"]] = song.copyright_text
@@ -200,7 +199,7 @@ def embed_metadata(output_file: Path, song: Song, id3_separator: str = "/"):
         if id3_separator != "/":
             audio_file.save(v23_sep=id3_separator, v2_version=3)
         else:
-            audio_file.save()
+            audio_file.save(v2_version=3)
 
         audio_file = ID3(str(output_file.resolve()))
 
@@ -330,7 +329,7 @@ def embed_lyrics(audio_file, song: Song, encoding: str):
     return audio_file
 
 
-def get_file_metadata(path: Path) -> Optional[Dict[str, Any]]:
+def get_file_metadata(path: Path, id3_separator: str = "/") -> Optional[Dict[str, Any]]:
     """
     Get song metadata.
 
@@ -381,24 +380,32 @@ def get_file_metadata(path: Path) -> Optional[Dict[str, Any]]:
             elif key == "date":
                 song_meta["date"] = str(val.text[0])
             elif key == "tracknumber":
-                count = val.text[0].split("/")
+                count = val.text[0].split(id3_separator)
                 if len(count) == 2:
                     song_meta["track_number"] = int(count[0])
                     song_meta["tracks_count"] = int(count[1])
                 else:
                     song_meta["track_number"] = val.text[0]
             elif key == "discnumber":
-                count = val.text[0].split("/")
+                count = val.text[0].split(id3_separator)
                 if len(count) == 2:
                     song_meta["disc_number"] = int(count[0])
                     song_meta["disc_count"] = int(count[1])
                 else:
                     song_meta["disc_number"] = val.text[0]
+            elif key == "artist":
+                song_meta["artists"] = (
+                    val.text[0]
+                    if isinstance(val.text, list) and len(val.text) == 1
+                    else val.text
+                ).split(id3_separator)
             else:
                 meta_key = TAG_TO_SONG.get(key)
                 if meta_key:
                     song_meta[meta_key] = (
-                        val.text[0] if len(val.text) == 1 else val.text
+                        val.text[0]
+                        if isinstance(val.text, list) and len(val.text) == 1
+                        else val.text
                     )
 
         # M4A specific decoding
@@ -418,7 +425,9 @@ def get_file_metadata(path: Path) -> Optional[Dict[str, Any]]:
             else:
                 meta_key = TAG_TO_SONG.get(key)
                 if meta_key:
-                    song_meta[meta_key] = val[0] if len(val) == 1 else val
+                    song_meta[meta_key] = (
+                        val[0] if isinstance(val, list) and len(val) == 1 else val
+                    )
 
         # FLAC, OGG, OPUS specific decoding
         else:
@@ -428,10 +437,21 @@ def get_file_metadata(path: Path) -> Optional[Dict[str, Any]]:
                 song_meta["track_number"] = int(val[0])
             elif key == "discnumber":
                 song_meta["disc_count"] = int(val[0])
+                song_meta["disc_number"] = int(val[0])
             else:
                 meta_key = TAG_TO_SONG.get(key)
                 if meta_key:
-                    song_meta[meta_key] = val[0] if len(val) == 1 else val
+                    song_meta[meta_key] = (
+                        val[0] if isinstance(val, list) and len(val) == 1 else val
+                    )
+
+    # Make sure that artists is a list
+    if isinstance(song_meta["artists"], str):
+        song_meta["artists"] = [song_meta["artists"]]
+
+    # Make sure that genres is a list
+    if isinstance(song_meta["genres"], str):
+        song_meta["genres"] = [song_meta["genres"]]
 
     # Add main artist to the song meta object
     song_meta["artist"] = song_meta["artists"][0]
