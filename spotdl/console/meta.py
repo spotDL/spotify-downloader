@@ -50,13 +50,12 @@ def meta(query: List[str], downloader: Downloader) -> None:
             paths.append(test_path)
 
     def process_file(file: Path):
-        song_meta = get_file_metadata(file)
-
+        song_meta = get_file_metadata(file, downloader.settings["id3_separator"])
         if (
             song_meta
-            and song_meta.get("lyrics") is not None
-            and len(song_meta.get("title"), []) > 0
-            and song_meta.get("title")[0] != ""
+            and song_meta.get("lyrics")
+            and song_meta.get("name")
+            and song_meta.get("album_art")
         ):
             logger.info("Song already has metadata: %s", file.name)
             return None
@@ -66,12 +65,10 @@ def meta(query: List[str], downloader: Downloader) -> None:
         try:
             if (
                 song_meta is None
-                or len(song_meta.get("title")) == 0
-                or song_meta.get("title")[0] == ""
-                or len(song_meta.get("tracknumber")) == 0
-                or song_meta.get("tracknumber")[0] == ""
+                or not song_meta.get("name")
+                or not song_meta.get("tracknumber")
             ):
-                song = get_song_from_file_metadata(file)
+                song = get_song_from_file_metadata(file, downloader.settings["id3_separator"])
                 if song is None:
                     raise ValueError(f"Could not find metadata for {file.name}")
             else:

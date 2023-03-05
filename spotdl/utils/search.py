@@ -295,7 +295,7 @@ def reinit_song(song: Song, playlist_numbering: bool = False) -> Song:
     return Song(**data)
 
 
-def get_song_from_file_metadata(file: Path) -> Optional[Song]:
+def get_song_from_file_metadata(file: Path, id3_separator: str = "/") -> Optional[Song]:
     """
     Get song based on the file metadata or file name
 
@@ -306,7 +306,7 @@ def get_song_from_file_metadata(file: Path) -> Optional[Song]:
     - Song object
     """
 
-    file_metadata = get_file_metadata(file)
+    file_metadata = get_file_metadata(file, id3_separator)
 
     if file_metadata is None:
         return None
