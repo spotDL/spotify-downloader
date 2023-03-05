@@ -215,7 +215,11 @@ def embed_metadata(output_file: Path, song: Song, id3_separator: str = "/"):
     # Embed lyrics
     audio_file = embed_lyrics(audio_file, song, encoding)
 
-    audio_file.save()
+    # Mp3 specific encoding
+    if encoding == "mp3":
+        audio_file.save(v23_sep=id3_separator, v2_version=3)
+    else:
+        audio_file.save()
 
 
 def embed_cover(audio_file, song: Song, encoding: str):
