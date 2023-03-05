@@ -361,6 +361,33 @@ def get_file_metadata(path: Path, id3_separator: str = "/") -> Optional[Dict[str
         else:
             val = audio_file.get(key)
 
+        # Cover art is a special case and
+        # has to be handled before checking the val
+        # M4A is handled in the m4a section since it
+        # has data in the val variable
+        if key == "albumart":
+            if path.suffix == ".mp3":
+                cover = audio_file.get("APIC:Cover")
+                if cover:
+                    song_meta["album_art"] = cover.data
+                else:
+                    song_meta["album_art"] = None
+
+                continue
+
+            if path.suffix == ".flac":
+                song_meta["album_art"] = audio_file.pictures[0].data
+                continue
+
+            if path.suffix in [".ogg", ".opus"]:
+                pictures = audio_file.get("metadata_block_picture")
+                if pictures:
+                    song_meta["album_art"] = pictures[0].data
+                else:
+                    song_meta["album_art"] = None
+
+                continue
+
         # If the tag is empty, skip it
         if val is None:
             # If the tag is empty but it's key is in the
@@ -410,7 +437,9 @@ def get_file_metadata(path: Path, id3_separator: str = "/") -> Optional[Dict[str
 
         # M4A specific decoding
         elif path.suffix == ".m4a":
-            if key == "woas":
+            if key == "artist":
+                song_meta["artists"] = val
+            elif key == "woas":
                 song_meta["url"] = val[0].decode("utf-8")
             elif key == "explicit":
                 song_meta["explicit"] = val == [4] if val else None
@@ -431,6 +460,8 @@ def get_file_metadata(path: Path, id3_separator: str = "/") -> Optional[Dict[str
 
         # FLAC, OGG, OPUS specific decoding
         else:
+            if key == "artist":
+                song_meta["artists"] = val
             if key == "originaldate":
                 song_meta["year"] = int(str(val[0])[:4])
             elif key == "tracknumber":
@@ -448,12 +479,17 @@ def get_file_metadata(path: Path, id3_separator: str = "/") -> Optional[Dict[str
     # Make sure that artists is a list
     if isinstance(song_meta["artists"], str):
         song_meta["artists"] = [song_meta["artists"]]
+    else:
+        song_meta["artists"] = list(song_meta["artists"])
 
     # Make sure that genres is a list
     if isinstance(song_meta["genres"], str):
         song_meta["genres"] = [song_meta["genres"]]
 
     # Add main artist to the song meta object
-    song_meta["artist"] = song_meta["artists"][0]
+    if song_meta["artists"]:
+        song_meta["artist"] = song_meta["artists"][0]
+    else:
+        song_meta["artist"] = None
 
     return song_meta

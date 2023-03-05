@@ -51,40 +51,45 @@ def meta(query: List[str], downloader: Downloader) -> None:
 
     def process_file(file: Path):
         song_meta = get_file_metadata(file, downloader.settings["id3_separator"])
-        if (
-            song_meta
-            and song_meta.get("lyrics")
-            and song_meta.get("name")
-            and song_meta.get("album_art")
-            and not downloader.settings["force_update_metadata"]
-        ):
-            logger.info("Song already has metadata: %s", file.name)
-            return None
 
-        song = get_song_from_file_metadata(file, downloader.settings["id3_separator"])
+        if song_meta and not downloader.settings["force_update_metadata"]:
+            if (
+                song_meta.get("artist")
+                and song_meta.get("artists")
+                and song_meta.get("name")
+                and song_meta.get("lyrics")
+                and song_meta.get("album_art")
+            ):
+                logger.info("Song already has metadata: %s", file.name)
+                return None
 
-        # Check if we have metadata if not use spotify
-        # to get the metadata
-        if (
-            None
-            in (song.name, song.track_number, song_meta.get("album_art"), song.lyrics)
-            or downloader.settings["force_update_metadata"]
-        ):
+        if not song_meta or None in [
+            song_meta.get("name"),
+            song_meta.get("album_art"),
+            song_meta.get("artist"),
+            song_meta.get("artists"),
+            song_meta.get("track_number"),
+        ]:
+            logger.debug("Searching for metadata for %s", file.name)
             search_results = get_search_results(file.stem)
             if not search_results:
                 logger.error("Could not find metadata for %s", file.name)
                 return None
-
             song = search_results[0]
+        else:
+            song = get_song_from_file_metadata(
+                file, downloader.settings["id3_separator"]
+            )
 
         # Check if the song has lyric
         # if not use downloader to find lyrics
-        if song.lyrics is None:
+        if song_meta.get("lyrics") is None:
             logger.debug("Fetching lyrics for %s", song.display_name)
-            lyrics = downloader.search_lyrics(song)
-            if lyrics:
-                song.lyrics = lyrics
+            song.lyrics = downloader.search_lyrics(song)
+            if song.lyrics:
                 logger.info("Found lyrics for song: %s", song.display_name)
+        else:
+            song.lyrics = song_meta.get("lyrics")
 
         # Apply metadata to the song
         embed_metadata(file, song)
