@@ -61,13 +61,15 @@ def meta(query: List[str], downloader: Downloader) -> None:
             logger.info("Song already has metadata: %s", file.name)
             return None
 
-        song = get_song_from_file_metadata(
-            file, downloader.settings["id3_separator"]
-        )
+        song = get_song_from_file_metadata(file, downloader.settings["id3_separator"])
 
         # Check if we have metadata if not use spotify
         # to get the metadata
-        if None in (song.name, song.track_number, song_meta.get("album_art"), song.lyrics) or downloader.settings["force_update_metadata"]:
+        if (
+            None
+            in (song.name, song.track_number, song_meta.get("album_art"), song.lyrics)
+            or downloader.settings["force_update_metadata"]
+        ):
             search_results = get_search_results(file.stem)
             if not search_results:
                 logger.error("Could not find metadata for %s", file.name)
