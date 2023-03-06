@@ -479,8 +479,10 @@ def get_file_metadata(path: Path, id3_separator: str = "/") -> Optional[Dict[str
     # Make sure that artists is a list
     if isinstance(song_meta["artists"], str):
         song_meta["artists"] = [song_meta["artists"]]
-    else:
+    elif song_meta["artists"] is not None:
         song_meta["artists"] = list(song_meta["artists"])
+    else:
+        song_meta["artists"] = []
 
     # Make sure that genres is a list
     if isinstance(song_meta["genres"], str):
