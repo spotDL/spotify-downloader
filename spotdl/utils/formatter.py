@@ -293,7 +293,8 @@ def create_file_name(
     song: Song,
     template: str,
     file_extension: str,
-    short: bool = False,
+    restrict: bool = False,
+    short: bool = False
 ) -> Path:
     """
     Create the file name for the song, by replacing template variables with the actual values.
@@ -302,6 +303,7 @@ def create_file_name(
     - song: the song object
     - template: the template string
     - file_extension: the file extension to use
+    - restrict: whether to sanitize the filename
     - short: whether to use the short version of the template
 
     ### Returns
@@ -364,15 +366,21 @@ def create_file_name(
                 song=song,
                 template="/{artist} - {title}.{output-ext}",
                 file_extension=file_extension,
-                short=short,
+                restrict=restrict,
+                short=short
             )
 
         return create_file_name(
             song,
             template,
             file_extension,
-            short=True,
+            restrict=restrict,
+            short=True
         )
+
+    # Restrict the filename if needed
+    if restrict:
+        return restrict_filename(file)
 
     return file
 

@@ -380,12 +380,12 @@ class Downloader:
         try:
             # Create the output file path
             output_file = create_file_name(
-                song, self.settings["output"], self.settings["format"]
+                song, self.settings["output"], self.settings["format"], self.settings["restrict"]
             )
         except Exception:
             song = reinit_song(song, self.settings["playlist_numbering"])
             output_file = create_file_name(
-                song, self.settings["output"], self.settings["format"]
+                song, self.settings["output"], self.settings["format"], self.settings["restrict"]
             )
 
             reinitialized = True
@@ -395,10 +395,6 @@ class Downloader:
 
         # Create the temp folder path
         temp_folder = get_temp_path()
-
-        # Restrict the filename if needed
-        if self.settings["restrict"] is True:
-            output_file = restrict_filename(output_file)
 
         # Check if there is an already existing song file, with the same spotify URL in its
         # metadata, but saved under a different name. If so, save its path.

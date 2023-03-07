@@ -92,6 +92,14 @@ def test_create_file_name():
         "GB2LD2110301/Ropes - Dirty Palm....mp3"
     )
 
+    assert create_file_name(song, "{title} - {artist}", "mp3", restrict=True, short=False) == Path(
+        "Ropes-Dirty_Palm.mp3"
+    )
+
+    assert create_file_name(song, "{title} - {artist}", "mp3", restrict=True, short=True) == Path(
+        "Ropes-Dirty_Palm.mp3"
+    )
+
     assert create_file_name(
         song,
         "{list-position}/{list-length} {title} - {artist}",

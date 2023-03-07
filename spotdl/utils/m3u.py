@@ -32,7 +32,7 @@ def create_m3u_content(
 
     text = ""
     for song in song_list:
-        text += str(create_file_name(song, template, file_extension, short)) + "\n"
+        text += str(create_file_name(song, template, file_extension, short=short)) + "\n"
 
     return text
 
