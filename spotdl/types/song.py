@@ -32,11 +32,11 @@ class Song:
     name: str
     artists: List[str]
     artist: str
-    album_name: str
-    album_artist: str
     genres: List[str]
     disc_number: int
     disc_count: int
+    album_name: str
+    album_artist: str
     duration: int
     year: int
     date: str
@@ -50,13 +50,12 @@ class Song:
     cover_url: Optional[str]
     copyright_text: Optional[str]
     download_url: Optional[str] = None
-    song_list: Optional["SongList"] = None
-    list_position: Optional[int] = None
     lyrics: Optional[str] = None
-
-    # Added in v4.1.0, not supported in previous versions
-    # in the next major version, these will be made required
     album_id: Optional[str] = None
+    list_name: Optional[str] = None
+    list_url: Optional[str] = None
+    list_position: Optional[int] = None
+    list_length: Optional[int] = None
 
     @classmethod
     def from_url(cls, url: str) -> "Song":
@@ -221,27 +220,6 @@ class Song:
         ### Returns
         - The Song object.
         """
-
-        # Reinitialize the correct song list object
-        if data.get("song_list"):
-            song_list = data["song_list"]
-            if not issubclass(type(song_list), SongList):
-                # Find the correct song list class
-                # based on the class attributes
-                song_list_class = next(
-                    (
-                        list_class
-                        for list_class in SongList.__subclasses__()
-                        if list(list_class.__dataclass_fields__.keys())
-                        == list(data["song_list"].keys())
-                    )
-                )
-
-                # Reinitialize the song list object
-                song_list = song_list_class(**data["song_list"])
-
-            data["song_list"] = song_list
-            data["list_position"] = song_list.urls.index(data["url"])
 
         # Return product object
         return cls(**data)

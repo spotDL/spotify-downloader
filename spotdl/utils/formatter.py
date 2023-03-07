@@ -180,18 +180,19 @@ def format_query(
         raise ValueError("file_extension is None, but template contains {output-ext}")
 
     if (
-        any(k in template for k in ["{list-length}", "{list-position}", "{list-name}"])
-        and song.song_list is None
+        ("{list-length}" in template and song.list_length is None)
+        or ("{list-position}" and song.list_position is None)
+        or ("{list-name}" and song.list_name is None)
     ):
-        # If the template contains {list-length} or {list-position} or {list-name},
-        # but the song_list is None, replace them with empty strings
+        warnings.warn(
+            "song.list_length or song.list_position or song.list_name is None, but template contains {list-length} or {list-position} or {list-name}"
+        )
+
         for k in ["{list-length}", "{list-position}", "{list-name}"]:
             template = template.replace(k, "")
             template = template.replace(r"//", r"/")
 
     # If template has only {output-ext}, fix it
-    # This can happen if the template consits of only list values
-    # and song.song_list is None
     if template in ["/.{output-ext}", ".{output-ext}"]:
         template = "{artists} - {title}.{output-ext}"
 
@@ -225,25 +226,10 @@ def format_query(
         "{track-id}": song.song_id,
         "{publisher}": song.publisher,
         "{output-ext}": file_extension,
+        "{list-name}": song.list_name,
+        "{list-position}": song.list_position,
+        "{list-length}": song.list_length,
     }
-
-    if song.song_list and any(
-        k in template for k in ["{list-length}", "{list-position}", "{list-name}"]
-    ):
-        try:
-            index = song.song_list.songs.index(song)
-        except ValueError:
-            index = song.song_list.urls.index(song.url)
-
-        formats.update(
-            {
-                "{list-name}": song.song_list.name,  # type: ignore
-                "{list-position}": str(index + 1).zfill(
-                    len(str(song.song_list.length))
-                ),
-                "{list-length}": song.song_list.length,
-            }
-        )
 
     if santitize:
         # sanitize the values in formats dict

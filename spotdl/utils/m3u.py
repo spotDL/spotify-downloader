@@ -73,26 +73,21 @@ def gen_m3u_files(
     if not file_name.endswith(".m3u"):
         file_name += ".m3u"
 
-    # Get song lists from song objects
-    dup_lists = [result.song_list for result in songs]
+    lists_object = {}
+    for song in songs:
+        if song.list_name not in lists_object:
+            lists_object[song.list_name] = []
 
-    # Remove duplicates
-    list_of_lists: List[SongList] = []
-    for song_list in dup_lists:
-        if song_list is None:
-            continue
-
-        if song_list.url not in [list.url for list in list_of_lists]:
-            list_of_lists.append(song_list)
+        lists_object[song.list_name].songs.append(song)
 
     if "{list}" in file_name:
         # Create multiple m3u files if there are multiple lists
-        for song_list in list_of_lists:
+        for list_name, song_list in lists_object:
             create_m3u_file(
                 file_name.format(
-                    list=song_list.name,
+                    list=list_name,
                 ),
-                song_list.songs,
+                song_list,
                 template,
                 file_extension,
                 short,
@@ -100,7 +95,7 @@ def gen_m3u_files(
     elif "{list[" in file_name and "]}" in file_name:
         # Create a single m3u file for specified song list name
         create_m3u_file(
-            file_name.format(list=[song_list.name for song_list in list_of_lists]),
+            file_name.format(list=list(lists_object.keys())),
             songs,
             template,
             file_extension,
