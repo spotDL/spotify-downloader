@@ -94,7 +94,7 @@ class Playlist(SongList):
             if track_id is None or track_meta.get("duration_ms") == 0:
                 continue
 
-            album_meta = track_meta["album"]
+            album_meta = track_meta.get("album", {})
             release_date = album_meta["release_date"]
 
             artists = [artist["name"] for artist in track_meta["artists"]]
@@ -102,15 +102,17 @@ class Playlist(SongList):
                 name=track_meta["name"],
                 artists=artists,
                 artist=artists[0],
-                album_id=album_meta["id"],
-                album_name=album_meta["name"],
-                album_artist=album_meta["artists"][0]["name"],
+                album_id=album_meta.get("id"),
+                album_name=album_meta.get("name"),
+                album_artist=album_meta.get("artists", [])[0]["name"]
+                if album_meta.get("artists")
+                else None,
                 disc_number=track_meta["disc_number"],
                 duration=track_meta["duration_ms"],
                 year=release_date[:4],
                 date=release_date,
                 track_number=track_meta["track_number"],
-                tracks_count=album_meta["total_tracks"],
+                tracks_count=album_meta.get("total_tracks"),
                 song_id=track_meta["id"],
                 explicit=track_meta["explicit"],
                 url=track_meta["external_urls"]["spotify"],
@@ -118,7 +120,7 @@ class Playlist(SongList):
                 cover_url=max(
                     album_meta["images"], key=lambda i: i["width"] * i["height"]
                 )["url"]
-                if (len(album_meta["images"]) > 0)
+                if (len(album_meta.get("images", [])) > 0)
                 else None,
             )
 
