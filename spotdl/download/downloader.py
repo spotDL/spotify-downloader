@@ -387,7 +387,7 @@ class Downloader:
                 self.settings["restrict"],
             )
         except Exception:
-            song = reinit_song(song, self.settings["playlist_numbering"])
+            song = reinit_song(song)
             output_file = create_file_name(
                 song,
                 self.settings["output"],
@@ -445,7 +445,7 @@ class Downloader:
             or None
             in [song.genres, song.disc_count, song.tracks_count, song.track_number]
         ):
-            song = reinit_song(song, self.settings["playlist_numbering"])
+            song = reinit_song(song)
             reinitialized = True
 
         # Don't skip if the file exists and overwrite is set to force

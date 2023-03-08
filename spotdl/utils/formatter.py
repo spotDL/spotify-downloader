@@ -4,8 +4,8 @@ Contains functions to create search queries and song titles
 and file names.
 """
 
+import logging
 import re
-import warnings
 from functools import lru_cache
 from pathlib import Path
 from typing import List, Optional
@@ -63,6 +63,8 @@ JAP_REGEX = re.compile(
 )
 
 DISALLOWED_REGEX = re.compile(r"[^-a-zA-Z0-9\!\@\$]+")
+
+logger = logging.getLogger(__name__)
 
 
 def create_song_title(song_name: str, song_artists: List[str]) -> str:
@@ -179,18 +181,21 @@ def format_query(
     if "{output-ext}" in template and file_extension is None:
         raise ValueError("file_extension is None, but template contains {output-ext}")
 
-    if (
-        ("{list-length}" in template and song.list_length is None)
-        or ("{list-position}" and song.list_position is None)
-        or ("{list-name}" and song.list_name is None)
-    ):
-        warnings.warn(
-            "song.list_length or song.list_position or song.list_name is None, but template contains {list-length} or {list-position} or {list-name}"
+    for key, val in [
+        ("{list-length}", song.list_length),
+        ("{list-position}", song.list_position),
+        ("{list-name}", song.list_name),
+    ]:
+        if not (key in template and val is None):
+            continue
+
+        logger.warning(
+            "Template contains %s, but it's value is None. Replacing with empty string.",
+            key,
         )
 
-        for k in ["{list-length}", "{list-position}", "{list-name}"]:
-            template = template.replace(k, "")
-            template = template.replace(r"//", r"/")
+        template = template.replace(key, "")
+        template = template.replace(r"//", r"/")
 
     # If template has only {output-ext}, fix it
     if template in ["/.{output-ext}", ".{output-ext}"]:
@@ -344,8 +349,9 @@ def create_file_name(
                     f'"{song.display_name} is too long to be shortened. File a bug report on GitHub'
                 )
 
-            warnings.warn(
-                f"{song.display_name}: File name is too long. Using the default template."
+            logger.warning(
+                "%s: File name is too long. Using the default template.",
+                song.display_name,
             )
 
             return create_file_name(

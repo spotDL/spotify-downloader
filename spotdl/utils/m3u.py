@@ -4,7 +4,7 @@ Module for creating m3u content and writing it to a file.
 
 from typing import List, Optional
 
-from spotdl.types.song import Song, SongList
+from spotdl.types.song import Song
 from spotdl.utils.formatter import create_file_name
 
 __all__ = [
