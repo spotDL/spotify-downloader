@@ -95,7 +95,7 @@ class Playlist(SongList):
                 continue
 
             album_meta = track_meta.get("album", {})
-            release_date = album_meta["release_date"]
+            release_date = album_meta.get("release_date")
 
             artists = [artist["name"] for artist in track_meta["artists"]]
             song = Song.from_missing_data(
