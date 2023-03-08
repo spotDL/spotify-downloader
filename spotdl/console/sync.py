@@ -74,6 +74,7 @@ def sync(
                 m3u_file,
                 downloader.settings["output"],
                 downloader.settings["format"],
+                downloader.settings["restrict"],
                 False,
             )
 
@@ -99,6 +100,7 @@ def sync(
                 Song.from_dict(entry),
                 downloader.settings["output"],
                 downloader.settings["format"],
+                downloader.settings["restrict"],
             )
             old_files.append((file_name, entry["url"]))
 
@@ -128,6 +130,7 @@ def sync(
                 m3u_file,
                 downloader.settings["output"],
                 downloader.settings["format"],
+                downloader.settings["restrict"],
                 False,
             )
 

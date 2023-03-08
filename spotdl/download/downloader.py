@@ -31,7 +31,7 @@ from spotdl.utils.config import (
     get_temp_path,
 )
 from spotdl.utils.ffmpeg import FFmpegError, convert, get_ffmpeg_path
-from spotdl.utils.formatter import create_file_name, restrict_filename
+from spotdl.utils.formatter import create_file_name
 from spotdl.utils.m3u import gen_m3u_files
 from spotdl.utils.metadata import MetadataError, embed_metadata
 from spotdl.utils.search import gather_known_songs, reinit_song, songs_from_albums
@@ -283,6 +283,7 @@ class Downloader:
                 self.settings["m3u"],
                 self.settings["output"],
                 self.settings["format"],
+                self.settings["restrict"],
                 False,
             )
 
@@ -380,12 +381,18 @@ class Downloader:
         try:
             # Create the output file path
             output_file = create_file_name(
-                song, self.settings["output"], self.settings["format"]
+                song,
+                self.settings["output"],
+                self.settings["format"],
+                self.settings["restrict"],
             )
         except Exception:
             song = reinit_song(song, self.settings["playlist_numbering"])
             output_file = create_file_name(
-                song, self.settings["output"], self.settings["format"]
+                song,
+                self.settings["output"],
+                self.settings["format"],
+                self.settings["restrict"],
             )
 
             reinitialized = True
@@ -395,10 +402,6 @@ class Downloader:
 
         # Create the temp folder path
         temp_folder = get_temp_path()
-
-        # Restrict the filename if needed
-        if self.settings["restrict"] is True:
-            output_file = restrict_filename(output_file)
 
         # Check if there is an already existing song file, with the same spotify URL in its
         # metadata, but saved under a different name. If so, save its path.
