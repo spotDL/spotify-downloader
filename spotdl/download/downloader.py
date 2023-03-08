@@ -443,7 +443,14 @@ class Downloader:
             (song.name is None and song.url)
             or (self.settings["fetch_albums"] and reinitialized is False)
             or None
-            in [song.genres, song.disc_count, song.tracks_count, song.track_number]
+            in [
+                song.genres,
+                song.disc_count,
+                song.tracks_count,
+                song.track_number,
+                song.album_id,
+                song.album_artist,
+            ]
         ):
             song = reinit_song(song)
             reinitialized = True
