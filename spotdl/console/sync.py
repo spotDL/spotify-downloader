@@ -74,6 +74,7 @@ def sync(
                 m3u_file,
                 downloader.settings["output"],
                 downloader.settings["format"],
+                downloader.settings["restrict"],
                 False,
             )
 
@@ -129,6 +130,7 @@ def sync(
                 m3u_file,
                 downloader.settings["output"],
                 downloader.settings["format"],
+                downloader.settings["restrict"],
                 False,
             )
 

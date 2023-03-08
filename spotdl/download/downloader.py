@@ -283,6 +283,7 @@ class Downloader:
                 self.settings["m3u"],
                 self.settings["output"],
                 self.settings["format"],
+                self.settings["restrict"],
                 False,
             )
 

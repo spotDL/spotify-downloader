@@ -82,6 +82,7 @@ def save(
             m3u_file,
             downloader.settings["output"],
             downloader.settings["format"],
+            downloader.settings["restrict"],
             False,
         )
 
