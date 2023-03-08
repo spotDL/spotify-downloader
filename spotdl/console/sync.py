@@ -100,7 +100,7 @@ def sync(
                 Song.from_dict(entry),
                 downloader.settings["output"],
                 downloader.settings["format"],
-                downloader.settings["restrict"]
+                downloader.settings["restrict"],
             )
             old_files.append((file_name, entry["url"]))
 

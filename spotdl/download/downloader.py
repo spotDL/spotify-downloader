@@ -31,7 +31,7 @@ from spotdl.utils.config import (
     get_temp_path,
 )
 from spotdl.utils.ffmpeg import FFmpegError, convert, get_ffmpeg_path
-from spotdl.utils.formatter import create_file_name, restrict_filename
+from spotdl.utils.formatter import create_file_name
 from spotdl.utils.m3u import gen_m3u_files
 from spotdl.utils.metadata import MetadataError, embed_metadata
 from spotdl.utils.search import gather_known_songs, reinit_song, songs_from_albums
@@ -381,12 +381,18 @@ class Downloader:
         try:
             # Create the output file path
             output_file = create_file_name(
-                song, self.settings["output"], self.settings["format"], self.settings["restrict"]
+                song,
+                self.settings["output"],
+                self.settings["format"],
+                self.settings["restrict"],
             )
         except Exception:
             song = reinit_song(song, self.settings["playlist_numbering"])
             output_file = create_file_name(
-                song, self.settings["output"], self.settings["format"], self.settings["restrict"]
+                song,
+                self.settings["output"],
+                self.settings["format"],
+                self.settings["restrict"],
             )
 
             reinitialized = True
