@@ -242,16 +242,11 @@ def songs_from_albums(albums: List[str]):
     - List of songs
     """
 
-    songs = []
+    songs: List[Song] = []
     for album_id in albums:
         album = Album.from_url(album_id, fetch_songs=False)
 
-        for song in album.songs:
-            song_data = song.json
-            song_data["list_name"] = album.name
-            song_data["list_url"] = album.url
-            song_data["list_position"] = album.urls.index(song.url) + 1
-            song_data["list_length"] = album.length
+        songs.extend([Song.from_missing_data(**song.json) for song in album.songs])
 
     return songs
 

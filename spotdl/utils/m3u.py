@@ -2,7 +2,7 @@
 Module for creating m3u content and writing it to a file.
 """
 
-from typing import List, Optional
+from typing import Dict, List, Optional
 
 from spotdl.types.song import Song
 from spotdl.utils.formatter import create_file_name
@@ -83,16 +83,19 @@ def gen_m3u_files(
     if not file_name.endswith(".m3u"):
         file_name += ".m3u"
 
-    lists_object = {}
+    lists_object: Dict[str, List[Song]] = {}
     for song in songs:
+        if song.list_name is None:
+            continue
+
         if song.list_name not in lists_object:
             lists_object[song.list_name] = []
 
-        lists_object[song.list_name].songs.append(song)
+        lists_object[song.list_name].append(song)
 
     if "{list}" in file_name:
         # Create multiple m3u files if there are multiple lists
-        for list_name, song_list in lists_object:
+        for list_name, song_list in lists_object.items():
             create_m3u_file(
                 file_name.format(
                     list=list_name,
