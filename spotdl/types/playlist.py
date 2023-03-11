@@ -91,13 +91,17 @@ class Playlist(SongList):
 
             track_meta = track.get("track", {})
             track_id = track_meta.get("id")
-            if track_id is None or track_meta.get("duration_ms") == 0:
+            if (
+                track_meta == {}
+                or track_id is None
+                or track_meta.get("duration_ms") == 0
+            ):
                 continue
 
             album_meta = track_meta.get("album", {})
             release_date = album_meta.get("release_date")
 
-            artists = [artist["name"] for artist in track_meta["artists"]]
+            artists = [artist["name"] for artist in track_meta.get("artists", [])]
             song = Song.from_missing_data(
                 name=track_meta["name"],
                 artists=artists,
