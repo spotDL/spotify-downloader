@@ -58,13 +58,12 @@ def test_create_file_name():
         "copyright_text": "",
         "publisher": "",
         "url": "https://open.spotify.com/track/1t2qKa8K72IBC8yQlhD9bU",
+        "list_position": 5,
+        "list_name": "test",
+        "list_length": 11,
     }
 
     song = Song.from_dict(song_dict)
-
-    song.song_list = SongList(
-        "test", "test", [], [1, 2, 3, 4, song, 6, 7, 8, 9, 10, 11]  # type: ignore
-    )
 
     assert create_file_name(song, "test", "mp3") == Path(
         "test/Dirty Palm, Chandler Jewels - Ropes.mp3"

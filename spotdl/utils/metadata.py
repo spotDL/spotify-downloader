@@ -381,8 +381,8 @@ def get_file_metadata(path: Path, id3_separator: str = "/") -> Optional[Dict[str
 
             if path.suffix in [".ogg", ".opus"]:
                 pictures = audio_file.get("metadata_block_picture")
-                if pictures:
-                    song_meta["album_art"] = pictures[0].data
+                if pictures and pictures[0]:
+                    song_meta["album_art"] = pictures[0]
                 else:
                     song_meta["album_art"] = None
 

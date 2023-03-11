@@ -34,7 +34,6 @@ def test_ytm_search():
                     "url": "https://open.spotify.com/track/0kx3ml8bdAYrQtcIwvkhp8",
                     "copyright_text": "2022 NCS",
                     "download_url": None,
-                    "song_list": None,
                 }
             )
         )

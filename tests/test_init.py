@@ -96,7 +96,6 @@ def test_download(setup, monkeypatch, tmpdir):
         "url": "https://open.spotify.com/track/0kx3ml8bdAYrQtcIwvkhp8",
         "copyright_text": "2022 NCS",
         "download_url": "https://www.youtube.com/watch?v=nfyk-V5CoIE",
-        "song_list": None,
     }
 
     assert None not in spotdl_client.download(Song.from_dict(song))

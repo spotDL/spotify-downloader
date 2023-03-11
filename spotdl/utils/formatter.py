@@ -232,7 +232,7 @@ def format_query(
         "{publisher}": song.publisher,
         "{output-ext}": file_extension,
         "{list-name}": song.list_name,
-        "{list-position}": song.list_position,
+        "{list-position}": str(song.list_position).zfill(len(str(song.list_length))),
         "{list-length}": song.list_length,
     }
 
