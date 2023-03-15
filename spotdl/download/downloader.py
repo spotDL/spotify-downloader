@@ -13,6 +13,8 @@ from argparse import Namespace
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Type, Union
 
+from syncedlyrics import search as syncedlyrics_search
+from syncedlyrics.utils import is_lrc_valid, save_lrc_file
 from yt_dlp.postprocessor.modify_chapters import ModifyChaptersPP
 from yt_dlp.postprocessor.sponsorblock import SponsorBlockPP
 
@@ -29,7 +31,7 @@ from spotdl.utils.config import (
     get_temp_path,
 )
 from spotdl.utils.ffmpeg import FFmpegError, convert, get_ffmpeg_path
-from spotdl.utils.formatter import create_file_name, restrict_filename
+from spotdl.utils.formatter import create_file_name
 from spotdl.utils.m3u import gen_m3u_files
 from spotdl.utils.metadata import MetadataError, embed_metadata
 from spotdl.utils.search import gather_known_songs, reinit_song, songs_from_albums
@@ -281,6 +283,7 @@ class Downloader:
                 self.settings["m3u"],
                 self.settings["output"],
                 self.settings["format"],
+                self.settings["restrict"],
                 False,
             )
 
@@ -378,12 +381,18 @@ class Downloader:
         try:
             # Create the output file path
             output_file = create_file_name(
-                song, self.settings["output"], self.settings["format"]
+                song,
+                self.settings["output"],
+                self.settings["format"],
+                self.settings["restrict"],
             )
         except Exception:
-            song = reinit_song(song, self.settings["playlist_numbering"])
+            song = reinit_song(song)
             output_file = create_file_name(
-                song, self.settings["output"], self.settings["format"]
+                song,
+                self.settings["output"],
+                self.settings["format"],
+                self.settings["restrict"],
             )
 
             reinitialized = True
@@ -393,10 +402,6 @@ class Downloader:
 
         # Create the temp folder path
         temp_folder = get_temp_path()
-
-        # Restrict the filename if needed
-        if self.settings["restrict"] is True:
-            output_file = restrict_filename(output_file)
 
         # Check if there is an already existing song file, with the same spotify URL in its
         # metadata, but saved under a different name. If so, save its path.
@@ -438,9 +443,16 @@ class Downloader:
             (song.name is None and song.url)
             or (self.settings["fetch_albums"] and reinitialized is False)
             or None
-            in [song.genres, song.disc_count, song.tracks_count, song.track_number]
+            in [
+                song.genres,
+                song.disc_count,
+                song.tracks_count,
+                song.track_number,
+                song.album_id,
+                song.album_artist,
+            ]
         ):
-            song = reinit_song(song, self.settings["playlist_numbering"])
+            song = reinit_song(song)
             reinitialized = True
 
         # Don't skip if the file exists and overwrite is set to force
@@ -680,6 +692,21 @@ class Downloader:
                 raise MetadataError(
                     "Failed to embed metadata to the song"
                 ) from exception
+
+            if self.settings["generate_lrc"]:
+                if is_lrc_valid(song.lyrics):
+                    lrc_data = song.lyrics
+                else:
+                    try:
+                        lrc_data = syncedlyrics_search(song.display_name)
+                    except Exception:
+                        lrc_data = None
+
+                if lrc_data:
+                    save_lrc_file(output_file.with_suffix(".lrc"), lrc_data)
+                    logger.debug("Saved lrc file for %s", song.display_name)
+                else:
+                    logger.debug("No lrc file found for %s", song.display_name)
 
             display_progress_tracker.notify_complete()
 

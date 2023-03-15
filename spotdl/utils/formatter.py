@@ -4,8 +4,8 @@ Contains functions to create search queries and song titles
 and file names.
 """
 
+import logging
 import re
-import warnings
 from functools import lru_cache
 from pathlib import Path
 from typing import List, Optional
@@ -63,6 +63,8 @@ JAP_REGEX = re.compile(
 )
 
 DISALLOWED_REGEX = re.compile(r"[^-a-zA-Z0-9\!\@\$]+")
+
+logger = logging.getLogger(__name__)
 
 
 def create_song_title(song_name: str, song_artists: List[str]) -> str:
@@ -179,19 +181,23 @@ def format_query(
     if "{output-ext}" in template and file_extension is None:
         raise ValueError("file_extension is None, but template contains {output-ext}")
 
-    if (
-        any(k in template for k in ["{list-length}", "{list-position}", "{list-name}"])
-        and song.song_list is None
-    ):
-        # If the template contains {list-length} or {list-position} or {list-name},
-        # but the song_list is None, replace them with empty strings
-        for k in ["{list-length}", "{list-position}", "{list-name}"]:
-            template = template.replace(k, "")
-            template = template.replace(r"//", r"/")
+    for key, val in [
+        ("{list-length}", song.list_length),
+        ("{list-position}", song.list_position),
+        ("{list-name}", song.list_name),
+    ]:
+        if not (key in template and val is None):
+            continue
+
+        logger.warning(
+            "Template contains %s, but it's value is None. Replacing with empty string.",
+            key,
+        )
+
+        template = template.replace(key, "")
+        template = template.replace(r"//", r"/")
 
     # If template has only {output-ext}, fix it
-    # This can happen if the template consits of only list values
-    # and song.song_list is None
     if template in ["/.{output-ext}", ".{output-ext}"]:
         template = "{artists} - {title}.{output-ext}"
 
@@ -225,25 +231,10 @@ def format_query(
         "{track-id}": song.song_id,
         "{publisher}": song.publisher,
         "{output-ext}": file_extension,
+        "{list-name}": song.list_name,
+        "{list-position}": str(song.list_position).zfill(len(str(song.list_length))),
+        "{list-length}": song.list_length,
     }
-
-    if song.song_list and any(
-        k in template for k in ["{list-length}", "{list-position}", "{list-name}"]
-    ):
-        try:
-            index = song.song_list.songs.index(song)
-        except ValueError:
-            index = song.song_list.urls.index(song.url)
-
-        formats.update(
-            {
-                "{list-name}": song.song_list.name,  # type: ignore
-                "{list-position}": str(index + 1).zfill(
-                    len(str(song.song_list.length))
-                ),
-                "{list-length}": song.song_list.length,
-            }
-        )
 
     if santitize:
         # sanitize the values in formats dict
@@ -293,6 +284,7 @@ def create_file_name(
     song: Song,
     template: str,
     file_extension: str,
+    restrict: bool = False,
     short: bool = False,
 ) -> Path:
     """
@@ -302,6 +294,7 @@ def create_file_name(
     - song: the song object
     - template: the template string
     - file_extension: the file extension to use
+    - restrict: whether to sanitize the filename
     - short: whether to use the short version of the template
 
     ### Returns
@@ -356,23 +349,26 @@ def create_file_name(
                     f'"{song.display_name} is too long to be shortened. File a bug report on GitHub'
                 )
 
-            warnings.warn(
-                f"{song.display_name}: File name is too long. Using the default template."
+            logger.warning(
+                "%s: File name is too long. Using the default template.",
+                song.display_name,
             )
 
             return create_file_name(
                 song=song,
                 template="/{artist} - {title}.{output-ext}",
                 file_extension=file_extension,
+                restrict=restrict,
                 short=short,
             )
 
         return create_file_name(
-            song,
-            template,
-            file_extension,
-            short=True,
+            song, template, file_extension, restrict=restrict, short=True
         )
+
+    # Restrict the filename if needed
+    if restrict:
+        return restrict_filename(file)
 
     return file
 

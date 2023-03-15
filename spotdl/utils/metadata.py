@@ -112,6 +112,7 @@ TAG_TO_SONG = {
     "woas": "url",
     "copyright": "copyright_text",
     "lyrics": "lyrics",
+    "albumart": "album_art",
 }
 
 M4A_TO_SONG = {
@@ -167,9 +168,7 @@ def embed_metadata(output_file: Path, song: Song, id3_separator: str = "/"):
         audio_file[tag_preset["album"]] = album_name
 
     if len(song.genres) > 0:
-        audio_file[tag_preset["genre"]] = [
-            genre.title() for genre in song.genres if genre
-        ]
+        audio_file[tag_preset["genre"]] = song.genres[0].title()
 
     if song.copyright_text:
         audio_file[tag_preset["copyright"]] = song.copyright_text
@@ -200,7 +199,7 @@ def embed_metadata(output_file: Path, song: Song, id3_separator: str = "/"):
         if id3_separator != "/":
             audio_file.save(v23_sep=id3_separator, v2_version=3)
         else:
-            audio_file.save()
+            audio_file.save(v2_version=3)
 
         audio_file = ID3(str(output_file.resolve()))
 
@@ -215,7 +214,11 @@ def embed_metadata(output_file: Path, song: Song, id3_separator: str = "/"):
     # Embed lyrics
     audio_file = embed_lyrics(audio_file, song, encoding)
 
-    audio_file.save()
+    # Mp3 specific encoding
+    if encoding == "mp3":
+        audio_file.save(v23_sep=id3_separator, v2_version=3)
+    else:
+        audio_file.save()
 
 
 def embed_cover(audio_file, song: Song, encoding: str):
@@ -326,7 +329,7 @@ def embed_lyrics(audio_file, song: Song, encoding: str):
     return audio_file
 
 
-def get_file_metadata(path: Path) -> Optional[Dict[str, Any]]:
+def get_file_metadata(path: Path, id3_separator: str = "/") -> Optional[Dict[str, Any]]:
     """
     Get song metadata.
 
@@ -358,6 +361,33 @@ def get_file_metadata(path: Path) -> Optional[Dict[str, Any]]:
         else:
             val = audio_file.get(key)
 
+        # Cover art is a special case and
+        # has to be handled before checking the val
+        # M4A is handled in the m4a section since it
+        # has data in the val variable
+        if key == "albumart":
+            if path.suffix == ".mp3":
+                cover = audio_file.get("APIC:Cover")
+                if cover:
+                    song_meta["album_art"] = cover.data
+                else:
+                    song_meta["album_art"] = None
+
+                continue
+
+            if path.suffix == ".flac":
+                song_meta["album_art"] = audio_file.pictures[0].data
+                continue
+
+            if path.suffix in [".ogg", ".opus"]:
+                pictures = audio_file.get("metadata_block_picture")
+                if pictures and pictures[0]:
+                    song_meta["album_art"] = pictures[0]
+                else:
+                    song_meta["album_art"] = None
+
+                continue
+
         # If the tag is empty, skip it
         if val is None:
             # If the tag is empty but it's key is in the
@@ -377,29 +407,39 @@ def get_file_metadata(path: Path) -> Optional[Dict[str, Any]]:
             elif key == "date":
                 song_meta["date"] = str(val.text[0])
             elif key == "tracknumber":
-                count = val.text[0].split("/")
+                count = val.text[0].split(id3_separator)
                 if len(count) == 2:
                     song_meta["track_number"] = int(count[0])
                     song_meta["tracks_count"] = int(count[1])
                 else:
                     song_meta["track_number"] = val.text[0]
             elif key == "discnumber":
-                count = val.text[0].split("/")
+                count = val.text[0].split(id3_separator)
                 if len(count) == 2:
                     song_meta["disc_number"] = int(count[0])
                     song_meta["disc_count"] = int(count[1])
                 else:
                     song_meta["disc_number"] = val.text[0]
+            elif key == "artist":
+                song_meta["artists"] = (
+                    val.text[0]
+                    if isinstance(val.text, list) and len(val.text) == 1
+                    else val.text
+                ).split(id3_separator)
             else:
                 meta_key = TAG_TO_SONG.get(key)
                 if meta_key:
                     song_meta[meta_key] = (
-                        val.text[0] if len(val.text) == 1 else val.text
+                        val.text[0]
+                        if isinstance(val.text, list) and len(val.text) == 1
+                        else val.text
                     )
 
         # M4A specific decoding
         elif path.suffix == ".m4a":
-            if key == "woas":
+            if key == "artist":
+                song_meta["artists"] = val
+            elif key == "woas":
                 song_meta["url"] = val[0].decode("utf-8")
             elif key == "explicit":
                 song_meta["explicit"] = val == [4] if val else None
@@ -414,22 +454,44 @@ def get_file_metadata(path: Path) -> Optional[Dict[str, Any]]:
             else:
                 meta_key = TAG_TO_SONG.get(key)
                 if meta_key:
-                    song_meta[meta_key] = val[0] if len(val) == 1 else val
+                    song_meta[meta_key] = (
+                        val[0] if isinstance(val, list) and len(val) == 1 else val
+                    )
 
         # FLAC, OGG, OPUS specific decoding
         else:
+            if key == "artist":
+                song_meta["artists"] = val
             if key == "originaldate":
                 song_meta["year"] = int(str(val[0])[:4])
             elif key == "tracknumber":
                 song_meta["track_number"] = int(val[0])
             elif key == "discnumber":
                 song_meta["disc_count"] = int(val[0])
+                song_meta["disc_number"] = int(val[0])
             else:
                 meta_key = TAG_TO_SONG.get(key)
                 if meta_key:
-                    song_meta[meta_key] = val[0] if len(val) == 1 else val
+                    song_meta[meta_key] = (
+                        val[0] if isinstance(val, list) and len(val) == 1 else val
+                    )
+
+    # Make sure that artists is a list
+    if isinstance(song_meta["artists"], str):
+        song_meta["artists"] = [song_meta["artists"]]
+    elif song_meta["artists"] is not None:
+        song_meta["artists"] = list(song_meta["artists"])
+    else:
+        song_meta["artists"] = []
+
+    # Make sure that genres is a list
+    if isinstance(song_meta["genres"], str):
+        song_meta["genres"] = [song_meta["genres"]]
 
     # Add main artist to the song meta object
-    song_meta["artist"] = song_meta["artists"][0]
+    if song_meta["artists"]:
+        song_meta["artist"] = song_meta["artists"][0]
+    else:
+        song_meta["artist"] = None
 
     return song_meta

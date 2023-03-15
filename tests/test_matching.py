@@ -261,7 +261,8 @@ from tests.conftest import new_initialize
             [
                 "https://music.youtube.com/watch?v=zGz75FVo5lM",
                 "https://music.youtube.com/watch?v=bTne-ZY8g9c",
-                "https://music.youtube.com/watch?v=1GS2-XYfH9Y"
+                "https://www.youtube.com/watch?v=TnbNyHYL64E",
+                "https://music.youtube.com/watch?v=1GS2-XYfH9Y",
             ],
         ),
         (
@@ -324,7 +325,7 @@ from tests.conftest import new_initialize
             [
                 "https://music.youtube.com/watch?v=foazQajBRIc",
                 "https://music.youtube.com/watch?v=Rh-KqEkj86g",
-                "https://music.youtube.com/watch?v=dIolHAtDZg0"
+                "https://music.youtube.com/watch?v=dIolHAtDZg0",
             ],
         ),
         (

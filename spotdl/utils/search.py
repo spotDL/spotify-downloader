@@ -85,6 +85,7 @@ def parse_query(
 def get_simple_songs(
     query: List[str],
     use_ytm_data: bool = False,
+    playlist_numbering: bool = False,
 ) -> List[Song]:
     """
     Parse query and return list containing simple song objects
@@ -207,11 +208,21 @@ def get_simple_songs(
         )
 
         for song in song_list.songs:
-            if song.song_list:
-                song_data = song.json
-            else:
-                song_data = song.json
-                song_data["song_list"] = song_list
+            song_data = song.json
+            song_data["list_name"] = song_list.name
+            song_data["list_url"] = song_list.url
+            song_data["list_position"] = song_list.urls.index(song.url) + 1
+            song_data["list_length"] = song_list.length
+
+            if playlist_numbering:
+                song_data["track_number"] = song_data["list_position"]
+                song_data["tracks_count"] = song_data["list_length"]
+                song_data["album_name"] = song_data["list_name"]
+                song_data["disc_number"] = 1
+                song_data["disc_count"] = 1
+                if isinstance(song_list, Playlist):
+                    song_data["album_artist"] = song_list.author_name
+                    song_data["cover_url"] = song_list.cover_url
 
             songs.append(Song.from_dict(song_data))
 
@@ -231,22 +242,16 @@ def songs_from_albums(albums: List[str]):
     - List of songs
     """
 
-    songs = []
+    songs: List[Song] = []
     for album_id in albums:
         album = Album.from_url(album_id, fetch_songs=False)
 
-        for song in album.songs:
-            if song.song_list:
-                songs.append(Song.from_missing_data(**song.json))
-            else:
-                song_data = song.json
-                song_data["song_list"] = album
-                songs.append(Song.from_missing_data(**song_data))
+        songs.extend([Song.from_missing_data(**song.json) for song in album.songs])
 
     return songs
 
 
-def reinit_song(song: Song, playlist_numbering: bool = False) -> Song:
+def reinit_song(song: Song) -> Song:
     """
     Update song object with new data
     from Spotify
@@ -275,27 +280,11 @@ def reinit_song(song: Song, playlist_numbering: bool = False) -> Song:
         elif new_val is not None and val is not None:
             data[key] = val
 
-    if data.get("song_list"):
-        # Reinitialize the correct song list object
-        if song.song_list:
-            song_list = song.song_list.__class__(**data["song_list"])
-            data["song_list"] = song_list
-            data["list_position"] = song_list.urls.index(song.url)
-            if playlist_numbering:
-                data["track_number"] = data["list_position"] + 1
-                data["tracks_count"] = len(song_list.urls)
-                data["album_name"] = song_list.name
-                if isinstance(song_list, Playlist):
-                    data["album_artist"] = song_list.author_name
-                    data["cover_url"] = song_list.cover_url
-                data["disc_number"] = 1
-                data["disc_count"] = 1
-
     # return reinitialized song object
     return Song(**data)
 
 
-def get_song_from_file_metadata(file: Path) -> Optional[Song]:
+def get_song_from_file_metadata(file: Path, id3_separator: str = "/") -> Optional[Song]:
     """
     Get song based on the file metadata or file name
 
@@ -306,7 +295,7 @@ def get_song_from_file_metadata(file: Path) -> Optional[Song]:
     - Song object
     """
 
-    file_metadata = get_file_metadata(file)
+    file_metadata = get_file_metadata(file, id3_separator)
 
     if file_metadata is None:
         return None
