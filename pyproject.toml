@@ -96,5 +96,11 @@ build-backend = "poetry.core.masonry.api"
 limit-inference-results = 0
 fail-under = 9
 
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+markers = [
+    "vcr",
+]
+
 [mypy]
 ignore_missing_imports = true
