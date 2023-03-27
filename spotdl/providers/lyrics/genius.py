@@ -8,6 +8,7 @@ import requests
 from bs4 import BeautifulSoup
 
 from spotdl.providers.lyrics.base import LyricsProvider
+from spotdl.utils.formatter import ratio, slugify
 
 __all__ = ["Genius"]
 
@@ -29,6 +30,9 @@ class Genius(LyricsProvider):
         - The lyrics of the song or None if no lyrics were found.
         """
 
+        artists_str = ", ".join(artists)
+        title = f"{name} - {artists_str}"
+
         try:
             headers = {
                 "Authorization": "Bearer "
@@ -37,19 +41,26 @@ class Genius(LyricsProvider):
 
             headers.update(self.headers)
 
-            artist_str = ", ".join(
-                artist for artist in artists if artist.lower() not in name.lower()
-            )
-
             search_response = requests.get(
                 "https://api.genius.com/search",
-                params={"q": f"{name} {artist_str}"},
+                params={"q": title},
                 headers=headers,
                 timeout=10,
             )
 
-            song_id = search_response.json()["response"]["hits"][0]["result"]["id"]
+            results = {}
+            for hit in search_response.json()["response"]["hits"]:
+                title_match = ratio(
+                    slugify(hit["result"]["full_title"]), slugify(title)
+                )
+                if title_match > 55:
+                    results[title_match] = hit["result"]["id"]
 
+            # Get song id with highest title match
+            if not results:
+                return None
+
+            song_id = results[max(results.keys())]
             song_response = requests.get(
                 f"https://api.genius.com/songs/{song_id}", headers=headers, timeout=10
             )
