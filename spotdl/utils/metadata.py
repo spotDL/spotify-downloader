@@ -167,7 +167,7 @@ def embed_metadata(output_file: Path, song: Song, id3_separator: str = "/"):
     if album_name:
         audio_file[tag_preset["album"]] = album_name
 
-    if len(song.genres) > 0:
+    if song.genres:
         audio_file[tag_preset["genre"]] = song.genres[0].title()
 
     if song.copyright_text:
@@ -421,11 +421,10 @@ def get_file_metadata(path: Path, id3_separator: str = "/") -> Optional[Dict[str
                 else:
                     song_meta["disc_number"] = val.text[0]
             elif key == "artist":
-                song_meta["artists"] = (
-                    val.text[0]
-                    if isinstance(val.text, list) and len(val.text) == 1
-                    else val.text
-                ).split(id3_separator)
+                artists_val: str = (
+                    val.text[0] if isinstance(val.text, list) else val.text
+                )
+                song_meta["artists"] = artists_val.split(id3_separator)
             else:
                 meta_key = TAG_TO_SONG.get(key)
                 if meta_key:
