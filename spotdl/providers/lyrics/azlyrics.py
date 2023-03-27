@@ -56,10 +56,25 @@ class AzLyrics(LyricsProvider):
             "x": self.x_code,
         }
 
-        response = self.session.get(
-            "https://search.azlyrics.com/search.php", params=params
-        )
-        soup = BeautifulSoup(response.content, "html.parser")
+        counter = 0
+        soup = None
+        while counter < 4:
+            try:
+                response = self.session.get(
+                    "https://search.azlyrics.com/search.php", params=params
+                )
+            except requests.ConnectionError:
+                continue
+
+            if not response.ok:
+                counter += 1
+                continue
+
+            soup = BeautifulSoup(response.content, "html.parser")
+            break
+
+        if soup is None:
+            return None
 
         td_tags = soup.find_all("td")
         if len(td_tags) == 0:
