@@ -212,11 +212,11 @@ def get_simple_songs(
             song_list.__class__.__name__,
         )
 
-        for song in song_list.songs:
+        for index, song in enumerate(song_list.songs):
             song_data = song.json
             song_data["list_name"] = song_list.name
             song_data["list_url"] = song_list.url
-            song_data["list_position"] = song_list.urls.index(song.url) + 1
+            song_data["list_position"] = index + 1
             song_data["list_length"] = song_list.length
 
             if playlist_numbering:
