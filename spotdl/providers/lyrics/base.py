@@ -86,7 +86,7 @@ class LyricsProvider:
             return None
 
         results_with_score = {}
-        for title, url in results:
+        for title, url in results.items():
             score = ratio(slugify(title), slugify(f"{name} - {', '.join(artists)}"))
             results_with_score[score] = url
 
