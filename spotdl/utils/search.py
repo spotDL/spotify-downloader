@@ -83,8 +83,13 @@ def parse_query(
 
     results = []
     with concurrent.futures.ThreadPoolExecutor(max_workers=threads) as executor:
-        for song in executor.map(reinit_song, songs):
-            results.append(song)
+        future_to_song = {executor.submit(reinit_song, song): song for song in songs}
+        for future in concurrent.futures.as_completed(future_to_song):
+            song = future_to_song[future]
+            try:
+                results.append(future.result())
+            except Exception as exc:
+                logger.error("%s generated an exception: %s", song.display_name, exc)
 
     return results
 
@@ -214,11 +219,11 @@ def get_simple_songs(
             song_list.__class__.__name__,
         )
 
-        for song in song_list.songs:
+        for index, song in enumerate(song_list.songs):
             song_data = song.json
             song_data["list_name"] = song_list.name
             song_data["list_url"] = song_list.url
-            song_data["list_position"] = song_list.urls.index(song.url) + 1
+            song_data["list_position"] = index + 1
             song_data["list_length"] = song_list.length
 
             if playlist_numbering:
@@ -437,7 +442,7 @@ def create_ytm_playlist(url: str, fetch_songs: bool = True) -> Playlist:
 
     songs = []
     for track in playlist["tracks"]:
-        if track["videoId"] is None:
+        if track["videoId"] is None or track["isAvailable"] is False:
             continue
 
         song = Song.from_missing_data(

@@ -22,8 +22,8 @@ class YouTubeMusic(AudioProvider):
 
     SUPPORTS_ISRC = True
     GET_RESULTS_OPTS: List[Dict[str, Any]] = [
-        {"filter": "songs", "ignore_spelling": True},
-        {"filter": "videos", "ignore_spelling": True},
+        {"filter": "songs", "ignore_spelling": True, "limit": 50},
+        {"filter": "videos", "ignore_spelling": True, "limit": 50},
     ]
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
@@ -40,7 +40,7 @@ class YouTubeMusic(AudioProvider):
         client_session = session()
         if kwargs.get("geo_bypass"):
             client_session.headers.update(
-                {"X-Forwarded-For": GeoUtils.random_ipv4("US")}
+                {"X-Forwarded-For": GeoUtils.random_ipv4("US")}  # type: ignore
             )
 
         self.client = YTMusic(language="de", requests_session=client_session)  # type: ignore

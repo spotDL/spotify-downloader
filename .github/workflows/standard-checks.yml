@@ -1,4 +1,4 @@
-name: Standard code checks (MyPy/Pylint/Black)
+name: Standard code checks (MyPy/Pylint/Black/Isort)
 
 on: [push, pull_request]
 
