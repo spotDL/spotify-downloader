@@ -33,12 +33,20 @@ __all__ = [
 ]
 
 logger = logging.getLogger(__name__)
+client = None # pylint: disable=invalid-name
 
-client = None
 def get_ytm_client() -> YTMusic:
+    """
+    Lazily initialize the YTMusic client.
+
+    ### Returns
+    - the YTMusic client
+    """
+
+    global client # pylint: disable=global-statement
     if client is None:
         client = YTMusic()
-    # type: ignore
+
     return client
 
 
