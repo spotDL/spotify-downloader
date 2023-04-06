@@ -113,7 +113,7 @@ class Playlist(SongList):
                 else None,
                 disc_number=track_meta["disc_number"],
                 duration=track_meta["duration_ms"],
-                year=release_date[:4],
+                year=release_date[:4] if release_date else None,
                 date=release_date,
                 track_number=track_meta["track_number"],
                 tracks_count=album_meta.get("total_tracks"),

@@ -136,7 +136,7 @@ spotDL uses YouTube as a source for music downloads. This method is used to avoi
 
 spotDL downloads music from YouTube and is designed to always download the highest possible bitrate; which is 128 kbps for regular users and 256 kbps for YouTube Music premium users.
 
-Check the [Audio Formats](docs/USAGE.md#audio-formats-and-quality) page for more info.
+Check the [Audio Formats](docs/usage.md#audio-formats-and-quality) page for more info.
 
 ## Contributing
 

@@ -219,7 +219,7 @@ def format_query(
         "{artist}": song.artists[0],
         "{album}": song.album_name,
         "{album-artist}": song.album_artist,
-        "{genre}": song.genres[0] if len(song.genres) > 0 else "",
+        "{genre}": song.genres[0] if song.genres else "",
         "{disc-number}": song.disc_number,
         "{disc-count}": song.disc_count,
         "{duration}": song.duration,
@@ -303,8 +303,11 @@ def create_file_name(
 
     # If template does not contain any of the keys,
     # append {artists} - {title}.{output-ext} to it
-    if not any(key in template for key in VARS):
+    if not any(key in template for key in VARS) and template != "":
         template += "/{artists} - {title}.{output-ext}"
+
+    if template == "":
+        template = "{artists} - {title}.{output-ext}"
 
     # If template ends with a slash. Does not have a file name with extension
     # at the end of the template, append {artists} - {title}.{output-ext} to it
@@ -338,39 +341,71 @@ def create_file_name(
     file = Path(*santitized_parts)
 
     # Check if the file name length is greater than 255
-    if len(file.name) > 255:
-        # If the file name length is greater than 255,
-        # and we are already using the short version of the template,
-        # fallback to default template
-        if short is True:
-            # This will probably never occur, but just in case
-            if template == "/{artist} - {title}.{output-ext}":
-                raise RecursionError(
-                    f'"{song.display_name} is too long to be shortened. File a bug report on GitHub'
+    if len(file.name) < 255:
+        # Restrict the filename if needed
+        if restrict:
+            return restrict_filename(file)
+
+        return file
+
+    # If the file name length is greater than 255,
+    # and we are already using the short version of the template,
+    # fallback to default template
+    if short is True:
+        # Path template is already short, but we still can't create a file
+        # so we reduce it even further
+        if template == "{artist} - {title}.{output-ext}":
+            if len(song.name) > 240:
+                logger.warning(
+                    "%s: File name is too long. Using only part of the song title.",
+                    song.display_name,
                 )
 
-            logger.warning(
-                "%s: File name is too long. Using the default template.",
-                song.display_name,
-            )
+                name_parts = song.name.split(" ")
+                new_name = ""
+                for part in name_parts:
+                    if len(new_name) + len(part) < 240:
+                        new_name += part + " "
+                    else:
+                        break
+
+                song.name = new_name.strip()
+            else:
+                logger.warning(
+                    "%s: File name is too long. Using only song title.",
+                    song.display_name,
+                )
 
             return create_file_name(
                 song=song,
-                template="/{artist} - {title}.{output-ext}",
+                template="{title}.{output-ext}",
                 file_extension=file_extension,
                 restrict=restrict,
                 short=short,
             )
 
-        return create_file_name(
-            song, template, file_extension, restrict=restrict, short=True
+        # This will probably never occur, but just in case
+        if template == "{title}.{output-ext}":
+            raise RecursionError(
+                f'"{song.display_name} is too long to be shortened. File a bug report on GitHub'
+            )
+
+        logger.warning(
+            "%s: File name is too long. Using the default template.",
+            song.display_name,
         )
 
-    # Restrict the filename if needed
-    if restrict:
-        return restrict_filename(file)
+        return create_file_name(
+            song=song,
+            template="{artist} - {title}.{output-ext}",
+            file_extension=file_extension,
+            restrict=restrict,
+            short=short,
+        )
 
-    return file
+    return create_file_name(
+        song, template, file_extension, restrict=restrict, short=True
+    )
 
 
 def parse_duration(duration: Optional[str]) -> float:

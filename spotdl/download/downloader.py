@@ -694,7 +694,7 @@ class Downloader:
                 ) from exception
 
             if self.settings["generate_lrc"]:
-                if is_lrc_valid(song.lyrics):
+                if song.lyrics and is_lrc_valid(song.lyrics):
                     lrc_data = song.lyrics
                 else:
                     try:
@@ -703,7 +703,7 @@ class Downloader:
                         lrc_data = None
 
                 if lrc_data:
-                    save_lrc_file(output_file.with_suffix(".lrc"), lrc_data)
+                    save_lrc_file(str(output_file.with_suffix(".lrc")), lrc_data)
                     logger.debug("Saved lrc file for %s", song.display_name)
                 else:
                     logger.debug("No lrc file found for %s", song.display_name)

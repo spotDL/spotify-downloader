@@ -2,9 +2,13 @@
 Base module for all other lyrics providers.
 """
 
-from typing import List, Optional
+import logging
+from typing import Dict, List, Optional
+
+from spotdl.utils.formatter import ratio, slugify
 
 __all__ = ["LyricsProvider"]
+logger = logging.getLogger(__name__)
 
 
 class LyricsProvider:
@@ -31,6 +35,35 @@ class LyricsProvider:
             "Accept-Language": "en-US;q=0.8,en;q=0.7",
         }
 
+    def get_results(self, name: str, artists: List[str], **kwargs) -> Dict[str, str]:
+        """
+        Returns the results for the given song.
+
+        ### Arguments
+        - name: The name of the song.
+        - artists: The artists of the song.
+        - kwargs: Additional arguments.
+
+        ### Returns
+        - A dictionary with the results. (The key is the title and the value is the url.)
+        """
+
+        raise NotImplementedError
+
+    def extract_lyrics(self, url: str, **kwargs) -> Optional[str]:
+        """
+        Extracts the lyrics from the given url.
+
+        ### Arguments
+        - url: The url to extract the lyrics from.
+        - kwargs: Additional arguments.
+
+        ### Returns
+        - The lyrics of the song or None if no lyrics were found.
+        """
+
+        raise NotImplementedError
+
     def get_lyrics(self, name: str, artists: List[str], **kwargs) -> Optional[str]:
         """
         Returns the lyrics for the given song.
@@ -43,8 +76,37 @@ class LyricsProvider:
         ### Returns
         - The lyrics of the song or None if no lyrics were found.
         """
+        try:
+            results = self.get_results(name, artists, **kwargs)
+        except Exception as exc:
+            logger.error(
+                "Failed to get results for %s - %s: %s", name, ", ".join(artists), exc
+            )
+            return None
 
-        raise NotImplementedError
+        if not results:
+            return None
+
+        results_with_score = {}
+        for title, url in results.items():
+            score = ratio(slugify(title), slugify(f"{name} - {', '.join(artists)}"))
+            results_with_score[score] = url
+
+        if not results_with_score:
+            return None
+
+        # Get song url with highest title match
+        score, url = max(results_with_score.items(), key=lambda x: x[0])
+
+        # Only return lyrics if the title match is at least 55%
+        if score < 55:
+            return None
+
+        try:
+            return self.extract_lyrics(url, **kwargs)
+        except Exception as exc:
+            logger.error("Failed to extract lyrics from %s: %s", url, exc)
+            return None
 
     @property
     def name(self) -> str:

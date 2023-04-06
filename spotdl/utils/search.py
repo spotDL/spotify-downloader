@@ -33,7 +33,22 @@ __all__ = [
 ]
 
 logger = logging.getLogger(__name__)
-client = YTMusic()
+client = None  # pylint: disable=invalid-name
+
+
+def get_ytm_client() -> YTMusic:
+    """
+    Lazily initialize the YTMusic client.
+
+    ### Returns
+    - the YTMusic client
+    """
+
+    global client  # pylint: disable=global-statement
+    if client is None:
+        client = YTMusic()
+
+    return client
 
 
 class QueryError(Exception):
@@ -76,8 +91,13 @@ def parse_query(
 
     results = []
     with concurrent.futures.ThreadPoolExecutor(max_workers=threads) as executor:
-        for song in executor.map(reinit_song, songs):
-            results.append(song)
+        future_to_song = {executor.submit(reinit_song, song): song for song in songs}
+        for future in concurrent.futures.as_completed(future_to_song):
+            song = future_to_song[future]
+            try:
+                results.append(future.result())
+            except Exception as exc:
+                logger.error("%s generated an exception: %s", song.display_name, exc)
 
     return results
 
@@ -207,11 +227,11 @@ def get_simple_songs(
             song_list.__class__.__name__,
         )
 
-        for song in song_list.songs:
+        for index, song in enumerate(song_list.songs):
             song_data = song.json
             song_data["list_name"] = song_list.name
             song_data["list_url"] = song_list.url
-            song_data["list_position"] = song_list.urls.index(song.url) + 1
+            song_data["list_position"] = index + 1
             song_data["list_length"] = song_list.length
 
             if playlist_numbering:
@@ -356,11 +376,13 @@ def create_ytm_album(url: str, fetch_songs: bool = True) -> Album:
     if "?list=" not in url or not url.startswith("https://music.youtube.com/"):
         raise ValueError(f"Invalid album url: {url}")
 
-    browse_id = client.get_album_browse_id(url.split("?list=")[1].split("&")[0])
+    browse_id = get_ytm_client().get_album_browse_id(
+        url.split("?list=")[1].split("&")[0]
+    )
     if browse_id is None:
         raise ValueError(f"Invalid album url: {url}")
 
-    album = client.get_album(browse_id)
+    album = get_ytm_client().get_album(browse_id)
 
     if album is None:
         raise ValueError(f"Couldn't fetch album: {url}")
@@ -412,7 +434,7 @@ def create_ytm_playlist(url: str, fetch_songs: bool = True) -> Playlist:
         playlist_id = url.split("/browse/")[1]
     else:
         playlist_id = url.split("?list=")[1]
-    playlist = client.get_playlist(playlist_id, None)  # type: ignore
+    playlist = get_ytm_client().get_playlist(playlist_id, None)  # type: ignore
 
     if playlist is None:
         raise ValueError(f"Couldn't fetch playlist: {url}")
@@ -430,7 +452,7 @@ def create_ytm_playlist(url: str, fetch_songs: bool = True) -> Playlist:
 
     songs = []
     for track in playlist["tracks"]:
-        if track["videoId"] is None:
+        if track["videoId"] is None or track["isAvailable"] is False:
             continue
 
         song = Song.from_missing_data(

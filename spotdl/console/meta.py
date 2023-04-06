@@ -5,13 +5,13 @@ Sync Lyrics module for the console
 import asyncio
 import logging
 from pathlib import Path
-from typing import List, Optional
+from typing import List
 
 from spotdl.download.downloader import Downloader
 from spotdl.types.song import Song
 from spotdl.utils.ffmpeg import FFMPEG_FORMATS
 from spotdl.utils.metadata import embed_metadata, get_file_metadata
-from spotdl.utils.search import get_search_results, get_song_from_file_metadata
+from spotdl.utils.search import QueryError, get_search_results, reinit_song
 
 __all__ = ["meta"]
 
@@ -53,6 +53,9 @@ def meta(query: List[str], downloader: Downloader) -> None:
     def process_file(file: Path):
         song_meta = get_file_metadata(file, downloader.settings["id3_separator"])
 
+        # Check if song has metadata
+        # and if it has all the required fields
+        # if it has all of these fields, we can assume that the metadata is correct
         if song_meta and not downloader.settings["force_update_metadata"]:
             if (
                 song_meta.get("artist")
@@ -64,28 +67,37 @@ def meta(query: List[str], downloader: Downloader) -> None:
                 logger.info("Song already has metadata: %s", file.name)
                 return None
 
-        song: Optional[Song] = None
-        if not song_meta or None in [
-            song_meta.get("name"),
-            song_meta.get("album_art"),
-            song_meta.get("artist"),
-            song_meta.get("artists"),
-            song_meta.get("track_number"),
-        ]:
-            logger.debug("Searching for metadata for %s", file.name)
+        # Same as above
+        if (
+            not song_meta
+            or None
+            in [
+                song_meta.get("name"),
+                song_meta.get("album_art"),
+                song_meta.get("artist"),
+                song_meta.get("artists"),
+                song_meta.get("track_number"),
+            ]
+            or downloader.settings["force_update_metadata"]
+        ):
+            # Song does not have metadata, or it is missing some fields
+            # or we are forcing update of metadata
+            # so we search for it
+            logger.debug("Searching metadata for %s", file.name)
             search_results = get_search_results(file.stem)
             if not search_results:
                 logger.error("Could not find metadata for %s", file.name)
                 return None
+
             song = search_results[0]
         else:
-            song = get_song_from_file_metadata(
-                file, downloader.settings["id3_separator"]
-            )
-
-        if song is None:
-            logger.error("Could not find metadata for %s", file.name)
-            return None
+            # Song has metadata, so we use it to reinitialize the song object
+            # and fill in the missing metadata
+            try:
+                song = reinit_song(Song.from_missing_data(**song_meta))
+            except QueryError:
+                logger.error("Could not find metadata for %s", file.name)
+                return None
 
         # Check if the song has lyric
         # if not use downloader to find lyrics

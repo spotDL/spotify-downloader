@@ -3,7 +3,7 @@ Module for all things matching related
 """
 
 import logging
-from itertools import zip_longest
+from itertools import product, zip_longest
 from typing import Dict, List, Optional, Tuple
 
 from spotdl.types.result import Result
@@ -260,8 +260,18 @@ def calc_main_artist_match(song: Song, result: Result) -> float:
     if not result.artists:
         return main_artist_match
 
+    song_artists, result_artists = list(map(slugify, song.artists)), list(
+        map(slugify, result.artists)
+    )
+    sorted_song_artists, sorted_result_artists = based_sort(
+        song_artists, result_artists
+    )
+
+    debug(song.song_id, result.result_id, f"Song artists: {sorted_song_artists}")
+    debug(song.song_id, result.result_id, f"Result artists: {sorted_result_artists}")
+
     slug_song_main_artist = slugify(song.artists[0])
-    slug_result_main_artist = slugify(result.artists[0])
+    slug_result_main_artist = sorted_result_artists[0]
 
     # Result has only one artist, but song has multiple artists
     # we can assume that other artists are in the main artist name
@@ -277,7 +287,29 @@ def calc_main_artist_match(song: Song, result: Result) -> float:
         return main_artist_match
 
     # Match main result artist with main song artist
-    return ratio(slug_song_main_artist, slug_result_main_artist)
+    main_artist_match = ratio(slug_song_main_artist, slug_result_main_artist)
+
+    debug(
+        song.song_id, result.result_id, f"First main artist match: {main_artist_match}"
+    )
+
+    # Use second artist from the sorted list to
+    # calculate the match if the first artist match is too low
+    if main_artist_match < 50 and len(song_artists) > 1:
+        for song_artist, result_artist in product(
+            song_artists[:2], sorted_result_artists[:2]
+        ):
+            new_artist_match = ratio(song_artist, result_artist)
+            debug(
+                song.song_id,
+                result.result_id,
+                f"Matched {song_artist} with {result_artist}: {new_artist_match}",
+            )
+
+            if new_artist_match > main_artist_match:
+                main_artist_match = new_artist_match
+
+    return main_artist_match
 
 
 def calc_artists_match(song: Song, result: Result) -> float:
@@ -298,30 +330,18 @@ def calc_artists_match(song: Song, result: Result) -> float:
     if len(song.artists) == 1 or not result.artists:
         return artist_match_number
 
-    slug_song_artists = slugify(", ".join(song.artists))
-    slug_result_artists = slugify(", ".join(result.artists)) if result.artists else ""
+    artist1_list, artist2_list = based_sort(
+        list(map(slugify, song.artists)), list(map(slugify, result.artists))
+    )
 
-    # match the song's artists with the result's artists
-    # if the number of artists is the same
-    if len(song.artists) == len(result.artists):
-        return ratio(slug_song_artists, slug_result_artists)
+    artists_match = 0.0
+    for artist1, artist2 in zip_longest(artist1_list, artist2_list):
+        artist12_match = ratio(artist1, artist2)
+        artists_match += artist12_match
 
-    # Calculate the percentage of artists that are present in the result
-    artists_percentage = (len(result.artists) * 100) / len(song.artists)
+    artist_match_number = artists_match / len(artist1_list)
 
-    if artists_percentage > 60 and len(song.artists) > 2:
-        # Create lists of artists in song and result
-        # After that sort them based on the order of the result's artists
-        artist1_list, artist2_list = based_sort(
-            list(map(slugify, song.artists)), list(map(slugify, result.artists))
-        )
-
-        artists_match = 0.0
-        for artist1, artist2 in zip_longest(artist1_list, artist2_list):
-            artist12_match = ratio(artist1, artist2)
-            artists_match += artist12_match
-
-        artist_match_number = artists_match / len(artist1_list)
+    debug(song.song_id, result.result_id, f"Artists match: {artist_match_number}")
 
     return artist_match_number
 
@@ -632,12 +652,16 @@ def order_results(
 
         # Calculate match value for main artist
         artists_match = calc_main_artist_match(song, result)
-
         debug(song.song_id, result.result_id, f"Main artist match: {artists_match}")
 
         # Calculate match value for all artists
-        artists_match += calc_artists_match(song, result)
-        debug(song.song_id, result.result_id, f"Artists match: {artists_match}")
+        other_artists_match = calc_artists_match(song, result)
+        debug(
+            song.song_id,
+            result.result_id,
+            f"Other artists match: {other_artists_match}",
+        )
+        artists_match += other_artists_match
 
         # Calculate initial artist match value
         artists_match = artists_match / (2 if len(song.artists) > 1 else 1)
@@ -666,6 +690,8 @@ def order_results(
             result.result_id,
             f"Artists match after fixup3: {artists_match}",
         )
+
+        debug(song.song_id, result.result_id, f"Final artists match: {artists_match}")
 
         # Calculate name match
         name_match = calc_name_match(song, result, search_query)
