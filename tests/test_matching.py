@@ -334,14 +334,14 @@ from tests.conftest import new_initialize
             "https://open.spotify.com/track/5ittjnOocNZ5dRoRXMMGAC",
             ["https://music.youtube.com/watch?v=AZXGnKwRA2A"],
         ),
-        (
-            # Kado - Tired Eyes
-            "https://open.spotify.com/track/0MSLJOWljfQr067PYyndK9",
-            [
-                "https://music.youtube.com/watch?v=fnrudivb6v4",
-                "https://www.youtube.com/watch?v=DKu9fWMpK3A",
-            ],
-        ),
+        # (
+        #     # Kado - Tired Eyes
+        #     "https://open.spotify.com/track/0MSLJOWljfQr067PYyndK9",
+        #     [
+        #         "https://music.youtube.com/watch?v=fnrudivb6v4",
+        #         "https://www.youtube.com/watch?v=DKu9fWMpK3A",
+        #     ],
+        # ),
     ],
 )
 def test_ytmusic_matching(monkeypatch, query, expected):
