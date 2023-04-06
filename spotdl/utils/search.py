@@ -33,7 +33,8 @@ __all__ = [
 ]
 
 logger = logging.getLogger(__name__)
-client = None # pylint: disable=invalid-name
+client = None  # pylint: disable=invalid-name
+
 
 def get_ytm_client() -> YTMusic:
     """
@@ -43,12 +44,11 @@ def get_ytm_client() -> YTMusic:
     - the YTMusic client
     """
 
-    global client # pylint: disable=global-statement
+    global client  # pylint: disable=global-statement
     if client is None:
         client = YTMusic()
 
     return client
-
 
 
 class QueryError(Exception):
@@ -376,7 +376,9 @@ def create_ytm_album(url: str, fetch_songs: bool = True) -> Album:
     if "?list=" not in url or not url.startswith("https://music.youtube.com/"):
         raise ValueError(f"Invalid album url: {url}")
 
-    browse_id = get_ytm_client().get_album_browse_id(url.split("?list=")[1].split("&")[0])
+    browse_id = get_ytm_client().get_album_browse_id(
+        url.split("?list=")[1].split("&")[0]
+    )
     if browse_id is None:
         raise ValueError(f"Invalid album url: {url}")
 

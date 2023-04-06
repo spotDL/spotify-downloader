@@ -79,7 +79,9 @@ class LyricsProvider:
         try:
             results = self.get_results(name, artists, **kwargs)
         except Exception as exc:
-            logger.error("Failed to get results for %s - %s: %s", name, ", ".join(artists), exc)
+            logger.error(
+                "Failed to get results for %s - %s: %s", name, ", ".join(artists), exc
+            )
             return None
 
         if not results:

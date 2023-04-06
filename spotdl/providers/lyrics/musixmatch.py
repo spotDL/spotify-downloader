@@ -84,6 +84,8 @@ class MusixMatch(LyricsProvider):
 
         results: Dict[str, str] = {}
         for tag in song_url_tag:
-            results[tag.get_text()] = "https://www.musixmatch.com" + str(tag.get("href", ""))
+            results[tag.get_text()] = "https://www.musixmatch.com" + str(
+                tag.get("href", "")
+            )
 
         return results
