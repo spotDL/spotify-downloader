@@ -2,7 +2,7 @@
 AZLyrics lyrics module.
 """
 
-from typing import List, Optional
+from typing import Dict, List, Optional
 
 import requests
 from bs4 import BeautifulSoup
@@ -23,8 +23,6 @@ class AzLyrics(LyricsProvider):
         self.session = requests.Session()
         self.session.headers.update(self.headers)
 
-        # Not sure if this is needed
-        # but it doesn't hurt
         self.session.get("https://www.azlyrics.com/")
 
         resp = self.session.get("https://www.azlyrics.com/geo.js")
@@ -36,16 +34,17 @@ class AzLyrics(LyricsProvider):
 
         self.x_code = js_code[start_index : start_index + end_index]
 
-    def get_lyrics(self, name: str, artists: List[str], **_) -> Optional[str]:
+    def get_results(self, name: str, artists: List[str], **kwargs) -> Dict[str, str]:
         """
-        Try to get lyrics from azlyrics
+        Returns the results for the given song.
 
         ### Arguments
         - name: The name of the song.
         - artists: The artists of the song.
+        - kwargs: Additional arguments.
 
         ### Returns
-        - The lyrics of the song or None if no lyrics were found.
+        - A dictionary with the results. (The key is the title and the value is the url.)
         """
 
         # Join every artist by comma in artists
@@ -74,24 +73,43 @@ class AzLyrics(LyricsProvider):
             break
 
         if soup is None:
-            return None
+            return {}
 
         td_tags = soup.find_all("td")
         if len(td_tags) == 0:
-            return None
+            return {}
 
-        result = td_tags[0]
+        results = {}
+        for td_tag in td_tags:
+            a_tags = td_tag.find_all("a", href=True)
+            if len(a_tags) == 0:
+                continue
 
-        a_tags = result.find_all("a", href=True)
-        if len(a_tags) != 0:
-            lyrics_url = a_tags[0]["href"]
-        else:
-            return None
+            a_tag = a_tags[0]
+            url = a_tag["href"].strip()
+            if url == "":
+                continue
 
-        if lyrics_url.strip() == "":
-            return None
+            title = td_tag.find("span").get_text().strip()
+            artist = td_tag.find("b").get_text().strip()
 
-        response = self.session.get(lyrics_url)
+            results[f"{artist} - {title}"] = url
+
+        return results
+
+    def extract_lyrics(self, url: str, **_) -> Optional[str]:
+        """
+        Extracts the lyrics from the given url.
+
+        ### Arguments
+        - url: The url to extract the lyrics from.
+        - kwargs: Additional arguments.
+
+        ### Returns
+        - The lyrics of the song or None if no lyrics were found.
+        """
+
+        response = self.session.get(url)
         soup = BeautifulSoup(response.content, "html.parser")
 
         # Find all divs that don't have a class

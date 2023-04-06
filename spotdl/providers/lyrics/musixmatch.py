@@ -52,7 +52,6 @@ class MusixMatch(LyricsProvider):
         """
 
         track_search = kwargs.get("track_search", False)
-
         artists_str = ", ".join(
             artist for artist in artists if artist.lower() not in name.lower()
         )
@@ -79,8 +78,7 @@ class MusixMatch(LyricsProvider):
             if track_search:
                 return {}
 
-            results = self.get_results(name, artists, track_search=True)
-            return results
+            return self.get_results(name, artists, track_search=True)
 
         results: Dict[str, str] = {}
         for tag in song_url_tag:
