@@ -148,13 +148,13 @@ This will download new songs and remove the ones that are no longer present in t
     To sync the songs run
 
     ```bash
-    spotdl sync [fileName]
+    spotdl sync [query]
     ```
 
     example:
 
     ```bash
-    spotdl sync "the-weeknd.sync.spotdl"
+    spotdl sync https://open.spotify.com/playlist/37i9dQZF1E8UXBoz02kGID
     ```
 
 ## Saving
