@@ -4,7 +4,7 @@ from pathlib import Path
 
 import mkdocs_gen_files
 
-nav = mkdocs_gen_files.Nav()
+nav = mkdocs_gen_files.Nav()  # type: ignore
 
 IGNORE = (
     ("_version",),
@@ -37,8 +37,8 @@ for path in Path("spotdl").glob("**/*.py"):
             fd.write("::: spotdl")
             continue
 
-        ident = "spotdl." + ".".join(parts)
-        fd.write(f"::: {ident}")
+        IDENT = "spotdl." + ".".join(parts)
+        fd.write(f"::: {IDENT}")
 
     mkdocs_gen_files.set_edit_path(full_doc_path, path)
 

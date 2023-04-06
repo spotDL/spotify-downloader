@@ -3,7 +3,7 @@ Module for all things matching related
 """
 
 import logging
-from itertools import zip_longest, product
+from itertools import product, zip_longest
 from typing import Dict, List, Optional, Tuple
 
 from spotdl.types.result import Result
