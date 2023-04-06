@@ -46,7 +46,7 @@ pydantic = "^1.10.7"
 fastapi = "^0.89.1"
 platformdirs = "^2.6.2"
 pykakasi = "^2.2.1"
-syncedlyrics = "^0.2.2"
+syncedlyrics = "0.4.0"
 typing-extensions = "^4.5.0"
 
 [tool.poetry.dev-dependencies]
