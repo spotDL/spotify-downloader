@@ -287,6 +287,10 @@ def reinit_song(song: Song) -> Song:
     data = song.json
     if data.get("url"):
         new_data = Song.from_url(data["url"]).json
+    elif data.get("song_id"):
+        new_data = Song.from_url(
+            "https://open.spotify.com/track/" + data["song_id"]
+        ).json
     elif data.get("name") and data.get("artist"):
         new_data = Song.from_search_term(data["name"]).json
     else:
