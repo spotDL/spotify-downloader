@@ -19,10 +19,10 @@ from yt_dlp.postprocessor.modify_chapters import ModifyChaptersPP
 from yt_dlp.postprocessor.sponsorblock import SponsorBlockPP
 
 from spotdl.download.progress_handler import ProgressHandler
-from spotdl.providers.audio import AudioProvider, YouTube, YouTubeMusic
+from spotdl.providers.audio import AudioProvider, YouTube, YouTubeMusic, SliderKZ
 from spotdl.providers.lyrics import AzLyrics, Genius, LyricsProvider, MusixMatch, Synced
 from spotdl.types.options import DownloaderOptionalOptions, DownloaderOptions
-from spotdl.types.song import Song, SongError
+from spotdl.types.song import Song
 from spotdl.utils.archive import Archive
 from spotdl.utils.config import (
     DOWNLOADER_OPTIONS,
@@ -47,6 +47,7 @@ __all__ = [
 AUDIO_PROVIDERS: Dict[str, Type[AudioProvider]] = {
     "youtube": YouTube,
     "youtube-music": YouTubeMusic,
+    "slider-kz": SliderKZ
 }
 
 LYRICS_PROVIDERS: Dict[str, Type[LyricsProvider]] = {
@@ -377,177 +378,166 @@ class Downloader:
         - This function is synchronous.
         """
 
-        # Check if song has name/artist and url/song_id
-        if not (song.name and (song.artists or song.artist)) and not (
-            song.url and song.song_id
-        ):
-            logger.error("Song is missing required fields: %s", song.display_name)
-            self.errors.append(f"Song is missing required fields: {song.display_name}")
+        reinitialized = False
+        try:
+            # Create the output file path
+            output_file = create_file_name(
+                song,
+                self.settings["output"],
+                self.settings["format"],
+                self.settings["restrict"],
+            )
+        except Exception:
+            song = reinit_song(song)
+            output_file = create_file_name(
+                song,
+                self.settings["output"],
+                self.settings["format"],
+                self.settings["restrict"],
+            )
 
-            return song, None
+            reinitialized = True
 
         # Initalize the progress tracker
         display_progress_tracker = self.progress_handler.get_new_tracker(song)
 
-        try:
-            reinitialized = False
-            try:
-                # Create the output file path
-                output_file = create_file_name(
-                    song,
-                    self.settings["output"],
-                    self.settings["format"],
-                    self.settings["restrict"],
-                )
-            except Exception:
-                song = reinit_song(song)
+        # Create the temp folder path
+        temp_folder = get_temp_path()
 
-                output_file = create_file_name(
-                    song,
-                    self.settings["output"],
-                    self.settings["format"],
-                    self.settings["restrict"],
-                )
+        # Check if there is an already existing song file, with the same spotify URL in its
+        # metadata, but saved under a different name. If so, save its path.
+        dup_song_paths: List[Path] = self.known_songs.get(song.url, [])
 
-                reinitialized = True
+        # Remove files from the list that have the same path as the output file
+        dup_song_paths = [
+            dup_song_path
+            for dup_song_path in dup_song_paths
+            if (dup_song_path.absolute() != output_file.absolute())
+            and dup_song_path.exists()
+        ]
 
-            # Create the temp folder path
-            temp_folder = get_temp_path()
+        file_exists = output_file.exists() or dup_song_paths
+        if dup_song_paths:
+            logger.debug(
+                "Found duplicate songs for %s at %s", song.display_name, dup_song_paths
+            )
 
-            # Check if there is an already existing song file, with the same spotify URL in its
-            # metadata, but saved under a different name. If so, save its path.
-            dup_song_paths: List[Path] = self.known_songs.get(song.url, [])
+        # If the file already exists and we don't want to overwrite it,
+        # we can skip the download
+        if file_exists and self.settings["overwrite"] == "skip":
+            logger.info(
+                "Skipping %s (file already exists) %s",
+                song.display_name,
+                "(duplicate)" if dup_song_paths else "",
+            )
 
-            # Remove files from the list that have the same path as the output file
-            dup_song_paths = [
-                dup_song_path
-                for dup_song_path in dup_song_paths
-                if (dup_song_path.absolute() != output_file.absolute())
-                and dup_song_path.exists()
+            display_progress_tracker.notify_download_skip()
+            return song, output_file
+
+        # Check if we have all the metadata
+        # and that the song object is not a placeholder
+        # If it's None extract the current metadata
+        # And reinitialize the song object
+        # Force song reinitialization if we are fetching albums
+        # they have most metadata but not all
+        if (
+            (song.name is None and song.url)
+            or (self.settings["fetch_albums"] and reinitialized is False)
+            or None
+            in [
+                song.genres,
+                song.disc_count,
+                song.tracks_count,
+                song.track_number,
+                song.album_id,
+                song.album_artist,
             ]
+        ):
+            song = reinit_song(song)
+            reinitialized = True
 
-            file_exists = output_file.exists() or dup_song_paths
+        # Don't skip if the file exists and overwrite is set to force
+        if file_exists and self.settings["overwrite"] == "force":
+            logger.info(
+                "Overwriting %s %s",
+                song.display_name,
+                " (duplicate)" if dup_song_paths else "",
+            )
+
+            # If the duplicate song path is not None, we can delete the old file
+            for dup_song_path in dup_song_paths:
+                try:
+                    logger.info("Removing duplicate file: %s", dup_song_path)
+
+                    dup_song_path.unlink()
+                except (PermissionError, OSError) as exc:
+                    logger.debug(
+                        "Could not remove duplicate file: %s, error: %s",
+                        dup_song_path,
+                        exc,
+                    )
+
+        # Find song lyrics and add them to the song object
+        lyrics = self.search_lyrics(song)
+        if lyrics is None:
+            logger.debug(
+                "No lyrics found for %s, lyrics providers: %s",
+                song.display_name,
+                ", ".join([lprovider.name for lprovider in self.lyrics_providers]),
+            )
+        else:
+            song.lyrics = lyrics
+
+        # If the file already exists and we want to overwrite the metadata,
+        # we can skip the download
+        if file_exists and self.settings["overwrite"] == "metadata":
+            most_recent_duplicate: Optional[Path] = None
             if dup_song_paths:
-                logger.debug(
-                    "Found duplicate songs for %s at %s",
-                    song.display_name,
+                # Get the most recent duplicate song path and remove the rest
+                most_recent_duplicate = max(
                     dup_song_paths,
+                    key=lambda dup_song_path: dup_song_path.stat().st_mtime,
                 )
 
-            # If the file already exists and we don't want to overwrite it,
-            # we can skip the download
-            if file_exists and self.settings["overwrite"] == "skip":
-                logger.info(
-                    "Skipping %s (file already exists) %s",
-                    song.display_name,
-                    "(duplicate)" if dup_song_paths else "",
-                )
+                # Remove the rest of the duplicate song paths
+                for old_song_path in dup_song_paths:
+                    if most_recent_duplicate == old_song_path:
+                        continue
 
-                display_progress_tracker.notify_download_skip()
-                return song, output_file
-
-            # Check if we have all the metadata
-            # and that the song object is not a placeholder
-            # If it's None extract the current metadata
-            # And reinitialize the song object
-            # Force song reinitialization if we are fetching albums
-            # they have most metadata but not all
-            if (
-                (song.name is None and song.url)
-                or (self.settings["fetch_albums"] and reinitialized is False)
-                or None
-                in [
-                    song.genres,
-                    song.disc_count,
-                    song.tracks_count,
-                    song.track_number,
-                    song.album_id,
-                    song.album_artist,
-                ]
-            ):
-                song = reinit_song(song)
-                reinitialized = True
-
-            # Don't skip if the file exists and overwrite is set to force
-            if file_exists and self.settings["overwrite"] == "force":
-                logger.info(
-                    "Overwriting %s %s",
-                    song.display_name,
-                    " (duplicate)" if dup_song_paths else "",
-                )
-
-                # If the duplicate song path is not None, we can delete the old file
-                for dup_song_path in dup_song_paths:
                     try:
-                        logger.info("Removing duplicate file: %s", dup_song_path)
-
-                        dup_song_path.unlink()
+                        logger.info("Removing duplicate file: %s", old_song_path)
+                        old_song_path.unlink()
                     except (PermissionError, OSError) as exc:
                         logger.debug(
                             "Could not remove duplicate file: %s, error: %s",
-                            dup_song_path,
+                            old_song_path,
                             exc,
                         )
 
-            # Find song lyrics and add them to the song object
-            lyrics = self.search_lyrics(song)
-            if lyrics is None:
-                logger.debug(
-                    "No lyrics found for %s, lyrics providers: %s",
-                    song.display_name,
-                    ", ".join([lprovider.name for lprovider in self.lyrics_providers]),
-                )
-            else:
-                song.lyrics = lyrics
-
-            # If the file already exists and we want to overwrite the metadata,
-            # we can skip the download
-            if file_exists and self.settings["overwrite"] == "metadata":
-                most_recent_duplicate: Optional[Path] = None
-                if dup_song_paths:
-                    # Get the most recent duplicate song path and remove the rest
-                    most_recent_duplicate = max(
-                        dup_song_paths,
-                        key=lambda dup_song_path: dup_song_path.stat().st_mtime,
+                # Move the old file to the new location
+                if most_recent_duplicate:
+                    most_recent_duplicate.replace(
+                        output_file.with_suffix(f".{self.settings['format']}")
                     )
 
-                    # Remove the rest of the duplicate song paths
-                    for old_song_path in dup_song_paths:
-                        if most_recent_duplicate == old_song_path:
-                            continue
+            # Update the metadata
+            embed_metadata(output_file=output_file, song=song)
 
-                        try:
-                            logger.info("Removing duplicate file: %s", old_song_path)
-                            old_song_path.unlink()
-                        except (PermissionError, OSError) as exc:
-                            logger.debug(
-                                "Could not remove duplicate file: %s, error: %s",
-                                old_song_path,
-                                exc,
-                            )
+            logger.info(
+                f"Updated metadata for {song.display_name}"
+                f", moved to new location: {output_file}"
+                if most_recent_duplicate
+                else ""
+            )
 
-                    # Move the old file to the new location
-                    if most_recent_duplicate:
-                        most_recent_duplicate.replace(
-                            output_file.with_suffix(f".{self.settings['format']}")
-                        )
+            display_progress_tracker.notify_complete()
 
-                # Update the metadata
-                embed_metadata(output_file=output_file, song=song)
+            return song, output_file
 
-                logger.info(
-                    f"Updated metadata for {song.display_name}"
-                    f", moved to new location: {output_file}"
-                    if most_recent_duplicate
-                    else ""
-                )
+        # Create the output directory if it doesn't exist
+        output_file.parent.mkdir(parents=True, exist_ok=True)
 
-                display_progress_tracker.notify_complete()
-
-                return song, output_file
-
-            # Create the output directory if it doesn't exist
-            output_file.parent.mkdir(parents=True, exist_ok=True)
+        try:
             if song.download_url is None:
                 download_url = self.search(song)
             else:
@@ -573,7 +563,7 @@ class Downloader:
             download_info = audio_downloader.get_download_metadata(
                 download_url, download=True
             )
-
+            
             temp_file = Path(
                 temp_folder / f"{download_info['id']}.{download_info['ext']}"
             )
@@ -603,7 +593,7 @@ class Downloader:
                 ):
                     bitrate = None
                 else:
-                    bitrate = f"{int(download_info['abr'])}k"
+                    bitrate = f"{int(download_info['abr'])}k" if 'abr' in download_info else f"{320}k"
             else:
                 bitrate = str(self.settings["bitrate"])
 
