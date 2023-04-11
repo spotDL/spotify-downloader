@@ -592,9 +592,17 @@ def calc_time_match(song: Song, result: Result) -> float:
     - time difference between song and result
     """
 
+    print("======")
+
     if result.duration > song.duration:
+        print(result.name, song.name)
+        print(result.duration, song.duration)
+        print(100 - (result.duration - song.duration))
         return 100 - (result.duration - song.duration)
 
+    print(result.name, song.name)
+    print(result.duration, song.duration)
+    print(100 - (song.duration - result.duration))
     return 100 - (song.duration - result.duration)
 
 

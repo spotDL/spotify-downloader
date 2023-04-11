@@ -41,7 +41,7 @@ class SliderKZ(AudioProvider):
                     url=result["url"],
                     verified=False,
                     name=result["tit_art"],
-                    duration=result["duration"],
+                    duration=int(result["duration"])*1000,
                     author="slider.kz",
                     result_id=result["id"],
                     views=1,
