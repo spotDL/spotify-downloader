@@ -113,6 +113,17 @@ class AudioProvider:
             }
         )
 
+    def __dict__(self):
+        return {
+            "name": self.name,
+            "output_format": self.output_format,
+            "cookie_file": self.cookie_file,
+            "search_query": self.search_query,
+            "filter_results": self.filter_results,
+            "geo_bypass": self.geo_bypass,
+            "self_class": self.__class__,
+        }
+
     def get_results(self, search_term: str, **kwargs) -> List[Result]:
         """
         Get results from audio provider.
@@ -164,14 +175,16 @@ class AudioProvider:
 
         isrc_urls: List[str] = []
 
-        # search for song using isrc if it's available
+        # search for song using isrc if it's availableSZ
         if song.isrc and self.SUPPORTS_ISRC and not self.search_query:
             isrc_results = self.get_results(
                 song.isrc, filter="songs", ignore_spelling=True
             )
 
             isrc_urls = [result.url for result in isrc_results]
-            sorted_isrc_results = order_results(isrc_results, song, self.search_query)
+            sorted_isrc_results = order_results(
+                isrc_results, song, self.search_query, self.__dict__()
+            )
             logger.debug(
                 "[%s] Found %s results for ISRC %s",
                 song.song_id,
@@ -232,7 +245,9 @@ class AudioProvider:
 
             if self.filter_results:
                 # Order results
-                new_results = order_results(search_results, song, self.search_query)
+                new_results = order_results(
+                    search_results, song, self.search_query, self.__dict__()
+                )
             else:
                 new_results = {}
                 if len(new_results) > 0:

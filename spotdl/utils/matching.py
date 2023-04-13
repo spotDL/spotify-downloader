@@ -16,6 +16,10 @@ from spotdl.utils.formatter import (
 )
 from spotdl.utils.logging import MATCH
 
+# from spotdl.providers.audio.youtube import YouTube
+# from spotdl.providers.audio.ytmusic import YouTubeMusic
+
+
 __all__ = [
     "fill_string",
     "create_clean_string",
@@ -541,6 +545,10 @@ def calc_name_match(
     - name match percentage
     """
 
+    blackwords = ["bass boosted", "bassboosted", "bassboost", "bassboosted", "reverb"]
+    if any(word in result.name.lower() for word in blackwords):
+        return 0
+
     # Create match strings that will be used
     # to calculate name match value
     match_str1, match_str2 = create_match_strings(song, result, search_query)
@@ -592,17 +600,9 @@ def calc_time_match(song: Song, result: Result) -> float:
     - time difference between song and result
     """
 
-    print("======")
-
     if result.duration > song.duration:
-        print(result.name, song.name)
-        print(result.duration, song.duration)
-        print(100 - (result.duration - song.duration))
         return 100 - (result.duration - song.duration)
 
-    print(result.name, song.name)
-    print(result.duration, song.duration)
-    print(100 - (song.duration - result.duration))
     return 100 - (song.duration - result.duration)
 
 
@@ -624,8 +624,42 @@ def calc_album_match(song: Song, result: Result) -> float:
     return ratio(slugify(song.album_name), slugify(result.album))
 
 
+def calc_by_provider(
+    song: Song, result: Result, provider_info: dict, search_query: Optional[str] = None
+) -> dict:
+    """
+    Calculate song match wich specifed rules for provider
+
+    ### Arguments
+    - song: song to match
+    - result: result to match
+    - provider_info: provider info
+    - search_query: search query
+
+    ### Returns
+    - song match
+    """
+
+    if provider_info["name"] == "SliderKZ":
+        name_match = calc_name_match(song, result, search_query)
+        debug(song.song_id, result.result_id, f"Final name match: {name_match}")
+
+        time_match = calc_time_match(song, result)
+        debug(song.song_id, result.result_id, f"Final time match: {time_match}")
+
+        if (
+            time_match < -3333
+        ):  # if time match is under -1000 it is probably live version of song (or remix etc.) --- and name_match < 99.99
+            return {"passed": False, "average_match": 0.0}
+
+        return {"passed": True, "average_match": (name_match + time_match / 100) / 2}
+
+
 def order_results(
-    results: List[Result], song: Song, search_query: Optional[str] = None
+    results: List[Result],
+    song: Song,
+    search_query: Optional[str] = None,
+    provider_info: Optional[dict] = None,
 ) -> Dict[Result, float]:
     """
     Order results.
@@ -720,6 +754,14 @@ def order_results(
                 result.result_id,
                 "Skipping result due to name match lower than 50%",
             )
+            continue
+
+        if provider_info:
+            provider_match = calc_by_provider(song, result, provider_info, search_query)
+
+            if provider_match["passed"]:
+                links_with_match_value[result] = provider_match["average_match"]
+
             continue
 
         # Ignore results with artists match lower than 70%
