@@ -13,8 +13,6 @@ from argparse import Namespace
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Type, Union
 
-from syncedlyrics import search as syncedlyrics_search
-from syncedlyrics.utils import is_lrc_valid, save_lrc_file
 from yt_dlp.postprocessor.modify_chapters import ModifyChaptersPP
 from yt_dlp.postprocessor.sponsorblock import SponsorBlockPP
 
@@ -32,6 +30,7 @@ from spotdl.utils.config import (
 )
 from spotdl.utils.ffmpeg import FFmpegError, convert, get_ffmpeg_path
 from spotdl.utils.formatter import create_file_name
+from spotdl.utils.lrc import generate_lrc
 from spotdl.utils.m3u import gen_m3u_files
 from spotdl.utils.metadata import MetadataError, embed_metadata
 from spotdl.utils.search import gather_known_songs, reinit_song, songs_from_albums
@@ -705,19 +704,7 @@ class Downloader:
                 ) from exception
 
             if self.settings["generate_lrc"]:
-                if song.lyrics and is_lrc_valid(song.lyrics):
-                    lrc_data = song.lyrics
-                else:
-                    try:
-                        lrc_data = syncedlyrics_search(song.display_name)
-                    except Exception:
-                        lrc_data = None
-
-                if lrc_data:
-                    save_lrc_file(str(output_file.with_suffix(".lrc")), lrc_data)
-                    logger.debug("Saved lrc file for %s", song.display_name)
-                else:
-                    logger.debug("No lrc file found for %s", song.display_name)
+                generate_lrc(song, output_file)
 
             display_progress_tracker.notify_complete()
 
