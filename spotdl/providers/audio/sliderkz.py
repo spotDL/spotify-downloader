@@ -70,18 +70,18 @@ class SliderKZ(AudioProvider):
 
                 results.append(
                     Result(
-                        source="slider",
+                        source="slider.kz",
                         url=result["url"],
                         verified=False,
-                        name=result["tit_art"],
-                        duration=int(result["duration"]) * 1000,
+                        name=str(result["tit_art"]),
+                        duration=int(result["duration"]),
                         author="slider.kz",
                         result_id=result["id"],
                         views=1,
                     )
                 )
 
-        except Exception:
-            logger.error("Failed to parse JSON from slider.kz")
+        except (KeyError, TypeError, ValueError) as exception:
+            logger.error(f"Failed with exception: {exception}")
 
         return results

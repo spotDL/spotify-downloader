@@ -179,7 +179,7 @@ class AudioProvider:
 
             isrc_urls = [result.url for result in isrc_results]
             sorted_isrc_results = order_results(
-                isrc_results, song, self.search_query, self.__dict__()
+                isrc_results, song, self.search_query
             )
             logger.debug(
                 "[%s] Found %s results for ISRC %s",
@@ -242,7 +242,7 @@ class AudioProvider:
             if self.filter_results:
                 # Order results
                 new_results = order_results(
-                    search_results, song, self.search_query, self.__dict__()
+                    search_results, song, self.search_query
                 )
             else:
                 new_results = {}

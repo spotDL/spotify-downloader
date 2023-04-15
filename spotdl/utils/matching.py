@@ -16,9 +16,6 @@ from spotdl.utils.formatter import (
 )
 from spotdl.utils.logging import MATCH
 
-# from spotdl.providers.audio.youtube import YouTube
-# from spotdl.providers.audio.ytmusic import YouTubeMusic
-
 
 __all__ = [
     "fill_string",
@@ -544,10 +541,6 @@ def calc_name_match(
     ### Returns
     - name match percentage
     """
-
-    blackwords = ["bass boosted", "bassboosted", "bassboost", "bassboosted", "reverb"]
-    if any(word in result.name.lower() for word in blackwords):
-        return 0
 
     # Create match strings that will be used
     # to calculate name match value
