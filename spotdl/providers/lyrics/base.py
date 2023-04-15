@@ -79,8 +79,12 @@ class LyricsProvider:
         try:
             results = self.get_results(name, artists, **kwargs)
         except Exception as exc:
-            logger.error(
-                "Failed to get results for %s - %s: %s", name, ", ".join(artists), exc
+            logger.debug(
+                "%s: Failed to get results for %s - %s: %s",
+                self.name,
+                name,
+                ", ".join(artists),
+                exc,
             )
             return None
 
@@ -105,7 +109,9 @@ class LyricsProvider:
         try:
             return self.extract_lyrics(url, **kwargs)
         except Exception as exc:
-            logger.error("Failed to extract lyrics from %s: %s", url, exc)
+            logger.debug(
+                "%s: Failed to extract lyrics from %s: %s", self.name, url, exc
+            )
             return None
 
     @property
