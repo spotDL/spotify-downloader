@@ -54,7 +54,7 @@ def gen_m3u_files(
     short: bool = False,
 ):
     """
-    Create an m3u filename from the query.
+    Create an m3u8 filename from the query.
 
     ### Arguments
     - query: the query
@@ -68,20 +68,20 @@ def gen_m3u_files(
 
     # If no file name is provided, use the first list's name
     if not file_name:
-        file_name = "{list[0]}.m3u"
+        file_name = "{list[0]}.m3u8"
 
-    # If file_name ends with a slash. Does not have a m3u name with extension
+    # If file_name ends with a slash. Does not have a m3u8 name with extension
     # at the end of the template, append `{list[0]}`` to it
     if (
         file_name.endswith("/")
         or file_name.endswith(r"\\")
         or file_name.endswith("\\\\")
     ):
-        file_name += "/{list[0]}.m3u"
+        file_name += "/{list[0]}.m3u8"
 
-    # Check if the file name ends with .m3u
-    if not file_name.endswith(".m3u"):
-        file_name += ".m3u"
+    # Check if the file name ends with .m3u or .m3u8
+    if not file_name.endswith(".m3u") or not file_name.endswith(".m3u8"):
+        file_name += ".m3u8"
 
     lists_object: Dict[str, List[Song]] = {}
     for song in songs:
