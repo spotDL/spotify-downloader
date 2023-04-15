@@ -259,7 +259,6 @@ DOWNLOADER_OPTIONS: DownloaderOptions = {
     "id3_separator": "/",
     "ytm_data": False,
     "add_unavailable": False,
-    "geo_bypass": False,
     "generate_lrc": False,
     "force_update_metadata": False,
 }

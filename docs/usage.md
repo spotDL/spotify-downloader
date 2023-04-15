@@ -274,7 +274,6 @@ If you don't want config to load automatically change `load_config` option in co
     "id3_separator": "/",
     "ytm_data": false,
     "add_unavailable": false,
-    "geo_bypass": false,
     "generate_lrc": false,
     "force_update_metadata": false,
     "web_use_output_dir": false,
@@ -416,7 +415,6 @@ Misc options:
   --log-level {CRITICAL,FATAL,ERROR,WARN,WARNING,INFO,MATCH,DEBUG,NOTSET}
                         Select log level.
   --simple-tui          Use a simple tui.
-  --geo-bypass          Bypass geo restrictions.
 
 Other options:
   --download-ffmpeg     Download ffmpeg to spotdl directory.
