@@ -549,6 +549,7 @@ def parse_misc_options(parser: _ArgumentGroup):
         help="Use a simple tui.",
     )
 
+
 def parse_other_options(parser: _ArgumentGroup):
     """
     Parse other options from the command line.
