@@ -274,6 +274,8 @@ If you don't want config to load automatically change `load_config` option in co
     "id3_separator": "/",
     "ytm_data": false,
     "add_unavailable": false,
+    "generate_lrc": false,
+    "force_update_metadata": false,
     "web_use_output_dir": false,
     "port": 8800,
     "host": "localhost",
@@ -338,7 +340,7 @@ Main options:
   --audio [{youtube,youtube-music} ...]
                         The audio provider to use. You can provide more than one for fallback.
   --lyrics [{genius,musixmatch,azlyrics,synced} ...]
-                        The lyrics provider to use. You can provide more than one for fallback.
+                        The lyrics provider to use. You can provide more than one for fallback. Synced lyrics might not work correctly with some music players. For such cases it's better to use `--generate-lrc` option.
   --config              Use the config file to download songs. It's located under C:\Users\user\.spotdl\config.json or ~/.spotdl/config.json under linux
   --search-query SEARCH_QUERY
                         The search query to use, available variables: {title}, {artists}, {artist}, {album}, {album-artist}, {genre}, {disc-number}, {disc-count}, {duration}, {year}, {original-date}, {track-number},
@@ -378,11 +380,11 @@ Output options:
   --preload             Preload the download url to speed up the download process.
   --output OUTPUT       Specify the downloaded file name format, available variables: {title}, {artists}, {artist}, {album}, {album-artist}, {genre}, {disc-number}, {disc-count}, {duration}, {year}, {original-date}, {track-
                         number}, {tracks-count}, {isrc}, {track-id}, {publisher}, {list-length}, {list-position}, {list-name}, {output-ext}
-  --m3u [M3U]           Name of the m3u file to save the songs to. Defaults to {list[0]}.m3u If you want to generate a m3u for each list in the query use {list}, If you want to generate a m3u file based on the first list in
-                        the query use {list[0]}, (0 is the first list in the query, 1 is the second, etc. songs don't count towards the list number)
+  --m3u [M3U]           Name of the m3u file to save the songs to. Defaults to {list[0]}.m3u8 If you want to generate a m3u for each list in the query use {list}, If you want to generate a m3u file based on the first list
+                        in the query use {list[0]}, (0 is the first list in the query, 1 is the second, etc. songs don't count towards the list number)
   --cookie-file COOKIE_FILE
                         Path to cookies file.
-  --overwrite {metadata,skip,force}
+  --overwrite {force,skip,metadata}
                         How to handle existing/duplicate files. (When combined with --scan-for-songs force will remove all duplicates, and metadata will only apply metadata to the latest song and will remove the rest. )
   --restrict            Restrict filenames to ASCII only
   --print-errors        Print errors (wrong songs, failed downloads etc) on exit, useful for long playlist
@@ -395,7 +397,10 @@ Output options:
   --id3-separator ID3_SEPARATOR
                         Change the separator used in the id3 tags. Only supported for mp3 files.
   --ytm-data            Use ytm data instead of spotify data when downloading using ytm link.
-  --add-unavailable     Add unavailable songs to the m3u/archive files when downloading.
+  --add-unavailable     Add unavailable songs to the m3u/archive files when downloading
+  --generate-lrc        Generate lrc files for downloaded songs. Requires `synced` provider to be present in the lyrics providers list.
+  --force-update-metadata
+                        Force update metadata for songs that already have metadata.
 
 Web options:
   --host HOST           The host to use for the web server.

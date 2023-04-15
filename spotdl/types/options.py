@@ -68,7 +68,6 @@ class DownloaderOptions(TypedDict):
     id3_separator: str
     ytm_data: bool
     add_unavailable: bool
-    geo_bypass: bool
     generate_lrc: bool
     force_update_metadata: bool
 
@@ -140,7 +139,6 @@ class DownloaderOptionalOptions(TypedDict, total=False):
     id3_separator: str
     ytm_data: bool
     add_unavailable: bool
-    geo_bypass: bool
     generate_lrc: bool
     force_update_metadata: bool
 

@@ -19,10 +19,12 @@ import requests
 from mutagen._file import File
 from mutagen.flac import Picture
 from mutagen.id3 import ID3
-from mutagen.id3._frames import APIC, COMM, USLT, WOAS
+from mutagen.id3._frames import APIC, COMM, SYLT, USLT, WOAS
+from mutagen.id3._specs import Encoding
 from mutagen.mp4 import MP4Cover
 
 from spotdl.types.song import Song
+from spotdl.utils.formatter import to_ms
 
 __all__ = [
     "MetadataError",
@@ -156,7 +158,9 @@ def embed_metadata(output_file: Path, song: Song, id3_separator: str = "/"):
 
     # Embed basic metadata
     audio_file[tag_preset["artist"]] = song.artists
-    audio_file[tag_preset["albumartist"]] = song.artist
+    audio_file[tag_preset["albumartist"]] = (
+        song.album_artist if song.album_artist else song.artist
+    )
     audio_file[tag_preset["title"]] = song.name
     audio_file[tag_preset["date"]] = song.date
     audio_file[tag_preset["originaldate"]] = song.date
@@ -289,42 +293,44 @@ def embed_lyrics(audio_file, song: Song, encoding: str):
 
     tag_preset = TAG_PRESET if encoding != "m4a" else M4A_TAG_PRESET
 
-    if encoding == "mp3":
-        audio_file.add(USLT(encoding=3, text=song.lyrics))
-    else:
-        audio_file[tag_preset["lyrics"]] = song.lyrics
-
     # Check if the lyrics are in lrc format
     # using regex on the first 5 lines
-    # lrc_lines = lyrics.splitlines()[:5]
-    # lrc_lines = [line for line in lrc_lines if line and LRC_REGEX.match(line)]
+    lrc_lines = lyrics.splitlines()[:5]
+    lrc_lines = [line for line in lrc_lines if line and LRC_REGEX.match(line)]
 
-    # if len(lrc_lines) == 0:
-    #     # Lyrics are not in lrc format
-    #     # Embed them normally
-    #     if encoding == "mp3":
-    #         audio_file.add(USLT(encoding=3, text=song.lyrics))
-    #     else:
-    #         audio_file[tag_preset["lyrics"]] = song.lyrics
-    # else:
-    #     # Lyrics are in lrc format
-    #     # Embed them as SYLT id3 tag
-    #     if encoding == "mp3":
-    #         lrc_data = []
-    #         for line in lyrics.splitlines():
-    #             time_tag = line.split("]", 1)[0] + "]"
-    #             text = line.replace(time_tag, "")
+    if len(lrc_lines) == 0:
+        # Lyrics are not in lrc format
+        # Embed them normally
+        if encoding == "mp3":
+            audio_file.add(USLT(encoding=Encoding.UTF8, text=song.lyrics))
+        else:
+            audio_file[tag_preset["lyrics"]] = song.lyrics
+    else:
+        # Lyrics are in lrc format
+        # Embed them as SYLT id3 tag
+        if encoding == "mp3":
+            lrc_data = []
+            for line in lyrics.splitlines():
+                time_tag = line.split("]", 1)[0] + "]"
+                text = line.replace(time_tag, "")
 
-    #             time_tag = time_tag.replace("[", "")
-    #             time_tag = time_tag.replace("]", "")
-    #             time_tag = time_tag.replace(".", ":")
-    #             minute, sec, millisecond = time_tag.split(":")
-    #             time = to_ms(min=minute, sec=sec, ms=millisecond)
-    #             lrc_data.append((text, time))
+                time_tag = time_tag.replace("[", "")
+                time_tag = time_tag.replace("]", "")
+                time_tag = time_tag.replace(".", ":")
+                time_tag_vals = time_tag.split(":")
+                if len(time_tag_vals) != 3:
+                    continue
 
-    #         audio_file.add(SYLT(encoding=3, text=lrc_data, format=1, type=1))
-    #     else:
-    #         audio_file[tag_preset["lyrics"]] = song.lyrics
+                minute, sec, millisecond = time_tag_vals
+                time = to_ms(min=minute, sec=sec, ms=millisecond)
+                lrc_data.append((text, time))
+
+            audio_file.add(USLT(encoding=3, text=song.lyrics))
+            audio_file.add(
+                SYLT(encoding=Encoding.UTF8, text=lrc_data, format=2, type=1)
+            )
+        else:
+            audio_file[tag_preset["lyrics"]] = song.lyrics
 
     return audio_file
 
