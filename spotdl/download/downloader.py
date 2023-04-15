@@ -22,7 +22,7 @@ from spotdl.download.progress_handler import ProgressHandler
 from spotdl.providers.audio import AudioProvider, YouTube, YouTubeMusic
 from spotdl.providers.lyrics import AzLyrics, Genius, LyricsProvider, MusixMatch, Synced
 from spotdl.types.options import DownloaderOptionalOptions, DownloaderOptions
-from spotdl.types.song import Song, SongError
+from spotdl.types.song import Song
 from spotdl.utils.archive import Archive
 from spotdl.utils.config import (
     DOWNLOADER_OPTIONS,
