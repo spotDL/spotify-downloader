@@ -117,7 +117,6 @@ class AudioProvider:
             "cookie_file": self.cookie_file,
             "search_query": self.search_query,
             "filter_results": self.filter_results,
-            "geo_bypass": self.geo_bypass,
             "self_class": self.__class__,
         }
 
