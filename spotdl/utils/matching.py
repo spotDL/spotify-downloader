@@ -647,9 +647,6 @@ def calc_by_provider(
         time_match = calc_time_match(song, result)
         debug(song.song_id, result.result_id, f"Final time match: {time_match}")
 
-        print("*" * 100)
-        print(song.duration, result.duration, result.url)
-
         if time_match < -3333:  # if time match is under -1000 it is probably
             # live version of song (or remix etc.) --- and name_match < 99.99
             return {
@@ -659,8 +656,8 @@ def calc_by_provider(
                 "explaination": "time_match < -3333",
             }
 
-        if time_match < 3000 and time_match > -3000:
-            time_match = 0
+        # if time_match < 3000 and time_match > -3000:
+        #     time_match = 0
 
         return {"passed": True, "average_match": (name_match + time_match / 100) / 2}
 
