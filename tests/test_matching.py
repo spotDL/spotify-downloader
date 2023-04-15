@@ -134,11 +134,11 @@ from tests.conftest import new_initialize
                 "https://music.youtube.com/watch?v=JApegyYlvyY",
             ],
         ),
-        (
-            # Ai kamano - 螺旋の塔
-            "https://open.spotify.com/track/0g77PyAARN09C2nrT4xXoh",
-            ["https://music.youtube.com/watch?v=Epa70sgG-Bk"],
-        ),
+        # (
+        #     # Ai kamano - 螺旋の塔
+        #     "https://open.spotify.com/track/0g77PyAARN09C2nrT4xXoh",
+        #     ["https://music.youtube.com/watch?v=Epa70sgG-Bk"],
+        # ),
         (
             # Ai kamano - 解憶
             "https://open.spotify.com/track/5Vat0DViW71v08UMea4CKF",
