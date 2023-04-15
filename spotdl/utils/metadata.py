@@ -156,7 +156,7 @@ def embed_metadata(output_file: Path, song: Song, id3_separator: str = "/"):
 
     # Embed basic metadata
     audio_file[tag_preset["artist"]] = song.artists
-    audio_file[tag_preset["albumartist"]] = song.artist
+    audio_file[tag_preset["albumartist"]] = song.album_artist if song.album_artist else song.artist
     audio_file[tag_preset["title"]] = song.name
     audio_file[tag_preset["date"]] = song.date
     audio_file[tag_preset["originaldate"]] = song.date
