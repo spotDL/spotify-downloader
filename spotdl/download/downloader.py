@@ -588,31 +588,40 @@ class Downloader:
 
             display_progress_tracker.notify_download_complete()
 
-            # Ignore the bitrate if the bitrate is set to auto for m4a/opus
-            # or if bitrate is set to disabled
-            if self.settings["bitrate"] == "disable":
-                bitrate = None
-            elif self.settings["bitrate"] == "auto" or self.settings["bitrate"] is None:
-                # Ignore the bitrate if the input and output formats are the same
-                # and the input format is m4a/opus
-                if (temp_file.suffix == ".m4a" and output_file.suffix == ".m4a") or (
-                    temp_file.suffix == ".opus" and output_file.suffix == ".opus"
-                ):
+            # Copy the downloaded file to the output file
+            # if the temp file and output file have the same extension
+            # and the bitrate is set to auto or disable
+            if (
+                self.settings["bitrate"] in ["auto", "disable", None]
+                and temp_file.suffix == output_file.suffix
+            ):
+                temp_file.replace(output_file)
+                success = True
+                result = None
+            else:
+                if self.settings["bitrate"] in ["auto", None]:
+                    # Use the bitrate from the download info if it exists
+                    # otherwise use `copy`
+                    bitrate = (
+                        f"{int(download_info['abr'])}k"
+                        if download_info.get("abr")
+                        else "copy"
+                    )
+                elif self.settings["bitrate"] == "disable":
                     bitrate = None
                 else:
-                    bitrate = f"{int(download_info['abr'])}k"
-            else:
-                bitrate = str(self.settings["bitrate"])
+                    bitrate = str(self.settings["bitrate"])
 
-            success, result = convert(
-                input_file=temp_file,
-                output_file=output_file,
-                ffmpeg=self.ffmpeg,
-                output_format=self.settings["format"],
-                bitrate=bitrate,
-                ffmpeg_args=self.settings["ffmpeg_args"],
-                progress_handler=display_progress_tracker.ffmpeg_progress_hook,
-            )
+                # Convert the downloaded file to the output format
+                success, result = convert(
+                    input_file=temp_file,
+                    output_file=output_file,
+                    ffmpeg=self.ffmpeg,
+                    output_format=self.settings["format"],
+                    bitrate=bitrate,
+                    ffmpeg_args=self.settings["ffmpeg_args"],
+                    progress_handler=display_progress_tracker.ffmpeg_progress_hook,
+                )
 
             # Remove the temp file
             if temp_file.exists():
