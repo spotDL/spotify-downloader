@@ -647,12 +647,28 @@ def calc_by_provider(
         time_match = calc_time_match(song, result)
         debug(song.song_id, result.result_id, f"Final time match: {time_match}")
 
-        if (
-            time_match < -3333
-        ):  # if time match is under -1000 it is probably live version of song (or remix etc.) --- and name_match < 99.99
-            return {"passed": False, "average_match": 0.0}
+        print("*" * 100)
+        print(song.duration, result.duration, result.url)
+
+        if time_match < -3333:  # if time match is under -1000 it is probably
+            # live version of song (or remix etc.) --- and name_match < 99.99
+            return {
+                "passed": False,
+                "average_match": 0.0,
+                "time_match": time_match,
+                "explaination": "time_match < -3333",
+            }
+
+        if time_match < 3000 and time_match > -3000:
+            time_match = 0
 
         return {"passed": True, "average_match": (name_match + time_match / 100) / 2}
+
+    return {
+        "passed": False,
+        "average_match": 0.0,
+        "explaination": "rules for provider - not found",
+    }
 
 
 def order_results(
@@ -762,6 +778,7 @@ def order_results(
             if provider_match["passed"]:
                 links_with_match_value[result] = provider_match["average_match"]
 
+            debug(song.song_id, result.result_id, f"Provider match: {provider_match}")
             continue
 
         # Ignore results with artists match lower than 70%

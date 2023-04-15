@@ -1,17 +1,22 @@
-import requests
-import json
-import logging
+from typing import Any, Dict, List
 
-from typing import Any, Dict, List, Optional
+import logging  # pylint: disable=C0114
+import json
+import requests
+
 
 from spotdl.providers.audio.base import AudioProvider
 from spotdl.types.result import Result
 
-__all__ = ["slider.kz"]
+__all__ = ["SliderKZ"]
 logger = logging.getLogger(__name__)
 
 
 class SliderKZ(AudioProvider):
+    """
+    Slider.kz audio provider class
+    """
+
     SUPPORTS_ISRC = False
     GET_RESULTS_OPTS: List[Dict[str, Any]] = [{}]
 
@@ -28,6 +33,9 @@ class SliderKZ(AudioProvider):
         - A list of slider.kz results if found, None otherwise.
         """
 
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/111.0"
+        }
         search_results = ""
         max_retries = 0
         results = []
@@ -36,9 +44,7 @@ class SliderKZ(AudioProvider):
             try:
                 search_results = requests.get(
                     url="https://slider.kz/vk_auth.php?q=" + search_term,
-                    headers={
-                        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/111.0"
-                    },
+                    headers=headers,
                     timeout=5,
                 )
 
@@ -46,15 +52,14 @@ class SliderKZ(AudioProvider):
                     len(search_results.text) < 30
                 ):  # sometimes slider.kz returns an empty string
                     max_retries += 1
-                    raise Exception("Undefinied error on slider.kz. retrying...")
+                    raise ConnectionError
 
                 search_results = json.loads(search_results.text)
                 break
-            except Exception as e:
-                logger.error(f"Falied to get results from slider.kz: {e}, retrying...")
+            except ConnectionError:
                 max_retries += 1
         else:
-            logger.error("Failed to get results from slider.kz, giving up.")
+            logger.error("Failed to get results from slider.kz")
             return search_results
 
         try:
@@ -76,7 +81,7 @@ class SliderKZ(AudioProvider):
                     )
                 )
 
-        except Exception as e:
+        except Exception:
             logger.error("Failed to parse JSON from slider.kz")
 
         return results

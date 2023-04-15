@@ -1,0 +1,58 @@
+interactions:
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate, br
+      Connection:
+      - keep-alive
+      User-Agent:
+      - Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/111.0
+    method: GET
+    uri: https://slider.kz/vk_auth.php?q=Lost%20Identities%20Moments
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAACA9XWSY+bSBgG4PtI8x8szyWRmm72pW8sZjEGbDAYO44sVhuzm2KxW/nvQzqJZnqy
+        zURz6UshFaUSL/XUp+/3356mXhsmZTN9fJpOH989TZNw+jjFKRxnGISADzhBkhRBEuj0bhq2Fw8k
+        ZTF9RFH4bgoScPAuYFy+KBswUcKoGKeSqLmbmKXvJ9H4aKJiAk20Mh/fNeMW7SUb158AqJrH/cP+
+        IWhQCOvw+y5tm+jy/Cn3RQT2D83+oUP2D16QV/sHaRDbmQcZakhVHQwweNmQS4JYw8nGk7Krtlv0
+        FrM9xXPM5PrYLkVpQDuV4IHg08acZxacr8wzwkRDe7emiqY/nwVtqwYOPdcBoOGgXQlcoPA2hmdW
+        fVXS0uZEp6Z2wU3Xr+AYFgWnDiXd7yg7PpPXDFqgeSBIM6MzOTtnmbl72LlpLguYy6mdY/T3eYV9
+        +mMf835O+epTjYmiAVy8MRI8/XD3GQtJITSJ4NgzFhQb2WAvsSDM37HIrCVP9i2MI8jzSDyP1Kcp
+        +HmMRzP/MDUZ/j2qqvmRqLxC9w+CBNYWFxvLqyFgw7YugHymyFTvkAgiTom68llSa7U2O988b70N
+        D1UYc3Omc9LwcOH4eFYpm6z09ZWobm7YOtPjwPbj8yEPergr6UXttatlqlah5FSwIc43znCbXdYC
+        zQisWxlFypuWneUSy99sfdNfZppcS2dO0FeX9nzpj6rh6S8NfQz1CkN8mwwKwzBOMSSOPJvB8fHk
+        /0OB+ev0J2/iyAP3L2y8nbzr0vugzE8JOJUgb5skeD/5Q4uyMkwCofUbEFW/xqZXGKRPt7GSCYGc
+        DBLbWsea80n/xGKmD19JchUvgXHBUDo7JUaaLqADXILBOR7ximkccSesWchPasvpLOR6LYOYJ8SQ
+        4VQcC5QlWzmyaNj5zhtvsmyeDio2g3u0hsiza6+Y7fHA0UoiUysSMFK6mduuj2h8sambRsMgUJ1N
+        ezb8lM1rCPFtNhiGYghJ4F8qzQjohRqEQX6k5v8tIYvYWSlpy5fdmXBp4KsDdRTYhRZ7GrI7npyw
+        YG6HDFJg+WDj5k22VqjfsVZAujhT1VGkBSFKSJ1v7fQzuU2jcGPdcMYc7/Eh5K8eu24y9lhyKGIZ
+        MtdXNTDyfsBl/8oNGoxBBE/47RpxB5YSq4D3UCzwlhKZ6Oq6561izpgO7v7UwmsI8Z0SQhEMgaIM
+        +sUCQb20QNK/YmHyhg3KtgFJMHGiSzNu9fY7bQv+07aF9rCdVTEFgddLdif7kuSfTXfTWfqMuh2S
+        AhTxLoNhkUPkRYVHND8nIEJec7ArKYaLeWlOQRVf0Z3VYPjaNNTo5DGEIAwMpij6dTkTbSg4aXg3
+        JwVUFrfELpHrRT/exKVMDFuZQWB37mVXoqHEQVxsMex6LCHEaYk67H20z1LFD7Y6HhwJaGWe6eXq
+        67YF/6pteX2pXgJ6/+HDn2zGu8L3CgAA
+    headers:
+      Connection:
+      - keep-alive
+      Content-Encoding:
+      - gzip
+      Content-Type:
+      - application/json;charset=utf-8
+      Date:
+      - Sat, 15 Apr 2023 15:53:59 GMT
+      Server:
+      - nginx/1.23.2
+      Transfer-Encoding:
+      - chunked
+      Vary:
+      - Accept-Encoding
+      X-Powered-By:
+      - PHP/8.1.13
+    status:
+      code: 200
+      message: OK
+version: 1

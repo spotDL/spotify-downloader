@@ -47,7 +47,7 @@ __all__ = [
 AUDIO_PROVIDERS: Dict[str, Type[AudioProvider]] = {
     "youtube": YouTube,
     "youtube-music": YouTubeMusic,
-    "slider-kz": SliderKZ
+    "slider-kz": SliderKZ,
 }
 
 LYRICS_PROVIDERS: Dict[str, Type[LyricsProvider]] = {
@@ -563,7 +563,7 @@ class Downloader:
             download_info = audio_downloader.get_download_metadata(
                 download_url, download=True
             )
-            
+
             temp_file = Path(
                 temp_folder / f"{download_info['id']}.{download_info['ext']}"
             )
@@ -593,7 +593,11 @@ class Downloader:
                 ):
                     bitrate = None
                 else:
-                    bitrate = f"{int(download_info['abr'])}k" if 'abr' in download_info else f"{320}k"
+                    bitrate = (
+                        f"{int(download_info['abr'])}k"
+                        if "abr" in download_info
+                        else f"{320}k"
+                    )
             else:
                 bitrate = str(self.settings["bitrate"])
 
