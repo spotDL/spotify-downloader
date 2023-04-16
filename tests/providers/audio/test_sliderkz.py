@@ -21,7 +21,7 @@ def test_sliderkz_search():
                     "genres": [],
                     "disc_number": 1,
                     "disc_count": 1,
-                    "duration": 162406,
+                    "duration": 162.406,
                     "year": 2022,
                     "date": "2022-03-17",
                     "track_number": 1,

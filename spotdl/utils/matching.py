@@ -617,55 +617,10 @@ def calc_album_match(song: Song, result: Result) -> float:
     return ratio(slugify(song.album_name), slugify(result.album))
 
 
-def calc_by_provider(
-    song: Song, result: Result, provider_info: dict, search_query: Optional[str] = None
-) -> dict:
-    """
-    Calculate song match wich specifed rules for provider
-
-    ### Arguments
-    - song: song to match
-    - result: result to match
-    - provider_info: provider info
-    - search_query: search query
-
-    ### Returns
-    - song match
-    """
-
-    if provider_info["name"] == "SliderKZ":
-        name_match = calc_name_match(song, result, search_query)
-        debug(song.song_id, result.result_id, f"Final name match: {name_match}")
-
-        time_match = calc_time_match(song, result)
-        debug(song.song_id, result.result_id, f"Final time match: {time_match}")
-
-        if time_match < -3333:  # if time match is under -1000 it is probably
-            # live version of song (or remix etc.) --- and name_match < 99.99
-            return {
-                "passed": False,
-                "average_match": 0.0,
-                "time_match": time_match,
-                "explaination": "time_match < -3333",
-            }
-
-        # if time_match < 3000 and time_match > -3000:
-        #     time_match = 0
-
-        return {"passed": True, "average_match": (name_match + time_match / 100) / 2}
-
-    return {
-        "passed": False,
-        "average_match": 0.0,
-        "explaination": "rules for provider - not found",
-    }
-
-
 def order_results(
     results: List[Result],
     song: Song,
     search_query: Optional[str] = None,
-    provider_info: Optional[dict] = None,
 ) -> Dict[Result, float]:
     """
     Order results.
@@ -762,17 +717,8 @@ def order_results(
             )
             continue
 
-        if provider_info:
-            provider_match = calc_by_provider(song, result, provider_info, search_query)
-
-            if provider_match["passed"]:
-                links_with_match_value[result] = provider_match["average_match"]
-
-            debug(song.song_id, result.result_id, f"Provider match: {provider_match}")
-            continue
-
         # Ignore results with artists match lower than 70%
-        if artists_match < 70:
+        if artists_match < 70 and result.source != "slider.kz":
             debug(
                 song.song_id,
                 result.result_id,
@@ -810,10 +756,17 @@ def order_results(
             )
             continue
 
-        if not result.isrc_search and average_match <= 85 >= time_match:
+        if (
+            not result.isrc_search and average_match <= 85 >= time_match
+        ) or result.source == "slider.kz":
             # Don't add time to avg match if average match is not the best
             # (lower than 85%)
-            average_match = (average_match + time_match) / 2
+            average_match = (
+                (average_match + time_match) / 2
+                if time_match < -3333
+                else average_match / 2
+            )
+
             debug(
                 song.song_id,
                 result.result_id,

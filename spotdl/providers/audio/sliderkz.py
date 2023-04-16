@@ -60,7 +60,7 @@ class SliderKZ(AudioProvider):
                 max_retries += 1
         else:
             logger.error("Failed to get results from slider.kz")
-            return search_results
+            return results
 
         try:
             for result in search_results["audios"][""]:
@@ -74,7 +74,7 @@ class SliderKZ(AudioProvider):
                         url=result["url"],
                         verified=False,
                         name=str(result["tit_art"]),
-                        duration=int(result["duration"]),
+                        duration=int(result["duration"]) * 1000,
                         author="slider.kz",
                         result_id=result["id"],
                         views=1,
@@ -82,6 +82,6 @@ class SliderKZ(AudioProvider):
                 )
 
         except (KeyError, TypeError, ValueError) as exception:
-            logger.error(f"Failed with exception: {exception}")
+            logger.error("Failed with exception: %s", exception)
 
         return results
