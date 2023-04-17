@@ -738,15 +738,15 @@ def order_results(
 
         # Check if result contains forbidden words
         contains_fwords, found_fwords = check_forbidden_words(song, result)
+        if contains_fwords:
+            for _ in found_fwords:
+                name_match -= 15
+
         debug(
             song.song_id,
             result.result_id,
             f"Contains forbidden words: {contains_fwords}, {found_fwords}",
         )
-        if contains_fwords:
-            for _ in found_fwords:
-                name_match -= 10
-
         debug(song.song_id, result.result_id, f"Final name match: {name_match}")
 
         # Calculate album match
