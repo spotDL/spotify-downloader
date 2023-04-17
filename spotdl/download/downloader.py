@@ -597,7 +597,7 @@ class Downloader:
                 self.settings["bitrate"] in ["auto", "disable", None]
                 and temp_file.suffix == output_file.suffix
             ):
-                temp_file.replace(output_file)
+                shutil.move(temp_file, output_file)
                 success = True
                 result = None
             else:
