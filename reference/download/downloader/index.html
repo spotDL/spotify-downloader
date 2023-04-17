@@ -2984,7 +2984,7 @@ It handles the downloading/moving songs, multithreading, metadata embedding etc.
             <span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="p">[</span><span class="s2">&quot;bitrate&quot;</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;auto&quot;</span><span class="p">,</span> <span class="s2">&quot;disable&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span>
             <span class="ow">and</span> <span class="n">temp_file</span><span class="o">.</span><span class="n">suffix</span> <span class="o">==</span> <span class="n">output_file</span><span class="o">.</span><span class="n">suffix</span>
         <span class="p">):</span>
-            <span class="n">temp_file</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">output_file</span><span class="p">)</span>
+            <span class="n">shutil</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="n">temp_file</span><span class="p">,</span> <span class="n">output_file</span><span class="p">)</span>
             <span class="n">success</span> <span class="o">=</span> <span class="kc">True</span>
             <span class="n">result</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">else</span><span class="p">:</span>
