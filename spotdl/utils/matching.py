@@ -16,6 +16,7 @@ from spotdl.utils.formatter import (
 )
 from spotdl.utils.logging import MATCH
 
+
 __all__ = [
     "fill_string",
     "create_clean_string",
@@ -617,7 +618,9 @@ def calc_album_match(song: Song, result: Result) -> float:
 
 
 def order_results(
-    results: List[Result], song: Song, search_query: Optional[str] = None
+    results: List[Result],
+    song: Song,
+    search_query: Optional[str] = None,
 ) -> Dict[Result, float]:
     """
     Order results.
@@ -715,7 +718,7 @@ def order_results(
             continue
 
         # Ignore results with artists match lower than 70%
-        if artists_match < 70:
+        if artists_match < 70 and result.source != "slider.kz":
             debug(
                 song.song_id,
                 result.result_id,
@@ -753,10 +756,17 @@ def order_results(
             )
             continue
 
-        if not result.isrc_search and average_match <= 85 >= time_match:
+        if (
+            not result.isrc_search and average_match <= 85 >= time_match
+        ) or result.source == "slider.kz":
             # Don't add time to avg match if average match is not the best
             # (lower than 85%)
-            average_match = (average_match + time_match) / 2
+            average_match = (
+                (average_match + time_match) / 2
+                if time_match < -3333
+                else average_match / 2
+            )
+
             debug(
                 song.song_id,
                 result.result_id,
