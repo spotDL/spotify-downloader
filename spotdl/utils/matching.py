@@ -16,13 +16,14 @@ from spotdl.utils.formatter import (
 )
 from spotdl.utils.logging import MATCH
 
-
 __all__ = [
+    "FORBIDDEN_WORDS",
     "fill_string",
     "create_clean_string",
     "sort_string",
     "based_sort",
     "check_common_word",
+    "check_forbidden_words",
     "create_match_strings",
     "get_best_matches",
     "calc_main_artist_match",
@@ -36,6 +37,18 @@ __all__ = [
 ]
 
 logger = logging.getLogger(__name__)
+
+FORBIDDEN_WORDS = [
+    "bassboosted",
+    "remix",
+    "remastered",
+    "remaster",
+    "reverb",
+    "bassboost",
+    "live",
+    "acoustic",
+    "8daudio",
+]
 
 
 def debug(song_id: str, result_id: str, message: str) -> None:
@@ -177,6 +190,29 @@ def check_common_word(song: Song, result: Result) -> bool:
             return True
 
     return False
+
+
+def check_forbidden_words(song: Song, result: Result) -> Tuple[bool, List[str]]:
+    """
+    Check if a forbidden word is present in the result name
+
+    ### Arguments
+    - song: song to match
+    - result: result to match
+
+    ### Returns
+    - True if forbidden word is present in result name, False otherwise
+    """
+
+    song_name = slugify(song.name).replace("-", "")
+    to_check = slugify(result.name).replace("-", "")
+
+    words = []
+    for word in FORBIDDEN_WORDS:
+        if word in to_check and word not in song_name:
+            words.append(word)
+
+    return len(words) > 0, words
 
 
 def create_match_strings(
@@ -698,6 +734,19 @@ def order_results(
 
         # Calculate name match
         name_match = calc_name_match(song, result, search_query)
+        debug(song.song_id, result.result_id, f"Initial name match: {name_match}")
+
+        # Check if result contains forbidden words
+        contains_fwords, found_fwords = check_forbidden_words(song, result)
+        debug(
+            song.song_id,
+            result.result_id,
+            f"Contains forbidden words: {contains_fwords}, {found_fwords}",
+        )
+        if contains_fwords:
+            for _ in found_fwords:
+                name_match -= 10
+
         debug(song.song_id, result.result_id, f"Final name match: {name_match}")
 
         # Calculate album match
@@ -760,12 +809,9 @@ def order_results(
             not result.isrc_search and average_match <= 85 >= time_match
         ) or result.source == "slider.kz":
             # Don't add time to avg match if average match is not the best
-            # (lower than 85%)
-            average_match = (
-                (average_match + time_match) / 2
-                if time_match < -3333
-                else average_match / 2
-            )
+            # (lower than 85%), always include time match if result is from
+            # slider.kz
+            average_match = (average_match + time_match) / 2
 
             debug(
                 song.song_id,
