@@ -80,9 +80,6 @@ class AudioProvider:
         - cookie_file: The path to a file containing cookies to be used by YTDL.
         - search_query: The query to use when searching for songs.
         - filter_results: Whether to filter results.
-
-        ### Errors
-        - raises `NotImplementedError` if self.name is not set.
         """
 
         self.output_format = output_format
