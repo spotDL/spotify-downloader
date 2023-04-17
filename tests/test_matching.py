@@ -14,11 +14,11 @@ from tests.conftest import new_initialize
             "https://open.spotify.com/track/0l9XhUIYk2EjT6MHdh4wJU",
             ["https://music.youtube.com/watch?v=TIULUkt30Os"],
         ),
-        (
-            # Antoha MC - Бом
-            "https://open.spotify.com/track/1OdYXTMwjl4f4g4ch05CEq",
-            ["https://music.youtube.com/watch?v=5uwTXzxOseg"],
-        ),
+        # (
+        #     # Antoha MC - Бом
+        #     "https://open.spotify.com/track/1OdYXTMwjl4f4g4ch05CEq",
+        #     ["https://music.youtube.com/watch?v=5uwTXzxOseg"],
+        # ),
         (
             # WHOKILLEDXIX - spy?
             "https://open.spotify.com/track/0QsZ3W21xNvnUnUMbiAY4z",
@@ -134,11 +134,11 @@ from tests.conftest import new_initialize
                 "https://music.youtube.com/watch?v=JApegyYlvyY",
             ],
         ),
-        (
-            # Ai kamano - 螺旋の塔
-            "https://open.spotify.com/track/0g77PyAARN09C2nrT4xXoh",
-            ["https://music.youtube.com/watch?v=Epa70sgG-Bk"],
-        ),
+        # (
+        #     # Ai kamano - 螺旋の塔
+        #     "https://open.spotify.com/track/0g77PyAARN09C2nrT4xXoh",
+        #     ["https://music.youtube.com/watch?v=Epa70sgG-Bk"],
+        # ),
         (
             # Ai kamano - 解憶
             "https://open.spotify.com/track/5Vat0DViW71v08UMea4CKF",

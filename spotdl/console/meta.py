@@ -10,6 +10,7 @@ from typing import List
 from spotdl.download.downloader import Downloader
 from spotdl.types.song import Song
 from spotdl.utils.ffmpeg import FFMPEG_FORMATS
+from spotdl.utils.lrc import generate_lrc
 from spotdl.utils.metadata import embed_metadata, get_file_metadata
 from spotdl.utils.search import QueryError, get_search_results, reinit_song
 
@@ -65,6 +66,24 @@ def meta(query: List[str], downloader: Downloader) -> None:
                 and song_meta.get("album_art")
             ):
                 logger.info("Song already has metadata: %s", file.name)
+                if downloader.settings["generate_lrc"]:
+                    lrc_file = file.with_suffix(".lrc")
+                    if lrc_file.exists():
+                        logger.info("Lrc file already exists for %s", file.name)
+                        return None
+
+                    song = Song.from_missing_data(
+                        name=song_meta["name"],
+                        artists=song_meta["artists"],
+                        artist=song_meta["artist"],
+                    )
+
+                    generate_lrc(song, file)
+                    if lrc_file.exists():
+                        logger.info("Saved lrc file for %s", song.display_name)
+                    else:
+                        logger.info("Could not find lrc file for %s", song.display_name)
+
                 return None
 
         # Same as above
@@ -113,6 +132,18 @@ def meta(query: List[str], downloader: Downloader) -> None:
         embed_metadata(file, song)
 
         logger.info("Applied metadata to %s", file.name)
+
+        if downloader.settings["generate_lrc"]:
+            lrc_file = file.with_suffix(".lrc")
+            if lrc_file.exists():
+                logger.info("Lrc file already exists for %s", file.name)
+                return None
+
+            generate_lrc(song, file)
+            if lrc_file.exists():
+                logger.info("Saved lrc file for %s", song.display_name)
+            else:
+                logger.info("Could not find lrc file for %s", song.display_name)
 
         return None
 

@@ -8,12 +8,14 @@ from spotdl.providers.audio.base import (
     AudioProviderError,
     YTDLLogger,
 )
+from spotdl.providers.audio.sliderkz import SliderKZ
 from spotdl.providers.audio.youtube import YouTube
 from spotdl.providers.audio.ytmusic import YouTubeMusic
 
 __all__ = [
     "YouTube",
     "YouTubeMusic",
+    "SliderKZ",
     "AudioProvider",
     "AudioProviderError",
     "YTDLLogger",

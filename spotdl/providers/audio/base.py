@@ -70,7 +70,6 @@ class AudioProvider:
         cookie_file: Optional[str] = None,
         search_query: Optional[str] = None,
         filter_results: bool = True,
-        geo_bypass: bool = False,
     ) -> None:
         """
         Base class for audio providers.
@@ -81,16 +80,12 @@ class AudioProvider:
         - cookie_file: The path to a file containing cookies to be used by YTDL.
         - search_query: The query to use when searching for songs.
         - filter_results: Whether to filter results.
-
-        ### Errors
-        - raises `NotImplementedError` if self.name is not set.
         """
 
         self.output_format = output_format
         self.cookie_file = cookie_file
         self.search_query = search_query
         self.filter_results = filter_results
-        self.geo_bypass = geo_bypass
 
         if self.output_format == "m4a":
             ytdl_format = "bestaudio[ext=m4a]/bestaudio/best"
@@ -109,7 +104,6 @@ class AudioProvider:
                 "cookiefile": self.cookie_file,
                 "outtmpl": f"{get_temp_path()}/%(id)s.%(ext)s",
                 "retries": 5,
-                "geo_bypass": self.geo_bypass,
             }
         )
 

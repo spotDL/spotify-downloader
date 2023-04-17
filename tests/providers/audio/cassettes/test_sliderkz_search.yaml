@@ -1,0 +1,91 @@
+interactions:
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate, br
+      Connection:
+      - keep-alive
+      User-Agent:
+      - Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/111.0
+    method: GET
+    uri: https://slider.kz/vk_auth.php?q=abstrakt%20-%20nobody%20else
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAACA+PlqlZKLE3JzC9WsqpWUrKKrq6Nra0FACnH4yIWAAAA
+    headers:
+      Connection:
+      - keep-alive
+      Content-Encoding:
+      - gzip
+      Content-Type:
+      - application/json;charset=utf-8
+      Date:
+      - Sat, 15 Apr 2023 15:53:56 GMT
+      Server:
+      - nginx/1.23.2
+      Transfer-Encoding:
+      - chunked
+      Vary:
+      - Accept-Encoding
+      X-Powered-By:
+      - PHP/8.1.13
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate, br
+      Connection:
+      - keep-alive
+      User-Agent:
+      - Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/111.0
+    method: GET
+    uri: https://slider.kz/vk_auth.php?q=abstrakt%20-%20nobody%20else
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAACA9XUSW+jSBiA4ftI8x8sTokUYvYyuYFtdjCbMbjdstgcMJvNZnCU/95Oui/RRNMz
+        fcvlOxSU0Es98PdfL5DfRWnVQE8vEPT07QVKI+gJIgBB0DRKkHuCpChAUBQFPUBRV/ttWpXQE0ph
+        D1Cbtnu/bm+3M0HT1n7WTuCJVgVVNE6WeRPfdnR1fructO2pedpNd9OwweBZTzz2WdfE9fuTH8u4
+        3U2b3bRHd1M/LE67qakfLcd2fCcrakYwpLL3r4kNNgOX6utlEiWLLBJFnHSblIqwSOZ6GexllW14
+        7ipXSy9dC5VIgauwphD+Ono5O6dUjjrUMnXQdG1c0OWsSYvSlXpZfh5XZosnjD8otJ0UJXLNCFTc
+        6LgfLc6uwhxiw511VEfUnQHgdQq2cyXa1nOug82SyflsbzTMY3HCf76gt95flV++6lYUD7eDvSUh
+        0OvDLxsYgiAETqDI7A0HRhAoQfwnHHe7DiEw9G0S2NvEZ+8zeF8JJ6y6uf8o6E5bbiYYgmH3n1qi
+        YfS3llQm1Ym9rffPClYsMYViVfRKG0gitl4l2WcKNrP1XKq3euFz2PJ5tO3E2iZAEY9ScmEDjafM
+        hKHL1X4UdHDywGXbGfXSKXBpyJhTZRwEQzPU4Czwfa+iooZfgQRj3PZQhq4EIqlVj2Rl8Y5UeqiR
+        WmWxoPGZxx/nDEiVec6ZjWI7rltdgOZs/CL/h6X3yi9f9bklisRICqGJn5IQfIb+/9/M5Js2tyZm
+        nMd+E3//BMqp+TclxQnbTS0J9rSBWpzhZVQPLOPtwzzImsy0ElF0VkfuXClZP09lgHEFP1NDGiGZ
+        RhPA2PB2EsOpuPZJodJxnGAXa7wR1ZEtY7ut+ALv1cSJDUOakdFBby9hr9DDaIWHfY6hl5ozjzSd
+        p1QaSM0s4bLRWoTy9YwuSiZ2Qhnbsp7VagVIyo8u3qK+YMTnDFAAEOx22ODdASAJDPyBg7tVnT6n
+        pZ9P1HS4/zMI/FY+RHITB6Im7ivfpEdt4ThVGHiDvt0cQqPh9mYUj8WqEq7nvRrRjK5Vrq1qVrkY
+        zt3tG3KKlRMnx1R3t0JVkZ47BBy69Nnh+ShE7LlbDoQDIsGlD3gVB6xyVnQjcuErx1Cjj/b52jh6
+        3WyOL6JQbPV1U86dkUthxcaG3j1zRfpbCF8h4iOE76+vPwDyEhociwgAAA==
+    headers:
+      Connection:
+      - keep-alive
+      Content-Encoding:
+      - gzip
+      Content-Type:
+      - application/json;charset=utf-8
+      Date:
+      - Sat, 15 Apr 2023 15:53:57 GMT
+      Server:
+      - nginx/1.23.2
+      Transfer-Encoding:
+      - chunked
+      Vary:
+      - Accept-Encoding
+      X-Powered-By:
+      - PHP/8.1.13
+    status:
+      code: 200
+      message: OK
+version: 1
