@@ -1048,6 +1048,20 @@
   
   
     <li class="md-nav__item">
+      <a href="../../providers/audio/sliderkz/" class="md-nav__link">
+        sliderkz
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../providers/audio/ytmusic/" class="md-nav__link">
         ytmusic
       </a>
@@ -1253,6 +1267,20 @@
     <li class="md-nav__item">
       <a href="../archive/" class="md-nav__link">
         archive
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../lrc/" class="md-nav__link">
+        lrc
       </a>
     </li>
   
@@ -1720,7 +1748,7 @@
 
   <div class="doc doc-contents ">
   
-      <p>Create an m3u filename from the query.</p>
+      <p>Create an m3u8 filename from the query.</p>
 <h5 id="spotdl.utils.m3u.gen_m3u_files--arguments">Arguments<a class="headerlink" href="#spotdl.utils.m3u.gen_m3u_files--arguments" title="Permanent link">¤</a></h5>
 <ul>
 <li>query: the query</li>
@@ -1823,7 +1851,7 @@
     <span class="n">short</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Create an m3u filename from the query.</span>
+<span class="sd">    Create an m3u8 filename from the query.</span>
 
 <span class="sd">    ### Arguments</span>
 <span class="sd">    - query: the query</span>
@@ -1837,20 +1865,20 @@
 
     <span class="c1"># If no file name is provided, use the first list&#39;s name</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">file_name</span><span class="p">:</span>
-        <span class="n">file_name</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{list[0]}</span><span class="s2">.m3u&quot;</span>
+        <span class="n">file_name</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{list[0]}</span><span class="s2">.m3u8&quot;</span>
 
-    <span class="c1"># If file_name ends with a slash. Does not have a m3u name with extension</span>
+    <span class="c1"># If file_name ends with a slash. Does not have a m3u8 name with extension</span>
     <span class="c1"># at the end of the template, append `{list[0]}`` to it</span>
     <span class="k">if</span> <span class="p">(</span>
         <span class="n">file_name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
         <span class="ow">or</span> <span class="n">file_name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;</span><span class="se">\\</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="ow">or</span> <span class="n">file_name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\\\\</span><span class="s2">&quot;</span><span class="p">)</span>
     <span class="p">):</span>
-        <span class="n">file_name</span> <span class="o">+=</span> <span class="s2">&quot;/</span><span class="si">{list[0]}</span><span class="s2">.m3u&quot;</span>
+        <span class="n">file_name</span> <span class="o">+=</span> <span class="s2">&quot;/</span><span class="si">{list[0]}</span><span class="s2">.m3u8&quot;</span>
 
-    <span class="c1"># Check if the file name ends with .m3u</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">file_name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.m3u&quot;</span><span class="p">):</span>
-        <span class="n">file_name</span> <span class="o">+=</span> <span class="s2">&quot;.m3u&quot;</span>
+    <span class="c1"># Check if the file name ends with .m3u or .m3u8</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">file_name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.m3u&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">file_name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.m3u8&quot;</span><span class="p">):</span>
+        <span class="n">file_name</span> <span class="o">+=</span> <span class="s2">&quot;.m3u8&quot;</span>
 
     <span class="n">lists_object</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Song</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">for</span> <span class="n">song</span> <span class="ow">in</span> <span class="n">songs</span><span class="p">:</span>

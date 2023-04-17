@@ -1048,6 +1048,20 @@
   
   
     <li class="md-nav__item">
+      <a href="../../providers/audio/sliderkz/" class="md-nav__link">
+        sliderkz
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../providers/audio/ytmusic/" class="md-nav__link">
         ytmusic
       </a>
@@ -1496,6 +1510,20 @@
   
   
     <li class="md-nav__item">
+      <a href="../lrc/" class="md-nav__link">
+        lrc
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../config/" class="md-nav__link">
         config
       </a>
@@ -1701,7 +1729,15 @@
 
       <details class="quote">
         <summary>Source code in <code>spotdl/utils/arguments.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">600</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">592</span>
+<span class="normal">593</span>
+<span class="normal">594</span>
+<span class="normal">595</span>
+<span class="normal">596</span>
+<span class="normal">597</span>
+<span class="normal">598</span>
+<span class="normal">599</span>
+<span class="normal">600</span>
 <span class="normal">601</span>
 <span class="normal">602</span>
 <span class="normal">603</span>
@@ -1740,15 +1776,7 @@
 <span class="normal">636</span>
 <span class="normal">637</span>
 <span class="normal">638</span>
-<span class="normal">639</span>
-<span class="normal">640</span>
-<span class="normal">641</span>
-<span class="normal">642</span>
-<span class="normal">643</span>
-<span class="normal">644</span>
-<span class="normal">645</span>
-<span class="normal">646</span>
-<span class="normal">647</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">create_parser</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">ArgumentParser</span><span class="p">:</span>
+<span class="normal">639</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">create_parser</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">ArgumentParser</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Parse arguments from the command line.</span>
 
@@ -1826,22 +1854,22 @@
 
       <details class="quote">
         <summary>Source code in <code>spotdl/utils/arguments.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">650</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">642</span>
+<span class="normal">643</span>
+<span class="normal">644</span>
+<span class="normal">645</span>
+<span class="normal">646</span>
+<span class="normal">647</span>
+<span class="normal">648</span>
+<span class="normal">649</span>
+<span class="normal">650</span>
 <span class="normal">651</span>
 <span class="normal">652</span>
 <span class="normal">653</span>
 <span class="normal">654</span>
 <span class="normal">655</span>
 <span class="normal">656</span>
-<span class="normal">657</span>
-<span class="normal">658</span>
-<span class="normal">659</span>
-<span class="normal">660</span>
-<span class="normal">661</span>
-<span class="normal">662</span>
-<span class="normal">663</span>
-<span class="normal">664</span>
-<span class="normal">665</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">parse_arguments</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Namespace</span><span class="p">:</span>
+<span class="normal">657</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">parse_arguments</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Namespace</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Parse arguments from the command line.</span>
 
@@ -2298,15 +2326,7 @@
 <span class="normal">547</span>
 <span class="normal">548</span>
 <span class="normal">549</span>
-<span class="normal">550</span>
-<span class="normal">551</span>
-<span class="normal">552</span>
-<span class="normal">553</span>
-<span class="normal">554</span>
-<span class="normal">555</span>
-<span class="normal">556</span>
-<span class="normal">557</span>
-<span class="normal">558</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">parse_misc_options</span><span class="p">(</span><span class="n">parser</span><span class="p">:</span> <span class="n">_ArgumentGroup</span><span class="p">):</span>
+<span class="normal">550</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">parse_misc_options</span><span class="p">(</span><span class="n">parser</span><span class="p">:</span> <span class="n">_ArgumentGroup</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Parse misc options from the command line.</span>
 
@@ -2327,14 +2347,6 @@
         <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_const&quot;</span><span class="p">,</span>
         <span class="n">const</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Use a simple tui.&quot;</span><span class="p">,</span>
-    <span class="p">)</span>
-
-    <span class="c1"># Add geo bypass argument</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--geo-bypass&quot;</span><span class="p">,</span>
-        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_const&quot;</span><span class="p">,</span>
-        <span class="n">const</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Bypass geo restrictions.&quot;</span><span class="p">,</span>
     <span class="p">)</span>
 </code></pre></div></td></tr></table></div>
       </details>
@@ -2362,7 +2374,15 @@
 
       <details class="quote">
         <summary>Source code in <code>spotdl/utils/arguments.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">561</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">553</span>
+<span class="normal">554</span>
+<span class="normal">555</span>
+<span class="normal">556</span>
+<span class="normal">557</span>
+<span class="normal">558</span>
+<span class="normal">559</span>
+<span class="normal">560</span>
+<span class="normal">561</span>
 <span class="normal">562</span>
 <span class="normal">563</span>
 <span class="normal">564</span>
@@ -2390,15 +2410,7 @@
 <span class="normal">586</span>
 <span class="normal">587</span>
 <span class="normal">588</span>
-<span class="normal">589</span>
-<span class="normal">590</span>
-<span class="normal">591</span>
-<span class="normal">592</span>
-<span class="normal">593</span>
-<span class="normal">594</span>
-<span class="normal">595</span>
-<span class="normal">596</span>
-<span class="normal">597</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">parse_other_options</span><span class="p">(</span><span class="n">parser</span><span class="p">:</span> <span class="n">_ArgumentGroup</span><span class="p">):</span>
+<span class="normal">589</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">parse_other_options</span><span class="p">(</span><span class="n">parser</span><span class="p">:</span> <span class="n">_ArgumentGroup</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Parse other options from the command line.</span>
 
@@ -2696,13 +2708,13 @@
         <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;?&quot;</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="p">(</span>
             <span class="s2">&quot;Name of the m3u file to save the songs to. &quot;</span>
-            <span class="s2">&quot;Defaults to </span><span class="si">{list[0]}</span><span class="s2">.m3u &quot;</span>
+            <span class="s2">&quot;Defaults to </span><span class="si">{list[0]}</span><span class="s2">.m3u8 &quot;</span>
             <span class="s2">&quot;If you want to generate a m3u for each list in the query use </span><span class="si">{list}</span><span class="s2">, &quot;</span>
             <span class="s2">&quot;If you want to generate a m3u file based on the first list in the query use </span><span class="si">{list[0]}</span><span class="s2">&quot;</span>
             <span class="s2">&quot;, (0 is the first list in the query, 1 is the second, etc. &quot;</span>
             <span class="s2">&quot;songs don&#39;t count towards the list number) &quot;</span>
         <span class="p">),</span>
-        <span class="n">const</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">{list[0]}</span><span class="s2">.m3u&quot;</span><span class="p">,</span>
+        <span class="n">const</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">{list[0]}</span><span class="s2">.m3u8&quot;</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="c1"># Add cookie file argument</span>
