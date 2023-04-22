@@ -52,11 +52,12 @@ def new_initialize(
     no_cache=True,
     headless=True,
     max_retries=3,
+    use_cache_file=False,
 ):
     """This function allows calling `initialize()` multiple times"""
     try:
         return SpotifyClient()
-    except:
+    except Exception:
         return ORIGINAL_INITIALIZE(
             client_id=client_id,
             client_secret=client_secret,
@@ -66,6 +67,7 @@ def new_initialize(
             no_cache=no_cache,
             headless=headless,
             max_retries=max_retries,
+            use_cache_file=use_cache_file,
         )
 
 
