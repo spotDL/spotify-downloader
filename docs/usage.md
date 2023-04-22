@@ -365,6 +365,8 @@ Spotify options:
   --max-retries MAX_RETRIES
                         The maximum number of retries to perform when getting metadata.
   --headless            Run in headless mode.
+  --use-cache-file      Use the cache file to get metadata. It's located under C:\Users\user\.spotdl\.spotify_cache or ~/.spotdl/.spotify_cache under linux. It only caches tracks and gets updated whenever spotDL gets
+                        metadata from Spotify. (It may provide outdated metadata use with caution)
 
 FFmpeg options:
   --ffmpeg FFMPEG       The ffmpeg executable to use.
@@ -387,7 +389,7 @@ Output options:
                         in the query use {list[0]}, (0 is the first list in the query, 1 is the second, etc. songs don't count towards the list number)
   --cookie-file COOKIE_FILE
                         Path to cookies file.
-  --overwrite {force,metadata,skip}
+  --overwrite {metadata,skip,force}
                         How to handle existing/duplicate files. (When combined with --scan-for-songs force will remove all duplicates, and metadata will only apply metadata to the latest song and will remove the rest. )
   --restrict            Restrict filenames to ASCII only
   --print-errors        Print errors (wrong songs, failed downloads etc) on exit, useful for long playlist

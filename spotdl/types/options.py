@@ -33,6 +33,7 @@ class SpotifyOptions(TypedDict):
     cache_path: str
     no_cache: bool
     max_retries: int
+    use_cache_file: bool
 
 
 class DownloaderOptions(TypedDict):
@@ -107,6 +108,7 @@ class SpotifyOptionalOptions(TypedDict, total=False):
     cache_path: str
     no_cache: bool
     max_retries: int
+    use_cache_file: bool
 
 
 class DownloaderOptionalOptions(TypedDict, total=False):

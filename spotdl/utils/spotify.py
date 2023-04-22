@@ -8,7 +8,8 @@ spotify.Spotify.init(client_id, client_secret)
 ```
 """
 
-from json import dumps
+import json
+import logging
 from typing import Dict, Optional
 
 import requests
@@ -16,12 +17,15 @@ from spotipy import Spotify
 from spotipy.cache_handler import CacheFileHandler, MemoryCacheHandler
 from spotipy.oauth2 import SpotifyClientCredentials, SpotifyOAuth
 
-from spotdl.utils.config import get_cache_path
+from spotdl.utils.config import get_cache_path, get_spotify_cache_path
 
 __all__ = [
     "SpotifyError",
     "SpotifyClient",
+    "save_spotify_cache",
 ]
+
+logger = logging.getLogger(__name__)
 
 
 class SpotifyError(Exception):
@@ -62,6 +66,7 @@ class Singleton(type):
         no_cache: bool = False,
         headless: bool = False,
         max_retries: int = 3,
+        use_cache_file: bool = False,
         auth_token: Optional[str] = None,
         cache_path: Optional[str] = None,
     ) -> "Singleton":
@@ -115,6 +120,7 @@ class Singleton(type):
         self.user_auth = user_auth
         self.no_cache = no_cache
         self.max_retries = max_retries
+        self.use_cache_file = use_cache_file
 
         # Create instance
         self._instance = super().__call__(
@@ -149,6 +155,16 @@ class SpotifyClient(Spotify, metaclass=Singleton):
         super().__init__(*args, **kwargs)
         self._initialized = True
 
+        use_cache_file: bool = self.use_cache_file  # type: ignore # pylint: disable=E1101
+        cache_file_loc = get_spotify_cache_path()
+
+        if use_cache_file and cache_file_loc.exists():
+            with open(cache_file_loc, "r", encoding="utf-8") as cache_file:
+                self.cache = json.load(cache_file)
+        elif use_cache_file:
+            with open(cache_file_loc, "w", encoding="utf-8") as cache_file:
+                json.dump(self.cache, cache_file)
+
     def _get(self, url, args=None, payload=None, **kwargs):
         """
         Overrides the get method of the SpotifyClient.
@@ -164,8 +180,8 @@ class SpotifyClient(Spotify, metaclass=Singleton):
         if use_cache:
             key_obj = dict(kwargs)
             key_obj["url"] = url
-            key_obj["data"] = dumps(payload)
-            cache_key = dumps(key_obj)
+            key_obj["data"] = json.dumps(payload)
+            cache_key = json.dumps(key_obj)
             if self.cache.get(cache_key) is not None:
                 return self.cache[cache_key]
 
@@ -184,3 +200,26 @@ class SpotifyClient(Spotify, metaclass=Singleton):
             self.cache[cache_key] = response
 
         return response
+
+
+def save_spotify_cache(cache: Dict[str, Optional[Dict]]):
+    """
+    Saves the Spotify cache to a file.
+
+    ### Arguments
+    - cache: The cache to save.
+    """
+
+    cache_file_loc = get_spotify_cache_path()
+
+    logger.debug("Saving Spotify cache to %s", cache_file_loc)
+
+    # Only cache tracks
+    cache = {
+        key: value
+        for key, value in cache.items()
+        if value is not None and '"url": "tracks/' in key
+    }
+
+    with open(cache_file_loc, "w", encoding="utf-8") as cache_file:
+        json.dump(cache, cache_file)

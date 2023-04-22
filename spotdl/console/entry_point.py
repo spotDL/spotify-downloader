@@ -18,7 +18,7 @@ from spotdl.utils.config import create_settings
 from spotdl.utils.console import ACTIONS, generate_initial_config, is_executable
 from spotdl.utils.ffmpeg import FFmpegError, download_ffmpeg, is_ffmpeg_installed
 from spotdl.utils.logging import init_logging
-from spotdl.utils.spotify import SpotifyClient, SpotifyError
+from spotdl.utils.spotify import SpotifyClient, SpotifyError, save_spotify_cache
 
 __all__ = ["console_entry_point", "OPERATIONS"]
 
@@ -77,6 +77,7 @@ def console_entry_point():
 
     # Initialize spotify client
     SpotifyClient.init(**spotify_settings)
+    spotify_client = SpotifyClient()
 
     # If the application is frozen start web ui
     # or if the operation is `web`
@@ -108,6 +109,9 @@ def console_entry_point():
     downloader = Downloader(downloader_settings)
 
     def graceful_exit(_signal, _frame):
+        if spotify_settings["use_cache_file"]:
+            save_spotify_cache(spotify_client.cache)
+
         downloader.progress_handler.close()
         sys.exit(0)
 
@@ -127,6 +131,9 @@ def console_entry_point():
         logger.exception("An error occurred")
 
         sys.exit(1)
+
+    if spotify_settings["use_cache_file"]:
+        save_spotify_cache(spotify_client.cache)
 
     downloader.progress_handler.close()
 

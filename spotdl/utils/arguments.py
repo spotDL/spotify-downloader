@@ -225,6 +225,21 @@ def parse_spotify_options(parser: _ArgumentGroup):
         help="Run in headless mode.",
     )
 
+    # Add use cache file argument
+    parser.add_argument(
+        "--use-cache-file",
+        action="store_const",
+        const=True,
+        help=(
+            "Use the cache file to get metadata. "
+            "It's located under C:\\Users\\user\\.spotdl\\.spotify_cache "
+            "or ~/.spotdl/.spotify_cache under linux. "
+            "It only caches tracks and "
+            "gets updated whenever spotDL gets metadata from Spotify. "
+            "(It may provide outdated metadata use with caution)"
+        ),
+    )
+
 
 def parse_ffmpeg_options(parser: _ArgumentGroup):
     """
