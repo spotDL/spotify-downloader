@@ -286,6 +286,7 @@ def create_file_name(
     file_extension: str,
     restrict: bool = False,
     short: bool = False,
+    file_name_length: Optional[int] = None,
 ) -> Path:
     """
     Create the file name for the song, by replacing template variables with the actual values.
@@ -296,6 +297,7 @@ def create_file_name(
     - file_extension: the file extension to use
     - restrict: whether to sanitize the filename
     - short: whether to use the short version of the template
+    - file_name_length: the maximum length of the file name
 
     ### Returns
     - the formatted string as a Path object
@@ -340,22 +342,24 @@ def create_file_name(
     # Join the parts of the path
     file = Path(*santitized_parts)
 
-    # Check if the file name length is greater than 255
-    if len(file.name) < 255:
+    length_limit = file_name_length or 255
+
+    # Check if the file name length is greater than the limit
+    if len(file.name) < length_limit:
         # Restrict the filename if needed
         if restrict:
             return restrict_filename(file)
 
         return file
 
-    # If the file name length is greater than 255,
+    # If the file name length is greater than ,
     # and we are already using the short version of the template,
     # fallback to default template
     if short is True:
         # Path template is already short, but we still can't create a file
         # so we reduce it even further
         if template == "{artist} - {title}.{output-ext}":
-            if len(song.name) > 240:
+            if len(song.name) > (length_limit * 0.80):
                 logger.warning(
                     "%s: File name is too long. Using only part of the song title.",
                     song.display_name,
@@ -364,7 +368,7 @@ def create_file_name(
                 name_parts = song.name.split(" ")
                 new_name = ""
                 for part in name_parts:
-                    if len(new_name) + len(part) < 240:
+                    if len(new_name) + len(part) < (length_limit * 0.80):
                         new_name += part + " "
                     else:
                         break

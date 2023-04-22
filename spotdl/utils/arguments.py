@@ -149,6 +149,14 @@ def parse_main_options(parser: _ArgumentGroup):
         help="Disable filtering results.",
     )
 
+    # Add use only verified results argument
+    parser.add_argument(
+        "--only-verified-results",
+        action="store_const",
+        const=True,
+        help="Use only verified results. (Not all providers support this)",
+    )
+
 
 def parse_spotify_options(parser: _ArgumentGroup):
     """
@@ -215,6 +223,21 @@ def parse_spotify_options(parser: _ArgumentGroup):
         action="store_const",
         const=True,
         help="Run in headless mode.",
+    )
+
+    # Add use cache file argument
+    parser.add_argument(
+        "--use-cache-file",
+        action="store_const",
+        const=True,
+        help=(
+            "Use the cache file to get metadata. "
+            "It's located under C:\\Users\\user\\.spotdl\\.spotify_cache "
+            "or ~/.spotdl/.spotify_cache under linux. "
+            "It only caches tracks and "
+            "gets updated whenever spotDL gets metadata from Spotify. "
+            "(It may provide outdated metadata use with caution)"
+        ),
     )
 
 
@@ -466,6 +489,24 @@ def parse_output_options(parser: _ArgumentGroup):
         action="store_const",
         const=True,
         help="Force update metadata for songs that already have metadata.",
+    )
+
+    # Sync without deleting
+    parser.add_argument(
+        "--sync-without-deleting",
+        action="store_const",
+        const=True,
+        help="Sync without deleting songs that are not in the query.",
+    )
+
+    # Max file name length
+    parser.add_argument(
+        "--max-filename-length",
+        type=int,
+        help=(
+            "Max file name length. "
+            "(This won't override the max file name length enforced by the OS)"
+        ),
     )
 
 

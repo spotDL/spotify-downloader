@@ -90,6 +90,17 @@ def get_cache_path() -> Path:
     return get_spotdl_path() / ".spotipy"
 
 
+def get_spotify_cache_path() -> Path:
+    """
+    Get the path to the spotify cache folder.
+
+    ### Returns
+    - The path to the spotipy cache file.
+    """
+
+    return get_spotdl_path() / ".spotify_cache"
+
+
 def get_temp_path() -> Path:
     """
     Get the path to the temp folder.
@@ -228,6 +239,7 @@ SPOTIFY_OPTIONS: SpotifyOptions = {
     "cache_path": str(get_cache_path()),
     "no_cache": False,
     "max_retries": 3,
+    "use_cache_file": False,
 }
 
 DOWNLOADER_OPTIONS: DownloaderOptions = {
@@ -261,6 +273,9 @@ DOWNLOADER_OPTIONS: DownloaderOptions = {
     "add_unavailable": False,
     "generate_lrc": False,
     "force_update_metadata": False,
+    "only_verified_results": False,
+    "sync_without_deleting": False,
+    "max_filename_length": None,
 }
 
 WEB_OPTIONS: WebOptions = {

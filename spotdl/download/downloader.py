@@ -327,7 +327,7 @@ class Downloader:
         """
 
         for audio_provider in self.audio_providers:
-            url = audio_provider.search(song)
+            url = audio_provider.search(song, self.settings["only_verified_results"])
             if url:
                 return url
 
@@ -379,38 +379,40 @@ class Downloader:
 
         # Check if song has name/artist and url/song_id
         if not (song.name and (song.artists or song.artist)) and not (
-            song.url and song.song_id
+            song.url or song.song_id
         ):
             logger.error("Song is missing required fields: %s", song.display_name)
             self.errors.append(f"Song is missing required fields: {song.display_name}")
 
             return song, None
 
+        reinitialized = False
+        try:
+            # Create the output file path
+            output_file = create_file_name(
+                song=song,
+                template=self.settings["output"],
+                file_extension=self.settings["format"],
+                restrict=self.settings["restrict"],
+                file_name_length=self.settings["max_filename_length"],
+            )
+        except Exception:
+            song = reinit_song(song)
+
+            output_file = create_file_name(
+                song=song,
+                template=self.settings["output"],
+                file_extension=self.settings["format"],
+                restrict=self.settings["restrict"],
+                file_name_length=self.settings["max_filename_length"],
+            )
+
+            reinitialized = True
+
         # Initalize the progress tracker
         display_progress_tracker = self.progress_handler.get_new_tracker(song)
 
         try:
-            reinitialized = False
-            try:
-                # Create the output file path
-                output_file = create_file_name(
-                    song,
-                    self.settings["output"],
-                    self.settings["format"],
-                    self.settings["restrict"],
-                )
-            except Exception:
-                song = reinit_song(song)
-
-                output_file = create_file_name(
-                    song,
-                    self.settings["output"],
-                    self.settings["format"],
-                    self.settings["restrict"],
-                )
-
-                reinitialized = True
-
             # Create the temp folder path
             temp_folder = get_temp_path()
 

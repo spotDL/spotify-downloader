@@ -33,6 +33,7 @@ class SpotifyOptions(TypedDict):
     cache_path: str
     no_cache: bool
     max_retries: int
+    use_cache_file: bool
 
 
 class DownloaderOptions(TypedDict):
@@ -70,6 +71,9 @@ class DownloaderOptions(TypedDict):
     add_unavailable: bool
     generate_lrc: bool
     force_update_metadata: bool
+    only_verified_results: bool
+    sync_without_deleting: bool
+    max_filename_length: Optional[int]
 
 
 class WebOptions(TypedDict):
@@ -104,6 +108,7 @@ class SpotifyOptionalOptions(TypedDict, total=False):
     cache_path: str
     no_cache: bool
     max_retries: int
+    use_cache_file: bool
 
 
 class DownloaderOptionalOptions(TypedDict, total=False):
@@ -141,6 +146,9 @@ class DownloaderOptionalOptions(TypedDict, total=False):
     add_unavailable: bool
     generate_lrc: bool
     force_update_metadata: bool
+    only_verified_results: bool
+    sync_without_deleting: bool
+    max_filename_length: Optional[int]
 
 
 class WebOptionalOptions(TypedDict, total=False):

@@ -281,7 +281,8 @@ If you don't want config to load automatically change `load_config` option in co
     "host": "localhost",
     "keep_alive": false,
     "allowed_origins": null,
-    "keep_sessions": false
+    "keep_sessions": false,
+    "only_verified_results": false
 }
 ```
 
@@ -337,7 +338,7 @@ Main options:
                         You can only use album/playlist/tracks urls when downloading/matching youtube urls.
                         When using youtube url without spotify url, you won't be able to use `--fetch-albums` option.
 
-  --audio [{youtube,youtube-music} ...]
+  --audio [{youtube,youtube-music,slider-kz} ...]
                         The audio provider to use. You can provide more than one for fallback.
   --lyrics [{genius,musixmatch,azlyrics,synced} ...]
                         The lyrics provider to use. You can provide more than one for fallback. Synced lyrics might not work correctly with some music players. For such cases it's better to use `--generate-lrc` option.
@@ -347,6 +348,8 @@ Main options:
                         {tracks-count}, {isrc}, {track-id}, {publisher}, {list-length}, {list-position}, {list-name}, {output-ext}
   --dont-filter-results
                         Disable filtering results.
+  --only-verified-results
+                        Use only verified results. (Not all providers support this)
 
 Spotify options:
   --user-auth           Login to Spotify using OAuth.
@@ -362,6 +365,8 @@ Spotify options:
   --max-retries MAX_RETRIES
                         The maximum number of retries to perform when getting metadata.
   --headless            Run in headless mode.
+  --use-cache-file      Use the cache file to get metadata. It's located under C:\Users\user\.spotdl\.spotify_cache or ~/.spotdl/.spotify_cache under linux. It only caches tracks and gets updated whenever spotDL gets
+                        metadata from Spotify. (It may provide outdated metadata use with caution)
 
 FFmpeg options:
   --ffmpeg FFMPEG       The ffmpeg executable to use.
@@ -384,7 +389,7 @@ Output options:
                         in the query use {list[0]}, (0 is the first list in the query, 1 is the second, etc. songs don't count towards the list number)
   --cookie-file COOKIE_FILE
                         Path to cookies file.
-  --overwrite {force,skip,metadata}
+  --overwrite {metadata,skip,force}
                         How to handle existing/duplicate files. (When combined with --scan-for-songs force will remove all duplicates, and metadata will only apply metadata to the latest song and will remove the rest. )
   --restrict            Restrict filenames to ASCII only
   --print-errors        Print errors (wrong songs, failed downloads etc) on exit, useful for long playlist
@@ -401,6 +406,10 @@ Output options:
   --generate-lrc        Generate lrc files for downloaded songs. Requires `synced` provider to be present in the lyrics providers list.
   --force-update-metadata
                         Force update metadata for songs that already have metadata.
+  --sync-without-deleting
+                        Sync without deleting songs that are not in the query.
+  --max-filename-length MAX_FILENAME_LENGTH
+                        Max file name length. (This won't override the max file name length enforced by the OS)
 
 Web options:
   --host HOST           The host to use for the web server.
