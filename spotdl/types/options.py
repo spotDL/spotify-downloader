@@ -72,6 +72,7 @@ class DownloaderOptions(TypedDict):
     force_update_metadata: bool
     only_verified_results: bool
     sync_without_deleting: bool
+    max_filename_length: Optional[int]
 
 
 class WebOptions(TypedDict):
@@ -145,6 +146,7 @@ class DownloaderOptionalOptions(TypedDict, total=False):
     force_update_metadata: bool
     only_verified_results: bool
     sync_without_deleting: bool
+    max_filename_length: Optional[int]
 
 
 class WebOptionalOptions(TypedDict, total=False):

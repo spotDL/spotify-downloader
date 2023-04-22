@@ -484,6 +484,16 @@ def parse_output_options(parser: _ArgumentGroup):
         help="Sync without deleting songs that are not in the query.",
     )
 
+    # Max file name length
+    parser.add_argument(
+        "--max-filename-length",
+        type=int,
+        help=(
+            "Max file name length. "
+            "(This won't override the max file name length enforced by the OS)"
+        ),
+    )
+
 
 def parse_web_options(parser: _ArgumentGroup):
     """

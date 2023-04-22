@@ -387,7 +387,7 @@ Output options:
                         in the query use {list[0]}, (0 is the first list in the query, 1 is the second, etc. songs don't count towards the list number)
   --cookie-file COOKIE_FILE
                         Path to cookies file.
-  --overwrite {skip,metadata,force}
+  --overwrite {force,metadata,skip}
                         How to handle existing/duplicate files. (When combined with --scan-for-songs force will remove all duplicates, and metadata will only apply metadata to the latest song and will remove the rest. )
   --restrict            Restrict filenames to ASCII only
   --print-errors        Print errors (wrong songs, failed downloads etc) on exit, useful for long playlist
@@ -406,6 +406,8 @@ Output options:
                         Force update metadata for songs that already have metadata.
   --sync-without-deleting
                         Sync without deleting songs that are not in the query.
+  --max-filename-length MAX_FILENAME_LENGTH
+                        Max file name length. (This won't override the max file name length enforced by the OS)
 
 Web options:
   --host HOST           The host to use for the web server.

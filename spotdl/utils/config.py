@@ -263,6 +263,7 @@ DOWNLOADER_OPTIONS: DownloaderOptions = {
     "force_update_metadata": False,
     "only_verified_results": False,
     "sync_without_deleting": False,
+    "max_filename_length": None,
 }
 
 WEB_OPTIONS: WebOptions = {

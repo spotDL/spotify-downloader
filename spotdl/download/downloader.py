@@ -390,19 +390,21 @@ class Downloader:
         try:
             # Create the output file path
             output_file = create_file_name(
-                song,
-                self.settings["output"],
-                self.settings["format"],
-                self.settings["restrict"],
+                song=song,
+                template=self.settings["output"],
+                file_extension=self.settings["format"],
+                restrict=self.settings["restrict"],
+                file_name_length=self.settings["max_filename_length"],
             )
         except Exception:
             song = reinit_song(song)
 
             output_file = create_file_name(
-                song,
-                self.settings["output"],
-                self.settings["format"],
-                self.settings["restrict"],
+                song=song,
+                template=self.settings["output"],
+                file_extension=self.settings["format"],
+                restrict=self.settings["restrict"],
+                file_name_length=self.settings["max_filename_length"],
             )
 
             reinitialized = True
