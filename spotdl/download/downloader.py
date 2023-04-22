@@ -379,7 +379,7 @@ class Downloader:
 
         # Check if song has name/artist and url/song_id
         if not (song.name and (song.artists or song.artist)) and not (
-            song.url and song.song_id
+            song.url or song.song_id
         ):
             logger.error("Song is missing required fields: %s", song.display_name)
             self.errors.append(f"Song is missing required fields: {song.display_name}")
