@@ -386,31 +386,31 @@ class Downloader:
 
             return song, None
 
+        reinitialized = False
+        try:
+            # Create the output file path
+            output_file = create_file_name(
+                song,
+                self.settings["output"],
+                self.settings["format"],
+                self.settings["restrict"],
+            )
+        except Exception:
+            song = reinit_song(song)
+
+            output_file = create_file_name(
+                song,
+                self.settings["output"],
+                self.settings["format"],
+                self.settings["restrict"],
+            )
+
+            reinitialized = True
+
         # Initalize the progress tracker
         display_progress_tracker = self.progress_handler.get_new_tracker(song)
 
         try:
-            reinitialized = False
-            try:
-                # Create the output file path
-                output_file = create_file_name(
-                    song,
-                    self.settings["output"],
-                    self.settings["format"],
-                    self.settings["restrict"],
-                )
-            except Exception:
-                song = reinit_song(song)
-
-                output_file = create_file_name(
-                    song,
-                    self.settings["output"],
-                    self.settings["format"],
-                    self.settings["restrict"],
-                )
-
-                reinitialized = True
-
             # Create the temp folder path
             temp_folder = get_temp_path()
 
