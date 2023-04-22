@@ -261,6 +261,7 @@ DOWNLOADER_OPTIONS: DownloaderOptions = {
     "add_unavailable": False,
     "generate_lrc": False,
     "force_update_metadata": False,
+    "only_verified_results": False,
 }
 
 WEB_OPTIONS: WebOptions = {

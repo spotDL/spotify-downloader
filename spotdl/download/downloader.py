@@ -327,7 +327,7 @@ class Downloader:
         """
 
         for audio_provider in self.audio_providers:
-            url = audio_provider.search(song)
+            url = audio_provider.search(song, self.settings["only_verified_results"])
             if url:
                 return url
 

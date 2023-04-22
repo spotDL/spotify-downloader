@@ -136,7 +136,7 @@ class AudioProvider:
 
         return data["view_count"]
 
-    def search(self, song: Song) -> Optional[str]:
+    def search(self, song: Song, only_verified: bool = False) -> Optional[str]:
         """
         Search for a song and return best match.
 
@@ -163,6 +163,9 @@ class AudioProvider:
             isrc_results = self.get_results(
                 song.isrc, filter="songs", ignore_spelling=True
             )
+
+            if only_verified:
+                isrc_results = [result for result in isrc_results if result.verified]
 
             isrc_urls = [result.url for result in isrc_results]
             sorted_isrc_results = order_results(isrc_results, song, self.search_query)
@@ -201,6 +204,12 @@ class AudioProvider:
             # Query YTM by songs only first, this way if we get correct result on the first try
             # we don't have to make another request
             search_results = self.get_results(search_query, **options)
+
+            if only_verified:
+                search_results = [
+                    result for result in search_results if result.verified
+                ]
+
             logger.debug(
                 "[%s] Found %s results for search query %s with options %s",
                 song.song_id,

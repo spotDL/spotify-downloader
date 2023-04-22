@@ -149,6 +149,14 @@ def parse_main_options(parser: _ArgumentGroup):
         help="Disable filtering results.",
     )
 
+    # Add use only verified results argument
+    parser.add_argument(
+        "--only-verified-results",
+        action="store_const",
+        const=True,
+        help="Use only verified results. (Not all providers support this)",
+    )
+
 
 def parse_spotify_options(parser: _ArgumentGroup):
     """
