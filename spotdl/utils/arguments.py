@@ -476,6 +476,14 @@ def parse_output_options(parser: _ArgumentGroup):
         help="Force update metadata for songs that already have metadata.",
     )
 
+    # Sync without deleting
+    parser.add_argument(
+        "--sync-without-deleting",
+        action="store_const",
+        const=True,
+        help="Sync without deleting songs that are not in the query.",
+    )
+
 
 def parse_web_options(parser: _ArgumentGroup):
     """

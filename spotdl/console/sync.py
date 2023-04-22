@@ -107,22 +107,25 @@ def sync(
         new_urls = [song.url for song in songs_playlist]
 
         # Delete all song files whose URL is no longer part of the latest playlist
-        to_delete = [path for (path, url) in old_files if url not in new_urls]
+        if not downloader.settings["sync_without_deleting"]:
+            to_delete = [path for (path, url) in old_files if url not in new_urls]
 
-        for file in to_delete:
-            if file.exists():
-                logger.info("Deleting %s", file)
-                try:
-                    file.unlink()
-                except (PermissionError, OSError) as exc:
-                    logger.debug("Could not remove temp file: %s, error: %s", file, exc)
+            for file in to_delete:
+                if file.exists():
+                    logger.info("Deleting %s", file)
+                    try:
+                        file.unlink()
+                    except (PermissionError, OSError) as exc:
+                        logger.debug(
+                            "Could not remove temp file: %s, error: %s", file, exc
+                        )
+                else:
+                    logger.debug("%s does not exist.", file)
+
+            if len(to_delete) == 0:
+                logger.info("Nothing to delete...")
             else:
-                logger.debug("%s does not exist.", file)
-
-        if len(to_delete) == 0:
-            logger.info("Nothing to delete...")
-        else:
-            logger.info("%s old songs were deleted.", len(to_delete))
+                logger.info("%s old songs were deleted.", len(to_delete))
 
         if m3u_file:
             gen_m3u_files(

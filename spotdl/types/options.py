@@ -71,6 +71,7 @@ class DownloaderOptions(TypedDict):
     generate_lrc: bool
     force_update_metadata: bool
     only_verified_results: bool
+    sync_without_deleting: bool
 
 
 class WebOptions(TypedDict):
@@ -143,6 +144,7 @@ class DownloaderOptionalOptions(TypedDict, total=False):
     generate_lrc: bool
     force_update_metadata: bool
     only_verified_results: bool
+    sync_without_deleting: bool
 
 
 class WebOptionalOptions(TypedDict, total=False):
