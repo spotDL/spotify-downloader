@@ -11,6 +11,7 @@ import logging
 from pathlib import Path
 from typing import Dict, List, Optional
 
+import requests
 from ytmusicapi import YTMusic
 
 from spotdl.types.album import Album
@@ -197,6 +198,9 @@ def get_simple_songs(
                     lists.append(spot_list)
         elif "open.spotify.com" in request and "track" in request:
             songs.append(Song.from_url(url=request))
+        elif "https://spotify.link/" in request:
+            resp = requests.head(request, allow_redirects=True, timeout=10)
+            songs.append(Song.from_url(url=resp.url))
         elif "open.spotify.com" in request and "playlist" in request:
             lists.append(Playlist.from_url(request, fetch_songs=False))
         elif "open.spotify.com" in request and "album" in request:

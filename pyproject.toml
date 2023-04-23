@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "spotdl"
-version = "4.1.7"
+version = "4.1.8"
 description = "Download your Spotify playlists and songs along with album art and metadata"
 license = "MIT"
 authors = ["spotDL Team <spotdladmins@googlegroups.com>"]
@@ -46,7 +46,7 @@ pydantic = "^1.10.7"
 fastapi = "^0.95.1"
 platformdirs = "^3.2.0"
 pykakasi = "^2.2.1"
-syncedlyrics = "0.4.0"
+syncedlyrics = "^0.5.0"
 typing-extensions = "^4.5.0"
 
 [tool.poetry.dev-dependencies]
@@ -64,7 +64,7 @@ mdformat-gfm = "^0.3.5"
 types-orjson = "^3.6.2"
 types-python-slugify = "^8.0.0.2"
 types-requests = "^2.28.11.17"
-types-setuptools = "^67.6.0.8"
+types-setuptools = "^67.7.0.0"
 types-toml = "^0.10.8.6"
 types-ujson = "^5.7.0.3"
 pyinstaller = "^5.10.1"
