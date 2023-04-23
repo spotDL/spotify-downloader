@@ -1801,8 +1801,7 @@ and file names.</p>
 
       <details class="quote">
         <summary>Source code in <code>spotdl/utils/formatter.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">283</span>
-<span class="normal">284</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">284</span>
 <span class="normal">285</span>
 <span class="normal">286</span>
 <span class="normal">287</span>
@@ -1930,7 +1929,15 @@ and file names.</p>
 <span class="normal">409</span>
 <span class="normal">410</span>
 <span class="normal">411</span>
-<span class="normal">412</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">create_file_name</span><span class="p">(</span>
+<span class="normal">412</span>
+<span class="normal">413</span>
+<span class="normal">414</span>
+<span class="normal">415</span>
+<span class="normal">416</span>
+<span class="normal">417</span>
+<span class="normal">418</span>
+<span class="normal">419</span>
+<span class="normal">420</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">create_file_name</span><span class="p">(</span>
     <span class="n">song</span><span class="p">:</span> <span class="n">Song</span><span class="p">,</span>
     <span class="n">template</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">file_extension</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -1952,6 +1959,8 @@ and file names.</p>
 <span class="sd">    ### Returns</span>
 <span class="sd">    - the formatted string as a Path object</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">temp_song</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">song</span><span class="p">)</span>
 
     <span class="c1"># If template does not contain any of the keys,</span>
     <span class="c1"># append {artists} - {title}.{output-ext} to it</span>
@@ -2002,63 +2011,68 @@ and file names.</p>
 
         <span class="k">return</span> <span class="n">file</span>
 
-    <span class="c1"># If the file name length is greater than ,</span>
-    <span class="c1"># and we are already using the short version of the template,</span>
-    <span class="c1"># fallback to default template</span>
-    <span class="k">if</span> <span class="n">short</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
-        <span class="c1"># Path template is already short, but we still can&#39;t create a file</span>
-        <span class="c1"># so we reduce it even further</span>
-        <span class="k">if</span> <span class="n">template</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="si">{artist}</span><span class="s2"> - </span><span class="si">{title}</span><span class="s2">.{output-ext}&quot;</span><span class="p">:</span>
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">song</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="o">&gt;</span> <span class="p">(</span><span class="n">length_limit</span> <span class="o">*</span> <span class="mf">0.80</span><span class="p">):</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                    <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">: File name is too long. Using only part of the song title.&quot;</span><span class="p">,</span>
-                    <span class="n">song</span><span class="o">.</span><span class="n">display_name</span><span class="p">,</span>
-                <span class="p">)</span>
-
-                <span class="n">name_parts</span> <span class="o">=</span> <span class="n">song</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)</span>
-                <span class="n">new_name</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
-                <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">name_parts</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">new_name</span><span class="p">)</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">part</span><span class="p">)</span> <span class="o">&lt;</span> <span class="p">(</span><span class="n">length_limit</span> <span class="o">*</span> <span class="mf">0.80</span><span class="p">):</span>
-                        <span class="n">new_name</span> <span class="o">+=</span> <span class="n">part</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span>
-                    <span class="k">else</span><span class="p">:</span>
-                        <span class="k">break</span>
-
-                <span class="n">song</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">new_name</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                    <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">: File name is too long. Using only song title.&quot;</span><span class="p">,</span>
-                    <span class="n">song</span><span class="o">.</span><span class="n">display_name</span><span class="p">,</span>
-                <span class="p">)</span>
-
-            <span class="k">return</span> <span class="n">create_file_name</span><span class="p">(</span>
-                <span class="n">song</span><span class="o">=</span><span class="n">song</span><span class="p">,</span>
-                <span class="n">template</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">{title}</span><span class="s2">.{output-ext}&quot;</span><span class="p">,</span>
-                <span class="n">file_extension</span><span class="o">=</span><span class="n">file_extension</span><span class="p">,</span>
-                <span class="n">restrict</span><span class="o">=</span><span class="n">restrict</span><span class="p">,</span>
-                <span class="n">short</span><span class="o">=</span><span class="n">short</span><span class="p">,</span>
-            <span class="p">)</span>
-
-        <span class="c1"># This will probably never occur, but just in case</span>
-        <span class="k">if</span> <span class="n">template</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="si">{title}</span><span class="s2">.{output-ext}&quot;</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">RecursionError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s1">&#39;&quot;</span><span class="si">{</span><span class="n">song</span><span class="o">.</span><span class="n">display_name</span><span class="si">}</span><span class="s1"> is too long to be shortened. File a bug report on GitHub&#39;</span>
-            <span class="p">)</span>
-
-        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-            <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">: File name is too long. Using the default template.&quot;</span><span class="p">,</span>
-            <span class="n">song</span><span class="o">.</span><span class="n">display_name</span><span class="p">,</span>
-        <span class="p">)</span>
-
+    <span class="k">if</span> <span class="n">short</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">create_file_name</span><span class="p">(</span>
-            <span class="n">song</span><span class="o">=</span><span class="n">song</span><span class="p">,</span>
-            <span class="n">template</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">{artist}</span><span class="s2"> - </span><span class="si">{title}</span><span class="s2">.{output-ext}&quot;</span><span class="p">,</span>
-            <span class="n">file_extension</span><span class="o">=</span><span class="n">file_extension</span><span class="p">,</span>
+            <span class="n">song</span><span class="p">,</span>
+            <span class="n">template</span><span class="p">,</span>
+            <span class="n">file_extension</span><span class="p">,</span>
             <span class="n">restrict</span><span class="o">=</span><span class="n">restrict</span><span class="p">,</span>
-            <span class="n">short</span><span class="o">=</span><span class="n">short</span><span class="p">,</span>
+            <span class="n">short</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">file_name_length</span><span class="o">=</span><span class="n">length_limit</span><span class="p">,</span>
         <span class="p">)</span>
+
+    <span class="c1"># Path template is already short, but we still can&#39;t create a file</span>
+    <span class="c1"># so we reduce it even further</span>
+    <span class="n">long_artist</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">song</span><span class="o">.</span><span class="n">artist</span><span class="p">)</span> <span class="o">&gt;</span> <span class="p">(</span><span class="n">length_limit</span> <span class="o">*</span> <span class="mf">0.50</span><span class="p">)</span>
+    <span class="n">long_title</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">song</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="o">&gt;</span> <span class="p">(</span><span class="n">length_limit</span> <span class="o">*</span> <span class="mf">0.50</span><span class="p">)</span>
+
+    <span class="n">path_separator</span> <span class="o">=</span> <span class="s2">&quot;/&quot;</span> <span class="k">if</span> <span class="s2">&quot;/&quot;</span> <span class="ow">in</span> <span class="n">template</span> <span class="k">else</span> <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">&quot;</span>
+    <span class="n">name_template</span> <span class="o">=</span> <span class="n">template</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="n">path_separator</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">long_artist</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">: File name is too long. Using only part of song artist.&quot;</span><span class="p">,</span>
+            <span class="n">temp_song</span><span class="o">.</span><span class="n">display_name</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">short_artist</span> <span class="o">=</span> <span class="n">temp_song</span><span class="o">.</span><span class="n">artist</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">temp_song</span><span class="o">.</span><span class="n">artist</span> <span class="o">=</span> <span class="n">short_artist</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">temp_song</span><span class="o">.</span><span class="n">artist</span><span class="p">)</span> <span class="o">&gt;</span> <span class="p">(</span><span class="n">length_limit</span> <span class="o">*</span> <span class="mf">0.50</span><span class="p">):</span>
+            <span class="n">temp_song</span><span class="o">.</span><span class="n">artist</span> <span class="o">=</span> <span class="n">temp_song</span><span class="o">.</span><span class="n">artist</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">long_title</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">: File name is too long. Using only part of the song title.&quot;</span><span class="p">,</span>
+            <span class="n">temp_song</span><span class="o">.</span><span class="n">display_name</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">name_parts</span> <span class="o">=</span> <span class="n">temp_song</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)</span>
+
+        <span class="n">old_name</span> <span class="o">=</span> <span class="n">temp_song</span><span class="o">.</span><span class="n">name</span>
+        <span class="n">temp_song</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">name_parts</span><span class="p">:</span>
+            <span class="n">old_name</span> <span class="o">=</span> <span class="n">temp_song</span><span class="o">.</span><span class="n">name</span>
+            <span class="n">temp_song</span><span class="o">.</span><span class="n">name</span> <span class="o">+=</span> <span class="n">part</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span>
+
+            <span class="n">formatted_name</span> <span class="o">=</span> <span class="n">format_query</span><span class="p">(</span>
+                <span class="n">song</span><span class="o">=</span><span class="n">temp_song</span><span class="p">,</span>
+                <span class="n">template</span><span class="o">=</span><span class="n">name_template</span><span class="p">,</span>
+                <span class="n">santitize</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">file_extension</span><span class="o">=</span><span class="n">file_extension</span><span class="p">,</span>
+                <span class="n">short</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">formatted_name</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span> <span class="o">&gt;</span> <span class="n">length_limit</span><span class="p">:</span>
+                <span class="n">temp_song</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">old_name</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+                <span class="k">break</span>
 
     <span class="k">return</span> <span class="n">create_file_name</span><span class="p">(</span>
-        <span class="n">song</span><span class="p">,</span> <span class="n">template</span><span class="p">,</span> <span class="n">file_extension</span><span class="p">,</span> <span class="n">restrict</span><span class="o">=</span><span class="n">restrict</span><span class="p">,</span> <span class="n">short</span><span class="o">=</span><span class="kc">True</span>
+        <span class="n">song</span><span class="o">=</span><span class="n">temp_song</span><span class="p">,</span>
+        <span class="n">template</span><span class="o">=</span><span class="n">template</span><span class="p">,</span>
+        <span class="n">file_extension</span><span class="o">=</span><span class="n">file_extension</span><span class="p">,</span>
+        <span class="n">restrict</span><span class="o">=</span><span class="n">restrict</span><span class="p">,</span>
+        <span class="n">short</span><span class="o">=</span><span class="n">short</span><span class="p">,</span>
+        <span class="n">file_name_length</span><span class="o">=</span><span class="n">length_limit</span><span class="p">,</span>
     <span class="p">)</span>
 </code></pre></div></td></tr></table></div>
       </details>
@@ -2094,8 +2108,7 @@ and file names.</p>
 
       <details class="quote">
         <summary>Source code in <code>spotdl/utils/formatter.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">254</span>
-<span class="normal">255</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">255</span>
 <span class="normal">256</span>
 <span class="normal">257</span>
 <span class="normal">258</span>
@@ -2120,7 +2133,8 @@ and file names.</p>
 <span class="normal">277</span>
 <span class="normal">278</span>
 <span class="normal">279</span>
-<span class="normal">280</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">create_search_query</span><span class="p">(</span>
+<span class="normal">280</span>
+<span class="normal">281</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">create_search_query</span><span class="p">(</span>
     <span class="n">song</span><span class="p">:</span> <span class="n">Song</span><span class="p">,</span>
     <span class="n">template</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">santitize</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
@@ -2182,8 +2196,7 @@ and file names.</p>
 
       <details class="quote">
         <summary>Source code in <code>spotdl/utils/formatter.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">70</span>
-<span class="normal">71</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">71</span>
 <span class="normal">72</span>
 <span class="normal">73</span>
 <span class="normal">74</span>
@@ -2202,7 +2215,8 @@ and file names.</p>
 <span class="normal">87</span>
 <span class="normal">88</span>
 <span class="normal">89</span>
-<span class="normal">90</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">create_song_title</span><span class="p">(</span><span class="n">song_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">song_artists</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="normal">90</span>
+<span class="normal">91</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">create_song_title</span><span class="p">(</span><span class="n">song_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">song_artists</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create the song title.</span>
 
@@ -2257,8 +2271,7 @@ and file names.</p>
 
       <details class="quote">
         <summary>Source code in <code>spotdl/utils/formatter.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">160</span>
-<span class="normal">161</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">161</span>
 <span class="normal">162</span>
 <span class="normal">163</span>
 <span class="normal">164</span>
@@ -2348,7 +2361,8 @@ and file names.</p>
 <span class="normal">248</span>
 <span class="normal">249</span>
 <span class="normal">250</span>
-<span class="normal">251</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">format_query</span><span class="p">(</span>
+<span class="normal">251</span>
+<span class="normal">252</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">format_query</span><span class="p">(</span>
     <span class="n">song</span><span class="p">:</span> <span class="n">Song</span><span class="p">,</span>
     <span class="n">template</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">santitize</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
@@ -2470,15 +2484,7 @@ and file names.</p>
 
       <details class="quote">
         <summary>Source code in <code>spotdl/utils/formatter.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">415</span>
-<span class="normal">416</span>
-<span class="normal">417</span>
-<span class="normal">418</span>
-<span class="normal">419</span>
-<span class="normal">420</span>
-<span class="normal">421</span>
-<span class="normal">422</span>
-<span class="normal">423</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">423</span>
 <span class="normal">424</span>
 <span class="normal">425</span>
 <span class="normal">426</span>
@@ -2492,7 +2498,15 @@ and file names.</p>
 <span class="normal">434</span>
 <span class="normal">435</span>
 <span class="normal">436</span>
-<span class="normal">437</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">parse_duration</span><span class="p">(</span><span class="n">duration</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="normal">437</span>
+<span class="normal">438</span>
+<span class="normal">439</span>
+<span class="normal">440</span>
+<span class="normal">441</span>
+<span class="normal">442</span>
+<span class="normal">443</span>
+<span class="normal">444</span>
+<span class="normal">445</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">parse_duration</span><span class="p">(</span><span class="n">duration</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Convert string value of time (duration: &quot;25:36:59&quot;) to a float value of seconds (92219.0)</span>
 
@@ -2551,21 +2565,21 @@ with lru_cache</p>
 
       <details class="quote">
         <summary>Source code in <code>spotdl/utils/formatter.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">505</span>
-<span class="normal">506</span>
-<span class="normal">507</span>
-<span class="normal">508</span>
-<span class="normal">509</span>
-<span class="normal">510</span>
-<span class="normal">511</span>
-<span class="normal">512</span>
-<span class="normal">513</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">513</span>
 <span class="normal">514</span>
 <span class="normal">515</span>
 <span class="normal">516</span>
 <span class="normal">517</span>
 <span class="normal">518</span>
-<span class="normal">519</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@lru_cache</span><span class="p">()</span>
+<span class="normal">519</span>
+<span class="normal">520</span>
+<span class="normal">521</span>
+<span class="normal">522</span>
+<span class="normal">523</span>
+<span class="normal">524</span>
+<span class="normal">525</span>
+<span class="normal">526</span>
+<span class="normal">527</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@lru_cache</span><span class="p">()</span>
 <span class="k">def</span> <span class="nf">ratio</span><span class="p">(</span><span class="n">string1</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">string2</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Wrapper for fuzz.ratio</span>
@@ -2614,15 +2628,7 @@ with lru_cache</p>
 
       <details class="quote">
         <summary>Source code in <code>spotdl/utils/formatter.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">482</span>
-<span class="normal">483</span>
-<span class="normal">484</span>
-<span class="normal">485</span>
-<span class="normal">486</span>
-<span class="normal">487</span>
-<span class="normal">488</span>
-<span class="normal">489</span>
-<span class="normal">490</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">490</span>
 <span class="normal">491</span>
 <span class="normal">492</span>
 <span class="normal">493</span>
@@ -2634,7 +2640,15 @@ with lru_cache</p>
 <span class="normal">499</span>
 <span class="normal">500</span>
 <span class="normal">501</span>
-<span class="normal">502</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">restrict_filename</span><span class="p">(</span><span class="n">pathobj</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="normal">502</span>
+<span class="normal">503</span>
+<span class="normal">504</span>
+<span class="normal">505</span>
+<span class="normal">506</span>
+<span class="normal">507</span>
+<span class="normal">508</span>
+<span class="normal">509</span>
+<span class="normal">510</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">restrict_filename</span><span class="p">(</span><span class="n">pathobj</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Sanitizes the filename part of a Path object. Returns modified object.</span>
 
@@ -2685,8 +2699,7 @@ with lru_cache</p>
 
       <details class="quote">
         <summary>Source code in <code>spotdl/utils/formatter.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 93</span>
-<span class="normal"> 94</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 94</span>
 <span class="normal"> 95</span>
 <span class="normal"> 96</span>
 <span class="normal"> 97</span>
@@ -2705,7 +2718,8 @@ with lru_cache</p>
 <span class="normal">110</span>
 <span class="normal">111</span>
 <span class="normal">112</span>
-<span class="normal">113</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">sanitize_string</span><span class="p">(</span><span class="n">string</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="normal">113</span>
+<span class="normal">114</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">sanitize_string</span><span class="p">(</span><span class="n">string</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Sanitize the filename to be used in the file system.</span>
 
@@ -2760,8 +2774,7 @@ with lru_cache</p>
 
       <details class="quote">
         <summary>Source code in <code>spotdl/utils/formatter.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">116</span>
-<span class="normal">117</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">117</span>
 <span class="normal">118</span>
 <span class="normal">119</span>
 <span class="normal">120</span>
@@ -2801,7 +2814,8 @@ with lru_cache</p>
 <span class="normal">154</span>
 <span class="normal">155</span>
 <span class="normal">156</span>
-<span class="normal">157</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@lru_cache</span><span class="p">()</span>
+<span class="normal">157</span>
+<span class="normal">158</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@lru_cache</span><span class="p">()</span>
 <span class="k">def</span> <span class="nf">slugify</span><span class="p">(</span><span class="n">string</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Slugify the string.</span>
@@ -2882,15 +2896,7 @@ with lru_cache</p>
 
       <details class="quote">
         <summary>Source code in <code>spotdl/utils/formatter.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">440</span>
-<span class="normal">441</span>
-<span class="normal">442</span>
-<span class="normal">443</span>
-<span class="normal">444</span>
-<span class="normal">445</span>
-<span class="normal">446</span>
-<span class="normal">447</span>
-<span class="normal">448</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">448</span>
 <span class="normal">449</span>
 <span class="normal">450</span>
 <span class="normal">451</span>
@@ -2921,7 +2927,15 @@ with lru_cache</p>
 <span class="normal">476</span>
 <span class="normal">477</span>
 <span class="normal">478</span>
-<span class="normal">479</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">to_ms</span><span class="p">(</span>
+<span class="normal">479</span>
+<span class="normal">480</span>
+<span class="normal">481</span>
+<span class="normal">482</span>
+<span class="normal">483</span>
+<span class="normal">484</span>
+<span class="normal">485</span>
+<span class="normal">486</span>
+<span class="normal">487</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">to_ms</span><span class="p">(</span>
     <span class="n">string</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">precision</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>

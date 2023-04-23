@@ -2756,7 +2756,12 @@ It handles the downloading/moving songs, multithreading, metadata embedding etc.
 <span class="normal">740</span>
 <span class="normal">741</span>
 <span class="normal">742</span>
-<span class="normal">743</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">search_and_download</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">song</span><span class="p">:</span> <span class="n">Song</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Song</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]]:</span>
+<span class="normal">743</span>
+<span class="normal">744</span>
+<span class="normal">745</span>
+<span class="normal">746</span>
+<span class="normal">747</span>
+<span class="normal">748</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">search_and_download</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">song</span><span class="p">:</span> <span class="n">Song</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Song</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Search for the song and download it.</span>
 
@@ -2885,15 +2890,20 @@ It handles the downloading/moving songs, multithreading, metadata embedding etc.
                     <span class="p">)</span>
 
         <span class="c1"># Find song lyrics and add them to the song object</span>
-        <span class="n">lyrics</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">search_lyrics</span><span class="p">(</span><span class="n">song</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">lyrics</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                <span class="s2">&quot;No lyrics found for </span><span class="si">%s</span><span class="s2">, lyrics providers: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
-                <span class="n">song</span><span class="o">.</span><span class="n">display_name</span><span class="p">,</span>
-                <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">lprovider</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">lprovider</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">lyrics_providers</span><span class="p">]),</span>
-            <span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">song</span><span class="o">.</span><span class="n">lyrics</span> <span class="o">=</span> <span class="n">lyrics</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">lyrics</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">search_lyrics</span><span class="p">(</span><span class="n">song</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">lyrics</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                    <span class="s2">&quot;No lyrics found for </span><span class="si">%s</span><span class="s2">, lyrics providers: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="n">song</span><span class="o">.</span><span class="n">display_name</span><span class="p">,</span>
+                    <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                        <span class="p">[</span><span class="n">lprovider</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">lprovider</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">lyrics_providers</span><span class="p">]</span>
+                    <span class="p">),</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">song</span><span class="o">.</span><span class="n">lyrics</span> <span class="o">=</span> <span class="n">lyrics</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Could not search for lyrics: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">exc</span><span class="p">)</span>
 
         <span class="c1"># If the file already exists and we want to overwrite the metadata,</span>
         <span class="c1"># we can skip the download</span>
@@ -3088,7 +3098,7 @@ It handles the downloading/moving songs, multithreading, metadata embedding etc.
 
                 <span class="c1"># Initialize the modify chapters post processor</span>
                 <span class="n">modify_chapters</span> <span class="o">=</span> <span class="n">ModifyChaptersPP</span><span class="p">(</span>
-                    <span class="n">audio_downloader</span><span class="o">.</span><span class="n">audio_handler</span><span class="p">,</span>
+                    <span class="n">downloader</span><span class="o">=</span><span class="n">audio_downloader</span><span class="o">.</span><span class="n">audio_handler</span><span class="p">,</span>
                     <span class="n">remove_sponsor_segments</span><span class="o">=</span><span class="n">SPONSOR_BLOCK_CATEGORIES</span><span class="p">,</span>
                 <span class="p">)</span>
 
