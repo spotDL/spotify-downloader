@@ -362,7 +362,9 @@ def create_file_name(
             file_name_length=length_limit,
         )
 
-    if template != "{artist} - {title}.{output-ext}":
+    parent_dir = template.rsplit("/" if "/" in template else "\\", 1)[0]
+    default_file_name = parent_dir + "/{artist} - {title}.{output-ext}"
+    if template.endswith("/{artist} - {title}.{output-ext}"):
         logger.warning(
             "%s: File name is too long. Using the default template.",
             song.display_name,
@@ -370,7 +372,7 @@ def create_file_name(
 
         return create_file_name(
             song=song,
-            template="{artist} - {title}.{output-ext}",
+            template=default_file_name,
             file_extension=file_extension,
             restrict=restrict,
             short=short,
@@ -414,7 +416,7 @@ def create_file_name(
 
     return create_file_name(
         song=song,
-        template="{artist} - {title}.{output-ext}",
+        template=default_file_name,
         file_extension=file_extension,
         restrict=restrict,
         short=short,
