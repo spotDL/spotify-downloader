@@ -352,48 +352,17 @@ def create_file_name(
 
         return file
 
-    # If the file name length is greater than ,
-    # and we are already using the short version of the template,
-    # fallback to default template
-    if short is True:
-        # Path template is already short, but we still can't create a file
-        # so we reduce it even further
-        if template == "{artist} - {title}.{output-ext}":
-            if len(song.name) > (length_limit * 0.80):
-                logger.warning(
-                    "%s: File name is too long. Using only part of the song title.",
-                    song.display_name,
-                )
+    if short is False:
+        return create_file_name(
+            song,
+            template,
+            file_extension,
+            restrict=restrict,
+            short=True,
+            file_name_length=length_limit,
+        )
 
-                name_parts = song.name.split(" ")
-                new_name = ""
-                for part in name_parts:
-                    if len(new_name) + len(part) < (length_limit * 0.80):
-                        new_name += part + " "
-                    else:
-                        break
-
-                song.name = new_name.strip()
-            else:
-                logger.warning(
-                    "%s: File name is too long. Using only song title.",
-                    song.display_name,
-                )
-
-            return create_file_name(
-                song=song,
-                template="{title}.{output-ext}",
-                file_extension=file_extension,
-                restrict=restrict,
-                short=short,
-            )
-
-        # This will probably never occur, but just in case
-        if template == "{title}.{output-ext}":
-            raise RecursionError(
-                f'"{song.display_name} is too long to be shortened. File a bug report on GitHub'
-            )
-
+    if template != "{artist} - {title}.{output-ext}":
         logger.warning(
             "%s: File name is too long. Using the default template.",
             song.display_name,
@@ -405,10 +374,51 @@ def create_file_name(
             file_extension=file_extension,
             restrict=restrict,
             short=short,
+            file_name_length=length_limit,
         )
 
+    # Path template is already short, but we still can't create a file
+    # so we reduce it even further
+    long_artist = len(song.artist) > (length_limit * 0.50)
+    long_title = len(song.name) > (length_limit * 0.50)
+
+    if long_artist:
+        logger.warning(
+            "%s: File name is too long. Using only part of song artist.",
+            song.display_name,
+        )
+
+        short_artist = song.artist.split(",")[0]
+        song.artist = short_artist
+        if len(song.artist) > (length_limit * 0.50):
+            song.artist = song.artist.split(" ")[0]
+
+    if long_title:
+        logger.warning(
+            "%s: File name is too long. Using only part of the song title.",
+            song.display_name,
+        )
+
+        name_parts = song.name.split(" ")
+        new_name = ""
+        for part in name_parts:
+            if (
+                len(f"{song.artist} - {new_name + part}.{file_extension}") + 1
+                < length_limit
+            ):
+                new_name += part + " "
+            else:
+                break
+
+        song.name = new_name.strip()
+
     return create_file_name(
-        song, template, file_extension, restrict=restrict, short=True
+        song=song,
+        template="{artist} - {title}.{output-ext}",
+        file_extension=file_extension,
+        restrict=restrict,
+        short=short,
+        file_name_length=length_limit,
     )
 
 
