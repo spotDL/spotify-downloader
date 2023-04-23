@@ -492,15 +492,20 @@ class Downloader:
                         )
 
             # Find song lyrics and add them to the song object
-            lyrics = self.search_lyrics(song)
-            if lyrics is None:
-                logger.debug(
-                    "No lyrics found for %s, lyrics providers: %s",
-                    song.display_name,
-                    ", ".join([lprovider.name for lprovider in self.lyrics_providers]),
-                )
-            else:
-                song.lyrics = lyrics
+            try:
+                lyrics = self.search_lyrics(song)
+                if lyrics is None:
+                    logger.debug(
+                        "No lyrics found for %s, lyrics providers: %s",
+                        song.display_name,
+                        ", ".join(
+                            [lprovider.name for lprovider in self.lyrics_providers]
+                        ),
+                    )
+                else:
+                    song.lyrics = lyrics
+            except Exception as exc:
+                logger.debug("Could not search for lyrics: %s", exc)
 
             # If the file already exists and we want to overwrite the metadata,
             # we can skip the download
@@ -695,7 +700,7 @@ class Downloader:
 
                     # Initialize the modify chapters post processor
                     modify_chapters = ModifyChaptersPP(
-                        audio_downloader.audio_handler,
+                        downloader=audio_downloader.audio_handler,
                         remove_sponsor_segments=SPONSOR_BLOCK_CATEGORIES,
                     )
 
