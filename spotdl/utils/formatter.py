@@ -4,6 +4,7 @@ Contains functions to create search queries and song titles
 and file names.
 """
 
+import copy
 import logging
 import re
 from functools import lru_cache
@@ -303,6 +304,8 @@ def create_file_name(
     - the formatted string as a Path object
     """
 
+    temp_song = copy.deepcopy(song)
+
     # If template does not contain any of the keys,
     # append {artists} - {title}.{output-ext} to it
     if not any(key in template for key in VARS) and template != "":
@@ -362,61 +365,54 @@ def create_file_name(
             file_name_length=length_limit,
         )
 
-    parent_dir = template.rsplit("/" if "/" in template else "\\", 1)[0]
-    default_file_name = parent_dir + "/{artist} - {title}.{output-ext}"
-    if template.endswith("/{artist} - {title}.{output-ext}"):
-        logger.warning(
-            "%s: File name is too long. Using the default template.",
-            song.display_name,
-        )
-
-        return create_file_name(
-            song=song,
-            template=default_file_name,
-            file_extension=file_extension,
-            restrict=restrict,
-            short=short,
-            file_name_length=length_limit,
-        )
-
     # Path template is already short, but we still can't create a file
     # so we reduce it even further
     long_artist = len(song.artist) > (length_limit * 0.50)
     long_title = len(song.name) > (length_limit * 0.50)
 
+    path_separator = "/" if "/" in template else "\\"
+    name_template = template.rsplit(path_separator, 1)[1]
+
     if long_artist:
         logger.warning(
             "%s: File name is too long. Using only part of song artist.",
-            song.display_name,
+            temp_song.display_name,
         )
 
-        short_artist = song.artist.split(",")[0]
-        song.artist = short_artist
-        if len(song.artist) > (length_limit * 0.50):
-            song.artist = song.artist.split(" ")[0]
+        short_artist = temp_song.artist.split(",")[0]
+        temp_song.artist = short_artist
+        if len(temp_song.artist) > (length_limit * 0.50):
+            temp_song.artist = temp_song.artist.split(" ")[0]
 
     if long_title:
         logger.warning(
             "%s: File name is too long. Using only part of the song title.",
-            song.display_name,
+            temp_song.display_name,
         )
 
-        name_parts = song.name.split(" ")
-        new_name = ""
+        name_parts = temp_song.name.split(" ")
+
+        old_name = temp_song.name
+        temp_song.name = ""
         for part in name_parts:
-            if (
-                len(f"{song.artist} - {new_name + part}.{file_extension}") + 1
-                < length_limit
-            ):
-                new_name += part + " "
-            else:
+            old_name = temp_song.name
+            temp_song.name += part + " "
+
+            formatted_name = format_query(
+                song=temp_song,
+                template=name_template,
+                santitize=True,
+                file_extension=file_extension,
+                short=True,
+            )
+
+            if len(formatted_name.strip()) > length_limit:
+                temp_song.name = old_name.strip()
                 break
 
-        song.name = new_name.strip()
-
     return create_file_name(
-        song=song,
-        template=default_file_name,
+        song=temp_song,
+        template=template,
         file_extension=file_extension,
         restrict=restrict,
         short=short,
