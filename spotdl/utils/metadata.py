@@ -318,7 +318,9 @@ def embed_lyrics(audio_file, song: Song, encoding: str):
                 time_tag = time_tag.replace("]", "")
                 time_tag = time_tag.replace(".", ":")
                 time_tag_vals = time_tag.split(":")
-                if len(time_tag_vals) != 3:
+                if len(time_tag_vals) != 3 or any(
+                    not isinstance(tag, int) for tag in time_tag_vals
+                ):
                     continue
 
                 minute, sec, millisecond = time_tag_vals
