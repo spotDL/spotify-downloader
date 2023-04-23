@@ -2336,14 +2336,14 @@ full = ["httpx (>=0.22.0)", "itsdangerous", "jinja2", "python-multipart", "pyyam
 
 [[package]]
 name = "syncedlyrics"
-version = "0.4.0"
+version = "0.5.0"
 description = "Get an LRC format (synchronized) lyrics for your music"
 category = "main"
 optional = false
 python-versions = ">=3.7,<4.0"
 files = [
-    {file = "syncedlyrics-0.4.0-py3-none-any.whl", hash = "sha256:be2f77e4185ae95162048564bf747b2c9cb82e0e3b9635e877fbcb903c4c7d69"},
-    {file = "syncedlyrics-0.4.0.tar.gz", hash = "sha256:d4a4e3207053b367e5d51ec9f8583886a2395796562c6fa4d75de12ef9decba7"},
+    {file = "syncedlyrics-0.5.0-py3-none-any.whl", hash = "sha256:2edfae34bdc80c9dca4336a81a49f6591a8e469597fc14e9a89e1a3d297dbcfb"},
+    {file = "syncedlyrics-0.5.0.tar.gz", hash = "sha256:767c84abf4ae7ba423a0a224c9b2284a8d9c34f00f2e596748707655a760018e"},
 ]
 
 [package.dependencies]
@@ -2462,14 +2462,14 @@ types-urllib3 = "<1.27"
 
 [[package]]
 name = "types-setuptools"
-version = "67.6.0.8"
+version = "67.7.0.0"
 description = "Typing stubs for setuptools"
 category = "dev"
 optional = false
 python-versions = "*"
 files = [
-    {file = "types-setuptools-67.6.0.8.tar.gz", hash = "sha256:df3e084c3b5af782cb81bd516f40213b572d932fa2f1272aef307d15643736f8"},
-    {file = "types_setuptools-67.6.0.8-py3-none-any.whl", hash = "sha256:0b178cab1d5a7487cd410d1b5448d1a85d9da1bf44aa7be7c0d4f33d65041e5a"},
+    {file = "types-setuptools-67.7.0.0.tar.gz", hash = "sha256:f59b03c786510176c7601578d84d5e6c58e985de331f08036b2fe008408a63c1"},
+    {file = "types_setuptools-67.7.0.0-py3-none-any.whl", hash = "sha256:02ee794d41c282ecfc99e09d8115ca4c3c4395a9747d1a35fa4a6f243d7585e6"},
 ]
 
 [[package]]
@@ -2971,4 +2971,4 @@ testing = ["big-O", "flake8 (<5)", "jaraco.functools", "jaraco.itertools", "more
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.7.2,<3.12"
-content-hash = "d751958d06617f68de9dde9af8978b7ba6d1a2dd701f7aa6e4156acd931c4ca1"
+content-hash = "2db91f5ae019bd242f1ea3a3e71e94e146d1c9d909ebf6132c67a164033153ff"
