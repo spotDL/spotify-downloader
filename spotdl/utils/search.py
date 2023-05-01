@@ -469,8 +469,8 @@ def create_ytm_playlist(url: str, fetch_songs: bool = True) -> Playlist:
             album_name=track.get("album", {}).get("name")
             if track.get("album") is not None
             else None,
-            duration=track["duration_seconds"],
-            explicit=track["isExplicit"],
+            duration=track.get("duration_seconds"),
+            explicit=track.get("isExplicit"),
             download_url=f"https://music.youtube.com/watch?v={track['videoId']}",
         )
 
