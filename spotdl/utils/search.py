@@ -7,6 +7,7 @@ To use this module you must first initialize the SpotifyClient.
 
 import concurrent.futures
 import json
+import re
 import logging
 from pathlib import Path
 from typing import Dict, List, Optional
@@ -123,6 +124,9 @@ def get_simple_songs(
     for request in query:
         logger.info("Processing query: %s", request)
 
+        # Remove /intl-xxx/ from Spotify URLs with regex
+        request = re.sub(r"\/intl-\w+\/", "/", request)
+
         if (
             ("youtube.com/watch?v=" in request or "youtu.be/" in request)
             and "open.spotify.com" in request
@@ -196,9 +200,6 @@ def get_simple_songs(
                         song.download_url = ytm_list.songs[index].download_url
 
                     lists.append(spot_list)
-        elif "open.spotify.com/intl-" in request and "track" in request:
-            request = request.split("/intl-")[0] + "/track" + request.split("/track")[1]
-            songs.append(Song.from_url(url=request))
         elif "open.spotify.com" in request and "track" in request:
             songs.append(Song.from_url(url=request))
         elif "https://spotify.link/" in request:
