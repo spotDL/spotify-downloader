@@ -196,6 +196,9 @@ def get_simple_songs(
                         song.download_url = ytm_list.songs[index].download_url
 
                     lists.append(spot_list)
+        elif "open.spotify.com/intl-" in request and "track" in request:
+            request = request.split("/intl-")[0] + "/track" + request.split("/track")[1]
+            songs.append(Song.from_url(url=request))
         elif "open.spotify.com" in request and "track" in request:
             songs.append(Song.from_url(url=request))
         elif "https://spotify.link/" in request:
@@ -469,8 +472,8 @@ def create_ytm_playlist(url: str, fetch_songs: bool = True) -> Playlist:
             album_name=track.get("album", {}).get("name")
             if track.get("album") is not None
             else None,
-            duration=track["duration_seconds"],
-            explicit=track["isExplicit"],
+            duration=track.get("duration_seconds"),
+            explicit=track.get("isExplicit"),
             download_url=f"https://music.youtube.com/watch?v={track['videoId']}",
         )
 
