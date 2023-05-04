@@ -94,6 +94,7 @@ General usage:
 ```sh
 spotdl [operation] [options] QUERY
 ```
+When downloading songs, the song's Spotify Popularity variable [(described here)](https://developer.spotify.com/documentation/web-api/reference/get-track) is stored in metadata as a comment, so you can sort your downloaded songs by popularity.
 
 There are different **operations** spotDL can perform. The *default* is `download`, which simply downloads the songs from YouTube and embeds metadata.
 
