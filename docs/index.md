@@ -94,6 +94,7 @@ General usage:
 ```sh
 spotdl [operation] [options] QUERY
 ```
+When downloading songs, the song's Spotify Popularity variable [(described here)](https://developer.spotify.com/documentation/web-api/reference/get-track) is stored in metadata as a comment, so you can sort your downloaded songs by popularity.
 
 There are different **operations** spotDL can perform. The *default* is `download`, which simply downloads the songs from YouTube and embeds metadata.
 
@@ -135,11 +136,11 @@ spotDL uses YouTube as a source for music downloads. This method is used to avoi
 
 spotDL downloads music from YouTube and is designed to always download the highest possible bitrate; which is 128 kbps for regular users and 256 kbps for YouTube Music premium users.
 
-Check the [Audio Formats](docs/USAGE.md#audio-formats-and-quality) page for more info.
+Check the [Audio Formats](usage.md#audio-formats-and-quality) page for more info.
 
 ## Contributing
 
-Interested in contributing? Check out our [CONTRIBUTING.md](docs/CONTRIBUTING.md) to find
+Interested in contributing? Check out our [CONTRIBUTING.md](CONTRIBUTING.md) to find
 resources around contributing along with a guide on how to set up a development environment.
 
 ## Donate

@@ -212,6 +212,15 @@ def embed_metadata(output_file: Path, song: Song, id3_separator: str = "/"):
         if song.download_url:
             audio_file.add(COMM(encoding=3, text=song.download_url))
 
+        if song.popularity:
+            audio_file.add(
+                COMM(
+                    encoding=3,
+                    lang="eng",
+                    text="Spotify Popularity: " + str(song.popularity),
+                )
+            )
+
     # Embed album art
     audio_file = embed_cover(audio_file, song, encoding)
 

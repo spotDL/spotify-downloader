@@ -62,6 +62,7 @@ def test_embed_metadata(tmpdir, monkeypatch, output_format):
         "copyright_text": "",
         "publisher": "",
         "url": "https://open.spotify.com/track/1t2qKa8K72IBC8yQlhD9bU",
+        "popularity": 0,
     }
 
     song = Song.from_dict(song_obj)

@@ -51,6 +51,7 @@ class Song:
     copyright_text: Optional[str]
     download_url: Optional[str] = None
     lyrics: Optional[str] = None
+    popularity: Optional[int] = None
     album_id: Optional[str] = None
     list_name: Optional[str] = None
     list_url: Optional[str] = None
@@ -118,6 +119,7 @@ class Song:
             explicit=raw_track_meta["explicit"],
             publisher=raw_album_meta["label"],
             url=raw_track_meta["external_urls"]["spotify"],
+            popularity=raw_track_meta["popularity"],
             cover_url=max(
                 raw_album_meta["images"], key=lambda i: i["width"] * i["height"]
             )["url"]
