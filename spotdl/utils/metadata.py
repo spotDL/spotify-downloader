@@ -56,7 +56,6 @@ M4A_TAG_PRESET = {
     "date": "\xa9day",
     "title": "\xa9nam",
     "year": "\xa9day",
-    "originaldate": "purd",
     "comment": "\xa9cmt",
     "group": "\xa9grp",
     "writer": "\xa9wrt",
@@ -80,7 +79,6 @@ MP3_TAG_PRESET = {
     "date": "TDRC",
     "title": "TIT2",
     "year": "TDRC",
-    "originaldate": "TDOR",
     "comment": "COMM::XXX",
     "group": "TIT1",
     "writer": "TEXT",
@@ -163,7 +161,6 @@ def embed_metadata(output_file: Path, song: Song, id3_separator: str = "/"):
     )
     audio_file[tag_preset["title"]] = song.name
     audio_file[tag_preset["date"]] = song.date
-    audio_file[tag_preset["originaldate"]] = song.date
     audio_file[tag_preset["encodedby"]] = song.publisher
 
     # Embed metadata that isn't always present
@@ -478,8 +475,6 @@ def get_file_metadata(path: Path, id3_separator: str = "/") -> Optional[Dict[str
         else:
             if key == "artist":
                 song_meta["artists"] = val
-            if key == "originaldate":
-                song_meta["year"] = int(str(val[0])[:4])
             elif key == "tracknumber":
                 song_meta["track_number"] = int(val[0])
             elif key == "discnumber":
