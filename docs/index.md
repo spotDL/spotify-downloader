@@ -30,6 +30,7 @@ Refer to our [Installation Guide](https://spotdl.rtfd.io/en/latest/installation/
 
 ### Python (Recommended Method)
   - _spotDL_ can be installed by running `pip install spotdl`.
+  - To update spotDL run `pip install --upgrade spotdl`
   > On some systems you might have to change `pip` to `pip3`.
 
 
