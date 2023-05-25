@@ -7,8 +7,8 @@ To use this module you must first initialize the SpotifyClient.
 
 import concurrent.futures
 import json
-import re
 import logging
+import re
 from pathlib import Path
 from typing import Dict, List, Optional
 

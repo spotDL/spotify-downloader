@@ -371,7 +371,12 @@ def create_file_name(
     long_title = len(song.name) > (length_limit * 0.50)
 
     path_separator = "/" if "/" in template else "\\"
-    name_template = template.rsplit(path_separator, 1)[1]
+    name_template_parts = template.rsplit(path_separator, 1)
+    name_template = (
+        name_template_parts[1]
+        if len(name_template_parts) == 1
+        else name_template_parts[0]
+    )
 
     if long_artist:
         logger.warning(

@@ -32,6 +32,7 @@ def test_song_init():
         disc_count=1,
         publisher="test",
         url="test",
+        popularity=1,
     )
 
     assert song.name == "test"
@@ -51,6 +52,7 @@ def test_song_init():
     assert song.cover_url == "test"
     assert song.explicit is True
     assert song.download_url == "test"
+    assert song.popularity == 1
 
 
 def test_song_wrong_init():
@@ -99,6 +101,7 @@ def test_song_from_url():
     )
     assert song.explicit == False
     assert song.download_url == None
+    assert song.popularity == 0
 
 
 @pytest.mark.vcr()
@@ -122,8 +125,9 @@ def test_song_from_search_term():
     assert song.tracks_count == 1
     assert song.isrc == "GB2LD2110301"
     assert song.song_id == "4SN9kQlguIcjPtMNQJwD30"
-    assert song.explicit == False
-    assert song.download_url == None
+    assert song.explicit is False
+    assert song.download_url is None
+    assert song.popularity is not None and song.popularity >= 0
 
 
 def test_song_from_data_dump():
@@ -156,7 +160,8 @@ def test_song_from_data_dump():
             "disc_count": 1,
             "copyright_text": "",
             "publisher": "",
-            "url": "https://open.spotify.com/track/1t2qKa8K72IBC8yQlhD9bU"
+            "url": "https://open.spotify.com/track/1t2qKa8K72IBC8yQlhD9bU",
+            "popularity": 0
         }
         """
     )
@@ -178,8 +183,9 @@ def test_song_from_data_dump():
         song.cover_url
         == "https://i.scdn.co/image/ab67616d0000b273fe2cb38e4d2412dbb0e54332"
     )
-    assert song.explicit == False
-    assert song.download_url == None
+    assert song.explicit is False
+    assert song.download_url is None
+    assert song.popularity == 0
 
 
 def test_song_from_data_dump_wrong_type():
@@ -220,6 +226,7 @@ def test_song_from_dict():
             "copyright_text": "",
             "publisher": "",
             "url": "https://open.spotify.com/track/1t2qKa8K72IBC8yQlhD9bU",
+            "popularity": 0,
         }
     )
 
@@ -241,3 +248,4 @@ def test_song_from_dict():
         == "https://i.scdn.co/image/ab67616d0000b273fe2cb38e4d2412dbb0e54332"
     )
     assert song.explicit == False
+    assert song.popularity == 0
