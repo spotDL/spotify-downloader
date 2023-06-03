@@ -331,19 +331,7 @@ def create_file_name(
         short=short,
     )
 
-    # Parse template as Path object
-    file = Path(formatted_string)
-
-    santitized_parts = []
-    for part in file.parts:
-        match = re.search(r"[^\.*](.*)[^\.*$]", part)
-        if match and part != ".spotdl":
-            santitized_parts.append(match.group(0))
-        else:
-            santitized_parts.append(part)
-
-    # Join the parts of the path
-    file = Path(*santitized_parts)
+    file = create_path_object(formatted_string)
 
     length_limit = file_name_length or 255
 
@@ -365,64 +353,73 @@ def create_file_name(
             file_name_length=length_limit,
         )
 
+    non_template_chars = re.findall(r"(?<!{)[^{}]+(?![^{}]*})", template)
+    half_length = int((length_limit * 0.50) - (len("".join(non_template_chars)) / 2))
+
     # Path template is already short, but we still can't create a file
     # so we reduce it even further
-    long_artist = len(song.artist) > (length_limit * 0.50)
-    long_title = len(song.name) > (length_limit * 0.50)
+    is_long_artist = len(temp_song.artist) > half_length
+    is_long_title = len(temp_song.name) > half_length
 
     path_separator = "/" if "/" in template else "\\"
     name_template_parts = template.rsplit(path_separator, 1)
     name_template = (
         name_template_parts[1]
-        if len(name_template_parts) == 1
+        if len(name_template_parts) > 1
         else name_template_parts[0]
     )
 
-    if long_artist:
+    if is_long_artist:
         logger.warning(
-            "%s: File name is too long. Using only part of song artist.",
+            "%s: Song artist is too long. Using only part of song artist.",
             temp_song.display_name,
         )
 
-        short_artist = temp_song.artist.split(",")[0]
-        temp_song.artist = short_artist
-        if len(temp_song.artist) > (length_limit * 0.50):
-            temp_song.artist = temp_song.artist.split(" ")[0]
+        temp_song.artist = smart_split(temp_song.artist, half_length, None)
+        temp_song.artists = [temp_song.artist]
 
-    if long_title:
+    if is_long_title:
         logger.warning(
             "%s: File name is too long. Using only part of the song title.",
             temp_song.display_name,
         )
 
-        name_parts = temp_song.name.split(" ")
+        temp_song.name = smart_split(temp_song.name, half_length, None)
 
-        old_name = temp_song.name
-        temp_song.name = ""
-        for part in name_parts:
-            old_name = temp_song.name
-            temp_song.name += part + " "
+    new_file = create_path_object(
+        format_query(
+            song=temp_song,
+            template=name_template,
+            santitize=True,
+            file_extension=file_extension,
+            short=short,
+        )
+    )
 
-            formatted_name = format_query(
-                song=temp_song,
-                template=name_template,
-                santitize=True,
-                file_extension=file_extension,
-                short=True,
+    if len(new_file.name) > length_limit:
+        logger.warning(
+            "File name is still too long. "
+            "Using default file name with shortened artist and title."
+        )
+
+        if template == "{artist} - {title}.{output-ext}":
+            raise ValueError(
+                "File name is still too long, "
+                "but the template is already short. "
+                "Please try other template, "
+                "increase the file name length limit."
             )
 
-            if len(formatted_name.strip()) > length_limit:
-                temp_song.name = old_name.strip()
-                break
+        return create_file_name(
+            temp_song,
+            "{artist} - {title}.{output-ext}",
+            file_extension,
+            restrict=restrict,
+            short=True,
+            file_name_length=length_limit,
+        )
 
-    return create_file_name(
-        song=temp_song,
-        template=template,
-        file_extension=file_extension,
-        restrict=restrict,
-        short=short,
-        file_name_length=length_limit,
-    )
+    return new_file
 
 
 def parse_duration(duration: Optional[str]) -> float:
@@ -530,3 +527,65 @@ def ratio(string1: str, string2: str) -> float:
     """
 
     return fuzz.ratio(string1, string2)
+
+
+def smart_split(
+    string: str, max_length: int, separators: Optional[List[str]] = None
+) -> str:
+    """
+    Split a string into a list of strings
+    with a maximum length of max_length.
+    Stops at the first separator that produces a string
+    with a length less than max_length.
+
+    ### Arguments
+    - string: the string to split
+    - max_length: the maximum length of string
+    - separators: the separators to split the string with
+
+    ### Returns
+    - the new string
+    """
+
+    if separators is None:
+        separators = ["-", ",", " ", ""]
+
+    for separator in separators:
+        parts = string.split(separator if separator != "" else None)
+        new_string = separator.join(parts[:1])
+        for part in parts[1:]:
+            if len(new_string) + len(separator) + len(part) > max_length:
+                break
+            new_string += separator + part
+
+        if len(new_string) <= max_length:
+            return new_string
+
+    return string[:max_length]
+
+
+def create_path_object(string: str) -> Path:
+    """
+    Create a Path object from a string.
+    Sanitizes the filename part of the Path object.
+
+    ### Arguments
+    - string: the string to convert
+
+    ### Returns
+    - the Path object
+    """
+
+    # Parse template as Path object
+    file = Path(string)
+
+    santitized_parts = []
+    for part in file.parts:
+        match = re.search(r"[^\.*](.*)[^\.*$]", part)
+        if match and part != ".spotdl":
+            santitized_parts.append(match.group(0))
+        else:
+            santitized_parts.append(part)
+
+    # Join the parts of the path
+    return Path(*santitized_parts)
