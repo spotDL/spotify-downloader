@@ -57,6 +57,7 @@ FFMPEG_FORMATS = {
     "ogg": ["-codec:a", "libvorbis"],
     "opus": ["-codec:a", "libopus"],
     "m4a": ["-codec:a", "aac"],
+    "wav": ["-codec:a", "pcm_s16le"],
 }
 
 DUR_REGEX = re.compile(
