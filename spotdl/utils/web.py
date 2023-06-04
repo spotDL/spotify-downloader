@@ -139,7 +139,7 @@ class Client:
         await self.websocket.accept()
 
         # Add the connection to the list of connections
-        app_state.clients.append(self)
+        app_state.clients[self.client_id] = self
         app_state.logger.info("Client %s connected", self.client_id)
 
     async def send_update(self, update: Dict[str, Any]):
@@ -183,9 +183,9 @@ class Client:
         - returns the WebSocket instance.
         """
 
-        for instance in app_state.clients:
-            if instance.client_id == client_id:
-                return instance
+        instance = app_state.clients.get(client_id)
+        if instance:
+            return instance
 
         app_state.logger.error("Client %s not found", client_id)
 
@@ -202,7 +202,7 @@ class ApplicationState:
     loop: asyncio.AbstractEventLoop
     web_settings: WebOptions
     downloader_settings: DownloaderOptions
-    clients: List[Client] = []
+    clients: Dict[str, Client] = {}
     logger: logging.Logger
 
 
@@ -257,9 +257,7 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
         while True:
             await websocket.receive_json()
     except WebSocketDisconnect:
-        instance = Client.get_instance(client_id)
-        if instance:
-            app_state.clients.remove(instance)
+        app_state.clients.pop(client_id, None)
 
         if (
             len(app_state.clients) == 0
@@ -460,6 +458,7 @@ def update_settings(
     new_settings = DownloaderOptions(**settings_cpy)  # type: ignore
 
     # Re-initialize downloader
+    client.downloader_settings = new_settings
     client.downloader = Downloader(
         new_settings,
         loop=state.loop,
