@@ -37,7 +37,7 @@ from mutagen.id3._frames import (
 )
 from mutagen.id3._specs import Encoding
 from mutagen.mp4 import MP4Cover
-from mutagen.wave import WAVE, _WaveID3
+from mutagen.wave import WAVE
 
 from spotdl.types.song import Song
 from spotdl.utils.formatter import to_ms
@@ -546,24 +546,26 @@ def embed_wav_file(output_file: Path, song: Song):
 
     audio.add_tags()
 
-    audio.tags.add(TIT2(encoding=3, text=song.name)) # type: ignore
-    audio.tags.add(TPE1(encoding=3, text=song.artists)) # type: ignore
-    audio.tags.add(TALB(encoding=3, text=song.album_name)) # type: ignore
-    audio.tags.add(TCOM(encoding=3, text=song.publisher)) # type: ignore
-    audio.tags.add(TCON(encoding=3, text=song.genres)) # type: ignore
-    audio.tags.add(TDRC(encoding=3, text=song.date)) # type: ignore
-    audio.tags.add(TRCK(encoding=3, text=f"{song.track_number}/{song.tracks_count}")) # type: ignore
-    audio.tags.add(TDRC(encoding=3, text=song.date)) # type: ignore
-    audio.tags.add(WOAS(encoding=3, text=song.url)) # type: ignore
+    audio.tags.add(TIT2(encoding=3, text=song.name))  # type: ignore
+    audio.tags.add(TPE1(encoding=3, text=song.artists))  # type: ignore
+    audio.tags.add(TALB(encoding=3, text=song.album_name))  # type: ignore
+    audio.tags.add(TCOM(encoding=3, text=song.publisher))  # type: ignore
+    audio.tags.add(TCON(encoding=3, text=song.genres))  # type: ignore
+    audio.tags.add(TDRC(encoding=3, text=song.date))  # type: ignore
+    audio.tags.add(
+        TRCK(encoding=3, text=f"{song.track_number}/{song.tracks_count}")
+    )  # type: ignore
+    audio.tags.add(TDRC(encoding=3, text=song.date))  # type: ignore
+    audio.tags.add(WOAS(encoding=3, text=song.url))  # type: ignore
 
     if song.download_url:
-        audio.tags.add(COMM(encoding=3, text=song.download_url)) # type: ignore
+        audio.tags.add(COMM(encoding=3, text=song.download_url))  # type: ignore
 
     if song.copyright_text:
-        audio.tags.add(TCOP(encoding=3, text=song.copyright_text)) # type: ignore
+        audio.tags.add(TCOP(encoding=3, text=song.copyright_text))  # type: ignore
 
     if song.popularity:
-        audio.tags.add( # type: ignore
+        audio.tags.add(  # type: ignore
             COMM(
                 encoding=3,
                 lang="eng",
@@ -574,7 +576,7 @@ def embed_wav_file(output_file: Path, song: Song):
     if song.cover_url:
         try:
             cover_data = requests.get(song.cover_url, timeout=10).content
-            audio.tags.add( # type: ignore
+            audio.tags.add(  # type: ignore
                 APIC(
                     encoding=3, mime="image/jpeg", type=3, desc="Cover", data=cover_data
                 )
@@ -589,7 +591,7 @@ def embed_wav_file(output_file: Path, song: Song):
         lrc_lines = [line for line in lrc_lines if line and LRC_REGEX.match(line)]
 
         if len(lrc_lines) == 0:
-            audio.tags.add(USLT(encoding=Encoding.UTF8, text=song.lyrics)) # type: ignore
+            audio.tags.add(USLT(encoding=Encoding.UTF8, text=song.lyrics))  # type: ignore
         else:
             lrc_data = []
             for line in song.lyrics.splitlines():
@@ -609,7 +611,7 @@ def embed_wav_file(output_file: Path, song: Song):
                 time = to_ms(min=minute, sec=sec, ms=millisecond)
                 lrc_data.append((text, time))
 
-            audio.tags.add(USLT(encoding=3, text=song.lyrics)) # type: ignore
-            audio.tags.add(SYLT(encoding=3, text=lrc_data, format=2, type=1)) # type: ignore
+            audio.tags.add(USLT(encoding=3, text=song.lyrics))  # type: ignore
+            audio.tags.add(SYLT(encoding=3, text=lrc_data, format=2, type=1))  # type: ignore
 
     audio.save()
