@@ -11,6 +11,7 @@ embed_metadata(
 """
 
 import base64
+import logging
 import re
 from pathlib import Path
 from typing import Any, Dict, Optional
@@ -19,12 +20,29 @@ import requests
 from mutagen._file import File
 from mutagen.flac import Picture
 from mutagen.id3 import ID3
-from mutagen.id3._frames import APIC, COMM, SYLT, USLT, WOAS
+from mutagen.id3._frames import (
+    APIC,
+    COMM,
+    SYLT,
+    TALB,
+    TCOM,
+    TCON,
+    TCOP,
+    TDRC,
+    TIT2,
+    TPE1,
+    TRCK,
+    USLT,
+    WOAS,
+)
 from mutagen.id3._specs import Encoding
 from mutagen.mp4 import MP4Cover
+from mutagen.wave import WAVE, _WaveID3
 
 from spotdl.types.song import Song
 from spotdl.utils.formatter import to_ms
+
+logger = logging.getLogger(__name__)
 
 __all__ = [
     "MetadataError",
@@ -140,6 +158,10 @@ def embed_metadata(output_file: Path, song: Song, id3_separator: str = "/"):
 
     # Get the file extension for the output file
     encoding = output_file.suffix[1:]
+
+    if encoding == "wav":
+        embed_wav_file(output_file, song)
+        return
 
     # Get the tag preset for the file extension
     tag_preset = TAG_PRESET if encoding != "m4a" else M4A_TAG_PRESET
@@ -334,9 +356,7 @@ def embed_lyrics(audio_file, song: Song, encoding: str):
                 lrc_data.append((text, time))
 
             audio_file.add(USLT(encoding=3, text=song.lyrics))
-            audio_file.add(
-                SYLT(encoding=Encoding.UTF8, text=lrc_data, format=2, type=1)
-            )
+            audio_file.add(SYLT(encoding=3, text=lrc_data, format=2, type=1))
         else:
             audio_file[tag_preset["lyrics"]] = song.lyrics
 
@@ -506,3 +526,91 @@ def get_file_metadata(path: Path, id3_separator: str = "/") -> Optional[Dict[str
         song_meta["artist"] = None
 
     return song_meta
+
+
+def embed_wav_file(output_file: Path, song: Song):
+    """
+    Embeds the song metadata into the wav file
+
+    ### Arguments
+    - output_file: The output file path
+    - song: The song object
+    - id3_separator: The separator used for the id3 tags
+    """
+    audio = WAVE(output_file)
+    if audio is None:
+        raise ValueError("Invalid audio file")
+
+    if audio.tags:
+        audio.tags.clear()
+
+    if audio.tags is None:
+        audio.tags = _WaveID3()
+
+    audio.tags.add(TIT2(encoding=3, text=song.name))
+    audio.tags.add(TPE1(encoding=3, text=song.artists))
+    audio.tags.add(TALB(encoding=3, text=song.album_name))
+    audio.tags.add(TCOM(encoding=3, text=song.publisher))
+    audio.tags.add(TCON(encoding=3, text=song.genres))
+    audio.tags.add(TDRC(encoding=3, text=song.date))
+    audio.tags.add(TRCK(encoding=3, text=f"{song.track_number}/{song.tracks_count}"))
+    audio.tags.add(TDRC(encoding=3, text=song.date))
+    audio.tags.add(WOAS(encoding=3, text=song.url))
+
+    if song.download_url:
+        audio.tags.add(COMM(encoding=3, text=song.download_url))
+
+    if song.copyright_text:
+        audio.tags.add(TCOP(encoding=3, text=song.copyright_text))
+
+    if song.popularity:
+        audio.tags.add(
+            COMM(
+                encoding=3,
+                lang="eng",
+                text="Spotify Popularity: " + str(song.popularity),
+            )
+        )
+
+    if song.cover_url:
+        try:
+            cover_data = requests.get(song.cover_url, timeout=10).content
+            audio.tags.add(
+                APIC(
+                    encoding=3, mime="image/jpeg", type=3, desc="Cover", data=cover_data
+                )
+            )
+        except Exception:
+            pass
+
+    if song.lyrics:
+        # Check if the lyrics are in lrc format
+        # using regex on the first 5 lines
+        lrc_lines = song.lyrics.splitlines()[:5]
+        lrc_lines = [line for line in lrc_lines if line and LRC_REGEX.match(line)]
+
+        if len(lrc_lines) == 0:
+            audio.tags.add(USLT(encoding=Encoding.UTF8, text=song.lyrics))
+        else:
+            lrc_data = []
+            for line in song.lyrics.splitlines():
+                time_tag = line.split("]", 1)[0] + "]"
+                text = line.replace(time_tag, "")
+
+                time_tag = time_tag.replace("[", "")
+                time_tag = time_tag.replace("]", "")
+                time_tag = time_tag.replace(".", ":")
+                time_tag_vals = time_tag.split(":")
+                if len(time_tag_vals) != 3 or any(
+                    not isinstance(tag, int) for tag in time_tag_vals
+                ):
+                    continue
+
+                minute, sec, millisecond = time_tag_vals
+                time = to_ms(min=minute, sec=sec, ms=millisecond)
+                lrc_data.append((text, time))
+
+            audio.tags.add(USLT(encoding=3, text=song.lyrics))
+            audio.tags.add(SYLT(encoding=3, text=lrc_data, format=2, type=1))
+
+    audio.save()
