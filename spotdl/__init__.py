@@ -35,7 +35,7 @@ class Spotdl:
         'https://open.spotify.com/track/4cOdK2wGLETKBW3PvgPWqT'])
 
     results = spotdl.download_songs(songs)
-    song, path = spotdl. download(songs[0])
+    song, path = spotdl.download(songs[0])
     ```
     """
 
