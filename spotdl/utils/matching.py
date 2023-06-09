@@ -48,6 +48,9 @@ FORBIDDEN_WORDS = [
     "live",
     "acoustic",
     "8daudio",
+    "concert",
+    "live",
+    "acapella",
 ]
 
 
