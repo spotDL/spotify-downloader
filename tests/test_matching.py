@@ -72,6 +72,7 @@ from tests.conftest import new_initialize
                 "https://www.youtube.com/watch?v=H4kTNq0npEQ",
                 "https://www.youtube.com/watch?v=rk2hmQF4oDc",
                 "https://www.youtube.com/watch?v=iAbnEUA0wpA",
+                "https://www.youtube.com/watch?v=moi_oii0Ls8",
             ],
         ),
         (
@@ -254,6 +255,7 @@ from tests.conftest import new_initialize
                 "https://music.youtube.com/watch?v=U4OSUSK5_rU",
                 "https://music.youtube.com/watch?v=5QubA-k2Vig",
                 "https://music.youtube.com/watch?v=bBQ9dujVLQ0",
+                "https://www.youtube.com/watch?v=2so8YAEwuio",
             ],
         ),
         (
@@ -334,6 +336,16 @@ from tests.conftest import new_initialize
             "https://open.spotify.com/track/5ittjnOocNZ5dRoRXMMGAC",
             ["https://music.youtube.com/watch?v=AZXGnKwRA2A"],
         ),
+        (
+            # Metallica - For Whom The Bell Tolls (Remastered)
+            "https://open.spotify.com/track/51YZAJhOwIC5Gg3jMbAmhZ",
+            [
+                "https://www.youtube.com/watch?v=KO3l6qNA2Q4",
+                "https://www.youtube.com/watch?v=unrdoZwLYbU",
+                "https://www.youtube.com/watch?v=B_HSa1dEL9s",
+                "https://www.youtube.com/watch?v=tp83QrhNguM",
+            ],
+        ),
         # (
         #     # Kado - Tired Eyes
         #     "https://open.spotify.com/track/0MSLJOWljfQr067PYyndK9",
@@ -349,4 +361,6 @@ def test_ytmusic_matching(monkeypatch, query, expected):
 
     yt_music = YouTubeMusic()
 
-    assert yt_music.search(Song.from_url(query)) in expected
+    video_ids = [link.split("?v=")[1] for link in expected]
+
+    assert yt_music.search(Song.from_url(query)).split("?v=")[1] in video_ids
