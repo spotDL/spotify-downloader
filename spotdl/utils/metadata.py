@@ -552,9 +552,9 @@ def embed_wav_file(output_file: Path, song: Song):
     audio.tags.add(TCOM(encoding=3, text=song.publisher))  # type: ignore
     audio.tags.add(TCON(encoding=3, text=song.genres))  # type: ignore
     audio.tags.add(TDRC(encoding=3, text=song.date))  # type: ignore
-    audio.tags.add(
-        TRCK(encoding=3, text=f"{song.track_number}/{song.tracks_count}")
-    )  # type: ignore
+    audio.tags.add(  # type: ignore
+        TRCK(encoding=3, text=f"{song.track_number}/{song.tracks_count}")  # type: ignore
+    )
     audio.tags.add(TDRC(encoding=3, text=song.date))  # type: ignore
     audio.tags.add(WOAS(encoding=3, text=song.url))  # type: ignore
 
