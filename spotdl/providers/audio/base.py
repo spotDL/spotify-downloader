@@ -324,6 +324,10 @@ class AudioProvider:
 
             highest_views = max(views)
             lowest_views = min(views)
+
+            if highest_views in (0, lowest_views):
+                return best_result[0], best_result[1]
+
             weighted_results = []
             for index, (best_result, match_score) in enumerate(best_results):
                 result_views = views[index]
