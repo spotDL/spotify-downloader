@@ -92,19 +92,60 @@ def test_create_file_name():
     )
 
     assert create_file_name(
-        song, "{title} - {artist}", "mp3", restrict=True, short=False
-    ) == Path("Ropes-Dirty_Palm.mp3")
-
-    assert create_file_name(
-        song, "{title} - {artist}", "mp3", restrict=True, short=True
-    ) == Path("Ropes-Dirty_Palm.mp3")
-
-    assert create_file_name(
         song,
         "{list-position}/{list-length} {title} - {artist}",
         "mp3",
     ) == Path(  # type: ignore
         "05/11 Ropes - Dirty Palm.mp3"
+    )
+
+
+def test_create_file_name_restrict():
+    """
+    Test restrict options in create file name function
+    """
+
+    song = Song.from_dict({
+        'name': 'Crazy - Nôze Remix - Extended Club Version',
+        'artists': ['Ornette'],
+        'artist': 'Ornette',
+        'genres': ['french indie pop'],
+        'disc_number': 1,
+        'disc_count': 1,
+        'album_name': 'Crazy (Nôze Remix)',
+        'album_artist': 'Ornette',
+        'duration': 359.835,
+        'year': 2012,
+        'date': '2012-02-06',
+        'track_number': 2,
+        'tracks_count': 2,
+        'song_id': '5OkuO5pfHG6Gmput8aV4ju',
+        'explicit': False,
+        'publisher': 'Discograph',
+        'url': 'https://open.spotify.com/track/5OkuO5pfHG6Gmput8aV4ju',
+        'isrc': 'FRP211100610',
+        'cover_url': 'https://i.scdn.co/image/ab67616d0000b273336ebd9ff0bfe3fe97652887',
+        'copyright_text': '2012 Discograph',
+        'download_url': None,
+        'lyrics': None,
+        'popularity': 42,
+        'album_id': '5WH54AbrW5ILvVavvuqFwo',
+        'list_name': None,
+        'list_url': None,
+        'list_position': None,
+        'list_length': None
+    })
+
+    assert create_file_name(song, "{artist} - {title}", "mp3", restrict='strict') == Path(
+        "Ornette-Crazy-Noze_Remix-Extended_Club_Version.mp3"
+    )
+
+    assert create_file_name(song, "{artist} - {title}", "mp3", restrict='ascii') == Path(
+        "Ornette - Crazy - Noze Remix - Extended Club Version.mp3"
+    )
+
+    assert create_file_name(song, "{artist} - {title}", "mp3", restrict=None) == Path(
+        "Ornette - Crazy - Nôze Remix - Extended Club Version.mp3"
     )
 
 

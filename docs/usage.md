@@ -262,7 +262,7 @@ If you don't want config to load automatically change `load_config` option in co
     "filter_results": true,
     "threads": 4,
     "cookie_file": null,
-    "restrict": false,
+    "restrict": null,
     "print_errors": false,
     "sponsor_block": false,
     "preload": false,
@@ -391,7 +391,8 @@ Output options:
                         Path to cookies file.
   --overwrite {metadata,skip,force}
                         How to handle existing/duplicate files. (When combined with --scan-for-songs force will remove all duplicates, and metadata will only apply metadata to the latest song and will remove the rest. )
-  --restrict            Restrict filenames to ASCII only
+  --restrict [{strict,ascii,none}]
+                        Restrict filenames to a sanitized set of characters for increased compatibility
   --print-errors        Print errors (wrong songs, failed downloads etc) on exit, useful for long playlist
   --sponsor-block       Use the sponsor block to download songs from yt/ytm.
   --archive ARCHIVE     Specify the file name for an archive of already downloaded songs

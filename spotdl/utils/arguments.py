@@ -385,12 +385,14 @@ def parse_output_options(parser: _ArgumentGroup):
         type=str,
     )
 
-    # Option to restrict filenames for easier handling in the shell
+    # Option to increase compatibility of filenames and easier handling in the shell
     parser.add_argument(
         "--restrict",
-        action="store_const",
-        const=True,
-        help="Restrict filenames to ASCII only",
+        choices={"strict", "ascii", "none"},
+        const="strict",
+        nargs="?",
+        help="Restrict filenames to a sanitized set of characters for better compatibility",
+        type=str,
     )
 
     # Option to print errors on exit, useful for long playlist
