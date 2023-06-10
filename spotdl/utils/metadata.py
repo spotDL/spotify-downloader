@@ -71,6 +71,7 @@ M4A_TAG_PRESET = {
     "lyrics": "\xa9lyr",
     "explicit": "rtng",
     "woas": "----:spotdl:WOAS",
+    "isrc": "----:spotdl:ISRC",
 }
 
 MP3_TAG_PRESET = {
@@ -93,6 +94,7 @@ MP3_TAG_PRESET = {
     "tempo": "TBPM",
     "lyrics": "USLT::XXX",
     "woas": "WOAS",
+    "isrc": "ISRC",
     "explicit": "NULL",
 }
 
@@ -110,6 +112,7 @@ TAG_TO_SONG = {
     "tracknumber": "track_number",
     "encodedby": "publisher",
     "woas": "url",
+    "isrc": "isrc",
     "copyright": "copyright_text",
     "lyrics": "lyrics",
     "albumart": "album_art",
@@ -186,6 +189,7 @@ def embed_metadata(output_file: Path, song: Song, id3_separator: str = "/"):
         audio_file[tag_preset["discnumber"]] = zfilled_disc_number
         audio_file[tag_preset["tracknumber"]] = zfilled_track_number
         audio_file[tag_preset["woas"]] = song.url
+        audio_file[tag_preset["isrc"]] = song.isrc
     elif encoding == "m4a":
         audio_file[tag_preset["discnumber"]] = [(song.disc_number, song.disc_count)]
         audio_file[tag_preset["tracknumber"]] = [(song.track_number, song.tracks_count)]
