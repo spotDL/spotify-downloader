@@ -1633,7 +1633,11 @@
 
       <details class="quote">
         <summary>Source code in <code>spotdl/utils/metadata.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">238</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">234</span>
+<span class="normal">235</span>
+<span class="normal">236</span>
+<span class="normal">237</span>
+<span class="normal">238</span>
 <span class="normal">239</span>
 <span class="normal">240</span>
 <span class="normal">241</span>
@@ -1678,11 +1682,7 @@
 <span class="normal">280</span>
 <span class="normal">281</span>
 <span class="normal">282</span>
-<span class="normal">283</span>
-<span class="normal">284</span>
-<span class="normal">285</span>
-<span class="normal">286</span>
-<span class="normal">287</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">embed_cover</span><span class="p">(</span><span class="n">audio_file</span><span class="p">,</span> <span class="n">song</span><span class="p">:</span> <span class="n">Song</span><span class="p">,</span> <span class="n">encoding</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="normal">283</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">embed_cover</span><span class="p">(</span><span class="n">audio_file</span><span class="p">,</span> <span class="n">song</span><span class="p">:</span> <span class="n">Song</span><span class="p">,</span> <span class="n">encoding</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Embed the album art in the audio file.</span>
 
@@ -1760,7 +1760,11 @@
 
       <details class="quote">
         <summary>Source code in <code>spotdl/utils/metadata.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">290</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">286</span>
+<span class="normal">287</span>
+<span class="normal">288</span>
+<span class="normal">289</span>
+<span class="normal">290</span>
 <span class="normal">291</span>
 <span class="normal">292</span>
 <span class="normal">293</span>
@@ -1813,11 +1817,7 @@
 <span class="normal">340</span>
 <span class="normal">341</span>
 <span class="normal">342</span>
-<span class="normal">343</span>
-<span class="normal">344</span>
-<span class="normal">345</span>
-<span class="normal">346</span>
-<span class="normal">347</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">embed_lyrics</span><span class="p">(</span><span class="n">audio_file</span><span class="p">,</span> <span class="n">song</span><span class="p">:</span> <span class="n">Song</span><span class="p">,</span> <span class="n">encoding</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="normal">343</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">embed_lyrics</span><span class="p">(</span><span class="n">audio_file</span><span class="p">,</span> <span class="n">song</span><span class="p">:</span> <span class="n">Song</span><span class="p">,</span> <span class="n">encoding</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Detect lyrics type (lrc or txt) and embed them in the audio file.</span>
 
@@ -1902,7 +1902,10 @@
 
       <details class="quote">
         <summary>Source code in <code>spotdl/utils/metadata.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">135</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
 <span class="normal">136</span>
 <span class="normal">137</span>
 <span class="normal">138</span>
@@ -1998,11 +2001,7 @@
 <span class="normal">228</span>
 <span class="normal">229</span>
 <span class="normal">230</span>
-<span class="normal">231</span>
-<span class="normal">232</span>
-<span class="normal">233</span>
-<span class="normal">234</span>
-<span class="normal">235</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">embed_metadata</span><span class="p">(</span><span class="n">output_file</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">song</span><span class="p">:</span> <span class="n">Song</span><span class="p">,</span> <span class="n">id3_separator</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;/&quot;</span><span class="p">):</span>
+<span class="normal">231</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">embed_metadata</span><span class="p">(</span><span class="n">output_file</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">song</span><span class="p">:</span> <span class="n">Song</span><span class="p">,</span> <span class="n">id3_separator</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;/&quot;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Set ID3 tags for generic files (FLAC, OPUS, OGG)</span>
 
@@ -2059,7 +2058,6 @@
         <span class="n">audio_file</span><span class="p">[</span><span class="n">tag_preset</span><span class="p">[</span><span class="s2">&quot;discnumber&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">zfilled_disc_number</span>
         <span class="n">audio_file</span><span class="p">[</span><span class="n">tag_preset</span><span class="p">[</span><span class="s2">&quot;tracknumber&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">zfilled_track_number</span>
         <span class="n">audio_file</span><span class="p">[</span><span class="n">tag_preset</span><span class="p">[</span><span class="s2">&quot;woas&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">song</span><span class="o">.</span><span class="n">url</span>
-        <span class="n">audio_file</span><span class="p">[</span><span class="n">tag_preset</span><span class="p">[</span><span class="s2">&quot;isrc&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">song</span><span class="o">.</span><span class="n">isrc</span>
     <span class="k">elif</span> <span class="n">encoding</span> <span class="o">==</span> <span class="s2">&quot;m4a&quot;</span><span class="p">:</span>
         <span class="n">audio_file</span><span class="p">[</span><span class="n">tag_preset</span><span class="p">[</span><span class="s2">&quot;discnumber&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[(</span><span class="n">song</span><span class="o">.</span><span class="n">disc_number</span><span class="p">,</span> <span class="n">song</span><span class="o">.</span><span class="n">disc_count</span><span class="p">)]</span>
         <span class="n">audio_file</span><span class="p">[</span><span class="n">tag_preset</span><span class="p">[</span><span class="s2">&quot;tracknumber&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[(</span><span class="n">song</span><span class="o">.</span><span class="n">track_number</span><span class="p">,</span> <span class="n">song</span><span class="o">.</span><span class="n">tracks_count</span><span class="p">)]</span>
@@ -2138,7 +2136,11 @@
 
       <details class="quote">
         <summary>Source code in <code>spotdl/utils/metadata.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">350</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">346</span>
+<span class="normal">347</span>
+<span class="normal">348</span>
+<span class="normal">349</span>
+<span class="normal">350</span>
 <span class="normal">351</span>
 <span class="normal">352</span>
 <span class="normal">353</span>
@@ -2296,11 +2298,7 @@
 <span class="normal">505</span>
 <span class="normal">506</span>
 <span class="normal">507</span>
-<span class="normal">508</span>
-<span class="normal">509</span>
-<span class="normal">510</span>
-<span class="normal">511</span>
-<span class="normal">512</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_file_metadata</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">id3_separator</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;/&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+<span class="normal">508</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_file_metadata</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">id3_separator</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;/&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get song metadata.</span>
 
