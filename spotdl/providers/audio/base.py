@@ -338,7 +338,7 @@ class AudioProvider:
             if highest_views in (0, lowest_views):
                 return best_result[0], best_result[1]
 
-            weighted_results: List[Tuple[Result, float]]= []
+            weighted_results: List[Tuple[Result, float]] = []
             for index, best_result in enumerate(best_results):
                 result_views = views[index]
                 views_score = (
