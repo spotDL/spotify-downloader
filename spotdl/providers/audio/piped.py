@@ -13,7 +13,7 @@ from spotdl.types.result import Result
 __all__ = ["Piped"]
 
 HEADERS = {
-    'accept': '*/*',
+    "accept": "*/*",
 }
 
 
