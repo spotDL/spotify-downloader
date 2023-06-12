@@ -9,11 +9,12 @@ import logging
 import re
 from functools import lru_cache
 from pathlib import Path
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 
 import pykakasi
 from rapidfuzz import fuzz
 from slugify import slugify as py_slugify
+from yt_dlp.options import create_parser
 from yt_dlp.utils import sanitize_filename
 
 from spotdl.types.song import Song
@@ -32,6 +33,9 @@ __all__ = [
     "to_ms",
     "restrict_filename",
     "ratio",
+    "smart_split",
+    "create_path_object",
+    "args_to_ytdlp_options",
 ]
 
 VARS = [
@@ -64,6 +68,7 @@ JAP_REGEX = re.compile(
 )
 
 DISALLOWED_REGEX = re.compile(r"[^-a-zA-Z0-9\!\@\$]+")
+YT_DLP_PARSER = create_parser()
 
 logger = logging.getLogger(__name__)
 
@@ -589,3 +594,48 @@ def create_path_object(string: str) -> Path:
 
     # Join the parts of the path
     return Path(*santitized_parts)
+
+
+def args_to_ytdlp_options(argument_list: List[str]) -> Dict[str, Any]:
+    """
+    Convert a list of arguments to a dictionary of options.
+
+    ### Arguments
+    - argument_list: the list of arguments
+
+    ### Returns
+    - the dictionary of options
+    """
+
+    options_dict = {}
+    for option_group in YT_DLP_PARSER.option_groups:
+        for option in option_group.option_list:
+            for opts in option._long_opts:  # pylint: disable=protected-access
+                try:
+                    index = argument_list.index(opts)
+                except ValueError:
+                    continue
+
+                print("Found option:", opts)
+
+                if option.action == "store_true":
+                    options_dict[option.dest] = True
+                    continue
+
+                if option.action == "store_false":
+                    options_dict[option.dest] = False
+                    continue
+
+                if option.action == "store":
+                    values = []
+                    val_index = index
+                    while val_index + 1 < len(argument_list) and not argument_list[
+                        val_index + 1
+                    ].startswith("--"):
+                        values.append(argument_list[val_index + 1])
+                        val_index += 1
+
+                    options_dict[option.dest] = values
+
+    print(options_dict)
+    return options_dict

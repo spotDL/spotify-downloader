@@ -276,6 +276,7 @@ DOWNLOADER_OPTIONS: DownloaderOptions = {
     "only_verified_results": False,
     "sync_without_deleting": False,
     "max_filename_length": None,
+    "yt_dlp_args": None,
 }
 
 WEB_OPTIONS: WebOptions = {

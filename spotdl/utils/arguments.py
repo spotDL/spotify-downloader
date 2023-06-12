@@ -509,6 +509,13 @@ def parse_output_options(parser: _ArgumentGroup):
         ),
     )
 
+    # YT-DlP options
+    parser.add_argument(
+        "--yt-dlp-args",
+        type=str,
+        help="Arguments to pass to yt-dlp",
+    )
+
 
 def parse_web_options(parser: _ArgumentGroup):
     """

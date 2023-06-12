@@ -4,6 +4,7 @@ Base audio provider module.
 
 import logging
 import re
+import shlex
 from typing import Any, Dict, List, Optional, Tuple
 
 from yt_dlp import YoutubeDL
@@ -11,7 +12,11 @@ from yt_dlp import YoutubeDL
 from spotdl.types.result import Result
 from spotdl.types.song import Song
 from spotdl.utils.config import get_temp_path
-from spotdl.utils.formatter import create_search_query, create_song_title
+from spotdl.utils.formatter import (
+    args_to_ytdlp_options,
+    create_search_query,
+    create_song_title,
+)
 from spotdl.utils.matching import get_best_matches, order_results
 
 __all__ = ["AudioProviderError", "AudioProvider", "ISRC_REGEX", "YTDLLogger"]
@@ -70,6 +75,7 @@ class AudioProvider:
         cookie_file: Optional[str] = None,
         search_query: Optional[str] = None,
         filter_results: bool = True,
+        yt_dlp_args: Optional[str] = None,
     ) -> None:
         """
         Base class for audio providers.
@@ -94,18 +100,22 @@ class AudioProvider:
         else:
             ytdl_format = "bestaudio"
 
-        self.audio_handler = YoutubeDL(
-            {
-                "format": ytdl_format,
-                "quiet": True,
-                "no_warnings": True,
-                "encoding": "UTF-8",
-                "logger": YTDLLogger(),
-                "cookiefile": self.cookie_file,
-                "outtmpl": f"{get_temp_path()}/%(id)s.%(ext)s",
-                "retries": 5,
-            }
-        )
+        yt_dlp_options = {
+            "format": ytdl_format,
+            "quiet": True,
+            "no_warnings": True,
+            "encoding": "UTF-8",
+            "logger": YTDLLogger(),
+            "cookiefile": self.cookie_file,
+            "outtmpl": f"{get_temp_path()}/%(id)s.%(ext)s",
+            "retries": 5,
+        }
+
+        if yt_dlp_args:
+            user_options = args_to_ytdlp_options(shlex.split(yt_dlp_args))
+            yt_dlp_options.update(user_options)
+
+        self.audio_handler = YoutubeDL(yt_dlp_options)
 
     def get_results(self, search_term: str, **kwargs) -> List[Result]:
         """

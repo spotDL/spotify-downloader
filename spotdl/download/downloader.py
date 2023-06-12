@@ -179,6 +179,7 @@ class Downloader:
                     cookie_file=self.settings["cookie_file"],
                     search_query=self.settings["search_query"],
                     filter_results=self.settings["filter_results"],
+                    yt_dlp_args=self.settings["yt_dlp_args"],
                 )
             )
 
@@ -566,6 +567,7 @@ class Downloader:
                 cookie_file=self.settings["cookie_file"],
                 search_query=self.settings["search_query"],
                 filter_results=self.settings["filter_results"],
+                yt_dlp_args=self.settings["yt_dlp_args"],
             )
 
             logger.debug("Downloading %s using %s", song.display_name, download_url)
