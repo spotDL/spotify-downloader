@@ -338,14 +338,14 @@ class AudioProvider:
             if highest_views in (0, lowest_views):
                 return best_result[0], best_result[1]
 
-            weighted_results = []
-            for index, (best_result, match_score) in enumerate(best_results):
+            weighted_results: List[Tuple[Result, float]]= []
+            for index, best_result in enumerate(best_results):
                 result_views = views[index]
                 views_score = (
                     (result_views - lowest_views) / (highest_views - lowest_views)
                 ) * 15
-                score = min(match_score + views_score, 100)
-                weighted_results.append((best_result, score))
+                score = min(best_result[1] + views_score, 100)
+                weighted_results.append((best_result[0], score))
 
             # Now we return the result with the highest score
             return max(weighted_results, key=lambda x: x[1])

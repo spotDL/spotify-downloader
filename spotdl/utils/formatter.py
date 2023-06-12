@@ -607,7 +607,7 @@ def args_to_ytdlp_options(argument_list: List[str]) -> Dict[str, Any]:
     - the dictionary of options
     """
 
-    options_dict = {}
+    options_dict: Dict[str, Any] = {}
     for option_group in YT_DLP_PARSER.option_groups:
         for option in option_group.option_list:
             for opts in option._long_opts:  # pylint: disable=protected-access
@@ -615,8 +615,6 @@ def args_to_ytdlp_options(argument_list: List[str]) -> Dict[str, Any]:
                     index = argument_list.index(opts)
                 except ValueError:
                     continue
-
-                print("Found option:", opts)
 
                 if option.action == "store_true":
                     options_dict[option.dest] = True
@@ -637,5 +635,4 @@ def args_to_ytdlp_options(argument_list: List[str]) -> Dict[str, Any]:
 
                     options_dict[option.dest] = values
 
-    print(options_dict)
     return options_dict
