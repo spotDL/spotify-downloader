@@ -19,6 +19,7 @@ from yt_dlp.postprocessor.sponsorblock import SponsorBlockPP
 from spotdl.download.progress_handler import ProgressHandler
 from spotdl.providers.audio import (
     AudioProvider,
+    BandCamp,
     SliderKZ,
     SoundCloud,
     YouTube,
@@ -54,6 +55,7 @@ AUDIO_PROVIDERS: Dict[str, Type[AudioProvider]] = {
     "youtube-music": YouTubeMusic,
     "slider-kz": SliderKZ,
     "soundcloud": SoundCloud,
+    "bandcamp": BandCamp,
 }
 
 LYRICS_PROVIDERS: Dict[str, Type[LyricsProvider]] = {

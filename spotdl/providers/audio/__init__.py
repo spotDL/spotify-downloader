@@ -2,6 +2,7 @@
 Audio providers for spotdl.
 """
 
+from spotdl.providers.audio.bandcamp import BandCamp
 from spotdl.providers.audio.base import (
     ISRC_REGEX,
     AudioProvider,
@@ -18,6 +19,7 @@ __all__ = [
     "YouTubeMusic",
     "SliderKZ",
     "SoundCloud",
+    "BandCamp",
     "AudioProvider",
     "AudioProviderError",
     "YTDLLogger",
