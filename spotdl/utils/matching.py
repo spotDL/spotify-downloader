@@ -760,12 +760,12 @@ def order_results(
         time_match = calc_time_match(song, result)
         debug(song.song_id, result.result_id, f"Final time match: {time_match}")
 
-        # Ignore results with name match lower than 50%
-        if name_match <= 50:
+        # Ignore results with name match lower than 60%
+        if name_match <= 60:
             debug(
                 song.song_id,
                 result.result_id,
-                "Skipping result due to name match lower than 50%",
+                "Skipping result due to name match lower than 60%",
             )
             continue
 
