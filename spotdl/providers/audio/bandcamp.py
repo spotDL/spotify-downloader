@@ -66,7 +66,7 @@ class BandCamp(AudioProvider):
             soup = BeautifulSoup(response.text, "html.parser")
 
         results = soup.find("ul", {"class": "result-items"})
-        things_to_return = []
+        things_to_return: List[BandCampSearch.TrackResults] = []
 
         if not results:
             return things_to_return
