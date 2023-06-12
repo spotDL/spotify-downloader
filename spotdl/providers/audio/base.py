@@ -171,7 +171,7 @@ class AudioProvider:
         # search for song using isrc if it's available
         if song.isrc and self.SUPPORTS_ISRC and not self.search_query:
             isrc_results = self.get_results(
-                song.isrc, filter="songs", ignore_spelling=True
+                song.isrc, **self.GET_RESULTS_OPTS[0]
             )
 
             if only_verified:
@@ -369,6 +369,7 @@ class AudioProvider:
             if data:
                 return data
         except Exception as exception:
+            logger.debug(exception)
             raise AudioProviderError(f"YT-DLP download error - {url}") from exception
 
         raise AudioProviderError(f"No metadata found for the provided url {url}")
