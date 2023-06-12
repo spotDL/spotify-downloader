@@ -350,6 +350,8 @@ class AudioProvider:
             # Now we return the result with the highest score
             return max(weighted_results, key=lambda x: x[1])
 
+        return best_result[0], best_result[1]
+
     def get_download_metadata(self, url: str, download: bool = False) -> Dict:
         """
         Get metadata for a download using yt-dlp.
