@@ -37,6 +37,7 @@ from spotdl.types.options import (
     WebOptions,
 )
 from spotdl.types.song import Song
+from spotdl.types.playlist import Playlist
 from spotdl.utils.arguments import create_parser
 from spotdl.utils.config import (
     DOWNLOADER_OPTIONS,
@@ -283,18 +284,22 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
 
 
 @router.get("/api/song/url", response_model=None)
-def song_from_url(url: str) -> Song:
+def song_from_url(url: str) -> [Song]:
     """
-    Search for a song on spotify using url.
+    Search for a song or playlist on spotify using url.
 
     ### Arguments
     - url: The url to search.
 
     ### Returns
-    - returns the first result as a Song object.
+    - returns a list with Song objects to be downloaded.
     """
 
-    return Song.from_url(url)
+    if "playlist" in url:
+        pl = Playlist.from_url(url)
+        return list(map(lambda x: Song.from_url(x), pl.urls))
+    else:
+        return [Song.from_url(url)]
 
 
 @router.on_event("shutdown")
