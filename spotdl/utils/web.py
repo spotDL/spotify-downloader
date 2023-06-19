@@ -38,6 +38,8 @@ from spotdl.types.options import (
 )
 from spotdl.types.song import Song
 from spotdl.types.playlist import Playlist
+from spotdl.types.album import Album
+from spotdl.types.artist import Artist
 from spotdl.utils.arguments import create_parser
 from spotdl.utils.config import (
     DOWNLOADER_OPTIONS,
@@ -71,6 +73,10 @@ ALLOWED_ORIGINS = [
     "http://127.0.0.1:8800",
     "https://localhost:8800",
     "https://127.0.0.1:8800",
+    "https://localhost:5173",
+    "https://127.0.0.1:5173",
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
 ]
 
 
@@ -283,8 +289,8 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
                 await app_state.server.shutdown()
 
 
-@router.get("/api/song/url", response_model=None)
-def song_from_url(url: str) -> [Song]:
+@router.get("/api/url", response_model=None)
+def songs_from_url(url: str) -> List[Song]:
     """
     Search for a song or playlist on spotify using url.
 
@@ -298,6 +304,12 @@ def song_from_url(url: str) -> [Song]:
     if "playlist" in url:
         pl = Playlist.from_url(url)
         return list(map(lambda x: Song.from_url(x), pl.urls))
+    elif "album" in url:
+        album = Album.from_url(url)
+        return list(map(lambda x: Song.from_url(x), album.urls))
+    elif "artist" in url:
+        artist = Artist.from_url(url)
+        return list(map(lambda x: Song.from_url(x), artist.urls))
     else:
         return [Song.from_url(url)]
 
