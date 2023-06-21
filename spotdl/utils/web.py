@@ -79,6 +79,8 @@ ALLOWED_ORIGINS = [
     "http://127.0.0.1:5173",
 ]
 
+VERSION = "4.2"
+
 
 class SPAStaticFiles(StaticFiles):
     """
@@ -289,10 +291,26 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
                 await app_state.server.shutdown()
 
 
+#Deprecated
+@router.get("/api/song/url", response_model=None)
+def song_from_url(url: str) -> Song:
+    """
+    Search for a song on spotify using url.
+
+    ### Arguments
+    - url: The url to search.
+
+    ### Returns
+    - returns the first result as a Song object.
+    """
+
+    return Song.from_url(url)
+
+
 @router.get("/api/url", response_model=None)
 def songs_from_url(url: str) -> List[Song]:
     """
-    Search for a song or playlist on spotify using url.
+    Search for a song, playlist, artist or album on spotify using url.
 
     ### Arguments
     - url: The url to search.
@@ -312,6 +330,20 @@ def songs_from_url(url: str) -> List[Song]:
         return list(map(lambda x: Song.from_url(x), artist.urls))
     else:
         return [Song.from_url(url)]
+
+
+@router.get("/api/version", response_model=None)
+def version() -> str:
+    """
+    Get the current version
+    This method is created to ensure backward compatibility of the web app, 
+    as the web app is updated with the latests regardless of the backend version
+
+    ### Returns
+    -  returns the version of the app
+    """
+
+    return VERSION
 
 
 @router.on_event("shutdown")
