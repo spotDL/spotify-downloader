@@ -337,7 +337,7 @@ def version() -> str:
     """
     Get the current version
     This method is created to ensure backward compatibility of the web app, 
-    as the web app is updated with the latests regardless of the backend version
+    as the web app is updated with the latest regardless of the backend version
 
     ### Returns
     -  returns the version of the app
