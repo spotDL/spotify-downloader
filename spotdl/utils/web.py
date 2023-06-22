@@ -73,13 +73,7 @@ ALLOWED_ORIGINS = [
     "http://127.0.0.1:8800",
     "https://localhost:8800",
     "https://127.0.0.1:8800",
-    "https://localhost:5173",
-    "https://127.0.0.1:5173",
-    "http://localhost:5173",
-    "http://127.0.0.1:5173",
 ]
-
-VERSION = "4.2"
 
 
 class SPAStaticFiles(StaticFiles):
@@ -291,7 +285,7 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
                 await app_state.server.shutdown()
 
 
-#Deprecated
+# Deprecated
 @router.get("/api/song/url", response_model=None)
 def song_from_url(url: str) -> Song:
     """
@@ -319,31 +313,34 @@ def songs_from_url(url: str) -> List[Song]:
     - returns a list with Song objects to be downloaded.
     """
 
+    # Type: ignore because of problems with map and list
+    #  https://github.com/python/mypy/issues/2389
+    #  https://github.com/python/mypy/issues/9253
     if "playlist" in url:
-        pl = Playlist.from_url(url)
-        return list(map(lambda x: Song.from_url(x), pl.urls))
-    elif "album" in url:
-        album = Album.from_url(url)
-        return list(map(lambda x: Song.from_url(x), album.urls))
-    elif "artist" in url:
-        artist = Artist.from_url(url)
-        return list(map(lambda x: Song.from_url(x), artist.urls))
-    else:
-        return [Song.from_url(url)]
+        playlist = Playlist.from_url(url)  # type: ignore
+        return list(map(lambda x: Song.from_url, playlist.urls))  # type: ignore
+    if "album" in url:
+        album = Album.from_url(url)  # type: ignore
+        return list(map(lambda x: Song.from_url, album.urls))  # type: ignore
+    if "artist" in url:
+        artist = Artist.from_url(url)  # type: ignore
+        return list(map(lambda x: Song.from_url, artist.urls))  # type: ignore
+
+    return [Song.from_url(url)]
 
 
 @router.get("/api/version", response_model=None)
 def version() -> str:
     """
     Get the current version
-    This method is created to ensure backward compatibility of the web app, 
+    This method is created to ensure backward compatibility of the web app,
     as the web app is updated with the latest regardless of the backend version
 
     ### Returns
     -  returns the version of the app
     """
 
-    return VERSION
+    return __version__
 
 
 @router.on_event("shutdown")
