@@ -312,19 +312,16 @@ def songs_from_url(url: str) -> List[Song]:
     ### Returns
     - returns a list with Song objects to be downloaded.
     """
-
-    # Type: ignore because of problems with map and list
-    #  https://github.com/python/mypy/issues/2389
-    #  https://github.com/python/mypy/issues/9253
+    
     if "playlist" in url:
-        playlist = Playlist.from_url(url)  # type: ignore
-        return list(map(lambda x: Song.from_url, playlist.urls))  # type: ignore
+        playlist = Playlist.from_url(url)
+        return list(map(Song.from_url, playlist.urls))
     if "album" in url:
-        album = Album.from_url(url)  # type: ignore
-        return list(map(lambda x: Song.from_url, album.urls))  # type: ignore
+        album = Album.from_url(url)
+        return list(map(Song.from_url, album.urls))
     if "artist" in url:
-        artist = Artist.from_url(url)  # type: ignore
-        return list(map(lambda x: Song.from_url, artist.urls))  # type: ignore
+        artist = Artist.from_url(url)
+        return list(map(Song.from_url, artist.urls))
 
     return [Song.from_url(url)]
 
