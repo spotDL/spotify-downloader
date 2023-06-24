@@ -160,11 +160,11 @@ class Downloader:
         self.progress_handler = ProgressHandler(self.settings["simple_tui"])
 
         # Gather already present songs
+        self.scan_formats = self.settings["detect_formats"] or [self.settings["format"]]
         self.known_songs: Dict[str, List[Path]] = {}
         if self.settings["scan_for_songs"]:
             logger.info("Scanning for known songs, this might take a while...")
-            scan_formats = self.settings["detect_formats"] or [self.settings["format"]]
-            for scan_format in scan_formats:
+            for scan_format in self.scan_formats:
                 logger.debug("Scanning for %s files", scan_format)
 
                 found_files = gather_known_songs(self.settings["output"], scan_format)
@@ -451,6 +451,12 @@ class Downloader:
             ]
 
             file_exists = output_file.exists() or dup_song_paths
+            if not self.settings["scan_for_songs"]:
+                for file_extension in self.scan_formats:
+                    ext_path = output_file.with_suffix(file_extension)
+                    if ext_path.exists():
+                        dup_song_paths.append(ext_path)
+
             if dup_song_paths:
                 logger.debug(
                     "Found duplicate songs for %s at %s",
