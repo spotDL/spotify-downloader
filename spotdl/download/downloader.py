@@ -33,6 +33,7 @@ from spotdl.utils.archive import Archive
 from spotdl.utils.config import (
     DOWNLOADER_OPTIONS,
     create_settings_type,
+    modernize_settings,
     get_errors_path,
     get_temp_path,
 )
@@ -122,6 +123,8 @@ class Downloader:
             )  # type: ignore
         )
 
+        # Handle deprecated values in config file
+        modernize_settings(self.settings)
         logger.debug("Downloader settings: %s", self.settings)
 
         # If no audio providers specified, raise an error

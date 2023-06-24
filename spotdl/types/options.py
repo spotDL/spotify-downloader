@@ -57,7 +57,7 @@ class DownloaderOptions(TypedDict):
     filter_results: bool
     threads: int
     cookie_file: Optional[str]
-    restrict: bool
+    restrict: Optional[str]
     print_errors: bool
     sponsor_block: bool
     preload: bool
@@ -133,7 +133,7 @@ class DownloaderOptionalOptions(TypedDict, total=False):
     filter_results: bool
     threads: int
     cookie_file: Optional[str]
-    restrict: bool
+    restrict: Optional[str]
     print_errors: bool
     sponsor_block: bool
     preload: bool

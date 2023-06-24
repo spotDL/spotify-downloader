@@ -10,6 +10,7 @@ import re
 from functools import lru_cache
 from pathlib import Path
 from typing import Any, Dict, List, Optional
+from unicodedata import normalize
 
 import pykakasi
 from rapidfuzz import fuzz
@@ -290,7 +291,7 @@ def create_file_name(
     song: Song,
     template: str,
     file_extension: str,
-    restrict: bool = False,
+    restrict: Optional[str] = None,
     short: bool = False,
     file_name_length: Optional[int] = None,
 ) -> Path:
@@ -301,7 +302,7 @@ def create_file_name(
     - song: the song object
     - template: the template string
     - file_extension: the file extension to use
-    - restrict: whether to sanitize the filename
+    - restrict: sanitization to apply to the filename
     - short: whether to use the short version of the template
     - file_name_length: the maximum length of the file name
 
@@ -343,8 +344,8 @@ def create_file_name(
     # Check if the file name length is greater than the limit
     if len(file.name) < length_limit:
         # Restrict the filename if needed
-        if restrict:
-            return restrict_filename(file)
+        if restrict and restrict != "none":
+            return restrict_filename(file, restrict == "strict")
 
         return file
 
@@ -494,12 +495,13 @@ def to_ms(
     return result
 
 
-def restrict_filename(pathobj: Path) -> Path:
+def restrict_filename(pathobj: Path, strict: bool = True) -> Path:
     """
     Sanitizes the filename part of a Path object. Returns modified object.
 
     ### Arguments
     - pathobj: the Path object to sanitize
+    - strict: whether sanitization should be strict
 
     ### Returns
     - the modified Path object
@@ -507,9 +509,13 @@ def restrict_filename(pathobj: Path) -> Path:
     ### Notes
     - Based on the `sanitize_filename` function from yt-dlp
     """
-
-    result = sanitize_filename(pathobj.name, True, False)
-    result = result.replace("_-_", "-")
+    if strict:
+        result = sanitize_filename(pathobj.name, True, False)
+        result = result.replace("_-_", "-")
+    else:
+        result = (
+            normalize("NFKD", pathobj.name).encode("ascii", "ignore").decode("utf-8")
+        )
 
     if not result:
         result = "_"
