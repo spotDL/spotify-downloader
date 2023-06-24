@@ -518,6 +518,15 @@ def parse_output_options(parser: _ArgumentGroup):
         help="Arguments to pass to yt-dlp",
     )
 
+    # Detect formats option
+    parser.add_argument(
+        "--detect-formats",
+        type=str,
+        nargs="*",
+        help="Detect already downloaded songs with file format different from the --format option",
+        choices=FFMPEG_FORMATS.keys(),
+    )
+
 
 def parse_web_options(parser: _ArgumentGroup):
     """

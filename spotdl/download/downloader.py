@@ -163,10 +163,18 @@ class Downloader:
         self.known_songs: Dict[str, List[Path]] = {}
         if self.settings["scan_for_songs"]:
             logger.info("Scanning for known songs, this might take a while...")
+            scan_formats = self.settings["detect_formats"] or [self.settings["format"]]
+            for scan_format in scan_formats:
+                logger.debug("Scanning for %s files", scan_format)
 
-            self.known_songs = gather_known_songs(
-                self.settings["output"], self.settings["format"]
-            )
+                found_files = gather_known_songs(self.settings["output"], scan_format)
+
+                for song_url, song_paths in found_files.items():
+                    known_paths = self.known_songs.get(song_url)
+                    if known_paths is None:
+                        self.known_songs[song_url] = song_paths
+                    else:
+                        self.known_songs[song_url].extend(song_paths)
 
         logger.debug("Found %s known songs", len(self.known_songs))
 

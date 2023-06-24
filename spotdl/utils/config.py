@@ -295,6 +295,7 @@ DOWNLOADER_OPTIONS: DownloaderOptions = {
     "sync_without_deleting": False,
     "max_filename_length": None,
     "yt_dlp_args": None,
+    "detect_formats": None,
 }
 
 WEB_OPTIONS: WebOptions = {
