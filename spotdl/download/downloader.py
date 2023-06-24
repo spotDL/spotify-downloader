@@ -453,7 +453,7 @@ class Downloader:
             file_exists = output_file.exists() or dup_song_paths
             if not self.settings["scan_for_songs"]:
                 for file_extension in self.scan_formats:
-                    ext_path = output_file.with_suffix(file_extension)
+                    ext_path = output_file.with_suffix(f".{file_extension}")
                     if ext_path.exists():
                         dup_song_paths.append(ext_path)
 
