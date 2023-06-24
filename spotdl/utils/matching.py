@@ -51,6 +51,11 @@ FORBIDDEN_WORDS = [
     "concert",
     "live",
     "acapella",
+    "slowed",
+    "instrumental",
+    "remix",
+    "cover",
+    "reverb",
 ]
 
 
