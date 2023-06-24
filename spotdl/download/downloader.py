@@ -33,9 +33,9 @@ from spotdl.utils.archive import Archive
 from spotdl.utils.config import (
     DOWNLOADER_OPTIONS,
     create_settings_type,
-    modernize_settings,
     get_errors_path,
     get_temp_path,
+    modernize_settings,
 )
 from spotdl.utils.ffmpeg import FFmpegError, convert, get_ffmpeg_path
 from spotdl.utils.formatter import create_file_name
