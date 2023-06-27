@@ -299,7 +299,7 @@ def reinit_song(song: Song) -> Song:
             "https://open.spotify.com/track/" + data["song_id"]
         ).json
     elif data.get("name") and data.get("artist"):
-        new_data = Song.from_search_term(data["name"]).json
+        new_data = Song.from_search_term(f"{data['artist']} - {data['name']}").json
     else:
         raise QueryError("Song object is missing required data to be reinitialized")
 
