@@ -146,6 +146,21 @@ def get_simple_songs(
             songs.append(
                 Song.from_missing_data(url=split_urls[1], download_url=split_urls[0])
             )
+        elif "music.youtube.com/watch?v" in request:
+            track_data = get_ytm_client().get_song(request.split("?v=", 1)[1])
+
+            yt_song = Song.from_search_term(
+                f"{track_data['videoDetails']['author']} - {track_data['videoDetails']['title']}"
+            )
+
+            if use_ytm_data:
+                yt_song.name = track_data["title"]
+                yt_song.artist = track_data["author"]
+                yt_song.artists = [track_data["author"]]
+                yt_song.duration = track_data["lengthSeconds"]
+
+            yt_song.download_url = request
+            songs.append(yt_song)
         elif (
             "https://music.youtube.com/playlist?list=" in request
             or "https://music.youtube.com/browse/VLPL" in request
