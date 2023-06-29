@@ -346,6 +346,13 @@ from tests.conftest import new_initialize
                 "https://www.youtube.com/watch?v=tp83QrhNguM",
             ],
         ),
+        (
+            # Fukaj x Mata - OWOCE 33
+            "https://open.spotify.com/track/4Dy9azWTLsDMUdUxrT1170",
+            [
+                "https://www.youtube.com/watch?v=KD5ncAFjRzY",
+            ],
+        )
         # (
         #     # Kado - Tired Eyes
         #     "https://open.spotify.com/track/0MSLJOWljfQr067PYyndK9",
