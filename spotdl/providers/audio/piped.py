@@ -5,12 +5,14 @@ Piped module for downloading and searching songs.
 
 from typing import Any, Dict, List
 
+import logging
 import requests
 
 from spotdl.providers.audio.base import ISRC_REGEX, AudioProvider
 from spotdl.types.result import Result
 
 __all__ = ["Piped"]
+logger = logging.getLogger(__name__)
 
 HEADERS = {
     "accept": "*/*",
@@ -90,3 +92,54 @@ class Piped(AudioProvider):
             )
 
         return results
+
+
+    def get_download_metadata(self, url: str, download: bool = False) -> Dict:
+        """
+        Get metadata for a download using yt-dlp.
+
+        ### Arguments
+        - url: The url to get metadata for.
+
+        ### Returns
+        - A dictionary containing the metadata.
+        """
+
+        url_id = url.split("?v=")[1]
+        piped_data = requests.get(f"https://pipedapi.kavin.rocks/streams/{url_id}", timeout=10).json()
+
+        yt_dlp_json = {
+            "title": piped_data["title"],
+            "description": piped_data["description"],
+            "id": url_id,
+            "view_count": piped_data["views"],
+            "extractor": "Generic",
+            "formats": [],
+        }
+
+        for audio_stream in piped_data["audioStreams"]:
+            yt_dlp_json["formats"].append(
+                {
+                    "url": audio_stream["url"],
+                    "ext": "webm" if audio_stream["codec"] == "opus" else "m4a",
+                    "format_id": audio_stream["itag"],
+                    "acodec": audio_stream["codec"],
+                    "container": "webm_dash" if audio_stream["codec"] == "opus" else "m4a_dash",
+                    "abr": audio_stream["bitrate"] / 1000,
+                    "resolution": "audio only",
+                    "aspect_ratio": None,
+                    "audio_ext": "webm" if audio_stream["codec"] == "opus" else "m4a",
+                    "vbr": 0,
+                    "fps": None,
+                    "video_ext": None,
+                    "protocol": "https",
+                    "tbr": audio_stream["bitrate"] / 1000,
+                    "asr": 48000 if audio_stream["codec"] == "opus" else 22050,
+                    "filesize": audio_stream["contentLength"],
+                    "dynamic_range": None,
+                    "audio_channels": 2,
+                    "format": f"{audio_stream['itag']} - audio only",
+                }
+            )
+
+        return self.audio_handler.process_video_result(yt_dlp_json, download=download)

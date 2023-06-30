@@ -589,13 +589,22 @@ class Downloader:
                 download_url = song.download_url
 
             # Initialize audio downloader
-            audio_downloader = AudioProvider(
-                output_format=self.settings["format"],
-                cookie_file=self.settings["cookie_file"],
-                search_query=self.settings["search_query"],
-                filter_results=self.settings["filter_results"],
-                yt_dlp_args=self.settings["yt_dlp_args"],
-            )
+            if self.settings["audio_providers"][0] == "piped":
+                audio_downloader = Piped(
+                    output_format=self.settings["format"],
+                    cookie_file=self.settings["cookie_file"],
+                    search_query=self.settings["search_query"],
+                    filter_results=self.settings["filter_results"],
+                    yt_dlp_args=self.settings["yt_dlp_args"],
+                )
+            else:
+                audio_downloader = AudioProvider(
+                    output_format=self.settings["format"],
+                    cookie_file=self.settings["cookie_file"],
+                    search_query=self.settings["search_query"],
+                    filter_results=self.settings["filter_results"],
+                    yt_dlp_args=self.settings["yt_dlp_args"],
+                )
 
             logger.debug("Downloading %s using %s", song.display_name, download_url)
 
@@ -604,7 +613,6 @@ class Downloader:
                 display_progress_tracker.yt_dlp_progress_hook
             )
 
-            # Download the song using yt-dlp
             download_info = audio_downloader.get_download_metadata(
                 download_url, download=True
             )
