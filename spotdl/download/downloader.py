@@ -637,9 +637,14 @@ class Downloader:
             # Copy the downloaded file to the output file
             # if the temp file and output file have the same extension
             # and the bitrate is set to auto or disable
+            # Don't copy if the audio provider is piped
+            # unless the bitrate is set to disable
             if (
                 self.settings["bitrate"] in ["auto", "disable", None]
                 and temp_file.suffix == output_file.suffix
+            ) and not (
+                self.settings["audio_providers"][0] == "piped"
+                and self.settings["bitrate"] != "disable"
             ):
                 shutil.move(str(temp_file), output_file)
                 success = True
