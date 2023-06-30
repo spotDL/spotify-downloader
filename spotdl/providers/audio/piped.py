@@ -3,13 +3,17 @@ Piped module for downloading and searching songs.
 """
 
 
-from typing import Any, Dict, List
-
 import logging
-import requests
+import shlex
+from typing import Any, Dict, List, Optional
 
-from spotdl.providers.audio.base import ISRC_REGEX, AudioProvider
+import requests
+from yt_dlp import YoutubeDL
+
+from spotdl.providers.audio.base import ISRC_REGEX, AudioProvider, YTDLLogger
 from spotdl.types.result import Result
+from spotdl.utils.config import get_temp_path
+from spotdl.utils.formatter import args_to_ytdlp_options
 
 __all__ = ["Piped"]
 logger = logging.getLogger(__name__)
@@ -30,17 +34,53 @@ class Piped(AudioProvider):
         {"filter": "music_videos"},
     ]
 
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
+    def __init__(
+        self,
+        output_format: str = "mp3",
+        cookie_file: Optional[str] = None,
+        search_query: Optional[str] = None,
+        filter_results: bool = True,
+        yt_dlp_args: Optional[str] = None,
+    ) -> None:
         """
-        Initialize the YouTube Music API
+        Base class for audio providers.
 
         ### Arguments
-        - args: Arguments passed to the `AudioProvider` class.
-        - kwargs: Keyword arguments passed to the `AudioProvider` class.
+        - output_directory: The directory to save the downloaded songs to.
+        - output_format: The format to save the downloaded songs in.
+        - cookie_file: The path to a file containing cookies to be used by YTDL.
+        - search_query: The query to use when searching for songs.
+        - filter_results: Whether to filter results.
         """
 
-        super().__init__(*args, **kwargs)
+        self.output_format = output_format
+        self.cookie_file = cookie_file
+        self.search_query = search_query
+        self.filter_results = filter_results
 
+        if self.output_format == "m4a":
+            ytdl_format = "best[ext=m4a]/best"
+        elif self.output_format == "opus":
+            ytdl_format = "best[ext=webm]/best"
+        else:
+            ytdl_format = "best"
+
+        yt_dlp_options = {
+            "format": ytdl_format,
+            "quiet": True,
+            "no_warnings": True,
+            "encoding": "UTF-8",
+            "logger": YTDLLogger(),
+            "cookiefile": self.cookie_file,
+            "outtmpl": f"{get_temp_path()}/%(id)s.%(ext)s",
+            "retries": 5,
+        }
+
+        if yt_dlp_args:
+            user_options = args_to_ytdlp_options(shlex.split(yt_dlp_args))
+            yt_dlp_options.update(user_options)
+
+        self.audio_handler = YoutubeDL(yt_dlp_options)
         self.session = requests.Session()
 
     def get_results(self, search_term: str, **kwargs) -> List[Result]:
@@ -93,7 +133,6 @@ class Piped(AudioProvider):
 
         return results
 
-
     def get_download_metadata(self, url: str, download: bool = False) -> Dict:
         """
         Get metadata for a download using yt-dlp.
@@ -106,11 +145,12 @@ class Piped(AudioProvider):
         """
 
         url_id = url.split("?v=")[1]
-        piped_data = requests.get(f"https://pipedapi.kavin.rocks/streams/{url_id}", timeout=10).json()
+        piped_data = requests.get(
+            f"https://pipedapi.kavin.rocks/streams/{url_id}", timeout=10
+        ).json()
 
         yt_dlp_json = {
             "title": piped_data["title"],
-            "description": piped_data["description"],
             "id": url_id,
             "view_count": piped_data["views"],
             "extractor": "Generic",
@@ -122,23 +162,8 @@ class Piped(AudioProvider):
                 {
                     "url": audio_stream["url"],
                     "ext": "webm" if audio_stream["codec"] == "opus" else "m4a",
-                    "format_id": audio_stream["itag"],
-                    "acodec": audio_stream["codec"],
-                    "container": "webm_dash" if audio_stream["codec"] == "opus" else "m4a_dash",
-                    "abr": audio_stream["bitrate"] / 1000,
-                    "resolution": "audio only",
-                    "aspect_ratio": None,
-                    "audio_ext": "webm" if audio_stream["codec"] == "opus" else "m4a",
-                    "vbr": 0,
-                    "fps": None,
-                    "video_ext": None,
-                    "protocol": "https",
-                    "tbr": audio_stream["bitrate"] / 1000,
-                    "asr": 48000 if audio_stream["codec"] == "opus" else 22050,
+                    "abr": audio_stream["quality"].split(" ")[0],
                     "filesize": audio_stream["contentLength"],
-                    "dynamic_range": None,
-                    "audio_channels": 2,
-                    "format": f"{audio_stream['itag']} - audio only",
                 }
             )
 
