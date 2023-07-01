@@ -71,7 +71,7 @@ def web(web_settings: WebOptions, downloader_settings: DownloaderOptions):
     else:
         logger.info("Retrieving web app \n")
         download_github_dir(
-            "https://github.com/spotdl/web-ui/tree/master/dist",
+            "https://github.com/spotdl/web-ui/tree/dev/dist",
             output_dir=str(get_spotdl_path().absolute()),
         )
 
