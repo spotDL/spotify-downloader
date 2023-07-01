@@ -6,6 +6,7 @@ import asyncio
 import logging
 import sys
 import webbrowser
+from pathlib import Path
 
 from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -63,12 +64,16 @@ def web(web_settings: WebOptions, downloader_settings: DownloaderOptions):
     downloader_settings["simple_tui"] = True
 
     # Download web app from GitHub
-    logger.info("Updating web app \n")
-    web_app_dir = str(get_spotdl_path().absolute())
-    download_github_dir(
-        "https://github.com/spotdl/web-ui/tree/dev/dist",
-        output_dir=web_app_dir,
-    )
+    web_app_dir = str(Path(get_spotdl_path().absolute()).joinpath("dist"))
+
+    if Path(web_app_dir).exists():
+        logger.info("Using existing web app \n")
+    else:
+        logger.info("Retrieving web app \n")
+        download_github_dir(
+            "https://github.com/spotdl/web-ui/tree/master/dist",
+            output_dir=str(get_spotdl_path().absolute()),
+        )
 
     app_state.api = FastAPI(
         title="spotDL",
@@ -93,7 +98,7 @@ def web(web_settings: WebOptions, downloader_settings: DownloaderOptions):
     # Add the static files
     app_state.api.mount(
         "/",
-        SPAStaticFiles(directory=web_app_dir + "/dist", html=True),
+        SPAStaticFiles(directory=web_app_dir, html=True),
         name="static",
     )
 
