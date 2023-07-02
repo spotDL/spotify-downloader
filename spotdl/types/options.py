@@ -89,6 +89,7 @@ class WebOptions(TypedDict):
     keep_alive: bool
     allowed_origins: Optional[List[str]]
     keep_sessions: bool
+    server_only: bool
 
 
 class SpotDLOptions(SpotifyOptions, DownloaderOptions, WebOptions):
@@ -166,6 +167,7 @@ class WebOptionalOptions(TypedDict, total=False):
     keep_alive: bool
     allowed_origins: Optional[str]
     keep_sessions: bool
+    server_only: bool
 
 
 class SpotDLOptionalOptions(

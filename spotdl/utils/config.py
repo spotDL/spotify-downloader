@@ -305,6 +305,7 @@ WEB_OPTIONS: WebOptions = {
     "keep_alive": False,
     "allowed_origins": None,
     "keep_sessions": False,
+    "server_only": False,
 }
 
 # Type: ignore because of the issues above

@@ -282,7 +282,8 @@ If you don't want config to load automatically change `load_config` option in co
     "keep_alive": false,
     "allowed_origins": null,
     "keep_sessions": false,
-    "only_verified_results": false
+    "server_only": false,
+    "only_verified_results": false,
 }
 ```
 
@@ -420,6 +421,7 @@ Web options:
                         The allowed origins for the web server.
   --web-use-output-dir  Use the output directory instead of the session directory for downloads. (This might cause issues if you have multiple users using the web-ui at the same time)
   --keep-sessions       Keep the session directory after the web server is closed.
+  --server-only         Start the web server without spawning a new tab in the browser for web-ui client.
 
 Misc options:
   --log-level {CRITICAL,FATAL,ERROR,WARN,WARNING,INFO,MATCH,DEBUG,NOTSET}

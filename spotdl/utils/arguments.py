@@ -584,6 +584,14 @@ def parse_web_options(parser: _ArgumentGroup):
         help="Keep the session directory after the web server is closed.",
     )
 
+    # Add server only argument
+    parser.add_argument(
+        "--server-only",
+        action="store_const",
+        const=True,
+        help="Start web server without spawning the web-ui client.",
+    )
+
 
 def parse_misc_options(parser: _ArgumentGroup):
     """

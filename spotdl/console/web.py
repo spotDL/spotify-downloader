@@ -63,17 +63,20 @@ def web(web_settings: WebOptions, downloader_settings: DownloaderOptions):
 
     downloader_settings["simple_tui"] = True
 
-    # Download web app from GitHub
-    web_app_dir = str(Path(get_spotdl_path().absolute()).joinpath("dist"))
+    server_only = app_state.web_settings["server_only"]
 
-    if Path(web_app_dir).exists():
-        logger.info("Using existing web app \n")
-    else:
-        logger.info("Retrieving web app \n")
-        download_github_dir(
-            "https://github.com/spotdl/web-ui/tree/master/dist",
-            output_dir=str(get_spotdl_path().absolute()),
-        )
+    if not server_only:
+        # Download web app from GitHub if server_only is false
+        web_app_dir = str(Path(get_spotdl_path().absolute()).joinpath("dist"))
+
+        if Path(web_app_dir).exists():
+            logger.info("Using existing web app \n")
+        else:
+            logger.info("Retrieving web app \n")
+            download_github_dir(
+                "https://github.com/spotdl/web-ui/tree/master/dist",
+                output_dir=str(get_spotdl_path().absolute()),
+            )
 
     app_state.api = FastAPI(
         title="spotDL",
@@ -95,12 +98,13 @@ def web(web_settings: WebOptions, downloader_settings: DownloaderOptions):
         allow_headers=["*"],
     )
 
-    # Add the static files
-    app_state.api.mount(
-        "/",
-        SPAStaticFiles(directory=web_app_dir, html=True),
-        name="static",
-    )
+    if not server_only:
+        # Add the static files if server_only is false
+        app_state.api.mount(
+            "/",
+            SPAStaticFiles(directory=web_app_dir, html=True),
+            name="static",
+        )
 
     config = Config(
         app=app_state.api,
@@ -115,8 +119,9 @@ def web(web_settings: WebOptions, downloader_settings: DownloaderOptions):
 
     app_state.downloader_settings = downloader_settings
 
-    # Open the web browser
-    webbrowser.open(f"http://{web_settings['host']}:{web_settings['port']}/")
+    if not server_only:
+        # Open the web browser if server_only is false
+        webbrowser.open(f"http://{web_settings['host']}:{web_settings['port']}/")
 
     # Start the web server
     app_state.loop.run_until_complete(app_state.server.serve())

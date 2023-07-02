@@ -532,6 +532,7 @@ def get_options() -> Dict[str, Any]:
         "check_for_updates",
         "profile",
         "version",
+        "server_only",
     ]
 
     options = {}
