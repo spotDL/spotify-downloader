@@ -15,7 +15,7 @@ from uvicorn import Config, Server
 from spotdl._version import __version__
 from spotdl.types.options import DownloaderOptions, WebOptions
 from spotdl.utils.config import get_spotdl_path
-from spotdl.utils.github import download_github_dir
+from spotdl.utils.github import download_github_dir, get_latest_version
 from spotdl.utils.logging import NAME_TO_LEVEL
 from spotdl.utils.web import (
     ALLOWED_ORIGINS,
@@ -24,6 +24,7 @@ from spotdl.utils.web import (
     fix_mime_types,
     get_current_state,
     router,
+    check_latest_version_webui,
 )
 
 __all__ = ["web"]
@@ -64,12 +65,13 @@ def web(web_settings: WebOptions, downloader_settings: DownloaderOptions):
     downloader_settings["simple_tui"] = True
 
     server_only = app_state.web_settings["server_only"]
-
     if not server_only:
-        # Download web app from GitHub if server_only is false
+        # Download web app from GitHub if server_only is false and not downloaded already
         web_app_dir = str(Path(get_spotdl_path().absolute()).joinpath("dist"))
 
-        if Path(web_app_dir).exists():
+        latest = check_latest_version_webui(web_app_dir)
+
+        if Path(web_app_dir).exists() and latest:
             logger.info("Using existing web app \n")
         else:
             logger.info("Retrieving web app \n")

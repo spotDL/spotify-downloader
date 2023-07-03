@@ -590,3 +590,36 @@ def fix_mime_types():
     mimetypes.add_type("text/css", ".css")
     mimetypes.add_type("image/svg+xml", ".svg")
     mimetypes.add_type("text/html", ".html")
+
+
+def check_latest_version_webui(dir: str) -> bool:
+    """
+    Checks for update on web-ui client.
+    Save the version to a `version.txt` if there is.
+
+    ### Arguments
+    - dir: The web-ui `dist` directory
+
+    ### Returns
+    - returns True if there is an update
+    - returns False if file version is not found
+    """
+
+    try:
+        latest_version = get_latest_version("abcdefghijorngarbosaxyz/spotdl-web-ui")
+        file = open(dir + "/version.txt", "r")
+        current_version = str(file.readline().strip())
+        file.close()
+        latest_tuple = tuple(latest_version.replace("v", "").split("."))
+        current_tuple = tuple(current_version.replace("v", "").split("."))
+        file = open(dir + "/version.txt", "w")
+        file.write(latest_version)
+        file.close()
+        if latest_tuple == current_tuple:
+            return True
+        else:
+            return False
+    except RateLimitError:
+        return False
+    except FileNotFoundError:
+        return False
