@@ -606,7 +606,7 @@ def check_latest_version_webui(dir: str) -> bool:
     """
 
     try:
-        latest_version = get_latest_version("abcdefghijorngarbosaxyz/spotdl-web-ui")
+        latest_version = get_latest_version("spotdl/web-ui")
         file = open(dir + "/version.txt", "r")
         current_version = str(file.readline().strip())
         file.close()
