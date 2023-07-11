@@ -34,7 +34,7 @@ class Piped(AudioProvider):
         {"filter": "music_videos"},
     ]
 
-    def __init__(
+    def __init__(  # pylint: disable=super-init-not-called
         self,
         output_format: str = "mp3",
         cookie_file: Optional[str] = None,
@@ -43,7 +43,7 @@ class Piped(AudioProvider):
         yt_dlp_args: Optional[str] = None,
     ) -> None:
         """
-        Base class for audio providers.
+        Pipe audio provider class
 
         ### Arguments
         - output_directory: The directory to save the downloaded songs to.
