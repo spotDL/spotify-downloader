@@ -34,7 +34,7 @@ class Piped(AudioProvider):
         {"filter": "music_videos"},
     ]
 
-    def __init__( # pylint: disable=super-init-not-called
+    def __init__(  # pylint: disable=super-init-not-called
         self,
         output_format: str = "mp3",
         cookie_file: Optional[str] = None,
