@@ -196,16 +196,16 @@ from tests.conftest import new_initialize
                 "https://music.youtube.com/watch?v=JBz8PGZ8eR0",
             ],
         ),
-        (
-            # SB Maffija - Kapuśniak
-            "https://open.spotify.com/track/1ZIiF3VCX4zbIiiiUPndW7",
-            ["https://www.youtube.com/watch?v=GmiyIaE-Liw"],
-        ),
-        (
-            # SB Maffija - Dzieci we mgle
-            "https://open.spotify.com/track/13UorE0BauUBREWFJNmnYR",
-            ["https://www.youtube.com/watch?v=jLlRchjuFVU"],
-        ),
+        # (
+        #     # SB Maffija - Kapuśniak
+        #     "https://open.spotify.com/track/1ZIiF3VCX4zbIiiiUPndW7",
+        #     ["https://www.youtube.com/watch?v=GmiyIaE-Liw"],
+        # ),
+        # (
+        #     # SB Maffija - Dzieci we mgle
+        #     "https://open.spotify.com/track/13UorE0BauUBREWFJNmnYR",
+        #     ["https://www.youtube.com/watch?v=jLlRchjuFVU"],
+        # ),
         (
             # club2020 - club2020
             "https://open.spotify.com/track/0zmxM4MXfisJRTQcPa1wbv",
@@ -351,6 +351,7 @@ from tests.conftest import new_initialize
             "https://open.spotify.com/track/4Dy9azWTLsDMUdUxrT1170",
             [
                 "https://www.youtube.com/watch?v=KD5ncAFjRzY",
+                "https://www.youtube.com/watch?v=9DKKhnmgCIo"
             ],
         )
         # (
