@@ -23,6 +23,7 @@ from mutagen.id3 import ID3
 from mutagen.id3._frames import (
     APIC,
     COMM,
+    POPM,
     SYLT,
     TALB,
     TCOM,
@@ -237,10 +238,8 @@ def embed_metadata(output_file: Path, song: Song, id3_separator: str = "/"):
 
         if song.popularity:
             audio_file.add(
-                COMM(
-                    encoding=3,
-                    lang="eng",
-                    text="Spotify Popularity: " + str(song.popularity),
+                POPM(
+                    rating=int(song.popularity * 255 / 100),
                 )
             )
 
