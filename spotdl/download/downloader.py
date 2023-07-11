@@ -17,8 +17,15 @@ from yt_dlp.postprocessor.modify_chapters import ModifyChaptersPP
 from yt_dlp.postprocessor.sponsorblock import SponsorBlockPP
 
 from spotdl.download.progress_handler import ProgressHandler
-from spotdl.providers.audio import AudioProvider, YouTube, YouTubeMusic
-from spotdl.providers.audio.sliderkz import SliderKZ
+from spotdl.providers.audio import (
+    AudioProvider,
+    BandCamp,
+    Piped,
+    SliderKZ,
+    SoundCloud,
+    YouTube,
+    YouTubeMusic,
+)
 from spotdl.providers.lyrics import AzLyrics, Genius, LyricsProvider, MusixMatch, Synced
 from spotdl.types.options import DownloaderOptionalOptions, DownloaderOptions
 from spotdl.types.song import Song
@@ -28,6 +35,7 @@ from spotdl.utils.config import (
     create_settings_type,
     get_errors_path,
     get_temp_path,
+    modernize_settings,
 )
 from spotdl.utils.ffmpeg import FFmpegError, convert, get_ffmpeg_path
 from spotdl.utils.formatter import create_file_name
@@ -48,6 +56,9 @@ AUDIO_PROVIDERS: Dict[str, Type[AudioProvider]] = {
     "youtube": YouTube,
     "youtube-music": YouTubeMusic,
     "slider-kz": SliderKZ,
+    "soundcloud": SoundCloud,
+    "bandcamp": BandCamp,
+    "piped": Piped,
 }
 
 LYRICS_PROVIDERS: Dict[str, Type[LyricsProvider]] = {
@@ -112,6 +123,8 @@ class Downloader:
             )  # type: ignore
         )
 
+        # Handle deprecated values in config file
+        modernize_settings(self.settings)
         logger.debug("Downloader settings: %s", self.settings)
 
         # If no audio providers specified, raise an error
@@ -147,13 +160,21 @@ class Downloader:
         self.progress_handler = ProgressHandler(self.settings["simple_tui"])
 
         # Gather already present songs
+        self.scan_formats = self.settings["detect_formats"] or [self.settings["format"]]
         self.known_songs: Dict[str, List[Path]] = {}
         if self.settings["scan_for_songs"]:
             logger.info("Scanning for known songs, this might take a while...")
+            for scan_format in self.scan_formats:
+                logger.debug("Scanning for %s files", scan_format)
 
-            self.known_songs = gather_known_songs(
-                self.settings["output"], self.settings["format"]
-            )
+                found_files = gather_known_songs(self.settings["output"], scan_format)
+
+                for song_url, song_paths in found_files.items():
+                    known_paths = self.known_songs.get(song_url)
+                    if known_paths is None:
+                        self.known_songs[song_url] = song_paths
+                    else:
+                        self.known_songs[song_url].extend(song_paths)
 
         logger.debug("Found %s known songs", len(self.known_songs))
 
@@ -179,6 +200,7 @@ class Downloader:
                     cookie_file=self.settings["cookie_file"],
                     search_query=self.settings["search_query"],
                     filter_results=self.settings["filter_results"],
+                    yt_dlp_args=self.settings["yt_dlp_args"],
                 )
             )
 
@@ -429,6 +451,12 @@ class Downloader:
             ]
 
             file_exists = output_file.exists() or dup_song_paths
+            if not self.settings["scan_for_songs"]:
+                for file_extension in self.scan_formats:
+                    ext_path = output_file.with_suffix(f".{file_extension}")
+                    if ext_path.exists():
+                        dup_song_paths.append(ext_path)
+
             if dup_song_paths:
                 logger.debug(
                     "Found duplicate songs for %s at %s",
@@ -561,12 +589,23 @@ class Downloader:
                 download_url = song.download_url
 
             # Initialize audio downloader
-            audio_downloader = AudioProvider(
-                output_format=self.settings["format"],
-                cookie_file=self.settings["cookie_file"],
-                search_query=self.settings["search_query"],
-                filter_results=self.settings["filter_results"],
-            )
+            audio_downloader: Union[AudioProvider, Piped]
+            if self.settings["audio_providers"][0] == "piped":
+                audio_downloader = Piped(
+                    output_format=self.settings["format"],
+                    cookie_file=self.settings["cookie_file"],
+                    search_query=self.settings["search_query"],
+                    filter_results=self.settings["filter_results"],
+                    yt_dlp_args=self.settings["yt_dlp_args"],
+                )
+            else:
+                audio_downloader = AudioProvider(
+                    output_format=self.settings["format"],
+                    cookie_file=self.settings["cookie_file"],
+                    search_query=self.settings["search_query"],
+                    filter_results=self.settings["filter_results"],
+                    yt_dlp_args=self.settings["yt_dlp_args"],
+                )
 
             logger.debug("Downloading %s using %s", song.display_name, download_url)
 
@@ -575,7 +614,6 @@ class Downloader:
                 display_progress_tracker.yt_dlp_progress_hook
             )
 
-            # Download the song using yt-dlp
             download_info = audio_downloader.get_download_metadata(
                 download_url, download=True
             )
@@ -600,9 +638,14 @@ class Downloader:
             # Copy the downloaded file to the output file
             # if the temp file and output file have the same extension
             # and the bitrate is set to auto or disable
+            # Don't copy if the audio provider is piped
+            # unless the bitrate is set to disable
             if (
                 self.settings["bitrate"] in ["auto", "disable", None]
                 and temp_file.suffix == output_file.suffix
+            ) and not (
+                self.settings["audio_providers"][0] == "piped"
+                and self.settings["bitrate"] != "disable"
             ):
                 shutil.move(str(temp_file), output_file)
                 success = True

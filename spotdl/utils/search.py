@@ -21,6 +21,7 @@ from spotdl.types.playlist import Playlist
 from spotdl.types.saved import Saved
 from spotdl.types.song import Song, SongList
 from spotdl.utils.metadata import get_file_metadata
+from spotdl.utils.spotify import SpotifyClient, SpotifyError
 
 __all__ = [
     "QueryError",
@@ -32,6 +33,7 @@ __all__ = [
     "gather_known_songs",
     "create_ytm_album",
     "create_ytm_playlist",
+    "get_all_user_playlists",
 ]
 
 logger = logging.getLogger(__name__)
@@ -128,7 +130,7 @@ def get_simple_songs(
         request = re.sub(r"\/intl-\w+\/", "/", request)
 
         if (
-            ("youtube.com/watch?v=" in request or "youtu.be/" in request)
+            ("watch?v=" in request or "youtu.be/" in request)
             and "open.spotify.com" in request
             and "track" in request
             and "|" in request
@@ -136,7 +138,7 @@ def get_simple_songs(
             split_urls = request.split("|")
             if (
                 len(split_urls) <= 1
-                or not ("youtube" in split_urls[0] or "youtu.be" in split_urls[0])
+                or not ("watch?v=" in split_urls[0] or "youtu.be" in split_urls[0])
                 or "spotify" not in split_urls[1]
             ):
                 raise QueryError(
@@ -146,6 +148,21 @@ def get_simple_songs(
             songs.append(
                 Song.from_missing_data(url=split_urls[1], download_url=split_urls[0])
             )
+        elif "music.youtube.com/watch?v" in request:
+            track_data = get_ytm_client().get_song(request.split("?v=", 1)[1])
+
+            yt_song = Song.from_search_term(
+                f"{track_data['videoDetails']['author']} - {track_data['videoDetails']['title']}"
+            )
+
+            if use_ytm_data:
+                yt_song.name = track_data["title"]
+                yt_song.artist = track_data["author"]
+                yt_song.artists = [track_data["author"]]
+                yt_song.duration = track_data["lengthSeconds"]
+
+            yt_song.download_url = request
+            songs.append(yt_song)
         elif (
             "https://music.youtube.com/playlist?list=" in request
             or "https://music.youtube.com/browse/VLPL" in request
@@ -219,6 +236,8 @@ def get_simple_songs(
             lists.append(Artist.from_search_term(request, fetch_songs=False))
         elif request == "saved":
             lists.append(Saved.from_url(request, fetch_songs=False))
+        elif request == "all-user-playlists":
+            lists.extend(get_all_user_playlists())
         elif request.endswith(".spotdl"):
             with open(request, "r", encoding="utf-8") as save_file:
                 for track in json.load(save_file):
@@ -279,6 +298,39 @@ def songs_from_albums(albums: List[str]):
     return songs
 
 
+def get_all_user_playlists() -> List[Playlist]:
+    """
+    Get all user playlists
+
+    ### Returns
+    - List of all user playlists
+    """
+
+    spotify_client = SpotifyClient()
+    if spotify_client.user_auth is False:  # type: ignore
+        raise SpotifyError("You must be logged in to use this function")
+
+    user_playlists_response = spotify_client.current_user_playlists()
+    if user_playlists_response is None:
+        raise SpotifyError("Couldn't get user playlists")
+
+    user_playlists = user_playlists_response["items"]
+
+    # Fetch all saved tracks
+    while user_playlists_response and user_playlists_response["next"]:
+        response = spotify_client.next(user_playlists_response)
+        if response is None:
+            break
+
+        user_playlists_response = response
+        user_playlists.extend(user_playlists_response["items"])
+
+    return [
+        Playlist.from_url(playlist["external_urls"]["spotify"], fetch_songs=False)
+        for playlist in user_playlists
+    ]
+
+
 def reinit_song(song: Song) -> Song:
     """
     Update song object with new data
@@ -299,7 +351,7 @@ def reinit_song(song: Song) -> Song:
             "https://open.spotify.com/track/" + data["song_id"]
         ).json
     elif data.get("name") and data.get("artist"):
-        new_data = Song.from_search_term(data["name"]).json
+        new_data = Song.from_search_term(f"{data['artist']} - {data['name']}").json
     else:
         raise QueryError("Song object is missing required data to be reinitialized")
 

@@ -176,6 +176,8 @@ def init_logging(log_level: str):
     logging.getLogger("spotipy").setLevel(logging.WARNING)
     logging.getLogger("asyncio").setLevel(logging.WARNING)
     logging.getLogger("syncedlyrics").setLevel(logging.WARNING)
+    logging.getLogger("bandcamp_api").setLevel(logging.WARNING)
+    logging.getLogger("beautifulsoup4").setLevel(logging.WARNING)
 
     # Create console
     console = get_console()

@@ -70,9 +70,12 @@ def parse_main_options(parser: _ArgumentGroup):
         nargs="+",
         type=str,
         help=(
-            "N|Spotify/YouTube URL for a song/playlist/album/artist/etc. to download.\n"
-            "For album searching, include 'album:' and optional 'artist:' tags\n"
-            "(ie. 'album:the album name' or 'artist:the artist album: the album').\n"
+            "N|Spotify/YouTube URL for a song/playlist/album/artist/etc. to download.\n\n"
+            "For album/playlist/artist searching, include 'album:', 'playlist:', 'artist:' \n"
+            "(ie. 'album:the album name' you can mix these options to get more accurate results)"
+            ".\n\n"
+            "To download liked songs use 'saved' as the query, or to download all user playlists\n"
+            "use 'all-user-playlists'.\n\n"
             "For manual audio matching, you can use the format 'YouTubeURL|SpotifyURL'\n"
             "You can only use album/playlist/tracks urls when "
             "downloading/matching youtube urls.\n"
@@ -385,12 +388,14 @@ def parse_output_options(parser: _ArgumentGroup):
         type=str,
     )
 
-    # Option to restrict filenames for easier handling in the shell
+    # Option to increase compatibility of filenames and easier handling in the shell
     parser.add_argument(
         "--restrict",
-        action="store_const",
-        const=True,
-        help="Restrict filenames to ASCII only",
+        choices={"strict", "ascii", "none"},
+        const="strict",
+        nargs="?",
+        help="Restrict filenames to a sanitized set of characters for better compatibility",
+        type=str,
     )
 
     # Option to print errors on exit, useful for long playlist
@@ -507,6 +512,22 @@ def parse_output_options(parser: _ArgumentGroup):
             "Max file name length. "
             "(This won't override the max file name length enforced by the OS)"
         ),
+    )
+
+    # YT-DlP options
+    parser.add_argument(
+        "--yt-dlp-args",
+        type=str,
+        help="Arguments to pass to yt-dlp",
+    )
+
+    # Detect formats option
+    parser.add_argument(
+        "--detect-formats",
+        type=str,
+        nargs="*",
+        help="Detect already downloaded songs with file format different from the --format option",
+        choices=FFMPEG_FORMATS.keys(),
     )
 
 

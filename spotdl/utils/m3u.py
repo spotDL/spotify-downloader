@@ -18,7 +18,7 @@ def create_m3u_content(
     song_list: List[Song],
     template: str,
     file_extension: str,
-    restrict: bool = False,
+    restrict: Optional[str] = None,
     short: bool = False,
 ) -> str:
     """
@@ -28,7 +28,7 @@ def create_m3u_content(
     - song_list: the list of songs
     - template: the template to use
     - file_extension: the file extension to use
-    - restrict: whether to sanitize the filename
+    - restrict: sanitization to apply to the filename
     - short: whether to use the short version of the template
 
     ### Returns
@@ -50,7 +50,7 @@ def gen_m3u_files(
     file_name: Optional[str],
     template: str,
     file_extension: str,
-    restrict: bool = False,
+    restrict: Optional[str] = None,
     short: bool = False,
 ):
     """
@@ -62,7 +62,7 @@ def gen_m3u_files(
     - song_list: the list of songs
     - template: the output file template to use
     - file_extension: the file extension to use
-    - restrict: whether to sanitize the filename
+    - restrict: sanitization to apply to the filename
     - short: whether to use the short version of the template
     """
 
@@ -133,7 +133,7 @@ def create_m3u_file(
     song_list: List[Song],
     template: str,
     file_extension: str,
-    restrict: bool = False,
+    restrict: Optional[str] = None,
     short: bool = False,
 ) -> str:
     """
@@ -144,7 +144,7 @@ def create_m3u_file(
     - song_list: the list of songs
     - template: the template to use
     - file_extension: the file extension to use
-    - restrict: whether to sanitize the filename
+    - restrict: sanitization to apply to the filename
     - short: whether to use the short version of the template
 
     ### Returns
