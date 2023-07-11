@@ -589,6 +589,7 @@ class Downloader:
                 download_url = song.download_url
 
             # Initialize audio downloader
+            audio_downloader: Union[AudioProvider, Piped]
             if self.settings["audio_providers"][0] == "piped":
                 audio_downloader = Piped(
                     output_format=self.settings["format"],
