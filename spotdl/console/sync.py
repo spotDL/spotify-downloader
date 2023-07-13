@@ -87,7 +87,7 @@ def sync(
             sync_data = json.load(sync_file)
 
         # Verify the sync file
-        if sync_data.get("type") != "sync":
+        if not isinstance(sync_data, dict) or sync_data.get("type") != "sync":
             raise ValueError("Sync file is not a valid sync file.")
 
         # Parse the query

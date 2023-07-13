@@ -66,7 +66,7 @@ Refer to our [Installation Guide](https://spotdl.rtfd.io/en/latest/installation/
 	git clone https://github.com/spotDL/spotify-downloader && cd spotify-downloader
 	pip install poetry
 	poetry install
-	python3 scripts/build.py
+	poetry run python3 scripts/build.py
 	```
 	An executable is created in `spotify-downloader/dist/`.
 

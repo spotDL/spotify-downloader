@@ -48,6 +48,14 @@ FORBIDDEN_WORDS = [
     "live",
     "acoustic",
     "8daudio",
+    "concert",
+    "live",
+    "acapella",
+    "slowed",
+    "instrumental",
+    "remix",
+    "cover",
+    "reverb",
 ]
 
 
@@ -371,14 +379,15 @@ def calc_artists_match(song: Song, result: Result) -> float:
         list(map(slugify, song.artists)), list(map(slugify, result.artists))
     )
 
+    # Remove main artist from the lists
+    artist1_list, artist2_list = artist1_list[1:], artist2_list[1:]
+
     artists_match = 0.0
     for artist1, artist2 in zip_longest(artist1_list, artist2_list):
         artist12_match = ratio(artist1, artist2)
         artists_match += artist12_match
 
     artist_match_number = artists_match / len(artist1_list)
-
-    debug(song.song_id, result.result_id, f"Artists match: {artist_match_number}")
 
     return artist_match_number
 
@@ -453,46 +462,13 @@ def artists_match_fixup2(
         return score
 
     # Slugify some variables
-    slug_song_artist = slugify(song.artists[0])
     slug_song_name = slugify(song.name)
     slug_result_name = slugify(result.name)
-    slug_result_artists = slugify(", ".join(result.artists)) if result.artists else ""
 
-    # Check if the main artist is simlar
+    # # Check if the main artist is simlar
     has_main_artist = (score / (2 if len(song.artists) > 1 else 1)) > 50
 
-    match_str1, match_str2 = create_match_strings(song, result, search_query)
-
-    # Add 10 points to the score
-    # if the name match is greater than 75%
-    if ratio(match_str1, match_str2) >= 75:
-        score += 10
-
-    # If the result doesn't have the same number of artists but has
-    # the same main artist and similar name
-    # we add 25% to the artist match
-    if (
-        result.artists
-        and len(result.artists) < len(song.artists)
-        and slug_song_artist.replace("-", "")
-        in [
-            slug_result_artists.replace("-", ""),
-            slug_result_name.replace("-", ""),
-        ]
-    ):
-        score += 25
-
-    # Check if the song album name is very similar to the result album name
-    # if it is, we increase the artist match
-    if result.album:
-        if (
-            ratio(
-                slugify(result.album),
-                slugify(song.album_name),
-            )
-            >= 85
-        ):
-            score += 10
+    _, match_str2 = create_match_strings(song, result, search_query)
 
     # Check if other song artists are in the result name
     # if they are, we increase the artist match
@@ -700,13 +676,15 @@ def order_results(
             result.result_id,
             f"Other artists match: {other_artists_match}",
         )
+
         artists_match += other_artists_match
 
         # Calculate initial artist match value
-        artists_match = artists_match / (2 if len(song.artists) > 1 else 1)
         debug(song.song_id, result.result_id, f"Initial artists match: {artists_match}")
+        artists_match = artists_match / (2 if len(song.artists) > 1 else 1)
+        debug(song.song_id, result.result_id, f"First artists match: {artists_match}")
 
-        # First attempt to fix artist match
+        # # First attempt to fix artist match
         artists_match = artists_match_fixup1(song, result, artists_match)
         debug(
             song.song_id,
@@ -757,12 +735,12 @@ def order_results(
         time_match = calc_time_match(song, result)
         debug(song.song_id, result.result_id, f"Final time match: {time_match}")
 
-        # Ignore results with name match lower than 50%
-        if name_match <= 50:
+        # Ignore results with name match lower than 60%
+        if name_match <= 60:
             debug(
                 song.song_id,
                 result.result_id,
-                "Skipping result due to name match lower than 50%",
+                "Skipping result due to name match lower than 60%",
             )
             continue
 
