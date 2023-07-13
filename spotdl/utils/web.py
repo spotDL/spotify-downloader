@@ -37,6 +37,9 @@ from spotdl.types.options import (
     WebOptions,
 )
 from spotdl.types.song import Song
+from spotdl.types.playlist import Playlist
+from spotdl.types.album import Album
+from spotdl.types.artist import Artist
 from spotdl.utils.arguments import create_parser
 from spotdl.utils.config import (
     DOWNLOADER_OPTIONS,
@@ -280,6 +283,7 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
                 await app_state.server.shutdown()
 
 
+# Deprecated
 @router.get("/api/song/url", response_model=None)
 def song_from_url(url: str) -> Song:
     """
@@ -293,6 +297,45 @@ def song_from_url(url: str) -> Song:
     """
 
     return Song.from_url(url)
+
+
+@router.get("/api/url", response_model=None)
+def songs_from_url(url: str) -> List[Song]:
+    """
+    Search for a song, playlist, artist or album on spotify using url.
+
+    ### Arguments
+    - url: The url to search.
+
+    ### Returns
+    - returns a list with Song objects to be downloaded.
+    """
+    
+    if "playlist" in url:
+        playlist = Playlist.from_url(url)
+        return list(map(Song.from_url, playlist.urls))
+    if "album" in url:
+        album = Album.from_url(url)
+        return list(map(Song.from_url, album.urls))
+    if "artist" in url:
+        artist = Artist.from_url(url)
+        return list(map(Song.from_url, artist.urls))
+
+    return [Song.from_url(url)]
+
+
+@router.get("/api/version", response_model=None)
+def version() -> str:
+    """
+    Get the current version
+    This method is created to ensure backward compatibility of the web app,
+    as the web app is updated with the latest regardless of the backend version
+
+    ### Returns
+    -  returns the version of the app
+    """
+
+    return __version__
 
 
 @router.on_event("shutdown")
