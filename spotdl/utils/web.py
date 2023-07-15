@@ -310,7 +310,7 @@ def songs_from_url(url: str) -> List[Song]:
     ### Returns
     - returns a list with Song objects to be downloaded.
     """
-    
+
     if "playlist" in url:
         playlist = Playlist.from_url(url)
         return list(map(Song.from_url, playlist.urls))
@@ -638,7 +638,6 @@ def fix_mime_types():
 def check_latest_version_webui(dir: str) -> bool:
     """
     Checks for update on web-ui client.
-    Save the version to a `version.txt` if there is.
 
     ### Arguments
     - dir: The web-ui `dist` directory
@@ -655,9 +654,6 @@ def check_latest_version_webui(dir: str) -> bool:
         file.close()
         latest_tuple = tuple(latest_version.replace("v", "").split("."))
         current_tuple = tuple(current_version.replace("v", "").split("."))
-        file = open(dir + "/version.txt", "w")
-        file.write(latest_version)
-        file.close()
         if latest_tuple == current_tuple:
             return True
         else:
