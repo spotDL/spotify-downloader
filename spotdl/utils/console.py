@@ -8,6 +8,8 @@ import winreg
 import ctypes
 import os
 
+from pathlib import Path
+
 from spotdl.utils.config import DEFAULT_CONFIG, get_config_file
 from spotdl.utils.ffmpeg import download_ffmpeg as ffmpeg_download
 from spotdl.utils.ffmpeg import get_local_ffmpeg, is_ffmpeg_installed
@@ -126,6 +128,16 @@ def install_uri_scheme():
     def in_windows():
         if sys.platform == "win32":
             user_download_folder = os.path.join(os.path.expanduser("~"), "Downloads")
+
+            spotdl_exe = None
+
+            # Find spotdl.exe in env paths
+            for path in os.environ["PATH"].split(os.pathsep):
+                exe_path = Path(path).joinpath("spotdl.exe")
+                if Path(exe_path).exists():
+                    spotdl_exe = exe_path
+                    break
+
             with winreg.CreateKey(winreg.HKEY_CLASSES_ROOT, "spotdl") as key:
                 winreg.SetValueEx(key, None, 0, winreg.REG_SZ, None)
                 winreg.SetValueEx(key, "URL Protocol", 0, winreg.REG_SZ, "")
@@ -135,7 +147,7 @@ def install_uri_scheme():
                         None,
                         0,
                         winreg.REG_SZ,
-                        rf'cmd.exe /k cd /d "{user_download_folder}" && spotdl download "%1" && exit',
+                        rf'cmd.exe /k cd /d "{user_download_folder}" && {spotdl_exe} download "%1" && exit',
                     )
 
     if ctypes.windll.shell32.IsUserAnAdmin() != 0:
