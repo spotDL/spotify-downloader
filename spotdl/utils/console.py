@@ -4,6 +4,9 @@ Module for holding console related actions.
 
 import json
 import sys
+import winreg
+import ctypes
+import os
 
 from spotdl.utils.config import DEFAULT_CONFIG, get_config_file
 from spotdl.utils.ffmpeg import download_ffmpeg as ffmpeg_download
@@ -115,8 +118,42 @@ def download_ffmpeg():
             print("FFmpeg download failed")
 
 
+def install_uri_scheme():
+    """
+    Install custom uri scheme in windows.
+    """
+
+    def in_windows():
+        if sys.platform == "win32":
+            user_download_folder = os.path.join(os.path.expanduser("~"), "Downloads")
+            with winreg.CreateKey(winreg.HKEY_CLASSES_ROOT, "spotdl") as key:
+                winreg.SetValueEx(key, None, 0, winreg.REG_SZ, None)
+                winreg.SetValueEx(key, "URL Protocol", 0, winreg.REG_SZ, "")
+                with winreg.CreateKey(key, r"shell\open\command") as shell_command_key:
+                    winreg.SetValueEx(
+                        shell_command_key,
+                        None,
+                        0,
+                        winreg.REG_SZ,
+                        rf'cmd.exe /k cd /d "{user_download_folder}" && spotdl download "%1" && exit',
+                    )
+
+    if ctypes.windll.shell32.IsUserAnAdmin() != 0:
+        # Execute function if cmd already has elevated access
+        in_windows()
+    else:
+        # Prompt for elevated access and run the script again with admin rights
+        try:
+            ctypes.windll.shell32.ShellExecuteW(
+                None, "runas", sys.executable, " ".join(sys.argv), None, 0
+            )
+        except PermissionError:
+            return
+
+
 ACTIONS = {
     "--generate-config": generate_config,
     "--check-for-updates": check_for_updates,
     "--download-ffmpeg": download_ffmpeg,
+    "--install-uri-scheme": install_uri_scheme,
 }

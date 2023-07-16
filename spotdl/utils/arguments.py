@@ -658,6 +658,11 @@ def parse_other_options(parser: _ArgumentGroup):
         version=_version.__version__,
     )
 
+    parser.add_argument(
+        "--install-uri-scheme",
+        help="Register spotdl custom uri scheme in Windows.",
+    )
+
 
 def create_parser() -> ArgumentParser:
     """

@@ -124,6 +124,9 @@ def get_simple_songs(
     songs: List[Song] = []
     lists: List[SongList] = []
     for request in query:
+        # Remove spotdl:// if request came from custom uri
+        request = re.sub(r"^spotdl://", "", request)
+
         logger.info("Processing query: %s", request)
 
         # Remove /intl-xxx/ from Spotify URLs with regex
