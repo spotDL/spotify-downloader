@@ -5,8 +5,8 @@ Module for holding console related actions.
 import json
 import sys
 import winreg
-import ctypes
 import os
+import logging
 
 from pathlib import Path
 
@@ -24,6 +24,8 @@ __all__ = [
     "download_ffmpeg",
     "ACTIONS",
 ]
+
+logger = logging.getLogger(__name__)
 
 
 def is_frozen():
@@ -132,12 +134,14 @@ def install_uri_scheme():
             spotdl_exe = None
 
             # Find spotdl.exe in env paths
+            print("Checking spotDL installation path...")
             for path in os.environ["PATH"].split(os.pathsep):
                 exe_path = Path(path).joinpath("spotdl.exe")
                 if Path(exe_path).exists():
                     spotdl_exe = exe_path
                     break
 
+            print("Creating winreg keys...")
             with winreg.CreateKey(winreg.HKEY_CLASSES_ROOT, "spotdl") as key:
                 winreg.SetValueEx(key, None, 0, winreg.REG_SZ, None)
                 winreg.SetValueEx(key, "URL Protocol", 0, winreg.REG_SZ, "")
@@ -150,17 +154,17 @@ def install_uri_scheme():
                         rf'cmd.exe /k cd /d "{user_download_folder}" && {spotdl_exe} download "%1" && exit',
                     )
 
-    if ctypes.windll.shell32.IsUserAnAdmin() != 0:
+    try:
         # Execute function if cmd already has elevated access
         in_windows()
-    else:
-        # Prompt for elevated access and run the script again with admin rights
-        try:
-            ctypes.windll.shell32.ShellExecuteW(
-                None, "runas", sys.executable, " ".join(sys.argv), None, 0
-            )
-        except PermissionError:
-            return
+        print("Successfully installed custom uri scheme.")
+        print(
+            "When using uri scheme, the default download folder will be the 'Downloads' folder in your disk."
+        )
+    except PermissionError:
+        logger.error(
+            "This command needs elevated access. Run cmd as an administrator and try again."
+        )
 
 
 ACTIONS = {
