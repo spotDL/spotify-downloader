@@ -152,7 +152,8 @@ def install_uri_scheme():
             in_windows()
     except PermissionError:
         print(
-            "\033[31mThis command needs elevated access. Run cmd as an administrator and try again.\033[0m"
+            "\033[31mThis command needs elevated access. "
+            "Run cmd as an administrator and try again.\033[0m"
         )
 
 

@@ -635,29 +635,29 @@ def fix_mime_types():
     mimetypes.add_type("text/html", ".html")
 
 
-def check_latest_version_webui(dir: str) -> bool:
+def check_latest_version_webui(dist_dir: str) -> bool:
     """
     Checks for update on web-ui client.
 
     ### Arguments
-    - dir: The web-ui `dist` directory
+    - dist_dir: The web-ui `dist` directory
 
     ### Returns
     - returns True if there is an update
-    - returns False if file version is not found
+    - returns False if file version is not found or version is latest
     """
 
     try:
         latest_version = get_latest_version("spotdl/web-ui")
-        file = open(dir + "/version.txt", "r")
-        current_version = str(file.readline().strip())
+        with open(dist_dir + "/version.txt", "r", encoding=None) as file:
+            current_version = str(file.readline().strip())
+
         file.close()
         latest_tuple = tuple(latest_version.replace("v", "").split("."))
         current_tuple = tuple(current_version.replace("v", "").split("."))
-        if latest_tuple == current_tuple:
-            return True
-        else:
-            return False
+
+        return bool(latest_tuple == current_tuple)
+
     except RateLimitError:
         return False
     except FileNotFoundError:
