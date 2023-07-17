@@ -660,7 +660,11 @@ def parse_other_options(parser: _ArgumentGroup):
 
     parser.add_argument(
         "--install-uri-scheme",
-        help="Register spotdl custom uri scheme in Windows.",
+        help=(
+            "Register spotdl custom uri scheme in Windows. Sample usage:"
+            '`spotdl --install-uri-scheme "C:\\some\\folder"` where '
+            '"C:\\some\\folder" will be the default download folder.'
+        ),
     )
 
 
