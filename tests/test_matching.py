@@ -344,6 +344,7 @@ from tests.conftest import new_initialize
                 "https://www.youtube.com/watch?v=unrdoZwLYbU",
                 "https://www.youtube.com/watch?v=B_HSa1dEL9s",
                 "https://www.youtube.com/watch?v=tp83QrhNguM",
+                "https://www.youtube.com/watch?v=oru1gyxUImI",
             ],
         ),
         (
@@ -351,7 +352,7 @@ from tests.conftest import new_initialize
             "https://open.spotify.com/track/4Dy9azWTLsDMUdUxrT1170",
             [
                 "https://www.youtube.com/watch?v=KD5ncAFjRzY",
-                "https://www.youtube.com/watch?v=9DKKhnmgCIo"
+                "https://www.youtube.com/watch?v=9DKKhnmgCIo",
             ],
         )
         # (

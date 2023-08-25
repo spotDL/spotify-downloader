@@ -31,15 +31,15 @@ from uvicorn import Server
 from spotdl._version import __version__
 from spotdl.download.downloader import Downloader
 from spotdl.download.progress_handler import ProgressHandler, SongTracker
+from spotdl.types.album import Album
+from spotdl.types.artist import Artist
 from spotdl.types.options import (
     DownloaderOptionalOptions,
     DownloaderOptions,
     WebOptions,
 )
-from spotdl.types.song import Song
 from spotdl.types.playlist import Playlist
-from spotdl.types.album import Album
-from spotdl.types.artist import Artist
+from spotdl.types.song import Song
 from spotdl.utils.arguments import create_parser
 from spotdl.utils.config import (
     DOWNLOADER_OPTIONS,
@@ -310,7 +310,7 @@ def songs_from_url(url: str) -> List[Song]:
     ### Returns
     - returns a list with Song objects to be downloaded.
     """
-    
+
     if "playlist" in url:
         playlist = Playlist.from_url(url)
         return list(map(Song.from_url, playlist.urls))
