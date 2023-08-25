@@ -178,7 +178,12 @@ class SpotifyClient(Spotify, metaclass=Singleton):
 
         cache_key = None
         if use_cache:
-            cache_key = url
+            key_obj = dict(kwargs)
+            key_obj["url"] = url
+            key_obj["data"] = json.dumps(payload)
+            cache_key = json.dumps(key_obj)
+            if cache_key is None:
+                cache_key = url
             if self.cache.get(cache_key) is not None:
                 logger.debug("Getting song from cache... (%s)", cache_key)
                 return self.cache[cache_key]
