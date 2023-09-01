@@ -406,6 +406,13 @@ def parse_output_options(parser: _ArgumentGroup):
         help="Print errors (wrong songs, failed downloads etc) on exit, useful for long playlist",
     )
 
+    # Option to save errors to a file
+    parser.add_argument(
+        "--save-errors",
+        type=str,
+        help="Save errors (wrong songs, failed downloads etc) to a file",
+    )
+
     # Option to use sponsor block
     parser.add_argument(
         "--sponsor-block",

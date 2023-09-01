@@ -296,6 +296,7 @@ DOWNLOADER_OPTIONS: DownloaderOptions = {
     "max_filename_length": None,
     "yt_dlp_args": None,
     "detect_formats": None,
+    "save_errors": None,
 }
 
 WEB_OPTIONS: WebOptions = {

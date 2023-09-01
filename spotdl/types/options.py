@@ -76,6 +76,7 @@ class DownloaderOptions(TypedDict):
     max_filename_length: Optional[int]
     yt_dlp_args: Optional[str]
     detect_formats: Optional[str]
+    save_errors: Optional[str]
 
 
 class WebOptions(TypedDict):
@@ -153,6 +154,7 @@ class DownloaderOptionalOptions(TypedDict, total=False):
     max_filename_length: Optional[int]
     yt_dlp_args: Optional[str]
     detect_formats: Optional[str]
+    save_errors: Optional[str]
 
 
 class WebOptionalOptions(TypedDict, total=False):
