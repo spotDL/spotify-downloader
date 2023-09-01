@@ -82,7 +82,7 @@ def save(
     if to_stdout:
         # Print the songs to stdout
         print(json.dumps(save_data, indent=4, ensure_ascii=False))
-    else:
+    elif save_path:
         # Save the songs to a file
         with open(save_path, "w", encoding="utf-8") as save_file:
             json.dump(save_data, save_file, indent=4, ensure_ascii=False)

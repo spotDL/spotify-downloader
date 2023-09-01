@@ -185,7 +185,6 @@ class SpotifyClient(Spotify, metaclass=Singleton):
             if cache_key is None:
                 cache_key = url
             if self.cache.get(cache_key) is not None:
-                logger.debug("Getting song from cache... (%s)", cache_key)
                 return self.cache[cache_key]
 
         # Wrap in a try-except and retry up to `retries` times.
@@ -200,7 +199,6 @@ class SpotifyClient(Spotify, metaclass=Singleton):
                     raise exc
 
         if use_cache and cache_key is not None:
-            logger.debug("Adding response to cache (%s)", url)
             self.cache[cache_key] = response
 
         return response

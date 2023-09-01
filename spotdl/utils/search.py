@@ -133,7 +133,7 @@ def get_simple_songs(
         request = re.sub(r"\/intl-\w+\/", "/", request)
 
         if (
-            (
+            (  # pylint: disable=too-many-boolean-expressions
                 "watch?v=" in request
                 or "youtu.be/" in request
                 or "soundcloud.com/" in request

@@ -3,6 +3,8 @@ Init module for spotdl. This module contains the main entry point for spotdl.
 And Spotdl class
 """
 
+from __future__ import annotations
+
 import asyncio
 import concurrent.futures
 import logging
