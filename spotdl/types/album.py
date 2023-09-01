@@ -89,7 +89,7 @@ class Album(SongList):
                 album_artist=album_metadata["artists"][0]["name"],
                 disc_number=track["disc_number"],
                 disc_count=int(album_metadata["tracks"]["items"][-1]["disc_number"]),
-                duration=track["duration_ms"]/1000,
+                duration=track["duration_ms"] / 1000,
                 year=release_date[:4],
                 date=release_date,
                 track_number=track["track_number"],

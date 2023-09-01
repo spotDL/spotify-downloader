@@ -20,7 +20,8 @@ class YouTubeMusic(AudioProvider):
 
     SUPPORTS_ISRC = True
     GET_RESULTS_OPTS: List[Dict[str, Any]] = [
-        {"filter": "songs", "ignore_spelling": True, "limit": 50}
+        {"filter": "songs", "ignore_spelling": True, "limit": 50},
+        {"filter": "videos", "ignore_spelling": True, "limit": 50},
     ]
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:

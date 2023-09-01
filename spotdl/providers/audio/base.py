@@ -240,7 +240,7 @@ class AudioProvider:
                 )
 
                 return isrc_result.url
-            
+
             logger.debug(
                 "[%s] Have to filter results: %s", song.song_id, self.filter_results
             )
@@ -327,7 +327,7 @@ class AudioProvider:
         # return the one with the highest score
         # and most views
         if len(best_results) > 1:
-            views = []
+            views: List[int] = []
             for best_result in best_results:
                 if best_result[0].views:
                     views.append(best_result[0].views)
