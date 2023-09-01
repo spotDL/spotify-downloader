@@ -75,7 +75,7 @@ class DownloaderOptions(TypedDict):
     sync_without_deleting: bool
     max_filename_length: Optional[int]
     yt_dlp_args: Optional[str]
-    detect_formats: Optional[str]
+    detect_formats: Optional[List[str]]
     save_errors: Optional[str]
 
 
@@ -153,7 +153,7 @@ class DownloaderOptionalOptions(TypedDict, total=False):
     sync_without_deleting: bool
     max_filename_length: Optional[int]
     yt_dlp_args: Optional[str]
-    detect_formats: Optional[str]
+    detect_formats: Optional[List[str]]
     save_errors: Optional[str]
 
 

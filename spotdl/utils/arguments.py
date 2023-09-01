@@ -533,7 +533,11 @@ def parse_output_options(parser: _ArgumentGroup):
         "--detect-formats",
         type=str,
         nargs="*",
-        help="Detect already downloaded songs with file format different from the --format option",
+        help=(
+            "Detect already downloaded songs with file format different from the --format option "
+            "(When combined with --m3u option, "
+            "only first detected format will be added to m3u file)"
+        ),
         choices=FFMPEG_FORMATS.keys(),
     )
 

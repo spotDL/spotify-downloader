@@ -315,6 +315,7 @@ class Downloader:
                 self.settings["format"],
                 self.settings["restrict"],
                 False,
+                self.settings["detect_formats"],
             )
 
         # Save results to a file
