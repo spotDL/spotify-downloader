@@ -6,8 +6,9 @@ import json
 from dataclasses import asdict, dataclass
 from typing import Any, Dict, List, Optional, Tuple
 
-from spotdl.utils.spotify import SpotifyClient
 from rapidfuzz import fuzz
+
+from spotdl.utils.spotify import SpotifyClient
 
 __all__ = ["Song", "SongList", "SongError"]
 
@@ -331,7 +332,7 @@ class SongList:
             score = fuzz.ratio(search_term.split(":", 1)[1].strip(), result["name"])
             matches[result["id"]] = score
 
-        best_match = max(matches, key=matches.get) # type: ignore
+        best_match = max(matches, key=matches.get)  # type: ignore
 
         return cls.from_url(
             f"http://open.spotify.com/{list_type}/{best_match}",

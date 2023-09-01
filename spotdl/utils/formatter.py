@@ -510,7 +510,7 @@ def restrict_filename(pathobj: Path, strict: bool = True) -> Path:
     - Based on the `sanitize_filename` function from yt-dlp
     """
     if strict:
-        result = sanitize_filename(pathobj.name, True, False) # type: ignore
+        result = sanitize_filename(pathobj.name, True, False)  # type: ignore
         result = result.replace("_-_", "-")
     else:
         result = (
