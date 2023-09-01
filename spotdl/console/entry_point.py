@@ -88,9 +88,10 @@ def console_entry_point():
         return None
 
     # Check if save file is present and if it's valid
-    if isinstance(downloader_settings["save_file"], str) and not downloader_settings[
-        "save_file"
-    ].endswith(".spotdl"):
+    if isinstance(downloader_settings["save_file"], str) and (
+        not downloader_settings["save_file"].endswith(".spotdl")
+        and not downloader_settings["save_file"] == "-"
+    ):
         raise DownloaderError("Save file has to end with .spotdl")
 
     # Check if the user is logged in

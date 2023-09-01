@@ -332,7 +332,7 @@ def parse_output_options(parser: _ArgumentGroup):
             "The file to save/load the songs data from/to. "
             "It has to end with .spotdl. "
             "If combined with the download operation, it will save the songs data to the file. "
-            "Required for save/preload/sync"
+            "Required for save/sync (use - to print to stdout when using save). "
         ),
         required=len(sys.argv) > 1 and sys.argv[1] in ["save"],
     )
