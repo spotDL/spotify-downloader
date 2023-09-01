@@ -270,7 +270,6 @@ def get_simple_songs(
         )
 
         for index, song in enumerate(song_list.songs):
-            print(index)
             song_data = song.json
             song_data["list_name"] = song_list.name
             song_data["list_url"] = song_list.url
