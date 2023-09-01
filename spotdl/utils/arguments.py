@@ -74,8 +74,9 @@ def parse_main_options(parser: _ArgumentGroup):
             "For album/playlist/artist searching, include 'album:', 'playlist:', 'artist:' \n"
             "(ie. 'album:the album name' you can mix these options to get more accurate results)"
             ".\n\n"
-            "To download liked songs use 'saved' as the query, or to download all user playlists\n"
-            "use 'all-user-playlists'.\n\n"
+            "To download liked songs use 'saved' as the query, to download all user playlists\n"
+            "use 'all-user-playlists, to download all songs from all followed artists "
+            "use 'all-user-followed-artists' \n\n"
             "For manual audio matching, you can use the format 'YouTubeURL|SpotifyURL'\n"
             "You can only use album/playlist/tracks urls when "
             "downloading/matching youtube urls.\n"
@@ -332,7 +333,7 @@ def parse_output_options(parser: _ArgumentGroup):
             "The file to save/load the songs data from/to. "
             "It has to end with .spotdl. "
             "If combined with the download operation, it will save the songs data to the file. "
-            "Required for save/preload/sync"
+            "Required for save/sync (use - to print to stdout when using save). "
         ),
         required=len(sys.argv) > 1 and sys.argv[1] in ["save"],
     )
@@ -404,6 +405,13 @@ def parse_output_options(parser: _ArgumentGroup):
         action="store_const",
         const=True,
         help="Print errors (wrong songs, failed downloads etc) on exit, useful for long playlist",
+    )
+
+    # Option to save errors to a file
+    parser.add_argument(
+        "--save-errors",
+        type=str,
+        help="Save errors (wrong songs, failed downloads etc) to a file",
     )
 
     # Option to use sponsor block
@@ -526,7 +534,11 @@ def parse_output_options(parser: _ArgumentGroup):
         "--detect-formats",
         type=str,
         nargs="*",
-        help="Detect already downloaded songs with file format different from the --format option",
+        help=(
+            "Detect already downloaded songs with file format different from the --format option "
+            "(When combined with --m3u option, "
+            "only first detected format will be added to m3u file)"
+        ),
         choices=FFMPEG_FORMATS.keys(),
     )
 

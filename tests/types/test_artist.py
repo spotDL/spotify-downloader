@@ -61,7 +61,7 @@ def test_artist_from_string():
     Test if Artist class can be initialized from string.
     """
 
-    artist = Artist.from_search_term("artist:gorillaz")
+    artist = Artist.from_search_term("artist: gorillaz")
 
     assert artist.name == "Gorillaz"
     assert artist.url == "http://open.spotify.com/artist/3AA28KZvwAUcZuOKwyblJQ"

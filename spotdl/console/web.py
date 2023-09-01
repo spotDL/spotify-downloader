@@ -66,7 +66,7 @@ def web(web_settings: WebOptions, downloader_settings: DownloaderOptions):
     logger.info("Updating web app \n")
     web_app_dir = str(get_spotdl_path().absolute())
     download_github_dir(
-        "https://github.com/spotdl/web-ui/tree/dev/dist",
+        "https://github.com/spotdl/web-ui/tree/master/dist",
         output_dir=web_app_dir,
     )
 
@@ -112,6 +112,22 @@ def web(web_settings: WebOptions, downloader_settings: DownloaderOptions):
 
     # Open the web browser
     webbrowser.open(f"http://{web_settings['host']}:{web_settings['port']}/")
+
+    if not web_settings["web_use_output_dir"]:
+        logger.info(
+            "Files are stored in temporary directory "
+            "and will be deleted after the program exits "
+            "to save them to current directory permanently "
+            "enable the `web_use_output_dir` option "
+        )
+    else:
+        logger.info(
+            "Files are stored in current directory "
+            "to save them to temporary directory "
+            "disable the `web_use_output_dir` option "
+        )
+
+    logger.info("Starting web server \n")
 
     # Start the web server
     app_state.loop.run_until_complete(app_state.server.serve())

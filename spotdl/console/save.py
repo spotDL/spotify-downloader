@@ -35,11 +35,18 @@ def save(
     save_path = downloader.settings["save_file"]
     m3u_file = downloader.settings["m3u"]
 
-    if save_path is None:
+    to_stdout = save_path == "-"
+
+    if save_path is None and not to_stdout:
         raise DownloaderError("Save file is not specified")
 
     # Parse the query
-    songs = parse_query(query, downloader.settings["threads"])
+    songs = parse_query(
+        query,
+        downloader.settings["threads"],
+        downloader.settings["ytm_data"],
+        downloader.settings["playlist_numbering"],
+    )
     save_data = [song.json for song in songs]
 
     def process_song(song: Song):
@@ -72,9 +79,13 @@ def save(
         # call all task asynchronously, and wait until all are finished
         save_data = list(downloader.loop.run_until_complete(asyncio.gather(*tasks)))
 
-    # Save the songs to a file
-    with open(save_path, "w", encoding="utf-8") as save_file:
-        json.dump(save_data, save_file, indent=4, ensure_ascii=False)
+    if to_stdout:
+        # Print the songs to stdout
+        print(json.dumps(save_data, indent=4, ensure_ascii=False))
+    elif save_path:
+        # Save the songs to a file
+        with open(save_path, "w", encoding="utf-8") as save_file:
+            json.dump(save_data, save_file, indent=4, ensure_ascii=False)
 
     if m3u_file:
         gen_m3u_files(
@@ -86,9 +97,10 @@ def save(
             False,
         )
 
-    logger.info(
-        "Saved %s song%s to %s",
-        len(save_data),
-        "s" if len(save_data) > 1 else "",
-        save_path,
-    )
+    if not to_stdout:
+        logger.info(
+            "Saved %s song%s to %s",
+            len(save_data),
+            "s" if len(save_data) > 1 else "",
+            save_path,
+        )

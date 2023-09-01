@@ -352,8 +352,8 @@ Main options:
                         For album/playlist/artist searching, include 'album:', 'playlist:', 'artist:'
                         (ie. 'album:the album name' you can mix these options to get more accurate results).
 
-                        To download liked songs use 'saved' as the query, or to download all user playlists
-                        use 'all-user-playlists'.
+                        To download liked songs use 'saved' as the query, to download all user playlists
+                        use 'all-user-playlists, to download all songs from all followed artists use 'all-user-followed-artists'
 
                         For manual audio matching, you can use the format 'YouTubeURL|SpotifyURL'
                         You can only use album/playlist/tracks urls when downloading/matching youtube urls.
@@ -362,12 +362,14 @@ Main options:
   --audio [{youtube,youtube-music,slider-kz,soundcloud,bandcamp,piped} ...]
                         The audio provider to use. You can provide more than one for fallback.
   --lyrics [{genius,musixmatch,azlyrics,synced} ...]
-                        The lyrics provider to use. You can provide more than one for fallback. Synced lyrics might not work correctly with some music players. For such cases it's better to use
-                        `--generate-lrc` option.
-  --config              Use the config file to download songs. It's located under C:\Users\user\.spotdl\config.json or ~/.spotdl/config.json under linux
+                        The lyrics provider to use. You can provide more than one for fallback. Synced lyrics might not work correctly with
+                        some music players. For such cases it's better to use `--generate-lrc` option.
+  --config              Use the config file to download songs. It's located under C:\Users\user\.spotdl\config.json or
+                        ~/.spotdl/config.json under linux
   --search-query SEARCH_QUERY
-                        The search query to use, available variables: {title}, {artists}, {artist}, {album}, {album-artist}, {genre}, {disc-number}, {disc-count}, {duration}, {year}, {original-
-                        date}, {track-number}, {tracks-count}, {isrc}, {track-id}, {publisher}, {list-length}, {list-position}, {list-name}, {output-ext}
+                        The search query to use, available variables: {title}, {artists}, {artist}, {album}, {album-artist}, {genre},
+                        {disc-number}, {disc-count}, {duration}, {year}, {original-date}, {track-number}, {tracks-count}, {isrc}, {track-
+                        id}, {publisher}, {list-length}, {list-position}, {list-name}, {output-ext}
   --dont-filter-results
                         Disable filtering results.
   --only-verified-results
@@ -387,15 +389,17 @@ Spotify options:
   --max-retries MAX_RETRIES
                         The maximum number of retries to perform when getting metadata.
   --headless            Run in headless mode.
-  --use-cache-file      Use the cache file to get metadata. It's located under C:\Users\user\.spotdl\.spotify_cache or ~/.spotdl/.spotify_cache under linux. It only caches tracks and gets updated
-                        whenever spotDL gets metadata from Spotify. (It may provide outdated metadata use with caution)
+  --use-cache-file      Use the cache file to get metadata. It's located under C:\Users\user\.spotdl\.spotify_cache or
+                        ~/.spotdl/.spotify_cache under linux. It only caches tracks and gets updated whenever spotDL gets metadata from
+                        Spotify. (It may provide outdated metadata use with caution)
 
 FFmpeg options:
   --ffmpeg FFMPEG       The ffmpeg executable to use.
   --threads THREADS     The number of threads to use when downloading songs.
   --bitrate {auto,disable,8k,16k,24k,32k,40k,48k,64k,80k,96k,112k,128k,160k,192k,224k,256k,320k,0,1,2,3,4,5,6,7,8,9}
-                        The constant/variable bitrate to use for the output file. Values from 0 to 9 are variable bitrates. Auto will use the bitrate of the original file. Disable will disable
-                        the bitrate option. (In case of m4a and opus files, auto and disable will skip the conversion)
+                        The constant/variable bitrate to use for the output file. Values from 0 to 9 are variable bitrates. Auto will use
+                        the bitrate of the original file. Disable will disable the bitrate option. (In case of m4a and opus files, auto and
+                        disable will skip the conversion)
   --ffmpeg-args FFMPEG_ARGS
                         Additional ffmpeg arguments passed as a string.
 
@@ -403,26 +407,31 @@ Output options:
   --format {mp3,flac,ogg,opus,m4a,wav}
                         The format to download the song in.
   --save-file SAVE_FILE
-                        The file to save/load the songs data from/to. It has to end with .spotdl. If combined with the download operation, it will save the songs data to the file. Required for
-                        save/preload/sync
+                        The file to save/load the songs data from/to. It has to end with .spotdl. If combined with the download operation,
+                        it will save the songs data to the file. Required for save/sync (use - to print to stdout when using save).
   --preload             Preload the download url to speed up the download process.
-  --output OUTPUT       Specify the downloaded file name format, available variables: {title}, {artists}, {artist}, {album}, {album-artist}, {genre}, {disc-number}, {disc-count}, {duration},
-                        {year}, {original-date}, {track-number}, {tracks-count}, {isrc}, {track-id}, {publisher}, {list-length}, {list-position}, {list-name}, {output-ext}
-  --m3u [M3U]           Name of the m3u file to save the songs to. Defaults to {list[0]}.m3u8 If you want to generate a m3u for each list in the query use {list}, If you want to generate a m3u
-                        file based on the first list in the query use {list[0]}, (0 is the first list in the query, 1 is the second, etc. songs don't count towards the list number)
+  --output OUTPUT       Specify the downloaded file name format, available variables: {title}, {artists}, {artist}, {album}, {album-
+                        artist}, {genre}, {disc-number}, {disc-count}, {duration}, {year}, {original-date}, {track-number}, {tracks-count},
+                        {isrc}, {track-id}, {publisher}, {list-length}, {list-position}, {list-name}, {output-ext}
+  --m3u [M3U]           Name of the m3u file to save the songs to. Defaults to {list[0]}.m3u8 If you want to generate a m3u for each list
+                        in the query use {list}, If you want to generate a m3u file based on the first list in the query use {list[0]}, (0
+                        is the first list in the query, 1 is the second, etc. songs don't count towards the list number)
   --cookie-file COOKIE_FILE
                         Path to cookies file.
-  --overwrite {force,skip,metadata}
-                        How to handle existing/duplicate files. (When combined with --scan-for-songs force will remove all duplicates, and metadata will only apply metadata to the latest song and
-                        will remove the rest. )
-  --restrict [{strict,ascii,none}]
+  --overwrite {skip,force,metadata}
+                        How to handle existing/duplicate files. (When combined with --scan-for-songs force will remove all duplicates, and
+                        metadata will only apply metadata to the latest song and will remove the rest. )
+  --restrict [{ascii,strict,none}]
                         Restrict filenames to a sanitized set of characters for better compatibility
   --print-errors        Print errors (wrong songs, failed downloads etc) on exit, useful for long playlist
+  --save-errors SAVE_ERRORS
+                        Save errors (wrong songs, failed downloads etc) to a file
   --sponsor-block       Use the sponsor block to download songs from yt/ytm.
   --archive ARCHIVE     Specify the file name for an archive of already downloaded songs
   --playlist-numbering  Sets each track in a playlist to have the playlist's name as its album, and album art as the playlist's icon
-  --scan-for-songs      Scan the output directory for existing files. This option should be combined with the --overwrite option to control how existing files are handled. (Output directory is
-                        the last directory that is not a template variable in the output template)
+  --scan-for-songs      Scan the output directory for existing files. This option should be combined with the --overwrite option to control
+                        how existing files are handled. (Output directory is the last directory that is not a template variable in the
+                        output template)
   --fetch-albums        Fetch all albums from songs in query
   --id3-separator ID3_SEPARATOR
                         Change the separator used in the id3 tags. Only supported for mp3 files.
@@ -438,7 +447,8 @@ Output options:
   --yt-dlp-args YT_DLP_ARGS
                         Arguments to pass to yt-dlp
   --detect-formats [{mp3,flac,ogg,opus,m4a,wav} ...]
-                        Detect already downloaded songs with file format different from the --format option
+                        Detect already downloaded songs with file format different from the --format option (When combined with --m3u
+                        option, only first detected format will be added to m3u file)
 
 Web options:
   --host HOST           The host to use for the web server.
@@ -446,7 +456,8 @@ Web options:
   --keep-alive          Keep the web server alive even when no clients are connected.
   --allowed-origins [ALLOWED_ORIGINS ...]
                         The allowed origins for the web server.
-  --web-use-output-dir  Use the output directory instead of the session directory for downloads. (This might cause issues if you have multiple users using the web-ui at the same time)
+  --web-use-output-dir  Use the output directory instead of the session directory for downloads. (This might cause issues if you have
+                        multiple users using the web-ui at the same time)
   --keep-sessions       Keep the session directory after the web server is closed.
 
 Misc options:

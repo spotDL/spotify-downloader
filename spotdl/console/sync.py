@@ -49,7 +49,12 @@ def sync(
             )
 
         # Parse the query
-        songs_list = parse_query(query, downloader.settings["threads"])
+        songs_list = parse_query(
+            query,
+            downloader.settings["threads"],
+            downloader.settings["ytm_data"],
+            downloader.settings["playlist_numbering"],
+        )
 
         # Create sync file
         with open(save_path, "w", encoding="utf-8") as save_file:
@@ -87,11 +92,20 @@ def sync(
             sync_data = json.load(sync_file)
 
         # Verify the sync file
-        if not isinstance(sync_data, dict) or sync_data.get("type") != "sync":
+        if (
+            not isinstance(sync_data, dict)
+            or sync_data.get("type") != "sync"
+            or sync_data.get("songs") is None
+        ):
             raise ValueError("Sync file is not a valid sync file.")
 
         # Parse the query
-        songs_playlist = parse_query(sync_data["query"], downloader.settings["threads"])
+        songs_playlist = parse_query(
+            sync_data["query"],
+            downloader.settings["threads"],
+            downloader.settings["ytm_data"],
+            downloader.settings["playlist_numbering"],
+        )
 
         # Get the names and URLs of previously downloaded songs from the sync file
         old_files = []

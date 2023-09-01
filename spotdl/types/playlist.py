@@ -2,6 +2,7 @@
 Playlist module for retrieving playlist data from Spotify.
 """
 
+import logging
 from dataclasses import dataclass
 from typing import Any, Dict, List, Tuple
 
@@ -9,6 +10,8 @@ from spotdl.types.song import Song, SongList
 from spotdl.utils.spotify import SpotifyClient
 
 __all__ = ["Playlist", "PlaylistError"]
+
+logger = logging.getLogger(__name__)
 
 
 class PlaylistError(Exception):
@@ -82,20 +85,22 @@ class Playlist(SongList):
 
         songs = []
         for track in tracks:
-            if (
-                not isinstance(track, dict)
-                or track.get("track") is None
-                or track.get("track", {}).get("is_local")
-            ):
+            if not isinstance(track, dict) or track.get("track") is None:
                 continue
 
-            track_meta = track.get("track", {})
+            track_meta = track["track"]
+
+            if track_meta.get("is_local") or track_meta.get("type") != "track":
+                logger.warning(
+                    "Skipping track: %s local tracks and %s are not supported",
+                    track_meta.get("id"),
+                    track_meta.get("type"),
+                )
+
+                continue
+
             track_id = track_meta.get("id")
-            if (
-                track_meta == {}
-                or track_id is None
-                or track_meta.get("duration_ms") == 0
-            ):
+            if track_id is None or track_meta.get("duration_ms") == 0:
                 continue
 
             album_meta = track_meta.get("album", {})

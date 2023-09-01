@@ -79,6 +79,7 @@ def parse_query(
     query: List[str],
     threads: int = 1,
     use_ytm_data: bool = False,
+    playlist_numbering: bool = False,
 ) -> List[Song]:
     """
     Parse query and return list containing song object
@@ -91,7 +92,9 @@ def parse_query(
     - List of song objects
     """
 
-    songs: List[Song] = get_simple_songs(query, use_ytm_data=use_ytm_data)
+    songs: List[Song] = get_simple_songs(
+        query, use_ytm_data=use_ytm_data, playlist_numbering=playlist_numbering
+    )
 
     results = []
     with concurrent.futures.ThreadPoolExecutor(max_workers=threads) as executor:
@@ -130,7 +133,12 @@ def get_simple_songs(
         request = re.sub(r"\/intl-\w+\/", "/", request)
 
         if (
-            ("watch?v=" in request or "youtu.be/" in request)
+            (  # pylint: disable=too-many-boolean-expressions
+                "watch?v=" in request
+                or "youtu.be/" in request
+                or "soundcloud.com/" in request
+                or "bandcamp.com/" in request
+            )
             and "open.spotify.com" in request
             and "track" in request
             and "|" in request
@@ -138,7 +146,12 @@ def get_simple_songs(
             split_urls = request.split("|")
             if (
                 len(split_urls) <= 1
-                or not ("watch?v=" in split_urls[0] or "youtu.be" in split_urls[0])
+                or not (
+                    "watch?v=" in split_urls[0]
+                    or "youtu.be" in split_urls[0]
+                    or "soundcloud.com/" in split_urls[0]
+                    or "bandcamp.com/" in split_urls[0]
+                )
                 or "spotify" not in split_urls[1]
             ):
                 raise QueryError(
@@ -238,6 +251,8 @@ def get_simple_songs(
             lists.append(Saved.from_url(request, fetch_songs=False))
         elif request == "all-user-playlists":
             lists.extend(get_all_user_playlists())
+        elif request == "all-user-followed-artists":
+            lists.extend(get_user_followed_artists())
         elif request.endswith(".spotdl"):
             with open(request, "r", encoding="utf-8") as save_file:
                 for track in json.load(save_file):
@@ -328,6 +343,40 @@ def get_all_user_playlists() -> List[Playlist]:
     return [
         Playlist.from_url(playlist["external_urls"]["spotify"], fetch_songs=False)
         for playlist in user_playlists
+    ]
+
+
+def get_user_followed_artists() -> List[Artist]:
+    """
+    Get all user playlists
+
+    ### Returns
+    - List of all user playlists
+    """
+
+    spotify_client = SpotifyClient()
+    if spotify_client.user_auth is False:  # type: ignore
+        raise SpotifyError("You must be logged in to use this function")
+
+    user_followed_response = spotify_client.current_user_followed_artists()
+    if user_followed_response is None:
+        raise SpotifyError("Couldn't get user followed artists")
+
+    user_followed_response = user_followed_response["artists"]
+    user_followed = user_followed_response["items"]
+
+    # Fetch all artists
+    while user_followed_response and user_followed_response["next"]:
+        response = spotify_client.next(user_followed_response)
+        if response is None:
+            break
+
+        user_followed_response = response["artists"]
+        user_followed.extend(user_followed_response["items"])
+
+    return [
+        Artist.from_url(followed_artist["external_urls"]["spotify"], fetch_songs=False)
+        for followed_artist in user_followed
     ]
 
 

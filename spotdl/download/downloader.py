@@ -279,6 +279,14 @@ class Downloader:
             for error in self.errors:
                 logger.error(error)
 
+        if self.settings["save_errors"]:
+            with open(
+                self.settings["save_errors"], "w", encoding="utf-8"
+            ) as error_file:
+                error_file.write("\n".join(self.errors))
+
+            logger.info("Saved errors to %s", self.settings["save_errors"])
+
         # Save archive
         if self.settings["archive"]:
             for result in results:
@@ -307,6 +315,7 @@ class Downloader:
                 self.settings["format"],
                 self.settings["restrict"],
                 False,
+                self.settings["detect_formats"],
             )
 
         # Save results to a file

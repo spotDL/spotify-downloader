@@ -241,12 +241,16 @@ class AudioProvider:
 
                 return isrc_result.url
 
+            logger.debug(
+                "[%s] Have to filter results: %s", song.song_id, self.filter_results
+            )
+
             if self.filter_results:
                 # Order results
                 new_results = order_results(search_results, song, self.search_query)
             else:
                 new_results = {}
-                if len(new_results) > 0:
+                if len(search_results) > 0:
                     new_results = {search_results[0]: 100.0}
 
             logger.debug("[%s] Filtered to %s results", song.song_id, len(new_results))
@@ -323,7 +327,7 @@ class AudioProvider:
         # return the one with the highest score
         # and most views
         if len(best_results) > 1:
-            views = []
+            views: List[int] = []
             for best_result in best_results:
                 if best_result[0].views:
                     views.append(best_result[0].views)

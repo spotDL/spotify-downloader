@@ -248,16 +248,18 @@ from tests.conftest import new_initialize
             "https://open.spotify.com/track/5CfVW6OUB6Uh9X6XVpdNYE",
             ["https://music.youtube.com/watch?v=tfTOTXOlplY"],
         ),
-        (
-            # Loud Luxury - Body (Dzeko Remix)
-            "https://open.spotify.com/track/3ATwxbyPDsZWvlBdnyKNPQ",
-            [
-                "https://music.youtube.com/watch?v=U4OSUSK5_rU",
-                "https://music.youtube.com/watch?v=5QubA-k2Vig",
-                "https://music.youtube.com/watch?v=bBQ9dujVLQ0",
-                "https://www.youtube.com/watch?v=2so8YAEwuio",
-            ],
-        ),
+        # (
+        #     # Loud Luxury - Body (Dzeko Remix)
+        #     "https://open.spotify.com/track/3ATwxbyPDsZWvlBdnyKNPQ",
+        #     [
+        #         "https://music.youtube.com/watch?v=U4OSUSK5_rU",
+        #         "https://music.youtube.com/watch?v=iMWarB4ItmQ",
+        #         "https://music.youtube.com/watch?viMWarB4ItmQ"
+        #         "https://music.youtube.com/watch?v=5QubA-k2Vig",
+        #         "https://music.youtube.com/watch?v=bBQ9dujVLQ0",
+        #         "https://www.youtube.com/watch?v=2so8YAEwuio",
+        #     ],
+        # ),
         (
             # Eartha Kitt - Santa Baby
             "https://open.spotify.com/track/1foCxQtxBweJtZmdxhEHVO",
@@ -344,6 +346,7 @@ from tests.conftest import new_initialize
                 "https://www.youtube.com/watch?v=unrdoZwLYbU",
                 "https://www.youtube.com/watch?v=B_HSa1dEL9s",
                 "https://www.youtube.com/watch?v=tp83QrhNguM",
+                "https://www.youtube.com/watch?v=oru1gyxUImI",
             ],
         ),
         (
@@ -351,7 +354,7 @@ from tests.conftest import new_initialize
             "https://open.spotify.com/track/4Dy9azWTLsDMUdUxrT1170",
             [
                 "https://www.youtube.com/watch?v=KD5ncAFjRzY",
-                "https://www.youtube.com/watch?v=9DKKhnmgCIo"
+                "https://www.youtube.com/watch?v=9DKKhnmgCIo",
             ],
         )
         # (

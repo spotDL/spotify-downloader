@@ -30,13 +30,13 @@ jobs:
 
     steps:
       - name: Checkout dev branch for nightly build
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         if: ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && !inputs.wants_production_build) }}
         with:
           ref: "refs/heads/dev"
 
       - name: Checkout main branch for production build
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         if: ${{ github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && inputs.wants_production_build) }}
         with:
           ref: "refs/heads/master"

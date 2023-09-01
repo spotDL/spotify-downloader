@@ -103,7 +103,7 @@ class Singleton(type):
                 client_id=client_id,
                 client_secret=client_secret,
                 redirect_uri="http://127.0.0.1:8080/",
-                scope="user-library-read",
+                scope="user-library-read,user-follow-read",
                 cache_handler=cache_handler,
                 open_browser=not headless,
             )
@@ -182,6 +182,8 @@ class SpotifyClient(Spotify, metaclass=Singleton):
             key_obj["url"] = url
             key_obj["data"] = json.dumps(payload)
             cache_key = json.dumps(key_obj)
+            if cache_key is None:
+                cache_key = url
             if self.cache.get(cache_key) is not None:
                 return self.cache[cache_key]
 
@@ -218,7 +220,7 @@ def save_spotify_cache(cache: Dict[str, Optional[Dict]]):
     cache = {
         key: value
         for key, value in cache.items()
-        if value is not None and '"url": "tracks/' in key
+        if value is not None and "tracks/" in key
     }
 
     with open(cache_file_loc, "w", encoding="utf-8") as cache_file:
