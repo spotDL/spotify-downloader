@@ -103,7 +103,7 @@ class Singleton(type):
                 client_id=client_id,
                 client_secret=client_secret,
                 redirect_uri="http://127.0.0.1:8080/",
-                scope="user-library-read",
+                scope="user-library-read,user-follow-read",
                 cache_handler=cache_handler,
                 open_browser=not headless,
             )
@@ -200,7 +200,7 @@ class SpotifyClient(Spotify, metaclass=Singleton):
                     raise exc
 
         if use_cache and cache_key is not None:
-            logger.debug("Adding song to cache... (%s)", cache_key)
+            logger.debug("Adding response to cache (%s)", url)
             self.cache[cache_key] = response
 
         return response

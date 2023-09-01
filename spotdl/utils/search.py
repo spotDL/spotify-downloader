@@ -251,6 +251,8 @@ def get_simple_songs(
             lists.append(Saved.from_url(request, fetch_songs=False))
         elif request == "all-user-playlists":
             lists.extend(get_all_user_playlists())
+        elif request == "all-user-followed-artists":
+            lists.extend(get_user_followed_artists())
         elif request.endswith(".spotdl"):
             with open(request, "r", encoding="utf-8") as save_file:
                 for track in json.load(save_file):
@@ -268,6 +270,7 @@ def get_simple_songs(
         )
 
         for index, song in enumerate(song_list.songs):
+            print(index)
             song_data = song.json
             song_data["list_name"] = song_list.name
             song_data["list_url"] = song_list.url
@@ -341,6 +344,40 @@ def get_all_user_playlists() -> List[Playlist]:
     return [
         Playlist.from_url(playlist["external_urls"]["spotify"], fetch_songs=False)
         for playlist in user_playlists
+    ]
+
+
+def get_user_followed_artists() -> List[Artist]:
+    """
+    Get all user playlists
+
+    ### Returns
+    - List of all user playlists
+    """
+
+    spotify_client = SpotifyClient()
+    if spotify_client.user_auth is False:  # type: ignore
+        raise SpotifyError("You must be logged in to use this function")
+
+    user_followed_response = spotify_client.current_user_followed_artists()
+    if user_followed_response is None:
+        raise SpotifyError("Couldn't get user followed artists")
+
+    user_followed_response = user_followed_response["artists"]
+    user_followed = user_followed_response["items"]
+
+    # Fetch all artists
+    while user_followed_response and user_followed_response["next"]:
+        response = spotify_client.next(user_followed_response)
+        if response is None:
+            break
+
+        user_followed_response = response["artists"]
+        user_followed.extend(user_followed_response["items"])
+
+    return [
+        Artist.from_url(followed_artist["external_urls"]["spotify"], fetch_songs=False)
+        for followed_artist in user_followed
     ]
 
 
