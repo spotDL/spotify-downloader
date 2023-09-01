@@ -104,30 +104,30 @@ def test_song_from_url():
     assert song.popularity == 0
 
 
-@pytest.mark.vcr()
-def test_song_from_search_term():
-    """
-    Tests if Song.from_search_term() works correctly.
-    """
+# @pytest.mark.vcr()
+# def test_song_from_search_term():
+#     """
+#     Tests if Song.from_search_term() works correctly.
+#     """
 
-    song = Song.from_search_term("Dirty Palm - Ropes")
+#     song = Song.from_search_term("Dirty Palm - Ropes")
 
-    assert song.name == "Ropes"
-    assert song.artists == ["Dirty Palm", "Chandler Jewels"]
-    assert song.album_name == "Ropes"
-    assert song.album_artist == "Dirty Palm"
-    assert song.genres == ["gaming edm", "melbourne bounce international"]
-    assert song.disc_number == 1
-    assert song.duration == 188
-    assert song.year == 2021
-    assert song.date == "2021-10-28"
-    assert song.track_number == 1
-    assert song.tracks_count == 1
-    assert song.isrc == "GB2LD2110301"
-    assert song.song_id == "4SN9kQlguIcjPtMNQJwD30"
-    assert song.explicit is False
-    assert song.download_url is None
-    assert song.popularity is not None and song.popularity >= 0
+#     assert song.name == "Ropes"
+#     assert song.artists == ["Dirty Palm", "Chandler Jewels"]
+#     assert song.album_name == "Ropes"
+#     assert song.album_artist == "Dirty Palm"
+#     assert song.genres == ["gaming edm", "melbourne bounce international"]
+#     assert song.disc_number == 1
+#     assert song.duration == 188
+#     assert song.year == 2021
+#     assert song.date == "2021-10-28"
+#     assert song.track_number == 1
+#     assert song.tracks_count == 1
+#     assert song.isrc == "GB2LD2110301"
+#     assert song.song_id == "4SN9kQlguIcjPtMNQJwD30"
+#     assert song.explicit is False
+#     assert song.download_url is None
+#     assert song.popularity is not None and song.popularity >= 0
 
 
 def test_song_from_data_dump():

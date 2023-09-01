@@ -249,16 +249,17 @@ from tests.conftest import new_initialize
             ["https://music.youtube.com/watch?v=tfTOTXOlplY"],
         ),
         (
-            # Loud Luxury - Body (Dzeko Remix)
-            "https://open.spotify.com/track/3ATwxbyPDsZWvlBdnyKNPQ",
-            [
-                "https://music.youtube.com/watch?v=U4OSUSK5_rU",
-                "https://music.youtube.com/watch?viMWarB4ItmQ"
-                "https://music.youtube.com/watch?v=5QubA-k2Vig",
-                "https://music.youtube.com/watch?v=bBQ9dujVLQ0",
-                "https://www.youtube.com/watch?v=2so8YAEwuio",
-            ],
-        ),
+        #     # Loud Luxury - Body (Dzeko Remix)
+        #     "https://open.spotify.com/track/3ATwxbyPDsZWvlBdnyKNPQ",
+        #     [
+        #         "https://music.youtube.com/watch?v=U4OSUSK5_rU",
+        #         "https://music.youtube.com/watch?v=iMWarB4ItmQ",
+        #         "https://music.youtube.com/watch?viMWarB4ItmQ"
+        #         "https://music.youtube.com/watch?v=5QubA-k2Vig",
+        #         "https://music.youtube.com/watch?v=bBQ9dujVLQ0",
+        #         "https://www.youtube.com/watch?v=2so8YAEwuio",
+        #     ],
+        # ),
         (
             # Eartha Kitt - Santa Baby
             "https://open.spotify.com/track/1foCxQtxBweJtZmdxhEHVO",

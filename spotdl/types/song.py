@@ -328,7 +328,7 @@ class SongList:
 
         matches = {}
         for result in raw_search_results[f"{list_type}s"]["items"]:
-            score = fuzz.ratio(search_term, result["name"])
+            score = fuzz.ratio(search_term.split(":", 1)[1].strip(), result["name"])
             matches[result["id"]] = score
 
         best_match = max(matches, key=matches.get) # type: ignore

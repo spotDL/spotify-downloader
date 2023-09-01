@@ -510,7 +510,7 @@ def restrict_filename(pathobj: Path, strict: bool = True) -> Path:
     - Based on the `sanitize_filename` function from yt-dlp
     """
     if strict:
-        result = sanitize_filename(pathobj.name, True, False)
+        result = sanitize_filename(pathobj.name, True, False) # type: ignore
         result = result.replace("_-_", "-")
     else:
         result = (
@@ -622,15 +622,15 @@ def args_to_ytdlp_options(argument_list: List[str]) -> Dict[str, Any]:
                 except ValueError:
                     continue
 
-                if option.action == "store_true":
+                if option.action == "store_true" and option.dest:
                     options_dict[option.dest] = True
                     continue
 
-                if option.action == "store_false":
+                if option.action == "store_false" and option.dest:
                     options_dict[option.dest] = False
                     continue
 
-                if option.action == "store":
+                if option.action == "store" and option.dest:
                     values = []
                     val_index = index
                     while val_index + 1 < len(argument_list) and not argument_list[
