@@ -130,7 +130,7 @@ def get_simple_songs(
         request = re.sub(r"\/intl-\w+\/", "/", request)
 
         if (
-            ("watch?v=" in request or "youtu.be/" in request)
+            ("watch?v=" in request or "youtu.be/" in request or "soundcloud.com/" in request or "bandcamp.com/" in request)
             and "open.spotify.com" in request
             and "track" in request
             and "|" in request
@@ -138,7 +138,7 @@ def get_simple_songs(
             split_urls = request.split("|")
             if (
                 len(split_urls) <= 1
-                or not ("watch?v=" in split_urls[0] or "youtu.be" in split_urls[0])
+                or not ("watch?v=" in split_urls[0] or "youtu.be" in split_urls[0] or "soundcloud.com/" in split_urls[0] or "bandcamp.com/" in split_urls[0])
                 or "spotify" not in split_urls[1]
             ):
                 raise QueryError(

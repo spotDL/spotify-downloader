@@ -182,7 +182,10 @@ class SpotifyClient(Spotify, metaclass=Singleton):
             key_obj["url"] = url
             key_obj["data"] = json.dumps(payload)
             cache_key = json.dumps(key_obj)
+            if cache_key is None:
+                cache_key = url
             if self.cache.get(cache_key) is not None:
+                logger.debug("Getting song from cache... (%s)", cache_key)
                 return self.cache[cache_key]
 
         # Wrap in a try-except and retry up to `retries` times.
@@ -197,6 +200,7 @@ class SpotifyClient(Spotify, metaclass=Singleton):
                     raise exc
 
         if use_cache and cache_key is not None:
+            logger.debug("Adding song to cache... (%s)",cache_key)
             self.cache[cache_key] = response
 
         return response
@@ -218,7 +222,7 @@ def save_spotify_cache(cache: Dict[str, Optional[Dict]]):
     cache = {
         key: value
         for key, value in cache.items()
-        if value is not None and '"url": "tracks/' in key
+        if value is not None and 'tracks/' in key
     }
 
     with open(cache_file_loc, "w", encoding="utf-8") as cache_file:

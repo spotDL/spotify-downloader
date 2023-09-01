@@ -240,13 +240,17 @@ class AudioProvider:
                 )
 
                 return isrc_result.url
+            
+            logger.debug(
+                "[%s] Have to filter results: %s", song.song_id, self.filter_results
+            )
 
             if self.filter_results:
                 # Order results
                 new_results = order_results(search_results, song, self.search_query)
             else:
                 new_results = {}
-                if len(new_results) > 0:
+                if len(search_results) > 0:
                     new_results = {search_results[0]: 100.0}
 
             logger.debug("[%s] Filtered to %s results", song.song_id, len(new_results))
