@@ -39,7 +39,7 @@ def save(
         raise DownloaderError("Save file is not specified")
 
     # Parse the query
-    songs = parse_query(query, downloader.settings["threads"])
+    songs = parse_query(query, downloader.settings["threads"], downloader.settings["ytm_data"], downloader.settings["playlist_numbering"])
     save_data = [song.json for song in songs]
 
     def process_song(song: Song):

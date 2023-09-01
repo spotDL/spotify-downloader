@@ -79,6 +79,7 @@ def parse_query(
     query: List[str],
     threads: int = 1,
     use_ytm_data: bool = False,
+    playlist_numbering: bool = False,
 ) -> List[Song]:
     """
     Parse query and return list containing song object
@@ -91,7 +92,7 @@ def parse_query(
     - List of song objects
     """
 
-    songs: List[Song] = get_simple_songs(query, use_ytm_data=use_ytm_data)
+    songs: List[Song] = get_simple_songs(query, use_ytm_data=use_ytm_data, playlist_numbering=playlist_numbering)
 
     results = []
     with concurrent.futures.ThreadPoolExecutor(max_workers=threads) as executor:
