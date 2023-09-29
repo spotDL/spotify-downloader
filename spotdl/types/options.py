@@ -77,6 +77,7 @@ class DownloaderOptions(TypedDict):
     yt_dlp_args: Optional[str]
     detect_formats: Optional[List[str]]
     save_errors: Optional[str]
+    proxy: Optional[str]
 
 
 class WebOptions(TypedDict):

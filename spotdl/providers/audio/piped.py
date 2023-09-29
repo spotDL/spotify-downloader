@@ -11,6 +11,7 @@ import requests
 from yt_dlp import YoutubeDL
 
 from spotdl.providers.audio.base import ISRC_REGEX, AudioProvider, YTDLLogger
+from spotdl.download.config import DownloadConfig
 from spotdl.types.result import Result
 from spotdl.utils.config import get_temp_path
 from spotdl.utils.formatter import args_to_ytdlp_options
@@ -146,7 +147,8 @@ class Piped(AudioProvider):
 
         url_id = url.split("?v=")[1]
         piped_data = requests.get(
-            f"https://pipedapi.kavin.rocks/streams/{url_id}", timeout=10
+            f"https://pipedapi.kavin.rocks/streams/{url_id}", timeout=10,
+            proxies=DownloadConfig.get_parameter("proxies"),
         ).json()
 
         yt_dlp_json = {

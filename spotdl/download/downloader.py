@@ -2,6 +2,7 @@
 Downloader module, this is where all the downloading pre/post processing happens etc.
 """
 
+import re
 import asyncio
 import datetime
 import json
@@ -43,6 +44,8 @@ from spotdl.utils.lrc import generate_lrc
 from spotdl.utils.m3u import gen_m3u_files
 from spotdl.utils.metadata import MetadataError, embed_metadata
 from spotdl.utils.search import gather_known_songs, reinit_song, songs_from_albums
+from spotdl.download.config import DownloadConfig
+
 
 __all__ = [
     "AUDIO_PROVIDERS",
@@ -206,6 +209,19 @@ class Downloader:
 
         # Initialize list of errors
         self.errors: List[str] = []
+
+        # Initialize proxy server
+        proxy = self.settings["proxy"]
+        proxies = None
+        if proxy:
+            if not re.match(pattern=r'(http|https)://\d{1,5}', string=proxy):
+                raise DownloaderError(f"Invalid proxy server: {proxy}")
+            proxies = {
+                "http": proxy,
+                "https": proxy
+            }
+            logger.info("Setting proxy server: %s", proxy)
+        DownloadConfig.set_parameter("proxies", proxies)
 
         # Initialize archive
         self.url_archive = Archive()
