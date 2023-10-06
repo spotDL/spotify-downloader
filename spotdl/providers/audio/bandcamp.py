@@ -9,6 +9,7 @@ import requests
 
 from spotdl.providers.audio.base import AudioProvider
 from spotdl.types.result import Result
+from spotdl.download.config import DownloadConfig
 
 __all__ = ["BandCamp"]
 
@@ -74,6 +75,7 @@ class BandCampTrack:
             + str(track_id)
             + "&tralbum_type=t",
             timeout=10,
+            proxies=DownloadConfig.get_parameter("proxies"),
         )
         result = response.json()
         self.track_id = result["id"]
@@ -90,6 +92,7 @@ class BandCampTrack:
                 + str(self.track_id)
                 + "&tralbum_type=t",
                 timeout=10,
+                proxies=DownloadConfig.get_parameter("proxies"),
             )
             rjson = resp.json()
             self.lyrics = rjson["lyrics"][str(self.track_id)]
@@ -143,6 +146,7 @@ def search(search_string: str = ""):
         + search_string
         + "&param_with_locations=true",
         timeout=10,
+        proxies=DownloadConfig.get_parameter("proxies"),
     )
 
     results = response.json()["results"]

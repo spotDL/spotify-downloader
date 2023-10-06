@@ -297,6 +297,7 @@ DOWNLOADER_OPTIONS: DownloaderOptions = {
     "yt_dlp_args": None,
     "detect_formats": None,
     "save_errors": None,
+    "proxy": None,
 }
 
 WEB_OPTIONS: WebOptions = {
