@@ -132,6 +132,7 @@ TAG_TO_SONG = {
     "tracknumber": "track_number",
     "encodedby": "publisher",
     "woas": "url",
+    "comment": "download_url",
     "isrc": "isrc",
     "copyright": "copyright_text",
     "lyrics": "lyrics",
@@ -441,6 +442,8 @@ def get_file_metadata(path: Path, id3_separator: str = "/") -> Optional[Dict[str
         if path.suffix == ".mp3":
             if key == "woas":
                 song_meta["url"] = val.url
+            elif key == "comment":
+                song_meta["download_url"] = val.text[0]
             elif key == "year":
                 song_meta["year"] = int(str(val.text[0])[:4])
             elif key == "date":
