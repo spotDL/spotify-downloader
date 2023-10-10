@@ -40,9 +40,9 @@ from mutagen.id3._specs import Encoding
 from mutagen.mp4 import MP4Cover
 from mutagen.wave import WAVE
 
+from spotdl.download.config import DownloadConfig
 from spotdl.types.song import Song
 from spotdl.utils.formatter import to_ms
-from spotdl.download.config import DownloadConfig
 
 logger = logging.getLogger(__name__)
 
@@ -272,8 +272,11 @@ def embed_cover(audio_file, song: Song, encoding: str):
 
     # Try to download the cover art
     try:
-        cover_data = requests.get(song.cover_url, timeout=10,
-                                  proxies=DownloadConfig.get_parameter("proxies"),).content
+        cover_data = requests.get(
+            song.cover_url,
+            timeout=10,
+            proxies=DownloadConfig.get_parameter("proxies"),
+        ).content
     except Exception:
         return audio_file
 

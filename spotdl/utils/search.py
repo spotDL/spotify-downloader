@@ -317,8 +317,8 @@ def songs_from_albums(albums: List[str]):
 
 def get_all_user_playlists(user_url: str = "") -> List[Playlist]:
     """
-    Get all user playlists. 
-    
+    Get all user playlists.
+
     ### Args (optional)
     - user_url: Spotify user profile url. If a url is mentioned, get all public playlists of that specific user.
 

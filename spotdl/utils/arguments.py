@@ -656,7 +656,7 @@ def parse_other_options(parser: _ArgumentGroup):
 
     parser.add_argument(
         "--proxy",
-        help="Http(s) proxy server for download song. Example: http://host:port"
+        help="Http(s) proxy server for download song. Example: http://host:port",
     )
 
     parser.add_argument(

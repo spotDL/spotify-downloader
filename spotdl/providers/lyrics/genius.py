@@ -75,15 +75,23 @@ class Genius(LyricsProvider):
         """
 
         url = f"https://api.genius.com/songs/{url}"
-        song_response = requests.get(url, headers=self.headers, timeout=10,
-                                     proxies=DownloadConfig.get_parameter("proxies"),)
+        song_response = requests.get(
+            url,
+            headers=self.headers,
+            timeout=10,
+            proxies=DownloadConfig.get_parameter("proxies"),
+        )
         url = song_response.json()["response"]["song"]["url"]
 
         soup = None
         counter = 0
         while counter < 4:
-            genius_page_response = requests.get(url, headers=self.headers, timeout=10,
-                                                proxies=DownloadConfig.get_parameter("proxies"),)
+            genius_page_response = requests.get(
+                url,
+                headers=self.headers,
+                timeout=10,
+                proxies=DownloadConfig.get_parameter("proxies"),
+            )
 
             if not genius_page_response.ok:
                 counter += 1

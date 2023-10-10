@@ -7,8 +7,8 @@ from typing import Any, Dict, List
 
 import requests
 
-from spotdl.providers.audio.base import AudioProvider
 from spotdl.download.config import DownloadConfig
+from spotdl.providers.audio.base import AudioProvider
 from spotdl.types.result import Result
 
 __all__ = ["SliderKZ"]

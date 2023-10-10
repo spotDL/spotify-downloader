@@ -7,9 +7,9 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import requests
 
+from spotdl.download.config import DownloadConfig
 from spotdl.providers.audio.base import AudioProvider
 from spotdl.types.result import Result
-from spotdl.download.config import DownloadConfig
 
 __all__ = ["BandCamp"]
 
