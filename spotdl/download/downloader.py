@@ -452,6 +452,10 @@ class Downloader:
 
             reinitialized = True
 
+        if song.explicit is True and self.settings["skip_explicit"] is True:
+            logger.info("Skipping explicit song: %s", song.display_name)
+            return song, None
+
         # Initalize the progress tracker
         display_progress_tracker = self.progress_handler.get_new_tracker(song)
 

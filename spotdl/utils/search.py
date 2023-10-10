@@ -320,7 +320,8 @@ def get_all_user_playlists(user_url: str = "") -> List[Playlist]:
     Get all user playlists.
 
     ### Args (optional)
-    - user_url: Spotify user profile url. If a url is mentioned, get all public playlists of that specific user.
+    - user_url: Spotify user profile url.
+        If a url is mentioned, get all public playlists of that specific user.
 
     ### Returns
     - List of all user playlists
@@ -522,6 +523,7 @@ def create_ytm_album(url: str, fetch_songs: bool = True) -> Album:
     songs = []
     for track in album["tracks"]:
         artists = [artist["name"] for artist in track["artists"]]
+
         song = Song.from_missing_data(
             name=track["title"],
             artists=artists,

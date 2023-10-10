@@ -542,6 +542,16 @@ def parse_output_options(parser: _ArgumentGroup):
         choices=FFMPEG_FORMATS.keys(),
     )
 
+    # Skip explicit songs options
+    parser.add_argument(
+        "--skip-explicit", action="store_const", const=True, help="Skip explicit songs"
+    )
+
+    parser.add_argument(
+        "--proxy",
+        help="Http(s) proxy server for download song. Example: http://host:port",
+    )
+
 
 def parse_web_options(parser: _ArgumentGroup):
     """
@@ -652,11 +662,6 @@ def parse_other_options(parser: _ArgumentGroup):
         "--profile",
         action="store_true",
         help="Run in profile mode. Useful for debugging.",
-    )
-
-    parser.add_argument(
-        "--proxy",
-        help="Http(s) proxy server for download song. Example: http://host:port",
     )
 
     parser.add_argument(

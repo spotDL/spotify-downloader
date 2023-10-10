@@ -78,6 +78,7 @@ class DownloaderOptions(TypedDict):
     detect_formats: Optional[List[str]]
     save_errors: Optional[str]
     proxy: Optional[str]
+    skip_explicit: Optional[bool]
 
 
 class WebOptions(TypedDict):
@@ -156,6 +157,8 @@ class DownloaderOptionalOptions(TypedDict, total=False):
     yt_dlp_args: Optional[str]
     detect_formats: Optional[List[str]]
     save_errors: Optional[str]
+    proxy: Optional[str]
+    skip_explicit: Optional[bool]
 
 
 class WebOptionalOptions(TypedDict, total=False):

@@ -298,6 +298,7 @@ DOWNLOADER_OPTIONS: DownloaderOptions = {
     "detect_formats": None,
     "save_errors": None,
     "proxy": None,
+    "skip_explicit": False,
 }
 
 WEB_OPTIONS: WebOptions = {
