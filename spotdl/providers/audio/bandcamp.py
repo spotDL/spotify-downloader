@@ -7,9 +7,9 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import requests
 
-from spotdl.download.config import DownloadConfig
 from spotdl.providers.audio.base import AudioProvider
 from spotdl.types.result import Result
+from spotdl.utils.config import GlobalConfig
 
 __all__ = ["BandCamp"]
 
@@ -75,7 +75,7 @@ class BandCampTrack:
             + str(track_id)
             + "&tralbum_type=t",
             timeout=10,
-            proxies=DownloadConfig.get_parameter("proxies"),
+            proxies=GlobalConfig.get_parameter("proxies"),
         )
         result = response.json()
         self.track_id = result["id"]
@@ -92,7 +92,7 @@ class BandCampTrack:
                 + str(self.track_id)
                 + "&tralbum_type=t",
                 timeout=10,
-                proxies=DownloadConfig.get_parameter("proxies"),
+                proxies=GlobalConfig.get_parameter("proxies"),
             )
             rjson = resp.json()
             self.lyrics = rjson["lyrics"][str(self.track_id)]
@@ -146,7 +146,7 @@ def search(search_string: str = ""):
         + search_string
         + "&param_with_locations=true",
         timeout=10,
-        proxies=DownloadConfig.get_parameter("proxies"),
+        proxies=GlobalConfig.get_parameter("proxies"),
     )
 
     results = response.json()["results"]
@@ -168,16 +168,6 @@ class BandCamp(AudioProvider):
     SUPPORTS_ISRC = False
     GET_RESULTS_OPTS: List[Dict[str, Any]] = [{}]
 
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        """
-        Initialize the SoundCloud API
-
-        ### Arguments
-        - args: Arguments passed to the `AudioProvider` class.
-        - kwargs: Keyword arguments passed to the `AudioProvider` class.
-        """
-
-        super().__init__(*args, **kwargs)
 
     def get_results(self, search_term: str, *_args, **_kwargs) -> List[Result]:
         """

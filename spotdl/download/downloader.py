@@ -17,7 +17,6 @@ from typing import Dict, List, Optional, Tuple, Type, Union
 from yt_dlp.postprocessor.modify_chapters import ModifyChaptersPP
 from yt_dlp.postprocessor.sponsorblock import SponsorBlockPP
 
-from spotdl.download.config import DownloadConfig
 from spotdl.download.progress_handler import ProgressHandler
 from spotdl.providers.audio import (
     AudioProvider,
@@ -34,6 +33,7 @@ from spotdl.types.song import Song
 from spotdl.utils.archive import Archive
 from spotdl.utils.config import (
     DOWNLOADER_OPTIONS,
+    GlobalConfig,
     create_settings_type,
     get_errors_path,
     get_temp_path,
@@ -217,7 +217,7 @@ class Downloader:
                 raise DownloaderError(f"Invalid proxy server: {proxy}")
             proxies = {"http": proxy, "https": proxy}
             logger.info("Setting proxy server: %s", proxy)
-        DownloadConfig.set_parameter("proxies", proxies)
+        GlobalConfig.set_parameter("proxies", proxies)
 
         # Initialize archive
         self.url_archive = Archive()

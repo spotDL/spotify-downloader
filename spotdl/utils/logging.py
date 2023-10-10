@@ -126,9 +126,6 @@ class SpotdlHandler(RichHandler):
     To not highlight keywords in info messages
     """
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
     def render_message(
         self, record: logging.LogRecord, message: str
     ) -> "ConsoleRenderable":

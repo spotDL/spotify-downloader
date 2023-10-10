@@ -7,8 +7,8 @@ from typing import Dict, List, Optional
 import requests
 from bs4 import BeautifulSoup
 
-from spotdl.download.config import DownloadConfig
 from spotdl.providers.lyrics.base import LyricsProvider
+from spotdl.utils.config import GlobalConfig
 
 __all__ = ["Genius"]
 
@@ -53,7 +53,7 @@ class Genius(LyricsProvider):
             params={"q": title},
             headers=self.headers,
             timeout=10,
-            proxies=DownloadConfig.get_parameter("proxies"),
+            proxies=GlobalConfig.get_parameter("proxies"),
         )
 
         results: Dict[str, str] = {}
@@ -79,7 +79,7 @@ class Genius(LyricsProvider):
             url,
             headers=self.headers,
             timeout=10,
-            proxies=DownloadConfig.get_parameter("proxies"),
+            proxies=GlobalConfig.get_parameter("proxies"),
         )
         url = song_response.json()["response"]["song"]["url"]
 
@@ -90,7 +90,7 @@ class Genius(LyricsProvider):
                 url,
                 headers=self.headers,
                 timeout=10,
-                proxies=DownloadConfig.get_parameter("proxies"),
+                proxies=GlobalConfig.get_parameter("proxies"),
             )
 
             if not genius_page_response.ok:

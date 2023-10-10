@@ -248,6 +248,30 @@ def modernize_settings(options: DownloaderOptions):
         options["restrict"] = "strict"
 
 
+class GlobalConfig:
+    """
+    Class to store global configuration
+    """
+
+    parameters: Dict[str, Any] = {}
+
+    @classmethod
+    def set_parameter(cls, key, value):
+        """
+        Set a parameter for the download config
+        """
+
+        cls.parameters[key] = value
+
+    @classmethod
+    def get_parameter(cls, key):
+        """
+        Get a parameter from the download config
+        """
+
+        return cls.parameters.get(key, None)
+
+
 SPOTIFY_OPTIONS: SpotifyOptions = {
     "client_id": "5f573c9620494bae87890c0f08a60293",
     "client_secret": "212476d9b0f3472eaa762d90b19b0ba8",
