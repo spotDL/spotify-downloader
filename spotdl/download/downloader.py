@@ -171,6 +171,8 @@ class Downloader:
 
                 found_files = gather_known_songs(self.settings["output"], scan_format)
 
+                logger.debug("Found %s %s files", len(found_files), scan_format)
+
                 for song_url, song_paths in found_files.items():
                     known_paths = self.known_songs.get(song_url)
                     if known_paths is None:
