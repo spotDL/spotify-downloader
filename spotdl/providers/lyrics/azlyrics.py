@@ -25,7 +25,6 @@ class AzLyrics(LyricsProvider):
 
         self.x_code = self.get_x_code()
 
-
     def get_results(self, name: str, artists: List[str], **_) -> Dict[str, str]:
         """
         Returns the results for the given song.
