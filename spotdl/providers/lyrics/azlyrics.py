@@ -23,16 +23,8 @@ class AzLyrics(LyricsProvider):
         self.session = requests.Session()
         self.session.headers.update(self.headers)
 
-        self.session.get("https://www.azlyrics.com/")
+        self.x_code = self.get_x_code()
 
-        resp = self.session.get("https://www.azlyrics.com/geo.js")
-
-        # extract value from js code
-        js_code = resp.text
-        start_index = js_code.find('value"') + 9
-        end_index = js_code[start_index:].find('");')
-
-        self.x_code = js_code[start_index : start_index + end_index]
 
     def get_results(self, name: str, artists: List[str], **_) -> Dict[str, str]:
         """
@@ -46,6 +38,12 @@ class AzLyrics(LyricsProvider):
         ### Returns
         - A dictionary with the results. (The key is the title and the value is the url.)
         """
+
+        if self.x_code is None:
+            self.x_code = self.get_x_code()
+
+        if self.x_code is None:
+            return {}
 
         # Join every artist by comma in artists
         artist_str = ", ".join(artist for artist in artists if artist)
@@ -122,3 +120,29 @@ class AzLyrics(LyricsProvider):
         lyrics = lyrics_div.get_text().strip()
 
         return lyrics
+
+    def get_x_code(self) -> Optional[str]:
+        """
+        Returns the x_code used by AZLyrics.
+
+        ### Returns
+        - The x_code used by AZLyrics or None if it couldn't be retrieved.
+        """
+
+        x_code = None
+
+        try:
+            self.session.get("https://www.azlyrics.com/")
+
+            resp = self.session.get("https://www.azlyrics.com/geo.js")
+
+            # extract value from js code
+            js_code = resp.text
+            start_index = js_code.find('value"') + 9
+            end_index = js_code[start_index:].find('");')
+
+            x_code = js_code[start_index : start_index + end_index]
+        except requests.ConnectionError:
+            pass
+
+        return x_code
