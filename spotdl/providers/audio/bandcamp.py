@@ -168,7 +168,6 @@ class BandCamp(AudioProvider):
     SUPPORTS_ISRC = False
     GET_RESULTS_OPTS: List[Dict[str, Any]] = [{}]
 
-
     def get_results(self, search_term: str, *_args, **_kwargs) -> List[Result]:
         """
         Get results from slider.kz
