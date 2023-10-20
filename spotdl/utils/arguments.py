@@ -301,6 +301,8 @@ def parse_ffmpeg_options(parser: _ArgumentGroup):
         ),
     )
 
+
+
     # Additional ffmpeg arguments
     parser.add_argument(
         "--ffmpeg-args",
@@ -540,6 +542,14 @@ def parse_output_options(parser: _ArgumentGroup):
             "only first detected format will be added to m3u file)"
         ),
         choices=FFMPEG_FORMATS.keys(),
+    )
+
+    # Ignore songs from a paticular album
+    parser.add_argument(
+        "--ignore-albums",
+        type=str,
+        nargs="*",
+        help="ignores the song of the given albums",
     )
 
 
