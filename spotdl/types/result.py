@@ -1,6 +1,6 @@
 """
 Result is a class that contains all the information about a result from search
-perfoermed by audio provider.
+performed by audio provider.
 """
 
 import json
