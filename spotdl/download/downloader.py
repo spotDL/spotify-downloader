@@ -6,6 +6,7 @@ import asyncio
 import datetime
 import json
 import logging
+import re
 import shutil
 import sys
 import traceback
@@ -32,6 +33,7 @@ from spotdl.types.song import Song
 from spotdl.utils.archive import Archive
 from spotdl.utils.config import (
     DOWNLOADER_OPTIONS,
+    GlobalConfig,
     create_settings_type,
     get_errors_path,
     get_temp_path,
@@ -169,6 +171,8 @@ class Downloader:
 
                 found_files = gather_known_songs(self.settings["output"], scan_format)
 
+                logger.debug("Found %s %s files", len(found_files), scan_format)
+
                 for song_url, song_paths in found_files.items():
                     known_paths = self.known_songs.get(song_url)
                     if known_paths is None:
@@ -206,6 +210,16 @@ class Downloader:
 
         # Initialize list of errors
         self.errors: List[str] = []
+
+        # Initialize proxy server
+        proxy = self.settings["proxy"]
+        proxies = None
+        if proxy:
+            if not re.match(pattern=r"(http|https)://\d{1,5}", string=proxy):
+                raise DownloaderError(f"Invalid proxy server: {proxy}")
+            proxies = {"http": proxy, "https": proxy}
+            logger.info("Setting proxy server: %s", proxy)
+        GlobalConfig.set_parameter("proxies", proxies)
 
         # Initialize archive
         self.url_archive = Archive()
@@ -439,6 +453,10 @@ class Downloader:
             )
 
             reinitialized = True
+
+        if song.explicit is True and self.settings["skip_explicit"] is True:
+            logger.info("Skipping explicit song: %s", song.display_name)
+            return song, None
 
         # Initalize the progress tracker
         display_progress_tracker = self.progress_handler.get_new_tracker(song)

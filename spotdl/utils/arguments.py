@@ -544,12 +544,22 @@ def parse_output_options(parser: _ArgumentGroup):
         choices=FFMPEG_FORMATS.keys(),
     )
 
+
     # Ignore songs from a paticular album
     parser.add_argument(
         "--ignore-albums",
         type=str,
         nargs="*",
         help="ignores the song of the given albums",
+
+    # Skip explicit songs options
+    parser.add_argument(
+        "--skip-explicit", action="store_const", const=True, help="Skip explicit songs"
+    )
+
+    parser.add_argument(
+        "--proxy",
+        help="Http(s) proxy server for download song. Example: http://host:port",
     )
 
 

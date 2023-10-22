@@ -1,5 +1,62 @@
 interactions:
 - request:
+    body: grant_type=client_credentials
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate, br
+      Authorization:
+      - Basic NWY1NzNjOTYyMDQ5NGJhZTg3ODkwYzBmMDhhNjAyOTM6MjEyNDc2ZDliMGYzNDcyZWFhNzYyZDkwYjE5YjBiYTg=
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '29'
+      Content-Type:
+      - application/x-www-form-urlencoded
+      User-Agent:
+      - python-requests/2.31.0
+    method: POST
+    uri: https://accounts.spotify.com/api/token
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAACAxyOvQ6CMBgA36WzJA1EBDcqQRsULRj8WQjiJyBICyWgGN9ddLxb7t4oThKQMmp5
+        ARWaI8LsQPUDJsOdSTMywiY4JTPo8LJfuHzw3HN9cFbTK9V1XvLyuAcvHGrbwVzlucNd3lShldkm
+        uyX0YmBJlNbcdu6D9orC0rpnmQNGkWpCUN1X1ndioQn616P2JeC3AHEDzWjhKfIGZJSPY5qO8ecL
+        AAD//wMAguaLK64AAAA=
+    headers:
+      Alt-Svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      Transfer-Encoding:
+      - chunked
+      Via:
+      - HTTP/2 edgeproxy, 1.1 google
+      content-encoding:
+      - gzip
+      content-type:
+      - application/json
+      date:
+      - Tue, 10 Oct 2023 19:54:03 GMT
+      server:
+      - envoy
+      set-cookie:
+      - __Host-device_id=AQCSQ8KHf2R4l99Xfi1rBjh0UnvtHzXL12QKcwvS2T8mFfuztBC1ve8dui6Eg0Hl_fWvSu4ys0qyhOXggQeaWXU1n8I0bAgG1y0;Version=1;Path=/;Max-Age=2147483647;Secure;HttpOnly;SameSite=Lax
+      - sp_tr=false;Version=1;Domain=accounts.spotify.com;Path=/;Secure;SameSite=Lax
+      sp-trace-id:
+      - a22dc54f5677c268
+      strict-transport-security:
+      - max-age=31536000
+      vary:
+      - Accept-Encoding
+      x-content-type-options:
+      - nosniff
+      x-envoy-upstream-service-time:
+      - '10'
+    status:
+      code: 200
+      message: OK
+- request:
     body: null
     headers:
       Accept:
@@ -118,7 +175,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Tue, 10 Oct 2023 20:23:14 GMT
+      - Tue, 10 Oct 2023 19:54:04 GMT
       etag:
       - '"MC-ImYwNjcxNzA3YjBhNTIxZDRkOTk2YjAwZDY4ZmYxNmIzIg=="'
       server:
@@ -246,7 +303,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Tue, 10 Oct 2023 20:23:14 GMT
+      - Tue, 10 Oct 2023 19:54:04 GMT
       etag:
       - '"MC-IjI3OWUzMDM1N2EwZmNmNzI4ZWZlZjdjNGQ2NDgwN2ViIg=="'
       server:
@@ -317,7 +374,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Tue, 10 Oct 2023 20:23:14 GMT
+      - Tue, 10 Oct 2023 19:54:05 GMT
       server:
       - envoy
       strict-transport-security:
@@ -381,7 +438,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Tue, 10 Oct 2023 20:23:15 GMT
+      - Tue, 10 Oct 2023 19:54:05 GMT
       server:
       - envoy
       strict-transport-security:
@@ -452,7 +509,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Tue, 10 Oct 2023 20:23:15 GMT
+      - Tue, 10 Oct 2023 19:54:05 GMT
       server:
       - envoy
       strict-transport-security:
@@ -522,7 +579,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Tue, 10 Oct 2023 20:23:15 GMT
+      - Tue, 10 Oct 2023 19:54:04 GMT
       server:
       - envoy
       strict-transport-security:
@@ -595,7 +652,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Tue, 10 Oct 2023 20:23:15 GMT
+      - Tue, 10 Oct 2023 19:54:04 GMT
       server:
       - envoy
       strict-transport-security:
@@ -665,7 +722,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Tue, 10 Oct 2023 20:23:15 GMT
+      - Tue, 10 Oct 2023 19:54:05 GMT
       server:
       - envoy
       strict-transport-security:
@@ -729,7 +786,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Tue, 10 Oct 2023 20:23:15 GMT
+      - Tue, 10 Oct 2023 19:54:05 GMT
       server:
       - envoy
       strict-transport-security:
@@ -801,7 +858,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Tue, 10 Oct 2023 20:23:15 GMT
+      - Tue, 10 Oct 2023 19:54:05 GMT
       server:
       - envoy
       strict-transport-security:
@@ -870,7 +927,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Tue, 10 Oct 2023 20:23:15 GMT
+      - Tue, 10 Oct 2023 19:54:05 GMT
       server:
       - envoy
       strict-transport-security:
@@ -934,7 +991,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Tue, 10 Oct 2023 20:23:15 GMT
+      - Tue, 10 Oct 2023 19:54:05 GMT
       server:
       - envoy
       strict-transport-security:
@@ -1005,7 +1062,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Tue, 10 Oct 2023 20:23:15 GMT
+      - Tue, 10 Oct 2023 19:54:05 GMT
       server:
       - envoy
       strict-transport-security:
@@ -1075,7 +1132,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Tue, 10 Oct 2023 20:23:15 GMT
+      - Tue, 10 Oct 2023 19:54:06 GMT
       server:
       - envoy
       strict-transport-security:
@@ -1147,7 +1204,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Tue, 10 Oct 2023 20:23:16 GMT
+      - Tue, 10 Oct 2023 19:54:05 GMT
       server:
       - envoy
       strict-transport-security:
@@ -1217,7 +1274,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Tue, 10 Oct 2023 20:23:16 GMT
+      - Tue, 10 Oct 2023 19:54:05 GMT
       server:
       - envoy
       strict-transport-security:
@@ -1281,7 +1338,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Tue, 10 Oct 2023 20:23:16 GMT
+      - Tue, 10 Oct 2023 19:54:05 GMT
       server:
       - envoy
       strict-transport-security:
@@ -1386,7 +1443,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Tue, 10 Oct 2023 20:23:16 GMT
+      - Tue, 10 Oct 2023 19:54:06 GMT
       server:
       - envoy
       strict-transport-security:
@@ -1465,7 +1522,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Tue, 10 Oct 2023 20:23:16 GMT
+      - Tue, 10 Oct 2023 19:54:06 GMT
       server:
       - envoy
       strict-transport-security:
@@ -1529,7 +1586,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Tue, 10 Oct 2023 20:23:16 GMT
+      - Tue, 10 Oct 2023 19:54:06 GMT
       server:
       - envoy
       strict-transport-security:
@@ -1610,7 +1667,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Tue, 10 Oct 2023 20:23:16 GMT
+      - Tue, 10 Oct 2023 19:54:06 GMT
       server:
       - envoy
       strict-transport-security:
@@ -1680,7 +1737,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Tue, 10 Oct 2023 20:23:16 GMT
+      - Tue, 10 Oct 2023 19:54:06 GMT
       server:
       - envoy
       strict-transport-security:
@@ -1744,7 +1801,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Tue, 10 Oct 2023 20:23:16 GMT
+      - Tue, 10 Oct 2023 19:54:06 GMT
       server:
       - envoy
       strict-transport-security:
@@ -1816,7 +1873,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Tue, 10 Oct 2023 20:23:17 GMT
+      - Tue, 10 Oct 2023 19:54:06 GMT
       server:
       - envoy
       strict-transport-security:
@@ -1885,7 +1942,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Tue, 10 Oct 2023 20:23:16 GMT
+      - Tue, 10 Oct 2023 19:54:06 GMT
       server:
       - envoy
       strict-transport-security:
@@ -1949,7 +2006,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Tue, 10 Oct 2023 20:23:17 GMT
+      - Tue, 10 Oct 2023 19:54:07 GMT
       server:
       - envoy
       strict-transport-security:
@@ -2020,7 +2077,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Tue, 10 Oct 2023 20:23:17 GMT
+      - Tue, 10 Oct 2023 19:54:07 GMT
       server:
       - envoy
       strict-transport-security:

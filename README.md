@@ -149,6 +149,11 @@ Check the [Audio Formats](docs/usage.md#audio-formats-and-quality) page for more
 Interested in contributing? Check out our [CONTRIBUTING.md](docs/CONTRIBUTING.md) to find
 resources around contributing along with a guide on how to set up a development environment.
 
+#### Join our amazing community as a code contributor, and help accelerate
+<br><br>
+<a href="https://github.com/spotDL/spotify-downloader/graphs/contributors">
+  <img class="dark-light" src="https://contrib.rocks/image?repo=spotDL/spotify-downloader&anon=0&columns=25&max=100&r=true" />
+</a>
 ## Donate
 
 help support the development and maintenance of the software ❤️

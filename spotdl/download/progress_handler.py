@@ -101,7 +101,7 @@ class SizedTextColumn(ProgressColumn):
 
 class ProgressHandler:
     """
-    Class for handing the progress of a download, including the progress bar.
+    Class for handling the progress of a download, including the progress bar.
     """
 
     def __init__(
