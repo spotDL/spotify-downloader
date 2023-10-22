@@ -551,6 +551,7 @@ def parse_output_options(parser: _ArgumentGroup):
         type=str,
         nargs="*",
         help="ignores the song of the given albums",
+        )
 
     # Skip explicit songs options
     parser.add_argument(
