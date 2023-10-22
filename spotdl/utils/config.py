@@ -321,6 +321,7 @@ DOWNLOADER_OPTIONS: DownloaderOptions = {
     "yt_dlp_args": None,
     "detect_formats": None,
     "save_errors": None,
+    "ignore_albums": None,
     "proxy": None,
     "skip_explicit": False,
 }
