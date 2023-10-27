@@ -12,7 +12,7 @@ from spotdl.types.song import Song
 from spotdl.utils.ffmpeg import FFMPEG_FORMATS
 from spotdl.utils.lrc import generate_lrc
 from spotdl.utils.metadata import embed_metadata, get_file_metadata
-from spotdl.utils.search import QueryError, get_search_results, reinit_song
+from spotdl.utils.search import QueryError, get_search_results, reinit_song,parse_query
 
 __all__ = ["meta"]
 
@@ -32,7 +32,7 @@ def meta(query: List[str], downloader: Downloader) -> None:
     ### Notes
     - This function is multi-threaded.
     """
-
+    
     # Create a list of all songs from all paths in query
     paths: List[Path] = []
     for path in query:
@@ -52,7 +52,7 @@ def meta(query: List[str], downloader: Downloader) -> None:
             paths.append(test_path)
 
     def process_file(file: Path):
-        song_meta = get_file_metadata(file, downloader.settings["id3_separator"])
+        song_meta = get_file_metadata(file, downloader.settings["id3_separator"]) #metadata of the file, url is present in the file.
 
         # Check if song has metadata
         # and if it has all the required fields
@@ -144,9 +144,8 @@ def meta(query: List[str], downloader: Downloader) -> None:
                 logger.info("Saved lrc file for %s", song.display_name)
             else:
                 logger.info("Could not find lrc file for %s", song.display_name)
-
         return None
-
+    
     async def pool_worker(file_path: Path) -> None:
         async with downloader.semaphore:
             # The following function calls blocking code, which would block whole event loop.
@@ -159,3 +158,16 @@ def meta(query: List[str], downloader: Downloader) -> None:
 
     # call all task asynchronously, and wait until all are finished
     downloader.loop.run_until_complete(asyncio.gather(*tasks))
+    
+    # to re-download the local songs 
+    if downloader.settings["redownload"]:
+        for path in paths:
+            meta_data=get_file_metadata(path, downloader.settings["id3_separator"])
+            if meta_data.get("url"):
+                songs_list = parse_query(
+                [meta_data["url"]],
+                downloader.settings["threads"],
+                downloader.settings["ytm_data"],
+                downloader.settings["playlist_numbering"],
+                )
+                downloader.download_multiple_songs(songs_list)
