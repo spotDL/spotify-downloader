@@ -3,6 +3,7 @@ Module that holds the entry point for the console.
 """
 
 import logging
+import time
 import signal
 import sys
 
@@ -128,6 +129,8 @@ def console_entry_point():
     signal.signal(signal.SIGINT, graceful_exit)
     signal.signal(signal.SIGTERM, graceful_exit)
 
+    start_time = time.perf_counter()
+
     try:
         # Pick the operation to perform
         # based on the name and run it!
@@ -136,11 +139,16 @@ def console_entry_point():
             downloader=downloader,
         )
     except Exception:
-        downloader.progress_handler.close()
+        end_time = time.perf_counter()
+        logger.debug(f"Took {start_time - end_time} seconds")
 
+        downloader.progress_handler.close()
         logger.exception("An error occurred")
 
         sys.exit(1)
+
+    end_time = time.perf_counter()
+    logger.debug(f"Took {start_time - end_time} seconds")
 
     if spotify_settings["use_cache_file"]:
         save_spotify_cache(spotify_client.cache)
