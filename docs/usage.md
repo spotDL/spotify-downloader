@@ -97,6 +97,14 @@
     spotdl download all-user-playlists --user-auth
     ```
 
+??? info "All user saved albums"
+    To download all user saved albums run
+    > `--user-auth` is required
+
+    ```bash
+    spotdl download all-user-saved-albums --user-auth
+    ```
+
 You can queue up multiple download tasks by separating the arguments with spaces
 
 ```bash
@@ -353,7 +361,8 @@ Main options:
                         (ie. 'album:the album name' you can mix these options to get more accurate results).
 
                         To download liked songs use 'saved' as the query, to download all user playlists
-                        use 'all-user-playlists, to download all songs from all followed artists use 'all-user-followed-artists'
+                        use 'all-user-playlists, to download all songs from all followed artists use 'all-user-followed-artists', 
+                        to download all user saved albums use 'all-user-saved-albums'
 
                         For manual audio matching, you can use the format 'YouTubeURL|SpotifyURL'
                         You can only use album/playlist/tracks urls when downloading/matching youtube urls.

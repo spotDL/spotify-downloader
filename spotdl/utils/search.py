@@ -34,7 +34,7 @@ __all__ = [
     "create_ytm_album",
     "create_ytm_playlist",
     "get_all_user_playlists",
-    "get_user_saved_albums"
+    "get_user_saved_albums",
 ]
 
 logger = logging.getLogger(__name__)
@@ -348,6 +348,7 @@ def get_all_user_playlists() -> List[Playlist]:
         for playlist in user_playlists
     ]
 
+
 def get_user_saved_albums() -> List[Album]:
     """
     Get all user saved albums
@@ -379,6 +380,7 @@ def get_user_saved_albums() -> List[Album]:
         Album.from_url(item["album"]["external_urls"]["spotify"], fetch_songs=False)
         for item in user_saved_albums
     ]
+
 
 def get_user_followed_artists() -> List[Artist]:
     """
