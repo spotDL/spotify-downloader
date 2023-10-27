@@ -235,7 +235,13 @@ def get_simple_songs(
             songs.append(Song.from_url(url=request))
         elif "https://spotify.link/" in request:
             resp = requests.head(request, allow_redirects=True, timeout=10)
-            songs.append(Song.from_url(url=resp.url))
+            full_url = resp.url
+            full_lists = get_simple_songs(
+                [full_url],
+                use_ytm_data=use_ytm_data,
+                playlist_numbering=playlist_numbering,
+            )
+            songs.extend(full_lists)
         elif "open.spotify.com" in request and "playlist" in request:
             lists.append(Playlist.from_url(request, fetch_songs=False))
         elif "open.spotify.com" in request and "album" in request:
