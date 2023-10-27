@@ -62,7 +62,7 @@ def console_entry_point():
     # Create settings dicts
     spotify_settings, downloader_settings, web_settings = create_settings(arguments)
 
-    init_logging(downloader_settings["log_level"])
+    init_logging(downloader_settings["log_level"], downloader_settings["log_format"])
 
     # If the application is frozen, we check for ffmpeg
     # if it's not present download it create config file

@@ -219,12 +219,14 @@ class Downloader:
                 raise DownloaderError(f"Invalid proxy server: {proxy}")
             proxies = {"http": proxy, "https": proxy}
             logger.info("Setting proxy server: %s", proxy)
+
         GlobalConfig.set_parameter("proxies", proxies)
 
         # Initialize archive
         self.url_archive = Archive()
         if self.settings["archive"]:
             self.url_archive.load(self.settings["archive"])
+
         logger.debug("Archive: %d urls", len(self.url_archive))
 
         logger.debug("Downloader initialized")

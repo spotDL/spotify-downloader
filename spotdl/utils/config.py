@@ -324,6 +324,7 @@ DOWNLOADER_OPTIONS: DownloaderOptions = {
     "ignore_albums": None,
     "proxy": None,
     "skip_explicit": False,
+    "log_format": None,
 }
 
 WEB_OPTIONS: WebOptions = {

@@ -80,6 +80,7 @@ class DownloaderOptions(TypedDict):
     ignore_albums: Optional[List[str]]
     proxy: Optional[str]
     skip_explicit: Optional[bool]
+    log_format: Optional[str]
 
 
 class WebOptions(TypedDict):
@@ -160,6 +161,7 @@ class DownloaderOptionalOptions(TypedDict, total=False):
     save_errors: Optional[str]
     proxy: Optional[str]
     skip_explicit: Optional[bool]
+    log_format: Optional[str]
 
 
 class WebOptionalOptions(TypedDict, total=False):

@@ -644,6 +644,12 @@ def parse_misc_options(parser: _ArgumentGroup):
         help="Use a simple tui.",
     )
 
+    # Add log format argument
+    parser.add_argument(
+        "--log-format",
+        help="Logging format to use. Defaults to `%(message)s`. https://docs.python.org/3/library/logging.html#logrecord-attributes",
+    )
+
 
 def parse_other_options(parser: _ArgumentGroup):
     """
