@@ -161,13 +161,17 @@ def meta(query: List[str], downloader: Downloader) -> None:
     
     # to re-download the local songs 
     if downloader.settings["redownload"]:
+        songs_url=[]
         for path in paths:
             meta_data=get_file_metadata(path, downloader.settings["id3_separator"])
             if meta_data.get("url"):
-                songs_list = parse_query(
-                [meta_data["url"]],
-                downloader.settings["threads"],
-                downloader.settings["ytm_data"],
-                downloader.settings["playlist_numbering"],
-                )
-                downloader.download_multiple_songs(songs_list)
+                songs_url.append(meta_data.get("url"))
+
+        songs_list = parse_query(
+        songs_url,
+        downloader.settings["threads"],
+        downloader.settings["ytm_data"],
+        downloader.settings["playlist_numbering"],
+        )
+        
+        downloader.download_multiple_songs(songs_list)
