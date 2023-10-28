@@ -163,8 +163,8 @@ def meta(query: List[str], downloader: Downloader) -> None:
     # to re-download the local songs
     if downloader.settings["redownload"]:
         songs_url : List[str] = []
-        for path in paths:
-            meta_data=get_file_metadata(Path(path), downloader.settings["id3_separator"])
+        for p in paths:
+            meta_data=get_file_metadata(Path(p), downloader.settings["id3_separator"])
             if meta_data and meta_data["url"]:
                 songs_url.append(meta_data["url"])
 
