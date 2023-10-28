@@ -52,7 +52,8 @@ def meta(query: List[str], downloader: Downloader) -> None:
             paths.append(test_path)
 
     def process_file(file: Path):
-        song_meta = get_file_metadata(file, downloader.settings["id3_separator"]) #metadata of the file, url is present in the file.
+        #metadata of the file, url is present in the file.
+        song_meta = get_file_metadata(file, downloader.settings["id3_separator"])
 
         # Check if song has metadata
         # and if it has all the required fields
