@@ -12,7 +12,7 @@ from spotdl.types.song import Song
 from spotdl.utils.ffmpeg import FFMPEG_FORMATS
 from spotdl.utils.lrc import generate_lrc
 from spotdl.utils.metadata import embed_metadata, get_file_metadata
-from spotdl.utils.search import QueryError, get_search_results, reinit_song, parse_query
+from spotdl.utils.search import QueryError, get_search_results, parse_query, reinit_song
 
 __all__ = ["meta"]
 
