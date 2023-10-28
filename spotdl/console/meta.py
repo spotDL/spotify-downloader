@@ -32,7 +32,7 @@ def meta(query: List[str], downloader: Downloader) -> None:
     ### Notes
     - This function is multi-threaded.
     """
-    
+
     # Create a list of all songs from all paths in query
     paths: List[Path] = []
     for path in query:
@@ -145,7 +145,7 @@ def meta(query: List[str], downloader: Downloader) -> None:
             else:
                 logger.info("Could not find lrc file for %s", song.display_name)
         return None
-    
+
     async def pool_worker(file_path: Path) -> None:
         async with downloader.semaphore:
             # The following function calls blocking code, which would block whole event loop.
@@ -158,8 +158,8 @@ def meta(query: List[str], downloader: Downloader) -> None:
 
     # call all task asynchronously, and wait until all are finished
     downloader.loop.run_until_complete(asyncio.gather(*tasks))
-    
-    # to re-download the local songs 
+
+    # to re-download the local songs
     if downloader.settings["redownload"]:
         songs_url=[]
         for path in paths:
@@ -173,5 +173,5 @@ def meta(query: List[str], downloader: Downloader) -> None:
         downloader.settings["ytm_data"],
         downloader.settings["playlist_numbering"],
         )
-        
+
         downloader.download_multiple_songs(songs_list)

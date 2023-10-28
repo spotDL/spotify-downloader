@@ -541,7 +541,7 @@ def parse_output_options(parser: _ArgumentGroup):
         ),
         choices=FFMPEG_FORMATS.keys(),
     )
- 
+
     # download song in meta operation
     parser.add_argument(
         "--redownload",
