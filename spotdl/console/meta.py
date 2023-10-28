@@ -165,7 +165,7 @@ def meta(query: List[str], downloader: Downloader) -> None:
         songs_url : List[str] = []
         for path in paths:
             meta_data=get_file_metadata(Path(path), downloader.settings["id3_separator"])
-            if meta_data["url"]:
+            if meta_data and meta_data["url"]:
                 songs_url.append(meta_data["url"])
 
         songs_list = parse_query(
