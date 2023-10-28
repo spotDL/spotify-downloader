@@ -5,14 +5,14 @@ Sync Lyrics module for the console
 import asyncio
 import logging
 from pathlib import Path
-from typing import List,Dict,Any
+from typing import List
 
 from spotdl.download.downloader import Downloader
 from spotdl.types.song import Song
 from spotdl.utils.ffmpeg import FFMPEG_FORMATS
 from spotdl.utils.lrc import generate_lrc
 from spotdl.utils.metadata import embed_metadata, get_file_metadata
-from spotdl.utils.search import QueryError, get_search_results, reinit_song,parse_query
+from spotdl.utils.search import QueryError, get_search_results, reinit_song, parse_query
 
 __all__ = ["meta"]
 
@@ -52,7 +52,7 @@ def meta(query: List[str], downloader: Downloader) -> None:
             paths.append(test_path)
 
     def process_file(file: Path):
-        #metadata of the file, url is present in the file.
+        # metadata of the file, url is present in the file.
         song_meta = get_file_metadata(file, downloader.settings["id3_separator"])
 
         # Check if song has metadata
@@ -162,17 +162,19 @@ def meta(query: List[str], downloader: Downloader) -> None:
 
     # to re-download the local songs
     if downloader.settings["redownload"]:
-        songs_url : List[str] = []
-        for p in paths:
-            meta_data=get_file_metadata(Path(p), downloader.settings["id3_separator"])
+        songs_url: List[str] = []
+        for file in paths:
+            meta_data = get_file_metadata(
+                Path(file), downloader.settings["id3_separator"]
+            )
             if meta_data and meta_data["url"]:
                 songs_url.append(meta_data["url"])
 
         songs_list = parse_query(
-        songs_url,
-        downloader.settings["threads"],
-        downloader.settings["ytm_data"],
-        downloader.settings["playlist_numbering"],
+            songs_url,
+            downloader.settings["threads"],
+            downloader.settings["ytm_data"],
+            downloader.settings["playlist_numbering"],
         )
 
         downloader.download_multiple_songs(songs_list)
