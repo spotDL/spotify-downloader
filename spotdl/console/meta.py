@@ -5,7 +5,7 @@ Sync Lyrics module for the console
 import asyncio
 import logging
 from pathlib import Path
-from typing import List
+from typing import List,Dict,Any
 
 from spotdl.download.downloader import Downloader
 from spotdl.types.song import Song
@@ -163,9 +163,9 @@ def meta(query: List[str], downloader: Downloader) -> None:
     # to re-download the local songs
     if downloader.settings["redownload"]:
         songs_url : List[str] = []
-        for path in paths:
-            meta_data=get_file_metadata(Path(path), downloader.settings["id3_separator"])
-            if meta_data["url"]:
+        for p in paths:
+            meta_data=get_file_metadata(Path(p), downloader.settings["id3_separator"])
+            if meta_data and meta_data["url"]:
                 songs_url.append(meta_data["url"])
 
         songs_list = parse_query(
