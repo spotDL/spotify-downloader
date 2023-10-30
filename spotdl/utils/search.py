@@ -34,6 +34,7 @@ __all__ = [
     "create_ytm_album",
     "create_ytm_playlist",
     "get_all_user_playlists",
+    "get_user_saved_albums",
 ]
 
 logger = logging.getLogger(__name__)
@@ -262,6 +263,8 @@ def get_simple_songs(
             lists.extend(get_all_user_playlists())
         elif request == "all-user-followed-artists":
             lists.extend(get_user_followed_artists())
+        elif request == "all-user-saved-albums":
+            lists.extend(get_user_saved_albums())
         elif request.endswith(".spotdl"):
             with open(request, "r", encoding="utf-8") as save_file:
                 for track in json.load(save_file):
@@ -371,6 +374,39 @@ def get_all_user_playlists(user_url: str = "") -> List[Playlist]:
     return [
         Playlist.from_url(playlist["external_urls"]["spotify"], fetch_songs=False)
         for playlist in user_playlists
+    ]
+
+
+def get_user_saved_albums() -> List[Album]:
+    """
+    Get all user saved albums
+
+    ### Returns
+    - List of all user saved albums
+    """
+
+    spotify_client = SpotifyClient()
+    if spotify_client.user_auth is False:  # type: ignore
+        raise SpotifyError("You must be logged in to use this function")
+
+    user_saved_albums_response = spotify_client.current_user_saved_albums()
+    if user_saved_albums_response is None:
+        raise SpotifyError("Couldn't get user saved albums")
+
+    user_saved_albums = user_saved_albums_response["items"]
+
+    # Fetch all saved tracks
+    while user_saved_albums_response and user_saved_albums_response["next"]:
+        response = spotify_client.next(user_saved_albums_response)
+        if response is None:
+            break
+
+        user_saved_albums_response = response
+        user_saved_albums.extend(user_saved_albums_response["items"])
+
+    return [
+        Album.from_url(item["album"]["external_urls"]["spotify"], fetch_songs=False)
+        for item in user_saved_albums
     ]
 
 
