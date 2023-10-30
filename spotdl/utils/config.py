@@ -325,6 +325,7 @@ DOWNLOADER_OPTIONS: DownloaderOptions = {
     "proxy": None,
     "skip_explicit": False,
     "log_format": None,
+    "redownload": False,
 }
 
 WEB_OPTIONS: WebOptions = {

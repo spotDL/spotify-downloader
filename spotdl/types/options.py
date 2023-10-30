@@ -81,6 +81,7 @@ class DownloaderOptions(TypedDict):
     proxy: Optional[str]
     skip_explicit: Optional[bool]
     log_format: Optional[str]
+    redownload: Optional[bool]
 
 
 class WebOptions(TypedDict):
@@ -162,6 +163,7 @@ class DownloaderOptionalOptions(TypedDict, total=False):
     proxy: Optional[str]
     skip_explicit: Optional[bool]
     log_format: Optional[str]
+    redownload: Optional[bool]
 
 
 class WebOptionalOptions(TypedDict, total=False):

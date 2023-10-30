@@ -544,6 +544,14 @@ def parse_output_options(parser: _ArgumentGroup):
         choices=FFMPEG_FORMATS.keys(),
     )
 
+    # download song in meta operation
+    parser.add_argument(
+        "--redownload",
+        action="store_const",
+        const=True,
+        help="to redownload the local song in diffrent format using --format for meta operation",
+    )
+
 
     # Ignore songs from a paticular album
     parser.add_argument(
