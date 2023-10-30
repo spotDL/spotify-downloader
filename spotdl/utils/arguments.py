@@ -301,6 +301,8 @@ def parse_ffmpeg_options(parser: _ArgumentGroup):
         ),
     )
 
+
+
     # Additional ffmpeg arguments
     parser.add_argument(
         "--ffmpeg-args",
@@ -551,6 +553,25 @@ def parse_output_options(parser: _ArgumentGroup):
     )
 
 
+    # Ignore songs from a paticular album
+    parser.add_argument(
+        "--ignore-albums",
+        type=str,
+        nargs="*",
+        help="ignores the song of the given albums",
+        )
+
+    # Skip explicit songs options
+    parser.add_argument(
+        "--skip-explicit", action="store_const", const=True, help="Skip explicit songs"
+    )
+
+    parser.add_argument(
+        "--proxy",
+        help="Http(s) proxy server for download song. Example: http://host:port",
+    )
+
+
 def parse_web_options(parser: _ArgumentGroup):
     """
     Parse web options from the command line.
@@ -629,6 +650,12 @@ def parse_misc_options(parser: _ArgumentGroup):
         action="store_const",
         const=True,
         help="Use a simple tui.",
+    )
+
+    # Add log format argument
+    parser.add_argument(
+        "--log-format",
+        help="Logging format to use. Defaults to `%(message)s`. https://docs.python.org/3/library/logging.html#logrecord-attributes",
     )
 
 

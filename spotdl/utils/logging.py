@@ -4,6 +4,8 @@ Module for logging
 
 import logging
 
+from typing import Optional
+
 from rich import get_console
 from rich.console import ConsoleRenderable
 from rich.logging import RichHandler
@@ -126,9 +128,6 @@ class SpotdlHandler(RichHandler):
     To not highlight keywords in info messages
     """
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
     def render_message(
         self, record: logging.LogRecord, message: str
     ) -> "ConsoleRenderable":
@@ -161,7 +160,7 @@ class SpotdlHandler(RichHandler):
         return message_text
 
 
-def init_logging(log_level: str):
+def init_logging(log_level: str, log_format: Optional[str]):
     """
     Initialize logging for spotdl.
 
@@ -199,9 +198,12 @@ def init_logging(log_level: str):
         rich_tracebacks=True,
     )
 
-    msg_format = "%(message)s"
-    if log_level == "DEBUG":
-        msg_format = "%(threadName)s - %(message)s"
+    if log_format is None:
+        msg_format = "%(message)s"
+        if log_level == "DEBUG":
+            msg_format = "%(threadName)s - %(message)s"
+    else:
+        msg_format = log_format
 
     # Add rich handler to spotdl logger
     rich_handler.setFormatter(SpotdlFormatter(msg_format))
