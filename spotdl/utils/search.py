@@ -114,6 +114,7 @@ def get_simple_songs(
     query: List[str],
     use_ytm_data: bool = False,
     playlist_numbering: bool = False,
+    albums_to_ignore=None
 ) -> List[Song]:
     """
     Parse query and return list containing simple song objects
@@ -235,13 +236,21 @@ def get_simple_songs(
             songs.append(Song.from_url(url=request))
         elif "https://spotify.link/" in request:
             resp = requests.head(request, allow_redirects=True, timeout=10)
-            songs.append(Song.from_url(url=resp.url))
+            full_url = resp.url
+            full_lists = get_simple_songs(
+                [full_url],
+                use_ytm_data=use_ytm_data,
+                playlist_numbering=playlist_numbering,
+            )
+            songs.extend(full_lists)
         elif "open.spotify.com" in request and "playlist" in request:
             lists.append(Playlist.from_url(request, fetch_songs=False))
         elif "open.spotify.com" in request and "album" in request:
             lists.append(Album.from_url(request, fetch_songs=False))
         elif "open.spotify.com" in request and "artist" in request:
             lists.append(Artist.from_url(request, fetch_songs=False))
+        elif "open.spotify.com" in request and "user" in request:
+            lists.extend(get_all_user_playlists(request))
         elif "album:" in request:
             lists.append(Album.from_search_term(request, fetch_songs=False))
         elif "playlist:" in request:
@@ -290,9 +299,15 @@ def get_simple_songs(
                     song_data["cover_url"] = song_list.cover_url
 
             songs.append(Song.from_dict(song_data))
+    
+    # removing songs for --ignore-albums
+    original_length = len(songs)
+    if albums_to_ignore:
+        songs=[song for song in songs for keyword in albums_to_ignore if keyword not in song.album_name.lower()]
+        new_length = len(songs)
+        logger.info("Skipped %s songs (Ignored albums)", (original_length - new_length))
 
     logger.debug("Found %s songs in %s lists", len(songs), len(lists))
-
     return songs
 
 
@@ -316,9 +331,13 @@ def songs_from_albums(albums: List[str]):
     return songs
 
 
-def get_all_user_playlists() -> List[Playlist]:
+def get_all_user_playlists(user_url: str = "") -> List[Playlist]:
     """
-    Get all user playlists
+    Get all user playlists.
+
+    ### Args (optional)
+    - user_url: Spotify user profile url.
+        If a url is mentioned, get all public playlists of that specific user.
 
     ### Returns
     - List of all user playlists
@@ -328,7 +347,16 @@ def get_all_user_playlists() -> List[Playlist]:
     if spotify_client.user_auth is False:  # type: ignore
         raise SpotifyError("You must be logged in to use this function")
 
-    user_playlists_response = spotify_client.current_user_playlists()
+    if user_url and not user_url.startswith("https://open.spotify.com/user/"):
+        raise ValueError(f"Invalid user profile url: {user_url}")
+
+    user_id = user_url.split("https://open.spotify.com/user/")[-1].replace("/", "")
+
+    if user_id:
+        user_playlists_response = spotify_client.user_playlists(user_id)
+    else:
+        user_playlists_response = spotify_client.current_user_playlists()
+
     if user_playlists_response is None:
         raise SpotifyError("Couldn't get user playlists")
 
@@ -544,6 +572,7 @@ def create_ytm_album(url: str, fetch_songs: bool = True) -> Album:
     songs = []
     for track in album["tracks"]:
         artists = [artist["name"] for artist in track["artists"]]
+
         song = Song.from_missing_data(
             name=track["title"],
             artists=artists,

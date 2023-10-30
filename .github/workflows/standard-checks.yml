@@ -26,7 +26,7 @@ jobs:
 
       - name: Check for docstring's
         run: |
-          poetry run pylint --limit-inference-results 0 --disable all --enable missing-function-docstring missing-module-docstring missing-class-docstring empty-docstring ./spotdl
+          poetry run pylint --limit-inference-results 0 --enable missing-function-docstring missing-module-docstring missing-class-docstring empty-docstring --disable=all ./spotdl
 
       - name: Run Pylint check
         run: |
