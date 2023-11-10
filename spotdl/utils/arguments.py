@@ -302,8 +302,6 @@ def parse_ffmpeg_options(parser: _ArgumentGroup):
         ),
     )
 
-
-
     # Additional ffmpeg arguments
     parser.add_argument(
         "--ffmpeg-args",
@@ -553,14 +551,13 @@ def parse_output_options(parser: _ArgumentGroup):
         help="to redownload the local song in diffrent format using --format for meta operation",
     )
 
-
     # Ignore songs from a paticular album
     parser.add_argument(
         "--ignore-albums",
         type=str,
         nargs="*",
         help="ignores the song of the given albums",
-        )
+    )
 
     # Skip explicit songs options
     parser.add_argument(

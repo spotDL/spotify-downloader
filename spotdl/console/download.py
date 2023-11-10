@@ -26,7 +26,7 @@ def download(
         query,
         use_ytm_data=downloader.settings["ytm_data"],
         playlist_numbering=downloader.settings["playlist_numbering"],
-        albums_to_ignore=downloader.settings["ignore_albums"]
+        albums_to_ignore=downloader.settings["ignore_albums"],
     )
 
     # Download the songs

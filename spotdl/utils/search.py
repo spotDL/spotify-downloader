@@ -114,7 +114,7 @@ def get_simple_songs(
     query: List[str],
     use_ytm_data: bool = False,
     playlist_numbering: bool = False,
-    albums_to_ignore=None
+    albums_to_ignore=None,
 ) -> List[Song]:
     """
     Parse query and return list containing simple song objects
@@ -299,11 +299,16 @@ def get_simple_songs(
                     song_data["cover_url"] = song_list.cover_url
 
             songs.append(Song.from_dict(song_data))
-    
+
     # removing songs for --ignore-albums
     original_length = len(songs)
     if albums_to_ignore:
-        songs=[song for song in songs for keyword in albums_to_ignore if keyword not in song.album_name.lower()]
+        songs = [
+            song
+            for song in songs
+            for keyword in albums_to_ignore
+            if keyword not in song.album_name.lower()
+        ]
         new_length = len(songs)
         logger.info("Skipped %s songs (Ignored albums)", (original_length - new_length))
 
