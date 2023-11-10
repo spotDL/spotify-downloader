@@ -78,8 +78,7 @@ from tests.conftest import new_initialize
         (
             # Потап и Настя - Чумачечая весна
             "https://open.spotify.com/track/2eaSMmKfigsm96aTUJMoIk",
-            ["https://music.youtube.com/watch?v=A-PjXUzhFDk"],
-            ["https://music.youtube.com/watch?v=Bjia3dKZqfo"],
+            ["https://music.youtube.com/watch?v=A-PjXUzhFDk", "https://music.youtube.com/watch?v=Bjia3dKZqfo"],
         ),
         (
             # Cash Cash - Surrender
