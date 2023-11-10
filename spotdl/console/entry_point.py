@@ -3,9 +3,9 @@ Module that holds the entry point for the console.
 """
 
 import logging
-import time
 import signal
 import sys
+import time
 
 from spotdl.console.download import download
 from spotdl.console.meta import meta
@@ -140,7 +140,7 @@ def console_entry_point():
         )
     except Exception:
         end_time = time.perf_counter()
-        logger.debug(f"Took {start_time - end_time} seconds")
+        logger.debug("Took %d seconds", end_time - start_time)
 
         downloader.progress_handler.close()
         logger.exception("An error occurred")
@@ -148,7 +148,7 @@ def console_entry_point():
         sys.exit(1)
 
     end_time = time.perf_counter()
-    logger.debug(f"Took {start_time - end_time} seconds")
+    logger.debug("Took %d seconds", end_time - start_time)
 
     if spotify_settings["use_cache_file"]:
         save_spotify_cache(spotify_client.cache)
