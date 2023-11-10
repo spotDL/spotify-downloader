@@ -197,8 +197,8 @@ def init_logging(log_level: str, log_format: Optional[str] = None):
         rich_tracebacks=True,
     )
 
+    msg_format = "%(message)s"
     if log_format is None:
-        msg_format = "%(message)s"
         if log_level == "DEBUG":
             msg_format = "%(threadName)s - %(message)s"
     else:

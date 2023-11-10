@@ -101,8 +101,10 @@ from tests.conftest import new_initialize
         (
             # Lisa Hannigan - Amhrán Na Farraige
             "https://open.spotify.com/track/07paTkxx4R7rmiGjqm84RM",
-            ["https://music.youtube.com/watch?v=f-VuVq0I0-U"],
-            ["https://music.youtube.com/watch?v=C32q5UoIdfQ"],
+            [
+                "https://music.youtube.com/watch?v=f-VuVq0I0-U",
+                "https://music.youtube.com/watch?v=C32q5UoIdfQ",
+            ],
         ),
         # (
         #     # Pavel Petrov - Granger Says
