@@ -3,7 +3,6 @@ Module for logging
 """
 
 import logging
-
 from typing import Optional
 
 from rich import get_console
@@ -160,7 +159,7 @@ class SpotdlHandler(RichHandler):
         return message_text
 
 
-def init_logging(log_level: str, log_format: Optional[str]):
+def init_logging(log_level: str, log_format: Optional[str] = None):
     """
     Initialize logging for spotdl.
 
