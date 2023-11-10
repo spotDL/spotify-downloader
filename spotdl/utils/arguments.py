@@ -654,9 +654,9 @@ def parse_misc_options(parser: _ArgumentGroup):
     parser.add_argument(
         "--log-format",
         help=(
-            "Custom logging format to use. "
-            "Defaults to `%(message)s`. More info: "
-            "https://docs.python.org/3/library/logging.html#logrecord-attributes"
+            r"Custom logging format to use. "
+            r"Defaults to `%(message)s`. More info: "
+            r"https://docs.python.org/3/library/logging.html#logrecord-attributes"
         ),
     )
 
