@@ -182,8 +182,12 @@ def get_simple_songs(
             "youtube.com/playlist?list=" in request
             or "youtube.com/browse/VLPL" in request
         ):
-            request = request.replace("https://www.youtube.com/", "https://music.youtube.com/")
-            request = request.replace("https://youtube.com/", "https://music.youtube.com/")
+            request = request.replace(
+                "https://www.youtube.com/", "https://music.youtube.com/"
+            )
+            request = request.replace(
+                "https://youtube.com/", "https://music.youtube.com/"
+            )
 
             split_urls = request.split("|")
             if len(split_urls) == 1:
