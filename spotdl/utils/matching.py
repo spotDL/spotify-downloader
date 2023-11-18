@@ -423,12 +423,13 @@ def artists_match_fixup1(song: Song, result: Result, score: float) -> float:
     # If artist match is still too low,
     # we fallback to matching all song artist names
     # with the result's title
-    if score <= 50:
+    if score <= 70:
         artist_title_match = 0.0
+        result_name = slugify(result.name).replace("-", "")
         for artist in song.artists:
             slug_artist = slugify(artist).replace("-", "")
 
-            if slug_artist in slugify(result.name).replace("-", ""):
+            if slug_artist in result_name:
                 artist_title_match += 1.0
 
         artist_title_match = (artist_title_match / len(song.artists)) * 100
@@ -784,11 +785,13 @@ def order_results(
             continue
 
         if (
-            not result.isrc_search and average_match <= 85 >= time_match
-        ) or result.source == "slider.kz":
+            (not result.isrc_search and average_match <= 85)
+            or result.source == "slider.kz"
+            or time_match < 0
+        ):
             # Don't add time to avg match if average match is not the best
             # (lower than 85%), always include time match if result is from
-            # slider.kz
+            # slider.kz or if time match is lower than 0
             average_match = (average_match + time_match) / 2
 
             debug(

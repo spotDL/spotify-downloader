@@ -76,7 +76,8 @@ def parse_main_options(parser: _ArgumentGroup):
             ".\n\n"
             "To download liked songs use 'saved' as the query, to download all user playlists\n"
             "use 'all-user-playlists, to download all songs from all followed artists "
-            "use 'all-user-followed-artists' \n\n"
+            "use 'all-user-followed-artists', to download all user saved albums "
+            "use 'all-user-saved-albums' \n\n"
             "For manual audio matching, you can use the format 'YouTubeURL|SpotifyURL'\n"
             "You can only use album/playlist/tracks urls when "
             "downloading/matching youtube urls.\n"
@@ -542,6 +543,32 @@ def parse_output_options(parser: _ArgumentGroup):
         choices=FFMPEG_FORMATS.keys(),
     )
 
+    # download song in meta operation
+    parser.add_argument(
+        "--redownload",
+        action="store_const",
+        const=True,
+        help="to redownload the local song in diffrent format using --format for meta operation",
+    )
+
+    # Ignore songs from a paticular album
+    parser.add_argument(
+        "--ignore-albums",
+        type=str,
+        nargs="*",
+        help="ignores the song of the given albums",
+    )
+
+    # Skip explicit songs options
+    parser.add_argument(
+        "--skip-explicit", action="store_const", const=True, help="Skip explicit songs"
+    )
+
+    parser.add_argument(
+        "--proxy",
+        help="Http(s) proxy server for download song. Example: http://host:port",
+    )
+
 
 def parse_web_options(parser: _ArgumentGroup):
     """
@@ -621,6 +648,15 @@ def parse_misc_options(parser: _ArgumentGroup):
         action="store_const",
         const=True,
         help="Use a simple tui.",
+    )
+
+    # Add log format argument
+    parser.add_argument(
+        "--log-format",
+        help=(
+            "Custom logging format to use. More info: "
+            "https://docs.python.org/3/library/logging.html#logrecord-attributes"
+        ),
     )
 
 

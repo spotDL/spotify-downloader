@@ -109,10 +109,12 @@ For a list of all **options** use ```spotdl -h```
         `spotdl save [query] --save-file {filename}.spotdl`
 
 - `web`: Starts a web interface instead of using the command line. However, it has limited features and only supports downloading single songs.
+    - Usage:
+        `spotdl web`
 
 - `url`: Get direct download link for each song from the query.
     - Usage:
-        `spotdl web [query]`
+        `spotdl url [query]`
 
 - `sync`: Updates directories. Compares the directory with the current state of the playlist. Newly added songs will be downloaded and removed songs will be deleted. No other songs will be downloaded and no other files will be deleted.
 

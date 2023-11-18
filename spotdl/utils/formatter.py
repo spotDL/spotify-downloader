@@ -280,7 +280,7 @@ def create_search_query(
     """
 
     # If template does not contain any of the keys,
-    # append {artist} - {title} at the beggining of the template
+    # append {artist} - {title} at the beginning of the template
     if not any(key in template for key in VARS):
         template = "{artist} - {title}" + template
 

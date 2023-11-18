@@ -41,6 +41,7 @@ from mutagen.mp4 import MP4Cover
 from mutagen.wave import WAVE
 
 from spotdl.types.song import Song
+from spotdl.utils.config import GlobalConfig
 from spotdl.utils.formatter import to_ms
 
 logger = logging.getLogger(__name__)
@@ -131,6 +132,7 @@ TAG_TO_SONG = {
     "tracknumber": "track_number",
     "encodedby": "publisher",
     "woas": "url",
+    "comment": "download_url",
     "isrc": "isrc",
     "copyright": "copyright_text",
     "lyrics": "lyrics",
@@ -270,7 +272,11 @@ def embed_cover(audio_file, song: Song, encoding: str):
 
     # Try to download the cover art
     try:
-        cover_data = requests.get(song.cover_url, timeout=10).content
+        cover_data = requests.get(
+            song.cover_url,
+            timeout=10,
+            proxies=GlobalConfig.get_parameter("proxies"),
+        ).content
     except Exception:
         return audio_file
 
@@ -439,6 +445,8 @@ def get_file_metadata(path: Path, id3_separator: str = "/") -> Optional[Dict[str
         if path.suffix == ".mp3":
             if key == "woas":
                 song_meta["url"] = val.url
+            elif key == "comment":
+                song_meta["download_url"] = val.text[0]
             elif key == "year":
                 song_meta["year"] = int(str(val.text[0])[:4])
             elif key == "date":

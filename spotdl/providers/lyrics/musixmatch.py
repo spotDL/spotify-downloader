@@ -9,6 +9,7 @@ import requests
 from bs4 import BeautifulSoup
 
 from spotdl.providers.lyrics.base import LyricsProvider
+from spotdl.utils.config import GlobalConfig
 
 __all__ = ["MusixMatch"]
 
@@ -18,7 +19,7 @@ class MusixMatch(LyricsProvider):
     MusixMatch lyrics provider class.
     """
 
-    def extract_lyrics(self, url: str, **kwargs) -> Optional[str]:
+    def extract_lyrics(self, url: str, **_) -> Optional[str]:
         """
         Extracts the lyrics from the given url.
 
@@ -30,7 +31,12 @@ class MusixMatch(LyricsProvider):
         - The lyrics of the song or None if no lyrics were found.
         """
 
-        lyrics_resp = requests.get(url, headers=self.headers, timeout=10)
+        lyrics_resp = requests.get(
+            url,
+            headers=self.headers,
+            timeout=10,
+            proxies=GlobalConfig.get_parameter("proxies"),
+        )
 
         lyrics_soup = BeautifulSoup(lyrics_resp.text, "html.parser")
         lyrics_paragraphs = lyrics_soup.select("p.mxm-lyrics__content")
@@ -65,7 +71,12 @@ class MusixMatch(LyricsProvider):
             query += "/tracks"
 
         search_url = f"https://www.musixmatch.com/search/{query}"
-        search_resp = requests.get(search_url, headers=self.headers, timeout=10)
+        search_resp = requests.get(
+            search_url,
+            headers=self.headers,
+            timeout=10,
+            proxies=GlobalConfig.get_parameter("proxies"),
+        )
         search_soup = BeautifulSoup(search_resp.text, "html.parser")
         song_url_tag = search_soup.select("a[href^='/lyrics/']")
 

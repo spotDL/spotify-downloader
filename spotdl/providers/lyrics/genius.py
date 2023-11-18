@@ -8,6 +8,7 @@ import requests
 from bs4 import BeautifulSoup
 
 from spotdl.providers.lyrics.base import LyricsProvider
+from spotdl.utils.config import GlobalConfig
 
 __all__ = ["Genius"]
 
@@ -52,6 +53,7 @@ class Genius(LyricsProvider):
             params={"q": title},
             headers=self.headers,
             timeout=10,
+            proxies=GlobalConfig.get_parameter("proxies"),
         )
 
         results: Dict[str, str] = {}
@@ -73,13 +75,23 @@ class Genius(LyricsProvider):
         """
 
         url = f"https://api.genius.com/songs/{url}"
-        song_response = requests.get(url, headers=self.headers, timeout=10)
+        song_response = requests.get(
+            url,
+            headers=self.headers,
+            timeout=10,
+            proxies=GlobalConfig.get_parameter("proxies"),
+        )
         url = song_response.json()["response"]["song"]["url"]
 
         soup = None
         counter = 0
         while counter < 4:
-            genius_page_response = requests.get(url, headers=self.headers, timeout=10)
+            genius_page_response = requests.get(
+                url,
+                headers=self.headers,
+                timeout=10,
+                proxies=GlobalConfig.get_parameter("proxies"),
+            )
 
             if not genius_page_response.ok:
                 counter += 1
