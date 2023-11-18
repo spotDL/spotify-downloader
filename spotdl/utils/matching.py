@@ -423,12 +423,13 @@ def artists_match_fixup1(song: Song, result: Result, score: float) -> float:
     # If artist match is still too low,
     # we fallback to matching all song artist names
     # with the result's title
-    if score <= 50:
+    if score <= 70:
         artist_title_match = 0.0
+        result_name = slugify(result.name).replace("-", "")
         for artist in song.artists:
             slug_artist = slugify(artist).replace("-", "")
 
-            if slug_artist in slugify(result.name).replace("-", ""):
+            if slug_artist in result_name:
                 artist_title_match += 1.0
 
         artist_title_match = (artist_title_match / len(song.artists)) * 100
