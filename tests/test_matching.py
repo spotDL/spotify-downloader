@@ -193,7 +193,10 @@ from tests.conftest import new_initialize
         (
             # Quebonafide - GAZPROM
             "https://open.spotify.com/track/46RBT9mCXUZEZa0CyA0thr",
-            ["https://music.youtube.com/watch?v=3edPRi_CDmc"],
+            [
+                "https://music.youtube.com/watch?v=3edPRi_CDmc",
+                "https://www.youtube.com/watch?v=vxSdBWdCLl4",
+            ],
         ),
         (
             # 2115 - ROTTWEILER
