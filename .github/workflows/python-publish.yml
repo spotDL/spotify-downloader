@@ -93,21 +93,22 @@ jobs:
         with:
           arch: aarch64
           distro: ubuntu_latest
-          githubToken: ${{ github.token }}
+
+          # Mount the artifacts directory as /artifacts in the container
           dockerRunArgs: |
             --volume "${PWD}/:/spotdl"
 
           # The shell to run commands with in the container
           shell: /bin/sh
-          install: |
-            apt update
-            apt install python3 python3-pip -y
-            pip install poetry
-            cd /spotdl
-            poetry install
 
           run: |
             cd /spotdl
+            apt update
+            apt install python3 python3-pip -y
+            pip install poetry
+            poetry install
+            rm -rf dist/
+            mkdir dist/
             poetry run python ./scripts/build.py
             for file in dist/spotdl*; do cp "$file" "${file}-aarch64"; done
 
