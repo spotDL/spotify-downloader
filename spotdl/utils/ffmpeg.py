@@ -47,7 +47,7 @@ FFMPEG_URLS = {
     },
     "darwin": {
         "x86_64": "https://github.com/eugeneware/ffmpeg-static/releases/download/b4.4/darwin-x64",
-        "arm": "https://github.com/eugeneware/ffmpeg-static/releases/download/b4.4/darwin-arm64",
+        "arm64": "https://github.com/eugeneware/ffmpeg-static/releases/download/b4.4/darwin-arm64",
     },
 }
 
@@ -215,16 +215,26 @@ def download_ffmpeg() -> Path:
 
     os_name = platform.system().lower()
     os_arch = platform.machine().lower()
+    ffmpeg_url: Optional[str] = None
+
+    # if platform.system() == "Darwin" and (
+    #     platform.processor() == "arm"
+    #     or subprocess.run(["sysctl", "-n", "sysctl.proc_translated"], check=False)
+    # ):
+    #     ffmpeg_url = FFMPEG_URLS["darwin"]["arm"]
+    # else:
+    #     ffmpeg_url = FFMPEG_URLS.get(os_name, {}).get(os_arch)
 
     ffmpeg_url = FFMPEG_URLS.get(os_name, {}).get(os_arch)
+
+    if ffmpeg_url is None:
+        raise FFmpegError("FFmpeg binary is not available for your system.")
+
     ffmpeg_path = Path(
         os.path.join(
             get_spotdl_path(), "ffmpeg" + (".exe" if os_name == "windows" else "")
         )
     )
-
-    if ffmpeg_url is None:
-        raise FFmpegError("FFmpeg binary is not available for your system.")
 
     # Download binary and save it to a file in spotdl directory
     ffmpeg_binary = requests.get(ffmpeg_url, allow_redirects=True, timeout=10).content
