@@ -74,5 +74,3 @@ class Synced(LyricsProvider):
             #   and there are no synced lyrics present
             # Because its empty, we know there are no lyrics
             return None
-        finally:
-            return None
