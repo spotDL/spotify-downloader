@@ -68,11 +68,11 @@ class Synced(LyricsProvider):
             # Max retries reached
             return None
         except TypeError:
-            # Error at syncedlyrics.providers.musixmatch L89 - Because `body` is occasionally an empty list
-            # instead of a dictionary.
-            # We get this error when allow_plain_format is set to True, and there are no synced lyrics present
+            # Error at syncedlyrics.providers.musixmatch L89 -
+            #   Because `body` is occasionally an empty list instead of a dictionary.
+            # We get this error when allow_plain_format is set to True,
+            #   and there are no synced lyrics present
             # Because its empty, we know there are no lyrics
             return None
-        except:
-            # Potential unhandled exceptions caused by syncedlyrics
+        finally:
             return None
