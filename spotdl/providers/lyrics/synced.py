@@ -2,8 +2,10 @@
 Synced lyrics provider using the syncedlyrics library
 """
 
-import syncedlyrics
 from typing import Dict, List, Optional
+
+import requests
+import syncedlyrics
 
 from spotdl.providers.lyrics.base import LyricsProvider
 
