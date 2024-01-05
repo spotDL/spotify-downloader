@@ -4,3 +4,4 @@ services:
     image: "spotdl/spotify-downloader"
     volumes:
       - .:/music
+      - .:/root/.spotdl
