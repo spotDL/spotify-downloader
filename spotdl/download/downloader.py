@@ -495,7 +495,10 @@ class Downloader:
 
             # If the file already exists and we don't want to overwrite it,
             # we can skip the download
-            if Path(str(output_file.absolute()) + ".skip").is_file() and self.settings["respect_skip_file"]:
+            if (
+                Path(str(output_file.absolute()) + ".skip").is_file()
+                and self.settings["respect_skip_file"]
+            ):
                 logger.info(
                     "Skipping %s (skip file found) %s",
                     song.display_name,
@@ -712,7 +715,7 @@ class Downloader:
                 )
 
                 if self.settings["create_skip_file"]:
-                    open(str(output_file) + ".skip", mode='w').close()
+                    open(str(output_file) + ".skip", mode="w").close()
 
             # Remove the temp file
             if temp_file.exists():
