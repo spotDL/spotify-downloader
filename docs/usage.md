@@ -458,6 +458,8 @@ Output options:
                         ignores the song of the given albums
   --skip-explicit       Skip explicit songs
   --proxy PROXY         Http(s) proxy server for download song. Example: http://host:port
+  --create-skip-file    Create skip file for successfully downloaded file
+  --respect-skip-file   If a file with the extension .skip exists, skip download
 
 Web options:
   --host HOST           The host to use for the web server.
