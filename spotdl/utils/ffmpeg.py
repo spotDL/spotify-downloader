@@ -366,7 +366,6 @@ def convert(
 
         out_buffer = []
         total_dur = None
-        out: str = ""
         while True:
             if process.stdout is None:
                 continue
@@ -379,8 +378,6 @@ def convert(
                 break
 
             out_buffer.append(out_line.strip())
-
-            out = "\n".join(out_buffer)
 
             total_dur_match = DUR_REGEX.search(out_line)
             if total_dur is None and total_dur_match:
@@ -402,7 +399,7 @@ def convert(
                 "ffmpeg": ffmpeg,
                 "version": version[0],
                 "build_year": version[1],
-                "error": out,
+                "error": "\n".join(out_buffer),
             }
 
         progress_handler(100)
