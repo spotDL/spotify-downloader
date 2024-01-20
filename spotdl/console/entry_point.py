@@ -5,6 +5,7 @@ Module that holds the entry point for the console.
 import logging
 import signal
 import sys
+import time
 
 from spotdl.console.download import download
 from spotdl.console.meta import meta
@@ -16,6 +17,7 @@ from spotdl.download.downloader import Downloader, DownloaderError
 from spotdl.utils.arguments import parse_arguments
 from spotdl.utils.config import create_settings
 from spotdl.utils.console import ACTIONS, generate_initial_config, is_executable
+from spotdl.utils.downloader import check_ytmusic_connection
 from spotdl.utils.ffmpeg import FFmpegError, download_ffmpeg, is_ffmpeg_installed
 from spotdl.utils.logging import init_logging
 from spotdl.utils.spotify import SpotifyClient, SpotifyError, save_spotify_cache
@@ -60,7 +62,7 @@ def console_entry_point():
     # Create settings dicts
     spotify_settings, downloader_settings, web_settings = create_settings(arguments)
 
-    init_logging(downloader_settings["log_level"])
+    init_logging(downloader_settings["log_level"], downloader_settings["log_format"])
 
     # If the application is frozen, we check for ffmpeg
     # if it's not present download it create config file
@@ -74,6 +76,14 @@ def console_entry_point():
             "FFmpeg is not installed. Please run `spotdl --download-ffmpeg` to install it, "
             "or `spotdl --ffmpeg /path/to/ffmpeg` to specify the path to ffmpeg."
         )
+
+    # Check if we are not blocked by ytm
+    if "youtube-music" in downloader_settings["audio_providers"]:
+        if not check_ytmusic_connection():
+            raise DownloaderError(
+                "You are blocked by YouTube Music. "
+                "Please use a VPN, change youtube-music to piped, or use other audio providers"
+            )
 
     # Initialize spotify client
     SpotifyClient.init(**spotify_settings)
@@ -119,6 +129,8 @@ def console_entry_point():
     signal.signal(signal.SIGINT, graceful_exit)
     signal.signal(signal.SIGTERM, graceful_exit)
 
+    start_time = time.perf_counter()
+
     try:
         # Pick the operation to perform
         # based on the name and run it!
@@ -127,11 +139,16 @@ def console_entry_point():
             downloader=downloader,
         )
     except Exception:
-        downloader.progress_handler.close()
+        end_time = time.perf_counter()
+        logger.debug("Took %d seconds", end_time - start_time)
 
+        downloader.progress_handler.close()
         logger.exception("An error occurred")
 
         sys.exit(1)
+
+    end_time = time.perf_counter()
+    logger.debug("Took %d seconds", end_time - start_time)
 
     if spotify_settings["use_cache_file"]:
         save_spotify_cache(spotify_client.cache)

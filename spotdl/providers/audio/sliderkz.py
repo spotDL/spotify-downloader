@@ -9,6 +9,7 @@ import requests
 
 from spotdl.providers.audio.base import AudioProvider
 from spotdl.types.result import Result
+from spotdl.utils.config import GlobalConfig
 
 __all__ = ["SliderKZ"]
 
@@ -49,6 +50,7 @@ class SliderKZ(AudioProvider):
                     url="https://slider.kz/vk_auth.php?q=" + search_term,
                     headers=HEADERS,
                     timeout=5,
+                    proxies=GlobalConfig.get_parameter("proxies"),
                 )
 
                 # Check if the response is valid

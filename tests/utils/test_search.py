@@ -11,7 +11,7 @@ YT = [
     "https://www.youtube.com/watch?v=BZKwsPIhVO8|https://open.spotify.com/track/4B2kkxg3wKSTZw5JPaUtzQ"
 ]
 ARTIST = ["https://open.spotify.com/artist/1FPC2zwfMHhrP3frOfaai6"]
-ALBUM_SEARCH = ["album:demon days"]
+ALBUM_SEARCH = ["album: yeezus"]
 
 QUERY = SONG + PLAYLIST + ALBUM + YT + ARTIST
 

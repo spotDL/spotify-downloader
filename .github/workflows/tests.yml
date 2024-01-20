@@ -10,13 +10,13 @@ jobs:
       max-parallel: 4
       matrix:
         platform: [ ubuntu-latest, macos-latest, windows-latest ]
-        python-version: [ "3.8", "3.10" ]
+        python-version: [ "3.8", "3.11" ]
 
     steps:
       - uses: actions/checkout@v3
 
       - name: Install poetry
-        run: pipx install poetry==1.3.2
+        run: pipx install poetry
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
@@ -27,6 +27,7 @@ jobs:
       - name: Install dependencies
         run: |
           poetry env use ${{ matrix.python-version }}
+          pip install -U pip setuptools
           poetry install
 
       - uses: FedericoCarboni/setup-ffmpeg@v2
@@ -54,15 +55,15 @@ jobs:
       - name: Install poetry
         run: pipx install poetry
 
-      - name: Set up Python "3.10"
+      - name: Set up Python "3.11"
         uses: actions/setup-python@v4
         with:
-          python-version: "3.10"
+          python-version: "3.11"
           cache: 'poetry'
 
       - name: Install dependencies
         run: |
-          poetry env use "3.10"
+          poetry env use "3.11"
           poetry install
 
       - uses: FedericoCarboni/setup-ffmpeg@v1

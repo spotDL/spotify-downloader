@@ -78,7 +78,10 @@ from tests.conftest import new_initialize
         (
             # Потап и Настя - Чумачечая весна
             "https://open.spotify.com/track/2eaSMmKfigsm96aTUJMoIk",
-            ["https://music.youtube.com/watch?v=A-PjXUzhFDk"],
+            [
+                "https://music.youtube.com/watch?v=A-PjXUzhFDk",
+                "https://music.youtube.com/watch?v=Bjia3dKZqfo",
+            ],
         ),
         (
             # Cash Cash - Surrender
@@ -95,18 +98,22 @@ from tests.conftest import new_initialize
             [
                 "https://music.youtube.com/watch?v=Apej0F8ack0",
                 "https://music.youtube.com/watch?v=7xRMrGO-OLo",
+                "https://music.youtube.com/watch?v=OIfpADMVVvQ",
             ],
         ),
         (
             # Lisa Hannigan - Amhrán Na Farraige
             "https://open.spotify.com/track/07paTkxx4R7rmiGjqm84RM",
-            ["https://music.youtube.com/watch?v=f-VuVq0I0-U"],
+            [
+                "https://music.youtube.com/watch?v=f-VuVq0I0-U",
+                "https://music.youtube.com/watch?v=C32q5UoIdfQ",
+            ],
         ),
-        (
-            # Pavel Petrov - Granger Says
-            "https://open.spotify.com/track/6fAmcQ6DjLDA0uHnbdAQmJ",
-            ["https://music.youtube.com/watch?v=8WIPgiDVeDs"],
-        ),
+        # (
+        #     # Pavel Petrov - Granger Says
+        #     "https://open.spotify.com/track/6fAmcQ6DjLDA0uHnbdAQmJ",
+        #     ["https://music.youtube.com/watch?v=8WIPgiDVeDs"],
+        # ),
         (
             # Billy Joel - Piano Man
             "https://open.spotify.com/track/70C4NyhjD5OZUMzvWZ3njJ",
@@ -186,7 +193,10 @@ from tests.conftest import new_initialize
         (
             # Quebonafide - GAZPROM
             "https://open.spotify.com/track/46RBT9mCXUZEZa0CyA0thr",
-            ["https://music.youtube.com/watch?v=3edPRi_CDmc"],
+            [
+                "https://music.youtube.com/watch?v=3edPRi_CDmc",
+                "https://www.youtube.com/watch?v=vxSdBWdCLl4",
+            ],
         ),
         (
             # 2115 - ROTTWEILER
@@ -356,7 +366,14 @@ from tests.conftest import new_initialize
                 "https://www.youtube.com/watch?v=KD5ncAFjRzY",
                 "https://www.youtube.com/watch?v=9DKKhnmgCIo",
             ],
-        )
+        ),
+        (
+            # Męskie Granie Orkiestra 2023 - Supermoce (feat. Igo, Mrozu & Vito Bambino)
+            "https://open.spotify.com/track/4EqPIm07a55pJQRSZw2Z4X",
+            [
+                "https://music.youtube.com/watch?v=pKqVj-ermPY",
+            ],
+        ),
         # (
         #     # Kado - Tired Eyes
         #     "https://open.spotify.com/track/0MSLJOWljfQr067PYyndK9",

@@ -13,20 +13,20 @@ jobs:
       - name: Install poetry
         run: pipx install poetry
 
-      - name: Set up Python 3.10
+      - name: Set up Python 3.11
         uses: actions/setup-python@v4
         with:
-          python-version: "3.10"
+          python-version: "3.11"
           cache: 'poetry'
 
       - name: Install dependencies
         run: |
-          poetry env use "3.10"
+          poetry env use "3.11"
           poetry install
 
       - name: Check for docstring's
         run: |
-          poetry run pylint --limit-inference-results 0 --disable all --enable missing-function-docstring missing-module-docstring missing-class-docstring empty-docstring ./spotdl
+          poetry run pylint --limit-inference-results 0 --enable missing-function-docstring missing-module-docstring missing-class-docstring empty-docstring --disable=all ./spotdl
 
       - name: Run Pylint check
         run: |
