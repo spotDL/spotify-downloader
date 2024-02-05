@@ -41,7 +41,7 @@ rapidfuzz = "^3.5.2"
 python-slugify = {extras = ["unidecode"], version = "^8.0.1"}
 uvicorn = "^0.23.2"
 pydantic = "^2.5.2"
-fastapi = "^0.103.0"
+fastapi = ">=0.103,<0.110"
 platformdirs = "^3.11.0"
 pykakasi = "^2.2.1"
 syncedlyrics = "^0.7.0"
