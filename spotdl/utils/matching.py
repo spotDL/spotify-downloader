@@ -809,7 +809,9 @@ def order_results(
                 f"Average match /w time match: {average_match}",
             )
 
-            if (result.explicit is not None and song.explicit is not None) and (result.explicit != song.explicit):
+            if (result.explicit is not None and song.explicit is not None) and (
+                result.explicit != song.explicit
+            ):
                 debug(
                     song.song_id,
                     result.result_id,

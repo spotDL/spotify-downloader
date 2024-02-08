@@ -98,14 +98,18 @@ class Album(SongList):
                 explicit=track["explicit"],
                 publisher=album_metadata["label"],
                 url=track["external_urls"]["spotify"],
-                cover_url=max(
-                    album_metadata["images"], key=lambda i: i["width"] * i["height"]
-                )["url"]
-                if album_metadata["images"]
-                else None,
-                copyright_text=album_metadata["copyrights"][0]["text"]
-                if album_metadata["copyrights"]
-                else None,
+                cover_url=(
+                    max(
+                        album_metadata["images"], key=lambda i: i["width"] * i["height"]
+                    )["url"]
+                    if album_metadata["images"]
+                    else None
+                ),
+                copyright_text=(
+                    album_metadata["copyrights"][0]["text"]
+                    if album_metadata["copyrights"]
+                    else None
+                ),
             )
 
             songs.append(song)
