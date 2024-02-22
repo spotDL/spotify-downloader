@@ -773,6 +773,15 @@ def order_results(
                 f"Average match /w album match: {average_match}",
             )
 
+        # Skip results with time match lower than 25%
+        if time_match < 25:
+            debug(
+                song.song_id,
+                result.result_id,
+                "Skipping result due to time match lower than 25%",
+            )
+            continue
+
         # If the time match is lower than 50%
         # and the average match is lower than 75%
         # we skip the result
