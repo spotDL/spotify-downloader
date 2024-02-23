@@ -92,6 +92,11 @@ def console_entry_point():
     # If the application is frozen start web ui
     # or if the operation is `web`
     if is_executable() or arguments.operation == "web":
+
+        # Default to the current directory when running a frozen application
+        if is_executable():
+            web_settings["web_use_output_dir"] = True
+
         # Start web ui
         web(web_settings, downloader_settings)
 

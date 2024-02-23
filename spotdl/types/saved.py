@@ -85,11 +85,13 @@ class Saved(SongList):
                 explicit=track_meta["explicit"],
                 url=track_meta["external_urls"]["spotify"],
                 isrc=track_meta.get("external_ids", {}).get("isrc"),
-                cover_url=max(
-                    album_meta["images"], key=lambda i: i["width"] * i["height"]
-                )["url"]
-                if album_meta["images"]
-                else None,
+                cover_url=(
+                    max(album_meta["images"], key=lambda i: i["width"] * i["height"])[
+                        "url"
+                    ]
+                    if album_meta["images"]
+                    else None
+                ),
             )
 
             songs.append(song)
