@@ -313,8 +313,9 @@ def get_simple_songs(
         songs = [
             song
             for song in songs
-            for keyword in albums_to_ignore
-            if keyword not in song.album_name.lower()
+            if all(
+                keyword not in song.album_name.lower() for keyword in albums_to_ignore
+            )
         ]
         new_length = len(songs)
         logger.info("Skipped %s songs (Ignored albums)", (original_length - new_length))
