@@ -121,7 +121,7 @@ class Playlist(SongList):
                     else None
                 ),
                 disc_number=track_meta["disc_number"],
-                duration=track_meta["duration_ms"] / 1000,
+                duration=int(track_meta["duration_ms"] / 1000),
                 year=release_date[:4] if release_date else None,
                 date=release_date,
                 track_number=track_meta["track_number"],
