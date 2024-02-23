@@ -630,9 +630,9 @@ def create_ytm_playlist(url: str, fetch_songs: bool = True) -> Playlist:
         raise ValueError(f"Couldn't fetch playlist: {url}")
 
     metadata = {
-        "description": playlist["description"]
-        if playlist["description"] is not None
-        else "",
+        "description": (
+            playlist["description"] if playlist["description"] is not None else ""
+        ),
         "author_url": f"https://music.youtube.com/channel/{playlist['author']['id']}",
         "author_name": playlist["author"]["name"],
         "cover_url": playlist["thumbnails"][0]["url"],
@@ -649,9 +649,11 @@ def create_ytm_playlist(url: str, fetch_songs: bool = True) -> Playlist:
             name=track["title"],
             artists=[artist["name"] for artist in track["artists"]],
             artist=track["artists"][0]["name"],
-            album_name=track.get("album", {}).get("name")
-            if track.get("album") is not None
-            else None,
+            album_name=(
+                track.get("album", {}).get("name")
+                if track.get("album") is not None
+                else None
+            ),
             duration=track.get("duration_seconds"),
             explicit=track.get("isExplicit"),
             download_url=f"https://music.youtube.com/watch?v={track['videoId']}",
