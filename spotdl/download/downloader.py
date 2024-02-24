@@ -597,7 +597,7 @@ class Downloader:
                         )
 
                 # Update the metadata
-                embed_metadata(output_file=output_file, song=song)
+                embed_metadata(output_file=output_file, song=song, skip_album_art=self.settings["skip_album_art"])
 
                 logger.info(
                     f"Updated metadata for {song.display_name}"
@@ -785,7 +785,7 @@ class Downloader:
                         Path(file_to_delete).unlink()
 
             try:
-                embed_metadata(output_file, song, self.settings["id3_separator"])
+                embed_metadata(output_file, song, self.settings["skip_album_art"] ,self.settings["id3_separator"])
             except Exception as exception:
                 raise MetadataError(
                     "Failed to embed metadata to the song"
