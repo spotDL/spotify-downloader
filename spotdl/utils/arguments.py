@@ -551,6 +551,14 @@ def parse_output_options(parser: _ArgumentGroup):
         help="to redownload the local song in diffrent format using --format for meta operation",
     )
 
+    # skip album art for meta operation
+    parser.add_argument(
+        "--skip-album-art",
+        action="store_const",
+        const=True,
+        help="skip downloading album art for meta operation",
+    )
+
     # Ignore songs from a paticular album
     parser.add_argument(
         "--ignore-albums",
