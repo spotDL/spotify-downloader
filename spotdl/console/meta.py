@@ -130,7 +130,7 @@ def meta(query: List[str], downloader: Downloader) -> None:
             song.lyrics = song_meta.get("lyrics")
 
         # Apply metadata to the song
-        embed_metadata(file, song)
+        embed_metadata(file, song, skip_album_art=downloader.settings["skip_album_art"])
 
         logger.info("Applied metadata to %s", file.name)
 

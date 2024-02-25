@@ -82,9 +82,11 @@ def web(web_settings: WebOptions, downloader_settings: DownloaderOptions):
     # Add the CORS middleware
     app_state.api.add_middleware(
         CORSMiddleware,
-        allow_origins=ALLOWED_ORIGINS + web_settings["allowed_origins"]
-        if web_settings["allowed_origins"]
-        else ALLOWED_ORIGINS,
+        allow_origins=(
+            ALLOWED_ORIGINS + web_settings["allowed_origins"]
+            if web_settings["allowed_origins"]
+            else ALLOWED_ORIGINS
+        ),
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],

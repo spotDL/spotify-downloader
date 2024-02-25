@@ -6,6 +6,7 @@ import logging
 from typing import Dict, List, Optional
 
 from spotdl.utils.formatter import ratio, slugify
+from spotdl.utils.matching import based_sort
 
 __all__ = ["LyricsProvider"]
 logger = logging.getLogger(__name__)
@@ -93,7 +94,15 @@ class LyricsProvider:
 
         results_with_score = {}
         for title, url in results.items():
-            score = ratio(slugify(title), slugify(f"{name} - {', '.join(artists)}"))
+            result_title = slugify(title)
+            match_title = slugify(f"{name} - {', '.join(artists)}")
+
+            res_list, song_list = based_sort(
+                result_title.split("-"), match_title.split("-")
+            )
+            result_title, match_title = "-".join(res_list), "-".join(song_list)
+
+            score = ratio(result_title, match_title)
             results_with_score[score] = url
 
         if not results_with_score:

@@ -43,6 +43,7 @@ from mutagen.wave import WAVE
 from spotdl.types.song import Song
 from spotdl.utils.config import GlobalConfig
 from spotdl.utils.formatter import to_ms
+from spotdl.utils.lrc import remomve_lrc
 
 logger = logging.getLogger(__name__)
 
@@ -153,13 +154,20 @@ MP3_TO_SONG = {
 LRC_REGEX = re.compile(r"(\[\d{2}:\d{2}.\d{2,3}\])")
 
 
-def embed_metadata(output_file: Path, song: Song, id3_separator: str = "/"):
+def embed_metadata(
+    output_file: Path,
+    song: Song,
+    id3_separator: str = "/",
+    skip_album_art: Optional[bool] = False,
+):
     """
     Set ID3 tags for generic files (FLAC, OPUS, OGG)
 
     ### Arguments
     - output_file: Path to the output file.
     - song: Song object.
+    - id3_separator: The separator used for the id3 tags.
+    - skip_album_art: Boolean to skip album art embedding.
     """
 
     # Get the file extension for the output file
@@ -245,8 +253,9 @@ def embed_metadata(output_file: Path, song: Song, id3_separator: str = "/"):
                 )
             )
 
-    # Embed album art
-    audio_file = embed_cover(audio_file, song, encoding)
+    if not skip_album_art:
+        # Embed album art
+        audio_file = embed_cover(audio_file, song, encoding)
 
     # Embed lyrics
     audio_file = embed_lyrics(audio_file, song, encoding)
@@ -353,6 +362,7 @@ def embed_lyrics(audio_file, song: Song, encoding: str):
     else:
         # Lyrics are in lrc format
         # Embed them as SYLT id3 tag
+        clean_lyrics = remomve_lrc(lyrics)
         if encoding == "mp3":
             lrc_data = []
             for line in lyrics.splitlines():
@@ -372,7 +382,7 @@ def embed_lyrics(audio_file, song: Song, encoding: str):
                 time = to_ms(min=minute, sec=sec, ms=millisecond)
                 lrc_data.append((text, time))
 
-            audio_file.add(USLT(encoding=3, text=song.lyrics))
+            audio_file.add(USLT(encoding=3, text=clean_lyrics))
             audio_file.add(SYLT(encoding=3, text=lrc_data, format=2, type=1))
         else:
             audio_file[tag_preset["lyrics"]] = song.lyrics
@@ -613,6 +623,7 @@ def embed_wav_file(output_file: Path, song: Song):
             audio.tags.add(USLT(encoding=Encoding.UTF8, text=song.lyrics))  # type: ignore
         else:
             lrc_data = []
+            clean_lyrics = remomve_lrc(song.lyrics)
             for line in song.lyrics.splitlines():
                 time_tag = line.split("]", 1)[0] + "]"
                 text = line.replace(time_tag, "")
@@ -630,7 +641,7 @@ def embed_wav_file(output_file: Path, song: Song):
                 time = to_ms(min=minute, sec=sec, ms=millisecond)
                 lrc_data.append((text, time))
 
-            audio.tags.add(USLT(encoding=3, text=song.lyrics))  # type: ignore
+            audio.tags.add(USLT(encoding=3, text=clean_lyrics))  # type: ignore
             audio.tags.add(SYLT(encoding=3, text=lrc_data, format=2, type=1))  # type: ignore
 
     audio.save()

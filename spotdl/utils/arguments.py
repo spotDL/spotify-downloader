@@ -551,6 +551,14 @@ def parse_output_options(parser: _ArgumentGroup):
         help="to redownload the local song in diffrent format using --format for meta operation",
     )
 
+    # skip album art for meta operation
+    parser.add_argument(
+        "--skip-album-art",
+        action="store_const",
+        const=True,
+        help="skip downloading album art for meta operation",
+    )
+
     # Ignore songs from a paticular album
     parser.add_argument(
         "--ignore-albums",
@@ -567,6 +575,22 @@ def parse_output_options(parser: _ArgumentGroup):
     parser.add_argument(
         "--proxy",
         help="Http(s) proxy server for download song. Example: http://host:port",
+    )
+
+    # Skip songs having a skip flag file
+    parser.add_argument(
+        "--create-skip-file",
+        action="store_const",
+        const=True,
+        help="Create skip file for successfully downloaded file",
+    )
+
+    # Skip songs having a skip flag file
+    parser.add_argument(
+        "--respect-skip-file",
+        action="store_const",
+        const=True,
+        help="If a file with the extension .skip exists, skip download",
     )
 
 

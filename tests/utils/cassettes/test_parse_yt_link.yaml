@@ -7,7 +7,7 @@ interactions:
       Accept-Encoding:
       - gzip, deflate, br
       Authorization:
-      - Bearer BQCIpzARC2ZaA_ZRnM_2H9CJckzqPFG2dZF90T2cElxkF-96ht7TW2yN9sLT9l3MFUS0yaCwUZxgFByRzAHoFgNXbuEKQYPlUYWLw8fnuQnFUp4ZqBU
+      - Bearer BQCYEq1sWe3G_lSWxUc5YNppa50KKUrBaUVYRCwa7rqtA7YUNv4mx-JEYAFI75sVOh8ZzmaIvB9pXDCpSECD6X2AeHvZFCvQh8FtdWAWrAsInb3zfk4
       Connection:
       - keep-alive
       Content-Type:
@@ -18,20 +18,42 @@ interactions:
     uri: https://api.spotify.com/v1/tracks/4B2kkxg3wKSTZw5JPaUtzQ
   response:
     body:
-      string: !!binary |
-        H4sIAAAAAAAAAKxV23KbMBB9z1cwPPQpCULYYPutiTOZprm1TdtJOh1GBtnWWFwqCV+S8b8XhIDY
-        CQQ78Ru767Ors3t2nw40TUd0lAS6NtCe0q/i2xWrGGdGnZNwQrF+qJxMEC545vmj/pBa8VJgFiLq
-        JozyCkr6eBwJMl5JrKkQMR8YRhTj8Fg5jr0oMHJYA/Ix7EU2TpZnw/h+dt73r0RypSuw9WGRb8rw
-        eAMQxWQDb24qSF6HWWIRXyK9FRaiIOfjNAWOorDylEzlGStHwkjOYF7YIPcPmh65Pvx4UoH3GZx2
-        VifX39E1PHvgZ3BxZ92/j9QazG1S3worSR2ikGCqXeI52Z/Ypoeutb/FBM8RoWhEsRsgNsPFLBfu
-        WtZbcp6JxwCXwrx9nP96iDgdXn+BF/yfHf8uWnzQnu4MjdfBKaCC6+agAE3wtmynmEymIjPaHfCM
-        XbpRV1qV54dpSYYEMdDIdmzT9kH6G0HHgo5jjRzf9lDfhN0e6lk+sJ2eVfVrQXwxVWlejHlVhAX2
-        K8LEAO5QRJqmoQi7s1cNnV7X3ImIrakslXATap+0m2K96AxTjDh2fSRyPwRm9wg4R6D/WogbM+wR
-        TtL9lAX7aFVEiUikQy0Y8mZyDMzCXopMngFlfaGwzDmoH2s51K8dh3fr6e3DsJOg2hyFVieh7iDU
-        bK3dj0E5nh9EYeN23IPCxt3e6gA0rf8daax/nJJY49rXfcI9N0yCEWalNnQ/YUikSnIDGQuBA+ye
-        9OBlTIlH5L4YI8qxsqo2Ef9Zl3TCmSdLPj+Bl0PQB6mC7UozNc1t11opZ6NzAmez5cRafP1x97Do
-        Xtyin+LxW5WiTVfzxVAHJWFUSxtDuEsjD9FNYl7dbXocxQlFjAj5RrOfG1k6AnjhqtUbJpRKuyzv
-        RYfKGZHuHHZ7QKRrUEfR+j8AAAD//wMA7CnziwILAAA=
+      string: "{\n  \"album\" : {\n    \"album_type\" : \"single\",\n    \"artists\"
+        : [ {\n      \"external_urls\" : {\n        \"spotify\" : \"https://open.spotify.com/artist/2sf28o6euxEDpYkG9dMtuM\"\n
+        \     },\n      \"href\" : \"https://api.spotify.com/v1/artists/2sf28o6euxEDpYkG9dMtuM\",\n
+        \     \"id\" : \"2sf28o6euxEDpYkG9dMtuM\",\n      \"name\" : \"Cartoon\",\n
+        \     \"type\" : \"artist\",\n      \"uri\" : \"spotify:artist:2sf28o6euxEDpYkG9dMtuM\"\n
+        \   }, {\n      \"external_urls\" : {\n        \"spotify\" : \"https://open.spotify.com/artist/0cA0C4yBNRaN2EZsE2wT3Y\"\n
+        \     },\n      \"href\" : \"https://api.spotify.com/v1/artists/0cA0C4yBNRaN2EZsE2wT3Y\",\n
+        \     \"id\" : \"0cA0C4yBNRaN2EZsE2wT3Y\",\n      \"name\" : \"Daniel Levi\",\n
+        \     \"type\" : \"artist\",\n      \"uri\" : \"spotify:artist:0cA0C4yBNRaN2EZsE2wT3Y\"\n
+        \   } ],\n    \"available_markets\" : [ ],\n    \"external_urls\" : {\n      \"spotify\"
+        : \"https://open.spotify.com/album/0Lt1PzvVZoslDNI2Jsq6pW\"\n    },\n    \"href\"
+        : \"https://api.spotify.com/v1/albums/0Lt1PzvVZoslDNI2Jsq6pW\",\n    \"id\"
+        : \"0Lt1PzvVZoslDNI2Jsq6pW\",\n    \"images\" : [ {\n      \"height\" : 640,\n
+        \     \"url\" : \"https://i.scdn.co/image/ab67616d0000b2732773b7d6ca91258a83d06783\",\n
+        \     \"width\" : 640\n    }, {\n      \"height\" : 300,\n      \"url\" :
+        \"https://i.scdn.co/image/ab67616d00001e022773b7d6ca91258a83d06783\",\n      \"width\"
+        : 300\n    }, {\n      \"height\" : 64,\n      \"url\" : \"https://i.scdn.co/image/ab67616d000048512773b7d6ca91258a83d06783\",\n
+        \     \"width\" : 64\n    } ],\n    \"name\" : \"On & On\",\n    \"release_date\"
+        : \"2015-07-09\",\n    \"release_date_precision\" : \"day\",\n    \"total_tracks\"
+        : 1,\n    \"type\" : \"album\",\n    \"uri\" : \"spotify:album:0Lt1PzvVZoslDNI2Jsq6pW\"\n
+        \ },\n  \"artists\" : [ {\n    \"external_urls\" : {\n      \"spotify\" :
+        \"https://open.spotify.com/artist/2sf28o6euxEDpYkG9dMtuM\"\n    },\n    \"href\"
+        : \"https://api.spotify.com/v1/artists/2sf28o6euxEDpYkG9dMtuM\",\n    \"id\"
+        : \"2sf28o6euxEDpYkG9dMtuM\",\n    \"name\" : \"Cartoon\",\n    \"type\" :
+        \"artist\",\n    \"uri\" : \"spotify:artist:2sf28o6euxEDpYkG9dMtuM\"\n  },
+        {\n    \"external_urls\" : {\n      \"spotify\" : \"https://open.spotify.com/artist/0cA0C4yBNRaN2EZsE2wT3Y\"\n
+        \   },\n    \"href\" : \"https://api.spotify.com/v1/artists/0cA0C4yBNRaN2EZsE2wT3Y\",\n
+        \   \"id\" : \"0cA0C4yBNRaN2EZsE2wT3Y\",\n    \"name\" : \"Daniel Levi\",\n
+        \   \"type\" : \"artist\",\n    \"uri\" : \"spotify:artist:0cA0C4yBNRaN2EZsE2wT3Y\"\n
+        \ } ],\n  \"available_markets\" : [ ],\n  \"disc_number\" : 1,\n  \"duration_ms\"
+        : 207068,\n  \"explicit\" : false,\n  \"external_ids\" : {\n    \"isrc\" :
+        \"GB2LD0902016\"\n  },\n  \"external_urls\" : {\n    \"spotify\" : \"https://open.spotify.com/track/4B2kkxg3wKSTZw5JPaUtzQ\"\n
+        \ },\n  \"href\" : \"https://api.spotify.com/v1/tracks/4B2kkxg3wKSTZw5JPaUtzQ\",\n
+        \ \"id\" : \"4B2kkxg3wKSTZw5JPaUtzQ\",\n  \"is_local\" : false,\n  \"name\"
+        : \"On & On\",\n  \"popularity\" : 3,\n  \"preview_url\" : null,\n  \"track_number\"
+        : 1,\n  \"type\" : \"track\",\n  \"uri\" : \"spotify:track:4B2kkxg3wKSTZw5JPaUtzQ\"\n}"
     headers:
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
@@ -57,7 +79,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Fri, 01 Dec 2023 21:07:26 GMT
+      - Sun, 25 Feb 2024 04:57:18 GMT
       server:
       - envoy
       strict-transport-security:
@@ -77,7 +99,7 @@ interactions:
       Accept-Encoding:
       - gzip, deflate, br
       Authorization:
-      - Bearer BQCIpzARC2ZaA_ZRnM_2H9CJckzqPFG2dZF90T2cElxkF-96ht7TW2yN9sLT9l3MFUS0yaCwUZxgFByRzAHoFgNXbuEKQYPlUYWLw8fnuQnFUp4ZqBU
+      - Bearer BQCYEq1sWe3G_lSWxUc5YNppa50KKUrBaUVYRCwa7rqtA7YUNv4mx-JEYAFI75sVOh8ZzmaIvB9pXDCpSECD6X2AeHvZFCvQh8FtdWAWrAsInb3zfk4
       Connection:
       - keep-alive
       Content-Type:
@@ -88,14 +110,15 @@ interactions:
     uri: https://api.spotify.com/v1/artists/2sf28o6euxEDpYkG9dMtuM
   response:
     body:
-      string: !!binary |
-        H4sIAAAAAAAAAJyS0W7CIBSG7/cUTa+NFbS09nZbduUDLMuyYHvaklEg9HRqjO8+StFsWVyM3PGf
-        w//9wDk+RFEMewSruPwYrOzjqIiOTnV6bzSK+jAqcYto+iJJtAE1D4V5qbuEWxQ9JrSvaa4ZDPvn
-        J/P6+bKuNjhsYmd0mo2MWkupd2B/+rcW6nGrBilnk4QauRw1Sgil6eV4A8qCP/vmNrwTqomg6uLo
-        3ZfPTpeY3IhfKb9ICNpfS+p9ROVd/m3peHNOcr4HiKbFUWKrRbiIe8pfgVycslIuS+INEr5lGSOM
-        LNyCFLZsWZNyzbJVxtm2TPlinVdAaBkHv52osA0I/yp/4Ut6Dzwl2epmuENcgRN2D7wmWX4z3CFG
-        ePhyxTvwnEf3sVqr6XeMNoPkVqCf2jT3Ih7M1DqNwNQ5WOG1MCXFVCuuzfHpGwAA//8DABIXzs0q
-        AwAA
+      string: "{\n  \"external_urls\" : {\n    \"spotify\" : \"https://open.spotify.com/artist/2sf28o6euxEDpYkG9dMtuM\"\n
+        \ },\n  \"followers\" : {\n    \"href\" : null,\n    \"total\" : 213520\n
+        \ },\n  \"genres\" : [ \"gaming edm\" ],\n  \"href\" : \"https://api.spotify.com/v1/artists/2sf28o6euxEDpYkG9dMtuM\",\n
+        \ \"id\" : \"2sf28o6euxEDpYkG9dMtuM\",\n  \"images\" : [ {\n    \"height\"
+        : 640,\n    \"url\" : \"https://i.scdn.co/image/ab6761610000e5eba60975fef1fbcb5b95423d07\",\n
+        \   \"width\" : 640\n  }, {\n    \"height\" : 320,\n    \"url\" : \"https://i.scdn.co/image/ab67616100005174a60975fef1fbcb5b95423d07\",\n
+        \   \"width\" : 320\n  }, {\n    \"height\" : 160,\n    \"url\" : \"https://i.scdn.co/image/ab6761610000f178a60975fef1fbcb5b95423d07\",\n
+        \   \"width\" : 160\n  } ],\n  \"name\" : \"Cartoon\",\n  \"popularity\" :
+        60,\n  \"type\" : \"artist\",\n  \"uri\" : \"spotify:artist:2sf28o6euxEDpYkG9dMtuM\"\n}"
     headers:
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
@@ -121,7 +144,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Fri, 01 Dec 2023 21:07:26 GMT
+      - Sun, 25 Feb 2024 04:57:18 GMT
       server:
       - envoy
       strict-transport-security:
@@ -141,7 +164,7 @@ interactions:
       Accept-Encoding:
       - gzip, deflate, br
       Authorization:
-      - Bearer BQCIpzARC2ZaA_ZRnM_2H9CJckzqPFG2dZF90T2cElxkF-96ht7TW2yN9sLT9l3MFUS0yaCwUZxgFByRzAHoFgNXbuEKQYPlUYWLw8fnuQnFUp4ZqBU
+      - Bearer BQCYEq1sWe3G_lSWxUc5YNppa50KKUrBaUVYRCwa7rqtA7YUNv4mx-JEYAFI75sVOh8ZzmaIvB9pXDCpSECD6X2AeHvZFCvQh8FtdWAWrAsInb3zfk4
       Connection:
       - keep-alive
       Content-Type:
@@ -152,22 +175,46 @@ interactions:
     uri: https://api.spotify.com/v1/albums/0Lt1PzvVZoslDNI2Jsq6pW
   response:
     body:
-      string: !!binary |
-        H4sIAAAAAAAAALRW207bQBB95yssP/AEeG3HdhIJVSWgqhRCWmgrqCprY2+SVdaXete5gPLvXe/a
-        TkywSQPljZnJmdmZM2f8dKAoKiTDNHDZMkaq0lVUisMxQeqRcCUMU0Yz+y/liVu4DS0YSkJI3DQh
-        wiPt3EPjiOHRUqBMGItpV9OiGIUnuePEiwJNQmoGHRntyEbp4uI8vp9+6vjXLL1WBdTqSGaaJGhU
-        AYMxrmDN9ByO1uHlSNgXOM1BIQxkB3ocNIrCwl52RuYqzGmCZb9kQV3p7dY/bHX0vi0E3kfQay3P
-        +t9g37h4oBfG/M6837+FNXjVFjYHlS08hyFGRLlCM7xfG+sft1J+S27OICZwSJAbwGSKCpZKpxfF
-        ywSPJ8+4y3jnJROAbin93q1yxfyTrQp71XHt+KvBZnXliLG/MWE1jT0RawHL0jsdSzf1FpDZDuqJ
-        sSMtsj3WwBXTB4+zHw8RJef9z8Yl/WPHP9cpxihMUKVXO3Ekw6Z14AKmIEhTSADHqDqRCcqmlJns
-        FigpQSr18Go8P+SlaAJAg0PbsXXbB/xvaDim4Tjm0PFtD3Z0w2rDtukD22mbxYTm2GeTPEVlsOvk
-        JtgnuY6AsXNynqImud3aI3erben/8PANavKlQTIPp7IcTLm3N6FyqNxI6VPjKE4JTDATxNN1YUwQ
-        QZAi14cMlUtxDJxj0FG3Atw4QR6mmItpFurDpYxhEeMkZwn0poIOEnr9f9GitzJTk5AfotGIInYK
-        DgkOMDu1QKlqDAUVQr589JpV+12P34Z6v+8R3PkQNh3DBiXf7yjK5/6fNjcdyLe0ufEGbrb59cCG
-        g7lnq5sfnWuA5HnDARUBPqaeG6bBECXlkkpHmkDGl9qVu2MAB9jt0osWMcEeFtI2goSiDU/taHcb
-        rFhnrXVmTKeLsTn/cnv3MLcuB/A7e/y6ZlORbpeZSoGogyyh8oG+GkZdEnmQbD/9RYUVHi6RM4zm
-        bi7+YUpI6RPVvTiCkhgiZI32nBXC3W3qWEkJVYhj9murOIZh/uWzLkqVUpoZiyDxgCilzwKFxoui
-        y2+PNZsz0ZanYIvGmatb9xWz+gsAAP//AwBbidfDsgwAAA==
+      string: "{\n  \"album_type\" : \"single\",\n  \"artists\" : [ {\n    \"external_urls\"
+        : {\n      \"spotify\" : \"https://open.spotify.com/artist/2sf28o6euxEDpYkG9dMtuM\"\n
+        \   },\n    \"href\" : \"https://api.spotify.com/v1/artists/2sf28o6euxEDpYkG9dMtuM\",\n
+        \   \"id\" : \"2sf28o6euxEDpYkG9dMtuM\",\n    \"name\" : \"Cartoon\",\n    \"type\"
+        : \"artist\",\n    \"uri\" : \"spotify:artist:2sf28o6euxEDpYkG9dMtuM\"\n  },
+        {\n    \"external_urls\" : {\n      \"spotify\" : \"https://open.spotify.com/artist/0cA0C4yBNRaN2EZsE2wT3Y\"\n
+        \   },\n    \"href\" : \"https://api.spotify.com/v1/artists/0cA0C4yBNRaN2EZsE2wT3Y\",\n
+        \   \"id\" : \"0cA0C4yBNRaN2EZsE2wT3Y\",\n    \"name\" : \"Daniel Levi\",\n
+        \   \"type\" : \"artist\",\n    \"uri\" : \"spotify:artist:0cA0C4yBNRaN2EZsE2wT3Y\"\n
+        \ } ],\n  \"available_markets\" : [ ],\n  \"copyrights\" : [ {\n    \"text\"
+        : \"2015 NCS Ltd.\",\n    \"type\" : \"C\"\n  }, {\n    \"text\" : \"2015
+        NCS Ltd.\",\n    \"type\" : \"P\"\n  } ],\n  \"external_ids\" : {\n    \"upc\"
+        : \"5055199513140\"\n  },\n  \"external_urls\" : {\n    \"spotify\" : \"https://open.spotify.com/album/0Lt1PzvVZoslDNI2Jsq6pW\"\n
+        \ },\n  \"genres\" : [ ],\n  \"href\" : \"https://api.spotify.com/v1/albums/0Lt1PzvVZoslDNI2Jsq6pW\",\n
+        \ \"id\" : \"0Lt1PzvVZoslDNI2Jsq6pW\",\n  \"images\" : [ {\n    \"height\"
+        : 640,\n    \"url\" : \"https://i.scdn.co/image/ab67616d0000b2732773b7d6ca91258a83d06783\",\n
+        \   \"width\" : 640\n  }, {\n    \"height\" : 300,\n    \"url\" : \"https://i.scdn.co/image/ab67616d00001e022773b7d6ca91258a83d06783\",\n
+        \   \"width\" : 300\n  }, {\n    \"height\" : 64,\n    \"url\" : \"https://i.scdn.co/image/ab67616d000048512773b7d6ca91258a83d06783\",\n
+        \   \"width\" : 64\n  } ],\n  \"label\" : \"NCS\",\n  \"name\" : \"On & On\",\n
+        \ \"popularity\" : 1,\n  \"release_date\" : \"2015-07-09\",\n  \"release_date_precision\"
+        : \"day\",\n  \"total_tracks\" : 1,\n  \"tracks\" : {\n    \"href\" : \"https://api.spotify.com/v1/albums/0Lt1PzvVZoslDNI2Jsq6pW/tracks?offset=0&limit=50\",\n
+        \   \"items\" : [ {\n      \"artists\" : [ {\n        \"external_urls\" :
+        {\n          \"spotify\" : \"https://open.spotify.com/artist/2sf28o6euxEDpYkG9dMtuM\"\n
+        \       },\n        \"href\" : \"https://api.spotify.com/v1/artists/2sf28o6euxEDpYkG9dMtuM\",\n
+        \       \"id\" : \"2sf28o6euxEDpYkG9dMtuM\",\n        \"name\" : \"Cartoon\",\n
+        \       \"type\" : \"artist\",\n        \"uri\" : \"spotify:artist:2sf28o6euxEDpYkG9dMtuM\"\n
+        \     }, {\n        \"external_urls\" : {\n          \"spotify\" : \"https://open.spotify.com/artist/0cA0C4yBNRaN2EZsE2wT3Y\"\n
+        \       },\n        \"href\" : \"https://api.spotify.com/v1/artists/0cA0C4yBNRaN2EZsE2wT3Y\",\n
+        \       \"id\" : \"0cA0C4yBNRaN2EZsE2wT3Y\",\n        \"name\" : \"Daniel
+        Levi\",\n        \"type\" : \"artist\",\n        \"uri\" : \"spotify:artist:0cA0C4yBNRaN2EZsE2wT3Y\"\n
+        \     } ],\n      \"available_markets\" : [ ],\n      \"disc_number\" : 1,\n
+        \     \"duration_ms\" : 207068,\n      \"explicit\" : false,\n      \"external_urls\"
+        : {\n        \"spotify\" : \"https://open.spotify.com/track/4B2kkxg3wKSTZw5JPaUtzQ\"\n
+        \     },\n      \"href\" : \"https://api.spotify.com/v1/tracks/4B2kkxg3wKSTZw5JPaUtzQ\",\n
+        \     \"id\" : \"4B2kkxg3wKSTZw5JPaUtzQ\",\n      \"is_local\" : false,\n
+        \     \"name\" : \"On & On\",\n      \"preview_url\" : null,\n      \"track_number\"
+        : 1,\n      \"type\" : \"track\",\n      \"uri\" : \"spotify:track:4B2kkxg3wKSTZw5JPaUtzQ\"\n
+        \   } ],\n    \"limit\" : 50,\n    \"next\" : null,\n    \"offset\" : 0,\n
+        \   \"previous\" : null,\n    \"total\" : 1\n  },\n  \"type\" : \"album\",\n
+        \ \"uri\" : \"spotify:album:0Lt1PzvVZoslDNI2Jsq6pW\"\n}"
     headers:
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
@@ -193,7 +240,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Fri, 01 Dec 2023 21:07:27 GMT
+      - Sun, 25 Feb 2024 04:57:19 GMT
       server:
       - envoy
       strict-transport-security:

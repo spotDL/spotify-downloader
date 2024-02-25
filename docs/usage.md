@@ -310,7 +310,8 @@ If you don't want config to load automatically change `load_config` option in co
     "keep_alive": false,
     "allowed_origins": null,
     "keep_sessions": false,
-    "only_verified_results": false
+    "only_verified_results": false,
+    "skip_album_art": false
 }
 ```
 
@@ -454,10 +455,13 @@ Output options:
   --detect-formats [{mp3,flac,ogg,opus,m4a,wav} ...]
                         Detect already downloaded songs with file format different from the --format option (When combined with --m3u option, only first detected format will be added to m3u file)
   --redownload          to redownload the local song in diffrent format using --format for meta operation
+  --skip-album-art      Skip downloading album art for meta operation
   --ignore-albums [IGNORE_ALBUMS ...]
                         ignores the song of the given albums
   --skip-explicit       Skip explicit songs
   --proxy PROXY         Http(s) proxy server for download song. Example: http://host:port
+  --create-skip-file    Create skip file for successfully downloaded file
+  --respect-skip-file   If a file with the extension .skip exists, skip download
 
 Web options:
   --host HOST           The host to use for the web server.

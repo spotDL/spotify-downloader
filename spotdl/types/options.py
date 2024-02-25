@@ -82,6 +82,9 @@ class DownloaderOptions(TypedDict):
     skip_explicit: Optional[bool]
     log_format: Optional[str]
     redownload: Optional[bool]
+    skip_album_art: Optional[bool]
+    create_skip_file: Optional[bool]
+    respect_skip_file: Optional[bool]
 
 
 class WebOptions(TypedDict):
@@ -164,6 +167,9 @@ class DownloaderOptionalOptions(TypedDict, total=False):
     skip_explicit: Optional[bool]
     log_format: Optional[str]
     redownload: Optional[bool]
+    skip_album_art: Optional[bool]
+    create_skip_file: Optional[bool]
+    respect_skip_file: Optional[bool]
 
 
 class WebOptionalOptions(TypedDict, total=False):
