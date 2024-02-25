@@ -4,6 +4,7 @@ Synced lyrics provider using the syncedlyrics library
 
 from typing import Dict, List, Optional
 
+import requests
 import syncedlyrics
 
 from spotdl.providers.lyrics.base import LyricsProvider
@@ -46,7 +47,7 @@ class Synced(LyricsProvider):
 
         raise NotImplementedError
 
-    def get_lyrics(self, name: str, artists: List[str], **_) -> Optional[str]:
+    def get_lyrics(self, name: str, artists: List[str], **kwargs) -> Optional[str]:
         """
         Try to get lyrics using syncedlyrics
 
@@ -59,6 +60,19 @@ class Synced(LyricsProvider):
         - The lyrics of the song or None if no lyrics were found.
         """
 
-        lyrics = syncedlyrics.search(f"{name} - {artists[0]}", allow_plain_format=True)
-
-        return lyrics
+        try:
+            lyrics = syncedlyrics.search(
+                f"{name} - {artists[0]}",
+                allow_plain_format=kwargs.get("allow_plain_format", True),
+            )
+            return lyrics
+        except requests.exceptions.SSLError:
+            # Max retries reached
+            return None
+        except TypeError:
+            # Error at syncedlyrics.providers.musixmatch L89 -
+            #   Because `body` is occasionally an empty list instead of a dictionary.
+            # We get this error when allow_plain_format is set to True,
+            #   and there are no synced lyrics present
+            # Because its empty, we know there are no lyrics
+            return None

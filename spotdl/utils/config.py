@@ -327,6 +327,8 @@ DOWNLOADER_OPTIONS: DownloaderOptions = {
     "log_format": None,
     "redownload": False,
     "skip_album_art": False,
+    "create_skip_file": False,
+    "respect_skip_file": False,
 }
 
 WEB_OPTIONS: WebOptions = {

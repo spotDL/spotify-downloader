@@ -2,7 +2,6 @@
 Piped module for downloading and searching songs.
 """
 
-
 import logging
 import shlex
 from typing import Any, Dict, List, Optional
@@ -123,9 +122,11 @@ class Piped(AudioProvider):
                     duration=result["duration"],
                     author=result["uploaderName"],
                     result_id=result["url"].split("?v=")[1],
-                    artists=(result["uploaderName"],)
-                    if kwargs.get("filter") == "music_songs"
-                    else None,
+                    artists=(
+                        (result["uploaderName"],)
+                        if kwargs.get("filter") == "music_songs"
+                        else None
+                    ),
                     isrc_search=isrc_result is not None,
                     search_query=search_term,
                 )

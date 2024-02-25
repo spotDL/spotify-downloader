@@ -577,6 +577,22 @@ def parse_output_options(parser: _ArgumentGroup):
         help="Http(s) proxy server for download song. Example: http://host:port",
     )
 
+    # Skip songs having a skip flag file
+    parser.add_argument(
+        "--create-skip-file",
+        action="store_const",
+        const=True,
+        help="Create skip file for successfully downloaded file",
+    )
+
+    # Skip songs having a skip flag file
+    parser.add_argument(
+        "--respect-skip-file",
+        action="store_const",
+        const=True,
+        help="If a file with the extension .skip exists, skip download",
+    )
+
 
 def parse_web_options(parser: _ArgumentGroup):
     """

@@ -495,7 +495,17 @@ class Downloader:
 
             # If the file already exists and we don't want to overwrite it,
             # we can skip the download
-            if file_exists and self.settings["overwrite"] == "skip":
+            if (
+                Path(str(output_file.absolute()) + ".skip").is_file()
+                and self.settings["respect_skip_file"]
+            ):
+                logger.info(
+                    "Skipping %s (skip file found) %s",
+                    song.display_name,
+                    "",
+                )
+
+            elif file_exists and self.settings["overwrite"] == "skip":
                 logger.info(
                     "Skipping %s (file already exists) %s",
                     song.display_name,
@@ -707,6 +717,9 @@ class Downloader:
                     ffmpeg_args=self.settings["ffmpeg_args"],
                     progress_handler=display_progress_tracker.ffmpeg_progress_hook,
                 )
+
+                if self.settings["create_skip_file"]:
+                    open(str(output_file) + ".skip", mode="w").close()
 
             # Remove the temp file
             if temp_file.exists():
