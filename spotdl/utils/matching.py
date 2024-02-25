@@ -4,6 +4,7 @@ Module for all things matching related
 
 import logging
 from itertools import product, zip_longest
+from math import exp
 from typing import Dict, List, Optional, Tuple
 
 from spotdl.types.result import Result
@@ -606,10 +607,9 @@ def calc_time_match(song: Song, result: Result) -> float:
     - time difference between song and result
     """
 
-    if result.duration > song.duration:
-        return 100 - (result.duration - song.duration)
-
-    return 100 - (song.duration - result.duration)
+    time_diff = abs(song.duration - result.duration)
+    score = exp(-0.1 * time_diff)
+    return score * 100
 
 
 def calc_album_match(song: Song, result: Result) -> float:
