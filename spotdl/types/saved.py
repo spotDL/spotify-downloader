@@ -76,7 +76,7 @@ class Saved(SongList):
                 album_name=album_meta["name"],
                 album_artist=album_meta["artists"][0]["name"],
                 disc_number=track_meta["disc_number"],
-                duration=int(track_meta["duration_ms"]/1000),
+                duration=int(track_meta["duration_ms"] / 1000),
                 year=release_date[:4],
                 date=release_date,
                 track_number=track_meta["track_number"],

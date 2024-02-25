@@ -805,8 +805,8 @@ class Downloader:
                 embed_metadata(
                     output_file,
                     song,
-                    self.settings["skip_album_art"],
-                    self.settings["id3_separator"],
+                    id3_separator=self.settings["id3_separator"],
+                    skip_album_art=self.settings["skip_album_art"],
                 )
             except Exception as exception:
                 raise MetadataError(

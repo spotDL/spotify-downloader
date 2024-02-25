@@ -382,6 +382,13 @@ from tests.conftest import new_initialize
         #         "https://www.youtube.com/watch?v=DKu9fWMpK3A",
         #     ],
         # ),
+        (
+            # The Smiths - Bigmouth Strikes Again - 2011 Remaster
+            "https://open.spotify.com/track/2OErSh4oVVAUll0vHxdr6p",
+            [
+                "https://music.youtube.com/watch?v=XW1Riwvr9SU",
+            ],
+        ),
     ],
 )
 def test_ytmusic_matching(monkeypatch, query, expected):
