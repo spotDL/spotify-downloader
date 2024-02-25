@@ -97,7 +97,9 @@ class LyricsProvider:
             result_title = slugify(title)
             match_title = slugify(f"{name} - {', '.join(artists)}")
 
-            res_list, song_list = based_sort(result_title.split("-"), match_title.split("-"))
+            res_list, song_list = based_sort(
+                result_title.split("-"), match_title.split("-")
+            )
             result_title, match_title = "-".join(res_list), "-".join(song_list)
 
             score = ratio(result_title, match_title)

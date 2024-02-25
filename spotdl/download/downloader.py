@@ -719,7 +719,9 @@ class Downloader:
                 )
 
                 if self.settings["create_skip_file"]:
-                    with open(str(output_file) + ".skip", mode="w", encoding="utf-8") as _:
+                    with open(
+                        str(output_file) + ".skip", mode="w", encoding="utf-8"
+                    ) as _:
                         pass
 
             # Remove the temp file
