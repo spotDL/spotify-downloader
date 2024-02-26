@@ -301,10 +301,16 @@ def embed_cover(audio_file, song: Song, encoding: str):
             image_data = picture.write()
             encoded_data = base64.b64encode(image_data)
             vcomment_value = encoded_data.decode("ascii")
+            if "metadata_block_picture" in audio_file.keys():
+                audio_file.pop("metadata_block_picture")
             audio_file["metadata_block_picture"] = [vcomment_value]
         elif encoding == "flac":
+            if audio_file.pictures:
+                audio_file.clear_pictures()
             audio_file.add_picture(picture)
     elif encoding == "m4a":
+        if M4A_TAG_PRESET["albumart"] in audio_file.keys():
+            audio_file.pop(M4A_TAG_PRESET["albumart"])
         audio_file[M4A_TAG_PRESET["albumart"]] = [
             MP4Cover(
                 cover_data,
@@ -312,6 +318,8 @@ def embed_cover(audio_file, song: Song, encoding: str):
             )
         ]
     elif encoding == "mp3":
+        if "APIC:Cover" in audio_file.keys():
+            audio_file.pop("APIC:Cover")
         audio_file["APIC"] = APIC(
             encoding=3,
             mime="image/jpeg",
