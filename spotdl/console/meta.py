@@ -171,10 +171,11 @@ def meta(query: List[str], downloader: Downloader) -> None:
                 songs_url.append(meta_data["url"])
 
         songs_list = parse_query(
-            songs_url,
-            downloader.settings["threads"],
-            downloader.settings["ytm_data"],
-            downloader.settings["playlist_numbering"],
+            query=songs_url,
+            threads=downloader.settings["threads"],
+            use_ytm_data=downloader.settings["ytm_data"],
+            playlist_numbering=downloader.settings["playlist_numbering"],
+            album_type=downloader.settings["album_type"]
         )
 
         downloader.download_multiple_songs(songs_list)

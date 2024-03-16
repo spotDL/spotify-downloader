@@ -100,10 +100,11 @@ class Spotdl:
         """
 
         return parse_query(
-            query,
-            self.downloader.settings["threads"],
-            self.downloader.settings["ytm_data"],
-            self.downloader.settings["playlist_numbering"],
+            query=query,
+            threads=self.downloader.settings["threads"],
+            use_ytm_data=self.downloader.settings["ytm_data"],
+            playlist_numbering=self.downloader.settings["playlist_numbering"],
+            album_type=self.downloader.settings["album_type"],
         )
 
     def get_download_urls(self, songs: List[Song]) -> List[Optional[str]]:

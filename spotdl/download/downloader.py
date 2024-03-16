@@ -81,7 +81,6 @@ SPONSOR_BLOCK_CATEGORIES = {
     "music_offtopic": "Non-Music Section",
 }
 
-ALBUM_TYPES = {}
 
 logger = logging.getLogger(__name__)
 
