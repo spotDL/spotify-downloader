@@ -81,7 +81,7 @@ def parse_query(
     threads: int = 1,
     use_ytm_data: bool = False,
     playlist_numbering: bool = False,
-    album_type: str = None,
+    album_type = None,
 ) -> List[Song]:
     """
     Parse query and return list containing song object
@@ -119,7 +119,7 @@ def get_simple_songs(
     use_ytm_data: bool = False,
     playlist_numbering: bool = False,
     albums_to_ignore=None,
-    album_type: str = None,
+    album_type = None,
 ) -> List[Song]:
     """
     Parse query and return list containing simple song objects
