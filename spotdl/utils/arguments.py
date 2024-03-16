@@ -159,7 +159,7 @@ def parse_main_options(parser: _ArgumentGroup):
         "--album-type",
         choices={"album", "single"},
         help="Type of the album to search for. (album, single)",
-        type=str
+        type=str,
     )
 
     # Add use only verified results argument
