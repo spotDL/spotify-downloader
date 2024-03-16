@@ -107,9 +107,11 @@ class Song:
             album_name=raw_album_meta["name"],
             album_artist=raw_album_meta["artists"][0]["name"],
             album_type=raw_album_meta["album_type"],
-            copyright_text=raw_album_meta["copyrights"][0]["text"]
-            if raw_album_meta["copyrights"]
-            else None,
+            copyright_text=(
+                raw_album_meta["copyrights"][0]["text"]
+                if raw_album_meta["copyrights"]
+                else None
+            ),
             genres=raw_album_meta["genres"] + raw_artist_meta["genres"],
             disc_number=raw_track_meta["disc_number"],
             disc_count=int(raw_album_meta["tracks"]["items"][-1]["disc_number"]),
