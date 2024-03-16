@@ -327,7 +327,7 @@ def get_simple_songs(
     if album_type:
         songs = [song for song in songs if song.album_type == album_type]
 
-        logger.info("Skipped %s songs (Album Type)", (original_length - len(songs)))
+        logger.info("Skipped %s songs for Album Type %s", (original_length - len(songs)), album_type)
 
     logger.debug("Found %s songs in %s lists", len(songs), len(lists))
 
