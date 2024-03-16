@@ -4,6 +4,7 @@ Module for all things matching related
 
 import logging
 from itertools import product, zip_longest
+from math import exp
 from typing import Dict, List, Optional, Tuple
 
 from spotdl.types.result import Result
@@ -606,10 +607,9 @@ def calc_time_match(song: Song, result: Result) -> float:
     - time difference between song and result
     """
 
-    if result.duration > song.duration:
-        return 100 - (result.duration - song.duration)
-
-    return 100 - (song.duration - result.duration)
+    time_diff = abs(song.duration - result.duration)
+    score = exp(-0.1 * time_diff)
+    return score * 100
 
 
 def calc_album_match(song: Song, result: Result) -> float:
@@ -773,6 +773,15 @@ def order_results(
                 f"Average match /w album match: {average_match}",
             )
 
+        # Skip results with time match lower than 25%
+        if time_match < 25:
+            debug(
+                song.song_id,
+                result.result_id,
+                "Skipping result due to time match lower than 25%",
+            )
+            continue
+
         # If the time match is lower than 50%
         # and the average match is lower than 75%
         # we skip the result
@@ -799,6 +808,17 @@ def order_results(
                 result.result_id,
                 f"Average match /w time match: {average_match}",
             )
+
+            if (result.explicit is not None and song.explicit is not None) and (
+                result.explicit != song.explicit
+            ):
+                debug(
+                    song.song_id,
+                    result.result_id,
+                    "Lowering average match due to explicit mismatch",
+                )
+
+                average_match -= 5
 
         average_match = min(average_match, 100)
         debug(song.song_id, result.result_id, f"Final average match: {average_match}")
