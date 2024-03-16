@@ -288,6 +288,7 @@ If you don't want config to load automatically change `load_config` option in co
     "format": "mp3",
     "save_file": null,
     "filter_results": true,
+    "album_type": ["album", "single"],
     "threads": 4,
     "cookie_file": null,
     "restrict": null,
