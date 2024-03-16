@@ -112,9 +112,11 @@ class Playlist(SongList):
                 artist=artists[0],
                 album_id=album_meta.get("id"),
                 album_name=album_meta.get("name"),
-                album_artist=album_meta.get("artists", [])[0]["name"]
-                if album_meta.get("artists")
-                else None,
+                album_artist=(
+                    album_meta.get("artists", [])[0]["name"]
+                    if album_meta.get("artists")
+                    else None
+                ),
                 album_type=album_meta.get("album_type"),
                 disc_number=track_meta["disc_number"],
                 duration=track_meta["duration_ms"],
