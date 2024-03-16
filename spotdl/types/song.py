@@ -300,6 +300,7 @@ class SongList:
 
         if fetch_songs:
             songs = [Song.from_url(song.url) for song in songs]
+        print(songs)
 
         return cls(**metadata, urls=urls, songs=songs)
 
