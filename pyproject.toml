@@ -77,7 +77,7 @@ pymdown-extensions = "^10.5"
 mkdocs-gen-files = "^0.5.0"
 mkdocs-literate-nav = "^0.6.0"
 mkdocs-section-index = "^0.3.5"
-vcrpy = "^5.1.0"
+vcrpy = "^6.0.1"
 
 [tool.poetry.scripts]
 spotdl = "spotdl:console_entry_point"
