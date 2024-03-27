@@ -37,6 +37,7 @@ class YouTubeMusic(AudioProvider):
 
         self.client = YTMusic(language="de")
 
+
     def get_results(self, search_term: str, **kwargs) -> List[Result]:
         """
         Get results from YouTube Music API and simplify them
@@ -58,6 +59,8 @@ class YouTubeMusic(AudioProvider):
                 result is None
                 or result.get("videoId") is None
                 or result.get("artists") in [[], None]
+                or result.get("duration") is None
+                or parse_duration(result.get("duration") > 3600)
             ):
                 continue
 
