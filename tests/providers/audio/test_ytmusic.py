@@ -40,6 +40,15 @@ def test_ytm_search():
         is not None
     )
 
+@pytest.mark.vcr()
+def test_ytm_search_1_hour_song():
+    provider = YouTubeMusic()
+    results = provider.get_results("The Weeknd - Blinding Lights")
+    for result in results:
+        assert result.duration < 3600
+
+
+
 
 @pytest.mark.vcr()
 def test_ytm_get_results():
