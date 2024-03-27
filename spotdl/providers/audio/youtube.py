@@ -54,6 +54,7 @@ class YouTube(AudioProvider):
                     duration = result.length
                 except Exception:
                     duration = 0
+                # skip duration over 3600 seconds
                 if duration > 3600:
                     logger.debug("Ignoring video with duration over 3600 seconds: %s",
                                  result.watch_url)
