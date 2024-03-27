@@ -288,6 +288,7 @@ If you don't want config to load automatically change `load_config` option in co
     "format": "mp3",
     "save_file": null,
     "filter_results": true,
+    "album_type": null,
     "threads": 4,
     "cookie_file": null,
     "restrict": null,
@@ -383,6 +384,8 @@ Main options:
                         {tracks-count}, {isrc}, {track-id}, {publisher}, {list-length}, {list-position}, {list-name}, {output-ext}
   --dont-filter-results
                         Disable filtering results.
+  --album-type {single, album}
+                        Type of the album to filter the songs
   --only-verified-results
                         Use only verified results. (Not all providers support this)
 

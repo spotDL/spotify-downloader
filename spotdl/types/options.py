@@ -55,6 +55,7 @@ class DownloaderOptions(TypedDict):
     format: str
     save_file: Optional[str]
     filter_results: bool
+    album_type: Optional[str]
     threads: int
     cookie_file: Optional[str]
     restrict: Optional[str]
@@ -141,6 +142,7 @@ class DownloaderOptionalOptions(TypedDict, total=False):
     format: str
     save_file: Optional[str]
     filter_results: bool
+    album_type: Optional[str]
     threads: int
     cookie_file: Optional[str]
     restrict: Optional[str]

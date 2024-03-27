@@ -299,6 +299,7 @@ DOWNLOADER_OPTIONS: DownloaderOptions = {
     "format": "mp3",
     "save_file": None,
     "filter_results": True,
+    "album_type": None,
     "threads": 4,
     "cookie_file": None,
     "restrict": None,

@@ -107,7 +107,6 @@ class Playlist(SongList):
 
             album_meta = track_meta.get("album", {})
             release_date = album_meta.get("release_date")
-
             artists = [artist["name"] for artist in track_meta.get("artists", [])]
             song = Song.from_missing_data(
                 name=track_meta["name"],
@@ -120,6 +119,7 @@ class Playlist(SongList):
                     if album_meta.get("artists")
                     else None
                 ),
+                album_type=album_meta.get("album_type"),
                 disc_number=track_meta["disc_number"],
                 duration=int(track_meta["duration_ms"] / 1000),
                 year=release_date[:4] if release_date else None,

@@ -81,6 +81,7 @@ def parse_query(
     threads: int = 1,
     use_ytm_data: bool = False,
     playlist_numbering: bool = False,
+    album_type=None,
 ) -> List[Song]:
     """
     Parse query and return list containing song object
@@ -94,7 +95,10 @@ def parse_query(
     """
 
     songs: List[Song] = get_simple_songs(
-        query, use_ytm_data=use_ytm_data, playlist_numbering=playlist_numbering
+        query,
+        use_ytm_data=use_ytm_data,
+        playlist_numbering=playlist_numbering,
+        album_type=album_type,
     )
 
     results = []
@@ -115,6 +119,7 @@ def get_simple_songs(
     use_ytm_data: bool = False,
     playlist_numbering: bool = False,
     albums_to_ignore=None,
+    album_type=None,
 ) -> List[Song]:
     """
     Parse query and return list containing simple song objects
@@ -248,6 +253,7 @@ def get_simple_songs(
                 [full_url],
                 use_ytm_data=use_ytm_data,
                 playlist_numbering=playlist_numbering,
+                album_type=album_type,
             )
             songs.extend(full_lists)
         elif "open.spotify.com" in request and "playlist" in request:
@@ -317,10 +323,19 @@ def get_simple_songs(
                 keyword not in song.album_name.lower() for keyword in albums_to_ignore
             )
         ]
-        new_length = len(songs)
-        logger.info("Skipped %s songs (Ignored albums)", (original_length - new_length))
+        logger.info("Skipped %s songs (Ignored albums)", (original_length - len(songs)))
+
+    if album_type:
+        songs = [song for song in songs if song.album_type == album_type]
+
+        logger.info(
+            "Skipped %s songs for Album Type %s",
+            (original_length - len(songs)),
+            album_type,
+        )
 
     logger.debug("Found %s songs in %s lists", len(songs), len(lists))
+
     return songs
 
 
