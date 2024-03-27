@@ -59,8 +59,9 @@ class YouTubeMusic(AudioProvider):
                 result is None
                 or result.get("videoId") is None
                 or result.get("artists") in [[], None]
+                # check for duration to only get videos less than an hour(3600) seconds
                 or result.get("duration") is None
-                or parse_duration(result.get("duration") > 3600)
+                or parse_duration(result.get("duration")) > 3600
             ):
                 continue
 

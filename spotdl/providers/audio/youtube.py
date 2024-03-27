@@ -4,13 +4,19 @@ Youtube module for downloading and searching songs.
 
 from typing import Any, Dict, List, Optional
 
+import logging
+
 from pytube import Search
 from pytube import YouTube as PyTube
 
 from spotdl.providers.audio.base import AudioProvider
 from spotdl.types.result import Result
 
+
+logger = logging.getLogger(__name__)
+
 __all__ = ["YouTube"]
+
 
 
 class YouTube(AudioProvider):
@@ -48,7 +54,10 @@ class YouTube(AudioProvider):
                     duration = result.length
                 except Exception:
                     duration = 0
-
+                if duration > 3600:
+                    logger.debug("Ignoring video with duration over 3600 seconds: %s",
+                                 result.watch_url)
+                    continue
                 try:
                     views = result.views
                 except Exception:
