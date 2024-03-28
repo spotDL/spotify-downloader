@@ -352,8 +352,7 @@ def calc_main_artist_match(song: Song, result: Result) -> float:
                 f"Matched {song_artist} with {result_artist}: {new_artist_match}",
             )
 
-            if new_artist_match > main_artist_match:
-                main_artist_match = new_artist_match
+            main_artist_match = max(main_artist_match, new_artist_match)
 
     return main_artist_match
 
@@ -418,8 +417,7 @@ def artists_match_fixup1(song: Song, result: Result, score: float) -> float:
         slugify(", ".join(result.artists)) if result.artists else "",
     )
 
-    if channel_name_match > score:
-        score = channel_name_match
+    score = max(score, channel_name_match)
 
     # If artist match is still too low,
     # we fallback to matching all song artist names
@@ -435,8 +433,7 @@ def artists_match_fixup1(song: Song, result: Result, score: float) -> float:
 
         artist_title_match = (artist_title_match / len(song.artists)) * 100
 
-        if artist_title_match > score:
-            score = artist_title_match
+        score = max(score, artist_title_match)
 
     return score
 
@@ -495,8 +492,7 @@ def artists_match_fixup2(
 
         artist_title_match = ratio(artist_list1, artist_list2)
 
-        if artist_title_match > score:
-            score = artist_title_match
+        score = max(score, artist_title_match)
 
     return score
 
@@ -589,8 +585,7 @@ def calc_name_match(
             f"Second name match: {second_name_match}",
         )
 
-        if second_name_match > name_match:
-            name_match = second_name_match
+        name_match = max(name_match, second_name_match)
 
     return name_match
 
