@@ -389,7 +389,7 @@ def get_all_user_playlists(user_url: str = "") -> List[Playlist]:
         user_resp = spotify_client.current_user()
         if user_resp is None:
             raise SpotifyError("Couldn't get user info")
-        
+
         user_id = user_resp["id"]
 
     if user_playlists_response is None:
@@ -408,7 +408,8 @@ def get_all_user_playlists(user_url: str = "") -> List[Playlist]:
 
     return [
         Playlist.from_url(playlist["external_urls"]["spotify"], fetch_songs=False)
-        for playlist in user_playlists if playlist["owner"]["id"] == user_id
+        for playlist in user_playlists
+        if playlist["owner"]["id"] == user_id
     ]
 
 
@@ -478,6 +479,7 @@ def get_user_followed_artists() -> List[Artist]:
         for followed_artist in user_followed
     ]
 
+
 def get_all_saved_playlists() -> List[Playlist]:
     """
     Get all user playlists.
@@ -515,7 +517,8 @@ def get_all_saved_playlists() -> List[Playlist]:
 
     return [
         Playlist.from_url(playlist["external_urls"]["spotify"], fetch_songs=False)
-        for playlist in user_playlists if playlist["owner"]["id"] != user_id
+        for playlist in user_playlists
+        if playlist["owner"]["id"] != user_id
     ]
 
 
