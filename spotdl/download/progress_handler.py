@@ -278,7 +278,7 @@ class SongTracker:
         if not self.parent.simple_tui:
             self.task_id = self.parent.rich_progress_bar.add_task(
                 description=escape(self.song_name),
-                message="Download Started",
+                message="Processing",
                 total=100,
                 completed=self.progress,
                 start=False,

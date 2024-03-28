@@ -58,9 +58,11 @@ class Playlist(SongList):
             "cover_url": (
                 max(
                     playlist["images"],
-                    key=lambda i: 0
-                    if i["width"] is None or i["height"] is None
-                    else i["width"] * i["height"],
+                    key=lambda i: (
+                        0
+                        if i["width"] is None or i["height"] is None
+                        else i["width"] * i["height"]
+                    ),
                 )["url"]
                 if (len(playlist["images"]) > 0)
                 else ""
@@ -105,7 +107,6 @@ class Playlist(SongList):
 
             album_meta = track_meta.get("album", {})
             release_date = album_meta.get("release_date")
-
             artists = [artist["name"] for artist in track_meta.get("artists", [])]
             song = Song.from_missing_data(
                 name=track_meta["name"],
@@ -113,11 +114,14 @@ class Playlist(SongList):
                 artist=artists[0],
                 album_id=album_meta.get("id"),
                 album_name=album_meta.get("name"),
-                album_artist=album_meta.get("artists", [])[0]["name"]
-                if album_meta.get("artists")
-                else None,
+                album_artist=(
+                    album_meta.get("artists", [])[0]["name"]
+                    if album_meta.get("artists")
+                    else None
+                ),
+                album_type=album_meta.get("album_type"),
                 disc_number=track_meta["disc_number"],
-                duration=track_meta["duration_ms"],
+                duration=int(track_meta["duration_ms"] / 1000),
                 year=release_date[:4] if release_date else None,
                 date=release_date,
                 track_number=track_meta["track_number"],
@@ -126,11 +130,13 @@ class Playlist(SongList):
                 explicit=track_meta["explicit"],
                 url=track_meta["external_urls"]["spotify"],
                 isrc=track_meta.get("external_ids", {}).get("isrc"),
-                cover_url=max(
-                    album_meta["images"], key=lambda i: i["width"] * i["height"]
-                )["url"]
-                if (len(album_meta.get("images", [])) > 0)
-                else None,
+                cover_url=(
+                    max(album_meta["images"], key=lambda i: i["width"] * i["height"])[
+                        "url"
+                    ]
+                    if (len(album_meta.get("images", [])) > 0)
+                    else None
+                ),
             )
 
             songs.append(song)

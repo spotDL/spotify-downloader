@@ -15,6 +15,7 @@ def test_song_init():
         album_id="test",
         album_name="test",
         album_artist="test",
+        album_type="test",
         genres=["test"],
         disc_number=1,
         duration=1,
@@ -40,6 +41,7 @@ def test_song_init():
     assert song.album_id == "test"
     assert song.album_name == "test"
     assert song.album_artist == "test"
+    assert song.album_type == "test"
     assert song.genres == ["test"]
     assert song.disc_number == 1
     assert song.duration == 1
@@ -66,6 +68,7 @@ def test_song_wrong_init():
             artists=["test"],
             album_name="test",
             album_artist=1,
+            album_type="test",
             genres=["test"],
             disc_number=1,
             duration=1,
@@ -86,6 +89,7 @@ def test_song_from_url():
     assert song.artists == ["Dirty Palm", "Chandler Jewels"]
     assert song.album_name == "Ropes"
     assert song.album_artist == "Dirty Palm"
+    assert song.album_type == "single"
     assert song.genres != []
     assert song.disc_number == 1
     assert song.duration == 188
@@ -144,6 +148,7 @@ def test_song_from_data_dump():
             "album_id": "4SN9kQlguIcjPtMNQJwD30",
             "album_name": "Ropes",
             "album_artist": "Dirty Palm",
+            "album_type": "single",
             "genres": ["gaming edm", "melbourne bounce international"],
             "disc_number": 1,
             "duration": 188,
@@ -170,6 +175,7 @@ def test_song_from_data_dump():
     assert song.artists == ["Dirty Palm", "Chandler Jewels"]
     assert song.album_name == "Ropes"
     assert song.album_artist == "Dirty Palm"
+    assert song.album_type == "single"
     assert song.genres == ["gaming edm", "melbourne bounce international"]
     assert song.disc_number == 1
     assert song.duration == 188
@@ -209,6 +215,7 @@ def test_song_from_dict():
             "album_id": "4SN9kQlguIasvwv",
             "album_name": "Ropes",
             "album_artist": "Dirty Palm",
+            "album_type": "single",
             "genres": ["gaming edm", "melbourne bounce international"],
             "disc_number": 1,
             "duration": 188,
@@ -234,6 +241,7 @@ def test_song_from_dict():
     assert song.artists == ["Dirty Palm", "Chandler Jewels"]
     assert song.album_name == "Ropes"
     assert song.album_artist == "Dirty Palm"
+    assert song.album_type == "single"
     assert song.genres == ["gaming edm", "melbourne bounce international"]
     assert song.disc_number == 1
     assert song.duration == 188

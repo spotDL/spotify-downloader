@@ -103,7 +103,7 @@ class Singleton(type):
                 client_id=client_id,
                 client_secret=client_secret,
                 redirect_uri="http://127.0.0.1:9900/",
-                scope="user-library-read,user-follow-read",
+                scope="user-library-read,user-follow-read,playlist-read-private",
                 cache_handler=cache_handler,
                 open_browser=not headless,
             )

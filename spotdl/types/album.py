@@ -87,9 +87,10 @@ class Album(SongList):
                 album_id=album_metadata["id"],
                 album_name=album_metadata["name"],
                 album_artist=album_metadata["artists"][0]["name"],
+                album_type=album_metadata["album_type"],
                 disc_number=track["disc_number"],
                 disc_count=int(album_metadata["tracks"]["items"][-1]["disc_number"]),
-                duration=track["duration_ms"] / 1000,
+                duration=int(track["duration_ms"] / 1000),
                 year=release_date[:4],
                 date=release_date,
                 track_number=track["track_number"],
@@ -98,14 +99,18 @@ class Album(SongList):
                 explicit=track["explicit"],
                 publisher=album_metadata["label"],
                 url=track["external_urls"]["spotify"],
-                cover_url=max(
-                    album_metadata["images"], key=lambda i: i["width"] * i["height"]
-                )["url"]
-                if album_metadata["images"]
-                else None,
-                copyright_text=album_metadata["copyrights"][0]["text"]
-                if album_metadata["copyrights"]
-                else None,
+                cover_url=(
+                    max(
+                        album_metadata["images"], key=lambda i: i["width"] * i["height"]
+                    )["url"]
+                    if album_metadata["images"]
+                    else None
+                ),
+                copyright_text=(
+                    album_metadata["copyrights"][0]["text"]
+                    if album_metadata["copyrights"]
+                    else None
+                ),
             )
 
             songs.append(song)

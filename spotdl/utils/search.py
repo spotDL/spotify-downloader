@@ -81,6 +81,7 @@ def parse_query(
     threads: int = 1,
     use_ytm_data: bool = False,
     playlist_numbering: bool = False,
+    album_type=None,
 ) -> List[Song]:
     """
     Parse query and return list containing song object
@@ -94,7 +95,10 @@ def parse_query(
     """
 
     songs: List[Song] = get_simple_songs(
-        query, use_ytm_data=use_ytm_data, playlist_numbering=playlist_numbering
+        query,
+        use_ytm_data=use_ytm_data,
+        playlist_numbering=playlist_numbering,
+        album_type=album_type,
     )
 
     results = []
@@ -115,6 +119,7 @@ def get_simple_songs(
     use_ytm_data: bool = False,
     playlist_numbering: bool = False,
     albums_to_ignore=None,
+    album_type=None,
 ) -> List[Song]:
     """
     Parse query and return list containing simple song objects
@@ -248,6 +253,7 @@ def get_simple_songs(
                 [full_url],
                 use_ytm_data=use_ytm_data,
                 playlist_numbering=playlist_numbering,
+                album_type=album_type,
             )
             songs.extend(full_lists)
         elif "open.spotify.com" in request and "playlist" in request:
@@ -272,6 +278,8 @@ def get_simple_songs(
             lists.extend(get_user_followed_artists())
         elif request == "all-user-saved-albums":
             lists.extend(get_user_saved_albums())
+        elif request == "all-saved-playlists":
+            lists.extend(get_all_saved_playlists())
         elif request.endswith(".spotdl"):
             with open(request, "r", encoding="utf-8") as save_file:
                 for track in json.load(save_file):
@@ -313,13 +321,23 @@ def get_simple_songs(
         songs = [
             song
             for song in songs
-            for keyword in albums_to_ignore
-            if keyword not in song.album_name.lower()
+            if all(
+                keyword not in song.album_name.lower() for keyword in albums_to_ignore
+            )
         ]
-        new_length = len(songs)
-        logger.info("Skipped %s songs (Ignored albums)", (original_length - new_length))
+        logger.info("Skipped %s songs (Ignored albums)", (original_length - len(songs)))
+
+    if album_type:
+        songs = [song for song in songs if song.album_type == album_type]
+
+        logger.info(
+            "Skipped %s songs for Album Type %s",
+            (original_length - len(songs)),
+            album_type,
+        )
 
     logger.debug("Found %s songs in %s lists", len(songs), len(lists))
+
     return songs
 
 
@@ -368,6 +386,11 @@ def get_all_user_playlists(user_url: str = "") -> List[Playlist]:
         user_playlists_response = spotify_client.user_playlists(user_id)
     else:
         user_playlists_response = spotify_client.current_user_playlists()
+        user_resp = spotify_client.current_user()
+        if user_resp is None:
+            raise SpotifyError("Couldn't get user info")
+
+        user_id = user_resp["id"]
 
     if user_playlists_response is None:
         raise SpotifyError("Couldn't get user playlists")
@@ -386,6 +409,7 @@ def get_all_user_playlists(user_url: str = "") -> List[Playlist]:
     return [
         Playlist.from_url(playlist["external_urls"]["spotify"], fetch_songs=False)
         for playlist in user_playlists
+        if playlist["owner"]["id"] == user_id
     ]
 
 
@@ -453,6 +477,48 @@ def get_user_followed_artists() -> List[Artist]:
     return [
         Artist.from_url(followed_artist["external_urls"]["spotify"], fetch_songs=False)
         for followed_artist in user_followed
+    ]
+
+
+def get_all_saved_playlists() -> List[Playlist]:
+    """
+    Get all user playlists.
+
+    ### Args (optional)
+    - user_url: Spotify user profile url.
+        If a url is mentioned, get all public playlists of that specific user.
+
+    ### Returns
+    - List of all user playlists
+    """
+
+    spotify_client = SpotifyClient()
+    if spotify_client.user_auth is False:  # type: ignore
+        raise SpotifyError("You must be logged in to use this function")
+
+    user_playlists_response = spotify_client.current_user_playlists()
+
+    print(user_playlists_response)
+
+    if user_playlists_response is None:
+        raise SpotifyError("Couldn't get user playlists")
+
+    user_playlists = user_playlists_response["items"]
+    user_id = user_playlists_response["href"].split("users/")[-1].split("/")[0]
+
+    # Fetch all saved tracks
+    while user_playlists_response and user_playlists_response["next"]:
+        response = spotify_client.next(user_playlists_response)
+        if response is None:
+            break
+
+        user_playlists_response = response
+        user_playlists.extend(user_playlists_response["items"])
+
+    return [
+        Playlist.from_url(playlist["external_urls"]["spotify"], fetch_songs=False)
+        for playlist in user_playlists
+        if playlist["owner"]["id"] != user_id
     ]
 
 
@@ -629,9 +695,9 @@ def create_ytm_playlist(url: str, fetch_songs: bool = True) -> Playlist:
         raise ValueError(f"Couldn't fetch playlist: {url}")
 
     metadata = {
-        "description": playlist["description"]
-        if playlist["description"] is not None
-        else "",
+        "description": (
+            playlist["description"] if playlist["description"] is not None else ""
+        ),
         "author_url": f"https://music.youtube.com/channel/{playlist['author']['id']}",
         "author_name": playlist["author"]["name"],
         "cover_url": playlist["thumbnails"][0]["url"],
@@ -648,9 +714,11 @@ def create_ytm_playlist(url: str, fetch_songs: bool = True) -> Playlist:
             name=track["title"],
             artists=[artist["name"] for artist in track["artists"]],
             artist=track["artists"][0]["name"],
-            album_name=track.get("album", {}).get("name")
-            if track.get("album") is not None
-            else None,
+            album_name=(
+                track.get("album", {}).get("name")
+                if track.get("album") is not None
+                else None
+            ),
             duration=track.get("duration_seconds"),
             explicit=track.get("isExplicit"),
             download_url=f"https://music.youtube.com/watch?v={track['videoId']}",

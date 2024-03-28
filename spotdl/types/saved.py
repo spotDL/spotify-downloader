@@ -75,8 +75,9 @@ class Saved(SongList):
                 album_id=album_meta["id"],
                 album_name=album_meta["name"],
                 album_artist=album_meta["artists"][0]["name"],
+                album_type=album_meta["album_type"],
                 disc_number=track_meta["disc_number"],
-                duration=track_meta["duration_ms"],
+                duration=int(track_meta["duration_ms"] / 1000),
                 year=release_date[:4],
                 date=release_date,
                 track_number=track_meta["track_number"],
@@ -85,11 +86,13 @@ class Saved(SongList):
                 explicit=track_meta["explicit"],
                 url=track_meta["external_urls"]["spotify"],
                 isrc=track_meta.get("external_ids", {}).get("isrc"),
-                cover_url=max(
-                    album_meta["images"], key=lambda i: i["width"] * i["height"]
-                )["url"]
-                if album_meta["images"]
-                else None,
+                cover_url=(
+                    max(album_meta["images"], key=lambda i: i["width"] * i["height"])[
+                        "url"
+                    ]
+                    if album_meta["images"]
+                    else None
+                ),
             )
 
             songs.append(song)

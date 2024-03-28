@@ -3,6 +3,7 @@ LRC related functions
 """
 
 import logging
+import re
 from pathlib import Path
 
 from syncedlyrics import search as syncedlyrics_search
@@ -12,7 +13,7 @@ from spotdl.types.song import Song
 
 logger = logging.getLogger(__name__)
 
-__all__ = ["generate_lrc"]
+__all__ = ["generate_lrc", "remomve_lrc"]
 
 
 def generate_lrc(song: Song, output_file: Path):
@@ -37,3 +38,17 @@ def generate_lrc(song: Song, output_file: Path):
         logger.debug("Saved lrc file for %s", song.display_name)
     else:
         logger.debug("No lrc file found for %s", song.display_name)
+
+
+def remomve_lrc(lyrics: str) -> str:
+    """
+    Removes lrc tags from lyrics
+
+    ### Arguments
+    - lyrics: Lyrics string
+
+    ### Returns
+    - Lyrics string without lrc tags
+    """
+
+    return re.sub(r"\[.*?\]", "", lyrics)

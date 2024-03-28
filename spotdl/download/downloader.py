@@ -81,6 +81,7 @@ SPONSOR_BLOCK_CATEGORIES = {
     "music_offtopic": "Non-Music Section",
 }
 
+
 logger = logging.getLogger(__name__)
 
 
@@ -495,7 +496,17 @@ class Downloader:
 
             # If the file already exists and we don't want to overwrite it,
             # we can skip the download
-            if file_exists and self.settings["overwrite"] == "skip":
+            if (
+                Path(str(output_file.absolute()) + ".skip").is_file()
+                and self.settings["respect_skip_file"]
+            ):
+                logger.info(
+                    "Skipping %s (skip file found) %s",
+                    song.display_name,
+                    "",
+                )
+
+            elif file_exists and self.settings["overwrite"] == "skip":
                 logger.info(
                     "Skipping %s (file already exists) %s",
                     song.display_name,
@@ -597,7 +608,11 @@ class Downloader:
                         )
 
                 # Update the metadata
-                embed_metadata(output_file=output_file, song=song)
+                embed_metadata(
+                    output_file=output_file,
+                    song=song,
+                    skip_album_art=self.settings["skip_album_art"],
+                )
 
                 logger.info(
                     f"Updated metadata for {song.display_name}"
@@ -704,6 +719,12 @@ class Downloader:
                     progress_handler=display_progress_tracker.ffmpeg_progress_hook,
                 )
 
+                if self.settings["create_skip_file"]:
+                    with open(
+                        str(output_file) + ".skip", mode="w", encoding="utf-8"
+                    ) as _:
+                        pass
+
             # Remove the temp file
             if temp_file.exists():
                 try:
@@ -785,7 +806,12 @@ class Downloader:
                         Path(file_to_delete).unlink()
 
             try:
-                embed_metadata(output_file, song, self.settings["id3_separator"])
+                embed_metadata(
+                    output_file,
+                    song,
+                    id3_separator=self.settings["id3_separator"],
+                    skip_album_art=self.settings["skip_album_art"],
+                )
             except Exception as exception:
                 raise MetadataError(
                     "Failed to embed metadata to the song"

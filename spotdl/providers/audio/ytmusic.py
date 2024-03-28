@@ -79,9 +79,11 @@ class YouTubeMusic(AudioProvider):
                     isrc_search=isrc_result is not None,
                     search_query=search_term,
                     explicit=result.get("isExplicit"),
-                    album=result.get("album", {}).get("name")
-                    if result.get("album")
-                    else None,
+                    album=(
+                        result.get("album", {}).get("name")
+                        if result.get("album")
+                        else None
+                    ),
                 )
             )
 

@@ -1,4 +1,8 @@
+# Ignore IDE folders
+.idea
+
 # Spotdl stuff
+*.skip
 *.mp3
 *.m4a
 *.wav

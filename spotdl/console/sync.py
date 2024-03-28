@@ -50,10 +50,11 @@ def sync(
 
         # Parse the query
         songs_list = parse_query(
-            query,
-            downloader.settings["threads"],
-            downloader.settings["ytm_data"],
-            downloader.settings["playlist_numbering"],
+            query=query,
+            threads=downloader.settings["threads"],
+            use_ytm_data=downloader.settings["ytm_data"],
+            playlist_numbering=downloader.settings["playlist_numbering"],
+            album_type=downloader.settings["album_type"],
         )
 
         # Create sync file
@@ -101,10 +102,11 @@ def sync(
 
         # Parse the query
         songs_playlist = parse_query(
-            sync_data["query"],
-            downloader.settings["threads"],
-            downloader.settings["ytm_data"],
-            downloader.settings["playlist_numbering"],
+            query=sync_data["query"],
+            threads=downloader.settings["threads"],
+            use_ytm_data=downloader.settings["ytm_data"],
+            playlist_numbering=downloader.settings["playlist_numbering"],
+            album_type=downloader.settings["album_type"],
         )
 
         # Get the names and URLs of previously downloaded songs from the sync file

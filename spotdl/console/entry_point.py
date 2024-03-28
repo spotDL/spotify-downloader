@@ -92,6 +92,11 @@ def console_entry_point():
     # If the application is frozen start web ui
     # or if the operation is `web`
     if is_executable() or arguments.operation == "web":
+
+        # Default to the current directory when running a frozen application
+        if is_executable():
+            web_settings["web_use_output_dir"] = True
+
         # Start web ui
         web(web_settings, downloader_settings)
 
@@ -138,7 +143,15 @@ def console_entry_point():
             query=arguments.query,
             downloader=downloader,
         )
-    except Exception:
+    except Exception as exc:
+        if downloader_settings["save_errors"]:
+            with open(
+                downloader_settings["save_errors"], "a", encoding="utf-8"
+            ) as error_file:
+                error_file.write("\n".join([exc + "\n" for exc in exc.args]))
+
+            logger.debug("Saved errors to %s", downloader_settings["save_errors"])
+
         end_time = time.perf_counter()
         logger.debug("Took %d seconds", end_time - start_time)
 

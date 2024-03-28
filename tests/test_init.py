@@ -80,6 +80,7 @@ def test_download(setup, monkeypatch, tmpdir):
         "album_id": "6ZQZ5Z1NQZJQY5Y7YJZJYJ",
         "album_name": "Nobody Else",
         "album_artist": "Abstrakt",
+        "album_type": "album",
         "genres": [],
         "disc_number": 1,
         "disc_count": 1,

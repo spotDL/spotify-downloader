@@ -27,9 +27,9 @@ class Result:
     result_id: str  # ID of the result
 
     # Search related fields
-    isrc_search: Optional[
-        bool
-    ] = None  # Whether the result is from an ISRC search or not
+    isrc_search: Optional[bool] = (
+        None  # Whether the result is from an ISRC search or not
+    )
     search_query: Optional[str] = None  # The search query used to find the result
 
     # Optional fields
