@@ -35,6 +35,7 @@ from mutagen.id3._frames import (
     TRCK,
     USLT,
     WOAS,
+    TSRC,
 )
 from mutagen.id3._specs import Encoding
 from mutagen.mp4 import MP4Cover
@@ -115,7 +116,7 @@ MP3_TAG_PRESET = {
     "tempo": "TBPM",
     "lyrics": "USLT::XXX",
     "woas": "WOAS",
-    "isrc": "ISRC",
+    "isrc": "TSRC",
     "explicit": "NULL",
 }
 
@@ -231,6 +232,7 @@ def embed_metadata(
     elif encoding == "mp3":
         audio_file["tracknumber"] = f"{str(song.track_number)}/{str(song.tracks_count)}"
         audio_file["discnumber"] = f"{str(song.disc_number)}/{str(song.disc_count)}"
+        audio_file["isrc"] = song.isrc
 
     # Mp3 specific encoding
     if encoding == "mp3":
@@ -586,6 +588,7 @@ def embed_wav_file(output_file: Path, song: Song):
     )
     audio.tags.add(TDRC(encoding=3, text=song.date))  # type: ignore
     audio.tags.add(WOAS(encoding=3, text=song.url))  # type: ignore
+    audio.tags.add(TSRC(encoding=3, text=song.isrc))  # type: ignore
 
     if song.download_url:
         audio.tags.add(COMM(encoding=3, text=song.download_url))  # type: ignore
