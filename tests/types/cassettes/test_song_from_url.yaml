@@ -7,7 +7,7 @@ interactions:
       Accept-Encoding:
       - gzip, deflate, br
       Authorization:
-      - Bearer BQCYEq1sWe3G_lSWxUc5YNppa50KKUrBaUVYRCwa7rqtA7YUNv4mx-JEYAFI75sVOh8ZzmaIvB9pXDCpSECD6X2AeHvZFCvQh8FtdWAWrAsInb3zfk4
+      - Bearer BQAmR5_XFBTOR6SijMBhqeT7q8ifOOJJnggeofu9KOIgp6d_mxxWodmS9_6kHvsCZX2aSdM59EJ7IYxqZVb4hUm7cWWhzccvxp9Kg6jtR_9HRn9fkNs
       Connection:
       - keep-alive
       Content-Type:
@@ -75,7 +75,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Sun, 25 Feb 2024 04:56:07 GMT
+      - Thu, 28 Mar 2024 16:30:00 GMT
       server:
       - envoy
       strict-transport-security:
@@ -95,7 +95,7 @@ interactions:
       Accept-Encoding:
       - gzip, deflate, br
       Authorization:
-      - Bearer BQCYEq1sWe3G_lSWxUc5YNppa50KKUrBaUVYRCwa7rqtA7YUNv4mx-JEYAFI75sVOh8ZzmaIvB9pXDCpSECD6X2AeHvZFCvQh8FtdWAWrAsInb3zfk4
+      - Bearer BQAmR5_XFBTOR6SijMBhqeT7q8ifOOJJnggeofu9KOIgp6d_mxxWodmS9_6kHvsCZX2aSdM59EJ7IYxqZVb4hUm7cWWhzccvxp9Kg6jtR_9HRn9fkNs
       Connection:
       - keep-alive
       Content-Type:
@@ -107,7 +107,7 @@ interactions:
   response:
     body:
       string: "{\n  \"external_urls\" : {\n    \"spotify\" : \"https://open.spotify.com/artist/4cZvsAtZm91PBC0tXlDrP0\"\n
-        \ },\n  \"followers\" : {\n    \"href\" : null,\n    \"total\" : 58380\n  },\n
+        \ },\n  \"followers\" : {\n    \"href\" : null,\n    \"total\" : 59029\n  },\n
         \ \"genres\" : [ \"gaming edm\", \"melbourne bounce\", \"melbourne bounce
         international\" ],\n  \"href\" : \"https://api.spotify.com/v1/artists/4cZvsAtZm91PBC0tXlDrP0\",\n
         \ \"id\" : \"4cZvsAtZm91PBC0tXlDrP0\",\n  \"images\" : [ {\n    \"height\"
@@ -141,7 +141,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Sun, 25 Feb 2024 04:56:08 GMT
+      - Thu, 28 Mar 2024 16:30:00 GMT
       server:
       - envoy
       strict-transport-security:
@@ -161,7 +161,7 @@ interactions:
       Accept-Encoding:
       - gzip, deflate, br
       Authorization:
-      - Bearer BQCYEq1sWe3G_lSWxUc5YNppa50KKUrBaUVYRCwa7rqtA7YUNv4mx-JEYAFI75sVOh8ZzmaIvB9pXDCpSECD6X2AeHvZFCvQh8FtdWAWrAsInb3zfk4
+      - Bearer BQAmR5_XFBTOR6SijMBhqeT7q8ifOOJJnggeofu9KOIgp6d_mxxWodmS9_6kHvsCZX2aSdM59EJ7IYxqZVb4hUm7cWWhzccvxp9Kg6jtR_9HRn9fkNs
       Connection:
       - keep-alive
       Content-Type:
@@ -233,7 +233,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Sun, 25 Feb 2024 04:56:08 GMT
+      - Thu, 28 Mar 2024 16:30:01 GMT
       server:
       - envoy
       strict-transport-security:

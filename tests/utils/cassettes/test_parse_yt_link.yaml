@@ -7,7 +7,7 @@ interactions:
       Accept-Encoding:
       - gzip, deflate, br
       Authorization:
-      - Bearer BQCYEq1sWe3G_lSWxUc5YNppa50KKUrBaUVYRCwa7rqtA7YUNv4mx-JEYAFI75sVOh8ZzmaIvB9pXDCpSECD6X2AeHvZFCvQh8FtdWAWrAsInb3zfk4
+      - Bearer BQAmR5_XFBTOR6SijMBhqeT7q8ifOOJJnggeofu9KOIgp6d_mxxWodmS9_6kHvsCZX2aSdM59EJ7IYxqZVb4hUm7cWWhzccvxp9Kg6jtR_9HRn9fkNs
       Connection:
       - keep-alive
       Content-Type:
@@ -52,7 +52,7 @@ interactions:
         \"GB2LD0902016\"\n  },\n  \"external_urls\" : {\n    \"spotify\" : \"https://open.spotify.com/track/4B2kkxg3wKSTZw5JPaUtzQ\"\n
         \ },\n  \"href\" : \"https://api.spotify.com/v1/tracks/4B2kkxg3wKSTZw5JPaUtzQ\",\n
         \ \"id\" : \"4B2kkxg3wKSTZw5JPaUtzQ\",\n  \"is_local\" : false,\n  \"name\"
-        : \"On & On\",\n  \"popularity\" : 3,\n  \"preview_url\" : null,\n  \"track_number\"
+        : \"On & On\",\n  \"popularity\" : 0,\n  \"preview_url\" : null,\n  \"track_number\"
         : 1,\n  \"type\" : \"track\",\n  \"uri\" : \"spotify:track:4B2kkxg3wKSTZw5JPaUtzQ\"\n}"
     headers:
       Alt-Svc:
@@ -79,7 +79,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Sun, 25 Feb 2024 04:57:18 GMT
+      - Thu, 28 Mar 2024 16:31:05 GMT
       server:
       - envoy
       strict-transport-security:
@@ -99,7 +99,7 @@ interactions:
       Accept-Encoding:
       - gzip, deflate, br
       Authorization:
-      - Bearer BQCYEq1sWe3G_lSWxUc5YNppa50KKUrBaUVYRCwa7rqtA7YUNv4mx-JEYAFI75sVOh8ZzmaIvB9pXDCpSECD6X2AeHvZFCvQh8FtdWAWrAsInb3zfk4
+      - Bearer BQAmR5_XFBTOR6SijMBhqeT7q8ifOOJJnggeofu9KOIgp6d_mxxWodmS9_6kHvsCZX2aSdM59EJ7IYxqZVb4hUm7cWWhzccvxp9Kg6jtR_9HRn9fkNs
       Connection:
       - keep-alive
       Content-Type:
@@ -111,7 +111,7 @@ interactions:
   response:
     body:
       string: "{\n  \"external_urls\" : {\n    \"spotify\" : \"https://open.spotify.com/artist/2sf28o6euxEDpYkG9dMtuM\"\n
-        \ },\n  \"followers\" : {\n    \"href\" : null,\n    \"total\" : 213520\n
+        \ },\n  \"followers\" : {\n    \"href\" : null,\n    \"total\" : 216497\n
         \ },\n  \"genres\" : [ \"gaming edm\" ],\n  \"href\" : \"https://api.spotify.com/v1/artists/2sf28o6euxEDpYkG9dMtuM\",\n
         \ \"id\" : \"2sf28o6euxEDpYkG9dMtuM\",\n  \"images\" : [ {\n    \"height\"
         : 640,\n    \"url\" : \"https://i.scdn.co/image/ab6761610000e5eba60975fef1fbcb5b95423d07\",\n
@@ -144,7 +144,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Sun, 25 Feb 2024 04:57:18 GMT
+      - Thu, 28 Mar 2024 16:31:06 GMT
       server:
       - envoy
       strict-transport-security:
@@ -164,7 +164,7 @@ interactions:
       Accept-Encoding:
       - gzip, deflate, br
       Authorization:
-      - Bearer BQCYEq1sWe3G_lSWxUc5YNppa50KKUrBaUVYRCwa7rqtA7YUNv4mx-JEYAFI75sVOh8ZzmaIvB9pXDCpSECD6X2AeHvZFCvQh8FtdWAWrAsInb3zfk4
+      - Bearer BQAmR5_XFBTOR6SijMBhqeT7q8ifOOJJnggeofu9KOIgp6d_mxxWodmS9_6kHvsCZX2aSdM59EJ7IYxqZVb4hUm7cWWhzccvxp9Kg6jtR_9HRn9fkNs
       Connection:
       - keep-alive
       Content-Type:
@@ -194,7 +194,7 @@ interactions:
         \   \"width\" : 640\n  }, {\n    \"height\" : 300,\n    \"url\" : \"https://i.scdn.co/image/ab67616d00001e022773b7d6ca91258a83d06783\",\n
         \   \"width\" : 300\n  }, {\n    \"height\" : 64,\n    \"url\" : \"https://i.scdn.co/image/ab67616d000048512773b7d6ca91258a83d06783\",\n
         \   \"width\" : 64\n  } ],\n  \"label\" : \"NCS\",\n  \"name\" : \"On & On\",\n
-        \ \"popularity\" : 1,\n  \"release_date\" : \"2015-07-09\",\n  \"release_date_precision\"
+        \ \"popularity\" : 0,\n  \"release_date\" : \"2015-07-09\",\n  \"release_date_precision\"
         : \"day\",\n  \"total_tracks\" : 1,\n  \"tracks\" : {\n    \"href\" : \"https://api.spotify.com/v1/albums/0Lt1PzvVZoslDNI2Jsq6pW/tracks?offset=0&limit=50\",\n
         \   \"items\" : [ {\n      \"artists\" : [ {\n        \"external_urls\" :
         {\n          \"spotify\" : \"https://open.spotify.com/artist/2sf28o6euxEDpYkG9dMtuM\"\n
@@ -240,7 +240,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Sun, 25 Feb 2024 04:57:19 GMT
+      - Thu, 28 Mar 2024 16:31:06 GMT
       server:
       - envoy
       strict-transport-security:

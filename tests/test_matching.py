@@ -128,6 +128,8 @@ from tests.conftest import new_initialize
                 "https://music.youtube.com/watch?v=BsHhv6t4IcQ",
                 "https://music.youtube.com/watch?v=XoZqO-uLrI8",
                 "https://music.youtube.com/watch?v=NI56akzmTfw",
+                "https://music.youtube.com/watch?v=QXclVmBp0UU,
+",
             ],
         ),
         (

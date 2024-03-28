@@ -7,7 +7,7 @@ interactions:
       Accept-Encoding:
       - gzip, deflate, br
       Authorization:
-      - Bearer BQCYEq1sWe3G_lSWxUc5YNppa50KKUrBaUVYRCwa7rqtA7YUNv4mx-JEYAFI75sVOh8ZzmaIvB9pXDCpSECD6X2AeHvZFCvQh8FtdWAWrAsInb3zfk4
+      - Bearer BQAmR5_XFBTOR6SijMBhqeT7q8ifOOJJnggeofu9KOIgp6d_mxxWodmS9_6kHvsCZX2aSdM59EJ7IYxqZVb4hUm7cWWhzccvxp9Kg6jtR_9HRn9fkNs
       Connection:
       - keep-alive
       Content-Type:
@@ -54,9 +54,45 @@ interactions:
         \       \"width\" : 64\n      } ],\n      \"name\" : \"Yeezus\",\n      \"release_date\"
         : \"2013-06-18\",\n      \"release_date_precision\" : \"day\",\n      \"total_tracks\"
         : 10,\n      \"type\" : \"album\",\n      \"uri\" : \"spotify:album:7D2NdGvBHIavgLhmcwhluK\"\n
-        \   }, {\n      \"album_type\" : \"album\",\n      \"artists\" : [ {\n        \"external_urls\"
-        : {\n          \"spotify\" : \"https://open.spotify.com/artist/5K4W6rqBFWDnAN6FQUkS6x\"\n
-        \       },\n        \"href\" : \"https://api.spotify.com/v1/artists/5K4W6rqBFWDnAN6FQUkS6x\",\n
+        \   }, {\n      \"album_type\" : \"single\",\n      \"artists\" : [ {\n        \"external_urls\"
+        : {\n          \"spotify\" : \"https://open.spotify.com/artist/5M2k6qQmOZBgCD80v4zoWH\"\n
+        \       },\n        \"href\" : \"https://api.spotify.com/v1/artists/5M2k6qQmOZBgCD80v4zoWH\",\n
+        \       \"id\" : \"5M2k6qQmOZBgCD80v4zoWH\",\n        \"name\" : \"Itz Poppa\",\n
+        \       \"type\" : \"artist\",\n        \"uri\" : \"spotify:artist:5M2k6qQmOZBgCD80v4zoWH\"\n
+        \     } ],\n      \"available_markets\" : [ \"AR\", \"AU\", \"AT\", \"BE\",
+        \"BO\", \"BR\", \"BG\", \"CA\", \"CL\", \"CO\", \"CR\", \"CY\", \"CZ\", \"DK\",
+        \"DO\", \"DE\", \"EC\", \"EE\", \"SV\", \"FI\", \"FR\", \"GR\", \"GT\", \"HN\",
+        \"HK\", \"HU\", \"IS\", \"IE\", \"IT\", \"LV\", \"LT\", \"LU\", \"MY\", \"MT\",
+        \"MX\", \"NL\", \"NZ\", \"NI\", \"NO\", \"PA\", \"PY\", \"PE\", \"PH\", \"PL\",
+        \"PT\", \"SG\", \"SK\", \"ES\", \"SE\", \"CH\", \"TW\", \"TR\", \"UY\", \"US\",
+        \"GB\", \"AD\", \"LI\", \"MC\", \"ID\", \"JP\", \"TH\", \"VN\", \"RO\", \"IL\",
+        \"ZA\", \"SA\", \"AE\", \"BH\", \"QA\", \"OM\", \"KW\", \"EG\", \"MA\", \"DZ\",
+        \"TN\", \"LB\", \"JO\", \"PS\", \"IN\", \"BY\", \"KZ\", \"MD\", \"UA\", \"AL\",
+        \"BA\", \"HR\", \"ME\", \"MK\", \"RS\", \"SI\", \"KR\", \"BD\", \"PK\", \"LK\",
+        \"GH\", \"KE\", \"NG\", \"TZ\", \"UG\", \"AG\", \"AM\", \"BS\", \"BB\", \"BZ\",
+        \"BT\", \"BW\", \"BF\", \"CV\", \"CW\", \"DM\", \"FJ\", \"GM\", \"GE\", \"GD\",
+        \"GW\", \"GY\", \"HT\", \"JM\", \"KI\", \"LS\", \"LR\", \"MW\", \"MV\", \"ML\",
+        \"MH\", \"FM\", \"NA\", \"NR\", \"NE\", \"PW\", \"PG\", \"PR\", \"WS\", \"SM\",
+        \"ST\", \"SN\", \"SC\", \"SL\", \"SB\", \"KN\", \"LC\", \"VC\", \"SR\", \"TL\",
+        \"TO\", \"TT\", \"TV\", \"VU\", \"AZ\", \"BN\", \"BI\", \"KH\", \"CM\", \"TD\",
+        \"KM\", \"GQ\", \"SZ\", \"GA\", \"GN\", \"KG\", \"LA\", \"MO\", \"MR\", \"MN\",
+        \"NP\", \"RW\", \"TG\", \"UZ\", \"ZW\", \"BJ\", \"MG\", \"MU\", \"MZ\", \"AO\",
+        \"CI\", \"DJ\", \"ZM\", \"CD\", \"CG\", \"IQ\", \"LY\", \"TJ\", \"VE\", \"ET\",
+        \"XK\" ],\n      \"external_urls\" : {\n        \"spotify\" : \"https://open.spotify.com/album/1ylrvG1rphJGK0XucfT20i\"\n
+        \     },\n      \"href\" : \"https://api.spotify.com/v1/albums/1ylrvG1rphJGK0XucfT20i\",\n
+        \     \"id\" : \"1ylrvG1rphJGK0XucfT20i\",\n      \"images\" : [ {\n        \"height\"
+        : 640,\n        \"url\" : \"https://i.scdn.co/image/ab67616d0000b273c1ad0bd83855e4bbd368cef9\",\n
+        \       \"width\" : 640\n      }, {\n        \"height\" : 300,\n        \"url\"
+        : \"https://i.scdn.co/image/ab67616d00001e02c1ad0bd83855e4bbd368cef9\",\n
+        \       \"width\" : 300\n      }, {\n        \"height\" : 64,\n        \"url\"
+        : \"https://i.scdn.co/image/ab67616d00004851c1ad0bd83855e4bbd368cef9\",\n
+        \       \"width\" : 64\n      } ],\n      \"name\" : \"Yeezus Christ\",\n
+        \     \"release_date\" : \"2023-12-01\",\n      \"release_date_precision\"
+        : \"day\",\n      \"total_tracks\" : 1,\n      \"type\" : \"album\",\n      \"uri\"
+        : \"spotify:album:1ylrvG1rphJGK0XucfT20i\"\n    }, {\n      \"album_type\"
+        : \"album\",\n      \"artists\" : [ {\n        \"external_urls\" : {\n          \"spotify\"
+        : \"https://open.spotify.com/artist/5K4W6rqBFWDnAN6FQUkS6x\"\n        },\n
+        \       \"href\" : \"https://api.spotify.com/v1/artists/5K4W6rqBFWDnAN6FQUkS6x\",\n
         \       \"id\" : \"5K4W6rqBFWDnAN6FQUkS6x\",\n        \"name\" : \"Kanye West\",\n
         \       \"type\" : \"artist\",\n        \"uri\" : \"spotify:artist:5K4W6rqBFWDnAN6FQUkS6x\"\n
         \     } ],\n      \"available_markets\" : [ \"AR\", \"AU\", \"AT\", \"BE\",
@@ -89,11 +125,11 @@ interactions:
         \       \"width\" : 64\n      } ],\n      \"name\" : \"ye\",\n      \"release_date\"
         : \"2018-06-01\",\n      \"release_date_precision\" : \"day\",\n      \"total_tracks\"
         : 7,\n      \"type\" : \"album\",\n      \"uri\" : \"spotify:album:2Ek1q2haOnxVqhvVKqMvJe\"\n
-        \   }, {\n      \"album_type\" : \"single\",\n      \"artists\" : [ {\n        \"external_urls\"
-        : {\n          \"spotify\" : \"https://open.spotify.com/artist/5M2k6qQmOZBgCD80v4zoWH\"\n
-        \       },\n        \"href\" : \"https://api.spotify.com/v1/artists/5M2k6qQmOZBgCD80v4zoWH\",\n
-        \       \"id\" : \"5M2k6qQmOZBgCD80v4zoWH\",\n        \"name\" : \"Itz Poppa\",\n
-        \       \"type\" : \"artist\",\n        \"uri\" : \"spotify:artist:5M2k6qQmOZBgCD80v4zoWH\"\n
+        \   }, {\n      \"album_type\" : \"album\",\n      \"artists\" : [ {\n        \"external_urls\"
+        : {\n          \"spotify\" : \"https://open.spotify.com/artist/5K4W6rqBFWDnAN6FQUkS6x\"\n
+        \       },\n        \"href\" : \"https://api.spotify.com/v1/artists/5K4W6rqBFWDnAN6FQUkS6x\",\n
+        \       \"id\" : \"5K4W6rqBFWDnAN6FQUkS6x\",\n        \"name\" : \"Kanye West\",\n
+        \       \"type\" : \"artist\",\n        \"uri\" : \"spotify:artist:5K4W6rqBFWDnAN6FQUkS6x\"\n
         \     } ],\n      \"available_markets\" : [ \"AR\", \"AU\", \"AT\", \"BE\",
         \"BO\", \"BR\", \"BG\", \"CA\", \"CL\", \"CO\", \"CR\", \"CY\", \"CZ\", \"DK\",
         \"DO\", \"DE\", \"EC\", \"EE\", \"SV\", \"FI\", \"FR\", \"GR\", \"GT\", \"HN\",
@@ -113,18 +149,160 @@ interactions:
         \"GQ\", \"SZ\", \"GA\", \"GN\", \"KG\", \"LA\", \"MO\", \"MR\", \"MN\", \"NP\",
         \"RW\", \"TG\", \"UZ\", \"ZW\", \"BJ\", \"MG\", \"MU\", \"MZ\", \"AO\", \"CI\",
         \"DJ\", \"ZM\", \"CD\", \"CG\", \"IQ\", \"LY\", \"TJ\", \"VE\", \"ET\", \"XK\"
-        ],\n      \"external_urls\" : {\n        \"spotify\" : \"https://open.spotify.com/album/1ylrvG1rphJGK0XucfT20i\"\n
-        \     },\n      \"href\" : \"https://api.spotify.com/v1/albums/1ylrvG1rphJGK0XucfT20i\",\n
-        \     \"id\" : \"1ylrvG1rphJGK0XucfT20i\",\n      \"images\" : [ {\n        \"height\"
-        : 640,\n        \"url\" : \"https://i.scdn.co/image/ab67616d0000b273c1ad0bd83855e4bbd368cef9\",\n
+        ],\n      \"external_urls\" : {\n        \"spotify\" : \"https://open.spotify.com/album/5CnpZV3q5BcESefcB3WJmz\"\n
+        \     },\n      \"href\" : \"https://api.spotify.com/v1/albums/5CnpZV3q5BcESefcB3WJmz\",\n
+        \     \"id\" : \"5CnpZV3q5BcESefcB3WJmz\",\n      \"images\" : [ {\n        \"height\"
+        : 640,\n        \"url\" : \"https://i.scdn.co/image/ab67616d0000b273cad190f1a73c024e5a40dddd\",\n
         \       \"width\" : 640\n      }, {\n        \"height\" : 300,\n        \"url\"
-        : \"https://i.scdn.co/image/ab67616d00001e02c1ad0bd83855e4bbd368cef9\",\n
+        : \"https://i.scdn.co/image/ab67616d00001e02cad190f1a73c024e5a40dddd\",\n
         \       \"width\" : 300\n      }, {\n        \"height\" : 64,\n        \"url\"
-        : \"https://i.scdn.co/image/ab67616d00004851c1ad0bd83855e4bbd368cef9\",\n
-        \       \"width\" : 64\n      } ],\n      \"name\" : \"Yeezus Christ\",\n
-        \     \"release_date\" : \"2023-12-01\",\n      \"release_date_precision\"
-        : \"day\",\n      \"total_tracks\" : 1,\n      \"type\" : \"album\",\n      \"uri\"
-        : \"spotify:album:1ylrvG1rphJGK0XucfT20i\"\n    }, {\n      \"album_type\"
+        : \"https://i.scdn.co/image/ab67616d00004851cad190f1a73c024e5a40dddd\",\n
+        \       \"width\" : 64\n      } ],\n      \"name\" : \"Donda\",\n      \"release_date\"
+        : \"2021-08-29\",\n      \"release_date_precision\" : \"day\",\n      \"total_tracks\"
+        : 27,\n      \"type\" : \"album\",\n      \"uri\" : \"spotify:album:5CnpZV3q5BcESefcB3WJmz\"\n
+        \   }, {\n      \"album_type\" : \"album\",\n      \"artists\" : [ {\n        \"external_urls\"
+        : {\n          \"spotify\" : \"https://open.spotify.com/artist/5K4W6rqBFWDnAN6FQUkS6x\"\n
+        \       },\n        \"href\" : \"https://api.spotify.com/v1/artists/5K4W6rqBFWDnAN6FQUkS6x\",\n
+        \       \"id\" : \"5K4W6rqBFWDnAN6FQUkS6x\",\n        \"name\" : \"Kanye West\",\n
+        \       \"type\" : \"artist\",\n        \"uri\" : \"spotify:artist:5K4W6rqBFWDnAN6FQUkS6x\"\n
+        \     } ],\n      \"available_markets\" : [ \"AR\", \"AU\", \"AT\", \"BE\",
+        \"BO\", \"BR\", \"BG\", \"CA\", \"CL\", \"CO\", \"CR\", \"CY\", \"CZ\", \"DK\",
+        \"DO\", \"DE\", \"EC\", \"EE\", \"SV\", \"FI\", \"FR\", \"GR\", \"GT\", \"HN\",
+        \"HK\", \"HU\", \"IS\", \"IE\", \"IT\", \"LV\", \"LT\", \"LU\", \"MY\", \"MT\",
+        \"MX\", \"NL\", \"NZ\", \"NI\", \"NO\", \"PA\", \"PY\", \"PE\", \"PH\", \"PL\",
+        \"PT\", \"SG\", \"SK\", \"ES\", \"SE\", \"CH\", \"TW\", \"TR\", \"UY\", \"US\",
+        \"AD\", \"LI\", \"MC\", \"ID\", \"JP\", \"TH\", \"VN\", \"RO\", \"IL\", \"ZA\",
+        \"SA\", \"AE\", \"BH\", \"QA\", \"OM\", \"KW\", \"EG\", \"MA\", \"DZ\", \"TN\",
+        \"LB\", \"JO\", \"PS\", \"IN\", \"BY\", \"KZ\", \"MD\", \"UA\", \"AL\", \"BA\",
+        \"HR\", \"ME\", \"MK\", \"RS\", \"SI\", \"KR\", \"BD\", \"PK\", \"LK\", \"GH\",
+        \"KE\", \"NG\", \"TZ\", \"UG\", \"AG\", \"AM\", \"BS\", \"BB\", \"BZ\", \"BT\",
+        \"BW\", \"BF\", \"CV\", \"CW\", \"DM\", \"FJ\", \"GM\", \"GE\", \"GD\", \"GW\",
+        \"GY\", \"HT\", \"JM\", \"KI\", \"LS\", \"LR\", \"MW\", \"MV\", \"ML\", \"MH\",
+        \"FM\", \"NA\", \"NR\", \"NE\", \"PW\", \"PG\", \"WS\", \"SM\", \"ST\", \"SN\",
+        \"SC\", \"SL\", \"SB\", \"KN\", \"LC\", \"VC\", \"SR\", \"TL\", \"TO\", \"TT\",
+        \"TV\", \"VU\", \"AZ\", \"BN\", \"BI\", \"KH\", \"CM\", \"TD\", \"KM\", \"GQ\",
+        \"SZ\", \"GA\", \"GN\", \"KG\", \"LA\", \"MO\", \"MR\", \"MN\", \"NP\", \"RW\",
+        \"TG\", \"UZ\", \"ZW\", \"BJ\", \"MG\", \"MU\", \"MZ\", \"AO\", \"CI\", \"DJ\",
+        \"ZM\", \"CD\", \"CG\", \"IQ\", \"LY\", \"TJ\", \"VE\", \"ET\", \"XK\" ],\n
+        \     \"external_urls\" : {\n        \"spotify\" : \"https://open.spotify.com/album/3WFTGIO6E3Xh4paEOBY9OU\"\n
+        \     },\n      \"href\" : \"https://api.spotify.com/v1/albums/3WFTGIO6E3Xh4paEOBY9OU\",\n
+        \     \"id\" : \"3WFTGIO6E3Xh4paEOBY9OU\",\n      \"images\" : [ {\n        \"height\"
+        : 640,\n        \"url\" : \"https://i.scdn.co/image/ab67616d0000b273346d77e155d854735410ed18\",\n
+        \       \"width\" : 640\n      }, {\n        \"height\" : 300,\n        \"url\"
+        : \"https://i.scdn.co/image/ab67616d00001e02346d77e155d854735410ed18\",\n
+        \       \"width\" : 300\n      }, {\n        \"height\" : 64,\n        \"url\"
+        : \"https://i.scdn.co/image/ab67616d00004851346d77e155d854735410ed18\",\n
+        \       \"width\" : 64\n      } ],\n      \"name\" : \"808s & Heartbreak\",\n
+        \     \"release_date\" : \"2008-11-24\",\n      \"release_date_precision\"
+        : \"day\",\n      \"total_tracks\" : 12,\n      \"type\" : \"album\",\n      \"uri\"
+        : \"spotify:album:3WFTGIO6E3Xh4paEOBY9OU\"\n    }, {\n      \"album_type\"
+        : \"album\",\n      \"artists\" : [ {\n        \"external_urls\" : {\n          \"spotify\"
+        : \"https://open.spotify.com/artist/5BhFZpE8kUGZJiKOsYjLQM\"\n        },\n
+        \       \"href\" : \"https://api.spotify.com/v1/artists/5BhFZpE8kUGZJiKOsYjLQM\",\n
+        \       \"id\" : \"5BhFZpE8kUGZJiKOsYjLQM\",\n        \"name\" : \"Yeek\",\n
+        \       \"type\" : \"artist\",\n        \"uri\" : \"spotify:artist:5BhFZpE8kUGZJiKOsYjLQM\"\n
+        \     } ],\n      \"available_markets\" : [ \"AR\", \"AU\", \"AT\", \"BE\",
+        \"BO\", \"BR\", \"BG\", \"CA\", \"CL\", \"CO\", \"CR\", \"CY\", \"CZ\", \"DK\",
+        \"DO\", \"DE\", \"EC\", \"EE\", \"SV\", \"FI\", \"FR\", \"GR\", \"GT\", \"HN\",
+        \"HK\", \"HU\", \"IS\", \"IE\", \"IT\", \"LV\", \"LT\", \"LU\", \"MY\", \"MT\",
+        \"MX\", \"NL\", \"NZ\", \"NI\", \"NO\", \"PA\", \"PY\", \"PE\", \"PH\", \"PL\",
+        \"PT\", \"SG\", \"SK\", \"ES\", \"SE\", \"CH\", \"TW\", \"TR\", \"UY\", \"US\",
+        \"GB\", \"AD\", \"LI\", \"MC\", \"ID\", \"JP\", \"TH\", \"VN\", \"RO\", \"IL\",
+        \"ZA\", \"SA\", \"AE\", \"BH\", \"QA\", \"OM\", \"KW\", \"EG\", \"MA\", \"DZ\",
+        \"TN\", \"LB\", \"JO\", \"PS\", \"IN\", \"BY\", \"KZ\", \"MD\", \"UA\", \"AL\",
+        \"BA\", \"HR\", \"ME\", \"MK\", \"RS\", \"SI\", \"KR\", \"BD\", \"PK\", \"LK\",
+        \"GH\", \"KE\", \"NG\", \"TZ\", \"UG\", \"AG\", \"AM\", \"BS\", \"BB\", \"BZ\",
+        \"BT\", \"BW\", \"BF\", \"CV\", \"CW\", \"DM\", \"FJ\", \"GM\", \"GE\", \"GD\",
+        \"GW\", \"GY\", \"HT\", \"JM\", \"KI\", \"LS\", \"LR\", \"MW\", \"MV\", \"ML\",
+        \"MH\", \"FM\", \"NA\", \"NR\", \"NE\", \"PW\", \"PG\", \"PR\", \"WS\", \"SM\",
+        \"ST\", \"SN\", \"SC\", \"SL\", \"SB\", \"KN\", \"LC\", \"VC\", \"SR\", \"TL\",
+        \"TO\", \"TT\", \"TV\", \"VU\", \"AZ\", \"BN\", \"BI\", \"KH\", \"CM\", \"TD\",
+        \"KM\", \"GQ\", \"SZ\", \"GA\", \"GN\", \"KG\", \"LA\", \"MO\", \"MR\", \"MN\",
+        \"NP\", \"RW\", \"TG\", \"UZ\", \"ZW\", \"BJ\", \"MG\", \"MU\", \"MZ\", \"AO\",
+        \"CI\", \"DJ\", \"ZM\", \"CD\", \"CG\", \"IQ\", \"LY\", \"TJ\", \"VE\", \"ET\",
+        \"XK\" ],\n      \"external_urls\" : {\n        \"spotify\" : \"https://open.spotify.com/album/2AtbIX0OFtb2TN9NpBqzo4\"\n
+        \     },\n      \"href\" : \"https://api.spotify.com/v1/albums/2AtbIX0OFtb2TN9NpBqzo4\",\n
+        \     \"id\" : \"2AtbIX0OFtb2TN9NpBqzo4\",\n      \"images\" : [ {\n        \"height\"
+        : 640,\n        \"url\" : \"https://i.scdn.co/image/ab67616d0000b2731a9d6526214b86c612a75b40\",\n
+        \       \"width\" : 640\n      }, {\n        \"height\" : 300,\n        \"url\"
+        : \"https://i.scdn.co/image/ab67616d00001e021a9d6526214b86c612a75b40\",\n
+        \       \"width\" : 300\n      }, {\n        \"height\" : 64,\n        \"url\"
+        : \"https://i.scdn.co/image/ab67616d000048511a9d6526214b86c612a75b40\",\n
+        \       \"width\" : 64\n      } ],\n      \"name\" : \"Sebastian\",\n      \"release_date\"
+        : \"2017-04-28\",\n      \"release_date_precision\" : \"day\",\n      \"total_tracks\"
+        : 10,\n      \"type\" : \"album\",\n      \"uri\" : \"spotify:album:2AtbIX0OFtb2TN9NpBqzo4\"\n
+        \   }, {\n      \"album_type\" : \"album\",\n      \"artists\" : [ {\n        \"external_urls\"
+        : {\n          \"spotify\" : \"https://open.spotify.com/artist/5K4W6rqBFWDnAN6FQUkS6x\"\n
+        \       },\n        \"href\" : \"https://api.spotify.com/v1/artists/5K4W6rqBFWDnAN6FQUkS6x\",\n
+        \       \"id\" : \"5K4W6rqBFWDnAN6FQUkS6x\",\n        \"name\" : \"Kanye West\",\n
+        \       \"type\" : \"artist\",\n        \"uri\" : \"spotify:artist:5K4W6rqBFWDnAN6FQUkS6x\"\n
+        \     } ],\n      \"available_markets\" : [ \"AR\", \"AU\", \"AT\", \"BE\",
+        \"BO\", \"BR\", \"BG\", \"CA\", \"CL\", \"CO\", \"CR\", \"CY\", \"CZ\", \"DK\",
+        \"DO\", \"DE\", \"EC\", \"EE\", \"SV\", \"FI\", \"FR\", \"GR\", \"GT\", \"HN\",
+        \"HK\", \"HU\", \"IS\", \"IE\", \"IT\", \"LV\", \"LT\", \"LU\", \"MY\", \"MT\",
+        \"MX\", \"NL\", \"NZ\", \"NI\", \"NO\", \"PA\", \"PY\", \"PE\", \"PH\", \"PL\",
+        \"PT\", \"SG\", \"SK\", \"ES\", \"SE\", \"CH\", \"TW\", \"TR\", \"UY\", \"US\",
+        \"GB\", \"AD\", \"LI\", \"MC\", \"ID\", \"JP\", \"TH\", \"VN\", \"RO\", \"IL\",
+        \"ZA\", \"SA\", \"AE\", \"BH\", \"QA\", \"OM\", \"KW\", \"EG\", \"MA\", \"DZ\",
+        \"TN\", \"LB\", \"JO\", \"PS\", \"IN\", \"BY\", \"KZ\", \"MD\", \"UA\", \"AL\",
+        \"BA\", \"HR\", \"ME\", \"MK\", \"RS\", \"SI\", \"KR\", \"BD\", \"PK\", \"LK\",
+        \"GH\", \"KE\", \"NG\", \"TZ\", \"UG\", \"AG\", \"AM\", \"BS\", \"BB\", \"BZ\",
+        \"BT\", \"BW\", \"BF\", \"CV\", \"CW\", \"DM\", \"FJ\", \"GM\", \"GE\", \"GD\",
+        \"GW\", \"GY\", \"HT\", \"JM\", \"KI\", \"LS\", \"LR\", \"MW\", \"MV\", \"ML\",
+        \"MH\", \"FM\", \"NA\", \"NR\", \"NE\", \"PW\", \"PG\", \"WS\", \"SM\", \"ST\",
+        \"SN\", \"SC\", \"SL\", \"SB\", \"KN\", \"LC\", \"VC\", \"SR\", \"TL\", \"TO\",
+        \"TT\", \"TV\", \"VU\", \"AZ\", \"BN\", \"BI\", \"KH\", \"CM\", \"TD\", \"KM\",
+        \"GQ\", \"SZ\", \"GA\", \"GN\", \"KG\", \"LA\", \"MO\", \"MR\", \"MN\", \"NP\",
+        \"RW\", \"TG\", \"UZ\", \"ZW\", \"BJ\", \"MG\", \"MU\", \"MZ\", \"AO\", \"CI\",
+        \"DJ\", \"ZM\", \"CD\", \"CG\", \"IQ\", \"LY\", \"TJ\", \"VE\", \"ET\", \"XK\"
+        ],\n      \"external_urls\" : {\n        \"spotify\" : \"https://open.spotify.com/album/6klUp8sQyRXGuJhqZu4PG3\"\n
+        \     },\n      \"href\" : \"https://api.spotify.com/v1/albums/6klUp8sQyRXGuJhqZu4PG3\",\n
+        \     \"id\" : \"6klUp8sQyRXGuJhqZu4PG3\",\n      \"images\" : [ {\n        \"height\"
+        : 640,\n        \"url\" : \"https://i.scdn.co/image/ab67616d0000b273baf2a68126739ff553f2930a\",\n
+        \       \"width\" : 640\n      }, {\n        \"height\" : 300,\n        \"url\"
+        : \"https://i.scdn.co/image/ab67616d00001e02baf2a68126739ff553f2930a\",\n
+        \       \"width\" : 300\n      }, {\n        \"height\" : 64,\n        \"url\"
+        : \"https://i.scdn.co/image/ab67616d00004851baf2a68126739ff553f2930a\",\n
+        \       \"width\" : 64\n      } ],\n      \"name\" : \"My Beautiful Dark Twisted
+        Fantasy\",\n      \"release_date\" : \"2010-01-01\",\n      \"release_date_precision\"
+        : \"day\",\n      \"total_tracks\" : 13,\n      \"type\" : \"album\",\n      \"uri\"
+        : \"spotify:album:6klUp8sQyRXGuJhqZu4PG3\"\n    }, {\n      \"album_type\"
+        : \"album\",\n      \"artists\" : [ {\n        \"external_urls\" : {\n          \"spotify\"
+        : \"https://open.spotify.com/artist/4yBK75WVCQXej1p04GWqxH\"\n        },\n
+        \       \"href\" : \"https://api.spotify.com/v1/artists/4yBK75WVCQXej1p04GWqxH\",\n
+        \       \"id\" : \"4yBK75WVCQXej1p04GWqxH\",\n        \"name\" : \"Jeezy\",\n
+        \       \"type\" : \"artist\",\n        \"uri\" : \"spotify:artist:4yBK75WVCQXej1p04GWqxH\"\n
+        \     } ],\n      \"available_markets\" : [ \"AR\", \"AU\", \"AT\", \"BE\",
+        \"BO\", \"BR\", \"BG\", \"CA\", \"CL\", \"CO\", \"CR\", \"CY\", \"CZ\", \"DK\",
+        \"DO\", \"DE\", \"EC\", \"EE\", \"SV\", \"FI\", \"FR\", \"GR\", \"GT\", \"HN\",
+        \"HK\", \"HU\", \"IS\", \"IE\", \"IT\", \"LV\", \"LT\", \"LU\", \"MY\", \"MT\",
+        \"MX\", \"NL\", \"NZ\", \"NI\", \"NO\", \"PA\", \"PY\", \"PE\", \"PH\", \"PL\",
+        \"PT\", \"SG\", \"SK\", \"ES\", \"SE\", \"CH\", \"TW\", \"TR\", \"UY\", \"US\",
+        \"GB\", \"AD\", \"LI\", \"MC\", \"ID\", \"JP\", \"TH\", \"VN\", \"RO\", \"IL\",
+        \"ZA\", \"SA\", \"AE\", \"BH\", \"QA\", \"OM\", \"KW\", \"EG\", \"MA\", \"DZ\",
+        \"TN\", \"LB\", \"JO\", \"PS\", \"IN\", \"BY\", \"KZ\", \"MD\", \"UA\", \"AL\",
+        \"BA\", \"HR\", \"ME\", \"MK\", \"RS\", \"SI\", \"KR\", \"BD\", \"PK\", \"LK\",
+        \"GH\", \"KE\", \"NG\", \"TZ\", \"UG\", \"AG\", \"AM\", \"BS\", \"BB\", \"BZ\",
+        \"BT\", \"BW\", \"BF\", \"CV\", \"CW\", \"DM\", \"FJ\", \"GM\", \"GD\", \"GW\",
+        \"GY\", \"HT\", \"JM\", \"KI\", \"LS\", \"LR\", \"MW\", \"MV\", \"ML\", \"MH\",
+        \"FM\", \"NA\", \"NR\", \"NE\", \"PW\", \"PG\", \"WS\", \"ST\", \"SN\", \"SC\",
+        \"SL\", \"SB\", \"KN\", \"LC\", \"VC\", \"SR\", \"TL\", \"TO\", \"TT\", \"TV\",
+        \"AZ\", \"BN\", \"BI\", \"KH\", \"CM\", \"TD\", \"KM\", \"GQ\", \"SZ\", \"GA\",
+        \"GN\", \"KG\", \"LA\", \"MO\", \"MR\", \"MN\", \"NP\", \"RW\", \"TG\", \"UZ\",
+        \"ZW\", \"BJ\", \"MG\", \"MU\", \"MZ\", \"AO\", \"CI\", \"DJ\", \"ZM\", \"CD\",
+        \"CG\", \"IQ\", \"LY\", \"TJ\", \"VE\", \"XK\" ],\n      \"external_urls\"
+        : {\n        \"spotify\" : \"https://open.spotify.com/album/0c9M5cLGr4WuWYvgz3kxj6\"\n
+        \     },\n      \"href\" : \"https://api.spotify.com/v1/albums/0c9M5cLGr4WuWYvgz3kxj6\",\n
+        \     \"id\" : \"0c9M5cLGr4WuWYvgz3kxj6\",\n      \"images\" : [ {\n        \"height\"
+        : 640,\n        \"url\" : \"https://i.scdn.co/image/ab67616d0000b27315878b043d6790d8f2b290e1\",\n
+        \       \"width\" : 640\n      }, {\n        \"height\" : 300,\n        \"url\"
+        : \"https://i.scdn.co/image/ab67616d00001e0215878b043d6790d8f2b290e1\",\n
+        \       \"width\" : 300\n      }, {\n        \"height\" : 64,\n        \"url\"
+        : \"https://i.scdn.co/image/ab67616d0000485115878b043d6790d8f2b290e1\",\n
+        \       \"width\" : 64\n      } ],\n      \"name\" : \"Seen It All: The Autobiography\",\n
+        \     \"release_date\" : \"2014-09-02\",\n      \"release_date_precision\"
+        : \"day\",\n      \"total_tracks\" : 12,\n      \"type\" : \"album\",\n      \"uri\"
+        : \"spotify:album:0c9M5cLGr4WuWYvgz3kxj6\"\n    }, {\n      \"album_type\"
         : \"album\",\n      \"artists\" : [ {\n        \"external_urls\" : {\n          \"spotify\"
         : \"https://open.spotify.com/artist/5K4W6rqBFWDnAN6FQUkS6x\"\n        },\n
         \       \"href\" : \"https://api.spotify.com/v1/artists/5K4W6rqBFWDnAN6FQUkS6x\",\n
@@ -161,147 +339,6 @@ interactions:
         \     \"release_date\" : \"2021-11-14\",\n      \"release_date_precision\"
         : \"day\",\n      \"total_tracks\" : 32,\n      \"type\" : \"album\",\n      \"uri\"
         : \"spotify:album:2Wiyo7LzdeBCsVZiRA6vVZ\"\n    }, {\n      \"album_type\"
-        : \"single\",\n      \"artists\" : [ {\n        \"external_urls\" : {\n          \"spotify\"
-        : \"https://open.spotify.com/artist/7B7w8pzFreTsaAbXxLhlRc\"\n        },\n
-        \       \"href\" : \"https://api.spotify.com/v1/artists/7B7w8pzFreTsaAbXxLhlRc\",\n
-        \       \"id\" : \"7B7w8pzFreTsaAbXxLhlRc\",\n        \"name\" : \"twenny7\",\n
-        \       \"type\" : \"artist\",\n        \"uri\" : \"spotify:artist:7B7w8pzFreTsaAbXxLhlRc\"\n
-        \     } ],\n      \"available_markets\" : [ \"AR\", \"AU\", \"AT\", \"BE\",
-        \"BO\", \"BR\", \"BG\", \"CA\", \"CL\", \"CO\", \"CR\", \"CY\", \"CZ\", \"DK\",
-        \"DO\", \"DE\", \"EC\", \"EE\", \"SV\", \"FI\", \"FR\", \"GR\", \"GT\", \"HN\",
-        \"HK\", \"HU\", \"IS\", \"IE\", \"IT\", \"LV\", \"LT\", \"LU\", \"MY\", \"MT\",
-        \"MX\", \"NL\", \"NZ\", \"NI\", \"NO\", \"PA\", \"PY\", \"PE\", \"PH\", \"PL\",
-        \"PT\", \"SG\", \"SK\", \"ES\", \"SE\", \"CH\", \"TW\", \"TR\", \"UY\", \"US\",
-        \"GB\", \"AD\", \"LI\", \"MC\", \"ID\", \"JP\", \"TH\", \"VN\", \"RO\", \"IL\",
-        \"ZA\", \"SA\", \"AE\", \"BH\", \"QA\", \"OM\", \"KW\", \"EG\", \"MA\", \"DZ\",
-        \"TN\", \"LB\", \"JO\", \"PS\", \"IN\", \"BY\", \"KZ\", \"MD\", \"UA\", \"AL\",
-        \"BA\", \"HR\", \"ME\", \"MK\", \"RS\", \"SI\", \"KR\", \"BD\", \"PK\", \"LK\",
-        \"GH\", \"KE\", \"NG\", \"TZ\", \"UG\", \"AG\", \"AM\", \"BS\", \"BB\", \"BZ\",
-        \"BT\", \"BW\", \"BF\", \"CV\", \"CW\", \"DM\", \"FJ\", \"GM\", \"GE\", \"GD\",
-        \"GW\", \"GY\", \"HT\", \"JM\", \"KI\", \"LS\", \"LR\", \"MW\", \"MV\", \"ML\",
-        \"MH\", \"FM\", \"NA\", \"NR\", \"NE\", \"PW\", \"PG\", \"WS\", \"SM\", \"ST\",
-        \"SN\", \"SC\", \"SL\", \"SB\", \"KN\", \"LC\", \"VC\", \"SR\", \"TL\", \"TO\",
-        \"TT\", \"TV\", \"VU\", \"AZ\", \"BN\", \"BI\", \"KH\", \"CM\", \"TD\", \"KM\",
-        \"GQ\", \"SZ\", \"GA\", \"GN\", \"KG\", \"LA\", \"MO\", \"MR\", \"MN\", \"NP\",
-        \"RW\", \"TG\", \"UZ\", \"ZW\", \"BJ\", \"MG\", \"MU\", \"MZ\", \"AO\", \"CI\",
-        \"DJ\", \"ZM\", \"CD\", \"CG\", \"IQ\", \"LY\", \"TJ\", \"VE\", \"ET\", \"XK\"
-        ],\n      \"external_urls\" : {\n        \"spotify\" : \"https://open.spotify.com/album/2qKOxJZQRykjx0biUyofps\"\n
-        \     },\n      \"href\" : \"https://api.spotify.com/v1/albums/2qKOxJZQRykjx0biUyofps\",\n
-        \     \"id\" : \"2qKOxJZQRykjx0biUyofps\",\n      \"images\" : [ {\n        \"height\"
-        : 640,\n        \"url\" : \"https://i.scdn.co/image/ab67616d0000b2739f1f470ab63b2072f89b4219\",\n
-        \       \"width\" : 640\n      }, {\n        \"height\" : 300,\n        \"url\"
-        : \"https://i.scdn.co/image/ab67616d00001e029f1f470ab63b2072f89b4219\",\n
-        \       \"width\" : 300\n      }, {\n        \"height\" : 64,\n        \"url\"
-        : \"https://i.scdn.co/image/ab67616d000048519f1f470ab63b2072f89b4219\",\n
-        \       \"width\" : 64\n      } ],\n      \"name\" : \"yeezys\",\n      \"release_date\"
-        : \"2018-12-21\",\n      \"release_date_precision\" : \"day\",\n      \"total_tracks\"
-        : 1,\n      \"type\" : \"album\",\n      \"uri\" : \"spotify:album:2qKOxJZQRykjx0biUyofps\"\n
-        \   }, {\n      \"album_type\" : \"single\",\n      \"artists\" : [ {\n        \"external_urls\"
-        : {\n          \"spotify\" : \"https://open.spotify.com/artist/5fLSo9mAFFDtAJDo3Q2xcT\"\n
-        \       },\n        \"href\" : \"https://api.spotify.com/v1/artists/5fLSo9mAFFDtAJDo3Q2xcT\",\n
-        \       \"id\" : \"5fLSo9mAFFDtAJDo3Q2xcT\",\n        \"name\" : \"RXKNephew\",\n
-        \       \"type\" : \"artist\",\n        \"uri\" : \"spotify:artist:5fLSo9mAFFDtAJDo3Q2xcT\"\n
-        \     } ],\n      \"available_markets\" : [ \"AR\", \"AU\", \"AT\", \"BE\",
-        \"BO\", \"BR\", \"BG\", \"CA\", \"CL\", \"CO\", \"CR\", \"CY\", \"CZ\", \"DK\",
-        \"DO\", \"DE\", \"EC\", \"EE\", \"SV\", \"FI\", \"FR\", \"GR\", \"GT\", \"HN\",
-        \"HK\", \"HU\", \"IS\", \"IE\", \"IT\", \"LV\", \"LT\", \"LU\", \"MY\", \"MT\",
-        \"MX\", \"NL\", \"NZ\", \"NI\", \"NO\", \"PA\", \"PY\", \"PE\", \"PH\", \"PL\",
-        \"PT\", \"SG\", \"SK\", \"ES\", \"SE\", \"CH\", \"TW\", \"TR\", \"UY\", \"US\",
-        \"GB\", \"AD\", \"LI\", \"MC\", \"ID\", \"JP\", \"TH\", \"VN\", \"RO\", \"IL\",
-        \"ZA\", \"SA\", \"AE\", \"BH\", \"QA\", \"OM\", \"KW\", \"EG\", \"MA\", \"DZ\",
-        \"TN\", \"LB\", \"JO\", \"PS\", \"IN\", \"BY\", \"KZ\", \"MD\", \"UA\", \"AL\",
-        \"BA\", \"HR\", \"ME\", \"MK\", \"RS\", \"SI\", \"KR\", \"BD\", \"PK\", \"LK\",
-        \"GH\", \"KE\", \"NG\", \"TZ\", \"UG\", \"AG\", \"AM\", \"BS\", \"BB\", \"BZ\",
-        \"BT\", \"BW\", \"BF\", \"CV\", \"CW\", \"DM\", \"FJ\", \"GM\", \"GE\", \"GD\",
-        \"GW\", \"GY\", \"HT\", \"JM\", \"KI\", \"LS\", \"LR\", \"MW\", \"MV\", \"ML\",
-        \"MH\", \"FM\", \"NA\", \"NR\", \"NE\", \"PW\", \"PG\", \"WS\", \"SM\", \"ST\",
-        \"SN\", \"SC\", \"SL\", \"SB\", \"KN\", \"LC\", \"VC\", \"SR\", \"TL\", \"TO\",
-        \"TT\", \"TV\", \"VU\", \"AZ\", \"BN\", \"BI\", \"KH\", \"CM\", \"TD\", \"KM\",
-        \"GQ\", \"SZ\", \"GA\", \"GN\", \"KG\", \"LA\", \"MO\", \"MR\", \"MN\", \"NP\",
-        \"RW\", \"TG\", \"UZ\", \"ZW\", \"BJ\", \"MG\", \"MU\", \"MZ\", \"AO\", \"CI\",
-        \"DJ\", \"ZM\", \"CD\", \"CG\", \"IQ\", \"LY\", \"TJ\", \"VE\", \"ET\", \"XK\"
-        ],\n      \"external_urls\" : {\n        \"spotify\" : \"https://open.spotify.com/album/37t4iW6EOhvaxHicU56Lse\"\n
-        \     },\n      \"href\" : \"https://api.spotify.com/v1/albums/37t4iW6EOhvaxHicU56Lse\",\n
-        \     \"id\" : \"37t4iW6EOhvaxHicU56Lse\",\n      \"images\" : [ {\n        \"height\"
-        : 640,\n        \"url\" : \"https://i.scdn.co/image/ab67616d0000b2735118c3130f28c5cae9c973dd\",\n
-        \       \"width\" : 640\n      }, {\n        \"height\" : 300,\n        \"url\"
-        : \"https://i.scdn.co/image/ab67616d00001e025118c3130f28c5cae9c973dd\",\n
-        \       \"width\" : 300\n      }, {\n        \"height\" : 64,\n        \"url\"
-        : \"https://i.scdn.co/image/ab67616d000048515118c3130f28c5cae9c973dd\",\n
-        \       \"width\" : 64\n      } ],\n      \"name\" : \"Yeezy Boots\",\n      \"release_date\"
-        : \"2023-12-05\",\n      \"release_date_precision\" : \"day\",\n      \"total_tracks\"
-        : 1,\n      \"type\" : \"album\",\n      \"uri\" : \"spotify:album:37t4iW6EOhvaxHicU56Lse\"\n
-        \   }, {\n      \"album_type\" : \"single\",\n      \"artists\" : [ {\n        \"external_urls\"
-        : {\n          \"spotify\" : \"https://open.spotify.com/artist/2RqrWplViWHSGLzlhmDcbt\"\n
-        \       },\n        \"href\" : \"https://api.spotify.com/v1/artists/2RqrWplViWHSGLzlhmDcbt\",\n
-        \       \"id\" : \"2RqrWplViWHSGLzlhmDcbt\",\n        \"name\" : \"Yaeji\",\n
-        \       \"type\" : \"artist\",\n        \"uri\" : \"spotify:artist:2RqrWplViWHSGLzlhmDcbt\"\n
-        \     } ],\n      \"available_markets\" : [ \"AR\", \"AU\", \"AT\", \"BE\",
-        \"BO\", \"BR\", \"BG\", \"CA\", \"CL\", \"CO\", \"CR\", \"CY\", \"CZ\", \"DK\",
-        \"DO\", \"DE\", \"EC\", \"EE\", \"SV\", \"FI\", \"FR\", \"GR\", \"GT\", \"HN\",
-        \"HK\", \"HU\", \"IS\", \"IE\", \"IT\", \"LV\", \"LT\", \"LU\", \"MY\", \"MT\",
-        \"MX\", \"NL\", \"NZ\", \"NI\", \"NO\", \"PA\", \"PY\", \"PE\", \"PH\", \"PL\",
-        \"PT\", \"SG\", \"SK\", \"ES\", \"SE\", \"CH\", \"TW\", \"TR\", \"UY\", \"US\",
-        \"GB\", \"AD\", \"LI\", \"MC\", \"ID\", \"JP\", \"TH\", \"VN\", \"RO\", \"IL\",
-        \"ZA\", \"SA\", \"AE\", \"BH\", \"QA\", \"OM\", \"KW\", \"EG\", \"MA\", \"DZ\",
-        \"TN\", \"LB\", \"JO\", \"PS\", \"IN\", \"BY\", \"KZ\", \"MD\", \"UA\", \"AL\",
-        \"BA\", \"HR\", \"ME\", \"MK\", \"RS\", \"SI\", \"KR\", \"BD\", \"PK\", \"LK\",
-        \"GH\", \"KE\", \"NG\", \"TZ\", \"UG\", \"AG\", \"AM\", \"BS\", \"BB\", \"BZ\",
-        \"BT\", \"BW\", \"BF\", \"CV\", \"CW\", \"DM\", \"FJ\", \"GM\", \"GE\", \"GD\",
-        \"GW\", \"GY\", \"HT\", \"JM\", \"KI\", \"LS\", \"LR\", \"MW\", \"MV\", \"ML\",
-        \"MH\", \"FM\", \"NA\", \"NR\", \"NE\", \"PW\", \"PG\", \"WS\", \"SM\", \"ST\",
-        \"SN\", \"SC\", \"SL\", \"SB\", \"KN\", \"LC\", \"VC\", \"SR\", \"TL\", \"TO\",
-        \"TT\", \"TV\", \"VU\", \"AZ\", \"BN\", \"BI\", \"KH\", \"CM\", \"TD\", \"KM\",
-        \"GQ\", \"SZ\", \"GA\", \"GN\", \"KG\", \"LA\", \"MO\", \"MR\", \"MN\", \"NP\",
-        \"RW\", \"TG\", \"UZ\", \"ZW\", \"BJ\", \"MG\", \"MU\", \"MZ\", \"AO\", \"CI\",
-        \"DJ\", \"ZM\", \"CD\", \"CG\", \"IQ\", \"LY\", \"TJ\", \"VE\", \"ET\", \"XK\"
-        ],\n      \"external_urls\" : {\n        \"spotify\" : \"https://open.spotify.com/album/6zB32HTy4cewV8V7TuHzKJ\"\n
-        \     },\n      \"href\" : \"https://api.spotify.com/v1/albums/6zB32HTy4cewV8V7TuHzKJ\",\n
-        \     \"id\" : \"6zB32HTy4cewV8V7TuHzKJ\",\n      \"images\" : [ {\n        \"height\"
-        : 640,\n        \"url\" : \"https://i.scdn.co/image/ab67616d0000b273e6eb6a66ed4426f5cb6c4d9a\",\n
-        \       \"width\" : 640\n      }, {\n        \"height\" : 300,\n        \"url\"
-        : \"https://i.scdn.co/image/ab67616d00001e02e6eb6a66ed4426f5cb6c4d9a\",\n
-        \       \"width\" : 300\n      }, {\n        \"height\" : 64,\n        \"url\"
-        : \"https://i.scdn.co/image/ab67616d00004851e6eb6a66ed4426f5cb6c4d9a\",\n
-        \       \"width\" : 64\n      } ],\n      \"name\" : \"EP2\",\n      \"release_date\"
-        : \"2017-11-03\",\n      \"release_date_precision\" : \"day\",\n      \"total_tracks\"
-        : 5,\n      \"type\" : \"album\",\n      \"uri\" : \"spotify:album:6zB32HTy4cewV8V7TuHzKJ\"\n
-        \   }, {\n      \"album_type\" : \"single\",\n      \"artists\" : [ {\n        \"external_urls\"
-        : {\n          \"spotify\" : \"https://open.spotify.com/artist/68KmkJeZGfwe1OUaivBa2L\"\n
-        \       },\n        \"href\" : \"https://api.spotify.com/v1/artists/68KmkJeZGfwe1OUaivBa2L\",\n
-        \       \"id\" : \"68KmkJeZGfwe1OUaivBa2L\",\n        \"name\" : \"ATEEZ\",\n
-        \       \"type\" : \"artist\",\n        \"uri\" : \"spotify:artist:68KmkJeZGfwe1OUaivBa2L\"\n
-        \     } ],\n      \"available_markets\" : [ \"AR\", \"AU\", \"AT\", \"BE\",
-        \"BO\", \"BR\", \"BG\", \"CA\", \"CL\", \"CO\", \"CR\", \"CY\", \"CZ\", \"DK\",
-        \"DO\", \"DE\", \"EC\", \"EE\", \"SV\", \"FI\", \"FR\", \"GR\", \"GT\", \"HN\",
-        \"HK\", \"HU\", \"IS\", \"IE\", \"IT\", \"LV\", \"LT\", \"LU\", \"MY\", \"MT\",
-        \"MX\", \"NL\", \"NZ\", \"NI\", \"NO\", \"PA\", \"PY\", \"PE\", \"PH\", \"PL\",
-        \"PT\", \"SG\", \"SK\", \"ES\", \"SE\", \"CH\", \"TW\", \"TR\", \"UY\", \"US\",
-        \"GB\", \"AD\", \"LI\", \"MC\", \"ID\", \"JP\", \"TH\", \"VN\", \"RO\", \"IL\",
-        \"ZA\", \"SA\", \"AE\", \"BH\", \"QA\", \"OM\", \"KW\", \"EG\", \"MA\", \"DZ\",
-        \"TN\", \"LB\", \"JO\", \"PS\", \"IN\", \"BY\", \"KZ\", \"MD\", \"UA\", \"AL\",
-        \"BA\", \"HR\", \"ME\", \"MK\", \"RS\", \"SI\", \"KR\", \"BD\", \"PK\", \"LK\",
-        \"GH\", \"KE\", \"NG\", \"TZ\", \"UG\", \"AG\", \"AM\", \"BS\", \"BB\", \"BZ\",
-        \"BT\", \"BW\", \"BF\", \"CV\", \"CW\", \"DM\", \"FJ\", \"GM\", \"GE\", \"GD\",
-        \"GW\", \"GY\", \"HT\", \"JM\", \"KI\", \"LS\", \"LR\", \"MW\", \"MV\", \"ML\",
-        \"MH\", \"FM\", \"NA\", \"NR\", \"NE\", \"PW\", \"PG\", \"WS\", \"SM\", \"ST\",
-        \"SN\", \"SC\", \"SL\", \"SB\", \"KN\", \"LC\", \"VC\", \"SR\", \"TL\", \"TO\",
-        \"TT\", \"TV\", \"VU\", \"AZ\", \"BN\", \"BI\", \"KH\", \"CM\", \"TD\", \"KM\",
-        \"GQ\", \"SZ\", \"GA\", \"GN\", \"KG\", \"LA\", \"MO\", \"MR\", \"MN\", \"NP\",
-        \"RW\", \"TG\", \"UZ\", \"ZW\", \"BJ\", \"MG\", \"MU\", \"MZ\", \"AO\", \"CI\",
-        \"DJ\", \"ZM\", \"CD\", \"CG\", \"IQ\", \"LY\", \"TJ\", \"VE\", \"ET\", \"XK\"
-        ],\n      \"external_urls\" : {\n        \"spotify\" : \"https://open.spotify.com/album/4ayTucmOGwLd0WrJddrUwx\"\n
-        \     },\n      \"href\" : \"https://api.spotify.com/v1/albums/4ayTucmOGwLd0WrJddrUwx\",\n
-        \     \"id\" : \"4ayTucmOGwLd0WrJddrUwx\",\n      \"images\" : [ {\n        \"height\"
-        : 640,\n        \"url\" : \"https://i.scdn.co/image/ab67616d0000b273676c5cfc0c0f7ba0039adbba\",\n
-        \       \"width\" : 640\n      }, {\n        \"height\" : 300,\n        \"url\"
-        : \"https://i.scdn.co/image/ab67616d00001e02676c5cfc0c0f7ba0039adbba\",\n
-        \       \"width\" : 300\n      }, {\n        \"height\" : 64,\n        \"url\"
-        : \"https://i.scdn.co/image/ab67616d00004851676c5cfc0c0f7ba0039adbba\",\n
-        \       \"width\" : 64\n      } ],\n      \"name\" : \"TREASURE EP.1: All
-        to Zero\",\n      \"release_date\" : \"2018-10-24\",\n      \"release_date_precision\"
-        : \"day\",\n      \"total_tracks\" : 6,\n      \"type\" : \"album\",\n      \"uri\"
-        : \"spotify:album:4ayTucmOGwLd0WrJddrUwx\"\n    }, {\n      \"album_type\"
         : \"album\",\n      \"artists\" : [ {\n        \"external_urls\" : {\n          \"spotify\"
         : \"https://open.spotify.com/artist/4MVlGED9B1YXa9Gw9SISEl\"\n        },\n
         \       \"href\" : \"https://api.spotify.com/v1/artists/4MVlGED9B1YXa9Gw9SISEl\",\n
@@ -320,13 +357,13 @@ interactions:
         \"GH\", \"KE\", \"NG\", \"TZ\", \"UG\", \"AG\", \"AM\", \"BS\", \"BB\", \"BZ\",
         \"BT\", \"BW\", \"BF\", \"CV\", \"CW\", \"DM\", \"FJ\", \"GM\", \"GE\", \"GD\",
         \"GW\", \"GY\", \"HT\", \"JM\", \"KI\", \"LS\", \"LR\", \"MW\", \"MV\", \"ML\",
-        \"MH\", \"FM\", \"NA\", \"NR\", \"NE\", \"PW\", \"PG\", \"WS\", \"SM\", \"ST\",
-        \"SN\", \"SC\", \"SL\", \"SB\", \"KN\", \"LC\", \"VC\", \"SR\", \"TL\", \"TO\",
-        \"TT\", \"TV\", \"VU\", \"AZ\", \"BN\", \"BI\", \"KH\", \"CM\", \"TD\", \"KM\",
-        \"GQ\", \"SZ\", \"GA\", \"GN\", \"KG\", \"LA\", \"MO\", \"MR\", \"MN\", \"NP\",
-        \"RW\", \"TG\", \"UZ\", \"ZW\", \"BJ\", \"MG\", \"MU\", \"MZ\", \"AO\", \"CI\",
-        \"DJ\", \"ZM\", \"CD\", \"CG\", \"IQ\", \"LY\", \"TJ\", \"VE\", \"ET\", \"XK\"
-        ],\n      \"external_urls\" : {\n        \"spotify\" : \"https://open.spotify.com/album/6M1c6Tj9Np5a4zeshoCJa0\"\n
+        \"MH\", \"FM\", \"NA\", \"NR\", \"NE\", \"PW\", \"PG\", \"PR\", \"WS\", \"SM\",
+        \"ST\", \"SN\", \"SC\", \"SL\", \"SB\", \"KN\", \"LC\", \"VC\", \"SR\", \"TL\",
+        \"TO\", \"TT\", \"TV\", \"VU\", \"AZ\", \"BN\", \"BI\", \"KH\", \"CM\", \"TD\",
+        \"KM\", \"GQ\", \"SZ\", \"GA\", \"GN\", \"KG\", \"LA\", \"MO\", \"MR\", \"MN\",
+        \"NP\", \"RW\", \"TG\", \"UZ\", \"ZW\", \"BJ\", \"MG\", \"MU\", \"MZ\", \"AO\",
+        \"CI\", \"DJ\", \"ZM\", \"CD\", \"CG\", \"IQ\", \"LY\", \"TJ\", \"VE\", \"ET\",
+        \"XK\" ],\n      \"external_urls\" : {\n        \"spotify\" : \"https://open.spotify.com/album/6M1c6Tj9Np5a4zeshoCJa0\"\n
         \     },\n      \"href\" : \"https://api.spotify.com/v1/albums/6M1c6Tj9Np5a4zeshoCJa0\",\n
         \     \"id\" : \"6M1c6Tj9Np5a4zeshoCJa0\",\n      \"images\" : [ {\n        \"height\"
         : 640,\n        \"url\" : \"https://i.scdn.co/image/ab67616d0000b2730e6dc4649c5bdb82a46d02bc\",\n
@@ -337,41 +374,6 @@ interactions:
         \       \"width\" : 64\n      } ],\n      \"name\" : \"Yeezus Piece\",\n      \"release_date\"
         : \"2023-09-01\",\n      \"release_date_precision\" : \"day\",\n      \"total_tracks\"
         : 8,\n      \"type\" : \"album\",\n      \"uri\" : \"spotify:album:6M1c6Tj9Np5a4zeshoCJa0\"\n
-        \   }, {\n      \"album_type\" : \"single\",\n      \"artists\" : [ {\n        \"external_urls\"
-        : {\n          \"spotify\" : \"https://open.spotify.com/artist/3bbgSCvnta07AjwW3vn0fb\"\n
-        \       },\n        \"href\" : \"https://api.spotify.com/v1/artists/3bbgSCvnta07AjwW3vn0fb\",\n
-        \       \"id\" : \"3bbgSCvnta07AjwW3vn0fb\",\n        \"name\" : \"Jigga -
-        Lo Stankdoodoo\",\n        \"type\" : \"artist\",\n        \"uri\" : \"spotify:artist:3bbgSCvnta07AjwW3vn0fb\"\n
-        \     } ],\n      \"available_markets\" : [ \"AR\", \"AU\", \"AT\", \"BE\",
-        \"BO\", \"BR\", \"BG\", \"CA\", \"CL\", \"CO\", \"CR\", \"CY\", \"CZ\", \"DK\",
-        \"DO\", \"DE\", \"EC\", \"EE\", \"SV\", \"FI\", \"FR\", \"GR\", \"GT\", \"HN\",
-        \"HK\", \"HU\", \"IS\", \"IE\", \"IT\", \"LV\", \"LT\", \"LU\", \"MY\", \"MT\",
-        \"MX\", \"NL\", \"NZ\", \"NI\", \"NO\", \"PA\", \"PY\", \"PE\", \"PH\", \"PL\",
-        \"PT\", \"SG\", \"SK\", \"ES\", \"SE\", \"CH\", \"TW\", \"TR\", \"UY\", \"US\",
-        \"GB\", \"AD\", \"LI\", \"MC\", \"ID\", \"JP\", \"TH\", \"VN\", \"RO\", \"IL\",
-        \"ZA\", \"SA\", \"AE\", \"BH\", \"QA\", \"OM\", \"KW\", \"EG\", \"MA\", \"DZ\",
-        \"TN\", \"LB\", \"JO\", \"PS\", \"IN\", \"BY\", \"KZ\", \"MD\", \"UA\", \"AL\",
-        \"BA\", \"HR\", \"ME\", \"MK\", \"RS\", \"SI\", \"KR\", \"BD\", \"PK\", \"LK\",
-        \"GH\", \"KE\", \"NG\", \"TZ\", \"UG\", \"AG\", \"AM\", \"BS\", \"BB\", \"BZ\",
-        \"BT\", \"BW\", \"BF\", \"CV\", \"CW\", \"DM\", \"FJ\", \"GM\", \"GE\", \"GD\",
-        \"GW\", \"GY\", \"HT\", \"JM\", \"KI\", \"LS\", \"LR\", \"MW\", \"MV\", \"ML\",
-        \"MH\", \"FM\", \"NA\", \"NR\", \"NE\", \"PW\", \"PG\", \"WS\", \"SM\", \"ST\",
-        \"SN\", \"SC\", \"SL\", \"SB\", \"KN\", \"LC\", \"VC\", \"SR\", \"TL\", \"TO\",
-        \"TT\", \"TV\", \"VU\", \"AZ\", \"BN\", \"BI\", \"KH\", \"CM\", \"TD\", \"KM\",
-        \"GQ\", \"SZ\", \"GA\", \"GN\", \"KG\", \"LA\", \"MO\", \"MR\", \"MN\", \"NP\",
-        \"RW\", \"TG\", \"UZ\", \"ZW\", \"BJ\", \"MG\", \"MU\", \"MZ\", \"AO\", \"CI\",
-        \"DJ\", \"ZM\", \"CD\", \"CG\", \"IQ\", \"LY\", \"TJ\", \"VE\", \"ET\", \"XK\"
-        ],\n      \"external_urls\" : {\n        \"spotify\" : \"https://open.spotify.com/album/3e3S54EYvedftaWUQP6bM7\"\n
-        \     },\n      \"href\" : \"https://api.spotify.com/v1/albums/3e3S54EYvedftaWUQP6bM7\",\n
-        \     \"id\" : \"3e3S54EYvedftaWUQP6bM7\",\n      \"images\" : [ {\n        \"height\"
-        : 640,\n        \"url\" : \"https://i.scdn.co/image/ab67616d0000b273eab5ae2c3b27e491b5f5db88\",\n
-        \       \"width\" : 640\n      }, {\n        \"height\" : 300,\n        \"url\"
-        : \"https://i.scdn.co/image/ab67616d00001e02eab5ae2c3b27e491b5f5db88\",\n
-        \       \"width\" : 300\n      }, {\n        \"height\" : 64,\n        \"url\"
-        : \"https://i.scdn.co/image/ab67616d00004851eab5ae2c3b27e491b5f5db88\",\n
-        \       \"width\" : 64\n      } ],\n      \"name\" : \"Yeezys\",\n      \"release_date\"
-        : \"2022-12-25\",\n      \"release_date_precision\" : \"day\",\n      \"total_tracks\"
-        : 1,\n      \"type\" : \"album\",\n      \"uri\" : \"spotify:album:3e3S54EYvedftaWUQP6bM7\"\n
         \   } ],\n    \"limit\" : 10,\n    \"next\" : \"https://api.spotify.com/v1/search?query=album%3A+yeezus&type=album&offset=10&limit=10\",\n
         \   \"offset\" : 0,\n    \"previous\" : null,\n    \"total\" : 1000\n  }\n}"
     headers:
@@ -399,7 +401,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Sun, 25 Feb 2024 04:57:20 GMT
+      - Thu, 28 Mar 2024 16:31:07 GMT
       server:
       - envoy
       strict-transport-security:
@@ -419,7 +421,7 @@ interactions:
       Accept-Encoding:
       - gzip, deflate, br
       Authorization:
-      - Bearer BQCYEq1sWe3G_lSWxUc5YNppa50KKUrBaUVYRCwa7rqtA7YUNv4mx-JEYAFI75sVOh8ZzmaIvB9pXDCpSECD6X2AeHvZFCvQh8FtdWAWrAsInb3zfk4
+      - Bearer BQAmR5_XFBTOR6SijMBhqeT7q8ifOOJJnggeofu9KOIgp6d_mxxWodmS9_6kHvsCZX2aSdM59EJ7IYxqZVb4hUm7cWWhzccvxp9Kg6jtR_9HRn9fkNs
       Connection:
       - keep-alive
       Content-Type:
@@ -465,7 +467,7 @@ interactions:
         \   \"width\" : 640\n  }, {\n    \"height\" : 300,\n    \"url\" : \"https://i.scdn.co/image/ab67616d00001e021dacfbc31cc873d132958af9\",\n
         \   \"width\" : 300\n  }, {\n    \"height\" : 64,\n    \"url\" : \"https://i.scdn.co/image/ab67616d000048511dacfbc31cc873d132958af9\",\n
         \   \"width\" : 64\n  } ],\n  \"label\" : \"Rock The World/IDJ/Kanye/LP6\",\n
-        \ \"name\" : \"Yeezus\",\n  \"popularity\" : 84,\n  \"release_date\" : \"2013-06-18\",\n
+        \ \"name\" : \"Yeezus\",\n  \"popularity\" : 82,\n  \"release_date\" : \"2013-06-18\",\n
         \ \"release_date_precision\" : \"day\",\n  \"total_tracks\" : 10,\n  \"tracks\"
         : {\n    \"href\" : \"https://api.spotify.com/v1/albums/7D2NdGvBHIavgLhmcwhluK/tracks?offset=0&limit=50\",\n
         \   \"items\" : [ {\n      \"artists\" : [ {\n        \"external_urls\" :
@@ -796,7 +798,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Sun, 25 Feb 2024 04:57:20 GMT
+      - Thu, 28 Mar 2024 16:31:07 GMT
       server:
       - envoy
       strict-transport-security:
@@ -816,7 +818,7 @@ interactions:
       Accept-Encoding:
       - gzip, deflate, br
       Authorization:
-      - Bearer BQCYEq1sWe3G_lSWxUc5YNppa50KKUrBaUVYRCwa7rqtA7YUNv4mx-JEYAFI75sVOh8ZzmaIvB9pXDCpSECD6X2AeHvZFCvQh8FtdWAWrAsInb3zfk4
+      - Bearer BQAmR5_XFBTOR6SijMBhqeT7q8ifOOJJnggeofu9KOIgp6d_mxxWodmS9_6kHvsCZX2aSdM59EJ7IYxqZVb4hUm7cWWhzccvxp9Kg6jtR_9HRn9fkNs
       Connection:
       - keep-alive
       Content-Type:
@@ -1155,7 +1157,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Sun, 25 Feb 2024 04:57:21 GMT
+      - Thu, 28 Mar 2024 16:31:08 GMT
       server:
       - envoy
       strict-transport-security:
@@ -1175,7 +1177,7 @@ interactions:
       Accept-Encoding:
       - gzip, deflate, br
       Authorization:
-      - Bearer BQCYEq1sWe3G_lSWxUc5YNppa50KKUrBaUVYRCwa7rqtA7YUNv4mx-JEYAFI75sVOh8ZzmaIvB9pXDCpSECD6X2AeHvZFCvQh8FtdWAWrAsInb3zfk4
+      - Bearer BQAmR5_XFBTOR6SijMBhqeT7q8ifOOJJnggeofu9KOIgp6d_mxxWodmS9_6kHvsCZX2aSdM59EJ7IYxqZVb4hUm7cWWhzccvxp9Kg6jtR_9HRn9fkNs
       Connection:
       - keep-alive
       Content-Type:
@@ -1249,7 +1251,7 @@ interactions:
         : \"https://open.spotify.com/track/1gqkRc9WtOpnGIqxf2Hvzr\"\n  },\n  \"href\"
         : \"https://api.spotify.com/v1/tracks/1gqkRc9WtOpnGIqxf2Hvzr\",\n  \"id\"
         : \"1gqkRc9WtOpnGIqxf2Hvzr\",\n  \"is_local\" : false,\n  \"name\" : \"On
-        Sight\",\n  \"popularity\" : 72,\n  \"preview_url\" : null,\n  \"track_number\"
+        Sight\",\n  \"popularity\" : 69,\n  \"preview_url\" : null,\n  \"track_number\"
         : 1,\n  \"type\" : \"track\",\n  \"uri\" : \"spotify:track:1gqkRc9WtOpnGIqxf2Hvzr\"\n}"
     headers:
       Alt-Svc:
@@ -1276,7 +1278,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Sun, 25 Feb 2024 04:57:22 GMT
+      - Thu, 28 Mar 2024 16:31:08 GMT
       server:
       - envoy
       strict-transport-security:
@@ -1296,7 +1298,7 @@ interactions:
       Accept-Encoding:
       - gzip, deflate, br
       Authorization:
-      - Bearer BQCYEq1sWe3G_lSWxUc5YNppa50KKUrBaUVYRCwa7rqtA7YUNv4mx-JEYAFI75sVOh8ZzmaIvB9pXDCpSECD6X2AeHvZFCvQh8FtdWAWrAsInb3zfk4
+      - Bearer BQAmR5_XFBTOR6SijMBhqeT7q8ifOOJJnggeofu9KOIgp6d_mxxWodmS9_6kHvsCZX2aSdM59EJ7IYxqZVb4hUm7cWWhzccvxp9Kg6jtR_9HRn9fkNs
       Connection:
       - keep-alive
       Content-Type:
@@ -1308,7 +1310,7 @@ interactions:
   response:
     body:
       string: "{\n  \"external_urls\" : {\n    \"spotify\" : \"https://open.spotify.com/artist/5K4W6rqBFWDnAN6FQUkS6x\"\n
-        \ },\n  \"followers\" : {\n    \"href\" : null,\n    \"total\" : 23905753\n
+        \ },\n  \"followers\" : {\n    \"href\" : null,\n    \"total\" : 24535920\n
         \ },\n  \"genres\" : [ \"chicago rap\", \"hip hop\", \"rap\" ],\n  \"href\"
         : \"https://api.spotify.com/v1/artists/5K4W6rqBFWDnAN6FQUkS6x\",\n  \"id\"
         : \"5K4W6rqBFWDnAN6FQUkS6x\",\n  \"images\" : [ {\n    \"height\" : 640,\n
@@ -1342,7 +1344,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Sun, 25 Feb 2024 04:57:22 GMT
+      - Thu, 28 Mar 2024 16:31:09 GMT
       server:
       - envoy
       strict-transport-security:
@@ -1362,7 +1364,7 @@ interactions:
       Accept-Encoding:
       - gzip, deflate, br
       Authorization:
-      - Bearer BQCYEq1sWe3G_lSWxUc5YNppa50KKUrBaUVYRCwa7rqtA7YUNv4mx-JEYAFI75sVOh8ZzmaIvB9pXDCpSECD6X2AeHvZFCvQh8FtdWAWrAsInb3zfk4
+      - Bearer BQAmR5_XFBTOR6SijMBhqeT7q8ifOOJJnggeofu9KOIgp6d_mxxWodmS9_6kHvsCZX2aSdM59EJ7IYxqZVb4hUm7cWWhzccvxp9Kg6jtR_9HRn9fkNs
       Connection:
       - keep-alive
       Content-Type:
@@ -1436,7 +1438,7 @@ interactions:
         : \"https://open.spotify.com/track/722tgOgdIbNe3BEyLnejw4\"\n  },\n  \"href\"
         : \"https://api.spotify.com/v1/tracks/722tgOgdIbNe3BEyLnejw4\",\n  \"id\"
         : \"722tgOgdIbNe3BEyLnejw4\",\n  \"is_local\" : false,\n  \"name\" : \"Black
-        Skinhead\",\n  \"popularity\" : 77,\n  \"preview_url\" : null,\n  \"track_number\"
+        Skinhead\",\n  \"popularity\" : 74,\n  \"preview_url\" : null,\n  \"track_number\"
         : 2,\n  \"type\" : \"track\",\n  \"uri\" : \"spotify:track:722tgOgdIbNe3BEyLnejw4\"\n}"
     headers:
       Alt-Svc:
@@ -1463,7 +1465,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Sun, 25 Feb 2024 04:57:23 GMT
+      - Thu, 28 Mar 2024 16:31:10 GMT
       server:
       - envoy
       strict-transport-security:
@@ -1483,7 +1485,7 @@ interactions:
       Accept-Encoding:
       - gzip, deflate, br
       Authorization:
-      - Bearer BQCYEq1sWe3G_lSWxUc5YNppa50KKUrBaUVYRCwa7rqtA7YUNv4mx-JEYAFI75sVOh8ZzmaIvB9pXDCpSECD6X2AeHvZFCvQh8FtdWAWrAsInb3zfk4
+      - Bearer BQAmR5_XFBTOR6SijMBhqeT7q8ifOOJJnggeofu9KOIgp6d_mxxWodmS9_6kHvsCZX2aSdM59EJ7IYxqZVb4hUm7cWWhzccvxp9Kg6jtR_9HRn9fkNs
       Connection:
       - keep-alive
       Content-Type:
@@ -1557,7 +1559,7 @@ interactions:
         : \"https://open.spotify.com/track/0HMCdlOPJkAGlB0MlSWIcO\"\n  },\n  \"href\"
         : \"https://api.spotify.com/v1/tracks/0HMCdlOPJkAGlB0MlSWIcO\",\n  \"id\"
         : \"0HMCdlOPJkAGlB0MlSWIcO\",\n  \"is_local\" : false,\n  \"name\" : \"I Am
-        A God\",\n  \"popularity\" : 64,\n  \"preview_url\" : null,\n  \"track_number\"
+        A God\",\n  \"popularity\" : 61,\n  \"preview_url\" : null,\n  \"track_number\"
         : 3,\n  \"type\" : \"track\",\n  \"uri\" : \"spotify:track:0HMCdlOPJkAGlB0MlSWIcO\"\n}"
     headers:
       Alt-Svc:
@@ -1584,7 +1586,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Sun, 25 Feb 2024 04:57:24 GMT
+      - Thu, 28 Mar 2024 16:31:10 GMT
       server:
       - envoy
       strict-transport-security:
@@ -1604,7 +1606,7 @@ interactions:
       Accept-Encoding:
       - gzip, deflate, br
       Authorization:
-      - Bearer BQCYEq1sWe3G_lSWxUc5YNppa50KKUrBaUVYRCwa7rqtA7YUNv4mx-JEYAFI75sVOh8ZzmaIvB9pXDCpSECD6X2AeHvZFCvQh8FtdWAWrAsInb3zfk4
+      - Bearer BQAmR5_XFBTOR6SijMBhqeT7q8ifOOJJnggeofu9KOIgp6d_mxxWodmS9_6kHvsCZX2aSdM59EJ7IYxqZVb4hUm7cWWhzccvxp9Kg6jtR_9HRn9fkNs
       Connection:
       - keep-alive
       Content-Type:
@@ -1678,7 +1680,7 @@ interactions:
         : \"https://open.spotify.com/track/4cAgkb0ifwn0FSHGXnr4F6\"\n  },\n  \"href\"
         : \"https://api.spotify.com/v1/tracks/4cAgkb0ifwn0FSHGXnr4F6\",\n  \"id\"
         : \"4cAgkb0ifwn0FSHGXnr4F6\",\n  \"is_local\" : false,\n  \"name\" : \"New
-        Slaves\",\n  \"popularity\" : 69,\n  \"preview_url\" : null,\n  \"track_number\"
+        Slaves\",\n  \"popularity\" : 66,\n  \"preview_url\" : null,\n  \"track_number\"
         : 4,\n  \"type\" : \"track\",\n  \"uri\" : \"spotify:track:4cAgkb0ifwn0FSHGXnr4F6\"\n}"
     headers:
       Alt-Svc:
@@ -1705,7 +1707,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Sun, 25 Feb 2024 04:57:24 GMT
+      - Thu, 28 Mar 2024 16:31:11 GMT
       server:
       - envoy
       strict-transport-security:
@@ -1725,7 +1727,7 @@ interactions:
       Accept-Encoding:
       - gzip, deflate, br
       Authorization:
-      - Bearer BQCYEq1sWe3G_lSWxUc5YNppa50KKUrBaUVYRCwa7rqtA7YUNv4mx-JEYAFI75sVOh8ZzmaIvB9pXDCpSECD6X2AeHvZFCvQh8FtdWAWrAsInb3zfk4
+      - Bearer BQAmR5_XFBTOR6SijMBhqeT7q8ifOOJJnggeofu9KOIgp6d_mxxWodmS9_6kHvsCZX2aSdM59EJ7IYxqZVb4hUm7cWWhzccvxp9Kg6jtR_9HRn9fkNs
       Connection:
       - keep-alive
       Content-Type:
@@ -1799,7 +1801,7 @@ interactions:
         : \"https://open.spotify.com/track/5nIu0VwPOsjkF61zfevLKh\"\n  },\n  \"href\"
         : \"https://api.spotify.com/v1/tracks/5nIu0VwPOsjkF61zfevLKh\",\n  \"id\"
         : \"5nIu0VwPOsjkF61zfevLKh\",\n  \"is_local\" : false,\n  \"name\" : \"Hold
-        My Liquor\",\n  \"popularity\" : 68,\n  \"preview_url\" : null,\n  \"track_number\"
+        My Liquor\",\n  \"popularity\" : 65,\n  \"preview_url\" : null,\n  \"track_number\"
         : 5,\n  \"type\" : \"track\",\n  \"uri\" : \"spotify:track:5nIu0VwPOsjkF61zfevLKh\"\n}"
     headers:
       Alt-Svc:
@@ -1826,7 +1828,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Sun, 25 Feb 2024 04:57:25 GMT
+      - Thu, 28 Mar 2024 16:31:12 GMT
       server:
       - envoy
       strict-transport-security:
@@ -1846,7 +1848,7 @@ interactions:
       Accept-Encoding:
       - gzip, deflate, br
       Authorization:
-      - Bearer BQCYEq1sWe3G_lSWxUc5YNppa50KKUrBaUVYRCwa7rqtA7YUNv4mx-JEYAFI75sVOh8ZzmaIvB9pXDCpSECD6X2AeHvZFCvQh8FtdWAWrAsInb3zfk4
+      - Bearer BQAmR5_XFBTOR6SijMBhqeT7q8ifOOJJnggeofu9KOIgp6d_mxxWodmS9_6kHvsCZX2aSdM59EJ7IYxqZVb4hUm7cWWhzccvxp9Kg6jtR_9HRn9fkNs
       Connection:
       - keep-alive
       Content-Type:
@@ -1920,7 +1922,7 @@ interactions:
         : \"https://open.spotify.com/track/52NmkyHsGsHGb1UX8fTkMg\"\n  },\n  \"href\"
         : \"https://api.spotify.com/v1/tracks/52NmkyHsGsHGb1UX8fTkMg\",\n  \"id\"
         : \"52NmkyHsGsHGb1UX8fTkMg\",\n  \"is_local\" : false,\n  \"name\" : \"I'm
-        In It\",\n  \"popularity\" : 62,\n  \"preview_url\" : null,\n  \"track_number\"
+        In It\",\n  \"popularity\" : 58,\n  \"preview_url\" : null,\n  \"track_number\"
         : 6,\n  \"type\" : \"track\",\n  \"uri\" : \"spotify:track:52NmkyHsGsHGb1UX8fTkMg\"\n}"
     headers:
       Alt-Svc:
@@ -1947,7 +1949,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Sun, 25 Feb 2024 04:57:26 GMT
+      - Thu, 28 Mar 2024 16:31:12 GMT
       server:
       - envoy
       strict-transport-security:
@@ -1967,7 +1969,7 @@ interactions:
       Accept-Encoding:
       - gzip, deflate, br
       Authorization:
-      - Bearer BQCYEq1sWe3G_lSWxUc5YNppa50KKUrBaUVYRCwa7rqtA7YUNv4mx-JEYAFI75sVOh8ZzmaIvB9pXDCpSECD6X2AeHvZFCvQh8FtdWAWrAsInb3zfk4
+      - Bearer BQAmR5_XFBTOR6SijMBhqeT7q8ifOOJJnggeofu9KOIgp6d_mxxWodmS9_6kHvsCZX2aSdM59EJ7IYxqZVb4hUm7cWWhzccvxp9Kg6jtR_9HRn9fkNs
       Connection:
       - keep-alive
       Content-Type:
@@ -2041,7 +2043,7 @@ interactions:
         : \"https://open.spotify.com/track/42GcjriRK6srwHkfbkBqVl\"\n  },\n  \"href\"
         : \"https://api.spotify.com/v1/tracks/42GcjriRK6srwHkfbkBqVl\",\n  \"id\"
         : \"42GcjriRK6srwHkfbkBqVl\",\n  \"is_local\" : false,\n  \"name\" : \"Blood
-        On The Leaves\",\n  \"popularity\" : 68,\n  \"preview_url\" : null,\n  \"track_number\"
+        On The Leaves\",\n  \"popularity\" : 65,\n  \"preview_url\" : null,\n  \"track_number\"
         : 7,\n  \"type\" : \"track\",\n  \"uri\" : \"spotify:track:42GcjriRK6srwHkfbkBqVl\"\n}"
     headers:
       Alt-Svc:
@@ -2068,7 +2070,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Sun, 25 Feb 2024 04:57:26 GMT
+      - Thu, 28 Mar 2024 16:31:12 GMT
       server:
       - envoy
       strict-transport-security:
@@ -2088,7 +2090,7 @@ interactions:
       Accept-Encoding:
       - gzip, deflate, br
       Authorization:
-      - Bearer BQCYEq1sWe3G_lSWxUc5YNppa50KKUrBaUVYRCwa7rqtA7YUNv4mx-JEYAFI75sVOh8ZzmaIvB9pXDCpSECD6X2AeHvZFCvQh8FtdWAWrAsInb3zfk4
+      - Bearer BQAmR5_XFBTOR6SijMBhqeT7q8ifOOJJnggeofu9KOIgp6d_mxxWodmS9_6kHvsCZX2aSdM59EJ7IYxqZVb4hUm7cWWhzccvxp9Kg6jtR_9HRn9fkNs
       Connection:
       - keep-alive
       Content-Type:
@@ -2162,7 +2164,7 @@ interactions:
         : \"https://open.spotify.com/track/5nPOM0nFRAJ3XI8xCxNAzO\"\n  },\n  \"href\"
         : \"https://api.spotify.com/v1/tracks/5nPOM0nFRAJ3XI8xCxNAzO\",\n  \"id\"
         : \"5nPOM0nFRAJ3XI8xCxNAzO\",\n  \"is_local\" : false,\n  \"name\" : \"Guilt
-        Trip\",\n  \"popularity\" : 62,\n  \"preview_url\" : null,\n  \"track_number\"
+        Trip\",\n  \"popularity\" : 59,\n  \"preview_url\" : null,\n  \"track_number\"
         : 8,\n  \"type\" : \"track\",\n  \"uri\" : \"spotify:track:5nPOM0nFRAJ3XI8xCxNAzO\"\n}"
     headers:
       Alt-Svc:
@@ -2189,7 +2191,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Sun, 25 Feb 2024 04:57:27 GMT
+      - Thu, 28 Mar 2024 16:31:13 GMT
       server:
       - envoy
       strict-transport-security:
@@ -2209,7 +2211,7 @@ interactions:
       Accept-Encoding:
       - gzip, deflate, br
       Authorization:
-      - Bearer BQCYEq1sWe3G_lSWxUc5YNppa50KKUrBaUVYRCwa7rqtA7YUNv4mx-JEYAFI75sVOh8ZzmaIvB9pXDCpSECD6X2AeHvZFCvQh8FtdWAWrAsInb3zfk4
+      - Bearer BQAmR5_XFBTOR6SijMBhqeT7q8ifOOJJnggeofu9KOIgp6d_mxxWodmS9_6kHvsCZX2aSdM59EJ7IYxqZVb4hUm7cWWhzccvxp9Kg6jtR_9HRn9fkNs
       Connection:
       - keep-alive
       Content-Type:
@@ -2283,7 +2285,7 @@ interactions:
         : \"https://open.spotify.com/track/3RKblQNJs8HPvWBgXmq6nn\"\n  },\n  \"href\"
         : \"https://api.spotify.com/v1/tracks/3RKblQNJs8HPvWBgXmq6nn\",\n  \"id\"
         : \"3RKblQNJs8HPvWBgXmq6nn\",\n  \"is_local\" : false,\n  \"name\" : \"Send
-        It Up\",\n  \"popularity\" : 61,\n  \"preview_url\" : null,\n  \"track_number\"
+        It Up\",\n  \"popularity\" : 57,\n  \"preview_url\" : null,\n  \"track_number\"
         : 9,\n  \"type\" : \"track\",\n  \"uri\" : \"spotify:track:3RKblQNJs8HPvWBgXmq6nn\"\n}"
     headers:
       Alt-Svc:
@@ -2310,7 +2312,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Sun, 25 Feb 2024 04:57:27 GMT
+      - Thu, 28 Mar 2024 16:31:14 GMT
       server:
       - envoy
       strict-transport-security:
@@ -2330,7 +2332,7 @@ interactions:
       Accept-Encoding:
       - gzip, deflate, br
       Authorization:
-      - Bearer BQCYEq1sWe3G_lSWxUc5YNppa50KKUrBaUVYRCwa7rqtA7YUNv4mx-JEYAFI75sVOh8ZzmaIvB9pXDCpSECD6X2AeHvZFCvQh8FtdWAWrAsInb3zfk4
+      - Bearer BQAmR5_XFBTOR6SijMBhqeT7q8ifOOJJnggeofu9KOIgp6d_mxxWodmS9_6kHvsCZX2aSdM59EJ7IYxqZVb4hUm7cWWhzccvxp9Kg6jtR_9HRn9fkNs
       Connection:
       - keep-alive
       Content-Type:
@@ -2404,7 +2406,7 @@ interactions:
         : \"https://open.spotify.com/track/3sNVsP50132BTNlImLx70i\"\n  },\n  \"href\"
         : \"https://api.spotify.com/v1/tracks/3sNVsP50132BTNlImLx70i\",\n  \"id\"
         : \"3sNVsP50132BTNlImLx70i\",\n  \"is_local\" : false,\n  \"name\" : \"Bound
-        2\",\n  \"popularity\" : 87,\n  \"preview_url\" : null,\n  \"track_number\"
+        2\",\n  \"popularity\" : 84,\n  \"preview_url\" : null,\n  \"track_number\"
         : 10,\n  \"type\" : \"track\",\n  \"uri\" : \"spotify:track:3sNVsP50132BTNlImLx70i\"\n}"
     headers:
       Alt-Svc:
@@ -2431,7 +2433,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Sun, 25 Feb 2024 04:57:28 GMT
+      - Thu, 28 Mar 2024 16:31:14 GMT
       server:
       - envoy
       strict-transport-security:
