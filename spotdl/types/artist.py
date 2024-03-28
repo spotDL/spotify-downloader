@@ -54,7 +54,6 @@ class Artist(SongList):
             )
 
         artist_albums = spotify_client.artist_albums(url, album_type="album,single")
-
         # check if there is response
         if not artist_albums:
             raise ArtistError(

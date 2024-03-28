@@ -5,7 +5,7 @@ termux-setup-storage
 pkg update -y
 
 # install python and ffmpeg
-pkg install -y python ffmpeg
+pkg install -y python ffmpeg rust binutils
 
 # install spotdl
 pip install -U spotdl

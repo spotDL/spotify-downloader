@@ -28,10 +28,11 @@ def url(
 
     # Parse the query
     songs = parse_query(
-        query,
-        downloader.settings["threads"],
-        downloader.settings["ytm_data"],
-        downloader.settings["playlist_numbering"],
+        query=query,
+        threads=downloader.settings["threads"],
+        use_ytm_data=downloader.settings["ytm_data"],
+        playlist_numbering=downloader.settings["playlist_numbering"],
+        album_type=downloader.settings["album_type"],
     )
 
     def process_song(song: Song):

@@ -75,7 +75,8 @@ def parse_main_options(parser: _ArgumentGroup):
             "(ie. 'album:the album name' you can mix these options to get more accurate results)"
             ".\n\n"
             "To download liked songs use 'saved' as the query, to download all user playlists\n"
-            "use 'all-user-playlists, to download all songs from all followed artists "
+            "use 'all-user-playlists, to download playlists that the user has created\n"
+            "use 'all-saved-playlists', to download all user liked playlists\n"
             "use 'all-user-followed-artists', to download all user saved albums "
             "use 'all-user-saved-albums' \n\n"
             "For manual audio matching, you can use the format 'YouTubeURL|SpotifyURL'\n"
@@ -152,6 +153,14 @@ def parse_main_options(parser: _ArgumentGroup):
         action="store_const",
         const=False,
         help="Disable filtering results.",
+    )
+
+    # Add use only verified results argument
+    parser.add_argument(
+        "--album-type",
+        choices={"album", "single"},
+        help="Type of the album to search for. (album, single)",
+        type=str,
     )
 
     # Add use only verified results argument
@@ -551,6 +560,14 @@ def parse_output_options(parser: _ArgumentGroup):
         help="to redownload the local song in diffrent format using --format for meta operation",
     )
 
+    # skip album art for meta operation
+    parser.add_argument(
+        "--skip-album-art",
+        action="store_const",
+        const=True,
+        help="skip downloading album art for meta operation",
+    )
+
     # Ignore songs from a paticular album
     parser.add_argument(
         "--ignore-albums",
@@ -567,6 +584,22 @@ def parse_output_options(parser: _ArgumentGroup):
     parser.add_argument(
         "--proxy",
         help="Http(s) proxy server for download song. Example: http://host:port",
+    )
+
+    # Skip songs having a skip flag file
+    parser.add_argument(
+        "--create-skip-file",
+        action="store_const",
+        const=True,
+        help="Create skip file for successfully downloaded file",
+    )
+
+    # Skip songs having a skip flag file
+    parser.add_argument(
+        "--respect-skip-file",
+        action="store_const",
+        const=True,
+        help="If a file with the extension .skip exists, skip download",
     )
 
 
