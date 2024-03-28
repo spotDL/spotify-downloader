@@ -278,6 +278,8 @@ def get_simple_songs(
             lists.extend(get_user_followed_artists())
         elif request == "all-user-saved-albums":
             lists.extend(get_user_saved_albums())
+        elif request == "all-saved-playlists":
+            lists.extend(get_all_saved_playlists())
         elif request.endswith(".spotdl"):
             with open(request, "r", encoding="utf-8") as save_file:
                 for track in json.load(save_file):
@@ -384,6 +386,11 @@ def get_all_user_playlists(user_url: str = "") -> List[Playlist]:
         user_playlists_response = spotify_client.user_playlists(user_id)
     else:
         user_playlists_response = spotify_client.current_user_playlists()
+        user_resp = spotify_client.current_user()
+        if user_resp is None:
+            raise SpotifyError("Couldn't get user info")
+        
+        user_id = user_resp["id"]
 
     if user_playlists_response is None:
         raise SpotifyError("Couldn't get user playlists")
@@ -401,7 +408,7 @@ def get_all_user_playlists(user_url: str = "") -> List[Playlist]:
 
     return [
         Playlist.from_url(playlist["external_urls"]["spotify"], fetch_songs=False)
-        for playlist in user_playlists
+        for playlist in user_playlists if playlist["owner"]["id"] == user_id
     ]
 
 
@@ -469,6 +476,46 @@ def get_user_followed_artists() -> List[Artist]:
     return [
         Artist.from_url(followed_artist["external_urls"]["spotify"], fetch_songs=False)
         for followed_artist in user_followed
+    ]
+
+def get_all_saved_playlists() -> List[Playlist]:
+    """
+    Get all user playlists.
+
+    ### Args (optional)
+    - user_url: Spotify user profile url.
+        If a url is mentioned, get all public playlists of that specific user.
+
+    ### Returns
+    - List of all user playlists
+    """
+
+    spotify_client = SpotifyClient()
+    if spotify_client.user_auth is False:  # type: ignore
+        raise SpotifyError("You must be logged in to use this function")
+
+    user_playlists_response = spotify_client.current_user_playlists()
+
+    print(user_playlists_response)
+
+    if user_playlists_response is None:
+        raise SpotifyError("Couldn't get user playlists")
+
+    user_playlists = user_playlists_response["items"]
+    user_id = user_playlists_response["href"].split("users/")[-1].split("/")[0]
+
+    # Fetch all saved tracks
+    while user_playlists_response and user_playlists_response["next"]:
+        response = spotify_client.next(user_playlists_response)
+        if response is None:
+            break
+
+        user_playlists_response = response
+        user_playlists.extend(user_playlists_response["items"])
+
+    return [
+        Playlist.from_url(playlist["external_urls"]["spotify"], fetch_songs=False)
+        for playlist in user_playlists if playlist["owner"]["id"] != user_id
     ]
 
 
