@@ -143,7 +143,15 @@ def console_entry_point():
             query=arguments.query,
             downloader=downloader,
         )
-    except Exception:
+    except Exception as exc:
+        if downloader_settings["save_errors"]:
+            with open(
+                downloader_settings["save_errors"], "a", encoding="utf-8"
+            ) as error_file:
+                error_file.write("\n".join([exc + "\n" for exc in exc.args]))
+
+            logger.debug("Saved errors to %s", downloader_settings["save_errors"])
+
         end_time = time.perf_counter()
         logger.debug("Took %d seconds", end_time - start_time)
 
