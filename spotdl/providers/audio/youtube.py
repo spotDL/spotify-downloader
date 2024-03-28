@@ -18,7 +18,6 @@ logger = logging.getLogger(__name__)
 __all__ = ["YouTube"]
 
 
-
 class YouTube(AudioProvider):
     """
     YouTube audio provider class
@@ -56,8 +55,10 @@ class YouTube(AudioProvider):
                     duration = 0
                 # skip duration over 3600 seconds
                 if duration > 3600:
-                    logger.debug("Ignoring video with duration over 3600 seconds: %s",
-                                 result.watch_url)
+                    logger.debug(
+                        "Ignoring video with duration over 3600 seconds: %s",
+                        result.watch_url,
+                    )
                     continue
                 try:
                     views = result.views

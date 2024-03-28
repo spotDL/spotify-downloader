@@ -37,7 +37,6 @@ class YouTubeMusic(AudioProvider):
 
         self.client = YTMusic(language="de")
 
-
     def get_results(self, search_term: str, **kwargs) -> List[Result]:
         """
         Get results from YouTube Music API and simplify them
