@@ -14,9 +14,7 @@ interactions:
     uri: https://api.github.com/repos/spotdl/spotify-downloader-fail/compare/master...dev
   response:
     body:
-      string: !!binary |
-        H4sIAAAAAAAAAzXJMQ6AIBBE0auYtVXoPYClVzCoGyURlrBDLIx3l0Kr+ZN3U2BVtzMNNAmaUUrc
-        qKNN1hI4wsFLnEs+qx9A0sHaamp2j6MsZpVgMytsjeCh/7b1J5e5xyX9Z/S8NY8gBm4AAAA=
+      string: '{"message":"Not Found","documentation_url":"https://docs.github.com/rest/commits/commits#compare-two-commits"}'
     headers:
       Access-Control-Allow-Origin:
       - '*'
@@ -34,7 +32,7 @@ interactions:
       Content-Type:
       - application/json; charset=utf-8
       Date:
-      - Thu, 28 Mar 2024 17:44:35 GMT
+      - Thu, 28 Mar 2024 18:28:06 GMT
       Referrer-Policy:
       - origin-when-cross-origin, strict-origin-when-cross-origin
       Server:
@@ -50,17 +48,17 @@ interactions:
       X-GitHub-Media-Type:
       - github.v3; format=json
       X-GitHub-Request-Id:
-      - 44E9:1617BE:323364A:32616E1:6605AC83
+      - 4525:3F6437:1A07EF3:1A1FC47:6605B6B6
       X-RateLimit-Limit:
       - '60'
       X-RateLimit-Remaining:
-      - '58'
+      - '42'
       X-RateLimit-Reset:
       - '1711651475'
       X-RateLimit-Resource:
       - core
       X-RateLimit-Used:
-      - '2'
+      - '18'
       X-XSS-Protection:
       - '0'
       x-github-api-version-selected:
