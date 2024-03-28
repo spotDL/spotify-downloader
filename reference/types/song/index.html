@@ -15,14 +15,14 @@
         <link rel="canonical" href="https://spotdl.github.io/spotify-downloader/reference/types/song/">
       
       
-        <link rel="prev" href="../playlist/">
+        <link rel="prev" href="../options/">
       
       
-        <link rel="next" href="../options/">
+        <link rel="next" href="../artist/">
       
       
       <link rel="icon" href="../../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.4.14">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.15">
     
     
       
@@ -30,10 +30,10 @@
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.fad675c6.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.7e359304.min.css">
       
         
-        <link rel="stylesheet" href="../../../assets/stylesheets/palette.356b1318.min.css">
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.06af60db.min.css">
       
       
 
@@ -73,9 +73,6 @@
     
     <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="purple">
   
-    
-    
-      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
     
     <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
     <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
@@ -130,9 +127,9 @@
     
     
     
-    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="purple"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="purple"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
     
-      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5c-.84 0-1.65.15-2.39.42L12 2M3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29L3.34 7m.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14L3.36 17M20.65 7l-1.77 3.79a7.023 7.023 0 0 0-2.38-4.15l4.15.36m-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29L20.64 17M12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44L12 22Z"/></svg>
       </label>
     
@@ -140,15 +137,18 @@
     
     
     
-    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="black" data-md-color-accent="lime"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_2">
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="black" data-md-color-accent="lime"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
     
-      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3 3.19.09m3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95 2.06.05m-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31Z"/></svg>
       </label>
     
   
 </form>
       
+    
+    
+      <script>var media,input,key,value,palette=__md_get("__palette");if(palette&&palette.color){"(prefers-color-scheme)"===palette.color.media&&(media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']"),palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent"));for([key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
     
     
     
@@ -194,7 +194,7 @@
         <a href="https://github.com/spotDL/spotify-downloader" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
   </div>
   <div class="md-source__repository">
     spotdl/spotify-downloader
@@ -343,7 +343,7 @@
       <a href="https://github.com/spotDL/spotify-downloader" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
   </div>
   <div class="md-source__repository">
     spotdl/spotify-downloader
@@ -402,20 +402,18 @@
     
     
     
-    
-    
       
       
     
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+    
+    <li class="md-nav__item md-nav__item--nested">
       
-        
         
         
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
         
           
-          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
             
   
   <span class="md-ellipsis">
@@ -491,20 +489,18 @@
     
     
     
-    
-    
       
       
     
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+    
+    <li class="md-nav__item md-nav__item--nested">
       
-        
         
         
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
         
           
-          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
             
   
   <span class="md-ellipsis">
@@ -582,14 +578,15 @@
     
     
     
-    
-    
+      
+        
+        
       
       
+    
     
     <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
-        
         
         
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
@@ -643,309 +640,15 @@
     
     
     
+      
+      
     
     
     <li class="md-nav__item md-nav__item--nested">
       
-        
         
         
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_2" >
-        
-          
-          
-          <div class="md-nav__link md-nav__container">
-            <a href="../../download/" class="md-nav__link ">
-              
-  
-  <span class="md-ellipsis">
-    download
-  </span>
-  
-
-            </a>
-            
-              
-              <label class="md-nav__link " for="__nav_5_2" id="__nav_5_2_label" tabindex="0">
-                <span class="md-nav__icon md-icon"></span>
-              </label>
-            
-          </div>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_2">
-            <span class="md-nav__icon md-icon"></span>
-            download
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../download/progress_handler/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    progress_handler
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../download/downloader/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    downloader
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3" >
-        
-          
-          
-          <div class="md-nav__link md-nav__container">
-            <a href="../../console/" class="md-nav__link ">
-              
-  
-  <span class="md-ellipsis">
-    console
-  </span>
-  
-
-            </a>
-            
-              
-              <label class="md-nav__link " for="__nav_5_3" id="__nav_5_3_label" tabindex="0">
-                <span class="md-nav__icon md-icon"></span>
-              </label>
-            
-          </div>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_3_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_3">
-            <span class="md-nav__icon md-icon"></span>
-            console
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../console/meta/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    meta
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../console/url/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    url
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../console/entry_point/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    entry_point
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../console/web/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    web
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../console/download/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    download
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../console/sync/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    sync
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../console/save/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    save
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_4" >
         
           
           
@@ -961,14 +664,14 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_5_4" id="__nav_5_4_label" tabindex="0">
+              <label class="md-nav__link " for="__nav_5_2" id="__nav_5_2_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_4_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_4">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_2">
             <span class="md-nav__icon md-icon"></span>
             providers
           </label>
@@ -983,39 +686,40 @@
     
     
     
+      
+      
     
     
     <li class="md-nav__item md-nav__item--nested">
       
         
         
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_4_1" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_2_1" >
         
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../providers/audio/" class="md-nav__link ">
+            <a href="../../providers/lyrics/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
-    audio
+    lyrics
   </span>
   
 
             </a>
             
               
-              <label class="md-nav__link " for="__nav_5_4_1" id="__nav_5_4_1_label" tabindex="0">
+              <label class="md-nav__link " for="__nav_5_2_1" id="__nav_5_2_1_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_5_4_1_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_4_1">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_5_2_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_2_1">
             <span class="md-nav__icon md-icon"></span>
-            audio
+            lyrics
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -1026,7 +730,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../providers/audio/base/" class="md-nav__link">
+      <a href="../../providers/lyrics/base/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1047,11 +751,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../providers/audio/youtube/" class="md-nav__link">
+      <a href="../../providers/lyrics/musixmatch/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    youtube
+    musixmatch
   </span>
   
 
@@ -1068,11 +772,128 @@
   
   
     <li class="md-nav__item">
-      <a href="../../providers/audio/ytmusic/" class="md-nav__link">
+      <a href="../../providers/lyrics/genius/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    ytmusic
+    genius
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../providers/lyrics/synced/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    synced
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../providers/lyrics/azlyrics/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    azlyrics
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_2_2" >
+        
+          
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../providers/audio/" class="md-nav__link ">
+              
+  
+  <span class="md-ellipsis">
+    audio
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_5_2_2" id="__nav_5_2_2_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_5_2_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_2_2">
+            <span class="md-nav__icon md-icon"></span>
+            audio
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../providers/audio/piped/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    piped
   </span>
   
 
@@ -1094,6 +915,27 @@
   
   <span class="md-ellipsis">
     bandcamp
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../providers/audio/base/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    base
   </span>
   
 
@@ -1152,15 +994,44 @@
   
   
     <li class="md-nav__item">
-      <a href="../../providers/audio/piped/" class="md-nav__link">
+      <a href="../../providers/audio/youtube/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    piped
+    youtube
   </span>
   
 
       </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../providers/audio/ytmusic/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ytmusic
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
     </li>
   
 
@@ -1183,39 +1054,40 @@
     
     
     
+      
+      
     
     
     <li class="md-nav__item md-nav__item--nested">
       
         
         
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_4_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3" >
         
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../providers/lyrics/" class="md-nav__link ">
+            <a href="../../console/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
-    lyrics
+    console
   </span>
   
 
             </a>
             
               
-              <label class="md-nav__link " for="__nav_5_4_2" id="__nav_5_4_2_label" tabindex="0">
+              <label class="md-nav__link " for="__nav_5_3" id="__nav_5_3_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_5_4_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_4_2">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_3">
             <span class="md-nav__icon md-icon"></span>
-            lyrics
+            console
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -1226,11 +1098,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../providers/lyrics/base/" class="md-nav__link">
+      <a href="../../console/url/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    base
+    url
   </span>
   
 
@@ -1247,11 +1119,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../providers/lyrics/synced/" class="md-nav__link">
+      <a href="../../console/meta/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    synced
+    meta
   </span>
   
 
@@ -1268,11 +1140,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../providers/lyrics/azlyrics/" class="md-nav__link">
+      <a href="../../console/save/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    azlyrics
+    save
   </span>
   
 
@@ -1289,11 +1161,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../providers/lyrics/genius/" class="md-nav__link">
+      <a href="../../console/entry_point/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    genius
+    entry_point
   </span>
   
 
@@ -1310,11 +1182,53 @@
   
   
     <li class="md-nav__item">
-      <a href="../../providers/lyrics/musixmatch/" class="md-nav__link">
+      <a href="../../console/sync/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    musixmatch
+    sync
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../console/web/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    web
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../console/download/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    download
   </span>
   
 
@@ -1332,14 +1246,6 @@
 
               
             
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
               
                 
   
@@ -1351,14 +1257,15 @@
     
     
     
+      
+      
     
     
     <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_5" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_4" checked>
         
           
           
@@ -1374,14 +1281,14 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_5_5" id="__nav_5_5_label" tabindex="0">
+              <label class="md-nav__link " for="__nav_5_4" id="__nav_5_4_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_5_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_5_5">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5_4">
             <span class="md-nav__icon md-icon"></span>
             types
           </label>
@@ -1415,11 +1322,32 @@
   
   
     <li class="md-nav__item">
-      <a href="../playlist/" class="md-nav__link">
+      <a href="../saved/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    playlist
+    saved
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../options/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    options
   </span>
   
 
@@ -1547,11 +1475,11 @@
           <li class="md-nav__item">
   <a href="#spotdl.types.song.Song.from_data_dump" class="md-nav__link">
     <span class="md-ellipsis">
-      from_data_dump()
+      from_data_dump
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="from_data_dump()">
+    <nav class="md-nav" aria-label="from_data_dump">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1580,11 +1508,11 @@
           <li class="md-nav__item">
   <a href="#spotdl.types.song.Song.from_dict" class="md-nav__link">
     <span class="md-ellipsis">
-      from_dict()
+      from_dict
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="from_dict()">
+    <nav class="md-nav" aria-label="from_dict">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1613,11 +1541,11 @@
           <li class="md-nav__item">
   <a href="#spotdl.types.song.Song.from_missing_data" class="md-nav__link">
     <span class="md-ellipsis">
-      from_missing_data()
+      from_missing_data
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="from_missing_data()">
+    <nav class="md-nav" aria-label="from_missing_data">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1646,11 +1574,11 @@
           <li class="md-nav__item">
   <a href="#spotdl.types.song.Song.from_search_term" class="md-nav__link">
     <span class="md-ellipsis">
-      from_search_term()
+      from_search_term
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="from_search_term()">
+    <nav class="md-nav" aria-label="from_search_term">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1679,11 +1607,11 @@
           <li class="md-nav__item">
   <a href="#spotdl.types.song.Song.from_url" class="md-nav__link">
     <span class="md-ellipsis">
-      from_url()
+      from_url
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="from_url()">
+    <nav class="md-nav" aria-label="from_url">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1712,11 +1640,11 @@
           <li class="md-nav__item">
   <a href="#spotdl.types.song.Song.list_from_search_term" class="md-nav__link">
     <span class="md-ellipsis">
-      list_from_search_term()
+      list_from_search_term
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="list_from_search_term()">
+    <nav class="md-nav" aria-label="list_from_search_term">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1745,11 +1673,11 @@
           <li class="md-nav__item">
   <a href="#spotdl.types.song.Song.search" class="md-nav__link">
     <span class="md-ellipsis">
-      search()
+      search
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="search()">
+    <nav class="md-nav" aria-label="search">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1850,11 +1778,11 @@
           <li class="md-nav__item">
   <a href="#spotdl.types.song.SongList.from_search_term" class="md-nav__link">
     <span class="md-ellipsis">
-      from_search_term()
+      from_search_term
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="from_search_term()">
+    <nav class="md-nav" aria-label="from_search_term">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1883,11 +1811,11 @@
           <li class="md-nav__item">
   <a href="#spotdl.types.song.SongList.from_url" class="md-nav__link">
     <span class="md-ellipsis">
-      from_url()
+      from_url
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="from_url()">
+    <nav class="md-nav" aria-label="from_url">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1916,11 +1844,11 @@
           <li class="md-nav__item">
   <a href="#spotdl.types.song.SongList.get_metadata" class="md-nav__link">
     <span class="md-ellipsis">
-      get_metadata()
+      get_metadata
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="get_metadata()">
+    <nav class="md-nav" aria-label="get_metadata">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1976,32 +1904,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../options/" class="md-nav__link">
+      <a href="../artist/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    options
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../saved/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    saved
+    artist
   </span>
   
 
@@ -2039,11 +1946,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../artist/" class="md-nav__link">
+      <a href="../playlist/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    artist
+    playlist
   </span>
   
 
@@ -2070,11 +1977,108 @@
     
     
     
+      
+      
     
     
     <li class="md-nav__item md-nav__item--nested">
       
         
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_5" >
+        
+          
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../download/" class="md-nav__link ">
+              
+  
+  <span class="md-ellipsis">
+    download
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_5_5" id="__nav_5_5_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_5">
+            <span class="md-nav__icon md-icon"></span>
+            download
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../download/downloader/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    downloader
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../download/progress_handler/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    progress_handler
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
         
         
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_6" >
@@ -2113,11 +2117,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../utils/spotify/" class="md-nav__link">
+      <a href="../../utils/logging/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    spotify
+    logging
   </span>
   
 
@@ -2134,11 +2138,137 @@
   
   
     <li class="md-nav__item">
-      <a href="../../utils/github/" class="md-nav__link">
+      <a href="../../utils/search/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    github
+    search
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../utils/m3u/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    m3u
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../utils/ffmpeg/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ffmpeg
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../utils/downloader/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    downloader
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../utils/formatter/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    formatter
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../utils/console/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    console
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../utils/arguments/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    arguments
   </span>
   
 
@@ -2176,11 +2306,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../utils/console/" class="md-nav__link">
+      <a href="../../utils/spotify/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    console
+    spotify
   </span>
   
 
@@ -2239,11 +2369,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../utils/logging/" class="md-nav__link">
+      <a href="../../utils/config/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    logging
+    config
   </span>
   
 
@@ -2260,74 +2390,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../utils/metadata/" class="md-nav__link">
+      <a href="../../utils/github/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    metadata
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../utils/formatter/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    formatter
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../utils/archive/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    archive
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../utils/search/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    search
+    github
   </span>
   
 
@@ -2365,11 +2432,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../utils/config/" class="md-nav__link">
+      <a href="../../utils/metadata/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    config
+    metadata
   </span>
   
 
@@ -2386,74 +2453,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../utils/m3u/" class="md-nav__link">
+      <a href="../../utils/archive/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    m3u
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../utils/downloader/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    downloader
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../utils/ffmpeg/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    ffmpeg
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../utils/arguments/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    arguments
+    archive
   </span>
   
 
@@ -2522,10 +2526,8 @@
 
 
 
-
 <h2 id="spotdl.types.song.Song" class="doc doc-heading">
-          <code>Song</code>
-
+            <code class="highlight language-python"><span class="n">Song</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">artists</span><span class="p">,</span> <span class="n">artist</span><span class="p">,</span> <span class="n">genres</span><span class="p">,</span> <span class="n">disc_number</span><span class="p">,</span> <span class="n">disc_count</span><span class="p">,</span> <span class="n">album_name</span><span class="p">,</span> <span class="n">album_artist</span><span class="p">,</span> <span class="n">album_type</span><span class="p">,</span> <span class="n">duration</span><span class="p">,</span> <span class="n">year</span><span class="p">,</span> <span class="n">date</span><span class="p">,</span> <span class="n">track_number</span><span class="p">,</span> <span class="n">tracks_count</span><span class="p">,</span> <span class="n">song_id</span><span class="p">,</span> <span class="n">explicit</span><span class="p">,</span> <span class="n">publisher</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">isrc</span><span class="p">,</span> <span class="n">cover_url</span><span class="p">,</span> <span class="n">copyright_text</span><span class="p">,</span> <span class="n">download_url</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">lyrics</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">popularity</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">album_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">list_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">list_url</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">list_position</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">list_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">artist_id</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
@@ -2554,7 +2556,6 @@
 
 
 
-
 <h3 id="spotdl.types.song.Song.display_name" class="doc doc-heading">
           <code class="highlight language-python"><span class="n">display_name</span><span class="p">:</span> <span class="nb">str</span></code>
   
@@ -2577,7 +2578,6 @@
 </div>
 
 <div class="doc doc-object doc-attribute">
-
 
 
 
@@ -2609,7 +2609,6 @@
 
 
 
-
 <h3 id="spotdl.types.song.Song.from_data_dump" class="doc doc-heading">
           <code class="highlight language-python"><span class="n">from_data_dump</span><span class="p">(</span><span class="n">data</span><span class="p">)</span></code>
   
@@ -2634,15 +2633,7 @@
 
           <details class="quote">
             <summary>Source code in <code>spotdl/types/song.py</code></summary>
-            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">198</span>
-<span class="normal">199</span>
-<span class="normal">200</span>
-<span class="normal">201</span>
-<span class="normal">202</span>
-<span class="normal">203</span>
-<span class="normal">204</span>
-<span class="normal">205</span>
-<span class="normal">206</span>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">206</span>
 <span class="normal">207</span>
 <span class="normal">208</span>
 <span class="normal">209</span>
@@ -2650,7 +2641,15 @@
 <span class="normal">211</span>
 <span class="normal">212</span>
 <span class="normal">213</span>
-<span class="normal">214</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@classmethod</span>
+<span class="normal">214</span>
+<span class="normal">215</span>
+<span class="normal">216</span>
+<span class="normal">217</span>
+<span class="normal">218</span>
+<span class="normal">219</span>
+<span class="normal">220</span>
+<span class="normal">221</span>
+<span class="normal">222</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@classmethod</span>
 <span class="k">def</span> <span class="nf">from_data_dump</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Song&quot;</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create a Song object from a data dump.</span>
@@ -2678,7 +2677,6 @@
 
 
 
-
 <h3 id="spotdl.types.song.Song.from_dict" class="doc doc-heading">
           <code class="highlight language-python"><span class="n">from_dict</span><span class="p">(</span><span class="n">data</span><span class="p">)</span></code>
   
@@ -2703,20 +2701,20 @@
 
           <details class="quote">
             <summary>Source code in <code>spotdl/types/song.py</code></summary>
-            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">216</span>
-<span class="normal">217</span>
-<span class="normal">218</span>
-<span class="normal">219</span>
-<span class="normal">220</span>
-<span class="normal">221</span>
-<span class="normal">222</span>
-<span class="normal">223</span>
-<span class="normal">224</span>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">224</span>
 <span class="normal">225</span>
 <span class="normal">226</span>
 <span class="normal">227</span>
 <span class="normal">228</span>
-<span class="normal">229</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@classmethod</span>
+<span class="normal">229</span>
+<span class="normal">230</span>
+<span class="normal">231</span>
+<span class="normal">232</span>
+<span class="normal">233</span>
+<span class="normal">234</span>
+<span class="normal">235</span>
+<span class="normal">236</span>
+<span class="normal">237</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@classmethod</span>
 <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="s2">&quot;Song&quot;</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create a Song object from a dictionary.</span>
@@ -2738,7 +2736,6 @@
 
 
 <div class="doc doc-object doc-function">
-
 
 
 
@@ -2768,15 +2765,7 @@ attributes for the Song class.</p>
 
           <details class="quote">
             <summary>Source code in <code>spotdl/types/song.py</code></summary>
-            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">231</span>
-<span class="normal">232</span>
-<span class="normal">233</span>
-<span class="normal">234</span>
-<span class="normal">235</span>
-<span class="normal">236</span>
-<span class="normal">237</span>
-<span class="normal">238</span>
-<span class="normal">239</span>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">239</span>
 <span class="normal">240</span>
 <span class="normal">241</span>
 <span class="normal">242</span>
@@ -2786,7 +2775,15 @@ attributes for the Song class.</p>
 <span class="normal">246</span>
 <span class="normal">247</span>
 <span class="normal">248</span>
-<span class="normal">249</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@classmethod</span>
+<span class="normal">249</span>
+<span class="normal">250</span>
+<span class="normal">251</span>
+<span class="normal">252</span>
+<span class="normal">253</span>
+<span class="normal">254</span>
+<span class="normal">255</span>
+<span class="normal">256</span>
+<span class="normal">257</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@classmethod</span>
 <span class="k">def</span> <span class="nf">from_missing_data</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Song&quot;</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create a Song object from a dictionary with missing data.</span>
@@ -2816,7 +2813,6 @@ attributes for the Song class.</p>
 
 
 
-
 <h3 id="spotdl.types.song.Song.from_search_term" class="doc doc-heading">
           <code class="highlight language-python"><span class="n">from_search_term</span><span class="p">(</span><span class="n">search_term</span><span class="p">)</span></code>
   
@@ -2841,15 +2837,7 @@ attributes for the Song class.</p>
 
           <details class="quote">
             <summary>Source code in <code>spotdl/types/song.py</code></summary>
-            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">151</span>
-<span class="normal">152</span>
-<span class="normal">153</span>
-<span class="normal">154</span>
-<span class="normal">155</span>
-<span class="normal">156</span>
-<span class="normal">157</span>
-<span class="normal">158</span>
-<span class="normal">159</span>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">159</span>
 <span class="normal">160</span>
 <span class="normal">161</span>
 <span class="normal">162</span>
@@ -2861,7 +2849,15 @@ attributes for the Song class.</p>
 <span class="normal">168</span>
 <span class="normal">169</span>
 <span class="normal">170</span>
-<span class="normal">171</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@classmethod</span>
+<span class="normal">171</span>
+<span class="normal">172</span>
+<span class="normal">173</span>
+<span class="normal">174</span>
+<span class="normal">175</span>
+<span class="normal">176</span>
+<span class="normal">177</span>
+<span class="normal">178</span>
+<span class="normal">179</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@classmethod</span>
 <span class="k">def</span> <span class="nf">from_search_term</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">search_term</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Song&quot;</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Creates a list of Song objects from a search term.</span>
@@ -2893,7 +2889,6 @@ attributes for the Song class.</p>
 
 
 
-
 <h3 id="spotdl.types.song.Song.from_url" class="doc doc-heading">
           <code class="highlight language-python"><span class="n">from_url</span><span class="p">(</span><span class="n">url</span><span class="p">)</span></code>
   
@@ -2918,9 +2913,7 @@ attributes for the Song class.</p>
 
           <details class="quote">
             <summary>Source code in <code>spotdl/types/song.py</code></summary>
-            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 63</span>
-<span class="normal"> 64</span>
-<span class="normal"> 65</span>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 65</span>
 <span class="normal"> 66</span>
 <span class="normal"> 67</span>
 <span class="normal"> 68</span>
@@ -2985,7 +2978,15 @@ attributes for the Song class.</p>
 <span class="normal">127</span>
 <span class="normal">128</span>
 <span class="normal">129</span>
-<span class="normal">130</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@classmethod</span>
+<span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@classmethod</span>
 <span class="k">def</span> <span class="nf">from_url</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Song&quot;</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Creates a Song object from a URL.</span>
@@ -3027,16 +3028,20 @@ attributes for the Song class.</p>
         <span class="n">name</span><span class="o">=</span><span class="n">raw_track_meta</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">],</span>
         <span class="n">artists</span><span class="o">=</span><span class="p">[</span><span class="n">artist</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">artist</span> <span class="ow">in</span> <span class="n">raw_track_meta</span><span class="p">[</span><span class="s2">&quot;artists&quot;</span><span class="p">]],</span>
         <span class="n">artist</span><span class="o">=</span><span class="n">raw_track_meta</span><span class="p">[</span><span class="s2">&quot;artists&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">],</span>
+        <span class="n">artist_id</span><span class="o">=</span><span class="n">primary_artist_id</span><span class="p">,</span>
         <span class="n">album_id</span><span class="o">=</span><span class="n">album_id</span><span class="p">,</span>
         <span class="n">album_name</span><span class="o">=</span><span class="n">raw_album_meta</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">],</span>
         <span class="n">album_artist</span><span class="o">=</span><span class="n">raw_album_meta</span><span class="p">[</span><span class="s2">&quot;artists&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">],</span>
-        <span class="n">copyright_text</span><span class="o">=</span><span class="n">raw_album_meta</span><span class="p">[</span><span class="s2">&quot;copyrights&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;text&quot;</span><span class="p">]</span>
-        <span class="k">if</span> <span class="n">raw_album_meta</span><span class="p">[</span><span class="s2">&quot;copyrights&quot;</span><span class="p">]</span>
-        <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">album_type</span><span class="o">=</span><span class="n">raw_album_meta</span><span class="p">[</span><span class="s2">&quot;album_type&quot;</span><span class="p">],</span>
+        <span class="n">copyright_text</span><span class="o">=</span><span class="p">(</span>
+            <span class="n">raw_album_meta</span><span class="p">[</span><span class="s2">&quot;copyrights&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;text&quot;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">raw_album_meta</span><span class="p">[</span><span class="s2">&quot;copyrights&quot;</span><span class="p">]</span>
+            <span class="k">else</span> <span class="kc">None</span>
+        <span class="p">),</span>
         <span class="n">genres</span><span class="o">=</span><span class="n">raw_album_meta</span><span class="p">[</span><span class="s2">&quot;genres&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">raw_artist_meta</span><span class="p">[</span><span class="s2">&quot;genres&quot;</span><span class="p">],</span>
         <span class="n">disc_number</span><span class="o">=</span><span class="n">raw_track_meta</span><span class="p">[</span><span class="s2">&quot;disc_number&quot;</span><span class="p">],</span>
         <span class="n">disc_count</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">raw_album_meta</span><span class="p">[</span><span class="s2">&quot;tracks&quot;</span><span class="p">][</span><span class="s2">&quot;items&quot;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="s2">&quot;disc_number&quot;</span><span class="p">]),</span>
-        <span class="n">duration</span><span class="o">=</span><span class="n">raw_track_meta</span><span class="p">[</span><span class="s2">&quot;duration_ms&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="mi">1000</span><span class="p">,</span>
+        <span class="n">duration</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">raw_track_meta</span><span class="p">[</span><span class="s2">&quot;duration_ms&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="mi">1000</span><span class="p">),</span>
         <span class="n">year</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">raw_album_meta</span><span class="p">[</span><span class="s2">&quot;release_date&quot;</span><span class="p">][:</span><span class="mi">4</span><span class="p">]),</span>
         <span class="n">date</span><span class="o">=</span><span class="n">raw_album_meta</span><span class="p">[</span><span class="s2">&quot;release_date&quot;</span><span class="p">],</span>
         <span class="n">track_number</span><span class="o">=</span><span class="n">raw_track_meta</span><span class="p">[</span><span class="s2">&quot;track_number&quot;</span><span class="p">],</span>
@@ -3047,11 +3052,13 @@ attributes for the Song class.</p>
         <span class="n">publisher</span><span class="o">=</span><span class="n">raw_album_meta</span><span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">],</span>
         <span class="n">url</span><span class="o">=</span><span class="n">raw_track_meta</span><span class="p">[</span><span class="s2">&quot;external_urls&quot;</span><span class="p">][</span><span class="s2">&quot;spotify&quot;</span><span class="p">],</span>
         <span class="n">popularity</span><span class="o">=</span><span class="n">raw_track_meta</span><span class="p">[</span><span class="s2">&quot;popularity&quot;</span><span class="p">],</span>
-        <span class="n">cover_url</span><span class="o">=</span><span class="nb">max</span><span class="p">(</span>
-            <span class="n">raw_album_meta</span><span class="p">[</span><span class="s2">&quot;images&quot;</span><span class="p">],</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">i</span><span class="p">:</span> <span class="n">i</span><span class="p">[</span><span class="s2">&quot;width&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">i</span><span class="p">[</span><span class="s2">&quot;height&quot;</span><span class="p">]</span>
-        <span class="p">)[</span><span class="s2">&quot;url&quot;</span><span class="p">]</span>
-        <span class="k">if</span> <span class="n">raw_album_meta</span><span class="p">[</span><span class="s2">&quot;images&quot;</span><span class="p">]</span>
-        <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">cover_url</span><span class="o">=</span><span class="p">(</span>
+            <span class="nb">max</span><span class="p">(</span><span class="n">raw_album_meta</span><span class="p">[</span><span class="s2">&quot;images&quot;</span><span class="p">],</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">i</span><span class="p">:</span> <span class="n">i</span><span class="p">[</span><span class="s2">&quot;width&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">i</span><span class="p">[</span><span class="s2">&quot;height&quot;</span><span class="p">])[</span>
+                <span class="s2">&quot;url&quot;</span>
+            <span class="p">]</span>
+            <span class="k">if</span> <span class="n">raw_album_meta</span><span class="p">[</span><span class="s2">&quot;images&quot;</span><span class="p">]</span>
+            <span class="k">else</span> <span class="kc">None</span>
+        <span class="p">),</span>
     <span class="p">)</span>
 </code></pre></div></td></tr></table></div>
           </details>
@@ -3061,7 +3068,6 @@ attributes for the Song class.</p>
 
 
 <div class="doc doc-object doc-function">
-
 
 
 
@@ -3089,15 +3095,7 @@ attributes for the Song class.</p>
 
           <details class="quote">
             <summary>Source code in <code>spotdl/types/song.py</code></summary>
-            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">173</span>
-<span class="normal">174</span>
-<span class="normal">175</span>
-<span class="normal">176</span>
-<span class="normal">177</span>
-<span class="normal">178</span>
-<span class="normal">179</span>
-<span class="normal">180</span>
-<span class="normal">181</span>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">181</span>
 <span class="normal">182</span>
 <span class="normal">183</span>
 <span class="normal">184</span>
@@ -3112,7 +3110,15 @@ attributes for the Song class.</p>
 <span class="normal">193</span>
 <span class="normal">194</span>
 <span class="normal">195</span>
-<span class="normal">196</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@classmethod</span>
+<span class="normal">196</span>
+<span class="normal">197</span>
+<span class="normal">198</span>
+<span class="normal">199</span>
+<span class="normal">200</span>
+<span class="normal">201</span>
+<span class="normal">202</span>
+<span class="normal">203</span>
+<span class="normal">204</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@classmethod</span>
 <span class="k">def</span> <span class="nf">list_from_search_term</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">search_term</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;List[Song]&quot;</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Creates a list of Song objects from a search term.</span>
@@ -3147,7 +3153,6 @@ attributes for the Song class.</p>
 
 
 
-
 <h3 id="spotdl.types.song.Song.search" class="doc doc-heading">
           <code class="highlight language-python"><span class="n">search</span><span class="p">(</span><span class="n">search_term</span><span class="p">)</span></code>
   
@@ -3172,15 +3177,7 @@ attributes for the Song class.</p>
 
           <details class="quote">
             <summary>Source code in <code>spotdl/types/song.py</code></summary>
-            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">132</span>
-<span class="normal">133</span>
-<span class="normal">134</span>
-<span class="normal">135</span>
-<span class="normal">136</span>
-<span class="normal">137</span>
-<span class="normal">138</span>
-<span class="normal">139</span>
-<span class="normal">140</span>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">140</span>
 <span class="normal">141</span>
 <span class="normal">142</span>
 <span class="normal">143</span>
@@ -3189,7 +3186,15 @@ attributes for the Song class.</p>
 <span class="normal">146</span>
 <span class="normal">147</span>
 <span class="normal">148</span>
-<span class="normal">149</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@staticmethod</span>
+<span class="normal">149</span>
+<span class="normal">150</span>
+<span class="normal">151</span>
+<span class="normal">152</span>
+<span class="normal">153</span>
+<span class="normal">154</span>
+<span class="normal">155</span>
+<span class="normal">156</span>
+<span class="normal">157</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@staticmethod</span>
 <span class="k">def</span> <span class="nf">search</span><span class="p">(</span><span class="n">search_term</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Searches for Songs from a search term.</span>
@@ -3219,10 +3224,10 @@ attributes for the Song class.</p>
 
   </div>
 
+
 </div>
 
 <div class="doc doc-object doc-class">
-
 
 
 
@@ -3243,16 +3248,15 @@ attributes for the Song class.</p>
 
   </div>
 
+
 </div>
 
 <div class="doc doc-object doc-class">
 
 
 
-
 <h2 id="spotdl.types.song.SongList" class="doc doc-heading">
-          <code>SongList</code>
-
+            <code class="highlight language-python"><span class="n">SongList</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">urls</span><span class="p">,</span> <span class="n">songs</span><span class="p">)</span></code>
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
@@ -3281,7 +3285,6 @@ attributes for the Song class.</p>
 
 
 
-
 <h3 id="spotdl.types.song.SongList.json" class="doc doc-heading">
           <code class="highlight language-python"><span class="n">json</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span></code>
   
@@ -3304,7 +3307,6 @@ attributes for the Song class.</p>
 </div>
 
 <div class="doc doc-object doc-attribute">
-
 
 
 
@@ -3336,7 +3338,6 @@ attributes for the Song class.</p>
 
 
 
-
 <h3 id="spotdl.types.song.SongList.from_search_term" class="doc doc-heading">
           <code class="highlight language-python"><span class="n">from_search_term</span><span class="p">(</span><span class="n">search_term</span><span class="p">,</span> <span class="n">fetch_songs</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></code>
   
@@ -3361,15 +3362,7 @@ attributes for the Song class.</p>
 
           <details class="quote">
             <summary>Source code in <code>spotdl/types/song.py</code></summary>
-            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">306</span>
-<span class="normal">307</span>
-<span class="normal">308</span>
-<span class="normal">309</span>
-<span class="normal">310</span>
-<span class="normal">311</span>
-<span class="normal">312</span>
-<span class="normal">313</span>
-<span class="normal">314</span>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">314</span>
 <span class="normal">315</span>
 <span class="normal">316</span>
 <span class="normal">317</span>
@@ -3395,7 +3388,15 @@ attributes for the Song class.</p>
 <span class="normal">337</span>
 <span class="normal">338</span>
 <span class="normal">339</span>
-<span class="normal">340</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@classmethod</span>
+<span class="normal">340</span>
+<span class="normal">341</span>
+<span class="normal">342</span>
+<span class="normal">343</span>
+<span class="normal">344</span>
+<span class="normal">345</span>
+<span class="normal">346</span>
+<span class="normal">347</span>
+<span class="normal">348</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@classmethod</span>
 <span class="k">def</span> <span class="nf">from_search_term</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">search_term</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">fetch_songs</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Creates a SongList object from a search term.</span>
@@ -3441,7 +3442,6 @@ attributes for the Song class.</p>
 
 
 
-
 <h3 id="spotdl.types.song.SongList.from_url" class="doc doc-heading">
           <code class="highlight language-python"><span class="n">from_url</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">fetch_songs</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></code>
   
@@ -3467,15 +3467,7 @@ attributes for the Song class.</p>
 
           <details class="quote">
             <summary>Source code in <code>spotdl/types/song.py</code></summary>
-            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">285</span>
-<span class="normal">286</span>
-<span class="normal">287</span>
-<span class="normal">288</span>
-<span class="normal">289</span>
-<span class="normal">290</span>
-<span class="normal">291</span>
-<span class="normal">292</span>
-<span class="normal">293</span>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">293</span>
 <span class="normal">294</span>
 <span class="normal">295</span>
 <span class="normal">296</span>
@@ -3486,7 +3478,15 @@ attributes for the Song class.</p>
 <span class="normal">301</span>
 <span class="normal">302</span>
 <span class="normal">303</span>
-<span class="normal">304</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@classmethod</span>
+<span class="normal">304</span>
+<span class="normal">305</span>
+<span class="normal">306</span>
+<span class="normal">307</span>
+<span class="normal">308</span>
+<span class="normal">309</span>
+<span class="normal">310</span>
+<span class="normal">311</span>
+<span class="normal">312</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@classmethod</span>
 <span class="k">def</span> <span class="nf">from_url</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">fetch_songs</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create a SongList object from a url.</span>
@@ -3517,7 +3517,6 @@ attributes for the Song class.</p>
 
 
 
-
 <h3 id="spotdl.types.song.SongList.get_metadata" class="doc doc-heading">
           <code class="highlight language-python"><span class="n">get_metadata</span><span class="p">(</span><span class="n">url</span><span class="p">)</span></code>
   
@@ -3542,19 +3541,19 @@ attributes for the Song class.</p>
 
           <details class="quote">
             <summary>Source code in <code>spotdl/types/song.py</code></summary>
-            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">364</span>
-<span class="normal">365</span>
-<span class="normal">366</span>
-<span class="normal">367</span>
-<span class="normal">368</span>
-<span class="normal">369</span>
-<span class="normal">370</span>
-<span class="normal">371</span>
-<span class="normal">372</span>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">372</span>
 <span class="normal">373</span>
 <span class="normal">374</span>
 <span class="normal">375</span>
-<span class="normal">376</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@staticmethod</span>
+<span class="normal">376</span>
+<span class="normal">377</span>
+<span class="normal">378</span>
+<span class="normal">379</span>
+<span class="normal">380</span>
+<span class="normal">381</span>
+<span class="normal">382</span>
+<span class="normal">383</span>
+<span class="normal">384</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@staticmethod</span>
 <span class="k">def</span> <span class="nf">get_metadata</span><span class="p">(</span><span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="n">Song</span><span class="p">]]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get metadata for a song list.</span>
@@ -3579,10 +3578,10 @@ attributes for the Song class.</p>
 
   </div>
 
+
 </div>
 
 <div class="doc doc-object doc-class">
-
 
 
 
@@ -3603,6 +3602,7 @@ attributes for the Song class.</p>
 
   </div>
 
+
 </div>
 
 
@@ -3613,6 +3613,13 @@ attributes for the Song class.</p>
   </div>
 
 </div>
+
+
+
+
+
+
+
 
 
 
@@ -3623,6 +3630,7 @@ attributes for the Song class.</p>
             </div>
           
           
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
         </div>
         
           <button type="button" class="md-top md-icon" data-md-component="top" hidden>
@@ -3657,10 +3665,10 @@ attributes for the Song class.</p>
     </div>
     
     
-    <script id="__config" type="application/json">{"base": "../../..", "features": ["content.code.annotate", "navigation.tabs", "navigation.top", "toc.integrate"], "search": "../../../assets/javascripts/workers/search.f886a092.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    <script id="__config" type="application/json">{"base": "../../..", "features": ["content.code.annotate", "navigation.tabs", "navigation.top", "toc.integrate"], "search": "../../../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.cd18aaf1.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.bd41221c.min.js"></script>
       
     
   </body>
