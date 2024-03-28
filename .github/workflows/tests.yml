@@ -37,7 +37,7 @@ jobs:
 
       - name: Run tests
         run: |
-          poetry run pytest -vvv --ignore tests/test_matching.py --ignore tests/utils/test_ffmpeg.py --ignore tests/utils/test_metadata.py --ignore tests/providers/lyrics
+          poetry run pytest -vvv --ignore tests/test_matching.py --ignore tests/utils/test_ffmpeg.py --ignore tests/utils/test_metadata.py --ignore tests/providers/lyrics/test_azlyrics.py --ignore tests/providers/lyrics/test_musixmatch.py 
         env:
           PLATFORM: ${{ matrix.platform }}
 

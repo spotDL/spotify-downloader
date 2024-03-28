@@ -54,7 +54,6 @@ setuptools = "^69.2.0"
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.1.1"
 pytest-mock = "^3.14.0"
-pytest-vcr = "^1.0.2"
 pyfakefs = "^5.3.5"
 pytest-cov = "^5.0.0"
 pytest-subprocess = "^1.5.0"
@@ -81,6 +80,7 @@ mkdocs-gen-files = "^0.5.0"
 mkdocs-literate-nav = "^0.6.0"
 mkdocs-section-index = "^0.3.5"
 vcrpy = "^6.0.1"
+pytest-recording = "^0.13.1"
 
 [tool.poetry.scripts]
 spotdl = "spotdl:console_entry_point"
