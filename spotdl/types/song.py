@@ -60,6 +60,7 @@ class Song:
     list_url: Optional[str] = None
     list_position: Optional[int] = None
     list_length: Optional[int] = None
+    artist_id: Optional[str] = None
 
     @classmethod
     def from_url(cls, url: str) -> "Song":
@@ -103,6 +104,7 @@ class Song:
             name=raw_track_meta["name"],
             artists=[artist["name"] for artist in raw_track_meta["artists"]],
             artist=raw_track_meta["artists"][0]["name"],
+            artist_id=primary_artist_id,
             album_id=album_id,
             album_name=raw_album_meta["name"],
             album_artist=raw_album_meta["artists"][0]["name"],
