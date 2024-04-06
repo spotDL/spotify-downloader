@@ -281,14 +281,25 @@ def get_simple_songs(
             songs.append(Song.from_search_term(request))
 
     for song_list in lists:
+        # code to remove duplicate song urls from displaying from query
+        unique_urls = []
+        for url in song_list.urls:
+            if url not in unique_urls:
+                unique_urls.append(url)
+        # code to remove duplicate songs from displaying and downloading from query
+        unique_song = []
+        for song in song_list.songs:
+            if song not in unique_song:
+                unique_song.append(song)
+        print(song_list)
         logger.info(
             "Found %s songs in %s (%s)",
-            len(song_list.urls),
+            len(unique_urls),
             song_list.name,
             song_list.__class__.__name__,
         )
 
-        for index, song in enumerate(song_list.songs):
+        for index, song in enumerate(unique_song):
             song_data = song.json
             song_data["list_name"] = song_list.name
             song_data["list_url"] = song_list.url
