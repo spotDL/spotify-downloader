@@ -284,8 +284,12 @@ def get_simple_songs(
         # list comprehension to remove duplicate song urls from displaying from query
         # using list comprehension + enumerate() to remove duplicated from list
         # https://www.geeksforgeeks.org/python-ways-to-remove-duplicates-from-list/
-        unique_urls = [i for n, i in enumerate(song_list.urls) if i not in song_list.urls[:n]]
-        unique_song = [i for n, i in enumerate(song_list.songs) if i not in song_list.songs[:n]]
+        unique_urls = [
+            i for n, i in enumerate(song_list.urls) if i not in song_list.urls[:n]
+        ]
+        unique_song = [
+            i for n, i in enumerate(song_list.songs) if i not in song_list.songs[:n]
+        ]
         logger.info(
             "Found %s songs in %s (%s)",
             len(unique_urls),
