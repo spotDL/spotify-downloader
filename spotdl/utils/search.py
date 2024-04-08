@@ -281,13 +281,11 @@ def get_simple_songs(
             songs.append(Song.from_search_term(request))
 
     for song_list in lists:
-        # code to remove duplicate song urls from displaying from query
-        unique_urls = []
-        for url in song_list.urls:
-            if url not in unique_urls:
-                unique_urls.append(url)
-        # code to remove duplicate songs from displaying and downloading from query
-        unique_song = []
+        # list comprehension to remove duplicate song urls from displaying from query
+        # using list comprehension + enumerate() to remove duplicated from list
+        # https://www.geeksforgeeks.org/python-ways-to-remove-duplicates-from-list/
+        unique_urls = [i for n, i in enumerate(song_list.urls) if i not in song_list.urls[:n]]
+        unique_song = [i for n, i in enumerate(song_list.songs) if i not in song_list.songs[:n]]
         for song in song_list.songs:
             if song not in unique_song:
                 unique_song.append(song)
