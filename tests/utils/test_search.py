@@ -19,6 +19,13 @@ SAVED = ["saved"]
 
 
 @pytest.mark.vcr()
+def test_playlist_with_duplicates():
+    query = ["https://open.spotify.com/playlist/1MmajbspTdQCnCSVveSlG3?si=05981d33e9b24d57"]
+    songs = get_simple_songs(query)
+    assert len(songs) == 2
+
+
+@pytest.mark.vcr()
 def test_parse_song():
     songs = parse_query(SONG)
 
