@@ -1,0 +1,1054 @@
+interactions:
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate, br
+      Authorization:
+      - Bearer BQDbOyNhLT0hBYVaRtdTgHIVNGXTMQ1yWWxxSwjKHRNGHoIl2lwnPiVvplmD2qbtAj921jlzbbbASr9zJq7UrC6jg_HI0rWUobgBwuF64k1D4Km2ucA
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      User-Agent:
+      - python-requests/2.31.0
+    method: GET
+    uri: https://api.spotify.com/v1/playlists/30orXVZ79dv640tpOoWNDP?additional_types=track
+  response:
+    body:
+      string: "{\n  \"collaborative\" : false,\n  \"description\" : \"\",\n  \"external_urls\"
+        : {\n    \"spotify\" : \"https://open.spotify.com/playlist/30orXVZ79dv640tpOoWNDP\"\n
+        \ },\n  \"followers\" : {\n    \"href\" : null,\n    \"total\" : 0\n  },\n
+        \ \"href\" : \"https://api.spotify.com/v1/playlists/30orXVZ79dv640tpOoWNDP?additional_types=track\",\n
+        \ \"id\" : \"30orXVZ79dv640tpOoWNDP\",\n  \"images\" : [ {\n    \"height\"
+        : 640,\n    \"url\" : \"https://i.scdn.co/image/ab67616d0000b273343c4d74928886cd0be697fc\",\n
+        \   \"width\" : 640\n  } ],\n  \"name\" : \"Old Maui\",\n  \"owner\" : {\n
+        \   \"display_name\" : \"SDragon827\",\n    \"external_urls\" : {\n      \"spotify\"
+        : \"https://open.spotify.com/user/xd9vfl7yp0h96uecfjc6vyoja\"\n    },\n    \"href\"
+        : \"https://api.spotify.com/v1/users/xd9vfl7yp0h96uecfjc6vyoja\",\n    \"id\"
+        : \"xd9vfl7yp0h96uecfjc6vyoja\",\n    \"type\" : \"user\",\n    \"uri\" :
+        \"spotify:user:xd9vfl7yp0h96uecfjc6vyoja\"\n  },\n  \"primary_color\" : null,\n
+        \ \"public\" : true,\n  \"snapshot_id\" : \"NyxhMTQ3NWUzNjA1YjY3NDA1N2U4NDkzYmRlNGUzZWYyZmVlNWJlZGM1\",\n
+        \ \"tracks\" : {\n    \"href\" : \"https://api.spotify.com/v1/playlists/30orXVZ79dv640tpOoWNDP/tracks?offset=0&limit=100&additional_types=track\",\n
+        \   \"items\" : [ {\n      \"added_at\" : \"2024-04-10T15:55:33Z\",\n      \"added_by\"
+        : {\n        \"external_urls\" : {\n          \"spotify\" : \"https://open.spotify.com/user/xd9vfl7yp0h96uecfjc6vyoja\"\n
+        \       },\n        \"href\" : \"https://api.spotify.com/v1/users/xd9vfl7yp0h96uecfjc6vyoja\",\n
+        \       \"id\" : \"xd9vfl7yp0h96uecfjc6vyoja\",\n        \"type\" : \"user\",\n
+        \       \"uri\" : \"spotify:user:xd9vfl7yp0h96uecfjc6vyoja\"\n      },\n      \"is_local\"
+        : false,\n      \"primary_color\" : null,\n      \"track\" : {\n        \"album\"
+        : {\n          \"album_type\" : \"album\",\n          \"artists\" : [ {\n
+        \           \"external_urls\" : {\n              \"spotify\" : \"https://open.spotify.com/artist/0tfnDOJ5a2ib3mHAI4qGyD\"\n
+        \           },\n            \"href\" : \"https://api.spotify.com/v1/artists/0tfnDOJ5a2ib3mHAI4qGyD\",\n
+        \           \"id\" : \"0tfnDOJ5a2ib3mHAI4qGyD\",\n            \"name\" : \"The
+        Dreadnoughts\",\n            \"type\" : \"artist\",\n            \"uri\" :
+        \"spotify:artist:0tfnDOJ5a2ib3mHAI4qGyD\"\n          } ],\n          \"available_markets\"
+        : [ \"AR\", \"AU\", \"AT\", \"BE\", \"BO\", \"BR\", \"BG\", \"CA\", \"CL\",
+        \"CO\", \"CR\", \"CY\", \"CZ\", \"DK\", \"DO\", \"DE\", \"EC\", \"EE\", \"SV\",
+        \"FI\", \"FR\", \"GR\", \"GT\", \"HN\", \"HK\", \"HU\", \"IS\", \"IE\", \"IT\",
+        \"LV\", \"LT\", \"LU\", \"MY\", \"MT\", \"MX\", \"NL\", \"NZ\", \"NI\", \"NO\",
+        \"PA\", \"PY\", \"PE\", \"PH\", \"PL\", \"PT\", \"SG\", \"SK\", \"ES\", \"SE\",
+        \"CH\", \"TW\", \"TR\", \"UY\", \"US\", \"GB\", \"AD\", \"LI\", \"MC\", \"ID\",
+        \"JP\", \"TH\", \"VN\", \"RO\", \"IL\", \"ZA\", \"SA\", \"AE\", \"BH\", \"QA\",
+        \"OM\", \"KW\", \"EG\", \"MA\", \"DZ\", \"TN\", \"LB\", \"JO\", \"PS\", \"IN\",
+        \"BY\", \"KZ\", \"MD\", \"UA\", \"AL\", \"BA\", \"HR\", \"ME\", \"MK\", \"RS\",
+        \"SI\", \"KR\", \"BD\", \"PK\", \"LK\", \"GH\", \"KE\", \"NG\", \"TZ\", \"UG\",
+        \"AG\", \"AM\", \"BS\", \"BB\", \"BZ\", \"BT\", \"BW\", \"BF\", \"CV\", \"CW\",
+        \"DM\", \"FJ\", \"GM\", \"GE\", \"GD\", \"GW\", \"GY\", \"HT\", \"JM\", \"KI\",
+        \"LS\", \"LR\", \"MW\", \"MV\", \"ML\", \"MH\", \"FM\", \"NA\", \"NR\", \"NE\",
+        \"PW\", \"PG\", \"PR\", \"WS\", \"SM\", \"ST\", \"SN\", \"SC\", \"SL\", \"SB\",
+        \"KN\", \"LC\", \"VC\", \"SR\", \"TL\", \"TO\", \"TT\", \"TV\", \"VU\", \"AZ\",
+        \"BN\", \"BI\", \"KH\", \"CM\", \"TD\", \"KM\", \"GQ\", \"SZ\", \"GA\", \"GN\",
+        \"KG\", \"LA\", \"MO\", \"MR\", \"MN\", \"NP\", \"RW\", \"TG\", \"UZ\", \"ZW\",
+        \"BJ\", \"MG\", \"MU\", \"MZ\", \"AO\", \"CI\", \"DJ\", \"ZM\", \"CD\", \"CG\",
+        \"IQ\", \"LY\", \"TJ\", \"VE\", \"ET\", \"XK\" ],\n          \"external_urls\"
+        : {\n            \"spotify\" : \"https://open.spotify.com/album/0S7hl9NtRXGbHq9TWUVRAU\"\n
+        \         },\n          \"href\" : \"https://api.spotify.com/v1/albums/0S7hl9NtRXGbHq9TWUVRAU\",\n
+        \         \"id\" : \"0S7hl9NtRXGbHq9TWUVRAU\",\n          \"images\" : [ {\n
+        \           \"height\" : 640,\n            \"url\" : \"https://i.scdn.co/image/ab67616d0000b273343c4d74928886cd0be697fc\",\n
+        \           \"width\" : 640\n          }, {\n            \"height\" : 300,\n
+        \           \"url\" : \"https://i.scdn.co/image/ab67616d00001e02343c4d74928886cd0be697fc\",\n
+        \           \"width\" : 300\n          }, {\n            \"height\" : 64,\n
+        \           \"url\" : \"https://i.scdn.co/image/ab67616d00004851343c4d74928886cd0be697fc\",\n
+        \           \"width\" : 64\n          } ],\n          \"name\" : \"Legends
+        Never Die\",\n          \"release_date\" : \"2007-01-01\",\n          \"release_date_precision\"
+        : \"day\",\n          \"total_tracks\" : 11,\n          \"type\" : \"album\",\n
+        \         \"uri\" : \"spotify:album:0S7hl9NtRXGbHq9TWUVRAU\"\n        },\n
+        \       \"artists\" : [ {\n          \"external_urls\" : {\n            \"spotify\"
+        : \"https://open.spotify.com/artist/0tfnDOJ5a2ib3mHAI4qGyD\"\n          },\n
+        \         \"href\" : \"https://api.spotify.com/v1/artists/0tfnDOJ5a2ib3mHAI4qGyD\",\n
+        \         \"id\" : \"0tfnDOJ5a2ib3mHAI4qGyD\",\n          \"name\" : \"The
+        Dreadnoughts\",\n          \"type\" : \"artist\",\n          \"uri\" : \"spotify:artist:0tfnDOJ5a2ib3mHAI4qGyD\"\n
+        \       } ],\n        \"available_markets\" : [ \"AR\", \"AU\", \"AT\", \"BE\",
+        \"BO\", \"BR\", \"BG\", \"CA\", \"CL\", \"CO\", \"CR\", \"CY\", \"CZ\", \"DK\",
+        \"DO\", \"DE\", \"EC\", \"EE\", \"SV\", \"FI\", \"FR\", \"GR\", \"GT\", \"HN\",
+        \"HK\", \"HU\", \"IS\", \"IE\", \"IT\", \"LV\", \"LT\", \"LU\", \"MY\", \"MT\",
+        \"MX\", \"NL\", \"NZ\", \"NI\", \"NO\", \"PA\", \"PY\", \"PE\", \"PH\", \"PL\",
+        \"PT\", \"SG\", \"SK\", \"ES\", \"SE\", \"CH\", \"TW\", \"TR\", \"UY\", \"US\",
+        \"GB\", \"AD\", \"LI\", \"MC\", \"ID\", \"JP\", \"TH\", \"VN\", \"RO\", \"IL\",
+        \"ZA\", \"SA\", \"AE\", \"BH\", \"QA\", \"OM\", \"KW\", \"EG\", \"MA\", \"DZ\",
+        \"TN\", \"LB\", \"JO\", \"PS\", \"IN\", \"BY\", \"KZ\", \"MD\", \"UA\", \"AL\",
+        \"BA\", \"HR\", \"ME\", \"MK\", \"RS\", \"SI\", \"KR\", \"BD\", \"PK\", \"LK\",
+        \"GH\", \"KE\", \"NG\", \"TZ\", \"UG\", \"AG\", \"AM\", \"BS\", \"BB\", \"BZ\",
+        \"BT\", \"BW\", \"BF\", \"CV\", \"CW\", \"DM\", \"FJ\", \"GM\", \"GE\", \"GD\",
+        \"GW\", \"GY\", \"HT\", \"JM\", \"KI\", \"LS\", \"LR\", \"MW\", \"MV\", \"ML\",
+        \"MH\", \"FM\", \"NA\", \"NR\", \"NE\", \"PW\", \"PG\", \"PR\", \"WS\", \"SM\",
+        \"ST\", \"SN\", \"SC\", \"SL\", \"SB\", \"KN\", \"LC\", \"VC\", \"SR\", \"TL\",
+        \"TO\", \"TT\", \"TV\", \"VU\", \"AZ\", \"BN\", \"BI\", \"KH\", \"CM\", \"TD\",
+        \"KM\", \"GQ\", \"SZ\", \"GA\", \"GN\", \"KG\", \"LA\", \"MO\", \"MR\", \"MN\",
+        \"NP\", \"RW\", \"TG\", \"UZ\", \"ZW\", \"BJ\", \"MG\", \"MU\", \"MZ\", \"AO\",
+        \"CI\", \"DJ\", \"ZM\", \"CD\", \"CG\", \"IQ\", \"LY\", \"TJ\", \"VE\", \"ET\",
+        \"XK\" ],\n        \"disc_number\" : 1,\n        \"duration_ms\" : 240280,\n
+        \       \"episode\" : false,\n        \"explicit\" : false,\n        \"external_ids\"
+        : {\n          \"isrc\" : \"ushm80852320\"\n        },\n        \"external_urls\"
+        : {\n          \"spotify\" : \"https://open.spotify.com/track/6qqQMBAhewdDAdhNd8Zt02\"\n
+        \       },\n        \"href\" : \"https://api.spotify.com/v1/tracks/6qqQMBAhewdDAdhNd8Zt02\",\n
+        \       \"id\" : \"6qqQMBAhewdDAdhNd8Zt02\",\n        \"is_local\" : false,\n
+        \       \"name\" : \"Old Maui\",\n        \"popularity\" : 27,\n        \"preview_url\"
+        : \"https://p.scdn.co/mp3-preview/0ea9cb7bc3a358811e69994780900f6c83e3230c?cid=5f573c9620494bae87890c0f08a60293\",\n
+        \       \"track\" : true,\n        \"track_number\" : 1,\n        \"type\"
+        : \"track\",\n        \"uri\" : \"spotify:track:6qqQMBAhewdDAdhNd8Zt02\"\n
+        \     },\n      \"video_thumbnail\" : {\n        \"url\" : null\n      }\n
+        \   }, {\n      \"added_at\" : \"2024-04-10T15:55:37Z\",\n      \"added_by\"
+        : {\n        \"external_urls\" : {\n          \"spotify\" : \"https://open.spotify.com/user/xd9vfl7yp0h96uecfjc6vyoja\"\n
+        \       },\n        \"href\" : \"https://api.spotify.com/v1/users/xd9vfl7yp0h96uecfjc6vyoja\",\n
+        \       \"id\" : \"xd9vfl7yp0h96uecfjc6vyoja\",\n        \"type\" : \"user\",\n
+        \       \"uri\" : \"spotify:user:xd9vfl7yp0h96uecfjc6vyoja\"\n      },\n      \"is_local\"
+        : false,\n      \"primary_color\" : null,\n      \"track\" : {\n        \"album\"
+        : {\n          \"album_type\" : \"album\",\n          \"artists\" : [ {\n
+        \           \"external_urls\" : {\n              \"spotify\" : \"https://open.spotify.com/artist/0tfnDOJ5a2ib3mHAI4qGyD\"\n
+        \           },\n            \"href\" : \"https://api.spotify.com/v1/artists/0tfnDOJ5a2ib3mHAI4qGyD\",\n
+        \           \"id\" : \"0tfnDOJ5a2ib3mHAI4qGyD\",\n            \"name\" : \"The
+        Dreadnoughts\",\n            \"type\" : \"artist\",\n            \"uri\" :
+        \"spotify:artist:0tfnDOJ5a2ib3mHAI4qGyD\"\n          } ],\n          \"available_markets\"
+        : [ \"AR\", \"AU\", \"AT\", \"BE\", \"BO\", \"BR\", \"BG\", \"CA\", \"CL\",
+        \"CO\", \"CR\", \"CY\", \"CZ\", \"DK\", \"DO\", \"DE\", \"EC\", \"EE\", \"SV\",
+        \"FI\", \"FR\", \"GR\", \"GT\", \"HN\", \"HK\", \"HU\", \"IS\", \"IE\", \"IT\",
+        \"LV\", \"LT\", \"LU\", \"MY\", \"MT\", \"MX\", \"NL\", \"NZ\", \"NI\", \"NO\",
+        \"PA\", \"PY\", \"PE\", \"PH\", \"PL\", \"PT\", \"SG\", \"SK\", \"ES\", \"SE\",
+        \"CH\", \"TW\", \"TR\", \"UY\", \"US\", \"GB\", \"AD\", \"LI\", \"MC\", \"ID\",
+        \"JP\", \"TH\", \"VN\", \"RO\", \"IL\", \"ZA\", \"SA\", \"AE\", \"BH\", \"QA\",
+        \"OM\", \"KW\", \"EG\", \"MA\", \"DZ\", \"TN\", \"LB\", \"JO\", \"PS\", \"IN\",
+        \"BY\", \"KZ\", \"MD\", \"UA\", \"AL\", \"BA\", \"HR\", \"ME\", \"MK\", \"RS\",
+        \"SI\", \"KR\", \"BD\", \"PK\", \"LK\", \"GH\", \"KE\", \"NG\", \"TZ\", \"UG\",
+        \"AG\", \"AM\", \"BS\", \"BB\", \"BZ\", \"BT\", \"BW\", \"BF\", \"CV\", \"CW\",
+        \"DM\", \"FJ\", \"GM\", \"GE\", \"GD\", \"GW\", \"GY\", \"HT\", \"JM\", \"KI\",
+        \"LS\", \"LR\", \"MW\", \"MV\", \"ML\", \"MH\", \"FM\", \"NA\", \"NR\", \"NE\",
+        \"PW\", \"PG\", \"PR\", \"WS\", \"SM\", \"ST\", \"SN\", \"SC\", \"SL\", \"SB\",
+        \"KN\", \"LC\", \"VC\", \"SR\", \"TL\", \"TO\", \"TT\", \"TV\", \"VU\", \"AZ\",
+        \"BN\", \"BI\", \"KH\", \"CM\", \"TD\", \"KM\", \"GQ\", \"SZ\", \"GA\", \"GN\",
+        \"KG\", \"LA\", \"MO\", \"MR\", \"MN\", \"NP\", \"RW\", \"TG\", \"UZ\", \"ZW\",
+        \"BJ\", \"MG\", \"MU\", \"MZ\", \"AO\", \"CI\", \"DJ\", \"ZM\", \"CD\", \"CG\",
+        \"IQ\", \"LY\", \"TJ\", \"VE\", \"ET\", \"XK\" ],\n          \"external_urls\"
+        : {\n            \"spotify\" : \"https://open.spotify.com/album/0S7hl9NtRXGbHq9TWUVRAU\"\n
+        \         },\n          \"href\" : \"https://api.spotify.com/v1/albums/0S7hl9NtRXGbHq9TWUVRAU\",\n
+        \         \"id\" : \"0S7hl9NtRXGbHq9TWUVRAU\",\n          \"images\" : [ {\n
+        \           \"height\" : 640,\n            \"url\" : \"https://i.scdn.co/image/ab67616d0000b273343c4d74928886cd0be697fc\",\n
+        \           \"width\" : 640\n          }, {\n            \"height\" : 300,\n
+        \           \"url\" : \"https://i.scdn.co/image/ab67616d00001e02343c4d74928886cd0be697fc\",\n
+        \           \"width\" : 300\n          }, {\n            \"height\" : 64,\n
+        \           \"url\" : \"https://i.scdn.co/image/ab67616d00004851343c4d74928886cd0be697fc\",\n
+        \           \"width\" : 64\n          } ],\n          \"name\" : \"Legends
+        Never Die\",\n          \"release_date\" : \"2007-01-01\",\n          \"release_date_precision\"
+        : \"day\",\n          \"total_tracks\" : 11,\n          \"type\" : \"album\",\n
+        \         \"uri\" : \"spotify:album:0S7hl9NtRXGbHq9TWUVRAU\"\n        },\n
+        \       \"artists\" : [ {\n          \"external_urls\" : {\n            \"spotify\"
+        : \"https://open.spotify.com/artist/0tfnDOJ5a2ib3mHAI4qGyD\"\n          },\n
+        \         \"href\" : \"https://api.spotify.com/v1/artists/0tfnDOJ5a2ib3mHAI4qGyD\",\n
+        \         \"id\" : \"0tfnDOJ5a2ib3mHAI4qGyD\",\n          \"name\" : \"The
+        Dreadnoughts\",\n          \"type\" : \"artist\",\n          \"uri\" : \"spotify:artist:0tfnDOJ5a2ib3mHAI4qGyD\"\n
+        \       } ],\n        \"available_markets\" : [ \"AR\", \"AU\", \"AT\", \"BE\",
+        \"BO\", \"BR\", \"BG\", \"CA\", \"CL\", \"CO\", \"CR\", \"CY\", \"CZ\", \"DK\",
+        \"DO\", \"DE\", \"EC\", \"EE\", \"SV\", \"FI\", \"FR\", \"GR\", \"GT\", \"HN\",
+        \"HK\", \"HU\", \"IS\", \"IE\", \"IT\", \"LV\", \"LT\", \"LU\", \"MY\", \"MT\",
+        \"MX\", \"NL\", \"NZ\", \"NI\", \"NO\", \"PA\", \"PY\", \"PE\", \"PH\", \"PL\",
+        \"PT\", \"SG\", \"SK\", \"ES\", \"SE\", \"CH\", \"TW\", \"TR\", \"UY\", \"US\",
+        \"GB\", \"AD\", \"LI\", \"MC\", \"ID\", \"JP\", \"TH\", \"VN\", \"RO\", \"IL\",
+        \"ZA\", \"SA\", \"AE\", \"BH\", \"QA\", \"OM\", \"KW\", \"EG\", \"MA\", \"DZ\",
+        \"TN\", \"LB\", \"JO\", \"PS\", \"IN\", \"BY\", \"KZ\", \"MD\", \"UA\", \"AL\",
+        \"BA\", \"HR\", \"ME\", \"MK\", \"RS\", \"SI\", \"KR\", \"BD\", \"PK\", \"LK\",
+        \"GH\", \"KE\", \"NG\", \"TZ\", \"UG\", \"AG\", \"AM\", \"BS\", \"BB\", \"BZ\",
+        \"BT\", \"BW\", \"BF\", \"CV\", \"CW\", \"DM\", \"FJ\", \"GM\", \"GE\", \"GD\",
+        \"GW\", \"GY\", \"HT\", \"JM\", \"KI\", \"LS\", \"LR\", \"MW\", \"MV\", \"ML\",
+        \"MH\", \"FM\", \"NA\", \"NR\", \"NE\", \"PW\", \"PG\", \"PR\", \"WS\", \"SM\",
+        \"ST\", \"SN\", \"SC\", \"SL\", \"SB\", \"KN\", \"LC\", \"VC\", \"SR\", \"TL\",
+        \"TO\", \"TT\", \"TV\", \"VU\", \"AZ\", \"BN\", \"BI\", \"KH\", \"CM\", \"TD\",
+        \"KM\", \"GQ\", \"SZ\", \"GA\", \"GN\", \"KG\", \"LA\", \"MO\", \"MR\", \"MN\",
+        \"NP\", \"RW\", \"TG\", \"UZ\", \"ZW\", \"BJ\", \"MG\", \"MU\", \"MZ\", \"AO\",
+        \"CI\", \"DJ\", \"ZM\", \"CD\", \"CG\", \"IQ\", \"LY\", \"TJ\", \"VE\", \"ET\",
+        \"XK\" ],\n        \"disc_number\" : 1,\n        \"duration_ms\" : 240280,\n
+        \       \"episode\" : false,\n        \"explicit\" : false,\n        \"external_ids\"
+        : {\n          \"isrc\" : \"ushm80852320\"\n        },\n        \"external_urls\"
+        : {\n          \"spotify\" : \"https://open.spotify.com/track/6qqQMBAhewdDAdhNd8Zt02\"\n
+        \       },\n        \"href\" : \"https://api.spotify.com/v1/tracks/6qqQMBAhewdDAdhNd8Zt02\",\n
+        \       \"id\" : \"6qqQMBAhewdDAdhNd8Zt02\",\n        \"is_local\" : false,\n
+        \       \"name\" : \"Old Maui\",\n        \"popularity\" : 27,\n        \"preview_url\"
+        : \"https://p.scdn.co/mp3-preview/0ea9cb7bc3a358811e69994780900f6c83e3230c?cid=5f573c9620494bae87890c0f08a60293\",\n
+        \       \"track\" : true,\n        \"track_number\" : 1,\n        \"type\"
+        : \"track\",\n        \"uri\" : \"spotify:track:6qqQMBAhewdDAdhNd8Zt02\"\n
+        \     },\n      \"video_thumbnail\" : {\n        \"url\" : null\n      }\n
+        \   }, {\n      \"added_at\" : \"2024-04-10T15:55:41Z\",\n      \"added_by\"
+        : {\n        \"external_urls\" : {\n          \"spotify\" : \"https://open.spotify.com/user/xd9vfl7yp0h96uecfjc6vyoja\"\n
+        \       },\n        \"href\" : \"https://api.spotify.com/v1/users/xd9vfl7yp0h96uecfjc6vyoja\",\n
+        \       \"id\" : \"xd9vfl7yp0h96uecfjc6vyoja\",\n        \"type\" : \"user\",\n
+        \       \"uri\" : \"spotify:user:xd9vfl7yp0h96uecfjc6vyoja\"\n      },\n      \"is_local\"
+        : false,\n      \"primary_color\" : null,\n      \"track\" : {\n        \"album\"
+        : {\n          \"album_type\" : \"album\",\n          \"artists\" : [ {\n
+        \           \"external_urls\" : {\n              \"spotify\" : \"https://open.spotify.com/artist/0tfnDOJ5a2ib3mHAI4qGyD\"\n
+        \           },\n            \"href\" : \"https://api.spotify.com/v1/artists/0tfnDOJ5a2ib3mHAI4qGyD\",\n
+        \           \"id\" : \"0tfnDOJ5a2ib3mHAI4qGyD\",\n            \"name\" : \"The
+        Dreadnoughts\",\n            \"type\" : \"artist\",\n            \"uri\" :
+        \"spotify:artist:0tfnDOJ5a2ib3mHAI4qGyD\"\n          } ],\n          \"available_markets\"
+        : [ \"AR\", \"AU\", \"AT\", \"BE\", \"BO\", \"BR\", \"BG\", \"CA\", \"CL\",
+        \"CO\", \"CR\", \"CY\", \"CZ\", \"DK\", \"DO\", \"DE\", \"EC\", \"EE\", \"SV\",
+        \"FI\", \"FR\", \"GR\", \"GT\", \"HN\", \"HK\", \"HU\", \"IS\", \"IE\", \"IT\",
+        \"LV\", \"LT\", \"LU\", \"MY\", \"MT\", \"MX\", \"NL\", \"NZ\", \"NI\", \"NO\",
+        \"PA\", \"PY\", \"PE\", \"PH\", \"PL\", \"PT\", \"SG\", \"SK\", \"ES\", \"SE\",
+        \"CH\", \"TW\", \"TR\", \"UY\", \"US\", \"GB\", \"AD\", \"LI\", \"MC\", \"ID\",
+        \"JP\", \"TH\", \"VN\", \"RO\", \"IL\", \"ZA\", \"SA\", \"AE\", \"BH\", \"QA\",
+        \"OM\", \"KW\", \"EG\", \"MA\", \"DZ\", \"TN\", \"LB\", \"JO\", \"PS\", \"IN\",
+        \"BY\", \"KZ\", \"MD\", \"UA\", \"AL\", \"BA\", \"HR\", \"ME\", \"MK\", \"RS\",
+        \"SI\", \"KR\", \"BD\", \"PK\", \"LK\", \"GH\", \"KE\", \"NG\", \"TZ\", \"UG\",
+        \"AG\", \"AM\", \"BS\", \"BB\", \"BZ\", \"BT\", \"BW\", \"BF\", \"CV\", \"CW\",
+        \"DM\", \"FJ\", \"GM\", \"GE\", \"GD\", \"GW\", \"GY\", \"HT\", \"JM\", \"KI\",
+        \"LS\", \"LR\", \"MW\", \"MV\", \"ML\", \"MH\", \"FM\", \"NA\", \"NR\", \"NE\",
+        \"PW\", \"PG\", \"PR\", \"WS\", \"SM\", \"ST\", \"SN\", \"SC\", \"SL\", \"SB\",
+        \"KN\", \"LC\", \"VC\", \"SR\", \"TL\", \"TO\", \"TT\", \"TV\", \"VU\", \"AZ\",
+        \"BN\", \"BI\", \"KH\", \"CM\", \"TD\", \"KM\", \"GQ\", \"SZ\", \"GA\", \"GN\",
+        \"KG\", \"LA\", \"MO\", \"MR\", \"MN\", \"NP\", \"RW\", \"TG\", \"UZ\", \"ZW\",
+        \"BJ\", \"MG\", \"MU\", \"MZ\", \"AO\", \"CI\", \"DJ\", \"ZM\", \"CD\", \"CG\",
+        \"IQ\", \"LY\", \"TJ\", \"VE\", \"ET\", \"XK\" ],\n          \"external_urls\"
+        : {\n            \"spotify\" : \"https://open.spotify.com/album/4sXaOOcXH2tfRFUJsiIzKh\"\n
+        \         },\n          \"href\" : \"https://api.spotify.com/v1/albums/4sXaOOcXH2tfRFUJsiIzKh\",\n
+        \         \"id\" : \"4sXaOOcXH2tfRFUJsiIzKh\",\n          \"images\" : [ {\n
+        \           \"height\" : 640,\n            \"url\" : \"https://i.scdn.co/image/ab67616d0000b273f77f38a09d9bb11945057e28\",\n
+        \           \"width\" : 640\n          }, {\n            \"height\" : 300,\n
+        \           \"url\" : \"https://i.scdn.co/image/ab67616d00001e02f77f38a09d9bb11945057e28\",\n
+        \           \"width\" : 300\n          }, {\n            \"height\" : 64,\n
+        \           \"url\" : \"https://i.scdn.co/image/ab67616d00004851f77f38a09d9bb11945057e28\",\n
+        \           \"width\" : 64\n          } ],\n          \"name\" : \"Foreign
+        Skies\",\n          \"release_date\" : \"2017-11-11\",\n          \"release_date_precision\"
+        : \"day\",\n          \"total_tracks\" : 12,\n          \"type\" : \"album\",\n
+        \         \"uri\" : \"spotify:album:4sXaOOcXH2tfRFUJsiIzKh\"\n        },\n
+        \       \"artists\" : [ {\n          \"external_urls\" : {\n            \"spotify\"
+        : \"https://open.spotify.com/artist/0tfnDOJ5a2ib3mHAI4qGyD\"\n          },\n
+        \         \"href\" : \"https://api.spotify.com/v1/artists/0tfnDOJ5a2ib3mHAI4qGyD\",\n
+        \         \"id\" : \"0tfnDOJ5a2ib3mHAI4qGyD\",\n          \"name\" : \"The
+        Dreadnoughts\",\n          \"type\" : \"artist\",\n          \"uri\" : \"spotify:artist:0tfnDOJ5a2ib3mHAI4qGyD\"\n
+        \       } ],\n        \"available_markets\" : [ \"AR\", \"AU\", \"AT\", \"BE\",
+        \"BO\", \"BR\", \"BG\", \"CA\", \"CL\", \"CO\", \"CR\", \"CY\", \"CZ\", \"DK\",
+        \"DO\", \"DE\", \"EC\", \"EE\", \"SV\", \"FI\", \"FR\", \"GR\", \"GT\", \"HN\",
+        \"HK\", \"HU\", \"IS\", \"IE\", \"IT\", \"LV\", \"LT\", \"LU\", \"MY\", \"MT\",
+        \"MX\", \"NL\", \"NZ\", \"NI\", \"NO\", \"PA\", \"PY\", \"PE\", \"PH\", \"PL\",
+        \"PT\", \"SG\", \"SK\", \"ES\", \"SE\", \"CH\", \"TW\", \"TR\", \"UY\", \"US\",
+        \"GB\", \"AD\", \"LI\", \"MC\", \"ID\", \"JP\", \"TH\", \"VN\", \"RO\", \"IL\",
+        \"ZA\", \"SA\", \"AE\", \"BH\", \"QA\", \"OM\", \"KW\", \"EG\", \"MA\", \"DZ\",
+        \"TN\", \"LB\", \"JO\", \"PS\", \"IN\", \"BY\", \"KZ\", \"MD\", \"UA\", \"AL\",
+        \"BA\", \"HR\", \"ME\", \"MK\", \"RS\", \"SI\", \"KR\", \"BD\", \"PK\", \"LK\",
+        \"GH\", \"KE\", \"NG\", \"TZ\", \"UG\", \"AG\", \"AM\", \"BS\", \"BB\", \"BZ\",
+        \"BT\", \"BW\", \"BF\", \"CV\", \"CW\", \"DM\", \"FJ\", \"GM\", \"GE\", \"GD\",
+        \"GW\", \"GY\", \"HT\", \"JM\", \"KI\", \"LS\", \"LR\", \"MW\", \"MV\", \"ML\",
+        \"MH\", \"FM\", \"NA\", \"NR\", \"NE\", \"PW\", \"PG\", \"PR\", \"WS\", \"SM\",
+        \"ST\", \"SN\", \"SC\", \"SL\", \"SB\", \"KN\", \"LC\", \"VC\", \"SR\", \"TL\",
+        \"TO\", \"TT\", \"TV\", \"VU\", \"AZ\", \"BN\", \"BI\", \"KH\", \"CM\", \"TD\",
+        \"KM\", \"GQ\", \"SZ\", \"GA\", \"GN\", \"KG\", \"LA\", \"MO\", \"MR\", \"MN\",
+        \"NP\", \"RW\", \"TG\", \"UZ\", \"ZW\", \"BJ\", \"MG\", \"MU\", \"MZ\", \"AO\",
+        \"CI\", \"DJ\", \"ZM\", \"CD\", \"CG\", \"IQ\", \"LY\", \"TJ\", \"VE\", \"ET\",
+        \"XK\" ],\n        \"disc_number\" : 1,\n        \"duration_ms\" : 152613,\n
+        \       \"episode\" : false,\n        \"explicit\" : false,\n        \"external_ids\"
+        : {\n          \"isrc\" : \"ushm81736646\"\n        },\n        \"external_urls\"
+        : {\n          \"spotify\" : \"https://open.spotify.com/track/1thyTXY67TFFyZkhxRpMbs\"\n
+        \       },\n        \"href\" : \"https://api.spotify.com/v1/tracks/1thyTXY67TFFyZkhxRpMbs\",\n
+        \       \"id\" : \"1thyTXY67TFFyZkhxRpMbs\",\n        \"is_local\" : false,\n
+        \       \"name\" : \"Black and White\",\n        \"popularity\" : 28,\n        \"preview_url\"
+        : \"https://p.scdn.co/mp3-preview/4f42a56963adc5e3590b1a144ed7330e417de20c?cid=5f573c9620494bae87890c0f08a60293\",\n
+        \       \"track\" : true,\n        \"track_number\" : 8,\n        \"type\"
+        : \"track\",\n        \"uri\" : \"spotify:track:1thyTXY67TFFyZkhxRpMbs\"\n
+        \     },\n      \"video_thumbnail\" : {\n        \"url\" : null\n      }\n
+        \   }, {\n      \"added_at\" : \"2024-04-10T15:55:42Z\",\n      \"added_by\"
+        : {\n        \"external_urls\" : {\n          \"spotify\" : \"https://open.spotify.com/user/xd9vfl7yp0h96uecfjc6vyoja\"\n
+        \       },\n        \"href\" : \"https://api.spotify.com/v1/users/xd9vfl7yp0h96uecfjc6vyoja\",\n
+        \       \"id\" : \"xd9vfl7yp0h96uecfjc6vyoja\",\n        \"type\" : \"user\",\n
+        \       \"uri\" : \"spotify:user:xd9vfl7yp0h96uecfjc6vyoja\"\n      },\n      \"is_local\"
+        : false,\n      \"primary_color\" : null,\n      \"track\" : {\n        \"album\"
+        : {\n          \"album_type\" : \"album\",\n          \"artists\" : [ {\n
+        \           \"external_urls\" : {\n              \"spotify\" : \"https://open.spotify.com/artist/0tfnDOJ5a2ib3mHAI4qGyD\"\n
+        \           },\n            \"href\" : \"https://api.spotify.com/v1/artists/0tfnDOJ5a2ib3mHAI4qGyD\",\n
+        \           \"id\" : \"0tfnDOJ5a2ib3mHAI4qGyD\",\n            \"name\" : \"The
+        Dreadnoughts\",\n            \"type\" : \"artist\",\n            \"uri\" :
+        \"spotify:artist:0tfnDOJ5a2ib3mHAI4qGyD\"\n          } ],\n          \"available_markets\"
+        : [ \"AR\", \"AU\", \"AT\", \"BE\", \"BO\", \"BR\", \"BG\", \"CA\", \"CL\",
+        \"CO\", \"CR\", \"CY\", \"CZ\", \"DK\", \"DO\", \"DE\", \"EC\", \"EE\", \"SV\",
+        \"FI\", \"FR\", \"GR\", \"GT\", \"HN\", \"HK\", \"HU\", \"IS\", \"IE\", \"IT\",
+        \"LV\", \"LT\", \"LU\", \"MY\", \"MT\", \"MX\", \"NL\", \"NZ\", \"NI\", \"NO\",
+        \"PA\", \"PY\", \"PE\", \"PH\", \"PL\", \"PT\", \"SG\", \"SK\", \"ES\", \"SE\",
+        \"CH\", \"TW\", \"TR\", \"UY\", \"US\", \"GB\", \"AD\", \"LI\", \"MC\", \"ID\",
+        \"JP\", \"TH\", \"VN\", \"RO\", \"IL\", \"ZA\", \"SA\", \"AE\", \"BH\", \"QA\",
+        \"OM\", \"KW\", \"EG\", \"MA\", \"DZ\", \"TN\", \"LB\", \"JO\", \"PS\", \"IN\",
+        \"BY\", \"KZ\", \"MD\", \"UA\", \"AL\", \"BA\", \"HR\", \"ME\", \"MK\", \"RS\",
+        \"SI\", \"KR\", \"BD\", \"PK\", \"LK\", \"GH\", \"KE\", \"NG\", \"TZ\", \"UG\",
+        \"AG\", \"AM\", \"BS\", \"BB\", \"BZ\", \"BT\", \"BW\", \"BF\", \"CV\", \"CW\",
+        \"DM\", \"FJ\", \"GM\", \"GE\", \"GD\", \"GW\", \"GY\", \"HT\", \"JM\", \"KI\",
+        \"LS\", \"LR\", \"MW\", \"MV\", \"ML\", \"MH\", \"FM\", \"NA\", \"NR\", \"NE\",
+        \"PW\", \"PG\", \"PR\", \"WS\", \"SM\", \"ST\", \"SN\", \"SC\", \"SL\", \"SB\",
+        \"KN\", \"LC\", \"VC\", \"SR\", \"TL\", \"TO\", \"TT\", \"TV\", \"VU\", \"AZ\",
+        \"BN\", \"BI\", \"KH\", \"CM\", \"TD\", \"KM\", \"GQ\", \"SZ\", \"GA\", \"GN\",
+        \"KG\", \"LA\", \"MO\", \"MR\", \"MN\", \"NP\", \"RW\", \"TG\", \"UZ\", \"ZW\",
+        \"BJ\", \"MG\", \"MU\", \"MZ\", \"AO\", \"CI\", \"DJ\", \"ZM\", \"CD\", \"CG\",
+        \"IQ\", \"LY\", \"TJ\", \"VE\", \"ET\", \"XK\" ],\n          \"external_urls\"
+        : {\n            \"spotify\" : \"https://open.spotify.com/album/0S7hl9NtRXGbHq9TWUVRAU\"\n
+        \         },\n          \"href\" : \"https://api.spotify.com/v1/albums/0S7hl9NtRXGbHq9TWUVRAU\",\n
+        \         \"id\" : \"0S7hl9NtRXGbHq9TWUVRAU\",\n          \"images\" : [ {\n
+        \           \"height\" : 640,\n            \"url\" : \"https://i.scdn.co/image/ab67616d0000b273343c4d74928886cd0be697fc\",\n
+        \           \"width\" : 640\n          }, {\n            \"height\" : 300,\n
+        \           \"url\" : \"https://i.scdn.co/image/ab67616d00001e02343c4d74928886cd0be697fc\",\n
+        \           \"width\" : 300\n          }, {\n            \"height\" : 64,\n
+        \           \"url\" : \"https://i.scdn.co/image/ab67616d00004851343c4d74928886cd0be697fc\",\n
+        \           \"width\" : 64\n          } ],\n          \"name\" : \"Legends
+        Never Die\",\n          \"release_date\" : \"2007-01-01\",\n          \"release_date_precision\"
+        : \"day\",\n          \"total_tracks\" : 11,\n          \"type\" : \"album\",\n
+        \         \"uri\" : \"spotify:album:0S7hl9NtRXGbHq9TWUVRAU\"\n        },\n
+        \       \"artists\" : [ {\n          \"external_urls\" : {\n            \"spotify\"
+        : \"https://open.spotify.com/artist/0tfnDOJ5a2ib3mHAI4qGyD\"\n          },\n
+        \         \"href\" : \"https://api.spotify.com/v1/artists/0tfnDOJ5a2ib3mHAI4qGyD\",\n
+        \         \"id\" : \"0tfnDOJ5a2ib3mHAI4qGyD\",\n          \"name\" : \"The
+        Dreadnoughts\",\n          \"type\" : \"artist\",\n          \"uri\" : \"spotify:artist:0tfnDOJ5a2ib3mHAI4qGyD\"\n
+        \       } ],\n        \"available_markets\" : [ \"AR\", \"AU\", \"AT\", \"BE\",
+        \"BO\", \"BR\", \"BG\", \"CA\", \"CL\", \"CO\", \"CR\", \"CY\", \"CZ\", \"DK\",
+        \"DO\", \"DE\", \"EC\", \"EE\", \"SV\", \"FI\", \"FR\", \"GR\", \"GT\", \"HN\",
+        \"HK\", \"HU\", \"IS\", \"IE\", \"IT\", \"LV\", \"LT\", \"LU\", \"MY\", \"MT\",
+        \"MX\", \"NL\", \"NZ\", \"NI\", \"NO\", \"PA\", \"PY\", \"PE\", \"PH\", \"PL\",
+        \"PT\", \"SG\", \"SK\", \"ES\", \"SE\", \"CH\", \"TW\", \"TR\", \"UY\", \"US\",
+        \"GB\", \"AD\", \"LI\", \"MC\", \"ID\", \"JP\", \"TH\", \"VN\", \"RO\", \"IL\",
+        \"ZA\", \"SA\", \"AE\", \"BH\", \"QA\", \"OM\", \"KW\", \"EG\", \"MA\", \"DZ\",
+        \"TN\", \"LB\", \"JO\", \"PS\", \"IN\", \"BY\", \"KZ\", \"MD\", \"UA\", \"AL\",
+        \"BA\", \"HR\", \"ME\", \"MK\", \"RS\", \"SI\", \"KR\", \"BD\", \"PK\", \"LK\",
+        \"GH\", \"KE\", \"NG\", \"TZ\", \"UG\", \"AG\", \"AM\", \"BS\", \"BB\", \"BZ\",
+        \"BT\", \"BW\", \"BF\", \"CV\", \"CW\", \"DM\", \"FJ\", \"GM\", \"GE\", \"GD\",
+        \"GW\", \"GY\", \"HT\", \"JM\", \"KI\", \"LS\", \"LR\", \"MW\", \"MV\", \"ML\",
+        \"MH\", \"FM\", \"NA\", \"NR\", \"NE\", \"PW\", \"PG\", \"PR\", \"WS\", \"SM\",
+        \"ST\", \"SN\", \"SC\", \"SL\", \"SB\", \"KN\", \"LC\", \"VC\", \"SR\", \"TL\",
+        \"TO\", \"TT\", \"TV\", \"VU\", \"AZ\", \"BN\", \"BI\", \"KH\", \"CM\", \"TD\",
+        \"KM\", \"GQ\", \"SZ\", \"GA\", \"GN\", \"KG\", \"LA\", \"MO\", \"MR\", \"MN\",
+        \"NP\", \"RW\", \"TG\", \"UZ\", \"ZW\", \"BJ\", \"MG\", \"MU\", \"MZ\", \"AO\",
+        \"CI\", \"DJ\", \"ZM\", \"CD\", \"CG\", \"IQ\", \"LY\", \"TJ\", \"VE\", \"ET\",
+        \"XK\" ],\n        \"disc_number\" : 1,\n        \"duration_ms\" : 333440,\n
+        \       \"episode\" : false,\n        \"explicit\" : false,\n        \"external_ids\"
+        : {\n          \"isrc\" : \"ushm80852326\"\n        },\n        \"external_urls\"
+        : {\n          \"spotify\" : \"https://open.spotify.com/track/5WyZKzskByzPGc2ZvMXMvs\"\n
+        \       },\n        \"href\" : \"https://api.spotify.com/v1/tracks/5WyZKzskByzPGc2ZvMXMvs\",\n
+        \       \"id\" : \"5WyZKzskByzPGc2ZvMXMvs\",\n        \"is_local\" : false,\n
+        \       \"name\" : \"A Rambler\\\\'s Life\",\n        \"popularity\" : 33,\n
+        \       \"preview_url\" : \"https://p.scdn.co/mp3-preview/985bff84847da1ce79580ca3b32dc2fb50a39dfc?cid=5f573c9620494bae87890c0f08a60293\",\n
+        \       \"track\" : true,\n        \"track_number\" : 7,\n        \"type\"
+        : \"track\",\n        \"uri\" : \"spotify:track:5WyZKzskByzPGc2ZvMXMvs\"\n
+        \     },\n      \"video_thumbnail\" : {\n        \"url\" : null\n      }\n
+        \   }, {\n      \"added_at\" : \"2024-04-10T15:55:43Z\",\n      \"added_by\"
+        : {\n        \"external_urls\" : {\n          \"spotify\" : \"https://open.spotify.com/user/xd9vfl7yp0h96uecfjc6vyoja\"\n
+        \       },\n        \"href\" : \"https://api.spotify.com/v1/users/xd9vfl7yp0h96uecfjc6vyoja\",\n
+        \       \"id\" : \"xd9vfl7yp0h96uecfjc6vyoja\",\n        \"type\" : \"user\",\n
+        \       \"uri\" : \"spotify:user:xd9vfl7yp0h96uecfjc6vyoja\"\n      },\n      \"is_local\"
+        : false,\n      \"primary_color\" : null,\n      \"track\" : {\n        \"album\"
+        : {\n          \"album_type\" : \"album\",\n          \"artists\" : [ {\n
+        \           \"external_urls\" : {\n              \"spotify\" : \"https://open.spotify.com/artist/0tfnDOJ5a2ib3mHAI4qGyD\"\n
+        \           },\n            \"href\" : \"https://api.spotify.com/v1/artists/0tfnDOJ5a2ib3mHAI4qGyD\",\n
+        \           \"id\" : \"0tfnDOJ5a2ib3mHAI4qGyD\",\n            \"name\" : \"The
+        Dreadnoughts\",\n            \"type\" : \"artist\",\n            \"uri\" :
+        \"spotify:artist:0tfnDOJ5a2ib3mHAI4qGyD\"\n          } ],\n          \"available_markets\"
+        : [ \"AR\", \"AU\", \"AT\", \"BE\", \"BO\", \"BR\", \"BG\", \"CA\", \"CL\",
+        \"CO\", \"CR\", \"CY\", \"CZ\", \"DK\", \"DO\", \"DE\", \"EC\", \"EE\", \"SV\",
+        \"FI\", \"FR\", \"GR\", \"GT\", \"HN\", \"HK\", \"HU\", \"IS\", \"IE\", \"IT\",
+        \"LV\", \"LT\", \"LU\", \"MY\", \"MT\", \"MX\", \"NL\", \"NZ\", \"NI\", \"NO\",
+        \"PA\", \"PY\", \"PE\", \"PH\", \"PL\", \"PT\", \"SG\", \"SK\", \"ES\", \"SE\",
+        \"CH\", \"TW\", \"TR\", \"UY\", \"US\", \"GB\", \"AD\", \"LI\", \"MC\", \"ID\",
+        \"JP\", \"TH\", \"VN\", \"RO\", \"IL\", \"ZA\", \"SA\", \"AE\", \"BH\", \"QA\",
+        \"OM\", \"KW\", \"EG\", \"MA\", \"DZ\", \"TN\", \"LB\", \"JO\", \"PS\", \"IN\",
+        \"BY\", \"KZ\", \"MD\", \"UA\", \"AL\", \"BA\", \"HR\", \"ME\", \"MK\", \"RS\",
+        \"SI\", \"KR\", \"BD\", \"PK\", \"LK\", \"GH\", \"KE\", \"NG\", \"TZ\", \"UG\",
+        \"AG\", \"AM\", \"BS\", \"BB\", \"BZ\", \"BT\", \"BW\", \"BF\", \"CV\", \"CW\",
+        \"DM\", \"FJ\", \"GM\", \"GE\", \"GD\", \"GW\", \"GY\", \"HT\", \"JM\", \"KI\",
+        \"LS\", \"LR\", \"MW\", \"MV\", \"ML\", \"MH\", \"FM\", \"NA\", \"NR\", \"NE\",
+        \"PW\", \"PG\", \"PR\", \"WS\", \"SM\", \"ST\", \"SN\", \"SC\", \"SL\", \"SB\",
+        \"KN\", \"LC\", \"VC\", \"SR\", \"TL\", \"TO\", \"TT\", \"TV\", \"VU\", \"AZ\",
+        \"BN\", \"BI\", \"KH\", \"CM\", \"TD\", \"KM\", \"GQ\", \"SZ\", \"GA\", \"GN\",
+        \"KG\", \"LA\", \"MO\", \"MR\", \"MN\", \"NP\", \"RW\", \"TG\", \"UZ\", \"ZW\",
+        \"BJ\", \"MG\", \"MU\", \"MZ\", \"AO\", \"CI\", \"DJ\", \"ZM\", \"CD\", \"CG\",
+        \"IQ\", \"LY\", \"TJ\", \"VE\", \"ET\", \"XK\" ],\n          \"external_urls\"
+        : {\n            \"spotify\" : \"https://open.spotify.com/album/0S7hl9NtRXGbHq9TWUVRAU\"\n
+        \         },\n          \"href\" : \"https://api.spotify.com/v1/albums/0S7hl9NtRXGbHq9TWUVRAU\",\n
+        \         \"id\" : \"0S7hl9NtRXGbHq9TWUVRAU\",\n          \"images\" : [ {\n
+        \           \"height\" : 640,\n            \"url\" : \"https://i.scdn.co/image/ab67616d0000b273343c4d74928886cd0be697fc\",\n
+        \           \"width\" : 640\n          }, {\n            \"height\" : 300,\n
+        \           \"url\" : \"https://i.scdn.co/image/ab67616d00001e02343c4d74928886cd0be697fc\",\n
+        \           \"width\" : 300\n          }, {\n            \"height\" : 64,\n
+        \           \"url\" : \"https://i.scdn.co/image/ab67616d00004851343c4d74928886cd0be697fc\",\n
+        \           \"width\" : 64\n          } ],\n          \"name\" : \"Legends
+        Never Die\",\n          \"release_date\" : \"2007-01-01\",\n          \"release_date_precision\"
+        : \"day\",\n          \"total_tracks\" : 11,\n          \"type\" : \"album\",\n
+        \         \"uri\" : \"spotify:album:0S7hl9NtRXGbHq9TWUVRAU\"\n        },\n
+        \       \"artists\" : [ {\n          \"external_urls\" : {\n            \"spotify\"
+        : \"https://open.spotify.com/artist/0tfnDOJ5a2ib3mHAI4qGyD\"\n          },\n
+        \         \"href\" : \"https://api.spotify.com/v1/artists/0tfnDOJ5a2ib3mHAI4qGyD\",\n
+        \         \"id\" : \"0tfnDOJ5a2ib3mHAI4qGyD\",\n          \"name\" : \"The
+        Dreadnoughts\",\n          \"type\" : \"artist\",\n          \"uri\" : \"spotify:artist:0tfnDOJ5a2ib3mHAI4qGyD\"\n
+        \       } ],\n        \"available_markets\" : [ \"AR\", \"AU\", \"AT\", \"BE\",
+        \"BO\", \"BR\", \"BG\", \"CA\", \"CL\", \"CO\", \"CR\", \"CY\", \"CZ\", \"DK\",
+        \"DO\", \"DE\", \"EC\", \"EE\", \"SV\", \"FI\", \"FR\", \"GR\", \"GT\", \"HN\",
+        \"HK\", \"HU\", \"IS\", \"IE\", \"IT\", \"LV\", \"LT\", \"LU\", \"MY\", \"MT\",
+        \"MX\", \"NL\", \"NZ\", \"NI\", \"NO\", \"PA\", \"PY\", \"PE\", \"PH\", \"PL\",
+        \"PT\", \"SG\", \"SK\", \"ES\", \"SE\", \"CH\", \"TW\", \"TR\", \"UY\", \"US\",
+        \"GB\", \"AD\", \"LI\", \"MC\", \"ID\", \"JP\", \"TH\", \"VN\", \"RO\", \"IL\",
+        \"ZA\", \"SA\", \"AE\", \"BH\", \"QA\", \"OM\", \"KW\", \"EG\", \"MA\", \"DZ\",
+        \"TN\", \"LB\", \"JO\", \"PS\", \"IN\", \"BY\", \"KZ\", \"MD\", \"UA\", \"AL\",
+        \"BA\", \"HR\", \"ME\", \"MK\", \"RS\", \"SI\", \"KR\", \"BD\", \"PK\", \"LK\",
+        \"GH\", \"KE\", \"NG\", \"TZ\", \"UG\", \"AG\", \"AM\", \"BS\", \"BB\", \"BZ\",
+        \"BT\", \"BW\", \"BF\", \"CV\", \"CW\", \"DM\", \"FJ\", \"GM\", \"GE\", \"GD\",
+        \"GW\", \"GY\", \"HT\", \"JM\", \"KI\", \"LS\", \"LR\", \"MW\", \"MV\", \"ML\",
+        \"MH\", \"FM\", \"NA\", \"NR\", \"NE\", \"PW\", \"PG\", \"PR\", \"WS\", \"SM\",
+        \"ST\", \"SN\", \"SC\", \"SL\", \"SB\", \"KN\", \"LC\", \"VC\", \"SR\", \"TL\",
+        \"TO\", \"TT\", \"TV\", \"VU\", \"AZ\", \"BN\", \"BI\", \"KH\", \"CM\", \"TD\",
+        \"KM\", \"GQ\", \"SZ\", \"GA\", \"GN\", \"KG\", \"LA\", \"MO\", \"MR\", \"MN\",
+        \"NP\", \"RW\", \"TG\", \"UZ\", \"ZW\", \"BJ\", \"MG\", \"MU\", \"MZ\", \"AO\",
+        \"CI\", \"DJ\", \"ZM\", \"CD\", \"CG\", \"IQ\", \"LY\", \"TJ\", \"VE\", \"ET\",
+        \"XK\" ],\n        \"disc_number\" : 1,\n        \"duration_ms\" : 177986,\n
+        \       \"episode\" : false,\n        \"explicit\" : false,\n        \"external_ids\"
+        : {\n          \"isrc\" : \"ushm80852321\"\n        },\n        \"external_urls\"
+        : {\n          \"spotify\" : \"https://open.spotify.com/track/47BlQIrahKojOp9vuhmkgl\"\n
+        \       },\n        \"href\" : \"https://api.spotify.com/v1/tracks/47BlQIrahKojOp9vuhmkgl\",\n
+        \       \"id\" : \"47BlQIrahKojOp9vuhmkgl\",\n        \"is_local\" : false,\n
+        \       \"name\" : \"Katie, Bar The Door\",\n        \"popularity\" : 29,\n
+        \       \"preview_url\" : \"https://p.scdn.co/mp3-preview/bf0e79ba581548eaf111ee854dbf4617ad436fd8?cid=5f573c9620494bae87890c0f08a60293\",\n
+        \       \"track\" : true,\n        \"track_number\" : 2,\n        \"type\"
+        : \"track\",\n        \"uri\" : \"spotify:track:47BlQIrahKojOp9vuhmkgl\"\n
+        \     },\n      \"video_thumbnail\" : {\n        \"url\" : null\n      }\n
+        \   }, {\n      \"added_at\" : \"2024-04-10T15:55:45Z\",\n      \"added_by\"
+        : {\n        \"external_urls\" : {\n          \"spotify\" : \"https://open.spotify.com/user/xd9vfl7yp0h96uecfjc6vyoja\"\n
+        \       },\n        \"href\" : \"https://api.spotify.com/v1/users/xd9vfl7yp0h96uecfjc6vyoja\",\n
+        \       \"id\" : \"xd9vfl7yp0h96uecfjc6vyoja\",\n        \"type\" : \"user\",\n
+        \       \"uri\" : \"spotify:user:xd9vfl7yp0h96uecfjc6vyoja\"\n      },\n      \"is_local\"
+        : false,\n      \"primary_color\" : null,\n      \"track\" : {\n        \"album\"
+        : {\n          \"album_type\" : \"album\",\n          \"artists\" : [ {\n
+        \           \"external_urls\" : {\n              \"spotify\" : \"https://open.spotify.com/artist/0tfnDOJ5a2ib3mHAI4qGyD\"\n
+        \           },\n            \"href\" : \"https://api.spotify.com/v1/artists/0tfnDOJ5a2ib3mHAI4qGyD\",\n
+        \           \"id\" : \"0tfnDOJ5a2ib3mHAI4qGyD\",\n            \"name\" : \"The
+        Dreadnoughts\",\n            \"type\" : \"artist\",\n            \"uri\" :
+        \"spotify:artist:0tfnDOJ5a2ib3mHAI4qGyD\"\n          } ],\n          \"available_markets\"
+        : [ \"AR\", \"AU\", \"AT\", \"BE\", \"BO\", \"BR\", \"BG\", \"CA\", \"CL\",
+        \"CO\", \"CR\", \"CY\", \"CZ\", \"DK\", \"DO\", \"DE\", \"EC\", \"EE\", \"SV\",
+        \"FI\", \"FR\", \"GR\", \"GT\", \"HN\", \"HK\", \"HU\", \"IS\", \"IE\", \"IT\",
+        \"LV\", \"LT\", \"LU\", \"MY\", \"MT\", \"MX\", \"NL\", \"NZ\", \"NI\", \"NO\",
+        \"PA\", \"PY\", \"PE\", \"PH\", \"PL\", \"PT\", \"SG\", \"SK\", \"ES\", \"SE\",
+        \"CH\", \"TW\", \"TR\", \"UY\", \"US\", \"GB\", \"AD\", \"LI\", \"MC\", \"ID\",
+        \"JP\", \"TH\", \"VN\", \"RO\", \"IL\", \"ZA\", \"SA\", \"AE\", \"BH\", \"QA\",
+        \"OM\", \"KW\", \"EG\", \"MA\", \"DZ\", \"TN\", \"LB\", \"JO\", \"PS\", \"IN\",
+        \"BY\", \"KZ\", \"MD\", \"UA\", \"AL\", \"BA\", \"HR\", \"ME\", \"MK\", \"RS\",
+        \"SI\", \"KR\", \"BD\", \"PK\", \"LK\", \"GH\", \"KE\", \"NG\", \"TZ\", \"UG\",
+        \"AG\", \"AM\", \"BS\", \"BB\", \"BZ\", \"BT\", \"BW\", \"BF\", \"CV\", \"CW\",
+        \"DM\", \"FJ\", \"GM\", \"GE\", \"GD\", \"GW\", \"GY\", \"HT\", \"JM\", \"KI\",
+        \"LS\", \"LR\", \"MW\", \"MV\", \"ML\", \"MH\", \"FM\", \"NA\", \"NR\", \"NE\",
+        \"PW\", \"PG\", \"PR\", \"WS\", \"SM\", \"ST\", \"SN\", \"SC\", \"SL\", \"SB\",
+        \"KN\", \"LC\", \"VC\", \"SR\", \"TL\", \"TO\", \"TT\", \"TV\", \"VU\", \"AZ\",
+        \"BN\", \"BI\", \"KH\", \"CM\", \"TD\", \"KM\", \"GQ\", \"SZ\", \"GA\", \"GN\",
+        \"KG\", \"LA\", \"MO\", \"MR\", \"MN\", \"NP\", \"RW\", \"TG\", \"UZ\", \"ZW\",
+        \"BJ\", \"MG\", \"MU\", \"MZ\", \"AO\", \"CI\", \"DJ\", \"ZM\", \"CD\", \"CG\",
+        \"IQ\", \"LY\", \"TJ\", \"VE\", \"ET\", \"XK\" ],\n          \"external_urls\"
+        : {\n            \"spotify\" : \"https://open.spotify.com/album/4sXaOOcXH2tfRFUJsiIzKh\"\n
+        \         },\n          \"href\" : \"https://api.spotify.com/v1/albums/4sXaOOcXH2tfRFUJsiIzKh\",\n
+        \         \"id\" : \"4sXaOOcXH2tfRFUJsiIzKh\",\n          \"images\" : [ {\n
+        \           \"height\" : 640,\n            \"url\" : \"https://i.scdn.co/image/ab67616d0000b273f77f38a09d9bb11945057e28\",\n
+        \           \"width\" : 640\n          }, {\n            \"height\" : 300,\n
+        \           \"url\" : \"https://i.scdn.co/image/ab67616d00001e02f77f38a09d9bb11945057e28\",\n
+        \           \"width\" : 300\n          }, {\n            \"height\" : 64,\n
+        \           \"url\" : \"https://i.scdn.co/image/ab67616d00004851f77f38a09d9bb11945057e28\",\n
+        \           \"width\" : 64\n          } ],\n          \"name\" : \"Foreign
+        Skies\",\n          \"release_date\" : \"2017-11-11\",\n          \"release_date_precision\"
+        : \"day\",\n          \"total_tracks\" : 12,\n          \"type\" : \"album\",\n
+        \         \"uri\" : \"spotify:album:4sXaOOcXH2tfRFUJsiIzKh\"\n        },\n
+        \       \"artists\" : [ {\n          \"external_urls\" : {\n            \"spotify\"
+        : \"https://open.spotify.com/artist/0tfnDOJ5a2ib3mHAI4qGyD\"\n          },\n
+        \         \"href\" : \"https://api.spotify.com/v1/artists/0tfnDOJ5a2ib3mHAI4qGyD\",\n
+        \         \"id\" : \"0tfnDOJ5a2ib3mHAI4qGyD\",\n          \"name\" : \"The
+        Dreadnoughts\",\n          \"type\" : \"artist\",\n          \"uri\" : \"spotify:artist:0tfnDOJ5a2ib3mHAI4qGyD\"\n
+        \       } ],\n        \"available_markets\" : [ \"AR\", \"AU\", \"AT\", \"BE\",
+        \"BO\", \"BR\", \"BG\", \"CA\", \"CL\", \"CO\", \"CR\", \"CY\", \"CZ\", \"DK\",
+        \"DO\", \"DE\", \"EC\", \"EE\", \"SV\", \"FI\", \"FR\", \"GR\", \"GT\", \"HN\",
+        \"HK\", \"HU\", \"IS\", \"IE\", \"IT\", \"LV\", \"LT\", \"LU\", \"MY\", \"MT\",
+        \"MX\", \"NL\", \"NZ\", \"NI\", \"NO\", \"PA\", \"PY\", \"PE\", \"PH\", \"PL\",
+        \"PT\", \"SG\", \"SK\", \"ES\", \"SE\", \"CH\", \"TW\", \"TR\", \"UY\", \"US\",
+        \"GB\", \"AD\", \"LI\", \"MC\", \"ID\", \"JP\", \"TH\", \"VN\", \"RO\", \"IL\",
+        \"ZA\", \"SA\", \"AE\", \"BH\", \"QA\", \"OM\", \"KW\", \"EG\", \"MA\", \"DZ\",
+        \"TN\", \"LB\", \"JO\", \"PS\", \"IN\", \"BY\", \"KZ\", \"MD\", \"UA\", \"AL\",
+        \"BA\", \"HR\", \"ME\", \"MK\", \"RS\", \"SI\", \"KR\", \"BD\", \"PK\", \"LK\",
+        \"GH\", \"KE\", \"NG\", \"TZ\", \"UG\", \"AG\", \"AM\", \"BS\", \"BB\", \"BZ\",
+        \"BT\", \"BW\", \"BF\", \"CV\", \"CW\", \"DM\", \"FJ\", \"GM\", \"GE\", \"GD\",
+        \"GW\", \"GY\", \"HT\", \"JM\", \"KI\", \"LS\", \"LR\", \"MW\", \"MV\", \"ML\",
+        \"MH\", \"FM\", \"NA\", \"NR\", \"NE\", \"PW\", \"PG\", \"PR\", \"WS\", \"SM\",
+        \"ST\", \"SN\", \"SC\", \"SL\", \"SB\", \"KN\", \"LC\", \"VC\", \"SR\", \"TL\",
+        \"TO\", \"TT\", \"TV\", \"VU\", \"AZ\", \"BN\", \"BI\", \"KH\", \"CM\", \"TD\",
+        \"KM\", \"GQ\", \"SZ\", \"GA\", \"GN\", \"KG\", \"LA\", \"MO\", \"MR\", \"MN\",
+        \"NP\", \"RW\", \"TG\", \"UZ\", \"ZW\", \"BJ\", \"MG\", \"MU\", \"MZ\", \"AO\",
+        \"CI\", \"DJ\", \"ZM\", \"CD\", \"CG\", \"IQ\", \"LY\", \"TJ\", \"VE\", \"ET\",
+        \"XK\" ],\n        \"disc_number\" : 1,\n        \"duration_ms\" : 239746,\n
+        \       \"episode\" : false,\n        \"explicit\" : false,\n        \"external_ids\"
+        : {\n          \"isrc\" : \"ushm81736649\"\n        },\n        \"external_urls\"
+        : {\n          \"spotify\" : \"https://open.spotify.com/track/29fiMKbo8tXHMwPebs3t2E\"\n
+        \       },\n        \"href\" : \"https://api.spotify.com/v1/tracks/29fiMKbo8tXHMwPebs3t2E\",\n
+        \       \"id\" : \"29fiMKbo8tXHMwPebs3t2E\",\n        \"is_local\" : false,\n
+        \       \"name\" : \"Black Letters\",\n        \"popularity\" : 25,\n        \"preview_url\"
+        : \"https://p.scdn.co/mp3-preview/15b25181e6c5bdd9975a94f84c746388797fbc18?cid=5f573c9620494bae87890c0f08a60293\",\n
+        \       \"track\" : true,\n        \"track_number\" : 11,\n        \"type\"
+        : \"track\",\n        \"uri\" : \"spotify:track:29fiMKbo8tXHMwPebs3t2E\"\n
+        \     },\n      \"video_thumbnail\" : {\n        \"url\" : null\n      }\n
+        \   } ],\n    \"limit\" : 100,\n    \"next\" : null,\n    \"offset\" : 0,\n
+        \   \"previous\" : null,\n    \"total\" : 6\n  },\n  \"type\" : \"playlist\",\n
+        \ \"uri\" : \"spotify:playlist:30orXVZ79dv640tpOoWNDP\"\n}"
+    headers:
+      Alt-Svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      Transfer-Encoding:
+      - chunked
+      Via:
+      - HTTP/2 edgeproxy, 1.1 google
+      access-control-allow-credentials:
+      - 'true'
+      access-control-allow-headers:
+      - Accept, App-Platform, Authorization, Content-Type, Origin, Retry-After, Spotify-App-Version,
+        X-Cloud-Trace-Context, client-token, content-access-token
+      access-control-allow-methods:
+      - GET, POST, OPTIONS, PUT, DELETE, PATCH
+      access-control-allow-origin:
+      - '*'
+      access-control-max-age:
+      - '604800'
+      cache-control:
+      - public, max-age=0
+      content-encoding:
+      - gzip
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Wed, 10 Apr 2024 15:59:19 GMT
+      etag:
+      - '"MC-ImQ0NDhiNWUzMTZlYTBiMjU2ZDE1ZDgxNTg2ZDAwNWJhIg=="'
+      server:
+      - envoy
+      strict-transport-security:
+      - max-age=31536000
+      x-content-type-options:
+      - nosniff
+      x-robots-tag:
+      - noindex, nofollow
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate, br
+      Authorization:
+      - Bearer BQDbOyNhLT0hBYVaRtdTgHIVNGXTMQ1yWWxxSwjKHRNGHoIl2lwnPiVvplmD2qbtAj921jlzbbbASr9zJq7UrC6jg_HI0rWUobgBwuF64k1D4Km2ucA
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      User-Agent:
+      - python-requests/2.31.0
+    method: GET
+    uri: https://api.spotify.com/v1/playlists/30orXVZ79dv640tpOoWNDP/tracks?limit=100&offset=0&additional_types=track%2Cepisode
+  response:
+    body:
+      string: "{\n  \"href\" : \"https://api.spotify.com/v1/playlists/30orXVZ79dv640tpOoWNDP/tracks?offset=0&limit=100&additional_types=track%2Cepisode\",\n
+        \ \"items\" : [ {\n    \"added_at\" : \"2024-04-10T15:55:33Z\",\n    \"added_by\"
+        : {\n      \"external_urls\" : {\n        \"spotify\" : \"https://open.spotify.com/user/xd9vfl7yp0h96uecfjc6vyoja\"\n
+        \     },\n      \"href\" : \"https://api.spotify.com/v1/users/xd9vfl7yp0h96uecfjc6vyoja\",\n
+        \     \"id\" : \"xd9vfl7yp0h96uecfjc6vyoja\",\n      \"type\" : \"user\",\n
+        \     \"uri\" : \"spotify:user:xd9vfl7yp0h96uecfjc6vyoja\"\n    },\n    \"is_local\"
+        : false,\n    \"primary_color\" : null,\n    \"track\" : {\n      \"album\"
+        : {\n        \"album_type\" : \"album\",\n        \"artists\" : [ {\n          \"external_urls\"
+        : {\n            \"spotify\" : \"https://open.spotify.com/artist/0tfnDOJ5a2ib3mHAI4qGyD\"\n
+        \         },\n          \"href\" : \"https://api.spotify.com/v1/artists/0tfnDOJ5a2ib3mHAI4qGyD\",\n
+        \         \"id\" : \"0tfnDOJ5a2ib3mHAI4qGyD\",\n          \"name\" : \"The
+        Dreadnoughts\",\n          \"type\" : \"artist\",\n          \"uri\" : \"spotify:artist:0tfnDOJ5a2ib3mHAI4qGyD\"\n
+        \       } ],\n        \"available_markets\" : [ \"AR\", \"AU\", \"AT\", \"BE\",
+        \"BO\", \"BR\", \"BG\", \"CA\", \"CL\", \"CO\", \"CR\", \"CY\", \"CZ\", \"DK\",
+        \"DO\", \"DE\", \"EC\", \"EE\", \"SV\", \"FI\", \"FR\", \"GR\", \"GT\", \"HN\",
+        \"HK\", \"HU\", \"IS\", \"IE\", \"IT\", \"LV\", \"LT\", \"LU\", \"MY\", \"MT\",
+        \"MX\", \"NL\", \"NZ\", \"NI\", \"NO\", \"PA\", \"PY\", \"PE\", \"PH\", \"PL\",
+        \"PT\", \"SG\", \"SK\", \"ES\", \"SE\", \"CH\", \"TW\", \"TR\", \"UY\", \"US\",
+        \"GB\", \"AD\", \"LI\", \"MC\", \"ID\", \"JP\", \"TH\", \"VN\", \"RO\", \"IL\",
+        \"ZA\", \"SA\", \"AE\", \"BH\", \"QA\", \"OM\", \"KW\", \"EG\", \"MA\", \"DZ\",
+        \"TN\", \"LB\", \"JO\", \"PS\", \"IN\", \"BY\", \"KZ\", \"MD\", \"UA\", \"AL\",
+        \"BA\", \"HR\", \"ME\", \"MK\", \"RS\", \"SI\", \"KR\", \"BD\", \"PK\", \"LK\",
+        \"GH\", \"KE\", \"NG\", \"TZ\", \"UG\", \"AG\", \"AM\", \"BS\", \"BB\", \"BZ\",
+        \"BT\", \"BW\", \"BF\", \"CV\", \"CW\", \"DM\", \"FJ\", \"GM\", \"GE\", \"GD\",
+        \"GW\", \"GY\", \"HT\", \"JM\", \"KI\", \"LS\", \"LR\", \"MW\", \"MV\", \"ML\",
+        \"MH\", \"FM\", \"NA\", \"NR\", \"NE\", \"PW\", \"PG\", \"PR\", \"WS\", \"SM\",
+        \"ST\", \"SN\", \"SC\", \"SL\", \"SB\", \"KN\", \"LC\", \"VC\", \"SR\", \"TL\",
+        \"TO\", \"TT\", \"TV\", \"VU\", \"AZ\", \"BN\", \"BI\", \"KH\", \"CM\", \"TD\",
+        \"KM\", \"GQ\", \"SZ\", \"GA\", \"GN\", \"KG\", \"LA\", \"MO\", \"MR\", \"MN\",
+        \"NP\", \"RW\", \"TG\", \"UZ\", \"ZW\", \"BJ\", \"MG\", \"MU\", \"MZ\", \"AO\",
+        \"CI\", \"DJ\", \"ZM\", \"CD\", \"CG\", \"IQ\", \"LY\", \"TJ\", \"VE\", \"ET\",
+        \"XK\" ],\n        \"external_urls\" : {\n          \"spotify\" : \"https://open.spotify.com/album/0S7hl9NtRXGbHq9TWUVRAU\"\n
+        \       },\n        \"href\" : \"https://api.spotify.com/v1/albums/0S7hl9NtRXGbHq9TWUVRAU\",\n
+        \       \"id\" : \"0S7hl9NtRXGbHq9TWUVRAU\",\n        \"images\" : [ {\n          \"height\"
+        : 640,\n          \"url\" : \"https://i.scdn.co/image/ab67616d0000b273343c4d74928886cd0be697fc\",\n
+        \         \"width\" : 640\n        }, {\n          \"height\" : 300,\n          \"url\"
+        : \"https://i.scdn.co/image/ab67616d00001e02343c4d74928886cd0be697fc\",\n
+        \         \"width\" : 300\n        }, {\n          \"height\" : 64,\n          \"url\"
+        : \"https://i.scdn.co/image/ab67616d00004851343c4d74928886cd0be697fc\",\n
+        \         \"width\" : 64\n        } ],\n        \"name\" : \"Legends Never
+        Die\",\n        \"release_date\" : \"2007-01-01\",\n        \"release_date_precision\"
+        : \"day\",\n        \"total_tracks\" : 11,\n        \"type\" : \"album\",\n
+        \       \"uri\" : \"spotify:album:0S7hl9NtRXGbHq9TWUVRAU\"\n      },\n      \"artists\"
+        : [ {\n        \"external_urls\" : {\n          \"spotify\" : \"https://open.spotify.com/artist/0tfnDOJ5a2ib3mHAI4qGyD\"\n
+        \       },\n        \"href\" : \"https://api.spotify.com/v1/artists/0tfnDOJ5a2ib3mHAI4qGyD\",\n
+        \       \"id\" : \"0tfnDOJ5a2ib3mHAI4qGyD\",\n        \"name\" : \"The Dreadnoughts\",\n
+        \       \"type\" : \"artist\",\n        \"uri\" : \"spotify:artist:0tfnDOJ5a2ib3mHAI4qGyD\"\n
+        \     } ],\n      \"available_markets\" : [ \"AR\", \"AU\", \"AT\", \"BE\",
+        \"BO\", \"BR\", \"BG\", \"CA\", \"CL\", \"CO\", \"CR\", \"CY\", \"CZ\", \"DK\",
+        \"DO\", \"DE\", \"EC\", \"EE\", \"SV\", \"FI\", \"FR\", \"GR\", \"GT\", \"HN\",
+        \"HK\", \"HU\", \"IS\", \"IE\", \"IT\", \"LV\", \"LT\", \"LU\", \"MY\", \"MT\",
+        \"MX\", \"NL\", \"NZ\", \"NI\", \"NO\", \"PA\", \"PY\", \"PE\", \"PH\", \"PL\",
+        \"PT\", \"SG\", \"SK\", \"ES\", \"SE\", \"CH\", \"TW\", \"TR\", \"UY\", \"US\",
+        \"GB\", \"AD\", \"LI\", \"MC\", \"ID\", \"JP\", \"TH\", \"VN\", \"RO\", \"IL\",
+        \"ZA\", \"SA\", \"AE\", \"BH\", \"QA\", \"OM\", \"KW\", \"EG\", \"MA\", \"DZ\",
+        \"TN\", \"LB\", \"JO\", \"PS\", \"IN\", \"BY\", \"KZ\", \"MD\", \"UA\", \"AL\",
+        \"BA\", \"HR\", \"ME\", \"MK\", \"RS\", \"SI\", \"KR\", \"BD\", \"PK\", \"LK\",
+        \"GH\", \"KE\", \"NG\", \"TZ\", \"UG\", \"AG\", \"AM\", \"BS\", \"BB\", \"BZ\",
+        \"BT\", \"BW\", \"BF\", \"CV\", \"CW\", \"DM\", \"FJ\", \"GM\", \"GE\", \"GD\",
+        \"GW\", \"GY\", \"HT\", \"JM\", \"KI\", \"LS\", \"LR\", \"MW\", \"MV\", \"ML\",
+        \"MH\", \"FM\", \"NA\", \"NR\", \"NE\", \"PW\", \"PG\", \"PR\", \"WS\", \"SM\",
+        \"ST\", \"SN\", \"SC\", \"SL\", \"SB\", \"KN\", \"LC\", \"VC\", \"SR\", \"TL\",
+        \"TO\", \"TT\", \"TV\", \"VU\", \"AZ\", \"BN\", \"BI\", \"KH\", \"CM\", \"TD\",
+        \"KM\", \"GQ\", \"SZ\", \"GA\", \"GN\", \"KG\", \"LA\", \"MO\", \"MR\", \"MN\",
+        \"NP\", \"RW\", \"TG\", \"UZ\", \"ZW\", \"BJ\", \"MG\", \"MU\", \"MZ\", \"AO\",
+        \"CI\", \"DJ\", \"ZM\", \"CD\", \"CG\", \"IQ\", \"LY\", \"TJ\", \"VE\", \"ET\",
+        \"XK\" ],\n      \"disc_number\" : 1,\n      \"duration_ms\" : 240280,\n      \"episode\"
+        : false,\n      \"explicit\" : false,\n      \"external_ids\" : {\n        \"isrc\"
+        : \"ushm80852320\"\n      },\n      \"external_urls\" : {\n        \"spotify\"
+        : \"https://open.spotify.com/track/6qqQMBAhewdDAdhNd8Zt02\"\n      },\n      \"href\"
+        : \"https://api.spotify.com/v1/tracks/6qqQMBAhewdDAdhNd8Zt02\",\n      \"id\"
+        : \"6qqQMBAhewdDAdhNd8Zt02\",\n      \"is_local\" : false,\n      \"name\"
+        : \"Old Maui\",\n      \"popularity\" : 27,\n      \"preview_url\" : \"https://p.scdn.co/mp3-preview/0ea9cb7bc3a358811e69994780900f6c83e3230c?cid=5f573c9620494bae87890c0f08a60293\",\n
+        \     \"track\" : true,\n      \"track_number\" : 1,\n      \"type\" : \"track\",\n
+        \     \"uri\" : \"spotify:track:6qqQMBAhewdDAdhNd8Zt02\"\n    },\n    \"video_thumbnail\"
+        : {\n      \"url\" : null\n    }\n  }, {\n    \"added_at\" : \"2024-04-10T15:55:37Z\",\n
+        \   \"added_by\" : {\n      \"external_urls\" : {\n        \"spotify\" : \"https://open.spotify.com/user/xd9vfl7yp0h96uecfjc6vyoja\"\n
+        \     },\n      \"href\" : \"https://api.spotify.com/v1/users/xd9vfl7yp0h96uecfjc6vyoja\",\n
+        \     \"id\" : \"xd9vfl7yp0h96uecfjc6vyoja\",\n      \"type\" : \"user\",\n
+        \     \"uri\" : \"spotify:user:xd9vfl7yp0h96uecfjc6vyoja\"\n    },\n    \"is_local\"
+        : false,\n    \"primary_color\" : null,\n    \"track\" : {\n      \"album\"
+        : {\n        \"album_type\" : \"album\",\n        \"artists\" : [ {\n          \"external_urls\"
+        : {\n            \"spotify\" : \"https://open.spotify.com/artist/0tfnDOJ5a2ib3mHAI4qGyD\"\n
+        \         },\n          \"href\" : \"https://api.spotify.com/v1/artists/0tfnDOJ5a2ib3mHAI4qGyD\",\n
+        \         \"id\" : \"0tfnDOJ5a2ib3mHAI4qGyD\",\n          \"name\" : \"The
+        Dreadnoughts\",\n          \"type\" : \"artist\",\n          \"uri\" : \"spotify:artist:0tfnDOJ5a2ib3mHAI4qGyD\"\n
+        \       } ],\n        \"available_markets\" : [ \"AR\", \"AU\", \"AT\", \"BE\",
+        \"BO\", \"BR\", \"BG\", \"CA\", \"CL\", \"CO\", \"CR\", \"CY\", \"CZ\", \"DK\",
+        \"DO\", \"DE\", \"EC\", \"EE\", \"SV\", \"FI\", \"FR\", \"GR\", \"GT\", \"HN\",
+        \"HK\", \"HU\", \"IS\", \"IE\", \"IT\", \"LV\", \"LT\", \"LU\", \"MY\", \"MT\",
+        \"MX\", \"NL\", \"NZ\", \"NI\", \"NO\", \"PA\", \"PY\", \"PE\", \"PH\", \"PL\",
+        \"PT\", \"SG\", \"SK\", \"ES\", \"SE\", \"CH\", \"TW\", \"TR\", \"UY\", \"US\",
+        \"GB\", \"AD\", \"LI\", \"MC\", \"ID\", \"JP\", \"TH\", \"VN\", \"RO\", \"IL\",
+        \"ZA\", \"SA\", \"AE\", \"BH\", \"QA\", \"OM\", \"KW\", \"EG\", \"MA\", \"DZ\",
+        \"TN\", \"LB\", \"JO\", \"PS\", \"IN\", \"BY\", \"KZ\", \"MD\", \"UA\", \"AL\",
+        \"BA\", \"HR\", \"ME\", \"MK\", \"RS\", \"SI\", \"KR\", \"BD\", \"PK\", \"LK\",
+        \"GH\", \"KE\", \"NG\", \"TZ\", \"UG\", \"AG\", \"AM\", \"BS\", \"BB\", \"BZ\",
+        \"BT\", \"BW\", \"BF\", \"CV\", \"CW\", \"DM\", \"FJ\", \"GM\", \"GE\", \"GD\",
+        \"GW\", \"GY\", \"HT\", \"JM\", \"KI\", \"LS\", \"LR\", \"MW\", \"MV\", \"ML\",
+        \"MH\", \"FM\", \"NA\", \"NR\", \"NE\", \"PW\", \"PG\", \"PR\", \"WS\", \"SM\",
+        \"ST\", \"SN\", \"SC\", \"SL\", \"SB\", \"KN\", \"LC\", \"VC\", \"SR\", \"TL\",
+        \"TO\", \"TT\", \"TV\", \"VU\", \"AZ\", \"BN\", \"BI\", \"KH\", \"CM\", \"TD\",
+        \"KM\", \"GQ\", \"SZ\", \"GA\", \"GN\", \"KG\", \"LA\", \"MO\", \"MR\", \"MN\",
+        \"NP\", \"RW\", \"TG\", \"UZ\", \"ZW\", \"BJ\", \"MG\", \"MU\", \"MZ\", \"AO\",
+        \"CI\", \"DJ\", \"ZM\", \"CD\", \"CG\", \"IQ\", \"LY\", \"TJ\", \"VE\", \"ET\",
+        \"XK\" ],\n        \"external_urls\" : {\n          \"spotify\" : \"https://open.spotify.com/album/0S7hl9NtRXGbHq9TWUVRAU\"\n
+        \       },\n        \"href\" : \"https://api.spotify.com/v1/albums/0S7hl9NtRXGbHq9TWUVRAU\",\n
+        \       \"id\" : \"0S7hl9NtRXGbHq9TWUVRAU\",\n        \"images\" : [ {\n          \"height\"
+        : 640,\n          \"url\" : \"https://i.scdn.co/image/ab67616d0000b273343c4d74928886cd0be697fc\",\n
+        \         \"width\" : 640\n        }, {\n          \"height\" : 300,\n          \"url\"
+        : \"https://i.scdn.co/image/ab67616d00001e02343c4d74928886cd0be697fc\",\n
+        \         \"width\" : 300\n        }, {\n          \"height\" : 64,\n          \"url\"
+        : \"https://i.scdn.co/image/ab67616d00004851343c4d74928886cd0be697fc\",\n
+        \         \"width\" : 64\n        } ],\n        \"name\" : \"Legends Never
+        Die\",\n        \"release_date\" : \"2007-01-01\",\n        \"release_date_precision\"
+        : \"day\",\n        \"total_tracks\" : 11,\n        \"type\" : \"album\",\n
+        \       \"uri\" : \"spotify:album:0S7hl9NtRXGbHq9TWUVRAU\"\n      },\n      \"artists\"
+        : [ {\n        \"external_urls\" : {\n          \"spotify\" : \"https://open.spotify.com/artist/0tfnDOJ5a2ib3mHAI4qGyD\"\n
+        \       },\n        \"href\" : \"https://api.spotify.com/v1/artists/0tfnDOJ5a2ib3mHAI4qGyD\",\n
+        \       \"id\" : \"0tfnDOJ5a2ib3mHAI4qGyD\",\n        \"name\" : \"The Dreadnoughts\",\n
+        \       \"type\" : \"artist\",\n        \"uri\" : \"spotify:artist:0tfnDOJ5a2ib3mHAI4qGyD\"\n
+        \     } ],\n      \"available_markets\" : [ \"AR\", \"AU\", \"AT\", \"BE\",
+        \"BO\", \"BR\", \"BG\", \"CA\", \"CL\", \"CO\", \"CR\", \"CY\", \"CZ\", \"DK\",
+        \"DO\", \"DE\", \"EC\", \"EE\", \"SV\", \"FI\", \"FR\", \"GR\", \"GT\", \"HN\",
+        \"HK\", \"HU\", \"IS\", \"IE\", \"IT\", \"LV\", \"LT\", \"LU\", \"MY\", \"MT\",
+        \"MX\", \"NL\", \"NZ\", \"NI\", \"NO\", \"PA\", \"PY\", \"PE\", \"PH\", \"PL\",
+        \"PT\", \"SG\", \"SK\", \"ES\", \"SE\", \"CH\", \"TW\", \"TR\", \"UY\", \"US\",
+        \"GB\", \"AD\", \"LI\", \"MC\", \"ID\", \"JP\", \"TH\", \"VN\", \"RO\", \"IL\",
+        \"ZA\", \"SA\", \"AE\", \"BH\", \"QA\", \"OM\", \"KW\", \"EG\", \"MA\", \"DZ\",
+        \"TN\", \"LB\", \"JO\", \"PS\", \"IN\", \"BY\", \"KZ\", \"MD\", \"UA\", \"AL\",
+        \"BA\", \"HR\", \"ME\", \"MK\", \"RS\", \"SI\", \"KR\", \"BD\", \"PK\", \"LK\",
+        \"GH\", \"KE\", \"NG\", \"TZ\", \"UG\", \"AG\", \"AM\", \"BS\", \"BB\", \"BZ\",
+        \"BT\", \"BW\", \"BF\", \"CV\", \"CW\", \"DM\", \"FJ\", \"GM\", \"GE\", \"GD\",
+        \"GW\", \"GY\", \"HT\", \"JM\", \"KI\", \"LS\", \"LR\", \"MW\", \"MV\", \"ML\",
+        \"MH\", \"FM\", \"NA\", \"NR\", \"NE\", \"PW\", \"PG\", \"PR\", \"WS\", \"SM\",
+        \"ST\", \"SN\", \"SC\", \"SL\", \"SB\", \"KN\", \"LC\", \"VC\", \"SR\", \"TL\",
+        \"TO\", \"TT\", \"TV\", \"VU\", \"AZ\", \"BN\", \"BI\", \"KH\", \"CM\", \"TD\",
+        \"KM\", \"GQ\", \"SZ\", \"GA\", \"GN\", \"KG\", \"LA\", \"MO\", \"MR\", \"MN\",
+        \"NP\", \"RW\", \"TG\", \"UZ\", \"ZW\", \"BJ\", \"MG\", \"MU\", \"MZ\", \"AO\",
+        \"CI\", \"DJ\", \"ZM\", \"CD\", \"CG\", \"IQ\", \"LY\", \"TJ\", \"VE\", \"ET\",
+        \"XK\" ],\n      \"disc_number\" : 1,\n      \"duration_ms\" : 240280,\n      \"episode\"
+        : false,\n      \"explicit\" : false,\n      \"external_ids\" : {\n        \"isrc\"
+        : \"ushm80852320\"\n      },\n      \"external_urls\" : {\n        \"spotify\"
+        : \"https://open.spotify.com/track/6qqQMBAhewdDAdhNd8Zt02\"\n      },\n      \"href\"
+        : \"https://api.spotify.com/v1/tracks/6qqQMBAhewdDAdhNd8Zt02\",\n      \"id\"
+        : \"6qqQMBAhewdDAdhNd8Zt02\",\n      \"is_local\" : false,\n      \"name\"
+        : \"Old Maui\",\n      \"popularity\" : 27,\n      \"preview_url\" : \"https://p.scdn.co/mp3-preview/0ea9cb7bc3a358811e69994780900f6c83e3230c?cid=5f573c9620494bae87890c0f08a60293\",\n
+        \     \"track\" : true,\n      \"track_number\" : 1,\n      \"type\" : \"track\",\n
+        \     \"uri\" : \"spotify:track:6qqQMBAhewdDAdhNd8Zt02\"\n    },\n    \"video_thumbnail\"
+        : {\n      \"url\" : null\n    }\n  }, {\n    \"added_at\" : \"2024-04-10T15:55:41Z\",\n
+        \   \"added_by\" : {\n      \"external_urls\" : {\n        \"spotify\" : \"https://open.spotify.com/user/xd9vfl7yp0h96uecfjc6vyoja\"\n
+        \     },\n      \"href\" : \"https://api.spotify.com/v1/users/xd9vfl7yp0h96uecfjc6vyoja\",\n
+        \     \"id\" : \"xd9vfl7yp0h96uecfjc6vyoja\",\n      \"type\" : \"user\",\n
+        \     \"uri\" : \"spotify:user:xd9vfl7yp0h96uecfjc6vyoja\"\n    },\n    \"is_local\"
+        : false,\n    \"primary_color\" : null,\n    \"track\" : {\n      \"album\"
+        : {\n        \"album_type\" : \"album\",\n        \"artists\" : [ {\n          \"external_urls\"
+        : {\n            \"spotify\" : \"https://open.spotify.com/artist/0tfnDOJ5a2ib3mHAI4qGyD\"\n
+        \         },\n          \"href\" : \"https://api.spotify.com/v1/artists/0tfnDOJ5a2ib3mHAI4qGyD\",\n
+        \         \"id\" : \"0tfnDOJ5a2ib3mHAI4qGyD\",\n          \"name\" : \"The
+        Dreadnoughts\",\n          \"type\" : \"artist\",\n          \"uri\" : \"spotify:artist:0tfnDOJ5a2ib3mHAI4qGyD\"\n
+        \       } ],\n        \"available_markets\" : [ \"AR\", \"AU\", \"AT\", \"BE\",
+        \"BO\", \"BR\", \"BG\", \"CA\", \"CL\", \"CO\", \"CR\", \"CY\", \"CZ\", \"DK\",
+        \"DO\", \"DE\", \"EC\", \"EE\", \"SV\", \"FI\", \"FR\", \"GR\", \"GT\", \"HN\",
+        \"HK\", \"HU\", \"IS\", \"IE\", \"IT\", \"LV\", \"LT\", \"LU\", \"MY\", \"MT\",
+        \"MX\", \"NL\", \"NZ\", \"NI\", \"NO\", \"PA\", \"PY\", \"PE\", \"PH\", \"PL\",
+        \"PT\", \"SG\", \"SK\", \"ES\", \"SE\", \"CH\", \"TW\", \"TR\", \"UY\", \"US\",
+        \"GB\", \"AD\", \"LI\", \"MC\", \"ID\", \"JP\", \"TH\", \"VN\", \"RO\", \"IL\",
+        \"ZA\", \"SA\", \"AE\", \"BH\", \"QA\", \"OM\", \"KW\", \"EG\", \"MA\", \"DZ\",
+        \"TN\", \"LB\", \"JO\", \"PS\", \"IN\", \"BY\", \"KZ\", \"MD\", \"UA\", \"AL\",
+        \"BA\", \"HR\", \"ME\", \"MK\", \"RS\", \"SI\", \"KR\", \"BD\", \"PK\", \"LK\",
+        \"GH\", \"KE\", \"NG\", \"TZ\", \"UG\", \"AG\", \"AM\", \"BS\", \"BB\", \"BZ\",
+        \"BT\", \"BW\", \"BF\", \"CV\", \"CW\", \"DM\", \"FJ\", \"GM\", \"GE\", \"GD\",
+        \"GW\", \"GY\", \"HT\", \"JM\", \"KI\", \"LS\", \"LR\", \"MW\", \"MV\", \"ML\",
+        \"MH\", \"FM\", \"NA\", \"NR\", \"NE\", \"PW\", \"PG\", \"PR\", \"WS\", \"SM\",
+        \"ST\", \"SN\", \"SC\", \"SL\", \"SB\", \"KN\", \"LC\", \"VC\", \"SR\", \"TL\",
+        \"TO\", \"TT\", \"TV\", \"VU\", \"AZ\", \"BN\", \"BI\", \"KH\", \"CM\", \"TD\",
+        \"KM\", \"GQ\", \"SZ\", \"GA\", \"GN\", \"KG\", \"LA\", \"MO\", \"MR\", \"MN\",
+        \"NP\", \"RW\", \"TG\", \"UZ\", \"ZW\", \"BJ\", \"MG\", \"MU\", \"MZ\", \"AO\",
+        \"CI\", \"DJ\", \"ZM\", \"CD\", \"CG\", \"IQ\", \"LY\", \"TJ\", \"VE\", \"ET\",
+        \"XK\" ],\n        \"external_urls\" : {\n          \"spotify\" : \"https://open.spotify.com/album/4sXaOOcXH2tfRFUJsiIzKh\"\n
+        \       },\n        \"href\" : \"https://api.spotify.com/v1/albums/4sXaOOcXH2tfRFUJsiIzKh\",\n
+        \       \"id\" : \"4sXaOOcXH2tfRFUJsiIzKh\",\n        \"images\" : [ {\n          \"height\"
+        : 640,\n          \"url\" : \"https://i.scdn.co/image/ab67616d0000b273f77f38a09d9bb11945057e28\",\n
+        \         \"width\" : 640\n        }, {\n          \"height\" : 300,\n          \"url\"
+        : \"https://i.scdn.co/image/ab67616d00001e02f77f38a09d9bb11945057e28\",\n
+        \         \"width\" : 300\n        }, {\n          \"height\" : 64,\n          \"url\"
+        : \"https://i.scdn.co/image/ab67616d00004851f77f38a09d9bb11945057e28\",\n
+        \         \"width\" : 64\n        } ],\n        \"name\" : \"Foreign Skies\",\n
+        \       \"release_date\" : \"2017-11-11\",\n        \"release_date_precision\"
+        : \"day\",\n        \"total_tracks\" : 12,\n        \"type\" : \"album\",\n
+        \       \"uri\" : \"spotify:album:4sXaOOcXH2tfRFUJsiIzKh\"\n      },\n      \"artists\"
+        : [ {\n        \"external_urls\" : {\n          \"spotify\" : \"https://open.spotify.com/artist/0tfnDOJ5a2ib3mHAI4qGyD\"\n
+        \       },\n        \"href\" : \"https://api.spotify.com/v1/artists/0tfnDOJ5a2ib3mHAI4qGyD\",\n
+        \       \"id\" : \"0tfnDOJ5a2ib3mHAI4qGyD\",\n        \"name\" : \"The Dreadnoughts\",\n
+        \       \"type\" : \"artist\",\n        \"uri\" : \"spotify:artist:0tfnDOJ5a2ib3mHAI4qGyD\"\n
+        \     } ],\n      \"available_markets\" : [ \"AR\", \"AU\", \"AT\", \"BE\",
+        \"BO\", \"BR\", \"BG\", \"CA\", \"CL\", \"CO\", \"CR\", \"CY\", \"CZ\", \"DK\",
+        \"DO\", \"DE\", \"EC\", \"EE\", \"SV\", \"FI\", \"FR\", \"GR\", \"GT\", \"HN\",
+        \"HK\", \"HU\", \"IS\", \"IE\", \"IT\", \"LV\", \"LT\", \"LU\", \"MY\", \"MT\",
+        \"MX\", \"NL\", \"NZ\", \"NI\", \"NO\", \"PA\", \"PY\", \"PE\", \"PH\", \"PL\",
+        \"PT\", \"SG\", \"SK\", \"ES\", \"SE\", \"CH\", \"TW\", \"TR\", \"UY\", \"US\",
+        \"GB\", \"AD\", \"LI\", \"MC\", \"ID\", \"JP\", \"TH\", \"VN\", \"RO\", \"IL\",
+        \"ZA\", \"SA\", \"AE\", \"BH\", \"QA\", \"OM\", \"KW\", \"EG\", \"MA\", \"DZ\",
+        \"TN\", \"LB\", \"JO\", \"PS\", \"IN\", \"BY\", \"KZ\", \"MD\", \"UA\", \"AL\",
+        \"BA\", \"HR\", \"ME\", \"MK\", \"RS\", \"SI\", \"KR\", \"BD\", \"PK\", \"LK\",
+        \"GH\", \"KE\", \"NG\", \"TZ\", \"UG\", \"AG\", \"AM\", \"BS\", \"BB\", \"BZ\",
+        \"BT\", \"BW\", \"BF\", \"CV\", \"CW\", \"DM\", \"FJ\", \"GM\", \"GE\", \"GD\",
+        \"GW\", \"GY\", \"HT\", \"JM\", \"KI\", \"LS\", \"LR\", \"MW\", \"MV\", \"ML\",
+        \"MH\", \"FM\", \"NA\", \"NR\", \"NE\", \"PW\", \"PG\", \"PR\", \"WS\", \"SM\",
+        \"ST\", \"SN\", \"SC\", \"SL\", \"SB\", \"KN\", \"LC\", \"VC\", \"SR\", \"TL\",
+        \"TO\", \"TT\", \"TV\", \"VU\", \"AZ\", \"BN\", \"BI\", \"KH\", \"CM\", \"TD\",
+        \"KM\", \"GQ\", \"SZ\", \"GA\", \"GN\", \"KG\", \"LA\", \"MO\", \"MR\", \"MN\",
+        \"NP\", \"RW\", \"TG\", \"UZ\", \"ZW\", \"BJ\", \"MG\", \"MU\", \"MZ\", \"AO\",
+        \"CI\", \"DJ\", \"ZM\", \"CD\", \"CG\", \"IQ\", \"LY\", \"TJ\", \"VE\", \"ET\",
+        \"XK\" ],\n      \"disc_number\" : 1,\n      \"duration_ms\" : 152613,\n      \"episode\"
+        : false,\n      \"explicit\" : false,\n      \"external_ids\" : {\n        \"isrc\"
+        : \"ushm81736646\"\n      },\n      \"external_urls\" : {\n        \"spotify\"
+        : \"https://open.spotify.com/track/1thyTXY67TFFyZkhxRpMbs\"\n      },\n      \"href\"
+        : \"https://api.spotify.com/v1/tracks/1thyTXY67TFFyZkhxRpMbs\",\n      \"id\"
+        : \"1thyTXY67TFFyZkhxRpMbs\",\n      \"is_local\" : false,\n      \"name\"
+        : \"Black and White\",\n      \"popularity\" : 28,\n      \"preview_url\"
+        : \"https://p.scdn.co/mp3-preview/4f42a56963adc5e3590b1a144ed7330e417de20c?cid=5f573c9620494bae87890c0f08a60293\",\n
+        \     \"track\" : true,\n      \"track_number\" : 8,\n      \"type\" : \"track\",\n
+        \     \"uri\" : \"spotify:track:1thyTXY67TFFyZkhxRpMbs\"\n    },\n    \"video_thumbnail\"
+        : {\n      \"url\" : null\n    }\n  }, {\n    \"added_at\" : \"2024-04-10T15:55:42Z\",\n
+        \   \"added_by\" : {\n      \"external_urls\" : {\n        \"spotify\" : \"https://open.spotify.com/user/xd9vfl7yp0h96uecfjc6vyoja\"\n
+        \     },\n      \"href\" : \"https://api.spotify.com/v1/users/xd9vfl7yp0h96uecfjc6vyoja\",\n
+        \     \"id\" : \"xd9vfl7yp0h96uecfjc6vyoja\",\n      \"type\" : \"user\",\n
+        \     \"uri\" : \"spotify:user:xd9vfl7yp0h96uecfjc6vyoja\"\n    },\n    \"is_local\"
+        : false,\n    \"primary_color\" : null,\n    \"track\" : {\n      \"album\"
+        : {\n        \"album_type\" : \"album\",\n        \"artists\" : [ {\n          \"external_urls\"
+        : {\n            \"spotify\" : \"https://open.spotify.com/artist/0tfnDOJ5a2ib3mHAI4qGyD\"\n
+        \         },\n          \"href\" : \"https://api.spotify.com/v1/artists/0tfnDOJ5a2ib3mHAI4qGyD\",\n
+        \         \"id\" : \"0tfnDOJ5a2ib3mHAI4qGyD\",\n          \"name\" : \"The
+        Dreadnoughts\",\n          \"type\" : \"artist\",\n          \"uri\" : \"spotify:artist:0tfnDOJ5a2ib3mHAI4qGyD\"\n
+        \       } ],\n        \"available_markets\" : [ \"AR\", \"AU\", \"AT\", \"BE\",
+        \"BO\", \"BR\", \"BG\", \"CA\", \"CL\", \"CO\", \"CR\", \"CY\", \"CZ\", \"DK\",
+        \"DO\", \"DE\", \"EC\", \"EE\", \"SV\", \"FI\", \"FR\", \"GR\", \"GT\", \"HN\",
+        \"HK\", \"HU\", \"IS\", \"IE\", \"IT\", \"LV\", \"LT\", \"LU\", \"MY\", \"MT\",
+        \"MX\", \"NL\", \"NZ\", \"NI\", \"NO\", \"PA\", \"PY\", \"PE\", \"PH\", \"PL\",
+        \"PT\", \"SG\", \"SK\", \"ES\", \"SE\", \"CH\", \"TW\", \"TR\", \"UY\", \"US\",
+        \"GB\", \"AD\", \"LI\", \"MC\", \"ID\", \"JP\", \"TH\", \"VN\", \"RO\", \"IL\",
+        \"ZA\", \"SA\", \"AE\", \"BH\", \"QA\", \"OM\", \"KW\", \"EG\", \"MA\", \"DZ\",
+        \"TN\", \"LB\", \"JO\", \"PS\", \"IN\", \"BY\", \"KZ\", \"MD\", \"UA\", \"AL\",
+        \"BA\", \"HR\", \"ME\", \"MK\", \"RS\", \"SI\", \"KR\", \"BD\", \"PK\", \"LK\",
+        \"GH\", \"KE\", \"NG\", \"TZ\", \"UG\", \"AG\", \"AM\", \"BS\", \"BB\", \"BZ\",
+        \"BT\", \"BW\", \"BF\", \"CV\", \"CW\", \"DM\", \"FJ\", \"GM\", \"GE\", \"GD\",
+        \"GW\", \"GY\", \"HT\", \"JM\", \"KI\", \"LS\", \"LR\", \"MW\", \"MV\", \"ML\",
+        \"MH\", \"FM\", \"NA\", \"NR\", \"NE\", \"PW\", \"PG\", \"PR\", \"WS\", \"SM\",
+        \"ST\", \"SN\", \"SC\", \"SL\", \"SB\", \"KN\", \"LC\", \"VC\", \"SR\", \"TL\",
+        \"TO\", \"TT\", \"TV\", \"VU\", \"AZ\", \"BN\", \"BI\", \"KH\", \"CM\", \"TD\",
+        \"KM\", \"GQ\", \"SZ\", \"GA\", \"GN\", \"KG\", \"LA\", \"MO\", \"MR\", \"MN\",
+        \"NP\", \"RW\", \"TG\", \"UZ\", \"ZW\", \"BJ\", \"MG\", \"MU\", \"MZ\", \"AO\",
+        \"CI\", \"DJ\", \"ZM\", \"CD\", \"CG\", \"IQ\", \"LY\", \"TJ\", \"VE\", \"ET\",
+        \"XK\" ],\n        \"external_urls\" : {\n          \"spotify\" : \"https://open.spotify.com/album/0S7hl9NtRXGbHq9TWUVRAU\"\n
+        \       },\n        \"href\" : \"https://api.spotify.com/v1/albums/0S7hl9NtRXGbHq9TWUVRAU\",\n
+        \       \"id\" : \"0S7hl9NtRXGbHq9TWUVRAU\",\n        \"images\" : [ {\n          \"height\"
+        : 640,\n          \"url\" : \"https://i.scdn.co/image/ab67616d0000b273343c4d74928886cd0be697fc\",\n
+        \         \"width\" : 640\n        }, {\n          \"height\" : 300,\n          \"url\"
+        : \"https://i.scdn.co/image/ab67616d00001e02343c4d74928886cd0be697fc\",\n
+        \         \"width\" : 300\n        }, {\n          \"height\" : 64,\n          \"url\"
+        : \"https://i.scdn.co/image/ab67616d00004851343c4d74928886cd0be697fc\",\n
+        \         \"width\" : 64\n        } ],\n        \"name\" : \"Legends Never
+        Die\",\n        \"release_date\" : \"2007-01-01\",\n        \"release_date_precision\"
+        : \"day\",\n        \"total_tracks\" : 11,\n        \"type\" : \"album\",\n
+        \       \"uri\" : \"spotify:album:0S7hl9NtRXGbHq9TWUVRAU\"\n      },\n      \"artists\"
+        : [ {\n        \"external_urls\" : {\n          \"spotify\" : \"https://open.spotify.com/artist/0tfnDOJ5a2ib3mHAI4qGyD\"\n
+        \       },\n        \"href\" : \"https://api.spotify.com/v1/artists/0tfnDOJ5a2ib3mHAI4qGyD\",\n
+        \       \"id\" : \"0tfnDOJ5a2ib3mHAI4qGyD\",\n        \"name\" : \"The Dreadnoughts\",\n
+        \       \"type\" : \"artist\",\n        \"uri\" : \"spotify:artist:0tfnDOJ5a2ib3mHAI4qGyD\"\n
+        \     } ],\n      \"available_markets\" : [ \"AR\", \"AU\", \"AT\", \"BE\",
+        \"BO\", \"BR\", \"BG\", \"CA\", \"CL\", \"CO\", \"CR\", \"CY\", \"CZ\", \"DK\",
+        \"DO\", \"DE\", \"EC\", \"EE\", \"SV\", \"FI\", \"FR\", \"GR\", \"GT\", \"HN\",
+        \"HK\", \"HU\", \"IS\", \"IE\", \"IT\", \"LV\", \"LT\", \"LU\", \"MY\", \"MT\",
+        \"MX\", \"NL\", \"NZ\", \"NI\", \"NO\", \"PA\", \"PY\", \"PE\", \"PH\", \"PL\",
+        \"PT\", \"SG\", \"SK\", \"ES\", \"SE\", \"CH\", \"TW\", \"TR\", \"UY\", \"US\",
+        \"GB\", \"AD\", \"LI\", \"MC\", \"ID\", \"JP\", \"TH\", \"VN\", \"RO\", \"IL\",
+        \"ZA\", \"SA\", \"AE\", \"BH\", \"QA\", \"OM\", \"KW\", \"EG\", \"MA\", \"DZ\",
+        \"TN\", \"LB\", \"JO\", \"PS\", \"IN\", \"BY\", \"KZ\", \"MD\", \"UA\", \"AL\",
+        \"BA\", \"HR\", \"ME\", \"MK\", \"RS\", \"SI\", \"KR\", \"BD\", \"PK\", \"LK\",
+        \"GH\", \"KE\", \"NG\", \"TZ\", \"UG\", \"AG\", \"AM\", \"BS\", \"BB\", \"BZ\",
+        \"BT\", \"BW\", \"BF\", \"CV\", \"CW\", \"DM\", \"FJ\", \"GM\", \"GE\", \"GD\",
+        \"GW\", \"GY\", \"HT\", \"JM\", \"KI\", \"LS\", \"LR\", \"MW\", \"MV\", \"ML\",
+        \"MH\", \"FM\", \"NA\", \"NR\", \"NE\", \"PW\", \"PG\", \"PR\", \"WS\", \"SM\",
+        \"ST\", \"SN\", \"SC\", \"SL\", \"SB\", \"KN\", \"LC\", \"VC\", \"SR\", \"TL\",
+        \"TO\", \"TT\", \"TV\", \"VU\", \"AZ\", \"BN\", \"BI\", \"KH\", \"CM\", \"TD\",
+        \"KM\", \"GQ\", \"SZ\", \"GA\", \"GN\", \"KG\", \"LA\", \"MO\", \"MR\", \"MN\",
+        \"NP\", \"RW\", \"TG\", \"UZ\", \"ZW\", \"BJ\", \"MG\", \"MU\", \"MZ\", \"AO\",
+        \"CI\", \"DJ\", \"ZM\", \"CD\", \"CG\", \"IQ\", \"LY\", \"TJ\", \"VE\", \"ET\",
+        \"XK\" ],\n      \"disc_number\" : 1,\n      \"duration_ms\" : 333440,\n      \"episode\"
+        : false,\n      \"explicit\" : false,\n      \"external_ids\" : {\n        \"isrc\"
+        : \"ushm80852326\"\n      },\n      \"external_urls\" : {\n        \"spotify\"
+        : \"https://open.spotify.com/track/5WyZKzskByzPGc2ZvMXMvs\"\n      },\n      \"href\"
+        : \"https://api.spotify.com/v1/tracks/5WyZKzskByzPGc2ZvMXMvs\",\n      \"id\"
+        : \"5WyZKzskByzPGc2ZvMXMvs\",\n      \"is_local\" : false,\n      \"name\"
+        : \"A Rambler\\\\'s Life\",\n      \"popularity\" : 33,\n      \"preview_url\"
+        : \"https://p.scdn.co/mp3-preview/985bff84847da1ce79580ca3b32dc2fb50a39dfc?cid=5f573c9620494bae87890c0f08a60293\",\n
+        \     \"track\" : true,\n      \"track_number\" : 7,\n      \"type\" : \"track\",\n
+        \     \"uri\" : \"spotify:track:5WyZKzskByzPGc2ZvMXMvs\"\n    },\n    \"video_thumbnail\"
+        : {\n      \"url\" : null\n    }\n  }, {\n    \"added_at\" : \"2024-04-10T15:55:43Z\",\n
+        \   \"added_by\" : {\n      \"external_urls\" : {\n        \"spotify\" : \"https://open.spotify.com/user/xd9vfl7yp0h96uecfjc6vyoja\"\n
+        \     },\n      \"href\" : \"https://api.spotify.com/v1/users/xd9vfl7yp0h96uecfjc6vyoja\",\n
+        \     \"id\" : \"xd9vfl7yp0h96uecfjc6vyoja\",\n      \"type\" : \"user\",\n
+        \     \"uri\" : \"spotify:user:xd9vfl7yp0h96uecfjc6vyoja\"\n    },\n    \"is_local\"
+        : false,\n    \"primary_color\" : null,\n    \"track\" : {\n      \"album\"
+        : {\n        \"album_type\" : \"album\",\n        \"artists\" : [ {\n          \"external_urls\"
+        : {\n            \"spotify\" : \"https://open.spotify.com/artist/0tfnDOJ5a2ib3mHAI4qGyD\"\n
+        \         },\n          \"href\" : \"https://api.spotify.com/v1/artists/0tfnDOJ5a2ib3mHAI4qGyD\",\n
+        \         \"id\" : \"0tfnDOJ5a2ib3mHAI4qGyD\",\n          \"name\" : \"The
+        Dreadnoughts\",\n          \"type\" : \"artist\",\n          \"uri\" : \"spotify:artist:0tfnDOJ5a2ib3mHAI4qGyD\"\n
+        \       } ],\n        \"available_markets\" : [ \"AR\", \"AU\", \"AT\", \"BE\",
+        \"BO\", \"BR\", \"BG\", \"CA\", \"CL\", \"CO\", \"CR\", \"CY\", \"CZ\", \"DK\",
+        \"DO\", \"DE\", \"EC\", \"EE\", \"SV\", \"FI\", \"FR\", \"GR\", \"GT\", \"HN\",
+        \"HK\", \"HU\", \"IS\", \"IE\", \"IT\", \"LV\", \"LT\", \"LU\", \"MY\", \"MT\",
+        \"MX\", \"NL\", \"NZ\", \"NI\", \"NO\", \"PA\", \"PY\", \"PE\", \"PH\", \"PL\",
+        \"PT\", \"SG\", \"SK\", \"ES\", \"SE\", \"CH\", \"TW\", \"TR\", \"UY\", \"US\",
+        \"GB\", \"AD\", \"LI\", \"MC\", \"ID\", \"JP\", \"TH\", \"VN\", \"RO\", \"IL\",
+        \"ZA\", \"SA\", \"AE\", \"BH\", \"QA\", \"OM\", \"KW\", \"EG\", \"MA\", \"DZ\",
+        \"TN\", \"LB\", \"JO\", \"PS\", \"IN\", \"BY\", \"KZ\", \"MD\", \"UA\", \"AL\",
+        \"BA\", \"HR\", \"ME\", \"MK\", \"RS\", \"SI\", \"KR\", \"BD\", \"PK\", \"LK\",
+        \"GH\", \"KE\", \"NG\", \"TZ\", \"UG\", \"AG\", \"AM\", \"BS\", \"BB\", \"BZ\",
+        \"BT\", \"BW\", \"BF\", \"CV\", \"CW\", \"DM\", \"FJ\", \"GM\", \"GE\", \"GD\",
+        \"GW\", \"GY\", \"HT\", \"JM\", \"KI\", \"LS\", \"LR\", \"MW\", \"MV\", \"ML\",
+        \"MH\", \"FM\", \"NA\", \"NR\", \"NE\", \"PW\", \"PG\", \"PR\", \"WS\", \"SM\",
+        \"ST\", \"SN\", \"SC\", \"SL\", \"SB\", \"KN\", \"LC\", \"VC\", \"SR\", \"TL\",
+        \"TO\", \"TT\", \"TV\", \"VU\", \"AZ\", \"BN\", \"BI\", \"KH\", \"CM\", \"TD\",
+        \"KM\", \"GQ\", \"SZ\", \"GA\", \"GN\", \"KG\", \"LA\", \"MO\", \"MR\", \"MN\",
+        \"NP\", \"RW\", \"TG\", \"UZ\", \"ZW\", \"BJ\", \"MG\", \"MU\", \"MZ\", \"AO\",
+        \"CI\", \"DJ\", \"ZM\", \"CD\", \"CG\", \"IQ\", \"LY\", \"TJ\", \"VE\", \"ET\",
+        \"XK\" ],\n        \"external_urls\" : {\n          \"spotify\" : \"https://open.spotify.com/album/0S7hl9NtRXGbHq9TWUVRAU\"\n
+        \       },\n        \"href\" : \"https://api.spotify.com/v1/albums/0S7hl9NtRXGbHq9TWUVRAU\",\n
+        \       \"id\" : \"0S7hl9NtRXGbHq9TWUVRAU\",\n        \"images\" : [ {\n          \"height\"
+        : 640,\n          \"url\" : \"https://i.scdn.co/image/ab67616d0000b273343c4d74928886cd0be697fc\",\n
+        \         \"width\" : 640\n        }, {\n          \"height\" : 300,\n          \"url\"
+        : \"https://i.scdn.co/image/ab67616d00001e02343c4d74928886cd0be697fc\",\n
+        \         \"width\" : 300\n        }, {\n          \"height\" : 64,\n          \"url\"
+        : \"https://i.scdn.co/image/ab67616d00004851343c4d74928886cd0be697fc\",\n
+        \         \"width\" : 64\n        } ],\n        \"name\" : \"Legends Never
+        Die\",\n        \"release_date\" : \"2007-01-01\",\n        \"release_date_precision\"
+        : \"day\",\n        \"total_tracks\" : 11,\n        \"type\" : \"album\",\n
+        \       \"uri\" : \"spotify:album:0S7hl9NtRXGbHq9TWUVRAU\"\n      },\n      \"artists\"
+        : [ {\n        \"external_urls\" : {\n          \"spotify\" : \"https://open.spotify.com/artist/0tfnDOJ5a2ib3mHAI4qGyD\"\n
+        \       },\n        \"href\" : \"https://api.spotify.com/v1/artists/0tfnDOJ5a2ib3mHAI4qGyD\",\n
+        \       \"id\" : \"0tfnDOJ5a2ib3mHAI4qGyD\",\n        \"name\" : \"The Dreadnoughts\",\n
+        \       \"type\" : \"artist\",\n        \"uri\" : \"spotify:artist:0tfnDOJ5a2ib3mHAI4qGyD\"\n
+        \     } ],\n      \"available_markets\" : [ \"AR\", \"AU\", \"AT\", \"BE\",
+        \"BO\", \"BR\", \"BG\", \"CA\", \"CL\", \"CO\", \"CR\", \"CY\", \"CZ\", \"DK\",
+        \"DO\", \"DE\", \"EC\", \"EE\", \"SV\", \"FI\", \"FR\", \"GR\", \"GT\", \"HN\",
+        \"HK\", \"HU\", \"IS\", \"IE\", \"IT\", \"LV\", \"LT\", \"LU\", \"MY\", \"MT\",
+        \"MX\", \"NL\", \"NZ\", \"NI\", \"NO\", \"PA\", \"PY\", \"PE\", \"PH\", \"PL\",
+        \"PT\", \"SG\", \"SK\", \"ES\", \"SE\", \"CH\", \"TW\", \"TR\", \"UY\", \"US\",
+        \"GB\", \"AD\", \"LI\", \"MC\", \"ID\", \"JP\", \"TH\", \"VN\", \"RO\", \"IL\",
+        \"ZA\", \"SA\", \"AE\", \"BH\", \"QA\", \"OM\", \"KW\", \"EG\", \"MA\", \"DZ\",
+        \"TN\", \"LB\", \"JO\", \"PS\", \"IN\", \"BY\", \"KZ\", \"MD\", \"UA\", \"AL\",
+        \"BA\", \"HR\", \"ME\", \"MK\", \"RS\", \"SI\", \"KR\", \"BD\", \"PK\", \"LK\",
+        \"GH\", \"KE\", \"NG\", \"TZ\", \"UG\", \"AG\", \"AM\", \"BS\", \"BB\", \"BZ\",
+        \"BT\", \"BW\", \"BF\", \"CV\", \"CW\", \"DM\", \"FJ\", \"GM\", \"GE\", \"GD\",
+        \"GW\", \"GY\", \"HT\", \"JM\", \"KI\", \"LS\", \"LR\", \"MW\", \"MV\", \"ML\",
+        \"MH\", \"FM\", \"NA\", \"NR\", \"NE\", \"PW\", \"PG\", \"PR\", \"WS\", \"SM\",
+        \"ST\", \"SN\", \"SC\", \"SL\", \"SB\", \"KN\", \"LC\", \"VC\", \"SR\", \"TL\",
+        \"TO\", \"TT\", \"TV\", \"VU\", \"AZ\", \"BN\", \"BI\", \"KH\", \"CM\", \"TD\",
+        \"KM\", \"GQ\", \"SZ\", \"GA\", \"GN\", \"KG\", \"LA\", \"MO\", \"MR\", \"MN\",
+        \"NP\", \"RW\", \"TG\", \"UZ\", \"ZW\", \"BJ\", \"MG\", \"MU\", \"MZ\", \"AO\",
+        \"CI\", \"DJ\", \"ZM\", \"CD\", \"CG\", \"IQ\", \"LY\", \"TJ\", \"VE\", \"ET\",
+        \"XK\" ],\n      \"disc_number\" : 1,\n      \"duration_ms\" : 177986,\n      \"episode\"
+        : false,\n      \"explicit\" : false,\n      \"external_ids\" : {\n        \"isrc\"
+        : \"ushm80852321\"\n      },\n      \"external_urls\" : {\n        \"spotify\"
+        : \"https://open.spotify.com/track/47BlQIrahKojOp9vuhmkgl\"\n      },\n      \"href\"
+        : \"https://api.spotify.com/v1/tracks/47BlQIrahKojOp9vuhmkgl\",\n      \"id\"
+        : \"47BlQIrahKojOp9vuhmkgl\",\n      \"is_local\" : false,\n      \"name\"
+        : \"Katie, Bar The Door\",\n      \"popularity\" : 29,\n      \"preview_url\"
+        : \"https://p.scdn.co/mp3-preview/bf0e79ba581548eaf111ee854dbf4617ad436fd8?cid=5f573c9620494bae87890c0f08a60293\",\n
+        \     \"track\" : true,\n      \"track_number\" : 2,\n      \"type\" : \"track\",\n
+        \     \"uri\" : \"spotify:track:47BlQIrahKojOp9vuhmkgl\"\n    },\n    \"video_thumbnail\"
+        : {\n      \"url\" : null\n    }\n  }, {\n    \"added_at\" : \"2024-04-10T15:55:45Z\",\n
+        \   \"added_by\" : {\n      \"external_urls\" : {\n        \"spotify\" : \"https://open.spotify.com/user/xd9vfl7yp0h96uecfjc6vyoja\"\n
+        \     },\n      \"href\" : \"https://api.spotify.com/v1/users/xd9vfl7yp0h96uecfjc6vyoja\",\n
+        \     \"id\" : \"xd9vfl7yp0h96uecfjc6vyoja\",\n      \"type\" : \"user\",\n
+        \     \"uri\" : \"spotify:user:xd9vfl7yp0h96uecfjc6vyoja\"\n    },\n    \"is_local\"
+        : false,\n    \"primary_color\" : null,\n    \"track\" : {\n      \"album\"
+        : {\n        \"album_type\" : \"album\",\n        \"artists\" : [ {\n          \"external_urls\"
+        : {\n            \"spotify\" : \"https://open.spotify.com/artist/0tfnDOJ5a2ib3mHAI4qGyD\"\n
+        \         },\n          \"href\" : \"https://api.spotify.com/v1/artists/0tfnDOJ5a2ib3mHAI4qGyD\",\n
+        \         \"id\" : \"0tfnDOJ5a2ib3mHAI4qGyD\",\n          \"name\" : \"The
+        Dreadnoughts\",\n          \"type\" : \"artist\",\n          \"uri\" : \"spotify:artist:0tfnDOJ5a2ib3mHAI4qGyD\"\n
+        \       } ],\n        \"available_markets\" : [ \"AR\", \"AU\", \"AT\", \"BE\",
+        \"BO\", \"BR\", \"BG\", \"CA\", \"CL\", \"CO\", \"CR\", \"CY\", \"CZ\", \"DK\",
+        \"DO\", \"DE\", \"EC\", \"EE\", \"SV\", \"FI\", \"FR\", \"GR\", \"GT\", \"HN\",
+        \"HK\", \"HU\", \"IS\", \"IE\", \"IT\", \"LV\", \"LT\", \"LU\", \"MY\", \"MT\",
+        \"MX\", \"NL\", \"NZ\", \"NI\", \"NO\", \"PA\", \"PY\", \"PE\", \"PH\", \"PL\",
+        \"PT\", \"SG\", \"SK\", \"ES\", \"SE\", \"CH\", \"TW\", \"TR\", \"UY\", \"US\",
+        \"GB\", \"AD\", \"LI\", \"MC\", \"ID\", \"JP\", \"TH\", \"VN\", \"RO\", \"IL\",
+        \"ZA\", \"SA\", \"AE\", \"BH\", \"QA\", \"OM\", \"KW\", \"EG\", \"MA\", \"DZ\",
+        \"TN\", \"LB\", \"JO\", \"PS\", \"IN\", \"BY\", \"KZ\", \"MD\", \"UA\", \"AL\",
+        \"BA\", \"HR\", \"ME\", \"MK\", \"RS\", \"SI\", \"KR\", \"BD\", \"PK\", \"LK\",
+        \"GH\", \"KE\", \"NG\", \"TZ\", \"UG\", \"AG\", \"AM\", \"BS\", \"BB\", \"BZ\",
+        \"BT\", \"BW\", \"BF\", \"CV\", \"CW\", \"DM\", \"FJ\", \"GM\", \"GE\", \"GD\",
+        \"GW\", \"GY\", \"HT\", \"JM\", \"KI\", \"LS\", \"LR\", \"MW\", \"MV\", \"ML\",
+        \"MH\", \"FM\", \"NA\", \"NR\", \"NE\", \"PW\", \"PG\", \"PR\", \"WS\", \"SM\",
+        \"ST\", \"SN\", \"SC\", \"SL\", \"SB\", \"KN\", \"LC\", \"VC\", \"SR\", \"TL\",
+        \"TO\", \"TT\", \"TV\", \"VU\", \"AZ\", \"BN\", \"BI\", \"KH\", \"CM\", \"TD\",
+        \"KM\", \"GQ\", \"SZ\", \"GA\", \"GN\", \"KG\", \"LA\", \"MO\", \"MR\", \"MN\",
+        \"NP\", \"RW\", \"TG\", \"UZ\", \"ZW\", \"BJ\", \"MG\", \"MU\", \"MZ\", \"AO\",
+        \"CI\", \"DJ\", \"ZM\", \"CD\", \"CG\", \"IQ\", \"LY\", \"TJ\", \"VE\", \"ET\",
+        \"XK\" ],\n        \"external_urls\" : {\n          \"spotify\" : \"https://open.spotify.com/album/4sXaOOcXH2tfRFUJsiIzKh\"\n
+        \       },\n        \"href\" : \"https://api.spotify.com/v1/albums/4sXaOOcXH2tfRFUJsiIzKh\",\n
+        \       \"id\" : \"4sXaOOcXH2tfRFUJsiIzKh\",\n        \"images\" : [ {\n          \"height\"
+        : 640,\n          \"url\" : \"https://i.scdn.co/image/ab67616d0000b273f77f38a09d9bb11945057e28\",\n
+        \         \"width\" : 640\n        }, {\n          \"height\" : 300,\n          \"url\"
+        : \"https://i.scdn.co/image/ab67616d00001e02f77f38a09d9bb11945057e28\",\n
+        \         \"width\" : 300\n        }, {\n          \"height\" : 64,\n          \"url\"
+        : \"https://i.scdn.co/image/ab67616d00004851f77f38a09d9bb11945057e28\",\n
+        \         \"width\" : 64\n        } ],\n        \"name\" : \"Foreign Skies\",\n
+        \       \"release_date\" : \"2017-11-11\",\n        \"release_date_precision\"
+        : \"day\",\n        \"total_tracks\" : 12,\n        \"type\" : \"album\",\n
+        \       \"uri\" : \"spotify:album:4sXaOOcXH2tfRFUJsiIzKh\"\n      },\n      \"artists\"
+        : [ {\n        \"external_urls\" : {\n          \"spotify\" : \"https://open.spotify.com/artist/0tfnDOJ5a2ib3mHAI4qGyD\"\n
+        \       },\n        \"href\" : \"https://api.spotify.com/v1/artists/0tfnDOJ5a2ib3mHAI4qGyD\",\n
+        \       \"id\" : \"0tfnDOJ5a2ib3mHAI4qGyD\",\n        \"name\" : \"The Dreadnoughts\",\n
+        \       \"type\" : \"artist\",\n        \"uri\" : \"spotify:artist:0tfnDOJ5a2ib3mHAI4qGyD\"\n
+        \     } ],\n      \"available_markets\" : [ \"AR\", \"AU\", \"AT\", \"BE\",
+        \"BO\", \"BR\", \"BG\", \"CA\", \"CL\", \"CO\", \"CR\", \"CY\", \"CZ\", \"DK\",
+        \"DO\", \"DE\", \"EC\", \"EE\", \"SV\", \"FI\", \"FR\", \"GR\", \"GT\", \"HN\",
+        \"HK\", \"HU\", \"IS\", \"IE\", \"IT\", \"LV\", \"LT\", \"LU\", \"MY\", \"MT\",
+        \"MX\", \"NL\", \"NZ\", \"NI\", \"NO\", \"PA\", \"PY\", \"PE\", \"PH\", \"PL\",
+        \"PT\", \"SG\", \"SK\", \"ES\", \"SE\", \"CH\", \"TW\", \"TR\", \"UY\", \"US\",
+        \"GB\", \"AD\", \"LI\", \"MC\", \"ID\", \"JP\", \"TH\", \"VN\", \"RO\", \"IL\",
+        \"ZA\", \"SA\", \"AE\", \"BH\", \"QA\", \"OM\", \"KW\", \"EG\", \"MA\", \"DZ\",
+        \"TN\", \"LB\", \"JO\", \"PS\", \"IN\", \"BY\", \"KZ\", \"MD\", \"UA\", \"AL\",
+        \"BA\", \"HR\", \"ME\", \"MK\", \"RS\", \"SI\", \"KR\", \"BD\", \"PK\", \"LK\",
+        \"GH\", \"KE\", \"NG\", \"TZ\", \"UG\", \"AG\", \"AM\", \"BS\", \"BB\", \"BZ\",
+        \"BT\", \"BW\", \"BF\", \"CV\", \"CW\", \"DM\", \"FJ\", \"GM\", \"GE\", \"GD\",
+        \"GW\", \"GY\", \"HT\", \"JM\", \"KI\", \"LS\", \"LR\", \"MW\", \"MV\", \"ML\",
+        \"MH\", \"FM\", \"NA\", \"NR\", \"NE\", \"PW\", \"PG\", \"PR\", \"WS\", \"SM\",
+        \"ST\", \"SN\", \"SC\", \"SL\", \"SB\", \"KN\", \"LC\", \"VC\", \"SR\", \"TL\",
+        \"TO\", \"TT\", \"TV\", \"VU\", \"AZ\", \"BN\", \"BI\", \"KH\", \"CM\", \"TD\",
+        \"KM\", \"GQ\", \"SZ\", \"GA\", \"GN\", \"KG\", \"LA\", \"MO\", \"MR\", \"MN\",
+        \"NP\", \"RW\", \"TG\", \"UZ\", \"ZW\", \"BJ\", \"MG\", \"MU\", \"MZ\", \"AO\",
+        \"CI\", \"DJ\", \"ZM\", \"CD\", \"CG\", \"IQ\", \"LY\", \"TJ\", \"VE\", \"ET\",
+        \"XK\" ],\n      \"disc_number\" : 1,\n      \"duration_ms\" : 239746,\n      \"episode\"
+        : false,\n      \"explicit\" : false,\n      \"external_ids\" : {\n        \"isrc\"
+        : \"ushm81736649\"\n      },\n      \"external_urls\" : {\n        \"spotify\"
+        : \"https://open.spotify.com/track/29fiMKbo8tXHMwPebs3t2E\"\n      },\n      \"href\"
+        : \"https://api.spotify.com/v1/tracks/29fiMKbo8tXHMwPebs3t2E\",\n      \"id\"
+        : \"29fiMKbo8tXHMwPebs3t2E\",\n      \"is_local\" : false,\n      \"name\"
+        : \"Black Letters\",\n      \"popularity\" : 25,\n      \"preview_url\" :
+        \"https://p.scdn.co/mp3-preview/15b25181e6c5bdd9975a94f84c746388797fbc18?cid=5f573c9620494bae87890c0f08a60293\",\n
+        \     \"track\" : true,\n      \"track_number\" : 11,\n      \"type\" : \"track\",\n
+        \     \"uri\" : \"spotify:track:29fiMKbo8tXHMwPebs3t2E\"\n    },\n    \"video_thumbnail\"
+        : {\n      \"url\" : null\n    }\n  } ],\n  \"limit\" : 100,\n  \"next\" :
+        null,\n  \"offset\" : 0,\n  \"previous\" : null,\n  \"total\" : 6\n}"
+    headers:
+      Alt-Svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      Transfer-Encoding:
+      - chunked
+      Via:
+      - HTTP/2 edgeproxy, 1.1 google
+      access-control-allow-credentials:
+      - 'true'
+      access-control-allow-headers:
+      - Accept, App-Platform, Authorization, Content-Type, Origin, Retry-After, Spotify-App-Version,
+        X-Cloud-Trace-Context, client-token, content-access-token
+      access-control-allow-methods:
+      - GET, POST, OPTIONS, PUT, DELETE, PATCH
+      access-control-allow-origin:
+      - '*'
+      access-control-max-age:
+      - '604800'
+      cache-control:
+      - public, max-age=0
+      content-encoding:
+      - gzip
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Wed, 10 Apr 2024 15:59:21 GMT
+      etag:
+      - '"MC-Ijg3NWI2Zjg1MjEzYWU1Y2Y4YTE4MzUyMzRkMjlkNDlhIg=="'
+      server:
+      - envoy
+      strict-transport-security:
+      - max-age=31536000
+      x-content-type-options:
+      - nosniff
+      x-robots-tag:
+      - noindex, nofollow
+    status:
+      code: 200
+      message: OK
+version: 1
