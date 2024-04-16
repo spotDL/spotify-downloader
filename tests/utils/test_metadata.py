@@ -45,6 +45,7 @@ def test_embed_metadata(tmpdir, monkeypatch, output_format):
         "album_id": "15b3456b34562b3456b34",
         "album_name": "Ropes",
         "album_artist": "Dirty Palm",
+        "album_year": 2021,
         "genres": ["Gaming Edm"],
         "disc_number": 1,
         "duration": 188,
@@ -89,3 +90,45 @@ def test_embed_metadata(tmpdir, monkeypatch, output_format):
             continue
 
         assert file_metadata[key] == value
+
+
+def test_embed_metadata_album_year(tmpdir):
+    # Create a mock song object with specific metadata including album year
+    song_obj = {
+        "name": "Ropes",
+        "artists": ["Dirty Palm", "Chandler Jewels"],
+        "album_id": "15b3456b34562b3456b34",
+        "album_name": "Ropes",
+        "album_artist": "Dirty Palm",
+        "album_year": 2021,  # This is the field we're testing
+        "genres": ["Gaming Edm"],
+        "disc_number": 1,
+        "duration": 188,
+        "year": 2020,  # This is the track release year
+        "date": "2021-10-28",
+        "track_number": 1,
+        "tracks_count": 1,
+        "isrc": "GB2LD2110301",
+        "song_id": "1t2qKa8K72IBC8yQlhD9bU",
+        "cover_url": "https://i.scdn.co/image/ab67616d0000b273fe2cb38e4d2412dbb0e54332",
+        "explicit": False,
+        "download_url": "link",
+        "artist": "Dirty Palm",
+        "disc_count": 1,
+        "copyright_text": "",
+        "publisher": "",
+        "url": "https://open.spotify.com/track/1t2qKa8K72IBC8yQlhD9bU",
+        "popularity": 0,
+    }
+
+    song = Song.from_dict(song_obj)
+
+    # Use a temporary directory for output files
+    output_file = Path(tmpdir) / "test.mp3"
+    embed_metadata(output_file, song, id3_separator="/")
+
+    # Retrieve metadata from the file
+    file_metadata = get_file_metadata(output_file)
+
+    # Assert that the album year (or track year) is embedded and retrieved correctly
+    assert file_metadata["year"] == song.album_year, f"Expected album year {song.album_year} but got {file_metadata.get('year')}"

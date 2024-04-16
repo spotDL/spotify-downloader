@@ -39,6 +39,7 @@ class Song:
     disc_count: int
     album_name: str
     album_artist: str
+    album_year: Optional[int] = None
     duration: int
     year: int
     date: str
@@ -105,6 +106,7 @@ class Song:
             album_id=album_id,
             album_name=raw_album_meta["name"],
             album_artist=raw_album_meta["artists"][0]["name"],
+            album_year=int(raw_album_meta["release_date"][:4]),
             copyright_text=raw_album_meta["copyrights"][0]["text"]
             if raw_album_meta["copyrights"]
             else None,

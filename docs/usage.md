@@ -149,8 +149,49 @@ To download music in higher quality follow the steps below:
 > To get the best audio possible you should use **M4A**/**OPUS** audio format
 > with `--bitrate disable`
 
+## Metadata Customization
 
+When downloading music, spotDL not only captures basic song data but also enhances your music files with rich metadata, ensuring your music library is well organized and fully detailed.
 
+### Embedded Metadata Includes:
+
+- **Title**: The track's title.
+- **Artists**: The names of the artists.
+- **Album**: The name of the album.
+- **Album Artist**: The primary artist associated with the album.
+- **Year**: The release year of the track.
+- **Album Year**: The release year of the album. This is particularly useful for tracks that might have been released as singles earlier than their album's official release.
+- **Genre**: The genre(s) of the track.
+- **Track Number**: The track's position in the album.
+- **Total Tracks**: The total number of tracks in the album.
+- **Duration**: The length of the track.
+- **ISRC**: International Standard Recording Code, uniquely identifying the recording.
+- **URL**: The Spotify URL of the track.
+
+These details are embedded directly into your downloaded files, which means your player will display all relevant information, allowing for better sorting and playlist creation.
+
+### Modifying Metadata
+
+You can customize how metadata is handled during downloads:
+
+```bash
+spotdl download [trackUrl] --metadata-title "Custom Title" --metadata-album-year 2020
+
+??? info "Downloading with Custom Metadata"
+    To download a track with specific metadata overrides, such as setting a custom album year, use:
+
+    ```bash
+    spotdl download https://open.spotify.com/track/0VjIjW4GlUZAMYd2vXMi3b --metadata-album-year 2020
+    ```
+
+    This ensures your downloaded file reflects the correct album release year, regardless of the track's original release date.
+
+    
+??? tip "Why Adjust Metadata?"
+    Adjusting metadata like the album year can be helpful for several reasons:
+    - **Historical Accuracy**: Ensure your music library reflects the correct release timeline, especially for re-released or remastered tracks.
+    - **Consistency**: Maintain consistent album information across various tracks, especially in compilation albums or various artists collections.
+    - **Personal Preference**: Customize metadata to fit personal sorting or cataloging systems you might use in your music collection.
 
 ## Syncing
 
@@ -325,6 +366,7 @@ The `output` key supports several variables:
 | `{artist}` | Primary artist | Katy Perry |
 | `{album}` | Album name | PRISM |
 | `{album-artist}` | Primary artist of the album | Katy Perry |
+| `{album-year}` | Year of release | 2013 |
 | `{genre}` | Genre | dance pop |
 | `{disc-number}` | Useful for multi-disc releases | 1 |
 | `{disc-count}` | Total number of discs in the album | 1 |
