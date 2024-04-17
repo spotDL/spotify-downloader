@@ -19,6 +19,34 @@ SAVED = ["saved"]
 
 
 @pytest.mark.vcr()
+def test_playlist_with_only_duplicates():
+    query = ["https://open.spotify.com/playlist/1MmajbspTdQCnCSVveSlG3?si=05981d33e9b24d57"]
+    songs = get_simple_songs(query)
+    assert len(songs) == 2
+
+
+@pytest.mark.vcr()
+def test_regular_playlist():
+    query = ["https://open.spotify.com/album/0YniOccoeVuymVK8Lpb7VR?si=EIgojuhsQka2cf1c19Yr7w"]
+    songs = get_simple_songs(query)
+    assert len(songs) == 21
+
+
+@pytest.mark.vcr()
+def test_playlist_with_duplicate():
+    query = ["https://open.spotify.com/playlist/30orXVZ79dv640tpOoWNDP?si=1d1ad6c047ff45a4"]
+    songs = get_simple_songs(query)
+    assert len(songs) == 5
+
+
+@pytest.mark.vcr()
+def test_playlist_with_songs_with_same_name():
+    query = ["https://open.spotify.com/playlist/7FPXF1EQp4FnWBMdhT05R4?si=e4a920a5ce094341"]
+    songs = get_simple_songs(query)
+    assert len(songs) == 3
+
+
+@pytest.mark.vcr()
 def test_parse_song():
     songs = parse_query(SONG)
 
