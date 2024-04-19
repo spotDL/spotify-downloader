@@ -9,7 +9,6 @@ from spotdl.types.song import Song
 from spotdl.utils.ffmpeg import convert
 from spotdl.utils.metadata import embed_metadata, get_file_metadata
 
-
 @pytest.mark.parametrize(
     "output_format",
     [
@@ -67,7 +66,7 @@ def test_embed_metadata(tmpdir, monkeypatch, output_format):
     }
 
     song = Song.from_dict(song_obj)
-    output_file = Path(tmpdir / f"test.{output_format}")
+    output_file = Path(tmpdir) / f"test.{output_format}"
 
     assert download_info is not None
     assert convert(
@@ -81,7 +80,6 @@ def test_embed_metadata(tmpdir, monkeypatch, output_format):
     assert output_file.exists()
 
     file_metadata = get_file_metadata(output_file)
-
     assert file_metadata is not None
 
     for key, value in song_obj.items():
@@ -90,7 +88,6 @@ def test_embed_metadata(tmpdir, monkeypatch, output_format):
             continue
 
         assert file_metadata[key] == value
-
 
 def test_embed_metadata_album_year(tmpdir):
     # Create a mock song object with specific metadata including album year
@@ -129,6 +126,5 @@ def test_embed_metadata_album_year(tmpdir):
 
     # Retrieve metadata from the file
     file_metadata = get_file_metadata(output_file)
-
     # Assert that the album year (or track year) is embedded and retrieved correctly
     assert file_metadata["album_year"] == song.album_year, f"Expected album year {song.album_year} but got {file_metadata.get('album_year')}"
