@@ -205,6 +205,17 @@ def embed_metadata(output_file: Path, song: Song, id3_separator: str = "/"):
     if song.download_url and encoding != "mp3":
         audio_file[tag_preset["comment"]] = song.download_url
 
+    # Embed album release year (if available)
+    if song.year:
+        if encoding == "mp3":
+            audio_file.add(TDRC(encoding=3, text=str(song.year)))
+        elif encoding == "m4a":
+            audio_file[M4A_TAG_PRESET["year"]] = str(song.year)
+        elif encoding in ["flac", "ogg", "opus"]:
+            audio_file["date"] = str(song.year)  # Vorbis comment tags use "date" for the year
+        elif encoding == "wav":
+            audio_file.add(TDRC(encoding=3, text=str(song.year)))
+
     # Embed some metadata in format specific ways
     if encoding in ["flac", "ogg", "opus"]:
         # Zero fill the disc and track numbers
