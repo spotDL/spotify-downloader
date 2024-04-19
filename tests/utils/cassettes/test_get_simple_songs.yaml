@@ -1,0 +1,59 @@
+interactions:
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate, br
+      Authorization:
+      - Bearer BQDbOyNhLT0hBYVaRtdTgHIVNGXTMQ1yWWxxSwjKHRNGHoIl2lwnPiVvplmD2qbtAj921jlzbbbASr9zJq7UrC6jg_HI0rWUobgBwuF64k1D4Km2ucA
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      User-Agent:
+      - python-requests/2.31.0
+    method: GET
+    uri: https://api.spotify.com/v1/playlists/78Lg6HmUqlTnmipvNxc536?additional_types=track
+  response:
+    body:
+      string: "{\n  \"error\": {\n    \"status\": 401,\n    \"message\": \"The access
+        token expired\"\n  }\n}"
+    headers:
+      Alt-Svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      Transfer-Encoding:
+      - chunked
+      Via:
+      - HTTP/2 edgeproxy, 1.1 google
+      access-control-allow-credentials:
+      - 'true'
+      access-control-allow-headers:
+      - Accept, App-Platform, Authorization, Content-Type, Origin, Retry-After, Spotify-App-Version,
+        X-Cloud-Trace-Context, client-token, content-access-token
+      access-control-allow-methods:
+      - GET, POST, OPTIONS, PUT, DELETE, PATCH
+      access-control-allow-origin:
+      - '*'
+      access-control-max-age:
+      - '604800'
+      content-encoding:
+      - gzip
+      content-type:
+      - application/json
+      date:
+      - Thu, 11 Apr 2024 13:07:34 GMT
+      server:
+      - envoy
+      strict-transport-security:
+      - max-age=31536000
+      www-authenticate:
+      - Bearer realm="spotify", error="invalid_token", error_description="The access
+        token expired"
+      x-content-type-options:
+      - nosniff
+    status:
+      code: 401
+      message: Unauthorized
+version: 1
