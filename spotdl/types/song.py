@@ -39,7 +39,6 @@ class Song:
     disc_count: int
     album_name: str
     album_artist: str
-    album_year: Optional[int] = None
     duration: int
     year: int
     date: str
@@ -60,6 +59,7 @@ class Song:
     list_url: Optional[str] = None
     list_position: Optional[int] = None
     list_length: Optional[int] = None
+    album_year: Optional[int] = None  # Added album_year attribute
 
     @classmethod
     def from_url(cls, url: str) -> "Song":

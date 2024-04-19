@@ -131,4 +131,4 @@ def test_embed_metadata_album_year(tmpdir):
     file_metadata = get_file_metadata(output_file)
 
     # Assert that the album year (or track year) is embedded and retrieved correctly
-    assert file_metadata["year"] == song.album_year, f"Expected album year {song.album_year} but got {file_metadata.get('year')}"
+    assert file_metadata["album_year"] == song.album_year, f"Expected album year {song.album_year} but got {file_metadata.get('album_year')}"
