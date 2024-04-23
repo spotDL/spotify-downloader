@@ -153,8 +153,6 @@ MP3_TO_SONG = {
 LRC_REGEX = re.compile(r"(\[\d{2}:\d{2}.\d{2,3}\])")
 
 
-
-
 def embed_cover(audio_file, song: Song, encoding: str):
     """
     Embed the album art in the audio file.
