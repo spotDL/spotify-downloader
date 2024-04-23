@@ -249,3 +249,24 @@ def test_song_from_dict():
     )
     assert song.explicit == False
     assert song.popularity == 0
+
+
+def test_search_returns_20_unique_songs(mocker):
+    # Mock the SpotifyClient's search method to return a controlled response
+    mocked_search = mocker.patch('spotdl.types.song.SpotifyClient.search')
+    mocked_search.return_value = {
+        "tracks": {
+            "items": [{"id": str(i)} for i in range(20)]  # Simulate 20 unique track IDs
+        }
+    }
+
+    # Perform the search
+    search_term = "test search term"
+    raw_search_results = Song.search(search_term)
+
+    # Assert that the list length is 20
+    assert len(raw_search_results["tracks"]["items"]) == 20
+
+    # Assert all values are unique
+    track_ids = [track["id"] for track in raw_search_results["tracks"]["items"]]
+    assert len(track_ids) == len(set(track_ids)), "Expected all track IDs to be unique"
