@@ -129,7 +129,7 @@ TAG_TO_SONG = {
     "albumartist": "album_artist",
     "genre": "genres",
     "discnumber": "disc_number",
-    "year": "album_release_year", # should be year 
+    "year": "year", # should be year 
     "date": "date",
     "albumreleaseyear": "album_year",
     "tracknumber": "track_number",
