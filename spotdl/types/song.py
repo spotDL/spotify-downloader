@@ -59,7 +59,7 @@ class Song:
     list_url: Optional[str] = None
     list_position: Optional[int] = None
     list_length: Optional[int] = None
-    album_year: Optional[int] = None  # Added album_year attribute
+    album_release_year: Optional[int] = None  # Added album_year attribute
 
     @classmethod
     def from_url(cls, url: str) -> "Song":
@@ -106,7 +106,7 @@ class Song:
             album_id=album_id,
             album_name=raw_album_meta["name"],
             album_artist=raw_album_meta["artists"][0]["name"],
-            album_year=int(raw_album_meta["release_date"][:4]),
+            album_release_year=int(raw_album_meta["release_date"][:4]),
             copyright_text=raw_album_meta["copyrights"][0]["text"]
             if raw_album_meta["copyrights"]
             else None,
