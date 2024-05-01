@@ -18,6 +18,7 @@ def test_yt_search():
                     "album_id": "0kx3ml8bdAYrQtcIwvkhp8",
                     "album_name": "Nobody Else",
                     "album_artist": "Abstrakt",
+                    "album_type": "single",
                     "genres": [],
                     "disc_number": 1,
                     "disc_count": 1,

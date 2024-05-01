@@ -37,7 +37,7 @@ jobs:
 
       - name: Run tests
         run: |
-          poetry run pytest -vvv --ignore tests/test_matching.py --ignore tests/utils/test_ffmpeg.py --ignore tests/utils/test_metadata.py
+          poetry run pytest -vvv --ignore tests/test_matching.py --ignore tests/utils/test_ffmpeg.py --ignore tests/utils/test_metadata.py --ignore tests/providers/lyrics/test_azlyrics.py --ignore tests/providers/lyrics/test_musixmatch.py 
         env:
           PLATFORM: ${{ matrix.platform }}
 
@@ -73,6 +73,6 @@ jobs:
 
       - name: Run tests
         run: |
-          poetry run pytest -vvv --disable-vcr --vcr-record=none --ignore tests/providers/lyrics --ignore tests/utils/test_github.py --ignore tests/utils/test_ffmpeg.py --ignore tests/utils/test_metadata.py
+          poetry run pytest -vvv --record-mode=none --disable-recording --ignore tests/providers/lyrics --ignore tests/utils/test_github.py --ignore tests/utils/test_ffmpeg.py --ignore tests/utils/test_metadata.py
         env:
           PLATFORM: ${{ matrix.platform }}

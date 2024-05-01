@@ -1,0 +1,2894 @@
+interactions:
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate, br
+      Authorization:
+      - Bearer BQCIeSNhNCkB9Blimo9blo_jY1Ajv1qmG5IreR1KJxAVVqqr7sB5JKz-Fbo6MO8BbqXT1mgn2jb1OEN_yhrC7vHGajwYOQ7EFoOykGWMCQtYI_zd59I
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      User-Agent:
+      - python-requests/2.31.0
+    method: GET
+    uri: https://api.spotify.com/v1/artists/1FPC2zwfMHhrP3frOfaai6
+  response:
+    body:
+      string: "{\n  \"external_urls\" : {\n    \"spotify\" : \"https://open.spotify.com/artist/1FPC2zwfMHhrP3frOfaai6\"\n
+        \ },\n  \"followers\" : {\n    \"href\" : null,\n    \"total\" : 6033\n  },\n
+        \ \"genres\" : [ \"gaming edm\" ],\n  \"href\" : \"https://api.spotify.com/v1/artists/1FPC2zwfMHhrP3frOfaai6\",\n
+        \ \"id\" : \"1FPC2zwfMHhrP3frOfaai6\",\n  \"images\" : [ {\n    \"height\"
+        : 640,\n    \"url\" : \"https://i.scdn.co/image/ab6761610000e5eb37448acac4ac4429a2855893\",\n
+        \   \"width\" : 640\n  }, {\n    \"height\" : 320,\n    \"url\" : \"https://i.scdn.co/image/ab6761610000517437448acac4ac4429a2855893\",\n
+        \   \"width\" : 320\n  }, {\n    \"height\" : 160,\n    \"url\" : \"https://i.scdn.co/image/ab6761610000f17837448acac4ac4429a2855893\",\n
+        \   \"width\" : 160\n  } ],\n  \"name\" : \"Kontinuum\",\n  \"popularity\"
+        : 22,\n  \"type\" : \"artist\",\n  \"uri\" : \"spotify:artist:1FPC2zwfMHhrP3frOfaai6\"\n}"
+    headers:
+      Alt-Svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      Transfer-Encoding:
+      - chunked
+      Via:
+      - HTTP/2 edgeproxy, 1.1 google
+      access-control-allow-credentials:
+      - 'true'
+      access-control-allow-headers:
+      - Accept, App-Platform, Authorization, Content-Type, Origin, Retry-After, Spotify-App-Version,
+        X-Cloud-Trace-Context, client-token, content-access-token
+      access-control-allow-methods:
+      - GET, POST, OPTIONS, PUT, DELETE, PATCH
+      access-control-allow-origin:
+      - '*'
+      access-control-max-age:
+      - '604800'
+      cache-control:
+      - public, max-age=7200
+      content-encoding:
+      - gzip
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Thu, 28 Mar 2024 18:22:38 GMT
+      server:
+      - envoy
+      strict-transport-security:
+      - max-age=31536000
+      x-content-type-options:
+      - nosniff
+      x-robots-tag:
+      - noindex, nofollow
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate, br
+      Authorization:
+      - Bearer BQCIeSNhNCkB9Blimo9blo_jY1Ajv1qmG5IreR1KJxAVVqqr7sB5JKz-Fbo6MO8BbqXT1mgn2jb1OEN_yhrC7vHGajwYOQ7EFoOykGWMCQtYI_zd59I
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      User-Agent:
+      - python-requests/2.31.0
+    method: GET
+    uri: https://api.spotify.com/v1/artists/1FPC2zwfMHhrP3frOfaai6/albums?album_type=album%2Csingle&limit=20&offset=0
+  response:
+    body:
+      string: "{\n  \"href\" : \"https://api.spotify.com/v1/artists/1FPC2zwfMHhrP3frOfaai6/albums?include_groups=album,single&offset=0&limit=20\",\n
+        \ \"items\" : [ {\n    \"album_group\" : \"single\",\n    \"album_type\" :
+        \"single\",\n    \"artists\" : [ {\n      \"external_urls\" : {\n        \"spotify\"
+        : \"https://open.spotify.com/artist/1FPC2zwfMHhrP3frOfaai6\"\n      },\n      \"href\"
+        : \"https://api.spotify.com/v1/artists/1FPC2zwfMHhrP3frOfaai6\",\n      \"id\"
+        : \"1FPC2zwfMHhrP3frOfaai6\",\n      \"name\" : \"Kontinuum\",\n      \"type\"
+        : \"artist\",\n      \"uri\" : \"spotify:artist:1FPC2zwfMHhrP3frOfaai6\"\n
+        \   } ],\n    \"available_markets\" : [ \"AR\", \"AU\", \"AT\", \"BE\", \"BO\",
+        \"BR\", \"BG\", \"CA\", \"CL\", \"CO\", \"CR\", \"CY\", \"CZ\", \"DK\", \"DO\",
+        \"DE\", \"EC\", \"EE\", \"SV\", \"FI\", \"FR\", \"GR\", \"GT\", \"HN\", \"HK\",
+        \"HU\", \"IS\", \"IE\", \"IT\", \"LV\", \"LT\", \"LU\", \"MY\", \"MT\", \"MX\",
+        \"NL\", \"NZ\", \"NI\", \"NO\", \"PA\", \"PY\", \"PE\", \"PH\", \"PL\", \"PT\",
+        \"SG\", \"SK\", \"ES\", \"SE\", \"CH\", \"TW\", \"TR\", \"UY\", \"US\", \"GB\",
+        \"AD\", \"LI\", \"MC\", \"ID\", \"JP\", \"TH\", \"VN\", \"RO\", \"IL\", \"ZA\",
+        \"SA\", \"AE\", \"BH\", \"QA\", \"OM\", \"KW\", \"EG\", \"MA\", \"DZ\", \"TN\",
+        \"LB\", \"JO\", \"PS\", \"IN\", \"BY\", \"KZ\", \"MD\", \"UA\", \"AL\", \"BA\",
+        \"HR\", \"ME\", \"MK\", \"RS\", \"SI\", \"KR\", \"BD\", \"PK\", \"LK\", \"GH\",
+        \"KE\", \"NG\", \"TZ\", \"UG\", \"AG\", \"AM\", \"BS\", \"BB\", \"BZ\", \"BT\",
+        \"BW\", \"BF\", \"CV\", \"CW\", \"DM\", \"FJ\", \"GM\", \"GE\", \"GD\", \"GW\",
+        \"GY\", \"HT\", \"JM\", \"KI\", \"LS\", \"LR\", \"MW\", \"MV\", \"ML\", \"MH\",
+        \"FM\", \"NA\", \"NR\", \"NE\", \"PW\", \"PG\", \"PR\", \"WS\", \"SM\", \"ST\",
+        \"SN\", \"SC\", \"SL\", \"SB\", \"KN\", \"LC\", \"VC\", \"SR\", \"TL\", \"TO\",
+        \"TT\", \"TV\", \"VU\", \"AZ\", \"BN\", \"BI\", \"KH\", \"CM\", \"TD\", \"KM\",
+        \"GQ\", \"SZ\", \"GA\", \"GN\", \"KG\", \"LA\", \"MO\", \"MR\", \"MN\", \"NP\",
+        \"RW\", \"TG\", \"UZ\", \"ZW\", \"BJ\", \"MG\", \"MU\", \"MZ\", \"AO\", \"CI\",
+        \"DJ\", \"ZM\", \"CD\", \"CG\", \"IQ\", \"LY\", \"TJ\", \"VE\", \"ET\", \"XK\"
+        ],\n    \"external_urls\" : {\n      \"spotify\" : \"https://open.spotify.com/album/58NYQm3dRbTW1kKirl631E\"\n
+        \   },\n    \"href\" : \"https://api.spotify.com/v1/albums/58NYQm3dRbTW1kKirl631E\",\n
+        \   \"id\" : \"58NYQm3dRbTW1kKirl631E\",\n    \"images\" : [ {\n      \"height\"
+        : 640,\n      \"url\" : \"https://i.scdn.co/image/ab67616d0000b2737f76a083941e291cd6c80caa\",\n
+        \     \"width\" : 640\n    }, {\n      \"height\" : 300,\n      \"url\" :
+        \"https://i.scdn.co/image/ab67616d00001e027f76a083941e291cd6c80caa\",\n      \"width\"
+        : 300\n    }, {\n      \"height\" : 64,\n      \"url\" : \"https://i.scdn.co/image/ab67616d000048517f76a083941e291cd6c80caa\",\n
+        \     \"width\" : 64\n    } ],\n    \"name\" : \"Ponder\",\n    \"release_date\"
+        : \"2023-02-03\",\n    \"release_date_precision\" : \"day\",\n    \"total_tracks\"
+        : 1,\n    \"type\" : \"album\",\n    \"uri\" : \"spotify:album:58NYQm3dRbTW1kKirl631E\"\n
+        \ }, {\n    \"album_group\" : \"single\",\n    \"album_type\" : \"single\",\n
+        \   \"artists\" : [ {\n      \"external_urls\" : {\n        \"spotify\" :
+        \"https://open.spotify.com/artist/1FPC2zwfMHhrP3frOfaai6\"\n      },\n      \"href\"
+        : \"https://api.spotify.com/v1/artists/1FPC2zwfMHhrP3frOfaai6\",\n      \"id\"
+        : \"1FPC2zwfMHhrP3frOfaai6\",\n      \"name\" : \"Kontinuum\",\n      \"type\"
+        : \"artist\",\n      \"uri\" : \"spotify:artist:1FPC2zwfMHhrP3frOfaai6\"\n
+        \   }, {\n      \"external_urls\" : {\n        \"spotify\" : \"https://open.spotify.com/artist/4dRRQxDsUXpBkGqjS7vNcO\"\n
+        \     },\n      \"href\" : \"https://api.spotify.com/v1/artists/4dRRQxDsUXpBkGqjS7vNcO\",\n
+        \     \"id\" : \"4dRRQxDsUXpBkGqjS7vNcO\",\n      \"name\" : \"Savoi\",\n
+        \     \"type\" : \"artist\",\n      \"uri\" : \"spotify:artist:4dRRQxDsUXpBkGqjS7vNcO\"\n
+        \   } ],\n    \"available_markets\" : [ \"AR\", \"AU\", \"AT\", \"BE\", \"BO\",
+        \"BR\", \"BG\", \"CA\", \"CL\", \"CO\", \"CR\", \"CY\", \"CZ\", \"DK\", \"DO\",
+        \"DE\", \"EC\", \"EE\", \"SV\", \"FI\", \"FR\", \"GR\", \"GT\", \"HN\", \"HK\",
+        \"HU\", \"IS\", \"IE\", \"IT\", \"LV\", \"LT\", \"LU\", \"MY\", \"MT\", \"MX\",
+        \"NL\", \"NZ\", \"NI\", \"NO\", \"PA\", \"PY\", \"PE\", \"PH\", \"PL\", \"PT\",
+        \"SG\", \"SK\", \"ES\", \"SE\", \"CH\", \"TW\", \"TR\", \"UY\", \"US\", \"GB\",
+        \"AD\", \"LI\", \"MC\", \"ID\", \"JP\", \"TH\", \"VN\", \"RO\", \"IL\", \"ZA\",
+        \"SA\", \"AE\", \"BH\", \"QA\", \"OM\", \"KW\", \"EG\", \"MA\", \"DZ\", \"TN\",
+        \"LB\", \"JO\", \"PS\", \"IN\", \"BY\", \"KZ\", \"MD\", \"UA\", \"AL\", \"BA\",
+        \"HR\", \"ME\", \"MK\", \"RS\", \"SI\", \"KR\", \"BD\", \"PK\", \"LK\", \"GH\",
+        \"KE\", \"NG\", \"TZ\", \"UG\", \"AG\", \"AM\", \"BS\", \"BB\", \"BZ\", \"BT\",
+        \"BW\", \"BF\", \"CV\", \"CW\", \"DM\", \"FJ\", \"GM\", \"GE\", \"GD\", \"GW\",
+        \"GY\", \"HT\", \"JM\", \"KI\", \"LS\", \"LR\", \"MW\", \"MV\", \"ML\", \"MH\",
+        \"FM\", \"NA\", \"NR\", \"NE\", \"PW\", \"PG\", \"PR\", \"WS\", \"SM\", \"ST\",
+        \"SN\", \"SC\", \"SL\", \"SB\", \"KN\", \"LC\", \"VC\", \"SR\", \"TL\", \"TO\",
+        \"TT\", \"TV\", \"VU\", \"AZ\", \"BN\", \"BI\", \"KH\", \"CM\", \"TD\", \"KM\",
+        \"GQ\", \"SZ\", \"GA\", \"GN\", \"KG\", \"LA\", \"MO\", \"MR\", \"MN\", \"NP\",
+        \"RW\", \"TG\", \"UZ\", \"ZW\", \"BJ\", \"MG\", \"MU\", \"MZ\", \"AO\", \"CI\",
+        \"DJ\", \"ZM\", \"CD\", \"CG\", \"IQ\", \"LY\", \"TJ\", \"VE\", \"ET\", \"XK\"
+        ],\n    \"external_urls\" : {\n      \"spotify\" : \"https://open.spotify.com/album/58NCND7oBmNGsoYExAYtvV\"\n
+        \   },\n    \"href\" : \"https://api.spotify.com/v1/albums/58NCND7oBmNGsoYExAYtvV\",\n
+        \   \"id\" : \"58NCND7oBmNGsoYExAYtvV\",\n    \"images\" : [ {\n      \"height\"
+        : 640,\n      \"url\" : \"https://i.scdn.co/image/ab67616d0000b273cdd80989046a86cdf16f225f\",\n
+        \     \"width\" : 640\n    }, {\n      \"height\" : 300,\n      \"url\" :
+        \"https://i.scdn.co/image/ab67616d00001e02cdd80989046a86cdf16f225f\",\n      \"width\"
+        : 300\n    }, {\n      \"height\" : 64,\n      \"url\" : \"https://i.scdn.co/image/ab67616d00004851cdd80989046a86cdf16f225f\",\n
+        \     \"width\" : 64\n    } ],\n    \"name\" : \"Lost\",\n    \"release_date\"
+        : \"2015-12-04\",\n    \"release_date_precision\" : \"day\",\n    \"total_tracks\"
+        : 1,\n    \"type\" : \"album\",\n    \"uri\" : \"spotify:album:58NCND7oBmNGsoYExAYtvV\"\n
+        \ }, {\n    \"album_group\" : \"single\",\n    \"album_type\" : \"single\",\n
+        \   \"artists\" : [ {\n      \"external_urls\" : {\n        \"spotify\" :
+        \"https://open.spotify.com/artist/1FPC2zwfMHhrP3frOfaai6\"\n      },\n      \"href\"
+        : \"https://api.spotify.com/v1/artists/1FPC2zwfMHhrP3frOfaai6\",\n      \"id\"
+        : \"1FPC2zwfMHhrP3frOfaai6\",\n      \"name\" : \"Kontinuum\",\n      \"type\"
+        : \"artist\",\n      \"uri\" : \"spotify:artist:1FPC2zwfMHhrP3frOfaai6\"\n
+        \   } ],\n    \"available_markets\" : [ \"AR\", \"AU\", \"AT\", \"BE\", \"BO\",
+        \"BR\", \"BG\", \"CA\", \"CL\", \"CO\", \"CR\", \"CY\", \"CZ\", \"DK\", \"DO\",
+        \"DE\", \"EC\", \"EE\", \"SV\", \"FI\", \"FR\", \"GR\", \"GT\", \"HN\", \"HK\",
+        \"HU\", \"IS\", \"IE\", \"IT\", \"LV\", \"LT\", \"LU\", \"MY\", \"MT\", \"MX\",
+        \"NL\", \"NZ\", \"NI\", \"NO\", \"PA\", \"PY\", \"PE\", \"PH\", \"PL\", \"PT\",
+        \"SG\", \"SK\", \"ES\", \"SE\", \"CH\", \"TW\", \"TR\", \"UY\", \"US\", \"GB\",
+        \"AD\", \"LI\", \"MC\", \"ID\", \"JP\", \"TH\", \"VN\", \"RO\", \"IL\", \"ZA\",
+        \"SA\", \"AE\", \"BH\", \"QA\", \"OM\", \"KW\", \"EG\", \"MA\", \"DZ\", \"TN\",
+        \"LB\", \"JO\", \"PS\", \"IN\", \"BY\", \"KZ\", \"MD\", \"UA\", \"AL\", \"BA\",
+        \"HR\", \"ME\", \"MK\", \"RS\", \"SI\", \"KR\", \"BD\", \"PK\", \"LK\", \"GH\",
+        \"KE\", \"NG\", \"TZ\", \"UG\", \"AG\", \"AM\", \"BS\", \"BB\", \"BZ\", \"BT\",
+        \"BW\", \"BF\", \"CV\", \"CW\", \"DM\", \"FJ\", \"GM\", \"GE\", \"GD\", \"GW\",
+        \"GY\", \"HT\", \"JM\", \"KI\", \"LS\", \"LR\", \"MW\", \"MV\", \"ML\", \"MH\",
+        \"FM\", \"NA\", \"NR\", \"NE\", \"PW\", \"PG\", \"PR\", \"WS\", \"SM\", \"ST\",
+        \"SN\", \"SC\", \"SL\", \"SB\", \"KN\", \"LC\", \"VC\", \"SR\", \"TL\", \"TO\",
+        \"TT\", \"TV\", \"VU\", \"AZ\", \"BN\", \"BI\", \"KH\", \"CM\", \"TD\", \"KM\",
+        \"GQ\", \"SZ\", \"GA\", \"GN\", \"KG\", \"LA\", \"MO\", \"MR\", \"MN\", \"NP\",
+        \"RW\", \"TG\", \"UZ\", \"ZW\", \"BJ\", \"MG\", \"MU\", \"MZ\", \"AO\", \"CI\",
+        \"DJ\", \"ZM\", \"CD\", \"CG\", \"IQ\", \"LY\", \"TJ\", \"VE\", \"ET\", \"XK\"
+        ],\n    \"external_urls\" : {\n      \"spotify\" : \"https://open.spotify.com/album/0Mze4GYhSVS52f8XDFxSFM\"\n
+        \   },\n    \"href\" : \"https://api.spotify.com/v1/albums/0Mze4GYhSVS52f8XDFxSFM\",\n
+        \   \"id\" : \"0Mze4GYhSVS52f8XDFxSFM\",\n    \"images\" : [ {\n      \"height\"
+        : 640,\n      \"url\" : \"https://i.scdn.co/image/ab67616d0000b2737b839156b5a49bbbdd7d3eaf\",\n
+        \     \"width\" : 640\n    }, {\n      \"height\" : 300,\n      \"url\" :
+        \"https://i.scdn.co/image/ab67616d00001e027b839156b5a49bbbdd7d3eaf\",\n      \"width\"
+        : 300\n    }, {\n      \"height\" : 64,\n      \"url\" : \"https://i.scdn.co/image/ab67616d000048517b839156b5a49bbbdd7d3eaf\",\n
+        \     \"width\" : 64\n    } ],\n    \"name\" : \"Timeline\",\n    \"release_date\"
+        : \"2015-11-10\",\n    \"release_date_precision\" : \"day\",\n    \"total_tracks\"
+        : 1,\n    \"type\" : \"album\",\n    \"uri\" : \"spotify:album:0Mze4GYhSVS52f8XDFxSFM\"\n
+        \ }, {\n    \"album_group\" : \"single\",\n    \"album_type\" : \"single\",\n
+        \   \"artists\" : [ {\n      \"external_urls\" : {\n        \"spotify\" :
+        \"https://open.spotify.com/artist/6fEZjgt9MHR4Hp3MiBRZHX\"\n      },\n      \"href\"
+        : \"https://api.spotify.com/v1/artists/6fEZjgt9MHR4Hp3MiBRZHX\",\n      \"id\"
+        : \"6fEZjgt9MHR4Hp3MiBRZHX\",\n      \"name\" : \"Itro\",\n      \"type\"
+        : \"artist\",\n      \"uri\" : \"spotify:artist:6fEZjgt9MHR4Hp3MiBRZHX\"\n
+        \   }, {\n      \"external_urls\" : {\n        \"spotify\" : \"https://open.spotify.com/artist/1FPC2zwfMHhrP3frOfaai6\"\n
+        \     },\n      \"href\" : \"https://api.spotify.com/v1/artists/1FPC2zwfMHhrP3frOfaai6\",\n
+        \     \"id\" : \"1FPC2zwfMHhrP3frOfaai6\",\n      \"name\" : \"Kontinuum\",\n
+        \     \"type\" : \"artist\",\n      \"uri\" : \"spotify:artist:1FPC2zwfMHhrP3frOfaai6\"\n
+        \   } ],\n    \"available_markets\" : [ \"AR\", \"AU\", \"AT\", \"BE\", \"BO\",
+        \"BR\", \"BG\", \"CA\", \"CL\", \"CO\", \"CR\", \"CY\", \"CZ\", \"DK\", \"DO\",
+        \"DE\", \"EC\", \"EE\", \"SV\", \"FI\", \"FR\", \"GR\", \"GT\", \"HN\", \"HK\",
+        \"HU\", \"IS\", \"IE\", \"IT\", \"LV\", \"LT\", \"LU\", \"MY\", \"MT\", \"MX\",
+        \"NL\", \"NZ\", \"NI\", \"NO\", \"PA\", \"PY\", \"PE\", \"PH\", \"PL\", \"PT\",
+        \"SG\", \"SK\", \"ES\", \"SE\", \"CH\", \"TW\", \"TR\", \"UY\", \"US\", \"GB\",
+        \"AD\", \"LI\", \"MC\", \"ID\", \"JP\", \"TH\", \"VN\", \"RO\", \"IL\", \"ZA\",
+        \"SA\", \"AE\", \"BH\", \"QA\", \"OM\", \"KW\", \"EG\", \"MA\", \"DZ\", \"TN\",
+        \"LB\", \"JO\", \"PS\", \"IN\", \"BY\", \"KZ\", \"MD\", \"UA\", \"AL\", \"BA\",
+        \"HR\", \"ME\", \"MK\", \"RS\", \"SI\", \"KR\", \"BD\", \"PK\", \"LK\", \"GH\",
+        \"KE\", \"NG\", \"TZ\", \"UG\", \"AG\", \"AM\", \"BS\", \"BB\", \"BZ\", \"BT\",
+        \"BW\", \"BF\", \"CV\", \"CW\", \"DM\", \"FJ\", \"GM\", \"GE\", \"GD\", \"GW\",
+        \"GY\", \"HT\", \"JM\", \"KI\", \"LS\", \"LR\", \"MW\", \"MV\", \"ML\", \"MH\",
+        \"FM\", \"NA\", \"NR\", \"NE\", \"PW\", \"PG\", \"PR\", \"WS\", \"SM\", \"ST\",
+        \"SN\", \"SC\", \"SL\", \"SB\", \"KN\", \"LC\", \"VC\", \"SR\", \"TL\", \"TO\",
+        \"TT\", \"TV\", \"VU\", \"AZ\", \"BN\", \"BI\", \"KH\", \"CM\", \"TD\", \"KM\",
+        \"GQ\", \"SZ\", \"GA\", \"GN\", \"KG\", \"LA\", \"MO\", \"MR\", \"MN\", \"NP\",
+        \"RW\", \"TG\", \"UZ\", \"ZW\", \"BJ\", \"MG\", \"MU\", \"MZ\", \"AO\", \"CI\",
+        \"DJ\", \"ZM\", \"CD\", \"CG\", \"IQ\", \"LY\", \"TJ\", \"VE\", \"ET\", \"XK\"
+        ],\n    \"external_urls\" : {\n      \"spotify\" : \"https://open.spotify.com/album/0xMjnmMdohAHzYNuHXSGvW\"\n
+        \   },\n    \"href\" : \"https://api.spotify.com/v1/albums/0xMjnmMdohAHzYNuHXSGvW\",\n
+        \   \"id\" : \"0xMjnmMdohAHzYNuHXSGvW\",\n    \"images\" : [ {\n      \"height\"
+        : 640,\n      \"url\" : \"https://i.scdn.co/image/ab67616d0000b2732f4fd52c308f2652d0753f45\",\n
+        \     \"width\" : 640\n    }, {\n      \"height\" : 300,\n      \"url\" :
+        \"https://i.scdn.co/image/ab67616d00001e022f4fd52c308f2652d0753f45\",\n      \"width\"
+        : 300\n    }, {\n      \"height\" : 64,\n      \"url\" : \"https://i.scdn.co/image/ab67616d000048512f4fd52c308f2652d0753f45\",\n
+        \     \"width\" : 64\n    } ],\n    \"name\" : \"Alive\",\n    \"release_date\"
+        : \"2015-07-21\",\n    \"release_date_precision\" : \"day\",\n    \"total_tracks\"
+        : 1,\n    \"type\" : \"album\",\n    \"uri\" : \"spotify:album:0xMjnmMdohAHzYNuHXSGvW\"\n
+        \ }, {\n    \"album_group\" : \"single\",\n    \"album_type\" : \"single\",\n
+        \   \"artists\" : [ {\n      \"external_urls\" : {\n        \"spotify\" :
+        \"https://open.spotify.com/artist/1FPC2zwfMHhrP3frOfaai6\"\n      },\n      \"href\"
+        : \"https://api.spotify.com/v1/artists/1FPC2zwfMHhrP3frOfaai6\",\n      \"id\"
+        : \"1FPC2zwfMHhrP3frOfaai6\",\n      \"name\" : \"Kontinuum\",\n      \"type\"
+        : \"artist\",\n      \"uri\" : \"spotify:artist:1FPC2zwfMHhrP3frOfaai6\"\n
+        \   } ],\n    \"available_markets\" : [ \"AR\", \"AU\", \"AT\", \"BE\", \"BO\",
+        \"BR\", \"BG\", \"CA\", \"CL\", \"CO\", \"CR\", \"CY\", \"CZ\", \"DK\", \"DO\",
+        \"DE\", \"EC\", \"EE\", \"SV\", \"FI\", \"FR\", \"GR\", \"GT\", \"HN\", \"HK\",
+        \"HU\", \"IS\", \"IE\", \"IT\", \"LV\", \"LT\", \"LU\", \"MY\", \"MT\", \"MX\",
+        \"NL\", \"NZ\", \"NI\", \"NO\", \"PA\", \"PY\", \"PE\", \"PH\", \"PL\", \"PT\",
+        \"SG\", \"SK\", \"ES\", \"SE\", \"CH\", \"TW\", \"TR\", \"UY\", \"US\", \"GB\",
+        \"AD\", \"LI\", \"MC\", \"ID\", \"JP\", \"TH\", \"VN\", \"RO\", \"IL\", \"ZA\",
+        \"SA\", \"AE\", \"BH\", \"QA\", \"OM\", \"KW\", \"EG\", \"MA\", \"DZ\", \"TN\",
+        \"LB\", \"JO\", \"PS\", \"IN\", \"BY\", \"KZ\", \"MD\", \"UA\", \"AL\", \"BA\",
+        \"HR\", \"ME\", \"MK\", \"RS\", \"SI\", \"KR\", \"BD\", \"PK\", \"LK\", \"GH\",
+        \"KE\", \"NG\", \"TZ\", \"UG\", \"AG\", \"AM\", \"BS\", \"BB\", \"BZ\", \"BT\",
+        \"BW\", \"BF\", \"CV\", \"CW\", \"DM\", \"FJ\", \"GM\", \"GE\", \"GD\", \"GW\",
+        \"GY\", \"HT\", \"JM\", \"KI\", \"LS\", \"LR\", \"MW\", \"MV\", \"ML\", \"MH\",
+        \"FM\", \"NA\", \"NR\", \"NE\", \"PW\", \"PG\", \"PR\", \"WS\", \"SM\", \"ST\",
+        \"SN\", \"SC\", \"SL\", \"SB\", \"KN\", \"LC\", \"VC\", \"SR\", \"TL\", \"TO\",
+        \"TT\", \"TV\", \"VU\", \"AZ\", \"BN\", \"BI\", \"KH\", \"CM\", \"TD\", \"KM\",
+        \"GQ\", \"SZ\", \"GA\", \"GN\", \"KG\", \"LA\", \"MO\", \"MR\", \"MN\", \"NP\",
+        \"RW\", \"TG\", \"UZ\", \"ZW\", \"BJ\", \"MG\", \"MU\", \"MZ\", \"AO\", \"CI\",
+        \"DJ\", \"ZM\", \"CD\", \"CG\", \"IQ\", \"LY\", \"TJ\", \"VE\", \"ET\", \"XK\"
+        ],\n    \"external_urls\" : {\n      \"spotify\" : \"https://open.spotify.com/album/4SXkbDnBPGbLL3szWXL01L\"\n
+        \   },\n    \"href\" : \"https://api.spotify.com/v1/albums/4SXkbDnBPGbLL3szWXL01L\",\n
+        \   \"id\" : \"4SXkbDnBPGbLL3szWXL01L\",\n    \"images\" : [ {\n      \"height\"
+        : 640,\n      \"url\" : \"https://i.scdn.co/image/ab67616d0000b273cc3dda9e323043469b0f5e38\",\n
+        \     \"width\" : 640\n    }, {\n      \"height\" : 300,\n      \"url\" :
+        \"https://i.scdn.co/image/ab67616d00001e02cc3dda9e323043469b0f5e38\",\n      \"width\"
+        : 300\n    }, {\n      \"height\" : 64,\n      \"url\" : \"https://i.scdn.co/image/ab67616d00004851cc3dda9e323043469b0f5e38\",\n
+        \     \"width\" : 64\n    } ],\n    \"name\" : \"First Rain\",\n    \"release_date\"
+        : \"2015-07-02\",\n    \"release_date_precision\" : \"day\",\n    \"total_tracks\"
+        : 1,\n    \"type\" : \"album\",\n    \"uri\" : \"spotify:album:4SXkbDnBPGbLL3szWXL01L\"\n
+        \ }, {\n    \"album_group\" : \"single\",\n    \"album_type\" : \"single\",\n
+        \   \"artists\" : [ {\n      \"external_urls\" : {\n        \"spotify\" :
+        \"https://open.spotify.com/artist/1FPC2zwfMHhrP3frOfaai6\"\n      },\n      \"href\"
+        : \"https://api.spotify.com/v1/artists/1FPC2zwfMHhrP3frOfaai6\",\n      \"id\"
+        : \"1FPC2zwfMHhrP3frOfaai6\",\n      \"name\" : \"Kontinuum\",\n      \"type\"
+        : \"artist\",\n      \"uri\" : \"spotify:artist:1FPC2zwfMHhrP3frOfaai6\"\n
+        \   } ],\n    \"available_markets\" : [ \"AR\", \"AU\", \"AT\", \"BE\", \"BO\",
+        \"BR\", \"BG\", \"CA\", \"CL\", \"CO\", \"CR\", \"CY\", \"CZ\", \"DK\", \"DO\",
+        \"DE\", \"EC\", \"EE\", \"SV\", \"FI\", \"FR\", \"GR\", \"GT\", \"HN\", \"HK\",
+        \"HU\", \"IS\", \"IE\", \"IT\", \"LV\", \"LT\", \"LU\", \"MY\", \"MT\", \"MX\",
+        \"NL\", \"NZ\", \"NI\", \"NO\", \"PA\", \"PY\", \"PE\", \"PH\", \"PL\", \"PT\",
+        \"SG\", \"SK\", \"ES\", \"SE\", \"CH\", \"TW\", \"TR\", \"UY\", \"US\", \"GB\",
+        \"AD\", \"LI\", \"MC\", \"ID\", \"JP\", \"TH\", \"VN\", \"RO\", \"IL\", \"ZA\",
+        \"SA\", \"AE\", \"BH\", \"QA\", \"OM\", \"KW\", \"EG\", \"MA\", \"DZ\", \"TN\",
+        \"LB\", \"JO\", \"PS\", \"IN\", \"BY\", \"KZ\", \"MD\", \"UA\", \"AL\", \"BA\",
+        \"HR\", \"ME\", \"MK\", \"RS\", \"SI\", \"KR\", \"BD\", \"PK\", \"LK\", \"GH\",
+        \"KE\", \"NG\", \"TZ\", \"UG\", \"AG\", \"AM\", \"BS\", \"BB\", \"BZ\", \"BT\",
+        \"BW\", \"BF\", \"CV\", \"CW\", \"DM\", \"FJ\", \"GM\", \"GE\", \"GD\", \"GW\",
+        \"GY\", \"HT\", \"JM\", \"KI\", \"LS\", \"LR\", \"MW\", \"MV\", \"ML\", \"MH\",
+        \"FM\", \"NA\", \"NR\", \"NE\", \"PW\", \"PG\", \"PR\", \"WS\", \"SM\", \"ST\",
+        \"SN\", \"SC\", \"SL\", \"SB\", \"KN\", \"LC\", \"VC\", \"SR\", \"TL\", \"TO\",
+        \"TT\", \"TV\", \"VU\", \"AZ\", \"BN\", \"BI\", \"KH\", \"CM\", \"TD\", \"KM\",
+        \"GQ\", \"SZ\", \"GA\", \"GN\", \"KG\", \"LA\", \"MO\", \"MR\", \"MN\", \"NP\",
+        \"RW\", \"TG\", \"UZ\", \"ZW\", \"BJ\", \"MG\", \"MU\", \"MZ\", \"AO\", \"CI\",
+        \"DJ\", \"ZM\", \"CD\", \"CG\", \"IQ\", \"LY\", \"TJ\", \"VE\", \"ET\", \"XK\"
+        ],\n    \"external_urls\" : {\n      \"spotify\" : \"https://open.spotify.com/album/3skUzGSJGqPYxu5PzJGwPB\"\n
+        \   },\n    \"href\" : \"https://api.spotify.com/v1/albums/3skUzGSJGqPYxu5PzJGwPB\",\n
+        \   \"id\" : \"3skUzGSJGqPYxu5PzJGwPB\",\n    \"images\" : [ {\n      \"height\"
+        : 640,\n      \"url\" : \"https://i.scdn.co/image/ab67616d0000b27335ba63ff20683c61ab39d622\",\n
+        \     \"width\" : 640\n    }, {\n      \"height\" : 300,\n      \"url\" :
+        \"https://i.scdn.co/image/ab67616d00001e0235ba63ff20683c61ab39d622\",\n      \"width\"
+        : 300\n    }, {\n      \"height\" : 64,\n      \"url\" : \"https://i.scdn.co/image/ab67616d0000485135ba63ff20683c61ab39d622\",\n
+        \     \"width\" : 64\n    } ],\n    \"name\" : \"Aware\",\n    \"release_date\"
+        : \"2015-05-28\",\n    \"release_date_precision\" : \"day\",\n    \"total_tracks\"
+        : 1,\n    \"type\" : \"album\",\n    \"uri\" : \"spotify:album:3skUzGSJGqPYxu5PzJGwPB\"\n
+        \ }, {\n    \"album_group\" : \"single\",\n    \"album_type\" : \"single\",\n
+        \   \"artists\" : [ {\n      \"external_urls\" : {\n        \"spotify\" :
+        \"https://open.spotify.com/artist/1FPC2zwfMHhrP3frOfaai6\"\n      },\n      \"href\"
+        : \"https://api.spotify.com/v1/artists/1FPC2zwfMHhrP3frOfaai6\",\n      \"id\"
+        : \"1FPC2zwfMHhrP3frOfaai6\",\n      \"name\" : \"Kontinuum\",\n      \"type\"
+        : \"artist\",\n      \"uri\" : \"spotify:artist:1FPC2zwfMHhrP3frOfaai6\"\n
+        \   } ],\n    \"available_markets\" : [ \"AR\", \"AU\", \"AT\", \"BE\", \"BO\",
+        \"BR\", \"BG\", \"CA\", \"CL\", \"CO\", \"CR\", \"CY\", \"CZ\", \"DK\", \"DO\",
+        \"DE\", \"EC\", \"EE\", \"SV\", \"FI\", \"FR\", \"GR\", \"GT\", \"HN\", \"HK\",
+        \"HU\", \"IS\", \"IE\", \"IT\", \"LV\", \"LT\", \"LU\", \"MY\", \"MT\", \"MX\",
+        \"NL\", \"NZ\", \"NI\", \"NO\", \"PA\", \"PY\", \"PE\", \"PH\", \"PL\", \"PT\",
+        \"SG\", \"SK\", \"ES\", \"SE\", \"CH\", \"TW\", \"TR\", \"UY\", \"US\", \"GB\",
+        \"AD\", \"LI\", \"MC\", \"ID\", \"JP\", \"TH\", \"VN\", \"RO\", \"IL\", \"ZA\",
+        \"SA\", \"AE\", \"BH\", \"QA\", \"OM\", \"KW\", \"EG\", \"MA\", \"DZ\", \"TN\",
+        \"LB\", \"JO\", \"PS\", \"IN\", \"BY\", \"KZ\", \"MD\", \"UA\", \"AL\", \"BA\",
+        \"HR\", \"ME\", \"MK\", \"RS\", \"SI\", \"KR\", \"BD\", \"PK\", \"LK\", \"GH\",
+        \"KE\", \"NG\", \"TZ\", \"UG\", \"AG\", \"AM\", \"BS\", \"BB\", \"BZ\", \"BT\",
+        \"BW\", \"BF\", \"CV\", \"CW\", \"DM\", \"FJ\", \"GM\", \"GE\", \"GD\", \"GW\",
+        \"GY\", \"HT\", \"JM\", \"KI\", \"LS\", \"LR\", \"MW\", \"MV\", \"ML\", \"MH\",
+        \"FM\", \"NA\", \"NR\", \"NE\", \"PW\", \"PG\", \"PR\", \"WS\", \"SM\", \"ST\",
+        \"SN\", \"SC\", \"SL\", \"SB\", \"KN\", \"LC\", \"VC\", \"SR\", \"TL\", \"TO\",
+        \"TT\", \"TV\", \"VU\", \"AZ\", \"BN\", \"BI\", \"KH\", \"CM\", \"TD\", \"KM\",
+        \"GQ\", \"SZ\", \"GA\", \"GN\", \"KG\", \"LA\", \"MO\", \"MR\", \"MN\", \"NP\",
+        \"RW\", \"TG\", \"UZ\", \"ZW\", \"BJ\", \"MG\", \"MU\", \"MZ\", \"AO\", \"CI\",
+        \"DJ\", \"ZM\", \"CD\", \"CG\", \"IQ\", \"LY\", \"TJ\", \"VE\", \"ET\", \"XK\"
+        ],\n    \"external_urls\" : {\n      \"spotify\" : \"https://open.spotify.com/album/3Anxbj2ILNT4oROywVScjr\"\n
+        \   },\n    \"href\" : \"https://api.spotify.com/v1/albums/3Anxbj2ILNT4oROywVScjr\",\n
+        \   \"id\" : \"3Anxbj2ILNT4oROywVScjr\",\n    \"images\" : [ {\n      \"height\"
+        : 640,\n      \"url\" : \"https://i.scdn.co/image/ab67616d0000b273e583fc853c6f07c4ef12faa0\",\n
+        \     \"width\" : 640\n    }, {\n      \"height\" : 300,\n      \"url\" :
+        \"https://i.scdn.co/image/ab67616d00001e02e583fc853c6f07c4ef12faa0\",\n      \"width\"
+        : 300\n    }, {\n      \"height\" : 64,\n      \"url\" : \"https://i.scdn.co/image/ab67616d00004851e583fc853c6f07c4ef12faa0\",\n
+        \     \"width\" : 64\n    } ],\n    \"name\" : \"Freedom\",\n    \"release_date\"
+        : \"2014-05-13\",\n    \"release_date_precision\" : \"day\",\n    \"total_tracks\"
+        : 1,\n    \"type\" : \"album\",\n    \"uri\" : \"spotify:album:3Anxbj2ILNT4oROywVScjr\"\n
+        \ } ],\n  \"limit\" : 20,\n  \"next\" : null,\n  \"offset\" : 0,\n  \"previous\"
+        : null,\n  \"total\" : 7\n}"
+    headers:
+      Alt-Svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      Transfer-Encoding:
+      - chunked
+      Via:
+      - HTTP/2 edgeproxy, 1.1 google
+      access-control-allow-credentials:
+      - 'true'
+      access-control-allow-headers:
+      - Accept, App-Platform, Authorization, Content-Type, Origin, Retry-After, Spotify-App-Version,
+        X-Cloud-Trace-Context, client-token, content-access-token
+      access-control-allow-methods:
+      - GET, POST, OPTIONS, PUT, DELETE, PATCH
+      access-control-allow-origin:
+      - '*'
+      access-control-max-age:
+      - '604800'
+      cache-control:
+      - public, max-age=7200
+      content-encoding:
+      - gzip
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Thu, 28 Mar 2024 18:22:39 GMT
+      server:
+      - envoy
+      strict-transport-security:
+      - max-age=31536000
+      x-content-type-options:
+      - nosniff
+      x-robots-tag:
+      - noindex, nofollow
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate, br
+      Authorization:
+      - Bearer BQCIeSNhNCkB9Blimo9blo_jY1Ajv1qmG5IreR1KJxAVVqqr7sB5JKz-Fbo6MO8BbqXT1mgn2jb1OEN_yhrC7vHGajwYOQ7EFoOykGWMCQtYI_zd59I
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      User-Agent:
+      - python-requests/2.31.0
+    method: GET
+    uri: https://api.spotify.com/v1/albums/58NYQm3dRbTW1kKirl631E
+  response:
+    body:
+      string: "{\n  \"album_type\" : \"single\",\n  \"artists\" : [ {\n    \"external_urls\"
+        : {\n      \"spotify\" : \"https://open.spotify.com/artist/1FPC2zwfMHhrP3frOfaai6\"\n
+        \   },\n    \"href\" : \"https://api.spotify.com/v1/artists/1FPC2zwfMHhrP3frOfaai6\",\n
+        \   \"id\" : \"1FPC2zwfMHhrP3frOfaai6\",\n    \"name\" : \"Kontinuum\",\n
+        \   \"type\" : \"artist\",\n    \"uri\" : \"spotify:artist:1FPC2zwfMHhrP3frOfaai6\"\n
+        \ } ],\n  \"available_markets\" : [ \"AR\", \"AU\", \"AT\", \"BE\", \"BO\",
+        \"BR\", \"BG\", \"CA\", \"CL\", \"CO\", \"CR\", \"CY\", \"CZ\", \"DK\", \"DO\",
+        \"DE\", \"EC\", \"EE\", \"SV\", \"FI\", \"FR\", \"GR\", \"GT\", \"HN\", \"HK\",
+        \"HU\", \"IS\", \"IE\", \"IT\", \"LV\", \"LT\", \"LU\", \"MY\", \"MT\", \"MX\",
+        \"NL\", \"NZ\", \"NI\", \"NO\", \"PA\", \"PY\", \"PE\", \"PH\", \"PL\", \"PT\",
+        \"SG\", \"SK\", \"ES\", \"SE\", \"CH\", \"TW\", \"TR\", \"UY\", \"US\", \"GB\",
+        \"AD\", \"LI\", \"MC\", \"ID\", \"JP\", \"TH\", \"VN\", \"RO\", \"IL\", \"ZA\",
+        \"SA\", \"AE\", \"BH\", \"QA\", \"OM\", \"KW\", \"EG\", \"MA\", \"DZ\", \"TN\",
+        \"LB\", \"JO\", \"PS\", \"IN\", \"BY\", \"KZ\", \"MD\", \"UA\", \"AL\", \"BA\",
+        \"HR\", \"ME\", \"MK\", \"RS\", \"SI\", \"KR\", \"BD\", \"PK\", \"LK\", \"GH\",
+        \"KE\", \"NG\", \"TZ\", \"UG\", \"AG\", \"AM\", \"BS\", \"BB\", \"BZ\", \"BT\",
+        \"BW\", \"BF\", \"CV\", \"CW\", \"DM\", \"FJ\", \"GM\", \"GE\", \"GD\", \"GW\",
+        \"GY\", \"HT\", \"JM\", \"KI\", \"LS\", \"LR\", \"MW\", \"MV\", \"ML\", \"MH\",
+        \"FM\", \"NA\", \"NR\", \"NE\", \"PW\", \"PG\", \"PR\", \"WS\", \"SM\", \"ST\",
+        \"SN\", \"SC\", \"SL\", \"SB\", \"KN\", \"LC\", \"VC\", \"SR\", \"TL\", \"TO\",
+        \"TT\", \"TV\", \"VU\", \"AZ\", \"BN\", \"BI\", \"KH\", \"CM\", \"TD\", \"KM\",
+        \"GQ\", \"SZ\", \"GA\", \"GN\", \"KG\", \"LA\", \"MO\", \"MR\", \"MN\", \"NP\",
+        \"RW\", \"TG\", \"UZ\", \"ZW\", \"BJ\", \"MG\", \"MU\", \"MZ\", \"AO\", \"CI\",
+        \"DJ\", \"ZM\", \"CD\", \"CG\", \"IQ\", \"LY\", \"TJ\", \"VE\", \"ET\", \"XK\"
+        ],\n  \"copyrights\" : [ {\n    \"text\" : \"2023 Kontinuum\",\n    \"type\"
+        : \"C\"\n  }, {\n    \"text\" : \"2023 Kontinuum\",\n    \"type\" : \"P\"\n
+        \ } ],\n  \"external_ids\" : {\n    \"upc\" : \"5063248349381\"\n  },\n  \"external_urls\"
+        : {\n    \"spotify\" : \"https://open.spotify.com/album/58NYQm3dRbTW1kKirl631E\"\n
+        \ },\n  \"genres\" : [ ],\n  \"href\" : \"https://api.spotify.com/v1/albums/58NYQm3dRbTW1kKirl631E\",\n
+        \ \"id\" : \"58NYQm3dRbTW1kKirl631E\",\n  \"images\" : [ {\n    \"height\"
+        : 640,\n    \"url\" : \"https://i.scdn.co/image/ab67616d0000b2737f76a083941e291cd6c80caa\",\n
+        \   \"width\" : 640\n  }, {\n    \"height\" : 300,\n    \"url\" : \"https://i.scdn.co/image/ab67616d00001e027f76a083941e291cd6c80caa\",\n
+        \   \"width\" : 300\n  }, {\n    \"height\" : 64,\n    \"url\" : \"https://i.scdn.co/image/ab67616d000048517f76a083941e291cd6c80caa\",\n
+        \   \"width\" : 64\n  } ],\n  \"label\" : \"Kontinuum\",\n  \"name\" : \"Ponder\",\n
+        \ \"popularity\" : 2,\n  \"release_date\" : \"2023-02-03\",\n  \"release_date_precision\"
+        : \"day\",\n  \"total_tracks\" : 1,\n  \"tracks\" : {\n    \"href\" : \"https://api.spotify.com/v1/albums/58NYQm3dRbTW1kKirl631E/tracks?offset=0&limit=50\",\n
+        \   \"items\" : [ {\n      \"artists\" : [ {\n        \"external_urls\" :
+        {\n          \"spotify\" : \"https://open.spotify.com/artist/1FPC2zwfMHhrP3frOfaai6\"\n
+        \       },\n        \"href\" : \"https://api.spotify.com/v1/artists/1FPC2zwfMHhrP3frOfaai6\",\n
+        \       \"id\" : \"1FPC2zwfMHhrP3frOfaai6\",\n        \"name\" : \"Kontinuum\",\n
+        \       \"type\" : \"artist\",\n        \"uri\" : \"spotify:artist:1FPC2zwfMHhrP3frOfaai6\"\n
+        \     } ],\n      \"available_markets\" : [ \"AR\", \"AU\", \"AT\", \"BE\",
+        \"BO\", \"BR\", \"BG\", \"CA\", \"CL\", \"CO\", \"CR\", \"CY\", \"CZ\", \"DK\",
+        \"DO\", \"DE\", \"EC\", \"EE\", \"SV\", \"FI\", \"FR\", \"GR\", \"GT\", \"HN\",
+        \"HK\", \"HU\", \"IS\", \"IE\", \"IT\", \"LV\", \"LT\", \"LU\", \"MY\", \"MT\",
+        \"MX\", \"NL\", \"NZ\", \"NI\", \"NO\", \"PA\", \"PY\", \"PE\", \"PH\", \"PL\",
+        \"PT\", \"SG\", \"SK\", \"ES\", \"SE\", \"CH\", \"TW\", \"TR\", \"UY\", \"US\",
+        \"GB\", \"AD\", \"LI\", \"MC\", \"ID\", \"JP\", \"TH\", \"VN\", \"RO\", \"IL\",
+        \"ZA\", \"SA\", \"AE\", \"BH\", \"QA\", \"OM\", \"KW\", \"EG\", \"MA\", \"DZ\",
+        \"TN\", \"LB\", \"JO\", \"PS\", \"IN\", \"BY\", \"KZ\", \"MD\", \"UA\", \"AL\",
+        \"BA\", \"HR\", \"ME\", \"MK\", \"RS\", \"SI\", \"KR\", \"BD\", \"PK\", \"LK\",
+        \"GH\", \"KE\", \"NG\", \"TZ\", \"UG\", \"AG\", \"AM\", \"BS\", \"BB\", \"BZ\",
+        \"BT\", \"BW\", \"BF\", \"CV\", \"CW\", \"DM\", \"FJ\", \"GM\", \"GE\", \"GD\",
+        \"GW\", \"GY\", \"HT\", \"JM\", \"KI\", \"LS\", \"LR\", \"MW\", \"MV\", \"ML\",
+        \"MH\", \"FM\", \"NA\", \"NR\", \"NE\", \"PW\", \"PG\", \"WS\", \"SM\", \"ST\",
+        \"SN\", \"SC\", \"SL\", \"SB\", \"KN\", \"LC\", \"VC\", \"SR\", \"TL\", \"TO\",
+        \"TT\", \"TV\", \"VU\", \"AZ\", \"BN\", \"BI\", \"KH\", \"CM\", \"TD\", \"KM\",
+        \"GQ\", \"SZ\", \"GA\", \"GN\", \"KG\", \"LA\", \"MO\", \"MR\", \"MN\", \"NP\",
+        \"RW\", \"TG\", \"UZ\", \"ZW\", \"BJ\", \"MG\", \"MU\", \"MZ\", \"AO\", \"CI\",
+        \"DJ\", \"ZM\", \"CD\", \"CG\", \"IQ\", \"LY\", \"TJ\", \"VE\", \"ET\", \"XK\"
+        ],\n      \"disc_number\" : 1,\n      \"duration_ms\" : 134074,\n      \"explicit\"
+        : false,\n      \"external_urls\" : {\n        \"spotify\" : \"https://open.spotify.com/track/3wUEWGwCVJUMecLVItve9f\"\n
+        \     },\n      \"href\" : \"https://api.spotify.com/v1/tracks/3wUEWGwCVJUMecLVItve9f\",\n
+        \     \"id\" : \"3wUEWGwCVJUMecLVItve9f\",\n      \"is_local\" : false,\n
+        \     \"name\" : \"Ponder\",\n      \"preview_url\" : \"https://p.scdn.co/mp3-preview/e39c9e0b39b21c495febc29ab7b01162e00cf47a?cid=5f573c9620494bae87890c0f08a60293\",\n
+        \     \"track_number\" : 1,\n      \"type\" : \"track\",\n      \"uri\" :
+        \"spotify:track:3wUEWGwCVJUMecLVItve9f\"\n    } ],\n    \"limit\" : 50,\n
+        \   \"next\" : null,\n    \"offset\" : 0,\n    \"previous\" : null,\n    \"total\"
+        : 1\n  },\n  \"type\" : \"album\",\n  \"uri\" : \"spotify:album:58NYQm3dRbTW1kKirl631E\"\n}"
+    headers:
+      Alt-Svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      Transfer-Encoding:
+      - chunked
+      Via:
+      - HTTP/2 edgeproxy, 1.1 google
+      access-control-allow-credentials:
+      - 'true'
+      access-control-allow-headers:
+      - Accept, App-Platform, Authorization, Content-Type, Origin, Retry-After, Spotify-App-Version,
+        X-Cloud-Trace-Context, client-token, content-access-token
+      access-control-allow-methods:
+      - GET, POST, OPTIONS, PUT, DELETE, PATCH
+      access-control-allow-origin:
+      - '*'
+      access-control-max-age:
+      - '604800'
+      cache-control:
+      - public, max-age=7200
+      content-encoding:
+      - gzip
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Thu, 28 Mar 2024 18:22:40 GMT
+      server:
+      - envoy
+      strict-transport-security:
+      - max-age=31536000
+      x-content-type-options:
+      - nosniff
+      x-robots-tag:
+      - noindex, nofollow
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate, br
+      Authorization:
+      - Bearer BQCIeSNhNCkB9Blimo9blo_jY1Ajv1qmG5IreR1KJxAVVqqr7sB5JKz-Fbo6MO8BbqXT1mgn2jb1OEN_yhrC7vHGajwYOQ7EFoOykGWMCQtYI_zd59I
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      User-Agent:
+      - python-requests/2.31.0
+    method: GET
+    uri: https://api.spotify.com/v1/albums/58NYQm3dRbTW1kKirl631E/tracks/?limit=50&offset=0
+  response:
+    body:
+      string: "{\n  \"href\" : \"https://api.spotify.com/v1/albums/58NYQm3dRbTW1kKirl631E/tracks?offset=0&limit=50\",\n
+        \ \"items\" : [ {\n    \"artists\" : [ {\n      \"external_urls\" : {\n        \"spotify\"
+        : \"https://open.spotify.com/artist/1FPC2zwfMHhrP3frOfaai6\"\n      },\n      \"href\"
+        : \"https://api.spotify.com/v1/artists/1FPC2zwfMHhrP3frOfaai6\",\n      \"id\"
+        : \"1FPC2zwfMHhrP3frOfaai6\",\n      \"name\" : \"Kontinuum\",\n      \"type\"
+        : \"artist\",\n      \"uri\" : \"spotify:artist:1FPC2zwfMHhrP3frOfaai6\"\n
+        \   } ],\n    \"available_markets\" : [ \"AR\", \"AU\", \"AT\", \"BE\", \"BO\",
+        \"BR\", \"BG\", \"CA\", \"CL\", \"CO\", \"CR\", \"CY\", \"CZ\", \"DK\", \"DO\",
+        \"DE\", \"EC\", \"EE\", \"SV\", \"FI\", \"FR\", \"GR\", \"GT\", \"HN\", \"HK\",
+        \"HU\", \"IS\", \"IE\", \"IT\", \"LV\", \"LT\", \"LU\", \"MY\", \"MT\", \"MX\",
+        \"NL\", \"NZ\", \"NI\", \"NO\", \"PA\", \"PY\", \"PE\", \"PH\", \"PL\", \"PT\",
+        \"SG\", \"SK\", \"ES\", \"SE\", \"CH\", \"TW\", \"TR\", \"UY\", \"US\", \"GB\",
+        \"AD\", \"LI\", \"MC\", \"ID\", \"JP\", \"TH\", \"VN\", \"RO\", \"IL\", \"ZA\",
+        \"SA\", \"AE\", \"BH\", \"QA\", \"OM\", \"KW\", \"EG\", \"MA\", \"DZ\", \"TN\",
+        \"LB\", \"JO\", \"PS\", \"IN\", \"BY\", \"KZ\", \"MD\", \"UA\", \"AL\", \"BA\",
+        \"HR\", \"ME\", \"MK\", \"RS\", \"SI\", \"KR\", \"BD\", \"PK\", \"LK\", \"GH\",
+        \"KE\", \"NG\", \"TZ\", \"UG\", \"AG\", \"AM\", \"BS\", \"BB\", \"BZ\", \"BT\",
+        \"BW\", \"BF\", \"CV\", \"CW\", \"DM\", \"FJ\", \"GM\", \"GE\", \"GD\", \"GW\",
+        \"GY\", \"HT\", \"JM\", \"KI\", \"LS\", \"LR\", \"MW\", \"MV\", \"ML\", \"MH\",
+        \"FM\", \"NA\", \"NR\", \"NE\", \"PW\", \"PG\", \"WS\", \"SM\", \"ST\", \"SN\",
+        \"SC\", \"SL\", \"SB\", \"KN\", \"LC\", \"VC\", \"SR\", \"TL\", \"TO\", \"TT\",
+        \"TV\", \"VU\", \"AZ\", \"BN\", \"BI\", \"KH\", \"CM\", \"TD\", \"KM\", \"GQ\",
+        \"SZ\", \"GA\", \"GN\", \"KG\", \"LA\", \"MO\", \"MR\", \"MN\", \"NP\", \"RW\",
+        \"TG\", \"UZ\", \"ZW\", \"BJ\", \"MG\", \"MU\", \"MZ\", \"AO\", \"CI\", \"DJ\",
+        \"ZM\", \"CD\", \"CG\", \"IQ\", \"LY\", \"TJ\", \"VE\", \"ET\", \"XK\" ],\n
+        \   \"disc_number\" : 1,\n    \"duration_ms\" : 134074,\n    \"explicit\"
+        : false,\n    \"external_urls\" : {\n      \"spotify\" : \"https://open.spotify.com/track/3wUEWGwCVJUMecLVItve9f\"\n
+        \   },\n    \"href\" : \"https://api.spotify.com/v1/tracks/3wUEWGwCVJUMecLVItve9f\",\n
+        \   \"id\" : \"3wUEWGwCVJUMecLVItve9f\",\n    \"is_local\" : false,\n    \"name\"
+        : \"Ponder\",\n    \"preview_url\" : \"https://p.scdn.co/mp3-preview/e39c9e0b39b21c495febc29ab7b01162e00cf47a?cid=5f573c9620494bae87890c0f08a60293\",\n
+        \   \"track_number\" : 1,\n    \"type\" : \"track\",\n    \"uri\" : \"spotify:track:3wUEWGwCVJUMecLVItve9f\"\n
+        \ } ],\n  \"limit\" : 50,\n  \"next\" : null,\n  \"offset\" : 0,\n  \"previous\"
+        : null,\n  \"total\" : 1\n}"
+    headers:
+      Alt-Svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      Transfer-Encoding:
+      - chunked
+      Via:
+      - HTTP/2 edgeproxy, 1.1 google
+      access-control-allow-credentials:
+      - 'true'
+      access-control-allow-headers:
+      - Accept, App-Platform, Authorization, Content-Type, Origin, Retry-After, Spotify-App-Version,
+        X-Cloud-Trace-Context, client-token, content-access-token
+      access-control-allow-methods:
+      - GET, POST, OPTIONS, PUT, DELETE, PATCH
+      access-control-allow-origin:
+      - '*'
+      access-control-max-age:
+      - '604800'
+      cache-control:
+      - public, max-age=7200
+      content-encoding:
+      - gzip
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Thu, 28 Mar 2024 18:22:40 GMT
+      server:
+      - envoy
+      strict-transport-security:
+      - max-age=31536000
+      x-content-type-options:
+      - nosniff
+      x-robots-tag:
+      - noindex, nofollow
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate, br
+      Authorization:
+      - Bearer BQCIeSNhNCkB9Blimo9blo_jY1Ajv1qmG5IreR1KJxAVVqqr7sB5JKz-Fbo6MO8BbqXT1mgn2jb1OEN_yhrC7vHGajwYOQ7EFoOykGWMCQtYI_zd59I
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      User-Agent:
+      - python-requests/2.31.0
+    method: GET
+    uri: https://api.spotify.com/v1/albums/58NCND7oBmNGsoYExAYtvV
+  response:
+    body:
+      string: "{\n  \"album_type\" : \"single\",\n  \"artists\" : [ {\n    \"external_urls\"
+        : {\n      \"spotify\" : \"https://open.spotify.com/artist/1FPC2zwfMHhrP3frOfaai6\"\n
+        \   },\n    \"href\" : \"https://api.spotify.com/v1/artists/1FPC2zwfMHhrP3frOfaai6\",\n
+        \   \"id\" : \"1FPC2zwfMHhrP3frOfaai6\",\n    \"name\" : \"Kontinuum\",\n
+        \   \"type\" : \"artist\",\n    \"uri\" : \"spotify:artist:1FPC2zwfMHhrP3frOfaai6\"\n
+        \ }, {\n    \"external_urls\" : {\n      \"spotify\" : \"https://open.spotify.com/artist/4dRRQxDsUXpBkGqjS7vNcO\"\n
+        \   },\n    \"href\" : \"https://api.spotify.com/v1/artists/4dRRQxDsUXpBkGqjS7vNcO\",\n
+        \   \"id\" : \"4dRRQxDsUXpBkGqjS7vNcO\",\n    \"name\" : \"Savoi\",\n    \"type\"
+        : \"artist\",\n    \"uri\" : \"spotify:artist:4dRRQxDsUXpBkGqjS7vNcO\"\n  }
+        ],\n  \"available_markets\" : [ \"AR\", \"AU\", \"AT\", \"BE\", \"BO\", \"BR\",
+        \"BG\", \"CA\", \"CL\", \"CO\", \"CR\", \"CY\", \"CZ\", \"DK\", \"DO\", \"DE\",
+        \"EC\", \"EE\", \"SV\", \"FI\", \"FR\", \"GR\", \"GT\", \"HN\", \"HK\", \"HU\",
+        \"IS\", \"IE\", \"IT\", \"LV\", \"LT\", \"LU\", \"MY\", \"MT\", \"MX\", \"NL\",
+        \"NZ\", \"NI\", \"NO\", \"PA\", \"PY\", \"PE\", \"PH\", \"PL\", \"PT\", \"SG\",
+        \"SK\", \"ES\", \"SE\", \"CH\", \"TW\", \"TR\", \"UY\", \"US\", \"GB\", \"AD\",
+        \"LI\", \"MC\", \"ID\", \"JP\", \"TH\", \"VN\", \"RO\", \"IL\", \"ZA\", \"SA\",
+        \"AE\", \"BH\", \"QA\", \"OM\", \"KW\", \"EG\", \"MA\", \"DZ\", \"TN\", \"LB\",
+        \"JO\", \"PS\", \"IN\", \"BY\", \"KZ\", \"MD\", \"UA\", \"AL\", \"BA\", \"HR\",
+        \"ME\", \"MK\", \"RS\", \"SI\", \"KR\", \"BD\", \"PK\", \"LK\", \"GH\", \"KE\",
+        \"NG\", \"TZ\", \"UG\", \"AG\", \"AM\", \"BS\", \"BB\", \"BZ\", \"BT\", \"BW\",
+        \"BF\", \"CV\", \"CW\", \"DM\", \"FJ\", \"GM\", \"GE\", \"GD\", \"GW\", \"GY\",
+        \"HT\", \"JM\", \"KI\", \"LS\", \"LR\", \"MW\", \"MV\", \"ML\", \"MH\", \"FM\",
+        \"NA\", \"NR\", \"NE\", \"PW\", \"PG\", \"PR\", \"WS\", \"SM\", \"ST\", \"SN\",
+        \"SC\", \"SL\", \"SB\", \"KN\", \"LC\", \"VC\", \"SR\", \"TL\", \"TO\", \"TT\",
+        \"TV\", \"VU\", \"AZ\", \"BN\", \"BI\", \"KH\", \"CM\", \"TD\", \"KM\", \"GQ\",
+        \"SZ\", \"GA\", \"GN\", \"KG\", \"LA\", \"MO\", \"MR\", \"MN\", \"NP\", \"RW\",
+        \"TG\", \"UZ\", \"ZW\", \"BJ\", \"MG\", \"MU\", \"MZ\", \"AO\", \"CI\", \"DJ\",
+        \"ZM\", \"CD\", \"CG\", \"IQ\", \"LY\", \"TJ\", \"VE\", \"ET\", \"XK\" ],\n
+        \ \"copyrights\" : [ {\n    \"text\" : \"2015 NCS Ltd.\",\n    \"type\" :
+        \"C\"\n  }, {\n    \"text\" : \"2015 NCS Ltd.\",\n    \"type\" : \"P\"\n  }
+        ],\n  \"external_ids\" : {\n    \"upc\" : \"5055199514109\"\n  },\n  \"external_urls\"
+        : {\n    \"spotify\" : \"https://open.spotify.com/album/58NCND7oBmNGsoYExAYtvV\"\n
+        \ },\n  \"genres\" : [ ],\n  \"href\" : \"https://api.spotify.com/v1/albums/58NCND7oBmNGsoYExAYtvV\",\n
+        \ \"id\" : \"58NCND7oBmNGsoYExAYtvV\",\n  \"images\" : [ {\n    \"height\"
+        : 640,\n    \"url\" : \"https://i.scdn.co/image/ab67616d0000b273cdd80989046a86cdf16f225f\",\n
+        \   \"width\" : 640\n  }, {\n    \"height\" : 300,\n    \"url\" : \"https://i.scdn.co/image/ab67616d00001e02cdd80989046a86cdf16f225f\",\n
+        \   \"width\" : 300\n  }, {\n    \"height\" : 64,\n    \"url\" : \"https://i.scdn.co/image/ab67616d00004851cdd80989046a86cdf16f225f\",\n
+        \   \"width\" : 64\n  } ],\n  \"label\" : \"NCS\",\n  \"name\" : \"Lost\",\n
+        \ \"popularity\" : 29,\n  \"release_date\" : \"2015-12-04\",\n  \"release_date_precision\"
+        : \"day\",\n  \"total_tracks\" : 1,\n  \"tracks\" : {\n    \"href\" : \"https://api.spotify.com/v1/albums/58NCND7oBmNGsoYExAYtvV/tracks?offset=0&limit=50\",\n
+        \   \"items\" : [ {\n      \"artists\" : [ {\n        \"external_urls\" :
+        {\n          \"spotify\" : \"https://open.spotify.com/artist/4dRRQxDsUXpBkGqjS7vNcO\"\n
+        \       },\n        \"href\" : \"https://api.spotify.com/v1/artists/4dRRQxDsUXpBkGqjS7vNcO\",\n
+        \       \"id\" : \"4dRRQxDsUXpBkGqjS7vNcO\",\n        \"name\" : \"Savoi\",\n
+        \       \"type\" : \"artist\",\n        \"uri\" : \"spotify:artist:4dRRQxDsUXpBkGqjS7vNcO\"\n
+        \     }, {\n        \"external_urls\" : {\n          \"spotify\" : \"https://open.spotify.com/artist/1FPC2zwfMHhrP3frOfaai6\"\n
+        \       },\n        \"href\" : \"https://api.spotify.com/v1/artists/1FPC2zwfMHhrP3frOfaai6\",\n
+        \       \"id\" : \"1FPC2zwfMHhrP3frOfaai6\",\n        \"name\" : \"Kontinuum\",\n
+        \       \"type\" : \"artist\",\n        \"uri\" : \"spotify:artist:1FPC2zwfMHhrP3frOfaai6\"\n
+        \     } ],\n      \"available_markets\" : [ \"AR\", \"AU\", \"AT\", \"BE\",
+        \"BO\", \"BR\", \"BG\", \"CA\", \"CL\", \"CO\", \"CR\", \"CY\", \"CZ\", \"DK\",
+        \"DO\", \"DE\", \"EC\", \"EE\", \"SV\", \"FI\", \"FR\", \"GR\", \"GT\", \"HN\",
+        \"HK\", \"HU\", \"IS\", \"IE\", \"IT\", \"LV\", \"LT\", \"LU\", \"MY\", \"MT\",
+        \"MX\", \"NL\", \"NZ\", \"NI\", \"NO\", \"PA\", \"PY\", \"PE\", \"PH\", \"PL\",
+        \"PT\", \"SG\", \"SK\", \"ES\", \"SE\", \"CH\", \"TW\", \"TR\", \"UY\", \"US\",
+        \"GB\", \"AD\", \"LI\", \"MC\", \"ID\", \"JP\", \"TH\", \"VN\", \"RO\", \"IL\",
+        \"ZA\", \"SA\", \"AE\", \"BH\", \"QA\", \"OM\", \"KW\", \"EG\", \"MA\", \"DZ\",
+        \"TN\", \"LB\", \"JO\", \"PS\", \"IN\", \"BY\", \"KZ\", \"MD\", \"UA\", \"AL\",
+        \"BA\", \"HR\", \"ME\", \"MK\", \"RS\", \"SI\", \"KR\", \"BD\", \"PK\", \"LK\",
+        \"GH\", \"KE\", \"NG\", \"TZ\", \"UG\", \"AG\", \"AM\", \"BS\", \"BB\", \"BZ\",
+        \"BT\", \"BW\", \"BF\", \"CV\", \"CW\", \"DM\", \"FJ\", \"GM\", \"GE\", \"GD\",
+        \"GW\", \"GY\", \"HT\", \"JM\", \"KI\", \"LS\", \"LR\", \"MW\", \"MV\", \"ML\",
+        \"MH\", \"FM\", \"NA\", \"NR\", \"NE\", \"PW\", \"PG\", \"WS\", \"SM\", \"ST\",
+        \"SN\", \"SC\", \"SL\", \"SB\", \"KN\", \"LC\", \"VC\", \"SR\", \"TL\", \"TO\",
+        \"TT\", \"TV\", \"VU\", \"AZ\", \"BN\", \"BI\", \"KH\", \"CM\", \"TD\", \"KM\",
+        \"GQ\", \"SZ\", \"GA\", \"GN\", \"KG\", \"LA\", \"MO\", \"MR\", \"MN\", \"NP\",
+        \"RW\", \"TG\", \"UZ\", \"ZW\", \"BJ\", \"MG\", \"MU\", \"MZ\", \"AO\", \"CI\",
+        \"DJ\", \"ZM\", \"CD\", \"CG\", \"IQ\", \"LY\", \"TJ\", \"VE\", \"ET\", \"XK\"
+        ],\n      \"disc_number\" : 1,\n      \"duration_ms\" : 237881,\n      \"explicit\"
+        : false,\n      \"external_urls\" : {\n        \"spotify\" : \"https://open.spotify.com/track/4IFzNgv2qEkI1U7TrTUqbm\"\n
+        \     },\n      \"href\" : \"https://api.spotify.com/v1/tracks/4IFzNgv2qEkI1U7TrTUqbm\",\n
+        \     \"id\" : \"4IFzNgv2qEkI1U7TrTUqbm\",\n      \"is_local\" : false,\n
+        \     \"name\" : \"Lost\",\n      \"preview_url\" : \"https://p.scdn.co/mp3-preview/4d116d7901e8ac24bdb3f3396f528bc96f1765db?cid=5f573c9620494bae87890c0f08a60293\",\n
+        \     \"track_number\" : 1,\n      \"type\" : \"track\",\n      \"uri\" :
+        \"spotify:track:4IFzNgv2qEkI1U7TrTUqbm\"\n    } ],\n    \"limit\" : 50,\n
+        \   \"next\" : null,\n    \"offset\" : 0,\n    \"previous\" : null,\n    \"total\"
+        : 1\n  },\n  \"type\" : \"album\",\n  \"uri\" : \"spotify:album:58NCND7oBmNGsoYExAYtvV\"\n}"
+    headers:
+      Alt-Svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      Transfer-Encoding:
+      - chunked
+      Via:
+      - HTTP/2 edgeproxy, 1.1 google
+      access-control-allow-credentials:
+      - 'true'
+      access-control-allow-headers:
+      - Accept, App-Platform, Authorization, Content-Type, Origin, Retry-After, Spotify-App-Version,
+        X-Cloud-Trace-Context, client-token, content-access-token
+      access-control-allow-methods:
+      - GET, POST, OPTIONS, PUT, DELETE, PATCH
+      access-control-allow-origin:
+      - '*'
+      access-control-max-age:
+      - '604800'
+      cache-control:
+      - public, max-age=7200
+      content-encoding:
+      - gzip
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Thu, 28 Mar 2024 18:22:40 GMT
+      server:
+      - envoy
+      strict-transport-security:
+      - max-age=31536000
+      x-content-type-options:
+      - nosniff
+      x-robots-tag:
+      - noindex, nofollow
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate, br
+      Authorization:
+      - Bearer BQCIeSNhNCkB9Blimo9blo_jY1Ajv1qmG5IreR1KJxAVVqqr7sB5JKz-Fbo6MO8BbqXT1mgn2jb1OEN_yhrC7vHGajwYOQ7EFoOykGWMCQtYI_zd59I
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      User-Agent:
+      - python-requests/2.31.0
+    method: GET
+    uri: https://api.spotify.com/v1/albums/58NCND7oBmNGsoYExAYtvV/tracks/?limit=50&offset=0
+  response:
+    body:
+      string: "{\n  \"href\" : \"https://api.spotify.com/v1/albums/58NCND7oBmNGsoYExAYtvV/tracks?offset=0&limit=50\",\n
+        \ \"items\" : [ {\n    \"artists\" : [ {\n      \"external_urls\" : {\n        \"spotify\"
+        : \"https://open.spotify.com/artist/4dRRQxDsUXpBkGqjS7vNcO\"\n      },\n      \"href\"
+        : \"https://api.spotify.com/v1/artists/4dRRQxDsUXpBkGqjS7vNcO\",\n      \"id\"
+        : \"4dRRQxDsUXpBkGqjS7vNcO\",\n      \"name\" : \"Savoi\",\n      \"type\"
+        : \"artist\",\n      \"uri\" : \"spotify:artist:4dRRQxDsUXpBkGqjS7vNcO\"\n
+        \   }, {\n      \"external_urls\" : {\n        \"spotify\" : \"https://open.spotify.com/artist/1FPC2zwfMHhrP3frOfaai6\"\n
+        \     },\n      \"href\" : \"https://api.spotify.com/v1/artists/1FPC2zwfMHhrP3frOfaai6\",\n
+        \     \"id\" : \"1FPC2zwfMHhrP3frOfaai6\",\n      \"name\" : \"Kontinuum\",\n
+        \     \"type\" : \"artist\",\n      \"uri\" : \"spotify:artist:1FPC2zwfMHhrP3frOfaai6\"\n
+        \   } ],\n    \"available_markets\" : [ \"AR\", \"AU\", \"AT\", \"BE\", \"BO\",
+        \"BR\", \"BG\", \"CA\", \"CL\", \"CO\", \"CR\", \"CY\", \"CZ\", \"DK\", \"DO\",
+        \"DE\", \"EC\", \"EE\", \"SV\", \"FI\", \"FR\", \"GR\", \"GT\", \"HN\", \"HK\",
+        \"HU\", \"IS\", \"IE\", \"IT\", \"LV\", \"LT\", \"LU\", \"MY\", \"MT\", \"MX\",
+        \"NL\", \"NZ\", \"NI\", \"NO\", \"PA\", \"PY\", \"PE\", \"PH\", \"PL\", \"PT\",
+        \"SG\", \"SK\", \"ES\", \"SE\", \"CH\", \"TW\", \"TR\", \"UY\", \"US\", \"GB\",
+        \"AD\", \"LI\", \"MC\", \"ID\", \"JP\", \"TH\", \"VN\", \"RO\", \"IL\", \"ZA\",
+        \"SA\", \"AE\", \"BH\", \"QA\", \"OM\", \"KW\", \"EG\", \"MA\", \"DZ\", \"TN\",
+        \"LB\", \"JO\", \"PS\", \"IN\", \"BY\", \"KZ\", \"MD\", \"UA\", \"AL\", \"BA\",
+        \"HR\", \"ME\", \"MK\", \"RS\", \"SI\", \"KR\", \"BD\", \"PK\", \"LK\", \"GH\",
+        \"KE\", \"NG\", \"TZ\", \"UG\", \"AG\", \"AM\", \"BS\", \"BB\", \"BZ\", \"BT\",
+        \"BW\", \"BF\", \"CV\", \"CW\", \"DM\", \"FJ\", \"GM\", \"GE\", \"GD\", \"GW\",
+        \"GY\", \"HT\", \"JM\", \"KI\", \"LS\", \"LR\", \"MW\", \"MV\", \"ML\", \"MH\",
+        \"FM\", \"NA\", \"NR\", \"NE\", \"PW\", \"PG\", \"WS\", \"SM\", \"ST\", \"SN\",
+        \"SC\", \"SL\", \"SB\", \"KN\", \"LC\", \"VC\", \"SR\", \"TL\", \"TO\", \"TT\",
+        \"TV\", \"VU\", \"AZ\", \"BN\", \"BI\", \"KH\", \"CM\", \"TD\", \"KM\", \"GQ\",
+        \"SZ\", \"GA\", \"GN\", \"KG\", \"LA\", \"MO\", \"MR\", \"MN\", \"NP\", \"RW\",
+        \"TG\", \"UZ\", \"ZW\", \"BJ\", \"MG\", \"MU\", \"MZ\", \"AO\", \"CI\", \"DJ\",
+        \"ZM\", \"CD\", \"CG\", \"IQ\", \"LY\", \"TJ\", \"VE\", \"ET\", \"XK\" ],\n
+        \   \"disc_number\" : 1,\n    \"duration_ms\" : 237881,\n    \"explicit\"
+        : false,\n    \"external_urls\" : {\n      \"spotify\" : \"https://open.spotify.com/track/4IFzNgv2qEkI1U7TrTUqbm\"\n
+        \   },\n    \"href\" : \"https://api.spotify.com/v1/tracks/4IFzNgv2qEkI1U7TrTUqbm\",\n
+        \   \"id\" : \"4IFzNgv2qEkI1U7TrTUqbm\",\n    \"is_local\" : false,\n    \"name\"
+        : \"Lost\",\n    \"preview_url\" : \"https://p.scdn.co/mp3-preview/4d116d7901e8ac24bdb3f3396f528bc96f1765db?cid=5f573c9620494bae87890c0f08a60293\",\n
+        \   \"track_number\" : 1,\n    \"type\" : \"track\",\n    \"uri\" : \"spotify:track:4IFzNgv2qEkI1U7TrTUqbm\"\n
+        \ } ],\n  \"limit\" : 50,\n  \"next\" : null,\n  \"offset\" : 0,\n  \"previous\"
+        : null,\n  \"total\" : 1\n}"
+    headers:
+      Alt-Svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      Transfer-Encoding:
+      - chunked
+      Via:
+      - HTTP/2 edgeproxy, 1.1 google
+      access-control-allow-credentials:
+      - 'true'
+      access-control-allow-headers:
+      - Accept, App-Platform, Authorization, Content-Type, Origin, Retry-After, Spotify-App-Version,
+        X-Cloud-Trace-Context, client-token, content-access-token
+      access-control-allow-methods:
+      - GET, POST, OPTIONS, PUT, DELETE, PATCH
+      access-control-allow-origin:
+      - '*'
+      access-control-max-age:
+      - '604800'
+      cache-control:
+      - public, max-age=7200
+      content-encoding:
+      - gzip
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Thu, 28 Mar 2024 18:22:41 GMT
+      server:
+      - envoy
+      strict-transport-security:
+      - max-age=31536000
+      x-content-type-options:
+      - nosniff
+      x-robots-tag:
+      - noindex, nofollow
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate, br
+      Authorization:
+      - Bearer BQCIeSNhNCkB9Blimo9blo_jY1Ajv1qmG5IreR1KJxAVVqqr7sB5JKz-Fbo6MO8BbqXT1mgn2jb1OEN_yhrC7vHGajwYOQ7EFoOykGWMCQtYI_zd59I
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      User-Agent:
+      - python-requests/2.31.0
+    method: GET
+    uri: https://api.spotify.com/v1/albums/0Mze4GYhSVS52f8XDFxSFM
+  response:
+    body:
+      string: "{\n  \"album_type\" : \"single\",\n  \"artists\" : [ {\n    \"external_urls\"
+        : {\n      \"spotify\" : \"https://open.spotify.com/artist/1FPC2zwfMHhrP3frOfaai6\"\n
+        \   },\n    \"href\" : \"https://api.spotify.com/v1/artists/1FPC2zwfMHhrP3frOfaai6\",\n
+        \   \"id\" : \"1FPC2zwfMHhrP3frOfaai6\",\n    \"name\" : \"Kontinuum\",\n
+        \   \"type\" : \"artist\",\n    \"uri\" : \"spotify:artist:1FPC2zwfMHhrP3frOfaai6\"\n
+        \ } ],\n  \"available_markets\" : [ \"AR\", \"AU\", \"AT\", \"BE\", \"BO\",
+        \"BR\", \"BG\", \"CA\", \"CL\", \"CO\", \"CR\", \"CY\", \"CZ\", \"DK\", \"DO\",
+        \"DE\", \"EC\", \"EE\", \"SV\", \"FI\", \"FR\", \"GR\", \"GT\", \"HN\", \"HK\",
+        \"HU\", \"IS\", \"IE\", \"IT\", \"LV\", \"LT\", \"LU\", \"MY\", \"MT\", \"MX\",
+        \"NL\", \"NZ\", \"NI\", \"NO\", \"PA\", \"PY\", \"PE\", \"PH\", \"PL\", \"PT\",
+        \"SG\", \"SK\", \"ES\", \"SE\", \"CH\", \"TW\", \"TR\", \"UY\", \"US\", \"GB\",
+        \"AD\", \"LI\", \"MC\", \"ID\", \"JP\", \"TH\", \"VN\", \"RO\", \"IL\", \"ZA\",
+        \"SA\", \"AE\", \"BH\", \"QA\", \"OM\", \"KW\", \"EG\", \"MA\", \"DZ\", \"TN\",
+        \"LB\", \"JO\", \"PS\", \"IN\", \"BY\", \"KZ\", \"MD\", \"UA\", \"AL\", \"BA\",
+        \"HR\", \"ME\", \"MK\", \"RS\", \"SI\", \"KR\", \"BD\", \"PK\", \"LK\", \"GH\",
+        \"KE\", \"NG\", \"TZ\", \"UG\", \"AG\", \"AM\", \"BS\", \"BB\", \"BZ\", \"BT\",
+        \"BW\", \"BF\", \"CV\", \"CW\", \"DM\", \"FJ\", \"GM\", \"GE\", \"GD\", \"GW\",
+        \"GY\", \"HT\", \"JM\", \"KI\", \"LS\", \"LR\", \"MW\", \"MV\", \"ML\", \"MH\",
+        \"FM\", \"NA\", \"NR\", \"NE\", \"PW\", \"PG\", \"PR\", \"WS\", \"SM\", \"ST\",
+        \"SN\", \"SC\", \"SL\", \"SB\", \"KN\", \"LC\", \"VC\", \"SR\", \"TL\", \"TO\",
+        \"TT\", \"TV\", \"VU\", \"AZ\", \"BN\", \"BI\", \"KH\", \"CM\", \"TD\", \"KM\",
+        \"GQ\", \"SZ\", \"GA\", \"GN\", \"KG\", \"LA\", \"MO\", \"MR\", \"MN\", \"NP\",
+        \"RW\", \"TG\", \"UZ\", \"ZW\", \"BJ\", \"MG\", \"MU\", \"MZ\", \"AO\", \"CI\",
+        \"DJ\", \"ZM\", \"CD\", \"CG\", \"IQ\", \"LY\", \"TJ\", \"VE\", \"ET\", \"XK\"
+        ],\n  \"copyrights\" : [ {\n    \"text\" : \"2015 Kontinuum\",\n    \"type\"
+        : \"C\"\n  }, {\n    \"text\" : \"2015 Kontinuum\",\n    \"type\" : \"P\"\n
+        \ } ],\n  \"external_ids\" : {\n    \"upc\" : \"5054316563624\"\n  },\n  \"external_urls\"
+        : {\n    \"spotify\" : \"https://open.spotify.com/album/0Mze4GYhSVS52f8XDFxSFM\"\n
+        \ },\n  \"genres\" : [ ],\n  \"href\" : \"https://api.spotify.com/v1/albums/0Mze4GYhSVS52f8XDFxSFM\",\n
+        \ \"id\" : \"0Mze4GYhSVS52f8XDFxSFM\",\n  \"images\" : [ {\n    \"height\"
+        : 640,\n    \"url\" : \"https://i.scdn.co/image/ab67616d0000b2737b839156b5a49bbbdd7d3eaf\",\n
+        \   \"width\" : 640\n  }, {\n    \"height\" : 300,\n    \"url\" : \"https://i.scdn.co/image/ab67616d00001e027b839156b5a49bbbdd7d3eaf\",\n
+        \   \"width\" : 300\n  }, {\n    \"height\" : 64,\n    \"url\" : \"https://i.scdn.co/image/ab67616d000048517b839156b5a49bbbdd7d3eaf\",\n
+        \   \"width\" : 64\n  } ],\n  \"label\" : \"Kontinuum\",\n  \"name\" : \"Timeline\",\n
+        \ \"popularity\" : 7,\n  \"release_date\" : \"2015-11-10\",\n  \"release_date_precision\"
+        : \"day\",\n  \"total_tracks\" : 1,\n  \"tracks\" : {\n    \"href\" : \"https://api.spotify.com/v1/albums/0Mze4GYhSVS52f8XDFxSFM/tracks?offset=0&limit=50\",\n
+        \   \"items\" : [ {\n      \"artists\" : [ {\n        \"external_urls\" :
+        {\n          \"spotify\" : \"https://open.spotify.com/artist/1FPC2zwfMHhrP3frOfaai6\"\n
+        \       },\n        \"href\" : \"https://api.spotify.com/v1/artists/1FPC2zwfMHhrP3frOfaai6\",\n
+        \       \"id\" : \"1FPC2zwfMHhrP3frOfaai6\",\n        \"name\" : \"Kontinuum\",\n
+        \       \"type\" : \"artist\",\n        \"uri\" : \"spotify:artist:1FPC2zwfMHhrP3frOfaai6\"\n
+        \     } ],\n      \"available_markets\" : [ \"AR\", \"AU\", \"AT\", \"BE\",
+        \"BO\", \"BR\", \"BG\", \"CA\", \"CL\", \"CO\", \"CR\", \"CY\", \"CZ\", \"DK\",
+        \"DO\", \"DE\", \"EC\", \"EE\", \"SV\", \"FI\", \"FR\", \"GR\", \"GT\", \"HN\",
+        \"HK\", \"HU\", \"IS\", \"IE\", \"IT\", \"LV\", \"LT\", \"LU\", \"MY\", \"MT\",
+        \"MX\", \"NL\", \"NZ\", \"NI\", \"NO\", \"PA\", \"PY\", \"PE\", \"PH\", \"PL\",
+        \"PT\", \"SG\", \"SK\", \"ES\", \"SE\", \"CH\", \"TW\", \"TR\", \"UY\", \"US\",
+        \"GB\", \"AD\", \"LI\", \"MC\", \"ID\", \"JP\", \"TH\", \"VN\", \"RO\", \"IL\",
+        \"ZA\", \"SA\", \"AE\", \"BH\", \"QA\", \"OM\", \"KW\", \"EG\", \"MA\", \"DZ\",
+        \"TN\", \"LB\", \"JO\", \"PS\", \"IN\", \"BY\", \"KZ\", \"MD\", \"UA\", \"AL\",
+        \"BA\", \"HR\", \"ME\", \"MK\", \"RS\", \"SI\", \"KR\", \"BD\", \"PK\", \"LK\",
+        \"GH\", \"KE\", \"NG\", \"TZ\", \"UG\", \"AG\", \"AM\", \"BS\", \"BB\", \"BZ\",
+        \"BT\", \"BW\", \"BF\", \"CV\", \"CW\", \"DM\", \"FJ\", \"GM\", \"GE\", \"GD\",
+        \"GW\", \"GY\", \"HT\", \"JM\", \"KI\", \"LS\", \"LR\", \"MW\", \"MV\", \"ML\",
+        \"MH\", \"FM\", \"NA\", \"NR\", \"NE\", \"PW\", \"PG\", \"WS\", \"SM\", \"ST\",
+        \"SN\", \"SC\", \"SL\", \"SB\", \"KN\", \"LC\", \"VC\", \"SR\", \"TL\", \"TO\",
+        \"TT\", \"TV\", \"VU\", \"AZ\", \"BN\", \"BI\", \"KH\", \"CM\", \"TD\", \"KM\",
+        \"GQ\", \"SZ\", \"GA\", \"GN\", \"KG\", \"LA\", \"MO\", \"MR\", \"MN\", \"NP\",
+        \"RW\", \"TG\", \"UZ\", \"ZW\", \"BJ\", \"MG\", \"MU\", \"MZ\", \"AO\", \"CI\",
+        \"DJ\", \"ZM\", \"CD\", \"CG\", \"IQ\", \"LY\", \"TJ\", \"VE\", \"ET\", \"XK\"
+        ],\n      \"disc_number\" : 1,\n      \"duration_ms\" : 242468,\n      \"explicit\"
+        : false,\n      \"external_urls\" : {\n        \"spotify\" : \"https://open.spotify.com/track/3kDsB86dHFcUeIolbOoGGt\"\n
+        \     },\n      \"href\" : \"https://api.spotify.com/v1/tracks/3kDsB86dHFcUeIolbOoGGt\",\n
+        \     \"id\" : \"3kDsB86dHFcUeIolbOoGGt\",\n      \"is_local\" : false,\n
+        \     \"name\" : \"Timeline\",\n      \"preview_url\" : \"https://p.scdn.co/mp3-preview/b498afa53bb8b52971af2471f5595d43701c5735?cid=5f573c9620494bae87890c0f08a60293\",\n
+        \     \"track_number\" : 1,\n      \"type\" : \"track\",\n      \"uri\" :
+        \"spotify:track:3kDsB86dHFcUeIolbOoGGt\"\n    } ],\n    \"limit\" : 50,\n
+        \   \"next\" : null,\n    \"offset\" : 0,\n    \"previous\" : null,\n    \"total\"
+        : 1\n  },\n  \"type\" : \"album\",\n  \"uri\" : \"spotify:album:0Mze4GYhSVS52f8XDFxSFM\"\n}"
+    headers:
+      Alt-Svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      Transfer-Encoding:
+      - chunked
+      Via:
+      - HTTP/2 edgeproxy, 1.1 google
+      access-control-allow-credentials:
+      - 'true'
+      access-control-allow-headers:
+      - Accept, App-Platform, Authorization, Content-Type, Origin, Retry-After, Spotify-App-Version,
+        X-Cloud-Trace-Context, client-token, content-access-token
+      access-control-allow-methods:
+      - GET, POST, OPTIONS, PUT, DELETE, PATCH
+      access-control-allow-origin:
+      - '*'
+      access-control-max-age:
+      - '604800'
+      cache-control:
+      - public, max-age=7200
+      content-encoding:
+      - gzip
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Thu, 28 Mar 2024 18:22:41 GMT
+      server:
+      - envoy
+      strict-transport-security:
+      - max-age=31536000
+      x-content-type-options:
+      - nosniff
+      x-robots-tag:
+      - noindex, nofollow
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate, br
+      Authorization:
+      - Bearer BQCIeSNhNCkB9Blimo9blo_jY1Ajv1qmG5IreR1KJxAVVqqr7sB5JKz-Fbo6MO8BbqXT1mgn2jb1OEN_yhrC7vHGajwYOQ7EFoOykGWMCQtYI_zd59I
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      User-Agent:
+      - python-requests/2.31.0
+    method: GET
+    uri: https://api.spotify.com/v1/albums/0Mze4GYhSVS52f8XDFxSFM/tracks/?limit=50&offset=0
+  response:
+    body:
+      string: "{\n  \"href\" : \"https://api.spotify.com/v1/albums/0Mze4GYhSVS52f8XDFxSFM/tracks?offset=0&limit=50\",\n
+        \ \"items\" : [ {\n    \"artists\" : [ {\n      \"external_urls\" : {\n        \"spotify\"
+        : \"https://open.spotify.com/artist/1FPC2zwfMHhrP3frOfaai6\"\n      },\n      \"href\"
+        : \"https://api.spotify.com/v1/artists/1FPC2zwfMHhrP3frOfaai6\",\n      \"id\"
+        : \"1FPC2zwfMHhrP3frOfaai6\",\n      \"name\" : \"Kontinuum\",\n      \"type\"
+        : \"artist\",\n      \"uri\" : \"spotify:artist:1FPC2zwfMHhrP3frOfaai6\"\n
+        \   } ],\n    \"available_markets\" : [ \"AR\", \"AU\", \"AT\", \"BE\", \"BO\",
+        \"BR\", \"BG\", \"CA\", \"CL\", \"CO\", \"CR\", \"CY\", \"CZ\", \"DK\", \"DO\",
+        \"DE\", \"EC\", \"EE\", \"SV\", \"FI\", \"FR\", \"GR\", \"GT\", \"HN\", \"HK\",
+        \"HU\", \"IS\", \"IE\", \"IT\", \"LV\", \"LT\", \"LU\", \"MY\", \"MT\", \"MX\",
+        \"NL\", \"NZ\", \"NI\", \"NO\", \"PA\", \"PY\", \"PE\", \"PH\", \"PL\", \"PT\",
+        \"SG\", \"SK\", \"ES\", \"SE\", \"CH\", \"TW\", \"TR\", \"UY\", \"US\", \"GB\",
+        \"AD\", \"LI\", \"MC\", \"ID\", \"JP\", \"TH\", \"VN\", \"RO\", \"IL\", \"ZA\",
+        \"SA\", \"AE\", \"BH\", \"QA\", \"OM\", \"KW\", \"EG\", \"MA\", \"DZ\", \"TN\",
+        \"LB\", \"JO\", \"PS\", \"IN\", \"BY\", \"KZ\", \"MD\", \"UA\", \"AL\", \"BA\",
+        \"HR\", \"ME\", \"MK\", \"RS\", \"SI\", \"KR\", \"BD\", \"PK\", \"LK\", \"GH\",
+        \"KE\", \"NG\", \"TZ\", \"UG\", \"AG\", \"AM\", \"BS\", \"BB\", \"BZ\", \"BT\",
+        \"BW\", \"BF\", \"CV\", \"CW\", \"DM\", \"FJ\", \"GM\", \"GE\", \"GD\", \"GW\",
+        \"GY\", \"HT\", \"JM\", \"KI\", \"LS\", \"LR\", \"MW\", \"MV\", \"ML\", \"MH\",
+        \"FM\", \"NA\", \"NR\", \"NE\", \"PW\", \"PG\", \"WS\", \"SM\", \"ST\", \"SN\",
+        \"SC\", \"SL\", \"SB\", \"KN\", \"LC\", \"VC\", \"SR\", \"TL\", \"TO\", \"TT\",
+        \"TV\", \"VU\", \"AZ\", \"BN\", \"BI\", \"KH\", \"CM\", \"TD\", \"KM\", \"GQ\",
+        \"SZ\", \"GA\", \"GN\", \"KG\", \"LA\", \"MO\", \"MR\", \"MN\", \"NP\", \"RW\",
+        \"TG\", \"UZ\", \"ZW\", \"BJ\", \"MG\", \"MU\", \"MZ\", \"AO\", \"CI\", \"DJ\",
+        \"ZM\", \"CD\", \"CG\", \"IQ\", \"LY\", \"TJ\", \"VE\", \"ET\", \"XK\" ],\n
+        \   \"disc_number\" : 1,\n    \"duration_ms\" : 242468,\n    \"explicit\"
+        : false,\n    \"external_urls\" : {\n      \"spotify\" : \"https://open.spotify.com/track/3kDsB86dHFcUeIolbOoGGt\"\n
+        \   },\n    \"href\" : \"https://api.spotify.com/v1/tracks/3kDsB86dHFcUeIolbOoGGt\",\n
+        \   \"id\" : \"3kDsB86dHFcUeIolbOoGGt\",\n    \"is_local\" : false,\n    \"name\"
+        : \"Timeline\",\n    \"preview_url\" : \"https://p.scdn.co/mp3-preview/b498afa53bb8b52971af2471f5595d43701c5735?cid=5f573c9620494bae87890c0f08a60293\",\n
+        \   \"track_number\" : 1,\n    \"type\" : \"track\",\n    \"uri\" : \"spotify:track:3kDsB86dHFcUeIolbOoGGt\"\n
+        \ } ],\n  \"limit\" : 50,\n  \"next\" : null,\n  \"offset\" : 0,\n  \"previous\"
+        : null,\n  \"total\" : 1\n}"
+    headers:
+      Alt-Svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      Transfer-Encoding:
+      - chunked
+      Via:
+      - HTTP/2 edgeproxy, 1.1 google
+      access-control-allow-credentials:
+      - 'true'
+      access-control-allow-headers:
+      - Accept, App-Platform, Authorization, Content-Type, Origin, Retry-After, Spotify-App-Version,
+        X-Cloud-Trace-Context, client-token, content-access-token
+      access-control-allow-methods:
+      - GET, POST, OPTIONS, PUT, DELETE, PATCH
+      access-control-allow-origin:
+      - '*'
+      access-control-max-age:
+      - '604800'
+      cache-control:
+      - public, max-age=7200
+      content-encoding:
+      - gzip
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Thu, 28 Mar 2024 18:22:42 GMT
+      server:
+      - envoy
+      strict-transport-security:
+      - max-age=31536000
+      x-content-type-options:
+      - nosniff
+      x-robots-tag:
+      - noindex, nofollow
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate, br
+      Authorization:
+      - Bearer BQCIeSNhNCkB9Blimo9blo_jY1Ajv1qmG5IreR1KJxAVVqqr7sB5JKz-Fbo6MO8BbqXT1mgn2jb1OEN_yhrC7vHGajwYOQ7EFoOykGWMCQtYI_zd59I
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      User-Agent:
+      - python-requests/2.31.0
+    method: GET
+    uri: https://api.spotify.com/v1/albums/0xMjnmMdohAHzYNuHXSGvW
+  response:
+    body:
+      string: "{\n  \"album_type\" : \"single\",\n  \"artists\" : [ {\n    \"external_urls\"
+        : {\n      \"spotify\" : \"https://open.spotify.com/artist/6fEZjgt9MHR4Hp3MiBRZHX\"\n
+        \   },\n    \"href\" : \"https://api.spotify.com/v1/artists/6fEZjgt9MHR4Hp3MiBRZHX\",\n
+        \   \"id\" : \"6fEZjgt9MHR4Hp3MiBRZHX\",\n    \"name\" : \"Itro\",\n    \"type\"
+        : \"artist\",\n    \"uri\" : \"spotify:artist:6fEZjgt9MHR4Hp3MiBRZHX\"\n  },
+        {\n    \"external_urls\" : {\n      \"spotify\" : \"https://open.spotify.com/artist/1FPC2zwfMHhrP3frOfaai6\"\n
+        \   },\n    \"href\" : \"https://api.spotify.com/v1/artists/1FPC2zwfMHhrP3frOfaai6\",\n
+        \   \"id\" : \"1FPC2zwfMHhrP3frOfaai6\",\n    \"name\" : \"Kontinuum\",\n
+        \   \"type\" : \"artist\",\n    \"uri\" : \"spotify:artist:1FPC2zwfMHhrP3frOfaai6\"\n
+        \ } ],\n  \"available_markets\" : [ \"AR\", \"AU\", \"AT\", \"BE\", \"BO\",
+        \"BR\", \"BG\", \"CA\", \"CL\", \"CO\", \"CR\", \"CY\", \"CZ\", \"DK\", \"DO\",
+        \"DE\", \"EC\", \"EE\", \"SV\", \"FI\", \"FR\", \"GR\", \"GT\", \"HN\", \"HK\",
+        \"HU\", \"IS\", \"IE\", \"IT\", \"LV\", \"LT\", \"LU\", \"MY\", \"MT\", \"MX\",
+        \"NL\", \"NZ\", \"NI\", \"NO\", \"PA\", \"PY\", \"PE\", \"PH\", \"PL\", \"PT\",
+        \"SG\", \"SK\", \"ES\", \"SE\", \"CH\", \"TW\", \"TR\", \"UY\", \"US\", \"GB\",
+        \"AD\", \"LI\", \"MC\", \"ID\", \"JP\", \"TH\", \"VN\", \"RO\", \"IL\", \"ZA\",
+        \"SA\", \"AE\", \"BH\", \"QA\", \"OM\", \"KW\", \"EG\", \"MA\", \"DZ\", \"TN\",
+        \"LB\", \"JO\", \"PS\", \"IN\", \"BY\", \"KZ\", \"MD\", \"UA\", \"AL\", \"BA\",
+        \"HR\", \"ME\", \"MK\", \"RS\", \"SI\", \"KR\", \"BD\", \"PK\", \"LK\", \"GH\",
+        \"KE\", \"NG\", \"TZ\", \"UG\", \"AG\", \"AM\", \"BS\", \"BB\", \"BZ\", \"BT\",
+        \"BW\", \"BF\", \"CV\", \"CW\", \"DM\", \"FJ\", \"GM\", \"GE\", \"GD\", \"GW\",
+        \"GY\", \"HT\", \"JM\", \"KI\", \"LS\", \"LR\", \"MW\", \"MV\", \"ML\", \"MH\",
+        \"FM\", \"NA\", \"NR\", \"NE\", \"PW\", \"PG\", \"PR\", \"WS\", \"SM\", \"ST\",
+        \"SN\", \"SC\", \"SL\", \"SB\", \"KN\", \"LC\", \"VC\", \"SR\", \"TL\", \"TO\",
+        \"TT\", \"TV\", \"VU\", \"AZ\", \"BN\", \"BI\", \"KH\", \"CM\", \"TD\", \"KM\",
+        \"GQ\", \"SZ\", \"GA\", \"GN\", \"KG\", \"LA\", \"MO\", \"MR\", \"MN\", \"NP\",
+        \"RW\", \"TG\", \"UZ\", \"ZW\", \"BJ\", \"MG\", \"MU\", \"MZ\", \"AO\", \"CI\",
+        \"DJ\", \"ZM\", \"CD\", \"CG\", \"IQ\", \"LY\", \"TJ\", \"VE\", \"ET\", \"XK\"
+        ],\n  \"copyrights\" : [ {\n    \"text\" : \"2015 NCS\",\n    \"type\" : \"C\"\n
+        \ }, {\n    \"text\" : \"2015 NCS\",\n    \"type\" : \"P\"\n  } ],\n  \"external_ids\"
+        : {\n    \"upc\" : \"5055199513379\"\n  },\n  \"external_urls\" : {\n    \"spotify\"
+        : \"https://open.spotify.com/album/0xMjnmMdohAHzYNuHXSGvW\"\n  },\n  \"genres\"
+        : [ ],\n  \"href\" : \"https://api.spotify.com/v1/albums/0xMjnmMdohAHzYNuHXSGvW\",\n
+        \ \"id\" : \"0xMjnmMdohAHzYNuHXSGvW\",\n  \"images\" : [ {\n    \"height\"
+        : 640,\n    \"url\" : \"https://i.scdn.co/image/ab67616d0000b2732f4fd52c308f2652d0753f45\",\n
+        \   \"width\" : 640\n  }, {\n    \"height\" : 300,\n    \"url\" : \"https://i.scdn.co/image/ab67616d00001e022f4fd52c308f2652d0753f45\",\n
+        \   \"width\" : 300\n  }, {\n    \"height\" : 64,\n    \"url\" : \"https://i.scdn.co/image/ab67616d000048512f4fd52c308f2652d0753f45\",\n
+        \   \"width\" : 64\n  } ],\n  \"label\" : \"NCS\",\n  \"name\" : \"Alive\",\n
+        \ \"popularity\" : 19,\n  \"release_date\" : \"2015-07-21\",\n  \"release_date_precision\"
+        : \"day\",\n  \"total_tracks\" : 1,\n  \"tracks\" : {\n    \"href\" : \"https://api.spotify.com/v1/albums/0xMjnmMdohAHzYNuHXSGvW/tracks?offset=0&limit=50\",\n
+        \   \"items\" : [ {\n      \"artists\" : [ {\n        \"external_urls\" :
+        {\n          \"spotify\" : \"https://open.spotify.com/artist/6fEZjgt9MHR4Hp3MiBRZHX\"\n
+        \       },\n        \"href\" : \"https://api.spotify.com/v1/artists/6fEZjgt9MHR4Hp3MiBRZHX\",\n
+        \       \"id\" : \"6fEZjgt9MHR4Hp3MiBRZHX\",\n        \"name\" : \"Itro\",\n
+        \       \"type\" : \"artist\",\n        \"uri\" : \"spotify:artist:6fEZjgt9MHR4Hp3MiBRZHX\"\n
+        \     }, {\n        \"external_urls\" : {\n          \"spotify\" : \"https://open.spotify.com/artist/1FPC2zwfMHhrP3frOfaai6\"\n
+        \       },\n        \"href\" : \"https://api.spotify.com/v1/artists/1FPC2zwfMHhrP3frOfaai6\",\n
+        \       \"id\" : \"1FPC2zwfMHhrP3frOfaai6\",\n        \"name\" : \"Kontinuum\",\n
+        \       \"type\" : \"artist\",\n        \"uri\" : \"spotify:artist:1FPC2zwfMHhrP3frOfaai6\"\n
+        \     } ],\n      \"available_markets\" : [ \"AR\", \"AU\", \"AT\", \"BE\",
+        \"BO\", \"BR\", \"BG\", \"CA\", \"CL\", \"CO\", \"CR\", \"CY\", \"CZ\", \"DK\",
+        \"DO\", \"DE\", \"EC\", \"EE\", \"SV\", \"FI\", \"FR\", \"GR\", \"GT\", \"HN\",
+        \"HK\", \"HU\", \"IS\", \"IE\", \"IT\", \"LV\", \"LT\", \"LU\", \"MY\", \"MT\",
+        \"MX\", \"NL\", \"NZ\", \"NI\", \"NO\", \"PA\", \"PY\", \"PE\", \"PH\", \"PL\",
+        \"PT\", \"SG\", \"SK\", \"ES\", \"SE\", \"CH\", \"TW\", \"TR\", \"UY\", \"US\",
+        \"GB\", \"AD\", \"LI\", \"MC\", \"ID\", \"JP\", \"TH\", \"VN\", \"RO\", \"IL\",
+        \"ZA\", \"SA\", \"AE\", \"BH\", \"QA\", \"OM\", \"KW\", \"EG\", \"MA\", \"DZ\",
+        \"TN\", \"LB\", \"JO\", \"PS\", \"IN\", \"BY\", \"KZ\", \"MD\", \"UA\", \"AL\",
+        \"BA\", \"HR\", \"ME\", \"MK\", \"RS\", \"SI\", \"KR\", \"BD\", \"PK\", \"LK\",
+        \"GH\", \"KE\", \"NG\", \"TZ\", \"UG\", \"AG\", \"AM\", \"BS\", \"BB\", \"BZ\",
+        \"BT\", \"BW\", \"BF\", \"CV\", \"CW\", \"DM\", \"FJ\", \"GM\", \"GE\", \"GD\",
+        \"GW\", \"GY\", \"HT\", \"JM\", \"KI\", \"LS\", \"LR\", \"MW\", \"MV\", \"ML\",
+        \"MH\", \"FM\", \"NA\", \"NR\", \"NE\", \"PW\", \"PG\", \"WS\", \"SM\", \"ST\",
+        \"SN\", \"SC\", \"SL\", \"SB\", \"KN\", \"LC\", \"VC\", \"SR\", \"TL\", \"TO\",
+        \"TT\", \"TV\", \"VU\", \"AZ\", \"BN\", \"BI\", \"KH\", \"CM\", \"TD\", \"KM\",
+        \"GQ\", \"SZ\", \"GA\", \"GN\", \"KG\", \"LA\", \"MO\", \"MR\", \"MN\", \"NP\",
+        \"RW\", \"TG\", \"UZ\", \"ZW\", \"BJ\", \"MG\", \"MU\", \"MZ\", \"AO\", \"CI\",
+        \"DJ\", \"ZM\", \"CD\", \"CG\", \"IQ\", \"LY\", \"TJ\", \"VE\", \"ET\", \"XK\"
+        ],\n      \"disc_number\" : 1,\n      \"duration_ms\" : 248320,\n      \"explicit\"
+        : false,\n      \"external_urls\" : {\n        \"spotify\" : \"https://open.spotify.com/track/0g1ZhQAEjNQ817SSrciH0g\"\n
+        \     },\n      \"href\" : \"https://api.spotify.com/v1/tracks/0g1ZhQAEjNQ817SSrciH0g\",\n
+        \     \"id\" : \"0g1ZhQAEjNQ817SSrciH0g\",\n      \"is_local\" : false,\n
+        \     \"name\" : \"Alive\",\n      \"preview_url\" : \"https://p.scdn.co/mp3-preview/8eaba2fa9983118213029e813e826694926eada1?cid=5f573c9620494bae87890c0f08a60293\",\n
+        \     \"track_number\" : 1,\n      \"type\" : \"track\",\n      \"uri\" :
+        \"spotify:track:0g1ZhQAEjNQ817SSrciH0g\"\n    } ],\n    \"limit\" : 50,\n
+        \   \"next\" : null,\n    \"offset\" : 0,\n    \"previous\" : null,\n    \"total\"
+        : 1\n  },\n  \"type\" : \"album\",\n  \"uri\" : \"spotify:album:0xMjnmMdohAHzYNuHXSGvW\"\n}"
+    headers:
+      Alt-Svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      Transfer-Encoding:
+      - chunked
+      Via:
+      - HTTP/2 edgeproxy, 1.1 google
+      access-control-allow-credentials:
+      - 'true'
+      access-control-allow-headers:
+      - Accept, App-Platform, Authorization, Content-Type, Origin, Retry-After, Spotify-App-Version,
+        X-Cloud-Trace-Context, client-token, content-access-token
+      access-control-allow-methods:
+      - GET, POST, OPTIONS, PUT, DELETE, PATCH
+      access-control-allow-origin:
+      - '*'
+      access-control-max-age:
+      - '604800'
+      cache-control:
+      - public, max-age=7200
+      content-encoding:
+      - gzip
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Thu, 28 Mar 2024 18:22:43 GMT
+      server:
+      - envoy
+      strict-transport-security:
+      - max-age=31536000
+      x-content-type-options:
+      - nosniff
+      x-robots-tag:
+      - noindex, nofollow
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate, br
+      Authorization:
+      - Bearer BQCIeSNhNCkB9Blimo9blo_jY1Ajv1qmG5IreR1KJxAVVqqr7sB5JKz-Fbo6MO8BbqXT1mgn2jb1OEN_yhrC7vHGajwYOQ7EFoOykGWMCQtYI_zd59I
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      User-Agent:
+      - python-requests/2.31.0
+    method: GET
+    uri: https://api.spotify.com/v1/albums/0xMjnmMdohAHzYNuHXSGvW/tracks/?limit=50&offset=0
+  response:
+    body:
+      string: "{\n  \"href\" : \"https://api.spotify.com/v1/albums/0xMjnmMdohAHzYNuHXSGvW/tracks?offset=0&limit=50\",\n
+        \ \"items\" : [ {\n    \"artists\" : [ {\n      \"external_urls\" : {\n        \"spotify\"
+        : \"https://open.spotify.com/artist/6fEZjgt9MHR4Hp3MiBRZHX\"\n      },\n      \"href\"
+        : \"https://api.spotify.com/v1/artists/6fEZjgt9MHR4Hp3MiBRZHX\",\n      \"id\"
+        : \"6fEZjgt9MHR4Hp3MiBRZHX\",\n      \"name\" : \"Itro\",\n      \"type\"
+        : \"artist\",\n      \"uri\" : \"spotify:artist:6fEZjgt9MHR4Hp3MiBRZHX\"\n
+        \   }, {\n      \"external_urls\" : {\n        \"spotify\" : \"https://open.spotify.com/artist/1FPC2zwfMHhrP3frOfaai6\"\n
+        \     },\n      \"href\" : \"https://api.spotify.com/v1/artists/1FPC2zwfMHhrP3frOfaai6\",\n
+        \     \"id\" : \"1FPC2zwfMHhrP3frOfaai6\",\n      \"name\" : \"Kontinuum\",\n
+        \     \"type\" : \"artist\",\n      \"uri\" : \"spotify:artist:1FPC2zwfMHhrP3frOfaai6\"\n
+        \   } ],\n    \"available_markets\" : [ \"AR\", \"AU\", \"AT\", \"BE\", \"BO\",
+        \"BR\", \"BG\", \"CA\", \"CL\", \"CO\", \"CR\", \"CY\", \"CZ\", \"DK\", \"DO\",
+        \"DE\", \"EC\", \"EE\", \"SV\", \"FI\", \"FR\", \"GR\", \"GT\", \"HN\", \"HK\",
+        \"HU\", \"IS\", \"IE\", \"IT\", \"LV\", \"LT\", \"LU\", \"MY\", \"MT\", \"MX\",
+        \"NL\", \"NZ\", \"NI\", \"NO\", \"PA\", \"PY\", \"PE\", \"PH\", \"PL\", \"PT\",
+        \"SG\", \"SK\", \"ES\", \"SE\", \"CH\", \"TW\", \"TR\", \"UY\", \"US\", \"GB\",
+        \"AD\", \"LI\", \"MC\", \"ID\", \"JP\", \"TH\", \"VN\", \"RO\", \"IL\", \"ZA\",
+        \"SA\", \"AE\", \"BH\", \"QA\", \"OM\", \"KW\", \"EG\", \"MA\", \"DZ\", \"TN\",
+        \"LB\", \"JO\", \"PS\", \"IN\", \"BY\", \"KZ\", \"MD\", \"UA\", \"AL\", \"BA\",
+        \"HR\", \"ME\", \"MK\", \"RS\", \"SI\", \"KR\", \"BD\", \"PK\", \"LK\", \"GH\",
+        \"KE\", \"NG\", \"TZ\", \"UG\", \"AG\", \"AM\", \"BS\", \"BB\", \"BZ\", \"BT\",
+        \"BW\", \"BF\", \"CV\", \"CW\", \"DM\", \"FJ\", \"GM\", \"GE\", \"GD\", \"GW\",
+        \"GY\", \"HT\", \"JM\", \"KI\", \"LS\", \"LR\", \"MW\", \"MV\", \"ML\", \"MH\",
+        \"FM\", \"NA\", \"NR\", \"NE\", \"PW\", \"PG\", \"WS\", \"SM\", \"ST\", \"SN\",
+        \"SC\", \"SL\", \"SB\", \"KN\", \"LC\", \"VC\", \"SR\", \"TL\", \"TO\", \"TT\",
+        \"TV\", \"VU\", \"AZ\", \"BN\", \"BI\", \"KH\", \"CM\", \"TD\", \"KM\", \"GQ\",
+        \"SZ\", \"GA\", \"GN\", \"KG\", \"LA\", \"MO\", \"MR\", \"MN\", \"NP\", \"RW\",
+        \"TG\", \"UZ\", \"ZW\", \"BJ\", \"MG\", \"MU\", \"MZ\", \"AO\", \"CI\", \"DJ\",
+        \"ZM\", \"CD\", \"CG\", \"IQ\", \"LY\", \"TJ\", \"VE\", \"ET\", \"XK\" ],\n
+        \   \"disc_number\" : 1,\n    \"duration_ms\" : 248320,\n    \"explicit\"
+        : false,\n    \"external_urls\" : {\n      \"spotify\" : \"https://open.spotify.com/track/0g1ZhQAEjNQ817SSrciH0g\"\n
+        \   },\n    \"href\" : \"https://api.spotify.com/v1/tracks/0g1ZhQAEjNQ817SSrciH0g\",\n
+        \   \"id\" : \"0g1ZhQAEjNQ817SSrciH0g\",\n    \"is_local\" : false,\n    \"name\"
+        : \"Alive\",\n    \"preview_url\" : \"https://p.scdn.co/mp3-preview/8eaba2fa9983118213029e813e826694926eada1?cid=5f573c9620494bae87890c0f08a60293\",\n
+        \   \"track_number\" : 1,\n    \"type\" : \"track\",\n    \"uri\" : \"spotify:track:0g1ZhQAEjNQ817SSrciH0g\"\n
+        \ } ],\n  \"limit\" : 50,\n  \"next\" : null,\n  \"offset\" : 0,\n  \"previous\"
+        : null,\n  \"total\" : 1\n}"
+    headers:
+      Alt-Svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      Transfer-Encoding:
+      - chunked
+      Via:
+      - HTTP/2 edgeproxy, 1.1 google
+      access-control-allow-credentials:
+      - 'true'
+      access-control-allow-headers:
+      - Accept, App-Platform, Authorization, Content-Type, Origin, Retry-After, Spotify-App-Version,
+        X-Cloud-Trace-Context, client-token, content-access-token
+      access-control-allow-methods:
+      - GET, POST, OPTIONS, PUT, DELETE, PATCH
+      access-control-allow-origin:
+      - '*'
+      access-control-max-age:
+      - '604800'
+      cache-control:
+      - public, max-age=7200
+      content-encoding:
+      - gzip
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Thu, 28 Mar 2024 18:22:43 GMT
+      server:
+      - envoy
+      strict-transport-security:
+      - max-age=31536000
+      x-content-type-options:
+      - nosniff
+      x-robots-tag:
+      - noindex, nofollow
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate, br
+      Authorization:
+      - Bearer BQCIeSNhNCkB9Blimo9blo_jY1Ajv1qmG5IreR1KJxAVVqqr7sB5JKz-Fbo6MO8BbqXT1mgn2jb1OEN_yhrC7vHGajwYOQ7EFoOykGWMCQtYI_zd59I
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      User-Agent:
+      - python-requests/2.31.0
+    method: GET
+    uri: https://api.spotify.com/v1/albums/4SXkbDnBPGbLL3szWXL01L
+  response:
+    body:
+      string: "{\n  \"album_type\" : \"single\",\n  \"artists\" : [ {\n    \"external_urls\"
+        : {\n      \"spotify\" : \"https://open.spotify.com/artist/1FPC2zwfMHhrP3frOfaai6\"\n
+        \   },\n    \"href\" : \"https://api.spotify.com/v1/artists/1FPC2zwfMHhrP3frOfaai6\",\n
+        \   \"id\" : \"1FPC2zwfMHhrP3frOfaai6\",\n    \"name\" : \"Kontinuum\",\n
+        \   \"type\" : \"artist\",\n    \"uri\" : \"spotify:artist:1FPC2zwfMHhrP3frOfaai6\"\n
+        \ } ],\n  \"available_markets\" : [ \"AR\", \"AU\", \"AT\", \"BE\", \"BO\",
+        \"BR\", \"BG\", \"CA\", \"CL\", \"CO\", \"CR\", \"CY\", \"CZ\", \"DK\", \"DO\",
+        \"DE\", \"EC\", \"EE\", \"SV\", \"FI\", \"FR\", \"GR\", \"GT\", \"HN\", \"HK\",
+        \"HU\", \"IS\", \"IE\", \"IT\", \"LV\", \"LT\", \"LU\", \"MY\", \"MT\", \"MX\",
+        \"NL\", \"NZ\", \"NI\", \"NO\", \"PA\", \"PY\", \"PE\", \"PH\", \"PL\", \"PT\",
+        \"SG\", \"SK\", \"ES\", \"SE\", \"CH\", \"TW\", \"TR\", \"UY\", \"US\", \"GB\",
+        \"AD\", \"LI\", \"MC\", \"ID\", \"JP\", \"TH\", \"VN\", \"RO\", \"IL\", \"ZA\",
+        \"SA\", \"AE\", \"BH\", \"QA\", \"OM\", \"KW\", \"EG\", \"MA\", \"DZ\", \"TN\",
+        \"LB\", \"JO\", \"PS\", \"IN\", \"BY\", \"KZ\", \"MD\", \"UA\", \"AL\", \"BA\",
+        \"HR\", \"ME\", \"MK\", \"RS\", \"SI\", \"KR\", \"BD\", \"PK\", \"LK\", \"GH\",
+        \"KE\", \"NG\", \"TZ\", \"UG\", \"AG\", \"AM\", \"BS\", \"BB\", \"BZ\", \"BT\",
+        \"BW\", \"BF\", \"CV\", \"CW\", \"DM\", \"FJ\", \"GM\", \"GE\", \"GD\", \"GW\",
+        \"GY\", \"HT\", \"JM\", \"KI\", \"LS\", \"LR\", \"MW\", \"MV\", \"ML\", \"MH\",
+        \"FM\", \"NA\", \"NR\", \"NE\", \"PW\", \"PG\", \"PR\", \"WS\", \"SM\", \"ST\",
+        \"SN\", \"SC\", \"SL\", \"SB\", \"KN\", \"LC\", \"VC\", \"SR\", \"TL\", \"TO\",
+        \"TT\", \"TV\", \"VU\", \"AZ\", \"BN\", \"BI\", \"KH\", \"CM\", \"TD\", \"KM\",
+        \"GQ\", \"SZ\", \"GA\", \"GN\", \"KG\", \"LA\", \"MO\", \"MR\", \"MN\", \"NP\",
+        \"RW\", \"TG\", \"UZ\", \"ZW\", \"BJ\", \"MG\", \"MU\", \"MZ\", \"AO\", \"CI\",
+        \"DJ\", \"ZM\", \"CD\", \"CG\", \"IQ\", \"LY\", \"TJ\", \"VE\", \"ET\", \"XK\"
+        ],\n  \"copyrights\" : [ {\n    \"text\" : \"2015 NCS Ltd.\",\n    \"type\"
+        : \"C\"\n  }, {\n    \"text\" : \"2015 NCS Ltd.\",\n    \"type\" : \"P\"\n
+        \ } ],\n  \"external_ids\" : {\n    \"upc\" : \"5055199513126\"\n  },\n  \"external_urls\"
+        : {\n    \"spotify\" : \"https://open.spotify.com/album/4SXkbDnBPGbLL3szWXL01L\"\n
+        \ },\n  \"genres\" : [ ],\n  \"href\" : \"https://api.spotify.com/v1/albums/4SXkbDnBPGbLL3szWXL01L\",\n
+        \ \"id\" : \"4SXkbDnBPGbLL3szWXL01L\",\n  \"images\" : [ {\n    \"height\"
+        : 640,\n    \"url\" : \"https://i.scdn.co/image/ab67616d0000b273cc3dda9e323043469b0f5e38\",\n
+        \   \"width\" : 640\n  }, {\n    \"height\" : 300,\n    \"url\" : \"https://i.scdn.co/image/ab67616d00001e02cc3dda9e323043469b0f5e38\",\n
+        \   \"width\" : 300\n  }, {\n    \"height\" : 64,\n    \"url\" : \"https://i.scdn.co/image/ab67616d00004851cc3dda9e323043469b0f5e38\",\n
+        \   \"width\" : 64\n  } ],\n  \"label\" : \"NCS\",\n  \"name\" : \"First Rain\",\n
+        \ \"popularity\" : 19,\n  \"release_date\" : \"2015-07-02\",\n  \"release_date_precision\"
+        : \"day\",\n  \"total_tracks\" : 1,\n  \"tracks\" : {\n    \"href\" : \"https://api.spotify.com/v1/albums/4SXkbDnBPGbLL3szWXL01L/tracks?offset=0&limit=50\",\n
+        \   \"items\" : [ {\n      \"artists\" : [ {\n        \"external_urls\" :
+        {\n          \"spotify\" : \"https://open.spotify.com/artist/1FPC2zwfMHhrP3frOfaai6\"\n
+        \       },\n        \"href\" : \"https://api.spotify.com/v1/artists/1FPC2zwfMHhrP3frOfaai6\",\n
+        \       \"id\" : \"1FPC2zwfMHhrP3frOfaai6\",\n        \"name\" : \"Kontinuum\",\n
+        \       \"type\" : \"artist\",\n        \"uri\" : \"spotify:artist:1FPC2zwfMHhrP3frOfaai6\"\n
+        \     } ],\n      \"available_markets\" : [ \"AR\", \"AU\", \"AT\", \"BE\",
+        \"BO\", \"BR\", \"BG\", \"CA\", \"CL\", \"CO\", \"CR\", \"CY\", \"CZ\", \"DK\",
+        \"DO\", \"DE\", \"EC\", \"EE\", \"SV\", \"FI\", \"FR\", \"GR\", \"GT\", \"HN\",
+        \"HK\", \"HU\", \"IS\", \"IE\", \"IT\", \"LV\", \"LT\", \"LU\", \"MY\", \"MT\",
+        \"MX\", \"NL\", \"NZ\", \"NI\", \"NO\", \"PA\", \"PY\", \"PE\", \"PH\", \"PL\",
+        \"PT\", \"SG\", \"SK\", \"ES\", \"SE\", \"CH\", \"TW\", \"TR\", \"UY\", \"US\",
+        \"GB\", \"AD\", \"LI\", \"MC\", \"ID\", \"JP\", \"TH\", \"VN\", \"RO\", \"IL\",
+        \"ZA\", \"SA\", \"AE\", \"BH\", \"QA\", \"OM\", \"KW\", \"EG\", \"MA\", \"DZ\",
+        \"TN\", \"LB\", \"JO\", \"PS\", \"IN\", \"BY\", \"KZ\", \"MD\", \"UA\", \"AL\",
+        \"BA\", \"HR\", \"ME\", \"MK\", \"RS\", \"SI\", \"KR\", \"BD\", \"PK\", \"LK\",
+        \"GH\", \"KE\", \"NG\", \"TZ\", \"UG\", \"AG\", \"AM\", \"BS\", \"BB\", \"BZ\",
+        \"BT\", \"BW\", \"BF\", \"CV\", \"CW\", \"DM\", \"FJ\", \"GM\", \"GE\", \"GD\",
+        \"GW\", \"GY\", \"HT\", \"JM\", \"KI\", \"LS\", \"LR\", \"MW\", \"MV\", \"ML\",
+        \"MH\", \"FM\", \"NA\", \"NR\", \"NE\", \"PW\", \"PG\", \"WS\", \"SM\", \"ST\",
+        \"SN\", \"SC\", \"SL\", \"SB\", \"KN\", \"LC\", \"VC\", \"SR\", \"TL\", \"TO\",
+        \"TT\", \"TV\", \"VU\", \"AZ\", \"BN\", \"BI\", \"KH\", \"CM\", \"TD\", \"KM\",
+        \"GQ\", \"SZ\", \"GA\", \"GN\", \"KG\", \"LA\", \"MO\", \"MR\", \"MN\", \"NP\",
+        \"RW\", \"TG\", \"UZ\", \"ZW\", \"BJ\", \"MG\", \"MU\", \"MZ\", \"AO\", \"CI\",
+        \"DJ\", \"ZM\", \"CD\", \"CG\", \"IQ\", \"LY\", \"TJ\", \"VE\", \"ET\", \"XK\"
+        ],\n      \"disc_number\" : 1,\n      \"duration_ms\" : 240000,\n      \"explicit\"
+        : false,\n      \"external_urls\" : {\n        \"spotify\" : \"https://open.spotify.com/track/1UPuywvKgEteDPzV1TbD3b\"\n
+        \     },\n      \"href\" : \"https://api.spotify.com/v1/tracks/1UPuywvKgEteDPzV1TbD3b\",\n
+        \     \"id\" : \"1UPuywvKgEteDPzV1TbD3b\",\n      \"is_local\" : false,\n
+        \     \"name\" : \"First Rain\",\n      \"preview_url\" : \"https://p.scdn.co/mp3-preview/875434c54d09c4d1813b185bf7196d87e77988f9?cid=5f573c9620494bae87890c0f08a60293\",\n
+        \     \"track_number\" : 1,\n      \"type\" : \"track\",\n      \"uri\" :
+        \"spotify:track:1UPuywvKgEteDPzV1TbD3b\"\n    } ],\n    \"limit\" : 50,\n
+        \   \"next\" : null,\n    \"offset\" : 0,\n    \"previous\" : null,\n    \"total\"
+        : 1\n  },\n  \"type\" : \"album\",\n  \"uri\" : \"spotify:album:4SXkbDnBPGbLL3szWXL01L\"\n}"
+    headers:
+      Alt-Svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      Transfer-Encoding:
+      - chunked
+      Via:
+      - HTTP/2 edgeproxy, 1.1 google
+      access-control-allow-credentials:
+      - 'true'
+      access-control-allow-headers:
+      - Accept, App-Platform, Authorization, Content-Type, Origin, Retry-After, Spotify-App-Version,
+        X-Cloud-Trace-Context, client-token, content-access-token
+      access-control-allow-methods:
+      - GET, POST, OPTIONS, PUT, DELETE, PATCH
+      access-control-allow-origin:
+      - '*'
+      access-control-max-age:
+      - '604800'
+      cache-control:
+      - public, max-age=7200
+      content-encoding:
+      - gzip
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Thu, 28 Mar 2024 18:22:44 GMT
+      server:
+      - envoy
+      strict-transport-security:
+      - max-age=31536000
+      x-content-type-options:
+      - nosniff
+      x-robots-tag:
+      - noindex, nofollow
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate, br
+      Authorization:
+      - Bearer BQCIeSNhNCkB9Blimo9blo_jY1Ajv1qmG5IreR1KJxAVVqqr7sB5JKz-Fbo6MO8BbqXT1mgn2jb1OEN_yhrC7vHGajwYOQ7EFoOykGWMCQtYI_zd59I
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      User-Agent:
+      - python-requests/2.31.0
+    method: GET
+    uri: https://api.spotify.com/v1/albums/4SXkbDnBPGbLL3szWXL01L/tracks/?limit=50&offset=0
+  response:
+    body:
+      string: "{\n  \"href\" : \"https://api.spotify.com/v1/albums/4SXkbDnBPGbLL3szWXL01L/tracks?offset=0&limit=50\",\n
+        \ \"items\" : [ {\n    \"artists\" : [ {\n      \"external_urls\" : {\n        \"spotify\"
+        : \"https://open.spotify.com/artist/1FPC2zwfMHhrP3frOfaai6\"\n      },\n      \"href\"
+        : \"https://api.spotify.com/v1/artists/1FPC2zwfMHhrP3frOfaai6\",\n      \"id\"
+        : \"1FPC2zwfMHhrP3frOfaai6\",\n      \"name\" : \"Kontinuum\",\n      \"type\"
+        : \"artist\",\n      \"uri\" : \"spotify:artist:1FPC2zwfMHhrP3frOfaai6\"\n
+        \   } ],\n    \"available_markets\" : [ \"AR\", \"AU\", \"AT\", \"BE\", \"BO\",
+        \"BR\", \"BG\", \"CA\", \"CL\", \"CO\", \"CR\", \"CY\", \"CZ\", \"DK\", \"DO\",
+        \"DE\", \"EC\", \"EE\", \"SV\", \"FI\", \"FR\", \"GR\", \"GT\", \"HN\", \"HK\",
+        \"HU\", \"IS\", \"IE\", \"IT\", \"LV\", \"LT\", \"LU\", \"MY\", \"MT\", \"MX\",
+        \"NL\", \"NZ\", \"NI\", \"NO\", \"PA\", \"PY\", \"PE\", \"PH\", \"PL\", \"PT\",
+        \"SG\", \"SK\", \"ES\", \"SE\", \"CH\", \"TW\", \"TR\", \"UY\", \"US\", \"GB\",
+        \"AD\", \"LI\", \"MC\", \"ID\", \"JP\", \"TH\", \"VN\", \"RO\", \"IL\", \"ZA\",
+        \"SA\", \"AE\", \"BH\", \"QA\", \"OM\", \"KW\", \"EG\", \"MA\", \"DZ\", \"TN\",
+        \"LB\", \"JO\", \"PS\", \"IN\", \"BY\", \"KZ\", \"MD\", \"UA\", \"AL\", \"BA\",
+        \"HR\", \"ME\", \"MK\", \"RS\", \"SI\", \"KR\", \"BD\", \"PK\", \"LK\", \"GH\",
+        \"KE\", \"NG\", \"TZ\", \"UG\", \"AG\", \"AM\", \"BS\", \"BB\", \"BZ\", \"BT\",
+        \"BW\", \"BF\", \"CV\", \"CW\", \"DM\", \"FJ\", \"GM\", \"GE\", \"GD\", \"GW\",
+        \"GY\", \"HT\", \"JM\", \"KI\", \"LS\", \"LR\", \"MW\", \"MV\", \"ML\", \"MH\",
+        \"FM\", \"NA\", \"NR\", \"NE\", \"PW\", \"PG\", \"WS\", \"SM\", \"ST\", \"SN\",
+        \"SC\", \"SL\", \"SB\", \"KN\", \"LC\", \"VC\", \"SR\", \"TL\", \"TO\", \"TT\",
+        \"TV\", \"VU\", \"AZ\", \"BN\", \"BI\", \"KH\", \"CM\", \"TD\", \"KM\", \"GQ\",
+        \"SZ\", \"GA\", \"GN\", \"KG\", \"LA\", \"MO\", \"MR\", \"MN\", \"NP\", \"RW\",
+        \"TG\", \"UZ\", \"ZW\", \"BJ\", \"MG\", \"MU\", \"MZ\", \"AO\", \"CI\", \"DJ\",
+        \"ZM\", \"CD\", \"CG\", \"IQ\", \"LY\", \"TJ\", \"VE\", \"ET\", \"XK\" ],\n
+        \   \"disc_number\" : 1,\n    \"duration_ms\" : 240000,\n    \"explicit\"
+        : false,\n    \"external_urls\" : {\n      \"spotify\" : \"https://open.spotify.com/track/1UPuywvKgEteDPzV1TbD3b\"\n
+        \   },\n    \"href\" : \"https://api.spotify.com/v1/tracks/1UPuywvKgEteDPzV1TbD3b\",\n
+        \   \"id\" : \"1UPuywvKgEteDPzV1TbD3b\",\n    \"is_local\" : false,\n    \"name\"
+        : \"First Rain\",\n    \"preview_url\" : \"https://p.scdn.co/mp3-preview/875434c54d09c4d1813b185bf7196d87e77988f9?cid=5f573c9620494bae87890c0f08a60293\",\n
+        \   \"track_number\" : 1,\n    \"type\" : \"track\",\n    \"uri\" : \"spotify:track:1UPuywvKgEteDPzV1TbD3b\"\n
+        \ } ],\n  \"limit\" : 50,\n  \"next\" : null,\n  \"offset\" : 0,\n  \"previous\"
+        : null,\n  \"total\" : 1\n}"
+    headers:
+      Alt-Svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      Transfer-Encoding:
+      - chunked
+      Via:
+      - HTTP/2 edgeproxy, 1.1 google
+      access-control-allow-credentials:
+      - 'true'
+      access-control-allow-headers:
+      - Accept, App-Platform, Authorization, Content-Type, Origin, Retry-After, Spotify-App-Version,
+        X-Cloud-Trace-Context, client-token, content-access-token
+      access-control-allow-methods:
+      - GET, POST, OPTIONS, PUT, DELETE, PATCH
+      access-control-allow-origin:
+      - '*'
+      access-control-max-age:
+      - '604800'
+      cache-control:
+      - public, max-age=7200
+      content-encoding:
+      - gzip
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Thu, 28 Mar 2024 18:22:44 GMT
+      server:
+      - envoy
+      strict-transport-security:
+      - max-age=31536000
+      x-content-type-options:
+      - nosniff
+      x-robots-tag:
+      - noindex, nofollow
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate, br
+      Authorization:
+      - Bearer BQCIeSNhNCkB9Blimo9blo_jY1Ajv1qmG5IreR1KJxAVVqqr7sB5JKz-Fbo6MO8BbqXT1mgn2jb1OEN_yhrC7vHGajwYOQ7EFoOykGWMCQtYI_zd59I
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      User-Agent:
+      - python-requests/2.31.0
+    method: GET
+    uri: https://api.spotify.com/v1/albums/3skUzGSJGqPYxu5PzJGwPB
+  response:
+    body:
+      string: "{\n  \"album_type\" : \"single\",\n  \"artists\" : [ {\n    \"external_urls\"
+        : {\n      \"spotify\" : \"https://open.spotify.com/artist/1FPC2zwfMHhrP3frOfaai6\"\n
+        \   },\n    \"href\" : \"https://api.spotify.com/v1/artists/1FPC2zwfMHhrP3frOfaai6\",\n
+        \   \"id\" : \"1FPC2zwfMHhrP3frOfaai6\",\n    \"name\" : \"Kontinuum\",\n
+        \   \"type\" : \"artist\",\n    \"uri\" : \"spotify:artist:1FPC2zwfMHhrP3frOfaai6\"\n
+        \ } ],\n  \"available_markets\" : [ \"AR\", \"AU\", \"AT\", \"BE\", \"BO\",
+        \"BR\", \"BG\", \"CA\", \"CL\", \"CO\", \"CR\", \"CY\", \"CZ\", \"DK\", \"DO\",
+        \"DE\", \"EC\", \"EE\", \"SV\", \"FI\", \"FR\", \"GR\", \"GT\", \"HN\", \"HK\",
+        \"HU\", \"IS\", \"IE\", \"IT\", \"LV\", \"LT\", \"LU\", \"MY\", \"MT\", \"MX\",
+        \"NL\", \"NZ\", \"NI\", \"NO\", \"PA\", \"PY\", \"PE\", \"PH\", \"PL\", \"PT\",
+        \"SG\", \"SK\", \"ES\", \"SE\", \"CH\", \"TW\", \"TR\", \"UY\", \"US\", \"GB\",
+        \"AD\", \"LI\", \"MC\", \"ID\", \"JP\", \"TH\", \"VN\", \"RO\", \"IL\", \"ZA\",
+        \"SA\", \"AE\", \"BH\", \"QA\", \"OM\", \"KW\", \"EG\", \"MA\", \"DZ\", \"TN\",
+        \"LB\", \"JO\", \"PS\", \"IN\", \"BY\", \"KZ\", \"MD\", \"UA\", \"AL\", \"BA\",
+        \"HR\", \"ME\", \"MK\", \"RS\", \"SI\", \"KR\", \"BD\", \"PK\", \"LK\", \"GH\",
+        \"KE\", \"NG\", \"TZ\", \"UG\", \"AG\", \"AM\", \"BS\", \"BB\", \"BZ\", \"BT\",
+        \"BW\", \"BF\", \"CV\", \"CW\", \"DM\", \"FJ\", \"GM\", \"GE\", \"GD\", \"GW\",
+        \"GY\", \"HT\", \"JM\", \"KI\", \"LS\", \"LR\", \"MW\", \"MV\", \"ML\", \"MH\",
+        \"FM\", \"NA\", \"NR\", \"NE\", \"PW\", \"PG\", \"PR\", \"WS\", \"SM\", \"ST\",
+        \"SN\", \"SC\", \"SL\", \"SB\", \"KN\", \"LC\", \"VC\", \"SR\", \"TL\", \"TO\",
+        \"TT\", \"TV\", \"VU\", \"AZ\", \"BN\", \"BI\", \"KH\", \"CM\", \"TD\", \"KM\",
+        \"GQ\", \"SZ\", \"GA\", \"GN\", \"KG\", \"LA\", \"MO\", \"MR\", \"MN\", \"NP\",
+        \"RW\", \"TG\", \"UZ\", \"ZW\", \"BJ\", \"MG\", \"MU\", \"MZ\", \"AO\", \"CI\",
+        \"DJ\", \"ZM\", \"CD\", \"CG\", \"IQ\", \"LY\", \"TJ\", \"VE\", \"ET\", \"XK\"
+        ],\n  \"copyrights\" : [ {\n    \"text\" : \"2015 NCS\",\n    \"type\" : \"C\"\n
+        \ }, {\n    \"text\" : \"2015 NCS\",\n    \"type\" : \"P\"\n  } ],\n  \"external_ids\"
+        : {\n    \"upc\" : \"5055199512990\"\n  },\n  \"external_urls\" : {\n    \"spotify\"
+        : \"https://open.spotify.com/album/3skUzGSJGqPYxu5PzJGwPB\"\n  },\n  \"genres\"
+        : [ ],\n  \"href\" : \"https://api.spotify.com/v1/albums/3skUzGSJGqPYxu5PzJGwPB\",\n
+        \ \"id\" : \"3skUzGSJGqPYxu5PzJGwPB\",\n  \"images\" : [ {\n    \"height\"
+        : 640,\n    \"url\" : \"https://i.scdn.co/image/ab67616d0000b27335ba63ff20683c61ab39d622\",\n
+        \   \"width\" : 640\n  }, {\n    \"height\" : 300,\n    \"url\" : \"https://i.scdn.co/image/ab67616d00001e0235ba63ff20683c61ab39d622\",\n
+        \   \"width\" : 300\n  }, {\n    \"height\" : 64,\n    \"url\" : \"https://i.scdn.co/image/ab67616d0000485135ba63ff20683c61ab39d622\",\n
+        \   \"width\" : 64\n  } ],\n  \"label\" : \"NCS\",\n  \"name\" : \"Aware\",\n
+        \ \"popularity\" : 21,\n  \"release_date\" : \"2015-05-28\",\n  \"release_date_precision\"
+        : \"day\",\n  \"total_tracks\" : 1,\n  \"tracks\" : {\n    \"href\" : \"https://api.spotify.com/v1/albums/3skUzGSJGqPYxu5PzJGwPB/tracks?offset=0&limit=50\",\n
+        \   \"items\" : [ {\n      \"artists\" : [ {\n        \"external_urls\" :
+        {\n          \"spotify\" : \"https://open.spotify.com/artist/1FPC2zwfMHhrP3frOfaai6\"\n
+        \       },\n        \"href\" : \"https://api.spotify.com/v1/artists/1FPC2zwfMHhrP3frOfaai6\",\n
+        \       \"id\" : \"1FPC2zwfMHhrP3frOfaai6\",\n        \"name\" : \"Kontinuum\",\n
+        \       \"type\" : \"artist\",\n        \"uri\" : \"spotify:artist:1FPC2zwfMHhrP3frOfaai6\"\n
+        \     } ],\n      \"available_markets\" : [ \"AR\", \"AU\", \"AT\", \"BE\",
+        \"BO\", \"BR\", \"BG\", \"CA\", \"CL\", \"CO\", \"CR\", \"CY\", \"CZ\", \"DK\",
+        \"DO\", \"DE\", \"EC\", \"EE\", \"SV\", \"FI\", \"FR\", \"GR\", \"GT\", \"HN\",
+        \"HK\", \"HU\", \"IS\", \"IE\", \"IT\", \"LV\", \"LT\", \"LU\", \"MY\", \"MT\",
+        \"MX\", \"NL\", \"NZ\", \"NI\", \"NO\", \"PA\", \"PY\", \"PE\", \"PH\", \"PL\",
+        \"PT\", \"SG\", \"SK\", \"ES\", \"SE\", \"CH\", \"TW\", \"TR\", \"UY\", \"US\",
+        \"GB\", \"AD\", \"LI\", \"MC\", \"ID\", \"JP\", \"TH\", \"VN\", \"RO\", \"IL\",
+        \"ZA\", \"SA\", \"AE\", \"BH\", \"QA\", \"OM\", \"KW\", \"EG\", \"MA\", \"DZ\",
+        \"TN\", \"LB\", \"JO\", \"PS\", \"IN\", \"BY\", \"KZ\", \"MD\", \"UA\", \"AL\",
+        \"BA\", \"HR\", \"ME\", \"MK\", \"RS\", \"SI\", \"KR\", \"BD\", \"PK\", \"LK\",
+        \"GH\", \"KE\", \"NG\", \"TZ\", \"UG\", \"AG\", \"AM\", \"BS\", \"BB\", \"BZ\",
+        \"BT\", \"BW\", \"BF\", \"CV\", \"CW\", \"DM\", \"FJ\", \"GM\", \"GE\", \"GD\",
+        \"GW\", \"GY\", \"HT\", \"JM\", \"KI\", \"LS\", \"LR\", \"MW\", \"MV\", \"ML\",
+        \"MH\", \"FM\", \"NA\", \"NR\", \"NE\", \"PW\", \"PG\", \"WS\", \"SM\", \"ST\",
+        \"SN\", \"SC\", \"SL\", \"SB\", \"KN\", \"LC\", \"VC\", \"SR\", \"TL\", \"TO\",
+        \"TT\", \"TV\", \"VU\", \"AZ\", \"BN\", \"BI\", \"KH\", \"CM\", \"TD\", \"KM\",
+        \"GQ\", \"SZ\", \"GA\", \"GN\", \"KG\", \"LA\", \"MO\", \"MR\", \"MN\", \"NP\",
+        \"RW\", \"TG\", \"UZ\", \"ZW\", \"BJ\", \"MG\", \"MU\", \"MZ\", \"AO\", \"CI\",
+        \"DJ\", \"ZM\", \"CD\", \"CG\", \"IQ\", \"LY\", \"TJ\", \"VE\", \"ET\", \"XK\"
+        ],\n      \"disc_number\" : 1,\n      \"duration_ms\" : 272727,\n      \"explicit\"
+        : false,\n      \"external_urls\" : {\n        \"spotify\" : \"https://open.spotify.com/track/2MG4p8qAd6TOr1WQGwpclY\"\n
+        \     },\n      \"href\" : \"https://api.spotify.com/v1/tracks/2MG4p8qAd6TOr1WQGwpclY\",\n
+        \     \"id\" : \"2MG4p8qAd6TOr1WQGwpclY\",\n      \"is_local\" : false,\n
+        \     \"name\" : \"Aware\",\n      \"preview_url\" : \"https://p.scdn.co/mp3-preview/20593517bfaceaa1c5692fe0e7bdc1dbfef64c42?cid=5f573c9620494bae87890c0f08a60293\",\n
+        \     \"track_number\" : 1,\n      \"type\" : \"track\",\n      \"uri\" :
+        \"spotify:track:2MG4p8qAd6TOr1WQGwpclY\"\n    } ],\n    \"limit\" : 50,\n
+        \   \"next\" : null,\n    \"offset\" : 0,\n    \"previous\" : null,\n    \"total\"
+        : 1\n  },\n  \"type\" : \"album\",\n  \"uri\" : \"spotify:album:3skUzGSJGqPYxu5PzJGwPB\"\n}"
+    headers:
+      Alt-Svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      Transfer-Encoding:
+      - chunked
+      Via:
+      - HTTP/2 edgeproxy, 1.1 google
+      access-control-allow-credentials:
+      - 'true'
+      access-control-allow-headers:
+      - Accept, App-Platform, Authorization, Content-Type, Origin, Retry-After, Spotify-App-Version,
+        X-Cloud-Trace-Context, client-token, content-access-token
+      access-control-allow-methods:
+      - GET, POST, OPTIONS, PUT, DELETE, PATCH
+      access-control-allow-origin:
+      - '*'
+      access-control-max-age:
+      - '604800'
+      cache-control:
+      - public, max-age=7200
+      content-encoding:
+      - gzip
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Thu, 28 Mar 2024 18:22:45 GMT
+      server:
+      - envoy
+      strict-transport-security:
+      - max-age=31536000
+      x-content-type-options:
+      - nosniff
+      x-robots-tag:
+      - noindex, nofollow
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate, br
+      Authorization:
+      - Bearer BQCIeSNhNCkB9Blimo9blo_jY1Ajv1qmG5IreR1KJxAVVqqr7sB5JKz-Fbo6MO8BbqXT1mgn2jb1OEN_yhrC7vHGajwYOQ7EFoOykGWMCQtYI_zd59I
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      User-Agent:
+      - python-requests/2.31.0
+    method: GET
+    uri: https://api.spotify.com/v1/albums/3skUzGSJGqPYxu5PzJGwPB/tracks/?limit=50&offset=0
+  response:
+    body:
+      string: "{\n  \"href\" : \"https://api.spotify.com/v1/albums/3skUzGSJGqPYxu5PzJGwPB/tracks?offset=0&limit=50\",\n
+        \ \"items\" : [ {\n    \"artists\" : [ {\n      \"external_urls\" : {\n        \"spotify\"
+        : \"https://open.spotify.com/artist/1FPC2zwfMHhrP3frOfaai6\"\n      },\n      \"href\"
+        : \"https://api.spotify.com/v1/artists/1FPC2zwfMHhrP3frOfaai6\",\n      \"id\"
+        : \"1FPC2zwfMHhrP3frOfaai6\",\n      \"name\" : \"Kontinuum\",\n      \"type\"
+        : \"artist\",\n      \"uri\" : \"spotify:artist:1FPC2zwfMHhrP3frOfaai6\"\n
+        \   } ],\n    \"available_markets\" : [ \"AR\", \"AU\", \"AT\", \"BE\", \"BO\",
+        \"BR\", \"BG\", \"CA\", \"CL\", \"CO\", \"CR\", \"CY\", \"CZ\", \"DK\", \"DO\",
+        \"DE\", \"EC\", \"EE\", \"SV\", \"FI\", \"FR\", \"GR\", \"GT\", \"HN\", \"HK\",
+        \"HU\", \"IS\", \"IE\", \"IT\", \"LV\", \"LT\", \"LU\", \"MY\", \"MT\", \"MX\",
+        \"NL\", \"NZ\", \"NI\", \"NO\", \"PA\", \"PY\", \"PE\", \"PH\", \"PL\", \"PT\",
+        \"SG\", \"SK\", \"ES\", \"SE\", \"CH\", \"TW\", \"TR\", \"UY\", \"US\", \"GB\",
+        \"AD\", \"LI\", \"MC\", \"ID\", \"JP\", \"TH\", \"VN\", \"RO\", \"IL\", \"ZA\",
+        \"SA\", \"AE\", \"BH\", \"QA\", \"OM\", \"KW\", \"EG\", \"MA\", \"DZ\", \"TN\",
+        \"LB\", \"JO\", \"PS\", \"IN\", \"BY\", \"KZ\", \"MD\", \"UA\", \"AL\", \"BA\",
+        \"HR\", \"ME\", \"MK\", \"RS\", \"SI\", \"KR\", \"BD\", \"PK\", \"LK\", \"GH\",
+        \"KE\", \"NG\", \"TZ\", \"UG\", \"AG\", \"AM\", \"BS\", \"BB\", \"BZ\", \"BT\",
+        \"BW\", \"BF\", \"CV\", \"CW\", \"DM\", \"FJ\", \"GM\", \"GE\", \"GD\", \"GW\",
+        \"GY\", \"HT\", \"JM\", \"KI\", \"LS\", \"LR\", \"MW\", \"MV\", \"ML\", \"MH\",
+        \"FM\", \"NA\", \"NR\", \"NE\", \"PW\", \"PG\", \"WS\", \"SM\", \"ST\", \"SN\",
+        \"SC\", \"SL\", \"SB\", \"KN\", \"LC\", \"VC\", \"SR\", \"TL\", \"TO\", \"TT\",
+        \"TV\", \"VU\", \"AZ\", \"BN\", \"BI\", \"KH\", \"CM\", \"TD\", \"KM\", \"GQ\",
+        \"SZ\", \"GA\", \"GN\", \"KG\", \"LA\", \"MO\", \"MR\", \"MN\", \"NP\", \"RW\",
+        \"TG\", \"UZ\", \"ZW\", \"BJ\", \"MG\", \"MU\", \"MZ\", \"AO\", \"CI\", \"DJ\",
+        \"ZM\", \"CD\", \"CG\", \"IQ\", \"LY\", \"TJ\", \"VE\", \"ET\", \"XK\" ],\n
+        \   \"disc_number\" : 1,\n    \"duration_ms\" : 272727,\n    \"explicit\"
+        : false,\n    \"external_urls\" : {\n      \"spotify\" : \"https://open.spotify.com/track/2MG4p8qAd6TOr1WQGwpclY\"\n
+        \   },\n    \"href\" : \"https://api.spotify.com/v1/tracks/2MG4p8qAd6TOr1WQGwpclY\",\n
+        \   \"id\" : \"2MG4p8qAd6TOr1WQGwpclY\",\n    \"is_local\" : false,\n    \"name\"
+        : \"Aware\",\n    \"preview_url\" : \"https://p.scdn.co/mp3-preview/20593517bfaceaa1c5692fe0e7bdc1dbfef64c42?cid=5f573c9620494bae87890c0f08a60293\",\n
+        \   \"track_number\" : 1,\n    \"type\" : \"track\",\n    \"uri\" : \"spotify:track:2MG4p8qAd6TOr1WQGwpclY\"\n
+        \ } ],\n  \"limit\" : 50,\n  \"next\" : null,\n  \"offset\" : 0,\n  \"previous\"
+        : null,\n  \"total\" : 1\n}"
+    headers:
+      Alt-Svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      Transfer-Encoding:
+      - chunked
+      Via:
+      - HTTP/2 edgeproxy, 1.1 google
+      access-control-allow-credentials:
+      - 'true'
+      access-control-allow-headers:
+      - Accept, App-Platform, Authorization, Content-Type, Origin, Retry-After, Spotify-App-Version,
+        X-Cloud-Trace-Context, client-token, content-access-token
+      access-control-allow-methods:
+      - GET, POST, OPTIONS, PUT, DELETE, PATCH
+      access-control-allow-origin:
+      - '*'
+      access-control-max-age:
+      - '604800'
+      cache-control:
+      - public, max-age=7200
+      content-encoding:
+      - gzip
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Thu, 28 Mar 2024 18:22:45 GMT
+      server:
+      - envoy
+      strict-transport-security:
+      - max-age=31536000
+      x-content-type-options:
+      - nosniff
+      x-robots-tag:
+      - noindex, nofollow
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate, br
+      Authorization:
+      - Bearer BQCIeSNhNCkB9Blimo9blo_jY1Ajv1qmG5IreR1KJxAVVqqr7sB5JKz-Fbo6MO8BbqXT1mgn2jb1OEN_yhrC7vHGajwYOQ7EFoOykGWMCQtYI_zd59I
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      User-Agent:
+      - python-requests/2.31.0
+    method: GET
+    uri: https://api.spotify.com/v1/albums/3Anxbj2ILNT4oROywVScjr
+  response:
+    body:
+      string: "{\n  \"album_type\" : \"single\",\n  \"artists\" : [ {\n    \"external_urls\"
+        : {\n      \"spotify\" : \"https://open.spotify.com/artist/1FPC2zwfMHhrP3frOfaai6\"\n
+        \   },\n    \"href\" : \"https://api.spotify.com/v1/artists/1FPC2zwfMHhrP3frOfaai6\",\n
+        \   \"id\" : \"1FPC2zwfMHhrP3frOfaai6\",\n    \"name\" : \"Kontinuum\",\n
+        \   \"type\" : \"artist\",\n    \"uri\" : \"spotify:artist:1FPC2zwfMHhrP3frOfaai6\"\n
+        \ } ],\n  \"available_markets\" : [ \"AR\", \"AU\", \"AT\", \"BE\", \"BO\",
+        \"BR\", \"BG\", \"CA\", \"CL\", \"CO\", \"CR\", \"CY\", \"CZ\", \"DK\", \"DO\",
+        \"DE\", \"EC\", \"EE\", \"SV\", \"FI\", \"FR\", \"GR\", \"GT\", \"HN\", \"HK\",
+        \"HU\", \"IS\", \"IE\", \"IT\", \"LV\", \"LT\", \"LU\", \"MY\", \"MT\", \"MX\",
+        \"NL\", \"NZ\", \"NI\", \"NO\", \"PA\", \"PY\", \"PE\", \"PH\", \"PL\", \"PT\",
+        \"SG\", \"SK\", \"ES\", \"SE\", \"CH\", \"TW\", \"TR\", \"UY\", \"US\", \"GB\",
+        \"AD\", \"LI\", \"MC\", \"ID\", \"JP\", \"TH\", \"VN\", \"RO\", \"IL\", \"ZA\",
+        \"SA\", \"AE\", \"BH\", \"QA\", \"OM\", \"KW\", \"EG\", \"MA\", \"DZ\", \"TN\",
+        \"LB\", \"JO\", \"PS\", \"IN\", \"BY\", \"KZ\", \"MD\", \"UA\", \"AL\", \"BA\",
+        \"HR\", \"ME\", \"MK\", \"RS\", \"SI\", \"KR\", \"BD\", \"PK\", \"LK\", \"GH\",
+        \"KE\", \"NG\", \"TZ\", \"UG\", \"AG\", \"AM\", \"BS\", \"BB\", \"BZ\", \"BT\",
+        \"BW\", \"BF\", \"CV\", \"CW\", \"DM\", \"FJ\", \"GM\", \"GE\", \"GD\", \"GW\",
+        \"GY\", \"HT\", \"JM\", \"KI\", \"LS\", \"LR\", \"MW\", \"MV\", \"ML\", \"MH\",
+        \"FM\", \"NA\", \"NR\", \"NE\", \"PW\", \"PG\", \"PR\", \"WS\", \"SM\", \"ST\",
+        \"SN\", \"SC\", \"SL\", \"SB\", \"KN\", \"LC\", \"VC\", \"SR\", \"TL\", \"TO\",
+        \"TT\", \"TV\", \"VU\", \"AZ\", \"BN\", \"BI\", \"KH\", \"CM\", \"TD\", \"KM\",
+        \"GQ\", \"SZ\", \"GA\", \"GN\", \"KG\", \"LA\", \"MO\", \"MR\", \"MN\", \"NP\",
+        \"RW\", \"TG\", \"UZ\", \"ZW\", \"BJ\", \"MG\", \"MU\", \"MZ\", \"AO\", \"CI\",
+        \"DJ\", \"ZM\", \"CD\", \"CG\", \"IQ\", \"LY\", \"TJ\", \"VE\", \"ET\", \"XK\"
+        ],\n  \"copyrights\" : [ {\n    \"text\" : \"2014 CLUBTRXX\",\n    \"type\"
+        : \"C\"\n  }, {\n    \"text\" : \"2014 CLUBTRXX\",\n    \"type\" : \"P\"\n
+        \ } ],\n  \"external_ids\" : {\n    \"upc\" : \"250472629142\"\n  },\n  \"external_urls\"
+        : {\n    \"spotify\" : \"https://open.spotify.com/album/3Anxbj2ILNT4oROywVScjr\"\n
+        \ },\n  \"genres\" : [ ],\n  \"href\" : \"https://api.spotify.com/v1/albums/3Anxbj2ILNT4oROywVScjr\",\n
+        \ \"id\" : \"3Anxbj2ILNT4oROywVScjr\",\n  \"images\" : [ {\n    \"height\"
+        : 640,\n    \"url\" : \"https://i.scdn.co/image/ab67616d0000b273e583fc853c6f07c4ef12faa0\",\n
+        \   \"width\" : 640\n  }, {\n    \"height\" : 300,\n    \"url\" : \"https://i.scdn.co/image/ab67616d00001e02e583fc853c6f07c4ef12faa0\",\n
+        \   \"width\" : 300\n  }, {\n    \"height\" : 64,\n    \"url\" : \"https://i.scdn.co/image/ab67616d00004851e583fc853c6f07c4ef12faa0\",\n
+        \   \"width\" : 64\n  } ],\n  \"label\" : \"CLUBTRXX\",\n  \"name\" : \"Freedom\",\n
+        \ \"popularity\" : 2,\n  \"release_date\" : \"2014-05-13\",\n  \"release_date_precision\"
+        : \"day\",\n  \"total_tracks\" : 1,\n  \"tracks\" : {\n    \"href\" : \"https://api.spotify.com/v1/albums/3Anxbj2ILNT4oROywVScjr/tracks?offset=0&limit=50\",\n
+        \   \"items\" : [ {\n      \"artists\" : [ {\n        \"external_urls\" :
+        {\n          \"spotify\" : \"https://open.spotify.com/artist/1FPC2zwfMHhrP3frOfaai6\"\n
+        \       },\n        \"href\" : \"https://api.spotify.com/v1/artists/1FPC2zwfMHhrP3frOfaai6\",\n
+        \       \"id\" : \"1FPC2zwfMHhrP3frOfaai6\",\n        \"name\" : \"Kontinuum\",\n
+        \       \"type\" : \"artist\",\n        \"uri\" : \"spotify:artist:1FPC2zwfMHhrP3frOfaai6\"\n
+        \     } ],\n      \"available_markets\" : [ \"AR\", \"AU\", \"AT\", \"BE\",
+        \"BO\", \"BR\", \"BG\", \"CA\", \"CL\", \"CO\", \"CR\", \"CY\", \"CZ\", \"DK\",
+        \"DO\", \"DE\", \"EC\", \"EE\", \"SV\", \"FI\", \"FR\", \"GR\", \"GT\", \"HN\",
+        \"HK\", \"HU\", \"IS\", \"IE\", \"IT\", \"LV\", \"LT\", \"LU\", \"MY\", \"MT\",
+        \"MX\", \"NL\", \"NZ\", \"NI\", \"NO\", \"PA\", \"PY\", \"PE\", \"PH\", \"PL\",
+        \"PT\", \"SG\", \"SK\", \"ES\", \"SE\", \"CH\", \"TW\", \"TR\", \"UY\", \"US\",
+        \"GB\", \"AD\", \"LI\", \"MC\", \"ID\", \"JP\", \"TH\", \"VN\", \"RO\", \"IL\",
+        \"ZA\", \"SA\", \"AE\", \"BH\", \"QA\", \"OM\", \"KW\", \"EG\", \"MA\", \"DZ\",
+        \"TN\", \"LB\", \"JO\", \"PS\", \"IN\", \"BY\", \"KZ\", \"MD\", \"UA\", \"AL\",
+        \"BA\", \"HR\", \"ME\", \"MK\", \"RS\", \"SI\", \"KR\", \"BD\", \"PK\", \"LK\",
+        \"GH\", \"KE\", \"NG\", \"TZ\", \"UG\", \"AG\", \"AM\", \"BS\", \"BB\", \"BZ\",
+        \"BT\", \"BW\", \"BF\", \"CV\", \"CW\", \"DM\", \"FJ\", \"GM\", \"GE\", \"GD\",
+        \"GW\", \"GY\", \"HT\", \"JM\", \"KI\", \"LS\", \"LR\", \"MW\", \"MV\", \"ML\",
+        \"MH\", \"FM\", \"NA\", \"NR\", \"NE\", \"PW\", \"PG\", \"WS\", \"SM\", \"ST\",
+        \"SN\", \"SC\", \"SL\", \"SB\", \"KN\", \"LC\", \"VC\", \"SR\", \"TL\", \"TO\",
+        \"TT\", \"TV\", \"VU\", \"AZ\", \"BN\", \"BI\", \"KH\", \"CM\", \"TD\", \"KM\",
+        \"GQ\", \"SZ\", \"GA\", \"GN\", \"KG\", \"LA\", \"MO\", \"MR\", \"MN\", \"NP\",
+        \"RW\", \"TG\", \"UZ\", \"ZW\", \"BJ\", \"MG\", \"MU\", \"MZ\", \"AO\", \"CI\",
+        \"DJ\", \"ZM\", \"CD\", \"CG\", \"IQ\", \"LY\", \"TJ\", \"VE\", \"ET\", \"XK\"
+        ],\n      \"disc_number\" : 1,\n      \"duration_ms\" : 322749,\n      \"explicit\"
+        : false,\n      \"external_urls\" : {\n        \"spotify\" : \"https://open.spotify.com/track/0wuSW1SD2LDv0rCp8m5OTI\"\n
+        \     },\n      \"href\" : \"https://api.spotify.com/v1/tracks/0wuSW1SD2LDv0rCp8m5OTI\",\n
+        \     \"id\" : \"0wuSW1SD2LDv0rCp8m5OTI\",\n      \"is_local\" : false,\n
+        \     \"name\" : \"Freedom - Original Mix\",\n      \"preview_url\" : \"https://p.scdn.co/mp3-preview/944d21c16714e826774233b57390b391045e2add?cid=5f573c9620494bae87890c0f08a60293\",\n
+        \     \"track_number\" : 1,\n      \"type\" : \"track\",\n      \"uri\" :
+        \"spotify:track:0wuSW1SD2LDv0rCp8m5OTI\"\n    } ],\n    \"limit\" : 50,\n
+        \   \"next\" : null,\n    \"offset\" : 0,\n    \"previous\" : null,\n    \"total\"
+        : 1\n  },\n  \"type\" : \"album\",\n  \"uri\" : \"spotify:album:3Anxbj2ILNT4oROywVScjr\"\n}"
+    headers:
+      Alt-Svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      Transfer-Encoding:
+      - chunked
+      Via:
+      - HTTP/2 edgeproxy, 1.1 google
+      access-control-allow-credentials:
+      - 'true'
+      access-control-allow-headers:
+      - Accept, App-Platform, Authorization, Content-Type, Origin, Retry-After, Spotify-App-Version,
+        X-Cloud-Trace-Context, client-token, content-access-token
+      access-control-allow-methods:
+      - GET, POST, OPTIONS, PUT, DELETE, PATCH
+      access-control-allow-origin:
+      - '*'
+      access-control-max-age:
+      - '604800'
+      cache-control:
+      - public, max-age=7200
+      content-encoding:
+      - gzip
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Thu, 28 Mar 2024 18:22:46 GMT
+      server:
+      - envoy
+      strict-transport-security:
+      - max-age=31536000
+      x-content-type-options:
+      - nosniff
+      x-robots-tag:
+      - noindex, nofollow
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate, br
+      Authorization:
+      - Bearer BQCIeSNhNCkB9Blimo9blo_jY1Ajv1qmG5IreR1KJxAVVqqr7sB5JKz-Fbo6MO8BbqXT1mgn2jb1OEN_yhrC7vHGajwYOQ7EFoOykGWMCQtYI_zd59I
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      User-Agent:
+      - python-requests/2.31.0
+    method: GET
+    uri: https://api.spotify.com/v1/albums/3Anxbj2ILNT4oROywVScjr/tracks/?limit=50&offset=0
+  response:
+    body:
+      string: "{\n  \"href\" : \"https://api.spotify.com/v1/albums/3Anxbj2ILNT4oROywVScjr/tracks?offset=0&limit=50\",\n
+        \ \"items\" : [ {\n    \"artists\" : [ {\n      \"external_urls\" : {\n        \"spotify\"
+        : \"https://open.spotify.com/artist/1FPC2zwfMHhrP3frOfaai6\"\n      },\n      \"href\"
+        : \"https://api.spotify.com/v1/artists/1FPC2zwfMHhrP3frOfaai6\",\n      \"id\"
+        : \"1FPC2zwfMHhrP3frOfaai6\",\n      \"name\" : \"Kontinuum\",\n      \"type\"
+        : \"artist\",\n      \"uri\" : \"spotify:artist:1FPC2zwfMHhrP3frOfaai6\"\n
+        \   } ],\n    \"available_markets\" : [ \"AR\", \"AU\", \"AT\", \"BE\", \"BO\",
+        \"BR\", \"BG\", \"CA\", \"CL\", \"CO\", \"CR\", \"CY\", \"CZ\", \"DK\", \"DO\",
+        \"DE\", \"EC\", \"EE\", \"SV\", \"FI\", \"FR\", \"GR\", \"GT\", \"HN\", \"HK\",
+        \"HU\", \"IS\", \"IE\", \"IT\", \"LV\", \"LT\", \"LU\", \"MY\", \"MT\", \"MX\",
+        \"NL\", \"NZ\", \"NI\", \"NO\", \"PA\", \"PY\", \"PE\", \"PH\", \"PL\", \"PT\",
+        \"SG\", \"SK\", \"ES\", \"SE\", \"CH\", \"TW\", \"TR\", \"UY\", \"US\", \"GB\",
+        \"AD\", \"LI\", \"MC\", \"ID\", \"JP\", \"TH\", \"VN\", \"RO\", \"IL\", \"ZA\",
+        \"SA\", \"AE\", \"BH\", \"QA\", \"OM\", \"KW\", \"EG\", \"MA\", \"DZ\", \"TN\",
+        \"LB\", \"JO\", \"PS\", \"IN\", \"BY\", \"KZ\", \"MD\", \"UA\", \"AL\", \"BA\",
+        \"HR\", \"ME\", \"MK\", \"RS\", \"SI\", \"KR\", \"BD\", \"PK\", \"LK\", \"GH\",
+        \"KE\", \"NG\", \"TZ\", \"UG\", \"AG\", \"AM\", \"BS\", \"BB\", \"BZ\", \"BT\",
+        \"BW\", \"BF\", \"CV\", \"CW\", \"DM\", \"FJ\", \"GM\", \"GE\", \"GD\", \"GW\",
+        \"GY\", \"HT\", \"JM\", \"KI\", \"LS\", \"LR\", \"MW\", \"MV\", \"ML\", \"MH\",
+        \"FM\", \"NA\", \"NR\", \"NE\", \"PW\", \"PG\", \"WS\", \"SM\", \"ST\", \"SN\",
+        \"SC\", \"SL\", \"SB\", \"KN\", \"LC\", \"VC\", \"SR\", \"TL\", \"TO\", \"TT\",
+        \"TV\", \"VU\", \"AZ\", \"BN\", \"BI\", \"KH\", \"CM\", \"TD\", \"KM\", \"GQ\",
+        \"SZ\", \"GA\", \"GN\", \"KG\", \"LA\", \"MO\", \"MR\", \"MN\", \"NP\", \"RW\",
+        \"TG\", \"UZ\", \"ZW\", \"BJ\", \"MG\", \"MU\", \"MZ\", \"AO\", \"CI\", \"DJ\",
+        \"ZM\", \"CD\", \"CG\", \"IQ\", \"LY\", \"TJ\", \"VE\", \"ET\", \"XK\" ],\n
+        \   \"disc_number\" : 1,\n    \"duration_ms\" : 322749,\n    \"explicit\"
+        : false,\n    \"external_urls\" : {\n      \"spotify\" : \"https://open.spotify.com/track/0wuSW1SD2LDv0rCp8m5OTI\"\n
+        \   },\n    \"href\" : \"https://api.spotify.com/v1/tracks/0wuSW1SD2LDv0rCp8m5OTI\",\n
+        \   \"id\" : \"0wuSW1SD2LDv0rCp8m5OTI\",\n    \"is_local\" : false,\n    \"name\"
+        : \"Freedom - Original Mix\",\n    \"preview_url\" : \"https://p.scdn.co/mp3-preview/944d21c16714e826774233b57390b391045e2add?cid=5f573c9620494bae87890c0f08a60293\",\n
+        \   \"track_number\" : 1,\n    \"type\" : \"track\",\n    \"uri\" : \"spotify:track:0wuSW1SD2LDv0rCp8m5OTI\"\n
+        \ } ],\n  \"limit\" : 50,\n  \"next\" : null,\n  \"offset\" : 0,\n  \"previous\"
+        : null,\n  \"total\" : 1\n}"
+    headers:
+      Alt-Svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      Transfer-Encoding:
+      - chunked
+      Via:
+      - HTTP/2 edgeproxy, 1.1 google
+      access-control-allow-credentials:
+      - 'true'
+      access-control-allow-headers:
+      - Accept, App-Platform, Authorization, Content-Type, Origin, Retry-After, Spotify-App-Version,
+        X-Cloud-Trace-Context, client-token, content-access-token
+      access-control-allow-methods:
+      - GET, POST, OPTIONS, PUT, DELETE, PATCH
+      access-control-allow-origin:
+      - '*'
+      access-control-max-age:
+      - '604800'
+      cache-control:
+      - public, max-age=7200
+      content-encoding:
+      - gzip
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Thu, 28 Mar 2024 18:22:47 GMT
+      server:
+      - envoy
+      strict-transport-security:
+      - max-age=31536000
+      x-content-type-options:
+      - nosniff
+      x-robots-tag:
+      - noindex, nofollow
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate, br
+      Authorization:
+      - Bearer BQCIeSNhNCkB9Blimo9blo_jY1Ajv1qmG5IreR1KJxAVVqqr7sB5JKz-Fbo6MO8BbqXT1mgn2jb1OEN_yhrC7vHGajwYOQ7EFoOykGWMCQtYI_zd59I
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      User-Agent:
+      - python-requests/2.31.0
+    method: GET
+    uri: https://api.spotify.com/v1/tracks/3wUEWGwCVJUMecLVItve9f
+  response:
+    body:
+      string: "{\n  \"album\" : {\n    \"album_type\" : \"single\",\n    \"artists\"
+        : [ {\n      \"external_urls\" : {\n        \"spotify\" : \"https://open.spotify.com/artist/1FPC2zwfMHhrP3frOfaai6\"\n
+        \     },\n      \"href\" : \"https://api.spotify.com/v1/artists/1FPC2zwfMHhrP3frOfaai6\",\n
+        \     \"id\" : \"1FPC2zwfMHhrP3frOfaai6\",\n      \"name\" : \"Kontinuum\",\n
+        \     \"type\" : \"artist\",\n      \"uri\" : \"spotify:artist:1FPC2zwfMHhrP3frOfaai6\"\n
+        \   } ],\n    \"available_markets\" : [ \"AR\", \"AU\", \"AT\", \"BE\", \"BO\",
+        \"BR\", \"BG\", \"CA\", \"CL\", \"CO\", \"CR\", \"CY\", \"CZ\", \"DK\", \"DO\",
+        \"DE\", \"EC\", \"EE\", \"SV\", \"FI\", \"FR\", \"GR\", \"GT\", \"HN\", \"HK\",
+        \"HU\", \"IS\", \"IE\", \"IT\", \"LV\", \"LT\", \"LU\", \"MY\", \"MT\", \"MX\",
+        \"NL\", \"NZ\", \"NI\", \"NO\", \"PA\", \"PY\", \"PE\", \"PH\", \"PL\", \"PT\",
+        \"SG\", \"SK\", \"ES\", \"SE\", \"CH\", \"TW\", \"TR\", \"UY\", \"US\", \"GB\",
+        \"AD\", \"LI\", \"MC\", \"ID\", \"JP\", \"TH\", \"VN\", \"RO\", \"IL\", \"ZA\",
+        \"SA\", \"AE\", \"BH\", \"QA\", \"OM\", \"KW\", \"EG\", \"MA\", \"DZ\", \"TN\",
+        \"LB\", \"JO\", \"PS\", \"IN\", \"BY\", \"KZ\", \"MD\", \"UA\", \"AL\", \"BA\",
+        \"HR\", \"ME\", \"MK\", \"RS\", \"SI\", \"KR\", \"BD\", \"PK\", \"LK\", \"GH\",
+        \"KE\", \"NG\", \"TZ\", \"UG\", \"AG\", \"AM\", \"BS\", \"BB\", \"BZ\", \"BT\",
+        \"BW\", \"BF\", \"CV\", \"CW\", \"DM\", \"FJ\", \"GM\", \"GE\", \"GD\", \"GW\",
+        \"GY\", \"HT\", \"JM\", \"KI\", \"LS\", \"LR\", \"MW\", \"MV\", \"ML\", \"MH\",
+        \"FM\", \"NA\", \"NR\", \"NE\", \"PW\", \"PG\", \"PR\", \"WS\", \"SM\", \"ST\",
+        \"SN\", \"SC\", \"SL\", \"SB\", \"KN\", \"LC\", \"VC\", \"SR\", \"TL\", \"TO\",
+        \"TT\", \"TV\", \"VU\", \"AZ\", \"BN\", \"BI\", \"KH\", \"CM\", \"TD\", \"KM\",
+        \"GQ\", \"SZ\", \"GA\", \"GN\", \"KG\", \"LA\", \"MO\", \"MR\", \"MN\", \"NP\",
+        \"RW\", \"TG\", \"UZ\", \"ZW\", \"BJ\", \"MG\", \"MU\", \"MZ\", \"AO\", \"CI\",
+        \"DJ\", \"ZM\", \"CD\", \"CG\", \"IQ\", \"LY\", \"TJ\", \"VE\", \"ET\", \"XK\"
+        ],\n    \"external_urls\" : {\n      \"spotify\" : \"https://open.spotify.com/album/58NYQm3dRbTW1kKirl631E\"\n
+        \   },\n    \"href\" : \"https://api.spotify.com/v1/albums/58NYQm3dRbTW1kKirl631E\",\n
+        \   \"id\" : \"58NYQm3dRbTW1kKirl631E\",\n    \"images\" : [ {\n      \"height\"
+        : 640,\n      \"url\" : \"https://i.scdn.co/image/ab67616d0000b2737f76a083941e291cd6c80caa\",\n
+        \     \"width\" : 640\n    }, {\n      \"height\" : 300,\n      \"url\" :
+        \"https://i.scdn.co/image/ab67616d00001e027f76a083941e291cd6c80caa\",\n      \"width\"
+        : 300\n    }, {\n      \"height\" : 64,\n      \"url\" : \"https://i.scdn.co/image/ab67616d000048517f76a083941e291cd6c80caa\",\n
+        \     \"width\" : 64\n    } ],\n    \"name\" : \"Ponder\",\n    \"release_date\"
+        : \"2023-02-03\",\n    \"release_date_precision\" : \"day\",\n    \"total_tracks\"
+        : 1,\n    \"type\" : \"album\",\n    \"uri\" : \"spotify:album:58NYQm3dRbTW1kKirl631E\"\n
+        \ },\n  \"artists\" : [ {\n    \"external_urls\" : {\n      \"spotify\" :
+        \"https://open.spotify.com/artist/1FPC2zwfMHhrP3frOfaai6\"\n    },\n    \"href\"
+        : \"https://api.spotify.com/v1/artists/1FPC2zwfMHhrP3frOfaai6\",\n    \"id\"
+        : \"1FPC2zwfMHhrP3frOfaai6\",\n    \"name\" : \"Kontinuum\",\n    \"type\"
+        : \"artist\",\n    \"uri\" : \"spotify:artist:1FPC2zwfMHhrP3frOfaai6\"\n  }
+        ],\n  \"available_markets\" : [ \"AR\", \"AU\", \"AT\", \"BE\", \"BO\", \"BR\",
+        \"BG\", \"CA\", \"CL\", \"CO\", \"CR\", \"CY\", \"CZ\", \"DK\", \"DO\", \"DE\",
+        \"EC\", \"EE\", \"SV\", \"FI\", \"FR\", \"GR\", \"GT\", \"HN\", \"HK\", \"HU\",
+        \"IS\", \"IE\", \"IT\", \"LV\", \"LT\", \"LU\", \"MY\", \"MT\", \"MX\", \"NL\",
+        \"NZ\", \"NI\", \"NO\", \"PA\", \"PY\", \"PE\", \"PH\", \"PL\", \"PT\", \"SG\",
+        \"SK\", \"ES\", \"SE\", \"CH\", \"TW\", \"TR\", \"UY\", \"US\", \"GB\", \"AD\",
+        \"LI\", \"MC\", \"ID\", \"JP\", \"TH\", \"VN\", \"RO\", \"IL\", \"ZA\", \"SA\",
+        \"AE\", \"BH\", \"QA\", \"OM\", \"KW\", \"EG\", \"MA\", \"DZ\", \"TN\", \"LB\",
+        \"JO\", \"PS\", \"IN\", \"BY\", \"KZ\", \"MD\", \"UA\", \"AL\", \"BA\", \"HR\",
+        \"ME\", \"MK\", \"RS\", \"SI\", \"KR\", \"BD\", \"PK\", \"LK\", \"GH\", \"KE\",
+        \"NG\", \"TZ\", \"UG\", \"AG\", \"AM\", \"BS\", \"BB\", \"BZ\", \"BT\", \"BW\",
+        \"BF\", \"CV\", \"CW\", \"DM\", \"FJ\", \"GM\", \"GE\", \"GD\", \"GW\", \"GY\",
+        \"HT\", \"JM\", \"KI\", \"LS\", \"LR\", \"MW\", \"MV\", \"ML\", \"MH\", \"FM\",
+        \"NA\", \"NR\", \"NE\", \"PW\", \"PG\", \"WS\", \"SM\", \"ST\", \"SN\", \"SC\",
+        \"SL\", \"SB\", \"KN\", \"LC\", \"VC\", \"SR\", \"TL\", \"TO\", \"TT\", \"TV\",
+        \"VU\", \"AZ\", \"BN\", \"BI\", \"KH\", \"CM\", \"TD\", \"KM\", \"GQ\", \"SZ\",
+        \"GA\", \"GN\", \"KG\", \"LA\", \"MO\", \"MR\", \"MN\", \"NP\", \"RW\", \"TG\",
+        \"UZ\", \"ZW\", \"BJ\", \"MG\", \"MU\", \"MZ\", \"AO\", \"CI\", \"DJ\", \"ZM\",
+        \"CD\", \"CG\", \"IQ\", \"LY\", \"TJ\", \"VE\", \"ET\", \"XK\" ],\n  \"disc_number\"
+        : 1,\n  \"duration_ms\" : 134074,\n  \"explicit\" : false,\n  \"external_ids\"
+        : {\n    \"isrc\" : \"GX89G2317822\"\n  },\n  \"external_urls\" : {\n    \"spotify\"
+        : \"https://open.spotify.com/track/3wUEWGwCVJUMecLVItve9f\"\n  },\n  \"href\"
+        : \"https://api.spotify.com/v1/tracks/3wUEWGwCVJUMecLVItve9f\",\n  \"id\"
+        : \"3wUEWGwCVJUMecLVItve9f\",\n  \"is_local\" : false,\n  \"name\" : \"Ponder\",\n
+        \ \"popularity\" : 4,\n  \"preview_url\" : \"https://p.scdn.co/mp3-preview/e39c9e0b39b21c495febc29ab7b01162e00cf47a?cid=5f573c9620494bae87890c0f08a60293\",\n
+        \ \"track_number\" : 1,\n  \"type\" : \"track\",\n  \"uri\" : \"spotify:track:3wUEWGwCVJUMecLVItve9f\"\n}"
+    headers:
+      Alt-Svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      Transfer-Encoding:
+      - chunked
+      Via:
+      - HTTP/2 edgeproxy, 1.1 google
+      access-control-allow-credentials:
+      - 'true'
+      access-control-allow-headers:
+      - Accept, App-Platform, Authorization, Content-Type, Origin, Retry-After, Spotify-App-Version,
+        X-Cloud-Trace-Context, client-token, content-access-token
+      access-control-allow-methods:
+      - GET, POST, OPTIONS, PUT, DELETE, PATCH
+      access-control-allow-origin:
+      - '*'
+      access-control-max-age:
+      - '604800'
+      cache-control:
+      - public, max-age=7200
+      content-encoding:
+      - gzip
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Thu, 28 Mar 2024 18:22:48 GMT
+      server:
+      - envoy
+      strict-transport-security:
+      - max-age=31536000
+      x-content-type-options:
+      - nosniff
+      x-robots-tag:
+      - noindex, nofollow
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate, br
+      Authorization:
+      - Bearer BQCIeSNhNCkB9Blimo9blo_jY1Ajv1qmG5IreR1KJxAVVqqr7sB5JKz-Fbo6MO8BbqXT1mgn2jb1OEN_yhrC7vHGajwYOQ7EFoOykGWMCQtYI_zd59I
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      User-Agent:
+      - python-requests/2.31.0
+    method: GET
+    uri: https://api.spotify.com/v1/tracks/4IFzNgv2qEkI1U7TrTUqbm
+  response:
+    body:
+      string: "{\n  \"album\" : {\n    \"album_type\" : \"single\",\n    \"artists\"
+        : [ {\n      \"external_urls\" : {\n        \"spotify\" : \"https://open.spotify.com/artist/1FPC2zwfMHhrP3frOfaai6\"\n
+        \     },\n      \"href\" : \"https://api.spotify.com/v1/artists/1FPC2zwfMHhrP3frOfaai6\",\n
+        \     \"id\" : \"1FPC2zwfMHhrP3frOfaai6\",\n      \"name\" : \"Kontinuum\",\n
+        \     \"type\" : \"artist\",\n      \"uri\" : \"spotify:artist:1FPC2zwfMHhrP3frOfaai6\"\n
+        \   }, {\n      \"external_urls\" : {\n        \"spotify\" : \"https://open.spotify.com/artist/4dRRQxDsUXpBkGqjS7vNcO\"\n
+        \     },\n      \"href\" : \"https://api.spotify.com/v1/artists/4dRRQxDsUXpBkGqjS7vNcO\",\n
+        \     \"id\" : \"4dRRQxDsUXpBkGqjS7vNcO\",\n      \"name\" : \"Savoi\",\n
+        \     \"type\" : \"artist\",\n      \"uri\" : \"spotify:artist:4dRRQxDsUXpBkGqjS7vNcO\"\n
+        \   } ],\n    \"available_markets\" : [ \"AR\", \"AU\", \"AT\", \"BE\", \"BO\",
+        \"BR\", \"BG\", \"CA\", \"CL\", \"CO\", \"CR\", \"CY\", \"CZ\", \"DK\", \"DO\",
+        \"DE\", \"EC\", \"EE\", \"SV\", \"FI\", \"FR\", \"GR\", \"GT\", \"HN\", \"HK\",
+        \"HU\", \"IS\", \"IE\", \"IT\", \"LV\", \"LT\", \"LU\", \"MY\", \"MT\", \"MX\",
+        \"NL\", \"NZ\", \"NI\", \"NO\", \"PA\", \"PY\", \"PE\", \"PH\", \"PL\", \"PT\",
+        \"SG\", \"SK\", \"ES\", \"SE\", \"CH\", \"TW\", \"TR\", \"UY\", \"US\", \"GB\",
+        \"AD\", \"LI\", \"MC\", \"ID\", \"JP\", \"TH\", \"VN\", \"RO\", \"IL\", \"ZA\",
+        \"SA\", \"AE\", \"BH\", \"QA\", \"OM\", \"KW\", \"EG\", \"MA\", \"DZ\", \"TN\",
+        \"LB\", \"JO\", \"PS\", \"IN\", \"BY\", \"KZ\", \"MD\", \"UA\", \"AL\", \"BA\",
+        \"HR\", \"ME\", \"MK\", \"RS\", \"SI\", \"KR\", \"BD\", \"PK\", \"LK\", \"GH\",
+        \"KE\", \"NG\", \"TZ\", \"UG\", \"AG\", \"AM\", \"BS\", \"BB\", \"BZ\", \"BT\",
+        \"BW\", \"BF\", \"CV\", \"CW\", \"DM\", \"FJ\", \"GM\", \"GE\", \"GD\", \"GW\",
+        \"GY\", \"HT\", \"JM\", \"KI\", \"LS\", \"LR\", \"MW\", \"MV\", \"ML\", \"MH\",
+        \"FM\", \"NA\", \"NR\", \"NE\", \"PW\", \"PG\", \"PR\", \"WS\", \"SM\", \"ST\",
+        \"SN\", \"SC\", \"SL\", \"SB\", \"KN\", \"LC\", \"VC\", \"SR\", \"TL\", \"TO\",
+        \"TT\", \"TV\", \"VU\", \"AZ\", \"BN\", \"BI\", \"KH\", \"CM\", \"TD\", \"KM\",
+        \"GQ\", \"SZ\", \"GA\", \"GN\", \"KG\", \"LA\", \"MO\", \"MR\", \"MN\", \"NP\",
+        \"RW\", \"TG\", \"UZ\", \"ZW\", \"BJ\", \"MG\", \"MU\", \"MZ\", \"AO\", \"CI\",
+        \"DJ\", \"ZM\", \"CD\", \"CG\", \"IQ\", \"LY\", \"TJ\", \"VE\", \"ET\", \"XK\"
+        ],\n    \"external_urls\" : {\n      \"spotify\" : \"https://open.spotify.com/album/58NCND7oBmNGsoYExAYtvV\"\n
+        \   },\n    \"href\" : \"https://api.spotify.com/v1/albums/58NCND7oBmNGsoYExAYtvV\",\n
+        \   \"id\" : \"58NCND7oBmNGsoYExAYtvV\",\n    \"images\" : [ {\n      \"height\"
+        : 640,\n      \"url\" : \"https://i.scdn.co/image/ab67616d0000b273cdd80989046a86cdf16f225f\",\n
+        \     \"width\" : 640\n    }, {\n      \"height\" : 300,\n      \"url\" :
+        \"https://i.scdn.co/image/ab67616d00001e02cdd80989046a86cdf16f225f\",\n      \"width\"
+        : 300\n    }, {\n      \"height\" : 64,\n      \"url\" : \"https://i.scdn.co/image/ab67616d00004851cdd80989046a86cdf16f225f\",\n
+        \     \"width\" : 64\n    } ],\n    \"name\" : \"Lost\",\n    \"release_date\"
+        : \"2015-12-04\",\n    \"release_date_precision\" : \"day\",\n    \"total_tracks\"
+        : 1,\n    \"type\" : \"album\",\n    \"uri\" : \"spotify:album:58NCND7oBmNGsoYExAYtvV\"\n
+        \ },\n  \"artists\" : [ {\n    \"external_urls\" : {\n      \"spotify\" :
+        \"https://open.spotify.com/artist/4dRRQxDsUXpBkGqjS7vNcO\"\n    },\n    \"href\"
+        : \"https://api.spotify.com/v1/artists/4dRRQxDsUXpBkGqjS7vNcO\",\n    \"id\"
+        : \"4dRRQxDsUXpBkGqjS7vNcO\",\n    \"name\" : \"Savoi\",\n    \"type\" : \"artist\",\n
+        \   \"uri\" : \"spotify:artist:4dRRQxDsUXpBkGqjS7vNcO\"\n  }, {\n    \"external_urls\"
+        : {\n      \"spotify\" : \"https://open.spotify.com/artist/1FPC2zwfMHhrP3frOfaai6\"\n
+        \   },\n    \"href\" : \"https://api.spotify.com/v1/artists/1FPC2zwfMHhrP3frOfaai6\",\n
+        \   \"id\" : \"1FPC2zwfMHhrP3frOfaai6\",\n    \"name\" : \"Kontinuum\",\n
+        \   \"type\" : \"artist\",\n    \"uri\" : \"spotify:artist:1FPC2zwfMHhrP3frOfaai6\"\n
+        \ } ],\n  \"available_markets\" : [ \"AR\", \"AU\", \"AT\", \"BE\", \"BO\",
+        \"BR\", \"BG\", \"CA\", \"CL\", \"CO\", \"CR\", \"CY\", \"CZ\", \"DK\", \"DO\",
+        \"DE\", \"EC\", \"EE\", \"SV\", \"FI\", \"FR\", \"GR\", \"GT\", \"HN\", \"HK\",
+        \"HU\", \"IS\", \"IE\", \"IT\", \"LV\", \"LT\", \"LU\", \"MY\", \"MT\", \"MX\",
+        \"NL\", \"NZ\", \"NI\", \"NO\", \"PA\", \"PY\", \"PE\", \"PH\", \"PL\", \"PT\",
+        \"SG\", \"SK\", \"ES\", \"SE\", \"CH\", \"TW\", \"TR\", \"UY\", \"US\", \"GB\",
+        \"AD\", \"LI\", \"MC\", \"ID\", \"JP\", \"TH\", \"VN\", \"RO\", \"IL\", \"ZA\",
+        \"SA\", \"AE\", \"BH\", \"QA\", \"OM\", \"KW\", \"EG\", \"MA\", \"DZ\", \"TN\",
+        \"LB\", \"JO\", \"PS\", \"IN\", \"BY\", \"KZ\", \"MD\", \"UA\", \"AL\", \"BA\",
+        \"HR\", \"ME\", \"MK\", \"RS\", \"SI\", \"KR\", \"BD\", \"PK\", \"LK\", \"GH\",
+        \"KE\", \"NG\", \"TZ\", \"UG\", \"AG\", \"AM\", \"BS\", \"BB\", \"BZ\", \"BT\",
+        \"BW\", \"BF\", \"CV\", \"CW\", \"DM\", \"FJ\", \"GM\", \"GE\", \"GD\", \"GW\",
+        \"GY\", \"HT\", \"JM\", \"KI\", \"LS\", \"LR\", \"MW\", \"MV\", \"ML\", \"MH\",
+        \"FM\", \"NA\", \"NR\", \"NE\", \"PW\", \"PG\", \"WS\", \"SM\", \"ST\", \"SN\",
+        \"SC\", \"SL\", \"SB\", \"KN\", \"LC\", \"VC\", \"SR\", \"TL\", \"TO\", \"TT\",
+        \"TV\", \"VU\", \"AZ\", \"BN\", \"BI\", \"KH\", \"CM\", \"TD\", \"KM\", \"GQ\",
+        \"SZ\", \"GA\", \"GN\", \"KG\", \"LA\", \"MO\", \"MR\", \"MN\", \"NP\", \"RW\",
+        \"TG\", \"UZ\", \"ZW\", \"BJ\", \"MG\", \"MU\", \"MZ\", \"AO\", \"CI\", \"DJ\",
+        \"ZM\", \"CD\", \"CG\", \"IQ\", \"LY\", \"TJ\", \"VE\", \"ET\", \"XK\" ],\n
+        \ \"disc_number\" : 1,\n  \"duration_ms\" : 237881,\n  \"explicit\" : false,\n
+        \ \"external_ids\" : {\n    \"isrc\" : \"GB2LD0902185\"\n  },\n  \"external_urls\"
+        : {\n    \"spotify\" : \"https://open.spotify.com/track/4IFzNgv2qEkI1U7TrTUqbm\"\n
+        \ },\n  \"href\" : \"https://api.spotify.com/v1/tracks/4IFzNgv2qEkI1U7TrTUqbm\",\n
+        \ \"id\" : \"4IFzNgv2qEkI1U7TrTUqbm\",\n  \"is_local\" : false,\n  \"name\"
+        : \"Lost\",\n  \"popularity\" : 35,\n  \"preview_url\" : \"https://p.scdn.co/mp3-preview/4d116d7901e8ac24bdb3f3396f528bc96f1765db?cid=5f573c9620494bae87890c0f08a60293\",\n
+        \ \"track_number\" : 1,\n  \"type\" : \"track\",\n  \"uri\" : \"spotify:track:4IFzNgv2qEkI1U7TrTUqbm\"\n}"
+    headers:
+      Alt-Svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      Transfer-Encoding:
+      - chunked
+      Via:
+      - HTTP/2 edgeproxy, 1.1 google
+      access-control-allow-credentials:
+      - 'true'
+      access-control-allow-headers:
+      - Accept, App-Platform, Authorization, Content-Type, Origin, Retry-After, Spotify-App-Version,
+        X-Cloud-Trace-Context, client-token, content-access-token
+      access-control-allow-methods:
+      - GET, POST, OPTIONS, PUT, DELETE, PATCH
+      access-control-allow-origin:
+      - '*'
+      access-control-max-age:
+      - '604800'
+      cache-control:
+      - public, max-age=7200
+      content-encoding:
+      - gzip
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Thu, 28 Mar 2024 18:22:48 GMT
+      server:
+      - envoy
+      strict-transport-security:
+      - max-age=31536000
+      x-content-type-options:
+      - nosniff
+      x-robots-tag:
+      - noindex, nofollow
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate, br
+      Authorization:
+      - Bearer BQCIeSNhNCkB9Blimo9blo_jY1Ajv1qmG5IreR1KJxAVVqqr7sB5JKz-Fbo6MO8BbqXT1mgn2jb1OEN_yhrC7vHGajwYOQ7EFoOykGWMCQtYI_zd59I
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      User-Agent:
+      - python-requests/2.31.0
+    method: GET
+    uri: https://api.spotify.com/v1/artists/4dRRQxDsUXpBkGqjS7vNcO
+  response:
+    body:
+      string: "{\n  \"external_urls\" : {\n    \"spotify\" : \"https://open.spotify.com/artist/4dRRQxDsUXpBkGqjS7vNcO\"\n
+        \ },\n  \"followers\" : {\n    \"href\" : null,\n    \"total\" : 1963\n  },\n
+        \ \"genres\" : [ ],\n  \"href\" : \"https://api.spotify.com/v1/artists/4dRRQxDsUXpBkGqjS7vNcO\",\n
+        \ \"id\" : \"4dRRQxDsUXpBkGqjS7vNcO\",\n  \"images\" : [ {\n    \"height\"
+        : 640,\n    \"url\" : \"https://i.scdn.co/image/ab6761610000e5eb8cfa6554d06289ab89316af8\",\n
+        \   \"width\" : 640\n  }, {\n    \"height\" : 320,\n    \"url\" : \"https://i.scdn.co/image/ab676161000051748cfa6554d06289ab89316af8\",\n
+        \   \"width\" : 320\n  }, {\n    \"height\" : 160,\n    \"url\" : \"https://i.scdn.co/image/ab6761610000f1788cfa6554d06289ab89316af8\",\n
+        \   \"width\" : 160\n  } ],\n  \"name\" : \"Savoi\",\n  \"popularity\" : 36,\n
+        \ \"type\" : \"artist\",\n  \"uri\" : \"spotify:artist:4dRRQxDsUXpBkGqjS7vNcO\"\n}"
+    headers:
+      Alt-Svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      Transfer-Encoding:
+      - chunked
+      Via:
+      - HTTP/2 edgeproxy, 1.1 google
+      access-control-allow-credentials:
+      - 'true'
+      access-control-allow-headers:
+      - Accept, App-Platform, Authorization, Content-Type, Origin, Retry-After, Spotify-App-Version,
+        X-Cloud-Trace-Context, client-token, content-access-token
+      access-control-allow-methods:
+      - GET, POST, OPTIONS, PUT, DELETE, PATCH
+      access-control-allow-origin:
+      - '*'
+      access-control-max-age:
+      - '604800'
+      cache-control:
+      - public, max-age=7200
+      content-encoding:
+      - gzip
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Thu, 28 Mar 2024 18:22:49 GMT
+      server:
+      - envoy
+      strict-transport-security:
+      - max-age=31536000
+      x-content-type-options:
+      - nosniff
+      x-robots-tag:
+      - noindex, nofollow
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate, br
+      Authorization:
+      - Bearer BQCIeSNhNCkB9Blimo9blo_jY1Ajv1qmG5IreR1KJxAVVqqr7sB5JKz-Fbo6MO8BbqXT1mgn2jb1OEN_yhrC7vHGajwYOQ7EFoOykGWMCQtYI_zd59I
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      User-Agent:
+      - python-requests/2.31.0
+    method: GET
+    uri: https://api.spotify.com/v1/tracks/3kDsB86dHFcUeIolbOoGGt
+  response:
+    body:
+      string: "{\n  \"album\" : {\n    \"album_type\" : \"single\",\n    \"artists\"
+        : [ {\n      \"external_urls\" : {\n        \"spotify\" : \"https://open.spotify.com/artist/1FPC2zwfMHhrP3frOfaai6\"\n
+        \     },\n      \"href\" : \"https://api.spotify.com/v1/artists/1FPC2zwfMHhrP3frOfaai6\",\n
+        \     \"id\" : \"1FPC2zwfMHhrP3frOfaai6\",\n      \"name\" : \"Kontinuum\",\n
+        \     \"type\" : \"artist\",\n      \"uri\" : \"spotify:artist:1FPC2zwfMHhrP3frOfaai6\"\n
+        \   } ],\n    \"available_markets\" : [ \"AR\", \"AU\", \"AT\", \"BE\", \"BO\",
+        \"BR\", \"BG\", \"CA\", \"CL\", \"CO\", \"CR\", \"CY\", \"CZ\", \"DK\", \"DO\",
+        \"DE\", \"EC\", \"EE\", \"SV\", \"FI\", \"FR\", \"GR\", \"GT\", \"HN\", \"HK\",
+        \"HU\", \"IS\", \"IE\", \"IT\", \"LV\", \"LT\", \"LU\", \"MY\", \"MT\", \"MX\",
+        \"NL\", \"NZ\", \"NI\", \"NO\", \"PA\", \"PY\", \"PE\", \"PH\", \"PL\", \"PT\",
+        \"SG\", \"SK\", \"ES\", \"SE\", \"CH\", \"TW\", \"TR\", \"UY\", \"US\", \"GB\",
+        \"AD\", \"LI\", \"MC\", \"ID\", \"JP\", \"TH\", \"VN\", \"RO\", \"IL\", \"ZA\",
+        \"SA\", \"AE\", \"BH\", \"QA\", \"OM\", \"KW\", \"EG\", \"MA\", \"DZ\", \"TN\",
+        \"LB\", \"JO\", \"PS\", \"IN\", \"BY\", \"KZ\", \"MD\", \"UA\", \"AL\", \"BA\",
+        \"HR\", \"ME\", \"MK\", \"RS\", \"SI\", \"KR\", \"BD\", \"PK\", \"LK\", \"GH\",
+        \"KE\", \"NG\", \"TZ\", \"UG\", \"AG\", \"AM\", \"BS\", \"BB\", \"BZ\", \"BT\",
+        \"BW\", \"BF\", \"CV\", \"CW\", \"DM\", \"FJ\", \"GM\", \"GE\", \"GD\", \"GW\",
+        \"GY\", \"HT\", \"JM\", \"KI\", \"LS\", \"LR\", \"MW\", \"MV\", \"ML\", \"MH\",
+        \"FM\", \"NA\", \"NR\", \"NE\", \"PW\", \"PG\", \"PR\", \"WS\", \"SM\", \"ST\",
+        \"SN\", \"SC\", \"SL\", \"SB\", \"KN\", \"LC\", \"VC\", \"SR\", \"TL\", \"TO\",
+        \"TT\", \"TV\", \"VU\", \"AZ\", \"BN\", \"BI\", \"KH\", \"CM\", \"TD\", \"KM\",
+        \"GQ\", \"SZ\", \"GA\", \"GN\", \"KG\", \"LA\", \"MO\", \"MR\", \"MN\", \"NP\",
+        \"RW\", \"TG\", \"UZ\", \"ZW\", \"BJ\", \"MG\", \"MU\", \"MZ\", \"AO\", \"CI\",
+        \"DJ\", \"ZM\", \"CD\", \"CG\", \"IQ\", \"LY\", \"TJ\", \"VE\", \"ET\", \"XK\"
+        ],\n    \"external_urls\" : {\n      \"spotify\" : \"https://open.spotify.com/album/0Mze4GYhSVS52f8XDFxSFM\"\n
+        \   },\n    \"href\" : \"https://api.spotify.com/v1/albums/0Mze4GYhSVS52f8XDFxSFM\",\n
+        \   \"id\" : \"0Mze4GYhSVS52f8XDFxSFM\",\n    \"images\" : [ {\n      \"height\"
+        : 640,\n      \"url\" : \"https://i.scdn.co/image/ab67616d0000b2737b839156b5a49bbbdd7d3eaf\",\n
+        \     \"width\" : 640\n    }, {\n      \"height\" : 300,\n      \"url\" :
+        \"https://i.scdn.co/image/ab67616d00001e027b839156b5a49bbbdd7d3eaf\",\n      \"width\"
+        : 300\n    }, {\n      \"height\" : 64,\n      \"url\" : \"https://i.scdn.co/image/ab67616d000048517b839156b5a49bbbdd7d3eaf\",\n
+        \     \"width\" : 64\n    } ],\n    \"name\" : \"Timeline\",\n    \"release_date\"
+        : \"2015-11-10\",\n    \"release_date_precision\" : \"day\",\n    \"total_tracks\"
+        : 1,\n    \"type\" : \"album\",\n    \"uri\" : \"spotify:album:0Mze4GYhSVS52f8XDFxSFM\"\n
+        \ },\n  \"artists\" : [ {\n    \"external_urls\" : {\n      \"spotify\" :
+        \"https://open.spotify.com/artist/1FPC2zwfMHhrP3frOfaai6\"\n    },\n    \"href\"
+        : \"https://api.spotify.com/v1/artists/1FPC2zwfMHhrP3frOfaai6\",\n    \"id\"
+        : \"1FPC2zwfMHhrP3frOfaai6\",\n    \"name\" : \"Kontinuum\",\n    \"type\"
+        : \"artist\",\n    \"uri\" : \"spotify:artist:1FPC2zwfMHhrP3frOfaai6\"\n  }
+        ],\n  \"available_markets\" : [ \"AR\", \"AU\", \"AT\", \"BE\", \"BO\", \"BR\",
+        \"BG\", \"CA\", \"CL\", \"CO\", \"CR\", \"CY\", \"CZ\", \"DK\", \"DO\", \"DE\",
+        \"EC\", \"EE\", \"SV\", \"FI\", \"FR\", \"GR\", \"GT\", \"HN\", \"HK\", \"HU\",
+        \"IS\", \"IE\", \"IT\", \"LV\", \"LT\", \"LU\", \"MY\", \"MT\", \"MX\", \"NL\",
+        \"NZ\", \"NI\", \"NO\", \"PA\", \"PY\", \"PE\", \"PH\", \"PL\", \"PT\", \"SG\",
+        \"SK\", \"ES\", \"SE\", \"CH\", \"TW\", \"TR\", \"UY\", \"US\", \"GB\", \"AD\",
+        \"LI\", \"MC\", \"ID\", \"JP\", \"TH\", \"VN\", \"RO\", \"IL\", \"ZA\", \"SA\",
+        \"AE\", \"BH\", \"QA\", \"OM\", \"KW\", \"EG\", \"MA\", \"DZ\", \"TN\", \"LB\",
+        \"JO\", \"PS\", \"IN\", \"BY\", \"KZ\", \"MD\", \"UA\", \"AL\", \"BA\", \"HR\",
+        \"ME\", \"MK\", \"RS\", \"SI\", \"KR\", \"BD\", \"PK\", \"LK\", \"GH\", \"KE\",
+        \"NG\", \"TZ\", \"UG\", \"AG\", \"AM\", \"BS\", \"BB\", \"BZ\", \"BT\", \"BW\",
+        \"BF\", \"CV\", \"CW\", \"DM\", \"FJ\", \"GM\", \"GE\", \"GD\", \"GW\", \"GY\",
+        \"HT\", \"JM\", \"KI\", \"LS\", \"LR\", \"MW\", \"MV\", \"ML\", \"MH\", \"FM\",
+        \"NA\", \"NR\", \"NE\", \"PW\", \"PG\", \"WS\", \"SM\", \"ST\", \"SN\", \"SC\",
+        \"SL\", \"SB\", \"KN\", \"LC\", \"VC\", \"SR\", \"TL\", \"TO\", \"TT\", \"TV\",
+        \"VU\", \"AZ\", \"BN\", \"BI\", \"KH\", \"CM\", \"TD\", \"KM\", \"GQ\", \"SZ\",
+        \"GA\", \"GN\", \"KG\", \"LA\", \"MO\", \"MR\", \"MN\", \"NP\", \"RW\", \"TG\",
+        \"UZ\", \"ZW\", \"BJ\", \"MG\", \"MU\", \"MZ\", \"AO\", \"CI\", \"DJ\", \"ZM\",
+        \"CD\", \"CG\", \"IQ\", \"LY\", \"TJ\", \"VE\", \"ET\", \"XK\" ],\n  \"disc_number\"
+        : 1,\n  \"duration_ms\" : 242468,\n  \"explicit\" : false,\n  \"external_ids\"
+        : {\n    \"isrc\" : \"GB-SMU-24-01851\"\n  },\n  \"external_urls\" : {\n    \"spotify\"
+        : \"https://open.spotify.com/track/3kDsB86dHFcUeIolbOoGGt\"\n  },\n  \"href\"
+        : \"https://api.spotify.com/v1/tracks/3kDsB86dHFcUeIolbOoGGt\",\n  \"id\"
+        : \"3kDsB86dHFcUeIolbOoGGt\",\n  \"is_local\" : false,\n  \"name\" : \"Timeline\",\n
+        \ \"popularity\" : 12,\n  \"preview_url\" : \"https://p.scdn.co/mp3-preview/b498afa53bb8b52971af2471f5595d43701c5735?cid=5f573c9620494bae87890c0f08a60293\",\n
+        \ \"track_number\" : 1,\n  \"type\" : \"track\",\n  \"uri\" : \"spotify:track:3kDsB86dHFcUeIolbOoGGt\"\n}"
+    headers:
+      Alt-Svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      Transfer-Encoding:
+      - chunked
+      Via:
+      - HTTP/2 edgeproxy, 1.1 google
+      access-control-allow-credentials:
+      - 'true'
+      access-control-allow-headers:
+      - Accept, App-Platform, Authorization, Content-Type, Origin, Retry-After, Spotify-App-Version,
+        X-Cloud-Trace-Context, client-token, content-access-token
+      access-control-allow-methods:
+      - GET, POST, OPTIONS, PUT, DELETE, PATCH
+      access-control-allow-origin:
+      - '*'
+      access-control-max-age:
+      - '604800'
+      cache-control:
+      - public, max-age=7200
+      content-encoding:
+      - gzip
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Thu, 28 Mar 2024 18:22:49 GMT
+      server:
+      - envoy
+      strict-transport-security:
+      - max-age=31536000
+      x-content-type-options:
+      - nosniff
+      x-robots-tag:
+      - noindex, nofollow
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate, br
+      Authorization:
+      - Bearer BQCIeSNhNCkB9Blimo9blo_jY1Ajv1qmG5IreR1KJxAVVqqr7sB5JKz-Fbo6MO8BbqXT1mgn2jb1OEN_yhrC7vHGajwYOQ7EFoOykGWMCQtYI_zd59I
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      User-Agent:
+      - python-requests/2.31.0
+    method: GET
+    uri: https://api.spotify.com/v1/tracks/0g1ZhQAEjNQ817SSrciH0g
+  response:
+    body:
+      string: "{\n  \"album\" : {\n    \"album_type\" : \"single\",\n    \"artists\"
+        : [ {\n      \"external_urls\" : {\n        \"spotify\" : \"https://open.spotify.com/artist/6fEZjgt9MHR4Hp3MiBRZHX\"\n
+        \     },\n      \"href\" : \"https://api.spotify.com/v1/artists/6fEZjgt9MHR4Hp3MiBRZHX\",\n
+        \     \"id\" : \"6fEZjgt9MHR4Hp3MiBRZHX\",\n      \"name\" : \"Itro\",\n      \"type\"
+        : \"artist\",\n      \"uri\" : \"spotify:artist:6fEZjgt9MHR4Hp3MiBRZHX\"\n
+        \   }, {\n      \"external_urls\" : {\n        \"spotify\" : \"https://open.spotify.com/artist/1FPC2zwfMHhrP3frOfaai6\"\n
+        \     },\n      \"href\" : \"https://api.spotify.com/v1/artists/1FPC2zwfMHhrP3frOfaai6\",\n
+        \     \"id\" : \"1FPC2zwfMHhrP3frOfaai6\",\n      \"name\" : \"Kontinuum\",\n
+        \     \"type\" : \"artist\",\n      \"uri\" : \"spotify:artist:1FPC2zwfMHhrP3frOfaai6\"\n
+        \   } ],\n    \"available_markets\" : [ \"AR\", \"AU\", \"AT\", \"BE\", \"BO\",
+        \"BR\", \"BG\", \"CA\", \"CL\", \"CO\", \"CR\", \"CY\", \"CZ\", \"DK\", \"DO\",
+        \"DE\", \"EC\", \"EE\", \"SV\", \"FI\", \"FR\", \"GR\", \"GT\", \"HN\", \"HK\",
+        \"HU\", \"IS\", \"IE\", \"IT\", \"LV\", \"LT\", \"LU\", \"MY\", \"MT\", \"MX\",
+        \"NL\", \"NZ\", \"NI\", \"NO\", \"PA\", \"PY\", \"PE\", \"PH\", \"PL\", \"PT\",
+        \"SG\", \"SK\", \"ES\", \"SE\", \"CH\", \"TW\", \"TR\", \"UY\", \"US\", \"GB\",
+        \"AD\", \"LI\", \"MC\", \"ID\", \"JP\", \"TH\", \"VN\", \"RO\", \"IL\", \"ZA\",
+        \"SA\", \"AE\", \"BH\", \"QA\", \"OM\", \"KW\", \"EG\", \"MA\", \"DZ\", \"TN\",
+        \"LB\", \"JO\", \"PS\", \"IN\", \"BY\", \"KZ\", \"MD\", \"UA\", \"AL\", \"BA\",
+        \"HR\", \"ME\", \"MK\", \"RS\", \"SI\", \"KR\", \"BD\", \"PK\", \"LK\", \"GH\",
+        \"KE\", \"NG\", \"TZ\", \"UG\", \"AG\", \"AM\", \"BS\", \"BB\", \"BZ\", \"BT\",
+        \"BW\", \"BF\", \"CV\", \"CW\", \"DM\", \"FJ\", \"GM\", \"GE\", \"GD\", \"GW\",
+        \"GY\", \"HT\", \"JM\", \"KI\", \"LS\", \"LR\", \"MW\", \"MV\", \"ML\", \"MH\",
+        \"FM\", \"NA\", \"NR\", \"NE\", \"PW\", \"PG\", \"PR\", \"WS\", \"SM\", \"ST\",
+        \"SN\", \"SC\", \"SL\", \"SB\", \"KN\", \"LC\", \"VC\", \"SR\", \"TL\", \"TO\",
+        \"TT\", \"TV\", \"VU\", \"AZ\", \"BN\", \"BI\", \"KH\", \"CM\", \"TD\", \"KM\",
+        \"GQ\", \"SZ\", \"GA\", \"GN\", \"KG\", \"LA\", \"MO\", \"MR\", \"MN\", \"NP\",
+        \"RW\", \"TG\", \"UZ\", \"ZW\", \"BJ\", \"MG\", \"MU\", \"MZ\", \"AO\", \"CI\",
+        \"DJ\", \"ZM\", \"CD\", \"CG\", \"IQ\", \"LY\", \"TJ\", \"VE\", \"ET\", \"XK\"
+        ],\n    \"external_urls\" : {\n      \"spotify\" : \"https://open.spotify.com/album/0xMjnmMdohAHzYNuHXSGvW\"\n
+        \   },\n    \"href\" : \"https://api.spotify.com/v1/albums/0xMjnmMdohAHzYNuHXSGvW\",\n
+        \   \"id\" : \"0xMjnmMdohAHzYNuHXSGvW\",\n    \"images\" : [ {\n      \"height\"
+        : 640,\n      \"url\" : \"https://i.scdn.co/image/ab67616d0000b2732f4fd52c308f2652d0753f45\",\n
+        \     \"width\" : 640\n    }, {\n      \"height\" : 300,\n      \"url\" :
+        \"https://i.scdn.co/image/ab67616d00001e022f4fd52c308f2652d0753f45\",\n      \"width\"
+        : 300\n    }, {\n      \"height\" : 64,\n      \"url\" : \"https://i.scdn.co/image/ab67616d000048512f4fd52c308f2652d0753f45\",\n
+        \     \"width\" : 64\n    } ],\n    \"name\" : \"Alive\",\n    \"release_date\"
+        : \"2015-07-21\",\n    \"release_date_precision\" : \"day\",\n    \"total_tracks\"
+        : 1,\n    \"type\" : \"album\",\n    \"uri\" : \"spotify:album:0xMjnmMdohAHzYNuHXSGvW\"\n
+        \ },\n  \"artists\" : [ {\n    \"external_urls\" : {\n      \"spotify\" :
+        \"https://open.spotify.com/artist/6fEZjgt9MHR4Hp3MiBRZHX\"\n    },\n    \"href\"
+        : \"https://api.spotify.com/v1/artists/6fEZjgt9MHR4Hp3MiBRZHX\",\n    \"id\"
+        : \"6fEZjgt9MHR4Hp3MiBRZHX\",\n    \"name\" : \"Itro\",\n    \"type\" : \"artist\",\n
+        \   \"uri\" : \"spotify:artist:6fEZjgt9MHR4Hp3MiBRZHX\"\n  }, {\n    \"external_urls\"
+        : {\n      \"spotify\" : \"https://open.spotify.com/artist/1FPC2zwfMHhrP3frOfaai6\"\n
+        \   },\n    \"href\" : \"https://api.spotify.com/v1/artists/1FPC2zwfMHhrP3frOfaai6\",\n
+        \   \"id\" : \"1FPC2zwfMHhrP3frOfaai6\",\n    \"name\" : \"Kontinuum\",\n
+        \   \"type\" : \"artist\",\n    \"uri\" : \"spotify:artist:1FPC2zwfMHhrP3frOfaai6\"\n
+        \ } ],\n  \"available_markets\" : [ \"AR\", \"AU\", \"AT\", \"BE\", \"BO\",
+        \"BR\", \"BG\", \"CA\", \"CL\", \"CO\", \"CR\", \"CY\", \"CZ\", \"DK\", \"DO\",
+        \"DE\", \"EC\", \"EE\", \"SV\", \"FI\", \"FR\", \"GR\", \"GT\", \"HN\", \"HK\",
+        \"HU\", \"IS\", \"IE\", \"IT\", \"LV\", \"LT\", \"LU\", \"MY\", \"MT\", \"MX\",
+        \"NL\", \"NZ\", \"NI\", \"NO\", \"PA\", \"PY\", \"PE\", \"PH\", \"PL\", \"PT\",
+        \"SG\", \"SK\", \"ES\", \"SE\", \"CH\", \"TW\", \"TR\", \"UY\", \"US\", \"GB\",
+        \"AD\", \"LI\", \"MC\", \"ID\", \"JP\", \"TH\", \"VN\", \"RO\", \"IL\", \"ZA\",
+        \"SA\", \"AE\", \"BH\", \"QA\", \"OM\", \"KW\", \"EG\", \"MA\", \"DZ\", \"TN\",
+        \"LB\", \"JO\", \"PS\", \"IN\", \"BY\", \"KZ\", \"MD\", \"UA\", \"AL\", \"BA\",
+        \"HR\", \"ME\", \"MK\", \"RS\", \"SI\", \"KR\", \"BD\", \"PK\", \"LK\", \"GH\",
+        \"KE\", \"NG\", \"TZ\", \"UG\", \"AG\", \"AM\", \"BS\", \"BB\", \"BZ\", \"BT\",
+        \"BW\", \"BF\", \"CV\", \"CW\", \"DM\", \"FJ\", \"GM\", \"GE\", \"GD\", \"GW\",
+        \"GY\", \"HT\", \"JM\", \"KI\", \"LS\", \"LR\", \"MW\", \"MV\", \"ML\", \"MH\",
+        \"FM\", \"NA\", \"NR\", \"NE\", \"PW\", \"PG\", \"WS\", \"SM\", \"ST\", \"SN\",
+        \"SC\", \"SL\", \"SB\", \"KN\", \"LC\", \"VC\", \"SR\", \"TL\", \"TO\", \"TT\",
+        \"TV\", \"VU\", \"AZ\", \"BN\", \"BI\", \"KH\", \"CM\", \"TD\", \"KM\", \"GQ\",
+        \"SZ\", \"GA\", \"GN\", \"KG\", \"LA\", \"MO\", \"MR\", \"MN\", \"NP\", \"RW\",
+        \"TG\", \"UZ\", \"ZW\", \"BJ\", \"MG\", \"MU\", \"MZ\", \"AO\", \"CI\", \"DJ\",
+        \"ZM\", \"CD\", \"CG\", \"IQ\", \"LY\", \"TJ\", \"VE\", \"ET\", \"XK\" ],\n
+        \ \"disc_number\" : 1,\n  \"duration_ms\" : 248320,\n  \"explicit\" : false,\n
+        \ \"external_ids\" : {\n    \"isrc\" : \"GB2LD0902049\"\n  },\n  \"external_urls\"
+        : {\n    \"spotify\" : \"https://open.spotify.com/track/0g1ZhQAEjNQ817SSrciH0g\"\n
+        \ },\n  \"href\" : \"https://api.spotify.com/v1/tracks/0g1ZhQAEjNQ817SSrciH0g\",\n
+        \ \"id\" : \"0g1ZhQAEjNQ817SSrciH0g\",\n  \"is_local\" : false,\n  \"name\"
+        : \"Alive\",\n  \"popularity\" : 25,\n  \"preview_url\" : \"https://p.scdn.co/mp3-preview/8eaba2fa9983118213029e813e826694926eada1?cid=5f573c9620494bae87890c0f08a60293\",\n
+        \ \"track_number\" : 1,\n  \"type\" : \"track\",\n  \"uri\" : \"spotify:track:0g1ZhQAEjNQ817SSrciH0g\"\n}"
+    headers:
+      Alt-Svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      Transfer-Encoding:
+      - chunked
+      Via:
+      - HTTP/2 edgeproxy, 1.1 google
+      access-control-allow-credentials:
+      - 'true'
+      access-control-allow-headers:
+      - Accept, App-Platform, Authorization, Content-Type, Origin, Retry-After, Spotify-App-Version,
+        X-Cloud-Trace-Context, client-token, content-access-token
+      access-control-allow-methods:
+      - GET, POST, OPTIONS, PUT, DELETE, PATCH
+      access-control-allow-origin:
+      - '*'
+      access-control-max-age:
+      - '604800'
+      cache-control:
+      - public, max-age=7200
+      content-encoding:
+      - gzip
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Thu, 28 Mar 2024 18:22:50 GMT
+      server:
+      - envoy
+      strict-transport-security:
+      - max-age=31536000
+      x-content-type-options:
+      - nosniff
+      x-robots-tag:
+      - noindex, nofollow
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate, br
+      Authorization:
+      - Bearer BQCIeSNhNCkB9Blimo9blo_jY1Ajv1qmG5IreR1KJxAVVqqr7sB5JKz-Fbo6MO8BbqXT1mgn2jb1OEN_yhrC7vHGajwYOQ7EFoOykGWMCQtYI_zd59I
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      User-Agent:
+      - python-requests/2.31.0
+    method: GET
+    uri: https://api.spotify.com/v1/artists/6fEZjgt9MHR4Hp3MiBRZHX
+  response:
+    body:
+      string: "{\n  \"external_urls\" : {\n    \"spotify\" : \"https://open.spotify.com/artist/6fEZjgt9MHR4Hp3MiBRZHX\"\n
+        \ },\n  \"followers\" : {\n    \"href\" : null,\n    \"total\" : 52764\n  },\n
+        \ \"genres\" : [ \"gaming edm\" ],\n  \"href\" : \"https://api.spotify.com/v1/artists/6fEZjgt9MHR4Hp3MiBRZHX\",\n
+        \ \"id\" : \"6fEZjgt9MHR4Hp3MiBRZHX\",\n  \"images\" : [ {\n    \"height\"
+        : 640,\n    \"url\" : \"https://i.scdn.co/image/ab6761610000e5eb90533dd45388e25202c8de48\",\n
+        \   \"width\" : 640\n  }, {\n    \"height\" : 320,\n    \"url\" : \"https://i.scdn.co/image/ab6761610000517490533dd45388e25202c8de48\",\n
+        \   \"width\" : 320\n  }, {\n    \"height\" : 160,\n    \"url\" : \"https://i.scdn.co/image/ab6761610000f17890533dd45388e25202c8de48\",\n
+        \   \"width\" : 160\n  } ],\n  \"name\" : \"Itro\",\n  \"popularity\" : 42,\n
+        \ \"type\" : \"artist\",\n  \"uri\" : \"spotify:artist:6fEZjgt9MHR4Hp3MiBRZHX\"\n}"
+    headers:
+      Alt-Svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      Transfer-Encoding:
+      - chunked
+      Via:
+      - HTTP/2 edgeproxy, 1.1 google
+      access-control-allow-credentials:
+      - 'true'
+      access-control-allow-headers:
+      - Accept, App-Platform, Authorization, Content-Type, Origin, Retry-After, Spotify-App-Version,
+        X-Cloud-Trace-Context, client-token, content-access-token
+      access-control-allow-methods:
+      - GET, POST, OPTIONS, PUT, DELETE, PATCH
+      access-control-allow-origin:
+      - '*'
+      access-control-max-age:
+      - '604800'
+      cache-control:
+      - public, max-age=7200
+      content-encoding:
+      - gzip
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Thu, 28 Mar 2024 18:22:50 GMT
+      server:
+      - envoy
+      strict-transport-security:
+      - max-age=31536000
+      x-content-type-options:
+      - nosniff
+      x-robots-tag:
+      - noindex, nofollow
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate, br
+      Authorization:
+      - Bearer BQCIeSNhNCkB9Blimo9blo_jY1Ajv1qmG5IreR1KJxAVVqqr7sB5JKz-Fbo6MO8BbqXT1mgn2jb1OEN_yhrC7vHGajwYOQ7EFoOykGWMCQtYI_zd59I
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      User-Agent:
+      - python-requests/2.31.0
+    method: GET
+    uri: https://api.spotify.com/v1/tracks/1UPuywvKgEteDPzV1TbD3b
+  response:
+    body:
+      string: "{\n  \"album\" : {\n    \"album_type\" : \"single\",\n    \"artists\"
+        : [ {\n      \"external_urls\" : {\n        \"spotify\" : \"https://open.spotify.com/artist/1FPC2zwfMHhrP3frOfaai6\"\n
+        \     },\n      \"href\" : \"https://api.spotify.com/v1/artists/1FPC2zwfMHhrP3frOfaai6\",\n
+        \     \"id\" : \"1FPC2zwfMHhrP3frOfaai6\",\n      \"name\" : \"Kontinuum\",\n
+        \     \"type\" : \"artist\",\n      \"uri\" : \"spotify:artist:1FPC2zwfMHhrP3frOfaai6\"\n
+        \   } ],\n    \"available_markets\" : [ \"AR\", \"AU\", \"AT\", \"BE\", \"BO\",
+        \"BR\", \"BG\", \"CA\", \"CL\", \"CO\", \"CR\", \"CY\", \"CZ\", \"DK\", \"DO\",
+        \"DE\", \"EC\", \"EE\", \"SV\", \"FI\", \"FR\", \"GR\", \"GT\", \"HN\", \"HK\",
+        \"HU\", \"IS\", \"IE\", \"IT\", \"LV\", \"LT\", \"LU\", \"MY\", \"MT\", \"MX\",
+        \"NL\", \"NZ\", \"NI\", \"NO\", \"PA\", \"PY\", \"PE\", \"PH\", \"PL\", \"PT\",
+        \"SG\", \"SK\", \"ES\", \"SE\", \"CH\", \"TW\", \"TR\", \"UY\", \"US\", \"GB\",
+        \"AD\", \"LI\", \"MC\", \"ID\", \"JP\", \"TH\", \"VN\", \"RO\", \"IL\", \"ZA\",
+        \"SA\", \"AE\", \"BH\", \"QA\", \"OM\", \"KW\", \"EG\", \"MA\", \"DZ\", \"TN\",
+        \"LB\", \"JO\", \"PS\", \"IN\", \"BY\", \"KZ\", \"MD\", \"UA\", \"AL\", \"BA\",
+        \"HR\", \"ME\", \"MK\", \"RS\", \"SI\", \"KR\", \"BD\", \"PK\", \"LK\", \"GH\",
+        \"KE\", \"NG\", \"TZ\", \"UG\", \"AG\", \"AM\", \"BS\", \"BB\", \"BZ\", \"BT\",
+        \"BW\", \"BF\", \"CV\", \"CW\", \"DM\", \"FJ\", \"GM\", \"GE\", \"GD\", \"GW\",
+        \"GY\", \"HT\", \"JM\", \"KI\", \"LS\", \"LR\", \"MW\", \"MV\", \"ML\", \"MH\",
+        \"FM\", \"NA\", \"NR\", \"NE\", \"PW\", \"PG\", \"PR\", \"WS\", \"SM\", \"ST\",
+        \"SN\", \"SC\", \"SL\", \"SB\", \"KN\", \"LC\", \"VC\", \"SR\", \"TL\", \"TO\",
+        \"TT\", \"TV\", \"VU\", \"AZ\", \"BN\", \"BI\", \"KH\", \"CM\", \"TD\", \"KM\",
+        \"GQ\", \"SZ\", \"GA\", \"GN\", \"KG\", \"LA\", \"MO\", \"MR\", \"MN\", \"NP\",
+        \"RW\", \"TG\", \"UZ\", \"ZW\", \"BJ\", \"MG\", \"MU\", \"MZ\", \"AO\", \"CI\",
+        \"DJ\", \"ZM\", \"CD\", \"CG\", \"IQ\", \"LY\", \"TJ\", \"VE\", \"ET\", \"XK\"
+        ],\n    \"external_urls\" : {\n      \"spotify\" : \"https://open.spotify.com/album/4SXkbDnBPGbLL3szWXL01L\"\n
+        \   },\n    \"href\" : \"https://api.spotify.com/v1/albums/4SXkbDnBPGbLL3szWXL01L\",\n
+        \   \"id\" : \"4SXkbDnBPGbLL3szWXL01L\",\n    \"images\" : [ {\n      \"height\"
+        : 640,\n      \"url\" : \"https://i.scdn.co/image/ab67616d0000b273cc3dda9e323043469b0f5e38\",\n
+        \     \"width\" : 640\n    }, {\n      \"height\" : 300,\n      \"url\" :
+        \"https://i.scdn.co/image/ab67616d00001e02cc3dda9e323043469b0f5e38\",\n      \"width\"
+        : 300\n    }, {\n      \"height\" : 64,\n      \"url\" : \"https://i.scdn.co/image/ab67616d00004851cc3dda9e323043469b0f5e38\",\n
+        \     \"width\" : 64\n    } ],\n    \"name\" : \"First Rain\",\n    \"release_date\"
+        : \"2015-07-02\",\n    \"release_date_precision\" : \"day\",\n    \"total_tracks\"
+        : 1,\n    \"type\" : \"album\",\n    \"uri\" : \"spotify:album:4SXkbDnBPGbLL3szWXL01L\"\n
+        \ },\n  \"artists\" : [ {\n    \"external_urls\" : {\n      \"spotify\" :
+        \"https://open.spotify.com/artist/1FPC2zwfMHhrP3frOfaai6\"\n    },\n    \"href\"
+        : \"https://api.spotify.com/v1/artists/1FPC2zwfMHhrP3frOfaai6\",\n    \"id\"
+        : \"1FPC2zwfMHhrP3frOfaai6\",\n    \"name\" : \"Kontinuum\",\n    \"type\"
+        : \"artist\",\n    \"uri\" : \"spotify:artist:1FPC2zwfMHhrP3frOfaai6\"\n  }
+        ],\n  \"available_markets\" : [ \"AR\", \"AU\", \"AT\", \"BE\", \"BO\", \"BR\",
+        \"BG\", \"CA\", \"CL\", \"CO\", \"CR\", \"CY\", \"CZ\", \"DK\", \"DO\", \"DE\",
+        \"EC\", \"EE\", \"SV\", \"FI\", \"FR\", \"GR\", \"GT\", \"HN\", \"HK\", \"HU\",
+        \"IS\", \"IE\", \"IT\", \"LV\", \"LT\", \"LU\", \"MY\", \"MT\", \"MX\", \"NL\",
+        \"NZ\", \"NI\", \"NO\", \"PA\", \"PY\", \"PE\", \"PH\", \"PL\", \"PT\", \"SG\",
+        \"SK\", \"ES\", \"SE\", \"CH\", \"TW\", \"TR\", \"UY\", \"US\", \"GB\", \"AD\",
+        \"LI\", \"MC\", \"ID\", \"JP\", \"TH\", \"VN\", \"RO\", \"IL\", \"ZA\", \"SA\",
+        \"AE\", \"BH\", \"QA\", \"OM\", \"KW\", \"EG\", \"MA\", \"DZ\", \"TN\", \"LB\",
+        \"JO\", \"PS\", \"IN\", \"BY\", \"KZ\", \"MD\", \"UA\", \"AL\", \"BA\", \"HR\",
+        \"ME\", \"MK\", \"RS\", \"SI\", \"KR\", \"BD\", \"PK\", \"LK\", \"GH\", \"KE\",
+        \"NG\", \"TZ\", \"UG\", \"AG\", \"AM\", \"BS\", \"BB\", \"BZ\", \"BT\", \"BW\",
+        \"BF\", \"CV\", \"CW\", \"DM\", \"FJ\", \"GM\", \"GE\", \"GD\", \"GW\", \"GY\",
+        \"HT\", \"JM\", \"KI\", \"LS\", \"LR\", \"MW\", \"MV\", \"ML\", \"MH\", \"FM\",
+        \"NA\", \"NR\", \"NE\", \"PW\", \"PG\", \"WS\", \"SM\", \"ST\", \"SN\", \"SC\",
+        \"SL\", \"SB\", \"KN\", \"LC\", \"VC\", \"SR\", \"TL\", \"TO\", \"TT\", \"TV\",
+        \"VU\", \"AZ\", \"BN\", \"BI\", \"KH\", \"CM\", \"TD\", \"KM\", \"GQ\", \"SZ\",
+        \"GA\", \"GN\", \"KG\", \"LA\", \"MO\", \"MR\", \"MN\", \"NP\", \"RW\", \"TG\",
+        \"UZ\", \"ZW\", \"BJ\", \"MG\", \"MU\", \"MZ\", \"AO\", \"CI\", \"DJ\", \"ZM\",
+        \"CD\", \"CG\", \"IQ\", \"LY\", \"TJ\", \"VE\", \"ET\", \"XK\" ],\n  \"disc_number\"
+        : 1,\n  \"duration_ms\" : 240000,\n  \"explicit\" : false,\n  \"external_ids\"
+        : {\n    \"isrc\" : \"GB2LD0902014\"\n  },\n  \"external_urls\" : {\n    \"spotify\"
+        : \"https://open.spotify.com/track/1UPuywvKgEteDPzV1TbD3b\"\n  },\n  \"href\"
+        : \"https://api.spotify.com/v1/tracks/1UPuywvKgEteDPzV1TbD3b\",\n  \"id\"
+        : \"1UPuywvKgEteDPzV1TbD3b\",\n  \"is_local\" : false,\n  \"name\" : \"First
+        Rain\",\n  \"popularity\" : 25,\n  \"preview_url\" : \"https://p.scdn.co/mp3-preview/875434c54d09c4d1813b185bf7196d87e77988f9?cid=5f573c9620494bae87890c0f08a60293\",\n
+        \ \"track_number\" : 1,\n  \"type\" : \"track\",\n  \"uri\" : \"spotify:track:1UPuywvKgEteDPzV1TbD3b\"\n}"
+    headers:
+      Alt-Svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      Transfer-Encoding:
+      - chunked
+      Via:
+      - HTTP/2 edgeproxy, 1.1 google
+      access-control-allow-credentials:
+      - 'true'
+      access-control-allow-headers:
+      - Accept, App-Platform, Authorization, Content-Type, Origin, Retry-After, Spotify-App-Version,
+        X-Cloud-Trace-Context, client-token, content-access-token
+      access-control-allow-methods:
+      - GET, POST, OPTIONS, PUT, DELETE, PATCH
+      access-control-allow-origin:
+      - '*'
+      access-control-max-age:
+      - '604800'
+      cache-control:
+      - public, max-age=7200
+      content-encoding:
+      - gzip
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Thu, 28 Mar 2024 18:22:51 GMT
+      server:
+      - envoy
+      strict-transport-security:
+      - max-age=31536000
+      x-content-type-options:
+      - nosniff
+      x-robots-tag:
+      - noindex, nofollow
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate, br
+      Authorization:
+      - Bearer BQCIeSNhNCkB9Blimo9blo_jY1Ajv1qmG5IreR1KJxAVVqqr7sB5JKz-Fbo6MO8BbqXT1mgn2jb1OEN_yhrC7vHGajwYOQ7EFoOykGWMCQtYI_zd59I
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      User-Agent:
+      - python-requests/2.31.0
+    method: GET
+    uri: https://api.spotify.com/v1/tracks/2MG4p8qAd6TOr1WQGwpclY
+  response:
+    body:
+      string: "{\n  \"album\" : {\n    \"album_type\" : \"single\",\n    \"artists\"
+        : [ {\n      \"external_urls\" : {\n        \"spotify\" : \"https://open.spotify.com/artist/1FPC2zwfMHhrP3frOfaai6\"\n
+        \     },\n      \"href\" : \"https://api.spotify.com/v1/artists/1FPC2zwfMHhrP3frOfaai6\",\n
+        \     \"id\" : \"1FPC2zwfMHhrP3frOfaai6\",\n      \"name\" : \"Kontinuum\",\n
+        \     \"type\" : \"artist\",\n      \"uri\" : \"spotify:artist:1FPC2zwfMHhrP3frOfaai6\"\n
+        \   } ],\n    \"available_markets\" : [ \"AR\", \"AU\", \"AT\", \"BE\", \"BO\",
+        \"BR\", \"BG\", \"CA\", \"CL\", \"CO\", \"CR\", \"CY\", \"CZ\", \"DK\", \"DO\",
+        \"DE\", \"EC\", \"EE\", \"SV\", \"FI\", \"FR\", \"GR\", \"GT\", \"HN\", \"HK\",
+        \"HU\", \"IS\", \"IE\", \"IT\", \"LV\", \"LT\", \"LU\", \"MY\", \"MT\", \"MX\",
+        \"NL\", \"NZ\", \"NI\", \"NO\", \"PA\", \"PY\", \"PE\", \"PH\", \"PL\", \"PT\",
+        \"SG\", \"SK\", \"ES\", \"SE\", \"CH\", \"TW\", \"TR\", \"UY\", \"US\", \"GB\",
+        \"AD\", \"LI\", \"MC\", \"ID\", \"JP\", \"TH\", \"VN\", \"RO\", \"IL\", \"ZA\",
+        \"SA\", \"AE\", \"BH\", \"QA\", \"OM\", \"KW\", \"EG\", \"MA\", \"DZ\", \"TN\",
+        \"LB\", \"JO\", \"PS\", \"IN\", \"BY\", \"KZ\", \"MD\", \"UA\", \"AL\", \"BA\",
+        \"HR\", \"ME\", \"MK\", \"RS\", \"SI\", \"KR\", \"BD\", \"PK\", \"LK\", \"GH\",
+        \"KE\", \"NG\", \"TZ\", \"UG\", \"AG\", \"AM\", \"BS\", \"BB\", \"BZ\", \"BT\",
+        \"BW\", \"BF\", \"CV\", \"CW\", \"DM\", \"FJ\", \"GM\", \"GE\", \"GD\", \"GW\",
+        \"GY\", \"HT\", \"JM\", \"KI\", \"LS\", \"LR\", \"MW\", \"MV\", \"ML\", \"MH\",
+        \"FM\", \"NA\", \"NR\", \"NE\", \"PW\", \"PG\", \"PR\", \"WS\", \"SM\", \"ST\",
+        \"SN\", \"SC\", \"SL\", \"SB\", \"KN\", \"LC\", \"VC\", \"SR\", \"TL\", \"TO\",
+        \"TT\", \"TV\", \"VU\", \"AZ\", \"BN\", \"BI\", \"KH\", \"CM\", \"TD\", \"KM\",
+        \"GQ\", \"SZ\", \"GA\", \"GN\", \"KG\", \"LA\", \"MO\", \"MR\", \"MN\", \"NP\",
+        \"RW\", \"TG\", \"UZ\", \"ZW\", \"BJ\", \"MG\", \"MU\", \"MZ\", \"AO\", \"CI\",
+        \"DJ\", \"ZM\", \"CD\", \"CG\", \"IQ\", \"LY\", \"TJ\", \"VE\", \"ET\", \"XK\"
+        ],\n    \"external_urls\" : {\n      \"spotify\" : \"https://open.spotify.com/album/3skUzGSJGqPYxu5PzJGwPB\"\n
+        \   },\n    \"href\" : \"https://api.spotify.com/v1/albums/3skUzGSJGqPYxu5PzJGwPB\",\n
+        \   \"id\" : \"3skUzGSJGqPYxu5PzJGwPB\",\n    \"images\" : [ {\n      \"height\"
+        : 640,\n      \"url\" : \"https://i.scdn.co/image/ab67616d0000b27335ba63ff20683c61ab39d622\",\n
+        \     \"width\" : 640\n    }, {\n      \"height\" : 300,\n      \"url\" :
+        \"https://i.scdn.co/image/ab67616d00001e0235ba63ff20683c61ab39d622\",\n      \"width\"
+        : 300\n    }, {\n      \"height\" : 64,\n      \"url\" : \"https://i.scdn.co/image/ab67616d0000485135ba63ff20683c61ab39d622\",\n
+        \     \"width\" : 64\n    } ],\n    \"name\" : \"Aware\",\n    \"release_date\"
+        : \"2015-05-28\",\n    \"release_date_precision\" : \"day\",\n    \"total_tracks\"
+        : 1,\n    \"type\" : \"album\",\n    \"uri\" : \"spotify:album:3skUzGSJGqPYxu5PzJGwPB\"\n
+        \ },\n  \"artists\" : [ {\n    \"external_urls\" : {\n      \"spotify\" :
+        \"https://open.spotify.com/artist/1FPC2zwfMHhrP3frOfaai6\"\n    },\n    \"href\"
+        : \"https://api.spotify.com/v1/artists/1FPC2zwfMHhrP3frOfaai6\",\n    \"id\"
+        : \"1FPC2zwfMHhrP3frOfaai6\",\n    \"name\" : \"Kontinuum\",\n    \"type\"
+        : \"artist\",\n    \"uri\" : \"spotify:artist:1FPC2zwfMHhrP3frOfaai6\"\n  }
+        ],\n  \"available_markets\" : [ \"AR\", \"AU\", \"AT\", \"BE\", \"BO\", \"BR\",
+        \"BG\", \"CA\", \"CL\", \"CO\", \"CR\", \"CY\", \"CZ\", \"DK\", \"DO\", \"DE\",
+        \"EC\", \"EE\", \"SV\", \"FI\", \"FR\", \"GR\", \"GT\", \"HN\", \"HK\", \"HU\",
+        \"IS\", \"IE\", \"IT\", \"LV\", \"LT\", \"LU\", \"MY\", \"MT\", \"MX\", \"NL\",
+        \"NZ\", \"NI\", \"NO\", \"PA\", \"PY\", \"PE\", \"PH\", \"PL\", \"PT\", \"SG\",
+        \"SK\", \"ES\", \"SE\", \"CH\", \"TW\", \"TR\", \"UY\", \"US\", \"GB\", \"AD\",
+        \"LI\", \"MC\", \"ID\", \"JP\", \"TH\", \"VN\", \"RO\", \"IL\", \"ZA\", \"SA\",
+        \"AE\", \"BH\", \"QA\", \"OM\", \"KW\", \"EG\", \"MA\", \"DZ\", \"TN\", \"LB\",
+        \"JO\", \"PS\", \"IN\", \"BY\", \"KZ\", \"MD\", \"UA\", \"AL\", \"BA\", \"HR\",
+        \"ME\", \"MK\", \"RS\", \"SI\", \"KR\", \"BD\", \"PK\", \"LK\", \"GH\", \"KE\",
+        \"NG\", \"TZ\", \"UG\", \"AG\", \"AM\", \"BS\", \"BB\", \"BZ\", \"BT\", \"BW\",
+        \"BF\", \"CV\", \"CW\", \"DM\", \"FJ\", \"GM\", \"GE\", \"GD\", \"GW\", \"GY\",
+        \"HT\", \"JM\", \"KI\", \"LS\", \"LR\", \"MW\", \"MV\", \"ML\", \"MH\", \"FM\",
+        \"NA\", \"NR\", \"NE\", \"PW\", \"PG\", \"WS\", \"SM\", \"ST\", \"SN\", \"SC\",
+        \"SL\", \"SB\", \"KN\", \"LC\", \"VC\", \"SR\", \"TL\", \"TO\", \"TT\", \"TV\",
+        \"VU\", \"AZ\", \"BN\", \"BI\", \"KH\", \"CM\", \"TD\", \"KM\", \"GQ\", \"SZ\",
+        \"GA\", \"GN\", \"KG\", \"LA\", \"MO\", \"MR\", \"MN\", \"NP\", \"RW\", \"TG\",
+        \"UZ\", \"ZW\", \"BJ\", \"MG\", \"MU\", \"MZ\", \"AO\", \"CI\", \"DJ\", \"ZM\",
+        \"CD\", \"CG\", \"IQ\", \"LY\", \"TJ\", \"VE\", \"ET\", \"XK\" ],\n  \"disc_number\"
+        : 1,\n  \"duration_ms\" : 272727,\n  \"explicit\" : false,\n  \"external_ids\"
+        : {\n    \"isrc\" : \"GB2LD0902000\"\n  },\n  \"external_urls\" : {\n    \"spotify\"
+        : \"https://open.spotify.com/track/2MG4p8qAd6TOr1WQGwpclY\"\n  },\n  \"href\"
+        : \"https://api.spotify.com/v1/tracks/2MG4p8qAd6TOr1WQGwpclY\",\n  \"id\"
+        : \"2MG4p8qAd6TOr1WQGwpclY\",\n  \"is_local\" : false,\n  \"name\" : \"Aware\",\n
+        \ \"popularity\" : 27,\n  \"preview_url\" : \"https://p.scdn.co/mp3-preview/20593517bfaceaa1c5692fe0e7bdc1dbfef64c42?cid=5f573c9620494bae87890c0f08a60293\",\n
+        \ \"track_number\" : 1,\n  \"type\" : \"track\",\n  \"uri\" : \"spotify:track:2MG4p8qAd6TOr1WQGwpclY\"\n}"
+    headers:
+      Alt-Svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      Transfer-Encoding:
+      - chunked
+      Via:
+      - HTTP/2 edgeproxy, 1.1 google
+      access-control-allow-credentials:
+      - 'true'
+      access-control-allow-headers:
+      - Accept, App-Platform, Authorization, Content-Type, Origin, Retry-After, Spotify-App-Version,
+        X-Cloud-Trace-Context, client-token, content-access-token
+      access-control-allow-methods:
+      - GET, POST, OPTIONS, PUT, DELETE, PATCH
+      access-control-allow-origin:
+      - '*'
+      access-control-max-age:
+      - '604800'
+      cache-control:
+      - public, max-age=7200
+      content-encoding:
+      - gzip
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Thu, 28 Mar 2024 18:22:51 GMT
+      server:
+      - envoy
+      strict-transport-security:
+      - max-age=31536000
+      x-content-type-options:
+      - nosniff
+      x-robots-tag:
+      - noindex, nofollow
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate, br
+      Authorization:
+      - Bearer BQCIeSNhNCkB9Blimo9blo_jY1Ajv1qmG5IreR1KJxAVVqqr7sB5JKz-Fbo6MO8BbqXT1mgn2jb1OEN_yhrC7vHGajwYOQ7EFoOykGWMCQtYI_zd59I
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      User-Agent:
+      - python-requests/2.31.0
+    method: GET
+    uri: https://api.spotify.com/v1/tracks/0wuSW1SD2LDv0rCp8m5OTI
+  response:
+    body:
+      string: "{\n  \"album\" : {\n    \"album_type\" : \"single\",\n    \"artists\"
+        : [ {\n      \"external_urls\" : {\n        \"spotify\" : \"https://open.spotify.com/artist/1FPC2zwfMHhrP3frOfaai6\"\n
+        \     },\n      \"href\" : \"https://api.spotify.com/v1/artists/1FPC2zwfMHhrP3frOfaai6\",\n
+        \     \"id\" : \"1FPC2zwfMHhrP3frOfaai6\",\n      \"name\" : \"Kontinuum\",\n
+        \     \"type\" : \"artist\",\n      \"uri\" : \"spotify:artist:1FPC2zwfMHhrP3frOfaai6\"\n
+        \   } ],\n    \"available_markets\" : [ \"AR\", \"AU\", \"AT\", \"BE\", \"BO\",
+        \"BR\", \"BG\", \"CA\", \"CL\", \"CO\", \"CR\", \"CY\", \"CZ\", \"DK\", \"DO\",
+        \"DE\", \"EC\", \"EE\", \"SV\", \"FI\", \"FR\", \"GR\", \"GT\", \"HN\", \"HK\",
+        \"HU\", \"IS\", \"IE\", \"IT\", \"LV\", \"LT\", \"LU\", \"MY\", \"MT\", \"MX\",
+        \"NL\", \"NZ\", \"NI\", \"NO\", \"PA\", \"PY\", \"PE\", \"PH\", \"PL\", \"PT\",
+        \"SG\", \"SK\", \"ES\", \"SE\", \"CH\", \"TW\", \"TR\", \"UY\", \"US\", \"GB\",
+        \"AD\", \"LI\", \"MC\", \"ID\", \"JP\", \"TH\", \"VN\", \"RO\", \"IL\", \"ZA\",
+        \"SA\", \"AE\", \"BH\", \"QA\", \"OM\", \"KW\", \"EG\", \"MA\", \"DZ\", \"TN\",
+        \"LB\", \"JO\", \"PS\", \"IN\", \"BY\", \"KZ\", \"MD\", \"UA\", \"AL\", \"BA\",
+        \"HR\", \"ME\", \"MK\", \"RS\", \"SI\", \"KR\", \"BD\", \"PK\", \"LK\", \"GH\",
+        \"KE\", \"NG\", \"TZ\", \"UG\", \"AG\", \"AM\", \"BS\", \"BB\", \"BZ\", \"BT\",
+        \"BW\", \"BF\", \"CV\", \"CW\", \"DM\", \"FJ\", \"GM\", \"GE\", \"GD\", \"GW\",
+        \"GY\", \"HT\", \"JM\", \"KI\", \"LS\", \"LR\", \"MW\", \"MV\", \"ML\", \"MH\",
+        \"FM\", \"NA\", \"NR\", \"NE\", \"PW\", \"PG\", \"PR\", \"WS\", \"SM\", \"ST\",
+        \"SN\", \"SC\", \"SL\", \"SB\", \"KN\", \"LC\", \"VC\", \"SR\", \"TL\", \"TO\",
+        \"TT\", \"TV\", \"VU\", \"AZ\", \"BN\", \"BI\", \"KH\", \"CM\", \"TD\", \"KM\",
+        \"GQ\", \"SZ\", \"GA\", \"GN\", \"KG\", \"LA\", \"MO\", \"MR\", \"MN\", \"NP\",
+        \"RW\", \"TG\", \"UZ\", \"ZW\", \"BJ\", \"MG\", \"MU\", \"MZ\", \"AO\", \"CI\",
+        \"DJ\", \"ZM\", \"CD\", \"CG\", \"IQ\", \"LY\", \"TJ\", \"VE\", \"ET\", \"XK\"
+        ],\n    \"external_urls\" : {\n      \"spotify\" : \"https://open.spotify.com/album/3Anxbj2ILNT4oROywVScjr\"\n
+        \   },\n    \"href\" : \"https://api.spotify.com/v1/albums/3Anxbj2ILNT4oROywVScjr\",\n
+        \   \"id\" : \"3Anxbj2ILNT4oROywVScjr\",\n    \"images\" : [ {\n      \"height\"
+        : 640,\n      \"url\" : \"https://i.scdn.co/image/ab67616d0000b273e583fc853c6f07c4ef12faa0\",\n
+        \     \"width\" : 640\n    }, {\n      \"height\" : 300,\n      \"url\" :
+        \"https://i.scdn.co/image/ab67616d00001e02e583fc853c6f07c4ef12faa0\",\n      \"width\"
+        : 300\n    }, {\n      \"height\" : 64,\n      \"url\" : \"https://i.scdn.co/image/ab67616d00004851e583fc853c6f07c4ef12faa0\",\n
+        \     \"width\" : 64\n    } ],\n    \"name\" : \"Freedom\",\n    \"release_date\"
+        : \"2014-05-13\",\n    \"release_date_precision\" : \"day\",\n    \"total_tracks\"
+        : 1,\n    \"type\" : \"album\",\n    \"uri\" : \"spotify:album:3Anxbj2ILNT4oROywVScjr\"\n
+        \ },\n  \"artists\" : [ {\n    \"external_urls\" : {\n      \"spotify\" :
+        \"https://open.spotify.com/artist/1FPC2zwfMHhrP3frOfaai6\"\n    },\n    \"href\"
+        : \"https://api.spotify.com/v1/artists/1FPC2zwfMHhrP3frOfaai6\",\n    \"id\"
+        : \"1FPC2zwfMHhrP3frOfaai6\",\n    \"name\" : \"Kontinuum\",\n    \"type\"
+        : \"artist\",\n    \"uri\" : \"spotify:artist:1FPC2zwfMHhrP3frOfaai6\"\n  }
+        ],\n  \"available_markets\" : [ \"AR\", \"AU\", \"AT\", \"BE\", \"BO\", \"BR\",
+        \"BG\", \"CA\", \"CL\", \"CO\", \"CR\", \"CY\", \"CZ\", \"DK\", \"DO\", \"DE\",
+        \"EC\", \"EE\", \"SV\", \"FI\", \"FR\", \"GR\", \"GT\", \"HN\", \"HK\", \"HU\",
+        \"IS\", \"IE\", \"IT\", \"LV\", \"LT\", \"LU\", \"MY\", \"MT\", \"MX\", \"NL\",
+        \"NZ\", \"NI\", \"NO\", \"PA\", \"PY\", \"PE\", \"PH\", \"PL\", \"PT\", \"SG\",
+        \"SK\", \"ES\", \"SE\", \"CH\", \"TW\", \"TR\", \"UY\", \"US\", \"GB\", \"AD\",
+        \"LI\", \"MC\", \"ID\", \"JP\", \"TH\", \"VN\", \"RO\", \"IL\", \"ZA\", \"SA\",
+        \"AE\", \"BH\", \"QA\", \"OM\", \"KW\", \"EG\", \"MA\", \"DZ\", \"TN\", \"LB\",
+        \"JO\", \"PS\", \"IN\", \"BY\", \"KZ\", \"MD\", \"UA\", \"AL\", \"BA\", \"HR\",
+        \"ME\", \"MK\", \"RS\", \"SI\", \"KR\", \"BD\", \"PK\", \"LK\", \"GH\", \"KE\",
+        \"NG\", \"TZ\", \"UG\", \"AG\", \"AM\", \"BS\", \"BB\", \"BZ\", \"BT\", \"BW\",
+        \"BF\", \"CV\", \"CW\", \"DM\", \"FJ\", \"GM\", \"GE\", \"GD\", \"GW\", \"GY\",
+        \"HT\", \"JM\", \"KI\", \"LS\", \"LR\", \"MW\", \"MV\", \"ML\", \"MH\", \"FM\",
+        \"NA\", \"NR\", \"NE\", \"PW\", \"PG\", \"WS\", \"SM\", \"ST\", \"SN\", \"SC\",
+        \"SL\", \"SB\", \"KN\", \"LC\", \"VC\", \"SR\", \"TL\", \"TO\", \"TT\", \"TV\",
+        \"VU\", \"AZ\", \"BN\", \"BI\", \"KH\", \"CM\", \"TD\", \"KM\", \"GQ\", \"SZ\",
+        \"GA\", \"GN\", \"KG\", \"LA\", \"MO\", \"MR\", \"MN\", \"NP\", \"RW\", \"TG\",
+        \"UZ\", \"ZW\", \"BJ\", \"MG\", \"MU\", \"MZ\", \"AO\", \"CI\", \"DJ\", \"ZM\",
+        \"CD\", \"CG\", \"IQ\", \"LY\", \"TJ\", \"VE\", \"ET\", \"XK\" ],\n  \"disc_number\"
+        : 1,\n  \"duration_ms\" : 322749,\n  \"explicit\" : false,\n  \"external_ids\"
+        : {\n    \"isrc\" : \"DEBY71400387\"\n  },\n  \"external_urls\" : {\n    \"spotify\"
+        : \"https://open.spotify.com/track/0wuSW1SD2LDv0rCp8m5OTI\"\n  },\n  \"href\"
+        : \"https://api.spotify.com/v1/tracks/0wuSW1SD2LDv0rCp8m5OTI\",\n  \"id\"
+        : \"0wuSW1SD2LDv0rCp8m5OTI\",\n  \"is_local\" : false,\n  \"name\" : \"Freedom
+        - Original Mix\",\n  \"popularity\" : 4,\n  \"preview_url\" : \"https://p.scdn.co/mp3-preview/944d21c16714e826774233b57390b391045e2add?cid=5f573c9620494bae87890c0f08a60293\",\n
+        \ \"track_number\" : 1,\n  \"type\" : \"track\",\n  \"uri\" : \"spotify:track:0wuSW1SD2LDv0rCp8m5OTI\"\n}"
+    headers:
+      Alt-Svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      Transfer-Encoding:
+      - chunked
+      Via:
+      - HTTP/2 edgeproxy, 1.1 google
+      access-control-allow-credentials:
+      - 'true'
+      access-control-allow-headers:
+      - Accept, App-Platform, Authorization, Content-Type, Origin, Retry-After, Spotify-App-Version,
+        X-Cloud-Trace-Context, client-token, content-access-token
+      access-control-allow-methods:
+      - GET, POST, OPTIONS, PUT, DELETE, PATCH
+      access-control-allow-origin:
+      - '*'
+      access-control-max-age:
+      - '604800'
+      cache-control:
+      - public, max-age=7200
+      content-encoding:
+      - gzip
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Thu, 28 Mar 2024 18:22:52 GMT
+      server:
+      - envoy
+      strict-transport-security:
+      - max-age=31536000
+      x-content-type-options:
+      - nosniff
+      x-robots-tag:
+      - noindex, nofollow
+    status:
+      code: 200
+      message: OK
+version: 1
