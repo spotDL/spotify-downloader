@@ -97,6 +97,9 @@ class WebOptions(TypedDict):
     port: int
     host: str
     keep_alive: bool
+    https: bool
+    key_file:str
+    cert_file:str
     allowed_origins: Optional[List[str]]
     keep_sessions: bool
 

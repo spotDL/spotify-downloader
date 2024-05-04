@@ -474,6 +474,7 @@ Web options:
                         The allowed origins for the web server.
   --web-use-output-dir  Use the output directory instead of the session directory for downloads. (This might cause issues if you have multiple users using the web-ui at the same time)
   --keep-sessions       Keep the session directory after the web server is closed.
+  --https               If true this will use HTTPS. This requires you to pass a cert and key file to use.
 
 Misc options:
   --log-level {CRITICAL,FATAL,ERROR,WARN,WARNING,INFO,MATCH,DEBUG,NOTSET}

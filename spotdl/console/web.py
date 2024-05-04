@@ -103,6 +103,8 @@ def web(web_settings: WebOptions, downloader_settings: DownloaderOptions):
         app=app_state.api,
         host=web_settings["host"],
         port=web_settings["port"],
+        ssl_keyfile="/etc/pki/live/laptop.randy.home.darkowl.org/privkey.pem",
+        ssl_certfile="/etc/pki/live/laptop.randy.home.darkowl.org/cert.pem",
         workers=1,
         log_level=NAME_TO_LEVEL[downloader_settings["log_level"]],
         loop=app_state.loop,  # type: ignore
