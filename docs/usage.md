@@ -309,6 +309,10 @@ If you don't want config to load automatically change `load_config` option in co
     "port": 8800,
     "host": "localhost",
     "keep_alive": false,
+    "enable_tls": false,
+    "key_file": null,
+    "cert_file":null,
+    "ca_file":null,
     "allowed_origins": null,
     "keep_sessions": false,
     "only_verified_results": false,
@@ -474,7 +478,12 @@ Web options:
                         The allowed origins for the web server.
   --web-use-output-dir  Use the output directory instead of the session directory for downloads. (This might cause issues if you have multiple users using the web-ui at the same time)
   --keep-sessions       Keep the session directory after the web server is closed.
-  --https               If true this will use HTTPS. This requires you to pass a cert and key file to use.
+  --enable-tls          Enable TLS on the web server.
+  --cert-file CERT_FILE
+                        File Path to the TLS Certificate Chain (PEM format).
+  --key-file KEY_FILE   File Path to the TLS Private Key (PEM format).
+  --ca-file CA_FILE     File Path to the TLS Certificate Authority File (PEM format).
+
 
 Misc options:
   --log-level {CRITICAL,FATAL,ERROR,WARN,WARNING,INFO,MATCH,DEBUG,NOTSET}

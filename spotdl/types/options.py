@@ -97,9 +97,10 @@ class WebOptions(TypedDict):
     port: int
     host: str
     keep_alive: bool
-    https: bool
-    key_file:str
-    cert_file:str
+    enable_tls: bool
+    key_file: str
+    cert_file: str
+    ca_file: str
     allowed_origins: Optional[List[str]]
     keep_sessions: bool
 
@@ -186,6 +187,10 @@ class WebOptionalOptions(TypedDict, total=False):
     port: int
     host: str
     keep_alive: bool
+    enable_tls: bool
+    key_file: str
+    cert_file: str
+    ca_file: str
     allowed_origins: Optional[str]
     keep_sessions: bool
 
