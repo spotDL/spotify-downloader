@@ -98,7 +98,7 @@ def web(web_settings: WebOptions, downloader_settings: DownloaderOptions):
         SPAStaticFiles(directory=web_app_dir + "/dist", html=True),
         name="static",
     )
-
+    protocol = "http"
     config = Config(
         app=app_state.api,
         host=web_settings["host"],
@@ -107,13 +107,19 @@ def web(web_settings: WebOptions, downloader_settings: DownloaderOptions):
         log_level=NAME_TO_LEVEL[downloader_settings["log_level"]],
         loop=app_state.loop,  # type: ignore
     )
+    if web_settings["enable_tls"]:
+        logger.info("Enabeling TLS")
+        protocol = "https"
+        config.ssl_certfile = web_settings["cert_file"]
+        config.ssl_keyfile = web_settings["key_file"]
+        config.ssl_ca_certs = web_settings["ca_file"]
 
     app_state.server = Server(config)
 
     app_state.downloader_settings = downloader_settings
 
     # Open the web browser
-    webbrowser.open(f"http://{web_settings['host']}:{web_settings['port']}/")
+    webbrowser.open(f"{protocol}://{web_settings['host']}:{web_settings['port']}/")
 
     if not web_settings["web_use_output_dir"]:
         logger.info(
