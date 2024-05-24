@@ -86,7 +86,7 @@ class Playlist(SongList):
             tracks.extend(playlist_response["items"])
 
         songs = []
-        for track in tracks:
+        for track_no, track in enumerate(tracks):
             if not isinstance(track, dict) or track.get("track") is None:
                 continue
 
@@ -137,6 +137,7 @@ class Playlist(SongList):
                     if (len(album_meta.get("images", [])) > 0)
                     else None
                 ),
+                list_position=track_no + 1,
             )
 
             songs.append(song)
