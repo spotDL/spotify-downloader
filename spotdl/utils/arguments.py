@@ -659,6 +659,15 @@ def parse_web_options(parser: _ArgumentGroup):
         help="Keep the session directory after the web server is closed.",
     )
 
+    # Add keep sessions argument
+    parser.add_argument(
+        "--force-update-gui",
+        action="store_const",
+        const=True,
+        default=False,
+        help="Refresh the web server directory with a fresh git checkout",
+    )
+
 
 def parse_misc_options(parser: _ArgumentGroup):
     """

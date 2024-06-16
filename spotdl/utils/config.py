@@ -339,6 +339,7 @@ WEB_OPTIONS: WebOptions = {
     "keep_alive": False,
     "allowed_origins": None,
     "keep_sessions": False,
+    "force_update_gui": False,
 }
 
 # Type: ignore because of the issues above
