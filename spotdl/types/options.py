@@ -99,6 +99,7 @@ class WebOptions(TypedDict):
     keep_alive: bool
     allowed_origins: Optional[List[str]]
     keep_sessions: bool
+    force_update_gui: bool
 
 
 class SpotDLOptions(SpotifyOptions, DownloaderOptions, WebOptions):
