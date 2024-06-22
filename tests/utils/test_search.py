@@ -97,12 +97,12 @@ def test_get_simple_songs():
 def test_get_all_user_playlists_with_unautherized_acc():
     try :
         get_all_user_playlists("test")
-
         for branch, hit in coverage_dict.items():
-            print(f"{branch}: {hit}")
-
+            print(f"\n\t{branch}: {hit}")
         print("SpotifyError not caught")
         assert False
     except SpotifyError:
+        for branch, hit in coverage_dict.items():
+            print(f"\n\t{branch}: {hit}")
         print("SpotifyError caught")
         assert True
