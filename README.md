@@ -42,8 +42,6 @@ get_all_user_playlists
 
 ### Individual tests
 
-<The following is supposed to be repeated for each group member>
-
 Erik Doytchinov
 
 test_get_all_user_playlists_with_unautherized_acc

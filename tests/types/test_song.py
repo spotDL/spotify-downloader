@@ -86,9 +86,6 @@ def test_song_from_url():
 
     song = Song.from_url("https://open.spotify.com/track/1t2qKa8K72IBC8yQlhD9bU")
 
-    for branch, hit in coverage_dict.items():
-        print(f"{branch}: {hit}")
-
     assert song.name == "Ropes"
     assert song.artists == ["Dirty Palm", "Chandler Jewels"]
     assert song.album_name == "Ropes"

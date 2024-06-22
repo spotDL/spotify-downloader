@@ -22,6 +22,7 @@ from spotdl.types.saved import Saved
 from spotdl.types.song import Song, SongList
 from spotdl.utils.metadata import get_file_metadata
 from spotdl.utils.spotify import SpotifyClient, SpotifyError
+from tests.coverage_dict import coverage_dict
 
 __all__ = [
     "QueryError",
@@ -360,8 +361,6 @@ def songs_from_albums(albums: List[str]):
 
     return songs
 
-
-coverage_dict = {"branch-1001": False, "branch-1002": False, "branch-1003": False, "branch-1004": False, "branch-1005": False, "branch-1006": False, "branch-1007": False}
 
 def get_all_user_playlists(user_url: str = "") -> List[Playlist]:
     """

@@ -24,9 +24,6 @@ class SongListError(Exception):
     Base class for all exceptions related to song lists.
     """
 
-
-coverage_dict: dict[str, bool] = {"branch-1008": False, "branch-1009": False, "branch-1010": False, "branch-1011": False}
-
 @dataclass
 class Song:
     """
@@ -77,7 +74,6 @@ class Song:
         """
 
         if "open.spotify.com" not in url or "track" not in url:
-            coverage_dict["branch-1008"] = True
             raise SongError(f"Invalid URL: {url}")
 
         # query spotify for song, artist, album details
@@ -87,16 +83,12 @@ class Song:
         raw_track_meta = spotify_client.track(url)
 
         if raw_track_meta is None:
-            coverage_dict["branch-1009"] = True
             raise SongError(
                 "Couldn't get metadata, check if you have passed correct track id"
             )
 
         if raw_track_meta["duration_ms"] == 0 or raw_track_meta["name"].strip() == "":
-            coverage_dict["branch-1010"] = True
             raise SongError(f"Track no longer exists: {url}")
-
-        coverage_dict["branch-1011"] = True
 
         # get artist info
         primary_artist_id = raw_track_meta["artists"][0]["id"]
