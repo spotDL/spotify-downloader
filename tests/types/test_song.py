@@ -2,7 +2,6 @@ import pytest
 
 from spotdl.types.album import Album
 from spotdl.types.song import Song
-from spotdl.types.song import coverage_dict
 
 
 def test_song_init():

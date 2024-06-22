@@ -97,7 +97,6 @@ def test_get_simple_songs():
 def test_get_all_user_playlists():
     playlists = get_all_user_playlists("https://open.spotify.com/user/21lp7azvm3r2cvzliwizrekri?si=fc3d58840cf24ec9")
     print_coverage_dict()
-
     assert len(playlists) > 1
 
 
@@ -105,10 +104,7 @@ def test_get_all_user_playlists():
 def test_get_all_user_playlists_with_unautherized_acc():
     try :
         get_all_user_playlists("test")
-
-        print("SpotifyError not caught")
         assert False
     except SpotifyError:
         print_coverage_dict()
-        print("SpotifyError caught")
         assert True

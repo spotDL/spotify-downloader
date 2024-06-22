@@ -24,6 +24,7 @@ class SongListError(Exception):
     Base class for all exceptions related to song lists.
     """
 
+
 @dataclass
 class Song:
     """
