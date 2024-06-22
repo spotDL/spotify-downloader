@@ -2,7 +2,8 @@ import pytest
 
 from spotdl.types.saved import SavedError
 from spotdl.types.song import Song
-from spotdl.utils.search import get_search_results, get_simple_songs, parse_query
+from spotdl.utils.search import get_search_results, get_simple_songs, parse_query, get_all_user_playlists
+from spotdl.utils.spotify import SpotifyError
 
 SONG = ["https://open.spotify.com/track/2Ikdgh3J5vCRmnCL3Xcrtv"]
 PLAYLIST = ["https://open.spotify.com/playlist/78Lg6HmUqlTnmipvNxc536"]
@@ -89,3 +90,14 @@ def test_create_empty_song():
 def test_get_simple_songs():
     songs = get_simple_songs(QUERY)
     assert len(songs) > 1
+
+
+@pytest.mark.vcr()
+def test_get_all_user_playlists():
+    try :
+        get_all_user_playlists("test")
+        print("SpotifyError not caught")
+        assert False
+    except SpotifyError:
+        print("SpotifyError caught")
+        assert True

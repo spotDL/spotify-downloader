@@ -361,6 +361,8 @@ def songs_from_albums(albums: List[str]):
     return songs
 
 
+coverage_dict = {"branch-1": False, "branch-2": False, "branch-3": False, "branch-4": False, "branch-5": False, "branch-6": False, "branch-7": False}
+
 def get_all_user_playlists(user_url: str = "") -> List[Playlist]:
     """
     Get all user playlists.
@@ -375,30 +377,37 @@ def get_all_user_playlists(user_url: str = "") -> List[Playlist]:
 
     spotify_client = SpotifyClient()
     if spotify_client.user_auth is False:  # type: ignore
+        coverage_dict["branch-1"] = True
         raise SpotifyError("You must be logged in to use this function")
 
     if user_url and not user_url.startswith("https://open.spotify.com/user/"):
+        coverage_dict["branch-2"] = True
         raise ValueError(f"Invalid user profile url: {user_url}")
 
     user_id = user_url.split("https://open.spotify.com/user/")[-1].replace("/", "")
 
     if user_id:
+        coverage_dict["branch-3"] = True
         user_playlists_response = spotify_client.user_playlists(user_id)
     else:
+        coverage_dict["branch-4"] = True
         user_playlists_response = spotify_client.current_user_playlists()
         user_resp = spotify_client.current_user()
         if user_resp is None:
+            coverage_dict["branch-5"] = True
             raise SpotifyError("Couldn't get user info")
 
         user_id = user_resp["id"]
 
     if user_playlists_response is None:
+        coverage_dict["branch-6"] = True
         raise SpotifyError("Couldn't get user playlists")
 
     user_playlists = user_playlists_response["items"]
 
     # Fetch all saved tracks
     while user_playlists_response and user_playlists_response["next"]:
+        coverage_dict["branch-7"] = True
         response = spotify_client.next(user_playlists_response)
         if response is None:
             break
