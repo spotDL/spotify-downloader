@@ -14,9 +14,9 @@ Programming language: Python
 
 ### Existing tool
 
-<Inform the name of the existing tool that was executed and how it was executed>
+We used Coverage.py for our test and we ran "coverage run pytest", then "coverage report" to get the table bellow.
 
-<Show the coverage results provided by the existing tool with a screenshot>
+![alt text](image-3.png)
 
 ### Your own coverage tool
 
@@ -48,7 +48,7 @@ Erik Doytchinov
 
 test_get_all_user_playlists_with_unautherized_acc
 
-<Show a patch (diff) or a link to a commit made in your forked repository that shows the new/enhanced test>
+![alt text](image-2.png)
 
 <Provide a screenshot of the old coverage results (the same as you already showed above)>
 
