@@ -4,6 +4,7 @@ from spotdl.types.saved import SavedError
 from spotdl.types.song import Song
 from spotdl.utils.search import get_search_results, get_simple_songs, parse_query, get_all_user_playlists
 from spotdl.utils.spotify import SpotifyError
+from spotdl.utils.search import coverage_dict
 
 SONG = ["https://open.spotify.com/track/2Ikdgh3J5vCRmnCL3Xcrtv"]
 PLAYLIST = ["https://open.spotify.com/playlist/78Lg6HmUqlTnmipvNxc536"]
@@ -93,9 +94,13 @@ def test_get_simple_songs():
 
 
 @pytest.mark.vcr()
-def test_get_all_user_playlists():
+def test_get_all_user_playlists_with_unautherized_acc():
     try :
         get_all_user_playlists("test")
+
+        for branch, hit in coverage_dict.items():
+            print(f"{branch}: {hit}")
+
         print("SpotifyError not caught")
         assert False
     except SpotifyError:
