@@ -12,6 +12,8 @@ import requests
 
 from spotdl import _version
 
+from tests.coverage_dict import coverage_dict
+
 __all__ = [
     "REPO",
     "WEB_APP_URL",
@@ -50,7 +52,9 @@ def get_status(start: str, end: str, repo: str = REPO) -> Tuple[str, int, int]:
     response = requests.get(url, timeout=10)
 
     if response.status_code != 200:
+        coverage_dict["branch-2001"] = True
         if response.status_code == 403:
+            coverage_dict["branch-2001"] = True
             raise RateLimitError("GitHub API rate limit exceeded.")
 
         raise RuntimeError(
