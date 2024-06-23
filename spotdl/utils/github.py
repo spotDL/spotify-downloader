@@ -54,7 +54,7 @@ def get_status(start: str, end: str, repo: str = REPO) -> Tuple[str, int, int]:
     if response.status_code != 200:
         coverage_dict["branch-2001"] = True
         if response.status_code == 403:
-            coverage_dict["branch-2001"] = True
+            coverage_dict["branch-2002"] = True
             raise RateLimitError("GitHub API rate limit exceeded.")
 
         raise RuntimeError(

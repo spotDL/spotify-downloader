@@ -12,7 +12,9 @@ coverage_dict: dict[str, int] = {"branch-1001": False,
                                  "branch-2003": False,
                                  "branch-2004": False,
                                  "branch-2005": False,
-                                 "branch-2006": False
+                                 "branch-2006": False,
+                                 "branch-2007": False,
+                                 "branch-2008": False
                                  }
 
 def print_coverage_dict():
