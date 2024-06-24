@@ -49,7 +49,6 @@ def test_yt_dlp_progress_hook():
         assert True
     print_coverage_dict(["branch-1001","branch-1002","branch-1003","branch-1004","branch-1005"])
 
-
 @pytest.mark.vcr()
 def test_notify_error():
     progress_handler = ProgressHandler(simple_tui=False)
