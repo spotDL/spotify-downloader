@@ -36,6 +36,15 @@ notify_error()
 
 ![alt text](erik-img-4.png)
 
+Ongun Manav
+
+get_status()
+![alt text](ongun-img1.png)
+
+format()
+![alt text](ongun-img3.png)
+
+
 ## Coverage improvement
 
 ### Individual tests
@@ -61,6 +70,13 @@ notify_error()
 ![alt text](image-5.png)
 
 At first there was no test coverage at all but now all branches are covered.
+
+Ongun Manav
+get_status()
+![alt text](ongun-img2.png)
+
+format()
+![alt text](ongun-img4.png)
 
 <Group member name>
 
