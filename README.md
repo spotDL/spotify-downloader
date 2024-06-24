@@ -16,7 +16,7 @@ Programming language: Python
 
 We used Coverage.py for our test and we ran "coverage run pytest", then "coverage report" to get the table bellow.
 
-![alt text](image-3.png)
+![alt text](image.png)
 
 ### Your own coverage tool
 

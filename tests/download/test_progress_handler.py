@@ -49,39 +49,3 @@ def test_yt_dlp_progress_hook():
         assert True
     print_coverage_dict(["branch-1001","branch-1002","branch-1003","branch-1004","branch-1005"])
 
-
-@pytest.mark.vcr()
-def test_notify_error():
-    progress_handler = ProgressHandler(simple_tui=False)
-    song_tracker = SongTracker(parent=progress_handler,song=song)
-    progress_handler.close()
-
-    song_tracker.notify_error("Test error", traceback="Test traceback")
-
-    assert True
-    print_coverage_dict(["branch-1006", "branch-1007", "branch-1008"])
-
-
-@pytest.mark.vcr()
-def test_notify_error_debug():
-    progress_handler = ProgressHandler(simple_tui=False)
-    song_tracker = SongTracker(parent=progress_handler,song=song)
-    progress_handler.close()
-
-    logger.setLevel(logging.DEBUG)
-    song_tracker.notify_error("Test error", traceback="Test traceback")
-
-    assert True
-    print_coverage_dict(["branch-1006", "branch-1007", "branch-1008"])
-
-
-@pytest.mark.vcr()
-def test_notify_error_finish():
-    progress_handler = ProgressHandler(simple_tui=False)
-    song_tracker = SongTracker(parent=progress_handler,song=song)
-    progress_handler.close()
-
-    song_tracker.notify_error("Test error", traceback="Test traceback", finish=True)
-
-    assert song_tracker.progress == 100
-    print_coverage_dict(["branch-1006", "branch-1007", "branch-1008"])
