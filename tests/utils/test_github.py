@@ -73,14 +73,6 @@ def test_get_status_rate_limit(mock_get):
         get_status("master", "dev", "spotdl/spotify-downloader")
 
 
-# @patch('spotdl.utils.github.get_latest_version')
-# def test_check_for_updates_rate_limit(mock_get_latest_version, monkeypatch):
-#     monkeypatch.setattr(_version, "__version__", "3.9.4")
-#     mock_get_latest_version.side_effect = RateLimitError
-#     message = check_for_updates("spotdl/spotify-downloader")
-#     assert "GitHub API rate limit exceeded" in message
-
-
 def test_create_github_url_invalid():
     with pytest.raises(ValueError):
         create_github_url("https://github.com/spotdl")
@@ -93,10 +85,3 @@ def test_download_github_dir_rate_limit(mock_get, tmpdir):
     assert result is None
 
 
-# @patch('spotdl.utils.github.requests.get')
-# def test_download_github_dir_flat(mock_get, tmpdir):
-#     mock_get.return_value.json.return_value = [
-#         {"path": "file1.txt", "download_url": "http://example.com/file1.txt", "type": "file"},
-#     ]
-#     download_github_dir(WEB_APP_URL, True, tmpdir)
-#     assert tmpdir.join("file1.txt").isfile() is True
