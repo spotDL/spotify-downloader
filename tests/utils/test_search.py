@@ -2,9 +2,7 @@ import pytest
 
 from spotdl.types.saved import SavedError
 from spotdl.types.song import Song
-from spotdl.utils.search import create_ytm_playlist, get_search_results, get_simple_songs, parse_query, get_all_user_playlists
-from spotdl.utils.spotify import SpotifyError
-from tests.instrumentation import coverage_dict, print_coverage_dict
+from spotdl.utils.search import get_search_results, get_simple_songs, parse_query
 
 SONG = ["https://open.spotify.com/track/2Ikdgh3J5vCRmnCL3Xcrtv"]
 PLAYLIST = ["https://open.spotify.com/playlist/78Lg6HmUqlTnmipvNxc536"]

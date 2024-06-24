@@ -22,7 +22,6 @@ from spotdl.types.saved import Saved
 from spotdl.types.song import Song, SongList
 from spotdl.utils.metadata import get_file_metadata
 from spotdl.utils.spotify import SpotifyClient, SpotifyError
-from tests.instrumentation import coverage_dict
 
 __all__ = [
     "QueryError",
