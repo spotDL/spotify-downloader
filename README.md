@@ -26,15 +26,15 @@ Erik Doytchinov
 
 yt_dlp_progress_hook()
 
-![alt text](image.png)
+![alt text](erik-img-1.png)
 
-![alt text](image-1.png)
+![alt text](erik-img-2.png)
 
 notify_error()
 
-![alt text](image-6.png)
+![alt text](erik-img-3.png)
 
-![alt text](image-7.png)
+![alt text](erik-img-4.png)
 
 ## Coverage improvement
 
@@ -44,19 +44,17 @@ Erik Doytchinov
 
 test_yt_dlp_progress_hook()
 
-![alt text](image-8.png)
+![alt text](erik-img-5.png)
 
-![alt text](image-9.png)
+![alt text](erik-img-6.png)
+
+![alt text](erik-img-7.png)
 
 Added a test scanario that covers the missing branch, in the case that no file byte size is included.
 
-<Provide a screenshot of the old coverage results (the same as you already showed above)>
-
-<Provide a screenshot of the new coverage results>
-
-<State the coverage improvement with a number and elaborate on why the coverage is improved>
-
 notify_error()
+
+![alt text](image-11.png)
 
 ![alt text](image-4.png)
 
