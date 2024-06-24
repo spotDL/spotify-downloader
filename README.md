@@ -54,11 +54,11 @@ Added a test scanario that covers the missing branch, in the case that no file b
 
 notify_error()
 
-![alt text](image-11.png)
+![alt text](erik-img-8.png)
 
-![alt text](image-4.png)
+![alt text](erik-img-9.png)
 
-![alt text](image-5.png)
+![alt text](erik-img-10.png)
 
 At first there was no test coverage at all but now all branches are covered.
 
