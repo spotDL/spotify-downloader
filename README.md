@@ -24,19 +24,17 @@ We used Coverage.py for our test and we ran "coverage run pytest", then "coverag
 
 Erik Doytchinov
 
-get_all_user_playlists
+yt_dlp_progress_hook()
 
 ![alt text](image.png)
 
 ![alt text](image-1.png)
 
-<Group member name>
+notify_error()
 
-<Function 1 name>
+![alt text](image-6.png)
 
-<Show a patch (diff) or a link to a commit made in your forked repository that shows the instrumented code to gather coverage measurements>
-
-<Provide a screenshot of the coverage results output by the instrumentation>
+![alt text](image-7.png)
 
 ## Coverage improvement
 
@@ -44,9 +42,13 @@ get_all_user_playlists
 
 Erik Doytchinov
 
-test_get_all_user_playlists_with_unautherized_acc
+test_yt_dlp_progress_hook()
 
-![alt text](image-2.png)
+![alt text](image-8.png)
+
+![alt text](image-9.png)
+
+Added a test scanario that covers the missing branch, in the case that no file byte size is included.
 
 <Provide a screenshot of the old coverage results (the same as you already showed above)>
 
@@ -54,9 +56,13 @@ test_get_all_user_playlists_with_unautherized_acc
 
 <State the coverage improvement with a number and elaborate on why the coverage is improved>
 
-<Test 2>
+notify_error()
 
-<Provide the same kind of information provided for Test 1>
+![alt text](image-4.png)
+
+![alt text](image-5.png)
+
+At first there was no test coverage at all but now all branches are covered.
 
 <Group member name>
 

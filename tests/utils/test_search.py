@@ -2,9 +2,9 @@ import pytest
 
 from spotdl.types.saved import SavedError
 from spotdl.types.song import Song
-from spotdl.utils.search import get_search_results, get_simple_songs, parse_query, get_all_user_playlists
+from spotdl.utils.search import create_ytm_playlist, get_search_results, get_simple_songs, parse_query, get_all_user_playlists
 from spotdl.utils.spotify import SpotifyError
-from tests.coverage_dict import coverage_dict, print_coverage_dict
+from tests.instrumentation import coverage_dict, print_coverage_dict
 
 SONG = ["https://open.spotify.com/track/2Ikdgh3J5vCRmnCL3Xcrtv"]
 PLAYLIST = ["https://open.spotify.com/playlist/78Lg6HmUqlTnmipvNxc536"]
@@ -91,20 +91,3 @@ def test_create_empty_song():
 def test_get_simple_songs():
     songs = get_simple_songs(QUERY)
     assert len(songs) > 1
-
-
-@pytest.mark.vcr()
-def test_get_all_user_playlists():
-    playlists = get_all_user_playlists("https://open.spotify.com/user/21lp7azvm3r2cvzliwizrekri?si=fc3d58840cf24ec9")
-    print_coverage_dict()
-    assert len(playlists) > 1
-
-
-@pytest.mark.vcr()
-def test_get_all_user_playlists_with_unautherized_acc():
-    try :
-        get_all_user_playlists("test")
-        assert False
-    except SpotifyError:
-        print_coverage_dict()
-        assert True

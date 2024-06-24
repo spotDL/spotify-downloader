@@ -22,6 +22,7 @@ from rich.text import Text
 
 from spotdl.types.song import Song
 from spotdl.utils.static import BAD_CHARS
+import tests.instrumentation as instrumentation
 
 __all__ = [
     "ProgressHandler",
@@ -31,7 +32,6 @@ __all__ = [
 ]
 
 logger = logging.getLogger(__name__)
-
 
 class ProgressHandlerError(Exception):
     """
@@ -352,11 +352,14 @@ class SongTracker:
 
         self.update("Error")
         if finish:
+            instrumentation.coverage_dict["branch-1006"] = True
             self.progress = 100
 
         if logger.getEffectiveLevel() == logging.DEBUG:
+            instrumentation.coverage_dict["branch-1007"] = True
             logger.exception(message)
         else:
+            instrumentation.coverage_dict["branch-1008"] = True
             logger.error("%s: %s", traceback.__class__.__name__, traceback)
 
     def notify_download_complete(self, status="Converting") -> None:
@@ -427,14 +430,19 @@ class SongTracker:
         """
 
         if data["status"] == "downloading":
+            instrumentation.coverage_dict["branch-1001"] = True
             file_bytes = data.get("total_bytes")
             if file_bytes is None:
+                instrumentation.coverage_dict["branch-1002"] = True
                 file_bytes = data.get("total_bytes_estimate")
 
             downloaded_bytes = data.get("downloaded_bytes")
             if self.parent.simple_tui and not self.parent.web_ui:
+                instrumentation.coverage_dict["branch-1003"] = True
                 self.progress = 50
             elif file_bytes and downloaded_bytes:
+                instrumentation.coverage_dict["branch-1004"] = True
                 self.progress = downloaded_bytes / file_bytes * 50
 
             self.update("Downloading")
+        instrumentation.coverage_dict["branch-1005"] = True

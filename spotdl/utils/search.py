@@ -22,7 +22,7 @@ from spotdl.types.saved import Saved
 from spotdl.types.song import Song, SongList
 from spotdl.utils.metadata import get_file_metadata
 from spotdl.utils.spotify import SpotifyClient, SpotifyError
-from tests.coverage_dict import coverage_dict
+from tests.instrumentation import coverage_dict
 
 __all__ = [
     "QueryError",
@@ -376,37 +376,30 @@ def get_all_user_playlists(user_url: str = "") -> List[Playlist]:
 
     spotify_client = SpotifyClient()
     if spotify_client.user_auth is False:  # type: ignore
-        coverage_dict["branch-1001"] = True
         raise SpotifyError("You must be logged in to use this function")
 
     if user_url and not user_url.startswith("https://open.spotify.com/user/"):
-        coverage_dict["branch-1002"] = True
         raise ValueError(f"Invalid user profile url: {user_url}")
 
     user_id = user_url.split("https://open.spotify.com/user/")[-1].replace("/", "")
 
     if user_id:
-        coverage_dict["branch-1003"] = True
         user_playlists_response = spotify_client.user_playlists(user_id)
     else:
-        coverage_dict["branch-1004"] = True
         user_playlists_response = spotify_client.current_user_playlists()
         user_resp = spotify_client.current_user()
         if user_resp is None:
-            coverage_dict["branch-1005"] = True
             raise SpotifyError("Couldn't get user info")
 
         user_id = user_resp["id"]
 
     if user_playlists_response is None:
-        coverage_dict["branch-1006"] = True
         raise SpotifyError("Couldn't get user playlists")
 
     user_playlists = user_playlists_response["items"]
 
     # Fetch all saved tracks
     while user_playlists_response and user_playlists_response["next"]:
-        coverage_dict["branch-1007"] = True
         response = spotify_client.next(user_playlists_response)
         if response is None:
             break
