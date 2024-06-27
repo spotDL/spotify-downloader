@@ -5,8 +5,9 @@ import pytest
 from logging import LogRecord, DEBUG, INFO, WARNING, ERROR, CRITICAL, NOTSET
 import pytest
 from spotdl.utils.logging import SpotdlFormatter
+import tests.instrumentation as instrumentation
 
-
+@pytest.mark.vcr()
 def test_spotdl_formatter_format():
     # cf. https://rich.readthedocs.io/en/stable/markup.html#escaping
     formatter = SpotdlFormatter()
@@ -29,3 +30,7 @@ def test_spotdl_formatter_format():
             )
             == escaped_msg
         )
+    instrumentation.print_coverage_dict(["branch-2003", "branch-2004","branch-2005", "branch-2006","branch-2007", "branch-2008"])
+
+
+

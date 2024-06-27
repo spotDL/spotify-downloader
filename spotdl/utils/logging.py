@@ -13,7 +13,7 @@ from rich.text import Text
 from rich.theme import Theme
 from rich.traceback import install
 
-from tests.coverage_dict import coverage_dict
+import tests.instrumentation as instrumentation
 
 
 __all__ = [
@@ -103,27 +103,27 @@ class SpotdlFormatter(logging.Formatter):
 
         msg = result
         if record.levelno == DEBUG:
-            coverage_dict["branch-2003"] = True
+            instrumentation.coverage_dict["branch-2003"] = True
             msg = f"[blue]{result}"
 
         if record.levelno == MATCH:
-            coverage_dict["branch-2004"] = True
+            instrumentation.coverage_dict["branch-2004"] = True
             msg = f"[magenta]{result}"
 
         if record.levelno == INFO:
-            coverage_dict["branch-2005"] = True
+            instrumentation.coverage_dict["branch-2005"] = True
             msg = f"[green]{result}"
 
         if record.levelno == WARNING:
-            coverage_dict["branch-2006"] = True
+            instrumentation.coverage_dict["branch-2006"] = True
             msg = f"[yellow]{result}"
 
         if record.levelno == ERROR:
-            coverage_dict["branch-2007"] = True
+            instrumentation.coverage_dict["branch-2007"] = True
             msg = f"[red]{result}"
 
         if record.levelno == CRITICAL:
-            coverage_dict["branch-2008"] = True
+            instrumentation.coverage_dict["branch-2008"] = True
             msg = f"[bold red]{result}"
 
         return msg

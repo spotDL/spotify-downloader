@@ -39,10 +39,16 @@ notify_error()
 Ongun Manav
 
 get_status()
-![alt text](ongun-img1.png)
+
+![alt text](ongun-img5.png)
+
+![alt text](ongun-img8.png)
 
 format()
-![alt text](ongun-img3.png)
+
+![alt text](ongun-img6.png)
+
+![alt text](ongun-img7.png)
 
 
 ## Coverage improvement
@@ -72,11 +78,26 @@ notify_error()
 At first there was no test coverage at all but now all branches are covered.
 
 Ongun Manav
+
 get_status()
+
+![alt text](ongun-img9.png)
+
+![alt text](ongun-img1.png)
+
 ![alt text](ongun-img2.png)
 
+Initially the nested if branch was not run, now with the added test for status code 403, it is covered, increasing the coverage form %87.1 to %100
+
 format()
+
+![alt text](ongun-img10.png)
+
+![alt text](ongun-img3.png)
+
 ![alt text](ongun-img4.png)
+
+Initially no branch was not covered, now with the new parameters added to the map, increasing the coverage form %4.3 to %91.3
 
 <Group member name>
 
