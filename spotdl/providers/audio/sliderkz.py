@@ -47,7 +47,7 @@ class SliderKZ(AudioProvider):
         while not search_results and max_retries < 3:
             try:
                 search_response = requests.get(
-                    url="https://slider.kz/vk_auth.php?q=" + search_term,
+                    url="https://hayqbhgr.slider.kz/vk_auth.php?q=" + search_term,
                     headers=HEADERS,
                     timeout=5,
                     proxies=GlobalConfig.get_parameter("proxies"),
@@ -76,7 +76,7 @@ class SliderKZ(AudioProvider):
         for result in search_results["audios"][""]:
             # urls from slider.kz sometimes are relative, so we need to add the domain
             if "https://" not in result["url"]:
-                result["url"] = "https://slider.kz/" + result["url"]
+                result["url"] = "https://hayqbhgr.slider.kz/" + result["url"]
 
             results.append(
                 Result(
