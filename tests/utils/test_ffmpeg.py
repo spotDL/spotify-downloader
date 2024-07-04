@@ -111,6 +111,7 @@ def test_download_ffmpeg(monkeypatch, tmpdir):
     assert download_ffmpeg() is not None
 
 
+@pytest.mark.vcr()
 def test_convert(tmpdir, monkeypatch):
     """
     Test convert function.
