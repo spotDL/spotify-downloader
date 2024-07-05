@@ -84,6 +84,7 @@ def test_download_song(capsys, monkeypatch, tmpdir):
 
 
 @pytest.mark.vcr()
+@pytest.mark.vcr_delete_on_fail
 def test_preload_song(capsys, monkeypatch, tmpdir):
     """
     This test checks if the song is preloaded correctly.

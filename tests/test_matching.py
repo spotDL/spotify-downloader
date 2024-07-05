@@ -403,6 +403,7 @@ from tests.conftest import new_initialize
     ],
 )
 @pytest.mark.vcr()
+@pytest.mark.vcr_delete_on_fail
 def test_ytmusic_matching(monkeypatch, query, expected, capsys):
     monkeypatch.setattr(SpotifyClient, "init", new_initialize)
 

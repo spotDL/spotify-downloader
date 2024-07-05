@@ -83,6 +83,7 @@ mkdocs-literate-nav = "^0.6.0"
 mkdocs-section-index = "^0.3.5"
 vcrpy = "^6.0.1"
 pytest-recording = "^0.13.1"
+pytest-vcr-delete-on-fail = {version = "^2.0.1", python = "^3.8.1"}
 
 [tool.poetry.scripts]
 spotdl = "spotdl:console_entry_point"
