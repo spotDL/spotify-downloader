@@ -7,6 +7,7 @@ PLAYLIST = "https://open.spotify.com/playlist/5LkNhFidYyyjRWwnkcMbQs"
 
 
 @pytest.mark.vcr()
+@pytest.mark.vcr_delete_on_fail
 def test_create_m3u_content():
     playlist = Playlist.from_url(PLAYLIST)
     content = create_m3u_content(
@@ -20,6 +21,7 @@ def test_create_m3u_content():
     assert content.split("\n")[2].endswith(".mp3")
 
 @pytest.mark.vcr()
+@pytest.mark.vcr_delete_on_fail
 def test_create_m3u_file(tmpdir, monkeypatch):
     monkeypatch.chdir(tmpdir)
     playlist = Playlist.from_url(PLAYLIST)
