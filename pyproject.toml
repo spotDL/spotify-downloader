@@ -49,7 +49,7 @@ platformdirs = "^4.2.0"
 pykakasi = "^2.2.1"
 syncedlyrics = "^0.7.0"
 soundcloud-v2 = "^1.3.7"
-setuptools = "^69.2.0"
+setuptools = ">=69.2,<71.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.1.1"
