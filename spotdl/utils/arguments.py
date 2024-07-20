@@ -666,6 +666,29 @@ def parse_web_options(parser: _ArgumentGroup):
         const=True,
         default=False,
         help="Refresh the web server directory with a fresh git checkout",
+    # Enable TLS for the web server
+    parser.add_argument(
+        "--enable-tls",
+        action="store_const",
+        const=True,
+        help="Enable TLS on the web server.",
+    )
+
+    # Add File Location of the TLS Certificate file (Pem Format)
+    parser.add_argument(
+        "--cert-file", type=str, help="File Path to the TLS Certificate (PEM format)."
+    )
+
+    # Add File Location of the TLS Private Key file (Pem Format)
+    parser.add_argument(
+        "--key-file", type=str, help="File Path to the TLS Private Key (PEM format)."
+    )
+
+    # Add File Location of the TLS Certificate Authority file (Pem Format)
+    parser.add_argument(
+        "--ca-file",
+        type=str,
+        help="File Path to the TLS Certificate Authority File (PEM format).",
     )
 
 

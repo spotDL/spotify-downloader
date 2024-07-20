@@ -300,7 +300,7 @@ def get_simple_songs(
             song_data = song.json
             song_data["list_name"] = song_list.name
             song_data["list_url"] = song_list.url
-            song_data["list_position"] = index + 1
+            song_data["list_position"] = song.list_position
             song_data["list_length"] = song_list.length
 
             if playlist_numbering:
