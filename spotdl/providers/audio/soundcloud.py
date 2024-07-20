@@ -8,6 +8,7 @@ from itertools import islice
 from typing import Any, Dict, List
 
 from soundcloud import SoundCloud as SoundCloudClient
+from soundcloud.resource.track import Track
 
 from spotdl.providers.audio.base import AudioProvider
 from spotdl.types.result import Result
@@ -60,7 +61,7 @@ class SoundCloud(AudioProvider):
         # Simplify results
         simplified_results = []
         for result in results:
-            if result.kind != "track":
+            if not isinstance(result, Track):
                 continue
 
             # Ignore results that are not playable
@@ -82,7 +83,7 @@ class SoundCloud(AudioProvider):
                     verified=result.user.verified,
                     duration=result.full_duration,
                     author=result.user.username,
-                    result_id=result.id,
+                    result_id=str(result.id),
                     isrc_search=False,
                     search_query=search_term,
                     views=result.playback_count,
