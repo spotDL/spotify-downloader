@@ -64,7 +64,7 @@ class Playlist(SongList):
                         else i["width"] * i["height"]
                     ),
                 )["url"]
-                if (len(playlist["images"]) > 0)
+                if (playlist.get("images") is not None and len(playlist["images"]) > 0)
                 else ""
             ),
         }
