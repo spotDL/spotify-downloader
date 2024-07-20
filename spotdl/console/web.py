@@ -4,9 +4,10 @@ Web module for the console.
 
 import asyncio
 import logging
+import os
 import sys
 import webbrowser
-import os
+from pathlib import Path
 
 from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -65,12 +66,23 @@ def web(web_settings: WebOptions, downloader_settings: DownloaderOptions):
 
     # Download web app from GitHub if not already downloaded or force flag set
     web_app_dir = str(get_spotdl_path().absolute())
-    if not os.path.exists(web_app_dir) or web_settings["force_update_gui"]:
+    if (not os.path.exists(web_app_dir) or web_settings["force_update_gui"]) and web_settings["web_gui_location"] is None:
+        if web_settings["web_gui_repo"] is None:
+            gui_repo = "https://github.com/spotdl/web-ui/tree/master/dist"
+        else:
+            gui_repo = web_settings["web_gui_repo"]
+
         logger.info("Updating web app \n")
         download_github_dir(
-            "https://github.com/spotdl/web-ui/tree/master/dist",
+            gui_repo,
             output_dir=web_app_dir,
         )
+    elif web_settings["web_gui_location"]:
+        web_app_dir = str(Path(web_settings["web_gui_location"]).absolute())
+        logger.info("Using custom web app location: %s", web_app_dir)
+    else:
+        logger.info("Using cached web app. To update use the `--force-update-gui` flag.")
+        web_app_dir = web_app_dir + "/dist"
 
     app_state.api = FastAPI(
         title="spotDL",
@@ -97,7 +109,7 @@ def web(web_settings: WebOptions, downloader_settings: DownloaderOptions):
     # Add the static files
     app_state.api.mount(
         "/",
-        SPAStaticFiles(directory=web_app_dir + "/dist", html=True),
+        SPAStaticFiles(directory=web_app_dir, html=True),
         name="static",
     )
     protocol = "http"

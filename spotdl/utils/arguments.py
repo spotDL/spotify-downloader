@@ -666,6 +666,25 @@ def parse_web_options(parser: _ArgumentGroup):
         const=True,
         default=False,
         help="Refresh the web server directory with a fresh git checkout",
+    )
+
+    # Add custom web gui repo
+    parser.add_argument(
+        "--web-gui-repo",
+        type=str,
+        help=(
+            "Custom web gui repo to use for the web server. "
+            "Example: https://github.com/spotdl/web-ui/tree/master/dist"
+        ),
+    )
+
+    # Add custom web gui repo
+    parser.add_argument(
+        "--web-gui-location",
+        type=str,
+        help="Path to the web gui directory to use for the web server.",
+    )
+
     # Enable TLS for the web server
     parser.add_argument(
         "--enable-tls",
