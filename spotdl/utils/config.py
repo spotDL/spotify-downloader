@@ -337,6 +337,10 @@ WEB_OPTIONS: WebOptions = {
     "port": 8800,
     "host": "localhost",
     "keep_alive": False,
+    "enable_tls": False,
+    "key_file": None,
+    "cert_file": None,
+    "ca_file": None,
     "allowed_origins": None,
     "keep_sessions": False,
 }
