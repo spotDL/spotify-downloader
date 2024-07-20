@@ -7,7 +7,7 @@ import re
 from pathlib import Path
 
 from syncedlyrics import search as syncedlyrics_search
-from syncedlyrics.utils import has_translation, Lyrics
+from syncedlyrics.utils import Lyrics, has_translation
 
 from spotdl.types.song import Song
 
