@@ -343,6 +343,7 @@ WEB_OPTIONS: WebOptions = {
     "ca_file": None,
     "allowed_origins": None,
     "keep_sessions": False,
+    "force_update_gui": False,
 }
 
 # Type: ignore because of the issues above

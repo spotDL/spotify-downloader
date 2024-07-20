@@ -6,6 +6,7 @@ import asyncio
 import logging
 import sys
 import webbrowser
+import os
 
 from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -62,13 +63,14 @@ def web(web_settings: WebOptions, downloader_settings: DownloaderOptions):
 
     downloader_settings["simple_tui"] = True
 
-    # Download web app from GitHub
-    logger.info("Updating web app \n")
+    # Download web app from GitHub if not already downloaded or force flag set
     web_app_dir = str(get_spotdl_path().absolute())
-    download_github_dir(
-        "https://github.com/spotdl/web-ui/tree/master/dist",
-        output_dir=web_app_dir,
-    )
+    if not os.path.exists(web_app_dir) or web_settings["force_update_gui"]:
+        logger.info("Updating web app \n")
+        download_github_dir(
+            "https://github.com/spotdl/web-ui/tree/master/dist",
+            output_dir=web_app_dir,
+        )
 
     app_state.api = FastAPI(
         title="spotDL",
