@@ -497,7 +497,7 @@ class Downloader:
             # If the file already exists and we don't want to overwrite it,
             # we can skip the download
             if (
-                Path(str(output_file.absolute()) + ".skip").is_file()
+                Path(str(output_file.absolute()) + ".skip").exists()
                 and self.settings["respect_skip_file"]
             ):
                 logger.info(
@@ -505,6 +505,8 @@ class Downloader:
                     song.display_name,
                     "",
                 )
+
+                return song, output_file if output_file.exists() else None
 
             elif file_exists and self.settings["overwrite"] == "skip":
                 logger.info(
