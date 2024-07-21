@@ -97,6 +97,12 @@ class SPAStaticFiles(StaticFiles):
         if response.status_code == 404:
             response = await super().get_response(".", scope)
 
+        response.headers.setdefault(
+            "Cache-Control", "max-age=0, no-cache, no-store, , must-revalidate"
+        )
+        response.headers.setdefault("Pragma", "no-cache")
+        response.headers.setdefault("Expires", "0")
+
         return response
 
 
