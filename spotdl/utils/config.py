@@ -28,6 +28,7 @@ __all__ = [
     "get_cache_path",
     "get_temp_path",
     "get_errors_path",
+    "get_web_ui_path",
     "get_config",
     "create_settings_type",
     "create_settings",
@@ -136,6 +137,25 @@ def get_errors_path() -> Path:
         os.mkdir(errors_path)
 
     return errors_path
+
+
+def get_web_ui_path() -> Path:
+    """
+    Get the path to the web-ui folder.
+
+    ### Returns
+    - The path to the web-ui folder.
+
+    ### Notes
+    - If the web-ui directory does not exist, it will be created.
+    """
+
+    web_ui_path = get_spotdl_path() / "web-ui"
+
+    if not web_ui_path.exists():
+        os.mkdir(web_ui_path)
+
+    return web_ui_path
 
 
 def get_config() -> Dict[str, Any]:
