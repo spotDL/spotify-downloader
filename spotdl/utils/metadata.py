@@ -218,16 +218,12 @@ def embed_metadata(
 
     # Embed some metadata in format specific ways
     if encoding in ["flac", "ogg", "opus"]:
-        # Zero fill the disc and track numbers
-        zfilled_disc_number = str(song.disc_number).zfill(len(str(song.disc_count)))
-        zfilled_track_number = str(song.track_number).zfill(len(str(song.tracks_count)))
-
-        audio_file[tag_preset["discnumber"]] = str(song.disc_number)
-        audio_file[tag_preset["disccount"]] = str(song.disc_count)
-        audio_file[tag_preset["trackcount"]] = str(song.tracks_count)
-        audio_file[tag_preset["tracknumber"]] = str(song.track_number)
-        audio_file[tag_preset["woas"]] = song.url
-        audio_file[tag_preset["isrc"]] = song.isrc
+        audio_file["discnumber"] = str(song.disc_number)
+        audio_file["disctotal"] = str(song.disc_count)
+        audio_file["tracktotal"] = str(song.tracks_count)
+        audio_file["tracknumber"] = str(song.track_number)
+        audio_file["woas"] = song.url
+        audio_file["isrc"] = song.isrc
     elif encoding == "m4a":
         audio_file[tag_preset["discnumber"]] = [(song.disc_number, song.disc_count)]
         audio_file[tag_preset["tracknumber"]] = [(song.track_number, song.tracks_count)]
