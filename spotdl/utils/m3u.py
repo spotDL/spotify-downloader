@@ -2,8 +2,8 @@
 Module for creating m3u content and writing it to a file.
 """
 
-from typing import Dict, List, Optional
 from pathlib import Path
+from typing import Dict, List, Optional
 
 from spotdl.types.song import Song
 from spotdl.utils.formatter import create_file_name, sanitize_string

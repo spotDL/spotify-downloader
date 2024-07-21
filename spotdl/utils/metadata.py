@@ -34,9 +34,9 @@ from mutagen.id3._frames import (
     TPE1,
     TRCK,
     TSRC,
+    TYER,
     USLT,
     WOAS,
-    TYER,
 )
 from mutagen.id3._specs import Encoding
 from mutagen.mp4 import MP4Cover

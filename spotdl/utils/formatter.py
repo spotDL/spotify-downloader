@@ -216,9 +216,11 @@ def format_query(
             if slugify(artist) not in slugify(song.name)
         ]
 
-    # Add the main artist again to the list
-    if len(artists) == 0 or artists[0] != song.artists[0]:
-        artists.insert(0, song.artists[0])
+        # Add the main artist again to the list
+        if len(artists) == 0 or artists[0] != song.artists[0]:
+            artists.insert(0, song.artists[0])
+    else:
+        artists = song.artists
 
     artists_str = ", ".join(artists)
 

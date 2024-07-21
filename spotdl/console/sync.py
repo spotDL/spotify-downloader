@@ -141,7 +141,7 @@ def sync(
                 if downloader.settings["sync_remove_lrc"]:
                     lrc_file = file.with_suffix(".lrc")
                     if lrc_file.exists():
-                        logger.info("Deleting %s", lrc_file)
+                        logger.debug("Deleting lrc %s", lrc_file)
                         try:
                             lrc_file.unlink()
                         except (PermissionError, OSError) as exc:

@@ -7,7 +7,7 @@ import re
 from pathlib import Path
 
 from syncedlyrics import search as syncedlyrics_search
-from syncedlyrics.utils import Lyrics, has_translation
+from syncedlyrics.utils import Lyrics, TargetType, has_translation
 
 from spotdl.types.song import Song
 
@@ -34,7 +34,9 @@ def generate_lrc(song: Song, output_file: Path):
             lrc_data = None
 
     if lrc_data:
-        Lyrics.save_lrc_file(str(output_file.with_suffix(".lrc")), lrc_data)
+        Lyrics(lrc_data).save_lrc_file(
+            str(output_file.with_suffix(".lrc")), TargetType.PREFER_SYNCED
+        )
         logger.debug("Saved lrc file for %s", song.display_name)
     else:
         logger.debug("No lrc file found for %s", song.display_name)
