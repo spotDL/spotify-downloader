@@ -257,7 +257,7 @@ def embed_metadata(
             )
 
         if song.year:
-            audio_file.add(TYER(encoding=3, text=str(song.year))
+            audio_file.add(TYER(encoding=3, text=str(song.year)))
 
     if not skip_album_art:
         # Embed album art
