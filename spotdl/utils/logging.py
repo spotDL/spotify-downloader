@@ -149,7 +149,7 @@ class SpotdlHandler(RichHandler):
         if highlighter and record.levelno != INFO:
             message_text = highlighter(message_text)
 
-        if not hasattr(self, 'keywords'):
+        if not hasattr(self, "keywords"):
             self.keywords = self.KEYWORDS
 
         # Don't highlight keywords in info messages
