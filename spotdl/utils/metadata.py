@@ -36,6 +36,7 @@ from mutagen.id3._frames import (
     TSRC,
     USLT,
     WOAS,
+    TYER,
 )
 from mutagen.id3._specs import Encoding
 from mutagen.mp4 import MP4Cover
@@ -254,6 +255,9 @@ def embed_metadata(
                     rating=int(song.popularity * 255 / 100),
                 )
             )
+
+        if song.year:
+            audio_file.add(TYER(encoding=3, text=str(song.year))
 
     if not skip_album_art:
         # Embed album art
