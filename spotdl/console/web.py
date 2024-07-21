@@ -15,7 +15,7 @@ from uvicorn import Config, Server
 
 from spotdl._version import __version__
 from spotdl.types.options import DownloaderOptions, WebOptions
-from spotdl.utils.config import get_spotdl_path
+from spotdl.utils.config import get_web_ui_path
 from spotdl.utils.github import download_github_dir
 from spotdl.utils.logging import NAME_TO_LEVEL
 from spotdl.utils.web import (
@@ -65,7 +65,7 @@ def web(web_settings: WebOptions, downloader_settings: DownloaderOptions):
     downloader_settings["simple_tui"] = True
 
     # Download web app from GitHub if not already downloaded or force flag set
-    web_app_dir = str(get_spotdl_path().absolute())
+    web_app_dir = get_web_ui_path()
     if (
         not os.path.exists(web_app_dir) or web_settings["force_update_gui"]
     ) and web_settings["web_gui_location"] is None:
@@ -74,19 +74,21 @@ def web(web_settings: WebOptions, downloader_settings: DownloaderOptions):
         else:
             gui_repo = web_settings["web_gui_repo"]
 
-        logger.info("Updating web app \n")
+        logger.info("Updating web app from %s", gui_repo)
+
         download_github_dir(
             gui_repo,
-            output_dir=web_app_dir,
+            output_dir=str(web_app_dir),
         )
+        web_app_dir = web_app_dir / "/dist"
     elif web_settings["web_gui_location"]:
-        web_app_dir = str(Path(web_settings["web_gui_location"]).absolute())
+        web_app_dir = Path(web_settings["web_gui_location"]).resolve()
         logger.info("Using custom web app location: %s", web_app_dir)
     else:
         logger.info(
             "Using cached web app. To update use the `--force-update-gui` flag."
         )
-        web_app_dir = web_app_dir + "/dist"
+        web_app_dir = web_app_dir / "/dist"
 
     app_state.api = FastAPI(
         title="spotDL",
