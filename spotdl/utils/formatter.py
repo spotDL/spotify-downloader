@@ -209,9 +209,10 @@ def format_query(
         template = "{artists} - {title}.{output-ext}"
 
     # Remove artists from the list that are already in the title
-    artists = [
-        artist for artist in song.artists if slugify(artist) not in slugify(song.name)
-    ]
+    if short:
+        artists = [
+            artist for artist in song.artists if slugify(artist) not in slugify(song.name)
+        ]
 
     # Add the main artist again to the list
     if len(artists) == 0 or artists[0] != song.artists[0]:
