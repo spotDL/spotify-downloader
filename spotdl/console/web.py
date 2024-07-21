@@ -66,7 +66,9 @@ def web(web_settings: WebOptions, downloader_settings: DownloaderOptions):
 
     # Download web app from GitHub if not already downloaded or force flag set
     web_app_dir = str(get_spotdl_path().absolute())
-    if (not os.path.exists(web_app_dir) or web_settings["force_update_gui"]) and web_settings["web_gui_location"] is None:
+    if (
+        not os.path.exists(web_app_dir) or web_settings["force_update_gui"]
+    ) and web_settings["web_gui_location"] is None:
         if web_settings["web_gui_repo"] is None:
             gui_repo = "https://github.com/spotdl/web-ui/tree/master/dist"
         else:
@@ -81,7 +83,9 @@ def web(web_settings: WebOptions, downloader_settings: DownloaderOptions):
         web_app_dir = str(Path(web_settings["web_gui_location"]).absolute())
         logger.info("Using custom web app location: %s", web_app_dir)
     else:
-        logger.info("Using cached web app. To update use the `--force-update-gui` flag.")
+        logger.info(
+            "Using cached web app. To update use the `--force-update-gui` flag."
+        )
         web_app_dir = web_app_dir + "/dist"
 
     app_state.api = FastAPI(

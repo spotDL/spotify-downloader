@@ -83,8 +83,10 @@ M4A_TAG_PRESET = {
     "writer": "\xa9wrt",
     "genre": "\xa9gen",
     "tracknumber": "trkn",
+    "trackcount": "trkn",
     "albumartist": "aART",
     "discnumber": "disk",
+    "disccount": "disk",
     "cpil": "cpil",
     "albumart": "covr",
     "encodedby": "\xa9too",
@@ -220,8 +222,10 @@ def embed_metadata(
         zfilled_disc_number = str(song.disc_number).zfill(len(str(song.disc_count)))
         zfilled_track_number = str(song.track_number).zfill(len(str(song.tracks_count)))
 
-        audio_file[tag_preset["discnumber"]] = zfilled_disc_number
-        audio_file[tag_preset["tracknumber"]] = zfilled_track_number
+        audio_file[tag_preset["discnumber"]] = str(song.disc_number)
+        audio_file[tag_preset["disccount"]] = str(song.disc_count)
+        audio_file[tag_preset["trackcount"]] = str(song.tracks_count)
+        audio_file[tag_preset["tracknumber"]] = str(song.track_number)
         audio_file[tag_preset["woas"]] = song.url
         audio_file[tag_preset["isrc"]] = song.isrc
     elif encoding == "m4a":

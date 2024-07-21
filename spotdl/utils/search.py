@@ -698,9 +698,21 @@ def create_ytm_playlist(url: str, fetch_songs: bool = True) -> Playlist:
         "description": (
             playlist["description"] if playlist["description"] is not None else ""
         ),
-        "author_url": f"https://music.youtube.com/channel/{playlist['author']['id']}",
-        "author_name": playlist["author"]["name"],
-        "cover_url": playlist["thumbnails"][0]["url"],
+        "author_url": (
+            f"https://music.youtube.com/channel/{playlist['author']['id']}"
+            if playlist.get("author") is not None
+            else "Missing author url"
+        ),
+        "author_name": (
+            playlist["author"]["name"]
+            if playlist.get("author") is not None
+            else "Missing author"
+        ),
+        "cover_url": (
+            playlist["thumbnails"][0]["url"]
+            if playlist.get("thumbnails") is not None
+            else "Missing thumbnails"
+        ),
         "name": playlist["title"],
         "url": url,
     }
@@ -712,8 +724,16 @@ def create_ytm_playlist(url: str, fetch_songs: bool = True) -> Playlist:
 
         song = Song.from_missing_data(
             name=track["title"],
-            artists=[artist["name"] for artist in track["artists"]],
-            artist=track["artists"][0]["name"],
+            artists=(
+                [artist["name"] for artist in track["artists"]]
+                if track.get("artists") is not None
+                else []
+            ),
+            artist=(
+                track["artists"][0]["name"]
+                if track.get("artists") is not None
+                else None
+            ),
             album_name=(
                 track.get("album", {}).get("name")
                 if track.get("album") is not None
