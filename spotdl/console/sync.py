@@ -138,6 +138,21 @@ def sync(
                 else:
                     logger.debug("%s does not exist.", file)
 
+                if downloader.settings["sync_remove_lrc"]:
+                    lrc_file = file.with_suffix(".lrc")
+                    if lrc_file.exists():
+                        logger.info("Deleting %s", lrc_file)
+                        try:
+                            lrc_file.unlink()
+                        except (PermissionError, OSError) as exc:
+                            logger.debug(
+                                "Could not remove lrc file: %s, error: %s",
+                                lrc_file,
+                                exc,
+                            )
+                    else:
+                        logger.debug("%s does not exist.", lrc_file)
+
             if len(to_delete) == 0:
                 logger.info("Nothing to delete...")
             else:

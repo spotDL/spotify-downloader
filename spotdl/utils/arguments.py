@@ -602,6 +602,14 @@ def parse_output_options(parser: _ArgumentGroup):
         help="If a file with the extension .skip exists, skip download",
     )
 
+    # Sync remove lrc files
+    parser.add_argument(
+        "--sync-remove-lrc",
+        action="store_const",
+        const=True,
+        help="Remove lrc files when using sync operation when downloading songs",
+    )
+
 
 def parse_web_options(parser: _ArgumentGroup):
     """

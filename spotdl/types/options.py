@@ -86,6 +86,7 @@ class DownloaderOptions(TypedDict):
     skip_album_art: Optional[bool]
     create_skip_file: Optional[bool]
     respect_skip_file: Optional[bool]
+    sync_remove_lrc: Optional[bool]
 
 
 class WebOptions(TypedDict):
@@ -179,6 +180,7 @@ class DownloaderOptionalOptions(TypedDict, total=False):
     skip_album_art: Optional[bool]
     create_skip_file: Optional[bool]
     respect_skip_file: Optional[bool]
+    sync_remove_lrc: Optional[bool]
 
 
 class WebOptionalOptions(TypedDict, total=False):
