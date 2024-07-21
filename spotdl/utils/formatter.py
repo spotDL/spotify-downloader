@@ -232,7 +232,7 @@ def format_query(
         "{duration}": song.duration,
         "{year}": song.year,
         "{original-date}": song.date,
-        "{track-number}": f"{song.track_number:02d}" if song.track_number else "",
+        "{track-number}": f"{int(song.track_number):02d}" if song.track_number else "",
         "{tracks-count}": song.tracks_count,
         "{isrc}": song.isrc,
         "{track-id}": song.song_id,
