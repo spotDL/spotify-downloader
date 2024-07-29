@@ -621,7 +621,7 @@ def args_to_ytdlp_options(argument_list: List[str]) -> Dict[str, Any]:
     options_dict: Dict[str, Any] = {}
     for option_group in YT_DLP_PARSER.option_groups:
         for option in option_group.option_list:
-            for opts in option._long_opts:  # pylint: disable=protected-access
+            for opts in option._long_opts + option._short_opts:  # pylint: disable=protected-access
                 try:
                     index = argument_list.index(opts)
                 except ValueError:
@@ -644,6 +644,6 @@ def args_to_ytdlp_options(argument_list: List[str]) -> Dict[str, Any]:
                         values.append(argument_list[val_index + 1])
                         val_index += 1
 
-                    options_dict[option.dest] = values
+                    options_dict[option.dest] = "".join(values)
 
     return options_dict
