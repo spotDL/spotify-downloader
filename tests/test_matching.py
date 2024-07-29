@@ -12,7 +12,7 @@ from tests.conftest import new_initialize
         (
             # Mata - Piszę to na matmie
             "https://open.spotify.com/track/0l9XhUIYk2EjT6MHdh4wJU",
-            ["https://music.youtube.com/watch?v=TIULUkt30Os"],
+            ["https://music.youtube.com/watch?v=TIULUkt30Os", "https://music.youtube.com/watch?v=YlY71g3kzDU"],
         ),
         # (
         #     # Antoha MC - Бом
@@ -300,7 +300,7 @@ from tests.conftest import new_initialize
         (
             # Tuna - י'א 2"
             "https://open.spotify.com/track/2PpTUW96jjJYr8ib8RUnUu",
-            ["https://music.youtube.com/watch?v=u95kB6jydVs"],
+            ["https://music.youtube.com/watch?v=u95kB6jydVs", "https://music.youtube.com/watch?v=jz2ZdtIM1Zc"],
         ),
         (
             # SZA - Open Arms (feat. Travis Scott)
