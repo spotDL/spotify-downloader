@@ -16,6 +16,7 @@ import pykakasi
 from rapidfuzz import fuzz
 from slugify import slugify as py_slugify
 from yt_dlp.options import create_parser
+from yt_dlp.options import optparse as yt_dlp_optparse
 from yt_dlp.utils import sanitize_filename
 
 from spotdl.types.song import Song
@@ -607,43 +608,20 @@ def create_path_object(string: str) -> Path:
     return Path(*santitized_parts)
 
 
-def args_to_ytdlp_options(argument_list: List[str]) -> Dict[str, Any]:
+def args_to_ytdlp_options(
+    argument_list: List[str], defaults: Dict[str, Any]
+) -> Dict[str, Any]:
     """
     Convert a list of arguments to a dictionary of options.
 
     ### Arguments
     - argument_list: the list of arguments
+    - defaults: the default options
 
     ### Returns
     - the dictionary of options
     """
 
-    options_dict: Dict[str, Any] = {}
-    for option_group in YT_DLP_PARSER.option_groups:
-        for option in option_group.option_list:
-            for opts in option._long_opts + option._short_opts:  # pylint: disable=protected-access
-                try:
-                    index = argument_list.index(opts)
-                except ValueError:
-                    continue
+    new_args = YT_DLP_PARSER.parse_args(argument_list, yt_dlp_optparse.Values(defaults))
 
-                if option.action == "store_true" and option.dest:
-                    options_dict[option.dest] = True
-                    continue
-
-                if option.action == "store_false" and option.dest:
-                    options_dict[option.dest] = False
-                    continue
-
-                if option.action == "store" and option.dest:
-                    values = []
-                    val_index = index
-                    while val_index + 1 < len(argument_list) and not argument_list[
-                        val_index + 1
-                    ].startswith("--"):
-                        values.append(argument_list[val_index + 1])
-                        val_index += 1
-
-                    options_dict[option.dest] = "".join(values)
-
-    return options_dict
+    return vars(new_args[0])

@@ -112,8 +112,9 @@ class AudioProvider:
         }
 
         if yt_dlp_args:
-            user_options = args_to_ytdlp_options(shlex.split(yt_dlp_args))
-            yt_dlp_options.update(user_options)
+            yt_dlp_options = args_to_ytdlp_options(
+                shlex.split(yt_dlp_args), yt_dlp_options
+            )
 
         self.audio_handler = YoutubeDL(yt_dlp_options)
 
