@@ -585,7 +585,8 @@ class Downloader:
                     # Get the most recent duplicate song path and remove the rest
                     most_recent_duplicate = max(
                         dup_song_paths,
-                        key=lambda dup_song_path: dup_song_path.stat().st_mtime,
+                        key=lambda dup_song_path: dup_song_path.stat().st_mtime
+                        and dup_song_path.suffix == output_file.suffix,
                     )
 
                     # Remove the rest of the duplicate song paths
@@ -604,10 +605,26 @@ class Downloader:
                             )
 
                     # Move the old file to the new location
-                    if most_recent_duplicate:
+                    if (
+                        most_recent_duplicate
+                        and most_recent_duplicate.suffix == output_file.suffix
+                    ):
                         most_recent_duplicate.replace(
                             output_file.with_suffix(f".{self.settings['format']}")
                         )
+
+                if (
+                    most_recent_duplicate
+                    and most_recent_duplicate.suffix != output_file.suffix
+                ):
+                    logger.info(
+                        "Could not move duplicate file: %s, different file extension",
+                        most_recent_duplicate,
+                    )
+
+                    display_progress_tracker.notify_complete()
+
+                    return song, None
 
                 # Update the metadata
                 embed_metadata(
