@@ -177,7 +177,6 @@ class AudioProvider:
                 isrc_results = [result for result in isrc_results if result.verified]
 
             isrc_urls = [result.url for result in isrc_results]
-            sorted_isrc_results = order_results(isrc_results, song, self.search_query)
             logger.debug(
                 "[%s] Found %s results for ISRC %s",
                 song.song_id,
@@ -186,6 +185,7 @@ class AudioProvider:
             )
 
             if len(isrc_results) > 0:
+                sorted_isrc_results = order_results(isrc_results, song, self.search_query)
                 # get the best result, if the score is above 80 return it
                 best_isrc_results = sorted(
                     sorted_isrc_results.items(), key=lambda x: x[1], reverse=True
@@ -207,6 +207,16 @@ class AudioProvider:
                         )
 
                         return best_isrc[0].url
+            elif len(isrc_results) == 1:
+                # If we only have one result, return it
+                # What's the chance of it being wrong?
+                logger.debug(
+                    "[%s] Returning only ISRC result %s",
+                    song.song_id,
+                    isrc_results[0].url,
+                )
+
+                return isrc_results[0].url
 
         results: Dict[Result, float] = {}
         for options in self.GET_RESULTS_OPTS:

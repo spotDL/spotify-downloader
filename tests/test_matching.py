@@ -395,6 +395,7 @@ from tests.conftest import new_initialize
             "https://open.spotify.com/track/2OErSh4oVVAUll0vHxdr6p",
             [
                 "https://music.youtube.com/watch?v=XW1Riwvr9SU",
+                "https://music.youtube.com/watch?v=u-JDl5IeDIY",
             ],
         ),
     ],
