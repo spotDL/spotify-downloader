@@ -216,7 +216,10 @@ class Downloader:
         proxy = self.settings["proxy"]
         proxies = None
         if proxy:
-            if not re.match(pattern=r"^(http|https):\/\/(?:(\w+)(?::(\w+))?@)?((?:\d{1,3})(?:\.\d{1,3}){3})(?::(\d{1,5}))?$", string=proxy):
+            if not re.match(
+                pattern=r"^(http|https):\/\/(?:(\w+)(?::(\w+))?@)?((?:\d{1,3})(?:\.\d{1,3}){3})(?::(\d{1,5}))?$",  # pylint: disable=C0301
+                string=proxy,
+            ):
                 raise DownloaderError(f"Invalid proxy server: {proxy}")
             proxies = {"http": proxy, "https": proxy}
             logger.info("Setting proxy server: %s", proxy)
@@ -411,9 +414,9 @@ class Downloader:
 
         return None
 
-    def search_and_download(
+    def search_and_download(  # pylint: disable=R0911
         self, song: Song
-    ) -> Tuple[Song, Optional[Path]]:  # pylint: disable=R0911
+    ) -> Tuple[Song, Optional[Path]]:
         """
         Search for the song and download it.
 

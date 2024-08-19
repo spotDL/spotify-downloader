@@ -14,7 +14,10 @@ interactions:
     uri: https://api.github.com/repos/spotdl/spotify-downloader-fail/compare/master...dev
   response:
     body:
-      string: '{"message":"Not Found","documentation_url":"https://docs.github.com/rest/commits/commits#compare-two-commits","status":"404"}'
+      string: !!binary |
+        H4sIAAAAAAAAAzWMMQ6DQAwEvxI5LXApqHhASr6ALmDBSbkzOq+VAvF3XIRqZzXSHJRZNa5MA42C
+        x1usLNTQIrNlLohIUiarX/cbsOsQgjvt1oTNPt0sOVRWBIecoPc+/e+xcouftH/nWfWgqbf6V0/n
+        BRCU7tx9AAAA
     headers:
       Access-Control-Allow-Origin:
       - '*'
@@ -32,7 +35,7 @@ interactions:
       Content-Type:
       - application/json; charset=utf-8
       Date:
-      - Mon, 19 Aug 2024 01:51:31 GMT
+      - Wed, 21 Aug 2024 02:21:20 GMT
       Referrer-Policy:
       - origin-when-cross-origin, strict-origin-when-cross-origin
       Server:
@@ -48,17 +51,87 @@ interactions:
       X-GitHub-Media-Type:
       - github.v3; format=json
       X-GitHub-Request-Id:
-      - E992:1E2F3B:A082C37:A2A2DEF:66C2A523
+      - DAE2:10DB15:3FC76FA:4077910:66C54F20
       X-RateLimit-Limit:
       - '60'
       X-RateLimit-Remaining:
-      - '58'
+      - '57'
       X-RateLimit-Reset:
-      - '1724035890'
+      - '1724208641'
       X-RateLimit-Resource:
       - core
       X-RateLimit-Used:
-      - '2'
+      - '3'
+      X-XSS-Protection:
+      - '0'
+      x-github-api-version-selected:
+      - '2022-11-28'
+    status:
+      code: 404
+      message: Not Found
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate, br
+      Connection:
+      - keep-alive
+      User-Agent:
+      - python-requests/2.32.3
+    method: GET
+    uri: https://api.github.com/repos/spotdl/spotify-downloader-fail/compare/master...dev
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAAAzWMMQ6DQAwEvxI5LXApqHhASr6ALmDBSbkzOq+VAvF3XIRqZzXSHJRZNa5MA42C
+        x1usLNTQIrNlLohIUiarX/cbsOsQgjvt1oTNPt0sOVRWBIecoPc+/e+xcouftH/nWfWgqbf6V0/n
+        BRCU7tx9AAAA
+    headers:
+      Access-Control-Allow-Origin:
+      - '*'
+      Access-Control-Expose-Headers:
+      - ETag, Link, Location, Retry-After, X-GitHub-OTP, X-RateLimit-Limit, X-RateLimit-Remaining,
+        X-RateLimit-Used, X-RateLimit-Resource, X-RateLimit-Reset, X-OAuth-Scopes,
+        X-Accepted-OAuth-Scopes, X-Poll-Interval, X-GitHub-Media-Type, X-GitHub-SSO,
+        X-GitHub-Request-Id, Deprecation, Sunset
+      Content-Encoding:
+      - gzip
+      Content-Length:
+      - '123'
+      Content-Security-Policy:
+      - default-src 'none'
+      Content-Type:
+      - application/json; charset=utf-8
+      Date:
+      - Wed, 21 Aug 2024 02:42:31 GMT
+      Referrer-Policy:
+      - origin-when-cross-origin, strict-origin-when-cross-origin
+      Server:
+      - github.com
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubdomains; preload
+      Vary:
+      - Accept-Encoding, Accept, X-Requested-With
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - deny
+      X-GitHub-Media-Type:
+      - github.v3; format=json
+      X-GitHub-Request-Id:
+      - A459:3D5993:42F2080:43A4971:66C55417
+      X-RateLimit-Limit:
+      - '60'
+      X-RateLimit-Remaining:
+      - '49'
+      X-RateLimit-Reset:
+      - '1724208641'
+      X-RateLimit-Resource:
+      - core
+      X-RateLimit-Used:
+      - '11'
       X-XSS-Protection:
       - '0'
       x-github-api-version-selected:
