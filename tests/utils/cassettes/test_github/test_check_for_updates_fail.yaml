@@ -9,12 +9,12 @@ interactions:
       Connection:
       - keep-alive
       User-Agent:
-      - python-requests/2.31.0
+      - python-requests/2.32.3
     method: GET
     uri: https://api.github.com/repos/spotdl/spotify-downloader-fail/releases/latest
   response:
     body:
-      string: '{"message":"Not Found","documentation_url":"https://docs.github.com/rest/releases/releases#get-the-latest-release"}'
+      string: '{"message":"Not Found","documentation_url":"https://docs.github.com/rest/releases/releases#get-the-latest-release","status":"404"}'
     headers:
       Access-Control-Allow-Origin:
       - '*'
@@ -26,17 +26,17 @@ interactions:
       Content-Encoding:
       - gzip
       Content-Length:
-      - '112'
+      - '125'
       Content-Security-Policy:
       - default-src 'none'
       Content-Type:
       - application/json; charset=utf-8
       Date:
-      - Thu, 28 Mar 2024 18:28:11 GMT
+      - Mon, 19 Aug 2024 01:51:36 GMT
       Referrer-Policy:
       - origin-when-cross-origin, strict-origin-when-cross-origin
       Server:
-      - GitHub.com
+      - github.com
       Strict-Transport-Security:
       - max-age=31536000; includeSubdomains; preload
       Vary:
@@ -48,17 +48,17 @@ interactions:
       X-GitHub-Media-Type:
       - github.v3; format=json
       X-GitHub-Request-Id:
-      - 44FB:F0DD:1B3D875:1B5575A:6605B6BB
+      - E996:14EB18:A05F079:A27EE72:66C2A528
       X-RateLimit-Limit:
       - '60'
       X-RateLimit-Remaining:
-      - '38'
+      - '54'
       X-RateLimit-Reset:
-      - '1711651475'
+      - '1724035890'
       X-RateLimit-Resource:
       - core
       X-RateLimit-Used:
-      - '22'
+      - '6'
       X-XSS-Protection:
       - '0'
       x-github-api-version-selected:
