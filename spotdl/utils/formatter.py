@@ -609,7 +609,7 @@ def create_path_object(string: str) -> Path:
 
 
 def args_to_ytdlp_options(
-    argument_list: List[str], defaults: Dict[str, Any]
+    argument_list: List[str], defaults: Optional[Dict[str, Any]] = None
 ) -> Dict[str, Any]:
     """
     Convert a list of arguments to a dictionary of options.

@@ -221,7 +221,7 @@ class Downloader:
         proxy = self.settings["proxy"]
         proxies = None
         if proxy:
-            if not re.match(pattern=r"(http|https)://\d{1,5}", string=proxy):
+            if not re.match(pattern=r"^(http|https):\/\/(?:(\w+)(?::(\w+))?@)?((?:\d{1,3})(?:\.\d{1,3}){3})(?::(\d{1,5}))?$", string=proxy):
                 raise DownloaderError(f"Invalid proxy server: {proxy}")
             proxies = {"http": proxy, "https": proxy}
             logger.info("Setting proxy server: %s", proxy)
@@ -416,7 +416,9 @@ class Downloader:
 
         return None
 
-    def search_and_download(self, song: Song) -> Tuple[Song, Optional[Path]]:
+    def search_and_download(
+        self, song: Song
+    ) -> Tuple[Song, Optional[Path]]:  # pylint: disable=R0911
         """
         Search for the song and download it.
 
@@ -501,7 +503,7 @@ class Downloader:
 
             # If the file already exists and we don't want to overwrite it,
             # we can skip the download
-            if (
+            if (  # pylint: disable=R1705
                 Path(str(output_file.absolute()) + ".skip").exists()
                 and self.settings["respect_skip_file"]
             ):

@@ -110,8 +110,10 @@ MP3_TAG_PRESET = {
     "writer": "TEXT",
     "genre": "TCON",
     "tracknumber": "TRCK",
+    "trackcount": "TRCK",
     "albumartist": "TPE2",
     "discnumber": "TPOS",
+    "disccount": "TPOS",
     "cpil": "TCMP",
     "albumart": "APIC",
     "encodedby": "TENC",
@@ -475,14 +477,14 @@ def get_file_metadata(path: Path, id3_separator: str = "/") -> Optional[Dict[str
                 song_meta["year"] = int(str(val.text[0])[:4])
             elif key == "date":
                 song_meta["date"] = str(val.text[0])
-            elif key == "tracknumber":
+            elif key in ["tracknumber", "trackcount"]:
                 count = val.text[0].split(id3_separator)
                 if len(count) == 2:
                     song_meta["track_number"] = int(count[0])
                     song_meta["tracks_count"] = int(count[1])
                 else:
                     song_meta["track_number"] = val.text[0]
-            elif key == "discnumber":
+            elif key in ["discnumber", "disccount"]:
                 count = val.text[0].split(id3_separator)
                 if len(count) == 2:
                     song_meta["disc_number"] = int(count[0])
@@ -496,7 +498,7 @@ def get_file_metadata(path: Path, id3_separator: str = "/") -> Optional[Dict[str
                 song_meta["artists"] = artists_val.split(id3_separator)
             else:
                 meta_key = TAG_TO_SONG.get(key)
-                if meta_key:
+                if meta_key and song_meta.get(meta_key) is None:
                     song_meta[meta_key] = (
                         val.text[0]
                         if isinstance(val.text, list) and len(val.text) == 1
