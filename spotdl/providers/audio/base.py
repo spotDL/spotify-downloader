@@ -175,6 +175,11 @@ class AudioProvider:
 
             if only_verified:
                 isrc_results = [result for result in isrc_results if result.verified]
+                logger.debug(
+                    "[%s] Filtered to %s verified ISRC results",
+                    song.song_id,
+                    len(isrc_results),
+                )
 
             isrc_urls = [result.url for result in isrc_results]
             logger.debug(
@@ -184,12 +189,27 @@ class AudioProvider:
                 song.isrc,
             )
 
+            if len(isrc_results) == 1 and isrc_results[0].verified:
+                # If we only have one verified result, return it
+                # What's the chance of it being wrong?
+                logger.debug(
+                    "[%s] Returning only ISRC result %s",
+                    song.song_id,
+                    isrc_results[0].url,
+                )
+
+                return isrc_results[0].url
+
             if len(isrc_results) > 0:
-                sorted_isrc_results = order_results(isrc_results, song, self.search_query)
+                sorted_isrc_results = order_results(
+                    isrc_results, song, self.search_query
+                )
+
                 # get the best result, if the score is above 80 return it
                 best_isrc_results = sorted(
                     sorted_isrc_results.items(), key=lambda x: x[1], reverse=True
                 )
+
                 logger.debug(
                     "[%s] Filtered to %s ISRC results",
                     song.song_id,
@@ -207,16 +227,6 @@ class AudioProvider:
                         )
 
                         return best_isrc[0].url
-            elif len(isrc_results) == 1:
-                # If we only have one result, return it
-                # What's the chance of it being wrong?
-                logger.debug(
-                    "[%s] Returning only ISRC result %s",
-                    song.song_id,
-                    isrc_results[0].url,
-                )
-
-                return isrc_results[0].url
 
         results: Dict[Result, float] = {}
         for options in self.GET_RESULTS_OPTS:

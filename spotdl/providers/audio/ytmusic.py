@@ -49,6 +49,11 @@ class YouTubeMusic(AudioProvider):
         - A list of simplified results (dicts)
         """
 
+        is_isrc_result = ISRC_REGEX.search(search_term) is not None
+        # if is_isrc_result:
+        #     print("FORCEFULLY SETTING FILTER TO SONGS")
+        #     kwargs["filter"] = "songs"
+
         search_results = self.client.search(search_term, **kwargs)
 
         # Simplify results
@@ -60,8 +65,6 @@ class YouTubeMusic(AudioProvider):
                 or result.get("artists") in [[], None]
             ):
                 continue
-
-            isrc_result = ISRC_REGEX.search(search_term)
 
             results.append(
                 Result(
@@ -76,7 +79,7 @@ class YouTubeMusic(AudioProvider):
                     author=result["artists"][0]["name"],
                     artists=tuple(map(lambda a: a["name"], result["artists"])),
                     duration=parse_duration(result.get("duration")),
-                    isrc_search=isrc_result is not None,
+                    isrc_search=is_isrc_result,
                     search_query=search_term,
                     explicit=result.get("isExplicit"),
                     album=(

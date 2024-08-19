@@ -498,8 +498,6 @@ def get_all_saved_playlists() -> List[Playlist]:
 
     user_playlists_response = spotify_client.current_user_playlists()
 
-    print(user_playlists_response)
-
     if user_playlists_response is None:
         raise SpotifyError("Couldn't get user playlists")
 
