@@ -411,7 +411,9 @@ class Downloader:
 
         return None
 
-    def search_and_download(self, song: Song) -> Tuple[Song, Optional[Path]]:
+    def search_and_download(
+        self, song: Song
+    ) -> Tuple[Song, Optional[Path]]:  # pylint: disable=R0911
         """
         Search for the song and download it.
 
@@ -496,7 +498,7 @@ class Downloader:
 
             # If the file already exists and we don't want to overwrite it,
             # we can skip the download
-            if (
+            if (  # pylint: disable=R1705
                 Path(str(output_file.absolute()) + ".skip").exists()
                 and self.settings["respect_skip_file"]
             ):
