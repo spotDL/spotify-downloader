@@ -18,17 +18,19 @@ class Genius(LyricsProvider):
     Genius lyrics provider class.
     """
 
-    def __init__(self):
+    def __init__(self, access_token: str):
         """
         Init the lyrics provider search and set headers.
         """
 
         super().__init__()
 
+        self.access_token = access_token
+
         self.headers.update(
             {
                 "Authorization": "Bearer "
-                "alXXDbPZtK1m2RrZ8I4k2Hn8Ahsd0Gh_o076HYvcdlBvmc0ULL1H8Z8xRlew5qaG",
+                f"{self.access_token}",
             }
         )
 

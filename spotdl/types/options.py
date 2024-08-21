@@ -43,6 +43,7 @@ class DownloaderOptions(TypedDict):
 
     audio_providers: List[str]
     lyrics_providers: List[str]
+    genius_token: str
     playlist_numbering: bool
     scan_for_songs: bool
     m3u: Optional[str]
@@ -138,6 +139,7 @@ class DownloaderOptionalOptions(TypedDict, total=False):
 
     audio_providers: List[str]
     lyrics_providers: List[str]
+    genius_token: str
     playlist_numbering: bool
     scan_for_songs: bool
     m3u: Optional[str]
