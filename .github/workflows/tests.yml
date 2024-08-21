@@ -7,9 +7,9 @@ jobs:
     if: "!contains(github.event.commits[0].message, '[skip ci]')"
     runs-on: ${{ matrix.platform }}
     strategy:
-      max-parallel: 4
+      max-parallel: 1
       matrix:
-        platform: [ ubuntu-latest, macos-latest, windows-latest ]
+        platform: [ ubuntu-latest, macos-13, windows-latest ]
         python-version: [ "3.8", "3.11" ]
 
     steps:
@@ -37,7 +37,7 @@ jobs:
 
       - name: Run tests
         run: |
-          poetry run pytest -vvv --ignore tests/test_matching.py --ignore tests/utils/test_ffmpeg.py --ignore tests/utils/test_metadata.py --ignore tests/providers/lyrics/test_azlyrics.py --ignore tests/providers/lyrics/test_musixmatch.py 
+          poetry run pytest -vvv --ignore tests/test_matching.py --ignore tests/utils/test_ffmpeg.py --ignore tests/utils/test_metadata.py --ignore tests/providers/lyrics/test_azlyrics.py --ignore tests/providers/lyrics/test_musixmatch.py --ignore tests/providers/audio/test_youtube.py --ignore tests/console/test_entry_point.py --ignore tests/test_init.py
         env:
           PLATFORM: ${{ matrix.platform }}
 
@@ -47,7 +47,7 @@ jobs:
     strategy:
       max-parallel: 1
       matrix:
-        platform: [ ubuntu-latest, macos-latest, windows-latest ]
+        platform: [ ubuntu-latest, macos-13, windows-latest ]
 
     steps:
       - uses: actions/checkout@v3
@@ -73,6 +73,36 @@ jobs:
 
       - name: Run tests
         run: |
-          poetry run pytest -vvv --record-mode=none --disable-recording --ignore tests/providers/lyrics --ignore tests/utils/test_github.py --ignore tests/utils/test_ffmpeg.py --ignore tests/utils/test_metadata.py
+          poetry run pytest -vvv --record-mode=none --disable-recording --ignore tests/providers/lyrics --ignore tests/utils/test_github.py --ignore tests/utils/test_ffmpeg.py --ignore tests/utils/test_metadata.py --ignore tests/test_matching.py --ignore tests/providers/audio/test_youtube.py --ignore tests/console/test_entry_point.py --ignore tests/test_init.py
         env:
           PLATFORM: ${{ matrix.platform }}
+
+  matching:
+    if: "!contains(github.event.commits[0].message, '[skip ci]')"
+    runs-on: "ubuntu-latest"
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install poetry
+        run: pipx install poetry
+
+      - name: Set up Python "3.11"
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+          cache: 'poetry'
+
+      - name: Install dependencies
+        run: |
+          poetry env use "3.11"
+          poetry install
+
+      - uses: FedericoCarboni/setup-ffmpeg@v1
+        id: setup-ffmpeg
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Run tests
+        run: |
+          poetry run pytest -vvv --record-mode=none --disable-recording tests/test_matching.py

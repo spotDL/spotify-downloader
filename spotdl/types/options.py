@@ -100,9 +100,9 @@ class WebOptions(TypedDict):
     host: str
     keep_alive: bool
     enable_tls: bool
-    key_file: str | None
-    cert_file: str | None
-    ca_file: str | None
+    key_file: Optional[str]
+    cert_file: Optional[str]
+    ca_file: Optional[str]
     allowed_origins: Optional[List[str]]
     keep_sessions: bool
     force_update_gui: bool
@@ -195,9 +195,9 @@ class WebOptionalOptions(TypedDict, total=False):
     host: str
     keep_alive: bool
     enable_tls: bool
-    key_file: str | None
-    cert_file: str | None
-    ca_file: str | None
+    key_file: Optional[str]
+    cert_file: Optional[str]
+    ca_file: Optional[str]
     allowed_origins: Optional[str]
     keep_sessions: bool
     force_update_gui: bool

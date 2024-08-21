@@ -7,7 +7,7 @@ interactions:
       Accept-Encoding:
       - gzip, deflate, br
       Authorization:
-      - Bearer BQACOcLQZA6wsjp0NIEXM15SNsTSPJl72ID1f8iIqdG9GQApzljc0J0BSdF7ZXiyHzGDI78eH_7GMIi1sjKp5cieBbBjuDuYcVL20vTv2ylr4QJ_YSg
+      - Bearer BQA_Q9gVFP2UwWBk4igvK1ujeWo05Jj0e3ObbSBscAOPHKmWSgWfZCqW9tYLXi1qTtATnqaIBPBGRifrzAgV8JTkGBiR-TklOsmfh3Z0klO0k-F4zi4
       Connection:
       - keep-alive
       Content-Type:
@@ -18,42 +18,20 @@ interactions:
     uri: https://api.spotify.com/v1/tracks/4B2kkxg3wKSTZw5JPaUtzQ
   response:
     body:
-      string: "{\n  \"album\" : {\n    \"album_type\" : \"single\",\n    \"artists\"
-        : [ {\n      \"external_urls\" : {\n        \"spotify\" : \"https://open.spotify.com/artist/2sf28o6euxEDpYkG9dMtuM\"\n
-        \     },\n      \"href\" : \"https://api.spotify.com/v1/artists/2sf28o6euxEDpYkG9dMtuM\",\n
-        \     \"id\" : \"2sf28o6euxEDpYkG9dMtuM\",\n      \"name\" : \"Cartoon\",\n
-        \     \"type\" : \"artist\",\n      \"uri\" : \"spotify:artist:2sf28o6euxEDpYkG9dMtuM\"\n
-        \   }, {\n      \"external_urls\" : {\n        \"spotify\" : \"https://open.spotify.com/artist/0cA0C4yBNRaN2EZsE2wT3Y\"\n
-        \     },\n      \"href\" : \"https://api.spotify.com/v1/artists/0cA0C4yBNRaN2EZsE2wT3Y\",\n
-        \     \"id\" : \"0cA0C4yBNRaN2EZsE2wT3Y\",\n      \"name\" : \"Daniel Levi\",\n
-        \     \"type\" : \"artist\",\n      \"uri\" : \"spotify:artist:0cA0C4yBNRaN2EZsE2wT3Y\"\n
-        \   } ],\n    \"available_markets\" : [ ],\n    \"external_urls\" : {\n      \"spotify\"
-        : \"https://open.spotify.com/album/0Lt1PzvVZoslDNI2Jsq6pW\"\n    },\n    \"href\"
-        : \"https://api.spotify.com/v1/albums/0Lt1PzvVZoslDNI2Jsq6pW\",\n    \"id\"
-        : \"0Lt1PzvVZoslDNI2Jsq6pW\",\n    \"images\" : [ {\n      \"height\" : 640,\n
-        \     \"url\" : \"https://i.scdn.co/image/ab67616d0000b2732773b7d6ca91258a83d06783\",\n
-        \     \"width\" : 640\n    }, {\n      \"height\" : 300,\n      \"url\" :
-        \"https://i.scdn.co/image/ab67616d00001e022773b7d6ca91258a83d06783\",\n      \"width\"
-        : 300\n    }, {\n      \"height\" : 64,\n      \"url\" : \"https://i.scdn.co/image/ab67616d000048512773b7d6ca91258a83d06783\",\n
-        \     \"width\" : 64\n    } ],\n    \"name\" : \"On & On\",\n    \"release_date\"
-        : \"2015-07-09\",\n    \"release_date_precision\" : \"day\",\n    \"total_tracks\"
-        : 1,\n    \"type\" : \"album\",\n    \"uri\" : \"spotify:album:0Lt1PzvVZoslDNI2Jsq6pW\"\n
-        \ },\n  \"artists\" : [ {\n    \"external_urls\" : {\n      \"spotify\" :
-        \"https://open.spotify.com/artist/2sf28o6euxEDpYkG9dMtuM\"\n    },\n    \"href\"
-        : \"https://api.spotify.com/v1/artists/2sf28o6euxEDpYkG9dMtuM\",\n    \"id\"
-        : \"2sf28o6euxEDpYkG9dMtuM\",\n    \"name\" : \"Cartoon\",\n    \"type\" :
-        \"artist\",\n    \"uri\" : \"spotify:artist:2sf28o6euxEDpYkG9dMtuM\"\n  },
-        {\n    \"external_urls\" : {\n      \"spotify\" : \"https://open.spotify.com/artist/0cA0C4yBNRaN2EZsE2wT3Y\"\n
-        \   },\n    \"href\" : \"https://api.spotify.com/v1/artists/0cA0C4yBNRaN2EZsE2wT3Y\",\n
-        \   \"id\" : \"0cA0C4yBNRaN2EZsE2wT3Y\",\n    \"name\" : \"Daniel Levi\",\n
-        \   \"type\" : \"artist\",\n    \"uri\" : \"spotify:artist:0cA0C4yBNRaN2EZsE2wT3Y\"\n
-        \ } ],\n  \"available_markets\" : [ ],\n  \"disc_number\" : 1,\n  \"duration_ms\"
-        : 207068,\n  \"explicit\" : false,\n  \"external_ids\" : {\n    \"isrc\" :
-        \"GB2LD0902016\"\n  },\n  \"external_urls\" : {\n    \"spotify\" : \"https://open.spotify.com/track/4B2kkxg3wKSTZw5JPaUtzQ\"\n
-        \ },\n  \"href\" : \"https://api.spotify.com/v1/tracks/4B2kkxg3wKSTZw5JPaUtzQ\",\n
-        \ \"id\" : \"4B2kkxg3wKSTZw5JPaUtzQ\",\n  \"is_local\" : false,\n  \"name\"
-        : \"On & On\",\n  \"popularity\" : 1,\n  \"preview_url\" : null,\n  \"track_number\"
-        : 1,\n  \"type\" : \"track\",\n  \"uri\" : \"spotify:track:4B2kkxg3wKSTZw5JPaUtzQ\"\n}"
+      string: !!binary |
+        H4sIAAAAAAAAAKxV23KbMBB9z1cwPPQpCULYYPutiTOZprm1TdtJOh1GBtnWWFwqCV+S8b8XhIDY
+        CQQ78Rs666PV2T27TweapiM6SgJdG2hP6Vfx7YpVjLNDnZNwQrF+qEAmCBc8Q/6oP6SneCkwCxF1
+        E0Z5RSUxHkeCjFeSaypEzAeGEcU4PFbAsRcFRk5rQD6GvcjGyfJsGN/Pzvv+lUiudEW2PizumzI8
+        3iBEMdngm5uKktdxllzEl0xvhYUoyPU4TYmjKKyQUqn8xgpIGMkVzBMb5Pig6ZHrw48XFXifwWln
+        dXL9HV3Dswd+Bhd31v37RK3h3Bb1rbBS1CEKCabaJZ6T/YVteuha+1t08BwRikYUuwFiM1z0cgHX
+        qt5S88w8BrgU5u3j/NdDxOnw+gu84P/s+HdR4oP2cmdsvI5OERVaNwcFaIK3bTvFZDIV2aHdAc/U
+        pRt5pVl5fpimZEgSA41sxzZtH6S/EXQs6DjWyPFtD/VN2O2hnuUD2+lZVb0WxBdTdc2LNq+SsMB+
+        SZgYwB2SSK9pSMLu7JVDp9c1dxJiqytLJ9yE2iftphgvOsMUI45dH4kch8DsHgHnCPRfC3Fjhj3C
+        STqfsmAfrYooEYm0qQVD3ky2gVmclyaTa0CdvnBYBg7q21o29WvL4d1+ensx7GSoNkuh1UqoWwg1
+        U2v3ZVC25wdJ2Dgd95Cwcba3WgBN439HGesfpyzWOPZ1n3DPDZNghFnpDd1PGBKpk9xAxkLgALsn
+        EbyMKfGInBdjRDlWp6pMxH9WJZ1w5smUz0/g5RD0Qepgu/JMTXHblVba2eicwNlsObEWX3/cPSy6
+        F7fop3j8Vl3Rpqr5YKijkjSqpI0h3KWRh+imMK/ONj2O4oQiRsSqkjydXnOCF66avGFCqTyX2b0o
+        UNkiEs5Zt/tDQoM6hdb/AQAA//8DACVa21EBCwAA
     headers:
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
@@ -79,7 +57,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Mon, 19 Aug 2024 01:52:02 GMT
+      - Wed, 21 Aug 2024 02:22:14 GMT
       server:
       - envoy
       strict-transport-security:
@@ -99,7 +77,7 @@ interactions:
       Accept-Encoding:
       - gzip, deflate, br
       Authorization:
-      - Bearer BQACOcLQZA6wsjp0NIEXM15SNsTSPJl72ID1f8iIqdG9GQApzljc0J0BSdF7ZXiyHzGDI78eH_7GMIi1sjKp5cieBbBjuDuYcVL20vTv2ylr4QJ_YSg
+      - Bearer BQA_Q9gVFP2UwWBk4igvK1ujeWo05Jj0e3ObbSBscAOPHKmWSgWfZCqW9tYLXi1qTtATnqaIBPBGRifrzAgV8JTkGBiR-TklOsmfh3Z0klO0k-F4zi4
       Connection:
       - keep-alive
       Content-Type:
@@ -110,15 +88,14 @@ interactions:
     uri: https://api.spotify.com/v1/artists/2sf28o6euxEDpYkG9dMtuM
   response:
     body:
-      string: "{\n  \"external_urls\" : {\n    \"spotify\" : \"https://open.spotify.com/artist/2sf28o6euxEDpYkG9dMtuM\"\n
-        \ },\n  \"followers\" : {\n    \"href\" : null,\n    \"total\" : 227917\n
-        \ },\n  \"genres\" : [ \"gaming edm\" ],\n  \"href\" : \"https://api.spotify.com/v1/artists/2sf28o6euxEDpYkG9dMtuM\",\n
-        \ \"id\" : \"2sf28o6euxEDpYkG9dMtuM\",\n  \"images\" : [ {\n    \"height\"
-        : 640,\n    \"url\" : \"https://i.scdn.co/image/ab6761610000e5ebedae9400f938bd85f5c08cb7\",\n
-        \   \"width\" : 640\n  }, {\n    \"height\" : 320,\n    \"url\" : \"https://i.scdn.co/image/ab67616100005174edae9400f938bd85f5c08cb7\",\n
-        \   \"width\" : 320\n  }, {\n    \"height\" : 160,\n    \"url\" : \"https://i.scdn.co/image/ab6761610000f178edae9400f938bd85f5c08cb7\",\n
-        \   \"width\" : 160\n  } ],\n  \"name\" : \"Cartoon\",\n  \"popularity\" :
-        61,\n  \"type\" : \"artist\",\n  \"uri\" : \"spotify:artist:2sf28o6euxEDpYkG9dMtuM\"\n}"
+      string: !!binary |
+        H4sIAAAAAAAAAJyS0W6DIBSG7/cUxuumiq1ovd2WXfUBlmVZUA5KhkAQ1zZN332ItNmydGnKHf85
+        /N8PnONDFMWwt2AkER+jEUMcVdHRqU4ftLKcHSYl7qzVQ5UkSoNchsKyUX1CjOWDTbKBZaXCMO6f
+        n/Tr58uGbu24jZ3RaTExmBJC7cD89O8MsGkrRyEWs2SVJWLSsqxMs+JyvAVpwJ99cxvSc9lGQPs4
+        evfls9MlJtH8V8ovFIIO15J6H069y78tPWnPSc73AN52dpLwOg0XcU/5K5CL01DpsiTeICE1LjDC
+        KHULcqiBEtis05RtVmVNy5zlTVo2dREHvx2ntgsI/yp/4avsHniOivXNcIe4Akf4HjhDRXkz3CEm
+        ePhySXrwnEf3sUrJ+Xe00qMghls/tRh50R703DqPwNw5Gu61MCXVXKuuzfHpGwAA//8DAGul67Aq
+        AwAA
     headers:
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
@@ -144,7 +121,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Mon, 19 Aug 2024 01:52:03 GMT
+      - Wed, 21 Aug 2024 02:22:14 GMT
       server:
       - envoy
       strict-transport-security:
@@ -164,7 +141,7 @@ interactions:
       Accept-Encoding:
       - gzip, deflate, br
       Authorization:
-      - Bearer BQACOcLQZA6wsjp0NIEXM15SNsTSPJl72ID1f8iIqdG9GQApzljc0J0BSdF7ZXiyHzGDI78eH_7GMIi1sjKp5cieBbBjuDuYcVL20vTv2ylr4QJ_YSg
+      - Bearer BQA_Q9gVFP2UwWBk4igvK1ujeWo05Jj0e3ObbSBscAOPHKmWSgWfZCqW9tYLXi1qTtATnqaIBPBGRifrzAgV8JTkGBiR-TklOsmfh3Z0klO0k-F4zi4
       Connection:
       - keep-alive
       Content-Type:
@@ -175,46 +152,22 @@ interactions:
     uri: https://api.spotify.com/v1/albums/0Lt1PzvVZoslDNI2Jsq6pW
   response:
     body:
-      string: "{\n  \"album_type\" : \"single\",\n  \"artists\" : [ {\n    \"external_urls\"
-        : {\n      \"spotify\" : \"https://open.spotify.com/artist/2sf28o6euxEDpYkG9dMtuM\"\n
-        \   },\n    \"href\" : \"https://api.spotify.com/v1/artists/2sf28o6euxEDpYkG9dMtuM\",\n
-        \   \"id\" : \"2sf28o6euxEDpYkG9dMtuM\",\n    \"name\" : \"Cartoon\",\n    \"type\"
-        : \"artist\",\n    \"uri\" : \"spotify:artist:2sf28o6euxEDpYkG9dMtuM\"\n  },
-        {\n    \"external_urls\" : {\n      \"spotify\" : \"https://open.spotify.com/artist/0cA0C4yBNRaN2EZsE2wT3Y\"\n
-        \   },\n    \"href\" : \"https://api.spotify.com/v1/artists/0cA0C4yBNRaN2EZsE2wT3Y\",\n
-        \   \"id\" : \"0cA0C4yBNRaN2EZsE2wT3Y\",\n    \"name\" : \"Daniel Levi\",\n
-        \   \"type\" : \"artist\",\n    \"uri\" : \"spotify:artist:0cA0C4yBNRaN2EZsE2wT3Y\"\n
-        \ } ],\n  \"available_markets\" : [ ],\n  \"copyrights\" : [ {\n    \"text\"
-        : \"2015 NCS Ltd.\",\n    \"type\" : \"C\"\n  }, {\n    \"text\" : \"2015
-        NCS Ltd.\",\n    \"type\" : \"P\"\n  } ],\n  \"external_ids\" : {\n    \"upc\"
-        : \"5055199513140\"\n  },\n  \"external_urls\" : {\n    \"spotify\" : \"https://open.spotify.com/album/0Lt1PzvVZoslDNI2Jsq6pW\"\n
-        \ },\n  \"genres\" : [ ],\n  \"href\" : \"https://api.spotify.com/v1/albums/0Lt1PzvVZoslDNI2Jsq6pW\",\n
-        \ \"id\" : \"0Lt1PzvVZoslDNI2Jsq6pW\",\n  \"images\" : [ {\n    \"height\"
-        : 640,\n    \"url\" : \"https://i.scdn.co/image/ab67616d0000b2732773b7d6ca91258a83d06783\",\n
-        \   \"width\" : 640\n  }, {\n    \"height\" : 300,\n    \"url\" : \"https://i.scdn.co/image/ab67616d00001e022773b7d6ca91258a83d06783\",\n
-        \   \"width\" : 300\n  }, {\n    \"height\" : 64,\n    \"url\" : \"https://i.scdn.co/image/ab67616d000048512773b7d6ca91258a83d06783\",\n
-        \   \"width\" : 64\n  } ],\n  \"label\" : \"NCS\",\n  \"name\" : \"On & On\",\n
-        \ \"popularity\" : 0,\n  \"release_date\" : \"2015-07-09\",\n  \"release_date_precision\"
-        : \"day\",\n  \"total_tracks\" : 1,\n  \"tracks\" : {\n    \"href\" : \"https://api.spotify.com/v1/albums/0Lt1PzvVZoslDNI2Jsq6pW/tracks?offset=0&limit=50\",\n
-        \   \"items\" : [ {\n      \"artists\" : [ {\n        \"external_urls\" :
-        {\n          \"spotify\" : \"https://open.spotify.com/artist/2sf28o6euxEDpYkG9dMtuM\"\n
-        \       },\n        \"href\" : \"https://api.spotify.com/v1/artists/2sf28o6euxEDpYkG9dMtuM\",\n
-        \       \"id\" : \"2sf28o6euxEDpYkG9dMtuM\",\n        \"name\" : \"Cartoon\",\n
-        \       \"type\" : \"artist\",\n        \"uri\" : \"spotify:artist:2sf28o6euxEDpYkG9dMtuM\"\n
-        \     }, {\n        \"external_urls\" : {\n          \"spotify\" : \"https://open.spotify.com/artist/0cA0C4yBNRaN2EZsE2wT3Y\"\n
-        \       },\n        \"href\" : \"https://api.spotify.com/v1/artists/0cA0C4yBNRaN2EZsE2wT3Y\",\n
-        \       \"id\" : \"0cA0C4yBNRaN2EZsE2wT3Y\",\n        \"name\" : \"Daniel
-        Levi\",\n        \"type\" : \"artist\",\n        \"uri\" : \"spotify:artist:0cA0C4yBNRaN2EZsE2wT3Y\"\n
-        \     } ],\n      \"available_markets\" : [ ],\n      \"disc_number\" : 1,\n
-        \     \"duration_ms\" : 207068,\n      \"explicit\" : false,\n      \"external_urls\"
-        : {\n        \"spotify\" : \"https://open.spotify.com/track/4B2kkxg3wKSTZw5JPaUtzQ\"\n
-        \     },\n      \"href\" : \"https://api.spotify.com/v1/tracks/4B2kkxg3wKSTZw5JPaUtzQ\",\n
-        \     \"id\" : \"4B2kkxg3wKSTZw5JPaUtzQ\",\n      \"is_local\" : false,\n
-        \     \"name\" : \"On & On\",\n      \"preview_url\" : null,\n      \"track_number\"
-        : 1,\n      \"type\" : \"track\",\n      \"uri\" : \"spotify:track:4B2kkxg3wKSTZw5JPaUtzQ\"\n
-        \   } ],\n    \"limit\" : 50,\n    \"next\" : null,\n    \"offset\" : 0,\n
-        \   \"previous\" : null,\n    \"total\" : 1\n  },\n  \"type\" : \"album\",\n
-        \ \"uri\" : \"spotify:album:0Lt1PzvVZoslDNI2Jsq6pW\"\n}"
+      string: !!binary |
+        H4sIAAAAAAAAALRW207bQBB95yssP/AEeG3HdhIJVSWgqhRCWmgrqCprY2+SVdaXete5gPLvtXft
+        TUywSQPljZnJmdkzZ2b8dKAoKiTDNHDZMkaq0lVUisMxQeoRdyUMU0Zz+y/lKbNkNrRgKAkhcdOE
+        cI+wZx4aRwyPlhxlwlhMu5oWxSg8KRwnXhRoAlIz6MhoRzZKFxfn8f30U8e/Zum1yqFWRyLTJEGj
+        ChiMcQVrphdwtA6vQMI+x2kOCmEgGOhloFEUlnbJjMhVmtMEC75EQV3h7dY/bHX0vhQC7yPotZZn
+        /W+wb1w80Atjfmfe709hDV6VwuYgSeE5DDEiyhWa4f1orH/cSvkttDmDmMAhQW4AkykqVSqcXhQv
+        EzyePNMuy5gXSgC6pfR7t8oV80+2KuxV27Xjrwab1ckWY3+jw2oaezzWApaldzqWbuotILId1Atj
+        R1nkc6yBK6YPHmc/HiJKzvufjUv6x45/rlOMUZigClc7aSTHpnXgHKYUSFNIAMeo2pEJyruUm+wW
+        kJIglXqyajw/zErROIAGh7Zj67YPsr+h4ZiG45hDx7c92NENqw3bpg9sp22WHZpjn02KFJXGrpOb
+        YJ/kOgLGzsmzFDXJ7dYeuVttS/+Hh29IMxsaJPJkUhaNkXN7EyqHyo1YfWocxSmBCWZceJwgNUEE
+        QYpcHzIkZ+IYOMego24FuHGCPExxtkvzUB8uRQyLWKZxlkBvytWgC6v8v2TorcLUBOSHaDSiiJ2C
+        Q4IDzE4tIJcaQ0FFjy/fvOal/a63b2N5v+8N3PkONt3ChkW+300Uz/0/NDfdx7fQ3HgCN2l+PbDh
+        Xu5JdfOjixUgdN5wP3mAj6nnhmkwRIkcUuFIE8iyoXbF7BjAAXZbetEiJtjDfLONIKFow1Pb2t0a
+        y8dZa50Z0+libM6/3N49zK3LAfzOHr+u1VSm26WnYkHUQUqooqGvhlGXRB4k209/ccFyT7YiZxjN
+        3WL3hykh0sere7EFUhg8ZI32XBXc3W1iTEpC5csx/7VV3sKw+PBZF6WKVSrvQfmAKKXPAvmO50XL
+        T4+1mvOlLU7BloxzV7fuI2b1FwAA//8DAOqHcBuxDAAA
     headers:
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
@@ -240,7 +193,213 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Mon, 19 Aug 2024 01:52:03 GMT
+      - Wed, 21 Aug 2024 02:22:14 GMT
+      server:
+      - envoy
+      strict-transport-security:
+      - max-age=31536000
+      x-content-type-options:
+      - nosniff
+      x-robots-tag:
+      - noindex, nofollow
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate, br
+      Authorization:
+      - Bearer BQA_Q9gVFP2UwWBk4igvK1ujeWo05Jj0e3ObbSBscAOPHKmWSgWfZCqW9tYLXi1qTtATnqaIBPBGRifrzAgV8JTkGBiR-TklOsmfh3Z0klO0k-F4zi4
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      User-Agent:
+      - python-requests/2.32.3
+    method: GET
+    uri: https://api.spotify.com/v1/tracks/4B2kkxg3wKSTZw5JPaUtzQ
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAAAKxV23KbMBB9z1cwPPQpCULYYPutiTOZprm1TdtJOh1GBtnWWFwqCV+S8b8XhIDY
+        CQQ78Rs666PV2T27TweapiM6SgJdG2hP6Vfx7YpVjLNDnZNwQrF+qEAmCBc8Q/6oP6SneCkwCxF1
+        E0Z5RSUxHkeCjFeSaypEzAeGEcU4PFbAsRcFRk5rQD6GvcjGyfJsGN/Pzvv+lUiudEW2PizumzI8
+        3iBEMdngm5uKktdxllzEl0xvhYUoyPU4TYmjKKyQUqn8xgpIGMkVzBMb5Pig6ZHrw48XFXifwWln
+        dXL9HV3Dswd+Bhd31v37RK3h3Bb1rbBS1CEKCabaJZ6T/YVteuha+1t08BwRikYUuwFiM1z0cgHX
+        qt5S88w8BrgU5u3j/NdDxOnw+gu84P/s+HdR4oP2cmdsvI5OERVaNwcFaIK3bTvFZDIV2aHdAc/U
+        pRt5pVl5fpimZEgSA41sxzZtH6S/EXQs6DjWyPFtD/VN2O2hnuUD2+lZVb0WxBdTdc2LNq+SsMB+
+        SZgYwB2SSK9pSMLu7JVDp9c1dxJiqytLJ9yE2iftphgvOsMUI45dH4kch8DsHgHnCPRfC3Fjhj3C
+        STqfsmAfrYooEYm0qQVD3ky2gVmclyaTa0CdvnBYBg7q21o29WvL4d1+ensx7GSoNkuh1UqoWwg1
+        U2v3ZVC25wdJ2Dgd95Cwcba3WgBN439HGesfpyzWOPZ1n3DPDZNghFnpDd1PGBKpk9xAxkLgALsn
+        EbyMKfGInBdjRDlWp6pMxH9WJZ1w5smUz0/g5RD0Qepgu/JMTXHblVba2eicwNlsObEWX3/cPSy6
+        F7fop3j8Vl3Rpqr5YKijkjSqpI0h3KWRh+imMK/ONj2O4oQiRsSqkjydXnOCF66avGFCqTyX2b0o
+        UNkiEs5Zt/tDQoM6hdb/AQAA//8DACVa21EBCwAA
+    headers:
+      Alt-Svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      Transfer-Encoding:
+      - chunked
+      Via:
+      - HTTP/2 edgeproxy, 1.1 google
+      access-control-allow-credentials:
+      - 'true'
+      access-control-allow-headers:
+      - Accept, App-Platform, Authorization, Content-Type, Origin, Retry-After, Spotify-App-Version,
+        X-Cloud-Trace-Context, client-token, content-access-token
+      access-control-allow-methods:
+      - GET, POST, OPTIONS, PUT, DELETE, PATCH
+      access-control-allow-origin:
+      - '*'
+      access-control-max-age:
+      - '604800'
+      cache-control:
+      - public, max-age=7200
+      content-encoding:
+      - gzip
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Wed, 21 Aug 2024 02:43:22 GMT
+      server:
+      - envoy
+      strict-transport-security:
+      - max-age=31536000
+      x-content-type-options:
+      - nosniff
+      x-robots-tag:
+      - noindex, nofollow
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate, br
+      Authorization:
+      - Bearer BQA_Q9gVFP2UwWBk4igvK1ujeWo05Jj0e3ObbSBscAOPHKmWSgWfZCqW9tYLXi1qTtATnqaIBPBGRifrzAgV8JTkGBiR-TklOsmfh3Z0klO0k-F4zi4
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      User-Agent:
+      - python-requests/2.32.3
+    method: GET
+    uri: https://api.spotify.com/v1/artists/2sf28o6euxEDpYkG9dMtuM
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAAAJyS0W6DIBSG7/cUxuumiq1ovd2WXfUBlmVZUA5KhkAQ1zZN332ItNmydGnKHf85
+        /N8PnONDFMWwt2AkER+jEUMcVdHRqU4ftLKcHSYl7qzVQ5UkSoNchsKyUX1CjOWDTbKBZaXCMO6f
+        n/Tr58uGbu24jZ3RaTExmBJC7cD89O8MsGkrRyEWs2SVJWLSsqxMs+JyvAVpwJ99cxvSc9lGQPs4
+        evfls9MlJtH8V8ovFIIO15J6H069y78tPWnPSc73AN52dpLwOg0XcU/5K5CL01DpsiTeICE1LjDC
+        KHULcqiBEtis05RtVmVNy5zlTVo2dREHvx2ntgsI/yp/4avsHniOivXNcIe4Akf4HjhDRXkz3CEm
+        ePhySXrwnEf3sUrJ+Xe00qMghls/tRh50R703DqPwNw5Gu61MCXVXKuuzfHpGwAA//8DAGul67Aq
+        AwAA
+    headers:
+      Alt-Svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      Transfer-Encoding:
+      - chunked
+      Via:
+      - HTTP/2 edgeproxy, 1.1 google
+      access-control-allow-credentials:
+      - 'true'
+      access-control-allow-headers:
+      - Accept, App-Platform, Authorization, Content-Type, Origin, Retry-After, Spotify-App-Version,
+        X-Cloud-Trace-Context, client-token, content-access-token
+      access-control-allow-methods:
+      - GET, POST, OPTIONS, PUT, DELETE, PATCH
+      access-control-allow-origin:
+      - '*'
+      access-control-max-age:
+      - '604800'
+      cache-control:
+      - public, max-age=7200
+      content-encoding:
+      - gzip
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Wed, 21 Aug 2024 02:43:22 GMT
+      server:
+      - envoy
+      strict-transport-security:
+      - max-age=31536000
+      x-content-type-options:
+      - nosniff
+      x-robots-tag:
+      - noindex, nofollow
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate, br
+      Authorization:
+      - Bearer BQA_Q9gVFP2UwWBk4igvK1ujeWo05Jj0e3ObbSBscAOPHKmWSgWfZCqW9tYLXi1qTtATnqaIBPBGRifrzAgV8JTkGBiR-TklOsmfh3Z0klO0k-F4zi4
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      User-Agent:
+      - python-requests/2.32.3
+    method: GET
+    uri: https://api.spotify.com/v1/albums/0Lt1PzvVZoslDNI2Jsq6pW
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAAALRW207bQBB95yssP/AEeG3HdhIJVSWgqhRCWmgrqCprY2+SVdaXete5gPLvtXft
+        TUywSQPljZnJmdkzZ2b8dKAoKiTDNHDZMkaq0lVUisMxQeoRdyUMU0Zz+y/lKbNkNrRgKAkhcdOE
+        cI+wZx4aRwyPlhxlwlhMu5oWxSg8KRwnXhRoAlIz6MhoRzZKFxfn8f30U8e/Zum1yqFWRyLTJEGj
+        ChiMcQVrphdwtA6vQMI+x2kOCmEgGOhloFEUlnbJjMhVmtMEC75EQV3h7dY/bHX0vhQC7yPotZZn
+        /W+wb1w80Atjfmfe709hDV6VwuYgSeE5DDEiyhWa4f1orH/cSvkttDmDmMAhQW4AkykqVSqcXhQv
+        EzyePNMuy5gXSgC6pfR7t8oV80+2KuxV27Xjrwab1ckWY3+jw2oaezzWApaldzqWbuotILId1Atj
+        R1nkc6yBK6YPHmc/HiJKzvufjUv6x45/rlOMUZigClc7aSTHpnXgHKYUSFNIAMeo2pEJyruUm+wW
+        kJIglXqyajw/zErROIAGh7Zj67YPsr+h4ZiG45hDx7c92NENqw3bpg9sp22WHZpjn02KFJXGrpOb
+        YJ/kOgLGzsmzFDXJ7dYeuVttS/+Hh29IMxsaJPJkUhaNkXN7EyqHyo1YfWocxSmBCWZceJwgNUEE
+        QYpcHzIkZ+IYOMego24FuHGCPExxtkvzUB8uRQyLWKZxlkBvytWgC6v8v2TorcLUBOSHaDSiiJ2C
+        Q4IDzE4tIJcaQ0FFjy/fvOal/a63b2N5v+8N3PkONt3ChkW+300Uz/0/NDfdx7fQ3HgCN2l+PbDh
+        Xu5JdfOjixUgdN5wP3mAj6nnhmkwRIkcUuFIE8iyoXbF7BjAAXZbetEiJtjDfLONIKFow1Pb2t0a
+        y8dZa50Z0+libM6/3N49zK3LAfzOHr+u1VSm26WnYkHUQUqooqGvhlGXRB4k209/ccFyT7YiZxjN
+        3WL3hykh0sere7EFUhg8ZI32XBXc3W1iTEpC5csx/7VV3sKw+PBZF6WKVSrvQfmAKKXPAvmO50XL
+        T4+1mvOlLU7BloxzV7fuI2b1FwAA//8DAOqHcBuxDAAA
+    headers:
+      Alt-Svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      Transfer-Encoding:
+      - chunked
+      Via:
+      - HTTP/2 edgeproxy, 1.1 google
+      access-control-allow-credentials:
+      - 'true'
+      access-control-allow-headers:
+      - Accept, App-Platform, Authorization, Content-Type, Origin, Retry-After, Spotify-App-Version,
+        X-Cloud-Trace-Context, client-token, content-access-token
+      access-control-allow-methods:
+      - GET, POST, OPTIONS, PUT, DELETE, PATCH
+      access-control-allow-origin:
+      - '*'
+      access-control-max-age:
+      - '604800'
+      cache-control:
+      - public, max-age=7200
+      content-encoding:
+      - gzip
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Wed, 21 Aug 2024 02:43:22 GMT
       server:
       - envoy
       strict-transport-security:

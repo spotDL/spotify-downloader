@@ -32,8 +32,8 @@ def test_get_urls(monkeypatch):
 
     # Test if spotdl can be initialized with spotify credentials.
     spotdl_client = Spotdl(
-        client_id=DEFAULT_CONFIG["client_id"],
-        client_secret=DEFAULT_CONFIG["client_secret"],
+        client_id="f8a606e5583643beaa27ce62c48e3fc1",
+        client_secret="f6f4c8f73f0649939286cf417c811607",
         user_auth=DEFAULT_CONFIG["user_auth"],
         cache_path=DEFAULT_CONFIG["cache_path"],
         no_cache=True,

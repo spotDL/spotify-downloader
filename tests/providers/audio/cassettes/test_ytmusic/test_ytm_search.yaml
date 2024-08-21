@@ -1,7 +1,7 @@
 interactions:
 - request:
     body: '{"query": "GB2LD2210007", "context": {"client": {"clientName": "WEB_REMIX",
-      "clientVersion": "1.20240819.01.00", "hl": "de"}, "user": {}}}'
+      "clientVersion": "1.20240821.01.00", "hl": "de"}, "user": {}}}'
     headers:
       Connection:
       - keep-alive
@@ -25,397 +25,90 @@ interactions:
     uri: https://music.youtube.com/youtubei/v1/search?alt=json
   response:
     body:
-      string: "{\n  \"responseContext\": {\n    \"visitorData\": \"CgtKaW5iUUw5eHRCTSjTyIq2BjIiCgJQTBIcEhgSFgsMDg8QERITFBUWFxgZGhscHR4fICEgJw%3D%3D\",\n
-        \   \"serviceTrackingParams\": [\n      {\n        \"service\": \"CSI\",\n
-        \       \"params\": [\n          {\n            \"key\": \"c\",\n            \"value\":
-        \"WEB_REMIX\"\n          },\n          {\n            \"key\": \"cver\",\n
-        \           \"value\": \"1.20240819.01.00\"\n          },\n          {\n            \"key\":
-        \"yt_li\",\n            \"value\": \"0\"\n          },\n          {\n            \"key\":
-        \"GetSearch_rid\",\n            \"value\": \"0xa885b09ccba2a5b1\"\n          }\n
-        \       ]\n      },\n      {\n        \"service\": \"GFEEDBACK\",\n        \"params\":
-        [\n          {\n            \"key\": \"logged_in\",\n            \"value\":
-        \"0\"\n          },\n          {\n            \"key\": \"e\",\n            \"value\":
-        \"9405981,23804281,23966208,23998056,24004644,24077241,24181174,24241378,24290971,24439361,24457854,24459436,24468724,24542367,24548629,24566687,51009781,51010235,51016856,51017346,51020570,51025415,51030103,51037344,51037349,51041512,51043775,51050361,51053689,51057846,51057853,51057865,51060353,51063643,51064835,51065188,51089007,51098297,51098299,51102410,51111738,51115184,51116067,51117318,51123611,51124104,51133103,51138234,51139379,51140712,51144925,51149607,51152050,51157411,51157838,51158514,51160545,51162170,51165467,51169118,51176511,51177012,51178310,51178333,51178348,51178351,51178982,51183506,51183910,51184022,51186528,51190061,51190075,51190080,51190085,51190198,51190213,51190220,51190227,51190652,51195231,51197687,51197690,51197697,51197708,51200251,51200258,51200291,51200302,51200778,51201348,51201363,51201370,51201385,51201428,51201435,51201440,51201449,51204329,51204587,51208302,51209050,51212464,51212553,51212567,51213888,51214639,51217234,51217274,51217504,51217581,51219771,51219800,51221011,51221148,51223961,51224135,51226865,51227037,51227263,51227291,51227774,51227881,51228350,51228352,51228767,51228776,51228781,51228800,51228803,51228814,51230240,51230394,51230478,51230492,51231814,51232189,51232709,51234853,51235402,51237842,51241028,51242447,51243940,51245824,51245829,51246281,51246303,51248255,51249657,51251509,51251811,51251837,51255742,51256074,51256084,51256923,51257904,51257911,51257916,51258067,51258359,51259133,51260294,51260634,51264030,51264981,51265287,51265335,51265362,51265377,51266946,51268553,51270804,51271670,51272491,51272504,51272513,51272528,51272580,51272585,51272829\"\n
-        \         }\n        ]\n      },\n      {\n        \"service\": \"ECATCHER\",\n
-        \       \"params\": [\n          {\n            \"key\": \"client.version\",\n
-        \           \"value\": \"1.20000101\"\n          },\n          {\n            \"key\":
-        \"client.name\",\n            \"value\": \"WEB_REMIX\"\n          }\n        ]\n
-        \     }\n    ],\n    \"maxAgeSeconds\": 120\n  },\n  \"contents\": {\n    \"tabbedSearchResultsRenderer\":
-        {\n      \"tabs\": [\n        {\n          \"tabRenderer\": {\n            \"title\":
-        \"YT Music\",\n            \"selected\": true,\n            \"content\": {\n
-        \             \"sectionListRenderer\": {\n                \"contents\": [\n
-        \                 {\n                    \"itemSectionRenderer\": {\n                      \"contents\":
-        [\n                        {\n                          \"messageRenderer\":
-        {\n                            \"trackingParams\": \"CBgQljsYACITCPG4uP_3_4cDFV7nQgUdm3kGNQ==\",\n
-        \                           \"button\": {\n                              \"buttonRenderer\":
-        {\n                                \"style\": \"STYLE_TEXT\",\n                                \"isDisabled\":
-        false,\n                                \"text\": {\n                                  \"simpleText\":
-        \"Weitere Informationen zu diesen Ergebnissen\"\n                                },\n
-        \                               \"icon\": {\n                                  \"iconType\":
-        \"INFO_OUTLINE\"\n                                },\n                                \"navigationEndpoint\":
-        {\n                                  \"clickTrackingParams\": \"CBkQ8FsiEwjxuLj_9_-HAxVe50IFHZt5BjU=\",\n
-        \                                 \"urlEndpoint\": {\n                                    \"url\":
-        \"https://www.youtube.com/howyoutubeworks/product-features/search/\",\n                                    \"target\":
-        \"TARGET_NEW_WINDOW\"\n                                  }\n                                },\n
-        \                               \"trackingParams\": \"CBkQ8FsiEwjxuLj_9_-HAxVe50IFHZt5BjU=\",\n
-        \                               \"iconPosition\": \"BUTTON_ICON_POSITION_TYPE_RIGHT_OF_TEXT\"\n
-        \                             }\n                            },\n                            \"style\":
-        {\n                              \"value\": \"RENDER_STYLE_PANEL\"\n                            }\n
-        \                         }\n                        }\n                      ],\n
-        \                     \"trackingParams\": \"CBcQuy8YACITCPG4uP_3_4cDFV7nQgUdm3kGNQ==\"\n
-        \                   }\n                  },\n                  {\n                    \"musicCardShelfRenderer\":
-        {\n                      \"trackingParams\": \"CAMQ-5EFGAEiEwjxuLj_9_-HAxVe50IFHZt5BjU=\",\n
-        \                     \"thumbnail\": {\n                        \"musicThumbnailRenderer\":
-        {\n                          \"thumbnail\": {\n                            \"thumbnails\":
-        [\n                              {\n                                \"url\":
-        \"https://lh3.googleusercontent.com/YQwN5iBYKALg3yb9P6d4yRNT6-k1JsOt-8qQCb3Z_U-T2QZJbCsML2X65kS1hsLyxUERTDp-o3l8k3nYvw=w60-h60-l90-rj\",\n
-        \                               \"width\": 60,\n                                \"height\":
-        60\n                              },\n                              {\n                                \"url\":
-        \"https://lh3.googleusercontent.com/YQwN5iBYKALg3yb9P6d4yRNT6-k1JsOt-8qQCb3Z_U-T2QZJbCsML2X65kS1hsLyxUERTDp-o3l8k3nYvw=w120-h120-l90-rj\",\n
-        \                               \"width\": 120,\n                                \"height\":
-        120\n                              }\n                            ]\n                          },\n
-        \                         \"thumbnailCrop\": \"MUSIC_THUMBNAIL_CROP_UNSPECIFIED\",\n
-        \                         \"thumbnailScale\": \"MUSIC_THUMBNAIL_SCALE_ASPECT_FIT\",\n
-        \                         \"trackingParams\": \"CBYQhL8CIhMI8bi4__f_hwMVXudCBR2beQY1\"\n
-        \                       }\n                      },\n                      \"title\":
-        {\n                        \"runs\": [\n                          {\n                            \"text\":
-        \"Nobody Else\",\n                            \"navigationEndpoint\": {\n
-        \                             \"clickTrackingParams\": \"CAMQ-5EFGAEiEwjxuLj_9_-HAxVe50IFHZt5BjU=\",\n
-        \                             \"watchEndpoint\": {\n                                \"videoId\":
-        \"nfyk-V5CoIE\",\n                                \"watchEndpointMusicSupportedConfigs\":
-        {\n                                  \"watchEndpointMusicConfig\": {\n                                    \"musicVideoType\":
-        \"MUSIC_VIDEO_TYPE_ATV\"\n                                  }\n                                }\n
-        \                             }\n                            }\n                          }\n
-        \                       ]\n                      },\n                      \"subtitle\":
-        {\n                        \"runs\": [\n                          {\n                            \"text\":
-        \"Titel\"\n                          },\n                          {\n                            \"text\":
-        \" \u2022 \"\n                          },\n                          {\n
-        \                           \"text\": \"Abstrakt\",\n                            \"navigationEndpoint\":
-        {\n                              \"clickTrackingParams\": \"CAMQ-5EFGAEiEwjxuLj_9_-HAxVe50IFHZt5BjU=\",\n
-        \                             \"browseEndpoint\": {\n                                \"browseId\":
-        \"UCvUHCJJ-VU9lqllKE5IqHUQ\",\n                                \"browseEndpointContextSupportedConfigs\":
-        {\n                                  \"browseEndpointContextMusicConfig\":
-        {\n                                    \"pageType\": \"MUSIC_PAGE_TYPE_ARTIST\"\n
-        \                                 }\n                                }\n                              }\n
-        \                           }\n                          },\n                          {\n
-        \                           \"text\": \" \u2022 \"\n                          },\n
-        \                         {\n                            \"text\": \"Nobody
-        Else\",\n                            \"navigationEndpoint\": {\n                              \"clickTrackingParams\":
-        \"CAMQ-5EFGAEiEwjxuLj_9_-HAxVe50IFHZt5BjU=\",\n                              \"browseEndpoint\":
-        {\n                                \"browseId\": \"MPREb_DXHobNVZtuH\",\n
-        \                               \"browseEndpointContextSupportedConfigs\":
-        {\n                                  \"browseEndpointContextMusicConfig\":
-        {\n                                    \"pageType\": \"MUSIC_PAGE_TYPE_ALBUM\"\n
-        \                                 }\n                                }\n                              }\n
-        \                           }\n                          },\n                          {\n
-        \                           \"text\": \" \u2022 \"\n                          },\n
-        \                         {\n                            \"text\": \"2:43\"\n
-        \                         }\n                        ]\n                      },\n
-        \                     \"buttons\": [\n                        {\n                          \"buttonRenderer\":
-        {\n                            \"style\": \"STYLE_DARK_ON_WHITE\",\n                            \"size\":
-        \"SIZE_DEFAULT\",\n                            \"isDisabled\": false,\n                            \"text\":
-        {\n                              \"runs\": [\n                                {\n
-        \                                 \"text\": \"Abspielen\"\n                                }\n
-        \                             ]\n                            },\n                            \"icon\":
-        {\n                              \"iconType\": \"PLAY_ARROW\"\n                            },\n
-        \                           \"accessibility\": {\n                              \"label\":
-        \"ALLE ABSPIELEN\"\n                            },\n                            \"trackingParams\":
-        \"CBUQlNIFGAAiEwjxuLj_9_-HAxVe50IFHZt5BjU=\",\n                            \"accessibilityData\":
-        {\n                              \"accessibilityData\": {\n                                \"label\":
-        \"ALLE ABSPIELEN\"\n                              }\n                            },\n
-        \                           \"command\": {\n                              \"clickTrackingParams\":
-        \"CBUQlNIFGAAiEwjxuLj_9_-HAxVe50IFHZt5BjUyBnNlYXJjaFIMR0IyTEQyMjEwMDA3mgEDEPQk\",\n
-        \                             \"watchEndpoint\": {\n                                \"videoId\":
-        \"nfyk-V5CoIE\",\n                                \"params\": \"wAEB\",\n
-        \                               \"watchEndpointMusicSupportedConfigs\": {\n
-        \                                 \"watchEndpointMusicConfig\": {\n                                    \"musicVideoType\":
-        \"MUSIC_VIDEO_TYPE_ATV\"\n                                  }\n                                }\n
-        \                             }\n                            }\n                          }\n
-        \                       },\n                        {\n                          \"buttonRenderer\":
-        {\n                            \"style\": \"STYLE_WHITE_TRANSLUCENT\",\n                            \"text\":
-        {\n                              \"runs\": [\n                                {\n
-        \                                 \"text\": \"Speichern\"\n                                }\n
-        \                             ]\n                            },\n                            \"icon\":
-        {\n                              \"iconType\": \"PLAYLIST_ADD\"\n                            },\n
-        \                           \"accessibility\": {\n                              \"label\":
-        \"Zu Playlist hinzuf\xFCgen\"\n                            },\n                            \"trackingParams\":
-        \"CBMQmKYIGAEiEwjxuLj_9_-HAxVe50IFHZt5BjU=\",\n                            \"accessibilityData\":
-        {\n                              \"accessibilityData\": {\n                                \"label\":
-        \"Zu Playlist hinzuf\xFCgen\"\n                              }\n                            },\n
-        \                           \"command\": {\n                              \"clickTrackingParams\":
-        \"CBMQmKYIGAEiEwjxuLj_9_-HAxVe50IFHZt5BjU=\",\n                              \"modalEndpoint\":
-        {\n                                \"modal\": {\n                                  \"modalWithTitleAndButtonRenderer\":
-        {\n                                    \"title\": {\n                                      \"runs\":
-        [\n                                        {\n                                          \"text\":
-        \"F\xFCr sp\xE4ter speichern?\"\n                                        }\n
-        \                                     ]\n                                    },\n
-        \                                   \"content\": {\n                                      \"runs\":
-        [\n                                        {\n                                          \"text\":
-        \"Nach der Anmeldung kannst du Playlists erstellen und teilen\"\n                                        }\n
-        \                                     ]\n                                    },\n
-        \                                   \"button\": {\n                                      \"buttonRenderer\":
-        {\n                                        \"style\": \"STYLE_BLUE_TEXT\",\n
-        \                                       \"isDisabled\": false,\n                                        \"text\":
-        {\n                                          \"runs\": [\n                                            {\n
-        \                                             \"text\": \"Anmelden\"\n                                            }\n
-        \                                         ]\n                                        },\n
-        \                                       \"navigationEndpoint\": {\n                                          \"clickTrackingParams\":
-        \"CBQQ8FsiEwjxuLj_9_-HAxVe50IFHZt5BjU=\",\n                                          \"signInEndpoint\":
-        {\n                                            \"hack\": true\n                                          }\n
-        \                                       },\n                                        \"trackingParams\":
-        \"CBQQ8FsiEwjxuLj_9_-HAxVe50IFHZt5BjU=\"\n                                      }\n
-        \                                   }\n                                  }\n
-        \                               }\n                              }\n                            }\n
-        \                         }\n                        }\n                      ],\n
-        \                     \"menu\": {\n                        \"menuRenderer\":
-        {\n                          \"items\": [\n                            {\n
-        \                             \"menuNavigationItemRenderer\": {\n                                \"text\":
-        {\n                                  \"runs\": [\n                                    {\n
-        \                                     \"text\": \"Radio starten\"\n                                    }\n
-        \                                 ]\n                                },\n
-        \                               \"icon\": {\n                                  \"iconType\":
-        \"MIX\"\n                                },\n                                \"navigationEndpoint\":
-        {\n                                  \"clickTrackingParams\": \"CBIQm_MFGAAiEwjxuLj_9_-HAxVe50IFHZt5BjWaAQMQ9CQ=\",\n
-        \                                 \"watchEndpoint\": {\n                                    \"videoId\":
-        \"nfyk-V5CoIE\",\n                                    \"playlistId\": \"RDAMVMnfyk-V5CoIE\",\n
-        \                                   \"params\": \"wAEB\",\n                                    \"loggingContext\":
-        {\n                                      \"vssLoggingContext\": {\n                                        \"serializedContextData\":
-        \"GhFSREFNVk1uZnlrLVY1Q29JRQ%3D%3D\"\n                                      }\n
-        \                                   },\n                                    \"watchEndpointMusicSupportedConfigs\":
-        {\n                                      \"watchEndpointMusicConfig\": {\n
-        \                                       \"musicVideoType\": \"MUSIC_VIDEO_TYPE_ATV\"\n
-        \                                     }\n                                    }\n
-        \                                 }\n                                },\n
-        \                               \"trackingParams\": \"CBIQm_MFGAAiEwjxuLj_9_-HAxVe50IFHZt5BjU=\"\n
-        \                             }\n                            },\n                            {\n
-        \                             \"menuServiceItemRenderer\": {\n                                \"text\":
-        {\n                                  \"runs\": [\n                                    {\n
-        \                                     \"text\": \"Als N\xE4chstes abspielen\"\n
-        \                                   }\n                                  ]\n
-        \                               },\n                                \"icon\":
-        {\n                                  \"iconType\": \"QUEUE_PLAY_NEXT\"\n                                },\n
-        \                               \"serviceEndpoint\": {\n                                  \"clickTrackingParams\":
-        \"CBAQvu4FGAEiEwjxuLj_9_-HAxVe50IFHZt5BjU=\",\n                                  \"queueAddEndpoint\":
-        {\n                                    \"queueTarget\": {\n                                      \"videoId\":
-        \"nfyk-V5CoIE\",\n                                      \"onEmptyQueue\":
-        {\n                                        \"clickTrackingParams\": \"CBAQvu4FGAEiEwjxuLj_9_-HAxVe50IFHZt5BjU=\",\n
-        \                                       \"watchEndpoint\": {\n                                          \"videoId\":
-        \"nfyk-V5CoIE\"\n                                        }\n                                      }\n
-        \                                   },\n                                    \"queueInsertPosition\":
-        \"INSERT_AFTER_CURRENT_VIDEO\",\n                                    \"commands\":
-        [\n                                      {\n                                        \"clickTrackingParams\":
-        \"CBAQvu4FGAEiEwjxuLj_9_-HAxVe50IFHZt5BjU=\",\n                                        \"addToToastAction\":
-        {\n                                          \"item\": {\n                                            \"notificationTextRenderer\":
-        {\n                                              \"successResponseText\":
-        {\n                                                \"runs\": [\n                                                  {\n
-        \                                                   \"text\": \"Titel wird
-        als N\xE4chstes wiedergegeben\"\n                                                  }\n
-        \                                               ]\n                                              },\n
-        \                                             \"trackingParams\": \"CBEQyscDIhMI8bi4__f_hwMVXudCBR2beQY1\"\n
-        \                                           }\n                                          }\n
-        \                                       }\n                                      }\n
-        \                                   ]\n                                  }\n
-        \                               },\n                                \"trackingParams\":
-        \"CBAQvu4FGAEiEwjxuLj_9_-HAxVe50IFHZt5BjU=\"\n                              }\n
-        \                           },\n                            {\n                              \"menuServiceItemRenderer\":
-        {\n                                \"text\": {\n                                  \"runs\":
-        [\n                                    {\n                                      \"text\":
-        \"Zu Wiedergabeliste hinzuf\xFCgen\"\n                                    }\n
-        \                                 ]\n                                },\n
-        \                               \"icon\": {\n                                  \"iconType\":
-        \"ADD_TO_REMOTE_QUEUE\"\n                                },\n                                \"serviceEndpoint\":
-        {\n                                  \"clickTrackingParams\": \"CA4Q--8FGAIiEwjxuLj_9_-HAxVe50IFHZt5BjU=\",\n
-        \                                 \"queueAddEndpoint\": {\n                                    \"queueTarget\":
-        {\n                                      \"videoId\": \"nfyk-V5CoIE\",\n                                      \"onEmptyQueue\":
-        {\n                                        \"clickTrackingParams\": \"CA4Q--8FGAIiEwjxuLj_9_-HAxVe50IFHZt5BjU=\",\n
-        \                                       \"watchEndpoint\": {\n                                          \"videoId\":
-        \"nfyk-V5CoIE\"\n                                        }\n                                      }\n
-        \                                   },\n                                    \"queueInsertPosition\":
-        \"INSERT_AT_END\",\n                                    \"commands\": [\n
-        \                                     {\n                                        \"clickTrackingParams\":
-        \"CA4Q--8FGAIiEwjxuLj_9_-HAxVe50IFHZt5BjU=\",\n                                        \"addToToastAction\":
-        {\n                                          \"item\": {\n                                            \"notificationTextRenderer\":
-        {\n                                              \"successResponseText\":
-        {\n                                                \"runs\": [\n                                                  {\n
-        \                                                   \"text\": \"Titel wurde
-        der Wiedergabeliste hinzugef\xFCgt\"\n                                                  }\n
-        \                                               ]\n                                              },\n
-        \                                             \"trackingParams\": \"CA8QyscDIhMI8bi4__f_hwMVXudCBR2beQY1\"\n
-        \                                           }\n                                          }\n
-        \                                       }\n                                      }\n
-        \                                   ]\n                                  }\n
-        \                               },\n                                \"trackingParams\":
-        \"CA4Q--8FGAIiEwjxuLj_9_-HAxVe50IFHZt5BjU=\"\n                              }\n
-        \                           },\n                            {\n                              \"toggleMenuServiceItemRenderer\":
-        {\n                                \"defaultText\": {\n                                  \"runs\":
-        [\n                                    {\n                                      \"text\":
-        \"Zu \u201ETitel, die ich mag\u201C hinzuf\xFCgen\"\n                                    }\n
-        \                                 ]\n                                },\n
-        \                               \"defaultIcon\": {\n                                  \"iconType\":
-        \"FAVORITE\"\n                                },\n                                \"defaultServiceEndpoint\":
-        {\n                                  \"clickTrackingParams\": \"CAwQjJ8GGAMiEwjxuLj_9_-HAxVe50IFHZt5BjU=\",\n
-        \                                 \"modalEndpoint\": {\n                                    \"modal\":
-        {\n                                      \"modalWithTitleAndButtonRenderer\":
-        {\n                                        \"title\": {\n                                          \"runs\":
-        [\n                                            {\n                                              \"text\":
-        \"Gef\xE4llt dir der Titel?\"\n                                            }\n
-        \                                         ]\n                                        },\n
-        \                                       \"content\": {\n                                          \"runs\":
-        [\n                                            {\n                                              \"text\":
-        \"Nach der Anmeldung erh\xE4ltst du bessere Empfehlungen und kannst Musik
-        speichern\"\n                                            }\n                                          ]\n
-        \                                       },\n                                        \"button\":
-        {\n                                          \"buttonRenderer\": {\n                                            \"style\":
-        \"STYLE_BLUE_TEXT\",\n                                            \"isDisabled\":
-        false,\n                                            \"text\": {\n                                              \"runs\":
-        [\n                                                {\n                                                  \"text\":
-        \"Anmelden\"\n                                                }\n                                              ]\n
-        \                                           },\n                                            \"navigationEndpoint\":
-        {\n                                              \"clickTrackingParams\":
-        \"CA0Q8FsiEwjxuLj_9_-HAxVe50IFHZt5BjU=\",\n                                              \"signInEndpoint\":
-        {\n                                                \"hack\": true\n                                              }\n
-        \                                           },\n                                            \"trackingParams\":
-        \"CA0Q8FsiEwjxuLj_9_-HAxVe50IFHZt5BjU=\"\n                                          }\n
-        \                                       }\n                                      }\n
-        \                                   }\n                                  }\n
-        \                               },\n                                \"toggledText\":
-        {\n                                  \"runs\": [\n                                    {\n
-        \                                     \"text\": \"Aus \u201ETitel, die ich
-        mag\u201C entfernen\"\n                                    }\n                                  ]\n
-        \                               },\n                                \"toggledIcon\":
-        {\n                                  \"iconType\": \"UNFAVORITE\"\n                                },\n
-        \                               \"trackingParams\": \"CAwQjJ8GGAMiEwjxuLj_9_-HAxVe50IFHZt5BjU=\"\n
-        \                             }\n                            },\n                            {\n
-        \                             \"menuNavigationItemRenderer\": {\n                                \"text\":
-        {\n                                  \"runs\": [\n                                    {\n
-        \                                     \"text\": \"Zu Playlist hinzuf\xFCgen\"\n
-        \                                   }\n                                  ]\n
-        \                               },\n                                \"icon\":
-        {\n                                  \"iconType\": \"ADD_TO_PLAYLIST\"\n                                },\n
-        \                               \"navigationEndpoint\": {\n                                  \"clickTrackingParams\":
-        \"CAoQw5QGGAQiEwjxuLj_9_-HAxVe50IFHZt5BjU=\",\n                                  \"modalEndpoint\":
-        {\n                                    \"modal\": {\n                                      \"modalWithTitleAndButtonRenderer\":
-        {\n                                        \"title\": {\n                                          \"runs\":
-        [\n                                            {\n                                              \"text\":
-        \"F\xFCr sp\xE4ter speichern?\"\n                                            }\n
-        \                                         ]\n                                        },\n
-        \                                       \"content\": {\n                                          \"runs\":
-        [\n                                            {\n                                              \"text\":
-        \"Nach der Anmeldung kannst du Playlists erstellen und teilen\"\n                                            }\n
-        \                                         ]\n                                        },\n
-        \                                       \"button\": {\n                                          \"buttonRenderer\":
-        {\n                                            \"style\": \"STYLE_BLUE_TEXT\",\n
-        \                                           \"isDisabled\": false,\n                                            \"text\":
-        {\n                                              \"runs\": [\n                                                {\n
-        \                                                 \"text\": \"Anmelden\"\n
-        \                                               }\n                                              ]\n
-        \                                           },\n                                            \"navigationEndpoint\":
-        {\n                                              \"clickTrackingParams\":
-        \"CAsQ8FsiEwjxuLj_9_-HAxVe50IFHZt5BjU=\",\n                                              \"signInEndpoint\":
-        {\n                                                \"hack\": true\n                                              }\n
-        \                                           },\n                                            \"trackingParams\":
-        \"CAsQ8FsiEwjxuLj_9_-HAxVe50IFHZt5BjU=\"\n                                          }\n
-        \                                       }\n                                      }\n
-        \                                   }\n                                  }\n
-        \                               },\n                                \"trackingParams\":
-        \"CAoQw5QGGAQiEwjxuLj_9_-HAxVe50IFHZt5BjU=\"\n                              }\n
-        \                           },\n                            {\n                              \"menuNavigationItemRenderer\":
-        {\n                                \"text\": {\n                                  \"runs\":
-        [\n                                    {\n                                      \"text\":
-        \"Album anzeigen\"\n                                    }\n                                  ]\n
-        \                               },\n                                \"icon\":
-        {\n                                  \"iconType\": \"ALBUM\"\n                                },\n
-        \                               \"navigationEndpoint\": {\n                                  \"clickTrackingParams\":
-        \"CAkQj_sFGAUiEwjxuLj_9_-HAxVe50IFHZt5BjU=\",\n                                  \"browseEndpoint\":
-        {\n                                    \"browseId\": \"MPREb_DXHobNVZtuH\",\n
-        \                                   \"browseEndpointContextSupportedConfigs\":
-        {\n                                      \"browseEndpointContextMusicConfig\":
-        {\n                                        \"pageType\": \"MUSIC_PAGE_TYPE_ALBUM\"\n
-        \                                     }\n                                    }\n
-        \                                 }\n                                },\n
-        \                               \"trackingParams\": \"CAkQj_sFGAUiEwjxuLj_9_-HAxVe50IFHZt5BjU=\"\n
-        \                             }\n                            },\n                            {\n
-        \                             \"menuNavigationItemRenderer\": {\n                                \"text\":
-        {\n                                  \"runs\": [\n                                    {\n
-        \                                     \"text\": \"K\xFCnstlerseite anzeigen\"\n
-        \                                   }\n                                  ]\n
-        \                               },\n                                \"icon\":
-        {\n                                  \"iconType\": \"ARTIST\"\n                                },\n
-        \                               \"navigationEndpoint\": {\n                                  \"clickTrackingParams\":
-        \"CAgQkPsFGAYiEwjxuLj_9_-HAxVe50IFHZt5BjU=\",\n                                  \"browseEndpoint\":
-        {\n                                    \"browseId\": \"UCvUHCJJ-VU9lqllKE5IqHUQ\",\n
-        \                                   \"browseEndpointContextSupportedConfigs\":
-        {\n                                      \"browseEndpointContextMusicConfig\":
-        {\n                                        \"pageType\": \"MUSIC_PAGE_TYPE_ARTIST\"\n
-        \                                     }\n                                    }\n
-        \                                 }\n                                },\n
-        \                               \"trackingParams\": \"CAgQkPsFGAYiEwjxuLj_9_-HAxVe50IFHZt5BjU=\"\n
-        \                             }\n                            },\n                            {\n
-        \                             \"menuNavigationItemRenderer\": {\n                                \"text\":
-        {\n                                  \"runs\": [\n                                    {\n
-        \                                     \"text\": \"Teilen\"\n                                    }\n
-        \                                 ]\n                                },\n
-        \                               \"icon\": {\n                                  \"iconType\":
-        \"SHARE\"\n                                },\n                                \"navigationEndpoint\":
-        {\n                                  \"clickTrackingParams\": \"CAcQkfsFGAciEwjxuLj_9_-HAxVe50IFHZt5BjU=\",\n
-        \                                 \"shareEntityEndpoint\": {\n                                    \"serializedShareEntity\":
-        \"CgtuZnlrLVY1Q29JRQ%3D%3D\",\n                                    \"sharePanelType\":
-        \"SHARE_PANEL_TYPE_UNIFIED_SHARE_PANEL\"\n                                  }\n
-        \                               },\n                                \"trackingParams\":
-        \"CAcQkfsFGAciEwjxuLj_9_-HAxVe50IFHZt5BjU=\"\n                              }\n
-        \                           }\n                          ],\n                          \"trackingParams\":
-        \"CAYQpzsiEwjxuLj_9_-HAxVe50IFHZt5BjU=\",\n                          \"accessibility\":
-        {\n                            \"accessibilityData\": {\n                              \"label\":
-        \"Aktionsmen\xFC\"\n                            }\n                          }\n
-        \                       }\n                      },\n                      \"onTap\":
-        {\n                        \"clickTrackingParams\": \"CAMQ-5EFGAEiEwjxuLj_9_-HAxVe50IFHZt5BjUyBnNlYXJjaEiBwYrylZ-p_p0BUgxHQjJMRDIyMTAwMDeaAQMQ9CQ=\",\n
-        \                       \"watchEndpoint\": {\n                          \"videoId\":
-        \"nfyk-V5CoIE\",\n                          \"watchEndpointMusicSupportedConfigs\":
-        {\n                            \"watchEndpointMusicConfig\": {\n                              \"musicVideoType\":
-        \"MUSIC_VIDEO_TYPE_ATV\"\n                            }\n                          }\n
-        \                       }\n                      },\n                      \"header\":
-        {\n                        \"musicCardShelfHeaderBasicRenderer\": {\n                          \"title\":
-        {\n                            \"runs\": [\n                              {\n
-        \                               \"text\": \"Top-Ergebnis\"\n                              }\n
-        \                           ]\n                          },\n                          \"trackingParams\":
-        \"CAUQ7qABIhMI8bi4__f_hwMVXudCBR2beQY1\"\n                        }\n                      },\n
-        \                     \"thumbnailOverlay\": {\n                        \"musicItemThumbnailOverlayRenderer\":
-        {\n                          \"background\": {\n                            \"verticalGradient\":
-        {\n                              \"gradientLayerColors\": [\n                                \"3422552064\",\n
-        \                               \"3422552064\"\n                              ]\n
-        \                           }\n                          },\n                          \"content\":
-        {\n                            \"musicPlayButtonRenderer\": {\n                              \"playNavigationEndpoint\":
-        {\n                                \"clickTrackingParams\": \"CAQQyN4CIhMI8bi4__f_hwMVXudCBR2beQY1\",\n
-        \                               \"watchEndpoint\": {\n                                  \"videoId\":
-        \"nfyk-V5CoIE\",\n                                  \"watchEndpointMusicSupportedConfigs\":
-        {\n                                    \"watchEndpointMusicConfig\": {\n                                      \"musicVideoType\":
-        \"MUSIC_VIDEO_TYPE_ATV\"\n                                    }\n                                  }\n
-        \                               }\n                              },\n                              \"trackingParams\":
-        \"CAQQyN4CIhMI8bi4__f_hwMVXudCBR2beQY1\",\n                              \"playIcon\":
-        {\n                                \"iconType\": \"PLAY_ARROW\"\n                              },\n
-        \                             \"pauseIcon\": {\n                                \"iconType\":
-        \"PAUSE\"\n                              },\n                              \"iconColor\":
-        4294967295,\n                              \"backgroundColor\": 0,\n                              \"activeBackgroundColor\":
-        0,\n                              \"loadingIndicatorColor\": 4294901760,\n
-        \                             \"playingIcon\": {\n                                \"iconType\":
-        \"VOLUME_UP\"\n                              },\n                              \"iconLoadingColor\":
-        0,\n                              \"activeScaleFactor\": 1,\n                              \"buttonSize\":
-        \"MUSIC_PLAY_BUTTON_SIZE_LARGE\",\n                              \"rippleTarget\":
-        \"MUSIC_PLAY_BUTTON_RIPPLE_TARGET_SELF\",\n                              \"accessibilityPlayData\":
-        {\n                                \"accessibilityData\": {\n                                  \"label\":
-        \"Nobody Else - Abstrakt abspielen\"\n                                }\n
-        \                             },\n                              \"accessibilityPauseData\":
-        {\n                                \"accessibilityData\": {\n                                  \"label\":
-        \"Nobody Else - Abstrakt pausieren\"\n                                }\n
-        \                             }\n                            }\n                          },\n
-        \                         \"contentPosition\": \"MUSIC_ITEM_THUMBNAIL_OVERLAY_CONTENT_POSITION_CENTERED\",\n
-        \                         \"displayStyle\": \"MUSIC_ITEM_THUMBNAIL_OVERLAY_DISPLAY_STYLE_PERSISTENT\"\n
-        \                       }\n                      }\n                    }\n
-        \                 }\n                ],\n                \"trackingParams\":
-        \"CAIQui8iEwjxuLj_9_-HAxVe50IFHZt5BjU=\"\n              }\n            },\n
-        \           \"tabIdentifier\": \"music_search_catalog\",\n            \"trackingParams\":
-        \"CAEQ8JMBGAAiEwjxuLj_9_-HAxVe50IFHZt5BjU=\"\n          }\n        }\n      ]\n
-        \   }\n  },\n  \"trackingParams\": \"CAAQvGkiEwjxuLj_9_-HAxVe50IFHZt5BjU=\"\n}\n"
+      string: !!binary |
+        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
+        LEfR786nGWX88cv/A+FNjWSnkAAA
     headers:
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
@@ -426,7 +119,141 @@ interactions:
       Content-Type:
       - application/json; charset=UTF-8
       Date:
-      - Mon, 19 Aug 2024 01:48:03 GMT
+      - Wed, 21 Aug 2024 02:15:54 GMT
+      Server:
+      - scaffolding on HTTPServer2
+      Transfer-Encoding:
+      - chunked
+      Vary:
+      - Origin
+      - X-Origin
+      - Referer
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-XSS-Protection:
+      - '0'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"query": "GB2LD2210007", "context": {"client": {"clientName": "WEB_REMIX",
+      "clientVersion": "1.20240821.01.00", "hl": "de"}, "user": {}}}'
+    headers:
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '138'
+      Cookie:
+      - SOCS=CAI
+      accept:
+      - '*/*'
+      accept-encoding:
+      - gzip, deflate
+      content-encoding:
+      - gzip
+      content-type:
+      - application/json
+      origin:
+      - https://music.youtube.com
+      user-agent:
+      - Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:88.0) Gecko/20100101 Firefox/88.0
+    method: POST
+    uri: https://music.youtube.com/youtubei/v1/search?alt=json
+  response:
+    body:
+      string: !!binary |
+        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
+        AA==
+    headers:
+      Alt-Svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      Cache-Control:
+      - private
+      Content-Encoding:
+      - gzip
+      Content-Type:
+      - application/json; charset=UTF-8
+      Date:
+      - Wed, 21 Aug 2024 02:37:36 GMT
       Server:
       - scaffolding on HTTPServer2
       Transfer-Encoding:
