@@ -12,7 +12,7 @@ from spotdl.utils.spotify import SpotifyClient
 ORIGINAL_INITIALIZE = SpotifyClient.init
 
 SpotifyClient.init(
-    "f8a606e5583643beaa27ce62c48e3fc1", "f6f4c8f73f0649939286cf417c811607"
+    "ad996353310b4ced82f5be1309b11b14", "2e5851cff3bc45f495cd7cfa40be1b48"
 )
 
 init_logging("MATCH")
@@ -59,8 +59,8 @@ def new_initialize(
         return SpotifyClient()
     except Exception:
         return ORIGINAL_INITIALIZE(
-            client_id="f8a606e5583643beaa27ce62c48e3fc1",
-            client_secret="f6f4c8f73f0649939286cf417c811607",
+            client_id="ad996353310b4ced82f5be1309b11b14",
+            client_secret="2e5851cff3bc45f495cd7cfa40be1b48",
             auth_token=auth_token,
             user_auth=user_auth,
             cache_path=cache_path,
