@@ -260,8 +260,8 @@ If you don't want config to load automatically change `load_config` option in co
 
 ```json
 {
-    "client_id": "5f573c9620494bae87890c0f08a60293",
-    "client_secret": "212476d9b0f3472eaa762d90b19b0ba8",
+    "client_id": "f8a606e5583643beaa27ce62c48e3fc1",
+    "client_secret": "f6f4c8f73f0649939286cf417c811607",
     "auth_token": null,
     "user_auth": false,
     "headless": false,
