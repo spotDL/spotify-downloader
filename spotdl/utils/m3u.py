@@ -2,10 +2,11 @@
 Module for creating m3u content and writing it to a file.
 """
 
+from pathlib import Path
 from typing import Dict, List, Optional
 
 from spotdl.types.song import Song
-from spotdl.utils.formatter import create_file_name
+from spotdl.utils.formatter import create_file_name, sanitize_string
 
 __all__ = [
     "create_m3u_content",
@@ -182,7 +183,9 @@ def create_m3u_file(
         detect_formats,
     )
 
-    with open(file_name, "w", encoding="utf-8") as m3u_file:
+    file_path = Path(sanitize_string(file_name)).absolute()
+
+    with open(file_path, "w", encoding="utf-8") as m3u_file:
         m3u_file.write(m3u_content)
 
     return m3u_content

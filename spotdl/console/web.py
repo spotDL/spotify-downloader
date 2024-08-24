@@ -4,8 +4,10 @@ Web module for the console.
 
 import asyncio
 import logging
+import os
 import sys
 import webbrowser
+from pathlib import Path
 
 from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -13,7 +15,7 @@ from uvicorn import Config, Server
 
 from spotdl._version import __version__
 from spotdl.types.options import DownloaderOptions, WebOptions
-from spotdl.utils.config import get_spotdl_path
+from spotdl.utils.config import get_web_ui_path
 from spotdl.utils.github import download_github_dir
 from spotdl.utils.logging import NAME_TO_LEVEL
 from spotdl.utils.web import (
@@ -62,13 +64,31 @@ def web(web_settings: WebOptions, downloader_settings: DownloaderOptions):
 
     downloader_settings["simple_tui"] = True
 
-    # Download web app from GitHub
-    logger.info("Updating web app \n")
-    web_app_dir = str(get_spotdl_path().absolute())
-    download_github_dir(
-        "https://github.com/spotdl/web-ui/tree/master/dist",
-        output_dir=web_app_dir,
-    )
+    # Download web app from GitHub if not already downloaded or force flag set
+    web_app_dir = get_web_ui_path()
+    if (
+        not os.path.exists(web_app_dir) or web_settings["force_update_gui"]
+    ) and web_settings["web_gui_location"] is None:
+        if web_settings["web_gui_repo"] is None:
+            gui_repo = "https://github.com/spotdl/web-ui/tree/master/dist"
+        else:
+            gui_repo = web_settings["web_gui_repo"]
+
+        logger.info("Updating web app from %s", gui_repo)
+
+        download_github_dir(
+            gui_repo,
+            output_dir=str(web_app_dir),
+        )
+        web_app_dir = web_app_dir / "/dist"
+    elif web_settings["web_gui_location"]:
+        web_app_dir = Path(web_settings["web_gui_location"]).resolve()
+        logger.info("Using custom web app location: %s", web_app_dir)
+    else:
+        logger.info(
+            "Using cached web app. To update use the `--force-update-gui` flag."
+        )
+        web_app_dir = web_app_dir / "/dist"
 
     app_state.api = FastAPI(
         title="spotDL",
@@ -95,10 +115,10 @@ def web(web_settings: WebOptions, downloader_settings: DownloaderOptions):
     # Add the static files
     app_state.api.mount(
         "/",
-        SPAStaticFiles(directory=web_app_dir + "/dist", html=True),
+        SPAStaticFiles(directory=web_app_dir, html=True),
         name="static",
     )
-
+    protocol = "http"
     config = Config(
         app=app_state.api,
         host=web_settings["host"],
@@ -107,13 +127,19 @@ def web(web_settings: WebOptions, downloader_settings: DownloaderOptions):
         log_level=NAME_TO_LEVEL[downloader_settings["log_level"]],
         loop=app_state.loop,  # type: ignore
     )
+    if web_settings["enable_tls"]:
+        logger.info("Enabeling TLS")
+        protocol = "https"
+        config.ssl_certfile = web_settings["cert_file"]
+        config.ssl_keyfile = web_settings["key_file"]
+        config.ssl_ca_certs = web_settings["ca_file"]
 
     app_state.server = Server(config)
 
     app_state.downloader_settings = downloader_settings
 
     # Open the web browser
-    webbrowser.open(f"http://{web_settings['host']}:{web_settings['port']}/")
+    webbrowser.open(f"{protocol}://{web_settings['host']}:{web_settings['port']}/")
 
     if not web_settings["web_use_output_dir"]:
         logger.info(

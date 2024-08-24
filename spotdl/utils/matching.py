@@ -435,6 +435,31 @@ def artists_match_fixup1(song: Song, result: Result, score: float) -> float:
 
         score = max(score, artist_title_match)
 
+    # If artist match is still too low,
+    # we fallback to matching all song artist names
+    # with the result's artists
+    if score <= 70:
+        # Song artists: ['charlie-moncler', 'fukaj', 'mata', 'pedro']
+        # Result artists: ['fukaj-mata-charlie-moncler-und-pedro']
+
+        # For artist_list1
+        artist_list1 = []
+        for artist in song.artists:
+            artist_list1.extend(slugify(artist).split("-"))
+
+        # For artist_list2
+        artist_list2 = []
+        if result.artists:
+            for artist in result.artists:
+                artist_list2.extend(slugify(artist).split("-"))
+
+        artist_tuple1 = tuple(artist_list1)
+        artist_tuple2 = tuple(artist_list2)
+
+        artist_title_match = ratio(artist_tuple1, artist_tuple2)
+
+        score = max(score, artist_title_match)
+
     return score
 
 
@@ -680,7 +705,7 @@ def order_results(
         artists_match = artists_match / (2 if len(song.artists) > 1 else 1)
         debug(song.song_id, result.result_id, f"First artists match: {artists_match}")
 
-        # # First attempt to fix artist match
+        # First attempt to fix artist match
         artists_match = artists_match_fixup1(song, result, artists_match)
         debug(
             song.song_id,

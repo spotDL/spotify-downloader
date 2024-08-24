@@ -18,19 +18,23 @@ class Genius(LyricsProvider):
     Genius lyrics provider class.
     """
 
-    def __init__(self):
+    def __init__(self, access_token: str):
         """
         Init the lyrics provider search and set headers.
         """
 
         super().__init__()
 
+        self.access_token = access_token
+
         self.headers.update(
             {
-                "Authorization": "Bearer "
-                "alXXDbPZtK1m2RrZ8I4k2Hn8Ahsd0Gh_o076HYvcdlBvmc0ULL1H8Z8xRlew5qaG",
+                "Authorization": f"Bearer {self.access_token}",
             }
         )
+
+        self.session = requests.Session()
+        self.session.headers.update(self.headers)
 
     def get_results(self, name: str, artists: List[str], **_) -> Dict[str, str]:
         """
@@ -48,7 +52,7 @@ class Genius(LyricsProvider):
         artists_str = ", ".join(artists)
         title = f"{name} - {artists_str}"
 
-        search_response = requests.get(
+        search_response = self.session.get(
             "https://api.genius.com/search",
             params={"q": title},
             headers=self.headers,
@@ -75,7 +79,7 @@ class Genius(LyricsProvider):
         """
 
         url = f"https://api.genius.com/songs/{url}"
-        song_response = requests.get(
+        song_response = self.session.get(
             url,
             headers=self.headers,
             timeout=10,
@@ -86,7 +90,7 @@ class Genius(LyricsProvider):
         soup = None
         counter = 0
         while counter < 4:
-            genius_page_response = requests.get(
+            genius_page_response = self.session.get(
                 url,
                 headers=self.headers,
                 timeout=10,

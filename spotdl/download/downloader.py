@@ -189,8 +189,13 @@ class Downloader:
             lyrics_class = LYRICS_PROVIDERS.get(lyrics_provider)
             if lyrics_class is None:
                 raise DownloaderError(f"Invalid lyrics provider: {lyrics_provider}")
-
-            self.lyrics_providers.append(lyrics_class())
+            if lyrics_provider == "genius":
+                access_token = self.settings.get("genius_token")
+                if not access_token:
+                    raise DownloaderError("Genius token not found in settings")
+                self.lyrics_providers.append(Genius(access_token))
+            else:
+                self.lyrics_providers.append(lyrics_class())
 
         # Initialize audio providers
         self.audio_providers: List[AudioProvider] = []
@@ -216,7 +221,10 @@ class Downloader:
         proxy = self.settings["proxy"]
         proxies = None
         if proxy:
-            if not re.match(pattern=r"(http|https)://\d{1,5}", string=proxy):
+            if not re.match(
+                pattern=r"^(http|https):\/\/(?:(\w+)(?::(\w+))?@)?((?:\d{1,3})(?:\.\d{1,3}){3})(?::(\d{1,5}))?$",  # pylint: disable=C0301
+                string=proxy,
+            ):
                 raise DownloaderError(f"Invalid proxy server: {proxy}")
             proxies = {"http": proxy, "https": proxy}
             logger.info("Setting proxy server: %s", proxy)
@@ -411,7 +419,9 @@ class Downloader:
 
         return None
 
-    def search_and_download(self, song: Song) -> Tuple[Song, Optional[Path]]:
+    def search_and_download(  # pylint: disable=R0911
+        self, song: Song
+    ) -> Tuple[Song, Optional[Path]]:
         """
         Search for the song and download it.
 
@@ -496,8 +506,8 @@ class Downloader:
 
             # If the file already exists and we don't want to overwrite it,
             # we can skip the download
-            if (
-                Path(str(output_file.absolute()) + ".skip").is_file()
+            if (  # pylint: disable=R1705
+                Path(str(output_file.absolute()) + ".skip").exists()
                 and self.settings["respect_skip_file"]
             ):
                 logger.info(
@@ -505,6 +515,8 @@ class Downloader:
                     song.display_name,
                     "",
                 )
+
+                return song, output_file if output_file.exists() else None
 
             elif file_exists and self.settings["overwrite"] == "skip":
                 logger.info(
@@ -583,7 +595,8 @@ class Downloader:
                     # Get the most recent duplicate song path and remove the rest
                     most_recent_duplicate = max(
                         dup_song_paths,
-                        key=lambda dup_song_path: dup_song_path.stat().st_mtime,
+                        key=lambda dup_song_path: dup_song_path.stat().st_mtime
+                        and dup_song_path.suffix == output_file.suffix,
                     )
 
                     # Remove the rest of the duplicate song paths
@@ -602,10 +615,26 @@ class Downloader:
                             )
 
                     # Move the old file to the new location
-                    if most_recent_duplicate:
+                    if (
+                        most_recent_duplicate
+                        and most_recent_duplicate.suffix == output_file.suffix
+                    ):
                         most_recent_duplicate.replace(
                             output_file.with_suffix(f".{self.settings['format']}")
                         )
+
+                if (
+                    most_recent_duplicate
+                    and most_recent_duplicate.suffix != output_file.suffix
+                ):
+                    logger.info(
+                        "Could not move duplicate file: %s, different file extension",
+                        most_recent_duplicate,
+                    )
+
+                    display_progress_tracker.notify_complete()
+
+                    return song, None
 
                 # Update the metadata
                 embed_metadata(

@@ -87,7 +87,11 @@ def sync(
         return None
 
     # If the query is a single file, download it
-    if len(query) == 1 and query[0].endswith(".spotdl") and not save_path:
+    if (  # pylint: disable=R1702
+        len(query) == 1  # pylint: disable=R1702
+        and query[0].endswith(".spotdl")  # pylint: disable=R1702
+        and not save_path  # pylint: disable=R1702
+    ):
         # Load the sync file
         with open(query[0], "r", encoding="utf-8") as sync_file:
             sync_data = json.load(sync_file)
@@ -137,6 +141,21 @@ def sync(
                         )
                 else:
                     logger.debug("%s does not exist.", file)
+
+                if downloader.settings["sync_remove_lrc"]:
+                    lrc_file = file.with_suffix(".lrc")
+                    if lrc_file.exists():
+                        logger.debug("Deleting lrc %s", lrc_file)
+                        try:
+                            lrc_file.unlink()
+                        except (PermissionError, OSError) as exc:
+                            logger.debug(
+                                "Could not remove lrc file: %s, error: %s",
+                                lrc_file,
+                                exc,
+                            )
+                    else:
+                        logger.debug("%s does not exist.", lrc_file)
 
             if len(to_delete) == 0:
                 logger.info("Nothing to delete...")

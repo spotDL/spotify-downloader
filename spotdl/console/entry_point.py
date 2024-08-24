@@ -2,7 +2,9 @@
 Module that holds the entry point for the console.
 """
 
+import cProfile
 import logging
+import pstats
 import signal
 import sys
 import time
@@ -36,6 +38,22 @@ logger = logging.getLogger(__name__)
 
 
 def console_entry_point():
+    """
+    Entry point for the console. With profile flag, it runs the code with cProfile.
+    """
+
+    if "--profile" in sys.argv:
+        with cProfile.Profile() as profile:
+            entry_point()
+
+        stats = pstats.Stats(profile)
+        stats.sort_stats(pstats.SortKey.TIME)
+        stats.dump_stats("spotdl.profile")
+    else:
+        entry_point()
+
+
+def entry_point():
     """
     Console entry point for spotdl. This is where the magic happens.
     """

@@ -128,6 +128,12 @@ def parse_main_options(parser: _ArgumentGroup):
         ),
     )
 
+    parser.add_argument(
+        "--genius-access-token",
+        dest="genius_token",
+        help="Lets you choose your own Genius access token.",
+    )
+
     # Add config argument
     parser.add_argument(
         "--config",
@@ -602,6 +608,14 @@ def parse_output_options(parser: _ArgumentGroup):
         help="If a file with the extension .skip exists, skip download",
     )
 
+    # Sync remove lrc files
+    parser.add_argument(
+        "--sync-remove-lrc",
+        action="store_const",
+        const=True,
+        help="Remove lrc files when using sync operation when downloading songs",
+    )
+
 
 def parse_web_options(parser: _ArgumentGroup):
     """
@@ -657,6 +671,57 @@ def parse_web_options(parser: _ArgumentGroup):
         action="store_const",
         const=True,
         help="Keep the session directory after the web server is closed.",
+    )
+
+    # Add keep sessions argument
+    parser.add_argument(
+        "--force-update-gui",
+        action="store_const",
+        const=True,
+        default=False,
+        help="Refresh the web server directory with a fresh git checkout",
+    )
+
+    # Add custom web gui repo
+    parser.add_argument(
+        "--web-gui-repo",
+        type=str,
+        help=(
+            "Custom web gui repo to use for the web server. "
+            "Example: https://github.com/spotdl/web-ui/tree/master/dist"
+        ),
+    )
+
+    # Add custom web gui repo
+    parser.add_argument(
+        "--web-gui-location",
+        type=str,
+        help="Path to the web gui directory to use for the web server.",
+    )
+
+    # Enable TLS for the web server
+    parser.add_argument(
+        "--enable-tls",
+        action="store_const",
+        const=True,
+        help="Enable TLS on the web server.",
+    )
+
+    # Add File Location of the TLS Certificate file (Pem Format)
+    parser.add_argument(
+        "--cert-file", type=str, help="File Path to the TLS Certificate (PEM format)."
+    )
+
+    # Add File Location of the TLS Private Key file (Pem Format)
+    parser.add_argument(
+        "--key-file", type=str, help="File Path to the TLS Private Key (PEM format)."
+    )
+
+    # Add File Location of the TLS Certificate Authority file (Pem Format)
+    parser.add_argument(
+        "--ca-file",
+        type=str,
+        help="File Path to the TLS Certificate Authority File (PEM format).",
     )
 
 

@@ -43,6 +43,7 @@ class DownloaderOptions(TypedDict):
 
     audio_providers: List[str]
     lyrics_providers: List[str]
+    genius_token: str
     playlist_numbering: bool
     scan_for_songs: bool
     m3u: Optional[str]
@@ -86,6 +87,7 @@ class DownloaderOptions(TypedDict):
     skip_album_art: Optional[bool]
     create_skip_file: Optional[bool]
     respect_skip_file: Optional[bool]
+    sync_remove_lrc: Optional[bool]
 
 
 class WebOptions(TypedDict):
@@ -97,8 +99,15 @@ class WebOptions(TypedDict):
     port: int
     host: str
     keep_alive: bool
+    enable_tls: bool
+    key_file: Optional[str]
+    cert_file: Optional[str]
+    ca_file: Optional[str]
     allowed_origins: Optional[List[str]]
     keep_sessions: bool
+    force_update_gui: bool
+    web_gui_repo: Optional[str]
+    web_gui_location: Optional[str]
 
 
 class SpotDLOptions(SpotifyOptions, DownloaderOptions, WebOptions):
@@ -130,6 +139,7 @@ class DownloaderOptionalOptions(TypedDict, total=False):
 
     audio_providers: List[str]
     lyrics_providers: List[str]
+    genius_token: str
     playlist_numbering: bool
     scan_for_songs: bool
     m3u: Optional[str]
@@ -172,6 +182,7 @@ class DownloaderOptionalOptions(TypedDict, total=False):
     skip_album_art: Optional[bool]
     create_skip_file: Optional[bool]
     respect_skip_file: Optional[bool]
+    sync_remove_lrc: Optional[bool]
 
 
 class WebOptionalOptions(TypedDict, total=False):
@@ -183,8 +194,15 @@ class WebOptionalOptions(TypedDict, total=False):
     port: int
     host: str
     keep_alive: bool
+    enable_tls: bool
+    key_file: Optional[str]
+    cert_file: Optional[str]
+    ca_file: Optional[str]
     allowed_origins: Optional[str]
     keep_sessions: bool
+    force_update_gui: bool
+    web_gui_repo: Optional[str]
+    web_gui_location: Optional[str]
 
 
 class SpotDLOptionalOptions(

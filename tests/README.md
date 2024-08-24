@@ -4,11 +4,13 @@
 
 FFmpeg has to be installed globally.
 
-All the required dependencies for python can be installed via `pip`, by using the following
+All the required dependencies for python can be installed via `pip` and `poetry`, by using the following
 command:
 
 ```shell
-pip install -e .[test]
+pip install poetry
+poetry install
+poetry shell
 ```
 
 ## Executing tests
@@ -42,5 +44,5 @@ pytest --disable-vcr
 ```
 
 Whenever the server response will change and affect the tests behavior, the stored responses
-can be updated by wiping the [tests/cassetes](tests/cassetes) directory and running `pytest`
+can be updated by wiping the [tests/*/cassetes](tests/*/cassetes) directory and running `pytest`
 again (without `--disable-vcr`).
