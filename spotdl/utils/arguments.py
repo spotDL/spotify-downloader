@@ -131,7 +131,7 @@ def parse_main_options(parser: _ArgumentGroup):
     parser.add_argument(
         "--genius-access-token",
         dest="genius_token",
-        help=("Lets you choose your own Genius access token."),
+        help="Lets you choose your own Genius access token.",
     )
 
     # Add config argument
