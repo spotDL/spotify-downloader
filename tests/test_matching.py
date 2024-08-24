@@ -1,7 +1,7 @@
 import pytest
 
-from spotdl.providers.audio.ytmusic import YouTubeMusic
 from spotdl.providers.audio.base import AudioProviderError
+from spotdl.providers.audio.ytmusic import YouTubeMusic
 from spotdl.types.song import Song
 from spotdl.utils.spotify import SpotifyClient
 from tests.conftest import new_initialize

@@ -29,8 +29,7 @@ class Genius(LyricsProvider):
 
         self.headers.update(
             {
-                "Authorization": "Bearer "
-                f"{self.access_token}",
+                "Authorization": "Bearer " f"{self.access_token}",
             }
         )
 
