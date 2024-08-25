@@ -80,7 +80,7 @@ def web(web_settings: WebOptions, downloader_settings: DownloaderOptions):
             gui_repo,
             output_dir=str(web_app_dir),
         )
-        web_app_dir = web_app_dir / "/dist"
+        web_app_dir = os.path.join(web_app_dir, "dist")
     elif web_settings["web_gui_location"]:
         web_app_dir = Path(web_settings["web_gui_location"]).resolve()
         logger.info("Using custom web app location: %s", web_app_dir)
@@ -88,7 +88,7 @@ def web(web_settings: WebOptions, downloader_settings: DownloaderOptions):
         logger.info(
             "Using cached web app. To update use the `--force-update-gui` flag."
         )
-        web_app_dir = web_app_dir / "/dist"
+        web_app_dir = os.path.join(web_app_dir, "dist")
 
     app_state.api = FastAPI(
         title="spotDL",
