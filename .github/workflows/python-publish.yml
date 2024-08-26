@@ -104,8 +104,9 @@ jobs:
           run: |
             cd /spotdl
             apt update
-            apt install python3 python3-pip -y
-            pip install poetry
+            apt install python3-full python3-pip pipx -y
+            pipx ensurepath
+            pipx install poetry
             poetry install
             rm -rf dist/
             mkdir dist/
