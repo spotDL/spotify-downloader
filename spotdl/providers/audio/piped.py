@@ -100,7 +100,7 @@ class Piped(AudioProvider):
         params = {"q": search_term, **kwargs}
 
         response = self.session.get(
-            "https://pipedapi.kavin.rocks/search",
+            "https://piped.video/search",
             params=params,
             headers=HEADERS,
             timeout=20,
@@ -147,7 +147,7 @@ class Piped(AudioProvider):
 
         url_id = url.split("?v=")[1]
         piped_data = requests.get(
-            f"https://pipedapi.kavin.rocks/streams/{url_id}",
+            f"https://piped.video/streams/{url_id}",
             timeout=10,
             proxies=GlobalConfig.get_parameter("proxies"),
         ).json()
