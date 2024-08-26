@@ -471,7 +471,7 @@ class Downloader:
             logger.info("Skipping explicit song: %s", song.display_name)
             return song, None
 
-        # Initalize the progress tracker
+        # Initialize the progress tracker
         display_progress_tracker = self.progress_handler.get_new_tracker(song)
 
         try:
