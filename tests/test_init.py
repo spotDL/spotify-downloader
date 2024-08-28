@@ -19,7 +19,7 @@ def setup(tmp_path, monkeypatch):
 
 
 @pytest.mark.vcr()
-def test_get_urls(monkeypatch):
+def test_get_urls(monkeypatch, last_vcr_recording_time):
     """
     Tests if spotdl can be initialized correctly.
     """
@@ -50,7 +50,7 @@ def test_get_urls(monkeypatch):
 
 
 @pytest.mark.vcr()
-def test_download(setup, monkeypatch, tmpdir):
+def test_download(setup, monkeypatch, last_vcr_recording_time, tmpdir):
     """
     Tests if spotdl can be initialized correctly.
     """

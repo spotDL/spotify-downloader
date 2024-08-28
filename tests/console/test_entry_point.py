@@ -53,7 +53,7 @@ def test_show_version(capsys, monkeypatch, argument):
 
 
 @pytest.mark.vcr()
-def test_download_song(capsys, monkeypatch, tmpdir):
+def test_download_song(capsys, monkeypatch, last_vcr_recording_time, tmpdir):
     """
     This test checks if the song is downloaded correctly
     """
@@ -84,7 +84,7 @@ def test_download_song(capsys, monkeypatch, tmpdir):
 
 
 @pytest.mark.vcr()
-def test_preload_song(capsys, monkeypatch, tmpdir):
+def test_preload_song(capsys, monkeypatch, last_vcr_recording_time, tmpdir):
     """
     This test checks if the song is preloaded correctly.
     """

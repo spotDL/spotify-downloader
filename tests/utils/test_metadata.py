@@ -21,7 +21,8 @@ from spotdl.utils.metadata import embed_metadata, get_file_metadata
     ],
 )
 @pytest.mark.vcr()
-def test_embed_metadata(tmpdir, monkeypatch, output_format):
+def test_embed_metadata(tmpdir, monkeypatch, last_vcr_recording_time,
+                        output_format):
     """
     Test convert function.
     """
