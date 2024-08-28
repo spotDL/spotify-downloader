@@ -116,7 +116,7 @@ def test_download_ffmpeg(monkeypatch, tmpdir):
 
 @pytest.mark.vcr()
 @pytest.mark.vcr_delete_on_fail
-def test_convert(tmpdir, monkeypatch):
+def test_convert(tmpdir, monkeypatch, last_vcr_recording_time):
     """
     Test convert function.
     """
