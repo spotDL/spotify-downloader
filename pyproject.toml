@@ -92,6 +92,7 @@ dev = [
     "mkdocs-section-index>=0.3.5,<0.4",
     "vcrpy>=6.0.2,<7",
     "pytest-recording>=0.13.1,<0.14",
+    "pytest-freezegun>=0.4.2",
 ]
 
 [build-system]
