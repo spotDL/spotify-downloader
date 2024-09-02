@@ -98,6 +98,8 @@ class Piped(AudioProvider):
             kwargs = {}
 
         params = {"q": search_term, **kwargs}
+        if params.get("filter") is None:
+            params["filter"] = "music_videos"
 
         response = self.session.get(
             "https://pipedapi.kavin.rocks/search",
@@ -111,6 +113,9 @@ class Piped(AudioProvider):
         # Simplify results
         results = []
         for result in search_results["items"]:
+            if result["type"] != "stream":
+                continue
+
             isrc_result = ISRC_REGEX.search(search_term)
 
             results.append(
