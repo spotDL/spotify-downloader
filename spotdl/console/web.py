@@ -89,8 +89,6 @@ def web(web_settings: WebOptions, downloader_settings: DownloaderOptions):
         logger.info(
             "Using cached web app. To update use the `--force-update-gui` flag."
         )
-        # Create dist folder if there is not any
-        dist_dir.mkdir(parents=True, exist_ok=True)
         web_app_dir = Path(os.path.join(web_app_dir, "dist")).resolve()
 
     app_state.api = FastAPI(
