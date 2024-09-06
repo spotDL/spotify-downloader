@@ -12,8 +12,8 @@ from yt_dlp import YoutubeDL
 from spotdl.providers.audio.base import (
     ISRC_REGEX,
     AudioProvider,
-    YTDLLogger,
     AudioProviderError,
+    YTDLLogger,
 )
 from spotdl.types.result import Result
 from spotdl.utils.config import GlobalConfig, get_temp_path

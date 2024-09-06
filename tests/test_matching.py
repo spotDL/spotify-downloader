@@ -405,7 +405,7 @@ def test_ytmusic_matching(monkeypatch, query, expected, capsys):
     monkeypatch.setattr(SpotifyClient, "init", new_initialize)
 
     yt_music = YouTubeMusic()
-    
+
     video_ids = [link.split("?v=")[1] for link in expected]
 
     try:
@@ -416,14 +416,16 @@ def test_ytmusic_matching(monkeypatch, query, expected, capsys):
             in captured.out
         ):
             pytest.skip("YouTube Music search failed")
-            
+
         if result == None:
             pytest.skip("No result has been found. Continue.")
 
         assert result is not None and result.split("?v=")[1] in video_ids
-        
+
     except AssertionError:
-        pytest.skip("Either the Result is None or new ID has been returned. Please update it in links.")
-        
+        pytest.skip(
+            "Either the Result is None or new ID has been returned. Please update it in links."
+        )
+
     except AudioProviderError:
         pytest.skip("YouTube Music search failed")
