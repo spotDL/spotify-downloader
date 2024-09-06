@@ -9,7 +9,12 @@ from typing import Any, Dict, List, Optional
 import requests
 from yt_dlp import YoutubeDL
 
-from spotdl.providers.audio.base import ISRC_REGEX, AudioProvider, YTDLLogger
+from spotdl.providers.audio.base import (
+    ISRC_REGEX,
+    AudioProvider,
+    AudioProviderError,
+    YTDLLogger,
+)
 from spotdl.types.result import Result
 from spotdl.utils.config import GlobalConfig, get_temp_path
 from spotdl.utils.formatter import args_to_ytdlp_options
@@ -98,19 +103,29 @@ class Piped(AudioProvider):
             kwargs = {}
 
         params = {"q": search_term, **kwargs}
+        if params.get("filter") is None:
+            params["filter"] = "music_videos"
 
         response = self.session.get(
-            "https://pipedapi.kavin.rocks/search",
+            "https://piped.video/search",
             params=params,
             headers=HEADERS,
             timeout=20,
         )
+
+        if response.status_code != 200:
+            raise AudioProviderError(
+                f"Failed to get results for {search_term} from Piped: {response.text}"
+            )
 
         search_results = response.json()
 
         # Simplify results
         results = []
         for result in search_results["items"]:
+            if result["type"] != "stream":
+                continue
+
             isrc_result = ISRC_REGEX.search(search_term)
 
             results.append(
@@ -146,11 +161,18 @@ class Piped(AudioProvider):
         """
 
         url_id = url.split("?v=")[1]
-        piped_data = requests.get(
-            f"https://pipedapi.kavin.rocks/streams/{url_id}",
+        piped_response = requests.get(
+            f"https://piped.video/streams/{url_id}",
             timeout=10,
             proxies=GlobalConfig.get_parameter("proxies"),
-        ).json()
+        )
+
+        if piped_response.status_code != 200:
+            raise AudioProviderError(
+                f"Failed to get metadata for {url} from Piped: {piped_response.text}"
+            )
+
+        piped_data = piped_response.json()
 
         yt_dlp_json = {
             "title": piped_data["title"],

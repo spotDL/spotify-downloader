@@ -471,7 +471,7 @@ class Downloader:
             logger.info("Skipping explicit song: %s", song.display_name)
             return song, None
 
-        # Initalize the progress tracker
+        # Initialize the progress tracker
         display_progress_tracker = self.progress_handler.get_new_tracker(song)
 
         try:
@@ -501,7 +501,9 @@ class Downloader:
                 logger.debug(
                     "Found duplicate songs for %s at %s",
                     song.display_name,
-                    dup_song_paths,
+                    ", ".join(
+                        [f"'{str(dup_song_path)}'" for dup_song_path in dup_song_paths]
+                    ),
                 )
 
             # If the file already exists and we don't want to overwrite it,

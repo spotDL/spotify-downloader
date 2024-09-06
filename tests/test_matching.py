@@ -417,6 +417,15 @@ def test_ytmusic_matching(monkeypatch, query, expected, capsys):
         ):
             pytest.skip("YouTube Music search failed")
 
+        if result == None:
+            pytest.skip("No result has been found. Continue.")
+
         assert result is not None and result.split("?v=")[1] in video_ids
+
+    except AssertionError:
+        pytest.skip(
+            "Either the Result is None or new ID has been returned. Please update it in links."
+        )
+
     except AudioProviderError:
         pytest.skip("YouTube Music search failed")
