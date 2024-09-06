@@ -4,7 +4,8 @@ Sync module for the console.
 
 import json
 import logging
-from typing import List
+from typing import List, Tuple
+from pathlib import Path
 
 from spotdl.download.downloader import Downloader
 from spotdl.types.song import Song
@@ -122,13 +123,61 @@ def sync(
                 downloader.settings["format"],
                 downloader.settings["restrict"],
             )
+
             old_files.append((file_name, entry["url"]))
 
         new_urls = [song.url for song in songs_playlist]
 
         # Delete all song files whose URL is no longer part of the latest playlist
         if not downloader.settings["sync_without_deleting"]:
-            to_delete = [path for (path, url) in old_files if url not in new_urls]
+            # Rename songs that have "{list-length}", "{list-position}", "{list-name}",
+            # in the output path so that we don't have to download them again,
+            # and to avoid mangling the directory structure.
+            to_rename: List[Tuple[Path, Path]] = []
+            to_delete = []
+            for path, url in old_files:
+                if url not in new_urls:
+                    to_delete.append(path)
+                else:
+                    new_song = next(song for song in songs_playlist if song.url == url)
+
+                    new_path = create_file_name(
+                        Song.from_dict(new_song.json),
+                        downloader.settings["output"],
+                        downloader.settings["format"],
+                        downloader.settings["restrict"],
+                    )
+
+                    if path != new_path:
+                        to_rename.append((path, new_path))
+
+            for old_path, new_path in to_rename:
+                if old_path.exists():
+                    logger.info("Renaming %s to %s", old_path, new_path)
+                    try:
+                        old_path.rename(new_path)
+                    except (PermissionError, OSError) as exc:
+                        logger.debug(
+                            "Could not rename temp file: %s, error: %s", old_path, exc
+                        )
+                else:
+                    logger.debug("%s does not exist.", old_path)
+
+                if downloader.settings["sync_remove_lrc"]:
+                    lrc_file = old_path.with_suffix(".lrc")
+                    new_lrc_file = new_path.with_suffix(".lrc")
+                    if lrc_file.exists():
+                        logger.debug("Renaming lrc %s to %s", lrc_file, new_lrc_file)
+                        try:
+                            lrc_file.rename(new_lrc_file)
+                        except (PermissionError, OSError) as exc:
+                            logger.debug(
+                                "Could not rename lrc file: %s, error: %s",
+                                lrc_file,
+                                exc,
+                            )
+                    else:
+                        logger.debug("%s does not exist.", lrc_file)
 
             for file in to_delete:
                 if file.exists():
