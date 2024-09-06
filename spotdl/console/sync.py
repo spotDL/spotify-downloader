@@ -174,7 +174,11 @@ def sync(
                     lrc_file = old_path.with_suffix(".lrc")
                     new_lrc_file = new_path.with_suffix(".lrc")
                     if lrc_file.exists():
-                        logger.debug("Renaming lrc %s to %s", f"'{lrc_file}'", f"'{new_lrc_file}'")
+                        logger.debug(
+                            "Renaming lrc %s to %s",
+                            f"'{lrc_file}'",
+                            f"'{new_lrc_file}'",
+                        )
                         try:
                             lrc_file.rename(new_lrc_file)
                         except (PermissionError, OSError) as exc:

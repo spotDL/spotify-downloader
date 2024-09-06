@@ -501,7 +501,9 @@ class Downloader:
                 logger.debug(
                     "Found duplicate songs for %s at %s",
                     song.display_name,
-                    ", ".join([f"'{str(dup_song_path)}'" for dup_song_path in dup_song_paths]),
+                    ", ".join(
+                        [f"'{str(dup_song_path)}'" for dup_song_path in dup_song_paths]
+                    ),
                 )
 
             # If the file already exists and we don't want to overwrite it,
