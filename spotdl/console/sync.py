@@ -139,7 +139,7 @@ def sync(
                 if url not in new_urls:
                     to_delete.append(path)
                 else:
-                    new_song = next(song for song in songs_playlist if song.url == url)
+                    new_song = songs_playlist[new_urls.index(url)]
 
                     new_path = create_file_name(
                         Song.from_dict(new_song.json),
@@ -153,7 +153,11 @@ def sync(
 
             for old_path, new_path in to_rename:
                 if old_path.exists():
-                    logger.info("Renaming %s to %s", old_path, new_path)
+                    logger.info("Renaming %s to %s", f"'{old_path}'", f"'{new_path}'")
+                    if new_path.exists():
+                        old_path.unlink()
+                        continue
+
                     try:
                         old_path.rename(new_path)
                     except (PermissionError, OSError) as exc:
@@ -167,7 +171,7 @@ def sync(
                     lrc_file = old_path.with_suffix(".lrc")
                     new_lrc_file = new_path.with_suffix(".lrc")
                     if lrc_file.exists():
-                        logger.debug("Renaming lrc %s to %s", lrc_file, new_lrc_file)
+                        logger.debug("Renaming lrc %s to %s", f"'{lrc_file}'", f"'{new_lrc_file}'")
                         try:
                             lrc_file.rename(new_lrc_file)
                         except (PermissionError, OSError) as exc:
