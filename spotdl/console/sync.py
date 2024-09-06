@@ -151,6 +151,9 @@ def sync(
                     if path != new_path:
                         to_rename.append((path, new_path))
 
+            # TODO: Downloading duplicate songs in the same playlist
+            # will trigger a re-download of the song. To fix this we have to copy the song
+            # to the new location without removing the old one.
             for old_path, new_path in to_rename:
                 if old_path.exists():
                     logger.info("Renaming %s to %s", f"'{old_path}'", f"'{new_path}'")
