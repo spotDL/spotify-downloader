@@ -308,6 +308,7 @@ class Downloader:
             with open(
                 self.settings["save_errors"], "a", encoding="utf-8"
             ) as error_file:
+                error_file.write("\n")
                 error_file.write("\n".join(self.errors))
 
             logger.info("Saved errors to %s", self.settings["save_errors"])
