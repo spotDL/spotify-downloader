@@ -306,9 +306,12 @@ class Downloader:
 
         if self.settings["save_errors"]:
             with open(
-                self.settings["save_errors"], "w", encoding="utf-8"
+                self.settings["save_errors"], "a", encoding="utf-8"
             ) as error_file:
-                error_file.write("\n".join(self.errors))
+                if len(self.errors) > 0:
+                    error_file.write(f"{datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S')}\n")
+                for error in self.errors:
+                    error_file.write(f"{error}\n")
 
             logger.info("Saved errors to %s", self.settings["save_errors"])
 
