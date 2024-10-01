@@ -3,6 +3,7 @@ import subprocess
 from pathlib import Path
 
 import pytest
+from freezegun import freeze_time
 
 from spotdl.download.downloader import Downloader
 from spotdl.utils import ffmpeg
@@ -12,10 +13,16 @@ from spotdl.utils.spotify import SpotifyClient
 ORIGINAL_INITIALIZE = SpotifyClient.init
 
 SpotifyClient.init(
-    "ad996353310b4ced82f5be1309b11b14", "2e5851cff3bc45f495cd7cfa40be1b48"
+    "99ea4ebdf28149adba1fc6b65efc6143", "57c15b1021694f37839fb8c1bc594e90"
 )
 
 init_logging("MATCH")
+
+
+@pytest.fixture
+def last_vcr_recording_time():
+    with freeze_time("2024-08-28 14:14:00"):
+        yield
 
 
 class FakeProcess:

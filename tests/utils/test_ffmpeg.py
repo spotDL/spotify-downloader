@@ -101,6 +101,9 @@ def test_get_local_ffmpeg(monkeypatch):
         assert str(local_ffmpeg).endswith("ffmpeg.exe")
 
 
+# This can't be run with pytest --block-network without writing a 110M cassette
+# effectively containing the entire ffmpeg binary.
+@pytest.mark.novcr
 def test_download_ffmpeg(monkeypatch, tmpdir):
     """
     Test download_ffmpeg function.
@@ -111,7 +114,9 @@ def test_download_ffmpeg(monkeypatch, tmpdir):
     assert download_ffmpeg() is not None
 
 
-def test_convert(tmpdir, monkeypatch):
+@pytest.mark.vcr()
+@pytest.mark.vcr_delete_on_fail
+def test_convert(tmpdir, monkeypatch, last_vcr_recording_time):
     """
     Test convert function.
     """
