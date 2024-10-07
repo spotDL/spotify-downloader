@@ -56,6 +56,7 @@ def sync(
             use_ytm_data=downloader.settings["ytm_data"],
             playlist_numbering=downloader.settings["playlist_numbering"],
             album_type=downloader.settings["album_type"],
+            playlist_retain_track_cover=downloader.settings["playlist_retain_track_cover"],
         )
 
         # Create sync file
@@ -112,6 +113,7 @@ def sync(
             use_ytm_data=downloader.settings["ytm_data"],
             playlist_numbering=downloader.settings["playlist_numbering"],
             album_type=downloader.settings["album_type"],
+            playlist_retain_track_cover=downloader.settings["playlist_retain_track_cover"],
         )
 
         # Get the names and URLs of previously downloaded songs from the sync file

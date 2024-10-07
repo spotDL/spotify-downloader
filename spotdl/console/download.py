@@ -28,6 +28,7 @@ def download(
         playlist_numbering=downloader.settings["playlist_numbering"],
         albums_to_ignore=downloader.settings["ignore_albums"],
         album_type=downloader.settings["album_type"],
+        playlist_retain_track_cover=downloader.settings["playlist_retain_track_cover"],
     )
 
     # Download the songs

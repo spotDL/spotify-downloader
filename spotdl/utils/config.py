@@ -309,6 +309,7 @@ DOWNLOADER_OPTIONS: DownloaderOptions = {
     "lyrics_providers": ["genius", "azlyrics", "musixmatch"],
     "genius_token": "alXXDbPZtK1m2RrZ8I4k2Hn8Ahsd0Gh_o076HYvcdlBvmc0ULL1H8Z8xRlew5qaG",
     "playlist_numbering": False,
+    "playlist_retain_track_cover": False,
     "scan_for_songs": False,
     "m3u": None,
     "output": "{artists} - {title}.{output-ext}",

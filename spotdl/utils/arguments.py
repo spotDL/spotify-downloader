@@ -456,6 +456,17 @@ def parse_output_options(parser: _ArgumentGroup):
             and album art as the playlist's icon",
     )
 
+    # Option to set the track number & album of tracks, while retaining album art of each track, in
+    # a playlist to their index in the playlist & the name of playlist respectively.
+    parser.add_argument(
+        "--playlist-retain-track-cover",
+        action="store_const",
+        dest="playlist_retain_track_cover",
+        const=True,
+        help="Sets each track in a playlist to have the playlist's name as its album,\
+            while retaining album art of each track",
+    )
+
     # Option to scan the output directory for existing files
     parser.add_argument(
         "--scan-for-songs",

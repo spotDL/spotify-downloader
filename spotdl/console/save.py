@@ -47,6 +47,7 @@ def save(
         use_ytm_data=downloader.settings["ytm_data"],
         playlist_numbering=downloader.settings["playlist_numbering"],
         album_type=downloader.settings["album_type"],
+        playlist_retain_track_cover=downloader.settings["playlist_retain_track_cover"],
     )
     save_data = [song.json for song in songs]
 
