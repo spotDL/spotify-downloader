@@ -1,4 +1,5 @@
 from pathlib import Path
+from urllib.request import urlretrieve
 
 import pytest
 from yt_dlp import YoutubeDL
@@ -69,11 +70,14 @@ def test_embed_metadata(tmpdir, monkeypatch, last_vcr_recording_time,
     }
 
     song = Song.from_dict(song_obj)
-    output_file = Path(tmpdir / f"test.{output_format}")
+    input_file = Path(tmpdir / f"test-in.{download_info['ext']}")
+    output_file = Path(tmpdir / f"test-out.{output_format}")
+
+    input_path, _ = urlretrieve(download_info["url"], input_file)
 
     assert download_info is not None
     assert convert(
-        input_file=(download_info["url"], download_info["ext"]),
+        input_file=input_path,
         output_file=output_file,
         output_format=output_format,
     ) == (True, None)
