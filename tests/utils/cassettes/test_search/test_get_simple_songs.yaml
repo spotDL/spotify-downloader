@@ -1,0 +1,59 @@
+interactions:
+- request:
+    body: grant_type=client_credentials
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate, br
+      Authorization:
+      - Basic NWY1NzNjOTYyMDQ5NGJhZTg3ODkwYzBmMDhhNjAyOTM6MjEyNDc2ZDliMGYzNDcyZWFhNzYyZDkwYjE5YjBiYTg=
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '29'
+      Content-Type:
+      - application/x-www-form-urlencoded
+      User-Agent:
+      - python-requests/2.32.3
+    method: POST
+    uri: https://accounts.spotify.com/api/token
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAACAxzOSQ6CMABA0bt0LUmBhIg7sVIGGURixE2DpWIhgUJrBI13d9j+zX8vUFLKpCSq
+        b1kHVsDZO5PeaLiqBhFgN9AikdyVZRy55h4edY3Xp/7qTTM0BG8hK3bIh0XWoLI1lVTtJi29C/c5
+        hKq7DXGcRjUliW3SLHD154A8T0pjthHMcZiH4xKL8xYswP9O1CzYj8DKkY3fyibBRyYJ/8JMC8L3
+        BwAA//8DAMlPHAKuAAAA
+    headers:
+      Alt-Svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      Transfer-Encoding:
+      - chunked
+      Via:
+      - HTTP/2 edgeproxy, 1.1 google
+      content-encoding:
+      - gzip
+      content-type:
+      - application/json
+      date:
+      - Fri, 05 Jul 2024 11:08:25 GMT
+      server:
+      - envoy
+      set-cookie:
+      - __Host-device_id=AQBRoKJoJFPuLH7u908jELjr9PvBRY4hkKC0yBfWikQT1q7S8MjgWbsWrU_h9PMZ0xVULsDe_cLbaaB7IwiyW-dN2CSA0IkbgK8;Version=1;Path=/;Max-Age=2147483647;Secure;HttpOnly;SameSite=Lax
+      - sp_tr=false;Version=1;Domain=accounts.spotify.com;Path=/;Secure;SameSite=Lax
+      sp-trace-id:
+      - e8e731d554d0a964
+      strict-transport-security:
+      - max-age=31536000
+      vary:
+      - Accept-Encoding
+      x-content-type-options:
+      - nosniff
+      x-envoy-upstream-service-time:
+      - '5'
+    status:
+      code: 200
+      message: OK
+version: 1
