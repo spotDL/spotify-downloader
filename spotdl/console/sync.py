@@ -4,8 +4,8 @@ Sync module for the console.
 
 import json
 import logging
-from typing import List, Tuple
 from pathlib import Path
+from typing import List, Tuple
 
 from spotdl.download.downloader import Downloader
 from spotdl.types.song import Song
@@ -56,7 +56,9 @@ def sync(
             use_ytm_data=downloader.settings["ytm_data"],
             playlist_numbering=downloader.settings["playlist_numbering"],
             album_type=downloader.settings["album_type"],
-            playlist_retain_track_cover=downloader.settings["playlist_retain_track_cover"],
+            playlist_retain_track_cover=downloader.settings[
+                "playlist_retain_track_cover"
+            ],
         )
 
         # Create sync file
@@ -113,7 +115,9 @@ def sync(
             use_ytm_data=downloader.settings["ytm_data"],
             playlist_numbering=downloader.settings["playlist_numbering"],
             album_type=downloader.settings["album_type"],
-            playlist_retain_track_cover=downloader.settings["playlist_retain_track_cover"],
+            playlist_retain_track_cover=downloader.settings[
+                "playlist_retain_track_cover"
+            ],
         )
 
         # Get the names and URLs of previously downloaded songs from the sync file
@@ -153,7 +157,7 @@ def sync(
                     if path != new_path:
                         to_rename.append((path, new_path))
 
-            # TODO: Downloading duplicate songs in the same playlist
+            # fixme Downloading duplicate songs in the same playlist
             # will trigger a re-download of the song. To fix this we have to copy the song
             # to the new location without removing the old one.
             for old_path, new_path in to_rename:
