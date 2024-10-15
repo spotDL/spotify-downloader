@@ -80,7 +80,7 @@ def sync(
             gen_m3u_files(
                 songs_list,
                 m3u_file,
-                downloader.settings["output"],
+                downloader.settings["m3u_output"],
                 downloader.settings["format"],
                 downloader.settings["restrict"],
                 False,
@@ -113,7 +113,9 @@ def sync(
             use_ytm_data=downloader.settings["ytm_data"],
             playlist_numbering=downloader.settings["playlist_numbering"],
             album_type=downloader.settings["album_type"],
-            playlist_retain_track_cover=downloader.settings["playlist_retain_track_cover"],
+            playlist_retain_track_cover=downloader.settings[
+                "playlist_retain_track_cover"
+            ],
         )
 
         # Get the names and URLs of previously downloaded songs from the sync file
@@ -228,7 +230,7 @@ def sync(
             gen_m3u_files(
                 songs_playlist,
                 m3u_file,
-                downloader.settings["output"],
+                downloader.settings["m3u_output"],
                 downloader.settings["format"],
                 downloader.settings["restrict"],
                 False,
