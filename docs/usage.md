@@ -281,6 +281,7 @@ If you don't want config to load automatically change `load_config` option in co
     "scan_for_songs": false,
     "m3u": null,
     "output": "{artists} - {title}.{output-ext}",
+    "m3u_output": "#EXTINF:{duration}, {artists} - {title}.{output-ext}",
     "overwrite": "skip",
     "search_query": null,
     "ffmpeg": "ffmpeg",
@@ -463,6 +464,8 @@ Output options:
   --sponsor-block       Use the sponsor block to download songs from yt/ytm.
   --archive ARCHIVE     Specify the file name for an archive of already downloaded songs
   --playlist-numbering  Sets each track in a playlist to have the playlist's name as its album, and album art as the playlist's icon
+  --playlist-retain-track-cover
+                        Sets each track in a playlist to have the playlist's name as its album, while retaining album art of each track
   --scan-for-songs      Scan the output directory for existing files. This option should be combined with the --overwrite option to control how existing files are handled. (Output
                         directory is the last directory that is not a template variable in the output template)
   --fetch-albums        Fetch all albums from songs in query
