@@ -79,7 +79,7 @@ def sync(
             gen_m3u_files(
                 songs_list,
                 m3u_file,
-                downloader.settings["output"],
+                downloader.settings["m3u_output"],
                 downloader.settings["format"],
                 downloader.settings["restrict"],
                 False,
@@ -226,7 +226,7 @@ def sync(
             gen_m3u_files(
                 songs_playlist,
                 m3u_file,
-                downloader.settings["output"],
+                downloader.settings["m3u_output"],
                 downloader.settings["format"],
                 downloader.settings["restrict"],
                 False,
