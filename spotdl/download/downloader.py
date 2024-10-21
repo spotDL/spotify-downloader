@@ -336,7 +336,24 @@ class Downloader:
             gen_m3u_files(
                 song_list,
                 self.settings["m3u"],
-                self.settings["m3u_output"],
+                self.settings["output"],
+                self.settings["format"],
+                self.settings["restrict"],
+                False,
+                self.settings["detect_formats"],
+            )
+
+        if self.settings["m3u_enhanced"]:
+            song_list = [
+                song
+                for song, path in results
+                if path or self.settings["add_unavailable"]
+            ]
+
+            gen_m3u_files(
+                song_list,
+                self.settings["m3u_enhanced"],
+                self.settings["m3u_enhanced_output"],
                 self.settings["format"],
                 self.settings["restrict"],
                 False,

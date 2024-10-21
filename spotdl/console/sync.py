@@ -39,6 +39,9 @@ def sync(
     m3u_file = downloader.settings["m3u"]
     downloader.settings["m3u"] = None
 
+    m3u_enhanced_file = downloader.settings["m3u_enhanced"]
+    downloader.settings["m3u_enhanced"] = None
+
     # Query and save file
     # Create initial sync file
     if query and save_path:
@@ -79,7 +82,18 @@ def sync(
             gen_m3u_files(
                 songs_list,
                 m3u_file,
-                downloader.settings["m3u_output"],
+                downloader.settings["output"],
+                downloader.settings["format"],
+                downloader.settings["restrict"],
+                False,
+            )
+
+        # Create m3u enhanced file
+        if m3u_enhanced_file:
+            gen_m3u_files(
+                songs_list,
+                m3u_file,
+                downloader.settings["m3u_enhanced_output"],
                 downloader.settings["format"],
                 downloader.settings["restrict"],
                 False,
@@ -226,7 +240,17 @@ def sync(
             gen_m3u_files(
                 songs_playlist,
                 m3u_file,
-                downloader.settings["m3u_output"],
+                downloader.settings["output"],
+                downloader.settings["format"],
+                downloader.settings["restrict"],
+                False,
+            )
+
+        if m3u_enhanced_file:
+            gen_m3u_files(
+                songs_playlist,
+                m3u_file,
+                downloader.settings["m3u_enhanced_output"],
                 downloader.settings["format"],
                 downloader.settings["restrict"],
                 False,

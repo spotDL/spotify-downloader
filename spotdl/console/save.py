@@ -34,6 +34,7 @@ def save(
 
     save_path = downloader.settings["save_file"]
     m3u_file = downloader.settings["m3u"]
+    m3u_enhanced_file = downloader.settings["m3u_enhanced_output"]
 
     to_stdout = save_path == "-"
 
@@ -92,7 +93,17 @@ def save(
         gen_m3u_files(
             songs,
             m3u_file,
-            downloader.settings["m3u_output"],
+            downloader.settings["output"],
+            downloader.settings["format"],
+            downloader.settings["restrict"],
+            False,
+        )
+
+    if m3u_enhanced_file:
+        gen_m3u_files(
+            songs,
+            m3u_file,
+            downloader.settings["m3u_enhanced_output"],
             downloader.settings["format"],
             downloader.settings["restrict"],
             False,
