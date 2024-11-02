@@ -47,3 +47,26 @@ class Archive(Set):
                 archive.write(f"{element}\n")
 
         return True
+
+    def initialize(self, file: str) -> None:
+        """
+        Create the archive file if it doesn't exist.
+
+        ### Arguments
+        - file: the file name of the archive
+        """
+        if not Path(file).exists():
+            with open(file, "w", encoding="utf-8") as archive:
+                archive.write("")
+
+    def add_entry(self, file: str, url: str) -> None:
+        """
+        Adds an entry to the archive file and flushes it immediately.
+
+        ### Arguments
+        - file: the file name of the archive
+        - url: the URL to append to the archive file
+        """
+        with open(file, "a", encoding="utf-8") as archive:
+            archive.write(f"{url}\n")
+            archive.flush()

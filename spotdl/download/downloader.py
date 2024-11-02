@@ -275,7 +275,6 @@ class Downloader:
             logger.info(
                 "Fetching %d album%s", len(albums), "s" if len(albums) > 1 else ""
             )
-
             songs.extend(songs_from_albums(list(albums)))
 
             # Remove duplicates
@@ -287,52 +286,55 @@ class Downloader:
 
         logger.debug("Downloading %d songs", len(songs))
 
+        # Filter out already downloaded songs
         if self.settings["archive"]:
             songs = [song for song in songs if song.url not in self.url_archive]
             logger.debug("Filtered %d songs with archive", len(songs))
 
+            # Initialize the archive file (create it if it doesn't exist)
+            self.url_archive.initialize(self.settings["archive"])
+
         self.progress_handler.set_song_count(len(songs))
 
-        # Create tasks list
-        tasks = [self.pool_download(song) for song in songs]
+        results = []
+        try:
+            # Create tasks list
+            tasks = [self.pool_download(song) for song in songs]
 
-        # Call all task asynchronously, and wait until all are finished
-        results = list(self.loop.run_until_complete(asyncio.gather(*tasks)))
+            # Call all tasks asynchronously, and wait until all are finished
+            results = list(self.loop.run_until_complete(asyncio.gather(*tasks)))
 
-        # Print errors
-        if self.settings["print_errors"]:
-            for error in self.errors:
-                logger.error(error)
+            # Print errors
+            if self.settings["print_errors"]:
+                for error in self.errors:
+                    logger.error(error)
 
-        if self.settings["save_errors"]:
-            with open(
-                self.settings["save_errors"], "w", encoding="utf-8"
-            ) as error_file:
-                error_file.write("\n".join(self.errors))
+            if self.settings["save_errors"]:
+                with open(
+                    self.settings["save_errors"], "w", encoding="utf-8"
+                ) as error_file:
+                    error_file.write("\n".join(self.errors))
+                logger.info("Saved errors to %s", self.settings["save_errors"])
 
-            logger.info("Saved errors to %s", self.settings["save_errors"])
+        except Exception as e:
+            logger.error(f"An error occurred: {str(e)}")
+    
+        finally:
+            # Save archive incrementally after each successful download
+            if self.settings["archive"]:
+                for result in results:
+                    if result[1] or self.settings["add_unavailable"]:
+                        self.url_archive.add(result[0].url)
+                        # Call the add_entry function to update the archive and flush
+                        self.url_archive.add_entry(self.settings["archive"], result[0].url)
 
-        # Save archive
-        if self.settings["archive"]:
-            for result in results:
-                if result[1] or self.settings["add_unavailable"]:
-                    self.url_archive.add(result[0].url)
-
-            self.url_archive.save(self.settings["archive"])
-            logger.info(
-                "Saved archive with %d urls to %s",
-                len(self.url_archive),
-                self.settings["archive"],
-            )
+                logger.info(
+                    "Archive saved with %d URLs", len(self.url_archive)
+                )
 
         # Create m3u playlist
         if self.settings["m3u"]:
-            song_list = [
-                song
-                for song, path in results
-                if path or self.settings["add_unavailable"]
-            ]
-
+            song_list = [song for song, path in results if path or self.settings["add_unavailable"]]
             gen_m3u_files(
                 song_list,
                 self.settings["m3u"],
@@ -347,7 +349,6 @@ class Downloader:
         if self.settings["save_file"]:
             with open(self.settings["save_file"], "w", encoding="utf-8") as save_file:
                 json.dump([song.json for song, _ in results], save_file, indent=4)
-
             logger.info("Saved results to %s", self.settings["save_file"])
 
         return results
