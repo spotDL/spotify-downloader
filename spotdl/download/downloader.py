@@ -234,6 +234,9 @@ class Downloader:
         # Initialize archive
         self.url_archive = Archive()
         if self.settings["archive"]:
+            # Ensure the archive file is created if it doesn't exist
+            self.url_archive.initialize(self.settings["archive"])
+            # Attempt to load the existing URLs from the archive
             self.url_archive.load(self.settings["archive"])
 
         logger.debug("Archive: %d urls", len(self.url_archive))
@@ -291,9 +294,6 @@ class Downloader:
             songs = [song for song in songs if song.url not in self.url_archive]
             logger.debug("Filtered %d songs with archive", len(songs))
 
-            # Initialize the archive file (create it if it doesn't exist)
-            self.url_archive.initialize(self.settings["archive"])
-
         self.progress_handler.set_song_count(len(songs))
 
         results = []
@@ -318,23 +318,28 @@ class Downloader:
 
         except Exception as e:
             logger.error(f"An error occurred: {str(e)}")
-    
+
         finally:
             # Save archive incrementally after each successful download
             if self.settings["archive"]:
                 for result in results:
+                    # Check if the download was successful
                     if result[1] or self.settings["add_unavailable"]:
+                        # Add the URL to the archive and write to the file
                         self.url_archive.add(result[0].url)
-                        # Call the add_entry function to update the archive and flush
-                        self.url_archive.add_entry(self.settings["archive"], result[0].url)
+                        self.url_archive.add_entry(
+                            self.settings["archive"], result[0].url
+                        )
 
-                logger.info(
-                    "Archive saved with %d URLs", len(self.url_archive)
-                )
+                logger.info("Archive saved with %d URLs", len(self.url_archive))
 
         # Create m3u playlist
         if self.settings["m3u"]:
-            song_list = [song for song, path in results if path or self.settings["add_unavailable"]]
+            song_list = [
+                song
+                for song, path in results
+                if path or self.settings["add_unavailable"]
+            ]
             gen_m3u_files(
                 song_list,
                 self.settings["m3u"],
