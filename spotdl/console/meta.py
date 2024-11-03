@@ -176,6 +176,9 @@ def meta(query: List[str], downloader: Downloader) -> None:
             use_ytm_data=downloader.settings["ytm_data"],
             playlist_numbering=downloader.settings["playlist_numbering"],
             album_type=downloader.settings["album_type"],
+            playlist_retain_track_cover=downloader.settings[
+                "playlist_retain_track_cover"
+            ],
         )
 
         downloader.download_multiple_songs(songs_list)
