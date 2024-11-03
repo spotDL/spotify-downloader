@@ -281,8 +281,7 @@ If you don't want config to load automatically change `load_config` option in co
     "scan_for_songs": false,
     "m3u": null,
     "output": "{artists} - {title}.{output-ext}",
-    "m3u_enhanced": null,
-    "m3u_enhanced_output": "#EXTINF:{duration}, {artists} - {title}.{output-ext}",
+    "m3u_output": "#EXTINF:{duration}, {artists} - {title}.{output-ext}",
     "overwrite": "skip",
     "search_query": null,
     "ffmpeg": "ffmpeg",
@@ -452,8 +451,6 @@ Output options:
                         {duration}, {year}, {original-date}, {track-number}, {tracks-count}, {isrc}, {track-id}, {publisher}, {list-length}, {list-position}, {list-name}, {output-ext}
   --m3u [M3U]           Name of the m3u file to save the songs to. Defaults to {list[0]}.m3u8 If you want to generate a m3u for each list in the query use {list}, If you want to generate
                         a m3u file based on the first list in the query use {list[0]}, (0 is the first list in the query, 1 is the second, etc. songs don't count towards the list number)
-  --m3u-enhanced [M3U]  Name of the m3u file to save the songs to. Defaults to {list[0]}.m3u8 If you want to generate a m3u for each list in the query use {list}, If you want to generate
-                        a m3u file based on the first list in the query use {list[0]}, (0 is the first list in the query, 1 is the second, etc. songs don't count towards the list number). This generates a more enhanced m3u file, it includes metadata tags like #EXTINF
   --cookie-file COOKIE_FILE
                         Path to cookies file.
   --overwrite {skip,metadata,force}
