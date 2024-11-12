@@ -45,7 +45,7 @@ Refer to our [Installation Guide](https://spotdl.rtfd.io/en/latest/installation/
 - On Termux
   - `curl -L https://raw.githubusercontent.com/spotDL/spotify-downloader/master/scripts/termux.sh | sh`
 - Arch
-  - There is an [Arch User Repository (AUR) package](https://aur.archlinux.org/packages/python-spotdl/) for
+  - There is an [Arch User Repository (AUR) package](https://aur.archlinux.org/packages/spotdl/) for
     spotDL.
 - Docker
   - Build image:
