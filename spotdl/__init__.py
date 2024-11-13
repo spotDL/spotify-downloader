@@ -105,6 +105,9 @@ class Spotdl:
             use_ytm_data=self.downloader.settings["ytm_data"],
             playlist_numbering=self.downloader.settings["playlist_numbering"],
             album_type=self.downloader.settings["album_type"],
+            playlist_retain_track_cover=self.downloader.settings[
+                "playlist_retain_track_cover"
+            ],
         )
 
     def get_download_urls(self, songs: List[Song]) -> List[Optional[str]]:
