@@ -39,7 +39,6 @@ class Song:
     disc_count: int
     album_name: str
     album_artist: str
-    album_type: str
     duration: int
     year: int
     date: str
@@ -61,6 +60,7 @@ class Song:
     list_position: Optional[int] = None
     list_length: Optional[int] = None
     artist_id: Optional[str] = None
+    album_type: Optional[str] = None
 
     @classmethod
     def from_url(cls, url: str) -> "Song":
@@ -108,7 +108,7 @@ class Song:
             album_id=album_id,
             album_name=raw_album_meta["name"],
             album_artist=raw_album_meta["artists"][0]["name"],
-            album_type=raw_album_meta["album_type"],
+            album_type=raw_album_meta.get("album_type"),
             copyright_text=(
                 raw_album_meta["copyrights"][0]["text"]
                 if raw_album_meta["copyrights"]
