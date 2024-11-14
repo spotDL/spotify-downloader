@@ -183,7 +183,9 @@ def create_m3u_file(
         detect_formats,
     )
 
-    file_path = Path(sanitize_string(file_name)).absolute()
+    file_path = Path(
+        *(sanitize_string(part) for part in Path(file_name).parts)
+    ).absolute()
 
     with open(file_path, "w", encoding="utf-8") as m3u_file:
         m3u_file.write(m3u_content)
