@@ -14,6 +14,10 @@ from spotdl.utils.config import GlobalConfig
 __all__ = ["SliderKZ"]
 
 logger = logging.getLogger(__name__)
+logger.critical(
+    "SliderKZ module is disabled due to slider.kz being shutdown. "
+    "Please remove all references to this module."
+)
 
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/111.0"

@@ -22,7 +22,6 @@ from spotdl.providers.audio import (
     AudioProvider,
     BandCamp,
     Piped,
-    SliderKZ,
     SoundCloud,
     YouTube,
     YouTubeMusic,
@@ -57,7 +56,6 @@ __all__ = [
 AUDIO_PROVIDERS: Dict[str, Type[AudioProvider]] = {
     "youtube": YouTube,
     "youtube-music": YouTubeMusic,
-    "slider-kz": SliderKZ,
     "soundcloud": SoundCloud,
     "bandcamp": BandCamp,
     "piped": Piped,
