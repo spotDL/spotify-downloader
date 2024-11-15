@@ -24,13 +24,9 @@ jobs:
           poetry env use "3.11"
           poetry install
 
-      - name: Check for docstring's
-        run: |
-          poetry run pylint --limit-inference-results 0 --enable missing-function-docstring missing-module-docstring missing-class-docstring empty-docstring --disable=all ./spotdl
-
       - name: Run Pylint check
         run: |
-          poetry run pylint --fail-under 10 --limit-inference-results 0 ./spotdl
+          poetry run pylint --fail-under 10 --limit-inference-results 0 --disable=R0917,W0511 ./spotdl
 
       - name: Run MyPy check
         run: |

@@ -82,6 +82,7 @@ def parse_query(
     use_ytm_data: bool = False,
     playlist_numbering: bool = False,
     album_type=None,
+    playlist_retain_track_cover: bool = False,
 ) -> List[Song]:
     """
     Parse query and return list containing song object
@@ -99,6 +100,7 @@ def parse_query(
         use_ytm_data=use_ytm_data,
         playlist_numbering=playlist_numbering,
         album_type=album_type,
+        playlist_retain_track_cover=playlist_retain_track_cover,
     )
 
     results = []
@@ -120,6 +122,7 @@ def get_simple_songs(
     playlist_numbering: bool = False,
     albums_to_ignore=None,
     album_type=None,
+    playlist_retain_track_cover: bool = False,
 ) -> List[Song]:
     """
     Parse query and return list containing simple song objects
@@ -254,6 +257,7 @@ def get_simple_songs(
                 use_ytm_data=use_ytm_data,
                 playlist_numbering=playlist_numbering,
                 album_type=album_type,
+                playlist_retain_track_cover=playlist_retain_track_cover,
             )
             songs.extend(full_lists)
         elif "open.spotify.com" in request and "playlist" in request:
@@ -312,6 +316,16 @@ def get_simple_songs(
                 if isinstance(song_list, Playlist):
                     song_data["album_artist"] = song_list.author_name
                     song_data["cover_url"] = song_list.cover_url
+
+            if playlist_retain_track_cover:
+                song_data["track_number"] = song_data["list_position"]
+                song_data["tracks_count"] = song_data["list_length"]
+                song_data["album_name"] = song_data["list_name"]
+                song_data["disc_number"] = 1
+                song_data["disc_count"] = 1
+                song_data["cover_url"] = song_data["cover_url"]
+                if isinstance(song_list, Playlist):
+                    song_data["album_artist"] = song_list.author_name
 
             songs.append(Song.from_dict(song_data))
 

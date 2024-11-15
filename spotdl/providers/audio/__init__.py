@@ -10,7 +10,6 @@ from spotdl.providers.audio.base import (
     YTDLLogger,
 )
 from spotdl.providers.audio.piped import Piped
-from spotdl.providers.audio.sliderkz import SliderKZ
 from spotdl.providers.audio.soundcloud import SoundCloud
 from spotdl.providers.audio.youtube import YouTube
 from spotdl.providers.audio.ytmusic import YouTubeMusic
@@ -18,7 +17,6 @@ from spotdl.providers.audio.ytmusic import YouTubeMusic
 __all__ = [
     "YouTube",
     "YouTubeMusic",
-    "SliderKZ",
     "SoundCloud",
     "BandCamp",
     "Piped",

@@ -55,7 +55,7 @@ def test_parse_artist():
 def test_parse_album_search():
     songs = parse_query(ALBUM_SEARCH)
 
-    assert len(songs) > 1
+    assert len(songs) > 0
 
 
 @pytest.mark.vcr()

@@ -22,7 +22,6 @@ from spotdl.providers.audio import (
     AudioProvider,
     BandCamp,
     Piped,
-    SliderKZ,
     SoundCloud,
     YouTube,
     YouTubeMusic,
@@ -57,7 +56,6 @@ __all__ = [
 AUDIO_PROVIDERS: Dict[str, Type[AudioProvider]] = {
     "youtube": YouTube,
     "youtube-music": YouTubeMusic,
-    "slider-kz": SliderKZ,
     "soundcloud": SoundCloud,
     "bandcamp": BandCamp,
     "piped": Piped,
@@ -306,9 +304,14 @@ class Downloader:
 
         if self.settings["save_errors"]:
             with open(
-                self.settings["save_errors"], "w", encoding="utf-8"
+                self.settings["save_errors"], "a", encoding="utf-8"
             ) as error_file:
-                error_file.write("\n".join(self.errors))
+                if len(self.errors) > 0:
+                    error_file.write(
+                        f"{datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S')}\n"
+                    )
+                for error in self.errors:
+                    error_file.write(f"{error}\n")
 
             logger.info("Saved errors to %s", self.settings["save_errors"])
 
@@ -336,7 +339,7 @@ class Downloader:
             gen_m3u_files(
                 song_list,
                 self.settings["m3u"],
-                self.settings["output"],
+                self.settings["m3u_output"],
                 self.settings["format"],
                 self.settings["restrict"],
                 False,
@@ -454,6 +457,7 @@ class Downloader:
                 restrict=self.settings["restrict"],
                 file_name_length=self.settings["max_filename_length"],
             )
+
         except Exception:
             song = reinit_song(song)
 
@@ -490,7 +494,8 @@ class Downloader:
                 and dup_song_path.exists()
             ]
 
-            file_exists = output_file.exists() or dup_song_paths
+            # Checking if file already exists in all subfolders of output directory
+            file_exists = file_exists = output_file.exists() or dup_song_paths
             if not self.settings["scan_for_songs"]:
                 for file_extension in self.scan_formats:
                     ext_path = output_file.with_suffix(f".{file_extension}")
@@ -566,7 +571,7 @@ class Downloader:
                         logger.info("Removing duplicate file: %s", dup_song_path)
 
                         dup_song_path.unlink()
-                    except (PermissionError, OSError) as exc:
+                    except (PermissionError, OSError, Exception) as exc:
                         logger.debug(
                             "Could not remove duplicate file: %s, error: %s",
                             dup_song_path,
