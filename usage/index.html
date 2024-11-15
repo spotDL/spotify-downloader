@@ -22,7 +22,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.34">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.44">
     
     
       
@@ -30,7 +30,7 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.35f28582.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.0253249f.min.css">
       
         
         <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
@@ -2403,6 +2403,7 @@ or <code>~/.spotdl/config.json</code> under linux</p>
 <span class="w">    </span><span class="nt">&quot;scan_for_songs&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
 <span class="w">    </span><span class="nt">&quot;m3u&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
 <span class="w">    </span><span class="nt">&quot;output&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;{artists} - {title}.{output-ext}&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;m3u_output&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#EXTINF:{duration}, {artists} - {title}.{output-ext}&quot;</span><span class="p">,</span>
 <span class="w">    </span><span class="nt">&quot;overwrite&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;skip&quot;</span><span class="p">,</span>
 <span class="w">    </span><span class="nt">&quot;search_query&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
 <span class="w">    </span><span class="nt">&quot;ffmpeg&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ffmpeg&quot;</span><span class="p">,</span>
@@ -2667,6 +2668,8 @@ Output options:
   --sponsor-block       Use the sponsor block to download songs from yt/ytm.
   --archive ARCHIVE     Specify the file name for an archive of already downloaded songs
   --playlist-numbering  Sets each track in a playlist to have the playlist&#39;s name as its album, and album art as the playlist&#39;s icon
+  --playlist-retain-track-cover
+                        Sets each track in a playlist to have the playlist&#39;s name as its album, while retaining album art of each track
   --scan-for-songs      Scan the output directory for existing files. This option should be combined with the --overwrite option to control how existing files are handled. (Output
                         directory is the last directory that is not a template variable in the output template)
   --fetch-albums        Fetch all albums from songs in query
@@ -2781,10 +2784,10 @@ Other options:
     </div>
     
     
-    <script id="__config" type="application/json">{"base": "..", "features": ["content.code.annotate", "navigation.tabs", "navigation.top", "toc.integrate"], "search": "../assets/javascripts/workers/search.07f07601.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    <script id="__config" type="application/json">{"base": "..", "features": ["content.code.annotate", "navigation.tabs", "navigation.top", "toc.integrate"], "search": "../assets/javascripts/workers/search.6ce7567c.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.56dfad97.min.js"></script>
+      <script src="../assets/javascripts/bundle.83f73b43.min.js"></script>
       
     
   </body>

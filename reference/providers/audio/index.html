@@ -22,7 +22,7 @@
       
       
       <link rel="icon" href="../../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.34">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.44">
     
     
       
@@ -30,7 +30,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.35f28582.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.0253249f.min.css">
       
         
         <link rel="stylesheet" href="../../../assets/stylesheets/palette.06af60db.min.css">
@@ -1996,6 +1996,11 @@
 
 
 
+
+
+
+
+
   <div class="doc doc-children">
 
 
@@ -2029,6 +2034,11 @@ Handles the yt-dlp audio handler.</p>
 <li>search_query: The query to use when searching for songs.</li>
 <li>filter_results: Whether to filter results.</li>
 </ul>
+
+
+
+
+
 
                   <details class="quote">
                     <summary>Source code in <code>spotdl/providers/audio/base.py</code></summary>
@@ -2884,6 +2894,11 @@ using views and average match</p>
         <p>Base class for all exceptions related to audio searching/downloading.</p>
 
 
+
+
+
+
+
     </div>
 
 </div>
@@ -2913,6 +2928,11 @@ using views and average match</p>
 <li>search_query: The query to use when searching for songs.</li>
 <li>filter_results: Whether to filter results.</li>
 </ul>
+
+
+
+
+
 
                   <details class="quote">
                     <summary>Source code in <code>spotdl/providers/audio/base.py</code></summary>
@@ -3171,6 +3191,11 @@ using views and average match</p>
 <li>search_query: The query to use when searching for songs.</li>
 <li>filter_results: Whether to filter results.</li>
 </ul>
+
+
+
+
+
 
                   <details class="quote">
                     <summary>Source code in <code>spotdl/providers/audio/piped.py</code></summary>
@@ -3563,310 +3588,6 @@ using views and average match</p>
 
 
 
-<h2 id="spotdl.providers.audio.SliderKZ" class="doc doc-heading">
-              <code class="highlight language-python"><span class="n">SliderKZ</span><span class="p">(</span><span class="n">output_format</span><span class="o">=</span><span class="s1">&#39;mp3&#39;</span><span class="p">,</span> <span class="n">cookie_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">search_query</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">filter_results</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">yt_dlp_args</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
-
-<a href="#spotdl.providers.audio.SliderKZ" class="headerlink" title="Permanent link">¤</a></h2>
-
-
-    <div class="doc doc-contents ">
-            <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="spotdl.providers.audio.base.AudioProvider" href="base/#spotdl.providers.audio.base.AudioProvider">AudioProvider</a></code></p>
-
-
-        <p>Slider.kz audio provider class</p>
-
-        <h5 id="spotdl.providers.audio.SliderKZ--arguments">Arguments<a class="headerlink" href="#spotdl.providers.audio.SliderKZ--arguments" title="Permanent link">¤</a></h5>
-<ul>
-<li>output_directory: The directory to save the downloaded songs to.</li>
-<li>output_format: The format to save the downloaded songs in.</li>
-<li>cookie_file: The path to a file containing cookies to be used by YTDL.</li>
-<li>search_query: The query to use when searching for songs.</li>
-<li>filter_results: Whether to filter results.</li>
-</ul>
-
-                  <details class="quote">
-                    <summary>Source code in <code>spotdl/providers/audio/base.py</code></summary>
-                    <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 72</span>
-<span class="normal"> 73</span>
-<span class="normal"> 74</span>
-<span class="normal"> 75</span>
-<span class="normal"> 76</span>
-<span class="normal"> 77</span>
-<span class="normal"> 78</span>
-<span class="normal"> 79</span>
-<span class="normal"> 80</span>
-<span class="normal"> 81</span>
-<span class="normal"> 82</span>
-<span class="normal"> 83</span>
-<span class="normal"> 84</span>
-<span class="normal"> 85</span>
-<span class="normal"> 86</span>
-<span class="normal"> 87</span>
-<span class="normal"> 88</span>
-<span class="normal"> 89</span>
-<span class="normal"> 90</span>
-<span class="normal"> 91</span>
-<span class="normal"> 92</span>
-<span class="normal"> 93</span>
-<span class="normal"> 94</span>
-<span class="normal"> 95</span>
-<span class="normal"> 96</span>
-<span class="normal"> 97</span>
-<span class="normal"> 98</span>
-<span class="normal"> 99</span>
-<span class="normal">100</span>
-<span class="normal">101</span>
-<span class="normal">102</span>
-<span class="normal">103</span>
-<span class="normal">104</span>
-<span class="normal">105</span>
-<span class="normal">106</span>
-<span class="normal">107</span>
-<span class="normal">108</span>
-<span class="normal">109</span>
-<span class="normal">110</span>
-<span class="normal">111</span>
-<span class="normal">112</span>
-<span class="normal">113</span>
-<span class="normal">114</span>
-<span class="normal">115</span>
-<span class="normal">116</span>
-<span class="normal">117</span>
-<span class="normal">118</span>
-<span class="normal">119</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
-    <span class="bp">self</span><span class="p">,</span>
-    <span class="n">output_format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;mp3&quot;</span><span class="p">,</span>
-    <span class="n">cookie_file</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">search_query</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">filter_results</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-    <span class="n">yt_dlp_args</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Base class for audio providers.</span>
-
-<span class="sd">    ### Arguments</span>
-<span class="sd">    - output_directory: The directory to save the downloaded songs to.</span>
-<span class="sd">    - output_format: The format to save the downloaded songs in.</span>
-<span class="sd">    - cookie_file: The path to a file containing cookies to be used by YTDL.</span>
-<span class="sd">    - search_query: The query to use when searching for songs.</span>
-<span class="sd">    - filter_results: Whether to filter results.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="bp">self</span><span class="o">.</span><span class="n">output_format</span> <span class="o">=</span> <span class="n">output_format</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">cookie_file</span> <span class="o">=</span> <span class="n">cookie_file</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">search_query</span> <span class="o">=</span> <span class="n">search_query</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">filter_results</span> <span class="o">=</span> <span class="n">filter_results</span>
-
-    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_format</span> <span class="o">==</span> <span class="s2">&quot;m4a&quot;</span><span class="p">:</span>
-        <span class="n">ytdl_format</span> <span class="o">=</span> <span class="s2">&quot;bestaudio[ext=m4a]/bestaudio/best&quot;</span>
-    <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_format</span> <span class="o">==</span> <span class="s2">&quot;opus&quot;</span><span class="p">:</span>
-        <span class="n">ytdl_format</span> <span class="o">=</span> <span class="s2">&quot;bestaudio[ext=webm]/bestaudio/best&quot;</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">ytdl_format</span> <span class="o">=</span> <span class="s2">&quot;bestaudio&quot;</span>
-
-    <span class="n">yt_dlp_options</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;format&quot;</span><span class="p">:</span> <span class="n">ytdl_format</span><span class="p">,</span>
-        <span class="s2">&quot;quiet&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="s2">&quot;no_warnings&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="s2">&quot;encoding&quot;</span><span class="p">:</span> <span class="s2">&quot;UTF-8&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;logger&quot;</span><span class="p">:</span> <span class="n">YTDLLogger</span><span class="p">(),</span>
-        <span class="s2">&quot;cookiefile&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">cookie_file</span><span class="p">,</span>
-        <span class="s2">&quot;outtmpl&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">((</span><span class="n">get_temp_path</span><span class="p">()</span> <span class="o">/</span> <span class="s2">&quot;</span><span class="si">%(id)s</span><span class="s2">.</span><span class="si">%(ext)s</span><span class="s2">&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()),</span>
-        <span class="s2">&quot;retries&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
-    <span class="p">}</span>
-
-    <span class="k">if</span> <span class="n">yt_dlp_args</span><span class="p">:</span>
-        <span class="n">yt_dlp_options</span> <span class="o">=</span> <span class="n">args_to_ytdlp_options</span><span class="p">(</span>
-            <span class="n">shlex</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">yt_dlp_args</span><span class="p">),</span> <span class="n">yt_dlp_options</span>
-        <span class="p">)</span>
-
-    <span class="bp">self</span><span class="o">.</span><span class="n">audio_handler</span> <span class="o">=</span> <span class="n">YoutubeDL</span><span class="p">(</span><span class="n">yt_dlp_options</span><span class="p">)</span>
-</code></pre></div></td></tr></table></div>
-                  </details>
-
-
-
-  <div class="doc doc-children">
-
-
-
-
-
-
-
-
-
-<div class="doc doc-object doc-function">
-
-
-<h3 id="spotdl.providers.audio.SliderKZ.get_results" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">get_results</span><span class="p">(</span><span class="n">search_term</span><span class="p">,</span> <span class="o">*</span><span class="n">_args</span><span class="p">,</span> <span class="o">**</span><span class="n">_kwargs</span><span class="p">)</span></code>
-
-<a href="#spotdl.providers.audio.SliderKZ.get_results" class="headerlink" title="Permanent link">¤</a></h3>
-
-
-    <div class="doc doc-contents ">
-
-        <p>Get results from slider.kz</p>
-<h6 id="spotdl.providers.audio.SliderKZ.get_results--arguments">Arguments<a class="headerlink" href="#spotdl.providers.audio.SliderKZ.get_results--arguments" title="Permanent link">¤</a></h6>
-<ul>
-<li>search_term: The search term to search for.</li>
-<li>args: Unused.</li>
-<li>kwargs: Unused.</li>
-</ul>
-<h6 id="spotdl.providers.audio.SliderKZ.get_results--returns">Returns<a class="headerlink" href="#spotdl.providers.audio.SliderKZ.get_results--returns" title="Permanent link">¤</a></h6>
-<ul>
-<li>A list of slider.kz results if found, None otherwise.</li>
-</ul>
-
-            <details class="quote">
-              <summary>Source code in <code>spotdl/providers/audio/sliderkz.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">31</span>
-<span class="normal">32</span>
-<span class="normal">33</span>
-<span class="normal">34</span>
-<span class="normal">35</span>
-<span class="normal">36</span>
-<span class="normal">37</span>
-<span class="normal">38</span>
-<span class="normal">39</span>
-<span class="normal">40</span>
-<span class="normal">41</span>
-<span class="normal">42</span>
-<span class="normal">43</span>
-<span class="normal">44</span>
-<span class="normal">45</span>
-<span class="normal">46</span>
-<span class="normal">47</span>
-<span class="normal">48</span>
-<span class="normal">49</span>
-<span class="normal">50</span>
-<span class="normal">51</span>
-<span class="normal">52</span>
-<span class="normal">53</span>
-<span class="normal">54</span>
-<span class="normal">55</span>
-<span class="normal">56</span>
-<span class="normal">57</span>
-<span class="normal">58</span>
-<span class="normal">59</span>
-<span class="normal">60</span>
-<span class="normal">61</span>
-<span class="normal">62</span>
-<span class="normal">63</span>
-<span class="normal">64</span>
-<span class="normal">65</span>
-<span class="normal">66</span>
-<span class="normal">67</span>
-<span class="normal">68</span>
-<span class="normal">69</span>
-<span class="normal">70</span>
-<span class="normal">71</span>
-<span class="normal">72</span>
-<span class="normal">73</span>
-<span class="normal">74</span>
-<span class="normal">75</span>
-<span class="normal">76</span>
-<span class="normal">77</span>
-<span class="normal">78</span>
-<span class="normal">79</span>
-<span class="normal">80</span>
-<span class="normal">81</span>
-<span class="normal">82</span>
-<span class="normal">83</span>
-<span class="normal">84</span>
-<span class="normal">85</span>
-<span class="normal">86</span>
-<span class="normal">87</span>
-<span class="normal">88</span>
-<span class="normal">89</span>
-<span class="normal">90</span>
-<span class="normal">91</span>
-<span class="normal">92</span>
-<span class="normal">93</span>
-<span class="normal">94</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">search_term</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="n">_args</span><span class="p">,</span> <span class="o">**</span><span class="n">_kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Result</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Get results from slider.kz</span>
-
-<span class="sd">    ### Arguments</span>
-<span class="sd">    - search_term: The search term to search for.</span>
-<span class="sd">    - args: Unused.</span>
-<span class="sd">    - kwargs: Unused.</span>
-
-<span class="sd">    ### Returns</span>
-<span class="sd">    - A list of slider.kz results if found, None otherwise.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="n">search_results</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">max_retries</span> <span class="o">=</span> <span class="mi">0</span>
-
-    <span class="k">while</span> <span class="ow">not</span> <span class="n">search_results</span> <span class="ow">and</span> <span class="n">max_retries</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">search_response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-                <span class="n">url</span><span class="o">=</span><span class="s2">&quot;https://hayqbhgr.slider.kz/vk_auth.php?q=&quot;</span> <span class="o">+</span> <span class="n">search_term</span><span class="p">,</span>
-                <span class="n">headers</span><span class="o">=</span><span class="n">HEADERS</span><span class="p">,</span>
-                <span class="n">timeout</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
-                <span class="n">proxies</span><span class="o">=</span><span class="n">GlobalConfig</span><span class="o">.</span><span class="n">get_parameter</span><span class="p">(</span><span class="s2">&quot;proxies&quot;</span><span class="p">),</span>
-            <span class="p">)</span>
-
-            <span class="c1"># Check if the response is valid</span>
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">search_response</span><span class="o">.</span><span class="n">text</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">30</span><span class="p">:</span>
-                <span class="c1"># Set the search results to the json response</span>
-                <span class="c1"># effectively breaking out of the loop</span>
-                <span class="n">search_results</span> <span class="o">=</span> <span class="n">search_response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
-
-        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                <span class="s2">&quot;Slider.kz search failed for query </span><span class="si">%s</span><span class="s2"> with error: </span><span class="si">%s</span><span class="s2">. Retrying...&quot;</span><span class="p">,</span>
-                <span class="n">search_term</span><span class="p">,</span>
-                <span class="n">exc</span><span class="p">,</span>
-            <span class="p">)</span>
-
-        <span class="n">max_retries</span> <span class="o">+=</span> <span class="mi">1</span>
-
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">search_results</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Slider.kz search failed for query </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">search_term</span><span class="p">)</span>
-        <span class="k">return</span> <span class="p">[]</span>
-
-    <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">search_results</span><span class="p">[</span><span class="s2">&quot;audios&quot;</span><span class="p">][</span><span class="s2">&quot;&quot;</span><span class="p">]:</span>
-        <span class="c1"># urls from slider.kz sometimes are relative, so we need to add the domain</span>
-        <span class="k">if</span> <span class="s2">&quot;https://&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;url&quot;</span><span class="p">]:</span>
-            <span class="n">result</span><span class="p">[</span><span class="s2">&quot;url&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;https://hayqbhgr.slider.kz/&quot;</span> <span class="o">+</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;url&quot;</span><span class="p">]</span>
-
-        <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-            <span class="n">Result</span><span class="p">(</span>
-                <span class="n">source</span><span class="o">=</span><span class="s2">&quot;slider.kz&quot;</span><span class="p">,</span>
-                <span class="n">url</span><span class="o">=</span><span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;url&quot;</span><span class="p">),</span>
-                <span class="n">verified</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                <span class="n">name</span><span class="o">=</span><span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;tit_art&quot;</span><span class="p">),</span>
-                <span class="n">duration</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;duration&quot;</span><span class="p">,</span> <span class="o">-</span><span class="mi">9999</span><span class="p">)),</span>
-                <span class="n">author</span><span class="o">=</span><span class="s2">&quot;slider.kz&quot;</span><span class="p">,</span>
-                <span class="n">result_id</span><span class="o">=</span><span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">),</span>
-                <span class="n">views</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-            <span class="p">)</span>
-        <span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">results</span>
-</code></pre></div></td></tr></table></div>
-            </details>
-    </div>
-
-</div>
-
-
-
-  </div>
-
-    </div>
-
-</div>
-
-<div class="doc doc-object doc-class">
-
-
-
 <h2 id="spotdl.providers.audio.SoundCloud" class="doc doc-heading">
               <code class="highlight language-python"><span class="n">SoundCloud</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></code>
 
@@ -3885,6 +3606,11 @@ using views and average match</p>
 <li>args: Arguments passed to the <code>AudioProvider</code> class.</li>
 <li>kwargs: Keyword arguments passed to the <code>AudioProvider</code> class.</li>
 </ul>
+
+
+
+
+
 
                   <details class="quote">
                     <summary>Source code in <code>spotdl/providers/audio/soundcloud.py</code></summary>
@@ -4091,6 +3817,11 @@ using views and average match</p>
 
 
 
+
+
+
+
+
   <div class="doc doc-children">
 
 
@@ -4230,6 +3961,11 @@ using views and average match</p>
 <li>search_query: The query to use when searching for songs.</li>
 <li>filter_results: Whether to filter results.</li>
 </ul>
+
+
+
+
+
 
                   <details class="quote">
                     <summary>Source code in <code>spotdl/providers/audio/base.py</code></summary>
@@ -4500,6 +4236,11 @@ using views and average match</p>
 <li>kwargs: Keyword arguments passed to the <code>AudioProvider</code> class.</li>
 </ul>
 
+
+
+
+
+
                   <details class="quote">
                     <summary>Source code in <code>spotdl/providers/audio/ytmusic.py</code></summary>
                     <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">27</span>
@@ -4745,10 +4486,10 @@ using views and average match</p>
     </div>
     
     
-    <script id="__config" type="application/json">{"base": "../../..", "features": ["content.code.annotate", "navigation.tabs", "navigation.top", "toc.integrate"], "search": "../../../assets/javascripts/workers/search.07f07601.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    <script id="__config" type="application/json">{"base": "../../..", "features": ["content.code.annotate", "navigation.tabs", "navigation.top", "toc.integrate"], "search": "../../../assets/javascripts/workers/search.6ce7567c.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.56dfad97.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.83f73b43.min.js"></script>
       
     
   </body>

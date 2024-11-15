@@ -22,7 +22,7 @@
       
       
       <link rel="icon" href="../../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.34">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.44">
     
     
       
@@ -30,7 +30,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.35f28582.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.0253249f.min.css">
       
         
         <link rel="stylesheet" href="../../../assets/stylesheets/palette.06af60db.min.css">
@@ -2063,6 +2063,11 @@
 
 
 
+
+
+
+
+
   <div class="doc doc-children">
 
 
@@ -2329,7 +2334,13 @@ present in the playlists/albums/etc</p>
 <span class="normal">252</span>
 <span class="normal">253</span>
 <span class="normal">254</span>
-<span class="normal">255</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">sync</span><span class="p">(</span>
+<span class="normal">255</span>
+<span class="normal">256</span>
+<span class="normal">257</span>
+<span class="normal">258</span>
+<span class="normal">259</span>
+<span class="normal">260</span>
+<span class="normal">261</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">sync</span><span class="p">(</span>
     <span class="n">query</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
     <span class="n">downloader</span><span class="p">:</span> <span class="n">Downloader</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -2367,6 +2378,9 @@ present in the playlists/albums/etc</p>
             <span class="n">use_ytm_data</span><span class="o">=</span><span class="n">downloader</span><span class="o">.</span><span class="n">settings</span><span class="p">[</span><span class="s2">&quot;ytm_data&quot;</span><span class="p">],</span>
             <span class="n">playlist_numbering</span><span class="o">=</span><span class="n">downloader</span><span class="o">.</span><span class="n">settings</span><span class="p">[</span><span class="s2">&quot;playlist_numbering&quot;</span><span class="p">],</span>
             <span class="n">album_type</span><span class="o">=</span><span class="n">downloader</span><span class="o">.</span><span class="n">settings</span><span class="p">[</span><span class="s2">&quot;album_type&quot;</span><span class="p">],</span>
+            <span class="n">playlist_retain_track_cover</span><span class="o">=</span><span class="n">downloader</span><span class="o">.</span><span class="n">settings</span><span class="p">[</span>
+                <span class="s2">&quot;playlist_retain_track_cover&quot;</span>
+            <span class="p">],</span>
         <span class="p">)</span>
 
         <span class="c1"># Create sync file</span>
@@ -2390,7 +2404,7 @@ present in the playlists/albums/etc</p>
             <span class="n">gen_m3u_files</span><span class="p">(</span>
                 <span class="n">songs_list</span><span class="p">,</span>
                 <span class="n">m3u_file</span><span class="p">,</span>
-                <span class="n">downloader</span><span class="o">.</span><span class="n">settings</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">],</span>
+                <span class="n">downloader</span><span class="o">.</span><span class="n">settings</span><span class="p">[</span><span class="s2">&quot;m3u_output&quot;</span><span class="p">],</span>
                 <span class="n">downloader</span><span class="o">.</span><span class="n">settings</span><span class="p">[</span><span class="s2">&quot;format&quot;</span><span class="p">],</span>
                 <span class="n">downloader</span><span class="o">.</span><span class="n">settings</span><span class="p">[</span><span class="s2">&quot;restrict&quot;</span><span class="p">],</span>
                 <span class="kc">False</span><span class="p">,</span>
@@ -2423,6 +2437,9 @@ present in the playlists/albums/etc</p>
             <span class="n">use_ytm_data</span><span class="o">=</span><span class="n">downloader</span><span class="o">.</span><span class="n">settings</span><span class="p">[</span><span class="s2">&quot;ytm_data&quot;</span><span class="p">],</span>
             <span class="n">playlist_numbering</span><span class="o">=</span><span class="n">downloader</span><span class="o">.</span><span class="n">settings</span><span class="p">[</span><span class="s2">&quot;playlist_numbering&quot;</span><span class="p">],</span>
             <span class="n">album_type</span><span class="o">=</span><span class="n">downloader</span><span class="o">.</span><span class="n">settings</span><span class="p">[</span><span class="s2">&quot;album_type&quot;</span><span class="p">],</span>
+            <span class="n">playlist_retain_track_cover</span><span class="o">=</span><span class="n">downloader</span><span class="o">.</span><span class="n">settings</span><span class="p">[</span>
+                <span class="s2">&quot;playlist_retain_track_cover&quot;</span>
+            <span class="p">],</span>
         <span class="p">)</span>
 
         <span class="c1"># Get the names and URLs of previously downloaded songs from the sync file</span>
@@ -2462,7 +2479,7 @@ present in the playlists/albums/etc</p>
                     <span class="k">if</span> <span class="n">path</span> <span class="o">!=</span> <span class="n">new_path</span><span class="p">:</span>
                         <span class="n">to_rename</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">path</span><span class="p">,</span> <span class="n">new_path</span><span class="p">))</span>
 
-            <span class="c1"># TODO: Downloading duplicate songs in the same playlist</span>
+            <span class="c1"># fix later Downloading duplicate songs in the same playlist</span>
             <span class="c1"># will trigger a re-download of the song. To fix this we have to copy the song</span>
             <span class="c1"># to the new location without removing the old one.</span>
             <span class="k">for</span> <span class="n">old_path</span><span class="p">,</span> <span class="n">new_path</span> <span class="ow">in</span> <span class="n">to_rename</span><span class="p">:</span>
@@ -2537,7 +2554,7 @@ present in the playlists/albums/etc</p>
             <span class="n">gen_m3u_files</span><span class="p">(</span>
                 <span class="n">songs_playlist</span><span class="p">,</span>
                 <span class="n">m3u_file</span><span class="p">,</span>
-                <span class="n">downloader</span><span class="o">.</span><span class="n">settings</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">],</span>
+                <span class="n">downloader</span><span class="o">.</span><span class="n">settings</span><span class="p">[</span><span class="s2">&quot;m3u_output&quot;</span><span class="p">],</span>
                 <span class="n">downloader</span><span class="o">.</span><span class="n">settings</span><span class="p">[</span><span class="s2">&quot;format&quot;</span><span class="p">],</span>
                 <span class="n">downloader</span><span class="o">.</span><span class="n">settings</span><span class="p">[</span><span class="s2">&quot;restrict&quot;</span><span class="p">],</span>
                 <span class="kc">False</span><span class="p">,</span>
@@ -2629,10 +2646,10 @@ present in the playlists/albums/etc</p>
     </div>
     
     
-    <script id="__config" type="application/json">{"base": "../../..", "features": ["content.code.annotate", "navigation.tabs", "navigation.top", "toc.integrate"], "search": "../../../assets/javascripts/workers/search.07f07601.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    <script id="__config" type="application/json">{"base": "../../..", "features": ["content.code.annotate", "navigation.tabs", "navigation.top", "toc.integrate"], "search": "../../../assets/javascripts/workers/search.6ce7567c.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.56dfad97.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.83f73b43.min.js"></script>
       
     
   </body>
