@@ -82,7 +82,7 @@ def sync(
             gen_m3u_files(
                 songs_list,
                 m3u_file,
-                downloader.settings["output"],
+                downloader.settings["m3u_output"],
                 downloader.settings["format"],
                 downloader.settings["restrict"],
                 False,
@@ -157,7 +157,7 @@ def sync(
                     if path != new_path:
                         to_rename.append((path, new_path))
 
-            # fixme Downloading duplicate songs in the same playlist
+            # fix later Downloading duplicate songs in the same playlist
             # will trigger a re-download of the song. To fix this we have to copy the song
             # to the new location without removing the old one.
             for old_path, new_path in to_rename:
@@ -232,7 +232,7 @@ def sync(
             gen_m3u_files(
                 songs_playlist,
                 m3u_file,
-                downloader.settings["output"],
+                downloader.settings["m3u_output"],
                 downloader.settings["format"],
                 downloader.settings["restrict"],
                 False,

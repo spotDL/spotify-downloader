@@ -22,7 +22,6 @@ from spotdl.providers.audio import (
     AudioProvider,
     BandCamp,
     Piped,
-    SliderKZ,
     SoundCloud,
     YouTube,
     YouTubeMusic,
@@ -57,7 +56,6 @@ __all__ = [
 AUDIO_PROVIDERS: Dict[str, Type[AudioProvider]] = {
     "youtube": YouTube,
     "youtube-music": YouTubeMusic,
-    "slider-kz": SliderKZ,
     "soundcloud": SoundCloud,
     "bandcamp": BandCamp,
     "piped": Piped,
@@ -343,7 +341,7 @@ class Downloader:
             gen_m3u_files(
                 song_list,
                 self.settings["m3u"],
-                self.settings["output"],
+                self.settings["m3u_output"],
                 self.settings["format"],
                 self.settings["restrict"],
                 False,
@@ -461,17 +459,6 @@ class Downloader:
                 file_name_length=self.settings["max_filename_length"],
             )
 
-            # Update output path using song.album_name if valid; otherwise, use song.artist.
-            output_file = (
-                Path("output")
-                / (
-                    Path(song.album_name)
-                    if Path(song.album_name).is_dir()
-                    else Path(song.artist)
-                )
-                / output_file
-            )
-
         except Exception:
             song = reinit_song(song)
 
@@ -481,17 +468,6 @@ class Downloader:
                 file_extension=self.settings["format"],
                 restrict=self.settings["restrict"],
                 file_name_length=self.settings["max_filename_length"],
-            )
-
-            # Update output path using song.album_name if valid; otherwise, use song.artist.
-            output_file = (
-                Path("output")
-                / (
-                    Path(song.album_name)
-                    if Path(song.album_name).is_dir()
-                    else Path(song.artist)
-                )
-                / output_file
             )
 
             reinitialized = True
@@ -512,14 +488,15 @@ class Downloader:
             dup_song_paths: List[Path] = self.known_songs.get(song.url, [])
 
             # Remove files from the list that have the same path as the output file
-            dup_song_paths = list(Path(output_file.parts[0]).rglob(output_file.name))
+            dup_song_paths = [
+                dup_song_path
+                for dup_song_path in dup_song_paths
+                if (dup_song_path.absolute() != output_file.absolute())
+                and dup_song_path.exists()
+            ]
 
             # Checking if file already exists in all subfolders of output directory
-            file_exists = (
-                next(Path(output_file.parts[0]).rglob(output_file.name), None)
-                or dup_song_paths
-            )
-
+            file_exists = file_exists = output_file.exists() or dup_song_paths
             if not self.settings["scan_for_songs"]:
                 for file_extension in self.scan_formats:
                     ext_path = output_file.with_suffix(f".{file_extension}")

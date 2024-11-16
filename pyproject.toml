@@ -38,9 +38,12 @@ ytmusicapi = [
     {version = "^1.4.1", python = ">=3.10"},
 ]
 pytube = "^15.0.0"
-yt-dlp = "^2024.10.7"
+yt-dlp = [
+    {version = "^2024.10.7", python = "<3.9"},
+    {version = "^2024.11.4", python = ">=3.9"},
+]
 mutagen = "^1.47.0"
-rich = "^13.9.2"
+rich = "^13.9.4"
 beautifulsoup4 = "^4.12.3"
 requests = "^2.32.3"
 rapidfuzz = [
@@ -59,11 +62,14 @@ soundcloud-v2 = "^1.6.0"
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.3.3"
 pytest-mock = "^3.14.0"
-pyfakefs = "^5.7.0"
-pytest-cov = "^5.0.0"
+pyfakefs = "^5.7.1"
+pytest-cov = [
+    {version = "^5.0.0", python = "<3.9"},
+    {version = "^6.0.0", python = ">=3.9"},
+]
 pytest-subprocess = "^1.5.2"
 pytest-asyncio = "^0.21.1"
-mypy = "^1.11.2"
+mypy = "^1.13.0"
 pylint = [
     {version = "^3.2.7", python = "<3.9"},
     {version = "^3.3.1", python = ">=3.9"},
@@ -76,20 +82,20 @@ mdformat-gfm = "^0.3.5"
 types-orjson = "^3.6.2"
 types-python-slugify = "^8.0.2.20240310"
 types-requests = "==2.31.0.6"
-types-setuptools = "^75.1.0.20240917"
+types-setuptools = "^75.3.0.20241112"
 types-toml = "^0.10.8.7"
 types-ujson = "^5.10.0.20240515"
-pyinstaller = "^6.10.0"
+pyinstaller = "^6.11.1"
 mkdocs = "^1.6.1"
 isort = "^5.13.2"
 dill = "^0.3.7"
-mkdocs-material = "^9.5.40"
+mkdocs-material = "^9.5.44"
 mkdocstrings = "^0.26.0"
 mkdocstrings-python = [
     {version = "^1.11.1", python = "<3.9"},
     {version = "^1.12.0", python = ">=3.9"},
 ]
-pymdown-extensions = "^10.11.2"
+pymdown-extensions = "^10.12"
 mkdocs-gen-files = "^0.5.0"
 mkdocs-literate-nav = "^0.6.0"
 mkdocs-section-index = "^0.3.5"
