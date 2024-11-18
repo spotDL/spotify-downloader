@@ -33,6 +33,9 @@ body:
       - 3.9 (CPython)
       - 3.10 (CPython)
       - 3.11 (CPython)
+      - 3.12 (CPython)
+      - 3.13 (CPython)
+      - Other
   validations:
     required: true
 
