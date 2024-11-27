@@ -108,6 +108,7 @@ def save(
         gen_m3u_files(
             songs,
             m3u_file,
+            downloader.settings["output"],
             downloader.settings["m3u_output"],
             downloader.settings["format"],
             downloader.settings["restrict"],

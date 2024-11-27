@@ -281,7 +281,7 @@ If you don't want config to load automatically change `load_config` option in co
     "scan_for_songs": false,
     "m3u": null,
     "output": "{artists} - {title}.{output-ext}",
-    "m3u_output": "#EXTINF:{duration}, {artists} - {title}.{output-ext}",
+    "m3u_output": "#EXTINF:{duration},{album-artist} - {title}",
     "overwrite": "skip",
     "search_query": null,
     "ffmpeg": "ffmpeg",

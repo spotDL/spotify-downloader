@@ -339,6 +339,7 @@ class Downloader:
             gen_m3u_files(
                 song_list,
                 self.settings["m3u"],
+                self.settings["output"],
                 self.settings["m3u_output"],
                 self.settings["format"],
                 self.settings["restrict"],
