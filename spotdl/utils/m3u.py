@@ -38,9 +38,12 @@ def create_m3u_content(
     - the m3u content as a string
     """
 
-    text = ""
+    text = "#EXTM3U\n"
 
     for song in song_list:
+        metadata = create_file_name(song, "#EXTINF:{duration},{album-artist} - {title}", "")
+        text += str(metadata) + "\n"
+
         if not detect_formats:
             file_name = create_file_name(
                 song, template, file_extension, restrict, short
@@ -79,7 +82,6 @@ def gen_m3u_files(
     ### Arguments
     - songs: the list of songs
     - file_name: the file name to use
-    - song_list: the list of songs
     - template: the output file template to use
     - file_extension: the file extension to use
     - restrict: sanitization to apply to the filename
