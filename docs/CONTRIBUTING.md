@@ -27,10 +27,10 @@ everyone involved. The community looks forward to your contributions. 🎉
 - [I Want To Contribute](#i-want-to-contribute)
 - [Reporting Bugs](#reporting-bugs)
 - [Suggesting Enhancements](#suggesting-enhancements)
-- [Linting, Formatting and Type-checking](#Linting,-Formatting-and-Type-checking)
-- [Python Documentation](#Python-Documentation)
-- [Overview of the Project Structure](#Overview-of-the-Project-Structure)
-- [Join The Project Team](#Join-The-Project-Team)
+- [Linting, Formatting and Type-checking](#linting-formatting-and-type-checking)
+- [Python Documentation](#python-documentation)
+- [Overview of the Project Structure](#overview-of-the-project-structure)
+- [Join The Project Team](#join-the-project-team)
 
 ## I Have a Question
 
@@ -132,7 +132,7 @@ Once it's filed:
   addressed until they are reproduced.
 - If the team is able to reproduce the issue, it will be marked `needs-fix`, as well as
   possibly other tags (such as `critical`), and the issue will be left to be
-  [implemented by someone](#your-first-code-contribution).
+  implemented by someone.
 
 <!-- You might want to create an issue template for bugs and errors that can be used as a guide and that defines the structure of the information to be included. If you do so, reference it here in the description. -->
 
