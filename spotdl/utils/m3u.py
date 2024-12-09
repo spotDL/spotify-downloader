@@ -32,12 +32,14 @@ def create_m3u_content(
     - file_extension: the file extension to use
     - restrict: sanitization to apply to the filename
     - short: whether to use the short version of the template
+    - detect_formats: the formats to detect for existing files
 
     ### Returns
     - the m3u content as a string
     """
 
     text = ""
+
     for song in song_list:
         if not detect_formats:
             file_name = create_file_name(
@@ -75,7 +77,7 @@ def gen_m3u_files(
     Create an m3u8 filename from the query.
 
     ### Arguments
-    - query: the query
+    - songs: the list of songs
     - file_name: the file name to use
     - song_list: the list of songs
     - template: the output file template to use
