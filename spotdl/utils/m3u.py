@@ -41,7 +41,9 @@ def create_m3u_content(
     text = "#EXTM3U\n"
 
     for song in song_list:
-        metadata = create_file_name(song, "#EXTINF:{duration},{album-artist} - {title}", "")
+        metadata = create_file_name(
+            song, "#EXTINF:{duration},{album-artist} - {title}", ""
+        )
         text += str(metadata) + "\n"
 
         if not detect_formats:
