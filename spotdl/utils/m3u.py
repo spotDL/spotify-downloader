@@ -32,13 +32,20 @@ def create_m3u_content(
     - file_extension: the file extension to use
     - restrict: sanitization to apply to the filename
     - short: whether to use the short version of the template
+    - detect_formats: the formats to detect for existing files
 
     ### Returns
     - the m3u content as a string
     """
 
-    text = ""
+    text = "#EXTM3U\n"
+
     for song in song_list:
+        metadata = create_file_name(
+            song, "#EXTINF:{duration},{album-artist} - {title}", ""
+        )
+        text += str(metadata) + "\n"
+
         if not detect_formats:
             file_name = create_file_name(
                 song, template, file_extension, restrict, short
@@ -48,14 +55,14 @@ def create_m3u_content(
         else:
             for file_ext in detect_formats:
                 file_name = create_file_name(song, template, file_ext, restrict, short)
+
                 if file_name.exists():
                     text += str(file_name) + "\n"
                     break
-            else:
+
                 file_name = create_file_name(
                     song, template, file_extension, restrict, short
                 )
-
                 text += str(file_name) + "\n"
 
     return text
@@ -74,9 +81,8 @@ def gen_m3u_files(
     Create an m3u8 filename from the query.
 
     ### Arguments
-    - query: the query
+    - songs: the list of songs
     - file_name: the file name to use
-    - song_list: the list of songs
     - template: the output file template to use
     - file_extension: the file extension to use
     - restrict: sanitization to apply to the filename
