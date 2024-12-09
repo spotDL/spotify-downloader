@@ -216,7 +216,7 @@ All changes will now affect the poetry installation of the spotDL cli.
 - We use [`pylint`](https://pypi.org/project/pylint/) for linting and expect a score above `9`
 
   ```bash
-  pylint --limit-inference-results 0 --fail-under 9 ./spotdl
+  pylint --fail-under 10 --limit-inference-results 0 --disable=R0917 ./spotdl
   ```
 
 - We use [`black`](https://pypi.org/project/black/) for code formatting

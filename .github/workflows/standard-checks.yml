@@ -26,7 +26,7 @@ jobs:
 
       - name: Run Pylint check
         run: |
-          poetry run pylint --fail-under 10 --limit-inference-results 0 --disable=R0917,W0511 ./spotdl
+          poetry run pylint --fail-under 10 --limit-inference-results 0 --disable=R0917 ./spotdl
 
       - name: Run MyPy check
         run: |
