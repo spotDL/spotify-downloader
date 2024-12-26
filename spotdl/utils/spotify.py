@@ -43,9 +43,8 @@ class RateLimitHandler:
     def __init__(self):
         self.rate_limits = {}
         self.requests_timestamp = []
-        # Spotify's default rate limits
-        self.max_requests_per_window = 100
-        self.window_size = 30  # seconds
+        self.max_requests_per_window = 50  # Reduced from 100
+        self.window_size = 35  # Increased from 30 seconds
 
     def update_limits(self, response: Union[requests.Response, Dict]) -> None:
         """Update rate limit information from response headers or error dict"""
@@ -100,7 +99,7 @@ class RateLimitHandler:
         time_passed = current_time - oldest_timestamp
 
         if time_passed < self.window_size:
-            wait_time = self.window_size - time_passed
+            wait_time = self.window_size - time_passed + 1  # Added 1 second buffer
             return True, wait_time
         return False, 0
 
@@ -202,8 +201,8 @@ class Singleton(type):
             status_forcelist=(429, 500, 502, 503, 504, 404),
             retries=0,
             status_retries=0,
-            requests_timeout=5,
-            backoff_factor=1,
+            requests_timeout=10,
+            backoff_factor=2
         )
 
         # Return instance
