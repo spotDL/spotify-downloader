@@ -445,11 +445,7 @@ def get_file_metadata(path: Path, id3_separator: str = "/") -> Optional[Dict[str
                 continue
 
             if path.suffix == ".flac":
-                if audio_file.pictures:
-                    song_meta["album_art"] = audio_file.pictures[0].data
-                else:
-                    song_meta["album_art"] = None
-
+                song_meta["album_art"] = audio_file.pictures[0].data
                 continue
 
             if path.suffix in [".ogg", ".opus"]:
