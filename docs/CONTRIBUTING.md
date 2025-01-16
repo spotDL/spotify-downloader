@@ -27,10 +27,10 @@ everyone involved. The community looks forward to your contributions. 🎉
 - [I Want To Contribute](#i-want-to-contribute)
 - [Reporting Bugs](#reporting-bugs)
 - [Suggesting Enhancements](#suggesting-enhancements)
-- [Linting, Formatting and Type-checking](#Linting,-Formatting-and-Type-checking)
-- [Python Documentation](#Python-Documentation)
-- [Overview of the Project Structure](#Overview-of-the-Project-Structure)
-- [Join The Project Team](#Join-The-Project-Team)
+- [Linting, Formatting and Type-checking](#linting-formatting-and-type-checking)
+- [Python Documentation](#python-documentation)
+- [Overview of the Project Structure](#overview-of-the-project-structure)
+- [Join The Project Team](#join-the-project-team)
 
 ## I Have a Question
 
@@ -108,7 +108,7 @@ potential bug as fast as possible.
 #### How Do I Submit a Good Bug Report?
 
 > You must never report security related issues, vulnerabilities or bugs to the issue tracker,
-> or elsewhere in public. Instead sensitive bugs must be sent by discord to xnetcat#8144.
+> or elsewhere in public. Instead sensitive bugs must be sent by Discord to Silverarmor (spotDL Discord Owner).
 
 <!-- You may add a PGP key to allow the messages to be sent encrypted as well. -->
 
@@ -132,7 +132,7 @@ Once it's filed:
   addressed until they are reproduced.
 - If the team is able to reproduce the issue, it will be marked `needs-fix`, as well as
   possibly other tags (such as `critical`), and the issue will be left to be
-  [implemented by someone](#your-first-code-contribution).
+  implemented by someone.
 
 <!-- You might want to create an issue template for bugs and errors that can be used as a guide and that defines the structure of the information to be included. If you do so, reference it here in the description. -->
 
@@ -216,7 +216,7 @@ All changes will now affect the poetry installation of the spotDL cli.
 - We use [`pylint`](https://pypi.org/project/pylint/) for linting and expect a score above `9`
 
   ```bash
-  pylint --limit-inference-results 0 --fail-under 9 ./spotdl
+  pylint --fail-under 10 --limit-inference-results 0 --disable=R0917 ./spotdl
   ```
 
 - We use [`black`](https://pypi.org/project/black/) for code formatting

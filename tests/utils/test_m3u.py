@@ -14,8 +14,9 @@ def test_create_m3u_content():
 
     assert content != ""
     assert len(content.split("\n")) > 5
-    assert content.split("\n")[0].endswith("mp3.mp3")
-
+    assert content.split("\n")[0] == "#EXTM3U"
+    assert content.split("\n")[1].startswith("#EXTINF:")
+    assert content.split("\n")[2].endswith(".mp3")
 
 def test_create_m3u_file(tmpdir, monkeypatch):
     monkeypatch.chdir(tmpdir)
