@@ -123,7 +123,7 @@ We have a dedicated Termux installation script
 
 ### Arch User Repository (AUR) package
 
-[You can find the AUR Package here](https://aur.archlinux.org/packages/python-spotdl)
+[You can find the AUR Package here](https://aur.archlinux.org/packages/spotdl)
 
 ## Where does spotDL download songs?
 
