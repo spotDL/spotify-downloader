@@ -108,7 +108,7 @@ potential bug as fast as possible.
 #### How Do I Submit a Good Bug Report?
 
 > You must never report security related issues, vulnerabilities or bugs to the issue tracker,
-> or elsewhere in public. Instead sensitive bugs must be sent by discord to xnetcat#8144.
+> or elsewhere in public. Instead sensitive bugs must be sent by Discord to Silverarmor (spotDL Discord Owner).
 
 <!-- You may add a PGP key to allow the messages to be sent encrypted as well. -->
 
