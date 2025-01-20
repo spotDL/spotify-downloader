@@ -16,6 +16,7 @@ from spotdl.types.options import DownloaderOptionalOptions, DownloaderOptions
 from spotdl.types.song import Song
 from spotdl.utils.search import parse_query
 from spotdl.utils.spotify import SpotifyClient
+from spotdl.types.album import Album
 
 __all__ = ["Spotdl", "console_entry_point", "__version__"]
 
