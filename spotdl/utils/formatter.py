@@ -15,8 +15,7 @@ from unicodedata import normalize
 import pykakasi
 from rapidfuzz import fuzz
 from slugify import slugify as py_slugify
-from yt_dlp.options import create_parser
-from yt_dlp.options import optparse as yt_dlp_optparse
+from yt_dlp import parse_options
 from yt_dlp.utils import sanitize_filename
 
 from spotdl.types.song import Song
@@ -70,7 +69,6 @@ JAP_REGEX = re.compile(
 )
 
 DISALLOWED_REGEX = re.compile(r"[^-a-zA-Z0-9\!\@\$]+")
-YT_DLP_PARSER = create_parser()
 
 logger = logging.getLogger(__name__)
 
@@ -622,6 +620,17 @@ def args_to_ytdlp_options(
     - the dictionary of options
     """
 
-    new_args = YT_DLP_PARSER.parse_args(argument_list, yt_dlp_optparse.Values(defaults))
+    parsed_options = parse_options(argument_list).ydl_opts
 
-    return vars(new_args[0])
+    if defaults is None:
+        return parsed_options
+
+    default_options = parse_options([]).ydl_opts
+
+    for key, value in defaults.items():
+        if key not in parsed_options:
+            parsed_options[key] = value
+        elif parsed_options[key] == default_options[key]:
+            parsed_options[key] = value
+
+    return parsed_options

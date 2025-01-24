@@ -44,5 +44,5 @@ pytest --disable-vcr
 ```
 
 Whenever the server response will change and affect the tests behavior, the stored responses
-can be updated by wiping the [tests/*/cassetes](tests/*/cassetes) directory and running `pytest`
+can be updated by wiping the [tests/*/cassettes](tests/*/cassettes) directory and running `pytest`
 again (without `--disable-vcr`).
