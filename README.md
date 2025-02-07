@@ -82,6 +82,7 @@ We recommend the above option, but if you want to install FFmpeg system-wide,
 follow these instructions
 
 - [Windows Tutorial](https://windowsloop.com/install-ffmpeg-windows-10/)
+- Windows Chocolatey - `choco install ffmpeg`
 - OSX - `brew install ffmpeg`
 - Linux - `sudo apt install ffmpeg` or use your distro's package manager
 
