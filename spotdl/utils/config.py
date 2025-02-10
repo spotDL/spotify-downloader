@@ -353,6 +353,10 @@ DOWNLOADER_OPTIONS: DownloaderOptions = {
     "create_skip_file": False,
     "respect_skip_file": False,
     "sync_remove_lrc": False,
+    "client_id": "d1f252dad38f48e28af70e7a0758b9c8",
+    "client_secret": "6defc4437e2d4d0aae127ee685c3509f",
+    "redirect_uri": "http://localhost:8080",
+    "download_liked": True,
 }
 
 WEB_OPTIONS: WebOptions = {

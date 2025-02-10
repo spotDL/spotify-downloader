@@ -203,6 +203,26 @@ class SpotifyClient(Spotify, metaclass=Singleton):
 
         return response
 
+    def retrieve_playlists(self):
+        """
+        Retrieve all playlists from Spotify.
+        """
+        playlists = self.current_user_playlists()
+        return playlists
+
+    def organize_playlists_in_folders(self, playlists):
+        """
+        Organize playlists in folders as they are on Spotify.
+        """
+        for playlist in playlists['items']:
+            playlist_name = playlist['name']
+            songs = parse_query([playlist['external_urls']['spotify']])
+            for song, path in downloader.download_songs(songs):
+                if path:
+                    folder_path = Path(downloader.settings['output']) / playlist_name
+                    folder_path.mkdir(parents=True, exist_ok=True)
+                    path.rename(folder_path / path.name)
+
 
 def save_spotify_cache(cache: Dict[str, Optional[Dict]]):
     """

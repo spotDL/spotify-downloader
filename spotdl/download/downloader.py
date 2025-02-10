@@ -44,6 +44,7 @@ from spotdl.utils.lrc import generate_lrc
 from spotdl.utils.m3u import gen_m3u_files
 from spotdl.utils.metadata import MetadataError, embed_metadata
 from spotdl.utils.search import gather_known_songs, reinit_song, songs_from_albums
+from spotdl.utils.spotify import SpotifyClient
 
 __all__ = [
     "AUDIO_PROVIDERS",
@@ -880,3 +881,35 @@ class Downloader:
                 f"{song.url} - {exception.__class__.__name__}: {exception}"
             )
             return song, None
+
+    def download_spotify_playlists(self):
+        """
+        Connect to Spotify, retrieve all playlists, and download songs.
+        """
+        SpotifyClient.init(
+            client_id=self.settings["client_id"],
+            client_secret=self.settings["client_secret"],
+            user_auth=self.settings["user_auth"],
+            cache_path=self.settings["cache_path"],
+            no_cache=self.settings["no_cache"],
+            headless=self.settings["headless"],
+        )
+
+        playlists = SpotifyClient().current_user_playlists()
+        for playlist in playlists['items']:
+            songs = parse_query([playlist['external_urls']['spotify']])
+            self.download_multiple_songs(songs)
+
+    def organize_downloaded_songs(self):
+        """
+        Organize downloaded songs in folders as they are on Spotify.
+        """
+        playlists = SpotifyClient().current_user_playlists()
+        for playlist in playlists['items']:
+            playlist_name = playlist['name']
+            songs = parse_query([playlist['external_urls']['spotify']])
+            for song, path in self.download_multiple_songs(songs):
+                if path:
+                    folder_path = Path(self.settings['output']) / playlist_name
+                    folder_path.mkdir(parents=True, exist_ok=True)
+                    path.rename(folder_path / path.name)

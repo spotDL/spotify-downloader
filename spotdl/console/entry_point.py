@@ -187,3 +187,36 @@ def entry_point():
     downloader.progress_handler.close()
 
     return None
+
+def connect_to_spotify():
+    """
+    Connect to Spotify and retrieve all playlists.
+    """
+    SpotifyClient.init(
+        client_id=spotify_settings["client_id"],
+        client_secret=spotify_settings["client_secret"],
+        user_auth=spotify_settings["user_auth"],
+        cache_path=spotify_settings["cache_path"],
+        no_cache=spotify_settings["no_cache"],
+        headless=spotify_settings["headless"],
+    )
+
+def retrieve_playlists():
+    """
+    Retrieve all playlists from Spotify.
+    """
+    playlists = SpotifyClient().current_user_playlists()
+    return playlists
+
+def organize_playlists_in_folders(playlists):
+    """
+    Organize playlists in folders as they are on Spotify.
+    """
+    for playlist in playlists['items']:
+        playlist_name = playlist['name']
+        songs = parse_query([playlist['external_urls']['spotify']])
+        for song, path in downloader.download_songs(songs):
+            if path:
+                folder_path = Path(downloader.settings['output']) / playlist_name
+                folder_path.mkdir(parents=True, exist_ok=True)
+                path.rename(folder_path / path.name)

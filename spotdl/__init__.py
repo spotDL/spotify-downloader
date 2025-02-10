@@ -166,3 +166,38 @@ class Spotdl:
         """
 
         return self.downloader.download_multiple_songs(songs)
+
+    def connect_to_spotify(self):
+        """
+        Connect to Spotify and retrieve all playlists.
+        """
+        SpotifyClient.init(
+            client_id=self.client_id,
+            client_secret=self.client_secret,
+            user_auth=self.user_auth,
+            cache_path=self.cache_path,
+            no_cache=self.no_cache,
+            headless=self.headless,
+        )
+
+    def pass_playlists_to_spotdl(self):
+        """
+        Pass playlists to spotdl for download.
+        """
+        playlists = SpotifyClient().current_user_playlists()
+        for playlist in playlists['items']:
+            self.download_songs(parse_query([playlist['external_urls']['spotify']]))
+
+    def organize_downloaded_songs(self):
+        """
+        Organize downloaded songs in folders as they are on Spotify.
+        """
+        playlists = SpotifyClient().current_user_playlists()
+        for playlist in playlists['items']:
+            playlist_name = playlist['name']
+            songs = parse_query([playlist['external_urls']['spotify']])
+            for song, path in self.download_songs(songs):
+                if path:
+                    folder_path = Path(self.downloader.settings['output']) / playlist_name
+                    folder_path.mkdir(parents=True, exist_ok=True)
+                    path.rename(folder_path / path.name)
