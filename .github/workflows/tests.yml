@@ -9,24 +9,24 @@ jobs:
     strategy:
       max-parallel: 1
       matrix:
-        platform: [ ubuntu-latest, macos-13, windows-latest ]
+        platform: [ubuntu-latest, macos-13, windows-latest]
 
     steps:
       - uses: actions/checkout@v3
 
-      - name: Install poetry
-        run: pipx install poetry
+      - name: Install uv
+        run: pipx install uv
 
       - name: Set up Python "3.11"
         uses: actions/setup-python@v4
         with:
           python-version: "3.11"
-          cache: 'poetry'
+          cache: "uv"
 
       - name: Install dependencies
         run: |
-          poetry env use "3.11"
-          poetry install
+          uv venv --python 3.11
+          uv sync
 
       - uses: FedericoCarboni/setup-ffmpeg@v1
         id: setup-ffmpeg
@@ -35,7 +35,7 @@ jobs:
 
       - name: Run tests
         run: |
-          poetry run pytest -vvv --record-mode=new_episodes --ignore tests/test_matching.py --ignore tests/utils/test_ffmpeg.py --ignore tests/utils/test_metadata.py --ignore tests/providers/lyrics/test_azlyrics.py --ignore tests/providers/lyrics/test_musixmatch.py --ignore tests/providers/audio/test_youtube.py --ignore tests/console/test_entry_point.py --ignore tests/test_init.py
+          uv run pytest -vvv --record-mode=new_episodes --ignore tests/test_matching.py --ignore tests/utils/test_ffmpeg.py --ignore tests/utils/test_metadata.py --ignore tests/providers/lyrics/test_azlyrics.py --ignore tests/providers/lyrics/test_musixmatch.py --ignore tests/providers/audio/test_youtube.py --ignore tests/console/test_entry_point.py --ignore tests/test_init.py
         env:
           PLATFORM: ${{ matrix.platform }}
 
@@ -45,26 +45,26 @@ jobs:
     strategy:
       max-parallel: 3
       matrix:
-        platform: [ ubuntu-latest, macos-13, windows-latest ]
-        python-version: [ "3.9", "3.11" ]
+        platform: [ubuntu-latest, macos-13, windows-latest]
+        python-version: ["3.9", "3.11"]
 
     steps:
       - uses: actions/checkout@v3
 
-      - name: Install poetry
-        run: pipx install poetry
+      - name: Install uv
+        run: pipx install uv
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
-          cache: 'poetry'
+          cache: "uv"
 
       - name: Install dependencies
         run: |
-          poetry env use ${{ matrix.python-version }}
+          uv venv --python ${{ matrix.python-version }}
           pip install -U pip setuptools
-          poetry install
+          uv sync
 
       - uses: FedericoCarboni/setup-ffmpeg@v2
         id: setup-ffmpeg
@@ -73,7 +73,7 @@ jobs:
 
       - name: Run tests
         run: |
-          poetry run pytest -vvv --record-mode=none --disable-recording --ignore tests/providers/lyrics --ignore tests/utils/test_github.py --ignore tests/utils/test_ffmpeg.py --ignore tests/utils/test_metadata.py --ignore tests/test_matching.py --ignore tests/providers/audio/test_youtube.py --ignore tests/console/test_entry_point.py --ignore tests/test_init.py
+          uv run pytest -vvv --record-mode=none --disable-recording --ignore tests/providers/lyrics --ignore tests/utils/test_github.py --ignore tests/utils/test_ffmpeg.py --ignore tests/utils/test_metadata.py --ignore tests/test_matching.py --ignore tests/providers/audio/test_youtube.py --ignore tests/console/test_entry_point.py --ignore tests/test_init.py
         env:
           PLATFORM: ${{ matrix.platform }}
 
@@ -84,19 +84,19 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Install poetry
-        run: pipx install poetry
+      - name: Install uv
+        run: pipx install uv
 
       - name: Set up Python "3.11"
         uses: actions/setup-python@v4
         with:
           python-version: "3.11"
-          cache: 'poetry'
+          cache: "uv"
 
       - name: Install dependencies
         run: |
-          poetry env use "3.11"
-          poetry install
+          uv venv --python 3.11
+          uv sync
 
       - uses: FedericoCarboni/setup-ffmpeg@v1
         id: setup-ffmpeg
@@ -105,4 +105,4 @@ jobs:
 
       - name: Run tests
         run: |
-          poetry run pytest -vvv --record-mode=none --disable-recording tests/test_matching.py
+          uv run pytest -vvv --record-mode=none --disable-recording tests/test_matching.py

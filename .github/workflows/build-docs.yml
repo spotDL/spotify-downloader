@@ -17,20 +17,20 @@ jobs:
           fetch-depth: 0
           submodules: recursive
 
-      - name: Install poetry
-        run: pipx install poetry
+      - name: Install uv
+        run: pipx install uv
 
       - name: Set up Python 3.10
         uses: actions/setup-python@v4
         with:
           python-version: "3.10"
-          cache: 'poetry'
+          cache: "uv"
 
       - name: Install dependencies
         run: |
-          poetry env use "3.10"
-          poetry install
+          uv venv --python 3.10
+          uv sync
 
       - name: Build and deploy
         run: |
-          poetry run mkdocs gh-deploy --force
+          uv run mkdocs gh-deploy --force
