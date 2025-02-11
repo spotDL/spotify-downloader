@@ -112,12 +112,15 @@ class Genius(LyricsProvider):
 
         lyrics_div = soup.select_one("div.lyrics")
         lyrics_containers = soup.select("div[class^=Lyrics__Container]")
+        lyrics_container = soup.find("div", {"data-lyrics-container": "true"})
 
         # Get lyrics
         if lyrics_div:
             lyrics = lyrics_div.get_text()
         elif lyrics_containers:
             lyrics = "\n".join(con.get_text() for con in lyrics_containers)
+        elif lyrics_container: 
+            lyrics = lyrics_container.get_text("\n")
         else:
             return None
 
