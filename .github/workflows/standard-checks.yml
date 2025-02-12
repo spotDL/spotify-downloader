@@ -25,6 +25,7 @@ jobs:
         run: |
           uv venv --python 3.11
           uv sync
+          uv pip install pip
 
       - name: Run Pylint check
         run: |
