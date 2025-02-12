@@ -21,14 +21,16 @@ jobs:
           fetch-depth: 0
           submodules: recursive
 
-      - name: Install uv
-        run: pipx install uv
-
       - name: Set up Python 3.10
         uses: actions/setup-python@v4
         with:
           python-version: "3.10"
-          cache: "uv"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: "latest"
+          enable-cache: true
 
       - name: Install dependencies
         run: |
@@ -53,14 +55,16 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Install uv
-        run: pipx install uv
-
       - name: Set up Python 3.10
         uses: actions/setup-python@v4
         with:
           python-version: "3.10"
-          cache: "uv"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: "latest"
+          enable-cache: true
 
       - name: Install dependencies
         run: |
