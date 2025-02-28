@@ -2223,13 +2223,13 @@ files = [
 
 [[package]]
 name = "spotipy"
-version = "2.25.0"
+version = "2.25.1"
 description = "A light weight Python library for the Spotify Web API"
 optional = false
 python-versions = ">3.8"
 files = [
-    {file = "spotipy-2.25.0-py3-none-any.whl", hash = "sha256:92ef16577adab22aeac7d699b9aa6abb8e38d3023d865c0a233cdcfa0dca9583"},
-    {file = "spotipy-2.25.0.tar.gz", hash = "sha256:c72720ef85355aff959f7fe8d89ded48504d8c33b92583db90ec16daac0da54f"},
+    {file = "spotipy-2.25.1-py3-none-any.whl", hash = "sha256:18f47d9a0594ced8001b3baa5a4160ea6dcf570abbdad371971f475a81892844"},
+    {file = "spotipy-2.25.1.tar.gz", hash = "sha256:607d3c43722b7e217a7e6c82f17258b798b92a512017d60c06323d62ae814cd7"},
 ]
 
 [package.dependencies]
@@ -2239,6 +2239,7 @@ urllib3 = ">=1.26.0"
 
 [package.extras]
 memcache = ["pymemcache (>=3.5.2)"]
+test = ["autopep8 (>=2.3.2)", "flake8 (>=7.1.1)", "flake8-string-format (>=0.3.0)", "isort (>=5.13.2)"]
 
 [[package]]
 name = "starlette"
