@@ -21,7 +21,7 @@ RUN pip install --upgrade pip poetry wheel spotipy
 COPY poetry.lock pyproject.toml /
 
 # Install spotdl requirements
-RUN poetry install
+RUN poetry install --no-root
 
 # Add source code files to WORKDIR
 ADD . .
