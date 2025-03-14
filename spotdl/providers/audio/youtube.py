@@ -50,9 +50,6 @@ class YouTube(AudioProvider):
         - A list of YouTube results if found, None otherwise.
         """
 
-        search = Search(search_term)
-        # patch pytube client versioning issue that does not return
-        # the correct video duration
         patch_innertube_webclient_version()
         search_results: Optional[List[PyTube]] = Search(search_term).results
 
