@@ -391,7 +391,7 @@ class AudioProvider:
                     best_result[1] * score_weight
                     + views_score * views_weight
                     + duration_score * duration_weight
-                ) / 3
+                ) / (score_weight + views_weight + duration_weight)
                 weighted_results.append((best_result[0], score))
 
             # Now we return the result with the highest score
