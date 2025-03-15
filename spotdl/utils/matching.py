@@ -288,6 +288,21 @@ def get_best_matches(
     ]
 
 
+def calc_word_match(first: str, second: str) -> float:
+    """
+    Calculate word match percentage
+
+    ### Arguments
+    - first: first string to match
+    - second: second string to match
+
+    ### Returns
+    - word match percentage
+    """
+
+    return ratio(slugify(first), slugify(second))
+
+
 def calc_main_artist_match(song: Song, result: Result) -> float:
     """
     Check if main artist is present in list of artists
@@ -382,12 +397,12 @@ def calc_artists_match(song: Song, result: Result) -> float:
     # Remove main artist from the lists
     artist1_list, artist2_list = artist1_list[1:], artist2_list[1:]
 
-    artists_match = 0.0
+    artist_score = 0.0
     for artist1, artist2 in zip_longest(artist1_list, artist2_list):
         artist12_match = ratio(artist1, artist2)
-        artists_match += artist12_match
+        artist_score += artist12_match
 
-    artist_match_number = artists_match / len(artist1_list)
+    artist_match_number = artist_score / len(artist1_list)
 
     return artist_match_number
 
@@ -587,7 +602,6 @@ def calc_name_match(
 
     # Calculate initial name match
     name_match = ratio(result_name, song_name)
-
     debug(song.song_id, result.result_id, f"MATCH STRINGS: {match_str1} - {match_str2}")
     debug(
         song.song_id,
@@ -650,6 +664,97 @@ def calc_album_match(song: Song, result: Result) -> float:
     return ratio(slugify(song.album_name), slugify(result.album))
 
 
+def get_name_score(song: Song, result: Result, search_query: Optional[str]) -> float:
+    # Calculate name match
+    name_match_score = calc_name_match(song, result, search_query)
+    debug(song.song_id, result.result_id, f"Initial name match: {name_match_score}")
+
+    # Check if result contains forbidden words
+    contains_fwords, found_fwords = check_forbidden_words(song, result)
+    if contains_fwords:
+        for _ in found_fwords:
+            name_match_score -= 15
+
+    debug(
+        song.song_id,
+        result.result_id,
+        f"Contains forbidden words: {contains_fwords}, {found_fwords}",
+    )
+    debug(song.song_id, result.result_id, f"Final name match: {name_match_score}")
+
+    return name_match_score
+
+
+def get_artist_score(song: Song, result: Result) -> float:
+    # Calculate match value for main artist
+    artist_score = calc_main_artist_match(song, result)
+    debug(song.song_id, result.result_id, f"Main artist match: {artist_score}")
+
+    # Calculate match value for all artists
+    other_artists_match = calc_artists_match(song, result)
+    debug(
+        song.song_id,
+        result.result_id,
+        f"Other artists match: {other_artists_match}",
+    )
+
+    artist_score += other_artists_match
+
+    # Calculate initial artist match value
+    debug(song.song_id, result.result_id, f"Initial artists match: {artist_score}")
+    artist_score = artist_score / (2 if len(song.artists) > 1 else 1)
+    debug(song.song_id, result.result_id, f"First artists match: {artist_score}")
+
+    # First attempt to fix artist match
+    artist_score = artists_match_fixup1(song, result, artist_score)
+    debug(
+        song.song_id,
+        result.result_id,
+        f"Artists match after fixup1: {artist_score}",
+    )
+
+    # Second attempt to fix artist match
+    artist_score = artists_match_fixup2(song, result, artist_score)
+    debug(
+        song.song_id,
+        result.result_id,
+        f"Artists match after fixup2: {artist_score}",
+    )
+
+    # Third attempt to fix artist match
+    artist_score = artists_match_fixup3(song, result, artist_score)
+    debug(
+        song.song_id,
+        result.result_id,
+        f"Artists match after fixup3: {artist_score}",
+    )
+
+    # Check if the uploader is the publisher/label
+    if artist_score < 65 and (result.artists is None and result.author):
+        artist_score = calc_word_match(result.author, song.publisher)
+
+    # Check if the uploader is the artist
+    if artist_score < 65 and (result.artists is None and result.author):
+        artist_score = calc_word_match(result.author, song.artist)
+
+    debug(song.song_id, result.result_id, f"Final artists match: {artist_score}")
+    return artist_score
+
+
+def get_album_score(song: Song, result: Result) -> float:
+    # Calculate album match
+    album_score = calc_album_match(song, result)
+    debug(song.song_id, result.result_id, f"Final album match: {album_score}")
+    return album_score
+
+
+def get_time_score(song: Song, result: Result) -> float:
+    # Calculate time match
+    time_match = calc_time_match(song, result)
+    debug(song.song_id, result.result_id, f"Final time match: {time_match}")
+    return time_match
+
+
 def order_results(
     results: List[Result],
     song: Song,
@@ -683,81 +788,15 @@ def order_results(
             debug(
                 song.song_id, result.result_id, "Skipping result due to no common words"
             )
-
             continue
 
-        # Calculate match value for main artist
-        artists_match = calc_main_artist_match(song, result)
-        debug(song.song_id, result.result_id, f"Main artist match: {artists_match}")
-
-        # Calculate match value for all artists
-        other_artists_match = calc_artists_match(song, result)
-        debug(
-            song.song_id,
-            result.result_id,
-            f"Other artists match: {other_artists_match}",
-        )
-
-        artists_match += other_artists_match
-
-        # Calculate initial artist match value
-        debug(song.song_id, result.result_id, f"Initial artists match: {artists_match}")
-        artists_match = artists_match / (2 if len(song.artists) > 1 else 1)
-        debug(song.song_id, result.result_id, f"First artists match: {artists_match}")
-
-        # First attempt to fix artist match
-        artists_match = artists_match_fixup1(song, result, artists_match)
-        debug(
-            song.song_id,
-            result.result_id,
-            f"Artists match after fixup1: {artists_match}",
-        )
-
-        # Second attempt to fix artist match
-        artists_match = artists_match_fixup2(song, result, artists_match)
-        debug(
-            song.song_id,
-            result.result_id,
-            f"Artists match after fixup2: {artists_match}",
-        )
-
-        # Third attempt to fix artist match
-        artists_match = artists_match_fixup3(song, result, artists_match)
-        debug(
-            song.song_id,
-            result.result_id,
-            f"Artists match after fixup3: {artists_match}",
-        )
-
-        debug(song.song_id, result.result_id, f"Final artists match: {artists_match}")
-
-        # Calculate name match
-        name_match = calc_name_match(song, result, search_query)
-        debug(song.song_id, result.result_id, f"Initial name match: {name_match}")
-
-        # Check if result contains forbidden words
-        contains_fwords, found_fwords = check_forbidden_words(song, result)
-        if contains_fwords:
-            for _ in found_fwords:
-                name_match -= 15
-
-        debug(
-            song.song_id,
-            result.result_id,
-            f"Contains forbidden words: {contains_fwords}, {found_fwords}",
-        )
-        debug(song.song_id, result.result_id, f"Final name match: {name_match}")
-
-        # Calculate album match
-        album_match = calc_album_match(song, result)
-        debug(song.song_id, result.result_id, f"Final album match: {album_match}")
-
-        # Calculate time match
-        time_match = calc_time_match(song, result)
-        debug(song.song_id, result.result_id, f"Final time match: {time_match}")
+        name_score = get_name_score(song, result, search_query)
+        artist_score = get_artist_score(song, result)
+        album_score = get_album_score(song, result)
+        # time_score = get_time_score(song, result)
 
         # Ignore results with name match lower than 60%
-        if name_match <= 60:
+        if name_score <= 60:
             debug(
                 song.song_id,
                 result.result_id,
@@ -766,7 +805,7 @@ def order_results(
             continue
 
         # Ignore results with artists match lower than 70%
-        if artists_match < 70 and result.source != "slider.kz":
+        if artist_score < 60 and result.source != "slider.kz":
             debug(
                 song.song_id,
                 result.result_id,
@@ -775,70 +814,33 @@ def order_results(
             continue
 
         # Calculate total match
-        average_match = (artists_match + name_match) / 2
-        debug(song.song_id, result.result_id, f"Average match: {average_match}")
-
         if (
             result.verified
             and not result.isrc_search
             and result.album
-            and album_match <= 80
+            and album_score <= 80
         ):
             # we are almost certain that this is the correct result
             # so we add the album match to the average match
-            average_match = (average_match + album_match) / 2
+            average_match = (average_match + name_score + album_score) / 3
             debug(
                 song.song_id,
                 result.result_id,
                 f"Average match /w album match: {average_match}",
             )
+        else:
+            average_match = (artist_score + name_score) / 2
+            debug(song.song_id, result.result_id, f"Average match: {average_match}")
 
-        # Skip results with time match lower than 25%
-        if time_match < 25:
-            debug(
-                song.song_id,
-                result.result_id,
-                "Skipping result due to time match lower than 25%",
-            )
-            continue
-
-        # If the time match is lower than 50%
-        # and the average match is lower than 75%
+        # If the average match is lower than 75%
         # we skip the result
-        if time_match < 50 and average_match < 75:
+        if average_match < 75:
             debug(
                 song.song_id,
                 result.result_id,
                 "Skipping result due to time match < 50% and average match < 75%",
             )
             continue
-
-        if (
-            (not result.isrc_search and average_match <= 85)
-            or result.source == "slider.kz"
-            or time_match < 0
-        ):
-            # Don't add time to avg match if average match is not the best
-            # (lower than 85%), always include time match if result is from
-            # slider.kz or if time match is lower than 0
-            average_match = (average_match + time_match) / 2
-
-            debug(
-                song.song_id,
-                result.result_id,
-                f"Average match /w time match: {average_match}",
-            )
-
-            if (result.explicit is not None and song.explicit is not None) and (
-                result.explicit != song.explicit
-            ):
-                debug(
-                    song.song_id,
-                    result.result_id,
-                    "Lowering average match due to explicit mismatch",
-                )
-
-                average_match -= 5
 
         average_match = min(average_match, 100)
         debug(song.song_id, result.result_id, f"Final average match: {average_match}")
