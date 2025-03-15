@@ -356,11 +356,13 @@ class AudioProvider:
                     views.append(best_result[0].views)
                 else:
                     views.append(self.get_views(best_result[0].url))
-                
+
                 if best_result[0].duration:
                     durations.append(best_result[0].duration)
                 else:
-                    durations.append(self.get_download_metadata(best_result[0].url)["duration"])
+                    durations.append(
+                        self.get_download_metadata(best_result[0].url)["duration"]
+                    )
 
             highest_views = max(views)
             lowest_views = min(views)
@@ -371,23 +373,25 @@ class AudioProvider:
                 return best_result[0], best_result[1]
 
             weighted_results: List[Tuple[Result, float]] = []
-            score_weight = 1.0
-            views_weight = 1.0
-            duration_weight = 1.0
             for index, best_result in enumerate(best_results):
                 result_views = views[index]
                 result_duration = durations[index]
                 views_score = (
-                    (result_views - lowest_views) / (highest_views - lowest_views)
+                    (result_views - lowest_views)
+                    / ((highest_views - lowest_views) + 1e-6)
                 ) * 100
                 duration_score = (
-                    (result_duration - shortest_duration) / (longest_duration - shortest_duration)
+                    (result_duration - shortest_duration)
+                    / ((longest_duration - shortest_duration) + 1e-6)
                 ) * 100
+                score_weight = 1.0
+                views_weight = 0.5
+                duration_weight = 0.2
                 score = (
-                    best_result[1] * score_weight +
-                    views_score * views_weight +
-                    duration_score * duration_weight
-                    ) / 3
+                    best_result[1] * score_weight
+                    + views_score * views_weight
+                    + duration_score * duration_weight
+                ) / 3
                 weighted_results.append((best_result[0], score))
 
             # Now we return the result with the highest score
