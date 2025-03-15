@@ -748,13 +748,6 @@ def get_album_score(song: Song, result: Result) -> float:
     return album_score
 
 
-def get_time_score(song: Song, result: Result) -> float:
-    # Calculate time match
-    time_match = calc_time_match(song, result)
-    debug(song.song_id, result.result_id, f"Final time match: {time_match}")
-    return time_match
-
-
 def order_results(
     results: List[Result],
     song: Song,
