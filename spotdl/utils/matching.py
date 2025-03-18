@@ -577,6 +577,15 @@ def calc_name_match(
     - name match percentage
     """
 
+    # Remove unwanted Radio Edits
+    song_title_disallowed = ["radio edit", "karaoke", "instrumental", "radioedit", "radio version"]
+    result_name_lower = result.name.lower()
+    song_name_lower = song.name.lower()
+    
+    if any(phrase in result_name_lower for phrase in song_title_disallowed) or any (phrase in song_name_lower for phrase in song_title_disallowed):
+        return 0.0;
+
+
     # Create match strings that will be used
     # to calculate name match value
     match_str1, match_str2 = create_match_strings(song, result, search_query)
