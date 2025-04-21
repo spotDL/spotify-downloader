@@ -185,6 +185,12 @@ This will download new songs and remove the ones that are no longer present in t
     spotdl sync "the-weeknd.sync.spotdl"
     ```
 
+??? info "Download-only mode - do not remove songs that are gone from the playlist"
+
+    ```bash
+    spotdl sync "the-weeknd.sync.spotdl" --sync-without-deleting
+    ```
+
 ## Saving
 
 Saves the songs metadata to a file for further use.
