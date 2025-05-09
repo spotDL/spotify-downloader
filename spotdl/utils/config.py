@@ -316,7 +316,7 @@ DOWNLOADER_OPTIONS: DownloaderOptions = {
     "overwrite": "skip",
     "search_query": None,
     "ffmpeg": "ffmpeg",
-    "bitrate": None,
+    "bitrate": "192k",
     "ffmpeg_args": None,
     "format": "mp3",
     "save_file": None,
