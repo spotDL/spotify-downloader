@@ -174,9 +174,11 @@ def get_simple_songs(
         elif "music.youtube.com/watch?v" in request:
             track_data = get_ytm_client().get_song(request.split("?v=", 1)[1])
 
-            if 'videoDetails' in track_data and (
-                'author' in track_data['videoDetails']) and (
-                'title' in track_data['videoDetails']):
+            if (
+                'videoDetails' in track_data
+                and 'author' in track_data['videoDetails']
+                and 'title' in track_data['videoDetails']
+            ):
 
                 yt_song = Song.from_search_term(
                     f"{track_data['videoDetails']['author']} - {track_data['videoDetails']['title']}"
