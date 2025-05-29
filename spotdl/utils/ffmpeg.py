@@ -316,7 +316,7 @@ def convert(
             arguments.extend(FFMPEG_FORMATS[output_format])
 
     # Add bitrate if specified
-    if bitrate:
+    if bitrate and output_format in ["m4a", "opus"]:
         # Check if bitrate is an integer
         # if it is then use it as variable bitrate
         if bitrate.isdigit():
