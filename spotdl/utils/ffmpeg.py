@@ -316,13 +316,15 @@ def convert(
             arguments.extend(FFMPEG_FORMATS[output_format])
 
     # Add bitrate if specified
-    if bitrate and output_format in ["m4a", "opus"]:
+    if bitrate and bitrate != "copy":
         # Check if bitrate is an integer
         # if it is then use it as variable bitrate
         if bitrate.isdigit():
             arguments.extend(["-q:a", bitrate])
         else:
             arguments.extend(["-b:a", bitrate])
+    elif bitrate == "copy" and output_format in ["m4a", "opus"]:
+        arguments.extend(["-vn", "-c:a", "copy"])
 
     # Add other ffmpeg arguments if specified
     if ffmpeg_args:
