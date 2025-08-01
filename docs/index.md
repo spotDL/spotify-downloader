@@ -149,4 +149,3 @@ resources around contributing along with a guide on how to set up a development 
 ## License
 
 This project is Licensed under the [MIT](/LICENSE) License.
-

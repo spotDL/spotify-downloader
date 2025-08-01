@@ -203,13 +203,14 @@ pip install poetry
 poetry install
 ```
 
-**Then, to activate virtual environment run the following**
+**Then, to activate virtual environment**
 
 ```
-poetry shell
+poetry env activate
 ```
+and then run the command that is returned.
 
-All changes will now affect the poetry installation of the spotDL cli.
+All changes will now affect the poetry installation of the spotDL CLI.
 
 ### Linting, Formatting and Type-checking
 
@@ -277,7 +278,7 @@ Any submitted code is expected to have accompanying documentation
 
 - For functions
 
-  ```
+  ```text
   one-liner about functions purpose
 
   ### Args (optional)
@@ -295,7 +296,7 @@ Any submitted code is expected to have accompanying documentation
 
 - For Classes
 
-  ```
+  ```text
   one-liner about class purpose
 
   ### Attributes
@@ -307,7 +308,7 @@ Any submitted code is expected to have accompanying documentation
 
 - For modules/package `__init__`
 
-  ```
+  ```text
   at max 3 lines about module/package purpose
 
   optional usage example for module/package preferably showcasing most commonly used functionality
@@ -317,7 +318,7 @@ Any submitted code is expected to have accompanying documentation
 
 - DocStrings are Inherited
 
-  ```
+  ```text
   class A:
       def test(self):
           """Docstring for A."""
