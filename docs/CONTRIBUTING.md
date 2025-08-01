@@ -263,16 +263,6 @@ Any submitted code is expected to have accompanying documentation
 
 - We generate our documentation with [`mkdocs`](https://www.mkdocs.org/)
 
-  ```bash
-  pip install mkdocs
-  ```
-
-  `mkdocs` requires that all development packages are installed
-
-  ```bash
-  poetry install
-  ```
-
   generate docs with
 
   ```bash
