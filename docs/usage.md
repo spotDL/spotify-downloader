@@ -292,7 +292,7 @@ If you don't want config to load automatically change `load_config` option in co
     "overwrite": "skip",
     "search_query": null,
     "ffmpeg": "ffmpeg",
-    "bitrate": null,
+    "bitrate": "128k",
     "ffmpeg_args": null,
     "format": "mp3",
     "save_file": null,
