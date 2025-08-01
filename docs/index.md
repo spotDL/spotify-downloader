@@ -1,12 +1,15 @@
+
 <!--- mdformat-toc start --slug=github --->
 
 <!---
 !!! IF EDITING THE README, ENSURE TO COPY THE WHOLE FILE TO index.md in `/docs/` AND REMOVE THE REFERENCES TO ReadTheDocs THERE.
 --->
 
+
 # spotDL v4
 
 **spotDL** finds songs from Spotify playlists on YouTube and downloads them - along with album art, lyrics and metadata.
+
 
 [![MIT License](https://img.shields.io/github/license/spotdl/spotify-downloader?color=44CC11&style=flat-square)](https://github.com/spotDL/spotify-downloader/blob/master/LICENSE)
 [![PyPI version](https://img.shields.io/pypi/pyversions/spotDL?color=%2344CC11&style=flat-square)](https://pypi.org/project/spotdl/)
@@ -16,55 +19,54 @@
 
 > spotDL: The fastest, easiest and most accurate command-line music downloader.
 
----
-
+______________________________________________________________________
 **[Read the documentation on ReadTheDocs!](https://spotdl.readthedocs.io)**
+______________________________________________________________________
 
----
 
 ## Installation
 
 Refer to our [Installation Guide](https://spotdl.rtfd.io/en/latest/installation/) for more details.
 
 ### Python (Recommended Method)
+  - _spotDL_ can be installed by running `pip install spotdl`.
+  - To update spotDL run `pip install --upgrade spotdl`
+  > On some systems you might have to change `pip` to `pip3`.
 
--   _spotDL_ can be installed by running `pip install spotdl`.
--   To update spotDL run `pip install --upgrade spotdl`
-    > On some systems you might have to change `pip` to `pip3`.
 
 ### Other options
 
--   Prebuilt executable
-    -   You can download the latest version from the
-        [Releases Tab](https://github.com/spotDL/spotify-downloader/releases)
--   On Termux
-    -   `curl -L https://raw.githubusercontent.com/spotDL/spotify-downloader/master/scripts/termux.sh | sh`
--   Arch
-    -   There is an [Arch User Repository (AUR) package](https://aur.archlinux.org/packages/spotdl/) for
-        spotDL.
--   Docker
+- Prebuilt executable
+  - You can download the latest version from the
+    [Releases Tab](https://github.com/spotDL/spotify-downloader/releases)
+- On Termux
+  - `curl -L https://raw.githubusercontent.com/spotDL/spotify-downloader/master/scripts/termux.sh | sh`
+- Arch
+  - There is an [Arch User Repository (AUR) package](https://aur.archlinux.org/packages/spotdl/) for
+    spotDL.
+- Docker
+  - Build image:
 
-    -   Build image:
-
-        ```bash
-        docker build -t spotdl .
-        ```
-
-    -   Launch container with spotDL parameters (see section below). You need to create mapped
-        volume to access song files
-
-        ```bash
-        docker run --rm -v $(pwd):/music spotdl download [trackUrl]
-        ```
-
--   Build from source
     ```bash
-    git clone https://github.com/spotDL/spotify-downloader && cd spotify-downloader
-    pip install uv
-    uv sync
-    python3 scripts/build.py
+    docker build -t spotdl .
     ```
-    An executable is created in `spotify-downloader/dist/`.
+
+  - Launch container with spotDL parameters (see section below). You need to create mapped
+    volume to access song files
+
+    ```bash
+    docker run --rm -v $(pwd):/music spotdl download [trackUrl]
+    ```
+
+ - Build from source
+	```bash
+	git clone https://github.com/spotDL/spotify-downloader && cd spotify-downloader
+	pip install poetry
+	poetry install
+	python3 scripts/build.py
+	```
+	An executable is created in `spotify-downloader/dist/`.
+
 
 ### Installing FFmpeg
 
@@ -74,64 +76,56 @@ FFmpeg is required for spotDL. If using FFmpeg only for spotDL, you can simply i
 We recommend the above option, but if you want to install FFmpeg system-wide,
 follow these instructions
 
--   [Windows Tutorial](https://windowsloop.com/install-ffmpeg-windows-10/)
--   OSX - `brew install ffmpeg`
--   Linux - `sudo apt install ffmpeg` or use your distro's package manager
+- [Windows Tutorial](https://windowsloop.com/install-ffmpeg-windows-10/)
+- OSX - `brew install ffmpeg`
+- Linux - `sudo apt install ffmpeg` or use your distro's package manager
 
 ## Usage
 
 Using SpotDL without options::
-
 ```sh
 spotdl [urls]
 ```
-
 You can run _spotDL_ as a package if running it as a script doesn't work:
-
 ```sh
 python -m spotdl [urls]
 ```
 
 General usage:
-
 ```sh
 spotdl [operation] [options] QUERY
 ```
-
 When downloading songs, the song's Spotify Popularity variable [(described here)](https://developer.spotify.com/documentation/web-api/reference/get-track) is stored in metadata as a comment, so you can sort your downloaded songs by popularity.
 
-There are different **operations** spotDL can perform. The _default_ is `download`, which simply downloads the songs from YouTube and embeds metadata.
+There are different **operations** spotDL can perform. The *default* is `download`, which simply downloads the songs from YouTube and embeds metadata.
 
 The **query** for spotDL is usually a list of Spotify URLs, but for some operations like **sync**, only a single link or file is required.
-For a list of all **options** use `spotdl -h`
+For a list of all **options** use ```spotdl -h```
 
 #### Supported operations
 
--   `save`: Saves only the metadata from Spotify without downloading anything.
-
-    -   Usage:
+- `save`: Saves only the metadata from Spotify without downloading anything.
+    - Usage:
         `spotdl save [query] --save-file {filename}.spotdl`
 
--   `web`: Starts a web interface instead of using the command line. However, it has limited features and only supports downloading single songs.
-
-    -   Usage:
+- `web`: Starts a web interface instead of using the command line. However, it has limited features and only supports downloading single songs.
+    - Usage:
         `spotdl web`
 
--   `url`: Get direct download link for each song from the query.
-
-    -   Usage:
+- `url`: Get direct download link for each song from the query.
+    - Usage:
         `spotdl url [query]`
 
--   `sync`: Updates directories. Compares the directory with the current state of the playlist. Newly added songs will be downloaded and removed songs will be deleted. No other songs will be downloaded and no other files will be deleted.
+- `sync`: Updates directories. Compares the directory with the current state of the playlist. Newly added songs will be downloaded and removed songs will be deleted. No other songs will be downloaded and no other files will be deleted.
 
-    -   Usage:
+    - Usage:
         `spotdl sync [query] --save-file {filename}.spotdl`
 
         This create a new **sync** file, to update the directory in the future, use:
 
         `spotdl sync {filename}.spotdl`
 
--   `meta`: Updates metadata for the provided song files.
+- `meta`: Updates metadata for the provided song files.
 </details>
 
 ## Music Sourcing and Audio Quality
@@ -155,3 +149,4 @@ resources around contributing along with a guide on how to set up a development 
 ## License
 
 This project is Licensed under the [MIT](/LICENSE) License.
+
