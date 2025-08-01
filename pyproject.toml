@@ -1,12 +1,15 @@
 [project]
 name = "spotdl"
 version = "4.2.11"
+requires-python = ">=3.9,<3.14"
+
 description = "Download your Spotify playlists and songs along with album art and metadata"
 authors = [{ name = "spotDL Team", email = "spotdladmins@googlegroups.com" }]
-requires-python = ">=3.9,<3.14"
 readme = "README.md"
 license = "MIT"
-maintainers = [{ name = "xnetcat", email = "xnetcat.dev@gmail.com" }]
+
+maintainers = [{ name = "Silverarmor", email = "spotdladmins@googlegroups.com" }]
+
 keywords = [
     "spotify",
     "downloader",
