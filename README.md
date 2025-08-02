@@ -11,7 +11,6 @@
 
 **spotDL** finds songs from Spotify playlists on YouTube and downloads them - along with album art, lyrics and metadata.
 
-
 [![MIT License](https://img.shields.io/github/license/spotdl/spotify-downloader?color=44CC11&style=flat-square)](https://github.com/spotDL/spotify-downloader/blob/master/LICENSE)
 [![PyPI version](https://img.shields.io/pypi/pyversions/spotDL?color=%2344CC11&style=flat-square)](https://pypi.org/project/spotdl/)
 [![PyPi downloads](https://img.shields.io/pypi/dw/spotDL?label=downloads@pypi&color=344CC11&style=flat-square)](https://pypi.org/project/spotdl/)
@@ -25,14 +24,14 @@ ______________________________________________________________________
 **[Read the documentation on ReadTheDocs!](https://spotdl.readthedocs.io)**
 ______________________________________________________________________
 
-
 ## Installation
 
 Refer to our [Installation Guide](https://spotdl.rtfd.io/en/latest/installation/) for more details.
 
 ### Python (Recommended Method)
-  - _spotDL_ can be installed by running `pip install spotdl`.
-  - To update spotDL run `pip install --upgrade spotdl`
+
+- _spotDL_ can be installed by running `pip install spotdl`.
+- To update spotDL run `pip install --upgrade spotdl`
 
   > On some systems you might have to change `pip` to `pip3`.
 
@@ -74,7 +73,6 @@ Refer to our [Installation Guide](https://spotdl.rtfd.io/en/latest/installation/
 
 </details>
 
-
 ### Installing FFmpeg
 
 FFmpeg is required for spotDL. If using FFmpeg only for spotDL, you can simply install FFmpeg to your spotDL installation directory:
@@ -89,21 +87,25 @@ follow these instructions
 
 ## Usage
 
-Using SpotDL without options::
+Using SpotDL without options:
+
 ```sh
 spotdl [urls]
 ```
+
 You can run _spotDL_ as a package if running it as a script doesn't work:
+
 ```sh
 python -m spotdl [urls]
 ```
 
 General usage:
+
 ```sh
 spotdl [operation] [options] QUERY
 ```
 
-There are different **operations** spotDL can perform. The *default* is `download`, which simply downloads the songs from YouTube and embeds metadata.
+There are different **operations** spotDL can perform. The _default_ is `download`, which simply downloads the songs from YouTube and embeds metadata.
 
 The **query** for spotDL is usually a list of Spotify URLs, but for some operations like **sync**, only a single link or file is required.
 For a list of all **options** use ```spotdl -h```
@@ -152,9 +154,8 @@ Check the [Audio Formats](docs/usage.md#audio-formats-and-quality) page for more
 Interested in contributing? Check out our [CONTRIBUTING.md](docs/CONTRIBUTING.md) to find
 resources around contributing along with a guide on how to set up a development environment.
 
-### Join our amazing community as a code contributor, and help accelerate
+### Join our amazing community as a code contributor
 
-<br><br>
 <a href="https://github.com/spotDL/spotify-downloader/graphs/contributors">
   <img class="dark-light" src="https://contrib.rocks/image?repo=spotDL/spotify-downloader&anon=0&columns=25&max=100&r=true" />
 </a>
