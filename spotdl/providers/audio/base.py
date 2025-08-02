@@ -160,7 +160,7 @@ class AudioProvider:
         """
 
         # Create initial search query
-        self.search_query = create_song_title(song.name, song.artists).lower()
+        search_query = create_song_title(song.name, song.artists).lower()
         if self.search_query:
             search_query = create_search_query(
                 song, self.search_query, False, None, True
