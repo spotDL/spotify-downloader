@@ -7,7 +7,7 @@ jobs:
     if: "!contains(github.event.commits[0].message, '[skip ci]')"
     runs-on: ${{ matrix.platform }}
     strategy:
-      max-parallel: 1
+      # max-parallel: 1
       matrix:
         platform: [ubuntu-latest, macos-13, windows-latest]
 
@@ -45,7 +45,7 @@ jobs:
     if: "!contains(github.event.commits[0].message, '[skip ci]')"
     runs-on: ${{ matrix.platform }}
     strategy:
-      max-parallel: 3
+      # max-parallel: 3
       matrix:
         platform: [ubuntu-latest, macos-13, windows-latest]
         python-version: ["3.11"]
