@@ -55,6 +55,7 @@ def sync(
             threads=downloader.settings["threads"],
             use_ytm_data=downloader.settings["ytm_data"],
             playlist_numbering=downloader.settings["playlist_numbering"],
+            playlist_numberung_only=downloader.settings["playlist_numbering_only"],
             album_type=downloader.settings["album_type"],
             playlist_retain_track_cover=downloader.settings[
                 "playlist_retain_track_cover"
@@ -114,6 +115,7 @@ def sync(
             threads=downloader.settings["threads"],
             use_ytm_data=downloader.settings["ytm_data"],
             playlist_numbering=downloader.settings["playlist_numbering"],
+            playlist_numberung_only=downloader.settings["playlist_numbering_only"],
             album_type=downloader.settings["album_type"],
             playlist_retain_track_cover=downloader.settings[
                 "playlist_retain_track_cover"
