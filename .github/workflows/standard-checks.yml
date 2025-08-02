@@ -10,32 +10,35 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Install poetry
-        run: pipx install poetry
-
       - name: Set up Python 3.11
         uses: actions/setup-python@v4
         with:
           python-version: "3.11"
-          cache: 'poetry'
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: "latest"
+          enable-cache: true
 
       - name: Install dependencies
         run: |
-          poetry env use "3.11"
-          poetry install
+          uv venv --python 3.11
+          uv sync
+          uv pip install pip
 
       - name: Run Pylint check
         run: |
-          poetry run pylint --fail-under 10 --limit-inference-results 0 --disable=R0917 ./spotdl
+          uv run pylint --fail-under 10 --limit-inference-results 0 --disable=R0917 ./spotdl
 
       - name: Run MyPy check
         run: |
-          poetry run mypy --ignore-missing-imports --follow-imports silent --install-types --non-interactive ./spotdl
+          uv run mypy --ignore-missing-imports --follow-imports silent --install-types --non-interactive ./spotdl
 
       - name: Run Black check
         run: |
-          poetry run black --check ./spotdl
+          uv run black --check ./spotdl
 
       - name: Run isort check
         run: |
-          poetry run isort --check --diff ./spotdl
+          uv run isort --check --diff ./spotdl
