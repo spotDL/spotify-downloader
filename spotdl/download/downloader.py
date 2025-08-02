@@ -737,7 +737,7 @@ class Downloader:
                     bitrate = (
                         f"{int(download_info['abr'])}k"
                         if download_info.get("abr")
-                        else "copy"
+                        else "128k"
                     )
                 elif self.settings["bitrate"] == "disable":
                     bitrate = None
