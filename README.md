@@ -61,14 +61,16 @@ Refer to our [Installation Guide](https://spotdl.rtfd.io/en/latest/installation/
     docker run --rm -v $(pwd):/music spotdl download [trackUrl]
     ```
 
- - Build from source
-	```bash
-	git clone https://github.com/spotDL/spotify-downloader && cd spotify-downloader
-	pip install poetry
-	poetry install
-	poetry run python3 scripts/build.py
-	```
-	An executable is created in `spotify-downloader/dist/`.
+  - Build from source
+
+    ```bash
+    git clone https://github.com/spotDL/spotify-downloader && cd spotify-downloader
+    pip install uv
+    uv sync
+    uv run scripts/build.py
+    ```
+
+    An executable is created in `spotify-downloader/dist/`.
 
 </details>
 
