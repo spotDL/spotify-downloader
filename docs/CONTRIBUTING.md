@@ -191,26 +191,37 @@ git clone [your username]/spotify-downloader
 cd spotify-downloader
 ```
 
-**Install poetry**
+- Install uv
 
-```
-pip install poetry
-```
+  ```bash
+  pip install uv
+  ```
 
-**Then, to install spotDL in-place, run the following**
+- Install spotDL in-place
 
-```
-poetry install
-```
+  ```bash
+  uv sync
+  ```
 
-**Then, to activate virtual environment**
+- Activate virtual environment
 
-```
-poetry env activate
-```
-and then run the command that is returned.
+=== "macOS and Linux"
 
-All changes will now affect the poetry installation of the spotDL CLI.
+    ```bash
+    source .venv/bin/activate
+    ```
+
+=== "Windows"
+
+    ```console
+    .venv\Scripts\activate
+    ```
+
+- OR you can prefix all commands with `uv run`
+
+  ```bash
+  uv run spotdl -h
+  ```
 
 ### Linting, Formatting and Type-checking
 
@@ -251,16 +262,6 @@ Any submitted code is expected to have accompanying documentation
 #### mkdocs: generating documentation
 
 - We generate our documentation with [`mkdocs`](https://www.mkdocs.org/)
-
-  ```bash
-  pip install mkdocs
-  ```
-
-  `mkdocs` requires that all development packages are installed
-
-  ```bash
-  poetry install
-  ```
 
   generate docs with
 
