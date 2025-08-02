@@ -249,12 +249,6 @@ cd spotify-downloader
   mypy ./spotdl
   ```
 
-- You can install these basic tools with
-
-  ```bash
-  pip install --force-reinstall --upgrade mypy black pylint
-  ```
-
 ### Python Documentation
 
 Any submitted code is expected to have accompanying documentation
