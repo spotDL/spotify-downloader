@@ -21,26 +21,28 @@ jobs:
           fetch-depth: 0
           submodules: recursive
 
-      - name: Install poetry
-        run: pipx install poetry
-
       - name: Set up Python 3.10
         uses: actions/setup-python@v4
         with:
           python-version: "3.10"
-          cache: 'poetry'
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: "latest"
+          enable-cache: true
 
       - name: Install dependencies
         run: |
-          poetry env use "3.10"
-          poetry install
+          uv venv --python 3.10
+          uv sync
 
       - name: Install twine
         run: pip install twine
 
       - name: Build
         run: |
-          poetry build
+          uv build
 
       - name: Publish package distributions to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
@@ -53,22 +55,24 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Install poetry
-        run: pipx install poetry
-
       - name: Set up Python 3.10
         uses: actions/setup-python@v4
         with:
           python-version: "3.10"
-          cache: 'poetry'
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: "latest"
+          enable-cache: true
 
       - name: Install dependencies
         run: |
-          poetry env use "3.10"
-          poetry install
+          uv venv --python 3.10
+          uv sync
 
       - name: Build executable
-        run: poetry run python ./scripts/build.py
+        run: uv run python ./scripts/build.py
 
       - name: Build cross-platform binary
         run: |
@@ -106,11 +110,11 @@ jobs:
             apt update
             apt install python3-full python3-pip pipx -y
             pipx ensurepath
-            pipx install poetry
-            poetry install
+            pipx install uv
+            uv sync
             rm -rf dist/
             mkdir dist/
-            poetry run python ./scripts/build.py
+            uv run python ./scripts/build.py
             for file in dist/spotdl*; do cp "$file" "${file}-aarch64"; done
 
       - name: Release
