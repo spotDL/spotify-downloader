@@ -207,15 +207,15 @@ cd spotify-downloader
 
 === "macOS and Linux"
 
-    ```bash
-    source .venv/bin/activate
-    ```
+```bash
+source .venv/bin/activate
+```
 
 === "Windows"
 
-    ```console
-    .venv\Scripts\activate
-    ```
+```console
+.venv\Scripts\activate
+```
 
 - OR you can prefix all commands with `uv run`
 
