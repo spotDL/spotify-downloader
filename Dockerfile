@@ -17,16 +17,13 @@ RUN apk add --no-cache \
 # Install uv and update pip/wheel
 RUN pip install --upgrade pip uv wheel spotipy
 
+# Set workdir
+WORKDIR /app
+
 # Copy requirements files
-COPY uv.lock pyproject.toml /
+COPY . .
 
 # Install spotdl requirements
-RUN uv sync
-
-# Add source code files to WORKDIR
-ADD . .
-
-# Install spotdl itself
 RUN uv sync
 
 # Create music directory
@@ -34,9 +31,6 @@ RUN mkdir /music
 
 # Create a volume for the output directory
 VOLUME /music
-
-# Change CWD to /music
-WORKDIR /music
 
 # Entrypoint command
 ENTRYPOINT ["uv", "run", "spotdl"]
