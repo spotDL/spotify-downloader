@@ -26,11 +26,11 @@ COPY . .
 # Install spotdl requirements
 RUN uv sync
 
-# Create music directory
-RUN mkdir /music
-
 # Create a volume for the output directory
 VOLUME /music
 
+#Change Workdir to download location
+WORKDIR /music
+
 # Entrypoint command
-ENTRYPOINT ["uv", "run", "spotdl"]
+ENTRYPOINT ["uv", "run","--project","/app","spotdl"]
