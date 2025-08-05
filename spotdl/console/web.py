@@ -16,7 +16,8 @@ from uvicorn import Config, Server
 from spotdl._version import __version__
 from spotdl.types.options import DownloaderOptions, WebOptions
 from spotdl.utils.config import get_web_ui_path
-from spotdl.utils.github import download_github_dir
+
+# from spotdl.utils.github import download_github_dir
 from spotdl.utils.logging import NAME_TO_LEVEL
 from spotdl.utils.web import (
     ALLOWED_ORIGINS,
@@ -24,8 +25,13 @@ from spotdl.utils.web import (
     app_state,
     fix_mime_types,
     get_current_state,
-    router,
+    # router,
 )
+
+# from spotdl.web.api import router
+# from spotdl.web.client import router
+import spotdl.web.api as api
+import spotdl.web.client as client
 
 __all__ = ["web"]
 
@@ -66,30 +72,30 @@ def web(web_settings: WebOptions, downloader_settings: DownloaderOptions):
 
     # Download web app from GitHub if not already downloaded or force flag set
     web_app_dir = get_web_ui_path()
-    dist_dir = web_app_dir / "dist"
-    if (not dist_dir.exists() or web_settings["force_update_gui"]) and web_settings[
-        "web_gui_location"
-    ] is None:
-        if web_settings["web_gui_repo"] is None:
-            gui_repo = "https://github.com/spotdl/web-ui/tree/master/dist"
-        else:
-            gui_repo = web_settings["web_gui_repo"]
+    # dist_dir = web_app_dir / "dist"
+    # if (not dist_dir.exists() or web_settings["force_update_gui"]) and web_settings[
+    #     "web_gui_location"
+    # ] is None:
+    #     if web_settings["web_gui_repo"] is None:
+    #         gui_repo = "https://github.com/spotdl/web-ui/tree/master/dist"
+    #     else:
+    #         gui_repo = web_settings["web_gui_repo"]
 
-        logger.info("Updating web app from %s", gui_repo)
+    #     logger.info("Updating web app from %s", gui_repo)
 
-        download_github_dir(
-            gui_repo,
-            output_dir=str(web_app_dir),
-        )
-        web_app_dir = Path(os.path.join(web_app_dir, "dist")).resolve()
-    elif web_settings["web_gui_location"]:
-        web_app_dir = Path(web_settings["web_gui_location"]).resolve()
-        logger.info("Using custom web app location: %s", web_app_dir)
-    else:
-        logger.info(
-            "Using cached web app. To update use the `--force-update-gui` flag."
-        )
-        web_app_dir = Path(os.path.join(web_app_dir, "dist")).resolve()
+    #     download_github_dir(
+    #         gui_repo,
+    #         output_dir=str(web_app_dir),
+    #     )
+    #     web_app_dir = Path(os.path.join(web_app_dir, "dist")).resolve()
+    # elif web_settings["web_gui_location"]:
+    #     web_app_dir = Path(web_settings["web_gui_location"]).resolve()
+    #     logger.info("Using custom web app location: %s", web_app_dir)
+    # else:
+    #     logger.info(
+    #         "Using cached web app. To update use the `--force-update-gui` flag."
+    #     )
+    #     web_app_dir = Path(os.path.join(web_app_dir, "dist")).resolve()
 
     app_state.api = FastAPI(
         title="spotDL",
@@ -98,7 +104,8 @@ def web(web_settings: WebOptions, downloader_settings: DownloaderOptions):
         dependencies=[Depends(get_current_state)],
     )
 
-    app_state.api.include_router(router)
+    app_state.api.include_router(api.router)
+    app_state.api.include_router(client.router)
 
     # Add the CORS middleware
     app_state.api.add_middleware(
@@ -119,6 +126,11 @@ def web(web_settings: WebOptions, downloader_settings: DownloaderOptions):
         SPAStaticFiles(directory=web_app_dir, html=True),
         name="static",
     )
+    app_state.api.mount(
+        "/assets",
+        SPAStaticFiles(directory=web_app_dir / "assets", html=True),
+        name="static",
+    )
     protocol = "http"
     config = Config(
         app=app_state.api,
@@ -127,6 +139,8 @@ def web(web_settings: WebOptions, downloader_settings: DownloaderOptions):
         workers=1,
         log_level=NAME_TO_LEVEL[downloader_settings["log_level"]],
         loop=app_state.loop,  # type: ignore
+        # reload=True,  # TODO: store in web_settings
+        # reload_includes=["**/*.py", ".env", "**/*.html"],
     )
     if web_settings["enable_tls"]:
         logger.info("Enabeling TLS")
@@ -142,19 +156,19 @@ def web(web_settings: WebOptions, downloader_settings: DownloaderOptions):
     # Open the web browser
     webbrowser.open(f"{protocol}://{web_settings['host']}:{web_settings['port']}/")
 
-    if not web_settings["web_use_output_dir"]:
-        logger.info(
-            "Files are stored in temporary directory "
-            "and will be deleted after the program exits "
-            "to save them to current directory permanently "
-            "enable the `web_use_output_dir` option "
-        )
-    else:
-        logger.info(
-            "Files are stored in current directory "
-            "to save them to temporary directory "
-            "disable the `web_use_output_dir` option "
-        )
+    # if not web_settings["web_use_output_dir"]:
+    #     logger.info(
+    #         "Files are stored in temporary directory "
+    #         "and will be deleted after the program exits "
+    #         "to save them to current directory permanently "
+    #         "enable the `web_use_output_dir` option "
+    #     )
+    # else:
+    #     logger.info(
+    #         "Files are stored in current directory "
+    #         "to save them to temporary directory "
+    #         "disable the `web_use_output_dir` option "
+    #     )
 
     logger.info("Starting web server \n")
 
