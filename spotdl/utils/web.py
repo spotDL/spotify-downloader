@@ -88,7 +88,7 @@ class Client:
 
     def __init__(
         self,
-        websocket: WebSocket,
+        # websocket: WebSocket,
         client_id: str,
     ):
         """
@@ -107,7 +107,7 @@ class Client:
             )  # type: ignore
         )
 
-        self.websocket = websocket
+        # self.websocket = websocket
         self.client_id = client_id
         self.downloader = Downloader(
             settings=self.downloader_settings, loop=app_state.loop
@@ -120,11 +120,26 @@ class Client:
         Called when a new client connects to the websocket.
         """
 
-        await self.websocket.accept()
+        # await self.websocket.accept()
 
         # Add the connection to the list of connections
         app_state.clients[self.client_id] = self
         app_state.logger.info("Client %s connected", self.client_id)
+
+    async def disconnect(self):
+        """
+        Called when a client disconnects from the websocket.
+        """
+
+        # Remove the connection from the list of connections
+        if self.client_id in app_state.clients:
+            # app_state.clients.pop(client_id, None)
+            del app_state.clients[self.client_id]
+            app_state.logger.info("Client %s disconnected", self.client_id)
+        else:
+            app_state.logger.warning(
+                "Client %s not found on disconnect", self.client_id
+            )
 
     async def send_update(self, update: Dict[str, Any]):
         """
@@ -134,7 +149,8 @@ class Client:
         - update: The update to send.
         """
 
-        await self.websocket.send_json(update)
+        # await self.websocket.send_json(update)
+        print(f"Sending update to {self.client_id}: {update}")
 
     def song_update(self, progress_handler: SongTracker, message: str):
         """
@@ -239,7 +255,7 @@ def fix_mime_types():
     """
 
     # Known to be problematic when Visual Studio is installed:
-    # <https://github.com/tensorflow/tensorboard/issues/3120>
+    # https://github.com/tensorflow/tensorboard/issues/3120
     # https://github.com/spotDL/spotify-downloader/issues/1540
     mimetypes.add_type("application/javascript", ".js")
 

@@ -1,0 +1,55 @@
+<span id="router-view">
+    <div class="hero min-h-screen">
+        <div class="flex justify-end absolute top-0 right-0">
+            <!-- Theme Switcher -->
+            <label class="swap">
+                <input type="checkbox" />
+                <div class="swap-on">Light</div>
+                <div class="swap-off">Dark</div>
+            </label>
+
+            <!-- Settings Button -->
+            <label for="settings-modal" class="btn btn-square modal-button m-2">
+                <iconify-icon icon="clarity:settings-line" style="font-size: 24px"></iconify-icon>
+            </label>
+        </div>
+
+        <!-- Hero Content -->
+        <div class="block text-center justify-center hero-content">
+            <div class="flex items-center justify-center">
+                <img src="assets/spotdl.svg" class="mb-5 w-32 center" />
+            </div>
+            <div>
+                <h1 class="mb-5 text-5xl font-bold text-base-content">spotDL</h1>
+                <p class="mb-5 text-base-content">
+                    Download your Spotify songs with embedded album art and metadata
+                </p>
+            </div>
+
+            <span id="search-input" data-signals="{searchTerm: '', loading: false}">
+                <div class="flex flex-row items-center space-x-4 w-full">
+                    <input id="input-rotating-placeholder" type="text" placeholder="Search..."
+                        class="input input-bordered w-full text-base-content" data-bind="searchTerm"
+                        data-on-keydown.enter="@get('/client/search')"
+                        data-on-load="@get('/client/home/input/rotating-placeholder')" />
+                    <button id="search-button" class="btn btn-square btn-primary"
+                        data-on-click="@get('/client/search')">
+                        <iconify-icon icon="clarity:download-line" style="font-size: 24px"></iconify-icon>
+                    </button>
+                </div>
+            </span>
+
+            <div role="alert" class="alert alert-info shadow-lg my-4">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                    class="stroke-current flex-shrink-0 w-6 h-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <span>
+                    This interface now can download a song or an entire album, artist, or
+                    playlist.
+                </span>
+            </div>
+        </div>
+    </div>
+</span>

@@ -37,11 +37,11 @@ from spotdl.utils.web import (
     ApplicationState,
     get_current_state,
     get_client,
+    app_state,
 )
 
 __all__ = [
-    "websocket_endpoint",
-    "song_from_url",
+    # "websocket_endpoint",
     "query_search",
     "download_url",
     "download_file",
@@ -50,11 +50,49 @@ __all__ = [
 ]
 
 router = APIRouter()
-app_state: ApplicationState = ApplicationState()
+# app_state: ApplicationState = ApplicationState()
 
 
-@router.websocket("/api/ws")
-async def websocket_endpoint(websocket: WebSocket, client_id: str):
+# @router.websocket("/api/ws")
+# async def websocket_endpoint(websocket: WebSocket, client_id: str):
+#     """
+#     Websocket endpoint.
+
+#     ### Arguments
+#     - websocket: The WebSocket instance.
+#     """
+
+#     await Client(websocket, client_id).connect()
+
+#     try:
+#         while True:
+#             await websocket.receive_json()
+#     except WebSocketDisconnect:
+#         app_state.clients.pop(client_id, None)
+
+#         if (
+#             len(app_state.clients) == 0
+#             and app_state.web_settings["keep_alive"] is False
+#         ):
+#             app_state.logger.debug(
+#                 "No active connections, waiting 1s before shutting down"
+#             )
+
+#             await asyncio.sleep(1)
+
+#             # Wait 1 second before shutting down
+#             # This is to prevent the server from shutting down when a client
+#             # disconnects and reconnects quickly (e.g. when refreshing the page)
+#             if len(app_state.clients) == 0:
+#                 # Perform a clean exit
+#                 app_state.logger.info("Shutting down server, no active connections")
+#                 app_state.server.force_exit = True
+#                 app_state.server.should_exit = True
+#                 await app_state.server.shutdown()
+
+
+@router.get("/api/connect")
+async def connect_endpoint(client_id: str):
     """
     Websocket endpoint.
 
@@ -62,49 +100,34 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
     - websocket: The WebSocket instance.
     """
 
-    await Client(websocket, client_id).connect()
+    # await Client(websocket, client_id).connect()
+    await Client(client_id).connect()
 
-    try:
-        while True:
-            await websocket.receive_json()
-    except WebSocketDisconnect:
-        app_state.clients.pop(client_id, None)
+    # try:
+    #     while True:
+    #         await websocket.receive_json()
+    # except WebSocketDisconnect:
+    #     app_state.clients.pop(client_id, None)
 
-        if (
-            len(app_state.clients) == 0
-            and app_state.web_settings["keep_alive"] is False
-        ):
-            app_state.logger.debug(
-                "No active connections, waiting 1s before shutting down"
-            )
+    #     if (
+    #         len(app_state.clients) == 0
+    #         and app_state.web_settings["keep_alive"] is False
+    #     ):
+    #         app_state.logger.debug(
+    #             "No active connections, waiting 1s before shutting down"
+    #         )
 
-            await asyncio.sleep(1)
+    #         await asyncio.sleep(1)
 
-            # Wait 1 second before shutting down
-            # This is to prevent the server from shutting down when a client
-            # disconnects and reconnects quickly (e.g. when refreshing the page)
-            if len(app_state.clients) == 0:
-                # Perform a clean exit
-                app_state.logger.info("Shutting down server, no active connections")
-                app_state.server.force_exit = True
-                app_state.server.should_exit = True
-                await app_state.server.shutdown()
-
-
-# Deprecated
-@router.get("/api/song/url", response_model=None)
-def song_from_url(url: str) -> Song:
-    """
-    Search for a song on spotify using url.
-
-    ### Arguments
-    - url: The url to search.
-
-    ### Returns
-    - returns the first result as a Song object.
-    """
-
-    return Song.from_url(url)
+    #         # Wait 1 second before shutting down
+    #         # This is to prevent the server from shutting down when a client
+    #         # disconnects and reconnects quickly (e.g. when refreshing the page)
+    #         if len(app_state.clients) == 0:
+    #             # Perform a clean exit
+    #             app_state.logger.info("Shutting down server, no active connections")
+    #             app_state.server.force_exit = True
+    #             app_state.server.should_exit = True
+    #             await app_state.server.shutdown()
 
 
 @router.get("/api/url", response_model=None)

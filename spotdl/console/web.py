@@ -28,8 +28,6 @@ from spotdl.utils.web import (
     # router,
 )
 
-# from spotdl.web.api import router
-# from spotdl.web.client import router
 import spotdl.web.api as api
 import spotdl.web.client as client
 
@@ -70,33 +68,6 @@ def web(web_settings: WebOptions, downloader_settings: DownloaderOptions):
 
     downloader_settings["simple_tui"] = True
 
-    # Download web app from GitHub if not already downloaded or force flag set
-    web_app_dir = get_web_ui_path()
-    # dist_dir = web_app_dir / "dist"
-    # if (not dist_dir.exists() or web_settings["force_update_gui"]) and web_settings[
-    #     "web_gui_location"
-    # ] is None:
-    #     if web_settings["web_gui_repo"] is None:
-    #         gui_repo = "https://github.com/spotdl/web-ui/tree/master/dist"
-    #     else:
-    #         gui_repo = web_settings["web_gui_repo"]
-
-    #     logger.info("Updating web app from %s", gui_repo)
-
-    #     download_github_dir(
-    #         gui_repo,
-    #         output_dir=str(web_app_dir),
-    #     )
-    #     web_app_dir = Path(os.path.join(web_app_dir, "dist")).resolve()
-    # elif web_settings["web_gui_location"]:
-    #     web_app_dir = Path(web_settings["web_gui_location"]).resolve()
-    #     logger.info("Using custom web app location: %s", web_app_dir)
-    # else:
-    #     logger.info(
-    #         "Using cached web app. To update use the `--force-update-gui` flag."
-    #     )
-    #     web_app_dir = Path(os.path.join(web_app_dir, "dist")).resolve()
-
     app_state.api = FastAPI(
         title="spotDL",
         description="Download music from Spotify",
@@ -121,6 +92,7 @@ def web(web_settings: WebOptions, downloader_settings: DownloaderOptions):
     )
 
     # Add the static files
+    web_app_dir = get_web_ui_path()
     app_state.api.mount(
         "/",
         SPAStaticFiles(directory=web_app_dir, html=True),
