@@ -8,46 +8,49 @@ from datastar_py.fastapi import (
     ServerSentEventGenerator as SSE,
 )
 from datastar_py.sse import DatastarEvent
-from fastapi import APIRouter
+from fastapi import APIRouter, Request
 from spotdl.utils.web import validate_search_term
 
-# from components.home import router as home_router
-import spotdl.web.components.home as home
+import spotdl.web.components.components as components
 import spotdl.web.api as api
 
 from spotdl.utils.web import Client, app_state
 import uuid
 
+from spotdl.web.utils import handle_signals
+
 __all__ = ["router"]
 
 router = APIRouter()
 
-router.include_router(home.router)
+router.include_router(components.router)
 
 
-class Signals:
-    """
-    Class that holds the client datastar signals.
-    """
+# class Signals:
+#     """
+#     Class that holds the client datastar signals.
+#     """
 
-    clientId: str
-    searchTerm: str = ""
+#     clientId: str = ""
+#     searchTerm: str = ""
+#     downloader_settings: dict = {}
 
 
-def handle_signals(datastar_signals: ReadSignals) -> Signals:
-    """
-    Handle the signals received from the client.
-    This function can be used to process or validate the signals before they are used.
-    """
-    app_state.logger.info(f"Received signals: {datastar_signals}")
-    if not datastar_signals:
-        raise ValueError(
-            "No signals provided. Please provide 'year' and 'classification'."
-        )
-    signals = Signals()
-    signals.clientId = datastar_signals.get("clientId", "")
-    signals.searchTerm = datastar_signals.get("searchTerm", "")
-    return signals
+# def handle_signals(datastar_signals: dict) -> Signals:
+#     """
+#     Handle the signals received from the client.
+#     This function can be used to process or validate the signals before they are used.
+#     """
+#     app_state.logger.info(f"Received signals: {datastar_signals}")
+#     if not datastar_signals:
+#         # raise ValueError("No signals provided.")
+#         app_state.logger.warning("No signals provided, returning empty Signals.")
+#         return Signals()
+#     signals = Signals()
+#     signals.clientId = datastar_signals.get("clientId", "")
+#     signals.searchTerm = datastar_signals.get("searchTerm", "")
+#     signals.downloader_settings = datastar_signals.get("downloader_settings", {})
+#     return signals
 
 
 @router.get("/client/load")
@@ -56,11 +59,16 @@ async def handle_get_client_load():
     app_state.logger.info("Loading client...")
     client = Client(uuid.uuid4().hex)
     await client.connect()
-    yield SSE.patch_elements(home.page())
+    # yield SSE.patch_elements(components.page())
+
+    # First send the client ID and then the home template.
     yield SSE.patch_signals(
         {
             "clientId": client.client_id,
         }
+    )
+    yield SSE.patch_elements(
+        f'<span id="router-view">{components.templates.get_template("home.html").render()}</span>'
     )
     """
     We are going to use Server-Sent Events (SSE) to update the time every 5 seconds.
@@ -73,13 +81,6 @@ async def handle_get_client_load():
     finally:
         app_state.logger.info("Unloading client...")
         await client.disconnect()
-
-
-@router.get("/client/goto/home")
-@datastar_response
-async def handle_get_client_goto_home():
-    app_state.logger.info("Loading home view...")
-    yield SSE.patch_elements(home.page())
 
 
 @router.get("/client/search")
@@ -108,3 +109,20 @@ async def handle_get_client_search(datastar_signals: ReadSignals):
         </button>
         """
     )
+
+
+# @datastar_response
+@router.get("/client/update-settings")
+async def handle_get_client_update_settings(datastar_signals: ReadSignals):
+    app_state.logger.info("Updating settings...")
+    signals = handle_signals(datastar_signals)
+    app_state.logger.info(f"Updating settings for client: {signals.clientId}")
+    if signals.clientId in app_state.clients:
+        client = app_state.clients[signals.clientId]
+        # Update the client's settings here if needed
+        # For example, you could update the client's search term or other settings
+        # client.search_term = signals.searchTerm
+        client.downloader_settings = signals.downloader_settings
+        app_state.logger.info(f"Updated settings for client: {client.client_id}")
+    else:
+        app_state.logger.warning(f"Client {signals.clientId} not found.")

@@ -108,7 +108,7 @@ def web(web_settings: WebOptions, downloader_settings: DownloaderOptions):
         app=app_state.api,
         host=web_settings["host"],
         port=web_settings["port"],
-        workers=1,
+        # workers=1,
         log_level=NAME_TO_LEVEL[downloader_settings["log_level"]],
         loop=app_state.loop,  # type: ignore
         # reload=True,  # TODO: store in web_settings
@@ -126,7 +126,7 @@ def web(web_settings: WebOptions, downloader_settings: DownloaderOptions):
     app_state.downloader_settings = downloader_settings
 
     # Open the web browser
-    webbrowser.open(f"{protocol}://{web_settings['host']}:{web_settings['port']}/")
+    # webbrowser.open(f"{protocol}://{web_settings['host']}:{web_settings['port']}/")
 
     # if not web_settings["web_use_output_dir"]:
     #     logger.info(

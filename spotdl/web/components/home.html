@@ -1,4 +1,4 @@
-<span id="router-view">
+<span id="component-home">
     <div class="hero min-h-screen">
         <div class="flex justify-end absolute top-0 right-0">
             <!-- Theme Switcher -->
@@ -31,7 +31,7 @@
                     <input id="input-rotating-placeholder" type="text" placeholder="Search..."
                         class="input input-bordered w-full text-base-content" data-bind="searchTerm"
                         data-on-keydown.enter="@get('/client/search')"
-                        data-on-load="@get('/client/home/input/rotating-placeholder')" />
+                        data-on-load="@get('/client/component/search-input-rotating-placeholder')" />
                     <button id="search-button" class="btn btn-square btn-primary"
                         data-on-click="@get('/client/search')">
                         <iconify-icon icon="clarity:download-line" style="font-size: 24px"></iconify-icon>

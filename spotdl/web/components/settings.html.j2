@@ -1,0 +1,107 @@
+<span id="component-settings">
+    <input type="checkbox" id="settings-modal" class="modal-toggle" />
+    <div class="modal" data-signals="{downloader_settings: {}}">
+        <div class="modal-box relative">
+            <label for="settings-modal" class="btn btn-sm btn-circle absolute right-2 top-2">✕</label>
+            <h3 class="font-bold text-lg">Download Settings</h3>
+            <div class="flex flex-col justify-center my-4">
+                <!-- audio_provider -->
+                <fieldset class="fieldset bg-base-100 border-base-300 rounded-box w-64 border p-4 w-full">
+                    <legend class="fieldset-legend">Audio Providers</legend>
+                    {% for provider in AUDIO_PROVIDERS %}
+                    {% if provider in downloader_settings.audio_providers %}
+                    <label class="label">
+                        <input type="checkbox" checked="checked" class="checkbox" id="{{ provider }}"
+                            name="{{ provider }}"
+                            data-on-change="console.log('{{ provider }}', evt.target.checked); if (evt.target.checked) { $downloader_settings.audio_providers.push('{{ provider }}') } else { $downloader_settings.audio_providers = $downloader_settings.audio_providers.filter(item => item !== '{{ provider }}') }" />
+                        {{ provider }}
+                    </label>
+                    {% else %}
+                    <label class="label">
+                        <input type="checkbox" class="checkbox" id="{{ provider }}" name="{{ provider }}"
+                            data-on-change="console.log('{{ provider }}', evt.target.checked); if (evt.target.checked) { $downloader_settings.audio_providers.push('{{ provider }}') } else { $downloader_settings.audio_providers = $downloader_settings.audio_providers.filter(item => item !== '{{ provider }}') }" />
+                        {{ provider }}
+                    </label>
+                    {% endif %}
+                    {% endfor %}
+                </fieldset>
+                <!-- lyrics_provider -->
+                <fieldset class="fieldset bg-base-100 border-base-300 rounded-box w-64 border p-4 w-full">
+                    <legend class="fieldset-legend">Lyrics Providers</legend>
+                    {% for provider in LYRICS_PROVIDERS %}
+                    {% if provider in downloader_settings.lyrics_providers %}
+                    <label class="label">
+                        <input type="checkbox" checked="checked" class="checkbox" id="{{ provider }}"
+                            name="{{ provider }}"
+                            data-on-change="console.log('{{ provider }}', evt.target.checked); if (evt.target.checked) { $downloader_settings.lyrics_providers.push('{{ provider }}') } else { $downloader_settings.lyrics_providers = $downloader_settings.lyrics_providers.filter(item => item !== '{{ provider }}') }" />
+                        {{ provider }}
+                    </label>
+                    {% else %}
+                    <label class="label">
+                        <input type="checkbox" class="checkbox" id="{{ provider }}" name="{{ provider }}"
+                            data-on-change="console.log('{{ provider }}', evt.target.checked); if (evt.target.checked) { $downloader_settings.lyrics_providers.push('{{ provider }}') } else { $downloader_settings.lyrics_providers = $downloader_settings.lyrics_providers.filter(item => item !== '{{ provider }}') }" />
+                        {{ provider }}
+                    </label>
+                    {% endif %}
+                    {% endfor %}
+                </fieldset>
+                <!-- format -->
+                {# <div class="form-control w-full">
+                    <label class="label">
+                        <span class="label-text">Output Format</span>
+                    </label>
+                    <select class="select w-full" v-model="sm.settings.value.format">
+                        <option v-for="(format, index) in sm.settingsOptions.format" :key="index"
+                            :selected="format === sm.settings.value.format">
+                            {{ format }}
+                        </option>
+                    </select>
+                </div> #}
+                <fieldset class="fieldset bg-base-100 border-base-300 rounded-box w-64 border p-4 w-full">
+                    <legend class="fieldset-legend">Output Format</legend>
+                    {% for format in FORMATS %}
+                    {% if format in downloader_settings.formats %}
+                    <label class="label">
+                        <input type="checkbox" checked="checked" class="checkbox" id="{{ format }}" name="{{ format }}"
+                            data-on-change="console.log('{{ format }}', evt.target.checked); if (evt.target.checked) { $downloader_settings.formats.push('{{ format }}') } else { $downloader_settings.formats = $downloader_settings.formats.filter(item => item !== '{{ format }}') }" />
+                        {{ format }}
+                    </label>
+                    {% else %}
+                    <label class="label">
+                        <input type="checkbox" class="checkbox" id="{{ format }}" name="{{ format }}"
+                            data-on-change="console.log('{{ format }}', evt.target.checked); if (evt.target.checked) { $downloader_settings.formats.push('{{ format }}') } else { $downloader_settings.formats = $downloader_settings.formats.filter(item => item !== '{{ format }}') }" />
+                        {{ format }}
+                    </label>
+                    {% endif %}
+                    {% endfor %}
+                </fieldset>
+            </div>
+            <!-- Saved Changes alerts -->
+            <div v-if="sm.isSaved.value === true" class="alert alert-success shadow-lg">
+                <div>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current flex-shrink-0 h-6 w-6" fill="none"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>Changes saved</span>
+                </div>
+            </div>
+            <div v-if="sm.isSaved.value === false" class="alert alert-error shadow-lg">
+                <div>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current flex-shrink-0 h-6 w-6" fill="none"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>Error! Unable to save settings</span>
+                </div>
+            </div>
+            <div class="modal-action">
+                <label class="btn" data-on-click="@get('/client/update-settings')">
+                    Save
+                </label>
+            </div>
+        </div>
+    </div>
+</span>
