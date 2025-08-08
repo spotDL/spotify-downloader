@@ -495,7 +495,7 @@ class Downloader:
             ]
 
             # Checking if file already exists in all subfolders of output directory
-            file_exists = output_file.exists() or bool(dup_song_paths)
+            file_exists = output_file.exists() or dup_song_paths
             if not self.settings["scan_for_songs"]:
                 for file_extension in self.scan_formats:
                     ext_path = output_file.with_suffix(f".{file_extension}")
