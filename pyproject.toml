@@ -90,7 +90,6 @@ dev = [
     "mkdocs-gen-files>=0.5.0,<0.6",
     "mkdocs-literate-nav>=0.6.0,<0.7",
     "mkdocs-section-index>=0.3.5,<0.4",
-    "vcrpy>=6.0.2,<7",
     "pytest-recording>=0.13.1,<0.14",
 ]
 
