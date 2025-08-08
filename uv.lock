@@ -1780,7 +1780,7 @@ wheels = [
 
 [[package]]
 name = "spotdl"
-version = "4.3.0"
+version = "4.3.1"
 source = { editable = "." }
 dependencies = [
     { name = "beautifulsoup4" },
@@ -1833,7 +1833,6 @@ dev = [
     { name = "types-setuptools" },
     { name = "types-toml" },
     { name = "types-ujson" },
-    { name = "vcrpy" },
 ]
 
 [package.metadata]
@@ -1889,7 +1888,6 @@ dev = [
     { name = "types-setuptools", specifier = ">=75.5.0.20241116,<76" },
     { name = "types-toml", specifier = ">=0.10.8.7,<0.11" },
     { name = "types-ujson", specifier = ">=5.10.0.20240515,<6" },
-    { name = "vcrpy", specifier = ">=6.0.2,<7" },
 ]
 
 [[package]]

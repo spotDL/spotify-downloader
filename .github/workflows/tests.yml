@@ -76,8 +76,10 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Run tests
+        # run: |
+        #  uv run pytest -vvv --record-mode=none --disable-recording --ignore tests/providers/lyrics --ignore tests/utils/test_github.py --ignore tests/utils/test_ffmpeg.py --ignore tests/utils/test_metadata.py --ignore tests/test_matching.py --ignore tests/providers/audio/test_youtube.py --ignore tests/console/test_entry_point.py --ignore tests/test_init.py
         run: |
-          uv run pytest -vvv --record-mode=none --disable-recording --ignore tests/providers/lyrics --ignore tests/utils/test_github.py --ignore tests/utils/test_ffmpeg.py --ignore tests/utils/test_metadata.py --ignore tests/test_matching.py --ignore tests/providers/audio/test_youtube.py --ignore tests/console/test_entry_point.py --ignore tests/test_init.py
+          uv run pytest -vvv --record-mode=none --ignore tests/test_matching.py
         env:
           PLATFORM: ${{ matrix.platform }}
 
@@ -111,4 +113,4 @@ jobs:
 
       - name: Run tests
         run: |
-          uv run pytest -vvv --record-mode=none --disable-recording tests/test_matching.py
+          uv run pytest -vvv --record-mode=none tests/test_matching.py
