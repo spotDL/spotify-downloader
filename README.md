@@ -26,7 +26,7 @@ ______________________________________________________________________
 
 ## Installation
 
-Refer to our [Installation Guide](https://spotdl.readthedocs.io/en/latest/installation.html) for more details.
+Refer to our [Installation Guide](docs/installation.md) for more details.
 
 ### Python (Recommended Method)
 
