@@ -33,4 +33,4 @@ VOLUME /music
 WORKDIR /music
 
 # Entrypoint command
-ENTRYPOINT ["uv", "run","--project","/app","spotdl"]
+ENTRYPOINT ["uv", "run", "--project", "/app", "spotdl"]
