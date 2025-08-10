@@ -427,10 +427,13 @@ class Downloader:
     ) -> Tuple[Song, Optional[Path]]:
         """
         Search for the song and download it.
+
         ### Arguments
         - song: The song to download.
+
         ### Returns
         - tuple with the song and the path to the downloaded file if successful.
+
         ### Notes
         - This function is synchronous.
         """
