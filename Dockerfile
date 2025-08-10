@@ -29,7 +29,7 @@ RUN uv sync
 # Create a volume for the output directory
 VOLUME /music
 
-#Change Workdir to download location
+# Change Workdir to download location
 WORKDIR /music
 
 # Entrypoint command
