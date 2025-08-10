@@ -21,7 +21,7 @@ RUN pip install --upgrade pip uv wheel spotipy
 COPY uv.lock pyproject.toml /
 
 # Install spotdl requirements
-RUN uv sync
+RUN uv sync --no-install-project
 
 # Add source code files to WORKDIR
 ADD . .
