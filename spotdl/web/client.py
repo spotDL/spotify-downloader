@@ -26,50 +26,35 @@ router = APIRouter()
 router.include_router(components.router)
 
 
-# class Signals:
-#     """
-#     Class that holds the client datastar signals.
-#     """
-
-#     clientId: str = ""
-#     searchTerm: str = ""
-#     downloader_settings: dict = {}
-
-
-# def handle_signals(datastar_signals: dict) -> Signals:
-#     """
-#     Handle the signals received from the client.
-#     This function can be used to process or validate the signals before they are used.
-#     """
-#     app_state.logger.info(f"Received signals: {datastar_signals}")
-#     if not datastar_signals:
-#         # raise ValueError("No signals provided.")
-#         app_state.logger.warning("No signals provided, returning empty Signals.")
-#         return Signals()
-#     signals = Signals()
-#     signals.clientId = datastar_signals.get("clientId", "")
-#     signals.searchTerm = datastar_signals.get("searchTerm", "")
-#     signals.downloader_settings = datastar_signals.get("downloader_settings", {})
-#     return signals
-
-
 @router.get("/client/load")
 @datastar_response
-async def handle_get_client_load():
+async def handle_get_client_load(datastar_signals: ReadSignals):
     app_state.logger.info("Loading client...")
-    client = Client(uuid.uuid4().hex)
+    signals = handle_signals(datastar_signals)
+    if not signals.client_id:
+        app_state.logger.warning("No client ID provided, generating a new one.")
+        # Generate a new client ID if not provided
+        signals.client_id = uuid.uuid4().hex
+    client = Client(signals.client_id)
     await client.connect()
-    # yield SSE.patch_elements(components.page())
 
     # First send the client ID and then the home template.
+    yield SSE.patch_elements("""<div id="banner"></div>""")
     yield SSE.patch_signals(
         {
-            "clientId": client.client_id,
+            "client_id": client.client_id,
         }
     )
     yield SSE.patch_elements(
         f'<span id="router-view">{components.templates.get_template("home.html").render()}</span>'
     )
+
+
+@router.get("/client/updates")
+@datastar_response
+async def handle_get_client_updates(datastar_signals: ReadSignals):
+    signals = handle_signals(datastar_signals)
+    client = Client(signals.client_id)
     """
     We are going to use Server-Sent Events (SSE) to update the time every 5 seconds.
     This will allow us to know when the client disconnected, as the time will stop updating.
@@ -88,7 +73,7 @@ async def handle_get_client_load():
 async def handle_get_client_search(datastar_signals: ReadSignals):
     app_state.logger.info("Loading search...")
     signals = handle_signals(datastar_signals)
-    app_state.logger.info(f"Search term: {signals.searchTerm}")
+    app_state.logger.info(f"Search term: {signals.search_term}")
 
     yield SSE.patch_elements(
         """
@@ -97,7 +82,7 @@ async def handle_get_client_search(datastar_signals: ReadSignals):
         """
     )
     await asyncio.sleep(1)
-    is_valid = validate_search_term(signals.searchTerm)
+    is_valid = validate_search_term(signals.search_term)
     if is_valid:
         icon = "clarity:download-line"
     else:
@@ -116,13 +101,13 @@ async def handle_get_client_search(datastar_signals: ReadSignals):
 async def handle_get_client_update_settings(datastar_signals: ReadSignals):
     app_state.logger.info("Updating settings...")
     signals = handle_signals(datastar_signals)
-    app_state.logger.info(f"Updating settings for client: {signals.clientId}")
-    if signals.clientId in app_state.clients:
-        client = app_state.clients[signals.clientId]
+    app_state.logger.info(f"Updating settings for client: {signals.client_id}")
+    if signals.client_id in app_state.clients:
+        client = app_state.clients[signals.client_id]
         # Update the client's settings here if needed
         # For example, you could update the client's search term or other settings
-        # client.search_term = signals.searchTerm
+        # client.search_term = signals.search_term
         client.downloader_settings = signals.downloader_settings
         app_state.logger.info(f"Updated settings for client: {client.client_id}")
     else:
-        app_state.logger.warning(f"Client {signals.clientId} not found.")
+        app_state.logger.warning(f"Client {signals.client_id} not found.")

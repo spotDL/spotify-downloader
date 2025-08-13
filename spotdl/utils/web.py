@@ -8,6 +8,8 @@ import logging
 import mimetypes
 from argparse import Namespace
 from typing import Any, Dict, Optional, Union
+import threading
+import time
 
 from fastapi import (
     FastAPI,
@@ -86,6 +88,11 @@ class Client:
     Holds the client's state.
     """
 
+    client_id: str
+    downloader: Downloader
+    downloader_settings: DownloaderOptions
+    disconnect_timer: Optional[threading.Timer] = None
+
     def __init__(
         self,
         # websocket: WebSocket,
@@ -115,6 +122,8 @@ class Client:
 
         self.downloader.progress_handler.web_ui = True
 
+        self.disconnect_timer = None
+
     async def connect(self):
         """
         Called when a new client connects to the websocket.
@@ -131,6 +140,18 @@ class Client:
         Called when a client disconnects from the websocket.
         """
 
+        # If the disconnect timer is running, cancel it
+        if self.disconnect_timer and self.disconnect_timer.is_alive():
+            self.disconnect_timer.cancel()
+
+        # Schedule the disconnect now
+        app_state.logger.info(
+            "Client %s will disconnect in 15 seconds of inactivity", self.client_id
+        )
+        self.disconnect_timer = threading.Timer(15, self.disconnect_now)
+        self.disconnect_timer.start()
+
+    def disconnect_now(self):
         # Remove the connection from the list of connections
         if self.client_id in app_state.clients:
             # app_state.clients.pop(client_id, None)
@@ -140,6 +161,7 @@ class Client:
             app_state.logger.warning(
                 "Client %s not found on disconnect", self.client_id
             )
+        self.disconnect_timer = None
 
     async def send_update(self, update: Dict[str, Any]):
         """

@@ -9,9 +9,9 @@
             </label>
 
             <!-- Settings Button -->
-            <label for="settings-modal" class="btn btn-square modal-button m-2">
+            <button class="btn btn-square m-2" onclick="settings_modal.showModal()">
                 <iconify-icon icon="clarity:settings-line" style="font-size: 24px"></iconify-icon>
-            </label>
+            </button>
         </div>
 
         <!-- Hero Content -->
@@ -26,10 +26,10 @@
                 </p>
             </div>
 
-            <span id="search-input" data-signals="{searchTerm: '', loading: false}">
+            <span id="search-input" data-signals="{search_term: '', loading: false}">
                 <div class="flex flex-row items-center space-x-4 w-full">
                     <input id="input-rotating-placeholder" type="text" placeholder="Search..."
-                        class="input input-bordered w-full text-base-content" data-bind="searchTerm"
+                        class="input input-bordered w-full text-base-content" data-bind="search_term"
                         data-on-keydown.enter="@get('/client/search')"
                         data-on-load="@get('/client/component/search-input-rotating-placeholder')" />
                     <button id="search-button" class="btn btn-square btn-primary"

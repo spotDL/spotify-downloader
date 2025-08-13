@@ -9,8 +9,8 @@ class Signals:
     Class that holds the client datastar signals.
     """
 
-    clientId: str = ""
-    searchTerm: str = ""
+    client_id: str = ""
+    search_term: str = ""
     downloader_settings: dict = {}
 
 
@@ -25,7 +25,7 @@ def handle_signals(datastar_signals: dict) -> Signals:
         app_state.logger.warning("No signals provided, returning empty Signals.")
         return Signals()
     signals = Signals()
-    signals.clientId = datastar_signals.get("clientId", "")
-    signals.searchTerm = datastar_signals.get("searchTerm", "")
+    signals.client_id = datastar_signals.get("client_id", "")
+    signals.search_term = datastar_signals.get("search_term", "")
     signals.downloader_settings = datastar_signals.get("downloader_settings", {})
     return signals

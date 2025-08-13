@@ -25,11 +25,32 @@
         width: 1em;
         height: 1em;
     }
+
+    div#banner {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+    }
+
+    div#banner-content {
+        background-color: #eedddd;
+        width: 100%;
+        margin: 0 auto;
+        padding: calc(var(--spacing) * 4);
+        text-align: center;
+    }
 </style>
 
-<body data-signals="{}" data-on-load="@get('/client/load')">
+<body data-signals="{'client_id': ''}" data-on-load="@get('/client/load')">
 
     <div class="bg-base-300 absolute w-full t-0">
+        <div id="banner">
+            <div id="banner-content">
+                Connecting to server...
+            </div>
+        </div>
+
 
         <!-- Home -->
         <!-- <span id="component-home" data-on-load="@get('/client/component/home')"></span> -->
@@ -43,8 +64,15 @@
         <span id="component-footer" data-on-load="@get('/client/component/footer')"></span>
 
         <!-- Settings -->
-        <span id="component-settings" data-on-signal-patch="@get('/client/component/settings')"
-            data-on-signal-patch-filter="{include: /clientId/}"></span>
+        <span id="component-settings" data-on-signal-patch="@get('/client/component/settings-content')"
+            data-on-signal-patch-filter="{include: /client_id/}">
+        </span>
+        <dialog id="settings_modal" class="modal">
+            <div id="component-settings-content"></div>
+            <form method="dialog" class="modal-backdrop">
+                <button>close</button>
+            </form>
+        </dialog>
 
     </div>
 

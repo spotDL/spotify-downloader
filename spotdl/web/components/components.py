@@ -37,16 +37,16 @@ async def handle_get_client_component_footer():
     yield SSE.patch_elements(templates.get_template("footer.html").render())
 
 
-@router.get("/client/component/settings")
+@router.get("/client/component/settings-content")
 @datastar_response
 async def handle_get_client_component_settings(datastar_signals: ReadSignals):
     app_state.logger.info("Loading settings view...")
     app_state.logger.info(f"Received signals: {datastar_signals}")
     signals = handle_signals(datastar_signals)
-    if signals.clientId in app_state.clients:
-        client = app_state.clients[signals.clientId]
+    if signals.client_id in app_state.clients:
+        client = app_state.clients[signals.client_id]
         yield SSE.patch_elements(
-            templates.get_template("settings.html.j2").render(
+            templates.get_template("settings-content.html.j2").render(
                 downloader_settings=client.downloader_settings,
                 AUDIO_PROVIDERS=AUDIO_PROVIDERS,
                 LYRICS_PROVIDERS=LYRICS_PROVIDERS,
@@ -60,7 +60,7 @@ async def handle_get_client_component_settings(datastar_signals: ReadSignals):
         )
     else:
         app_state.logger.warning(
-            f"Client {signals.clientId} not found, returning empty settings."
+            f"Client {signals.client_id} not found, returning empty settings."
         )
 
 
