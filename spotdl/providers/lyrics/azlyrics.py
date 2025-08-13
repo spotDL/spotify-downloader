@@ -4,13 +4,14 @@ AZLyrics lyrics module.
 
 from typing import Dict, List, Optional
 
+import logging
 import requests
 from bs4 import BeautifulSoup
 
 from spotdl.providers.lyrics.base import LyricsProvider
 
 __all__ = ["AzLyrics"]
-
+logger = logging.getLogger(__name__)
 
 class AzLyrics(LyricsProvider):
     """
@@ -37,7 +38,10 @@ class AzLyrics(LyricsProvider):
         ### Returns
         - A dictionary with the results. (The key is the title and the value is the url.)
         """
-
+        logger.warning("WARNING: AZLyrics is currently dysfunctional but selected, skipping. Overwrite your existing config file with `spotdl --generate-config`, or manually remove it as a lyrics provider.")
+        return {}
+        # ! THIS CODE WILL NOT RUN, AZLYRICS HAS BEEN TEMPORARILY DISABLED AS OF 13th AUG 2025. 
+    
         if self.x_code is None:
             self.x_code = self.get_x_code()
 
@@ -60,6 +64,7 @@ class AzLyrics(LyricsProvider):
                     "https://search.azlyrics.com/search.php", params=params
                 )
             except requests.ConnectionError:
+                counter += 1
                 continue
 
             if not response.ok:
