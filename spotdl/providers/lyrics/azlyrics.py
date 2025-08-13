@@ -60,6 +60,7 @@ class AzLyrics(LyricsProvider):
                     "https://search.azlyrics.com/search.php", params=params
                 )
             except requests.ConnectionError:
+                counter += 1
                 continue
 
             if not response.ok:
