@@ -40,6 +40,7 @@ class AzLyrics(LyricsProvider):
         """
         logger.warning("WARNING: AZLyrics is currently dysfunctional but selected, skipping. Overwrite your existing config file with `spotdl --generate-config`, or manually remove it as a lyrics provider.")
         return {}
+        # ! THIS CODE WILL NOT RUN, AZLYRICS HAS BEEN TEMPORARILY DISABLED AS OF 13th AUG 2025. 
     
         if self.x_code is None:
             self.x_code = self.get_x_code()
