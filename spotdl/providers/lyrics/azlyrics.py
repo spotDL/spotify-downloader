@@ -38,7 +38,7 @@ class AzLyrics(LyricsProvider):
         ### Returns
         - A dictionary with the results. (The key is the title and the value is the url.)
         """
-        logger.warning("WARNING: AZLyrics is currently dysfunctional but selected, skipping. Overwrite your existing config file with `spotdl --generate-config`, or manually  remove it as a lyrics provider.")
+        logger.warning("WARNING: AZLyrics is currently dysfunctional but selected, skipping. Overwrite your existing config file with `spotdl --generate-config`, or manually remove it as a lyrics provider.")
         return {}
     
         if self.x_code is None:
