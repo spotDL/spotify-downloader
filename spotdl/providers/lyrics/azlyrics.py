@@ -13,6 +13,7 @@ from spotdl.providers.lyrics.base import LyricsProvider
 __all__ = ["AzLyrics"]
 logger = logging.getLogger(__name__)
 
+
 class AzLyrics(LyricsProvider):
     """
     AZLyrics lyrics provider class.
@@ -22,7 +23,23 @@ class AzLyrics(LyricsProvider):
         super().__init__()
 
         self.session = requests.Session()
-        self.session.headers.update(self.headers)
+        self.session.headers.update(
+            {
+                "Host": "www.azlyrics.com",
+                "User-Agent": "Mozilla/5.0 (X11; Linux x86_64; rv:141.0) Gecko/20100101 Firefox/141.0",
+                "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+                "Accept-Language": "en-US,en;q=0.5",
+                "Accept-Encoding": "gzip, deflate, br, zstd",
+                "DNT": "1",
+                "Connection": "keep-alive",
+                "Upgrade-Insecure-Requests": "1",
+                "Sec-Fetch-Dest": "document",
+                "Sec-Fetch-Mode": "navigate",
+                "Sec-Fetch-Site": "none",
+                "Sec-Fetch-User": "?1",
+                "Priority": "u=0, i",
+            }
+        )
 
         self.x_code = self.get_x_code()
 
@@ -38,50 +55,48 @@ class AzLyrics(LyricsProvider):
         ### Returns
         - A dictionary with the results. (The key is the title and the value is the url.)
         """
-        logger.warning("WARNING: AZLyrics is currently dysfunctional but selected, skipping. Overwrite your existing config file with `spotdl --generate-config`, or manually remove it as a lyrics provider.")
-        return {}
-        # ! THIS CODE WILL NOT RUN, AZLYRICS HAS BEEN TEMPORARILY DISABLED AS OF 13th AUG 2025. 
-    
+
         if self.x_code is None:
             self.x_code = self.get_x_code()
 
         if self.x_code is None:
+            logging.error("Could not retrieve x_code.")
+            print("Could not retrieve x_code.")
             return {}
 
-        # Join every artist by comma in artists
-        artist_str = ", ".join(artist for artist in artists if artist)
-
         params = {
-            "q": f"{artist_str} - {name}",
+            "q": f"{name.strip().replace(' ', '+')}+{artists[0].strip().replace(' ', '+')}",
             "x": self.x_code,
         }
 
-        counter = 0
         soup = None
-        while counter < 4:
+        print("Trying...")
+        for i in range(4):  # Retry up to 4 times
+            print(i)
             try:
                 response = self.session.get(
-                    "https://search.azlyrics.com/search.php", params=params
+                    "https://www.azlyrics.com/search/", params=params
                 )
+
+                if not response.ok:
+                    continue
+
+                soup = BeautifulSoup(response.content, "html.parser")
+                break
+
             except requests.ConnectionError:
-                counter += 1
                 continue
-
-            if not response.ok:
-                counter += 1
-                continue
-
-            soup = BeautifulSoup(response.content, "html.parser")
-            break
 
         if soup is None:
             return {}
 
         td_tags = soup.find_all("td")
         if len(td_tags) == 0:
+            print("The query did not return results.")
             return {}
 
         results = {}
+        print("Tags found: ", td_tags)
         for td_tag in td_tags:
             a_tags = td_tag.find_all("a", href=True)
             if len(a_tags) == 0:
@@ -128,6 +143,7 @@ class AzLyrics(LyricsProvider):
     def get_x_code(self) -> Optional[str]:
         """
         Returns the x_code used by AZLyrics.
+        This is needed for AZLyrics to respond properly.
 
         ### Returns
         - The x_code used by AZLyrics or None if it couldn't be retrieved.
@@ -142,6 +158,29 @@ class AzLyrics(LyricsProvider):
 
             # extract value from js code
             js_code = resp.text
+
+            """
+            /geo.js returns a JS script, in which that 'x' code is located.
+            Example:
+            ---------------------------
+            var az_country_code;
+            az_country_code = "HN";
+
+            (function() {
+                var ep = document.createElement("input");
+                ep.setAttribute("type", "hidden");
+                ep.setAttribute("name", "x");
+                ep.setAttribute("value", "x code goes here");
+                var els = document.querySelectorAll('form.search');
+                for (var n = 0; n < els.length; n++) {
+                    els[n].appendChild(ep.cloneNode());
+                }
+            })();
+            ---------------------------
+
+            We now filter the string so we can extract the x code.
+            """
+
             start_index = js_code.find('value"') + 9
             end_index = js_code[start_index:].find('");')
 
@@ -149,4 +188,5 @@ class AzLyrics(LyricsProvider):
         except requests.ConnectionError:
             pass
 
-        return x_code
+        print("X Code fetched: ", x_code)
+        return x_code.strip()
