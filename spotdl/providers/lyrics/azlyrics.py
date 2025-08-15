@@ -41,7 +41,7 @@ class AzLyrics(LyricsProvider):
             }
         )
 
-        self.x_code = self.get_x_code()
+        self.x_code = self._get_x_code()
 
     def get_results(self, name: str, artists: List[str], **_) -> Dict[str, str]:
         """
@@ -57,11 +57,10 @@ class AzLyrics(LyricsProvider):
         """
 
         if self.x_code is None:
-            self.x_code = self.get_x_code()
+            self.x_code = self._get_x_code()
 
         if self.x_code is None:
-            logging.error("Could not retrieve x_code.")
-            print("Could not retrieve x_code.")
+            logger.error("(AZLyrics Provider @ get_results) Could not retrieve x_code.")
             return {}
 
         params = {
@@ -70,9 +69,7 @@ class AzLyrics(LyricsProvider):
         }
 
         soup = None
-        print("Trying...")
         for i in range(4):  # Retry up to 4 times
-            print(i)
             try:
                 response = self.session.get(
                     "https://www.azlyrics.com/search/", params=params
@@ -85,6 +82,9 @@ class AzLyrics(LyricsProvider):
                 break
 
             except requests.ConnectionError:
+                logger.debug(
+                    f"(AZLyrics Provider @ get_results) Catched ConnectionError exception on attempt {i} with params: {params}"
+                )
                 continue
 
         if soup is None:
@@ -92,11 +92,9 @@ class AzLyrics(LyricsProvider):
 
         td_tags = soup.find_all("td")
         if len(td_tags) == 0:
-            print("The query did not return results.")
             return {}
 
         results = {}
-        print("Tags found: ", td_tags)
         for td_tag in td_tags:
             a_tags = td_tag.find_all("a", href=True)
             if len(a_tags) == 0:
@@ -140,7 +138,7 @@ class AzLyrics(LyricsProvider):
 
         return lyrics
 
-    def get_x_code(self) -> Optional[str]:
+    def _get_x_code(self) -> Optional[str]:
         """
         Returns the x_code used by AZLyrics.
         This is needed for AZLyrics to respond properly.
@@ -155,7 +153,6 @@ class AzLyrics(LyricsProvider):
             self.session.get("https://www.azlyrics.com/")
 
             resp = self.session.get("https://www.azlyrics.com/geo.js")
-
             # extract value from js code
             js_code = resp.text
 
@@ -188,5 +185,4 @@ class AzLyrics(LyricsProvider):
         except requests.ConnectionError:
             pass
 
-        print("X Code fetched: ", x_code)
         return x_code.strip()
