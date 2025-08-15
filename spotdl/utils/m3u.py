@@ -53,13 +53,14 @@ def create_m3u_content(
 
             text += str(file_name) + "\n"
         else:
+            added = False
             for file_ext in detect_formats:
                 file_name = create_file_name(song, template, file_ext, restrict, short)
-
                 if file_name.exists():
                     text += str(file_name) + "\n"
+                    added = True
                     break
-
+            if not added:
                 file_name = create_file_name(
                     song, template, file_extension, restrict, short
                 )
