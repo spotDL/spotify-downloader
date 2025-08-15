@@ -60,9 +60,6 @@ class AzLyrics(LyricsProvider):
             self.x_code = self._get_x_code()
 
         if self.x_code is None:
-            logger.warning(
-                "(AZLyrics Provider @ get_results) Could not retrieve x_code."
-            )
             return {}
 
         params = {
@@ -184,7 +181,14 @@ class AzLyrics(LyricsProvider):
             end_index = js_code[start_index:].find('");')
 
             x_code = js_code[start_index : start_index + end_index]
+
+            if not x_code:
+                logger.warning(
+                    "(AZLyrics Provider @ get_x_code) Could not retrieve x_code."
+                )
+                return ""
+
+            return x_code.strip()
+
         except requests.ConnectionError:
             pass
-
-        return x_code.strip()
