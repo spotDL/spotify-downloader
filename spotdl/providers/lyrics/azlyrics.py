@@ -60,7 +60,9 @@ class AzLyrics(LyricsProvider):
             self.x_code = self._get_x_code()
 
         if self.x_code is None:
-            logger.error("(AZLyrics Provider @ get_results) Could not retrieve x_code.")
+            logger.warning(
+                "(AZLyrics Provider @ get_results) Could not retrieve x_code."
+            )
             return {}
 
         params = {
