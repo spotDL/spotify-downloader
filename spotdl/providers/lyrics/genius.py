@@ -117,7 +117,7 @@ class Genius(LyricsProvider):
         As of Aug 2025, Genius has added a lyrics header div. Remove it if present.
         <div data-exclude-from-selection="true" class="LyricsHeader__Container-sc-5e4b7146-1 hFsUgC">
         """
-        lyrics_header = soup.find('div', attrs={'data-exclude-from-selection': 'true'})
+        lyrics_header = soup.select_one("div[class^=LyricsHeader__Container]")
 
         if lyrics_header:
             lyrics_header.decompose()
