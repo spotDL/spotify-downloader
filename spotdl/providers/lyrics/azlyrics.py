@@ -6,7 +6,7 @@ import logging
 from typing import Dict, List, Optional
 
 import requests
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, Tag
 
 from spotdl.providers.lyrics.base import LyricsProvider
 
@@ -97,12 +97,19 @@ class AzLyrics(LyricsProvider):
 
         results = {}
         for td_tag in td_tags:
+
+            # Ensure td_tag is a Tag object before calling find_all
+            if not isinstance(td_tag, Tag):
+                continue
+
             a_tags = td_tag.find_all("a", href=True)
+
             if len(a_tags) == 0:
                 continue
 
             a_tag = a_tags[0]
-            url = a_tag["href"].strip()
+            url = a_tag.get("href", "").strip()
+
             if url == "":
                 continue
 
