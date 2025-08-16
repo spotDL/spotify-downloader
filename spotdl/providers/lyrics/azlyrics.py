@@ -82,7 +82,7 @@ class AzLyrics(LyricsProvider):
 
             except requests.ConnectionError:
                 logger.debug(
-                    f"(AZLyrics Provider @ get_results) Catched ConnectionError exception on attempt {i} with params: {params}"
+                    f"AZLyrics: ConnectionError on attempt {i} with params: {params}"
                 )
                 continue
 
