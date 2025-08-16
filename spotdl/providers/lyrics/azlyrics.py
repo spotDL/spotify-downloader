@@ -183,7 +183,7 @@ class AzLyrics(LyricsProvider):
             x_code = js_code[start_index : start_index + end_index]
 
             if not x_code:
-                logger.warning(
+                logger.debug(
                     "(AZLyrics Provider @ get_x_code) Could not retrieve x_code."
                 )
                 return ""
