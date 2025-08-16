@@ -184,7 +184,7 @@ class AzLyrics(LyricsProvider):
 
             if not x_code:
                 logger.debug(
-                    "(AZLyrics Provider @ get_x_code) Could not retrieve x_code."
+                    "AZLyrics: Could not retrieve x_code."
                 )
                 return ""
 
