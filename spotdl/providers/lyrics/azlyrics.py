@@ -2,9 +2,9 @@
 AZLyrics lyrics module.
 """
 
+import logging
 from typing import Dict, List, Optional
 
-import logging
 import requests
 from bs4 import BeautifulSoup
 
@@ -26,7 +26,9 @@ class AzLyrics(LyricsProvider):
         self.session.headers.update(
             {
                 "Host": "www.azlyrics.com",
-                "User-Agent": "Mozilla/5.0 (X11; Linux x86_64; rv:141.0) Gecko/20100101 Firefox/141.0",
+                "User-Agent": (
+                    "Mozilla/5.0 (X11; Linux x86_64; rv:141.0) Gecko/20100101 Firefox/141.0"
+                ),
                 "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
                 "Accept-Language": "en-US,en;q=0.5",
                 "Accept-Encoding": "gzip, deflate, br, zstd",
@@ -82,7 +84,7 @@ class AzLyrics(LyricsProvider):
 
             except requests.ConnectionError:
                 logger.debug(
-                    f"AZLyrics: ConnectionError on attempt {i} with params: {params}"
+                    "AZLyrics: ConnectionError on attempt %s with params: %s", i, params
                 )
                 continue
 
@@ -152,43 +154,33 @@ class AzLyrics(LyricsProvider):
             self.session.get("https://www.azlyrics.com/")
 
             resp = self.session.get("https://www.azlyrics.com/geo.js")
-            # extract value from js code
             js_code = resp.text
 
-            """
-            /geo.js returns a JS script, in which that 'x' code is located.
-            Example:
-            ---------------------------
-            var az_country_code;
-            az_country_code = "HN";
-
-            (function() {
-                var ep = document.createElement("input");
-                ep.setAttribute("type", "hidden");
-                ep.setAttribute("name", "x");
-                ep.setAttribute("value", "x code goes here");
-                var els = document.querySelectorAll('form.search');
-                for (var n = 0; n < els.length; n++) {
-                    els[n].appendChild(ep.cloneNode());
-                }
-            })();
-            ---------------------------
-
-            We now filter the string so we can extract the x code.
-            """
-
-            start_index = js_code.find('value"') + 9
-            end_index = js_code[start_index:].find('");')
-
-            x_code = js_code[start_index : start_index + end_index]
-
-            if not x_code:
-                logger.debug(
-                    "AZLyrics: Failed to retrieve x_code."
-                )
-                return ""
-
-            return x_code.strip()
+            # /geo.js returns a JS script, in which that 'x' code is located. e.g.
+            # var az_country_code;
+            # az_country_code = "HN";
+            # (function() {
+            #     var ep = document.createElement("input");
+            #     ep.setAttribute("type", "hidden");
+            #     ep.setAttribute("name", "x");
+            #     ep.setAttribute("value", "x code goes here");
+            #     var els = document.querySelectorAll('form.search');
+            #     for (var n = 0; n < els.length; n++) {
+            #         els[n].appendChild(ep.cloneNode());
+            #     }
+            # })();
 
         except requests.ConnectionError:
             pass
+
+        # We now filter the string so we can extract the x code.
+        start_index = js_code.find('value"') + 9
+        end_index = js_code[start_index:].find('");')
+
+        x_code = js_code[start_index : start_index + end_index]
+
+        if x_code:
+            return x_code.strip()
+
+        logger.debug("AZLyrics: Failed to retrieve x_code.")
+        return None
