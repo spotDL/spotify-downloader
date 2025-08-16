@@ -111,13 +111,23 @@ class Genius(LyricsProvider):
             return None
 
         lyrics_div = soup.select_one("div.lyrics")
-        lyrics_containers = soup.select("div[class^=Lyrics__Container]")
+        lyrics_container = soup.select("div[class^=Lyrics__Container]")
+
+        """
+        As of Aug 2025, Genius has added a lyrics header div. Remove it if present.
+        <div data-exclude-from-selection="true" class="LyricsHeader__Container-sc-5e4b7146-1 hFsUgC">
+        """
+        lyrics_header = soup.find('div', attrs={'data-exclude-from-selection': 'true'})
+
+        if lyrics_header:
+            lyrics_header.decompose()
+
 
         # Get lyrics
         if lyrics_div:
             lyrics = lyrics_div.get_text()
-        elif lyrics_containers:
-            lyrics = "\n".join(con.get_text() for con in lyrics_containers)
+        elif lyrics_container:
+            lyrics = "\n".join(con.get_text() for con in lyrics_container)
         else:
             return None
 
