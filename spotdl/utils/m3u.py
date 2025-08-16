@@ -2,6 +2,8 @@
 Module for creating m3u content and writing it to a file.
 """
 
+import logging
+
 from pathlib import Path
 from typing import Dict, List, Optional
 
@@ -13,6 +15,8 @@ __all__ = [
     "gen_m3u_files",
     "create_m3u_file",
 ]
+
+logger = logging.getLogger(__name__)
 
 
 def create_m3u_content(
@@ -117,6 +121,10 @@ def gen_m3u_files(
             lists_object[song.list_name] = []
 
         lists_object[song.list_name].append(song)
+    
+    if not lists_object and "{list" in file_name:
+        logger.warning("M3U file name contains '{list}' but no lists were provided. Specify a filename.")
+        return
 
     if "{list}" in file_name:
         # Create multiple m3u files if there are multiple lists
