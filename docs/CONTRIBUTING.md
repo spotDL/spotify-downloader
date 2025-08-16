@@ -249,6 +249,12 @@ cd spotify-downloader
   mypy ./spotdl
   ```
 
+- We use [`isort`](https://pypi.org/project/isort/) for sorting imports
+
+  ```bash
+  isort --check --diff ./spotdl
+  ```
+
 ### Python Documentation
 
 Any submitted code is expected to have accompanying documentation

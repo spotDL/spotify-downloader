@@ -30,7 +30,9 @@ class YouTube(AudioProvider):
 
         # Set the client version to a specific version to avoid issues with pytube
         # See #2323 or https://github.com/pytube/pytube/issues/296
-        innertube._default_clients['WEB']["context"]["client"]["clientVersion"] = "2.20230427.04.00"
+        innertube._default_clients["WEB"]["context"]["client"][
+            "clientVersion"
+        ] = "2.20230427.04.00"
 
     def get_results(
         self, search_term: str, *_args, **_kwargs

@@ -282,6 +282,7 @@ If you don't want config to load automatically change `load_config` option in co
     ],
     "lyrics_providers": [
         "genius",
+        "azlyrics",
         "musixmatch"
     ],
     "playlist_numbering": false,
