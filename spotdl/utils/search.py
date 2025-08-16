@@ -81,6 +81,7 @@ def parse_query(
     threads: int = 1,
     use_ytm_data: bool = False,
     playlist_numbering: bool = False,
+    playlist_numbering_only: bool = False,
     album_type=None,
     playlist_retain_track_cover: bool = False,
 ) -> List[Song]:
@@ -99,6 +100,7 @@ def parse_query(
         query,
         use_ytm_data=use_ytm_data,
         playlist_numbering=playlist_numbering,
+        playlist_numbering_only=playlist_numbering_only,
         album_type=album_type,
         playlist_retain_track_cover=playlist_retain_track_cover,
     )
@@ -120,6 +122,7 @@ def get_simple_songs(
     query: List[str],
     use_ytm_data: bool = False,
     playlist_numbering: bool = False,
+    playlist_numbering_only: bool = False,
     albums_to_ignore=None,
     album_type=None,
     playlist_retain_track_cover: bool = False,
@@ -256,6 +259,7 @@ def get_simple_songs(
                 [full_url],
                 use_ytm_data=use_ytm_data,
                 playlist_numbering=playlist_numbering,
+                playlist_numbering_only=playlist_numbering_only,
                 album_type=album_type,
                 playlist_retain_track_cover=playlist_retain_track_cover,
             )
@@ -306,6 +310,10 @@ def get_simple_songs(
             song_data["list_url"] = song_list.url
             song_data["list_position"] = song.list_position
             song_data["list_length"] = song_list.length
+
+            if playlist_numbering_only:
+                song_data["track_number"] = song_data["list_position"]
+                song_data["tracks_count"] = song_data["list_length"]
 
             if playlist_numbering:
                 song_data["track_number"] = song_data["list_position"]
