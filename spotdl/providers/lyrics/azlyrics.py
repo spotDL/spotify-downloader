@@ -2,16 +2,18 @@
 AZLyrics lyrics module.
 """
 
+import logging
 from typing import Dict, List, Optional
 
-import logging
 import requests
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, Tag
 
 from spotdl.providers.lyrics.base import LyricsProvider
 
 __all__ = ["AzLyrics"]
 logger = logging.getLogger(__name__)
+# mypy: disable-error-code="union-attr"
+
 
 class AzLyrics(LyricsProvider):
     """
@@ -22,9 +24,27 @@ class AzLyrics(LyricsProvider):
         super().__init__()
 
         self.session = requests.Session()
-        self.session.headers.update(self.headers)
+        self.session.headers.update(
+            {
+                "Host": "www.azlyrics.com",
+                "User-Agent": (
+                    "Mozilla/5.0 (X11; Linux x86_64; rv:141.0) Gecko/20100101 Firefox/141.0"
+                ),
+                "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+                "Accept-Language": "en-US,en;q=0.5",
+                "Accept-Encoding": "gzip, deflate, br, zstd",
+                "DNT": "1",
+                "Connection": "keep-alive",
+                "Upgrade-Insecure-Requests": "1",
+                "Sec-Fetch-Dest": "document",
+                "Sec-Fetch-Mode": "navigate",
+                "Sec-Fetch-Site": "none",
+                "Sec-Fetch-User": "?1",
+                "Priority": "u=0, i",
+            }
+        )
 
-        self.x_code = self.get_x_code()
+        self.x_code = self._get_x_code()
 
     def get_results(self, name: str, artists: List[str], **_) -> Dict[str, str]:
         """
@@ -38,41 +58,36 @@ class AzLyrics(LyricsProvider):
         ### Returns
         - A dictionary with the results. (The key is the title and the value is the url.)
         """
-        logger.warning("WARNING: AZLyrics is currently dysfunctional but selected, skipping. Overwrite your existing config file with `spotdl --generate-config`, or manually remove it as a lyrics provider.")
-        return {}
-        # ! THIS CODE WILL NOT RUN, AZLYRICS HAS BEEN TEMPORARILY DISABLED AS OF 13th AUG 2025. 
-    
+
         if self.x_code is None:
-            self.x_code = self.get_x_code()
+            self.x_code = self._get_x_code()
 
         if self.x_code is None:
             return {}
 
-        # Join every artist by comma in artists
-        artist_str = ", ".join(artist for artist in artists if artist)
-
         params = {
-            "q": f"{artist_str} - {name}",
+            "q": f"{name.strip().replace(' ', '+')}+{artists[0].strip().replace(' ', '+')}",
             "x": self.x_code,
         }
 
-        counter = 0
         soup = None
-        while counter < 4:
+        for i in range(4):  # Retry up to 4 times
             try:
                 response = self.session.get(
-                    "https://search.azlyrics.com/search.php", params=params
+                    "https://www.azlyrics.com/search/", params=params
                 )
+
+                if not response.ok:
+                    continue
+
+                soup = BeautifulSoup(response.content, "html.parser")
+                break
+
             except requests.ConnectionError:
-                counter += 1
+                logger.debug(
+                    "AZLyrics: ConnectionError on attempt %s with params: %s", i, params
+                )
                 continue
-
-            if not response.ok:
-                counter += 1
-                continue
-
-            soup = BeautifulSoup(response.content, "html.parser")
-            break
 
         if soup is None:
             return {}
@@ -83,12 +98,19 @@ class AzLyrics(LyricsProvider):
 
         results = {}
         for td_tag in td_tags:
+
+            # Ensure td_tag is a Tag object before calling find_all
+            if not isinstance(td_tag, Tag):
+                continue
+
             a_tags = td_tag.find_all("a", href=True)
+
             if len(a_tags) == 0:
                 continue
 
             a_tag = a_tags[0]
-            url = a_tag["href"].strip()
+            url = a_tag.get("href", "").strip()
+
             if url == "":
                 continue
 
@@ -125,9 +147,10 @@ class AzLyrics(LyricsProvider):
 
         return lyrics
 
-    def get_x_code(self) -> Optional[str]:
+    def _get_x_code(self) -> Optional[str]:
         """
         Returns the x_code used by AZLyrics.
+        This is needed for AZLyrics to respond properly.
 
         ### Returns
         - The x_code used by AZLyrics or None if it couldn't be retrieved.
@@ -139,14 +162,33 @@ class AzLyrics(LyricsProvider):
             self.session.get("https://www.azlyrics.com/")
 
             resp = self.session.get("https://www.azlyrics.com/geo.js")
-
-            # extract value from js code
             js_code = resp.text
-            start_index = js_code.find('value"') + 9
-            end_index = js_code[start_index:].find('");')
 
-            x_code = js_code[start_index : start_index + end_index]
+            # /geo.js returns a JS script, in which that 'x' code is located. e.g.
+            # var az_country_code;
+            # az_country_code = "HN";
+            # (function() {
+            #     var ep = document.createElement("input");
+            #     ep.setAttribute("type", "hidden");
+            #     ep.setAttribute("name", "x");
+            #     ep.setAttribute("value", "x code goes here");
+            #     var els = document.querySelectorAll('form.search');
+            #     for (var n = 0; n < els.length; n++) {
+            #         els[n].appendChild(ep.cloneNode());
+            #     }
+            # })();
+
         except requests.ConnectionError:
             pass
 
-        return x_code
+        # We now filter the string so we can extract the x code.
+        start_index = js_code.find('value"') + 9
+        end_index = js_code[start_index:].find('");')
+
+        x_code = js_code[start_index : start_index + end_index]
+
+        if x_code:
+            return x_code.strip()
+
+        logger.debug("AZLyrics: Failed to retrieve x_code.")
+        return None
