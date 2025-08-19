@@ -447,21 +447,12 @@ class Downloader:
             return song, None
 
         # Reinitialize the song object if it's missing metadata
-        # Or if we are fetching albums
+        # Only reinitialize if critical fields are missing or fetch_albums is set
         if (
             (song.name is None and song.url)
             or self.settings["fetch_albums"]
-            or any(
-                x is None
-                for x in [
-                    song.genres,
-                    song.disc_count,
-                    song.tracks_count,
-                    song.track_number,
-                    song.album_id,
-                    song.album_artist,
-                ]
-            )
+            or (song.artists is None and song.artist is None)
+            or (song.url is None and song.song_id is None)
         ):
             song = reinit_song(song)
 
