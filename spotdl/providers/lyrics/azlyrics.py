@@ -12,6 +12,7 @@ from spotdl.providers.lyrics.base import LyricsProvider
 
 __all__ = ["AzLyrics"]
 logger = logging.getLogger(__name__)
+# mypy: disable-error-code="union-attr"
 
 
 class AzLyrics(LyricsProvider):
