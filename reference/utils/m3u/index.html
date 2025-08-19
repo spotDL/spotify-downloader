@@ -2236,10 +2236,7 @@
 
             <details class="quote">
               <summary>Source code in <code>spotdl/utils/m3u.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">18</span>
-<span class="normal">19</span>
-<span class="normal">20</span>
-<span class="normal">21</span>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">21</span>
 <span class="normal">22</span>
 <span class="normal">23</span>
 <span class="normal">24</span>
@@ -2286,7 +2283,11 @@
 <span class="normal">65</span>
 <span class="normal">66</span>
 <span class="normal">67</span>
-<span class="normal">68</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">create_m3u_content</span><span class="p">(</span>
+<span class="normal">68</span>
+<span class="normal">69</span>
+<span class="normal">70</span>
+<span class="normal">71</span>
+<span class="normal">72</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">create_m3u_content</span><span class="p">(</span>
     <span class="n">song_list</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Song</span><span class="p">],</span>
     <span class="n">template</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">file_extension</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -2330,7 +2331,8 @@
                 <span class="k">if</span> <span class="n">file_name</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
                     <span class="n">text</span> <span class="o">+=</span> <span class="nb">str</span><span class="p">(</span><span class="n">file_name</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
                     <span class="k">break</span>
-
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># Runs if no existing file was found (no break)</span>
                 <span class="n">file_name</span> <span class="o">=</span> <span class="n">create_file_name</span><span class="p">(</span>
                     <span class="n">song</span><span class="p">,</span> <span class="n">template</span><span class="p">,</span> <span class="n">file_extension</span><span class="p">,</span> <span class="n">restrict</span><span class="p">,</span> <span class="n">short</span>
                 <span class="p">)</span>
@@ -2372,17 +2374,7 @@
 
             <details class="quote">
               <summary>Source code in <code>spotdl/utils/m3u.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">158</span>
-<span class="normal">159</span>
-<span class="normal">160</span>
-<span class="normal">161</span>
-<span class="normal">162</span>
-<span class="normal">163</span>
-<span class="normal">164</span>
-<span class="normal">165</span>
-<span class="normal">166</span>
-<span class="normal">167</span>
-<span class="normal">168</span>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">168</span>
 <span class="normal">169</span>
 <span class="normal">170</span>
 <span class="normal">171</span>
@@ -2413,7 +2405,17 @@
 <span class="normal">196</span>
 <span class="normal">197</span>
 <span class="normal">198</span>
-<span class="normal">199</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">create_m3u_file</span><span class="p">(</span>
+<span class="normal">199</span>
+<span class="normal">200</span>
+<span class="normal">201</span>
+<span class="normal">202</span>
+<span class="normal">203</span>
+<span class="normal">204</span>
+<span class="normal">205</span>
+<span class="normal">206</span>
+<span class="normal">207</span>
+<span class="normal">208</span>
+<span class="normal">209</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">create_m3u_file</span><span class="p">(</span>
     <span class="n">file_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">song_list</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Song</span><span class="p">],</span>
     <span class="n">template</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -2486,11 +2488,7 @@
 
             <details class="quote">
               <summary>Source code in <code>spotdl/utils/m3u.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 71</span>
-<span class="normal"> 72</span>
-<span class="normal"> 73</span>
-<span class="normal"> 74</span>
-<span class="normal"> 75</span>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 75</span>
 <span class="normal"> 76</span>
 <span class="normal"> 77</span>
 <span class="normal"> 78</span>
@@ -2570,7 +2568,17 @@
 <span class="normal">152</span>
 <span class="normal">153</span>
 <span class="normal">154</span>
-<span class="normal">155</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">gen_m3u_files</span><span class="p">(</span>
+<span class="normal">155</span>
+<span class="normal">156</span>
+<span class="normal">157</span>
+<span class="normal">158</span>
+<span class="normal">159</span>
+<span class="normal">160</span>
+<span class="normal">161</span>
+<span class="normal">162</span>
+<span class="normal">163</span>
+<span class="normal">164</span>
+<span class="normal">165</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">gen_m3u_files</span><span class="p">(</span>
     <span class="n">songs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Song</span><span class="p">],</span>
     <span class="n">file_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
     <span class="n">template</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -2618,6 +2626,12 @@
             <span class="n">lists_object</span><span class="p">[</span><span class="n">song</span><span class="o">.</span><span class="n">list_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
 
         <span class="n">lists_object</span><span class="p">[</span><span class="n">song</span><span class="o">.</span><span class="n">list_name</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">song</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">lists_object</span> <span class="ow">and</span> <span class="s2">&quot;{list&quot;</span> <span class="ow">in</span> <span class="n">file_name</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="s2">&quot;M3U file name contains &#39;</span><span class="si">{list}</span><span class="s2">&#39; but no lists were provided. Specify a filename.&quot;</span>
+        <span class="p">)</span>
+        <span class="k">return</span>
 
     <span class="k">if</span> <span class="s2">&quot;</span><span class="si">{list}</span><span class="s2">&quot;</span> <span class="ow">in</span> <span class="n">file_name</span><span class="p">:</span>
         <span class="c1"># Create multiple m3u files if there are multiple lists</span>

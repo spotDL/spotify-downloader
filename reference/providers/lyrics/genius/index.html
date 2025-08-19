@@ -2361,7 +2361,15 @@
 <span class="normal">131</span>
 <span class="normal">132</span>
 <span class="normal">133</span>
-<span class="normal">134</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">extract_lyrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">_</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">extract_lyrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">_</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Extracts the lyrics from the given url.</span>
 
@@ -2406,13 +2414,21 @@
         <span class="k">return</span> <span class="kc">None</span>
 
     <span class="n">lyrics_div</span> <span class="o">=</span> <span class="n">soup</span><span class="o">.</span><span class="n">select_one</span><span class="p">(</span><span class="s2">&quot;div.lyrics&quot;</span><span class="p">)</span>
-    <span class="n">lyrics_containers</span> <span class="o">=</span> <span class="n">soup</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s2">&quot;div[class^=Lyrics__Container]&quot;</span><span class="p">)</span>
+    <span class="n">lyrics_container</span> <span class="o">=</span> <span class="n">soup</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s2">&quot;div[class^=Lyrics__Container]&quot;</span><span class="p">)</span>
+
+    <span class="c1"># As of Aug 2025, Genius has added a lyrics header div. Remove it if present.</span>
+    <span class="c1"># &lt;div data-exclude-from-selection=&quot;true&quot;</span>
+    <span class="c1"># class=&quot;LyricsHeader__Container-sc-5e4b7146-1 hFsUgC&quot;&gt;</span>
+    <span class="n">lyrics_header</span> <span class="o">=</span> <span class="n">soup</span><span class="o">.</span><span class="n">select_one</span><span class="p">(</span><span class="s2">&quot;div[class^=LyricsHeader__Container]&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">lyrics_header</span><span class="p">:</span>
+        <span class="n">lyrics_header</span><span class="o">.</span><span class="n">decompose</span><span class="p">()</span>
 
     <span class="c1"># Get lyrics</span>
     <span class="k">if</span> <span class="n">lyrics_div</span><span class="p">:</span>
         <span class="n">lyrics</span> <span class="o">=</span> <span class="n">lyrics_div</span><span class="o">.</span><span class="n">get_text</span><span class="p">()</span>
-    <span class="k">elif</span> <span class="n">lyrics_containers</span><span class="p">:</span>
-        <span class="n">lyrics</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">con</span><span class="o">.</span><span class="n">get_text</span><span class="p">()</span> <span class="k">for</span> <span class="n">con</span> <span class="ow">in</span> <span class="n">lyrics_containers</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">lyrics_container</span><span class="p">:</span>
+        <span class="n">lyrics</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">con</span><span class="o">.</span><span class="n">get_text</span><span class="p">()</span> <span class="k">for</span> <span class="n">con</span> <span class="ow">in</span> <span class="n">lyrics_container</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">None</span>
 
