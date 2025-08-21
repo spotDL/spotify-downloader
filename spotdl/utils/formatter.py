@@ -169,6 +169,7 @@ def format_query(
     santitize: bool,
     file_extension: Optional[str] = None,
     short: bool = False,
+    template_allow_none: bool = True,
 ) -> str:
     """
     Replace template variables with the actual values.
@@ -179,6 +180,7 @@ def format_query(
     - santitize: whether to sanitize the string
     - file_extension: the file extension to use
     - short: whether to use the short version of the template
+    - template_allow_none: whether to allow None values in the template
 
     ### Returns
     - the formatted string
@@ -257,6 +259,15 @@ def format_query(
 
     # Replace all the keys with the values
     for key, value in formats.items():
+        # If an attempted replacement is None,
+        # Raise TypeError to reinit the song metadata
+        # In downloader.py search_and_download()
+        if not template_allow_none and key in template and formats[key] is None:
+            raise TypeError(
+                "A template value is None"
+                f"{template}"
+                f"{formats[key]=}"
+                )
         template = template.replace(key, str(value))
 
     return template
@@ -268,6 +279,7 @@ def create_search_query(
     santitize: bool,
     file_extension: Optional[str] = None,
     short: bool = False,
+    template_allow_none: bool = True,
 ) -> str:
     """
     Create the search query for the song.
@@ -278,6 +290,7 @@ def create_search_query(
     - santitize: whether to sanitize the string
     - file_extension: the file extension to use
     - short: whether to use the short version of the template
+    - template_allow_none: whether to allow None values in the template
 
     ### Returns
     - the formatted string
@@ -288,7 +301,14 @@ def create_search_query(
     if not any(key in template for key in VARS):
         template = "{artist} - {title}" + template
 
-    return format_query(song, template, santitize, file_extension, short=short)
+    return format_query(
+        song=song,
+        template=template,
+        santitize=santitize,
+        file_extension=file_extension,
+        short=short,
+        template_allow_none=template_allow_none
+    )
 
 
 def create_file_name(
@@ -298,6 +318,7 @@ def create_file_name(
     restrict: Optional[str] = None,
     short: bool = False,
     file_name_length: Optional[int] = None,
+    template_allow_none: bool = True,
 ) -> Path:
     """
     Create the file name for the song, by replacing template variables with the actual values.
@@ -309,6 +330,7 @@ def create_file_name(
     - restrict: sanitization to apply to the filename
     - short: whether to use the short version of the template
     - file_name_length: the maximum length of the file name
+    - template_allow_none: whether to allow None values in the template
 
     ### Returns
     - the formatted string as a Path object
@@ -339,6 +361,7 @@ def create_file_name(
         santitize=True,
         file_extension=file_extension,
         short=short,
+        template_allow_none=template_allow_none,
     )
 
     file = create_path_object(formatted_string)
@@ -361,6 +384,7 @@ def create_file_name(
             restrict=restrict,
             short=True,
             file_name_length=length_limit,
+            template_allow_none=template_allow_none,
         )
 
     non_template_chars = re.findall(r"(?<!{)[^{}]+(?![^{}]*})", template)
@@ -403,6 +427,7 @@ def create_file_name(
             santitize=True,
             file_extension=file_extension,
             short=short,
+            template_allow_none=template_allow_none,
         )
     )
 
@@ -427,6 +452,7 @@ def create_file_name(
             restrict=restrict,
             short=True,
             file_name_length=length_limit,
+            template_allow_none=template_allow_none,
         )
 
     return new_file

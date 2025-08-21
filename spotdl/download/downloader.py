@@ -446,33 +446,32 @@ class Downloader:
             self.errors.append(f"Song is missing required fields: {song.display_name}")
             return song, None
 
-        # Reinitialize the song object if it's missing metadata
-        # Or if we are fetching albums
-        if (
-            (song.name is None and song.url)
-            or self.settings["fetch_albums"]
-            or any(
-                x is None
-                for x in [
-                    song.genres,
-                    song.disc_count,
-                    song.tracks_count,
-                    song.track_number,
-                    song.album_id,
-                    song.album_artist,
-                ]
+        reinitialized = False
+        try:
+            # Create the output file path
+            output_file = create_file_name(
+                song=song,
+                template=self.settings["output"],
+                file_extension=self.settings["format"],
+                restrict=self.settings["restrict"],
+                file_name_length=self.settings["max_filename_length"],
+                template_allow_none=False,
             )
-        ):
+
+        except TypeError:
             song = reinit_song(song)
 
-        # Create the output file path
-        output_file = create_file_name(
-            song=song,
-            template=self.settings["output"],
-            file_extension=self.settings["format"],
-            restrict=self.settings["restrict"],
-            file_name_length=self.settings["max_filename_length"],
-        )
+            output_file = create_file_name(
+                song=song,
+                template=self.settings["output"],
+                file_extension=self.settings["format"],
+                restrict=self.settings["restrict"],
+                file_name_length=self.settings["max_filename_length"],
+                template_allow_none=True,
+            )
+
+            reinitialized = True
+
 
         if song.explicit is True and self.settings["skip_explicit"] is True:
             logger.info("Skipping explicit song: %s", song.display_name)
@@ -537,6 +536,28 @@ class Downloader:
 
                 display_progress_tracker.notify_download_skip()
                 return song, output_file
+
+            # Check if we have all the metadata
+            # and that the song object is not a placeholder
+            # If it's None extract the current metadata
+            # And reinitialize the song object
+            # Force song reinitialization if we are fetching albums
+            # they have most metadata but not all
+            if (
+                (song.name is None and song.url)
+                or (self.settings["fetch_albums"] and reinitialized is False)
+                or None
+                in [
+                    song.genres,
+                    song.disc_count,
+                    song.tracks_count,
+                    song.track_number,
+                    song.album_id,
+                    song.album_artist,
+                ]
+            ):
+                song = reinit_song(song)
+                reinitialized = True
 
             # Don't skip if the file exists and overwrite is set to force
             if file_exists and self.settings["overwrite"] == "force":
