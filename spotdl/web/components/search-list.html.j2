@@ -1,8 +1,28 @@
 <div id="search-list">
+    <script>
+        function download(client_id, song) {
+            console.log("Downloading song:", song);
+
+            params = {
+                client_id: client_id,
+                url: song
+            };
+            const queryString = new URLSearchParams(params).toString();
+            fetch(`/api/download/url?${queryString}`, {
+                method: 'POST'
+            }).then(response => {
+                if (response.ok) {
+                    console.log("Download started");
+                } else {
+                    console.error("Failed to start download");
+                }
+            }).catch(error => {
+                console.error("Error:", error);
+            });
+        }
+    </script>
     {% for song in songs %}
     <div key="{{loop.index0}}" class="card md:card-side card-bordered my-2 shadow-lg card-compact bg-base-100">
-        {# {{ song }} #}
-        {# {{ song.name }} #}
         <figure class="aspect-square md:max-h-fit">
             <img src="{{ song.cover_url }}" class="object-contain aspect-square md:max-h-44" />
         </figure>
@@ -16,19 +36,16 @@
                 {% endif %}
             </h2>
             <h3>
-                {# <a v-for="(artist, index) in song.artists" :key="index">
-                    <a v-if="index !== 0"> &#8226; </a>
-                    {{ artist }}
-                </a> #}
+                {% for artist in song.artists %}
+                {% if not loop.first %}
+                &#8226;
+                {% endif %}
+                {{ artist }}
+                {% endfor %}
             </h3>
             <h3>
                 {{ song.album_name }}
             </h3>
-            <br />
-
-            <p>
-                <br />
-            </p>
             <div class="card-actions absolute bottom-0 right-0 m-2">
                 <a class="btn btn-ghost btn-square" href="{{ song.url }}" target="_blank">
                     <!-- Spotify -->
@@ -41,7 +58,7 @@
                     <iconify-icon icon="clarity:check-line" style="font-size: 24px"></iconify-icon>
                 </button>
                 {% else %}
-                <button class="btn btn-primary btn-square" @click="download(song)">
+                <button class="btn btn-primary btn-square" data-on-click="download($client_id, '{{song.url}}')">
                     <!-- download -->
                     <iconify-icon icon="clarity:floppy-line" style="font-size: 24px"></iconify-icon>
                 </button>

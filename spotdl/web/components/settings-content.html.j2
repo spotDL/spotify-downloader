@@ -1,7 +1,7 @@
 <div class="modal-box relative" id="component-settings-content">
     <form method="dialog">
         <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
-            data-on-click="@get('/client/component/settings')">✕</button>
+            data-on-click="@get('/client/settings')">✕</button>
     </form>
     <h3 class="font-bold text-lg">Download Settings</h3>
     <div class="flex flex-col justify-center my-4">
@@ -47,11 +47,11 @@
     </div>
     <div class="modal-action">
         <form method="dialog">
-            <button class="btn" data-on-click="@get('/client/component/settings')">Cancel</button>
+            <button class="btn" data-on-click="@get('/client/settings')">Cancel</button>
         </form>
         {# <form method="dialog">
-            <button class="btn btn-primary" data-on-click="@post('/client/component/settings')">Save</button>
+            <button class="btn btn-primary" data-on-click="@post('/client/settings')">Save</button>
         </form> #}
-        <button class="btn btn-primary" data-on-click="@post('/client/component/settings')">Save</button>
+        <button class="btn btn-primary" data-on-click="@post('/client/settings')">Save</button>
     </div>
 </div>

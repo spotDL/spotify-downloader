@@ -25,66 +25,43 @@
         width: 1em;
         height: 1em;
     }
-
-    div#banner {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-    }
-
-    div#banner-content {
-        background-color: #eedddd;
-        width: 100%;
-        margin: 0 auto;
-        padding: calc(var(--spacing) * 4);
-        text-align: center;
-    }
 </style>
+
+<script>
+    function goto(location) {
+        window.location.href = location;
+    }
+</script>
 
 <body data-signals="{'client_id': ''}" data-on-load="@get('/client/load')">
 
     <div class="bg-base-300 absolute w-full t-0">
-        <div class="flex justify-end absolute top-0 right-0">
-            <!-- Theme Switcher -->
-            <label class="swap">
-                <input type="checkbox" />
-                <div class="swap-on">Light</div>
-                <div class="swap-off">Dark</div>
-            </label>
-
-            <!-- Settings Button -->
-            <button class="btn btn-square m-2"
-                data-on-click="@get('/client/component/settings-content'); settings_modal.showModal()">
-                <iconify-icon icon="clarity:settings-line" style="font-size: 24px"></iconify-icon>
-            </button>
-        </div>
-
-        <div id="banner">
-            <div id="banner-content">
-                Connecting to server...
-            </div>
-        </div>
+        {% include "navbar.html.j2" %}
 
         {# <nav>
-            {% for menu_item in ["home", "search"] %}
+            {% for menu_item in ["home", "search", "download"] %}
             <a href="{{ url_for(menu_item) }}">{{ menu_item }}</a>
             {% endfor %}
         </nav> #}
 
+        {# <div id="banner">
+            <div class="hero min-h-screen">
+                <div id="banner-content">
+                    Connecting to server...
+                </div>
+            </div>
+        </div> #}
+
         <!-- Home -->
         {% block content %}
-        <!-- <span id="component-home" data-on-load="@get('/client/component/home')"></span> -->
         <span id="router-view"></span>
         {% endblock content %}
 
-        <!-- Display all signals -->
+        <!-- DEBUG: Display all signals -->
         <pre data-json-signals></pre>
-        {# <span id="time"></span> #}
 
         <!-- Footer  -->
-        {# <span id="component-footer" data-on-load="@get('/client/component/footer')"></span> #}
-        {% include "footer.html" %}
+        {% include "footer.html.j2" %}
 
         <!-- Settings -->
         <span id="component-settings" data-on-signal-patch="@get('/client/component/settings-content')"

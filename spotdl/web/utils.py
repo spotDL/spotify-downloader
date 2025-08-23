@@ -1,6 +1,3 @@
-from datastar_py.fastapi import (
-    ReadSignals,
-)
 from spotdl.utils.web import app_state
 
 
@@ -19,7 +16,7 @@ def handle_signals(datastar_signals: dict) -> Signals:
     Handle the signals received from the client.
     This function can be used to process or validate the signals before they are used.
     """
-    app_state.logger.info(f"Received signals: {datastar_signals}")
+    app_state.logger.debug(f"Received signals: {datastar_signals}")
     if not datastar_signals:
         # raise ValueError("No signals provided.")
         app_state.logger.warning("No signals provided, returning empty Signals.")

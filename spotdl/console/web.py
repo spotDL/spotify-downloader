@@ -29,7 +29,7 @@ from spotdl.utils.web import (
 )
 
 import spotdl.web.api as api
-import spotdl.web.client as client
+import spotdl.web.routes as routes
 
 __all__ = ["web"]
 
@@ -76,7 +76,7 @@ def web(web_settings: WebOptions, downloader_settings: DownloaderOptions):
     )
 
     app_state.api.include_router(api.router)
-    app_state.api.include_router(client.router)
+    app_state.api.include_router(routes.router)
 
     # Add the CORS middleware
     app_state.api.add_middleware(

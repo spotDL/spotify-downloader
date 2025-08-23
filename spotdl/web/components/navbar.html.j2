@@ -1,0 +1,37 @@
+<div class="navbar m-2 shadow-lg bg-neutral text-neutral-content rounded-box" style="width: auto !important">
+
+  <div class="px-2 mx-2 navbar-start" @click="router.push({ name: 'Home' })">
+    <div class="bg-cover bg-no-repeat bg-center">
+      <img src="../assets/spotdl.svg" class="py-2 pr-2 w-10 center" />
+    </div>
+    <button class="text-lg font-bold">spotDL</button>
+  </div>
+  <div class="hidden sm:flex px-2 mx-2 navbar-center w-96 space-x-4">
+    <div id="search-input" data-signals="{search_term: '', loading: false}"
+      class="flex flex-row items-center space-x-4 w-full">
+      <input id="input-rotating-placeholder" type="text" placeholder="Search..."
+        class="input input-bordered w-full text-base-content" data-bind="search_term"
+        data-on-load="@get('/client/component/search-input-rotating-placeholder')" />
+      <button id="search-button" class="btn btn-circle btn-primary" data-on-click="goto('/search?q=' + $search_term )">
+        <iconify-icon icon="clarity:download-line" style="font-size: 24px"></iconify-icon>
+      </button>
+    </div>
+  </div>
+  <div class="navbar-end">
+    <div id="status" class="btn btn-ghost btn-circle m-2">
+      <iconify-icon icon="clarity:disconnect-line" style="font-size: 24px"></iconify-icon>
+    </div>
+
+    {% include "settings.html" %}
+
+    <div class="indicator mx-2">
+      <div v-if="pt.downloadQueue.value.length > 0"
+        class="indicator-item indicator-top indicator-end badge badge-secondary">
+        {# {{ pt.downloadQueue.value.length }} #}
+      </div>
+      <a class="btn btn-circle" data-on-click="goto('/downloads')">
+        <iconify-icon icon="clarity:download-cloud-line" style="font-size: 24px"></iconify-icon>
+      </a>
+    </div>
+  </div>
+</div>
