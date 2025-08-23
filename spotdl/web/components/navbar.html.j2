@@ -27,7 +27,7 @@
     <div class="indicator mx-2">
       <div v-if="pt.downloadQueue.value.length > 0"
         class="indicator-item indicator-top indicator-end badge badge-secondary">
-        {# {{ pt.downloadQueue.value.length }} #}
+        <div id="overall-completed-tasks">0</div>
       </div>
       <a class="btn btn-circle" data-on-click="goto('/downloads')">
         <iconify-icon icon="clarity:download-cloud-line" style="font-size: 24px"></iconify-icon>

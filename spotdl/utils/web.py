@@ -7,7 +7,7 @@ import asyncio
 import logging
 import mimetypes
 from argparse import Namespace
-from typing import Any, Dict, Optional, Union
+from typing import Any, Callable, Dict, Optional, Union
 import threading
 import time
 
@@ -92,11 +92,14 @@ class Client:
     downloader: Downloader
     downloader_settings: DownloaderOptions
     disconnect_timer: Optional[threading.Timer] = None
+    update_cb: Optional[Callable] = None
+    update_stack: list[Dict[str, Any]] = []
 
     def __init__(
         self,
         # websocket: WebSocket,
         client_id: str,
+        update_cb: Optional[Callable] = None,
     ):
         """
         Initialize the WebSocket handler.
@@ -116,6 +119,7 @@ class Client:
 
         # self.websocket = websocket
         self.client_id = client_id
+        self.update_cb = update_cb
         self.downloader = Downloader(
             settings=self.downloader_settings, loop=app_state.loop
         )
@@ -132,6 +136,9 @@ class Client:
         # await self.websocket.accept()
 
         # Add the connection to the list of connections
+        if self.disconnect_timer and self.disconnect_timer.is_alive():
+            self.disconnect_timer.cancel()
+            self.disconnect_timer = None
         app_state.clients[self.client_id] = self
         app_state.logger.info("Client %s connected", self.client_id)
 
@@ -171,8 +178,11 @@ class Client:
         - update: The update to send.
         """
 
-        # await self.websocket.send_json(update)
         print(f"Sending update to {self.client_id}: {update}")
+        # await self.websocket.send_json(update)
+        self.update_stack.append(update)
+        if self.update_cb:
+            await self.update_cb(update)
 
     def song_update(self, progress_handler: SongTracker, message: str):
         """

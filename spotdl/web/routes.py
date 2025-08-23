@@ -66,10 +66,19 @@ async def handle_get_client_load(datastar_signals: ReadSignals):
     app_state.logger.info("Loading client...")
     signals = handle_signals(datastar_signals)
     if not signals.client_id:
-        app_state.logger.warning("No client ID provided, generating a new one.")
         # Generate a new client ID if not provided
+        app_state.logger.warning("No client ID provided, generating a new one.")
         signals.client_id = uuid.uuid4().hex
-    client = Client(signals.client_id)
+        client = Client(signals.client_id)
+    else:
+        client = Client.get_instance(signals.client_id)
+        if client is None:
+            # Create a new client if not found
+            app_state.logger.warning(
+                f"Client {signals.client_id} not found, creating new client..."
+            )
+            signals.client_id = uuid.uuid4().hex
+            client = Client(signals.client_id)
     await client.connect()
 
     # First send the client ID and then the home template.
@@ -80,21 +89,16 @@ async def handle_get_client_load(datastar_signals: ReadSignals):
             "client_id": client.client_id,
         }
     )
-
-
-@router.get("/client/updates")
-@datastar_response
-async def handle_get_client_updates(datastar_signals: ReadSignals):
-    """
-    Realtime updates to the client
-    We are going to use Server-Sent Events (SSE) to update the time every 5 seconds.
-    This will allow us to know when the client disconnected, as the time will stop updating.
-    """
-    signals = handle_signals(datastar_signals)
-    client = Client(signals.client_id)
     try:
         while True:
-            await asyncio.sleep(5)
+            # while client.update_stack:
+            # update = client.update_stack.pop(0)
+            # yield SSE.patch_signals(update)
+            # print(client.downloader.progress_handler.overall_completed_tasks)
+            yield SSE.patch_elements(
+                f"""<div id="overall-completed-tasks">{client.downloader.progress_handler.overall_completed_tasks}</div>"""
+            )
+            await asyncio.sleep(1)
     finally:
         app_state.logger.info(f"[{signals.client_id}] Unloading client...")
         await client.disconnect()
@@ -124,11 +128,7 @@ async def handle_get_client_settings(datastar_signals: ReadSignals):
         app_state.logger.warning(
             f"Client {signals.client_id} not found, cannot update settings."
         )
-        yield SSE.patch_elements("""
-            <div id="status" class="btn btn-ghost btn-circle m-2">
-                <iconify-icon icon="clarity:disconnect-line" style="font-size: 24px"></iconify-icon>
-            </div>
-            """)
+        yield SSE.patch_elements(templates.get_template("status-disconnected.html.j2"))
         return
     app_state.logger.info(f"[{signals.client_id}] Sending client settings...")
     yield SSE.patch_signals(
@@ -171,11 +171,7 @@ async def handle_post_client_settings(datastar_signals: ReadSignals):
         app_state.logger.warning(
             f"[{signals.client_id}] Client not found, cannot update settings."
         )
-        yield SSE.patch_elements("""
-            <div id="status" class="btn btn-ghost btn-circle m-2">
-                <iconify-icon icon="clarity:disconnect-line" style="font-size: 24px"></iconify-icon>
-            </div>
-            """)
+        yield SSE.patch_elements(templates.get_template("status-disconnected.html.j2"))
         yield SSE.patch_elements(
             """
                 <div id="settings-status">
@@ -214,11 +210,7 @@ async def handle_get_client_component_settings(datastar_signals: ReadSignals):
         app_state.logger.warning(
             f"Client {signals.client_id} not found, cannot update settings."
         )
-        yield SSE.patch_elements("""
-            <div id="status" class="btn btn-ghost btn-circle m-2">
-                <iconify-icon icon="clarity:disconnect-line" style="font-size: 24px"></iconify-icon>
-            </div>
-            """)
+        yield SSE.patch_elements(templates.get_template("status-disconnected.html.j2"))
         return
     app_state.logger.info(f"[{signals.client_id}] Loading settings view...")
     # clear state
@@ -254,15 +246,12 @@ async def handle_client_component_search_input_rotating_placeholder(
         "Lightning Crashes - Live",
     ]
     index = 0
-    try:
-        while True:
-            t = templates.get_template(
-                "search-input-rotating-placeholder.html.j2"
-            ).render(placeholder_item=placeholder_items[index])
-            yield SSE.patch_elements(t)
-            await asyncio.sleep(5)
-            index += 1
-            if index >= len(placeholder_items):
-                index = 0
-    finally:
-        app_state.logger.info("Unloading rotating-placeholder...")
+    while True:
+        t = templates.get_template("search-input-rotating-placeholder.html.j2").render(
+            placeholder_item=placeholder_items[index]
+        )
+        yield SSE.patch_elements(t)
+        await asyncio.sleep(5)
+        index += 1
+        if index >= len(placeholder_items):
+            index = 0

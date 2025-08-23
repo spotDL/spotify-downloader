@@ -33,7 +33,8 @@
     }
 </script>
 
-<body data-signals="{'client_id': ''}" data-on-load="@get('/client/load')">
+<body data-signals="{'client_id': ''}"
+    data-on-load="$client_id = localStorage.getItem('client_id'); @get('/client/load')">
 
     <div class="bg-base-300 absolute w-full t-0">
         {% include "navbar.html.j2" %}
@@ -64,7 +65,8 @@
         {% include "footer.html.j2" %}
 
         <!-- Settings -->
-        <span id="component-settings" data-on-signal-patch="@get('/client/component/settings-content')"
+        <span id="component-settings"
+            data-on-signal-patch="@get('/client/component/settings-content'); localStorage.setItem('client_id', $client_id);"
             data-on-signal-patch-filter="{include: /client_id/}">
         </span>
         <dialog id="settings_modal" class="modal">
