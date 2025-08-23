@@ -1,0 +1,53 @@
+<div id="search-list">
+    {% for song in songs %}
+    <div key="{{loop.index0}}" class="card md:card-side card-bordered my-2 shadow-lg card-compact bg-base-100">
+        {# {{ song }} #}
+        {# {{ song.name }} #}
+        <figure class="aspect-square md:max-h-fit">
+            <img src="{{ song.cover_url }}" class="object-contain aspect-square md:max-h-44" />
+        </figure>
+        <div class="card-body">
+            <h2 class="card-title">
+                {{ song.name }}
+                {% if song.explicit %}
+                <div class="badge mx-0.5 badge-error">
+                    Explicit
+                </div>
+                {% endif %}
+            </h2>
+            <h3>
+                {# <a v-for="(artist, index) in song.artists" :key="index">
+                    <a v-if="index !== 0"> &#8226; </a>
+                    {{ artist }}
+                </a> #}
+            </h3>
+            <h3>
+                {{ song.album_name }}
+            </h3>
+            <br />
+
+            <p>
+                <br />
+            </p>
+            <div class="card-actions absolute bottom-0 right-0 m-2">
+                <a class="btn btn-ghost btn-square" href="{{ song.url }}" target="_blank">
+                    <!-- Spotify -->
+                    <iconify-icon icon="clarity:link-line" style="font-size: 24px"></iconify-icon>
+                </a>
+
+                {% if false %}
+                <button class="btn btn-primary btn-square">
+                    <!-- in queue -->
+                    <iconify-icon icon="clarity:check-line" style="font-size: 24px"></iconify-icon>
+                </button>
+                {% else %}
+                <button class="btn btn-primary btn-square" @click="download(song)">
+                    <!-- download -->
+                    <iconify-icon icon="clarity:floppy-line" style="font-size: 24px"></iconify-icon>
+                </button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>

@@ -45,9 +45,9 @@ async def handle_get_client_load(datastar_signals: ReadSignals):
             "client_id": client.client_id,
         }
     )
-    yield SSE.patch_elements(
-        f'<span id="router-view">{components.templates.get_template("home.html").render()}</span>'
-    )
+    # yield SSE.patch_elements(
+    #     f'<span id="router-view">{components.templates.get_template("home.html").render()}</span>'
+    # )
 
 
 @router.get("/client/updates")
@@ -61,39 +61,39 @@ async def handle_get_client_updates(datastar_signals: ReadSignals):
     """
     try:
         while True:
-            yield SSE.patch_elements(f"""<span id="time" >{time.time()}</span>""")
+            # yield SSE.patch_elements(f"""<span id="time" >{time.time()}</span>""")
             await asyncio.sleep(5)
     finally:
         app_state.logger.info("Unloading client...")
         await client.disconnect()
 
 
-@router.get("/client/search")
-@datastar_response
-async def handle_get_client_search(datastar_signals: ReadSignals):
-    app_state.logger.info("Loading search...")
-    signals = handle_signals(datastar_signals)
-    app_state.logger.info(f"Search term: {signals.search_term}")
+# @router.get("/client/search")
+# @datastar_response
+# async def handle_get_client_search(datastar_signals: ReadSignals):
+#     app_state.logger.info("Loading search...")
+#     signals = handle_signals(datastar_signals)
+#     app_state.logger.info(f"Search term: {signals.search_term}")
 
-    yield SSE.patch_elements(
-        """
-        <button id="search-button" class="btn btn-square btn-primary loading">
-        </button>
-        """
-    )
-    await asyncio.sleep(1)
-    is_valid = validate_search_term(signals.search_term)
-    if is_valid:
-        icon = "clarity:download-line"
-    else:
-        icon = "clarity:search-line"
-    yield SSE.patch_elements(
-        f"""
-        <button id="search-button" class="btn btn-square btn-primary" data-on-click="@get('/client/search')">
-            <iconify-icon icon="{icon}" style="font-size: 24px"></iconify-icon>
-        </button>
-        """
-    )
+#     yield SSE.patch_elements(
+#         """
+#         <button id="search-button" class="btn btn-square btn-primary loading">
+#         </button>
+#         """
+#     )
+#     await asyncio.sleep(1)
+#     is_valid = validate_search_term(signals.search_term)
+#     if is_valid:
+#         icon = "clarity:download-line"
+#     else:
+#         icon = "clarity:search-line"
+#     yield SSE.patch_elements(
+#         f"""
+#         <button id="search-button" class="btn btn-square btn-primary" data-on-click="@get('/client/search')">
+#             <iconify-icon icon="{icon}" style="font-size: 24px"></iconify-icon>
+#         </button>
+#         """
+#     )
 
 
 # @datastar_response

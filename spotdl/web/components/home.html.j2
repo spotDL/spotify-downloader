@@ -1,18 +1,9 @@
+{% extends "base.html.j2" %}
+
+{% block content %}
+
 <span id="component-home">
     <div class="hero min-h-screen">
-        <div class="flex justify-end absolute top-0 right-0">
-            <!-- Theme Switcher -->
-            <label class="swap">
-                <input type="checkbox" />
-                <div class="swap-on">Light</div>
-                <div class="swap-off">Dark</div>
-            </label>
-
-            <!-- Settings Button -->
-            <button class="btn btn-square m-2" onclick="settings_modal.showModal()">
-                <iconify-icon icon="clarity:settings-line" style="font-size: 24px"></iconify-icon>
-            </button>
-        </div>
 
         <!-- Hero Content -->
         <div class="block text-center justify-center hero-content">
@@ -53,3 +44,4 @@
         </div>
     </div>
 </span>
+{% endblock content %}
