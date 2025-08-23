@@ -263,11 +263,7 @@ def format_query(
         # Raise TypeError to reinit the song metadata
         # In downloader.py search_and_download()
         if not template_allow_none and key in template and formats[key] is None:
-            raise TypeError(
-                "A template value is None"
-                f"{template}"
-                f"{formats[key]=}"
-                )
+            raise TypeError("A template value is None" f"{template}" f"{formats[key]=}")
         template = template.replace(key, str(value))
 
     return template
@@ -307,7 +303,7 @@ def create_search_query(
         santitize=santitize,
         file_extension=file_extension,
         short=short,
-        template_allow_none=template_allow_none
+        template_allow_none=template_allow_none,
     )
 
 
