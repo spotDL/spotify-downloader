@@ -100,16 +100,6 @@ async def handle_get_client_load(datastar_signals: ReadSignals):
     )
     try:
         while True:
-            # while client.update_stack:
-            # update = client.update_stack.pop(0)
-            # yield SSE.patch_signals(update)
-            # print(f"{client.downloader.progress_handler.update_callback = }")
-            # print(f"{client.downloader.progress_handler.songs = }")
-            # print(f"{client.downloader.progress_handler.rich_progress_bar.tasks = }")
-            # print(f"{client.downloader.progress_handler.progress_tracker.songs = }")
-            # yield SSE.patch_elements(
-            #     f"""<div id="overall-completed-tasks">{client.downloader.progress_handler.overall_completed_tasks}</div>"""
-            # )
             yield SSE.patch_elements(
                 f"""<div id="overall-completed-tasks">{len(client.downloader.progress_handler.progress_tracker.songs)}</div>"""
             )
@@ -127,9 +117,6 @@ async def handle_get_client_search(datastar_signals: ReadSignals):
     app_state.logger.info(f"[{signals.client_id}] Search term: {signals.search_term}")
     # is_valid = validate_search_term(signals.search_term)
     songs = get_search_results(signals.search_term)
-    songs_list = [json.dumps(song.json) for song in songs]
-    print(f"Songs: {songs}")
-    print(f"Songs List: {songs_list}")
     yield SSE.patch_elements(
         templates.get_template("search-list.html.j2").render(
             songs=songs,
@@ -278,7 +265,7 @@ async def handle_post_client_download(datastar_signals: ReadSignals):
     try:
         # Fetch song metadata
         song = Song.from_url(signals.song_url)
-        print(f"Downloading song: {song}")
+        app_state.logger.info(f"Downloading song: {song}")
 
         # Download Song
         _, path = await client.downloader.pool_download(song)
