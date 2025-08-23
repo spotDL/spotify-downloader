@@ -1,0 +1,70 @@
+<div id="download-list">
+    {# {% for client_song_download in client_song_downloads %}
+    <div class="song">
+        <h2>{{ client_song_download.song.title }}</h2>
+        <p>{{ client_song_download.song.artist }}</p>
+        <p>Progress: {{ client_song_download.progress }}%</p>
+        <p>Status: {{ client_song_download.message }}</p>
+    </div>
+    {% endfor %} #}
+
+    <div class="m-2">
+        <h1 class="m-4 text-xl">Queue</h1>
+        {% if client_song_downloads|length == 0 %}
+        <div class="alert alert-error shadow-lg">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                class="stroke-current flex-shrink-0 w-6 h-6">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <span>No downloads are queued. Search for a song to begin.</span>
+        </div>
+        {% else %}
+        <div class="carousel carousel-end bg-base-200 rounded-box shadow-lg">
+            {% for client_song_download in client_song_downloads %}
+            <div key="{{ loop.index }}" class="carousel-item h-48">
+                <img src="{{ client_song_download.song.cover_url }}" />
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="card card-bordered my-2 shadow-lg card-compact bg-base-100">
+            {% for client_song_download in client_song_downloads %}
+            <div key="{{ loop.index }}" class="card-body grid grid-rows-1">
+                <h2 class="card-title">
+                    {{ client_song_download.song.name }} - {{ client_song_download.song.artist }}
+                </h2>
+
+                <p>
+                    {{ client_song_download.song.album_name }}
+                </p>
+                <div class="stat-figure text-primary flex space-x-2 items-center">
+                    {# <div v-if="client_song_download.isErrored()" class="badge badge-error gap-2">
+                        error
+                    </div> #}
+                    <span class="badge">
+                        {{ client_song_download.message }}
+                    </span>
+                    {# <button class="btn btn-error btn-outline btn-square"
+                        @click="dm.remove(client_song_download.song)">
+                        <Icon icon="clarity:trash-line" class="h-6 w-6" />
+                    </button> #}
+                    {% if client_song_download.progress == 100 %}
+                    <a class="btn btn-square btn-ghost" onclick="download(client_song_download.web_download_url)"
+                        download>
+                        <iconify-icon icon="clarity:download-line" style="font-size: 24px"></iconify-icon>
+                    </a>
+                    {% elif client_song_download.progress == 0 %}
+                    <button class="btn btn-circle btn-ghost loading"></button>
+                    {% else %}
+                    <progress class="progress w-56" value="{{client_song_download.progress}}" max="100"></progress>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+
+
+</div>

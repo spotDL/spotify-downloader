@@ -9,6 +9,7 @@ class Signals:
     client_id: str = ""
     search_term: str = ""
     downloader_settings: dict = {}
+    song_url: str = ""
 
 
 def handle_signals(datastar_signals: dict) -> Signals:
@@ -25,4 +26,5 @@ def handle_signals(datastar_signals: dict) -> Signals:
     signals.client_id = datastar_signals.get("client_id", "")
     signals.search_term = datastar_signals.get("search_term", "")
     signals.downloader_settings = datastar_signals.get("downloader_settings", {})
+    signals.song_url = datastar_signals.get("song_url", "")
     return signals

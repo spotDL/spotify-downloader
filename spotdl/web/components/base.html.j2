@@ -39,29 +39,15 @@
     <div class="bg-base-300 absolute w-full t-0">
         {% include "navbar.html.j2" %}
 
-        {# <nav>
-            {% for menu_item in ["home", "search", "download"] %}
-            <a href="{{ url_for(menu_item) }}">{{ menu_item }}</a>
-            {% endfor %}
-        </nav> #}
-
-        {# <div id="banner">
-            <div class="hero min-h-screen">
-                <div id="banner-content">
-                    Connecting to server...
-                </div>
-            </div>
-        </div> #}
-
-        <!-- Home -->
+        <!-- Content -->
         {% block content %}
-        <span id="router-view"></span>
         {% endblock content %}
 
         <!-- DEBUG: Display all signals -->
+
         <pre data-json-signals></pre>
 
-        <!-- Footer  -->
+        <!-- Footer -->
         {% include "footer.html.j2" %}
 
         <!-- Settings -->

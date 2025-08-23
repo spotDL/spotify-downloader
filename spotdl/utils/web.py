@@ -4,26 +4,26 @@ FastAPI routes/classes etc.
 """
 
 import asyncio
+from dataclasses import dataclass
 import logging
 import mimetypes
 from argparse import Namespace
 from typing import Any, Callable, Dict, Optional, Union
 import threading
-import time
 
 from fastapi import (
     FastAPI,
     HTTPException,
     Query,
     Response,
-    WebSocket,
 )
 from fastapi.staticfiles import StaticFiles
 from starlette.types import Scope
 from uvicorn import Server
 
 from spotdl.download.downloader import Downloader
-from spotdl.download.progress_handler import SongTracker
+from spotdl.download.progress_handler import ProgressHandler, SongTracker
+from spotdl.types.song import Song
 from spotdl.types.options import (
     DownloaderOptions,
     WebOptions,
@@ -38,7 +38,6 @@ __all__ = [
     "SPAStaticFiles",
     "Client",
     "ApplicationState",
-    # "router",
     "app_state",
     "get_current_state",
     "get_client",
@@ -92,14 +91,14 @@ class Client:
     downloader: Downloader
     downloader_settings: DownloaderOptions
     disconnect_timer: Optional[threading.Timer] = None
-    update_cb: Optional[Callable] = None
-    update_stack: list[Dict[str, Any]] = []
+    # update_callback: Optional[Callable] = None
+    # update_stack: list[Dict[str, Any]] = []
 
     def __init__(
         self,
         # websocket: WebSocket,
         client_id: str,
-        update_cb: Optional[Callable] = None,
+        # update_callback: Optional[Callable] = None,
     ):
         """
         Initialize the WebSocket handler.
@@ -119,12 +118,16 @@ class Client:
 
         # self.websocket = websocket
         self.client_id = client_id
-        self.update_cb = update_cb
+        # self.update_callback = update_callback
         self.downloader = Downloader(
             settings=self.downloader_settings, loop=app_state.loop
         )
 
-        self.downloader.progress_handler.web_ui = True
+        self.downloader.progress_handler = ProgressHandler(
+            simple_tui=True,
+            update_callback=self.song_update,
+            web_ui=True,
+        )
 
         self.disconnect_timer = None
 
@@ -178,11 +181,11 @@ class Client:
         - update: The update to send.
         """
 
-        print(f"Sending update to {self.client_id}: {update}")
+        # print(f"Sending update to {self.client_id}: {update}")
         # await self.websocket.send_json(update)
-        self.update_stack.append(update)
-        if self.update_cb:
-            await self.update_cb(update)
+        # self.update_stack.append(update)
+        # if self.update_callback:
+        #     await self.update_callback(update)
 
     def song_update(self, progress_handler: SongTracker, message: str):
         """

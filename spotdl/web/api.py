@@ -223,11 +223,6 @@ async def download_url(
             (get_spotdl_path() / f"web/sessions/{client.client_id}").absolute()
         )
 
-    client.downloader.progress_handler = ProgressHandler(
-        simple_tui=True,
-        update_callback=client.song_update,
-    )
-
     try:
         # Fetch song metadata
         song = Song.from_url(url)

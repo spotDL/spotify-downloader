@@ -2,6 +2,7 @@
 Module that holds the ProgressHandler class and Song Tracker class.
 """
 
+from dataclasses import dataclass
 import logging
 from typing import Any, Callable, Dict, List, Optional
 
@@ -99,6 +100,43 @@ class SizedTextColumn(ProgressColumn):
         return text
 
 
+@dataclass
+class ClientSongDownload:
+    song: Song
+    progress: int
+    message: str
+
+
+class ProgressTracker:
+    """
+    Tracks the progress of each song download.
+    Similar to Rich Progress but without any TUI elements.
+    """
+
+    songs: Dict[str, ClientSongDownload] = {}
+
+    def add(self, song: Song):
+        # check if exists
+        if song.url in self.songs:
+            return
+        self.songs[song.url] = ClientSongDownload(
+            song=song, progress=0, message="Queued"
+        )
+
+    def update(self, song: Song, progress: int, message: str):
+        if song.url in self.songs:
+            self.songs[song.url].progress = progress
+            self.songs[song.url].message = message
+        else:
+            self.songs[song.url] = ClientSongDownload(
+                song=song, progress=progress, message=message
+            )
+
+    def remove(self, song: Song):
+        if song.url in self.songs:
+            del self.songs[song.url]
+
+
 class ProgressHandler:
     """
     Class for handling the progress of a download, including the progress bar.
@@ -130,6 +168,8 @@ class ProgressHandler:
         self.web_ui = web_ui
         self.quiet = logger.getEffectiveLevel() < 10
         self.overall_task_id: Optional[TaskID] = None
+
+        self.progress_tracker = ProgressTracker()
 
         if not self.simple_tui:
             console = get_console()
@@ -299,9 +339,15 @@ class SongTracker:
         # The change in progress since last update
         delta = self.progress - self.old_progress
 
+        self.parent.progress_tracker.add(self.song)
+        self.parent.progress_tracker.update(self.song, self.progress, message)
+        if self.progress == 100 or message == "Error":
+            if not self.parent.web_ui:
+                self.parent.progress_tracker.remove(self.song)
+
         if not self.parent.simple_tui:
             # Update the progress bar
-            # `start_task` called everytime to ensure progress is remove from indeterminate state
+            # `start_task` called every time to ensure progress is remove from indeterminate state
             self.parent.rich_progress_bar.start_task(self.task_id)
             self.parent.rich_progress_bar.update(
                 self.task_id,
@@ -309,6 +355,9 @@ class SongTracker:
                 message=message,
                 completed=self.progress,
             )
+
+            # Refresh the progress bar to show the changes before it gets removed in case of 100%
+            self.parent.rich_progress_bar.refresh()
 
             # If task is complete
             if self.progress == 100 or message == "Error":

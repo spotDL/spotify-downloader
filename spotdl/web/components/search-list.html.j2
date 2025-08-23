@@ -1,4 +1,4 @@
-<div id="search-list">
+<div id="search-list" data-signals="{'song_url': {}}">
     <script>
         function download(client_id, song) {
             console.log("Downloading song:", song);
@@ -22,7 +22,7 @@
         }
     </script>
     {% for song in songs %}
-    <div key="{{loop.index0}}" class="card md:card-side card-bordered my-2 shadow-lg card-compact bg-base-100">
+    <div key="{{loop.index0}}" class="card md:card-side card-bordered m-2 shadow-lg card-compact bg-base-100">
         <figure class="aspect-square md:max-h-fit">
             <img src="{{ song.cover_url }}" class="object-contain aspect-square md:max-h-44" />
         </figure>
@@ -58,7 +58,9 @@
                     <iconify-icon icon="clarity:check-line" style="font-size: 24px"></iconify-icon>
                 </button>
                 {% else %}
-                <button class="btn btn-primary btn-square" data-on-click="download($client_id, '{{song.url}}')">
+                <button id="download-{{song.url}}" class="btn btn-primary btn-square"
+                    data-on-click="$song_url = '{{song.url}}'; @post('/client/download/'); ">
+                    {# download($client_id, '{{song.url}}') #}
                     <!-- download -->
                     <iconify-icon icon="clarity:floppy-line" style="font-size: 24px"></iconify-icon>
                 </button>

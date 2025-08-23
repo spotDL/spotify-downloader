@@ -2,8 +2,8 @@
 
 {% block content %}
 
-<div class="hero min-h-screen">
-    downloads
+<div class="min-h-screen">
+    <div id="download-list" data-on-load="@get('/client/downloads')"></div>
 </div>
 
 {% endblock content %}

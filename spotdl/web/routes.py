@@ -1,4 +1,5 @@
 import asyncio
+import json
 import uuid
 from typing import Optional
 
@@ -17,11 +18,16 @@ from datastar_py.fastapi import (
 from spotdl._version import __version__
 
 # import spotdl.web.components.components as components
+from spotdl.types.song import Song
+from spotdl.utils.spotify import SpotifyClient
 from spotdl.web.utils import handle_signals
 from spotdl.utils.web import Client, app_state
 from spotdl.download.downloader import AUDIO_PROVIDERS, LYRICS_PROVIDERS
 from spotdl.utils.ffmpeg import FFMPEG_FORMATS
 from spotdl.utils.search import get_search_results
+from spotdl.utils.config import (
+    get_spotdl_path,
+)
 
 __all__ = ["router"]
 
@@ -53,7 +59,10 @@ async def search(q: Optional[str], request: Request):
 async def downloads(request: Request):
     return templates.TemplateResponse(
         name="downloads.html.j2",
-        context={"request": request, "__version__": __version__},
+        context={
+            "request": request,
+            "__version__": __version__,
+        },
     )
 
 
@@ -94,9 +103,15 @@ async def handle_get_client_load(datastar_signals: ReadSignals):
             # while client.update_stack:
             # update = client.update_stack.pop(0)
             # yield SSE.patch_signals(update)
-            # print(client.downloader.progress_handler.overall_completed_tasks)
+            # print(f"{client.downloader.progress_handler.update_callback = }")
+            # print(f"{client.downloader.progress_handler.songs = }")
+            # print(f"{client.downloader.progress_handler.rich_progress_bar.tasks = }")
+            # print(f"{client.downloader.progress_handler.progress_tracker.songs = }")
+            # yield SSE.patch_elements(
+            #     f"""<div id="overall-completed-tasks">{client.downloader.progress_handler.overall_completed_tasks}</div>"""
+            # )
             yield SSE.patch_elements(
-                f"""<div id="overall-completed-tasks">{client.downloader.progress_handler.overall_completed_tasks}</div>"""
+                f"""<div id="overall-completed-tasks">{len(client.downloader.progress_handler.progress_tracker.songs)}</div>"""
             )
             await asyncio.sleep(1)
     finally:
@@ -112,11 +127,38 @@ async def handle_get_client_search(datastar_signals: ReadSignals):
     app_state.logger.info(f"[{signals.client_id}] Search term: {signals.search_term}")
     # is_valid = validate_search_term(signals.search_term)
     songs = get_search_results(signals.search_term)
+    songs_list = [json.dumps(song.json) for song in songs]
+    print(f"Songs: {songs}")
+    print(f"Songs List: {songs_list}")
     yield SSE.patch_elements(
         templates.get_template("search-list.html.j2").render(
             songs=songs,
         )
     )
+
+
+@router.get("/client/downloads")
+@datastar_response
+async def handle_get_client_downloads(datastar_signals: ReadSignals):
+    app_state.logger.info("Loading downloads...")
+    signals = handle_signals(datastar_signals)
+    app_state.logger.info(f"[{signals.client_id}] Downloads requested.")
+    client = Client.get_instance(signals.client_id)
+    if client is None:
+        app_state.logger.warning(
+            f"[{signals.client_id}] Client not found, cannot load downloads."
+        )
+        yield SSE.patch_elements(
+            templates.get_template("status-disconnected.html.j2").render()
+        )
+        return
+    while True:
+        yield SSE.patch_elements(
+            templates.get_template("download-list.html.j2").render(
+                client_song_downloads=client.downloader.progress_handler.progress_tracker.songs.values()
+            )
+        )
+        await asyncio.sleep(1)
 
 
 @router.get("/client/settings")
@@ -128,7 +170,9 @@ async def handle_get_client_settings(datastar_signals: ReadSignals):
         app_state.logger.warning(
             f"Client {signals.client_id} not found, cannot update settings."
         )
-        yield SSE.patch_elements(templates.get_template("status-disconnected.html.j2"))
+        yield SSE.patch_elements(
+            templates.get_template("status-disconnected.html.j2").render()
+        )
         return
     app_state.logger.info(f"[{signals.client_id}] Sending client settings...")
     yield SSE.patch_signals(
@@ -171,7 +215,9 @@ async def handle_post_client_settings(datastar_signals: ReadSignals):
         app_state.logger.warning(
             f"[{signals.client_id}] Client not found, cannot update settings."
         )
-        yield SSE.patch_elements(templates.get_template("status-disconnected.html.j2"))
+        yield SSE.patch_elements(
+            templates.get_template("status-disconnected.html.j2").render()
+        )
         yield SSE.patch_elements(
             """
                 <div id="settings-status">
@@ -198,6 +244,54 @@ async def handle_post_client_settings(datastar_signals: ReadSignals):
     )
 
 
+@router.post("/client/download/")
+@datastar_response
+async def handle_post_client_download(datastar_signals: ReadSignals):
+    signals = handle_signals(datastar_signals)
+    client = Client.get_instance(signals.client_id)
+    if client is None:
+        app_state.logger.warning(
+            f"Client {signals.client_id} not found, cannot load downloads."
+        )
+        yield SSE.patch_elements(
+            templates.get_template("status-disconnected.html.j2").render()
+        )
+        return
+    app_state.logger.info(
+        f"[{signals.client_id}] Download requested: {signals.song_url}"
+    )
+    yield SSE.patch_elements(
+        f"""
+            <button id="download-{signals.song_url}" class="btn btn-primary btn-square">
+                    <iconify-icon icon="clarity:check-line" style="font-size: 24px"></iconify-icon>
+                </button>
+        """
+    )
+
+    if app_state.web_settings.get("web_use_output_dir", False):
+        client.downloader.settings["output"] = client.downloader_settings["output"]
+    else:
+        client.downloader.settings["output"] = str(
+            (get_spotdl_path() / f"web/sessions/{client.client_id}").absolute()
+        )
+
+    try:
+        # Fetch song metadata
+        song = Song.from_url(signals.song_url)
+        print(f"Downloading song: {song}")
+
+        # Download Song
+        _, path = await client.downloader.pool_download(song)
+
+        if path is None:
+            app_state.logger.error(f"Failure downloading {song.name}")
+
+        # return str(path.absolute())
+
+    except Exception as exception:
+        app_state.logger.error(f"Error downloading! {exception}")
+
+
 # COMPONENTS
 
 
@@ -210,7 +304,9 @@ async def handle_get_client_component_settings(datastar_signals: ReadSignals):
         app_state.logger.warning(
             f"Client {signals.client_id} not found, cannot update settings."
         )
-        yield SSE.patch_elements(templates.get_template("status-disconnected.html.j2"))
+        yield SSE.patch_elements(
+            templates.get_template("status-disconnected.html.j2").render()
+        )
         return
     app_state.logger.info(f"[{signals.client_id}] Loading settings view...")
     # clear state
@@ -224,9 +320,14 @@ async def handle_get_client_component_settings(datastar_signals: ReadSignals):
             FORMATS=FFMPEG_FORMATS.keys(),
         )
     )
+    # spotify_client = SpotifyClient()
+    # print(f"{spotify_client = }")
     yield SSE.patch_signals(
         {
             "downloader_settings": client.downloader_settings,
+            # "spotify_settings": {
+            #     "client_id": spotify_client.credential_manager.client_id
+            # },
         }
     )
 

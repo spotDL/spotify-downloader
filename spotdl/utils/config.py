@@ -369,9 +369,6 @@ WEB_OPTIONS: WebOptions = {
     "ca_file": None,
     "allowed_origins": None,
     "keep_sessions": False,
-    "force_update_gui": False,
-    "web_gui_repo": None,
-    "web_gui_location": None,
 }
 
 # Type: ignore because of the issues above
