@@ -24,6 +24,7 @@ def test_album_wrong_init():
 
 
 @pytest.mark.vcr()
+@pytest.mark.vcr_delete_on_fail
 def test_album_from_url():
     """
     Test if Album class can be initialized from url.
@@ -38,6 +39,7 @@ def test_album_from_url():
 
 
 # @pytest.mark.vcr()
+# @pytest.mark.vcr_delete_on_fail
 # def test_album_from_string():
 #     """
 #     Test if Album class can be initialized from string.
@@ -52,6 +54,7 @@ def test_album_from_url():
 
 
 @pytest.mark.vcr()
+@pytest.mark.vcr_delete_on_fail
 def test_album_length():
     """
     Tests if Album.length works correctly.

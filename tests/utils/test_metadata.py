@@ -22,6 +22,7 @@ from spotdl.utils.metadata import embed_metadata, get_file_metadata
     ],
 )
 @pytest.mark.vcr()
+@pytest.mark.vcr_delete_on_fail
 def test_embed_metadata(tmpdir, monkeypatch, last_vcr_recording_time,
                         output_format):
     """

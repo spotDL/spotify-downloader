@@ -42,6 +42,7 @@ def test_artist_wrong_init():
 
 
 @pytest.mark.vcr()
+@pytest.mark.vcr_delete_on_fail
 def test_artist_from_url():
     """
     Test if Artist class can be initialized from url.
@@ -56,6 +57,7 @@ def test_artist_from_url():
 
 
 @pytest.mark.vcr()
+@pytest.mark.vcr_delete_on_fail
 def test_artist_from_string():
     """
     Test if Artist class can be initialized from string.
