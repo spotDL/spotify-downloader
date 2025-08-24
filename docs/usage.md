@@ -3,7 +3,7 @@
 ## Downloading
 
 ??? Song info
-    To download a song, run
+To download a song, run
 
     ```bash
     spotdl download [trackUrl]
@@ -16,7 +16,7 @@
     ```
 
 ??? Album info
-    To download an album, run
+To download an album, run
 
     ```bash
     spotdl download [albumUrl]
@@ -29,7 +29,7 @@
     ```
 
 ??? Playlist info
-    To download a playlist, run
+To download a playlist, run
 
     ```bash
     spotdl download [playlistUrl]
@@ -42,7 +42,7 @@
     ```
 
 ??? Artist info
-    To download all songs from an artist run
+To download all songs from an artist run
 
     ```bash
     spotdl download [artistUrl]
@@ -55,7 +55,7 @@
     ```
 
 ??? Search info
-    To search for and download a song, run, with quotation marks
+To search for and download a song, run, with quotation marks
 
     ```bash
     spotdl download '[songQuery]'
@@ -68,8 +68,7 @@
     ```
 
 ??? info "YouTube link with Spotify metadata"
-    To download YouTube video with metadata from Spotify, run
-    > Noting the quote `"` are required
+To download YouTube video with metadata from Spotify, run > Noting the quote `"` are required
 
     ```bash
     spotdl download "YouTubeURL|SpotifyURL"
@@ -82,24 +81,21 @@
     ```
 
 ??? info "Liked songs"
-    To download liked Spotify songs run
-    > `--user-auth` is required
+To download liked Spotify songs run > `--user-auth` is required
 
     ```bash
     spotdl download saved --user-auth
     ```
 
 ??? info "All user playlists"
-    To download all user playlists run
-    > `--user-auth` is required
+To download all user playlists run > `--user-auth` is required
 
     ```bash
     spotdl download all-user-playlists --user-auth
     ```
 
 ??? info "All user saved albums"
-    To download all user saved albums run
-    > `--user-auth` is required
+To download all user saved albums run > `--user-auth` is required
 
     ```bash
     spotdl download all-user-saved-albums --user-auth
@@ -138,10 +134,12 @@ To download music in higher quality follow the steps below:
 1. Change quality in YouTube Music settings to highest possible.
 
 2. Get cookies.txt for https://music.youtube.com.
-> You can use [Get cookies.txt extension](https://chrome.google.com/webstore/detail/get-cookiestxt-locally/cclelndahbckbenkjhflpdbgdldlbecc) or [cookies.txt](https://addons.mozilla.org/en-US/firefox/addon/cookies-txt/) for this. More info [here](https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp)
+
+    > You can use [Get cookies.txt extension](https://chrome.google.com/webstore/detail/get-cookiestxt-locally/cclelndahbckbenkjhflpdbgdldlbecc) or [cookies.txt](https://addons.mozilla.org/en-US/firefox/addon/cookies-txt/) for this. More info [here](https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp)
 
 3. Add `--cookie-file cookies.txt` option to your spotDL command line options
-> Replace cookies.txt with the actual name of your cookies file
+
+    > Replace cookies.txt with the actual name of your cookies file
 
 4. Change the audio format to either **M4A** or **OPUS** to get the raw HQ file
 
@@ -149,16 +147,13 @@ To download music in higher quality follow the steps below:
 > To get the best audio possible you should use **M4A**/**OPUS** audio format
 > with `--bitrate disable`
 
-
-
-
 ## Syncing
 
 Sync function for the console. Keep local files up to date with playlists/albums/etc.
 This will download new songs and remove the ones that are no longer present in the playlists/albums/etc
 
 ??? info "Initialize Synchronization"
-    To create the sync file run
+To create the sync file run
 
     ```bash
     spotdl sync [query] --save-file [fileName]
@@ -173,7 +168,7 @@ This will download new songs and remove the ones that are no longer present in t
     > Note: The sync file has to end with .spotdl
 
 ??? info "Syncing"
-    To sync the songs run
+To sync the songs run
 
     ```bash
     spotdl sync [fileName]
@@ -208,7 +203,7 @@ spotdl save 'The Weeknd - Blinding Lights' --save-file 'the-weeknd.spotdl'
 ```
 
 ??? info "Preloading"
-    Preload the download url to speed up the download process.
+Preload the download url to speed up the download process.
 
     ```bash
     spotdl save [query] --save-file [fileName] --preload
@@ -277,14 +272,8 @@ If you don't want config to load automatically change `load_config` option in co
     "no_cache": false,
     "max_retries": 3,
     "use_cache_file": false,
-    "audio_providers": [
-        "youtube-music"
-    ],
-    "lyrics_providers": [
-        "genius",
-        "azlyrics",
-        "musixmatch"
-    ],
+    "audio_providers": ["youtube-music"],
+    "lyrics_providers": ["genius", "azlyrics", "musixmatch"],
     "playlist_numbering": false,
     "scan_for_songs": false,
     "m3u": null,
@@ -337,10 +326,7 @@ If you don't want config to load automatically change `load_config` option in co
     "cert_file": null,
     "ca_file": null,
     "allowed_origins": null,
-    "keep_sessions": false,
-    "force_update_gui": false,
-    "web_gui_repo": null,
-    "web_gui_location": null
+    "keep_sessions": false
 }
 ```
 
@@ -348,28 +334,28 @@ If you don't want config to load automatically change `load_config` option in co
 
 The `output` key supports several variables:
 
-| Variable | Explanation | Example |
-|----------|-------------|---------|
-| `{title}` | Song title | Dark Horse |
-| `{artists}` | Song artists | Katy Perry, Juicy J |
-| `{artist}` | Primary artist | Katy Perry |
-| `{album}` | Album name | PRISM |
-| `{album-artist}` | Primary artist of the album | Katy Perry |
-| `{genre}` | Genre | dance pop |
-| `{disc-number}` | Useful for multi-disc releases | 1 |
-| `{disc-count}` | Total number of discs in the album | 1 |
-| `{duration}` | Duration of the song in seconds | 215.672 |
-| `{year}` | Year of release | 2013 |
-| `{original-date}` | Date of original release | 2013-01-01 |
-| `{track-number}` | Track number in the album | 06 |
-| `{tracks-count}` | Total number of tracks in the album | 13 |
-| `{isrc} `| International Standard Recording Code | USUM71311296 |
-| `{track-id}` | Spotify song ID | 4jbmgIyjGoXjY01XxatOx6 |
-| `{publisher} `| Record label | Capitol Records (CAP) |
-| `{list-length}` | Number of items in a playlist | 10 |
-| `{list-position}` | Position of the song in a playlist | 1 |
-| `{list-name}` | Name of the playlist | Saved |
-| `{output-ext}` | File extension | mp3 |
+| Variable          | Explanation                           | Example                |
+| ----------------- | ------------------------------------- | ---------------------- |
+| `{title}`         | Song title                            | Dark Horse             |
+| `{artists}`       | Song artists                          | Katy Perry, Juicy J    |
+| `{artist}`        | Primary artist                        | Katy Perry             |
+| `{album}`         | Album name                            | PRISM                  |
+| `{album-artist}`  | Primary artist of the album           | Katy Perry             |
+| `{genre}`         | Genre                                 | dance pop              |
+| `{disc-number}`   | Useful for multi-disc releases        | 1                      |
+| `{disc-count}`    | Total number of discs in the album    | 1                      |
+| `{duration}`      | Duration of the song in seconds       | 215.672                |
+| `{year}`          | Year of release                       | 2013                   |
+| `{original-date}` | Date of original release              | 2013-01-01             |
+| `{track-number}`  | Track number in the album             | 06                     |
+| `{tracks-count}`  | Total number of tracks in the album   | 13                     |
+| `{isrc} `         | International Standard Recording Code | USUM71311296           |
+| `{track-id}`      | Spotify song ID                       | 4jbmgIyjGoXjY01XxatOx6 |
+| `{publisher} `    | Record label                          | Capitol Records (CAP)  |
+| `{list-length}`   | Number of items in a playlist         | 10                     |
+| `{list-position}` | Position of the song in a playlist    | 1                      |
+| `{list-name}`     | Name of the playlist                  | Saved                  |
+| `{output-ext}`    | File extension                        | mp3                    |
 
 ## CLI (Command Line Interface)
 

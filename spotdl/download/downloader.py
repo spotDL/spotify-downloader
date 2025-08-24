@@ -838,6 +838,7 @@ class Downloader:
                 generate_lrc(song, output_file)
 
             display_progress_tracker.notify_complete()
+            display_progress_tracker.set_path(str(output_file))
 
             # Add the song to the known songs
             self.known_songs.get(song.url, []).append(output_file)
