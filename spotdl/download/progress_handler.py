@@ -105,6 +105,7 @@ class ClientSongDownload:
     song: Song
     progress: int
     message: str
+    path: Optional[str] = None
 
 
 class ProgressTracker:
@@ -135,6 +136,10 @@ class ProgressTracker:
     def remove(self, song: Song):
         if song.url in self.songs:
             del self.songs[song.url]
+
+    def set_path(self, song: Song, path: str):
+        if song.url in self.songs:
+            self.songs[song.url].path = path
 
 
 class ProgressHandler:
@@ -314,6 +319,7 @@ class SongTracker:
         self.progress: int = 0
         self.old_progress: int = 0
         self.status = ""
+        self.path: Optional[str] = None
 
         if not self.parent.simple_tui:
             self.task_id = self.parent.rich_progress_bar.add_task(
@@ -487,3 +493,14 @@ class SongTracker:
                 self.progress = downloaded_bytes / file_bytes * 50
 
             self.update("Downloading")
+
+    def set_path(self, path: str) -> None:
+        """
+        Sets the path of the song.
+
+        ### Arguments
+        - path: The path to set.
+        """
+
+        self.path = path
+        self.parent.progress_tracker.set_path(self.song, path)

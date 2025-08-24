@@ -49,9 +49,10 @@
                         @click="dm.remove(client_song_download.song)">
                         <Icon icon="clarity:trash-line" class="h-6 w-6" />
                     </button> #}
+                    {# {{client_song_download}} #}
                     {% if client_song_download.progress == 100 %}
-                    <a class="btn btn-square btn-ghost" onclick="download(client_song_download.web_download_url)"
-                        download>
+                    <a class="btn btn-square btn-ghost" data-attr="{href:'/api/download/file?file={{ client_song_download.path|urlencode|replace('
+                        /', '%2f' ) }}&client_id=' + $client_id}" download>
                         <iconify-icon icon="clarity:download-line" style="font-size: 24px"></iconify-icon>
                     </a>
                     {% elif client_song_download.progress == 0 %}

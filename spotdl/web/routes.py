@@ -249,8 +249,7 @@ async def handle_post_client_download(datastar_signals: ReadSignals):
     )
     yield SSE.patch_elements(
         f"""
-            <button id="download-{signals.song_url}" class="btn btn-primary btn-square">
-                    <iconify-icon icon="clarity:check-line" style="font-size: 24px"></iconify-icon>
+            <button id="download-{signals.song_url}" class="btn btn-primary btn-square loading">
                 </button>
         """
     )
@@ -269,6 +268,13 @@ async def handle_post_client_download(datastar_signals: ReadSignals):
 
         # Download Song
         _, path = await client.downloader.pool_download(song)
+        yield SSE.patch_elements(
+            f"""
+            <button id="download-{signals.song_url}" class="btn btn-primary btn-square">
+                    <iconify-icon icon="clarity:check-line" style="font-size: 24px"></iconify-icon>
+                </button>
+        """
+        )
 
         if path is None:
             app_state.logger.error(f"Failure downloading {song.name}")
