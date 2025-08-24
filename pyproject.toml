@@ -94,6 +94,7 @@ dev = [
     "types-pyyaml>=6.0.12.20250809",
     "types-python-dateutil>=2.9.0.20250809",
     "pytest-freezegun>=0.4.2",
+    "pytest-vcr-delete-on-fail>=2.0.1",
 ]
 
 [build-system]
