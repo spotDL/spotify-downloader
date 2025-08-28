@@ -180,7 +180,7 @@ class AzLyrics(LyricsProvider):
             # })();
 
         except (requests.ConnectionError, requests.TooManyRedirects):
-            pass
+            return None
 
         # We now filter the string so we can extract the x code.
         start_index = js_code.find('value"') + 9
