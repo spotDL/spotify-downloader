@@ -28,7 +28,8 @@ class AzLyrics(LyricsProvider):
             {
                 "Host": "www.azlyrics.com",
                 "User-Agent": (
-                    "Mozilla/5.0 (X11; Linux x86_64; rv:141.0) Gecko/20100101 Firefox/141.0"
+                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+                    "(KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36 /CefSharp Browser 90.0"
                 ),
                 "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
                 "Accept-Language": "en-US,en;q=0.5",
@@ -178,8 +179,12 @@ class AzLyrics(LyricsProvider):
             #     }
             # })();
 
-        except requests.ConnectionError:
+        except (requests.ConnectionError, requests.TooManyRedirects):
             pass
+
+        if not js_code:
+            logger.debug("AZLyrics: Failed to retrieve js_code.")
+            return None
 
         # We now filter the string so we can extract the x code.
         start_index = js_code.find('value"') + 9
