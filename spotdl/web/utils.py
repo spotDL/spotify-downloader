@@ -1,4 +1,6 @@
 from spotdl.utils.web import app_state
+from spotdl.types.options import DownloaderOptions
+from typing import Optional
 
 
 class Signals:
@@ -8,7 +10,7 @@ class Signals:
 
     client_id: str = ""
     search_term: str = ""
-    downloader_settings: dict = {}
+    downloader_settings: Optional["DownloaderOptions"] = None
     song_url: str = ""
 
 

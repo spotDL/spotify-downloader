@@ -12,6 +12,7 @@ from datastar_py.fastapi import (
     # read_signals,
     ServerSentEventGenerator as SSE,
 )
+
 # from datastar_py.sse import DatastarEvent
 # from spotdl.utils.web import validate_search_term
 
@@ -80,14 +81,16 @@ async def handle_get_client_load(datastar_signals: ReadSignals):
         signals.client_id = uuid.uuid4().hex
         client = Client(signals.client_id)
     else:
-        client = Client.get_instance(signals.client_id)
-        if client is None:
+        found_client = Client.get_instance(signals.client_id)
+        if found_client is None:
             # Create a new client if not found
             app_state.logger.warning(
                 f"Client {signals.client_id} not found, creating new client..."
             )
             signals.client_id = uuid.uuid4().hex
             client = Client(signals.client_id)
+        else:
+            client = found_client
     await client.connect()
 
     # First send the client ID and then the home template.
@@ -176,7 +179,8 @@ async def handle_post_client_settings(datastar_signals: ReadSignals):
     client = Client.get_instance(signals.client_id)
     if client is not None:
         app_state.logger.info(f"[{signals.client_id}] Updating settings...")
-        client.downloader_settings = signals.downloader_settings
+        if signals.downloader_settings is not None:
+            client.downloader_settings = signals.downloader_settings
         yield SSE.patch_elements(
             """
                 <div id="settings-status">
