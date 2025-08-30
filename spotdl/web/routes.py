@@ -1,3 +1,6 @@
+"""
+Module which contains the web client routes and functions.
+"""
 import asyncio
 import uuid
 from typing import Optional
@@ -40,6 +43,9 @@ templates = Jinja2Templates(directory="spotdl/web/components")
 
 @router.get("/")
 async def home(request: Request):
+    """
+    Handle the home page request.
+    """
     return templates.TemplateResponse(
         name="home.html.j2",
         context={"request": request, "__version__": __version__},
@@ -48,6 +54,9 @@ async def home(request: Request):
 
 @router.get("/search")
 async def search(q: Optional[str], request: Request):
+    """
+    Handle the search input.
+    """
     return templates.TemplateResponse(
         name="search.html.j2",
         context={"request": request, "__version__": __version__, "search_term": q},
@@ -56,6 +65,9 @@ async def search(q: Optional[str], request: Request):
 
 @router.get("/downloads")
 async def downloads(request: Request):
+    """
+    Handle the downloads page request.
+    """
     return templates.TemplateResponse(
         name="downloads.html.j2",
         context={
@@ -71,6 +83,9 @@ async def downloads(request: Request):
 @router.get("/client/load")
 @datastar_response
 async def handle_get_client_load(datastar_signals: ReadSignals):
+    """
+    Handle the loading of the client.
+    """
     app_state.logger.info("Loading client...")
     signals = handle_signals(datastar_signals)
     if not signals.client_id:
@@ -113,6 +128,9 @@ async def handle_get_client_load(datastar_signals: ReadSignals):
 @router.get("/client/search")
 @datastar_response
 async def handle_get_client_search(datastar_signals: ReadSignals):
+    """
+    Handle the search input.
+    """
     app_state.logger.info("Loading search...")
     signals = handle_signals(datastar_signals)
     app_state.logger.info(f"[{signals.client_id}] Search term: {signals.search_term}")
@@ -128,6 +146,9 @@ async def handle_get_client_search(datastar_signals: ReadSignals):
 @router.get("/client/downloads")
 @datastar_response
 async def handle_get_client_downloads(datastar_signals: ReadSignals):
+    """
+    Handle the retrieval of client downloads.
+    """
     app_state.logger.info("Loading downloads...")
     signals = handle_signals(datastar_signals)
     app_state.logger.info(f"[{signals.client_id}] Downloads requested.")
@@ -152,6 +173,9 @@ async def handle_get_client_downloads(datastar_signals: ReadSignals):
 @router.get("/client/settings")
 @datastar_response
 async def handle_get_client_settings(datastar_signals: ReadSignals):
+    """
+    Handle the retrieval of client settings.
+    """
     signals = handle_signals(datastar_signals)
     client = Client.get_instance(signals.client_id)
     if client is None:
@@ -173,6 +197,9 @@ async def handle_get_client_settings(datastar_signals: ReadSignals):
 @router.post("/client/settings")
 @datastar_response
 async def handle_post_client_settings(datastar_signals: ReadSignals):
+    """
+    Handle the update of client settings.
+    """
     signals = handle_signals(datastar_signals)
     client = Client.get_instance(signals.client_id)
     if client is not None:
@@ -236,6 +263,9 @@ async def handle_post_client_settings(datastar_signals: ReadSignals):
 @router.post("/client/download/")
 @datastar_response
 async def handle_post_client_download(datastar_signals: ReadSignals):
+    """
+    Handle the download request from the client.
+    """
     signals = handle_signals(datastar_signals)
     client = Client.get_instance(signals.client_id)
     if client is None:
@@ -330,6 +360,9 @@ async def handle_get_client_component_settings(datastar_signals: ReadSignals):
 @router.get("/client/component/search-input-rotating-placeholder")
 @datastar_response
 async def handle_client_component_search_input_rotating_placeholder():
+    """
+    Handle the search input rotating placeholder component.    
+    """
     app_state.logger.info("Loading rotating-placeholder...")
     placeholder_items = [
         "All Eyes On Me - Bo Burnham",

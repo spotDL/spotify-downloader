@@ -162,6 +162,9 @@ class Client:
         self.disconnect_timer.start()
 
     def disconnect_now(self):
+        """
+        Disconnect the client.
+        """
         # Remove the connection from the list of connections
         if self.client_id in app_state.clients:
             # app_state.clients.pop(client_id, None)

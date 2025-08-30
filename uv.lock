@@ -285,6 +285,15 @@ wheels = [
 ]
 
 [[package]]
+name = "datastar-py"
+version = "0.6.5"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/1b/47/42b6d24b6170320ecf49e6cd331624804c7a9d655dd1c16866e12858e031/datastar_py-0.6.5.tar.gz", hash = "sha256:a8ec90077b455b0870586ae5f454ae3b0c2c392cf8cdf6853a03adb1c9158b54", size = 72274, upload-time = "2025-08-15T02:28:28.874Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/7b/23/410f8598579c891a27d73f58767d39cecf356b280162f1d53d25e05dc3f1/datastar_py-0.6.5-py3-none-any.whl", hash = "sha256:db51e4e4a7f87f11f3bafa8153cdc54ee79df6da59964904217fdb67da55d324", size = 21338, upload-time = "2025-08-15T02:28:27.804Z" },
+]
+
+[[package]]
 name = "deprecated"
 version = "1.2.18"
 source = { registry = "https://pypi.org/simple" }
@@ -1287,6 +1296,15 @@ wheels = [
 ]
 
 [[package]]
+name = "python-multipart"
+version = "0.0.20"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/f3/87/f44d7c9f274c7ee665a29b885ec97089ec5dc034c7f3fafa03da9e39a09e/python_multipart-0.0.20.tar.gz", hash = "sha256:8dd0cab45b8e23064ae09147625994d090fa46f5b0d1e13af944c331a7fa9d13", size = 37158, upload-time = "2024-12-16T19:45:46.972Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/45/58/38b5afbc1a800eeea951b9285d3912613f2603bdf897a4ab0f4bd7f405fc/python_multipart-0.0.20-py3-none-any.whl", hash = "sha256:8a62d3a8335e06589fe01f2a3e178cdcc632f3fbe0d492ad9ee0ec35aab1f104", size = 24546, upload-time = "2024-12-16T19:45:44.423Z" },
+]
+
+[[package]]
 name = "python-slugify"
 version = "8.0.4"
 source = { registry = "https://pypi.org/simple" }
@@ -1617,11 +1635,14 @@ version = "4.4.2"
 source = { editable = "." }
 dependencies = [
     { name = "beautifulsoup4" },
+    { name = "datastar-py" },
     { name = "fastapi" },
+    { name = "jinja2" },
     { name = "mutagen" },
     { name = "platformdirs" },
     { name = "pydantic" },
     { name = "pykakasi" },
+    { name = "python-multipart" },
     { name = "python-slugify", extra = ["unidecode"] },
     { name = "pytube" },
     { name = "rapidfuzz" },
@@ -1675,11 +1696,14 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "beautifulsoup4", specifier = ">=4.12.3,<5" },
+    { name = "datastar-py", specifier = ">=0.6.3" },
     { name = "fastapi", specifier = ">=0.103.0,<0.104" },
+    { name = "jinja2", specifier = ">=3.1.5" },
     { name = "mutagen", specifier = ">=1.47.0,<2" },
     { name = "platformdirs", specifier = ">=4.3.6,<5" },
     { name = "pydantic", specifier = ">=2.9.2,<3" },
     { name = "pykakasi", specifier = ">=2.3.0,<3" },
+    { name = "python-multipart", specifier = ">=0.0.20" },
     { name = "python-slugify", extras = ["unidecode"], specifier = ">=8.0.4,<9" },
     { name = "pytube", specifier = ">=15.0.0,<16" },
     { name = "rapidfuzz", specifier = ">=3.10.1,<4" },
