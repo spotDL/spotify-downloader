@@ -1,5 +1,4 @@
 import argparse
-import asyncio
 import os
 import shutil
 from pathlib import Path
@@ -9,14 +8,11 @@ from fastapi import (
     APIRouter,
     Depends,
     HTTPException,
-    WebSocket,
-    WebSocketDisconnect,
 )
 from fastapi.responses import FileResponse
 
 from spotdl._version import __version__
 from spotdl.download.downloader import Downloader
-from spotdl.download.progress_handler import ProgressHandler
 from spotdl.types.album import Album
 from spotdl.types.artist import Artist
 from spotdl.types.options import (
@@ -41,7 +37,6 @@ from spotdl.utils.web import (
 )
 
 __all__ = [
-    # "websocket_endpoint",
     "query_search",
     "download_url",
     "download_file",
@@ -50,7 +45,6 @@ __all__ = [
 ]
 
 router = APIRouter()
-# app_state: ApplicationState = ApplicationState()
 
 
 # @router.websocket("/api/ws")
@@ -100,34 +94,7 @@ async def connect_endpoint(client_id: str):
     - websocket: The WebSocket instance.
     """
 
-    # await Client(websocket, client_id).connect()
     await Client(client_id).connect()
-
-    # try:
-    #     while True:
-    #         await websocket.receive_json()
-    # except WebSocketDisconnect:
-    #     app_state.clients.pop(client_id, None)
-
-    #     if (
-    #         len(app_state.clients) == 0
-    #         and app_state.web_settings["keep_alive"] is False
-    #     ):
-    #         app_state.logger.debug(
-    #             "No active connections, waiting 1s before shutting down"
-    #         )
-
-    #         await asyncio.sleep(1)
-
-    #         # Wait 1 second before shutting down
-    #         # This is to prevent the server from shutting down when a client
-    #         # disconnects and reconnects quickly (e.g. when refreshing the page)
-    #         if len(app_state.clients) == 0:
-    #             # Perform a clean exit
-    #             app_state.logger.info("Shutting down server, no active connections")
-    #             app_state.server.force_exit = True
-    #             app_state.server.should_exit = True
-    #             await app_state.server.shutdown()
 
 
 @router.get("/api/url", response_model=None)

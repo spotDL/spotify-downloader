@@ -1,5 +1,4 @@
 import asyncio
-import json
 import uuid
 from typing import Optional
 
@@ -20,7 +19,6 @@ from spotdl._version import __version__
 
 # import spotdl.web.components.components as components
 from spotdl.types.song import Song
-from spotdl.utils.spotify import SpotifyClient
 from spotdl.web.utils import handle_signals
 from spotdl.utils.web import Client, app_state
 from spotdl.download.downloader import AUDIO_PROVIDERS, LYRICS_PROVIDERS
@@ -331,9 +329,7 @@ async def handle_get_client_component_settings(datastar_signals: ReadSignals):
 
 @router.get("/client/component/search-input-rotating-placeholder")
 @datastar_response
-async def handle_client_component_search_input_rotating_placeholder(
-    signals: ReadSignals,
-):
+async def handle_client_component_search_input_rotating_placeholder():
     app_state.logger.info("Loading rotating-placeholder...")
     placeholder_items = [
         "All Eyes On Me - Bo Burnham",

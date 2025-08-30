@@ -4,10 +4,8 @@ Web module for the console.
 
 import asyncio
 import logging
-import os
 import sys
 import webbrowser
-from pathlib import Path
 
 from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -28,8 +26,8 @@ from spotdl.utils.web import (
     # router,
 )
 
-import spotdl.web.api as api
-import spotdl.web.routes as routes
+from spotdl.web import api
+from spotdl.web import routes
 
 __all__ = ["web"]
 
