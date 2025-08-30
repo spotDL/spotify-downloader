@@ -1613,7 +1613,7 @@ wheels = [
 
 [[package]]
 name = "spotdl"
-version = "4.4.1"
+version = "4.4.2"
 source = { editable = "." }
 dependencies = [
     { name = "beautifulsoup4" },
@@ -1690,7 +1690,7 @@ requires-dist = [
     { name = "syncedlyrics", specifier = ">=1.0.1,<2" },
     { name = "uvicorn", specifier = ">=0.23.2,<0.24" },
     { name = "websockets", specifier = "~=14.1" },
-    { name = "yt-dlp", specifier = ">=2025.7.21,<2026" },
+    { name = "yt-dlp", specifier = ">=2025.8.27,<2026" },
     { name = "ytmusicapi", specifier = ">=1.11.0,<2" },
 ]
 
@@ -2229,11 +2229,11 @@ wheels = [
 
 [[package]]
 name = "yt-dlp"
-version = "2025.7.21"
+version = "2025.8.27"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/7e/3a/343f7a0024ddd4c30f150e8d8f57fd7b924846f97d99fc0dcd75ea8d2773/yt_dlp-2025.7.21.tar.gz", hash = "sha256:46fbb53eab1afbe184c45b4c17e9a6eba614be680e4c09de58b782629d0d7f43", size = 3050219, upload-time = "2025-07-21T23:59:03.826Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/f4/d4/d9dd231b03f09fdfb5f0fe70f30de0b5f59454aa54fa6b2b2aea49404988/yt_dlp-2025.8.27.tar.gz", hash = "sha256:ed74768d2a93b29933ab14099da19497ef571637f7aa375140dd3d882b9c1854", size = 3038374, upload-time = "2025-08-28T00:03:41.418Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/e8/2f/abe59a3204c749fed494849ea29176bcefa186ec8898def9e43f649ddbcf/yt_dlp-2025.7.21-py3-none-any.whl", hash = "sha256:d7aa2b53f9b2f35453346360f41811a0dad1e956e70b35a4ae95039d4d815d15", size = 3288681, upload-time = "2025-07-21T23:59:01.788Z" },
+    { url = "https://files.pythonhosted.org/packages/cb/9c/b69fc0c800f80b94ea2f8eff1d1f473fecee6aa337681d297ba7c7c5d3fd/yt_dlp-2025.8.27-py3-none-any.whl", hash = "sha256:0b8fd3bb7c54bc2e7ecb5cdac7d64c30e2503ea4d3dd9ae24d4f09e22aaa95f4", size = 3267059, upload-time = "2025-08-28T00:03:38.793Z" },
 ]
 
 [[package]]
