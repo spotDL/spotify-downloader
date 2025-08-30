@@ -14,8 +14,6 @@ from uvicorn import Config, Server
 from spotdl._version import __version__
 from spotdl.types.options import DownloaderOptions, WebOptions
 from spotdl.utils.config import get_web_ui_path
-
-# from spotdl.utils.github import download_github_dir
 from spotdl.utils.logging import NAME_TO_LEVEL
 from spotdl.utils.web import (
     ALLOWED_ORIGINS,
@@ -23,11 +21,8 @@ from spotdl.utils.web import (
     app_state,
     fix_mime_types,
     get_current_state,
-    # router,
 )
-
-from spotdl.web import api
-from spotdl.web import routes
+from spotdl.web import api, routes
 
 __all__ = ["web"]
 

@@ -4,34 +4,21 @@ FastAPI routes/classes etc.
 """
 
 import asyncio
-from dataclasses import dataclass
 import logging
 import mimetypes
-from argparse import Namespace
-from typing import Any, Callable, Dict, Optional, Union
 import threading
+from argparse import Namespace
+from typing import Any, Dict, Optional, Union
 
-from fastapi import (
-    FastAPI,
-    HTTPException,
-    Query,
-    Response,
-)
+from fastapi import FastAPI, HTTPException, Query, Response
 from fastapi.staticfiles import StaticFiles
 from starlette.types import Scope
 from uvicorn import Server
 
 from spotdl.download.downloader import Downloader
 from spotdl.download.progress_handler import ProgressHandler, SongTracker
-from spotdl.types.song import Song
-from spotdl.types.options import (
-    DownloaderOptions,
-    WebOptions,
-)
-from spotdl.utils.config import (
-    DOWNLOADER_OPTIONS,
-    create_settings_type,
-)
+from spotdl.types.options import DownloaderOptions, WebOptions
+from spotdl.utils.config import DOWNLOADER_OPTIONS, create_settings_type
 
 __all__ = [
     "ALLOWED_ORIGINS",

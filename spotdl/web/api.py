@@ -1,39 +1,33 @@
+"""
+Module for handling API requests.
+"""
+
 import argparse
 import os
 import shutil
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from fastapi import (
-    APIRouter,
-    Depends,
-    HTTPException,
-)
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import FileResponse
 
 from spotdl._version import __version__
 from spotdl.download.downloader import Downloader
 from spotdl.types.album import Album
 from spotdl.types.artist import Artist
-from spotdl.types.options import (
-    DownloaderOptionalOptions,
-    DownloaderOptions,
-)
+from spotdl.types.options import DownloaderOptionalOptions, DownloaderOptions
 from spotdl.types.playlist import Playlist
 from spotdl.types.song import Song
 from spotdl.utils.arguments import create_parser
-from spotdl.utils.config import (
-    get_spotdl_path,
-)
+from spotdl.utils.config import get_spotdl_path
 from spotdl.utils.github import RateLimitError, get_latest_version, get_status
 from spotdl.utils.search import get_search_results
-
 from spotdl.utils.web import (
-    Client,
     ApplicationState,
-    get_current_state,
-    get_client,
+    Client,
     app_state,
+    get_client,
+    get_current_state,
 )
 
 __all__ = [

@@ -1,6 +1,11 @@
-from spotdl.utils.web import app_state
-from spotdl.types.options import DownloaderOptions
+"""
+Module for handling client signals.
+"""
+
 from typing import Optional
+
+from spotdl.types.options import DownloaderOptions
+from spotdl.utils.web import app_state
 
 
 class Signals:
@@ -14,7 +19,7 @@ class Signals:
     song_url: str = ""
 
 
-def handle_signals(datastar_signals: dict) -> Signals:
+def handle_signals(datastar_signals: dict | None) -> Signals:
     """
     Handle the signals received from the client.
     This function can be used to process or validate the signals before they are used.

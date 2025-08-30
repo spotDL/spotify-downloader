@@ -1,35 +1,34 @@
 """
 Module which contains the web client routes and functions.
 """
+
 import asyncio
 import uuid
 from typing import Optional
 
+from datastar_py.fastapi import ReadSignals
+from datastar_py.fastapi import (
+    ServerSentEventGenerator as SSE,  # DatastarResponse,; read_signals,
+)
+from datastar_py.fastapi import datastar_response
 from fastapi import APIRouter, Request
 from fastapi.templating import Jinja2Templates
-from datastar_py.fastapi import (
-    # DatastarResponse,
-    datastar_response,
-    ReadSignals,
-    # read_signals,
-    ServerSentEventGenerator as SSE,
-)
+
+from spotdl._version import __version__
+from spotdl.download.downloader import AUDIO_PROVIDERS, LYRICS_PROVIDERS
+
+# import spotdl.web.components.components as components
+from spotdl.types.song import Song
+from spotdl.utils.config import get_spotdl_path
+from spotdl.utils.ffmpeg import FFMPEG_FORMATS
+from spotdl.utils.search import get_search_results
+from spotdl.utils.web import Client, app_state
+from spotdl.web.utils import handle_signals
 
 # from datastar_py.sse import DatastarEvent
 # from spotdl.utils.web import validate_search_term
 
-from spotdl._version import __version__
 
-# import spotdl.web.components.components as components
-from spotdl.types.song import Song
-from spotdl.web.utils import handle_signals
-from spotdl.utils.web import Client, app_state
-from spotdl.download.downloader import AUDIO_PROVIDERS, LYRICS_PROVIDERS
-from spotdl.utils.ffmpeg import FFMPEG_FORMATS
-from spotdl.utils.search import get_search_results
-from spotdl.utils.config import (
-    get_spotdl_path,
-)
 
 __all__ = ["router"]
 
@@ -117,7 +116,9 @@ async def handle_get_client_load(datastar_signals: ReadSignals):
     try:
         while True:
             yield SSE.patch_elements(
-                f"""<div id="overall-completed-tasks">{len(client.downloader.progress_handler.progress_tracker.songs)}</div>"""
+                f"""<div id="overall-completed-tasks">
+                {len(client.downloader.progress_handler.progress_tracker.songs)}
+                </div>"""
             )
             await asyncio.sleep(1)
     finally:
@@ -162,9 +163,12 @@ async def handle_get_client_downloads(datastar_signals: ReadSignals):
         )
         return
     while True:
+        client_song_downloads = (
+            client.downloader.progress_handler.progress_tracker.songs
+        )
         yield SSE.patch_elements(
             templates.get_template("download-list.html.j2").render(
-                client_song_downloads=client.downloader.progress_handler.progress_tracker.songs.values()
+                client_song_downloads=client_song_downloads.values()
             )
         )
         await asyncio.sleep(1)
@@ -211,10 +215,16 @@ async def handle_post_client_settings(datastar_signals: ReadSignals):
                 <div id="settings-status">
                     <div id="settings-is-saved" class="alert alert-success shadow-lg">
                         <div>
-                            <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current flex-shrink-0 h-6 w-6" fill="none"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            <svg 
+                            xmlns="http://www.w3.org/2000/svg" 
+                            class="stroke-current flex-shrink-0 h-6 w-6" 
+                            fill="none"
+                            viewBox="0 0 24 24">
+                                <path 
+                                stroke-linecap="round" 
+                                stroke-linejoin="round" 
+                                stroke-width="2"
+                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
                             <span>Changes saved</span>
                         </div>
@@ -239,10 +249,18 @@ async def handle_post_client_settings(datastar_signals: ReadSignals):
                 <div id="settings-status">
                     <div id="settings-is-not-saved" class="alert alert-error shadow-lg">
                         <div>
-                            <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current flex-shrink-0 h-6 w-6" fill="none"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            <svg 
+                            xmlns="http://www.w3.org/2000/svg" 
+                            class="stroke-current 
+                            flex-shrink-0 h-6 w-6" 
+                            fill="none"
+                            viewBox="0 0 24 24">
+                                <path 
+                                stroke-linecap="round" 
+                                stroke-linejoin="round" 
+                                stroke-width="2"
+                d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" 
+                            />
                             </svg>
                             <span>Error! Unable to save settings</span>
                         </div>
@@ -323,6 +341,9 @@ async def handle_post_client_download(datastar_signals: ReadSignals):
 @router.get("/client/component/settings-content")
 @datastar_response
 async def handle_get_client_component_settings(datastar_signals: ReadSignals):
+    """
+    Handle the request for the client settings component.
+    """
     signals = handle_signals(datastar_signals)
     client = Client.get_instance(signals.client_id)
     if client is None:
@@ -361,7 +382,7 @@ async def handle_get_client_component_settings(datastar_signals: ReadSignals):
 @datastar_response
 async def handle_client_component_search_input_rotating_placeholder():
     """
-    Handle the search input rotating placeholder component.    
+    Handle the search input rotating placeholder component.
     """
     app_state.logger.info("Loading rotating-placeholder...")
     placeholder_items = [

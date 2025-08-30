@@ -2,8 +2,8 @@
 Module that holds the ProgressHandler class and Song Tracker class.
 """
 
-from dataclasses import dataclass
 import logging
+from dataclasses import dataclass
 from typing import Any, Callable, Dict, List, Optional
 
 from rich import get_console
@@ -102,6 +102,10 @@ class SizedTextColumn(ProgressColumn):
 
 @dataclass
 class ClientSongDownload:
+    """
+    Represents the download progress of a single song for a client.
+    """
+
     song: Song
     progress: int
     message: str
@@ -117,6 +121,9 @@ class ProgressTracker:
     songs: Dict[str, ClientSongDownload] = {}
 
     def add(self, song: Song):
+        """
+        Add a song to the progress tracker.
+        """
         # check if exists
         if song.url in self.songs:
             return
@@ -125,6 +132,9 @@ class ProgressTracker:
         )
 
     def update(self, song: Song, progress: int, message: str):
+        """
+        Update the progress of a song in the progress tracker.
+        """
         if song.url in self.songs:
             self.songs[song.url].progress = progress
             self.songs[song.url].message = message
@@ -134,10 +144,16 @@ class ProgressTracker:
             )
 
     def remove(self, song: Song):
+        """
+        Remove a song from the progress tracker.
+        """
         if song.url in self.songs:
             del self.songs[song.url]
 
     def set_path(self, song: Song, path: str):
+        """
+        Set the download path for a song.
+        """
         if song.url in self.songs:
             self.songs[song.url].path = path
 
