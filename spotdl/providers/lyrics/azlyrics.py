@@ -185,7 +185,7 @@ class AzLyrics(LyricsProvider):
         if not js_code:
             logger.debug("AZLyrics: Failed to retrieve js_code.")
             return None
-        
+
         # We now filter the string so we can extract the x code.
         start_index = js_code.find('value"') + 9
         end_index = js_code[start_index:].find('");')
