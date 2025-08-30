@@ -29,7 +29,6 @@ from spotdl.web.utils import handle_signals
 # from spotdl.utils.web import validate_search_term
 
 
-
 __all__ = ["router"]
 
 router = APIRouter()
