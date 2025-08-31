@@ -32,7 +32,7 @@ classifiers = [
 ]
 dependencies = [
     "spotipy>=2.24.0,<3",
-    "ytmusicapi>=1.11.0,<2",
+    "ytmusicapi>=1.11.1,<2",
     "pytube>=15.0.0,<16",
     "yt-dlp>=2025.08.27,<2026",
     "mutagen>=1.47.0,<2",
