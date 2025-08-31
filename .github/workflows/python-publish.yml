@@ -87,35 +87,40 @@ jobs:
             spotDL
 
   build-arm:
-    runs-on: ubuntu-latest
-    name: Build on ubuntu-latest aarch64
+    runs-on: ubuntu-24.04-arm64
+    name: Build on ubuntu-24.04-arm64
     steps:
       - uses: actions/checkout@v3
-      - uses: uraimo/run-on-arch-action@v2
-        name: Run commands
-        id: runcmd
+
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v4
         with:
-          arch: aarch64
-          distro: ubuntu_latest
+          python-version: "3.10"
 
-          # Mount the artifacts directory as /artifacts in the container
-          dockerRunArgs: |
-            --volume "${PWD}/:/spotdl"
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: "latest"
+          enable-cache: true
 
-          # The shell to run commands with in the container
-          shell: /bin/sh
+      - name: Install dependencies
+        run: |
+          uv venv --python 3.10
+          uv sync
 
-          run: |
-            cd /spotdl
-            apt update
-            apt install python3-full python3-pip pipx -y
-            pipx ensurepath
-            pipx install uv
-            uv sync
-            rm -rf dist/
-            mkdir dist/
-            uv run python ./scripts/build.py
-            for file in dist/spotdl*; do cp "$file" "${file}-aarch64"; done
+      - name: Build
+        run: |
+          rm -rf dist/
+          mkdir dist/
+          uv run python ./scripts/build.py
+
+          for file in dist/spotdl*; do 
+            if [ -f "$file" ]; then
+              cp "$file" "${file}-aarch64"
+            fi
+          done
+
+          ls -la dist/
 
       - name: Release
         uses: softprops/action-gh-release@v1
