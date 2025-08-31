@@ -416,8 +416,8 @@ Main options:
                         {original-date}, {track-number}, {tracks-count}, {isrc}, {track-id}, {publisher}, {list-length}, {list-position}, {list-name}, {output-ext}
   --dont-filter-results
                         Disable filtering results.
-  --album-type {single,album}
-                        Type of the album to search for. (album, single)
+  --album-type {single,album,compilation}
+                        Type of the album to search for. (album, single, compilation)
   --only-verified-results
                         Use only verified results. (Not all providers support this)
 
