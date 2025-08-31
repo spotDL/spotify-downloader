@@ -158,6 +158,7 @@ class AzLyrics(LyricsProvider):
         """
 
         x_code = None
+        js_code = None
 
         try:
             self.session.get("https://www.azlyrics.com/")
