@@ -1691,7 +1691,7 @@ requires-dist = [
     { name = "uvicorn", specifier = ">=0.23.2,<0.24" },
     { name = "websockets", specifier = "~=14.1" },
     { name = "yt-dlp", specifier = ">=2025.8.27,<2026" },
-    { name = "ytmusicapi", specifier = ">=1.11.0,<2" },
+    { name = "ytmusicapi", specifier = ">=1.11.1,<2" },
 ]
 
 [package.metadata.requires-dev]
@@ -2238,12 +2238,12 @@ wheels = [
 
 [[package]]
 name = "ytmusicapi"
-version = "1.11.0"
+version = "1.11.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "requests" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/c9/5f/f95be3e437ddca26808fd91c4a353cee60a6fa2f0968c8e9f694d476731d/ytmusicapi-1.11.0.tar.gz", hash = "sha256:2f7620a3ee1e216c1661ff316ce42a2d69d2067f855ea900f375baf274c4799d", size = 316082, upload-time = "2025-07-31T18:52:35.847Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/e6/6a/48bd2ad11a0b2b1baa2874d6cbf6d58ed1abb442d8a0ed69985d1bd1324c/ytmusicapi-1.11.1.tar.gz", hash = "sha256:364a1b457fa28f85f7fdd9cd8fe16b2d34a98e93cbd1358e31a01fdd5a93a3b9", size = 317409, upload-time = "2025-08-30T19:33:31.264Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/1d/3a/4b77b13e08d9010eea4d1278648150cbbe8883c45c21d993b268df1b2c24/ytmusicapi-1.11.0-py3-none-any.whl", hash = "sha256:2b30820ab042fa16d43a84259c2f6ebaa8b564afa882e135858acc48f2fb869b", size = 99146, upload-time = "2025-07-31T18:52:34.039Z" },
+    { url = "https://files.pythonhosted.org/packages/88/ac/a91784a8f9be3eff10959ccd2a680181941194d7ee7da2c7be10e9c32ab5/ytmusicapi-1.11.1-py3-none-any.whl", hash = "sha256:bcaf208fd18c9b5b8971bc4436b17af132a4296de98708049d7638fdba90f6c9", size = 100463, upload-time = "2025-08-30T19:33:29.543Z" },
 ]
