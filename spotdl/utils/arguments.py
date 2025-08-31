@@ -165,7 +165,7 @@ def parse_main_options(parser: _ArgumentGroup):
     parser.add_argument(
         "--album-type",
         choices={"album", "single", "compilation"},
-        help="Type of the album to search for. (album, single)",
+        help="Type of the album to search for. (album, single, compilation)",
         type=str,
     )
 

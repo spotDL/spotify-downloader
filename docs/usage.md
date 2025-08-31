@@ -417,7 +417,7 @@ Main options:
   --dont-filter-results
                         Disable filtering results.
   --album-type {single,album,compilation}
-                        Type of the album to search for. (album, single)
+                        Type of the album to search for. (album, single, compilation)
   --only-verified-results
                         Use only verified results. (Not all providers support this)
 
