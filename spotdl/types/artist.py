@@ -53,7 +53,8 @@ class Artist(SongList):
                 "Couldn't get metadata, check if you have passed correct artist id"
             )
 
-        artist_albums = spotify_client.artist_albums(url, album_type="album,single")
+        # include_groups used to be called album_type
+        artist_albums = spotify_client.artist_albums(url, include_groups="album,single,compilation")
         # check if there is response
         if not artist_albums:
             raise ArtistError(
