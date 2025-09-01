@@ -1,22 +1,27 @@
-[tool.poetry]
+[project]
 name = "spotdl"
-version = "4.2.11"
+version = "4.4.2"
+requires-python = ">=3.10,<3.14"
+
 description = "Download your Spotify playlists and songs along with album art and metadata"
-license = "MIT"
-authors = ["spotDL Team <spotdladmins@googlegroups.com>"]
-maintainers = ["xnetcat <xnetcat.dev@gmail.com>"]
+authors = [{ name = "spotDL Team", email = "spotdladmins@googlegroups.com" }]
 readme = "README.md"
-repository = "https://github.com/spotDL/spotify-downloader.git"
-homepage = "https://github.com/spotDL/spotify-downloader/"
-documentation = "https://spotdl.rtfd.io/en/latest/"
-keywords = ["spotify", "downloader", "spotdl", "music"]
+license = "MIT"
+
+maintainers = [{ name = "Silverarmor", email = "spotdladmins@googlegroups.com" }]
+
+keywords = [
+    "spotify",
+    "downloader",
+    "spotdl",
+    "music",
+]
 classifiers = [
     "Intended Audience :: End Users/Desktop",
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -25,72 +30,77 @@ classifiers = [
     "Topic :: Multimedia :: Sound/Audio",
     "Topic :: Utilities",
 ]
-
-[tool.poetry.dependencies]
-python = ">=3.9,<3.14"
-
-spotipy = "^2.24.0"
-ytmusicapi = [
-    {version = "^1.3.2", python = "<3.10"},
-    {version = "^1.4.1", python = ">=3.10"},
+dependencies = [
+    "spotipy>=2.24.0,<3",
+    "ytmusicapi>=1.11.1,<2",
+    "pytube>=15.0.0,<16",
+    "yt-dlp>=2025.08.27,<2026",
+    "mutagen>=1.47.0,<2",
+    "rich>=13.9.4,<14",
+    "beautifulsoup4>=4.12.3,<5",
+    "requests>=2.32.3,<3",
+    "rapidfuzz>=3.10.1,<4",
+    "python-slugify[unidecode]>=8.0.4,<9",
+    "uvicorn>=0.23.2,<0.24",
+    "pydantic>=2.9.2,<3",
+    "fastapi>=0.103.0,<0.104",
+    "platformdirs>=4.3.6,<5",
+    "pykakasi>=2.3.0,<3",
+    "syncedlyrics>=1.0.1,<2",
+    "soundcloud-v2>=1.6.0,<2",
+    "websockets~=14.1",
 ]
-pytube = "^15.0.0"
-yt-dlp = "^2025.1.15"
-mutagen = "^1.47.0"
-rich = "^13.9.4"
-beautifulsoup4 = "^4.12.3"
-requests = "^2.32.3"
-rapidfuzz = "^3.10.1"
-python-slugify = {extras = ["unidecode"], version = "^8.0.4"}
-uvicorn = "^0.23.2"
-pydantic = "^2.9.2"
-fastapi = "^0.103.0"
-platformdirs = "^4.3.6"
-pykakasi = "^2.3.0"
-syncedlyrics = "^1.0.1"
-soundcloud-v2 = "^1.6.0"
-websockets = "^14.1"
 
-[tool.poetry.group.dev.dependencies]
-pytest = "^8.3.3"
-pytest-mock = "^3.14.0"
-pyfakefs = "^5.7.1"
-pytest-cov = "^6.0.0"
-pytest-subprocess = "^1.5.2"
-pytest-asyncio = "^0.21.1"
-mypy = "^1.13.0"
-pylint = "^3.3.1"
-black = "^24.10.0"
-mdformat-gfm = "^0.3.5"
-types-orjson = "^3.6.2"
-types-python-slugify = "^8.0.2.20240310"
-types-requests = "==2.31.0.6"
-types-setuptools = "^75.5.0.20241116"
-types-toml = "^0.10.8.7"
-types-ujson = "^5.10.0.20240515"
-pyinstaller = "^6.11.1"
-mkdocs = "^1.6.1"
-isort = "^5.13.2"
-dill = "^0.3.7"
-mkdocs-material = "^9.5.44"
-mkdocstrings = "^0.26.0"
-mkdocstrings-python = "^1.12.2"
-pymdown-extensions = "^10.12"
-mkdocs-gen-files = "^0.5.0"
-mkdocs-literate-nav = "^0.6.0"
-mkdocs-section-index = "^0.3.5"
-vcrpy = "^6.0.2"
-pytest-recording = "^0.13.1"
+[project.urls]
+Homepage = "https://github.com/spotDL/spotify-downloader/"
+Repository = "https://github.com/spotDL/spotify-downloader.git"
+Documentation = "https://spotdl.rtfd.io/en/latest/"
 
-[tool.poetry.scripts]
+[project.scripts]
 spotdl = "spotdl:console_entry_point"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3.3,<9",
+    "pytest-mock>=3.14.0,<4",
+    "pyfakefs>=5.7.1,<6",
+    "pytest-cov>=6.0.0,<7",
+    "pytest-subprocess>=1.5.2,<2",
+    "pytest-asyncio>=0.21.1,<0.22",
+    "mypy>=1.13.0,<2",
+    "pylint>=3.3.1,<4",
+    "black>=24.10.0,<25",
+    "mdformat-gfm>=0.3.5,<0.4",
+    "types-orjson>=3.6.2,<4",
+    "types-python-slugify>=8.0.2.20240310,<9",
+    "types-requests==2.31.0.6",
+    "types-setuptools>=75.5.0.20241116,<76",
+    "types-toml>=0.10.8.7,<0.11",
+    "types-ujson>=5.10.0.20240515,<6",
+    "pyinstaller>=6.11.1,<7",
+    "mkdocs>=1.6.1,<2",
+    "isort>=5.13.2,<6",
+    "dill>=0.3.7,<0.4",
+    "mkdocs-material>=9.5.44,<10",
+    "mkdocstrings>=0.26.0,<0.27",
+    "mkdocstrings-python>=1.12.2,<2",
+    "pymdown-extensions~=10.12",
+    "mkdocs-gen-files>=0.5.0,<0.6",
+    "mkdocs-literate-nav>=0.6.0,<0.7",
+    "mkdocs-section-index>=0.3.5,<0.4",
+    "vcrpy>=6.0.2,<7",
+    "pytest-recording>=0.13.1,<0.14",
+    "types-deprecated>=1.2.15.20250304",
+    "types-pyyaml>=6.0.12.20250809",
+    "types-python-dateutil>=2.9.0.20250809",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [tool.isort]
 profile = "black"
-
-[build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
 
 [tool.pylint.format]
 limit-inference-results = 0
