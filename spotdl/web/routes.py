@@ -23,10 +23,10 @@ from spotdl.utils.config import get_spotdl_path
 from spotdl.utils.ffmpeg import FFMPEG_FORMATS
 from spotdl.utils.search import get_search_results
 from spotdl.utils.web import Client, app_state
-from spotdl.web.utils import handle_signals
+from spotdl.web.utils import Signals, handle_signals
 
 # from datastar_py.sse import DatastarEvent
-# from spotdl.utils.web import validate_search_term
+from spotdl.utils.web import validate_search_term
 
 
 __all__ = ["router"]
@@ -134,7 +134,18 @@ async def handle_get_client_search(datastar_signals: ReadSignals):
     app_state.logger.info("Loading search...")
     signals = handle_signals(datastar_signals)
     app_state.logger.info(f"[{signals.client_id}] Search term: {signals.search_term}")
-    # is_valid = validate_search_term(signals.search_term)
+    is_valid_url = validate_search_term(signals.search_term)
+
+    if is_valid_url:
+        # redirect client to downloads page
+        app_state.logger.info(
+            f"[{signals.client_id}] Valid URL detected, redirecting to downloads..."
+        )
+        yield SSE.redirect("/downloads")
+        signals.song_url = signals.search_term
+        async for update in gen_download(signals):
+            yield update
+
     songs = get_search_results(signals.search_term)
     yield SSE.patch_elements(
         templates.get_template("search-list.html.j2").render(
@@ -284,6 +295,14 @@ async def handle_post_client_download(datastar_signals: ReadSignals):
     Handle the download request from the client.
     """
     signals = handle_signals(datastar_signals)
+    async for update in gen_download(signals):
+        yield update
+
+
+# HELPERS
+
+
+async def gen_download(signals: Signals):
     client = Client.get_instance(signals.client_id)
     if client is None:
         app_state.logger.warning(
