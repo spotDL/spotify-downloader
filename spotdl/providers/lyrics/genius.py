@@ -65,7 +65,7 @@ class Genius(LyricsProvider):
             results[hit["result"]["full_title"]] = hit["result"]["id"]
 
         return results
-
+    
     def extract_lyrics(self, url: str, **_) -> Optional[str]:
         """
         Extracts the lyrics from the given url.

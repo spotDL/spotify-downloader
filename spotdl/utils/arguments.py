@@ -456,6 +456,15 @@ def parse_output_options(parser: _ArgumentGroup):
             and album art as the playlist's icon",
     )
 
+    # Stripped down version of the playlist numbering option, only setting the song's number to the playlist's index.
+    parser.add_argument(
+        "--playlist-numbering-only",
+        action="store_const",
+        dest="playlist_numbering_only",
+        const=True,
+        help="Sets the song's number to the playlist's index in a playlist",
+    )
+
     # Option to set the track number & album of tracks, while retaining album art of each track, in
     # a playlist to their index in the playlist & the name of playlist respectively.
     parser.add_argument(
