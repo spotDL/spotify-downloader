@@ -128,7 +128,7 @@ class ProgressTracker:
         if song.url in self.songs:
             return
         self.songs[song.url] = ClientSongDownload(
-            song=song, progress=0, message="Queued"
+            song=song, progress=0, message="Processing"
         )
 
     def update(self, song: Song, progress: int, message: str):
@@ -337,6 +337,7 @@ class SongTracker:
         self.status = ""
         self.path: Optional[str] = None
 
+        self.parent.progress_tracker.add(self.song)
         if not self.parent.simple_tui:
             self.task_id = self.parent.rich_progress_bar.add_task(
                 description=escape(self.song_name),
@@ -361,7 +362,6 @@ class SongTracker:
         # The change in progress since last update
         delta = self.progress - self.old_progress
 
-        self.parent.progress_tracker.add(self.song)
         self.parent.progress_tracker.update(self.song, self.progress, message)
         if self.progress == 100 or message == "Error":
             if not self.parent.web_ui:
