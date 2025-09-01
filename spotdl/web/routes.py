@@ -6,6 +6,7 @@ import asyncio
 import uuid
 from typing import Optional
 
+# from datastar_py.sse import DatastarEvent
 from datastar_py.fastapi import ReadSignals
 from datastar_py.fastapi import (
     ServerSentEventGenerator as SSE,  # DatastarResponse,; read_signals,
@@ -16,18 +17,12 @@ from fastapi.templating import Jinja2Templates
 
 from spotdl._version import __version__
 from spotdl.download.downloader import AUDIO_PROVIDERS, LYRICS_PROVIDERS
-
-# import spotdl.web.components.components as components
 from spotdl.types.song import Song
 from spotdl.utils.config import get_spotdl_path
 from spotdl.utils.ffmpeg import FFMPEG_FORMATS
 from spotdl.utils.search import get_search_results
-from spotdl.utils.web import Client, app_state
+from spotdl.utils.web import Client, app_state, validate_search_term
 from spotdl.web.utils import Signals, handle_signals
-
-# from datastar_py.sse import DatastarEvent
-from spotdl.utils.web import validate_search_term
-
 
 __all__ = ["router"]
 
@@ -303,6 +298,9 @@ async def handle_post_client_download(datastar_signals: ReadSignals):
 
 
 async def gen_download(signals: Signals):
+    """
+    Generate the download process for the client.
+    """
     client = Client.get_instance(signals.client_id)
     if client is None:
         app_state.logger.warning(
