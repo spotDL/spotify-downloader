@@ -6,6 +6,7 @@ from typing import Any, Dict, List, Optional
 
 from pytube import Search
 from pytube import YouTube as PyTube
+from pytube import innertube
 
 from spotdl.providers.audio.base import AudioProvider
 from spotdl.types.result import Result
@@ -20,6 +21,18 @@ class YouTube(AudioProvider):
 
     SUPPORTS_ISRC = False
     GET_RESULTS_OPTS: List[Dict[str, Any]] = [{}]
+
+    def __init__(self, *args, **kwargs) -> None:
+        """
+        Initialize the YouTube audio provider
+        """
+        super().__init__(*args, **kwargs)
+
+        # Set the client version to a specific version to avoid issues with pytube
+        # See #2323 or https://github.com/pytube/pytube/issues/296
+        innertube._default_clients["WEB"]["context"]["client"][
+            "clientVersion"
+        ] = "2.20230427.04.00"
 
     def get_results(
         self, search_term: str, *_args, **_kwargs

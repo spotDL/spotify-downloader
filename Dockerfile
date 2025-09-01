@@ -14,29 +14,23 @@ RUN apk add --no-cache \
     libffi-dev \
     zlib-dev
 
-# Install poetry and update pip/wheel
-RUN pip install --upgrade pip poetry wheel spotipy
+# Install uv and update pip/wheel
+RUN pip install --upgrade pip uv wheel spotipy
+
+# Set workdir
+WORKDIR /app
 
 # Copy requirements files
-COPY poetry.lock pyproject.toml /
+COPY . .
 
 # Install spotdl requirements
-RUN poetry install
-
-# Add source code files to WORKDIR
-ADD . .
-
-# Install spotdl itself
-RUN poetry install
-
-# Create music directory
-RUN mkdir /music
+RUN uv sync
 
 # Create a volume for the output directory
 VOLUME /music
 
-# Change CWD to /music
+# Change Workdir to download location
 WORKDIR /music
 
 # Entrypoint command
-ENTRYPOINT ["poetry", "run", "spotdl"]
+ENTRYPOINT ["uv", "run", "--project", "/app", "spotdl"]

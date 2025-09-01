@@ -164,7 +164,7 @@ This will download new songs and remove the ones that are no longer present in t
     spotdl sync [query] --save-file [fileName]
     ```
 
-    example:
+    Example:
 
     ```bash
     spotdl sync https://open.spotify.com/playlist/37i9dQZF1E8UXBoz02kGID --save-file "the-weeknd.sync.spotdl"
@@ -179,10 +179,18 @@ This will download new songs and remove the ones that are no longer present in t
     spotdl sync [fileName]
     ```
 
-    example:
+    Example:
 
     ```bash
     spotdl sync "the-weeknd.sync.spotdl"
+    ```
+
+    You can append `--sync-without-deleting` if you don't want to remove songs that are no longer present
+
+    Example:
+
+    ```bash
+    spotdl sync "the-weeknd.sync.spotdl" --sync-without-deleting
     ```
 
 ## Saving
@@ -284,7 +292,7 @@ If you don't want config to load automatically change `load_config` option in co
     "overwrite": "skip",
     "search_query": null,
     "ffmpeg": "ffmpeg",
-    "bitrate": null,
+    "bitrate": "128k",
     "ffmpeg_args": null,
     "format": "mp3",
     "save_file": null,
@@ -408,8 +416,8 @@ Main options:
                         {original-date}, {track-number}, {tracks-count}, {isrc}, {track-id}, {publisher}, {list-length}, {list-position}, {list-name}, {output-ext}
   --dont-filter-results
                         Disable filtering results.
-  --album-type {single,album}
-                        Type of the album to search for. (album, single)
+  --album-type {single,album,compilation}
+                        Type of the album to search for. (album, single, compilation)
   --only-verified-results
                         Use only verified results. (Not all providers support this)
 

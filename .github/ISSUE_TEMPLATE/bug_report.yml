@@ -29,8 +29,6 @@ body:
       You can find your Python version by running `python -V` on your CLI
       If you use a different Python version, please let us know below
     options:
-      - 3.8 (CPython)
-      - 3.9 (CPython)
       - 3.10 (CPython)
       - 3.11 (CPython)
       - 3.12 (CPython)
