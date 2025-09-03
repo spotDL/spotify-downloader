@@ -7,6 +7,7 @@
 
 
 # @pytest.mark.vcr()
+# @pytest.mark.vcr_delete_on_fail
 # def test_get_azlyrics_lyrics():
 #     azlyrics = AzLyrics()
 

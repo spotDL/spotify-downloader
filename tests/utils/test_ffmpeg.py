@@ -3,6 +3,7 @@ import pathlib
 import platform
 import shutil
 from pathlib import Path
+from urllib.request import urlretrieve
 
 import pytest
 from yt_dlp import YoutubeDL
@@ -101,6 +102,9 @@ def test_get_local_ffmpeg(monkeypatch):
         assert str(local_ffmpeg).endswith("ffmpeg.exe")
 
 
+# This can't be run with pytest --block-network without writing a 110M cassette
+# effectively containing the entire ffmpeg binary.
+@pytest.mark.novcr
 def test_download_ffmpeg(monkeypatch, tmpdir):
     """
     Test download_ffmpeg function.
@@ -111,7 +115,9 @@ def test_download_ffmpeg(monkeypatch, tmpdir):
     assert download_ffmpeg() is not None
 
 
-def test_convert(tmpdir, monkeypatch):
+@pytest.mark.vcr()
+@pytest.mark.vcr_delete_on_fail
+def test_convert(tmpdir, monkeypatch, last_vcr_recording_time):
     """
     Test convert function.
     """
@@ -132,8 +138,11 @@ def test_convert(tmpdir, monkeypatch):
 
     assert download_info is not None
 
+    input_file = Path(tmpdir / f"test-in.{download_info['ext']}")
+    input_path, _ = urlretrieve(download_info["url"], input_file)
+
     assert convert(
-        input_file=(download_info["url"], download_info["ext"]),
+        input_file=input_path,
         output_file=Path(tmpdir, "test.mp3"),
     ) == (True, None)
 

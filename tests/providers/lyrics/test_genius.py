@@ -7,6 +7,7 @@ lyrics = "[Verse 1]\nMore than lovers\nDestined to find one another\nLike lightn
 
 
 @pytest.mark.vcr()
+@pytest.mark.vcr_delete_on_fail
 def test_get_genius_lyrics():
     genius = Genius("alXXDbPZtK1m2RrZ8I4k2Hn8Ahsd0Gh_o076HYvcdlBvmc0ULL1H8Z8xRlew5qaG")
 

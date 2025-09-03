@@ -5,11 +5,11 @@ interactions:
       Accept:
       - '*/*'
       Accept-Encoding:
-      - gzip, deflate, br
+      - gzip, deflate, br, zstd
       Connection:
       - keep-alive
       User-Agent:
-      - python-requests/2.32.3
+      - python-requests/2.32.5
     method: GET
     uri: https://api.github.com/repos/spotdl/spotify-downloader-fail/compare/master...dev
   response:
@@ -32,7 +32,7 @@ interactions:
       Content-Type:
       - application/json; charset=utf-8
       Date:
-      - Sat, 24 Aug 2024 15:48:45 GMT
+      - Sun, 24 Aug 2025 14:56:12 GMT
       Referrer-Policy:
       - origin-when-cross-origin, strict-origin-when-cross-origin
       Server:
@@ -48,17 +48,17 @@ interactions:
       X-GitHub-Media-Type:
       - github.v3; format=json
       X-GitHub-Request-Id:
-      - DB12:8E673:7FC711F:817D27C:66CA00DD
+      - 84F6:1028E3:358F31:72B0B0:68AB280C
       X-RateLimit-Limit:
       - '60'
       X-RateLimit-Remaining:
-      - '58'
+      - '42'
       X-RateLimit-Reset:
-      - '1724518125'
+      - '1756049545'
       X-RateLimit-Resource:
       - core
       X-RateLimit-Used:
-      - '2'
+      - '18'
       X-XSS-Protection:
       - '0'
       x-github-api-version-selected:
