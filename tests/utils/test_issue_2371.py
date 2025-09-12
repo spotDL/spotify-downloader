@@ -67,8 +67,7 @@ def test_fat32_compatibility_characters():
     # Test various problematic characters for FAT32
     test_cases = [
         (Path("Björk/Homogenic/Jóga.m4a"), Path("Bjork/Homogenic/Joga.m4a")),
-        # Fix: AC/DC case - the first part doesn't get sanitized in your current implementation
-        (Path("AC/DC/Back in Black/T.N.T.m4a"), Path("AC/DC/Back_in_Black/T.N.T.m4a")),
+        (Path("AC/DC/Back in Black/T.N.T.m4a"), Path("AC_DC/Back_in_Black/T.N.T.m4a")),
         (Path("Sigur Rós/Ágætis byrjun/Svefn-g-englar.m4a"), Path("Sigur_Ros/Agaetis_byrjun/Svefn-g-englar.m4a")),
     ]
     
