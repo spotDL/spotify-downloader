@@ -498,17 +498,18 @@ def to_ms(
 
     return result
 
+
 def restrict_filename(pathobj: Path, strict: bool = True) -> Path:
     """
     Sanitizes ALL parts of a Path object (directories AND filename). Returns modified object.
-    
+
     ### Arguments
     - pathobj: the Path object to sanitize
     - strict: whether sanitization should be strict
-    
-    ### Returns  
+
+    ### Returns
     - the modified Path object with ALL components sanitized
-    
+
     ### Notes
     - Based on the `sanitize_filename` function from yt-dlp
     - NOW SANITIZES DIRECTORIES TOO (fixes issue #2371)
@@ -516,30 +517,29 @@ def restrict_filename(pathobj: Path, strict: bool = True) -> Path:
     # Split the path into all components
     parts = pathobj.parts
     sanitized_parts = []
-    
+
     # Sanitize each part (directory and filename)
     for part in parts:
         # Skip drive letters on Windows (e.g., 'C:')
-        if len(part) > 1 and part.endswith(':') and len(parts) > 1 and part == parts[0]:
+        if len(part) > 1 and part.endswith(":") and len(parts) > 1 and part == parts[0]:
             sanitized_parts.append(part)
             continue
-            
+
         # Sanitize this path component
         if strict:
             result = sanitize_filename(part, True, False)  # type: ignore
             result = result.replace("_-_", "-")
         else:
-            result = (
-                normalize("NFKD", part).encode("ascii", "ignore").decode("utf-8")
-            )
-        
+            result = normalize("NFKD", part).encode("ascii", "ignore").decode("utf-8")
+
         if not result:
             result = "_"
-            
+
         sanitized_parts.append(result)
-    
+
     # Reconstruct the path with all sanitized components
     return Path(*sanitized_parts)
+
 
 @lru_cache()
 def ratio(string1: str, string2: str) -> float:
