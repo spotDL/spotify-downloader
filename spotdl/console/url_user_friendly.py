@@ -19,7 +19,7 @@ def url_user_friendly(
         downloader: Downloader,
 ) -> None:
     """
-    Print user friendly ty links for the provided songs
+    Print user friendly yt links for the provided songs
 
     ### Arguments
     - query: list of strings to search for.
