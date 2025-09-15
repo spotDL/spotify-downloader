@@ -1,5 +1,5 @@
 """
-    Url user friendly module for the console
+   get_yt_url module for the console
 """
 
 import asyncio
@@ -10,16 +10,16 @@ from spotdl.download.downloader import Downloader
 from spotdl.types.song import Song
 from spotdl.utils.search import parse_query
 
-__all__ = ["url_user_friendly"]
+__all__ = ["get_yt_url"]
 
 logger = logging.getLogger(__name__)
 
-def url_user_friendly(
+def get_yt_url(
         query: List[str],
         downloader: Downloader,
 ) -> None:
     """
-    Print user friendly yt links for the provided songs
+    Print user friendly Youtube links for the provided songs
 
     ### Arguments
     - query: list of strings to search for.

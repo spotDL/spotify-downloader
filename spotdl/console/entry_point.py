@@ -15,7 +15,7 @@ from spotdl.console.save import save
 from spotdl.console.sync import sync
 from spotdl.console.url import url
 from spotdl.console.web import web
-from spotdl.console.url_user_friendly import url_user_friendly
+from spotdl.console.get_yt_url import get_yt_url
 from spotdl.download.downloader import Downloader, DownloaderError
 from spotdl.utils.arguments import parse_arguments
 from spotdl.utils.config import create_settings
@@ -33,7 +33,7 @@ OPERATIONS = {
     "save": save,
     "meta": meta,
     "url": url,
-    "url-user-friendly": url_user_friendly
+    "get-yt-url": get_yt_url
 }
 
 logger = logging.getLogger(__name__)
