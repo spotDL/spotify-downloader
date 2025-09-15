@@ -83,7 +83,7 @@ def test_download_song(capsys, monkeypatch, tmpdir):
 
 def test_get_yt_url(capsys, monkeypatch):
     """
-    This test checks if the song is downloaded correctly
+    This test checks if the function get_yt_url retuns a YouTube URL
     """
 
     # `dummy` is an initial argument, which represents file path.
