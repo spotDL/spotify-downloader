@@ -81,6 +81,33 @@ def test_download_song(capsys, monkeypatch, tmpdir):
 
     assert "Downloaded" in out
 
+def test_get_yt_url(capsys, monkeypatch):
+    """
+    This test checks if the song is downloaded correctly
+    """
+
+    # `dummy` is an initial argument, which represents file path.
+    # in real word sys.argv when no arguments are supplied contains just the script file path
+    cli_args = [
+        "dummy",
+        "get-yt-url",
+        "https://open.spotify.com/track/2Ikdgh3J5vCRmnCL3Xcrtv",
+        "--no-cache",
+        "--log-level",
+        "DEBUG",
+        "--lyrics",
+        "genius",
+        "--print-errors",
+    ]
+
+    monkeypatch.setattr(sys, "argv", cli_args)
+    monkeypatch.setattr(SpotifyClient, "init", new_initialize)
+    
+    console_entry_point()
+
+    out = "".join([clean_ansi_sequence(out) for out in capsys.readouterr()])
+
+    assert "https://music.youtube" in out or "https://youtube.com" in out
 
 def test_preload_song(capsys, monkeypatch, tmpdir):
     """
