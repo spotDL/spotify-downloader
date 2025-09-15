@@ -61,7 +61,7 @@ def parse_main_options(parser: _ArgumentGroup):
             "sync: Removes songs that are no longer present, downloads new ones\n"
             "meta: Update your audio files with metadata\n"
             "url: Get the download URL for songs\n"
-            "url-user-friendly: Export the user-friendly YouTube Music URLs instead of downloading.\n\n"
+            "get-yt-url: Export the user-friendly YouTube Music URLs instead of downloading.\n\n"
 
         ),
     )
