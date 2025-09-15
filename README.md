@@ -123,9 +123,9 @@ For a list of all **options** use ```spotdl -h```
     - Usage:
         `spotdl url [query]`
 
-- `url-user-friendly`: Get user friendly YouTube links for each song from the query
+- `get-yt-url`: Get user friendly YouTube links for each song from the query
     - Usage:
-	`spotdl url-user-friendly [query]`
+	`spotdl get-yt-url [query]`
 
 - `sync`: Updates directories. Compares the directory with the current state of the playlist. Newly added songs will be downloaded and removed songs will be deleted. No other songs will be downloaded and no other files will be deleted.
 
