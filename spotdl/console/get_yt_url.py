@@ -44,7 +44,7 @@ def get_yt_url(
 
         
 
-            print(data)
+            print(f"{song.name}: {data}")
         except Exception as exception:
             logger.error("%s generated an exception: %s", song.display_name, exception)
 
