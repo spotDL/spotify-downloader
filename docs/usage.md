@@ -388,6 +388,7 @@ Main options:
                         sync: Removes songs that are no longer present, downloads new ones
                         meta: Update your audio files with metadata
                         url: Get the download URL for songs
+                        get-yt-url: Export the user-friendly YouTube Music URLs instead of downloading.
 
   query                 Spotify/YouTube URL for a song/playlist/album/artist/etc. to download.
 
