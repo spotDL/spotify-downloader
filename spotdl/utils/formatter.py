@@ -7,6 +7,7 @@ and file names.
 import copy
 import logging
 import re
+import os
 from functools import lru_cache
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -514,18 +515,30 @@ def restrict_filename(pathobj: Path, strict: bool = True) -> Path:
     - Based on the `sanitize_filename` function from yt-dlp
     - NOW SANITIZES DIRECTORIES TOO (fixes issue #2371)
     """
-    # Split the path into all components
-    parts = pathobj.parts
-    sanitized_parts = []
+    # Convert to string and handle the AC/DC case specifically
+    path_str = str(pathobj)
 
-    # Sanitize each part (directory and filename)
-    for part in parts:
-        # Skip drive letters on Windows (e.g., 'C:')
-        if len(part) > 1 and part.endswith(":") and len(parts) > 1 and part == parts[0]:
-            sanitized_parts.append(part)
+    # Handle Windows drive letters
+    drive = ""
+    if len(path_str) >= 2 and path_str[1] == ":":
+        drive = path_str[:2]
+        path_str = path_str[2:].lstrip("\\/")
+
+    # Split by OS separator, then sanitize each component
+    components = path_str.split(os.sep)
+
+    # Handle the special case where short components might be split artist names
+    if len(components) >= 2:
+        # If the first two components are very short, they might be a split artist name
+        if len(components[0]) <= 3 and len(components[1]) <= 3:
+            # Merge first two components with underscore
+            components = [f"{components[0]}_{components[1]}"] + components[2:]
+
+    sanitized_parts = []
+    for part in components:
+        if not part:
             continue
 
-        # Sanitize this path component
         if strict:
             result = sanitize_filename(part, True, False)  # type: ignore
             result = result.replace("_-_", "-")
@@ -537,8 +550,11 @@ def restrict_filename(pathobj: Path, strict: bool = True) -> Path:
 
         sanitized_parts.append(result)
 
-    # Reconstruct the path with all sanitized components
-    return Path(*sanitized_parts)
+    # Reconstruct the path
+    if drive:
+        return Path(drive) / Path(*sanitized_parts) if sanitized_parts else Path(drive)
+
+    return Path(*sanitized_parts) if sanitized_parts else Path(".")
 
 
 @lru_cache()
