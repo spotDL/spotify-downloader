@@ -6,7 +6,6 @@ and file names.
 
 import copy
 import logging
-import os
 import re
 from functools import lru_cache
 from pathlib import Path
@@ -502,32 +501,30 @@ def to_ms(
 
 def restrict_filename(pathobj: Path, strict: bool = True) -> Path:
     """
-    Sanitizes ALL parts of a Path object (directories AND filename). Returns modified object.
+    Sanitizes the filename part of a Path object. Returns modified object.
+
+    ### Arguments
+    - pathobj: the Path object to sanitize
+    - strict: whether sanitization should be strict
+
+    ### Returns
+    - the modified Path object
+
+    ### Notes
+    - Based on the `sanitize_filename` function from yt-dlp
     """
-    parts = list(pathobj.parts)
+    if strict:
+        result = sanitize_filename(pathobj.name, True, False)  # type: ignore
+        result = result.replace("_-_", "-")
+    else:
+        result = (
+            normalize("NFKD", pathobj.name).encode("ascii", "ignore").decode("utf-8")
+        )
 
-    # Special case: merge "AC" and "DC" into "AC_DC"
-    if len(parts) >= 2 and parts[0].upper() == "AC" and parts[1].upper() == "DC":
-        parts = ["AC_DC"] + parts[2:]
+    if not result:
+        result = "_"
 
-    sanitized_parts = []
-    for part in parts:
-        # Skip Windows drive letters
-        if len(part) == 2 and part.endswith(":") and part == pathobj.parts[0]:
-            sanitized_parts.append(part)
-            continue
-
-        if strict:
-            result = sanitize_filename(part, True, False)
-            result = result.replace("_-_", "-")
-        else:
-            result = normalize("NFKD", part).encode("ascii", "ignore").decode("utf-8")
-
-        if not result:
-            result = "_"
-        sanitized_parts.append(result)
-
-    return Path(*sanitized_parts)
+    return pathobj.with_name(result)
 
 
 @lru_cache()
