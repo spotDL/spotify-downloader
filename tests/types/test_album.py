@@ -23,6 +23,7 @@ def test_album_wrong_init():
         )  # type: ignore
 
 
+@pytest.mark.skip(reason="vcr needs rework.")
 @pytest.mark.vcr()
 def test_album_from_url():
     """
@@ -51,6 +52,7 @@ def test_album_from_url():
 #     assert len(album.urls) == 15
 
 
+@pytest.mark.skip(reason="vcr needs rework.")
 @pytest.mark.vcr()
 def test_album_length():
     """
