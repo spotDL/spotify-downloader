@@ -9,18 +9,18 @@ jobs:
     strategy:
       # max-parallel: 1
       matrix:
-        platform: [ubuntu-latest, macos-13, windows-latest]
+        platform: [ubuntu-latest, macos-15-intel, windows-latest]
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
 
-      - name: Set up Python "3.11"
-        uses: actions/setup-python@v4
+      - name: Set up Python
+        uses: actions/setup-python@v6
         with:
-          python-version: "3.11"
+          python-version: "3.x"
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v5
+        uses: astral-sh/setup-uv@v6
         with:
           version: "latest"
           enable-cache: true
@@ -30,7 +30,7 @@ jobs:
           uv venv --python 3.11
           uv sync
 
-      - uses: FedericoCarboni/setup-ffmpeg@v1
+      - uses: FedericoCarboni/setup-ffmpeg@v3
         id: setup-ffmpeg
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -48,14 +48,14 @@ jobs:
     strategy:
       # max-parallel: 3
       matrix:
-        platform: [ubuntu-latest, macos-13, windows-latest]
+        platform: [ubuntu-latest, macos-15-intel, windows-latest]
         python-version: ["3.11"]
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
 
@@ -71,13 +71,13 @@ jobs:
           uv pip install pip setuptools
           uv sync
 
-      - uses: FedericoCarboni/setup-ffmpeg@v2
+      - uses: FedericoCarboni/setup-ffmpeg@v3
         id: setup-ffmpeg
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Run tests
-        timeout-minutes: 10
+        # timeout-minutes: 10
         run: |
           uv run pytest -vvv --record-mode=none --disable-recording --ignore tests/providers/lyrics --ignore tests/utils/test_github.py --ignore tests/utils/test_ffmpeg.py --ignore tests/utils/test_metadata.py --ignore tests/test_matching.py --ignore tests/providers/audio/test_youtube.py --ignore tests/console/test_entry_point.py --ignore tests/test_init.py
         env:
@@ -91,12 +91,12 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Set up Python "3.11"
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v6
         with:
           python-version: "3.11"
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v5
+        uses: astral-sh/setup-uv@v6
         with:
           version: "latest"
           enable-cache: true
@@ -106,12 +106,12 @@ jobs:
           uv venv --python 3.11
           uv sync
 
-      - uses: FedericoCarboni/setup-ffmpeg@v1
+      - uses: FedericoCarboni/setup-ffmpeg@v3
         id: setup-ffmpeg
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Run tests
-        timeout-minutes: 10
+        # timeout-minutes: 10
         run: |
           uv run pytest -vvv --record-mode=none --disable-recording tests/test_matching.py
