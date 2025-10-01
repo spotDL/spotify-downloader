@@ -70,6 +70,7 @@ def test_playlist_from_string():
     assert len(playlist.urls) > 1
 
 
+@pytest.mark.skip(reason="vcr needs rework.")
 @pytest.mark.vcr()
 def test_playlist_length():
     """
