@@ -57,7 +57,6 @@ def get_spotdl_path() -> Path:
     - The path to the spotdl folder.
 
     ### Notes
-    - If the spotdl directory does not exist, it will be created.
     """
 
     # For Linux systems, we follow the XDG Base Directory Specification
