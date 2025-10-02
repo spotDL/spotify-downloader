@@ -50,6 +50,8 @@ class ConfigError(Exception):
 def get_spotdl_path() -> Path:
     """
     Get the path to the spotdl folder, following XDG standards on Linux.
+    ~/.config/spotdl/ is used if it exists, else ~/.spotdl if it exists.
+    If the spotdl directory does not exist, it will be created
 
     ### Returns
     - The path to the spotdl folder.
