@@ -47,7 +47,6 @@ class ConfigError(Exception):
     """
 
 
-# (Find the old get_spotdl_path function and REPLACE it with this new one)
 def get_spotdl_path() -> Path:
     """
     Get the path to the spotdl folder, following XDG standards on Linux.
