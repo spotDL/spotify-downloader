@@ -16,7 +16,7 @@ from spotdl.utils.logging import NAME_TO_LEVEL
 
 __all__ = ["OPERATIONS", "SmartFormatter", "parse_arguments"]
 
-OPERATIONS = ["download", "save", "web", "sync", "meta", "url"]
+OPERATIONS = ["download", "save", "web", "sync", "meta", "url", "remove"]
 
 
 class SmartFormatter(argparse.HelpFormatter):
