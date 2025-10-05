@@ -68,8 +68,8 @@
     ```
 
 ??? info "YouTube link with Spotify metadata"
-    To download YouTube video with metadata from Spotify, run
-    > Noting the quote `"` are required
+    To download a YouTube video with metadata from Spotify, run
+    > Note that the quotes `"` are required
 
     ```bash
     spotdl download "YouTubeURL|SpotifyURL"
@@ -82,7 +82,7 @@
     ```
 
 ??? info "Liked songs"
-    To download liked Spotify songs run
+    To download liked Spotify songs, run
     > `--user-auth` is required
 
     ```bash
@@ -90,7 +90,7 @@
     ```
 
 ??? info "All user playlists"
-    To download all user playlists run
+    To download all user playlists, run
     > `--user-auth` is required
 
     ```bash
@@ -98,7 +98,7 @@
     ```
 
 ??? info "All user saved albums"
-    To download all user saved albums run
+    To download all user saved albums, run
     > `--user-auth` is required
 
     ```bash
@@ -154,11 +154,11 @@ To download music in higher quality follow the steps below:
 
 ## Syncing
 
-Sync function for the console. Keep local files up to date with playlists/albums/etc.
-This will download new songs and remove the ones that are no longer present in the playlists/albums/etc
+Sync function for the console. Keeps local files up to date with playlists/albums/etc.
+This will download new songs and remove the ones that are no longer present in the playlists/albums/etc.
 
 ??? info "Initialize Synchronization"
-    To create the sync file run
+    To create the sync file, run
 
     ```bash
     spotdl sync [query] --save-file [fileName]
@@ -173,7 +173,7 @@ This will download new songs and remove the ones that are no longer present in t
     > Note: The sync file has to end with .spotdl
 
 ??? info "Syncing"
-    To sync the songs run
+    To sync the songs, run
 
     ```bash
     spotdl sync [fileName]
@@ -208,7 +208,7 @@ spotdl save 'The Weeknd - Blinding Lights' --save-file 'the-weeknd.spotdl'
 ```
 
 ??? info "Preloading"
-    Preload the download url to speed up the download process.
+    Preload the download URL to speed up the download process.
 
     ```bash
     spotdl save [query] --save-file [fileName] --preload
@@ -238,9 +238,9 @@ add option `--web-use-output-dir`, which will make output directory follow `--ou
 ### Config file location
 
 The config file is located at `C:\Users\user\.spotdl\config.json`
-or `~/.spotdl/config.json` under linux
+or `~/.spotdl/config.json` under Linux
 
-> Note: If you want to use XDG_DATA_HOME directory, run `mkdir $XDG_DATA_HOME/spotdl`, next time you run spotdl it will be automatically used.
+> Note: If you want to use the XDG_DATA_HOME directory, run `mkdir $XDG_DATA_HOME/spotdl`. The next time you run spotdl it will be automatically used.
 
 ### Generate a config file
 
@@ -254,9 +254,9 @@ spotdl --generate-config
 
 ### Loading config
 
-Config file gets loaded automatically if it already exists, or if you've passed `--config` flag
+The config file gets loaded automatically if it already exists, or if you've passed the `--config` flag.
 
-If you don't want config to load automatically change `load_config` option in config file to false
+If you don't want the config to load automatically, change the `load_config` option in the config file to false
 
 ```json
 {
@@ -394,14 +394,14 @@ Main options:
                         For album/playlist/artist searching, include 'album:', 'playlist:', 'artist:'
                         (ie. 'album:the album name' you can mix these options to get more accurate results).
 
-                        To download liked songs use 'saved' as the query, to download all user playlists
-                        use 'all-user-playlists, to download playlists that the user has created
-                        use 'all-saved-playlists', to download all user liked playlists
-                        use 'all-user-followed-artists', to download all user saved albums use 'all-user-saved-albums'
+                        To download liked songs use 'saved' as the query. To download all user playlists
+                        use 'all-user-playlists'. To download playlists that the user has created
+                        use 'all-saved-playlists'. To download all user liked playlists
+                        use 'all-user-followed-artists'. To download all user saved albums use 'all-user-saved-albums'
 
-                        For manual audio matching, you can use the format 'YouTubeURL|SpotifyURL'
-                        You can only use album/playlist/tracks urls when downloading/matching youtube urls.
-                        When using youtube url without spotify url, you won't be able to use `--fetch-albums` option.
+                        For manual audio matching, you can use the format 'YouTubeURL|SpotifyURL'.
+                        You can only use album/playlist/tracks URLs when downloading/matching YouTube URLs.
+                        When using a YouTube URL without a Spotify URL, you won't be able to use the `--fetch-albums` option.
 
   --audio [{youtube,youtube-music,slider-kz,soundcloud,bandcamp,piped} ...]
                         The audio provider to use. You can provide more than one for fallback.
@@ -435,8 +435,8 @@ Spotify options:
   --max-retries MAX_RETRIES
                         The maximum number of retries to perform when getting metadata.
   --headless            Run in headless mode.
-  --use-cache-file      Use the cache file to get metadata. It's located under C:\Users\user\.spotdl\.spotify_cache or ~/.spotdl/.spotify_cache under linux. It only caches tracks and
-                        gets updated whenever spotDL gets metadata from Spotify. (It may provide outdated metadata use with caution)
+  --use-cache-file      Use the cache file to get metadata. It's located under C:\Users\user\.spotdl\.spotify_cache or ~/.spotdl/.spotify_cache under Linux. It only caches tracks and
+                        gets updated whenever spotDL gets metadata from Spotify. (It may provide outdated metadata; use with caution)
 
 FFmpeg options:
   --ffmpeg FFMPEG       The ffmpeg executable to use.
@@ -464,22 +464,22 @@ Output options:
                         How to handle existing/duplicate files. (When combined with --scan-for-songs force will remove all duplicates, and metadata will only apply metadata to the latest
                         song and will remove the rest. )
   --restrict [{strict,ascii,none}]
-                        Restrict filenames to a sanitized set of characters for better compatibility
-  --print-errors        Print errors (wrong songs, failed downloads etc) on exit, useful for long playlist
+                        Restrict filenames to a sanitized set of characters for better compatibility.
+  --print-errors        Print errors (wrong songs, failed downloads, etc.) on exit, useful for long playlists.
   --save-errors SAVE_ERRORS
-                        Save errors (wrong songs, failed downloads etc) to a file
+                        Save errors (wrong songs, failed downloads, etc.) to a file
   --sponsor-block       Use the sponsor block to download songs from yt/ytm.
-  --archive ARCHIVE     Specify the file name for an archive of already downloaded songs
-  --playlist-numbering  Sets each track in a playlist to have the playlist's name as its album, and album art as the playlist's icon
+  --archive ARCHIVE     Specify the file name for an archive of already downloaded songs.
+  --playlist-numbering  Sets each track in a playlist to have the playlist's name as its album, and album art as the playlist's icon.
   --playlist-retain-track-cover
-                        Sets each track in a playlist to have the playlist's name as its album, while retaining album art of each track
+                        Sets each track in a playlist to have the playlist's name as its album, while retaining album art of each track.
   --scan-for-songs      Scan the output directory for existing files. This option should be combined with the --overwrite option to control how existing files are handled. (Output
                         directory is the last directory that is not a template variable in the output template)
-  --fetch-albums        Fetch all albums from songs in query
+  --fetch-albums        Fetch all albums from songs in query.
   --id3-separator ID3_SEPARATOR
                         Change the separator used in the id3 tags. Only supported for mp3 files.
   --ytm-data            Use ytm data instead of spotify data when downloading using ytm link.
-  --add-unavailable     Add unavailable songs to the m3u/archive files when downloading
+  --add-unavailable     Add unavailable songs to the m3u/archive files when downloading.
   --generate-lrc        Generate lrc files for downloaded songs. Requires `synced` provider to be present in the lyrics providers list.
   --force-update-metadata
                         Force update metadata for songs that already have metadata.
@@ -492,15 +492,15 @@ Output options:
   --detect-formats [{mp3,flac,ogg,opus,m4a,wav} ...]
                         Detect already downloaded songs with file format different from the --format option (When combined with --m3u option, only first detected format will be added to
                         m3u file)
-  --redownload          to redownload the local song in diffrent format using --format for meta operation
-  --skip-album-art      skip downloading album art for meta operation
+  --redownload          Redownload the local song in a different format using --format for meta operation.
+  --skip-album-art      Skip downloading album art for meta operation.
   --ignore-albums [IGNORE_ALBUMS ...]
-                        ignores the song of the given albums
-  --skip-explicit       Skip explicit songs
-  --proxy PROXY         Http(s) proxy server for download song. Example: http://host:port
-  --create-skip-file    Create skip file for successfully downloaded file
-  --respect-skip-file   If a file with the extension .skip exists, skip download
-  --sync-remove-lrc     Remove lrc files when using sync operation when downloading songs
+                        Ignores the songs of the given albums.
+  --skip-explicit       Skip explicit songs.
+  --proxy PROXY         Http(s) proxy server for downloading songs. Example: http://host:port
+  --create-skip-file    Create skip file for successfully downloaded files.
+  --respect-skip-file   If a file with the extension .skip exists, skip download.
+  --sync-remove-lrc     Remove lrc files when using sync operation when downloading songs.
 
 Web options:
   --host HOST           The host to use for the web server.
