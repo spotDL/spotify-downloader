@@ -502,50 +502,33 @@ def to_ms(
 
 def restrict_filename(pathobj: Path, strict: bool = True) -> Path:
     """
-    Sanitizes the filename part of a Path object. Returns modified object.
+    Sanitizes all components of a Path object (both directory names and filename).
+    Returns modified object.
 
     ### Arguments
     - pathobj: the Path object to sanitize
     - strict: whether sanitization should be strict
 
     ### Returns
-    - the modified Path object
+    - the modified Path object with all path components sanitized
 
     ### Notes
     - Based on the `sanitize_filename` function from yt-dlp
-    - When strict=True, replaces path separators with underscores
+    - When strict=True, replaces all special characters with underscores
     - Replaces forward slashes with underscores (e.g., "AC/DC" -> "AC_DC")
     - When strict=False, converts non-ASCII characters to their closest ASCII equivalents
+    - Handles both Windows and Unix-style paths
     """
-    # Convert the path to a string to handle all path separators consistently
-    path_str = str(pathobj)
-    
-    # Handle empty path
-    if not path_str:
+    if not pathobj or str(pathobj) == '.':
         return Path("")
-    
-    # Split into components
-    parts = []
-    if os.name == 'nt':
-        # On Windows, use the Path.parts to handle drive letters and UNC paths
-        drive = pathobj.drive
-        if drive:
-            parts.append(drive)
-        parts.extend(pathobj.parts[len(pathobj.parts) - len(pathobj.parents):-1] if len(pathobj.parts) > 1 else [])
-        parts.append(pathobj.name)
-    else:
-        # On Unix-like systems, just split on path separator
-        parts = path_str.split(os.sep)
-    
-    # Sanitize each component
-    sanitized_parts = []
-    
-    for part in parts:
-        if not part or part == '.':
-            continue
+
+    def sanitize_component(component: str) -> str:
+        """Sanitize a single path component."""
+        if not component or component == '.':
+            return ''
             
-        # First normalize unicode characters
-        normalized = normalize('NFKD', part)
+        # Normalize unicode characters
+        normalized = normalize('NFKD', component)
         
         if strict:
             # In strict mode, convert to ASCII and replace non-ASCII with underscores
@@ -562,19 +545,42 @@ def restrict_filename(pathobj: Path, strict: bool = True) -> Path:
         sanitized = re.sub(r'_{2,}', '_', sanitized)
         sanitized = sanitized.strip('_-. ')
         
-        if sanitized:
+        return sanitized if sanitized else 'unnamed'
+
+    # Handle Windows paths (with drive letters or UNC paths)
+    if os.name == 'nt':
+        drive = pathobj.drive
+        parts = list(pathobj.parts)
+        
+        # Sanitize all components except the drive/UNC part
+        sanitized_parts = [drive] if drive else []
+        
+        # Skip the drive part and process the rest
+        start_idx = 1 if drive else 0
+        for part in parts[start_idx:]:
+            sanitized = sanitize_component(part)
+            if sanitized:  # Skip empty parts
+                sanitized_parts.append(sanitized)
+        
+        # Handle case where only drive letter was provided
+        if not sanitized_parts[1:] and drive:
+            sanitized_parts.append('unnamed')
+            
+        return Path(*sanitized_parts)
+    
+    # Handle Unix-style paths
+    parts = str(pathobj).split(os.sep)
+    sanitized_parts = []
+    
+    for part in parts:
+        sanitized = sanitize_component(part)
+        if sanitized:  # Skip empty parts
             sanitized_parts.append(sanitized)
     
     # If we have no valid parts left, return a default name
     if not sanitized_parts:
         return Path("unnamed")
     
-    # Rebuild the path
-    if os.name == 'nt' and len(sanitized_parts) > 0 and ':' in sanitized_parts[0]:
-        # On Windows, handle the drive letter properly
-        return Path(sanitized_parts[0]) / Path(*sanitized_parts[1:]) if len(sanitized_parts) > 1 else Path(sanitized_parts[0])
-    
-    # For non-Windows or paths without drive letters
     return Path(*sanitized_parts)
 
 
