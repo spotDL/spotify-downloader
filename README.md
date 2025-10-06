@@ -119,7 +119,7 @@ For a list of all **options** use ```spotdl -h```
 
 - `web`: Starts a web interface instead of using the command line. However, it has limited features and only supports downloading single songs.
 
-- `url`: Get direct download link for each song from the query.
+- `url`: Get user-friendly URL for each song from the query.
     - Usage:
         `spotdl url [query]`
 
