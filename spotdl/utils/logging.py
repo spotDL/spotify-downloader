@@ -176,7 +176,7 @@ def init_logging(log_level: str, log_format: Optional[str] = None):
     logging.getLogger("syncedlyrics").setLevel(logging.WARNING)
     logging.getLogger("bandcamp_api").setLevel(logging.WARNING)
     logging.getLogger("beautifulsoup4").setLevel(logging.WARNING)
-    logging.getLogger("pytube").setLevel(logging.ERROR)
+    logging.getLogger("yt_dlp").setLevel(logging.ERROR)
 
     # Create console
     console = get_console()
