@@ -391,6 +391,13 @@ class AudioProvider:
             data = self.audio_handler.extract_info(url, download=download)
 
             if data:
+                # check for YouTube premium format Opus with bitrate up to 256 kbps
+                # see: https://gist.github.com/MartinEesmaa/2f4b261cb90a47e9c41ba115a011a4aa
+
+                for audio_format in data.get("formats", []):
+                    if audio_format.get("format_id") == "774":
+                        logger.info("YouTube Premium formats available!")
+
                 return data
         except Exception as exception:
             logger.debug(exception)
