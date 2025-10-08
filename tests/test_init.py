@@ -18,7 +18,9 @@ def setup(tmp_path, monkeypatch):
     yield data
 
 
-def test_get_urls(monkeypatch):
+@pytest.mark.vcr()
+@pytest.mark.vcr_delete_on_fail
+def test_get_urls(monkeypatch, last_vcr_recording_time):
     """
     Tests if spotdl can be initialized correctly.
     """
@@ -48,7 +50,9 @@ def test_get_urls(monkeypatch):
     assert len(urls) == 1
 
 
-def test_download(setup, monkeypatch, tmpdir):
+@pytest.mark.vcr()
+@pytest.mark.vcr_delete_on_fail
+def test_download(setup, monkeypatch, last_vcr_recording_time, tmpdir):
     """
     Tests if spotdl can be initialized correctly.
     """

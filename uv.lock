@@ -330,6 +330,18 @@ wheels = [
 ]
 
 [[package]]
+name = "freezegun"
+version = "1.5.5"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "python-dateutil" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/95/dd/23e2f4e357f8fd3bdff613c1fe4466d21bfb00a6177f238079b17f7b1c84/freezegun-1.5.5.tar.gz", hash = "sha256:ac7742a6cc6c25a2c35e9292dfd554b897b517d2dec26891a2e8debf205cb94a", size = 35914, upload-time = "2025-08-09T10:39:08.338Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/5e/2e/b41d8a1a917d6581fc27a35d05561037b048e47df50f27f8ac9c7e27a710/freezegun-1.5.5-py3-none-any.whl", hash = "sha256:cd557f4a75cf074e84bc374249b9dd491eaeacd61376b9eb3c423282211619d2", size = 19266, upload-time = "2025-08-09T10:39:06.636Z" },
+]
+
+[[package]]
 name = "ghp-import"
 version = "2.1.0"
 source = { registry = "https://pypi.org/simple" }
@@ -1238,6 +1250,19 @@ wheels = [
 ]
 
 [[package]]
+name = "pytest-freezegun"
+version = "0.4.2"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "freezegun" },
+    { name = "pytest" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/f0/e3/c39d7c3d3afef5652f19323f3483267d7e6b0d9911c3867e10d6e2d3c9ae/pytest-freezegun-0.4.2.zip", hash = "sha256:19c82d5633751bf3ec92caa481fb5cffaac1787bd485f0df6436fd6242176949", size = 9059, upload-time = "2020-07-19T17:50:03.678Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/9e/09/0bdd7d24b9d21453ad3364ae1efbd65082045bb6081b5fd5eade91a9b644/pytest_freezegun-0.4.2-py2.py3-none-any.whl", hash = "sha256:5318a6bfb8ba4b709c8471c94d0033113877b3ee02da5bfcd917c1889cde99a7", size = 4590, upload-time = "2020-07-19T17:50:02.191Z" },
+]
+
+[[package]]
 name = "pytest-mock"
 version = "3.14.0"
 source = { registry = "https://pypi.org/simple" }
@@ -1272,6 +1297,18 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/32/ae/3ad5c609a5088936608af12f42ad72567a877d3c64303500ebc3b7df0297/pytest_subprocess-1.5.3.tar.gz", hash = "sha256:c00b1140fb0211b3153e09500d770db10770baccbe6e05ee9c140036d1d811d5", size = 42282, upload-time = "2025-01-04T13:08:16.877Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/1b/82/a038e8fdb86d5494a39b8730547ec79767731d02ecb556121e40c0892803/pytest_subprocess-1.5.3-py3-none-any.whl", hash = "sha256:b62580f5a84335fb9f2ec65d49e56a3c93f4722c148fe1771a002835d310a75b", size = 21759, upload-time = "2025-01-04T13:08:13.775Z" },
+]
+
+[[package]]
+name = "pytest-vcr-delete-on-fail"
+version = "2.0.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "pytest" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/9b/d1/5e17a60fa534a5480fddd3faee8a4102a4af574c3a3514db1927b1539497/pytest_vcr_delete_on_fail-2.0.1.tar.gz", hash = "sha256:7f07e079615cfdcda01e8d24367b6b2a89402e094e1f7439ff3ac35b59807200", size = 18389, upload-time = "2024-02-16T15:04:21.268Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/37/27/1939dc65709919e4d7dd86a19d07b4d43cb34af13fd1470b263460179c52/pytest_vcr_delete_on_fail-2.0.1-py3-none-any.whl", hash = "sha256:fe4fbd0067da3d7f33b24e169344c03bfdf0001a604ece8a55b1b794e92a410b", size = 19328, upload-time = "2024-02-16T15:04:19.51Z" },
 ]
 
 [[package]]
@@ -1657,9 +1694,11 @@ dev = [
     { name = "pytest" },
     { name = "pytest-asyncio" },
     { name = "pytest-cov" },
+    { name = "pytest-freezegun" },
     { name = "pytest-mock" },
     { name = "pytest-recording" },
     { name = "pytest-subprocess" },
+    { name = "pytest-vcr-delete-on-fail" },
     { name = "types-deprecated" },
     { name = "types-orjson" },
     { name = "types-python-dateutil" },
@@ -1715,9 +1754,11 @@ dev = [
     { name = "pytest", specifier = ">=8.3.3,<9" },
     { name = "pytest-asyncio", specifier = ">=0.21.1,<0.22" },
     { name = "pytest-cov", specifier = ">=6.0.0,<7" },
+    { name = "pytest-freezegun", specifier = ">=0.4.2" },
     { name = "pytest-mock", specifier = ">=3.14.0,<4" },
     { name = "pytest-recording", specifier = ">=0.13.1,<0.14" },
     { name = "pytest-subprocess", specifier = ">=1.5.2,<2" },
+    { name = "pytest-vcr-delete-on-fail", specifier = ">=2.0.1" },
     { name = "types-deprecated", specifier = ">=1.2.15.20250304" },
     { name = "types-orjson", specifier = ">=3.6.2,<4" },
     { name = "types-python-dateutil", specifier = ">=2.9.0.20250809" },

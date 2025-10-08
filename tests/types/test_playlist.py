@@ -42,6 +42,7 @@ def test_playlist_wrong_initget_results():
 
 
 @pytest.mark.vcr()
+@pytest.mark.vcr_delete_on_fail
 def test_playlist_from_url():
     """
     Tests if Playlist.from_url() works correctly.
@@ -58,6 +59,7 @@ def test_playlist_from_url():
 
 
 @pytest.mark.vcr()
+@pytest.mark.vcr_delete_on_fail
 def test_playlist_from_string():
     """
     Test if Playlist class can be initialized from string.
@@ -71,6 +73,7 @@ def test_playlist_from_string():
 
 
 @pytest.mark.vcr()
+@pytest.mark.vcr_delete_on_fail
 def test_playlist_length():
     """
     Tests if Playlist.length works correctly.
