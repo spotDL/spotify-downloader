@@ -117,7 +117,7 @@ For a list of all **options** use ```spotdl -h```
     - Usage:
         `spotdl save [query] --save-file {filename}.spotdl`
 
-- `web`: Starts a web interface instead of using the command line. However, it has limited features and only supports downloading single songs.
+- `web`: Starts a web interface instead of using the command line. However, it has limited features and only supports downloading individual songs.
 
 - `url`: Get user-friendly URL for each song from the query.
     - Usage:
@@ -128,7 +128,7 @@ For a list of all **options** use ```spotdl -h```
     - Usage:
         `spotdl sync [query] --save-file {filename}.spotdl`
 
-        This create a new **sync** file, to update the directory in the future, use:
+        This creates a new **sync** file. To update the directory in the future, use:
 
         `spotdl sync {filename}.spotdl`
 
