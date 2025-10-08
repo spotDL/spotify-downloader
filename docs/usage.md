@@ -238,7 +238,7 @@ add option `--web-use-output-dir`, which will make output directory follow `--ou
 ### Config file location
 
 The config file is located at `C:\Users\user\.spotdl\config.json`
-or `~/config/spotdl/config.json` under Linux
+or `~/.config/spotdl/config.json` under Linux
 
 > Note: Prior to v4.4.3 the default Linux location was `~/.spotdl/config.json` which will be used if the new directory doesn't exist.
 
