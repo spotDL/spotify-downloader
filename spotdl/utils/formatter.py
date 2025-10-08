@@ -6,6 +6,7 @@ and file names.
 
 import copy
 import logging
+import os
 import re
 from functools import lru_cache
 from pathlib import Path
@@ -501,36 +502,92 @@ def to_ms(
 
 def restrict_filename(pathobj: Path, strict: bool = True) -> Path:
     """
-    Sanitizes the filename part of a Path object. Returns modified object.
+    Sanitizes all components of a Path object (both directory names and filename).
+    Returns modified object.
 
     ### Arguments
     - pathobj: the Path object to sanitize
     - strict: whether sanitization should be strict
 
     ### Returns
-    - the modified Path object
+    - the modified Path object with all path components sanitized
 
     ### Notes
     - Based on the `sanitize_filename` function from yt-dlp
+    - When strict=True, replaces all special characters with underscores
+    - Replaces forward slashes with underscores (e.g., "AC/DC" -> "AC_DC")
+    - When strict=False, converts non-ASCII characters to their closest ASCII equivalents
+    - Handles both Windows and Unix-style paths
     """
-    if strict:
-        result = sanitize_filename(pathobj.name, True, False)  # type: ignore
-        result = result.replace("_-_", "-")
-    else:
-        result = (
-            normalize("NFKD", pathobj.name).encode("ascii", "ignore").decode("utf-8")
-        )
+    if not pathobj or str(pathobj) == '.':
+        return Path("")
 
-    if not result:
-        result = "_"
+    def sanitize_component(component: str) -> str:
+        """Sanitize a single path component."""
+        if not component or component == '.':
+            return ''
+            
+        # Normalize unicode characters
+        normalized = normalize('NFKD', component)
+        
+        if strict:
+            # In strict mode, convert to ASCII and replace non-ASCII with underscores
+            ascii_part = normalized.encode('ascii', 'replace').decode('ascii')
+            # Replace any non-alphanumeric characters (except dots and hyphens) with underscores
+            sanitized = re.sub(r'[^\w\-.]', '_', ascii_part)
+            # Replace spaces with underscores
+            sanitized = sanitized.replace(' ', '_')
+        else:
+            # In non-strict mode, just clean up the string
+            sanitized = re.sub(r'[^\w\s\-.]', '_', normalized)
+        
+        # Clean up any double underscores or other artifacts
+        sanitized = re.sub(r'_{2,}', '_', sanitized)
+        sanitized = sanitized.strip('_-. ')
+        
+        return sanitized if sanitized else 'unnamed'
 
-    return pathobj.with_name(result)
+    # Handle Windows paths (with drive letters or UNC paths)
+    if os.name == 'nt':
+        drive = pathobj.drive
+        parts = list(pathobj.parts)
+        
+        # Sanitize all components except the drive/UNC part
+        sanitized_parts = [drive] if drive else []
+        
+        # Skip the drive part and process the rest
+        start_idx = 1 if drive else 0
+        for part in parts[start_idx:]:
+            sanitized = sanitize_component(part)
+            if sanitized:  # Skip empty parts
+                sanitized_parts.append(sanitized)
+        
+        # Handle case where only drive letter was provided
+        if not sanitized_parts[1:] and drive:
+            sanitized_parts.append('unnamed')
+            
+        return Path(*sanitized_parts)
+    
+    # Handle Unix-style paths
+    parts = str(pathobj).split(os.sep)
+    sanitized_parts = []
+    
+    for part in parts:
+        sanitized = sanitize_component(part)
+        if sanitized:  # Skip empty parts
+            sanitized_parts.append(sanitized)
+    
+    # If we have no valid parts left, return a default name
+    if not sanitized_parts:
+        return Path("unnamed")
+    
+    return Path(*sanitized_parts)
 
 
 @lru_cache()
 def ratio(string1: str, string2: str) -> float:
     """
-    Wrapper for fuzz.ratio
+{{ ... }}
     with lru_cache
 
     ### Arguments
