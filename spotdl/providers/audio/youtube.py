@@ -48,7 +48,7 @@ class YouTube(AudioProvider):
 
         with YoutubeDL(self.ydl_opts) as ydl:
             # Search for videos — ytsearch5 limits to top 5 results
-            search_query = f"ytsearch5:{search_term}"
+            search_query = f"ytsearch10:{search_term}"
             try:
                 info = ydl.extract_info(search_query, download=False)
             except Exception:
