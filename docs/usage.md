@@ -238,9 +238,9 @@ add option `--web-use-output-dir`, which will make output directory follow `--ou
 ### Config file location
 
 The config file is located at `C:\Users\user\.spotdl\config.json`
-or `~/.spotdl/config.json` under linux
+or `~/config/spotdl/config.json` under Linux
 
-> Note: If you want to use XDG_DATA_HOME directory, run `mkdir $XDG_DATA_HOME/spotdl`, next time you run spotdl it will be automatically used.
+> Note: Prior to v4.4.3 the default Linux location was `~/.spotdl/config.json` which will be used if the new directory doesn't exist.
 
 ### Generate a config file
 
