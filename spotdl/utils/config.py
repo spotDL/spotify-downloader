@@ -12,7 +12,6 @@ from argparse import Namespace
 from pathlib import Path
 from typing import Any, Dict, Tuple, Union
 
-
 from spotdl.types.options import (
     DownloaderOptions,
     SpotDLOptions,
