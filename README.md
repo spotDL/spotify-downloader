@@ -60,6 +60,22 @@ Refer to our [Installation Guide](docs/installation.md) for more details.
     docker run --rm -v $(pwd):/music spotdl download [trackUrl]
     ```
 
+  - Using docker-compose (recommended):
+
+    ```bash
+    # Create downloads dir
+    mkdir downloads
+    
+    # Set your user ID and group ID (recommended)
+    # This ensures downloaded files are owned by your user instead of root
+    # If you don't set this, files will be owned by user 1000
+    export UID=$(id -u)
+    export GID=$(id -g)
+    
+    # Run with docker-compose
+    docker-compose up
+    ```
+
   - Build from source
 
     ```bash

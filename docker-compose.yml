@@ -1,6 +1,14 @@
-version: "3"
+version: "3.9"
 services:
   spotdl:
+    build:
+      context: .
+      args:
+        UID: "${UID:-1000}"
+        GID: "${GID:-1000}"
     image: "spotdl/spotify-downloader"
     volumes:
-      - .:/music
+      - ./downloads:/music
+    environment:
+      - TZ=${TZ:-UTC}
+    restart: unless-stopped
