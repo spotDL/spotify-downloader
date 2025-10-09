@@ -347,17 +347,28 @@ class AudioProvider:
 
         # If we have more than one result,
         # return the one with the highest score
-        # and most views
+        # most views
+        # and longest duration to prefer extended versions over radio edits
         if len(best_results) > 1:
             views: List[int] = []
+            durations: List[float] = []
             for best_result in best_results:
                 if best_result[0].views:
                     views.append(best_result[0].views)
                 else:
                     views.append(self.get_views(best_result[0].url))
 
+                if best_result[0].duration:
+                    durations.append(best_result[0].duration)
+                else:
+                    durations.append(
+                        self.get_download_metadata(best_result[0].url)["duration"]
+                    )
+
             highest_views = max(views)
             lowest_views = min(views)
+            longest_duration = max(durations)
+            shortest_duration = min(durations)
 
             if highest_views in (0, lowest_views):
                 return best_result[0], best_result[1]
@@ -365,10 +376,23 @@ class AudioProvider:
             weighted_results: List[Tuple[Result, float]] = []
             for index, best_result in enumerate(best_results):
                 result_views = views[index]
+                result_duration = durations[index]
                 views_score = (
-                    (result_views - lowest_views) / (highest_views - lowest_views)
-                ) * 15
-                score = min(best_result[1] + views_score, 100)
+                    (result_views - lowest_views)
+                    / ((highest_views - lowest_views) + 1e-6)
+                ) * 100
+                duration_score = (
+                    (result_duration - shortest_duration)
+                    / ((longest_duration - shortest_duration) + 1e-6)
+                ) * 100
+                score_weight = 1.0
+                views_weight = 0.5
+                duration_weight = 0.2
+                score = (
+                    best_result[1] * score_weight
+                    + views_score * views_weight
+                    + duration_score * duration_weight
+                ) / (score_weight + views_weight + duration_weight)
                 weighted_results.append((best_result[0], score))
 
             # Now we return the result with the highest score
