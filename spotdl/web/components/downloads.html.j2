@@ -1,0 +1,9 @@
+{% extends "base.html.j2" %}
+
+{% block content %}
+
+<div class="min-h-screen">
+    <div id="download-list" data-on-load="@get('/client/downloads')"></div>
+</div>
+
+{% endblock content %}
