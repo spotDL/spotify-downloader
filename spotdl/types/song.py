@@ -173,10 +173,87 @@ class Song:
         if len(raw_search_results["tracks"]["items"]) == 0:
             raise SongError(f"No results found for: {search_term}")
 
+        # Find the best matching track instead of just taking the first one
+        best_match = cls._find_best_match(search_term, raw_search_results["tracks"]["items"])
+        
         return Song.from_url(
             "http://open.spotify.com/track/"
-            + raw_search_results["tracks"]["items"][0]["id"]
+            + best_match["id"]
         )
+
+    @staticmethod
+    def _find_best_match(search_term: str, tracks: List[Dict]) -> Dict:
+        """
+        Find the best matching track from search results using fuzzy matching.
+        
+        ### Arguments
+        - search_term: The original search term
+        - tracks: List of track results from Spotify API
+        
+        ### Returns
+        - The best matching track dictionary
+        """
+        if not tracks:
+            raise SongError("No tracks provided for matching")
+            
+        # If only one result, return it
+        if len(tracks) == 1:
+            return tracks[0]
+            
+        # Normalize search term for better matching
+        search_normalized = search_term.lower().strip()
+        
+        # Extract potential artist and song name from search term
+        # Common patterns: "Artist - Song", "Artist: Song", "Artist Song"
+        if " - " in search_normalized:
+            search_artist, search_song = search_normalized.split(" - ", 1)
+        elif ": " in search_normalized:
+            search_artist, search_song = search_normalized.split(": ", 1)
+        else:
+            # If no clear separator, try to split on common words
+            # and assume the first part is artist, rest is song
+            parts = search_normalized.split()
+            if len(parts) >= 2:
+                search_artist = parts[0]
+                search_song = " ".join(parts[1:])
+            else:
+                search_artist = search_normalized
+                search_song = search_normalized
+        
+        search_artist = search_artist.strip()
+        search_song = search_song.strip()
+        
+        best_score = 0
+        best_match = tracks[0]  # Default to first result
+        
+        for track in tracks:
+            track_name = track.get("name", "").lower().strip()
+            track_artist = track.get("artists", [{}])[0].get("name", "").lower().strip()
+            
+            # Calculate combined score for artist and song name matching
+            artist_score = fuzz.ratio(search_artist, track_artist)
+            song_score = fuzz.ratio(search_song, track_name)
+            
+            # Also try matching the full search term against track display name
+            track_display = f"{track_artist} - {track_name}"
+            full_match_score = fuzz.ratio(search_normalized, track_display)
+            
+            # Weighted combination: prioritize exact matches and full display name matches
+            combined_score = (artist_score * 0.4 + song_score * 0.4 + full_match_score * 0.2)
+            
+            # Boost score for exact matches in either field
+            if search_artist == track_artist:
+                combined_score += 20
+            if search_song == track_name:
+                combined_score += 20
+            if search_normalized == track_display:
+                combined_score += 30
+                
+            if combined_score > best_score:
+                best_score = combined_score
+                best_match = track
+        
+        return best_match
 
     @classmethod
     def list_from_search_term(cls, search_term: str) -> "List[Song]":
