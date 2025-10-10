@@ -12,6 +12,8 @@ from argparse import Namespace
 from pathlib import Path
 from typing import Any, Dict, Tuple, Union
 
+import platformdirs
+
 from spotdl.types.options import (
     DownloaderOptions,
     SpotDLOptions,
@@ -47,39 +49,25 @@ class ConfigError(Exception):
 
 def get_spotdl_path() -> Path:
     """
-    Get the path to the spotdl folder, following XDG standards on Linux.
-    ~/.config/spotdl/ is used if it exists, else ~/.spotdl if it exists.
-    If the spotdl directory does not exist, it will be created
+    Get the path to the spotdl folder.
 
     ### Returns
     - The path to the spotdl folder.
 
     ### Notes
+    - If the spotdl directory does not exist, it will be created.
     """
 
-    # For Linux systems, we follow the XDG Base Directory Specification
+    # Check if os is linux
     if platform.system() == "Linux":
-        # Define the new, correct XDG config path (~/.config/spotdl)
-        xdg_config_path = Path.home() / ".config" / "spotdl"
+        # if platform is linux, and XDG DATA HOME spotdl folder exists, use it
+        user_data_dir = Path(platformdirs.user_data_dir("spotdl", "spotDL"))
+        if user_data_dir.exists():
+            return user_data_dir
 
-        # Define the old path (~/.spotdl) for backward compatibility
-        old_spotdl_path = Path.home() / ".spotdl"
-
-        # Scenario 1: The user already has the new XDG config folder. Use it.
-        if xdg_config_path.exists():
-            return xdg_config_path
-
-        # Scenario 2: The user is an existing user with only the old folder. Use the old one.
-        if old_spotdl_path.exists():
-            return old_spotdl_path
-
-        # Scenario 3: The user is brand new. Create and use the new XDG path.
-        os.makedirs(xdg_config_path, exist_ok=True)
-        return xdg_config_path
-
-    # For non-Linux systems (like Windows), use the default ~/.spotdl path
-    spotdl_path = Path.home() / ".spotdl"
-    os.makedirs(spotdl_path, exist_ok=True)
+    spotdl_path = Path(os.path.expanduser("~"), ".spotdl")
+    if not spotdl_path.exists():
+        os.mkdir(spotdl_path)
 
     return spotdl_path
 
@@ -257,6 +245,18 @@ def create_settings(
     spotify_options = SpotifyOptions(
         **create_settings_type(arguments, config, SPOTIFY_OPTIONS)  # type: ignore
     )
+    
+    # Auto-enable browser auth if no custom credentials are provided and browser_auth not explicitly set
+    if (not hasattr(arguments, 'browser_auth') or not arguments.browser_auth) and \
+       spotify_options["client_id"] == SPOTIFY_OPTIONS["client_id"] and \
+       spotify_options["client_secret"] == SPOTIFY_OPTIONS["client_secret"] and \
+       not spotify_options["auth_token"] and \
+       not spotify_options["user_auth"]:
+        # User is using default credentials and no other auth method
+        # Enable browser auth automatically for better user experience
+        spotify_options["browser_auth"] = True
+        logger.info("No custom Spotify credentials provided - using browser authentication")
+    
     downloader_options = DownloaderOptions(
         **create_settings_type(arguments, config, DOWNLOADER_OPTIONS)  # type: ignore
     )
@@ -309,6 +309,7 @@ SPOTIFY_OPTIONS: SpotifyOptions = {
     "client_secret": "212476d9b0f3472eaa762d90b19b0ba8",
     "auth_token": None,
     "user_auth": False,
+    "browser_auth": False,
     "headless": False,
     "cache_path": str(get_cache_path()),
     "no_cache": False,

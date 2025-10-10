@@ -63,6 +63,7 @@ class Singleton(type):
         client_id: str,
         client_secret: str,
         user_auth: bool = False,
+        browser_auth: bool = False,
         no_cache: bool = False,
         headless: bool = False,
         max_retries: int = 3,
@@ -78,9 +79,10 @@ class Singleton(type):
         - client_secret: The client secret of the application.
         - auth_token: The access token to use.
         - user_auth: Whether or not to use user authentication.
+        - browser_auth: Whether to use browser-based authentication (no API keys needed).
         - cache_path: The path to the cache file.
         - no_cache: Whether or not to use the cache.
-        - open_browser: Whether or not to open the browser.
+        - headless: Whether or not to open the browser.
 
         ### Returns
         - The instance of the SpotifyClient.
@@ -91,6 +93,14 @@ class Singleton(type):
             raise SpotifyError("A spotify client has already been initialized")
 
         credential_manager = None
+        
+        # Use browser authentication if requested
+        if browser_auth:
+            from spotdl.utils.browser_auth import get_spotify_token
+            
+            logger.info("Using browser authentication...")
+            auth_token = get_spotify_token()
+            credential_manager = None
 
         cache_handler = (
             CacheFileHandler(cache_path or get_cache_path())
@@ -98,7 +108,7 @@ class Singleton(type):
             else MemoryCacheHandler()
         )
         # Use SpotifyOAuth as auth manager
-        if user_auth:
+        if user_auth and not browser_auth:
             credential_manager = SpotifyOAuth(
                 client_id=client_id,
                 client_secret=client_secret,
@@ -108,7 +118,7 @@ class Singleton(type):
                 open_browser=not headless,
             )
         # Use SpotifyClientCredentials as auth manager
-        else:
+        elif not browser_auth:
             credential_manager = SpotifyClientCredentials(
                 client_id=client_id,
                 client_secret=client_secret,
@@ -118,6 +128,7 @@ class Singleton(type):
             credential_manager = None
 
         self.user_auth = user_auth
+        self.browser_auth = browser_auth
         self.no_cache = no_cache
         self.max_retries = max_retries
         self.use_cache_file = use_cache_file

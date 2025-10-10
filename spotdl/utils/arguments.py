@@ -208,6 +208,14 @@ def parse_spotify_options(parser: _ArgumentGroup):
         type=str,
     )
 
+    # Add browser auth argument
+    parser.add_argument(
+        "--browser-auth",
+        action="store_const",
+        const=True,
+        help="Login to Spotify using browser authentication (no API keys required).",
+    )
+
     # Add auth token argument
     parser.add_argument(
         "--auth-token",
