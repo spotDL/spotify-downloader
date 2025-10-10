@@ -1,15 +1,9 @@
 
-<!--- mdformat-toc start --slug=github --->
-
-<!---
-!!! IF EDITING THE README, ENSURE TO COPY THE WHOLE FILE TO index.md in `/docs/` AND REMOVE THE REFERENCES TO ReadTheDocs THERE.
---->
-
 <div align="center">
 
 # spotDL v5
 
-**spotDL** is a powerful Spotify music downloader with a modern web interface that finds songs from Spotify playlists on YouTube and downloads them with embedded album art, lyrics and metadata.
+**spotDL v5** finds songs from Spotify playlists on YouTube and downloads them - along with album art, lyrics and metadata. 
 
 [![MIT License](https://img.shields.io/github/license/spotdl/spotify-downloader?color=44CC11&style=flat-square)](https://github.com/spotDL/spotify-downloader/blob/master/LICENSE)
 [![PyPI version](https://img.shields.io/pypi/pyversions/spotDL?color=%2344CC11&style=flat-square)](https://pypi.org/project/spotdl/)
@@ -17,167 +11,120 @@
 ![Contributors](https://img.shields.io/github/contributors/spotDL/spotify-downloader?style=flat-square)
 [![Discord](https://img.shields.io/discord/771628785447337985?label=discord&logo=discord&style=flat-square)](https://discord.gg/xCa23pwJWY)
 
-> spotDL: The fastest, easiest and most accurate music downloader with a beautiful web interface.
-
-## ✨ Features
-
-- **🌐 Modern Web Interface**: Beautiful, responsive web UI with Spotify-inspired design
-- **📱 Real-time Progress**: Live download progress with WebSocket updates
-- **🎵 Individual Song Management**: Cancel individual songs, skip tracks, manage queue
-- **🔍 Search**: Real Spotify API integration for accurate metadata
-- **📁 Custom Download Paths**: Native folder selection dialog
-- **🎨 Authentic Design**: Official Spotify color scheme and authentic spotDL branding
-- **⚡ Background Processing**: Multi-threaded downloads with clean terminal output
+> spotDL: The fastest, easiest and most accurate command-line music downloader - now with a beautiful web interface.
 </div>
 
-## 🚀 Quick Start
+______________________________________________________________________
 
-### Web Interface (Recommended)
+## What's Different in v5?
 
-1. **Run the Web Interface**:
-   ```bash
-   python custom_web_interface.py
-   ```
+This fork of spotDL v4 enhances the existing web interface with extra features.
 
-2. **Open your browser** to `http://localhost:8081`
+- **Enhanced visual design** with Spotify-inspired styling
+- **Real-time progress tracking** for each individual song  
+- **One-click authentication** without dealing with API keys
+- **Easy folder selection** with a proper file dialog
+- **Better user experience** for less technical users
 
-3. **Enter a Spotify URL** (playlist, album, or track) and click "Search"
+The original spotDL v4 is fantastic for command-line users, but I wanted something I could use without opening a terminal. Both versions do the exact same thing under the hood - they download music from YouTube based on Spotify metadata.
 
-4. **Choose your download folder** using the "Change" button
+______________________________________________________________________
 
-5. **Start downloading** and watch the real-time progress.
+## Installation & Usage
 
-### Installation Options
+### Quick Start (Recommended)
 
-#### Option 1: Windows Executable (Easiest)
-1. **Download** the latest `SpotDL-Web-Interface.exe` from releases
-2. **Run** the executable - no installation needed!
-3. **Open browser** to `http://localhost:8081`
+**Option 1: Simple Batch Launcher**
+1. Download `SpotDL-Web.bat` from this repository
+2. Double-click it to install dependencies and launch the interface
+3. Your browser opens to `http://localhost:8807` automatically
+4. Paste any Spotify URL and start downloading!
 
-#### Option 2: Python Installation
+**Option 2: Manual Python Setup**
 ```bash
-# Install dependencies
-pip install -r requirements_web.txt
+# Install dependencies  
+pip install fastapi uvicorn websockets requests beautifulsoup4 spotipy python-multipart
+
+# Install spotDL itself
+pip install spotdl
 
 # Run the web interface
 python custom_web_interface.py
 ```
 
-#### Option 3: Build Your Own Executable
-```bash
-# Run the build script
-build_web_executable.bat
+### Web Interface Features
 
-# Executable will be in: dist/SpotDL-Web-Interface/
-```
-
-#### Option 4: Traditional Command Line  
-- Install: `pip install spotdl`
-- Use: `spotdl [spotify_url]`
+- ** Just paste Spotify URLs**: Playlists, albums, or individual tracks
+- ** Live progress tracking**: See each song downloading in real-time
+- ** Choose your folder**: Click "Change" to pick where songs go
+- ** No Login**: Browser authentication - no API keys needed
+- ** Cancel individual songs**: Skip tracks you don't want
+- ** Clean design**: Spotify-inspired interface
 
 <details>
-    <summary style="font-size:1.25em"><strong>Advanced installation options</strong></summary>
+    <summary style="font-size:1.25em"><strong>Traditional command-line usage (same as v4)</strong></summary>
 
-- Prebuilt executable
-  - You can download the latest version from the
-    [Releases Tab](https://github.com/spotDL/spotify-downloader/releases)
-- On Termux
-  - `curl -L https://raw.githubusercontent.com/spotDL/spotify-downloader/master/scripts/termux.sh | sh`
-- Arch
-  - There is an [Arch User Repository (AUR) package](https://aur.archlinux.org/packages/spotdl/) for
-    spotDL.
-- Docker
-  - Build image:
+You can still use spotDL exactly like the original v4:
 
-    ```bash
-    docker build -t spotdl .
-    ```
+```sh
+spotdl [urls]
+```
 
-  - Launch container with spotDL parameters (see section below). You need to create mapped
-    volume to access song files
+You can run _spotDL_ as a package if running it as a script doesn't work:
 
-    ```bash
-    docker run --rm -v $(pwd):/music spotdl download [trackUrl]
-    ```
+```sh
+python -m spotdl [urls]
+```
 
-  - Build from source
+General usage:
 
-    ```bash
-    git clone https://github.com/spotDL/spotify-downloader && cd spotify-downloader
-    pip install uv
-    uv sync
-    uv run scripts/build.py
-    ```
+```sh
+spotdl [operation] [options] QUERY
+```
 
-    An executable is created in `spotify-downloader/dist/`.
+There are different **operations** spotDL can perform. The _default_ is `download`, which simply downloads the songs from YouTube and embeds metadata.
+
+The **query** for spotDL is usually a list of Spotify URLs, but for some operations like **sync**, only a single link or file is required.
+For a list of all **options** use ```spotdl -h```
+
+**Supported operations:**
+- `save`: Saves only the metadata from Spotify without downloading anything.
+- `web`: Starts a web interface (differenet compared to the .bat version)
+- `url`: Get direct download link for each song from the query.
+- `sync`: Updates directories based on playlist changes.
+- `meta`: Updates metadata for existing song files.
 
 </details>
 
-## 💻 System Requirements
+### Installing FFmpeg
 
-### For Web Interface
-- **Windows 10/11** (executable version)
-- **Python 3.8+** (source version)  
-- **4GB RAM** minimum (8GB recommended for large playlists)
-- **Internet connection** for Spotify API and YouTube downloads
-- **Modern web browser** (Chrome, Firefox, Safari, Edge)
+FFmpeg is required for spotDL. If using FFmpeg only for spotDL, you can simply install FFmpeg to your spotDL installation directory:
+`spotdl --download-ffmpeg`
 
-### FFmpeg Installation (Required)
-The web interface will automatically handle FFmpeg installation, or you can:
+We recommend the above option, but if you want to install FFmpeg system-wide:
 
-- **Automatic**: `spotdl --download-ffmpeg` (recommended)
-- **Windows**: [Download FFmpeg](https://windowsloop.com/install-ffmpeg-windows-10/)
-- **macOS**: `brew install ffmpeg`  
-- **Linux**: `sudo apt install ffmpeg`
+- [Windows Tutorial](https://windowsloop.com/install-ffmpeg-windows-10/)
+- OSX - `brew install ffmpeg`
+- Linux - `sudo apt install ffmpeg` or use your distro's package manager
 
-## 📋 Usage
+## Why I Made This
 
-### Web Interface Features
+The original spotDL v4 is excellent, but I wanted to make it more accessible:
 
-- **🔐 One-Click Authentication**: Browser-based Spotify login (cached for convenience)
-- **🎵 Song Detection**: Real Spotify metadata with album covers
-- **📊 Live Progress Tracking**: See download progress for each song in real-time
-- **❌ Individual Song Control**: Skip or cancel specific songs without stopping the entire download
-- **📁 Custom Paths**: Native folder selection for your downloads
-- **🎨 Beautiful UI**: Spotify-inspired dark theme with smooth animations
+**What v4 gives you:**
+- Powerful command-line interface
+- All the core downloading functionality
+- Perfect for technical users and automation
 
-### Traditional Command Line Usage
+**What v5 adds:**
+- **New Web interface** I simply like mine more
+- **Real-time progress** - see exactly what's happening
+- **Visual feedback** instead of just terminal output
+- **Easy setup** with the batch launcher
+- **Better error messages** when things go wrong
+- **No terminal knowledge needed** for basic usage
 
-```sh
-# Download a playlist
-spotdl https://open.spotify.com/playlist/your_playlist_id
-
-# Download an album  
-spotdl https://open.spotify.com/album/your_album_id
-
-# Download a single track
-spotdl https://open.spotify.com/track/your_track_id
-```
-
-### Backend Features
-
-The web interface uses a backend (`simple_spotdl.py`) that provides:
-- **Clean Terminal Output**: Structured progress display
-- **Browser Authentication**: No API keys needed
-- **JSON Progress Reporting**: Perfect sync between backend and frontend
-- **Multiprocessing Support**: Efficient download management
-
-## 🎯 What's New in This Version
-
-### Web Interface Improvements
-- **Complete UI Overhaul**: Modern, responsive design with Spotify's authentic color scheme
-- **Real-time WebSocket Updates**: Instant progress synchronization between backend and frontend  
-- **Advanced Queue Management**: Add, remove, and reorder songs before downloading
-- **Progress Visualization**: Individual progress bars for each song with percentage tracking
-- **Error Handling**: Graceful error recovery with user-friendly messages
-- **Path Selection**: Native OS folder picker integration
-
-### Backend Enhancements  
-- **Browser Authentication**: Seamless Spotify login without API key configuration
-- **Structured Logging**: Clean, parseable progress output for perfect UI sync
-- **Multiprocessing Architecture**: Efficient handling of large playlists
-- **Song Skip Logic**: Handling of cancelled/skipped tracks
-- **Memory Management**: Optimized for large playlist downloads
+Both versions use the same core spotDL engine, so you get identical audio quality and metadata. This is just a different way to interact with it.
 
 ## Music Sourcing and Audio Quality
 
