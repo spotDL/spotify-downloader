@@ -1,0 +1,114 @@
+name: Build Enhanced SpotDL Executables
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+  
+jobs:
+  build:
+    name: Build ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: windows-latest
+            artifact_name: enhanced-spotdl-windows.exe
+            build_command: python scripts/build_enhanced.py
+          - os: ubuntu-latest  
+            artifact_name: enhanced-spotdl-linux
+            build_command: python scripts/build_enhanced.py
+          - os: macos-latest
+            artifact_name: enhanced-spotdl-macos
+            build_command: python scripts/build_enhanced.py
+            
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e .
+        pip install pyinstaller
+        
+    - name: Build executable
+      run: ${{ matrix.build_command }}
+      
+    - name: Find executable
+      id: find_exe
+      shell: bash
+      run: |
+        if [ "${{ runner.os }}" = "Windows" ]; then
+          exe_path=$(find dist -name "*.exe" | head -n1)
+        else
+          exe_path=$(find dist -type f -executable | head -n1)
+        fi
+        echo "exe_path=$exe_path" >> $GITHUB_OUTPUT
+        
+    - name: Upload executable
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ matrix.artifact_name }}
+        path: ${{ steps.find_exe.outputs.exe_path }}
+        
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    
+    steps:
+    - name: Download all artifacts
+      uses: actions/download-artifact@v4
+      
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          enhanced-spotdl-windows.exe/*
+          enhanced-spotdl-linux/*
+          enhanced-spotdl-macos/*
+        body: |
+          ## 🎵 Enhanced SpotDL Release
+          
+          ### What's New
+          - ✅ Zero setup required - no Python installation needed
+          - ✅ Audio-only prioritization (no music videos)
+          - ✅ Smart batch processing for large playlists
+          - ✅ Real-time progress bars
+          - ✅ Easy cancellation with Ctrl+C
+          - ✅ Browser authentication (no API keys needed)
+          
+          ### Download Instructions
+          
+          1. **Windows**: Download `enhanced-spotdl-windows.exe`
+          2. **macOS**: Download `enhanced-spotdl-macos` 
+          3. **Linux**: Download `enhanced-spotdl-linux`
+          
+          ### Usage
+          ```bash
+          # Windows
+          enhanced-spotdl-windows.exe "https://open.spotify.com/playlist/..." "./music"
+          
+          # macOS/Linux  
+          ./enhanced-spotdl-macos "https://open.spotify.com/playlist/..." "./music"
+          ```
+          
+          ### Features
+          - **No Installation Required**: Just download and run the executable
+          - **All Dependencies Bundled**: FFmpeg and Python runtime included
+          - **Cross-Platform**: Works on Windows, macOS, and Linux
+          - **Better than DRmare**: Free, faster, and audio-only downloads
+          - **Better than Original SpotDL**: No API setup, handles large playlists
+          
+          🎉 **Enhanced SpotDL - Making Spotify downloading simple and reliable!**
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
