@@ -29,6 +29,7 @@ class SpotifyOptions(TypedDict):
     client_secret: str
     auth_token: Optional[str]
     user_auth: bool
+    browser_auth: bool
     headless: bool
     cache_path: str
     no_cache: bool
@@ -126,6 +127,7 @@ class SpotifyOptionalOptions(TypedDict, total=False):
     client_secret: str
     auth_token: Optional[str]
     user_auth: bool
+    browser_auth: bool
     headless: bool
     cache_path: str
     no_cache: bool
