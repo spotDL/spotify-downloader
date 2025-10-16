@@ -47,7 +47,7 @@ following:
 
 - Open an [Issue](https://github.com/spotDL/spotify-downloader/issues/new).
 - Provide as much context as you can about what you're running into.
-- Provide project and platform versions (nodejs, npm, etc), depending on what seems relevant.
+- Provide project and platform versions (Node.js, npm, etc.), depending on what seems relevant.
 
 We will then take care of the issue as soon as possible.
 
@@ -263,13 +263,13 @@ Any submitted code is expected to have accompanying documentation
 
 - We generate our documentation with [`mkdocs`](https://www.mkdocs.org/)
 
-  generate docs with
+  Generate docs with
 
   ```bash
   mkdocs build --strict
   ```
 
-  view docs live-time while editing with
+  View docs in real-time while editing with
 
   ```bash
   mkdocs serve
@@ -280,7 +280,7 @@ Any submitted code is expected to have accompanying documentation
 - For functions
 
   ```text
-  one-liner about functions purpose
+  one-liner about function's purpose
 
   ### Args (optional)
   - arg_name: description
@@ -310,9 +310,9 @@ Any submitted code is expected to have accompanying documentation
 - For modules/package `__init__`
 
   ```text
-  at max 3 lines about module/package purpose
+  At most 3 lines about module/package purpose
 
-  optional usage example for module/package preferably showcasing most commonly used functionality
+  Optional usage example for module/package, preferably showcasing most commonly used functionality
   ```
 
 #### Notes about docstrings

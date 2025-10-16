@@ -68,8 +68,8 @@
     ```
 
 ??? info "YouTube link with Spotify metadata"
-    To download YouTube video with metadata from Spotify, run
-    > Noting the quote `"` are required
+    To download a YouTube video with metadata from Spotify, run
+    > Note that the quotes `"` are required
 
     ```bash
     spotdl download "YouTubeURL|SpotifyURL"
@@ -82,7 +82,7 @@
     ```
 
 ??? info "Liked songs"
-    To download liked Spotify songs run
+    To download liked Spotify songs, run
     > `--user-auth` is required
 
     ```bash
@@ -90,7 +90,7 @@
     ```
 
 ??? info "All user playlists"
-    To download all user playlists run
+    To download all user playlists, run
     > `--user-auth` is required
 
     ```bash
@@ -98,7 +98,7 @@
     ```
 
 ??? info "All user saved albums"
-    To download all user saved albums run
+    To download all user saved albums, run
     > `--user-auth` is required
 
     ```bash
@@ -154,11 +154,11 @@ To download music in higher quality follow the steps below:
 
 ## Syncing
 
-Sync function for the console. Keep local files up to date with playlists/albums/etc.
-This will download new songs and remove the ones that are no longer present in the playlists/albums/etc
+Sync function for the console. Keeps local files up to date with playlists/albums/etc.
+This will download new songs and remove the ones that are no longer present in the playlists/albums/etc.
 
 ??? info "Initialize Synchronization"
-    To create the sync file run
+    To create the sync file, run
 
     ```bash
     spotdl sync [query] --save-file [fileName]
@@ -173,7 +173,7 @@ This will download new songs and remove the ones that are no longer present in t
     > Note: The sync file has to end with .spotdl
 
 ??? info "Syncing"
-    To sync the songs run
+    To sync the songs, run
 
     ```bash
     spotdl sync [fileName]
@@ -208,7 +208,7 @@ spotdl save 'The Weeknd - Blinding Lights' --save-file 'the-weeknd.spotdl'
 ```
 
 ??? info "Preloading"
-    Preload the download url to speed up the download process.
+    Preload the download URL to speed up the download process.
 
     ```bash
     spotdl save [query] --save-file [fileName] --preload
@@ -238,9 +238,9 @@ add option `--web-use-output-dir`, which will make output directory follow `--ou
 ### Config file location
 
 The config file is located at `C:\Users\user\.spotdl\config.json`
-or `~/.spotdl/config.json` under linux
+or `~/.config/spotdl/config.json` under Linux
 
-> Note: If you want to use XDG_DATA_HOME directory, run `mkdir $XDG_DATA_HOME/spotdl`, next time you run spotdl it will be automatically used.
+> Note: Prior to v4.4.3 the default Linux location was `~/.spotdl/config.json` which will be used if the new directory doesn't exist.
 
 ### Generate a config file
 
@@ -254,9 +254,9 @@ spotdl --generate-config
 
 ### Loading config
 
-Config file gets loaded automatically if it already exists, or if you've passed `--config` flag
+The config file gets loaded automatically if it already exists, or if you've passed the `--config` flag.
 
-If you don't want config to load automatically change `load_config` option in config file to false
+If you don't want the config to load automatically, change the `load_config` option in the config file to false
 
 ```json
 {

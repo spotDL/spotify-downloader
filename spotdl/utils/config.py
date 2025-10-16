@@ -12,8 +12,6 @@ from argparse import Namespace
 from pathlib import Path
 from typing import Any, Dict, Tuple, Union
 
-import platformdirs
-
 from spotdl.types.options import (
     DownloaderOptions,
     SpotDLOptions,
@@ -49,25 +47,39 @@ class ConfigError(Exception):
 
 def get_spotdl_path() -> Path:
     """
-    Get the path to the spotdl folder.
+    Get the path to the spotdl folder, following XDG standards on Linux.
+    ~/.config/spotdl/ is used if it exists, else ~/.spotdl if it exists.
+    If the spotdl directory does not exist, it will be created
 
     ### Returns
     - The path to the spotdl folder.
 
     ### Notes
-    - If the spotdl directory does not exist, it will be created.
     """
 
-    # Check if os is linux
+    # For Linux systems, we follow the XDG Base Directory Specification
     if platform.system() == "Linux":
-        # if platform is linux, and XDG DATA HOME spotdl folder exists, use it
-        user_data_dir = Path(platformdirs.user_data_dir("spotdl", "spotDL"))
-        if user_data_dir.exists():
-            return user_data_dir
+        # Define the new, correct XDG config path (~/.config/spotdl)
+        xdg_config_path = Path.home() / ".config" / "spotdl"
 
-    spotdl_path = Path(os.path.expanduser("~"), ".spotdl")
-    if not spotdl_path.exists():
-        os.mkdir(spotdl_path)
+        # Define the old path (~/.spotdl) for backward compatibility
+        old_spotdl_path = Path.home() / ".spotdl"
+
+        # Scenario 1: The user already has the new XDG config folder. Use it.
+        if xdg_config_path.exists():
+            return xdg_config_path
+
+        # Scenario 2: The user is an existing user with only the old folder. Use the old one.
+        if old_spotdl_path.exists():
+            return old_spotdl_path
+
+        # Scenario 3: The user is brand new. Create and use the new XDG path.
+        os.makedirs(xdg_config_path, exist_ok=True)
+        return xdg_config_path
+
+    # For non-Linux systems (like Windows), use the default ~/.spotdl path
+    spotdl_path = Path.home() / ".spotdl"
+    os.makedirs(spotdl_path, exist_ok=True)
 
     return spotdl_path
 

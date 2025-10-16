@@ -1,6 +1,6 @@
 # spotDL Installation Guide
 
-spotDL is a free and open source tool that downloads your Spotify playlists & music
+spotDL is a free and open-source tool that downloads your Spotify playlists & music
 
 > **The fastest, easiest, and most accurate command-line music downloader**
 
@@ -8,8 +8,8 @@ spotDL is a free and open source tool that downloads your Spotify playlists & mu
 
 > This is our recommended installation method.
 
-If you are on Windows, Install Visual C++ Redistributable (link below) and then proceed to
-install Python & FFmpeg
+If you are on Windows, install Visual C++ Redistributable (link below) and then proceed to
+install Python & FFmpeg.
 
 ### Prerequisites to spotDL
 
@@ -31,11 +31,11 @@ When installing [Python](https://python.org/), ensure to select "**Add to PATH**
 > If you are not on Windows (e.g. OSX/UNIX), replace `pip` with `pip3` and `python` with
 > `python3` in all commands.
 
-Firstly, open a terminal. On Windows: Command Prompt, OSX: "Terminal", \*UNIX: Bash or Zsh.
+First, open a terminal. On Windows: Command Prompt, macOS: "Terminal", *UNIX: Bash or Zsh.
 
 Verify you have installed Python correctly via `python -V`. Ensure you have v3.7 or greater.
 
-Next, install spotDL by typing the following
+Next, install spotDL by typing the following:
 
 ```shell
 pip install spotdl
@@ -65,15 +65,15 @@ You can download the latest version from the
 
 ### Running Web UI
 
-Web UI will start by default if no arguments are passed to the command line (after
-double-clicking for example)
+The Web UI will start by default if no arguments are passed to the command line (after
+double-clicking, for example).
 
 ![Web UI](images/WEB_UI.png)
 
 ### Running the CLI
 
-To use the command line interface just open your terminal and run
-`./spotdl-vX.X.X operation [urls]`
+To use the command line interface, just open your terminal and run
+`./spotdl-vX.X.X operation [urls]`.
 
 ## Docker Setup
 
@@ -118,7 +118,7 @@ docker create \
 
 ### Termux
 
-We have a dedicated Termux installation script
+We have a dedicated Termux installation script:
 `curl -L https://raw.githubusercontent.com/spotDL/spotify-downloader/master/scripts/termux.sh | sh`
 
 ### Arch User Repository (AUR) package
@@ -129,7 +129,7 @@ We have a dedicated Termux installation script
 
 spotDL downloads files to the folder where you ran spotDL from.
 
-Open pwsh/powershell/cmd/terminal/similar in the folder you want files to download to, or cd to
+Open pwsh/powershell/cmd/terminal/similar in the folder you want files to download to, or cd to the
 desired folder.
 
 **Windows Shortcut:** Navigate to the folder you want the files to download to.

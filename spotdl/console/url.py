@@ -45,7 +45,7 @@ def url(
                 return None
 
             audio_provider = downloader.audio_providers[0]
-            download_url = audio_provider.get_download_metadata(data)["url"]
+            download_url = audio_provider.get_download_metadata(data)["original_url"]
 
             print(download_url)
         except Exception as exception:
