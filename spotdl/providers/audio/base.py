@@ -141,12 +141,15 @@ class AudioProvider:
         - url: The url of the video.
 
         ### Returns
-        - The number of views.
+        - The number of views, or 0 if unable to fetch.
         """
 
-        data = self.get_download_metadata(url)
-
-        return data["view_count"]
+        try:
+            data = self.get_download_metadata(url)
+            return data["view_count"]
+        except AudioProviderError:
+            logger.debug("Failed to get views for %s, using 0", url)
+            return 0
 
     def search(self, song: Song, only_verified: bool = False) -> Optional[str]:
         """
