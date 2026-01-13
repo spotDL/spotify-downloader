@@ -30,7 +30,7 @@ Refer to our [Installation Guide](docs/installation.md) for more details.
 
 ### Python (Recommended Method)
 
-- _spotDL_ can be installed by running `pip install spotdl`.
+- _spotDL_ can be installed by running `pip install spotdl`, or if you installed on Windows using Python Install Manager `py -m pip install spotdl`.
 - To update spotDL run `pip install --upgrade spotdl`
 
   > On some systems you might have to change `pip` to `pip3`.
@@ -81,7 +81,7 @@ FFmpeg is required for spotDL. If using FFmpeg only for spotDL, you can simply i
 We recommend the above option, but if you want to install FFmpeg system-wide,
 follow these instructions
 
-- [Windows Tutorial](https://windowsloop.com/install-ffmpeg-windows-10/)
+- Windows - `winget install Gyan.FFmpeg.Essentials` or read the full [Windows Tutorial](https://windowsloop.com/install-ffmpeg-windows-10/)
 - OSX - `brew install ffmpeg`
 - Linux - `sudo apt install ffmpeg` or use your distro's package manager
 
