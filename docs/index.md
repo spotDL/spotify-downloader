@@ -77,16 +77,21 @@ follow these instructions
 
 ## Usage
 
+There are different **operations** spotDL can perform. For example `download`, which simply downloads the songs from YouTube and embeds metadata.
+
+The **query** for spotDL is usually a list of Spotify URLs, but for some operations like **sync**, only a single link or file is required.
+For a list of all **options** use ```spotdl -h```
+
 Using SpotDL without options:
 
 ```sh
-spotdl [urls]
+spotdl [operation] [urls]
 ```
 
 You can run _spotDL_ as a package if running it as a script doesn't work:
 
 ```sh
-python -m spotdl [urls]
+python -m spotdl [operation] [urls]
 ```
 
 General usage:
@@ -94,11 +99,6 @@ General usage:
 ```sh
 spotdl [operation] [options] QUERY
 ```
-
-There are different **operations** spotDL can perform. The _default_ is `download`, which simply downloads the songs from YouTube and embeds metadata.
-
-The **query** for spotDL is usually a list of Spotify URLs, but for some operations like **sync**, only a single link or file is required.
-For a list of all **options** use ```spotdl -h```
 
 ### Refer to [Usage](usage.md) for more info.
 
