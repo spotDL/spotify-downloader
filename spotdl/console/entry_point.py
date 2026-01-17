@@ -2,12 +2,15 @@
 Module that holds the entry point for the console.
 """
 
+import csv
 import cProfile
 import logging
 import pstats
 import signal
 import sys
 import time
+
+from pathlib import Path
 
 from spotdl.console.download import download
 from spotdl.console.meta import meta
@@ -137,6 +140,35 @@ def entry_point():
             "You must be logged in to use the saved query. "
             "Log in by adding the --user-auth flag"
         )
+
+    # Check if we expect extra songs from Exportify
+    # csv and append them to the query
+    if arguments.load_exportify:
+
+        csv_path = Path(arguments.load_exportify)
+
+        if not csv_path.exists():
+            raise FileNotFoundError(
+                "Exportify csv not found." "Please specify an existing file path."
+            )
+
+        with open(csv_path, "r", encoding="utf-8") as csv_file:
+            reader = csv.reader(csv_file)
+
+            # skip the first row
+            next(reader, None)
+
+            for row in reader:
+                if row:
+
+                    # first column is the track URI, which
+                    # is formatted as spotify:track:[track_id]
+                    # https://github.com/watsonbox/exportify/blob/master/README.md#export-format
+                    # here we only want the track id part
+                    track_id = row[0].split(":")[-1]
+                    track_url = f"https://open.spotify.com/track/{track_id}"
+
+                    arguments.query.append(track_url)
 
     # Initialize the downloader
     # for download, load and preload operations

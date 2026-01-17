@@ -67,7 +67,7 @@ def parse_main_options(parser: _ArgumentGroup):
     # Add query argument
     query = parser.add_argument(
         "query",
-        nargs="+",
+        nargs="*",
         type=str,
         help=(
             "N|Spotify/YouTube URL for a song/playlist/album/artist/etc. to download.\n\n"
@@ -175,6 +175,12 @@ def parse_main_options(parser: _ArgumentGroup):
         action="store_const",
         const=True,
         help="Use only verified results. (Not all providers support this)",
+    )
+
+    # Add songs from Exportify csv to the query
+    parser.add_argument(
+        "--load-exportify",
+        help="Load songs from an Exportify csv. (Can be used together with normal query)",
     )
 
 
@@ -873,4 +879,12 @@ def parse_arguments() -> Namespace:
     parser = create_parser()
 
     # Parse arguments
-    return parser.parse_args()
+    arguments = parser.parse_args()
+
+    # ensure at least one of the two (query or exportify list) are given
+    if not any((arguments.query, arguments.load_exportify)):
+        parser.error(
+            "one of the following arguments are required: query, --load-exportify"
+        )
+
+    return arguments
