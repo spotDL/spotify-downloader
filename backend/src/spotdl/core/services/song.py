@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
+import logging
 from typing import TYPE_CHECKING
 
+from spotdl.core.services.metadata import MetadataService
 from spotdl.core.types.song import Platform, Song, SongList
 from spotdl.providers.sources import (
     AppleMusicProvider,
@@ -22,6 +24,8 @@ from spotdl.providers.sources import (
 if TYPE_CHECKING:
     pass
 
+logger = logging.getLogger(__name__)
+
 
 class SongServiceError(Exception):
     """Base exception for song service errors."""
@@ -37,6 +41,8 @@ class SongService:
 
     This service manages source providers and uses them to
     fetch song metadata from various platforms.
+
+    Optionally enriches songs with metadata from MusicBrainz and Discogs.
     """
 
     def __init__(
@@ -44,6 +50,10 @@ class SongService:
         spotify_client_id: str | None = None,
         spotify_client_secret: str | None = None,
         ytmusic_auth_file: str | None = None,
+        enable_metadata_enrichment: bool = True,
+        enable_musicbrainz: bool = True,
+        enable_discogs: bool = True,
+        discogs_user_token: str | None = None,
     ) -> None:
         """
         Initialize the song service.
@@ -52,16 +62,34 @@ class SongService:
             spotify_client_id: Spotify API client ID
             spotify_client_secret: Spotify API client secret
             ytmusic_auth_file: YouTube Music auth file path
+            enable_metadata_enrichment: Enable metadata enrichment from external sources
+            enable_musicbrainz: Enable MusicBrainz lookups (free, no auth)
+            enable_discogs: Enable Discogs lookups (free, optional auth for higher rate limits)
+            discogs_user_token: Optional Discogs user token for higher rate limits
         """
         self._resolver = URLResolver()
         self._providers: dict[Platform, SourceProvider] = {}
+        self._metadata_service: MetadataService | None = None
+        self._enable_enrichment = enable_metadata_enrichment
 
-        # Initialize providers
+        # Initialize source providers
         self._init_providers(
             spotify_client_id=spotify_client_id,
             spotify_client_secret=spotify_client_secret,
             ytmusic_auth_file=ytmusic_auth_file,
         )
+
+        # Initialize metadata service for enrichment
+        if enable_metadata_enrichment:
+            self._metadata_service = MetadataService(
+                enable_musicbrainz=enable_musicbrainz,
+                enable_discogs=enable_discogs,
+                discogs_user_token=discogs_user_token,
+            )
+            logger.debug(
+                f"Metadata enrichment enabled with providers: "
+                f"{self._metadata_service.provider_names}"
+            )
 
     def _init_providers(
         self,
@@ -120,12 +148,13 @@ class SongService:
         """
         return self._providers.get(platform)
 
-    async def resolve_url(self, url: str) -> list[Song]:
+    async def resolve_url(self, url: str, enrich: bool | None = None) -> list[Song]:
         """
         Resolve a URL to songs.
 
         Args:
             url: URL to resolve
+            enrich: Whether to enrich songs with metadata (defaults to service setting)
 
         Returns:
             List of Song objects
@@ -141,16 +170,23 @@ class SongService:
 
         try:
             songs = await self._resolver.resolve(url)
+
+            # Enrich songs with metadata if enabled
+            should_enrich = enrich if enrich is not None else self._enable_enrichment
+            if should_enrich and self._metadata_service and songs:
+                songs = await self._metadata_service.enrich_songs(songs)
+
             return songs
         except SourceProviderError as e:
             raise SongServiceError(f"Failed to resolve URL: {e}") from e
 
-    async def get_track(self, url: str) -> Song:
+    async def get_track(self, url: str, enrich: bool | None = None) -> Song:
         """
         Get a single track from URL.
 
         Args:
             url: Track URL
+            enrich: Whether to enrich with metadata (defaults to service setting)
 
         Returns:
             Song object
@@ -169,7 +205,14 @@ class SongService:
             raise UnsupportedURLError(f"No provider for platform: {platform.value}")
 
         try:
-            return await provider.get_track(url)
+            song = await provider.get_track(url)
+
+            # Enrich with metadata if enabled
+            should_enrich = enrich if enrich is not None else self._enable_enrichment
+            if should_enrich and self._metadata_service:
+                song = await self._metadata_service.enrich_song(song)
+
+            return song
         except SourceProviderError as e:
             raise SongServiceError(f"Failed to get track: {e}") from e
 
@@ -291,6 +334,58 @@ class SongService:
         """Get list of supported platforms."""
         return list(self._providers.keys())
 
+    @property
+    def metadata_providers(self) -> list[str]:
+        """Get list of active metadata providers."""
+        if self._metadata_service:
+            return self._metadata_service.provider_names
+        return []
+
+    async def enrich_song(self, song: Song) -> Song:
+        """
+        Enrich a song with metadata from external sources.
+
+        Uses MusicBrainz and Discogs to fill in missing metadata
+        like ISRC, genres, year, album info, etc.
+
+        Args:
+            song: Song to enrich
+
+        Returns:
+            Enriched Song object (same instance, modified)
+        """
+        if self._metadata_service:
+            return await self._metadata_service.enrich_song(song)
+        return song
+
+    async def enrich_songs(self, songs: list[Song]) -> list[Song]:
+        """
+        Enrich multiple songs with metadata.
+
+        Args:
+            songs: Songs to enrich
+
+        Returns:
+            List of enriched Song objects
+        """
+        if self._metadata_service:
+            return await self._metadata_service.enrich_songs(songs)
+        return songs
+
+    async def lookup_isrc(self, isrc: str) -> dict | None:
+        """
+        Look up metadata by ISRC code.
+
+        Args:
+            isrc: ISRC code (e.g., "USRC17607839")
+
+        Returns:
+            Metadata dict or None if not found
+        """
+        if self._metadata_service:
+            return await self._metadata_service.lookup_by_isrc(isrc)
+        return None
+
 
 # Global service instance
 _song_service: SongService | None = None
@@ -300,6 +395,10 @@ def get_song_service(
     spotify_client_id: str | None = None,
     spotify_client_secret: str | None = None,
     ytmusic_auth_file: str | None = None,
+    enable_metadata_enrichment: bool = True,
+    enable_musicbrainz: bool = True,
+    enable_discogs: bool = True,
+    discogs_user_token: str | None = None,
 ) -> SongService:
     """
     Get the global song service instance.
@@ -308,6 +407,10 @@ def get_song_service(
         spotify_client_id: Spotify API client ID
         spotify_client_secret: Spotify API client secret
         ytmusic_auth_file: YouTube Music auth file path
+        enable_metadata_enrichment: Enable metadata enrichment from external sources
+        enable_musicbrainz: Enable MusicBrainz lookups (free, no auth)
+        enable_discogs: Enable Discogs lookups (free, optional auth)
+        discogs_user_token: Optional Discogs user token for higher rate limits
 
     Returns:
         SongService instance
@@ -318,5 +421,9 @@ def get_song_service(
             spotify_client_id=spotify_client_id,
             spotify_client_secret=spotify_client_secret,
             ytmusic_auth_file=ytmusic_auth_file,
+            enable_metadata_enrichment=enable_metadata_enrichment,
+            enable_musicbrainz=enable_musicbrainz,
+            enable_discogs=enable_discogs,
+            discogs_user_token=discogs_user_token,
         )
     return _song_service

@@ -7,6 +7,11 @@ from spotdl.core.services.match import (
     NoMatchFoundError,
     get_match_service,
 )
+from spotdl.core.services.metadata import (
+    MetadataService,
+    MetadataServiceError,
+    get_metadata_service,
+)
 from spotdl.core.services.song import (
     SongService,
     SongServiceError,
@@ -29,6 +34,10 @@ __all__ = [
     "SongServiceError",
     "UnsupportedURLError",
     "get_song_service",
+    # Metadata Service
+    "MetadataService",
+    "MetadataServiceError",
+    "get_metadata_service",
     # Match Service
     "MatchService",
     "MatchServiceError",
