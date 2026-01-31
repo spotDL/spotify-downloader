@@ -12,6 +12,7 @@ import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
+from spotdl.core.security import create_access_token
 from spotdl.core.types.result import Result, TargetPlatform
 from spotdl.core.types.song import Platform, Song
 from spotdl.db.database import get_db_session
@@ -145,6 +146,33 @@ async def test_user(db_session: AsyncSession) -> User:
     await db_session.commit()
     await db_session.refresh(user)
     return user
+
+
+@pytest_asyncio.fixture
+async def auth_token(test_user: User) -> str:
+    """Create an auth token for the test user."""
+    return create_access_token(str(test_user.id))
+
+
+@pytest_asyncio.fixture
+async def authenticated_client(
+    db_session: AsyncSession, auth_token: str
+) -> AsyncGenerator[AsyncClient, None]:
+    """Create an authenticated async test client."""
+
+    async def override_get_db_session():
+        yield db_session
+
+    app.dependency_overrides[get_db_session] = override_get_db_session
+
+    async with AsyncClient(
+        transport=ASGITransport(app=app),
+        base_url="http://test",
+        headers={"Authorization": f"Bearer {auth_token}"},
+    ) as ac:
+        yield ac
+
+    app.dependency_overrides.clear()
 
 
 @pytest_asyncio.fixture

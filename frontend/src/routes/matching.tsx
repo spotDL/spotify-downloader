@@ -179,7 +179,7 @@ function MatchingPage() {
                 <h3 className="font-semibold text-gray-100">{song.name}</h3>
                 <p className="text-sm text-gray-400">
                   {song.artists.join(", ")} •{" "}
-                  {formatDuration(song.duration_seconds)}
+                  {formatDuration(song.duration)}
                 </p>
               </div>
               <Badge variant="info" className="ml-auto">

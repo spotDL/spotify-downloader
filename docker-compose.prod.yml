@@ -20,13 +20,15 @@ services:
       - DEBUG=false
       - SECRET_KEY=${SECRET_KEY:?Secret key is required}
       - CORS_ORIGINS=${CORS_ORIGINS:-https://spotdl.example.com}
+    volumes:
+      - api_data:/app/data
     depends_on:
       db:
         condition: service_healthy
       redis:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "python", "-c", "import httpx; httpx.get('http://localhost:8000/api/v1/health')"]
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -109,6 +111,7 @@ services:
 volumes:
   postgres_data:
   redis_data:
+  api_data:
 
 networks:
   internal:

@@ -17,8 +17,9 @@ export interface RegisterRequest {
 
 export interface AuthResponse {
   access_token: string;
+  refresh_token: string;
   token_type: string;
-  user: User;
+  user?: User;
 }
 
 export interface RefreshResponse {
@@ -28,13 +29,7 @@ export interface RefreshResponse {
 
 // API functions
 export async function login(data: LoginRequest): Promise<AuthResponse> {
-  const formData = new URLSearchParams();
-  formData.append("username", data.username);
-  formData.append("password", data.password);
-
-  const response = await apiClient.post<AuthResponse>("/auth/login", formData, {
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-  });
+  const response = await apiClient.post<AuthResponse>("/auth/login", data);
   return response.data;
 }
 
@@ -84,8 +79,13 @@ export function useLogin() {
     mutationFn: login,
     onSuccess: (data) => {
       localStorage.setItem("access_token", data.access_token);
-      setAuth(data.user, data.access_token);
-      queryClient.setQueryData(authKeys.user(), data.user);
+      if (data.refresh_token) {
+        localStorage.setItem("refresh_token", data.refresh_token);
+      }
+      if (data.user) {
+        setAuth(data.user, data.access_token);
+        queryClient.setQueryData(authKeys.user(), data.user);
+      }
     },
   });
 }
@@ -98,8 +98,13 @@ export function useRegister() {
     mutationFn: register,
     onSuccess: (data) => {
       localStorage.setItem("access_token", data.access_token);
-      setAuth(data.user, data.access_token);
-      queryClient.setQueryData(authKeys.user(), data.user);
+      if (data.refresh_token) {
+        localStorage.setItem("refresh_token", data.refresh_token);
+      }
+      if (data.user) {
+        setAuth(data.user, data.access_token);
+        queryClient.setQueryData(authKeys.user(), data.user);
+      }
     },
   });
 }

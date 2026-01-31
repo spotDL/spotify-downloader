@@ -21,10 +21,10 @@ test.describe("Authentication", () => {
     test("should have link to register page", async ({ page }) => {
       await expect(page.getByText(/Don't have an account\?/i)).toBeVisible();
 
-      const signUpLink = page.getByRole("link", { name: /Sign up/i });
-      await expect(signUpLink).toBeVisible();
+      const createAccountLink = page.getByRole("link", { name: /Create one/i });
+      await expect(createAccountLink).toBeVisible();
 
-      await signUpLink.click();
+      await createAccountLink.click();
       await expect(page).toHaveURL("/auth/register");
     });
 
@@ -50,7 +50,7 @@ test.describe("Authentication", () => {
 
     test("should show loading state during login", async ({ page }) => {
       // Mock slow API response
-      await page.route("**/api/auth/login", async (route) => {
+      await page.route("**/api/v1/auth/login", async (route) => {
         await new Promise((resolve) => setTimeout(resolve, 500));
         await route.fulfill({
           status: 200,
@@ -76,7 +76,7 @@ test.describe("Authentication", () => {
 
     test("should handle successful login", async ({ page }) => {
       // Mock successful login
-      await page.route("**/api/auth/login", async (route) => {
+      await page.route("**/api/v1/auth/login", async (route) => {
         await route.fulfill({
           status: 200,
           contentType: "application/json",
@@ -103,7 +103,7 @@ test.describe("Authentication", () => {
 
     test("should display error message on failed login", async ({ page }) => {
       // Mock failed login
-      await page.route("**/api/auth/login", async (route) => {
+      await page.route("**/api/v1/auth/login", async (route) => {
         await route.fulfill({
           status: 401,
           contentType: "application/json",
@@ -207,7 +207,7 @@ test.describe("Authentication", () => {
 
     test("should handle successful registration", async ({ page }) => {
       // Mock successful registration
-      await page.route("**/api/auth/register", async (route) => {
+      await page.route("**/api/v1/auth/register", async (route) => {
         await route.fulfill({
           status: 201,
           contentType: "application/json",
@@ -235,7 +235,7 @@ test.describe("Authentication", () => {
 
     test("should display error on registration failure", async ({ page }) => {
       // Mock registration failure
-      await page.route("**/api/auth/register", async (route) => {
+      await page.route("**/api/v1/auth/register", async (route) => {
         await route.fulfill({
           status: 409,
           contentType: "application/json",
@@ -323,7 +323,7 @@ test.describe("Authentication", () => {
       });
 
       // Mock logout endpoint
-      await page.route("**/api/auth/logout", async (route) => {
+      await page.route("**/api/v1/auth/logout", async (route) => {
         await route.fulfill({
           status: 200,
           contentType: "application/json",

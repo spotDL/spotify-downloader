@@ -65,7 +65,7 @@ test.describe("Matching Page", () => {
 
   test("should show loading state when searching", async ({ page }) => {
     // Mock slow API response
-    await page.route("**/api/matches/find*", async (route) => {
+    await page.route("**/api/v1/matches/find*", async (route) => {
       await new Promise((resolve) => setTimeout(resolve, 500));
       await route.fulfill({
         status: 200,
@@ -92,7 +92,7 @@ test.describe("Matching Page", () => {
 
   test("should display song info after search", async ({ page }) => {
     // Mock API
-    await page.route("**/api/matches/find*", async (route) => {
+    await page.route("**/api/v1/matches/find*", async (route) => {
       await route.fulfill({
         status: 200,
         contentType: "application/json",
@@ -120,7 +120,7 @@ test.describe("Matching Page", () => {
 
   test("should display matches with vote counts", async ({ page }) => {
     // Mock API
-    await page.route("**/api/matches/find*", async (route) => {
+    await page.route("**/api/v1/matches/find*", async (route) => {
       await route.fulfill({
         status: 200,
         contentType: "application/json",
@@ -179,7 +179,7 @@ test.describe("Matching Page", () => {
   test("should show user submitted badge for user matches", async ({
     page,
   }) => {
-    await page.route("**/api/matches/find*", async (route) => {
+    await page.route("**/api/v1/matches/find*", async (route) => {
       await route.fulfill({
         status: 200,
         contentType: "application/json",
@@ -216,7 +216,7 @@ test.describe("Matching Page", () => {
   test("should show no results message when no matches found", async ({
     page,
   }) => {
-    await page.route("**/api/matches/find*", async (route) => {
+    await page.route("**/api/v1/matches/find*", async (route) => {
       await route.fulfill({
         status: 200,
         contentType: "application/json",
@@ -241,7 +241,7 @@ test.describe("Matching Page", () => {
   });
 
   test("should display error on API failure", async ({ page }) => {
-    await page.route("**/api/matches/find*", async (route) => {
+    await page.route("**/api/v1/matches/find*", async (route) => {
       await route.fulfill({
         status: 500,
         contentType: "application/json",
@@ -257,7 +257,7 @@ test.describe("Matching Page", () => {
   });
 
   test("should have vote buttons on matches", async ({ page }) => {
-    await page.route("**/api/matches/find*", async (route) => {
+    await page.route("**/api/v1/matches/find*", async (route) => {
       await route.fulfill({
         status: 200,
         contentType: "application/json",
@@ -297,7 +297,7 @@ test.describe("Matching Page", () => {
   });
 
   test("should disable vote buttons when not logged in", async ({ page }) => {
-    await page.route("**/api/matches/find*", async (route) => {
+    await page.route("**/api/v1/matches/find*", async (route) => {
       await route.fulfill({
         status: 200,
         contentType: "application/json",
@@ -351,7 +351,7 @@ test.describe("Matching Page", () => {
 
     await page.reload();
 
-    await page.route("**/api/matches/find*", async (route) => {
+    await page.route("**/api/v1/matches/find*", async (route) => {
       await route.fulfill({
         status: 200,
         contentType: "application/json",
@@ -390,7 +390,7 @@ test.describe("Matching Page", () => {
   });
 
   test("should rank matches by net votes", async ({ page }) => {
-    await page.route("**/api/matches/find*", async (route) => {
+    await page.route("**/api/v1/matches/find*", async (route) => {
       await route.fulfill({
         status: 200,
         contentType: "application/json",

@@ -2,6 +2,7 @@ import { createRootRoute, Link, Outlet } from "@tanstack/react-router";
 import { useAuthStore } from "@/stores/auth";
 import { useLogout, useHealth } from "@/api";
 import { Button, Badge } from "@/components/ui";
+import { config, features } from "@/config";
 
 export const Route = createRootRoute({
   component: RootLayout,
@@ -56,6 +57,24 @@ function RootLayout() {
 
   return (
     <div className="min-h-screen bg-[#0a0a0b] text-zinc-100 flex flex-col">
+      {/* Hosted Mode Banner */}
+      {features.isHosted && (
+        <div className="bg-gradient-to-r from-emerald-600/20 via-teal-600/20 to-cyan-600/20 border-b border-emerald-500/20 py-2 px-4 text-center">
+          <p className="text-sm text-emerald-200">
+            Welcome to the SpotDL Matching Service - crowdsourced & verified matches for everyone.{" "}
+            <a
+              href={config.githubUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-medium underline underline-offset-2 hover:text-emerald-100"
+            >
+              Self-host
+            </a>{" "}
+            for download functionality.
+          </p>
+        </div>
+      )}
+
       {/* Header */}
       <header className="sticky top-0 z-50 glass border-b border-zinc-800/50">
         <nav className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
@@ -77,7 +96,7 @@ function RootLayout() {
           {/* Center section - Navigation */}
           <div className="hidden md:flex items-center gap-1">
             <NavLink to="/">Home</NavLink>
-            <NavLink to="/queue">Queue</NavLink>
+            {features.hasQueue && <NavLink to="/queue">Queue</NavLink>}
             <NavLink to="/matching">Matching</NavLink>
             <NavLink to="/settings">Settings</NavLink>
           </div>
@@ -130,11 +149,11 @@ function RootLayout() {
       <footer className="border-t border-zinc-800/50 py-6">
         <div className="max-w-6xl mx-auto px-6 flex items-center justify-between">
           <p className="text-sm text-zinc-500">
-            SpotDL v5.0.0
+            SpotDL v{config.version}
           </p>
           <div className="flex items-center gap-4">
             <a
-              href="https://github.com/spotDL/spotify-downloader"
+              href={config.githubUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="text-zinc-500 hover:text-zinc-300 transition-colors"

@@ -51,14 +51,38 @@ class Settings(BaseSettings):
     refresh_token_expire_days: int = 7
     algorithm: str = "HS256"
 
-    # CORS
-    cors_origins: list[str] = Field(
-        default=["http://localhost:3000", "http://localhost:5173"],
-        description="Allowed CORS origins",
+    # CORS (use comma-separated strings for env var compatibility)
+    cors_origins_str: str = Field(
+        default="http://localhost:3000,http://localhost:5173",
+        alias="cors_origins",
+        description="Allowed CORS origins (comma-separated)",
     )
     cors_allow_credentials: bool = True
-    cors_allow_methods: list[str] = ["*"]
-    cors_allow_headers: list[str] = ["*"]
+    cors_allow_methods_str: str = Field(
+        default="*",
+        alias="cors_allow_methods",
+        description="Allowed CORS methods (comma-separated or *)",
+    )
+    cors_allow_headers_str: str = Field(
+        default="*",
+        alias="cors_allow_headers",
+        description="Allowed CORS headers (comma-separated or *)",
+    )
+
+    @property
+    def cors_origins(self) -> list[str]:
+        """Parse CORS origins from comma-separated string."""
+        return [s.strip() for s in self.cors_origins_str.split(",") if s.strip()]
+
+    @property
+    def cors_allow_methods(self) -> list[str]:
+        """Parse CORS methods from comma-separated string."""
+        return [s.strip() for s in self.cors_allow_methods_str.split(",") if s.strip()]
+
+    @property
+    def cors_allow_headers(self) -> list[str]:
+        """Parse CORS headers from comma-separated string."""
+        return [s.strip() for s in self.cors_allow_headers_str.split(",") if s.strip()]
 
     # Rate limiting
     rate_limit_requests: int = 100

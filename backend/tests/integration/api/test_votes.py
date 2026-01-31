@@ -19,12 +19,12 @@ class TestVotesEndpoints:
 
     async def test_cast_vote_up(
         self,
-        client: AsyncClient,
+        authenticated_client: AsyncClient,
         test_user: User,
         test_match: MatchModel,
     ) -> None:
         """Test casting an upvote."""
-        response = await client.post(
+        response = await authenticated_client.post(
             "/api/v1/votes",
             json={"match_id": str(test_match.id), "vote_type": "up"},
         )
@@ -38,12 +38,12 @@ class TestVotesEndpoints:
 
     async def test_cast_vote_down(
         self,
-        client: AsyncClient,
+        authenticated_client: AsyncClient,
         test_user: User,
         test_match: MatchModel,
     ) -> None:
         """Test casting a downvote."""
-        response = await client.post(
+        response = await authenticated_client.post(
             "/api/v1/votes",
             json={"match_id": str(test_match.id), "vote_type": "down"},
         )
@@ -57,12 +57,12 @@ class TestVotesEndpoints:
 
     async def test_cast_vote_invalid_type(
         self,
-        client: AsyncClient,
+        authenticated_client: AsyncClient,
         test_user: User,
         test_match: MatchModel,
     ) -> None:
         """Test casting vote with invalid type."""
-        response = await client.post(
+        response = await authenticated_client.post(
             "/api/v1/votes",
             json={"match_id": str(test_match.id), "vote_type": "invalid"},
         )
@@ -71,11 +71,11 @@ class TestVotesEndpoints:
 
     async def test_cast_vote_invalid_match_id(
         self,
-        client: AsyncClient,
+        authenticated_client: AsyncClient,
         test_user: User,
     ) -> None:
         """Test casting vote with invalid match ID."""
-        response = await client.post(
+        response = await authenticated_client.post(
             "/api/v1/votes",
             json={"match_id": "not-a-uuid", "vote_type": "up"},
         )
@@ -84,11 +84,11 @@ class TestVotesEndpoints:
 
     async def test_cast_vote_nonexistent_match(
         self,
-        client: AsyncClient,
+        authenticated_client: AsyncClient,
         test_user: User,
     ) -> None:
         """Test casting vote for non-existent match."""
-        response = await client.post(
+        response = await authenticated_client.post(
             "/api/v1/votes",
             json={"match_id": str(uuid.uuid4()), "vote_type": "up"},
         )
@@ -97,19 +97,19 @@ class TestVotesEndpoints:
 
     async def test_remove_vote(
         self,
-        client: AsyncClient,
+        authenticated_client: AsyncClient,
         test_user: User,
         test_match: MatchModel,
     ) -> None:
         """Test removing a vote."""
         # First cast a vote
-        await client.post(
+        await authenticated_client.post(
             "/api/v1/votes",
             json={"match_id": str(test_match.id), "vote_type": "up"},
         )
 
         # Then remove it
-        response = await client.delete(f"/api/v1/votes/{test_match.id}")
+        response = await authenticated_client.delete(f"/api/v1/votes/{test_match.id}")
 
         assert response.status_code == 200
         data = response.json()
@@ -118,12 +118,12 @@ class TestVotesEndpoints:
 
     async def test_get_vote_summary(
         self,
-        client: AsyncClient,
+        authenticated_client: AsyncClient,
         test_user: User,
         test_match: MatchModel,
     ) -> None:
         """Test getting vote summary."""
-        response = await client.get(f"/api/v1/votes/{test_match.id}")
+        response = await authenticated_client.get(f"/api/v1/votes/{test_match.id}")
 
         assert response.status_code == 200
         data = response.json()
@@ -136,11 +136,11 @@ class TestVotesEndpoints:
 
     async def test_get_my_votes(
         self,
-        client: AsyncClient,
+        authenticated_client: AsyncClient,
         test_user: User,
     ) -> None:
         """Test getting current user's votes."""
-        response = await client.get("/api/v1/votes/user/me")
+        response = await authenticated_client.get("/api/v1/votes/user/me")
 
         assert response.status_code == 200
         data = response.json()
@@ -150,21 +150,21 @@ class TestVotesEndpoints:
 
     async def test_remove_vote_nonexistent_match(
         self,
-        client: AsyncClient,
+        authenticated_client: AsyncClient,
         test_user: User,
     ) -> None:
         """Test removing vote from non-existent match."""
-        response = await client.delete(f"/api/v1/votes/{uuid.uuid4()}")
+        response = await authenticated_client.delete(f"/api/v1/votes/{uuid.uuid4()}")
 
         assert response.status_code == 404
 
     async def test_get_vote_summary_nonexistent_match(
         self,
-        client: AsyncClient,
+        authenticated_client: AsyncClient,
         test_user: User,
     ) -> None:
         """Test getting vote summary for non-existent match."""
-        response = await client.get(f"/api/v1/votes/{uuid.uuid4()}")
+        response = await authenticated_client.get(f"/api/v1/votes/{uuid.uuid4()}")
 
         assert response.status_code == 404
 
@@ -174,11 +174,11 @@ class TestVotesValidation:
 
     async def test_cast_vote_missing_match_id(
         self,
-        client: AsyncClient,
+        authenticated_client: AsyncClient,
         test_user: User,
     ) -> None:
         """Test casting vote without match_id."""
-        response = await client.post(
+        response = await authenticated_client.post(
             "/api/v1/votes",
             json={"vote_type": "up"},
         )
@@ -187,12 +187,12 @@ class TestVotesValidation:
 
     async def test_cast_vote_missing_vote_type(
         self,
-        client: AsyncClient,
+        authenticated_client: AsyncClient,
         test_user: User,
         test_match: MatchModel,
     ) -> None:
         """Test casting vote without vote_type."""
-        response = await client.post(
+        response = await authenticated_client.post(
             "/api/v1/votes",
             json={"match_id": str(test_match.id)},
         )

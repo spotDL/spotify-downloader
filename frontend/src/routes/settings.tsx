@@ -14,6 +14,7 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui";
+import { features } from "@/config";
 
 export const Route = createFileRoute("/settings")({
   component: SettingsPage,
@@ -115,11 +116,15 @@ function SettingsPage() {
       <div>
         <h1 className="text-3xl font-bold tracking-tight text-zinc-50">Settings</h1>
         <p className="text-zinc-400 mt-2">
-          Configure download preferences and server connection
+          {features.hasDownloadSettings
+            ? "Configure download preferences and server connection"
+            : "Configure server connection and preferences"}
         </p>
       </div>
 
-      {/* Download Settings */}
+      {/* Download Settings - Only shown in self-hosted mode */}
+      {features.hasDownloadSettings && (
+      <>
       <Card variant="bordered" className="animate-slide-up">
         <CardHeader>
           <div className="flex items-center gap-3">
@@ -220,6 +225,8 @@ function SettingsPage() {
           />
         </CardContent>
       </Card>
+      </>
+      )}
 
       {/* Server Settings */}
       <Card variant="bordered" className="animate-slide-up stagger-2">

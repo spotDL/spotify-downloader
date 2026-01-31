@@ -21,14 +21,18 @@ export {
 
 // Songs
 export {
-  resolveSong,
+  resolveSongUrl,
   searchSongs,
   getSong,
+  isValidUrl,
   useResolveSong,
   useSearchSongs,
   useSong,
   useResolveSongMutation,
+  useSearchSongsMutation,
   songKeys,
+  type SearchResponse,
+  type ResolveResponse,
 } from "./songs";
 
 // Matches

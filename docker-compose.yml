@@ -1,5 +1,8 @@
 # SpotDL Development/Self-Hosting Docker Compose
 # Simple setup with SQLite - single command: docker compose up -d
+#
+# For development: docker compose up -d
+# For self-hosting: docker compose up -d (same command, uses SQLite)
 
 services:
   api:
@@ -13,10 +16,10 @@ services:
       - SECRET_KEY=dev-secret-key-change-in-production
       - CORS_ORIGINS=http://localhost:3000,http://localhost:5173
     volumes:
-      - ./data:/app/data
+      - spotdl_data:/app/data
       - ./backend/src:/app/src:ro
     healthcheck:
-      test: ["CMD", "python", "-c", "import httpx; httpx.get('http://localhost:8000/api/v1/health')"]
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -33,4 +36,4 @@ services:
     restart: unless-stopped
 
 volumes:
-  data:
+  spotdl_data:

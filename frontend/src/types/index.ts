@@ -9,15 +9,20 @@ export interface User {
 }
 
 export interface Song {
-  id: string;
+  id?: string;
   platform: string;
   platform_id: string;
-  platform_url: string;
+  url: string;
   name: string;
   artists: string[];
+  artist: string;
   album_name: string | null;
-  duration_seconds: number;
+  duration: number;
   isrc: string | null;
+  cover_url?: string | null;
+  year?: number | null;
+  genres?: string[];
+  explicit?: boolean;
 }
 
 export interface Match {

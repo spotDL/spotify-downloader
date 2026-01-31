@@ -1,7 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { useFindMatchesMutation, useResolveSongMutation } from "@/api";
+import { useFindMatchesMutation, useResolveSongMutation, useSearchSongsMutation, isValidUrl } from "@/api";
 import { Button, Input, Card, CardContent, Badge, Loading, PlatformBadge } from "@/components/ui";
+import { features } from "@/config";
 import type { Song, Match } from "@/types";
 
 export const Route = createFileRoute("/")({
@@ -22,32 +23,63 @@ const TARGET_PLATFORMS = ["youtube", "youtube_music", "soundcloud", "bandcamp"];
 function HomePage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [resolvedSong, setResolvedSong] = useState<Song | null>(null);
+  const [searchResults, setSearchResults] = useState<Song[]>([]);
   const [matches, setMatches] = useState<Match[]>([]);
 
   const resolveMutation = useResolveSongMutation();
+  const searchMutation = useSearchSongsMutation();
   const findMatchesMutation = useFindMatchesMutation();
 
-  const isLoading = resolveMutation.isPending || findMatchesMutation.isPending;
-  const error = resolveMutation.error || findMatchesMutation.error;
+  const isLoading = resolveMutation.isPending || searchMutation.isPending || findMatchesMutation.isPending;
+  const error = resolveMutation.error || searchMutation.error || findMatchesMutation.error;
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!searchQuery.trim()) return;
+    const query = searchQuery.trim();
+    if (!query) return;
 
     setResolvedSong(null);
+    setSearchResults([]);
     setMatches([]);
 
     try {
-      const song = await resolveMutation.mutateAsync(searchQuery.trim());
-      setResolvedSong(song);
+      // Check if input is a URL or a search query
+      if (isValidUrl(query)) {
+        // It's a URL - resolve it directly
+        const response = await resolveMutation.mutateAsync(query);
+        if (response.songs.length > 0) {
+          setResolvedSong(response.songs[0]);
 
-      const result = await findMatchesMutation.mutateAsync({
-        sourceUrl: searchQuery.trim(),
-        targetPlatforms: TARGET_PLATFORMS,
-      });
-      setMatches(result.matches);
+          // Find matches for the resolved song
+          const matchResult = await findMatchesMutation.mutateAsync({
+            sourceUrl: query,
+            targetPlatforms: TARGET_PLATFORMS,
+          });
+          setMatches(matchResult.matches);
+        }
+      } else {
+        // It's a search query - search for songs
+        const response = await searchMutation.mutateAsync({ query, platform: "spotify" });
+        setSearchResults(response.songs);
+      }
     } catch (err) {
       console.error("Search failed:", err);
+    }
+  };
+
+  const handleSelectSong = async (song: Song) => {
+    setResolvedSong(song);
+    setSearchResults([]);
+    setMatches([]);
+
+    try {
+      const matchResult = await findMatchesMutation.mutateAsync({
+        sourceUrl: song.url,
+        targetPlatforms: TARGET_PLATFORMS,
+      });
+      setMatches(matchResult.matches);
+    } catch (err) {
+      console.error("Failed to find matches:", err);
     }
   };
 
@@ -145,6 +177,51 @@ function HomePage() {
         </Card>
       )}
 
+      {/* Search Results - Select a song from search */}
+      {searchResults.length > 0 && !resolvedSong && !isLoading && (
+        <div className="max-w-2xl mx-auto space-y-4">
+          <h2 className="text-xl font-semibold text-zinc-100">
+            Select a song ({searchResults.length} results)
+          </h2>
+          <div className="space-y-2">
+            {searchResults.map((song, index) => (
+              <Card
+                key={song.id || index}
+                variant="bordered"
+                hover
+                className="cursor-pointer animate-slide-up"
+                style={{ animationDelay: `${index * 0.03}s` }}
+                onClick={() => handleSelectSong(song)}
+              >
+                <CardContent className="flex items-center gap-4">
+                  {/* Album Art / Vinyl */}
+                  <div className="relative w-14 h-14 shrink-0">
+                    <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-zinc-700 to-zinc-900 shadow-md" />
+                    <div className="absolute inset-1.5 rounded-md bg-gradient-to-br from-emerald-500/20 to-teal-500/20 flex items-center justify-center">
+                      <svg className="w-6 h-6 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+                      </svg>
+                    </div>
+                  </div>
+
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-zinc-100 truncate">{song.name}</h3>
+                    <p className="text-sm text-zinc-400 truncate">{song.artists.join(", ")}</p>
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    <span className="text-sm text-zinc-500">{formatDuration(song.duration)}</span>
+                    <svg className="w-5 h-5 text-zinc-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Song Result */}
       {resolvedSong && !isLoading && (
         <Card variant="bordered" className="max-w-2xl mx-auto animate-slide-up glow">
@@ -188,7 +265,7 @@ function HomePage() {
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    {formatDuration(resolvedSong.duration_seconds)}
+                    {formatDuration(resolvedSong.duration)}
                   </span>
                 </div>
               </div>
@@ -257,12 +334,27 @@ function HomePage() {
                           {match.downvotes}
                         </span>
                       </div>
-                      <Button size="sm" variant="primary">
-                        <svg className="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                        </svg>
-                        Download
-                      </Button>
+                      {features.canDownload ? (
+                        <Button size="sm" variant="primary">
+                          <svg className="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                          </svg>
+                          Download
+                        </Button>
+                      ) : (
+                        <a
+                          href={match.target_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <Button size="sm" variant="outline">
+                            <svg className="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                            </svg>
+                            Open
+                          </Button>
+                        </a>
+                      )}
                     </div>
                   </div>
                 </CardContent>

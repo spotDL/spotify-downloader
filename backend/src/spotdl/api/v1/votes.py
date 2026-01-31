@@ -10,6 +10,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from spotdl.api.v1.auth import get_current_user_id, get_current_user_id_optional
 from spotdl.db.database import get_db_session
 from spotdl.db.models.vote import VoteType
 from spotdl.db.repositories.match import MatchRepository
@@ -84,19 +85,6 @@ def calculate_wilson_score(upvotes: int, downvotes: int) -> float:
     ) / denominator
 
     return max(0.0, min(1.0, lower_bound))
-
-
-async def get_current_user_id() -> UUID:
-    """
-    Get current user ID from authentication.
-
-    For now, returns a fixed test user ID.
-    In production, this would extract the user ID from JWT token.
-    """
-    import uuid
-
-    # Test user ID for development
-    return uuid.UUID("00000000-0000-0000-0000-000000000001")
 
 
 @router.post("")
@@ -222,7 +210,7 @@ async def remove_vote(
 async def get_vote_summary(
     match_id: UUID,
     db: Annotated[AsyncSession, Depends(get_db_session)],
-    user_id: Annotated[UUID | None, Depends(get_current_user_id)] = None,
+    user_id: Annotated[UUID | None, Depends(get_current_user_id_optional)] = None,
 ) -> VoteSummaryResponse:
     """
     Get vote summary for a match.

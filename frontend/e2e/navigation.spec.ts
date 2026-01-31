@@ -3,7 +3,7 @@ import { test, expect } from "@playwright/test";
 test.describe("Navigation", () => {
   test.beforeEach(async ({ page }) => {
     // Mock health endpoint for consistent Online/Offline status
-    await page.route("**/api/health", async (route) => {
+    await page.route("**/api/v1/health", async (route) => {
       await route.fulfill({
         status: 200,
         contentType: "application/json",
@@ -35,7 +35,7 @@ test.describe("Navigation", () => {
 
   test("should show offline badge when API is down", async ({ page }) => {
     // Override health endpoint to fail
-    await page.route("**/api/health", async (route) => {
+    await page.route("**/api/v1/health", async (route) => {
       await route.abort("connectionfailed");
     });
 

@@ -1,0 +1,31 @@
+# SpotDL Self-Hosting Docker Compose
+# Single container serving both API and frontend with SQLite
+#
+# Usage: docker compose -f docker-compose.selfhost.yml up -d
+# Or build and run: docker build -t spotdl . && docker run -p 8000:8000 -v spotdl_data:/app/data spotdl
+
+services:
+  spotdl:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: ${REGISTRY:-ghcr.io}/${IMAGE_NAME:-spotdl/spotify-downloader}:${IMAGE_TAG:-latest}
+    ports:
+      - "${PORT:-8000}:8000"
+    environment:
+      - DATABASE_URL=sqlite+aiosqlite:///./data/spotdl.db
+      - ENVIRONMENT=production
+      - DEBUG=false
+      - SECRET_KEY=${SECRET_KEY:-change-this-secret-key-in-production}
+    volumes:
+      - spotdl_data:/app/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+
+volumes:
+  spotdl_data:
