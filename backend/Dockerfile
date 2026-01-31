@@ -21,9 +21,10 @@ RUN uv sync --frozen --no-dev --no-install-project
 # Production image
 FROM python:3.13-slim
 
-# Install curl for healthcheck
+# Install curl for healthcheck and ffmpeg for audio processing
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
+    ffmpeg \
     && rm -rf /var/lib/apt/lists/*
 
 # Create non-root user

@@ -1,8 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useState } from "react";
 import {
   useQueueStore,
   type QueueItem,
   type DownloadStatus,
+  type EntityContext,
 } from "@/stores/queue";
 import {
   Button,
@@ -12,6 +14,7 @@ import {
   Select,
 } from "@/components/ui";
 import { features, config } from "@/config";
+import type { EntityType } from "@/types";
 
 export const Route = createFileRoute("/queue")({
   component: QueuePage,
@@ -42,6 +45,7 @@ const STATUS_VARIANTS: Record<DownloadStatus, "default" | "success" | "warning" 
 };
 
 function QueuePage() {
+  const [showGrouped, setShowGrouped] = useState(true);
   const {
     items,
     maxConcurrent,
@@ -55,6 +59,7 @@ function QueuePage() {
     getActiveCount,
     getCompletedCount,
     getFailedCount,
+    getEntityGroups,
     cancelDownload,
     downloadFile,
   } = useQueueStore();
@@ -63,6 +68,10 @@ function QueuePage() {
   const activeCount = getActiveCount();
   const completedCount = getCompletedCount();
   const failedCount = getFailedCount();
+  const entityGroups = getEntityGroups();
+
+  // Check if we have any grouped items
+  const hasEntityGroups = Array.from(entityGroups.keys()).some((key) => key !== "individual");
 
   const formatDuration = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -205,6 +214,33 @@ function QueuePage() {
         </div>
       )}
 
+      {/* View Toggle */}
+      {hasEntityGroups && items.length > 0 && (
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-zinc-500">View:</span>
+          <button
+            onClick={() => setShowGrouped(true)}
+            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+              showGrouped
+                ? "bg-emerald-600 text-white"
+                : "bg-zinc-800 text-zinc-400 hover:bg-zinc-700"
+            }`}
+          >
+            Grouped
+          </button>
+          <button
+            onClick={() => setShowGrouped(false)}
+            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+              !showGrouped
+                ? "bg-emerald-600 text-white"
+                : "bg-zinc-800 text-zinc-400 hover:bg-zinc-700"
+            }`}
+          >
+            List
+          </button>
+        </div>
+      )}
+
       {/* Queue Items */}
       {items.length === 0 ? (
         <Card variant="bordered" className="py-16">
@@ -223,6 +259,48 @@ function QueuePage() {
             </p>
           </CardContent>
         </Card>
+      ) : showGrouped && hasEntityGroups ? (
+        <div className="space-y-6">
+          {Array.from(entityGroups.entries()).map(([key, groupItems]) => {
+            const entityContext = groupItems[0]?.entityContext;
+            const isIndividual = key === "individual";
+
+            if (isIndividual) {
+              return (
+                <div key={key} className="space-y-3">
+                  <h3 className="text-sm font-medium text-zinc-500 uppercase tracking-wider">
+                    Individual Downloads
+                  </h3>
+                  {groupItems.map((item, index) => (
+                    <QueueItemCard
+                      key={item.id}
+                      item={item}
+                      index={index}
+                      onRemove={() => removeItem(item.id)}
+                      onRetry={() => retryFailed(item.id)}
+                      onCancel={() => cancelDownload(item.id)}
+                      onDownloadFile={() => downloadFile(item.id)}
+                      formatDuration={formatDuration}
+                    />
+                  ))}
+                </div>
+              );
+            }
+
+            return (
+              <EntityGroup
+                key={key}
+                entityContext={entityContext!}
+                items={groupItems}
+                onRemove={(id) => removeItem(id)}
+                onRetry={(id) => retryFailed(id)}
+                onCancel={(id) => cancelDownload(id)}
+                onDownloadFile={(id) => downloadFile(id)}
+                formatDuration={formatDuration}
+              />
+            );
+          })}
+        </div>
       ) : (
         <div className="space-y-3">
           {items.map((item, index) => (
@@ -294,6 +372,7 @@ interface QueueItemCardProps {
   onCancel: () => void;
   onDownloadFile: () => void;
   formatDuration: (seconds: number) => string;
+  compact?: boolean;
 }
 
 function QueueItemCard({
@@ -304,6 +383,7 @@ function QueueItemCard({
   onCancel,
   onDownloadFile,
   formatDuration,
+  compact = false,
 }: QueueItemCardProps) {
   const isActive = ["searching", "downloading", "processing", "converting", "embedding"].includes(
     item.status
@@ -313,13 +393,13 @@ function QueueItemCard({
     <Card
       variant="bordered"
       hover={!isActive}
-      className="animate-slide-up"
+      className={`animate-slide-up ${compact ? "py-1" : ""}`}
       style={{ animationDelay: `${index * 0.03}s` }}
     >
-      <CardContent>
+      <CardContent className={compact ? "py-2" : undefined}>
         <div className="flex items-center gap-4">
           {/* Track number / Status indicator */}
-          <div className="w-10 h-10 rounded-xl bg-zinc-800 flex items-center justify-center shrink-0">
+          <div className={`${compact ? "w-8 h-8" : "w-10 h-10"} rounded-xl bg-zinc-800 flex items-center justify-center shrink-0`}>
             {isActive ? (
               <div className="equalizer">
                 <div className="equalizer-bar" />
@@ -327,8 +407,8 @@ function QueueItemCard({
                 <div className="equalizer-bar" />
               </div>
             ) : (
-              <span className="text-sm font-medium text-zinc-500">
-                {String(index + 1).padStart(2, "0")}
+              <span className={`${compact ? "text-xs" : "text-sm"} font-medium text-zinc-500`}>
+                {item.entityContext?.position || String(index + 1).padStart(2, "0")}
               </span>
             )}
           </div>
@@ -336,14 +416,14 @@ function QueueItemCard({
           {/* Song Info */}
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-3">
-              <h3 className="text-zinc-100 font-medium truncate">
+              <h3 className={`text-zinc-100 font-medium truncate ${compact ? "text-sm" : ""}`}>
                 {item.song.name}
               </h3>
               <Badge variant={STATUS_VARIANTS[item.status]} size="sm">
                 {STATUS_LABELS[item.status]}
               </Badge>
             </div>
-            <p className="text-sm text-zinc-500 truncate">
+            <p className={`${compact ? "text-xs" : "text-sm"} text-zinc-500 truncate`}>
               {item.song.artists.join(", ")}
             </p>
 
@@ -419,5 +499,136 @@ function QueueItemCard({
         </div>
       </CardContent>
     </Card>
+  );
+}
+
+// Entity type icons
+const entityTypeIcons: Record<EntityType, React.ReactNode> = {
+  artist: (
+    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+    </svg>
+  ),
+  album: (
+    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+    </svg>
+  ),
+  playlist: (
+    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+    </svg>
+  ),
+  track: (
+    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+    </svg>
+  ),
+};
+
+interface EntityGroupProps {
+  entityContext: EntityContext;
+  items: QueueItem[];
+  onRemove: (id: string) => void;
+  onRetry: (id: string) => void;
+  onCancel: (id: string) => void;
+  onDownloadFile: (id: string) => void;
+  formatDuration: (seconds: number) => string;
+}
+
+function EntityGroup({
+  entityContext,
+  items,
+  onRemove,
+  onRetry,
+  onCancel,
+  onDownloadFile,
+  formatDuration,
+}: EntityGroupProps) {
+  const completedCount = items.filter((i) => i.status === "completed").length;
+  const failedCount = items.filter((i) => i.status === "failed").length;
+  const activeCount = items.filter((i) =>
+    ["searching", "downloading", "processing", "converting", "embedding"].includes(i.status)
+  ).length;
+  const total = entityContext.total;
+  const progress = Math.round((completedCount / total) * 100);
+
+  return (
+    <div className="space-y-3">
+      {/* Entity Header */}
+      <div className="p-4 bg-gradient-to-r from-zinc-900/80 via-zinc-900/60 to-zinc-900/80 rounded-xl border border-zinc-800/50">
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-600 to-teal-600 flex items-center justify-center text-white">
+              {entityTypeIcons[entityContext.type]}
+            </div>
+            <div>
+              <h3 className="font-semibold text-zinc-100">{entityContext.name}</h3>
+              <p className="text-sm text-zinc-500 capitalize">
+                {entityContext.type} - {total} tracks
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-4">
+            {/* Progress indicator */}
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-1.5">
+                {completedCount > 0 && (
+                  <Badge variant="success" size="sm">
+                    {completedCount} done
+                  </Badge>
+                )}
+                {activeCount > 0 && (
+                  <Badge variant="info" size="sm">
+                    {activeCount} active
+                  </Badge>
+                )}
+                {failedCount > 0 && (
+                  <Badge variant="error" size="sm">
+                    {failedCount} failed
+                  </Badge>
+                )}
+              </div>
+              <div className="w-24 h-2 bg-zinc-800 rounded-full overflow-hidden">
+                <div
+                  className="h-full progress-gradient rounded-full transition-all duration-500"
+                  style={{ width: `${progress}%` }}
+                />
+              </div>
+              <span className="text-sm text-zinc-400 tabular-nums">{progress}%</span>
+            </div>
+
+            <a
+              href={entityContext.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-zinc-500 hover:text-zinc-300 transition-colors"
+            >
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+              </svg>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      {/* Entity Items */}
+      <div className="space-y-2 pl-4 border-l-2 border-zinc-800">
+        {items.map((item, index) => (
+          <QueueItemCard
+            key={item.id}
+            item={item}
+            index={index}
+            onRemove={() => onRemove(item.id)}
+            onRetry={() => onRetry(item.id)}
+            onCancel={() => onCancel(item.id)}
+            onDownloadFile={() => onDownloadFile(item.id)}
+            formatDuration={formatDuration}
+            compact
+          />
+        ))}
+      </div>
+    </div>
   );
 }

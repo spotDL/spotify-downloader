@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import type { Song, Match } from "@/types";
+import type { Song, Match, EntityType } from "@/types";
 import {
   startDownload,
   getDownloadStatus,
@@ -20,6 +20,14 @@ export type DownloadStatus =
   | "failed"
   | "cancelled";
 
+export interface EntityContext {
+  type: EntityType;
+  name: string;
+  url: string;
+  position: number;
+  total: number;
+}
+
 export interface QueueItem {
   id: string;
   downloadId: string | null; // Backend download ID
@@ -33,6 +41,13 @@ export interface QueueItem {
   error: string | null;
   addedAt: string;
   completedAt: string | null;
+  entityContext?: EntityContext;
+}
+
+export interface BulkEntityInfo {
+  type: EntityType;
+  name: string;
+  url: string;
 }
 
 interface QueueState {
@@ -41,7 +56,8 @@ interface QueueState {
   pollingIntervals: Map<string, ReturnType<typeof setInterval>>;
 
   // Actions
-  addItem: (song: Song, match?: Match) => string;
+  addItem: (song: Song, match?: Match, entityContext?: EntityContext) => string;
+  addBulkItems: (songs: Song[], entity: BulkEntityInfo) => string[];
   removeItem: (id: string) => void;
   updateItem: (id: string, updates: Partial<QueueItem>) => void;
   clearCompleted: () => void;
@@ -63,6 +79,7 @@ interface QueueState {
   getActiveCount: () => number;
   getCompletedCount: () => number;
   getFailedCount: () => number;
+  getEntityGroups: () => Map<string, QueueItem[]>;
 }
 
 export const useQueueStore = create<QueueState>()(
@@ -72,7 +89,7 @@ export const useQueueStore = create<QueueState>()(
       maxConcurrent: 3,
       pollingIntervals: new Map(),
 
-      addItem: (song, match) => {
+      addItem: (song, match, entityContext) => {
         const id = crypto.randomUUID();
         const item: QueueItem = {
           id,
@@ -87,6 +104,7 @@ export const useQueueStore = create<QueueState>()(
           error: null,
           addedAt: new Date().toISOString(),
           completedAt: null,
+          entityContext,
         };
         set((state) => ({ items: [...state.items, item] }));
 
@@ -94,6 +112,47 @@ export const useQueueStore = create<QueueState>()(
         setTimeout(() => get().processQueue(), 0);
 
         return id;
+      },
+
+      addBulkItems: (songs, entity) => {
+        const ids: string[] = [];
+        const newItems: QueueItem[] = [];
+        const total = songs.length;
+
+        songs.forEach((song, index) => {
+          const id = crypto.randomUUID();
+          ids.push(id);
+
+          const item: QueueItem = {
+            id,
+            downloadId: null,
+            song,
+            match: undefined,
+            status: "pending",
+            progress: 0,
+            speed: null,
+            eta: null,
+            filename: null,
+            error: null,
+            addedAt: new Date().toISOString(),
+            completedAt: null,
+            entityContext: {
+              type: entity.type,
+              name: entity.name,
+              url: entity.url,
+              position: index + 1,
+              total,
+            },
+          };
+          newItems.push(item);
+        });
+
+        set((state) => ({ items: [...state.items, ...newItems] }));
+
+        // Process queue after adding
+        setTimeout(() => get().processQueue(), 0);
+
+        return ids;
       },
 
       removeItem: (id) => {
@@ -288,6 +347,26 @@ export const useQueueStore = create<QueueState>()(
 
       getFailedCount: () =>
         get().items.filter((item) => item.status === "failed").length,
+
+      getEntityGroups: () => {
+        const groups = new Map<string, QueueItem[]>();
+
+        get().items.forEach((item) => {
+          if (item.entityContext) {
+            const key = `${item.entityContext.type}:${item.entityContext.url}`;
+            const existing = groups.get(key) || [];
+            existing.push(item);
+            groups.set(key, existing);
+          } else {
+            // Items without entity context go to a special "individual" group
+            const existing = groups.get("individual") || [];
+            existing.push(item);
+            groups.set("individual", existing);
+          }
+        });
+
+        return groups;
+      },
     }),
     {
       name: "spotdl-queue",

@@ -4,9 +4,10 @@ from __future__ import annotations
 
 import asyncio
 import logging
+from enum import Enum
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Path, Query
 from pydantic import BaseModel, HttpUrl
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -113,6 +114,80 @@ class MultiPlatformSearchResponse(BaseModel):
     results: list[PlatformSearchResult]
     total_results: int
     matches_saved: int
+
+
+# Entity types and response models
+class EntityType(str, Enum):
+    """Type of entity (artist, album, playlist, track)."""
+
+    ARTIST = "artist"
+    ALBUM = "album"
+    PLAYLIST = "playlist"
+    TRACK = "track"
+
+
+class ArtistResponse(BaseModel):
+    """Response model for an artist entity."""
+
+    id: str
+    name: str
+    platform: str
+    url: str
+    image_url: str | None = None
+    genres: list[str] = []
+    followers: int | None = None
+    songs: list[SongResponse] = []
+    total_songs: int = 0
+
+
+class AlbumResponse(BaseModel):
+    """Response model for an album entity."""
+
+    id: str
+    name: str
+    platform: str
+    url: str
+    artist_name: str
+    cover_url: str | None = None
+    release_date: str | None = None
+    year: int | None = None
+    total_tracks: int = 0
+    songs: list[SongResponse] = []
+
+
+class PlaylistResponse(BaseModel):
+    """Response model for a playlist entity."""
+
+    id: str
+    name: str
+    platform: str
+    url: str
+    description: str | None = None
+    owner_name: str | None = None
+    cover_url: str | None = None
+    total_tracks: int = 0
+    songs: list[SongResponse] = []
+
+
+class EntitySearchResult(BaseModel):
+    """Search result for an entity (artist, album, playlist, or track)."""
+
+    entity_type: EntityType
+    id: str
+    name: str
+    platform: str
+    url: str
+    image_url: str | None = None
+    subtitle: str | None = None  # Artist for albums, owner for playlists
+
+
+class EntitySearchResponse(BaseModel):
+    """Response model for entity search."""
+
+    query: str
+    entity_type: EntityType | None
+    results: list[EntitySearchResult]
+    total: int
 
 
 @router.get("/resolve")
@@ -433,3 +508,325 @@ async def search_all_platforms(
         total_results=total_results,
         matches_saved=matches_saved,
     )
+
+
+def _song_to_response(song) -> SongResponse:
+    """Convert a song object to SongResponse."""
+    return SongResponse(
+        name=song.name,
+        artists=list(song.artists),
+        artist=song.artist,
+        duration=song.duration,
+        platform=song.platform.value,
+        platform_id=song.platform_id,
+        url=song.url,
+        album_name=song.album_name,
+        album_artist=song.album_artist,
+        album_id=song.album_id,
+        track_number=song.track_number,
+        disc_number=song.disc_number,
+        year=song.year if song.year else None,
+        date=song.date,
+        genres=list(song.genres) if song.genres else [],
+        isrc=song.isrc,
+        explicit=song.explicit,
+        cover_url=song.cover_url,
+    )
+
+
+# Entity endpoints
+@router.get("/entities/artist/{platform}/{entity_id}")
+async def get_artist(
+    platform: Annotated[str, Path(description="Platform (spotify, youtube_music, etc.)")],
+    entity_id: Annotated[str, Path(description="Artist ID on the platform")],
+) -> ArtistResponse:
+    """
+    Get artist details including their discography.
+
+    Returns artist metadata and list of songs.
+    """
+    service = get_song_service()
+
+    try:
+        platform_enum = Platform(platform)
+    except ValueError as e:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid platform: {platform}. Supported: {[p.value for p in Platform]}",
+        ) from e
+
+    try:
+        # Build artist URL based on platform
+        artist_url = _build_entity_url(platform_enum, "artist", entity_id)
+        songs = await service.resolve_url(artist_url)
+
+        song_responses = [_song_to_response(song) for song in songs]
+
+        # Extract artist info from first song
+        artist_name = song_responses[0].artist if song_responses else "Unknown Artist"
+        genres = song_responses[0].genres if song_responses else []
+        image_url = song_responses[0].cover_url if song_responses else None
+
+        return ArtistResponse(
+            id=entity_id,
+            name=artist_name,
+            platform=platform,
+            url=artist_url,
+            image_url=image_url,
+            genres=genres,
+            songs=song_responses,
+            total_songs=len(song_responses),
+        )
+
+    except UnsupportedURLError as e:
+        raise HTTPException(status_code=400, detail=str(e)) from e
+    except SongServiceError as e:
+        raise HTTPException(status_code=500, detail=str(e)) from e
+
+
+@router.get("/entities/album/{platform}/{entity_id}")
+async def get_album(
+    platform: Annotated[str, Path(description="Platform (spotify, youtube_music, etc.)")],
+    entity_id: Annotated[str, Path(description="Album ID on the platform")],
+) -> AlbumResponse:
+    """
+    Get album details including tracklist.
+
+    Returns album metadata and list of tracks.
+    """
+    service = get_song_service()
+
+    try:
+        platform_enum = Platform(platform)
+    except ValueError as e:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid platform: {platform}. Supported: {[p.value for p in Platform]}",
+        ) from e
+
+    try:
+        album_url = _build_entity_url(platform_enum, "album", entity_id)
+        songs = await service.resolve_url(album_url)
+
+        song_responses = [_song_to_response(song) for song in songs]
+
+        # Extract album info from first song
+        first = song_responses[0] if song_responses else None
+        album_name = first.album_name if first else "Unknown Album"
+        artist_name = first.artist if first else "Unknown Artist"
+        cover_url = first.cover_url if first else None
+        year = first.year if first else None
+        date = first.date if first else None
+
+        return AlbumResponse(
+            id=entity_id,
+            name=album_name,
+            platform=platform,
+            url=album_url,
+            artist_name=artist_name,
+            cover_url=cover_url,
+            release_date=date,
+            year=year,
+            total_tracks=len(song_responses),
+            songs=song_responses,
+        )
+
+    except UnsupportedURLError as e:
+        raise HTTPException(status_code=400, detail=str(e)) from e
+    except SongServiceError as e:
+        raise HTTPException(status_code=500, detail=str(e)) from e
+
+
+@router.get("/entities/playlist/{platform}/{entity_id}")
+async def get_playlist(
+    platform: Annotated[str, Path(description="Platform (spotify, youtube_music, etc.)")],
+    entity_id: Annotated[str, Path(description="Playlist ID on the platform")],
+) -> PlaylistResponse:
+    """
+    Get playlist details including tracks.
+
+    Returns playlist metadata and list of tracks.
+    """
+    service = get_song_service()
+
+    try:
+        platform_enum = Platform(platform)
+    except ValueError as e:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid platform: {platform}. Supported: {[p.value for p in Platform]}",
+        ) from e
+
+    try:
+        playlist_url = _build_entity_url(platform_enum, "playlist", entity_id)
+        songs = await service.resolve_url(playlist_url)
+
+        song_responses = [_song_to_response(song) for song in songs]
+
+        # For playlists, we don't have owner info from songs
+        cover_url = song_responses[0].cover_url if song_responses else None
+
+        return PlaylistResponse(
+            id=entity_id,
+            name="Playlist",  # Would need additional API call to get actual name
+            platform=platform,
+            url=playlist_url,
+            cover_url=cover_url,
+            total_tracks=len(song_responses),
+            songs=song_responses,
+        )
+
+    except UnsupportedURLError as e:
+        raise HTTPException(status_code=400, detail=str(e)) from e
+    except SongServiceError as e:
+        raise HTTPException(status_code=500, detail=str(e)) from e
+
+
+@router.get("/entities/track/{platform}/{entity_id}")
+async def get_track(
+    platform: Annotated[str, Path(description="Platform (spotify, youtube_music, etc.)")],
+    entity_id: Annotated[str, Path(description="Track ID on the platform")],
+) -> SongResponse:
+    """
+    Get track details.
+
+    Returns full track metadata.
+    """
+    service = get_song_service()
+
+    try:
+        platform_enum = Platform(platform)
+    except ValueError as e:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid platform: {platform}. Supported: {[p.value for p in Platform]}",
+        ) from e
+
+    try:
+        track_url = _build_entity_url(platform_enum, "track", entity_id)
+        songs = await service.resolve_url(track_url)
+
+        if not songs:
+            raise HTTPException(status_code=404, detail="Track not found")
+
+        return _song_to_response(songs[0])
+
+    except UnsupportedURLError as e:
+        raise HTTPException(status_code=400, detail=str(e)) from e
+    except SongServiceError as e:
+        raise HTTPException(status_code=500, detail=str(e)) from e
+
+
+@router.get("/search/entities")
+async def search_entities(
+    query: Annotated[str, Query(description="Search query")],
+    entity_type: Annotated[
+        EntityType | None,
+        Query(description="Entity type to search for (artist, album, playlist, track)"),
+    ] = None,
+    platform: Annotated[str, Query(description="Platform to search")] = "spotify",
+    limit: Annotated[int, Query(ge=1, le=50, description="Maximum results")] = 10,
+) -> EntitySearchResponse:
+    """
+    Search for entities (artists, albums, playlists, tracks) on a platform.
+
+    If entity_type is not specified, returns mixed results of all types.
+    Currently falls back to song search since most platforms don't have
+    separate entity search APIs accessible through spotdl.
+    """
+    service = get_song_service()
+
+    try:
+        platform_enum = Platform(platform)
+    except ValueError as e:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid platform: {platform}. Supported: {[p.value for p in Platform]}",
+        ) from e
+
+    try:
+        # For now, we do a song search and extract unique entities
+        songs = await service.search(query, platform=platform_enum, limit=limit * 3)
+
+        results: list[EntitySearchResult] = []
+        seen_ids: set[str] = set()
+
+        for song in songs:
+            song_resp = _song_to_response(song)
+
+            # Add as track result
+            if entity_type is None or entity_type == EntityType.TRACK:
+                track_id = f"track:{song_resp.platform_id}"
+                if track_id not in seen_ids:
+                    seen_ids.add(track_id)
+                    results.append(
+                        EntitySearchResult(
+                            entity_type=EntityType.TRACK,
+                            id=song_resp.platform_id,
+                            name=song_resp.name,
+                            platform=song_resp.platform,
+                            url=song_resp.url,
+                            image_url=song_resp.cover_url,
+                            subtitle=song_resp.artist,
+                        )
+                    )
+
+            # Extract album as entity
+            if song_resp.album_id and (entity_type is None or entity_type == EntityType.ALBUM):
+                album_id = f"album:{song_resp.album_id}"
+                if album_id not in seen_ids and song_resp.album_name:
+                    seen_ids.add(album_id)
+                    album_url = _build_entity_url(platform_enum, "album", song_resp.album_id)
+                    results.append(
+                        EntitySearchResult(
+                            entity_type=EntityType.ALBUM,
+                            id=song_resp.album_id,
+                            name=song_resp.album_name,
+                            platform=song_resp.platform,
+                            url=album_url,
+                            image_url=song_resp.cover_url,
+                            subtitle=song_resp.artist,
+                        )
+                    )
+
+        # Limit results
+        results = results[:limit]
+
+        return EntitySearchResponse(
+            query=query,
+            entity_type=entity_type,
+            results=results,
+            total=len(results),
+        )
+
+    except SongServiceError as e:
+        raise HTTPException(status_code=500, detail=str(e)) from e
+
+
+def _build_entity_url(platform: Platform, entity_type: str, entity_id: str) -> str:
+    """Build a platform-specific URL for an entity."""
+    if platform == Platform.SPOTIFY:
+        return f"https://open.spotify.com/{entity_type}/{entity_id}"
+    elif platform == Platform.YOUTUBE_MUSIC:
+        if entity_type == "track":
+            return f"https://music.youtube.com/watch?v={entity_id}"
+        elif entity_type == "album":
+            return f"https://music.youtube.com/browse/{entity_id}"
+        elif entity_type == "playlist":
+            return f"https://music.youtube.com/playlist?list={entity_id}"
+        elif entity_type == "artist":
+            return f"https://music.youtube.com/channel/{entity_id}"
+    elif platform == Platform.DEEZER:
+        return f"https://www.deezer.com/{entity_type}/{entity_id}"
+    elif platform == Platform.SOUNDCLOUD:
+        # SoundCloud doesn't use simple IDs, this is a placeholder
+        return f"https://soundcloud.com/{entity_id}"
+    elif platform == Platform.BANDCAMP:
+        return f"https://bandcamp.com/{entity_type}/{entity_id}"
+    elif platform == Platform.APPLE_MUSIC:
+        return f"https://music.apple.com/{entity_type}/{entity_id}"
+    elif platform == Platform.TIDAL:
+        return f"https://tidal.com/browse/{entity_type}/{entity_id}"
+
+    # Fallback
+    return f"https://{platform.value}.com/{entity_type}/{entity_id}"

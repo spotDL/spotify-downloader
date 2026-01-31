@@ -17,12 +17,16 @@ export interface Song {
   artists: string[];
   artist: string;
   album_name: string | null;
+  album_id?: string | null;
   duration: number;
   isrc: string | null;
   cover_url?: string | null;
   year?: number | null;
   genres?: string[];
   explicit?: boolean;
+  track_number?: number | null;
+  disc_number?: number | null;
+  date?: string | null;
 }
 
 export interface Match {
@@ -64,4 +68,61 @@ export interface FindMatchesRequest {
 export interface FindMatchesResponse {
   song: Song;
   matches: Match[];
+}
+
+// Entity types
+export type EntityType = "artist" | "album" | "playlist" | "track";
+
+export interface Artist {
+  id: string;
+  name: string;
+  platform: string;
+  url: string;
+  image_url: string | null;
+  genres: string[];
+  followers: number | null;
+  songs: Song[];
+  total_songs: number;
+}
+
+export interface Album {
+  id: string;
+  name: string;
+  platform: string;
+  url: string;
+  artist_name: string;
+  cover_url: string | null;
+  release_date: string | null;
+  year: number | null;
+  total_tracks: number;
+  songs: Song[];
+}
+
+export interface Playlist {
+  id: string;
+  name: string;
+  platform: string;
+  url: string;
+  description: string | null;
+  owner_name: string | null;
+  cover_url: string | null;
+  total_tracks: number;
+  songs: Song[];
+}
+
+export interface EntitySearchResult {
+  entity_type: EntityType;
+  id: string;
+  name: string;
+  platform: string;
+  url: string;
+  image_url: string | null;
+  subtitle: string | null;
+}
+
+export interface EntitySearchResponse {
+  query: string;
+  entity_type: EntityType | null;
+  results: EntitySearchResult[];
+  total: number;
 }

@@ -109,3 +109,19 @@ export {
   type DownloadProgress,
   type DownloadListResponse,
 } from "./download";
+
+// Entities
+export {
+  getArtist,
+  getAlbum,
+  getPlaylist,
+  getTrack,
+  searchEntities,
+  useArtist,
+  useAlbum,
+  usePlaylist,
+  useTrack,
+  useEntitySearch,
+  useEntitySearchMutation,
+  entityKeys,
+} from "./entities";

@@ -4,6 +4,7 @@ import {
   useFindMatchesMutation,
   useResolveSongMutation,
   useSearchAllPlatformsMutation,
+  useEntitySearchMutation,
   isValidUrl,
   type PlatformSearchResult,
 } from "@/api";
@@ -15,9 +16,10 @@ import {
   Badge,
   PlatformBadge,
 } from "@/components/ui";
+import { SearchFilters, EntitySearchResultCard } from "@/components/search";
 import { features } from "@/config";
 import { useQueueStore } from "@/stores/queue";
-import type { Song, Match } from "@/types";
+import type { Song, Match, EntityType, EntitySearchResult } from "@/types";
 
 export const Route = createFileRoute("/")({
   component: HomePage,
@@ -129,12 +131,15 @@ function HomePage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [resolvedSong, setResolvedSong] = useState<Song | null>(null);
   const [platformResults, setPlatformResults] = useState<PlatformSearchResult[]>([]);
+  const [entityResults, setEntityResults] = useState<EntitySearchResult[]>([]);
   const [matches, setMatches] = useState<Match[]>([]);
   const [matchesSaved, setMatchesSaved] = useState(0);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const [searchFilter, setSearchFilter] = useState<EntityType | "all">("all");
 
   const resolveMutation = useResolveSongMutation();
   const searchAllMutation = useSearchAllPlatformsMutation();
+  const entitySearchMutation = useEntitySearchMutation();
   const findMatchesMutation = useFindMatchesMutation();
 
   const addToQueue = useQueueStore((state) => state.addItem);
@@ -148,9 +153,10 @@ function HomePage() {
   const isLoading =
     resolveMutation.isPending ||
     searchAllMutation.isPending ||
+    entitySearchMutation.isPending ||
     findMatchesMutation.isPending;
   const error =
-    resolveMutation.error || searchAllMutation.error || findMatchesMutation.error;
+    resolveMutation.error || searchAllMutation.error || entitySearchMutation.error || findMatchesMutation.error;
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -159,6 +165,7 @@ function HomePage() {
 
     setResolvedSong(null);
     setPlatformResults([]);
+    setEntityResults([]);
     setMatches([]);
     setMatchesSaved(0);
 
@@ -177,14 +184,45 @@ function HomePage() {
           });
           setMatches(matchResult.matches);
         }
-      } else {
-        // It's a search query - search all platforms
+      } else if (searchFilter === "all") {
+        // Search all platforms for songs (default behavior)
         const response = await searchAllMutation.mutateAsync({ query, limit: 10 });
         setPlatformResults(response.results);
         setMatchesSaved(response.matches_saved);
+      } else {
+        // Search for specific entity type
+        const response = await entitySearchMutation.mutateAsync({
+          query,
+          entityType: searchFilter,
+          limit: 20,
+        });
+        setEntityResults(response.results);
       }
     } catch (err) {
       console.error("Search failed:", err);
+    }
+  };
+
+  const handleFilterChange = (filter: EntityType | "all") => {
+    setSearchFilter(filter);
+    // Re-search if there's a query
+    if (searchQuery.trim() && !isValidUrl(searchQuery.trim())) {
+      setPlatformResults([]);
+      setEntityResults([]);
+      if (filter === "all") {
+        searchAllMutation.mutate({ query: searchQuery.trim(), limit: 10 }, {
+          onSuccess: (response) => {
+            setPlatformResults(response.results);
+            setMatchesSaved(response.matches_saved);
+          },
+        });
+      } else {
+        entitySearchMutation.mutate({ query: searchQuery.trim(), entityType: filter, limit: 20 }, {
+          onSuccess: (response) => {
+            setEntityResults(response.results);
+          },
+        });
+      }
     }
   };
 
@@ -362,6 +400,13 @@ function HomePage() {
             </span>
           </div>
         </form>
+
+        {/* Search Filters */}
+        {!resolvedSong && !isLoading && (platformResults.length > 0 || entityResults.length > 0 || searchQuery.trim()) && (
+          <div className="max-w-3xl mx-auto flex justify-center mt-6">
+            <SearchFilters activeFilter={searchFilter} onFilterChange={handleFilterChange} />
+          </div>
+        )}
 
         {/* Loading State */}
         {isLoading && (
@@ -609,6 +654,28 @@ function HomePage() {
                   </div>
                 );
               })}
+            </div>
+          </div>
+        )}
+
+        {/* Entity Search Results */}
+        {entityResults.length > 0 && !resolvedSong && !isLoading && (
+          <div className="max-w-4xl mx-auto space-y-6">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-bold text-zinc-100">
+                Found {entityResults.length} {searchFilter !== "all" ? `${searchFilter}s` : "results"}
+              </h2>
+            </div>
+            <div className="grid gap-3">
+              {entityResults.map((result, index) => (
+                <div
+                  key={`${result.entity_type}-${result.platform}-${result.id}`}
+                  className="animate-slide-up"
+                  style={{ animationDelay: `${index * 0.05}s` }}
+                >
+                  <EntitySearchResultCard result={result} />
+                </div>
+              ))}
             </div>
           </div>
         )}
