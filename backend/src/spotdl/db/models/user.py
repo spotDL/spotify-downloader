@@ -6,10 +6,9 @@ import uuid
 from typing import TYPE_CHECKING
 
 from sqlalchemy import Boolean, Integer, String
-from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from spotdl.db.models.base import Base, TimestampMixin, generate_uuid
+from spotdl.db.models.base import Base, GUID, TimestampMixin, generate_uuid
 
 if TYPE_CHECKING:
     from spotdl.db.models.match import Match
@@ -26,7 +25,7 @@ class User(Base, TimestampMixin):
     __tablename__ = "users"
 
     id: Mapped[uuid.UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
+        GUID(),
         primary_key=True,
         default=generate_uuid,
     )

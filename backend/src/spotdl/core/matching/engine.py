@@ -59,7 +59,7 @@ def order_results(
         logger.debug(
             "[%s|%s] Calculating match for %s",
             song.song_id,
-            result.result_id,
+            result.platform_id,
             result.url,
         )
 
@@ -68,7 +68,7 @@ def order_results(
             logger.debug(
                 "[%s|%s] Skipping - no common words",
                 song.song_id,
-                result.result_id,
+                result.platform_id,
             )
             continue
 
@@ -77,7 +77,7 @@ def order_results(
         logger.debug(
             "[%s|%s] Main artist match: %.2f",
             song.song_id,
-            result.result_id,
+            result.platform_id,
             artists_match,
         )
 
@@ -86,7 +86,7 @@ def order_results(
         logger.debug(
             "[%s|%s] Other artists match: %.2f",
             song.song_id,
-            result.result_id,
+            result.platform_id,
             other_artists_match,
         )
 
@@ -97,7 +97,7 @@ def order_results(
         logger.debug(
             "[%s|%s] Normalized artists match: %.2f",
             song.song_id,
-            result.result_id,
+            result.platform_id,
             artists_match,
         )
 
@@ -108,7 +108,7 @@ def order_results(
         logger.debug(
             "[%s|%s] Final artists match: %.2f",
             song.song_id,
-            result.result_id,
+            result.platform_id,
             artists_match,
         )
 
@@ -117,7 +117,7 @@ def order_results(
         logger.debug(
             "[%s|%s] Initial name match: %.2f",
             song.song_id,
-            result.result_id,
+            result.platform_id,
             name_match,
         )
 
@@ -128,7 +128,7 @@ def order_results(
             logger.debug(
                 "[%s|%s] Forbidden words penalty: %s",
                 song.song_id,
-                result.result_id,
+                result.platform_id,
                 found_fwords,
             )
 
@@ -138,7 +138,7 @@ def order_results(
         logger.debug(
             "[%s|%s] Album: %.2f, Time: %.2f",
             song.song_id,
-            result.result_id,
+            result.platform_id,
             album_match,
             time_match,
         )
@@ -148,18 +148,18 @@ def order_results(
             logger.debug(
                 "[%s|%s] Skipping - name match %.2f <= %.2f",
                 song.song_id,
-                result.result_id,
+                result.platform_id,
                 name_match,
                 MIN_NAME_MATCH,
             )
             continue
 
         # slider.kz is exempt from artist match threshold
-        if artists_match < MIN_ARTIST_MATCH and result.source != TargetPlatform.SLIDER_KZ:
+        if artists_match < MIN_ARTIST_MATCH and result.platform != TargetPlatform.SLIDER_KZ:
             logger.debug(
                 "[%s|%s] Skipping - artist match %.2f < %.2f",
                 song.song_id,
-                result.result_id,
+                result.platform_id,
                 artists_match,
                 MIN_ARTIST_MATCH,
             )
@@ -170,7 +170,7 @@ def order_results(
         logger.debug(
             "[%s|%s] Average match: %.2f",
             song.song_id,
-            result.result_id,
+            result.platform_id,
             average_match,
         )
 
@@ -179,14 +179,14 @@ def order_results(
         if (
             result.verified
             and not result.isrc_search
-            and result.album
+            and result.album_name
             and album_match <= 80
         ):
             average_match = (average_match + album_match) / 2
             logger.debug(
                 "[%s|%s] Average with album: %.2f",
                 song.song_id,
-                result.result_id,
+                result.platform_id,
                 average_match,
             )
 
@@ -195,7 +195,7 @@ def order_results(
             logger.debug(
                 "[%s|%s] Skipping - time match %.2f < %.2f",
                 song.song_id,
-                result.result_id,
+                result.platform_id,
                 time_match,
                 MIN_TIME_MATCH,
             )
@@ -206,7 +206,7 @@ def order_results(
             logger.debug(
                 "[%s|%s] Skipping - time %.2f < 50 and average %.2f < 75",
                 song.song_id,
-                result.result_id,
+                result.platform_id,
                 time_match,
                 average_match,
             )
@@ -215,14 +215,14 @@ def order_results(
         # Factor in time match for lower-quality matches
         if (
             (not result.isrc_search and average_match <= HIGH_MATCH_THRESHOLD)
-            or result.source == TargetPlatform.SLIDER_KZ
+            or result.platform == TargetPlatform.SLIDER_KZ
             or time_match < 0
         ):
             average_match = (average_match + time_match) / 2
             logger.debug(
                 "[%s|%s] Average with time: %.2f",
                 song.song_id,
-                result.result_id,
+                result.platform_id,
                 average_match,
             )
 
@@ -236,14 +236,14 @@ def order_results(
                 logger.debug(
                     "[%s|%s] Explicit mismatch penalty applied",
                     song.song_id,
-                    result.result_id,
+                    result.platform_id,
                 )
 
         average_match = min(average_match, 100)
         logger.debug(
             "[%s|%s] Final score: %.2f",
             song.song_id,
-            result.result_id,
+            result.platform_id,
             average_match,
         )
 

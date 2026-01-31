@@ -291,7 +291,7 @@ def artists_match_fixup2(
     if score <= 70:
         artist_list1 = create_clean_string(song.artists, slug_song_name, True)
         artist_list2 = create_clean_string(
-            list(result.artists) if result.artists else [result.author],
+            list(result.artists) if result.artists else [result.artist],
             slug_result_name,
             True,
         )
@@ -396,7 +396,7 @@ def calc_album_match(song: Song, result: Result) -> float:
     Returns:
         Match score from 0 to 100
     """
-    if not result.album:
+    if not result.album_name:
         return 0.0
 
-    return ratio(slugify(song.album_name), slugify(result.album))
+    return ratio(slugify(song.album_name), slugify(result.album_name))

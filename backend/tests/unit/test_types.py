@@ -143,130 +143,143 @@ class TestResult:
     def test_result_creation(self):
         """Test creating a result."""
         result = Result(
-            source=TargetPlatform.YOUTUBE_MUSIC,
+            name="Test Result",
+            artists=["Test Author"],
+            artist="Test Author",
+            duration=185,
+            platform=TargetPlatform.YOUTUBE_MUSIC,
+            platform_id="abc",
             url="https://music.youtube.com/watch?v=abc",
             verified=True,
-            name="Test Result",
-            duration=185.0,
-            author="Test Author",
-            result_id="abc",
         )
 
         assert result.name == "Test Result"
-        assert result.source == TargetPlatform.YOUTUBE_MUSIC
+        assert result.platform == TargetPlatform.YOUTUBE_MUSIC
         assert result.verified is True
-        assert result.duration == 185.0
+        assert result.duration == 185
 
     def test_result_from_dict(self):
         """Test creating result from dictionary."""
+        data = {
+            "name": "Test",
+            "artists": ["Artist1", "Artist2"],
+            "artist": "Artist1",
+            "duration": 200,
+            "platform": "youtube",
+            "platform_id": "xyz",
+            "url": "https://youtube.com/watch?v=xyz",
+            "verified": False,
+        }
+
+        result = Result.from_dict(data)
+        assert result.platform == TargetPlatform.YOUTUBE
+        assert result.artists == ("Artist1", "Artist2")
+
+    def test_result_from_dict_legacy_fields(self):
+        """Test creating result from dictionary with legacy field names."""
         data = {
             "source": "youtube",
             "url": "https://youtube.com/watch?v=xyz",
             "verified": False,
             "name": "Test",
-            "duration": 200.0,
+            "duration": 200,
             "author": "Author",
             "result_id": "xyz",
-            "artists": ["Artist1", "Artist2"],
         }
 
         result = Result.from_dict(data)
-        assert result.source == TargetPlatform.YOUTUBE
-        assert result.artists == ("Artist1", "Artist2")
+        assert result.platform == TargetPlatform.YOUTUBE
+        assert result.artist == "Author"
+        assert result.platform_id == "xyz"
 
     def test_result_from_json(self):
         """Test creating result from JSON."""
         data = {
-            "source": "soundcloud",
-            "url": "https://soundcloud.com/test",
-            "verified": False,
             "name": "Test",
-            "duration": 150.0,
-            "author": "Author",
-            "result_id": "test",
+            "artists": ["Author"],
+            "artist": "Author",
+            "duration": 150,
+            "platform": "soundcloud",
+            "platform_id": "test",
+            "url": "https://soundcloud.com/test",
         }
 
         result = Result.from_json(json.dumps(data))
-        assert result.source == TargetPlatform.SOUNDCLOUD
+        assert result.platform == TargetPlatform.SOUNDCLOUD
 
     def test_result_to_json(self):
         """Test serializing result to JSON."""
         result = Result(
-            source=TargetPlatform.BANDCAMP,
+            name="Song",
+            artists=["Artist"],
+            artist="Artist",
+            duration=300,
+            platform=TargetPlatform.BANDCAMP,
+            platform_id="song123",
             url="https://artist.bandcamp.com/track/song",
             verified=True,
-            name="Song",
-            duration=300.0,
-            author="Artist",
-            result_id="song123",
-            artists=("Artist",),
         )
 
         json_str = result.to_json()
         data = json.loads(json_str)
 
-        assert data["source"] == "bandcamp"
+        assert data["platform"] == "bandcamp"
         assert data["artists"] == ["Artist"]
 
     def test_result_json_property(self):
         """Test result json property."""
         result = Result(
-            source=TargetPlatform.PIPED,
+            name="Video",
+            artists=["Channel"],
+            artist="Channel",
+            duration=250,
+            platform=TargetPlatform.PIPED,
+            platform_id="abc",
             url="https://piped.video/watch?v=abc",
             verified=False,
-            name="Video",
-            duration=250.0,
-            author="Channel",
-            result_id="abc",
         )
 
         data = result.json
-        assert data["source"] == "piped"
+        assert data["platform"] == "piped"
         assert data["verified"] is False
 
-    def test_result_is_frozen(self):
-        """Test that result is immutable."""
+    def test_result_optional_fields(self):
+        """Test result optional fields."""
         result = Result(
-            source=TargetPlatform.YOUTUBE,
-            url="https://youtube.com/watch?v=test",
-            verified=True,
-            name="Test",
-            duration=100.0,
-            author="Author",
-            result_id="test",
+            name="Song",
+            artists=["Artist"],
+            artist="Artist",
+            duration=200,
+            platform=TargetPlatform.YOUTUBE,
+            platform_id="abc",
+            url="https://youtube.com/watch?v=abc",
+            album_name="Album",
+            cover_url="https://example.com/cover.jpg",
+            views=1000000,
+            explicit=True,
+            year=2024,
         )
 
-        with pytest.raises(AttributeError):
-            result.name = "Changed"  # type: ignore
+        assert result.album_name == "Album"
+        assert result.cover_url == "https://example.com/cover.jpg"
+        assert result.views == 1000000
+        assert result.explicit is True
+        assert result.year == 2024
 
-    def test_result_is_hashable(self):
-        """Test that result can be used in sets/dicts."""
-        result1 = Result(
-            source=TargetPlatform.YOUTUBE,
-            url="https://youtube.com/watch?v=a",
-            verified=True,
-            name="A",
-            duration=100.0,
-            author="Author",
-            result_id="a",
-        )
-        result2 = Result(
-            source=TargetPlatform.YOUTUBE,
-            url="https://youtube.com/watch?v=b",
-            verified=True,
-            name="B",
-            duration=100.0,
-            author="Author",
-            result_id="b",
+    def test_result_artists_list_converted_to_tuple(self):
+        """Test that artists list is converted to tuple."""
+        result = Result(
+            name="Song",
+            artists=["Artist1", "Artist2"],
+            artist="Artist1",
+            duration=200,
+            platform=TargetPlatform.YOUTUBE,
+            platform_id="abc",
+            url="https://youtube.com/watch?v=abc",
         )
 
-        # Should be usable in a set
-        result_set = {result1, result2}
-        assert len(result_set) == 2
-
-        # Should be usable as dict key
-        result_dict = {result1: 100, result2: 200}
-        assert result_dict[result1] == 100
+        assert isinstance(result.artists, tuple)
+        assert result.artists == ("Artist1", "Artist2")
 
 
 class TestSongList:

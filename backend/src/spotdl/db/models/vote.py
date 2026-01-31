@@ -7,10 +7,9 @@ from enum import StrEnum
 from typing import TYPE_CHECKING
 
 from sqlalchemy import ForeignKey, String, UniqueConstraint
-from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from spotdl.db.models.base import Base, TimestampMixin, generate_uuid
+from spotdl.db.models.base import Base, GUID, TimestampMixin, generate_uuid
 
 if TYPE_CHECKING:
     from spotdl.db.models.match import Match
@@ -37,18 +36,18 @@ class Vote(Base, TimestampMixin):
     )
 
     id: Mapped[uuid.UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
+        GUID(),
         primary_key=True,
         default=generate_uuid,
     )
     match_id: Mapped[uuid.UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
+        GUID(),
         ForeignKey("matches.id", ondelete="CASCADE"),
         nullable=False,
         index=True,
     )
     user_id: Mapped[uuid.UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
+        GUID(),
         ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
         index=True,

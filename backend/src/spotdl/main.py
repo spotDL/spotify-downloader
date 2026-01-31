@@ -12,6 +12,7 @@ from fastapi.staticfiles import StaticFiles
 
 from spotdl.api.v1 import router as api_v1_router
 from spotdl.config import get_settings
+from spotdl.db.database import close_db, init_db
 
 
 @asynccontextmanager
@@ -20,21 +21,18 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     settings = get_settings()
 
     # Startup
-    # TODO: Initialize database connection pool
-    # TODO: Initialize Redis connection if configured
-    # TODO: Initialize provider clients
-
     # Ensure data directory exists for SQLite
     if settings.database_is_sqlite:
         data_dir = Path("./data")
         data_dir.mkdir(exist_ok=True)
 
+    # Initialize database tables
+    await init_db()
+
     yield
 
     # Shutdown
-    # TODO: Close database connections
-    # TODO: Close Redis connections
-    # TODO: Cleanup provider clients
+    await close_db()
 
 
 def create_app() -> FastAPI:

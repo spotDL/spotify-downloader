@@ -2,10 +2,13 @@
 
 from __future__ import annotations
 
+import uuid
 from typing import Annotated
+from uuid import UUID
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel, HttpUrl
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from spotdl.core.services.match import get_match_service
 from spotdl.core.services.song import (
@@ -14,6 +17,10 @@ from spotdl.core.services.song import (
     get_song_service,
 )
 from spotdl.core.types.result import TargetPlatform
+from spotdl.db.database import get_db_session
+from spotdl.db.models.match import MatchType
+from spotdl.db.repositories.match import MatchRepository
+from spotdl.providers.sources import detect_platform
 
 router = APIRouter(prefix="/matches")
 
@@ -79,6 +86,30 @@ class SubmitMatchResponse(BaseModel):
     target_platform: str
     match_type: str
     message: str
+
+
+async def get_current_user_id() -> UUID:
+    """
+    Get current user ID from authentication.
+
+    For now, returns a fixed test user ID.
+    """
+    return uuid.UUID("00000000-0000-0000-0000-000000000001")
+
+
+def detect_target_platform(url: str) -> str | None:
+    """Detect target platform from URL."""
+    if "youtube.com" in url or "youtu.be" in url:
+        if "music.youtube.com" in url:
+            return "youtube_music"
+        return "youtube"
+    elif "soundcloud.com" in url:
+        return "soundcloud"
+    elif "bandcamp.com" in url:
+        return "bandcamp"
+    elif "piped" in url:
+        return "piped"
+    return None
 
 
 @router.post("/find")
@@ -188,54 +219,76 @@ async def find_matches_get(
 
 
 @router.post("/submit")
-async def submit_match(request: SubmitMatchRequest) -> SubmitMatchResponse:
+async def submit_match(
+    request: SubmitMatchRequest,
+    db: Annotated[AsyncSession, Depends(get_db_session)],
+    user_id: Annotated[UUID, Depends(get_current_user_id)],
+) -> SubmitMatchResponse:
     """
     Submit a user-discovered match.
 
-    This endpoint requires authentication (to be implemented).
+    Requires authentication.
 
     Args:
         request: Source and target URLs
+        db: Database session
+        user_id: Current user ID from auth
 
     Returns:
         Submitted match info
     """
-    # TODO: Add authentication check
-    # TODO: Store match in database
+    match_repo = MatchRepository(db)
 
-    # For now, detect the target platform
-    from spotdl.providers.sources import detect_platform
-
-    target_platform = None
+    # Detect target platform
     target_url = str(request.target_url)
+    target_platform = detect_target_platform(target_url)
 
-    # Check against target platforms (YouTube, etc)
-    if "youtube.com" in target_url or "youtu.be" in target_url:
-        if "music.youtube.com" in target_url:
-            target_platform = "youtube_music"
-        else:
-            target_platform = "youtube"
-    elif "soundcloud.com" in target_url:
-        target_platform = "soundcloud"
-    elif "bandcamp.com" in target_url:
-        target_platform = "bandcamp"
-    elif "piped" in target_url:
-        target_platform = "piped"
-    else:
+    if target_platform is None:
         raise HTTPException(
             status_code=400,
             detail="Unsupported target platform. Supported: youtube, youtube_music, soundcloud, bandcamp, piped",
         )
 
-    # Generate a temporary ID
-    import uuid
+    # Detect source platform
+    source_url = str(request.source_url)
+    source_platform = detect_platform(source_url)
+    if source_platform is None:
+        raise HTTPException(
+            status_code=400,
+            detail="Unsupported source platform",
+        )
 
-    match_id = str(uuid.uuid4())
+    # Check if match already exists
+    existing = await match_repo.get_by_source_and_target(
+        source_url=source_url,
+        target_platform=target_platform,
+        target_url=target_url,
+    )
+
+    if existing:
+        return SubmitMatchResponse(
+            id=str(existing.id),
+            source_url=source_url,
+            target_url=target_url,
+            target_platform=target_platform,
+            match_type=existing.match_type,
+            message="Match already exists.",
+        )
+
+    # Create new match
+    match = await match_repo.create(
+        source_platform=source_platform.value,
+        source_url=source_url,
+        target_platform=target_platform,
+        target_url=target_url,
+        match_type=MatchType.USER,
+        submitted_by=user_id,
+    )
 
     return SubmitMatchResponse(
-        id=match_id,
-        source_url=str(request.source_url),
-        target_url=str(request.target_url),
+        id=str(match.id),
+        source_url=source_url,
+        target_url=target_url,
         target_platform=target_platform,
         match_type="user",
         message="Match submitted successfully. It will be available after verification.",

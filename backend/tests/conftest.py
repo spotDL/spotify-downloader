@@ -2,15 +2,122 @@
 
 from __future__ import annotations
 
+import os
 import uuid
-from typing import Any
+from typing import Any, AsyncGenerator
 
 import pytest
+import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 from spotdl.core.types.result import Result, TargetPlatform
 from spotdl.core.types.song import Platform, Song
+from spotdl.db.database import get_db_session
+from spotdl.db.models.base import Base
+from spotdl.db.models.match import Match as MatchModel, MatchType
+from spotdl.db.models.user import User
+from spotdl.db.models.vote import Vote, VoteType
 from spotdl.main import app
+
+# Use SQLite for tests by default, PostgreSQL for CI
+TEST_DATABASE_URL = os.environ.get(
+    "TEST_DATABASE_URL",
+    "sqlite+aiosqlite:///:memory:",
+)
+
+
+@pytest.fixture(scope="session")
+def event_loop_policy():
+    """Use the default event loop policy."""
+    import asyncio
+    return asyncio.DefaultEventLoopPolicy()
+
+
+@pytest_asyncio.fixture(scope="function")
+async def test_engine():
+    """Create a test database engine."""
+    engine = create_async_engine(
+        TEST_DATABASE_URL,
+        echo=False,
+        future=True,
+    )
+
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+
+    yield engine
+
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.drop_all)
+
+    await engine.dispose()
+
+
+@pytest_asyncio.fixture(scope="function")
+async def db_session(test_engine) -> AsyncGenerator[AsyncSession, None]:
+    """Create a test database session."""
+    session_factory = async_sessionmaker(
+        test_engine,
+        class_=AsyncSession,
+        expire_on_commit=False,
+        autocommit=False,
+        autoflush=False,
+    )
+
+    async with session_factory() as session:
+        yield session
+        await session.rollback()
+
+
+@pytest_asyncio.fixture(scope="function")
+async def client(db_session: AsyncSession) -> AsyncGenerator[AsyncClient, None]:
+    """Create an async test client with database session override."""
+
+    async def override_get_db_session():
+        yield db_session
+
+    app.dependency_overrides[get_db_session] = override_get_db_session
+
+    async with AsyncClient(
+        transport=ASGITransport(app=app),
+        base_url="http://test",
+    ) as ac:
+        yield ac
+
+    app.dependency_overrides.clear()
+
+
+@pytest_asyncio.fixture
+async def test_user(db_session: AsyncSession) -> User:
+    """Create a test user."""
+    user = User(
+        id=uuid.UUID("00000000-0000-0000-0000-000000000001"),
+        username="testuser",
+        email="test@example.com",
+        hashed_password="hashed_password_here",
+    )
+    db_session.add(user)
+    await db_session.commit()
+    await db_session.refresh(user)
+    return user
+
+
+@pytest_asyncio.fixture
+async def test_match(db_session: AsyncSession, test_user: User) -> MatchModel:
+    """Create a test match."""
+    match = MatchModel(
+        source_platform="spotify",
+        source_url="https://open.spotify.com/track/test123",
+        target_platform="youtube",
+        target_url="https://www.youtube.com/watch?v=xyz789",
+        match_type=MatchType.SYSTEM,
+        match_score=85.0,
+    )
+    db_session.add(match)
+    await db_session.commit()
+    await db_session.refresh(match)
+    return match
 
 
 @pytest.fixture
@@ -36,15 +143,15 @@ def sample_song() -> Song:
 def sample_result() -> Result:
     """Create a sample result for testing."""
     return Result(
-        source=TargetPlatform.YOUTUBE_MUSIC,
+        platform=TargetPlatform.YOUTUBE_MUSIC,
         url="https://music.youtube.com/watch?v=abc123",
         verified=True,
         name="Artist One - Test Song",
-        duration=181.0,
-        author="Artist One",
-        result_id="abc123",
+        duration=181,
+        artist="Artist One",
+        platform_id="abc123",
         artists=("Artist One", "Artist Two"),
-        album="Test Album",
+        album_name="Test Album",
     )
 
 
@@ -52,13 +159,14 @@ def sample_result() -> Result:
 def sample_result_unverified() -> Result:
     """Create an unverified result for testing."""
     return Result(
-        source=TargetPlatform.YOUTUBE,
+        platform=TargetPlatform.YOUTUBE,
         url="https://www.youtube.com/watch?v=xyz789",
         verified=False,
         name="Test Song - Artist One",
-        duration=185.0,
-        author="RandomChannel",
-        result_id="xyz789",
+        duration=185,
+        artist="RandomChannel",
+        platform_id="xyz789",
+        artists=("RandomChannel",),
     )
 
 
@@ -91,38 +199,33 @@ def create_song(
 
 def create_result(
     name: str = "Test Song",
-    duration: float = 180.0,
+    duration: int = 180,
     verified: bool = True,
     artists: tuple[str, ...] | None = None,
-    source: TargetPlatform = TargetPlatform.YOUTUBE_MUSIC,
-    album: str | None = None,
-    explicit: bool | None = None,
-    isrc_search: bool | None = None,
+    platform: TargetPlatform = TargetPlatform.YOUTUBE_MUSIC,
+    album_name: str | None = None,
+    explicit: bool = False,
+    isrc_search: bool = False,
     **kwargs: Any,
 ) -> Result:
     """Helper to create results with default values."""
-    result_id = str(uuid.uuid4())[:11]
+    platform_id = str(uuid.uuid4())[:11]
+    # Use default if None, but allow empty tuple
+    if artists is None:
+        artists = ("Unknown",)
+    # Get artist from artists tuple, defaulting to "Unknown" if empty
+    artist = artists[0] if artists else "Unknown"
     return Result(
-        source=source,
-        url=f"https://music.youtube.com/watch?v={result_id}",
+        platform=platform,
+        url=f"https://music.youtube.com/watch?v={platform_id}",
         verified=verified,
         name=name,
         duration=duration,
-        author=artists[0] if artists else "Unknown",
-        result_id=result_id,
-        artists=artists,
-        album=album,
+        artist=artist,
+        platform_id=platform_id,
+        artists=artists if artists else (),
+        album_name=album_name,
         explicit=explicit,
         isrc_search=isrc_search,
         **kwargs,
     )
-
-
-@pytest.fixture
-async def client():
-    """Create an async test client."""
-    async with AsyncClient(
-        transport=ASGITransport(app=app),
-        base_url="http://test",
-    ) as ac:
-        yield ac

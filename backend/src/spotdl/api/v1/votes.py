@@ -2,13 +2,18 @@
 
 from __future__ import annotations
 
+import math
 from typing import Annotated
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from spotdl.core.services.vote import VoteType
+from spotdl.db.database import get_db_session
+from spotdl.db.models.vote import VoteType
+from spotdl.db.repositories.match import MatchRepository
+from spotdl.db.repositories.vote import VoteRepository
 
 router = APIRouter(prefix="/votes")
 
@@ -43,13 +48,54 @@ class VoteSummaryResponse(BaseModel):
     user_vote: str | None = None
 
 
-# Placeholder for authentication dependency
-# TODO: Replace with actual auth dependency
+class UserVoteItem(BaseModel):
+    """A single user vote item."""
+
+    match_id: str
+    vote_type: str
+    created_at: str
+
+
+class UserVotesResponse(BaseModel):
+    """Response model for user votes list."""
+
+    votes: list[UserVoteItem]
+
+
+def calculate_wilson_score(upvotes: int, downvotes: int) -> float:
+    """
+    Calculate Wilson score confidence interval.
+
+    This gives a lower bound on the true proportion of positive votes.
+    """
+    n = upvotes + downvotes
+    if n == 0:
+        return 0.0
+
+    p = upvotes / n
+    z = 1.96  # 95% confidence
+
+    denominator = 1 + z * z / n
+    centre_adjusted_probability = p + z * z / (2 * n)
+    adjusted_standard_deviation = math.sqrt((p * (1 - p) + z * z / (4 * n)) / n)
+
+    lower_bound = (
+        centre_adjusted_probability - z * adjusted_standard_deviation
+    ) / denominator
+
+    return max(0.0, min(1.0, lower_bound))
+
+
 async def get_current_user_id() -> UUID:
-    """Get current user ID (placeholder)."""
-    # This would be replaced with actual JWT/session auth
+    """
+    Get current user ID from authentication.
+
+    For now, returns a fixed test user ID.
+    In production, this would extract the user ID from JWT token.
+    """
     import uuid
 
+    # Test user ID for development
     return uuid.UUID("00000000-0000-0000-0000-000000000001")
 
 
@@ -57,6 +103,7 @@ async def get_current_user_id() -> UUID:
 async def cast_vote(
     request: VoteRequest,
     user_id: Annotated[UUID, Depends(get_current_user_id)],
+    db: Annotated[AsyncSession, Depends(get_db_session)],
 ) -> VoteResponse:
     """
     Cast a vote on a match.
@@ -66,6 +113,7 @@ async def cast_vote(
     Args:
         request: Match ID and vote type
         user_id: Current user ID (from auth)
+        db: Database session
 
     Returns:
         Updated vote summary
@@ -76,19 +124,44 @@ async def cast_vote(
     except ValueError as e:
         raise HTTPException(
             status_code=400,
-            detail=f"Invalid vote type. Must be 'up' or 'down'",
+            detail="Invalid vote type. Must be 'up' or 'down'",
         ) from e
 
-    # TODO: Implement actual vote storage with database
-    # For now, return a mock response
+    match_repo = MatchRepository(db)
+    vote_repo = VoteRepository(db)
+
+    # Check if match exists
+    match = await match_repo.get_by_id(request.match_id)
+    if match is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Match not found",
+        )
+
+    # Create or update the vote
+    await vote_repo.upsert_vote(
+        match_id=request.match_id,
+        user_id=user_id,
+        vote_type=vote_type,
+    )
+
+    # Update vote counts on the match
+    updated_match = await match_repo.update_vote_counts(request.match_id)
+    if updated_match is None:
+        raise HTTPException(
+            status_code=500,
+            detail="Failed to update vote counts",
+        )
+
+    confidence = calculate_wilson_score(updated_match.upvotes, updated_match.downvotes)
 
     return VoteResponse(
         match_id=request.match_id,
-        upvotes=1 if vote_type == VoteType.UP else 0,
-        downvotes=1 if vote_type == VoteType.DOWN else 0,
-        score=1 if vote_type == VoteType.UP else -1,
+        upvotes=updated_match.upvotes,
+        downvotes=updated_match.downvotes,
+        score=updated_match.upvotes - updated_match.downvotes,
         user_vote=vote_type.value,
-        confidence=0.5,
+        confidence=confidence,
     )
 
 
@@ -96,6 +169,7 @@ async def cast_vote(
 async def remove_vote(
     match_id: UUID,
     user_id: Annotated[UUID, Depends(get_current_user_id)],
+    db: Annotated[AsyncSession, Depends(get_db_session)],
 ) -> VoteResponse:
     """
     Remove a vote from a match.
@@ -105,26 +179,49 @@ async def remove_vote(
     Args:
         match_id: Match to remove vote from
         user_id: Current user ID (from auth)
+        db: Database session
 
     Returns:
         Updated vote summary
     """
-    # TODO: Implement actual vote removal with database
-    # For now, return a mock response
+    match_repo = MatchRepository(db)
+    vote_repo = VoteRepository(db)
+
+    # Check if match exists
+    match = await match_repo.get_by_id(match_id)
+    if match is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Match not found",
+        )
+
+    # Delete the vote
+    await vote_repo.delete_vote(match_id=match_id, user_id=user_id)
+
+    # Update vote counts on the match
+    updated_match = await match_repo.update_vote_counts(match_id)
+    if updated_match is None:
+        raise HTTPException(
+            status_code=500,
+            detail="Failed to update vote counts",
+        )
+
+    confidence = calculate_wilson_score(updated_match.upvotes, updated_match.downvotes)
 
     return VoteResponse(
         match_id=match_id,
-        upvotes=0,
-        downvotes=0,
-        score=0,
+        upvotes=updated_match.upvotes,
+        downvotes=updated_match.downvotes,
+        score=updated_match.upvotes - updated_match.downvotes,
         user_vote=None,
-        confidence=0.5,
+        confidence=confidence,
     )
 
 
 @router.get("/{match_id}")
 async def get_vote_summary(
     match_id: UUID,
+    db: Annotated[AsyncSession, Depends(get_db_session)],
     user_id: Annotated[UUID | None, Depends(get_current_user_id)] = None,
 ) -> VoteSummaryResponse:
     """
@@ -132,31 +229,50 @@ async def get_vote_summary(
 
     Args:
         match_id: Match to get votes for
+        db: Database session
         user_id: Optional current user ID (from auth)
 
     Returns:
         Vote summary
     """
-    # TODO: Implement actual vote retrieval with database
-    # For now, return a mock response
+    match_repo = MatchRepository(db)
+    vote_repo = VoteRepository(db)
+
+    # Get match
+    match = await match_repo.get_by_id(match_id)
+    if match is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Match not found",
+        )
+
+    # Get user's vote if authenticated
+    user_vote = None
+    if user_id:
+        vote = await vote_repo.get_user_vote(match_id=match_id, user_id=user_id)
+        if vote:
+            user_vote = vote.vote_type
+
+    confidence = calculate_wilson_score(match.upvotes, match.downvotes)
 
     return VoteSummaryResponse(
         match_id=match_id,
-        upvotes=0,
-        downvotes=0,
-        score=0,
-        total_votes=0,
-        confidence=0.5,
-        user_vote=None,
+        upvotes=match.upvotes,
+        downvotes=match.downvotes,
+        score=match.upvotes - match.downvotes,
+        total_votes=match.upvotes + match.downvotes,
+        confidence=confidence,
+        user_vote=user_vote,
     )
 
 
 @router.get("/user/me")
 async def get_my_votes(
     user_id: Annotated[UUID, Depends(get_current_user_id)],
+    db: Annotated[AsyncSession, Depends(get_db_session)],
     limit: int = 50,
     offset: int = 0,
-) -> dict[str, list[dict[str, str]]]:
+) -> UserVotesResponse:
     """
     Get current user's votes.
 
@@ -164,13 +280,28 @@ async def get_my_votes(
 
     Args:
         user_id: Current user ID (from auth)
+        db: Database session
         limit: Maximum number of votes to return
         offset: Offset for pagination
 
     Returns:
         List of user's votes
     """
-    # TODO: Implement actual vote retrieval with database
-    # For now, return empty list
+    vote_repo = VoteRepository(db)
 
-    return {"votes": []}
+    votes = await vote_repo.get_user_votes(
+        user_id=user_id,
+        skip=offset,
+        limit=limit,
+    )
+
+    return UserVotesResponse(
+        votes=[
+            UserVoteItem(
+                match_id=str(vote.match_id),
+                vote_type=vote.vote_type,
+                created_at=vote.created_at.isoformat() if vote.created_at else "",
+            )
+            for vote in votes
+        ]
+    )

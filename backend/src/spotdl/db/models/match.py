@@ -7,10 +7,9 @@ from enum import StrEnum
 from typing import TYPE_CHECKING
 
 from sqlalchemy import ForeignKey, Integer, Numeric, String, Text, UniqueConstraint
-from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from spotdl.db.models.base import Base, TimestampMixin, generate_uuid
+from spotdl.db.models.base import Base, GUID, TimestampMixin, generate_uuid
 
 if TYPE_CHECKING:
     from spotdl.db.models.song import Song
@@ -44,14 +43,14 @@ class Match(Base, TimestampMixin):
     )
 
     id: Mapped[uuid.UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
+        GUID(),
         primary_key=True,
         default=generate_uuid,
     )
 
     # Source song reference
     source_song_id: Mapped[uuid.UUID | None] = mapped_column(
-        PG_UUID(as_uuid=True),
+        GUID(),
         ForeignKey("songs.id", ondelete="SET NULL"),
         nullable=True,
         index=True,
@@ -103,12 +102,12 @@ class Match(Base, TimestampMixin):
 
     # User references
     submitted_by: Mapped[uuid.UUID | None] = mapped_column(
-        PG_UUID(as_uuid=True),
+        GUID(),
         ForeignKey("users.id", ondelete="SET NULL"),
         nullable=True,
     )
     verified_by: Mapped[uuid.UUID | None] = mapped_column(
-        PG_UUID(as_uuid=True),
+        GUID(),
         ForeignKey("users.id", ondelete="SET NULL"),
         nullable=True,
     )

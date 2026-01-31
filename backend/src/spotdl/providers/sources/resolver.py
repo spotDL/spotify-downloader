@@ -27,7 +27,7 @@ URL_PATTERNS: dict[Platform, list[re.Pattern[str]]] = {
         re.compile(r"spotify:(track|album|playlist|artist):([a-zA-Z0-9]+)"),
     ],
     Platform.APPLE_MUSIC: [
-        re.compile(r"https?://music\.apple\.com/\w+/(album|playlist|artist)/[^/]+/(\d+)"),
+        re.compile(r"https?://music\.apple\.com/\w+/(album|playlist|artist)/[^/]+/([a-zA-Z0-9._-]+)"),
         re.compile(r"https?://music\.apple\.com/\w+/album/[^/]+/(\d+)\?i=(\d+)"),  # Track in album
     ],
     Platform.DEEZER: [

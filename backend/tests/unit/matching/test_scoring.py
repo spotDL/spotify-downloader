@@ -90,7 +90,7 @@ class TestCalcMainArtistMatch:
     def test_no_result_artists(self):
         """Test when result has no artists."""
         song = create_song(artists=["Artist One"])
-        result = create_result(artists=None)
+        result = create_result(artists=())  # Empty tuple for no artists
         score = calc_main_artist_match(song, result)
         assert score == 0.0
 
@@ -250,20 +250,20 @@ class TestCalcAlbumMatch:
     def test_exact_album_match(self):
         """Test exact album match."""
         song = create_song(album_name="Test Album")
-        result = create_result(album="Test Album")
+        result = create_result(album_name="Test Album")
         score = calc_album_match(song, result)
         assert score == 100.0
 
     def test_no_result_album(self):
         """Test when result has no album."""
         song = create_song(album_name="Test Album")
-        result = create_result(album=None)
+        result = create_result(album_name=None)
         score = calc_album_match(song, result)
         assert score == 0.0
 
     def test_similar_album(self):
         """Test similar album names."""
         song = create_song(album_name="Greatest Hits")
-        result = create_result(album="Greatest Hits Collection")
+        result = create_result(album_name="Greatest Hits Collection")
         score = calc_album_match(song, result)
         assert score > 50.0

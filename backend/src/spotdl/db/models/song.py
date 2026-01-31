@@ -2,18 +2,51 @@
 
 from __future__ import annotations
 
+import json
 import uuid
 from typing import TYPE_CHECKING, Any
 
-from sqlalchemy import Integer, String, Text, UniqueConstraint
+from sqlalchemy import Integer, String, Text, TypeDecorator, UniqueConstraint
 from sqlalchemy.dialects.postgresql import JSONB
-from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from spotdl.db.models.base import Base, TimestampMixin, generate_uuid
+from spotdl.db.models.base import Base, GUID, TimestampMixin, generate_uuid
 
 if TYPE_CHECKING:
     from spotdl.db.models.match import Match
+
+
+class JSONType(TypeDecorator[Any]):
+    """
+    Platform-independent JSON type.
+
+    Uses PostgreSQL's JSONB when available, otherwise uses
+    Text with JSON serialization for SQLite.
+    """
+
+    impl = Text
+    cache_ok = True
+
+    def load_dialect_impl(self, dialect: Any) -> Any:
+        if dialect.name == "postgresql":
+            return dialect.type_descriptor(JSONB())
+        return dialect.type_descriptor(Text())
+
+    def process_bind_param(self, value: Any, dialect: Any) -> str | None:
+        if value is None:
+            return None
+        if dialect.name == "postgresql":
+            return value
+        return json.dumps(value)
+
+    def process_result_value(self, value: Any, dialect: Any) -> Any:
+        if value is None:
+            return None
+        if dialect.name == "postgresql":
+            return value
+        if isinstance(value, str):
+            return json.loads(value)
+        return value
 
 
 class Song(Base, TimestampMixin):
@@ -30,7 +63,7 @@ class Song(Base, TimestampMixin):
     )
 
     id: Mapped[uuid.UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
+        GUID(),
         primary_key=True,
         default=generate_uuid,
     )
@@ -53,7 +86,7 @@ class Song(Base, TimestampMixin):
         nullable=False,
     )
     artists: Mapped[list[str]] = mapped_column(
-        JSONB,
+        JSONType(),
         nullable=False,
     )
     album_name: Mapped[str | None] = mapped_column(
@@ -72,7 +105,7 @@ class Song(Base, TimestampMixin):
 
     # Full metadata JSON for provider-specific fields
     metadata_json: Mapped[dict[str, Any] | None] = mapped_column(
-        JSONB,
+        JSONType(),
         nullable=True,
     )
 

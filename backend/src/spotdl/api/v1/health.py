@@ -3,12 +3,15 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from typing import Any
+from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel
+from sqlalchemy import text
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from spotdl.config import Settings, get_settings
+from spotdl.db.database import get_db_session
 
 router = APIRouter()
 
@@ -48,13 +51,30 @@ async def health_check(settings: Settings = Depends(get_settings)) -> HealthResp
 @router.get("/health/detailed", response_model=DetailedHealthResponse)
 async def detailed_health_check(
     settings: Settings = Depends(get_settings),
+    db: Annotated[AsyncSession, Depends(get_db_session)] = None,
 ) -> DetailedHealthResponse:
     """
     Detailed health check with component status.
 
     Checks database connectivity, cache availability, and other components.
     """
-    # TODO: Add actual database and cache connectivity checks
+    # Check database connectivity
+    database_status = "not configured"
+    if settings.database_url:
+        try:
+            if db:
+                await db.execute(text("SELECT 1"))
+                database_status = "connected"
+            else:
+                database_status = "connection failed"
+        except Exception as e:
+            database_status = f"error: {str(e)}"
+
+    # Check cache (Redis) connectivity
+    cache_status = "not configured"
+    if settings.redis_url:
+        cache_status = "configured"
+
     components: dict[str, Any] = {
         "matching_engine": "operational",
         "providers": {
@@ -64,11 +84,11 @@ async def detailed_health_check(
     }
 
     return DetailedHealthResponse(
-        status="healthy",
+        status="healthy" if database_status == "connected" else "degraded",
         version=settings.app_version,
         environment=settings.environment,
         timestamp=datetime.now(timezone.utc),
-        database="connected" if settings.database_url else "not configured",
-        cache="connected" if settings.redis_url else "not configured",
+        database=database_status,
+        cache=cache_status,
         components=components,
     )
