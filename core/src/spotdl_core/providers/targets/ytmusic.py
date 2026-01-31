@@ -8,14 +8,14 @@ from typing import TYPE_CHECKING, Any
 
 from ytmusicapi import YTMusic
 
-from spotdl_core.core.types.result import Result, TargetPlatform
+from spotdl_core.types.result import Result, TargetPlatform
 from spotdl_core.providers.targets.base import (
     SearchError,
     TargetProvider,
 )
 
 if TYPE_CHECKING:
-    from spotdl_core.core.types.song import Song
+    from spotdl_core.types.song import Song
 
 # YouTube Music URL pattern
 YTMUSIC_URL_PATTERN = re.compile(

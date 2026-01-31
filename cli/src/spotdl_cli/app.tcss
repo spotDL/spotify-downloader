@@ -1,39 +1,393 @@
-/* SpotDL CLI Textual CSS */
+/* SpotDL CLI - Modern TUI Theme */
 
-/* Global styles */
+/* ==================== VARIABLES ==================== */
+/* Using Textual's built-in color system with modern palette */
+
+/* ==================== GLOBAL ==================== */
+
 Screen {
-    background: $surface;
+    background: $background;
 }
 
-/* Header */
 Header {
     background: $primary;
+    color: $text;
+    text-style: bold;
 }
 
-/* Footer */
 Footer {
-    background: $primary-darken-2;
+    background: $surface;
+    color: $text-muted;
 }
 
-/* Search screen */
-#search-container {
-    layout: vertical;
-    padding: 1;
+.hidden {
+    display: none;
 }
 
-#search-input {
-    dock: top;
+/* Modern scrollbar */
+VerticalScroll {
+    scrollbar-color: $primary-darken-1;
+    scrollbar-color-hover: $primary;
+    scrollbar-color-active: $primary-lighten-1;
+    scrollbar-background: $surface;
+    scrollbar-background-hover: $surface-lighten-1;
+}
+
+/* ==================== TYPOGRAPHY ==================== */
+
+.title-xl {
+    text-style: bold;
+    color: $text;
+    padding: 1 2;
+}
+
+.title-lg {
+    text-style: bold;
+    color: $primary-lighten-1;
+}
+
+.title-md {
+    text-style: bold;
+    color: $text;
+}
+
+.subtitle {
+    color: $text-muted;
+    text-style: italic;
+}
+
+.label {
+    color: $text;
+}
+
+.hint {
+    color: $text-muted;
+    text-style: italic;
+}
+
+.link {
+    color: $primary-lighten-1;
+    text-style: underline;
+}
+
+/* ==================== MODERN CARDS ==================== */
+
+.card {
+    background: $surface;
+    border: wide $surface-lighten-2;
+    padding: 1 2;
+    margin: 1 0;
+}
+
+.card-elevated {
+    background: $surface-lighten-1;
+    border: wide $surface-lighten-3;
+    padding: 1 2;
+    margin: 1 0;
+}
+
+.card-header {
+    height: auto;
     margin-bottom: 1;
 }
 
-#search-input Input {
-    width: 100%;
+.card-title {
+    text-style: bold;
+    color: $text;
 }
 
+.card-subtitle {
+    color: $text-muted;
+}
+
+.card-body {
+    padding: 1 0;
+}
+
+.card-footer {
+    margin-top: 1;
+    padding-top: 1;
+    border-top: solid $surface-lighten-2;
+}
+
+/* ==================== MODERN BUTTONS ==================== */
+
+Button {
+    background: $surface-lighten-1;
+    color: $text;
+    border: tall $surface-lighten-2;
+    padding: 0 2;
+    margin: 0 1;
+    min-width: 10;
+}
+
+Button:hover {
+    background: $surface-lighten-2;
+    border: tall $primary;
+}
+
+Button:focus {
+    background: $surface-lighten-2;
+    border: tall $primary;
+}
+
+Button.-primary {
+    background: $primary;
+    color: $text;
+    border: tall $primary-lighten-1;
+}
+
+Button.-primary:hover {
+    background: $primary-lighten-1;
+    border: tall $primary-lighten-2;
+}
+
+Button.-success {
+    background: $success-darken-1;
+    color: $text;
+    border: tall $success;
+}
+
+Button.-success:hover {
+    background: $success;
+}
+
+Button.-warning {
+    background: $warning-darken-1;
+    color: $text;
+    border: tall $warning;
+}
+
+Button.-error {
+    background: $error-darken-1;
+    color: $text;
+    border: tall $error;
+}
+
+Button.-small {
+    min-width: 6;
+    padding: 0 1;
+    height: 1;
+}
+
+/* ==================== MODERN INPUTS ==================== */
+
+Input {
+    background: $surface;
+    border: tall $surface-lighten-2;
+    padding: 0 1;
+}
+
+Input:focus {
+    border: tall $primary;
+    background: $surface-lighten-1;
+}
+
+Input.-valid {
+    border: tall $success;
+}
+
+Input.-invalid {
+    border: tall $error;
+}
+
+Select {
+    background: $surface;
+    border: tall $surface-lighten-2;
+}
+
+Select:focus {
+    border: tall $primary;
+    background: $surface-lighten-1;
+}
+
+Checkbox {
+    background: transparent;
+    padding: 0;
+}
+
+Checkbox:focus {
+    background: $surface-lighten-1;
+}
+
+/* ==================== MODERN DATA TABLE ==================== */
+
+DataTable {
+    background: $surface;
+    height: 100%;
+}
+
+DataTable > .datatable--header {
+    background: $primary-darken-2;
+    color: $text;
+    text-style: bold;
+}
+
+DataTable > .datatable--cursor {
+    background: $primary-darken-1;
+    color: $text;
+}
+
+DataTable > .datatable--hover {
+    background: $surface-lighten-1;
+}
+
+DataTable:focus > .datatable--cursor {
+    background: $primary;
+}
+
+/* ==================== PROGRESS & STATUS ==================== */
+
+ProgressBar {
+    padding: 0;
+    height: 1;
+}
+
+ProgressBar > .bar--bar {
+    color: $primary;
+}
+
+ProgressBar > .bar--complete {
+    color: $success;
+}
+
+.status-indicator {
+    padding: 0 1;
+    text-align: center;
+}
+
+.status-success {
+    color: $success;
+}
+
+.status-warning {
+    color: $warning;
+}
+
+.status-error {
+    color: $error;
+}
+
+.status-info {
+    color: $primary-lighten-1;
+}
+
+.status-muted {
+    color: $text-muted;
+}
+
+/* ==================== BADGES ==================== */
+
+.badge {
+    padding: 0 1;
+    text-style: bold;
+}
+
+.badge-success {
+    background: $success-darken-2;
+    color: $success-lighten-2;
+}
+
+.badge-warning {
+    background: $warning-darken-2;
+    color: $warning-lighten-2;
+}
+
+.badge-error {
+    background: $error-darken-2;
+    color: $error-lighten-2;
+}
+
+.badge-info {
+    background: $primary-darken-2;
+    color: $primary-lighten-2;
+}
+
+.badge-muted {
+    background: $surface-lighten-1;
+    color: $text-muted;
+}
+
+/* ==================== DIVIDERS ==================== */
+
+Rule {
+    color: $surface-lighten-2;
+    margin: 1 0;
+}
+
+.divider-light {
+    color: $surface-lighten-1;
+}
+
+.divider-accent {
+    color: $primary-darken-1;
+}
+
+/* ==================== MAIN SCREEN ==================== */
+
+#main-layout {
+    width: 100%;
+    height: 100%;
+}
+
+#search-panel {
+    width: 75%;
+    padding: 1 2;
+}
+
+#info-panel {
+    width: 25%;
+    padding: 1;
+    background: $surface;
+    border-left: wide $surface-lighten-2;
+}
+
+/* Search section */
+#search-section {
+    margin-bottom: 1;
+}
+
+#search-header {
+    height: auto;
+    margin-bottom: 1;
+}
+
+#search-title {
+    text-style: bold;
+    color: $primary-lighten-1;
+}
+
+#search-mode-badge {
+    margin-left: 2;
+}
+
+#search-input-row {
+    height: 3;
+    margin-bottom: 1;
+}
+
+#search-box {
+    width: 1fr;
+}
+
+#search-btn {
+    width: auto;
+    min-width: 12;
+    margin-left: 1;
+}
+
+#status-bar {
+    height: 1;
+    padding: 0 1;
+    color: $text-muted;
+}
+
+/* Results */
 #results-container {
     height: 1fr;
-    border: solid $primary;
-    padding: 1;
+    background: $surface;
+    border: wide $surface-lighten-2;
+    padding: 0;
 }
 
 #results-table {
@@ -41,177 +395,789 @@ Footer {
     height: 100%;
 }
 
-/* Queue screen */
-#queue-container {
-    layout: vertical;
+#actions-bar {
+    margin-top: 1;
+    height: 3;
+    align: left middle;
+}
+
+/* Info panel sections */
+.info-section {
+    margin-bottom: 2;
+}
+
+.info-section-title {
+    text-style: bold;
+    color: $primary-lighten-1;
+    margin-bottom: 1;
+    padding: 0 1;
+}
+
+.info-section-content {
+    padding: 0 1;
+}
+
+.provider-item {
+    height: 1;
+    margin-bottom: 0;
+}
+
+.config-item {
+    height: 1;
+    margin-bottom: 0;
+    color: $text-muted;
+}
+
+#quick-tips {
+    padding: 0;
+    color: $text-muted;
+}
+
+/* ==================== ONBOARDING SCREEN ==================== */
+
+#onboarding-container {
+    width: 100%;
+    height: 100%;
+    background: $background;
+}
+
+/* Progress header */
+#onboarding-header {
+    dock: top;
+    height: 5;
+    background: $surface;
+    border-bottom: wide $surface-lighten-2;
+    padding: 1 2;
+}
+
+#progress-steps {
+    height: auto;
+    align: center middle;
+}
+
+.step-item {
+    width: auto;
+    padding: 0 2;
+    text-align: center;
+}
+
+.step-number {
+    text-style: bold;
+}
+
+.step-number-active {
+    color: $primary-lighten-1;
+}
+
+.step-number-complete {
+    color: $success;
+}
+
+.step-number-pending {
+    color: $text-muted;
+}
+
+.step-connector {
+    width: 4;
+    color: $surface-lighten-2;
+}
+
+.step-connector-complete {
+    color: $success;
+}
+
+#step-title {
+    text-align: center;
+    color: $text-muted;
+    margin-top: 1;
+}
+
+/* Content area */
+#onboarding-content {
+    height: 1fr;
+    padding: 2 4;
+}
+
+.onboarding-step {
+    width: 100%;
+    max-width: 80;
+    margin: 0 2;
+}
+
+/* Welcome step */
+#welcome-content {
+    text-align: center;
+}
+
+#welcome-logo {
+    color: $primary-lighten-1;
+    text-style: bold;
     padding: 1;
+}
+
+#welcome-title {
+    text-style: bold;
+    color: $text;
+    padding: 1;
+}
+
+#welcome-subtitle {
+    color: $text-muted;
+    padding: 1;
+}
+
+.feature-grid {
+    margin: 2 0;
+}
+
+.feature-item {
+    margin: 1 0;
+    padding: 1 2;
+    background: $surface;
+    border: wide $surface-lighten-2;
+}
+
+.feature-icon {
+    color: $primary-lighten-1;
+    width: 4;
+}
+
+.feature-text {
+    width: 1fr;
+}
+
+.feature-title {
+    text-style: bold;
+    color: $text;
+}
+
+.feature-desc {
+    color: $text-muted;
+}
+
+/* Config cards */
+.config-card {
+    background: $surface;
+    border: wide $surface-lighten-2;
+    padding: 1 2;
+    margin-bottom: 2;
+}
+
+.config-card-header {
+    height: auto;
+    margin-bottom: 1;
+}
+
+.config-card-icon {
+    color: $primary-lighten-1;
+    width: 3;
+}
+
+.config-card-title {
+    text-style: bold;
+    color: $text;
+}
+
+.config-card-desc {
+    color: $text-muted;
+    margin-bottom: 1;
+}
+
+.config-input {
+    width: 100%;
+    margin-top: 1;
+}
+
+.config-select {
+    width: 100%;
+    margin-top: 1;
+}
+
+/* Credentials card */
+.credentials-card {
+    background: $surface;
+    border: wide $primary-darken-2;
+    padding: 1 2;
+    margin: 1 0;
+}
+
+.credentials-header {
+    height: auto;
+    align: left middle;
+    margin-bottom: 1;
+}
+
+.credentials-title {
+    text-style: bold;
+    color: $text;
+    width: auto;
+}
+
+.credentials-badge {
+    margin-left: 2;
+    background: $warning-darken-2;
+    color: $warning;
+    padding: 0 1;
+    text-style: bold;
+}
+
+.cred-status-bar {
+    height: 3;
+    margin: 1 0;
+    padding: 1;
+    text-align: center;
+    background: $surface-lighten-1;
+    border: wide $surface-lighten-2;
+}
+
+.cred-status-bar.configured {
+    background: $success-darken-3;
+    border: wide $success-darken-1;
+}
+
+.cred-status-bar.partial {
+    background: $warning-darken-3;
+    border: wide $warning-darken-1;
+}
+
+.cred-field {
+    margin: 1 0;
+}
+
+.cred-field-header {
+    height: auto;
+    align: left middle;
+    margin-bottom: 1;
+}
+
+.cred-field-label {
+    text-style: bold;
+    color: $text;
+    width: auto;
+}
+
+.toggle-btn {
+    min-width: 8;
+    height: 1;
+    margin-left: 2;
+    padding: 0 1;
+}
+
+.auth-section {
+    margin-top: 1;
+    padding-top: 1;
+    border-top: solid $surface-lighten-2;
+}
+
+.auth-hint {
+    color: $text-muted;
+    text-style: italic;
+    padding-left: 4;
+}
+
+/* Instructions */
+.instructions-card {
+    margin-top: 2;
+    background: $surface-lighten-1;
+    border: dashed $surface-lighten-3;
+    padding: 1;
+}
+
+.instructions-btn {
+    width: 100%;
+    background: transparent;
+    border: none;
+    color: $primary-lighten-1;
+}
+
+#instructions-content {
+    margin-top: 1;
+    padding: 1;
+}
+
+.skip-note {
+    color: $text-muted;
+    text-style: italic;
+    text-align: center;
+    margin-top: 2;
+}
+
+/* Complete step */
+#complete-content {
+    text-align: center;
+}
+
+#complete-icon {
+    color: $success;
+    padding: 1;
+}
+
+#complete-title {
+    text-style: bold;
+    color: $text;
+    padding: 1;
+}
+
+.tips-grid {
+    margin: 2 0;
+}
+
+.tip-item {
+    margin: 1 0;
+    padding: 1;
+    text-align: left;
+}
+
+.tip-key {
+    color: $primary-lighten-1;
+    text-style: bold;
+    width: 8;
+}
+
+.tip-desc {
+    color: $text;
+}
+
+/* Navigation */
+#onboarding-nav {
+    dock: bottom;
+    height: 5;
+    background: $surface;
+    border-top: wide $surface-lighten-2;
+    padding: 1 4;
+    align: center middle;
+}
+
+#onboarding-nav Button {
+    margin: 0 2;
+    min-width: 14;
+}
+
+/* ==================== QUEUE SCREEN ==================== */
+
+#queue-container {
+    padding: 1 2;
 }
 
 #queue-header {
-    dock: top;
-    height: 3;
-    padding: 0 1;
+    height: 5;
+    margin-bottom: 1;
 }
 
-#queue-stats {
-    width: 100%;
+#queue-title-row {
+    height: auto;
+    align: left middle;
+}
+
+#queue-title {
+    text-style: bold;
+    color: $primary-lighten-1;
+    width: auto;
+}
+
+#queue-stats-row {
+    height: auto;
+    margin-top: 1;
+}
+
+.queue-stat {
+    width: auto;
+    margin-right: 3;
+}
+
+.queue-stat-value {
+    text-style: bold;
+    color: $text;
+}
+
+.queue-stat-label {
+    color: $text-muted;
+}
+
+#queue-table-container {
+    height: 1fr;
+    background: $surface;
+    border: wide $surface-lighten-2;
 }
 
 #queue-table {
-    height: 1fr;
-    border: solid $primary;
-}
-
-/* Download progress */
-.download-item {
-    layout: horizontal;
-    height: 3;
-    padding: 0 1;
-}
-
-.download-item .title {
-    width: 40%;
-}
-
-.download-item .status {
-    width: 20%;
-}
-
-.download-item .progress {
-    width: 30%;
-}
-
-.download-item .actions {
-    width: 10%;
-}
-
-ProgressBar {
-    padding: 0;
-}
-
-ProgressBar > .bar--bar {
-    color: $success;
-}
-
-/* Status colors */
-.status-pending {
-    color: $text-muted;
-}
-
-.status-searching {
-    color: $warning;
-}
-
-.status-downloading {
-    color: $primary;
-}
-
-.status-converting {
-    color: $secondary;
-}
-
-.status-embedding {
-    color: $secondary;
-}
-
-.status-completed {
-    color: $success;
-}
-
-.status-failed {
-    color: $error;
-}
-
-.status-cancelled {
-    color: $text-muted;
-}
-
-/* Settings screen */
-#settings-container {
-    layout: vertical;
-    padding: 1;
-}
-
-.settings-group {
-    margin-bottom: 1;
-    padding: 1;
-    border: solid $primary;
-}
-
-.settings-group .title {
-    text-style: bold;
-    margin-bottom: 1;
-}
-
-.setting-row {
-    layout: horizontal;
-    height: 3;
-}
-
-.setting-row .label {
-    width: 30%;
-}
-
-.setting-row .value {
-    width: 70%;
-}
-
-/* Song card */
-.song-card {
-    layout: vertical;
-    padding: 1;
-    border: solid $primary;
-    margin-bottom: 1;
-}
-
-.song-card .title {
-    text-style: bold;
-}
-
-.song-card .artist {
-    color: $text-muted;
-}
-
-.song-card .duration {
-    color: $text-muted;
-}
-
-/* Buttons */
-Button {
-    margin: 0 1;
-}
-
-Button.primary {
-    background: $primary;
-}
-
-Button.success {
-    background: $success;
-}
-
-Button.error {
-    background: $error;
-}
-
-/* Input */
-Input {
-    border: solid $primary;
-}
-
-Input:focus {
-    border: solid $accent;
-}
-
-/* DataTable */
-DataTable {
+    width: 100%;
     height: 100%;
 }
 
-DataTable > .datatable--header {
-    text-style: bold;
-    background: $primary-darken-1;
+#queue-actions {
+    height: 3;
+    margin-top: 1;
+    align: left middle;
 }
 
-DataTable > .datatable--cursor {
-    background: $primary;
+/* Download status colors */
+.dl-pending {
+    color: $text-muted;
 }
+
+.dl-searching {
+    color: $warning;
+}
+
+.dl-downloading {
+    color: $primary-lighten-1;
+}
+
+.dl-converting {
+    color: $secondary;
+}
+
+.dl-embedding {
+    color: $secondary;
+}
+
+.dl-completed {
+    color: $success;
+}
+
+.dl-failed {
+    color: $error;
+}
+
+.dl-cancelled {
+    color: $text-muted;
+}
+
+/* ==================== SETTINGS SCREEN ==================== */
+
+#settings-container {
+    padding: 1 2;
+    width: 100%;
+    height: 100%;
+}
+
+#settings-header {
+    height: 5;
+    margin-bottom: 1;
+    border-bottom: wide $surface-lighten-2;
+    padding-bottom: 1;
+}
+
+#settings-title {
+    text-style: bold;
+    color: $primary-lighten-1;
+}
+
+#settings-subtitle {
+    color: $text-muted;
+}
+
+/* Settings groups */
+.settings-group {
+    background: $surface;
+    border: wide $surface-lighten-2;
+    padding: 1 2;
+    margin-bottom: 2;
+    height: auto;
+    width: 100%;
+}
+
+.settings-group Static {
+    height: auto;
+    width: 100%;
+}
+
+.settings-group Label {
+    height: auto;
+}
+
+.settings-group Input {
+    height: 3;
+}
+
+.settings-group Select {
+    height: 3;
+}
+
+.settings-group Checkbox {
+    height: auto;
+}
+
+.settings-group Horizontal {
+    height: auto;
+    width: 100%;
+}
+
+.settings-group Vertical {
+    height: auto;
+    width: 100%;
+}
+
+.settings-group-header {
+    height: auto;
+    align: left middle;
+    margin-bottom: 1;
+}
+
+.settings-group-icon {
+    color: $primary-lighten-1;
+    width: 3;
+}
+
+.settings-group-title {
+    text-style: bold;
+    color: $text;
+    width: auto;
+}
+
+.settings-group-badge {
+    margin-left: 2;
+}
+
+.settings-group-desc {
+    color: $text-muted;
+    margin-bottom: 1;
+}
+
+/* Group title used in settings.py */
+.group-title {
+    text-style: bold;
+    color: $primary-lighten-1;
+    margin-bottom: 1;
+    height: auto;
+    width: 100%;
+}
+
+.setting-row {
+    height: auto;
+    min-height: 3;
+    align: left middle;
+    margin: 1 0;
+}
+
+.setting-row Label {
+    width: 25;
+    color: $text;
+}
+
+.setting-row Input {
+    width: 1fr;
+}
+
+.setting-row Select {
+    width: 1fr;
+}
+
+.setting-row Checkbox {
+    width: 1fr;
+}
+
+.setting-label {
+    width: 35%;
+    color: $text;
+}
+
+.setting-input {
+    width: 65%;
+}
+
+.setting-hint {
+    color: $text-muted;
+    text-style: italic;
+    padding: 0 1;
+}
+
+/* Help text */
+.help-text {
+    color: $text-muted;
+    height: auto;
+}
+
+.section-desc {
+    margin-bottom: 1;
+}
+
+/* Group header (used in credentials sections) */
+.group-header {
+    height: auto;
+    width: 100%;
+    align: left middle;
+}
+
+/* Status badges */
+.status-badge {
+    margin-left: 2;
+    height: auto;
+}
+
+/* Credentials section styling */
+.credentials-section {
+    border: wide $primary-darken-2;
+}
+
+.cred-field-group {
+    height: auto;
+    margin: 1 0;
+}
+
+.cred-label-row {
+    height: auto;
+    width: 100%;
+    align: left middle;
+    margin-bottom: 1;
+}
+
+.cred-label {
+    width: auto;
+    color: $text;
+}
+
+.toggle-visibility-btn {
+    margin-left: 2;
+    min-width: 8;
+}
+
+.cred-input {
+    width: 100%;
+    height: 3;
+}
+
+.cred-option-group {
+    height: auto;
+    margin: 1 0;
+}
+
+.option-hint {
+    color: $text-muted;
+    text-style: italic;
+    height: auto;
+}
+
+.cred-help-link {
+    color: $primary-lighten-1;
+    height: auto;
+    margin-top: 1;
+}
+
+/* Credential sections in settings */
+.credentials-group {
+    background: $surface;
+    border: wide $primary-darken-2;
+    padding: 1 2;
+    margin-bottom: 2;
+}
+
+.cred-group-header {
+    height: auto;
+    align: left middle;
+    margin-bottom: 1;
+}
+
+.cred-group-title {
+    text-style: bold;
+    color: $text;
+    width: auto;
+}
+
+.cred-group-status {
+    margin-left: 2;
+}
+
+.cred-group-desc {
+    color: $text-muted;
+    margin-bottom: 1;
+}
+
+.cred-row {
+    margin: 1 0;
+}
+
+.cred-row-header {
+    height: auto;
+    align: left middle;
+    margin-bottom: 1;
+}
+
+.cred-row-label {
+    text-style: bold;
+    color: $text;
+    width: auto;
+}
+
+.visibility-btn {
+    min-width: 8;
+    height: 1;
+    margin-left: 2;
+}
+
+.cred-row-input {
+    width: 100%;
+}
+
+.cred-option {
+    margin: 1 0;
+    padding: 1 0;
+}
+
+.cred-option-hint {
+    color: $text-muted;
+    text-style: italic;
+    padding-left: 4;
+}
+
+.cred-help {
+    color: $primary-lighten-1;
+    text-style: italic;
+    padding: 1 0;
+}
+
+/* Settings actions */
+#settings-actions {
+    height: 5;
+    margin-top: 2;
+    padding-top: 1;
+    border-top: wide $surface-lighten-2;
+    align: center middle;
+}
+
+#settings-actions Button {
+    margin: 0 2;
+    min-width: 16;
+}
+
+/* ==================== MARKDOWN ==================== */
+
+Markdown {
+    padding: 1;
+    background: transparent;
+}
+
+MarkdownH1 {
+    color: $primary-lighten-1;
+    text-style: bold;
+    padding: 1 0;
+}
+
+MarkdownH2 {
+    color: $text;
+    text-style: bold;
+    padding: 1 0;
+}
+
+MarkdownH3 {
+    color: $text;
+    text-style: bold;
+    padding: 1 0;
+}
+
+MarkdownBulletList {
+    padding-left: 2;
+}
+
+MarkdownOrderedList {
+    padding-left: 2;
+}
+
+/* ==================== ANIMATIONS ==================== */
+
+/* Smooth transitions - Textual handles these */
+
+/* ==================== RESPONSIVE ==================== */
+
+/* Adjustments for smaller terminals handled by Textual's responsive system */

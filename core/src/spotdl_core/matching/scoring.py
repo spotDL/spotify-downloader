@@ -7,8 +7,8 @@ from itertools import product, zip_longest
 from math import exp
 from typing import TYPE_CHECKING
 
-from spotdl_core.core.matching.constants import FORBIDDEN_WORDS
-from spotdl_core.core.matching.utils import (
+from spotdl_core.matching.constants import FORBIDDEN_WORDS
+from spotdl_core.matching.utils import (
     based_sort,
     create_clean_string,
     create_song_title,
@@ -19,8 +19,8 @@ from spotdl_core.core.matching.utils import (
 )
 
 if TYPE_CHECKING:
-    from spotdl_core.core.types.result import Result
-    from spotdl_core.core.types.song import Song
+    from spotdl_core.types.result import Result
+    from spotdl_core.types.song import Song
 
 logger = logging.getLogger(__name__)
 

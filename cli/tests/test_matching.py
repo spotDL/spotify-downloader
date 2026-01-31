@@ -1,4 +1,4 @@
-"""Tests for matching module."""
+"""Tests for matching module (from spotdl_core)."""
 
 import pytest
 
@@ -8,7 +8,9 @@ from spotdl_cli.core.types import (
     Song,
     TargetPlatform,
 )
-from spotdl_cli.matching import (
+
+# Import matching from spotdl_core shared library
+from spotdl_core.matching import (
     FORBIDDEN_WORDS,
     MIN_ARTIST_MATCH,
     MIN_NAME_MATCH,
@@ -24,7 +26,7 @@ from spotdl_cli.matching import (
     get_best_result,
     order_results,
 )
-from spotdl_cli.matching.utils import (
+from spotdl_core.matching.utils import (
     create_search_query,
     create_song_title,
     slugify,

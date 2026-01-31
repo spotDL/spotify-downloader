@@ -1,4 +1,7 @@
-"""Type definitions for SpotDL CLI."""
+"""Type definitions for SpotDL CLI.
+
+Imports shared types from spotdl_core and defines CLI-specific types.
+"""
 
 from __future__ import annotations
 
@@ -8,95 +11,18 @@ from enum import StrEnum
 from pathlib import Path
 from typing import Any
 
-
-class Platform(StrEnum):
-    """Supported source platforms."""
-
-    SPOTIFY = "spotify"
-    APPLE_MUSIC = "apple_music"
-    DEEZER = "deezer"
-    TIDAL = "tidal"
-    YOUTUBE_MUSIC = "youtube_music"
-    SOUNDCLOUD = "soundcloud"
-    BANDCAMP = "bandcamp"
-
-
-class TargetPlatform(StrEnum):
-    """Supported target platforms for downloading."""
-
-    YOUTUBE = "youtube"
-    YOUTUBE_MUSIC = "youtube_music"
-    SOUNDCLOUD = "soundcloud"
-    BANDCAMP = "bandcamp"
-    PIPED = "piped"
-    SLIDER_KZ = "slider.kz"
-
-
-class DownloadStatus(StrEnum):
-    """Download status."""
-
-    PENDING = "pending"
-    SEARCHING = "searching"
-    DOWNLOADING = "downloading"
-    CONVERTING = "converting"
-    EMBEDDING = "embedding"
-    COMPLETED = "completed"
-    FAILED = "failed"
-    CANCELLED = "cancelled"
-
-
-@dataclass
-class Song:
-    """Song metadata."""
-
-    name: str
-    artists: list[str]
-    artist: str
-    duration: int  # seconds
-
-    # Platform info
-    platform: Platform
-    platform_id: str
-    url: str
-
-    # Optional metadata
-    album_name: str = ""
-    album_artist: str = ""
-    genres: list[str] = field(default_factory=list)
-    year: int = 0
-    date: str = ""
-    track_number: int = 1
-    disc_number: int = 1
-    isrc: str | None = None
-    cover_url: str | None = None
-    explicit: bool = False
-    lyrics: str | None = None
-
-    # Internal ID
-    song_id: str = ""
-
-    def __post_init__(self) -> None:
-        """Generate song_id if not provided."""
-        if not self.song_id:
-            self.song_id = f"{self.platform}:{self.platform_id}"
-
-    @property
-    def display_name(self) -> str:
-        """Human-readable display name."""
-        return f"{self.artist} - {self.name}"
-
-    @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> Song:
-        """Create Song from dictionary."""
-        if "platform" in data and isinstance(data["platform"], str):
-            data = data.copy()
-            data["platform"] = Platform(data["platform"])
-        return cls(**data)
+# Re-export shared types from spotdl_core
+from spotdl_core import Platform, Result, Song, SongList, TargetPlatform
 
 
 @dataclass
 class DownloadResult:
-    """Result from a download target search."""
+    """
+    CLI-specific result type with score tracking.
+
+    Wraps the core Result type and adds a mutable score field
+    for ranking during matching.
+    """
 
     name: str
     artists: list[str]
@@ -115,6 +41,10 @@ class DownloadResult:
     album_name: str | None = None
     cover_url: str | None = None
     views: int | None = None
+
+    # Search metadata (for matching engine compatibility)
+    isrc_search: bool = False
+    search_query: str | None = None
 
     @property
     def display_name(self) -> str:
@@ -136,6 +66,26 @@ class DownloadResult:
         )
 
     @classmethod
+    def from_result(cls, result: Result, score: float = 0.0) -> DownloadResult:
+        """Create DownloadResult from a core Result."""
+        return cls(
+            name=result.name,
+            artists=list(result.artists),
+            artist=result.artist,
+            duration=result.duration,
+            platform=result.platform,
+            platform_id=result.platform_id,
+            url=result.url,
+            verified=result.verified,
+            score=score,
+            album_name=result.album_name,
+            cover_url=result.cover_url,
+            views=result.views,
+            isrc_search=result.isrc_search,
+            search_query=result.search_query,
+        )
+
+    @classmethod
     def from_dict(cls, data: dict[str, Any]) -> DownloadResult:
         """Create DownloadResult from dictionary."""
         if "platform" in data and isinstance(data["platform"], str):
@@ -144,12 +94,25 @@ class DownloadResult:
         return cls(**data)
 
 
+class DownloadStatus(StrEnum):
+    """Download status for CLI queue."""
+
+    PENDING = "pending"
+    SEARCHING = "searching"
+    DOWNLOADING = "downloading"
+    CONVERTING = "converting"
+    EMBEDDING = "embedding"
+    COMPLETED = "completed"
+    FAILED = "failed"
+    CANCELLED = "cancelled"
+
+
 @dataclass
 class DownloadItem:
     """Item in the download queue."""
 
     song: Song
-    result: DownloadResult | None = None
+    result: Result | None = None
 
     # Status
     status: DownloadStatus = DownloadStatus.PENDING
@@ -189,3 +152,16 @@ class SearchResult:
     total: int
     query: str
     platform: Platform
+
+
+__all__ = [
+    "DownloadItem",
+    "DownloadResult",
+    "DownloadStatus",
+    "Platform",
+    "Result",
+    "SearchResult",
+    "Song",
+    "SongList",
+    "TargetPlatform",
+]

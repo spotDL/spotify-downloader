@@ -8,7 +8,7 @@ from typing import Any
 
 import httpx
 
-from spotdl_core.core.types.song import Platform, Song, SongList
+from spotdl_core.types.song import Platform, Song, SongList
 from spotdl_core.providers.sources.base import (
     InvalidURLError,
     SourceProvider,

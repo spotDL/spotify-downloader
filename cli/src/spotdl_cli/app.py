@@ -17,6 +17,7 @@ from spotdl_cli.core import (
     get_api_client,
 )
 from spotdl_cli.screens.main import MainScreen
+from spotdl_cli.screens.onboarding import OnboardingScreen, should_show_onboarding
 from spotdl_cli.screens.queue import QueueScreen
 from spotdl_cli.screens.settings import SettingsScreen
 
@@ -45,6 +46,7 @@ class SpotDLApp(App[None]):
         "search": MainScreen,
         "queue": QueueScreen,
         "settings": SettingsScreen,
+        "onboarding": OnboardingScreen,
     }
 
     def __init__(self) -> None:
@@ -96,6 +98,18 @@ class SpotDLApp(App[None]):
         # Check backend connectivity
         await self._check_connectivity()
 
+        # Check if onboarding should be shown
+        if should_show_onboarding():
+            # Show onboarding first, then main screen
+            await self.push_screen(OnboardingScreen(), self._on_onboarding_complete)
+        else:
+            # Push the main search screen directly
+            await self.push_screen("search")
+
+    async def _on_onboarding_complete(self, completed: bool) -> None:
+        """Handle onboarding completion."""
+        if completed:
+            self.notify("Setup complete! Ready to download music.")
         # Push the main search screen
         await self.push_screen("search")
 
@@ -129,8 +143,9 @@ class SpotDLApp(App[None]):
 
     def action_toggle_help(self) -> None:
         """Toggle help display."""
-        # TODO: Implement help screen
-        self.notify("Help: Press S for Search, D for Downloads, , for Settings, Q to Quit")
+        self.notify(
+            "Help: Press S for Search, D for Downloads, , for Settings, Q to Quit"
+        )
 
 
 def run() -> None:

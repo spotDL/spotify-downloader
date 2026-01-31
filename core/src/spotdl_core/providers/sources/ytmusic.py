@@ -8,7 +8,7 @@ from typing import Any
 
 from ytmusicapi import YTMusic
 
-from spotdl_core.core.types.song import Platform, Song, SongList
+from spotdl_core.types.song import Platform, Song, SongList
 from spotdl_core.providers.sources.base import (
     InvalidURLError,
     SourceProvider,

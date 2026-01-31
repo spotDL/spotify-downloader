@@ -117,3 +117,8 @@ class Result:
     def to_json(self) -> str:
         """Serialize result to JSON string."""
         return json.dumps(self.json)
+
+    @property
+    def display_name(self) -> str:
+        """Get a human-readable display name for the result."""
+        return f"{self.artist} - {self.name}"

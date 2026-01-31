@@ -7,15 +7,17 @@ from typing import TYPE_CHECKING, ClassVar
 
 from textual.app import ComposeResult
 from textual.binding import Binding
-from textual.containers import Container, Horizontal, Vertical
+from textual.containers import Container, Horizontal, Vertical, VerticalScroll
 from textual.screen import Screen
 from textual.widgets import (
     Button,
     DataTable,
     Input,
+    Rule,
     Static,
 )
 
+from spotdl_cli.config import get_settings
 from spotdl_cli.core import (
     APIError,
     DownloadResult,
@@ -38,43 +40,92 @@ class MainScreen(Screen[None]):
         Binding("enter", "search", "Search", show=False),
         Binding("a", "add_all", "Add All"),
         Binding("r", "refresh", "Refresh"),
+        Binding("s", "focus_search", "Search", show=False),
     ]
 
     def __init__(self) -> None:
         super().__init__()
         self._results: list[Song] = []
         self._offline_matcher = get_offline_matcher()
+        self._settings = get_settings()
 
     @property
     def spotdl_app(self) -> SpotDLApp:
         """Get the typed app instance."""
         from spotdl_cli.app import SpotDLApp
+
         assert isinstance(self.app, SpotDLApp)
         return self.app
 
     def compose(self) -> ComposeResult:
         """Compose the screen layout."""
-        with Vertical(id="search-container"):
-            # Search input
-            with Horizontal(id="search-input"):
-                yield Input(
-                    placeholder="Enter a URL or search query...",
-                    id="search-box",
-                )
-                yield Button("Search", id="search-btn", variant="primary")
+        with Horizontal(id="main-layout"):
+            # Left panel - Search and results
+            with Vertical(id="search-panel"):
+                # Search header
+                with Vertical(id="search-section"):
+                    with Horizontal(id="search-header"):
+                        yield Static("🔍 Search", id="search-title")
+                        yield Static("", id="search-mode-badge", classes="badge badge-info")
 
-            # Status bar
-            yield Static("Ready", id="status-bar")
+                    with Horizontal(id="search-input-row"):
+                        yield Input(
+                            placeholder="Enter a URL or search for songs...",
+                            id="search-box",
+                        )
+                        yield Button("Search", id="search-btn", variant="primary")
 
-            # Results table
-            with Container(id="results-container"):
-                yield DataTable(id="results-table")
+                # Status bar
+                yield Static("Ready to search", id="status-bar")
 
-            # Actions
-            with Horizontal(id="actions-bar"):
-                yield Button("Add Selected", id="add-selected-btn", variant="primary")
-                yield Button("Add All", id="add-all-btn", variant="success")
-                yield Button("Clear", id="clear-btn", variant="error")
+                # Results section
+                with Container(id="results-container"):
+                    yield DataTable(id="results-table")
+
+                # Actions bar
+                with Horizontal(id="actions-bar"):
+                    yield Button("➕ Add Selected", id="add-selected-btn", variant="primary")
+                    yield Button("📥 Add All", id="add-all-btn", variant="success")
+                    yield Button("🗑️ Clear", id="clear-btn", variant="warning")
+
+            # Right panel - Info sidebar
+            with VerticalScroll(id="info-panel"):
+                # Status section
+                with Vertical(classes="info-section"):
+                    yield Static("📡 Status", classes="info-section-title")
+                    with Vertical(classes="info-section-content"):
+                        yield Static("", id="connection-status")
+
+                yield Rule()
+
+                # Providers section
+                with Vertical(classes="info-section"):
+                    yield Static("🔌 Providers", classes="info-section-title")
+                    with Vertical(classes="info-section-content", id="provider-list"):
+                        yield Static("", id="provider-status")
+
+                yield Rule()
+
+                # Config section
+                with Vertical(classes="info-section"):
+                    yield Static("⚙️ Config", classes="info-section-title")
+                    with Vertical(classes="info-section-content"):
+                        yield Static("", id="config-summary")
+
+                yield Rule()
+
+                # Quick tips
+                with Vertical(classes="info-section"):
+                    yield Static("💡 Quick Tips", classes="info-section-title")
+                    with Vertical(classes="info-section-content"):
+                        yield Static(
+                            "[bold]Enter[/] Search\n"
+                            "[bold]A[/] Add all\n"
+                            "[bold]R[/] Refresh\n"
+                            "[bold]D[/] Downloads\n"
+                            "[bold],[/] Settings",
+                            id="quick-tips",
+                        )
 
     async def on_mount(self) -> None:
         """Handle screen mount."""
@@ -87,11 +138,66 @@ class MainScreen(Screen[None]):
             "Artist",
             "Album",
             "Duration",
-            "Source",
+            "Platform",
         )
 
         # Focus search input
         self.query_one("#search-box", Input).focus()
+
+        # Update status displays
+        self._update_status_display()
+        self._update_config_summary()
+
+    def _update_status_display(self) -> None:
+        """Update the status and provider display."""
+        connection = self.query_one("#connection-status", Static)
+        providers = self.query_one("#provider-status", Static)
+        mode_badge = self.query_one("#search-mode-badge", Static)
+
+        # Connection status
+        if self._settings.offline_mode:
+            connection.update("[yellow]⚡ Offline Mode[/yellow]")
+            mode_badge.update("OFFLINE")
+            mode_badge.remove_class("badge-info")
+            mode_badge.add_class("badge-warning")
+        elif self.spotdl_app.is_online:
+            connection.update("[green]✓ Connected[/green]")
+            mode_badge.update("ONLINE")
+            mode_badge.remove_class("badge-warning")
+            mode_badge.add_class("badge-success")
+        else:
+            connection.update("[yellow]⚡ Offline[/yellow]")
+            mode_badge.update("OFFLINE")
+            mode_badge.remove_class("badge-info")
+            mode_badge.add_class("badge-warning")
+
+        # Provider status with icons
+        provider_lines = []
+
+        # Check Spotify
+        if self._settings.spotify_client_id and self._settings.spotify_client_secret:
+            provider_lines.append("[green]✓[/green] Spotify")
+        else:
+            provider_lines.append("[dim]○ Spotify[/dim]")
+
+        # Other providers
+        provider_lines.append("[green]✓[/green] YouTube")
+        provider_lines.append("[green]✓[/green] Deezer")
+        provider_lines.append("[green]✓[/green] SoundCloud")
+
+        providers.update("\n".join(provider_lines))
+
+    def _update_config_summary(self) -> None:
+        """Update the configuration summary."""
+        config = self.query_one("#config-summary", Static)
+
+        lines = [
+            f"[dim]Output:[/dim] {self._settings.output_dir.name}/",
+            f"[dim]Format:[/dim] {self._settings.audio_format.upper()}",
+            f"[dim]Quality:[/dim] {self._settings.audio_quality}",
+        ]
+
+        config.update("\n".join(lines))
 
     async def on_input_submitted(self, event: Input.Submitted) -> None:
         """Handle search input submission."""
@@ -119,7 +225,7 @@ class MainScreen(Screen[None]):
             return
 
         status_bar = self.query_one("#status-bar", Static)
-        status_bar.update("Searching...")
+        status_bar.update("⏳ Searching...")
 
         try:
             # Check if it's a URL or search query
@@ -129,14 +235,15 @@ class MainScreen(Screen[None]):
                 await self._search_songs(query)
 
             mode = "online" if self.spotdl_app.is_online else "offline"
-            status_bar.update(f"Found {len(self._results)} results ({mode})")
+            count = len(self._results)
+            status_bar.update(f"✓ Found {count} result{'s' if count != 1 else ''} ({mode})")
 
         except APIError as e:
-            status_bar.update(f"Error: {e}")
+            status_bar.update(f"✗ Error: {e}")
             self.notify(str(e), severity="error")
         except Exception as e:
             logger.exception("Search failed")
-            status_bar.update(f"Error: {e}")
+            status_bar.update(f"✗ Error: {e}")
             self.notify(f"Search failed: {e}", severity="error")
 
     @staticmethod
@@ -275,7 +382,7 @@ class MainScreen(Screen[None]):
     async def _search_offline(self, query: str) -> None:
         """Search using offline providers (Deezer, YouTube, YouTube Music)."""
         status_bar = self.query_one("#status-bar", Static)
-        status_bar.update("Searching across platforms...")
+        status_bar.update("⏳ Searching platforms...")
 
         try:
             # Search across all available platforms
@@ -283,7 +390,7 @@ class MainScreen(Screen[None]):
 
             if not songs:
                 # Fall back to YouTube search only
-                status_bar.update("Searching YouTube...")
+                status_bar.update("⏳ Searching YouTube...")
                 yt_results = await self._offline_matcher.search_youtube(query, limit=10)
 
                 for result in yt_results:
@@ -335,13 +442,30 @@ class MainScreen(Screen[None]):
 
         for song in self._results:
             duration = f"{song.duration // 60}:{song.duration % 60:02d}"
+
+            # Platform icons
+            platform_icons = {
+                "spotify": "🟢",
+                "youtube_music": "🔴",
+                "deezer": "🟣",
+                "soundcloud": "🟠",
+                "bandcamp": "🔵",
+                "apple_music": "⚪",
+                "tidal": "⬜",
+            }
+            platform_icon = platform_icons.get(song.platform.value, "●")
+
             table.add_row(
-                song.name[:50] + "..." if len(song.name) > 50 else song.name,
-                song.artist[:30] + "..." if len(song.artist) > 30 else song.artist,
-                (song.album_name[:20] + "..." if song.album_name and len(song.album_name) > 20
-                 else song.album_name) or "-",
+                song.name[:45] + "..." if len(song.name) > 45 else song.name,
+                song.artist[:25] + "..." if len(song.artist) > 25 else song.artist,
+                (
+                    song.album_name[:18] + "..."
+                    if song.album_name and len(song.album_name) > 18
+                    else song.album_name
+                )
+                or "—",
                 duration,
-                song.platform.value,
+                f"{platform_icon} {song.platform.value}",
             )
 
     def _clear_results(self) -> None:
@@ -349,7 +473,8 @@ class MainScreen(Screen[None]):
         self._results = []
         table = self.query_one("#results-table", DataTable)
         table.clear()
-        self.query_one("#status-bar", Static).update("Cleared")
+        self.query_one("#status-bar", Static).update("Results cleared")
+        self.query_one("#search-box", Input).focus()
 
     async def _add_selected(self) -> None:
         """Add selected song to download queue."""
@@ -403,6 +528,7 @@ class MainScreen(Screen[None]):
         # If still no result but song is from YouTube, create result from song
         if result is None and "youtube.com" in song.url:
             from spotdl_cli.core.types import TargetPlatform
+
             result = DownloadResult(
                 name=song.name,
                 artists=song.artists,
@@ -419,8 +545,8 @@ class MainScreen(Screen[None]):
         await queue.add(song, result=result)
 
         if notify:
-            status = "with match" if result else "pending match"
-            self.notify(f"Added: {song.display_name} ({status})")
+            status = "✓" if result else "⏳"
+            self.notify(f"{status} Added: {song.display_name}")
 
     def action_search(self) -> None:
         """Action to trigger search."""
@@ -433,3 +559,7 @@ class MainScreen(Screen[None]):
     def action_refresh(self) -> None:
         """Action to refresh search."""
         self.run_worker(self._do_search())
+
+    def action_focus_search(self) -> None:
+        """Focus the search input."""
+        self.query_one("#search-box", Input).focus()

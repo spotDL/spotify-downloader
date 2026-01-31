@@ -15,6 +15,7 @@ from textual.widgets import (
     Checkbox,
     Input,
     Label,
+    Rule,
     Select,
     Static,
 )
@@ -38,6 +39,9 @@ class SettingsScreen(Screen[None]):
     def __init__(self) -> None:
         super().__init__()
         self._settings = get_settings()
+        self._show_spotify_secret = False
+        self._show_sc_client_id = False
+        self._show_sc_auth_token = False
 
     def compose(self) -> ComposeResult:
         """Compose the screen layout."""
@@ -165,30 +169,115 @@ class SettingsScreen(Screen[None]):
                         id="embed-cover",
                     )
 
-            # SoundCloud OAuth (CLI-only feature)
-            with Vertical(classes="settings-group"):
-                yield Static("SoundCloud Authentication", classes="group-title")
+            # Spotify Integration - improved UI
+            with Vertical(classes="settings-group credentials-section"):
+                with Horizontal(classes="group-header"):
+                    yield Static("Spotify Integration", classes="group-title")
+                    yield Static("", id="spotify-status-badge", classes="status-badge")
+
                 yield Static(
-                    "Required for some SoundCloud downloads",
-                    classes="help-text",
+                    "Enable Spotify URL support and enhanced metadata",
+                    classes="help-text section-desc",
                 )
 
-                with Horizontal(classes="setting-row"):
-                    yield Label("Client ID:")
+                yield Rule()
+
+                # Client ID field
+                with Vertical(classes="cred-field-group"):
+                    with Horizontal(classes="cred-label-row"):
+                        yield Label("Client ID:", classes="cred-label")
+                    yield Input(
+                        value=self._settings.spotify_client_id or "",
+                        id="spotify-client-id",
+                        placeholder="Your Spotify Client ID",
+                        classes="cred-input",
+                    )
+
+                # Client Secret field with show/hide
+                with Vertical(classes="cred-field-group"):
+                    with Horizontal(classes="cred-label-row"):
+                        yield Label("Client Secret:", classes="cred-label")
+                        yield Button(
+                            "Show",
+                            id="toggle-spotify-secret",
+                            variant="default",
+                            classes="toggle-visibility-btn",
+                        )
+                    yield Input(
+                        value=self._settings.spotify_client_secret or "",
+                        id="spotify-client-secret",
+                        placeholder="Your Spotify Client Secret",
+                        password=True,
+                        classes="cred-input",
+                    )
+
+                # User auth checkbox
+                with Vertical(classes="cred-option-group"):
+                    yield Checkbox(
+                        "Enable user authentication",
+                        value=self._settings.spotify_user_auth,
+                        id="spotify-user-auth",
+                    )
+                    yield Static(
+                        "Required for private playlists and liked songs",
+                        classes="option-hint",
+                    )
+
+                yield Rule()
+
+                # Help link
+                yield Static(
+                    "Get credentials at: developer.spotify.com/dashboard",
+                    classes="cred-help-link",
+                )
+
+            # SoundCloud OAuth - improved UI
+            with Vertical(classes="settings-group credentials-section"):
+                with Horizontal(classes="group-header"):
+                    yield Static("SoundCloud Authentication", classes="group-title")
+                    yield Static("", id="soundcloud-status-badge", classes="status-badge")
+
+                yield Static(
+                    "Required for some SoundCloud downloads",
+                    classes="help-text section-desc",
+                )
+
+                yield Rule()
+
+                # Client ID field with show/hide
+                with Vertical(classes="cred-field-group"):
+                    with Horizontal(classes="cred-label-row"):
+                        yield Label("Client ID:", classes="cred-label")
+                        yield Button(
+                            "Show",
+                            id="toggle-sc-client-id",
+                            variant="default",
+                            classes="toggle-visibility-btn",
+                        )
                     yield Input(
                         value=self._settings.soundcloud_client_id or "",
                         id="soundcloud-client-id",
-                        placeholder="Optional",
+                        placeholder="Optional - SoundCloud Client ID",
                         password=True,
+                        classes="cred-input",
                     )
 
-                with Horizontal(classes="setting-row"):
-                    yield Label("Auth Token:")
+                # Auth Token field with show/hide
+                with Vertical(classes="cred-field-group"):
+                    with Horizontal(classes="cred-label-row"):
+                        yield Label("Auth Token:", classes="cred-label")
+                        yield Button(
+                            "Show",
+                            id="toggle-sc-auth-token",
+                            variant="default",
+                            classes="toggle-visibility-btn",
+                        )
                     yield Input(
                         value=self._settings.soundcloud_auth_token or "",
                         id="soundcloud-auth-token",
-                        placeholder="Optional",
+                        placeholder="Optional - SoundCloud Auth Token",
                         password=True,
+                        classes="cred-input",
                     )
 
             # Actions
@@ -196,6 +285,20 @@ class SettingsScreen(Screen[None]):
                 yield Button("Save", id="save-btn", variant="primary")
                 yield Button("Reset to Defaults", id="reset-btn", variant="warning")
                 yield Button("Cancel", id="cancel-btn")
+
+    async def on_mount(self) -> None:
+        """Handle screen mount."""
+        self._update_status_badges()
+
+    def on_input_changed(self, event: Input.Changed) -> None:
+        """Handle input changes to update status badges."""
+        if event.input.id in (
+            "spotify-client-id",
+            "spotify-client-secret",
+            "soundcloud-client-id",
+            "soundcloud-auth-token",
+        ):
+            self._update_status_badges()
 
     async def on_button_pressed(self, event: Button.Pressed) -> None:
         """Handle button presses."""
@@ -205,6 +308,48 @@ class SettingsScreen(Screen[None]):
             self._reset_to_defaults()
         elif event.button.id == "cancel-btn":
             self.app.pop_screen()
+        elif event.button.id == "toggle-spotify-secret":
+            self._toggle_visibility("spotify-client-secret", "toggle-spotify-secret")
+        elif event.button.id == "toggle-sc-client-id":
+            self._toggle_visibility("soundcloud-client-id", "toggle-sc-client-id")
+        elif event.button.id == "toggle-sc-auth-token":
+            self._toggle_visibility("soundcloud-auth-token", "toggle-sc-auth-token")
+
+    def _toggle_visibility(self, input_id: str, button_id: str) -> None:
+        """Toggle password visibility for a field."""
+        input_field = self.query_one(f"#{input_id}", Input)
+        button = self.query_one(f"#{button_id}", Button)
+
+        input_field.password = not input_field.password
+        button.label = "Hide" if not input_field.password else "Show"
+
+    def _update_status_badges(self) -> None:
+        """Update the status badges for credential sections."""
+        try:
+            # Spotify status
+            spotify_id = self.query_one("#spotify-client-id", Input).value.strip()
+            spotify_secret = self.query_one("#spotify-client-secret", Input).value.strip()
+            spotify_badge = self.query_one("#spotify-status-badge", Static)
+
+            if spotify_id and spotify_secret:
+                spotify_badge.update("[green]Configured[/green]")
+            elif spotify_id or spotify_secret:
+                spotify_badge.update("[yellow]Incomplete[/yellow]")
+            else:
+                spotify_badge.update("[dim]Not configured[/dim]")
+
+            # SoundCloud status
+            sc_id = self.query_one("#soundcloud-client-id", Input).value.strip()
+            sc_token = self.query_one("#soundcloud-auth-token", Input).value.strip()
+            sc_badge = self.query_one("#soundcloud-status-badge", Static)
+
+            if sc_id or sc_token:
+                sc_badge.update("[green]Configured[/green]")
+            else:
+                sc_badge.update("[dim]Not configured[/dim]")
+
+        except Exception:
+            pass  # Screen not fully mounted
 
     async def _save_settings(self) -> None:
         """Save settings."""
@@ -228,9 +373,22 @@ class SettingsScreen(Screen[None]):
             embed_lyrics = self.query_one("#embed-lyrics", Checkbox).value
             embed_cover = self.query_one("#embed-cover", Checkbox).value
 
+            # Spotify
+            spotify_client_id = (
+                self.query_one("#spotify-client-id", Input).value.strip() or None
+            )
+            spotify_client_secret = (
+                self.query_one("#spotify-client-secret", Input).value.strip() or None
+            )
+            spotify_user_auth = self.query_one("#spotify-user-auth", Checkbox).value
+
             # SoundCloud
-            sc_client_id = self.query_one("#soundcloud-client-id", Input).value or None
-            sc_auth_token = self.query_one("#soundcloud-auth-token", Input).value or None
+            sc_client_id = (
+                self.query_one("#soundcloud-client-id", Input).value or None
+            )
+            sc_auth_token = (
+                self.query_one("#soundcloud-auth-token", Input).value or None
+            )
 
             # Update settings
             self._settings.api_url = api_url
@@ -244,6 +402,9 @@ class SettingsScreen(Screen[None]):
             self._settings.embed_metadata = embed_metadata
             self._settings.embed_lyrics = embed_lyrics
             self._settings.embed_cover = embed_cover
+            self._settings.spotify_client_id = spotify_client_id
+            self._settings.spotify_client_secret = spotify_client_secret
+            self._settings.spotify_user_auth = spotify_user_auth
             self._settings.soundcloud_client_id = sc_client_id
             self._settings.soundcloud_auth_token = sc_auth_token
 
@@ -275,8 +436,14 @@ class SettingsScreen(Screen[None]):
         self.query_one("#embed-metadata", Checkbox).value = defaults.embed_metadata
         self.query_one("#embed-lyrics", Checkbox).value = defaults.embed_lyrics
         self.query_one("#embed-cover", Checkbox).value = defaults.embed_cover
+        self.query_one("#spotify-client-id", Input).value = ""
+        self.query_one("#spotify-client-secret", Input).value = ""
+        self.query_one("#spotify-user-auth", Checkbox).value = False
         self.query_one("#soundcloud-client-id", Input).value = ""
         self.query_one("#soundcloud-auth-token", Input).value = ""
+
+        # Update status badges
+        self._update_status_badges()
 
         self.notify("Reset to defaults (not saved)")
 

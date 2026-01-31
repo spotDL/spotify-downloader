@@ -7,7 +7,7 @@ from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from spotdl_core.core.types.song import Song, SongList
+    from spotdl_core.types.song import Song, SongList
 
 
 class SourceProviderError(Exception):

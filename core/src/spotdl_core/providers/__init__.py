@@ -1,73 +1,51 @@
-"""SpotDL Core - Shared providers, matching, and types for SpotDL."""
+"""Providers for fetching song metadata and searching for audio sources."""
 
-from spotdl_core.matching import (
-    FORBIDDEN_WORDS,
-    MIN_ARTIST_MATCH,
-    MIN_NAME_MATCH,
-    MIN_TIME_MATCH,
-    get_best_matches,
-    get_best_result,
-    order_results,
-)
-from spotdl_core.providers import (
-    AppleMusicProvider,
-    BandcampProvider,
-    BandcampTargetProvider,
-    DeezerProvider,
+from spotdl_core.providers.metadata import (
     DiscogsProvider,
-    InvalidURLError,
     MetadataProvider,
     MetadataProviderError,
     MetadataResult,
     MusicBrainzProvider,
-    NoResultsError,
-    PipedProvider,
-    SearchError,
+)
+from spotdl_core.providers.sources import (
+    AppleMusicProvider,
+    BandcampProvider,
+    DeezerProvider,
+    InvalidURLError,
     SoundCloudProvider,
-    SoundCloudTargetProvider,
     SourceProvider,
     SourceProviderError,
     SpotifyProvider,
-    TargetProvider,
-    TargetProviderError,
     TidalProvider,
     TrackNotFoundError,
     URLResolver,
     URLResolverError,
     UnsupportedPlatformError,
     YouTubeMusicProvider,
-    YouTubeMusicTargetProvider,
-    YouTubeProvider,
     detect_platform,
     extract_url_info,
     get_resolver,
     is_valid_url,
 )
-from spotdl_core.types import (
-    Platform,
-    Result,
-    Song,
-    SongError,
-    SongList,
-    TargetPlatform,
+from spotdl_core.providers.targets import (
+    NoResultsError,
+    PipedProvider,
+    SearchError,
+    TargetProvider,
+    TargetProviderError,
+    YouTubeProvider,
+)
+from spotdl_core.providers.targets import (
+    BandcampProvider as BandcampTargetProvider,
+)
+from spotdl_core.providers.targets import (
+    SoundCloudProvider as SoundCloudTargetProvider,
+)
+from spotdl_core.providers.targets import (
+    YouTubeMusicProvider as YouTubeMusicTargetProvider,
 )
 
 __all__ = [
-    # Types
-    "Platform",
-    "Result",
-    "Song",
-    "SongError",
-    "SongList",
-    "TargetPlatform",
-    # Matching
-    "FORBIDDEN_WORDS",
-    "MIN_ARTIST_MATCH",
-    "MIN_NAME_MATCH",
-    "MIN_TIME_MATCH",
-    "get_best_matches",
-    "get_best_result",
-    "order_results",
     # Source Providers
     "AppleMusicProvider",
     "BandcampProvider",

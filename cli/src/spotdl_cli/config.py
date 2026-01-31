@@ -45,6 +45,11 @@ class Settings(BaseSettings):
     embed_lyrics: bool = True
     embed_cover: bool = True
 
+    # Spotify credentials (optional, enables Spotify URL support)
+    spotify_client_id: str | None = None
+    spotify_client_secret: str | None = None
+    spotify_user_auth: bool = False  # Use OAuth flow for private playlists
+
     # SoundCloud OAuth (CLI-only)
     soundcloud_client_id: str | None = None
     soundcloud_auth_token: str | None = None

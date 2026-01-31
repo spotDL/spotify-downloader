@@ -5,10 +5,10 @@ from __future__ import annotations
 import re
 from typing import TYPE_CHECKING
 
-from spotdl_core.core.types.song import Platform
+from spotdl_core.types.song import Platform
 
 if TYPE_CHECKING:
-    from spotdl_core.core.types.song import Song
+    from spotdl_core.types.song import Song
     from spotdl_core.providers.sources.base import SourceProvider
 
 

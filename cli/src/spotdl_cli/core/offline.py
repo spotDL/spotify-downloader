@@ -1,7 +1,7 @@
 """Offline mode handler for CLI.
 
 Provides local matching and URL resolution when backend is unavailable.
-Uses yt-dlp for downloading, providers for searching and URL resolution,
+Uses yt-dlp for downloading, spotdl_core providers for searching and URL resolution,
 and the matching engine for scoring.
 """
 
@@ -9,93 +9,47 @@ from __future__ import annotations
 
 import asyncio
 import logging
-import re
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import yt_dlp
 
-from spotdl_cli.config import Settings, get_settings
-from spotdl_cli.core.types import (
-    DownloadResult,
+# Import from spotdl_core (shared library)
+from spotdl_core import (
     Platform,
+    Result,
     Song,
     TargetPlatform,
+    order_results,
 )
-from spotdl_cli.matching import order_results
-from spotdl_cli.matching.utils import create_search_query
+from spotdl_core.matching.utils import create_search_query
+from spotdl_core.providers.sources import detect_platform, is_valid_url
+
+from spotdl_cli.config import Settings, get_settings
+
+if TYPE_CHECKING:
+    from spotdl_core import (
+        DeezerProvider,
+        MusicBrainzProvider,
+        SpotifyProvider,
+        YouTubeMusicProvider,
+    )
+    from spotdl_core.providers.targets import (
+        BandcampProvider,
+        SoundCloudProvider,
+        YouTubeProvider,
+    )
+    from spotdl_core.providers.targets import (
+        YouTubeMusicProvider as YouTubeMusicTargetProvider,
+    )
 
 logger = logging.getLogger(__name__)
-
-# YouTube URL regex
-YOUTUBE_URL_REGEX = re.compile(
-    r"(?:youtube\.com/watch\?v=|youtu\.be/|youtube\.com/embed/)([a-zA-Z0-9_-]{11})"
-)
-
-# URL patterns for platform detection
-URL_PATTERNS: dict[Platform, list[re.Pattern[str]]] = {
-    Platform.SPOTIFY: [
-        re.compile(
-            r"https?://open\.spotify\.com/(?:intl-\w+/)?"
-            r"(track|album|playlist|artist)/([a-zA-Z0-9]+)"
-        ),
-        re.compile(r"spotify:(track|album|playlist|artist):([a-zA-Z0-9]+)"),
-    ],
-    Platform.APPLE_MUSIC: [
-        re.compile(
-            r"https?://music\.apple\.com/\w+/(album|playlist|artist)/[^/]+/"
-            r"([a-zA-Z0-9._-]+)"
-        ),
-    ],
-    Platform.DEEZER: [
-        re.compile(
-            r"https?://(?:www\.)?deezer\.com/(?:\w+/)?(track|album|playlist|artist)/(\d+)"
-        ),
-        re.compile(r"deezer\.(page\.link|app\.link)/\w+"),
-    ],
-    Platform.TIDAL: [
-        re.compile(
-            r"https?://(?:www\.)?tidal\.com/(?:browse/)?"
-            r"(track|album|playlist|artist)/(\d+)"
-        ),
-    ],
-    Platform.YOUTUBE_MUSIC: [
-        re.compile(r"https?://music\.youtube\.com/watch\?v=([a-zA-Z0-9_-]+)"),
-        re.compile(r"https?://music\.youtube\.com/playlist\?list=([a-zA-Z0-9_-]+)"),
-        re.compile(r"https?://music\.youtube\.com/channel/([a-zA-Z0-9_-]+)"),
-    ],
-    Platform.SOUNDCLOUD: [
-        re.compile(r"https?://(?:www\.)?soundcloud\.com/([^/]+)/([^/]+)(?:/([^/]+))?"),
-    ],
-    Platform.BANDCAMP: [
-        re.compile(r"https?://([^.]+)\.bandcamp\.com/(track|album)/([^/]+)"),
-    ],
-}
-
-
-def detect_platform(url: str) -> Platform | None:
-    """Detect the platform from a URL."""
-    # Check for standard YouTube URLs
-    if "youtube.com" in url or "youtu.be" in url:
-        if "music.youtube.com" not in url:
-            return Platform.YOUTUBE_MUSIC  # Use YTM for regular YouTube too
-
-    for platform, patterns in URL_PATTERNS.items():
-        for pattern in patterns:
-            if pattern.search(url):
-                return platform
-    return None
-
-
-def is_supported_url(url: str) -> bool:
-    """Check if a URL is from a supported platform."""
-    return detect_platform(url) is not None
 
 
 class OfflineMatcher:
     """
     Local matching and URL resolution for offline mode.
 
-    Uses providers to search and resolve URLs, and the matching
+    Uses spotdl_core providers to search and resolve URLs, and the matching
     engine to find the best result for a song.
     """
 
@@ -103,42 +57,63 @@ class OfflineMatcher:
         """Initialize the offline matcher."""
         self._settings = settings or get_settings()
         self._providers_initialized = False
-        self._deezer_provider: Any = None
-        self._ytm_source_provider: Any = None
-        self._yt_target_provider: Any = None
-        self._ytm_target_provider: Any = None
-        self._soundcloud_target_provider: Any = None
-        self._bandcamp_target_provider: Any = None
-        self._musicbrainz_provider: Any = None
+
+        # Source providers
+        self._deezer_provider: DeezerProvider | None = None
+        self._ytm_source_provider: YouTubeMusicProvider | None = None
+        self._spotify_provider: SpotifyProvider | None = None
+
+        # Target providers
+        self._yt_target_provider: YouTubeProvider | None = None
+        self._ytm_target_provider: YouTubeMusicTargetProvider | None = None
+        self._soundcloud_target_provider: SoundCloudProvider | None = None
+        self._bandcamp_target_provider: BandcampProvider | None = None
+
+        # Metadata providers
+        self._musicbrainz_provider: MusicBrainzProvider | None = None
 
     def _init_providers(self) -> None:
         """Initialize providers lazily."""
         if self._providers_initialized:
             return
 
-        from spotdl_cli.providers import (
+        from spotdl_core import (
             BandcampTargetProvider,
             DeezerProvider,
             MusicBrainzProvider,
             SoundCloudTargetProvider,
-            YouTubeMusicSourceProvider,
+            SpotifyProvider,
             YouTubeMusicTargetProvider,
             YouTubeProvider,
         )
+        from spotdl_core.providers.sources import YouTubeMusicProvider
 
+        # Source providers
         self._deezer_provider = DeezerProvider()
-        self._ytm_source_provider = YouTubeMusicSourceProvider()
-        self._yt_target_provider = YouTubeProvider(
-            cookies_path=(
-                str(self._settings.cookies_path)
-                if self._settings.cookies_path.exists()
-                else None
-            )
-        )
+        self._ytm_source_provider = YouTubeMusicProvider()
+
+        # Initialize Spotify if credentials are configured
+        if self._settings.spotify_client_id and self._settings.spotify_client_secret:
+            try:
+                self._spotify_provider = SpotifyProvider(
+                    client_id=self._settings.spotify_client_id,
+                    client_secret=self._settings.spotify_client_secret,
+                    user_auth=self._settings.spotify_user_auth,
+                )
+                logger.info("Spotify provider initialized")
+            except Exception as e:
+                logger.warning(f"Failed to initialize Spotify provider: {e}")
+                self._spotify_provider = None
+
+        # Target providers
+        self._yt_target_provider = YouTubeProvider()
         self._ytm_target_provider = YouTubeMusicTargetProvider()
         self._soundcloud_target_provider = SoundCloudTargetProvider()
         self._bandcamp_target_provider = BandcampTargetProvider()
+
+        # Metadata providers
         self._musicbrainz_provider = MusicBrainzProvider()
+
         self._providers_initialized = True
 
     def _get_yt_dlp_options(self) -> dict[str, Any]:
@@ -163,7 +138,7 @@ class OfflineMatcher:
         Resolve any supported URL to a list of songs.
 
         Args:
-            url: URL to resolve (Deezer, YouTube Music, etc.)
+            url: URL to resolve (Spotify, Deezer, YouTube Music, etc.)
 
         Returns:
             List of Song objects
@@ -177,13 +152,12 @@ class OfflineMatcher:
         self._init_providers()
 
         try:
-            if platform == Platform.DEEZER:
+            if platform == Platform.SPOTIFY:
+                return await self._resolve_spotify_url(url)
+            elif platform == Platform.DEEZER:
                 return await self._resolve_deezer_url(url)
             elif platform == Platform.YOUTUBE_MUSIC:
                 return await self._resolve_youtube_url(url)
-            elif platform == Platform.SPOTIFY:
-                logger.warning("Spotify URLs require API credentials")
-                return []
             elif platform == Platform.APPLE_MUSIC:
                 logger.warning("Apple Music URLs not yet supported offline")
                 return []
@@ -201,8 +175,22 @@ class OfflineMatcher:
             logger.error(f"Failed to resolve URL {url}: {e}")
             return []
 
+    async def _resolve_spotify_url(self, url: str) -> list[Song]:
+        """Resolve a Spotify URL to songs."""
+        if self._spotify_provider is None:
+            logger.warning(
+                "Spotify credentials not configured. "
+                "Set SPOTDL_SPOTIFY_CLIENT_ID and SPOTDL_SPOTIFY_CLIENT_SECRET."
+            )
+            return []
+
+        songs = await self._spotify_provider.get_songs_from_url(url)
+        return songs
+
     async def _resolve_deezer_url(self, url: str) -> list[Song]:
         """Resolve a Deezer URL to songs."""
+        if self._deezer_provider is None:
+            return []
         songs = await self._deezer_provider.get_songs_from_url(url)
         return songs
 
@@ -241,17 +229,16 @@ class OfflineMatcher:
 
     async def _resolve_soundcloud_url(self, url: str) -> list[Song]:
         """Resolve a SoundCloud URL to songs."""
-        result = await self._soundcloud_target_provider.get_track_info(url)
-        if result:
-            return [self._result_to_song(result)]
-        return []
+        if self._soundcloud_target_provider is None:
+            return []
+        # SoundCloud target provider doesn't have get_track_info
+        # Use yt-dlp instead
+        return await self._resolve_youtube_url(url)
 
     async def _resolve_bandcamp_url(self, url: str) -> list[Song]:
         """Resolve a Bandcamp URL to songs."""
-        result = await self._bandcamp_target_provider.get_track_info(url)
-        if result:
-            return [self._result_to_song(result)]
-        return []
+        # Use yt-dlp for Bandcamp as well
+        return await self._resolve_youtube_url(url)
 
     def _yt_entry_to_song(self, entry: dict[str, Any]) -> Song | None:
         """Convert yt-dlp entry to Song object."""
@@ -259,10 +246,11 @@ class OfflineMatcher:
             video_id = entry.get("id", "")
             title = entry.get("title", "")
             duration = entry.get("duration", 0) or 0
-            channel = entry.get("channel", "") or entry.get("uploader", "") or "Unknown"
 
             if not video_id or not title:
                 return None
+
+            channel = entry.get("channel", "") or entry.get("uploader", "") or "Unknown"
 
             # Try to parse artist - title format
             artist = channel
@@ -287,8 +275,8 @@ class OfflineMatcher:
             logger.warning(f"Failed to convert entry to song: {e}")
             return None
 
-    def _result_to_song(self, result: DownloadResult) -> Song:
-        """Convert a DownloadResult to a Song."""
+    def _result_to_song(self, result: Result) -> Song:
+        """Convert a Result to a Song."""
         # Map target platform to source platform
         platform_map = {
             TargetPlatform.YOUTUBE: Platform.YOUTUBE_MUSIC,
@@ -299,7 +287,7 @@ class OfflineMatcher:
 
         return Song(
             name=result.name,
-            artists=result.artists,
+            artists=list(result.artists),
             artist=result.artist,
             duration=result.duration,
             platform=platform_map.get(result.platform, Platform.YOUTUBE_MUSIC),
@@ -331,25 +319,38 @@ class OfflineMatcher:
         all_songs: list[Song] = []
         seen_ids: set[str] = set()
 
+        # Search Spotify (if configured)
+        if self._spotify_provider:
+            try:
+                spotify_songs = await self._spotify_provider.search(query, limit)
+                for song in spotify_songs:
+                    if song.platform_id not in seen_ids:
+                        seen_ids.add(song.platform_id)
+                        all_songs.append(song)
+            except Exception as e:
+                logger.warning(f"Spotify search failed: {e}")
+
         # Search Deezer
-        try:
-            deezer_songs = await self._deezer_provider.search(query, limit)
-            for song in deezer_songs:
-                if song.platform_id not in seen_ids:
-                    seen_ids.add(song.platform_id)
-                    all_songs.append(song)
-        except Exception as e:
-            logger.warning(f"Deezer search failed: {e}")
+        if self._deezer_provider:
+            try:
+                deezer_songs = await self._deezer_provider.search(query, limit)
+                for song in deezer_songs:
+                    if song.platform_id not in seen_ids:
+                        seen_ids.add(song.platform_id)
+                        all_songs.append(song)
+            except Exception as e:
+                logger.warning(f"Deezer search failed: {e}")
 
         # Search YouTube Music
-        try:
-            ytm_songs = await self._ytm_source_provider.search(query, limit)
-            for song in ytm_songs:
-                if song.platform_id not in seen_ids:
-                    seen_ids.add(song.platform_id)
-                    all_songs.append(song)
-        except Exception as e:
-            logger.warning(f"YouTube Music search failed: {e}")
+        if self._ytm_source_provider:
+            try:
+                ytm_songs = await self._ytm_source_provider.search(query, limit)
+                for song in ytm_songs:
+                    if song.platform_id not in seen_ids:
+                        seen_ids.add(song.platform_id)
+                        all_songs.append(song)
+            except Exception as e:
+                logger.warning(f"YouTube Music search failed: {e}")
 
         # Search YouTube via yt-dlp
         try:
@@ -361,13 +362,13 @@ class OfflineMatcher:
         except Exception as e:
             logger.warning(f"YouTube search failed: {e}")
 
-        return all_songs[:limit * 2]  # Return more results from combined search
+        return all_songs[: limit * 2]  # Return more results from combined search
 
     async def search_youtube(
         self,
         query: str,
         limit: int = 10,
-    ) -> list[DownloadResult]:
+    ) -> list[Result]:
         """Search YouTube for videos matching a query."""
         options = self._get_yt_dlp_options()
         search_query = f"ytsearch{limit}:{query}"
@@ -383,7 +384,7 @@ class OfflineMatcher:
         if not results:
             return []
 
-        download_results = []
+        download_results: list[Result] = []
         entries = results.get("entries", [])
 
         for entry in entries:
@@ -400,7 +401,7 @@ class OfflineMatcher:
         self,
         query: str,
         limit: int = 10,
-    ) -> list[DownloadResult]:
+    ) -> list[Result]:
         """Search YouTube Music for tracks."""
         options = self._get_yt_dlp_options()
         search_query = f"https://music.youtube.com/search?q={query}"
@@ -416,7 +417,7 @@ class OfflineMatcher:
         if not results:
             return await self.search_youtube(query, limit)
 
-        download_results = []
+        download_results: list[Result] = []
         entries = results.get("entries", [])[:limit]
 
         for entry in entries:
@@ -445,8 +446,8 @@ class OfflineMatcher:
         self,
         entry: dict[str, Any],
         platform: TargetPlatform,
-    ) -> DownloadResult | None:
-        """Convert yt-dlp entry to DownloadResult."""
+    ) -> Result | None:
+        """Convert yt-dlp entry to Result."""
         try:
             video_id = entry.get("id", "")
             title = entry.get("title", "")
@@ -466,7 +467,7 @@ class OfflineMatcher:
             is_verified = entry.get("channel_is_verified", False)
             album_name = entry.get("album", None)
 
-            return DownloadResult(
+            return Result(
                 name=title,
                 artists=artists,
                 artist=channel,
@@ -491,7 +492,7 @@ class OfflineMatcher:
         song: Song,
         platforms: list[TargetPlatform] | None = None,
         limit: int = 5,
-    ) -> list[DownloadResult]:
+    ) -> list[Result]:
         """Find matching results for a song across all target platforms."""
         if platforms is None:
             platforms = [
@@ -502,19 +503,24 @@ class OfflineMatcher:
             ]
 
         self._init_providers()
-        all_results: list[DownloadResult] = []
+        all_results: list[Result] = []
 
         full_query = create_search_query(song.name, song.artists)
 
         for platform in platforms:
             try:
-                if platform == TargetPlatform.YOUTUBE_MUSIC:
+                if platform == TargetPlatform.YOUTUBE_MUSIC and self._ytm_target_provider:
                     results = await self._ytm_target_provider.search(song, limit)
-                elif platform == TargetPlatform.YOUTUBE:
+                elif platform == TargetPlatform.YOUTUBE and self._yt_target_provider:
                     results = await self._yt_target_provider.search(song, limit)
-                elif platform == TargetPlatform.SOUNDCLOUD:
+                elif (
+                    platform == TargetPlatform.SOUNDCLOUD
+                    and self._soundcloud_target_provider
+                ):
                     results = await self._soundcloud_target_provider.search(song, limit)
-                elif platform == TargetPlatform.BANDCAMP:
+                elif (
+                    platform == TargetPlatform.BANDCAMP and self._bandcamp_target_provider
+                ):
                     results = await self._bandcamp_target_provider.search(song, limit)
                 else:
                     continue
@@ -533,37 +539,57 @@ class OfflineMatcher:
         # Sort by score descending
         sorted_results = sorted(scored.items(), key=lambda x: x[1], reverse=True)
 
-        # Add score to results and return
-        matched_results = []
-        for result, score in sorted_results[:limit]:
-            result.score = score
-            matched_results.append(result)
-
-        return matched_results
+        return [result for result, _score in sorted_results[:limit]]
 
     async def get_best_match(
         self,
         song: Song,
         min_score: float = 80.0,
-    ) -> DownloadResult | None:
+    ) -> Result | None:
         """Get the single best match for a song."""
-        matches = await self.find_matches(song)
+        self._init_providers()
 
-        if not matches:
+        full_query = create_search_query(song.name, song.artists)
+        all_results: list[Result] = []
+
+        # Search all target providers
+        for provider in [
+            self._ytm_target_provider,
+            self._yt_target_provider,
+            self._soundcloud_target_provider,
+            self._bandcamp_target_provider,
+        ]:
+            if provider:
+                try:
+                    results = await provider.search(song, limit=5)
+                    all_results.extend(results)
+                except Exception as e:
+                    logger.warning(f"Search failed: {e}")
+
+        if not all_results:
             return None
 
-        best = matches[0]
-        if best.score < min_score:
-            logger.debug(f"Best match score {best.score} below threshold {min_score}")
+        # Score and rank results
+        scored = order_results(all_results, song, full_query)
+        if not scored:
             return None
 
-        return best
+        best_result, best_score = max(scored.items(), key=lambda x: x[1])
+
+        if best_score < min_score:
+            logger.debug(f"Best match score {best_score} below threshold {min_score}")
+            return None
+
+        return best_result
 
     # ============== Metadata Enrichment ==============
 
     async def enrich_song(self, song: Song) -> Song:
         """Enrich a song with metadata from MusicBrainz."""
         self._init_providers()
+
+        if self._musicbrainz_provider is None:
+            return song
 
         try:
             return await self._musicbrainz_provider.enrich_song(song)
@@ -575,6 +601,8 @@ class OfflineMatcher:
 
     async def close(self) -> None:
         """Close all provider connections."""
+        if self._spotify_provider:
+            await self._spotify_provider.close()
         if self._deezer_provider:
             await self._deezer_provider.close()
         if self._yt_target_provider:
@@ -595,3 +623,12 @@ def get_offline_matcher() -> OfflineMatcher:
     if _offline_matcher is None:
         _offline_matcher = OfflineMatcher()
     return _offline_matcher
+
+
+# Re-export for convenience
+__all__ = [
+    "OfflineMatcher",
+    "detect_platform",
+    "get_offline_matcher",
+    "is_valid_url",
+]

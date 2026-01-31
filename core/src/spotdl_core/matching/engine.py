@@ -5,7 +5,7 @@ from __future__ import annotations
 import logging
 from typing import TYPE_CHECKING
 
-from spotdl_core.core.matching.constants import (
+from spotdl_core.matching.constants import (
     EXPLICIT_MISMATCH_PENALTY,
     FORBIDDEN_WORD_PENALTY,
     HIGH_MATCH_THRESHOLD,
@@ -13,7 +13,7 @@ from spotdl_core.core.matching.constants import (
     MIN_NAME_MATCH,
     MIN_TIME_MATCH,
 )
-from spotdl_core.core.matching.scoring import (
+from spotdl_core.matching.scoring import (
     artists_match_fixup1,
     artists_match_fixup2,
     artists_match_fixup3,
@@ -25,11 +25,11 @@ from spotdl_core.core.matching.scoring import (
     check_common_word,
     check_forbidden_words,
 )
-from spotdl_core.core.types.result import TargetPlatform
+from spotdl_core.types.result import TargetPlatform
 
 if TYPE_CHECKING:
-    from spotdl_core.core.types.result import Result
-    from spotdl_core.core.types.song import Song
+    from spotdl_core.types.result import Result
+    from spotdl_core.types.song import Song
 
 logger = logging.getLogger(__name__)
 

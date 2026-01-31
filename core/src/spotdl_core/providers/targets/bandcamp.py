@@ -9,14 +9,14 @@ from typing import TYPE_CHECKING, Any
 import httpx
 from bs4 import BeautifulSoup
 
-from spotdl_core.core.types.result import Result, TargetPlatform
+from spotdl_core.types.result import Result, TargetPlatform
 from spotdl_core.providers.targets.base import (
     SearchError,
     TargetProvider,
 )
 
 if TYPE_CHECKING:
-    from spotdl_core.core.types.song import Song
+    from spotdl_core.types.song import Song
 
 # Bandcamp URL pattern
 BANDCAMP_URL_PATTERN = re.compile(

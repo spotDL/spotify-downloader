@@ -102,6 +102,52 @@ class TestDownloadResult:
 
         assert result.display_name == "Cool Artist - My Result"
 
+    def test_from_dict(self) -> None:
+        """Test creating DownloadResult from dictionary."""
+        data = {
+            "name": "Dict Result",
+            "artists": ["Artist1"],
+            "artist": "Artist1",
+            "duration": 200,
+            "platform": "youtube",
+            "platform_id": "dict123",
+            "url": "https://youtube.com/watch?v=dict123",
+            "score": 85.0,
+        }
+
+        result = DownloadResult.from_dict(data)
+        assert result.name == "Dict Result"
+        assert result.platform == TargetPlatform.YOUTUBE
+        assert result.score == 85.0
+
+    def test_hash_and_equality(self) -> None:
+        """Test hashability and equality."""
+        result1 = DownloadResult(
+            name="Same",
+            artists=["Artist"],
+            artist="Artist",
+            duration=180,
+            platform=TargetPlatform.YOUTUBE,
+            platform_id="same123",
+            url="https://youtube.com/watch?v=same123",
+        )
+        result2 = DownloadResult(
+            name="Same",
+            artists=["Artist"],
+            artist="Artist",
+            duration=180,
+            platform=TargetPlatform.YOUTUBE,
+            platform_id="same123",
+            url="https://youtube.com/watch?v=same123",
+        )
+
+        assert result1 == result2
+        assert hash(result1) == hash(result2)
+
+        # Test as dict key
+        d = {result1: "value"}
+        assert d[result2] == "value"
+
 
 class TestDownloadItem:
     """Tests for DownloadItem dataclass."""

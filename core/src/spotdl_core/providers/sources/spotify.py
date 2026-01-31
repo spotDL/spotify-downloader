@@ -10,7 +10,7 @@ from typing import Any
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials, SpotifyOAuth
 
-from spotdl_core.core.types.song import Platform, Song, SongList
+from spotdl_core.types.song import Platform, Song, SongList
 from spotdl_core.providers.sources.base import (
     InvalidURLError,
     SourceProvider,

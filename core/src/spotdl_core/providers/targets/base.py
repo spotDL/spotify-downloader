@@ -6,8 +6,8 @@ from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from spotdl_core.core.types.result import Result
-    from spotdl_core.core.types.song import Song
+    from spotdl_core.types.result import Result
+    from spotdl_core.types.song import Song
 
 
 class TargetProviderError(Exception):
