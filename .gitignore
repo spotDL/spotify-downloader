@@ -27,8 +27,8 @@ ENV/
 env/
 .python-version
 
-# uv
-uv.lock
+# uv cache
+.uv/
 
 # pytest
 .pytest_cache/
@@ -113,6 +113,7 @@ temp/
 *.pem
 *.key
 secrets/
+nginx/certs/
 
 # Alembic
 alembic/versions/*.pyc
