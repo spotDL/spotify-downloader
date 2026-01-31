@@ -1,0 +1,217 @@
+/* SpotDL CLI Textual CSS */
+
+/* Global styles */
+Screen {
+    background: $surface;
+}
+
+/* Header */
+Header {
+    background: $primary;
+}
+
+/* Footer */
+Footer {
+    background: $primary-darken-2;
+}
+
+/* Search screen */
+#search-container {
+    layout: vertical;
+    padding: 1;
+}
+
+#search-input {
+    dock: top;
+    margin-bottom: 1;
+}
+
+#search-input Input {
+    width: 100%;
+}
+
+#results-container {
+    height: 1fr;
+    border: solid $primary;
+    padding: 1;
+}
+
+#results-table {
+    width: 100%;
+    height: 100%;
+}
+
+/* Queue screen */
+#queue-container {
+    layout: vertical;
+    padding: 1;
+}
+
+#queue-header {
+    dock: top;
+    height: 3;
+    padding: 0 1;
+}
+
+#queue-stats {
+    width: 100%;
+}
+
+#queue-table {
+    height: 1fr;
+    border: solid $primary;
+}
+
+/* Download progress */
+.download-item {
+    layout: horizontal;
+    height: 3;
+    padding: 0 1;
+}
+
+.download-item .title {
+    width: 40%;
+}
+
+.download-item .status {
+    width: 20%;
+}
+
+.download-item .progress {
+    width: 30%;
+}
+
+.download-item .actions {
+    width: 10%;
+}
+
+ProgressBar {
+    padding: 0;
+}
+
+ProgressBar > .bar--bar {
+    color: $success;
+}
+
+/* Status colors */
+.status-pending {
+    color: $text-muted;
+}
+
+.status-searching {
+    color: $warning;
+}
+
+.status-downloading {
+    color: $primary;
+}
+
+.status-converting {
+    color: $secondary;
+}
+
+.status-embedding {
+    color: $secondary;
+}
+
+.status-completed {
+    color: $success;
+}
+
+.status-failed {
+    color: $error;
+}
+
+.status-cancelled {
+    color: $text-muted;
+}
+
+/* Settings screen */
+#settings-container {
+    layout: vertical;
+    padding: 1;
+}
+
+.settings-group {
+    margin-bottom: 1;
+    padding: 1;
+    border: solid $primary;
+}
+
+.settings-group .title {
+    text-style: bold;
+    margin-bottom: 1;
+}
+
+.setting-row {
+    layout: horizontal;
+    height: 3;
+}
+
+.setting-row .label {
+    width: 30%;
+}
+
+.setting-row .value {
+    width: 70%;
+}
+
+/* Song card */
+.song-card {
+    layout: vertical;
+    padding: 1;
+    border: solid $primary;
+    margin-bottom: 1;
+}
+
+.song-card .title {
+    text-style: bold;
+}
+
+.song-card .artist {
+    color: $text-muted;
+}
+
+.song-card .duration {
+    color: $text-muted;
+}
+
+/* Buttons */
+Button {
+    margin: 0 1;
+}
+
+Button.primary {
+    background: $primary;
+}
+
+Button.success {
+    background: $success;
+}
+
+Button.error {
+    background: $error;
+}
+
+/* Input */
+Input {
+    border: solid $primary;
+}
+
+Input:focus {
+    border: solid $accent;
+}
+
+/* DataTable */
+DataTable {
+    height: 100%;
+}
+
+DataTable > .datatable--header {
+    text-style: bold;
+    background: $primary-darken-1;
+}
+
+DataTable > .datatable--cursor {
+    background: $primary;
+}
