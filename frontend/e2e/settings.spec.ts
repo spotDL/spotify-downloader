@@ -9,8 +9,9 @@ test.describe("Settings Page", () => {
     await expect(
       page.getByRole("heading", { name: /Settings/i })
     ).toBeVisible();
+    // Description may include "credentials" in the full version
     await expect(
-      page.getByText(/Configure download preferences and server connection/i)
+      page.getByText(/Configure download preferences/i)
     ).toBeVisible();
   });
 
@@ -63,13 +64,13 @@ test.describe("Settings Page", () => {
     const concurrentSelect = page.locator("select").nth(2);
     await expect(concurrentSelect).toBeVisible();
 
-    // Check options by counting them (1, 2, 3, 4, 5, 6, 8, 10, 12, 16 = 10 options)
-    await expect(concurrentSelect.locator("option")).toHaveCount(10);
+    // Check options by counting them (1, 2, 3, 4, 5, 6, 8, 10 = 8 options)
+    await expect(concurrentSelect.locator("option")).toHaveCount(8);
     // Verify options can be selected
     await concurrentSelect.selectOption("1");
     await expect(concurrentSelect).toHaveValue("1");
-    await concurrentSelect.selectOption("16");
-    await expect(concurrentSelect).toHaveValue("16");
+    await concurrentSelect.selectOption("10");
+    await expect(concurrentSelect).toHaveValue("10");
   });
 
   test("should have overwrite existing checkbox", async ({ page }) => {

@@ -1,0 +1,23 @@
+# SpotDL Frontend Development Dockerfile with Hot Module Replacement
+FROM node:22-slim
+
+# Install pnpm
+RUN corepack enable && corepack prepare pnpm@latest --activate
+
+# Set working directory
+WORKDIR /app
+
+# Copy package files
+COPY package.json pnpm-lock.yaml ./
+
+# Install dependencies
+RUN pnpm install --frozen-lockfile
+
+# Copy config files (source will be mounted)
+COPY vite.config.ts tsconfig.json ./
+
+# Expose Vite dev server port
+EXPOSE 5173
+
+# Run Vite dev server with HMR
+CMD ["pnpm", "dev", "--host", "0.0.0.0"]

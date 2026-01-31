@@ -58,8 +58,8 @@ function HomePage() {
           setMatches(matchResult.matches);
         }
       } else {
-        // It's a search query - search for songs
-        const response = await searchMutation.mutateAsync({ query, platform: "spotify" });
+        // It's a search query - search for songs (using youtube_music as default as it doesn't require API keys)
+        const response = await searchMutation.mutateAsync({ query, platform: "youtube_music" });
         setSearchResults(response.songs);
       }
     } catch (err) {

@@ -319,6 +319,7 @@ class SongService:
 
         Raises:
             UnsupportedURLError: If platform is not supported
+            SongServiceError: If search fails
         """
         provider = self._providers.get(platform)
         if provider is None:
@@ -326,8 +327,8 @@ class SongService:
 
         try:
             return await provider.search(query, limit=limit)
-        except SourceProviderError:
-            return []
+        except SourceProviderError as e:
+            raise SongServiceError(str(e)) from e
 
     @property
     def supported_platforms(self) -> list[Platform]:
@@ -417,9 +418,20 @@ def get_song_service(
     """
     global _song_service
     if _song_service is None:
+        # Import settings here to avoid circular imports
+        from spotdl.config import get_settings
+
+        settings = get_settings()
+
+        # Use provided credentials or fall back to settings
+        client_id = spotify_client_id or settings.spotify_client_id
+        client_secret = spotify_client_secret
+        if client_secret is None and settings.spotify_client_secret:
+            client_secret = settings.spotify_client_secret.get_secret_value()
+
         _song_service = SongService(
-            spotify_client_id=spotify_client_id,
-            spotify_client_secret=spotify_client_secret,
+            spotify_client_id=client_id,
+            spotify_client_secret=client_secret,
             ytmusic_auth_file=ytmusic_auth_file,
             enable_metadata_enrichment=enable_metadata_enrichment,
             enable_musicbrainz=enable_musicbrainz,

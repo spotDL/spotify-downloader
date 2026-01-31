@@ -74,6 +74,12 @@ class SpotifyProvider(SourceProvider):
         if self._auth_token:
             self._client = spotipy.Spotify(auth=self._auth_token)
         elif self._user_auth:
+            if not self._client_id or not self._client_secret:
+                raise SpotifyClientError(
+                    "Spotify credentials not configured. "
+                    "Set SPOTIPY_CLIENT_ID and SPOTIPY_CLIENT_SECRET environment variables, "
+                    "or configure them in settings."
+                )
             auth_manager = SpotifyOAuth(
                 client_id=self._client_id,
                 client_secret=self._client_secret,
@@ -82,6 +88,12 @@ class SpotifyProvider(SourceProvider):
             )
             self._client = spotipy.Spotify(auth_manager=auth_manager)
         else:
+            if not self._client_id or not self._client_secret:
+                raise SpotifyClientError(
+                    "Spotify credentials not configured. "
+                    "Set SPOTIPY_CLIENT_ID and SPOTIPY_CLIENT_SECRET environment variables, "
+                    "or configure them in settings."
+                )
             auth_manager = SpotifyClientCredentials(
                 client_id=self._client_id,
                 client_secret=self._client_secret,

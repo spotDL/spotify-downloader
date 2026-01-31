@@ -1,9 +1,18 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
 import {
   useSettingsStore,
   type AudioFormat,
   type AudioQuality,
+  type LogLevel,
 } from "@/stores/settings";
+import {
+  useUserSettings,
+  useUpdateUserSettings,
+  apiToStoreSettings,
+  storeToApiSettings,
+} from "@/api";
+import { useAuthStore } from "@/stores/auth";
 import {
   Button,
   Input,
@@ -13,6 +22,7 @@ import {
   CardHeader,
   CardTitle,
   CardDescription,
+  Badge,
 } from "@/components/ui";
 import { features } from "@/config";
 
@@ -37,10 +47,26 @@ const QUALITY_OPTIONS = [
   { value: "128k", label: "128 kbps" },
 ];
 
-const CONCURRENT_OPTIONS = [1, 2, 3, 4, 5, 6, 8, 10, 12, 16].map((n) => ({
+const CONCURRENT_OPTIONS = [1, 2, 3, 4, 5, 6, 8, 10].map((n) => ({
   value: String(n),
   label: `${n} downloads`,
 }));
+
+const LOG_LEVEL_OPTIONS = [
+  { value: "DEBUG", label: "Debug" },
+  { value: "INFO", label: "Info" },
+  { value: "WARNING", label: "Warning" },
+  { value: "ERROR", label: "Error" },
+  { value: "CRITICAL", label: "Critical" },
+];
+
+const TIMEOUT_OPTIONS = [
+  { value: "10", label: "10 seconds" },
+  { value: "30", label: "30 seconds" },
+  { value: "60", label: "1 minute" },
+  { value: "120", label: "2 minutes" },
+  { value: "300", label: "5 minutes" },
+];
 
 // Custom checkbox component
 function Checkbox({
@@ -85,41 +111,179 @@ function Checkbox({
   );
 }
 
+// Slider component for thresholds
+function Slider({
+  value,
+  onChange,
+  label,
+  min = 0,
+  max = 100,
+  step = 1,
+  description,
+}: {
+  value: number;
+  onChange: (value: number) => void;
+  label: string;
+  min?: number;
+  max?: number;
+  step?: number;
+  description?: string;
+}) {
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center justify-between">
+        <label className="text-sm text-zinc-300 font-medium">{label}</label>
+        <span className="text-sm text-emerald-400 font-mono">{value}%</span>
+      </div>
+      <input
+        type="range"
+        min={min}
+        max={max}
+        step={step}
+        value={value}
+        onChange={(e) => onChange(Number(e.target.value))}
+        className="w-full h-2 bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-emerald-500"
+      />
+      {description && (
+        <p className="text-xs text-zinc-500">{description}</p>
+      )}
+    </div>
+  );
+}
+
 function SettingsPage() {
+  const { isAuthenticated } = useAuthStore();
+  const [showSecrets, setShowSecrets] = useState(false);
+  const [syncStatus, setSyncStatus] = useState<"idle" | "syncing" | "success" | "error">("idle");
+
   const {
     audioFormat,
     audioQuality,
     outputTemplate,
+    outputDirectory,
     maxConcurrentDownloads,
     overwriteExisting,
     embedMetadata,
     embedLyrics,
     embedCoverArt,
+    spotifyClientId,
+    spotifyClientSecret,
+    spotifyUserAuth,
     apiUrl,
+    apiTimeout,
     offlineMode,
+    nameMatchThreshold,
+    artistMatchThreshold,
+    timeMatchThreshold,
+    logLevel,
+    cookieFile,
     setAudioFormat,
     setAudioQuality,
     setOutputTemplate,
+    setOutputDirectory,
     setMaxConcurrentDownloads,
     setOverwriteExisting,
     setEmbedMetadata,
     setEmbedLyrics,
     setEmbedCoverArt,
+    setSpotifyClientId,
+    setSpotifyClientSecret,
+    setSpotifyUserAuth,
     setApiUrl,
+    setApiTimeout,
     setOfflineMode,
+    setNameMatchThreshold,
+    setArtistMatchThreshold,
+    setTimeMatchThreshold,
+    setLogLevel,
+    setCookieFile,
     resetToDefaults,
+    importSettings,
+    exportSettings,
   } = useSettingsStore();
+
+  // API hooks for syncing
+  const { refetch: refetchServerSettings } = useUserSettings();
+  const updateSettingsMutation = useUpdateUserSettings();
+
+  // Sync settings to server
+  const handleSyncToServer = async () => {
+    if (!isAuthenticated) return;
+    setSyncStatus("syncing");
+    try {
+      const currentSettings = exportSettings();
+      await updateSettingsMutation.mutateAsync(storeToApiSettings(currentSettings));
+      setSyncStatus("success");
+      setTimeout(() => setSyncStatus("idle"), 2000);
+    } catch {
+      setSyncStatus("error");
+      setTimeout(() => setSyncStatus("idle"), 3000);
+    }
+  };
+
+  // Load settings from server
+  const handleLoadFromServer = async () => {
+    if (!isAuthenticated) return;
+    setSyncStatus("syncing");
+    try {
+      const result = await refetchServerSettings();
+      if (result.data) {
+        importSettings(apiToStoreSettings(result.data));
+      }
+      setSyncStatus("success");
+      setTimeout(() => setSyncStatus("idle"), 2000);
+    } catch {
+      setSyncStatus("error");
+      setTimeout(() => setSyncStatus("idle"), 3000);
+    }
+  };
+
+  // Export settings as JSON file
+  const handleExportToFile = () => {
+    const settings = exportSettings();
+    const blob = new Blob([JSON.stringify(settings, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "spotdl-settings.json";
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  // Import settings from JSON file
+  const handleImportFromFile = () => {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = ".json";
+    input.onchange = async (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (!file) return;
+      try {
+        const text = await file.text();
+        const settings = JSON.parse(text);
+        importSettings(settings);
+      } catch (error) {
+        console.error("Failed to import settings:", error);
+      }
+    };
+    input.click();
+  };
 
   return (
     <div className="space-y-8 max-w-2xl">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight text-zinc-50">Settings</h1>
-        <p className="text-zinc-400 mt-2">
-          {features.hasDownloadSettings
-            ? "Configure download preferences and server connection"
-            : "Configure server connection and preferences"}
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight text-zinc-50">Settings</h1>
+          <p className="text-zinc-400 mt-2">
+            {features.hasDownloadSettings
+              ? "Configure download preferences, credentials, and server connection"
+              : "Configure server connection and preferences"}
+          </p>
+        </div>
+        {isAuthenticated && (
+          <Badge variant="success" pulse>Signed In</Badge>
+        )}
       </div>
 
       {/* Download Settings - Only shown in self-hosted mode */}
@@ -168,6 +332,13 @@ function SettingsPage() {
               Available: <code className="text-zinc-400">{"{artist}"}</code>, <code className="text-zinc-400">{"{artists}"}</code>, <code className="text-zinc-400">{"{title}"}</code>, <code className="text-zinc-400">{"{album}"}</code>, <code className="text-zinc-400">{"{year}"}</code>, <code className="text-zinc-400">{"{track_number}"}</code>
             </p>
           </div>
+
+          <Input
+            label="Output Directory"
+            value={outputDirectory}
+            onChange={(e) => setOutputDirectory(e.target.value)}
+            placeholder="~/Music/SpotDL"
+          />
 
           <Select
             label="Concurrent Downloads"
@@ -228,8 +399,82 @@ function SettingsPage() {
       </>
       )}
 
-      {/* Server Settings */}
+      {/* Spotify Credentials */}
       <Card variant="bordered" className="animate-slide-up stagger-2">
+        <CardHeader>
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#1db954]/20 to-[#169c46]/20 flex items-center justify-center">
+              <svg className="w-5 h-5 text-[#1db954]" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/>
+              </svg>
+            </div>
+            <div>
+              <CardTitle>Spotify Credentials</CardTitle>
+              <CardDescription>
+                Optional API credentials for better rate limits
+              </CardDescription>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-5">
+          <div className="p-3 rounded-lg bg-amber-950/30 border border-amber-800/30">
+            <p className="text-sm text-amber-400">
+              Get your credentials from the{" "}
+              <a
+                href="https://developer.spotify.com/dashboard"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline hover:text-amber-300"
+              >
+                Spotify Developer Dashboard
+              </a>
+            </p>
+          </div>
+
+          <Input
+            label="Client ID"
+            value={spotifyClientId}
+            onChange={(e) => setSpotifyClientId(e.target.value)}
+            placeholder="Your Spotify Client ID"
+          />
+
+          <div className="relative">
+            <Input
+              label="Client Secret"
+              type={showSecrets ? "text" : "password"}
+              value={spotifyClientSecret}
+              onChange={(e) => setSpotifyClientSecret(e.target.value)}
+              placeholder="Your Spotify Client Secret"
+            />
+            <button
+              type="button"
+              onClick={() => setShowSecrets(!showSecrets)}
+              className="absolute right-3 top-8 text-zinc-500 hover:text-zinc-300"
+            >
+              {showSecrets ? (
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                </svg>
+              ) : (
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+              )}
+            </button>
+          </div>
+
+          <Checkbox
+            checked={spotifyUserAuth}
+            onChange={setSpotifyUserAuth}
+            label="Use Spotify OAuth"
+            description="Enable user authentication for accessing private playlists"
+          />
+        </CardContent>
+      </Card>
+
+      {/* Server Settings */}
+      <Card variant="bordered" className="animate-slide-up stagger-3">
         <CardHeader>
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-500/20 to-blue-500/20 flex items-center justify-center">
@@ -253,6 +498,13 @@ function SettingsPage() {
             placeholder="http://localhost:8000"
           />
 
+          <Select
+            label="API Timeout"
+            options={TIMEOUT_OPTIONS}
+            value={String(apiTimeout)}
+            onChange={(e) => setApiTimeout(Number(e.target.value))}
+          />
+
           <Checkbox
             checked={offlineMode}
             onChange={setOfflineMode}
@@ -262,15 +514,177 @@ function SettingsPage() {
         </CardContent>
       </Card>
 
-      {/* Actions */}
-      <div className="flex justify-end gap-3 pt-4">
-        <Button variant="outline" onClick={resetToDefaults}>
-          <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-          </svg>
-          Reset to Defaults
-        </Button>
-      </div>
+      {/* Matching Thresholds - Only shown when offline mode is enabled */}
+      {offlineMode && (
+      <Card variant="bordered" className="animate-slide-up">
+        <CardHeader>
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500/20 to-amber-500/20 flex items-center justify-center">
+              <svg className="w-5 h-5 text-orange-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+              </svg>
+            </div>
+            <div>
+              <CardTitle>Matching Thresholds</CardTitle>
+              <CardDescription>
+                Tune the matching algorithm for offline mode
+              </CardDescription>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <Slider
+            value={nameMatchThreshold}
+            onChange={setNameMatchThreshold}
+            label="Name Match Threshold"
+            description="Minimum similarity for song names (default: 60%)"
+          />
+
+          <Slider
+            value={artistMatchThreshold}
+            onChange={setArtistMatchThreshold}
+            label="Artist Match Threshold"
+            description="Minimum similarity for artist names (default: 70%)"
+          />
+
+          <Slider
+            value={timeMatchThreshold}
+            onChange={setTimeMatchThreshold}
+            label="Time Match Threshold"
+            description="Minimum similarity for song duration (default: 25%)"
+          />
+        </CardContent>
+      </Card>
+      )}
+
+      {/* Advanced Settings */}
+      <Card variant="bordered" className="animate-slide-up stagger-4">
+        <CardHeader>
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-zinc-500/20 to-zinc-600/20 flex items-center justify-center">
+              <svg className="w-5 h-5 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+            </div>
+            <div>
+              <CardTitle>Advanced</CardTitle>
+              <CardDescription>
+                Additional configuration options
+              </CardDescription>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-5">
+          <Select
+            label="Log Level"
+            options={LOG_LEVEL_OPTIONS}
+            value={logLevel}
+            onChange={(e) => setLogLevel(e.target.value as LogLevel)}
+          />
+
+          <Input
+            label="Cookie File Path"
+            value={cookieFile}
+            onChange={(e) => setCookieFile(e.target.value)}
+            placeholder="Path to cookies.txt for authentication"
+          />
+        </CardContent>
+      </Card>
+
+      {/* Sync & Actions */}
+      <Card variant="bordered" className="animate-slide-up stagger-5">
+        <CardHeader>
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-fuchsia-500/20 to-pink-500/20 flex items-center justify-center">
+              <svg className="w-5 h-5 text-fuchsia-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+            </div>
+            <div>
+              <CardTitle>Sync & Backup</CardTitle>
+              <CardDescription>
+                Sync settings with server or export to file
+              </CardDescription>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {/* Server Sync - Only for authenticated users */}
+          {isAuthenticated ? (
+            <div className="flex flex-wrap gap-3">
+              <Button
+                variant="outline"
+                onClick={handleSyncToServer}
+                disabled={syncStatus === "syncing"}
+              >
+                {syncStatus === "syncing" ? (
+                  <>
+                    <svg className="w-4 h-4 mr-2 animate-spin" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                    </svg>
+                    Syncing...
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                    </svg>
+                    Save to Server
+                  </>
+                )}
+              </Button>
+              <Button
+                variant="outline"
+                onClick={handleLoadFromServer}
+                disabled={syncStatus === "syncing"}
+              >
+                <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
+                </svg>
+                Load from Server
+              </Button>
+              {syncStatus === "success" && (
+                <Badge variant="success">Synced!</Badge>
+              )}
+              {syncStatus === "error" && (
+                <Badge variant="error">Sync failed</Badge>
+              )}
+            </div>
+          ) : (
+            <p className="text-sm text-zinc-500">
+              Sign in to sync settings with the server
+            </p>
+          )}
+
+          {/* File Import/Export */}
+          <div className="flex flex-wrap gap-3 pt-2 border-t border-zinc-800">
+            <Button variant="ghost" onClick={handleExportToFile}>
+              <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              Export to File
+            </Button>
+            <Button variant="ghost" onClick={handleImportFromFile}>
+              <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              Import from File
+            </Button>
+          </div>
+
+          {/* Reset */}
+          <div className="flex justify-end pt-2 border-t border-zinc-800">
+            <Button variant="outline" onClick={resetToDefaults}>
+              <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              Reset to Defaults
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

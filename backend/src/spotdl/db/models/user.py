@@ -12,6 +12,7 @@ from spotdl.db.models.base import Base, GUID, TimestampMixin, generate_uuid
 
 if TYPE_CHECKING:
     from spotdl.db.models.match import Match
+    from spotdl.db.models.user_settings import UserSettings
     from spotdl.db.models.vote import Vote
 
 
@@ -75,6 +76,12 @@ class User(Base, TimestampMixin):
     votes: Mapped[list[Vote]] = relationship(
         "Vote",
         back_populates="user",
+    )
+    settings: Mapped[UserSettings | None] = relationship(
+        "UserSettings",
+        back_populates="user",
+        uselist=False,
+        cascade="all, delete-orphan",
     )
 
     def __repr__(self) -> str:

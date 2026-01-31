@@ -68,3 +68,21 @@ export {
 
 // Health
 export { checkHealth, useHealth, healthKeys } from "./health";
+
+// Settings
+export {
+  getUserSettings,
+  updateUserSettings,
+  resetUserSettings,
+  exportUserSettings,
+  importUserSettings,
+  useUserSettings,
+  useUpdateUserSettings,
+  useResetUserSettings,
+  useExportUserSettings,
+  useImportUserSettings,
+  apiToStoreSettings,
+  storeToApiSettings,
+  settingsKeys,
+  type UserSettingsResponse,
+} from "./settings";
