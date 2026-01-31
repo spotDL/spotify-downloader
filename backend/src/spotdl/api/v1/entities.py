@@ -229,6 +229,9 @@ async def get_album(
     result = await db.execute(query)
     songs = result.scalars().all()
 
+    # Use actual song count if stored total_tracks is 0
+    total_tracks = album.total_tracks if album.total_tracks > 0 else len(songs)
+
     return AlbumResponse(
         id=str(album.id),
         name=album.name,
@@ -236,7 +239,7 @@ async def get_album(
         artist_id=str(album.artist_id) if album.artist_id else None,
         cover_url=album.cover_url,
         year=album.year,
-        total_tracks=album.total_tracks,
+        total_tracks=total_tracks,
         platforms=[
             PlatformInfo(
                 platform=link.platform,

@@ -85,7 +85,12 @@ class AlbumRepository(BaseRepository[Album]):
         platform_id: str,
         platform_url: str,
     ) -> AlbumPlatformLink:
-        """Add a platform link to an album."""
+        """Add a platform link to an album (or return existing one)."""
+        # Check if link already exists
+        existing = await self.get_platform_link(platform, platform_id)
+        if existing:
+            return existing
+
         link = AlbumPlatformLink(
             album_id=album_id,
             platform=platform,

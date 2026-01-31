@@ -69,7 +69,12 @@ class ArtistRepository(BaseRepository[Artist]):
         platform_url: str,
         followers: int | None = None,
     ) -> ArtistPlatformLink:
-        """Add a platform link to an artist."""
+        """Add a platform link to an artist (or return existing one)."""
+        # Check if link already exists
+        existing = await self.get_platform_link(platform, platform_id)
+        if existing:
+            return existing
+
         link = ArtistPlatformLink(
             artist_id=artist_id,
             platform=platform,

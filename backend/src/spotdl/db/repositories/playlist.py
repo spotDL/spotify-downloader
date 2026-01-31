@@ -76,7 +76,12 @@ class PlaylistRepository(BaseRepository[Playlist]):
         platform_url: str,
         followers: int | None = None,
     ) -> PlaylistPlatformLink:
-        """Add a platform link to a playlist."""
+        """Add a platform link to a playlist (or return existing one)."""
+        # Check if link already exists
+        existing = await self.get_platform_link(platform, platform_id)
+        if existing:
+            return existing
+
         link = PlaylistPlatformLink(
             playlist_id=playlist_id,
             platform=platform,
