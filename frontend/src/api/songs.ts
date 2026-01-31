@@ -22,6 +22,21 @@ export interface ResolveResponse {
   total: number;
 }
 
+export interface PlatformSearchResult {
+  platform: string;
+  platform_name: string;
+  songs: Song[];
+  total: number;
+  error: string | null;
+}
+
+export interface MultiPlatformSearchResponse {
+  query: string;
+  results: PlatformSearchResult[];
+  total_results: number;
+  matches_saved: number;
+}
+
 export async function searchSongs(
   query: string,
   platform = "spotify",
@@ -30,6 +45,19 @@ export async function searchSongs(
   const response = await apiClient.get<SearchResponse>("/songs/search", {
     params: { query, platform, limit },
   });
+  return response.data;
+}
+
+export async function searchAllPlatforms(
+  query: string,
+  limit = 10
+): Promise<MultiPlatformSearchResponse> {
+  const response = await apiClient.get<MultiPlatformSearchResponse>(
+    "/songs/search/all",
+    {
+      params: { query, limit },
+    }
+  );
   return response.data;
 }
 
@@ -109,5 +137,21 @@ export function useSearchSongsMutation() {
       platform?: string;
       limit?: number;
     }) => searchSongs(query, platform, limit),
+  });
+}
+
+export function useSearchAllPlatformsMutation() {
+  return useMutation({
+    mutationFn: ({ query, limit = 10 }: { query: string; limit?: number }) =>
+      searchAllPlatforms(query, limit),
+  });
+}
+
+export function useSearchAllPlatforms(query: string, limit = 10) {
+  return useQuery({
+    queryKey: [...songKeys.all, "search-all", query, limit] as const,
+    queryFn: () => searchAllPlatforms(query, limit),
+    enabled: query.length > 0,
+    staleTime: 1000 * 60 * 5, // 5 minutes
   });
 }

@@ -11,6 +11,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
 from spotdl.api.v1 import router as api_v1_router
+from spotdl.api.v1.websocket import router as websocket_router
 from spotdl.config import get_settings
 from spotdl.db.database import close_db, init_db
 
@@ -60,6 +61,9 @@ def create_app() -> FastAPI:
 
     # Include API routers
     app.include_router(api_v1_router)
+
+    # Include WebSocket router
+    app.include_router(websocket_router, prefix="/api/v1", tags=["websocket"])
 
     # Mount static files for React frontend (if exists)
     static_path = Path("./static")

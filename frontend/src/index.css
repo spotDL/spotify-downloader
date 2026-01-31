@@ -1,16 +1,9 @@
+@import url('https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap');
+@import url('https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600&display=swap');
 @import "tailwindcss";
 
 /* ====== TYPOGRAPHY ====== */
 /* Distinctive fonts: Satoshi for headings, General Sans for body */
-@font-face {
-  font-family: 'Satoshi';
-  src: url('https://api.fontshare.com/v2/css?f[]=satoshi@700,900&display=swap');
-  font-weight: 700 900;
-  font-display: swap;
-}
-
-@import url('https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap');
-@import url('https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600&display=swap');
 
 /* ====== CSS VARIABLES ====== */
 :root {
@@ -349,4 +342,243 @@ h1, h2, h3, h4, h5, h6 {
     linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
     linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
   background-size: 32px 32px;
+}
+
+/* ====== ENHANCED ANIMATIONS ====== */
+
+/* Smooth float animation */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* Gradient shift */
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.animate-gradient {
+  background-size: 200% 200%;
+  animation: gradientShift 8s ease infinite;
+}
+
+/* Glow pulse */
+@keyframes glowPulse {
+  0%, 100% {
+    box-shadow: 0 0 20px -5px rgba(34, 197, 94, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 40px -5px rgba(34, 197, 94, 0.5);
+  }
+}
+
+.animate-glow-pulse {
+  animation: glowPulse 2s ease-in-out infinite;
+}
+
+/* Scale bounce */
+@keyframes scaleBounce {
+  0% {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  50% {
+    transform: scale(1.02);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-scale-bounce {
+  animation: scaleBounce 0.4s var(--ease-spring) forwards;
+}
+
+/* Slide in from right */
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-slide-right {
+  animation: slideInRight 0.5s var(--ease-out-expo) forwards;
+}
+
+/* Morphing blob animation */
+@keyframes morph {
+  0%, 100% {
+    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+  }
+  25% {
+    border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%;
+  }
+  50% {
+    border-radius: 50% 60% 30% 70% / 30% 70% 50% 60%;
+  }
+  75% {
+    border-radius: 60% 30% 50% 40% / 70% 40% 60% 30%;
+  }
+}
+
+.animate-morph {
+  animation: morph 8s ease-in-out infinite;
+}
+
+/* Rotate subtle */
+@keyframes rotateSlow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.animate-rotate-slow {
+  animation: rotateSlow 30s linear infinite;
+}
+
+/* Text shimmer effect */
+@keyframes textShimmer {
+  0% {
+    background-position: -100% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.text-shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--color-text-primary) 0%,
+    #22c55e 50%,
+    var(--color-text-primary) 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: textShimmer 3s linear infinite;
+}
+
+/* ====== UTILITY ENHANCEMENTS ====== */
+
+/* Better focus states */
+.focus-ring {
+  @apply focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0a0b];
+}
+
+/* Glass morphism variants */
+.glass-strong {
+  background: rgba(24, 24, 27, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.glass-subtle {
+  background: rgba(24, 24, 27, 0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* Gradient borders */
+.gradient-border {
+  position: relative;
+  background: var(--color-bg-elevated);
+  border-radius: 1rem;
+}
+
+.gradient-border::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: var(--gradient-accent);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* Hover lift effect */
+.hover-lift {
+  transition: transform 0.3s var(--ease-out-expo), box-shadow 0.3s var(--ease-out-expo);
+}
+
+.hover-lift:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5);
+}
+
+/* Interactive glow on hover */
+.interactive-glow {
+  position: relative;
+  overflow: hidden;
+}
+
+.interactive-glow::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(34, 197, 94, 0.15) 0%, transparent 50%);
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+}
+
+.interactive-glow:hover::after {
+  opacity: 1;
+}
+
+/* Smooth scroll behavior */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Hide scrollbar but keep functionality */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* ====== PLATFORM-SPECIFIC GLOWS ====== */
+
+.glow-spotify {
+  box-shadow: 0 0 40px -8px rgba(29, 185, 84, 0.5);
+}
+
+.glow-apple {
+  box-shadow: 0 0 40px -8px rgba(252, 60, 68, 0.5);
+}
+
+.glow-deezer {
+  box-shadow: 0 0 40px -8px rgba(162, 56, 255, 0.5);
+}
+
+.glow-youtube {
+  box-shadow: 0 0 40px -8px rgba(255, 0, 0, 0.5);
+}
+
+.glow-soundcloud {
+  box-shadow: 0 0 40px -8px rgba(255, 85, 0, 0.5);
+}
+
+.glow-bandcamp {
+  box-shadow: 0 0 40px -8px rgba(29, 160, 195, 0.5);
 }

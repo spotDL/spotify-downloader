@@ -23,16 +23,21 @@ export {
 export {
   resolveSongUrl,
   searchSongs,
+  searchAllPlatforms,
   getSong,
   isValidUrl,
   useResolveSong,
   useSearchSongs,
+  useSearchAllPlatforms,
   useSong,
   useResolveSongMutation,
   useSearchSongsMutation,
+  useSearchAllPlatformsMutation,
   songKeys,
   type SearchResponse,
   type ResolveResponse,
+  type PlatformSearchResult,
+  type MultiPlatformSearchResponse,
 } from "./songs";
 
 // Matches
@@ -86,3 +91,21 @@ export {
   settingsKeys,
   type UserSettingsResponse,
 } from "./settings";
+
+// Downloads
+export {
+  startDownload,
+  getDownloadStatus,
+  listDownloads,
+  cancelDownload,
+  getDownloadFileUrl,
+  useDownloadList,
+  useDownloadStatus,
+  useStartDownload,
+  useCancelDownload,
+  downloadKeys,
+  type StartDownloadRequest,
+  type StartDownloadResponse,
+  type DownloadProgress,
+  type DownloadListResponse,
+} from "./download";

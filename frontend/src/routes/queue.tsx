@@ -21,6 +21,7 @@ const STATUS_LABELS: Record<DownloadStatus, string> = {
   pending: "Pending",
   searching: "Searching...",
   downloading: "Downloading",
+  processing: "Processing",
   converting: "Converting",
   embedding: "Embedding",
   completed: "Completed",
@@ -32,6 +33,7 @@ const STATUS_VARIANTS: Record<DownloadStatus, "default" | "success" | "warning" 
   pending: "default",
   searching: "info",
   downloading: "info",
+  processing: "info",
   converting: "info",
   embedding: "info",
   completed: "success",
@@ -53,6 +55,8 @@ function QueuePage() {
     getActiveCount,
     getCompletedCount,
     getFailedCount,
+    cancelDownload,
+    downloadFile,
   } = useQueueStore();
 
   const pendingCount = getPendingCount();
@@ -228,6 +232,8 @@ function QueuePage() {
               index={index}
               onRemove={() => removeItem(item.id)}
               onRetry={() => retryFailed(item.id)}
+              onCancel={() => cancelDownload(item.id)}
+              onDownloadFile={() => downloadFile(item.id)}
               formatDuration={formatDuration}
             />
           ))}
@@ -285,6 +291,8 @@ interface QueueItemCardProps {
   index: number;
   onRemove: () => void;
   onRetry: () => void;
+  onCancel: () => void;
+  onDownloadFile: () => void;
   formatDuration: (seconds: number) => string;
 }
 
@@ -293,9 +301,11 @@ function QueueItemCard({
   index,
   onRemove,
   onRetry,
+  onCancel,
+  onDownloadFile,
   formatDuration,
 }: QueueItemCardProps) {
-  const isActive = ["searching", "downloading", "converting", "embedding"].includes(
+  const isActive = ["searching", "downloading", "processing", "converting", "embedding"].includes(
     item.status
   );
 
@@ -374,12 +384,28 @@ function QueueItemCard({
 
           {/* Actions */}
           <div className="flex items-center gap-2">
+            {item.status === "completed" && (
+              <Button size="sm" variant="primary" onClick={onDownloadFile}>
+                <svg className="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+                Save
+              </Button>
+            )}
             {item.status === "failed" && (
               <Button size="sm" variant="outline" onClick={onRetry}>
                 <svg className="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                 </svg>
                 Retry
+              </Button>
+            )}
+            {isActive && (
+              <Button size="sm" variant="danger" onClick={onCancel}>
+                <svg className="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+                Cancel
               </Button>
             )}
             {!isActive && (

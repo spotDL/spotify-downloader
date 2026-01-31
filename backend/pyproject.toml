@@ -53,6 +53,9 @@ dependencies = [
     # Metadata providers (free, no API costs)
     "musicbrainzngs>=0.7.1",
     "python3-discogs-client>=2.8",
+    # Download & audio processing
+    "yt-dlp>=2024.1.0",
+    "mutagen>=1.47.0",
 ]
 
 [project.optional-dependencies]
