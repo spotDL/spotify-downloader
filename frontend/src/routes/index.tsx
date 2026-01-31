@@ -812,7 +812,7 @@ function HomePage() {
 
                 return (
                   <div
-                    key={match.id}
+                    key={`${match.target_platform}-${match.target_url}`}
                     className={`group relative p-4 rounded-xl border transition-all duration-200 animate-slide-up ${
                       isTop
                         ? "bg-gradient-to-br from-emerald-950/30 to-zinc-900/80 border-emerald-800/50 shadow-lg shadow-emerald-900/20"
@@ -843,9 +843,9 @@ function HomePage() {
                               User Verified
                             </Badge>
                           )}
-                          {match.match_score !== null && (
-                            <span className={`text-sm font-semibold ${match.match_score >= 90 ? "text-emerald-400" : match.match_score >= 70 ? "text-yellow-400" : "text-zinc-400"}`}>
-                              {Math.round(match.match_score)}% match
+                          {match.score != null && (
+                            <span className={`text-sm font-semibold ${match.score >= 90 ? "text-emerald-400" : match.score >= 70 ? "text-yellow-400" : "text-zinc-400"}`}>
+                              {Math.round(match.score)}% match
                             </span>
                           )}
                         </div>
@@ -859,37 +859,16 @@ function HomePage() {
                         </a>
                       </div>
 
-                      {/* Votes and actions */}
+                      {/* Confidence and actions */}
                       <div className="flex items-center gap-4">
-                        <div className="flex items-center gap-1 text-sm bg-zinc-800/50 rounded-lg px-2 py-1">
-                          <button className="p-1 hover:bg-zinc-700/50 rounded transition-colors">
-                            <svg
-                              className="w-4 h-4 text-emerald-400"
-                              fill="currentColor"
-                              viewBox="0 0 20 20"
-                            >
-                              <path
-                                fillRule="evenodd"
-                                d="M3.293 9.707a1 1 0 010-1.414l6-6a1 1 0 011.414 0l6 6a1 1 0 01-1.414 1.414L11 5.414V17a1 1 0 11-2 0V5.414L4.707 9.707a1 1 0 01-1.414 0z"
-                                clipRule="evenodd"
-                              />
+                        {match.confidence != null && (
+                          <div className="flex items-center gap-1.5 text-sm bg-zinc-800/50 rounded-lg px-3 py-1.5">
+                            <svg className="w-4 h-4 text-teal-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
-                          </button>
-                          <span className="font-medium text-zinc-300 min-w-[2ch] text-center">{match.upvotes - match.downvotes}</span>
-                          <button className="p-1 hover:bg-zinc-700/50 rounded transition-colors">
-                            <svg
-                              className="w-4 h-4 text-red-400"
-                              fill="currentColor"
-                              viewBox="0 0 20 20"
-                            >
-                              <path
-                                fillRule="evenodd"
-                                d="M16.707 10.293a1 1 0 010 1.414l-6 6a1 1 0 01-1.414 0l-6-6a1 1 0 111.414-1.414L9 14.586V3a1 1 0 012 0v11.586l4.293-4.293a1 1 0 011.414 0z"
-                                clipRule="evenodd"
-                              />
-                            </svg>
-                          </button>
-                        </div>
+                            <span className="font-medium text-zinc-300">{Math.round(match.confidence * 100)}%</span>
+                          </div>
+                        )}
                         {features.canDownload ? (
                           <Button
                             size="sm"

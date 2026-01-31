@@ -212,7 +212,7 @@ function SongPage() {
 
               return (
                 <Card
-                  key={match.id}
+                  key={`${match.target_platform}-${match.target_url}`}
                   variant="bordered"
                   className={
                     isTop
@@ -236,17 +236,17 @@ function SongPage() {
                               User Verified
                             </Badge>
                           )}
-                          {match.match_score !== null && (
+                          {match.score != null && (
                             <span
                               className={`text-sm font-semibold ${
-                                match.match_score >= 90
+                                match.score >= 90
                                   ? "text-emerald-400"
-                                  : match.match_score >= 70
+                                  : match.score >= 70
                                   ? "text-yellow-400"
                                   : "text-zinc-400"
                               }`}
                             >
-                              {Math.round(match.match_score)}% match
+                              {Math.round(match.score)}% match
                             </span>
                           )}
                         </div>
@@ -261,11 +261,14 @@ function SongPage() {
                       </div>
 
                       <div className="flex items-center gap-4">
-                        <div className="flex items-center gap-1 text-sm bg-zinc-800/50 rounded-lg px-2 py-1">
-                          <span className="font-medium text-zinc-300 min-w-[2ch] text-center">
-                            {match.upvotes - match.downvotes}
-                          </span>
-                        </div>
+                        {match.confidence != null && (
+                          <div className="flex items-center gap-1.5 text-sm bg-zinc-800/50 rounded-lg px-3 py-1.5">
+                            <svg className="w-4 h-4 text-teal-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span className="font-medium text-zinc-300">{Math.round(match.confidence * 100)}%</span>
+                          </div>
+                        )}
                         {features.canDownload ? (
                           <Button
                             size="sm"

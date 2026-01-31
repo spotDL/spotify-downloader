@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { useFindMatchesMutation, useCreateVote } from "@/api";
+import { useFindMatchesMutation } from "@/api";
 import { useAuthStore } from "@/stores/auth";
 import {
   Button,
@@ -9,8 +9,9 @@ import {
   CardContent,
   Badge,
   Loading,
+  PlatformBadge,
 } from "@/components/ui";
-import type { Song, Match } from "@/types";
+import type { Match } from "@/types";
 
 export const Route = createFileRoute("/matching")({
   component: MatchingPage,
@@ -21,17 +22,16 @@ const TARGET_PLATFORMS = ["youtube", "youtube_music", "soundcloud", "bandcamp"];
 function MatchingPage() {
   const { isAuthenticated } = useAuthStore();
   const [searchUrl, setSearchUrl] = useState("");
-  const [song, setSong] = useState<Song | null>(null);
+  const [sourceUrl, setSourceUrl] = useState<string | null>(null);
   const [matches, setMatches] = useState<Match[]>([]);
 
   const findMatchesMutation = useFindMatchesMutation();
-  const createVoteMutation = useCreateVote();
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!searchUrl.trim()) return;
 
-    setSong(null);
+    setSourceUrl(null);
     setMatches([]);
 
     try {
@@ -39,45 +39,11 @@ function MatchingPage() {
         sourceUrl: searchUrl.trim(),
         targetPlatforms: TARGET_PLATFORMS,
       });
-      setSong(result.song);
+      setSourceUrl(result.source_url);
       setMatches(result.matches);
     } catch (error) {
       console.error("Search failed:", error);
     }
-  };
-
-  const handleVote = async (matchId: string, voteType: "up" | "down") => {
-    if (!isAuthenticated) {
-      alert("Please log in to vote");
-      return;
-    }
-
-    try {
-      await createVoteMutation.mutateAsync({
-        match_id: matchId,
-        vote_type: voteType,
-      });
-      // Update local state optimistically
-      setMatches((prev) =>
-        prev.map((m) =>
-          m.id === matchId
-            ? {
-                ...m,
-                upvotes: voteType === "up" ? m.upvotes + 1 : m.upvotes,
-                downvotes: voteType === "down" ? m.downvotes + 1 : m.downvotes,
-              }
-            : m
-        )
-      );
-    } catch (error) {
-      console.error("Vote failed:", error);
-    }
-  };
-
-  const formatDuration = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
   return (
@@ -155,14 +121,14 @@ function MatchingPage() {
         </Card>
       )}
 
-      {/* Song Info */}
-      {song && !findMatchesMutation.isPending && (
+      {/* Source URL Info */}
+      {sourceUrl && !findMatchesMutation.isPending && (
         <Card variant="bordered">
           <CardContent>
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-gray-700 rounded flex items-center justify-center">
+              <div className="w-12 h-12 bg-zinc-700 rounded flex items-center justify-center">
                 <svg
-                  className="w-6 h-6 text-gray-500"
+                  className="w-6 h-6 text-zinc-500"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -175,16 +141,18 @@ function MatchingPage() {
                   />
                 </svg>
               </div>
-              <div>
-                <h3 className="font-semibold text-gray-100">{song.name}</h3>
-                <p className="text-sm text-gray-400">
-                  {song.artists.join(", ")} •{" "}
-                  {formatDuration(song.duration)}
-                </p>
+              <div className="flex-1 min-w-0">
+                <h3 className="font-semibold text-zinc-100">Source Track</h3>
+                <a
+                  href={sourceUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm text-emerald-400 hover:text-emerald-300 truncate block"
+                >
+                  {sourceUrl}
+                </a>
               </div>
-              <Badge variant="info" className="ml-auto">
-                {song.platform}
-              </Badge>
+              <Badge variant="info">{matches.length} matches</Badge>
             </div>
           </CardContent>
         </Card>
@@ -193,21 +161,18 @@ function MatchingPage() {
       {/* Matches */}
       {matches.length > 0 && !findMatchesMutation.isPending && (
         <div className="space-y-4">
-          <h2 className="text-lg font-semibold text-gray-100">
+          <h2 className="text-lg font-semibold text-zinc-100">
             {matches.length} Match{matches.length !== 1 ? "es" : ""} Found
           </h2>
 
           <div className="space-y-3">
             {matches
-              .sort((a, b) => b.upvotes - b.downvotes - (a.upvotes - a.downvotes))
+              .sort((a, b) => b.score - a.score)
               .map((match, index) => (
                 <MatchCard
-                  key={match.id}
+                  key={`${match.target_platform}-${match.target_url}`}
                   match={match}
                   rank={index + 1}
-                  onVote={handleVote}
-                  isVoting={createVoteMutation.isPending}
-                  canVote={isAuthenticated}
                 />
               ))}
           </div>
@@ -215,11 +180,11 @@ function MatchingPage() {
       )}
 
       {/* No Results */}
-      {song && matches.length === 0 && !findMatchesMutation.isPending && (
+      {sourceUrl && matches.length === 0 && !findMatchesMutation.isPending && (
         <Card variant="bordered">
           <CardContent className="text-center py-8">
-            <p className="text-gray-400">No matches found for this song</p>
-            <p className="text-sm text-gray-500 mt-2">
+            <p className="text-zinc-400">No matches found for this song</p>
+            <p className="text-sm text-zinc-500 mt-2">
               Try a different song or submit a match yourself
             </p>
           </CardContent>
@@ -232,112 +197,78 @@ function MatchingPage() {
 interface MatchCardProps {
   match: Match;
   rank: number;
-  onVote: (matchId: string, type: "up" | "down") => void;
-  isVoting: boolean;
-  canVote: boolean;
 }
 
-function MatchCard({ match, rank, onVote, isVoting, canVote }: MatchCardProps) {
-  const netVotes = match.upvotes - match.downvotes;
+function MatchCard({ match, rank }: MatchCardProps) {
+  const isTop = rank === 1;
 
   return (
     <Card
       variant="bordered"
-      className="hover:border-gray-600 transition-colors"
+      className={`transition-colors ${
+        isTop
+          ? "border-emerald-800/50 bg-emerald-950/20"
+          : "hover:border-zinc-600"
+      }`}
     >
       <CardContent>
         <div className="flex items-center gap-4">
           {/* Rank */}
-          <div className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center text-sm font-bold">
+          <div
+            className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold ${
+              isTop
+                ? "bg-emerald-600 text-white"
+                : "bg-zinc-700 text-zinc-300"
+            }`}
+          >
             #{rank}
-          </div>
-
-          {/* Vote Buttons */}
-          <div className="flex flex-col items-center gap-1">
-            <button
-              onClick={() => onVote(match.id, "up")}
-              disabled={isVoting || !canVote}
-              className="p-1 hover:bg-green-900/50 rounded transition-colors disabled:opacity-50"
-              title={canVote ? "Upvote" : "Sign in to vote"}
-            >
-              <svg
-                className="w-5 h-5 text-green-500"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M5 15l7-7 7 7"
-                />
-              </svg>
-            </button>
-            <span
-              className={`text-sm font-medium ${
-                netVotes > 0
-                  ? "text-green-400"
-                  : netVotes < 0
-                  ? "text-red-400"
-                  : "text-gray-400"
-              }`}
-            >
-              {netVotes}
-            </span>
-            <button
-              onClick={() => onVote(match.id, "down")}
-              disabled={isVoting || !canVote}
-              className="p-1 hover:bg-red-900/50 rounded transition-colors disabled:opacity-50"
-              title={canVote ? "Downvote" : "Sign in to vote"}
-            >
-              <svg
-                className="w-5 h-5 text-red-500"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M19 9l-7 7-7-7"
-                />
-              </svg>
-            </button>
           </div>
 
           {/* Match Info */}
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2">
-              <Badge
-                variant={match.match_type === "user" ? "success" : "default"}
-              >
-                {match.target_platform}
-              </Badge>
+            <div className="flex items-center gap-2 flex-wrap">
+              <PlatformBadge platform={match.target_platform as any} />
               {match.match_type === "user" && (
-                <Badge variant="info">User Submitted</Badge>
+                <Badge variant="premium" size="sm">User Submitted</Badge>
               )}
-              {match.match_score !== null && (
-                <span className="text-sm text-gray-400">
-                  {Math.round(match.match_score)}% confidence
-                </span>
+              {isTop && (
+                <Badge variant="success" size="sm">Top Pick</Badge>
               )}
+            </div>
+            <div className="flex items-center gap-3 mt-2">
+              <span className="text-sm text-zinc-300 font-medium">
+                {match.result.name}
+              </span>
+              <span className="text-sm text-zinc-500">
+                {match.result.artist}
+              </span>
             </div>
             <a
               href={match.target_url}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-sm text-blue-400 hover:text-blue-300 truncate block mt-1"
+              className="text-sm text-emerald-400 hover:text-emerald-300 truncate block mt-1"
             >
               {match.target_url}
             </a>
           </div>
 
-          {/* Stats */}
-          <div className="text-right text-sm">
-            <p className="text-green-400">▲ {match.upvotes}</p>
-            <p className="text-red-400">▼ {match.downvotes}</p>
+          {/* Score and Confidence */}
+          <div className="text-right space-y-1">
+            <div
+              className={`text-lg font-bold ${
+                match.score >= 90
+                  ? "text-emerald-400"
+                  : match.score >= 70
+                  ? "text-yellow-400"
+                  : "text-zinc-400"
+              }`}
+            >
+              {Math.round(match.score)}%
+            </div>
+            <div className="text-xs text-zinc-500">
+              {Math.round(match.confidence * 100)}% confidence
+            </div>
           </div>
         </div>
       </CardContent>

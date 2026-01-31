@@ -29,20 +29,29 @@ export interface Song {
   date?: string | null;
 }
 
+export interface MatchResult {
+  name: string;
+  artists: string[];
+  artist: string;
+  duration: number;
+  platform: string;
+  platform_id: string;
+  url: string;
+  album_name: string | null;
+  cover_url: string | null;
+  views: number | null;
+  explicit: boolean;
+  verified: boolean;
+}
+
 export interface Match {
-  id: string;
-  source_song_id: string | null;
-  source_platform: string;
   source_url: string;
-  target_platform: string;
   target_url: string;
-  match_type: "system" | "user";
-  match_score: number | null;
-  upvotes: number;
-  downvotes: number;
-  submitted_by: string | null;
-  verified_by: string | null;
-  created_at: string;
+  target_platform: string;
+  score: number;
+  confidence: number;
+  match_type: string;
+  result: MatchResult;
 }
 
 export interface Vote {
@@ -66,8 +75,9 @@ export interface FindMatchesRequest {
 }
 
 export interface FindMatchesResponse {
-  song: Song;
+  source_url: string;
   matches: Match[];
+  total: number;
 }
 
 // Entity types
