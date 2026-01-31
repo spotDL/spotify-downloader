@@ -122,8 +122,7 @@ exclude_lines = [
     "if __name__ == .__main__.:",
     "@abstractmethod",
 ]
-# Note: Target is 80%, pending full VCR implementation
-fail_under = 70
+fail_under = 80
 
 [tool.ruff]
 target-version = "py313"

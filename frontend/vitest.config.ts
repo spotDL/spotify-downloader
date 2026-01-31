@@ -11,7 +11,7 @@ export default defineConfig({
     include: ["__tests__/**/*.test.{ts,tsx}", "src/**/*.test.{ts,tsx}"],
     coverage: {
       provider: "v8",
-      reporter: ["text", "json", "html"],
+      reporter: ["text", "json", "html", "lcov"],
       include: ["src/**/*.{ts,tsx}"],
       exclude: [
         "src/main.tsx",
@@ -19,6 +19,12 @@ export default defineConfig({
         "src/routeTree.gen.ts",
         "**/*.d.ts",
       ],
+      thresholds: {
+        statements: 80,
+        branches: 80,
+        functions: 80,
+        lines: 80,
+      },
     },
   },
   resolve: {
