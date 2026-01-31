@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import type { Song, Match, EntityType } from "@/types";
+import type { Song, Match, DisplayEntityType } from "@/types";
 import {
   startDownload,
   getDownloadStatus,
@@ -21,7 +21,7 @@ export type DownloadStatus =
   | "cancelled";
 
 export interface EntityContext {
-  type: EntityType;
+  type: DisplayEntityType;
   name: string;
   url: string;
   position: number;
@@ -45,7 +45,7 @@ export interface QueueItem {
 }
 
 export interface BulkEntityInfo {
-  type: EntityType;
+  type: DisplayEntityType;
   name: string;
   url: string;
 }

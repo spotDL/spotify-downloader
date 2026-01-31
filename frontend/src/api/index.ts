@@ -112,16 +112,17 @@ export {
 
 // Entities
 export {
-  getArtist,
-  getAlbum,
-  getPlaylist,
-  getTrack,
-  searchEntities,
-  useArtist,
-  useAlbum,
-  usePlaylist,
-  useTrack,
-  useEntitySearch,
-  useEntitySearchMutation,
+  getArtistById,
+  getAlbumById,
+  getPlaylistById,
+  getSongById,
+  universalSearch,
+  universalSearchGet,
+  useInternalArtist,
+  useInternalAlbum,
+  useInternalPlaylist,
+  useInternalSong,
+  useUniversalSearch,
+  useUniversalSearchMutation,
   entityKeys,
 } from "./entities";

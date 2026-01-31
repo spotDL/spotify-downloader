@@ -80,59 +80,100 @@ export interface FindMatchesResponse {
   total: number;
 }
 
-// Entity types
-export type EntityType = "artist" | "album" | "playlist" | "track";
+// Platform link info (for cross-platform entities)
+export interface PlatformInfo {
+  platform: string;
+  platform_id: string;
+  url: string;
+  followers?: number | null;
+}
 
-export interface Artist {
+// Entity types
+export type EntityType = "artist" | "album" | "playlist" | "track" | "all";
+
+// Entity types that can be displayed (excludes "all" filter option)
+export type DisplayEntityType = "artist" | "album" | "playlist" | "track";
+
+// Internal ID-based entities
+export interface InternalSong {
+  id: string; // Internal UUID
+  name: string;
+  artists: string[];
+  artist: string;
+  duration: number;
+  album_name: string | null;
+  cover_url: string | null;
+  isrc: string | null;
+  year: number | null;
+  platforms: PlatformInfo[];
+}
+
+export interface AlbumSummary {
   id: string;
   name: string;
-  platform: string;
-  url: string;
+  cover_url: string | null;
+  year: number | null;
+  total_tracks: number;
+}
+
+export interface InternalArtist {
+  id: string; // Internal UUID
+  name: string;
   image_url: string | null;
   genres: string[];
-  followers: number | null;
-  songs: Song[];
+  platforms: PlatformInfo[];
+  albums: AlbumSummary[];
+  songs: InternalSong[];
+  total_albums: number;
   total_songs: number;
 }
 
-export interface Album {
-  id: string;
+export interface InternalAlbum {
+  id: string; // Internal UUID
   name: string;
-  platform: string;
-  url: string;
   artist_name: string;
+  artist_id: string | null;
   cover_url: string | null;
-  release_date: string | null;
   year: number | null;
   total_tracks: number;
-  songs: Song[];
+  platforms: PlatformInfo[];
+  songs: InternalSong[];
 }
 
-export interface Playlist {
-  id: string;
+export interface InternalPlaylist {
+  id: string; // Internal UUID
   name: string;
-  platform: string;
-  url: string;
-  description: string | null;
   owner_name: string | null;
+  description: string | null;
   cover_url: string | null;
   total_tracks: number;
-  songs: Song[];
+  platforms: PlatformInfo[];
+  songs: InternalSong[];
 }
 
-export interface EntitySearchResult {
+// Search result with internal ID
+export interface SearchResult {
+  id: string; // Internal UUID
   entity_type: EntityType;
-  id: string;
   name: string;
-  platform: string;
-  url: string;
-  image_url: string | null;
   subtitle: string | null;
+  image_url: string | null;
+  platforms: PlatformInfo[];
+  duration?: number | null;
 }
 
-export interface EntitySearchResponse {
+// Universal search response
+export interface UniversalSearchResponse {
   query: string;
-  entity_type: EntityType | null;
-  results: EntitySearchResult[];
+  query_type: "url" | "text";
+  results: SearchResult[];
+  entities_created: number;
   total: number;
+}
+
+// Universal search request
+export interface UniversalSearchRequest {
+  query: string;
+  entity_types?: EntityType[];
+  limit?: number;
 }

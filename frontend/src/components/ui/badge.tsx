@@ -3,7 +3,7 @@ import { clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 
 export interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {
-  variant?: "default" | "success" | "warning" | "error" | "info" | "premium";
+  variant?: "default" | "success" | "warning" | "error" | "info" | "premium" | "muted";
   size?: "sm" | "md";
   pulse?: boolean;
 }
@@ -17,6 +17,7 @@ export const Badge = forwardRef<HTMLSpanElement, BadgeProps>(
       error: "bg-red-950/50 text-red-400 border-red-800/50",
       info: "bg-sky-950/50 text-sky-400 border-sky-800/50",
       premium: "bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white border-violet-500/30",
+      muted: "bg-zinc-900/50 text-zinc-500 border-zinc-800/50",
     };
 
     const sizes = {
@@ -47,7 +48,8 @@ export const Badge = forwardRef<HTMLSpanElement, BadgeProps>(
               variant === "error" && "bg-red-400",
               variant === "info" && "bg-sky-400",
               variant === "default" && "bg-zinc-400",
-              variant === "premium" && "bg-violet-400"
+              variant === "premium" && "bg-violet-400",
+              variant === "muted" && "bg-zinc-600"
             )} />
             <span className={clsx(
               "relative inline-flex rounded-full h-2 w-2",
@@ -56,7 +58,8 @@ export const Badge = forwardRef<HTMLSpanElement, BadgeProps>(
               variant === "error" && "bg-red-500",
               variant === "info" && "bg-sky-500",
               variant === "default" && "bg-zinc-500",
-              variant === "premium" && "bg-violet-500"
+              variant === "premium" && "bg-violet-500",
+              variant === "muted" && "bg-zinc-700"
             )} />
           </span>
         )}

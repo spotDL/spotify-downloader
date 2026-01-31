@@ -1,5 +1,10 @@
 """Business logic services."""
 
+from spotdl.core.services.entity import (
+    EntityPersistenceError,
+    EntityPersistenceService,
+    PersistResult,
+)
 from spotdl.core.services.match import (
     Match,
     MatchService,
@@ -52,4 +57,8 @@ __all__ = [
     "MatchNotFoundError",
     "VoteSummary",
     "VoteType",
+    # Entity Persistence Service
+    "EntityPersistenceService",
+    "EntityPersistenceError",
+    "PersistResult",
 ]

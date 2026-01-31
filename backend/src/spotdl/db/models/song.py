@@ -6,13 +6,15 @@ import json
 import uuid
 from typing import TYPE_CHECKING, Any
 
-from sqlalchemy import Integer, String, Text, TypeDecorator, UniqueConstraint
+from sqlalchemy import ForeignKey, Integer, String, Text, TypeDecorator, UniqueConstraint
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from spotdl.db.models.base import Base, GUID, TimestampMixin, generate_uuid
 
 if TYPE_CHECKING:
+    from spotdl.db.models.album import Album
+    from spotdl.db.models.artist import Artist
     from spotdl.db.models.match import Match
 
 
@@ -109,7 +111,31 @@ class Song(Base, TimestampMixin):
         nullable=True,
     )
 
+    # Foreign keys to internal entity tables
+    artist_id: Mapped[uuid.UUID | None] = mapped_column(
+        GUID(),
+        ForeignKey("artists.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+    )
+    album_id: Mapped[uuid.UUID | None] = mapped_column(
+        GUID(),
+        ForeignKey("albums.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+    )
+
     # Relationships
+    artist: Mapped[Artist | None] = relationship(
+        "Artist",
+        back_populates="songs",
+        foreign_keys=[artist_id],
+    )
+    album: Mapped[Album | None] = relationship(
+        "Album",
+        back_populates="songs",
+        foreign_keys=[album_id],
+    )
     source_matches: Mapped[list[Match]] = relationship(
         "Match",
         back_populates="source_song",

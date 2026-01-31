@@ -1,8 +1,8 @@
-import { Badge, PlatformBadge } from "@/components/ui";
-import type { EntitySearchResult as EntitySearchResultType, EntityType } from "@/types";
+import { Badge } from "@/components/ui";
+import type { SearchResult, EntityType, PlatformInfo } from "@/types";
 
 interface EntitySearchResultCardProps {
-  result: EntitySearchResultType;
+  result: SearchResult;
 }
 
 const entityTypeLabels: Record<EntityType, string> = {
@@ -10,6 +10,7 @@ const entityTypeLabels: Record<EntityType, string> = {
   album: "Album",
   playlist: "Playlist",
   track: "Song",
+  all: "All",
 };
 
 const entityRoutes: Record<EntityType, string> = {
@@ -17,11 +18,42 @@ const entityRoutes: Record<EntityType, string> = {
   album: "/album",
   playlist: "/playlist",
   track: "/song",
+  all: "/search",
 };
+
+const PLATFORM_COLORS: Record<string, string> = {
+  spotify: "bg-[#1db954]/20 text-[#1db954] border-[#1db954]/30",
+  youtube_music: "bg-red-500/20 text-red-400 border-red-500/30",
+  deezer: "bg-purple-500/20 text-purple-400 border-purple-500/30",
+  soundcloud: "bg-orange-500/20 text-orange-400 border-orange-500/30",
+  apple_music: "bg-pink-500/20 text-pink-400 border-pink-500/30",
+  tidal: "bg-zinc-500/20 text-zinc-400 border-zinc-500/30",
+  bandcamp: "bg-cyan-500/20 text-cyan-400 border-cyan-500/30",
+  youtube: "bg-red-500/20 text-red-400 border-red-500/30",
+};
+
+function PlatformBadges({ platforms }: { platforms: PlatformInfo[] }) {
+  return (
+    <div className="flex flex-wrap gap-1.5">
+      {platforms.slice(0, 3).map((p) => (
+        <span
+          key={p.platform}
+          className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium border ${PLATFORM_COLORS[p.platform] || "bg-zinc-800 text-zinc-400 border-zinc-700"}`}
+        >
+          {p.platform.replace("_", " ")}
+        </span>
+      ))}
+      {platforms.length > 3 && (
+        <span className="text-[10px] text-zinc-500">+{platforms.length - 3}</span>
+      )}
+    </div>
+  );
+}
 
 export function EntitySearchResultCard({ result }: EntitySearchResultCardProps) {
   const routeBase = entityRoutes[result.entity_type];
-  const href = `${routeBase}/${result.platform}/${result.id}`;
+  // Use internal UUID - no platform in URL
+  const href = `${routeBase}/${result.id}`;
 
   return (
     <a
@@ -64,9 +96,11 @@ export function EntitySearchResultCard({ result }: EntitySearchResultCardProps) 
         {result.subtitle && (
           <p className="text-sm text-zinc-400 truncate mt-0.5">{result.subtitle}</p>
         )}
-        <div className="mt-2">
-          <PlatformBadge platform={result.platform as any} />
-        </div>
+        {result.platforms && result.platforms.length > 0 && (
+          <div className="mt-2">
+            <PlatformBadges platforms={result.platforms} />
+          </div>
+        )}
       </div>
 
       {/* Arrow */}

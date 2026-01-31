@@ -1,8 +1,8 @@
 import { Button, Badge, PlatformBadge } from "@/components/ui";
-import type { EntityType } from "@/types";
+import type { DisplayEntityType } from "@/types";
 
 interface EntityHeaderProps {
-  type: EntityType;
+  type: DisplayEntityType;
   name: string;
   platform: string;
   imageUrl?: string | null;
@@ -18,14 +18,14 @@ interface EntityHeaderProps {
   isDownloading?: boolean;
 }
 
-const entityTypeLabels: Record<EntityType, string> = {
+const entityTypeLabels: Record<DisplayEntityType, string> = {
   artist: "Artist",
   album: "Album",
   playlist: "Playlist",
   track: "Track",
 };
 
-const entityTypeIcons: Record<EntityType, React.ReactNode> = {
+const entityTypeIcons: Record<DisplayEntityType, React.ReactNode> = {
   artist: (
     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />

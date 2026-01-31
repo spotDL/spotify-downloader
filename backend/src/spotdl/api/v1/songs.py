@@ -789,6 +789,39 @@ async def search_entities(
                         )
                     )
 
+            # Extract artist as entity (using artist name as pseudo-ID for search results)
+            if entity_type is None or entity_type == EntityType.ARTIST:
+                # Use artist name normalized as ID since we don't have actual artist IDs
+                artist_key = song_resp.artist.lower().strip()
+                artist_id = f"artist:{artist_key}"
+                if artist_id not in seen_ids and song_resp.artist:
+                    seen_ids.add(artist_id)
+                    track_count = len([s for s in songs if s.artist.lower().strip() == artist_key])
+                    # For artists, we'd ideally have artist IDs, but for now use a search-based approach
+                    results.append(
+                        EntitySearchResult(
+                            entity_type=EntityType.ARTIST,
+                            id=artist_key,  # Use normalized name as ID
+                            name=song_resp.artist,
+                            platform=song_resp.platform,
+                            url=f"https://open.spotify.com/search/{song_resp.artist}/artists" if platform_enum == Platform.SPOTIFY else "",
+                            image_url=song_resp.cover_url,  # Use album art as placeholder
+                            subtitle=f"{track_count} tracks found",
+                        )
+                    )
+
+        # Sort artist results by relevance (track count and query match)
+        if entity_type == EntityType.ARTIST:
+            query_lower = query.lower()
+            results.sort(
+                key=lambda r: (
+                    # Prioritize exact query match in name
+                    0 if query_lower in r.name.lower() else 1,
+                    # Then by track count (extract from subtitle, descending)
+                    -int(r.subtitle.split()[0]) if r.subtitle else 0,
+                ),
+            )
+
         # Limit results
         results = results[:limit]
 
