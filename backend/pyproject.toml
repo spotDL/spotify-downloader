@@ -49,6 +49,9 @@ dependencies = [
     "ytmusicapi>=1.8.0",
     "beautifulsoup4>=4.12.0",
     "lxml>=5.3.0",
+    # Metadata providers (free, no API costs)
+    "musicbrainzngs>=0.7.1",
+    "python3-discogs-client>=2.8",
 ]
 
 [project.optional-dependencies]
@@ -163,5 +166,7 @@ plugins = ["pydantic.mypy"]
 module = [
     "pykakasi.*",
     "slugify.*",
+    "musicbrainzngs.*",
+    "discogs_client.*",
 ]
 ignore_missing_imports = true
