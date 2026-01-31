@@ -1,19 +1,25 @@
 # SpotDL Production Docker Compose
-# Full setup with PostgreSQL and Redis
+# Full setup with PostgreSQL, Redis, and Nginx
+#
+# Usage with pre-built images:
+#   IMAGE_TAG=latest docker compose -f docker-compose.prod.yml up -d
+#
+# Usage building locally:
+#   docker compose -f docker-compose.prod.yml up -d --build
 
 services:
   api:
-    build: ./backend
-    ports:
-      - "8000:8000"
+    image: ${REGISTRY:-ghcr.io}/${IMAGE_NAME:-spotdl/spotify-downloader}-backend:${IMAGE_TAG:-latest}
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
     environment:
-      - DATABASE_URL=postgresql+asyncpg://spotdl:spotdl@db:5432/spotdl
+      - DATABASE_URL=postgresql+asyncpg://spotdl:${DB_PASSWORD:-spotdl}@db:5432/spotdl
       - REDIS_URL=redis://redis:6379
       - ENVIRONMENT=production
       - DEBUG=false
       - SECRET_KEY=${SECRET_KEY:?Secret key is required}
-    volumes:
-      - ./frontend/dist:/app/static:ro
+      - CORS_ORIGINS=${CORS_ORIGINS:-https://spotdl.example.com}
     depends_on:
       db:
         condition: service_healthy
@@ -25,12 +31,55 @@ services:
       timeout: 10s
       retries: 3
       start_period: 10s
+    restart: unless-stopped
+    networks:
+      - internal
+      - web
+
+  frontend:
+    image: ${REGISTRY:-ghcr.io}/${IMAGE_NAME:-spotdl/spotify-downloader}-frontend:${IMAGE_TAG:-latest}
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - web
+
+  nginx:
+    image: ${REGISTRY:-ghcr.io}/${IMAGE_NAME:-spotdl/spotify-downloader}-nginx:${IMAGE_TAG:-latest}
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      - API_HOST=api
+      - API_PORT=8000
+      - FRONTEND_HOST=frontend
+      - FRONTEND_PORT=80
+    volumes:
+      - ./nginx/certs:/etc/nginx/certs:ro
+    depends_on:
+      - api
+      - frontend
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - web
 
   db:
     image: postgres:16-alpine
     environment:
       - POSTGRES_USER=spotdl
-      - POSTGRES_PASSWORD=spotdl
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-spotdl}
       - POSTGRES_DB=spotdl
     volumes:
       - postgres_data:/var/lib/postgresql/data
@@ -39,9 +88,13 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    restart: unless-stopped
+    networks:
+      - internal
 
   redis:
     image: redis:7-alpine
+    command: redis-server --appendonly yes
     volumes:
       - redis_data:/data
     healthcheck:
@@ -49,7 +102,16 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    restart: unless-stopped
+    networks:
+      - internal
 
 volumes:
   postgres_data:
   redis_data:
+
+networks:
+  internal:
+    driver: bridge
+  web:
+    driver: bridge

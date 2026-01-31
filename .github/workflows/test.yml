@@ -5,6 +5,11 @@ on:
     branches: [master, dev, xnetcat-rewrite]
   pull_request:
     branches: [master, dev]
+  workflow_call:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   backend-test:
@@ -39,11 +44,11 @@ jobs:
         run: uv run mypy src
 
       - name: Run tests with coverage
-        run: |
-          uv run pytest --cov=spotdl --cov-report=xml --cov-report=html --cov-fail-under=80
+        run: uv run pytest --cov=spotdl --cov-report=xml --cov-report=term-missing --cov-fail-under=80
 
       - name: Upload coverage reports
         uses: codecov/codecov-action@v4
+        if: always()
         with:
           file: ./backend/coverage.xml
           flags: backend
@@ -73,19 +78,18 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-        continue-on-error: true
 
       - name: Run linting
         run: pnpm lint
-        continue-on-error: true
 
       - name: Run type checking
         run: pnpm type-check
-        continue-on-error: true
 
       - name: Run tests with coverage
-        run: pnpm test --coverage
-        continue-on-error: true
+        run: pnpm vitest run --coverage
+
+      - name: Build
+        run: pnpm build
 
   cli-test:
     name: CLI Tests
@@ -109,8 +113,70 @@ jobs:
 
       - name: Install dependencies
         run: uv sync --dev
-        continue-on-error: true
+
+      - name: Run tests with coverage
+        run: uv run pytest --cov=spotdl_cli --cov-report=xml --cov-report=term-missing
+
+      - name: Upload coverage reports
+        uses: codecov/codecov-action@v4
+        if: always()
+        with:
+          file: ./cli/coverage.xml
+          flags: cli
+          fail_ci_if_error: false
+
+  core-test:
+    name: Core Tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: core
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          version: "latest"
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install dependencies
+        run: uv sync --dev
 
       - name: Run tests
-        run: uv run pytest --cov --cov-fail-under=80
+        run: uv run pytest --cov=spotdl_core --cov-report=xml --cov-report=term-missing
         continue-on-error: true
+
+  docker-build:
+    name: Docker Build Test
+    runs-on: ubuntu-latest
+    needs: [backend-test, frontend-test]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build backend image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./backend
+          push: false
+          tags: spotdl-backend:test
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build frontend image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./frontend
+          push: false
+          tags: spotdl-frontend:test
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

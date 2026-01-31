@@ -10,17 +10,27 @@ services:
       - DATABASE_URL=sqlite+aiosqlite:///./data/spotdl.db
       - ENVIRONMENT=development
       - DEBUG=true
-      - RELOAD=true
+      - SECRET_KEY=dev-secret-key-change-in-production
+      - CORS_ORIGINS=http://localhost:3000,http://localhost:5173
     volumes:
       - ./data:/app/data
       - ./backend/src:/app/src:ro
-      - ./frontend/dist:/app/static:ro
     healthcheck:
       test: ["CMD", "python", "-c", "import httpx; httpx.get('http://localhost:8000/api/v1/health')"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 10s
+    restart: unless-stopped
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
 
 volumes:
   data:
