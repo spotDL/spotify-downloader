@@ -148,6 +148,27 @@ class TestVotesEndpoints:
         assert isinstance(data["votes"], list)
 
 
+    async def test_remove_vote_nonexistent_match(
+        self,
+        client: AsyncClient,
+        test_user: User,
+    ) -> None:
+        """Test removing vote from non-existent match."""
+        response = await client.delete(f"/api/v1/votes/{uuid.uuid4()}")
+
+        assert response.status_code == 404
+
+    async def test_get_vote_summary_nonexistent_match(
+        self,
+        client: AsyncClient,
+        test_user: User,
+    ) -> None:
+        """Test getting vote summary for non-existent match."""
+        response = await client.get(f"/api/v1/votes/{uuid.uuid4()}")
+
+        assert response.status_code == 404
+
+
 class TestVotesValidation:
     """Tests for votes validation."""
 

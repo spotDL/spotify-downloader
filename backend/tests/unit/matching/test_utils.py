@@ -42,6 +42,22 @@ class TestSlugify:
         """Test string that's already slugified."""
         assert slugify("already-slugified") == "already-slugified"
 
+    def test_japanese_text(self):
+        """Test slugification with Japanese text (romanization)."""
+        # Japanese text should be romanized
+        result = slugify("こんにちは")
+        # Should contain romanized Japanese
+        assert len(result) > 0
+        # Result should be lowercase ASCII
+        assert result.isascii()
+
+    def test_mixed_japanese_english(self):
+        """Test slugification with mixed Japanese and English."""
+        result = slugify("Hello こんにちは World")
+        # Should have romanized the Japanese parts
+        assert "hello" in result.lower()
+        assert "world" in result.lower()
+
 
 class TestRatio:
     """Tests for the ratio function."""

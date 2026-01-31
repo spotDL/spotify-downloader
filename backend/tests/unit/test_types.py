@@ -136,6 +136,81 @@ class TestSong:
         assert data["platform"] == "spotify"
         assert isinstance(data["artists"], list)
 
+    def test_song_auto_generates_song_id(self):
+        """Test that song_id is auto-generated if not provided."""
+        song = Song(
+            name="Test",
+            artists=["Artist"],
+            artist="Artist",
+            duration=100,
+            platform=Platform.SPOTIFY,
+            platform_id="abc123",
+            url="https://example.com",
+            # song_id not provided
+        )
+
+        assert song.song_id == "spotify:abc123"
+
+    def test_song_artist_from_artists(self):
+        """Test that artist is set from artists if not provided."""
+        song = Song(
+            name="Test",
+            artists=["First Artist", "Second Artist"],
+            artist="",  # Empty artist
+            duration=100,
+            platform=Platform.SPOTIFY,
+            platform_id="123",
+            url="https://example.com",
+        )
+
+        assert song.artist == "First Artist"
+
+    def test_song_from_dict_with_platform_enum(self):
+        """Test creating song from dict when platform is already an enum."""
+        data = {
+            "name": "Test",
+            "artists": ["Artist"],
+            "artist": "Artist",
+            "duration": 100,
+            "platform": Platform.DEEZER,  # Already an enum
+            "platform_id": "123",
+            "url": "https://example.com",
+        }
+
+        song = Song.from_dict(data)
+        assert song.platform == Platform.DEEZER
+
+    def test_song_with_explicit_song_id(self):
+        """Test song with explicitly provided song_id (doesn't auto-generate)."""
+        song = Song(
+            name="Test",
+            artists=["Artist"],
+            artist="Artist",
+            duration=100,
+            platform=Platform.SPOTIFY,
+            platform_id="abc123",
+            url="https://example.com",
+            song_id="custom:song:id",  # Explicitly provided
+        )
+
+        # Should use the provided song_id, not auto-generate
+        assert song.song_id == "custom:song:id"
+
+    def test_song_with_explicit_artist(self):
+        """Test song with explicitly provided artist (doesn't set from artists)."""
+        song = Song(
+            name="Test",
+            artists=["First Artist", "Second Artist"],
+            artist="Explicit Artist",  # Explicitly provided
+            duration=100,
+            platform=Platform.SPOTIFY,
+            platform_id="123",
+            url="https://example.com",
+        )
+
+        # Should use the provided artist, not derive from artists
+        assert song.artist == "Explicit Artist"
+
 
 class TestResult:
     """Tests for Result class."""
@@ -280,6 +355,37 @@ class TestResult:
 
         assert isinstance(result.artists, tuple)
         assert result.artists == ("Artist1", "Artist2")
+
+    def test_result_from_dict_album_legacy_field(self):
+        """Test creating result from dict with 'album' field instead of 'album_name'."""
+        data = {
+            "name": "Test",
+            "artists": ["Artist"],
+            "artist": "Artist",
+            "duration": 200,
+            "platform": "youtube",
+            "platform_id": "xyz",
+            "url": "https://youtube.com/watch?v=xyz",
+            "album": "My Album",  # Legacy field name
+        }
+
+        result = Result.from_dict(data)
+        assert result.album_name == "My Album"
+
+    def test_result_json_with_none_artists(self):
+        """Test result json property when artists is None."""
+        result = Result(
+            name="Song",
+            artists=None,  # None artists
+            artist="Artist",
+            duration=200,
+            platform=TargetPlatform.YOUTUBE,
+            platform_id="abc",
+            url="https://youtube.com/watch?v=abc",
+        )
+
+        data = result.json
+        assert data["artists"] is None
 
 
 class TestSongList:

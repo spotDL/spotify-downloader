@@ -140,6 +140,42 @@ class TestMatchesFindWithMock:
 
             assert response.status_code == 400
 
+    async def test_find_matches_unsupported_url(self, client: AsyncClient) -> None:
+        """Test match finding with unsupported URL."""
+        from spotdl.core.services.song import UnsupportedURLError
+
+        with patch("spotdl.api.v1.matches.get_song_service") as mock_song_svc:
+            mock_song_service = MagicMock()
+            mock_song_service.resolve_url = AsyncMock(
+                side_effect=UnsupportedURLError("Unsupported URL")
+            )
+            mock_song_svc.return_value = mock_song_service
+
+            response = await client.post(
+                "/api/v1/matches/find",
+                json={"source_url": "https://unsupported-platform.com/track/123"},
+            )
+
+            assert response.status_code == 400
+
+    async def test_find_matches_service_error(self, client: AsyncClient) -> None:
+        """Test match finding when service raises error."""
+        from spotdl.core.services.song import SongServiceError
+
+        with patch("spotdl.api.v1.matches.get_song_service") as mock_song_svc:
+            mock_song_service = MagicMock()
+            mock_song_service.resolve_url = AsyncMock(
+                side_effect=SongServiceError("Service error")
+            )
+            mock_song_svc.return_value = mock_song_service
+
+            response = await client.post(
+                "/api/v1/matches/find",
+                json={"source_url": "https://open.spotify.com/track/abc123"},
+            )
+
+            assert response.status_code == 500
+
     async def test_find_matches_get_endpoint(
         self, client: AsyncClient, mock_song: Song, mock_match: Match
     ) -> None:
@@ -231,6 +267,22 @@ class TestMatchesSubmit:
         data = response.json()
         assert data["target_platform"] == "bandcamp"
 
+    async def test_submit_match_piped(
+        self, client: AsyncClient, test_user: User
+    ) -> None:
+        """Test submitting a Piped match."""
+        response = await client.post(
+            "/api/v1/matches/submit",
+            json={
+                "source_url": "https://open.spotify.com/track/abc123",
+                "target_url": "https://piped.video/watch?v=xyz789",
+            },
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        assert data["target_platform"] == "piped"
+
     async def test_submit_match_unsupported_target(
         self, client: AsyncClient, test_user: User
     ) -> None:
@@ -244,3 +296,43 @@ class TestMatchesSubmit:
         )
 
         assert response.status_code == 400
+
+    async def test_submit_match_unsupported_source(
+        self, client: AsyncClient, test_user: User
+    ) -> None:
+        """Test submitting with unsupported source URL."""
+        response = await client.post(
+            "/api/v1/matches/submit",
+            json={
+                "source_url": "https://example.com/track/abc123",  # Unsupported source
+                "target_url": "https://www.youtube.com/watch?v=xyz789",
+            },
+        )
+
+        assert response.status_code == 400
+
+    async def test_submit_duplicate_match(
+        self, client: AsyncClient, test_user: User
+    ) -> None:
+        """Test submitting a match that already exists."""
+        # Submit first match
+        await client.post(
+            "/api/v1/matches/submit",
+            json={
+                "source_url": "https://open.spotify.com/track/duplicate123",
+                "target_url": "https://www.youtube.com/watch?v=dup456",
+            },
+        )
+
+        # Submit same match again
+        response = await client.post(
+            "/api/v1/matches/submit",
+            json={
+                "source_url": "https://open.spotify.com/track/duplicate123",
+                "target_url": "https://www.youtube.com/watch?v=dup456",
+            },
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        assert data["message"] == "Match already exists."

@@ -136,7 +136,7 @@ class MatchService:
                 ordered_results = order_results(results, song)
 
                 # Get best matches
-                best_results = get_best_matches(song, ordered_results, limit=limit)
+                best_results = get_best_matches(ordered_results)[:limit]
 
                 # Create Match objects
                 for result, score in best_results:
@@ -239,7 +239,7 @@ class MatchService:
             if not ordered:
                 return None
 
-            best = get_best_matches(song, ordered, limit=1)
+            best = get_best_matches(ordered)
             if not best:
                 return None
 

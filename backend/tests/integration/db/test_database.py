@@ -4,16 +4,246 @@ from __future__ import annotations
 
 import pytest
 import pytest_asyncio
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
 
-from spotdl.db.database import get_db, get_db_session
+from spotdl.db.database import (
+    close_db,
+    get_db,
+    get_db_session,
+    get_engine,
+    get_session_factory,
+    init_db,
+)
 
 
 pytestmark = pytest.mark.asyncio
 
 
-class TestGetDb:
+class TestDatabaseEngine:
+    """Tests for database engine functions."""
+
+    async def test_get_engine_returns_engine(self) -> None:
+        """Test get_engine returns an AsyncEngine."""
+        from unittest.mock import patch
+
+        import spotdl.db.database as db_module
+        from spotdl.config import Settings
+
+        # Reset global state
+        db_module._engine = None
+        db_module._session_factory = None
+
+        # Mock settings to use in-memory database
+        mock_settings = Settings(database_url="sqlite+aiosqlite:///:memory:")
+
+        with patch("spotdl.db.database.get_settings", return_value=mock_settings):
+            engine = get_engine()
+            assert engine is not None
+            assert isinstance(engine, AsyncEngine)
+
+            # Cleanup
+            await engine.dispose()
+            db_module._engine = None
+
+    async def test_get_engine_returns_same_instance(self) -> None:
+        """Test get_engine returns same engine on subsequent calls."""
+        from unittest.mock import patch
+
+        import spotdl.db.database as db_module
+        from spotdl.config import Settings
+
+        db_module._engine = None
+        db_module._session_factory = None
+
+        mock_settings = Settings(database_url="sqlite+aiosqlite:///:memory:")
+
+        with patch("spotdl.db.database.get_settings", return_value=mock_settings):
+            engine1 = get_engine()
+            engine2 = get_engine()
+            assert engine1 is engine2
+
+            # Cleanup
+            await engine1.dispose()
+            db_module._engine = None
+
+    async def test_get_session_factory_returns_factory(self) -> None:
+        """Test get_session_factory returns a session factory."""
+        from unittest.mock import patch
+
+        import spotdl.db.database as db_module
+        from spotdl.config import Settings
+
+        db_module._engine = None
+        db_module._session_factory = None
+
+        mock_settings = Settings(database_url="sqlite+aiosqlite:///:memory:")
+
+        with patch("spotdl.db.database.get_settings", return_value=mock_settings):
+            factory = get_session_factory()
+            assert factory is not None
+
+            # Cleanup
+            if db_module._engine:
+                await db_module._engine.dispose()
+            db_module._engine = None
+            db_module._session_factory = None
+
+    async def test_get_session_factory_returns_same_instance(self) -> None:
+        """Test get_session_factory returns same factory on subsequent calls."""
+        from unittest.mock import patch
+
+        import spotdl.db.database as db_module
+        from spotdl.config import Settings
+
+        db_module._engine = None
+        db_module._session_factory = None
+
+        mock_settings = Settings(database_url="sqlite+aiosqlite:///:memory:")
+
+        with patch("spotdl.db.database.get_settings", return_value=mock_settings):
+            factory1 = get_session_factory()
+            factory2 = get_session_factory()
+            assert factory1 is factory2
+
+            # Cleanup
+            if db_module._engine:
+                await db_module._engine.dispose()
+            db_module._engine = None
+            db_module._session_factory = None
+
+
+class TestDatabaseLifecycle:
+    """Tests for database lifecycle functions."""
+
+    async def test_init_db_creates_tables(self) -> None:
+        """Test init_db creates database tables."""
+        from unittest.mock import patch
+
+        import spotdl.db.database as db_module
+        from spotdl.config import Settings
+
+        db_module._engine = None
+        db_module._session_factory = None
+
+        mock_settings = Settings(database_url="sqlite+aiosqlite:///:memory:")
+
+        with patch("spotdl.db.database.get_settings", return_value=mock_settings):
+            # Initialize database
+            await init_db()
+
+            # Verify engine was created
+            assert db_module._engine is not None
+
+            # Cleanup
+            await close_db()
+
+    async def test_close_db_disposes_engine(self) -> None:
+        """Test close_db disposes the engine."""
+        from unittest.mock import patch
+
+        import spotdl.db.database as db_module
+        from spotdl.config import Settings
+
+        db_module._engine = None
+        db_module._session_factory = None
+
+        mock_settings = Settings(database_url="sqlite+aiosqlite:///:memory:")
+
+        with patch("spotdl.db.database.get_settings", return_value=mock_settings):
+            # Create engine first
+            get_engine()
+            assert db_module._engine is not None
+
+            # Close database
+            await close_db()
+
+            # Verify engine is None
+            assert db_module._engine is None
+            assert db_module._session_factory is None
+
+    async def test_close_db_when_no_engine(self) -> None:
+        """Test close_db is safe when no engine exists."""
+        import spotdl.db.database as db_module
+
+        db_module._engine = None
+        db_module._session_factory = None
+
+        # Should not raise
+        await close_db()
+
+
+class TestGetDbContextManager:
     """Tests for get_db context manager."""
+
+    async def test_get_db_yields_session(self) -> None:
+        """Test get_db yields an AsyncSession."""
+        from unittest.mock import patch
+
+        import spotdl.db.database as db_module
+        from spotdl.config import Settings
+
+        db_module._engine = None
+        db_module._session_factory = None
+
+        mock_settings = Settings(database_url="sqlite+aiosqlite:///:memory:")
+
+        with patch("spotdl.db.database.get_settings", return_value=mock_settings):
+            try:
+                async with get_db() as session:
+                    assert session is not None
+                    assert isinstance(session, AsyncSession)
+            finally:
+                await close_db()
+
+    async def test_get_db_commits_on_success(self) -> None:
+        """Test get_db commits on successful exit."""
+        from unittest.mock import patch
+
+        import spotdl.db.database as db_module
+        from spotdl.config import Settings
+        from sqlalchemy import text
+
+        db_module._engine = None
+        db_module._session_factory = None
+
+        mock_settings = Settings(database_url="sqlite+aiosqlite:///:memory:")
+
+        with patch("spotdl.db.database.get_settings", return_value=mock_settings):
+            try:
+                await init_db()
+
+                async with get_db() as session:
+                    # Execute a simple query
+                    result = await session.execute(text("SELECT 1"))
+                    assert result.scalar() == 1
+            finally:
+                await close_db()
+
+    async def test_get_db_rollback_on_exception(self) -> None:
+        """Test get_db rolls back on exception."""
+        from unittest.mock import patch
+
+        import spotdl.db.database as db_module
+        from spotdl.config import Settings
+
+        db_module._engine = None
+        db_module._session_factory = None
+
+        mock_settings = Settings(database_url="sqlite+aiosqlite:///:memory:")
+
+        with patch("spotdl.db.database.get_settings", return_value=mock_settings):
+            try:
+                await init_db()
+
+                with pytest.raises(ValueError):
+                    async with get_db() as session:
+                        raise ValueError("Test error")
+            finally:
+                await close_db()
+
+
+class TestGetDb:
+    """Tests for get_db context manager with fixtures."""
 
     async def test_get_db_yields_session(self, db_session: AsyncSession) -> None:
         """Test that get_db yields a session."""

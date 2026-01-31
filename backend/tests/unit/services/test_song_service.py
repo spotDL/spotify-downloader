@@ -122,6 +122,223 @@ class TestSongServiceSearch:
             await song_service.search("test query", platform=Platform.SPOTIFY)
 
 
+class TestSongServiceWithMocks:
+    """Tests for SongService with mocked providers."""
+
+    @pytest.mark.asyncio
+    async def test_resolve_url_success(
+        self, song_service: SongService, mock_song: Song
+    ) -> None:
+        """Test resolve_url returns songs on success."""
+        with patch.object(
+            song_service._resolver, "resolve", new_callable=AsyncMock
+        ) as mock_resolve:
+            mock_resolve.return_value = [mock_song]
+
+            songs = await song_service.resolve_url("https://www.deezer.com/track/123")
+            assert len(songs) == 1
+            assert songs[0].name == "Test Song"
+
+    @pytest.mark.asyncio
+    async def test_resolve_url_provider_error(self, song_service: SongService) -> None:
+        """Test resolve_url wraps provider errors."""
+        with patch.object(
+            song_service._resolver, "resolve", new_callable=AsyncMock
+        ) as mock_resolve:
+            mock_resolve.side_effect = SourceProviderError("API error")
+
+            with pytest.raises(SongServiceError, match="Failed to resolve URL"):
+                await song_service.resolve_url("https://www.deezer.com/track/123")
+
+    @pytest.mark.asyncio
+    async def test_get_track_provider_error(self, song_service: SongService) -> None:
+        """Test get_track wraps provider errors."""
+        from spotdl.core.types.song import Platform
+
+        provider = song_service.get_provider(Platform.DEEZER)
+        with patch.object(provider, "get_track", new_callable=AsyncMock) as mock_get:
+            mock_get.side_effect = SourceProviderError("Track not found")
+
+            with pytest.raises(SongServiceError, match="Failed to get track"):
+                await song_service.get_track("https://www.deezer.com/track/123")
+
+    @pytest.mark.asyncio
+    async def test_get_album_provider_error(self, song_service: SongService) -> None:
+        """Test get_album wraps provider errors."""
+        from spotdl.core.types.song import Platform
+
+        provider = song_service.get_provider(Platform.DEEZER)
+        with patch.object(provider, "get_album", new_callable=AsyncMock) as mock_get:
+            mock_get.side_effect = SourceProviderError("Album not found")
+
+            with pytest.raises(SongServiceError, match="Failed to get album"):
+                await song_service.get_album("https://www.deezer.com/album/123")
+
+    @pytest.mark.asyncio
+    async def test_get_playlist_provider_error(self, song_service: SongService) -> None:
+        """Test get_playlist wraps provider errors."""
+        from spotdl.core.types.song import Platform
+
+        provider = song_service.get_provider(Platform.DEEZER)
+        with patch.object(provider, "get_playlist", new_callable=AsyncMock) as mock_get:
+            mock_get.side_effect = SourceProviderError("Playlist not found")
+
+            with pytest.raises(SongServiceError, match="Failed to get playlist"):
+                await song_service.get_playlist("https://www.deezer.com/playlist/123")
+
+    @pytest.mark.asyncio
+    async def test_get_artist_provider_error(self, song_service: SongService) -> None:
+        """Test get_artist wraps provider errors."""
+        from spotdl.core.types.song import Platform
+
+        provider = song_service.get_provider(Platform.DEEZER)
+        with patch.object(provider, "get_artist", new_callable=AsyncMock) as mock_get:
+            mock_get.side_effect = SourceProviderError("Artist not found")
+
+            with pytest.raises(SongServiceError, match="Failed to get artist"):
+                await song_service.get_artist("https://www.deezer.com/artist/27")
+
+    @pytest.mark.asyncio
+    async def test_search_returns_empty_on_error(self, song_service: SongService) -> None:
+        """Test search returns empty list on provider error."""
+        from spotdl.core.types.song import Platform
+
+        provider = song_service.get_provider(Platform.DEEZER)
+        with patch.object(provider, "search", new_callable=AsyncMock) as mock_search:
+            mock_search.side_effect = SourceProviderError("Search failed")
+
+            results = await song_service.search("test query", platform=Platform.DEEZER)
+            assert results == []
+
+    @pytest.mark.asyncio
+    async def test_search_success(
+        self, song_service: SongService, mock_song: Song
+    ) -> None:
+        """Test search returns songs on success."""
+        from spotdl.core.types.song import Platform
+
+        provider = song_service.get_provider(Platform.DEEZER)
+        with patch.object(provider, "search", new_callable=AsyncMock) as mock_search:
+            mock_search.return_value = [mock_song]
+
+            results = await song_service.search("test query", platform=Platform.DEEZER)
+            assert len(results) == 1
+            assert results[0].name == "Test Song"
+
+    @pytest.mark.asyncio
+    async def test_get_track_success(
+        self, song_service: SongService, mock_song: Song
+    ) -> None:
+        """Test get_track returns song on success."""
+        from spotdl.core.types.song import Platform
+
+        provider = song_service.get_provider(Platform.DEEZER)
+        with patch.object(provider, "get_track", new_callable=AsyncMock) as mock_get:
+            mock_get.return_value = mock_song
+
+            result = await song_service.get_track("https://www.deezer.com/track/123")
+            assert result.name == "Test Song"
+
+    @pytest.mark.asyncio
+    async def test_get_album_success(
+        self, song_service: SongService, mock_song: Song
+    ) -> None:
+        """Test get_album returns song list on success."""
+        from spotdl.core.types.song import Platform, SongList
+
+        mock_song_list = SongList(
+            name="Test Album",
+            url="https://www.deezer.com/album/123",
+            platform=Platform.DEEZER,
+            urls=("https://www.deezer.com/track/1",),
+            songs=(mock_song,),
+        )
+
+        provider = song_service.get_provider(Platform.DEEZER)
+        with patch.object(provider, "get_album", new_callable=AsyncMock) as mock_get:
+            mock_get.return_value = mock_song_list
+
+            result = await song_service.get_album("https://www.deezer.com/album/123")
+            assert result.name == "Test Album"
+
+    @pytest.mark.asyncio
+    async def test_get_playlist_success(
+        self, song_service: SongService, mock_song: Song
+    ) -> None:
+        """Test get_playlist returns song list on success."""
+        from spotdl.core.types.song import Platform, SongList
+
+        mock_song_list = SongList(
+            name="Test Playlist",
+            url="https://www.deezer.com/playlist/123",
+            platform=Platform.DEEZER,
+            urls=("https://www.deezer.com/track/1",),
+            songs=(mock_song,),
+        )
+
+        provider = song_service.get_provider(Platform.DEEZER)
+        with patch.object(provider, "get_playlist", new_callable=AsyncMock) as mock_get:
+            mock_get.return_value = mock_song_list
+
+            result = await song_service.get_playlist("https://www.deezer.com/playlist/123")
+            assert result.name == "Test Playlist"
+
+    @pytest.mark.asyncio
+    async def test_get_artist_success(
+        self, song_service: SongService, mock_song: Song
+    ) -> None:
+        """Test get_artist returns song list on success."""
+        from spotdl.core.types.song import Platform, SongList
+
+        mock_song_list = SongList(
+            name="Artist Name",
+            url="https://www.deezer.com/artist/27",
+            platform=Platform.DEEZER,
+            urls=("https://www.deezer.com/track/1",),
+            songs=(mock_song,),
+        )
+
+        provider = song_service.get_provider(Platform.DEEZER)
+        with patch.object(provider, "get_artist", new_callable=AsyncMock) as mock_get:
+            mock_get.return_value = mock_song_list
+
+            result = await song_service.get_artist("https://www.deezer.com/artist/27")
+            assert result.name == "Artist Name"
+
+    @pytest.mark.asyncio
+    async def test_get_track_no_provider(self, song_service: SongService) -> None:
+        """Test get_track raises error when no provider for platform."""
+        # Clear providers
+        song_service._providers = {}
+
+        with pytest.raises(UnsupportedURLError, match="No provider for platform"):
+            await song_service.get_track("https://www.deezer.com/track/123")
+
+    @pytest.mark.asyncio
+    async def test_get_album_no_provider(self, song_service: SongService) -> None:
+        """Test get_album raises error when no provider for platform."""
+        song_service._providers = {}
+
+        with pytest.raises(UnsupportedURLError, match="No provider for platform"):
+            await song_service.get_album("https://www.deezer.com/album/123")
+
+    @pytest.mark.asyncio
+    async def test_get_playlist_no_provider(self, song_service: SongService) -> None:
+        """Test get_playlist raises error when no provider for platform."""
+        song_service._providers = {}
+
+        with pytest.raises(UnsupportedURLError, match="No provider for platform"):
+            await song_service.get_playlist("https://www.deezer.com/playlist/123")
+
+    @pytest.mark.asyncio
+    async def test_get_artist_no_provider(self, song_service: SongService) -> None:
+        """Test get_artist raises error when no provider for platform."""
+        song_service._providers = {}
+
+        with pytest.raises(UnsupportedURLError, match="No provider for platform"):
+            await song_service.get_artist("https://www.deezer.com/artist/27")
+
+
 class TestGetSongService:
     """Tests for get_song_service function."""
 

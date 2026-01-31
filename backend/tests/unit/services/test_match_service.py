@@ -165,6 +165,145 @@ class TestMatchServiceFindMatches:
             )
 
 
+class TestMatchServiceFindMatchesWithResults:
+    """Tests for MatchService find_matches with actual results."""
+
+    @pytest.fixture
+    def mock_results(self) -> list[Result]:
+        """Create mock results for testing."""
+        return [
+            Result(
+                name="Test Song - Official Video",
+                artists=["Artist 1"],
+                artist="Artist 1",
+                duration=200,
+                platform=TargetPlatform.YOUTUBE,
+                platform_id="vid1",
+                url="https://www.youtube.com/watch?v=vid1",
+            ),
+            Result(
+                name="Test Song (Lyric Video)",
+                artists=["Artist 1"],
+                artist="Artist 1",
+                duration=198,
+                platform=TargetPlatform.YOUTUBE,
+                platform_id="vid2",
+                url="https://www.youtube.com/watch?v=vid2",
+            ),
+        ]
+
+    @pytest.mark.asyncio
+    async def test_find_matches_with_results(
+        self,
+        match_service: MatchService,
+        mock_song: Song,
+        mock_results: list[Result],
+    ) -> None:
+        """Test find_matches returns Match objects when results found."""
+        with patch.object(
+            match_service._providers[TargetPlatform.YOUTUBE],
+            "search",
+            new_callable=AsyncMock,
+        ) as mock_search:
+            mock_search.return_value = mock_results
+
+            matches = await match_service.find_matches(
+                mock_song,
+                target_platforms=[TargetPlatform.YOUTUBE],
+                limit=5,
+            )
+
+            assert len(matches) > 0
+            assert all(isinstance(m, Match) for m in matches)
+            assert all(m.source_song == mock_song for m in matches)
+            # Matches should be sorted by score
+            scores = [m.score for m in matches]
+            assert scores == sorted(scores, reverse=True)
+
+    @pytest.mark.asyncio
+    async def test_find_matches_default_platforms(
+        self,
+        match_service: MatchService,
+        mock_song: Song,
+    ) -> None:
+        """Test find_matches uses all platforms by default."""
+        # Patch all providers to return empty to avoid network calls
+        for platform, provider in match_service._providers.items():
+            with patch.object(provider, "search", new_callable=AsyncMock) as mock:
+                mock.return_value = []
+
+        matches = await match_service.find_matches(mock_song)
+        assert isinstance(matches, list)
+
+    @pytest.mark.asyncio
+    async def test_find_matches_handles_search_error(
+        self,
+        match_service: MatchService,
+        mock_song: Song,
+    ) -> None:
+        """Test find_matches handles SearchError gracefully."""
+        from spotdl.providers.targets import SearchError
+
+        with patch.object(
+            match_service._providers[TargetPlatform.YOUTUBE],
+            "search",
+            new_callable=AsyncMock,
+        ) as mock_search:
+            mock_search.side_effect = SearchError("Search failed")
+
+            matches = await match_service.find_matches(
+                mock_song,
+                target_platforms=[TargetPlatform.YOUTUBE],
+            )
+
+            # Should return empty list, not raise
+            assert matches == []
+
+    @pytest.mark.asyncio
+    async def test_find_matches_skips_unknown_platform(
+        self,
+        match_service: MatchService,
+        mock_song: Song,
+    ) -> None:
+        """Test find_matches skips platforms without providers."""
+        # Clear providers to simulate missing platform
+        original_providers = match_service._providers.copy()
+        match_service._providers = {}
+
+        matches = await match_service.find_matches(
+            mock_song,
+            target_platforms=[TargetPlatform.YOUTUBE],
+        )
+
+        assert matches == []
+
+        # Restore providers
+        match_service._providers = original_providers
+
+    @pytest.mark.asyncio
+    async def test_find_best_match_returns_match(
+        self,
+        match_service: MatchService,
+        mock_song: Song,
+        mock_results: list[Result],
+    ) -> None:
+        """Test find_best_match returns best Match when results found."""
+        with patch.object(
+            match_service._providers[TargetPlatform.YOUTUBE],
+            "search",
+            new_callable=AsyncMock,
+        ) as mock_search:
+            mock_search.return_value = mock_results
+
+            best = await match_service.find_best_match(
+                mock_song,
+                target_platforms=[TargetPlatform.YOUTUBE],
+            )
+
+            assert best is not None
+            assert isinstance(best, Match)
+
+
 class TestMatchServiceISRC:
     """Tests for MatchService ISRC search."""
 
@@ -174,6 +313,86 @@ class TestMatchServiceISRC:
         mock_song.isrc = None
         result = await match_service.search_by_isrc(mock_song)
         assert result is None
+
+    @pytest.mark.asyncio
+    async def test_search_by_isrc_no_provider(self, match_service: MatchService, mock_song: Song) -> None:
+        """Test search_by_isrc returns None when provider not found."""
+        # Clear providers
+        original_providers = match_service._providers.copy()
+        match_service._providers = {}
+
+        result = await match_service.search_by_isrc(mock_song)
+        assert result is None
+
+        # Restore
+        match_service._providers = original_providers
+
+    @pytest.mark.asyncio
+    async def test_search_by_isrc_provider_no_method(self, match_service: MatchService, mock_song: Song) -> None:
+        """Test search_by_isrc returns None when provider lacks method."""
+        # Create a provider without search_by_isrc
+        mock_provider = MagicMock()
+        del mock_provider.search_by_isrc  # Remove the method
+
+        match_service._providers[TargetPlatform.YOUTUBE_MUSIC] = mock_provider
+
+        result = await match_service.search_by_isrc(mock_song)
+        assert result is None
+
+    @pytest.mark.asyncio
+    async def test_search_by_isrc_with_result(self, match_service: MatchService, mock_song: Song) -> None:
+        """Test search_by_isrc returns Match when result found."""
+        mock_result = Result(
+            name="Test Song",
+            artists=["Artist 1"],
+            artist="Artist 1",
+            duration=200,
+            platform=TargetPlatform.YOUTUBE_MUSIC,
+            platform_id="isrc_vid",
+            url="https://music.youtube.com/watch?v=isrc_vid",
+            isrc_search=True,
+        )
+
+        with patch.object(
+            match_service._providers[TargetPlatform.YOUTUBE_MUSIC],
+            "search_by_isrc",
+            new_callable=AsyncMock,
+        ) as mock_isrc:
+            mock_isrc.return_value = mock_result
+
+            result = await match_service.search_by_isrc(mock_song)
+
+            assert result is not None
+            assert isinstance(result, Match)
+            assert result.source_song == mock_song
+
+    @pytest.mark.asyncio
+    async def test_search_by_isrc_no_result(self, match_service: MatchService, mock_song: Song) -> None:
+        """Test search_by_isrc returns None when no result found."""
+        with patch.object(
+            match_service._providers[TargetPlatform.YOUTUBE_MUSIC],
+            "search_by_isrc",
+            new_callable=AsyncMock,
+        ) as mock_isrc:
+            mock_isrc.return_value = None
+
+            result = await match_service.search_by_isrc(mock_song)
+            assert result is None
+
+    @pytest.mark.asyncio
+    async def test_search_by_isrc_handles_search_error(self, match_service: MatchService, mock_song: Song) -> None:
+        """Test search_by_isrc handles SearchError gracefully."""
+        from spotdl.providers.targets import SearchError
+
+        with patch.object(
+            match_service._providers[TargetPlatform.YOUTUBE_MUSIC],
+            "search_by_isrc",
+            new_callable=AsyncMock,
+        ) as mock_isrc:
+            mock_isrc.side_effect = SearchError("ISRC search failed")
+
+            result = await match_service.search_by_isrc(mock_song)
+            assert result is None
 
 
 class TestMatchServiceClose:

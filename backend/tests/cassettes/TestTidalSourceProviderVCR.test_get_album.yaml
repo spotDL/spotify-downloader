@@ -1,0 +1,60 @@
+interactions:
+- request:
+    body: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Host:
+      - tidal.com
+    method: GET
+    uri: https://tidal.com/browse/album/108043433
+  response:
+    body:
+      string: '<html lang="en"><head><title>tidal.com</title><style>#cmsg{animation:
+        A 1.5s;}@keyframes A{0%{opacity:0;}99%{opacity:0;}100%{opacity:1;}}</style></head><body
+        style="margin:0"><p id="cmsg">Please enable JS and disable any ad blocker</p><script
+        data-cfasync="false">var dd={''rt'':''c'',''cid'':''AHrlqAAAAAMADDwORwyvH8QAXZ8YkA=='',''hsh'':''1F633CDD8EF22541BD6D9B1B8EF13A'',''t'':''fe'',''qp'':'''',''s'':29691,''e'':''e4b06caaa873ac3beeff1ff542e01d410fb7b3b239150ec57920ba26836739be5f87fded6e19cfd276096d6dba2b7478'',''host'':''geo.captcha-delivery.com'',''cookie'':''86JEc2AqHwkIJv3~V67njcNOEBilfsYjwz3ilOwEJOZj4O9mVtJuZVvY4b6um41cYmxFQig_VUonHWtGCD82y7IuNmFiBRn2oo6AoWcfRBzozdrOTOGWi6Z9FNHQsavR''}</script><script
+        data-cfasync="false" src="https://ct.captcha-delivery.com/c.js"></script></body></html>'
+    headers:
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '769'
+      Content-Type:
+      - text/html;charset=utf-8
+      Cross-Origin-Opener-Policy:
+      - same-origin-allow-popups
+      Date:
+      - Sat, 31 Jan 2026 12:41:57 GMT
+      Server:
+      - CloudFront
+      Via:
+      - 1.1 90b7929a08c32dc183947970bd101f0e.cloudfront.net (CloudFront)
+      X-Amz-Cf-Id:
+      - i54blqP97JofEUAhdtAhKb-I7iUObkdDEvgZ3uob99ZNoDKlNtV7mA==
+      X-Amz-Cf-Pop:
+      - WAW51-P4
+      X-Cache:
+      - LambdaGeneratedResponse from cloudfront
+      accept-ch:
+      - Sec-CH-UA,Sec-CH-UA-Mobile,Sec-CH-UA-Platform,Sec-CH-UA-Arch,Sec-CH-UA-Full-Version-List,Sec-CH-UA-Model,Sec-CH-Device-Memory
+      cache-control:
+      - max-age=0, private, no-cache, no-store, must-revalidate
+      charset:
+      - utf-8
+      pragma:
+      - no-cache
+      x-datadome:
+      - protected
+      x-datadome-cid:
+      - AHrlqAAAAAMADDwORwyvH8QAXZ8YkA==
+      x-dd-b:
+      - '1'
+    status:
+      code: 403
+      message: HTTP Forbidden
+version: 1

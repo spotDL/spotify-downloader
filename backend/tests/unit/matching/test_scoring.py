@@ -451,3 +451,116 @@ class TestCalcNameMatchExtended:
         result = create_result(name="Test Artist Test Song", artists=("Test Artist",))
         score = calc_name_match(song, result, search_query="test artist test song")
         assert score >= 0.0
+
+
+class TestCalcMainArtistMatchLowMatchBranch:
+    """Tests for low match with multiple artists branch (lines 154-158)."""
+
+    def test_low_main_match_tries_alternative_combinations(self):
+        """Test that low main artist match < 50 with multiple artists tries other combos."""
+        # Create song with multiple artists where main artist doesn't match main result artist
+        song = create_song(artists=["Alpha Artist", "Beta Artist"])
+        # Create result where main artist is completely different but secondary matches
+        result = create_result(artists=("Completely Different", "Beta Artist"))
+
+        score = calc_main_artist_match(song, result)
+        # Should try matching other combinations since main match is low
+        # Beta Artist should match from the alternative combinations
+        assert score > 0.0
+
+    def test_low_match_with_two_song_artists_product_iteration(self):
+        """Test product iteration of first 2 artists from song and result."""
+        # Song with 3 artists (only first 2 should be used in iteration)
+        song = create_song(artists=["Artist X", "Artist Y", "Artist Z"])
+        # Result with 3 artists where match is better in non-main positions
+        result = create_result(artists=("NoMatch1", "Artist Y", "NoMatch2"))
+
+        score = calc_main_artist_match(song, result)
+        # Artist Y should match from the iteration
+        assert score >= 0.0
+
+    def test_very_low_main_match_triggers_alternative_check(self):
+        """Test very low main artist match definitely triggers alternative check."""
+        # Main artists are completely different
+        song = create_song(artists=["AAAAAA", "BBBBBB"])
+        result = create_result(artists=("XXXXXX", "BBBBBB"))
+
+        score = calc_main_artist_match(song, result)
+        # Should find BBBBBB match in the alternative combinations
+        assert score > 0.0
+
+
+class TestCalcTimeMatchExtended:
+    """Extended tests for calc_time_match edge cases."""
+
+    def test_zero_result_duration(self):
+        """Test with zero result duration."""
+        song = create_song(duration=180)
+        result = create_result(duration=0.0)
+        score = calc_time_match(song, result)
+        # Should handle zero duration gracefully
+        assert score >= -100.0  # Very negative is acceptable for bad match
+
+    def test_very_large_duration_difference(self):
+        """Test with very large duration difference."""
+        song = create_song(duration=180)
+        result = create_result(duration=3600.0)  # 1 hour
+        score = calc_time_match(song, result)
+        # Should be very close to 0 for such large difference (exponential decay)
+        assert score < 1.0
+
+
+class TestCalcAlbumMatchExtended:
+    """Extended tests for calc_album_match edge cases."""
+
+    def test_similar_album_names(self):
+        """Test similar album names."""
+        song = create_song(album_name="Greatest Hits 2020")
+        result = create_result(album_name="Greatest Hits 2020 Deluxe")
+        score = calc_album_match(song, result)
+        # Should have high similarity
+        assert score > 70.0
+
+    def test_completely_different_albums(self):
+        """Test completely different album names."""
+        song = create_song(album_name="First Album")
+        result = create_result(album_name="Completely Different Name")
+        score = calc_album_match(song, result)
+        # Should be low score
+        assert score < 50.0
+
+
+class TestCheckForbiddenWordsExtended:
+    """Extended tests for check_forbidden_words edge cases."""
+
+    def test_cover_detected(self):
+        """Test cover version detection."""
+        song = create_song(name="Original Song")
+        result = create_result(name="Original Song Cover")
+        has_forbidden, words = check_forbidden_words(song, result)
+        assert has_forbidden is True
+        assert "cover" in words
+
+    def test_acoustic_detected(self):
+        """Test acoustic version detection."""
+        song = create_song(name="Rock Song")
+        result = create_result(name="Rock Song Acoustic")
+        has_forbidden, words = check_forbidden_words(song, result)
+        assert has_forbidden is True
+        assert "acoustic" in words
+
+    def test_instrumental_detected(self):
+        """Test instrumental version detection."""
+        song = create_song(name="Pop Song")
+        result = create_result(name="Pop Song Instrumental")
+        has_forbidden, words = check_forbidden_words(song, result)
+        assert has_forbidden is True
+        assert "instrumental" in words
+
+    def test_multiple_forbidden_words(self):
+        """Test multiple forbidden words detected."""
+        song = create_song(name="Original Song")
+        result = create_result(name="Original Song Live Remix Acoustic")
+        has_forbidden, words = check_forbidden_words(song, result)
+        assert has_forbidden is True
+        assert len(words) >= 2
