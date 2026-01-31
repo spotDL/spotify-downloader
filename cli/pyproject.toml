@@ -1,0 +1,83 @@
+[project]
+name = "spotdl-cli"
+version = "5.0.0"
+description = "SpotDL CLI - Interactive TUI for downloading music"
+readme = "README.md"
+requires-python = ">=3.13"
+license = { text = "MIT" }
+authors = [{ name = "xnetcat", email = "xnetcat@outlook.com" }]
+keywords = ["spotify", "youtube", "music", "download", "tui", "cli"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: End Users/Desktop",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Multimedia :: Sound/Audio",
+]
+dependencies = [
+    # TUI framework
+    "textual>=0.86.0",
+    # Download
+    "yt-dlp>=2024.12.0",
+    # Metadata
+    "mutagen>=1.47.0",
+    # Matching (same as backend for offline mode)
+    "rapidfuzz>=3.10.0",
+    "python-slugify>=8.0.4",
+    "pykakasi>=2.3.0",
+    # HTTP client for API
+    "httpx>=0.28.0",
+    # Utilities
+    "orjson>=3.10.0",
+    "rich>=13.9.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.3.0",
+    "pytest-asyncio>=0.24.0",
+    "pytest-cov>=6.0.0",
+    "ruff>=0.8.0",
+    "mypy>=1.13.0",
+]
+
+[project.scripts]
+spotdl = "spotdl_cli.__main__:main"
+
+[project.urls]
+Homepage = "https://github.com/spotDL/spotify-downloader"
+Documentation = "https://spotdl.github.io/spotify-downloader"
+Repository = "https://github.com/spotDL/spotify-downloader"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/spotdl_cli"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+
+[tool.coverage.run]
+source = ["src/spotdl_cli"]
+branch = true
+
+[tool.coverage.report]
+fail_under = 80
+
+[tool.ruff]
+target-version = "py313"
+line-length = 100
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "B", "C4", "UP", "RUF"]
+
+[tool.mypy]
+python_version = "3.13"
+strict = true

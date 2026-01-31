@@ -1,0 +1,99 @@
+"""Application configuration using Pydantic Settings."""
+
+from __future__ import annotations
+
+from functools import lru_cache
+from typing import Literal
+
+from pydantic import Field, PostgresDsn, RedisDsn, SecretStr
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+class Settings(BaseSettings):
+    """Application settings loaded from environment variables."""
+
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        case_sensitive=False,
+        extra="ignore",
+    )
+
+    # Application
+    app_name: str = "SpotDL API"
+    app_version: str = "5.0.0"
+    debug: bool = False
+    environment: Literal["development", "staging", "production"] = "development"
+
+    # Server
+    host: str = "0.0.0.0"
+    port: int = 8000
+    workers: int = 1
+    reload: bool = False
+
+    # Database
+    database_url: str = Field(
+        default="sqlite+aiosqlite:///./data/spotdl.db",
+        description="Database connection URL (SQLite or PostgreSQL)",
+    )
+    database_echo: bool = False
+
+    # Redis (optional, for caching)
+    redis_url: RedisDsn | None = None
+    cache_ttl: int = Field(default=3600, description="Cache TTL in seconds")
+
+    # Authentication
+    secret_key: SecretStr = Field(
+        default=SecretStr("change-me-in-production-please"),
+        description="Secret key for JWT signing",
+    )
+    access_token_expire_minutes: int = 30
+    refresh_token_expire_days: int = 7
+    algorithm: str = "HS256"
+
+    # CORS
+    cors_origins: list[str] = Field(
+        default=["http://localhost:3000", "http://localhost:5173"],
+        description="Allowed CORS origins",
+    )
+    cors_allow_credentials: bool = True
+    cors_allow_methods: list[str] = ["*"]
+    cors_allow_headers: list[str] = ["*"]
+
+    # Rate limiting
+    rate_limit_requests: int = 100
+    rate_limit_window: int = 60  # seconds
+
+    # Matching
+    match_score_threshold: float = 80.0
+    isrc_match_threshold: float = 80.0
+
+    # External services (optional)
+    spotify_client_id: str | None = None
+    spotify_client_secret: SecretStr | None = None
+
+    @property
+    def is_production(self) -> bool:
+        """Check if running in production environment."""
+        return self.environment == "production"
+
+    @property
+    def is_development(self) -> bool:
+        """Check if running in development environment."""
+        return self.environment == "development"
+
+    @property
+    def database_is_sqlite(self) -> bool:
+        """Check if using SQLite database."""
+        return self.database_url.startswith("sqlite")
+
+    @property
+    def database_is_postgres(self) -> bool:
+        """Check if using PostgreSQL database."""
+        return self.database_url.startswith("postgresql")
+
+
+@lru_cache
+def get_settings() -> Settings:
+    """Get cached settings instance."""
+    return Settings()

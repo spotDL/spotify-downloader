@@ -1,0 +1,26 @@
+# SpotDL Development/Self-Hosting Docker Compose
+# Simple setup with SQLite - single command: docker compose up -d
+
+services:
+  api:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=sqlite+aiosqlite:///./data/spotdl.db
+      - ENVIRONMENT=development
+      - DEBUG=true
+      - RELOAD=true
+    volumes:
+      - ./data:/app/data
+      - ./backend/src:/app/src:ro
+      - ./frontend/dist:/app/static:ro
+    healthcheck:
+      test: ["CMD", "python", "-c", "import httpx; httpx.get('http://localhost:8000/api/v1/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  data:

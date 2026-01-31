@@ -1,0 +1,154 @@
+[project]
+name = "spotdl-backend"
+version = "5.0.0"
+description = "SpotDL Backend - Multi-platform music matching and download API"
+readme = "README.md"
+requires-python = ">=3.13"
+license = { text = "MIT" }
+authors = [{ name = "xnetcat", email = "xnetcat@outlook.com" }]
+keywords = ["spotify", "youtube", "music", "download", "matching", "api"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Framework :: FastAPI",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Multimedia :: Sound/Audio",
+    "Typing :: Typed",
+]
+dependencies = [
+    # Web framework
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.32.0",
+    "python-multipart>=0.0.18",
+    # Database
+    "sqlalchemy[asyncio]>=2.0.36",
+    "alembic>=1.14.0",
+    "aiosqlite>=0.20.0",
+    "asyncpg>=0.30.0",
+    # Data validation
+    "pydantic>=2.10.0",
+    "pydantic-settings>=2.6.0",
+    # Authentication
+    "python-jose[cryptography]>=3.3.0",
+    "passlib[bcrypt]>=1.7.4",
+    # Caching
+    "redis>=5.2.0",
+    # Matching dependencies
+    "rapidfuzz>=3.10.0",
+    "python-slugify>=8.0.4",
+    "pykakasi>=2.3.0",
+    # HTTP client
+    "httpx>=0.28.0",
+    # Utilities
+    "orjson>=3.10.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    # Testing
+    "pytest>=8.3.0",
+    "pytest-asyncio>=0.24.0",
+    "pytest-cov>=6.0.0",
+    "pytest-mock>=3.14.0",
+    "pytest-recording>=0.13.0",
+    "httpx>=0.28.0",
+    # Linting & Formatting
+    "ruff>=0.8.0",
+    "mypy>=1.13.0",
+    # Type stubs
+    "types-python-jose>=3.3.0",
+    "types-passlib>=1.7.0",
+    "types-redis>=4.6.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/spotDL/spotify-downloader"
+Documentation = "https://spotdl.github.io/spotify-downloader"
+Repository = "https://github.com/spotDL/spotify-downloader"
+Issues = "https://github.com/spotDL/spotify-downloader/issues"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/spotdl"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+addopts = [
+    "-ra",
+    "-q",
+    "--strict-markers",
+    "--strict-config",
+]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+]
+
+[tool.coverage.run]
+source = ["src/spotdl"]
+branch = true
+parallel = true
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise NotImplementedError",
+    "if TYPE_CHECKING:",
+    "if __name__ == .__main__.:",
+    "@abstractmethod",
+]
+# Note: Target is 80%, currently at 70% pending database integration tests
+fail_under = 70
+
+[tool.ruff]
+target-version = "py313"
+line-length = 100
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = [
+    "E",      # pycodestyle errors
+    "W",      # pycodestyle warnings
+    "F",      # Pyflakes
+    "I",      # isort
+    "B",      # flake8-bugbear
+    "C4",     # flake8-comprehensions
+    "UP",     # pyupgrade
+    "ARG",    # flake8-unused-arguments
+    "SIM",    # flake8-simplify
+    "TCH",    # flake8-type-checking
+    "PTH",    # flake8-use-pathlib
+    "RUF",    # Ruff-specific rules
+]
+ignore = [
+    "E501",   # line too long (handled by formatter)
+    "B008",   # do not perform function calls in argument defaults
+    "B905",   # zip without explicit strict parameter
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["spotdl"]
+
+[tool.mypy]
+python_version = "3.13"
+strict = true
+warn_return_any = true
+warn_unused_ignores = true
+disallow_untyped_defs = true
+plugins = ["pydantic.mypy"]
+
+[[tool.mypy.overrides]]
+module = [
+    "pykakasi.*",
+    "slugify.*",
+]
+ignore_missing_imports = true
