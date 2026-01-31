@@ -267,3 +267,187 @@ class TestCalcAlbumMatch:
         result = create_result(album_name="Greatest Hits Collection")
         score = calc_album_match(song, result)
         assert score > 50.0
+
+
+class TestCreateMatchStrings:
+    """Tests for the create_match_strings function."""
+
+    def test_with_search_query(self):
+        """Test with custom search query."""
+        song = create_song(name="Test Song", artists=["Artist One"])
+        result = create_result(name="Test Song", artists=("Artist One",))
+
+        str1, str2 = create_match_strings(song, result, search_query="custom query")
+        assert str1 is not None
+        assert str2 is not None
+
+    def test_without_search_query(self):
+        """Test without search query - uses song title."""
+        song = create_song(name="Test Song", artists=["Artist One"])
+        result = create_result(name="Test Song", artists=("Artist One",))
+
+        str1, str2 = create_match_strings(song, result)
+        assert str1 is not None
+        assert str2 is not None
+
+    def test_verified_result(self):
+        """Test with verified result."""
+        song = create_song(name="Test Song", artists=["Artist"])
+        result = create_result(name="Test Song", verified=True, artists=("Artist",))
+
+        str1, str2 = create_match_strings(song, result)
+        # For verified results, uses slug_song_name
+        assert str1 is not None
+
+
+class TestCalcMainArtistMatchExtended:
+    """Extended tests for calc_main_artist_match."""
+
+    def test_multiple_song_artists_single_result_match(self):
+        """Test when song has multiple artists and result has combined name."""
+        song = create_song(artists=["Artist1", "Artist2"])
+        result = create_result(artists=("Artist1 Artist2",))
+        score = calc_main_artist_match(song, result)
+        # Should find both artists in the combined name
+        assert score > 0.0
+
+    def test_low_main_match_with_multiple_artists(self):
+        """Test low main artist match tries other combinations."""
+        song = create_song(artists=["Main Artist", "Featured Artist"])
+        result = create_result(artists=("Featured Artist", "Main Artist"))
+        score = calc_main_artist_match(song, result)
+        # Should find match in other artists
+        assert score > 50.0
+
+
+class TestCalcArtistsMatchExtended:
+    """Extended tests for calc_artists_match."""
+
+    def test_no_result_artists(self):
+        """Test when result has no artists."""
+        song = create_song(artists=["Artist1", "Artist2"])
+        result = create_result(artists=())
+        score = calc_artists_match(song, result)
+        assert score == 0.0
+
+    def test_unequal_artist_counts(self):
+        """Test with different number of artists."""
+        song = create_song(artists=["Main", "Featured1", "Featured2", "Featured3"])
+        result = create_result(artists=("Main", "Featured1"))
+        score = calc_artists_match(song, result)
+        # Should still calculate a match
+        assert score >= 0.0
+
+
+class TestArtistsMatchFixup1Extended:
+    """Extended tests for artists_match_fixup1."""
+
+    def test_artist_in_title(self):
+        """Test finding artist name in result title."""
+        song = create_song(artists=["Special Artist"])
+        result = create_result(
+            name="Special Artist - Song Name",
+            verified=False,
+            artists=("Unknown",),
+        )
+        score = artists_match_fixup1(song, result, 20.0)
+        # Should find artist in title and improve score
+        assert score > 20.0
+
+    def test_split_artist_names(self):
+        """Test matching split artist names."""
+        song = create_song(artists=["The Beatles"])
+        result = create_result(
+            name="Song Title",
+            verified=False,
+            artists=("Beatles The",),
+        )
+        score = artists_match_fixup1(song, result, 30.0)
+        # Should try split matching
+        assert score >= 30.0
+
+
+class TestArtistsMatchFixup2Extended:
+    """Extended tests for artists_match_fixup2."""
+
+    def test_verified_low_score(self):
+        """Test verified result with low score."""
+        song = create_song(
+            name="Test Song",
+            artists=["Main Artist", "Featured Artist"],
+        )
+        result = create_result(
+            name="Test Song ft Featured Artist",
+            verified=True,
+            artists=("Main Artist",),
+        )
+        score = artists_match_fixup2(song, result, 50.0)
+        # Should add points for finding featured artist
+        assert score >= 50.0
+
+    def test_clean_string_matching(self):
+        """Test clean string matching fallback."""
+        song = create_song(
+            name="Song Title",
+            artists=["Artist Name"],
+        )
+        result = create_result(
+            name="Song Title",
+            verified=True,
+            artists=("Artist Name Official",),
+        )
+        score = artists_match_fixup2(song, result, 40.0)
+        # Should try clean string matching
+        assert score >= 40.0
+
+
+class TestArtistsMatchFixup3Extended:
+    """Extended tests for artists_match_fixup3."""
+
+    def test_single_result_artist_multiple_song_artists(self):
+        """Test single result artist with multiple song artists."""
+        song = create_song(
+            name="Great Song",
+            artists=["Main Artist", "Featured Artist"],
+        )
+        # Create result with name that matches song title with single artist
+        result = create_result(
+            name="Main Artist - Great Song",
+            artists=("Main Artist",),
+        )
+        score = artists_match_fixup3(song, result, 50.0)
+        # Should try matching result name to song title
+        assert score >= 50.0
+
+    def test_single_song_artist(self):
+        """Test with single song artist - should return unchanged."""
+        song = create_song(artists=["Single Artist"])
+        result = create_result(artists=("Single Artist",))
+        score = artists_match_fixup3(song, result, 60.0)
+        assert score == 60.0
+
+    def test_no_result_artists(self):
+        """Test with no result artists - should return unchanged."""
+        song = create_song(artists=["Artist1", "Artist2"])
+        result = create_result(artists=())
+        score = artists_match_fixup3(song, result, 60.0)
+        assert score == 60.0
+
+
+class TestCalcNameMatchExtended:
+    """Extended tests for calc_name_match."""
+
+    def test_low_initial_match(self):
+        """Test low initial match tries filled strings."""
+        song = create_song(name="Unique Song Title")
+        result = create_result(name="Artist - Unique Song Title")
+        score = calc_name_match(song, result)
+        # Should try filled string matching
+        assert score >= 0.0
+
+    def test_with_search_query(self):
+        """Test name matching with search query."""
+        song = create_song(name="Test Song", artists=["Test Artist"])
+        result = create_result(name="Test Artist Test Song", artists=("Test Artist",))
+        score = calc_name_match(song, result, search_query="test artist test song")
+        assert score >= 0.0

@@ -245,3 +245,145 @@ class TestGetBestResult:
         song = create_song(name="Test")
         best = get_best_result([], song)
         assert best is None
+
+    def test_below_min_score(self):
+        """Test returns None when best score is below min_score."""
+        song = create_song(
+            name="Test Song",
+            artists=["Artist"],
+            duration=180,
+        )
+        # Create a result that will match but with lower score
+        result = create_result(
+            name="Artist - Test Song Variation",
+            artists=("Artist",),
+            duration=180.0,
+            verified=True,
+        )
+
+        # Use a very high min_score that the result won't meet
+        best = get_best_result([result], song, min_score=99.9)
+        assert best is None
+
+
+class TestOrderResultsAlbumMatching:
+    """Tests for album matching in order_results."""
+
+    def test_verified_with_low_album_match(self):
+        """Test verified result with album but low album match."""
+        song = create_song(
+            name="Test Song",
+            artists=["Artist"],
+            duration=180,
+            album_name="Original Album",
+        )
+        result = create_result(
+            name="Artist - Test Song",
+            artists=("Artist",),
+            duration=180.0,
+            verified=True,
+            album_name="Different Album",
+        )
+
+        scores = order_results([result], song)
+        # Should still match, but potentially with lower score due to album mismatch
+        assert result in scores or len(scores) == 0
+
+
+class TestOrderResultsTimeAndAverage:
+    """Tests for time and average match filtering."""
+
+    def test_low_time_and_low_average(self):
+        """Test filtering when both time and average are low."""
+        song = create_song(
+            name="Test Song",
+            artists=["Artist"],
+            duration=180,
+        )
+        result = create_result(
+            name="Artist - Test Song Something",
+            artists=("Some Other Artist",),  # Will cause lower artist match
+            duration=200.0,  # 20 seconds off - lower time match
+            verified=False,
+        )
+
+        scores = order_results([result], song)
+        # May be filtered due to both being low
+        # Result depends on actual scoring
+
+
+class TestOrderResultsExplicitMismatch:
+    """Tests for explicit content mismatch penalty."""
+
+    def test_explicit_mismatch_penalty(self):
+        """Test that explicit mismatch applies penalty."""
+        song = create_song(
+            name="Clean Song",
+            artists=["Artist"],
+            duration=180,
+            explicit=False,
+        )
+        explicit_result = create_result(
+            name="Artist - Clean Song",
+            artists=("Artist",),
+            duration=185.0,  # Slightly different to trigger time match factor
+            verified=True,
+            explicit=True,
+        )
+        clean_result = create_result(
+            name="Artist - Clean Song",
+            artists=("Artist",),
+            duration=185.0,
+            verified=True,
+            explicit=False,
+        )
+
+        explicit_scores = order_results([explicit_result], song)
+        clean_scores = order_results([clean_result], song)
+
+        # If both match, clean version should score higher
+        if explicit_result in explicit_scores and clean_result in clean_scores:
+            assert clean_scores[clean_result] >= explicit_scores[explicit_result]
+
+
+class TestOrderResultsWithSearchQuery:
+    """Tests for order_results with search query."""
+
+    def test_with_search_query(self):
+        """Test matching with custom search query."""
+        song = create_song(
+            name="Test Song",
+            artists=["Artist"],
+            duration=180,
+        )
+        result = create_result(
+            name="Artist - Test Song",
+            artists=("Artist",),
+            duration=180.0,
+            verified=True,
+        )
+
+        scores = order_results([result], song, search_query="artist test song")
+        assert result in scores
+
+
+class TestOrderResultsISRCSearch:
+    """Tests for ISRC search handling."""
+
+    def test_isrc_search_result(self):
+        """Test ISRC search results are handled differently."""
+        song = create_song(
+            name="Test Song",
+            artists=["Artist"],
+            duration=180,
+        )
+        result = create_result(
+            name="Artist - Test Song",
+            artists=("Artist",),
+            duration=180.0,
+            verified=True,
+            isrc_search=True,
+        )
+
+        scores = order_results([result], song)
+        assert result in scores

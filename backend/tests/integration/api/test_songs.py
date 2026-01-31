@@ -168,3 +168,68 @@ class TestSongsSearchWithMock:
             assert response.status_code == 200
             data = response.json()
             assert data["total"] == 0
+
+
+class TestSongsResolveErrors:
+    """Tests for songs resolve error handling."""
+
+    async def test_resolve_url_service_error(self, client: AsyncClient) -> None:
+        """Test URL resolution when service throws an error."""
+        from spotdl.core.services.song import SongServiceError
+
+        with patch("spotdl.api.v1.songs.get_song_service") as mock_get_service:
+            mock_service = MagicMock()
+            mock_service.resolve_url = AsyncMock(
+                side_effect=SongServiceError("Service error")
+            )
+            mock_get_service.return_value = mock_service
+
+            response = await client.get(
+                "/api/v1/songs/resolve",
+                params={"url": "https://open.spotify.com/track/abc123"},
+            )
+
+            assert response.status_code == 500
+            assert "Service error" in response.json()["detail"]
+
+
+class TestSongsSearchErrors:
+    """Tests for songs search error handling."""
+
+    async def test_search_service_error(self, client: AsyncClient) -> None:
+        """Test search when service throws an error."""
+        from spotdl.core.services.song import SongServiceError
+
+        with patch("spotdl.api.v1.songs.get_song_service") as mock_get_service:
+            mock_service = MagicMock()
+            mock_service.search = AsyncMock(
+                side_effect=SongServiceError("Search failed")
+            )
+            mock_get_service.return_value = mock_service
+
+            response = await client.get(
+                "/api/v1/songs/search",
+                params={"query": "test", "platform": "spotify"},
+            )
+
+            assert response.status_code == 500
+            assert "Search failed" in response.json()["detail"]
+
+    async def test_search_unsupported_url_error(self, client: AsyncClient) -> None:
+        """Test search when service throws UnsupportedURLError."""
+        from spotdl.core.services.song import UnsupportedURLError
+
+        with patch("spotdl.api.v1.songs.get_song_service") as mock_get_service:
+            mock_service = MagicMock()
+            mock_service.search = AsyncMock(
+                side_effect=UnsupportedURLError("Unsupported")
+            )
+            mock_get_service.return_value = mock_service
+
+            response = await client.get(
+                "/api/v1/songs/search",
+                params={"query": "test", "platform": "spotify"},
+            )
+
+            assert response.status_code == 400
+            assert "Unsupported" in response.json()["detail"]

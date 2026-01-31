@@ -190,3 +190,122 @@ class TestURLResolver:
 
         with pytest.raises(UnsupportedPlatformError):
             await resolver.resolve("https://open.spotify.com/track/abc123")
+
+    @pytest.mark.asyncio
+    async def test_resolve_with_provider(self) -> None:
+        """Test resolving URL with registered provider."""
+        from unittest.mock import AsyncMock, MagicMock
+        from spotdl.core.types.song import Song
+
+        mock_song = MagicMock(spec=Song)
+        resolver = URLResolver()
+        mock_provider = MagicMock()
+        mock_provider.get_songs_from_url = AsyncMock(return_value=[mock_song])
+
+        resolver.register_provider(Platform.SPOTIFY, mock_provider)
+
+        result = await resolver.resolve("https://open.spotify.com/track/abc123")
+
+        assert result == [mock_song]
+        mock_provider.get_songs_from_url.assert_called_once()
+
+
+class TestExtractUrlInfoEdgeCases:
+    """Tests for extract_url_info edge cases."""
+
+    def test_extract_spotify_intl_url(self) -> None:
+        """Test extracting info from international Spotify URL."""
+        info = extract_url_info("https://open.spotify.com/intl-us/track/abc123")
+        assert info["platform"] == "spotify"
+        assert info["type"] == "track"
+        assert info["id"] == "abc123"
+
+    def test_extract_spotify_uri(self) -> None:
+        """Test extracting info from Spotify URI."""
+        info = extract_url_info("spotify:track:xyz789")
+        assert info["platform"] == "spotify"
+        assert info["type"] == "track"
+        assert info["id"] == "xyz789"
+
+    def test_extract_deezer_with_locale(self) -> None:
+        """Test extracting info from Deezer URL with locale."""
+        info = extract_url_info("https://www.deezer.com/en/artist/123456")
+        assert info["platform"] == "deezer"
+        assert info["type"] == "artist"
+        assert info["id"] == "123456"
+
+    def test_extract_tidal_listen_url(self) -> None:
+        """Test extracting info from Tidal listen URL."""
+        info = extract_url_info("https://listen.tidal.com/album/12345678")
+        assert info["platform"] == "tidal"
+        assert info["type"] == "album"
+        assert info["id"] == "12345678"
+
+    def test_extract_tidal_browse_url(self) -> None:
+        """Test extracting info from Tidal browse URL."""
+        info = extract_url_info("https://tidal.com/browse/track/87654321")
+        assert info["platform"] == "tidal"
+        assert info["type"] == "track"
+        assert info["id"] == "87654321"
+
+    def test_extract_soundcloud_sets(self) -> None:
+        """Test extracting info from SoundCloud sets URL."""
+        info = extract_url_info("https://soundcloud.com/artist/sets/playlist")
+        assert info["platform"] == "soundcloud"
+        # ID extraction varies based on URL structure
+
+    def test_extract_bandcamp_artist_page(self) -> None:
+        """Test extracting info from Bandcamp artist page."""
+        info = extract_url_info("https://myartist.bandcamp.com")
+        assert info["platform"] == "bandcamp"
+
+    def test_extract_apple_music_album_track(self) -> None:
+        """Test extracting info from Apple Music album track URL."""
+        info = extract_url_info(
+            "https://music.apple.com/us/album/album-name/123456?i=789012"
+        )
+        assert info["platform"] == "apple_music"
+
+
+class TestGetResolver:
+    """Tests for get_resolver function."""
+
+    def test_get_resolver_returns_instance(self) -> None:
+        """Test get_resolver returns a URLResolver."""
+        from spotdl.providers.sources.resolver import get_resolver, URLResolver
+        import spotdl.providers.sources.resolver as resolver_module
+
+        resolver_module._resolver = None
+        resolver = get_resolver()
+        assert isinstance(resolver, URLResolver)
+
+    def test_get_resolver_singleton(self) -> None:
+        """Test get_resolver returns same instance."""
+        from spotdl.providers.sources.resolver import get_resolver
+        import spotdl.providers.sources.resolver as resolver_module
+
+        resolver_module._resolver = None
+        resolver1 = get_resolver()
+        resolver2 = get_resolver()
+        assert resolver1 is resolver2
+
+
+class TestURLResolverError:
+    """Tests for URLResolverError."""
+
+    def test_url_resolver_error(self) -> None:
+        """Test URLResolverError."""
+        from spotdl.providers.sources.resolver import URLResolverError
+
+        error = URLResolverError("Test error")
+        assert str(error) == "Test error"
+
+    def test_unsupported_platform_error_inheritance(self) -> None:
+        """Test UnsupportedPlatformError inherits from URLResolverError."""
+        from spotdl.providers.sources.resolver import (
+            URLResolverError,
+            UnsupportedPlatformError,
+        )
+
+        error = UnsupportedPlatformError("Unsupported")
+        assert isinstance(error, URLResolverError)
