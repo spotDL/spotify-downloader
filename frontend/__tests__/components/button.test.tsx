@@ -41,10 +41,12 @@ describe("Button", () => {
 
   it("applies variant styles", () => {
     const { rerender } = render(<Button variant="primary">Primary</Button>);
-    expect(screen.getByRole("button")).toHaveClass("bg-blue-600");
+    // Primary uses gradient now
+    expect(screen.getByRole("button")).toHaveClass("bg-gradient-to-r");
 
     rerender(<Button variant="danger">Danger</Button>);
-    expect(screen.getByRole("button")).toHaveClass("bg-red-600");
+    // Danger also uses gradient
+    expect(screen.getByRole("button")).toHaveClass("from-red-600");
 
     rerender(<Button variant="outline">Outline</Button>);
     expect(screen.getByRole("button")).toHaveClass("border");
@@ -55,7 +57,8 @@ describe("Button", () => {
     expect(screen.getByRole("button")).toHaveClass("px-3", "py-1.5");
 
     rerender(<Button size="lg">Large</Button>);
-    expect(screen.getByRole("button")).toHaveClass("px-6", "py-3");
+    // Large size is now px-7 py-3.5
+    expect(screen.getByRole("button")).toHaveClass("px-7", "py-3.5");
   });
 
   it("merges custom className", () => {

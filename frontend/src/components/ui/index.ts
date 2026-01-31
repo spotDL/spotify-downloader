@@ -10,7 +10,7 @@ export {
   CardFooter,
   type CardProps,
 } from "./card";
-export { Badge, type BadgeProps } from "./badge";
+export { Badge, PlatformBadge, type BadgeProps, type PlatformBadgeProps } from "./badge";
 export {
   Table,
   TableHeader,
@@ -21,4 +21,13 @@ export {
   TableCell,
   TableCaption,
 } from "./table";
-export { Spinner, Loading, type SpinnerProps, type LoadingProps } from "./spinner";
+export {
+  Spinner,
+  Loading,
+  WaveformLoader,
+  EqualizerLoader,
+  Skeleton,
+  type SpinnerProps,
+  type LoadingProps,
+  type SkeletonProps,
+} from "./spinner";

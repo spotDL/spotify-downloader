@@ -31,7 +31,8 @@ describe("Input", () => {
   it("applies error styles when error is present", () => {
     render(<Input error="Error" />);
     const input = screen.getByRole("textbox");
-    expect(input).toHaveClass("border-red-500");
+    // Error class now uses opacity
+    expect(input).toHaveClass("border-red-500/50");
   });
 
   it("can be disabled", () => {

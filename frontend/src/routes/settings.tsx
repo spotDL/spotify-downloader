@@ -41,6 +41,49 @@ const CONCURRENT_OPTIONS = [1, 2, 3, 4, 5, 6, 8, 10, 12, 16].map((n) => ({
   label: `${n} downloads`,
 }));
 
+// Custom checkbox component
+function Checkbox({
+  checked,
+  onChange,
+  label,
+  description,
+}: {
+  checked: boolean;
+  onChange: (checked: boolean) => void;
+  label: string;
+  description?: string;
+}) {
+  return (
+    <label className="flex items-start gap-4 cursor-pointer group p-3 -m-3 rounded-xl hover:bg-zinc-800/30 transition-colors">
+      <div className="relative mt-0.5">
+        <input
+          type="checkbox"
+          checked={checked}
+          onChange={(e) => onChange(e.target.checked)}
+          className="peer sr-only"
+        />
+        <div className="w-5 h-5 rounded-md border-2 border-zinc-600 bg-zinc-800 peer-checked:bg-emerald-500 peer-checked:border-emerald-500 transition-all">
+          <svg
+            className={`w-full h-full text-white p-0.5 transition-opacity ${checked ? "opacity-100" : "opacity-0"}`}
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={3}
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+          </svg>
+        </div>
+      </div>
+      <div className="flex-1 min-w-0">
+        <span className="text-zinc-200 font-medium">{label}</span>
+        {description && (
+          <p className="text-sm text-zinc-500 mt-0.5">{description}</p>
+        )}
+      </div>
+    </label>
+  );
+}
+
 function SettingsPage() {
   const {
     audioFormat,
@@ -67,23 +110,33 @@ function SettingsPage() {
   } = useSettingsStore();
 
   return (
-    <div className="space-y-6 max-w-2xl">
+    <div className="space-y-8 max-w-2xl">
+      {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-100">Settings</h1>
-        <p className="text-gray-400 mt-1">
+        <h1 className="text-3xl font-bold tracking-tight text-zinc-50">Settings</h1>
+        <p className="text-zinc-400 mt-2">
           Configure download preferences and server connection
         </p>
       </div>
 
       {/* Download Settings */}
-      <Card variant="bordered">
+      <Card variant="bordered" className="animate-slide-up">
         <CardHeader>
-          <CardTitle>Download Options</CardTitle>
-          <CardDescription>
-            Configure audio format, quality, and output settings
-          </CardDescription>
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500/20 to-teal-500/20 flex items-center justify-center">
+              <svg className="w-5 h-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
+            </div>
+            <div>
+              <CardTitle>Download Options</CardTitle>
+              <CardDescription>
+                Configure audio format, quality, and output settings
+              </CardDescription>
+            </div>
+          </div>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-5">
           <div className="grid grid-cols-2 gap-4">
             <Select
               label="Audio Format"
@@ -99,16 +152,17 @@ function SettingsPage() {
             />
           </div>
 
-          <Input
-            label="Output Template"
-            value={outputTemplate}
-            onChange={(e) => setOutputTemplate(e.target.value)}
-            placeholder="{artist} - {title}"
-          />
-          <p className="text-xs text-gray-500 -mt-2">
-            Available: {"{artist}"}, {"{artists}"}, {"{title}"}, {"{album}"},{" "}
-            {"{year}"}, {"{track_number}"}
-          </p>
+          <div>
+            <Input
+              label="Output Template"
+              value={outputTemplate}
+              onChange={(e) => setOutputTemplate(e.target.value)}
+              placeholder="{artist} - {title}"
+            />
+            <p className="text-xs text-zinc-500 mt-2">
+              Available: <code className="text-zinc-400">{"{artist}"}</code>, <code className="text-zinc-400">{"{artists}"}</code>, <code className="text-zinc-400">{"{title}"}</code>, <code className="text-zinc-400">{"{album}"}</code>, <code className="text-zinc-400">{"{year}"}</code>, <code className="text-zinc-400">{"{track_number}"}</code>
+            </p>
+          </div>
 
           <Select
             label="Concurrent Downloads"
@@ -117,83 +171,74 @@ function SettingsPage() {
             onChange={(e) => setMaxConcurrentDownloads(Number(e.target.value))}
           />
 
-          <label className="flex items-center gap-3 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={overwriteExisting}
-              onChange={(e) => setOverwriteExisting(e.target.checked)}
-              className="w-5 h-5 rounded border-gray-600 bg-gray-700 text-blue-500 focus:ring-blue-500"
-            />
-            <span className="text-gray-300">Overwrite existing files</span>
-          </label>
+          <Checkbox
+            checked={overwriteExisting}
+            onChange={setOverwriteExisting}
+            label="Overwrite existing files"
+            description="Replace files that already exist in the output directory"
+          />
         </CardContent>
       </Card>
 
       {/* Metadata Settings */}
-      <Card variant="bordered">
+      <Card variant="bordered" className="animate-slide-up stagger-1">
         <CardHeader>
-          <CardTitle>Metadata Embedding</CardTitle>
-          <CardDescription>
-            Choose what metadata to embed in downloaded files
-          </CardDescription>
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500/20 to-purple-500/20 flex items-center justify-center">
+              <svg className="w-5 h-5 text-violet-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A2 2 0 013 12V7a4 4 0 014-4z" />
+              </svg>
+            </div>
+            <div>
+              <CardTitle>Metadata Embedding</CardTitle>
+              <CardDescription>
+                Choose what metadata to embed in downloaded files
+              </CardDescription>
+            </div>
+          </div>
         </CardHeader>
-        <CardContent className="space-y-3">
-          <label className="flex items-center gap-3 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={embedMetadata}
-              onChange={(e) => setEmbedMetadata(e.target.checked)}
-              className="w-5 h-5 rounded border-gray-600 bg-gray-700 text-blue-500 focus:ring-blue-500"
-            />
-            <div>
-              <span className="text-gray-300">Embed metadata</span>
-              <p className="text-xs text-gray-500">
-                Title, artist, album, year, track number
-              </p>
-            </div>
-          </label>
+        <CardContent className="space-y-2">
+          <Checkbox
+            checked={embedMetadata}
+            onChange={setEmbedMetadata}
+            label="Embed metadata"
+            description="Title, artist, album, year, track number"
+          />
 
-          <label className="flex items-center gap-3 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={embedLyrics}
-              onChange={(e) => setEmbedLyrics(e.target.checked)}
-              className="w-5 h-5 rounded border-gray-600 bg-gray-700 text-blue-500 focus:ring-blue-500"
-            />
-            <div>
-              <span className="text-gray-300">Embed lyrics</span>
-              <p className="text-xs text-gray-500">
-                Fetch and embed synchronized lyrics when available
-              </p>
-            </div>
-          </label>
+          <Checkbox
+            checked={embedLyrics}
+            onChange={setEmbedLyrics}
+            label="Embed lyrics"
+            description="Fetch and embed synchronized lyrics when available"
+          />
 
-          <label className="flex items-center gap-3 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={embedCoverArt}
-              onChange={(e) => setEmbedCoverArt(e.target.checked)}
-              className="w-5 h-5 rounded border-gray-600 bg-gray-700 text-blue-500 focus:ring-blue-500"
-            />
-            <div>
-              <span className="text-gray-300">Embed cover art</span>
-              <p className="text-xs text-gray-500">
-                Download and embed album artwork
-              </p>
-            </div>
-          </label>
+          <Checkbox
+            checked={embedCoverArt}
+            onChange={setEmbedCoverArt}
+            label="Embed cover art"
+            description="Download and embed album artwork"
+          />
         </CardContent>
       </Card>
 
       {/* Server Settings */}
-      <Card variant="bordered">
+      <Card variant="bordered" className="animate-slide-up stagger-2">
         <CardHeader>
-          <CardTitle>Server Connection</CardTitle>
-          <CardDescription>
-            Configure backend API connection
-          </CardDescription>
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-500/20 to-blue-500/20 flex items-center justify-center">
+              <svg className="w-5 h-5 text-sky-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01" />
+              </svg>
+            </div>
+            <div>
+              <CardTitle>Server Connection</CardTitle>
+              <CardDescription>
+                Configure backend API connection
+              </CardDescription>
+            </div>
+          </div>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-5">
           <Input
             label="API URL"
             value={apiUrl}
@@ -201,26 +246,21 @@ function SettingsPage() {
             placeholder="http://localhost:8000"
           />
 
-          <label className="flex items-center gap-3 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={offlineMode}
-              onChange={(e) => setOfflineMode(e.target.checked)}
-              className="w-5 h-5 rounded border-gray-600 bg-gray-700 text-blue-500 focus:ring-blue-500"
-            />
-            <div>
-              <span className="text-gray-300">Offline mode</span>
-              <p className="text-xs text-gray-500">
-                Use local matching when server is unavailable
-              </p>
-            </div>
-          </label>
+          <Checkbox
+            checked={offlineMode}
+            onChange={setOfflineMode}
+            label="Offline mode"
+            description="Use local matching when server is unavailable"
+          />
         </CardContent>
       </Card>
 
       {/* Actions */}
-      <div className="flex justify-end gap-3">
+      <div className="flex justify-end gap-3 pt-4">
         <Button variant="outline" onClick={resetToDefaults}>
+          <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
           Reset to Defaults
         </Button>
       </div>

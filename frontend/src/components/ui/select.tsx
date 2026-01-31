@@ -25,41 +25,70 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
         {label && (
           <label
             htmlFor={selectId}
-            className="block text-sm font-medium text-gray-300 mb-1"
+            className="block text-sm font-medium text-zinc-300 mb-2"
           >
             {label}
           </label>
         )}
-        <select
-          ref={ref}
-          id={selectId}
-          className={twMerge(
-            clsx(
-              "w-full px-4 py-2 bg-gray-800 border rounded-lg text-gray-100",
-              "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent",
-              "disabled:opacity-50 disabled:cursor-not-allowed",
-              error ? "border-red-500" : "border-gray-700",
-              className
-            )
-          )}
-          {...props}
-        >
-          {placeholder && (
-            <option value="" disabled>
-              {placeholder}
-            </option>
-          )}
-          {options.map((option) => (
-            <option
-              key={option.value}
-              value={option.value}
-              disabled={option.disabled}
+        <div className="relative">
+          <select
+            ref={ref}
+            id={selectId}
+            className={twMerge(
+              clsx(
+                "w-full px-4 py-3 rounded-xl text-zinc-100 text-sm appearance-none",
+                "bg-[#18181b] border cursor-pointer",
+                "transition-all duration-200",
+                "focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/50",
+                "disabled:opacity-50 disabled:cursor-not-allowed",
+                error
+                  ? "border-red-500/50 focus:ring-red-500/50 focus:border-red-500/50"
+                  : "border-zinc-800 hover:border-zinc-700",
+                className
+              )
+            )}
+            {...props}
+          >
+            {placeholder && (
+              <option value="" disabled>
+                {placeholder}
+              </option>
+            )}
+            {options.map((option) => (
+              <option
+                key={option.value}
+                value={option.value}
+                disabled={option.disabled}
+                className="bg-[#18181b] text-zinc-100"
+              >
+                {option.label}
+              </option>
+            ))}
+          </select>
+          <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+            <svg
+              className="w-4 h-4 text-zinc-500"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
             >
-              {option.label}
-            </option>
-          ))}
-        </select>
-        {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M19 9l-7 7-7-7"
+              />
+            </svg>
+          </div>
+        </div>
+        {error && (
+          <p className="mt-2 text-sm text-red-400 flex items-center gap-1.5">
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            {error}
+          </p>
+        )}
       </div>
     );
   }

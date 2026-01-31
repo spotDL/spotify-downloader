@@ -15,17 +15,27 @@ describe("Card", () => {
 
   it("renders with default variant", () => {
     const { container } = render(<Card>Content</Card>);
-    expect(container.firstChild).toHaveClass("bg-gray-800");
+    expect(container.firstChild).toHaveClass("bg-[#111113]");
   });
 
   it("renders with bordered variant", () => {
     const { container } = render(<Card variant="bordered">Content</Card>);
-    expect(container.firstChild).toHaveClass("border", "border-gray-700");
+    expect(container.firstChild).toHaveClass("border", "border-zinc-800/80");
   });
 
   it("renders with elevated variant", () => {
     const { container } = render(<Card variant="elevated">Content</Card>);
-    expect(container.firstChild).toHaveClass("shadow-lg");
+    expect(container.firstChild).toHaveClass("shadow-xl");
+  });
+
+  it("renders with glass variant", () => {
+    const { container } = render(<Card variant="glass">Content</Card>);
+    expect(container.firstChild).toHaveClass("glass");
+  });
+
+  it("applies hover effect when hover prop is true", () => {
+    const { container } = render(<Card hover>Content</Card>);
+    expect(container.firstChild).toHaveClass("card-hover");
   });
 });
 

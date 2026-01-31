@@ -3,22 +3,29 @@ import { clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 
 export interface CardProps extends HTMLAttributes<HTMLDivElement> {
-  variant?: "default" | "bordered" | "elevated";
+  variant?: "default" | "bordered" | "elevated" | "glass";
+  hover?: boolean;
 }
 
 export const Card = forwardRef<HTMLDivElement, CardProps>(
-  ({ className, variant = "default", children, ...props }, ref) => {
+  ({ className, variant = "default", hover = false, children, ...props }, ref) => {
     const variants = {
-      default: "bg-gray-800",
-      bordered: "bg-gray-800 border border-gray-700",
-      elevated: "bg-gray-800 shadow-lg shadow-black/20",
+      default: "bg-[#111113]",
+      bordered: "bg-[#111113] border border-zinc-800/80",
+      elevated: "bg-[#111113] shadow-xl shadow-black/30",
+      glass: "glass border border-zinc-800/50",
     };
 
     return (
       <div
         ref={ref}
         className={twMerge(
-          clsx("rounded-lg p-4", variants[variant], className)
+          clsx(
+            "rounded-2xl p-5",
+            variants[variant],
+            hover && "card-hover cursor-pointer",
+            className
+          )
         )}
         {...props}
       >
@@ -36,7 +43,7 @@ export const CardHeader = forwardRef<
 >(({ className, ...props }, ref) => (
   <div
     ref={ref}
-    className={twMerge(clsx("mb-4", className))}
+    className={twMerge(clsx("mb-4 space-y-1.5", className))}
     {...props}
   />
 ));
@@ -50,7 +57,10 @@ export const CardTitle = forwardRef<
   <h3
     ref={ref}
     className={twMerge(
-      clsx("text-lg font-semibold text-gray-100", className)
+      clsx(
+        "text-lg font-semibold tracking-tight text-zinc-50",
+        className
+      )
     )}
     {...props}
   />
@@ -64,7 +74,7 @@ export const CardDescription = forwardRef<
 >(({ className, ...props }, ref) => (
   <p
     ref={ref}
-    className={twMerge(clsx("text-sm text-gray-400", className))}
+    className={twMerge(clsx("text-sm text-zinc-400 leading-relaxed", className))}
     {...props}
   />
 ));
@@ -87,7 +97,7 @@ export const CardFooter = forwardRef<
   <div
     ref={ref}
     className={twMerge(
-      clsx("mt-4 flex items-center gap-2", className)
+      clsx("mt-5 pt-4 flex items-center gap-3 border-t border-zinc-800/50", className)
     )}
     {...props}
   />
