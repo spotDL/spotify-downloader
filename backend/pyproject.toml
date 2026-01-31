@@ -58,7 +58,8 @@ dev = [
     "pytest-asyncio>=0.24.0",
     "pytest-cov>=6.0.0",
     "pytest-mock>=3.14.0",
-    "pytest-recording>=0.13.0",
+    "pytest-vcr>=1.0.2",
+    "vcrpy>=6.0.0",
     "httpx>=0.28.0",
     # Linting & Formatting
     "ruff>=0.8.0",
@@ -95,7 +96,14 @@ addopts = [
 markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
     "integration: marks tests as integration tests",
+    "vcr: marks tests that use VCR cassettes",
 ]
+
+[tool.vcr]
+# VCR configuration
+cassette_dir = "tests/cassettes"
+record_mode = "none"
+match_on = ["uri", "method"]
 
 [tool.coverage.run]
 source = ["src/spotdl"]
@@ -111,7 +119,7 @@ exclude_lines = [
     "if __name__ == .__main__.:",
     "@abstractmethod",
 ]
-# Note: Target is 80%, currently at 70% pending database integration tests
+# Note: Target is 80%, pending full VCR implementation
 fail_under = 70
 
 [tool.ruff]

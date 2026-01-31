@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+from pathlib import Path
 import uuid
 from typing import Any, AsyncGenerator
 
@@ -25,6 +26,49 @@ TEST_DATABASE_URL = os.environ.get(
     "TEST_DATABASE_URL",
     "sqlite+aiosqlite:///:memory:",
 )
+
+# VCR configuration for cassette recording
+CASSETTES_DIR = Path(__file__).parent / "cassettes"
+
+
+def _scrub_response_headers(response: dict) -> dict:
+    """Remove sensitive headers from VCR responses before recording."""
+    headers_to_remove = ["set-cookie", "x-request-id"]
+    if "headers" in response:
+        response["headers"] = {
+            k: v
+            for k, v in response["headers"].items()
+            if k.lower() not in headers_to_remove
+        }
+    return response
+
+
+@pytest.fixture(scope="module")
+def vcr_config():
+    """VCR configuration for recording HTTP interactions.
+
+    Uses 'once' mode which records cassettes if they don't exist,
+    otherwise plays them back. Set VCR_RECORD_MODE=new_episodes
+    to update existing cassettes.
+    """
+    record_mode = os.environ.get("VCR_RECORD_MODE", "once")
+    return {
+        "cassette_library_dir": str(CASSETTES_DIR),
+        "record_mode": record_mode,
+        "match_on": ["uri", "method"],
+        "filter_headers": [
+            "authorization",
+            "cookie",
+            "x-api-key",
+            "user-agent",
+        ],
+        "filter_query_parameters": [
+            "client_id",
+            "client_secret",
+        ],
+        "decode_compressed_response": True,
+        "before_record_response": _scrub_response_headers,
+    }
 
 
 @pytest.fixture(scope="session")

@@ -1,0 +1,845 @@
+interactions:
+- request:
+    body: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Host:
+      - api.deezer.com
+    method: GET
+    uri: https://api.deezer.com/album/302127
+  response:
+    body:
+      string: '{"id":302127,"title":"Discovery","upc":"724384960650","link":"https:\/\/www.deezer.com\/album\/302127","share":"https:\/\/www.deezer.com\/album\/302127?utm_source=deezer&utm_content=album-302127&utm_term=0_1769861666&utm_medium=web","cover":"https:\/\/api.deezer.com\/album\/302127\/image","cover_small":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/56x56-000000-80-0-0.jpg","cover_medium":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/250x250-000000-80-0-0.jpg","cover_big":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/500x500-000000-80-0-0.jpg","cover_xl":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/1000x1000-000000-80-0-0.jpg","md5_image":"5718f7c81c27e0b2417e2a4c45224f8a","genre_id":113,"genres":{"data":[{"id":113,"name":"Dance","picture":"https:\/\/api.deezer.com\/genre\/113\/image","type":"genre"}]},"label":"Daft
+        Life Ltd.\/ADA France","nb_tracks":14,"duration":3662,"fans":325013,"release_date":"2001-03-07","record_type":"album","available":true,"tracklist":"https:\/\/api.deezer.com\/album\/302127\/tracks","explicit_lyrics":false,"explicit_content_lyrics":7,"explicit_content_cover":0,"contributors":[{"id":27,"name":"Daft
+        Punk","link":"https:\/\/www.deezer.com\/artist\/27","share":"https:\/\/www.deezer.com\/artist\/27?utm_source=deezer&utm_content=artist-27&utm_term=0_1769861666&utm_medium=web","picture":"https:\/\/api.deezer.com\/artist\/27\/image","picture_small":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/56x56-000000-80-0-0.jpg","picture_medium":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/250x250-000000-80-0-0.jpg","picture_big":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/500x500-000000-80-0-0.jpg","picture_xl":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/1000x1000-000000-80-0-0.jpg","radio":true,"tracklist":"https:\/\/api.deezer.com\/artist\/27\/top?limit=50","type":"artist","role":"Main"}],"artist":{"id":27,"name":"Daft
+        Punk","picture":"https:\/\/api.deezer.com\/artist\/27\/image","picture_small":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/56x56-000000-80-0-0.jpg","picture_medium":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/250x250-000000-80-0-0.jpg","picture_big":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/500x500-000000-80-0-0.jpg","picture_xl":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/1000x1000-000000-80-0-0.jpg","tracklist":"https:\/\/api.deezer.com\/artist\/27\/top?limit=50","type":"artist"},"type":"album","tracks":{"data":[{"id":3135553,"readable":true,"title":"One
+        More Time","title_short":"One More Time","title_version":"","link":"https:\/\/www.deezer.com\/track\/3135553","duration":320,"rank":895695,"explicit_lyrics":false,"explicit_content_lyrics":0,"explicit_content_cover":0,"preview":"https:\/\/cdnt-preview.dzcdn.net\/api\/1\/1\/f\/8\/c\/0\/f8c5dc3837912dba37c9a1ab3170cc3f.mp3?hdnea=exp=1769862566~acl=\/api\/1\/1\/f\/8\/c\/0\/f8c5dc3837912dba37c9a1ab3170cc3f.mp3*~data=user_id=0,application_id=42~hmac=dcdfccb5e21bdaebbca3286ff05b3cb1a70f1c5ca05dd85289d4a39b459d870a","md5_image":"5718f7c81c27e0b2417e2a4c45224f8a","artist":{"id":27,"name":"Daft
+        Punk","tracklist":"https:\/\/api.deezer.com\/artist\/27\/top?limit=50","type":"artist"},"album":{"id":302127,"title":"Discovery","cover":"https:\/\/api.deezer.com\/album\/302127\/image","cover_small":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/56x56-000000-80-0-0.jpg","cover_medium":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/250x250-000000-80-0-0.jpg","cover_big":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/500x500-000000-80-0-0.jpg","cover_xl":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/1000x1000-000000-80-0-0.jpg","md5_image":"5718f7c81c27e0b2417e2a4c45224f8a","tracklist":"https:\/\/api.deezer.com\/album\/302127\/tracks","type":"album"},"type":"track"},{"id":3135554,"readable":true,"title":"Aerodynamic","title_short":"Aerodynamic","title_version":"","link":"https:\/\/www.deezer.com\/track\/3135554","duration":212,"rank":737732,"explicit_lyrics":false,"explicit_content_lyrics":6,"explicit_content_cover":0,"preview":"https:\/\/cdnt-preview.dzcdn.net\/api\/1\/1\/6\/9\/9\/0\/699d41611cf0280f0a55c8ba4a372c14.mp3?hdnea=exp=1769862566~acl=\/api\/1\/1\/6\/9\/9\/0\/699d41611cf0280f0a55c8ba4a372c14.mp3*~data=user_id=0,application_id=42~hmac=0d142e97befc2dbfe847f8b41841b2d77b3abb195b200678d08cf21760af3e73","md5_image":"5718f7c81c27e0b2417e2a4c45224f8a","artist":{"id":27,"name":"Daft
+        Punk","tracklist":"https:\/\/api.deezer.com\/artist\/27\/top?limit=50","type":"artist"},"album":{"id":302127,"title":"Discovery","cover":"https:\/\/api.deezer.com\/album\/302127\/image","cover_small":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/56x56-000000-80-0-0.jpg","cover_medium":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/250x250-000000-80-0-0.jpg","cover_big":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/500x500-000000-80-0-0.jpg","cover_xl":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/1000x1000-000000-80-0-0.jpg","md5_image":"5718f7c81c27e0b2417e2a4c45224f8a","tracklist":"https:\/\/api.deezer.com\/album\/302127\/tracks","type":"album"},"type":"track"},{"id":3135555,"readable":true,"title":"Digital
+        Love","title_short":"Digital Love","title_version":"","link":"https:\/\/www.deezer.com\/track\/3135555","duration":301,"rank":738308,"explicit_lyrics":false,"explicit_content_lyrics":0,"explicit_content_cover":0,"preview":"https:\/\/cdnt-preview.dzcdn.net\/api\/1\/1\/1\/e\/c\/0\/1ec8ff31f93acc81ebb93a45c191e219.mp3?hdnea=exp=1769862566~acl=\/api\/1\/1\/1\/e\/c\/0\/1ec8ff31f93acc81ebb93a45c191e219.mp3*~data=user_id=0,application_id=42~hmac=389d79308a676070ae56128bd42330b26d0ba894e6cc50e8d9423cc08663ef23","md5_image":"5718f7c81c27e0b2417e2a4c45224f8a","artist":{"id":27,"name":"Daft
+        Punk","tracklist":"https:\/\/api.deezer.com\/artist\/27\/top?limit=50","type":"artist"},"album":{"id":302127,"title":"Discovery","cover":"https:\/\/api.deezer.com\/album\/302127\/image","cover_small":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/56x56-000000-80-0-0.jpg","cover_medium":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/250x250-000000-80-0-0.jpg","cover_big":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/500x500-000000-80-0-0.jpg","cover_xl":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/1000x1000-000000-80-0-0.jpg","md5_image":"5718f7c81c27e0b2417e2a4c45224f8a","tracklist":"https:\/\/api.deezer.com\/album\/302127\/tracks","type":"album"},"type":"track"},{"id":3135556,"readable":true,"title":"Harder,
+        Better, Faster, Stronger","title_short":"Harder, Better, Faster, Stronger","title_version":"","link":"https:\/\/www.deezer.com\/track\/3135556","duration":226,"rank":814839,"explicit_lyrics":false,"explicit_content_lyrics":0,"explicit_content_cover":0,"preview":"https:\/\/cdnt-preview.dzcdn.net\/api\/1\/1\/6\/a\/2\/0\/6a2c0a5670afe821e08fc5154909534a.mp3?hdnea=exp=1769862566~acl=\/api\/1\/1\/6\/a\/2\/0\/6a2c0a5670afe821e08fc5154909534a.mp3*~data=user_id=0,application_id=42~hmac=5f0d5762ca979159f9ba801cf406bc1cdd4547d611e180f4d70c8cfbcb77a5bc","md5_image":"5718f7c81c27e0b2417e2a4c45224f8a","artist":{"id":27,"name":"Daft
+        Punk","tracklist":"https:\/\/api.deezer.com\/artist\/27\/top?limit=50","type":"artist"},"album":{"id":302127,"title":"Discovery","cover":"https:\/\/api.deezer.com\/album\/302127\/image","cover_small":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/56x56-000000-80-0-0.jpg","cover_medium":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/250x250-000000-80-0-0.jpg","cover_big":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/500x500-000000-80-0-0.jpg","cover_xl":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/1000x1000-000000-80-0-0.jpg","md5_image":"5718f7c81c27e0b2417e2a4c45224f8a","tracklist":"https:\/\/api.deezer.com\/album\/302127\/tracks","type":"album"},"type":"track"},{"id":3135557,"readable":true,"title":"Crescendolls","title_short":"Crescendolls","title_version":"","link":"https:\/\/www.deezer.com\/track\/3135557","duration":211,"rank":599484,"explicit_lyrics":false,"explicit_content_lyrics":0,"explicit_content_cover":0,"preview":"https:\/\/cdnt-preview.dzcdn.net\/api\/1\/1\/1\/f\/6\/0\/1f65f58dc3cfa276ac6a1ee6f2ffac20.mp3?hdnea=exp=1769862566~acl=\/api\/1\/1\/1\/f\/6\/0\/1f65f58dc3cfa276ac6a1ee6f2ffac20.mp3*~data=user_id=0,application_id=42~hmac=a48b1e1a18680426c7bc19089a09b001c6c1d9b6bde8abc4aafb601a34834d69","md5_image":"5718f7c81c27e0b2417e2a4c45224f8a","artist":{"id":27,"name":"Daft
+        Punk","tracklist":"https:\/\/api.deezer.com\/artist\/27\/top?limit=50","type":"artist"},"album":{"id":302127,"title":"Discovery","cover":"https:\/\/api.deezer.com\/album\/302127\/image","cover_small":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/56x56-000000-80-0-0.jpg","cover_medium":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/250x250-000000-80-0-0.jpg","cover_big":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/500x500-000000-80-0-0.jpg","cover_xl":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/1000x1000-000000-80-0-0.jpg","md5_image":"5718f7c81c27e0b2417e2a4c45224f8a","tracklist":"https:\/\/api.deezer.com\/album\/302127\/tracks","type":"album"},"type":"track"},{"id":3135558,"readable":true,"title":"Nightvision","title_short":"Nightvision","title_version":"","link":"https:\/\/www.deezer.com\/track\/3135558","duration":104,"rank":564752,"explicit_lyrics":false,"explicit_content_lyrics":6,"explicit_content_cover":0,"preview":"https:\/\/cdnt-preview.dzcdn.net\/api\/1\/1\/c\/0\/6\/0\/c063dbb3b8f2af8dac3e88950f2e38b0.mp3?hdnea=exp=1769862566~acl=\/api\/1\/1\/c\/0\/6\/0\/c063dbb3b8f2af8dac3e88950f2e38b0.mp3*~data=user_id=0,application_id=42~hmac=881c8f5500a0631ae02a5dabc90c472859635757dff5515b9ba916b78c9df7fd","md5_image":"5718f7c81c27e0b2417e2a4c45224f8a","artist":{"id":27,"name":"Daft
+        Punk","tracklist":"https:\/\/api.deezer.com\/artist\/27\/top?limit=50","type":"artist"},"album":{"id":302127,"title":"Discovery","cover":"https:\/\/api.deezer.com\/album\/302127\/image","cover_small":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/56x56-000000-80-0-0.jpg","cover_medium":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/250x250-000000-80-0-0.jpg","cover_big":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/500x500-000000-80-0-0.jpg","cover_xl":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/1000x1000-000000-80-0-0.jpg","md5_image":"5718f7c81c27e0b2417e2a4c45224f8a","tracklist":"https:\/\/api.deezer.com\/album\/302127\/tracks","type":"album"},"type":"track"},{"id":3135559,"readable":true,"title":"Superheroes","title_short":"Superheroes","title_version":"","link":"https:\/\/www.deezer.com\/track\/3135559","duration":237,"rank":604787,"explicit_lyrics":false,"explicit_content_lyrics":0,"explicit_content_cover":0,"preview":"https:\/\/cdnt-preview.dzcdn.net\/api\/1\/1\/1\/b\/c\/0\/1bc57c07bfaf6a265e06ce9574390e0e.mp3?hdnea=exp=1769862566~acl=\/api\/1\/1\/1\/b\/c\/0\/1bc57c07bfaf6a265e06ce9574390e0e.mp3*~data=user_id=0,application_id=42~hmac=b57acc05eb2361a46eb305995886c5c2ee8b9c41fa77cfe535829b4253ec1c30","md5_image":"5718f7c81c27e0b2417e2a4c45224f8a","artist":{"id":27,"name":"Daft
+        Punk","tracklist":"https:\/\/api.deezer.com\/artist\/27\/top?limit=50","type":"artist"},"album":{"id":302127,"title":"Discovery","cover":"https:\/\/api.deezer.com\/album\/302127\/image","cover_small":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/56x56-000000-80-0-0.jpg","cover_medium":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/250x250-000000-80-0-0.jpg","cover_big":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/500x500-000000-80-0-0.jpg","cover_xl":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/1000x1000-000000-80-0-0.jpg","md5_image":"5718f7c81c27e0b2417e2a4c45224f8a","tracklist":"https:\/\/api.deezer.com\/album\/302127\/tracks","type":"album"},"type":"track"},{"id":3135560,"readable":true,"title":"High
+        Life","title_short":"High Life","title_version":"","link":"https:\/\/www.deezer.com\/track\/3135560","duration":201,"rank":588595,"explicit_lyrics":false,"explicit_content_lyrics":0,"explicit_content_cover":0,"preview":"https:\/\/cdnt-preview.dzcdn.net\/api\/1\/1\/e\/e\/a\/0\/eea4fd9467e697d503998dff44ceeaa3.mp3?hdnea=exp=1769862566~acl=\/api\/1\/1\/e\/e\/a\/0\/eea4fd9467e697d503998dff44ceeaa3.mp3*~data=user_id=0,application_id=42~hmac=627c6069003b19ea903cbdf1d87074a2f6b469906406f4de214b7b93a5286e94","md5_image":"5718f7c81c27e0b2417e2a4c45224f8a","artist":{"id":27,"name":"Daft
+        Punk","tracklist":"https:\/\/api.deezer.com\/artist\/27\/top?limit=50","type":"artist"},"album":{"id":302127,"title":"Discovery","cover":"https:\/\/api.deezer.com\/album\/302127\/image","cover_small":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/56x56-000000-80-0-0.jpg","cover_medium":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/250x250-000000-80-0-0.jpg","cover_big":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/500x500-000000-80-0-0.jpg","cover_xl":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/1000x1000-000000-80-0-0.jpg","md5_image":"5718f7c81c27e0b2417e2a4c45224f8a","tracklist":"https:\/\/api.deezer.com\/album\/302127\/tracks","type":"album"},"type":"track"},{"id":3135561,"readable":true,"title":"Something
+        About Us","title_short":"Something About Us","title_version":"","link":"https:\/\/www.deezer.com\/track\/3135561","duration":232,"rank":764640,"explicit_lyrics":false,"explicit_content_lyrics":6,"explicit_content_cover":0,"preview":"https:\/\/cdnt-preview.dzcdn.net\/api\/1\/1\/c\/f\/f\/0\/cff7c95e11ba9f6ac3ff0401a81df4f5.mp3?hdnea=exp=1769862566~acl=\/api\/1\/1\/c\/f\/f\/0\/cff7c95e11ba9f6ac3ff0401a81df4f5.mp3*~data=user_id=0,application_id=42~hmac=a3738c46bd6a4b14739c002a75d7b6c68af55c2a7dda47d19756b0c9cbf16840","md5_image":"5718f7c81c27e0b2417e2a4c45224f8a","artist":{"id":27,"name":"Daft
+        Punk","tracklist":"https:\/\/api.deezer.com\/artist\/27\/top?limit=50","type":"artist"},"album":{"id":302127,"title":"Discovery","cover":"https:\/\/api.deezer.com\/album\/302127\/image","cover_small":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/56x56-000000-80-0-0.jpg","cover_medium":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/250x250-000000-80-0-0.jpg","cover_big":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/500x500-000000-80-0-0.jpg","cover_xl":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/1000x1000-000000-80-0-0.jpg","md5_image":"5718f7c81c27e0b2417e2a4c45224f8a","tracklist":"https:\/\/api.deezer.com\/album\/302127\/tracks","type":"album"},"type":"track"},{"id":3135562,"readable":true,"title":"Voyager","title_short":"Voyager","title_version":"","link":"https:\/\/www.deezer.com\/track\/3135562","duration":227,"rank":739634,"explicit_lyrics":false,"explicit_content_lyrics":0,"explicit_content_cover":0,"preview":"https:\/\/cdnt-preview.dzcdn.net\/api\/1\/1\/b\/c\/9\/0\/bc95bc4a6fdcf3e9b1672229f679eea1.mp3?hdnea=exp=1769862566~acl=\/api\/1\/1\/b\/c\/9\/0\/bc95bc4a6fdcf3e9b1672229f679eea1.mp3*~data=user_id=0,application_id=42~hmac=ead73597dee180c2401de991b52751aef2b5c45c5f6b3a53294c63dff415866c","md5_image":"5718f7c81c27e0b2417e2a4c45224f8a","artist":{"id":27,"name":"Daft
+        Punk","tracklist":"https:\/\/api.deezer.com\/artist\/27\/top?limit=50","type":"artist"},"album":{"id":302127,"title":"Discovery","cover":"https:\/\/api.deezer.com\/album\/302127\/image","cover_small":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/56x56-000000-80-0-0.jpg","cover_medium":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/250x250-000000-80-0-0.jpg","cover_big":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/500x500-000000-80-0-0.jpg","cover_xl":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/1000x1000-000000-80-0-0.jpg","md5_image":"5718f7c81c27e0b2417e2a4c45224f8a","tracklist":"https:\/\/api.deezer.com\/album\/302127\/tracks","type":"album"},"type":"track"},{"id":3135563,"readable":true,"title":"Veridis
+        Quo","title_short":"Veridis Quo","title_version":"","link":"https:\/\/www.deezer.com\/track\/3135563","duration":345,"rank":928445,"explicit_lyrics":false,"explicit_content_lyrics":0,"explicit_content_cover":0,"preview":"https:\/\/cdnt-preview.dzcdn.net\/api\/1\/1\/6\/4\/5\/0\/6456b666c0b1d4537e34d71e5cbd098c.mp3?hdnea=exp=1769862566~acl=\/api\/1\/1\/6\/4\/5\/0\/6456b666c0b1d4537e34d71e5cbd098c.mp3*~data=user_id=0,application_id=42~hmac=a9e05ada9d7d7fd69d99ddcf96cde83651c83adc98af1865ec8f5b69987dd55a","md5_image":"5718f7c81c27e0b2417e2a4c45224f8a","artist":{"id":27,"name":"Daft
+        Punk","tracklist":"https:\/\/api.deezer.com\/artist\/27\/top?limit=50","type":"artist"},"album":{"id":302127,"title":"Discovery","cover":"https:\/\/api.deezer.com\/album\/302127\/image","cover_small":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/56x56-000000-80-0-0.jpg","cover_medium":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/250x250-000000-80-0-0.jpg","cover_big":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/500x500-000000-80-0-0.jpg","cover_xl":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/1000x1000-000000-80-0-0.jpg","md5_image":"5718f7c81c27e0b2417e2a4c45224f8a","tracklist":"https:\/\/api.deezer.com\/album\/302127\/tracks","type":"album"},"type":"track"},{"id":3135564,"readable":true,"title":"Short
+        Circuit","title_short":"Short Circuit","title_version":"","link":"https:\/\/www.deezer.com\/track\/3135564","duration":206,"rank":516356,"explicit_lyrics":false,"explicit_content_lyrics":0,"explicit_content_cover":0,"preview":"https:\/\/cdnt-preview.dzcdn.net\/api\/1\/1\/4\/1\/3\/0\/413592fd246163564e5416fb72f8c831.mp3?hdnea=exp=1769862566~acl=\/api\/1\/1\/4\/1\/3\/0\/413592fd246163564e5416fb72f8c831.mp3*~data=user_id=0,application_id=42~hmac=5f2199fc6d3388bda6500e45d8f0694b9dfb634c0f6816e329ad98fac341d1ee","md5_image":"5718f7c81c27e0b2417e2a4c45224f8a","artist":{"id":27,"name":"Daft
+        Punk","tracklist":"https:\/\/api.deezer.com\/artist\/27\/top?limit=50","type":"artist"},"album":{"id":302127,"title":"Discovery","cover":"https:\/\/api.deezer.com\/album\/302127\/image","cover_small":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/56x56-000000-80-0-0.jpg","cover_medium":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/250x250-000000-80-0-0.jpg","cover_big":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/500x500-000000-80-0-0.jpg","cover_xl":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/1000x1000-000000-80-0-0.jpg","md5_image":"5718f7c81c27e0b2417e2a4c45224f8a","tracklist":"https:\/\/api.deezer.com\/album\/302127\/tracks","type":"album"},"type":"track"},{"id":3135565,"readable":true,"title":"Face
+        to Face","title_short":"Face to Face","title_version":"","link":"https:\/\/www.deezer.com\/track\/3135565","duration":240,"rank":637646,"explicit_lyrics":false,"explicit_content_lyrics":0,"explicit_content_cover":0,"preview":"https:\/\/cdnt-preview.dzcdn.net\/api\/1\/1\/b\/c\/5\/0\/bc5ffa003d9ccf020a633083738c6ae4.mp3?hdnea=exp=1769862566~acl=\/api\/1\/1\/b\/c\/5\/0\/bc5ffa003d9ccf020a633083738c6ae4.mp3*~data=user_id=0,application_id=42~hmac=a4bf3fe206424a025f7d12c4255c433b2826161eeb72f8a5fdb2d125e3a905c4","md5_image":"5718f7c81c27e0b2417e2a4c45224f8a","artist":{"id":27,"name":"Daft
+        Punk","tracklist":"https:\/\/api.deezer.com\/artist\/27\/top?limit=50","type":"artist"},"album":{"id":302127,"title":"Discovery","cover":"https:\/\/api.deezer.com\/album\/302127\/image","cover_small":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/56x56-000000-80-0-0.jpg","cover_medium":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/250x250-000000-80-0-0.jpg","cover_big":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/500x500-000000-80-0-0.jpg","cover_xl":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/1000x1000-000000-80-0-0.jpg","md5_image":"5718f7c81c27e0b2417e2a4c45224f8a","tracklist":"https:\/\/api.deezer.com\/album\/302127\/tracks","type":"album"},"type":"track"},{"id":3135566,"readable":true,"title":"Too
+        Long","title_short":"Too Long","title_version":"","link":"https:\/\/www.deezer.com\/track\/3135566","duration":600,"rank":581648,"explicit_lyrics":false,"explicit_content_lyrics":0,"explicit_content_cover":0,"preview":"https:\/\/cdnt-preview.dzcdn.net\/api\/1\/1\/8\/f\/e\/0\/8fe6827c48cc62fb82fe8e741b0534f4.mp3?hdnea=exp=1769862566~acl=\/api\/1\/1\/8\/f\/e\/0\/8fe6827c48cc62fb82fe8e741b0534f4.mp3*~data=user_id=0,application_id=42~hmac=777dd5f47ac8cece1eca6e748c06afe4ff0b4897f5fc510f8ddfcb2fd7455465","md5_image":"5718f7c81c27e0b2417e2a4c45224f8a","artist":{"id":27,"name":"Daft
+        Punk","tracklist":"https:\/\/api.deezer.com\/artist\/27\/top?limit=50","type":"artist"},"album":{"id":302127,"title":"Discovery","cover":"https:\/\/api.deezer.com\/album\/302127\/image","cover_small":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/56x56-000000-80-0-0.jpg","cover_medium":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/250x250-000000-80-0-0.jpg","cover_big":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/500x500-000000-80-0-0.jpg","cover_xl":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/1000x1000-000000-80-0-0.jpg","md5_image":"5718f7c81c27e0b2417e2a4c45224f8a","tracklist":"https:\/\/api.deezer.com\/album\/302127\/tracks","type":"album"},"type":"track"}]}}'
+    headers:
+      Access-Control-Allow-Credentials:
+      - 'true'
+      Access-Control-Allow-Headers:
+      - X-Requested-With, Content-Type, Authorization, Origin, Accept, Accept-Encoding
+      Access-Control-Allow-Methods:
+      - POST, GET, OPTIONS, DELETE, PUT
+      Access-Control-Expose-Headers:
+      - Location
+      Access-Control-Max-Age:
+      - '86400'
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json; charset=utf-8
+      Date:
+      - Sat, 31 Jan 2026 12:14:26 GMT
+      Server:
+      - Apache
+      Vary:
+      - Accept-Encoding
+      content-length:
+      - '23147'
+      p3p:
+      - policyref="/w3c/p3p.xml" CP="IDC DSP COR CURa ADMa OUR IND PHY ONL COM STA"
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      x-content-type-options:
+      - nosniff
+      x-host:
+      - blm-web-173
+      x-org:
+      - FR
+    status:
+      code: 200
+      message: OK
+- request:
+    body: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Host:
+      - api.deezer.com
+    method: GET
+    uri: https://api.deezer.com/track/3135553
+  response:
+    body:
+      string: '{"id":3135553,"readable":true,"title":"One More Time","title_short":"One
+        More Time","title_version":"","isrc":"GBDUW0000053","link":"https:\/\/www.deezer.com\/track\/3135553","share":"https:\/\/www.deezer.com\/track\/3135553?utm_source=deezer&utm_content=track-3135553&utm_term=0_1769861666&utm_medium=web","duration":320,"track_position":1,"disk_number":1,"rank":895695,"release_date":"2001-03-12","explicit_lyrics":false,"explicit_content_lyrics":0,"explicit_content_cover":0,"preview":"https:\/\/cdnt-preview.dzcdn.net\/api\/1\/1\/f\/8\/c\/0\/f8c5dc3837912dba37c9a1ab3170cc3f.mp3?hdnea=exp=1769862566~acl=\/api\/1\/1\/f\/8\/c\/0\/f8c5dc3837912dba37c9a1ab3170cc3f.mp3*~data=user_id=0,application_id=42~hmac=dcdfccb5e21bdaebbca3286ff05b3cb1a70f1c5ca05dd85289d4a39b459d870a","bpm":0,"gain":-12.8,"available_countries":["AE","AF","AG","AI","AL","AM","AO","AQ","AR","AS","AT","AU","AZ","BA","BB","BD","BE","BF","BG","BH","BI","BJ","BN","BO","BQ","BR","BT","BV","BW","BY","CA","CC","CD","CF","CG","CH","CI","CK","CL","CM","CN","CO","CR","CV","CW","CX","CY","CZ","DE","DJ","DK","DM","DO","DZ","EC","EE","EG","EH","ER","ES","ET","FI","FJ","FK","FM","FR","GA","GB","GD","GE","GH","GM","GN","GQ","GR","GS","GT","GU","GW","HK","HM","HN","HR","HU","ID","IE","IL","IN","IO","IQ","IS","IT","JM","JO","JP","KE","KG","KH","KI","KM","KN","KR","KW","KY","KZ","LA","LB","LC","LK","LR","LS","LT","LU","LV","LY","MA","MD","ME","MG","MH","MK","ML","MM","MN","MP","MR","MS","MT","MU","MV","MW","MX","MY","MZ","NA","NE","NF","NG","NI","NL","NO","NP","NR","NU","NZ","OM","PA","PE","PG","PH","PK","PL","PN","PS","PT","PW","PY","QA","RO","RS","RU","RW","SA","SB","SC","SD","SE","SG","SI","SJ","SK","SL","SN","SO","SS","ST","SV","SX","SZ","TC","TD","TG","TH","TJ","TK","TL","TM","TN","TO","TR","TV","TW","TZ","UA","UG","US","UY","UZ","VC","VE","VG","VI","VN","VU","WS","YE","ZA","ZM","ZW"],"contributors":[{"id":27,"name":"Daft
+        Punk","link":"https:\/\/www.deezer.com\/artist\/27","share":"https:\/\/www.deezer.com\/artist\/27?utm_source=deezer&utm_content=artist-27&utm_term=0_1769861666&utm_medium=web","picture":"https:\/\/api.deezer.com\/artist\/27\/image","picture_small":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/56x56-000000-80-0-0.jpg","picture_medium":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/250x250-000000-80-0-0.jpg","picture_big":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/500x500-000000-80-0-0.jpg","picture_xl":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/1000x1000-000000-80-0-0.jpg","radio":true,"tracklist":"https:\/\/api.deezer.com\/artist\/27\/top?limit=50","type":"artist","role":"Main"}],"md5_image":"5718f7c81c27e0b2417e2a4c45224f8a","track_token":"AAAAAWl98iJpfwtiBezCEQlIADGu0m47AyrP4Pye18_piIXuI4HRAVz-IH6BanK3gSUZn0QSo96vLAvVznlHr4BBfrIq95lX8lCZa3hzt3Kshod2BoNQSetLLlYrmvqEAaRLOZlomhUdU-vQRTQE9RPcez-PBe_esq5TBebSVnww3pHJvkCBL-H-sF6GrMMYftFid2pgihgNj1a7Q-nSw9i0xTE1azyA0oXMaJ97bmCYJE2I7yrpZy26ABE6-lGF-LQo1ufIkBGpOyqFUkuCv8tTWNHJxvliEGpqoI7WZZ3nPyxAsM1FQutxNqFCfsLN7Nj-mssEK8d0Lj0wR1kGefuWNvPlSPGfWiQYTuVqp5zaEozDo784BuJuDlz8HwdhJRFwkQqf","artist":{"id":27,"name":"Daft
+        Punk","link":"https:\/\/www.deezer.com\/artist\/27","share":"https:\/\/www.deezer.com\/artist\/27?utm_source=deezer&utm_content=artist-27&utm_term=0_1769861666&utm_medium=web","picture":"https:\/\/api.deezer.com\/artist\/27\/image","picture_small":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/56x56-000000-80-0-0.jpg","picture_medium":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/250x250-000000-80-0-0.jpg","picture_big":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/500x500-000000-80-0-0.jpg","picture_xl":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/1000x1000-000000-80-0-0.jpg","radio":true,"tracklist":"https:\/\/api.deezer.com\/artist\/27\/top?limit=50","type":"artist"},"album":{"id":302127,"title":"Discovery","link":"https:\/\/www.deezer.com\/album\/302127","cover":"https:\/\/api.deezer.com\/album\/302127\/image","cover_small":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/56x56-000000-80-0-0.jpg","cover_medium":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/250x250-000000-80-0-0.jpg","cover_big":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/500x500-000000-80-0-0.jpg","cover_xl":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/1000x1000-000000-80-0-0.jpg","md5_image":"5718f7c81c27e0b2417e2a4c45224f8a","release_date":"2001-03-07","tracklist":"https:\/\/api.deezer.com\/album\/302127\/tracks","type":"album"},"type":"track"}'
+    headers:
+      Access-Control-Allow-Credentials:
+      - 'true'
+      Access-Control-Allow-Headers:
+      - X-Requested-With, Content-Type, Authorization, Origin, Accept, Accept-Encoding
+      Access-Control-Allow-Methods:
+      - POST, GET, OPTIONS, DELETE, PUT
+      Access-Control-Expose-Headers:
+      - Location
+      Access-Control-Max-Age:
+      - '86400'
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json; charset=utf-8
+      Date:
+      - Sat, 31 Jan 2026 12:14:26 GMT
+      Server:
+      - Apache
+      Vary:
+      - Accept-Encoding
+      content-length:
+      - '4862'
+      p3p:
+      - policyref="/w3c/p3p.xml" CP="IDC DSP COR CURa ADMa OUR IND PHY ONL COM STA"
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      x-content-type-options:
+      - nosniff
+      x-host:
+      - blm-web-154
+      x-org:
+      - FR
+    status:
+      code: 200
+      message: OK
+- request:
+    body: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Host:
+      - api.deezer.com
+    method: GET
+    uri: https://api.deezer.com/track/3135554
+  response:
+    body:
+      string: '{"id":3135554,"readable":true,"title":"Aerodynamic","title_short":"Aerodynamic","title_version":"","isrc":"GBDUW0000057","link":"https:\/\/www.deezer.com\/track\/3135554","share":"https:\/\/www.deezer.com\/track\/3135554?utm_source=deezer&utm_content=track-3135554&utm_term=0_1769861666&utm_medium=web","duration":212,"track_position":2,"disk_number":1,"rank":737732,"release_date":"2001-03-12","explicit_lyrics":false,"explicit_content_lyrics":6,"explicit_content_cover":0,"preview":"https:\/\/cdnt-preview.dzcdn.net\/api\/1\/1\/6\/9\/9\/0\/699d41611cf0280f0a55c8ba4a372c14.mp3?hdnea=exp=1769862566~acl=\/api\/1\/1\/6\/9\/9\/0\/699d41611cf0280f0a55c8ba4a372c14.mp3*~data=user_id=0,application_id=42~hmac=0d142e97befc2dbfe847f8b41841b2d77b3abb195b200678d08cf21760af3e73","bpm":0,"gain":-11.5,"available_countries":["AE","AF","AG","AI","AL","AM","AO","AQ","AR","AS","AT","AU","AZ","BA","BB","BD","BE","BF","BG","BH","BI","BJ","BN","BO","BQ","BR","BT","BV","BW","BY","CA","CC","CD","CF","CG","CH","CI","CK","CL","CM","CN","CO","CR","CV","CW","CX","CY","CZ","DE","DJ","DK","DM","DO","DZ","EC","EE","EG","EH","ER","ES","ET","FI","FJ","FK","FM","FR","GA","GB","GD","GE","GH","GM","GN","GQ","GR","GS","GT","GU","GW","HK","HM","HN","HR","HU","ID","IE","IL","IN","IO","IQ","IS","IT","JM","JO","JP","KE","KG","KH","KI","KM","KN","KR","KW","KY","KZ","LA","LB","LC","LK","LR","LS","LT","LU","LV","LY","MA","MD","ME","MG","MH","MK","ML","MM","MN","MP","MR","MS","MT","MU","MV","MW","MX","MY","MZ","NA","NE","NF","NG","NI","NL","NO","NP","NR","NU","NZ","OM","PA","PE","PG","PH","PK","PL","PN","PS","PT","PW","PY","QA","RO","RS","RU","RW","SA","SB","SC","SD","SE","SG","SI","SJ","SK","SL","SN","SO","SS","ST","SV","SX","SZ","TC","TD","TG","TH","TJ","TK","TL","TM","TN","TO","TR","TV","TW","TZ","UA","UG","US","UY","UZ","VC","VE","VG","VI","VN","VU","WS","YE","ZA","ZM","ZW"],"contributors":[{"id":27,"name":"Daft
+        Punk","link":"https:\/\/www.deezer.com\/artist\/27","share":"https:\/\/www.deezer.com\/artist\/27?utm_source=deezer&utm_content=artist-27&utm_term=0_1769861666&utm_medium=web","picture":"https:\/\/api.deezer.com\/artist\/27\/image","picture_small":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/56x56-000000-80-0-0.jpg","picture_medium":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/250x250-000000-80-0-0.jpg","picture_big":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/500x500-000000-80-0-0.jpg","picture_xl":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/1000x1000-000000-80-0-0.jpg","radio":true,"tracklist":"https:\/\/api.deezer.com\/artist\/27\/top?limit=50","type":"artist","role":"Main"}],"md5_image":"5718f7c81c27e0b2417e2a4c45224f8a","track_token":"AAAAAWl98iJpfwtijSfQ4xcnqBBUoxthFarWaOHc2ty4iI0swt301EkyfurWKfPEHZje5m2LL9UWY4ZkMtfi1G2Ojb52gQTryinKd3ppbD6mzSRHpzCouR2abRzYdBh3uO_lvwOyMFwZjeVN4JmWcAgdHCFkyoWeZF0KauJJSprAx0wvaG1wr3VyQA4C1fdfZkRx-tYiyoFdmP1DjOx4-bwCwV-Uh2EXcHpG1n1TdKY7oqRLu6siz_CvRv66gNFOvFfS4U_yLvxGCLKCX5esMhGDdzOI1IQ7VwF2Pt2jKnkIAYZBrxpyKntR3VSpy7X0A2JmJCvuNXUaSSGKCuftGBHosKPyDzC3R_ggMDGeZY2_gaaFE3pheRw1ir0kIkPfZrvmgwDa","artist":{"id":27,"name":"Daft
+        Punk","link":"https:\/\/www.deezer.com\/artist\/27","share":"https:\/\/www.deezer.com\/artist\/27?utm_source=deezer&utm_content=artist-27&utm_term=0_1769861666&utm_medium=web","picture":"https:\/\/api.deezer.com\/artist\/27\/image","picture_small":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/56x56-000000-80-0-0.jpg","picture_medium":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/250x250-000000-80-0-0.jpg","picture_big":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/500x500-000000-80-0-0.jpg","picture_xl":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/1000x1000-000000-80-0-0.jpg","radio":true,"tracklist":"https:\/\/api.deezer.com\/artist\/27\/top?limit=50","type":"artist"},"album":{"id":302127,"title":"Discovery","link":"https:\/\/www.deezer.com\/album\/302127","cover":"https:\/\/api.deezer.com\/album\/302127\/image","cover_small":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/56x56-000000-80-0-0.jpg","cover_medium":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/250x250-000000-80-0-0.jpg","cover_big":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/500x500-000000-80-0-0.jpg","cover_xl":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/1000x1000-000000-80-0-0.jpg","md5_image":"5718f7c81c27e0b2417e2a4c45224f8a","release_date":"2001-03-07","tracklist":"https:\/\/api.deezer.com\/album\/302127\/tracks","type":"album"},"type":"track"}'
+    headers:
+      Access-Control-Allow-Credentials:
+      - 'true'
+      Access-Control-Allow-Headers:
+      - X-Requested-With, Content-Type, Authorization, Origin, Accept, Accept-Encoding
+      Access-Control-Allow-Methods:
+      - POST, GET, OPTIONS, DELETE, PUT
+      Access-Control-Expose-Headers:
+      - Location
+      Access-Control-Max-Age:
+      - '86400'
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json; charset=utf-8
+      Date:
+      - Sat, 31 Jan 2026 12:14:26 GMT
+      Server:
+      - Apache
+      Vary:
+      - Accept-Encoding
+      content-length:
+      - '4858'
+      p3p:
+      - policyref="/w3c/p3p.xml" CP="IDC DSP COR CURa ADMa OUR IND PHY ONL COM STA"
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      x-content-type-options:
+      - nosniff
+      x-host:
+      - blm-web-110
+      x-org:
+      - FR
+    status:
+      code: 200
+      message: OK
+- request:
+    body: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Host:
+      - api.deezer.com
+    method: GET
+    uri: https://api.deezer.com/track/3135555
+  response:
+    body:
+      string: '{"id":3135555,"readable":true,"title":"Digital Love","title_short":"Digital
+        Love","title_version":"","isrc":"GBDUW0000058","link":"https:\/\/www.deezer.com\/track\/3135555","share":"https:\/\/www.deezer.com\/track\/3135555?utm_source=deezer&utm_content=track-3135555&utm_term=0_1769861666&utm_medium=web","duration":301,"track_position":3,"disk_number":1,"rank":738308,"release_date":"2001-03-12","explicit_lyrics":false,"explicit_content_lyrics":0,"explicit_content_cover":0,"preview":"https:\/\/cdnt-preview.dzcdn.net\/api\/1\/1\/1\/e\/c\/0\/1ec8ff31f93acc81ebb93a45c191e219.mp3?hdnea=exp=1769862566~acl=\/api\/1\/1\/1\/e\/c\/0\/1ec8ff31f93acc81ebb93a45c191e219.mp3*~data=user_id=0,application_id=42~hmac=389d79308a676070ae56128bd42330b26d0ba894e6cc50e8d9423cc08663ef23","bpm":0,"gain":-12.6,"available_countries":["AE","AF","AG","AI","AL","AM","AO","AQ","AR","AS","AT","AU","AZ","BA","BB","BD","BE","BF","BG","BH","BI","BJ","BN","BO","BQ","BR","BT","BV","BW","BY","CA","CC","CD","CF","CG","CH","CI","CK","CL","CM","CN","CO","CR","CV","CW","CX","CY","CZ","DE","DJ","DK","DM","DO","DZ","EC","EE","EG","EH","ER","ES","ET","FI","FJ","FK","FM","FR","GA","GB","GD","GE","GH","GM","GN","GQ","GR","GS","GT","GU","GW","HK","HM","HN","HR","HU","ID","IE","IL","IN","IO","IQ","IS","IT","JM","JO","JP","KE","KG","KH","KI","KM","KN","KR","KW","KY","KZ","LA","LB","LC","LK","LR","LS","LT","LU","LV","LY","MA","MD","ME","MG","MH","MK","ML","MM","MN","MP","MR","MS","MT","MU","MV","MW","MX","MY","MZ","NA","NE","NF","NG","NI","NL","NO","NP","NR","NU","NZ","OM","PA","PE","PG","PH","PK","PL","PN","PS","PT","PW","PY","QA","RO","RS","RU","RW","SA","SB","SC","SD","SE","SG","SI","SJ","SK","SL","SN","SO","SS","ST","SV","SX","SZ","TC","TD","TG","TH","TJ","TK","TL","TM","TN","TO","TR","TV","TW","TZ","UA","UG","US","UY","UZ","VC","VE","VG","VI","VN","VU","WS","YE","ZA","ZM","ZW"],"contributors":[{"id":27,"name":"Daft
+        Punk","link":"https:\/\/www.deezer.com\/artist\/27","share":"https:\/\/www.deezer.com\/artist\/27?utm_source=deezer&utm_content=artist-27&utm_term=0_1769861666&utm_medium=web","picture":"https:\/\/api.deezer.com\/artist\/27\/image","picture_small":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/56x56-000000-80-0-0.jpg","picture_medium":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/250x250-000000-80-0-0.jpg","picture_big":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/500x500-000000-80-0-0.jpg","picture_xl":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/1000x1000-000000-80-0-0.jpg","radio":true,"tracklist":"https:\/\/api.deezer.com\/artist\/27\/top?limit=50","type":"artist","role":"Main"}],"md5_image":"5718f7c81c27e0b2417e2a4c45224f8a","track_token":"AAAAAWl98iJpfwtiSA917zyvLzuyMx-p8scv8bx7RNBxlLlGKaEvavqp5hga5ibHHxOoQPKGWZWh9UEbO-VRuByAQgRl8Apy4_CsLl1IcK7obruOZpA30m81CkYbCe40FFXjcNwCYUHFDKzV3PP3Q9-YOpvoi4j1mDvnNWooZAp_YQ0r7CtHBKCBu_BpJhcHrkuAH7JWOp9b_ff50vVHXgNltjZnq3Xohe-AC-bKjzscS4vdp3e4Xap3JPm_Q8qFFxiMj44tSOGLA9ZkhyT2I9GAlQMEMeonqxsGkw7zv_NpSgNbfyWHvAjpkMDJiQIC3c35MJ8TpT8wd1OE51R206PzeSDq-rK0GSw_T1QryLh7yf8o0DDIhARqOA6c3-JM1Y633rvc","artist":{"id":27,"name":"Daft
+        Punk","link":"https:\/\/www.deezer.com\/artist\/27","share":"https:\/\/www.deezer.com\/artist\/27?utm_source=deezer&utm_content=artist-27&utm_term=0_1769861666&utm_medium=web","picture":"https:\/\/api.deezer.com\/artist\/27\/image","picture_small":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/56x56-000000-80-0-0.jpg","picture_medium":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/250x250-000000-80-0-0.jpg","picture_big":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/500x500-000000-80-0-0.jpg","picture_xl":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/1000x1000-000000-80-0-0.jpg","radio":true,"tracklist":"https:\/\/api.deezer.com\/artist\/27\/top?limit=50","type":"artist"},"album":{"id":302127,"title":"Discovery","link":"https:\/\/www.deezer.com\/album\/302127","cover":"https:\/\/api.deezer.com\/album\/302127\/image","cover_small":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/56x56-000000-80-0-0.jpg","cover_medium":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/250x250-000000-80-0-0.jpg","cover_big":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/500x500-000000-80-0-0.jpg","cover_xl":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/1000x1000-000000-80-0-0.jpg","md5_image":"5718f7c81c27e0b2417e2a4c45224f8a","release_date":"2001-03-07","tracklist":"https:\/\/api.deezer.com\/album\/302127\/tracks","type":"album"},"type":"track"}'
+    headers:
+      Access-Control-Allow-Credentials:
+      - 'true'
+      Access-Control-Allow-Headers:
+      - X-Requested-With, Content-Type, Authorization, Origin, Accept, Accept-Encoding
+      Access-Control-Allow-Methods:
+      - POST, GET, OPTIONS, DELETE, PUT
+      Access-Control-Expose-Headers:
+      - Location
+      Access-Control-Max-Age:
+      - '86400'
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json; charset=utf-8
+      Date:
+      - Sat, 31 Jan 2026 12:14:26 GMT
+      Server:
+      - Apache
+      Vary:
+      - Accept-Encoding
+      content-length:
+      - '4860'
+      p3p:
+      - policyref="/w3c/p3p.xml" CP="IDC DSP COR CURa ADMa OUR IND PHY ONL COM STA"
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      x-content-type-options:
+      - nosniff
+      x-host:
+      - blm-web-118
+      x-org:
+      - FR
+    status:
+      code: 200
+      message: OK
+- request:
+    body: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Host:
+      - api.deezer.com
+    method: GET
+    uri: https://api.deezer.com/track/3135556
+  response:
+    body:
+      string: '{"id":3135556,"readable":true,"title":"Harder, Better, Faster, Stronger","title_short":"Harder,
+        Better, Faster, Stronger","title_version":"","isrc":"GBDUW0000059","link":"https:\/\/www.deezer.com\/track\/3135556","share":"https:\/\/www.deezer.com\/track\/3135556?utm_source=deezer&utm_content=track-3135556&utm_term=0_1769861666&utm_medium=web","duration":226,"track_position":4,"disk_number":1,"rank":814839,"release_date":"2001-03-12","explicit_lyrics":false,"explicit_content_lyrics":0,"explicit_content_cover":0,"preview":"https:\/\/cdnt-preview.dzcdn.net\/api\/1\/1\/6\/a\/2\/0\/6a2c0a5670afe821e08fc5154909534a.mp3?hdnea=exp=1769862566~acl=\/api\/1\/1\/6\/a\/2\/0\/6a2c0a5670afe821e08fc5154909534a.mp3*~data=user_id=0,application_id=42~hmac=5f0d5762ca979159f9ba801cf406bc1cdd4547d611e180f4d70c8cfbcb77a5bc","bpm":0,"gain":-12.4,"available_countries":["AE","AF","AG","AI","AL","AM","AO","AQ","AR","AS","AT","AU","AZ","BA","BB","BD","BE","BF","BG","BH","BI","BJ","BN","BO","BQ","BR","BT","BV","BW","BY","CA","CC","CD","CF","CG","CH","CI","CK","CL","CM","CN","CO","CR","CV","CW","CX","CY","CZ","DE","DJ","DK","DM","DO","DZ","EC","EE","EG","EH","ER","ES","ET","FI","FJ","FK","FM","FR","GA","GB","GD","GE","GH","GM","GN","GQ","GR","GS","GT","GU","GW","HK","HM","HN","HR","HU","ID","IE","IL","IN","IO","IQ","IS","IT","JM","JO","JP","KE","KG","KH","KI","KM","KN","KR","KW","KY","KZ","LA","LB","LC","LK","LR","LS","LT","LU","LV","LY","MA","MD","ME","MG","MH","MK","ML","MM","MN","MP","MR","MS","MT","MU","MV","MW","MX","MY","MZ","NA","NE","NF","NG","NI","NL","NO","NP","NR","NU","NZ","OM","PA","PE","PG","PH","PK","PL","PN","PS","PT","PW","PY","QA","RO","RS","RU","RW","SA","SB","SC","SD","SE","SG","SI","SJ","SK","SL","SN","SO","SS","ST","SV","SX","SZ","TC","TD","TG","TH","TJ","TK","TL","TM","TN","TO","TR","TV","TW","TZ","UA","UG","US","UY","UZ","VC","VE","VG","VI","VN","VU","WS","YE","ZA","ZM","ZW"],"contributors":[{"id":27,"name":"Daft
+        Punk","link":"https:\/\/www.deezer.com\/artist\/27","share":"https:\/\/www.deezer.com\/artist\/27?utm_source=deezer&utm_content=artist-27&utm_term=0_1769861666&utm_medium=web","picture":"https:\/\/api.deezer.com\/artist\/27\/image","picture_small":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/56x56-000000-80-0-0.jpg","picture_medium":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/250x250-000000-80-0-0.jpg","picture_big":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/500x500-000000-80-0-0.jpg","picture_xl":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/1000x1000-000000-80-0-0.jpg","radio":true,"tracklist":"https:\/\/api.deezer.com\/artist\/27\/top?limit=50","type":"artist","role":"Main"}],"md5_image":"5718f7c81c27e0b2417e2a4c45224f8a","track_token":"AAAAAWl98iJpfwtikEADHE2N6V_TzPfpZyrgMGhekVftHHTpXkYaZ9gCViaUa8kipOqkDISNgMiBC9kKcsjxbcUx6Kp85fi2hyqqUEH7d6fQa7oGFQccAX-SnySqvRjg11OOf8S1etf-_cWAs7-uyNqG9uzYtQDnbqizdKhOIahsu-2RFdd4MmV3LeZ-oIe81-cJt1hF6f4djVaeZV7YqULrD1OD7o_AwNf5jBlA0eGvaydCGkPAsP_0hOeTDI0VwTd_0PyQZU1GHENHwLSAufYf3yn_RR78cvhOCHgLRS9f2eigO8eqr_fCRJeInWAQZR9o6jSR73wpfe6T9spDRLwBy6XsPiwllW4io-rnBEdSb9xUMxTn4ii2iKOJdpbOwodpWr4l","artist":{"id":27,"name":"Daft
+        Punk","link":"https:\/\/www.deezer.com\/artist\/27","share":"https:\/\/www.deezer.com\/artist\/27?utm_source=deezer&utm_content=artist-27&utm_term=0_1769861666&utm_medium=web","picture":"https:\/\/api.deezer.com\/artist\/27\/image","picture_small":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/56x56-000000-80-0-0.jpg","picture_medium":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/250x250-000000-80-0-0.jpg","picture_big":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/500x500-000000-80-0-0.jpg","picture_xl":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/1000x1000-000000-80-0-0.jpg","radio":true,"tracklist":"https:\/\/api.deezer.com\/artist\/27\/top?limit=50","type":"artist"},"album":{"id":302127,"title":"Discovery","link":"https:\/\/www.deezer.com\/album\/302127","cover":"https:\/\/api.deezer.com\/album\/302127\/image","cover_small":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/56x56-000000-80-0-0.jpg","cover_medium":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/250x250-000000-80-0-0.jpg","cover_big":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/500x500-000000-80-0-0.jpg","cover_xl":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/1000x1000-000000-80-0-0.jpg","md5_image":"5718f7c81c27e0b2417e2a4c45224f8a","release_date":"2001-03-07","tracklist":"https:\/\/api.deezer.com\/album\/302127\/tracks","type":"album"},"type":"track"}'
+    headers:
+      Access-Control-Allow-Credentials:
+      - 'true'
+      Access-Control-Allow-Headers:
+      - X-Requested-With, Content-Type, Authorization, Origin, Accept, Accept-Encoding
+      Access-Control-Allow-Methods:
+      - POST, GET, OPTIONS, DELETE, PUT
+      Access-Control-Expose-Headers:
+      - Location
+      Access-Control-Max-Age:
+      - '86400'
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json; charset=utf-8
+      Date:
+      - Sat, 31 Jan 2026 12:14:26 GMT
+      Server:
+      - Apache
+      Vary:
+      - Accept-Encoding
+      content-length:
+      - '4900'
+      p3p:
+      - policyref="/w3c/p3p.xml" CP="IDC DSP COR CURa ADMa OUR IND PHY ONL COM STA"
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      x-content-type-options:
+      - nosniff
+      x-host:
+      - blm-web-157
+      x-org:
+      - FR
+    status:
+      code: 200
+      message: OK
+- request:
+    body: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Host:
+      - api.deezer.com
+    method: GET
+    uri: https://api.deezer.com/track/3135557
+  response:
+    body:
+      string: '{"id":3135557,"readable":true,"title":"Crescendolls","title_short":"Crescendolls","title_version":"","isrc":"GBDUW0000060","link":"https:\/\/www.deezer.com\/track\/3135557","share":"https:\/\/www.deezer.com\/track\/3135557?utm_source=deezer&utm_content=track-3135557&utm_term=0_1769861666&utm_medium=web","duration":211,"track_position":5,"disk_number":1,"rank":599484,"release_date":"2001-03-12","explicit_lyrics":false,"explicit_content_lyrics":0,"explicit_content_cover":0,"preview":"https:\/\/cdnt-preview.dzcdn.net\/api\/1\/1\/1\/f\/6\/0\/1f65f58dc3cfa276ac6a1ee6f2ffac20.mp3?hdnea=exp=1769862566~acl=\/api\/1\/1\/1\/f\/6\/0\/1f65f58dc3cfa276ac6a1ee6f2ffac20.mp3*~data=user_id=0,application_id=42~hmac=a48b1e1a18680426c7bc19089a09b001c6c1d9b6bde8abc4aafb601a34834d69","bpm":124.2,"gain":-11.5,"available_countries":["AE","AF","AG","AI","AL","AM","AO","AQ","AR","AS","AT","AU","AZ","BA","BB","BD","BE","BF","BG","BH","BI","BJ","BN","BO","BQ","BR","BT","BV","BW","BY","CA","CC","CD","CF","CG","CH","CI","CK","CL","CM","CN","CO","CR","CV","CW","CX","CY","CZ","DE","DJ","DK","DM","DO","DZ","EC","EE","EG","EH","ER","ES","ET","FI","FJ","FK","FM","FR","GA","GB","GD","GE","GH","GM","GN","GQ","GR","GS","GT","GU","GW","HK","HM","HN","HR","HU","ID","IE","IL","IN","IO","IQ","IS","IT","JM","JO","JP","KE","KG","KH","KI","KM","KN","KR","KW","KY","KZ","LA","LB","LC","LK","LR","LS","LT","LU","LV","LY","MA","MD","ME","MG","MH","MK","ML","MM","MN","MP","MR","MS","MT","MU","MV","MW","MX","MY","MZ","NA","NE","NF","NG","NI","NL","NO","NP","NR","NU","NZ","OM","PA","PE","PG","PH","PK","PL","PN","PS","PT","PW","PY","QA","RO","RS","RU","RW","SA","SB","SC","SD","SE","SG","SI","SJ","SK","SL","SN","SO","SS","ST","SV","SX","SZ","TC","TD","TG","TH","TJ","TK","TL","TM","TN","TO","TR","TV","TW","TZ","UA","UG","US","UY","UZ","VC","VE","VG","VI","VN","VU","WS","YE","ZA","ZM","ZW"],"contributors":[{"id":27,"name":"Daft
+        Punk","link":"https:\/\/www.deezer.com\/artist\/27","share":"https:\/\/www.deezer.com\/artist\/27?utm_source=deezer&utm_content=artist-27&utm_term=0_1769861666&utm_medium=web","picture":"https:\/\/api.deezer.com\/artist\/27\/image","picture_small":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/56x56-000000-80-0-0.jpg","picture_medium":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/250x250-000000-80-0-0.jpg","picture_big":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/500x500-000000-80-0-0.jpg","picture_xl":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/1000x1000-000000-80-0-0.jpg","radio":true,"tracklist":"https:\/\/api.deezer.com\/artist\/27\/top?limit=50","type":"artist","role":"Main"}],"md5_image":"5718f7c81c27e0b2417e2a4c45224f8a","track_token":"AAAAAWl98iJpfwtivomDb_LakSwHJkWYb7rTHduRQxOY8bXmIXU4476ptMHi3KNqbKKT_FBUGtYj97WEArJBjy0y5PrIMqsNsH96DnuhCr4PDwQqjx2iS-LWgPaWL4NpWoVtcD2swSVvEvVfo6P5x4hLGw-H-fhOUs55uhD_0CUxXdNNVAKvki_0C-u4bXatlDi7S_Yi-09stEWe_CxC77qRB1aacjdOd5X1A_2Nloy9XG38AD4hUMJ-3mR70uzczl9Y4UASkcFT-stf5EdyALLfgukcf7L9iyzVe57gk2s34DDCRynE_P1fV7wtsovVynZvtyx-scAzfOQb6CylC-GgB7myhDSMxYmsLwko3pfvp9MbyNKsRTAm2N7qx7M3Z_ucQE7LCxxXnbUIRu_AyZf0cCmxYkn6lLU8CTNS7CW4szTrv3_MWXVhwot5kaXJBb-FMRbA1D6yR0rMPmfCC9jcbcPF6wxlM3A2VA","artist":{"id":27,"name":"Daft
+        Punk","link":"https:\/\/www.deezer.com\/artist\/27","share":"https:\/\/www.deezer.com\/artist\/27?utm_source=deezer&utm_content=artist-27&utm_term=0_1769861666&utm_medium=web","picture":"https:\/\/api.deezer.com\/artist\/27\/image","picture_small":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/56x56-000000-80-0-0.jpg","picture_medium":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/250x250-000000-80-0-0.jpg","picture_big":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/500x500-000000-80-0-0.jpg","picture_xl":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/1000x1000-000000-80-0-0.jpg","radio":true,"tracklist":"https:\/\/api.deezer.com\/artist\/27\/top?limit=50","type":"artist"},"album":{"id":302127,"title":"Discovery","link":"https:\/\/www.deezer.com\/album\/302127","cover":"https:\/\/api.deezer.com\/album\/302127\/image","cover_small":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/56x56-000000-80-0-0.jpg","cover_medium":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/250x250-000000-80-0-0.jpg","cover_big":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/500x500-000000-80-0-0.jpg","cover_xl":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/1000x1000-000000-80-0-0.jpg","md5_image":"5718f7c81c27e0b2417e2a4c45224f8a","release_date":"2001-03-07","tracklist":"https:\/\/api.deezer.com\/album\/302127\/tracks","type":"album"},"type":"track"}'
+    headers:
+      Access-Control-Allow-Credentials:
+      - 'true'
+      Access-Control-Allow-Headers:
+      - X-Requested-With, Content-Type, Authorization, Origin, Accept, Accept-Encoding
+      Access-Control-Allow-Methods:
+      - POST, GET, OPTIONS, DELETE, PUT
+      Access-Control-Expose-Headers:
+      - Location
+      Access-Control-Max-Age:
+      - '86400'
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json; charset=utf-8
+      Date:
+      - Sat, 31 Jan 2026 12:14:26 GMT
+      Server:
+      - Apache
+      Vary:
+      - Accept-Encoding
+      content-length:
+      - '4958'
+      p3p:
+      - policyref="/w3c/p3p.xml" CP="IDC DSP COR CURa ADMa OUR IND PHY ONL COM STA"
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      x-content-type-options:
+      - nosniff
+      x-host:
+      - blm-web-150
+      x-org:
+      - FR
+    status:
+      code: 200
+      message: OK
+- request:
+    body: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Host:
+      - api.deezer.com
+    method: GET
+    uri: https://api.deezer.com/track/3135558
+  response:
+    body:
+      string: '{"id":3135558,"readable":true,"title":"Nightvision","title_short":"Nightvision","title_version":"","isrc":"GBDUW0000061","link":"https:\/\/www.deezer.com\/track\/3135558","share":"https:\/\/www.deezer.com\/track\/3135558?utm_source=deezer&utm_content=track-3135558&utm_term=0_1769861666&utm_medium=web","duration":104,"track_position":6,"disk_number":1,"rank":564752,"release_date":"2001-03-12","explicit_lyrics":false,"explicit_content_lyrics":6,"explicit_content_cover":0,"preview":"https:\/\/cdnt-preview.dzcdn.net\/api\/1\/1\/c\/0\/6\/0\/c063dbb3b8f2af8dac3e88950f2e38b0.mp3?hdnea=exp=1769862566~acl=\/api\/1\/1\/c\/0\/6\/0\/c063dbb3b8f2af8dac3e88950f2e38b0.mp3*~data=user_id=0,application_id=42~hmac=881c8f5500a0631ae02a5dabc90c472859635757dff5515b9ba916b78c9df7fd","bpm":119.8,"gain":-18.2,"available_countries":["AE","AF","AG","AI","AL","AM","AO","AQ","AR","AS","AT","AU","AZ","BA","BB","BD","BE","BF","BG","BH","BI","BJ","BN","BO","BQ","BR","BT","BV","BW","BY","CA","CC","CD","CF","CG","CH","CI","CK","CL","CM","CN","CO","CR","CV","CW","CX","CY","CZ","DE","DJ","DK","DM","DO","DZ","EC","EE","EG","EH","ER","ES","ET","FI","FJ","FK","FM","FR","GA","GB","GD","GE","GH","GM","GN","GQ","GR","GS","GT","GU","GW","HK","HM","HN","HR","HU","ID","IE","IL","IN","IO","IQ","IS","IT","JM","JO","JP","KE","KG","KH","KI","KM","KN","KR","KW","KY","KZ","LA","LB","LC","LK","LR","LS","LT","LU","LV","LY","MA","MD","ME","MG","MH","MK","ML","MM","MN","MP","MR","MS","MT","MU","MV","MW","MX","MY","MZ","NA","NE","NF","NG","NI","NL","NO","NP","NR","NU","NZ","OM","PA","PE","PG","PH","PK","PL","PN","PS","PT","PW","PY","QA","RO","RS","RU","RW","SA","SB","SC","SD","SE","SG","SI","SJ","SK","SL","SN","SO","SS","ST","SV","SX","SZ","TC","TD","TG","TH","TJ","TK","TL","TM","TN","TO","TR","TV","TW","TZ","UA","UG","US","UY","UZ","VC","VE","VG","VI","VN","VU","WS","YE","ZA","ZM","ZW"],"contributors":[{"id":27,"name":"Daft
+        Punk","link":"https:\/\/www.deezer.com\/artist\/27","share":"https:\/\/www.deezer.com\/artist\/27?utm_source=deezer&utm_content=artist-27&utm_term=0_1769861666&utm_medium=web","picture":"https:\/\/api.deezer.com\/artist\/27\/image","picture_small":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/56x56-000000-80-0-0.jpg","picture_medium":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/250x250-000000-80-0-0.jpg","picture_big":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/500x500-000000-80-0-0.jpg","picture_xl":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/1000x1000-000000-80-0-0.jpg","radio":true,"tracklist":"https:\/\/api.deezer.com\/artist\/27\/top?limit=50","type":"artist","role":"Main"}],"md5_image":"5718f7c81c27e0b2417e2a4c45224f8a","track_token":"AAAAAWl98iJpfwtiO1ebhCEFOYg-vLD_fGYn2jjgdLQK4QL641now1eKjt6DAZyl-4td2MZaxw0jJX6smOUdN6SwcoDuVkFiBXm0r9AUjtmA75oAKDbJHfS-dNUQVtX5gWwhRV3KR3mrQBSWYVwb5g3LUH4HHiUYimxhECDJjILSJhJv69JBtK3WnHmLKcu04BL7D58cifFsLTDXJieOAX8aUcADpSHJRBXhDYMthGMAiRaybRpGlqzIUastbI6qnn5fo6vRo_P0tcvKYvpCoTLzMqV_jjxwGtmPPuo1Ji2_LNf3GU2KicdI7CvVbflfDlXdk0IS2aIZY484sBoDjwKqxCHeT5a9unuzYitHGszEf_Z0qgjNtige-S4RK7B2rWakgk2VQfheBUuGKMOXp9BYQkWfqZsb1wpC2TMlwe-PxodIEc9SUjOqQvHPWCEKja4IWyPKN4Hr61XnG9xITXp3uI5PsgE-1yQo1g","artist":{"id":27,"name":"Daft
+        Punk","link":"https:\/\/www.deezer.com\/artist\/27","share":"https:\/\/www.deezer.com\/artist\/27?utm_source=deezer&utm_content=artist-27&utm_term=0_1769861666&utm_medium=web","picture":"https:\/\/api.deezer.com\/artist\/27\/image","picture_small":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/56x56-000000-80-0-0.jpg","picture_medium":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/250x250-000000-80-0-0.jpg","picture_big":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/500x500-000000-80-0-0.jpg","picture_xl":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/1000x1000-000000-80-0-0.jpg","radio":true,"tracklist":"https:\/\/api.deezer.com\/artist\/27\/top?limit=50","type":"artist"},"album":{"id":302127,"title":"Discovery","link":"https:\/\/www.deezer.com\/album\/302127","cover":"https:\/\/api.deezer.com\/album\/302127\/image","cover_small":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/56x56-000000-80-0-0.jpg","cover_medium":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/250x250-000000-80-0-0.jpg","cover_big":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/500x500-000000-80-0-0.jpg","cover_xl":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/1000x1000-000000-80-0-0.jpg","md5_image":"5718f7c81c27e0b2417e2a4c45224f8a","release_date":"2001-03-07","tracklist":"https:\/\/api.deezer.com\/album\/302127\/tracks","type":"album"},"type":"track"}'
+    headers:
+      Access-Control-Allow-Credentials:
+      - 'true'
+      Access-Control-Allow-Headers:
+      - X-Requested-With, Content-Type, Authorization, Origin, Accept, Accept-Encoding
+      Access-Control-Allow-Methods:
+      - POST, GET, OPTIONS, DELETE, PUT
+      Access-Control-Expose-Headers:
+      - Location
+      Access-Control-Max-Age:
+      - '86400'
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json; charset=utf-8
+      Date:
+      - Sat, 31 Jan 2026 12:14:26 GMT
+      Server:
+      - Apache
+      Vary:
+      - Accept-Encoding
+      content-length:
+      - '4956'
+      p3p:
+      - policyref="/w3c/p3p.xml" CP="IDC DSP COR CURa ADMa OUR IND PHY ONL COM STA"
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      x-content-type-options:
+      - nosniff
+      x-host:
+      - blm-web-49
+      x-org:
+      - FR
+    status:
+      code: 200
+      message: OK
+- request:
+    body: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Host:
+      - api.deezer.com
+    method: GET
+    uri: https://api.deezer.com/track/3135559
+  response:
+    body:
+      string: '{"id":3135559,"readable":true,"title":"Superheroes","title_short":"Superheroes","title_version":"","isrc":"GBDUW0000062","link":"https:\/\/www.deezer.com\/track\/3135559","share":"https:\/\/www.deezer.com\/track\/3135559?utm_source=deezer&utm_content=track-3135559&utm_term=0_1769861667&utm_medium=web","duration":237,"track_position":7,"disk_number":1,"rank":604787,"release_date":"2001-03-12","explicit_lyrics":false,"explicit_content_lyrics":0,"explicit_content_cover":0,"preview":"https:\/\/cdnt-preview.dzcdn.net\/api\/1\/1\/1\/b\/c\/0\/1bc57c07bfaf6a265e06ce9574390e0e.mp3?hdnea=exp=1769862567~acl=\/api\/1\/1\/1\/b\/c\/0\/1bc57c07bfaf6a265e06ce9574390e0e.mp3*~data=user_id=0,application_id=42~hmac=f6ca3a1a60acf396bc25dfd5108d3ffb872144bb44a7722d1e7e9def2bb24027","bpm":140.6,"gain":-11.6,"available_countries":["AE","AF","AG","AI","AL","AM","AO","AQ","AR","AS","AT","AU","AZ","BA","BB","BD","BE","BF","BG","BH","BI","BJ","BN","BO","BQ","BR","BT","BV","BW","BY","CA","CC","CD","CF","CG","CH","CI","CK","CL","CM","CN","CO","CR","CV","CW","CX","CY","CZ","DE","DJ","DK","DM","DO","DZ","EC","EE","EG","EH","ER","ES","ET","FI","FJ","FK","FM","FR","GA","GB","GD","GE","GH","GM","GN","GQ","GR","GS","GT","GU","GW","HK","HM","HN","HR","HU","ID","IE","IL","IN","IO","IQ","IS","IT","JM","JO","JP","KE","KG","KH","KI","KM","KN","KR","KW","KY","KZ","LA","LB","LC","LK","LR","LS","LT","LU","LV","LY","MA","MD","ME","MG","MH","MK","ML","MM","MN","MP","MR","MS","MT","MU","MV","MW","MX","MY","MZ","NA","NE","NF","NG","NI","NL","NO","NP","NR","NU","NZ","OM","PA","PE","PG","PH","PK","PL","PN","PS","PT","PW","PY","QA","RO","RS","RU","RW","SA","SB","SC","SD","SE","SG","SI","SJ","SK","SL","SN","SO","SS","ST","SV","SX","SZ","TC","TD","TG","TH","TJ","TK","TL","TM","TN","TO","TR","TV","TW","TZ","UA","UG","US","UY","UZ","VC","VE","VG","VI","VN","VU","WS","YE","ZA","ZM","ZW"],"contributors":[{"id":27,"name":"Daft
+        Punk","link":"https:\/\/www.deezer.com\/artist\/27","share":"https:\/\/www.deezer.com\/artist\/27?utm_source=deezer&utm_content=artist-27&utm_term=0_1769861667&utm_medium=web","picture":"https:\/\/api.deezer.com\/artist\/27\/image","picture_small":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/56x56-000000-80-0-0.jpg","picture_medium":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/250x250-000000-80-0-0.jpg","picture_big":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/500x500-000000-80-0-0.jpg","picture_xl":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/1000x1000-000000-80-0-0.jpg","radio":true,"tracklist":"https:\/\/api.deezer.com\/artist\/27\/top?limit=50","type":"artist","role":"Main"}],"md5_image":"5718f7c81c27e0b2417e2a4c45224f8a","track_token":"AAAAAWl98iNpfwtjP4fLhRaQOuM7ihdulglA6bZTI1DrIGIGnczMmosUJN1tTJal6BW3TW0jTPX52zn2UULdC5HxNSgf2KrqfOHJQtnqk_c4Z5sDtn-eVC3GK4mgxusBHIkpt_zz9_zamVlBK-KtKRT8yDZbEfbVern43OspvrSa1-eK1aaptrHE_Sg3K6ysYxdjCEemtIMDLG4EWhc_Adoe7pdKeHjevnEqGr8Oru6OTDIUo-PGixtj2BhSG_q_deGF3dIcsap-r-mDXozGHDHTiN0z8QalD1nrijPK7fpFWVOTelHuUJph9FBhXSQi0BGVb2Wls5FxbjNl-ugLohMbYIeQgEXUoVL6PUPJgVZ9k8R7Z7hbP3GYsTy5sIX2FxxYGBtEDaHTrMeoXJrwMoBW0OTY3Rrw314gnkBho-ObOCWDPm8cXam947vjcIGkgtIo8fs2pFDy1SPoA1Tpwnco1N8G2ITA_WC_Jg","artist":{"id":27,"name":"Daft
+        Punk","link":"https:\/\/www.deezer.com\/artist\/27","share":"https:\/\/www.deezer.com\/artist\/27?utm_source=deezer&utm_content=artist-27&utm_term=0_1769861667&utm_medium=web","picture":"https:\/\/api.deezer.com\/artist\/27\/image","picture_small":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/56x56-000000-80-0-0.jpg","picture_medium":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/250x250-000000-80-0-0.jpg","picture_big":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/500x500-000000-80-0-0.jpg","picture_xl":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/1000x1000-000000-80-0-0.jpg","radio":true,"tracklist":"https:\/\/api.deezer.com\/artist\/27\/top?limit=50","type":"artist"},"album":{"id":302127,"title":"Discovery","link":"https:\/\/www.deezer.com\/album\/302127","cover":"https:\/\/api.deezer.com\/album\/302127\/image","cover_small":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/56x56-000000-80-0-0.jpg","cover_medium":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/250x250-000000-80-0-0.jpg","cover_big":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/500x500-000000-80-0-0.jpg","cover_xl":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/1000x1000-000000-80-0-0.jpg","md5_image":"5718f7c81c27e0b2417e2a4c45224f8a","release_date":"2001-03-07","tracklist":"https:\/\/api.deezer.com\/album\/302127\/tracks","type":"album"},"type":"track"}'
+    headers:
+      Access-Control-Allow-Credentials:
+      - 'true'
+      Access-Control-Allow-Headers:
+      - X-Requested-With, Content-Type, Authorization, Origin, Accept, Accept-Encoding
+      Access-Control-Allow-Methods:
+      - POST, GET, OPTIONS, DELETE, PUT
+      Access-Control-Expose-Headers:
+      - Location
+      Access-Control-Max-Age:
+      - '86400'
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json; charset=utf-8
+      Date:
+      - Sat, 31 Jan 2026 12:14:27 GMT
+      Server:
+      - Apache
+      Vary:
+      - Accept-Encoding
+      content-length:
+      - '4956'
+      p3p:
+      - policyref="/w3c/p3p.xml" CP="IDC DSP COR CURa ADMa OUR IND PHY ONL COM STA"
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      x-content-type-options:
+      - nosniff
+      x-host:
+      - blm-web-174
+      x-org:
+      - FR
+    status:
+      code: 200
+      message: OK
+- request:
+    body: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Host:
+      - api.deezer.com
+    method: GET
+    uri: https://api.deezer.com/track/3135560
+  response:
+    body:
+      string: '{"id":3135560,"readable":true,"title":"High Life","title_short":"High
+        Life","title_version":"","isrc":"GBDUW0000063","link":"https:\/\/www.deezer.com\/track\/3135560","share":"https:\/\/www.deezer.com\/track\/3135560?utm_source=deezer&utm_content=track-3135560&utm_term=0_1769861667&utm_medium=web","duration":201,"track_position":8,"disk_number":1,"rank":588595,"release_date":"2001-03-12","explicit_lyrics":false,"explicit_content_lyrics":0,"explicit_content_cover":0,"preview":"https:\/\/cdnt-preview.dzcdn.net\/api\/1\/1\/e\/e\/a\/0\/eea4fd9467e697d503998dff44ceeaa3.mp3?hdnea=exp=1769862567~acl=\/api\/1\/1\/e\/e\/a\/0\/eea4fd9467e697d503998dff44ceeaa3.mp3*~data=user_id=0,application_id=42~hmac=4f75cbb59e87a5fa985c0fe612d48d3732a2cf9c683b06b5f093d71deb7152fc","bpm":125.3,"gain":-13.2,"available_countries":["AE","AF","AG","AI","AL","AM","AO","AQ","AR","AS","AT","AU","AZ","BA","BB","BD","BE","BF","BG","BH","BI","BJ","BN","BO","BQ","BR","BT","BV","BW","BY","CA","CC","CD","CF","CG","CH","CI","CK","CL","CM","CN","CO","CR","CV","CW","CX","CY","CZ","DE","DJ","DK","DM","DO","DZ","EC","EE","EG","EH","ER","ES","ET","FI","FJ","FK","FM","FR","GA","GB","GD","GE","GH","GM","GN","GQ","GR","GS","GT","GU","GW","HK","HM","HN","HR","HU","ID","IE","IL","IN","IO","IQ","IS","IT","JM","JO","JP","KE","KG","KH","KI","KM","KN","KR","KW","KY","KZ","LA","LB","LC","LK","LR","LS","LT","LU","LV","LY","MA","MD","ME","MG","MH","MK","ML","MM","MN","MP","MR","MS","MT","MU","MV","MW","MX","MY","MZ","NA","NE","NF","NG","NI","NL","NO","NP","NR","NU","NZ","OM","PA","PE","PG","PH","PK","PL","PN","PS","PT","PW","PY","QA","RO","RS","RU","RW","SA","SB","SC","SD","SE","SG","SI","SJ","SK","SL","SN","SO","SS","ST","SV","SX","SZ","TC","TD","TG","TH","TJ","TK","TL","TM","TN","TO","TR","TV","TW","TZ","UA","UG","US","UY","UZ","VC","VE","VG","VI","VN","VU","WS","YE","ZA","ZM","ZW"],"contributors":[{"id":27,"name":"Daft
+        Punk","link":"https:\/\/www.deezer.com\/artist\/27","share":"https:\/\/www.deezer.com\/artist\/27?utm_source=deezer&utm_content=artist-27&utm_term=0_1769861667&utm_medium=web","picture":"https:\/\/api.deezer.com\/artist\/27\/image","picture_small":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/56x56-000000-80-0-0.jpg","picture_medium":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/250x250-000000-80-0-0.jpg","picture_big":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/500x500-000000-80-0-0.jpg","picture_xl":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/1000x1000-000000-80-0-0.jpg","radio":true,"tracklist":"https:\/\/api.deezer.com\/artist\/27\/top?limit=50","type":"artist","role":"Main"}],"md5_image":"5718f7c81c27e0b2417e2a4c45224f8a","track_token":"AAAAAWl98iNpfwtjRjtaA811epQ8zu_E60sAytj-azU_ScLx0UaV1WkL_LMInlDQ2cSBntkZitKhyPZHCCUICX0372ykyvHCialM6TylnweCwzV4OG5FS2hStMXAytZotHERIdFXWT2WP8XfT0swBF_jbPnDFVd4d1g68daASxaTJCcGZQy0U7L-cWRLA69BSOcVJegV4NwgzA_2vxdAUNeR4bNGqjU3ToI_KzpkdC_gw1L3-NO2N1OjLteZlyTqQz7f5q39N-z_hKuF9I0d65T6mPyhR9QByXBSyKAvB6NpkA1z2uot17Tf9d_-QyeabX9YDRYpjBsj3IsSajR3f7ObXHm-hFC28M1i5kiS_DVQTdUDbesGSlI3k0jUVHIybbhGlml391r-saafOxaYxmEUagrLNDbOBflfZuTPuQrAl30GmCsp1CrHQFx3IfuoHw6RS2oyXmG3vo2focYwhO_4IQ06ellcYkL_wQ","artist":{"id":27,"name":"Daft
+        Punk","link":"https:\/\/www.deezer.com\/artist\/27","share":"https:\/\/www.deezer.com\/artist\/27?utm_source=deezer&utm_content=artist-27&utm_term=0_1769861667&utm_medium=web","picture":"https:\/\/api.deezer.com\/artist\/27\/image","picture_small":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/56x56-000000-80-0-0.jpg","picture_medium":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/250x250-000000-80-0-0.jpg","picture_big":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/500x500-000000-80-0-0.jpg","picture_xl":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/1000x1000-000000-80-0-0.jpg","radio":true,"tracklist":"https:\/\/api.deezer.com\/artist\/27\/top?limit=50","type":"artist"},"album":{"id":302127,"title":"Discovery","link":"https:\/\/www.deezer.com\/album\/302127","cover":"https:\/\/api.deezer.com\/album\/302127\/image","cover_small":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/56x56-000000-80-0-0.jpg","cover_medium":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/250x250-000000-80-0-0.jpg","cover_big":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/500x500-000000-80-0-0.jpg","cover_xl":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/1000x1000-000000-80-0-0.jpg","md5_image":"5718f7c81c27e0b2417e2a4c45224f8a","release_date":"2001-03-07","tracklist":"https:\/\/api.deezer.com\/album\/302127\/tracks","type":"album"},"type":"track"}'
+    headers:
+      Access-Control-Allow-Credentials:
+      - 'true'
+      Access-Control-Allow-Headers:
+      - X-Requested-With, Content-Type, Authorization, Origin, Accept, Accept-Encoding
+      Access-Control-Allow-Methods:
+      - POST, GET, OPTIONS, DELETE, PUT
+      Access-Control-Expose-Headers:
+      - Location
+      Access-Control-Max-Age:
+      - '86400'
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json; charset=utf-8
+      Date:
+      - Sat, 31 Jan 2026 12:14:27 GMT
+      Server:
+      - Apache
+      Vary:
+      - Accept-Encoding
+      content-length:
+      - '4952'
+      p3p:
+      - policyref="/w3c/p3p.xml" CP="IDC DSP COR CURa ADMa OUR IND PHY ONL COM STA"
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      x-content-type-options:
+      - nosniff
+      x-host:
+      - blm-web-172
+      x-org:
+      - FR
+    status:
+      code: 200
+      message: OK
+- request:
+    body: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Host:
+      - api.deezer.com
+    method: GET
+    uri: https://api.deezer.com/track/3135561
+  response:
+    body:
+      string: '{"id":3135561,"readable":true,"title":"Something About Us","title_short":"Something
+        About Us","title_version":"","isrc":"GBDUW0000064","link":"https:\/\/www.deezer.com\/track\/3135561","share":"https:\/\/www.deezer.com\/track\/3135561?utm_source=deezer&utm_content=track-3135561&utm_term=0_1769861667&utm_medium=web","duration":232,"track_position":9,"disk_number":1,"rank":764640,"release_date":"2001-03-12","explicit_lyrics":false,"explicit_content_lyrics":6,"explicit_content_cover":0,"preview":"https:\/\/cdnt-preview.dzcdn.net\/api\/1\/1\/c\/f\/f\/0\/cff7c95e11ba9f6ac3ff0401a81df4f5.mp3?hdnea=exp=1769862567~acl=\/api\/1\/1\/c\/f\/f\/0\/cff7c95e11ba9f6ac3ff0401a81df4f5.mp3*~data=user_id=0,application_id=42~hmac=61a839d05bf02242e2183ae59367945db9e0b1a79238c1b9dd7f71760424cb6b","bpm":0,"gain":-14.4,"available_countries":["AE","AF","AG","AI","AL","AM","AO","AQ","AR","AS","AT","AU","AZ","BA","BB","BD","BE","BF","BG","BH","BI","BJ","BN","BO","BQ","BR","BT","BV","BW","BY","CA","CC","CD","CF","CG","CH","CI","CK","CL","CM","CN","CO","CR","CV","CW","CX","CY","CZ","DE","DJ","DK","DM","DO","DZ","EC","EE","EG","EH","ER","ES","ET","FI","FJ","FK","FM","FR","GA","GB","GD","GE","GH","GM","GN","GQ","GR","GS","GT","GU","GW","HK","HM","HN","HR","HU","ID","IE","IL","IN","IO","IQ","IS","IT","JM","JO","JP","KE","KG","KH","KI","KM","KN","KR","KW","KY","KZ","LA","LB","LC","LK","LR","LS","LT","LU","LV","LY","MA","MD","ME","MG","MH","MK","ML","MM","MN","MP","MR","MS","MT","MU","MV","MW","MX","MY","MZ","NA","NE","NF","NG","NI","NL","NO","NP","NR","NU","NZ","OM","PA","PE","PG","PH","PK","PL","PN","PS","PT","PW","PY","QA","RO","RS","RU","RW","SA","SB","SC","SD","SE","SG","SI","SJ","SK","SL","SN","SO","SS","ST","SV","SX","SZ","TC","TD","TG","TH","TJ","TK","TL","TM","TN","TO","TR","TV","TW","TZ","UA","UG","US","UY","UZ","VC","VE","VG","VI","VN","VU","WS","YE","ZA","ZM","ZW"],"contributors":[{"id":27,"name":"Daft
+        Punk","link":"https:\/\/www.deezer.com\/artist\/27","share":"https:\/\/www.deezer.com\/artist\/27?utm_source=deezer&utm_content=artist-27&utm_term=0_1769861667&utm_medium=web","picture":"https:\/\/api.deezer.com\/artist\/27\/image","picture_small":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/56x56-000000-80-0-0.jpg","picture_medium":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/250x250-000000-80-0-0.jpg","picture_big":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/500x500-000000-80-0-0.jpg","picture_xl":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/1000x1000-000000-80-0-0.jpg","radio":true,"tracklist":"https:\/\/api.deezer.com\/artist\/27\/top?limit=50","type":"artist","role":"Main"}],"md5_image":"5718f7c81c27e0b2417e2a4c45224f8a","track_token":"AAAAAWl98iNpfwtj61rgCIINahI_2W7N0NP0Y5xQ3vuv_1rdnqKYpSU6SOTfd1IOPKMoTVxqWquSj-AVtyj6PtJHHdXks-wZZlM5pkkoMTx8pWv3ANDz2WQxrJ9dpiWvBTl-IeAz59v2fwPE-7ZGgiRWEprpSbg4ynWet9lxbBQyftOfr7GZdoFC8lewcLRj_oS62NPMe3oYmx2oMKb78Lb1APAJIUEQxz8yhXPgFhxHZCvUU1bjwgjue7AD5yEaMOYZUuUrgwevYykQc8g22Z4jIDvXFnZtZJBDfQs01Y4wMwuF25u-ccbgZrnXjafcj582gA_GbEBNKCb6q0EcIrW1hfhkJdOyhDueuVnyNnxRx6bANbcF6TNZUTCyRPTb5C9PGG87","artist":{"id":27,"name":"Daft
+        Punk","link":"https:\/\/www.deezer.com\/artist\/27","share":"https:\/\/www.deezer.com\/artist\/27?utm_source=deezer&utm_content=artist-27&utm_term=0_1769861667&utm_medium=web","picture":"https:\/\/api.deezer.com\/artist\/27\/image","picture_small":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/56x56-000000-80-0-0.jpg","picture_medium":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/250x250-000000-80-0-0.jpg","picture_big":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/500x500-000000-80-0-0.jpg","picture_xl":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/1000x1000-000000-80-0-0.jpg","radio":true,"tracklist":"https:\/\/api.deezer.com\/artist\/27\/top?limit=50","type":"artist"},"album":{"id":302127,"title":"Discovery","link":"https:\/\/www.deezer.com\/album\/302127","cover":"https:\/\/api.deezer.com\/album\/302127\/image","cover_small":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/56x56-000000-80-0-0.jpg","cover_medium":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/250x250-000000-80-0-0.jpg","cover_big":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/500x500-000000-80-0-0.jpg","cover_xl":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/1000x1000-000000-80-0-0.jpg","md5_image":"5718f7c81c27e0b2417e2a4c45224f8a","release_date":"2001-03-07","tracklist":"https:\/\/api.deezer.com\/album\/302127\/tracks","type":"album"},"type":"track"}'
+    headers:
+      Access-Control-Allow-Credentials:
+      - 'true'
+      Access-Control-Allow-Headers:
+      - X-Requested-With, Content-Type, Authorization, Origin, Accept, Accept-Encoding
+      Access-Control-Allow-Methods:
+      - POST, GET, OPTIONS, DELETE, PUT
+      Access-Control-Expose-Headers:
+      - Location
+      Access-Control-Max-Age:
+      - '86400'
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json; charset=utf-8
+      Date:
+      - Sat, 31 Jan 2026 12:14:27 GMT
+      Server:
+      - Apache
+      Vary:
+      - Accept-Encoding
+      content-length:
+      - '4872'
+      p3p:
+      - policyref="/w3c/p3p.xml" CP="IDC DSP COR CURa ADMa OUR IND PHY ONL COM STA"
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      x-content-type-options:
+      - nosniff
+      x-host:
+      - blm-web-12
+      x-org:
+      - FR
+    status:
+      code: 200
+      message: OK
+- request:
+    body: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Host:
+      - api.deezer.com
+    method: GET
+    uri: https://api.deezer.com/track/3135562
+  response:
+    body:
+      string: '{"id":3135562,"readable":true,"title":"Voyager","title_short":"Voyager","title_version":"","isrc":"GBDUW0000065","link":"https:\/\/www.deezer.com\/track\/3135562","share":"https:\/\/www.deezer.com\/track\/3135562?utm_source=deezer&utm_content=track-3135562&utm_term=0_1769861667&utm_medium=web","duration":227,"track_position":10,"disk_number":1,"rank":739634,"release_date":"2001-03-12","explicit_lyrics":false,"explicit_content_lyrics":0,"explicit_content_cover":0,"preview":"https:\/\/cdnt-preview.dzcdn.net\/api\/1\/1\/b\/c\/9\/0\/bc95bc4a6fdcf3e9b1672229f679eea1.mp3?hdnea=exp=1769862567~acl=\/api\/1\/1\/b\/c\/9\/0\/bc95bc4a6fdcf3e9b1672229f679eea1.mp3*~data=user_id=0,application_id=42~hmac=faac6804d5b9556d5b11c90c0a5d2feaf36e0cd4e12e34630001ee9c52fff453","bpm":119.8,"gain":-14.4,"available_countries":["AE","AF","AG","AI","AL","AM","AO","AQ","AR","AS","AT","AU","AZ","BA","BB","BD","BE","BF","BG","BH","BI","BJ","BN","BO","BQ","BR","BT","BV","BW","BY","CA","CC","CD","CF","CG","CH","CI","CK","CL","CM","CN","CO","CR","CV","CW","CX","CY","CZ","DE","DJ","DK","DM","DO","DZ","EC","EE","EG","EH","ER","ES","ET","FI","FJ","FK","FM","FR","GA","GB","GD","GE","GH","GM","GN","GQ","GR","GS","GT","GU","GW","HK","HM","HN","HR","HU","ID","IE","IL","IN","IO","IQ","IS","IT","JM","JO","JP","KE","KG","KH","KI","KM","KN","KR","KW","KY","KZ","LA","LB","LC","LK","LR","LS","LT","LU","LV","LY","MA","MD","ME","MG","MH","MK","ML","MM","MN","MP","MR","MS","MT","MU","MV","MW","MX","MY","MZ","NA","NE","NF","NG","NI","NL","NO","NP","NR","NU","NZ","OM","PA","PE","PG","PH","PK","PL","PN","PS","PT","PW","PY","QA","RO","RS","RU","RW","SA","SB","SC","SD","SE","SG","SI","SJ","SK","SL","SN","SO","SS","ST","SV","SX","SZ","TC","TD","TG","TH","TJ","TK","TL","TM","TN","TO","TR","TV","TW","TZ","UA","UG","US","UY","UZ","VC","VE","VG","VI","VN","VU","WS","YE","ZA","ZM","ZW"],"contributors":[{"id":27,"name":"Daft
+        Punk","link":"https:\/\/www.deezer.com\/artist\/27","share":"https:\/\/www.deezer.com\/artist\/27?utm_source=deezer&utm_content=artist-27&utm_term=0_1769861667&utm_medium=web","picture":"https:\/\/api.deezer.com\/artist\/27\/image","picture_small":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/56x56-000000-80-0-0.jpg","picture_medium":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/250x250-000000-80-0-0.jpg","picture_big":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/500x500-000000-80-0-0.jpg","picture_xl":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/1000x1000-000000-80-0-0.jpg","radio":true,"tracklist":"https:\/\/api.deezer.com\/artist\/27\/top?limit=50","type":"artist","role":"Main"}],"md5_image":"5718f7c81c27e0b2417e2a4c45224f8a","track_token":"AAAAAWl98iNpfwtjB2ZeCIReIXudmWIHBO7n4FQSlK0dLi4CHEzd90ZiOH4kuG5Oj4Dwp6QWuFXLTIjqmVt9Y5e44XqXxmZUjQ4PbdaHGFMBvbaDf1qFQq-Kb6m9YbzvV5kHCPlw3t3L6BFVNhhyp2Pej33zNIy9oq16O6Wbs7yNezIQewSD_LJ-0_6SKekyi-UTXb-Wg8hz-rx5pcFCE8sOpniaoNGXsrJ3cI3-VwTWP4743jw0kwmGgMkwU9ocPJYvOhzSj_qtBMznDSJxSlIWo13A4F2LkiZj14g1VneIBEuvfDbBGvleb1q6_uWi8KrJ215LDrwjP6-H5qbtpDHXMctb5CTRW5IE5gkIukg4zjliwfclYrejXrHFq2c6CyBGmc5aaovcFAaJjWj5qF9DSWrXsInMOzoD5lWO5ZWANmRSi9q7qjC6oXlZ4NjSCjFoVptMpEPJe_O6QmmoQKA2VdSCrAZwiWSL0A","artist":{"id":27,"name":"Daft
+        Punk","link":"https:\/\/www.deezer.com\/artist\/27","share":"https:\/\/www.deezer.com\/artist\/27?utm_source=deezer&utm_content=artist-27&utm_term=0_1769861667&utm_medium=web","picture":"https:\/\/api.deezer.com\/artist\/27\/image","picture_small":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/56x56-000000-80-0-0.jpg","picture_medium":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/250x250-000000-80-0-0.jpg","picture_big":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/500x500-000000-80-0-0.jpg","picture_xl":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/1000x1000-000000-80-0-0.jpg","radio":true,"tracklist":"https:\/\/api.deezer.com\/artist\/27\/top?limit=50","type":"artist"},"album":{"id":302127,"title":"Discovery","link":"https:\/\/www.deezer.com\/album\/302127","cover":"https:\/\/api.deezer.com\/album\/302127\/image","cover_small":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/56x56-000000-80-0-0.jpg","cover_medium":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/250x250-000000-80-0-0.jpg","cover_big":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/500x500-000000-80-0-0.jpg","cover_xl":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/1000x1000-000000-80-0-0.jpg","md5_image":"5718f7c81c27e0b2417e2a4c45224f8a","release_date":"2001-03-07","tracklist":"https:\/\/api.deezer.com\/album\/302127\/tracks","type":"album"},"type":"track"}'
+    headers:
+      Access-Control-Allow-Credentials:
+      - 'true'
+      Access-Control-Allow-Headers:
+      - X-Requested-With, Content-Type, Authorization, Origin, Accept, Accept-Encoding
+      Access-Control-Allow-Methods:
+      - POST, GET, OPTIONS, DELETE, PUT
+      Access-Control-Expose-Headers:
+      - Location
+      Access-Control-Max-Age:
+      - '86400'
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json; charset=utf-8
+      Date:
+      - Sat, 31 Jan 2026 12:14:27 GMT
+      Server:
+      - Apache
+      Vary:
+      - Accept-Encoding
+      content-length:
+      - '4949'
+      p3p:
+      - policyref="/w3c/p3p.xml" CP="IDC DSP COR CURa ADMa OUR IND PHY ONL COM STA"
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      x-content-type-options:
+      - nosniff
+      x-host:
+      - blm-web-149
+      x-org:
+      - FR
+    status:
+      code: 200
+      message: OK
+- request:
+    body: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Host:
+      - api.deezer.com
+    method: GET
+    uri: https://api.deezer.com/track/3135563
+  response:
+    body:
+      string: '{"id":3135563,"readable":true,"title":"Veridis Quo","title_short":"Veridis
+        Quo","title_version":"","isrc":"GBDUW0000066","link":"https:\/\/www.deezer.com\/track\/3135563","share":"https:\/\/www.deezer.com\/track\/3135563?utm_source=deezer&utm_content=track-3135563&utm_term=0_1769861667&utm_medium=web","duration":345,"track_position":11,"disk_number":1,"rank":928445,"release_date":"2001-03-12","explicit_lyrics":false,"explicit_content_lyrics":0,"explicit_content_cover":0,"preview":"https:\/\/cdnt-preview.dzcdn.net\/api\/1\/1\/6\/4\/5\/0\/6456b666c0b1d4537e34d71e5cbd098c.mp3?hdnea=exp=1769862567~acl=\/api\/1\/1\/6\/4\/5\/0\/6456b666c0b1d4537e34d71e5cbd098c.mp3*~data=user_id=0,application_id=42~hmac=d36361f92d6e8a10f94934ee94d29d3f459ab00700be1ca61df94421264c37a6","bpm":0,"gain":-14.3,"available_countries":["AE","AF","AG","AI","AL","AM","AO","AQ","AR","AS","AT","AU","AZ","BA","BB","BD","BE","BF","BG","BH","BI","BJ","BN","BO","BQ","BR","BT","BV","BW","BY","CA","CC","CD","CF","CG","CH","CI","CK","CL","CM","CN","CO","CR","CV","CW","CX","CY","CZ","DE","DJ","DK","DM","DO","DZ","EC","EE","EG","EH","ER","ES","ET","FI","FJ","FK","FM","FR","GA","GB","GD","GE","GH","GM","GN","GQ","GR","GS","GT","GU","GW","HK","HM","HN","HR","HU","ID","IE","IL","IN","IO","IQ","IS","IT","JM","JO","JP","KE","KG","KH","KI","KM","KN","KR","KW","KY","KZ","LA","LB","LC","LK","LR","LS","LT","LU","LV","LY","MA","MD","ME","MG","MH","MK","ML","MM","MN","MP","MR","MS","MT","MU","MV","MW","MX","MY","MZ","NA","NE","NF","NG","NI","NL","NO","NP","NR","NU","NZ","OM","PA","PE","PG","PH","PK","PL","PN","PS","PT","PW","PY","QA","RO","RS","RU","RW","SA","SB","SC","SD","SE","SG","SI","SJ","SK","SL","SN","SO","SS","ST","SV","SX","SZ","TC","TD","TG","TH","TJ","TK","TL","TM","TN","TO","TR","TV","TW","TZ","UA","UG","US","UY","UZ","VC","VE","VG","VI","VN","VU","WS","YE","ZA","ZM","ZW"],"contributors":[{"id":27,"name":"Daft
+        Punk","link":"https:\/\/www.deezer.com\/artist\/27","share":"https:\/\/www.deezer.com\/artist\/27?utm_source=deezer&utm_content=artist-27&utm_term=0_1769861667&utm_medium=web","picture":"https:\/\/api.deezer.com\/artist\/27\/image","picture_small":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/56x56-000000-80-0-0.jpg","picture_medium":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/250x250-000000-80-0-0.jpg","picture_big":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/500x500-000000-80-0-0.jpg","picture_xl":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/1000x1000-000000-80-0-0.jpg","radio":true,"tracklist":"https:\/\/api.deezer.com\/artist\/27\/top?limit=50","type":"artist","role":"Main"}],"md5_image":"5718f7c81c27e0b2417e2a4c45224f8a","track_token":"AAAAAWl98iNpfwtjgFUczxNSp9QBNu7SFxT07sPAjxH20r_N07xRc_LBQZqAVPFW0wU_p4DQNYj64EoQeW57EAkd93GfsbcSVZuAcl835yOIz6jBZxedAJK3QdrarIJa_3UoQ3UFpkNYZ7CoCtJ-p4_kkk53vfKfmsmVsaE01LHUm6McIA-4O4NYT-tXnSrOmmi-NTc0mG3u45cQb03nCm1q7Lir0wCfd0i1H9GhVfS7qAamuESj8bLu8_PrmQ_9KF8MMdYdWm5fpMhPWz6GuuIk9TJuegTm0IVoOg0-pBO6Ap0tetzEyBWGNpoavE3x251CiX6HV6AYsnSZ-sEJ5PVUQJWgmW-iTaKFaMv8ZJts5uc7sFOZX6RqatUcKOzOjmZRaNoM","artist":{"id":27,"name":"Daft
+        Punk","link":"https:\/\/www.deezer.com\/artist\/27","share":"https:\/\/www.deezer.com\/artist\/27?utm_source=deezer&utm_content=artist-27&utm_term=0_1769861667&utm_medium=web","picture":"https:\/\/api.deezer.com\/artist\/27\/image","picture_small":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/56x56-000000-80-0-0.jpg","picture_medium":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/250x250-000000-80-0-0.jpg","picture_big":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/500x500-000000-80-0-0.jpg","picture_xl":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/1000x1000-000000-80-0-0.jpg","radio":true,"tracklist":"https:\/\/api.deezer.com\/artist\/27\/top?limit=50","type":"artist"},"album":{"id":302127,"title":"Discovery","link":"https:\/\/www.deezer.com\/album\/302127","cover":"https:\/\/api.deezer.com\/album\/302127\/image","cover_small":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/56x56-000000-80-0-0.jpg","cover_medium":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/250x250-000000-80-0-0.jpg","cover_big":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/500x500-000000-80-0-0.jpg","cover_xl":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/1000x1000-000000-80-0-0.jpg","md5_image":"5718f7c81c27e0b2417e2a4c45224f8a","release_date":"2001-03-07","tracklist":"https:\/\/api.deezer.com\/album\/302127\/tracks","type":"album"},"type":"track"}'
+    headers:
+      Access-Control-Allow-Credentials:
+      - 'true'
+      Access-Control-Allow-Headers:
+      - X-Requested-With, Content-Type, Authorization, Origin, Accept, Accept-Encoding
+      Access-Control-Allow-Methods:
+      - POST, GET, OPTIONS, DELETE, PUT
+      Access-Control-Expose-Headers:
+      - Location
+      Access-Control-Max-Age:
+      - '86400'
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json; charset=utf-8
+      Date:
+      - Sat, 31 Jan 2026 12:14:27 GMT
+      Server:
+      - Apache
+      Vary:
+      - Accept-Encoding
+      content-length:
+      - '4859'
+      p3p:
+      - policyref="/w3c/p3p.xml" CP="IDC DSP COR CURa ADMa OUR IND PHY ONL COM STA"
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      x-content-type-options:
+      - nosniff
+      x-host:
+      - blm-web-143
+      x-org:
+      - FR
+    status:
+      code: 200
+      message: OK
+- request:
+    body: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Host:
+      - api.deezer.com
+    method: GET
+    uri: https://api.deezer.com/track/3135564
+  response:
+    body:
+      string: '{"id":3135564,"readable":true,"title":"Short Circuit","title_short":"Short
+        Circuit","title_version":"","isrc":"GBDUW0000067","link":"https:\/\/www.deezer.com\/track\/3135564","share":"https:\/\/www.deezer.com\/track\/3135564?utm_source=deezer&utm_content=track-3135564&utm_term=0_1769861667&utm_medium=web","duration":206,"track_position":12,"disk_number":1,"rank":516356,"release_date":"2001-03-12","explicit_lyrics":false,"explicit_content_lyrics":0,"explicit_content_cover":0,"preview":"https:\/\/cdnt-preview.dzcdn.net\/api\/1\/1\/4\/1\/3\/0\/413592fd246163564e5416fb72f8c831.mp3?hdnea=exp=1769862567~acl=\/api\/1\/1\/4\/1\/3\/0\/413592fd246163564e5416fb72f8c831.mp3*~data=user_id=0,application_id=42~hmac=e004717f9b5c04d6b1b8e8d4f5020156c6761eaa13831766ba612ec3e687bb15","bpm":109.7,"gain":-12.6,"available_countries":["AE","AF","AG","AI","AL","AM","AO","AQ","AR","AS","AT","AU","AZ","BA","BB","BD","BE","BF","BG","BH","BI","BJ","BN","BO","BQ","BR","BT","BV","BW","BY","CA","CC","CD","CF","CG","CH","CI","CK","CL","CM","CN","CO","CR","CV","CW","CX","CY","CZ","DE","DJ","DK","DM","DO","DZ","EC","EE","EG","EH","ER","ES","ET","FI","FJ","FK","FM","FR","GA","GB","GD","GE","GH","GM","GN","GQ","GR","GS","GT","GU","GW","HK","HM","HN","HR","HU","ID","IE","IL","IN","IO","IQ","IS","IT","JM","JO","JP","KE","KG","KH","KI","KM","KN","KR","KW","KY","KZ","LA","LB","LC","LK","LR","LS","LT","LU","LV","LY","MA","MD","ME","MG","MH","MK","ML","MM","MN","MP","MR","MS","MT","MU","MV","MW","MX","MY","MZ","NA","NE","NF","NG","NI","NL","NO","NP","NR","NU","NZ","OM","PA","PE","PG","PH","PK","PL","PN","PS","PT","PW","PY","QA","RO","RS","RU","RW","SA","SB","SC","SD","SE","SG","SI","SJ","SK","SL","SN","SO","SS","ST","SV","SX","SZ","TC","TD","TG","TH","TJ","TK","TL","TM","TN","TO","TR","TV","TW","TZ","UA","UG","US","UY","UZ","VC","VE","VG","VI","VN","VU","WS","YE","ZA","ZM","ZW"],"contributors":[{"id":27,"name":"Daft
+        Punk","link":"https:\/\/www.deezer.com\/artist\/27","share":"https:\/\/www.deezer.com\/artist\/27?utm_source=deezer&utm_content=artist-27&utm_term=0_1769861667&utm_medium=web","picture":"https:\/\/api.deezer.com\/artist\/27\/image","picture_small":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/56x56-000000-80-0-0.jpg","picture_medium":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/250x250-000000-80-0-0.jpg","picture_big":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/500x500-000000-80-0-0.jpg","picture_xl":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/1000x1000-000000-80-0-0.jpg","radio":true,"tracklist":"https:\/\/api.deezer.com\/artist\/27\/top?limit=50","type":"artist","role":"Main"}],"md5_image":"5718f7c81c27e0b2417e2a4c45224f8a","track_token":"AAAAAWl98iNpfwtjx_18wRf4EuGLrjwnqmNzot5mxYmK-K7gqmoDpxYQ0GxqguC01glzb9APhLpvTAbPKULn7AzzDfS9iCAg3Ns4oEVYlVatnkyl40ffUclzNBXLjs-2RtWtfaUtMjiHETcr6T33bD6jaSCAJgwV72_tzkLVQ5iX0E4O4XwF2jorgtq1BZYZAjc92qHYGYNeoo_kDU0HUKGPtIRq5mVv1bjyvon79CfTkvPxtHBNkQ9SaRtqaQ3D5YPQQ9uPTd7a-vXm5FHUVjxty7oB-Bahf9k4zYYZp-ktsOk9vVvVIWBHzkccskLnQaZ4ZC1PEEHIsmoXYOaYojC3-9DxkokFfpRHSSGVwLZtmb4p3i7RPoq08hDHKxtPAX1RXN3NYKWvQiGWrkbi0loLhOM3vChU1KnzYgHBMlwevu5Ww1yBcKfgsq8H1WsyA4j_VNdmAYdfhaP1rW7Pt1PPFUl2aBN88OjtTQ","artist":{"id":27,"name":"Daft
+        Punk","link":"https:\/\/www.deezer.com\/artist\/27","share":"https:\/\/www.deezer.com\/artist\/27?utm_source=deezer&utm_content=artist-27&utm_term=0_1769861667&utm_medium=web","picture":"https:\/\/api.deezer.com\/artist\/27\/image","picture_small":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/56x56-000000-80-0-0.jpg","picture_medium":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/250x250-000000-80-0-0.jpg","picture_big":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/500x500-000000-80-0-0.jpg","picture_xl":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/1000x1000-000000-80-0-0.jpg","radio":true,"tracklist":"https:\/\/api.deezer.com\/artist\/27\/top?limit=50","type":"artist"},"album":{"id":302127,"title":"Discovery","link":"https:\/\/www.deezer.com\/album\/302127","cover":"https:\/\/api.deezer.com\/album\/302127\/image","cover_small":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/56x56-000000-80-0-0.jpg","cover_medium":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/250x250-000000-80-0-0.jpg","cover_big":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/500x500-000000-80-0-0.jpg","cover_xl":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/1000x1000-000000-80-0-0.jpg","md5_image":"5718f7c81c27e0b2417e2a4c45224f8a","release_date":"2001-03-07","tracklist":"https:\/\/api.deezer.com\/album\/302127\/tracks","type":"album"},"type":"track"}'
+    headers:
+      Access-Control-Allow-Credentials:
+      - 'true'
+      Access-Control-Allow-Headers:
+      - X-Requested-With, Content-Type, Authorization, Origin, Accept, Accept-Encoding
+      Access-Control-Allow-Methods:
+      - POST, GET, OPTIONS, DELETE, PUT
+      Access-Control-Expose-Headers:
+      - Location
+      Access-Control-Max-Age:
+      - '86400'
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json; charset=utf-8
+      Date:
+      - Sat, 31 Jan 2026 12:14:27 GMT
+      Server:
+      - Apache
+      Vary:
+      - Accept-Encoding
+      content-length:
+      - '4961'
+      p3p:
+      - policyref="/w3c/p3p.xml" CP="IDC DSP COR CURa ADMa OUR IND PHY ONL COM STA"
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      x-content-type-options:
+      - nosniff
+      x-host:
+      - blm-web-182
+      x-org:
+      - FR
+    status:
+      code: 200
+      message: OK
+- request:
+    body: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Host:
+      - api.deezer.com
+    method: GET
+    uri: https://api.deezer.com/track/3135565
+  response:
+    body:
+      string: '{"id":3135565,"readable":true,"title":"Face to Face","title_short":"Face
+        to Face","title_version":"","isrc":"GBDUW0000068","link":"https:\/\/www.deezer.com\/track\/3135565","share":"https:\/\/www.deezer.com\/track\/3135565?utm_source=deezer&utm_content=track-3135565&utm_term=0_1769861667&utm_medium=web","duration":240,"track_position":13,"disk_number":1,"rank":637646,"release_date":"2001-03-12","explicit_lyrics":false,"explicit_content_lyrics":0,"explicit_content_cover":0,"preview":"https:\/\/cdnt-preview.dzcdn.net\/api\/1\/1\/b\/c\/5\/0\/bc5ffa003d9ccf020a633083738c6ae4.mp3?hdnea=exp=1769862567~acl=\/api\/1\/1\/b\/c\/5\/0\/bc5ffa003d9ccf020a633083738c6ae4.mp3*~data=user_id=0,application_id=42~hmac=8986609ea075f630fe54fecebc7ce97b92fc337b9a24be3667f9aa9be6abd9a9","bpm":117.8,"gain":-13.1,"available_countries":["AE","AF","AG","AI","AL","AM","AO","AQ","AR","AS","AT","AU","AZ","BA","BB","BD","BE","BF","BG","BH","BI","BJ","BN","BO","BQ","BR","BT","BV","BW","BY","CA","CC","CD","CF","CG","CH","CI","CK","CL","CM","CN","CO","CR","CV","CW","CX","CY","CZ","DE","DJ","DK","DM","DO","DZ","EC","EE","EG","EH","ER","ES","ET","FI","FJ","FK","FM","FR","GA","GB","GD","GE","GH","GM","GN","GQ","GR","GS","GT","GU","GW","HK","HM","HN","HR","HU","ID","IE","IL","IN","IO","IQ","IS","IT","JM","JO","JP","KE","KG","KH","KI","KM","KN","KR","KW","KY","KZ","LA","LB","LC","LK","LR","LS","LT","LU","LV","LY","MA","MD","ME","MG","MH","MK","ML","MM","MN","MP","MR","MS","MT","MU","MV","MW","MX","MY","MZ","NA","NE","NF","NG","NI","NL","NO","NP","NR","NU","NZ","OM","PA","PE","PG","PH","PK","PL","PN","PS","PT","PW","PY","QA","RO","RS","RU","RW","SA","SB","SC","SD","SE","SG","SI","SJ","SK","SL","SN","SO","SS","ST","SV","SX","SZ","TC","TD","TG","TH","TJ","TK","TL","TM","TN","TO","TR","TV","TW","TZ","UA","UG","US","UY","UZ","VC","VE","VG","VI","VN","VU","WS","YE","ZA","ZM","ZW"],"contributors":[{"id":27,"name":"Daft
+        Punk","link":"https:\/\/www.deezer.com\/artist\/27","share":"https:\/\/www.deezer.com\/artist\/27?utm_source=deezer&utm_content=artist-27&utm_term=0_1769861667&utm_medium=web","picture":"https:\/\/api.deezer.com\/artist\/27\/image","picture_small":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/56x56-000000-80-0-0.jpg","picture_medium":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/250x250-000000-80-0-0.jpg","picture_big":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/500x500-000000-80-0-0.jpg","picture_xl":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/1000x1000-000000-80-0-0.jpg","radio":true,"tracklist":"https:\/\/api.deezer.com\/artist\/27\/top?limit=50","type":"artist","role":"Main"}],"md5_image":"5718f7c81c27e0b2417e2a4c45224f8a","track_token":"AAAAAWl98iNpfwtjeYRxXo47BsMZWsIMpxGRES5LupdXU4iItDuiXn1mPgXeMBA6l-AF-_dAkpM9h04vPYMskwBXPoUxNlx1uiaSz8w69SyQkO4fKfSrihqcVFN0BjbIj7ddYWQdHWPUkm75VDgbkC5ZZHuQ94Q2kpmiHyGbzUVOmBlwuhy1U2Ee2jUd4xx7PSM3cVIvgToEdiiqXYORdAcAPMLOBbBjox7eMqREmfxDS-VHK3TvAlGmVNduPmfC0sRWQtV44qhRR--SbOWEc4vrvKqeWw2AeuCtpewcGsBMLXBrpOd-U7UfuH-TIIbhuvh2k_VzmZ8axr2kONjJwdwjS1hTzTePt8hcRajmF6ESSj6Dhj8msF2z5pYeTwTywPAiVJgb2ROVIShV4yxTy5c1By6MsoxECaQzBb5X_YIqZvY0vOKTiD2D__gZS2JMCoTaEMxAo-0m1wT0T4LXXjXuU876sMY5Q7xeKw","artist":{"id":27,"name":"Daft
+        Punk","link":"https:\/\/www.deezer.com\/artist\/27","share":"https:\/\/www.deezer.com\/artist\/27?utm_source=deezer&utm_content=artist-27&utm_term=0_1769861667&utm_medium=web","picture":"https:\/\/api.deezer.com\/artist\/27\/image","picture_small":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/56x56-000000-80-0-0.jpg","picture_medium":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/250x250-000000-80-0-0.jpg","picture_big":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/500x500-000000-80-0-0.jpg","picture_xl":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/1000x1000-000000-80-0-0.jpg","radio":true,"tracklist":"https:\/\/api.deezer.com\/artist\/27\/top?limit=50","type":"artist"},"album":{"id":302127,"title":"Discovery","link":"https:\/\/www.deezer.com\/album\/302127","cover":"https:\/\/api.deezer.com\/album\/302127\/image","cover_small":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/56x56-000000-80-0-0.jpg","cover_medium":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/250x250-000000-80-0-0.jpg","cover_big":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/500x500-000000-80-0-0.jpg","cover_xl":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/1000x1000-000000-80-0-0.jpg","md5_image":"5718f7c81c27e0b2417e2a4c45224f8a","release_date":"2001-03-07","tracklist":"https:\/\/api.deezer.com\/album\/302127\/tracks","type":"album"},"type":"track"}'
+    headers:
+      Access-Control-Allow-Credentials:
+      - 'true'
+      Access-Control-Allow-Headers:
+      - X-Requested-With, Content-Type, Authorization, Origin, Accept, Accept-Encoding
+      Access-Control-Allow-Methods:
+      - POST, GET, OPTIONS, DELETE, PUT
+      Access-Control-Expose-Headers:
+      - Location
+      Access-Control-Max-Age:
+      - '86400'
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json; charset=utf-8
+      Date:
+      - Sat, 31 Jan 2026 12:14:27 GMT
+      Server:
+      - Apache
+      Vary:
+      - Accept-Encoding
+      content-length:
+      - '4959'
+      p3p:
+      - policyref="/w3c/p3p.xml" CP="IDC DSP COR CURa ADMa OUR IND PHY ONL COM STA"
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      x-content-type-options:
+      - nosniff
+      x-host:
+      - blm-web-101
+      x-org:
+      - FR
+    status:
+      code: 200
+      message: OK
+- request:
+    body: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Host:
+      - api.deezer.com
+    method: GET
+    uri: https://api.deezer.com/track/3135566
+  response:
+    body:
+      string: '{"id":3135566,"readable":true,"title":"Too Long","title_short":"Too
+        Long","title_version":"","isrc":"GBDUW0000069","link":"https:\/\/www.deezer.com\/track\/3135566","share":"https:\/\/www.deezer.com\/track\/3135566?utm_source=deezer&utm_content=track-3135566&utm_term=0_1769861667&utm_medium=web","duration":600,"track_position":14,"disk_number":1,"rank":581648,"release_date":"2001-03-12","explicit_lyrics":false,"explicit_content_lyrics":0,"explicit_content_cover":0,"preview":"https:\/\/cdnt-preview.dzcdn.net\/api\/1\/1\/8\/f\/e\/0\/8fe6827c48cc62fb82fe8e741b0534f4.mp3?hdnea=exp=1769862567~acl=\/api\/1\/1\/8\/f\/e\/0\/8fe6827c48cc62fb82fe8e741b0534f4.mp3*~data=user_id=0,application_id=42~hmac=938022c3fd682d91159070b58b4f8cd9eaa0c84d94d0aa161e2a859ac34e365a","bpm":126.8,"gain":-12.9,"available_countries":["AE","AF","AG","AI","AL","AM","AO","AQ","AR","AS","AT","AU","AZ","BA","BB","BD","BE","BF","BG","BH","BI","BJ","BN","BO","BQ","BR","BT","BV","BW","BY","CA","CC","CD","CF","CG","CH","CI","CK","CL","CM","CN","CO","CR","CV","CW","CX","CY","CZ","DE","DJ","DK","DM","DO","DZ","EC","EE","EG","EH","ER","ES","ET","FI","FJ","FK","FM","FR","GA","GB","GD","GE","GH","GM","GN","GQ","GR","GS","GT","GU","GW","HK","HM","HN","HR","HU","ID","IE","IL","IN","IO","IQ","IS","IT","JM","JO","JP","KE","KG","KH","KI","KM","KN","KR","KW","KY","KZ","LA","LB","LC","LK","LR","LS","LT","LU","LV","LY","MA","MD","ME","MG","MH","MK","ML","MM","MN","MP","MR","MS","MT","MU","MV","MW","MX","MY","MZ","NA","NE","NF","NG","NI","NL","NO","NP","NR","NU","NZ","OM","PA","PE","PG","PH","PK","PL","PN","PS","PT","PW","PY","QA","RO","RS","RU","RW","SA","SB","SC","SD","SE","SG","SI","SJ","SK","SL","SN","SO","SS","ST","SV","SX","SZ","TC","TD","TG","TH","TJ","TK","TL","TM","TN","TO","TR","TV","TW","TZ","UA","UG","US","UY","UZ","VC","VE","VG","VI","VN","VU","WS","YE","ZA","ZM","ZW"],"contributors":[{"id":27,"name":"Daft
+        Punk","link":"https:\/\/www.deezer.com\/artist\/27","share":"https:\/\/www.deezer.com\/artist\/27?utm_source=deezer&utm_content=artist-27&utm_term=0_1769861667&utm_medium=web","picture":"https:\/\/api.deezer.com\/artist\/27\/image","picture_small":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/56x56-000000-80-0-0.jpg","picture_medium":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/250x250-000000-80-0-0.jpg","picture_big":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/500x500-000000-80-0-0.jpg","picture_xl":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/1000x1000-000000-80-0-0.jpg","radio":true,"tracklist":"https:\/\/api.deezer.com\/artist\/27\/top?limit=50","type":"artist","role":"Main"}],"md5_image":"5718f7c81c27e0b2417e2a4c45224f8a","track_token":"AAAAAWl98iNpfwtjLFqhVnlAsvoiNx1auxX4rPTIgNu21lQbcaTsaFJA6a_ev5jwP3gjlZQn56mflkGw7urEhyYETi7HLtovhL3rMuxtNumTVpv8L0qwJqvVLH7mbcTqNX4cC7N8SyUJEI8D2MOSzItlzQAjgL1nrEGmm9GWMLSDLixzSsSigTUOJZMQ10D3C9pYtyFoY80eYFE04EomoD6foaWseQlxIyGB7AFaj62HanCV90j8gUoLO-yb290LRKLzoNWVsZJRe0zRe3lhV11EEhay-QQog2Drdy0ALF0emN6Gxr4-Kq4Zc-Bbm67rAnSRenEYAPBKE-uv8Xruj84_b0TvO2K_K8mhJHVJY-SN9mnu5nUIca7iJs-pdYL6ckQiw9b_Pc93JTubNl9qBBRl9-6qHqAqh_RL3IEhcjZl6ol27dbLcwNuiqAB-JfRXKBnpslMqRhzxTTmG-G5dSdW2mu-rFZ3AsZXRg","artist":{"id":27,"name":"Daft
+        Punk","link":"https:\/\/www.deezer.com\/artist\/27","share":"https:\/\/www.deezer.com\/artist\/27?utm_source=deezer&utm_content=artist-27&utm_term=0_1769861667&utm_medium=web","picture":"https:\/\/api.deezer.com\/artist\/27\/image","picture_small":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/56x56-000000-80-0-0.jpg","picture_medium":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/250x250-000000-80-0-0.jpg","picture_big":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/500x500-000000-80-0-0.jpg","picture_xl":"https:\/\/cdn-images.dzcdn.net\/images\/artist\/638e69b9caaf9f9f3f8826febea7b543\/1000x1000-000000-80-0-0.jpg","radio":true,"tracklist":"https:\/\/api.deezer.com\/artist\/27\/top?limit=50","type":"artist"},"album":{"id":302127,"title":"Discovery","link":"https:\/\/www.deezer.com\/album\/302127","cover":"https:\/\/api.deezer.com\/album\/302127\/image","cover_small":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/56x56-000000-80-0-0.jpg","cover_medium":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/250x250-000000-80-0-0.jpg","cover_big":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/500x500-000000-80-0-0.jpg","cover_xl":"https:\/\/cdn-images.dzcdn.net\/images\/cover\/5718f7c81c27e0b2417e2a4c45224f8a\/1000x1000-000000-80-0-0.jpg","md5_image":"5718f7c81c27e0b2417e2a4c45224f8a","release_date":"2001-03-07","tracklist":"https:\/\/api.deezer.com\/album\/302127\/tracks","type":"album"},"type":"track"}'
+    headers:
+      Access-Control-Allow-Credentials:
+      - 'true'
+      Access-Control-Allow-Headers:
+      - X-Requested-With, Content-Type, Authorization, Origin, Accept, Accept-Encoding
+      Access-Control-Allow-Methods:
+      - POST, GET, OPTIONS, DELETE, PUT
+      Access-Control-Expose-Headers:
+      - Location
+      Access-Control-Max-Age:
+      - '86400'
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json; charset=utf-8
+      Date:
+      - Sat, 31 Jan 2026 12:14:27 GMT
+      Server:
+      - Apache
+      Vary:
+      - Accept-Encoding
+      content-length:
+      - '4951'
+      p3p:
+      - policyref="/w3c/p3p.xml" CP="IDC DSP COR CURa ADMa OUR IND PHY ONL COM STA"
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      x-content-type-options:
+      - nosniff
+      x-host:
+      - blm-web-119
+      x-org:
+      - FR
+    status:
+      code: 200
+      message: OK
+version: 1

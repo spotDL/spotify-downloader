@@ -119,7 +119,6 @@ alembic/versions/*.pyc
 
 # Test artifacts
 .hypothesis/
-cassettes/
 
 # Playwright
 playwright-report/

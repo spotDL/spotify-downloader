@@ -118,3 +118,13 @@ class MatchRepository(BaseRepository[Match]):
         await self.session.flush()
 
         return match
+
+    async def get_top_voted(self, *, limit: int = 10) -> list[Match]:
+        """Get matches with highest vote scores."""
+        query = (
+            select(Match)
+            .order_by((Match.upvotes - Match.downvotes).desc())
+            .limit(limit)
+        )
+        result = await self.session.execute(query)
+        return list(result.scalars().all())

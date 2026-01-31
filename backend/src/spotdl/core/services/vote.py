@@ -121,12 +121,12 @@ class VoteService:
             MatchNotFoundError: If match doesn't exist
         """
         # Check if match exists
-        match = await self._match_repo.get(match_id)
+        match = await self._match_repo.get_by_id(match_id)
         if match is None:
             raise MatchNotFoundError(f"Match not found: {match_id}")
 
         # Check for existing vote
-        existing_vote = await self._vote_repo.get_by_user_and_match(user_id, match_id)
+        existing_vote = await self._vote_repo.get_user_vote(match_id, user_id)
 
         if existing_vote:
             # Update existing vote
@@ -183,12 +183,12 @@ class VoteService:
             MatchNotFoundError: If match doesn't exist
         """
         # Check if match exists
-        match = await self._match_repo.get(match_id)
+        match = await self._match_repo.get_by_id(match_id)
         if match is None:
             raise MatchNotFoundError(f"Match not found: {match_id}")
 
         # Find the vote
-        vote = await self._vote_repo.get_by_user_and_match(user_id, match_id)
+        vote = await self._vote_repo.get_user_vote(match_id, user_id)
         if vote is None:
             raise VoteNotFoundError(f"No vote found for user {user_id} on match {match_id}")
 
@@ -222,13 +222,13 @@ class VoteService:
         Raises:
             MatchNotFoundError: If match doesn't exist
         """
-        match = await self._match_repo.get(match_id)
+        match = await self._match_repo.get_by_id(match_id)
         if match is None:
             raise MatchNotFoundError(f"Match not found: {match_id}")
 
         user_vote = None
         if user_id:
-            vote = await self._vote_repo.get_by_user_and_match(user_id, match_id)
+            vote = await self._vote_repo.get_user_vote(match_id, user_id)
             if vote:
                 user_vote = VoteType(vote.vote_type)
 
@@ -257,7 +257,7 @@ class VoteService:
         Returns:
             List of (match_id, vote_type) tuples
         """
-        votes = await self._vote_repo.get_by_user(user_id, limit=limit, offset=offset)
+        votes = await self._vote_repo.get_user_votes(user_id, skip=offset, limit=limit)
         return [(v.match_id, VoteType(v.vote_type)) for v in votes]
 
     async def get_top_voted_matches(
