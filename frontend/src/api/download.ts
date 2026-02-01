@@ -11,6 +11,10 @@ export interface StartDownloadRequest {
   duration?: number;
   output_format?: string;
   quality?: string;
+  // Metadata embedding options
+  embed_metadata?: boolean;
+  embed_lyrics?: boolean;
+  embed_cover_art?: boolean;
 }
 
 export interface StartDownloadResponse {

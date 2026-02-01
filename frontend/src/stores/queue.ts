@@ -9,6 +9,7 @@ import {
   findMatches,
   type DownloadProgress,
 } from "@/api";
+import { useSettingsStore } from "./settings";
 
 export type DownloadStatus =
   | "pending"
@@ -53,7 +54,6 @@ export interface BulkEntityInfo {
 
 interface QueueState {
   items: QueueItem[];
-  maxConcurrent: number;
   pollingIntervals: Map<string, ReturnType<typeof setInterval>>;
 
   // Actions
@@ -65,7 +65,6 @@ interface QueueState {
   clearFailed: () => void;
   clearAll: () => void;
   retryFailed: (id: string) => void;
-  setMaxConcurrent: (max: number) => void;
 
   // Download actions
   startDownload: (queueId: string) => Promise<void>;
@@ -87,7 +86,6 @@ export const useQueueStore = create<QueueState>()(
   persist(
     (set, get) => ({
       items: [],
-      maxConcurrent: 3,
       pollingIntervals: new Map(),
 
       addItem: (song, match, entityContext) => {
@@ -205,12 +203,6 @@ export const useQueueStore = create<QueueState>()(
         setTimeout(() => get().processQueue(), 0);
       },
 
-      setMaxConcurrent: (max) => {
-        set({ maxConcurrent: max });
-        // Process queue in case more can start
-        setTimeout(() => get().processQueue(), 0);
-      },
-
       startDownload: async (queueId) => {
         const item = get().items.find((i) => i.id === queueId);
         if (!item) return;
@@ -246,6 +238,9 @@ export const useQueueStore = create<QueueState>()(
         try {
           get().updateItem(queueId, { status: "downloading", progress: 0 });
 
+          // Get user's download preferences from settings
+          const settings = useSettingsStore.getState();
+
           const response = await startDownload({
             url: targetUrl,
             title: item.song.name,
@@ -253,6 +248,11 @@ export const useQueueStore = create<QueueState>()(
             album: item.song.album_name ?? undefined,
             cover_url: item.song.cover_url ?? undefined,
             duration: item.song.duration,
+            output_format: settings.audioFormat,
+            quality: settings.audioQuality === "best" ? "320" : settings.audioQuality.replace("k", ""),
+            embed_metadata: settings.embedMetadata,
+            embed_lyrics: settings.embedLyrics,
+            embed_cover_art: settings.embedCoverArt,
           });
 
           get().updateItem(queueId, { downloadId: response.download_id });
@@ -338,8 +338,11 @@ export const useQueueStore = create<QueueState>()(
         const activeCount = state.getActiveCount();
         const pendingItems = state.items.filter((item) => item.status === "pending");
 
+        // Get max concurrent from settings store
+        const maxConcurrent = useSettingsStore.getState().maxConcurrentDownloads;
+
         // Start downloads up to max concurrent
-        const slotsAvailable = state.maxConcurrent - activeCount;
+        const slotsAvailable = maxConcurrent - activeCount;
         const toStart = pendingItems.slice(0, slotsAvailable);
 
         toStart.forEach((item) => {
@@ -403,7 +406,6 @@ export const useQueueStore = create<QueueState>()(
         items: state.items.filter(
           (item) => !["downloading", "searching", "processing"].includes(item.status)
         ),
-        maxConcurrent: state.maxConcurrent,
       }),
       onRehydrateStorage: () => (state) => {
         // Auto-process queue when store is rehydrated from localStorage

@@ -171,6 +171,10 @@ class DownloadRequest:
     duration: int | None = None
     output_format: str = "mp3"
     quality: str = "320"  # kbps for mp3
+    # Metadata embedding options
+    embed_metadata: bool = True
+    embed_lyrics: bool = True
+    embed_cover_art: bool = True
 
 
 class DownloadManager:
@@ -342,8 +346,8 @@ class DownloadManager:
             loop = asyncio.get_event_loop()
             await loop.run_in_executor(None, self._run_ytdlp, ydl_opts, request.url)
 
-            # Embed metadata
-            if output_path.exists():
+            # Embed metadata if enabled
+            if output_path.exists() and request.embed_metadata:
                 await self._embed_metadata(output_path, request)
 
             # Mark as completed
@@ -378,7 +382,7 @@ class DownloadManager:
         """Embed metadata into the audio file."""
         import httpx
         from mutagen.easyid3 import EasyID3
-        from mutagen.id3 import APIC, ID3
+        from mutagen.id3 import APIC, ID3, USLT
         from mutagen.mp3 import MP3
 
         try:
@@ -394,14 +398,15 @@ class DownloadManager:
 
                 audio.save()
 
-                # Add cover art if available
-                if request.cover_url and is_safe_url(request.cover_url):
+                # Load ID3 tags for additional metadata
+                audio_id3 = ID3(file_path)
+
+                # Add cover art if enabled and available
+                if request.embed_cover_art and request.cover_url and is_safe_url(request.cover_url):
                     try:
                         async with httpx.AsyncClient() as client:
                             response = await client.get(request.cover_url)
                             if response.status_code == 200:
-                                # Load ID3 tags
-                                audio_id3 = ID3(file_path)
                                 audio_id3.add(
                                     APIC(
                                         encoding=3,
@@ -411,14 +416,48 @@ class DownloadManager:
                                         data=response.content,
                                     )
                                 )
-                                audio_id3.save()
                     except Exception as e:
                         logger.warning(f"Failed to embed cover art: {e}")
 
+                # Embed lyrics if enabled
+                if request.embed_lyrics:
+                    lyrics = await self._fetch_lyrics(request.title, request.artist)
+                    if lyrics:
+                        audio_id3.add(
+                            USLT(
+                                encoding=3,
+                                lang="eng",
+                                desc="Lyrics",
+                                text=lyrics,
+                            )
+                        )
+
+                audio_id3.save()
                 logger.info(f"Metadata embedded: {file_path}")
 
         except Exception as e:
             logger.warning(f"Failed to embed metadata: {e}")
+
+    async def _fetch_lyrics(self, title: str, artist: str) -> str | None:
+        """Fetch lyrics for a song from available providers."""
+        import httpx
+
+        try:
+            # Try Genius web provider (doesn't require API token)
+            from spotdl.providers.lyrics.genius import GeniusWebProvider
+
+            async with httpx.AsyncClient(timeout=10.0) as client:
+                provider = GeniusWebProvider(client)
+                lyrics = await provider.get_lyrics(title, [artist])
+                if lyrics:
+                    return lyrics
+
+        except ImportError:
+            logger.debug("Lyrics provider not available")
+        except Exception as e:
+            logger.debug(f"Failed to fetch lyrics: {e}")
+
+        return None
 
 
 # Global download manager instance

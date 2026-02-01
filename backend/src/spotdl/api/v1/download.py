@@ -34,6 +34,10 @@ class StartDownloadRequest(BaseModel):
     duration: int | None = None
     output_format: str = "mp3"
     quality: str = "320"
+    # Metadata embedding options
+    embed_metadata: bool = True
+    embed_lyrics: bool = True
+    embed_cover_art: bool = True
 
 
 class StartDownloadResponse(BaseModel):
@@ -102,6 +106,9 @@ async def start_download(request: StartDownloadRequest) -> StartDownloadResponse
         duration=request.duration,
         output_format=request.output_format,
         quality=request.quality,
+        embed_metadata=request.embed_metadata,
+        embed_lyrics=request.embed_lyrics,
+        embed_cover_art=request.embed_cover_art,
     )
 
     # Start the download
