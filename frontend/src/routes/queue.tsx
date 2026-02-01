@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import {
   useQueueStore,
   type QueueItem,
@@ -13,12 +13,19 @@ import {
   Badge,
   Select,
 } from "@/components/ui";
+import { CoverArt } from "@/components/ui/cover-art";
+import { EqualizerLoader } from "@/components/ui";
+import { StatCard, StatCardGrid } from "@/components/ui/stat-card";
 import { features, config } from "@/config";
 import type { DisplayEntityType } from "@/types";
 
 export const Route = createFileRoute("/queue")({
   component: QueuePage,
 });
+
+// ============================================================================
+// STATUS CONFIGURATION
+// ============================================================================
 
 const STATUS_LABELS: Record<DownloadStatus, string> = {
   pending: "Pending",
@@ -43,6 +50,29 @@ const STATUS_VARIANTS: Record<DownloadStatus, "default" | "success" | "warning" 
   failed: "error",
   cancelled: "warning",
 };
+
+// Status icons for better visual hierarchy
+const STATUS_ICONS: Partial<Record<DownloadStatus, React.ReactNode>> = {
+  completed: (
+    <svg className="w-4 h-4 text-accent-safe" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+    </svg>
+  ),
+  failed: (
+    <svg className="w-4 h-4 text-accent-peak" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+    </svg>
+  ),
+  cancelled: (
+    <svg className="w-4 h-4 text-accent-warm" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+    </svg>
+  ),
+};
+
+// ============================================================================
+// MAIN QUEUE PAGE
+// ============================================================================
 
 function QueuePage() {
   const [showGrouped, setShowGrouped] = useState(true);
@@ -70,8 +100,16 @@ function QueuePage() {
   const failedCount = getFailedCount();
   const entityGroups = getEntityGroups();
 
-  // Check if we have any grouped items
   const hasEntityGroups = Array.from(entityGroups.keys()).some((key) => key !== "individual");
+
+  // Calculate total progress for active downloads
+  const totalProgress = useMemo(() => {
+    const activeItems = items.filter((i) =>
+      ["searching", "downloading", "processing", "converting", "embedding"].includes(i.status)
+    );
+    if (activeItems.length === 0) return 0;
+    return Math.round(activeItems.reduce((sum, i) => sum + i.progress, 0) / activeItems.length);
+  }, [items]);
 
   const formatDuration = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -85,8 +123,8 @@ function QueuePage() {
       <div className="min-h-[60vh] flex items-center justify-center">
         <Card variant="bordered" className="max-w-lg w-full animate-scale-in">
           <CardContent className="py-12 text-center">
-            <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-teal-500/20 flex items-center justify-center">
-              <svg className="w-10 h-10 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-accent-needle/20 to-accent-cool/20 flex items-center justify-center">
+              <svg className="w-10 h-10 text-accent-needle" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
               </svg>
             </div>
@@ -123,13 +161,29 @@ function QueuePage() {
   }
 
   return (
-    <div className="space-y-8">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
+    <div className="space-y-8 animate-slide-up">
+      {/* Header with overall progress */}
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex-1">
           <h1 className="text-3xl font-bold tracking-tight text-zinc-50">Download Queue</h1>
-          <p className="text-zinc-400 mt-1">Monitor and manage your downloads</p>
+          <p className="text-zinc-400 mt-1">
+            {items.length === 0
+              ? "No downloads in progress"
+              : `${items.length} ${items.length === 1 ? "item" : "items"} in queue`}
+          </p>
         </div>
+
+        {/* Overall progress indicator when downloads are active */}
+        {activeCount > 0 && (
+          <div className="hidden sm:flex items-center gap-3 px-4 py-2 rounded-xl bg-bg-panel border border-zinc-800">
+            <EqualizerLoader />
+            <div className="text-right">
+              <div className="text-sm font-medium text-zinc-200">{totalProgress}%</div>
+              <div className="text-xs text-zinc-500">{activeCount} active</div>
+            </div>
+          </div>
+        )}
+
         <Select
           options={[1, 2, 3, 4, 5, 6, 8, 10, 12, 16].map((n) => ({
             value: String(n),
@@ -141,71 +195,79 @@ function QueuePage() {
         />
       </div>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      {/* Stats Grid with improved spacing */}
+      <StatCardGrid columns={4}>
         <StatCard
           label="Pending"
           value={pendingCount}
-          color="zinc"
           icon={
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           }
+          variant="default"
         />
         <StatCard
           label="Active"
           value={activeCount}
-          color="sky"
-          icon={
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-            </svg>
-          }
-          animated
+          icon={<EqualizerLoader />}
+          variant="info"
         />
         <StatCard
           label="Completed"
           value={completedCount}
-          color="emerald"
           icon={
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           }
+          variant="success"
         />
         <StatCard
           label="Failed"
           value={failedCount}
-          color="red"
           icon={
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           }
+          variant="error"
         />
-      </div>
+      </StatCardGrid>
 
-      {/* Actions */}
+      {/* Actions - Better spacing and grouping */}
       {items.length > 0 && (
-        <div className="flex gap-3">
+        <div className="flex flex-wrap items-center gap-3 p-4 rounded-xl bg-bg-panel/50 border border-zinc-800/50">
+          <span className="text-sm text-zinc-500 mr-2">Actions:</span>
           {completedCount > 0 && (
             <Button variant="outline" size="sm" onClick={clearCompleted}>
-              <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg className="w-4 h-4 mr-2 text-accent-safe" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
-              Clear Completed
+              Clear Completed ({completedCount})
             </Button>
           )}
           {failedCount > 0 && (
-            <Button variant="outline" size="sm" onClick={clearFailed}>
-              <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-              </svg>
-              Clear Failed
-            </Button>
+            <>
+              <Button variant="outline" size="sm" onClick={() => {
+                // Retry all failed items
+                items.filter(i => i.status === "failed").forEach(i => retryFailed(i.id));
+              }}>
+                <svg className="w-4 h-4 mr-2 text-accent-needle" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                Retry Failed ({failedCount})
+              </Button>
+              <Button variant="outline" size="sm" onClick={clearFailed}>
+                <svg className="w-4 h-4 mr-2 text-accent-peak" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+                Clear Failed
+              </Button>
+            </>
           )}
-          <Button variant="danger" size="sm" onClick={clearAll}>
+          <div className="flex-1" />
+          <Button variant="ghost" size="sm" onClick={clearAll} className="text-zinc-500 hover:text-accent-peak">
             <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
             </svg>
@@ -214,30 +276,32 @@ function QueuePage() {
         </div>
       )}
 
-      {/* View Toggle */}
+      {/* View Toggle - Improved styling */}
       {hasEntityGroups && items.length > 0 && (
         <div className="flex items-center gap-2">
           <span className="text-sm text-zinc-500">View:</span>
-          <button
-            onClick={() => setShowGrouped(true)}
-            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-              showGrouped
-                ? "bg-emerald-600 text-white"
-                : "bg-zinc-800 text-zinc-400 hover:bg-zinc-700"
-            }`}
-          >
-            Grouped
-          </button>
-          <button
-            onClick={() => setShowGrouped(false)}
-            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-              !showGrouped
-                ? "bg-emerald-600 text-white"
-                : "bg-zinc-800 text-zinc-400 hover:bg-zinc-700"
-            }`}
-          >
-            List
-          </button>
+          <div className="flex rounded-lg bg-bg-panel border border-zinc-800 p-0.5">
+            <button
+              onClick={() => setShowGrouped(true)}
+              className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all duration-200 ${
+                showGrouped
+                  ? "bg-accent-needle text-white shadow-sm"
+                  : "text-zinc-400 hover:text-zinc-200"
+              }`}
+            >
+              Grouped
+            </button>
+            <button
+              onClick={() => setShowGrouped(false)}
+              className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all duration-200 ${
+                !showGrouped
+                  ? "bg-accent-needle text-white shadow-sm"
+                  : "text-zinc-400 hover:text-zinc-200"
+              }`}
+            >
+              List
+            </button>
+          </div>
         </div>
       )}
 
@@ -245,22 +309,27 @@ function QueuePage() {
       {items.length === 0 ? (
         <Card variant="bordered" className="py-16">
           <CardContent className="text-center">
-            <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-zinc-800/50 flex items-center justify-center">
+            <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-bg-panel to-bg-surface flex items-center justify-center">
               <svg className="w-10 h-10 text-zinc-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
               </svg>
             </div>
-            <p className="text-lg text-zinc-300 font-medium">No downloads in queue</p>
-            <p className="text-sm text-zinc-500 mt-2">
-              <Link to="/" className="text-emerald-400 hover:text-emerald-300 transition-colors">
-                Search for a song
-              </Link>{" "}
-              to start downloading
+            <p className="text-xl text-zinc-300 font-medium">No downloads in queue</p>
+            <p className="text-sm text-zinc-500 mt-2 mb-6">
+              Search for a song and add it to your download queue
             </p>
+            <Link to="/">
+              <Button variant="primary">
+                <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                Start Searching
+              </Button>
+            </Link>
           </CardContent>
         </Card>
       ) : showGrouped && hasEntityGroups ? (
-        <div className="space-y-6">
+        <div className="space-y-8">
           {Array.from(entityGroups.entries()).map(([key, groupItems]) => {
             const entityContext = groupItems[0]?.entityContext;
             const isIndividual = key === "individual";
@@ -268,21 +337,27 @@ function QueuePage() {
             if (isIndividual) {
               return (
                 <div key={key} className="space-y-3">
-                  <h3 className="text-sm font-medium text-zinc-500 uppercase tracking-wider">
-                    Individual Downloads
-                  </h3>
-                  {groupItems.map((item, index) => (
-                    <QueueItemCard
-                      key={item.id}
-                      item={item}
-                      index={index}
-                      onRemove={() => removeItem(item.id)}
-                      onRetry={() => retryFailed(item.id)}
-                      onCancel={() => cancelDownload(item.id)}
-                      onDownloadFile={() => downloadFile(item.id)}
-                      formatDuration={formatDuration}
-                    />
-                  ))}
+                  <div className="flex items-center gap-2 px-1">
+                    <div className="w-1 h-5 rounded-full bg-zinc-600" />
+                    <h3 className="text-sm font-medium text-zinc-400 uppercase tracking-wider">
+                      Individual Downloads
+                    </h3>
+                    <Badge variant="muted" size="sm">{groupItems.length}</Badge>
+                  </div>
+                  <div className="space-y-2">
+                    {groupItems.map((item, index) => (
+                      <QueueItemCard
+                        key={item.id}
+                        item={item}
+                        index={index}
+                        onRemove={() => removeItem(item.id)}
+                        onRetry={() => retryFailed(item.id)}
+                        onCancel={() => cancelDownload(item.id)}
+                        onDownloadFile={() => downloadFile(item.id)}
+                        formatDuration={formatDuration}
+                      />
+                    ))}
+                  </div>
                 </div>
               );
             }
@@ -302,7 +377,7 @@ function QueuePage() {
           })}
         </div>
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-2">
           {items.map((item, index) => (
             <QueueItemCard
               key={item.id}
@@ -321,48 +396,9 @@ function QueuePage() {
   );
 }
 
-interface StatCardProps {
-  label: string;
-  value: number;
-  color: "zinc" | "sky" | "emerald" | "red";
-  icon: React.ReactNode;
-  animated?: boolean;
-}
-
-function StatCard({ label, value, color, icon, animated }: StatCardProps) {
-  const colorClasses = {
-    zinc: "from-zinc-500/20 to-zinc-600/20 text-zinc-400",
-    sky: "from-sky-500/20 to-sky-600/20 text-sky-400",
-    emerald: "from-emerald-500/20 to-emerald-600/20 text-emerald-400",
-    red: "from-red-500/20 to-red-600/20 text-red-400",
-  };
-
-  const valueColors = {
-    zinc: "text-zinc-100",
-    sky: "text-sky-400",
-    emerald: "text-emerald-400",
-    red: "text-red-400",
-  };
-
-  return (
-    <Card variant="bordered" className="relative overflow-hidden">
-      <div className={`absolute inset-0 bg-gradient-to-br ${colorClasses[color]} opacity-50`} />
-      <CardContent className="relative py-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className={`text-3xl font-bold ${valueColors[color]}`}>
-              {value}
-            </p>
-            <p className="text-sm text-zinc-400 mt-1">{label}</p>
-          </div>
-          <div className={`${colorClasses[color]} ${animated ? "animate-pulse" : ""}`}>
-            {icon}
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
+// ============================================================================
+// QUEUE ITEM CARD
+// ============================================================================
 
 interface QueueItemCardProps {
   item: QueueItem;
@@ -388,30 +424,48 @@ function QueueItemCard({
   const isActive = ["searching", "downloading", "processing", "converting", "embedding"].includes(
     item.status
   );
+  const isCompleted = item.status === "completed";
+  const isFailed = item.status === "failed";
 
   return (
     <Card
       variant="bordered"
       hover={!isActive}
-      className={`animate-slide-up ${compact ? "py-1" : ""}`}
-      style={{ animationDelay: `${index * 0.03}s` }}
+      className={`
+        transition-all duration-300 ease-out
+        ${compact ? "" : ""}
+        ${isActive ? "border-accent-needle/30 bg-accent-needle/5" : ""}
+        ${isCompleted ? "border-accent-safe/20" : ""}
+        ${isFailed ? "border-accent-peak/20" : ""}
+      `}
+      style={{
+        animationDelay: `${index * 0.02}s`,
+        animationFillMode: "backwards",
+      }}
     >
-      <CardContent className={compact ? "py-2" : undefined}>
+      <CardContent className={compact ? "py-3" : undefined}>
         <div className="flex items-center gap-4">
           {/* Track number / Status indicator */}
-          <div className={`${compact ? "w-8 h-8" : "w-10 h-10"} rounded-xl bg-zinc-800 flex items-center justify-center shrink-0`}>
+          <div className={`${compact ? "w-8 h-8" : "w-10 h-10"} rounded-xl bg-bg-panel flex items-center justify-center shrink-0 transition-colors duration-300`}>
             {isActive ? (
-              <div className="equalizer">
-                <div className="equalizer-bar" />
-                <div className="equalizer-bar" />
-                <div className="equalizer-bar" />
-              </div>
+              <EqualizerLoader />
+            ) : STATUS_ICONS[item.status] ? (
+              STATUS_ICONS[item.status]
             ) : (
-              <span className={`${compact ? "text-xs" : "text-sm"} font-medium text-zinc-500`}>
+              <span className={`${compact ? "text-xs" : "text-sm"} font-mono text-zinc-500`}>
                 {item.entityContext?.position || String(index + 1).padStart(2, "0")}
               </span>
             )}
           </div>
+
+          {/* Cover Art */}
+          {!compact && (
+            <CoverArt
+              src={item.song.cover_url ?? null}
+              alt={item.song.name}
+              size="xs"
+            />
+          )}
 
           {/* Song Info */}
           <div className="flex-1 min-w-0">
@@ -427,69 +481,73 @@ function QueueItemCard({
               {item.song.artists.join(", ")}
             </p>
 
-            {/* Progress Bar */}
+            {/* Progress Bar - Smoother animation */}
             {isActive && (
               <div className="mt-3">
                 <div className="flex items-center justify-between text-xs text-zinc-500 mb-1.5">
-                  <span className="font-medium">{item.progress}%</span>
+                  <span className="font-medium font-mono">{item.progress}%</span>
                   <span>
-                    {item.speed && `${item.speed} • `}
+                    {item.speed && `${item.speed} | `}
                     {item.eta && `ETA: ${item.eta}`}
                   </span>
                 </div>
-                <div className="h-1.5 bg-zinc-800 rounded-full overflow-hidden">
+                <div className="h-1.5 bg-bg-panel rounded-full overflow-hidden">
                   <div
-                    className="h-full progress-gradient rounded-full transition-all duration-300"
-                    style={{ width: `${item.progress}%` }}
+                    className="h-full rounded-full transition-all duration-500 ease-out"
+                    style={{
+                      width: `${item.progress}%`,
+                      background: `linear-gradient(90deg, var(--accent-safe) 0%, var(--accent-needle) ${Math.min(100, item.progress + 20)}%, var(--accent-peak) 100%)`,
+                    }}
                   />
                 </div>
               </div>
             )}
 
-            {/* Error Message */}
+            {/* Error Message - Better visibility */}
             {item.status === "failed" && item.error && (
-              <p className="text-sm text-red-400 mt-2 flex items-center gap-1.5">
-                <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                {item.error}
-              </p>
+              <div className="mt-2 p-2 rounded-lg bg-accent-peak/10 border border-accent-peak/20">
+                <p className="text-sm text-accent-peak flex items-start gap-1.5">
+                  <svg className="w-4 h-4 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span>{item.error}</span>
+                </p>
+              </div>
             )}
           </div>
 
           {/* Duration */}
-          <div className="text-sm text-zinc-500 tabular-nums">
+          <div className="text-sm font-mono text-zinc-500 hidden sm:block">
             {formatDuration(item.song.duration)}
           </div>
 
-          {/* Actions */}
+          {/* Actions - Better organized */}
           <div className="flex items-center gap-2">
             {item.status === "completed" && (
-              <Button size="sm" variant="primary" onClick={onDownloadFile}>
-                <svg className="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <Button size="sm" variant="primary" onClick={onDownloadFile} className="gap-1.5">
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                 </svg>
                 Save
               </Button>
             )}
             {item.status === "failed" && (
-              <Button size="sm" variant="outline" onClick={onRetry}>
-                <svg className="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <Button size="sm" variant="outline" onClick={onRetry} className="gap-1.5">
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                 </svg>
                 Retry
               </Button>
             )}
             {isActive && (
-              <Button size="sm" variant="danger" onClick={onCancel}>
-                <svg className="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <Button size="sm" variant="ghost" onClick={onCancel} className="text-accent-peak hover:text-accent-peak hover:bg-accent-peak/10">
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
-                Cancel
               </Button>
             )}
             {!isActive && (
-              <Button size="sm" variant="ghost" onClick={onRemove} className="text-zinc-400 hover:text-red-400">
+              <Button size="sm" variant="ghost" onClick={onRemove} className="text-zinc-400 hover:text-accent-peak hover:bg-accent-peak/10">
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
@@ -502,7 +560,10 @@ function QueueItemCard({
   );
 }
 
-// Entity type icons
+// ============================================================================
+// ENTITY TYPE ICONS
+// ============================================================================
+
 const entityTypeIcons: Record<DisplayEntityType, React.ReactNode> = {
   artist: (
     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -526,6 +587,10 @@ const entityTypeIcons: Record<DisplayEntityType, React.ReactNode> = {
   ),
 };
 
+// ============================================================================
+// ENTITY GROUP
+// ============================================================================
+
 interface EntityGroupProps {
   entityContext: EntityContext;
   items: QueueItem[];
@@ -545,6 +610,8 @@ function EntityGroup({
   onDownloadFile,
   formatDuration,
 }: EntityGroupProps) {
+  const [isExpanded, setIsExpanded] = useState(true);
+
   const completedCount = items.filter((i) => i.status === "completed").length;
   const failedCount = items.filter((i) => i.status === "failed").length;
   const activeCount = items.filter((i) =>
@@ -555,79 +622,93 @@ function EntityGroup({
 
   return (
     <div className="space-y-3">
-      {/* Entity Header */}
-      <div className="p-4 bg-gradient-to-r from-zinc-900/80 via-zinc-900/60 to-zinc-900/80 rounded-xl border border-zinc-800/50">
+      {/* Entity Header - Clickable to expand/collapse */}
+      <button
+        onClick={() => setIsExpanded(!isExpanded)}
+        className="w-full p-4 bg-gradient-to-r from-bg-panel via-bg-panel/90 to-bg-panel rounded-xl border border-zinc-800/50 hover:border-zinc-700 transition-all"
+      >
         <div className="flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-600 to-teal-600 flex items-center justify-center text-white">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-accent-needle to-accent-cool flex items-center justify-center text-white shadow-lg shadow-accent-needle/20">
               {entityTypeIcons[entityContext.type]}
             </div>
-            <div>
+            <div className="text-left">
               <h3 className="font-semibold text-zinc-100">{entityContext.name}</h3>
               <p className="text-sm text-zinc-500 capitalize">
-                {entityContext.type} - {total} tracks
+                {entityContext.type} | {total} tracks
               </p>
             </div>
           </div>
 
           <div className="flex items-center gap-4">
-            {/* Progress indicator */}
-            <div className="flex items-center gap-3">
-              <div className="flex items-center gap-1.5">
-                {completedCount > 0 && (
-                  <Badge variant="success" size="sm">
-                    {completedCount} done
-                  </Badge>
-                )}
-                {activeCount > 0 && (
-                  <Badge variant="info" size="sm">
-                    {activeCount} active
-                  </Badge>
-                )}
-                {failedCount > 0 && (
-                  <Badge variant="error" size="sm">
-                    {failedCount} failed
-                  </Badge>
-                )}
-              </div>
-              <div className="w-24 h-2 bg-zinc-800 rounded-full overflow-hidden">
-                <div
-                  className="h-full progress-gradient rounded-full transition-all duration-500"
-                  style={{ width: `${progress}%` }}
-                />
-              </div>
-              <span className="text-sm text-zinc-400 tabular-nums">{progress}%</span>
+            {/* Status badges */}
+            <div className="hidden sm:flex items-center gap-1.5">
+              {completedCount > 0 && (
+                <Badge variant="success" size="sm">
+                  {completedCount} done
+                </Badge>
+              )}
+              {activeCount > 0 && (
+                <Badge variant="info" size="sm">
+                  {activeCount} active
+                </Badge>
+              )}
+              {failedCount > 0 && (
+                <Badge variant="error" size="sm">
+                  {failedCount} failed
+                </Badge>
+              )}
             </div>
 
-            <a
-              href={entityContext.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-zinc-500 hover:text-zinc-300 transition-colors"
+            {/* Progress bar */}
+            <div className="flex items-center gap-3">
+              <div className="w-24 h-2 bg-bg-chassis rounded-full overflow-hidden">
+                <div
+                  className="h-full rounded-full transition-all duration-700 ease-out"
+                  style={{
+                    width: `${progress}%`,
+                    background: `linear-gradient(90deg, var(--accent-safe) 0%, var(--accent-needle) 100%)`,
+                  }}
+                />
+              </div>
+              <span className="text-sm font-mono text-zinc-400 w-10">{progress}%</span>
+            </div>
+
+            {/* Expand/collapse indicator */}
+            <svg
+              className={`w-5 h-5 text-zinc-500 transition-transform duration-200 ${isExpanded ? "rotate-180" : ""}`}
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
             >
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-              </svg>
-            </a>
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
           </div>
         </div>
-      </div>
+      </button>
 
-      {/* Entity Items */}
-      <div className="space-y-2 pl-4 border-l-2 border-zinc-800">
-        {items.map((item, index) => (
-          <QueueItemCard
-            key={item.id}
-            item={item}
-            index={index}
-            onRemove={() => onRemove(item.id)}
-            onRetry={() => onRetry(item.id)}
-            onCancel={() => onCancel(item.id)}
-            onDownloadFile={() => onDownloadFile(item.id)}
-            formatDuration={formatDuration}
-            compact
-          />
-        ))}
+      {/* Entity Items - Collapsible with smooth animation */}
+      <div
+        className={`transition-all duration-300 ease-out overflow-hidden ${
+          isExpanded ? "opacity-100" : "opacity-0 max-h-0"
+        }`}
+        style={{ maxHeight: isExpanded ? `${items.length * 100}px` : 0 }}
+      >
+        <div className="space-y-2 pl-4 border-l-2 border-zinc-800 ml-6">
+          {items.map((item, index) => (
+            <QueueItemCard
+              key={item.id}
+              item={item}
+              index={index}
+              onRemove={() => onRemove(item.id)}
+              onRetry={() => onRetry(item.id)}
+              onCancel={() => onCancel(item.id)}
+              onDownloadFile={() => onDownloadFile(item.id)}
+              formatDuration={formatDuration}
+              compact
+            />
+          ))}
+        </div>
       </div>
     </div>
   );

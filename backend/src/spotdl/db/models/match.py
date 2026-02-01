@@ -24,6 +24,14 @@ class MatchType(StrEnum):
     USER = "user"
 
 
+class MatchStatus(StrEnum):
+    """Moderation status of a match."""
+
+    PENDING = "pending"
+    VERIFIED = "verified"
+    REJECTED = "rejected"
+
+
 class Match(Base, TimestampMixin):
     """
     Match between a source song and a target platform URL.
@@ -86,6 +94,12 @@ class Match(Base, TimestampMixin):
     match_score: Mapped[float | None] = mapped_column(
         Numeric(5, 2),
         nullable=True,
+    )
+    status: Mapped[str] = mapped_column(
+        String(20),
+        nullable=False,
+        default=MatchStatus.PENDING,
+        index=True,
     )
 
     # Voting

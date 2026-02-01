@@ -27,6 +27,14 @@ def upgrade() -> None:
         sa.Column("name_normalized", sa.String(length=500), nullable=False),
         sa.Column("image_url", sa.Text(), nullable=True),
         sa.Column("genres", sa.JSON(), nullable=False, server_default="[]"),
+        # Extended metadata
+        sa.Column("monthly_listeners", sa.Integer(), nullable=True),
+        sa.Column("popularity", sa.Integer(), nullable=True),
+        sa.Column("bio", sa.Text(), nullable=True),
+        sa.Column("origin_country", sa.String(length=100), nullable=True),
+        sa.Column("origin_city", sa.String(length=200), nullable=True),
+        sa.Column("formed_year", sa.Integer(), nullable=True),
+        sa.Column("external_urls", sa.JSON(), nullable=True),
         sa.Column(
             "created_at",
             sa.DateTime(timezone=True),
@@ -100,6 +108,13 @@ def upgrade() -> None:
         sa.Column("cover_url", sa.Text(), nullable=True),
         sa.Column("year", sa.Integer(), nullable=True),
         sa.Column("total_tracks", sa.Integer(), nullable=False, server_default="0"),
+        # Extended metadata
+        sa.Column("album_type", sa.String(length=50), nullable=True),
+        sa.Column("release_date", sa.Date(), nullable=True),
+        sa.Column("label", sa.Text(), nullable=True),
+        sa.Column("copyright_text", sa.Text(), nullable=True),
+        sa.Column("popularity", sa.Integer(), nullable=True),
+        sa.Column("genres", sa.JSON(), nullable=True),
         sa.Column(
             "created_at",
             sa.DateTime(timezone=True),
@@ -266,36 +281,38 @@ def upgrade() -> None:
     )
 
     # Add artist_id and album_id columns to songs table
-    op.add_column("songs", sa.Column("artist_id", sa.UUID(), nullable=True))
-    op.add_column("songs", sa.Column("album_id", sa.UUID(), nullable=True))
-    op.create_foreign_key(
-        "fk_songs_artist_id",
-        "songs",
-        "artists",
-        ["artist_id"],
-        ["id"],
-        ondelete="SET NULL",
-    )
-    op.create_foreign_key(
-        "fk_songs_album_id",
-        "songs",
-        "albums",
-        ["album_id"],
-        ["id"],
-        ondelete="SET NULL",
-    )
-    op.create_index(op.f("ix_songs_artist_id"), "songs", ["artist_id"], unique=False)
-    op.create_index(op.f("ix_songs_album_id"), "songs", ["album_id"], unique=False)
+    # Use batch_alter_table for SQLite compatibility
+    with op.batch_alter_table("songs", schema=None) as batch_op:
+        batch_op.add_column(sa.Column("artist_id", sa.UUID(), nullable=True))
+        batch_op.add_column(sa.Column("album_id", sa.UUID(), nullable=True))
+        batch_op.create_foreign_key(
+            "fk_songs_artist_id",
+            "artists",
+            ["artist_id"],
+            ["id"],
+            ondelete="SET NULL",
+        )
+        batch_op.create_foreign_key(
+            "fk_songs_album_id",
+            "albums",
+            ["album_id"],
+            ["id"],
+            ondelete="SET NULL",
+        )
+        batch_op.create_index("ix_songs_artist_id", ["artist_id"], unique=False)
+        batch_op.create_index("ix_songs_album_id", ["album_id"], unique=False)
 
 
 def downgrade() -> None:
     # Remove foreign keys and columns from songs
-    op.drop_index(op.f("ix_songs_album_id"), table_name="songs")
-    op.drop_index(op.f("ix_songs_artist_id"), table_name="songs")
-    op.drop_constraint("fk_songs_album_id", "songs", type_="foreignkey")
-    op.drop_constraint("fk_songs_artist_id", "songs", type_="foreignkey")
-    op.drop_column("songs", "album_id")
-    op.drop_column("songs", "artist_id")
+    # Use batch_alter_table for SQLite compatibility
+    with op.batch_alter_table("songs", schema=None) as batch_op:
+        batch_op.drop_index("ix_songs_album_id")
+        batch_op.drop_index("ix_songs_artist_id")
+        batch_op.drop_constraint("fk_songs_album_id", type_="foreignkey")
+        batch_op.drop_constraint("fk_songs_artist_id", type_="foreignkey")
+        batch_op.drop_column("album_id")
+        batch_op.drop_column("artist_id")
 
     # Drop playlist_tracks
     op.drop_index(op.f("ix_playlist_tracks_song_id"), table_name="playlist_tracks")

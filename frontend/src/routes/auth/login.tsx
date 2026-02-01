@@ -25,11 +25,11 @@ function LoginPage() {
   };
 
   return (
-    <div className="min-h-[60vh] flex items-center justify-center">
-      <div className="w-full max-w-md space-y-8">
+    <div className="min-h-[80vh] flex items-center justify-center relative">
+      <div className="w-full max-w-md space-y-8 relative z-20">
         {/* Header */}
         <div className="text-center">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-500 mb-6 shadow-lg shadow-emerald-500/25">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-[var(--accent-safe)] to-[var(--accent-cool)] mb-6 shadow-lg glow">
             <svg
               className="w-8 h-8 text-white"
               fill="none"
@@ -44,16 +44,16 @@ function LoginPage() {
               />
             </svg>
           </div>
-          <h1 className="text-3xl font-bold tracking-tight text-zinc-50">
+          <h1 className="text-3xl font-bold tracking-tight text-[var(--color-text-primary)]">
             Welcome Back
           </h1>
-          <p className="text-zinc-400 mt-2">
+          <p className="text-[var(--color-text-muted)] mt-2">
             Sign in to your account to continue
           </p>
         </div>
 
         {/* Form Card */}
-        <Card variant="bordered" className="animate-scale-in">
+        <Card variant="bordered" className="animate-scale-in glass">
           <CardContent className="pt-6">
             <form onSubmit={handleSubmit} className="space-y-5">
               <Input
@@ -74,7 +74,7 @@ function LoginPage() {
               />
 
               {loginMutation.error && (
-                <div className="flex items-center gap-2 p-3 rounded-xl bg-red-950/30 border border-red-900/50 text-red-400">
+                <div className="flex items-center gap-2 p-3 rounded-xl bg-[var(--accent-peak)]/10 border border-[var(--accent-peak)]/30 text-[var(--accent-peak)]">
                   <svg
                     className="w-5 h-5 shrink-0"
                     fill="none"
@@ -109,11 +109,11 @@ function LoginPage() {
         </Card>
 
         {/* Footer */}
-        <p className="text-center text-sm text-zinc-400">
+        <p className="text-center text-sm text-[var(--color-text-muted)]">
           Don't have an account?{" "}
           <Link
             to="/auth/register"
-            className="text-emerald-400 hover:text-emerald-300 font-medium transition-colors"
+            className="text-[var(--accent-safe)] hover:text-[var(--accent-safe)]/80 font-medium transition-colors"
           >
             Create one
           </Link>

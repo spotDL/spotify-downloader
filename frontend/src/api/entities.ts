@@ -2,23 +2,23 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiClient } from "./client";
 import type {
   EntityType,
-  InternalArtist,
-  InternalAlbum,
+  EnhancedArtist,
+  EnhancedAlbum,
   InternalPlaylist,
-  InternalSong,
+  EnhancedSong,
   UniversalSearchResponse,
   UniversalSearchRequest,
 } from "@/types";
 
 // API functions for internal ID-based system
 
-export async function getArtistById(id: string): Promise<InternalArtist> {
-  const response = await apiClient.get<InternalArtist>(`/entities/artists/${id}`);
+export async function getArtistById(id: string): Promise<EnhancedArtist> {
+  const response = await apiClient.get<EnhancedArtist>(`/entities/artists/${id}`);
   return response.data;
 }
 
-export async function getAlbumById(id: string): Promise<InternalAlbum> {
-  const response = await apiClient.get<InternalAlbum>(`/entities/albums/${id}`);
+export async function getAlbumById(id: string): Promise<EnhancedAlbum> {
+  const response = await apiClient.get<EnhancedAlbum>(`/entities/albums/${id}`);
   return response.data;
 }
 
@@ -29,8 +29,8 @@ export async function getPlaylistById(id: string): Promise<InternalPlaylist> {
   return response.data;
 }
 
-export async function getSongById(id: string): Promise<InternalSong> {
-  const response = await apiClient.get<InternalSong>(`/entities/songs/${id}`);
+export async function getSongById(id: string): Promise<EnhancedSong> {
+  const response = await apiClient.get<EnhancedSong>(`/entities/songs/${id}`);
   return response.data;
 }
 
@@ -114,14 +114,14 @@ export function useInternalSong(id: string) {
 }
 
 export function useUniversalSearch(
-  query: string,
-  type?: EntityType,
-  limit = 20
+  params: { query: string; type?: EntityType; limit?: number },
+  options?: { enabled?: boolean }
 ) {
+  const { query, type, limit = 20 } = params;
   return useQuery({
     queryKey: entityKeys.search(query, type),
     queryFn: () => universalSearchGet(query, type, limit),
-    enabled: query.length > 0,
+    enabled: options?.enabled ?? query.length > 0,
     staleTime: 1000 * 60 * 5,
   });
 }

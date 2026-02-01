@@ -50,6 +50,36 @@ class Artist(Base, TimestampMixin):
         default=list,
     )
 
+    # Extended metadata
+    monthly_listeners: Mapped[int | None] = mapped_column(
+        Integer,
+        nullable=True,
+    )
+    popularity: Mapped[int | None] = mapped_column(
+        Integer,
+        nullable=True,
+    )
+    bio: Mapped[str | None] = mapped_column(
+        Text,
+        nullable=True,
+    )
+    origin_country: Mapped[str | None] = mapped_column(
+        String(100),
+        nullable=True,
+    )
+    origin_city: Mapped[str | None] = mapped_column(
+        String(200),
+        nullable=True,
+    )
+    formed_year: Mapped[int | None] = mapped_column(
+        Integer,
+        nullable=True,
+    )
+    external_urls: Mapped[dict[str, str] | None] = mapped_column(
+        JSONType(),
+        nullable=True,
+    )
+
     # Relationships
     platform_links: Mapped[list[ArtistPlatformLink]] = relationship(
         "ArtistPlatformLink",

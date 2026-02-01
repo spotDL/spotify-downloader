@@ -1,114 +1,251 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
-import { Button, Input } from "@/components/ui";
+import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
+import { useState, useEffect, useCallback } from "react";
+import { Button, Input, Card, CardContent } from "@/components/ui";
+import { features, config } from "@/config";
 
 export const Route = createFileRoute("/")({
   component: HomePage,
 });
 
-// Platform configurations for visual display
-const PLATFORM_CONFIG: Record<string, {
-  gradient: string;
-  icon: React.ReactNode;
-}> = {
-  spotify: {
-    gradient: "from-[#1db954] to-[#169c46]",
-    icon: (
-      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/>
-      </svg>
-    ),
-  },
-  deezer: {
-    gradient: "from-[#a238ff] to-[#8519e0]",
-    icon: (
-      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M18.81 4.16v3.03H24V4.16h-5.19zM6.27 8.38v3.027h5.189V8.38H6.27zm12.54 0v3.027H24V8.38h-5.19zM6.27 12.594v3.027h5.189v-3.027H6.27zm6.271 0v3.027h5.19v-3.027h-5.19zm6.27 0v3.027H24v-3.027h-5.19zM0 16.81v3.029h5.19V16.81H0zm6.27 0v3.029h5.189V16.81H6.27zm6.271 0v3.029h5.19V16.81h-5.19zm6.27 0v3.029H24V16.81h-5.19z"/>
-      </svg>
-    ),
-  },
-  youtube_music: {
-    gradient: "from-[#ff0000] to-[#cc0000]",
-    icon: (
-      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M12 0C5.376 0 0 5.376 0 12s5.376 12 12 12 12-5.376 12-12S18.624 0 12 0zm0 19.104c-3.924 0-7.104-3.18-7.104-7.104S8.076 4.896 12 4.896s7.104 3.18 7.104 7.104-3.18 7.104-7.104 7.104zm0-13.332c-3.432 0-6.228 2.796-6.228 6.228S8.568 18.228 12 18.228s6.228-2.796 6.228-6.228S15.432 5.772 12 5.772zM9.684 15.54V8.46L15.816 12l-6.132 3.54z"/>
-      </svg>
-    ),
-  },
-  soundcloud: {
-    gradient: "from-[#ff5500] to-[#cc4400]",
-    icon: (
-      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M1.175 12.225c-.051 0-.094.046-.101.1l-.233 2.154.233 2.105c.007.058.05.098.101.098.05 0 .09-.04.099-.098l.255-2.105-.27-2.154c-.009-.06-.052-.1-.084-.1zm-.899.828c-.06 0-.091.037-.104.094L0 14.479l.165 1.308c.014.057.045.094.09.094s.089-.037.099-.094l.21-1.308-.21-1.334c-.01-.057-.054-.09-.09-.09zm1.83-1.229c-.06 0-.12.045-.12.104l-.21 2.563.225 2.458c0 .06.045.104.106.104.061 0 .12-.044.12-.104l.24-2.458-.24-2.563c0-.06-.059-.104-.12-.104zm.945-.089c-.075 0-.135.06-.15.135l-.193 2.64.21 2.544c.016.077.075.138.149.138.075 0 .135-.061.15-.138l.24-2.544-.24-2.64c-.015-.075-.074-.135-.166-.135z"/>
-      </svg>
-    ),
-  },
-  apple_music: {
-    gradient: "from-[#fc3c44] to-[#fa233b]",
-    icon: (
-      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M23.994 6.124a9.23 9.23 0 00-.24-2.19c-.317-1.31-1.062-2.31-2.18-3.043a5.022 5.022 0 00-1.877-.726 10.496 10.496 0 00-1.564-.15c-.04-.003-.083-.01-.124-.013H5.986c-.152.01-.303.017-.455.026-.747.043-1.49.123-2.193.4-1.336.53-2.3 1.452-2.865 2.78-.192.448-.292.925-.363 1.408-.056.392-.088.785-.1 1.18 0 .032-.007.062-.01.093v12.223c.01.14.017.283.027.424.05.815.154 1.624.497 2.373.65 1.42 1.738 2.353 3.234 2.801.42.127.856.187 1.293.228.555.053 1.11.06 1.667.06h11.03a12.5 12.5 0 001.57-.1c.822-.106 1.596-.35 2.296-.81a5.046 5.046 0 001.88-2.207c.186-.42.293-.87.37-1.324.113-.675.138-1.358.137-2.04-.002-3.8 0-7.595-.003-11.393z"/>
-      </svg>
-    ),
-  },
-  tidal: {
-    gradient: "from-[#000000] to-[#333333]",
-    icon: (
-      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M12.012 3.992L8.008 7.996 4.004 3.992 0 7.996l4.004 4.004 4.004-4.004 4.004 4.004-4.004 4.004 4.004 4.004 4.004-4.004-4.004-4.004 4.004-4.004-4.004-4.004zm7.988 0l-4.004 4.004 4.004 4.004 4.004-4.004z"/>
-      </svg>
-    ),
-  },
-};
+// ============================================================================
+// LOCAL STORAGE UTILITIES
+// ============================================================================
 
-function GradientOrb({ className, delay = 0 }: { className?: string; delay?: number }) {
-  return (
-    <div
-      className={`absolute rounded-full blur-[100px] opacity-30 animate-pulse ${className}`}
-      style={{ animationDelay: `${delay}s`, animationDuration: "4s" }}
-    />
-  );
+const RECENT_SEARCHES_KEY = "spotdl_recent_searches";
+const MAX_RECENT_SEARCHES = 10;
+
+interface RecentSearch {
+  query: string;
+  timestamp: number;
 }
 
-function WaveformBackground() {
+function getRecentSearches(): RecentSearch[] {
+  try {
+    const stored = localStorage.getItem(RECENT_SEARCHES_KEY);
+    return stored ? JSON.parse(stored) : [];
+  } catch {
+    return [];
+  }
+}
+
+function addRecentSearch(query: string): void {
+  try {
+    const searches = getRecentSearches();
+    const filtered = searches.filter((s) => s.query.toLowerCase() !== query.toLowerCase());
+    const updated = [
+      { query, timestamp: Date.now() },
+      ...filtered,
+    ].slice(0, MAX_RECENT_SEARCHES);
+    localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify(updated));
+  } catch {
+    // Silently fail
+  }
+}
+
+function clearRecentSearches(): void {
+  try {
+    localStorage.removeItem(RECENT_SEARCHES_KEY);
+  } catch {
+    // Silently fail
+  }
+}
+
+// ============================================================================
+// MAIN HOME PAGE - Routes to correct variant
+// ============================================================================
+
+function HomePage() {
+  if (features.isHosted) {
+    return <HostedHomePage />;
+  }
+  return <SelfHostedHomePage />;
+}
+
+// ============================================================================
+// HOSTED HOME PAGE - Open Source Project Landing
+// ============================================================================
+
+function HostedHomePage() {
   return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none">
-      <GradientOrb className="w-[600px] h-[600px] -top-48 -left-48 bg-emerald-500/40" delay={0} />
-      <GradientOrb className="w-[500px] h-[500px] top-1/4 -right-32 bg-teal-500/30" delay={1} />
-      <GradientOrb className="w-[400px] h-[400px] bottom-0 left-1/3 bg-cyan-500/25" delay={2} />
-      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.01)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.01)_1px,transparent_1px)] bg-[size:64px_64px]" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,#0a0a0b_70%)]" />
+    <div className="space-y-16 py-8">
+      {/* Hero */}
+      <div className="text-center space-y-6">
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-zinc-800/50 text-zinc-400 text-sm">
+          <span className="w-2 h-2 rounded-full bg-green-500" />
+          Open Source
+        </div>
+
+        <h1 className="text-5xl md:text-6xl font-bold tracking-tight">
+          <span className="text-[var(--accent-safe)]">spot</span>
+          <span className="text-white">DL</span>
+        </h1>
+
+        <p className="text-xl text-zinc-400 max-w-2xl mx-auto">
+          Download music from Spotify, YouTube, SoundCloud, and more with metadata and lyrics.
+          Free, open source, and community-driven.
+        </p>
+
+        <div className="flex items-center justify-center gap-4 pt-4">
+          <a
+            href={config.githubUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <Button size="lg" variant="primary">
+              <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.17 6.839 9.49.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.604-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.463-1.11-1.463-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836c.85.004 1.705.114 2.504.336 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.167 22 16.418 22 12c0-5.523-4.477-10-10-10z" />
+              </svg>
+              View on GitHub
+            </Button>
+          </a>
+          <a href="https://spotdl.readthedocs.io" target="_blank" rel="noopener noreferrer">
+            <Button size="lg" variant="outline">
+              Documentation
+            </Button>
+          </a>
+        </div>
+      </div>
+
+      {/* Quick Install */}
+      <Card variant="bordered" className="max-w-2xl mx-auto">
+        <CardContent className="py-6">
+          <h3 className="text-lg font-semibold text-zinc-100 mb-4">Quick Install</h3>
+          <div className="space-y-3">
+            <div className="flex items-center gap-3 p-3 rounded-lg bg-zinc-900 font-mono text-sm">
+              <span className="text-zinc-500">$</span>
+              <code className="text-zinc-100">pip install spotdl</code>
+              <button
+                className="ml-auto text-zinc-500 hover:text-zinc-300"
+                onClick={() => navigator.clipboard.writeText("pip install spotdl")}
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                </svg>
+              </button>
+            </div>
+            <div className="flex items-center gap-3 p-3 rounded-lg bg-zinc-900 font-mono text-sm">
+              <span className="text-zinc-500">$</span>
+              <code className="text-zinc-100">spotdl download "artist - song"</code>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Features */}
+      <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+        <FeatureCard
+          icon={
+            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+            </svg>
+          }
+          title="Multi-Platform"
+          description="Download from Spotify, YouTube, YouTube Music, SoundCloud, and more."
+        />
+        <FeatureCard
+          icon={
+            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+            </svg>
+          }
+          title="Full Metadata"
+          description="Automatically fetches album art, lyrics, artist info, and ID3 tags."
+        />
+        <FeatureCard
+          icon={
+            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+            </svg>
+          }
+          title="Cross-Platform Matching"
+          description="Intelligently matches songs across platforms using audio fingerprinting."
+        />
+      </div>
+
+      {/* Supported Platforms */}
+      <div className="text-center">
+        <h3 className="text-sm font-medium text-zinc-500 uppercase tracking-wide mb-6">
+          Supported Platforms
+        </h3>
+        <div className="flex items-center justify-center gap-6 flex-wrap">
+          {["Spotify", "YouTube", "YouTube Music", "SoundCloud", "Bandcamp"].map((platform) => (
+            <span key={platform} className="text-zinc-400 text-sm">
+              {platform}
+            </span>
+          ))}
+        </div>
+      </div>
+
+      {/* Web UI Notice */}
+      <Card variant="bordered" className="max-w-3xl mx-auto">
+        <CardContent className="py-6 text-center">
+          <h3 className="text-lg font-semibold text-zinc-100 mb-2">
+            This is the SpotDL Matching Service
+          </h3>
+          <p className="text-zinc-400 mb-4">
+            A crowdsourced database of cross-platform song matches.
+            To download music, install spotDL locally or self-host this web interface.
+          </p>
+          <div className="flex items-center justify-center gap-4">
+            <Link to="/search">
+              <Button variant="primary">Browse Matches</Button>
+            </Link>
+            <Link to="/matching">
+              <Button variant="outline">Contribute</Button>
+            </Link>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
 
-function HomePage() {
+// ============================================================================
+// SELF-HOSTED HOME PAGE - Immediate Action Interface
+// ============================================================================
+
+function SelfHostedHomePage() {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
-  const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const [recentSearches, setRecentSearches] = useState<RecentSearch[]>([]);
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    const query = searchQuery.trim();
-    if (!query) return;
+  useEffect(() => {
+    setRecentSearches(getRecentSearches());
+  }, []);
 
-    // Redirect to search page with query
-    navigate({ to: "/search", search: { q: query } });
+  const handleSearch = useCallback((e?: React.FormEvent, query?: string) => {
+    if (e) e.preventDefault();
+    const searchTerm = (query || searchQuery).trim();
+    if (!searchTerm) return;
+
+    addRecentSearch(searchTerm);
+    navigate({ to: "/search", search: { q: searchTerm } });
+  }, [searchQuery, navigate]);
+
+  const handleClearRecent = () => {
+    clearRecentSearches();
+    setRecentSearches([]);
   };
 
   return (
-    <div className="relative min-h-[calc(100vh-200px)]">
-      <WaveformBackground />
+    <div className="space-y-8">
+      {/* Search Section */}
+      <div className="max-w-3xl mx-auto space-y-6">
+        <div className="text-center">
+          <h1 className="text-3xl font-bold text-zinc-100 mb-2">
+            Search & Download Music
+          </h1>
+          <p className="text-zinc-400">
+            Paste a URL or search for songs, albums, artists, or playlists
+          </p>
+        </div>
 
-      <div className="relative z-10 space-y-12">
-        {/* Hero Section */}
-        <div className="text-center space-y-8 py-12">
-          {/* Floating badge */}
-          <div className="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full bg-gradient-to-r from-emerald-950/60 via-teal-950/60 to-cyan-950/60 border border-emerald-700/30 text-emerald-300 text-sm animate-slide-down backdrop-blur-sm">
-            <div className="relative">
-              <div className="absolute inset-0 rounded-full bg-emerald-400 animate-ping opacity-50" />
+        {/* Search Form */}
+        <form onSubmit={handleSearch}>
+          <div className="flex gap-3">
+            <div className="relative flex-1">
               <svg
-                className="relative w-4 h-4"
+                className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-500"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -117,166 +254,166 @@ function HomePage() {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth={2}
-                  d="M13 10V3L4 14h7v7l9-11h-7z"
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
                 />
               </svg>
-            </div>
-            <span className="font-medium">Multi-platform music matching</span>
-            <span className="w-px h-4 bg-emerald-700/50" />
-            <span className="text-emerald-400/80 text-xs">Powered by community</span>
-          </div>
-
-          {/* Main headline */}
-          <div className="space-y-4">
-            <h1 className="text-5xl md:text-7xl font-black tracking-tighter animate-slide-up leading-[0.9]">
-              <span className="block text-zinc-100">Download Music</span>
-              <span className="block mt-2">
-                <span className="text-zinc-100">from </span>
-                <span className="relative">
-                  <span className="gradient-text">Any Platform</span>
-                  <svg className="absolute -bottom-2 left-0 w-full h-3 text-emerald-500/30" viewBox="0 0 100 12" preserveAspectRatio="none">
-                    <path d="M0,8 Q25,0 50,8 T100,8" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round"/>
-                  </svg>
-                </span>
-              </span>
-            </h1>
-
-            <p className="text-lg md:text-xl text-zinc-400 max-w-2xl mx-auto leading-relaxed animate-slide-up stagger-1">
-              Search across <span className="text-zinc-200 font-medium">Spotify</span>,{" "}
-              <span className="text-zinc-200 font-medium">YouTube Music</span>,{" "}
-              <span className="text-zinc-200 font-medium">Deezer</span>, and more.
-              <br className="hidden md:block" />
-              We build a database of cross-platform matches together.
-            </p>
-          </div>
-
-          {/* Platform icons row */}
-          <div className="flex items-center justify-center gap-4 animate-slide-up stagger-2">
-            {Object.entries(PLATFORM_CONFIG).slice(0, 6).map(([platform, config], index) => (
-              <div
-                key={platform}
-                className={`w-10 h-10 rounded-xl bg-gradient-to-br ${config.gradient} flex items-center justify-center text-white/90 transition-all duration-300 hover:scale-110`}
-                style={{ animationDelay: `${index * 0.1}s` }}
-                title={platform.replace("_", " ")}
-              >
-                {config.icon}
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Search Form */}
-        <form onSubmit={handleSearch} className="max-w-3xl mx-auto animate-scale-in">
-          <div className="relative group">
-            {/* Animated glow effect */}
-            <div className={`absolute -inset-1 bg-gradient-to-r from-emerald-500/30 via-teal-500/30 to-cyan-500/30 rounded-2xl blur-xl transition-all duration-500 ${isSearchFocused ? "opacity-100 scale-105" : "opacity-0 group-hover:opacity-70"}`} />
-
-            {/* Search container */}
-            <div className={`relative flex gap-3 p-2.5 bg-[#111113]/90 backdrop-blur-xl border rounded-2xl transition-all duration-300 ${isSearchFocused ? "border-emerald-700/50 shadow-lg shadow-emerald-900/20" : "border-zinc-800/80"}`}>
-              {/* Search icon */}
-              <div className="flex items-center pl-3">
-                <svg
-                  className={`w-5 h-5 transition-colors duration-200 ${isSearchFocused ? "text-emerald-400" : "text-zinc-500"}`}
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                  />
-                </svg>
-              </div>
-
               <Input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                onFocus={() => setIsSearchFocused(true)}
-                onBlur={() => setIsSearchFocused(false)}
-                placeholder="Paste a song URL or search across all platforms..."
-                className="flex-1 border-0 bg-transparent focus:ring-0 text-base placeholder:text-zinc-600"
+                placeholder="spotify.com/track/... or artist - song name"
+                className="pl-12 py-3 text-base"
               />
-
-              <Button
-                type="submit"
-                disabled={!searchQuery.trim()}
-                size="lg"
-                className="px-6"
-              >
-                Search All
-                <svg
-                  className="w-4 h-4 ml-2"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M14 5l7 7m0 0l-7 7m7-7H3"
-                  />
-                </svg>
-              </Button>
             </div>
-          </div>
-
-          {/* Search hints */}
-          <div className="flex items-center justify-center gap-4 mt-4 text-xs text-zinc-500">
-            <span className="flex items-center gap-1.5">
-              <kbd className="px-1.5 py-0.5 rounded bg-zinc-800/50 border border-zinc-700/50 font-mono text-zinc-400">spotify.com/track/...</kbd>
-              <span>URLs</span>
-            </span>
-            <span className="w-px h-3 bg-zinc-700" />
-            <span className="flex items-center gap-1.5">
-              <span className="text-zinc-400">"artist name - song"</span>
-              <span>Search</span>
-            </span>
+            <Button type="submit" size="lg" disabled={!searchQuery.trim()}>
+              Search
+            </Button>
           </div>
         </form>
 
-        {/* Features section */}
-        <div className="max-w-4xl mx-auto grid md:grid-cols-3 gap-6 pt-8">
-          <div className="p-6 rounded-xl bg-zinc-900/50 border border-zinc-800/50">
-            <div className="w-10 h-10 rounded-lg bg-emerald-500/20 flex items-center justify-center mb-4">
-              <svg className="w-5 h-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-            </div>
-            <h3 className="font-semibold text-zinc-100 mb-2">Universal Search</h3>
-            <p className="text-sm text-zinc-400">
-              Search once across Spotify, YouTube Music, Deezer, SoundCloud, and more simultaneously.
-            </p>
-          </div>
-
-          <div className="p-6 rounded-xl bg-zinc-900/50 border border-zinc-800/50">
-            <div className="w-10 h-10 rounded-lg bg-teal-500/20 flex items-center justify-center mb-4">
-              <svg className="w-5 h-5 text-teal-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
-              </svg>
-            </div>
-            <h3 className="font-semibold text-zinc-100 mb-2">Cross-Platform Matching</h3>
-            <p className="text-sm text-zinc-400">
-              Find the same song across different platforms automatically with our community-driven database.
-            </p>
-          </div>
-
-          <div className="p-6 rounded-xl bg-zinc-900/50 border border-zinc-800/50">
-            <div className="w-10 h-10 rounded-lg bg-cyan-500/20 flex items-center justify-center mb-4">
-              <svg className="w-5 h-5 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-              </svg>
-            </div>
-            <h3 className="font-semibold text-zinc-100 mb-2">Download Queue</h3>
-            <p className="text-sm text-zinc-400">
-              Add songs to your download queue and manage downloads from a single interface.
-            </p>
-          </div>
+        {/* Input hints */}
+        <div className="flex items-center justify-center gap-6 text-xs text-zinc-500">
+          <span>Spotify URL</span>
+          <span className="w-1 h-1 rounded-full bg-zinc-700" />
+          <span>YouTube URL</span>
+          <span className="w-1 h-1 rounded-full bg-zinc-700" />
+          <span>Artist - Song</span>
+          <span className="w-1 h-1 rounded-full bg-zinc-700" />
+          <span>Album name</span>
         </div>
       </div>
+
+      {/* Recent Searches */}
+      {recentSearches.length > 0 && (
+        <div className="max-w-3xl mx-auto">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-sm font-medium text-zinc-400">Recent Searches</h3>
+            <button
+              onClick={handleClearRecent}
+              className="text-xs text-zinc-500 hover:text-zinc-300"
+            >
+              Clear
+            </button>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {recentSearches.slice(0, 8).map((search, i) => (
+              <button
+                key={i}
+                onClick={() => handleSearch(undefined, search.query)}
+                className="px-3 py-1.5 rounded-lg bg-zinc-800/50 text-sm text-zinc-300 hover:bg-zinc-700/50 transition-colors"
+              >
+                {search.query}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Quick Actions */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto">
+        <QuickAction
+          to="/queue"
+          icon={
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            </svg>
+          }
+          label="Download Queue"
+        />
+        <QuickAction
+          to="/matching"
+          icon={
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+            </svg>
+          }
+          label="Find Matches"
+        />
+        <QuickAction
+          to="/settings"
+          icon={
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+          }
+          label="Settings"
+        />
+        <a href={config.githubUrl} target="_blank" rel="noopener noreferrer" className="block">
+          <div className="flex flex-col items-center gap-2 p-4 rounded-xl bg-zinc-800/30 hover:bg-zinc-800/50 transition-colors text-zinc-400 hover:text-zinc-200">
+            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+              <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.17 6.839 9.49.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.604-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.463-1.11-1.463-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836c.85.004 1.705.114 2.504.336 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.167 22 16.418 22 12c0-5.523-4.477-10-10-10z" />
+            </svg>
+            <span className="text-sm font-medium">GitHub</span>
+          </div>
+        </a>
+      </div>
+
+      {/* Tips */}
+      <Card variant="bordered" className="max-w-3xl mx-auto">
+        <CardContent className="py-4">
+          <h4 className="text-sm font-medium text-zinc-300 mb-3">Tips</h4>
+          <ul className="space-y-2 text-sm text-zinc-400">
+            <li className="flex items-start gap-2">
+              <span className="text-[var(--accent-safe)]">•</span>
+              Paste Spotify, YouTube, or SoundCloud URLs directly
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-[var(--accent-safe)]">•</span>
+              Search by "Artist - Song" for best results
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-[var(--accent-safe)]">•</span>
+              Use the matching page to find cross-platform equivalents
+            </li>
+          </ul>
+        </CardContent>
+      </Card>
     </div>
+  );
+}
+
+// ============================================================================
+// SHARED COMPONENTS
+// ============================================================================
+
+function FeatureCard({
+  icon,
+  title,
+  description,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+}) {
+  return (
+    <Card variant="bordered">
+      <CardContent className="py-6">
+        <div className="w-12 h-12 rounded-xl bg-[var(--accent-safe)]/10 flex items-center justify-center mb-4 text-[var(--accent-safe)]">
+          {icon}
+        </div>
+        <h3 className="font-semibold text-zinc-100 mb-2">{title}</h3>
+        <p className="text-sm text-zinc-400">{description}</p>
+      </CardContent>
+    </Card>
+  );
+}
+
+function QuickAction({
+  to,
+  icon,
+  label,
+}: {
+  to: string;
+  icon: React.ReactNode;
+  label: string;
+}) {
+  return (
+    <Link to={to}>
+      <div className="flex flex-col items-center gap-2 p-4 rounded-xl bg-zinc-800/30 hover:bg-zinc-800/50 transition-colors text-zinc-400 hover:text-zinc-200">
+        {icon}
+        <span className="text-sm font-medium">{label}</span>
+      </div>
+    </Link>
   );
 }

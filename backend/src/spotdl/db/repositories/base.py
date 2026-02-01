@@ -5,7 +5,7 @@ from __future__ import annotations
 import uuid
 from typing import Any, Generic, TypeVar
 
-from sqlalchemy import select
+from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from spotdl.db.models.base import Base
@@ -32,6 +32,12 @@ class BaseRepository(Generic[ModelT]):
         query = select(self.model).offset(skip).limit(limit)
         result = await self.session.execute(query)
         return list(result.scalars().all())
+
+    async def count(self) -> int:
+        """Get total count of records."""
+        query = select(func.count()).select_from(self.model)
+        result = await self.session.execute(query)
+        return result.scalar() or 0
 
     async def create(self, **kwargs: Any) -> ModelT:
         """Create a new record."""

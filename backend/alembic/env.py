@@ -1,13 +1,15 @@
-"""Alembic environment configuration for async SQLAlchemy."""
+"""Alembic environment configuration for SQLAlchemy.
+
+Uses synchronous SQLAlchemy for migrations since Alembic doesn't natively
+support async. The async database URL is converted to sync automatically.
+"""
 
 from __future__ import annotations
 
-import asyncio
 from logging.config import fileConfig
 
 from alembic import context
-from sqlalchemy import pool
-from sqlalchemy.ext.asyncio import async_engine_from_config
+from sqlalchemy import create_engine, pool
 
 from spotdl.config import get_settings
 from spotdl.db.models import Base
@@ -22,9 +24,28 @@ if config.config_file_name is not None:
 # Model metadata for autogenerate support
 target_metadata = Base.metadata
 
-# Get database URL from settings
-settings = get_settings()
-config.set_main_option("sqlalchemy.url", settings.database_url)
+
+def get_sync_url() -> str:
+    """Get synchronous database URL for migrations.
+
+    Converts async drivers to sync equivalents:
+    - sqlite+aiosqlite -> sqlite
+    - postgresql+asyncpg -> postgresql+psycopg2
+    """
+    settings = get_settings()
+    url = settings.database_url
+
+    # Convert async URLs to sync
+    if "+aiosqlite" in url:
+        url = url.replace("+aiosqlite", "")
+    elif "+asyncpg" in url:
+        url = url.replace("+asyncpg", "+psycopg2")
+
+    return url
+
+
+# Set the database URL
+config.set_main_option("sqlalchemy.url", get_sync_url())
 
 
 def run_migrations_offline() -> None:
@@ -50,36 +71,33 @@ def run_migrations_offline() -> None:
         context.run_migrations()
 
 
-def do_run_migrations(connection) -> None:
-    """Run migrations with the given connection."""
-    context.configure(connection=connection, target_metadata=target_metadata)
-
-    with context.begin_transaction():
-        context.run_migrations()
-
-
-async def run_async_migrations() -> None:
+def run_migrations_online() -> None:
     """
-    Run migrations in 'online' mode with async engine.
+    Run migrations in 'online' mode.
 
     In this scenario we need to create an Engine and associate a
     connection with the context.
     """
-    connectable = async_engine_from_config(
-        config.get_section(config.config_ini_section, {}),
-        prefix="sqlalchemy.",
+    connectable = create_engine(
+        config.get_main_option("sqlalchemy.url"),
         poolclass=pool.NullPool,
     )
 
-    async with connectable.connect() as connection:
-        await connection.run_sync(do_run_migrations)
+    with connectable.connect() as connection:
+        # Enable batch mode for SQLite to support ALTER TABLE operations
+        # SQLite doesn't support most ALTER TABLE statements natively
+        is_sqlite = connection.dialect.name == "sqlite"
 
-    await connectable.dispose()
+        context.configure(
+            connection=connection,
+            target_metadata=target_metadata,
+            render_as_batch=is_sqlite,  # Enable batch mode for SQLite
+        )
 
+        with context.begin_transaction():
+            context.run_migrations()
 
-def run_migrations_online() -> None:
-    """Run migrations in 'online' mode."""
-    asyncio.run(run_async_migrations())
+    connectable.dispose()
 
 
 if context.is_offline_mode():

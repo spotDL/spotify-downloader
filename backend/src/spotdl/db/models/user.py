@@ -3,15 +3,17 @@
 from __future__ import annotations
 
 import uuid
+from datetime import datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import Boolean, Integer, String
+from sqlalchemy import Boolean, DateTime, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from spotdl.db.models.base import Base, GUID, TimestampMixin, generate_uuid
 
 if TYPE_CHECKING:
     from spotdl.db.models.match import Match
+    from spotdl.db.models.metadata_report import MetadataReport
     from spotdl.db.models.user_settings import UserSettings
     from spotdl.db.models.vote import Vote
 
@@ -61,6 +63,10 @@ class User(Base, TimestampMixin):
         default=0,
         nullable=False,
     )
+    last_login: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
+    )
 
     # Relationships
     submitted_matches: Mapped[list[Match]] = relationship(
@@ -82,6 +88,16 @@ class User(Base, TimestampMixin):
         back_populates="user",
         uselist=False,
         cascade="all, delete-orphan",
+    )
+    submitted_reports: Mapped[list[MetadataReport]] = relationship(
+        "MetadataReport",
+        back_populates="reporter",
+        foreign_keys="MetadataReport.reporter_id",
+    )
+    reviewed_reports: Mapped[list[MetadataReport]] = relationship(
+        "MetadataReport",
+        back_populates="reviewer",
+        foreign_keys="MetadataReport.reviewed_by",
     )
 
     def __repr__(self) -> str:

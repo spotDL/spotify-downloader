@@ -202,11 +202,15 @@ async def register(
             detail="Email already registered",
         )
 
+    # Check if this is the first user (make them admin)
+    is_first_user = await user_repo.count() == 0
+
     # Create user
     created_user = await user_repo.create(
         username=request.username,
         email=request.email,
         hashed_password=get_password_hash(request.password),
+        is_admin=is_first_user,  # First user becomes admin
     )
     await db.commit()
 

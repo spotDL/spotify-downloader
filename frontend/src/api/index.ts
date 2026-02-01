@@ -126,3 +126,61 @@ export {
   useUniversalSearchMutation,
   entityKeys,
 } from "./entities";
+
+// Lyrics
+export {
+  getLyricsForSong,
+  searchLyrics,
+  useLyrics,
+  useRefreshLyrics,
+  useSearchLyrics,
+  hasLyrics,
+  toLyrics,
+  lyricsKeys,
+  type LyricsResponse,
+  type LyricsNotFoundResponse,
+} from "./lyrics";
+
+// Metadata Reports
+export {
+  createReport,
+  getMyReports,
+  listReports,
+  getReport,
+  updateReport,
+  deleteReport,
+  useCreateReport,
+  useMyReports,
+  useReportsList,
+  useReport,
+  useUpdateReport,
+  useDeleteReport,
+  toMetadataReport,
+  reportKeys,
+  type ReportResponse,
+  type ReportListResponse,
+  type UpdateReportRequest,
+} from "./reports";
+
+// Admin
+export {
+  listAdminUsers,
+  getAdminUser,
+  updateAdminUser,
+  listAdminMatches,
+  updateMatchStatus,
+  getSystemStats,
+  clearCache,
+  useAdminUsers,
+  useAdminUser,
+  useUpdateAdminUser,
+  useAdminMatches,
+  useUpdateMatchStatus,
+  useSystemStats,
+  useClearCache,
+  adminKeys,
+  type MatchStatus,
+  type UpdateUserRequest,
+  type UpdateMatchStatusRequest,
+  type ClearCacheRequest,
+} from "./admin";

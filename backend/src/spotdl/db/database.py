@@ -2,9 +2,13 @@
 
 from __future__ import annotations
 
+import logging
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
+from pathlib import Path
 
+from alembic import command
+from alembic.config import Config
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
     AsyncSession,
@@ -13,7 +17,8 @@ from sqlalchemy.ext.asyncio import (
 )
 
 from spotdl.config import get_settings
-from spotdl.db.models.base import Base
+
+logger = logging.getLogger(__name__)
 
 # Global engine and session factory
 _engine: AsyncEngine | None = None
@@ -52,11 +57,67 @@ def get_session_factory() -> async_sessionmaker[AsyncSession]:
     return _session_factory
 
 
+def run_migrations() -> None:
+    """Run Alembic migrations to upgrade database to the latest version."""
+    settings = get_settings()
+
+    # Find alembic.ini - check multiple possible locations
+    possible_paths = [
+        Path("alembic.ini"),  # Current directory (Docker)
+        Path(__file__).parent.parent.parent.parent / "alembic.ini",  # From source
+        Path("/app/alembic.ini"),  # Docker absolute path
+    ]
+
+    alembic_ini = None
+    for path in possible_paths:
+        if path.exists():
+            alembic_ini = path
+            break
+
+    if alembic_ini is None:
+        logger.warning("alembic.ini not found, skipping migrations")
+        return
+
+    logger.info(f"Running database migrations from {alembic_ini}")
+
+    # Create Alembic configuration
+    alembic_cfg = Config(str(alembic_ini))
+
+    # Override the database URL from settings
+    alembic_cfg.set_main_option("sqlalchemy.url", settings.database_url)
+
+    # Set the script location relative to alembic.ini
+    script_location = alembic_ini.parent / "alembic"
+    if script_location.exists():
+        alembic_cfg.set_main_option("script_location", str(script_location))
+
+    try:
+        # Run upgrade to head (latest migration)
+        command.upgrade(alembic_cfg, "head")
+        logger.info("Database migrations completed successfully")
+    except Exception as e:
+        logger.error(f"Failed to run migrations: {e}")
+        raise
+
+
 async def init_db() -> None:
-    """Initialize the database, creating tables if needed."""
+    """
+    Initialize the database by running migrations.
+
+    This ensures the database schema is up-to-date with the latest
+    migrations on every startup. Safe to run multiple times - Alembic
+    tracks which migrations have already been applied.
+    """
+    # Run migrations synchronously (Alembic doesn't support async natively)
+    run_migrations()
+
+    # Verify connection works
     engine = get_engine()
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
+    async with engine.connect() as conn:
+        from sqlalchemy import text
+        await conn.execute(text("SELECT 1"))
+
+    logger.info("Database initialized successfully")
 
 
 async def close_db() -> None:

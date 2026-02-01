@@ -3,12 +3,14 @@
 from __future__ import annotations
 
 import uuid
+from datetime import date
 from typing import TYPE_CHECKING
 
-from sqlalchemy import ForeignKey, Integer, String, Text, UniqueConstraint
+from sqlalchemy import Date, ForeignKey, Integer, String, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from spotdl.db.models.base import Base, GUID, TimestampMixin, generate_uuid
+from spotdl.db.models.song import JSONType
 
 if TYPE_CHECKING:
     from spotdl.db.models.artist import Artist
@@ -61,6 +63,32 @@ class Album(Base, TimestampMixin):
         Integer,
         nullable=False,
         default=0,
+    )
+
+    # Extended metadata
+    album_type: Mapped[str | None] = mapped_column(
+        String(50),
+        nullable=True,
+    )
+    release_date: Mapped[date | None] = mapped_column(
+        Date,
+        nullable=True,
+    )
+    label: Mapped[str | None] = mapped_column(
+        Text,
+        nullable=True,
+    )
+    copyright_text: Mapped[str | None] = mapped_column(
+        Text,
+        nullable=True,
+    )
+    popularity: Mapped[int | None] = mapped_column(
+        Integer,
+        nullable=True,
+    )
+    genres: Mapped[list[str] | None] = mapped_column(
+        JSONType(),
+        nullable=True,
     )
 
     # Relationships

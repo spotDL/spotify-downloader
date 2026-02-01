@@ -1,170 +1,149 @@
-import { createRootRoute, Link, Outlet } from "@tanstack/react-router";
-import { useAuthStore } from "@/stores/auth";
-import { useLogout, useHealth } from "@/api";
-import { Button, Badge } from "@/components/ui";
+import { createRootRoute, Outlet, useLocation } from "@tanstack/react-router";
+import { clsx } from "clsx";
+import { useHealth } from "@/api";
+import { Badge } from "@/components/ui";
+import { ToastProvider } from "@/components/ui/toast";
+import {
+  Sidebar,
+  Breadcrumb,
+  CommandPalette,
+  useCommandPalette,
+  buildBreadcrumbsFromPath,
+} from "@/components/layout";
 import { config, features } from "@/config";
 
 export const Route = createRootRoute({
   component: RootLayout,
 });
 
-// Logo component with vinyl disc styling
-function Logo() {
-  return (
-    <Link to="/" className="flex items-center gap-3 group">
-      <div className="relative w-9 h-9">
-        {/* Vinyl outer ring */}
-        <div className="absolute inset-0 rounded-full bg-gradient-to-br from-zinc-700 to-zinc-900 shadow-lg" />
-        {/* Vinyl grooves */}
-        <div className="absolute inset-1 rounded-full border border-zinc-600/30" />
-        <div className="absolute inset-2 rounded-full border border-zinc-600/20" />
-        {/* Center label with gradient */}
-        <div className="absolute inset-[10px] rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center">
-          <div className="w-1.5 h-1.5 rounded-full bg-zinc-900" />
-        </div>
-        {/* Spin animation on hover */}
-        <div className="absolute inset-0 rounded-full group-hover:animate-[spin_3s_linear_infinite] transition-transform" />
-      </div>
-      <span className="text-xl font-bold tracking-tight">
-        <span className="gradient-text">Spot</span>
-        <span className="text-zinc-100">DL</span>
-      </span>
-    </Link>
-  );
-}
+// Top bar component
+function TopBar({
+  onSearchClick,
+  breadcrumbs,
+}: {
+  onSearchClick: () => void;
+  breadcrumbs: { label: string; to?: string }[];
+}) {
+  const { isError: isOffline } = useHealth();
 
-// Navigation link component
-function NavLink({ to, children }: { to: string; children: React.ReactNode }) {
   return (
-    <Link
-      to={to}
-      className="relative px-3 py-2 text-sm font-medium text-zinc-400 hover:text-zinc-100 transition-colors [&.active]:text-emerald-400"
-    >
-      {children}
-      <span className="absolute inset-x-3 -bottom-px h-px bg-gradient-to-r from-emerald-500/0 via-emerald-500 to-emerald-500/0 opacity-0 [.active_&]:opacity-100 transition-opacity" />
-    </Link>
+    <header className="h-14 bg-[var(--bg-chassis)] border-b border-[var(--color-border-subtle)] flex items-center justify-between px-6">
+      {/* Left: Breadcrumb */}
+      <div className="flex items-center gap-4">
+        <Breadcrumb items={breadcrumbs} />
+      </div>
+
+      {/* Right: Search + Status */}
+      <div className="flex items-center gap-4">
+        {/* Search shortcut */}
+        <button
+          onClick={onSearchClick}
+          className={clsx(
+            "flex items-center gap-2 px-3 py-1.5 rounded-lg",
+            "bg-[var(--bg-surface)] border border-[var(--color-border-subtle)]",
+            "text-sm text-[var(--color-text-muted)]",
+            "hover:text-[var(--color-text-secondary)] hover:border-[var(--color-border)]",
+            "transition-colors duration-150"
+          )}
+        >
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+          <span className="hidden sm:inline">Search</span>
+          <kbd className="hidden sm:inline px-1.5 py-0.5 rounded bg-[var(--bg-void)] text-xs">
+            ⌘K
+          </kbd>
+        </button>
+
+        {/* Status */}
+        {isOffline ? (
+          <Badge variant="warning" size="sm" pulse>
+            Offline
+          </Badge>
+        ) : (
+          <div className="flex items-center gap-1.5">
+            <div className="w-2 h-2 rounded-full bg-[var(--accent-safe)] animate-pulse" />
+            <span className="text-xs text-[var(--color-text-muted)]">Online</span>
+          </div>
+        )}
+      </div>
+    </header>
   );
 }
 
 function RootLayout() {
-  const { isAuthenticated, user } = useAuthStore();
-  const logoutMutation = useLogout();
-  const { isError: isOffline } = useHealth();
+  const location = useLocation();
+  const { isOpen: isPaletteOpen, open: openPalette, close: closePalette } = useCommandPalette();
 
-  const handleLogout = () => {
-    logoutMutation.mutate();
-  };
+  // Build breadcrumbs from current path
+  const breadcrumbs = buildBreadcrumbsFromPath(location.pathname);
 
   return (
-    <div className="min-h-screen bg-[#0a0a0b] text-zinc-100 flex flex-col">
-      {/* Hosted Mode Banner */}
-      {features.isHosted && (
-        <div className="bg-gradient-to-r from-emerald-600/20 via-teal-600/20 to-cyan-600/20 border-b border-emerald-500/20 py-2 px-4 text-center">
-          <p className="text-sm text-emerald-200">
-            Welcome to the SpotDL Matching Service - crowdsourced & verified matches for everyone.{" "}
-            <a
-              href={config.githubUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-medium underline underline-offset-2 hover:text-emerald-100"
-            >
-              Self-host
-            </a>{" "}
-            for download functionality.
-          </p>
-        </div>
-      )}
+    <ToastProvider>
+      <div className="min-h-screen bg-[var(--bg-void)] text-[var(--color-text-primary)]">
+        {/* Sidebar */}
+        <Sidebar onSearchClick={openPalette} />
 
-      {/* Header */}
-      <header className="sticky top-0 z-50 glass border-b border-zinc-800/50">
-        <nav className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-          {/* Left section - Logo + Status */}
-          <div className="flex items-center gap-6">
-            <Logo />
-            <div className="h-6 w-px bg-zinc-800" />
-            {isOffline ? (
-              <Badge variant="warning" size="sm" pulse>
-                Offline
-              </Badge>
-            ) : (
-              <Badge variant="success" size="sm" pulse>
-                Online
-              </Badge>
-            )}
-          </div>
-
-          {/* Center section - Navigation */}
-          <div className="hidden md:flex items-center gap-1">
-            <NavLink to="/">Home</NavLink>
-            {features.hasQueue && <NavLink to="/queue">Queue</NavLink>}
-            <NavLink to="/matching">Matching</NavLink>
-            <NavLink to="/settings">Settings</NavLink>
-          </div>
-
-          {/* Right section - Auth */}
-          <div className="flex items-center gap-3">
-            {isAuthenticated ? (
-              <>
-                <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-zinc-800/50">
-                  <div className="w-6 h-6 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center text-xs font-bold text-white">
-                    {user?.username?.charAt(0).toUpperCase()}
-                  </div>
-                  <span className="text-sm text-zinc-300">{user?.username}</span>
-                </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleLogout}
-                  isLoading={logoutMutation.isPending}
+        {/* Main content area */}
+        <div className="md:ml-16 flex flex-col min-h-screen">
+          {/* Hosted Mode Banner */}
+          {features.isHosted && (
+            <div className="bg-gradient-to-r from-[var(--accent-needle)]/10 via-[var(--accent-warm)]/10 to-[var(--accent-safe)]/10 border-b border-[var(--accent-needle)]/20 py-2 px-4 text-center">
+              <p className="text-sm text-[var(--accent-warm)]">
+                Welcome to the SpotDL Matching Service - crowdsourced & verified matches.{" "}
+                <a
+                  href={config.githubUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-medium underline underline-offset-2 hover:text-[var(--accent-needle)]"
                 >
-                  Logout
-                </Button>
-              </>
-            ) : (
-              <>
-                <Link to="/auth/login">
-                  <Button variant="ghost" size="sm">
-                    Login
-                  </Button>
-                </Link>
-                <Link to="/auth/register">
-                  <Button variant="primary" size="sm">
-                    Sign Up
-                  </Button>
-                </Link>
-              </>
-            )}
-          </div>
-        </nav>
-      </header>
+                  Self-host
+                </a>{" "}
+                for downloads.
+              </p>
+            </div>
+          )}
 
-      {/* Main content */}
-      <main className="flex-1 max-w-6xl w-full mx-auto px-6 py-10">
-        <div className="animate-fade-in">
-          <Outlet />
-        </div>
-      </main>
+          {/* Top bar */}
+          <TopBar
+            onSearchClick={openPalette}
+            breadcrumbs={breadcrumbs}
+          />
 
-      {/* Footer */}
-      <footer className="border-t border-zinc-800/50 py-6">
-        <div className="max-w-6xl mx-auto px-6 flex items-center justify-between">
-          <p className="text-sm text-zinc-500">
-            SpotDL v{config.version}
-          </p>
-          <div className="flex items-center gap-4">
-            <a
-              href={config.githubUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-zinc-500 hover:text-zinc-300 transition-colors"
-            >
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.17 6.839 9.49.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.604-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.463-1.11-1.463-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836c.85.004 1.705.114 2.504.336 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.167 22 16.418 22 12c0-5.523-4.477-10-10-10z" />
-              </svg>
-            </a>
-          </div>
+          {/* Page content */}
+          <main className="flex-1 overflow-y-auto">
+            <div className="max-w-7xl mx-auto px-6 py-8">
+              <div className="animate-fade-in">
+                <Outlet />
+              </div>
+            </div>
+          </main>
+
+          {/* Footer */}
+          <footer className="border-t border-[var(--color-border-subtle)] py-4 px-6">
+            <div className="max-w-7xl mx-auto flex items-center justify-between">
+              <p className="text-xs text-[var(--color-text-dim)]">
+                SpotDL v{config.version}
+              </p>
+              <div className="flex items-center gap-4">
+                <a
+                  href={config.githubUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[var(--color-text-dim)] hover:text-[var(--color-text-muted)] transition-colors"
+                >
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                    <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.17 6.839 9.49.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.604-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.463-1.11-1.463-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836c.85.004 1.705.114 2.504.336 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.167 22 16.418 22 12c0-5.523-4.477-10-10-10z" />
+                  </svg>
+                </a>
+              </div>
+            </div>
+          </footer>
         </div>
-      </footer>
-    </div>
+
+        {/* Command Palette */}
+        <CommandPalette isOpen={isPaletteOpen} onClose={closePalette} />
+      </div>
+    </ToastProvider>
   );
 }

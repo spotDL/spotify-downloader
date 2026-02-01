@@ -5,6 +5,12 @@ from spotdl.core.services.entity import (
     EntityPersistenceService,
     PersistResult,
 )
+from spotdl.core.services.lyrics import (
+    LyricsResult,
+    LyricsService,
+    LyricsServiceError,
+    get_lyrics_service,
+)
 from spotdl.core.services.match import (
     Match,
     MatchService,
@@ -61,4 +67,9 @@ __all__ = [
     "EntityPersistenceService",
     "EntityPersistenceError",
     "PersistResult",
+    # Lyrics Service
+    "LyricsService",
+    "LyricsServiceError",
+    "LyricsResult",
+    "get_lyrics_service",
 ]

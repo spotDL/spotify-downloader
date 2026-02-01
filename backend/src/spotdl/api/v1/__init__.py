@@ -3,11 +3,14 @@
 from fastapi import APIRouter
 
 from spotdl.api.v1 import (
+    admin,
     auth,
     download,
     entities,
     health,
+    lyrics,
     matches,
+    reports,
     search,
     settings,
     songs,
@@ -24,3 +27,6 @@ router.include_router(matches.router, tags=["matches"])
 router.include_router(votes.router, tags=["votes"])
 router.include_router(settings.router, tags=["settings"])
 router.include_router(download.router, tags=["download"])
+router.include_router(lyrics.router, tags=["lyrics"])
+router.include_router(reports.router, tags=["reports"])
+router.include_router(admin.router, tags=["admin"])

@@ -96,6 +96,16 @@ class Settings(BaseSettings):
     spotify_client_id: str | None = None
     spotify_client_secret: SecretStr | None = None
 
+    # Lyrics providers
+    genius_access_token: SecretStr | None = Field(
+        default=None,
+        description="Genius API access token for lyrics fetching",
+    )
+    lyrics_cache_enabled: bool = Field(
+        default=True,
+        description="Whether to cache lyrics in the database",
+    )
+
     @property
     def is_production(self) -> bool:
         """Check if running in production environment."""

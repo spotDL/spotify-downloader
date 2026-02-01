@@ -38,6 +38,23 @@ class PlatformInfo(BaseModel):
     followers: int | None = None
 
 
+class AudioFeatures(BaseModel):
+    """Audio features from Spotify."""
+
+    bpm: float | None = None
+    energy: float | None = None
+    danceability: float | None = None
+    valence: float | None = None
+    key: int | None = None
+    mode: int | None = None
+    loudness: float | None = None
+    speechiness: float | None = None
+    acousticness: float | None = None
+    instrumentalness: float | None = None
+    liveness: float | None = None
+    time_signature: int | None = None
+
+
 class SongResponse(BaseModel):
     """Response model for a song entity."""
 
@@ -45,12 +62,25 @@ class SongResponse(BaseModel):
     name: str
     artists: list[str]
     artist: str
+    artist_id: str | None = None
     duration: int
     album_name: str | None = None
+    album_id: str | None = None
     cover_url: str | None = None
     isrc: str | None = None
     year: int | None = None
     platforms: list[PlatformInfo] = []
+    # Enhanced fields for song detail page
+    audio_features: AudioFeatures | None = None
+    popularity: int | None = None
+    explicit: bool = False
+    release_date: str | None = None
+    label: str | None = None
+    copyright_text: str | None = None
+    genres: list[str] = []
+    matches_count: int = 0
+    track_number: int | None = None
+    disc_number: int | None = None
 
     model_config = {"from_attributes": True}
 
@@ -110,22 +140,24 @@ class PlaylistResponse(BaseModel):
 ArtistResponse.model_rebuild()
 
 
-def _song_to_response(song: Song) -> SongResponse:
+def _song_to_response(song: Song, include_enhanced: bool = False) -> SongResponse:
     """Convert a Song model to SongResponse."""
-    # Extract cover URL from metadata if available
-    cover_url = None
-    year = None
-    if song.metadata_json:
-        cover_url = song.metadata_json.get("cover_url")
-        year = song.metadata_json.get("year")
+    # Extract metadata from JSON if available
+    metadata = song.metadata_json or {}
+    cover_url = metadata.get("cover_url")
+    year = metadata.get("year")
+    track_number = metadata.get("track_number")
+    disc_number = metadata.get("disc_number")
 
-    return SongResponse(
+    response = SongResponse(
         id=str(song.id),
         name=song.name,
         artists=song.artists,
         artist=song.artists[0] if song.artists else "Unknown Artist",
+        artist_id=str(song.artist_id) if song.artist_id else None,
         duration=song.duration_seconds,
         album_name=song.album_name,
+        album_id=str(song.album_id) if song.album_id else None,
         cover_url=cover_url,
         isrc=song.isrc,
         year=year,
@@ -137,6 +169,41 @@ def _song_to_response(song: Song) -> SongResponse:
             )
         ],
     )
+
+    # Add enhanced fields for detail pages
+    if include_enhanced:
+        response.popularity = song.popularity
+        response.explicit = song.explicit or False
+        response.release_date = str(song.release_date) if song.release_date else None
+        response.label = song.label
+        response.copyright_text = song.copyright_text
+        response.genres = song.genres or []
+        response.track_number = track_number
+        response.disc_number = disc_number
+
+        # Build audio features if any exist
+        if any([
+            song.bpm, song.energy, song.danceability, song.valence,
+            song.key is not None, song.mode is not None, song.loudness,
+            song.speechiness, song.acousticness, song.instrumentalness,
+            song.liveness, song.time_signature
+        ]):
+            response.audio_features = AudioFeatures(
+                bpm=float(song.bpm) if song.bpm else None,
+                energy=float(song.energy) if song.energy else None,
+                danceability=float(song.danceability) if song.danceability else None,
+                valence=float(song.valence) if song.valence else None,
+                key=song.key,
+                mode=song.mode,
+                loudness=float(song.loudness) if song.loudness else None,
+                speechiness=float(song.speechiness) if song.speechiness else None,
+                acousticness=float(song.acousticness) if song.acousticness else None,
+                instrumentalness=float(song.instrumentalness) if song.instrumentalness else None,
+                liveness=float(song.liveness) if song.liveness else None,
+                time_signature=song.time_signature,
+            )
+
+    return response
 
 
 @router.get("/artists/{id}")
@@ -259,6 +326,8 @@ async def get_song(
 ) -> SongResponse:
     """
     Get a song by internal UUID.
+
+    Returns enhanced song details including audio features, popularity, and metadata.
     """
     try:
         song_uuid = uuid.UUID(id)
@@ -271,7 +340,8 @@ async def get_song(
     if not song:
         raise HTTPException(status_code=404, detail="Song not found")
 
-    return _song_to_response(song)
+    # Return enhanced response with all metadata for song detail page
+    return _song_to_response(song, include_enhanced=True)
 
 
 @router.get("/playlists/{id}")

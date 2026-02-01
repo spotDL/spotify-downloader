@@ -3,7 +3,13 @@
 from spotdl.db.models.album import Album, AlbumPlatformLink
 from spotdl.db.models.artist import Artist, ArtistPlatformLink
 from spotdl.db.models.base import Base
+from spotdl.db.models.lyrics import Lyrics
 from spotdl.db.models.match import Match
+from spotdl.db.models.metadata_report import (
+    MetadataReport,
+    MetadataReportEntityType,
+    ReportStatus,
+)
 from spotdl.db.models.playlist import Playlist, PlaylistPlatformLink, PlaylistTrack
 from spotdl.db.models.song import Song
 from spotdl.db.models.user import User
@@ -24,4 +30,8 @@ __all__ = [
     "Playlist",
     "PlaylistPlatformLink",
     "PlaylistTrack",
+    "Lyrics",
+    "MetadataReport",
+    "MetadataReportEntityType",
+    "ReportStatus",
 ]

@@ -4,9 +4,10 @@ from __future__ import annotations
 
 import json
 import uuid
+from datetime import date
 from typing import TYPE_CHECKING, Any
 
-from sqlalchemy import ForeignKey, Integer, String, Text, TypeDecorator, UniqueConstraint
+from sqlalchemy import Boolean, Date, Float, ForeignKey, Integer, Numeric, String, Text, TypeDecorator, UniqueConstraint
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -15,6 +16,7 @@ from spotdl.db.models.base import Base, GUID, TimestampMixin, generate_uuid
 if TYPE_CHECKING:
     from spotdl.db.models.album import Album
     from spotdl.db.models.artist import Artist
+    from spotdl.db.models.lyrics import Lyrics
     from spotdl.db.models.match import Match
 
 
@@ -125,6 +127,82 @@ class Song(Base, TimestampMixin):
         index=True,
     )
 
+    # Spotify audio features
+    bpm: Mapped[float | None] = mapped_column(
+        Float,
+        nullable=True,
+    )
+    energy: Mapped[float | None] = mapped_column(
+        Numeric(3, 2),
+        nullable=True,
+    )
+    danceability: Mapped[float | None] = mapped_column(
+        Numeric(3, 2),
+        nullable=True,
+    )
+    valence: Mapped[float | None] = mapped_column(
+        Numeric(3, 2),
+        nullable=True,
+    )
+    key: Mapped[int | None] = mapped_column(
+        Integer,
+        nullable=True,
+    )
+    mode: Mapped[int | None] = mapped_column(
+        Integer,
+        nullable=True,
+    )
+    loudness: Mapped[float | None] = mapped_column(
+        Float,
+        nullable=True,
+    )
+    speechiness: Mapped[float | None] = mapped_column(
+        Numeric(3, 2),
+        nullable=True,
+    )
+    acousticness: Mapped[float | None] = mapped_column(
+        Numeric(3, 2),
+        nullable=True,
+    )
+    instrumentalness: Mapped[float | None] = mapped_column(
+        Numeric(3, 2),
+        nullable=True,
+    )
+    liveness: Mapped[float | None] = mapped_column(
+        Numeric(3, 2),
+        nullable=True,
+    )
+    time_signature: Mapped[int | None] = mapped_column(
+        Integer,
+        nullable=True,
+    )
+
+    # Additional metadata
+    popularity: Mapped[int | None] = mapped_column(
+        Integer,
+        nullable=True,
+    )
+    label: Mapped[str | None] = mapped_column(
+        Text,
+        nullable=True,
+    )
+    copyright_text: Mapped[str | None] = mapped_column(
+        Text,
+        nullable=True,
+    )
+    release_date: Mapped[date | None] = mapped_column(
+        Date,
+        nullable=True,
+    )
+    explicit: Mapped[bool | None] = mapped_column(
+        Boolean,
+        nullable=True,
+    )
+    genres: Mapped[list[str] | None] = mapped_column(
+        JSONType(),
+        nullable=True,
+    )
+
     # Relationships
     artist: Mapped[Artist | None] = relationship(
         "Artist",
@@ -140,6 +218,11 @@ class Song(Base, TimestampMixin):
         "Match",
         back_populates="source_song",
         foreign_keys="Match.source_song_id",
+    )
+    lyrics: Mapped[list[Lyrics]] = relationship(
+        "Lyrics",
+        back_populates="song",
+        cascade="all, delete-orphan",
     )
 
     def __repr__(self) -> str:
