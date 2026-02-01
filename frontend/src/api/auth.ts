@@ -27,6 +27,11 @@ export interface RefreshResponse {
   token_type: string;
 }
 
+export interface ChangePasswordRequest {
+  current_password: string;
+  new_password: string;
+}
+
 // API functions
 export async function login(data: LoginRequest): Promise<AuthResponse> {
   const response = await apiClient.post<AuthResponse>("/auth/login", data);
@@ -50,6 +55,16 @@ export async function getCurrentUser(): Promise<User> {
 
 export async function logout(): Promise<void> {
   await apiClient.post("/auth/logout");
+}
+
+export async function changePassword(data: ChangePasswordRequest): Promise<{ message: string }> {
+  const response = await apiClient.put<{ message: string }>("/auth/password", data);
+  return response.data;
+}
+
+export async function deleteAccount(): Promise<{ message: string }> {
+  const response = await apiClient.delete<{ message: string }>("/auth/me");
+  return response.data;
 }
 
 // Query keys
@@ -128,6 +143,27 @@ export function useRefreshToken() {
     mutationFn: refreshToken,
     onSuccess: (data) => {
       localStorage.setItem("access_token", data.access_token);
+    },
+  });
+}
+
+export function useChangePassword() {
+  return useMutation({
+    mutationFn: changePassword,
+  });
+}
+
+export function useDeleteAccount() {
+  const queryClient = useQueryClient();
+  const { logout: clearAuth } = useAuthStore();
+
+  return useMutation({
+    mutationFn: deleteAccount,
+    onSuccess: () => {
+      localStorage.removeItem("access_token");
+      localStorage.removeItem("refresh_token");
+      clearAuth();
+      queryClient.clear();
     },
   });
 }

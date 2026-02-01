@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate, redirect } from "@tanstack/react-router";
 import { useState } from "react";
 import { useAuthStore } from "@/stores/auth";
-import { useLogout } from "@/api/auth";
+import { useLogout, useChangePassword, useDeleteAccount } from "@/api/auth";
 import {
   Button,
   Input,
@@ -12,6 +12,7 @@ import {
   CardDescription,
   Badge,
 } from "@/components/ui";
+import { useToast } from "@/components/ui/toast";
 
 export const Route = createFileRoute("/account")({
   beforeLoad: () => {
@@ -83,7 +84,10 @@ function SectionHeader({
 function AccountPage() {
   const navigate = useNavigate();
   const { user } = useAuthStore();
+  const { addToast } = useToast();
   const logoutMutation = useLogout();
+  const changePasswordMutation = useChangePassword();
+  const deleteAccountMutation = useDeleteAccount();
 
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -101,14 +105,31 @@ function AccountPage() {
   const handlePasswordChange = async (e: React.FormEvent) => {
     e.preventDefault();
     if (newPassword !== confirmPassword) {
-      // TODO: Show error toast
+      addToast("Passwords do not match", "error");
       return;
     }
-    // TODO: Implement password change API
-    console.log("Password change not implemented yet");
-    setCurrentPassword("");
-    setNewPassword("");
-    setConfirmPassword("");
+    try {
+      await changePasswordMutation.mutateAsync({
+        current_password: currentPassword,
+        new_password: newPassword,
+      });
+      addToast("Password changed successfully", "success");
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+    } catch (error) {
+      addToast(error instanceof Error ? error.message : "Failed to change password", "error");
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    try {
+      await deleteAccountMutation.mutateAsync();
+      addToast("Account deleted successfully", "success");
+      navigate({ to: "/auth/login" });
+    } catch (error) {
+      addToast(error instanceof Error ? error.message : "Failed to delete account", "error");
+    }
   };
 
   // Get user initials for avatar
@@ -285,9 +306,9 @@ function AccountPage() {
             <div className="flex justify-end">
               <Button
                 type="submit"
-                disabled={!currentPassword || !newPassword || !confirmPassword}
+                disabled={!currentPassword || !newPassword || !confirmPassword || changePasswordMutation.isPending}
               >
-                Update Password
+                {changePasswordMutation.isPending ? "Updating..." : "Update Password"}
               </Button>
             </div>
           </form>
@@ -375,12 +396,10 @@ function AccountPage() {
                 <Button
                   variant="primary"
                   className="bg-red-500 hover:bg-red-600"
-                  onClick={() => {
-                    // TODO: Implement account deletion
-                    console.log("Account deletion not implemented yet");
-                  }}
+                  onClick={handleDeleteAccount}
+                  disabled={deleteAccountMutation.isPending}
                 >
-                  Yes, Delete My Account
+                  {deleteAccountMutation.isPending ? "Deleting..." : "Yes, Delete My Account"}
                 </Button>
               </div>
             </div>

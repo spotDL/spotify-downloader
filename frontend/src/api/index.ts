@@ -8,15 +8,20 @@ export {
   logout,
   getCurrentUser,
   refreshToken,
+  changePassword,
+  deleteAccount,
   useCurrentUser,
   useLogin,
   useRegister,
   useLogout,
   useRefreshToken,
+  useChangePassword,
+  useDeleteAccount,
   authKeys,
   type LoginRequest,
   type RegisterRequest,
   type AuthResponse,
+  type ChangePasswordRequest,
 } from "./auth";
 
 // Songs
