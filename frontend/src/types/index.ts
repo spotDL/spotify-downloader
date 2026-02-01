@@ -355,16 +355,9 @@ export interface GrowthStats {
   matches_this_week: number;
 }
 
-export interface CacheStats {
-  hit_rate: number;
-  size_mb: number;
-  entries: number;
-}
-
 export interface SystemStats {
   entities: EntityCounts;
   growth: GrowthStats;
-  cache: CacheStats;
   uptime_seconds: number;
 }
 

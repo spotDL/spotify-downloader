@@ -22,8 +22,8 @@ export async function createVote(data: CreateVoteRequest): Promise<Vote> {
   return response.data;
 }
 
-export async function deleteVote(voteId: string): Promise<void> {
-  await apiClient.delete(`/votes/${voteId}`);
+export async function deleteVote(matchId: string): Promise<void> {
+  await apiClient.delete(`/votes/${matchId}`);
 }
 
 export async function getMatchVotes(matchId: string): Promise<VoteSummary> {
@@ -106,18 +106,26 @@ export function useVote(matchId: string) {
   const vote = async (type: "up" | "down") => {
     // If user already voted the same way, remove the vote
     if (voteSummary?.user_vote === type) {
-      // Would need the vote ID - simplified for now
+      await deleteVoteMutation.mutateAsync(matchId);
       return;
     }
 
+    // Create or change vote
     await createVoteMutation.mutateAsync({
       match_id: matchId,
       vote_type: type,
     });
   };
 
+  const removeVote = async () => {
+    if (voteSummary?.user_vote) {
+      await deleteVoteMutation.mutateAsync(matchId);
+    }
+  };
+
   return {
     vote,
+    removeVote,
     voteSummary,
     isLoading: createVoteMutation.isPending || deleteVoteMutation.isPending,
     userVote: voteSummary?.user_vote ?? null,

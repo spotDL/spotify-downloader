@@ -131,20 +131,11 @@ class GrowthStatsResponse(BaseModel):
     new_users_this_week: int
 
 
-class CacheStatsResponse(BaseModel):
-    """Cache statistics (placeholder)."""
-
-    hit_rate: float
-    size_mb: float
-    entries: int
-
-
 class SystemStatsResponse(BaseModel):
     """Complete system statistics."""
 
     entities: EntityCountsResponse
     growth: GrowthStatsResponse
-    cache: CacheStatsResponse
     uptime_seconds: int
 
 
@@ -674,14 +665,6 @@ async def get_system_stats(
         )
     ).scalar() or 0
 
-    # Cache stats - returns 0 when no cache system is configured
-    # In production, this would integrate with Redis or similar
-    cache_stats = CacheStatsResponse(
-        hit_rate=0.0,
-        size_mb=0.0,
-        entries=0,
-    )
-
     # Calculate actual uptime
     uptime = int(time.time() - _server_start_time)
 
@@ -702,7 +685,6 @@ async def get_system_stats(
             new_users_today=users_today,
             new_users_this_week=users_this_week,
         ),
-        cache=cache_stats,
         uptime_seconds=uptime,
     )
 

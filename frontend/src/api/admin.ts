@@ -5,7 +5,6 @@
  * - User management
  * - Match moderation
  * - System statistics
- * - Cache management
  */
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";

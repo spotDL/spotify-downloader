@@ -518,7 +518,7 @@ class AppleMusicProvider(SourceProvider):
 
     async def search(self, query: str, limit: int = 10) -> list[Song]:
         """
-        Search for tracks by query.
+        Search for tracks by query using iTunes Search API.
 
         Args:
             query: Search query
@@ -528,9 +528,92 @@ class AppleMusicProvider(SourceProvider):
             List of matching Song objects
 
         Note:
-            Apple Music search requires API access which needs a developer token.
-            This is a placeholder that returns empty results.
+            Uses iTunes Search API which is free and doesn't require authentication.
+            Results are for Apple Music tracks available in the iTunes Store.
         """
-        # Apple Music search requires API access with developer token
-        # Web search is not easily scrapable
-        return []
+        from urllib.parse import quote_plus
+
+        client = await self._get_client()
+
+        # iTunes Search API endpoint
+        search_url = (
+            f"https://itunes.apple.com/search?"
+            f"term={quote_plus(query)}&"
+            f"media=music&"
+            f"entity=song&"
+            f"limit={limit}"
+        )
+
+        try:
+            response = await client.get(search_url)
+            response.raise_for_status()
+            data = response.json()
+
+            songs: list[Song] = []
+            results = data.get("results", [])
+
+            for track in results:
+                try:
+                    # Extract artist info
+                    artist = track.get("artistName", "Unknown")
+                    artists = [artist]
+
+                    # Extract album info
+                    album_name = track.get("collectionName", "")
+                    album_artist = track.get("artistName", artist)
+
+                    # Get cover URL (use higher resolution)
+                    cover_url = track.get("artworkUrl100", "")
+                    if cover_url:
+                        # Replace 100x100 with 600x600 for higher resolution
+                        cover_url = cover_url.replace("100x100", "600x600")
+
+                    # Build Apple Music URL
+                    track_id = str(track.get("trackId", ""))
+                    collection_id = str(track.get("collectionId", ""))
+                    # Apple Music URL format: /album/{album-slug}/{collection_id}?i={track_id}
+                    track_url = track.get("trackViewUrl", "")
+                    if not track_url and track_id:
+                        track_url = f"https://music.apple.com/us/album/{collection_id}?i={track_id}"
+
+                    # Parse release date for year
+                    release_date = track.get("releaseDate", "")
+                    year = 0
+                    if release_date:
+                        try:
+                            year = int(release_date[:4])
+                        except (ValueError, IndexError):
+                            pass
+
+                    # Duration is in milliseconds from iTunes API
+                    duration_ms = track.get("trackTimeMillis", 0)
+                    duration = duration_ms // 1000 if duration_ms else 0
+
+                    song = Song(
+                        name=track.get("trackName", "Unknown"),
+                        artists=artists,
+                        artist=artist,
+                        duration=duration,
+                        platform=Platform.APPLE_MUSIC,
+                        platform_id=track_id,
+                        url=track_url,
+                        album_name=album_name,
+                        album_artist=album_artist,
+                        year=year,
+                        date=release_date[:10] if release_date else None,
+                        cover_url=cover_url,
+                        explicit=track.get("trackExplicitness") == "explicit",
+                        genres=[track.get("primaryGenreName")] if track.get("primaryGenreName") else [],
+                    )
+                    songs.append(song)
+
+                except (KeyError, TypeError):
+                    continue
+
+            return songs
+
+        except httpx.HTTPError:
+            # Return empty list on error rather than raising
+            return []
+        except Exception:
+            return []

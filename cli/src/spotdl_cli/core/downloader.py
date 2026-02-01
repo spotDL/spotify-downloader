@@ -543,7 +543,50 @@ class Downloader:
 
         await loop.run_in_executor(None, _embed)
 
-        # Note: OGG cover art embedding is more complex, skipping for now
+        # Embed cover art for OGG/Opus
+        if self._settings.embed_cover and song.cover_url:
+            await self._embed_ogg_cover(file_path, song.cover_url)
+
+    async def _embed_ogg_cover(self, file_path: Path, cover_url: str) -> None:
+        """Embed cover art into OGG/Opus file using METADATA_BLOCK_PICTURE."""
+        import base64
+        import struct
+
+        from mutagen.flac import Picture
+        from mutagen.oggopus import OggOpus
+        from mutagen.oggvorbis import OggVorbis
+
+        cover_data = await self._download_cover(cover_url)
+        if not cover_data:
+            return
+
+        loop = asyncio.get_event_loop()
+        suffix = file_path.suffix.lower()
+
+        def _embed() -> None:
+            # Create a FLAC Picture object
+            picture = Picture()
+            picture.type = 3  # Cover (front)
+            picture.mime = "image/jpeg"
+            picture.desc = "Cover"
+            picture.data = cover_data
+
+            # For OGG, we need to encode the picture as base64
+            # The picture data must be in FLAC format
+            picture_data = picture.write()
+            encoded_data = base64.b64encode(picture_data).decode("ascii")
+
+            # Load the appropriate OGG format
+            if suffix == ".opus":
+                audio = OggOpus(file_path)
+            else:
+                audio = OggVorbis(file_path)
+
+            # Set the METADATA_BLOCK_PICTURE field
+            audio["metadata_block_picture"] = [encoded_data]
+            audio.save()
+
+        await loop.run_in_executor(None, _embed)
 
     async def _download_cover(self, cover_url: str) -> bytes | None:
         """Download cover art image."""

@@ -221,7 +221,7 @@ function AdminDashboard() {
         </StatCardGrid>
       </section>
 
-      {/* Growth & Cache Stats */}
+      {/* Growth & System Stats */}
       <div className="grid md:grid-cols-2 gap-6">
         {/* Growth Today */}
         <Card variant="bordered">
@@ -276,14 +276,6 @@ function AdminDashboard() {
                     ? `${Math.floor((stats.uptime_seconds || 0) / 3600)}h ${Math.floor(((stats.uptime_seconds || 0) % 3600) / 60)}m`
                     : "0h 0m"}
                 </span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-zinc-400">Cache</span>
-                {stats?.cache.entries === 0 ? (
-                  <Badge variant="muted">Not Configured</Badge>
-                ) : (
-                  <Badge variant="success">Active</Badge>
-                )}
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-zinc-400">API Status</span>

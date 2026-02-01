@@ -552,8 +552,94 @@ class TidalProvider(SourceProvider):
             List of matching Song objects
 
         Note:
-            Tidal search requires API access which needs OAuth.
-            This is a placeholder that returns empty results.
+            Uses Tidal's web search page with HTML parsing.
         """
-        # Tidal search requires OAuth authentication
-        return []
+        import json
+        from urllib.parse import quote_plus
+
+        client = await self._get_client()
+        search_url = f"https://tidal.com/search?q={quote_plus(query)}"
+
+        try:
+            response = await client.get(search_url)
+            response.raise_for_status()
+            soup = BeautifulSoup(response.text, "lxml")
+
+            songs: list[Song] = []
+
+            # Try to find search results in Next.js data
+            for script in soup.find_all("script", id="__NEXT_DATA__"):
+                try:
+                    data = json.loads(script.string or "")
+                    page_props = data.get("props", {}).get("pageProps", {})
+                    search_results = page_props.get("searchResults", {})
+                    tracks = search_results.get("tracks", {}).get("items", [])
+
+                    for track in tracks[:limit]:
+                        try:
+                            # Extract artist info
+                            artists_data = track.get("artists", [])
+                            artist_names = [a.get("name", "") for a in artists_data if a.get("name")]
+                            artist = artist_names[0] if artist_names else "Unknown"
+
+                            # Extract album info
+                            album_data = track.get("album", {})
+                            album_name = album_data.get("title", "")
+                            cover_url = None
+                            cover_data = album_data.get("cover")
+                            if cover_data:
+                                cover_url = f"https://resources.tidal.com/images/{cover_data.replace('-', '/')}/640x640.jpg"
+
+                            # Build song URL
+                            track_id = str(track.get("id", ""))
+                            track_url = f"https://tidal.com/browse/track/{track_id}"
+
+                            song = Song(
+                                name=track.get("title", "Unknown"),
+                                artists=artist_names or [artist],
+                                artist=artist,
+                                duration=track.get("duration", 0),
+                                platform=Platform.TIDAL,
+                                platform_id=track_id,
+                                url=track_url,
+                                album_name=album_name,
+                                album_artist=artist,
+                                isrc=track.get("isrc"),
+                                cover_url=cover_url,
+                                explicit=track.get("explicit", False),
+                            )
+                            songs.append(song)
+                        except (KeyError, TypeError):
+                            continue
+
+                    if songs:
+                        return songs[:limit]
+
+                except json.JSONDecodeError:
+                    continue
+
+            # Fallback: Try to extract track links from search results page
+            track_links: list[str] = []
+            for link in soup.find_all("a", href=True):
+                href = link.get("href", "")
+                if "/track/" in href and href not in track_links:
+                    # Normalize URL
+                    if href.startswith("/"):
+                        href = f"https://tidal.com{href}"
+                    track_links.append(href)
+
+            # Fetch individual tracks
+            for track_url in track_links[:limit]:
+                try:
+                    song = await self.get_track(track_url)
+                    songs.append(song)
+                except SourceProviderError:
+                    continue
+
+            return songs[:limit]
+
+        except httpx.HTTPError as e:
+            # Return empty list on error rather than raising
+            return []
+        except Exception:
+            return []
