@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import uuid
 from typing import Annotated
 from uuid import UUID
 
@@ -10,6 +9,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel, HttpUrl
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from spotdl.api.v1.auth import get_current_user_id
 from spotdl.core.reputation import ReputationReward
 from spotdl.core.services.match import get_match_service
 from spotdl.core.services.song import (
@@ -88,15 +88,6 @@ class SubmitMatchResponse(BaseModel):
     target_platform: str
     match_type: str
     message: str
-
-
-async def get_current_user_id() -> UUID:
-    """
-    Get current user ID from authentication.
-
-    For now, returns a fixed test user ID.
-    """
-    return uuid.UUID("00000000-0000-0000-0000-000000000001")
 
 
 def detect_target_platform(url: str) -> str | None:

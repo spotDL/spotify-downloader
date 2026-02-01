@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import asyncio
+import ipaddress
 import logging
+import socket
 import tempfile
 import uuid
 from dataclasses import dataclass, field
@@ -11,8 +13,109 @@ from datetime import datetime
 from enum import Enum
 from pathlib import Path
 from typing import Any, Callable
+from urllib.parse import urlparse
 
 logger = logging.getLogger(__name__)
+
+
+# Allowed schemes for cover URLs
+ALLOWED_SCHEMES = {"http", "https"}
+
+# Allowlisted CDN domains for cover art
+COVER_URL_ALLOWLIST = {
+    # Spotify CDN
+    "i.scdn.co",
+    "mosaic.scdn.co",
+    # YouTube/Google
+    "i.ytimg.com",
+    "yt3.ggpht.com",
+    "lh3.googleusercontent.com",
+    # Apple Music
+    "is1-ssl.mzstatic.com",
+    "is2-ssl.mzstatic.com",
+    "is3-ssl.mzstatic.com",
+    "is4-ssl.mzstatic.com",
+    "is5-ssl.mzstatic.com",
+    # Deezer
+    "cdns-images.dzcdn.net",
+    "e-cdns-images.dzcdn.net",
+    # SoundCloud
+    "i1.sndcdn.com",
+    # Bandcamp
+    "f4.bcbits.com",
+    # Tidal
+    "resources.tidal.com",
+}
+
+
+def is_safe_url(url: str) -> bool:
+    """
+    Validate that a URL is safe to fetch (not pointing to internal resources).
+
+    Args:
+        url: The URL to validate
+
+    Returns:
+        True if the URL is safe to fetch, False otherwise
+    """
+    try:
+        parsed = urlparse(url)
+
+        # Check scheme
+        if parsed.scheme.lower() not in ALLOWED_SCHEMES:
+            logger.warning(f"Blocked URL with disallowed scheme: {parsed.scheme}")
+            return False
+
+        # Check for empty or missing hostname
+        hostname = parsed.hostname
+        if not hostname:
+            logger.warning("Blocked URL with missing hostname")
+            return False
+
+        # Check against allowlist
+        hostname_lower = hostname.lower()
+        if hostname_lower not in COVER_URL_ALLOWLIST:
+            # Check if it's a subdomain of an allowlisted domain
+            is_allowed = any(
+                hostname_lower.endswith(f".{domain}") for domain in COVER_URL_ALLOWLIST
+            )
+            if not is_allowed:
+                logger.warning(f"Blocked URL with non-allowlisted hostname: {hostname}")
+                return False
+
+        # Additional safety: resolve hostname and check IP
+        # This protects against DNS rebinding attacks
+        try:
+            resolved_ips = socket.getaddrinfo(hostname, None, socket.AF_UNSPEC)
+            for _, _, _, _, sockaddr in resolved_ips:
+                ip_str = sockaddr[0]
+                ip = ipaddress.ip_address(ip_str)
+
+                # Block private, loopback, link-local, and reserved addresses
+                if (
+                    ip.is_private
+                    or ip.is_loopback
+                    or ip.is_link_local
+                    or ip.is_reserved
+                    or ip.is_multicast
+                ):
+                    logger.warning(f"Blocked URL resolving to unsafe IP: {ip_str}")
+                    return False
+
+                # Explicitly block AWS/cloud metadata endpoint
+                if ip_str == "169.254.169.254":
+                    logger.warning("Blocked AWS metadata endpoint")
+                    return False
+
+        except (socket.gaierror, socket.herror) as e:
+            logger.warning(f"Failed to resolve hostname {hostname}: {e}")
+            return False
+
+        return True
+
+    except Exception as e:
+        logger.warning(f"URL validation error: {e}")
+        return False
 
 
 class DownloadStatus(str, Enum):
@@ -292,7 +395,7 @@ class DownloadManager:
                 audio.save()
 
                 # Add cover art if available
-                if request.cover_url:
+                if request.cover_url and is_safe_url(request.cover_url):
                     try:
                         async with httpx.AsyncClient() as client:
                             response = await client.get(request.cover_url)
