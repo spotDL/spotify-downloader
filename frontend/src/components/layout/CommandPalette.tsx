@@ -140,9 +140,9 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
 
   return createPortal(
     <div
-      className="command-palette-backdrop fixed inset-0 z-[100] flex items-start justify-center pt-[15vh] px-4 md:pl-20"
+      className="command-palette-backdrop fixed inset-0 z-[100] flex items-center justify-center px-4"
       onClick={handleBackdropClick}
-      style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}
+      style={{ backgroundColor: "rgba(0, 0, 0, 0.6)", backdropFilter: "blur(4px)" }}
     >
       <div
         className={clsx(

@@ -415,11 +415,11 @@ function ArtistPage() {
 
         <div className="relative px-6 py-12 lg:px-8 lg:py-16">
           <div className="flex flex-col items-center text-center space-y-6">
-            {/* Circular Avatar */}
+            {/* Circular Avatar - Large hero size */}
             <CoverArt
               src={artist.image_url}
               alt={artist.name}
-              size="xl"
+              size="hero"
               shape="circle"
               fallbackIcon="artist"
               className="ring-4 ring-bg-chassis shadow-2xl"
@@ -609,11 +609,11 @@ function ArtistPage() {
           </section>
         )}
 
-        {/* Top Songs */}
+        {/* All Tracks */}
         {artist.songs.length > 0 && (
           <section>
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold text-zinc-100">Top Tracks</h2>
+              <h2 className="text-xl font-bold text-zinc-100">All Tracks</h2>
               <Badge variant="muted">{artist.songs.length} songs</Badge>
             </div>
             <Card variant="bordered">

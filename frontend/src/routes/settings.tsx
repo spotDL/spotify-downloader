@@ -26,6 +26,7 @@ import {
   ToggleSwitch,
   Slider,
   EqualizerLoader,
+  ConnectionStatusDetailed,
 } from "@/components/ui";
 import { features } from "@/config";
 
@@ -427,8 +428,11 @@ function SettingsPage() {
         </>
       )}
 
+      {/* Connection Status - Detailed */}
+      <ConnectionStatusDetailed className="stagger-2" />
+
       {/* Matching Preferences Section */}
-      <Card variant="bordered" className="animate-slide-up stagger-2">
+      <Card variant="bordered" className="animate-slide-up stagger-3">
         <CardHeader>
           <SectionHeader
             icon={

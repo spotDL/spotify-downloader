@@ -99,3 +99,9 @@ export {
   type EntityBreadcrumbProps,
   type EntityBreadcrumbPresetProps,
 } from "./entity-breadcrumb";
+
+// Connection Status
+export {
+  ConnectionStatusCompact,
+  ConnectionStatusDetailed,
+} from "./connection-status";

@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useState, useEffect, useCallback } from "react";
-import { Button, Input, Card, CardContent } from "@/components/ui";
+import { Button, Input, Card, CardContent, ConnectionStatusCompact } from "@/components/ui";
 import { features, config } from "@/config";
 
 export const Route = createFileRoute("/")({
@@ -176,6 +176,19 @@ function HostedHomePage() {
         </div>
       </div>
 
+      {/* Connection Status */}
+      <Card variant="bordered" className="max-w-3xl mx-auto">
+        <CardContent className="py-4">
+          <div className="flex items-center justify-between mb-3">
+            <h4 className="text-sm font-medium text-zinc-300">Service Status</h4>
+            <Link to="/settings" className="text-xs text-accent-needle hover:underline">
+              View Details
+            </Link>
+          </div>
+          <ConnectionStatusCompact />
+        </CardContent>
+      </Card>
+
       {/* Web UI Notice */}
       <Card variant="bordered" className="max-w-3xl mx-auto">
         <CardContent className="py-6 text-center">
@@ -348,6 +361,19 @@ function SelfHostedHomePage() {
           </div>
         </a>
       </div>
+
+      {/* Connection Status */}
+      <Card variant="bordered" className="max-w-3xl mx-auto">
+        <CardContent className="py-4">
+          <div className="flex items-center justify-between mb-3">
+            <h4 className="text-sm font-medium text-zinc-300">Service Status</h4>
+            <Link to="/settings" className="text-xs text-accent-needle hover:underline">
+              View Details
+            </Link>
+          </div>
+          <ConnectionStatusCompact />
+        </CardContent>
+      </Card>
 
       {/* Tips */}
       <Card variant="bordered" className="max-w-3xl mx-auto">
