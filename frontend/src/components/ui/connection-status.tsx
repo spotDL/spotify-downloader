@@ -71,8 +71,7 @@ function useServiceStatus(): {
       setSources(data.sources.map(mapApiToStatus));
       setTargets(data.targets.map(mapApiToStatus));
       setMetadata(data.metadata.map(mapApiToStatus));
-    } catch (error) {
-      console.error("Failed to fetch service status:", error);
+    } catch {
       // On error, show all services as unknown/error state
       setSources([
         { name: "spotify", displayName: "Spotify", state: "error", error: "Check failed" },

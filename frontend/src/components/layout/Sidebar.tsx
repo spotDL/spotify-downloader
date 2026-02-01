@@ -4,6 +4,7 @@ import { clsx } from "clsx";
 import { useAuthStore } from "@/stores/auth";
 import { useLogout } from "@/api/auth";
 import { useDevConfig } from "@/contexts/DevConfigContext";
+import { useSettingsStore } from "@/stores/settings";
 
 // Icons
 const HomeIcon = () => (
@@ -69,7 +70,7 @@ export interface SidebarProps {
 }
 
 export function Sidebar({ queueCount = 0 }: SidebarProps) {
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
@@ -78,8 +79,11 @@ export function Sidebar({ queueCount = 0 }: SidebarProps) {
   const { user, isAuthenticated } = useAuthStore();
   const { features } = useDevConfig();
   const logoutMutation = useLogout();
+  const compactSidebar = useSettingsStore((s) => s.compactSidebar);
 
-  const expanded = isExpanded || isMobileOpen;
+  // Desktop: expand on hover only if compactSidebar is disabled
+  // Mobile: always can be toggled open/closed
+  const expanded = isMobileOpen || (isHovered && !compactSidebar);
 
   // Close user menu when clicking outside
   useEffect(() => {
@@ -153,8 +157,8 @@ export function Sidebar({ queueCount = 0 }: SidebarProps) {
           "md:translate-x-0",
           isMobileOpen ? "translate-x-0 w-64" : "-translate-x-full"
         )}
-        onMouseEnter={() => setIsExpanded(true)}
-        onMouseLeave={() => setIsExpanded(false)}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
       >
         {/* Logo */}
         <div className="h-14 flex items-center px-4 border-b border-[var(--color-border-subtle)]">

@@ -50,8 +50,8 @@ function RegisterPage() {
     try {
       await registerMutation.mutateAsync({ username, email, password });
       navigate({ to: "/" });
-    } catch (err) {
-      console.error("Registration failed:", err);
+    } catch {
+      // Error is handled by registerMutation.error in the UI
     }
   };
 

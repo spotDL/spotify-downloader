@@ -745,7 +745,9 @@ async def search_entities(
         ) from e
 
     try:
-        # For now, we do a song search and extract unique entities
+        # Search songs and extract unique entities from results.
+        # Most platforms don't expose dedicated entity search APIs, so we derive
+        # albums and artists from song metadata to provide unified entity search.
         songs = await service.search(query, platform=platform_enum, limit=limit * 3)
 
         results: list[EntitySearchResult] = []
@@ -797,7 +799,8 @@ async def search_entities(
                 if artist_id not in seen_ids and song_resp.artist:
                     seen_ids.add(artist_id)
                     track_count = len([s for s in songs if s.artist.lower().strip() == artist_key])
-                    # For artists, we'd ideally have artist IDs, but for now use a search-based approach
+                    # Artist IDs aren't consistently available from search APIs, so we use
+                    # normalized artist names as identifiers and link to platform search pages
                     results.append(
                         EntitySearchResult(
                             entity_type=EntityType.ARTIST,

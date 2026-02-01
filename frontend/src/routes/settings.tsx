@@ -28,6 +28,7 @@ import {
   EqualizerLoader,
   ConnectionStatusDetailed,
   SortableProviderList,
+  useToast,
 } from "@/components/ui";
 import { useProviders } from "@/api";
 import { useDevConfig } from "@/contexts/DevConfigContext";
@@ -112,6 +113,7 @@ function SectionHeader({
 function SettingsPage() {
   const { isAuthenticated } = useAuthStore();
   const { features } = useDevConfig();
+  const { error: showError } = useToast();
   const [showSecrets, setShowSecrets] = useState(false);
   const [syncStatus, setSyncStatus] = useState<
     "idle" | "syncing" | "success" | "error"
@@ -243,8 +245,8 @@ function SettingsPage() {
         const text = await file.text();
         const settings = JSON.parse(text);
         importSettings(settings);
-      } catch (error) {
-        console.error("Failed to import settings:", error);
+      } catch {
+        showError("Failed to import settings. Please check the file format.");
       }
     };
     input.click();

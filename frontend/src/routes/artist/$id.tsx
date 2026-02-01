@@ -10,6 +10,7 @@ import {
   Badge,
   Button,
   RefreshMetadataButton,
+  useToast,
 } from "@/components/ui";
 import { CoverArt } from "@/components/ui/cover-art";
 import { Spinner } from "@/components/ui";
@@ -327,6 +328,7 @@ function ArtistPage() {
   const { addItem, addBulkItems } = useQueueStore();
   const { isAuthenticated } = useAuthStore();
   const { features } = useDevConfig();
+  const { error: showError } = useToast();
 
   const [showReportModal, setShowReportModal] = useState(false);
   const [albumTypeFilter, setAlbumTypeFilter] = useState<AlbumTypeFilter>("all");
@@ -384,7 +386,7 @@ function ArtistPage() {
         navigate({ to: "/queue" });
       }
     } catch (err) {
-      console.error("Failed to find matches:", err);
+      showError(err instanceof Error ? err.message : "Failed to find matches for this track");
     }
   };
 

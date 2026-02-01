@@ -30,8 +30,8 @@ function LoginPage() {
       await loginMutation.mutateAsync({ username, password });
       // Navigate to redirect path or home
       navigate({ to: redirect || "/" });
-    } catch (error) {
-      console.error("Login failed:", error);
+    } catch {
+      // Error is handled by loginMutation.error in the UI
     }
   };
 

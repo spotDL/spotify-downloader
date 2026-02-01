@@ -275,8 +275,8 @@ export const useQueueStore = create<QueueState>()(
           get().stopPolling(queueId);
           get().updateItem(queueId, { status: "cancelled" });
           get().processQueue();
-        } catch (error) {
-          console.error("Failed to cancel download:", error);
+        } catch {
+          // Cancel failed - download will continue, which is visible in the UI
         }
       },
 
@@ -314,8 +314,8 @@ export const useQueueStore = create<QueueState>()(
                 get().downloadFile(queueId);
               }
             }
-          } catch (error) {
-            console.error("Failed to poll download status:", error);
+          } catch {
+            // Polling failed - will retry on next interval
           }
         };
 

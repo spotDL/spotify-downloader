@@ -1,4 +1,5 @@
 import { createRootRoute, Outlet, useLocation } from "@tanstack/react-router";
+import { useEffect } from "react";
 import { clsx } from "clsx";
 import { ToastProvider } from "@/components/ui/toast";
 import {
@@ -10,6 +11,7 @@ import {
 } from "@/components/layout";
 import { DevModePanel } from "@/components/dev";
 import { DevConfigProvider, useDevConfig } from "@/contexts/DevConfigContext";
+import { useSettingsStore } from "@/stores/settings";
 import { config } from "@/config";
 
 export const Route = createRootRoute({
@@ -69,6 +71,18 @@ function RootLayoutContent() {
   const location = useLocation();
   const { isOpen: isPaletteOpen, open: openPalette, close: closePalette } = useCommandPalette();
   const { features } = useDevConfig();
+  const enableAnimations = useSettingsStore((s) => s.enableAnimations);
+  const reduceMotion = useSettingsStore((s) => s.reduceMotion);
+
+  // Apply animation settings globally via CSS class on document root
+  useEffect(() => {
+    const root = document.documentElement;
+    if (!enableAnimations || reduceMotion) {
+      root.classList.add("reduce-motion");
+    } else {
+      root.classList.remove("reduce-motion");
+    }
+  }, [enableAnimations, reduceMotion]);
 
   // Build breadcrumbs from current path
   const breadcrumbs = buildBreadcrumbsFromPath(location.pathname);

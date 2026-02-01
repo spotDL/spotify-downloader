@@ -2,6 +2,12 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "./client";
 import type { ExportableSettings } from "@/stores/settings";
 
+// Provider preference type matching backend
+export interface ProviderPreferenceApi {
+  id: string;
+  enabled: boolean;
+}
+
 // API response matches our ExportableSettings but with snake_case
 export interface UserSettingsResponse {
   audio_format: string;
@@ -24,6 +30,10 @@ export interface UserSettingsResponse {
   time_match_threshold: number;
   log_level: string;
   cookie_file: string | null;
+  // Provider preferences
+  audio_source_preferences: ProviderPreferenceApi[] | null;
+  metadata_source_preferences: ProviderPreferenceApi[] | null;
+  lyrics_source_preferences: ProviderPreferenceApi[] | null;
 }
 
 // Convert API response to store format
@@ -49,6 +59,10 @@ export function apiToStoreSettings(api: UserSettingsResponse): Partial<Exportabl
     timeMatchThreshold: api.time_match_threshold,
     logLevel: api.log_level as ExportableSettings["logLevel"],
     cookieFile: api.cookie_file ?? "",
+    // Provider preferences - only include if present from API
+    ...(api.audio_source_preferences && { audioSourcePreferences: api.audio_source_preferences }),
+    ...(api.metadata_source_preferences && { metadataSourcePreferences: api.metadata_source_preferences }),
+    ...(api.lyrics_source_preferences && { lyricsSourcePreferences: api.lyrics_source_preferences }),
   };
 }
 
@@ -75,6 +89,10 @@ export function storeToApiSettings(store: ExportableSettings): Partial<UserSetti
     time_match_threshold: store.timeMatchThreshold,
     log_level: store.logLevel,
     cookie_file: store.cookieFile || null,
+    // Provider preferences
+    audio_source_preferences: store.audioSourcePreferences,
+    metadata_source_preferences: store.metadataSourcePreferences,
+    lyrics_source_preferences: store.lyricsSourcePreferences,
   };
 }
 
