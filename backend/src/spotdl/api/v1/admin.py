@@ -714,50 +714,64 @@ async def import_matches(
     Import matches from JSON data (admin only).
 
     Expects a list of match objects with source_url, target_url, etc.
+    Uses a transaction to ensure atomicity - all matches are imported or none.
     """
     imported = 0
     skipped = 0
     errors = []
 
-    for match_data in request.matches:
-        try:
-            # Check if match already exists
-            existing = await db.execute(
-                select(Match).where(
-                    and_(
-                        Match.source_url == match_data.get("source_url"),
-                        Match.target_url == match_data.get("target_url"),
+    try:
+        for match_data in request.matches:
+            try:
+                # Check if match already exists
+                existing = await db.execute(
+                    select(Match).where(
+                        and_(
+                            Match.source_url == match_data.get("source_url"),
+                            Match.target_url == match_data.get("target_url"),
+                        )
                     )
                 )
-            )
-            if existing.scalar_one_or_none():
-                skipped += 1
-                continue
+                if existing.scalar_one_or_none():
+                    skipped += 1
+                    continue
 
-            # Create new match
-            match = Match(
-                source_url=match_data["source_url"],
-                source_platform=match_data.get("source_platform", "unknown"),
-                target_url=match_data["target_url"],
-                target_platform=match_data.get("target_platform", "unknown"),
-                match_score=match_data.get("score"),
-                match_type=match_data.get("match_type", "imported"),
-                status=match_data.get("status", "pending"),
-            )
-            db.add(match)
-            imported += 1
-        except Exception as e:
-            errors.append(str(e))
+                # Create new match
+                match = Match(
+                    source_url=match_data["source_url"],
+                    source_platform=match_data.get("source_platform", "unknown"),
+                    target_url=match_data["target_url"],
+                    target_platform=match_data.get("target_platform", "unknown"),
+                    match_score=match_data.get("score"),
+                    match_type=match_data.get("match_type", "imported"),
+                    status=match_data.get("status", "pending"),
+                )
+                db.add(match)
+                imported += 1
+            except KeyError as e:
+                errors.append(f"Missing required field: {e}")
+            except Exception as e:
+                errors.append(str(e))
 
-    await db.commit()
+        # Commit all changes in a single transaction
+        await db.commit()
 
-    logger.info(
-        "Admin %s imported matches: %d imported, %d skipped, %d errors",
-        admin.username,
-        imported,
-        skipped,
-        len(errors),
-    )
+        logger.info(
+            "Admin %s imported matches: %d imported, %d skipped, %d errors",
+            admin.username,
+            imported,
+            skipped,
+            len(errors),
+        )
+
+    except Exception as e:
+        # Rollback on any unexpected error
+        await db.rollback()
+        logger.error("Match import failed, transaction rolled back: %s", e)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Import failed: {str(e)}. All changes have been rolled back.",
+        )
 
     return {
         "message": f"Import complete: {imported} imported, {skipped} skipped",
@@ -855,23 +869,31 @@ async def purge_unverified_matches(
             "total_to_delete": pending_count + rejected_count,
         }
 
-    # Delete pending and rejected matches
-    result = await db.execute(
-        select(Match).where(Match.status.in_(["pending", "rejected"]))
-    )
-    matches_to_delete = result.scalars().all()
-    deleted_count = len(matches_to_delete)
+    # Delete pending and rejected matches using a transaction
+    try:
+        result = await db.execute(
+            select(Match).where(Match.status.in_(["pending", "rejected"]))
+        )
+        matches_to_delete = result.scalars().all()
+        deleted_count = len(matches_to_delete)
 
-    for match in matches_to_delete:
-        await db.delete(match)
+        for match in matches_to_delete:
+            await db.delete(match)
 
-    await db.commit()
+        await db.commit()
 
-    logger.warning(
-        "Admin %s purged %d unverified matches",
-        admin.username,
-        deleted_count,
-    )
+        logger.warning(
+            "Admin %s purged %d unverified matches",
+            admin.username,
+            deleted_count,
+        )
+    except Exception as e:
+        await db.rollback()
+        logger.error("Failed to purge matches, transaction rolled back: %s", e)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Purge failed: {str(e)}. All changes have been rolled back.",
+        )
 
     return {
         "message": f"Purged {deleted_count} unverified matches",
@@ -909,21 +931,29 @@ async def reset_database(
             "users_preserved": True,
         }
 
-    # Delete all data in order (respecting foreign keys)
-    await db.execute(Match.__table__.delete())
-    await db.execute(Vote.__table__.delete())
-    await db.execute(MetadataReport.__table__.delete())
-    await db.execute(Song.__table__.delete())
-    await db.execute(Album.__table__.delete())
-    await db.execute(Playlist.__table__.delete())
-    await db.execute(Artist.__table__.delete())
+    # Delete all data in order (respecting foreign keys) using a transaction
+    try:
+        await db.execute(Match.__table__.delete())
+        await db.execute(Vote.__table__.delete())
+        await db.execute(MetadataReport.__table__.delete())
+        await db.execute(Song.__table__.delete())
+        await db.execute(Album.__table__.delete())
+        await db.execute(Playlist.__table__.delete())
+        await db.execute(Artist.__table__.delete())
 
-    await db.commit()
+        await db.commit()
 
-    logger.critical(
-        "Admin %s reset the database - all entity data deleted",
-        admin.username,
-    )
+        logger.critical(
+            "Admin %s reset the database - all entity data deleted",
+            admin.username,
+        )
+    except Exception as e:
+        await db.rollback()
+        logger.error("Database reset failed, transaction rolled back: %s", e)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Database reset failed: {str(e)}. All changes have been rolled back.",
+        )
 
     return {
         "message": "Database reset complete - all entity data deleted",

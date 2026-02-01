@@ -3,8 +3,11 @@
 from __future__ import annotations
 
 import json
+import logging
 import re
 from typing import Any
+
+logger = logging.getLogger(__name__)
 
 import httpx
 from bs4 import BeautifulSoup
@@ -147,16 +150,16 @@ class BandcampProvider(SourceProvider):
                         json_str = re.sub(r"//.*?\n", "\n", json_str)
                         json_str = re.sub(r"/\*.*?\*/", "", json_str, flags=re.DOTALL)
                         return json.loads(json_str)
-                    except json.JSONDecodeError:
-                        pass
+                    except json.JSONDecodeError as e:
+                        logger.debug("Failed to parse TralbumData JSON: %s", e)
 
         # Try data-tralbum attribute
         tralbum_elem = soup.find(attrs={"data-tralbum": True})
         if tralbum_elem:
             try:
                 return json.loads(tralbum_elem["data-tralbum"])
-            except (json.JSONDecodeError, KeyError, TypeError):
-                pass
+            except (json.JSONDecodeError, KeyError, TypeError) as e:
+                logger.debug("Failed to parse data-tralbum attribute: %s", e)
 
         return {}
 
@@ -180,8 +183,8 @@ class BandcampProvider(SourceProvider):
                         json_str = re.sub(r"//.*?\n", "\n", json_str)
                         json_str = re.sub(r"/\*.*?\*/", "", json_str, flags=re.DOTALL)
                         return json.loads(json_str)
-                    except json.JSONDecodeError:
-                        pass
+                    except json.JSONDecodeError as e:
+                        logger.debug("Failed to parse BandData JSON: %s", e)
         return {}
 
     def _extract_json_ld(self, soup: BeautifulSoup) -> dict[str, Any]:
@@ -256,8 +259,8 @@ class BandcampProvider(SourceProvider):
                         duration = int(parts[0]) * 60 + int(parts[1])
                     elif len(parts) == 3:
                         duration = int(parts[0]) * 3600 + int(parts[1]) * 60 + int(parts[2])
-                except ValueError:
-                    pass
+                except ValueError as e:
+                    logger.debug("Failed to parse duration '%s': %s", duration_val, e)
 
         # Get release date
         release_date = album_data.get("release_date", "") or track.get("release_date", "")
@@ -268,8 +271,8 @@ class BandcampProvider(SourceProvider):
                 date_match = re.search(r"(\d{4})", str(release_date))
                 if date_match:
                     year = int(date_match.group(1))
-            except ValueError:
-                pass
+            except ValueError as e:
+                logger.debug("Failed to parse year from '%s': %s", release_date, e)
 
         # Get URL
         url = track.get("url") or track.get("link_url", "")
@@ -644,10 +647,12 @@ class BandcampProvider(SourceProvider):
                     )
                     songs.append(song)
 
-                except Exception:
+                except Exception as e:
+                    logger.debug("Failed to parse track from search result: %s", e)
                     continue
 
             return songs
 
-        except Exception:
+        except Exception as e:
+            logger.debug("Failed to perform Bandcamp search: %s", e)
             return []

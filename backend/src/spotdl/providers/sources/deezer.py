@@ -153,8 +153,8 @@ class DeezerProvider(SourceProvider):
         if release_date:
             try:
                 year = int(release_date[:4])
-            except (ValueError, IndexError):
-                pass
+            except (ValueError, IndexError) as e:
+                logger.debug("Failed to parse year from '%s': %s", release_date, e)
 
         # Build song
         song = Song(

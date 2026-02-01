@@ -3,8 +3,11 @@
 from __future__ import annotations
 
 import json
+import logging
 import re
 from typing import TYPE_CHECKING, Any
+
+logger = logging.getLogger(__name__)
 
 import httpx
 from bs4 import BeautifulSoup
@@ -124,7 +127,8 @@ class BandcampProvider(TargetProvider):
                 cover_url=cover_url,
             )
 
-        except Exception:
+        except Exception as e:
+            logger.debug("Failed to parse search result item: %s", e)
             return None
 
     async def search(self, song: Song, limit: int = 10) -> list[Result]:
@@ -216,12 +220,13 @@ class BandcampProvider(TargetProvider):
                                     album_name=data.get("current", {}).get("title", ""),
                                     cover_url=cover_url,
                                 )
-                        except json.JSONDecodeError:
-                            pass
+                        except json.JSONDecodeError as e:
+                            logger.debug("Failed to parse track data JSON: %s", e)
 
             return None
 
-        except Exception:
+        except Exception as e:
+            logger.debug("Failed to get track info: %s", e)
             return None
 
     @staticmethod

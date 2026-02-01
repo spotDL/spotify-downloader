@@ -156,8 +156,8 @@ class SoundCloudProvider(SourceProvider):
                 if match:
                     try:
                         return json.loads(match.group(1))
-                    except json.JSONDecodeError:
-                        pass
+                    except json.JSONDecodeError as e:
+                        logger.debug("Failed to parse hydration data: %s", e)
         return []
 
     def _find_hydration_by_hydratable(

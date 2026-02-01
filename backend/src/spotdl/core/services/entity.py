@@ -349,8 +349,8 @@ class EntityPersistenceService:
         if song.year and song.year > 0:
             try:
                 release_date = date_type(song.year, 1, 1)
-            except ValueError:
-                pass
+            except ValueError as e:
+                logger.debug("Invalid year %d for song '%s': %s", song.year, song.name, e)
 
         song_model = await self.song_repo.create(
             platform=song.platform.value,
@@ -633,8 +633,8 @@ class EntityPersistenceService:
                     from datetime import date as date_type
                     try:
                         song_model.release_date = date_type(data["year"], 1, 1)
-                    except ValueError:
-                        pass
+                    except ValueError as e:
+                        logger.debug("Invalid year %s for song %s: %s", data["year"], song_id, e)
 
         except Exception as e:
             logger.warning(f"Metadata enrichment failed for {song_id}: {e}")

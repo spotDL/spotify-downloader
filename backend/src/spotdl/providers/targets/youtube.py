@@ -3,8 +3,11 @@
 from __future__ import annotations
 
 import asyncio
+import logging
 import re
 from typing import TYPE_CHECKING, Any
+
+logger = logging.getLogger(__name__)
 
 import httpx
 
@@ -103,7 +106,8 @@ class YouTubeProvider(TargetProvider):
                 if response.status_code == 200:
                     self._working_instance = instance
                     return instance
-            except httpx.HTTPError:
+            except httpx.HTTPError as e:
+                logger.debug("Invidious instance %s failed: %s", instance, e)
                 continue
 
         raise SearchError("No working Invidious instance found")
@@ -227,7 +231,8 @@ class YouTubeProvider(TargetProvider):
 
             return None
 
-        except Exception:
+        except Exception as e:
+            logger.debug("Failed to get by ISRC: %s", e)
             return None
 
     async def get_video_info(self, video_id: str) -> Result | None:
@@ -250,7 +255,8 @@ class YouTubeProvider(TargetProvider):
 
             return self._result_to_result(video)
 
-        except Exception:
+        except Exception as e:
+            logger.debug("Failed to get video info for %s: %s", video_id, e)
             return None
 
     @staticmethod

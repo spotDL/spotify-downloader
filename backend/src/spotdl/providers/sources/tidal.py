@@ -2,8 +2,11 @@
 
 from __future__ import annotations
 
+import logging
 import re
 from typing import Any
+
+logger = logging.getLogger(__name__)
 
 import httpx
 from bs4 import BeautifulSoup
@@ -129,7 +132,8 @@ class TidalProvider(SourceProvider):
                     return data
                 if isinstance(data, list) and data:
                     return data[0]
-            except json.JSONDecodeError:
+            except json.JSONDecodeError as e:
+                logger.debug("Failed to parse JSON-LD data: %s", e)
                 continue
         return {}
 
@@ -242,8 +246,8 @@ class TidalProvider(SourceProvider):
         if date_published:
             try:
                 year = int(date_published[:4])
-            except (ValueError, IndexError):
-                pass
+            except (ValueError, IndexError) as e:
+                logger.debug("Failed to parse year from '%s': %s", date_published, e)
 
         # Get URL and ID
         url = track_data.get("url", "")
@@ -609,13 +613,15 @@ class TidalProvider(SourceProvider):
                                 explicit=track.get("explicit", False),
                             )
                             songs.append(song)
-                        except (KeyError, TypeError):
+                        except (KeyError, TypeError) as e:
+                            logger.debug("Failed to parse track from search result: %s", e)
                             continue
 
                     if songs:
                         return songs[:limit]
 
-                except json.JSONDecodeError:
+                except json.JSONDecodeError as e:
+                    logger.debug("Failed to parse JSON data: %s", e)
                     continue
 
             # Fallback: Try to extract track links from search results page
@@ -639,7 +645,8 @@ class TidalProvider(SourceProvider):
             return songs[:limit]
 
         except httpx.HTTPError as e:
-            # Return empty list on error rather than raising
+            logger.debug("HTTP error during Tidal search: %s", e)
             return []
-        except Exception:
+        except Exception as e:
+            logger.debug("Unexpected error during Tidal search: %s", e)
             return []

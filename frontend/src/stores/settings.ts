@@ -45,6 +45,11 @@ export interface SettingsState {
   logLevel: LogLevel;
   cookieFile: string;
 
+  // Appearance settings
+  compactSidebar: boolean;
+  enableAnimations: boolean;
+  reduceMotion: boolean;
+
   // Provider preferences
   audioSourcePreferences: ProviderPreference[];
   metadataSourcePreferences: ProviderPreference[];
@@ -75,6 +80,9 @@ export interface SettingsState {
   setTimeMatchThreshold: (threshold: number) => void;
   setLogLevel: (level: LogLevel) => void;
   setCookieFile: (file: string) => void;
+  setCompactSidebar: (compact: boolean) => void;
+  setEnableAnimations: (enable: boolean) => void;
+  setReduceMotion: (reduce: boolean) => void;
 
   // Provider preference actions
   setAudioSourcePreferences: (prefs: ProviderPreference[]) => void;
@@ -112,6 +120,9 @@ export interface ExportableSettings {
   timeMatchThreshold: number;
   logLevel: LogLevel;
   cookieFile: string;
+  compactSidebar: boolean;
+  enableAnimations: boolean;
+  reduceMotion: boolean;
   audioSourcePreferences: ProviderPreference[];
   metadataSourcePreferences: ProviderPreference[];
   lyricsSourcePreferences: ProviderPreference[];
@@ -160,6 +171,9 @@ const defaultSettings: ExportableSettings = {
   timeMatchThreshold: 25,
   logLevel: "INFO",
   cookieFile: "",
+  compactSidebar: true,
+  enableAnimations: true,
+  reduceMotion: false,
   audioSourcePreferences: defaultAudioSourcePreferences,
   metadataSourcePreferences: defaultMetadataSourcePreferences,
   lyricsSourcePreferences: defaultLyricsSourcePreferences,
@@ -192,6 +206,9 @@ export const useSettingsStore = create<SettingsState>()(
       setTimeMatchThreshold: (threshold) => set({ timeMatchThreshold: threshold }),
       setLogLevel: (level) => set({ logLevel: level }),
       setCookieFile: (file) => set({ cookieFile: file }),
+      setCompactSidebar: (compact) => set({ compactSidebar: compact }),
+      setEnableAnimations: (enable) => set({ enableAnimations: enable }),
+      setReduceMotion: (reduce) => set({ reduceMotion: reduce }),
       setSyncing: (syncing) => set({ isSyncing: syncing }),
       setLastSyncedAt: (timestamp) => set({ lastSyncedAt: timestamp }),
 
@@ -253,6 +270,9 @@ export const useSettingsStore = create<SettingsState>()(
           timeMatchThreshold: settings.timeMatchThreshold ?? current.timeMatchThreshold,
           logLevel: settings.logLevel ?? current.logLevel,
           cookieFile: settings.cookieFile ?? current.cookieFile,
+          compactSidebar: settings.compactSidebar ?? current.compactSidebar,
+          enableAnimations: settings.enableAnimations ?? current.enableAnimations,
+          reduceMotion: settings.reduceMotion ?? current.reduceMotion,
           audioSourcePreferences: settings.audioSourcePreferences ?? current.audioSourcePreferences,
           metadataSourcePreferences: settings.metadataSourcePreferences ?? current.metadataSourcePreferences,
           lyricsSourcePreferences: settings.lyricsSourcePreferences ?? current.lyricsSourcePreferences,
@@ -282,6 +302,9 @@ export const useSettingsStore = create<SettingsState>()(
           timeMatchThreshold: state.timeMatchThreshold,
           logLevel: state.logLevel,
           cookieFile: state.cookieFile,
+          compactSidebar: state.compactSidebar,
+          enableAnimations: state.enableAnimations,
+          reduceMotion: state.reduceMotion,
           audioSourcePreferences: state.audioSourcePreferences,
           metadataSourcePreferences: state.metadataSourcePreferences,
           lyricsSourcePreferences: state.lyricsSourcePreferences,

@@ -12,10 +12,12 @@ from pydantic import BaseModel, EmailStr, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from spotdl.core.security import (
+    blacklist_token,
     create_access_token,
     create_refresh_token,
-    decode_token,
+    decode_token_payload,
     get_password_hash,
+    is_token_blacklisted,
     verify_password,
 )
 from spotdl.db.database import get_db_session
@@ -95,11 +97,20 @@ async def get_current_user(
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    token_data = decode_token(credentials.credentials)
+    # First decode the token
+    token_data = decode_token_payload(credentials.credentials)
     if token_data is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid or expired token",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    # Check if token is blacklisted (checks cache and database)
+    if await is_token_blacklisted(credentials.credentials, db):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token has been revoked",
             headers={"WWW-Authenticate": "Bearer"},
         )
 
@@ -379,19 +390,21 @@ async def get_me(
 
 @router.post("/logout", response_model=MessageResponse)
 async def logout(
+    credentials: Annotated[HTTPAuthorizationCredentials | None, Depends(security)],
     _user: Annotated[User, Depends(get_current_user)],
+    db: Annotated[AsyncSession, Depends(get_db_session)],
 ) -> MessageResponse:
     """
-    Logout current user.
+    Logout current user and invalidate the access token.
 
-    Note: JWT tokens are stateless, so this endpoint just returns success.
-    In a production system, you might want to:
-    - Add tokens to a blacklist (with Redis)
-    - Clear client-side storage
+    The token is added to a blacklist (both in-memory cache and database)
+    and will be rejected for future requests until it expires naturally.
 
     Returns:
         Success message
     """
+    if credentials:
+        await blacklist_token(credentials.credentials, db, reason="logout")
     return MessageResponse(message="Successfully logged out")
 
 

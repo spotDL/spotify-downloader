@@ -10,6 +10,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from spotdl.api.v1.validation import validate_uuid
 from spotdl.config import get_settings
 from spotdl.core.services.lyrics import LyricsResult, get_lyrics_service
 from spotdl.db.database import get_db_session
@@ -53,10 +54,7 @@ async def get_lyrics_for_song(
     if not cached or force_refresh is True.
     """
     # Validate UUID
-    try:
-        song_uuid = uuid.UUID(song_id)
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=f"Invalid song ID: {song_id}") from e
+    song_uuid = validate_uuid(song_id, "song ID")
 
     # Get song from database
     song_repo = SongRepository(db)
@@ -166,10 +164,7 @@ async def get_all_lyrics_for_song(
     from spotdl.db.repositories import LyricsRepository
 
     # Validate UUID
-    try:
-        song_uuid = uuid.UUID(song_id)
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=f"Invalid song ID: {song_id}") from e
+    song_uuid = validate_uuid(song_id, "song ID")
 
     # Get song from database
     song_repo = SongRepository(db)
@@ -213,10 +208,7 @@ async def fetch_all_lyrics_sources(
     separately, allowing users to compare lyrics from different sources.
     """
     # Validate UUID
-    try:
-        song_uuid = uuid.UUID(song_id)
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=f"Invalid song ID: {song_id}") from e
+    song_uuid = validate_uuid(song_id, "song ID")
 
     # Get song from database
     song_repo = SongRepository(db)

@@ -13,6 +13,7 @@ from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
+from spotdl.api.v1.validation import validate_uuid, UUIDPath, SkipQuery, LimitQuery
 from spotdl.core.services.entity import EntityPersistenceService
 from spotdl.core.services.song import get_song_service
 from spotdl.db.database import get_db_session
@@ -407,10 +408,7 @@ async def get_artist(
     Returns artist details with all platform links, albums, and songs.
     Automatically enriches with images/genres from Spotify if not already enriched.
     """
-    try:
-        artist_uuid = uuid.UUID(id)
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail="Invalid UUID format") from e
+    artist_uuid = validate_uuid(id, "artist ID")
 
     artist_repo = ArtistRepository(db)
     artist = await artist_repo.get_by_id_with_links(artist_uuid)
@@ -568,10 +566,7 @@ async def get_album(
     Returns album details with all platform links and songs.
     Automatically fetches all tracks on first visit if album is incomplete.
     """
-    try:
-        album_uuid = uuid.UUID(id)
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail="Invalid UUID format") from e
+    album_uuid = validate_uuid(id, "album ID")
 
     album_repo = AlbumRepository(db)
     album = await album_repo.get_by_id_with_links(album_uuid)
@@ -658,10 +653,7 @@ async def get_song(
     Returns enhanced song details including audio features, popularity, and metadata.
     Automatically enriches with MusicBrainz/Discogs data on first visit if not enriched.
     """
-    try:
-        song_uuid = uuid.UUID(id)
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail="Invalid UUID format") from e
+    song_uuid = validate_uuid(id, "song ID")
 
     song_repo = SongRepository(db)
     song = await song_repo.get_by_id(song_uuid)
@@ -792,10 +784,7 @@ async def get_playlist(
 
     Returns playlist details with all platform links and songs.
     """
-    try:
-        playlist_uuid = uuid.UUID(id)
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail="Invalid UUID format") from e
+    playlist_uuid = validate_uuid(id, "playlist ID")
 
     playlist_repo = PlaylistRepository(db)
     playlist = await playlist_repo.get_by_id_with_tracks(playlist_uuid)
@@ -1094,10 +1083,7 @@ async def get_song_metadata_sources(
     """
     from sqlalchemy import select
 
-    try:
-        song_uuid = uuid.UUID(song_id)
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail="Invalid UUID format") from e
+    song_uuid = validate_uuid(song_id, "song ID")
 
     # Verify song exists
     song_repo = SongRepository(db)
@@ -1207,10 +1193,7 @@ async def refresh_song(
 
     Cooldown: 4 hours for regular users, no limit for admins.
     """
-    try:
-        song_uuid = uuid.UUID(id)
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail="Invalid UUID format") from e
+    song_uuid = validate_uuid(id, "song ID")
 
     # Check cooldown (raises 429 if on cooldown)
     await check_refresh_cooldown("song", song_uuid, current_user, db)
@@ -1256,10 +1239,7 @@ async def refresh_album(
 
     Cooldown: 4 hours for regular users, no limit for admins.
     """
-    try:
-        album_uuid = uuid.UUID(id)
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail="Invalid UUID format") from e
+    album_uuid = validate_uuid(id, "album ID")
 
     # Check cooldown (raises 429 if on cooldown)
     await check_refresh_cooldown("album", album_uuid, current_user, db)
@@ -1309,10 +1289,7 @@ async def refresh_artist(
 
     Cooldown: 4 hours for regular users, no limit for admins.
     """
-    try:
-        artist_uuid = uuid.UUID(id)
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail="Invalid UUID format") from e
+    artist_uuid = validate_uuid(id, "artist ID")
 
     # Check cooldown (raises 429 if on cooldown)
     await check_refresh_cooldown("artist", artist_uuid, current_user, db)
@@ -1406,10 +1383,7 @@ async def refresh_playlist(
 
     Cooldown: 4 hours for regular users, no limit for admins.
     """
-    try:
-        playlist_uuid = uuid.UUID(id)
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail="Invalid UUID format") from e
+    playlist_uuid = validate_uuid(id, "playlist ID")
 
     # Check cooldown (raises 429 if on cooldown)
     await check_refresh_cooldown("playlist", playlist_uuid, current_user, db)
@@ -1479,10 +1453,7 @@ async def enrich_song(
     from spotdl.core.services.metadata import MetadataService
     from spotdl.core.types.song import Song as SongType
 
-    try:
-        song_uuid = uuid.UUID(id)
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail="Invalid UUID format") from e
+    song_uuid = validate_uuid(id, "song ID")
 
     song_repo = SongRepository(db)
     song = await song_repo.get_by_id(song_uuid)
@@ -1666,10 +1637,7 @@ async def enrich_song_from_all_sources(
     from spotdl.core.services.metadata import MetadataService
     from spotdl.core.services.lyrics import LyricsService
 
-    try:
-        song_uuid = uuid.UUID(id)
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail="Invalid UUID format") from e
+    song_uuid = validate_uuid(id, "song ID")
 
     song_repo = SongRepository(db)
     song = await song_repo.get_by_id(song_uuid)

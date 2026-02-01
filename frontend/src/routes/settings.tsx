@@ -138,6 +138,9 @@ function SettingsPage() {
     timeMatchThreshold,
     logLevel,
     cookieFile,
+    compactSidebar,
+    enableAnimations,
+    reduceMotion,
     audioSourcePreferences,
     metadataSourcePreferences,
     lyricsSourcePreferences,
@@ -161,6 +164,9 @@ function SettingsPage() {
     setTimeMatchThreshold,
     setLogLevel,
     setCookieFile,
+    setCompactSidebar,
+    setEnableAnimations,
+    setReduceMotion,
     setAudioSourcePreferences,
     setMetadataSourcePreferences,
     setLyricsSourcePreferences,
@@ -766,22 +772,22 @@ function SettingsPage() {
         </CardHeader>
         <CardContent className="space-y-4">
           <ToggleSwitch
-            checked={true}
-            onChange={() => {}}
+            checked={compactSidebar}
+            onChange={setCompactSidebar}
             label="Compact sidebar"
             description="Use icon-only sidebar by default"
           />
 
           <ToggleSwitch
-            checked={true}
-            onChange={() => {}}
+            checked={enableAnimations}
+            onChange={setEnableAnimations}
             label="Enable animations"
             description="Show smooth transitions and VU meter effects"
           />
 
           <ToggleSwitch
-            checked={false}
-            onChange={() => {}}
+            checked={reduceMotion}
+            onChange={setReduceMotion}
             label="Reduce motion"
             description="Minimize animations for accessibility"
           />

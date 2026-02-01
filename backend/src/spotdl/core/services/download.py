@@ -210,7 +210,7 @@ class DownloadManager:
             try:
                 self._progress_callbacks[download_id].remove(callback)
             except ValueError:
-                pass
+                logger.debug("Callback not found for download %s", download_id)
 
     def _notify_progress(self, download_id: str) -> None:
         """Notify all callbacks of progress update."""

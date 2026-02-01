@@ -15,7 +15,8 @@ from fastapi.staticfiles import StaticFiles
 from spotdl.api.v1 import router as api_v1_router
 from spotdl.api.v1.websocket import router as websocket_router
 from spotdl.config import get_settings
-from spotdl.db.database import close_db, init_db
+from spotdl.core.security import initialize_token_blacklist
+from spotdl.db.database import close_db, get_db, init_db
 
 
 def setup_logging() -> None:
@@ -77,6 +78,12 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     logger.info("Initializing database...")
     await init_db()
     logger.info("Database initialized successfully")
+
+    # Initialize token blacklist cache from database
+    logger.info("Initializing token blacklist cache...")
+    async with get_db() as db:
+        token_count = await initialize_token_blacklist(db)
+        logger.info(f"Token blacklist cache initialized with {token_count} tokens")
 
     yield
 

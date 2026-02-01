@@ -124,8 +124,8 @@ class YouTubeMusicProvider(SourceProvider):
                     duration = int(parts[0]) * 60 + int(parts[1])
                 elif len(parts) == 3:
                     duration = int(parts[0]) * 3600 + int(parts[1]) * 60 + int(parts[2])
-            except ValueError:
-                pass
+            except ValueError as e:
+                logger.debug("Failed to parse duration '%s': %s", duration_str, e)
 
         # Get album info
         album_data = song_data.get("album", {}) or {}
@@ -149,8 +149,8 @@ class YouTubeMusicProvider(SourceProvider):
         if year_str:
             try:
                 year = int(year_str)
-            except ValueError:
-                pass
+            except ValueError as e:
+                logger.debug("Failed to parse year '%s': %s", year_str, e)
 
         song = Song(
             name=song_data.get("title", "Unknown"),

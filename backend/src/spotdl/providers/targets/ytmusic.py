@@ -3,8 +3,11 @@
 from __future__ import annotations
 
 import asyncio
+import logging
 import re
 from typing import TYPE_CHECKING, Any
+
+logger = logging.getLogger(__name__)
 
 from ytmusicapi import YTMusic
 
@@ -88,8 +91,8 @@ class YouTubeMusicProvider(TargetProvider):
                     duration = int(parts[0]) * 60 + int(parts[1])
                 elif len(parts) == 3:
                     duration = int(parts[0]) * 3600 + int(parts[1]) * 60 + int(parts[2])
-            except ValueError:
-                pass
+            except ValueError as e:
+                logger.debug("Failed to parse duration '%s': %s", duration_str, e)
 
         # Get album info
         album_data = song_data.get("album", {}) or {}
@@ -184,7 +187,8 @@ class YouTubeMusicProvider(TargetProvider):
 
             return None
 
-        except Exception:
+        except Exception as e:
+            logger.debug("Failed to get by ISRC: %s", e)
             return None
 
     async def get_song_info(self, video_id: str) -> Result | None:
@@ -220,7 +224,8 @@ class YouTubeMusicProvider(TargetProvider):
 
             return self._result_to_result(unified_data)
 
-        except Exception:
+        except Exception as e:
+            logger.debug("Failed to get song info for %s: %s", video_id, e)
             return None
 
     async def search_albums(self, query: str, limit: int = 10) -> list[dict[str, Any]]:
@@ -245,7 +250,8 @@ class YouTubeMusicProvider(TargetProvider):
 
             return search_results
 
-        except Exception:
+        except Exception as e:
+            logger.debug("Failed to search albums for '%s': %s", query, e)
             return []
 
     @staticmethod

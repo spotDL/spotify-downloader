@@ -3,8 +3,11 @@
 from __future__ import annotations
 
 import json
+import logging
 import re
 from typing import TYPE_CHECKING, Any
+
+logger = logging.getLogger(__name__)
 
 import httpx
 from bs4 import BeautifulSoup
@@ -80,8 +83,8 @@ class SoundCloudProvider(TargetProvider):
                 if match:
                     try:
                         return json.loads(match.group(1))
-                    except json.JSONDecodeError:
-                        pass
+                    except json.JSONDecodeError as e:
+                        logger.debug("Failed to parse hydration data: %s", e)
         return []
 
     def _track_to_result(self, track: dict[str, Any]) -> Result:
@@ -194,7 +197,8 @@ class SoundCloudProvider(TargetProvider):
 
             return None
 
-        except Exception:
+        except Exception as e:
+            logger.debug("Failed to get track info: %s", e)
             return None
 
     @staticmethod

@@ -2,8 +2,11 @@
 
 from __future__ import annotations
 
+import logging
 import re
 from typing import TYPE_CHECKING, Any
+
+logger = logging.getLogger(__name__)
 
 import httpx
 
@@ -102,7 +105,8 @@ class PipedProvider(TargetProvider):
                 if response.status_code == 200:
                     self._working_instance = instance
                     return instance
-            except httpx.HTTPError:
+            except httpx.HTTPError as e:
+                logger.debug("Piped instance %s failed: %s", instance, e)
                 continue
 
         raise SearchError("No working Piped instance found")
@@ -222,7 +226,8 @@ class PipedProvider(TargetProvider):
                 verified=data.get("uploaderVerified", False),
             )
 
-        except Exception:
+        except Exception as e:
+            logger.debug("Failed to get video info for %s: %s", video_id, e)
             return None
 
     async def get_audio_stream_url(self, video_id: str) -> str | None:
@@ -258,7 +263,8 @@ class PipedProvider(TargetProvider):
             # Return highest quality audio stream
             return sorted_streams[0].get("url")
 
-        except Exception:
+        except Exception as e:
+            logger.debug("Failed to get audio stream for %s: %s", video_id, e)
             return None
 
     @staticmethod

@@ -14,6 +14,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from spotdl.api.v1.auth import get_current_user
+from spotdl.api.v1.validation import validate_uuid
 from spotdl.core.reputation import ReputationReward
 from spotdl.db.database import get_db_session
 from spotdl.db.models.metadata_report import (
@@ -91,12 +92,7 @@ async def create_report(
     Requires authentication.
     """
     # Validate entity ID
-    try:
-        entity_uuid = uuid.UUID(request.entity_id)
-    except ValueError as e:
-        raise HTTPException(
-            status_code=400, detail=f"Invalid entity ID: {request.entity_id}"
-        ) from e
+    entity_uuid = validate_uuid(request.entity_id, "entity ID")
 
     # Create report
     report = MetadataReport(
@@ -228,12 +224,7 @@ async def get_report(
 
     Users can view their own reports; admins can view all.
     """
-    try:
-        report_uuid = uuid.UUID(report_id)
-    except ValueError as e:
-        raise HTTPException(
-            status_code=400, detail=f"Invalid report ID: {report_id}"
-        ) from e
+    report_uuid = validate_uuid(report_id, "report ID")
 
     result = await db.execute(
         select(MetadataReport).where(MetadataReport.id == report_uuid)
@@ -265,12 +256,7 @@ async def update_report(
     if not current_user.is_admin:
         raise HTTPException(status_code=403, detail="Admin access required")
 
-    try:
-        report_uuid = uuid.UUID(report_id)
-    except ValueError as e:
-        raise HTTPException(
-            status_code=400, detail=f"Invalid report ID: {report_id}"
-        ) from e
+    report_uuid = validate_uuid(report_id, "report ID")
 
     result = await db.execute(
         select(MetadataReport).where(MetadataReport.id == report_uuid)
@@ -329,12 +315,7 @@ async def delete_report(
     if not current_user.is_admin:
         raise HTTPException(status_code=403, detail="Admin access required")
 
-    try:
-        report_uuid = uuid.UUID(report_id)
-    except ValueError as e:
-        raise HTTPException(
-            status_code=400, detail=f"Invalid report ID: {report_id}"
-        ) from e
+    report_uuid = validate_uuid(report_id, "report ID")
 
     result = await db.execute(
         select(MetadataReport).where(MetadataReport.id == report_uuid)

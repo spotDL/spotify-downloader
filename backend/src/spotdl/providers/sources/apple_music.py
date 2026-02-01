@@ -2,8 +2,11 @@
 
 from __future__ import annotations
 
+import logging
 import re
 from typing import Any
+
+logger = logging.getLogger(__name__)
 
 import httpx
 from bs4 import BeautifulSoup
@@ -153,7 +156,8 @@ class AppleMusicProvider(SourceProvider):
                     return data
                 if isinstance(data, list) and data:
                     return data[0]
-            except json.JSONDecodeError:
+            except json.JSONDecodeError as e:
+                logger.debug("Failed to parse JSON-LD data: %s", e)
                 continue
         return {}
 
@@ -227,8 +231,8 @@ class AppleMusicProvider(SourceProvider):
         if date_published:
             try:
                 year = int(date_published[:4])
-            except (ValueError, IndexError):
-                pass
+            except (ValueError, IndexError) as e:
+                logger.debug("Failed to parse year from '%s': %s", date_published, e)
 
         # Get URL
         url = track_data.get("url", "")
@@ -582,8 +586,8 @@ class AppleMusicProvider(SourceProvider):
                     if release_date:
                         try:
                             year = int(release_date[:4])
-                        except (ValueError, IndexError):
-                            pass
+                        except (ValueError, IndexError) as e:
+                            logger.debug("Failed to parse year from '%s': %s", release_date, e)
 
                     # Duration is in milliseconds from iTunes API
                     duration_ms = track.get("trackTimeMillis", 0)
@@ -607,13 +611,15 @@ class AppleMusicProvider(SourceProvider):
                     )
                     songs.append(song)
 
-                except (KeyError, TypeError):
+                except (KeyError, TypeError) as e:
+                    logger.debug("Failed to parse track from search result: %s", e)
                     continue
 
             return songs
 
-        except httpx.HTTPError:
-            # Return empty list on error rather than raising
+        except httpx.HTTPError as e:
+            logger.debug("HTTP error during Apple Music search: %s", e)
             return []
-        except Exception:
+        except Exception as e:
+            logger.debug("Unexpected error during Apple Music search: %s", e)
             return []
