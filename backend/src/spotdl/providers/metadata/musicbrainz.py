@@ -114,7 +114,7 @@ class MusicBrainzProvider(MetadataProvider):
                 None,
                 lambda: musicbrainzngs.get_recordings_by_isrc(
                     isrc,
-                    includes=["artists", "releases", "release-groups"],
+                    includes=["artists", "releases"],
                 ),
             )
 

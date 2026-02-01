@@ -337,7 +337,17 @@ class EntityPersistenceService:
             await self.session.flush()
             return existing, False
 
-        # Create new song - use song.json for metadata
+        # Create new song - extract all enriched fields
+        from datetime import datetime, timezone, date as date_type
+
+        # Convert year to date if available
+        release_date = None
+        if song.year and song.year > 0:
+            try:
+                release_date = date_type(song.year, 1, 1)
+            except ValueError:
+                pass
+
         song_model = await self.song_repo.create(
             platform=song.platform.value,
             platform_id=song.platform_id,
@@ -350,6 +360,13 @@ class EntityPersistenceService:
             metadata_json=song.json,
             artist_id=artist_id,
             album_id=album_id,
+            # Enriched fields from Song DTO
+            genres=song.genres if song.genres else None,
+            release_date=release_date,
+            explicit=song.explicit if song.explicit else None,
+            copyright_text=song.copyright_text,
+            # Mark as enriched if we have enriched data
+            enriched_at=datetime.now(timezone.utc) if song.genres else None,
         )
         return song_model, True
 
@@ -465,3 +482,93 @@ class EntityPersistenceService:
     async def get_song_by_internal_id(self, id: uuid.UUID) -> SongModel | None:
         """Get a song by internal UUID."""
         return await self.song_repo.get_by_id(id)
+
+    async def enrich_artists_with_images(
+        self,
+        artist_ids: list[uuid.UUID],
+        song_service: "SongService",
+    ) -> int:
+        """
+        Fetch and update artist images from Spotify for artists without images.
+
+        Args:
+            artist_ids: List of internal artist UUIDs to check
+            song_service: SongService instance with configured Spotify provider
+
+        Returns:
+            Number of artists updated with images
+        """
+        import asyncio
+        from spotdl.core.types.song import Platform
+
+        spotify_provider = song_service._providers.get(Platform.SPOTIFY)
+        if not spotify_provider:
+            logger.warning("Spotify provider not available for artist image enrichment")
+            return 0
+
+        updated_count = 0
+        client = spotify_provider._get_client()
+        loop = asyncio.get_event_loop()
+
+        for artist_id in artist_ids:
+            try:
+                artist = await self.artist_repo.get_by_id_with_links(artist_id)
+                if not artist or artist.image_url:
+                    # Skip if artist not found or already has image
+                    continue
+
+                # Find Spotify platform link
+                spotify_link = None
+                for link in (artist.platform_links or []):
+                    if link.platform == "spotify":
+                        spotify_link = link
+                        break
+
+                if not spotify_link:
+                    continue
+
+                # Fetch artist data from Spotify
+                artist_data = await loop.run_in_executor(
+                    None, client.artist, spotify_link.platform_id
+                )
+
+                if not artist_data:
+                    continue
+
+                # Update image
+                images = artist_data.get("images", [])
+                if images:
+                    sorted_images = sorted(
+                        images,
+                        key=lambda x: x.get("width", 0) * x.get("height", 0),
+                        reverse=True,
+                    )
+                    artist.image_url = sorted_images[0].get("url")
+
+                # Update genres
+                genres = artist_data.get("genres", [])
+                if genres:
+                    existing_genres = set(artist.genres or [])
+                    artist.genres = list(existing_genres.union(genres))
+
+                # Update followers
+                followers = artist_data.get("followers", {}).get("total")
+                if followers and spotify_link:
+                    spotify_link.followers = followers
+
+                self.session.add(artist)
+                updated_count += 1
+                logger.debug(f"Enriched artist {artist.name} with image and genres")
+
+            except Exception as e:
+                logger.warning(f"Failed to enrich artist {artist_id}: {e}")
+                continue
+
+        if updated_count > 0:
+            await self.session.flush()
+
+        return updated_count
+
+
+if TYPE_CHECKING:
+    from spotdl.core.services.song import SongService

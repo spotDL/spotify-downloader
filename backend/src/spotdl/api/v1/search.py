@@ -203,6 +203,11 @@ async def _search_url(
         # Persist entities and get internal IDs
         persist_result = await entity_service.persist_from_search(songs)
 
+        # Enrich newly created artists with images from Spotify
+        if persist_result.artists_created > 0:
+            new_artist_ids = list(persist_result.artist_ids.values())
+            await entity_service.enrich_artists_with_images(new_artist_ids, song_service)
+
         # Build results based on what was resolved
         results: list[SearchResult] = []
 
@@ -344,8 +349,16 @@ async def _search_text(
                 total=0,
             )
 
+        # Enrich songs with metadata from MusicBrainz/Discogs before persisting
+        all_songs = await song_service.enrich_songs(all_songs)
+
         # Persist entities
         persist_result = await entity_service.persist_from_search(all_songs)
+
+        # Enrich newly created artists with images from Spotify
+        if persist_result.artists_created > 0:
+            new_artist_ids = list(persist_result.artist_ids.values())
+            await entity_service.enrich_artists_with_images(new_artist_ids, song_service)
 
         # Build results
         results: list[SearchResult] = []
