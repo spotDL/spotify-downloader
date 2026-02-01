@@ -68,6 +68,7 @@ export interface NavItem {
   icon: React.ReactNode;
   badge?: number;
   adminOnly?: boolean;
+  requiresAuth?: boolean;
 }
 
 export interface SidebarProps {
@@ -118,13 +119,17 @@ export function Sidebar({ onSearchClick, queueCount = 0 }: SidebarProps) {
     ...(features.hasQueue
       ? [{ to: "/queue", label: "Queue", icon: <QueueIcon />, badge: queueCount > 0 ? queueCount : undefined }]
       : []),
-    { to: "/settings", label: "Settings", icon: <SettingsIcon /> },
+    { to: "/settings", label: "Settings", icon: <SettingsIcon />, requiresAuth: true },
     { to: "/admin", label: "Admin", icon: <AdminIcon />, adminOnly: true },
   ];
 
-  const filteredNavItems = navItems.filter(
-    (item) => !item.adminOnly || (item.adminOnly && user?.is_admin)
-  );
+  const filteredNavItems = navItems.filter((item) => {
+    // Hide admin-only items if not admin
+    if (item.adminOnly && !user?.is_admin) return false;
+    // Hide auth-required items if not authenticated
+    if (item.requiresAuth && !isAuthenticated) return false;
+    return true;
+  });
 
   const isActive = (path: string) => {
     if (path === "/") return location.pathname === "/";

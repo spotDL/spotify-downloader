@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useState } from "react";
 import {
   useSettingsStore,
@@ -33,6 +33,17 @@ import { useProviders } from "@/api";
 import { useDevConfig } from "@/contexts/DevConfigContext";
 
 export const Route = createFileRoute("/settings")({
+  beforeLoad: () => {
+    const { isAuthenticated } = useAuthStore.getState();
+    if (!isAuthenticated) {
+      throw redirect({
+        to: "/auth/login",
+        search: {
+          redirect: "/settings",
+        },
+      });
+    }
+  },
   component: SettingsPage,
 });
 

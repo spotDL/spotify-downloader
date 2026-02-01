@@ -3,12 +3,22 @@ import { useState } from "react";
 import { useLogin } from "@/api";
 import { Button, Input, Card, CardContent } from "@/components/ui";
 
+interface LoginSearch {
+  redirect?: string;
+}
+
 export const Route = createFileRoute("/auth/login")({
+  validateSearch: (search: Record<string, unknown>): LoginSearch => {
+    return {
+      redirect: typeof search.redirect === "string" ? search.redirect : undefined,
+    };
+  },
   component: LoginPage,
 });
 
 function LoginPage() {
   const navigate = useNavigate();
+  const { redirect } = Route.useSearch();
   const loginMutation = useLogin();
 
   const [username, setUsername] = useState("");
@@ -18,7 +28,8 @@ function LoginPage() {
     e.preventDefault();
     try {
       await loginMutation.mutateAsync({ username, password });
-      navigate({ to: "/" });
+      // Navigate to redirect path or home
+      navigate({ to: redirect || "/" });
     } catch (error) {
       console.error("Login failed:", error);
     }
