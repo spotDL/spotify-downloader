@@ -297,3 +297,183 @@ export function useMetadataProviders() {
     staleTime: 1000 * 60 * 60, // 1 hour
   });
 }
+
+// ====== MULTI-SOURCE METADATA ======
+
+import type {
+  MetadataSnapshot,
+  MetadataSourcesResponse as TypedMetadataSourcesResponse,
+  AllLyricsResponse,
+  LyricsSource,
+  FullEnrichmentResult,
+} from "@/types/metadata";
+
+/**
+ * Get all metadata snapshots for a song with optional raw responses.
+ */
+export async function getMetadataSnapshots(
+  songId: string,
+  includeRaw = false
+): Promise<TypedMetadataSourcesResponse> {
+  const response = await apiClient.get<{
+    song_id: string;
+    sources: string[];
+    snapshots: Array<{
+      id: string;
+      source: string;
+      snapshot_data: Record<string, unknown>;
+      raw_response?: Record<string, unknown>;
+      fetched_at: string;
+      confidence: number;
+    }>;
+  }>(`/entities/songs/${songId}/metadata-sources`, {
+    params: { include_raw: includeRaw },
+  });
+
+  // Transform to frontend types
+  return {
+    songId: response.data.song_id,
+    sources: response.data.sources,
+    snapshots: response.data.snapshots.map((s) => ({
+      id: s.id,
+      source: s.source as MetadataSnapshot["source"],
+      fetchedAt: s.fetched_at,
+      confidence: s.confidence,
+      data: s.snapshot_data,
+      rawResponse: s.raw_response,
+    })),
+  };
+}
+
+/**
+ * Hook to fetch all metadata snapshots for a song.
+ */
+export function useMetadataSnapshots(
+  songId: string,
+  options?: { enabled?: boolean; includeRaw?: boolean }
+) {
+  return useQuery({
+    queryKey: [...entityKeys.song(songId), "metadata-snapshots", options?.includeRaw],
+    queryFn: () => getMetadataSnapshots(songId, options?.includeRaw ?? false),
+    enabled: options?.enabled ?? !!songId,
+    staleTime: 1000 * 60 * 30, // 30 minutes
+  });
+}
+
+/**
+ * Get all lyrics from all sources for a song.
+ */
+export async function getAllLyrics(songId: string): Promise<AllLyricsResponse> {
+  const response = await apiClient.get<{
+    song_id: string;
+    lyrics: Array<{
+      source: string;
+      lyrics_text: string;
+      lyrics_synced?: string | null;
+      quality_score?: number | null;
+      is_verified: boolean;
+      language?: string | null;
+      has_translations?: boolean | null;
+    }>;
+    total_sources: number;
+  }>(`/lyrics/song/${songId}/all`);
+
+  // Transform to frontend types
+  return {
+    songId: response.data.song_id,
+    lyrics: response.data.lyrics.map((l) => ({
+      source: l.source as LyricsSource["source"],
+      lyricsText: l.lyrics_text,
+      lyricsSynced: l.lyrics_synced,
+      qualityScore: l.quality_score ?? null,
+      isVerified: l.is_verified,
+      language: l.language,
+      hasTranslations: l.has_translations,
+    })),
+    totalSources: response.data.total_sources,
+  };
+}
+
+/**
+ * Hook to fetch all lyrics for a song from all sources.
+ */
+export function useAllLyrics(songId: string, options?: { enabled?: boolean }) {
+  return useQuery({
+    queryKey: [...entityKeys.song(songId), "all-lyrics"],
+    queryFn: () => getAllLyrics(songId),
+    enabled: options?.enabled ?? !!songId,
+    staleTime: 1000 * 60 * 30, // 30 minutes
+  });
+}
+
+/**
+ * Fetch lyrics from all providers (triggers fetch, not just cache).
+ */
+export async function fetchAllLyrics(songId: string): Promise<AllLyricsResponse> {
+  const response = await apiClient.post<{
+    song_id: string;
+    lyrics: Array<{
+      source: string;
+      lyrics_text: string;
+      lyrics_synced?: string | null;
+      quality_score?: number | null;
+      is_verified: boolean;
+    }>;
+    total_sources: number;
+  }>(`/lyrics/song/${songId}/fetch-all`);
+
+  return {
+    songId: response.data.song_id,
+    lyrics: response.data.lyrics.map((l) => ({
+      source: l.source as LyricsSource["source"],
+      lyricsText: l.lyrics_text,
+      lyricsSynced: l.lyrics_synced,
+      qualityScore: l.quality_score ?? null,
+      isVerified: l.is_verified,
+    })),
+    totalSources: response.data.total_sources,
+  };
+}
+
+/**
+ * Trigger full enrichment from ALL sources.
+ */
+export async function enrichSongFromAllSources(
+  songId: string
+): Promise<FullEnrichmentResult> {
+  const response = await apiClient.post<{
+    success: boolean;
+    message: string;
+    metadata_sources_count: number;
+    lyrics_sources_count: number;
+    metadata_sources: string[];
+  }>(`/entities/songs/${songId}/enrich-all`);
+
+  return {
+    success: response.data.success,
+    message: response.data.message,
+    metadataSourcesCount: response.data.metadata_sources_count,
+    lyricsSourcesCount: response.data.lyrics_sources_count,
+    metadataSources: response.data.metadata_sources,
+  };
+}
+
+/**
+ * Hook to trigger full enrichment from all sources.
+ */
+export function useFullEnrichment() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (songId: string) => enrichSongFromAllSources(songId),
+    onSuccess: (_, songId) => {
+      // Invalidate all related queries
+      queryClient.invalidateQueries({ queryKey: entityKeys.song(songId) });
+      queryClient.invalidateQueries({
+        queryKey: [...entityKeys.song(songId), "metadata-snapshots"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [...entityKeys.song(songId), "all-lyrics"],
+      });
+    },
+  });
+}

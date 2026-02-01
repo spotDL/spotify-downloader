@@ -1,22 +1,25 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import { clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
-import type { Lyrics, LyricsLine, ParsedLyrics, LyricsSource } from "@/types";
+import type { Lyrics, LyricsLine, ParsedLyrics, LyricsSource as LyricsSourceType } from "@/types";
+import type { LyricsSource as MultiLyricsSource, LyricsProviderSource } from "@/types/metadata";
 import { Spinner } from "@/components/ui";
 
-// Source icons/badges
-const sourceLabels: Record<LyricsSource, string> = {
+// Source icons/badges for old style (LyricsSourceType from @/types)
+const sourceLabels: Record<LyricsSourceType | LyricsProviderSource, string> = {
   genius: "Genius",
   musixmatch: "MusixMatch",
   azlyrics: "AZLyrics",
   synced: "Synced",
+  lrclib: "LRCLIB",
 };
 
-const sourceColors: Record<LyricsSource, string> = {
+const sourceColors: Record<LyricsSourceType | LyricsProviderSource, string> = {
   genius: "#ffff64",
   musixmatch: "#ff0066",
   azlyrics: "#2b77bf",
   synced: "var(--accent-safe)",
+  lrclib: "#10b981",
 };
 
 // Icons
@@ -355,3 +358,267 @@ export function LyricsDisplay({
 }
 
 export default LyricsDisplay;
+
+// ====== MULTI-SOURCE LYRICS DISPLAY ======
+
+export interface MultiSourceLyricsDisplayProps {
+  /** Array of lyrics from multiple sources */
+  lyricsSources: MultiLyricsSource[];
+  /** Active source to display */
+  activeSource?: string;
+  /** Callback when source changes */
+  onSourceChange?: (source: string) => void;
+  /** Loading state */
+  isLoading?: boolean;
+  /** Current playback time in milliseconds (for synced lyrics) */
+  currentTime?: number;
+  /** Callback when a synced line is clicked */
+  onSeek?: (timestamp: number) => void;
+  /** Whether to auto-scroll to current line */
+  autoScroll?: boolean;
+  /** Maximum height before requiring scroll */
+  maxHeight?: string;
+  /** Additional class names */
+  className?: string;
+}
+
+/**
+ * Multi-source lyrics display with source selector tabs.
+ * Allows switching between lyrics from different providers.
+ */
+export function MultiSourceLyricsDisplay({
+  lyricsSources,
+  activeSource,
+  onSourceChange,
+  isLoading = false,
+  currentTime = 0,
+  onSeek,
+  autoScroll = true,
+  maxHeight = "400px",
+  className,
+}: MultiSourceLyricsDisplayProps) {
+  // Sort sources by quality: synced > verified > quality_score
+  const sortedSources = useMemo(() => {
+    return [...lyricsSources].sort((a, b) => {
+      // Synced lyrics always first
+      if (a.lyricsSynced && !b.lyricsSynced) return -1;
+      if (!a.lyricsSynced && b.lyricsSynced) return 1;
+      // Then verified
+      if (a.isVerified && !b.isVerified) return -1;
+      if (!a.isVerified && b.isVerified) return 1;
+      // Then by quality score
+      return (b.qualityScore ?? 0) - (a.qualityScore ?? 0);
+    });
+  }, [lyricsSources]);
+
+  // Internal state for active source if not controlled
+  const [internalSource, setInternalSource] = useState<string | null>(null);
+
+  // Determine effective active source
+  const effectiveSource = activeSource ?? internalSource ?? sortedSources[0]?.source ?? null;
+
+  // Set internal source from sorted on mount
+  useEffect(() => {
+    if (!activeSource && !internalSource && sortedSources.length > 0) {
+      setInternalSource(sortedSources[0].source);
+    }
+  }, [sortedSources, activeSource, internalSource]);
+
+  // Get active lyrics data
+  const activeLyrics = useMemo(() => {
+    return sortedSources.find((l) => l.source === effectiveSource) || sortedSources[0] || null;
+  }, [sortedSources, effectiveSource]);
+
+  // Handle source change
+  const handleSourceChange = (source: string) => {
+    if (onSourceChange) {
+      onSourceChange(source);
+    } else {
+      setInternalSource(source);
+    }
+  };
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div
+        className={twMerge(
+          clsx(
+            "flex flex-col items-center justify-center py-12",
+            "bg-[var(--bg-panel)] rounded-2xl border border-[var(--color-border-subtle)]"
+          ),
+          className
+        )}
+      >
+        <Spinner size="lg" />
+        <p className="mt-4 text-[var(--color-text-muted)]">Loading lyrics...</p>
+      </div>
+    );
+  }
+
+  // No lyrics state
+  if (!lyricsSources || lyricsSources.length === 0) {
+    return (
+      <div
+        className={twMerge(
+          clsx(
+            "flex flex-col items-center justify-center py-12",
+            "bg-[var(--bg-panel)] rounded-2xl border border-[var(--color-border-subtle)]"
+          ),
+          className
+        )}
+      >
+        <svg
+          className="w-12 h-12 text-[var(--color-text-dim)]"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={1.5}
+            d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"
+          />
+        </svg>
+        <p className="mt-4 text-[var(--color-text-muted)]">No lyrics available</p>
+      </div>
+    );
+  }
+
+  // Convert multi-source lyrics to old-style Lyrics for the main display
+  const lyricsForDisplay: Lyrics | null = activeLyrics
+    ? {
+        song_id: "",
+        lyrics_text: activeLyrics.lyricsText,
+        lyrics_synced: activeLyrics.lyricsSynced ?? null,
+        source: activeLyrics.source as LyricsSourceType,
+        fetched_at: "",
+      }
+    : null;
+
+  return (
+    <div className={twMerge("space-y-0", className)}>
+      {/* Source Selector Tabs */}
+      {sortedSources.length >= 1 && (
+        <div className="flex items-center gap-2 px-4 pt-4 pb-2 bg-[var(--bg-panel)] rounded-t-2xl border border-b-0 border-[var(--color-border-subtle)]">
+          <span className="text-xs text-[var(--color-text-muted)] uppercase tracking-wide mr-2">
+            {sortedSources.length > 1 ? "Source:" : "Data from:"}
+          </span>
+          <div className="flex flex-wrap gap-1.5">
+            {sortedSources.map((source) => {
+              const isActive = source.source === effectiveSource;
+              const hasSynced = !!source.lyricsSynced;
+              const color = sourceColors[source.source] || "var(--color-text-muted)";
+
+              return (
+                <button
+                  key={source.source}
+                  onClick={() => handleSourceChange(source.source)}
+                  className={clsx(
+                    "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium",
+                    "transition-all duration-150",
+                    "border",
+                    isActive
+                      ? "bg-[var(--bg-surface)] border-current"
+                      : "bg-transparent border-transparent hover:bg-[var(--bg-hover)] text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)]"
+                  )}
+                  style={isActive ? { color, borderColor: `${color}30` } : undefined}
+                >
+                  <span>{sourceLabels[source.source] || source.source}</span>
+                  {hasSynced && (
+                    <span title="Synced lyrics available">
+                      <svg
+                        className="w-3 h-3"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
+                      </svg>
+                    </span>
+                  )}
+                  {source.isVerified && (
+                    <span title="Verified lyrics">
+                      <svg
+                        className="w-3 h-3"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
+                      </svg>
+                    </span>
+                  )}
+                  {source.qualityScore !== null && source.qualityScore < 0.8 && (
+                    <span
+                      className={clsx(
+                        "text-[9px] px-1 py-0.5 rounded",
+                        isActive ? "bg-white/10" : "bg-zinc-700/50"
+                      )}
+                    >
+                      {Math.round(source.qualityScore * 100)}%
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Lyrics Display */}
+      <LyricsDisplay
+        lyrics={lyricsForDisplay}
+        currentTime={currentTime}
+        onSeek={onSeek}
+        autoScroll={autoScroll}
+        maxHeight={maxHeight}
+        className={clsx(
+          sortedSources.length >= 1 && "rounded-t-none border-t-0"
+        )}
+      />
+
+      {/* Source Info Footer */}
+      {activeLyrics && (
+        <div className="flex items-center justify-between px-4 py-2 bg-[var(--bg-panel)] rounded-b-2xl border border-t-0 border-[var(--color-border-subtle)] text-[10px] text-[var(--color-text-dim)]">
+          <div className="flex items-center gap-3">
+            <span>
+              Source: <span className="text-[var(--color-text-muted)]">{sourceLabels[activeLyrics.source]}</span>
+            </span>
+            {activeLyrics.language && (
+              <span>
+                Language: <span className="text-[var(--color-text-muted)]">{activeLyrics.language}</span>
+              </span>
+            )}
+            {activeLyrics.hasTranslations && (
+              <span className="text-[var(--accent-cool)]">Translations available</span>
+            )}
+          </div>
+          <div className="flex items-center gap-2">
+            {activeLyrics.lyricsSynced && (
+              <span className="px-1.5 py-0.5 rounded bg-[var(--accent-safe)]/10 text-[var(--accent-safe)]">
+                Synced
+              </span>
+            )}
+            {activeLyrics.isVerified && (
+              <span className="px-1.5 py-0.5 rounded bg-[var(--accent-cool)]/10 text-[var(--accent-cool)]">
+                Verified
+              </span>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

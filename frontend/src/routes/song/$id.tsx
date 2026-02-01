@@ -1,6 +1,12 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState, useMemo } from "react";
-import { useInternalSong, useRefreshSongMetadata, useEnrichSongMetadata } from "@/api/entities";
+import { useState, useMemo, useEffect } from "react";
+import {
+  useInternalSong,
+  useRefreshSongMetadata,
+  useMetadataSnapshots,
+  useFullEnrichment,
+  useAllLyrics,
+} from "@/api/entities";
 import { useFindMatchesMutation, useLyrics, hasLyrics, toLyrics, useCreateReport } from "@/api";
 import { useQueueStore } from "@/stores/queue";
 import { useAuthStore } from "@/stores/auth";
@@ -16,10 +22,12 @@ import {
 import { CoverArt } from "@/components/ui/cover-art";
 import { Spinner } from "@/components/ui";
 import { MatchScoreGauge } from "@/components/ui/match-gauge";
-import { LyricsDisplay } from "@/components/ui/lyrics-display";
+import { LyricsDisplay, MultiSourceLyricsDisplay } from "@/components/ui/lyrics-display";
 import { MetadataPanel, MetadataField } from "@/components/ui/metadata-source-badge";
 import { PlatformLinksGrid } from "@/components/ui/platform-link";
 import { ReportModal } from "@/components/ui/report-modal";
+import { MetadataSourceSelector } from "@/components/ui/metadata-source-selector";
+import { MetadataComparisonTable } from "@/components/ui/metadata-comparison";
 import { useDevConfig } from "@/contexts/DevConfigContext";
 import type { Match, AudioFeatures, CreateMetadataReportRequest } from "@/types";
 
@@ -82,10 +90,10 @@ function SongPage() {
   const { id } = Route.useParams();
   const { data: song, isLoading, error } = useInternalSong(id);
   const { data: lyricsData, isLoading: lyricsLoading } = useLyrics(id, { enabled: !!song });
+  const { data: allLyricsData, isLoading: allLyricsLoading } = useAllLyrics(id, { enabled: !!song });
   const findMatchesMutation = useFindMatchesMutation();
   const createReportMutation = useCreateReport();
   const refreshMetadata = useRefreshSongMetadata();
-  const enrichMetadata = useEnrichSongMetadata();
   const addItem = useQueueStore((state) => state.addItem);
   const { isAuthenticated } = useAuthStore();
   const { features } = useDevConfig();
@@ -95,6 +103,59 @@ function SongPage() {
   const [matchesLoaded, setMatchesLoaded] = useState(false);
   const [showTechnicalMetadata, setShowTechnicalMetadata] = useState(false);
   const [showAllFeatures, setShowAllFeatures] = useState(false);
+
+  // Multi-source metadata state
+  const [activeMetadataSource, setActiveMetadataSource] = useState<string | null>(null);
+  const [showComparison, setShowComparison] = useState(false);
+
+  // Multi-source lyrics state
+  const [activeLyricsSource, setActiveLyricsSource] = useState<string | null>(null);
+
+  // Fetch metadata snapshots from all sources
+  const { data: snapshotsData } = useMetadataSnapshots(id, {
+    enabled: !!song,
+  });
+  const fullEnrichment = useFullEnrichment();
+
+  // Set default source when snapshots load
+  useEffect(() => {
+    if (snapshotsData?.snapshots?.length && !activeMetadataSource) {
+      // Default to highest confidence source
+      const sorted = [...snapshotsData.snapshots].sort((a, b) => b.confidence - a.confidence);
+      setActiveMetadataSource(sorted[0].source);
+    }
+  }, [snapshotsData, activeMetadataSource]);
+
+  // Get active snapshot data
+  const activeSnapshot = useMemo(() => {
+    if (!snapshotsData?.snapshots || !activeMetadataSource) return null;
+    return snapshotsData.snapshots.find((s) => s.source === activeMetadataSource) || null;
+  }, [snapshotsData, activeMetadataSource]);
+
+  // Merge snapshot metadata with song for display
+  const displayMetadata = useMemo(() => {
+    if (!song) return null;
+    if (!activeSnapshot?.data) return song;
+
+    // Merge snapshot data with song, preferring snapshot values when available
+    return {
+      ...song,
+      genres: activeSnapshot.data.genres || song.genres,
+      label: activeSnapshot.data.label || song.label,
+      release_date: activeSnapshot.data.release_date || song.release_date,
+      year: activeSnapshot.data.year || song.year,
+      // Audio features from snapshot if available
+      audio_features: song.audio_features
+        ? {
+            ...song.audio_features,
+            bpm: activeSnapshot.data.bpm ?? song.audio_features.bpm,
+            energy: activeSnapshot.data.energy ?? song.audio_features.energy,
+            danceability: activeSnapshot.data.danceability ?? song.audio_features.danceability,
+            valence: activeSnapshot.data.valence ?? song.audio_features.valence,
+          }
+        : song.audio_features,
+    };
+  }, [song, activeSnapshot]);
 
   // Report submission handler
   const handleReportSubmit = async (report: CreateMetadataReportRequest) => {
@@ -362,10 +423,9 @@ function SongPage() {
               <RefreshMetadataButton
                 entityId={id}
                 onRefresh={async () => {
+                  // Refresh from source platform + fetch all metadata sources
                   await refreshMetadata.mutateAsync(id);
-                }}
-                onEnrich={async () => {
-                  await enrichMetadata.mutateAsync(id);
+                  await fullEnrichment.mutateAsync(id);
                 }}
                 size="lg"
               />
@@ -387,6 +447,60 @@ function SongPage() {
         </div>
       </div>
 
+      {/* Multi-Source Metadata Controls */}
+      {snapshotsData && snapshotsData.snapshots.length > 0 && (
+        <Card variant="bordered" className="overflow-hidden">
+          <CardContent className="py-4">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              {/* Source Selector */}
+              <MetadataSourceSelector
+                sources={snapshotsData.sources}
+                activeSource={activeMetadataSource || ""}
+                onSourceChange={setActiveMetadataSource}
+                snapshots={snapshotsData.snapshots}
+                showConfidence={true}
+                size="md"
+              />
+
+              {/* Compare Sources Button */}
+              {snapshotsData.snapshots.length > 1 && (
+                <Button
+                  variant={showComparison ? "primary" : "outline"}
+                  size="sm"
+                  onClick={() => setShowComparison(!showComparison)}
+                >
+                  <svg className="w-4 h-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" />
+                  </svg>
+                  {showComparison ? "Hide Comparison" : "Compare Sources"}
+                </Button>
+              )}
+            </div>
+
+            {/* Active Source Info */}
+            {activeSnapshot && (
+              <div className="mt-3 pt-3 border-t border-zinc-800/50 flex items-center gap-2 text-xs text-zinc-500">
+                <span>Viewing data from</span>
+                <span className="font-medium text-zinc-300">{activeMetadataSource}</span>
+                <span>•</span>
+                <span>Confidence: {Math.round(activeSnapshot.confidence * 100)}%</span>
+                <span>•</span>
+                <span>Fetched: {new Date(activeSnapshot.fetchedAt).toLocaleDateString()}</span>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Metadata Comparison Table */}
+      {showComparison && snapshotsData && snapshotsData.snapshots.length > 1 && (
+        <MetadataComparisonTable
+          snapshots={snapshotsData.snapshots}
+          showOnlyDifferences={false}
+          className="animate-slide-up"
+        />
+      )}
+
       {/* Content Grid */}
       <div className="grid lg:grid-cols-3 gap-6">
         {/* Left Column - Lyrics & Matches */}
@@ -399,14 +513,28 @@ function SongPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
                 Lyrics
+                {allLyricsData && allLyricsData.lyrics.length > 1 && (
+                  <Badge variant="muted" size="sm">
+                    {allLyricsData.lyrics.length} sources
+                  </Badge>
+                )}
               </CardTitle>
             </CardHeader>
             <CardContent className="p-0">
-              {lyricsLoading ? (
+              {(lyricsLoading || allLyricsLoading) ? (
                 <div className="flex items-center justify-center py-12">
                   <Spinner size="md" />
                 </div>
+              ) : allLyricsData && allLyricsData.lyrics.length > 0 ? (
+                // Use multi-source display when multiple sources available
+                <MultiSourceLyricsDisplay
+                  lyricsSources={allLyricsData.lyrics}
+                  activeSource={activeLyricsSource || undefined}
+                  onSourceChange={setActiveLyricsSource}
+                  maxHeight="400px"
+                />
               ) : lyrics ? (
+                // Fallback to single-source display
                 <LyricsDisplay
                   lyrics={lyrics}
                   maxHeight="400px"
@@ -530,9 +658,9 @@ function SongPage() {
           </Card>
 
           {/* Audio Features Panel */}
-          {song.audio_features && (
+          {displayMetadata?.audio_features && (
             <AudioFeaturesPanel
-              features={song.audio_features}
+              features={displayMetadata.audio_features}
               expanded={showAllFeatures}
               onToggleExpand={() => setShowAllFeatures(!showAllFeatures)}
             />
@@ -544,35 +672,43 @@ function SongPage() {
             defaultOpen={true}
           >
             <div className="space-y-3">
-              <MetadataField label="Title" value={song.name} />
-              <MetadataField label="Artist" value={song.artist} />
-              {song.album_name && (
-                <MetadataField label="Album" value={song.album_name} />
+              <MetadataField label="Title" value={displayMetadata?.name || song.name} />
+              <MetadataField label="Artist" value={displayMetadata?.artist || song.artist} />
+              {(displayMetadata?.album_name || song.album_name) && (
+                <MetadataField label="Album" value={displayMetadata?.album_name || song.album_name || ""} />
               )}
               <MetadataField label="Duration" value={<span className="font-mono">{formatDuration(song.duration)}</span>} />
-              {song.release_date && (
-                <MetadataField label="Release Date" value={song.release_date} />
+              {(displayMetadata?.release_date || song.release_date) && (
+                <MetadataField label="Release Date" value={displayMetadata?.release_date || song.release_date || ""} />
               )}
-              {!song.release_date && song.year && (
-                <MetadataField label="Year" value={String(song.year)} />
+              {!(displayMetadata?.release_date || song.release_date) && (displayMetadata?.year || song.year) && (
+                <MetadataField label="Year" value={String(displayMetadata?.year || song.year)} />
               )}
-              {song.label && (
-                <MetadataField label="Label" value={song.label} />
+              {(displayMetadata?.label || song.label) && (
+                <MetadataField label="Label" value={displayMetadata?.label || song.label || ""} />
               )}
-              {song.genres && song.genres.length > 0 && (
+              {((displayMetadata?.genres && displayMetadata.genres.length > 0) || (song.genres && song.genres.length > 0)) && (
                 <MetadataField
                   label="Genres"
-                  value={song.genres.join(", ")}
+                  value={(displayMetadata?.genres || song.genres)?.join(", ") || ""}
                 />
               )}
               {song.popularity !== null && song.popularity !== undefined && (
                 <MetadataField label="Popularity" value={`${song.popularity}%`} />
               )}
+              {/* Show source indicator when viewing non-primary source */}
+              {activeMetadataSource && activeMetadataSource !== "spotify" && (
+                <div className="pt-2 mt-2 border-t border-zinc-800/30">
+                  <p className="text-[10px] text-zinc-500 uppercase tracking-wide">
+                    Data from <span className="text-accent-cool">{activeMetadataSource}</span>
+                  </p>
+                </div>
+              )}
             </div>
           </MetadataPanel>
 
           {/* Copyright & Label Info */}
-          {(song.label || song.copyright_text) && (
+          {(displayMetadata?.label || song.label || song.copyright_text) && (
             <Card variant="bordered">
               <CardHeader className="border-b border-zinc-800/50">
                 <CardTitle className="text-base flex items-center gap-2">
@@ -583,10 +719,10 @@ function SongPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                {song.label && (
+                {(displayMetadata?.label || song.label) && (
                   <div>
                     <span className="text-xs text-zinc-500 uppercase tracking-wide">Label</span>
-                    <p className="text-sm text-zinc-300 mt-0.5">{song.label}</p>
+                    <p className="text-sm text-zinc-300 mt-0.5">{displayMetadata?.label || song.label}</p>
                   </div>
                 )}
                 {song.copyright_text && (

@@ -134,6 +134,26 @@ class DiscogsProvider(MetadataProvider):
         Returns:
             MetadataResult if found, None otherwise
         """
+        _, result = await self._lookup_by_name_with_raw(track_name, artist_name, album_name)
+        return result
+
+    async def _lookup_by_name_with_raw(
+        self,
+        track_name: str,
+        artist_name: str,
+        album_name: str | None = None,
+    ) -> tuple[dict[str, Any] | None, MetadataResult | None]:
+        """
+        Look up metadata by name and return both raw response and parsed result.
+
+        Args:
+            track_name: Track name
+            artist_name: Artist name
+            album_name: Optional album name
+
+        Returns:
+            Tuple of (raw_response, MetadataResult)
+        """
         client = await self._ensure_client()
 
         try:
@@ -157,7 +177,7 @@ class DiscogsProvider(MetadataProvider):
                 releases.append(result)
 
             if not releases:
-                return None
+                return None, None
 
             # Find best match
             best_match = None
@@ -172,15 +192,132 @@ class DiscogsProvider(MetadataProvider):
                     best_match = release
 
             if best_match and best_score >= 50:
-                return await self._parse_release(best_match, track_name)
+                # Extract raw data from the release object
+                raw_response = self._extract_raw_response(best_match)
+                parsed_result = await self._parse_release(best_match, track_name)
+                return raw_response, parsed_result
 
-            return None
+            return None, None
 
         except Exception as e:
             logger.warning(
                 f"Discogs lookup failed for {artist_name} - {track_name}: {e}"
             )
-            return None
+            return None, None
+
+    async def lookup_with_raw(
+        self,
+        isrc: str | None = None,
+        name: str | None = None,
+        artist: str | None = None,
+        album_name: str | None = None,
+    ) -> tuple[dict[str, Any] | None, MetadataResult | None]:
+        """
+        Look up metadata and return both raw API response AND parsed result.
+
+        Note: Discogs doesn't support ISRC lookup, so it only uses name/artist.
+
+        Args:
+            isrc: ISRC code (ignored - Discogs doesn't support ISRC)
+            name: Track name
+            artist: Artist name
+            album_name: Album name (optional)
+
+        Returns:
+            Tuple of (raw_response, MetadataResult)
+        """
+        # Discogs doesn't support ISRC lookup
+        if name and artist:
+            return await self._lookup_by_name_with_raw(name, artist, album_name)
+
+        return None, None
+
+    def _extract_raw_response(self, release: Any) -> dict[str, Any]:
+        """
+        Extract raw data from a Discogs release object.
+
+        Args:
+            release: Discogs release object
+
+        Returns:
+            Dictionary with raw release data
+        """
+        raw: dict[str, Any] = {
+            "id": getattr(release, "id", None),
+            "title": getattr(release, "title", None),
+            "year": getattr(release, "year", None),
+            "country": getattr(release, "country", None),
+        }
+
+        # Artists
+        artists_attr = getattr(release, "artists", None)
+        if artists_attr:
+            raw["artists"] = [
+                {
+                    "id": getattr(a, "id", None),
+                    "name": getattr(a, "name", None),
+                }
+                for a in artists_attr
+            ]
+
+        # Genres and styles
+        raw["genres"] = getattr(release, "genres", None)
+        raw["styles"] = getattr(release, "styles", None)
+
+        # Labels
+        labels_attr = getattr(release, "labels", None)
+        if labels_attr:
+            raw["labels"] = [
+                {
+                    "id": getattr(l, "id", None),
+                    "name": getattr(l, "name", None),
+                    "catno": getattr(l, "catno", None),
+                }
+                for l in labels_attr
+            ]
+
+        # Tracklist
+        tracklist = getattr(release, "tracklist", None)
+        if tracklist:
+            raw["tracklist"] = [
+                {
+                    "position": getattr(t, "position", None),
+                    "title": getattr(t, "title", None),
+                    "duration": getattr(t, "duration", None),
+                }
+                for t in tracklist
+            ]
+
+        # Formats
+        formats = getattr(release, "formats", None)
+        if formats:
+            raw["formats"] = [
+                {
+                    "name": getattr(f, "name", None),
+                    "qty": getattr(f, "qty", None),
+                    "descriptions": getattr(f, "descriptions", None),
+                }
+                for f in formats
+            ]
+
+        # Images
+        images = getattr(release, "images", None)
+        if images:
+            raw["images"] = [
+                {
+                    "type": getattr(i, "type", None),
+                    "uri": getattr(i, "uri", None),
+                    "width": getattr(i, "width", None),
+                    "height": getattr(i, "height", None),
+                }
+                for i in images
+            ]
+
+        # Master release info
+        raw["master_id"] = getattr(release, "master_id", None)
+        raw["data_quality"] = getattr(release, "data_quality", None)
+
+        return raw
 
     async def search(
         self,

@@ -83,6 +83,23 @@ class Lyrics(Base, TimestampMixin):
         doc="Number of lines for quality assessment",
     )
 
+    # Provider-specific metadata
+    provider_track_id: Mapped[str | None] = mapped_column(
+        String(255),
+        nullable=True,
+        doc="Track ID on the lyrics provider (for refetching)",
+    )
+    has_translations: Mapped[bool | None] = mapped_column(
+        Boolean,
+        nullable=True,
+        doc="Whether translations are available (MusixMatch)",
+    )
+    language: Mapped[str | None] = mapped_column(
+        String(10),
+        nullable=True,
+        doc="Detected language of lyrics",
+    )
+
     # Relationships
     song: Mapped[Song] = relationship(
         "Song",

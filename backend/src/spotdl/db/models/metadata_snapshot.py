@@ -48,11 +48,20 @@ class MetadataSnapshot(Base, TimestampMixin):
         index=True,
     )
 
-    # Full metadata from this source as JSON
-    # Includes all available fields from the provider
+    # Complete raw API response for future-proofing
+    # Stores the exact response from the provider's API
+    raw_response: Mapped[dict[str, Any] | None] = mapped_column(
+        JSONType(),
+        nullable=True,
+        doc="Complete raw API response for future-proofing",
+    )
+
+    # Normalized/extracted metadata fields for quick access
+    # Includes standardized fields from the provider
     snapshot_data: Mapped[dict[str, Any]] = mapped_column(
         JSONType(),
         nullable=False,
+        doc="Normalized metadata fields for quick access",
     )
 
     # When this snapshot was fetched from the source

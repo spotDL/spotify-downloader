@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from spotdl.core.types.song import Song
@@ -57,6 +57,28 @@ class MetadataResult:
     source: str = ""
     confidence: float = 1.0
 
+    def to_dict(self) -> dict[str, Any]:
+        """
+        Convert to dictionary for storage.
+
+        Returns a dictionary with only non-None values.
+        """
+        result: dict[str, Any] = {}
+        for field_name in [
+            "name", "artists", "album_name", "album_artist",
+            "isrc", "upc", "musicbrainz_id", "discogs_id",
+            "genres", "year", "date", "track_number", "disc_number",
+            "total_tracks", "total_discs", "album_art_url", "label",
+            "country", "duration_ms", "bpm", "key", "source", "confidence",
+        ]:
+            value = getattr(self, field_name, None)
+            if value is not None:
+                # Include empty lists/dicts but skip None values
+                if isinstance(value, (list, dict)) and not value:
+                    continue
+                result[field_name] = value
+        return result
+
 
 class MetadataProvider(ABC):
     """
@@ -88,6 +110,40 @@ class MetadataProvider(ABC):
             MetadataResult if found, None otherwise
         """
         raise NotImplementedError
+
+    async def lookup_with_raw(
+        self,
+        isrc: str | None = None,
+        name: str | None = None,
+        artist: str | None = None,
+        album_name: str | None = None,
+    ) -> tuple[dict[str, Any] | None, MetadataResult | None]:
+        """
+        Look up metadata and return both raw API response AND parsed result.
+
+        This preserves ALL data from the source API for future-proofing.
+        Subclasses should override this to return the actual raw response.
+
+        Args:
+            isrc: ISRC code (preferred if available)
+            name: Track name
+            artist: Artist name
+            album_name: Album name (optional)
+
+        Returns:
+            Tuple of (raw_response, MetadataResult) - either may be None
+        """
+        # Default implementation just calls the existing methods
+        result: MetadataResult | None = None
+
+        if isrc:
+            result = await self.lookup_by_isrc(isrc)
+
+        if not result and name and artist:
+            result = await self.lookup_by_name(name, artist, album_name)
+
+        # Default implementation doesn't have raw response
+        return None, result
 
     @abstractmethod
     async def lookup_by_name(

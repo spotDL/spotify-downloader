@@ -130,3 +130,131 @@ async def search_lyrics(
         source=result.source,
         from_cache=False,
     )
+
+
+class LyricsSourceResponse(BaseModel):
+    """Response model for a single lyrics source."""
+
+    source: str
+    lyrics_text: str
+    lyrics_synced: str | None = None
+    quality_score: float | None = None
+    is_verified: bool = False
+    language: str | None = None
+    has_translations: bool | None = None
+
+
+class AllLyricsResponse(BaseModel):
+    """Response model for all lyrics sources."""
+
+    song_id: str
+    lyrics: list[LyricsSourceResponse]
+    total_sources: int
+
+
+@router.get("/song/{song_id}/all")
+async def get_all_lyrics_for_song(
+    song_id: str,
+    db: AsyncSession = Depends(get_db_session),
+) -> AllLyricsResponse:
+    """
+    Get lyrics from ALL sources for a song.
+
+    Returns lyrics from all cached sources (Genius, MusixMatch, LRCLIB, AZLyrics),
+    allowing users to compare and choose their preferred version.
+    """
+    from spotdl.db.repositories import LyricsRepository
+
+    # Validate UUID
+    try:
+        song_uuid = uuid.UUID(song_id)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=f"Invalid song ID: {song_id}") from e
+
+    # Get song from database
+    song_repo = SongRepository(db)
+    song = await song_repo.get_by_id(song_uuid)
+
+    if not song:
+        raise HTTPException(status_code=404, detail=f"Song not found: {song_id}")
+
+    # Get all lyrics from repository
+    lyrics_repo = LyricsRepository(db)
+    all_lyrics = await lyrics_repo.get_all_for_song(song_uuid)
+
+    return AllLyricsResponse(
+        song_id=song_id,
+        lyrics=[
+            LyricsSourceResponse(
+                source=lyrics.source,
+                lyrics_text=lyrics.lyrics_text,
+                lyrics_synced=lyrics.lyrics_synced,
+                quality_score=lyrics.quality_score,
+                is_verified=lyrics.is_verified or False,
+                language=lyrics.language,
+                has_translations=lyrics.has_translations,
+            )
+            for lyrics in all_lyrics
+        ],
+        total_sources=len(all_lyrics),
+    )
+
+
+@router.post("/song/{song_id}/fetch-all")
+async def fetch_all_lyrics_sources(
+    song_id: str,
+    db: AsyncSession = Depends(get_db_session),
+) -> AllLyricsResponse:
+    """
+    Fetch lyrics from ALL providers and store each result.
+
+    Unlike the regular lyrics endpoint which returns the first result,
+    this fetches from ALL providers in parallel and stores each result
+    separately, allowing users to compare lyrics from different sources.
+    """
+    # Validate UUID
+    try:
+        song_uuid = uuid.UUID(song_id)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=f"Invalid song ID: {song_id}") from e
+
+    # Get song from database
+    song_repo = SongRepository(db)
+    song = await song_repo.get_by_id(song_uuid)
+
+    if not song:
+        raise HTTPException(status_code=404, detail=f"Song not found: {song_id}")
+
+    # Fetch from all providers
+    settings = get_settings()
+    genius_token = settings.genius_access_token.get_secret_value() if settings.genius_access_token else None
+
+    async with get_lyrics_service(
+        session=db,
+        genius_token=genius_token,
+        enable_cache=True,
+    ) as lyrics_service:
+        results = await lyrics_service.fetch_all_lyrics(
+            song_id=song_uuid,
+            name=song.name,
+            artists=song.artists or [],
+            album_name=song.album_name,
+            duration=song.duration_seconds,
+        )
+
+    await db.commit()
+
+    return AllLyricsResponse(
+        song_id=song_id,
+        lyrics=[
+            LyricsSourceResponse(
+                source=r.source,
+                lyrics_text=r.lyrics_text,
+                lyrics_synced=r.lyrics_synced,
+                quality_score=None,  # Not available in LyricsResult
+                is_verified=False,
+            )
+            for r in results
+        ],
+        total_sources=len(results),
+    )

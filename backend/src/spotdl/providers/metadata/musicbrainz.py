@@ -103,6 +103,21 @@ class MusicBrainzProvider(MetadataProvider):
         Returns:
             MetadataResult if found, None otherwise
         """
+        _, result = await self._lookup_by_isrc_with_raw(isrc)
+        return result
+
+    async def _lookup_by_isrc_with_raw(
+        self, isrc: str
+    ) -> tuple[dict[str, Any] | None, MetadataResult | None]:
+        """
+        Look up metadata by ISRC and return both raw response and parsed result.
+
+        Args:
+            isrc: ISRC code
+
+        Returns:
+            Tuple of (raw_response, MetadataResult)
+        """
         await self._ensure_initialized()
 
         try:
@@ -114,21 +129,21 @@ class MusicBrainzProvider(MetadataProvider):
                 None,
                 lambda: musicbrainzngs.get_recordings_by_isrc(
                     isrc,
-                    includes=["artists", "releases"],
+                    includes=["artists", "releases", "tags", "isrcs"],
                 ),
             )
 
             recordings = result.get("isrc", {}).get("recording-list", [])
             if not recordings:
-                return None
+                return None, None
 
             # Use the first (best) match
             recording = recordings[0]
-            return self._parse_recording(recording, isrc=isrc)
+            return recording, self._parse_recording(recording, isrc=isrc)
 
         except Exception as e:
             logger.warning(f"MusicBrainz ISRC lookup failed for {isrc}: {e}")
-            return None
+            return None, None
 
     async def lookup_by_name(
         self,
@@ -146,6 +161,26 @@ class MusicBrainzProvider(MetadataProvider):
 
         Returns:
             MetadataResult if found, None otherwise
+        """
+        _, result = await self._lookup_by_name_with_raw(track_name, artist_name, album_name)
+        return result
+
+    async def _lookup_by_name_with_raw(
+        self,
+        track_name: str,
+        artist_name: str,
+        album_name: str | None = None,
+    ) -> tuple[dict[str, Any] | None, MetadataResult | None]:
+        """
+        Look up metadata by name and return both raw response and parsed result.
+
+        Args:
+            track_name: Track name
+            artist_name: Artist name
+            album_name: Optional album name
+
+        Returns:
+            Tuple of (raw_response, MetadataResult)
         """
         await self._ensure_initialized()
 
@@ -174,7 +209,7 @@ class MusicBrainzProvider(MetadataProvider):
 
             recordings = result.get("recording-list", [])
             if not recordings:
-                return None
+                return None, None
 
             # Use the first (best) match
             recording = recordings[0]
@@ -183,15 +218,46 @@ class MusicBrainzProvider(MetadataProvider):
             score = int(recording.get("ext:score", 0))
             if score < 80:
                 logger.debug(f"MusicBrainz match score too low: {score}")
-                return None
+                return None, None
 
-            return self._parse_recording(recording)
+            return recording, self._parse_recording(recording)
 
         except Exception as e:
             logger.warning(
                 f"MusicBrainz name lookup failed for {artist_name} - {track_name}: {e}"
             )
-            return None
+            return None, None
+
+    async def lookup_with_raw(
+        self,
+        isrc: str | None = None,
+        name: str | None = None,
+        artist: str | None = None,
+        album_name: str | None = None,
+    ) -> tuple[dict[str, Any] | None, MetadataResult | None]:
+        """
+        Look up metadata and return both raw API response AND parsed result.
+
+        Args:
+            isrc: ISRC code (preferred if available)
+            name: Track name
+            artist: Artist name
+            album_name: Album name (optional)
+
+        Returns:
+            Tuple of (raw_response, MetadataResult)
+        """
+        # Try ISRC first (most accurate)
+        if isrc:
+            raw, result = await self._lookup_by_isrc_with_raw(isrc)
+            if result:
+                return raw, result
+
+        # Fall back to name/artist lookup
+        if name and artist:
+            return await self._lookup_by_name_with_raw(name, artist, album_name)
+
+        return None, None
 
     async def search(
         self,

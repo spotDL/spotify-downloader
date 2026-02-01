@@ -1,3 +1,6 @@
+// Re-export metadata types
+export * from "./metadata";
+
 // ====== USER & AUTH ======
 export interface User {
   id: string;

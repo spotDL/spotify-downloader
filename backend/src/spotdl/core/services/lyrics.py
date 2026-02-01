@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import hashlib
 import logging
 import uuid
 from dataclasses import dataclass
@@ -13,6 +14,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from spotdl.db.models.lyrics import Lyrics as LyricsModel
+from spotdl.db.repositories import LyricsRepository
 from spotdl.providers.lyrics.azlyrics import AZLyricsProvider
 from spotdl.providers.lyrics.genius import GeniusProvider, GeniusWebProvider
 from spotdl.providers.lyrics.musixmatch import MusixMatchProvider
@@ -292,6 +294,189 @@ class LyricsService:
             LyricsResult if found in cache, None otherwise
         """
         return await self._get_from_cache(song_id)
+
+    async def fetch_all_lyrics(
+        self,
+        song_id: uuid.UUID,
+        name: str,
+        artists: list[str],
+        album_name: str | None = None,
+        duration: int | None = None,
+    ) -> list[LyricsResult]:
+        """
+        Fetch lyrics from ALL providers and store each result.
+
+        Unlike fetch_lyrics which returns the first result, this method
+        fetches from ALL providers in parallel and stores each result
+        separately, allowing users to compare lyrics from different sources.
+
+        Args:
+            song_id: Internal song UUID
+            name: Song name
+            artists: Artist names
+            album_name: Album name (optional, helps with matching)
+            duration: Duration in seconds (required for LRCLIB)
+
+        Returns:
+            List of all LyricsResult objects (one per successful provider)
+        """
+        providers = self._get_providers()
+
+        if not providers:
+            logger.warning("No lyrics providers configured")
+            return []
+
+        # Initialize all providers
+        for provider in providers:
+            await provider.__aenter__()
+
+        results: list[LyricsResult] = []
+        lyrics_repo = LyricsRepository(self.session)
+
+        try:
+            # Fetch from all providers concurrently
+            tasks = [provider.get_lyrics(name, artists) for provider in providers]
+            fetched = await asyncio.gather(*tasks, return_exceptions=True)
+
+            for provider, result in zip(providers, fetched):
+                if isinstance(result, Exception):
+                    logger.debug(
+                        "%s provider failed: %s",
+                        provider.name,
+                        result,
+                    )
+                    continue
+
+                if result:
+                    # Determine if synced
+                    is_synced = isinstance(provider, SyncedLyricsProvider)
+                    lyrics_synced = None
+                    lyrics_text = result
+
+                    if is_synced or self._is_lrc_format(result):
+                        lyrics_synced = result
+                        lyrics_text = self._lrc_to_plain(result)
+
+                    # Calculate quality score
+                    quality_score = self._calculate_quality_score(
+                        lyrics_text=lyrics_text,
+                        lyrics_synced=lyrics_synced,
+                        source=provider.name.lower(),
+                    )
+
+                    # Calculate content hash for deduplication
+                    content_hash = hashlib.sha256(
+                        lyrics_text.encode("utf-8")
+                    ).hexdigest()
+
+                    # Count lines
+                    line_count = len(
+                        [line for line in lyrics_text.split("\n") if line.strip()]
+                    )
+
+                    # Save to database using repository
+                    try:
+                        await lyrics_repo.upsert(
+                            song_id=song_id,
+                            source=provider.name.lower(),
+                            lyrics_text=lyrics_text,
+                            lyrics_synced=lyrics_synced,
+                            quality_score=quality_score,
+                            line_count=line_count,
+                            content_hash=content_hash,
+                        )
+
+                        logger.debug(
+                            "Saved %s lyrics for song %s (quality=%.2f)",
+                            provider.name,
+                            song_id,
+                            quality_score,
+                        )
+                    except Exception as e:
+                        logger.warning(
+                            "Failed to save %s lyrics: %s", provider.name, e
+                        )
+
+                    results.append(
+                        LyricsResult(
+                            lyrics_text=lyrics_text,
+                            lyrics_synced=lyrics_synced,
+                            source=provider.name.lower(),
+                            from_cache=False,
+                        )
+                    )
+
+            return results
+
+        finally:
+            # Clean up providers
+            for provider in providers:
+                await provider.__aexit__(None, None, None)
+
+    async def get_all_lyrics_for_song(
+        self, song_id: uuid.UUID
+    ) -> list[LyricsResult]:
+        """
+        Get ALL cached lyrics for a song from all sources.
+
+        Args:
+            song_id: Internal song UUID
+
+        Returns:
+            List of LyricsResult from all cached sources
+        """
+        lyrics_repo = LyricsRepository(self.session)
+        all_lyrics = await lyrics_repo.get_all_for_song(song_id)
+
+        return [
+            LyricsResult(
+                lyrics_text=lyrics.lyrics_text,
+                lyrics_synced=lyrics.lyrics_synced,
+                source=lyrics.source,
+                from_cache=True,
+            )
+            for lyrics in all_lyrics
+        ]
+
+    def _calculate_quality_score(
+        self,
+        lyrics_text: str,
+        lyrics_synced: str | None,
+        source: str,
+    ) -> float:
+        """
+        Calculate quality score based on lyrics completeness.
+
+        Score factors:
+        - Base score: 0.5
+        - Synced lyrics: +0.3
+        - Length (>100 chars): +0.1
+        - Reliable source: +0.1
+
+        Args:
+            lyrics_text: Plain text lyrics
+            lyrics_synced: LRC format synced lyrics (optional)
+            source: Provider source name
+
+        Returns:
+            Quality score from 0.0 to 1.0
+        """
+        score = 0.5  # Base score
+
+        # Synced lyrics are higher quality
+        if lyrics_synced:
+            score += 0.3
+
+        # Longer lyrics are likely more complete
+        if lyrics_text and len(lyrics_text) > 100:
+            score += 0.1
+
+        # Known reliable sources get a bonus
+        reliable_sources = {"genius", "musixmatch", "synced"}
+        if source.lower() in reliable_sources:
+            score += 0.1
+
+        return min(score, 1.0)
 
 
 def get_lyrics_service(

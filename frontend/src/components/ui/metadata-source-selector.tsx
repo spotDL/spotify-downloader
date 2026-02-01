@@ -1,10 +1,30 @@
 import { clsx } from "clsx";
+import type { MetadataSnapshot as TypedMetadataSnapshot } from "@/types/metadata";
+
+// Simple utility to format distance to now without date-fns
+function formatDistanceToNow(date: Date): string {
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffSecs = Math.floor(diffMs / 1000);
+  const diffMins = Math.floor(diffSecs / 60);
+  const diffHours = Math.floor(diffMins / 60);
+  const diffDays = Math.floor(diffHours / 24);
+  const diffMonths = Math.floor(diffDays / 30);
+
+  if (diffMonths > 0) return `${diffMonths} month${diffMonths > 1 ? "s" : ""} ago`;
+  if (diffDays > 0) return `${diffDays} day${diffDays > 1 ? "s" : ""} ago`;
+  if (diffHours > 0) return `${diffHours} hour${diffHours > 1 ? "s" : ""} ago`;
+  if (diffMins > 0) return `${diffMins} minute${diffMins > 1 ? "s" : ""} ago`;
+  return "just now";
+}
 
 export interface MetadataSnapshot {
   id: string;
   source: string;
-  snapshot_data: Record<string, unknown>;
-  fetched_at: string;
+  snapshot_data?: Record<string, unknown>;
+  data?: Record<string, unknown>;
+  fetched_at?: string;
+  fetchedAt?: string;
   confidence: number;
 }
 
@@ -12,8 +32,11 @@ export interface MetadataSourceSelectorProps {
   sources: string[];
   activeSource: string;
   onSourceChange: (source: string) => void;
-  snapshots?: MetadataSnapshot[];
+  snapshots?: MetadataSnapshot[] | TypedMetadataSnapshot[];
   className?: string;
+  showConfidence?: boolean;
+  showTimestamp?: boolean;
+  size?: "sm" | "md" | "lg";
 }
 
 const SOURCE_LABELS: Record<string, string> = {
@@ -104,19 +127,46 @@ export function MetadataSourceSelector({
   onSourceChange,
   snapshots,
   className,
+  showConfidence = true,
+  showTimestamp = false,
+  size = "md",
 }: MetadataSourceSelectorProps) {
-  // Don't render if only one source
-  if (sources.length <= 1) {
+  // Don't render if no sources
+  if (sources.length === 0) {
     return null;
   }
 
-  // Create a map of source to confidence
+  // Create maps of source to confidence and timestamp
   const confidenceMap = new Map<string, number>();
+  const timestampMap = new Map<string, string>();
   if (snapshots) {
     for (const snapshot of snapshots) {
       confidenceMap.set(snapshot.source, snapshot.confidence);
+      const timestamp = (snapshot as MetadataSnapshot).fetched_at || (snapshot as TypedMetadataSnapshot).fetchedAt;
+      if (timestamp) {
+        timestampMap.set(snapshot.source, timestamp);
+      }
     }
   }
+
+  // Sort sources by confidence (highest first)
+  const sortedSources = [...sources].sort((a, b) => {
+    const confA = confidenceMap.get(a) ?? 0;
+    const confB = confidenceMap.get(b) ?? 0;
+    return confB - confA;
+  });
+
+  const sizeClasses = {
+    sm: "px-2 py-1 text-xs",
+    md: "px-3 py-1.5 text-sm",
+    lg: "px-4 py-2 text-base",
+  };
+
+  const iconSizes = {
+    sm: "w-3 h-3",
+    md: "w-4 h-4",
+    lg: "w-5 h-5",
+  };
 
   return (
     <div className={clsx("flex flex-col gap-2", className)}>
@@ -124,18 +174,20 @@ export function MetadataSourceSelector({
         Metadata Source
       </label>
       <div className="flex flex-wrap gap-1.5">
-        {sources.map((source) => {
+        {sortedSources.map((source) => {
           const isActive = source === activeSource;
           const colors = getSourceColors(source);
           const confidence = confidenceMap.get(source);
+          const timestamp = timestampMap.get(source);
 
           return (
             <button
               key={source}
               onClick={() => onSourceChange(source)}
               className={clsx(
-                "flex items-center gap-2 px-3 py-1.5 rounded-lg",
-                "text-sm font-medium",
+                "flex items-center gap-2 rounded-lg",
+                sizeClasses[size],
+                "font-medium",
                 "transition-all duration-150",
                 "border",
                 isActive
@@ -148,10 +200,11 @@ export function MetadataSourceSelector({
                       "hover:text-[var(--color-text-secondary)]",
                     ]
               )}
+              title={timestamp ? `Last fetched ${formatDistanceToNow(new Date(timestamp))}` : undefined}
             >
-              <SourceIcon source={source} className="w-4 h-4" />
+              <SourceIcon source={source} className={iconSizes[size]} />
               <span>{getSourceLabel(source)}</span>
-              {confidence !== undefined && (
+              {showConfidence && confidence !== undefined && confidence < 1 && (
                 <span
                   className={clsx(
                     "text-[10px] px-1.5 py-0.5 rounded",
@@ -159,6 +212,11 @@ export function MetadataSourceSelector({
                   )}
                 >
                   {Math.round(confidence * 100)}%
+                </span>
+              )}
+              {showTimestamp && timestamp && (
+                <span className="text-[10px] opacity-60">
+                  {formatDistanceToNow(new Date(timestamp))}
                 </span>
               )}
             </button>

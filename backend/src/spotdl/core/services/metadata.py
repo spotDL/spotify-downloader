@@ -4,8 +4,12 @@ from __future__ import annotations
 
 import asyncio
 import logging
-from typing import TYPE_CHECKING
+import uuid
+from typing import TYPE_CHECKING, Any
 
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from spotdl.db.repositories import MetadataSnapshotRepository
 from spotdl.providers.metadata import (
     DiscogsProvider,
     MetadataProvider,
@@ -14,6 +18,7 @@ from spotdl.providers.metadata import (
 
 if TYPE_CHECKING:
     from spotdl.core.types.song import Song
+    from spotdl.db.models.metadata_snapshot import MetadataSnapshot
 
 logger = logging.getLogger(__name__)
 
@@ -114,6 +119,132 @@ class MetadataService:
                 continue
 
         return song
+
+    async def enrich_song_with_snapshots(
+        self,
+        song: Song,
+        song_id: uuid.UUID,
+        session: AsyncSession,
+    ) -> tuple[Song, list[MetadataSnapshot]]:
+        """
+        Enrich a song from ALL providers and save COMPLETE snapshots.
+
+        This method queries all available metadata providers, stores both
+        raw API responses and normalized data as MetadataSnapshots, and
+        enriches the song object.
+
+        Args:
+            song: Song DTO to enrich
+            song_id: Database ID of the song (UUID)
+            session: Database session for saving snapshots
+
+        Returns:
+            Tuple of (enriched Song, list of created MetadataSnapshots)
+        """
+        snapshots: list[MetadataSnapshot] = []
+
+        if not self._providers:
+            return song, snapshots
+
+        snapshot_repo = MetadataSnapshotRepository(session)
+
+        for provider in self._providers:
+            try:
+                # Get raw response AND parsed result
+                raw_response, result = await provider.lookup_with_raw(
+                    isrc=song.isrc,
+                    name=song.name,
+                    artist=song.artist,
+                    album_name=song.album_name,
+                )
+
+                if result:
+                    # Save BOTH raw and normalized data
+                    snapshot = await snapshot_repo.upsert(
+                        song_id=song_id,
+                        source=provider.name,
+                        raw_response=raw_response,
+                        snapshot_data=result.to_dict(),
+                        confidence=result.confidence,
+                    )
+                    snapshots.append(snapshot)
+
+                    # Merge result into song
+                    provider._merge_metadata(song, result)
+
+                    logger.debug(
+                        f"Saved {provider.name} snapshot for song {song_id}"
+                    )
+
+            except Exception as e:
+                logger.debug(f"Provider {provider.name} failed: {e}")
+                continue
+
+        return song, snapshots
+
+    async def fetch_all_snapshots(
+        self,
+        song_id: uuid.UUID,
+        isrc: str | None,
+        name: str,
+        artist: str,
+        album_name: str | None,
+        session: AsyncSession,
+    ) -> list[MetadataSnapshot]:
+        """
+        Fetch metadata from ALL providers and save snapshots without a Song DTO.
+
+        This is useful when you only have the song's attributes (from DB model)
+        but not a Song DTO object.
+
+        Args:
+            song_id: Database ID of the song (UUID)
+            isrc: ISRC code (optional)
+            name: Track name
+            artist: Artist name
+            album_name: Album name (optional)
+            session: Database session for saving snapshots
+
+        Returns:
+            List of created MetadataSnapshots
+        """
+        snapshots: list[MetadataSnapshot] = []
+
+        if not self._providers:
+            return snapshots
+
+        snapshot_repo = MetadataSnapshotRepository(session)
+
+        for provider in self._providers:
+            try:
+                # Get raw response AND parsed result
+                raw_response, result = await provider.lookup_with_raw(
+                    isrc=isrc,
+                    name=name,
+                    artist=artist,
+                    album_name=album_name,
+                )
+
+                if result:
+                    # Save BOTH raw and normalized data
+                    snapshot = await snapshot_repo.upsert(
+                        song_id=song_id,
+                        source=provider.name,
+                        raw_response=raw_response,
+                        snapshot_data=result.to_dict(),
+                        confidence=result.confidence,
+                    )
+                    snapshots.append(snapshot)
+
+                    logger.debug(
+                        f"Saved {provider.name} snapshot for song {song_id}"
+                    )
+
+            except Exception as e:
+                logger.debug(f"Provider {provider.name} failed: {e}")
+                continue
+
+        return snapshots
 
     async def enrich_songs(
         self,

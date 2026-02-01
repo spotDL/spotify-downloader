@@ -7,6 +7,7 @@ import re
 import unicodedata
 import uuid
 from dataclasses import dataclass, field
+from datetime import datetime, timezone
 from typing import TYPE_CHECKING
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -21,7 +22,10 @@ from spotdl.db.repositories.playlist import PlaylistRepository
 from spotdl.db.repositories.song import SongRepository
 
 if TYPE_CHECKING:
+    from spotdl.core.services.lyrics import LyricsService
+    from spotdl.core.services.metadata import MetadataService
     from spotdl.core.types.song import Song
+    from spotdl.db.models.metadata_snapshot import MetadataSnapshot
 
 logger = logging.getLogger(__name__)
 
@@ -568,6 +572,108 @@ class EntityPersistenceService:
             await self.session.flush()
 
         return updated_count
+
+    async def full_enrich_song(
+        self,
+        song_id: uuid.UUID,
+        metadata_service: MetadataService,
+        lyrics_service: LyricsService,
+    ) -> EnrichmentResult:
+        """
+        Perform full enrichment from ALL sources.
+
+        This method:
+        1. Fetches metadata from MusicBrainz, Discogs (and stores snapshots)
+        2. Fetches lyrics from Genius, MusixMatch, AZLyrics, LRCLIB
+        3. Updates song's enriched_at timestamp
+
+        All raw responses are preserved in MetadataSnapshots for future use.
+
+        Args:
+            song_id: Internal song UUID
+            metadata_service: MetadataService instance
+            lyrics_service: LyricsService instance
+
+        Returns:
+            EnrichmentResult with counts of what was fetched
+
+        Raises:
+            EntityPersistenceError: If song not found
+        """
+        song_model = await self.song_repo.get_by_id(song_id)
+        if not song_model:
+            raise EntityPersistenceError(f"Song not found: {song_id}")
+
+        result = EnrichmentResult()
+
+        # 1. Fetch metadata from all providers and save snapshots
+        try:
+            snapshots = await metadata_service.fetch_all_snapshots(
+                song_id=song_id,
+                isrc=song_model.isrc,
+                name=song_model.name,
+                artist=song_model.artists[0] if song_model.artists else "",
+                album_name=song_model.album_name,
+                session=self.session,
+            )
+            result.metadata_snapshots = snapshots
+            result.metadata_sources_count = len(snapshots)
+
+            # Update song with merged data from best snapshot
+            if snapshots:
+                best_snapshot = max(snapshots, key=lambda s: s.confidence)
+                data = best_snapshot.snapshot_data
+
+                # Update song fields if not already set
+                if not song_model.genres and data.get("genres"):
+                    song_model.genres = data["genres"]
+                if not song_model.isrc and data.get("isrc"):
+                    song_model.isrc = data["isrc"]
+                if not song_model.release_date and data.get("year"):
+                    from datetime import date as date_type
+                    try:
+                        song_model.release_date = date_type(data["year"], 1, 1)
+                    except ValueError:
+                        pass
+
+        except Exception as e:
+            logger.warning(f"Metadata enrichment failed for {song_id}: {e}")
+
+        # 2. Fetch lyrics from all providers
+        try:
+            async with lyrics_service:
+                lyrics_results = await lyrics_service.fetch_all_lyrics(
+                    song_id=song_id,
+                    name=song_model.name,
+                    artists=song_model.artists or [],
+                    album_name=song_model.album_name,
+                    duration=song_model.duration_seconds,
+                )
+                result.lyrics_sources_count = len(lyrics_results)
+
+        except Exception as e:
+            logger.warning(f"Lyrics enrichment failed for {song_id}: {e}")
+
+        # 3. Update enriched_at timestamp
+        song_model.enriched_at = datetime.now(timezone.utc)
+        await self.session.flush()
+
+        logger.info(
+            f"Full enrichment completed for {song_id}: "
+            f"{result.metadata_sources_count} metadata sources, "
+            f"{result.lyrics_sources_count} lyrics sources"
+        )
+
+        return result
+
+
+@dataclass
+class EnrichmentResult:
+    """Result of full enrichment operation."""
+
+    metadata_snapshots: list[MetadataSnapshot] = field(default_factory=list)
+    metadata_sources_count: int = 0
+    lyrics_sources_count: int = 0
 
 
 if TYPE_CHECKING:

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import logging
 import uuid
+from datetime import datetime, timezone
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Path, Query
@@ -168,6 +169,161 @@ class PlaylistResponse(BaseModel):
 ArtistResponse.model_rebuild()
 
 
+def _normalize_name(name: str) -> str:
+    """Normalize a song name for comparison."""
+    import re
+    # Remove parenthetical content, lowercase, remove extra whitespace
+    name = re.sub(r'\([^)]*\)', '', name)
+    name = re.sub(r'\[[^\]]*\]', '', name)
+    name = name.lower().strip()
+    name = re.sub(r'\s+', ' ', name)
+    return name
+
+
+def _deduplicate_album_songs(songs: list[Song]) -> list[Song]:
+    """
+    Deduplicate songs in an album by ISRC or normalized name.
+
+    When the same track exists from multiple platforms (Spotify, YouTube, Deezer),
+    we want to show it only once, preferring the version with the most metadata.
+
+    Priority: Spotify > Deezer > Apple Music > YouTube Music > other
+    """
+    from collections import defaultdict
+
+    # Platform priority (lower is better)
+    platform_priority = {
+        "spotify": 0,
+        "deezer": 1,
+        "apple_music": 2,
+        "youtube_music": 3,
+        "youtube": 4,
+        "soundcloud": 5,
+        "bandcamp": 6,
+    }
+
+    # Group songs by ISRC first
+    isrc_groups: dict[str, list[Song]] = defaultdict(list)
+    no_isrc: list[Song] = []
+
+    for song in songs:
+        if song.isrc:
+            isrc_groups[song.isrc].append(song)
+        else:
+            no_isrc.append(song)
+
+    # For songs without ISRC, group by normalized name + track number (if available)
+    name_groups: dict[str, list[Song]] = defaultdict(list)
+    for song in no_isrc:
+        metadata = song.metadata_json or {}
+        track_num = metadata.get("track_number", 0) or 0
+        key = f"{_normalize_name(song.name)}:{track_num}"
+        name_groups[key].append(song)
+
+    # Select best song from each ISRC group
+    deduped: list[Song] = []
+    seen_names: set[str] = set()
+
+    for isrc, group in isrc_groups.items():
+        # Sort by platform priority, then by metadata richness
+        group.sort(key=lambda s: (
+            platform_priority.get(s.platform, 99),
+            -(len(s.metadata_json or {})),  # More metadata is better
+        ))
+        best = group[0]
+        deduped.append(best)
+        seen_names.add(_normalize_name(best.name))
+
+    # Select best song from each name group (if not already covered by ISRC)
+    for key, group in name_groups.items():
+        name_part = key.split(":")[0]
+        if name_part in seen_names:
+            continue  # Already have this song from ISRC group
+
+        group.sort(key=lambda s: (
+            platform_priority.get(s.platform, 99),
+            -(len(s.metadata_json or {})),
+        ))
+        best = group[0]
+        deduped.append(best)
+        seen_names.add(name_part)
+
+    # Sort by track number if available
+    def sort_key(s: Song) -> tuple[int, int, str]:
+        metadata = s.metadata_json or {}
+        disc = metadata.get("disc_number", 1) or 1
+        track = metadata.get("track_number", 999) or 999
+        return (disc, track, s.name)
+
+    deduped.sort(key=sort_key)
+
+    return deduped
+
+
+def _deduplicate_artist_songs(songs: list[Song]) -> list[Song]:
+    """
+    Deduplicate songs by ISRC or normalized name for artist pages.
+
+    Similar to _deduplicate_album_songs but without track number grouping.
+    """
+    from collections import defaultdict
+
+    platform_priority = {
+        "spotify": 0,
+        "deezer": 1,
+        "apple_music": 2,
+        "youtube_music": 3,
+        "youtube": 4,
+        "soundcloud": 5,
+        "bandcamp": 6,
+    }
+
+    # Group songs by ISRC first
+    isrc_groups: dict[str, list[Song]] = defaultdict(list)
+    no_isrc: list[Song] = []
+
+    for song in songs:
+        if song.isrc:
+            isrc_groups[song.isrc].append(song)
+        else:
+            no_isrc.append(song)
+
+    # For songs without ISRC, group by normalized name
+    name_groups: dict[str, list[Song]] = defaultdict(list)
+    for song in no_isrc:
+        key = _normalize_name(song.name)
+        name_groups[key].append(song)
+
+    # Select best song from each group
+    deduped: list[Song] = []
+    seen_names: set[str] = set()
+
+    for isrc, group in isrc_groups.items():
+        group.sort(key=lambda s: (
+            platform_priority.get(s.platform, 99),
+            -(len(s.metadata_json or {})),
+        ))
+        best = group[0]
+        deduped.append(best)
+        seen_names.add(_normalize_name(best.name))
+
+    for key, group in name_groups.items():
+        if key in seen_names:
+            continue
+
+        group.sort(key=lambda s: (
+            platform_priority.get(s.platform, 99),
+            -(len(s.metadata_json or {})),
+        ))
+        best = group[0]
+        deduped.append(best)
+
+    # Sort by name
+    deduped.sort(key=lambda s: s.name.lower())
+
+    return deduped
+
+
 def _song_to_response(song: Song, include_enhanced: bool = False) -> SongResponse:
     """Convert a Song model to SongResponse."""
     # Extract metadata from JSON if available
@@ -249,6 +405,7 @@ async def get_artist(
     Get an artist by internal UUID.
 
     Returns artist details with all platform links, albums, and songs.
+    Automatically enriches with images/genres from Spotify if not already enriched.
     """
     try:
         artist_uuid = uuid.UUID(id)
@@ -260,6 +417,81 @@ async def get_artist(
 
     if not artist:
         raise HTTPException(status_code=404, detail="Artist not found")
+
+    # Lazy enrichment: fetch Spotify data if artist lacks image/genres
+    if not artist.image_url or not artist.genres:
+        try:
+            song_service = get_song_service()
+            from spotdl.core.types.song import Platform
+            import asyncio
+
+            spotify_provider = song_service._providers.get(Platform.SPOTIFY)
+            if spotify_provider:
+                client = spotify_provider._get_client()
+                loop = asyncio.get_event_loop()
+
+                # First check if artist has a Spotify platform link
+                spotify_artist_id = None
+                for link in (artist.platform_links or []):
+                    if link.platform == "spotify":
+                        spotify_artist_id = link.platform_id
+                        break
+
+                # If no Spotify link, try to find Spotify artist ID from the artist's songs
+                if not spotify_artist_id:
+                    from sqlalchemy import select
+                    song_query = (
+                        select(Song)
+                        .where(Song.artist_id == artist_uuid)
+                        .where(Song.platform == "spotify")
+                        .limit(1)
+                    )
+                    result = await db.execute(song_query)
+                    spotify_song = result.scalars().first()
+
+                    if spotify_song:
+                        # Fetch track from Spotify to get artist ID
+                        track_data = await loop.run_in_executor(
+                            None, client.track, spotify_song.platform_id
+                        )
+                        if track_data and track_data.get("artists"):
+                            spotify_artist_id = track_data["artists"][0].get("id")
+
+                # Directly enrich from Spotify API using the artist ID
+                if spotify_artist_id:
+                    artist_data = await loop.run_in_executor(
+                        None, client.artist, spotify_artist_id
+                    )
+                    if artist_data:
+                        # Update image
+                        images = artist_data.get("images", [])
+                        if images and not artist.image_url:
+                            sorted_images = sorted(
+                                images,
+                                key=lambda x: x.get("width", 0) * x.get("height", 0),
+                                reverse=True,
+                            )
+                            artist.image_url = sorted_images[0].get("url")
+
+                        # Update genres
+                        genres = artist_data.get("genres", [])
+                        if genres and not artist.genres:
+                            artist.genres = genres
+
+                        # Update followers count on Spotify link if it exists
+                        followers = artist_data.get("followers", {}).get("total")
+                        for link in (artist.platform_links or []):
+                            if link.platform == "spotify" and followers:
+                                link.followers = followers
+
+                        await db.commit()
+                        # Refresh artist
+                        artist = await artist_repo.get_by_id_with_links(artist_uuid)
+
+        except Exception as e:
+            # Enrichment failed, continue with what we have
+            logger.warning(f"Lazy artist enrichment failed: {e}")
+            pass
 
     # Get albums for this artist
     album_repo = AlbumRepository(db)
@@ -281,6 +513,9 @@ async def get_artist(
     query = select(Song).where(Song.artist_id == artist_uuid).limit(500)
     result = await db.execute(query)
     songs = result.scalars().all()
+
+    # Deduplicate songs (same track from multiple platforms)
+    deduped_songs = _deduplicate_artist_songs(songs)
 
     return ArtistResponse(
         id=str(artist.id),
@@ -308,9 +543,9 @@ async def get_artist(
             )
             for album in albums
         ],
-        songs=[_song_to_response(song) for song in songs],
+        songs=[_song_to_response(song) for song in deduped_songs],
         total_albums=len(albums),
-        total_songs=total_song_count,  # Use actual count from DB
+        total_songs=len(deduped_songs),  # Use deduplicated count
         # Extended metadata
         monthly_listeners=artist.monthly_listeners,
         popularity=artist.popularity,
@@ -331,6 +566,7 @@ async def get_album(
     Get an album by internal UUID.
 
     Returns album details with all platform links and songs.
+    Automatically fetches all tracks on first visit if album is incomplete.
     """
     try:
         album_uuid = uuid.UUID(id)
@@ -350,8 +586,39 @@ async def get_album(
     result = await db.execute(query)
     songs = result.scalars().all()
 
+    # Lazy enrichment: fetch all tracks if album appears incomplete
+    # (has platform link but very few songs compared to what we'd expect)
+    songs_count = len(songs)
+    needs_enrichment = (
+        album.platform_links
+        and (songs_count == 0 or (album.total_tracks and songs_count < album.total_tracks * 0.5))
+    )
+
+    if needs_enrichment:
+        try:
+            link = album.platform_links[0]
+            url = _build_platform_url(link.platform, "album", link.platform_id)
+            if url:
+                song_service = get_song_service()
+                song_list = await song_service.get_album(url)
+                if song_list.songs:
+                    entity_service = EntityPersistenceService(db)
+                    await entity_service.persist_from_search(song_list.songs)
+                    await db.commit()
+                    # Re-fetch songs after enrichment
+                    result = await db.execute(query)
+                    songs = result.scalars().all()
+        except Exception as e:
+            # Enrichment failed, continue with what we have
+            logger.warning(f"Lazy album enrichment failed: {e}")
+            pass
+
+    # Deduplicate songs by ISRC or normalized name
+    # This handles cases where the same track exists from multiple platforms
+    deduped_songs = _deduplicate_album_songs(songs)
+
     # Use actual song count from query result
-    total_tracks = len(songs) if len(songs) > 0 else album.total_tracks
+    total_tracks = len(deduped_songs) if len(deduped_songs) > 0 else album.total_tracks
 
     return AlbumResponse(
         id=str(album.id),
@@ -369,7 +636,7 @@ async def get_album(
             )
             for link in album.platform_links
         ],
-        songs=[_song_to_response(song) for song in songs],
+        songs=[_song_to_response(song) for song in deduped_songs],
         # Extended metadata
         album_type=album.album_type,
         release_date=str(album.release_date) if album.release_date else None,
@@ -389,6 +656,7 @@ async def get_song(
     Get a song by internal UUID.
 
     Returns enhanced song details including audio features, popularity, and metadata.
+    Automatically enriches with MusicBrainz/Discogs data on first visit if not enriched.
     """
     try:
         song_uuid = uuid.UUID(id)
@@ -400,6 +668,115 @@ async def get_song(
 
     if not song:
         raise HTTPException(status_code=404, detail="Song not found")
+
+    # Lazy enrichment: fetch metadata from MusicBrainz/Discogs if not enriched
+    # Check if song lacks enrichment data (no enriched_at timestamp or missing key metadata)
+    needs_enrichment = (
+        not song.enriched_at
+        and song.isrc  # Need ISRC for reliable matching
+        and not song.musicbrainz_id  # Not already enriched from MusicBrainz
+    )
+
+    if needs_enrichment:
+        try:
+            from spotdl.core.services.metadata import MetadataService
+            from spotdl.db.repositories import MetadataSnapshotRepository
+
+            # First, create a snapshot from the existing platform data (e.g., Spotify)
+            snapshot_repo = MetadataSnapshotRepository(db)
+
+            # Build snapshot data from current song
+            metadata = song.metadata_json or {}
+            spotify_snapshot_data = {
+                "name": song.name,
+                "artists": song.artists,
+                "album_name": song.album_name,
+                "isrc": song.isrc,
+                "genres": song.genres or [],
+                "year": song.release_date.year if song.release_date else metadata.get("year"),
+                "release_date": str(song.release_date) if song.release_date else None,
+                "explicit": song.explicit,
+                "popularity": song.popularity,
+                "label": song.label,
+                "copyright_text": song.copyright_text,
+                "track_number": metadata.get("track_number"),
+                "disc_number": metadata.get("disc_number"),
+            }
+
+            # Add audio features if available
+            if any([song.bpm, song.energy, song.danceability, song.valence]):
+                spotify_snapshot_data.update({
+                    "bpm": float(song.bpm) if song.bpm else None,
+                    "energy": float(song.energy) if song.energy else None,
+                    "danceability": float(song.danceability) if song.danceability else None,
+                    "valence": float(song.valence) if song.valence else None,
+                    "key": song.key,
+                    "mode": song.mode,
+                    "loudness": float(song.loudness) if song.loudness else None,
+                    "speechiness": float(song.speechiness) if song.speechiness else None,
+                    "acousticness": float(song.acousticness) if song.acousticness else None,
+                    "instrumentalness": float(song.instrumentalness) if song.instrumentalness else None,
+                    "liveness": float(song.liveness) if song.liveness else None,
+                    "time_signature": song.time_signature,
+                })
+
+            # Create Spotify snapshot (primary platform data)
+            await snapshot_repo.upsert(
+                song_id=song_uuid,
+                source=song.platform,
+                snapshot_data={k: v for k, v in spotify_snapshot_data.items() if v is not None},
+                raw_response=None,  # We don't have the raw response
+                confidence=1.0,  # Platform data is authoritative
+            )
+
+            # Use MetadataService to fetch and save snapshots from other providers
+            metadata_service = MetadataService(
+                enable_musicbrainz=True,
+                enable_discogs=True,
+            )
+
+            # Fetch metadata from all providers and save snapshots
+            snapshots = await metadata_service.fetch_all_snapshots(
+                song_id=song_uuid,
+                isrc=song.isrc,
+                name=song.name,
+                artist=song.artists[0] if song.artists else "",
+                album_name=song.album_name,
+                session=db,
+            )
+
+            # Update song with best snapshot data
+            if snapshots:
+                best_snapshot = max(snapshots, key=lambda s: s.confidence)
+                data = best_snapshot.snapshot_data
+
+                # Update song fields if not already set
+                if data.get("musicbrainz_id") and not song.musicbrainz_id:
+                    song.musicbrainz_id = data["musicbrainz_id"]
+                if data.get("discogs_id") and not song.discogs_id:
+                    song.discogs_id = data["discogs_id"]
+                if data.get("genres") and not song.genres:
+                    song.genres = data["genres"]
+                if data.get("label") and not song.label:
+                    song.label = data["label"]
+
+                # Track field sources
+                field_sources = song.field_sources or {}
+                for field in ["genres", "label", "musicbrainz_id", "discogs_id"]:
+                    if data.get(field) and getattr(song, field, None):
+                        field_sources[field] = best_snapshot.source
+                song.field_sources = field_sources
+
+            song.enriched_at = datetime.now(timezone.utc)
+            await db.commit()
+            await db.refresh(song)
+
+            logger.info(f"Lazy song enrichment saved {len(snapshots) + 1} snapshots for {song_uuid}")
+
+        except Exception as e:
+            # Enrichment failed, continue with what we have
+            logger.warning(f"Lazy song enrichment failed: {e}")
+            pass
 
     # Return enhanced response with all metadata for song detail page
     return _song_to_response(song, include_enhanced=True)
@@ -684,6 +1061,7 @@ class MetadataSnapshotResponse(BaseModel):
     id: str
     source: str
     snapshot_data: dict
+    raw_response: dict | None = None
     fetched_at: str
     confidence: float
 
@@ -701,6 +1079,7 @@ class MetadataSourcesResponse(BaseModel):
 @router.get("/songs/{song_id}/metadata-sources")
 async def get_song_metadata_sources(
     song_id: Annotated[str, Path(description="Internal song UUID")],
+    include_raw: Annotated[bool, Query(description="Include raw API responses")] = False,
     db: AsyncSession = Depends(get_db_session),
 ) -> MetadataSourcesResponse:
     """
@@ -708,6 +1087,10 @@ async def get_song_metadata_sources(
 
     Returns snapshots from different metadata providers (Spotify, MusicBrainz, Discogs, etc.)
     allowing users to view and compare metadata from multiple sources.
+
+    Args:
+        song_id: Internal song UUID
+        include_raw: If true, includes the complete raw API responses (larger payload)
     """
     from sqlalchemy import select
 
@@ -746,6 +1129,7 @@ async def get_song_metadata_sources(
                 id=str(s.id),
                 source=s.source,
                 snapshot_data=s.snapshot_data,
+                raw_response=s.raw_response if include_raw else None,
                 fetched_at=s.fetched_at.isoformat(),
                 confidence=s.confidence,
             )
@@ -1252,3 +1636,131 @@ def _build_platform_url(platform: str, entity_type: str, platform_id: str) -> st
         return None
 
     return None
+
+
+class FullEnrichmentResponse(BaseModel):
+    """Response model for full enrichment operation."""
+
+    success: bool
+    message: str
+    metadata_sources_count: int = 0
+    lyrics_sources_count: int = 0
+    metadata_sources: list[str] = []
+
+
+@router.post("/songs/{id}/enrich-all")
+async def enrich_song_from_all_sources(
+    id: Annotated[str, Path(description="Internal song UUID")],
+    db: AsyncSession = Depends(get_db_session),
+) -> FullEnrichmentResponse:
+    """
+    Fetch and store metadata from ALL available sources.
+
+    This endpoint triggers comprehensive enrichment:
+    - MusicBrainz, Discogs (metadata)
+    - Genius, MusixMatch, AZLyrics, LRCLIB (lyrics)
+
+    All raw API responses are preserved in MetadataSnapshots for future use.
+    Returns summary of what was stored.
+    """
+    from spotdl.core.services.metadata import MetadataService
+    from spotdl.core.services.lyrics import LyricsService
+
+    try:
+        song_uuid = uuid.UUID(id)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail="Invalid UUID format") from e
+
+    song_repo = SongRepository(db)
+    song = await song_repo.get_by_id(song_uuid)
+
+    if not song:
+        raise HTTPException(status_code=404, detail="Song not found")
+
+    try:
+        from spotdl.db.repositories import MetadataSnapshotRepository
+
+        # First, create a snapshot from the existing platform data (e.g., Spotify)
+        snapshot_repo = MetadataSnapshotRepository(db)
+
+        # Build snapshot data from current song
+        metadata = song.metadata_json or {}
+        platform_snapshot_data = {
+            "name": song.name,
+            "artists": song.artists,
+            "album_name": song.album_name,
+            "isrc": song.isrc,
+            "genres": song.genres or [],
+            "year": song.release_date.year if song.release_date else metadata.get("year"),
+            "release_date": str(song.release_date) if song.release_date else None,
+            "explicit": song.explicit,
+            "popularity": song.popularity,
+            "label": song.label,
+            "copyright_text": song.copyright_text,
+            "track_number": metadata.get("track_number"),
+            "disc_number": metadata.get("disc_number"),
+        }
+
+        # Add audio features if available
+        if any([song.bpm, song.energy, song.danceability, song.valence]):
+            platform_snapshot_data.update({
+                "bpm": float(song.bpm) if song.bpm else None,
+                "energy": float(song.energy) if song.energy else None,
+                "danceability": float(song.danceability) if song.danceability else None,
+                "valence": float(song.valence) if song.valence else None,
+                "key": song.key,
+                "mode": song.mode,
+                "loudness": float(song.loudness) if song.loudness else None,
+                "speechiness": float(song.speechiness) if song.speechiness else None,
+                "acousticness": float(song.acousticness) if song.acousticness else None,
+                "instrumentalness": float(song.instrumentalness) if song.instrumentalness else None,
+                "liveness": float(song.liveness) if song.liveness else None,
+                "time_signature": song.time_signature,
+            })
+
+        # Create platform snapshot (primary platform data)
+        platform_snapshot = await snapshot_repo.upsert(
+            song_id=song_uuid,
+            source=song.platform,
+            snapshot_data={k: v for k, v in platform_snapshot_data.items() if v is not None},
+            raw_response=None,  # We don't have the raw response
+            confidence=1.0,  # Platform data is authoritative
+        )
+
+        # Initialize services
+        metadata_service = MetadataService(
+            enable_musicbrainz=True,
+            enable_discogs=True,
+        )
+
+        lyrics_service = LyricsService(
+            session=db,
+            genius_token=None,  # Use web scraping
+            enable_cache=True,
+        )
+
+        # Use entity service for orchestration
+        entity_service = EntityPersistenceService(db)
+        result = await entity_service.full_enrich_song(
+            song_id=song_uuid,
+            metadata_service=metadata_service,
+            lyrics_service=lyrics_service,
+        )
+
+        # Include the platform snapshot in the count
+        total_metadata_sources = result.metadata_sources_count + 1
+        all_sources = [platform_snapshot.source] + [s.source for s in result.metadata_snapshots]
+
+        await db.commit()
+
+        return FullEnrichmentResponse(
+            success=True,
+            message=f"Enrichment complete. {total_metadata_sources} metadata sources, {result.lyrics_sources_count} lyrics sources.",
+            metadata_sources_count=total_metadata_sources,
+            lyrics_sources_count=result.lyrics_sources_count,
+            metadata_sources=all_sources,
+        )
+
+    except Exception as e:
+        logger.error(f"Failed to fully enrich song: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to enrich: {str(e)}") from e
