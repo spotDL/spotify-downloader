@@ -7,7 +7,7 @@ import {
   useFullEnrichment,
   useAllLyrics,
 } from "@/api/entities";
-import { useFindMatchesMutation, useLyrics, hasLyrics, toLyrics, useCreateReport, useSubmitMatch, useCreateVote, useMatchVotes } from "@/api";
+import { useFindMatchesMutation, useMatchesForSong, useLyrics, hasLyrics, toLyrics, useCreateReport, useSubmitMatch, useCreateVote, useMatchVotes } from "@/api";
 import { useUpdateMatchStatus } from "@/api/admin";
 import { useQueueStore } from "@/stores/queue";
 import { useAuthStore } from "@/stores/auth";
@@ -95,6 +95,7 @@ function SongPage() {
   const { data: song, isLoading, error } = useInternalSong(id);
   const { data: lyricsData, isLoading: lyricsLoading } = useLyrics(id, { enabled: !!song });
   const { data: allLyricsData, isLoading: allLyricsLoading } = useAllLyrics(id, { enabled: !!song });
+  const { data: existingMatches, isLoading: existingMatchesLoading } = useMatchesForSong(id);
   const findMatchesMutation = useFindMatchesMutation();
   const createReportMutation = useCreateReport();
   const refreshMetadata = useRefreshSongMetadata();
@@ -105,6 +106,7 @@ function SongPage() {
   const [showReportModal, setShowReportModal] = useState(false);
   const [matches, setMatches] = useState<Match[]>([]);
   const [matchesLoaded, setMatchesLoaded] = useState(false);
+  const [autoSearchTriggered, setAutoSearchTriggered] = useState(false);
   const [showTechnicalMetadata, setShowTechnicalMetadata] = useState(false);
   const [showAllFeatures, setShowAllFeatures] = useState(false);
 
@@ -141,7 +143,37 @@ function SongPage() {
     }
   }, [snapshotsData, activeMetadataSource]);
 
-  // Handler to find matches (lazy load on demand)
+  // Load existing matches or auto-search if none exist
+  useEffect(() => {
+    // Wait for existing matches query to complete
+    if (existingMatchesLoading || !song?.platforms[0]) return;
+
+    // If we have existing matches in the database, use them
+    if (existingMatches && existingMatches.length > 0) {
+      setMatches(existingMatches);
+      setMatchesLoaded(true);
+      return;
+    }
+
+    // No existing matches - auto-trigger search (only once)
+    if (!autoSearchTriggered && !matchesLoaded && !findMatchesMutation.isPending) {
+      setAutoSearchTriggered(true);
+      findMatchesMutation.mutate(
+        { sourceUrl: song.platforms[0].url, targetPlatforms: TARGET_PLATFORMS },
+        {
+          onSuccess: (result) => {
+            setMatches(result.matches);
+            setMatchesLoaded(true);
+          },
+          onError: () => {
+            setMatchesLoaded(true);
+          },
+        }
+      );
+    }
+  }, [existingMatches, existingMatchesLoading, song, autoSearchTriggered, matchesLoaded, findMatchesMutation]);
+
+  // Handler to find matches (manual refresh)
   const handleFindMatches = () => {
     if (song && song.platforms[0] && !findMatchesMutation.isPending) {
       findMatchesMutation.mutate(
@@ -527,8 +559,135 @@ function SongPage() {
 
       {/* Content Grid */}
       <div className="grid lg:grid-cols-3 gap-6">
-        {/* Left Column - Lyrics & Matches */}
+        {/* Left Column - Matches & Lyrics */}
         <div className="lg:col-span-2 space-y-6">
+          {/* Cross-Platform Matches Section */}
+          <Card variant="bordered">
+            <CardHeader className="border-b border-zinc-800/50">
+              <div className="flex items-center justify-between w-full">
+                <CardTitle className="flex items-center gap-2">
+                  <svg className="w-5 h-5 text-accent-needle" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                  </svg>
+                  Cross-Platform Matches
+                  {matchesLoaded && <Badge variant="muted" size="sm">{matches.length}</Badge>}
+                </CardTitle>
+                <div className="flex items-center gap-2">
+                  {isAuthenticated && matchesLoaded && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setShowSubmitMatch(!showSubmitMatch)}
+                    >
+                      <svg className="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                      </svg>
+                      Add Match
+                    </Button>
+                  )}
+                  {matchesLoaded && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleFindMatches}
+                      isLoading={findMatchesMutation.isPending}
+                      disabled={findMatchesMutation.isPending}
+                    >
+                      <svg className="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                      </svg>
+                      Refresh
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="p-0">
+              {/* Submit Match Form */}
+              {showSubmitMatch && (
+                <div className="p-4 border-b border-zinc-800/50 bg-zinc-900/50">
+                  <p className="text-sm text-zinc-400 mb-3">
+                    Submit a match from another platform. Matches will be reviewed before becoming verified.
+                  </p>
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <select
+                      value={submitMatchPlatform}
+                      onChange={(e) => setSubmitMatchPlatform(e.target.value)}
+                      className="px-3 py-2 rounded-lg bg-zinc-800 border border-zinc-700 text-sm text-zinc-200 focus:outline-none focus:border-accent-needle"
+                    >
+                      <option value="youtube">YouTube</option>
+                      <option value="youtube_music">YouTube Music</option>
+                      <option value="soundcloud">SoundCloud</option>
+                      <option value="bandcamp">Bandcamp</option>
+                    </select>
+                    <input
+                      type="url"
+                      placeholder="Paste URL from the platform..."
+                      value={submitMatchUrl}
+                      onChange={(e) => setSubmitMatchUrl(e.target.value)}
+                      className="flex-1 px-3 py-2 rounded-lg bg-zinc-800 border border-zinc-700 text-sm text-zinc-200 placeholder-zinc-500 focus:outline-none focus:border-accent-needle"
+                    />
+                    <Button
+                      variant="primary"
+                      size="sm"
+                      onClick={handleSubmitMatch}
+                      disabled={!submitMatchUrl.trim() || submitMatchMutation.isPending}
+                      isLoading={submitMatchMutation.isPending}
+                    >
+                      Submit
+                    </Button>
+                  </div>
+                  {submitMatchMutation.isError && (
+                    <p className="text-sm text-accent-peak mt-2">
+                      Failed to submit match. Please check the URL and try again.
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {/* Loading state - either loading existing or searching */}
+              {(existingMatchesLoading || findMatchesMutation.isPending) && !matchesLoaded && (
+                <div className="flex items-center justify-center py-12">
+                  <Spinner size="md" />
+                  <span className="ml-3 text-zinc-400">
+                    {existingMatchesLoading ? "Loading matches..." : "Searching for matches..."}
+                  </span>
+                </div>
+              )}
+
+              {/* Matches loaded */}
+              {matchesLoaded && (
+                <>
+                  {matches.length > 0 ? (
+                    <div className="divide-y divide-zinc-800/50">
+                      {matches.map((match, index) => (
+                        <MatchRow
+                          key={match.id || `${match.target_platform}-${match.target_url}`}
+                          match={match}
+                          index={index}
+                          canVerify={!!canVerifyMatches}
+                          canDownload={features.canDownload}
+                          onDownload={() => handleDownload(match)}
+                          onVerify={(status) => match.id && handleVerifyMatch(match.id, status)}
+                        />
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="py-12 text-center">
+                      <p className="text-zinc-500">No matches found</p>
+                      <p className="text-sm text-zinc-600 mt-1">
+                        {isAuthenticated
+                          ? "Know a match? Click \"Add Match\" to contribute!"
+                          : "Log in to submit a match yourself"
+                        }
+                      </p>
+                    </div>
+                  )}
+                </>
+              )}
+            </CardContent>
+          </Card>
+
           {/* Lyrics Section */}
           <Card variant="bordered" className="overflow-hidden">
             <CardHeader className="border-b border-zinc-800/50">
@@ -573,100 +732,6 @@ function SongPage() {
               )}
             </CardContent>
           </Card>
-
-          {/* Matches Section */}
-          {matchesLoaded && (
-            <Card variant="bordered">
-              <CardHeader className="border-b border-zinc-800/50">
-                <CardTitle className="flex items-center gap-2">
-                  <svg className="w-5 h-5 text-accent-needle" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
-                  </svg>
-                  Cross-Platform Matches
-                  <Badge variant="muted" size="sm">{matches.length}</Badge>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-0">
-                {matches.length > 0 ? (
-                  <div className="divide-y divide-zinc-800/50">
-                    {matches.slice(0, 5).map((match, index) => (
-                      <div
-                        key={`${match.target_platform}-${match.target_url}`}
-                        className={`flex items-center gap-4 px-4 py-3 hover:bg-zinc-800/30 transition-colors ${
-                          index === 0 ? "bg-accent-safe/5" : ""
-                        }`}
-                      >
-                        {/* Rank */}
-                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold ${
-                          index === 0
-                            ? "bg-accent-safe/20 text-accent-safe"
-                            : "bg-zinc-800 text-zinc-500"
-                        }`}>
-                          #{index + 1}
-                        </div>
-
-                        {/* Match Info */}
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2">
-                            <Badge
-                              variant={match.target_platform === "youtube_music" ? "error" : "muted"}
-                              size="sm"
-                            >
-                              {match.target_platform.replace("_", " ")}
-                            </Badge>
-                            {index === 0 && (
-                              <Badge variant="success" size="sm">Best Match</Badge>
-                            )}
-                          </div>
-                          <p className="font-medium text-zinc-200 truncate mt-1">
-                            {match.result.name}
-                          </p>
-                          <p className="text-sm text-zinc-500 truncate">
-                            {match.result.artist}
-                          </p>
-                        </div>
-
-                        {/* Score */}
-                        <div className="shrink-0">
-                          <MatchScoreGauge score={match.score} size="sm" />
-                        </div>
-
-                        {/* Actions */}
-                        <div className="flex items-center gap-2">
-                          <a
-                            href={match.target_url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="p-2 rounded-lg hover:bg-zinc-700 text-zinc-400 hover:text-zinc-200 transition-colors"
-                          >
-                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                            </svg>
-                          </a>
-                          {features.canDownload && (
-                            <Button
-                              size="sm"
-                              variant={index === 0 ? "primary" : "secondary"}
-                              onClick={() => handleDownload(match)}
-                            >
-                              Download
-                            </Button>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="py-12 text-center">
-                    <p className="text-zinc-500">No matches found</p>
-                    <p className="text-sm text-zinc-600 mt-1">
-                      Try matching manually for better results
-                    </p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          )}
         </div>
 
         {/* Right Column - Metadata & Links */}
@@ -1080,6 +1145,197 @@ function AudioFeatureBar({
           className={`h-full rounded-full transition-all duration-500 ${colorClass}`}
           style={{ width: `${percentage}%` }}
         />
+      </div>
+    </div>
+  );
+}
+
+// Match Row Component with voting and verification
+function MatchRow({
+  match,
+  index,
+  canVerify,
+  canDownload,
+  onDownload,
+  onVerify,
+}: {
+  match: Match;
+  index: number;
+  canVerify: boolean;
+  canDownload: boolean;
+  onDownload: () => void;
+  onVerify: (status: "verified" | "rejected") => void;
+}) {
+  const { isAuthenticated } = useAuthStore();
+  const createVoteMutation = useCreateVote();
+  const { data: voteSummary } = useMatchVotes(match.id || "");
+
+  const handleVote = async (type: "up" | "down") => {
+    if (!match.id || !isAuthenticated) return;
+
+    // Don't vote the same way twice
+    if (voteSummary?.user_vote === type) return;
+
+    await createVoteMutation.mutateAsync({
+      match_id: match.id,
+      vote_type: type,
+    });
+  };
+
+  const isUserSubmitted = match.match_type === "user";
+  const isPending = match.status === "pending";
+  const isVerified = match.status === "verified";
+  const isRejected = match.status === "rejected";
+
+  return (
+    <div
+      className={`flex items-center gap-4 px-4 py-3 hover:bg-zinc-800/30 transition-colors ${
+        index === 0 && isVerified ? "bg-accent-safe/5" : ""
+      } ${isRejected ? "opacity-50" : ""}`}
+    >
+      {/* Rank */}
+      <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold ${
+        index === 0 && isVerified
+          ? "bg-accent-safe/20 text-accent-safe"
+          : "bg-zinc-800 text-zinc-500"
+      }`}>
+        #{index + 1}
+      </div>
+
+      {/* Match Info */}
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2 flex-wrap">
+          <Badge
+            variant={match.target_platform === "youtube_music" ? "error" : "muted"}
+            size="sm"
+          >
+            {match.target_platform.replace("_", " ")}
+          </Badge>
+          {index === 0 && isVerified && (
+            <Badge variant="success" size="sm">Best Match</Badge>
+          )}
+          {isUserSubmitted && (
+            <Badge variant="info" size="sm">User Submitted</Badge>
+          )}
+          {isPending && (
+            <Badge variant="warning" size="sm">Pending Review</Badge>
+          )}
+          {isVerified && (
+            <Badge variant="success" size="sm">
+              <svg className="w-3 h-3 mr-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+              Verified
+            </Badge>
+          )}
+          {isRejected && (
+            <Badge variant="error" size="sm">Rejected</Badge>
+          )}
+        </div>
+        <p className="font-medium text-zinc-200 truncate mt-1">
+          {match.result.name}
+        </p>
+        <p className="text-sm text-zinc-500 truncate">
+          {match.result.artist}
+          {match.submitted_by_username && (
+            <span className="text-zinc-600"> • by {match.submitted_by_username}</span>
+          )}
+        </p>
+      </div>
+
+      {/* Score */}
+      <div className="shrink-0">
+        <MatchScoreGauge score={match.score} size="sm" />
+      </div>
+
+      {/* Voting */}
+      {isAuthenticated && match.id && (
+        <div className="flex items-center gap-1">
+          <button
+            onClick={() => handleVote("up")}
+            disabled={createVoteMutation.isPending}
+            className={`p-1.5 rounded transition-colors ${
+              voteSummary?.user_vote === "up"
+                ? "bg-accent-safe/20 text-accent-safe"
+                : "text-zinc-500 hover:text-accent-safe hover:bg-zinc-800"
+            }`}
+            title="Upvote"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+            </svg>
+          </button>
+          <span className={`text-xs font-mono min-w-[24px] text-center ${
+            (voteSummary?.upvotes ?? match.upvotes ?? 0) - (voteSummary?.downvotes ?? match.downvotes ?? 0) > 0
+              ? "text-accent-safe"
+              : (voteSummary?.upvotes ?? match.upvotes ?? 0) - (voteSummary?.downvotes ?? match.downvotes ?? 0) < 0
+                ? "text-accent-peak"
+                : "text-zinc-500"
+          }`}>
+            {(voteSummary?.upvotes ?? match.upvotes ?? 0) - (voteSummary?.downvotes ?? match.downvotes ?? 0)}
+          </span>
+          <button
+            onClick={() => handleVote("down")}
+            disabled={createVoteMutation.isPending}
+            className={`p-1.5 rounded transition-colors ${
+              voteSummary?.user_vote === "down"
+                ? "bg-accent-peak/20 text-accent-peak"
+                : "text-zinc-500 hover:text-accent-peak hover:bg-zinc-800"
+            }`}
+            title="Downvote"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+        </div>
+      )}
+
+      {/* Verification Actions (for admins/mods/high rep users) */}
+      {canVerify && isPending && match.id && (
+        <div className="flex items-center gap-1">
+          <button
+            onClick={() => onVerify("verified")}
+            className="p-1.5 rounded text-zinc-500 hover:text-accent-safe hover:bg-accent-safe/10 transition-colors"
+            title="Verify this match"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+          </button>
+          <button
+            onClick={() => onVerify("rejected")}
+            className="p-1.5 rounded text-zinc-500 hover:text-accent-peak hover:bg-accent-peak/10 transition-colors"
+            title="Reject this match"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+      )}
+
+      {/* Link & Download Actions */}
+      <div className="flex items-center gap-2">
+        <a
+          href={match.target_url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="p-2 rounded-lg hover:bg-zinc-700 text-zinc-400 hover:text-zinc-200 transition-colors"
+        >
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+          </svg>
+        </a>
+        {canDownload && !isRejected && (
+          <Button
+            size="sm"
+            variant={index === 0 && isVerified ? "primary" : "secondary"}
+            onClick={onDownload}
+          >
+            Download
+          </Button>
+        )}
       </div>
     </div>
   );
