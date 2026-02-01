@@ -302,7 +302,9 @@ async def _search_text(
         # Search all platforms in parallel
         async def search_platform(platform: Platform) -> list:
             try:
-                return await song_service.search(query, platform=platform, limit=limit)
+                results = await song_service.search(query, platform=platform, limit=limit)
+                logger.debug(f"Search on {platform.value} returned {len(results)} results")
+                return results
             except Exception as e:
                 logger.warning(f"Search failed on {platform.value}: {e}")
                 return []
@@ -336,7 +338,10 @@ async def _search_text(
         # Limit total results
         all_songs = all_songs[:limit]
 
+        logger.debug(f"Text search for '{query}' found {len(all_songs)} songs after deduplication")
+
         if not all_songs:
+            logger.info(f"Text search for '{query}' returned no results from any platform")
             return SearchResponse(
                 query=query,
                 query_type="text",
@@ -347,6 +352,11 @@ async def _search_text(
 
         # Persist entities - enrichment is deferred to entity page load for better search performance
         persist_result = await entity_service.persist_from_search(all_songs)
+
+        logger.debug(
+            f"Persist result: {persist_result.songs_created} songs created, "
+            f"{persist_result.songs_linked} linked, {len(persist_result.song_ids)} IDs mapped"
+        )
 
         # Build results
         results: list[SearchResult] = []

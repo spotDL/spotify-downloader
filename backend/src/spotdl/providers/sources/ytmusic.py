@@ -3,8 +3,11 @@
 from __future__ import annotations
 
 import asyncio
+import logging
 import re
 from typing import Any
+
+logger = logging.getLogger(__name__)
 
 from ytmusicapi import YTMusic
 
@@ -454,5 +457,6 @@ class YouTubeMusicProvider(SourceProvider):
 
             return songs
 
-        except Exception:
+        except Exception as e:
+            logger.warning(f"YouTube Music search failed for '{query}': {e}")
             return []

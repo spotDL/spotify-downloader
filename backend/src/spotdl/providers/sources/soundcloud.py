@@ -3,8 +3,11 @@
 from __future__ import annotations
 
 import json
+import logging
 import re
 from typing import Any
+
+logger = logging.getLogger(__name__)
 
 import httpx
 from bs4 import BeautifulSoup
@@ -492,5 +495,6 @@ class SoundCloudProvider(SourceProvider):
 
             return songs
 
-        except Exception:
+        except Exception as e:
+            logger.warning(f"SoundCloud search failed for '{query}': {e}")
             return []

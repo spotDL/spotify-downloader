@@ -3,8 +3,11 @@
 from __future__ import annotations
 
 import asyncio
+import logging
 import re
 from typing import Any
+
+logger = logging.getLogger(__name__)
 
 import httpx
 
@@ -530,5 +533,6 @@ class DeezerProvider(SourceProvider):
 
             return songs
 
-        except SourceProviderError:
+        except SourceProviderError as e:
+            logger.warning(f"Deezer search failed for '{query}': {e}")
             return []

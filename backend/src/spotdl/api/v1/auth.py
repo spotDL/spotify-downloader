@@ -230,6 +230,7 @@ async def register(
             is_active=created_user.is_active,
             is_admin=created_user.is_admin,
             reputation_score=created_user.reputation_score,
+            created_at=created_user.created_at,
         ),
     )
 
@@ -290,6 +291,7 @@ async def login(
             is_active=user.is_active,
             is_admin=user.is_admin,
             reputation_score=user.reputation_score,
+            created_at=user.created_at,
         ),
     )
 
@@ -371,6 +373,7 @@ async def get_me(
         is_active=user.is_active,
         is_admin=user.is_admin,
         reputation_score=user.reputation_score,
+        created_at=user.created_at,
     )
 
 

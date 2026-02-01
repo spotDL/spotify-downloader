@@ -3,9 +3,12 @@
 from __future__ import annotations
 
 import asyncio
+import logging
 import re
 from functools import lru_cache
 from typing import Any
+
+logger = logging.getLogger(__name__)
 
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials, SpotifyOAuth
@@ -540,5 +543,6 @@ class SpotifyProvider(SourceProvider):
 
             return songs
 
-        except spotipy.SpotifyException:
+        except spotipy.SpotifyException as e:
+            logger.warning(f"Spotify search failed for '{query}': {e}")
             return []
