@@ -1,7 +1,5 @@
 import { createRootRoute, Outlet, useLocation } from "@tanstack/react-router";
 import { clsx } from "clsx";
-import { useHealth } from "@/api";
-import { Badge } from "@/components/ui";
 import { ToastProvider } from "@/components/ui/toast";
 import {
   Sidebar,
@@ -26,8 +24,6 @@ function TopBar({
   onSearchClick: () => void;
   breadcrumbs: { label: string; to?: string }[];
 }) {
-  const { isError: isOffline } = useHealth();
-
   return (
     <header className="h-14 bg-[var(--bg-chassis)] border-b border-[var(--color-border-subtle)] flex items-center justify-between px-6">
       {/* Left: Breadcrumb */}
@@ -35,39 +31,27 @@ function TopBar({
         <Breadcrumb items={breadcrumbs} />
       </div>
 
-      {/* Right: Search + Status */}
-      <div className="flex items-center gap-4">
-        {/* Search shortcut */}
+      {/* Right: Search */}
+      <div className="flex items-center">
         <button
           onClick={onSearchClick}
           className={clsx(
-            "flex items-center gap-2 px-3 py-1.5 rounded-lg",
+            "flex items-center gap-3 px-4 py-2 rounded-xl",
             "bg-[var(--bg-surface)] border border-[var(--color-border-subtle)]",
             "text-sm text-[var(--color-text-muted)]",
-            "hover:text-[var(--color-text-secondary)] hover:border-[var(--color-border)]",
-            "transition-colors duration-150"
+            "hover:text-[var(--color-text-secondary)] hover:border-[var(--color-border)] hover:bg-[var(--bg-hover)]",
+            "transition-colors duration-150",
+            "min-w-[200px] sm:min-w-[280px]"
           )}
         >
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
-          <span className="hidden sm:inline">Search</span>
-          <kbd className="hidden sm:inline px-1.5 py-0.5 rounded bg-[var(--bg-void)] text-xs">
+          <span className="flex-1 text-left">Search songs, albums, artists...</span>
+          <kbd className="hidden sm:inline px-2 py-1 rounded-md bg-[var(--bg-void)] text-xs font-medium">
             ⌘K
           </kbd>
         </button>
-
-        {/* Status */}
-        {isOffline ? (
-          <Badge variant="warning" size="sm" pulse>
-            Offline
-          </Badge>
-        ) : (
-          <div className="flex items-center gap-1.5">
-            <div className="w-2 h-2 rounded-full bg-[var(--accent-safe)] animate-pulse" />
-            <span className="text-xs text-[var(--color-text-muted)]">Online</span>
-          </div>
-        )}
       </div>
     </header>
   );
@@ -93,7 +77,7 @@ function RootLayoutContent() {
     <ToastProvider>
       <div className="min-h-screen bg-[var(--bg-void)] text-[var(--color-text-primary)]">
         {/* Sidebar */}
-        <Sidebar onSearchClick={openPalette} />
+        <Sidebar />
 
         {/* Main content area */}
         <div className="md:ml-16 flex flex-col min-h-screen">

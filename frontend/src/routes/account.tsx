@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, redirect } from "@tanstack/react-router";
 import { useState } from "react";
 import { useAuthStore } from "@/stores/auth";
 import { useLogout } from "@/api/auth";
@@ -14,6 +14,17 @@ import {
 } from "@/components/ui";
 
 export const Route = createFileRoute("/account")({
+  beforeLoad: () => {
+    const { isAuthenticated } = useAuthStore.getState();
+    if (!isAuthenticated) {
+      throw redirect({
+        to: "/auth/login",
+        search: {
+          redirect: "/account",
+        },
+      });
+    }
+  },
   component: AccountPage,
 });
 
@@ -71,7 +82,7 @@ function SectionHeader({
 
 function AccountPage() {
   const navigate = useNavigate();
-  const { user, isAuthenticated } = useAuthStore();
+  const { user } = useAuthStore();
   const logoutMutation = useLogout();
 
   const [currentPassword, setCurrentPassword] = useState("");
@@ -79,24 +90,8 @@ function AccountPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
-  // Redirect if not authenticated
-  if (!isAuthenticated || !user) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
-        <div className="text-center">
-          <h2 className="text-xl font-semibold text-[var(--color-text-primary)] mb-2">
-            Not Signed In
-          </h2>
-          <p className="text-[var(--color-text-muted)] mb-4">
-            Please sign in to access your account settings.
-          </p>
-          <Button onClick={() => navigate({ to: "/auth/login" })}>
-            Sign In
-          </Button>
-        </div>
-      </div>
-    );
-  }
+  // User is guaranteed to exist due to beforeLoad check
+  if (!user) return null;
 
   const handleLogout = async () => {
     await logoutMutation.mutateAsync();

@@ -4,18 +4,11 @@ import { clsx } from "clsx";
 import { useAuthStore } from "@/stores/auth";
 import { useLogout } from "@/api/auth";
 import { useDevConfig } from "@/contexts/DevConfigContext";
-import { config } from "@/config";
 
 // Icons
 const HomeIcon = () => (
   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-  </svg>
-);
-
-const SearchIcon = () => (
-  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
   </svg>
 );
 
@@ -72,11 +65,10 @@ export interface NavItem {
 }
 
 export interface SidebarProps {
-  onSearchClick?: () => void;
   queueCount?: number;
 }
 
-export function Sidebar({ onSearchClick, queueCount = 0 }: SidebarProps) {
+export function Sidebar({ queueCount = 0 }: SidebarProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
@@ -86,6 +78,8 @@ export function Sidebar({ onSearchClick, queueCount = 0 }: SidebarProps) {
   const { user, isAuthenticated } = useAuthStore();
   const { features } = useDevConfig();
   const logoutMutation = useLogout();
+
+  const expanded = isExpanded || isMobileOpen;
 
   // Close user menu when clicking outside
   useEffect(() => {
@@ -117,7 +111,7 @@ export function Sidebar({ onSearchClick, queueCount = 0 }: SidebarProps) {
   const navItems: NavItem[] = [
     { to: "/", label: "Home", icon: <HomeIcon /> },
     ...(features.hasQueue
-      ? [{ to: "/queue", label: "Queue", icon: <QueueIcon />, badge: queueCount > 0 ? queueCount : undefined }]
+      ? [{ to: "/queue", label: "Queue", icon: <QueueIcon />, badge: queueCount > 0 ? queueCount : undefined, requiresAuth: true }]
       : []),
     { to: "/settings", label: "Settings", icon: <SettingsIcon />, requiresAuth: true },
     { to: "/admin", label: "Admin", icon: <AdminIcon />, adminOnly: true },
@@ -151,20 +145,20 @@ export function Sidebar({ onSearchClick, queueCount = 0 }: SidebarProps) {
         className={clsx(
           "fixed left-0 top-0 bottom-0 z-50",
           "bg-[var(--bg-panel)] border-r border-[var(--color-border-subtle)]",
-          "flex flex-col",
-          "transition-all duration-200",
+          "flex flex-col overflow-hidden",
+          "transition-[width] duration-200 ease-out",
           // Desktop: collapsed by default, expands on hover
-          "md:w-16 md:hover:w-56",
-          // Mobile: hidden by default, full width when open
-          "w-64",
-          isMobileOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
+          expanded ? "w-56" : "w-16",
+          // Mobile: hidden by default
+          "md:translate-x-0",
+          isMobileOpen ? "translate-x-0 w-64" : "-translate-x-full"
         )}
         onMouseEnter={() => setIsExpanded(true)}
         onMouseLeave={() => setIsExpanded(false)}
       >
         {/* Logo */}
         <div className="h-14 flex items-center px-4 border-b border-[var(--color-border-subtle)]">
-          <Link to="/" className="flex items-center gap-3">
+          <Link to="/" className="flex items-center gap-3 min-w-0">
             <div className="relative w-8 h-8 flex-shrink-0">
               <div className="absolute inset-0 rounded-full bg-gradient-to-br from-zinc-700 to-zinc-900" />
               <div className="absolute inset-[6px] rounded-full bg-gradient-to-br from-[var(--accent-safe)] to-[var(--accent-cool)] flex items-center justify-center">
@@ -174,7 +168,7 @@ export function Sidebar({ onSearchClick, queueCount = 0 }: SidebarProps) {
             <span
               className={clsx(
                 "font-bold text-lg whitespace-nowrap transition-opacity duration-200",
-                isExpanded || isMobileOpen ? "opacity-100" : "opacity-0 md:group-hover:opacity-100"
+                expanded ? "opacity-100" : "opacity-0"
               )}
             >
               <span className="text-[var(--accent-safe)]">spot</span>
@@ -183,56 +177,26 @@ export function Sidebar({ onSearchClick, queueCount = 0 }: SidebarProps) {
           </Link>
         </div>
 
-        {/* Search button */}
-        <div className="p-3">
-          <button
-            onClick={onSearchClick}
-            className={clsx(
-              "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg",
-              "bg-[var(--bg-surface)] hover:bg-[var(--bg-hover)]",
-              "text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]",
-              "transition-colors"
-            )}
-          >
-            <SearchIcon />
-            <span
-              className={clsx(
-                "flex-1 text-left text-sm whitespace-nowrap transition-opacity duration-200",
-                isExpanded || isMobileOpen ? "opacity-100" : "opacity-0"
-              )}
-            >
-              Search...
-            </span>
-            <kbd
-              className={clsx(
-                "px-1.5 py-0.5 text-xs rounded bg-[var(--bg-hover)] text-[var(--color-text-dim)] transition-opacity duration-200",
-                isExpanded || isMobileOpen ? "opacity-100" : "opacity-0"
-              )}
-            >
-              ⌘K
-            </kbd>
-          </button>
-        </div>
-
         {/* Navigation */}
-        <nav className="flex-1 px-3 py-2 space-y-1 overflow-y-auto">
+        <nav className="flex-1 px-3 py-3 space-y-1 overflow-y-auto overflow-x-hidden">
           {filteredNavItems.map((item) => (
             <Link
               key={item.to}
               to={item.to}
               className={clsx(
-                "flex items-center gap-3 px-3 py-2.5 rounded-lg",
-                "transition-colors",
+                "flex items-center gap-3 px-1 py-2 rounded-lg transition-colors",
                 isActive(item.to)
                   ? "bg-[var(--accent-safe)]/10 text-[var(--accent-safe)]"
                   : "text-[var(--color-text-muted)] hover:bg-[var(--bg-hover)] hover:text-[var(--color-text-primary)]"
               )}
             >
-              <span className="flex-shrink-0">{item.icon}</span>
+              <span className="w-8 h-8 flex items-center justify-center flex-shrink-0">
+                {item.icon}
+              </span>
               <span
                 className={clsx(
                   "flex-1 text-sm font-medium whitespace-nowrap transition-opacity duration-200",
-                  isExpanded || isMobileOpen ? "opacity-100" : "opacity-0"
+                  expanded ? "opacity-100" : "opacity-0"
                 )}
               >
                 {item.label}
@@ -244,7 +208,7 @@ export function Sidebar({ onSearchClick, queueCount = 0 }: SidebarProps) {
                     "bg-[var(--accent-needle)] text-white",
                     "text-xs font-semibold flex items-center justify-center",
                     "transition-opacity duration-200",
-                    isExpanded || isMobileOpen ? "opacity-100" : "opacity-0"
+                    expanded ? "opacity-100" : "opacity-0"
                   )}
                 >
                   {item.badge > 99 ? "99+" : item.badge}
@@ -262,7 +226,7 @@ export function Sidebar({ onSearchClick, queueCount = 0 }: SidebarProps) {
               <button
                 onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
                 className={clsx(
-                  "w-full flex items-center gap-3 p-3",
+                  "w-full flex items-center px-4 py-3",
                   "hover:bg-[var(--bg-hover)] transition-colors",
                   isUserMenuOpen && "bg-[var(--bg-hover)]"
                 )}
@@ -276,8 +240,8 @@ export function Sidebar({ onSearchClick, queueCount = 0 }: SidebarProps) {
                 {/* User info */}
                 <div
                   className={clsx(
-                    "flex-1 min-w-0 text-left transition-opacity duration-200",
-                    isExpanded || isMobileOpen ? "opacity-100" : "opacity-0"
+                    "flex-1 min-w-0 text-left ml-3 transition-opacity duration-200",
+                    expanded ? "opacity-100" : "opacity-0"
                   )}
                 >
                   <p className="text-sm font-medium text-[var(--color-text-primary)] truncate">
@@ -290,15 +254,15 @@ export function Sidebar({ onSearchClick, queueCount = 0 }: SidebarProps) {
                 {/* Chevron */}
                 <ChevronIcon
                   className={clsx(
-                    "text-[var(--color-text-muted)] transition-all duration-200",
-                    isExpanded || isMobileOpen ? "opacity-100" : "opacity-0",
+                    "ml-2 text-[var(--color-text-muted)] transition-all duration-200 flex-shrink-0",
+                    expanded ? "opacity-100" : "opacity-0",
                     isUserMenuOpen && "rotate-180"
                   )}
                 />
               </button>
 
               {/* Dropdown menu */}
-              {isUserMenuOpen && (isExpanded || isMobileOpen) && (
+              {isUserMenuOpen && expanded && (
                 <div className="absolute bottom-full left-0 right-0 mb-1 mx-2 py-1 bg-[var(--bg-surface)] border border-[var(--color-border-subtle)] rounded-lg shadow-lg overflow-hidden">
                   <Link
                     to="/account"
@@ -322,7 +286,7 @@ export function Sidebar({ onSearchClick, queueCount = 0 }: SidebarProps) {
             <Link
               to="/auth/login"
               className={clsx(
-                "flex items-center gap-3 p-3",
+                "flex items-center px-4 py-3",
                 "text-[var(--color-text-muted)] hover:bg-[var(--bg-hover)] hover:text-[var(--color-text-primary)]",
                 "transition-colors"
               )}
@@ -332,30 +296,18 @@ export function Sidebar({ onSearchClick, queueCount = 0 }: SidebarProps) {
               </div>
               <span
                 className={clsx(
-                  "text-sm font-medium transition-opacity duration-200",
-                  isExpanded || isMobileOpen ? "opacity-100" : "opacity-0"
+                  "ml-3 text-sm font-medium whitespace-nowrap transition-opacity duration-200",
+                  expanded ? "opacity-100" : "opacity-0"
                 )}
               >
                 Sign In
               </span>
             </Link>
           )}
-
-          {/* Version - compact */}
-          <div className="px-3 pb-2 pt-1">
-            <span
-              className={clsx(
-                "text-[10px] text-[var(--color-text-dim)] transition-opacity duration-200",
-                isExpanded || isMobileOpen ? "opacity-100" : "opacity-0"
-              )}
-            >
-              v{config.version}
-            </span>
-          </div>
         </div>
       </aside>
 
-      {/* Mobile menu button - fixed at bottom right */}
+      {/* Mobile menu button - fixed at bottom left */}
       <button
         onClick={() => setIsMobileOpen(true)}
         className={clsx(

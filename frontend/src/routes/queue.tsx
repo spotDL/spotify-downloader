@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { useState, useMemo } from "react";
 import {
   useQueueStore,
@@ -14,8 +14,20 @@ import {
 } from "@/components/ui";
 import { CoverArt } from "@/components/ui/cover-art";
 import { useDevConfig } from "@/contexts/DevConfigContext";
+import { useAuthStore } from "@/stores/auth";
 
 export const Route = createFileRoute("/queue")({
+  beforeLoad: () => {
+    const { isAuthenticated } = useAuthStore.getState();
+    if (!isAuthenticated) {
+      throw redirect({
+        to: "/auth/login",
+        search: {
+          redirect: "/queue",
+        },
+      });
+    }
+  },
   component: QueuePage,
 });
 
