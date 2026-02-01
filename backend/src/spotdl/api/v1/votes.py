@@ -11,9 +11,11 @@ from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from spotdl.api.v1.auth import get_current_user_id, get_current_user_id_optional
+from spotdl.core.reputation import ReputationReward
 from spotdl.db.database import get_db_session
 from spotdl.db.models.vote import VoteType
 from spotdl.db.repositories.match import MatchRepository
+from spotdl.db.repositories.user import UserRepository
 from spotdl.db.repositories.vote import VoteRepository
 
 router = APIRouter(prefix="/votes")
@@ -117,6 +119,7 @@ async def cast_vote(
 
     match_repo = MatchRepository(db)
     vote_repo = VoteRepository(db)
+    user_repo = UserRepository(db)
 
     # Check if match exists
     match = await match_repo.get_by_id(request.match_id)
@@ -126,12 +129,22 @@ async def cast_vote(
             detail="Match not found",
         )
 
+    # Check if user already has a vote (for reputation tracking)
+    existing_vote = await vote_repo.get_user_vote(
+        match_id=request.match_id, user_id=user_id
+    )
+    is_new_vote = existing_vote is None
+
     # Create or update the vote
     await vote_repo.upsert_vote(
         match_id=request.match_id,
         user_id=user_id,
         vote_type=vote_type,
     )
+
+    # Award reputation only for new votes (not vote changes)
+    if is_new_vote:
+        await user_repo.update_reputation(user_id, ReputationReward.VOTE_CAST)
 
     # Update vote counts on the match
     updated_match = await match_repo.update_vote_counts(request.match_id)

@@ -13,6 +13,7 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from spotdl.api.v1.auth import get_current_user
+from spotdl.core.reputation import ReputationReward
 from spotdl.db.database import get_db_session
 from spotdl.db.models.metadata_report import (
     MetadataReport,
@@ -20,6 +21,7 @@ from spotdl.db.models.metadata_report import (
     ReportStatus,
 )
 from spotdl.db.models.user import User
+from spotdl.db.repositories.user import UserRepository
 
 logger = logging.getLogger(__name__)
 
@@ -106,6 +108,11 @@ async def create_report(
     )
 
     db.add(report)
+
+    # Award reputation for submitting a report
+    user_repo = UserRepository(db)
+    await user_repo.update_reputation(current_user.id, ReputationReward.REPORT_SUBMITTED)
+
     await db.commit()
     await db.refresh(report)
 
@@ -262,10 +269,29 @@ async def update_report(
     if not report:
         raise HTTPException(status_code=404, detail="Report not found")
 
+    # Track previous status for reputation calculation
+    previous_status = report.status
+
     # Update status
     report.status = request.status.value
     report.reviewed_by = current_user.id
     report.reviewed_at = datetime.now(timezone.utc)
+
+    # Award/deduct reputation to the reporter (only if transitioning from pending)
+    if previous_status == ReportStatus.PENDING.value:
+        user_repo = UserRepository(db)
+        if request.status == ReportStatus.FIXED:
+            await user_repo.update_reputation(
+                report.reporter_id, ReputationReward.REPORT_FIXED
+            )
+        elif request.status == ReportStatus.REVIEWED:
+            await user_repo.update_reputation(
+                report.reporter_id, ReputationReward.REPORT_REVIEWED
+            )
+        elif request.status == ReportStatus.DISMISSED:
+            await user_repo.update_reputation(
+                report.reporter_id, ReputationReward.REPORT_DISMISSED
+            )
 
     await db.commit()
     await db.refresh(report)

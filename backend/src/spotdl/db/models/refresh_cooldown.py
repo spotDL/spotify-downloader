@@ -8,8 +8,7 @@ from uuid import UUID
 from sqlalchemy import DateTime, ForeignKey, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 
-from spotdl.db.models.base import Base, TimestampMixin
-from spotdl.db.types import GUID
+from spotdl.db.models.base import Base, GUID, TimestampMixin, generate_uuid
 
 
 class RefreshCooldown(Base, TimestampMixin):
@@ -21,7 +20,7 @@ class RefreshCooldown(Base, TimestampMixin):
 
     __tablename__ = "refresh_cooldowns"
 
-    id: Mapped[UUID] = mapped_column(GUID(), primary_key=True, default_factory=lambda: __import__('uuid').uuid4())
+    id: Mapped[UUID] = mapped_column(GUID(), primary_key=True, default=generate_uuid)
 
     # The entity being refreshed
     entity_type: Mapped[str] = mapped_column(String(50), nullable=False)  # song, album, artist, playlist

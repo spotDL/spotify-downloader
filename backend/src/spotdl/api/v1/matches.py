@@ -10,6 +10,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel, HttpUrl
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from spotdl.core.reputation import ReputationReward
 from spotdl.core.services.match import get_match_service
 from spotdl.core.services.song import (
     SongServiceError,
@@ -20,6 +21,7 @@ from spotdl.core.types.result import TargetPlatform
 from spotdl.db.database import get_db_session
 from spotdl.db.models.match import MatchType
 from spotdl.db.repositories.match import MatchRepository
+from spotdl.db.repositories.user import UserRepository
 from spotdl.providers.sources import detect_platform
 
 router = APIRouter(prefix="/matches")
@@ -284,6 +286,11 @@ async def submit_match(
         match_type=MatchType.USER,
         submitted_by=user_id,
     )
+
+    # Award reputation for submitting a match
+    user_repo = UserRepository(db)
+    await user_repo.update_reputation(user_id, ReputationReward.MATCH_SUBMITTED)
+    await db.commit()
 
     return SubmitMatchResponse(
         id=str(match.id),

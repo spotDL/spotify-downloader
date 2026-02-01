@@ -121,12 +121,9 @@ function AccountPage() {
     return username.slice(0, 2).toUpperCase();
   };
 
-  // Format date safely
-  const formatDate = (dateString: string | undefined) => {
-    if (!dateString) return "Unknown";
-    const date = new Date(dateString);
-    if (isNaN(date.getTime())) return "Unknown";
-    return date.toLocaleDateString("en-US", {
+  // Format date
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString("en-US", {
       year: "numeric",
       month: "long",
       day: "numeric",

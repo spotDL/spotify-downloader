@@ -1,7 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState, useMemo } from "react";
-import { useQueryClient } from "@tanstack/react-query";
-import { getArtistById, entityKeys, useRefreshArtistMetadata } from "@/api/entities";
+import { useInternalArtist, useRefreshArtistMetadata } from "@/api/entities";
 import { useFindMatchesMutation, useCreateReport } from "@/api";
 import { useQueueStore } from "@/stores/queue";
 import { useAuthStore } from "@/stores/auth";
@@ -24,22 +23,7 @@ import type { InternalSong, ArtistSummary, AlbumSummary, CreateMetadataReportReq
 const TRACKS_PER_PAGE = 50;
 
 export const Route = createFileRoute("/artist/$id")({
-  // SSR: Load artist data on the server
-  loader: async ({ params, context }) => {
-    const queryClient = (context as { queryClient: ReturnType<typeof useQueryClient> }).queryClient;
-
-    // Prefetch and cache the artist data
-    const artist = await queryClient.fetchQuery({
-      queryKey: entityKeys.artist(params.id),
-      queryFn: () => getArtistById(params.id),
-      staleTime: 1000 * 60 * 10, // 10 minutes cache
-    });
-
-    return { artist };
-  },
   component: ArtistPage,
-  pendingComponent: LoadingState,
-  errorComponent: ErrorState,
 });
 
 // Loading state component
@@ -358,7 +342,7 @@ function PaginatedTrackList({
 function ArtistPage() {
   const navigate = useNavigate();
   const { id } = Route.useParams();
-  const { artist } = Route.useLoaderData() as { artist: EnhancedArtist };
+  const { data: artist, isLoading, error } = useInternalArtist(id);
   const findMatchesMutation = useFindMatchesMutation();
   const refreshMetadata = useRefreshArtistMetadata();
   const { addItem, addBulkItems } = useQueueStore();
@@ -454,12 +438,21 @@ function ArtistPage() {
     }
   };
 
-  if (!artist) {
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center py-32 gap-4">
+        <Spinner size="lg" />
+        <p className="text-zinc-500">Loading artist...</p>
+      </div>
+    );
+  }
+
+  if (error || !artist) {
     return (
       <div className="max-w-md mx-auto py-20">
-        <Card variant="bordered">
+        <Card variant="bordered" className="border-red-900/50 bg-red-950/10">
           <CardContent className="py-10 text-center">
-            <p className="text-zinc-400">Artist not found</p>
+            <p className="text-red-400">{error ? "Failed to load artist" : "Artist not found"}</p>
             <Link to="/" className="inline-block mt-6">
               <Button variant="outline">Back to home</Button>
             </Link>

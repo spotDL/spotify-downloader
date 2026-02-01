@@ -55,7 +55,14 @@ class RefreshCooldownRepository(BaseRepository[RefreshCooldown]):
             return False, 0
 
         now = datetime.now(timezone.utc)
-        cooldown_end = cooldown.refreshed_at + timedelta(hours=COOLDOWN_HOURS)
+
+        # Handle both naive and aware datetimes from database
+        refreshed_at = cooldown.refreshed_at
+        if refreshed_at.tzinfo is None:
+            # Assume naive datetime is UTC
+            refreshed_at = refreshed_at.replace(tzinfo=timezone.utc)
+
+        cooldown_end = refreshed_at + timedelta(hours=COOLDOWN_HOURS)
 
         if now >= cooldown_end:
             return False, 0

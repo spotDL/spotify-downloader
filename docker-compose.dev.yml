@@ -45,9 +45,10 @@ services:
       # For Vite proxy (server-side, inside Docker network)
       - VITE_API_URL=http://api:8000
     volumes:
-      - ./frontend/src:/app/src
-      - ./frontend/public:/app/public
-      - ./frontend/index.html:/app/index.html
+      # Mount entire frontend directory to ensure atomic renames work
+      - ./frontend:/app
+      # Preserve node_modules from Docker image (don't override with host)
+      - /app/node_modules
     depends_on:
       api:
         condition: service_healthy

@@ -15,6 +15,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from spotdl.api.v1.auth import get_current_user
+from spotdl.core.reputation import ReputationReward
 from spotdl.db.database import get_db_session
 from spotdl.db.models.match import Match
 from spotdl.db.models.metadata_report import MetadataReport
@@ -24,6 +25,7 @@ from spotdl.db.models.song import Song
 from spotdl.db.models.artist import Artist
 from spotdl.db.models.album import Album
 from spotdl.db.models.playlist import Playlist
+from spotdl.db.repositories.user import UserRepository
 
 logger = logging.getLogger(__name__)
 
@@ -555,10 +557,25 @@ async def update_match_status(
             detail="Match not found",
         )
 
+    # Track previous status for reputation calculation
+    previous_status = match.status
+
     # Update status and verifier
     match.status = request.status.value
     if request.status == MatchStatus.VERIFIED:
         match.verified_by = admin.id
+
+    # Award/deduct reputation to the submitter (if any)
+    if match.submitted_by and previous_status == "pending":
+        user_repo = UserRepository(db)
+        if request.status == MatchStatus.VERIFIED:
+            await user_repo.update_reputation(
+                match.submitted_by, ReputationReward.MATCH_VERIFIED
+            )
+        elif request.status == MatchStatus.REJECTED:
+            await user_repo.update_reputation(
+                match.submitted_by, ReputationReward.MATCH_REJECTED
+            )
 
     await db.commit()
     await db.refresh(match)

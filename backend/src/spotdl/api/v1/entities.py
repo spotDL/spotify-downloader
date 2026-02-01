@@ -956,10 +956,54 @@ async def refresh_artist(
             entity_service = EntityPersistenceService(db)
             await entity_service.persist_from_search(song_list.songs)
 
-            # Record cooldown
-            await record_refresh_cooldown("artist", artist_uuid, current_user, db)
+        # Fetch artist image from Spotify if it's a Spotify link
+        if link.platform == "spotify":
+            try:
+                import asyncio
+                from spotdl.core.types.song import Platform
+                spotify_provider = song_service._providers.get(Platform.SPOTIFY)
+                if spotify_provider:
+                    client = spotify_provider._get_client()
+                    loop = asyncio.get_event_loop()
+                    artist_data = await loop.run_in_executor(None, client.artist, link.platform_id)
+                else:
+                    artist_data = None
 
-            await db.commit()
+                if artist_data:
+                    images = artist_data.get("images", [])
+                    if images:
+                        # Get highest resolution image
+                        sorted_images = sorted(
+                            images,
+                            key=lambda x: x.get("width", 0) * x.get("height", 0),
+                            reverse=True,
+                        )
+                        image_url = sorted_images[0].get("url")
+                        if image_url:
+                            artist.image_url = image_url
+
+                    # Also update genres if available
+                    genres = artist_data.get("genres", [])
+                    if genres:
+                        existing_genres = set(artist.genres or [])
+                        artist.genres = list(existing_genres.union(genres))
+
+                    # Update followers count in platform link
+                    followers = artist_data.get("followers", {}).get("total")
+                    if followers:
+                        link.followers = followers
+
+                    # Ensure changes are tracked
+                    db.add(artist)
+                    logger.info(f"Updated artist {artist.name} with image: {artist.image_url}")
+
+            except Exception as img_err:
+                logger.warning(f"Failed to fetch artist image: {img_err}")
+
+        # Record cooldown
+        await record_refresh_cooldown("artist", artist_uuid, current_user, db)
+
+        await db.commit()
 
         return RefreshResponse(success=True, message="Artist metadata refreshed successfully")
     except Exception as e:
