@@ -394,6 +394,16 @@ function PlaylistPage() {
                       </p>
                     </div>
 
+                    {/* Match count indicator */}
+                    {song.matches_count !== undefined && song.matches_count > 0 && (
+                      <span className="flex items-center gap-1 text-xs text-accent-needle" title={`${song.matches_count} cross-platform matches`}>
+                        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                        </svg>
+                        {song.matches_count}
+                      </span>
+                    )}
+
                     {/* Duration */}
                     <span className="text-sm font-mono text-zinc-500 tabular-nums">
                       {formatDuration(song.duration)}

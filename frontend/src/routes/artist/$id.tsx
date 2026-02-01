@@ -17,7 +17,7 @@ import { PlatformLinksGrid } from "@/components/ui/platform-link";
 import { ReportModal } from "@/components/ui/report-modal";
 import { useDevConfig } from "@/contexts/DevConfigContext";
 import { clsx } from "clsx";
-import type { InternalSong, ArtistSummary, AlbumSummary, CreateMetadataReportRequest, EnhancedArtist } from "@/types";
+import type { InternalSong, ArtistSummary, AlbumSummary, CreateMetadataReportRequest } from "@/types";
 
 // Page size for track pagination
 const TRACKS_PER_PAGE = 50;
@@ -25,38 +25,6 @@ const TRACKS_PER_PAGE = 50;
 export const Route = createFileRoute("/artist/$id")({
   component: ArtistPage,
 });
-
-// Loading state component
-function LoadingState() {
-  return (
-    <div className="flex flex-col items-center justify-center py-32 gap-4">
-      <Spinner size="lg" />
-      <p className="text-zinc-500">Loading artist...</p>
-    </div>
-  );
-}
-
-// Error state component
-function ErrorState({ error }: { error: Error }) {
-  return (
-    <div className="max-w-md mx-auto py-20">
-      <Card variant="bordered" className="border-red-900/50 bg-red-950/10">
-        <CardContent className="py-10 text-center">
-          <div className="w-12 h-12 rounded-full bg-red-500/10 flex items-center justify-center mx-auto mb-4">
-            <svg className="w-6 h-6 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-            </svg>
-          </div>
-          <p className="text-red-400 font-medium">Failed to load artist</p>
-          <p className="text-sm text-zinc-500 mt-2">{error.message}</p>
-          <Link to="/" className="inline-block mt-6">
-            <Button variant="outline">Back to home</Button>
-          </Link>
-        </CardContent>
-      </Card>
-    </div>
-  );
-}
 
 const TARGET_PLATFORMS = ["youtube", "youtube_music", "soundcloud", "bandcamp"];
 
@@ -285,9 +253,20 @@ function PaginatedTrackList({
                   <p className="text-xs text-zinc-500 truncate">{song.album_name}</p>
                 )}
               </div>
-              <span className="text-xs font-mono text-zinc-500 text-right tabular-nums">
-                {formatDuration(song.duration)}
-              </span>
+              <div className="flex items-center justify-end gap-2">
+                {/* Match count indicator */}
+                {song.matches_count !== undefined && song.matches_count > 0 && (
+                  <span className="flex items-center gap-0.5 text-[10px] text-emerald-400" title={`${song.matches_count} cross-platform matches`}>
+                    <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                    </svg>
+                    {song.matches_count}
+                  </span>
+                )}
+                <span className="text-xs font-mono text-zinc-500 tabular-nums">
+                  {formatDuration(song.duration)}
+                </span>
+              </div>
               {canDownload && (
                 <button
                   onClick={() => onDownload(song)}

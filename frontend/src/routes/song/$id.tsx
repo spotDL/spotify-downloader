@@ -7,7 +7,8 @@ import {
   useFullEnrichment,
   useAllLyrics,
 } from "@/api/entities";
-import { useFindMatchesMutation, useLyrics, hasLyrics, toLyrics, useCreateReport } from "@/api";
+import { useFindMatchesMutation, useLyrics, hasLyrics, toLyrics, useCreateReport, useSubmitMatch, useCreateVote, useMatchVotes } from "@/api";
+import { useUpdateMatchStatus } from "@/api/admin";
 import { useQueueStore } from "@/stores/queue";
 import { useAuthStore } from "@/stores/auth";
 import {
@@ -30,6 +31,9 @@ import { MetadataSourceSelector } from "@/components/ui/metadata-source-selector
 import { MetadataComparisonTable } from "@/components/ui/metadata-comparison";
 import { useDevConfig } from "@/contexts/DevConfigContext";
 import type { Match, AudioFeatures, CreateMetadataReportRequest } from "@/types";
+
+// Reputation threshold for verification privileges
+const VERIFICATION_REP_THRESHOLD = 100;
 
 export const Route = createFileRoute("/song/$id")({
   component: SongPage,
@@ -111,6 +115,17 @@ function SongPage() {
   // Multi-source lyrics state
   const [activeLyricsSource, setActiveLyricsSource] = useState<string | null>(null);
 
+  // Match submission state
+  const [showSubmitMatch, setShowSubmitMatch] = useState(false);
+  const [submitMatchUrl, setSubmitMatchUrl] = useState("");
+  const [submitMatchPlatform, setSubmitMatchPlatform] = useState("youtube");
+  const submitMatchMutation = useSubmitMatch();
+  const updateMatchStatus = useUpdateMatchStatus();
+
+  // Check if user can verify matches (admin or high reputation)
+  const { user } = useAuthStore();
+  const canVerifyMatches = user && (user.is_admin || user.reputation_score >= VERIFICATION_REP_THRESHOLD);
+
   // Fetch metadata snapshots from all sources
   const { data: snapshotsData } = useMetadataSnapshots(id, {
     enabled: !!song,
@@ -125,6 +140,63 @@ function SongPage() {
       setActiveMetadataSource(sorted[0].source);
     }
   }, [snapshotsData, activeMetadataSource]);
+
+  // Handler to find matches (lazy load on demand)
+  const handleFindMatches = () => {
+    if (song && song.platforms[0] && !findMatchesMutation.isPending) {
+      findMatchesMutation.mutate(
+        { sourceUrl: song.platforms[0].url, targetPlatforms: TARGET_PLATFORMS },
+        {
+          onSuccess: (result) => {
+            setMatches(result.matches);
+            setMatchesLoaded(true);
+          },
+          onError: () => {
+            setMatchesLoaded(true);
+          },
+        }
+      );
+    }
+  };
+
+  // Handler to submit user match
+  const handleSubmitMatch = async () => {
+    if (!song?.platforms[0] || !submitMatchUrl.trim()) return;
+
+    try {
+      const newMatch = await submitMatchMutation.mutateAsync({
+        source_url: song.platforms[0].url,
+        target_url: submitMatchUrl.trim(),
+        target_platform: submitMatchPlatform,
+      });
+
+      // Add to matches list
+      setMatches((prev) => [...prev, newMatch]);
+      setShowSubmitMatch(false);
+      setSubmitMatchUrl("");
+    } catch {
+      // Error handled by mutation
+    }
+  };
+
+  // Handler to verify/reject a match
+  const handleVerifyMatch = async (matchId: string, status: "verified" | "rejected") => {
+    try {
+      await updateMatchStatus.mutateAsync({
+        matchId,
+        data: { status },
+      });
+
+      // Update local state
+      setMatches((prev) =>
+        prev.map((m) =>
+          m.id === matchId ? { ...m, status, verified_by_username: user?.username } : m
+        )
+      );
+    } catch {
+      // Error handled by mutation
+    }
+  };
 
   // Get active snapshot data
   const activeSnapshot = useMemo(() => {
@@ -178,23 +250,6 @@ function SongPage() {
       { name: "disc_number", label: "Disc Number", currentValue: String(song.disc_number || "") },
     ];
   }, [song]);
-
-  // Find matches when the page loads
-  const handleFindMatches = async () => {
-    if (!song || !song.platforms[0]) return;
-
-    try {
-      const result = await findMatchesMutation.mutateAsync({
-        sourceUrl: song.platforms[0].url,
-        targetPlatforms: TARGET_PLATFORMS,
-      });
-      setMatches(result.matches);
-      setMatchesLoaded(true);
-    } catch (err) {
-      console.error("Failed to find matches:", err);
-      setMatchesLoaded(true);
-    }
-  };
 
   const handleDownload = async (match?: Match) => {
     if (!features.canDownload || !song || !song.platforms[0]) {
@@ -376,49 +431,18 @@ function SongPage() {
 
             {/* Actions */}
             <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3 pt-2">
-              {features.canDownload && (
-                <>
-                  {!matchesLoaded ? (
-                    <Button
-                      variant="primary"
-                      size="lg"
-                      onClick={handleFindMatches}
-                      isLoading={findMatchesMutation.isPending}
-                    >
-                      <svg className="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                      </svg>
-                      Find Matches
-                    </Button>
-                  ) : matches.length > 0 ? (
-                    <Button
-                      variant="primary"
-                      size="lg"
-                      onClick={() => handleDownload()}
-                    >
-                      <svg className="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                      </svg>
-                      Download Best Match
-                    </Button>
-                  ) : (
-                    <Button variant="secondary" size="lg" disabled>
-                      No Matches Found
-                    </Button>
-                  )}
-                </>
+              {features.canDownload && matches.length > 0 && (
+                <Button
+                  variant="primary"
+                  size="lg"
+                  onClick={() => handleDownload()}
+                >
+                  <svg className="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                  </svg>
+                  Download Best Match
+                </Button>
               )}
-
-              <Button
-                variant="outline"
-                size="lg"
-                onClick={() => navigate({ to: "/matching", search: { url: song.platforms[0]?.url } })}
-              >
-                <svg className="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
-                </svg>
-                Match Manually
-              </Button>
 
               <RefreshMetadataButton
                 entityId={id}

@@ -150,6 +150,8 @@ export interface InternalSong {
   isrc: string | null;
   year: number | null;
   platforms: PlatformInfo[];
+  matches_count?: number;
+  explicit?: boolean;
 }
 
 export interface EnhancedSong extends InternalSong {
