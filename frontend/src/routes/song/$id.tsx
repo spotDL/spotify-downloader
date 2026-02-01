@@ -360,6 +360,7 @@ function SongPage() {
               </Button>
 
               <RefreshMetadataButton
+                entityId={id}
                 onRefresh={async () => {
                   await refreshMetadata.mutateAsync(id);
                 }}
@@ -367,7 +368,6 @@ function SongPage() {
                   await enrichMetadata.mutateAsync(id);
                 }}
                 size="lg"
-                showEnrichOption={true}
               />
 
               {isAuthenticated && (

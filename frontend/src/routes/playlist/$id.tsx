@@ -316,6 +316,7 @@ function PlaylistPage() {
               )}
 
               <RefreshMetadataButton
+                entityId={id}
                 onRefresh={async () => {
                   await refreshMetadata.mutateAsync(id);
                 }}

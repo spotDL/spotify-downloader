@@ -16,6 +16,7 @@ import { Spinner } from "@/components/ui";
 import { PlatformLinksGrid } from "@/components/ui/platform-link";
 import { ReportModal } from "@/components/ui/report-modal";
 import { useDevConfig } from "@/contexts/DevConfigContext";
+import { clsx } from "clsx";
 import type { InternalSong, ArtistSummary, AlbumSummary, CreateMetadataReportRequest } from "@/types";
 
 export const Route = createFileRoute("/artist/$id")({
@@ -54,7 +55,7 @@ function formatNumber(num: number): string {
 // Component for expandable bio section
 function ExpandableBio({ bio }: { bio: string }) {
   const [isExpanded, setIsExpanded] = useState(false);
-  const CHAR_LIMIT = 200;
+  const CHAR_LIMIT = 280;
   const shouldTruncate = bio.length > CHAR_LIMIT;
 
   const displayText = isExpanded || !shouldTruncate
@@ -62,21 +63,33 @@ function ExpandableBio({ bio }: { bio: string }) {
     : bio.slice(0, CHAR_LIMIT).trim() + "...";
 
   return (
-    <Card variant="bordered">
-      <CardContent>
-        <p className="text-zinc-400 leading-relaxed whitespace-pre-line">
-          {displayText}
-        </p>
-        {shouldTruncate && (
-          <button
-            onClick={() => setIsExpanded(!isExpanded)}
-            className="mt-3 text-sm text-accent-needle hover:text-accent-needle/80 transition-colors font-medium"
-          >
-            {isExpanded ? "Show less" : "Read more"}
-          </button>
-        )}
-      </CardContent>
-    </Card>
+    <div className="relative">
+      <p className="text-zinc-400 leading-relaxed whitespace-pre-line text-[15px]">
+        {displayText}
+      </p>
+      {shouldTruncate && (
+        <button
+          onClick={() => setIsExpanded(!isExpanded)}
+          className="mt-3 text-sm text-emerald-400 hover:text-emerald-300 transition-colors font-medium inline-flex items-center gap-1"
+        >
+          {isExpanded ? (
+            <>
+              Show less
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+              </svg>
+            </>
+          ) : (
+            <>
+              Read more
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </>
+          )}
+        </button>
+      )}
+    </div>
   );
 }
 
@@ -85,33 +98,41 @@ function RelatedArtistsCarousel({ artists }: { artists: ArtistSummary[] }) {
   if (!artists || artists.length === 0) return null;
 
   return (
-    <section>
-      <h2 className="text-lg font-semibold text-zinc-300 mb-4">Related Artists</h2>
-      <div className="relative">
-        <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-zinc-700 scrollbar-track-transparent">
-          {artists.map((artist) => (
+    <section className="animate-slide-up" style={{ animationDelay: "0.3s", opacity: 0 }}>
+      <div className="flex items-center justify-between mb-5">
+        <h2 className="text-xl font-bold text-zinc-100 tracking-tight">Related Artists</h2>
+        <span className="text-sm text-zinc-500">{artists.length} artists</span>
+      </div>
+      <div className="relative -mx-2">
+        <div className="flex gap-3 overflow-x-auto pb-4 px-2 scrollbar-thin scrollbar-thumb-zinc-700 scrollbar-track-transparent snap-x snap-mandatory">
+          {artists.map((artist, index) => (
             <Link
               key={artist.id}
               to="/artist/$id"
               params={{ id: artist.id }}
-              className="group flex-shrink-0 w-[140px]"
+              className="group flex-shrink-0 w-[140px] snap-start"
+              style={{ animationDelay: `${0.4 + index * 0.05}s` }}
             >
-              <div className="space-y-3 text-center">
-                <CoverArt
-                  src={artist.image_url}
-                  alt={artist.name}
-                  size="lg"
-                  shape="circle"
-                  fallbackIcon="artist"
-                  className="mx-auto group-hover:ring-2 ring-accent-needle/50 transition-all"
-                />
+              <div className="space-y-3 text-center p-3 rounded-xl hover:bg-zinc-800/30 transition-all duration-300">
+                <div className="relative">
+                  <CoverArt
+                    src={artist.image_url}
+                    alt={artist.name}
+                    size="lg"
+                    shape="circle"
+                    fallbackIcon="artist"
+                    className="mx-auto ring-2 ring-zinc-800 group-hover:ring-emerald-500/50 transition-all duration-300 group-hover:scale-105"
+                  />
+                  {/* Subtle glow on hover */}
+                  <div className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none bg-gradient-to-t from-emerald-500/10 to-transparent" />
+                </div>
                 <div>
-                  <p className="font-medium text-zinc-100 truncate group-hover:text-accent-needle transition-colors">
+                  <p className="font-semibold text-zinc-200 truncate group-hover:text-emerald-400 transition-colors text-sm">
                     {artist.name}
                   </p>
                   {artist.genres.length > 0 && (
-                    <p className="text-xs text-zinc-500 truncate">
-                      {artist.genres.slice(0, 2).join(", ")}
+                    <p className="text-xs text-zinc-500 truncate mt-0.5">
+                      {artist.genres.slice(0, 2).join(" · ")}
                     </p>
                   )}
                 </div>
@@ -147,9 +168,9 @@ function OriginInfo({
   if (!parts.length && !formedYear) return null;
 
   return (
-    <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2 text-sm text-zinc-400">
+    <div className="flex flex-wrap items-center justify-center gap-4 text-sm">
       {parts.length > 0 && (
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-2 text-zinc-400 bg-zinc-800/50 px-3 py-1.5 rounded-full">
           <svg className="w-4 h-4 text-zinc-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -158,13 +179,33 @@ function OriginInfo({
         </div>
       )}
       {formedYear && (
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-2 text-zinc-400 bg-zinc-800/50 px-3 py-1.5 rounded-full">
           <svg className="w-4 h-4 text-zinc-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
           </svg>
-          <span>Active since {formedYear}</span>
+          <span>Since {formedYear}</span>
         </div>
       )}
+    </div>
+  );
+}
+
+// Stat card component
+function StatCard({ value, label, highlight = false }: { value: string | number; label: string; highlight?: boolean }) {
+  return (
+    <div className={clsx(
+      "text-center px-6 py-4 rounded-xl transition-all duration-300",
+      highlight
+        ? "bg-gradient-to-br from-emerald-500/20 to-emerald-600/10 border border-emerald-500/20"
+        : "bg-zinc-800/40 hover:bg-zinc-800/60"
+    )}>
+      <p className={clsx(
+        "text-2xl font-bold tracking-tight",
+        highlight ? "text-emerald-400" : "text-zinc-100"
+      )}>
+        {value}
+      </p>
+      <p className="text-xs text-zinc-500 mt-1 uppercase tracking-wider font-medium">{label}</p>
     </div>
   );
 }
@@ -180,35 +221,173 @@ function DiscographyTabs({
   albumCounts: Record<AlbumTypeFilter, number>;
 }) {
   const filters: AlbumTypeFilter[] = ["all", "album", "single", "ep", "compilation"];
-
-  // Only show tabs that have albums
   const availableFilters = filters.filter(f => f === "all" || albumCounts[f] > 0);
 
-  if (availableFilters.length <= 2) {
-    // Don't show tabs if there's only one type (plus "all")
-    return null;
-  }
+  if (availableFilters.length <= 2) return null;
 
   return (
-    <div className="flex flex-wrap gap-2 mb-4">
+    <div className="flex gap-2 mb-6 overflow-x-auto pb-2 -mx-2 px-2">
       {availableFilters.map((filter) => (
         <button
           key={filter}
           onClick={() => onFilterChange(filter)}
-          className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+          className={clsx(
+            "px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 whitespace-nowrap",
             activeFilter === filter
-              ? "bg-accent-needle text-black"
+              ? "bg-zinc-100 text-zinc-900 shadow-lg shadow-zinc-100/10"
               : "bg-zinc-800/50 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200"
-          }`}
+          )}
         >
           {ALBUM_TYPE_LABELS[filter]}
           {filter !== "all" && (
-            <span className="ml-1.5 text-xs opacity-70">
-              ({albumCounts[filter]})
+            <span className={clsx(
+              "ml-1.5 text-xs",
+              activeFilter === filter ? "text-zinc-600" : "text-zinc-600"
+            )}>
+              {albumCounts[filter]}
             </span>
           )}
         </button>
       ))}
+    </div>
+  );
+}
+
+// Album card component
+function AlbumCard({ album, index }: { album: AlbumSummary & { album_type?: string }; index: number }) {
+  return (
+    <Link
+      to="/album/$id"
+      params={{ id: album.id }}
+      className="group animate-slide-up block"
+      style={{ animationDelay: `${0.1 + index * 0.03}s`, opacity: 0 }}
+    >
+      <div className="relative rounded-xl overflow-hidden bg-zinc-900/50 border border-zinc-800/50 hover:border-zinc-700/50 transition-all duration-300 hover:shadow-xl hover:shadow-black/20">
+        {/* Album Cover */}
+        <div className="relative aspect-square overflow-hidden">
+          <CoverArt
+            src={album.cover_url}
+            alt={album.name}
+            size="2xl"
+            fallbackIcon="album"
+            className="!rounded-none w-full h-full group-hover:scale-105 transition-transform duration-500"
+          />
+
+          {/* Overlay gradient */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+          {/* Year Badge - top right */}
+          {album.year && (
+            <div className="absolute top-3 right-3 px-2.5 py-1 rounded-md bg-black/70 backdrop-blur-sm text-xs font-mono text-zinc-200 border border-zinc-700/50">
+              {album.year}
+            </div>
+          )}
+
+          {/* Album Type Badge - bottom left */}
+          {album.album_type && album.album_type !== "album" && (
+            <div className="absolute bottom-3 left-3 px-2.5 py-1 rounded-md bg-emerald-500/90 backdrop-blur-sm text-xs font-semibold text-black capitalize">
+              {album.album_type}
+            </div>
+          )}
+
+          {/* Play overlay */}
+          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            <div className="w-12 h-12 rounded-full bg-emerald-500 flex items-center justify-center shadow-xl shadow-emerald-500/30 transform scale-90 group-hover:scale-100 transition-transform duration-300">
+              <svg className="w-5 h-5 text-black ml-0.5" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M8 5v14l11-7z" />
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        {/* Album Info */}
+        <div className="p-4">
+          <p className="font-semibold text-zinc-100 truncate group-hover:text-emerald-400 transition-colors text-[15px]">
+            {album.name}
+          </p>
+          <p className="text-sm text-zinc-500 mt-1">
+            {album.total_tracks || "?"} tracks
+          </p>
+        </div>
+      </div>
+    </Link>
+  );
+}
+
+// Track row component
+function TrackRow({
+  song,
+  index,
+  onDownload,
+  canDownload,
+  isDownloading
+}: {
+  song: InternalSong;
+  index: number;
+  onDownload: () => void;
+  canDownload: boolean;
+  isDownloading: boolean;
+}) {
+  return (
+    <div
+      className={clsx(
+        "flex items-center gap-4 px-4 py-3 rounded-lg hover:bg-zinc-800/50 transition-all duration-200 group",
+        "animate-slide-up"
+      )}
+      style={{ animationDelay: `${0.05 + index * 0.02}s`, opacity: 0 }}
+    >
+      {/* Track number */}
+      <span className="w-8 text-center text-sm font-mono text-zinc-600 group-hover:text-zinc-400 transition-colors">
+        {String(index + 1).padStart(2, "0")}
+      </span>
+
+      {/* Cover */}
+      <Link to="/song/$id" params={{ id: song.id }} className="flex-shrink-0">
+        <CoverArt
+          src={song.cover_url}
+          alt={song.name}
+          size="xs"
+          fallbackIcon="track"
+          className="group-hover:ring-2 ring-zinc-600 transition-all"
+        />
+      </Link>
+
+      {/* Info */}
+      <div className="flex-1 min-w-0">
+        <Link
+          to="/song/$id"
+          params={{ id: song.id }}
+          className="font-medium text-zinc-200 hover:text-emerald-400 transition-colors truncate block text-[15px]"
+        >
+          {song.name}
+        </Link>
+        {song.album_name && (
+          <p className="text-sm text-zinc-500 truncate">{song.album_name}</p>
+        )}
+      </div>
+
+      {/* Duration */}
+      <span className="text-sm font-mono text-zinc-500 tabular-nums">
+        {formatDuration(song.duration)}
+      </span>
+
+      {/* Download button */}
+      {canDownload && (
+        <Button
+          size="sm"
+          variant="ghost"
+          onClick={(e) => {
+            e.preventDefault();
+            onDownload();
+          }}
+          isLoading={isDownloading}
+          className="opacity-0 group-hover:opacity-100 transition-all duration-200 !px-2"
+        >
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+          </svg>
+        </Button>
+      )}
     </div>
   );
 }
@@ -226,7 +405,6 @@ function ArtistPage() {
   const [showReportModal, setShowReportModal] = useState(false);
   const [albumTypeFilter, setAlbumTypeFilter] = useState<AlbumTypeFilter>("all");
 
-  // Use the create report mutation - must be before any conditional returns
   const createReportMutation = useCreateReport();
 
   // Calculate album counts by type
@@ -244,12 +422,10 @@ function ArtistPage() {
     counts.all = artist.albums.length;
 
     artist.albums.forEach((album) => {
-      // Check if album has album_type property (EnhancedAlbum)
       const albumType = (album as AlbumSummary & { album_type?: string }).album_type;
       if (albumType && albumType in counts) {
         counts[albumType as AlbumTypeFilter]++;
       } else {
-        // Default to album if no type specified
         counts.album++;
       }
     });
@@ -336,43 +512,62 @@ function ArtistPage() {
 
   if (isLoading) {
     return (
-      <div className="flex flex-col items-center justify-center py-20 gap-6">
-        <Spinner size="lg" />
-        <p className="text-zinc-400">Loading artist...</p>
+      <div className="flex flex-col items-center justify-center py-32 gap-6">
+        <div className="relative">
+          <div className="w-16 h-16 rounded-full border-2 border-zinc-800 border-t-emerald-500 animate-spin" />
+          <div className="absolute inset-0 flex items-center justify-center">
+            <Spinner size="sm" />
+          </div>
+        </div>
+        <p className="text-zinc-500 animate-pulse">Loading artist...</p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <Card variant="bordered" className="max-w-2xl mx-auto border-red-900/50">
-        <CardContent className="py-8 text-center">
-          <p className="text-accent-peak">Failed to load artist</p>
-          <p className="text-sm text-zinc-500 mt-2">
-            {error instanceof Error ? error.message : "An error occurred"}
-          </p>
-          <Link to="/" className="text-accent-needle hover:underline mt-4 inline-block">
-            Back to home
-          </Link>
-        </CardContent>
-      </Card>
+      <div className="max-w-md mx-auto py-20">
+        <Card variant="bordered" className="border-red-900/50 bg-red-950/10">
+          <CardContent className="py-10 text-center">
+            <div className="w-12 h-12 rounded-full bg-red-500/10 flex items-center justify-center mx-auto mb-4">
+              <svg className="w-6 h-6 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+            </div>
+            <p className="text-red-400 font-medium">Failed to load artist</p>
+            <p className="text-sm text-zinc-500 mt-2">
+              {error instanceof Error ? error.message : "An error occurred"}
+            </p>
+            <Link to="/" className="inline-block mt-6">
+              <Button variant="outline">Back to home</Button>
+            </Link>
+          </CardContent>
+        </Card>
+      </div>
     );
   }
 
   if (!artist) {
     return (
-      <Card variant="bordered" className="max-w-2xl mx-auto">
-        <CardContent className="py-8 text-center">
-          <p className="text-zinc-400">Artist not found</p>
-          <Link to="/" className="text-accent-needle hover:underline mt-4 inline-block">
-            Back to home
-          </Link>
-        </CardContent>
-      </Card>
+      <div className="max-w-md mx-auto py-20">
+        <Card variant="bordered">
+          <CardContent className="py-10 text-center">
+            <div className="w-12 h-12 rounded-full bg-zinc-800 flex items-center justify-center mx-auto mb-4">
+              <svg className="w-6 h-6 text-zinc-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+            </div>
+            <p className="text-zinc-400">Artist not found</p>
+            <Link to="/" className="inline-block mt-6">
+              <Button variant="outline">Back to home</Button>
+            </Link>
+          </CardContent>
+        </Card>
+      </div>
     );
   }
 
-  // Extract enhanced artist properties (may not exist on base InternalArtist)
+  // Extract enhanced artist properties
   const enhancedArtist = artist as typeof artist & {
     bio?: string | null;
     origin_country?: string | null;
@@ -397,111 +592,108 @@ function ArtistPage() {
     ...(enhancedArtist.formed_year ? [{ name: "formed_year", label: "Formed Year", currentValue: String(enhancedArtist.formed_year) }] : []),
   ];
 
-  // Convert platforms to PlatformLink format
   const platformLinks = artist.platforms;
 
   return (
-    <div className="space-y-8 animate-slide-up">
-      {/* Hero Section with blurred background */}
-      <div className="relative -mx-6 -mt-6 lg:-mx-8 lg:-mt-8">
-        {/* Background blur from artist image */}
-        {artist.image_url && (
-          <div className="absolute inset-0 overflow-hidden">
-            <img
-              src={artist.image_url}
-              alt=""
-              className="w-full h-full object-cover blur-3xl opacity-30 scale-125"
-            />
-            <div className="absolute inset-0 bg-gradient-to-b from-bg-chassis/30 via-bg-chassis/70 to-bg-chassis" />
-          </div>
-        )}
+    <div className="min-h-screen">
+      {/* Hero Section */}
+      <div className="relative -mx-6 -mt-6 lg:-mx-8 lg:-mt-8 overflow-hidden">
+        {/* Background with gradient mesh */}
+        <div className="absolute inset-0">
+          {artist.image_url && (
+            <>
+              <img
+                src={artist.image_url}
+                alt=""
+                className="w-full h-full object-cover blur-3xl opacity-40 scale-150"
+              />
+              <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#0c0c0e]/80 to-[#0c0c0e]" />
+            </>
+          )}
+          {/* Gradient overlay */}
+          <div className="absolute inset-0 bg-gradient-to-br from-emerald-950/20 via-transparent to-purple-950/10" />
+        </div>
 
-        <div className="relative px-6 py-12 lg:px-8 lg:py-16">
-          <div className="flex flex-col items-center text-center space-y-6">
-            {/* Circular Avatar - Large hero size */}
-            <CoverArt
-              src={artist.image_url}
-              alt={artist.name}
-              size="hero"
-              shape="circle"
-              fallbackIcon="artist"
-              className="ring-4 ring-bg-chassis shadow-2xl"
-            />
+        {/* Content */}
+        <div className="relative px-6 pt-16 pb-12 lg:px-8 lg:pt-24 lg:pb-16">
+          <div className="max-w-4xl mx-auto">
+            <div className="flex flex-col lg:flex-row items-center lg:items-end gap-8 animate-slide-up">
+              {/* Artist Avatar */}
+              <div className="relative group">
+                <div className="absolute -inset-1 bg-gradient-to-br from-emerald-500 via-emerald-400 to-teal-500 rounded-full opacity-50 blur-xl group-hover:opacity-70 transition-opacity" />
+                <CoverArt
+                  src={artist.image_url}
+                  alt={artist.name}
+                  size="hero"
+                  shape="circle"
+                  fallbackIcon="artist"
+                  className="relative ring-4 ring-zinc-900/80 shadow-2xl"
+                />
+              </div>
 
-            {/* Artist Name */}
-            <div className="space-y-3">
-              <Badge variant="muted" size="sm">Artist</Badge>
-              <h1 className="text-4xl lg:text-6xl font-black tracking-tight text-zinc-50">
-                {artist.name}
-              </h1>
+              {/* Info */}
+              <div className="flex-1 text-center lg:text-left space-y-4">
+                <div>
+                  <Badge variant="muted" className="mb-3 bg-zinc-800/80 backdrop-blur-sm">
+                    Artist
+                  </Badge>
+                  <h1 className="text-4xl lg:text-6xl font-black tracking-tight text-white">
+                    {artist.name}
+                  </h1>
+                </div>
+
+                {/* Origin Info */}
+                <OriginInfo
+                  country={enhancedArtist.origin_country ?? null}
+                  city={enhancedArtist.origin_city ?? null}
+                  formedYear={enhancedArtist.formed_year ?? null}
+                />
+
+                {/* Genres */}
+                {artist.genres.length > 0 && (
+                  <div className="flex flex-wrap justify-center lg:justify-start gap-2">
+                    {artist.genres.map((genre) => (
+                      <span
+                        key={genre}
+                        className="px-3 py-1.5 text-sm text-zinc-300 bg-zinc-800/60 backdrop-blur-sm rounded-full border border-zinc-700/50 hover:border-zinc-600/50 transition-colors"
+                      >
+                        {genre}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
 
-            {/* Origin Info */}
-            <OriginInfo
-              country={enhancedArtist.origin_country ?? null}
-              city={enhancedArtist.origin_city ?? null}
-              formedYear={enhancedArtist.formed_year ?? null}
-            />
-
-            {/* Genres */}
-            {artist.genres.length > 0 && (
-              <div className="flex flex-wrap justify-center gap-2">
-                {artist.genres.map((genre) => (
-                  <Badge
-                    key={genre}
-                    variant="default"
-                    className="bg-bg-panel/80 backdrop-blur-sm"
-                  >
-                    {genre}
-                  </Badge>
-                ))}
-              </div>
-            )}
-
-            {/* Stats */}
-            <div className="flex items-center gap-8 text-sm">
+            {/* Stats Grid */}
+            <div className="mt-10 grid grid-cols-2 sm:grid-cols-4 gap-3 animate-slide-up" style={{ animationDelay: "0.1s", opacity: 0 }}>
               {artist.monthly_listeners && (
-                <div className="text-center">
-                  <p className="text-2xl font-bold text-accent-needle">
-                    {formatNumber(artist.monthly_listeners)}
-                  </p>
-                  <p className="text-zinc-500">Monthly Listeners</p>
-                </div>
+                <StatCard
+                  value={formatNumber(artist.monthly_listeners)}
+                  label="Monthly Listeners"
+                  highlight
+                />
               )}
               {enhancedArtist.popularity != null && enhancedArtist.popularity > 0 && (
-                <div className="text-center">
-                  <p className="text-2xl font-bold text-zinc-200">
-                    {enhancedArtist.popularity}
-                  </p>
-                  <p className="text-zinc-500">Popularity</p>
-                </div>
+                <StatCard value={enhancedArtist.popularity} label="Popularity" />
               )}
-              <div className="text-center">
-                <p className="text-2xl font-bold text-zinc-200">
-                  {artist.total_songs}
-                </p>
-                <p className="text-zinc-500">Songs</p>
-              </div>
-              <div className="text-center">
-                <p className="text-2xl font-bold text-zinc-200">
-                  {artist.total_albums}
-                </p>
-                <p className="text-zinc-500">Albums</p>
-              </div>
+              <StatCard value={artist.total_songs} label="Songs" />
+              <StatCard value={artist.total_albums} label="Albums" />
             </div>
 
             {/* Actions */}
-            <div className="flex flex-wrap justify-center gap-3 pt-2">
+            <div className="mt-8 flex flex-wrap justify-center lg:justify-start gap-3 animate-slide-up" style={{ animationDelay: "0.15s", opacity: 0 }}>
               {features.canDownload && artist.songs.length > 0 && (
-                <Button variant="primary" size="lg" onClick={handleDownloadAll}>
+                <Button variant="primary" size="lg" onClick={handleDownloadAll} className="shadow-lg shadow-emerald-500/20">
                   <svg className="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                   </svg>
-                  Download All Songs
+                  Download All
                 </Button>
               )}
 
               <RefreshMetadataButton
+                entityId={id}
                 onRefresh={async () => {
                   await refreshMetadata.mutateAsync(id);
                 }}
@@ -513,11 +705,12 @@ function ArtistPage() {
                   variant="outline"
                   size="lg"
                   onClick={() => setShowReportModal(true)}
+                  className="border-zinc-700 hover:border-zinc-600"
                 >
                   <svg className="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9" />
                   </svg>
-                  Report Issue
+                  Report
                 </Button>
               )}
             </div>
@@ -525,19 +718,21 @@ function ArtistPage() {
         </div>
       </div>
 
-      {/* Content */}
-      <div className="space-y-10">
+      {/* Main Content */}
+      <div className="max-w-6xl mx-auto py-10 space-y-12">
         {/* Platform Links */}
-        <section>
-          <h2 className="text-lg font-semibold text-zinc-300 mb-4">Listen On</h2>
+        <section className="animate-slide-up" style={{ animationDelay: "0.2s", opacity: 0 }}>
+          <h2 className="text-xl font-bold text-zinc-100 mb-5 tracking-tight">Listen On</h2>
           <PlatformLinksGrid platforms={platformLinks} showFollowers />
         </section>
 
-        {/* Bio (expandable) */}
+        {/* Bio */}
         {enhancedArtist.bio && (
-          <section>
-            <h2 className="text-lg font-semibold text-zinc-300 mb-4">About</h2>
-            <ExpandableBio bio={enhancedArtist.bio} />
+          <section className="animate-slide-up" style={{ animationDelay: "0.25s", opacity: 0 }}>
+            <h2 className="text-xl font-bold text-zinc-100 mb-5 tracking-tight">About</h2>
+            <div className="p-6 rounded-2xl bg-zinc-900/50 border border-zinc-800/50">
+              <ExpandableBio bio={enhancedArtist.bio} />
+            </div>
           </section>
         )}
 
@@ -546,73 +741,35 @@ function ArtistPage() {
           <RelatedArtistsCarousel artists={enhancedArtist.related_artists} />
         )}
 
-        {/* Discography with Filter Tabs */}
+        {/* Discography */}
         {artist.albums.length > 0 && (
-          <section>
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold text-zinc-100">Discography</h2>
-              <Badge variant="muted">{artist.albums.length} releases</Badge>
+          <section className="animate-slide-up" style={{ animationDelay: "0.35s", opacity: 0 }}>
+            <div className="flex items-center justify-between mb-5">
+              <h2 className="text-xl font-bold text-zinc-100 tracking-tight">Discography</h2>
+              <span className="text-sm text-zinc-500">{artist.albums.length} releases</span>
             </div>
 
-            {/* Filter Tabs */}
             <DiscographyTabs
               activeFilter={albumTypeFilter}
               onFilterChange={setAlbumTypeFilter}
               albumCounts={albumCounts}
             />
 
-            {/* Albums Grid */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-              {filteredAlbums.map((album, index) => {
-                const albumType = (album as AlbumSummary & { album_type?: string }).album_type;
-                return (
-                  <Link
-                    key={album.id}
-                    to="/album/$id"
-                    params={{ id: album.id }}
-                    className="group animate-slide-up"
-                    style={{ animationDelay: `${index * 0.05}s` }}
-                  >
-                    <div className="space-y-3">
-                      {/* Album Cover */}
-                      <div className="relative">
-                        <CoverArt
-                          src={album.cover_url}
-                          alt={album.name}
-                          size="lg"
-                          fallbackIcon="album"
-                          className="group-hover:scale-[1.03] transition-transform duration-300"
-                        />
-                        {/* Year Badge */}
-                        {album.year && (
-                          <div className="absolute top-2 right-2 px-2 py-0.5 rounded bg-black/70 backdrop-blur-sm text-xs font-mono text-zinc-300">
-                            {album.year}
-                          </div>
-                        )}
-                        {/* Album Type Badge */}
-                        {albumType && albumType !== "album" && (
-                          <div className="absolute bottom-2 left-2 px-2 py-0.5 rounded bg-accent-needle/90 backdrop-blur-sm text-xs font-medium text-black capitalize">
-                            {albumType}
-                          </div>
-                        )}
-                      </div>
-                      {/* Album Info */}
-                      <div>
-                        <p className="font-medium text-zinc-100 truncate group-hover:text-accent-needle transition-colors">
-                          {album.name}
-                        </p>
-                        <p className="text-sm text-zinc-500">
-                          {album.total_tracks || "?"} tracks
-                        </p>
-                      </div>
-                    </div>
-                  </Link>
-                );
-              })}
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+              {filteredAlbums.map((album, index) => (
+                <AlbumCard
+                  key={album.id}
+                  album={album as AlbumSummary & { album_type?: string }}
+                  index={index}
+                />
+              ))}
             </div>
 
             {filteredAlbums.length === 0 && (
-              <div className="text-center py-12 text-zinc-500">
+              <div className="text-center py-16 text-zinc-500">
+                <svg className="w-12 h-12 mx-auto mb-4 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 9l10.5-3m0 6.553v3.75a2.25 2.25 0 01-1.632 2.163l-1.32.377a1.803 1.803 0 11-.99-3.467l2.31-.66a2.25 2.25 0 001.632-2.163zm0 0V2.25L9 5.25v10.303m0 0v3.75a2.25 2.25 0 01-1.632 2.163l-1.32.377a1.803 1.803 0 01-.99-3.467l2.31-.66A2.25 2.25 0 009 15.553z" />
+                </svg>
                 No {ALBUM_TYPE_LABELS[albumTypeFilter].toLowerCase()} found
               </div>
             )}
@@ -621,73 +778,36 @@ function ArtistPage() {
 
         {/* All Tracks */}
         {artist.songs.length > 0 && (
-          <section>
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold text-zinc-100">All Tracks</h2>
-              <Badge variant="muted">{artist.songs.length} songs</Badge>
+          <section className="animate-slide-up" style={{ animationDelay: "0.4s", opacity: 0 }}>
+            <div className="flex items-center justify-between mb-5">
+              <h2 className="text-xl font-bold text-zinc-100 tracking-tight">All Tracks</h2>
+              <span className="text-sm text-zinc-500">{artist.songs.length} songs</span>
             </div>
-            <Card variant="bordered">
-              <div className="divide-y divide-zinc-800/50">
+
+            <div className="rounded-2xl bg-zinc-900/30 border border-zinc-800/50 overflow-hidden">
+              {/* Header */}
+              <div className="flex items-center gap-4 px-4 py-3 border-b border-zinc-800/50 text-xs text-zinc-500 uppercase tracking-wider font-medium">
+                <span className="w-8 text-center">#</span>
+                <span className="w-12" />
+                <span className="flex-1">Title</span>
+                <span className="w-16 text-right">Duration</span>
+                {features.canDownload && <span className="w-10" />}
+              </div>
+
+              {/* Tracks */}
+              <div className="divide-y divide-zinc-800/30">
                 {artist.songs.map((song, index) => (
-                  <div
+                  <TrackRow
                     key={song.id}
-                    className="flex items-center gap-4 px-4 py-3 hover:bg-zinc-800/30 transition-colors group"
-                  >
-                    {/* Track number */}
-                    <span className="w-8 text-center text-sm font-mono text-zinc-500">
-                      {String(index + 1).padStart(2, "0")}
-                    </span>
-
-                    {/* Cover */}
-                    <Link to="/song/$id" params={{ id: song.id }}>
-                      <CoverArt
-                        src={song.cover_url}
-                        alt={song.name}
-                        size="xs"
-                        fallbackIcon="track"
-                      />
-                    </Link>
-
-                    {/* Info */}
-                    <div className="flex-1 min-w-0">
-                      <Link
-                        to="/song/$id"
-                        params={{ id: song.id }}
-                        className="font-medium text-zinc-100 hover:text-accent-needle transition-colors truncate block"
-                      >
-                        {song.name}
-                      </Link>
-                      {song.album_name && (
-                        <p className="text-sm text-zinc-500 truncate">{song.album_name}</p>
-                      )}
-                    </div>
-
-                    {/* Duration */}
-                    <span className="text-sm font-mono text-zinc-500">
-                      {formatDuration(song.duration)}
-                    </span>
-
-                    {/* Download button */}
-                    {features.canDownload && (
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          handleDownloadTrack(song);
-                        }}
-                        isLoading={findMatchesMutation.isPending}
-                        className="opacity-0 group-hover:opacity-100 transition-opacity"
-                      >
-                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                        </svg>
-                      </Button>
-                    )}
-                  </div>
+                    song={song}
+                    index={index}
+                    onDownload={() => handleDownloadTrack(song)}
+                    canDownload={features.canDownload}
+                    isDownloading={findMatchesMutation.isPending}
+                  />
                 ))}
               </div>
-            </Card>
+            </div>
           </section>
         )}
       </div>
