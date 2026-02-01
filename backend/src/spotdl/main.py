@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import logging
+import sys
 from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import AsyncGenerator
@@ -16,24 +18,72 @@ from spotdl.config import get_settings
 from spotdl.db.database import close_db, init_db
 
 
+def setup_logging() -> None:
+    """Configure logging based on environment settings."""
+    settings = get_settings()
+
+    # Determine log level - explicit setting takes priority
+    if settings.log_level:
+        log_level = getattr(logging, settings.log_level)
+    elif settings.debug:
+        log_level = logging.DEBUG
+    elif settings.is_development:
+        log_level = logging.INFO
+    else:
+        log_level = logging.WARNING
+
+    # Configure root logger
+    logging.basicConfig(
+        level=log_level,
+        format="%(asctime)s | %(levelname)-8s | %(name)s:%(lineno)d | %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
+        stream=sys.stdout,
+        force=True,  # Override any existing configuration
+    )
+
+    # Set specific loggers
+    logging.getLogger("spotdl").setLevel(log_level)
+    logging.getLogger("uvicorn").setLevel(log_level)
+    logging.getLogger("uvicorn.access").setLevel(log_level if settings.debug else logging.WARNING)
+
+    # Reduce noise from third-party libraries in debug mode
+    logging.getLogger("httpx").setLevel(logging.WARNING)
+    logging.getLogger("httpcore").setLevel(logging.WARNING)
+    logging.getLogger("aiosqlite").setLevel(logging.WARNING)
+
+    logger = logging.getLogger(__name__)
+    logger.info(f"Logging configured: level={logging.getLevelName(log_level)}, env={settings.environment}, debug={settings.debug}")
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     """Application lifespan handler for startup/shutdown events."""
+    # Configure logging first
+    setup_logging()
+
     settings = get_settings()
+    logger = logging.getLogger(__name__)
 
     # Startup
+    logger.info(f"Starting {settings.app_name} v{settings.app_version}")
+    logger.debug(f"Database URL: {settings.database_url}")
+
     # Ensure data directory exists for SQLite
     if settings.database_is_sqlite:
         data_dir = Path("./data")
         data_dir.mkdir(exist_ok=True)
 
     # Initialize database tables
+    logger.info("Initializing database...")
     await init_db()
+    logger.info("Database initialized successfully")
 
     yield
 
     # Shutdown
+    logger.info("Shutting down...")
     await close_db()
+    logger.info("Shutdown complete")
 
 
 def create_app() -> FastAPI:

@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import { Link, useLocation } from "@tanstack/react-router";
 import { clsx } from "clsx";
 import { useAuthStore } from "@/stores/auth";
-import { features, config } from "@/config";
+import { useDevConfig } from "@/contexts/DevConfigContext";
+import { config } from "@/config";
 
 // Icons
 const HomeIcon = () => (
@@ -60,6 +61,7 @@ export function Sidebar({ onSearchClick, queueCount = 0 }: SidebarProps) {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const location = useLocation();
   const { user } = useAuthStore();
+  const { features } = useDevConfig();
 
   // Close mobile sidebar on route change
   useEffect(() => {

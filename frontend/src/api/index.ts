@@ -118,13 +118,17 @@ export {
   getSongById,
   universalSearch,
   universalSearchGet,
+  getSongMetadataSources,
   useInternalArtist,
   useInternalAlbum,
   useInternalPlaylist,
   useInternalSong,
   useUniversalSearch,
   useUniversalSearchMutation,
+  useMetadataSources,
   entityKeys,
+  type MetadataSnapshotResponse,
+  type MetadataSourcesResponse,
 } from "./entities";
 
 // Lyrics
@@ -184,3 +188,15 @@ export {
   type UpdateMatchStatusRequest,
   type ClearCacheRequest,
 } from "./admin";
+
+// Providers
+export {
+  getProviders,
+  getDefaultProviderPreferences,
+  useProviders,
+  useDefaultProviderPreferences,
+  providerKeys,
+  type ProviderInfo as ApiProviderInfo,
+  type ProvidersResponse,
+  type DefaultPreferencesResponse,
+} from "./providers";

@@ -10,6 +10,7 @@ from spotdl.db.models.metadata_report import (
     MetadataReportEntityType,
     ReportStatus,
 )
+from spotdl.db.models.metadata_snapshot import MetadataSnapshot
 from spotdl.db.models.playlist import Playlist, PlaylistPlatformLink, PlaylistTrack
 from spotdl.db.models.song import Song
 from spotdl.db.models.user import User
@@ -34,4 +35,5 @@ __all__ = [
     "MetadataReport",
     "MetadataReportEntityType",
     "ReportStatus",
+    "MetadataSnapshot",
 ]

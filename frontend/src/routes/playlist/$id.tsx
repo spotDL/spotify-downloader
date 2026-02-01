@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState, useMemo } from "react";
-import { useInternalPlaylist } from "@/api/entities";
+import { useInternalPlaylist, useRefreshPlaylistMetadata } from "@/api/entities";
 import { useFindMatchesMutation, useCreateReport } from "@/api";
 import { useQueueStore } from "@/stores/queue";
 import { useAuthStore } from "@/stores/auth";
@@ -11,12 +11,13 @@ import {
   CardTitle,
   Badge,
   Button,
+  RefreshMetadataButton,
 } from "@/components/ui";
 import { CoverArt } from "@/components/ui/cover-art";
 import { Spinner } from "@/components/ui";
 import { PlatformLinksGrid } from "@/components/ui/platform-link";
 import { ReportModal } from "@/components/ui/report-modal";
-import { features } from "@/config";
+import { useDevConfig } from "@/contexts/DevConfigContext";
 import type { InternalSong, CreateMetadataReportRequest } from "@/types";
 
 export const Route = createFileRoute("/playlist/$id")({
@@ -110,9 +111,11 @@ function PlaylistPage() {
   const { id } = Route.useParams();
   const { data: playlist, isLoading, error } = useInternalPlaylist(id);
   const findMatchesMutation = useFindMatchesMutation();
+  const refreshMetadata = useRefreshPlaylistMetadata();
   const { addItem, addBulkItems } = useQueueStore();
   const { isAuthenticated } = useAuthStore();
   const createReportMutation = useCreateReport();
+  const { features } = useDevConfig();
 
   const [showReportModal, setShowReportModal] = useState(false);
 
@@ -311,6 +314,13 @@ function PlaylistPage() {
                   Download Playlist
                 </Button>
               )}
+
+              <RefreshMetadataButton
+                onRefresh={async () => {
+                  await refreshMetadata.mutateAsync(id);
+                }}
+                size="lg"
+              />
 
               {isAuthenticated && (
                 <Button

@@ -9,6 +9,7 @@ from sqlalchemy import Boolean, Float, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from spotdl.db.models.base import GUID, Base, TimestampMixin, generate_uuid
+from spotdl.db.models.song import JSONType
 
 if TYPE_CHECKING:
     from spotdl.db.models.user import User
@@ -153,6 +154,21 @@ class UserSettings(Base, TimestampMixin):
     custom_settings: Mapped[str | None] = mapped_column(
         Text,
         default=None,
+        nullable=True,
+    )
+
+    # Provider preferences (ordered lists with enabled status)
+    # Format: [{"id": "youtube_music", "enabled": true}, ...]
+    audio_source_preferences: Mapped[list | None] = mapped_column(
+        JSONType(),
+        nullable=True,
+    )
+    metadata_source_preferences: Mapped[list | None] = mapped_column(
+        JSONType(),
+        nullable=True,
+    )
+    lyrics_source_preferences: Mapped[list | None] = mapped_column(
+        JSONType(),
         nullable=True,
     )
 

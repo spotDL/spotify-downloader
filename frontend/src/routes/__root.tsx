@@ -10,7 +10,9 @@ import {
   useCommandPalette,
   buildBreadcrumbsFromPath,
 } from "@/components/layout";
-import { config, features } from "@/config";
+import { DevModePanel } from "@/components/dev";
+import { DevConfigProvider, useDevConfig } from "@/contexts/DevConfigContext";
+import { config } from "@/config";
 
 export const Route = createRootRoute({
   component: RootLayout,
@@ -72,8 +74,17 @@ function TopBar({
 }
 
 function RootLayout() {
+  return (
+    <DevConfigProvider>
+      <RootLayoutContent />
+    </DevConfigProvider>
+  );
+}
+
+function RootLayoutContent() {
   const location = useLocation();
   const { isOpen: isPaletteOpen, open: openPalette, close: closePalette } = useCommandPalette();
+  const { features } = useDevConfig();
 
   // Build breadcrumbs from current path
   const breadcrumbs = buildBreadcrumbsFromPath(location.pathname);
@@ -143,6 +154,9 @@ function RootLayout() {
 
         {/* Command Palette */}
         <CommandPalette isOpen={isPaletteOpen} onClose={closePalette} />
+
+        {/* Dev Mode Panel - only visible in development */}
+        <DevModePanel />
       </div>
     </ToastProvider>
   );

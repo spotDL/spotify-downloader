@@ -2,18 +2,26 @@
 
 from __future__ import annotations
 
-from typing import Annotated
+from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 
 from spotdl.api.v1.auth import get_current_user
+from spotdl.core.providers_config import validate_preferences
 from spotdl.db.database import get_db_session
 from spotdl.db.models.user import User
 from spotdl.db.repositories.user_settings import UserSettingsRepository
 from sqlalchemy.ext.asyncio import AsyncSession
 
 router = APIRouter(prefix="/settings")
+
+
+class ProviderPreference(BaseModel):
+    """A single provider preference."""
+
+    id: str
+    enabled: bool
 
 
 class UserSettingsResponse(BaseModel):
@@ -50,6 +58,11 @@ class UserSettingsResponse(BaseModel):
     # Advanced settings
     log_level: str = "INFO"
     cookie_file: str | None = None
+
+    # Provider preferences
+    audio_source_preferences: list[ProviderPreference] | None = None
+    metadata_source_preferences: list[ProviderPreference] | None = None
+    lyrics_source_preferences: list[ProviderPreference] | None = None
 
     model_config = {"from_attributes": True}
 
@@ -88,6 +101,11 @@ class UserSettingsUpdate(BaseModel):
     # Advanced settings
     log_level: str | None = Field(None, pattern="^(DEBUG|INFO|WARNING|ERROR|CRITICAL)$")
     cookie_file: str | None = Field(None, max_length=500)
+
+    # Provider preferences
+    audio_source_preferences: list[ProviderPreference] | None = None
+    metadata_source_preferences: list[ProviderPreference] | None = None
+    lyrics_source_preferences: list[ProviderPreference] | None = None
 
 
 @router.get("/me", response_model=UserSettingsResponse)

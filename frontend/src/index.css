@@ -17,17 +17,24 @@
   --font-body: 'General Sans', system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, monospace;
 
-  /* VU Meter Accent System */
-  --accent-needle: #ff6b35;     /* Orange - VU meter needle, primary actions */
-  --accent-peak: #ff3333;       /* Red - peak indicator, errors */
-  --accent-safe: #00d084;       /* Green - safe levels, success */
-  --accent-cool: #4ecdc4;       /* Teal - secondary actions */
-  --accent-warm: #ffd93d;       /* Gold/Amber - premium highlights */
+  /* Accent Color System */
+  --accent-primary: #ff6b35;    /* Orange - primary actions, highlights */
+  --accent-error: #ff3333;      /* Red - errors, destructive actions */
+  --accent-success: #00d084;    /* Green - success states */
+  --accent-secondary: #4ecdc4;  /* Teal - secondary actions */
+  --accent-gold: #ffd93d;       /* Gold/Amber - premium highlights */
 
-  /* Refined surfaces - Hi-Fi equipment inspired */
+  /* Legacy accent aliases for compatibility */
+  --accent-needle: var(--accent-primary);
+  --accent-peak: var(--accent-error);
+  --accent-safe: var(--accent-success);
+  --accent-cool: var(--accent-secondary);
+  --accent-warm: var(--accent-gold);
+
+  /* Surface colors - Dark theme */
   --bg-void: #050506;           /* True black - deepest layer */
-  --bg-chassis: #0c0c0e;        /* Equipment chassis black */
-  --bg-panel: #141416;          /* Control panel surface */
+  --bg-chassis: #0c0c0e;        /* Base background */
+  --bg-panel: #141416;          /* Panel surfaces */
   --bg-elevated: #1a1a1d;       /* Elevated surfaces */
   --bg-surface: #222225;        /* Cards, modals */
   --bg-hover: #2a2a2e;          /* Hover states */
@@ -55,7 +62,7 @@
   --gradient-warm: linear-gradient(135deg, var(--accent-needle) 0%, var(--accent-peak) 100%);
   --gradient-cool: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
   --gradient-gold: linear-gradient(135deg, var(--accent-warm) 0%, #f59e0b 100%);
-  --gradient-vu: linear-gradient(90deg, var(--accent-safe) 0%, var(--accent-warm) 70%, var(--accent-peak) 100%);
+  --gradient-progress: linear-gradient(90deg, var(--accent-success) 0%, var(--accent-gold) 70%, var(--accent-error) 100%);
 
   /* Platform colors */
   --color-spotify: #1db954;
@@ -76,7 +83,7 @@
 
   /* Effects */
   --glow-accent: 0 0 40px -8px rgba(0, 208, 132, 0.4);
-  --glow-needle: 0 0 40px -8px rgba(255, 107, 53, 0.4);
+  --glow-primary: 0 0 40px -8px rgba(255, 107, 53, 0.4);
   --glow-error: 0 0 40px -8px rgba(255, 51, 51, 0.4);
   --glow-warm: 0 0 40px -8px rgba(255, 217, 61, 0.4);
 
@@ -496,8 +503,9 @@ h1, h2, h3, h4, h5, h6 {
   box-shadow: var(--glow-accent);
 }
 
-.glow-needle {
-  box-shadow: var(--glow-needle);
+.glow-needle,
+.glow-primary {
+  box-shadow: var(--glow-primary);
 }
 
 .glow-error {
@@ -696,8 +704,8 @@ h1, h2, h3, h4, h5, h6 {
   animation: shimmer 2s linear infinite;
 }
 
-.progress-vu {
-  background: var(--gradient-vu);
+.progress-gradient-bar {
+  background: var(--gradient-progress);
 }
 
 /* ====== PATTERNS ====== */
@@ -732,7 +740,8 @@ h1, h2, h3, h4, h5, h6 {
   @apply focus-visible:ring-[#00d084];
 }
 
-.focus-ring-needle {
+.focus-ring-needle,
+.focus-ring-primary {
   @apply focus-visible:ring-[#ff6b35];
 }
 

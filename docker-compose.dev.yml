@@ -17,6 +17,7 @@ services:
       - DATABASE_URL=sqlite+aiosqlite:///./data/spotdl.db
       - ENVIRONMENT=development
       - DEBUG=true
+      - LOG_LEVEL=DEBUG
       - SECRET_KEY=dev-secret-key-change-in-production
       - CORS_ORIGINS=http://localhost:3000,http://localhost:5173
       # Spotify credentials (get from https://developer.spotify.com/dashboard)

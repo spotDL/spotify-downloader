@@ -15,6 +15,9 @@
     "test:e2e:ui": "playwright test --ui"
   },
   "dependencies": {
+    "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/sortable": "^10.0.0",
+    "@dnd-kit/utilities": "^3.2.2",
     "@tanstack/react-query": "^5.64.0",
     "@tanstack/react-router": "^1.94.0",
     "@tanstack/react-table": "^8.20.0",

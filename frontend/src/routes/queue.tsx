@@ -13,7 +13,7 @@ import {
   Select,
 } from "@/components/ui";
 import { CoverArt } from "@/components/ui/cover-art";
-import { features, config } from "@/config";
+import { useDevConfig } from "@/contexts/DevConfigContext";
 
 export const Route = createFileRoute("/queue")({
   component: QueuePage,
@@ -47,7 +47,7 @@ function ProgressBar({ progress, status }: { progress: number; status: DownloadS
 // ============================================================================
 
 function StatusBadge({ status }: { status: DownloadStatus }) {
-  const config: Record<DownloadStatus, { label: string; variant: "success" | "warning" | "error" | "info" | "muted" }> = {
+  const statusConfig: Record<DownloadStatus, { label: string; variant: "success" | "warning" | "error" | "info" | "muted" }> = {
     pending: { label: "Pending", variant: "muted" },
     searching: { label: "Searching", variant: "info" },
     downloading: { label: "Downloading", variant: "info" },
@@ -59,7 +59,7 @@ function StatusBadge({ status }: { status: DownloadStatus }) {
     cancelled: { label: "Cancelled", variant: "muted" },
   };
 
-  const { label, variant } = config[status];
+  const { label, variant } = statusConfig[status];
 
   return <Badge variant={variant} size="sm">{label}</Badge>;
 }
@@ -78,7 +78,6 @@ function QueueItemRow({
   onRemove: () => void;
 }) {
   const isActive = ["searching", "downloading", "processing", "converting", "embedding"].includes(item.status);
-  const isComplete = item.status === "completed";
   const isFailed = item.status === "failed";
 
   return (
@@ -179,10 +178,12 @@ function QueuePage() {
     removeItem,
     clearCompleted,
     clearAll,
-    retryItem,
+    retryFailed,
     maxConcurrent,
     setMaxConcurrent,
   } = useQueueStore();
+
+  const { features } = useDevConfig();
 
   const [filter, setFilter] = useState<"all" | "active" | "completed" | "failed">("all");
 
@@ -322,7 +323,7 @@ function QueuePage() {
             <QueueItemRow
               key={item.id}
               item={item}
-              onRetry={() => retryItem(item.id)}
+              onRetry={() => retryFailed(item.id)}
               onRemove={() => removeItem(item.id)}
             />
           ))}

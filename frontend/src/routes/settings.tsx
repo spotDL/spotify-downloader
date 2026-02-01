@@ -27,8 +27,10 @@ import {
   Slider,
   EqualizerLoader,
   ConnectionStatusDetailed,
+  SortableProviderList,
 } from "@/components/ui";
-import { features } from "@/config";
+import { useProviders } from "@/api";
+import { useDevConfig } from "@/contexts/DevConfigContext";
 
 export const Route = createFileRoute("/settings")({
   component: SettingsPage,
@@ -98,6 +100,7 @@ function SectionHeader({
 
 function SettingsPage() {
   const { isAuthenticated } = useAuthStore();
+  const { features } = useDevConfig();
   const [showSecrets, setShowSecrets] = useState(false);
   const [syncStatus, setSyncStatus] = useState<
     "idle" | "syncing" | "success" | "error"
@@ -124,6 +127,9 @@ function SettingsPage() {
     timeMatchThreshold,
     logLevel,
     cookieFile,
+    audioSourcePreferences,
+    metadataSourcePreferences,
+    lyricsSourcePreferences,
     setAudioFormat,
     setAudioQuality,
     setOutputTemplate,
@@ -144,10 +150,17 @@ function SettingsPage() {
     setTimeMatchThreshold,
     setLogLevel,
     setCookieFile,
+    setAudioSourcePreferences,
+    setMetadataSourcePreferences,
+    setLyricsSourcePreferences,
+    toggleProvider,
     resetToDefaults,
     importSettings,
     exportSettings,
   } = useSettingsStore();
+
+  // Fetch provider info from API
+  const { data: providersData } = useProviders();
 
   // API hooks for syncing
   const { refetch: refetchServerSettings } = useUserSettings();
@@ -425,6 +438,58 @@ function SettingsPage() {
               />
             </CardContent>
           </Card>
+
+          {/* Source Preferences Section */}
+          <Card variant="bordered" className="animate-slide-up stagger-2">
+            <CardHeader>
+              <SectionHeader
+                icon={
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+                    />
+                  </svg>
+                }
+                iconBg="bg-gradient-to-br from-cyan-500/20 to-teal-500/20"
+                iconColor="text-cyan-400"
+                title="Source Preferences"
+                description="Configure priority order for metadata and lyrics providers"
+              />
+            </CardHeader>
+            <CardContent className="space-y-8">
+              {/* Metadata Source Preferences */}
+              {providersData && (
+                <SortableProviderList
+                  label="Metadata Sources"
+                  description="Order of preference for fetching song metadata"
+                  preferences={metadataSourcePreferences}
+                  providers={providersData.metadata_sources}
+                  onReorder={setMetadataSourcePreferences}
+                  onToggle={(id) => toggleProvider("metadata", id)}
+                />
+              )}
+
+              {/* Lyrics Source Preferences */}
+              {providersData && (
+                <SortableProviderList
+                  label="Lyrics Sources"
+                  description="Order of preference for fetching lyrics"
+                  preferences={lyricsSourcePreferences}
+                  providers={providersData.lyrics_sources}
+                  onReorder={setLyricsSourcePreferences}
+                  onToggle={(id) => toggleProvider("lyrics", id)}
+                />
+              )}
+            </CardContent>
+          </Card>
         </>
       )}
 
@@ -457,38 +522,17 @@ function SettingsPage() {
           />
         </CardHeader>
         <CardContent className="space-y-6">
-          {/* Source Toggles */}
-          <div className="space-y-3">
-            <label className="text-sm font-medium text-[var(--color-text-secondary)]">
-              Audio Sources
-            </label>
-            <div className="grid grid-cols-2 gap-3">
-              <ToggleSwitch
-                checked={true}
-                onChange={() => {}}
-                label="YouTube"
-                size="sm"
-              />
-              <ToggleSwitch
-                checked={true}
-                onChange={() => {}}
-                label="YouTube Music"
-                size="sm"
-              />
-              <ToggleSwitch
-                checked={false}
-                onChange={() => {}}
-                label="SoundCloud"
-                size="sm"
-              />
-              <ToggleSwitch
-                checked={false}
-                onChange={() => {}}
-                label="Bandcamp"
-                size="sm"
-              />
-            </div>
-          </div>
+          {/* Audio Source Preferences */}
+          {providersData && (
+            <SortableProviderList
+              label="Audio Sources"
+              description="Drag to set priority order. Higher priority sources are tried first."
+              preferences={audioSourcePreferences}
+              providers={providersData.audio_sources}
+              onReorder={setAudioSourcePreferences}
+              onToggle={(id) => toggleProvider("audio", id)}
+            />
+          )}
 
           {/* Minimum Score Slider */}
           <Slider

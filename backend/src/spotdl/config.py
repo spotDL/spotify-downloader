@@ -24,6 +24,10 @@ class Settings(BaseSettings):
     app_version: str = "5.0.0"
     debug: bool = False
     environment: Literal["development", "staging", "production"] = "development"
+    log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] | None = Field(
+        default=None,
+        description="Override log level (DEBUG, INFO, WARNING, ERROR, CRITICAL). If not set, uses DEBUG when debug=True, INFO in development, WARNING otherwise.",
+    )
 
     # Server
     host: str = "0.0.0.0"

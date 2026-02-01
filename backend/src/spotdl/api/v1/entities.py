@@ -23,6 +23,7 @@ from spotdl.db.repositories.album import AlbumRepository
 from spotdl.db.repositories.artist import ArtistRepository
 from spotdl.db.repositories.playlist import PlaylistRepository
 from spotdl.db.repositories.song import SongRepository
+from spotdl.db.models.metadata_snapshot import MetadataSnapshot
 
 logger = logging.getLogger(__name__)
 
@@ -81,6 +82,11 @@ class SongResponse(BaseModel):
     matches_count: int = 0
     track_number: int | None = None
     disc_number: int | None = None
+    # Enrichment tracking
+    musicbrainz_id: str | None = None
+    discogs_id: str | None = None
+    field_sources: dict[str, str] | None = None
+    enriched_at: str | None = None
 
     model_config = {"from_attributes": True}
 
@@ -97,6 +103,14 @@ class ArtistResponse(BaseModel):
     songs: list[SongResponse] = []
     total_albums: int = 0
     total_songs: int = 0
+    # Extended metadata
+    monthly_listeners: int | None = None
+    popularity: int | None = None
+    bio: str | None = None
+    origin_country: str | None = None
+    origin_city: str | None = None
+    formed_year: int | None = None
+    external_urls: dict[str, str] | None = None
 
 
 class AlbumSummary(BaseModel):
@@ -107,6 +121,7 @@ class AlbumSummary(BaseModel):
     cover_url: str | None = None
     year: int | None = None
     total_tracks: int = 0
+    album_type: str | None = None
 
 
 class AlbumResponse(BaseModel):
@@ -121,6 +136,13 @@ class AlbumResponse(BaseModel):
     total_tracks: int = 0
     platforms: list[PlatformInfo] = []
     songs: list[SongResponse] = []
+    # Extended metadata
+    album_type: str | None = None
+    release_date: str | None = None
+    label: str | None = None
+    copyright_text: str | None = None
+    popularity: int | None = None
+    genres: list[str] = []
 
 
 class PlaylistResponse(BaseModel):
@@ -134,6 +156,9 @@ class PlaylistResponse(BaseModel):
     total_tracks: int = 0
     platforms: list[PlatformInfo] = []
     songs: list[SongResponse] = []
+    # Extended metadata
+    is_public: bool = True
+    snapshot_id: str | None = None
 
 
 # Forward reference resolution
@@ -203,6 +228,12 @@ def _song_to_response(song: Song, include_enhanced: bool = False) -> SongRespons
                 time_signature=song.time_signature,
             )
 
+        # Enrichment tracking
+        response.musicbrainz_id = song.musicbrainz_id
+        response.discogs_id = song.discogs_id
+        response.field_sources = song.field_sources
+        response.enriched_at = song.enriched_at.isoformat() if song.enriched_at else None
+
     return response
 
 
@@ -231,10 +262,20 @@ async def get_artist(
     album_repo = AlbumRepository(db)
     albums = await album_repo.get_by_artist_id(artist_uuid)
 
-    # Get songs for this artist
-    from sqlalchemy import select
+    # Get actual song counts for albums
+    album_ids = [album.id for album in albums]
+    song_counts = await album_repo.get_song_counts_by_album_ids(album_ids)
 
-    query = select(Song).where(Song.artist_id == artist_uuid).limit(100)
+    # Get songs for this artist (no limit - return all songs)
+    from sqlalchemy import select, func
+
+    # First get total count
+    count_query = select(func.count(Song.id)).where(Song.artist_id == artist_uuid)
+    count_result = await db.execute(count_query)
+    total_song_count = count_result.scalar() or 0
+
+    # Get all songs (up to 500 to prevent excessive memory usage)
+    query = select(Song).where(Song.artist_id == artist_uuid).limit(500)
     result = await db.execute(query)
     songs = result.scalars().all()
 
@@ -258,13 +299,23 @@ async def get_artist(
                 name=album.name,
                 cover_url=album.cover_url,
                 year=album.year,
-                total_tracks=album.total_tracks,
+                # Use actual song count from DB, fallback to stored total_tracks, then 0
+                total_tracks=song_counts.get(album.id, album.total_tracks or 0),
+                album_type=album.album_type,
             )
             for album in albums
         ],
         songs=[_song_to_response(song) for song in songs],
         total_albums=len(albums),
-        total_songs=len(songs),
+        total_songs=total_song_count,  # Use actual count from DB
+        # Extended metadata
+        monthly_listeners=artist.monthly_listeners,
+        popularity=artist.popularity,
+        bio=artist.bio,
+        origin_country=artist.origin_country,
+        origin_city=artist.origin_city,
+        formed_year=artist.formed_year,
+        external_urls=artist.external_urls,
     )
 
 
@@ -289,15 +340,15 @@ async def get_album(
     if not album:
         raise HTTPException(status_code=404, detail="Album not found")
 
-    # Get songs for this album
+    # Get songs for this album (no artificial limit)
     from sqlalchemy import select
 
-    query = select(Song).where(Song.album_id == album_uuid).limit(100)
+    query = select(Song).where(Song.album_id == album_uuid)
     result = await db.execute(query)
     songs = result.scalars().all()
 
-    # Use actual song count if stored total_tracks is 0
-    total_tracks = album.total_tracks if album.total_tracks > 0 else len(songs)
+    # Use actual song count from query result
+    total_tracks = len(songs) if len(songs) > 0 else album.total_tracks
 
     return AlbumResponse(
         id=str(album.id),
@@ -316,6 +367,13 @@ async def get_album(
             for link in album.platform_links
         ],
         songs=[_song_to_response(song) for song in songs],
+        # Extended metadata
+        album_type=album.album_type,
+        release_date=str(album.release_date) if album.release_date else None,
+        label=album.label,
+        copyright_text=album.copyright_text,
+        popularity=album.popularity,
+        genres=album.genres or [],
     )
 
 
@@ -615,6 +673,416 @@ async def get_song_by_platform(
     except Exception as e:
         logger.error(f"Failed to fetch song: {e}")
         raise HTTPException(status_code=404, detail="Song not found") from e
+
+
+class MetadataSnapshotResponse(BaseModel):
+    """Response model for a metadata snapshot."""
+
+    id: str
+    source: str
+    snapshot_data: dict
+    fetched_at: str
+    confidence: float
+
+    model_config = {"from_attributes": True}
+
+
+class MetadataSourcesResponse(BaseModel):
+    """Response model for all metadata sources for a song."""
+
+    song_id: str
+    sources: list[str]
+    snapshots: list[MetadataSnapshotResponse]
+
+
+@router.get("/songs/{song_id}/metadata-sources")
+async def get_song_metadata_sources(
+    song_id: Annotated[str, Path(description="Internal song UUID")],
+    db: AsyncSession = Depends(get_db_session),
+) -> MetadataSourcesResponse:
+    """
+    Get all available metadata sources for a song.
+
+    Returns snapshots from different metadata providers (Spotify, MusicBrainz, Discogs, etc.)
+    allowing users to view and compare metadata from multiple sources.
+    """
+    from sqlalchemy import select
+
+    try:
+        song_uuid = uuid.UUID(song_id)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail="Invalid UUID format") from e
+
+    # Verify song exists
+    song_repo = SongRepository(db)
+    song = await song_repo.get_by_id(song_uuid)
+
+    if not song:
+        raise HTTPException(status_code=404, detail="Song not found")
+
+    # Fetch all metadata snapshots for this song
+    query = (
+        select(MetadataSnapshot)
+        .where(MetadataSnapshot.song_id == song_uuid)
+        .order_by(MetadataSnapshot.confidence.desc())
+    )
+    result = await db.execute(query)
+    snapshots = result.scalars().all()
+
+    # If no snapshots exist, create one from the current song data
+    sources = list({s.source for s in snapshots})
+    if not sources:
+        # Return the primary platform data as the only source
+        sources = [song.platform]
+
+    return MetadataSourcesResponse(
+        song_id=str(song_uuid),
+        sources=sources,
+        snapshots=[
+            MetadataSnapshotResponse(
+                id=str(s.id),
+                source=s.source,
+                snapshot_data=s.snapshot_data,
+                fetched_at=s.fetched_at.isoformat(),
+                confidence=s.confidence,
+            )
+            for s in snapshots
+        ],
+    )
+
+
+class RefreshResponse(BaseModel):
+    """Response model for a refresh operation."""
+
+    success: bool
+    message: str
+
+
+@router.post("/songs/{id}/refresh")
+async def refresh_song(
+    id: Annotated[str, Path(description="Internal song UUID")],
+    db: AsyncSession = Depends(get_db_session),
+) -> RefreshResponse:
+    """
+    Refresh metadata for a song by fetching latest data from source.
+    """
+    try:
+        song_uuid = uuid.UUID(id)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail="Invalid UUID format") from e
+
+    song_repo = SongRepository(db)
+    song = await song_repo.get_by_id(song_uuid)
+
+    if not song:
+        raise HTTPException(status_code=404, detail="Song not found")
+
+    # Build URL and refetch
+    url = _build_platform_url(song.platform, "track", song.platform_id)
+    if not url:
+        raise HTTPException(status_code=400, detail="Cannot refresh from this platform")
+
+    try:
+        song_service = get_song_service()
+        track = await song_service.get_track(url)
+
+        # Update the existing song with fresh data
+        entity_service = EntityPersistenceService(db)
+        await entity_service.persist_song(track)
+        await db.commit()
+
+        return RefreshResponse(success=True, message="Song metadata refreshed successfully")
+    except Exception as e:
+        logger.error(f"Failed to refresh song: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to refresh: {str(e)}") from e
+
+
+@router.post("/albums/{id}/refresh")
+async def refresh_album(
+    id: Annotated[str, Path(description="Internal album UUID")],
+    db: AsyncSession = Depends(get_db_session),
+) -> RefreshResponse:
+    """
+    Refresh metadata for an album by fetching latest data from source.
+    """
+    try:
+        album_uuid = uuid.UUID(id)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail="Invalid UUID format") from e
+
+    album_repo = AlbumRepository(db)
+    album = await album_repo.get_by_id_with_links(album_uuid)
+
+    if not album:
+        raise HTTPException(status_code=404, detail="Album not found")
+
+    # Get first platform link
+    if not album.platform_links:
+        raise HTTPException(status_code=400, detail="No platform link available for refresh")
+
+    link = album.platform_links[0]
+    url = _build_platform_url(link.platform, "album", link.platform_id)
+    if not url:
+        raise HTTPException(status_code=400, detail="Cannot refresh from this platform")
+
+    try:
+        song_service = get_song_service()
+        song_list = await song_service.get_album(url)
+
+        if song_list.songs:
+            entity_service = EntityPersistenceService(db)
+            await entity_service.persist_from_search(song_list.songs)
+            await db.commit()
+
+        return RefreshResponse(success=True, message="Album metadata refreshed successfully")
+    except Exception as e:
+        logger.error(f"Failed to refresh album: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to refresh: {str(e)}") from e
+
+
+@router.post("/artists/{id}/refresh")
+async def refresh_artist(
+    id: Annotated[str, Path(description="Internal artist UUID")],
+    db: AsyncSession = Depends(get_db_session),
+) -> RefreshResponse:
+    """
+    Refresh metadata for an artist by fetching latest data from source.
+    """
+    try:
+        artist_uuid = uuid.UUID(id)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail="Invalid UUID format") from e
+
+    artist_repo = ArtistRepository(db)
+    artist = await artist_repo.get_by_id_with_links(artist_uuid)
+
+    if not artist:
+        raise HTTPException(status_code=404, detail="Artist not found")
+
+    # Get first platform link
+    if not artist.platform_links:
+        raise HTTPException(status_code=400, detail="No platform link available for refresh")
+
+    link = artist.platform_links[0]
+    url = _build_platform_url(link.platform, "artist", link.platform_id)
+    if not url:
+        raise HTTPException(status_code=400, detail="Cannot refresh from this platform")
+
+    try:
+        song_service = get_song_service()
+        song_list = await song_service.get_artist(url)
+
+        if song_list.songs:
+            entity_service = EntityPersistenceService(db)
+            await entity_service.persist_from_search(song_list.songs)
+            await db.commit()
+
+        return RefreshResponse(success=True, message="Artist metadata refreshed successfully")
+    except Exception as e:
+        logger.error(f"Failed to refresh artist: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to refresh: {str(e)}") from e
+
+
+@router.post("/playlists/{id}/refresh")
+async def refresh_playlist(
+    id: Annotated[str, Path(description="Internal playlist UUID")],
+    db: AsyncSession = Depends(get_db_session),
+) -> RefreshResponse:
+    """
+    Refresh metadata for a playlist by fetching latest data from source.
+    """
+    try:
+        playlist_uuid = uuid.UUID(id)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail="Invalid UUID format") from e
+
+    playlist_repo = PlaylistRepository(db)
+    playlist = await playlist_repo.get_by_id_with_tracks(playlist_uuid)
+
+    if not playlist:
+        raise HTTPException(status_code=404, detail="Playlist not found")
+
+    # Get first platform link
+    if not playlist.platform_links:
+        raise HTTPException(status_code=400, detail="No platform link available for refresh")
+
+    link = playlist.platform_links[0]
+    url = _build_platform_url(link.platform, "playlist", link.platform_id)
+    if not url:
+        raise HTTPException(status_code=400, detail="Cannot refresh from this platform")
+
+    try:
+        song_service = get_song_service()
+        song_list = await song_service.get_playlist(url)
+
+        if song_list.songs:
+            entity_service = EntityPersistenceService(db)
+            persist_result = await entity_service.persist_from_search(song_list.songs)
+
+            # Update playlist tracks
+            for i, song in enumerate(song_list.songs):
+                song_key = f"{song.platform.value}:{song.platform_id}"
+                song_id = persist_result.song_ids.get(song_key)
+                if song_id:
+                    await playlist_repo.add_track(playlist.id, song_id, i)
+
+            await db.commit()
+
+        return RefreshResponse(success=True, message="Playlist metadata refreshed successfully")
+    except Exception as e:
+        logger.error(f"Failed to refresh playlist: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to refresh: {str(e)}") from e
+
+
+class EnrichResponse(BaseModel):
+    """Response model for an enrichment operation."""
+
+    success: bool
+    message: str
+    sources_used: list[str] = []
+    fields_updated: list[str] = []
+
+
+@router.post("/songs/{id}/enrich")
+async def enrich_song(
+    id: Annotated[str, Path(description="Internal song UUID")],
+    db: AsyncSession = Depends(get_db_session),
+) -> EnrichResponse:
+    """
+    Enrich a song with metadata from external sources (MusicBrainz, Discogs).
+
+    This fetches additional metadata like genres, labels, and external IDs
+    from free metadata providers.
+    """
+    from datetime import datetime, timezone
+    from spotdl.core.services.metadata import MetadataService
+    from spotdl.core.types.song import Song as SongType
+
+    try:
+        song_uuid = uuid.UUID(id)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail="Invalid UUID format") from e
+
+    song_repo = SongRepository(db)
+    song = await song_repo.get_by_id(song_uuid)
+
+    if not song:
+        raise HTTPException(status_code=404, detail="Song not found")
+
+    try:
+        # Import Platform enum
+        from spotdl.core.types.song import Platform
+
+        # Convert platform string to enum
+        try:
+            platform_enum = Platform(song.platform)
+        except ValueError:
+            platform_enum = Platform.SPOTIFY  # Default fallback
+
+        # Convert DB song to core song type for enrichment
+        core_song = SongType(
+            name=song.name,
+            artists=song.artists,
+            artist=song.artists[0] if song.artists else "",
+            album_name=song.album_name or "",
+            duration=song.duration_seconds,
+            platform=platform_enum,
+            platform_id=song.platform_id,
+            url=song.platform_url,
+            isrc=song.isrc,
+            genres=song.genres or [],
+            year=song.release_date.year if song.release_date else 0,
+        )
+
+        # Initialize metadata service with all providers
+        metadata_service = MetadataService(
+            enable_musicbrainz=True,
+            enable_discogs=True,
+        )
+
+        # Track which fields exist before enrichment
+        fields_before = {
+            "genres": bool(song.genres),
+            "label": bool(song.label),
+            "isrc": bool(song.isrc),
+            "musicbrainz_id": bool(song.musicbrainz_id),
+            "discogs_id": bool(song.discogs_id),
+        }
+
+        # Enrich the song - returns the enriched Song object
+        enriched_song = await metadata_service.enrich_song(core_song, use_all_providers=True)
+
+        # Update database fields
+        field_sources = song.field_sources or {}
+        fields_updated = []
+        sources_used = set()
+
+        # Update genres if we got new ones
+        if enriched_song.genres and not song.genres:
+            song.genres = enriched_song.genres
+            field_sources["genres"] = "musicbrainz"
+            fields_updated.append("genres")
+            sources_used.add("musicbrainz")
+
+        # Update label (publisher field in Song type)
+        if enriched_song.publisher and not song.label:
+            song.label = enriched_song.publisher
+            field_sources["label"] = "discogs"
+            fields_updated.append("label")
+            sources_used.add("discogs")
+
+        # Update ISRC if we got one
+        if enriched_song.isrc and not song.isrc:
+            song.isrc = enriched_song.isrc
+            field_sources["isrc"] = "musicbrainz"
+            fields_updated.append("isrc")
+            sources_used.add("musicbrainz")
+
+        # Update tracking
+        song.field_sources = field_sources
+        song.enriched_at = datetime.now(timezone.utc)
+
+        await db.commit()
+
+        return EnrichResponse(
+            success=True,
+            message=f"Enrichment complete. Updated {len(fields_updated)} fields.",
+            sources_used=list(sources_used),
+            fields_updated=fields_updated,
+        )
+
+    except Exception as e:
+        logger.error(f"Failed to enrich song: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to enrich: {str(e)}") from e
+
+
+@router.get("/metadata-providers")
+async def list_metadata_providers() -> dict:
+    """
+    List available metadata providers for enrichment.
+    """
+    return {
+        "providers": [
+            {
+                "id": "musicbrainz",
+                "name": "MusicBrainz",
+                "description": "Open music encyclopedia with accurate ISRC lookups",
+                "icon": "musicbrainz",
+                "features": ["isrc", "genres", "label", "year", "track_number"],
+                "rate_limit": "1 request/second",
+                "auth_required": False,
+            },
+            {
+                "id": "discogs",
+                "name": "Discogs",
+                "description": "Comprehensive music database with genres and styles",
+                "icon": "discogs",
+                "features": ["genres", "styles", "label", "year", "country"],
+                "rate_limit": "25 requests/minute (60 with token)",
+                "auth_required": False,
+            },
+        ]
+    }
 
 
 def _build_platform_url(platform: str, entity_type: str, platform_id: str) -> str | None:

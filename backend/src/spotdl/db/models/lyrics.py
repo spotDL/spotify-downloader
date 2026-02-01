@@ -6,7 +6,7 @@ import uuid
 from datetime import datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import DateTime, ForeignKey, String, Text, UniqueConstraint
+from sqlalchemy import Boolean, DateTime, Float, ForeignKey, Integer, String, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from spotdl.db.models.base import Base, GUID, TimestampMixin, generate_uuid, utc_now
@@ -56,6 +56,31 @@ class Lyrics(Base, TimestampMixin):
         DateTime(timezone=True),
         default=utc_now,
         nullable=False,
+    )
+
+    # Quality and deduplication tracking
+    content_hash: Mapped[str | None] = mapped_column(
+        String(64),
+        nullable=True,
+        index=True,
+        doc="SHA256 hash of lyrics content for deduplication",
+    )
+    quality_score: Mapped[float | None] = mapped_column(
+        Float,
+        nullable=True,
+        default=0.5,
+        doc="Quality score 0-1, higher = better (synced lyrics, verified sources)",
+    )
+    is_verified: Mapped[bool | None] = mapped_column(
+        Boolean,
+        nullable=True,
+        default=False,
+        doc="Whether lyrics have been human-verified",
+    )
+    line_count: Mapped[int | None] = mapped_column(
+        Integer,
+        nullable=True,
+        doc="Number of lines for quality assessment",
     )
 
     # Relationships

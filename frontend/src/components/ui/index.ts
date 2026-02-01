@@ -105,3 +105,21 @@ export {
   ConnectionStatusCompact,
   ConnectionStatusDetailed,
 } from "./connection-status";
+
+// Provider Settings
+export {
+  SortableProviderList,
+  type SortableProviderListProps,
+  type ProviderPreference,
+  type ProviderInfo,
+} from "./sortable-provider-list";
+
+// Metadata Source Selector
+export {
+  MetadataSourceSelector,
+  type MetadataSourceSelectorProps,
+  type MetadataSnapshot,
+} from "./metadata-source-selector";
+
+// Refresh Metadata Button
+export { RefreshMetadataButton } from "./refresh-metadata-button";

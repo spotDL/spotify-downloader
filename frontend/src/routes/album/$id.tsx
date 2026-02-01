@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState, useMemo } from "react";
-import { useInternalAlbum } from "@/api/entities";
+import { useInternalAlbum, useRefreshAlbumMetadata } from "@/api/entities";
 import { useFindMatchesMutation, useCreateReport } from "@/api";
 import { useQueueStore } from "@/stores/queue";
 import { useAuthStore } from "@/stores/auth";
@@ -11,13 +11,14 @@ import {
   CardTitle,
   Badge,
   Button,
+  RefreshMetadataButton,
 } from "@/components/ui";
 import { CoverArt } from "@/components/ui/cover-art";
 import { Spinner } from "@/components/ui";
 import { PlatformLinksGrid } from "@/components/ui/platform-link";
 import { MetadataPanel, MetadataField } from "@/components/ui/metadata-source-badge";
 import { ReportModal } from "@/components/ui/report-modal";
-import { features } from "@/config";
+import { useDevConfig } from "@/contexts/DevConfigContext";
 import type { InternalSong, CreateMetadataReportRequest } from "@/types";
 
 export const Route = createFileRoute("/album/$id")({
@@ -69,8 +70,10 @@ function AlbumPage() {
   const { data: album, isLoading, error } = useInternalAlbum(id);
   const findMatchesMutation = useFindMatchesMutation();
   const createReportMutation = useCreateReport();
+  const refreshMetadata = useRefreshAlbumMetadata();
   const { addItem, addBulkItems } = useQueueStore();
   const { isAuthenticated } = useAuthStore();
+  const { features } = useDevConfig();
 
   const [showReportModal, setShowReportModal] = useState(false);
   const [showMetadata, setShowMetadata] = useState(true);
@@ -366,6 +369,13 @@ function AlbumPage() {
                 </svg>
                 {showMetadata ? "Hide Details" : "Show Details"}
               </Button>
+
+              <RefreshMetadataButton
+                onRefresh={async () => {
+                  await refreshMetadata.mutateAsync(id);
+                }}
+                size="lg"
+              />
 
               {isAuthenticated && (
                 <Button

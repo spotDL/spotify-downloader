@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState, useMemo } from "react";
-import { useInternalArtist } from "@/api/entities";
+import { useInternalArtist, useRefreshArtistMetadata } from "@/api/entities";
 import { useFindMatchesMutation, useCreateReport } from "@/api";
 import { useQueueStore } from "@/stores/queue";
 import { useAuthStore } from "@/stores/auth";
@@ -9,12 +9,13 @@ import {
   CardContent,
   Badge,
   Button,
+  RefreshMetadataButton,
 } from "@/components/ui";
 import { CoverArt } from "@/components/ui/cover-art";
 import { Spinner } from "@/components/ui";
 import { PlatformLinksGrid } from "@/components/ui/platform-link";
 import { ReportModal } from "@/components/ui/report-modal";
-import { features } from "@/config";
+import { useDevConfig } from "@/contexts/DevConfigContext";
 import type { InternalSong, ArtistSummary, AlbumSummary, CreateMetadataReportRequest } from "@/types";
 
 export const Route = createFileRoute("/artist/$id")({
@@ -217,8 +218,10 @@ function ArtistPage() {
   const { id } = Route.useParams();
   const { data: artist, isLoading, error } = useInternalArtist(id);
   const findMatchesMutation = useFindMatchesMutation();
+  const refreshMetadata = useRefreshArtistMetadata();
   const { addItem, addBulkItems } = useQueueStore();
   const { isAuthenticated } = useAuthStore();
+  const { features } = useDevConfig();
 
   const [showReportModal, setShowReportModal] = useState(false);
   const [albumTypeFilter, setAlbumTypeFilter] = useState<AlbumTypeFilter>("all");
@@ -497,6 +500,13 @@ function ArtistPage() {
                   Download All Songs
                 </Button>
               )}
+
+              <RefreshMetadataButton
+                onRefresh={async () => {
+                  await refreshMetadata.mutateAsync(id);
+                }}
+                size="lg"
+              />
 
               {isAuthenticated && (
                 <Button

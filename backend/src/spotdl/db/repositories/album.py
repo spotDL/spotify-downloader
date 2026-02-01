@@ -4,10 +4,11 @@ from __future__ import annotations
 
 import uuid
 
-from sqlalchemy import select
+from sqlalchemy import select, func
 from sqlalchemy.orm import selectinload
 
 from spotdl.db.models.album import Album, AlbumPlatformLink
+from spotdl.db.models.song import Song
 from spotdl.db.repositories.base import BaseRepository
 
 
@@ -64,6 +65,21 @@ class AlbumRepository(BaseRepository[Album]):
         )
         result = await self.session.execute(query)
         return list(result.scalars().all())
+
+    async def get_song_counts_by_album_ids(
+        self, album_ids: list[uuid.UUID]
+    ) -> dict[uuid.UUID, int]:
+        """Get song counts for a list of album IDs."""
+        if not album_ids:
+            return {}
+
+        query = (
+            select(Song.album_id, func.count(Song.id).label("count"))
+            .where(Song.album_id.in_(album_ids))
+            .group_by(Song.album_id)
+        )
+        result = await self.session.execute(query)
+        return {row.album_id: row.count for row in result.all()}
 
     async def search_by_name(
         self, name: str, *, limit: int = 20

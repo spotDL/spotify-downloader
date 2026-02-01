@@ -5,6 +5,13 @@ export type AudioFormat = "mp3" | "flac" | "ogg" | "m4a" | "opus" | "wav";
 export type AudioQuality = "best" | "320k" | "256k" | "192k" | "128k";
 export type LogLevel = "DEBUG" | "INFO" | "WARNING" | "ERROR" | "CRITICAL";
 
+export interface ProviderPreference {
+  id: string;
+  enabled: boolean;
+}
+
+export type ProviderCategory = "audio" | "metadata" | "lyrics";
+
 export interface SettingsState {
   // Download settings
   audioFormat: AudioFormat;
@@ -38,6 +45,11 @@ export interface SettingsState {
   logLevel: LogLevel;
   cookieFile: string;
 
+  // Provider preferences
+  audioSourcePreferences: ProviderPreference[];
+  metadataSourcePreferences: ProviderPreference[];
+  lyricsSourcePreferences: ProviderPreference[];
+
   // Sync status
   lastSyncedAt: string | null;
   isSyncing: boolean;
@@ -63,6 +75,14 @@ export interface SettingsState {
   setTimeMatchThreshold: (threshold: number) => void;
   setLogLevel: (level: LogLevel) => void;
   setCookieFile: (file: string) => void;
+
+  // Provider preference actions
+  setAudioSourcePreferences: (prefs: ProviderPreference[]) => void;
+  setMetadataSourcePreferences: (prefs: ProviderPreference[]) => void;
+  setLyricsSourcePreferences: (prefs: ProviderPreference[]) => void;
+  reorderProvider: (category: ProviderCategory, fromIndex: number, toIndex: number) => void;
+  toggleProvider: (category: ProviderCategory, id: string) => void;
+
   resetToDefaults: () => void;
   setSyncing: (syncing: boolean) => void;
   setLastSyncedAt: (timestamp: string | null) => void;
@@ -92,7 +112,32 @@ export interface ExportableSettings {
   timeMatchThreshold: number;
   logLevel: LogLevel;
   cookieFile: string;
+  audioSourcePreferences: ProviderPreference[];
+  metadataSourcePreferences: ProviderPreference[];
+  lyricsSourcePreferences: ProviderPreference[];
 }
+
+// Default provider preferences
+const defaultAudioSourcePreferences: ProviderPreference[] = [
+  { id: "youtube_music", enabled: true },
+  { id: "youtube", enabled: true },
+  { id: "soundcloud", enabled: false },
+  { id: "bandcamp", enabled: false },
+  { id: "piped", enabled: false },
+];
+
+const defaultMetadataSourcePreferences: ProviderPreference[] = [
+  { id: "spotify", enabled: true },
+  { id: "musicbrainz", enabled: true },
+  { id: "discogs", enabled: true },
+];
+
+const defaultLyricsSourcePreferences: ProviderPreference[] = [
+  { id: "synced", enabled: true },
+  { id: "genius", enabled: true },
+  { id: "musixmatch", enabled: true },
+  { id: "azlyrics", enabled: false },
+];
 
 const defaultSettings: ExportableSettings = {
   audioFormat: "mp3",
@@ -115,6 +160,9 @@ const defaultSettings: ExportableSettings = {
   timeMatchThreshold: 25,
   logLevel: "INFO",
   cookieFile: "",
+  audioSourcePreferences: defaultAudioSourcePreferences,
+  metadataSourcePreferences: defaultMetadataSourcePreferences,
+  lyricsSourcePreferences: defaultLyricsSourcePreferences,
 };
 
 export const useSettingsStore = create<SettingsState>()(
@@ -147,6 +195,39 @@ export const useSettingsStore = create<SettingsState>()(
       setSyncing: (syncing) => set({ isSyncing: syncing }),
       setLastSyncedAt: (timestamp) => set({ lastSyncedAt: timestamp }),
 
+      // Provider preference actions
+      setAudioSourcePreferences: (prefs) => set({ audioSourcePreferences: prefs }),
+      setMetadataSourcePreferences: (prefs) => set({ metadataSourcePreferences: prefs }),
+      setLyricsSourcePreferences: (prefs) => set({ lyricsSourcePreferences: prefs }),
+
+      reorderProvider: (category, fromIndex, toIndex) => {
+        const state = get();
+        const keyMap: Record<ProviderCategory, keyof Pick<SettingsState, 'audioSourcePreferences' | 'metadataSourcePreferences' | 'lyricsSourcePreferences'>> = {
+          audio: 'audioSourcePreferences',
+          metadata: 'metadataSourcePreferences',
+          lyrics: 'lyricsSourcePreferences',
+        };
+        const key = keyMap[category];
+        const prefs = [...state[key]];
+        const [removed] = prefs.splice(fromIndex, 1);
+        prefs.splice(toIndex, 0, removed);
+        set({ [key]: prefs });
+      },
+
+      toggleProvider: (category, id) => {
+        const state = get();
+        const keyMap: Record<ProviderCategory, keyof Pick<SettingsState, 'audioSourcePreferences' | 'metadataSourcePreferences' | 'lyricsSourcePreferences'>> = {
+          audio: 'audioSourcePreferences',
+          metadata: 'metadataSourcePreferences',
+          lyrics: 'lyricsSourcePreferences',
+        };
+        const key = keyMap[category];
+        const prefs = state[key].map((p) =>
+          p.id === id ? { ...p, enabled: !p.enabled } : p
+        );
+        set({ [key]: prefs });
+      },
+
       resetToDefaults: () => set({ ...defaultSettings, lastSyncedAt: null }),
 
       importSettings: (settings) => {
@@ -172,6 +253,9 @@ export const useSettingsStore = create<SettingsState>()(
           timeMatchThreshold: settings.timeMatchThreshold ?? current.timeMatchThreshold,
           logLevel: settings.logLevel ?? current.logLevel,
           cookieFile: settings.cookieFile ?? current.cookieFile,
+          audioSourcePreferences: settings.audioSourcePreferences ?? current.audioSourcePreferences,
+          metadataSourcePreferences: settings.metadataSourcePreferences ?? current.metadataSourcePreferences,
+          lyricsSourcePreferences: settings.lyricsSourcePreferences ?? current.lyricsSourcePreferences,
         });
       },
 
@@ -198,6 +282,9 @@ export const useSettingsStore = create<SettingsState>()(
           timeMatchThreshold: state.timeMatchThreshold,
           logLevel: state.logLevel,
           cookieFile: state.cookieFile,
+          audioSourcePreferences: state.audioSourcePreferences,
+          metadataSourcePreferences: state.metadataSourcePreferences,
+          lyricsSourcePreferences: state.lyricsSourcePreferences,
         };
       },
     }),

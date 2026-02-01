@@ -1,7 +1,8 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useState, useEffect, useCallback } from "react";
 import { Button, Input, Card, CardContent, ConnectionStatusCompact } from "@/components/ui";
-import { features, config } from "@/config";
+import { useDevConfig } from "@/contexts/DevConfigContext";
+import { config } from "@/config";
 
 export const Route = createFileRoute("/")({
   component: HomePage,
@@ -55,6 +56,8 @@ function clearRecentSearches(): void {
 // ============================================================================
 
 function HomePage() {
+  const { features } = useDevConfig();
+
   if (features.isHosted) {
     return <HostedHomePage />;
   }

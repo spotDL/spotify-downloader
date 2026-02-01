@@ -1,8 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { clsx } from "clsx";
 import { Badge } from "./badge";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "./card";
 import { Spinner } from "./spinner";
+import { apiClient } from "@/api/client";
 
 // ============================================================================
 // TYPES
@@ -19,63 +20,96 @@ export interface ServiceStatus {
   icon?: React.ReactNode;
 }
 
+// API response types
+interface ServiceStatusItem {
+  name: string;
+  display_name: string;
+  state: string;
+  latency: number | null;
+  error: string | null;
+}
+
+interface ServiceStatusResponse {
+  sources: ServiceStatusItem[];
+  targets: ServiceStatusItem[];
+  metadata: ServiceStatusItem[];
+  overall_state: string;
+}
+
 // ============================================================================
-// MOCK DATA & HOOKS - Replace with real API calls when available
+// SERVICE STATUS HOOK - Uses real API
 // ============================================================================
 
-const PLATFORMS = [
-  { name: "spotify", displayName: "Spotify", category: "source" },
-  { name: "deezer", displayName: "Deezer", category: "source" },
-  { name: "apple_music", displayName: "Apple Music", category: "source" },
-  { name: "youtube_music", displayName: "YouTube Music", category: "source" },
-  { name: "youtube", displayName: "YouTube", category: "target" },
-  { name: "soundcloud", displayName: "SoundCloud", category: "target" },
-  { name: "bandcamp", displayName: "Bandcamp", category: "target" },
-];
-
-const METADATA_SOURCES = [
-  { name: "musicbrainz", displayName: "MusicBrainz", category: "metadata" },
-  { name: "genius", displayName: "Genius (Lyrics)", category: "metadata" },
-  { name: "musixmatch", displayName: "Musixmatch (Lyrics)", category: "metadata" },
-];
-
-function useServiceStatus(): { services: ServiceStatus[]; isLoading: boolean; refetch: () => void } {
-  const [services, setServices] = useState<ServiceStatus[]>([]);
+function useServiceStatus(): {
+  services: ServiceStatus[];
+  sources: ServiceStatus[];
+  targets: ServiceStatus[];
+  metadata: ServiceStatus[];
+  isLoading: boolean;
+  refetch: () => void;
+} {
+  const [sources, setSources] = useState<ServiceStatus[]>([]);
+  const [targets, setTargets] = useState<ServiceStatus[]>([]);
+  const [metadata, setMetadata] = useState<ServiceStatus[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const checkServices = async () => {
+  const mapApiToStatus = (item: ServiceStatusItem): ServiceStatus => ({
+    name: item.name,
+    displayName: item.display_name,
+    state: item.state as ConnectionState,
+    latency: item.latency ?? undefined,
+    error: item.error ?? undefined,
+  });
+
+  const checkServices = useCallback(async () => {
     setIsLoading(true);
 
-    // Simulate checking each service
-    const allServices = [...PLATFORMS, ...METADATA_SOURCES];
-    const results: ServiceStatus[] = [];
+    try {
+      const response = await apiClient.get<ServiceStatusResponse>("/health/services");
+      const data = response.data;
 
-    for (const service of allServices) {
-      // Simulate random latency and occasional failures
-      const isConnected = Math.random() > 0.15;
-      const latency = isConnected ? Math.floor(Math.random() * 200) + 50 : undefined;
-
-      results.push({
-        name: service.name,
-        displayName: service.displayName,
-        state: isConnected ? "connected" : "error",
-        latency,
-        error: isConnected ? undefined : "Service unavailable",
-      });
+      setSources(data.sources.map(mapApiToStatus));
+      setTargets(data.targets.map(mapApiToStatus));
+      setMetadata(data.metadata.map(mapApiToStatus));
+    } catch (error) {
+      console.error("Failed to fetch service status:", error);
+      // On error, show all services as unknown/error state
+      setSources([
+        { name: "spotify", displayName: "Spotify", state: "error", error: "Check failed" },
+        { name: "deezer", displayName: "Deezer", state: "error", error: "Check failed" },
+        { name: "apple_music", displayName: "Apple Music", state: "error", error: "Check failed" },
+        { name: "youtube_music", displayName: "YouTube Music", state: "error", error: "Check failed" },
+      ]);
+      setTargets([
+        { name: "youtube", displayName: "YouTube", state: "error", error: "Check failed" },
+        { name: "soundcloud", displayName: "SoundCloud", state: "error", error: "Check failed" },
+        { name: "bandcamp", displayName: "Bandcamp", state: "error", error: "Check failed" },
+      ]);
+      setMetadata([
+        { name: "musicbrainz", displayName: "MusicBrainz", state: "error", error: "Check failed" },
+        { name: "genius", displayName: "Genius (Lyrics)", state: "error", error: "Check failed" },
+        { name: "musixmatch", displayName: "Musixmatch (Lyrics)", state: "error", error: "Check failed" },
+      ]);
+    } finally {
+      setIsLoading(false);
     }
-
-    setServices(results);
-    setIsLoading(false);
-  };
+  }, []);
 
   useEffect(() => {
     checkServices();
     // Refresh every 60 seconds
     const interval = setInterval(checkServices, 60000);
     return () => clearInterval(interval);
-  }, []);
+  }, [checkServices]);
 
-  return { services, isLoading, refetch: checkServices };
+  return {
+    services: [...sources, ...targets, ...metadata],
+    sources,
+    targets,
+    metadata,
+    isLoading,
+    refetch: checkServices,
+  };
 }
 
 // ============================================================================
@@ -117,17 +151,7 @@ function StatusDot({ state, size = "sm" }: { state: ConnectionState; size?: "xs"
 // ============================================================================
 
 export function ConnectionStatusCompact({ className }: { className?: string }) {
-  const { services, isLoading } = useServiceStatus();
-
-  const sources = services.filter(s =>
-    PLATFORMS.some(p => p.name === s.name && p.category === "source")
-  );
-  const targets = services.filter(s =>
-    PLATFORMS.some(p => p.name === s.name && p.category === "target")
-  );
-  const metadata = services.filter(s =>
-    METADATA_SOURCES.some(m => m.name === s.name)
-  );
+  const { sources, targets, metadata, isLoading } = useServiceStatus();
 
   const connectedSources = sources.filter(s => s.state === "connected").length;
   const connectedTargets = targets.filter(s => s.state === "connected").length;
@@ -211,17 +235,7 @@ function ServiceRow({ service }: { service: ServiceStatus }) {
 // ============================================================================
 
 export function ConnectionStatusDetailed({ className }: { className?: string }) {
-  const { services, isLoading, refetch } = useServiceStatus();
-
-  const sources = services.filter(s =>
-    PLATFORMS.some(p => p.name === s.name && p.category === "source")
-  );
-  const targets = services.filter(s =>
-    PLATFORMS.some(p => p.name === s.name && p.category === "target")
-  );
-  const metadata = services.filter(s =>
-    METADATA_SOURCES.some(m => m.name === s.name)
-  );
+  const { services, sources, targets, metadata, isLoading, refetch } = useServiceStatus();
 
   const totalConnected = services.filter(s => s.state === "connected").length;
   const overallState: ConnectionState =

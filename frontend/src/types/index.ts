@@ -160,6 +160,11 @@ export interface EnhancedSong extends InternalSong {
   matches_count: number;
   track_number: number | null;
   disc_number: number | null;
+  // Enrichment tracking
+  musicbrainz_id: string | null;
+  discogs_id: string | null;
+  field_sources: Record<string, string> | null;
+  enriched_at: string | null;
 }
 
 export interface AlbumSummary {
@@ -168,6 +173,7 @@ export interface AlbumSummary {
   cover_url: string | null;
   year: number | null;
   total_tracks: number;
+  album_type: "album" | "single" | "ep" | "compilation" | null;
 }
 
 export interface InternalArtist {

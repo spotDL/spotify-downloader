@@ -7,8 +7,8 @@ import type { AlbumSummary } from "@/types";
 
 type AlbumFilter = "all" | "album" | "single" | "ep" | "compilation";
 
-export interface AlbumSummaryWithType extends AlbumSummary {
-  album_type?: AlbumFilter;
+export interface AlbumSummaryWithType extends Omit<AlbumSummary, "album_type"> {
+  album_type?: "album" | "single" | "ep" | "compilation" | null;
 }
 
 export interface DiscographyGridProps {

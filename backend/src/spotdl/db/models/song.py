@@ -4,10 +4,10 @@ from __future__ import annotations
 
 import json
 import uuid
-from datetime import date
+from datetime import date, datetime
 from typing import TYPE_CHECKING, Any
 
-from sqlalchemy import Boolean, Date, Float, ForeignKey, Integer, Numeric, String, Text, TypeDecorator, UniqueConstraint
+from sqlalchemy import Boolean, Date, DateTime, Float, ForeignKey, Integer, Numeric, String, Text, TypeDecorator, UniqueConstraint
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -18,6 +18,7 @@ if TYPE_CHECKING:
     from spotdl.db.models.artist import Artist
     from spotdl.db.models.lyrics import Lyrics
     from spotdl.db.models.match import Match
+    from spotdl.db.models.metadata_snapshot import MetadataSnapshot
 
 
 class JSONType(TypeDecorator[Any]):
@@ -203,6 +204,30 @@ class Song(Base, TimestampMixin):
         nullable=True,
     )
 
+    # Metadata enrichment tracking
+    field_sources: Mapped[dict[str, str] | None] = mapped_column(
+        JSONType(),
+        nullable=True,
+        doc="Tracks which metadata source provided which field, e.g. {'genres': 'musicbrainz', 'label': 'discogs'}",
+    )
+    musicbrainz_id: Mapped[str | None] = mapped_column(
+        String(64),
+        nullable=True,
+        index=True,
+        doc="MusicBrainz recording ID for re-fetching metadata",
+    )
+    discogs_id: Mapped[str | None] = mapped_column(
+        String(64),
+        nullable=True,
+        index=True,
+        doc="Discogs release ID for re-fetching metadata",
+    )
+    enriched_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
+        doc="Last time metadata was enriched from external sources",
+    )
+
     # Relationships
     artist: Mapped[Artist | None] = relationship(
         "Artist",
@@ -221,6 +246,11 @@ class Song(Base, TimestampMixin):
     )
     lyrics: Mapped[list[Lyrics]] = relationship(
         "Lyrics",
+        back_populates="song",
+        cascade="all, delete-orphan",
+    )
+    metadata_snapshots: Mapped[list[MetadataSnapshot]] = relationship(
+        "MetadataSnapshot",
         back_populates="song",
         cascade="all, delete-orphan",
     )

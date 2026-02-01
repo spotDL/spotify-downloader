@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState, useMemo } from "react";
-import { useInternalSong } from "@/api/entities";
+import { useInternalSong, useRefreshSongMetadata, useEnrichSongMetadata } from "@/api/entities";
 import { useFindMatchesMutation, useLyrics, hasLyrics, toLyrics, useCreateReport } from "@/api";
 import { useQueueStore } from "@/stores/queue";
 import { useAuthStore } from "@/stores/auth";
@@ -11,6 +11,7 @@ import {
   CardTitle,
   Badge,
   Button,
+  RefreshMetadataButton,
 } from "@/components/ui";
 import { CoverArt } from "@/components/ui/cover-art";
 import { Spinner } from "@/components/ui";
@@ -19,7 +20,7 @@ import { LyricsDisplay } from "@/components/ui/lyrics-display";
 import { MetadataPanel, MetadataField } from "@/components/ui/metadata-source-badge";
 import { PlatformLinksGrid } from "@/components/ui/platform-link";
 import { ReportModal } from "@/components/ui/report-modal";
-import { features } from "@/config";
+import { useDevConfig } from "@/contexts/DevConfigContext";
 import type { Match, AudioFeatures, CreateMetadataReportRequest } from "@/types";
 
 export const Route = createFileRoute("/song/$id")({
@@ -83,8 +84,11 @@ function SongPage() {
   const { data: lyricsData, isLoading: lyricsLoading } = useLyrics(id, { enabled: !!song });
   const findMatchesMutation = useFindMatchesMutation();
   const createReportMutation = useCreateReport();
+  const refreshMetadata = useRefreshSongMetadata();
+  const enrichMetadata = useEnrichSongMetadata();
   const addItem = useQueueStore((state) => state.addItem);
   const { isAuthenticated } = useAuthStore();
+  const { features } = useDevConfig();
 
   const [showReportModal, setShowReportModal] = useState(false);
   const [matches, setMatches] = useState<Match[]>([]);
@@ -354,6 +358,17 @@ function SongPage() {
                 </svg>
                 Match Manually
               </Button>
+
+              <RefreshMetadataButton
+                onRefresh={async () => {
+                  await refreshMetadata.mutateAsync(id);
+                }}
+                onEnrich={async () => {
+                  await enrichMetadata.mutateAsync(id);
+                }}
+                size="lg"
+                showEnrichOption={true}
+              />
 
               {isAuthenticated && (
                 <Button
@@ -637,6 +652,67 @@ function SongPage() {
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-zinc-500">Matches Found</span>
                     <Badge variant="info" size="sm">{song.matches_count}</Badge>
+                  </div>
+                )}
+
+                {/* External IDs */}
+                {(song.musicbrainz_id || song.discogs_id) && (
+                  <div className="pt-3 mt-3 border-t border-zinc-800/50">
+                    <p className="text-xs text-zinc-500 uppercase tracking-wide mb-2">External IDs</p>
+                    {song.musicbrainz_id && (
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm text-zinc-500">MusicBrainz</span>
+                        <a
+                          href={`https://musicbrainz.org/recording/${song.musicbrainz_id}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-sm font-mono text-orange-400 hover:text-orange-300 bg-bg-panel px-2 py-1 rounded truncate max-w-[180px]"
+                        >
+                          {song.musicbrainz_id.slice(0, 8)}...
+                        </a>
+                      </div>
+                    )}
+                    {song.discogs_id && (
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-zinc-500">Discogs</span>
+                        <a
+                          href={`https://www.discogs.com/release/${song.discogs_id}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-sm font-mono text-zinc-400 hover:text-zinc-300 bg-bg-panel px-2 py-1 rounded"
+                        >
+                          {song.discogs_id}
+                        </a>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Field Sources */}
+                {song.field_sources && Object.keys(song.field_sources).length > 0 && (
+                  <div className="pt-3 mt-3 border-t border-zinc-800/50">
+                    <p className="text-xs text-zinc-500 uppercase tracking-wide mb-2">Data Sources</p>
+                    <div className="flex flex-wrap gap-1">
+                      {Object.entries(song.field_sources).map(([field, source]) => (
+                        <span
+                          key={field}
+                          className="text-[10px] px-2 py-0.5 rounded bg-zinc-800 text-zinc-400"
+                          title={`${field} from ${source}`}
+                        >
+                          {field}: <span className="text-accent-cool">{source}</span>
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Enriched timestamp */}
+                {song.enriched_at && (
+                  <div className="flex items-center justify-between pt-2">
+                    <span className="text-sm text-zinc-500">Last Enriched</span>
+                    <span className="text-xs text-zinc-500">
+                      {new Date(song.enriched_at).toLocaleDateString()}
+                    </span>
                   </div>
                 )}
               </CardContent>
