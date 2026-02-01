@@ -163,10 +163,10 @@ function AdminImportPage() {
 
     try {
       const result = await importUrlsMutation.mutateAsync({ urls });
-      addToast(`Queued ${result.queued} URLs for import`, "success");
+      addToast(`Resolved ${result.resolved} songs from ${urls.length} URLs`, "success");
       setUrlInput("");
     } catch (err) {
-      addToast("Failed to queue URLs", "error");
+      addToast("Failed to import URLs", "error");
     }
   };
 

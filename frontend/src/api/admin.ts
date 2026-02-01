@@ -136,8 +136,8 @@ export async function importMatches(
 
 export async function importUrls(
   data: BulkUrlImportRequest
-): Promise<{ message: string; queued: number; status: string }> {
-  const response = await apiClient.post<{ message: string; queued: number; status: string }>(
+): Promise<{ message: string; resolved: number; skipped: number; errors: string[] }> {
+  const response = await apiClient.post<{ message: string; resolved: number; skipped: number; errors: string[] }>(
     "/admin/import/urls",
     data
   );

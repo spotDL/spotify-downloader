@@ -17,6 +17,7 @@ from sqlalchemy.orm import selectinload
 
 from spotdl.api.v1.auth import get_current_user
 from spotdl.core.reputation import ReputationReward
+from spotdl.core.services.song import get_song_service, UnsupportedURLError, SongServiceError
 from spotdl.db.database import get_db_session
 from spotdl.db.models.match import Match
 from spotdl.db.models.metadata_report import MetadataReport
@@ -791,25 +792,50 @@ async def import_urls(
     db: AsyncSession = Depends(get_db_session),
 ) -> dict:
     """
-    Queue URLs for bulk import (admin only).
+    Import songs from URLs (admin only).
 
-    This creates a background task to resolve and import songs from the provided URLs.
+    Resolves each URL to get song metadata and stores in the database.
     """
-    # For now, just validate and count unique URLs
     unique_urls = list(set(request.urls))
 
     logger.info(
-        "Admin %s queued %d URLs for import",
+        "Admin %s importing %d URLs",
         admin.username,
         len(unique_urls),
     )
 
-    # TODO: Implement background task for URL resolution
-    # For now, return acknowledgment
+    service = get_song_service()
+    resolved = 0
+    skipped = 0
+    errors: list[str] = []
+
+    for url in unique_urls:
+        try:
+            songs = await service.resolve_url(url)
+            if songs:
+                resolved += len(songs)
+                logger.debug("Resolved %d songs from %s", len(songs), url)
+            else:
+                skipped += 1
+                logger.debug("No songs found for URL: %s", url)
+        except UnsupportedURLError:
+            skipped += 1
+            errors.append(f"Unsupported URL: {url}")
+            logger.warning("Unsupported URL: %s", url)
+        except SongServiceError as e:
+            skipped += 1
+            errors.append(f"Error resolving {url}: {str(e)}")
+            logger.warning("Error resolving URL %s: %s", url, e)
+        except Exception as e:
+            skipped += 1
+            errors.append(f"Unexpected error for {url}: {str(e)}")
+            logger.exception("Unexpected error resolving URL %s", url)
+
     return {
-        "message": f"Queued {len(unique_urls)} URLs for import",
-        "queued": len(unique_urls),
-        "status": "pending",
+        "message": f"Resolved {resolved} songs from {len(unique_urls)} URLs ({skipped} failed)",
+        "resolved": resolved,
+        "skipped": skipped,
+        "errors": errors[:10] if errors else [],
     }
 
 
