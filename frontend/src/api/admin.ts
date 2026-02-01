@@ -34,8 +34,20 @@ export interface UpdateMatchStatusRequest {
   status: MatchStatus;
 }
 
-export interface ClearCacheRequest {
-  cache_type: "all" | "search" | "entities" | "matches";
+export interface ImportMatchesRequest {
+  matches: Array<{
+    source_url: string;
+    source_platform?: string;
+    target_url: string;
+    target_platform?: string;
+    score?: number;
+    match_type?: string;
+    status?: string;
+  }>;
+}
+
+export interface BulkUrlImportRequest {
+  urls: string[];
 }
 
 // Users
@@ -110,14 +122,44 @@ export async function getSystemStats(): Promise<SystemStats> {
   return response.data;
 }
 
-// Cache
+// Import
 
-export async function clearCache(
-  data: ClearCacheRequest
-): Promise<{ message: string; cache_type: string }> {
-  const response = await apiClient.post<{ message: string; cache_type: string }>(
-    "/admin/cache/clear",
+export async function importMatches(
+  data: ImportMatchesRequest
+): Promise<{ message: string; imported: number; skipped: number; errors: string[] }> {
+  const response = await apiClient.post<{ message: string; imported: number; skipped: number; errors: string[] }>(
+    "/admin/import/matches",
     data
+  );
+  return response.data;
+}
+
+export async function importUrls(
+  data: BulkUrlImportRequest
+): Promise<{ message: string; queued: number; status: string }> {
+  const response = await apiClient.post<{ message: string; queued: number; status: string }>(
+    "/admin/import/urls",
+    data
+  );
+  return response.data;
+}
+
+// Danger Zone
+
+export async function purgeUnverifiedMatches(
+  confirm: boolean = false
+): Promise<{ message: string; deleted?: number; pending_matches?: number; rejected_matches?: number; total_to_delete?: number }> {
+  const response = await apiClient.delete<{ message: string; deleted?: number; pending_matches?: number; rejected_matches?: number; total_to_delete?: number }>(
+    `/admin/matches/unverified?confirm=${confirm}`
+  );
+  return response.data;
+}
+
+export async function resetDatabase(
+  confirm: string = ""
+): Promise<{ message: string; songs_to_delete?: number; matches_to_delete?: number; users_preserved?: boolean }> {
+  const response = await apiClient.delete<{ message: string; songs_to_delete?: number; matches_to_delete?: number; users_preserved?: boolean }>(
+    `/admin/reset-database?confirm=${confirm}`
   );
   return response.data;
 }
@@ -216,27 +258,47 @@ export function useSystemStats() {
   });
 }
 
-// Cache
+// Import
 
-export function useClearCache() {
+export function useImportMatches() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: clearCache,
-    onSuccess: (_, variables) => {
-      // Invalidate relevant caches based on what was cleared
-      if (variables.cache_type === "all") {
-        queryClient.invalidateQueries();
-      } else if (variables.cache_type === "entities") {
-        queryClient.invalidateQueries({ queryKey: ["entities"] });
-      } else if (variables.cache_type === "matches") {
-        queryClient.invalidateQueries({ queryKey: ["matches"] });
-        queryClient.invalidateQueries({ queryKey: adminKeys.matches() });
-      } else if (variables.cache_type === "search") {
-        queryClient.invalidateQueries({
-          queryKey: ["entities", "search"],
-        });
-      }
+    mutationFn: importMatches,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: adminKeys.matches() });
+      queryClient.invalidateQueries({ queryKey: ["matches"] });
+    },
+  });
+}
+
+export function useImportUrls() {
+  return useMutation({
+    mutationFn: importUrls,
+  });
+}
+
+// Danger Zone
+
+export function usePurgeUnverifiedMatches() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (confirm: boolean) => purgeUnverifiedMatches(confirm),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: adminKeys.matches() });
+      queryClient.invalidateQueries({ queryKey: adminKeys.stats() });
+    },
+  });
+}
+
+export function useResetDatabase() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (confirm: string) => resetDatabase(confirm),
+    onSuccess: () => {
+      queryClient.invalidateQueries();
     },
   });
 }

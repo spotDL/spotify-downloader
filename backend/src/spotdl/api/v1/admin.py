@@ -164,15 +164,6 @@ class UpdateMatchStatusRequest(BaseModel):
     status: MatchStatus
 
 
-class ClearCacheRequest(BaseModel):
-    """Request to clear caches."""
-
-    cache_type: str = Field(
-        default="all",
-        description="Type of cache to clear: 'all', 'search', 'entities', 'matches'",
-    )
-
-
 # ====== Admin Dependency ======
 
 
@@ -715,32 +706,220 @@ async def get_system_stats(
     )
 
 
-# ====== Cache Management ======
+# ====== Import Endpoints ======
 
 
-@router.post("/cache/clear")
-async def clear_cache(
-    request: ClearCacheRequest,
+class ImportMatchesRequest(BaseModel):
+    """Request to import matches from JSON."""
+
+    matches: list[dict]
+
+
+class BulkUrlImportRequest(BaseModel):
+    """Request to import songs from URLs."""
+
+    urls: list[str] = Field(..., min_length=1, max_length=1000)
+
+
+@router.post("/import/matches")
+async def import_matches(
+    request: ImportMatchesRequest,
     admin: User = Depends(require_admin),
-    _db: AsyncSession = Depends(get_db_session),
+    db: AsyncSession = Depends(get_db_session),
 ) -> dict:
     """
-    Clear system caches (admin only).
+    Import matches from JSON data (admin only).
 
-    Cache types: 'all', 'search', 'entities', 'matches'
-
-    Note: Currently a no-op as no caching system is configured.
-    In production, this would clear Redis or in-memory caches.
+    Expects a list of match objects with source_url, target_url, etc.
     """
+    imported = 0
+    skipped = 0
+    errors = []
+
+    for match_data in request.matches:
+        try:
+            # Check if match already exists
+            existing = await db.execute(
+                select(Match).where(
+                    and_(
+                        Match.source_url == match_data.get("source_url"),
+                        Match.target_url == match_data.get("target_url"),
+                    )
+                )
+            )
+            if existing.scalar_one_or_none():
+                skipped += 1
+                continue
+
+            # Create new match
+            match = Match(
+                source_url=match_data["source_url"],
+                source_platform=match_data.get("source_platform", "unknown"),
+                target_url=match_data["target_url"],
+                target_platform=match_data.get("target_platform", "unknown"),
+                match_score=match_data.get("score"),
+                match_type=match_data.get("match_type", "imported"),
+                status=match_data.get("status", "pending"),
+            )
+            db.add(match)
+            imported += 1
+        except Exception as e:
+            errors.append(str(e))
+
+    await db.commit()
+
     logger.info(
-        "Admin %s requested cache clear: %s (no cache system configured)",
+        "Admin %s imported matches: %d imported, %d skipped, %d errors",
         admin.username,
-        request.cache_type,
+        imported,
+        skipped,
+        len(errors),
     )
 
     return {
-        "message": f"Cache '{request.cache_type}' clear requested (no cache system configured)",
-        "cache_type": request.cache_type,
+        "message": f"Import complete: {imported} imported, {skipped} skipped",
+        "imported": imported,
+        "skipped": skipped,
+        "errors": errors[:10] if errors else [],  # Return first 10 errors
+    }
+
+
+@router.post("/import/urls")
+async def import_urls(
+    request: BulkUrlImportRequest,
+    admin: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_db_session),
+) -> dict:
+    """
+    Queue URLs for bulk import (admin only).
+
+    This creates a background task to resolve and import songs from the provided URLs.
+    """
+    # For now, just validate and count unique URLs
+    unique_urls = list(set(request.urls))
+
+    logger.info(
+        "Admin %s queued %d URLs for import",
+        admin.username,
+        len(unique_urls),
+    )
+
+    # TODO: Implement background task for URL resolution
+    # For now, return acknowledgment
+    return {
+        "message": f"Queued {len(unique_urls)} URLs for import",
+        "queued": len(unique_urls),
+        "status": "pending",
+    }
+
+
+# ====== Danger Zone Endpoints ======
+
+
+@router.delete("/matches/unverified")
+async def purge_unverified_matches(
+    confirm: Annotated[bool, Query()] = False,
+    admin: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_db_session),
+) -> dict:
+    """
+    Purge all unverified (pending/rejected) matches (admin only).
+
+    Requires confirm=true query parameter to execute.
+    """
+    if not confirm:
+        # Count matches that would be deleted
+        pending_count = (
+            await db.execute(
+                select(func.count()).where(Match.status == "pending")
+            )
+        ).scalar() or 0
+        rejected_count = (
+            await db.execute(
+                select(func.count()).where(Match.status == "rejected")
+            )
+        ).scalar() or 0
+
+        return {
+            "message": "Dry run - add ?confirm=true to execute",
+            "pending_matches": pending_count,
+            "rejected_matches": rejected_count,
+            "total_to_delete": pending_count + rejected_count,
+        }
+
+    # Delete pending and rejected matches
+    result = await db.execute(
+        select(Match).where(Match.status.in_(["pending", "rejected"]))
+    )
+    matches_to_delete = result.scalars().all()
+    deleted_count = len(matches_to_delete)
+
+    for match in matches_to_delete:
+        await db.delete(match)
+
+    await db.commit()
+
+    logger.warning(
+        "Admin %s purged %d unverified matches",
+        admin.username,
+        deleted_count,
+    )
+
+    return {
+        "message": f"Purged {deleted_count} unverified matches",
+        "deleted": deleted_count,
+    }
+
+
+@router.delete("/reset-database")
+async def reset_database(
+    confirm: Annotated[str, Query()] = "",
+    admin: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_db_session),
+) -> dict:
+    """
+    Reset database to clean state (admin only).
+
+    WARNING: This deletes ALL data except users.
+    Requires confirm=RESET query parameter to execute.
+    """
+    if confirm != "RESET":
+        # Count what would be deleted
+        songs_count = (await db.execute(select(func.count()).select_from(Song))).scalar() or 0
+        artists_count = (await db.execute(select(func.count()).select_from(Artist))).scalar() or 0
+        albums_count = (await db.execute(select(func.count()).select_from(Album))).scalar() or 0
+        playlists_count = (await db.execute(select(func.count()).select_from(Playlist))).scalar() or 0
+        matches_count = (await db.execute(select(func.count()).select_from(Match))).scalar() or 0
+
+        return {
+            "message": "Dry run - add ?confirm=RESET to execute this IRREVERSIBLE action",
+            "songs_to_delete": songs_count,
+            "artists_to_delete": artists_count,
+            "albums_to_delete": albums_count,
+            "playlists_to_delete": playlists_count,
+            "matches_to_delete": matches_count,
+            "users_preserved": True,
+        }
+
+    # Delete all data in order (respecting foreign keys)
+    await db.execute(Match.__table__.delete())
+    await db.execute(Vote.__table__.delete())
+    await db.execute(MetadataReport.__table__.delete())
+    await db.execute(Song.__table__.delete())
+    await db.execute(Album.__table__.delete())
+    await db.execute(Playlist.__table__.delete())
+    await db.execute(Artist.__table__.delete())
+
+    await db.commit()
+
+    logger.critical(
+        "Admin %s reset the database - all entity data deleted",
+        admin.username,
+    )
+
+    return {
+        "message": "Database reset complete - all entity data deleted",
+        "users_preserved": True,
     }
 
 

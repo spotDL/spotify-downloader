@@ -84,45 +84,41 @@ function AdminMatchesPage() {
       </div>
 
       {/* Filters */}
-      <Card variant="bordered">
-        <CardContent className="py-4">
-          <div className="flex flex-wrap gap-4">
-            <Select
-              options={[
-                { value: "", label: "All Status" },
-                { value: "pending", label: "Pending" },
-                { value: "verified", label: "Verified" },
-                { value: "rejected", label: "Rejected" },
-              ]}
-              value={filters.status || ""}
-              onChange={(e) =>
-                setFilters((prev) => ({
-                  ...prev,
-                  status: (e.target.value as MatchStatus) || undefined,
-                  page: 1,
-                }))
-              }
-              className="w-40"
-            />
-            <Select
-              options={[
-                { value: "", label: "All Types" },
-                { value: "system", label: "System" },
-                { value: "user", label: "User Submitted" },
-              ]}
-              value={filters.match_type || ""}
-              onChange={(e) =>
-                setFilters((prev) => ({
-                  ...prev,
-                  match_type: (e.target.value as "system" | "user") || undefined,
-                  page: 1,
-                }))
-              }
-              className="w-40"
-            />
-          </div>
-        </CardContent>
-      </Card>
+      <div className="flex items-center gap-3 flex-wrap">
+        <Select
+          options={[
+            { value: "", label: "All Status" },
+            { value: "pending", label: "Pending" },
+            { value: "verified", label: "Verified" },
+            { value: "rejected", label: "Rejected" },
+          ]}
+          value={filters.status || ""}
+          onChange={(e) =>
+            setFilters((prev) => ({
+              ...prev,
+              status: (e.target.value as MatchStatus) || undefined,
+              page: 1,
+            }))
+          }
+          className="w-36"
+        />
+        <Select
+          options={[
+            { value: "", label: "All Types" },
+            { value: "system", label: "System" },
+            { value: "user", label: "User Submitted" },
+          ]}
+          value={filters.match_type || ""}
+          onChange={(e) =>
+            setFilters((prev) => ({
+              ...prev,
+              match_type: (e.target.value as "system" | "user") || undefined,
+              page: 1,
+            }))
+          }
+          className="w-40"
+        />
+      </div>
 
       {/* Loading */}
       {isLoading && (

@@ -393,3 +393,68 @@ async def logout(
         Success message
     """
     return MessageResponse(message="Successfully logged out")
+
+
+class ChangePasswordRequest(BaseModel):
+    """Request model for changing password."""
+
+    current_password: str = Field(..., min_length=1)
+    new_password: str = Field(..., min_length=6, max_length=100)
+
+
+@router.put("/password", response_model=MessageResponse)
+async def change_password(
+    request: ChangePasswordRequest,
+    user: Annotated[User, Depends(get_current_user)],
+    db: Annotated[AsyncSession, Depends(get_db_session)],
+) -> MessageResponse:
+    """
+    Change the current user's password.
+
+    Args:
+        request: Current and new password
+        user: Current authenticated user
+        db: Database session
+
+    Returns:
+        Success message
+
+    Raises:
+        HTTPException: If current password is incorrect
+    """
+    # Verify current password
+    if not verify_password(request.current_password, user.hashed_password):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Current password is incorrect",
+        )
+
+    # Update password
+    user.hashed_password = get_password_hash(request.new_password)
+    await db.commit()
+
+    return MessageResponse(message="Password changed successfully")
+
+
+@router.delete("/me", response_model=MessageResponse)
+async def delete_account(
+    user: Annotated[User, Depends(get_current_user)],
+    db: Annotated[AsyncSession, Depends(get_db_session)],
+) -> MessageResponse:
+    """
+    Delete the current user's account.
+
+    This permanently deletes the user account and associated data.
+
+    Args:
+        user: Current authenticated user
+        db: Database session
+
+    Returns:
+        Success message
+    """
+    user_repo = UserRepository(db)
+    await user_repo.delete(user.id)
+    await db.commit()
+
+    return MessageResponse(message="Account deleted successfully")

@@ -59,7 +59,7 @@ export async function createReport(
   request: CreateMetadataReportRequest
 ): Promise<ReportResponse> {
   const response = await apiClient.post<ReportResponse>(
-    "/api/v1/reports",
+    "/reports",
     request
   );
   return response.data;
@@ -76,7 +76,7 @@ export async function getMyReports(
   const params: Record<string, string | number> = { page, page_size: pageSize };
   if (status) params.status = status;
 
-  const response = await apiClient.get<ReportListResponse>("/api/v1/reports/me", {
+  const response = await apiClient.get<ReportListResponse>("/reports/me", {
     params,
   });
   return response.data;
@@ -95,7 +95,7 @@ export async function listReports(
   if (status) params.status = status;
   if (entityType) params.entity_type = entityType;
 
-  const response = await apiClient.get<ReportListResponse>("/api/v1/reports", {
+  const response = await apiClient.get<ReportListResponse>("/reports", {
     params,
   });
   return response.data;
@@ -106,7 +106,7 @@ export async function listReports(
  */
 export async function getReport(reportId: string): Promise<ReportResponse> {
   const response = await apiClient.get<ReportResponse>(
-    `/api/v1/reports/${reportId}`
+    `/reports/${reportId}`
   );
   return response.data;
 }
@@ -119,7 +119,7 @@ export async function updateReport(
   request: UpdateReportRequest
 ): Promise<ReportResponse> {
   const response = await apiClient.patch<ReportResponse>(
-    `/api/v1/reports/${reportId}`,
+    `/reports/${reportId}`,
     request
   );
   return response.data;
@@ -132,7 +132,7 @@ export async function deleteReport(
   reportId: string
 ): Promise<{ message: string; id: string }> {
   const response = await apiClient.delete<{ message: string; id: string }>(
-    `/api/v1/reports/${reportId}`
+    `/reports/${reportId}`
   );
   return response.data;
 }

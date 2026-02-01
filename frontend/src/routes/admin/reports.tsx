@@ -109,48 +109,44 @@ function AdminReportsPage() {
       </div>
 
       {/* Filters */}
-      <Card variant="bordered">
-        <CardContent className="py-4">
-          <div className="flex flex-wrap gap-4">
-            <Select
-              options={[
-                { value: "", label: "All Status" },
-                { value: "pending", label: "Pending" },
-                { value: "reviewed", label: "Reviewed" },
-                { value: "fixed", label: "Fixed" },
-                { value: "dismissed", label: "Dismissed" },
-              ]}
-              value={filters.status || ""}
-              onChange={(e) =>
-                setFilters((prev) => ({
-                  ...prev,
-                  status: (e.target.value as MetadataReportStatus) || undefined,
-                  page: 1,
-                }))
-              }
-              className="w-40"
-            />
-            <Select
-              options={[
-                { value: "", label: "All Types" },
-                { value: "song", label: "Songs" },
-                { value: "artist", label: "Artists" },
-                { value: "album", label: "Albums" },
-                { value: "playlist", label: "Playlists" },
-              ]}
-              value={filters.entity_type || ""}
-              onChange={(e) =>
-                setFilters((prev) => ({
-                  ...prev,
-                  entity_type: (e.target.value as MetadataReportEntityType) || undefined,
-                  page: 1,
-                }))
-              }
-              className="w-40"
-            />
-          </div>
-        </CardContent>
-      </Card>
+      <div className="flex items-center gap-3 flex-wrap">
+        <Select
+          options={[
+            { value: "", label: "All Status" },
+            { value: "pending", label: "Pending" },
+            { value: "reviewed", label: "Reviewed" },
+            { value: "fixed", label: "Fixed" },
+            { value: "dismissed", label: "Dismissed" },
+          ]}
+          value={filters.status || ""}
+          onChange={(e) =>
+            setFilters((prev) => ({
+              ...prev,
+              status: (e.target.value as MetadataReportStatus) || undefined,
+              page: 1,
+            }))
+          }
+          className="w-36"
+        />
+        <Select
+          options={[
+            { value: "", label: "All Types" },
+            { value: "song", label: "Songs" },
+            { value: "artist", label: "Artists" },
+            { value: "album", label: "Albums" },
+            { value: "playlist", label: "Playlists" },
+          ]}
+          value={filters.entity_type || ""}
+          onChange={(e) =>
+            setFilters((prev) => ({
+              ...prev,
+              entity_type: (e.target.value as MetadataReportEntityType) || undefined,
+              page: 1,
+            }))
+          }
+          className="w-36"
+        />
+      </div>
 
       {/* Loading */}
       {isLoading && (

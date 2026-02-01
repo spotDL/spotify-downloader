@@ -97,68 +97,64 @@ function AdminUsersPage() {
       </div>
 
       {/* Filters */}
-      <Card variant="bordered">
-        <CardContent className="py-4">
-          <form onSubmit={handleSearch} className="flex flex-wrap gap-4">
-            <div className="flex-1 min-w-[200px]">
-              <Input
-                type="text"
-                placeholder="Search by username or email..."
-                value={searchInput}
-                onChange={(e) => setSearchInput(e.target.value)}
-              />
-            </div>
-            <Select
-              options={[
-                { value: "", label: "All Users" },
-                { value: "true", label: "Admins Only" },
-                { value: "false", label: "Non-Admins" },
-              ]}
-              value={filters.is_admin?.toString() || ""}
-              onChange={(e) =>
-                setFilters((prev) => ({
-                  ...prev,
-                  is_admin: e.target.value ? e.target.value === "true" : undefined,
-                  page: 1,
-                }))
-              }
-              className="w-36"
-            />
-            <Select
-              options={[
-                { value: "", label: "All Status" },
-                { value: "true", label: "Active" },
-                { value: "false", label: "Inactive" },
-              ]}
-              value={filters.is_active?.toString() || ""}
-              onChange={(e) =>
-                setFilters((prev) => ({
-                  ...prev,
-                  is_active: e.target.value ? e.target.value === "true" : undefined,
-                  page: 1,
-                }))
-              }
-              className="w-36"
-            />
-            <Select
-              options={[
-                { value: "created_at", label: "Join Date" },
-                { value: "username", label: "Username" },
-                { value: "reputation_score", label: "Reputation" },
-              ]}
-              value={filters.sort_by || "created_at"}
-              onChange={(e) =>
-                setFilters((prev) => ({
-                  ...prev,
-                  sort_by: e.target.value as any,
-                }))
-              }
-              className="w-36"
-            />
-            <Button type="submit">Search</Button>
-          </form>
-        </CardContent>
-      </Card>
+      <form onSubmit={handleSearch} className="flex items-center gap-3 flex-wrap">
+        <div className="flex-1 min-w-[200px] max-w-sm">
+          <Input
+            type="text"
+            placeholder="Search by username or email..."
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+          />
+        </div>
+        <Select
+          options={[
+            { value: "", label: "All Users" },
+            { value: "true", label: "Admins Only" },
+            { value: "false", label: "Non-Admins" },
+          ]}
+          value={filters.is_admin?.toString() || ""}
+          onChange={(e) =>
+            setFilters((prev) => ({
+              ...prev,
+              is_admin: e.target.value ? e.target.value === "true" : undefined,
+              page: 1,
+            }))
+          }
+          className="w-32"
+        />
+        <Select
+          options={[
+            { value: "", label: "All Status" },
+            { value: "true", label: "Active" },
+            { value: "false", label: "Inactive" },
+          ]}
+          value={filters.is_active?.toString() || ""}
+          onChange={(e) =>
+            setFilters((prev) => ({
+              ...prev,
+              is_active: e.target.value ? e.target.value === "true" : undefined,
+              page: 1,
+            }))
+          }
+          className="w-32"
+        />
+        <Select
+          options={[
+            { value: "created_at", label: "Join Date" },
+            { value: "username", label: "Username" },
+            { value: "reputation_score", label: "Reputation" },
+          ]}
+          value={filters.sort_by || "created_at"}
+          onChange={(e) =>
+            setFilters((prev) => ({
+              ...prev,
+              sort_by: e.target.value as any,
+            }))
+          }
+          className="w-32"
+        />
+        <Button type="submit" size="sm">Search</Button>
+      </form>
 
       {/* Loading */}
       {isLoading && (

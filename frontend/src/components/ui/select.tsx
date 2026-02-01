@@ -20,8 +20,12 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
   ({ className, options, label, error, placeholder, id, ...props }, ref) => {
     const selectId = id || label?.toLowerCase().replace(/\s+/g, "-");
 
+    // Extract width classes from className to apply to container
+    const widthMatch = className?.match(/w-\S+/);
+    const widthClass = widthMatch ? widthMatch[0] : "w-full";
+
     return (
-      <div className="w-full">
+      <div className={widthClass}>
         {label && (
           <label
             htmlFor={selectId}
