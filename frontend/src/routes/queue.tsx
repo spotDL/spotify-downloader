@@ -10,7 +10,6 @@ import {
   Card,
   CardContent,
   Badge,
-  Select,
 } from "@/components/ui";
 import { CoverArt } from "@/components/ui/cover-art";
 import { useDevConfig } from "@/contexts/DevConfigContext";
@@ -91,90 +90,113 @@ function QueueItemRow({
 }) {
   const isActive = ["searching", "downloading", "processing", "converting", "embedding"].includes(item.status);
   const isFailed = item.status === "failed";
+  const isCompleted = item.status === "completed";
 
   return (
-    <div className={`group flex items-center gap-4 p-4 rounded-xl transition-colors ${
-      isActive ? "bg-zinc-800/50" : "hover:bg-zinc-800/30"
+    <div className={`group relative rounded-xl border transition-all ${
+      isActive
+        ? "bg-zinc-800/60 border-accent-needle/30"
+        : isFailed
+          ? "bg-red-950/20 border-red-500/20 hover:border-red-500/30"
+          : isCompleted
+            ? "bg-emerald-950/10 border-emerald-500/20 hover:border-emerald-500/30"
+            : "bg-zinc-900/50 border-zinc-800 hover:border-zinc-700"
     }`}>
-      {/* Cover Art */}
-      <CoverArt
-        src={item.song.cover_url ?? null}
-        alt={item.song.name}
-        size="md"
-        fallbackIcon="track"
-      />
+      <div className="flex items-start gap-4 p-4">
+        {/* Cover Art */}
+        <CoverArt
+          src={item.song.cover_url ?? null}
+          alt={item.song.name}
+          size="md"
+          fallbackIcon="track"
+          className="shrink-0"
+        />
 
-      {/* Info */}
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2 mb-1">
-          <Link
-            to="/song/$id"
-            params={{ id: item.song.platform_id }}
-            className="font-medium text-zinc-100 hover:text-accent-needle transition-colors truncate"
-          >
-            {item.song.name}
-          </Link>
-          <StatusBadge status={item.status} />
-        </div>
-
-        <p className="text-sm text-zinc-400 truncate mb-2">
-          {item.song.artist}
-        </p>
-
-        {/* Progress bar for active downloads */}
-        {isActive && (
-          <div className="flex items-center gap-3">
-            <div className="flex-1">
-              <ProgressBar progress={item.progress} status={item.status} />
+        {/* Main Content */}
+        <div className="flex-1 min-w-0 space-y-2">
+          {/* Title Row */}
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-2 flex-wrap">
+                <Link
+                  to="/song/$id"
+                  params={{ id: item.song.platform_id }}
+                  className="font-medium text-zinc-100 hover:text-accent-needle transition-colors truncate"
+                >
+                  {item.song.name}
+                </Link>
+                <StatusBadge status={item.status} />
+              </div>
+              <p className="text-sm text-zinc-400 truncate mt-0.5">
+                {item.song.artist}
+              </p>
             </div>
-            <span className="text-xs text-zinc-500 font-mono w-12 text-right">
-              {item.progress}%
-            </span>
-            {item.speed && (
-              <span className="text-xs text-zinc-500">{item.speed}</span>
-            )}
+
+            {/* Actions - visible on hover */}
+            <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+              {isFailed && (
+                <button
+                  onClick={onRetry}
+                  className="p-2 rounded-lg hover:bg-zinc-700 text-zinc-400 hover:text-zinc-200 transition-colors"
+                  title="Retry"
+                >
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                </button>
+              )}
+              <button
+                onClick={onRemove}
+                className="p-2 rounded-lg hover:bg-zinc-700 text-zinc-400 hover:text-red-400 transition-colors"
+                title="Remove"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
           </div>
-        )}
 
-        {/* Error message */}
-        {isFailed && item.error && (
-          <p className="text-xs text-red-400 mt-1">{item.error}</p>
-        )}
-      </div>
+          {/* Platform Info */}
+          <div className="flex items-center gap-2 text-xs">
+            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-zinc-800/80 text-zinc-400">
+              <span className="uppercase tracking-wide">{item.song.platform}</span>
+              {item.match && (
+                <>
+                  <svg className="w-3 h-3 text-zinc-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                  </svg>
+                  <span className="uppercase tracking-wide">{item.match.target_platform}</span>
+                </>
+              )}
+            </span>
+          </div>
 
-      {/* Platform info */}
-      <div className="hidden sm:flex items-center gap-2 text-xs text-zinc-500">
-        <span className="uppercase">{item.song.platform}</span>
-        {item.match && (
-          <>
-            <span>→</span>
-            <span className="uppercase">{item.match.target_platform}</span>
-          </>
-        )}
-      </div>
+          {/* Progress bar for active downloads */}
+          {isActive && (
+            <div className="flex items-center gap-3 pt-1">
+              <div className="flex-1">
+                <ProgressBar progress={item.progress} status={item.status} />
+              </div>
+              <span className="text-xs text-zinc-500 font-mono w-12 text-right">
+                {item.progress}%
+              </span>
+              {item.speed && (
+                <span className="text-xs text-zinc-500">{item.speed}</span>
+              )}
+            </div>
+          )}
 
-      {/* Actions */}
-      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-        {isFailed && (
-          <button
-            onClick={onRetry}
-            className="p-2 rounded-lg hover:bg-zinc-700 text-zinc-400 hover:text-zinc-200 transition-colors"
-            title="Retry"
-          >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-            </svg>
-          </button>
-        )}
-        <button
-          onClick={onRemove}
-          className="p-2 rounded-lg hover:bg-zinc-700 text-zinc-400 hover:text-red-400 transition-colors"
-          title="Remove"
-        >
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
+          {/* Error message */}
+          {isFailed && item.error && (
+            <div className="flex items-start gap-2 p-2.5 rounded-lg bg-red-950/30 border border-red-500/20">
+              <svg className="w-4 h-4 text-red-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <p className="text-xs text-red-300 leading-relaxed">{item.error}</p>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -191,8 +213,6 @@ function QueuePage() {
     clearCompleted,
     clearAll,
     retryFailed,
-    maxConcurrent,
-    setMaxConcurrent,
   } = useQueueStore();
 
   const { features } = useDevConfig();
@@ -246,26 +266,6 @@ function QueuePage() {
           </p>
         </div>
 
-        {stats.total > 0 && (
-          <div className="flex items-center gap-4">
-            {/* Concurrent downloads */}
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-zinc-400">Threads</span>
-              <Select
-                options={[
-                  { value: "1", label: "1" },
-                  { value: "2", label: "2" },
-                  { value: "3", label: "3" },
-                  { value: "4", label: "4" },
-                  { value: "5", label: "5" },
-                ]}
-                value={String(maxConcurrent)}
-                onChange={(e) => setMaxConcurrent(Number(e.target.value))}
-                className="w-16"
-              />
-            </div>
-          </div>
-        )}
       </div>
 
       {/* Stats Bar */}
@@ -330,7 +330,7 @@ function QueuePage() {
 
       {/* Queue List */}
       {filteredItems.length > 0 ? (
-        <div className="space-y-2">
+        <div className="space-y-3">
           {filteredItems.map((item) => (
             <QueueItemRow
               key={item.id}

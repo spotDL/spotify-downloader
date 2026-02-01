@@ -240,3 +240,106 @@ export function useClearCache() {
     },
   });
 }
+
+// ====== Export Functions ======
+
+export interface MatchExportResponse {
+  exported_at: string;
+  count: number;
+  filter_status: string;
+  matches: Array<{
+    id: string;
+    source_url: string;
+    source_platform: string;
+    target_url: string;
+    target_platform: string;
+    score: number | null;
+    match_type: string;
+    status: string;
+    upvotes: number;
+    downvotes: number;
+    net_votes: number;
+    created_at: string;
+  }>;
+}
+
+export interface UserExportResponse {
+  exported_at: string;
+  count: number;
+  users: Array<{
+    id: string;
+    username: string;
+    is_admin: boolean;
+    is_active: boolean;
+    reputation_score: number;
+    matches_submitted: number;
+    votes_cast: number;
+    reports_submitted: number;
+    created_at: string;
+  }>;
+}
+
+export interface StatisticsExportResponse {
+  exported_at: string;
+  entities: {
+    songs: number;
+    artists: number;
+    albums: number;
+    playlists: number;
+    matches: number;
+    users: number;
+  };
+  growth: {
+    songs_today: number;
+    songs_this_week: number;
+    matches_today: number;
+    matches_this_week: number;
+    new_users_today: number;
+    new_users_this_week: number;
+  };
+  uptime_seconds: number;
+  matches_by_status: Record<string, number>;
+  users_by_reputation_tier: Record<string, number>;
+}
+
+export async function exportMatches(
+  status?: MatchStatus
+): Promise<MatchExportResponse> {
+  const response = await apiClient.get<MatchExportResponse>(
+    "/admin/export/matches",
+    {
+      params: status ? { status } : undefined,
+    }
+  );
+  return response.data;
+}
+
+export async function exportUsers(): Promise<UserExportResponse> {
+  const response = await apiClient.get<UserExportResponse>("/admin/export/users");
+  return response.data;
+}
+
+export async function exportStatistics(): Promise<StatisticsExportResponse> {
+  const response = await apiClient.get<StatisticsExportResponse>(
+    "/admin/export/statistics"
+  );
+  return response.data;
+}
+
+export function useExportMatches() {
+  return useMutation({
+    mutationFn: (status?: MatchStatus) => exportMatches(status),
+  });
+}
+
+export function useExportUsers() {
+  return useMutation({
+    mutationFn: exportUsers,
+  });
+}
+
+export function useExportStatistics() {
+  return useMutation({
+    mutationFn: exportStatistics,
+  });
+}

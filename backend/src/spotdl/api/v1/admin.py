@@ -3,7 +3,8 @@
 from __future__ import annotations
 
 import logging
-from datetime import datetime, timezone
+import time
+from datetime import datetime, timezone, timedelta
 from enum import StrEnum
 from typing import Annotated
 from uuid import UUID
@@ -28,6 +29,9 @@ from spotdl.db.models.playlist import Playlist
 from spotdl.db.repositories.user import UserRepository
 
 logger = logging.getLogger(__name__)
+
+# Track server start time for uptime calculation
+_server_start_time = time.time()
 
 router = APIRouter(prefix="/admin")
 
@@ -79,7 +83,7 @@ class AdminMatchResponse(BaseModel):
     source_platform: str
     target_url: str
     target_platform: str
-    match_score: float | None
+    score: float | None  # Renamed from match_score to match frontend expectations
     match_type: str
     status: str
     upvotes: int
@@ -494,7 +498,7 @@ async def list_matches(
                 source_platform=match.source_platform,
                 target_url=match.target_url,
                 target_platform=match.target_platform,
-                match_score=float(match.match_score) if match.match_score else None,
+                score=float(match.match_score) if match.match_score else None,
                 match_type=match.match_type,
                 status=getattr(match, "status", "pending"),
                 upvotes=match.upvotes,
@@ -587,13 +591,16 @@ async def update_match_status(
         request.status.value,
     )
 
+    # Refresh to get updated relationships
+    await db.refresh(match, ["verified_by_user"])
+
     return AdminMatchResponse(
         id=str(match.id),
         source_url=match.source_url,
         source_platform=match.source_platform,
         target_url=match.target_url,
         target_platform=match.target_platform,
-        match_score=float(match.match_score) if match.match_score else None,
+        score=float(match.match_score) if match.match_score else None,
         match_type=match.match_type,
         status=match.status,
         upvotes=match.upvotes,
@@ -604,7 +611,9 @@ async def update_match_status(
             match.submitted_by_user.username if match.submitted_by_user else None
         ),
         verified_by=str(match.verified_by) if match.verified_by else None,
-        verified_by_username=admin.username if request.status == MatchStatus.VERIFIED else None,
+        verified_by_username=(
+            match.verified_by_user.username if match.verified_by_user else None
+        ),
         created_at=match.created_at,
     )
 
@@ -673,12 +682,16 @@ async def get_system_stats(
         )
     ).scalar() or 0
 
-    # Cache stats (placeholder - would integrate with actual cache system)
+    # Cache stats - returns 0 when no cache system is configured
+    # In production, this would integrate with Redis or similar
     cache_stats = CacheStatsResponse(
-        hit_rate=0.85,  # Placeholder
-        size_mb=128.5,  # Placeholder
-        entries=10000,  # Placeholder
+        hit_rate=0.0,
+        size_mb=0.0,
+        entries=0,
     )
+
+    # Calculate actual uptime
+    uptime = int(time.time() - _server_start_time)
 
     return SystemStatsResponse(
         entities=EntityCountsResponse(
@@ -698,7 +711,7 @@ async def get_system_stats(
             new_users_this_week=users_this_week,
         ),
         cache=cache_stats,
-        uptime_seconds=0,  # Would need to track server start time
+        uptime_seconds=uptime,
     )
 
 
@@ -715,15 +728,258 @@ async def clear_cache(
     Clear system caches (admin only).
 
     Cache types: 'all', 'search', 'entities', 'matches'
+
+    Note: Currently a no-op as no caching system is configured.
+    In production, this would clear Redis or in-memory caches.
     """
-    # In a real implementation, this would clear Redis or in-memory caches
     logger.info(
-        "Admin %s cleared cache: %s",
+        "Admin %s requested cache clear: %s (no cache system configured)",
         admin.username,
         request.cache_type,
     )
 
     return {
-        "message": f"Cache '{request.cache_type}' cleared successfully",
+        "message": f"Cache '{request.cache_type}' clear requested (no cache system configured)",
         "cache_type": request.cache_type,
     }
+
+
+# ====== Export Endpoints ======
+
+
+class MatchExportItem(BaseModel):
+    """Match data for export."""
+
+    id: str
+    source_url: str
+    source_platform: str
+    target_url: str
+    target_platform: str
+    score: float | None
+    match_type: str
+    status: str
+    upvotes: int
+    downvotes: int
+    net_votes: int
+    created_at: datetime
+
+
+class UserExportItem(BaseModel):
+    """Anonymized user data for export."""
+
+    id: str
+    username: str  # Kept for reference
+    is_admin: bool
+    is_active: bool
+    reputation_score: int
+    matches_submitted: int
+    votes_cast: int
+    reports_submitted: int
+    created_at: datetime
+
+
+class StatisticsExport(BaseModel):
+    """Complete statistics export."""
+
+    exported_at: datetime
+    entities: EntityCountsResponse
+    growth: GrowthStatsResponse
+    uptime_seconds: int
+    matches_by_status: dict[str, int]
+    users_by_reputation_tier: dict[str, int]
+
+
+@router.get("/export/matches")
+async def export_matches(
+    status_filter: Annotated[MatchStatus | None, Query(alias="status")] = None,
+    admin: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_db_session),
+) -> dict:
+    """
+    Export all matches as JSON (admin only).
+
+    Returns all verified matches by default, or filter by status.
+    """
+    query = select(Match)
+
+    if status_filter:
+        query = query.where(Match.status == status_filter.value)
+    else:
+        # Default to verified matches only
+        query = query.where(Match.status == MatchStatus.VERIFIED.value)
+
+    query = query.order_by(Match.created_at.desc())
+
+    result = await db.execute(query)
+    matches = result.scalars().all()
+
+    export_items = [
+        MatchExportItem(
+            id=str(m.id),
+            source_url=m.source_url,
+            source_platform=m.source_platform,
+            target_url=m.target_url,
+            target_platform=m.target_platform,
+            score=float(m.match_score) if m.match_score else None,
+            match_type=m.match_type,
+            status=m.status,
+            upvotes=m.upvotes,
+            downvotes=m.downvotes,
+            net_votes=m.net_votes,
+            created_at=m.created_at,
+        ).model_dump()
+        for m in matches
+    ]
+
+    logger.info(
+        "Admin %s exported %d matches (status=%s)",
+        admin.username,
+        len(export_items),
+        status_filter or "verified",
+    )
+
+    return {
+        "exported_at": datetime.now(timezone.utc).isoformat(),
+        "count": len(export_items),
+        "filter_status": status_filter.value if status_filter else "verified",
+        "matches": export_items,
+    }
+
+
+@router.get("/export/users")
+async def export_users(
+    admin: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_db_session),
+) -> dict:
+    """
+    Export user data (admin only).
+
+    Exports user statistics without sensitive information (email, password).
+    """
+    result = await db.execute(select(User).order_by(User.created_at.desc()))
+    users = result.scalars().all()
+
+    export_items = []
+    for user in users:
+        # Count matches submitted
+        matches_count = (
+            await db.execute(
+                select(func.count()).where(Match.submitted_by == user.id)
+            )
+        ).scalar() or 0
+
+        # Count votes
+        votes_count = (
+            await db.execute(
+                select(func.count()).where(Vote.user_id == user.id)
+            )
+        ).scalar() or 0
+
+        # Count reports
+        reports_count = (
+            await db.execute(
+                select(func.count()).where(MetadataReport.reporter_id == user.id)
+            )
+        ).scalar() or 0
+
+        export_items.append(
+            UserExportItem(
+                id=str(user.id),
+                username=user.username,
+                is_admin=user.is_admin,
+                is_active=user.is_active,
+                reputation_score=user.reputation_score,
+                matches_submitted=matches_count,
+                votes_cast=votes_count,
+                reports_submitted=reports_count,
+                created_at=user.created_at,
+            ).model_dump()
+        )
+
+    logger.info("Admin %s exported %d users", admin.username, len(export_items))
+
+    return {
+        "exported_at": datetime.now(timezone.utc).isoformat(),
+        "count": len(export_items),
+        "users": export_items,
+    }
+
+
+@router.get("/export/statistics")
+async def export_statistics(
+    admin: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_db_session),
+) -> dict:
+    """
+    Export complete statistics (admin only).
+
+    Includes entity counts, growth metrics, and aggregated statistics.
+    """
+    now = datetime.now(timezone.utc)
+    today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    week_start = today_start - timedelta(days=today_start.weekday())
+
+    # Entity counts
+    songs_count = (await db.execute(select(func.count()).select_from(Song))).scalar() or 0
+    artists_count = (await db.execute(select(func.count()).select_from(Artist))).scalar() or 0
+    albums_count = (await db.execute(select(func.count()).select_from(Album))).scalar() or 0
+    playlists_count = (await db.execute(select(func.count()).select_from(Playlist))).scalar() or 0
+    matches_count = (await db.execute(select(func.count()).select_from(Match))).scalar() or 0
+    users_count = (await db.execute(select(func.count()).select_from(User))).scalar() or 0
+
+    # Growth stats
+    songs_today = (await db.execute(select(func.count()).where(Song.created_at >= today_start))).scalar() or 0
+    songs_this_week = (await db.execute(select(func.count()).where(Song.created_at >= week_start))).scalar() or 0
+    matches_today = (await db.execute(select(func.count()).where(Match.created_at >= today_start))).scalar() or 0
+    matches_this_week = (await db.execute(select(func.count()).where(Match.created_at >= week_start))).scalar() or 0
+    users_today = (await db.execute(select(func.count()).where(User.created_at >= today_start))).scalar() or 0
+    users_this_week = (await db.execute(select(func.count()).where(User.created_at >= week_start))).scalar() or 0
+
+    # Matches by status
+    pending_count = (await db.execute(select(func.count()).where(Match.status == "pending"))).scalar() or 0
+    verified_count = (await db.execute(select(func.count()).where(Match.status == "verified"))).scalar() or 0
+    rejected_count = (await db.execute(select(func.count()).where(Match.status == "rejected"))).scalar() or 0
+
+    # Users by reputation tier
+    tier_low = (await db.execute(select(func.count()).where(User.reputation_score < 100))).scalar() or 0
+    tier_medium = (await db.execute(select(func.count()).where(User.reputation_score.between(100, 499)))).scalar() or 0
+    tier_high = (await db.execute(select(func.count()).where(User.reputation_score.between(500, 999)))).scalar() or 0
+    tier_elite = (await db.execute(select(func.count()).where(User.reputation_score >= 1000))).scalar() or 0
+
+    uptime = int(time.time() - _server_start_time)
+
+    export = StatisticsExport(
+        exported_at=now,
+        entities=EntityCountsResponse(
+            songs=songs_count,
+            artists=artists_count,
+            albums=albums_count,
+            playlists=playlists_count,
+            matches=matches_count,
+            users=users_count,
+        ),
+        growth=GrowthStatsResponse(
+            songs_today=songs_today,
+            songs_this_week=songs_this_week,
+            matches_today=matches_today,
+            matches_this_week=matches_this_week,
+            new_users_today=users_today,
+            new_users_this_week=users_this_week,
+        ),
+        uptime_seconds=uptime,
+        matches_by_status={
+            "pending": pending_count,
+            "verified": verified_count,
+            "rejected": rejected_count,
+        },
+        users_by_reputation_tier={
+            "novice (0-99)": tier_low,
+            "contributor (100-499)": tier_medium,
+            "trusted (500-999)": tier_high,
+            "elite (1000+)": tier_elite,
+        },
+    )
+
+    logger.info("Admin %s exported statistics", admin.username)
+
+    return export.model_dump()

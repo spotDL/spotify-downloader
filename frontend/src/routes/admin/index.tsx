@@ -257,35 +257,37 @@ function AdminDashboard() {
           </CardContent>
         </Card>
 
-        {/* Cache Stats */}
+        {/* System Status */}
         <Card variant="bordered">
           <CardHeader className="border-b border-zinc-800/50">
             <CardTitle className="flex items-center gap-2">
               <svg className="w-5 h-5 text-accent-cool" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              Cache Status
+              System Status
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <span className="text-zinc-400">Hit Rate</span>
-                <Badge variant={stats?.cache.hit_rate && stats.cache.hit_rate > 0.8 ? "success" : "warning"}>
-                  {((stats?.cache.hit_rate || 0) * 100).toFixed(1)}%
-                </Badge>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-zinc-400">Cache Size</span>
+                <span className="text-zinc-400">Uptime</span>
                 <span className="font-mono text-zinc-200">
-                  {stats?.cache.size_mb?.toFixed(1) || 0} MB
+                  {stats?.uptime_seconds
+                    ? `${Math.floor((stats.uptime_seconds || 0) / 3600)}h ${Math.floor(((stats.uptime_seconds || 0) % 3600) / 60)}m`
+                    : "0h 0m"}
                 </span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-zinc-400">Entries</span>
-                <span className="font-mono text-zinc-200">
-                  {formatNumber(stats?.cache.entries || 0)}
-                </span>
+                <span className="text-zinc-400">Cache</span>
+                {stats?.cache.entries === 0 ? (
+                  <Badge variant="muted">Not Configured</Badge>
+                ) : (
+                  <Badge variant="success">Active</Badge>
+                )}
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-zinc-400">API Status</span>
+                <Badge variant="success">Online</Badge>
               </div>
             </div>
           </CardContent>

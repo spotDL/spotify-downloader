@@ -1,5 +1,5 @@
 // API Client
-export { apiClient } from "./client";
+export { apiClient, getErrorMessage } from "./client";
 
 // Auth
 export {
@@ -175,6 +175,9 @@ export {
   updateMatchStatus,
   getSystemStats,
   clearCache,
+  exportMatches,
+  exportUsers,
+  exportStatistics,
   useAdminUsers,
   useAdminUser,
   useUpdateAdminUser,
@@ -182,11 +185,17 @@ export {
   useUpdateMatchStatus,
   useSystemStats,
   useClearCache,
+  useExportMatches,
+  useExportUsers,
+  useExportStatistics,
   adminKeys,
   type MatchStatus,
   type UpdateUserRequest,
   type UpdateMatchStatusRequest,
   type ClearCacheRequest,
+  type MatchExportResponse,
+  type UserExportResponse,
+  type StatisticsExportResponse,
 } from "./admin";
 
 // Providers

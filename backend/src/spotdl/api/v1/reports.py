@@ -11,6 +11,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel, Field
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from spotdl.api.v1.auth import get_current_user
 from spotdl.core.reputation import ReputationReward
@@ -52,7 +53,9 @@ class ReportResponse(BaseModel):
     description: str | None
     status: str
     reporter_id: str
+    reporter_username: str | None
     reviewer_id: str | None
+    reviewed_by_username: str | None
     reviewed_at: datetime | None
     created_at: datetime
     updated_at: datetime
@@ -179,8 +182,11 @@ async def list_reports(
     if not current_user.is_admin:
         raise HTTPException(status_code=403, detail="Admin access required")
 
-    # Build query
-    query = select(MetadataReport)
+    # Build query with eager loading for usernames
+    query = select(MetadataReport).options(
+        selectinload(MetadataReport.reporter),
+        selectinload(MetadataReport.reviewer),
+    )
 
     if status:
         query = query.where(MetadataReport.status == status.value)
@@ -188,7 +194,12 @@ async def list_reports(
         query = query.where(MetadataReport.entity_type == entity_type.value)
 
     # Count total
-    count_query = select(func.count()).select_from(query.subquery())
+    count_query = select(func.count()).select_from(
+        select(MetadataReport).where(
+            (MetadataReport.status == status.value if status else True)
+            & (MetadataReport.entity_type == entity_type.value if entity_type else True)
+        ).subquery()
+    )
     total = (await db.execute(count_query)).scalar() or 0
 
     # Get page
@@ -343,6 +354,15 @@ async def delete_report(
 
 def _report_to_response(report: MetadataReport) -> ReportResponse:
     """Convert a MetadataReport model to ReportResponse."""
+    # Get usernames from relationships if loaded
+    reporter_username = None
+    reviewed_by_username = None
+
+    if hasattr(report, "reporter") and report.reporter:
+        reporter_username = report.reporter.username
+    if hasattr(report, "reviewer") and report.reviewer:
+        reviewed_by_username = report.reviewer.username
+
     return ReportResponse(
         id=str(report.id),
         entity_type=report.entity_type,
@@ -353,7 +373,9 @@ def _report_to_response(report: MetadataReport) -> ReportResponse:
         description=report.description,
         status=report.status,
         reporter_id=str(report.reporter_id),
+        reporter_username=reporter_username,
         reviewer_id=str(report.reviewed_by) if report.reviewed_by else None,
+        reviewed_by_username=reviewed_by_username,
         reviewed_at=report.reviewed_at,
         created_at=report.created_at,
         updated_at=report.updated_at,

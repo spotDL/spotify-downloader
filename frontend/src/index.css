@@ -31,13 +31,13 @@
   --accent-cool: var(--accent-secondary);
   --accent-warm: var(--accent-gold);
 
-  /* Surface colors - Dark theme */
-  --bg-void: #050506;           /* True black - deepest layer */
-  --bg-chassis: #0c0c0e;        /* Base background */
-  --bg-panel: #141416;          /* Panel surfaces */
-  --bg-elevated: #1a1a1d;       /* Elevated surfaces */
-  --bg-surface: #222225;        /* Cards, modals */
-  --bg-hover: #2a2a2e;          /* Hover states */
+  /* Surface colors - Dark theme with warmth */
+  --bg-void: #08080a;           /* True black - deepest layer */
+  --bg-chassis: #0f1012;        /* Base background - slightly warmer */
+  --bg-panel: #161819;          /* Panel surfaces */
+  --bg-elevated: #1c1e20;       /* Elevated surfaces */
+  --bg-surface: #242628;        /* Cards, modals */
+  --bg-hover: #2c2e32;          /* Hover states */
 
   /* Legacy color aliases for compatibility */
   --color-bg-base: var(--bg-chassis);
@@ -114,6 +114,10 @@ body {
   line-height: 1.6;
   color: var(--color-text-primary);
   background: var(--bg-chassis);
+  background-image:
+    radial-gradient(ellipse at 0% 0%, rgba(0, 208, 132, 0.03) 0%, transparent 50%),
+    radial-gradient(ellipse at 100% 100%, rgba(78, 205, 196, 0.02) 0%, transparent 50%);
+  background-attachment: fixed;
 }
 
 /* Subtle brushed aluminum grain texture overlay */
