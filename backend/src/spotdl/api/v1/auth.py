@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from datetime import datetime
 from typing import Annotated
 from uuid import UUID
 
@@ -65,6 +66,7 @@ class UserResponse(BaseModel):
     is_active: bool
     is_admin: bool
     reputation_score: int
+    created_at: datetime
 
     class Config:
         from_attributes = True

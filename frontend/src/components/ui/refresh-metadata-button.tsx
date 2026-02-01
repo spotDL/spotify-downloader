@@ -3,9 +3,6 @@ import { clsx } from "clsx";
 import { Button } from "./button";
 import { useAuthStore } from "@/stores/auth";
 
-// Cooldown duration in milliseconds (4 hours for regular users)
-const COOLDOWN_MS = 4 * 60 * 60 * 1000;
-
 interface RefreshMetadataButtonProps {
   /** Unique entity ID for tracking cooldown per entity */
   entityId: string;
@@ -26,18 +23,27 @@ function getCooldownKey(entityId: string): string {
 }
 
 /**
- * Get the remaining cooldown time in milliseconds
+ * Get the remaining cooldown end timestamp from localStorage
+ */
+function getCooldownEnd(entityId: string): number {
+  const key = getCooldownKey(entityId);
+  const cooldownEnd = localStorage.getItem(key);
+  if (!cooldownEnd) return 0;
+
+  const endTime = parseInt(cooldownEnd, 10);
+  if (isNaN(endTime)) return 0;
+
+  return endTime;
+}
+
+/**
+ * Get remaining cooldown time in milliseconds
  */
 function getRemainingCooldown(entityId: string): number {
-  const key = getCooldownKey(entityId);
-  const lastRefresh = localStorage.getItem(key);
-  if (!lastRefresh) return 0;
+  const endTime = getCooldownEnd(entityId);
+  if (!endTime) return 0;
 
-  const lastRefreshTime = parseInt(lastRefresh, 10);
-  if (isNaN(lastRefreshTime)) return 0;
-
-  const elapsed = Date.now() - lastRefreshTime;
-  const remaining = COOLDOWN_MS - elapsed;
+  const remaining = endTime - Date.now();
   return remaining > 0 ? remaining : 0;
 }
 
@@ -51,15 +57,73 @@ function formatRemainingTime(ms: number): string {
   if (hours > 0) {
     return `${hours}h ${minutes}m`;
   }
-  return `${minutes}m`;
+  if (minutes > 0) {
+    return `${minutes}m`;
+  }
+  return "< 1m";
 }
 
 /**
- * Record a refresh action for cooldown tracking
+ * Record cooldown based on server response (seconds until retry)
  */
-function recordRefresh(entityId: string): void {
+function recordCooldown(entityId: string, retryAfterSeconds: number): void {
   const key = getCooldownKey(entityId);
-  localStorage.setItem(key, Date.now().toString());
+  const cooldownEnd = Date.now() + retryAfterSeconds * 1000;
+  localStorage.setItem(key, cooldownEnd.toString());
+}
+
+/**
+ * Clear cooldown for an entity
+ */
+function clearCooldown(entityId: string): void {
+  const key = getCooldownKey(entityId);
+  localStorage.removeItem(key);
+}
+
+/**
+ * Check if error is a 429 rate limit error
+ */
+function isCooldownError(error: unknown): error is { response?: { status: number; headers?: Headers }; status?: number } {
+  if (error && typeof error === "object") {
+    // Axios-style error
+    if ("response" in error && (error as { response?: { status?: number } }).response?.status === 429) {
+      return true;
+    }
+    // Fetch-style error
+    if ("status" in error && (error as { status?: number }).status === 429) {
+      return true;
+    }
+  }
+  return false;
+}
+
+/**
+ * Extract retry-after seconds from error
+ */
+function getRetryAfterSeconds(error: unknown): number {
+  // Default to 4 hours if we can't parse
+  const defaultSeconds = 4 * 60 * 60;
+
+  try {
+    // Try to get from error message (e.g., "Try again in 3h 45m")
+    if (error && typeof error === "object" && "response" in error) {
+      const response = (error as { response?: { data?: { detail?: string } } }).response;
+      const detail = response?.data?.detail;
+      if (detail && typeof detail === "string") {
+        // Parse "Try again in Xh Ym" format
+        const match = detail.match(/(\d+)h\s*(\d+)m/);
+        if (match) {
+          const hours = parseInt(match[1], 10);
+          const minutes = parseInt(match[2], 10);
+          return hours * 3600 + minutes * 60;
+        }
+      }
+    }
+  } catch {
+    // Ignore parse errors
+  }
+
+  return defaultSeconds;
 }
 
 /**
@@ -79,7 +143,7 @@ export function RefreshMetadataButton({
   const isAdmin = user?.is_admin ?? false;
 
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [feedback, setFeedback] = useState<"success" | "error" | null>(null);
+  const [feedback, setFeedback] = useState<"success" | "error" | "cooldown" | null>(null);
   const [remainingCooldown, setRemainingCooldown] = useState(0);
 
   // Update cooldown timer
@@ -119,17 +183,25 @@ export function RefreshMetadataButton({
         await onEnrich();
       }
 
-      // Record the refresh for cooldown tracking
+      // Clear any cached cooldown on success (server tracks the real cooldown)
       if (!isAdmin) {
-        recordRefresh(entityId);
-        updateCooldown();
+        clearCooldown(entityId);
       }
 
       setFeedback("success");
       setTimeout(() => setFeedback(null), 2000);
-    } catch {
-      setFeedback("error");
-      setTimeout(() => setFeedback(null), 3000);
+    } catch (error) {
+      // Handle 429 cooldown error from server
+      if (isCooldownError(error)) {
+        const retryAfter = getRetryAfterSeconds(error);
+        recordCooldown(entityId, retryAfter);
+        updateCooldown();
+        setFeedback("cooldown");
+        setTimeout(() => setFeedback(null), 3000);
+      } else {
+        setFeedback("error");
+        setTimeout(() => setFeedback(null), 3000);
+      }
     } finally {
       setIsRefreshing(false);
     }
@@ -144,14 +216,16 @@ export function RefreshMetadataButton({
         title={
           isOnCooldown
             ? `Refresh available in ${formatRemainingTime(remainingCooldown)}`
-            : "Refresh metadata"
+            : feedback === "cooldown"
+              ? "On cooldown"
+              : "Refresh metadata"
         }
         className={clsx(
           "p-2 rounded-lg transition-all relative",
           "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-700/50",
           "disabled:opacity-50 disabled:cursor-not-allowed",
           feedback === "success" && "text-emerald-400",
-          feedback === "error" && "text-red-400",
+          (feedback === "error" || feedback === "cooldown") && "text-amber-400",
           className
         )}
       >
@@ -182,6 +256,14 @@ export function RefreshMetadataButton({
               strokeWidth={2}
               d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
             />
+          ) : feedback === "cooldown" ? (
+            // Clock icon for cooldown
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
           ) : (
             <path
               strokeLinecap="round"
@@ -200,6 +282,7 @@ export function RefreshMetadataButton({
     if (isLoading) return "Refreshing...";
     if (feedback === "success") return "Refreshed!";
     if (feedback === "error") return "Failed";
+    if (feedback === "cooldown") return "On cooldown";
     if (isOnCooldown) return `Wait ${formatRemainingTime(remainingCooldown)}`;
     return "Refresh";
   };
@@ -216,11 +299,14 @@ export function RefreshMetadataButton({
       title={
         isOnCooldown
           ? `Refresh available in ${formatRemainingTime(remainingCooldown)}`
-          : undefined
+          : feedback === "cooldown"
+            ? "This entity was recently refreshed"
+            : undefined
       }
       className={clsx(
         feedback === "success" && "!text-emerald-400",
         feedback === "error" && "!text-red-400",
+        feedback === "cooldown" && "!text-amber-400",
         isOnCooldown && "opacity-70",
         className
       )}

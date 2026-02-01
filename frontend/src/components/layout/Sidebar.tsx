@@ -1,7 +1,8 @@
-import { useState, useEffect } from "react";
-import { Link, useLocation } from "@tanstack/react-router";
+import { useState, useEffect, useRef } from "react";
+import { Link, useLocation, useNavigate } from "@tanstack/react-router";
 import { clsx } from "clsx";
 import { useAuthStore } from "@/stores/auth";
+import { useLogout } from "@/api/auth";
 import { useDevConfig } from "@/contexts/DevConfigContext";
 import { config } from "@/config";
 
@@ -43,6 +44,30 @@ const AdminIcon = () => (
   </svg>
 );
 
+const UserIcon = () => (
+  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+  </svg>
+);
+
+const LogoutIcon = () => (
+  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+  </svg>
+);
+
+const ChevronIcon = ({ className }: { className?: string }) => (
+  <svg className={clsx("w-4 h-4", className)} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+  </svg>
+);
+
+const LoginIcon = () => (
+  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+  </svg>
+);
+
 export interface NavItem {
   to: string;
   label: string;
@@ -59,14 +84,40 @@ export interface SidebarProps {
 export function Sidebar({ onSearchClick, queueCount = 0 }: SidebarProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const userMenuRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
-  const { user } = useAuthStore();
+  const navigate = useNavigate();
+  const { user, isAuthenticated } = useAuthStore();
   const { features } = useDevConfig();
+  const logoutMutation = useLogout();
 
-  // Close mobile sidebar on route change
+  // Close user menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
+        setIsUserMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Close mobile sidebar and user menu on route change
   useEffect(() => {
     setIsMobileOpen(false);
+    setIsUserMenuOpen(false);
   }, [location.pathname]);
+
+  const handleLogout = async () => {
+    await logoutMutation.mutateAsync();
+    navigate({ to: "/auth/login" });
+  };
+
+  // Get user initials for avatar
+  const getUserInitials = (username: string) => {
+    return username.slice(0, 2).toUpperCase();
+  };
 
   const navItems: NavItem[] = [
     { to: "/", label: "Home", icon: <HomeIcon /> },
@@ -205,16 +256,104 @@ export function Sidebar({ onSearchClick, queueCount = 0 }: SidebarProps) {
           ))}
         </nav>
 
-        {/* Version footer */}
-        <div className="p-3 border-t border-[var(--color-border-subtle)]">
-          <span
-            className={clsx(
-              "text-xs text-[var(--color-text-dim)] transition-opacity duration-200",
-              isExpanded || isMobileOpen ? "opacity-100" : "opacity-0"
-            )}
-          >
-            v{config.version}
-          </span>
+        {/* User section */}
+        <div className="border-t border-[var(--color-border-subtle)]" ref={userMenuRef}>
+          {isAuthenticated && user ? (
+            <div className="relative">
+              {/* User menu trigger */}
+              <button
+                onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                className={clsx(
+                  "w-full flex items-center gap-3 p-3",
+                  "hover:bg-[var(--bg-hover)] transition-colors",
+                  isUserMenuOpen && "bg-[var(--bg-hover)]"
+                )}
+              >
+                {/* Avatar */}
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[var(--accent-safe)] to-[var(--accent-cool)] flex items-center justify-center flex-shrink-0">
+                  <span className="text-xs font-semibold text-white">
+                    {getUserInitials(user.username)}
+                  </span>
+                </div>
+                {/* User info */}
+                <div
+                  className={clsx(
+                    "flex-1 min-w-0 text-left transition-opacity duration-200",
+                    isExpanded || isMobileOpen ? "opacity-100" : "opacity-0"
+                  )}
+                >
+                  <p className="text-sm font-medium text-[var(--color-text-primary)] truncate">
+                    {user.username}
+                  </p>
+                  <p className="text-xs text-[var(--color-text-muted)] truncate">
+                    {user.email}
+                  </p>
+                </div>
+                {/* Chevron */}
+                <ChevronIcon
+                  className={clsx(
+                    "text-[var(--color-text-muted)] transition-all duration-200",
+                    isExpanded || isMobileOpen ? "opacity-100" : "opacity-0",
+                    isUserMenuOpen && "rotate-180"
+                  )}
+                />
+              </button>
+
+              {/* Dropdown menu */}
+              {isUserMenuOpen && (isExpanded || isMobileOpen) && (
+                <div className="absolute bottom-full left-0 right-0 mb-1 mx-2 py-1 bg-[var(--bg-surface)] border border-[var(--color-border-subtle)] rounded-lg shadow-lg overflow-hidden">
+                  <Link
+                    to="/account"
+                    className="flex items-center gap-3 px-3 py-2 text-sm text-[var(--color-text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--color-text-primary)] transition-colors"
+                  >
+                    <UserIcon />
+                    <span>Account Settings</span>
+                  </Link>
+                  <button
+                    onClick={handleLogout}
+                    disabled={logoutMutation.isPending}
+                    className="w-full flex items-center gap-3 px-3 py-2 text-sm text-[var(--color-text-secondary)] hover:bg-[var(--bg-hover)] hover:text-red-400 transition-colors disabled:opacity-50"
+                  >
+                    <LogoutIcon />
+                    <span>{logoutMutation.isPending ? "Logging out..." : "Log Out"}</span>
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <Link
+              to="/auth/login"
+              className={clsx(
+                "flex items-center gap-3 p-3",
+                "text-[var(--color-text-muted)] hover:bg-[var(--bg-hover)] hover:text-[var(--color-text-primary)]",
+                "transition-colors"
+              )}
+            >
+              <div className="w-8 h-8 rounded-full bg-[var(--bg-surface)] border border-[var(--color-border-subtle)] flex items-center justify-center flex-shrink-0">
+                <LoginIcon />
+              </div>
+              <span
+                className={clsx(
+                  "text-sm font-medium transition-opacity duration-200",
+                  isExpanded || isMobileOpen ? "opacity-100" : "opacity-0"
+                )}
+              >
+                Sign In
+              </span>
+            </Link>
+          )}
+
+          {/* Version - compact */}
+          <div className="px-3 pb-2 pt-1">
+            <span
+              className={clsx(
+                "text-[10px] text-[var(--color-text-dim)] transition-opacity duration-200",
+                isExpanded || isMobileOpen ? "opacity-100" : "opacity-0"
+              )}
+            >
+              v{config.version}
+            </span>
+          </div>
         </div>
       </aside>
 

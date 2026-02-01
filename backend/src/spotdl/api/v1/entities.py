@@ -19,11 +19,14 @@ from spotdl.db.models.album import Album
 from spotdl.db.models.artist import Artist
 from spotdl.db.models.playlist import Playlist
 from spotdl.db.models.song import Song
+from spotdl.db.models.user import User
 from spotdl.db.repositories.album import AlbumRepository
 from spotdl.db.repositories.artist import ArtistRepository
 from spotdl.db.repositories.playlist import PlaylistRepository
 from spotdl.db.repositories.song import SongRepository
+from spotdl.db.repositories.refresh_cooldown import RefreshCooldownRepository
 from spotdl.db.models.metadata_snapshot import MetadataSnapshot
+from spotdl.api.v1.auth import get_current_user_optional
 
 logger = logging.getLogger(__name__)
 
@@ -756,20 +759,77 @@ class RefreshResponse(BaseModel):
 
     success: bool
     message: str
+    cooldown_seconds: int | None = None  # Seconds until next refresh allowed
+
+
+async def check_refresh_cooldown(
+    entity_type: str,
+    entity_id: uuid.UUID,
+    user: User | None,
+    db: AsyncSession,
+) -> None:
+    """
+    Check if a refresh operation is on cooldown.
+
+    Admins bypass cooldown. Non-admins must wait 4 hours between refreshes.
+
+    Raises HTTPException with 429 status if on cooldown.
+    """
+    # Admins bypass cooldown
+    if user and user.is_admin:
+        return
+
+    cooldown_repo = RefreshCooldownRepository(db)
+    user_id = user.id if user else None
+
+    is_on_cooldown, remaining_seconds = await cooldown_repo.is_on_cooldown(
+        entity_type, entity_id, user_id
+    )
+
+    if is_on_cooldown:
+        hours = remaining_seconds // 3600
+        minutes = (remaining_seconds % 3600) // 60
+        raise HTTPException(
+            status_code=429,
+            detail=f"Refresh on cooldown. Try again in {hours}h {minutes}m.",
+            headers={"Retry-After": str(remaining_seconds)},
+        )
+
+
+async def record_refresh_cooldown(
+    entity_type: str,
+    entity_id: uuid.UUID,
+    user: User | None,
+    db: AsyncSession,
+) -> None:
+    """Record a refresh action for cooldown tracking."""
+    # Don't record cooldowns for admins
+    if user and user.is_admin:
+        return
+
+    cooldown_repo = RefreshCooldownRepository(db)
+    user_id = user.id if user else None
+    await cooldown_repo.record_refresh(entity_type, entity_id, user_id)
 
 
 @router.post("/songs/{id}/refresh")
 async def refresh_song(
     id: Annotated[str, Path(description="Internal song UUID")],
     db: AsyncSession = Depends(get_db_session),
+    current_user: User | None = Depends(get_current_user_optional),
 ) -> RefreshResponse:
     """
     Refresh metadata for a song by fetching latest data from source.
+
+    Cooldown: 4 hours for regular users, no limit for admins.
     """
     try:
         song_uuid = uuid.UUID(id)
     except ValueError as e:
         raise HTTPException(status_code=400, detail="Invalid UUID format") from e
+
+    # Check cooldown (raises 429 if on cooldown)
+    await check_refresh_cooldown("song", song_uuid, current_user, db)
 
     song_repo = SongRepository(db)
     song = await song_repo.get_by_id(song_uuid)
@@ -789,6 +849,10 @@ async def refresh_song(
         # Update the existing song with fresh data
         entity_service = EntityPersistenceService(db)
         await entity_service.persist_song(track)
+
+        # Record cooldown
+        await record_refresh_cooldown("song", song_uuid, current_user, db)
+
         await db.commit()
 
         return RefreshResponse(success=True, message="Song metadata refreshed successfully")
@@ -801,14 +865,20 @@ async def refresh_song(
 async def refresh_album(
     id: Annotated[str, Path(description="Internal album UUID")],
     db: AsyncSession = Depends(get_db_session),
+    current_user: User | None = Depends(get_current_user_optional),
 ) -> RefreshResponse:
     """
     Refresh metadata for an album by fetching latest data from source.
+
+    Cooldown: 4 hours for regular users, no limit for admins.
     """
     try:
         album_uuid = uuid.UUID(id)
     except ValueError as e:
         raise HTTPException(status_code=400, detail="Invalid UUID format") from e
+
+    # Check cooldown (raises 429 if on cooldown)
+    await check_refresh_cooldown("album", album_uuid, current_user, db)
 
     album_repo = AlbumRepository(db)
     album = await album_repo.get_by_id_with_links(album_uuid)
@@ -832,6 +902,10 @@ async def refresh_album(
         if song_list.songs:
             entity_service = EntityPersistenceService(db)
             await entity_service.persist_from_search(song_list.songs)
+
+            # Record cooldown
+            await record_refresh_cooldown("album", album_uuid, current_user, db)
+
             await db.commit()
 
         return RefreshResponse(success=True, message="Album metadata refreshed successfully")
@@ -844,14 +918,20 @@ async def refresh_album(
 async def refresh_artist(
     id: Annotated[str, Path(description="Internal artist UUID")],
     db: AsyncSession = Depends(get_db_session),
+    current_user: User | None = Depends(get_current_user_optional),
 ) -> RefreshResponse:
     """
     Refresh metadata for an artist by fetching latest data from source.
+
+    Cooldown: 4 hours for regular users, no limit for admins.
     """
     try:
         artist_uuid = uuid.UUID(id)
     except ValueError as e:
         raise HTTPException(status_code=400, detail="Invalid UUID format") from e
+
+    # Check cooldown (raises 429 if on cooldown)
+    await check_refresh_cooldown("artist", artist_uuid, current_user, db)
 
     artist_repo = ArtistRepository(db)
     artist = await artist_repo.get_by_id_with_links(artist_uuid)
@@ -875,6 +955,10 @@ async def refresh_artist(
         if song_list.songs:
             entity_service = EntityPersistenceService(db)
             await entity_service.persist_from_search(song_list.songs)
+
+            # Record cooldown
+            await record_refresh_cooldown("artist", artist_uuid, current_user, db)
+
             await db.commit()
 
         return RefreshResponse(success=True, message="Artist metadata refreshed successfully")
@@ -887,14 +971,20 @@ async def refresh_artist(
 async def refresh_playlist(
     id: Annotated[str, Path(description="Internal playlist UUID")],
     db: AsyncSession = Depends(get_db_session),
+    current_user: User | None = Depends(get_current_user_optional),
 ) -> RefreshResponse:
     """
     Refresh metadata for a playlist by fetching latest data from source.
+
+    Cooldown: 4 hours for regular users, no limit for admins.
     """
     try:
         playlist_uuid = uuid.UUID(id)
     except ValueError as e:
         raise HTTPException(status_code=400, detail="Invalid UUID format") from e
+
+    # Check cooldown (raises 429 if on cooldown)
+    await check_refresh_cooldown("playlist", playlist_uuid, current_user, db)
 
     playlist_repo = PlaylistRepository(db)
     playlist = await playlist_repo.get_by_id_with_tracks(playlist_uuid)
@@ -925,6 +1015,9 @@ async def refresh_playlist(
                 song_id = persist_result.song_ids.get(song_key)
                 if song_id:
                     await playlist_repo.add_track(playlist.id, song_id, i)
+
+            # Record cooldown
+            await record_refresh_cooldown("playlist", playlist_uuid, current_user, db)
 
             await db.commit()
 

@@ -12,6 +12,7 @@ from spotdl.db.models.metadata_report import (
 )
 from spotdl.db.models.metadata_snapshot import MetadataSnapshot
 from spotdl.db.models.playlist import Playlist, PlaylistPlatformLink, PlaylistTrack
+from spotdl.db.models.refresh_cooldown import RefreshCooldown
 from spotdl.db.models.song import Song
 from spotdl.db.models.user import User
 from spotdl.db.models.user_settings import UserSettings
@@ -36,4 +37,5 @@ __all__ = [
     "MetadataReportEntityType",
     "ReportStatus",
     "MetadataSnapshot",
+    "RefreshCooldown",
 ]

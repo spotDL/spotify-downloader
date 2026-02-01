@@ -13,6 +13,7 @@ import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as SearchRouteImport } from './routes/search'
 import { Route as QueueRouteImport } from './routes/queue'
 import { Route as MatchingRouteImport } from './routes/matching'
+import { Route as AccountRouteImport } from './routes/account'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as SongIdRouteImport } from './routes/song/$id'
@@ -44,6 +45,11 @@ const QueueRoute = QueueRouteImport.update({
 const MatchingRoute = MatchingRouteImport.update({
   id: '/matching',
   path: '/matching',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AccountRoute = AccountRouteImport.update({
+  id: '/account',
+  path: '/account',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -109,6 +115,7 @@ const AdminImportRoute = AdminImportRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/account': typeof AccountRoute
   '/matching': typeof MatchingRoute
   '/queue': typeof QueueRoute
   '/search': typeof SearchRoute
@@ -127,6 +134,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/account': typeof AccountRoute
   '/matching': typeof MatchingRoute
   '/queue': typeof QueueRoute
   '/search': typeof SearchRoute
@@ -146,6 +154,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/account': typeof AccountRoute
   '/matching': typeof MatchingRoute
   '/queue': typeof QueueRoute
   '/search': typeof SearchRoute
@@ -166,6 +175,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/account'
     | '/matching'
     | '/queue'
     | '/search'
@@ -184,6 +194,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/account'
     | '/matching'
     | '/queue'
     | '/search'
@@ -202,6 +213,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/account'
     | '/matching'
     | '/queue'
     | '/search'
@@ -221,6 +233,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AccountRoute: typeof AccountRoute
   MatchingRoute: typeof MatchingRoute
   QueueRoute: typeof QueueRoute
   SearchRoute: typeof SearchRoute
@@ -266,6 +279,13 @@ declare module '@tanstack/react-router' {
       path: '/matching'
       fullPath: '/matching'
       preLoaderRoute: typeof MatchingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/account': {
+      id: '/account'
+      path: '/account'
+      fullPath: '/account'
+      preLoaderRoute: typeof AccountRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -357,6 +377,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AccountRoute: AccountRoute,
   MatchingRoute: MatchingRoute,
   QueueRoute: QueueRoute,
   SearchRoute: SearchRoute,
