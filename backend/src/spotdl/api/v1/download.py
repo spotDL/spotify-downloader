@@ -5,10 +5,11 @@ from __future__ import annotations
 import logging
 from typing import Annotated
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.responses import FileResponse
 from pydantic import BaseModel, HttpUrl
 
+from spotdl.config import get_settings
 from spotdl.core.services.download import (
     DownloadManager,
     DownloadProgress,
@@ -21,6 +22,16 @@ from spotdl.core.services.download import (
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/download")
+
+
+def require_downloads_enabled() -> None:
+    """Dependency to verify downloads are enabled (self-hosted mode only)."""
+    settings = get_settings()
+    if not settings.downloads_enabled:
+        raise HTTPException(
+            status_code=403,
+            detail="Downloads are disabled in hosted mode. Use a self-hosted instance for download functionality.",
+        )
 
 
 class StartDownloadRequest(BaseModel):
@@ -85,7 +96,10 @@ def progress_to_response(progress: DownloadProgress) -> DownloadProgressResponse
 
 
 @router.post("/start")
-async def start_download(request: StartDownloadRequest) -> StartDownloadResponse:
+async def start_download(
+    request: StartDownloadRequest,
+    _: None = Depends(require_downloads_enabled),
+) -> StartDownloadResponse:
     """
     Start a new download.
 
@@ -124,7 +138,10 @@ async def start_download(request: StartDownloadRequest) -> StartDownloadResponse
 
 
 @router.get("/status/{download_id}")
-async def get_download_status(download_id: str) -> DownloadProgressResponse:
+async def get_download_status(
+    download_id: str,
+    _: None = Depends(require_downloads_enabled),
+) -> DownloadProgressResponse:
     """Get the status of a download."""
     manager = get_download_manager()
     progress = manager.get_progress(download_id)
@@ -136,7 +153,9 @@ async def get_download_status(download_id: str) -> DownloadProgressResponse:
 
 
 @router.get("/list")
-async def list_downloads() -> DownloadListResponse:
+async def list_downloads(
+    _: None = Depends(require_downloads_enabled),
+) -> DownloadListResponse:
     """List all downloads."""
     manager = get_download_manager()
     downloads = manager.get_all_downloads()
@@ -148,7 +167,10 @@ async def list_downloads() -> DownloadListResponse:
 
 
 @router.get("/file/{download_id}")
-async def get_download_file(download_id: str) -> FileResponse:
+async def get_download_file(
+    download_id: str,
+    _: None = Depends(require_downloads_enabled),
+) -> FileResponse:
     """
     Get the downloaded file.
 
@@ -178,7 +200,10 @@ async def get_download_file(download_id: str) -> FileResponse:
 
 
 @router.post("/cancel/{download_id}")
-async def cancel_download(download_id: str) -> dict[str, str]:
+async def cancel_download(
+    download_id: str,
+    _: None = Depends(require_downloads_enabled),
+) -> dict[str, str]:
     """Cancel a download in progress."""
     manager = get_download_manager()
 

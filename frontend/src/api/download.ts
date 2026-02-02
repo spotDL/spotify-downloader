@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "./client";
+import { features } from "@/config";
 
 // Types
 export interface StartDownloadRequest {
@@ -40,27 +41,41 @@ export interface DownloadListResponse {
   total: number;
 }
 
+/**
+ * Throws an error if downloads are not enabled (hosted mode).
+ */
+function requireDownloadsEnabled(): void {
+  if (!features.canDownload) {
+    throw new Error("Downloads are disabled in hosted mode. Use a self-hosted instance for download functionality.");
+  }
+}
+
 // API functions
 export async function startDownload(request: StartDownloadRequest): Promise<StartDownloadResponse> {
+  requireDownloadsEnabled();
   const response = await apiClient.post<StartDownloadResponse>("/download/start", request);
   return response.data;
 }
 
 export async function getDownloadStatus(downloadId: string): Promise<DownloadProgress> {
+  requireDownloadsEnabled();
   const response = await apiClient.get<DownloadProgress>(`/download/status/${downloadId}`);
   return response.data;
 }
 
 export async function listDownloads(): Promise<DownloadListResponse> {
+  requireDownloadsEnabled();
   const response = await apiClient.get<DownloadListResponse>("/download/list");
   return response.data;
 }
 
 export async function cancelDownload(downloadId: string): Promise<void> {
+  requireDownloadsEnabled();
   await apiClient.post(`/download/cancel/${downloadId}`);
 }
 
 export function getDownloadFileUrl(downloadId: string): string {
+  requireDownloadsEnabled();
   // Get base URL from apiClient
   const baseUrl = apiClient.defaults.baseURL || "";
   return `${baseUrl}/download/file/${downloadId}`;

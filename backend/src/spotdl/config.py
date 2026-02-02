@@ -24,6 +24,10 @@ class Settings(BaseSettings):
     app_version: str = "5.0.0"
     debug: bool = False
     environment: Literal["development", "staging", "production"] = "development"
+    deployment_mode: Literal["hosted", "self-hosted"] = Field(
+        default="self-hosted",
+        description="Deployment mode: 'hosted' for public matching service (no downloads), 'self-hosted' for full functionality",
+    )
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] | None = Field(
         default=None,
         description="Override log level (DEBUG, INFO, WARNING, ERROR, CRITICAL). If not set, uses DEBUG when debug=True, INFO in development, WARNING otherwise.",
@@ -119,6 +123,21 @@ class Settings(BaseSettings):
     def is_development(self) -> bool:
         """Check if running in development environment."""
         return self.environment == "development"
+
+    @property
+    def is_hosted(self) -> bool:
+        """Check if running in hosted mode (public matching service, no downloads)."""
+        return self.deployment_mode == "hosted"
+
+    @property
+    def is_self_hosted(self) -> bool:
+        """Check if running in self-hosted mode (full functionality including downloads)."""
+        return self.deployment_mode == "self-hosted"
+
+    @property
+    def downloads_enabled(self) -> bool:
+        """Check if download functionality is enabled."""
+        return self.is_self_hosted
 
     @property
     def database_is_sqlite(self) -> bool:

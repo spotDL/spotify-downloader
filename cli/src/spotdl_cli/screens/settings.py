@@ -411,6 +411,9 @@ class SettingsScreen(Screen[None]):
             # Ensure directories exist
             self._settings.ensure_directories()
 
+            # Persist settings to disk
+            self._settings.save()
+
             self.notify("Settings saved")
             self.app.pop_screen()
 
@@ -420,9 +423,11 @@ class SettingsScreen(Screen[None]):
 
     def _reset_to_defaults(self) -> None:
         """Reset settings to defaults."""
-        from spotdl_cli.config import Settings
+        from spotdl_cli.config import Settings, reset_settings
 
         defaults = Settings()
+        # Note: This only resets the UI. The actual settings are not persisted
+        # until user clicks Save. To fully reset, call reset_settings().
 
         # Reset UI values
         self.query_one("#api-url", Input).value = defaults.api_url

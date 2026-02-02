@@ -106,6 +106,53 @@ class TestSettings:
             Settings(threads=17)
 
 
+class TestSettingsPersistence:
+    """Tests for settings persistence."""
+
+    def test_save_and_load(self, tmp_path: Path) -> None:
+        """Test saving and loading settings."""
+        config_dir = tmp_path / "config"
+        config_dir.mkdir(parents=True)
+
+        # Create settings with custom values
+        settings = Settings(
+            config_dir=config_dir,
+            data_dir=tmp_path / "data",
+            cache_dir=tmp_path / "cache",
+            output_dir=tmp_path / "output",
+            api_url="http://custom:9000",
+            offline_mode=True,
+            audio_format="flac",
+            threads=8,
+        )
+
+        # Save settings
+        settings.save()
+
+        # Verify config file exists
+        config_file = config_dir / "config.json"
+        assert config_file.exists()
+
+        # Load settings from file
+        loaded_data = Settings.load_from_file(config_file)
+
+        assert loaded_data["api_url"] == "http://custom:9000"
+        assert loaded_data["offline_mode"] is True
+        assert loaded_data["audio_format"] == "flac"
+        assert loaded_data["threads"] == 8
+
+    def test_load_nonexistent_file(self, tmp_path: Path) -> None:
+        """Test loading from nonexistent file returns empty dict."""
+        nonexistent = tmp_path / "does_not_exist.json"
+        result = Settings.load_from_file(nonexistent)
+        assert result == {}
+
+    def test_config_file_path(self, tmp_path: Path) -> None:
+        """Test config_file_path property."""
+        settings = Settings(config_dir=tmp_path)
+        assert settings.config_file_path == tmp_path / "config.json"
+
+
 class TestGetSettings:
     """Tests for get_settings function."""
 
