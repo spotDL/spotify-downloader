@@ -9,6 +9,7 @@ Displays detailed artist information including:
 
 from __future__ import annotations
 
+import asyncio
 import logging
 from typing import TYPE_CHECKING, Any, ClassVar
 
@@ -476,14 +477,18 @@ class ArtistScreen(Screen[None]):
             )
 
     async def _download_all(self) -> None:
-        """Download all top tracks."""
+        """Download all top tracks using concurrent batch operations."""
         if not self._top_tracks:
             self.notify("No tracks to download", severity="warning")
             return
 
         queue = self.spotdl_app.download_queue
-        for track in self._top_tracks:
-            await queue.add(track)
+
+        # Batch add tracks concurrently for better performance
+        batch_size = 10
+        for i in range(0, len(self._top_tracks), batch_size):
+            batch = self._top_tracks[i : i + batch_size]
+            await asyncio.gather(*[queue.add(track) for track in batch])
 
         self.notify(f"Added {len(self._top_tracks)} tracks to download queue")
         await self.app.push_screen("queue")

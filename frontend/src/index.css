@@ -1109,34 +1109,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* ====== TOGGLE SWITCH ====== */
-.toggle-switch {
-  position: relative;
-  width: 44px;
-  height: 24px;
-  background: var(--bg-surface);
-  border-radius: 9999px;
-  cursor: pointer;
-  transition: background 0.2s ease;
-}
-
-.toggle-switch.active {
-  background: var(--accent-safe);
-}
-
-.toggle-switch-thumb {
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  width: 20px;
-  height: 20px;
-  background: white;
-  border-radius: 50%;
-  transition: transform 0.2s var(--ease-spring);
-}
-
-.toggle-switch.active .toggle-switch-thumb {
-  transform: translateX(20px);
-}
+/* Styles moved to Tailwind classes in toggle-switch.tsx */
 
 /* ====== SLIDER ====== */
 .slider {

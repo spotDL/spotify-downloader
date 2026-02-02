@@ -2,8 +2,11 @@
 
 from __future__ import annotations
 
+import asyncio
+import hashlib
 import logging
-from typing import Any
+import time
+from typing import Any, TypeVar
 
 import httpx
 
@@ -19,6 +22,8 @@ from spotdl_cli.core.types import (
 
 logger = logging.getLogger(__name__)
 
+T = TypeVar("T")
+
 
 class APIError(Exception):
     """Base exception for API errors."""
@@ -32,9 +37,83 @@ class NotFoundError(APIError):
     """Raised when a resource is not found."""
 
 
+class CacheEntry:
+    """Cache entry with TTL support."""
+
+    __slots__ = ("value", "expires_at")
+
+    def __init__(self, value: Any, ttl: float) -> None:
+        self.value = value
+        self.expires_at = time.monotonic() + ttl
+
+    @property
+    def is_expired(self) -> bool:
+        return time.monotonic() > self.expires_at
+
+
+class ResponseCache:
+    """Simple in-memory cache with TTL and max size."""
+
+    def __init__(self, max_size: int = 500, default_ttl: float = 300.0) -> None:
+        self._cache: dict[str, CacheEntry] = {}
+        self._max_size = max_size
+        self._default_ttl = default_ttl
+        self._lock = asyncio.Lock()
+
+    def _make_key(self, *args: Any) -> str:
+        """Create cache key from arguments."""
+        key_data = ":".join(str(a) for a in args)
+        return hashlib.md5(key_data.encode()).hexdigest()
+
+    async def get(self, *args: Any) -> Any | None:
+        """Get value from cache if not expired."""
+        key = self._make_key(*args)
+        async with self._lock:
+            entry = self._cache.get(key)
+            if entry is None:
+                return None
+            if entry.is_expired:
+                del self._cache[key]
+                return None
+            return entry.value
+
+    async def set(self, value: Any, *args: Any, ttl: float | None = None) -> None:
+        """Set value in cache with TTL."""
+        key = self._make_key(*args)
+        async with self._lock:
+            # Evict oldest entries if at max size
+            if len(self._cache) >= self._max_size:
+                # Remove 20% oldest entries
+                entries_to_remove = self._max_size // 5
+                oldest_keys = sorted(
+                    self._cache.keys(),
+                    key=lambda k: self._cache[k].expires_at,
+                )[:entries_to_remove]
+                for k in oldest_keys:
+                    del self._cache[k]
+
+            self._cache[key] = CacheEntry(value, ttl or self._default_ttl)
+
+    async def invalidate(self, *args: Any) -> None:
+        """Invalidate a cache entry."""
+        key = self._make_key(*args)
+        async with self._lock:
+            self._cache.pop(key, None)
+
+    async def clear(self) -> None:
+        """Clear all cache entries."""
+        async with self._lock:
+            self._cache.clear()
+
+
 class APIClient:
     """
     Client for the SpotDL backend API.
+
+    Features:
+    - Connection pooling with HTTP/2 support
+    - Response caching with TTL
+    - Pagination support
 
     Provides methods to:
     - Resolve URLs to songs
@@ -42,6 +121,12 @@ class APIClient:
     - Find matches (download URLs)
     - Check server health
     """
+
+    # Cache TTL values (seconds)
+    CACHE_TTL_SEARCH = 120.0  # 2 minutes for search
+    CACHE_TTL_DETAIL = 300.0  # 5 minutes for detail pages
+    CACHE_TTL_LYRICS = 3600.0  # 1 hour for lyrics (rarely changes)
+    CACHE_TTL_FEATURES = 3600.0  # 1 hour for audio features
 
     def __init__(self, settings: Settings | None = None) -> None:
         """
@@ -52,9 +137,10 @@ class APIClient:
         """
         self._settings = settings or get_settings()
         self._client: httpx.AsyncClient | None = None
+        self._cache = ResponseCache(max_size=500, default_ttl=300.0)
 
     async def _get_client(self) -> httpx.AsyncClient:
-        """Get or create the HTTP client."""
+        """Get or create the HTTP client with connection pooling."""
         if self._client is None or self._client.is_closed:
             self._client = httpx.AsyncClient(
                 base_url=self._settings.api_url,
@@ -63,6 +149,14 @@ class APIClient:
                     "User-Agent": "SpotDL-CLI/5.0.0",
                     "Accept": "application/json",
                 },
+                # Connection pooling
+                limits=httpx.Limits(
+                    max_connections=20,
+                    max_keepalive_connections=10,
+                    keepalive_expiry=30.0,
+                ),
+                # Enable HTTP/2
+                http2=True,
             )
         return self._client
 
@@ -71,6 +165,10 @@ class APIClient:
         if self._client is not None and not self._client.is_closed:
             await self._client.aclose()
             self._client = None
+
+    async def clear_cache(self) -> None:
+        """Clear all cached responses."""
+        await self._cache.clear()
 
     async def health_check(self) -> bool:
         """
@@ -111,6 +209,11 @@ class APIClient:
             APIError: If request fails
             NotFoundError: If URL not supported
         """
+        # Check cache
+        cached = await self._cache.get("resolve", url)
+        if cached is not None:
+            return cached
+
         try:
             client = await self._get_client()
             response = await client.get(
@@ -124,7 +227,11 @@ class APIClient:
             response.raise_for_status()
             data = response.json()
 
-            return [Song.from_dict(s) for s in data.get("songs", [])]
+            result = [Song.from_dict(s) for s in data.get("songs", [])]
+
+            # Cache result
+            await self._cache.set(result, "resolve", url, ttl=self.CACHE_TTL_DETAIL)
+            return result
 
         except httpx.ConnectError as e:
             raise ConnectionError(f"Cannot connect to API: {e}") from e
@@ -138,18 +245,25 @@ class APIClient:
         query: str,
         platform: Platform = Platform.SPOTIFY,
         limit: int = 20,
+        offset: int = 0,
     ) -> list[Song]:
         """
-        Search for songs.
+        Search for songs with pagination support.
 
         Args:
             query: Search query
             platform: Platform to search on
-            limit: Maximum results
+            limit: Maximum results per page
+            offset: Offset for pagination
 
         Returns:
             List of matching Song objects
         """
+        # Check cache
+        cached = await self._cache.get("search", query, platform.value, limit, offset)
+        if cached is not None:
+            return cached
+
         try:
             client = await self._get_client()
             response = await client.get(
@@ -158,13 +272,21 @@ class APIClient:
                     "q": query,
                     "platform": platform.value,
                     "limit": limit,
+                    "offset": offset,
                 },
             )
 
             response.raise_for_status()
             data = response.json()
 
-            return [Song.from_dict(s) for s in data.get("songs", [])]
+            result = [Song.from_dict(s) for s in data.get("songs", [])]
+
+            # Cache result
+            await self._cache.set(
+                result, "search", query, platform.value, limit, offset,
+                ttl=self.CACHE_TTL_SEARCH
+            )
+            return result
 
         except httpx.ConnectError as e:
             raise ConnectionError(f"Cannot connect to API: {e}") from e
@@ -178,24 +300,33 @@ class APIClient:
         query: str,
         entity_types: list[EntityType] | None = None,
         limit: int = 30,
+        offset: int = 0,
     ) -> UniversalSearchResponse:
         """
-        Universal search returning all entity types.
+        Universal search returning all entity types with pagination.
 
         Args:
             query: Search query or URL
             entity_types: Optional filter for entity types
-            limit: Maximum results
+            limit: Maximum results per page
+            offset: Offset for pagination
 
         Returns:
             UniversalSearchResponse with artists, albums, tracks, playlists
         """
+        # Build cache key
+        et_key = ",".join(sorted(et.value for et in entity_types)) if entity_types else ""
+        cached = await self._cache.get("universal", query, et_key, limit, offset)
+        if cached is not None:
+            return cached
+
         try:
             client = await self._get_client()
 
             body: dict[str, Any] = {
                 "query": query,
                 "limit": limit,
+                "offset": offset,
             }
             if entity_types:
                 body["entity_types"] = [et.value for et in entity_types]
@@ -208,7 +339,14 @@ class APIClient:
             response.raise_for_status()
             data = response.json()
 
-            return UniversalSearchResponse.from_dict(data)
+            result = UniversalSearchResponse.from_dict(data)
+
+            # Cache result
+            await self._cache.set(
+                result, "universal", query, et_key, limit, offset,
+                ttl=self.CACHE_TTL_SEARCH
+            )
+            return result
 
         except httpx.ConnectError as e:
             raise ConnectionError(f"Cannot connect to API: {e}") from e
@@ -234,6 +372,14 @@ class APIClient:
         Returns:
             List of DownloadResult objects
         """
+        # Check cache
+        platforms_key = ",".join(
+            p.value for p in (target_platforms or [TargetPlatform.YOUTUBE])
+        )
+        cached = await self._cache.get("matches", song.url, platforms_key, limit)
+        if cached is not None:
+            return cached
+
         try:
             client = await self._get_client()
 
@@ -273,6 +419,11 @@ class APIClient:
                 )
                 results.append(result)
 
+            # Cache result
+            await self._cache.set(
+                results, "matches", song.url, platforms_key, limit,
+                ttl=self.CACHE_TTL_SEARCH
+            )
             return results
 
         except httpx.ConnectError as e:
@@ -319,17 +470,25 @@ class APIClient:
 
     # ============== Detail Endpoints ==============
 
-    async def get_track(self, track_id: str, platform: str = "spotify") -> dict[str, Any]:
+    async def get_track(
+        self, track_id: str, platform: str = "spotify", use_cache: bool = True
+    ) -> dict[str, Any]:
         """
         Get detailed information about a track.
 
         Args:
             track_id: Track ID on the platform
             platform: Platform name (spotify, deezer, etc.)
+            use_cache: Whether to use cached response
 
         Returns:
             Track details including metadata, matches, lyrics, audio features
         """
+        if use_cache:
+            cached = await self._cache.get("track", platform, track_id)
+            if cached is not None:
+                return cached
+
         try:
             client = await self._get_client()
             response = await client.get(
@@ -340,7 +499,12 @@ class APIClient:
                 raise NotFoundError(f"Track not found: {track_id}")
 
             response.raise_for_status()
-            return response.json()
+            result = response.json()
+
+            await self._cache.set(
+                result, "track", platform, track_id, ttl=self.CACHE_TTL_DETAIL
+            )
+            return result
 
         except httpx.ConnectError as e:
             raise ConnectionError(f"Cannot connect to API: {e}") from e
@@ -349,17 +513,25 @@ class APIClient:
         except httpx.HTTPError as e:
             raise APIError(f"Request failed: {e}") from e
 
-    async def get_album(self, album_id: str, platform: str = "spotify") -> dict[str, Any]:
+    async def get_album(
+        self, album_id: str, platform: str = "spotify", use_cache: bool = True
+    ) -> dict[str, Any]:
         """
         Get detailed information about an album.
 
         Args:
             album_id: Album ID on the platform
             platform: Platform name (spotify, deezer, etc.)
+            use_cache: Whether to use cached response
 
         Returns:
             Album details including tracks, metadata
         """
+        if use_cache:
+            cached = await self._cache.get("album", platform, album_id)
+            if cached is not None:
+                return cached
+
         try:
             client = await self._get_client()
             response = await client.get(
@@ -370,7 +542,12 @@ class APIClient:
                 raise NotFoundError(f"Album not found: {album_id}")
 
             response.raise_for_status()
-            return response.json()
+            result = response.json()
+
+            await self._cache.set(
+                result, "album", platform, album_id, ttl=self.CACHE_TTL_DETAIL
+            )
+            return result
 
         except httpx.ConnectError as e:
             raise ConnectionError(f"Cannot connect to API: {e}") from e
@@ -379,17 +556,25 @@ class APIClient:
         except httpx.HTTPError as e:
             raise APIError(f"Request failed: {e}") from e
 
-    async def get_artist(self, artist_id: str, platform: str = "spotify") -> dict[str, Any]:
+    async def get_artist(
+        self, artist_id: str, platform: str = "spotify", use_cache: bool = True
+    ) -> dict[str, Any]:
         """
         Get detailed information about an artist.
 
         Args:
             artist_id: Artist ID on the platform
             platform: Platform name (spotify, deezer, etc.)
+            use_cache: Whether to use cached response
 
         Returns:
             Artist details including albums, top tracks
         """
+        if use_cache:
+            cached = await self._cache.get("artist", platform, artist_id)
+            if cached is not None:
+                return cached
+
         try:
             client = await self._get_client()
             response = await client.get(
@@ -400,7 +585,12 @@ class APIClient:
                 raise NotFoundError(f"Artist not found: {artist_id}")
 
             response.raise_for_status()
-            return response.json()
+            result = response.json()
+
+            await self._cache.set(
+                result, "artist", platform, artist_id, ttl=self.CACHE_TTL_DETAIL
+            )
+            return result
 
         except httpx.ConnectError as e:
             raise ConnectionError(f"Cannot connect to API: {e}") from e
@@ -410,7 +600,7 @@ class APIClient:
             raise APIError(f"Request failed: {e}") from e
 
     async def get_playlist(
-        self, playlist_id: str, platform: str = "spotify"
+        self, playlist_id: str, platform: str = "spotify", use_cache: bool = True
     ) -> dict[str, Any]:
         """
         Get detailed information about a playlist.
@@ -418,10 +608,16 @@ class APIClient:
         Args:
             playlist_id: Playlist ID on the platform
             platform: Platform name (spotify, deezer, etc.)
+            use_cache: Whether to use cached response
 
         Returns:
             Playlist details including tracks
         """
+        if use_cache:
+            cached = await self._cache.get("playlist", platform, playlist_id)
+            if cached is not None:
+                return cached
+
         try:
             client = await self._get_client()
             response = await client.get(
@@ -432,7 +628,12 @@ class APIClient:
                 raise NotFoundError(f"Playlist not found: {playlist_id}")
 
             response.raise_for_status()
-            return response.json()
+            result = response.json()
+
+            await self._cache.set(
+                result, "playlist", platform, playlist_id, ttl=self.CACHE_TTL_DETAIL
+            )
+            return result
 
         except httpx.ConnectError as e:
             raise ConnectionError(f"Cannot connect to API: {e}") from e
@@ -441,17 +642,25 @@ class APIClient:
         except httpx.HTTPError as e:
             raise APIError(f"Request failed: {e}") from e
 
-    async def get_lyrics(self, track_id: str, platform: str = "spotify") -> dict[str, Any]:
+    async def get_lyrics(
+        self, track_id: str, platform: str = "spotify", use_cache: bool = True
+    ) -> dict[str, Any]:
         """
         Get lyrics for a track.
 
         Args:
             track_id: Track ID on the platform
             platform: Platform name
+            use_cache: Whether to use cached response
 
         Returns:
             Lyrics data including synced and plain text
         """
+        if use_cache:
+            cached = await self._cache.get("lyrics", platform, track_id)
+            if cached is not None:
+                return cached
+
         try:
             client = await self._get_client()
             response = await client.get(
@@ -459,10 +668,19 @@ class APIClient:
             )
 
             if response.status_code == 404:
-                return {"lyrics": None, "synced": False}
+                result = {"lyrics": None, "synced": False}
+                await self._cache.set(
+                    result, "lyrics", platform, track_id, ttl=self.CACHE_TTL_LYRICS
+                )
+                return result
 
             response.raise_for_status()
-            return response.json()
+            result = response.json()
+
+            await self._cache.set(
+                result, "lyrics", platform, track_id, ttl=self.CACHE_TTL_LYRICS
+            )
+            return result
 
         except httpx.ConnectError as e:
             raise ConnectionError(f"Cannot connect to API: {e}") from e
@@ -474,7 +692,7 @@ class APIClient:
             raise APIError(f"Request failed: {e}") from e
 
     async def get_audio_features(
-        self, track_id: str, platform: str = "spotify"
+        self, track_id: str, platform: str = "spotify", use_cache: bool = True
     ) -> dict[str, Any]:
         """
         Get audio features for a track (BPM, energy, etc.).
@@ -482,10 +700,16 @@ class APIClient:
         Args:
             track_id: Track ID on the platform
             platform: Platform name
+            use_cache: Whether to use cached response
 
         Returns:
             Audio features data
         """
+        if use_cache:
+            cached = await self._cache.get("features", platform, track_id)
+            if cached is not None:
+                return cached
+
         try:
             client = await self._get_client()
             response = await client.get(
@@ -493,10 +717,18 @@ class APIClient:
             )
 
             if response.status_code == 404:
+                await self._cache.set(
+                    {}, "features", platform, track_id, ttl=self.CACHE_TTL_FEATURES
+                )
                 return {}
 
             response.raise_for_status()
-            return response.json()
+            result = response.json()
+
+            await self._cache.set(
+                result, "features", platform, track_id, ttl=self.CACHE_TTL_FEATURES
+            )
+            return result
 
         except httpx.ConnectError as e:
             raise ConnectionError(f"Cannot connect to API: {e}") from e

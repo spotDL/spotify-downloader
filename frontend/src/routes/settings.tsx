@@ -113,7 +113,7 @@ function SectionHeader({
 function SettingsPage() {
   const { isAuthenticated } = useAuthStore();
   const { features } = useDevConfig();
-  const { error: showError } = useToast();
+  const { success: showSuccess, error: showError } = useToast();
   const [showSecrets, setShowSecrets] = useState(false);
   const [syncStatus, setSyncStatus] = useState<
     "idle" | "syncing" | "success" | "error"
@@ -195,9 +195,11 @@ function SettingsPage() {
         storeToApiSettings(currentSettings)
       );
       setSyncStatus("success");
+      showSuccess("Settings saved to server");
       setTimeout(() => setSyncStatus("idle"), 2000);
     } catch {
       setSyncStatus("error");
+      showError("Failed to save settings to server");
       setTimeout(() => setSyncStatus("idle"), 3000);
     }
   };
@@ -212,9 +214,11 @@ function SettingsPage() {
         importSettings(apiToStoreSettings(result.data));
       }
       setSyncStatus("success");
+      showSuccess("Settings loaded from server");
       setTimeout(() => setSyncStatus("idle"), 2000);
     } catch {
       setSyncStatus("error");
+      showError("Failed to load settings from server");
       setTimeout(() => setSyncStatus("idle"), 3000);
     }
   };
@@ -231,6 +235,13 @@ function SettingsPage() {
     a.download = "spotdl-settings.json";
     a.click();
     URL.revokeObjectURL(url);
+    showSuccess("Settings exported to file");
+  };
+
+  // Reset settings to defaults
+  const handleResetToDefaults = () => {
+    resetToDefaults();
+    showSuccess("Settings reset to defaults");
   };
 
   // Import settings from JSON file
@@ -245,6 +256,7 @@ function SettingsPage() {
         const text = await file.text();
         const settings = JSON.parse(text);
         importSettings(settings);
+        showSuccess("Settings imported from file");
       } catch {
         showError("Failed to import settings. Please check the file format.");
       }
@@ -991,7 +1003,7 @@ function SettingsPage() {
 
           {/* Reset */}
           <div className="flex justify-end pt-2 border-t border-[var(--color-border-subtle)]">
-            <Button variant="outline" onClick={resetToDefaults}>
+            <Button variant="outline" onClick={handleResetToDefaults}>
               <svg
                 className="w-4 h-4 mr-2"
                 fill="none"

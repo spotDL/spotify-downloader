@@ -673,6 +673,24 @@ Rule {
     align: center middle;
 }
 
+/* Load More buttons */
+.load-more-btn {
+    width: 100%;
+    margin-top: 1;
+    background: $bg-surface;
+    border: tall $border-color;
+}
+
+.load-more-btn:hover {
+    background: $bg-hover;
+    border: tall $accent-primary;
+}
+
+.load-more-btn:focus {
+    background: $bg-hover;
+    border: tall $accent-primary;
+}
+
 /* Main container */
 #main-container {
     width: 100%;

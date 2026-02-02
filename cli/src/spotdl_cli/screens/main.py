@@ -4,6 +4,7 @@ Matches frontend layout with:
 - Universal search returning all entity types
 - Filter tabs (All, Songs, Artists, Albums, Playlists)
 - Entity-specific result sections
+- Lazy loading with "Load More" buttons
 """
 
 from __future__ import annotations
@@ -31,6 +32,7 @@ from spotdl_cli.core import (
     get_api_client,
     get_offline_matcher,
 )
+from spotdl_cli.core.types import PlatformInfo, Platform, Song
 
 if TYPE_CHECKING:
     from spotdl_cli.app import SpotDLApp
@@ -50,6 +52,21 @@ ENTITY_ICONS = {
     EntityType.ALBUM: "💿",
     EntityType.TRACK: "🎵",
     EntityType.PLAYLIST: "📋",
+}
+
+# Display limits (lazy loading)
+INITIAL_DISPLAY_LIMIT = {
+    EntityType.ARTIST: 6,
+    EntityType.ALBUM: 8,
+    EntityType.TRACK: 10,
+    EntityType.PLAYLIST: 6,
+}
+
+LOAD_MORE_INCREMENT = {
+    EntityType.ARTIST: 6,
+    EntityType.ALBUM: 8,
+    EntityType.TRACK: 10,
+    EntityType.PLAYLIST: 6,
 }
 
 
@@ -75,6 +92,13 @@ class MainScreen(Screen[None]):
         self._filter_buttons: list[str] = [
             "all", "track", "artist", "album", "playlist"
         ]
+        # Track display counts for lazy loading
+        self._display_counts: dict[EntityType, int] = {
+            EntityType.ARTIST: INITIAL_DISPLAY_LIMIT[EntityType.ARTIST],
+            EntityType.ALBUM: INITIAL_DISPLAY_LIMIT[EntityType.ALBUM],
+            EntityType.TRACK: INITIAL_DISPLAY_LIMIT[EntityType.TRACK],
+            EntityType.PLAYLIST: INITIAL_DISPLAY_LIMIT[EntityType.PLAYLIST],
+        }
 
     @property
     def spotdl_app(self) -> SpotDLApp:
@@ -137,8 +161,14 @@ class MainScreen(Screen[None]):
                         )
                         yield Static("", id="artists-count", classes="section-count")
 
-                    with Horizontal(id="artists-grid", classes="entity-grid"):
+                    with Vertical(id="artists-list", classes="entity-list"):
                         pass  # Populated dynamically
+
+                    yield Button(
+                        "Load More Artists",
+                        id="load-more-artists",
+                        classes="load-more-btn hidden",
+                    )
 
                 # Albums section
                 with Vertical(id="albums-section", classes="entity-section hidden"):
@@ -152,6 +182,12 @@ class MainScreen(Screen[None]):
                     with Vertical(id="albums-list", classes="entity-list"):
                         pass  # Populated dynamically
 
+                    yield Button(
+                        "Load More Albums",
+                        id="load-more-albums",
+                        classes="load-more-btn hidden",
+                    )
+
                 # Tracks section
                 with Vertical(id="tracks-section", classes="entity-section hidden"):
                     with Horizontal(classes="section-header"):
@@ -164,6 +200,12 @@ class MainScreen(Screen[None]):
                     with Vertical(id="tracks-list", classes="entity-list"):
                         pass  # Populated dynamically
 
+                    yield Button(
+                        "Load More Songs",
+                        id="load-more-tracks",
+                        classes="load-more-btn hidden",
+                    )
+
                 # Playlists section
                 with Vertical(id="playlists-section", classes="entity-section hidden"):
                     with Horizontal(classes="section-header"):
@@ -175,6 +217,12 @@ class MainScreen(Screen[None]):
 
                     with Vertical(id="playlists-list", classes="entity-list"):
                         pass  # Populated dynamically
+
+                    yield Button(
+                        "Load More Playlists",
+                        id="load-more-playlists",
+                        classes="load-more-btn hidden",
+                    )
 
                 # No results state
                 with Vertical(id="no-results", classes="hidden"):
@@ -205,21 +253,26 @@ class MainScreen(Screen[None]):
         elif button_id and button_id.startswith("filter-"):
             filter_type = button_id.replace("filter-", "")
             self._set_active_filter(filter_type)
+        elif button_id and button_id.startswith("load-more-"):
+            entity_type_str = button_id.replace("load-more-", "")
+            await self._load_more(entity_type_str)
         elif button_id and button_id.startswith("entity-"):
             # Handle entity card click
             await self._handle_entity_click(button_id)
 
     def _set_active_filter(self, filter_type: str) -> None:
         """Set the active filter and update display."""
-        self._active_filter = filter_type
+        if self._active_filter == filter_type:
+            return  # No change needed
 
-        # Update button states
-        for btn_type in self._filter_buttons:
-            btn = self.query_one(f"#filter-{btn_type}", Button)
-            if btn_type == filter_type:
-                btn.add_class("active")
-            else:
-                btn.remove_class("active")
+        # Update only the affected buttons (optimization)
+        old_btn = self.query_one(f"#filter-{self._active_filter}", Button)
+        old_btn.remove_class("active")
+
+        new_btn = self.query_one(f"#filter-{filter_type}", Button)
+        new_btn.add_class("active")
+
+        self._active_filter = filter_type
 
         # Update visible sections
         self._update_section_visibility()
@@ -270,6 +323,10 @@ class MainScreen(Screen[None]):
         self.query_one("#empty-state", Vertical).add_class("hidden")
         self.query_one("#no-results", Vertical).add_class("hidden")
 
+        # Reset display counts for new search
+        for entity_type in EntityType:
+            self._display_counts[entity_type] = INITIAL_DISPLAY_LIMIT[entity_type]
+
         try:
             # Try online search first
             if self.spotdl_app.is_online:
@@ -310,8 +367,6 @@ class MainScreen(Screen[None]):
         # Convert to EntityResults
         results: list[EntityResult] = []
         for song in songs:
-            from spotdl_cli.core.types import PlatformInfo
-
             result = EntityResult(
                 id=song.platform_id,
                 entity_type=EntityType.TRACK,
@@ -346,102 +401,147 @@ class MainScreen(Screen[None]):
             self.query_one("#no-results", Vertical).remove_class("hidden")
             return
 
-        # Display artists
+        # Display each entity type with lazy loading
         if response.artists:
-            self._display_artists(response.artists)
+            self._display_entity_section(
+                EntityType.ARTIST, response.artists, "artists"
+            )
 
-        # Display albums
         if response.albums:
-            self._display_albums(response.albums)
+            self._display_entity_section(
+                EntityType.ALBUM, response.albums, "albums"
+            )
 
-        # Display tracks
         if response.tracks:
-            self._display_tracks(response.tracks)
+            self._display_entity_section(
+                EntityType.TRACK, response.tracks, "tracks"
+            )
 
-        # Display playlists
         if response.playlists:
-            self._display_playlists(response.playlists)
+            self._display_entity_section(
+                EntityType.PLAYLIST, response.playlists, "playlists"
+            )
 
         # Update section visibility based on filter
         self._update_section_visibility()
 
     def _clear_results(self) -> None:
         """Clear all result sections."""
-        for section_id in ["artists-grid", "albums-list", "tracks-list", "playlists-list"]:
+        for section_id in ["artists-list", "albums-list", "tracks-list", "playlists-list"]:
             container = self.query_one(f"#{section_id}")
             container.remove_children()
 
-        # Hide all sections
+        # Hide all sections and load more buttons
         for section_id in [
             "artists-section", "albums-section", "tracks-section", "playlists-section"
         ]:
             self.query_one(f"#{section_id}", Vertical).add_class("hidden")
 
-    def _display_artists(self, artists: list[EntityResult]) -> None:
-        """Display artist results in horizontal grid."""
-        section = self.query_one("#artists-section", Vertical)
-        grid = self.query_one("#artists-grid", Horizontal)
-        count = self.query_one("#artists-count", Static)
+        for btn_id in [
+            "load-more-artists", "load-more-albums", "load-more-tracks", "load-more-playlists"
+        ]:
+            self.query_one(f"#{btn_id}", Button).add_class("hidden")
 
-        count.update(f"({len(artists)})")
+    def _display_entity_section(
+        self,
+        entity_type: EntityType,
+        entities: list[EntityResult],
+        section_name: str,
+    ) -> None:
+        """Display a section of entities with lazy loading."""
+        section = self.query_one(f"#{section_name}-section", Vertical)
+        container = self.query_one(f"#{section_name}-list", Vertical)
+        count_label = self.query_one(f"#{section_name}-count", Static)
+        load_more_btn = self.query_one(f"#load-more-{section_name}", Button)
 
-        for artist in artists[:10]:  # Limit to 10
-            card = self._create_artist_card(artist)
-            grid.mount(card)
+        count_label.update(f"({len(entities)})")
 
-        section.remove_class("hidden")
+        # Get display limit
+        display_limit = self._display_counts[entity_type]
+        entities_to_show = entities[:display_limit]
 
-    def _display_albums(self, albums: list[EntityResult]) -> None:
-        """Display album results in list."""
-        section = self.query_one("#albums-section", Vertical)
-        container = self.query_one("#albums-list", Vertical)
-        count = self.query_one("#albums-count", Static)
+        # Create cards in batch
+        cards: list[Container] = []
+        for entity in entities_to_show:
+            if entity_type == EntityType.ARTIST:
+                card = self._create_artist_card(entity)
+            else:
+                card = self._create_entity_card(entity, entity_type)
+            cards.append(card)
 
-        count.update(f"({len(albums)})")
+        # Batch mount all cards at once (much faster than individual mounts)
+        container.mount(*cards)
 
-        for album in albums[:12]:  # Limit to 12
-            card = self._create_entity_card(album, EntityType.ALBUM)
-            container.mount(card)
-
-        section.remove_class("hidden")
-
-    def _display_tracks(self, tracks: list[EntityResult]) -> None:
-        """Display track results in list."""
-        section = self.query_one("#tracks-section", Vertical)
-        container = self.query_one("#tracks-list", Vertical)
-        count = self.query_one("#tracks-count", Static)
-
-        count.update(f"({len(tracks)})")
-
-        for track in tracks[:15]:  # Limit to 15
-            card = self._create_entity_card(track, EntityType.TRACK)
-            container.mount(card)
-
-        section.remove_class("hidden")
-
-    def _display_playlists(self, playlists: list[EntityResult]) -> None:
-        """Display playlist results in list."""
-        section = self.query_one("#playlists-section", Vertical)
-        container = self.query_one("#playlists-list", Vertical)
-        count = self.query_one("#playlists-count", Static)
-
-        count.update(f"({len(playlists)})")
-
-        for playlist in playlists[:10]:  # Limit to 10
-            card = self._create_entity_card(playlist, EntityType.PLAYLIST)
-            container.mount(card)
+        # Show/hide load more button
+        if len(entities) > display_limit:
+            load_more_btn.remove_class("hidden")
+        else:
+            load_more_btn.add_class("hidden")
 
         section.remove_class("hidden")
+
+    async def _load_more(self, entity_type_str: str) -> None:
+        """Load more entities for a section."""
+        if not self._search_response:
+            return
+
+        # Map string to entity type and data
+        type_map = {
+            "artists": (EntityType.ARTIST, self._search_response.artists, "artists"),
+            "albums": (EntityType.ALBUM, self._search_response.albums, "albums"),
+            "tracks": (EntityType.TRACK, self._search_response.tracks, "tracks"),
+            "playlists": (EntityType.PLAYLIST, self._search_response.playlists, "playlists"),
+        }
+
+        if entity_type_str not in type_map:
+            return
+
+        entity_type, entities, section_name = type_map[entity_type_str]
+
+        # Update display count
+        old_limit = self._display_counts[entity_type]
+        new_limit = old_limit + LOAD_MORE_INCREMENT[entity_type]
+        self._display_counts[entity_type] = new_limit
+
+        # Get new entities to show
+        new_entities = entities[old_limit:new_limit]
+
+        if not new_entities:
+            return
+
+        # Create and mount new cards
+        container = self.query_one(f"#{section_name}-list", Vertical)
+        cards: list[Container] = []
+        for entity in new_entities:
+            if entity_type == EntityType.ARTIST:
+                card = self._create_artist_card(entity)
+            else:
+                card = self._create_entity_card(entity, entity_type)
+            cards.append(card)
+
+        container.mount(*cards)
+
+        # Hide load more if no more entities
+        load_more_btn = self.query_one(f"#load-more-{section_name}", Button)
+        if new_limit >= len(entities):
+            load_more_btn.add_class("hidden")
 
     def _create_artist_card(self, artist: EntityResult) -> Container:
-        """Create an artist card for horizontal display."""
+        """Create an artist card for display."""
         platform_badges = self._get_platform_badges(artist)
 
-        card = Vertical(
-            Static(f"[bold]{self._truncate(artist.name, 15)}[/bold]", classes="card-name"),
-            Static(platform_badges, classes="platform-badges"),
+        card = Horizontal(
+            Static("👤", classes="entity-icon artist-color"),
+            Vertical(
+                Static(
+                    f"[bold]{self._truncate(artist.name, 30)}[/bold]",
+                    classes="card-title",
+                ),
+                Static(platform_badges, classes="platform-badges"),
+                classes="card-info",
+            ),
             Button("View", id=f"entity-artist-{artist.id}", classes="card-action"),
-            classes="artist-card",
+            classes="entity-card",
             id=f"artist-card-{artist.id}",
         )
         return card
@@ -533,66 +633,58 @@ class MainScreen(Screen[None]):
 
     async def _view_entity(self, entity_type_str: str, entity_id: str) -> None:
         """Navigate to entity detail screen."""
+        # Lazy import detail screens to avoid circular imports
+        from spotdl_cli.screens.album import AlbumScreen
+        from spotdl_cli.screens.artist import ArtistScreen
+        from spotdl_cli.screens.playlist import PlaylistScreen
+        from spotdl_cli.screens.track import TrackScreen
+
         try:
             entity_type = EntityType(entity_type_str)
         except ValueError:
             return
 
-        if entity_type == EntityType.TRACK:
-            from spotdl_cli.screens.track import TrackScreen
-            from spotdl_cli.core.types import Song, Platform
+        entity = self._find_entity(entity_id)
+        if not entity or not entity.primary_platform:
+            return
 
-            # Find the entity in results
-            entity = self._find_entity(entity_id)
-            if entity and entity.primary_platform:
-                song = Song(
-                    name=entity.name,
-                    artists=[entity.subtitle or "Unknown"],
-                    artist=entity.subtitle or "Unknown",
-                    duration=entity.duration or 0,
-                    platform=Platform(entity.primary_platform.platform),
-                    platform_id=entity.primary_platform.platform_id,
-                    url=entity.primary_platform.url,
-                )
-                await self.app.push_screen(
-                    TrackScreen(song, entity.id, entity.primary_platform.platform)
-                )
+        if entity_type == EntityType.TRACK:
+            song = Song(
+                name=entity.name,
+                artists=[entity.subtitle or "Unknown"],
+                artist=entity.subtitle or "Unknown",
+                duration=entity.duration or 0,
+                platform=Platform(entity.primary_platform.platform),
+                platform_id=entity.primary_platform.platform_id,
+                url=entity.primary_platform.url,
+            )
+            await self.app.push_screen(
+                TrackScreen(song, entity.id, entity.primary_platform.platform)
+            )
 
         elif entity_type == EntityType.ALBUM:
-            from spotdl_cli.screens.album import AlbumScreen
-
-            entity = self._find_entity(entity_id)
-            if entity and entity.primary_platform:
-                await self.app.push_screen(
-                    AlbumScreen(
-                        entity.primary_platform.platform_id,
-                        entity.primary_platform.platform,
-                    )
+            await self.app.push_screen(
+                AlbumScreen(
+                    entity.primary_platform.platform_id,
+                    entity.primary_platform.platform,
                 )
+            )
 
         elif entity_type == EntityType.ARTIST:
-            from spotdl_cli.screens.artist import ArtistScreen
-
-            entity = self._find_entity(entity_id)
-            if entity and entity.primary_platform:
-                await self.app.push_screen(
-                    ArtistScreen(
-                        entity.primary_platform.platform_id,
-                        entity.primary_platform.platform,
-                    )
+            await self.app.push_screen(
+                ArtistScreen(
+                    entity.primary_platform.platform_id,
+                    entity.primary_platform.platform,
                 )
+            )
 
         elif entity_type == EntityType.PLAYLIST:
-            from spotdl_cli.screens.playlist import PlaylistScreen
-
-            entity = self._find_entity(entity_id)
-            if entity and entity.primary_platform:
-                await self.app.push_screen(
-                    PlaylistScreen(
-                        entity.primary_platform.platform_id,
-                        entity.primary_platform.platform,
-                    )
+            await self.app.push_screen(
+                PlaylistScreen(
+                    entity.primary_platform.platform_id,
+                    entity.primary_platform.platform,
                 )
+            )
 
     async def _download_entity(self, entity_type_str: str, entity_id: str) -> None:
         """Add entity to download queue."""
@@ -607,8 +699,6 @@ class MainScreen(Screen[None]):
             return
 
         if entity_type == EntityType.TRACK and entity.primary_platform:
-            from spotdl_cli.core.types import Song, Platform
-
             song = Song(
                 name=entity.name,
                 artists=[entity.subtitle or "Unknown"],

@@ -61,7 +61,9 @@ export const ToggleSwitch = forwardRef<HTMLInputElement, ToggleSwitchProps>(
   ) => {
     const config = sizeConfig[size];
 
-    const handleClick = () => {
+    const handleClick = (e: React.MouseEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
       if (!disabled) {
         onChange(!checked);
       }

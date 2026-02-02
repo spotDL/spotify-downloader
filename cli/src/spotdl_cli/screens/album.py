@@ -9,6 +9,7 @@ Displays detailed album information including:
 
 from __future__ import annotations
 
+import asyncio
 import logging
 from typing import TYPE_CHECKING, Any, ClassVar
 
@@ -463,27 +464,35 @@ class AlbumScreen(Screen[None]):
         )
 
     async def _download_all(self) -> None:
-        """Download all tracks."""
+        """Download all tracks using concurrent batch operations."""
         if not self._tracks:
             self.notify("No tracks to download", severity="warning")
             return
 
         queue = self.spotdl_app.download_queue
-        for track in self._tracks:
-            await queue.add(track)
+
+        # Batch add tracks concurrently for better performance
+        batch_size = 10
+        for i in range(0, len(self._tracks), batch_size):
+            batch = self._tracks[i : i + batch_size]
+            await asyncio.gather(*[queue.add(track) for track in batch])
 
         self.notify(f"Added {len(self._tracks)} tracks to download queue")
         await self.app.push_screen("queue")
 
     async def _add_all_to_queue(self) -> None:
-        """Add all tracks to queue without starting download."""
+        """Add all tracks to queue using concurrent batch operations."""
         if not self._tracks:
             self.notify("No tracks to add", severity="warning")
             return
 
         queue = self.spotdl_app.download_queue
-        for track in self._tracks:
-            await queue.add(track)
+
+        # Batch add tracks concurrently for better performance
+        batch_size = 10
+        for i in range(0, len(self._tracks), batch_size):
+            batch = self._tracks[i : i + batch_size]
+            await asyncio.gather(*[queue.add(track) for track in batch])
 
         self.notify(f"Added {len(self._tracks)} tracks to queue")
 
