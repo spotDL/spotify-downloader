@@ -1,11 +1,7 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
-import { useState } from "react";
-import {
-  useSettingsStore,
-  type AudioFormat,
-  type AudioQuality,
-  type LogLevel,
-} from "@/stores/settings";
+import { useState, useEffect, useRef, useCallback } from "react";
+import { useSettingsStore } from "@/stores/settings";
+import type { AudioQuality } from "@/stores/settings";
 import {
   useUserSettings,
   useUpdateUserSettings,
@@ -32,6 +28,23 @@ import {
 } from "@/components/ui";
 import { useProviders } from "@/api";
 import { useDevConfig } from "@/contexts/DevConfigContext";
+
+// Debounce hook for auto-save
+function useDebounce<T>(value: T, delay: number): T {
+  const [debouncedValue, setDebouncedValue] = useState<T>(value);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [value, delay]);
+
+  return debouncedValue;
+}
 
 export const Route = createFileRoute("/settings")({
   beforeLoad: () => {
@@ -118,6 +131,9 @@ function SettingsPage() {
   const [syncStatus, setSyncStatus] = useState<
     "idle" | "syncing" | "success" | "error"
   >("idle");
+  const [autoSaveStatus, setAutoSaveStatus] = useState<
+    "idle" | "saving" | "saved" | "error"
+  >("idle");
 
   const {
     audioFormat,
@@ -181,15 +197,76 @@ function SettingsPage() {
   // Fetch provider info from API
   const { data: providersData } = useProviders();
 
-  // Wrapper functions that show toast on setting change
-  const withToast = <T,>(setter: (value: T) => void, label: string) => (value: T) => {
+  // Track settings version for auto-save
+  const settingsVersion = useRef(0);
+  const [pendingSave, setPendingSave] = useState(0);
+  const debouncedPendingSave = useDebounce(pendingSave, 2000);
+
+  // Wrapper functions that show toast on setting change and trigger auto-save
+  const withToast = useCallback(<T,>(setter: (value: T) => void, label: string) => (value: T) => {
     setter(value);
     showSuccess(`${label} updated`);
-  };
+    setPendingSave(prev => prev + 1);
+  }, [showSuccess]);
+
+  // Wrapper for selects
+  const withSelectToast = useCallback(<T extends string>(setter: (value: T) => void, label: string) => (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setter(e.target.value as T);
+    showSuccess(`${label} updated`);
+    setPendingSave(prev => prev + 1);
+  }, [showSuccess]);
+
+  // Wrapper for inputs (debounced toast for typing)
+  const inputTimeouts = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
+  const withInputToast = useCallback((setter: (value: string) => void, label: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    setter(e.target.value);
+    // Clear existing timeout for this input
+    if (inputTimeouts.current[label]) {
+      clearTimeout(inputTimeouts.current[label]);
+    }
+    // Set new timeout to show toast after typing stops
+    inputTimeouts.current[label] = setTimeout(() => {
+      showSuccess(`${label} updated`);
+      setPendingSave(prev => prev + 1);
+    }, 500);
+  }, [showSuccess]);
+
+  // Wrapper for sliders
+  const withSliderToast = useCallback((setter: (value: number) => void, label: string) => (value: number) => {
+    setter(value);
+    showSuccess(`${label} updated`);
+    setPendingSave(prev => prev + 1);
+  }, [showSuccess]);
 
   // API hooks for syncing
   const { refetch: refetchServerSettings } = useUserSettings();
   const updateSettingsMutation = useUpdateUserSettings();
+
+  // Auto-save to server when settings change (debounced)
+  useEffect(() => {
+    if (!isAuthenticated || debouncedPendingSave === 0) return;
+    if (settingsVersion.current === debouncedPendingSave) return;
+    settingsVersion.current = debouncedPendingSave;
+
+    const autoSave = async () => {
+      setAutoSaveStatus("saving");
+      try {
+        const currentSettings = exportSettings();
+        await updateSettingsMutation.mutateAsync(
+          storeToApiSettings(currentSettings)
+        );
+        setAutoSaveStatus("saved");
+        setTimeout(() => setAutoSaveStatus("idle"), 2000);
+      } catch (error) {
+        setAutoSaveStatus("error");
+        const message = error instanceof Error ? error.message : "Unknown error";
+        showError(`Failed to auto-save settings: ${message}`);
+        setTimeout(() => setAutoSaveStatus("idle"), 3000);
+      }
+    };
+
+    autoSave();
+  }, [debouncedPendingSave, isAuthenticated, exportSettings, updateSettingsMutation, showError]);
 
   // Sync settings to server
   const handleSyncToServer = async () => {
@@ -285,6 +362,28 @@ function SettingsPage() {
           </p>
         </div>
         <div className="flex items-center gap-3">
+          {isAuthenticated && autoSaveStatus === "saving" && (
+            <Badge variant="info">
+              <svg className="w-3 h-3 mr-1 animate-spin" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+              </svg>
+              Saving...
+            </Badge>
+          )}
+          {isAuthenticated && autoSaveStatus === "saved" && (
+            <Badge variant="success">
+              <svg className="w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+              Saved
+            </Badge>
+          )}
+          {isAuthenticated && autoSaveStatus === "error" && (
+            <Badge variant="error">
+              Save failed
+            </Badge>
+          )}
           {isAuthenticated && (
             <Badge variant="success" pulse>
               Signed In
@@ -329,17 +428,13 @@ function SettingsPage() {
                   label="Audio Format"
                   options={FORMAT_OPTIONS}
                   value={audioFormat}
-                  onChange={(e) =>
-                    setAudioFormat(e.target.value as AudioFormat)
-                  }
+                  onChange={withSelectToast(setAudioFormat, "Audio format")}
                 />
                 <Select
                   label="Audio Quality"
                   options={QUALITY_OPTIONS}
                   value={audioQuality}
-                  onChange={(e) =>
-                    setAudioQuality(e.target.value as AudioQuality)
-                  }
+                  onChange={withSelectToast(setAudioQuality, "Audio quality")}
                 />
               </div>
 
@@ -357,6 +452,8 @@ function SettingsPage() {
                 onChange={(val) => {
                   if (val >= 320) setAudioQuality("best");
                   else setAudioQuality(`${val}k` as AudioQuality);
+                  showSuccess("Bitrate updated");
+                  setPendingSave(prev => prev + 1);
                 }}
                 formatValue={(v) => `${v} kbps`}
                 disabled={audioFormat === "flac" || audioFormat === "wav"}
@@ -367,7 +464,7 @@ function SettingsPage() {
                 <Input
                   label="Output Template"
                   value={outputTemplate}
-                  onChange={(e) => setOutputTemplate(e.target.value)}
+                  onChange={withInputToast(setOutputTemplate, "Output template")}
                   placeholder="{artist} - {title}"
                 />
                 <p className="text-xs text-[var(--color-text-dim)] mt-2">
@@ -402,7 +499,7 @@ function SettingsPage() {
               <Input
                 label="Output Directory"
                 value={outputDirectory}
-                onChange={(e) => setOutputDirectory(e.target.value)}
+                onChange={withInputToast(setOutputDirectory, "Output directory")}
                 placeholder="~/Music/SpotDL"
               />
 
@@ -413,7 +510,7 @@ function SettingsPage() {
                 min={1}
                 max={10}
                 step={1}
-                onChange={setMaxConcurrentDownloads}
+                onChange={withSliderToast(setMaxConcurrentDownloads, "Concurrent downloads")}
                 formatValue={(v) => `${v} download${v > 1 ? "s" : ""}`}
               />
 
@@ -509,8 +606,16 @@ function SettingsPage() {
                   description="Order of preference for fetching song metadata"
                   preferences={metadataSourcePreferences}
                   providers={providersData.metadata_sources}
-                  onReorder={setMetadataSourcePreferences}
-                  onToggle={(id) => toggleProvider("metadata", id)}
+                  onReorder={(prefs) => {
+                    setMetadataSourcePreferences(prefs);
+                    showSuccess("Metadata sources order updated");
+                    setPendingSave(prev => prev + 1);
+                  }}
+                  onToggle={(id) => {
+                    toggleProvider("metadata", id);
+                    showSuccess("Metadata source toggled");
+                    setPendingSave(prev => prev + 1);
+                  }}
                 />
               )}
 
@@ -521,8 +626,16 @@ function SettingsPage() {
                   description="Order of preference for fetching lyrics"
                   preferences={lyricsSourcePreferences}
                   providers={providersData.lyrics_sources}
-                  onReorder={setLyricsSourcePreferences}
-                  onToggle={(id) => toggleProvider("lyrics", id)}
+                  onReorder={(prefs) => {
+                    setLyricsSourcePreferences(prefs);
+                    showSuccess("Lyrics sources order updated");
+                    setPendingSave(prev => prev + 1);
+                  }}
+                  onToggle={(id) => {
+                    toggleProvider("lyrics", id);
+                    showSuccess("Lyrics source toggled");
+                    setPendingSave(prev => prev + 1);
+                  }}
                 />
               )}
             </CardContent>
@@ -566,8 +679,16 @@ function SettingsPage() {
               description="Drag to set priority order. Higher priority sources are tried first."
               preferences={audioSourcePreferences}
               providers={providersData.audio_sources}
-              onReorder={setAudioSourcePreferences}
-              onToggle={(id) => toggleProvider("audio", id)}
+              onReorder={(prefs) => {
+                setAudioSourcePreferences(prefs);
+                showSuccess("Audio sources order updated");
+                setPendingSave(prev => prev + 1);
+              }}
+              onToggle={(id) => {
+                toggleProvider("audio", id);
+                showSuccess("Audio source toggled");
+                setPendingSave(prev => prev + 1);
+              }}
             />
           )}
 
@@ -578,7 +699,7 @@ function SettingsPage() {
             min={0}
             max={100}
             step={5}
-            onChange={setNameMatchThreshold}
+            onChange={withSliderToast(setNameMatchThreshold, "Minimum match score")}
             formatValue={(v) => `${v}%`}
           />
 
@@ -588,6 +709,7 @@ function SettingsPage() {
             onChange={(checked) => {
               setOfflineMode(!checked);
               showSuccess("Auto-select best match updated");
+              setPendingSave(prev => prev + 1);
             }}
             label="Auto-select best match"
             description="Automatically select the highest scoring match without manual review"
@@ -605,7 +727,7 @@ function SettingsPage() {
                 min={0}
                 max={100}
                 step={5}
-                onChange={setArtistMatchThreshold}
+                onChange={withSliderToast(setArtistMatchThreshold, "Artist match threshold")}
                 formatValue={(v) => `${v}%`}
               />
               <Slider
@@ -614,7 +736,7 @@ function SettingsPage() {
                 min={0}
                 max={100}
                 step={5}
-                onChange={setTimeMatchThreshold}
+                onChange={withSliderToast(setTimeMatchThreshold, "Duration match threshold")}
                 formatValue={(v) => `${v}%`}
               />
             </div>
@@ -655,7 +777,7 @@ function SettingsPage() {
           <Input
             label="Client ID"
             value={spotifyClientId}
-            onChange={(e) => setSpotifyClientId(e.target.value)}
+            onChange={withInputToast(setSpotifyClientId, "Client ID")}
             placeholder="Your Spotify Client ID"
           />
 
@@ -664,7 +786,7 @@ function SettingsPage() {
               label="Client Secret"
               type={showSecrets ? "text" : "password"}
               value={spotifyClientSecret}
-              onChange={(e) => setSpotifyClientSecret(e.target.value)}
+              onChange={withInputToast(setSpotifyClientSecret, "Client Secret")}
               placeholder="Your Spotify Client Secret"
             />
             <button
@@ -748,7 +870,7 @@ function SettingsPage() {
           <Input
             label="API URL"
             value={apiUrl}
-            onChange={(e) => setApiUrl(e.target.value)}
+            onChange={withInputToast(setApiUrl, "API URL")}
             placeholder="http://localhost:8000"
           />
 
@@ -756,7 +878,11 @@ function SettingsPage() {
             label="API Timeout"
             options={TIMEOUT_OPTIONS}
             value={String(apiTimeout)}
-            onChange={(e) => setApiTimeout(Number(e.target.value))}
+            onChange={(e) => {
+              setApiTimeout(Number(e.target.value));
+              showSuccess("API Timeout updated");
+              setPendingSave(prev => prev + 1);
+            }}
           />
 
           <ToggleSwitch
@@ -853,13 +979,13 @@ function SettingsPage() {
             label="Log Level"
             options={LOG_LEVEL_OPTIONS}
             value={logLevel}
-            onChange={(e) => setLogLevel(e.target.value as LogLevel)}
+            onChange={withSelectToast(setLogLevel, "Log level")}
           />
 
           <Input
             label="Cookie File Path"
             value={cookieFile}
-            onChange={(e) => setCookieFile(e.target.value)}
+            onChange={withInputToast(setCookieFile, "Cookie file path")}
             placeholder="Path to cookies.txt for authentication"
           />
         </CardContent>
