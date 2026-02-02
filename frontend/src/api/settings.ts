@@ -30,6 +30,10 @@ export interface UserSettingsResponse {
   time_match_threshold: number;
   log_level: string;
   cookie_file: string | null;
+  // Appearance settings
+  compact_sidebar: boolean;
+  enable_animations: boolean;
+  reduce_motion: boolean;
   // Provider preferences
   audio_source_preferences: ProviderPreferenceApi[] | null;
   metadata_source_preferences: ProviderPreferenceApi[] | null;
@@ -59,6 +63,10 @@ export function apiToStoreSettings(api: UserSettingsResponse): Partial<Exportabl
     timeMatchThreshold: api.time_match_threshold,
     logLevel: api.log_level as ExportableSettings["logLevel"],
     cookieFile: api.cookie_file ?? "",
+    // Appearance settings
+    compactSidebar: api.compact_sidebar,
+    enableAnimations: api.enable_animations,
+    reduceMotion: api.reduce_motion,
     // Provider preferences - only include if present from API
     ...(api.audio_source_preferences && { audioSourcePreferences: api.audio_source_preferences }),
     ...(api.metadata_source_preferences && { metadataSourcePreferences: api.metadata_source_preferences }),
@@ -89,6 +97,10 @@ export function storeToApiSettings(store: ExportableSettings): Partial<UserSetti
     time_match_threshold: store.timeMatchThreshold,
     log_level: store.logLevel,
     cookie_file: store.cookieFile || null,
+    // Appearance settings
+    compact_sidebar: store.compactSidebar,
+    enable_animations: store.enableAnimations,
+    reduce_motion: store.reduceMotion,
     // Provider preferences
     audio_source_preferences: store.audioSourcePreferences,
     metadata_source_preferences: store.metadataSourcePreferences,

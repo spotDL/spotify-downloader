@@ -81,6 +81,11 @@ class UserSettingsResponse(BaseModel):
     log_level: str = "INFO"
     cookie_file: str | None = None
 
+    # Appearance settings
+    compact_sidebar: bool = True
+    enable_animations: bool = True
+    reduce_motion: bool = False
+
     # Provider preferences
     audio_source_preferences: list[ProviderPreference] | None = None
     metadata_source_preferences: list[ProviderPreference] | None = None
@@ -126,6 +131,11 @@ class UserSettingsUpdate(BaseModel):
     # Advanced settings
     log_level: str | None = Field(None, pattern="^(DEBUG|INFO|WARNING|ERROR|CRITICAL)$")
     cookie_file: str | None = Field(None, max_length=500)
+
+    # Appearance settings
+    compact_sidebar: bool | None = None
+    enable_animations: bool | None = None
+    reduce_motion: bool | None = None
 
     # Provider preferences
     audio_source_preferences: list[ProviderPreference] | None = None

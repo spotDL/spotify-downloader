@@ -150,6 +150,23 @@ class UserSettings(Base, TimestampMixin):
         nullable=True,
     )
 
+    # Appearance settings
+    compact_sidebar: Mapped[bool] = mapped_column(
+        Boolean,
+        default=True,
+        nullable=False,
+    )
+    enable_animations: Mapped[bool] = mapped_column(
+        Boolean,
+        default=True,
+        nullable=False,
+    )
+    reduce_motion: Mapped[bool] = mapped_column(
+        Boolean,
+        default=False,
+        nullable=False,
+    )
+
     # Custom settings stored as JSON (for future extensibility)
     custom_settings: Mapped[str | None] = mapped_column(
         Text,
