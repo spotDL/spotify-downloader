@@ -172,6 +172,20 @@ class UserSettings(Base, TimestampMixin):
         nullable=True,
     )
 
+    # Metadata embed preferences (per-field source priority)
+    # Format: {
+    #   "default_order": ["spotify", "musicbrainz", "discogs"],
+    #   "fields": {
+    #     "genres": {"order": ["musicbrainz", "discogs"], "enabled": true},
+    #     "label": {"order": ["discogs", "musicbrainz"], "enabled": true},
+    #     ...
+    #   }
+    # }
+    metadata_embed_preferences: Mapped[dict | None] = mapped_column(
+        JSONType(),
+        nullable=True,
+    )
+
     # Relationship back to user
     user: Mapped[User] = relationship(
         "User",

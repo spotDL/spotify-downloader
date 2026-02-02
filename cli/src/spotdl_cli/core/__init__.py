@@ -17,6 +17,10 @@ from spotdl_cli.core.offline import (
     OfflineMatcher,
     get_offline_matcher,
 )
+from spotdl_cli.core.query import (
+    QueryType,
+    parse_query,
+)
 from spotdl_cli.core.queue import (
     DownloadQueue,
     QueueEvent,
@@ -25,10 +29,14 @@ from spotdl_cli.core.types import (
     DownloadItem,
     DownloadResult,
     DownloadStatus,
+    EntityResult,
+    EntityType,
     Platform,
+    PlatformInfo,
     SearchResult,
     Song,
     TargetPlatform,
+    UniversalSearchResponse,
 )
 
 __all__ = [
@@ -43,13 +51,19 @@ __all__ = [
     "DownloadResult",
     "DownloadStatus",
     "Downloader",
+    "EntityResult",
+    "EntityType",
     "NotFoundError",
     "OfflineMatcher",
     "Platform",
+    "PlatformInfo",
+    "QueryType",
     "QueueEvent",
     "SearchResult",
     "Song",
     "TargetPlatform",
+    "UniversalSearchResponse",
     "get_api_client",
     "get_offline_matcher",
+    "parse_query",
 ]

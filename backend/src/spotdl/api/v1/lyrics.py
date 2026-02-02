@@ -10,6 +10,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from spotdl.api.v1.dependencies import UserPreferences, get_user_preferences
 from spotdl.api.v1.validation import validate_uuid
 from spotdl.config import get_settings
 from spotdl.core.services.lyrics import LyricsResult, get_lyrics_service
@@ -42,6 +43,7 @@ class LyricsNotFoundResponse(BaseModel):
 @router.get("/song/{song_id}", response_model=LyricsResponse | LyricsNotFoundResponse)
 async def get_lyrics_for_song(
     song_id: str,
+    preferences: Annotated[UserPreferences, Depends(get_user_preferences)],
     force_refresh: Annotated[
         bool, Query(description="Force refresh lyrics from providers")
     ] = False,
@@ -52,6 +54,9 @@ async def get_lyrics_for_song(
 
     Attempts to retrieve from cache first, then fetches from providers
     if not cached or force_refresh is True.
+
+    Uses user's lyrics source preferences to determine provider order.
+    Unauthenticated users get default provider order.
     """
     # Validate UUID
     song_uuid = validate_uuid(song_id, "song ID")
@@ -71,6 +76,7 @@ async def get_lyrics_for_song(
         session=db,
         genius_token=genius_token,
         enable_cache=True,
+        lyrics_preferences=preferences["lyrics"],
     ) as lyrics_service:
         result = await lyrics_service.fetch_lyrics(
             song_id=song_uuid,
@@ -95,12 +101,16 @@ async def get_lyrics_for_song(
 async def search_lyrics(
     name: Annotated[str, Query(description="Song name")],
     artist: Annotated[str, Query(description="Artist name")],
+    preferences: Annotated[UserPreferences, Depends(get_user_preferences)],
     db: AsyncSession = Depends(get_db_session),
 ) -> LyricsResponse | LyricsNotFoundResponse:
     """
     Search for lyrics by song name and artist.
 
     Does not cache results (use song ID endpoint for caching).
+
+    Uses user's lyrics source preferences to determine provider order.
+    Unauthenticated users get default provider order.
     """
     settings = get_settings()
     genius_token = settings.genius_access_token.get_secret_value() if settings.genius_access_token else None
@@ -109,6 +119,7 @@ async def search_lyrics(
         session=db,
         genius_token=genius_token,
         enable_cache=False,  # Don't cache search results
+        lyrics_preferences=preferences["lyrics"],
     ) as lyrics_service:
         # Use a dummy UUID since we're not caching
         result = await lyrics_service.fetch_lyrics(
@@ -198,6 +209,7 @@ async def get_all_lyrics_for_song(
 @router.post("/song/{song_id}/fetch-all")
 async def fetch_all_lyrics_sources(
     song_id: str,
+    preferences: Annotated[UserPreferences, Depends(get_user_preferences)],
     db: AsyncSession = Depends(get_db_session),
 ) -> AllLyricsResponse:
     """
@@ -206,6 +218,9 @@ async def fetch_all_lyrics_sources(
     Unlike the regular lyrics endpoint which returns the first result,
     this fetches from ALL providers in parallel and stores each result
     separately, allowing users to compare lyrics from different sources.
+
+    Uses user's lyrics source preferences to determine which providers to use
+    and in what order. Unauthenticated users get default provider set.
     """
     # Validate UUID
     song_uuid = validate_uuid(song_id, "song ID")
@@ -225,6 +240,7 @@ async def fetch_all_lyrics_sources(
         session=db,
         genius_token=genius_token,
         enable_cache=True,
+        lyrics_preferences=preferences["lyrics"],
     ) as lyrics_service:
         results = await lyrics_service.fetch_all_lyrics(
             song_id=song_uuid,

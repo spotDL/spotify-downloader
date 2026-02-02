@@ -10,9 +10,11 @@ import httpx
 from spotdl_cli.config import Settings, get_settings
 from spotdl_cli.core.types import (
     DownloadResult,
+    EntityType,
     Platform,
     Song,
     TargetPlatform,
+    UniversalSearchResponse,
 )
 
 logger = logging.getLogger(__name__)
@@ -171,6 +173,50 @@ class APIClient:
         except httpx.HTTPError as e:
             raise APIError(f"Request failed: {e}") from e
 
+    async def universal_search(
+        self,
+        query: str,
+        entity_types: list[EntityType] | None = None,
+        limit: int = 30,
+    ) -> UniversalSearchResponse:
+        """
+        Universal search returning all entity types.
+
+        Args:
+            query: Search query or URL
+            entity_types: Optional filter for entity types
+            limit: Maximum results
+
+        Returns:
+            UniversalSearchResponse with artists, albums, tracks, playlists
+        """
+        try:
+            client = await self._get_client()
+
+            body: dict[str, Any] = {
+                "query": query,
+                "limit": limit,
+            }
+            if entity_types:
+                body["entity_types"] = [et.value for et in entity_types]
+
+            response = await client.post(
+                "/api/v1/search",
+                json=body,
+            )
+
+            response.raise_for_status()
+            data = response.json()
+
+            return UniversalSearchResponse.from_dict(data)
+
+        except httpx.ConnectError as e:
+            raise ConnectionError(f"Cannot connect to API: {e}") from e
+        except httpx.HTTPStatusError as e:
+            raise APIError(f"API error: {e.response.text}") from e
+        except httpx.HTTPError as e:
+            raise APIError(f"Request failed: {e}") from e
+
     async def find_matches(
         self,
         song: Song,
@@ -267,6 +313,196 @@ class APIClient:
         except httpx.ConnectError as e:
             raise ConnectionError(f"Cannot connect to API: {e}") from e
         except httpx.HTTPStatusError as e:
+            raise APIError(f"API error: {e.response.text}") from e
+        except httpx.HTTPError as e:
+            raise APIError(f"Request failed: {e}") from e
+
+    # ============== Detail Endpoints ==============
+
+    async def get_track(self, track_id: str, platform: str = "spotify") -> dict[str, Any]:
+        """
+        Get detailed information about a track.
+
+        Args:
+            track_id: Track ID on the platform
+            platform: Platform name (spotify, deezer, etc.)
+
+        Returns:
+            Track details including metadata, matches, lyrics, audio features
+        """
+        try:
+            client = await self._get_client()
+            response = await client.get(
+                f"/api/v1/songs/{platform}/{track_id}",
+            )
+
+            if response.status_code == 404:
+                raise NotFoundError(f"Track not found: {track_id}")
+
+            response.raise_for_status()
+            return response.json()
+
+        except httpx.ConnectError as e:
+            raise ConnectionError(f"Cannot connect to API: {e}") from e
+        except httpx.HTTPStatusError as e:
+            raise APIError(f"API error: {e.response.text}") from e
+        except httpx.HTTPError as e:
+            raise APIError(f"Request failed: {e}") from e
+
+    async def get_album(self, album_id: str, platform: str = "spotify") -> dict[str, Any]:
+        """
+        Get detailed information about an album.
+
+        Args:
+            album_id: Album ID on the platform
+            platform: Platform name (spotify, deezer, etc.)
+
+        Returns:
+            Album details including tracks, metadata
+        """
+        try:
+            client = await self._get_client()
+            response = await client.get(
+                f"/api/v1/albums/{platform}/{album_id}",
+            )
+
+            if response.status_code == 404:
+                raise NotFoundError(f"Album not found: {album_id}")
+
+            response.raise_for_status()
+            return response.json()
+
+        except httpx.ConnectError as e:
+            raise ConnectionError(f"Cannot connect to API: {e}") from e
+        except httpx.HTTPStatusError as e:
+            raise APIError(f"API error: {e.response.text}") from e
+        except httpx.HTTPError as e:
+            raise APIError(f"Request failed: {e}") from e
+
+    async def get_artist(self, artist_id: str, platform: str = "spotify") -> dict[str, Any]:
+        """
+        Get detailed information about an artist.
+
+        Args:
+            artist_id: Artist ID on the platform
+            platform: Platform name (spotify, deezer, etc.)
+
+        Returns:
+            Artist details including albums, top tracks
+        """
+        try:
+            client = await self._get_client()
+            response = await client.get(
+                f"/api/v1/artists/{platform}/{artist_id}",
+            )
+
+            if response.status_code == 404:
+                raise NotFoundError(f"Artist not found: {artist_id}")
+
+            response.raise_for_status()
+            return response.json()
+
+        except httpx.ConnectError as e:
+            raise ConnectionError(f"Cannot connect to API: {e}") from e
+        except httpx.HTTPStatusError as e:
+            raise APIError(f"API error: {e.response.text}") from e
+        except httpx.HTTPError as e:
+            raise APIError(f"Request failed: {e}") from e
+
+    async def get_playlist(
+        self, playlist_id: str, platform: str = "spotify"
+    ) -> dict[str, Any]:
+        """
+        Get detailed information about a playlist.
+
+        Args:
+            playlist_id: Playlist ID on the platform
+            platform: Platform name (spotify, deezer, etc.)
+
+        Returns:
+            Playlist details including tracks
+        """
+        try:
+            client = await self._get_client()
+            response = await client.get(
+                f"/api/v1/playlists/{platform}/{playlist_id}",
+            )
+
+            if response.status_code == 404:
+                raise NotFoundError(f"Playlist not found: {playlist_id}")
+
+            response.raise_for_status()
+            return response.json()
+
+        except httpx.ConnectError as e:
+            raise ConnectionError(f"Cannot connect to API: {e}") from e
+        except httpx.HTTPStatusError as e:
+            raise APIError(f"API error: {e.response.text}") from e
+        except httpx.HTTPError as e:
+            raise APIError(f"Request failed: {e}") from e
+
+    async def get_lyrics(self, track_id: str, platform: str = "spotify") -> dict[str, Any]:
+        """
+        Get lyrics for a track.
+
+        Args:
+            track_id: Track ID on the platform
+            platform: Platform name
+
+        Returns:
+            Lyrics data including synced and plain text
+        """
+        try:
+            client = await self._get_client()
+            response = await client.get(
+                f"/api/v1/songs/{platform}/{track_id}/lyrics",
+            )
+
+            if response.status_code == 404:
+                return {"lyrics": None, "synced": False}
+
+            response.raise_for_status()
+            return response.json()
+
+        except httpx.ConnectError as e:
+            raise ConnectionError(f"Cannot connect to API: {e}") from e
+        except httpx.HTTPStatusError as e:
+            if e.response.status_code == 404:
+                return {"lyrics": None, "synced": False}
+            raise APIError(f"API error: {e.response.text}") from e
+        except httpx.HTTPError as e:
+            raise APIError(f"Request failed: {e}") from e
+
+    async def get_audio_features(
+        self, track_id: str, platform: str = "spotify"
+    ) -> dict[str, Any]:
+        """
+        Get audio features for a track (BPM, energy, etc.).
+
+        Args:
+            track_id: Track ID on the platform
+            platform: Platform name
+
+        Returns:
+            Audio features data
+        """
+        try:
+            client = await self._get_client()
+            response = await client.get(
+                f"/api/v1/songs/{platform}/{track_id}/audio-features",
+            )
+
+            if response.status_code == 404:
+                return {}
+
+            response.raise_for_status()
+            return response.json()
+
+        except httpx.ConnectError as e:
+            raise ConnectionError(f"Cannot connect to API: {e}") from e
+        except httpx.HTTPStatusError as e:
+            if e.response.status_code == 404:
+                return {}
             raise APIError(f"API error: {e.response.text}") from e
         except httpx.HTTPError as e:
             raise APIError(f"Request failed: {e}") from e

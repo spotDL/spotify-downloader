@@ -8,6 +8,14 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 
 from spotdl.api.v1.auth import get_current_user
+from spotdl.core.metadata_embed_config import (
+    FIELD_CATEGORIES,
+    METADATA_FIELDS,
+    METADATA_SOURCES,
+    get_default_embed_preferences,
+    get_fields_by_category,
+    validate_embed_preferences,
+)
 from spotdl.core.providers_config import validate_preferences
 from spotdl.db.database import get_db_session
 from spotdl.db.models.user import User
@@ -22,6 +30,20 @@ class ProviderPreference(BaseModel):
 
     id: str
     enabled: bool
+
+
+class FieldPreferenceModel(BaseModel):
+    """User preference for a single metadata field."""
+
+    order: list[str]  # Source priority order
+    enabled: bool = True  # Whether to include this field
+
+
+class MetadataEmbedPreferencesModel(BaseModel):
+    """User preferences for metadata embedding."""
+
+    default_order: list[str]  # Default source order for fields without overrides
+    fields: dict[str, FieldPreferenceModel]  # Per-field preferences
 
 
 class UserSettingsResponse(BaseModel):
@@ -63,6 +85,9 @@ class UserSettingsResponse(BaseModel):
     audio_source_preferences: list[ProviderPreference] | None = None
     metadata_source_preferences: list[ProviderPreference] | None = None
     lyrics_source_preferences: list[ProviderPreference] | None = None
+
+    # Metadata embed preferences (per-field source priority)
+    metadata_embed_preferences: MetadataEmbedPreferencesModel | None = None
 
     model_config = {"from_attributes": True}
 
@@ -106,6 +131,9 @@ class UserSettingsUpdate(BaseModel):
     audio_source_preferences: list[ProviderPreference] | None = None
     metadata_source_preferences: list[ProviderPreference] | None = None
     lyrics_source_preferences: list[ProviderPreference] | None = None
+
+    # Metadata embed preferences (per-field source priority)
+    metadata_embed_preferences: MetadataEmbedPreferencesModel | None = None
 
 
 @router.get("/me", response_model=UserSettingsResponse)
@@ -175,3 +203,253 @@ async def import_settings(
         settings = await repo.update(settings, **update_data)
 
     return UserSettingsResponse.model_validate(settings)
+
+
+# ============================================================================
+# Metadata Embed Preferences Endpoints
+# ============================================================================
+
+
+class MetadataSourceResponse(BaseModel):
+    """Response model for a metadata source."""
+
+    id: str
+    name: str
+    description: str
+
+
+class MetadataFieldResponse(BaseModel):
+    """Response model for a metadata field."""
+
+    id: str
+    name: str
+    description: str
+    category: str
+    default_order: list[str]
+    embed_tag: str | None
+
+
+class MetadataFieldCategoryResponse(BaseModel):
+    """Response model for a field category."""
+
+    id: str
+    name: str
+    fields: list[MetadataFieldResponse]
+
+
+class MetadataEmbedConfigResponse(BaseModel):
+    """Response with all available sources and fields."""
+
+    sources: list[MetadataSourceResponse]
+    fields: list[MetadataFieldResponse]
+    categories: list[MetadataFieldCategoryResponse]
+
+
+@router.get("/metadata-embed/config")
+async def get_metadata_embed_config() -> MetadataEmbedConfigResponse:
+    """
+    Get available metadata sources and fields for embed preferences.
+
+    Returns all available sources (Spotify, MusicBrainz, Discogs, etc.) and
+    all metadata fields organized by category. Use this to build the
+    preferences UI with draggable source lists per field.
+    """
+    # Get fields grouped by category
+    fields_by_cat = get_fields_by_category()
+
+    categories = [
+        MetadataFieldCategoryResponse(
+            id=cat_id,
+            name=FIELD_CATEGORIES.get(cat_id, cat_id),
+            fields=[
+                MetadataFieldResponse(
+                    id=f["id"],
+                    name=f["name"],
+                    description=f["description"],
+                    category=f["category"],
+                    default_order=f["default_order"],
+                    embed_tag=f["embed_tag"],
+                )
+                for f in fields
+            ],
+        )
+        for cat_id, fields in fields_by_cat.items()
+    ]
+
+    return MetadataEmbedConfigResponse(
+        sources=[
+            MetadataSourceResponse(
+                id=s["id"],
+                name=s["name"],
+                description=s["description"],
+            )
+            for s in METADATA_SOURCES
+        ],
+        fields=[
+            MetadataFieldResponse(
+                id=f["id"],
+                name=f["name"],
+                description=f["description"],
+                category=f["category"],
+                default_order=f["default_order"],
+                embed_tag=f["embed_tag"],
+            )
+            for f in METADATA_FIELDS
+        ],
+        categories=categories,
+    )
+
+
+@router.get("/metadata-embed/preferences")
+async def get_metadata_embed_preferences(
+    current_user: Annotated[User, Depends(get_current_user)],
+    session: Annotated[AsyncSession, Depends(get_db_session)],
+) -> MetadataEmbedPreferencesModel:
+    """
+    Get user's metadata embed preferences.
+
+    Returns the user's configured per-field source priorities.
+    If user has no preferences, returns defaults.
+    """
+    repo = UserSettingsRepository(session)
+    settings, _ = await repo.get_or_create(current_user.id)
+
+    # Validate and normalize preferences
+    validated = validate_embed_preferences(settings.metadata_embed_preferences)
+
+    return MetadataEmbedPreferencesModel(
+        default_order=validated["default_order"],
+        fields={
+            field_id: FieldPreferenceModel(
+                order=pref["order"],
+                enabled=pref["enabled"],
+            )
+            for field_id, pref in validated["fields"].items()
+        },
+    )
+
+
+@router.put("/metadata-embed/preferences")
+async def update_metadata_embed_preferences(
+    data: MetadataEmbedPreferencesModel,
+    current_user: Annotated[User, Depends(get_current_user)],
+    session: Annotated[AsyncSession, Depends(get_db_session)],
+) -> MetadataEmbedPreferencesModel:
+    """
+    Update user's metadata embed preferences.
+
+    Validates the preferences and saves them. Invalid source IDs are
+    filtered out, missing fields get defaults.
+    """
+    repo = UserSettingsRepository(session)
+    settings, _ = await repo.get_or_create(current_user.id)
+
+    # Convert to dict for validation
+    prefs_dict = {
+        "default_order": data.default_order,
+        "fields": {
+            field_id: {"order": pref.order, "enabled": pref.enabled}
+            for field_id, pref in data.fields.items()
+        },
+    }
+
+    # Validate and normalize
+    validated = validate_embed_preferences(prefs_dict)
+
+    # Save to database
+    settings = await repo.update(settings, metadata_embed_preferences=validated)
+
+    return MetadataEmbedPreferencesModel(
+        default_order=validated["default_order"],
+        fields={
+            field_id: FieldPreferenceModel(
+                order=pref["order"],
+                enabled=pref["enabled"],
+            )
+            for field_id, pref in validated["fields"].items()
+        },
+    )
+
+
+class FieldPreferenceUpdate(BaseModel):
+    """Request to update a single field's preference."""
+
+    order: list[str] | None = None  # If None, resets to default
+    enabled: bool | None = None
+
+
+@router.patch("/metadata-embed/preferences/field/{field_id}")
+async def update_field_preference(
+    field_id: str,
+    data: FieldPreferenceUpdate,
+    current_user: Annotated[User, Depends(get_current_user)],
+    session: Annotated[AsyncSession, Depends(get_db_session)],
+) -> FieldPreferenceModel:
+    """
+    Update preference for a single metadata field.
+
+    Use this for drag-and-drop reordering of sources for a specific field.
+    Pass order=null to reset to default order for this field.
+    """
+    from spotdl.core.metadata_embed_config import METADATA_FIELD_BY_ID
+
+    # Validate field exists
+    if field_id not in METADATA_FIELD_BY_ID:
+        raise HTTPException(status_code=404, detail=f"Unknown field: {field_id}")
+
+    repo = UserSettingsRepository(session)
+    settings, _ = await repo.get_or_create(current_user.id)
+
+    # Get current preferences
+    current = validate_embed_preferences(settings.metadata_embed_preferences)
+
+    # Update the specific field
+    if data.order is not None:
+        current["fields"][field_id]["order"] = data.order
+    else:
+        # Reset to default order
+        current["fields"][field_id]["order"] = METADATA_FIELD_BY_ID[field_id]["default_order"].copy()
+
+    if data.enabled is not None:
+        current["fields"][field_id]["enabled"] = data.enabled
+
+    # Re-validate to filter invalid sources
+    validated = validate_embed_preferences(current)
+
+    # Save
+    settings = await repo.update(settings, metadata_embed_preferences=validated)
+
+    field_pref = validated["fields"][field_id]
+    return FieldPreferenceModel(
+        order=field_pref["order"],
+        enabled=field_pref["enabled"],
+    )
+
+
+@router.post("/metadata-embed/preferences/reset")
+async def reset_metadata_embed_preferences(
+    current_user: Annotated[User, Depends(get_current_user)],
+    session: Annotated[AsyncSession, Depends(get_db_session)],
+) -> MetadataEmbedPreferencesModel:
+    """
+    Reset all metadata embed preferences to defaults.
+    """
+    repo = UserSettingsRepository(session)
+    settings, _ = await repo.get_or_create(current_user.id)
+
+    # Get defaults
+    defaults = get_default_embed_preferences()
+
+    # Save
+    settings = await repo.update(settings, metadata_embed_preferences=defaults)
+
+    return MetadataEmbedPreferencesModel(
+        default_order=defaults["default_order"],
+        fields={
+            field_id: FieldPreferenceModel(
+                order=pref["order"],
+                enabled=pref["enabled"],
+            )
+            for field_id, pref in defaults["fields"].items()
+        },
+    )

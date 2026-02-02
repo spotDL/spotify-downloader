@@ -13,6 +13,8 @@ import httpx
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from spotdl.core.provider_preferences import get_enabled_lyrics_provider_ids
+from spotdl.core.providers_config import ProviderPreference
 from spotdl.db.models.lyrics import Lyrics as LyricsModel
 from spotdl.db.repositories import LyricsRepository
 from spotdl.providers.lyrics.azlyrics import AZLyricsProvider
@@ -51,6 +53,7 @@ class LyricsService:
     - Prioritizes synced lyrics over plain lyrics
     - Caches results to database
     - Handles provider failures gracefully
+    - Respects user-configured provider order
     """
 
     def __init__(
@@ -58,6 +61,7 @@ class LyricsService:
         session: AsyncSession,
         genius_token: str | None = None,
         enable_cache: bool = True,
+        lyrics_preferences: list[ProviderPreference] | None = None,
     ) -> None:
         """
         Initialize lyrics service.
@@ -66,10 +70,13 @@ class LyricsService:
             session: Database session
             genius_token: Genius API token (optional)
             enable_cache: Whether to cache lyrics to database
+            lyrics_preferences: User's lyrics source preferences (ordered list with enabled status).
+                              If provided, determines provider order and which providers to use.
         """
         self.session = session
         self.genius_token = genius_token
         self.enable_cache = enable_cache
+        self._lyrics_preferences = lyrics_preferences
 
         # Shared HTTP client for connection pooling
         self._client: httpx.AsyncClient | None = None
@@ -89,7 +96,30 @@ class LyricsService:
             await self._client.aclose()
 
     def _get_providers(self) -> list[BaseLyricsProvider]:
-        """Get enabled providers in priority order."""
+        """Get enabled providers in user-specified priority order."""
+        # If no preferences, use default order
+        if self._lyrics_preferences is None:
+            return self._get_default_providers()
+
+        # Get enabled providers in user's order
+        prefs = get_enabled_lyrics_provider_ids(self._lyrics_preferences)
+        provider_order = prefs["provider_order"]
+
+        providers: list[BaseLyricsProvider] = []
+
+        for provider_id in provider_order:
+            provider = self._create_provider(provider_id)
+            if provider is not None:
+                providers.append(provider)
+
+        # If no providers enabled after processing, use defaults
+        if not providers:
+            return self._get_default_providers()
+
+        return providers
+
+    def _get_default_providers(self) -> list[BaseLyricsProvider]:
+        """Get default provider list (legacy order)."""
         providers: list[BaseLyricsProvider] = []
 
         # Priority 1: Synced lyrics (LRC format)
@@ -106,6 +136,31 @@ class LyricsService:
         providers.append(AZLyricsProvider(client=self._client))
 
         return providers
+
+    def _create_provider(self, provider_id: str) -> BaseLyricsProvider | None:
+        """
+        Create a provider instance by ID.
+
+        Args:
+            provider_id: Provider identifier
+
+        Returns:
+            Provider instance or None if unknown
+        """
+        if provider_id == "synced":
+            return SyncedLyricsProvider(client=self._client, allow_plain=False)
+        elif provider_id == "genius":
+            if self.genius_token:
+                return GeniusProvider(self.genius_token, client=self._client)
+            else:
+                return GeniusWebProvider(client=self._client)
+        elif provider_id == "musixmatch":
+            return MusixMatchProvider(client=self._client)
+        elif provider_id == "azlyrics":
+            return AZLyricsProvider(client=self._client)
+        else:
+            logger.warning(f"Unknown lyrics provider ID: {provider_id}")
+            return None
 
     async def fetch_lyrics(
         self,
@@ -483,6 +538,7 @@ def get_lyrics_service(
     session: AsyncSession,
     genius_token: str | None = None,
     enable_cache: bool = True,
+    lyrics_preferences: list[ProviderPreference] | None = None,
 ) -> LyricsService:
     """
     Factory function to create a LyricsService.
@@ -491,6 +547,7 @@ def get_lyrics_service(
         session: Database session
         genius_token: Optional Genius API token
         enable_cache: Whether to cache lyrics
+        lyrics_preferences: User's lyrics source preferences
 
     Returns:
         Configured LyricsService instance
@@ -499,4 +556,5 @@ def get_lyrics_service(
         session=session,
         genius_token=genius_token,
         enable_cache=enable_cache,
+        lyrics_preferences=lyrics_preferences,
     )

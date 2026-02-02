@@ -23,6 +23,8 @@ dependencies = [
     # TUI framework
     "textual>=0.89.0",
     "rich>=13.9.0",
+    # CLI framework
+    "typer>=0.12.0",
     # Download
     "yt-dlp>=2024.12.0",
     # Metadata embedding
@@ -50,7 +52,7 @@ dev = [
 ]
 
 [project.scripts]
-spotdl = "spotdl_cli.app:run"
+spotdl = "spotdl_cli.__main__:main"
 
 [project.urls]
 Homepage = "https://github.com/spotDL/spotify-downloader"

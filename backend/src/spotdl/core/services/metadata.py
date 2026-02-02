@@ -9,6 +9,8 @@ from typing import TYPE_CHECKING, Any
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from spotdl.core.provider_preferences import get_enabled_metadata_provider_ids
+from spotdl.core.providers_config import ProviderPreference
 from spotdl.db.repositories import MetadataSnapshotRepository
 from spotdl.providers.metadata import (
     DiscogsProvider,
@@ -44,36 +46,80 @@ class MetadataService:
         enable_musicbrainz: bool = True,
         enable_discogs: bool = True,
         discogs_user_token: str | None = None,
+        metadata_preferences: list[ProviderPreference] | None = None,
     ) -> None:
         """
         Initialize the metadata service.
 
         Args:
-            enable_musicbrainz: Enable MusicBrainz lookups
-            enable_discogs: Enable Discogs lookups
+            enable_musicbrainz: Enable MusicBrainz lookups (ignored if metadata_preferences provided)
+            enable_discogs: Enable Discogs lookups (ignored if metadata_preferences provided)
             discogs_user_token: Optional Discogs user token for higher rate limits
+            metadata_preferences: User's metadata source preferences (ordered list with enabled status).
+                                If provided, overrides enable_musicbrainz and enable_discogs.
         """
         self._providers: list[MetadataProvider] = []
 
-        # Initialize providers in order of preference
-        # MusicBrainz first (best for ISRC lookups)
-        if enable_musicbrainz:
-            try:
-                self._providers.append(MusicBrainzProvider())
-                logger.debug("MusicBrainz provider enabled")
-            except Exception as e:
-                logger.warning(f"Failed to initialize MusicBrainz provider: {e}")
+        # If preferences are provided, use them to determine providers and order
+        if metadata_preferences is not None:
+            prefs = get_enabled_metadata_provider_ids(metadata_preferences)
+            enable_musicbrainz = prefs["enable_musicbrainz"]
+            enable_discogs = prefs["enable_discogs"]
 
-        # Discogs second (good for genres, labels)
-        if enable_discogs:
-            try:
-                self._providers.append(DiscogsProvider(user_token=discogs_user_token))
-                logger.debug(
-                    f"Discogs provider enabled "
-                    f"(authenticated: {discogs_user_token is not None})"
-                )
-            except Exception as e:
-                logger.warning(f"Failed to initialize Discogs provider: {e}")
+            # Initialize providers in user-specified order
+            self._init_providers_from_preferences(
+                prefs["provider_ids"],
+                discogs_user_token,
+            )
+        else:
+            # Legacy initialization: MusicBrainz first, then Discogs
+            if enable_musicbrainz:
+                try:
+                    self._providers.append(MusicBrainzProvider())
+                    logger.debug("MusicBrainz provider enabled")
+                except Exception as e:
+                    logger.warning(f"Failed to initialize MusicBrainz provider: {e}")
+
+            if enable_discogs:
+                try:
+                    self._providers.append(DiscogsProvider(user_token=discogs_user_token))
+                    logger.debug(
+                        f"Discogs provider enabled "
+                        f"(authenticated: {discogs_user_token is not None})"
+                    )
+                except Exception as e:
+                    logger.warning(f"Failed to initialize Discogs provider: {e}")
+
+    def _init_providers_from_preferences(
+        self,
+        provider_ids: list[str],
+        discogs_user_token: str | None = None,
+    ) -> None:
+        """
+        Initialize providers based on user-specified order.
+
+        Args:
+            provider_ids: Ordered list of enabled provider IDs
+            discogs_user_token: Optional Discogs user token
+        """
+        for provider_id in provider_ids:
+            if provider_id == "musicbrainz":
+                try:
+                    self._providers.append(MusicBrainzProvider())
+                    logger.debug("MusicBrainz provider enabled")
+                except Exception as e:
+                    logger.warning(f"Failed to initialize MusicBrainz provider: {e}")
+            elif provider_id == "discogs":
+                try:
+                    self._providers.append(DiscogsProvider(user_token=discogs_user_token))
+                    logger.debug(
+                        f"Discogs provider enabled "
+                        f"(authenticated: {discogs_user_token is not None})"
+                    )
+                except Exception as e:
+                    logger.warning(f"Failed to initialize Discogs provider: {e}")
+            # Note: "spotify" is not a metadata enrichment provider
+            # It's the source platform, not a metadata lookup service
 
     @property
     def providers(self) -> list[MetadataProvider]:
@@ -366,7 +412,7 @@ class MetadataService:
                 logger.debug(f"Failed to close provider {provider.name}: {e}")
 
 
-# Global service instance
+# Global service instance (for default preferences)
 _metadata_service: MetadataService | None = None
 
 
@@ -374,19 +420,33 @@ def get_metadata_service(
     enable_musicbrainz: bool = True,
     enable_discogs: bool = True,
     discogs_user_token: str | None = None,
+    metadata_preferences: list[ProviderPreference] | None = None,
 ) -> MetadataService:
     """
-    Get the global metadata service instance.
+    Get a metadata service instance.
+
+    If metadata_preferences is provided, creates a new service with those preferences.
+    Otherwise returns the global service with default settings.
 
     Args:
-        enable_musicbrainz: Enable MusicBrainz lookups
-        enable_discogs: Enable Discogs lookups
+        enable_musicbrainz: Enable MusicBrainz lookups (ignored if preferences provided)
+        enable_discogs: Enable Discogs lookups (ignored if preferences provided)
         discogs_user_token: Optional Discogs user token
+        metadata_preferences: User's metadata source preferences
 
     Returns:
-        MetadataService instance
+        MetadataService instance configured with the specified preferences
     """
     global _metadata_service
+
+    # If preferences are provided, always create a new service with those preferences
+    if metadata_preferences is not None:
+        return MetadataService(
+            metadata_preferences=metadata_preferences,
+            discogs_user_token=discogs_user_token,
+        )
+
+    # Otherwise use/create the global default service
     if _metadata_service is None:
         _metadata_service = MetadataService(
             enable_musicbrainz=enable_musicbrainz,

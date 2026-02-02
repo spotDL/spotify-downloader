@@ -1,4 +1,10 @@
-"""Main search screen for SpotDL CLI."""
+"""Main search screen for SpotDL CLI.
+
+Matches frontend layout with:
+- Universal search returning all entity types
+- Filter tabs (All, Songs, Artists, Albums, Playlists)
+- Entity-specific result sections
+"""
 
 from __future__ import annotations
 
@@ -11,7 +17,6 @@ from textual.containers import Container, Horizontal, Vertical, VerticalScroll
 from textual.screen import Screen
 from textual.widgets import (
     Button,
-    DataTable,
     Input,
     Rule,
     Static,
@@ -20,34 +25,56 @@ from textual.widgets import (
 from spotdl_cli.config import get_settings
 from spotdl_cli.core import (
     APIError,
-    DownloadResult,
-    Song,
+    EntityResult,
+    EntityType,
+    UniversalSearchResponse,
+    get_api_client,
     get_offline_matcher,
 )
-from spotdl_cli.core.types import Platform
 
 if TYPE_CHECKING:
     from spotdl_cli.app import SpotDLApp
 
 logger = logging.getLogger(__name__)
 
+# Color scheme by entity type (matching frontend)
+ENTITY_COLORS = {
+    EntityType.ARTIST: "#ffd93d",  # accent-needle (golden)
+    EntityType.ALBUM: "#4ecdc4",  # accent-cool (blue/teal)
+    EntityType.TRACK: "#00d084",  # accent-safe (green)
+    EntityType.PLAYLIST: "#ff6b35",  # accent-warm (orange)
+}
+
+ENTITY_ICONS = {
+    EntityType.ARTIST: "👤",
+    EntityType.ALBUM: "💿",
+    EntityType.TRACK: "🎵",
+    EntityType.PLAYLIST: "📋",
+}
+
 
 class MainScreen(Screen[None]):
-    """Main search and results screen."""
+    """Main search screen matching frontend layout."""
 
     BINDINGS: ClassVar[list[Binding]] = [
         Binding("escape", "app.pop_screen", "Back"),
-        Binding("enter", "search", "Search", show=False),
-        Binding("a", "add_all", "Add All"),
-        Binding("r", "refresh", "Refresh"),
-        Binding("s", "focus_search", "Search", show=False),
+        Binding("enter", "submit_search", "Search", show=False),
+        Binding("tab", "next_filter", "Next Filter", show=False),
+        Binding("1", "filter_all", "All", show=False),
+        Binding("2", "filter_tracks", "Tracks", show=False),
+        Binding("3", "filter_artists", "Artists", show=False),
+        Binding("4", "filter_albums", "Albums", show=False),
+        Binding("5", "filter_playlists", "Playlists", show=False),
     ]
 
     def __init__(self) -> None:
         super().__init__()
-        self._results: list[Song] = []
-        self._offline_matcher = get_offline_matcher()
         self._settings = get_settings()
+        self._search_response: UniversalSearchResponse | None = None
+        self._active_filter: str = "all"
+        self._filter_buttons: list[str] = [
+            "all", "track", "artist", "album", "playlist"
+        ]
 
     @property
     def spotdl_app(self) -> SpotDLApp:
@@ -59,507 +86,581 @@ class MainScreen(Screen[None]):
 
     def compose(self) -> ComposeResult:
         """Compose the screen layout."""
-        with Horizontal(id="main-layout"):
-            # Left panel - Search and results
-            with Vertical(id="search-panel"):
-                # Search header
-                with Vertical(id="search-section"):
-                    with Horizontal(id="search-header"):
-                        yield Static("🔍 Search", id="search-title")
-                        yield Static("", id="search-mode-badge", classes="badge badge-info")
+        with VerticalScroll(id="main-container"):
+            # Search header section
+            with Vertical(id="search-header"):
+                yield Static("Search", id="page-title", classes="title-xl")
 
-                    with Horizontal(id="search-input-row"):
-                        yield Input(
-                            placeholder="Enter a URL or search for songs...",
-                            id="search-box",
-                        )
-                        yield Button("Search", id="search-btn", variant="primary")
+                # Search form
+                with Horizontal(id="search-form"):
+                    yield Input(
+                        placeholder="Search for songs, artists, albums, or paste a URL...",
+                        id="search-input",
+                    )
+                    yield Button("Search", id="search-btn", variant="primary")
 
                 # Status bar
-                yield Static("Ready to search", id="status-bar")
+                yield Static("", id="status-bar", classes="status-muted")
 
-                # Results section
-                with Container(id="results-container"):
-                    yield DataTable(id="results-table")
+            # Filter tabs
+            with Horizontal(id="filter-tabs"):
+                yield Button("All", id="filter-all", classes="filter-btn active")
+                yield Button("Songs", id="filter-track", classes="filter-btn")
+                yield Button("Artists", id="filter-artist", classes="filter-btn")
+                yield Button("Albums", id="filter-album", classes="filter-btn")
+                yield Button("Playlists", id="filter-playlist", classes="filter-btn")
 
-                # Actions bar
-                with Horizontal(id="actions-bar"):
-                    yield Button("➕ Add Selected", id="add-selected-btn", variant="primary")
-                    yield Button("📥 Add All", id="add-all-btn", variant="success")
-                    yield Button("🗑️ Clear", id="clear-btn", variant="warning")
+            yield Rule()
 
-            # Right panel - Info sidebar
-            with VerticalScroll(id="info-panel"):
-                # Status section
-                with Vertical(classes="info-section"):
-                    yield Static("📡 Status", classes="info-section-title")
-                    with Vertical(classes="info-section-content"):
-                        yield Static("", id="connection-status")
+            # Results container
+            with Vertical(id="results-container"):
+                # Empty state (shown before search)
+                with Vertical(id="empty-state"):
+                    yield Static(
+                        "🔍 Enter a search query above",
+                        id="empty-title",
+                        classes="empty-message",
+                    )
+                    yield Static(
+                        "Search for artists, albums, tracks, or playlists\n"
+                        "You can also paste URLs from Spotify, YouTube, etc.",
+                        id="empty-subtitle",
+                        classes="empty-hint",
+                    )
 
-                yield Rule()
-
-                # Providers section
-                with Vertical(classes="info-section"):
-                    yield Static("🔌 Providers", classes="info-section-title")
-                    with Vertical(classes="info-section-content", id="provider-list"):
-                        yield Static("", id="provider-status")
-
-                yield Rule()
-
-                # Config section
-                with Vertical(classes="info-section"):
-                    yield Static("⚙️ Config", classes="info-section-title")
-                    with Vertical(classes="info-section-content"):
-                        yield Static("", id="config-summary")
-
-                yield Rule()
-
-                # Quick tips
-                with Vertical(classes="info-section"):
-                    yield Static("💡 Quick Tips", classes="info-section-title")
-                    with Vertical(classes="info-section-content"):
+                # Artists section
+                with Vertical(id="artists-section", classes="entity-section hidden"):
+                    with Horizontal(classes="section-header"):
                         yield Static(
-                            "[bold]Enter[/] Search\n"
-                            "[bold]A[/] Add all\n"
-                            "[bold]R[/] Refresh\n"
-                            "[bold]D[/] Downloads\n"
-                            "[bold],[/] Settings",
-                            id="quick-tips",
+                            f"{ENTITY_ICONS[EntityType.ARTIST]} Artists",
+                            classes="section-title artist-color",
                         )
+                        yield Static("", id="artists-count", classes="section-count")
+
+                    with Horizontal(id="artists-grid", classes="entity-grid"):
+                        pass  # Populated dynamically
+
+                # Albums section
+                with Vertical(id="albums-section", classes="entity-section hidden"):
+                    with Horizontal(classes="section-header"):
+                        yield Static(
+                            f"{ENTITY_ICONS[EntityType.ALBUM]} Albums",
+                            classes="section-title album-color",
+                        )
+                        yield Static("", id="albums-count", classes="section-count")
+
+                    with Vertical(id="albums-list", classes="entity-list"):
+                        pass  # Populated dynamically
+
+                # Tracks section
+                with Vertical(id="tracks-section", classes="entity-section hidden"):
+                    with Horizontal(classes="section-header"):
+                        yield Static(
+                            f"{ENTITY_ICONS[EntityType.TRACK]} Songs",
+                            classes="section-title track-color",
+                        )
+                        yield Static("", id="tracks-count", classes="section-count")
+
+                    with Vertical(id="tracks-list", classes="entity-list"):
+                        pass  # Populated dynamically
+
+                # Playlists section
+                with Vertical(id="playlists-section", classes="entity-section hidden"):
+                    with Horizontal(classes="section-header"):
+                        yield Static(
+                            f"{ENTITY_ICONS[EntityType.PLAYLIST]} Playlists",
+                            classes="section-title playlist-color",
+                        )
+                        yield Static("", id="playlists-count", classes="section-count")
+
+                    with Vertical(id="playlists-list", classes="entity-list"):
+                        pass  # Populated dynamically
+
+                # No results state
+                with Vertical(id="no-results", classes="hidden"):
+                    yield Static(
+                        "No results found",
+                        classes="empty-message",
+                    )
+                    yield Static(
+                        "Try a different search query",
+                        classes="empty-hint",
+                    )
 
     async def on_mount(self) -> None:
         """Handle screen mount."""
-        # Setup results table
-        table = self.query_one("#results-table", DataTable)
-        table.cursor_type = "row"
-        table.zebra_stripes = True
-        table.add_columns(
-            "Title",
-            "Artist",
-            "Album",
-            "Duration",
-            "Platform",
-        )
-
-        # Focus search input
-        self.query_one("#search-box", Input).focus()
-
-        # Update status displays
-        self._update_status_display()
-        self._update_config_summary()
-
-    def _update_status_display(self) -> None:
-        """Update the status and provider display."""
-        connection = self.query_one("#connection-status", Static)
-        providers = self.query_one("#provider-status", Static)
-        mode_badge = self.query_one("#search-mode-badge", Static)
-
-        # Connection status
-        if self._settings.offline_mode:
-            connection.update("[yellow]⚡ Offline Mode[/yellow]")
-            mode_badge.update("OFFLINE")
-            mode_badge.remove_class("badge-info")
-            mode_badge.add_class("badge-warning")
-        elif self.spotdl_app.is_online:
-            connection.update("[green]✓ Connected[/green]")
-            mode_badge.update("ONLINE")
-            mode_badge.remove_class("badge-warning")
-            mode_badge.add_class("badge-success")
-        else:
-            connection.update("[yellow]⚡ Offline[/yellow]")
-            mode_badge.update("OFFLINE")
-            mode_badge.remove_class("badge-info")
-            mode_badge.add_class("badge-warning")
-
-        # Provider status with icons
-        provider_lines = []
-
-        # Check Spotify
-        if self._settings.spotify_client_id and self._settings.spotify_client_secret:
-            provider_lines.append("[green]✓[/green] Spotify")
-        else:
-            provider_lines.append("[dim]○ Spotify[/dim]")
-
-        # Other providers
-        provider_lines.append("[green]✓[/green] YouTube")
-        provider_lines.append("[green]✓[/green] Deezer")
-        provider_lines.append("[green]✓[/green] SoundCloud")
-
-        providers.update("\n".join(provider_lines))
-
-    def _update_config_summary(self) -> None:
-        """Update the configuration summary."""
-        config = self.query_one("#config-summary", Static)
-
-        lines = [
-            f"[dim]Output:[/dim] {self._settings.output_dir.name}/",
-            f"[dim]Format:[/dim] {self._settings.audio_format.upper()}",
-            f"[dim]Quality:[/dim] {self._settings.audio_quality}",
-        ]
-
-        config.update("\n".join(lines))
+        self.query_one("#search-input", Input).focus()
 
     async def on_input_submitted(self, event: Input.Submitted) -> None:
         """Handle search input submission."""
-        if event.input.id == "search-box":
+        if event.input.id == "search-input":
             await self._do_search()
 
     async def on_button_pressed(self, event: Button.Pressed) -> None:
         """Handle button presses."""
-        if event.button.id == "search-btn":
+        button_id = event.button.id
+
+        if button_id == "search-btn":
             await self._do_search()
-        elif event.button.id == "add-selected-btn":
-            await self._add_selected()
-        elif event.button.id == "add-all-btn":
-            await self._add_all()
-        elif event.button.id == "clear-btn":
-            self._clear_results()
+        elif button_id and button_id.startswith("filter-"):
+            filter_type = button_id.replace("filter-", "")
+            self._set_active_filter(filter_type)
+        elif button_id and button_id.startswith("entity-"):
+            # Handle entity card click
+            await self._handle_entity_click(button_id)
+
+    def _set_active_filter(self, filter_type: str) -> None:
+        """Set the active filter and update display."""
+        self._active_filter = filter_type
+
+        # Update button states
+        for btn_type in self._filter_buttons:
+            btn = self.query_one(f"#filter-{btn_type}", Button)
+            if btn_type == filter_type:
+                btn.add_class("active")
+            else:
+                btn.remove_class("active")
+
+        # Update visible sections
+        self._update_section_visibility()
+
+    def _update_section_visibility(self) -> None:
+        """Update which sections are visible based on filter."""
+        if not self._search_response:
+            return
+
+        sections = {
+            "artist": ("artists-section", self._search_response.artists),
+            "album": ("albums-section", self._search_response.albums),
+            "track": ("tracks-section", self._search_response.tracks),
+            "playlist": ("playlists-section", self._search_response.playlists),
+        }
+
+        for entity_type, (section_id, results) in sections.items():
+            section = self.query_one(f"#{section_id}", Vertical)
+
+            if self._active_filter == "all":
+                # Show section if it has results
+                if results:
+                    section.remove_class("hidden")
+                else:
+                    section.add_class("hidden")
+            elif self._active_filter == entity_type:
+                # Show only this section if it has results
+                if results:
+                    section.remove_class("hidden")
+                else:
+                    section.add_class("hidden")
+            else:
+                section.add_class("hidden")
 
     async def _do_search(self) -> None:
-        """Perform search."""
-        search_box = self.query_one("#search-box", Input)
-        query = search_box.value.strip()
+        """Perform universal search."""
+        search_input = self.query_one("#search-input", Input)
+        query = search_input.value.strip()
 
         if not query:
-            self.notify("Please enter a URL or search query", severity="warning")
+            self.notify("Please enter a search query", severity="warning")
             return
 
         status_bar = self.query_one("#status-bar", Static)
-        status_bar.update("⏳ Searching...")
+        status_bar.update("Searching...")
+
+        # Hide empty state
+        self.query_one("#empty-state", Vertical).add_class("hidden")
+        self.query_one("#no-results", Vertical).add_class("hidden")
 
         try:
-            # Check if it's a URL or search query
-            if self._is_url(query):
-                await self._resolve_url(query)
+            # Try online search first
+            if self.spotdl_app.is_online:
+                response = await self._search_online(query)
             else:
-                await self._search_songs(query)
+                response = await self._search_offline(query)
 
-            mode = "online" if self.spotdl_app.is_online else "offline"
-            count = len(self._results)
-            status_bar.update(f"✓ Found {count} result{'s' if count != 1 else ''} ({mode})")
+            self._search_response = response
+            self._display_results(response)
+
+            # Update status
+            total = response.total
+            status_bar.update(
+                f"Found {total} result{'s' if total != 1 else ''} "
+                f"({'online' if self.spotdl_app.is_online else 'offline'})"
+            )
 
         except APIError as e:
-            status_bar.update(f"✗ Error: {e}")
+            status_bar.update(f"Error: {e}")
             self.notify(str(e), severity="error")
         except Exception as e:
             logger.exception("Search failed")
-            status_bar.update(f"✗ Error: {e}")
+            status_bar.update(f"Error: {e}")
             self.notify(f"Search failed: {e}", severity="error")
 
-    @staticmethod
-    def _is_url(text: str) -> bool:
-        """Check if text is a URL."""
-        return text.startswith(("http://", "https://", "spotify:", "deezer:"))
+    async def _search_online(self, query: str) -> UniversalSearchResponse:
+        """Search using the API server."""
+        api_client = get_api_client()
+        return await api_client.universal_search(query, limit=30)
 
-    async def _resolve_url(self, url: str) -> None:
-        """Resolve a URL to songs."""
-        # Try online first if available
-        if self.spotdl_app.is_online:
-            try:
-                songs = await self.spotdl_app.api_client.resolve_url(url)
-                self._results = songs
-                self._update_table()
-                return
-            except APIError as e:
-                logger.warning(f"Online URL resolution failed: {e}")
+    async def _search_offline(self, query: str) -> UniversalSearchResponse:
+        """Search using offline providers."""
+        offline_matcher = get_offline_matcher()
 
-        # Offline: use local providers for supported URLs
-        from spotdl_cli.core.offline import is_supported_url
+        # Search across platforms
+        songs = await offline_matcher.search_all(query, limit=20)
 
-        if is_supported_url(url):
-            await self._resolve_offline_url(url)
-        elif "youtube.com" in url or "youtu.be" in url:
-            await self._resolve_youtube_url(url)
-        else:
-            self.notify(
-                "URL not supported in offline mode",
-                severity="warning",
+        # Convert to EntityResults
+        results: list[EntityResult] = []
+        for song in songs:
+            from spotdl_cli.core.types import PlatformInfo
+
+            result = EntityResult(
+                id=song.platform_id,
+                entity_type=EntityType.TRACK,
+                name=song.name,
+                subtitle=song.artist,
+                image_url=song.cover_url,
+                platforms=[
+                    PlatformInfo(
+                        platform=song.platform.value,
+                        platform_id=song.platform_id,
+                        url=song.url,
+                    )
+                ],
+                duration=song.duration,
             )
+            results.append(result)
 
-    async def _resolve_offline_url(self, url: str) -> None:
-        """Resolve any supported URL using offline providers."""
-        try:
-            songs = await self._offline_matcher.resolve_url(url)
-            if songs:
-                self._results = songs
-                self._update_table()
-            else:
-                self.notify("No songs found at URL", severity="warning")
-        except Exception as e:
-            logger.exception("Offline URL resolution failed")
-            self.notify(f"Failed to resolve URL: {e}", severity="error")
-
-    async def _resolve_youtube_url(self, url: str) -> None:
-        """Resolve a YouTube URL to a song (offline mode)."""
-        import yt_dlp
-
-        options = {
-            "quiet": True,
-            "no_warnings": True,
-            "extract_flat": False,
-        }
-
-        try:
-            with yt_dlp.YoutubeDL(options) as ydl:
-                info = ydl.extract_info(url, download=False)
-
-            if not info:
-                self.notify("Could not extract video info", severity="error")
-                return
-
-            # Handle playlist
-            if "entries" in info:
-                songs = []
-                for entry in info.get("entries", []):
-                    if entry:
-                        song = self._yt_entry_to_song(entry)
-                        if song:
-                            songs.append(song)
-                self._results = songs
-            else:
-                # Single video
-                song = self._yt_entry_to_song(info)
-                if song:
-                    self._results = [song]
-                else:
-                    self._results = []
-
-            self._update_table()
-
-        except Exception as e:
-            logger.exception("YouTube URL resolution failed")
-            self.notify(f"Failed to resolve URL: {e}", severity="error")
-
-    def _yt_entry_to_song(self, entry: dict) -> Song | None:
-        """Convert yt-dlp entry to Song object."""
-        try:
-            video_id = entry.get("id", "")
-            title = entry.get("title", "")
-            duration = entry.get("duration", 0) or 0
-            channel = entry.get("channel", "") or entry.get("uploader", "") or "Unknown"
-
-            if not video_id or not title:
-                return None
-
-            # Try to parse artist - title format
-            artist = channel
-            name = title
-            if " - " in title:
-                parts = title.split(" - ", 1)
-                artist = parts[0].strip()
-                name = parts[1].strip()
-
-            return Song(
-                name=name,
-                artists=[artist],
-                artist=artist,
-                duration=int(duration),
-                platform=Platform.YOUTUBE_MUSIC,
-                platform_id=video_id,
-                url=f"https://www.youtube.com/watch?v={video_id}",
-                album_name=entry.get("album", ""),
-                cover_url=entry.get("thumbnail"),
-            )
-        except Exception as e:
-            logger.warning(f"Failed to convert entry to song: {e}")
-            return None
-
-    async def _search_songs(self, query: str) -> None:
-        """Search for songs (online or offline)."""
-        # Try online first if available
-        if self.spotdl_app.is_online:
-            try:
-                songs = await self.spotdl_app.api_client.search(query)
-                self._results = songs
-                self._update_table()
-                return
-            except APIError as e:
-                logger.warning(f"Online search failed, falling back to offline: {e}")
-
-        # Offline search using yt-dlp
-        await self._search_offline(query)
-
-    async def _search_offline(self, query: str) -> None:
-        """Search using offline providers (Deezer, YouTube, YouTube Music)."""
-        status_bar = self.query_one("#status-bar", Static)
-        status_bar.update("⏳ Searching platforms...")
-
-        try:
-            # Search across all available platforms
-            songs = await self._offline_matcher.search_all(query, limit=10)
-
-            if not songs:
-                # Fall back to YouTube search only
-                status_bar.update("⏳ Searching YouTube...")
-                yt_results = await self._offline_matcher.search_youtube(query, limit=10)
-
-                for result in yt_results:
-                    song = self._result_to_song(result)
-                    songs.append(song)
-
-            self._results = songs[:20]  # Limit to 20 results
-            self._update_table()
-
-        except Exception as e:
-            logger.exception("Offline search failed")
-            self.notify(f"Search failed: {e}", severity="error")
-
-    def _result_to_song(self, result: DownloadResult) -> Song:
-        """Convert a DownloadResult to a Song for display."""
-        # Try to parse title for better artist/name extraction
-        name = result.name
-        artist = result.artist
-        artists = result.artists
-
-        # Check if title contains "Artist - Song" format
-        if " - " in result.name and not result.verified:
-            parts = result.name.split(" - ", 1)
-            if len(parts) == 2:
-                potential_artist = parts[0].strip()
-                potential_name = parts[1].strip()
-                # Only use if the potential artist seems reasonable
-                if len(potential_artist) < 50:
-                    artist = potential_artist
-                    artists = [potential_artist]
-                    name = potential_name
-
-        return Song(
-            name=name,
-            artists=artists,
-            artist=artist,
-            duration=result.duration,
-            platform=Platform.YOUTUBE_MUSIC,  # Mark as YTM for display
-            platform_id=result.platform_id,
-            url=result.url,
-            album_name=result.album_name or "",
-            cover_url=result.cover_url,
+        return UniversalSearchResponse(
+            query=query,
+            query_type="text",
+            results=results,
+            entities_created=0,
+            total=len(results),
         )
 
-    def _update_table(self) -> None:
-        """Update the results table."""
-        table = self.query_one("#results-table", DataTable)
-        table.clear()
+    def _display_results(self, response: UniversalSearchResponse) -> None:
+        """Display search results grouped by entity type."""
+        # Clear existing results
+        self._clear_results()
 
-        for song in self._results:
-            duration = f"{song.duration // 60}:{song.duration % 60:02d}"
+        if not response.results:
+            self.query_one("#no-results", Vertical).remove_class("hidden")
+            return
 
-            # Platform icons
-            platform_icons = {
-                "spotify": "🟢",
-                "youtube_music": "🔴",
-                "deezer": "🟣",
-                "soundcloud": "🟠",
-                "bandcamp": "🔵",
-                "apple_music": "⚪",
-                "tidal": "⬜",
-            }
-            platform_icon = platform_icons.get(song.platform.value, "●")
+        # Display artists
+        if response.artists:
+            self._display_artists(response.artists)
 
-            table.add_row(
-                song.name[:45] + "..." if len(song.name) > 45 else song.name,
-                song.artist[:25] + "..." if len(song.artist) > 25 else song.artist,
-                (
-                    song.album_name[:18] + "..."
-                    if song.album_name and len(song.album_name) > 18
-                    else song.album_name
-                )
-                or "—",
-                duration,
-                f"{platform_icon} {song.platform.value}",
-            )
+        # Display albums
+        if response.albums:
+            self._display_albums(response.albums)
+
+        # Display tracks
+        if response.tracks:
+            self._display_tracks(response.tracks)
+
+        # Display playlists
+        if response.playlists:
+            self._display_playlists(response.playlists)
+
+        # Update section visibility based on filter
+        self._update_section_visibility()
 
     def _clear_results(self) -> None:
-        """Clear search results."""
-        self._results = []
-        table = self.query_one("#results-table", DataTable)
-        table.clear()
-        self.query_one("#status-bar", Static).update("Results cleared")
-        self.query_one("#search-box", Input).focus()
+        """Clear all result sections."""
+        for section_id in ["artists-grid", "albums-list", "tracks-list", "playlists-list"]:
+            container = self.query_one(f"#{section_id}")
+            container.remove_children()
 
-    async def _add_selected(self) -> None:
-        """Add selected song to download queue."""
-        table = self.query_one("#results-table", DataTable)
+        # Hide all sections
+        for section_id in [
+            "artists-section", "albums-section", "tracks-section", "playlists-section"
+        ]:
+            self.query_one(f"#{section_id}", Vertical).add_class("hidden")
 
-        if table.cursor_row is None:
-            self.notify("No song selected", severity="warning")
+    def _display_artists(self, artists: list[EntityResult]) -> None:
+        """Display artist results in horizontal grid."""
+        section = self.query_one("#artists-section", Vertical)
+        grid = self.query_one("#artists-grid", Horizontal)
+        count = self.query_one("#artists-count", Static)
+
+        count.update(f"({len(artists)})")
+
+        for artist in artists[:10]:  # Limit to 10
+            card = self._create_artist_card(artist)
+            grid.mount(card)
+
+        section.remove_class("hidden")
+
+    def _display_albums(self, albums: list[EntityResult]) -> None:
+        """Display album results in list."""
+        section = self.query_one("#albums-section", Vertical)
+        container = self.query_one("#albums-list", Vertical)
+        count = self.query_one("#albums-count", Static)
+
+        count.update(f"({len(albums)})")
+
+        for album in albums[:12]:  # Limit to 12
+            card = self._create_entity_card(album, EntityType.ALBUM)
+            container.mount(card)
+
+        section.remove_class("hidden")
+
+    def _display_tracks(self, tracks: list[EntityResult]) -> None:
+        """Display track results in list."""
+        section = self.query_one("#tracks-section", Vertical)
+        container = self.query_one("#tracks-list", Vertical)
+        count = self.query_one("#tracks-count", Static)
+
+        count.update(f"({len(tracks)})")
+
+        for track in tracks[:15]:  # Limit to 15
+            card = self._create_entity_card(track, EntityType.TRACK)
+            container.mount(card)
+
+        section.remove_class("hidden")
+
+    def _display_playlists(self, playlists: list[EntityResult]) -> None:
+        """Display playlist results in list."""
+        section = self.query_one("#playlists-section", Vertical)
+        container = self.query_one("#playlists-list", Vertical)
+        count = self.query_one("#playlists-count", Static)
+
+        count.update(f"({len(playlists)})")
+
+        for playlist in playlists[:10]:  # Limit to 10
+            card = self._create_entity_card(playlist, EntityType.PLAYLIST)
+            container.mount(card)
+
+        section.remove_class("hidden")
+
+    def _create_artist_card(self, artist: EntityResult) -> Container:
+        """Create an artist card for horizontal display."""
+        platform_badges = self._get_platform_badges(artist)
+
+        card = Vertical(
+            Static(f"[bold]{self._truncate(artist.name, 15)}[/bold]", classes="card-name"),
+            Static(platform_badges, classes="platform-badges"),
+            Button("View", id=f"entity-artist-{artist.id}", classes="card-action"),
+            classes="artist-card",
+            id=f"artist-card-{artist.id}",
+        )
+        return card
+
+    def _create_entity_card(
+        self, entity: EntityResult, entity_type: EntityType
+    ) -> Container:
+        """Create an entity card for list display."""
+        icon = ENTITY_ICONS.get(entity_type, "●")
+        platform_badges = self._get_platform_badges(entity)
+
+        # Build info line
+        info_parts = []
+        if entity.subtitle:
+            info_parts.append(entity.subtitle)
+        if entity.duration:
+            info_parts.append(entity.duration_str)
+
+        info_line = " • ".join(info_parts) if info_parts else ""
+
+        # Determine color class
+        color_class = f"{entity_type.value}-color"
+
+        card = Horizontal(
+            Static(icon, classes=f"entity-icon {color_class}"),
+            Vertical(
+                Static(
+                    f"[bold]{self._truncate(entity.name, 40)}[/bold]",
+                    classes="card-title",
+                ),
+                Static(
+                    f"[dim]{self._truncate(info_line, 50)}[/dim]",
+                    classes="card-subtitle",
+                ),
+                Static(platform_badges, classes="platform-badges"),
+                classes="card-info",
+            ),
+            Button("View", id=f"entity-{entity_type.value}-{entity.id}", classes="card-action"),
+            Button("Download", id=f"dl-{entity_type.value}-{entity.id}", classes="card-action"),
+            classes="entity-card",
+            id=f"card-{entity_type.value}-{entity.id}",
+        )
+        return card
+
+    def _get_platform_badges(self, entity: EntityResult) -> str:
+        """Get platform badge string for an entity."""
+        platform_icons = {
+            "spotify": "[green]●[/green]",
+            "youtube_music": "[red]●[/red]",
+            "youtube": "[red]●[/red]",
+            "deezer": "[magenta]●[/magenta]",
+            "soundcloud": "[#ff5500]●[/#ff5500]",
+            "apple_music": "[#fc3c44]●[/#fc3c44]",
+            "tidal": "[white]●[/white]",
+            "bandcamp": "[cyan]●[/cyan]",
+        }
+
+        badges = []
+        for pinfo in entity.platforms[:3]:  # Limit to 3 platforms
+            icon = platform_icons.get(pinfo.platform, "●")
+            badges.append(icon)
+
+        return " ".join(badges) if badges else ""
+
+    @staticmethod
+    def _truncate(text: str, max_len: int) -> str:
+        """Truncate text with ellipsis."""
+        if len(text) > max_len:
+            return text[: max_len - 3] + "..."
+        return text
+
+    async def _handle_entity_click(self, button_id: str) -> None:
+        """Handle click on entity card."""
+        # Parse button ID: entity-{type}-{id} or dl-{type}-{id}
+        parts = button_id.split("-", 2)
+        if len(parts) < 3:
             return
 
-        if table.cursor_row >= len(self._results):
+        action = parts[0]
+        entity_type_str = parts[1]
+        entity_id = parts[2]
+
+        if action == "dl":
+            # Download action
+            await self._download_entity(entity_type_str, entity_id)
+        else:
+            # View action
+            await self._view_entity(entity_type_str, entity_id)
+
+    async def _view_entity(self, entity_type_str: str, entity_id: str) -> None:
+        """Navigate to entity detail screen."""
+        try:
+            entity_type = EntityType(entity_type_str)
+        except ValueError:
             return
 
-        song = self._results[table.cursor_row]
-        await self._add_song_to_queue(song)
+        if entity_type == EntityType.TRACK:
+            from spotdl_cli.screens.track import TrackScreen
+            from spotdl_cli.core.types import Song, Platform
 
-    async def _add_all(self) -> None:
-        """Add all songs to download queue."""
-        if not self._results:
-            self.notify("No songs to add", severity="warning")
+            # Find the entity in results
+            entity = self._find_entity(entity_id)
+            if entity and entity.primary_platform:
+                song = Song(
+                    name=entity.name,
+                    artists=[entity.subtitle or "Unknown"],
+                    artist=entity.subtitle or "Unknown",
+                    duration=entity.duration or 0,
+                    platform=Platform(entity.primary_platform.platform),
+                    platform_id=entity.primary_platform.platform_id,
+                    url=entity.primary_platform.url,
+                )
+                await self.app.push_screen(
+                    TrackScreen(song, entity.id, entity.primary_platform.platform)
+                )
+
+        elif entity_type == EntityType.ALBUM:
+            from spotdl_cli.screens.album import AlbumScreen
+
+            entity = self._find_entity(entity_id)
+            if entity and entity.primary_platform:
+                await self.app.push_screen(
+                    AlbumScreen(
+                        entity.primary_platform.platform_id,
+                        entity.primary_platform.platform,
+                    )
+                )
+
+        elif entity_type == EntityType.ARTIST:
+            from spotdl_cli.screens.artist import ArtistScreen
+
+            entity = self._find_entity(entity_id)
+            if entity and entity.primary_platform:
+                await self.app.push_screen(
+                    ArtistScreen(
+                        entity.primary_platform.platform_id,
+                        entity.primary_platform.platform,
+                    )
+                )
+
+        elif entity_type == EntityType.PLAYLIST:
+            from spotdl_cli.screens.playlist import PlaylistScreen
+
+            entity = self._find_entity(entity_id)
+            if entity and entity.primary_platform:
+                await self.app.push_screen(
+                    PlaylistScreen(
+                        entity.primary_platform.platform_id,
+                        entity.primary_platform.platform,
+                    )
+                )
+
+    async def _download_entity(self, entity_type_str: str, entity_id: str) -> None:
+        """Add entity to download queue."""
+        entity = self._find_entity(entity_id)
+        if not entity:
+            self.notify("Entity not found", severity="error")
             return
 
-        count = 0
-        for song in self._results:
-            await self._add_song_to_queue(song, notify=False)
-            count += 1
+        try:
+            entity_type = EntityType(entity_type_str)
+        except ValueError:
+            return
 
-        self.notify(f"Added {count} songs to queue", severity="information")
+        if entity_type == EntityType.TRACK and entity.primary_platform:
+            from spotdl_cli.core.types import Song, Platform
 
-    async def _add_song_to_queue(self, song: Song, notify: bool = True) -> None:
-        """Add a song to the download queue."""
-        queue = self.spotdl_app.download_queue
-
-        # Find matches - try online first, then offline
-        result = None
-
-        if self.spotdl_app.is_online:
-            try:
-                matches = await self.spotdl_app.api_client.find_matches(song)
-                if matches:
-                    result = matches[0]
-            except APIError as e:
-                logger.warning(f"Online match finding failed: {e}")
-
-        # If no result from online, use offline matching
-        if result is None:
-            try:
-                result = await self._offline_matcher.get_best_match(song, min_score=60.0)
-            except Exception as e:
-                logger.warning(f"Offline match finding failed: {e}")
-
-        # If still no result but song is from YouTube, create result from song
-        if result is None and "youtube.com" in song.url:
-            from spotdl_cli.core.types import TargetPlatform
-
-            result = DownloadResult(
-                name=song.name,
-                artists=song.artists,
-                artist=song.artist,
-                duration=song.duration,
-                platform=TargetPlatform.YOUTUBE,
-                platform_id=song.platform_id,
-                url=song.url,
-                verified=False,
-                score=100.0,  # Direct match
-                cover_url=song.cover_url,
+            song = Song(
+                name=entity.name,
+                artists=[entity.subtitle or "Unknown"],
+                artist=entity.subtitle or "Unknown",
+                duration=entity.duration or 0,
+                platform=Platform(entity.primary_platform.platform),
+                platform_id=entity.primary_platform.platform_id,
+                url=entity.primary_platform.url,
             )
+            await self.spotdl_app.download_queue.add(song)
+            self.notify(f"Added to queue: {entity.name}")
+        else:
+            # For albums/artists/playlists, navigate to detail screen
+            await self._view_entity(entity_type_str, entity_id)
+            self.notify("Navigate to view all tracks and download")
 
-        await queue.add(song, result=result)
+    def _find_entity(self, entity_id: str) -> EntityResult | None:
+        """Find an entity by ID in the current results."""
+        if not self._search_response:
+            return None
 
-        if notify:
-            status = "✓" if result else "⏳"
-            self.notify(f"{status} Added: {song.display_name}")
+        for result in self._search_response.results:
+            if result.id == entity_id:
+                return result
+        return None
 
-    def action_search(self) -> None:
-        """Action to trigger search."""
+    def action_submit_search(self) -> None:
+        """Submit search action."""
         self.run_worker(self._do_search())
 
-    def action_add_all(self) -> None:
-        """Action to add all songs."""
-        self.run_worker(self._add_all())
+    def action_next_filter(self) -> None:
+        """Move to next filter."""
+        current_idx = self._filter_buttons.index(self._active_filter)
+        next_idx = (current_idx + 1) % len(self._filter_buttons)
+        self._set_active_filter(self._filter_buttons[next_idx])
 
-    def action_refresh(self) -> None:
-        """Action to refresh search."""
-        self.run_worker(self._do_search())
+    def action_filter_all(self) -> None:
+        """Filter: All."""
+        self._set_active_filter("all")
 
-    def action_focus_search(self) -> None:
-        """Focus the search input."""
-        self.query_one("#search-box", Input).focus()
+    def action_filter_tracks(self) -> None:
+        """Filter: Tracks."""
+        self._set_active_filter("track")
+
+    def action_filter_artists(self) -> None:
+        """Filter: Artists."""
+        self._set_active_filter("artist")
+
+    def action_filter_albums(self) -> None:
+        """Filter: Albums."""
+        self._set_active_filter("album")
+
+    def action_filter_playlists(self) -> None:
+        """Filter: Playlists."""
+        self._set_active_filter("playlist")

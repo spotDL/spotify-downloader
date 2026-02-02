@@ -10,6 +10,7 @@ from pydantic import BaseModel, HttpUrl
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from spotdl.api.v1.auth import get_current_user_id
+from spotdl.api.v1.dependencies import UserPreferences, get_user_preferences
 from spotdl.core.reputation import ReputationReward
 from spotdl.core.services.match import get_match_service
 from spotdl.core.services.song import (
@@ -106,18 +107,25 @@ def detect_target_platform(url: str) -> str | None:
 
 
 @router.post("/find")
-async def find_matches(request: FindMatchesRequest) -> FindMatchesResponse:
+async def find_matches(
+    request: FindMatchesRequest,
+    preferences: Annotated[UserPreferences, Depends(get_user_preferences)],
+) -> FindMatchesResponse:
     """
     Find matches for a source URL on target platforms.
 
+    Uses user's audio source preferences to determine which platforms to search
+    and in what order. Unauthenticated users get default platform order.
+
     Args:
         request: Source URL and optional target platforms
+        preferences: User's provider preferences
 
     Returns:
         List of matches sorted by score
     """
     song_service = get_song_service()
-    match_service = get_match_service()
+    match_service = get_match_service(audio_preferences=preferences["audio"])
 
     # Resolve source URL to song
     try:
@@ -187,6 +195,7 @@ async def find_matches(request: FindMatchesRequest) -> FindMatchesResponse:
 @router.get("/find")
 async def find_matches_get(
     source_url: Annotated[str, Query(description="Source URL to find matches for")],
+    preferences: Annotated[UserPreferences, Depends(get_user_preferences)],
     target_platforms: Annotated[
         list[str] | None, Query(description="Target platforms")
     ] = None,
@@ -195,8 +204,12 @@ async def find_matches_get(
     """
     Find matches for a source URL (GET version).
 
+    Uses user's audio source preferences to determine which platforms to search
+    and in what order. Unauthenticated users get default platform order.
+
     Args:
         source_url: Source URL to find matches for
+        preferences: User's provider preferences
         target_platforms: Optional list of target platforms
         limit: Maximum number of matches to return
 
@@ -208,7 +221,7 @@ async def find_matches_get(
         target_platforms=target_platforms,
         limit=limit,
     )
-    return await find_matches(request)
+    return await find_matches(request, preferences)
 
 
 @router.post("/submit")

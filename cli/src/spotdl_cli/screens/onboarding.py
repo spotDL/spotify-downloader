@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, ClassVar
 
 from textual.app import ComposeResult
 from textual.binding import Binding
-from textual.containers import Center, Horizontal, Vertical, VerticalScroll
+from textual.containers import Horizontal, Vertical, VerticalScroll
 from textual.screen import Screen
 from textual.widgets import (
     Button,
@@ -382,7 +382,7 @@ class OnboardingScreen(Screen[bool]):
             step = self.query_one(f"#step-{i + 1}", Static)
             if i < self._step:
                 # Completed
-                step.update(f"[green]✓[/green]")
+                step.update("[green]✓[/green]")
                 step.add_class("step-number-complete")
                 step.remove_class("step-number-active")
                 step.remove_class("step-number-pending")

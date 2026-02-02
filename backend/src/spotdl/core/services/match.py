@@ -6,6 +6,11 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 from spotdl.core.matching.engine import get_best_matches, order_results
+from spotdl.core.provider_preferences import (
+    DEFAULT_PLATFORM_ORDER,
+    get_enabled_audio_platforms,
+)
+from spotdl.core.providers_config import ProviderPreference
 from spotdl.core.types.result import Result, TargetPlatform
 from spotdl.core.types.song import Song
 from spotdl.providers.targets import (
@@ -64,27 +69,49 @@ class MatchService:
     the matching engine to score and rank results.
     """
 
-    def __init__(self) -> None:
-        """Initialize the match service."""
+    def __init__(
+        self,
+        audio_preferences: list[ProviderPreference] | None = None,
+    ) -> None:
+        """
+        Initialize the match service.
+
+        Args:
+            audio_preferences: User's audio source preferences (ordered list with enabled status).
+                             If None, uses default preferences.
+        """
         self._providers: dict[TargetPlatform, TargetProvider] = {}
-        self._init_providers()
+        self._platform_order: list[TargetPlatform] = []
+        self._init_providers(audio_preferences)
 
-    def _init_providers(self) -> None:
-        """Initialize target providers."""
-        # YouTube
-        self._providers[TargetPlatform.YOUTUBE] = YouTubeProvider()
+    def _init_providers(
+        self,
+        audio_preferences: list[ProviderPreference] | None = None,
+    ) -> None:
+        """
+        Initialize target providers based on user preferences.
 
-        # YouTube Music
-        self._providers[TargetPlatform.YOUTUBE_MUSIC] = YouTubeMusicProvider()
+        Args:
+            audio_preferences: User's audio source preferences
+        """
+        # Get enabled platforms in user-specified order
+        enabled_platforms = get_enabled_audio_platforms(audio_preferences)
+        self._platform_order = enabled_platforms
 
-        # SoundCloud
-        self._providers[TargetPlatform.SOUNDCLOUD] = SoundCloudProvider()
+        # Provider factory mapping
+        provider_classes: dict[TargetPlatform, type[TargetProvider]] = {
+            TargetPlatform.YOUTUBE: YouTubeProvider,
+            TargetPlatform.YOUTUBE_MUSIC: YouTubeMusicProvider,
+            TargetPlatform.SOUNDCLOUD: SoundCloudProvider,
+            TargetPlatform.BANDCAMP: BandcampProvider,
+            TargetPlatform.PIPED: PipedProvider,
+        }
 
-        # Bandcamp
-        self._providers[TargetPlatform.BANDCAMP] = BandcampProvider()
-
-        # Piped
-        self._providers[TargetPlatform.PIPED] = PipedProvider()
+        # Initialize only enabled providers in the specified order
+        for platform in enabled_platforms:
+            provider_class = provider_classes.get(platform)
+            if provider_class is not None:
+                self._providers[platform] = provider_class()
 
     def get_provider(self, platform: TargetPlatform) -> TargetProvider | None:
         """
@@ -109,14 +136,15 @@ class MatchService:
 
         Args:
             song: Song to find matches for
-            target_platforms: Platforms to search (default: all)
+            target_platforms: Platforms to search (default: all enabled in user's preferred order)
             limit: Maximum matches per platform
 
         Returns:
             List of Match objects sorted by score
         """
         if target_platforms is None:
-            target_platforms = list(self._providers.keys())
+            # Use user's preferred platform order
+            target_platforms = self._platform_order if self._platform_order else list(self._providers.keys())
 
         all_matches: list[Match] = []
 
@@ -266,13 +294,32 @@ class MatchService:
         return list(self._providers.keys())
 
 
-# Global service instance
+# Global service instance (for default preferences)
 _match_service: MatchService | None = None
 
 
-def get_match_service() -> MatchService:
-    """Get the global match service instance."""
+def get_match_service(
+    audio_preferences: list[ProviderPreference] | None = None,
+) -> MatchService:
+    """
+    Get a match service instance.
+
+    If audio_preferences is provided, creates a new service with those preferences.
+    Otherwise returns the global service with default preferences.
+
+    Args:
+        audio_preferences: Optional user preferences for audio sources
+
+    Returns:
+        MatchService instance configured with the specified preferences
+    """
     global _match_service
+
+    # If preferences are provided, always create a new service with those preferences
+    if audio_preferences is not None:
+        return MatchService(audio_preferences=audio_preferences)
+
+    # Otherwise use/create the global default service
     if _match_service is None:
         _match_service = MatchService()
     return _match_service

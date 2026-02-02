@@ -154,14 +154,135 @@ class SearchResult:
     platform: Platform
 
 
+class EntityType(StrEnum):
+    """Entity types for universal search."""
+
+    TRACK = "track"
+    ALBUM = "album"
+    ARTIST = "artist"
+    PLAYLIST = "playlist"
+
+
+@dataclass
+class PlatformInfo:
+    """Platform availability info for an entity."""
+
+    platform: str
+    platform_id: str
+    url: str
+    followers: int | None = None
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> PlatformInfo:
+        """Create from dictionary."""
+        return cls(
+            platform=data.get("platform", ""),
+            platform_id=data.get("platform_id", ""),
+            url=data.get("url", ""),
+            followers=data.get("followers"),
+        )
+
+
+@dataclass
+class EntityResult:
+    """A single entity from universal search."""
+
+    id: str
+    entity_type: EntityType
+    name: str
+    subtitle: str | None = None
+    image_url: str | None = None
+    platforms: list[PlatformInfo] = field(default_factory=list)
+    duration: int | None = None  # For tracks only, in seconds
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> EntityResult:
+        """Create from dictionary."""
+        platforms = [
+            PlatformInfo.from_dict(p) for p in data.get("platforms", [])
+        ]
+        return cls(
+            id=data.get("id", ""),
+            entity_type=EntityType(data.get("entity_type", "track")),
+            name=data.get("name", ""),
+            subtitle=data.get("subtitle"),
+            image_url=data.get("image_url"),
+            platforms=platforms,
+            duration=data.get("duration"),
+        )
+
+    @property
+    def primary_platform(self) -> PlatformInfo | None:
+        """Get the primary platform info."""
+        return self.platforms[0] if self.platforms else None
+
+    @property
+    def duration_str(self) -> str:
+        """Get formatted duration string."""
+        if self.duration:
+            return f"{self.duration // 60}:{self.duration % 60:02d}"
+        return ""
+
+
+@dataclass
+class UniversalSearchResponse:
+    """Response from universal search."""
+
+    query: str
+    query_type: str  # "url" or "text"
+    results: list[EntityResult]
+    entities_created: int
+    total: int
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> UniversalSearchResponse:
+        """Create from dictionary."""
+        results = [EntityResult.from_dict(r) for r in data.get("results", [])]
+        return cls(
+            query=data.get("query", ""),
+            query_type=data.get("query_type", "text"),
+            results=results,
+            entities_created=data.get("entities_created", 0),
+            total=data.get("total", len(results)),
+        )
+
+    def filter_by_type(self, entity_type: EntityType) -> list[EntityResult]:
+        """Get results filtered by entity type."""
+        return [r for r in self.results if r.entity_type == entity_type]
+
+    @property
+    def artists(self) -> list[EntityResult]:
+        """Get artist results."""
+        return self.filter_by_type(EntityType.ARTIST)
+
+    @property
+    def albums(self) -> list[EntityResult]:
+        """Get album results."""
+        return self.filter_by_type(EntityType.ALBUM)
+
+    @property
+    def tracks(self) -> list[EntityResult]:
+        """Get track results."""
+        return self.filter_by_type(EntityType.TRACK)
+
+    @property
+    def playlists(self) -> list[EntityResult]:
+        """Get playlist results."""
+        return self.filter_by_type(EntityType.PLAYLIST)
+
+
 __all__ = [
     "DownloadItem",
     "DownloadResult",
     "DownloadStatus",
+    "EntityResult",
+    "EntityType",
     "Platform",
+    "PlatformInfo",
     "Result",
     "SearchResult",
     "Song",
     "SongList",
     "TargetPlatform",
+    "UniversalSearchResponse",
 ]

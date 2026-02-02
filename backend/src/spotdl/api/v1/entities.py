@@ -13,6 +13,9 @@ from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
+from spotdl.api.v1.auth import get_current_user_optional
+from spotdl.api.v1.dependencies import UserPreferences, get_user_preferences, get_embed_preferences
+from spotdl.core.metadata_embed_config import MetadataEmbedPreferences
 from spotdl.api.v1.validation import validate_uuid, UUIDPath, SkipQuery, LimitQuery
 from spotdl.core.services.entity import EntityPersistenceService
 from spotdl.core.services.song import get_song_service
@@ -28,7 +31,6 @@ from spotdl.db.repositories.playlist import PlaylistRepository
 from spotdl.db.repositories.song import SongRepository
 from spotdl.db.repositories.refresh_cooldown import RefreshCooldownRepository
 from spotdl.db.models.metadata_snapshot import MetadataSnapshot
-from spotdl.api.v1.auth import get_current_user_optional
 
 logger = logging.getLogger(__name__)
 
@@ -645,6 +647,7 @@ async def get_album(
 @router.get("/songs/{id}")
 async def get_song(
     id: Annotated[str, Path(description="Internal song UUID")],
+    preferences: Annotated[UserPreferences, Depends(get_user_preferences)],
     db: AsyncSession = Depends(get_db_session),
 ) -> SongResponse:
     """
@@ -652,6 +655,9 @@ async def get_song(
 
     Returns enhanced song details including audio features, popularity, and metadata.
     Automatically enriches with MusicBrainz/Discogs data on first visit if not enriched.
+
+    Uses user's metadata source preferences to determine enrichment provider order.
+    Unauthenticated users get default provider order.
     """
     song_uuid = validate_uuid(id, "song ID")
 
@@ -722,9 +728,9 @@ async def get_song(
             )
 
             # Use MetadataService to fetch and save snapshots from other providers
+            # Use user's metadata preferences if available
             metadata_service = MetadataService(
-                enable_musicbrainz=True,
-                enable_discogs=True,
+                metadata_preferences=preferences["metadata"],
             )
 
             # Fetch metadata from all providers and save snapshots
@@ -1124,6 +1130,77 @@ async def get_song_metadata_sources(
     )
 
 
+class ResolvedFieldResponse(BaseModel):
+    """Response model for a resolved metadata field."""
+
+    field_id: str
+    value: str | int | float | list | bool | None
+    source: str | None
+    enabled: bool
+
+
+class ResolvedMetadataResponse(BaseModel):
+    """Response model for resolved metadata."""
+
+    song_id: str
+    fields: dict[str, ResolvedFieldResponse]
+
+
+@router.get("/songs/{song_id}/metadata-resolved")
+async def get_song_resolved_metadata(
+    song_id: Annotated[str, Path(description="Internal song UUID")],
+    embed_preferences: Annotated[MetadataEmbedPreferences, Depends(get_embed_preferences)],
+    db: AsyncSession = Depends(get_db_session),
+) -> ResolvedMetadataResponse:
+    """
+    Get resolved metadata for a song using user's embed preferences.
+
+    For each metadata field, returns the value from the highest-priority source
+    that has data for that field, according to the user's configured preferences.
+
+    Authenticated users get their custom field priorities applied.
+    Unauthenticated users get default field priorities.
+
+    This is the metadata that would be embedded when downloading the song.
+    """
+    from sqlalchemy import select
+    from spotdl.core.services.metadata_resolver import MetadataResolver
+
+    song_uuid = validate_uuid(song_id, "song ID")
+
+    # Get song
+    song_repo = SongRepository(db)
+    song = await song_repo.get_by_id(song_uuid)
+
+    if not song:
+        raise HTTPException(status_code=404, detail="Song not found")
+
+    # Fetch all metadata snapshots
+    query = (
+        select(MetadataSnapshot)
+        .where(MetadataSnapshot.song_id == song_uuid)
+    )
+    result = await db.execute(query)
+    snapshots = list(result.scalars().all())
+
+    # Resolve metadata using user's embed preferences
+    resolver = MetadataResolver(preferences=embed_preferences)
+    resolved = resolver.resolve_from_song(song, snapshots)
+
+    return ResolvedMetadataResponse(
+        song_id=str(song_uuid),
+        fields={
+            field_id: ResolvedFieldResponse(
+                field_id=field_id,
+                value=field.value,
+                source=field.source,
+                enabled=field.enabled,
+            )
+            for field_id, field in resolved.fields.items()
+        },
+    )
+
+
 class RefreshResponse(BaseModel):
     """Response model for a refresh operation."""
 
@@ -1441,6 +1518,7 @@ class EnrichResponse(BaseModel):
 @router.post("/songs/{id}/enrich")
 async def enrich_song(
     id: Annotated[str, Path(description="Internal song UUID")],
+    preferences: Annotated[UserPreferences, Depends(get_user_preferences)],
     db: AsyncSession = Depends(get_db_session),
 ) -> EnrichResponse:
     """
@@ -1448,6 +1526,9 @@ async def enrich_song(
 
     This fetches additional metadata like genres, labels, and external IDs
     from free metadata providers.
+
+    Uses user's metadata source preferences to determine which providers to use
+    and in what order. Unauthenticated users get default provider set.
     """
     from datetime import datetime, timezone
     from spotdl.core.services.metadata import MetadataService
@@ -1486,10 +1567,9 @@ async def enrich_song(
             year=song.release_date.year if song.release_date else 0,
         )
 
-        # Initialize metadata service with all providers
+        # Initialize metadata service with user preferences
         metadata_service = MetadataService(
-            enable_musicbrainz=True,
-            enable_discogs=True,
+            metadata_preferences=preferences["metadata"],
         )
 
         # Track which fields exist before enrichment

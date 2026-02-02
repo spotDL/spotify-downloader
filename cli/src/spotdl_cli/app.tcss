@@ -1,22 +1,56 @@
-/* SpotDL CLI - Modern TUI Theme */
+/* SpotDL CLI - Theme aligned with frontend design system
+ * Colors from frontend/src/index.css
+ */
 
-/* ==================== VARIABLES ==================== */
-/* Using Textual's built-in color system with modern palette */
+/* ==================== CUSTOM COLORS ====================
+ * Textual uses $primary, $secondary, etc. as built-in variables
+ * We override them to match our frontend theme
+ */
+
+$accent-primary: #ff6b35;
+$accent-secondary: #4ecdc4;
+$accent-success: #00d084;
+$accent-error: #ff3333;
+$accent-warning: #ffd93d;
+
+$bg-void: #08080a;
+$bg-chassis: #0f1012;
+$bg-panel: #161819;
+$bg-elevated: #1c1e20;
+$bg-surface: #242628;
+$bg-hover: #2c2e32;
+
+$text-primary: #fafafa;
+$text-secondary: #a8a8b3;
+$text-muted: #6b6b76;
+$text-dim: #454550;
+
+$border-color: #2f2f33;
+$border-subtle: #232326;
+
+/* Platform colors */
+$platform-spotify: #1db954;
+$platform-youtube: #ff0000;
+$platform-deezer: #a238ff;
+$platform-soundcloud: #ff5500;
+$platform-bandcamp: #1da0c3;
+$platform-apple: #fc3c44;
+$platform-tidal: #000000;
 
 /* ==================== GLOBAL ==================== */
 
 Screen {
-    background: $background;
+    background: $bg-chassis;
 }
 
 Header {
-    background: $primary;
-    color: $text;
+    background: $accent-primary;
+    color: $text-primary;
     text-style: bold;
 }
 
 Footer {
-    background: $surface;
+    background: $bg-panel;
     color: $text-muted;
 }
 
@@ -26,38 +60,38 @@ Footer {
 
 /* Modern scrollbar */
 VerticalScroll {
-    scrollbar-color: $primary-darken-1;
-    scrollbar-color-hover: $primary;
-    scrollbar-color-active: $primary-lighten-1;
-    scrollbar-background: $surface;
-    scrollbar-background-hover: $surface-lighten-1;
+    scrollbar-color: $bg-hover;
+    scrollbar-color-hover: $accent-primary;
+    scrollbar-color-active: $accent-primary;
+    scrollbar-background: $bg-panel;
+    scrollbar-background-hover: $bg-elevated;
 }
 
 /* ==================== TYPOGRAPHY ==================== */
 
 .title-xl {
     text-style: bold;
-    color: $text;
+    color: $text-primary;
     padding: 1 2;
 }
 
 .title-lg {
     text-style: bold;
-    color: $primary-lighten-1;
+    color: $accent-primary;
 }
 
 .title-md {
     text-style: bold;
-    color: $text;
+    color: $text-primary;
 }
 
 .subtitle {
-    color: $text-muted;
+    color: $text-secondary;
     text-style: italic;
 }
 
 .label {
-    color: $text;
+    color: $text-primary;
 }
 
 .hint {
@@ -66,22 +100,22 @@ VerticalScroll {
 }
 
 .link {
-    color: $primary-lighten-1;
+    color: $accent-secondary;
     text-style: underline;
 }
 
 /* ==================== MODERN CARDS ==================== */
 
 .card {
-    background: $surface;
-    border: wide $surface-lighten-2;
+    background: $bg-surface;
+    border: wide $border-color;
     padding: 1 2;
     margin: 1 0;
 }
 
 .card-elevated {
-    background: $surface-lighten-1;
-    border: wide $surface-lighten-3;
+    background: $bg-elevated;
+    border: wide $border-color;
     padding: 1 2;
     margin: 1 0;
 }
@@ -93,11 +127,11 @@ VerticalScroll {
 
 .card-title {
     text-style: bold;
-    color: $text;
+    color: $text-primary;
 }
 
 .card-subtitle {
-    color: $text-muted;
+    color: $text-secondary;
 }
 
 .card-body {
@@ -107,61 +141,61 @@ VerticalScroll {
 .card-footer {
     margin-top: 1;
     padding-top: 1;
-    border-top: solid $surface-lighten-2;
+    border-top: solid $border-color;
 }
 
 /* ==================== MODERN BUTTONS ==================== */
 
 Button {
-    background: $surface-lighten-1;
-    color: $text;
-    border: tall $surface-lighten-2;
+    background: $bg-surface;
+    color: $text-primary;
+    border: tall $border-color;
     padding: 0 2;
     margin: 0 1;
     min-width: 10;
 }
 
 Button:hover {
-    background: $surface-lighten-2;
-    border: tall $primary;
+    background: $bg-hover;
+    border: tall $accent-primary;
 }
 
 Button:focus {
-    background: $surface-lighten-2;
-    border: tall $primary;
+    background: $bg-hover;
+    border: tall $accent-primary;
 }
 
 Button.-primary {
-    background: $primary;
-    color: $text;
-    border: tall $primary-lighten-1;
+    background: $accent-primary;
+    color: $text-primary;
+    border: tall $accent-primary;
 }
 
 Button.-primary:hover {
-    background: $primary-lighten-1;
-    border: tall $primary-lighten-2;
+    background: #ff8555;
+    border: tall #ff8555;
 }
 
 Button.-success {
-    background: $success-darken-1;
-    color: $text;
-    border: tall $success;
+    background: $accent-success;
+    color: $bg-void;
+    border: tall $accent-success;
 }
 
 Button.-success:hover {
-    background: $success;
+    background: #00e08a;
 }
 
 Button.-warning {
-    background: $warning-darken-1;
-    color: $text;
-    border: tall $warning;
+    background: $accent-warning;
+    color: $bg-void;
+    border: tall $accent-warning;
 }
 
 Button.-error {
-    background: $error-darken-1;
-    color: $text;
-    border: tall $error;
+    background: $accent-error;
+    color: $text-primary;
+    border: tall $accent-error;
 }
 
 Button.-small {
@@ -173,32 +207,32 @@ Button.-small {
 /* ==================== MODERN INPUTS ==================== */
 
 Input {
-    background: $surface;
-    border: tall $surface-lighten-2;
+    background: $bg-surface;
+    border: tall $border-color;
     padding: 0 1;
 }
 
 Input:focus {
-    border: tall $primary;
-    background: $surface-lighten-1;
+    border: tall $accent-primary;
+    background: $bg-elevated;
 }
 
 Input.-valid {
-    border: tall $success;
+    border: tall $accent-success;
 }
 
 Input.-invalid {
-    border: tall $error;
+    border: tall $accent-error;
 }
 
 Select {
-    background: $surface;
-    border: tall $surface-lighten-2;
+    background: $bg-surface;
+    border: tall $border-color;
 }
 
 Select:focus {
-    border: tall $primary;
-    background: $surface-lighten-1;
+    border: tall $accent-primary;
+    background: $bg-elevated;
 }
 
 Checkbox {
@@ -207,33 +241,33 @@ Checkbox {
 }
 
 Checkbox:focus {
-    background: $surface-lighten-1;
+    background: $bg-elevated;
 }
 
 /* ==================== MODERN DATA TABLE ==================== */
 
 DataTable {
-    background: $surface;
+    background: $bg-surface;
     height: 100%;
 }
 
 DataTable > .datatable--header {
-    background: $primary-darken-2;
-    color: $text;
+    background: $bg-panel;
+    color: $text-primary;
     text-style: bold;
 }
 
 DataTable > .datatable--cursor {
-    background: $primary-darken-1;
-    color: $text;
+    background: $accent-primary;
+    color: $text-primary;
 }
 
 DataTable > .datatable--hover {
-    background: $surface-lighten-1;
+    background: $bg-hover;
 }
 
 DataTable:focus > .datatable--cursor {
-    background: $primary;
+    background: $accent-primary;
 }
 
 /* ==================== PROGRESS & STATUS ==================== */
@@ -244,11 +278,11 @@ ProgressBar {
 }
 
 ProgressBar > .bar--bar {
-    color: $primary;
+    color: $accent-primary;
 }
 
 ProgressBar > .bar--complete {
-    color: $success;
+    color: $accent-success;
 }
 
 .status-indicator {
@@ -257,19 +291,19 @@ ProgressBar > .bar--complete {
 }
 
 .status-success {
-    color: $success;
+    color: $accent-success;
 }
 
 .status-warning {
-    color: $warning;
+    color: $accent-warning;
 }
 
 .status-error {
-    color: $error;
+    color: $accent-error;
 }
 
 .status-info {
-    color: $primary-lighten-1;
+    color: $accent-secondary;
 }
 
 .status-muted {
@@ -284,43 +318,99 @@ ProgressBar > .bar--complete {
 }
 
 .badge-success {
-    background: $success-darken-2;
-    color: $success-lighten-2;
+    background: #003322;
+    color: $accent-success;
 }
 
 .badge-warning {
-    background: $warning-darken-2;
-    color: $warning-lighten-2;
+    background: #332200;
+    color: $accent-warning;
 }
 
 .badge-error {
-    background: $error-darken-2;
-    color: $error-lighten-2;
+    background: #330011;
+    color: $accent-error;
 }
 
 .badge-info {
-    background: $primary-darken-2;
-    color: $primary-lighten-2;
+    background: #002233;
+    color: $accent-secondary;
 }
 
 .badge-muted {
-    background: $surface-lighten-1;
+    background: $bg-elevated;
     color: $text-muted;
+}
+
+/* Platform badges */
+.badge-spotify {
+    background: #0a2615;
+    color: $platform-spotify;
+}
+
+.badge-youtube {
+    background: #330000;
+    color: $platform-youtube;
+}
+
+.badge-deezer {
+    background: #1a0033;
+    color: $platform-deezer;
+}
+
+.badge-soundcloud {
+    background: #331100;
+    color: $platform-soundcloud;
+}
+
+.badge-apple {
+    background: #330011;
+    color: $platform-apple;
+}
+
+/* ==================== PLATFORM COLORS ==================== */
+
+.platform-spotify {
+    color: $platform-spotify;
+}
+
+.platform-youtube {
+    color: $platform-youtube;
+}
+
+.platform-deezer {
+    color: $platform-deezer;
+}
+
+.platform-soundcloud {
+    color: $platform-soundcloud;
+}
+
+.platform-bandcamp {
+    color: $platform-bandcamp;
+}
+
+.platform-apple {
+    color: $platform-apple;
+}
+
+.platform-tidal {
+    color: $text-primary;
 }
 
 /* ==================== DIVIDERS ==================== */
 
 Rule {
-    color: $surface-lighten-2;
+    color: $border-color;
     margin: 1 0;
 }
 
 .divider-light {
-    color: $surface-lighten-1;
+    color: $border-subtle;
 }
 
 .divider-accent {
-    color: $primary-darken-1;
+    color: $accent-primary;
 }
 
 /* ==================== MAIN SCREEN ==================== */
@@ -338,12 +428,13 @@ Rule {
 #info-panel {
     width: 25%;
     padding: 1;
-    background: $surface;
-    border-left: wide $surface-lighten-2;
+    background: $bg-panel;
+    border-left: wide $border-color;
 }
 
 /* Search section */
 #search-section {
+    height: auto;
     margin-bottom: 1;
 }
 
@@ -354,11 +445,17 @@ Rule {
 
 #search-title {
     text-style: bold;
-    color: $primary-lighten-1;
+    color: $accent-primary;
 }
 
 #search-mode-badge {
     margin-left: 2;
+}
+
+/* Search form */
+#search-form {
+    height: auto;
+    margin-bottom: 1;
 }
 
 #search-input-row {
@@ -382,12 +479,47 @@ Rule {
     color: $text-muted;
 }
 
-/* Results */
+/* Filter tabs */
+#filter-tabs {
+    height: 3;
+    margin-bottom: 1;
+    align: left middle;
+}
+
+.filter-btn {
+    min-width: 10;
+    margin-right: 1;
+    background: $bg-surface;
+    border: tall $border-color;
+}
+
+.filter-btn:hover {
+    background: $bg-hover;
+    border: tall $accent-primary;
+}
+
+.filter-btn:focus {
+    background: $bg-hover;
+    border: tall $accent-primary;
+}
+
+.filter-btn.active {
+    background: $accent-primary;
+    color: $text-primary;
+    border: tall $accent-primary;
+}
+
+/* Results container */
 #results-container {
     height: 1fr;
-    background: $surface;
-    border: wide $surface-lighten-2;
-    padding: 0;
+    background: $bg-surface;
+    border: wide $border-color;
+    padding: 1;
+}
+
+#results-scroll {
+    height: 100%;
+    width: 100%;
 }
 
 #results-table {
@@ -395,6 +527,211 @@ Rule {
     height: 100%;
 }
 
+/* Entity sections */
+.entity-section {
+    height: auto;
+    margin-bottom: 2;
+}
+
+.section-header {
+    height: auto;
+    margin-bottom: 1;
+    align: left middle;
+}
+
+.section-title {
+    text-style: bold;
+    padding: 0 1;
+}
+
+.section-count {
+    color: $text-muted;
+    margin-left: 1;
+}
+
+/* Entity type colors */
+.artist-color {
+    color: $accent-warning;
+}
+
+.album-color {
+    color: $accent-secondary;
+}
+
+.track-color {
+    color: $accent-success;
+}
+
+.playlist-color {
+    color: $accent-primary;
+}
+
+/* Entity cards grid */
+.entity-grid {
+    height: auto;
+    padding: 0 1;
+}
+
+.entity-list {
+    height: auto;
+}
+
+/* Entity card */
+.entity-card {
+    height: auto;
+    padding: 1;
+    margin-bottom: 1;
+    background: $bg-elevated;
+    border: wide $border-color;
+}
+
+.entity-card:hover {
+    background: $bg-hover;
+    border: wide $accent-primary;
+}
+
+.entity-card:focus {
+    background: $bg-hover;
+    border: wide $accent-primary;
+}
+
+/* Card layout */
+.card-main {
+    height: auto;
+    width: 100%;
+    align: left middle;
+}
+
+.card-icon {
+    width: 3;
+    text-align: center;
+}
+
+.card-info {
+    width: 1fr;
+    padding: 0 1;
+}
+
+.card-name {
+    text-style: bold;
+    color: $text-primary;
+}
+
+.card-subtitle {
+    color: $text-secondary;
+}
+
+.card-platforms {
+    height: auto;
+    margin-top: 1;
+    align: left middle;
+}
+
+.card-action {
+    width: auto;
+    padding: 0 1;
+}
+
+/* Platform badges in cards */
+.platform-badge {
+    padding: 0 1;
+    margin-right: 1;
+    text-style: bold;
+}
+
+/* Empty states */
+#empty-state {
+    height: auto;
+    padding: 4;
+    text-align: center;
+    align: center middle;
+}
+
+.empty-state {
+    height: auto;
+    padding: 4;
+    text-align: center;
+}
+
+.empty-message {
+    color: $text-secondary;
+    text-style: bold;
+    margin-bottom: 1;
+    text-align: center;
+}
+
+.empty-hint {
+    color: $text-muted;
+    text-style: italic;
+    text-align: center;
+}
+
+#no-results {
+    height: auto;
+    padding: 4;
+    text-align: center;
+    align: center middle;
+}
+
+/* Main container */
+#main-container {
+    width: 100%;
+    height: 100%;
+    padding: 1 2;
+}
+
+/* Page title */
+#page-title {
+    text-style: bold;
+    color: $accent-primary;
+    padding: 1 0;
+}
+
+/* Artist cards (horizontal grid) */
+.artist-card {
+    width: 18;
+    height: auto;
+    padding: 1;
+    margin-right: 1;
+    background: $bg-elevated;
+    border: wide $border-color;
+    text-align: center;
+}
+
+.artist-card:hover {
+    background: $bg-hover;
+    border: wide $accent-warning;
+}
+
+.artist-card:focus {
+    background: $bg-hover;
+    border: wide $accent-warning;
+}
+
+/* Entity icon */
+.entity-icon {
+    width: 3;
+    text-align: center;
+    padding: 0 1;
+}
+
+/* Card title */
+.card-title {
+    color: $text-primary;
+}
+
+/* Platform badges */
+.platform-badges {
+    height: auto;
+    margin-top: 1;
+}
+
+/* Search input */
+#search-input {
+    width: 1fr;
+}
+
+/* Actions bar */
 #actions-bar {
     margin-top: 1;
     height: 3;
@@ -408,7 +745,7 @@ Rule {
 
 .info-section-title {
     text-style: bold;
-    color: $primary-lighten-1;
+    color: $accent-primary;
     margin-bottom: 1;
     padding: 0 1;
 }
@@ -438,15 +775,15 @@ Rule {
 #onboarding-container {
     width: 100%;
     height: 100%;
-    background: $background;
+    background: $bg-chassis;
 }
 
 /* Progress header */
 #onboarding-header {
     dock: top;
     height: 5;
-    background: $surface;
-    border-bottom: wide $surface-lighten-2;
+    background: $bg-panel;
+    border-bottom: wide $border-color;
     padding: 1 2;
 }
 
@@ -466,11 +803,11 @@ Rule {
 }
 
 .step-number-active {
-    color: $primary-lighten-1;
+    color: $accent-primary;
 }
 
 .step-number-complete {
-    color: $success;
+    color: $accent-success;
 }
 
 .step-number-pending {
@@ -479,11 +816,11 @@ Rule {
 
 .step-connector {
     width: 4;
-    color: $surface-lighten-2;
+    color: $border-color;
 }
 
 .step-connector-complete {
-    color: $success;
+    color: $accent-success;
 }
 
 #step-title {
@@ -510,19 +847,19 @@ Rule {
 }
 
 #welcome-logo {
-    color: $primary-lighten-1;
+    color: $accent-primary;
     text-style: bold;
     padding: 1;
 }
 
 #welcome-title {
     text-style: bold;
-    color: $text;
+    color: $text-primary;
     padding: 1;
 }
 
 #welcome-subtitle {
-    color: $text-muted;
+    color: $text-secondary;
     padding: 1;
 }
 
@@ -533,12 +870,12 @@ Rule {
 .feature-item {
     margin: 1 0;
     padding: 1 2;
-    background: $surface;
-    border: wide $surface-lighten-2;
+    background: $bg-surface;
+    border: wide $border-color;
 }
 
 .feature-icon {
-    color: $primary-lighten-1;
+    color: $accent-primary;
     width: 4;
 }
 
@@ -548,17 +885,17 @@ Rule {
 
 .feature-title {
     text-style: bold;
-    color: $text;
+    color: $text-primary;
 }
 
 .feature-desc {
-    color: $text-muted;
+    color: $text-secondary;
 }
 
 /* Config cards */
 .config-card {
-    background: $surface;
-    border: wide $surface-lighten-2;
+    background: $bg-surface;
+    border: wide $border-color;
     padding: 1 2;
     margin-bottom: 2;
 }
@@ -569,17 +906,17 @@ Rule {
 }
 
 .config-card-icon {
-    color: $primary-lighten-1;
+    color: $accent-primary;
     width: 3;
 }
 
 .config-card-title {
     text-style: bold;
-    color: $text;
+    color: $text-primary;
 }
 
 .config-card-desc {
-    color: $text-muted;
+    color: $text-secondary;
     margin-bottom: 1;
 }
 
@@ -595,8 +932,8 @@ Rule {
 
 /* Credentials card */
 .credentials-card {
-    background: $surface;
-    border: wide $primary-darken-2;
+    background: $bg-surface;
+    border: wide $accent-primary;
     padding: 1 2;
     margin: 1 0;
 }
@@ -609,14 +946,14 @@ Rule {
 
 .credentials-title {
     text-style: bold;
-    color: $text;
+    color: $text-primary;
     width: auto;
 }
 
 .credentials-badge {
     margin-left: 2;
-    background: $warning-darken-2;
-    color: $warning;
+    background: #332200;
+    color: $accent-warning;
     padding: 0 1;
     text-style: bold;
 }
@@ -626,18 +963,18 @@ Rule {
     margin: 1 0;
     padding: 1;
     text-align: center;
-    background: $surface-lighten-1;
-    border: wide $surface-lighten-2;
+    background: $bg-elevated;
+    border: wide $border-color;
 }
 
 .cred-status-bar.configured {
-    background: $success-darken-3;
-    border: wide $success-darken-1;
+    background: #003322;
+    border: wide $accent-success;
 }
 
 .cred-status-bar.partial {
-    background: $warning-darken-3;
-    border: wide $warning-darken-1;
+    background: #332200;
+    border: wide $accent-warning;
 }
 
 .cred-field {
@@ -652,7 +989,7 @@ Rule {
 
 .cred-field-label {
     text-style: bold;
-    color: $text;
+    color: $text-primary;
     width: auto;
 }
 
@@ -666,7 +1003,7 @@ Rule {
 .auth-section {
     margin-top: 1;
     padding-top: 1;
-    border-top: solid $surface-lighten-2;
+    border-top: solid $border-color;
 }
 
 .auth-hint {
@@ -678,8 +1015,8 @@ Rule {
 /* Instructions */
 .instructions-card {
     margin-top: 2;
-    background: $surface-lighten-1;
-    border: dashed $surface-lighten-3;
+    background: $bg-elevated;
+    border: dashed $border-color;
     padding: 1;
 }
 
@@ -687,7 +1024,7 @@ Rule {
     width: 100%;
     background: transparent;
     border: none;
-    color: $primary-lighten-1;
+    color: $accent-secondary;
 }
 
 #instructions-content {
@@ -708,13 +1045,13 @@ Rule {
 }
 
 #complete-icon {
-    color: $success;
+    color: $accent-success;
     padding: 1;
 }
 
 #complete-title {
     text-style: bold;
-    color: $text;
+    color: $text-primary;
     padding: 1;
 }
 
@@ -729,21 +1066,21 @@ Rule {
 }
 
 .tip-key {
-    color: $primary-lighten-1;
+    color: $accent-primary;
     text-style: bold;
     width: 8;
 }
 
 .tip-desc {
-    color: $text;
+    color: $text-primary;
 }
 
 /* Navigation */
 #onboarding-nav {
     dock: bottom;
     height: 5;
-    background: $surface;
-    border-top: wide $surface-lighten-2;
+    background: $bg-panel;
+    border-top: wide $border-color;
     padding: 1 4;
     align: center middle;
 }
@@ -771,7 +1108,7 @@ Rule {
 
 #queue-title {
     text-style: bold;
-    color: $primary-lighten-1;
+    color: $accent-primary;
     width: auto;
 }
 
@@ -787,7 +1124,7 @@ Rule {
 
 .queue-stat-value {
     text-style: bold;
-    color: $text;
+    color: $text-primary;
 }
 
 .queue-stat-label {
@@ -796,8 +1133,8 @@ Rule {
 
 #queue-table-container {
     height: 1fr;
-    background: $surface;
-    border: wide $surface-lighten-2;
+    background: $bg-surface;
+    border: wide $border-color;
 }
 
 #queue-table {
@@ -817,27 +1154,27 @@ Rule {
 }
 
 .dl-searching {
-    color: $warning;
+    color: $accent-warning;
 }
 
 .dl-downloading {
-    color: $primary-lighten-1;
+    color: $accent-primary;
 }
 
 .dl-converting {
-    color: $secondary;
+    color: $accent-secondary;
 }
 
 .dl-embedding {
-    color: $secondary;
+    color: $accent-secondary;
 }
 
 .dl-completed {
-    color: $success;
+    color: $accent-success;
 }
 
 .dl-failed {
-    color: $error;
+    color: $accent-error;
 }
 
 .dl-cancelled {
@@ -855,23 +1192,23 @@ Rule {
 #settings-header {
     height: 5;
     margin-bottom: 1;
-    border-bottom: wide $surface-lighten-2;
+    border-bottom: wide $border-color;
     padding-bottom: 1;
 }
 
 #settings-title {
     text-style: bold;
-    color: $primary-lighten-1;
+    color: $accent-primary;
 }
 
 #settings-subtitle {
-    color: $text-muted;
+    color: $text-secondary;
 }
 
 /* Settings groups */
 .settings-group {
-    background: $surface;
-    border: wide $surface-lighten-2;
+    background: $bg-surface;
+    border: wide $border-color;
     padding: 1 2;
     margin-bottom: 2;
     height: auto;
@@ -916,13 +1253,13 @@ Rule {
 }
 
 .settings-group-icon {
-    color: $primary-lighten-1;
+    color: $accent-primary;
     width: 3;
 }
 
 .settings-group-title {
     text-style: bold;
-    color: $text;
+    color: $text-primary;
     width: auto;
 }
 
@@ -931,14 +1268,14 @@ Rule {
 }
 
 .settings-group-desc {
-    color: $text-muted;
+    color: $text-secondary;
     margin-bottom: 1;
 }
 
 /* Group title used in settings.py */
 .group-title {
     text-style: bold;
-    color: $primary-lighten-1;
+    color: $accent-primary;
     margin-bottom: 1;
     height: auto;
     width: 100%;
@@ -953,7 +1290,7 @@ Rule {
 
 .setting-row Label {
     width: 25;
-    color: $text;
+    color: $text-primary;
 }
 
 .setting-row Input {
@@ -970,7 +1307,7 @@ Rule {
 
 .setting-label {
     width: 35%;
-    color: $text;
+    color: $text-primary;
 }
 
 .setting-input {
@@ -1008,7 +1345,7 @@ Rule {
 
 /* Credentials section styling */
 .credentials-section {
-    border: wide $primary-darken-2;
+    border: wide $accent-primary;
 }
 
 .cred-field-group {
@@ -1025,7 +1362,7 @@ Rule {
 
 .cred-label {
     width: auto;
-    color: $text;
+    color: $text-primary;
 }
 
 .toggle-visibility-btn {
@@ -1050,15 +1387,15 @@ Rule {
 }
 
 .cred-help-link {
-    color: $primary-lighten-1;
+    color: $accent-secondary;
     height: auto;
     margin-top: 1;
 }
 
 /* Credential sections in settings */
 .credentials-group {
-    background: $surface;
-    border: wide $primary-darken-2;
+    background: $bg-surface;
+    border: wide $accent-primary;
     padding: 1 2;
     margin-bottom: 2;
 }
@@ -1071,7 +1408,7 @@ Rule {
 
 .cred-group-title {
     text-style: bold;
-    color: $text;
+    color: $text-primary;
     width: auto;
 }
 
@@ -1080,7 +1417,7 @@ Rule {
 }
 
 .cred-group-desc {
-    color: $text-muted;
+    color: $text-secondary;
     margin-bottom: 1;
 }
 
@@ -1096,7 +1433,7 @@ Rule {
 
 .cred-row-label {
     text-style: bold;
-    color: $text;
+    color: $text-primary;
     width: auto;
 }
 
@@ -1122,7 +1459,7 @@ Rule {
 }
 
 .cred-help {
-    color: $primary-lighten-1;
+    color: $accent-secondary;
     text-style: italic;
     padding: 1 0;
 }
@@ -1132,7 +1469,7 @@ Rule {
     height: 5;
     margin-top: 2;
     padding-top: 1;
-    border-top: wide $surface-lighten-2;
+    border-top: wide $border-color;
     align: center middle;
 }
 
@@ -1149,19 +1486,19 @@ Markdown {
 }
 
 MarkdownH1 {
-    color: $primary-lighten-1;
+    color: $accent-primary;
     text-style: bold;
     padding: 1 0;
 }
 
 MarkdownH2 {
-    color: $text;
+    color: $text-primary;
     text-style: bold;
     padding: 1 0;
 }
 
 MarkdownH3 {
-    color: $text;
+    color: $text-primary;
     text-style: bold;
     padding: 1 0;
 }
@@ -1174,9 +1511,266 @@ MarkdownOrderedList {
     padding-left: 2;
 }
 
-/* ==================== ANIMATIONS ==================== */
+/* ==================== DETAIL SCREENS (Track/Album/Artist/Playlist) ==================== */
 
-/* Smooth transitions - Textual handles these */
+/* Hero sections */
+.hero-section {
+    background: $bg-panel;
+    padding: 1 2;
+    margin-bottom: 1;
+    border-bottom: wide $border-color;
+}
+
+#track-hero-content,
+#album-hero-content,
+#artist-hero-content,
+#playlist-hero-content {
+    height: auto;
+    min-height: 10;
+    align: left top;
+}
+
+/* Cover/Avatar placeholders */
+.cover-placeholder {
+    width: 12;
+    height: 6;
+    background: $bg-surface;
+    border: wide $border-color;
+    content-align: center middle;
+    margin-right: 2;
+}
+
+.cover-placeholder-large {
+    width: 16;
+    height: 8;
+    background: $bg-surface;
+    border: wide $border-color;
+    content-align: center middle;
+    margin-right: 2;
+}
+
+.avatar-placeholder {
+    width: 12;
+    height: 6;
+    background: $bg-surface;
+    border: wide $accent-primary;
+    content-align: center middle;
+    margin-right: 2;
+}
+
+/* Info sections */
+#track-info,
+#album-info,
+#artist-info,
+#playlist-info {
+    width: 1fr;
+}
+
+/* Badges rows */
+#track-badges,
+#album-badges {
+    height: auto;
+    margin-bottom: 1;
+}
+
+/* Stats rows */
+.stats-row {
+    height: auto;
+    margin: 1 0;
+}
+
+.stat-item {
+    margin-right: 3;
+}
+
+/* Genre row */
+.genre-row {
+    height: auto;
+    margin: 1 0;
+}
+
+.genre-row .badge {
+    margin-right: 1;
+}
+
+/* Actions row */
+.actions-row {
+    height: auto;
+    margin-top: 1;
+}
+
+.actions-row Button {
+    margin-right: 1;
+}
+
+/* Detail row (for ISRC, Label, etc.) */
+.detail-row {
+    height: auto;
+    margin: 0;
+    color: $text-secondary;
+}
+
+/* Description text */
+.description-text {
+    color: $text-secondary;
+    max-height: 4;
+    overflow: hidden;
+    margin: 1 0;
+}
+
+/* Content grids */
+#track-content,
+#album-content,
+#artist-content,
+#playlist-content {
+    width: 100%;
+    height: 1fr;
+    padding: 1;
+}
+
+/* Main column (left, 2/3 width) */
+.main-column {
+    width: 66%;
+    padding-right: 1;
+}
+
+/* Sidebar column (right, 1/3 width) */
+.sidebar-column {
+    width: 34%;
+    padding-left: 1;
+    border-left: wide $border-color;
+}
+
+/* Stats grid */
+.stats-grid {
+    height: auto;
+}
+
+.stat-box {
+    width: 1fr;
+    text-align: center;
+    padding: 1;
+}
+
+.stat-value {
+    text-style: bold;
+    color: $accent-primary;
+}
+
+.stat-label {
+    color: $text-muted;
+}
+
+/* Bio text */
+.bio-text {
+    color: $text-secondary;
+    max-height: 8;
+    overflow: hidden;
+}
+
+/* Feature rows (for audio features) */
+.feature-row {
+    height: auto;
+    margin: 1 0;
+    align: left middle;
+}
+
+.feature-label {
+    width: 12;
+    color: $text-secondary;
+}
+
+.feature-value {
+    color: $text-primary;
+    text-style: bold;
+}
+
+.feature-row ProgressBar {
+    width: 1fr;
+}
+
+/* Lyrics display */
+.lyrics-scroll {
+    max-height: 20;
+    background: $bg-elevated;
+    padding: 1;
+    border: wide $border-color;
+}
+
+.lyrics-text {
+    color: $text-secondary;
+}
+
+/* Matches container */
+#matches-container {
+    height: auto;
+    min-height: 10;
+}
+
+#matches-table {
+    height: 100%;
+    min-height: 8;
+}
+
+/* Tracks container */
+#tracks-container {
+    height: auto;
+    min-height: 10;
+}
+
+#tracks-table {
+    height: 100%;
+    min-height: 8;
+}
+
+/* Top tracks container */
+#top-tracks-container {
+    height: auto;
+    min-height: 8;
+}
+
+#top-tracks-table {
+    height: 100%;
+    min-height: 6;
+}
+
+/* Album tables */
+#albums-table-all,
+#albums-table-albums,
+#albums-table-singles,
+#albums-table-eps {
+    height: 100%;
+    min-height: 6;
+}
+
+/* Tabbed content */
+#discography-tabs {
+    height: auto;
+    min-height: 10;
+}
+
+TabbedContent {
+    height: auto;
+}
+
+TabPane {
+    height: auto;
+    padding: 1;
+}
+
+ContentSwitcher {
+    height: auto;
+}
+
+/* Detail containers */
+#track-container,
+#album-container,
+#artist-container,
+#playlist-container {
+    width: 100%;
+    height: 100%;
+    background: $bg-chassis;
+}
 
 /* ==================== RESPONSIVE ==================== */
 
