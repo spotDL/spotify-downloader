@@ -35,3 +35,12 @@ export const useAuthStore = create<AuthState>()(
     }
   )
 );
+
+/**
+ * Force logout - can be called from anywhere (e.g., API client on 401)
+ * This is a standalone function to avoid circular imports
+ */
+export function forceLogout(): void {
+  localStorage.removeItem("access_token");
+  useAuthStore.setState({ user: null, accessToken: null, isAuthenticated: false });
+}

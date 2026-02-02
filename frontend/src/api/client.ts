@@ -1,4 +1,5 @@
 import axios, { AxiosError } from "axios";
+import { forceLogout } from "@/stores/auth";
 
 export const apiClient = axios.create({
   baseURL: "/api/v1",
@@ -6,6 +7,30 @@ export const apiClient = axios.create({
     "Content-Type": "application/json",
   },
 });
+
+/**
+ * Check if a JWT token is expired by decoding the payload.
+ * Returns true if expired or invalid, false if still valid.
+ */
+function isTokenExpired(token: string): boolean {
+  try {
+    // JWT format: header.payload.signature
+    const parts = token.split(".");
+    if (parts.length !== 3) return true;
+
+    // Decode the payload (base64url)
+    const payload = JSON.parse(atob(parts[1].replace(/-/g, "+").replace(/_/g, "/")));
+
+    // Check expiration (exp is in seconds, Date.now() is in milliseconds)
+    if (!payload.exp) return false; // No expiration = assume valid
+
+    // Add 10 second buffer to account for clock skew
+    return payload.exp * 1000 < Date.now() + 10000;
+  } catch {
+    // If we can't decode, assume expired/invalid
+    return true;
+  }
+}
 
 /**
  * Extract a user-friendly error message from an API error response.
@@ -87,11 +112,18 @@ function createUserFriendlyError(error: AxiosError): Error {
   return userError;
 }
 
-// Add auth token to requests if available
+// Add auth token to requests if available, and check expiration
 apiClient.interceptors.request.use((config) => {
   const token = localStorage.getItem("access_token");
   if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+    // Check if token is expired before making the request
+    if (isTokenExpired(token)) {
+      // Token expired - force logout and don't add the token
+      forceLogout();
+      // Still allow the request to proceed (will fail with 401, but that's expected)
+    } else {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
   }
   return config;
 });
@@ -100,12 +132,13 @@ apiClient.interceptors.request.use((config) => {
 apiClient.interceptors.response.use(
   (response) => response,
   (error: AxiosError) => {
-    // Clear token on 401 (but not for login/register endpoints)
+    // Force logout on 401 (but not for login/register endpoints)
     if (error.response?.status === 401) {
       const url = error.config?.url || "";
       const isAuthEndpoint = url.includes("/auth/login") || url.includes("/auth/register");
       if (!isAuthEndpoint) {
-        localStorage.removeItem("access_token");
+        // Clear auth state completely - token expired or invalid
+        forceLogout();
       }
     }
 

@@ -80,7 +80,6 @@ omit = [
     "src/spotdl_cli/screens/*",
     "src/spotdl_cli/app.py",
     "src/spotdl_cli/__main__.py",
-    "src/spotdl_cli/core/offline.py",  # Requires network for providers
 ]
 
 [tool.coverage.report]
@@ -113,3 +112,10 @@ module = [
     "spotdl_core.*",
 ]
 ignore_missing_imports = true
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.2",
+    "pytest-asyncio>=1.3.0",
+    "pytest-cov>=7.0.0",
+]
