@@ -181,6 +181,12 @@ function SettingsPage() {
   // Fetch provider info from API
   const { data: providersData } = useProviders();
 
+  // Wrapper functions that show toast on setting change
+  const withToast = <T,>(setter: (value: T) => void, label: string) => (value: T) => {
+    setter(value);
+    showSuccess(`${label} updated`);
+  };
+
   // API hooks for syncing
   const { refetch: refetchServerSettings } = useUserSettings();
   const updateSettingsMutation = useUpdateUserSettings();
@@ -414,7 +420,7 @@ function SettingsPage() {
               {/* Overwrite Toggle */}
               <ToggleSwitch
                 checked={overwriteExisting}
-                onChange={setOverwriteExisting}
+                onChange={withToast(setOverwriteExisting, "Overwrite existing files")}
                 label="Overwrite existing files"
                 description="Replace files that already exist in the output directory"
               />
@@ -449,21 +455,21 @@ function SettingsPage() {
             <CardContent className="space-y-4">
               <ToggleSwitch
                 checked={embedMetadata}
-                onChange={setEmbedMetadata}
+                onChange={withToast(setEmbedMetadata, "Embed metadata")}
                 label="Embed metadata"
                 description="Title, artist, album, year, track number"
               />
 
               <ToggleSwitch
                 checked={embedLyrics}
-                onChange={setEmbedLyrics}
+                onChange={withToast(setEmbedLyrics, "Embed lyrics")}
                 label="Embed lyrics"
                 description="Fetch and embed synchronized lyrics when available"
               />
 
               <ToggleSwitch
                 checked={embedCoverArt}
-                onChange={setEmbedCoverArt}
+                onChange={withToast(setEmbedCoverArt, "Embed cover art")}
                 label="Embed cover art"
                 description="Download and embed album artwork"
               />
@@ -579,7 +585,10 @@ function SettingsPage() {
           {/* Auto-select Toggle */}
           <ToggleSwitch
             checked={!offlineMode}
-            onChange={(checked) => setOfflineMode(!checked)}
+            onChange={(checked) => {
+              setOfflineMode(!checked);
+              showSuccess("Auto-select best match updated");
+            }}
             label="Auto-select best match"
             description="Automatically select the highest scoring match without manual review"
           />
@@ -703,7 +712,7 @@ function SettingsPage() {
 
           <ToggleSwitch
             checked={spotifyUserAuth}
-            onChange={setSpotifyUserAuth}
+            onChange={withToast(setSpotifyUserAuth, "Spotify OAuth")}
             label="Use Spotify OAuth"
             description="Enable user authentication for accessing private playlists"
           />
@@ -752,7 +761,7 @@ function SettingsPage() {
 
           <ToggleSwitch
             checked={offlineMode}
-            onChange={setOfflineMode}
+            onChange={withToast(setOfflineMode, "Offline mode")}
             label="Offline mode"
             description="Use local matching when server is unavailable"
           />
@@ -787,21 +796,21 @@ function SettingsPage() {
         <CardContent className="space-y-4">
           <ToggleSwitch
             checked={compactSidebar}
-            onChange={setCompactSidebar}
+            onChange={withToast(setCompactSidebar, "Compact sidebar")}
             label="Compact sidebar"
             description="Use icon-only sidebar by default"
           />
 
           <ToggleSwitch
             checked={enableAnimations}
-            onChange={setEnableAnimations}
+            onChange={withToast(setEnableAnimations, "Enable animations")}
             label="Enable animations"
             description="Show smooth transitions and VU meter effects"
           />
 
           <ToggleSwitch
             checked={reduceMotion}
-            onChange={setReduceMotion}
+            onChange={withToast(setReduceMotion, "Reduce motion")}
             label="Reduce motion"
             description="Minimize animations for accessibility"
           />
