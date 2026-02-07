@@ -200,15 +200,16 @@ class TestSongServiceWithMocks:
 
     @pytest.mark.asyncio
     async def test_search_returns_empty_on_error(self, song_service: SongService) -> None:
-        """Test search returns empty list on provider error."""
+        """Test search raises SongServiceError on provider error."""
+        from spotdl.core.services.song import SongServiceError
         from spotdl.core.types.song import Platform
 
         provider = song_service.get_provider(Platform.DEEZER)
         with patch.object(provider, "search", new_callable=AsyncMock) as mock_search:
             mock_search.side_effect = SourceProviderError("Search failed")
 
-            results = await song_service.search("test query", platform=Platform.DEEZER)
-            assert results == []
+            with pytest.raises(SongServiceError, match="Search failed"):
+                await song_service.search("test query", platform=Platform.DEEZER)
 
     @pytest.mark.asyncio
     async def test_search_success(

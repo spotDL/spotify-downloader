@@ -511,9 +511,7 @@ Rule {
 
 /* Results container */
 #results-container {
-    height: 1fr;
-    background: $bg-surface;
-    border: wide $border-color;
+    height: auto;
     padding: 1;
 }
 
@@ -579,6 +577,7 @@ Rule {
 /* Entity card */
 .entity-card {
     height: auto;
+    max-width: 120;
     padding: 1;
     margin-bottom: 1;
     background: $bg-elevated;
@@ -649,6 +648,7 @@ Rule {
 /* Card meta row (type badge + platform dots) */
 .card-meta-row {
     height: auto;
+    width: auto;
     align: left middle;
     margin-bottom: 0;
 }
@@ -783,7 +783,8 @@ Rule {
 /* Platform badges */
 .platform-badges {
     height: auto;
-    margin-top: 1;
+    width: auto;
+    margin-left: 1;
 }
 
 /* Search input */

@@ -17,8 +17,18 @@ from spotdl.core.types.song import Platform, Song
 
 @pytest.fixture
 def match_service() -> MatchService:
-    """Create a match service instance for testing."""
-    return MatchService()
+    """Create a match service instance for testing with all providers enabled."""
+    # Enable all providers for comprehensive testing
+    from spotdl.core.providers_config import ProviderPreference
+
+    audio_prefs: list[ProviderPreference] = [
+        {"id": "youtube_music", "enabled": True},
+        {"id": "youtube", "enabled": True},
+        {"id": "soundcloud", "enabled": True},
+        {"id": "bandcamp", "enabled": True},
+        {"id": "piped", "enabled": True},
+    ]
+    return MatchService(audio_preferences=audio_prefs)
 
 
 @pytest.fixture

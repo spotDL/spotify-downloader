@@ -87,6 +87,7 @@ class MainScreen(Screen[None]):
     BINDINGS: ClassVar[list[Binding]] = [
         Binding("escape", "app.pop_screen", "Back"),
         Binding("enter", "submit_search", "Search", show=False),
+        Binding("r", "refresh", "Refresh"),
         Binding("tab", "next_filter", "Next Filter", show=False),
         Binding("1", "filter_all", "All", show=False),
         Binding("2", "filter_tracks", "Tracks", show=False),
@@ -269,8 +270,8 @@ class MainScreen(Screen[None]):
         elif button_id and button_id.startswith("load-more-"):
             entity_type_str = button_id.replace("load-more-", "")
             await self._load_more(entity_type_str)
-        elif button_id and button_id.startswith("entity-"):
-            # Handle entity card click
+        elif button_id and (button_id.startswith("entity-") or button_id.startswith("dl-")):
+            # Handle entity card click (view or download)
             await self._handle_entity_click(button_id)
 
     def _set_active_filter(self, filter_type: str) -> None:
@@ -348,7 +349,7 @@ class MainScreen(Screen[None]):
                 response = await self._search_offline(query)
 
             self._search_response = response
-            self._display_results(response)
+            await self._display_results(response)
 
             # Update status
             total = response.total
@@ -449,7 +450,7 @@ class MainScreen(Screen[None]):
             total=len(all_results),
         )
 
-    def _display_results(self, response: UniversalSearchResponse) -> None:
+    async def _display_results(self, response: UniversalSearchResponse) -> None:
         """Display search results grouped by entity type."""
         # Clear existing results
         self._clear_results()
@@ -460,22 +461,22 @@ class MainScreen(Screen[None]):
 
         # Display each entity type with lazy loading
         if response.artists:
-            self._display_entity_section(
+            await self._display_entity_section(
                 EntityType.ARTIST, response.artists, "artists"
             )
 
         if response.albums:
-            self._display_entity_section(
+            await self._display_entity_section(
                 EntityType.ALBUM, response.albums, "albums"
             )
 
         if response.tracks:
-            self._display_entity_section(
+            await self._display_entity_section(
                 EntityType.TRACK, response.tracks, "tracks"
             )
 
         if response.playlists:
-            self._display_entity_section(
+            await self._display_entity_section(
                 EntityType.PLAYLIST, response.playlists, "playlists"
             )
 
@@ -499,7 +500,7 @@ class MainScreen(Screen[None]):
         ]:
             self.query_one(f"#{btn_id}", Button).add_class("hidden")
 
-    def _display_entity_section(
+    async def _display_entity_section(
         self,
         entity_type: EntityType,
         entities: list[EntityResult],
@@ -526,8 +527,8 @@ class MainScreen(Screen[None]):
                 card = self._create_entity_card(entity, entity_type)
             cards.append(card)
 
-        # Batch mount all cards at once (much faster than individual mounts)
-        container.mount(*cards)
+        # Batch mount all cards at once and await completion
+        await container.mount(*cards)
 
         # Show/hide load more button
         if len(entities) > display_limit:
@@ -576,7 +577,7 @@ class MainScreen(Screen[None]):
                 card = self._create_entity_card(entity, entity_type)
             cards.append(card)
 
-        container.mount(*cards)
+        await container.mount(*cards)
 
         # Hide load more if no more entities
         load_more_btn = self.query_one(f"#load-more-{section_name}", Button)
@@ -807,6 +808,12 @@ class MainScreen(Screen[None]):
     def action_submit_search(self) -> None:
         """Submit search action."""
         self.run_worker(self._do_search())
+
+    def action_refresh(self) -> None:
+        """Refresh: re-run the current search query."""
+        query = self.query_one("#search-input", Input).value.strip()
+        if query:
+            self.run_worker(self._do_search())
 
     def action_next_filter(self) -> None:
         """Move to next filter."""

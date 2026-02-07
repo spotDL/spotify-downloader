@@ -62,15 +62,17 @@ class TestMatchesEndpoints:
     """Tests for matches API endpoints."""
 
     async def test_get_platforms(self, client: AsyncClient) -> None:
-        """Test GET /api/v1/matches/platforms returns target platforms."""
+        """Test GET /api/v1/matches/platforms returns enabled target platforms."""
         response = await client.get("/api/v1/matches/platforms")
 
         assert response.status_code == 200
         data = response.json()
         assert "platforms" in data
+        # Only YouTube and YouTube Music are enabled by default
         assert "youtube" in data["platforms"]
         assert "youtube_music" in data["platforms"]
-        assert "soundcloud" in data["platforms"]
+        # SoundCloud, Bandcamp, Piped are disabled by default
+        assert isinstance(data["platforms"], list)
 
 
 class TestMatchesFindWithMock:
@@ -202,10 +204,10 @@ class TestMatchesSubmit:
     """Tests for match submission endpoint."""
 
     async def test_submit_match_youtube(
-        self, client: AsyncClient, test_user: User
+        self, authenticated_client: AsyncClient, test_user: User
     ) -> None:
         """Test submitting a YouTube match."""
-        response = await client.post(
+        response = await authenticated_client.post(
             "/api/v1/matches/submit",
             json={
                 "source_url": "https://open.spotify.com/track/abc123",
@@ -220,10 +222,10 @@ class TestMatchesSubmit:
         assert "id" in data
 
     async def test_submit_match_youtube_music(
-        self, client: AsyncClient, test_user: User
+        self, authenticated_client: AsyncClient, test_user: User
     ) -> None:
         """Test submitting a YouTube Music match."""
-        response = await client.post(
+        response = await authenticated_client.post(
             "/api/v1/matches/submit",
             json={
                 "source_url": "https://open.spotify.com/track/abc123",
@@ -236,10 +238,10 @@ class TestMatchesSubmit:
         assert data["target_platform"] == "youtube_music"
 
     async def test_submit_match_soundcloud(
-        self, client: AsyncClient, test_user: User
+        self, authenticated_client: AsyncClient, test_user: User
     ) -> None:
         """Test submitting a SoundCloud match."""
-        response = await client.post(
+        response = await authenticated_client.post(
             "/api/v1/matches/submit",
             json={
                 "source_url": "https://open.spotify.com/track/abc123",
@@ -252,10 +254,10 @@ class TestMatchesSubmit:
         assert data["target_platform"] == "soundcloud"
 
     async def test_submit_match_bandcamp(
-        self, client: AsyncClient, test_user: User
+        self, authenticated_client: AsyncClient, test_user: User
     ) -> None:
         """Test submitting a Bandcamp match."""
-        response = await client.post(
+        response = await authenticated_client.post(
             "/api/v1/matches/submit",
             json={
                 "source_url": "https://open.spotify.com/track/abc123",
@@ -268,10 +270,10 @@ class TestMatchesSubmit:
         assert data["target_platform"] == "bandcamp"
 
     async def test_submit_match_piped(
-        self, client: AsyncClient, test_user: User
+        self, authenticated_client: AsyncClient, test_user: User
     ) -> None:
         """Test submitting a Piped match."""
-        response = await client.post(
+        response = await authenticated_client.post(
             "/api/v1/matches/submit",
             json={
                 "source_url": "https://open.spotify.com/track/abc123",
@@ -284,10 +286,10 @@ class TestMatchesSubmit:
         assert data["target_platform"] == "piped"
 
     async def test_submit_match_unsupported_target(
-        self, client: AsyncClient, test_user: User
+        self, authenticated_client: AsyncClient, test_user: User
     ) -> None:
         """Test submitting with unsupported target URL."""
-        response = await client.post(
+        response = await authenticated_client.post(
             "/api/v1/matches/submit",
             json={
                 "source_url": "https://open.spotify.com/track/abc123",
@@ -298,10 +300,10 @@ class TestMatchesSubmit:
         assert response.status_code == 400
 
     async def test_submit_match_unsupported_source(
-        self, client: AsyncClient, test_user: User
+        self, authenticated_client: AsyncClient, test_user: User
     ) -> None:
         """Test submitting with unsupported source URL."""
-        response = await client.post(
+        response = await authenticated_client.post(
             "/api/v1/matches/submit",
             json={
                 "source_url": "https://example.com/track/abc123",  # Unsupported source
@@ -312,11 +314,11 @@ class TestMatchesSubmit:
         assert response.status_code == 400
 
     async def test_submit_duplicate_match(
-        self, client: AsyncClient, test_user: User
+        self, authenticated_client: AsyncClient, test_user: User
     ) -> None:
         """Test submitting a match that already exists."""
         # Submit first match
-        await client.post(
+        await authenticated_client.post(
             "/api/v1/matches/submit",
             json={
                 "source_url": "https://open.spotify.com/track/duplicate123",
@@ -325,7 +327,7 @@ class TestMatchesSubmit:
         )
 
         # Submit same match again
-        response = await client.post(
+        response = await authenticated_client.post(
             "/api/v1/matches/submit",
             json={
                 "source_url": "https://open.spotify.com/track/duplicate123",

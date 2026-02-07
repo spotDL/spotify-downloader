@@ -1,0 +1,60 @@
+interactions:
+- request:
+    body: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Host:
+      - tidal.com
+    method: GET
+    uri: https://tidal.com/search?q=Daft+Punk+Harder+Better+Faster+Stronger
+  response:
+    body:
+      string: '<html lang="en"><head><title>tidal.com</title><style>#cmsg{animation:
+        A 1.5s;}@keyframes A{0%{opacity:0;}99%{opacity:0;}100%{opacity:1;}}</style></head><body
+        style="margin:0"><p id="cmsg">Please enable JS and disable any ad blocker</p><script
+        data-cfasync="false">var dd={''rt'':''c'',''cid'':''AHrlqAAAAAMAols3MxfhW1kAXZ8YkA=='',''hsh'':''1F633CDD8EF22541BD6D9B1B8EF13A'',''t'':''fe'',''qp'':'''',''s'':29690,''e'':''be22e97a73dd2c7ce5e710003907dd651a0d7d20b0836d966223ba695c6e559db0c1d6c51788c064bad28b85667759ff'',''host'':''geo.captcha-delivery.com'',''cookie'':''mg_ZwKJcP3epJqJwFDCVyjGyAHM9L3FrO0TDMnAS4__1P~fthD_qn5_~wT~hOv7FY3JN9_W1nCeWkqm8JHA7zht7vHH_YbMp_GseahyXCa~GodIEsDTgsISuN6QApUYg''}</script><script
+        data-cfasync="false" src="https://ct.captcha-delivery.com/c.js"></script></body></html>'
+    headers:
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '769'
+      Content-Type:
+      - text/html;charset=utf-8
+      Cross-Origin-Opener-Policy:
+      - same-origin-allow-popups
+      Date:
+      - Sat, 07 Feb 2026 03:31:30 GMT
+      Server:
+      - CloudFront
+      Via:
+      - 1.1 12b650bf7b8d3f0f17a10fc9f2346f04.cloudfront.net (CloudFront)
+      X-Amz-Cf-Id:
+      - 15FLgbBm8NGfwHt23tnlOnpFUBi8NzsK4CjgCixvO4Ed90VdiVPcCw==
+      X-Amz-Cf-Pop:
+      - WAW51-P4
+      X-Cache:
+      - LambdaGeneratedResponse from cloudfront
+      accept-ch:
+      - Sec-CH-UA,Sec-CH-UA-Mobile,Sec-CH-UA-Platform,Sec-CH-UA-Arch,Sec-CH-UA-Full-Version-List,Sec-CH-UA-Model,Sec-CH-Device-Memory
+      cache-control:
+      - max-age=0, private, no-cache, no-store, must-revalidate
+      charset:
+      - utf-8
+      pragma:
+      - no-cache
+      x-datadome:
+      - protected
+      x-datadome-cid:
+      - AHrlqAAAAAMAols3MxfhW1kAXZ8YkA==
+      x-dd-b:
+      - '1'
+    status:
+      code: 403
+      message: HTTP Forbidden
+version: 1
