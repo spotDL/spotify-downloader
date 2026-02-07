@@ -57,30 +57,34 @@ class QueueScreen(Screen[None]):
     def compose(self) -> ComposeResult:
         """Compose the screen layout."""
         with Vertical(id="queue-container"):
-            # Stats header
-            with Vertical(id="queue-header"):
-                with Horizontal(id="queue-title-row"):
+            # Header
+            with Horizontal(id="queue-header"):
+                with Vertical(id="queue-title-block"):
                     yield Static("Downloads", id="queue-title")
+                    yield Static("", id="queue-stats", classes="status-muted")
+                with Horizontal(id="queue-actions"):
+                    yield Button("Start", id="start-btn", variant="success")
+                    yield Button("Pause", id="pause-btn", variant="warning")
+                    yield Button("Remove", id="remove-btn", variant="error")
+                    yield Button("Clear Done", id="clear-done-btn")
+                    yield Button("Retry Failed", id="retry-failed-btn")
 
-                with Horizontal(id="queue-stats-row"):
-                    yield Static("", id="queue-stats")
+            # Content split
+            with Horizontal(id="queue-content"):
+                with Vertical(id="queue-main"):
+                    with Container(id="queue-table-container"):
+                        yield DataTable(id="queue-table")
 
-            # Queue table
-            with Container(id="queue-table-container"):
-                yield DataTable(id="queue-table")
+                with Vertical(id="queue-sidebar"):
+                    with Vertical(classes="card", id="queue-now-card"):
+                        yield Static("Now Downloading", classes="card-title")
+                        yield Static("", id="current-download")
+                        yield ProgressBar(id="download-progress", total=100, show_eta=False)
+                        yield Static("", id="current-meta", classes="status-muted")
 
-            # Progress section
-            with Container(id="progress-section"):
-                yield Static("", id="current-download")
-                yield ProgressBar(id="download-progress", total=100, show_eta=False)
-
-            # Actions
-            with Horizontal(id="queue-actions"):
-                yield Button("Start", id="start-btn", variant="success")
-                yield Button("Pause", id="pause-btn", variant="warning")
-                yield Button("Remove", id="remove-btn", variant="error")
-                yield Button("Clear Done", id="clear-done-btn")
-                yield Button("Retry Failed", id="retry-failed-btn")
+                    with Vertical(classes="card", id="queue-summary-card"):
+                        yield Static("Summary", classes="card-title")
+                        yield Static("", id="queue-summary")
 
     async def on_mount(self) -> None:
         """Handle screen mount."""
@@ -94,6 +98,7 @@ class QueueScreen(Screen[None]):
             "Status",
             "Progress",
             "Speed",
+            "ETA",
         )
 
         # Subscribe to queue events
@@ -134,13 +139,16 @@ class QueueScreen(Screen[None]):
         for item in queue.items:
             item_id = queue.get_item_id(item)
             progress = f"{item.progress:.0f}%" if item.progress > 0 else "-"
+            status = self._format_status(item.status)
+            eta = item.eta or "-"
 
             table.add_row(
                 item.song.name,
                 item.song.artist,
-                item.status.value.title(),
+                status,
                 progress,
                 item.speed or "-",
+                eta,
                 key=item_id,
             )
 
@@ -157,11 +165,14 @@ class QueueScreen(Screen[None]):
         try:
             row_key = table.get_row_index(item_id)
             progress = f"{item.progress:.0f}%" if item.progress > 0 else "-"
+            status = self._format_status(item.status)
+            eta = item.eta or "-"
 
             # Update cells
-            table.update_cell_at((row_key, 2), item.status.value.title())
+            table.update_cell_at((row_key, 2), status)
             table.update_cell_at((row_key, 3), progress)
             table.update_cell_at((row_key, 4), item.speed or "-")
+            table.update_cell_at((row_key, 5), eta)
         except Exception:
             # Row not found, refresh table
             self._update_table()
@@ -170,6 +181,7 @@ class QueueScreen(Screen[None]):
         """Update queue statistics."""
         queue = self.spotdl_app.download_queue
         stats = self.query_one("#queue-stats", Static)
+        summary = self.query_one("#queue-summary", Static)
 
         pending = queue.pending_count
         active = queue.active_count
@@ -180,6 +192,20 @@ class QueueScreen(Screen[None]):
             f"Pending: {pending} | Active: {active} | "
             f"Done: {completed} | Failed: {failed}"
         )
+        summary.update(
+            f"[bold]{pending}[/bold] pending\n"
+            f"[bold]{active}[/bold] active\n"
+            f"[bold]{completed}[/bold] done\n"
+            f"[bold]{failed}[/bold] failed"
+        )
+
+        if active == 0:
+            current = self.query_one("#current-download", Static)
+            progress = self.query_one("#download-progress", ProgressBar)
+            meta = self.query_one("#current-meta", Static)
+            current.update("Idle")
+            progress.update(progress=0)
+            meta.update("")
 
     def _update_progress(self, item_id: str) -> None:
         """Update progress bar for current download."""
@@ -199,9 +225,26 @@ class QueueScreen(Screen[None]):
 
         current = self.query_one("#current-download", Static)
         progress = self.query_one("#download-progress", ProgressBar)
+        meta = self.query_one("#current-meta", Static)
 
-        current.update(f"Downloading: {item.song.display_name}")
+        current.update(item.song.display_name)
         progress.update(progress=item.progress)
+        meta.update(f"{item.status.value.title()} • {item.speed or '-'} • {item.eta or '-'}")
+
+    def _format_status(self, status: DownloadStatus) -> str:
+        """Format status string with color."""
+        colors = {
+            DownloadStatus.PENDING: "dim",
+            DownloadStatus.SEARCHING: "yellow",
+            DownloadStatus.DOWNLOADING: "cyan",
+            DownloadStatus.CONVERTING: "blue",
+            DownloadStatus.EMBEDDING: "blue",
+            DownloadStatus.COMPLETED: "green",
+            DownloadStatus.FAILED: "red",
+            DownloadStatus.CANCELLED: "dim",
+        }
+        color = colors.get(status, "white")
+        return f"[{color}]{status.value.title()}[/{color}]"
 
     async def on_button_pressed(self, event: Button.Pressed) -> None:
         """Handle button presses."""

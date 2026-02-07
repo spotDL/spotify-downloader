@@ -1265,13 +1265,16 @@ Rule {
 }
 
 #queue-header {
-    height: 5;
+    height: auto;
     margin-bottom: 1;
+    align: left middle;
+    padding: 0 1;
+    background: $bg-panel;
+    border-bottom: wide $border-color;
 }
 
-#queue-title-row {
-    height: auto;
-    align: left middle;
+#queue-title-block {
+    width: 1fr;
 }
 
 #queue-title {
@@ -1280,27 +1283,38 @@ Rule {
     width: auto;
 }
 
-#queue-stats-row {
-    height: auto;
-    margin-top: 1;
-}
-
-.queue-stat {
-    width: auto;
-    margin-right: 3;
-}
-
-.queue-stat-value {
-    text-style: bold;
-    color: $text-primary;
-}
-
-.queue-stat-label {
+#queue-stats {
     color: $text-muted;
 }
 
-#queue-table-container {
+#queue-actions {
+    height: auto;
+    align: right middle;
+}
+
+#queue-actions Button {
+    min-width: 10;
+}
+
+#queue-content {
     height: 1fr;
+    width: 100%;
+    padding: 1 0;
+}
+
+#queue-main {
+    width: 70%;
+    padding-right: 1;
+}
+
+#queue-sidebar {
+    width: 30%;
+    padding-left: 1;
+    border-left: wide $border-color;
+}
+
+#queue-table-container {
+    height: 100%;
     background: $bg-surface;
     border: wide $border-color;
 }
@@ -1310,22 +1324,13 @@ Rule {
     height: 100%;
 }
 
-#progress-section {
-    height: auto;
-    margin-top: 1;
-    padding: 0 1;
+#queue-now-card #current-download {
+    color: $text-primary;
+    margin-bottom: 1;
 }
 
-#current-download {
-    height: auto;
+#queue-summary {
     color: $text-secondary;
-    margin-bottom: 0;
-}
-
-#queue-actions {
-    height: 3;
-    margin-top: 1;
-    align: left middle;
 }
 
 /* Download status colors */

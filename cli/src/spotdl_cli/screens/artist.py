@@ -344,7 +344,11 @@ class ArtistScreen(Screen[None]):
             self.query_one("#stat-followers", Static).update(followers_str)
 
         # Albums count
-        albums = data.get("albums", [])
+        albums = data.get("albums", []) or []
+        if not albums:
+            albums = self._derive_albums_from_songs(
+                data.get("top_tracks", []) or data.get("songs", [])
+            )
         self._albums = albums
         album_count = len([a for a in albums if a.get("type", "").lower() == "album"])
         single_count = len([a for a in albums if a.get("type", "").lower() == "single"])
@@ -470,6 +474,32 @@ class ArtistScreen(Screen[None]):
 
         status = self.query_one("#discography-status", Static)
         status.update(f"[dim]{len(albums)} release(s)[/]")
+
+    def _derive_albums_from_songs(self, songs: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        """Build a minimal discography from track data."""
+        seen: set[str] = set()
+        albums: list[dict[str, Any]] = []
+        for song in songs:
+            name = song.get("album") or song.get("album_name")
+            if not name:
+                continue
+            album_id = song.get("album_id") or ""
+            key = f"{name}|{album_id}"
+            if key in seen:
+                continue
+            seen.add(key)
+            albums.append(
+                {
+                    "id": album_id,
+                    "name": name,
+                    "year": song.get("year"),
+                    "total_tracks": song.get("track_count") or song.get("total_tracks"),
+                    "album_type": song.get("album_type") or "album",
+                    "type": song.get("album_type") or "album",
+                    "cover_url": song.get("cover_url"),
+                }
+            )
+        return albums
 
     async def on_button_pressed(self, event: Button.Pressed) -> None:
         """Handle button presses."""

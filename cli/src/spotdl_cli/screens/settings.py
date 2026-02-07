@@ -68,6 +68,13 @@ class SettingsScreen(Screen[None]):
                         value=self._settings.offline_mode,
                         id="offline-mode",
                     )
+                with Horizontal(classes="setting-row"):
+                    yield Label("API Timeout (s):")
+                    yield Input(
+                        value=str(self._settings.api_timeout),
+                        id="api-timeout",
+                        placeholder="30",
+                    )
 
             # Download Settings
             with Vertical(classes="settings-group"):
@@ -109,6 +116,28 @@ class SettingsScreen(Screen[None]):
                         value=self._settings.audio_quality,
                         id="audio-quality",
                     )
+                with Horizontal(classes="setting-row"):
+                    yield Label("Bitrate:")
+                    yield Select(
+                        [
+                            ("Auto", "auto"),
+                            ("Disable", "disable"),
+                            ("320k", "320k"),
+                            ("128k", "128k"),
+                            ("VBR 0", "0"),
+                            ("VBR 1", "1"),
+                            ("VBR 2", "2"),
+                            ("VBR 3", "3"),
+                            ("VBR 4", "4"),
+                            ("VBR 5", "5"),
+                            ("VBR 6", "6"),
+                            ("VBR 7", "7"),
+                            ("VBR 8", "8"),
+                            ("VBR 9", "9"),
+                        ],
+                        value=self._settings.bitrate or "auto",
+                        id="bitrate",
+                    )
 
                 with Horizontal(classes="setting-row"):
                     yield Label("Concurrent Downloads:")
@@ -120,10 +149,39 @@ class SettingsScreen(Screen[None]):
 
                 with Horizontal(classes="setting-row"):
                     yield Label("Overwrite Files:")
-                    yield Checkbox(
-                        "Overwrite existing files",
+                    yield Select(
+                        [
+                            ("Skip", "skip"),
+                            ("Force", "force"),
+                            ("Metadata", "metadata"),
+                        ],
                         value=self._settings.overwrite,
                         id="overwrite",
+                    )
+                with Horizontal(classes="setting-row"):
+                    yield Label("Max Filename Length:")
+                    yield Input(
+                        value=str(self._settings.max_filename_length),
+                        id="max-filename-length",
+                        placeholder="255",
+                    )
+                with Horizontal(classes="setting-row"):
+                    yield Label("Filename Restrict:")
+                    yield Select(
+                        [
+                            ("Off", ""),
+                            ("Strict", "strict"),
+                            ("Loose", "loose"),
+                        ],
+                        value=self._settings.restrict or "",
+                        id="restrict",
+                    )
+                with Horizontal(classes="setting-row"):
+                    yield Label("ID3 Separator:")
+                    yield Input(
+                        value=self._settings.id3_separator,
+                        id="id3-separator",
+                        placeholder="/",
                     )
 
             # Output Template
@@ -167,6 +225,234 @@ class SettingsScreen(Screen[None]):
                         "Embed cover art",
                         value=self._settings.embed_cover,
                         id="embed-cover",
+                    )
+
+                with Horizontal(classes="setting-row"):
+                    yield Checkbox(
+                        "Generate LRC files",
+                        value=self._settings.generate_lrc,
+                        id="generate-lrc",
+                    )
+
+            # Provider Settings
+            with Vertical(classes="settings-group"):
+                yield Static("Providers", classes="group-title")
+
+                with Horizontal(classes="setting-row"):
+                    yield Label("Audio Providers (CSV):")
+                    yield Input(
+                        value=", ".join(self._settings.audio_providers),
+                        id="audio-providers",
+                        placeholder="youtube-music, youtube",
+                    )
+
+                with Horizontal(classes="setting-row"):
+                    yield Label("Lyrics Providers (CSV):")
+                    yield Input(
+                        value=", ".join(self._settings.lyrics_providers),
+                        id="lyrics-providers",
+                        placeholder="genius, musixmatch",
+                    )
+
+                with Horizontal(classes="setting-row"):
+                    yield Label("Search Query Template:")
+                    yield Input(
+                        value=self._settings.search_query or "",
+                        id="search-query",
+                        placeholder="{artist} - {title}",
+                    )
+
+            # Playlist Settings
+            with Vertical(classes="settings-group"):
+                yield Static("Playlists", classes="group-title")
+
+                with Horizontal(classes="setting-row"):
+                    yield Checkbox(
+                        "Playlist numbering",
+                        value=self._settings.playlist_numbering,
+                        id="playlist-numbering",
+                    )
+
+                with Horizontal(classes="setting-row"):
+                    yield Checkbox(
+                        "Fetch albums for artists",
+                        value=self._settings.fetch_albums,
+                        id="fetch-albums",
+                    )
+
+                with Horizontal(classes="setting-row"):
+                    yield Label("M3U Template:")
+                    yield Input(
+                        value=self._settings.m3u or "",
+                        id="m3u",
+                        placeholder="{list}.m3u",
+                    )
+
+            # Archive & Sync
+            with Vertical(classes="settings-group"):
+                yield Static("Archive & Sync", classes="group-title")
+
+                with Horizontal(classes="setting-row"):
+                    yield Label("Archive File:")
+                    yield Input(
+                        value=self._settings.archive or "",
+                        id="archive",
+                        placeholder="~/.spotdl-archive.txt",
+                    )
+
+                with Horizontal(classes="setting-row"):
+                    yield Checkbox(
+                        "Archive unavailable tracks",
+                        value=self._settings.add_unavailable,
+                        id="add-unavailable",
+                    )
+
+                with Horizontal(classes="setting-row"):
+                    yield Label("Save File Path:")
+                    yield Input(
+                        value=self._settings.save_file or "",
+                        id="save-file",
+                        placeholder="~/spotdl-save.txt",
+                    )
+
+                with Horizontal(classes="setting-row"):
+                    yield Checkbox(
+                        "Sync without deleting",
+                        value=self._settings.sync_without_deleting,
+                        id="sync-without-deleting",
+                    )
+
+                with Horizontal(classes="setting-row"):
+                    yield Checkbox(
+                        "Remove LRC on sync",
+                        value=self._settings.sync_remove_lrc,
+                        id="sync-remove-lrc",
+                    )
+
+            # Library Scan
+            with Vertical(classes="settings-group"):
+                yield Static("Library Scan", classes="group-title")
+
+                with Horizontal(classes="setting-row"):
+                    yield Checkbox(
+                        "Create skip file",
+                        value=self._settings.create_skip_file,
+                        id="create-skip-file",
+                    )
+
+                with Horizontal(classes="setting-row"):
+                    yield Checkbox(
+                        "Respect skip file",
+                        value=self._settings.respect_skip_file,
+                        id="respect-skip-file",
+                    )
+
+                with Horizontal(classes="setting-row"):
+                    yield Checkbox(
+                        "Scan for existing songs",
+                        value=self._settings.scan_for_songs,
+                        id="scan-for-songs",
+                    )
+
+                with Horizontal(classes="setting-row"):
+                    yield Checkbox(
+                        "Skip explicit tracks",
+                        value=self._settings.skip_explicit,
+                        id="skip-explicit",
+                    )
+
+            # SponsorBlock
+            with Vertical(classes="settings-group"):
+                yield Static("SponsorBlock", classes="group-title")
+
+                with Horizontal(classes="setting-row"):
+                    yield Checkbox(
+                        "Enable SponsorBlock",
+                        value=self._settings.sponsor_block,
+                        id="sponsor-block",
+                    )
+
+                with Horizontal(classes="setting-row"):
+                    yield Label("Categories (CSV):")
+                    yield Input(
+                        value=", ".join(self._settings.sponsor_block_categories),
+                        id="sponsor-block-categories",
+                        placeholder="sponsor, intro, outro",
+                    )
+
+            # Advanced
+            with Vertical(classes="settings-group"):
+                yield Static("Advanced", classes="group-title")
+
+                with Horizontal(classes="setting-row"):
+                    yield Label("FFmpeg Args:")
+                    yield Input(
+                        value=self._settings.ffmpeg_args or "",
+                        id="ffmpeg-args",
+                        placeholder="-af loudnorm",
+                    )
+
+                with Horizontal(classes="setting-row"):
+                    yield Label("yt-dlp Args:")
+                    yield Input(
+                        value=self._settings.yt_dlp_args or "",
+                        id="yt-dlp-args",
+                        placeholder="--cookies cookies.txt",
+                    )
+
+                with Horizontal(classes="setting-row"):
+                    yield Label("Proxy:")
+                    yield Input(
+                        value=self._settings.proxy or "",
+                        id="proxy",
+                        placeholder="http://127.0.0.1:8080",
+                    )
+
+            # Errors
+            with Vertical(classes="settings-group"):
+                yield Static("Error Handling", classes="group-title")
+
+                with Horizontal(classes="setting-row"):
+                    yield Label("Save Errors Path:")
+                    yield Input(
+                        value=self._settings.save_errors or "",
+                        id="save-errors",
+                        placeholder="~/spotdl-errors.log",
+                    )
+
+                with Horizontal(classes="setting-row"):
+                    yield Checkbox(
+                        "Print errors to console",
+                        value=self._settings.print_errors,
+                        id="print-errors",
+                    )
+
+            # Matching (Offline)
+            with Vertical(classes="settings-group"):
+                yield Static("Matching (Offline)", classes="group-title")
+
+                with Horizontal(classes="setting-row"):
+                    yield Label("Name Match Threshold:")
+                    yield Input(
+                        value=str(self._settings.name_match_threshold),
+                        id="name-match-threshold",
+                        placeholder="60",
+                    )
+
+                with Horizontal(classes="setting-row"):
+                    yield Label("Artist Match Threshold:")
+                    yield Input(
+                        value=str(self._settings.artist_match_threshold),
+                        id="artist-match-threshold",
+                        placeholder="70",
+                    )
+
+                with Horizontal(classes="setting-row"):
+                    yield Label("Time Match Threshold:")
+                    yield Input(
+                        value=str(self._settings.time_match_threshold),
+                        id="time-match-threshold",
+                        placeholder="25",
                     )
 
             # Spotify Integration - improved UI
@@ -351,19 +637,47 @@ class SettingsScreen(Screen[None]):
         except Exception:
             pass  # Screen not fully mounted
 
+    def _parse_int(self, value: str, default: int) -> int:
+        """Parse an int with fallback."""
+        try:
+            return int(value)
+        except (TypeError, ValueError):
+            return default
+
+    def _parse_float(self, value: str, default: float) -> float:
+        """Parse a float with fallback."""
+        try:
+            return float(value)
+        except (TypeError, ValueError):
+            return default
+
+    def _parse_optional(self, value: str) -> str | None:
+        """Normalize optional input value."""
+        value = value.strip()
+        return value or None
+
+    def _parse_csv(self, value: str) -> list[str]:
+        """Parse comma-separated string into a list."""
+        return [item.strip() for item in value.split(",") if item.strip()]
+
     async def _save_settings(self) -> None:
         """Save settings."""
         try:
             # API settings
             api_url = self.query_one("#api-url", Input).value
             offline_mode = self.query_one("#offline-mode", Checkbox).value
+            api_timeout = self.query_one("#api-timeout", Input).value
 
             # Download settings
             output_dir = self.query_one("#output-dir", Input).value
             audio_format = self.query_one("#audio-format", Select).value
             audio_quality = self.query_one("#audio-quality", Select).value
+            bitrate = self.query_one("#bitrate", Select).value
             threads = self.query_one("#threads", Select).value
-            overwrite = self.query_one("#overwrite", Checkbox).value
+            overwrite = self.query_one("#overwrite", Select).value
+            max_filename_length = self.query_one("#max-filename-length", Input).value
+            restrict = self.query_one("#restrict", Select).value
+            id3_separator = self.query_one("#id3-separator", Input).value
 
             # Output template
             output_template = self.query_one("#output-template", Input).value
@@ -372,6 +686,52 @@ class SettingsScreen(Screen[None]):
             embed_metadata = self.query_one("#embed-metadata", Checkbox).value
             embed_lyrics = self.query_one("#embed-lyrics", Checkbox).value
             embed_cover = self.query_one("#embed-cover", Checkbox).value
+            generate_lrc = self.query_one("#generate-lrc", Checkbox).value
+
+            # Providers
+            audio_providers = self.query_one("#audio-providers", Input).value
+            lyrics_providers = self.query_one("#lyrics-providers", Input).value
+            search_query = self.query_one("#search-query", Input).value
+
+            # Playlists
+            playlist_numbering = self.query_one("#playlist-numbering", Checkbox).value
+            fetch_albums = self.query_one("#fetch-albums", Checkbox).value
+            m3u = self.query_one("#m3u", Input).value
+
+            # Archive & Sync
+            archive = self.query_one("#archive", Input).value
+            add_unavailable = self.query_one("#add-unavailable", Checkbox).value
+            save_file = self.query_one("#save-file", Input).value
+            sync_without_deleting = self.query_one(
+                "#sync-without-deleting", Checkbox
+            ).value
+            sync_remove_lrc = self.query_one("#sync-remove-lrc", Checkbox).value
+
+            # Library scan
+            create_skip_file = self.query_one("#create-skip-file", Checkbox).value
+            respect_skip_file = self.query_one("#respect-skip-file", Checkbox).value
+            scan_for_songs = self.query_one("#scan-for-songs", Checkbox).value
+            skip_explicit = self.query_one("#skip-explicit", Checkbox).value
+
+            # SponsorBlock
+            sponsor_block = self.query_one("#sponsor-block", Checkbox).value
+            sponsor_block_categories = self.query_one(
+                "#sponsor-block-categories", Input
+            ).value
+
+            # Advanced
+            ffmpeg_args = self.query_one("#ffmpeg-args", Input).value
+            yt_dlp_args = self.query_one("#yt-dlp-args", Input).value
+            proxy = self.query_one("#proxy", Input).value
+
+            # Errors
+            save_errors = self.query_one("#save-errors", Input).value
+            print_errors = self.query_one("#print-errors", Checkbox).value
+
+            # Matching thresholds
+            name_match_threshold = self.query_one("#name-match-threshold", Input).value
+            artist_match_threshold = self.query_one("#artist-match-threshold", Input).value
+            time_match_threshold = self.query_one("#time-match-threshold", Input).value
 
             # Spotify
             spotify_client_id = (
@@ -393,15 +753,58 @@ class SettingsScreen(Screen[None]):
             # Update settings
             self._settings.api_url = api_url
             self._settings.offline_mode = offline_mode
+            self._settings.api_timeout = self._parse_float(
+                api_timeout, self._settings.api_timeout
+            )
             self._settings.output_dir = Path(output_dir)
             self._settings.audio_format = audio_format
             self._settings.audio_quality = audio_quality
+            self._settings.bitrate = None if bitrate in ("", "auto") else bitrate
             self._settings.threads = threads
             self._settings.overwrite = overwrite
+            self._settings.max_filename_length = self._parse_int(
+                max_filename_length, self._settings.max_filename_length
+            )
+            self._settings.restrict = None if restrict in ("", "none") else restrict
+            self._settings.id3_separator = id3_separator.strip() or self._settings.id3_separator
             self._settings.output_template = output_template
             self._settings.embed_metadata = embed_metadata
             self._settings.embed_lyrics = embed_lyrics
             self._settings.embed_cover = embed_cover
+            self._settings.generate_lrc = generate_lrc
+            self._settings.audio_providers = self._parse_csv(audio_providers)
+            self._settings.lyrics_providers = self._parse_csv(lyrics_providers)
+            self._settings.search_query = self._parse_optional(search_query)
+            self._settings.playlist_numbering = playlist_numbering
+            self._settings.fetch_albums = fetch_albums
+            self._settings.m3u = self._parse_optional(m3u)
+            self._settings.archive = self._parse_optional(archive)
+            self._settings.add_unavailable = add_unavailable
+            self._settings.save_file = self._parse_optional(save_file)
+            self._settings.sync_without_deleting = sync_without_deleting
+            self._settings.sync_remove_lrc = sync_remove_lrc
+            self._settings.create_skip_file = create_skip_file
+            self._settings.respect_skip_file = respect_skip_file
+            self._settings.scan_for_songs = scan_for_songs
+            self._settings.skip_explicit = skip_explicit
+            self._settings.sponsor_block = sponsor_block
+            self._settings.sponsor_block_categories = self._parse_csv(
+                sponsor_block_categories
+            )
+            self._settings.ffmpeg_args = self._parse_optional(ffmpeg_args)
+            self._settings.yt_dlp_args = self._parse_optional(yt_dlp_args)
+            self._settings.proxy = self._parse_optional(proxy)
+            self._settings.save_errors = self._parse_optional(save_errors)
+            self._settings.print_errors = print_errors
+            self._settings.name_match_threshold = self._parse_float(
+                name_match_threshold, self._settings.name_match_threshold
+            )
+            self._settings.artist_match_threshold = self._parse_float(
+                artist_match_threshold, self._settings.artist_match_threshold
+            )
+            self._settings.time_match_threshold = self._parse_float(
+                time_match_threshold, self._settings.time_match_threshold
+            )
             self._settings.spotify_client_id = spotify_client_id
             self._settings.spotify_client_secret = spotify_client_secret
             self._settings.spotify_user_auth = spotify_user_auth
@@ -432,15 +835,62 @@ class SettingsScreen(Screen[None]):
         # Reset UI values
         self.query_one("#api-url", Input).value = defaults.api_url
         self.query_one("#offline-mode", Checkbox).value = defaults.offline_mode
+        self.query_one("#api-timeout", Input).value = str(defaults.api_timeout)
         self.query_one("#output-dir", Input).value = str(defaults.output_dir)
         self.query_one("#audio-format", Select).value = defaults.audio_format
         self.query_one("#audio-quality", Select).value = defaults.audio_quality
+        self.query_one("#bitrate", Select).value = defaults.bitrate or "auto"
         self.query_one("#threads", Select).value = defaults.threads
-        self.query_one("#overwrite", Checkbox).value = defaults.overwrite
+        self.query_one("#overwrite", Select).value = defaults.overwrite
+        self.query_one("#max-filename-length", Input).value = str(
+            defaults.max_filename_length
+        )
+        self.query_one("#restrict", Select).value = defaults.restrict or ""
+        self.query_one("#id3-separator", Input).value = defaults.id3_separator
         self.query_one("#output-template", Input).value = defaults.output_template
         self.query_one("#embed-metadata", Checkbox).value = defaults.embed_metadata
         self.query_one("#embed-lyrics", Checkbox).value = defaults.embed_lyrics
         self.query_one("#embed-cover", Checkbox).value = defaults.embed_cover
+        self.query_one("#generate-lrc", Checkbox).value = defaults.generate_lrc
+        self.query_one("#audio-providers", Input).value = ", ".join(
+            defaults.audio_providers
+        )
+        self.query_one("#lyrics-providers", Input).value = ", ".join(
+            defaults.lyrics_providers
+        )
+        self.query_one("#search-query", Input).value = defaults.search_query or ""
+        self.query_one("#playlist-numbering", Checkbox).value = defaults.playlist_numbering
+        self.query_one("#fetch-albums", Checkbox).value = defaults.fetch_albums
+        self.query_one("#m3u", Input).value = defaults.m3u or ""
+        self.query_one("#archive", Input).value = defaults.archive or ""
+        self.query_one("#add-unavailable", Checkbox).value = defaults.add_unavailable
+        self.query_one("#save-file", Input).value = defaults.save_file or ""
+        self.query_one("#sync-without-deleting", Checkbox).value = (
+            defaults.sync_without_deleting
+        )
+        self.query_one("#sync-remove-lrc", Checkbox).value = defaults.sync_remove_lrc
+        self.query_one("#create-skip-file", Checkbox).value = defaults.create_skip_file
+        self.query_one("#respect-skip-file", Checkbox).value = defaults.respect_skip_file
+        self.query_one("#scan-for-songs", Checkbox).value = defaults.scan_for_songs
+        self.query_one("#skip-explicit", Checkbox).value = defaults.skip_explicit
+        self.query_one("#sponsor-block", Checkbox).value = defaults.sponsor_block
+        self.query_one("#sponsor-block-categories", Input).value = ", ".join(
+            defaults.sponsor_block_categories
+        )
+        self.query_one("#ffmpeg-args", Input).value = defaults.ffmpeg_args or ""
+        self.query_one("#yt-dlp-args", Input).value = defaults.yt_dlp_args or ""
+        self.query_one("#proxy", Input).value = defaults.proxy or ""
+        self.query_one("#save-errors", Input).value = defaults.save_errors or ""
+        self.query_one("#print-errors", Checkbox).value = defaults.print_errors
+        self.query_one("#name-match-threshold", Input).value = str(
+            defaults.name_match_threshold
+        )
+        self.query_one("#artist-match-threshold", Input).value = str(
+            defaults.artist_match_threshold
+        )
+        self.query_one("#time-match-threshold", Input).value = str(
+            defaults.time_match_threshold
+        )
         self.query_one("#spotify-client-id", Input).value = ""
         self.query_one("#spotify-client-secret", Input).value = ""
         self.query_one("#spotify-user-auth", Checkbox).value = False
