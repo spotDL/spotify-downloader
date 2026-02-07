@@ -1,17 +1,23 @@
 # SpotDL Development Makefile
 # Common commands for development and deployment
 
-.PHONY: help dev up down logs build migrate migrate-create test lint clean
+.PHONY: help dev dev-cli cli console up down logs build migrate migrate-create test lint clean
 
 # Default target
 help:
 	@echo "SpotDL Development Commands"
 	@echo ""
+	@echo "Docker Services:"
 	@echo "  make dev              - Start development environment (docker compose up)"
 	@echo "  make up               - Start services in background"
 	@echo "  make down             - Stop all services"
 	@echo "  make logs             - Show logs from all services"
 	@echo "  make build            - Rebuild Docker images"
+	@echo ""
+	@echo "CLI Development:"
+	@echo "  make dev-cli          - Run CLI in dev mode with Textual devtools"
+	@echo "  make cli              - Run CLI normally"
+	@echo "  make console          - Start Textual console (run in separate terminal)"
 	@echo ""
 	@echo "Database:"
 	@echo "  make migrate          - Apply all pending migrations"
@@ -30,7 +36,7 @@ help:
 	@echo "  make clean            - Remove build artifacts"
 	@echo "  make clean-db         - Remove database (WARNING: destructive)"
 
-# Development
+# Docker Development
 dev:
 	docker compose up
 
@@ -45,6 +51,18 @@ logs:
 
 build:
 	docker compose build
+
+# CLI Development
+dev-cli:
+	cd cli && uv run spotdl --dev
+
+cli:
+	cd cli && uv run spotdl
+
+console:
+	@echo "Starting Textual console..."
+	@echo "Make sure to run 'make dev-cli' in another terminal first!"
+	cd cli && uv run --with textual-dev textual console
 
 # Database migrations
 # Migrations are auto-applied on startup, but these commands allow manual control
