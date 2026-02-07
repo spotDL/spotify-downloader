@@ -223,6 +223,8 @@ class ArtistScreen(Screen[None]):
                 self._artist_data = await api_client.get_entity_artist(self._entity_id)
             else:
                 self._artist_data = await api_client.get_artist(self._artist_id, self._platform)
+                if self._artist_data.get("id"):
+                    self._entity_id = self._artist_data["id"]
             self._update_display()
 
         except APIError as e:
@@ -506,12 +508,7 @@ class ArtistScreen(Screen[None]):
         if event.button.id == "download-all-btn":
             await self._download_all()
         elif event.button.id == "refresh-btn":
-            # Preserve the artist name so offline search works correctly
-            name = self._artist_data.get("name", "")
-            self._artist_data = {"name": name} if name else {}
-            self._albums = []
-            self._top_tracks = []
-            await self._load_artist_data()
+            await self._refresh_metadata()
 
     async def on_data_table_row_selected(self, event: DataTable.RowSelected) -> None:
         """Handle row selection."""
@@ -583,3 +580,20 @@ class ArtistScreen(Screen[None]):
         """Switch to next tab."""
         tabs = self.query_one("#discography-tabs", TabbedContent)
         tabs.action_next_tab()
+
+    async def _refresh_metadata(self) -> None:
+        """Refresh artist metadata from the API if possible."""
+        if self.spotdl_app.is_online and self._entity_id:
+            try:
+                api_client = get_api_client()
+                await api_client.refresh_entity("artists", self._entity_id)
+            except APIError as e:
+                self.notify(f"Refresh failed: {e}", severity="error")
+                return
+
+        # Preserve the artist name so offline search works correctly
+        name = self._artist_data.get("name", "")
+        self._artist_data = {"name": name} if name else {}
+        self._albums = []
+        self._top_tracks = []
+        await self._load_artist_data()

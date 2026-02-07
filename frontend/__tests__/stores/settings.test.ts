@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach } from "vitest";
+import { config } from "../../src/config";
 import { useSettingsStore } from "../../src/stores/settings";
 
 describe("useSettingsStore", () => {
@@ -33,7 +34,7 @@ describe("useSettingsStore", () => {
     expect(state.proxy).toBe("");
     expect(state.ffmpegArgs).toBe("");
     expect(state.ytDlpArgs).toBe("");
-    expect(state.apiUrl).toBe("http://localhost:8000");
+    expect(state.apiUrl).toBe(config.apiUrl);
     expect(state.offlineMode).toBe(false);
   });
 

@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { config } from "@/config";
 
 export type AudioFormat = "mp3" | "flac" | "ogg" | "m4a" | "opus" | "wav";
 export type AudioQuality = "best" | "320k" | "256k" | "192k" | "128k";
@@ -272,7 +273,7 @@ const defaultSettings: ExportableSettings = {
   spotifyClientId: "",
   spotifyClientSecret: "",
   spotifyUserAuth: false,
-  apiUrl: "http://localhost:8000",
+  apiUrl: config.apiUrl,
   apiTimeout: 30,
   offlineMode: false,
   nameMatchThreshold: 60,

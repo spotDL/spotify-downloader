@@ -313,6 +313,22 @@ class TestMainScreen:
         entity = screen._find_entity("nonexistent")
         assert entity is None
 
+    @pytest.mark.asyncio
+    async def test_search_offline_url_track(self, sample_song):
+        """Test offline URL search produces track results."""
+        screen = MainScreen()
+
+        mock_matcher = AsyncMock()
+        mock_matcher.resolve_url = AsyncMock(return_value=[sample_song])
+
+        with patch("spotdl_cli.screens.main.get_offline_matcher", return_value=mock_matcher):
+            result = await screen._search_offline(
+                "https://open.spotify.com/track/test-123"
+            )
+
+        assert result.query_type == "url"
+        assert len(result.tracks) == 1
+
 
 class TestQueueScreen:
     """Tests for QueueScreen."""
@@ -362,6 +378,7 @@ class TestSettingsScreen:
         """Test SettingsScreen initialization."""
         screen = SettingsScreen()
 
+        assert screen._show_api_token is False
         assert screen._show_spotify_secret is False
         assert screen._show_sc_client_id is False
         assert screen._show_sc_auth_token is False
@@ -396,6 +413,7 @@ class TestSettingsScreen:
 
             # Check key fields exist
             assert pilot.app.query_one("#api-url", Input) is not None
+            assert pilot.app.query_one("#api-auth-token", Input) is not None
             assert pilot.app.query_one("#offline-mode", Checkbox) is not None
             assert pilot.app.query_one("#output-dir", Input) is not None
             assert pilot.app.query_one("#audio-format", Select) is not None
@@ -427,6 +445,29 @@ class TestSettingsScreen:
             screen._toggle_visibility("spotify-client-secret", "toggle-spotify-secret")
 
             # Should be visible now
+            assert input_field.password is False
+            assert button.label == "Hide"
+
+    @pytest.mark.asyncio
+    async def test_toggle_api_auth_visibility(self):
+        """Test toggling API auth token visibility."""
+        from textual.app import App
+
+        class TestApp(App):
+            def compose(self):
+                yield SettingsScreen()
+
+        async with TestApp().run_test() as pilot:
+            await pilot.pause()
+
+            screen = pilot.app.query_one(SettingsScreen)
+            input_field = pilot.app.query_one("#api-auth-token", Input)
+            button = pilot.app.query_one("#toggle-api-auth-token", Button)
+
+            assert input_field.password is True
+
+            screen._toggle_visibility("api-auth-token", "toggle-api-auth-token")
+
             assert input_field.password is False
             assert button.label == "Hide"
 

@@ -31,6 +31,7 @@ from spotdl_cli.core import (
     get_api_client,
     get_offline_matcher,
 )
+from spotdl_cli.core.query import QueryType, extract_content_type_from_url, parse_query
 from spotdl_cli.core.types import PlatformInfo, Platform, Song
 from spotdl_cli.theme import truncate as _truncate
 from spotdl_cli.widgets import CoverArt
@@ -370,12 +371,31 @@ class MainScreen(Screen[None]):
         return await api_client.universal_search(query, limit=30)
 
     async def _search_offline(self, query: str) -> UniversalSearchResponse:
-        """Search using offline providers, deriving artists/albums from tracks."""
+        """Search using offline providers, deriving entities from tracks."""
         offline_matcher = get_offline_matcher()
 
-        # Search across all platforms
-        songs = await offline_matcher.search_all(query, limit=20)
+        query_type, query_value = parse_query(query)
+        query_value = query_value or query
 
+        # URL resolution in offline mode
+        if query_type == QueryType.URL:
+            songs = await offline_matcher.resolve_url(query_value)
+            content_type = extract_content_type_from_url(query_value) or "track"
+            return self._build_offline_response(
+                query_value, songs, content_type=content_type
+            )
+
+        # Text search across all platforms
+        songs = await offline_matcher.search_all(query_value, limit=20)
+        return self._build_offline_response(query_value, songs)
+
+    def _build_offline_response(
+        self,
+        query: str,
+        songs: list[Song],
+        content_type: str | None = None,
+    ) -> UniversalSearchResponse:
+        """Build offline search response from songs."""
         results: list[EntityResult] = []
         seen_artists: dict[str, EntityResult] = {}
         seen_albums: dict[str, EntityResult] = {}
@@ -385,19 +405,23 @@ class MainScreen(Screen[None]):
             self._offline_songs[song.platform_id] = song
 
             # Track entity
-            results.append(EntityResult(
-                id=song.platform_id,
-                entity_type=EntityType.TRACK,
-                name=song.name,
-                subtitle=song.artist,
-                image_url=song.cover_url,
-                platforms=[PlatformInfo(
-                    platform=song.platform.value,
-                    platform_id=song.platform_id,
-                    url=song.url,
-                )],
-                duration=song.duration,
-            ))
+            results.append(
+                EntityResult(
+                    id=song.platform_id,
+                    entity_type=EntityType.TRACK,
+                    name=song.name,
+                    subtitle=song.artist,
+                    image_url=song.cover_url,
+                    platforms=[
+                        PlatformInfo(
+                            platform=song.platform.value,
+                            platform_id=song.platform_id,
+                            url=song.url,
+                        )
+                    ],
+                    duration=song.duration,
+                )
+            )
 
             # Derive artist entity (deduplicate by lowercase name)
             artist_key = song.artist.lower().strip()
@@ -408,41 +432,46 @@ class MainScreen(Screen[None]):
                     entity_type=EntityType.ARTIST,
                     name=song.artist,
                     image_url=song.cover_url,
-                    platforms=[PlatformInfo(
-                        platform=song.platform.value,
-                        platform_id=song.artist_id or song.artist,
-                        url=song.url,
-                    )],
+                    platforms=[
+                        PlatformInfo(
+                            platform=song.platform.value,
+                            platform_id=song.artist_id or song.artist,
+                            url=song.url,
+                        )
+                    ],
                 )
 
             # Derive album entity (deduplicate by artist+album)
             if song.album_name:
                 album_key = f"{artist_key}|{song.album_name.lower().strip()}"
                 if album_key not in seen_albums:
-                    safe_album_id = _sanitize_id(f"offline-album-{artist_key}-{song.album_name.lower().strip()}")
+                    safe_album_id = _sanitize_id(
+                        f"offline-album-{artist_key}-{song.album_name.lower().strip()}"
+                    )
                     seen_albums[album_key] = EntityResult(
                         id=safe_album_id,
                         entity_type=EntityType.ALBUM,
                         name=song.album_name,
                         subtitle=song.artist,
                         image_url=song.cover_url,
-                        platforms=[PlatformInfo(
-                            platform=song.platform.value,
-                            platform_id=song.album_id or song.album_name,
-                            url=song.url,
-                        )],
+                        platforms=[
+                            PlatformInfo(
+                                platform=song.platform.value,
+                                platform_id=song.album_id or song.album_name,
+                                url=song.url,
+                            )
+                        ],
                     )
 
-        # Combine: artists first, then albums, then tracks
-        all_results = (
-            list(seen_artists.values())
-            + list(seen_albums.values())
-            + results
-        )
+        # Combine: artists, albums, tracks
+        all_results: list[EntityResult] = []
+        all_results.extend(list(seen_artists.values()))
+        all_results.extend(list(seen_albums.values()))
+        all_results.extend(results)
 
         return UniversalSearchResponse(
             query=query,
-            query_type="text",
+            query_type="url" if content_type else "text",
             results=all_results,
             entities_created=0,
             total=len(all_results),

@@ -1,11 +1,36 @@
 import axios, { AxiosError } from "axios";
+import { config } from "@/config";
 import { forceLogout } from "@/stores/auth";
+import { useSettingsStore } from "@/stores/settings";
+
+export function resolveApiBaseUrl(apiUrl: string | undefined): string {
+  const trimmed = (apiUrl || "").trim();
+  if (!trimmed) {
+    return "/api/v1";
+  }
+
+  if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) {
+    return `${trimmed.replace(/\/+$/, "")}/api/v1`;
+  }
+
+  const normalized = trimmed.startsWith("/") ? trimmed : `/${trimmed}`;
+  return `${normalized.replace(/\/+$/, "")}/api/v1`;
+}
 
 export const apiClient = axios.create({
-  baseURL: "/api/v1",
+  baseURL: resolveApiBaseUrl(config.apiUrl),
   headers: {
     "Content-Type": "application/json",
   },
+});
+
+const initialApiUrl = useSettingsStore.getState().apiUrl || config.apiUrl;
+apiClient.defaults.baseURL = resolveApiBaseUrl(initialApiUrl);
+
+useSettingsStore.subscribe((state, prev) => {
+  if (state.apiUrl !== prev.apiUrl) {
+    apiClient.defaults.baseURL = resolveApiBaseUrl(state.apiUrl);
+  }
 });
 
 /**

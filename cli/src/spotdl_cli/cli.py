@@ -664,11 +664,14 @@ def save(
                     api_client = get_api_client()
                     is_online = await api_client.is_online()
                     if is_online:
-                        lyrics_data = await api_client.get_lyrics(
-                            song.platform_id, song.platform.value
+                        lyrics_data = await api_client.search_lyrics(song.name, song.artist)
+                        lyrics_text = (
+                            lyrics_data.get("lyrics_text")
+                            or lyrics_data.get("lyrics")
+                            or lyrics_data.get("lyrics_synced")
                         )
-                        if lyrics_data.get("lyrics"):
-                            entry["lyrics"] = lyrics_data["lyrics"]
+                        if lyrics_text:
+                            entry["lyrics"] = lyrics_text
                     await api_client.close()
                 except Exception:
                     pass

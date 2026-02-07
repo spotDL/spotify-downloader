@@ -34,6 +34,7 @@ class Settings(BaseSettings):
     api_url: str = "http://localhost:8000"
     api_timeout: float = 30.0
     offline_mode: bool = False
+    auth_token: str | None = None
 
     # Download settings
     audio_format: Literal["mp3", "m4a", "flac", "opus", "ogg", "wav"] = "mp3"
@@ -161,6 +162,7 @@ class Settings(BaseSettings):
             "api_url",
             "api_timeout",
             "offline_mode",
+            "auth_token",
             "audio_format",
             "audio_quality",
             "bitrate",

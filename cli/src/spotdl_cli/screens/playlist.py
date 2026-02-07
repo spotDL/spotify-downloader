@@ -215,6 +215,8 @@ class PlaylistScreen(Screen[None]):
                 self._playlist_data = await api_client.get_playlist(
                     self._playlist_id, self._platform
                 )
+                if self._playlist_data.get("id"):
+                    self._entity_id = self._playlist_data["id"]
             self._update_display()
 
         except APIError as e:
@@ -475,10 +477,7 @@ class PlaylistScreen(Screen[None]):
         elif event.button.id == "add-queue-btn":
             await self._add_all_to_queue()
         elif event.button.id == "refresh-btn":
-            name = self._playlist_data.get("name", "")
-            self._playlist_data = {"name": name} if name else {}
-            self._tracks = []
-            await self._load_playlist_data()
+            await self._refresh_metadata()
 
     async def on_data_table_row_selected(self, event: DataTable.RowSelected) -> None:
         """Handle track selection."""
@@ -542,3 +541,18 @@ class PlaylistScreen(Screen[None]):
         if table.cursor_row is not None and 0 <= table.cursor_row < len(self._tracks):
             track = self._tracks[table.cursor_row]
             self.run_worker(self._view_track(track))
+
+    async def _refresh_metadata(self) -> None:
+        """Refresh playlist metadata from the API if possible."""
+        if self.spotdl_app.is_online and self._entity_id:
+            try:
+                api_client = get_api_client()
+                await api_client.refresh_entity("playlists", self._entity_id)
+            except APIError as e:
+                self.notify(f"Refresh failed: {e}", severity="error")
+                return
+
+        name = self._playlist_data.get("name", "")
+        self._playlist_data = {"name": name} if name else {}
+        self._tracks = []
+        await self._load_playlist_data()

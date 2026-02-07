@@ -52,6 +52,7 @@ class TrackScreen(Screen[None]):
         Binding("escape", "app.pop_screen", "Back"),
         Binding("d", "download", "Download"),
         Binding("r", "refresh", "Refresh"),
+        Binding("m", "refresh_metadata", "Refresh Metadata"),
     ]
 
     def __init__(
@@ -77,6 +78,7 @@ class TrackScreen(Screen[None]):
         self._settings = get_settings()
         self._matches: list[DownloadResult] = []
         self._lyrics: str | None = None
+        self._lyrics_sources_count: int | None = None
         self._audio_features: dict[str, Any] = {}
         self._track_details: dict[str, Any] = {}
 
@@ -132,6 +134,11 @@ class TrackScreen(Screen[None]):
                                 variant="primary",
                             )
                             yield Button("Refresh", id="refresh-btn", variant="default")
+                            yield Button(
+                                "Refresh Metadata",
+                                id="refresh-meta-btn",
+                                variant="warning",
+                            )
 
             # Main content grid
             with Horizontal(id="track-content"):
@@ -310,6 +317,8 @@ class TrackScreen(Screen[None]):
                     self._track_details = await api_client.get_track(
                         self._track_id, self._platform
                     )
+                    if self._track_details.get("id"):
+                        self._entity_id = self._track_details["id"]
                 self._update_track_details()
             except APIError as e:
                 logger.warning(f"Failed to get track details: {e}")
@@ -326,20 +335,23 @@ class TrackScreen(Screen[None]):
 
             # Get lyrics
             try:
-                lyrics_data = await api_client.get_lyrics(self._track_id, self._platform)
-                self._lyrics = lyrics_data.get("lyrics")
+                if self._entity_id:
+                    lyrics_data = await api_client.get_lyrics(self._entity_id)
+                    self._lyrics = (
+                        lyrics_data.get("lyrics_text")
+                        or lyrics_data.get("lyrics")
+                        or lyrics_data.get("lyrics_synced")
+                    )
+                    all_lyrics = await api_client.get_all_lyrics(self._entity_id)
+                    self._lyrics_sources_count = all_lyrics.get("total_sources")
                 self._update_lyrics_display()
             except APIError as e:
                 logger.debug(f"No lyrics available: {e}")
 
-            # Get audio features
-            try:
-                self._audio_features = await api_client.get_audio_features(
-                    self._track_id, self._platform
-                )
+            # Audio features from entity response
+            if self._track_details.get("audio_features"):
+                self._audio_features = self._track_details.get("audio_features") or {}
                 self._update_audio_features()
-            except APIError as e:
-                logger.debug(f"No audio features available: {e}")
 
         except Exception as e:
             logger.error(f"Error loading online data: {e}")
@@ -488,7 +500,10 @@ class TrackScreen(Screen[None]):
             if len(display_lyrics) > 2000:
                 display_lyrics = display_lyrics[:2000] + "\n\n[dim]... (truncated)[/]"
             lyrics_content.update(display_lyrics)
-            lyrics_status.update("")
+            if self._lyrics_sources_count:
+                lyrics_status.update(f"[dim]{self._lyrics_sources_count} source(s)[/]")
+            else:
+                lyrics_status.update("")
         else:
             lyrics_content.update("[dim]No lyrics available[/]")
 
@@ -519,6 +534,16 @@ class TrackScreen(Screen[None]):
         if valence is not None:
             bar = self.query_one("#feature-valence", ProgressBar)
             bar.update(progress=int(valence * 100))
+
+        # Key signature (if available)
+        key = self._audio_features.get("key")
+        mode = self._audio_features.get("mode")
+        if key is not None:
+            key_names = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
+            key_name = key_names[int(key) % 12]
+            mode_name = "Major" if mode == 1 else "Minor" if mode == 0 else ""
+            label = f"{key_name} {mode_name}".strip()
+            self.query_one("#track-key", Static).update(f"[dim]Key:[/] {label}")
 
     def _update_track_details(self) -> None:
         """Update track details from API response."""
@@ -553,6 +578,8 @@ class TrackScreen(Screen[None]):
             await self._download_best_match()
         elif event.button.id == "refresh-btn":
             await self._load_track_data()
+        elif event.button.id == "refresh-meta-btn":
+            await self._refresh_metadata()
 
     async def _download_best_match(self) -> None:
         """Download the best available match."""
@@ -573,3 +600,37 @@ class TrackScreen(Screen[None]):
     def action_refresh(self) -> None:
         """Refresh action."""
         self.run_worker(self._load_track_data())
+
+    def action_refresh_metadata(self) -> None:
+        """Refresh metadata action."""
+        self.run_worker(self._refresh_metadata())
+
+    async def _refresh_metadata(self) -> None:
+        """Refresh metadata and enrichment for the current track."""
+        if not self.spotdl_app.is_online:
+            try:
+                offline_matcher = get_offline_matcher()
+                self._song = await offline_matcher.enrich_song(self._song)
+                self._update_song_display()
+                await self._load_track_data()
+                self.notify("Offline metadata refreshed")
+            except Exception as e:
+                self.notify(f"Offline refresh failed: {e}", severity="error")
+            return
+
+        if not self._entity_id:
+            self.notify("Metadata refresh requires online mode", severity="warning")
+            return
+
+        try:
+            api_client = get_api_client()
+            await api_client.refresh_entity("songs", self._entity_id)
+            await api_client.enrich_song_all_sources(self._entity_id)
+            await api_client.fetch_all_lyrics(self._entity_id)
+            self._track_details = await api_client.get_entity_song(self._entity_id)
+            self._sync_song_from_entity(self._track_details)
+            self._audio_features = self._track_details.get("audio_features") or {}
+            await self._load_track_data()
+            self.notify("Metadata refreshed")
+        except APIError as e:
+            self.notify(f"Metadata refresh failed: {e}", severity="error")

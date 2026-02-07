@@ -716,8 +716,8 @@ class TestAPIClient:
         mock_response = MagicMock()
         mock_response.status_code = 200
         mock_response.json.return_value = {
-            "lyrics": "Test lyrics here",
-            "synced": True,
+            "lyrics_text": "Test lyrics here",
+            "lyrics_synced": True,
         }
         mock_response.raise_for_status = MagicMock()
 
@@ -728,14 +728,19 @@ class TestAPIClient:
 
             result = await client.get_lyrics("track123")
 
-            assert result["lyrics"] == "Test lyrics here"
-            assert result["synced"] is True
+            assert result["lyrics_text"] == "Test lyrics here"
+            assert result["lyrics_synced"] is True
 
     @pytest.mark.asyncio
     async def test_get_lyrics_not_found(self, client: APIClient) -> None:
         """Test getting lyrics when not found returns empty."""
         mock_response = MagicMock()
         mock_response.status_code = 404
+        mock_response.raise_for_status = MagicMock(
+            side_effect=httpx.HTTPStatusError(
+                "Not found", request=MagicMock(), response=mock_response
+            )
+        )
 
         with patch.object(client, "_get_client") as mock_get:
             mock_http = AsyncMock()
@@ -744,18 +749,19 @@ class TestAPIClient:
 
             result = await client.get_lyrics("track123")
 
-            assert result["lyrics"] is None
-            assert result["synced"] is False
+            assert result["lyrics_text"] is None
+            assert result["lyrics_synced"] is None
 
     @pytest.mark.asyncio
-    async def test_get_audio_features_success(self, client: APIClient) -> None:
-        """Test getting audio features."""
+    async def test_get_all_lyrics_success(self, client: APIClient) -> None:
+        """Test getting lyrics from all sources."""
         mock_response = MagicMock()
         mock_response.status_code = 200
         mock_response.json.return_value = {
-            "bpm": 120,
-            "energy": 0.8,
-            "danceability": 0.7,
+            "sources": [
+                {"source": "genius", "lyrics_text": "Test lyrics"},
+                {"source": "azlyrics", "lyrics_text": "More lyrics"},
+            ]
         }
         mock_response.raise_for_status = MagicMock()
 
@@ -764,25 +770,47 @@ class TestAPIClient:
             mock_http.get = AsyncMock(return_value=mock_response)
             mock_get.return_value = mock_http
 
-            result = await client.get_audio_features("track123")
+            result = await client.get_all_lyrics("track123")
 
-            assert result["bpm"] == 120
-            assert result["energy"] == 0.8
+            assert len(result["sources"]) == 2
 
     @pytest.mark.asyncio
-    async def test_get_audio_features_not_found(self, client: APIClient) -> None:
-        """Test getting audio features when not found returns empty."""
+    async def test_search_lyrics_not_found(self, client: APIClient) -> None:
+        """Test searching lyrics when not found returns empty."""
         mock_response = MagicMock()
         mock_response.status_code = 404
+        mock_response.raise_for_status = MagicMock(
+            side_effect=httpx.HTTPStatusError(
+                "Not found", request=MagicMock(), response=mock_response
+            )
+        )
 
         with patch.object(client, "_get_client") as mock_get:
             mock_http = AsyncMock()
             mock_http.get = AsyncMock(return_value=mock_response)
             mock_get.return_value = mock_http
 
-            result = await client.get_audio_features("track123")
+            result = await client.search_lyrics("Track", "Artist")
 
-            assert result == {}
+            assert result["lyrics_text"] is None
+            assert result["lyrics_synced"] is None
+
+    @pytest.mark.asyncio
+    async def test_get_metadata_sources_success(self, client: APIClient) -> None:
+        """Test getting metadata sources."""
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = {"sources": ["musicbrainz", "spotify"]}
+        mock_response.raise_for_status = MagicMock()
+
+        with patch.object(client, "_get_client") as mock_get:
+            mock_http = AsyncMock()
+            mock_http.get = AsyncMock(return_value=mock_response)
+            mock_get.return_value = mock_http
+
+            result = await client.get_metadata_sources()
+
+            assert "musicbrainz" in result.get("sources", [])
 
     @pytest.mark.asyncio
     async def test_close(self, client: APIClient) -> None:
@@ -838,6 +866,21 @@ class TestAPIClient:
 
             assert result == mock_instance
             mock_cls.assert_called_once()
+
+    @pytest.mark.asyncio
+    async def test_get_client_sets_auth_header(self, settings: Settings) -> None:
+        """Test _get_client includes auth header when configured."""
+        settings.auth_token = "test-token"
+        client = APIClient(settings)
+
+        with patch("spotdl_cli.core.api_client.httpx.AsyncClient") as mock_cls:
+            mock_instance = AsyncMock()
+            mock_cls.return_value = mock_instance
+
+            await client._get_client()
+
+            call_kwargs = mock_cls.call_args.kwargs
+            assert call_kwargs["headers"]["Authorization"] == "Bearer test-token"
 
     @pytest.mark.asyncio
     async def test_get_client_reuses_existing(self, client: APIClient) -> None:

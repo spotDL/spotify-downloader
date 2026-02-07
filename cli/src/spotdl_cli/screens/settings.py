@@ -42,6 +42,7 @@ class SettingsScreen(Screen[None]):
         self._show_spotify_secret = False
         self._show_sc_client_id = False
         self._show_sc_auth_token = False
+        self._show_api_token = False
 
     def compose(self) -> ComposeResult:
         """Compose the screen layout."""
@@ -74,6 +75,20 @@ class SettingsScreen(Screen[None]):
                         value=str(self._settings.api_timeout),
                         id="api-timeout",
                         placeholder="30",
+                    )
+                with Horizontal(classes="setting-row"):
+                    yield Label("Auth Token:")
+                    yield Input(
+                        value=self._settings.auth_token or "",
+                        id="api-auth-token",
+                        placeholder="Bearer token",
+                        password=True,
+                    )
+                    yield Button(
+                        "Show",
+                        id="toggle-api-auth-token",
+                        variant="default",
+                        classes="toggle-visibility-btn",
                     )
 
             # Download Settings
@@ -594,6 +609,8 @@ class SettingsScreen(Screen[None]):
             self._reset_to_defaults()
         elif event.button.id == "cancel-btn":
             self.app.pop_screen()
+        elif event.button.id == "toggle-api-auth-token":
+            self._toggle_visibility("api-auth-token", "toggle-api-auth-token")
         elif event.button.id == "toggle-spotify-secret":
             self._toggle_visibility("spotify-client-secret", "toggle-spotify-secret")
         elif event.button.id == "toggle-sc-client-id":
@@ -667,6 +684,7 @@ class SettingsScreen(Screen[None]):
             api_url = self.query_one("#api-url", Input).value
             offline_mode = self.query_one("#offline-mode", Checkbox).value
             api_timeout = self.query_one("#api-timeout", Input).value
+            auth_token = self.query_one("#api-auth-token", Input).value.strip()
 
             # Download settings
             output_dir = self.query_one("#output-dir", Input).value
@@ -756,6 +774,7 @@ class SettingsScreen(Screen[None]):
             self._settings.api_timeout = self._parse_float(
                 api_timeout, self._settings.api_timeout
             )
+            self._settings.auth_token = auth_token or None
             self._settings.output_dir = Path(output_dir)
             self._settings.audio_format = audio_format
             self._settings.audio_quality = audio_quality
@@ -817,6 +836,10 @@ class SettingsScreen(Screen[None]):
             # Persist settings to disk
             self._settings.save()
 
+            # Reset API client so auth/header changes apply immediately
+            from spotdl_cli.core import get_api_client
+            await get_api_client().close()
+
             self.notify("Settings saved")
             self.app.pop_screen()
 
@@ -826,16 +849,16 @@ class SettingsScreen(Screen[None]):
 
     def _reset_to_defaults(self) -> None:
         """Reset settings to defaults."""
-        from spotdl_cli.config import Settings, reset_settings
+        from spotdl_cli.config import reset_settings
 
-        defaults = Settings()
-        # Note: This only resets the UI. The actual settings are not persisted
-        # until user clicks Save. To fully reset, call reset_settings().
+        defaults = reset_settings()
+        self._settings = defaults
 
         # Reset UI values
         self.query_one("#api-url", Input).value = defaults.api_url
         self.query_one("#offline-mode", Checkbox).value = defaults.offline_mode
         self.query_one("#api-timeout", Input).value = str(defaults.api_timeout)
+        self.query_one("#api-auth-token", Input).value = defaults.auth_token or ""
         self.query_one("#output-dir", Input).value = str(defaults.output_dir)
         self.query_one("#audio-format", Select).value = defaults.audio_format
         self.query_one("#audio-quality", Select).value = defaults.audio_quality
@@ -900,7 +923,7 @@ class SettingsScreen(Screen[None]):
         # Update status badges
         self._update_status_badges()
 
-        self.notify("Reset to defaults (not saved)")
+        self.notify("Settings reset to defaults")
 
     def action_save(self) -> None:
         """Save settings action."""

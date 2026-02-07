@@ -51,7 +51,7 @@ export const config: AppConfig = {
   downloadSettingsEnabled: !isHosted,
 
   // API configuration
-  apiUrl: import.meta.env.VITE_API_URL || "http://localhost:8000",
+  apiUrl: import.meta.env.VITE_API_URL || "",
 
   // Application info
   version: import.meta.env.VITE_APP_VERSION || "5.0.0",

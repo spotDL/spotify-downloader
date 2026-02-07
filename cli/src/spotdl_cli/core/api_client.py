@@ -142,13 +142,16 @@ class APIClient:
     async def _get_client(self) -> httpx.AsyncClient:
         """Get or create the HTTP client with connection pooling."""
         if self._client is None or self._client.is_closed:
+            headers = {
+                "User-Agent": "SpotDL-CLI/5.0.0",
+                "Accept": "application/json",
+            }
+            if self._settings.auth_token:
+                headers["Authorization"] = f"Bearer {self._settings.auth_token}"
             self._client = httpx.AsyncClient(
                 base_url=self._settings.api_url,
                 timeout=self._settings.api_timeout,
-                headers={
-                    "User-Agent": "SpotDL-CLI/5.0.0",
-                    "Accept": "application/json",
-                },
+                headers=headers,
                 # Connection pooling
                 limits=httpx.Limits(
                     max_connections=20,
@@ -157,6 +160,7 @@ class APIClient:
                 ),
                 # Enable HTTP/2
                 http2=True,
+                follow_redirects=True,
             )
         return self._client
 
@@ -269,7 +273,7 @@ class APIClient:
             response = await client.get(
                 "/api/v1/songs/search",
                 params={
-                    "q": query,
+                    "query": query,
                     "platform": platform.value,
                     "limit": limit,
                     "offset": offset,
@@ -509,6 +513,7 @@ class APIClient:
             primary = self._primary_platform(platforms)
 
             result = {
+                "id": data.get("id"),
                 "name": data.get("name"),
                 "artist": data.get("artist_name") or data.get("artist"),
                 "artists": [data.get("artist_name")] if data.get("artist_name") else [],
@@ -568,6 +573,7 @@ class APIClient:
             ]
 
             result = {
+                "id": data.get("id"),
                 "name": data.get("name"),
                 "image_url": data.get("image_url"),
                 "genres": data.get("genres", []),
@@ -610,6 +616,7 @@ class APIClient:
             primary = self._primary_platform(platforms)
 
             result = {
+                "id": data.get("id"),
                 "name": data.get("name"),
                 "description": data.get("description"),
                 "cover_url": data.get("cover_url"),
@@ -692,7 +699,7 @@ class APIClient:
         try:
             client = await self._get_client()
             response = await client.get(
-                f"/api/v1/songs/{platform}/{track_id}",
+                f"/api/v1/entities/songs/platform/{platform}/{track_id}",
             )
 
             if response.status_code == 404:
@@ -735,14 +742,37 @@ class APIClient:
         try:
             client = await self._get_client()
             response = await client.get(
-                f"/api/v1/albums/{platform}/{album_id}",
+                f"/api/v1/entities/albums/platform/{platform}/{album_id}",
             )
 
             if response.status_code == 404:
                 raise NotFoundError(f"Album not found: {album_id}")
 
             response.raise_for_status()
-            result = response.json()
+            data = response.json()
+
+            tracks = [self._normalize_entity_song(s) for s in data.get("songs", [])]
+            platforms = data.get("platforms", [])
+            primary = self._primary_platform(platforms)
+            result = {
+                "id": data.get("id"),
+                "name": data.get("name"),
+                "artist": data.get("artist_name") or data.get("artist"),
+                "artists": [data.get("artist_name")] if data.get("artist_name") else [],
+                "tracks": tracks,
+                "total_tracks": data.get("total_tracks"),
+                "release_date": data.get("release_date"),
+                "year": data.get("year"),
+                "cover_url": data.get("cover_url"),
+                "album_type": data.get("album_type"),
+                "label": data.get("label"),
+                "popularity": data.get("popularity"),
+                "genres": data.get("genres", []),
+                "platforms": platforms,
+                "platform": primary.get("platform"),
+                "platform_id": primary.get("platform_id"),
+                "url": primary.get("url"),
+            }
 
             await self._cache.set(
                 result, "album", platform, album_id, ttl=self.CACHE_TTL_DETAIL
@@ -778,14 +808,41 @@ class APIClient:
         try:
             client = await self._get_client()
             response = await client.get(
-                f"/api/v1/artists/{platform}/{artist_id}",
+                f"/api/v1/entities/artists/platform/{platform}/{artist_id}",
             )
 
             if response.status_code == 404:
                 raise NotFoundError(f"Artist not found: {artist_id}")
 
             response.raise_for_status()
-            result = response.json()
+            data = response.json()
+
+            top_tracks = [self._normalize_entity_song(s) for s in data.get("songs", [])]
+            albums = [
+                {
+                    "id": album.get("id"),
+                    "name": album.get("name"),
+                    "year": album.get("year"),
+                    "total_tracks": album.get("total_tracks"),
+                    "album_type": album.get("album_type"),
+                    "type": album.get("album_type"),
+                    "cover_url": album.get("cover_url"),
+                }
+                for album in data.get("albums", [])
+            ]
+
+            result = {
+                "id": data.get("id"),
+                "name": data.get("name"),
+                "image_url": data.get("image_url"),
+                "genres": data.get("genres", []),
+                "bio": data.get("bio"),
+                "popularity": data.get("popularity"),
+                "followers": data.get("monthly_listeners") or 0,
+                "albums": albums,
+                "top_tracks": top_tracks,
+                "platforms": data.get("platforms", []),
+            }
 
             await self._cache.set(
                 result, "artist", platform, artist_id, ttl=self.CACHE_TTL_DETAIL
@@ -821,14 +878,33 @@ class APIClient:
         try:
             client = await self._get_client()
             response = await client.get(
-                f"/api/v1/playlists/{platform}/{playlist_id}",
+                f"/api/v1/entities/playlists/platform/{platform}/{playlist_id}",
             )
 
             if response.status_code == 404:
                 raise NotFoundError(f"Playlist not found: {playlist_id}")
 
             response.raise_for_status()
-            result = response.json()
+            data = response.json()
+
+            tracks = [self._normalize_entity_song(s) for s in data.get("songs", [])]
+            platforms = data.get("platforms", [])
+            primary = self._primary_platform(platforms)
+            result = {
+                "id": data.get("id"),
+                "name": data.get("name"),
+                "description": data.get("description"),
+                "cover_url": data.get("cover_url"),
+                "owner": {"display_name": data.get("owner_name") or "Unknown"},
+                "tracks": tracks,
+                "total_tracks": data.get("total_tracks"),
+                "followers": data.get("followers") or 0,
+                "public": data.get("is_public", True),
+                "platforms": platforms,
+                "platform": primary.get("platform"),
+                "platform_id": primary.get("platform_id"),
+                "url": primary.get("url"),
+            }
 
             await self._cache.set(
                 result, "playlist", platform, playlist_id, ttl=self.CACHE_TTL_DETAIL
@@ -843,42 +919,36 @@ class APIClient:
             raise APIError(f"Request failed: {e}") from e
 
     async def get_lyrics(
-        self, track_id: str, platform: str = "spotify", use_cache: bool = True
+        self, song_id: str, use_cache: bool = True, force_refresh: bool = False
     ) -> dict[str, Any]:
         """
-        Get lyrics for a track.
+        Get lyrics for a song by internal ID.
 
         Args:
-            track_id: Track ID on the platform
-            platform: Platform name
+            song_id: Internal song UUID
             use_cache: Whether to use cached response
+            force_refresh: Force refresh from providers
 
         Returns:
             Lyrics data including synced and plain text
         """
         if use_cache:
-            cached = await self._cache.get("lyrics", platform, track_id)
+            cached = await self._cache.get("lyrics", song_id, force_refresh)
             if cached is not None:
                 return cached
 
         try:
             client = await self._get_client()
             response = await client.get(
-                f"/api/v1/songs/{platform}/{track_id}/lyrics",
+                f"/api/v1/lyrics/song/{song_id}",
+                params={"force_refresh": force_refresh},
             )
-
-            if response.status_code == 404:
-                result = {"lyrics": None, "synced": False}
-                await self._cache.set(
-                    result, "lyrics", platform, track_id, ttl=self.CACHE_TTL_LYRICS
-                )
-                return result
 
             response.raise_for_status()
             result = response.json()
 
             await self._cache.set(
-                result, "lyrics", platform, track_id, ttl=self.CACHE_TTL_LYRICS
+                result, "lyrics", song_id, force_refresh, ttl=self.CACHE_TTL_LYRICS
             )
             return result
 
@@ -886,55 +956,142 @@ class APIClient:
             raise ConnectionError(f"Cannot connect to API: {e}") from e
         except httpx.HTTPStatusError as e:
             if e.response.status_code == 404:
-                return {"lyrics": None, "synced": False}
+                return {"lyrics_text": None, "lyrics_synced": None}
             raise APIError(f"API error: {e.response.text}") from e
         except httpx.HTTPError as e:
             raise APIError(f"Request failed: {e}") from e
 
-    async def get_audio_features(
-        self, track_id: str, platform: str = "spotify", use_cache: bool = True
-    ) -> dict[str, Any]:
-        """
-        Get audio features for a track (BPM, energy, etc.).
-
-        Args:
-            track_id: Track ID on the platform
-            platform: Platform name
-            use_cache: Whether to use cached response
-
-        Returns:
-            Audio features data
-        """
+    async def get_all_lyrics(self, song_id: str, use_cache: bool = True) -> dict[str, Any]:
+        """Get lyrics from all sources for a song by internal ID."""
         if use_cache:
-            cached = await self._cache.get("features", platform, track_id)
+            cached = await self._cache.get("lyrics_all", song_id)
+            if cached is not None:
+                return cached
+
+        try:
+            client = await self._get_client()
+            response = await client.get(f"/api/v1/lyrics/song/{song_id}/all")
+            response.raise_for_status()
+            result = response.json()
+            await self._cache.set(result, "lyrics_all", song_id, ttl=self.CACHE_TTL_LYRICS)
+            return result
+        except httpx.ConnectError as e:
+            raise ConnectionError(f"Cannot connect to API: {e}") from e
+        except httpx.HTTPStatusError as e:
+            raise APIError(f"API error: {e.response.text}") from e
+        except httpx.HTTPError as e:
+            raise APIError(f"Request failed: {e}") from e
+
+    async def fetch_all_lyrics(self, song_id: str) -> dict[str, Any]:
+        """Fetch lyrics from all sources and store them."""
+        try:
+            client = await self._get_client()
+            response = await client.post(f"/api/v1/lyrics/song/{song_id}/fetch-all")
+            response.raise_for_status()
+            result = response.json()
+            await self._cache.set(result, "lyrics_all", song_id, ttl=self.CACHE_TTL_LYRICS)
+            return result
+        except httpx.ConnectError as e:
+            raise ConnectionError(f"Cannot connect to API: {e}") from e
+        except httpx.HTTPStatusError as e:
+            raise APIError(f"API error: {e.response.text}") from e
+        except httpx.HTTPError as e:
+            raise APIError(f"Request failed: {e}") from e
+
+    async def search_lyrics(self, name: str, artist: str) -> dict[str, Any]:
+        """Search lyrics by song name and artist."""
+        try:
+            client = await self._get_client()
+            response = await client.get(
+                "/api/v1/lyrics/search",
+                params={"name": name, "artist": artist},
+            )
+            response.raise_for_status()
+            return response.json()
+        except httpx.ConnectError as e:
+            raise ConnectionError(f"Cannot connect to API: {e}") from e
+        except httpx.HTTPStatusError as e:
+            if e.response.status_code == 404:
+                return {"lyrics_text": None, "lyrics_synced": None}
+            raise APIError(f"API error: {e.response.text}") from e
+        except httpx.HTTPError as e:
+            raise APIError(f"Request failed: {e}") from e
+
+    async def get_metadata_sources(
+        self, song_id: str, include_raw: bool = False, use_cache: bool = True
+    ) -> dict[str, Any]:
+        """Get metadata sources for a song by internal ID."""
+        if use_cache:
+            cached = await self._cache.get("metadata_sources", song_id, include_raw)
             if cached is not None:
                 return cached
 
         try:
             client = await self._get_client()
             response = await client.get(
-                f"/api/v1/songs/{platform}/{track_id}/audio-features",
+                f"/api/v1/entities/songs/{song_id}/metadata-sources",
+                params={"include_raw": include_raw},
             )
-
-            if response.status_code == 404:
-                await self._cache.set(
-                    {}, "features", platform, track_id, ttl=self.CACHE_TTL_FEATURES
-                )
-                return {}
-
             response.raise_for_status()
             result = response.json()
-
             await self._cache.set(
-                result, "features", platform, track_id, ttl=self.CACHE_TTL_FEATURES
+                result, "metadata_sources", song_id, include_raw, ttl=self.CACHE_TTL_DETAIL
             )
             return result
-
         except httpx.ConnectError as e:
             raise ConnectionError(f"Cannot connect to API: {e}") from e
         except httpx.HTTPStatusError as e:
-            if e.response.status_code == 404:
-                return {}
+            raise APIError(f"API error: {e.response.text}") from e
+        except httpx.HTTPError as e:
+            raise APIError(f"Request failed: {e}") from e
+
+    async def refresh_entity(self, entity_type: str, entity_id: str) -> dict[str, Any]:
+        """Refresh entity metadata by internal ID."""
+        try:
+            client = await self._get_client()
+            response = await client.post(f"/api/v1/entities/{entity_type}/{entity_id}/refresh")
+            response.raise_for_status()
+            cache_keys = {
+                "songs": "entity_song",
+                "albums": "entity_album",
+                "artists": "entity_artist",
+                "playlists": "entity_playlist",
+            }
+            cache_key = cache_keys.get(entity_type)
+            if cache_key:
+                await self._cache.invalidate(cache_key, entity_id)
+            return response.json()
+        except httpx.ConnectError as e:
+            raise ConnectionError(f"Cannot connect to API: {e}") from e
+        except httpx.HTTPStatusError as e:
+            raise APIError(f"API error: {e.response.text}") from e
+        except httpx.HTTPError as e:
+            raise APIError(f"Request failed: {e}") from e
+
+    async def enrich_song(self, song_id: str) -> dict[str, Any]:
+        """Enrich song metadata from external sources."""
+        try:
+            client = await self._get_client()
+            response = await client.post(f"/api/v1/entities/songs/{song_id}/enrich")
+            response.raise_for_status()
+            return response.json()
+        except httpx.ConnectError as e:
+            raise ConnectionError(f"Cannot connect to API: {e}") from e
+        except httpx.HTTPStatusError as e:
+            raise APIError(f"API error: {e.response.text}") from e
+        except httpx.HTTPError as e:
+            raise APIError(f"Request failed: {e}") from e
+
+    async def enrich_song_all_sources(self, song_id: str) -> dict[str, Any]:
+        """Fetch metadata and lyrics from all sources for a song."""
+        try:
+            client = await self._get_client()
+            response = await client.post(f"/api/v1/entities/songs/{song_id}/enrich-all")
+            response.raise_for_status()
+            return response.json()
+        except httpx.ConnectError as e:
+            raise ConnectionError(f"Cannot connect to API: {e}") from e
+        except httpx.HTTPStatusError as e:
             raise APIError(f"API error: {e.response.text}") from e
         except httpx.HTTPError as e:
             raise APIError(f"Request failed: {e}") from e

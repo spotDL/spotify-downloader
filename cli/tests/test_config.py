@@ -23,6 +23,7 @@ class TestSettings:
         assert settings.embed_metadata is True
         assert settings.embed_lyrics is True
         assert settings.embed_cover is True
+        assert settings.auth_token is None
 
     def test_custom_settings(self) -> None:
         """Test custom settings values."""
@@ -33,6 +34,7 @@ class TestSettings:
             audio_quality="320k",
             threads=8,
             overwrite="force",
+            auth_token="secret-token",
         )
 
         assert settings.api_url == "http://custom:9000"
@@ -41,6 +43,7 @@ class TestSettings:
         assert settings.audio_quality == "320k"
         assert settings.threads == 8
         assert settings.overwrite == "force"
+        assert settings.auth_token == "secret-token"
 
     def test_settings_from_env(self) -> None:
         """Test settings from environment variables."""
@@ -124,6 +127,7 @@ class TestSettingsPersistence:
             offline_mode=True,
             audio_format="flac",
             threads=8,
+            auth_token="persist-token",
         )
 
         # Save settings
@@ -140,6 +144,7 @@ class TestSettingsPersistence:
         assert loaded_data["offline_mode"] is True
         assert loaded_data["audio_format"] == "flac"
         assert loaded_data["threads"] == 8
+        assert loaded_data["auth_token"] == "persist-token"
 
     def test_load_nonexistent_file(self, tmp_path: Path) -> None:
         """Test loading from nonexistent file returns empty dict."""
