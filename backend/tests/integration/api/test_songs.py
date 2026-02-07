@@ -233,3 +233,300 @@ class TestSongsSearchErrors:
 
             assert response.status_code == 400
             assert "Unsupported" in response.json()["detail"]
+
+
+class TestSongsEntities:
+    """Tests for songs entity endpoints."""
+
+    async def test_get_track(self, client: AsyncClient, mock_song: Song) -> None:
+        """Test getting track details."""
+        with patch("spotdl.api.v1.songs.get_song_service") as mock_get_service:
+            mock_service = MagicMock()
+            mock_service.resolve_url = AsyncMock(return_value=[mock_song])
+            mock_get_service.return_value = mock_service
+
+            response = await client.get(
+                "/api/v1/songs/entities/track/spotify/abc123"
+            )
+
+            assert response.status_code == 200
+            data = response.json()
+            assert data["name"] == "Test Song"
+            assert data["platform"] == "spotify"
+            assert data["platform_id"] == "abc123"
+
+    async def test_get_track_not_found(self, client: AsyncClient) -> None:
+        """Test getting non-existent track returns 404."""
+        with patch("spotdl.api.v1.songs.get_song_service") as mock_get_service:
+            mock_service = MagicMock()
+            mock_service.resolve_url = AsyncMock(return_value=[])
+            mock_get_service.return_value = mock_service
+
+            response = await client.get(
+                "/api/v1/songs/entities/track/spotify/notfound"
+            )
+
+            assert response.status_code == 404
+
+    async def test_get_track_invalid_platform(self, client: AsyncClient) -> None:
+        """Test getting track with invalid platform returns 400."""
+        response = await client.get(
+            "/api/v1/songs/entities/track/invalid_platform/abc123"
+        )
+
+        assert response.status_code == 400
+        assert "Invalid platform" in response.json()["detail"]
+
+    async def test_get_album(self, client: AsyncClient) -> None:
+        """Test getting album details."""
+        album_songs = [
+            Song(
+                name=f"Track {i}",
+                artists=["Album Artist"],
+                artist="Album Artist",
+                duration=180,
+                platform=Platform.SPOTIFY,
+                platform_id=f"track{i}",
+                url=f"https://open.spotify.com/track/track{i}",
+                album_name="Test Album",
+                album_id="album123",
+                track_number=i,
+            )
+            for i in range(1, 11)
+        ]
+
+        with patch("spotdl.api.v1.songs.get_song_service") as mock_get_service:
+            mock_service = MagicMock()
+            mock_service.resolve_url = AsyncMock(return_value=album_songs)
+            mock_get_service.return_value = mock_service
+
+            response = await client.get(
+                "/api/v1/songs/entities/album/spotify/album123"
+            )
+
+            assert response.status_code == 200
+            data = response.json()
+            assert data["name"] == "Test Album"
+            assert data["artist_name"] == "Album Artist"
+            assert data["total_tracks"] == 10
+            assert len(data["songs"]) == 10
+
+    async def test_get_playlist(self, client: AsyncClient, mock_song: Song) -> None:
+        """Test getting playlist details."""
+        playlist_songs = [mock_song] * 5
+
+        with patch("spotdl.api.v1.songs.get_song_service") as mock_get_service:
+            mock_service = MagicMock()
+            mock_service.resolve_url = AsyncMock(return_value=playlist_songs)
+            mock_get_service.return_value = mock_service
+
+            response = await client.get(
+                "/api/v1/songs/entities/playlist/spotify/playlist123"
+            )
+
+            assert response.status_code == 200
+            data = response.json()
+            assert data["total_tracks"] == 5
+            assert len(data["songs"]) == 5
+            assert data["platform"] == "spotify"
+
+    async def test_get_artist(self, client: AsyncClient) -> None:
+        """Test getting artist details."""
+        artist_songs = [
+            Song(
+                name=f"Song {i}",
+                artists=["Artist Name"],
+                artist="Artist Name",
+                duration=200 + i * 10,
+                platform=Platform.SPOTIFY,
+                platform_id=f"song{i}",
+                url=f"https://open.spotify.com/track/song{i}",
+            )
+            for i in range(20)
+        ]
+
+        with patch("spotdl.api.v1.songs.get_song_service") as mock_get_service:
+            mock_service = MagicMock()
+            mock_service.resolve_url = AsyncMock(return_value=artist_songs)
+            mock_get_service.return_value = mock_service
+
+            response = await client.get(
+                "/api/v1/songs/entities/artist/spotify/artist123"
+            )
+
+            assert response.status_code == 200
+            data = response.json()
+            assert data["name"] == "Artist Name"
+            assert data["total_songs"] == 20
+            assert len(data["songs"]) == 20
+
+
+class TestSongsSearchEntities:
+    """Tests for /api/v1/songs/search/entities endpoint."""
+
+    async def test_search_entities_all_types(self, client: AsyncClient) -> None:
+        """Test searching entities without type filter."""
+        search_results = [
+            Song(
+                name="Test Song",
+                artists=["Test Artist"],
+                artist="Test Artist",
+                duration=180,
+                platform=Platform.SPOTIFY,
+                platform_id="track1",
+                url="https://open.spotify.com/track/track1",
+                album_name="Test Album",
+                album_id="album1",
+            )
+        ]
+
+        with patch("spotdl.api.v1.songs.get_song_service") as mock_get_service:
+            mock_service = MagicMock()
+            mock_service.search = AsyncMock(return_value=search_results)
+            mock_get_service.return_value = mock_service
+
+            response = await client.get(
+                "/api/v1/songs/search/entities",
+                params={"query": "test"},
+            )
+
+            assert response.status_code == 200
+            data = response.json()
+            assert "results" in data
+            assert "total" in data
+            assert data["query"] == "test"
+
+    async def test_search_entities_tracks_only(self, client: AsyncClient) -> None:
+        """Test searching for tracks only."""
+        track_results = [
+            Song(
+                name=f"Track {i}",
+                artists=["Artist"],
+                artist="Artist",
+                duration=180,
+                platform=Platform.SPOTIFY,
+                platform_id=f"track{i}",
+                url=f"https://open.spotify.com/track/track{i}",
+            )
+            for i in range(5)
+        ]
+
+        with patch("spotdl.api.v1.songs.get_song_service") as mock_get_service:
+            mock_service = MagicMock()
+            mock_service.search = AsyncMock(return_value=track_results)
+            mock_get_service.return_value = mock_service
+
+            response = await client.get(
+                "/api/v1/songs/search/entities",
+                params={"query": "test", "entity_type": "track"},
+            )
+
+            assert response.status_code == 200
+            data = response.json()
+            # All results should be tracks
+            for result in data["results"]:
+                assert result["entity_type"] == "track"
+
+    async def test_search_entities_albums_only(self, client: AsyncClient) -> None:
+        """Test searching for albums only."""
+        album_tracks = [
+            Song(
+                name=f"Track {i}",
+                artists=["Artist"],
+                artist="Artist",
+                duration=180,
+                platform=Platform.SPOTIFY,
+                platform_id=f"track{i}",
+                url=f"https://open.spotify.com/track/track{i}",
+                album_name="Album Name",
+                album_id="album1",
+            )
+            for i in range(3)
+        ]
+
+        with patch("spotdl.api.v1.songs.get_song_service") as mock_get_service:
+            mock_service = MagicMock()
+            mock_service.search = AsyncMock(return_value=album_tracks)
+            mock_get_service.return_value = mock_service
+
+            response = await client.get(
+                "/api/v1/songs/search/entities",
+                params={"query": "album", "entity_type": "album"},
+            )
+
+            assert response.status_code == 200
+            data = response.json()
+            # All results should be albums
+            for result in data["results"]:
+                assert result["entity_type"] == "album"
+
+    async def test_search_entities_artists_only(self, client: AsyncClient) -> None:
+        """Test searching for artists only."""
+        artist_tracks = [
+            Song(
+                name=f"Song {i}",
+                artists=["Test Artist"],
+                artist="Test Artist",
+                duration=180,
+                platform=Platform.SPOTIFY,
+                platform_id=f"song{i}",
+                url=f"https://open.spotify.com/track/song{i}",
+            )
+            for i in range(5)
+        ]
+
+        with patch("spotdl.api.v1.songs.get_song_service") as mock_get_service:
+            mock_service = MagicMock()
+            mock_service.search = AsyncMock(return_value=artist_tracks)
+            mock_get_service.return_value = mock_service
+
+            response = await client.get(
+                "/api/v1/songs/search/entities",
+                params={"query": "artist", "entity_type": "artist"},
+            )
+
+            assert response.status_code == 200
+            data = response.json()
+            # All results should be artists
+            for result in data["results"]:
+                assert result["entity_type"] == "artist"
+
+    async def test_search_entities_invalid_platform(self, client: AsyncClient) -> None:
+        """Test searching entities with invalid platform."""
+        response = await client.get(
+            "/api/v1/songs/search/entities",
+            params={"query": "test", "platform": "invalid_platform"},
+        )
+
+        assert response.status_code == 400
+        assert "Invalid platform" in response.json()["detail"]
+
+    async def test_search_entities_with_limit(self, client: AsyncClient) -> None:
+        """Test searching entities with custom limit."""
+        many_tracks = [
+            Song(
+                name=f"Track {i}",
+                artists=["Artist"],
+                artist="Artist",
+                duration=180,
+                platform=Platform.SPOTIFY,
+                platform_id=f"track{i}",
+                url=f"https://open.spotify.com/track/track{i}",
+            )
+            for i in range(50)
+        ]
+
+        with patch("spotdl.api.v1.songs.get_song_service") as mock_get_service:
+            mock_service = MagicMock()
+            mock_service.search = AsyncMock(return_value=many_tracks)
+            mock_get_service.return_value = mock_service
+
+            response = await client.get(
+                "/api/v1/songs/search/entities",
+                params={"query": "test", "limit": 20},
+            )
+
+            assert response.status_code == 200
+            data = response.json()
+            # Should be limited to 20
+            assert len(data["results"]) <= 20

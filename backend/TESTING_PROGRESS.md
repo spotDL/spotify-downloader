@@ -7,8 +7,8 @@ Added comprehensive test coverage to the SpotDL backend incrementally.
 
 ### Backend Tests
 - **Initial Coverage**: 52.37%
-- **Current Coverage**: 54.00%
-- **Improvement**: +1.63%
+- **Current Coverage**: 55.74%
+- **Improvement**: +3.37%
 
 ### Tests Added
 1. **Repository Tests** (7 tests)
@@ -37,13 +37,46 @@ Added comprehensive test coverage to the SpotDL backend incrementally.
    - Token validation
    - Special character and Unicode support
 
-5. **Bug Fixes**
+5. **Reputation Module Tests** (6 tests)
+   - ReputationReward enum values and structure
+   - Positive and negative action rewards
+   - Reward value validation
+
+6. **Result Type Tests** (11 tests)
+   - TargetPlatform enum (all platforms including SLIDER_KZ)
+   - Result dataclass creation and validation
+   - Artists list to tuple conversion
+   - Multiple platform support
+   - Optional fields handling
+
+7. **Providers API Tests** (7 tests)
+   - GET /api/v1/providers endpoint
+   - Audio/metadata/lyrics provider structure validation
+   - Expected provider presence checks
+
+8. **Songs API Tests** (13 additional tests)
+   - Entity endpoints (track, album, playlist, artist)
+   - Entity search with type filtering
+   - Invalid platform handling
+   - Limit validation
+
+9. **Search API Tests** (17 tests)
+   - URL detection helper function
+   - GET and POST endpoints
+   - Text and URL search modes
+   - Entity type filtering
+   - Result deduplication (ISRC, artist, album)
+   - Empty query handling
+   - Unsupported URL handling
+
+10. **Bug Fixes**
    - Fixed 15 initially failing tests
    - Fixed provider initialization (enabled all platforms for testing)
    - Fixed authentication in API tests (use authenticated_client)
    - Fixed database directory creation
+   - Fixed Result type tests (artists tuple conversion, isrc_search field)
 
-### Total New Tests: **58 tests**
+### Total New Tests: **112 tests**
 
 ## Module Coverage Improvements
 - `spotdl.core.providers_config`: 91% → **100%** ✅
