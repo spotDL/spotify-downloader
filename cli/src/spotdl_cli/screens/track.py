@@ -36,6 +36,7 @@ from spotdl_cli.core import (
     get_api_client,
     get_offline_matcher,
 )
+from spotdl_cli.theme import get_platform_icon
 
 if TYPE_CHECKING:
     from spotdl_cli.app import SpotDLApp
@@ -268,10 +269,14 @@ class TrackScreen(Screen[None]):
 
         # Platform link
         platform_content = self.query_one("#platform-links-content", Static)
-        platform_icon = self._get_platform_icon(song.platform.value)
-        platform_content.update(
-            f"{platform_icon} [{song.platform.value}]({song.url})"
-        )
+        platform_icon = get_platform_icon(song.platform.value)
+        platform_name = song.platform.value.replace("_", " ").title()
+        if song.url:
+            platform_content.update(
+                f"{platform_icon} {platform_name}\n[dim]{song.url}[/dim]"
+            )
+        else:
+            platform_content.update(f"{platform_icon} {platform_name}")
 
         # Cover art
         cover_widget = self.query_one("#track-cover", CoverArt)
@@ -337,6 +342,15 @@ class TrackScreen(Screen[None]):
 
     async def _load_offline_data(self) -> None:
         """Load data using offline providers."""
+        # Show track details from the Song object itself
+        self.query_one("#detail-platform-id", Static).update(
+            f"[dim]ID:[/] {self._track_id}"
+        )
+        if self._song.isrc:
+            self.query_one("#detail-isrc", Static).update(
+                f"[dim]ISRC:[/] {self._song.isrc}"
+            )
+
         await self._find_offline_matches()
 
         # Lyrics from song object if available
@@ -353,12 +367,42 @@ class TrackScreen(Screen[None]):
         status.update("[dim]Searching for matches...[/]")
 
         try:
+            from spotdl_core import TargetPlatform
+
+            # If the song itself is already from a downloadable platform,
+            # include it as the first match
+            downloadable_platforms = {
+                "youtube_music": TargetPlatform.YOUTUBE_MUSIC,
+                "soundcloud": TargetPlatform.SOUNDCLOUD,
+                "bandcamp": TargetPlatform.BANDCAMP,
+            }
+            self._matches = []
+
+            if self._song.platform.value in downloadable_platforms and self._song.url:
+                tp = downloadable_platforms[self._song.platform.value]
+                self._matches.append(DownloadResult(
+                    name=self._song.name,
+                    artists=list(self._song.artists),
+                    artist=self._song.artist,
+                    duration=self._song.duration,
+                    platform=tp,
+                    platform_id=self._song.platform_id,
+                    url=self._song.url,
+                    score=100.0,
+                    cover_url=self._song.cover_url,
+                    album_name=self._song.album_name or None,
+                ))
+
+            # Also search for additional matches
             offline_matcher = get_offline_matcher()
             results = await offline_matcher.find_matches(self._song, limit=10)
 
-            self._matches = [
-                DownloadResult.from_result(r, score=0.0) for r in results
-            ]
+            seen_ids = {m.platform_id for m in self._matches}
+            for r in results:
+                if r.platform_id not in seen_ids:
+                    self._matches.append(DownloadResult.from_result(r, score=0.0))
+                    seen_ids.add(r.platform_id)
+
             self._update_matches_table()
 
         except Exception as e:
@@ -378,7 +422,7 @@ class TrackScreen(Screen[None]):
 
         for i, match in enumerate(self._matches[:10], 1):
             duration = f"{match.duration // 60}:{match.duration % 60:02d}"
-            platform_icon = self._get_platform_icon(match.platform.value)
+            platform_icon = get_platform_icon(match.platform.value)
 
             # Score display
             score_str = f"{match.score:.0f}%" if match.score > 0 else "—"
@@ -467,21 +511,6 @@ class TrackScreen(Screen[None]):
         self.query_one("#detail-platform-id", Static).update(
             f"[dim]ID:[/] {self._track_id}"
         )
-
-    @staticmethod
-    def _get_platform_icon(platform: str) -> str:
-        """Get icon for platform."""
-        icons = {
-            "spotify": "[green]●[/]",
-            "youtube": "[red]●[/]",
-            "youtube_music": "[red]●[/]",
-            "deezer": "[magenta]●[/]",
-            "soundcloud": "[#ff5500]●[/]",
-            "bandcamp": "[cyan]●[/]",
-            "apple_music": "[white]●[/]",
-            "tidal": "[white]●[/]",
-        }
-        return icons.get(platform.lower(), "●")
 
     async def on_button_pressed(self, event: Button.Pressed) -> None:
         """Handle button presses."""

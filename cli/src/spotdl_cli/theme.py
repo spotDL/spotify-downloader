@@ -129,12 +129,62 @@ def get_download_status_color(status: str) -> str:
     return DOWNLOAD_STATUS_COLORS.get(status.lower(), Theme.TEXT_MUTED)
 
 
+# Rich markup icons for platforms (used in TUI widgets)
+PLATFORM_ICONS: dict[str, str] = {
+    "spotify": "[green]●[/]",
+    "youtube": "[red]●[/]",
+    "youtube_music": "[red]●[/]",
+    "deezer": "[magenta]●[/]",
+    "soundcloud": "[#ff5500]●[/]",
+    "bandcamp": "[cyan]●[/]",
+    "apple_music": "[white]●[/]",
+    "tidal": "[white]●[/]",
+    "amazon": "[#ff9900]●[/]",
+}
+
+
+def get_platform_icon(platform: str) -> str:
+    """Get Rich markup icon for a platform."""
+    return PLATFORM_ICONS.get(platform.lower(), "●")
+
+
+def format_number(num: int) -> str:
+    """Format large numbers with K/M suffixes."""
+    if num >= 1_000_000:
+        return f"{num / 1_000_000:.1f}M"
+    elif num >= 1_000:
+        return f"{num / 1_000:.1f}K"
+    return str(num)
+
+
+def truncate(text: str, max_len: int) -> str:
+    """Truncate text with ellipsis."""
+    if len(text) > max_len:
+        return text[: max_len - 3] + "..."
+    return text
+
+
+def format_duration(seconds: int) -> str:
+    """Format seconds as m:ss or Xh Ym."""
+    if seconds >= 3600:
+        hours, remainder = divmod(seconds, 3600)
+        minutes, _ = divmod(remainder, 60)
+        return f"{hours}h {minutes}m"
+    minutes, secs = divmod(seconds, 60)
+    return f"{minutes}:{secs:02d}"
+
+
 __all__ = [
     "DOWNLOAD_STATUS_COLORS",
     "PLATFORM_COLORS",
+    "PLATFORM_ICONS",
     "STATUS_COLORS",
     "Theme",
+    "format_duration",
+    "format_number",
     "get_download_status_color",
     "get_platform_color",
+    "get_platform_icon",
     "get_status_color",
+    "truncate",
 ]

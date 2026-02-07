@@ -43,6 +43,14 @@ from spotdl_core.providers import (
     get_resolver,
     is_valid_url,
 )
+from spotdl_core.download import (
+    Archive,
+    DownloadError,
+    DownloadSettings,
+    Downloader,
+    generate_lrc,
+    is_synced,
+)
 from spotdl_core.types import (
     Platform,
     Result,
@@ -53,6 +61,13 @@ from spotdl_core.types import (
 )
 
 __all__ = [
+    # Download
+    "Archive",
+    "DownloadError",
+    "DownloadSettings",
+    "Downloader",
+    "generate_lrc",
+    "is_synced",
     # Types
     "Platform",
     "Result",

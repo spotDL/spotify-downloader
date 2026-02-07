@@ -38,6 +38,10 @@ def order_results(
     results: list[Result],
     song: Song,
     search_query: str | None = None,
+    *,
+    min_name_match: float | None = None,
+    min_artist_match: float | None = None,
+    min_time_match: float | None = None,
 ) -> dict[Result, float]:
     """
     Order results by match quality against a song.
@@ -49,10 +53,18 @@ def order_results(
         results: List of search results to evaluate
         song: Song to match against
         search_query: Optional search query used for the search
+        min_name_match: Override for minimum name match threshold
+        min_artist_match: Override for minimum artist match threshold
+        min_time_match: Override for minimum time match threshold
 
     Returns:
         Dictionary mapping results to their match scores (0-100)
     """
+    # Use provided thresholds or fall back to constants
+    effective_min_name = min_name_match if min_name_match is not None else MIN_NAME_MATCH
+    effective_min_artist = min_artist_match if min_artist_match is not None else MIN_ARTIST_MATCH
+    effective_min_time = min_time_match if min_time_match is not None else MIN_TIME_MATCH
+
     links_with_match_value: dict[Result, float] = {}
 
     for result in results:
@@ -144,24 +156,24 @@ def order_results(
         )
 
         # Apply minimum thresholds
-        if name_match <= MIN_NAME_MATCH:
+        if name_match <= effective_min_name:
             logger.debug(
                 "[%s|%s] Skipping - name match %.2f <= %.2f",
                 song.song_id,
                 result.platform_id,
                 name_match,
-                MIN_NAME_MATCH,
+                effective_min_name,
             )
             continue
 
         # slider.kz is exempt from artist match threshold
-        if artists_match < MIN_ARTIST_MATCH and result.platform != TargetPlatform.SLIDER_KZ:
+        if artists_match < effective_min_artist and result.platform != TargetPlatform.SLIDER_KZ:
             logger.debug(
                 "[%s|%s] Skipping - artist match %.2f < %.2f",
                 song.song_id,
                 result.platform_id,
                 artists_match,
-                MIN_ARTIST_MATCH,
+                effective_min_artist,
             )
             continue
 
@@ -191,13 +203,13 @@ def order_results(
             )
 
         # Apply time match threshold
-        if time_match < MIN_TIME_MATCH:
+        if time_match < effective_min_time:
             logger.debug(
                 "[%s|%s] Skipping - time match %.2f < %.2f",
                 song.song_id,
                 result.platform_id,
                 time_match,
-                MIN_TIME_MATCH,
+                effective_min_time,
             )
             continue
 

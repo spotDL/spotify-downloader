@@ -56,6 +56,8 @@ dependencies = [
     # Download & audio processing
     "yt-dlp>=2024.1.0",
     "mutagen>=1.47.0",
+    # Synced lyrics
+    "syncedlyrics>=0.10.0",
 ]
 
 [project.optional-dependencies]

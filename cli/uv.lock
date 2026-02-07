@@ -1421,6 +1421,7 @@ dependencies = [
     { name = "rich-pixels" },
     { name = "soundcloudpy" },
     { name = "spotdl-core" },
+    { name = "syncedlyrics" },
     { name = "textual" },
     { name = "typer" },
     { name = "yt-dlp" },
@@ -1463,6 +1464,7 @@ requires-dist = [
     { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.8.0" },
     { name = "soundcloudpy", specifier = ">=0.1.4" },
     { name = "spotdl-core", editable = "../core" },
+    { name = "syncedlyrics", specifier = ">=0.10.0" },
     { name = "textual", specifier = ">=0.89.0" },
     { name = "textual-dev", marker = "extra == 'dev'", specifier = ">=1.7.0" },
     { name = "typer", specifier = ">=0.12.0" },
@@ -1487,12 +1489,15 @@ dependencies = [
     { name = "httpx" },
     { name = "lxml" },
     { name = "musicbrainzngs" },
+    { name = "mutagen" },
     { name = "orjson" },
     { name = "pykakasi" },
     { name = "python-slugify" },
     { name = "python3-discogs-client" },
     { name = "rapidfuzz" },
     { name = "spotipy" },
+    { name = "syncedlyrics" },
+    { name = "yt-dlp" },
     { name = "ytmusicapi" },
 ]
 
@@ -1502,6 +1507,7 @@ requires-dist = [
     { name = "httpx", specifier = ">=0.28.0" },
     { name = "lxml", specifier = ">=5.3.0" },
     { name = "musicbrainzngs", specifier = ">=0.7.1" },
+    { name = "mutagen", specifier = ">=1.47.0" },
     { name = "mypy", marker = "extra == 'dev'", specifier = ">=1.13.0" },
     { name = "orjson", specifier = ">=3.10.0" },
     { name = "pykakasi", specifier = ">=2.3.0" },
@@ -1514,6 +1520,8 @@ requires-dist = [
     { name = "rapidfuzz", specifier = ">=3.10.0" },
     { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.8.0" },
     { name = "spotipy", specifier = ">=2.24.0" },
+    { name = "syncedlyrics", specifier = ">=0.10.0" },
+    { name = "yt-dlp", specifier = ">=2024.1.0" },
     { name = "ytmusicapi", specifier = ">=1.8.0" },
 ]
 provides-extras = ["dev"]
@@ -1530,6 +1538,20 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/5c/25/abb658f5a1f8c3eb556b737964ec4c27a264939608e135d80229c5a17241/spotipy-2.25.2.tar.gz", hash = "sha256:5ed45c044156ca5518997e2502b1f2c1e7336407cb1fb8fe112d144b4d5282c8", size = 44933, upload-time = "2025-11-26T20:22:58.452Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/5c/71/869c1ff4e7a40f99007d731327e9d5e2910b406128290c4d8942e579072d/spotipy-2.25.2-py3-none-any.whl", hash = "sha256:694bc9734d94171716257bf18eea9f1cb2ff8c581e59c74464137433830cf890", size = 31790, upload-time = "2025-11-26T20:22:57.087Z" },
+]
+
+[[package]]
+name = "syncedlyrics"
+version = "1.0.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "beautifulsoup4" },
+    { name = "rapidfuzz" },
+    { name = "requests" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/f1/7d/8b1d838a4c1a9fd9ed2dfd5296592e1090f935748cb3b4996e4efe531d5d/syncedlyrics-1.0.1.tar.gz", hash = "sha256:3db32469ed5a6dd5d96bb4eb16df44ba749121529b462efe0eb8b3df790f66b0", size = 13210, upload-time = "2024-07-28T09:42:14.582Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/7f/ad/62d2a1cd2a251ea2d43185f2b98badb8acf97a42278ce424ea8a97d8f911/syncedlyrics-1.0.1-py3-none-any.whl", hash = "sha256:31ca4322311b454f969e837c7350ecbef241f705f2122ea0183a2902a1a3791a", size = 17971, upload-time = "2024-07-28T09:42:13.198Z" },
 ]
 
 [[package]]

@@ -1,4 +1,4 @@
-"""Download service using yt-dlp for audio extraction."""
+"""Download service - thin wrapper around spotdl_core.download for the backend."""
 
 from __future__ import annotations
 
@@ -8,125 +8,161 @@ import logging
 import socket
 import tempfile
 import uuid
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 from urllib.parse import urlparse
+
+from spotdl_core.download import (
+    DownloadError,
+    DownloadMeta,
+    DownloadProgress as CoreDownloadProgress,
+    DownloadSettings as CoreDownloadSettings,
+    Downloader,
+    generate_lrc,
+)
 
 logger = logging.getLogger(__name__)
 
 
-# Allowed schemes for cover URLs
+# ── SSRF-safe cover URL validation ────────────────────────────────
+
 ALLOWED_SCHEMES = {"http", "https"}
 
-# Allowlisted CDN domains for cover art
 COVER_URL_ALLOWLIST = {
-    # Spotify CDN
-    "i.scdn.co",
-    "mosaic.scdn.co",
-    # YouTube/Google
-    "i.ytimg.com",
-    "yt3.ggpht.com",
-    "lh3.googleusercontent.com",
-    # Apple Music
-    "is1-ssl.mzstatic.com",
-    "is2-ssl.mzstatic.com",
-    "is3-ssl.mzstatic.com",
-    "is4-ssl.mzstatic.com",
-    "is5-ssl.mzstatic.com",
-    # Deezer
-    "cdns-images.dzcdn.net",
-    "e-cdns-images.dzcdn.net",
-    # SoundCloud
-    "i1.sndcdn.com",
-    # Bandcamp
-    "f4.bcbits.com",
-    # Tidal
-    "resources.tidal.com",
+    "i.scdn.co", "mosaic.scdn.co",
+    "i.ytimg.com", "yt3.ggpht.com", "lh3.googleusercontent.com",
+    "is1-ssl.mzstatic.com", "is2-ssl.mzstatic.com", "is3-ssl.mzstatic.com",
+    "is4-ssl.mzstatic.com", "is5-ssl.mzstatic.com",
+    "cdns-images.dzcdn.net", "e-cdns-images.dzcdn.net",
+    "i1.sndcdn.com", "f4.bcbits.com", "resources.tidal.com",
 }
 
 
 def is_safe_url(url: str) -> bool:
-    """
-    Validate that a URL is safe to fetch (not pointing to internal resources).
-
-    Args:
-        url: The URL to validate
-
-    Returns:
-        True if the URL is safe to fetch, False otherwise
-    """
+    """Validate that a URL is safe to fetch (not pointing to internal resources)."""
     try:
         parsed = urlparse(url)
-
-        # Check scheme
         if parsed.scheme.lower() not in ALLOWED_SCHEMES:
-            logger.warning(f"Blocked URL with disallowed scheme: {parsed.scheme}")
             return False
-
-        # Check for empty or missing hostname
         hostname = parsed.hostname
         if not hostname:
-            logger.warning("Blocked URL with missing hostname")
             return False
-
-        # Check against allowlist
         hostname_lower = hostname.lower()
         if hostname_lower not in COVER_URL_ALLOWLIST:
-            # Check if it's a subdomain of an allowlisted domain
-            is_allowed = any(
-                hostname_lower.endswith(f".{domain}") for domain in COVER_URL_ALLOWLIST
-            )
-            if not is_allowed:
-                logger.warning(f"Blocked URL with non-allowlisted hostname: {hostname}")
+            if not any(hostname_lower.endswith(f".{d}") for d in COVER_URL_ALLOWLIST):
                 return False
-
-        # Additional safety: resolve hostname and check IP
-        # This protects against DNS rebinding attacks
         try:
-            resolved_ips = socket.getaddrinfo(hostname, None, socket.AF_UNSPEC)
-            for _, _, _, _, sockaddr in resolved_ips:
-                ip_str = sockaddr[0]
-                ip = ipaddress.ip_address(ip_str)
-
-                # Block private, loopback, link-local, and reserved addresses
-                if (
-                    ip.is_private
-                    or ip.is_loopback
-                    or ip.is_link_local
-                    or ip.is_reserved
-                    or ip.is_multicast
-                ):
-                    logger.warning(f"Blocked URL resolving to unsafe IP: {ip_str}")
+            for _, _, _, _, sockaddr in socket.getaddrinfo(hostname, None, socket.AF_UNSPEC):
+                ip = ipaddress.ip_address(sockaddr[0])
+                if ip.is_private or ip.is_loopback or ip.is_link_local or ip.is_reserved or ip.is_multicast:
                     return False
-
-                # Explicitly block AWS/cloud metadata endpoint
-                if ip_str == "169.254.169.254":
-                    logger.warning("Blocked AWS metadata endpoint")
+                if str(ip) == "169.254.169.254":
                     return False
-
-        except (socket.gaierror, socket.herror) as e:
-            logger.warning(f"Failed to resolve hostname {hostname}: {e}")
+        except (socket.gaierror, socket.herror):
             return False
-
         return True
-
-    except Exception as e:
-        logger.warning(f"URL validation error: {e}")
+    except Exception:
         return False
 
 
-class DownloadStatus(str, Enum):
-    """Download status enum."""
+# ── Backend-specific types ────────────────────────────────────────
 
+class DownloadStatus(str, Enum):
     PENDING = "pending"
     DOWNLOADING = "downloading"
     PROCESSING = "processing"
+    EMBEDDING = "embedding"
     COMPLETED = "completed"
     FAILED = "failed"
     CANCELLED = "cancelled"
+
+
+@dataclass
+class DownloadSettings:
+    """Download settings loaded from user settings or defaults."""
+
+    audio_format: str = "mp3"
+    audio_quality: str = "best"
+    bitrate: str | None = None
+    output_template: str = "{artist} - {title}"
+    max_filename_length: int = 255
+    restrict: str | None = None
+    overwrite: str = "skip"
+    embed_metadata: bool = True
+    embed_lyrics: bool = True
+    embed_cover: bool = True
+    id3_separator: str = "/"
+    sponsor_block: bool = False
+    generate_lrc: bool = False
+    playlist_numbering: bool = False
+    skip_explicit: bool = False
+    ffmpeg_args: str | None = None
+    yt_dlp_args: str | None = None
+    proxy: str | None = None
+    cookie_file: str | None = None
+    archive: str | None = None
+
+    @classmethod
+    def from_user_settings(cls, settings: Any) -> DownloadSettings:
+        """Create DownloadSettings from a UserSettings DB model."""
+        return cls(
+            audio_format=settings.audio_format or "mp3",
+            audio_quality=settings.audio_quality or "best",
+            bitrate=settings.bitrate,
+            output_template=settings.output_template or "{artist} - {title}",
+            max_filename_length=settings.max_filename_length or 255,
+            restrict=settings.restrict,
+            overwrite=settings.overwrite or "skip",
+            embed_metadata=settings.embed_metadata if settings.embed_metadata is not None else True,
+            embed_lyrics=settings.embed_lyrics if settings.embed_lyrics is not None else True,
+            embed_cover=settings.embed_cover if settings.embed_cover is not None else True,
+            id3_separator=settings.id3_separator or "/",
+            sponsor_block=settings.sponsor_block or False,
+            generate_lrc=settings.generate_lrc or False,
+            playlist_numbering=settings.playlist_numbering or False,
+            skip_explicit=settings.skip_explicit or False,
+            ffmpeg_args=settings.ffmpeg_args,
+            yt_dlp_args=settings.yt_dlp_args,
+            proxy=settings.proxy,
+            cookie_file=settings.cookie_file,
+            archive=settings.archive,
+        )
+
+    @classmethod
+    def from_defaults(cls) -> DownloadSettings:
+        return cls()
+
+    def to_core_settings(self) -> CoreDownloadSettings:
+        """Convert to core DownloadSettings for the shared Downloader."""
+        cookies_path = Path(self.cookie_file) if self.cookie_file else None
+        if cookies_path and not cookies_path.exists():
+            cookies_path = None
+        return CoreDownloadSettings(
+            audio_format=self.audio_format,
+            audio_quality=self.audio_quality,
+            bitrate=self.bitrate,
+            output_template=self.output_template,
+            max_filename_length=self.max_filename_length,
+            restrict=self.restrict,
+            overwrite=self.overwrite,
+            embed_metadata=self.embed_metadata,
+            embed_lyrics=self.embed_lyrics,
+            embed_cover=self.embed_cover,
+            id3_separator=self.id3_separator,
+            sponsor_block=self.sponsor_block,
+            generate_lrc=self.generate_lrc,
+            playlist_numbering=self.playlist_numbering,
+            skip_explicit=self.skip_explicit,
+            ffmpeg_args=self.ffmpeg_args,
+            yt_dlp_args=self.yt_dlp_args,
+            proxy=self.proxy,
+            cookies_path=cookies_path,
+            archive=self.archive,
+        )
 
 
 @dataclass
@@ -135,7 +171,7 @@ class DownloadProgress:
 
     download_id: str
     status: DownloadStatus
-    progress: float = 0.0  # 0-100
+    progress: float = 0.0
     speed: str | None = None
     eta: str | None = None
     filename: str | None = None
@@ -144,7 +180,6 @@ class DownloadProgress:
     completed_at: datetime | None = None
 
     def to_dict(self) -> dict[str, Any]:
-        """Convert to dictionary for JSON serialization."""
         return {
             "download_id": self.download_id,
             "status": self.status.value,
@@ -160,7 +195,7 @@ class DownloadProgress:
 
 @dataclass
 class DownloadRequest:
-    """Download request information."""
+    """Download request with full song metadata."""
 
     download_id: str
     url: str
@@ -169,19 +204,64 @@ class DownloadRequest:
     album: str | None = None
     cover_url: str | None = None
     duration: int | None = None
-    output_format: str = "mp3"
-    quality: str = "320"  # kbps for mp3
-    # Metadata embedding options
-    embed_metadata: bool = True
-    embed_lyrics: bool = True
-    embed_cover: bool = True
+    output_format: str | None = None
+    quality: str | None = None
+    # Full metadata
+    artists: list[str] = field(default_factory=list)
+    album_artist: str | None = None
+    genres: list[str] = field(default_factory=list)
+    year: int | None = None
+    date: str | None = None
+    track_number: int | None = None
+    disc_number: int | None = None
+    disc_count: int | None = None
+    tracks_count: int | None = None
+    isrc: str | None = None
+    publisher: str | None = None
+    song_id: str | None = None
+    song_url: str | None = None
+    lyrics: str | None = None
+    explicit: bool | None = None
+    # List context
+    list_name: str | None = None
+    list_position: int | None = None
+    list_length: int | None = None
 
+    def to_meta(self) -> DownloadMeta:
+        """Convert to core DownloadMeta for the shared Downloader."""
+        return DownloadMeta(
+            title=self.title,
+            artist=self.artist,
+            artists=self.artists or [self.artist],
+            album=self.album,
+            album_artist=self.album_artist,
+            cover_url=self.cover_url if self.cover_url and is_safe_url(self.cover_url) else None,
+            duration=self.duration,
+            genres=self.genres,
+            year=self.year,
+            date=self.date,
+            track_number=self.track_number,
+            disc_number=self.disc_number,
+            disc_count=self.disc_count,
+            tracks_count=self.tracks_count,
+            isrc=self.isrc,
+            publisher=self.publisher,
+            song_id=self.song_id,
+            song_url=self.song_url,
+            lyrics=self.lyrics,
+            explicit=self.explicit,
+            list_name=self.list_name,
+            list_position=self.list_position,
+            list_length=self.list_length,
+        )
+
+
+# ── Download Manager ──────────────────────────────────────────────
 
 class DownloadManager:
     """Manages download queue and progress tracking."""
 
     def __init__(self, download_dir: Path | None = None) -> None:
-        """Initialize download manager."""
         self.download_dir = download_dir or Path(tempfile.gettempdir()) / "spotdl_downloads"
         self.download_dir.mkdir(parents=True, exist_ok=True)
 
@@ -191,17 +271,14 @@ class DownloadManager:
         self._lock = asyncio.Lock()
 
     def get_progress(self, download_id: str) -> DownloadProgress | None:
-        """Get download progress by ID."""
         return self._downloads.get(download_id)
 
     def get_all_downloads(self) -> list[DownloadProgress]:
-        """Get all downloads."""
         return list(self._downloads.values())
 
     def register_callback(
         self, download_id: str, callback: Callable[[DownloadProgress], None]
     ) -> None:
-        """Register a progress callback for a download."""
         if download_id not in self._progress_callbacks:
             self._progress_callbacks[download_id] = []
         self._progress_callbacks[download_id].append(callback)
@@ -209,146 +286,144 @@ class DownloadManager:
     def unregister_callback(
         self, download_id: str, callback: Callable[[DownloadProgress], None]
     ) -> None:
-        """Unregister a progress callback."""
         if download_id in self._progress_callbacks:
             try:
                 self._progress_callbacks[download_id].remove(callback)
             except ValueError:
-                logger.debug("Callback not found for download %s", download_id)
+                pass
 
     def _notify_progress(self, download_id: str) -> None:
-        """Notify all callbacks of progress update."""
         progress = self._downloads.get(download_id)
         if progress and download_id in self._progress_callbacks:
             for callback in self._progress_callbacks[download_id]:
                 try:
                     callback(progress)
                 except Exception as e:
-                    logger.warning(f"Progress callback error: {e}")
+                    logger.warning("Progress callback error: %s", e)
 
-    async def start_download(self, request: DownloadRequest) -> str:
-        """Start a new download."""
+    async def start_download(
+        self,
+        request: DownloadRequest,
+        settings: DownloadSettings | None = None,
+    ) -> str:
         async with self._lock:
-            # Create progress tracker
+            audio_format = request.output_format or (settings.audio_format if settings else "mp3")
+
             progress = DownloadProgress(
                 download_id=request.download_id,
                 status=DownloadStatus.PENDING,
-                filename=f"{request.artist} - {request.title}.{request.output_format}",
+                filename=f"{request.artist} - {request.title}.{audio_format}",
             )
             self._downloads[request.download_id] = progress
 
-            # Start download task
-            task = asyncio.create_task(self._download_task(request))
+            task = asyncio.create_task(self._download_task(request, settings))
             self._tasks[request.download_id] = task
 
         return request.download_id
 
     async def cancel_download(self, download_id: str) -> bool:
-        """Cancel a download."""
         async with self._lock:
             if download_id in self._tasks:
-                task = self._tasks[download_id]
-                task.cancel()
-
+                self._tasks[download_id].cancel()
                 if download_id in self._downloads:
                     self._downloads[download_id].status = DownloadStatus.CANCELLED
                     self._notify_progress(download_id)
-
                 return True
         return False
 
     def get_file_path(self, download_id: str) -> Path | None:
-        """Get the file path for a completed download."""
         progress = self._downloads.get(download_id)
         if progress and progress.status == DownloadStatus.COMPLETED and progress.filename:
             file_path = self.download_dir / download_id / progress.filename
             if file_path.exists():
                 return file_path
+            download_dir = self.download_dir / download_id
+            if download_dir.exists():
+                for f in download_dir.iterdir():
+                    if f.is_file() and f.suffix.lower() in {
+                        ".mp3", ".m4a", ".flac", ".opus", ".ogg", ".wav",
+                    }:
+                        return f
         return None
 
-    async def _download_task(self, request: DownloadRequest) -> Path | None:
-        """Execute the download task."""
-        import yt_dlp
-
+    async def _download_task(
+        self,
+        request: DownloadRequest,
+        settings: DownloadSettings | None = None,
+    ) -> Path | None:
         download_id = request.download_id
         output_dir = self.download_dir / download_id
         output_dir.mkdir(parents=True, exist_ok=True)
 
-        # Sanitize filename
-        safe_title = "".join(c for c in request.title if c.isalnum() or c in " -_").strip()
-        safe_artist = "".join(c for c in request.artist if c.isalnum() or c in " -_").strip()
-        output_filename = f"{safe_artist} - {safe_title}"
-        output_path = output_dir / f"{output_filename}.{request.output_format}"
+        dl_settings = settings or DownloadSettings.from_defaults()
+
+        # Apply per-request format/quality overrides
+        if request.output_format:
+            dl_settings.audio_format = request.output_format
+        if request.quality:
+            dl_settings.audio_quality = request.quality
+
+        core_settings = dl_settings.to_core_settings()
+        downloader = Downloader(core_settings)
+        meta = request.to_meta()
 
         # Update progress
         self._downloads[download_id].status = DownloadStatus.DOWNLOADING
-        self._downloads[download_id].filename = output_path.name
         self._notify_progress(download_id)
 
         def progress_hook(d: dict[str, Any]) -> None:
-            """yt-dlp progress hook."""
             if d["status"] == "downloading":
-                # Extract progress info
                 total = d.get("total_bytes") or d.get("total_bytes_estimate", 0)
                 downloaded = d.get("downloaded_bytes", 0)
-
                 if total > 0:
-                    percent = (downloaded / total) * 100
-                    self._downloads[download_id].progress = min(percent, 99)
-
+                    self._downloads[download_id].progress = min((downloaded / total) * 100, 99)
                 self._downloads[download_id].speed = d.get("_speed_str", "")
                 self._downloads[download_id].eta = d.get("_eta_str", "")
                 self._notify_progress(download_id)
-
             elif d["status"] == "finished":
                 self._downloads[download_id].progress = 99
                 self._downloads[download_id].status = DownloadStatus.PROCESSING
                 self._notify_progress(download_id)
 
-        # yt-dlp options
-        ydl_opts: dict[str, Any] = {
-            "format": "bestaudio/best",
-            "outtmpl": str(output_dir / f"{output_filename}.%(ext)s"),
-            "progress_hooks": [progress_hook],
-            "quiet": True,
-            "no_warnings": True,
-            "extract_flat": False,
-        }
-
-        # Add format conversion
-        if request.output_format == "mp3":
-            ydl_opts["postprocessors"] = [
-                {
-                    "key": "FFmpegExtractAudio",
-                    "preferredcodec": "mp3",
-                    "preferredquality": request.quality,
-                }
-            ]
-        elif request.output_format == "m4a":
-            ydl_opts["postprocessors"] = [
-                {
-                    "key": "FFmpegExtractAudio",
-                    "preferredcodec": "m4a",
-                    "preferredquality": request.quality,
-                }
-            ]
-        elif request.output_format == "opus":
-            ydl_opts["postprocessors"] = [
-                {
-                    "key": "FFmpegExtractAudio",
-                    "preferredcodec": "opus",
-                    "preferredquality": request.quality,
-                }
-            ]
+        # Wrap raw yt-dlp hook into core's DownloadProgress callback
+        def core_progress_callback(p: CoreDownloadProgress) -> None:
+            if p.status == "downloading":
+                self._downloads[download_id].progress = min(p.progress, 99)
+                self._downloads[download_id].speed = p.speed or None
+                self._downloads[download_id].eta = p.eta or None
+                self._notify_progress(download_id)
+            elif p.status == "finished":
+                self._downloads[download_id].progress = 99
+                self._downloads[download_id].status = DownloadStatus.PROCESSING
+                self._notify_progress(download_id)
 
         try:
-            # Run yt-dlp in executor to not block
-            loop = asyncio.get_event_loop()
-            await loop.run_in_executor(None, self._run_ytdlp, ydl_opts, request.url)
+            output_path = await downloader.download(
+                request.url, meta, output_dir, core_progress_callback,
+            )
 
-            # Embed metadata if enabled
-            if output_path.exists() and request.embed_metadata:
-                await self._embed_metadata(output_path, request)
+            # Embed metadata
+            self._downloads[download_id].status = DownloadStatus.EMBEDDING
+            self._downloads[download_id].progress = 99
+            self._notify_progress(download_id)
+
+            await downloader.embed_metadata(output_path, meta)
+
+            # Embed lyrics
+            if request.lyrics:
+                await downloader.embed_lyrics(output_path, request.lyrics)
+            else:
+                lyrics = await self._fetch_lyrics(request.title, request.artist)
+                if lyrics:
+                    await downloader.embed_lyrics(output_path, lyrics)
+
+            # Generate LRC file if enabled
+            if dl_settings.generate_lrc:
+                artists = request.artists if request.artists else [request.artist]
+                generate_lrc(request.title, artists, output_path, request.lyrics)
+
+            # Update filename in progress to match actual output
+            self._downloads[download_id].filename = output_path.name
 
             # Mark as completed
             self._downloads[download_id].status = DownloadStatus.COMPLETED
@@ -356,116 +431,46 @@ class DownloadManager:
             self._downloads[download_id].completed_at = datetime.now()
             self._notify_progress(download_id)
 
-            logger.info(f"Download completed: {output_path}")
+            await downloader.close()
+            logger.info("Download completed: %s", output_path)
             return output_path
 
         except asyncio.CancelledError:
             self._downloads[download_id].status = DownloadStatus.CANCELLED
             self._notify_progress(download_id)
+            await downloader.close()
             raise
 
         except Exception as e:
-            logger.error(f"Download failed: {e}")
+            logger.error("Download failed: %s", e)
             self._downloads[download_id].status = DownloadStatus.FAILED
             self._downloads[download_id].error = str(e)
             self._notify_progress(download_id)
+            await downloader.close()
             return None
 
-    def _run_ytdlp(self, opts: dict[str, Any], url: str) -> None:
-        """Run yt-dlp synchronously."""
-        import yt_dlp
-
-        with yt_dlp.YoutubeDL(opts) as ydl:
-            ydl.download([url])
-
-    async def _embed_metadata(self, file_path: Path, request: DownloadRequest) -> None:
-        """Embed metadata into the audio file."""
-        import httpx
-        from mutagen.easyid3 import EasyID3
-        from mutagen.id3 import APIC, ID3, USLT
-        from mutagen.mp3 import MP3
-
-        try:
-            # Load the file
-            if file_path.suffix.lower() == ".mp3":
-                audio = MP3(file_path, ID3=EasyID3)
-
-                # Add basic metadata
-                audio["title"] = request.title
-                audio["artist"] = request.artist
-                if request.album:
-                    audio["album"] = request.album
-
-                audio.save()
-
-                # Load ID3 tags for additional metadata
-                audio_id3 = ID3(file_path)
-
-                # Add cover art if enabled and available
-                if request.embed_cover and request.cover_url and is_safe_url(request.cover_url):
-                    try:
-                        async with httpx.AsyncClient() as client:
-                            response = await client.get(request.cover_url)
-                            if response.status_code == 200:
-                                audio_id3.add(
-                                    APIC(
-                                        encoding=3,
-                                        mime="image/jpeg",
-                                        type=3,
-                                        desc="Cover",
-                                        data=response.content,
-                                    )
-                                )
-                    except Exception as e:
-                        logger.warning(f"Failed to embed cover art: {e}")
-
-                # Embed lyrics if enabled
-                if request.embed_lyrics:
-                    lyrics = await self._fetch_lyrics(request.title, request.artist)
-                    if lyrics:
-                        audio_id3.add(
-                            USLT(
-                                encoding=3,
-                                lang="eng",
-                                desc="Lyrics",
-                                text=lyrics,
-                            )
-                        )
-
-                audio_id3.save()
-                logger.info(f"Metadata embedded: {file_path}")
-
-        except Exception as e:
-            logger.warning(f"Failed to embed metadata: {e}")
-
     async def _fetch_lyrics(self, title: str, artist: str) -> str | None:
-        """Fetch lyrics for a song from available providers."""
         import httpx
 
         try:
-            # Try Genius web provider (doesn't require API token)
             from spotdl.providers.lyrics.genius import GeniusWebProvider
 
             async with httpx.AsyncClient(timeout=10.0) as client:
                 provider = GeniusWebProvider(client)
-                lyrics = await provider.get_lyrics(title, [artist])
-                if lyrics:
-                    return lyrics
-
+                return await provider.get_lyrics(title, [artist])
         except ImportError:
             logger.debug("Lyrics provider not available")
         except Exception as e:
-            logger.debug(f"Failed to fetch lyrics: {e}")
-
+            logger.debug("Failed to fetch lyrics: %s", e)
         return None
 
 
-# Global download manager instance
+# ── Global instance ───────────────────────────────────────────────
+
 _download_manager: DownloadManager | None = None
 
 
 def get_download_manager() -> DownloadManager:
-    """Get the global download manager instance."""
     global _download_manager
     if _download_manager is None:
         _download_manager = DownloadManager()
@@ -473,5 +478,4 @@ def get_download_manager() -> DownloadManager:
 
 
 def create_download_id() -> str:
-    """Create a unique download ID."""
     return str(uuid.uuid4())

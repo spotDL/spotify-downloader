@@ -33,6 +33,8 @@ from spotdl_cli.core import (
     get_offline_matcher,
 )
 from spotdl_cli.core.types import PlatformInfo, Platform, Song
+from spotdl_cli.theme import truncate as _truncate
+from spotdl_cli.widgets import CoverArt
 
 if TYPE_CHECKING:
     from spotdl_cli.app import SpotDLApp
@@ -99,6 +101,8 @@ class MainScreen(Screen[None]):
             EntityType.TRACK: INITIAL_DISPLAY_LIMIT[EntityType.TRACK],
             EntityType.PLAYLIST: INITIAL_DISPLAY_LIMIT[EntityType.PLAYLIST],
         }
+        # Cache songs from offline search for navigation
+        self._offline_songs: dict[str, Song] = {}
 
     @property
     def spotdl_app(self) -> SpotDLApp:
@@ -358,38 +362,80 @@ class MainScreen(Screen[None]):
         return await api_client.universal_search(query, limit=30)
 
     async def _search_offline(self, query: str) -> UniversalSearchResponse:
-        """Search using offline providers."""
+        """Search using offline providers, deriving artists/albums from tracks."""
         offline_matcher = get_offline_matcher()
 
-        # Search across platforms
+        # Search across all platforms
         songs = await offline_matcher.search_all(query, limit=20)
 
-        # Convert to EntityResults
         results: list[EntityResult] = []
+        seen_artists: dict[str, EntityResult] = {}
+        seen_albums: dict[str, EntityResult] = {}
+
         for song in songs:
-            result = EntityResult(
+            # Cache the full Song object for later use in detail screens
+            self._offline_songs[song.platform_id] = song
+
+            # Track entity
+            results.append(EntityResult(
                 id=song.platform_id,
                 entity_type=EntityType.TRACK,
                 name=song.name,
                 subtitle=song.artist,
                 image_url=song.cover_url,
-                platforms=[
-                    PlatformInfo(
-                        platform=song.platform.value,
-                        platform_id=song.platform_id,
-                        url=song.url,
-                    )
-                ],
+                platforms=[PlatformInfo(
+                    platform=song.platform.value,
+                    platform_id=song.platform_id,
+                    url=song.url,
+                )],
                 duration=song.duration,
-            )
-            results.append(result)
+            ))
+
+            # Derive artist entity (deduplicate by lowercase name)
+            artist_key = song.artist.lower().strip()
+            if artist_key and artist_key not in seen_artists:
+                seen_artists[artist_key] = EntityResult(
+                    id=f"offline-artist-{artist_key}",
+                    entity_type=EntityType.ARTIST,
+                    name=song.artist,
+                    image_url=song.cover_url,
+                    platforms=[PlatformInfo(
+                        platform=song.platform.value,
+                        platform_id=song.artist_id or song.artist,
+                        url=song.url,
+                    )],
+                )
+
+            # Derive album entity (deduplicate by artist+album)
+            if song.album_name:
+                album_key = f"{artist_key}|{song.album_name.lower().strip()}"
+                if album_key not in seen_albums:
+                    seen_albums[album_key] = EntityResult(
+                        id=f"offline-album-{album_key}",
+                        entity_type=EntityType.ALBUM,
+                        name=song.album_name,
+                        subtitle=song.artist,
+                        image_url=song.cover_url,
+                        platforms=[PlatformInfo(
+                            platform=song.platform.value,
+                            platform_id=song.album_id or song.album_name,
+                            url=song.url,
+                        )],
+                    )
+
+        # Combine: artists first, then albums, then tracks
+        all_results = (
+            list(seen_artists.values())
+            + list(seen_albums.values())
+            + results
+        )
 
         return UniversalSearchResponse(
             query=query,
             query_type="text",
-            results=results,
+            results=all_results,
             entities_created=0,
-            total=len(results),
+            total=len(all_results),
         )
 
     def _display_results(self, response: UniversalSearchResponse) -> None:
@@ -529,15 +575,21 @@ class MainScreen(Screen[None]):
     def _create_artist_card(self, artist: EntityResult) -> Container:
         """Create an artist card for display."""
         platform_badges = self._get_platform_badges(artist)
+        cover = CoverArt(classes="card-cover card-cover-small")
+        cover.cover_url = artist.image_url
 
         card = Horizontal(
-            Static("👤", classes="entity-icon artist-color"),
+            cover,
             Vertical(
+                Horizontal(
+                    Static("ARTIST", classes="badge badge-artist"),
+                    Static(platform_badges, classes="platform-badges"),
+                    classes="card-meta-row",
+                ),
                 Static(
-                    f"[bold]{self._truncate(artist.name, 30)}[/bold]",
+                    f"[bold]{_truncate(artist.name, 30)}[/bold]",
                     classes="card-title",
                 ),
-                Static(platform_badges, classes="platform-badges"),
                 classes="card-info",
             ),
             Button("View", id=f"entity-artist-{artist.id}", classes="card-action"),
@@ -550,8 +602,9 @@ class MainScreen(Screen[None]):
         self, entity: EntityResult, entity_type: EntityType
     ) -> Container:
         """Create an entity card for list display."""
-        icon = ENTITY_ICONS.get(entity_type, "●")
         platform_badges = self._get_platform_badges(entity)
+        cover = CoverArt(classes="card-cover card-cover-small")
+        cover.cover_url = entity.image_url
 
         # Build info line
         info_parts = []
@@ -559,24 +612,33 @@ class MainScreen(Screen[None]):
             info_parts.append(entity.subtitle)
         if entity.duration:
             info_parts.append(entity.duration_str)
-
         info_line = " • ".join(info_parts) if info_parts else ""
 
-        # Determine color class
-        color_class = f"{entity_type.value}-color"
+        # Type label
+        type_labels = {
+            EntityType.TRACK: "SONG",
+            EntityType.ALBUM: "ALBUM",
+            EntityType.PLAYLIST: "PLAYLIST",
+        }
+        type_label = type_labels.get(entity_type, entity_type.value.upper())
+        badge_class = f"badge badge-{entity_type.value}"
 
         card = Horizontal(
-            Static(icon, classes=f"entity-icon {color_class}"),
+            cover,
             Vertical(
+                Horizontal(
+                    Static(type_label, classes=badge_class),
+                    Static(platform_badges, classes="platform-badges"),
+                    classes="card-meta-row",
+                ),
                 Static(
-                    f"[bold]{self._truncate(entity.name, 40)}[/bold]",
+                    f"[bold]{_truncate(entity.name, 40)}[/bold]",
                     classes="card-title",
                 ),
                 Static(
-                    f"[dim]{self._truncate(info_line, 50)}[/dim]",
+                    f"[dim]{_truncate(info_line, 50)}[/dim]",
                     classes="card-subtitle",
-                ),
-                Static(platform_badges, classes="platform-badges"),
+                ) if info_line else Static(""),
                 classes="card-info",
             ),
             Button("View", id=f"entity-{entity_type.value}-{entity.id}", classes="card-action"),
@@ -606,13 +668,6 @@ class MainScreen(Screen[None]):
 
         return " ".join(badges) if badges else ""
 
-    @staticmethod
-    def _truncate(text: str, max_len: int) -> str:
-        """Truncate text with ellipsis."""
-        if len(text) > max_len:
-            return text[: max_len - 3] + "..."
-        return text
-
     async def _handle_entity_click(self, button_id: str) -> None:
         """Handle click on entity card."""
         # Parse button ID: entity-{type}-{id} or dl-{type}-{id}
@@ -633,7 +688,6 @@ class MainScreen(Screen[None]):
 
     async def _view_entity(self, entity_type_str: str, entity_id: str) -> None:
         """Navigate to entity detail screen."""
-        # Lazy import detail screens to avoid circular imports
         from spotdl_cli.screens.album import AlbumScreen
         from spotdl_cli.screens.artist import ArtistScreen
         from spotdl_cli.screens.playlist import PlaylistScreen
@@ -648,42 +702,52 @@ class MainScreen(Screen[None]):
         if not entity or not entity.primary_platform:
             return
 
+        pp = entity.primary_platform
+
         if entity_type == EntityType.TRACK:
-            song = Song(
-                name=entity.name,
-                artists=[entity.subtitle or "Unknown"],
-                artist=entity.subtitle or "Unknown",
-                duration=entity.duration or 0,
-                platform=Platform(entity.primary_platform.platform),
-                platform_id=entity.primary_platform.platform_id,
-                url=entity.primary_platform.url,
-            )
+            # Use cached Song from offline search if available
+            song = self._offline_songs.get(pp.platform_id)
+            if song is None:
+                song = Song(
+                    name=entity.name,
+                    artists=[entity.subtitle or "Unknown"],
+                    artist=entity.subtitle or "Unknown",
+                    duration=entity.duration or 0,
+                    platform=Platform(pp.platform),
+                    platform_id=pp.platform_id,
+                    url=pp.url,
+                    cover_url=entity.image_url,
+                )
             await self.app.push_screen(
-                TrackScreen(song, entity.id, entity.primary_platform.platform)
+                TrackScreen(song, pp.platform_id, pp.platform)
             )
 
         elif entity_type == EntityType.ALBUM:
+            # For offline-derived albums, pass name and artist for search
+            initial_data = None
+            if not self.spotdl_app.is_online:
+                initial_data = {"name": entity.name}
+                if entity.subtitle:
+                    initial_data["artist"] = entity.subtitle
             await self.app.push_screen(
-                AlbumScreen(
-                    entity.primary_platform.platform_id,
-                    entity.primary_platform.platform,
-                )
+                AlbumScreen(pp.platform_id, pp.platform, initial_data=initial_data)
             )
 
         elif entity_type == EntityType.ARTIST:
+            # For offline-derived artists, pass the name for search
             await self.app.push_screen(
                 ArtistScreen(
-                    entity.primary_platform.platform_id,
-                    entity.primary_platform.platform,
+                    pp.platform_id, pp.platform,
+                    initial_data={"name": entity.name} if not self.spotdl_app.is_online else None,
                 )
             )
 
         elif entity_type == EntityType.PLAYLIST:
+            initial_data = None
+            if not self.spotdl_app.is_online:
+                initial_data = {"name": entity.name}
             await self.app.push_screen(
-                PlaylistScreen(
-                    entity.primary_platform.platform_id,
-                    entity.primary_platform.platform,
-                )
+                PlaylistScreen(pp.platform_id, pp.platform, initial_data=initial_data)
             )
 
     async def _download_entity(self, entity_type_str: str, entity_id: str) -> None:
@@ -699,21 +763,23 @@ class MainScreen(Screen[None]):
             return
 
         if entity_type == EntityType.TRACK and entity.primary_platform:
-            song = Song(
-                name=entity.name,
-                artists=[entity.subtitle or "Unknown"],
-                artist=entity.subtitle or "Unknown",
-                duration=entity.duration or 0,
-                platform=Platform(entity.primary_platform.platform),
-                platform_id=entity.primary_platform.platform_id,
-                url=entity.primary_platform.url,
-            )
+            pp = entity.primary_platform
+            song = self._offline_songs.get(pp.platform_id)
+            if song is None:
+                song = Song(
+                    name=entity.name,
+                    artists=[entity.subtitle or "Unknown"],
+                    artist=entity.subtitle or "Unknown",
+                    duration=entity.duration or 0,
+                    platform=Platform(pp.platform),
+                    platform_id=pp.platform_id,
+                    url=pp.url,
+                    cover_url=entity.image_url,
+                )
             await self.spotdl_app.download_queue.add(song)
             self.notify(f"Added to queue: {entity.name}")
         else:
-            # For albums/artists/playlists, navigate to detail screen
             await self._view_entity(entity_type_str, entity_id)
-            self.notify("Navigate to view all tracks and download")
 
     def _find_entity(self, entity_id: str) -> EntityResult | None:
         """Find an entity by ID in the current results."""

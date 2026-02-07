@@ -632,6 +632,48 @@ Rule {
     padding: 0 1;
 }
 
+/* Card cover art (search results) */
+.card-cover {
+    overflow: hidden;
+    content-align: center middle;
+    margin-right: 1;
+}
+
+.card-cover-small {
+    width: 8;
+    height: 4;
+    background: $bg-surface;
+    border: wide $border-color;
+}
+
+/* Card meta row (type badge + platform dots) */
+.card-meta-row {
+    height: auto;
+    align: left middle;
+    margin-bottom: 0;
+}
+
+/* Entity type badges */
+.badge-artist {
+    background: #332200;
+    color: $accent-warning;
+}
+
+.badge-track {
+    background: #003322;
+    color: $accent-success;
+}
+
+.badge-album {
+    background: #002233;
+    color: $accent-secondary;
+}
+
+.badge-playlist {
+    background: #331100;
+    color: $accent-primary;
+}
+
 /* Platform badges in cards */
 .platform-badge {
     padding: 0 1;

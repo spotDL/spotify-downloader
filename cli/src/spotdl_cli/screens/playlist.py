@@ -32,6 +32,7 @@ from spotdl_cli.core import (
     get_api_client,
     get_offline_matcher,
 )
+from spotdl_cli.theme import format_number, get_platform_icon, truncate
 
 if TYPE_CHECKING:
     from spotdl_cli.app import SpotDLApp
@@ -191,9 +192,11 @@ class PlaylistScreen(Screen[None]):
 
         if self.spotdl_app.is_online and not self._playlist_data:
             await self._load_online_data()
-        elif self._playlist_data:
+        elif self._playlist_data and self._playlist_data.get("tracks"):
+            # We already have full data with tracks
             self._update_display()
         else:
+            # We have partial data (just name) or no data - load offline
             await self._load_offline_data()
 
     async def _load_online_data(self) -> None:
@@ -214,23 +217,36 @@ class PlaylistScreen(Screen[None]):
         """Load playlist data using offline resolver."""
         status = self.query_one("#tracks-status", Static)
 
-        # Try to resolve playlist URL
-        url = f"https://open.spotify.com/playlist/{self._playlist_id}"
-        if self._platform == "deezer":
-            url = f"https://www.deezer.com/playlist/{self._playlist_id}"
-
         try:
             offline_matcher = get_offline_matcher()
-            songs = await offline_matcher.resolve_url(url)
+            songs: list[Song] = []
+
+            # If the ID looks like a real platform ID, try URL resolution
+            if not self._playlist_id.startswith("offline-"):
+                url = f"https://open.spotify.com/playlist/{self._playlist_id}"
+                if self._platform == "deezer":
+                    url = f"https://www.deezer.com/playlist/{self._playlist_id}"
+                try:
+                    songs = await offline_matcher.resolve_url(url)
+                except Exception:
+                    pass
+
+            # Fall back to searching by playlist name from initial_data
+            if not songs:
+                playlist_name = (self._playlist_data or {}).get("name", "")
+                query = playlist_name or self._playlist_id
+                songs = await offline_matcher.search_all(query, limit=50)
 
             if songs:
                 self._tracks = songs
-                # Build playlist data from tracks
+                first_song = songs[0]
                 self._playlist_data = {
-                    "name": "Playlist",
-                    "owner": {"display_name": "Unknown"},
+                    **self._playlist_data,
+                    "name": self._playlist_data.get("name") or "Playlist",
+                    "owner": self._playlist_data.get("owner", {"display_name": "Unknown"}),
                     "tracks": [self._song_to_dict(s) for s in songs],
                     "total_tracks": len(songs),
+                    "cover_url": first_song.cover_url,
                     "platform": self._platform,
                     "platform_id": self._playlist_id,
                     "public": True,
@@ -307,7 +323,7 @@ class PlaylistScreen(Screen[None]):
         if isinstance(followers, dict):
             followers = followers.get("total", 0)
         if followers:
-            followers_str = self._format_number(followers)
+            followers_str = format_number(followers)
             self.query_one("#playlist-followers", Static).update(
                 f"[dim]Followers:[/] {followers_str}"
             )
@@ -342,9 +358,10 @@ class PlaylistScreen(Screen[None]):
         url = data.get("url") or data.get("external_urls", {}).get(
             "spotify", f"https://open.spotify.com/playlist/{self._playlist_id}"
         )
-        platform_icon = self._get_platform_icon(self._platform)
+        platform_icon = get_platform_icon(self._platform)
+        platform_name = self._platform.replace("_", " ").title()
         self.query_one("#platform-links-content", Static).update(
-            f"{platform_icon} [{self._platform.title()}]({url})"
+            f"{platform_icon} {platform_name}\n[dim]{url}[/dim]"
         )
 
         # Details panel
@@ -430,46 +447,15 @@ class PlaylistScreen(Screen[None]):
 
             table.add_row(
                 str(i),
-                self._truncate(track.get("name", "Unknown"), 35),
-                self._truncate(artist, 25),
-                self._truncate(album_name, 20),
+                truncate(track.get("name", "Unknown"), 35),
+                truncate(artist, 25),
+                truncate(album_name, 20),
                 duration_str,
                 added_str,
             )
 
         status = self.query_one("#tracks-status", Static)
         status.update(f"[dim]{len(self._tracks)} track(s)[/]")
-
-    @staticmethod
-    def _truncate(text: str, max_len: int) -> str:
-        """Truncate text with ellipsis."""
-        if len(text) > max_len:
-            return text[: max_len - 3] + "..."
-        return text
-
-    @staticmethod
-    def _format_number(num: int) -> str:
-        """Format large numbers with suffixes."""
-        if num >= 1_000_000:
-            return f"{num / 1_000_000:.1f}M"
-        elif num >= 1_000:
-            return f"{num / 1_000:.1f}K"
-        return str(num)
-
-    @staticmethod
-    def _get_platform_icon(platform: str) -> str:
-        """Get icon for platform."""
-        icons = {
-            "spotify": "[green]●[/]",
-            "youtube": "[red]●[/]",
-            "youtube_music": "[red]●[/]",
-            "deezer": "[magenta]●[/]",
-            "soundcloud": "[#ff5500]●[/]",
-            "bandcamp": "[cyan]●[/]",
-            "apple_music": "[white]●[/]",
-            "tidal": "[white]●[/]",
-        }
-        return icons.get(platform.lower(), "●")
 
     async def on_button_pressed(self, event: Button.Pressed) -> None:
         """Handle button presses."""
@@ -483,11 +469,10 @@ class PlaylistScreen(Screen[None]):
 
     async def on_data_table_row_selected(self, event: DataTable.RowSelected) -> None:
         """Handle track selection."""
-        if event.row_key is not None and event.row_key.value is not None:
-            row_index = event.cursor_row
-            if 0 <= row_index < len(self._tracks):
-                track = self._tracks[row_index]
-                await self._view_track(track)
+        row_index = event.cursor_row
+        if row_index is not None and 0 <= row_index < len(self._tracks):
+            track = self._tracks[row_index]
+            await self._view_track(track)
 
     async def _view_track(self, track: Song) -> None:
         """Navigate to track detail screen."""

@@ -39,6 +39,7 @@ export interface Song {
   artist: string;
   album_name: string | null;
   album_id?: string | null;
+  album_artist?: string | null;
   duration: number;
   isrc: string | null;
   cover_url?: string | null;
@@ -47,7 +48,12 @@ export interface Song {
   explicit?: boolean;
   track_number?: number | null;
   disc_number?: number | null;
+  disc_count?: number | null;
+  tracks_count?: number | null;
   date?: string | null;
+  publisher?: string | null;
+  song_id?: string | null;
+  lyrics?: string | null;
 }
 
 // ====== MATCHING ======

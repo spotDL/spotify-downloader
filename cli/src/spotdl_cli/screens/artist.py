@@ -35,6 +35,7 @@ from spotdl_cli.core import (
     get_api_client,
     get_offline_matcher,
 )
+from spotdl_cli.theme import format_number, get_platform_icon
 
 if TYPE_CHECKING:
     from spotdl_cli.app import SpotDLApp
@@ -203,9 +204,11 @@ class ArtistScreen(Screen[None]):
 
         if self.spotdl_app.is_online and not self._artist_data:
             await self._load_online_data()
-        elif self._artist_data:
+        elif self._artist_data and self._artist_data.get("top_tracks"):
+            # We already have full data with tracks
             self._update_display()
         else:
+            # We have partial data (just name) or no data - load offline
             await self._load_offline_data()
 
     async def _load_online_data(self) -> None:
@@ -228,8 +231,13 @@ class ArtistScreen(Screen[None]):
         try:
             offline_matcher = get_offline_matcher()
 
-            # Search for artist's tracks
-            songs = await offline_matcher.search_all(f"artist:{self._artist_id}", limit=50)
+            # Use the artist name (from initial_data) or ID as search query
+            artist_name = (
+                self._artist_data.get("name")
+                if self._artist_data
+                else self._artist_id
+            )
+            songs = await offline_matcher.search_all(artist_name, limit=50)
 
             if songs:
                 # Build artist data from tracks
@@ -301,7 +309,7 @@ class ArtistScreen(Screen[None]):
         if isinstance(followers, dict):
             followers = followers.get("total", 0)
         if followers:
-            followers_str = self._format_number(followers)
+            followers_str = format_number(followers)
             self.query_one("#artist-followers", Static).update(
                 f"[dim]Followers:[/] {followers_str}"
             )
@@ -337,9 +345,10 @@ class ArtistScreen(Screen[None]):
 
         # Platform link
         url = data.get("url") or f"https://open.spotify.com/artist/{self._artist_id}"
-        platform_icon = self._get_platform_icon(self._platform)
+        platform_icon = get_platform_icon(self._platform)
+        platform_name = self._platform.replace("_", " ").title()
         self.query_one("#platform-links-content", Static).update(
-            f"{platform_icon} [{self._platform.title()}]({url})"
+            f"{platform_icon} {platform_name}\n[dim]{url}[/dim]"
         )
 
         # Update top tracks
@@ -419,30 +428,6 @@ class ArtistScreen(Screen[None]):
         status = self.query_one("#discography-status", Static)
         status.update(f"[dim]{len(albums)} release(s)[/]")
 
-    @staticmethod
-    def _format_number(num: int) -> str:
-        """Format large numbers with suffixes."""
-        if num >= 1_000_000:
-            return f"{num / 1_000_000:.1f}M"
-        elif num >= 1_000:
-            return f"{num / 1_000:.1f}K"
-        return str(num)
-
-    @staticmethod
-    def _get_platform_icon(platform: str) -> str:
-        """Get icon for platform."""
-        icons = {
-            "spotify": "[green]●[/]",
-            "youtube": "[red]●[/]",
-            "youtube_music": "[red]●[/]",
-            "deezer": "[magenta]●[/]",
-            "soundcloud": "[#ff5500]●[/]",
-            "bandcamp": "[cyan]●[/]",
-            "apple_music": "[white]●[/]",
-            "tidal": "[white]●[/]",
-        }
-        return icons.get(platform.lower(), "●")
-
     async def on_button_pressed(self, event: Button.Pressed) -> None:
         """Handle button presses."""
         if event.button.id == "download-all-btn":
@@ -454,16 +439,17 @@ class ArtistScreen(Screen[None]):
     async def on_data_table_row_selected(self, event: DataTable.RowSelected) -> None:
         """Handle row selection."""
         table_id = event.data_table.id
+        row_index = event.cursor_row
+        if row_index is None:
+            return
 
         if table_id == "top-tracks-table":
-            # View track
-            if event.cursor_row < len(self._top_tracks):
-                track = self._top_tracks[event.cursor_row]
+            if row_index < len(self._top_tracks):
+                track = self._top_tracks[row_index]
                 await self._view_track(track)
         elif table_id and table_id.startswith("albums-table"):
-            # View album
-            if event.cursor_row < len(self._albums):
-                album = self._albums[event.cursor_row]
+            if row_index < len(self._albums):
+                album = self._albums[row_index]
                 await self._view_album(album)
 
     async def _view_track(self, track: Song) -> None:

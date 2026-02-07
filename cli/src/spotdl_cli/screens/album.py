@@ -32,6 +32,7 @@ from spotdl_cli.core import (
     get_api_client,
     get_offline_matcher,
 )
+from spotdl_cli.theme import format_duration, get_platform_icon
 
 if TYPE_CHECKING:
     from spotdl_cli.app import SpotDLApp
@@ -195,9 +196,11 @@ class AlbumScreen(Screen[None]):
 
         if self.spotdl_app.is_online and not self._album_data:
             await self._load_online_data()
-        elif self._album_data:
+        elif self._album_data and self._album_data.get("tracks"):
+            # We already have full data with tracks
             self._update_display()
         else:
+            # We have partial data (just name/artist) or no data - load offline
             await self._load_offline_data()
 
     async def _load_online_data(self) -> None:
@@ -216,27 +219,48 @@ class AlbumScreen(Screen[None]):
         """Load album data using offline resolver."""
         status = self.query_one("#tracks-status", Static)
 
-        # Try to resolve album URL
-        url = f"https://open.spotify.com/album/{self._album_id}"
-        if self._platform == "deezer":
-            url = f"https://www.deezer.com/album/{self._album_id}"
-
         try:
             offline_matcher = get_offline_matcher()
-            songs = await offline_matcher.resolve_url(url)
+            songs: list[Song] = []
+
+            # If the ID looks like a real platform ID, try URL resolution first
+            if not self._album_id.startswith("offline-"):
+                url = f"https://open.spotify.com/album/{self._album_id}"
+                if self._platform == "deezer":
+                    url = f"https://www.deezer.com/album/{self._album_id}"
+                try:
+                    songs = await offline_matcher.resolve_url(url)
+                except Exception:
+                    pass
+
+            # Fall back to searching by album name from initial_data
+            if not songs:
+                album_name = (self._album_data or {}).get("name", "")
+                artist_name = (self._album_data or {}).get("artist", "")
+                query = f"{artist_name} {album_name}".strip() or self._album_id
+                all_songs = await offline_matcher.search_all(query, limit=50)
+                # Filter to songs matching the album name
+                if album_name:
+                    songs = [
+                        s for s in all_songs
+                        if s.album_name and s.album_name.lower() == album_name.lower()
+                    ]
+                if not songs:
+                    songs = all_songs[:20]
 
             if songs:
                 self._tracks = songs
-                # Build album data from tracks
                 first_song = songs[0]
                 self._album_data = {
-                    "name": first_song.album_name or "Unknown Album",
-                    "artist": first_song.artist,
+                    **self._album_data,
+                    "name": self._album_data.get("name") or first_song.album_name or "Unknown Album",
+                    "artist": self._album_data.get("artist") or first_song.artist,
                     "artists": first_song.artists,
                     "tracks": [self._song_to_dict(s) for s in songs],
                     "total_tracks": len(songs),
-                    "release_date": first_song.date,
+                    "release_date": getattr(first_song, "date", ""),
                     "year": first_song.year,
+                    "cover_url": first_song.cover_url,
                     "platform": self._platform,
                     "platform_id": self._album_id,
                 }
@@ -334,9 +358,10 @@ class AlbumScreen(Screen[None]):
 
         # Platform link
         url = data.get("url") or f"https://open.spotify.com/album/{self._album_id}"
-        platform_icon = self._get_platform_icon(self._platform)
+        platform_icon = get_platform_icon(self._platform)
+        platform_name = self._platform.replace("_", " ").title()
         self.query_one("#platform-links-content", Static).update(
-            f"{platform_icon} [{self._platform.title()}]({url})"
+            f"{platform_icon} {platform_name}\n[dim]{url}[/dim]"
         )
 
         # Details panel
@@ -429,21 +454,6 @@ class AlbumScreen(Screen[None]):
         status = self.query_one("#tracks-status", Static)
         status.update(f"[dim]{len(tracks)} track(s)[/]")
 
-    @staticmethod
-    def _get_platform_icon(platform: str) -> str:
-        """Get icon for platform."""
-        icons = {
-            "spotify": "[green]●[/]",
-            "youtube": "[red]●[/]",
-            "youtube_music": "[red]●[/]",
-            "deezer": "[magenta]●[/]",
-            "soundcloud": "[#ff5500]●[/]",
-            "bandcamp": "[cyan]●[/]",
-            "apple_music": "[white]●[/]",
-            "tidal": "[white]●[/]",
-        }
-        return icons.get(platform.lower(), "●")
-
     async def on_button_pressed(self, event: Button.Pressed) -> None:
         """Handle button presses."""
         if event.button.id == "download-all-btn":
@@ -456,11 +466,10 @@ class AlbumScreen(Screen[None]):
 
     async def on_data_table_row_selected(self, event: DataTable.RowSelected) -> None:
         """Handle track selection."""
-        if event.row_key is not None and event.row_key.value is not None:
-            row_index = event.cursor_row
-            if 0 <= row_index < len(self._tracks):
-                track = self._tracks[row_index]
-                await self._view_track(track)
+        row_index = event.cursor_row
+        if row_index is not None and 0 <= row_index < len(self._tracks):
+            track = self._tracks[row_index]
+            await self._view_track(track)
 
     async def _view_track(self, track: Song) -> None:
         """Navigate to track detail screen."""
