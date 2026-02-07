@@ -420,63 +420,74 @@ Rule {
 #main-container {
     width: 100%;
     height: 100%;
-    padding: 1 1;
+    padding: 1 2;
+    background: $bg-chassis;
 }
 
 /* ---- Search bar: single compact row ---- */
 #search-bar {
-    height: 3;
+    height: 5;
     width: 100%;
     align: left middle;
-    margin-bottom: 0;
-    padding: 0;
+    margin-bottom: 1;
+    padding: 1 2;
     background: $bg-panel;
-    border-bottom: solid $border-subtle;
+    border-bottom: wide $border-subtle;
 }
 
 #search-icon {
     width: 3;
-    text-align: center;
+    height: 3;
+    content-align: center middle;
     color: $accent-primary;
 }
 
 #search-input {
     width: 1fr;
-    margin: 0;
-    border: none;
-    background: $bg-panel;
+    height: 3;
+    margin: 0 1;
+    padding: 0 1;
+    border: wide $border-color;
+    background: $bg-surface;
 }
 
 #search-input:focus {
-    border: none;
-    background: $bg-elevated;
+    border: wide $accent-primary;
+    background: $bg-surface;
 }
 
 #search-btn {
     width: auto;
-    min-width: 10;
-    margin: 0;
+    min-width: 12;
+    margin: 0 1;
     height: 3;
 }
 
 #status-bar {
-    height: 1;
+    height: 3;
     width: auto;
     min-width: 20;
     padding: 0 1;
     color: $text-muted;
-    text-align: right;
+    content-align: right middle;
 }
 
 /* ---- Filter pills: compact row ---- */
 #filter-tabs {
     height: auto;
     max-height: 3;
-    margin: 0;
+    margin: 0 0 1 0;
     padding: 0 1;
     align: left middle;
     background: $bg-chassis;
     border-bottom: solid $border-subtle;
+}
+
+#connection-status {
+    height: 1;
+    padding: 0 1;
+    color: $text-muted;
+    text-align: right;
 }
 
 .filter-btn {
@@ -512,12 +523,12 @@ Rule {
 /* ---- Entity sections ---- */
 .entity-section {
     height: auto;
-    margin-bottom: 1;
+    margin-bottom: 2;
 }
 
 .section-header {
     height: auto;
-    margin: 1 0 0 0;
+    margin: 1 0 1 0;
     align: left middle;
 }
 
@@ -557,10 +568,11 @@ Rule {
 }
 
 .artist-tile {
-    width: 22;
+    width: 28;
+    min-height: 18;
     height: auto;
-    padding: 0 1;
-    margin: 0 1 0 0;
+    padding: 1;
+    margin: 0 1 1 0;
     background: $bg-elevated;
     border: wide $border-color;
     text-align: center;
@@ -578,25 +590,27 @@ Rule {
 }
 
 .artist-tile-cover {
-    width: 10;
-    height: 10;
+    width: 24;
+    height: 12;
     background: $bg-surface;
     border: solid $border-subtle;
     overflow: hidden;
     content-align: center middle;
-    margin: 0;
+    margin: 0 0 1 0;
 }
 
 .tile-name {
     color: $text-primary;
     text-style: bold;
-    height: 1;
+    height: auto;
+    max-height: 2;
+    overflow: hidden;
     text-align: center;
 }
 
 .tile-meta {
     color: $text-muted;
-    height: 1;
+    height: auto;
     text-align: center;
 }
 
@@ -626,6 +640,7 @@ Rule {
 .tile-actions-row {
     height: auto;
     width: 100%;
+    margin-top: 1;
     align: center middle;
 }
 
@@ -638,10 +653,11 @@ Rule {
 }
 
 .album-tile {
-    width: 22;
+    width: 28;
+    min-height: 18;
     height: auto;
-    padding: 0 1;
-    margin: 0 1 0 0;
+    padding: 1;
+    margin: 0 1 1 0;
     background: $bg-elevated;
     border: wide $border-color;
     text-align: center;
@@ -659,13 +675,13 @@ Rule {
 }
 
 .album-tile-cover {
-    width: 10;
-    height: 10;
+    width: 24;
+    height: 12;
     background: $bg-surface;
     border: solid $border-subtle;
     overflow: hidden;
     content-align: center middle;
-    margin: 0;
+    margin: 0 0 1 0;
 }
 
 /* ---- Compact track/playlist rows ---- */
@@ -676,17 +692,17 @@ Rule {
 
 .compact-row {
     height: auto;
-    max-height: 6;
+    max-height: 7;
     width: 100%;
-    padding: 0 1;
-    margin: 0;
+    padding: 0 2;
+    margin: 0 0 1 0;
     background: $bg-elevated;
-    border-bottom: solid $border-subtle;
+    border: solid $border-subtle;
     align: left middle;
 }
 
 .row-cover {
-    width: 5;
+    width: 10;
     height: 5;
     background: $bg-surface;
     border: solid $border-subtle;
@@ -1314,14 +1330,14 @@ Rule {
 }
 
 #queue-table-container {
-    height: 100%;
+    height: 1fr;
     background: $bg-surface;
     border: wide $border-color;
 }
 
 #queue-table {
     width: 100%;
-    height: 100%;
+    height: 1fr;
 }
 
 #queue-now-card #current-download {
@@ -1701,8 +1717,8 @@ MarkdownOrderedList {
 /* Hero sections */
 .hero-section {
     background: $bg-panel;
-    padding: 1 2;
-    margin-bottom: 1;
+    padding: 2 3;
+    margin-bottom: 2;
     border-bottom: wide $border-color;
 }
 
@@ -1727,7 +1743,7 @@ CoverArt #cover-image {
 
 /* Cover/Avatar placeholders */
 .cover-placeholder {
-    width: 12;
+    width: 24;
     height: 12;
     background: $bg-surface;
     border: wide $border-color;
@@ -1736,7 +1752,7 @@ CoverArt #cover-image {
 }
 
 .cover-placeholder-large {
-    width: 16;
+    width: 32;
     height: 16;
     background: $bg-surface;
     border: wide $border-color;
@@ -1745,7 +1761,7 @@ CoverArt #cover-image {
 }
 
 .avatar-placeholder {
-    width: 12;
+    width: 24;
     height: 12;
     background: $bg-surface;
     border: wide $accent-primary;
@@ -1821,19 +1837,19 @@ CoverArt #cover-image {
 #playlist-content {
     width: 100%;
     height: 1fr;
-    padding: 1;
+    padding: 1 2;
 }
 
 /* Main column (left, 2/3 width) */
 .main-column {
     width: 66%;
-    padding-right: 1;
+    padding-right: 2;
 }
 
 /* Sidebar column (right, 1/3 width) */
 .sidebar-column {
     width: 34%;
-    padding-left: 1;
+    padding-left: 2;
     border-left: wide $border-color;
 }
 

@@ -244,24 +244,38 @@ class ArtistScreen(Screen[None]):
 
         try:
             offline_matcher = get_offline_matcher()
+            songs: list[Song] = []
 
-            # Use the artist name from initial_data, falling back to ID
-            artist_name = self._artist_data.get("name") or self._artist_id
-            # Strip offline-derived ID prefixes
-            if artist_name.startswith("offline-artist-"):
-                artist_name = artist_name.replace("offline-artist-", "").replace("-", " ")
+            # If the ID looks like a real platform ID, try URL resolution first
+            if not self._artist_id.startswith("offline-"):
+                url = f"https://open.spotify.com/artist/{self._artist_id}"
+                if self._platform == "deezer":
+                    url = f"https://www.deezer.com/artist/{self._artist_id}"
+                try:
+                    songs = await offline_matcher.resolve_url(url)
+                except Exception:
+                    pass
 
-            songs = await offline_matcher.search_all(artist_name, limit=50)
+            if not songs:
+                # Use the artist name from initial_data, falling back to ID
+                artist_name = self._artist_data.get("name") or self._artist_id
+                # Strip offline-derived ID prefixes
+                if artist_name.startswith("offline-artist-"):
+                    artist_name = artist_name.replace("offline-artist-", "").replace("-", " ")
 
-            # Filter to songs that actually match this artist
-            artist_lower = artist_name.lower().strip()
-            artist_songs = [
-                s for s in songs
-                if artist_lower in s.artist.lower()
-                or any(artist_lower in a.lower() for a in s.artists)
-            ]
-            # If strict filter returns nothing, use all results
-            if not artist_songs:
+                songs = await offline_matcher.search_all(artist_name, limit=50)
+
+                # Filter to songs that actually match this artist
+                artist_lower = artist_name.lower().strip()
+                artist_songs = [
+                    s for s in songs
+                    if artist_lower in s.artist.lower()
+                    or any(artist_lower in a.lower() for a in s.artists)
+                ]
+                # If strict filter returns nothing, use all results
+                if not artist_songs:
+                    artist_songs = songs
+            else:
                 artist_songs = songs
 
             if artist_songs:
@@ -548,10 +562,17 @@ class ArtistScreen(Screen[None]):
         """Navigate to album screen."""
         from spotdl_cli.screens.album import AlbumScreen
 
-        album_id = album.get("platform_id") or album.get("id", "")
-        if album_id:
+        album_id = album.get("platform_id") or ""
+        entity_id = album.get("id")
+        platform = album.get("platform") or self._platform
+        if album_id or entity_id:
             await self.app.push_screen(
-                AlbumScreen(album_id, self._platform, initial_data=album)
+                AlbumScreen(
+                    album_id,
+                    platform,
+                    initial_data=album,
+                    entity_id=entity_id,
+                )
             )
 
     async def _download_all(self) -> None:

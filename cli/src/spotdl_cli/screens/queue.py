@@ -18,6 +18,8 @@ from textual.widgets import (
     Static,
 )
 
+from spotdl_cli.widgets import CoverArt
+
 from spotdl_cli.config import get_settings
 from spotdl_cli.core import (
     APIError,
@@ -78,12 +80,13 @@ class QueueScreen(Screen[None]):
             # Content split
             with Horizontal(id="queue-content"):
                 with Vertical(id="queue-main"):
-                    with Container(id="queue-table-container"):
+                    with Vertical(id="queue-table-container"):
                         yield DataTable(id="queue-table")
 
                 with Vertical(id="queue-sidebar"):
                     with Vertical(classes="card", id="queue-now-card"):
                         yield Static("Now Downloading", classes="card-title")
+                        yield CoverArt(id="queue-cover", classes="cover-placeholder")
                         yield Static("", id="current-download")
                         yield ProgressBar(id="download-progress", total=100, show_eta=False)
                         yield Static("", id="current-meta", classes="status-muted")
@@ -145,6 +148,9 @@ class QueueScreen(Screen[None]):
         table.clear()
 
         queue = self.spotdl_app.download_queue
+        if not queue.items:
+            return
+
         for item in queue.items:
             item_id = queue.get_item_id(item)
             progress = f"{item.progress:.0f}%" if item.progress > 0 else "-"
@@ -210,9 +216,11 @@ class QueueScreen(Screen[None]):
 
         if active == 0:
             current = self.query_one("#current-download", Static)
+            cover = self.query_one("#queue-cover", CoverArt)
             progress = self.query_one("#download-progress", ProgressBar)
             meta = self.query_one("#current-meta", Static)
             current.update("Idle")
+            cover.cover_url = None
             progress.update(progress=0)
             meta.update("")
 
@@ -233,9 +241,11 @@ class QueueScreen(Screen[None]):
             return
 
         current = self.query_one("#current-download", Static)
+        cover = self.query_one("#queue-cover", CoverArt)
         progress = self.query_one("#download-progress", ProgressBar)
         meta = self.query_one("#current-meta", Static)
 
+        cover.cover_url = item.song.cover_url
         current.update(item.song.display_name)
         progress.update(progress=item.progress)
         meta.update(f"{item.status.value.title()} • {item.speed or '-'} • {item.eta or '-'}")

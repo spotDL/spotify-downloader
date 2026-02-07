@@ -617,17 +617,63 @@ class OfflineMatcher:
     # ============== Metadata Enrichment ==============
 
     async def enrich_song(self, song: Song) -> Song:
-        """Enrich a song with metadata from MusicBrainz."""
+        """Enrich a song with metadata from MusicBrainz and Spotify."""
         self._init_providers()
 
-        if self._musicbrainz_provider is None:
-            return song
+        # Try Spotify first for high-quality metadata if available
+        if self._spotify_provider:
+            try:
+                # If we have a Spotify URL, use it
+                if song.platform == Platform.SPOTIFY and song.url:
+                    enriched = await self._spotify_provider.get_metadata(song.url)
+                    if enriched:
+                        return enriched
+                
+                # Otherwise search Spotify
+                results = await self._spotify_provider.search(
+                    create_search_query(song.name, song.artists), limit=1
+                )
+                if results:
+                    return results[0]
+            except Exception as e:
+                logger.warning(f"Spotify enrichment failed: {e}")
 
-        try:
-            return await self._musicbrainz_provider.enrich_song(song)
-        except Exception as e:
-            logger.warning(f"Failed to enrich song: {e}")
-            return song
+        # Fallback to MusicBrainz
+        if self._musicbrainz_provider:
+            try:
+                return await self._musicbrainz_provider.enrich_song(song)
+            except Exception as e:
+                logger.warning(f"MusicBrainz enrichment failed: {e}")
+
+        return song
+
+    async def get_lyrics(self, song: Song) -> str | None:
+        """Get lyrics for a song using available providers."""
+        self._init_providers()
+        
+        from spotdl_core import (
+            GeniusProvider,
+            MusixmatchProvider,
+            SyncedProvider,
+            AzLyricsProvider,
+        )
+
+        providers = [
+            SyncedProvider(),
+            GeniusProvider(),
+            MusixmatchProvider(),
+            AzLyricsProvider(),
+        ]
+
+        for provider in providers:
+            try:
+                lyrics = await provider.get_lyrics(song.name, song.artists)
+                if lyrics:
+                    return lyrics
+            except Exception as e:
+                logger.debug(f"Lyrics provider {provider.__class__.__name__} failed: {e}")
+        
+        return None
 
     # ============== Cleanup ==============
 

@@ -419,6 +419,14 @@ class TrackScreen(Screen[None]):
 
     async def _load_offline_data(self) -> None:
         """Load data using offline providers."""
+        # Enrich song metadata
+        try:
+            offline_matcher = get_offline_matcher()
+            self._song = await offline_matcher.enrich_song(self._song)
+            self._update_song_display()
+        except Exception as e:
+            logger.warning(f"Offline enrichment failed: {e}")
+
         # Show track details from the Song object itself
         self.query_one("#detail-platform-id", Static).update(
             f"[dim]ID:[/] {self._track_id}"
@@ -430,13 +438,16 @@ class TrackScreen(Screen[None]):
 
         await self._find_offline_matches()
 
-        # Lyrics from song object if available
+        # Lyrics
         if self._song.lyrics:
             self._lyrics = self._song.lyrics
-            self._update_lyrics_display()
         else:
-            lyrics_status = self.query_one("#lyrics-status", Static)
-            lyrics_status.update("[dim]Lyrics not available offline[/]")
+            try:
+                self._lyrics = await offline_matcher.get_lyrics(self._song)
+            except Exception as e:
+                logger.warning(f"Offline lyrics fetch failed: {e}")
+        
+        self._update_lyrics_display()
 
     async def _find_offline_matches(self) -> None:
         """Find matches using offline matcher."""
@@ -452,6 +463,7 @@ class TrackScreen(Screen[None]):
                 "youtube_music": TargetPlatform.YOUTUBE_MUSIC,
                 "soundcloud": TargetPlatform.SOUNDCLOUD,
                 "bandcamp": TargetPlatform.BANDCAMP,
+                "youtube": TargetPlatform.YOUTUBE,
             }
             self._matches = []
 

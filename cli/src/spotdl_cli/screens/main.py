@@ -115,6 +115,8 @@ class MainScreen(Screen[None]):
         self._offline_songs: dict[str, Song] = {}
         # Widget ID counter for uniqueness
         self._widget_counter: int = 0
+        # Button ID -> Entity mapping (avoids sanitized ID collisions)
+        self._entity_button_map: dict[str, EntityResult] = {}
         self._service_status: dict[str, Any] | None = None
 
     def _next_id(self, prefix: str) -> str:
@@ -554,6 +556,7 @@ class MainScreen(Screen[None]):
     def _clear_results(self) -> None:
         """Clear all result sections."""
         self._widget_counter = 0
+        self._entity_button_map.clear()
         for section_id in ["artists-list", "albums-list", "tracks-list", "playlists-list"]:
             self.query_one(f"#{section_id}").remove_children()
 
@@ -662,8 +665,9 @@ class MainScreen(Screen[None]):
         platform_badges = self._get_platform_badges(artist)
         cover = CoverArt(classes="card-cover artist-tile-cover")
         cover.cover_url = artist.image_url
-        safe_id = _sanitize_id(artist.id)
         uid = self._next_id("at")
+        view_id = f"entity-artist-{uid}"
+        self._entity_button_map[view_id] = artist
 
         tile = Vertical(
             cover,
@@ -675,7 +679,7 @@ class MainScreen(Screen[None]):
                 f"Artist {platform_badges}",
                 classes="tile-meta",
             ),
-            Button("View", id=f"entity-artist-{safe_id}", classes="tile-action"),
+            Button("View", id=view_id, classes="tile-action"),
             classes="artist-tile",
             id=f"artist-card-{uid}",
         )
@@ -686,8 +690,11 @@ class MainScreen(Screen[None]):
         platform_badges = self._get_platform_badges(entity)
         cover = CoverArt(classes="card-cover album-tile-cover")
         cover.cover_url = entity.image_url
-        safe_id = _sanitize_id(entity.id)
         uid = self._next_id("al")
+        view_id = f"entity-album-{uid}"
+        dl_id = f"dl-album-{uid}"
+        self._entity_button_map[view_id] = entity
+        self._entity_button_map[dl_id] = entity
 
         subtitle = _truncate(entity.subtitle, 18) if entity.subtitle else ""
 
@@ -702,8 +709,8 @@ class MainScreen(Screen[None]):
                 classes="tile-meta",
             ),
             Horizontal(
-                Button("View", id=f"entity-album-{safe_id}", classes="tile-action"),
-                Button("DL", id=f"dl-album-{safe_id}", classes="tile-action tile-action-dl"),
+                Button("View", id=view_id, classes="tile-action"),
+                Button("DL", id=dl_id, classes="tile-action tile-action-dl"),
                 classes="tile-actions-row",
             ),
             classes="album-tile",
@@ -716,8 +723,11 @@ class MainScreen(Screen[None]):
     ) -> Container:
         """Create a compact single-line row for tracks/playlists."""
         platform_badges = self._get_platform_badges(entity)
-        safe_id = _sanitize_id(entity.id)
         uid = self._next_id("r")
+        view_id = f"entity-{entity_type.value}-{uid}"
+        dl_id = f"dl-{entity_type.value}-{uid}"
+        self._entity_button_map[view_id] = entity
+        self._entity_button_map[dl_id] = entity
 
         # Build info parts
         info_parts = []
@@ -737,7 +747,7 @@ class MainScreen(Screen[None]):
         subtitle_text = f"[dim]{_truncate(' · '.join(info_parts), 40)}[/dim]" if info_parts else ""
 
         cover = None
-        if entity_type == EntityType.TRACK:
+        if entity_type in (EntityType.TRACK, EntityType.PLAYLIST):
             cover = CoverArt(classes="row-cover")
             cover.cover_url = entity.image_url
 
@@ -757,8 +767,8 @@ class MainScreen(Screen[None]):
                 f"[dim]{duration_str}[/dim]",
                 classes="row-duration",
             ) if duration_str else Static("", classes="row-duration"),
-            Button("View", id=f"entity-{entity_type.value}-{safe_id}", classes="row-action"),
-            Button("DL", id=f"dl-{entity_type.value}-{safe_id}", classes="row-action row-action-dl"),
+            Button("View", id=view_id, classes="row-action"),
+            Button("DL", id=dl_id, classes="row-action row-action-dl"),
             classes="compact-row",
             id=f"card-{entity_type.value}-{uid}",
         )
@@ -795,14 +805,23 @@ class MainScreen(Screen[None]):
         entity_type_str = parts[1]
         entity_id = parts[2]
 
+        mapped_entity = self._entity_button_map.get(button_id)
+        if mapped_entity:
+            entity_id = mapped_entity.id
+
         if action == "dl":
             # Download action
-            await self._download_entity(entity_type_str, entity_id)
+            await self._download_entity(entity_type_str, entity_id, entity=mapped_entity)
         else:
             # View action
-            await self._view_entity(entity_type_str, entity_id)
+            await self._view_entity(entity_type_str, entity_id, entity=mapped_entity)
 
-    async def _view_entity(self, entity_type_str: str, entity_id: str) -> None:
+    async def _view_entity(
+        self,
+        entity_type_str: str,
+        entity_id: str,
+        entity: EntityResult | None = None,
+    ) -> None:
         """Navigate to entity detail screen."""
         from spotdl_cli.screens.album import AlbumScreen
         from spotdl_cli.screens.artist import ArtistScreen
@@ -814,7 +833,9 @@ class MainScreen(Screen[None]):
         except ValueError:
             return
 
-        entity = self._find_entity(entity_id)
+        if not entity:
+            entity = self._find_entity(entity_id)
+        
         if not entity:
             return
 
@@ -924,9 +945,16 @@ class MainScreen(Screen[None]):
                 )
             )
 
-    async def _download_entity(self, entity_type_str: str, entity_id: str) -> None:
+    async def _download_entity(
+        self,
+        entity_type_str: str,
+        entity_id: str,
+        entity: EntityResult | None = None,
+    ) -> None:
         """Add entity to download queue."""
-        entity = self._find_entity(entity_id)
+        if not entity:
+            entity = self._find_entity(entity_id)
+        
         if not entity:
             self.notify("Entity not found", severity="error")
             return
@@ -961,7 +989,7 @@ class MainScreen(Screen[None]):
             await self.spotdl_app.download_queue.add(song)
             self.notify(f"Added to queue: {entity.name}")
         else:
-            await self._view_entity(entity_type_str, entity_id)
+            await self._view_entity(entity_type_str, entity_id, entity=entity)
 
     def _find_entity(self, entity_id: str) -> EntityResult | None:
         """Find an entity by ID in the current results.
