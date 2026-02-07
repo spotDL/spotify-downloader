@@ -15,7 +15,7 @@ export interface StartDownloadRequest {
   // Metadata embedding options
   embed_metadata?: boolean;
   embed_lyrics?: boolean;
-  embed_cover_art?: boolean;
+  embed_cover?: boolean;
 }
 
 export interface StartDownloadResponse {

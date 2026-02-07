@@ -48,7 +48,7 @@ class StartDownloadRequest(BaseModel):
     # Metadata embedding options
     embed_metadata: bool = True
     embed_lyrics: bool = True
-    embed_cover_art: bool = True
+    embed_cover: bool = True
 
 
 class StartDownloadResponse(BaseModel):
@@ -122,7 +122,7 @@ async def start_download(
         quality=request.quality,
         embed_metadata=request.embed_metadata,
         embed_lyrics=request.embed_lyrics,
-        embed_cover_art=request.embed_cover_art,
+        embed_cover=request.embed_cover,
     )
 
     # Start the download

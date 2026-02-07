@@ -1,7 +1,7 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useSettingsStore } from "@/stores/settings";
-import type { AudioQuality } from "@/stores/settings";
+import type { AudioQuality, OverwriteMode, FilenameRestrict } from "@/stores/settings";
 import {
   useUserSettings,
   useUpdateUserSettings,
@@ -78,6 +78,18 @@ const QUALITY_OPTIONS = [
   { value: "128k", label: "128 kbps" },
 ];
 
+const OVERWRITE_OPTIONS = [
+  { value: "skip", label: "Skip existing" },
+  { value: "force", label: "Overwrite" },
+  { value: "metadata", label: "Update metadata only" },
+];
+
+const RESTRICT_OPTIONS = [
+  { value: "", label: "Default" },
+  { value: "strict", label: "Strict (ASCII-safe)" },
+  { value: "loose", label: "Loose (remove accents)" },
+];
+
 const LOG_LEVEL_OPTIONS = [
   { value: "DEBUG", label: "Debug" },
   { value: "INFO", label: "Info" },
@@ -138,13 +150,28 @@ function SettingsPage() {
   const {
     audioFormat,
     audioQuality,
+    bitrate,
     outputTemplate,
     outputDirectory,
     maxConcurrentDownloads,
-    overwriteExisting,
+    overwrite,
+    maxFilenameLength,
+    restrict,
     embedMetadata,
     embedLyrics,
-    embedCoverArt,
+    embedCover,
+    id3Separator,
+    sponsorBlock,
+    generateLrc,
+    m3u,
+    archive,
+    skipExplicit,
+    scanForSongs,
+    playlistNumbering,
+    fetchAlbums,
+    proxy,
+    ffmpegArgs,
+    ytDlpArgs,
     spotifyClientId,
     spotifyClientSecret,
     spotifyUserAuth,
@@ -164,13 +191,28 @@ function SettingsPage() {
     lyricsSourcePreferences,
     setAudioFormat,
     setAudioQuality,
+    setBitrate,
     setOutputTemplate,
     setOutputDirectory,
     setMaxConcurrentDownloads,
-    setOverwriteExisting,
+    setOverwrite,
+    setMaxFilenameLength,
+    setRestrict,
     setEmbedMetadata,
     setEmbedLyrics,
-    setEmbedCoverArt,
+    setEmbedCover,
+    setId3Separator,
+    setSponsorBlock,
+    setGenerateLrc,
+    setM3u,
+    setArchive,
+    setSkipExplicit,
+    setScanForSongs,
+    setPlaylistNumbering,
+    setFetchAlbums,
+    setProxy,
+    setFfmpegArgs,
+    setYtDlpArgs,
     setSpotifyClientId,
     setSpotifyClientSecret,
     setSpotifyUserAuth,
@@ -486,11 +528,31 @@ function SettingsPage() {
                   </code>
                   ,{" "}
                   <code className="text-[var(--color-text-muted)]">
+                    {"{album-artist}"}
+                  </code>
+                  ,{" "}
+                  <code className="text-[var(--color-text-muted)]">
                     {"{year}"}
                   </code>
                   ,{" "}
                   <code className="text-[var(--color-text-muted)]">
                     {"{track_number}"}
+                  </code>
+                  ,{" "}
+                  <code className="text-[var(--color-text-muted)]">
+                    {"{genre}"}
+                  </code>
+                  ,{" "}
+                  <code className="text-[var(--color-text-muted)]">
+                    {"{isrc}"}
+                  </code>
+                  ,{" "}
+                  <code className="text-[var(--color-text-muted)]">
+                    {"{list-name}"}
+                  </code>
+                  ,{" "}
+                  <code className="text-[var(--color-text-muted)]">
+                    {"{list-position}"}
                   </code>
                 </p>
               </div>
@@ -514,12 +576,25 @@ function SettingsPage() {
                 formatValue={(v) => `${v} download${v > 1 ? "s" : ""}`}
               />
 
-              {/* Overwrite Toggle */}
-              <ToggleSwitch
-                checked={overwriteExisting}
-                onChange={withToast(setOverwriteExisting, "Overwrite existing files")}
-                label="Overwrite existing files"
-                description="Replace files that already exist in the output directory"
+              {/* Overwrite Mode */}
+              <Select
+                label="Existing Files"
+                options={OVERWRITE_OPTIONS}
+                value={overwrite}
+                onChange={withSelectToast(setOverwrite as (value: string) => void, "Existing files mode")}
+              />
+
+              {/* Filename Sanitization */}
+              <Select
+                label="Filename Sanitization"
+                options={RESTRICT_OPTIONS}
+                value={restrict ?? ""}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setRestrict(val ? val as FilenameRestrict : null);
+                  showSuccess("Filename sanitization updated");
+                  setPendingSave(prev => prev + 1);
+                }}
               />
             </CardContent>
           </Card>
@@ -545,7 +620,7 @@ function SettingsPage() {
                 }
                 iconBg="bg-gradient-to-br from-violet-500/20 to-purple-500/20"
                 iconColor="text-violet-400"
-                title="Metadata Embedding"
+                title="Metadata & Lyrics"
                 description="Choose what metadata to embed in downloaded files"
               />
             </CardHeader>
@@ -565,10 +640,101 @@ function SettingsPage() {
               />
 
               <ToggleSwitch
-                checked={embedCoverArt}
-                onChange={withToast(setEmbedCoverArt, "Embed cover art")}
+                checked={embedCover}
+                onChange={withToast(setEmbedCover, "Embed cover art")}
                 label="Embed cover art"
                 description="Download and embed album artwork"
+              />
+
+              <ToggleSwitch
+                checked={generateLrc}
+                onChange={withToast(setGenerateLrc, "Generate LRC files")}
+                label="Generate LRC files"
+                description="Create .lrc sidecar files with synced lyrics"
+              />
+
+              <Input
+                label="ID3 Artist Separator"
+                value={id3Separator}
+                onChange={withInputToast(setId3Separator, "ID3 separator")}
+                placeholder="/"
+              />
+            </CardContent>
+          </Card>
+
+          {/* Download Features Section */}
+          <Card variant="bordered" className="animate-slide-up stagger-1">
+            <CardHeader>
+              <SectionHeader
+                icon={
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M13 10V3L4 14h7v7l9-11h-7z"
+                    />
+                  </svg>
+                }
+                iconBg="bg-gradient-to-br from-amber-500/20 to-orange-500/20"
+                iconColor="text-amber-400"
+                title="Download Features"
+                description="SponsorBlock, playlists, content filtering, and more"
+              />
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <ToggleSwitch
+                checked={sponsorBlock}
+                onChange={withToast(setSponsorBlock, "SponsorBlock")}
+                label="SponsorBlock"
+                description="Remove sponsor segments from YouTube audio"
+              />
+
+              <ToggleSwitch
+                checked={skipExplicit}
+                onChange={withToast(setSkipExplicit, "Skip explicit tracks")}
+                label="Skip explicit tracks"
+                description="Filter out explicit content from downloads"
+              />
+
+              <ToggleSwitch
+                checked={scanForSongs}
+                onChange={withToast(setScanForSongs, "Scan for existing songs")}
+                label="Scan for existing songs"
+                description="Check local files by metadata to avoid duplicates"
+              />
+
+              <ToggleSwitch
+                checked={playlistNumbering}
+                onChange={withToast(setPlaylistNumbering, "Playlist numbering")}
+                label="Playlist numbering"
+                description="Prepend track numbers to filenames in playlists"
+              />
+
+              <ToggleSwitch
+                checked={fetchAlbums}
+                onChange={withToast(setFetchAlbums, "Fetch full albums")}
+                label="Fetch full albums for artists"
+                description="Download all album tracks when downloading an artist"
+              />
+
+              <Input
+                label="M3U Playlist File"
+                value={m3u}
+                onChange={withInputToast(setM3u, "M3U template")}
+                placeholder="e.g. {list}.m3u8"
+              />
+
+              <Input
+                label="Archive File"
+                value={archive}
+                onChange={withInputToast(setArchive, "Archive file")}
+                placeholder="Path to archive file for tracking downloads"
               />
             </CardContent>
           </Card>
@@ -971,7 +1137,7 @@ function SettingsPage() {
             iconBg="bg-gradient-to-br from-zinc-500/20 to-zinc-600/20"
             iconColor="text-zinc-400"
             title="Advanced"
-            description="Additional configuration options"
+            description="Proxy, custom arguments, and other advanced options"
           />
         </CardHeader>
         <CardContent className="space-y-5">
@@ -988,6 +1154,39 @@ function SettingsPage() {
             onChange={withInputToast(setCookieFile, "Cookie file path")}
             placeholder="Path to cookies.txt for authentication"
           />
+
+          <Input
+            label="Proxy"
+            value={proxy}
+            onChange={withInputToast(setProxy, "Proxy")}
+            placeholder="http://proxy:port or socks5://proxy:port"
+          />
+
+          <Input
+            label="Custom FFmpeg Arguments"
+            value={ffmpegArgs}
+            onChange={withInputToast(setFfmpegArgs, "FFmpeg args")}
+            placeholder="e.g. -ac 2 -ar 44100"
+          />
+
+          <Input
+            label="Custom yt-dlp Arguments"
+            value={ytDlpArgs}
+            onChange={withInputToast(setYtDlpArgs, "yt-dlp args")}
+            placeholder="e.g. --geo-bypass --extractor-retries 3"
+          />
+
+          {features.hasDownloadSettings && (
+            <Slider
+              label="Max Filename Length"
+              value={maxFilenameLength}
+              min={50}
+              max={500}
+              step={5}
+              onChange={withSliderToast(setMaxFilenameLength, "Max filename length")}
+              formatValue={(v) => `${v} chars`}
+            />
+          )}
         </CardContent>
       </Card>
 

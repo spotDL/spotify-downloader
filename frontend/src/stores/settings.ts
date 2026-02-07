@@ -3,6 +3,8 @@ import { persist } from "zustand/middleware";
 
 export type AudioFormat = "mp3" | "flac" | "ogg" | "m4a" | "opus" | "wav";
 export type AudioQuality = "best" | "320k" | "256k" | "192k" | "128k";
+export type OverwriteMode = "skip" | "force" | "metadata";
+export type FilenameRestrict = "strict" | "loose" | null;
 export type LogLevel = "DEBUG" | "INFO" | "WARNING" | "ERROR" | "CRITICAL";
 
 export interface ProviderPreference {
@@ -16,15 +18,46 @@ export interface SettingsState {
   // Download settings
   audioFormat: AudioFormat;
   audioQuality: AudioQuality;
+  bitrate: string;
   outputTemplate: string;
   outputDirectory: string;
   maxConcurrentDownloads: number;
-  overwriteExisting: boolean;
+  overwrite: OverwriteMode;
+  maxFilenameLength: number;
+  restrict: FilenameRestrict;
 
   // Metadata settings
   embedMetadata: boolean;
   embedLyrics: boolean;
-  embedCoverArt: boolean;
+  embedCover: boolean;
+  id3Separator: string;
+
+  // SponsorBlock
+  sponsorBlock: boolean;
+
+  // LRC / Lyrics files
+  generateLrc: boolean;
+
+  // M3U playlist generation
+  m3u: string;
+
+  // Archive (deduplication)
+  archive: string;
+
+  // Content filtering
+  skipExplicit: boolean;
+  scanForSongs: boolean;
+
+  // Playlist options
+  playlistNumbering: boolean;
+  fetchAlbums: boolean;
+
+  // Proxy
+  proxy: string;
+
+  // Custom arguments
+  ffmpegArgs: string;
+  ytDlpArgs: string;
 
   // Spotify credentials
   spotifyClientId: string;
@@ -59,27 +92,56 @@ export interface SettingsState {
   lastSyncedAt: string | null;
   isSyncing: boolean;
 
-  // Actions
+  // Actions - Download
   setAudioFormat: (format: AudioFormat) => void;
   setAudioQuality: (quality: AudioQuality) => void;
+  setBitrate: (bitrate: string) => void;
   setOutputTemplate: (template: string) => void;
   setOutputDirectory: (directory: string) => void;
   setMaxConcurrentDownloads: (max: number) => void;
-  setOverwriteExisting: (overwrite: boolean) => void;
+  setOverwrite: (mode: OverwriteMode) => void;
+  setMaxFilenameLength: (length: number) => void;
+  setRestrict: (mode: FilenameRestrict) => void;
+
+  // Actions - Metadata
   setEmbedMetadata: (embed: boolean) => void;
   setEmbedLyrics: (embed: boolean) => void;
-  setEmbedCoverArt: (embed: boolean) => void;
+  setEmbedCover: (embed: boolean) => void;
+  setId3Separator: (separator: string) => void;
+
+  // Actions - Features
+  setSponsorBlock: (enabled: boolean) => void;
+  setGenerateLrc: (enabled: boolean) => void;
+  setM3u: (template: string) => void;
+  setArchive: (path: string) => void;
+  setSkipExplicit: (skip: boolean) => void;
+  setScanForSongs: (scan: boolean) => void;
+  setPlaylistNumbering: (enabled: boolean) => void;
+  setFetchAlbums: (enabled: boolean) => void;
+  setProxy: (proxy: string) => void;
+  setFfmpegArgs: (args: string) => void;
+  setYtDlpArgs: (args: string) => void;
+
+  // Actions - Credentials
   setSpotifyClientId: (id: string) => void;
   setSpotifyClientSecret: (secret: string) => void;
   setSpotifyUserAuth: (auth: boolean) => void;
+
+  // Actions - Server
   setApiUrl: (url: string) => void;
   setApiTimeout: (timeout: number) => void;
   setOfflineMode: (offline: boolean) => void;
+
+  // Actions - Matching
   setNameMatchThreshold: (threshold: number) => void;
   setArtistMatchThreshold: (threshold: number) => void;
   setTimeMatchThreshold: (threshold: number) => void;
+
+  // Actions - Advanced
   setLogLevel: (level: LogLevel) => void;
   setCookieFile: (file: string) => void;
+
+  // Actions - Appearance
   setCompactSidebar: (compact: boolean) => void;
   setEnableAnimations: (enable: boolean) => void;
   setReduceMotion: (reduce: boolean) => void;
@@ -100,29 +162,61 @@ export interface SettingsState {
 
 // Settings that can be exported/imported
 export interface ExportableSettings {
+  // Download
   audioFormat: AudioFormat;
   audioQuality: AudioQuality;
+  bitrate: string;
   outputTemplate: string;
   outputDirectory: string;
   maxConcurrentDownloads: number;
-  overwriteExisting: boolean;
+  overwrite: OverwriteMode;
+  maxFilenameLength: number;
+  restrict: FilenameRestrict;
+
+  // Metadata
   embedMetadata: boolean;
   embedLyrics: boolean;
-  embedCoverArt: boolean;
+  embedCover: boolean;
+  id3Separator: string;
+
+  // Features
+  sponsorBlock: boolean;
+  generateLrc: boolean;
+  m3u: string;
+  archive: string;
+  skipExplicit: boolean;
+  scanForSongs: boolean;
+  playlistNumbering: boolean;
+  fetchAlbums: boolean;
+  proxy: string;
+  ffmpegArgs: string;
+  ytDlpArgs: string;
+
+  // Credentials
   spotifyClientId: string;
   spotifyClientSecret: string;
   spotifyUserAuth: boolean;
+
+  // Server
   apiUrl: string;
   apiTimeout: number;
   offlineMode: boolean;
+
+  // Matching
   nameMatchThreshold: number;
   artistMatchThreshold: number;
   timeMatchThreshold: number;
+
+  // Advanced
   logLevel: LogLevel;
   cookieFile: string;
+
+  // Appearance
   compactSidebar: boolean;
   enableAnimations: boolean;
   reduceMotion: boolean;
+
+  // Provider preferences
   audioSourcePreferences: ProviderPreference[];
   metadataSourcePreferences: ProviderPreference[];
   lyricsSourcePreferences: ProviderPreference[];
@@ -153,13 +247,28 @@ const defaultLyricsSourcePreferences: ProviderPreference[] = [
 const defaultSettings: ExportableSettings = {
   audioFormat: "mp3",
   audioQuality: "best",
+  bitrate: "",
   outputTemplate: "{artist} - {title}",
   outputDirectory: "",
   maxConcurrentDownloads: 3,
-  overwriteExisting: false,
+  overwrite: "skip",
+  maxFilenameLength: 255,
+  restrict: null,
   embedMetadata: true,
   embedLyrics: true,
-  embedCoverArt: true,
+  embedCover: true,
+  id3Separator: "/",
+  sponsorBlock: false,
+  generateLrc: false,
+  m3u: "",
+  archive: "",
+  skipExplicit: false,
+  scanForSongs: false,
+  playlistNumbering: false,
+  fetchAlbums: false,
+  proxy: "",
+  ffmpegArgs: "",
+  ytDlpArgs: "",
   spotifyClientId: "",
   spotifyClientSecret: "",
   spotifyUserAuth: false,
@@ -186,26 +295,56 @@ export const useSettingsStore = create<SettingsState>()(
       lastSyncedAt: null,
       isSyncing: false,
 
+      // Download
       setAudioFormat: (format) => set({ audioFormat: format }),
       setAudioQuality: (quality) => set({ audioQuality: quality }),
+      setBitrate: (bitrate) => set({ bitrate }),
       setOutputTemplate: (template) => set({ outputTemplate: template }),
       setOutputDirectory: (directory) => set({ outputDirectory: directory }),
       setMaxConcurrentDownloads: (max) => set({ maxConcurrentDownloads: max }),
-      setOverwriteExisting: (overwrite) => set({ overwriteExisting: overwrite }),
+      setOverwrite: (mode) => set({ overwrite: mode }),
+      setMaxFilenameLength: (length) => set({ maxFilenameLength: length }),
+      setRestrict: (mode) => set({ restrict: mode }),
+
+      // Metadata
       setEmbedMetadata: (embed) => set({ embedMetadata: embed }),
       setEmbedLyrics: (embed) => set({ embedLyrics: embed }),
-      setEmbedCoverArt: (embed) => set({ embedCoverArt: embed }),
+      setEmbedCover: (embed) => set({ embedCover: embed }),
+      setId3Separator: (separator) => set({ id3Separator: separator }),
+
+      // Features
+      setSponsorBlock: (enabled) => set({ sponsorBlock: enabled }),
+      setGenerateLrc: (enabled) => set({ generateLrc: enabled }),
+      setM3u: (template) => set({ m3u: template }),
+      setArchive: (path) => set({ archive: path }),
+      setSkipExplicit: (skip) => set({ skipExplicit: skip }),
+      setScanForSongs: (scan) => set({ scanForSongs: scan }),
+      setPlaylistNumbering: (enabled) => set({ playlistNumbering: enabled }),
+      setFetchAlbums: (enabled) => set({ fetchAlbums: enabled }),
+      setProxy: (proxy) => set({ proxy }),
+      setFfmpegArgs: (args) => set({ ffmpegArgs: args }),
+      setYtDlpArgs: (args) => set({ ytDlpArgs: args }),
+
+      // Credentials
       setSpotifyClientId: (id) => set({ spotifyClientId: id }),
       setSpotifyClientSecret: (secret) => set({ spotifyClientSecret: secret }),
       setSpotifyUserAuth: (auth) => set({ spotifyUserAuth: auth }),
+
+      // Server
       setApiUrl: (url) => set({ apiUrl: url }),
       setApiTimeout: (timeout) => set({ apiTimeout: timeout }),
       setOfflineMode: (offline) => set({ offlineMode: offline }),
+
+      // Matching
       setNameMatchThreshold: (threshold) => set({ nameMatchThreshold: threshold }),
       setArtistMatchThreshold: (threshold) => set({ artistMatchThreshold: threshold }),
       setTimeMatchThreshold: (threshold) => set({ timeMatchThreshold: threshold }),
+
+      // Advanced
       setLogLevel: (level) => set({ logLevel: level }),
       setCookieFile: (file) => set({ cookieFile: file }),
+
+      // Appearance
       setCompactSidebar: (compact) => set({ compactSidebar: compact }),
       setEnableAnimations: (enable) => set({ enableAnimations: enable }),
       setReduceMotion: (reduce) => set({ reduceMotion: reduce }),
@@ -249,66 +388,20 @@ export const useSettingsStore = create<SettingsState>()(
 
       importSettings: (settings) => {
         const current = get();
-        set({
-          audioFormat: settings.audioFormat ?? current.audioFormat,
-          audioQuality: settings.audioQuality ?? current.audioQuality,
-          outputTemplate: settings.outputTemplate ?? current.outputTemplate,
-          outputDirectory: settings.outputDirectory ?? current.outputDirectory,
-          maxConcurrentDownloads: settings.maxConcurrentDownloads ?? current.maxConcurrentDownloads,
-          overwriteExisting: settings.overwriteExisting ?? current.overwriteExisting,
-          embedMetadata: settings.embedMetadata ?? current.embedMetadata,
-          embedLyrics: settings.embedLyrics ?? current.embedLyrics,
-          embedCoverArt: settings.embedCoverArt ?? current.embedCoverArt,
-          spotifyClientId: settings.spotifyClientId ?? current.spotifyClientId,
-          spotifyClientSecret: settings.spotifyClientSecret ?? current.spotifyClientSecret,
-          spotifyUserAuth: settings.spotifyUserAuth ?? current.spotifyUserAuth,
-          apiUrl: settings.apiUrl ?? current.apiUrl,
-          apiTimeout: settings.apiTimeout ?? current.apiTimeout,
-          offlineMode: settings.offlineMode ?? current.offlineMode,
-          nameMatchThreshold: settings.nameMatchThreshold ?? current.nameMatchThreshold,
-          artistMatchThreshold: settings.artistMatchThreshold ?? current.artistMatchThreshold,
-          timeMatchThreshold: settings.timeMatchThreshold ?? current.timeMatchThreshold,
-          logLevel: settings.logLevel ?? current.logLevel,
-          cookieFile: settings.cookieFile ?? current.cookieFile,
-          compactSidebar: settings.compactSidebar ?? current.compactSidebar,
-          enableAnimations: settings.enableAnimations ?? current.enableAnimations,
-          reduceMotion: settings.reduceMotion ?? current.reduceMotion,
-          audioSourcePreferences: settings.audioSourcePreferences ?? current.audioSourcePreferences,
-          metadataSourcePreferences: settings.metadataSourcePreferences ?? current.metadataSourcePreferences,
-          lyricsSourcePreferences: settings.lyricsSourcePreferences ?? current.lyricsSourcePreferences,
-        });
+        const merged: Record<string, unknown> = {};
+        for (const key of Object.keys(defaultSettings)) {
+          merged[key] = (settings as Record<string, unknown>)[key] ?? (current as Record<string, unknown>)[key];
+        }
+        set(merged);
       },
 
       exportSettings: () => {
         const state = get();
-        return {
-          audioFormat: state.audioFormat,
-          audioQuality: state.audioQuality,
-          outputTemplate: state.outputTemplate,
-          outputDirectory: state.outputDirectory,
-          maxConcurrentDownloads: state.maxConcurrentDownloads,
-          overwriteExisting: state.overwriteExisting,
-          embedMetadata: state.embedMetadata,
-          embedLyrics: state.embedLyrics,
-          embedCoverArt: state.embedCoverArt,
-          spotifyClientId: state.spotifyClientId,
-          spotifyClientSecret: state.spotifyClientSecret,
-          spotifyUserAuth: state.spotifyUserAuth,
-          apiUrl: state.apiUrl,
-          apiTimeout: state.apiTimeout,
-          offlineMode: state.offlineMode,
-          nameMatchThreshold: state.nameMatchThreshold,
-          artistMatchThreshold: state.artistMatchThreshold,
-          timeMatchThreshold: state.timeMatchThreshold,
-          logLevel: state.logLevel,
-          cookieFile: state.cookieFile,
-          compactSidebar: state.compactSidebar,
-          enableAnimations: state.enableAnimations,
-          reduceMotion: state.reduceMotion,
-          audioSourcePreferences: state.audioSourcePreferences,
-          metadataSourcePreferences: state.metadataSourcePreferences,
-          lyricsSourcePreferences: state.lyricsSourcePreferences,
-        };
+        const exported: Record<string, unknown> = {};
+        for (const key of Object.keys(defaultSettings)) {
+          exported[key] = (state as Record<string, unknown>)[key];
+        }
+        return exported as ExportableSettings;
       },
     }),
     {

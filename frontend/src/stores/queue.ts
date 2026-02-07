@@ -252,7 +252,7 @@ export const useQueueStore = create<QueueState>()(
             quality: settings.audioQuality === "best" ? "320" : settings.audioQuality.replace("k", ""),
             embed_metadata: settings.embedMetadata,
             embed_lyrics: settings.embedLyrics,
-            embed_cover_art: settings.embedCoverArt,
+            embed_cover: settings.embedCover,
           });
 
           get().updateItem(queueId, { downloadId: response.download_id });

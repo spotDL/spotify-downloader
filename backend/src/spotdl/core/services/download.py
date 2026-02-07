@@ -174,7 +174,7 @@ class DownloadRequest:
     # Metadata embedding options
     embed_metadata: bool = True
     embed_lyrics: bool = True
-    embed_cover_art: bool = True
+    embed_cover: bool = True
 
 
 class DownloadManager:
@@ -402,7 +402,7 @@ class DownloadManager:
                 audio_id3 = ID3(file_path)
 
                 # Add cover art if enabled and available
-                if request.embed_cover_art and request.cover_url and is_safe_url(request.cover_url):
+                if request.embed_cover and request.cover_url and is_safe_url(request.cover_url):
                     try:
                         async with httpx.AsyncClient() as client:
                             response = await client.get(request.cover_url)
