@@ -58,6 +58,7 @@ class ArtistScreen(Screen[None]):
         artist_id: str,
         platform: str = "spotify",
         initial_data: dict[str, Any] | None = None,
+        entity_id: str | None = None,
     ) -> None:
         """
         Initialize artist screen.
@@ -70,6 +71,7 @@ class ArtistScreen(Screen[None]):
         super().__init__()
         self._artist_id = artist_id
         self._platform = platform
+        self._entity_id = entity_id
         self._settings = get_settings()
         self._artist_data: dict[str, Any] = initial_data or {}
         self._albums: list[dict[str, Any]] = []
@@ -217,7 +219,10 @@ class ArtistScreen(Screen[None]):
         """Load artist data from API server."""
         try:
             api_client = get_api_client()
-            self._artist_data = await api_client.get_artist(self._artist_id, self._platform)
+            if self._entity_id:
+                self._artist_data = await api_client.get_entity_artist(self._entity_id)
+            else:
+                self._artist_data = await api_client.get_artist(self._artist_id, self._platform)
             self._update_display()
 
         except APIError as e:

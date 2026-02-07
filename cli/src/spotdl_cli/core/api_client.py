@@ -433,6 +433,206 @@ class APIClient:
         except httpx.HTTPError as e:
             raise APIError(f"Request failed: {e}") from e
 
+    def _primary_platform(self, platforms: list[dict[str, Any]]) -> dict[str, Any]:
+        """Return the first platform entry when available."""
+        return platforms[0] if platforms else {}
+
+    def _normalize_entity_song(self, data: dict[str, Any]) -> dict[str, Any]:
+        """Normalize internal song response into CLI-friendly fields."""
+        platforms = data.get("platforms", [])
+        primary = self._primary_platform(platforms)
+        artist = data.get("artist")
+        artists = data.get("artists") or ([artist] if artist else [])
+        return {
+            "name": data.get("name", ""),
+            "artists": artists,
+            "artist": artist or (artists[0] if artists else "Unknown"),
+            "duration": data.get("duration", 0) or 0,
+            "platform": primary.get("platform") or data.get("platform") or "spotify",
+            "platform_id": primary.get("platform_id") or data.get("platform_id") or "",
+            "url": primary.get("url") or data.get("url") or "",
+            "album": data.get("album_name"),
+            "album_name": data.get("album_name"),
+            "cover_url": data.get("cover_url"),
+            "track_number": data.get("track_number"),
+            "disc_number": data.get("disc_number"),
+            "isrc": data.get("isrc"),
+            "explicit": data.get("explicit", False),
+            "year": data.get("year"),
+            "genres": data.get("genres", []),
+        }
+
+    async def get_entity_song(
+        self, song_id: str, use_cache: bool = True
+    ) -> dict[str, Any]:
+        """Get song details by internal UUID."""
+        if use_cache:
+            cached = await self._cache.get("entity_song", song_id)
+            if cached is not None:
+                return cached
+
+        try:
+            client = await self._get_client()
+            response = await client.get(f"/api/v1/entities/songs/{song_id}")
+            if response.status_code == 404:
+                raise NotFoundError(f"Song not found: {song_id}")
+            response.raise_for_status()
+            result = response.json()
+            await self._cache.set(result, "entity_song", song_id, ttl=self.CACHE_TTL_DETAIL)
+            return result
+        except httpx.ConnectError as e:
+            raise ConnectionError(f"Cannot connect to API: {e}") from e
+        except httpx.HTTPStatusError as e:
+            raise APIError(f"API error: {e.response.text}") from e
+        except httpx.HTTPError as e:
+            raise APIError(f"Request failed: {e}") from e
+
+    async def get_entity_album(
+        self, album_id: str, use_cache: bool = True
+    ) -> dict[str, Any]:
+        """Get album details by internal UUID (normalized for CLI screens)."""
+        if use_cache:
+            cached = await self._cache.get("entity_album", album_id)
+            if cached is not None:
+                return cached
+
+        try:
+            client = await self._get_client()
+            response = await client.get(f"/api/v1/entities/albums/{album_id}")
+            if response.status_code == 404:
+                raise NotFoundError(f"Album not found: {album_id}")
+            response.raise_for_status()
+            data = response.json()
+
+            tracks = [self._normalize_entity_song(s) for s in data.get("songs", [])]
+            platforms = data.get("platforms", [])
+            primary = self._primary_platform(platforms)
+
+            result = {
+                "name": data.get("name"),
+                "artist": data.get("artist_name") or data.get("artist"),
+                "artists": [data.get("artist_name")] if data.get("artist_name") else [],
+                "tracks": tracks,
+                "total_tracks": data.get("total_tracks"),
+                "release_date": data.get("release_date"),
+                "year": data.get("year"),
+                "cover_url": data.get("cover_url"),
+                "album_type": data.get("album_type"),
+                "label": data.get("label"),
+                "popularity": data.get("popularity"),
+                "genres": data.get("genres", []),
+                "platforms": platforms,
+                "platform": primary.get("platform"),
+                "platform_id": primary.get("platform_id"),
+                "url": primary.get("url"),
+            }
+
+            await self._cache.set(result, "entity_album", album_id, ttl=self.CACHE_TTL_DETAIL)
+            return result
+        except httpx.ConnectError as e:
+            raise ConnectionError(f"Cannot connect to API: {e}") from e
+        except httpx.HTTPStatusError as e:
+            raise APIError(f"API error: {e.response.text}") from e
+        except httpx.HTTPError as e:
+            raise APIError(f"Request failed: {e}") from e
+
+    async def get_entity_artist(
+        self, artist_id: str, use_cache: bool = True
+    ) -> dict[str, Any]:
+        """Get artist details by internal UUID (normalized for CLI screens)."""
+        if use_cache:
+            cached = await self._cache.get("entity_artist", artist_id)
+            if cached is not None:
+                return cached
+
+        try:
+            client = await self._get_client()
+            response = await client.get(f"/api/v1/entities/artists/{artist_id}")
+            if response.status_code == 404:
+                raise NotFoundError(f"Artist not found: {artist_id}")
+            response.raise_for_status()
+            data = response.json()
+
+            top_tracks = [self._normalize_entity_song(s) for s in data.get("songs", [])]
+            albums = [
+                {
+                    "id": album.get("id"),
+                    "name": album.get("name"),
+                    "year": album.get("year"),
+                    "total_tracks": album.get("total_tracks"),
+                    "album_type": album.get("album_type"),
+                    "type": album.get("album_type"),
+                    "cover_url": album.get("cover_url"),
+                }
+                for album in data.get("albums", [])
+            ]
+
+            result = {
+                "name": data.get("name"),
+                "image_url": data.get("image_url"),
+                "genres": data.get("genres", []),
+                "bio": data.get("bio"),
+                "popularity": data.get("popularity"),
+                "followers": data.get("monthly_listeners") or 0,
+                "albums": albums,
+                "top_tracks": top_tracks,
+                "platforms": data.get("platforms", []),
+            }
+
+            await self._cache.set(result, "entity_artist", artist_id, ttl=self.CACHE_TTL_DETAIL)
+            return result
+        except httpx.ConnectError as e:
+            raise ConnectionError(f"Cannot connect to API: {e}") from e
+        except httpx.HTTPStatusError as e:
+            raise APIError(f"API error: {e.response.text}") from e
+        except httpx.HTTPError as e:
+            raise APIError(f"Request failed: {e}") from e
+
+    async def get_entity_playlist(
+        self, playlist_id: str, use_cache: bool = True
+    ) -> dict[str, Any]:
+        """Get playlist details by internal UUID (normalized for CLI screens)."""
+        if use_cache:
+            cached = await self._cache.get("entity_playlist", playlist_id)
+            if cached is not None:
+                return cached
+
+        try:
+            client = await self._get_client()
+            response = await client.get(f"/api/v1/entities/playlists/{playlist_id}")
+            if response.status_code == 404:
+                raise NotFoundError(f"Playlist not found: {playlist_id}")
+            response.raise_for_status()
+            data = response.json()
+
+            tracks = [self._normalize_entity_song(s) for s in data.get("songs", [])]
+            platforms = data.get("platforms", [])
+            primary = self._primary_platform(platforms)
+
+            result = {
+                "name": data.get("name"),
+                "description": data.get("description"),
+                "cover_url": data.get("cover_url"),
+                "owner": {"display_name": data.get("owner_name") or "Unknown"},
+                "tracks": tracks,
+                "total_tracks": data.get("total_tracks"),
+                "followers": data.get("followers") or 0,
+                "public": data.get("is_public", True),
+                "platforms": platforms,
+                "platform": primary.get("platform"),
+                "platform_id": primary.get("platform_id"),
+                "url": primary.get("url"),
+            }
+
+            await self._cache.set(result, "entity_playlist", playlist_id, ttl=self.CACHE_TTL_DETAIL)
+            return result
+        except httpx.ConnectError as e:
+            raise ConnectionError(f"Cannot connect to API: {e}") from e
+        except httpx.HTTPStatusError as e:
+            raise APIError(f"API error: {e.response.text}") from e
+        except httpx.HTTPError as e:
+            raise APIError(f"Request failed: {e}") from e
+
     async def submit_match(
         self,
         source_url: str,

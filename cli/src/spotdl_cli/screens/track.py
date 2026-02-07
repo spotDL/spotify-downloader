@@ -36,6 +36,7 @@ from spotdl_cli.core import (
     get_api_client,
     get_offline_matcher,
 )
+from spotdl_cli.core.types import Platform
 from spotdl_cli.theme import get_platform_icon
 
 if TYPE_CHECKING:
@@ -58,6 +59,7 @@ class TrackScreen(Screen[None]):
         song: Song,
         track_id: str | None = None,
         platform: str = "spotify",
+        entity_id: str | None = None,
     ) -> None:
         """
         Initialize track screen.
@@ -71,6 +73,7 @@ class TrackScreen(Screen[None]):
         self._song = song
         self._track_id = track_id or song.platform_id
         self._platform = platform
+        self._entity_id = entity_id
         self._settings = get_settings()
         self._matches: list[DownloadResult] = []
         self._lyrics: str | None = None
@@ -300,9 +303,13 @@ class TrackScreen(Screen[None]):
 
             # Get track details
             try:
-                self._track_details = await api_client.get_track(
-                    self._track_id, self._platform
-                )
+                if self._entity_id:
+                    self._track_details = await api_client.get_entity_song(self._entity_id)
+                    self._sync_song_from_entity(self._track_details)
+                else:
+                    self._track_details = await api_client.get_track(
+                        self._track_id, self._platform
+                    )
                 self._update_track_details()
             except APIError as e:
                 logger.warning(f"Failed to get track details: {e}")
@@ -339,6 +346,34 @@ class TrackScreen(Screen[None]):
             self.notify(f"Error loading data: {e}", severity="error")
             # Fall back to offline
             await self._load_offline_data()
+
+    def _sync_song_from_entity(self, data: dict[str, Any]) -> None:
+        """Sync Song fields from an internal entity response."""
+        platforms = data.get("platforms", [])
+        primary = platforms[0] if platforms else {}
+        platform = primary.get("platform") or self._platform
+        platform_id = primary.get("platform_id") or self._track_id
+        url = primary.get("url") or self._song.url
+
+        if platform:
+            try:
+                self._song.platform = Platform(platform)
+            except ValueError:
+                pass
+            self._platform = platform
+        if platform_id:
+            self._track_id = platform_id
+            self._song.platform_id = platform_id
+        if url:
+            self._song.url = url
+
+        self._song.name = data.get("name", self._song.name)
+        self._song.artists = data.get("artists", self._song.artists)
+        self._song.artist = data.get("artist", self._song.artist)
+        self._song.duration = data.get("duration", self._song.duration)
+        self._song.album_name = data.get("album_name", self._song.album_name)
+        self._song.isrc = data.get("isrc", self._song.isrc)
+        self._song.cover_url = data.get("cover_url", self._song.cover_url)
 
     async def _load_offline_data(self) -> None:
         """Load data using offline providers."""

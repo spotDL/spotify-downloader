@@ -420,7 +420,7 @@ Rule {
 #main-container {
     width: 100%;
     height: 100%;
-    padding: 0 1;
+    padding: 1 1;
 }
 
 /* ---- Search bar: single compact row ---- */
@@ -578,8 +578,8 @@ Rule {
 }
 
 .artist-tile-cover {
-    width: 18;
-    height: 5;
+    width: 10;
+    height: 10;
     background: $bg-surface;
     border: solid $border-subtle;
     overflow: hidden;
@@ -659,8 +659,8 @@ Rule {
 }
 
 .album-tile-cover {
-    width: 18;
-    height: 5;
+    width: 10;
+    height: 10;
     background: $bg-surface;
     border: solid $border-subtle;
     overflow: hidden;
@@ -676,13 +676,23 @@ Rule {
 
 .compact-row {
     height: auto;
-    max-height: 5;
+    max-height: 6;
     width: 100%;
     padding: 0 1;
     margin: 0;
     background: $bg-elevated;
     border-bottom: solid $border-subtle;
     align: left middle;
+}
+
+.row-cover {
+    width: 5;
+    height: 5;
+    background: $bg-surface;
+    border: solid $border-subtle;
+    overflow: hidden;
+    content-align: center middle;
+    margin-right: 1;
 }
 
 .compact-row:hover {
@@ -1696,7 +1706,7 @@ MarkdownOrderedList {
 #artist-hero-content,
 #playlist-hero-content {
     height: auto;
-    min-height: 13;
+    min-height: 16;
     align: left top;
 }
 
@@ -1712,8 +1722,8 @@ CoverArt #cover-image {
 
 /* Cover/Avatar placeholders */
 .cover-placeholder {
-    width: 22;
-    height: 11;
+    width: 12;
+    height: 12;
     background: $bg-surface;
     border: wide $border-color;
     content-align: center middle;
@@ -1721,8 +1731,8 @@ CoverArt #cover-image {
 }
 
 .cover-placeholder-large {
-    width: 26;
-    height: 13;
+    width: 16;
+    height: 16;
     background: $bg-surface;
     border: wide $border-color;
     content-align: center middle;
@@ -1730,8 +1740,8 @@ CoverArt #cover-image {
 }
 
 .avatar-placeholder {
-    width: 22;
-    height: 11;
+    width: 12;
+    height: 12;
     background: $bg-surface;
     border: wide $accent-primary;
     content-align: center middle;

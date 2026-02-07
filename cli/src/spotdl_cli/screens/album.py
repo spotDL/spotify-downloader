@@ -55,6 +55,7 @@ class AlbumScreen(Screen[None]):
         album_id: str,
         platform: str = "spotify",
         initial_data: dict[str, Any] | None = None,
+        entity_id: str | None = None,
     ) -> None:
         """
         Initialize album screen.
@@ -67,6 +68,7 @@ class AlbumScreen(Screen[None]):
         super().__init__()
         self._album_id = album_id
         self._platform = platform
+        self._entity_id = entity_id
         self._settings = get_settings()
         self._album_data: dict[str, Any] = initial_data or {}
         self._tracks: list[Song] = []
@@ -207,7 +209,14 @@ class AlbumScreen(Screen[None]):
         """Load album data from API server."""
         try:
             api_client = get_api_client()
-            self._album_data = await api_client.get_album(self._album_id, self._platform)
+            if self._entity_id:
+                self._album_data = await api_client.get_entity_album(self._entity_id)
+                if self._album_data.get("platform"):
+                    self._platform = self._album_data["platform"]
+                if self._album_data.get("platform_id"):
+                    self._album_id = self._album_data["platform_id"]
+            else:
+                self._album_data = await api_client.get_album(self._album_id, self._platform)
             self._update_display()
 
         except APIError as e:

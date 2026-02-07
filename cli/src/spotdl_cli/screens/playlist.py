@@ -55,6 +55,7 @@ class PlaylistScreen(Screen[None]):
         playlist_id: str,
         platform: str = "spotify",
         initial_data: dict[str, Any] | None = None,
+        entity_id: str | None = None,
     ) -> None:
         """
         Initialize playlist screen.
@@ -67,6 +68,7 @@ class PlaylistScreen(Screen[None]):
         super().__init__()
         self._playlist_id = playlist_id
         self._platform = platform
+        self._entity_id = entity_id
         self._settings = get_settings()
         self._playlist_data: dict[str, Any] = initial_data or {}
         self._tracks: list[Song] = []
@@ -203,9 +205,16 @@ class PlaylistScreen(Screen[None]):
         """Load playlist data from API server."""
         try:
             api_client = get_api_client()
-            self._playlist_data = await api_client.get_playlist(
-                self._playlist_id, self._platform
-            )
+            if self._entity_id:
+                self._playlist_data = await api_client.get_entity_playlist(self._entity_id)
+                if self._playlist_data.get("platform"):
+                    self._platform = self._playlist_data["platform"]
+                if self._playlist_data.get("platform_id"):
+                    self._playlist_id = self._playlist_data["platform_id"]
+            else:
+                self._playlist_data = await api_client.get_playlist(
+                    self._playlist_id, self._platform
+                )
             self._update_display()
 
         except APIError as e:
