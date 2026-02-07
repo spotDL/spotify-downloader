@@ -58,9 +58,12 @@ class QueueScreen(Screen[None]):
         """Compose the screen layout."""
         with Vertical(id="queue-container"):
             # Stats header
-            with Horizontal(id="queue-header"):
-                yield Static("Downloads", id="queue-title", classes="title")
-                yield Static("Pending: 0 | Active: 0 | Done: 0", id="queue-stats")
+            with Vertical(id="queue-header"):
+                with Horizontal(id="queue-title-row"):
+                    yield Static("Downloads", id="queue-title")
+
+                with Horizontal(id="queue-stats-row"):
+                    yield Static("", id="queue-stats")
 
             # Queue table
             with Container(id="queue-table-container"):

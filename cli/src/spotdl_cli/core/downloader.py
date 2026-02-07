@@ -4,10 +4,14 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import re
 import traceback
 from collections.abc import Callable
 from pathlib import Path
 from typing import Any
+
+# Strip ANSI escape sequences from yt-dlp error messages
+_ANSI_RE = re.compile(r"\x1b\[[0-9;]*m")
 
 from spotdl_core.download import (
     Archive,
@@ -275,18 +279,20 @@ class DownloadManager:
             return output_path
 
         except DownloadError as e:
-            logger.error("Download failed for %s: %s", item.song.display_name, e)
+            clean_err = _ANSI_RE.sub("", str(e)).strip()
+            logger.error("Download failed for %s: %s", item.song.display_name, clean_err)
             self._log_error(item.song, e)
 
             if self._settings.add_unavailable:
                 self._archive.add(item.song.url)
 
             if status_callback:
-                status_callback(item_id, DownloadStatus.FAILED, 0.0, "", "", str(e))
+                status_callback(item_id, DownloadStatus.FAILED, 0.0, "", "", clean_err)
             return None
 
         except Exception as e:
-            logger.error("Unexpected error downloading %s: %s", item.song.display_name, e)
+            clean_err = _ANSI_RE.sub("", str(e)).strip()
+            logger.error("Unexpected error downloading %s: %s", item.song.display_name, clean_err)
             self._log_error(item.song, e)
 
             if self._settings.add_unavailable:
@@ -295,7 +301,7 @@ class DownloadManager:
             if status_callback:
                 status_callback(
                     item_id, DownloadStatus.FAILED, 0.0, "", "",
-                    f"Unexpected error: {e}",
+                    f"Unexpected error: {clean_err}",
                 )
             return None
 

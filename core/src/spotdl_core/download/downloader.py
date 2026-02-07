@@ -243,6 +243,8 @@ class Downloader:
             "outtmpl": str(output_path),
             "quiet": True,
             "no_warnings": True,
+            "noprogress": True,
+            "no_color": True,
             "extract_flat": False,
             "postprocessors": postprocessors,
         }

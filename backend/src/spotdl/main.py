@@ -4,13 +4,17 @@ from __future__ import annotations
 
 import logging
 import sys
+import time
+import traceback
 from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import AsyncGenerator
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request, status
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
+from starlette.middleware.base import BaseHTTPMiddleware
 
 from spotdl.api.v1 import router as api_v1_router
 from spotdl.api.v1.websocket import router as websocket_router
@@ -44,8 +48,11 @@ def setup_logging() -> None:
 
     # Set specific loggers
     logging.getLogger("spotdl").setLevel(log_level)
+    logging.getLogger("spotdl.api").setLevel(log_level)  # API request logging
     logging.getLogger("uvicorn").setLevel(log_level)
-    logging.getLogger("uvicorn.access").setLevel(log_level if settings.debug else logging.WARNING)
+    logging.getLogger("uvicorn.error").setLevel(log_level)
+    # Always show access logs in development
+    logging.getLogger("uvicorn.access").setLevel(logging.INFO if settings.is_development else logging.WARNING)
 
     # Reduce noise from third-party libraries in debug mode
     logging.getLogger("httpx").setLevel(logging.WARNING)
@@ -93,6 +100,77 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     logger.info("Shutdown complete")
 
 
+class RequestLoggingMiddleware(BaseHTTPMiddleware):
+    """
+    Middleware to log all HTTP requests and responses.
+
+    Logs request method, path, status code, and response time.
+    """
+
+    async def dispatch(self, request: Request, call_next):
+        """Process the request and log details."""
+        logger = logging.getLogger("spotdl.api")
+
+        # Skip logging for health check and static files
+        if request.url.path in ["/health", "/api/v1/health"]:
+            return await call_next(request)
+
+        start_time = time.time()
+
+        # Log incoming request
+        logger.debug("→ %s %s", request.method, request.url.path)
+
+        # Process the request
+        response = await call_next(request)
+
+        # Calculate response time
+        duration = (time.time() - start_time) * 1000  # Convert to ms
+
+        # Log response with status code
+        log_level = logging.INFO
+        if response.status_code >= 500:
+            log_level = logging.ERROR
+        elif response.status_code >= 400:
+            log_level = logging.WARNING
+
+        logger.log(
+            log_level,
+            "← %s %s → %d (%.2fms)",
+            request.method,
+            request.url.path,
+            response.status_code,
+            duration,
+        )
+
+        return response
+
+
+async def global_exception_handler(request: Request, exc: Exception) -> JSONResponse:
+    """
+    Global exception handler that logs all unhandled exceptions with full traceback.
+
+    This catches any exception that wasn't handled by endpoint-specific handlers.
+    """
+    logger = logging.getLogger(__name__)
+
+    # Log the full exception with traceback
+    logger.error(
+        "Unhandled exception during request to %s %s",
+        request.method,
+        request.url.path,
+        exc_info=exc,
+    )
+
+    # Return a generic error response
+    return JSONResponse(
+        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        content={
+            "detail": "Internal server error. Please try again later.",
+            "type": type(exc).__name__,
+        },
+    )
+
+
 def create_app() -> FastAPI:
     """Create and configure the FastAPI application."""
     settings = get_settings()
@@ -106,6 +184,12 @@ def create_app() -> FastAPI:
         openapi_url="/openapi.json" if settings.is_development else None,
         lifespan=lifespan,
     )
+
+    # Register global exception handler
+    app.add_exception_handler(Exception, global_exception_handler)
+
+    # Request logging middleware (must be added before other middleware)
+    app.add_middleware(RequestLoggingMiddleware)
 
     # CORS middleware
     app.add_middleware(
