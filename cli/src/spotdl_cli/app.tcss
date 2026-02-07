@@ -576,12 +576,13 @@ Rule {
 
 /* Entity card */
 .entity-card {
-    height: auto;
+    height: 7;
     max-width: 120;
-    padding: 1;
+    padding: 0 1;
     margin-bottom: 1;
     background: $bg-elevated;
     border: wide $border-color;
+    align: left middle;
 }
 
 .entity-card:hover {
@@ -608,6 +609,7 @@ Rule {
 
 .card-info {
     width: 1fr;
+    height: auto;
     padding: 0 1;
 }
 
@@ -628,6 +630,7 @@ Rule {
 
 .card-action {
     width: auto;
+    height: auto;
     padding: 0 1;
 }
 
@@ -648,7 +651,6 @@ Rule {
 /* Card meta row (type badge + platform dots) */
 .card-meta-row {
     height: auto;
-    width: auto;
     align: left middle;
     margin-bottom: 0;
 }
@@ -783,7 +785,6 @@ Rule {
 /* Platform badges */
 .platform-badges {
     height: auto;
-    width: auto;
     margin-left: 1;
 }
 

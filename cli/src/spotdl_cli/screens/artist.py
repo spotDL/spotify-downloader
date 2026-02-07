@@ -73,6 +73,8 @@ class ArtistScreen(Screen[None]):
         self._settings = get_settings()
         self._artist_data: dict[str, Any] = initial_data or {}
         self._albums: list[dict[str, Any]] = []
+        # Per-tab album lists for correct row selection in filtered tables
+        self._albums_filtered: dict[str, list[dict[str, Any]]] = {}
         self._top_tracks: list[Song] = []
         self._current_tab = "all"
 
@@ -227,41 +229,61 @@ class ArtistScreen(Screen[None]):
         """Load artist data using offline search."""
         status = self.query_one("#top-tracks-status", Static)
 
-        # Try to search for artist
         try:
             offline_matcher = get_offline_matcher()
 
-            # Use the artist name (from initial_data) or ID as search query
-            artist_name = (
-                self._artist_data.get("name")
-                if self._artist_data
-                else self._artist_id
-            )
+            # Use the artist name from initial_data, falling back to ID
+            artist_name = self._artist_data.get("name") or self._artist_id
+            # Strip offline-derived ID prefixes
+            if artist_name.startswith("offline-artist-"):
+                artist_name = artist_name.replace("offline-artist-", "").replace("-", " ")
+
             songs = await offline_matcher.search_all(artist_name, limit=50)
 
-            if songs:
-                # Build artist data from tracks
-                first_song = songs[0]
-                self._top_tracks = songs[:10]
+            # Filter to songs that actually match this artist
+            artist_lower = artist_name.lower().strip()
+            artist_songs = [
+                s for s in songs
+                if artist_lower in s.artist.lower()
+                or any(artist_lower in a.lower() for a in s.artists)
+            ]
+            # If strict filter returns nothing, use all results
+            if not artist_songs:
+                artist_songs = songs
 
-                # Group by album
+            if artist_songs:
+                first_song = artist_songs[0]
+                self._top_tracks = artist_songs[:10]
+
+                # Group by album, use song's album_type if available
                 albums: dict[str, dict[str, Any]] = {}
-                for song in songs:
+                for song in artist_songs:
                     album_name = song.album_name or "Unknown"
                     if album_name not in albums:
                         albums[album_name] = {
                             "name": album_name,
-                            "type": "album",
+                            "type": song.album_type or "album",
                             "total_tracks": 0,
-                            "year": song.year,
-                            "platform_id": "",
+                            "year": getattr(song, "year", None),
+                            "platform_id": getattr(song, "album_id", "") or "",
+                            "cover_url": song.cover_url,
                         }
                     albums[album_name]["total_tracks"] += 1
+
+                # Infer album type from track count when not set by provider
+                for album in albums.values():
+                    if album["type"] == "album":
+                        tc = album["total_tracks"]
+                        if tc <= 1:
+                            album["type"] = "single"
+                        elif tc <= 5:
+                            album["type"] = "ep"
 
                 self._albums = list(albums.values())
                 self._artist_data = {
                     "name": first_song.artist,
-                    "genres": first_song.genres or [],
+                    "image_url": first_song.cover_url,
+                    "genres": getattr(first_song, "genres", None) or [],
                     "albums": self._albums,
                     "top_tracks": [self._song_to_dict(s) for s in self._top_tracks],
                     "platform": self._platform,
@@ -269,7 +291,7 @@ class ArtistScreen(Screen[None]):
                 }
                 self._update_display()
             else:
-                status.update("[yellow]Artist not found[/]")
+                status.update("[yellow]No songs found for this artist[/]")
 
         except Exception as e:
             logger.error(f"Offline artist load failed: {e}")
@@ -286,6 +308,7 @@ class ArtistScreen(Screen[None]):
             "platform": song.platform.value,
             "platform_id": song.platform_id,
             "url": song.url,
+            "cover_url": song.cover_url,
         }
 
     def _update_display(self) -> None:
@@ -379,6 +402,7 @@ class ArtistScreen(Screen[None]):
                 platform_id=track.get("platform_id", ""),
                 url=track.get("url", ""),
                 album_name=track.get("album"),
+                cover_url=track.get("cover_url"),
             )
             self._top_tracks.append(song)
 
@@ -394,7 +418,6 @@ class ArtistScreen(Screen[None]):
 
     def _update_discography(self, albums: list[dict[str, Any]]) -> None:
         """Update discography tables."""
-        # All albums table
         table_all = self.query_one("#albums-table-all", DataTable)
         table_all.clear()
 
@@ -406,6 +429,11 @@ class ArtistScreen(Screen[None]):
 
         table_eps = self.query_one("#albums-table-eps", DataTable)
         table_eps.clear()
+
+        # Build per-tab album lists for correct row selection
+        filtered_albums: list[dict[str, Any]] = []
+        filtered_singles: list[dict[str, Any]] = []
+        filtered_eps: list[dict[str, Any]] = []
 
         for album in albums:
             name = album.get("name", "Unknown")[:40]
@@ -420,10 +448,20 @@ class ArtistScreen(Screen[None]):
             type_lower = album_type.lower()
             if type_lower == "album":
                 table_albums.add_row(name, tracks, year)
+                filtered_albums.append(album)
             elif type_lower == "single":
                 table_singles.add_row(name, year)
+                filtered_singles.append(album)
             elif type_lower in ("ep", "compilation"):
                 table_eps.add_row(name, tracks, year)
+                filtered_eps.append(album)
+
+        self._albums_filtered = {
+            "albums-table-all": albums,
+            "albums-table-albums": filtered_albums,
+            "albums-table-singles": filtered_singles,
+            "albums-table-eps": filtered_eps,
+        }
 
         status = self.query_one("#discography-status", Static)
         status.update(f"[dim]{len(albums)} release(s)[/]")
@@ -433,7 +471,11 @@ class ArtistScreen(Screen[None]):
         if event.button.id == "download-all-btn":
             await self._download_all()
         elif event.button.id == "refresh-btn":
-            self._artist_data = {}
+            # Preserve the artist name so offline search works correctly
+            name = self._artist_data.get("name", "")
+            self._artist_data = {"name": name} if name else {}
+            self._albums = []
+            self._top_tracks = []
             await self._load_artist_data()
 
     async def on_data_table_row_selected(self, event: DataTable.RowSelected) -> None:
@@ -448,8 +490,10 @@ class ArtistScreen(Screen[None]):
                 track = self._top_tracks[row_index]
                 await self._view_track(track)
         elif table_id and table_id.startswith("albums-table"):
-            if row_index < len(self._albums):
-                album = self._albums[row_index]
+            # Use per-tab filtered list so row index maps correctly
+            tab_albums = self._albums_filtered.get(table_id, self._albums)
+            if row_index < len(tab_albums):
+                album = tab_albums[row_index]
                 await self._view_album(album)
 
     async def _view_track(self, track: Song) -> None:

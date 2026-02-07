@@ -270,6 +270,7 @@ class PlaylistScreen(Screen[None]):
             "platform": song.platform.value,
             "platform_id": song.platform_id,
             "url": song.url,
+            "cover_url": song.cover_url,
             "added_at": None,
         }
 
@@ -436,6 +437,7 @@ class PlaylistScreen(Screen[None]):
                 album_name=track.get("album", {}).get("name")
                 if isinstance(track.get("album"), dict)
                 else track.get("album"),
+                cover_url=track.get("cover_url") or self._playlist_data.get("cover_url"),
             )
             self._tracks.append(song)
 
@@ -464,7 +466,9 @@ class PlaylistScreen(Screen[None]):
         elif event.button.id == "add-queue-btn":
             await self._add_all_to_queue()
         elif event.button.id == "refresh-btn":
-            self._playlist_data = {}
+            name = self._playlist_data.get("name", "")
+            self._playlist_data = {"name": name} if name else {}
+            self._tracks = []
             await self._load_playlist_data()
 
     async def on_data_table_row_selected(self, event: DataTable.RowSelected) -> None:

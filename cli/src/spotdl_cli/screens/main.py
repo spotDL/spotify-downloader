@@ -796,12 +796,16 @@ class MainScreen(Screen[None]):
             await self._view_entity(entity_type_str, entity_id)
 
     def _find_entity(self, entity_id: str) -> EntityResult | None:
-        """Find an entity by ID in the current results."""
+        """Find an entity by ID in the current results.
+
+        Compares both raw and sanitized IDs since button IDs are sanitized
+        but entity IDs may contain unsanitized platform IDs.
+        """
         if not self._search_response:
             return None
 
         for result in self._search_response.results:
-            if result.id == entity_id:
+            if result.id == entity_id or _sanitize_id(result.id) == entity_id:
                 return result
         return None
 

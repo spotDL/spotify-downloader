@@ -285,6 +285,7 @@ class AlbumScreen(Screen[None]):
             "platform": song.platform.value,
             "platform_id": song.platform_id,
             "url": song.url,
+            "cover_url": song.cover_url,
         }
 
     def _update_display(self) -> None:
@@ -440,6 +441,7 @@ class AlbumScreen(Screen[None]):
                 track_number=track.get("track_number", 0),
                 disc_number=track.get("disc_number", 1),
                 explicit=track.get("explicit", False),
+                cover_url=track.get("cover_url") or self._album_data.get("cover_url"),
             )
             self._tracks.append(song)
 
@@ -461,7 +463,15 @@ class AlbumScreen(Screen[None]):
         elif event.button.id == "add-queue-btn":
             await self._add_all_to_queue()
         elif event.button.id == "refresh-btn":
+            # Preserve name/artist so offline search still works
+            name = self._album_data.get("name", "")
+            artist = self._album_data.get("artist", "")
             self._album_data = {}
+            if name:
+                self._album_data["name"] = name
+            if artist:
+                self._album_data["artist"] = artist
+            self._tracks = []
             await self._load_album_data()
 
     async def on_data_table_row_selected(self, event: DataTable.RowSelected) -> None:

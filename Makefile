@@ -54,7 +54,7 @@ build:
 
 # CLI Development
 dev-cli:
-	cd cli && uv run spotdl --dev
+	cd cli && uv run --with textual-dev textual run --dev src/spotdl_cli/__main__.py
 
 cli:
 	cd cli && uv run spotdl
