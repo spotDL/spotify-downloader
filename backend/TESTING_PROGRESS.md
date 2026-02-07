@@ -7,8 +7,8 @@ Added comprehensive test coverage to the SpotDL backend incrementally.
 
 ### Backend Tests
 - **Initial Coverage**: 52.37%
-- **Current Coverage**: 55.74%
-- **Improvement**: +3.37%
+- **Current Coverage**: 57.05%
+- **Improvement**: +4.68%
 
 ### Tests Added
 1. **Repository Tests** (7 tests)
@@ -69,14 +69,22 @@ Added comprehensive test coverage to the SpotDL backend incrementally.
    - Empty query handling
    - Unsupported URL handling
 
-10. **Bug Fixes**
+10. **Entities API Tests** (26 tests)
+   - GET endpoints for artists, albums, songs, playlists by ID
+   - POST endpoints for refresh operations
+   - POST endpoints for enrichment
+   - Platform-based entity lookup
+   - Invalid UUID and not-found error handling
+   - Metadata providers endpoint
+
+11. **Bug Fixes**
    - Fixed 15 initially failing tests
    - Fixed provider initialization (enabled all platforms for testing)
    - Fixed authentication in API tests (use authenticated_client)
    - Fixed database directory creation
    - Fixed Result type tests (artists tuple conversion, isrc_search field)
 
-### Total New Tests: **112 tests**
+### Total New Tests: **155 tests**
 
 ## Module Coverage Improvements
 - `spotdl.core.providers_config`: 91% → **100%** ✅
