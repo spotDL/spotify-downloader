@@ -235,6 +235,13 @@ class TestMetadataResolverInit:
         resolver = MetadataResolver(preferences=prefs)
         assert resolver.preferences == prefs
 
+    def test_init_typed_preferences_not_revalidated(self) -> None:
+        """Test that typed preferences are used directly without re-validation."""
+        prefs = get_default_embed_preferences()
+        resolver = MetadataResolver(preferences=prefs)
+        # Should store the preferences directly (line 113)
+        assert isinstance(resolver._preferences, dict)
+
 
 class TestMetadataResolverResolve:
     """Tests for MetadataResolver.resolve method."""
@@ -404,6 +411,22 @@ class TestMetadataResolverResolve:
         assert result.get("artists") is None
         assert result.get_source("name") is None
 
+    def test_resolve_missing_field_preference_uses_default_order(
+        self, sample_song_id: str, mock_snapshot_spotify: MagicMock
+    ) -> None:
+        """Test that fields without explicit preference use default order."""
+        # Create preferences that don't specify all field preferences
+        # Pass dict directly without validation to test line 166-167
+        resolver = MetadataResolver()
+        # Manually modify preferences to remove a field entry
+        resolver._preferences["fields"].pop("name", None)
+
+        result = resolver.resolve(sample_song_id, [mock_snapshot_spotify])
+
+        # Should use default_order (line 166-167)
+        assert result.get("name") == "Spotify Title"
+        assert result.fields["name"].enabled is True
+
 
 class TestMetadataResolverGetFieldValue:
     """Tests for MetadataResolver._get_field_value method."""
@@ -552,6 +575,40 @@ class TestMetadataResolverSongToSnapshotData:
         data = resolver._song_to_snapshot_data(mock_song)
 
         assert data["year"] == 2023  # From release_date
+
+    def test_song_to_snapshot_key_zero_value(self, mock_song: MagicMock) -> None:
+        """Test that key=0 is included (testing line 265-266)."""
+        mock_song.key = 0  # Zero is a valid key (C major)
+
+        resolver = MetadataResolver()
+        data = resolver._song_to_snapshot_data(mock_song)
+
+        assert "key" in data
+        assert data["key"] == 0
+
+    def test_song_to_snapshot_all_audio_features_none(
+        self, mock_song: MagicMock
+    ) -> None:
+        """Test handling when all audio features are None."""
+        mock_song.bpm = None
+        mock_song.key = None
+        mock_song.time_signature = None
+        mock_song.energy = None
+        mock_song.danceability = None
+        mock_song.valence = None
+        mock_song.loudness = None
+
+        resolver = MetadataResolver()
+        data = resolver._song_to_snapshot_data(mock_song)
+
+        # None values should be excluded
+        assert "bpm" not in data
+        assert "key" not in data
+        assert "time_signature" not in data
+        assert "energy" not in data
+        assert "danceability" not in data
+        assert "valence" not in data
+        assert "loudness" not in data
 
 
 class TestMetadataResolverResolveFromSong:

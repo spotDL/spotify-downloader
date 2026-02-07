@@ -175,6 +175,8 @@ class TestGetProviders:
         empty_prefs = [
             ProviderPreference(id="synced", name="Synced", enabled=False),
             ProviderPreference(id="genius", name="Genius", enabled=False),
+            ProviderPreference(id="musixmatch", name="MusixMatch", enabled=False),
+            ProviderPreference(id="azlyrics", name="AZLyrics", enabled=False),
         ]
         service = LyricsService(
             session=db_session,
@@ -182,8 +184,12 @@ class TestGetProviders:
         )
         async with service:
             providers = service._get_providers()
-            # Should fall back to defaults
-            assert len(providers) == 4
+            # When all disabled, get_enabled_lyrics_provider_ids returns defaults
+            # Default only includes: synced, genius, musixmatch (azlyrics is disabled by default)
+            assert len(providers) == 3
+            assert isinstance(providers[0], SyncedLyricsProvider)
+            assert isinstance(providers[1], GeniusWebProvider)
+            assert isinstance(providers[2], MusixMatchProvider)
 
     @pytest.mark.asyncio
     async def test_create_provider_unknown(self, db_session: AsyncSession) -> None:
@@ -516,16 +522,13 @@ class TestProviderFallback:
         sample_lyrics: str,
         sample_synced_lyrics: str,
     ) -> None:
-        """Test that synced lyrics are prioritized."""
+        """Test that synced lyrics are prioritized over plain lyrics."""
         service = LyricsService(session=db_session)
 
         async with service:
-            # Create mock synced provider
-            mock_synced = MagicMock()
-            mock_synced.name = "SyncedProvider"
+            # Create actual SyncedLyricsProvider instance with mocked get_lyrics
+            mock_synced = SyncedLyricsProvider(client=service._client, allow_plain=False)
             mock_synced.get_lyrics = AsyncMock(return_value=sample_synced_lyrics)
-            mock_synced.__aenter__ = AsyncMock(return_value=mock_synced)
-            mock_synced.__aexit__ = AsyncMock()
 
             # Create mock plain provider
             mock_plain = AsyncMock()
@@ -537,23 +540,16 @@ class TestProviderFallback:
             with patch.object(
                 service, "_get_providers", return_value=[mock_synced, mock_plain]
             ):
-                # Make the service think first provider is SyncedLyricsProvider
-                with patch(
-                    "spotdl.core.services.lyrics.SyncedLyricsProvider",
-                    return_value=mock_synced,
-                ):
-                    with patch.object(
-                        service, "_is_lrc_format", return_value=True
-                    ) as mock_is_lrc:
-                        result = await service.fetch_lyrics(
-                            song_id=song_id,
-                            name="Test Song",
-                            artists=["Test Artist"],
-                        )
+                result = await service.fetch_lyrics(
+                    song_id=song_id,
+                    name="Test Song",
+                    artists=["Test Artist"],
+                )
 
-                        assert result is not None
-                        # Should check if it's LRC format
-                        assert result.lyrics_synced is not None
+                assert result is not None
+                # Should detect synced lyrics
+                assert result.lyrics_synced is not None
+                assert result.source == "synced"
 
 
 class TestLRCFormatHandling:

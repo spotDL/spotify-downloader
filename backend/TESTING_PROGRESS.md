@@ -7,8 +7,8 @@ Added comprehensive test coverage to the SpotDL backend incrementally.
 
 ### Backend Tests
 - **Initial Coverage**: 52.37%
-- **Current Coverage**: 57.05%
-- **Improvement**: +4.68%
+- **Current Coverage**: 67.27%
+- **Improvement**: +14.90%
 
 ### Tests Added
 1. **Repository Tests** (7 tests)
@@ -77,14 +77,54 @@ Added comprehensive test coverage to the SpotDL backend incrementally.
    - Invalid UUID and not-found error handling
    - Metadata providers endpoint
 
-11. **Bug Fixes**
+11. **Admin API Tests** (49 tests) - 34% → 98%
+   - User management (list, get, update, filters)
+   - Match management (list, verify, reject, reputation)
+   - Statistics and entity counting
+   - Import/export operations
+   - Danger zone operations (purge, reset)
+   - Authorization and access control
+
+12. **Download Service Tests** (60 tests) - 33% → 87%
+   - URL validation and SSRF protection
+   - Download settings and progress tracking
+   - Download lifecycle (start, cancel, retrieve)
+   - Format conversions and quality settings
+   - Lyrics fetching and LRC generation
+   - Callback system and error handling
+
+13. **Lyrics Service Tests** (45 tests) - 18% → 93%
+   - Provider initialization and configuration
+   - Lyrics fetching with caching
+   - Synced vs unsynced lyrics handling
+   - Provider fallback logic
+   - LRC format detection and conversion
+   - Quality scoring algorithm
+
+14. **Entity Service Tests** (49 tests) - 18% → 94%
+   - Entity normalization
+   - Artist/album/playlist/song persistence
+   - Cross-platform matching and deduplication
+   - Bulk persistence from search
+   - Artist image enrichment
+   - Full song enrichment workflow
+
+15. **Metadata Resolver Tests** (49 tests) - 0% → 99%
+   - Metadata resolution from multiple sources
+   - Provider priority and field ordering
+   - Song-to-snapshot conversion
+   - Field value extraction with aliases
+   - Complex multi-source merging
+   - Disabled fields handling
+
+16. **Bug Fixes**
    - Fixed 15 initially failing tests
    - Fixed provider initialization (enabled all platforms for testing)
    - Fixed authentication in API tests (use authenticated_client)
    - Fixed database directory creation
    - Fixed Result type tests (artists tuple conversion, isrc_search field)
 
-### Total New Tests: **155 tests**
+### Total New Tests: **407 tests** (155 + 252 from parallel agents)
 
 ## Module Coverage Improvements
 - `spotdl.core.providers_config`: 91% → **100%** ✅

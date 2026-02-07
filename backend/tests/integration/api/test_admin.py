@@ -433,13 +433,13 @@ class TestListMatches:
             source_url="https://open.spotify.com/track/user",
             target_platform="youtube",
             target_url="https://youtube.com/watch?v=user",
-            match_type=MatchType.USER_SUBMITTED,
+            match_type=MatchType.USER,
         )
         db_session.add(user_match)
         await db_session.commit()
 
         response = await admin_client.get(
-            "/api/v1/admin/matches", params={"match_type": "user_submitted"}
+            "/api/v1/admin/matches", params={"match_type": "user"}
         )
 
         assert response.status_code == 200
@@ -513,7 +513,7 @@ class TestUpdateMatchStatus:
             source_url="https://open.spotify.com/track/rep",
             target_platform="youtube",
             target_url="https://youtube.com/watch?v=rep",
-            match_type=MatchType.USER_SUBMITTED,
+            match_type=MatchType.USER,
             status="pending",
             submitted_by=test_user.id,
         )
@@ -545,7 +545,7 @@ class TestUpdateMatchStatus:
             source_url="https://open.spotify.com/track/rep2",
             target_platform="youtube",
             target_url="https://youtube.com/watch?v=rep2",
-            match_type=MatchType.USER_SUBMITTED,
+            match_type=MatchType.USER,
             status="pending",
             submitted_by=test_user.id,
         )
@@ -584,6 +584,32 @@ class TestUpdateMatchStatus:
 
         assert response.status_code == 400
 
+    async def test_update_already_verified_match(
+        self, admin_client: AsyncClient, db_session: AsyncSession, admin_user: User
+    ) -> None:
+        """Test updating a match that is already verified (no reputation change)."""
+        match = Match(
+            source_platform="spotify",
+            source_url="https://open.spotify.com/track/already",
+            target_platform="youtube",
+            target_url="https://youtube.com/watch?v=already",
+            match_type=MatchType.SYSTEM,
+            status="verified",
+        )
+        db_session.add(match)
+        await db_session.commit()
+        await db_session.refresh(match)
+
+        # Change from verified to rejected (previous_status is not pending)
+        response = await admin_client.patch(
+            f"/api/v1/admin/matches/{match.id}",
+            json={"status": "rejected"},
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        assert data["status"] == "rejected"
+
 
 # ====== Statistics Tests ======
 
@@ -596,7 +622,7 @@ class TestGetSystemStats:
     ) -> None:
         """Test getting system statistics."""
         # Create some test data
-        artist = Artist(name="Test Artist", platform="spotify", platform_id="artist1")
+        artist = Artist(name="Test Artist", name_normalized="test artist")
         db_session.add(artist)
         await db_session.commit()
 
@@ -632,14 +658,17 @@ class TestGetSystemStats:
     ) -> None:
         """Test that stats correctly count entities."""
         # Create test entities
-        artist = Artist(name="Artist", platform="spotify", platform_id="a1")
+        artist = Artist(name="Artist", name_normalized="artist")
+        db_session.add(artist)
+        await db_session.commit()
+
         album = Album(
-            title="Album",
+            name="Album",
+            name_normalized="album",
             artist_name="Artist",
-            platform="spotify",
-            platform_id="album1",
+            artist_id=artist.id,
         )
-        db_session.add_all([artist, album])
+        db_session.add(album)
         await db_session.commit()
 
         response = await admin_client.get("/api/v1/admin/stats")
@@ -741,6 +770,28 @@ class TestImportMatches:
         data = response.json()
         assert len(data["errors"]) > 0
 
+    async def test_import_matches_handles_general_exception(
+        self, admin_client: AsyncClient, db_session: AsyncSession
+    ) -> None:
+        """Test that import handles general exceptions with non-dict data."""
+        # Create data that will cause an exception during processing
+        matches_data = [
+            {
+                "source_url": "https://open.spotify.com/track/test",
+                "target_url": "https://youtube.com/watch?v=test",
+            }
+        ]
+
+        # Mock the session to raise an error during commit
+        with patch.object(db_session, 'commit', side_effect=RuntimeError("DB error")):
+            response = await admin_client.post(
+                "/api/v1/admin/import/matches",
+                json={"matches": matches_data},
+            )
+
+            assert response.status_code == 500
+            assert "Import failed" in response.json()["detail"]
+
 
 class TestImportUrls:
     """Tests for POST /api/v1/admin/import/urls."""
@@ -790,6 +841,64 @@ class TestImportUrls:
             response = await admin_client.post(
                 "/api/v1/admin/import/urls",
                 json={"urls": ["https://unsupported.com/track/123"]},
+            )
+
+            assert response.status_code == 200
+            data = response.json()
+            assert data["skipped"] >= 1
+            assert len(data["errors"]) > 0
+
+    async def test_import_urls_handles_no_results(
+        self, admin_client: AsyncClient
+    ) -> None:
+        """Test importing URLs that return no results."""
+        with patch("spotdl.api.v1.admin.get_song_service") as mock_service:
+            mock_svc = MagicMock()
+            mock_svc.resolve_url = AsyncMock(return_value=[])
+            mock_service.return_value = mock_svc
+
+            response = await admin_client.post(
+                "/api/v1/admin/import/urls",
+                json={"urls": ["https://open.spotify.com/track/empty"]},
+            )
+
+            assert response.status_code == 200
+            data = response.json()
+            assert data["skipped"] >= 1
+
+    async def test_import_urls_handles_song_service_error(
+        self, admin_client: AsyncClient
+    ) -> None:
+        """Test importing URLs with SongServiceError."""
+        with patch("spotdl.api.v1.admin.get_song_service") as mock_service:
+            from spotdl.core.services.song import SongServiceError
+
+            mock_svc = MagicMock()
+            mock_svc.resolve_url = AsyncMock(side_effect=SongServiceError("Service error"))
+            mock_service.return_value = mock_svc
+
+            response = await admin_client.post(
+                "/api/v1/admin/import/urls",
+                json={"urls": ["https://open.spotify.com/track/error"]},
+            )
+
+            assert response.status_code == 200
+            data = response.json()
+            assert data["skipped"] >= 1
+            assert len(data["errors"]) > 0
+
+    async def test_import_urls_handles_unexpected_error(
+        self, admin_client: AsyncClient
+    ) -> None:
+        """Test importing URLs with unexpected errors."""
+        with patch("spotdl.api.v1.admin.get_song_service") as mock_service:
+            mock_svc = MagicMock()
+            mock_svc.resolve_url = AsyncMock(side_effect=RuntimeError("Unexpected"))
+            mock_service.return_value = mock_svc
+
+            response = await admin_client.post(
+                "/api/v1/admin/import/urls",
+                json={"urls": ["https://open.spotify.com/track/unexpected"]},
             )
 
             assert response.status_code == 200
@@ -874,7 +983,7 @@ class TestResetDatabase:
     ) -> None:
         """Test reset dry run without confirm parameter."""
         # Create test data
-        artist = Artist(name="Artist", platform="spotify", platform_id="a1")
+        artist = Artist(name="Artist", name_normalized="artist")
         db_session.add(artist)
         await db_session.commit()
 
@@ -903,7 +1012,7 @@ class TestResetDatabase:
     ) -> None:
         """Test reset with correct confirm parameter."""
         # Create test data
-        artist = Artist(name="Artist", platform="spotify", platform_id="a1")
+        artist = Artist(name="Artist", name_normalized="artist")
         db_session.add(artist)
         await db_session.commit()
 

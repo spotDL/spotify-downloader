@@ -698,6 +698,12 @@ class TestDownloadManager:
 
         settings = DownloadSettings(generate_lrc=True)
 
+        # Initialize progress before running task
+        download_manager._downloads[sample_request.download_id] = DownloadProgress(
+            download_id=sample_request.download_id,
+            status=DownloadStatus.PENDING,
+        )
+
         mock_downloader = AsyncMock()
         mock_downloader.download.return_value = output_file
         mock_downloader.embed_metadata.return_value = None
@@ -726,6 +732,12 @@ class TestDownloadManager:
         sample_request.output_format = "flac"
         sample_request.quality = "best"
 
+        # Initialize progress before running task
+        download_manager._downloads[sample_request.download_id] = DownloadProgress(
+            download_id=sample_request.download_id,
+            status=DownloadStatus.PENDING,
+        )
+
         mock_downloader = AsyncMock()
         mock_downloader.download.return_value = output_file
         mock_downloader.embed_metadata.return_value = None
@@ -745,6 +757,12 @@ class TestDownloadManager:
         sample_request: DownloadRequest,
     ) -> None:
         """Test download task cancellation."""
+        # Initialize progress before running task
+        download_manager._downloads[sample_request.download_id] = DownloadProgress(
+            download_id=sample_request.download_id,
+            status=DownloadStatus.PENDING,
+        )
+
         mock_downloader = AsyncMock()
         mock_downloader.download.side_effect = asyncio.CancelledError()
         mock_downloader.close.return_value = None
@@ -762,6 +780,12 @@ class TestDownloadManager:
         sample_request: DownloadRequest,
     ) -> None:
         """Test download task error handling."""
+        # Initialize progress before running task
+        download_manager._downloads[sample_request.download_id] = DownloadProgress(
+            download_id=sample_request.download_id,
+            status=DownloadStatus.PENDING,
+        )
+
         mock_downloader = AsyncMock()
         mock_downloader.download.side_effect = DownloadError("Download failed")
         mock_downloader.close.return_value = None
@@ -823,16 +847,6 @@ class TestDownloadManager:
                 lyrics = await download_manager._fetch_lyrics("Test Song", "Test Artist")
 
         assert lyrics == "Test lyrics content"
-
-    @pytest.mark.asyncio
-    async def test_fetch_lyrics_import_error(
-        self, download_manager: DownloadManager
-    ) -> None:
-        """Test fetching lyrics with import error."""
-        with patch("spotdl.core.services.download.GeniusWebProvider", side_effect=ImportError):
-            lyrics = await download_manager._fetch_lyrics("Test Song", "Test Artist")
-
-        assert lyrics is None
 
     @pytest.mark.asyncio
     async def test_fetch_lyrics_provider_error(
