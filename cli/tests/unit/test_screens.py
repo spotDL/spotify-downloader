@@ -419,6 +419,10 @@ class TestSettingsScreen:
             assert pilot.app.query_one("#audio-format", Select) is not None
             assert pilot.app.query_one("#audio-quality", Select) is not None
             assert pilot.app.query_one("#threads", Select) is not None
+            assert pilot.app.query_one("#service-status-table", DataTable) is not None
+            assert pilot.app.query_one("#audio-source-table", DataTable) is not None
+            assert pilot.app.query_one("#metadata-source-table", DataTable) is not None
+            assert pilot.app.query_one("#lyrics-source-table", DataTable) is not None
 
     @pytest.mark.asyncio
     async def test_toggle_visibility(self):

@@ -9,8 +9,12 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Path, Query
 from pydantic import BaseModel, HttpUrl
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
+from spotdl.api.v1.matches import MatchDetailResponse, _match_to_detail
+from spotdl.api.v1.validation import validate_uuid
 from spotdl.core.services.song import (
     SongServiceError,
     UnsupportedURLError,
@@ -20,6 +24,7 @@ from spotdl.core.types.song import Platform
 from spotdl.db.database import get_db_session
 from spotdl.db.models.match import Match, MatchType
 from spotdl.db.repositories.match import MatchRepository
+from spotdl.db.repositories.song import SongRepository
 
 logger = logging.getLogger(__name__)
 
@@ -238,6 +243,51 @@ async def resolve_url(
         raise HTTPException(status_code=400, detail=str(e)) from e
     except SongServiceError as e:
         raise HTTPException(status_code=500, detail=str(e)) from e
+
+
+@router.get("/{song_id}/matches", response_model=list[MatchDetailResponse])
+async def get_song_matches(
+    song_id: str,
+    db: Annotated[AsyncSession, Depends(get_db_session)],
+) -> list[MatchDetailResponse]:
+    """Get saved matches for a song."""
+    song_uuid = validate_uuid(song_id, "song ID")
+    song_repo = SongRepository(db)
+    song = await song_repo.get_by_id(song_uuid)
+    if song is None:
+        raise HTTPException(status_code=404, detail="Song not found")
+
+    source_urls: list[str] = []
+    if getattr(song, "platform_url", None):
+        source_urls.append(song.platform_url)
+
+    query = (
+        select(Match)
+        .options(
+            selectinload(Match.submitted_by_user),
+            selectinload(Match.verified_by_user),
+        )
+        .where(
+            (Match.source_song_id == song_uuid)
+            | (Match.source_url.in_(source_urls))
+        )
+        .order_by(
+            Match.match_score.desc().nullslast(),
+            (Match.upvotes - Match.downvotes).desc(),
+        )
+    )
+
+    result = await db.execute(query)
+    matches = list(result.scalars().all())
+    if not matches:
+        return []
+
+    song_service = get_song_service()
+    return list(
+        await asyncio.gather(
+            *[_match_to_detail(match, song_service) for match in matches]
+        )
+    )
 
 
 @router.get("/search")

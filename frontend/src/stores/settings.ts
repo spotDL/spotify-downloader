@@ -389,24 +389,42 @@ export const useSettingsStore = create<SettingsState>()(
 
       importSettings: (settings) => {
         const current = get();
+        const exportableKeys = Object.keys(defaultSettings);
+        const currentRecord = current as unknown as Record<string, unknown>;
+        const settingsRecord = settings as unknown as Record<string, unknown>;
         const merged: Record<string, unknown> = {};
-        for (const key of Object.keys(defaultSettings)) {
-          merged[key] = (settings as Record<string, unknown>)[key] ?? (current as Record<string, unknown>)[key];
+        for (const key of exportableKeys) {
+          merged[key] = settingsRecord[key] ?? currentRecord[key];
         }
-        set(merged);
+        set(merged as Partial<SettingsState>);
       },
 
       exportSettings: () => {
         const state = get();
+        const exportableKeys = Object.keys(defaultSettings);
+        const stateRecord = state as unknown as Record<string, unknown>;
         const exported: Record<string, unknown> = {};
-        for (const key of Object.keys(defaultSettings)) {
-          exported[key] = (state as Record<string, unknown>)[key];
+        for (const key of exportableKeys) {
+          exported[key] = stateRecord[key];
         }
-        return exported as ExportableSettings;
+        return exported as unknown as ExportableSettings;
       },
     }),
     {
       name: "spotdl-settings",
+      merge: (persisted, current) => {
+        if (!persisted || typeof persisted !== "object") {
+          return current;
+        }
+        const exportableKeys = Object.keys(defaultSettings);
+        const merged = { ...current } as Record<string, unknown>;
+        for (const key of exportableKeys) {
+          if (key in (persisted as Record<string, unknown>)) {
+            merged[key] = (persisted as Record<string, unknown>)[key];
+          }
+        }
+        return merged as unknown as SettingsState;
+      },
     }
   )
 );

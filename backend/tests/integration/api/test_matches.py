@@ -31,6 +31,30 @@ def mock_song() -> Song:
 
 
 @pytest.fixture
+def mock_target_song() -> Song:
+    """Create a mock target song for matches."""
+    return Song(
+        name="Target Song",
+        artists=["Target Artist"],
+        artist="Target Artist",
+        duration=200,
+        platform=Platform.YOUTUBE,
+        platform_id="xyz789",
+        url="https://www.youtube.com/watch?v=xyz789",
+    )
+
+
+@pytest.fixture
+def mock_song_service(mock_target_song: Song):
+    """Mock song service for submit match tests."""
+    with patch("spotdl.api.v1.matches.get_song_service") as mock_song_svc:
+        mock_song_service = MagicMock()
+        mock_song_service.resolve_url = AsyncMock(return_value=[mock_target_song])
+        mock_song_svc.return_value = mock_song_service
+        yield
+
+
+@pytest.fixture
 def mock_result() -> Result:
     """Create a mock result for testing."""
     return Result(
@@ -204,7 +228,10 @@ class TestMatchesSubmit:
     """Tests for match submission endpoint."""
 
     async def test_submit_match_youtube(
-        self, authenticated_client: AsyncClient, test_user: User
+        self,
+        authenticated_client: AsyncClient,
+        test_user: User,
+        mock_song_service,
     ) -> None:
         """Test submitting a YouTube match."""
         response = await authenticated_client.post(
@@ -222,7 +249,10 @@ class TestMatchesSubmit:
         assert "id" in data
 
     async def test_submit_match_youtube_music(
-        self, authenticated_client: AsyncClient, test_user: User
+        self,
+        authenticated_client: AsyncClient,
+        test_user: User,
+        mock_song_service,
     ) -> None:
         """Test submitting a YouTube Music match."""
         response = await authenticated_client.post(
@@ -238,7 +268,10 @@ class TestMatchesSubmit:
         assert data["target_platform"] == "youtube_music"
 
     async def test_submit_match_soundcloud(
-        self, authenticated_client: AsyncClient, test_user: User
+        self,
+        authenticated_client: AsyncClient,
+        test_user: User,
+        mock_song_service,
     ) -> None:
         """Test submitting a SoundCloud match."""
         response = await authenticated_client.post(
@@ -254,7 +287,10 @@ class TestMatchesSubmit:
         assert data["target_platform"] == "soundcloud"
 
     async def test_submit_match_bandcamp(
-        self, authenticated_client: AsyncClient, test_user: User
+        self,
+        authenticated_client: AsyncClient,
+        test_user: User,
+        mock_song_service,
     ) -> None:
         """Test submitting a Bandcamp match."""
         response = await authenticated_client.post(
@@ -270,7 +306,10 @@ class TestMatchesSubmit:
         assert data["target_platform"] == "bandcamp"
 
     async def test_submit_match_piped(
-        self, authenticated_client: AsyncClient, test_user: User
+        self,
+        authenticated_client: AsyncClient,
+        test_user: User,
+        mock_song_service,
     ) -> None:
         """Test submitting a Piped match."""
         response = await authenticated_client.post(
@@ -314,7 +353,10 @@ class TestMatchesSubmit:
         assert response.status_code == 400
 
     async def test_submit_duplicate_match(
-        self, authenticated_client: AsyncClient, test_user: User
+        self,
+        authenticated_client: AsyncClient,
+        test_user: User,
+        mock_song_service,
     ) -> None:
         """Test submitting a match that already exists."""
         # Submit first match

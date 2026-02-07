@@ -449,15 +449,18 @@ class TestAPIClient:
         mock_response.json.return_value = {
             "matches": [
                 {
-                    "name": "Test Song",
-                    "artists": ["Artist"],
-                    "artist": "Artist",
-                    "duration": 182,
                     "target_platform": "youtube",
-                    "platform_id": "abc123",
-                    "url": "https://youtube.com/watch?v=abc123",
-                    "verified": True,
                     "score": 95.0,
+                    "result": {
+                        "name": "Test Song",
+                        "artists": ["Artist"],
+                        "artist": "Artist",
+                        "duration": 182,
+                        "platform": "youtube",
+                        "platform_id": "abc123",
+                        "url": "https://youtube.com/watch?v=abc123",
+                        "verified": True,
+                    },
                 }
             ]
         }
@@ -519,7 +522,30 @@ class TestAPIClient:
         """Test successful match submission."""
         mock_response = MagicMock()
         mock_response.status_code = 200
-        mock_response.json.return_value = {"success": True, "match_id": "123"}
+        mock_response.json.return_value = {
+            "id": "match-123",
+            "source_url": "https://spotify.com/track/test",
+            "target_url": "https://youtube.com/watch?v=abc",
+            "target_platform": "youtube",
+            "score": 0.0,
+            "confidence": 0.0,
+            "match_type": "user",
+            "status": "pending",
+            "upvotes": 0,
+            "downvotes": 0,
+            "net_votes": 0,
+            "created_at": "2024-01-01T00:00:00Z",
+            "result": {
+                "name": "Test Song",
+                "artists": ["Artist"],
+                "artist": "Artist",
+                "duration": 182,
+                "platform": "youtube",
+                "platform_id": "abc123",
+                "url": "https://youtube.com/watch?v=abc",
+                "verified": False,
+            },
+        }
         mock_response.raise_for_status = MagicMock()
 
         with patch.object(client, "_get_client") as mock_get:
@@ -532,7 +558,103 @@ class TestAPIClient:
                 "https://youtube.com/watch?v=abc",
             )
 
-            assert result["success"] is True
+            assert result.id == "match-123"
+            assert result.target_url == "https://youtube.com/watch?v=abc"
+
+    @pytest.mark.asyncio
+    async def test_get_song_matches_success(
+        self, client: APIClient, sample_song
+    ) -> None:
+        """Test fetching matches for a song."""
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = [
+            {
+                "id": "match-1",
+                "source_url": "https://spotify.com/track/test",
+                "target_url": "https://youtube.com/watch?v=abc",
+                "target_platform": "youtube",
+                "score": 82.0,
+                "confidence": 0.82,
+                "match_type": "system",
+                "status": "verified",
+                "upvotes": 2,
+                "downvotes": 0,
+                "net_votes": 2,
+                "created_at": "2024-01-01T00:00:00Z",
+                "result": {
+                    "name": "Test Song",
+                    "artists": ["Artist"],
+                    "artist": "Artist",
+                    "duration": 182,
+                    "platform": "youtube",
+                    "platform_id": "abc123",
+                    "url": "https://youtube.com/watch?v=abc",
+                    "verified": True,
+                },
+            }
+        ]
+        mock_response.raise_for_status = MagicMock()
+
+        with patch.object(client, "_get_client") as mock_get:
+            mock_http = AsyncMock()
+            mock_http.get = AsyncMock(return_value=mock_response)
+            mock_get.return_value = mock_http
+
+            matches = await client.get_song_matches("song-123", sample_song)
+
+            assert len(matches) == 1
+            assert matches[0].id == "match-1"
+            assert matches[0].net_votes == 2
+
+    @pytest.mark.asyncio
+    async def test_get_match_votes_success(self, client: APIClient) -> None:
+        """Test fetching match votes."""
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = {
+            "match_id": "match-1",
+            "upvotes": 3,
+            "downvotes": 1,
+            "score": 2,
+            "total_votes": 4,
+            "confidence": 0.7,
+            "user_vote": "up",
+        }
+        mock_response.raise_for_status = MagicMock()
+
+        with patch.object(client, "_get_client") as mock_get:
+            mock_http = AsyncMock()
+            mock_http.get = AsyncMock(return_value=mock_response)
+            mock_get.return_value = mock_http
+
+            result = await client.get_match_votes("match-1")
+
+            assert result["upvotes"] == 3
+            assert result["user_vote"] == "up"
+
+    @pytest.mark.asyncio
+    async def test_create_report_success(self, client: APIClient) -> None:
+        """Test submitting a report."""
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = {"id": "report-1"}
+        mock_response.raise_for_status = MagicMock()
+
+        with patch.object(client, "_get_client") as mock_get:
+            mock_http = AsyncMock()
+            mock_http.post = AsyncMock(return_value=mock_response)
+            mock_get.return_value = mock_http
+
+            result = await client.create_report(
+                entity_type="song",
+                entity_id="song-1",
+                field_name="name",
+                current_value="Old",
+                suggested_value="New",
+            )
+
+            assert result["id"] == "report-1"
 
     @pytest.mark.asyncio
     async def test_get_track_success(self, client: APIClient) -> None:

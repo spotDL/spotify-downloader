@@ -10,7 +10,7 @@ from io import BytesIO
 from pathlib import Path
 
 import httpx
-from PIL import Image
+from PIL import Image, ImageOps
 
 from spotdl_cli.config import get_settings
 
@@ -94,7 +94,12 @@ class ImageService:
 
                 img = Image.open(BytesIO(response.content))
                 img = img.convert("RGB")
-                img.thumbnail(CACHE_RESOLUTION, Image.Resampling.LANCZOS)
+                img = ImageOps.fit(
+                    img,
+                    CACHE_RESOLUTION,
+                    method=Image.Resampling.LANCZOS,
+                    centering=(0.5, 0.5),
+                )
 
                 # Save to disk
                 img.save(disk, "PNG")

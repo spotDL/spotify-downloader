@@ -48,6 +48,7 @@ class PlaylistScreen(Screen[None]):
         Binding("d", "download_all", "Download All"),
         Binding("enter", "view_track", "View Track"),
         Binding("a", "add_all", "Add All to Queue"),
+        Binding("p", "report", "Report Data"),
     ]
 
     def __init__(
@@ -120,6 +121,7 @@ class PlaylistScreen(Screen[None]):
                             )
                             yield Button("Add to Queue", id="add-queue-btn", variant="success")
                             yield Button("Refresh", id="refresh-btn", variant="default")
+                            yield Button("Report Data", id="report-btn", variant="default")
 
             # Main content grid
             with Horizontal(id="playlist-content"):
@@ -478,6 +480,8 @@ class PlaylistScreen(Screen[None]):
             await self._add_all_to_queue()
         elif event.button.id == "refresh-btn":
             await self._refresh_metadata()
+        elif event.button.id == "report-btn":
+            await self._open_report()
 
     async def on_data_table_row_selected(self, event: DataTable.RowSelected) -> None:
         """Handle track selection."""
@@ -531,6 +535,10 @@ class PlaylistScreen(Screen[None]):
         """Download all action."""
         self.run_worker(self._download_all())
 
+    def action_report(self) -> None:
+        """Report data action."""
+        self.run_worker(self._open_report())
+
     def action_add_all(self) -> None:
         """Add all to queue action."""
         self.run_worker(self._add_all_to_queue())
@@ -556,3 +564,42 @@ class PlaylistScreen(Screen[None]):
         self._playlist_data = {"name": name} if name else {}
         self._tracks = []
         await self._load_playlist_data()
+
+    async def _open_report(self) -> None:
+        """Open report data screen."""
+        if not self._entity_id:
+            self.notify("Report requires internal entity ID", severity="warning")
+            return
+
+        fields = self._build_report_fields()
+        if not fields:
+            self.notify("No reportable fields available", severity="warning")
+            return
+
+        from spotdl_cli.screens.report import ReportScreen
+
+        self.app.push_screen(
+            ReportScreen(
+                entity_type="playlist",
+                entity_id=self._entity_id,
+                entity_name=self._playlist_data.get("name", "Playlist"),
+                fields=fields,
+            )
+        )
+
+    def _build_report_fields(self) -> list[dict[str, str]]:
+        """Build reportable fields for the playlist."""
+        data = self._playlist_data
+        fields: list[dict[str, str]] = []
+
+        def add_field(name: str, label: str, value: str | None) -> None:
+            if value is None:
+                return
+            fields.append({"name": name, "label": label, "current_value": str(value)})
+
+        add_field("name", "Name", data.get("name"))
+        add_field("owner_name", "Owner", data.get("owner", {}).get("display_name"))
+        add_field("description", "Description", data.get("description"))
+        add_field("total_tracks", "Total Tracks", data.get("total_tracks"))
+        add_field("is_public", "Visibility", "Public" if data.get("public", True) else "Private")
+        return fields

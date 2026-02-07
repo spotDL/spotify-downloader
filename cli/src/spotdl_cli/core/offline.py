@@ -131,6 +131,41 @@ class OfflineMatcher:
 
         return options
 
+    def _normalize_provider_id(self, provider_id: str) -> str:
+        """Normalize provider IDs to TargetPlatform naming."""
+        return provider_id.strip().lower().replace("-", "_")
+
+    def _get_target_platforms(self) -> list[TargetPlatform]:
+        """Resolve target platforms from settings preferences."""
+        provider_ids: list[str] = []
+        prefs = getattr(self._settings, "audio_source_preferences", None)
+        if prefs:
+            provider_ids = [
+                p.get("id", "")
+                for p in prefs
+                if p and p.get("enabled", True)
+            ]
+        elif self._settings.audio_providers:
+            provider_ids = list(self._settings.audio_providers)
+
+        platforms: list[TargetPlatform] = []
+        for provider_id in provider_ids:
+            normalized = self._normalize_provider_id(provider_id)
+            try:
+                platforms.append(TargetPlatform(normalized))
+            except ValueError:
+                continue
+
+        if not platforms:
+            platforms = [
+                TargetPlatform.YOUTUBE,
+                TargetPlatform.YOUTUBE_MUSIC,
+                TargetPlatform.SOUNDCLOUD,
+                TargetPlatform.BANDCAMP,
+            ]
+
+        return platforms
+
     # ============== URL Resolution ==============
 
     async def resolve_url(self, url: str) -> list[Song]:
@@ -495,12 +530,7 @@ class OfflineMatcher:
     ) -> list[Result]:
         """Find matching results for a song across all target platforms."""
         if platforms is None:
-            platforms = [
-                TargetPlatform.YOUTUBE,
-                TargetPlatform.YOUTUBE_MUSIC,
-                TargetPlatform.SOUNDCLOUD,
-                TargetPlatform.BANDCAMP,
-            ]
+            platforms = self._get_target_platforms()
 
         self._init_providers()
         all_results: list[Result] = []
@@ -544,12 +574,14 @@ class OfflineMatcher:
     async def get_best_match(
         self,
         song: Song,
-        min_score: float = 80.0,
+        min_score: float | None = None,
     ) -> Result | None:
         """Get the single best match for a song."""
         self._init_providers()
 
         full_query = create_search_query(song.name, song.artists)
+        if min_score is None:
+            min_score = float(self._settings.name_match_threshold)
         all_results: list[Result] = []
 
         # Search all target providers

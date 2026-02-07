@@ -24,6 +24,9 @@ class TestSettings:
         assert settings.embed_lyrics is True
         assert settings.embed_cover is True
         assert settings.auth_token is None
+        assert settings.audio_source_preferences
+        assert settings.metadata_source_preferences
+        assert settings.lyrics_source_preferences
 
     def test_custom_settings(self) -> None:
         """Test custom settings values."""
@@ -128,6 +131,9 @@ class TestSettingsPersistence:
             audio_format="flac",
             threads=8,
             auth_token="persist-token",
+            audio_source_preferences=[{"id": "youtube", "enabled": True}],
+            metadata_source_preferences=[{"id": "musicbrainz", "enabled": True}],
+            lyrics_source_preferences=[{"id": "genius", "enabled": True}],
         )
 
         # Save settings
@@ -145,6 +151,9 @@ class TestSettingsPersistence:
         assert loaded_data["audio_format"] == "flac"
         assert loaded_data["threads"] == 8
         assert loaded_data["auth_token"] == "persist-token"
+        assert loaded_data["audio_source_preferences"][0]["id"] == "youtube"
+        assert loaded_data["metadata_source_preferences"][0]["id"] == "musicbrainz"
+        assert loaded_data["lyrics_source_preferences"][0]["id"] == "genius"
 
     def test_load_nonexistent_file(self, tmp_path: Path) -> None:
         """Test loading from nonexistent file returns empty dict."""

@@ -51,6 +51,7 @@ class ArtistScreen(Screen[None]):
         Binding("d", "download_all", "Download All"),
         Binding("enter", "view_selected", "View"),
         Binding("tab", "next_tab", "Next Tab", show=False),
+        Binding("p", "report", "Report Data"),
     ]
 
     def __init__(
@@ -123,6 +124,11 @@ class ArtistScreen(Screen[None]):
                                 variant="primary",
                             )
                             yield Button("Refresh", id="refresh-btn", variant="default")
+                            yield Button(
+                                "Report Data",
+                                id="report-btn",
+                                variant="default",
+                            )
 
             # Main content grid
             with Horizontal(id="artist-content"):
@@ -509,6 +515,8 @@ class ArtistScreen(Screen[None]):
             await self._download_all()
         elif event.button.id == "refresh-btn":
             await self._refresh_metadata()
+        elif event.button.id == "report-btn":
+            await self._open_report()
 
     async def on_data_table_row_selected(self, event: DataTable.RowSelected) -> None:
         """Handle row selection."""
@@ -567,6 +575,10 @@ class ArtistScreen(Screen[None]):
         """Download all action."""
         self.run_worker(self._download_all())
 
+    def action_report(self) -> None:
+        """Report data action."""
+        self.run_worker(self._open_report())
+
     def action_view_selected(self) -> None:
         """View selected item."""
         # Try top tracks table first
@@ -589,11 +601,50 @@ class ArtistScreen(Screen[None]):
                 await api_client.refresh_entity("artists", self._entity_id)
             except APIError as e:
                 self.notify(f"Refresh failed: {e}", severity="error")
-                return
-
-        # Preserve the artist name so offline search works correctly
-        name = self._artist_data.get("name", "")
-        self._artist_data = {"name": name} if name else {}
-        self._albums = []
-        self._top_tracks = []
         await self._load_artist_data()
+
+    async def _open_report(self) -> None:
+        """Open report data screen."""
+        if not self._entity_id:
+            self.notify("Report requires internal entity ID", severity="warning")
+            return
+
+        fields = self._build_report_fields()
+        if not fields:
+            self.notify("No reportable fields available", severity="warning")
+            return
+
+        from spotdl_cli.screens.report import ReportScreen
+
+        self.app.push_screen(
+            ReportScreen(
+                entity_type="artist",
+                entity_id=self._entity_id,
+                entity_name=self._artist_data.get("name", "Artist"),
+                fields=fields,
+            )
+        )
+
+    def _build_report_fields(self) -> list[dict[str, str]]:
+        """Build reportable fields for the artist."""
+        data = self._artist_data
+        fields: list[dict[str, str]] = []
+
+        def add_field(name: str, label: str, value: str | None) -> None:
+            if value is None:
+                return
+            fields.append({"name": name, "label": label, "current_value": str(value)})
+
+        add_field("name", "Name", data.get("name"))
+        add_field("genres", "Genres", ", ".join(data.get("genres", []) or []))
+        add_field("popularity", "Popularity", data.get("popularity"))
+        add_field(
+            "monthly_listeners",
+            "Monthly Listeners",
+            data.get("monthly_listeners") or data.get("followers"),
+        )
+        add_field("bio", "Bio", data.get("bio"))
+        add_field("origin_country", "Origin Country", data.get("origin_country"))
+        add_field("origin_city", "Origin City", data.get("origin_city"))
+        add_field("formed_year", "Formed Year", data.get("formed_year"))
+        return fields

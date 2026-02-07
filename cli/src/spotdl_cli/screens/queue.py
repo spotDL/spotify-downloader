@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
+import asyncio
 import logging
-from typing import TYPE_CHECKING, ClassVar
+from pathlib import Path
+from typing import TYPE_CHECKING, Any, ClassVar
 
 from textual.app import ComposeResult
 from textual.binding import Binding
@@ -16,7 +18,9 @@ from textual.widgets import (
     Static,
 )
 
+from spotdl_cli.config import get_settings
 from spotdl_cli.core import (
+    APIError,
     DownloadResult,
     DownloadStatus,
     QueueEvent,
@@ -46,6 +50,8 @@ class QueueScreen(Screen[None]):
         self._downloading = False
         self._download_task = None
         self._offline_matcher = get_offline_matcher()
+        self._poll_tasks: dict[str, asyncio.Task[None]] = {}
+        self._remote_downloads_enabled: bool | None = None
 
     @property
     def spotdl_app(self) -> SpotDLApp:
@@ -114,6 +120,9 @@ class QueueScreen(Screen[None]):
         # Unsubscribe from queue events
         queue = self.spotdl_app.download_queue
         queue.remove_callback(self._on_queue_event)
+        for task in self._poll_tasks.values():
+            task.cancel()
+        self._poll_tasks.clear()
 
     def _on_queue_event(self, event: QueueEvent) -> None:
         """Handle queue events."""
@@ -279,6 +288,7 @@ class QueueScreen(Screen[None]):
         """Main download loop."""
         queue = self.spotdl_app.download_queue
         manager = self.spotdl_app.download_manager
+        use_remote = await self._use_remote_downloads()
 
         while self._downloading:
             # Get next pending item
@@ -293,53 +303,20 @@ class QueueScreen(Screen[None]):
             # Update status to searching
             await queue.update_status(item_id, DownloadStatus.SEARCHING)
 
-            # Find matches if not already found
-            if not item.result:
-                result = None
-
-                # Try online first if available
-                if self.spotdl_app.is_online:
-                    try:
-                        matches = await self.spotdl_app.api_client.find_matches(item.song)
-                        if matches:
-                            result = matches[0]
-                    except Exception as e:
-                        logger.warning(f"Online match finding failed: {e}")
-
-                # Fallback to offline matching
-                if result is None:
-                    try:
-                        result = await self._offline_matcher.get_best_match(
-                            item.song, min_score=60.0
-                        )
-                    except Exception as e:
-                        logger.warning(f"Offline match finding failed: {e}")
-
-                # If song is from YouTube, create result directly
-                if result is None and "youtube.com" in item.song.url:
-                    result = DownloadResult(
-                        name=item.song.name,
-                        artists=item.song.artists,
-                        artist=item.song.artist,
-                        duration=item.song.duration,
-                        platform=TargetPlatform.YOUTUBE,
-                        platform_id=item.song.platform_id,
-                        url=item.song.url,
-                        verified=False,
-                        score=100.0,
-                        cover_url=item.song.cover_url,
-                    )
-
-                if result:
-                    await queue.set_result(item_id, result)
-                    item = queue.get_item(item_id)  # Refresh
-
-            if not item or not item.result:
+            result = await self._resolve_download_result(item_id, item)
+            if not result:
                 await queue.update_status(
                     item_id,
                     DownloadStatus.FAILED,
                     error="No download source found",
                 )
+                continue
+
+            if use_remote:
+                success = await self._start_remote_download(item_id, item, result)
+                if not success:
+                    use_remote = False
+                await self._sleep(0.1)
                 continue
 
             # Create status callback
@@ -366,6 +343,192 @@ class QueueScreen(Screen[None]):
             await manager.download_item(item_id, item, status_callback)
 
         self.notify("Download loop stopped")
+
+    async def _use_remote_downloads(self) -> bool:
+        """Check if remote downloads are available."""
+        if not self.spotdl_app.is_online:
+            return False
+        if self._remote_downloads_enabled is not None:
+            return self._remote_downloads_enabled
+        try:
+            await self.spotdl_app.api_client.list_downloads()
+            self._remote_downloads_enabled = True
+        except APIError as e:
+            if "disabled" in str(e).lower():
+                self._remote_downloads_enabled = False
+            else:
+                self._remote_downloads_enabled = False
+        return self._remote_downloads_enabled
+
+    async def _resolve_download_result(
+        self,
+        item_id: str,
+        item,
+    ) -> DownloadResult | None:
+        """Resolve a download result for an item."""
+        queue = self.spotdl_app.download_queue
+        result = item.result if item else None
+        if result:
+            return result
+
+        # Try online first if available
+        if self.spotdl_app.is_online:
+            try:
+                matches = await self.spotdl_app.api_client.find_matches(item.song)
+                if matches:
+                    result = matches[0]
+            except Exception as e:
+                logger.warning(f"Online match finding failed: {e}")
+
+        # Fallback to offline matching
+        if result is None:
+            try:
+                result = await self._offline_matcher.get_best_match(item.song)
+            except Exception as e:
+                logger.warning(f"Offline match finding failed: {e}")
+
+        # If song is from YouTube, create result directly
+        if result is None and "youtube.com" in item.song.url:
+            result = DownloadResult(
+                name=item.song.name,
+                artists=item.song.artists,
+                artist=item.song.artist,
+                duration=item.song.duration,
+                platform=TargetPlatform.YOUTUBE,
+                platform_id=item.song.platform_id,
+                url=item.song.url,
+                verified=False,
+                score=100.0,
+                cover_url=item.song.cover_url,
+            )
+
+        if result:
+            await queue.set_result(item_id, result)
+
+        return result
+
+    async def _start_remote_download(
+        self,
+        item_id: str,
+        item,
+        result: DownloadResult,
+    ) -> bool:
+        """Start a remote backend download."""
+        settings = get_settings()
+        queue = self.spotdl_app.download_queue
+
+        try:
+            request = {
+                "url": result.url,
+                "title": item.song.name,
+                "artist": ", ".join(item.song.artists),
+                "album": item.song.album_name or None,
+                "cover_url": item.song.cover_url or None,
+                "duration": item.song.duration,
+                "output_format": settings.audio_format,
+                "quality": (
+                    "320"
+                    if settings.audio_quality == "best"
+                    else settings.audio_quality.replace("k", "")
+                ),
+                "embed_metadata": settings.embed_metadata,
+                "embed_lyrics": settings.embed_lyrics,
+                "embed_cover": settings.embed_cover,
+            }
+            response = await self.spotdl_app.api_client.start_download(request)
+            download_id = response.get("download_id")
+            if not download_id:
+                raise APIError("Download ID missing")
+
+            item.download_id = download_id
+            item.remote = True
+            await queue.update_status(item_id, DownloadStatus.DOWNLOADING, progress=0.0)
+            self._start_remote_poll(item_id, download_id)
+            return True
+        except APIError as e:
+            logger.warning(f"Remote download unavailable: {e}")
+            self._remote_downloads_enabled = False
+            await queue.update_status(
+                item_id, DownloadStatus.PENDING, error=str(e)
+            )
+            return False
+
+    def _start_remote_poll(self, item_id: str, download_id: str) -> None:
+        """Start polling a remote download."""
+        if item_id in self._poll_tasks:
+            self._poll_tasks[item_id].cancel()
+        task = asyncio.create_task(
+            self._poll_remote_download(item_id, download_id)
+        )
+        self._poll_tasks[item_id] = task
+
+    async def _poll_remote_download(self, item_id: str, download_id: str) -> None:
+        """Poll backend download status and update queue."""
+        queue = self.spotdl_app.download_queue
+        status_map = {
+            "pending": DownloadStatus.SEARCHING,
+            "downloading": DownloadStatus.DOWNLOADING,
+            "processing": DownloadStatus.CONVERTING,
+            "completed": DownloadStatus.COMPLETED,
+            "failed": DownloadStatus.FAILED,
+            "cancelled": DownloadStatus.CANCELLED,
+        }
+
+        while True:
+            try:
+                progress = await self.spotdl_app.api_client.get_download_status(
+                    download_id
+                )
+            except APIError as e:
+                await queue.update_status(
+                    item_id, DownloadStatus.FAILED, error=str(e)
+                )
+                break
+
+            status = progress.get("status", "pending")
+            mapped = status_map.get(status, DownloadStatus.DOWNLOADING)
+            await queue.update_status(
+                item_id,
+                mapped,
+                progress=progress.get("progress", 0.0),
+                speed=progress.get("speed") or "",
+                eta=progress.get("eta") or "",
+                error=progress.get("error"),
+            )
+
+            if status in ("completed", "failed", "cancelled"):
+                if status == "completed":
+                    await self._download_remote_file(item_id, download_id, progress)
+                break
+
+            await asyncio.sleep(1)
+
+    async def _download_remote_file(
+        self,
+        item_id: str,
+        download_id: str,
+        progress: dict[str, Any],
+    ) -> None:
+        """Download file from backend after completion."""
+        queue = self.spotdl_app.download_queue
+        item = queue.get_item(item_id)
+        if not item:
+            return
+
+        settings = get_settings()
+        ext = settings.audio_format
+        filename = progress.get("filename") or f"{item.song.display_name}.{ext}"
+        output_path = Path(settings.output_dir) / filename
+        try:
+            await self.spotdl_app.api_client.download_file(download_id, output_path)
+            item.output_path = output_path
+            await queue.update_status(
+                item_id, DownloadStatus.COMPLETED, progress=100.0
+            )
+        except APIError as e:
+            await queue.update_status(
+                item_id, DownloadStatus.FAILED, error=str(e)
+            )
 
     def _update_download_status(
         self,
@@ -403,7 +566,29 @@ class QueueScreen(Screen[None]):
             item_id = str(row_key.key)
 
             queue = self.spotdl_app.download_queue
+            item = queue.get_item(item_id)
+            if item and item.download_id and item.status in (
+                DownloadStatus.SEARCHING,
+                DownloadStatus.DOWNLOADING,
+                DownloadStatus.CONVERTING,
+                DownloadStatus.EMBEDDING,
+            ):
+                try:
+                    await self.spotdl_app.api_client.cancel_download(item.download_id)
+                except APIError as e:
+                    self.notify(f"Cancel failed: {e}", severity="error")
+                    return
+                if item_id in self._poll_tasks:
+                    self._poll_tasks[item_id].cancel()
+                    self._poll_tasks.pop(item_id, None)
+                await queue.update_status(item_id, DownloadStatus.CANCELLED)
+                self.notify("Download cancelled")
+                return
+
             if await queue.remove(item_id):
+                if item_id in self._poll_tasks:
+                    self._poll_tasks[item_id].cancel()
+                    self._poll_tasks.pop(item_id, None)
                 self.notify("Item removed")
             else:
                 self.notify("Cannot remove active download", severity="warning")
@@ -414,6 +599,10 @@ class QueueScreen(Screen[None]):
         """Clear completed downloads."""
         queue = self.spotdl_app.download_queue
         count = await queue.clear_completed()
+        for item_id in list(self._poll_tasks.keys()):
+            if queue.get_item(item_id) is None:
+                self._poll_tasks[item_id].cancel()
+                self._poll_tasks.pop(item_id, None)
         self.notify(f"Cleared {count} completed items")
 
     async def _retry_failed(self) -> None:
@@ -424,6 +613,10 @@ class QueueScreen(Screen[None]):
         for item in queue.failed_items:
             item_id = queue.get_item_id(item)
             if item_id:
+                item.download_id = None
+                item.remote = False
+                item.error = None
+                item.progress = 0.0
                 await queue.update_status(item_id, DownloadStatus.PENDING)
                 count += 1
 

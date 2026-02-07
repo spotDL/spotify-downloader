@@ -115,6 +115,7 @@ class MainScreen(Screen[None]):
         self._offline_songs: dict[str, Song] = {}
         # Widget ID counter for uniqueness
         self._widget_counter: int = 0
+        self._service_status: dict[str, Any] | None = None
 
     def _next_id(self, prefix: str) -> str:
         """Generate a unique widget ID."""
@@ -149,6 +150,9 @@ class MainScreen(Screen[None]):
                 yield Button("Artists", id="filter-artist", classes="filter-btn")
                 yield Button("Albums", id="filter-album", classes="filter-btn")
                 yield Button("Playlists", id="filter-playlist", classes="filter-btn")
+
+            # Connection status (compact)
+            yield Static("", id="connection-status", classes="status-muted")
 
             # Results container
             with Vertical(id="results-container"):
@@ -251,6 +255,7 @@ class MainScreen(Screen[None]):
     async def on_mount(self) -> None:
         """Handle screen mount."""
         self.query_one("#search-input", Input).focus()
+        self.run_worker(self._load_connection_status())
 
     async def on_input_submitted(self, event: Input.Submitted) -> None:
         """Handle search input submission."""
@@ -364,6 +369,42 @@ class MainScreen(Screen[None]):
             logger.exception("Search failed")
             status_bar.update(f"Error: {e}")
             self.notify(f"Search failed: {e}", severity="error")
+
+    async def _load_connection_status(self) -> None:
+        """Load compact connection status."""
+        status_widget = self.query_one("#connection-status", Static)
+        if not self.spotdl_app.is_online:
+            status_widget.update("Offline mode")
+            return
+        try:
+            api_client = get_api_client()
+            self._service_status = await api_client.get_service_status()
+            self._update_connection_status()
+        except APIError as e:
+            status_widget.update(f"[red]Status error: {e}[/red]")
+
+    def _update_connection_status(self) -> None:
+        """Update compact connection status display."""
+        status_widget = self.query_one("#connection-status", Static)
+        if not self._service_status:
+            status_widget.update("Status unavailable")
+            return
+
+        def count_connected(items: list[dict[str, Any]]) -> str:
+            connected = len([i for i in items if i.get("state") == "connected"])
+            return f"{connected}/{len(items)}"
+
+        sources = self._service_status.get("sources", [])
+        targets = self._service_status.get("targets", [])
+        metadata = self._service_status.get("metadata", [])
+        overall = self._service_status.get("overall_state", "unknown")
+
+        status_widget.update(
+            f"Status: {overall} | "
+            f"Sources {count_connected(sources)} | "
+            f"Targets {count_connected(targets)} | "
+            f"Metadata {count_connected(metadata)}"
+        )
 
     async def _search_online(self, query: str) -> UniversalSearchResponse:
         """Search using the API server."""
@@ -774,20 +815,24 @@ class MainScreen(Screen[None]):
             return
 
         entity = self._find_entity(entity_id)
-        if not entity or not entity.primary_platform:
+        if not entity:
             return
 
         pp = entity.primary_platform
+        api_client = get_api_client() if self.spotdl_app.is_online else None
 
         if entity_type == EntityType.TRACK:
             # Use cached Song from offline search if available
-            song = self._offline_songs.get(pp.platform_id)
+            song = self._offline_songs.get(pp.platform_id) if pp else None
             if song is None:
-                if self.spotdl_app.is_online:
+                if api_client:
                     try:
-                        api_client = get_api_client()
                         entity_data = await api_client.get_entity_song(entity.id)
                         song = self._song_from_entity_data(entity_data)
+                        if not pp:
+                            platforms = entity_data.get("platforms", [])
+                            if platforms:
+                                pp = PlatformInfo.from_dict(platforms[0])
                     except Exception:
                         song = None
                 if song is None:
@@ -796,22 +841,30 @@ class MainScreen(Screen[None]):
                         artists=[entity.subtitle or "Unknown"],
                         artist=entity.subtitle or "Unknown",
                         duration=entity.duration or 0,
-                        platform=Platform(pp.platform),
-                        platform_id=pp.platform_id,
-                        url=pp.url,
+                        platform=Platform(pp.platform if pp else "spotify"),
+                        platform_id=pp.platform_id if pp else "",
+                        url=pp.url if pp else "",
                         cover_url=entity.image_url,
                     )
             await self.app.push_screen(
-                TrackScreen(song, pp.platform_id, pp.platform, entity_id=entity.id)
+                TrackScreen(
+                    song,
+                    song.platform_id,
+                    song.platform.value,
+                    entity_id=entity.id,
+                )
             )
 
         elif entity_type == EntityType.ALBUM:
             # For offline-derived albums, pass name and artist for search
             initial_data = None
-            if self.spotdl_app.is_online:
+            if api_client:
                 try:
-                    api_client = get_api_client()
                     initial_data = await api_client.get_entity_album(entity.id)
+                    if not pp:
+                        platforms = initial_data.get("platforms", [])
+                        if platforms:
+                            pp = PlatformInfo.from_dict(platforms[0])
                 except Exception:
                     initial_data = None
             if not self.spotdl_app.is_online:
@@ -819,22 +872,31 @@ class MainScreen(Screen[None]):
                 if entity.subtitle:
                     initial_data["artist"] = entity.subtitle
             await self.app.push_screen(
-                AlbumScreen(pp.platform_id, pp.platform, initial_data=initial_data, entity_id=entity.id)
+                AlbumScreen(
+                    pp.platform_id if pp else "",
+                    pp.platform if pp else "spotify",
+                    initial_data=initial_data,
+                    entity_id=entity.id,
+                )
             )
 
         elif entity_type == EntityType.ARTIST:
             initial_data = None
-            if self.spotdl_app.is_online:
+            if api_client:
                 try:
-                    api_client = get_api_client()
                     initial_data = await api_client.get_entity_artist(entity.id)
+                    if not pp:
+                        platforms = initial_data.get("platforms", [])
+                        if platforms:
+                            pp = PlatformInfo.from_dict(platforms[0])
                 except Exception:
                     initial_data = None
             if not self.spotdl_app.is_online:
                 initial_data = {"name": entity.name}
             await self.app.push_screen(
                 ArtistScreen(
-                    pp.platform_id, pp.platform,
+                    pp.platform_id if pp else "",
+                    pp.platform if pp else "spotify",
                     initial_data=initial_data,
                     entity_id=entity.id,
                 )
@@ -842,16 +904,24 @@ class MainScreen(Screen[None]):
 
         elif entity_type == EntityType.PLAYLIST:
             initial_data = None
-            if self.spotdl_app.is_online:
+            if api_client:
                 try:
-                    api_client = get_api_client()
                     initial_data = await api_client.get_entity_playlist(entity.id)
+                    if not pp:
+                        platforms = initial_data.get("platforms", [])
+                        if platforms:
+                            pp = PlatformInfo.from_dict(platforms[0])
                 except Exception:
                     initial_data = None
             if not self.spotdl_app.is_online:
                 initial_data = {"name": entity.name}
             await self.app.push_screen(
-                PlaylistScreen(pp.platform_id, pp.platform, initial_data=initial_data, entity_id=entity.id)
+                PlaylistScreen(
+                    pp.platform_id if pp else "",
+                    pp.platform if pp else "spotify",
+                    initial_data=initial_data,
+                    entity_id=entity.id,
+                )
             )
 
     async def _download_entity(self, entity_type_str: str, entity_id: str) -> None:
@@ -866,20 +936,28 @@ class MainScreen(Screen[None]):
         except ValueError:
             return
 
-        if entity_type == EntityType.TRACK and entity.primary_platform:
+        if entity_type == EntityType.TRACK:
             pp = entity.primary_platform
-            song = self._offline_songs.get(pp.platform_id)
+            song = self._offline_songs.get(pp.platform_id) if pp else None
             if song is None:
-                song = Song(
-                    name=entity.name,
-                    artists=[entity.subtitle or "Unknown"],
-                    artist=entity.subtitle or "Unknown",
-                    duration=entity.duration or 0,
-                    platform=Platform(pp.platform),
-                    platform_id=pp.platform_id,
-                    url=pp.url,
-                    cover_url=entity.image_url,
-                )
+                if self.spotdl_app.is_online:
+                    try:
+                        api_client = get_api_client()
+                        entity_data = await api_client.get_entity_song(entity.id)
+                        song = self._song_from_entity_data(entity_data)
+                    except Exception:
+                        song = None
+                if song is None:
+                    song = Song(
+                        name=entity.name,
+                        artists=[entity.subtitle or "Unknown"],
+                        artist=entity.subtitle or "Unknown",
+                        duration=entity.duration or 0,
+                        platform=Platform(pp.platform if pp else "spotify"),
+                        platform_id=pp.platform_id if pp else "",
+                        url=pp.url if pp else "",
+                        cover_url=entity.image_url,
+                    )
             await self.spotdl_app.download_queue.add(song)
             self.notify(f"Added to queue: {entity.name}")
         else:

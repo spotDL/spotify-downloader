@@ -94,6 +94,28 @@ class DownloadResult:
         return cls(**data)
 
 
+@dataclass
+class MatchEntry:
+    """Match entry with metadata for UI."""
+
+    id: str | None
+    source_url: str
+    target_url: str
+    target_platform: str
+    score: float
+    confidence: float
+    match_type: str
+    status: str | None
+    result: DownloadResult
+    upvotes: int = 0
+    downvotes: int = 0
+
+    @property
+    def net_votes(self) -> int:
+        """Net vote score."""
+        return self.upvotes - self.downvotes
+
+
 class DownloadStatus(StrEnum):
     """Download status for CLI queue."""
 
@@ -123,6 +145,8 @@ class DownloadItem:
 
     # Output
     output_path: Path | None = None
+    download_id: str | None = None
+    remote: bool = False
 
     # Timing
     created_at: datetime = field(default_factory=datetime.now)

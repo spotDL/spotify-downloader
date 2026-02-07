@@ -1,7 +1,7 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useSettingsStore } from "@/stores/settings";
-import type { AudioQuality, OverwriteMode, FilenameRestrict } from "@/stores/settings";
+import type { AudioQuality, FilenameRestrict } from "@/stores/settings";
 import {
   useUserSettings,
   useUpdateUserSettings,
@@ -150,7 +150,6 @@ function SettingsPage() {
   const {
     audioFormat,
     audioQuality,
-    bitrate,
     outputTemplate,
     outputDirectory,
     maxConcurrentDownloads,
@@ -191,7 +190,6 @@ function SettingsPage() {
     lyricsSourcePreferences,
     setAudioFormat,
     setAudioQuality,
-    setBitrate,
     setOutputTemplate,
     setOutputDirectory,
     setMaxConcurrentDownloads,

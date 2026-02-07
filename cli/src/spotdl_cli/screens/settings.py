@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import logging
 from pathlib import Path
-from typing import TYPE_CHECKING, ClassVar
+from typing import TYPE_CHECKING, Any, ClassVar
 
 from textual.app import ComposeResult
 from textual.binding import Binding
@@ -13,6 +13,7 @@ from textual.screen import Screen
 from textual.widgets import (
     Button,
     Checkbox,
+    DataTable,
     Input,
     Label,
     Rule,
@@ -21,11 +22,54 @@ from textual.widgets import (
 )
 
 from spotdl_cli.config import get_settings
+from spotdl_cli.core import APIError, get_api_client
 
 if TYPE_CHECKING:
-    pass
+    from spotdl_cli.app import SpotDLApp
 
 logger = logging.getLogger(__name__)
+
+DEFAULT_AUDIO_PREFERENCES = [
+    {"id": "youtube_music", "enabled": True},
+    {"id": "youtube", "enabled": True},
+    {"id": "soundcloud", "enabled": False},
+    {"id": "bandcamp", "enabled": False},
+    {"id": "piped", "enabled": False},
+]
+
+DEFAULT_METADATA_PREFERENCES = [
+    {"id": "spotify", "enabled": True},
+    {"id": "musicbrainz", "enabled": True},
+    {"id": "discogs", "enabled": True},
+]
+
+DEFAULT_LYRICS_PREFERENCES = [
+    {"id": "synced", "enabled": True},
+    {"id": "genius", "enabled": True},
+    {"id": "musixmatch", "enabled": True},
+    {"id": "azlyrics", "enabled": False},
+]
+
+AUDIO_PROVIDER_LABELS = {
+    "youtube_music": "YouTube Music",
+    "youtube": "YouTube",
+    "soundcloud": "SoundCloud",
+    "bandcamp": "Bandcamp",
+    "piped": "Piped",
+}
+
+METADATA_PROVIDER_LABELS = {
+    "spotify": "Spotify",
+    "musicbrainz": "MusicBrainz",
+    "discogs": "Discogs",
+}
+
+LYRICS_PROVIDER_LABELS = {
+    "synced": "Synced",
+    "genius": "Genius",
+    "musixmatch": "Musixmatch",
+    "azlyrics": "AZLyrics",
+}
 
 
 class SettingsScreen(Screen[None]):
@@ -43,6 +87,29 @@ class SettingsScreen(Screen[None]):
         self._show_sc_client_id = False
         self._show_sc_auth_token = False
         self._show_api_token = False
+        self._audio_prefs = self._normalize_preferences(
+            getattr(self._settings, "audio_source_preferences", None),
+            DEFAULT_AUDIO_PREFERENCES,
+            legacy_ids=self._settings.audio_providers,
+        )
+        self._metadata_prefs = self._normalize_preferences(
+            getattr(self._settings, "metadata_source_preferences", None),
+            DEFAULT_METADATA_PREFERENCES,
+        )
+        self._lyrics_prefs = self._normalize_preferences(
+            getattr(self._settings, "lyrics_source_preferences", None),
+            DEFAULT_LYRICS_PREFERENCES,
+            legacy_ids=self._settings.lyrics_providers,
+        )
+        self._service_status: dict[str, Any] | None = None
+
+    @property
+    def spotdl_app(self) -> SpotDLApp:
+        """Get the typed app instance."""
+        from spotdl_cli.app import SpotDLApp
+
+        assert isinstance(self.app, SpotDLApp)
+        return self.app
 
     def compose(self) -> ComposeResult:
         """Compose the screen layout."""
@@ -90,6 +157,17 @@ class SettingsScreen(Screen[None]):
                         variant="default",
                         classes="toggle-visibility-btn",
                     )
+
+            # Connection Status
+            with Vertical(classes="settings-group"):
+                yield Static("Connection Status", classes="group-title")
+                yield Button(
+                    "Refresh Status",
+                    id="refresh-service-status",
+                    variant="default",
+                )
+                yield DataTable(id="service-status-table")
+                yield Static("", id="service-status-overall", classes="status-muted")
 
             # Download Settings
             with Vertical(classes="settings-group"):
@@ -251,23 +329,32 @@ class SettingsScreen(Screen[None]):
 
             # Provider Settings
             with Vertical(classes="settings-group"):
-                yield Static("Providers", classes="group-title")
+                yield Static("Provider Preferences", classes="group-title")
 
+                yield Static("Audio Sources", classes="subgroup-title")
+                yield DataTable(id="audio-source-table")
                 with Horizontal(classes="setting-row"):
-                    yield Label("Audio Providers (CSV):")
-                    yield Input(
-                        value=", ".join(self._settings.audio_providers),
-                        id="audio-providers",
-                        placeholder="youtube-music, youtube",
-                    )
+                    yield Button("Up", id="audio-source-up", variant="default")
+                    yield Button("Down", id="audio-source-down", variant="default")
+                    yield Button("Toggle", id="audio-source-toggle", variant="default")
 
+                yield Rule()
+
+                yield Static("Metadata Sources", classes="subgroup-title")
+                yield DataTable(id="metadata-source-table")
                 with Horizontal(classes="setting-row"):
-                    yield Label("Lyrics Providers (CSV):")
-                    yield Input(
-                        value=", ".join(self._settings.lyrics_providers),
-                        id="lyrics-providers",
-                        placeholder="genius, musixmatch",
-                    )
+                    yield Button("Up", id="metadata-source-up", variant="default")
+                    yield Button("Down", id="metadata-source-down", variant="default")
+                    yield Button("Toggle", id="metadata-source-toggle", variant="default")
+
+                yield Rule()
+
+                yield Static("Lyrics Sources", classes="subgroup-title")
+                yield DataTable(id="lyrics-source-table")
+                with Horizontal(classes="setting-row"):
+                    yield Button("Up", id="lyrics-source-up", variant="default")
+                    yield Button("Down", id="lyrics-source-down", variant="default")
+                    yield Button("Toggle", id="lyrics-source-toggle", variant="default")
 
                 with Horizontal(classes="setting-row"):
                     yield Label("Search Query Template:")
@@ -590,6 +677,8 @@ class SettingsScreen(Screen[None]):
     async def on_mount(self) -> None:
         """Handle screen mount."""
         self._update_status_badges()
+        self._init_provider_tables()
+        self.run_worker(self._load_service_status())
 
     def on_input_changed(self, event: Input.Changed) -> None:
         """Handle input changes to update status badges."""
@@ -617,6 +706,68 @@ class SettingsScreen(Screen[None]):
             self._toggle_visibility("soundcloud-client-id", "toggle-sc-client-id")
         elif event.button.id == "toggle-sc-auth-token":
             self._toggle_visibility("soundcloud-auth-token", "toggle-sc-auth-token")
+        elif event.button.id == "audio-source-up":
+            self._move_provider(
+                "#audio-source-table",
+                self._audio_prefs,
+                AUDIO_PROVIDER_LABELS,
+                -1,
+            )
+        elif event.button.id == "audio-source-down":
+            self._move_provider(
+                "#audio-source-table",
+                self._audio_prefs,
+                AUDIO_PROVIDER_LABELS,
+                1,
+            )
+        elif event.button.id == "audio-source-toggle":
+            self._toggle_provider(
+                "#audio-source-table",
+                self._audio_prefs,
+                AUDIO_PROVIDER_LABELS,
+            )
+        elif event.button.id == "metadata-source-up":
+            self._move_provider(
+                "#metadata-source-table",
+                self._metadata_prefs,
+                METADATA_PROVIDER_LABELS,
+                -1,
+            )
+        elif event.button.id == "metadata-source-down":
+            self._move_provider(
+                "#metadata-source-table",
+                self._metadata_prefs,
+                METADATA_PROVIDER_LABELS,
+                1,
+            )
+        elif event.button.id == "metadata-source-toggle":
+            self._toggle_provider(
+                "#metadata-source-table",
+                self._metadata_prefs,
+                METADATA_PROVIDER_LABELS,
+            )
+        elif event.button.id == "lyrics-source-up":
+            self._move_provider(
+                "#lyrics-source-table",
+                self._lyrics_prefs,
+                LYRICS_PROVIDER_LABELS,
+                -1,
+            )
+        elif event.button.id == "lyrics-source-down":
+            self._move_provider(
+                "#lyrics-source-table",
+                self._lyrics_prefs,
+                LYRICS_PROVIDER_LABELS,
+                1,
+            )
+        elif event.button.id == "lyrics-source-toggle":
+            self._toggle_provider(
+                "#lyrics-source-table",
+                self._lyrics_prefs,
+                LYRICS_PROVIDER_LABELS,
+            )
+        elif event.button.id == "refresh-service-status":
+            self.run_worker(self._load_service_status())
 
     def _toggle_visibility(self, input_id: str, button_id: str) -> None:
         """Toggle password visibility for a field."""
@@ -673,9 +824,161 @@ class SettingsScreen(Screen[None]):
         value = value.strip()
         return value or None
 
+    def _normalize_preferences(
+        self,
+        prefs: list[dict[str, Any]] | None,
+        defaults: list[dict[str, Any]],
+        *,
+        legacy_ids: list[str] | None = None,
+    ) -> list[dict[str, Any]]:
+        """Normalize provider preferences with defaults."""
+        if prefs:
+            normalized = []
+            for pref in prefs:
+                provider_id = pref.get("id") if isinstance(pref, dict) else None
+                if not provider_id:
+                    continue
+                normalized.append(
+                    {"id": provider_id, "enabled": bool(pref.get("enabled", True))}
+                )
+            if normalized:
+                return normalized
+        if legacy_ids:
+            seen = set()
+            normalized: list[dict[str, Any]] = []
+            for provider_id in legacy_ids:
+                if provider_id:
+                    normalized.append({"id": provider_id, "enabled": True})
+                    seen.add(provider_id)
+            for item in defaults:
+                provider_id = item.get("id")
+                if provider_id and provider_id not in seen:
+                    normalized.append(
+                        {"id": provider_id, "enabled": bool(item.get("enabled", False))}
+                    )
+            return normalized
+        return [dict(item) for item in defaults]
+
     def _parse_csv(self, value: str) -> list[str]:
         """Parse comma-separated string into a list."""
         return [item.strip() for item in value.split(",") if item.strip()]
+
+    def _init_provider_tables(self) -> None:
+        """Initialize provider preference tables."""
+        self._render_provider_table(
+            "#audio-source-table", self._audio_prefs, AUDIO_PROVIDER_LABELS
+        )
+        self._render_provider_table(
+            "#metadata-source-table", self._metadata_prefs, METADATA_PROVIDER_LABELS
+        )
+        self._render_provider_table(
+            "#lyrics-source-table", self._lyrics_prefs, LYRICS_PROVIDER_LABELS
+        )
+
+    def _render_provider_table(
+        self,
+        table_id: str,
+        prefs: list[dict[str, Any]],
+        labels: dict[str, str],
+    ) -> None:
+        """Render provider preferences into a DataTable."""
+        table = self.query_one(table_id, DataTable)
+        table.cursor_type = "row"
+        table.zebra_stripes = True
+        if table.column_count == 0:
+            table.add_columns("#", "Provider", "Enabled")
+        table.clear()
+        for idx, pref in enumerate(prefs, 1):
+            provider_id = pref.get("id", "")
+            label = labels.get(provider_id, provider_id)
+            enabled = "Yes" if pref.get("enabled", True) else "No"
+            table.add_row(str(idx), label, enabled, key=provider_id)
+
+    def _selected_provider_index(self, table_id: str, prefs: list[dict[str, Any]]) -> int | None:
+        """Get selected provider index for a table."""
+        table = self.query_one(table_id, DataTable)
+        if table.cursor_row is None:
+            return None
+        if table.cursor_row >= len(prefs):
+            return None
+        return table.cursor_row
+
+    def _move_provider(
+        self,
+        table_id: str,
+        prefs: list[dict[str, Any]],
+        labels: dict[str, str],
+        direction: int,
+    ) -> None:
+        """Move a provider up or down in the list."""
+        index = self._selected_provider_index(table_id, prefs)
+        if index is None:
+            return
+        new_index = index + direction
+        if new_index < 0 or new_index >= len(prefs):
+            return
+        prefs[index], prefs[new_index] = prefs[new_index], prefs[index]
+        self._render_provider_table(table_id, prefs, labels)
+        table = self.query_one(table_id, DataTable)
+        table.move_cursor(row=new_index)
+
+    def _toggle_provider(
+        self,
+        table_id: str,
+        prefs: list[dict[str, Any]],
+        labels: dict[str, str],
+    ) -> None:
+        """Toggle provider enabled state."""
+        index = self._selected_provider_index(table_id, prefs)
+        if index is None:
+            return
+        prefs[index]["enabled"] = not prefs[index].get("enabled", True)
+        self._render_provider_table(table_id, prefs, labels)
+        table = self.query_one(table_id, DataTable)
+        table.move_cursor(row=index)
+
+    async def _load_service_status(self) -> None:
+        """Load backend service status."""
+        overall = self.query_one("#service-status-overall", Static)
+        if not self.spotdl_app.is_online:
+            overall.update("[dim]Offline mode — status unavailable[/]")
+            return
+        try:
+            api_client = get_api_client()
+            self._service_status = await api_client.get_service_status()
+            self.call_later(self._update_service_status_table)
+        except APIError as e:
+            overall.update(f"[red]Status error: {e}[/red]")
+
+    def _update_service_status_table(self) -> None:
+        """Update connection status table."""
+        if not self._service_status:
+            return
+        table = self.query_one("#service-status-table", DataTable)
+        table.cursor_type = "row"
+        table.zebra_stripes = True
+        if table.column_count == 0:
+            table.add_columns("Type", "Service", "State", "Latency")
+        table.clear()
+        overall = self.query_one("#service-status-overall", Static)
+        overall_state = self._service_status.get("overall_state", "unknown")
+        overall.update(f"[dim]Overall:[/] {overall_state}")
+
+        def add_rows(group: str, items: list[dict[str, Any]]) -> None:
+            for item in items:
+                state = item.get("state", "unknown")
+                latency = item.get("latency")
+                latency_text = f"{latency}ms" if latency is not None else "-"
+                table.add_row(
+                    group.title(),
+                    item.get("display_name", item.get("name", "")),
+                    state,
+                    latency_text,
+                )
+
+        add_rows("sources", self._service_status.get("sources", []))
+        add_rows("targets", self._service_status.get("targets", []))
+        add_rows("metadata", self._service_status.get("metadata", []))
 
     async def _save_settings(self) -> None:
         """Save settings."""
@@ -707,8 +1010,6 @@ class SettingsScreen(Screen[None]):
             generate_lrc = self.query_one("#generate-lrc", Checkbox).value
 
             # Providers
-            audio_providers = self.query_one("#audio-providers", Input).value
-            lyrics_providers = self.query_one("#lyrics-providers", Input).value
             search_query = self.query_one("#search-query", Input).value
 
             # Playlists
@@ -791,8 +1092,19 @@ class SettingsScreen(Screen[None]):
             self._settings.embed_lyrics = embed_lyrics
             self._settings.embed_cover = embed_cover
             self._settings.generate_lrc = generate_lrc
-            self._settings.audio_providers = self._parse_csv(audio_providers)
-            self._settings.lyrics_providers = self._parse_csv(lyrics_providers)
+            self._settings.audio_source_preferences = list(self._audio_prefs)
+            self._settings.metadata_source_preferences = list(self._metadata_prefs)
+            self._settings.lyrics_source_preferences = list(self._lyrics_prefs)
+            self._settings.audio_providers = [
+                p.get("id", "")
+                for p in self._audio_prefs
+                if p.get("enabled", True)
+            ]
+            self._settings.lyrics_providers = [
+                p.get("id", "")
+                for p in self._lyrics_prefs
+                if p.get("enabled", True)
+            ]
             self._settings.search_query = self._parse_optional(search_query)
             self._settings.playlist_numbering = playlist_numbering
             self._settings.fetch_albums = fetch_albums
@@ -875,12 +1187,19 @@ class SettingsScreen(Screen[None]):
         self.query_one("#embed-lyrics", Checkbox).value = defaults.embed_lyrics
         self.query_one("#embed-cover", Checkbox).value = defaults.embed_cover
         self.query_one("#generate-lrc", Checkbox).value = defaults.generate_lrc
-        self.query_one("#audio-providers", Input).value = ", ".join(
-            defaults.audio_providers
+        self._audio_prefs = self._normalize_preferences(
+            defaults.audio_source_preferences,
+            DEFAULT_AUDIO_PREFERENCES,
         )
-        self.query_one("#lyrics-providers", Input).value = ", ".join(
-            defaults.lyrics_providers
+        self._metadata_prefs = self._normalize_preferences(
+            defaults.metadata_source_preferences,
+            DEFAULT_METADATA_PREFERENCES,
         )
+        self._lyrics_prefs = self._normalize_preferences(
+            defaults.lyrics_source_preferences,
+            DEFAULT_LYRICS_PREFERENCES,
+        )
+        self._init_provider_tables()
         self.query_one("#search-query", Input).value = defaults.search_query or ""
         self.query_one("#playlist-numbering", Checkbox).value = defaults.playlist_numbering
         self.query_one("#fetch-albums", Checkbox).value = defaults.fetch_albums

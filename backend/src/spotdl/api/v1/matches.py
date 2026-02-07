@@ -7,10 +7,13 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel, HttpUrl
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
-from spotdl.api.v1.auth import get_current_user_id
+from spotdl.api.v1.auth import get_current_user_id, get_current_user_id_optional
 from spotdl.api.v1.dependencies import UserPreferences, get_user_preferences
+from spotdl.api.v1.votes import calculate_wilson_score
 from spotdl.core.reputation import ReputationReward
 from spotdl.core.services.match import get_match_service
 from spotdl.core.services.song import (
@@ -20,9 +23,10 @@ from spotdl.core.services.song import (
 )
 from spotdl.core.types.result import TargetPlatform
 from spotdl.db.database import get_db_session
-from spotdl.db.models.match import MatchType
+from spotdl.db.models.match import Match, MatchType
 from spotdl.db.repositories.match import MatchRepository
 from spotdl.db.repositories.user import UserRepository
+from spotdl.db.repositories.vote import VoteRepository
 from spotdl.providers.sources import detect_platform
 
 router = APIRouter(prefix="/matches")
@@ -55,6 +59,28 @@ class MatchResponse(BaseModel):
     confidence: float
     match_type: str
     result: MatchResult
+
+
+class MatchDetailResponse(BaseModel):
+    """Detailed match response for UI consumption."""
+
+    id: str
+    source_url: str
+    source_platform: str
+    target_url: str
+    target_platform: str
+    score: float
+    confidence: float
+    match_type: str
+    status: str
+    result: MatchResult
+    upvotes: int
+    downvotes: int
+    net_votes: int
+    created_at: str
+    submitted_by_username: str | None = None
+    verified_by_username: str | None = None
+    message: str | None = None
 
 
 class FindMatchesRequest(BaseModel):
@@ -91,6 +117,18 @@ class SubmitMatchResponse(BaseModel):
     message: str
 
 
+class MatchVoteSummaryResponse(BaseModel):
+    """Vote summary for a match."""
+
+    match_id: UUID
+    upvotes: int
+    downvotes: int
+    score: int
+    total_votes: int
+    confidence: float
+    user_vote: str | None = None
+
+
 def detect_target_platform(url: str) -> str | None:
     """Detect target platform from URL."""
     if "youtube.com" in url or "youtu.be" in url:
@@ -104,6 +142,85 @@ def detect_target_platform(url: str) -> str | None:
     elif "piped" in url:
         return "piped"
     return None
+
+
+def _result_from_song(song) -> MatchResult:
+    """Convert a Song object to MatchResult."""
+    return MatchResult(
+        name=getattr(song, "name", "Unknown"),
+        artists=list(getattr(song, "artists", []) or []),
+        artist=getattr(song, "artist", "Unknown"),
+        duration=int(getattr(song, "duration", 0) or 0),
+        platform=getattr(getattr(song, "platform", ""), "value", None)
+        or getattr(song, "platform", "")
+        or "unknown",
+        platform_id=getattr(song, "platform_id", ""),
+        url=getattr(song, "url", ""),
+        album_name=getattr(song, "album_name", None),
+        cover_url=getattr(song, "cover_url", None),
+        views=getattr(song, "views", None),
+        explicit=bool(getattr(song, "explicit", False)),
+        verified=bool(getattr(song, "verified", False)),
+    )
+
+
+async def _match_to_detail(
+    match: Match,
+    song_service,
+    *,
+    message: str | None = None,
+) -> MatchDetailResponse:
+    """Convert a Match DB row to a detailed response."""
+    score = float(match.match_score) if match.match_score is not None else 0.0
+    confidence = max(0.0, min(1.0, score / 100.0))
+
+    result = None
+    try:
+        songs = await song_service.resolve_url(match.target_url)
+        if songs:
+            result = _result_from_song(songs[0])
+    except Exception:
+        result = None
+
+    if result is None:
+        result = MatchResult(
+            name="Unknown",
+            artists=[],
+            artist="Unknown",
+            duration=0,
+            platform=match.target_platform,
+            platform_id="",
+            url=match.target_url,
+            album_name=None,
+            cover_url=None,
+            views=None,
+            explicit=False,
+            verified=False,
+        )
+
+    return MatchDetailResponse(
+        id=str(match.id),
+        source_url=match.source_url,
+        source_platform=match.source_platform,
+        target_url=match.target_url,
+        target_platform=match.target_platform,
+        score=score,
+        confidence=confidence,
+        match_type=match.match_type,
+        status=getattr(match, "status", "pending"),
+        result=result,
+        upvotes=match.upvotes,
+        downvotes=match.downvotes,
+        net_votes=match.net_votes,
+        created_at=match.created_at.isoformat(),
+        submitted_by_username=(
+            match.submitted_by_user.username if match.submitted_by_user else None
+        ),
+        verified_by_username=(
+            match.verified_by_user.username if match.verified_by_user else None
+        ),
+        message=message,
+    )
 
 
 @router.post("/find")
@@ -224,12 +341,12 @@ async def find_matches_get(
     return await find_matches(request, preferences)
 
 
-@router.post("/submit")
+@router.post("/submit", response_model=MatchDetailResponse)
 async def submit_match(
     request: SubmitMatchRequest,
     db: Annotated[AsyncSession, Depends(get_db_session)],
     user_id: Annotated[UUID, Depends(get_current_user_id)],
-) -> SubmitMatchResponse:
+) -> MatchDetailResponse:
     """
     Submit a user-discovered match.
 
@@ -272,12 +389,10 @@ async def submit_match(
     )
 
     if existing:
-        return SubmitMatchResponse(
-            id=str(existing.id),
-            source_url=source_url,
-            target_url=target_url,
-            target_platform=target_platform,
-            match_type=existing.match_type,
+        song_service = get_song_service()
+        return await _match_to_detail(
+            existing,
+            song_service,
             message="Match already exists.",
         )
 
@@ -296,13 +411,72 @@ async def submit_match(
     await user_repo.update_reputation(user_id, ReputationReward.MATCH_SUBMITTED)
     await db.commit()
 
-    return SubmitMatchResponse(
-        id=str(match.id),
-        source_url=source_url,
-        target_url=target_url,
-        target_platform=target_platform,
-        match_type="user",
+    song_service = get_song_service()
+    return await _match_to_detail(
+        match,
+        song_service,
         message="Match submitted successfully. It will be available after verification.",
+    )
+
+
+@router.get("/{match_id}", response_model=MatchDetailResponse)
+async def get_match(
+    match_id: str,
+    db: Annotated[AsyncSession, Depends(get_db_session)],
+) -> MatchDetailResponse:
+    """Get a single match by ID."""
+    try:
+        match_uuid = UUID(match_id)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=f"Invalid match ID: {match_id}") from e
+
+    query = (
+        select(Match)
+        .options(
+            selectinload(Match.submitted_by_user),
+            selectinload(Match.verified_by_user),
+        )
+        .where(Match.id == match_uuid)
+    )
+    result = await db.execute(query)
+    match = result.scalar_one_or_none()
+    if match is None:
+        raise HTTPException(status_code=404, detail="Match not found")
+
+    song_service = get_song_service()
+    return await _match_to_detail(match, song_service)
+
+
+@router.get("/{match_id}/votes", response_model=MatchVoteSummaryResponse)
+async def get_match_votes(
+    match_id: UUID,
+    db: Annotated[AsyncSession, Depends(get_db_session)],
+    user_id: Annotated[UUID | None, Depends(get_current_user_id_optional)] = None,
+) -> MatchVoteSummaryResponse:
+    """Get vote summary for a match (legacy alias)."""
+    match_repo = MatchRepository(db)
+    vote_repo = VoteRepository(db)
+
+    match = await match_repo.get_by_id(match_id)
+    if match is None:
+        raise HTTPException(status_code=404, detail="Match not found")
+
+    user_vote = None
+    if user_id:
+        vote = await vote_repo.get_user_vote(match_id=match_id, user_id=user_id)
+        if vote:
+            user_vote = vote.vote_type.value
+
+    confidence = calculate_wilson_score(match.upvotes, match.downvotes)
+
+    return MatchVoteSummaryResponse(
+        match_id=match_id,
+        upvotes=match.upvotes,
+        downvotes=match.downvotes,
+        score=match.upvotes - match.downvotes,
+        total_votes=match.upvotes + match.downvotes,
+        confidence=confidence,
+        user_vote=user_vote,
     )
 
 

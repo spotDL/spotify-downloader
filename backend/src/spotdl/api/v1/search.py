@@ -6,7 +6,7 @@ import asyncio
 import logging
 import re
 from enum import Enum
-from typing import Annotated
+from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel
@@ -20,6 +20,8 @@ from spotdl.core.services.song import (
 )
 from spotdl.core.types.song import Platform
 from spotdl.db.database import get_db_session
+from spotdl.db.repositories.album import AlbumRepository
+from spotdl.db.repositories.artist import ArtistRepository
 from spotdl.providers.sources import detect_platform
 
 logger = logging.getLogger(__name__)
@@ -97,6 +99,18 @@ SEARCHABLE_PLATFORMS = [
     Platform.DEEZER,
     Platform.SOUNDCLOUD,
 ]
+
+
+def _platform_links_to_info(links) -> list[PlatformInfo]:
+    """Convert platform links to response model."""
+    return [
+        PlatformInfo(
+            platform=link.platform,
+            platform_id=link.platform_id,
+            url=link.platform_url,
+        )
+        for link in (links or [])
+    ]
 
 
 def is_url(query: str) -> bool:
@@ -210,6 +224,10 @@ async def _search_url(
         # Group results by unique entities
         seen_artists: set[str] = set()
         seen_albums: set[str] = set()
+        artist_repo = ArtistRepository(entity_service.session)
+        album_repo = AlbumRepository(entity_service.session)
+        artist_cache: dict[str, Any] = {}
+        album_cache: dict[str, Any] = {}
 
         for song in songs:
             # Add track result
@@ -244,6 +262,13 @@ async def _search_url(
                     artist_id = persist_result.artist_ids.get(artist_normalized)
                     if artist_id:
                         seen_artists.add(artist_normalized)
+                        artist = artist_cache.get(str(artist_id))
+                        if artist is None:
+                            try:
+                                artist = await artist_repo.get_by_id_with_links(artist_id)
+                            except Exception:
+                                artist = None
+                            artist_cache[str(artist_id)] = artist
                         results.insert(
                             0,  # Artists first
                             SearchResult(
@@ -251,8 +276,12 @@ async def _search_url(
                                 entity_type=EntityType.ARTIST,
                                 name=song.artists[0],
                                 subtitle=None,
-                                image_url=None,
-                                platforms=[],
+                                image_url=getattr(artist, "image_url", None) if artist else None,
+                                platforms=_platform_links_to_info(
+                                    getattr(artist, "platform_links", [])
+                                )
+                                if artist
+                                else [],
                             ),
                         )
 
@@ -263,6 +292,13 @@ async def _search_url(
                     album_id = persist_result.album_ids.get(album_key)
                     if album_id:
                         seen_albums.add(album_key)
+                        album = album_cache.get(str(album_id))
+                        if album is None:
+                            try:
+                                album = await album_repo.get_by_id_with_links(album_id)
+                            except Exception:
+                                album = None
+                            album_cache[str(album_id)] = album
                         results.insert(
                             len(seen_artists),  # Albums after artists
                             SearchResult(
@@ -270,8 +306,12 @@ async def _search_url(
                                 entity_type=EntityType.ALBUM,
                                 name=song.album_name,
                                 subtitle=song.artist,
-                                image_url=song.cover_url,
-                                platforms=[],
+                                image_url=getattr(album, "cover_url", None) if album else song.cover_url,
+                                platforms=_platform_links_to_info(
+                                    getattr(album, "platform_links", [])
+                                )
+                                if album
+                                else [],
                             ),
                         )
 
@@ -362,6 +402,10 @@ async def _search_text(
         results: list[SearchResult] = []
         seen_artists: set[str] = set()
         seen_albums: set[str] = set()
+        artist_repo = ArtistRepository(entity_service.session)
+        album_repo = AlbumRepository(entity_service.session)
+        artist_cache: dict[str, Any] = {}
+        album_cache: dict[str, Any] = {}
 
         # Filter by entity type if specified
         include_tracks = (
@@ -390,14 +434,25 @@ async def _search_text(
                     artist_id = persist_result.artist_ids.get(artist_normalized)
                     if artist_id:
                         seen_artists.add(artist_normalized)
+                        artist = artist_cache.get(str(artist_id))
+                        if artist is None:
+                            try:
+                                artist = await artist_repo.get_by_id_with_links(artist_id)
+                            except Exception:
+                                artist = None
+                            artist_cache[str(artist_id)] = artist
                         results.append(
                             SearchResult(
                                 id=str(artist_id),
                                 entity_type=EntityType.ARTIST,
                                 name=song.artists[0],
                                 subtitle=None,
-                                image_url=None,
-                                platforms=[],
+                                image_url=getattr(artist, "image_url", None) if artist else None,
+                                platforms=_platform_links_to_info(
+                                    getattr(artist, "platform_links", [])
+                                )
+                                if artist
+                                else [],
                             )
                         )
 
@@ -413,14 +468,25 @@ async def _search_text(
                     album_id = persist_result.album_ids.get(album_key)
                     if album_id:
                         seen_albums.add(album_key)
+                        album = album_cache.get(str(album_id))
+                        if album is None:
+                            try:
+                                album = await album_repo.get_by_id_with_links(album_id)
+                            except Exception:
+                                album = None
+                            album_cache[str(album_id)] = album
                         results.append(
                             SearchResult(
                                 id=str(album_id),
                                 entity_type=EntityType.ALBUM,
                                 name=song.album_name,
                                 subtitle=song.artist,
-                                image_url=song.cover_url,
-                                platforms=[],
+                                image_url=getattr(album, "cover_url", None) if album else song.cover_url,
+                                platforms=_platform_links_to_info(
+                                    getattr(album, "platform_links", [])
+                                )
+                                if album
+                                else [],
                             )
                         )
 

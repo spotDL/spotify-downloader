@@ -32,6 +32,7 @@ from spotdl_cli.config import get_settings
 from spotdl_cli.core import (
     APIError,
     DownloadResult,
+    MatchEntry,
     Song,
     get_api_client,
     get_offline_matcher,
@@ -53,6 +54,10 @@ class TrackScreen(Screen[None]):
         Binding("d", "download", "Download"),
         Binding("r", "refresh", "Refresh"),
         Binding("m", "refresh_metadata", "Refresh Metadata"),
+        Binding("s", "submit_match", "Submit Match"),
+        Binding("p", "report", "Report Data"),
+        Binding("u", "vote_up", "Upvote Match"),
+        Binding("n", "vote_down", "Downvote Match"),
     ]
 
     def __init__(
@@ -76,7 +81,7 @@ class TrackScreen(Screen[None]):
         self._platform = platform
         self._entity_id = entity_id
         self._settings = get_settings()
-        self._matches: list[DownloadResult] = []
+        self._matches: list[MatchEntry] = []
         self._lyrics: str | None = None
         self._lyrics_sources_count: int | None = None
         self._audio_features: dict[str, Any] = {}
@@ -138,6 +143,16 @@ class TrackScreen(Screen[None]):
                                 "Refresh Metadata",
                                 id="refresh-meta-btn",
                                 variant="warning",
+                            )
+                            yield Button(
+                                "Submit Match",
+                                id="submit-match-btn",
+                                variant="default",
+                            )
+                            yield Button(
+                                "Report Data",
+                                id="report-btn",
+                                variant="default",
                             )
 
             # Main content grid
@@ -227,6 +242,7 @@ class TrackScreen(Screen[None]):
             "Artist",
             "Duration",
             "Score",
+            "Votes",
             "Status",
         )
 
@@ -325,8 +341,22 @@ class TrackScreen(Screen[None]):
 
             # Get matches
             try:
-                matches = await api_client.find_matches(self._song)
-                self._matches = matches
+                if self._entity_id:
+                    matches = await api_client.get_song_matches(
+                        self._entity_id, self._song
+                    )
+                    if matches:
+                        self._matches = matches
+                    else:
+                        dl_matches = await api_client.find_matches(self._song)
+                        self._matches = [
+                            self._wrap_download_result(m) for m in dl_matches
+                        ]
+                else:
+                    dl_matches = await api_client.find_matches(self._song)
+                    self._matches = [
+                        self._wrap_download_result(m) for m in dl_matches
+                    ]
                 self._update_matches_table()
             except APIError as e:
                 logger.warning(f"Failed to get matches: {e}")
@@ -427,7 +457,7 @@ class TrackScreen(Screen[None]):
 
             if self._song.platform.value in downloadable_platforms and self._song.url:
                 tp = downloadable_platforms[self._song.platform.value]
-                self._matches.append(DownloadResult(
+                result = DownloadResult(
                     name=self._song.name,
                     artists=list(self._song.artists),
                     artist=self._song.artist,
@@ -438,16 +468,18 @@ class TrackScreen(Screen[None]):
                     score=100.0,
                     cover_url=self._song.cover_url,
                     album_name=self._song.album_name or None,
-                ))
+                )
+                self._matches.append(self._wrap_download_result(result))
 
             # Also search for additional matches
             offline_matcher = get_offline_matcher()
             results = await offline_matcher.find_matches(self._song, limit=10)
 
-            seen_ids = {m.platform_id for m in self._matches}
+            seen_ids = {m.result.platform_id for m in self._matches}
             for r in results:
                 if r.platform_id not in seen_ids:
-                    self._matches.append(DownloadResult.from_result(r, score=0.0))
+                    dl_result = DownloadResult.from_result(r, score=0.0)
+                    self._matches.append(self._wrap_download_result(dl_result))
                     seen_ids.add(r.platform_id)
 
             self._update_matches_table()
@@ -468,26 +500,47 @@ class TrackScreen(Screen[None]):
             return
 
         for i, match in enumerate(self._matches[:10], 1):
-            duration = f"{match.duration // 60}:{match.duration % 60:02d}"
-            platform_icon = get_platform_icon(match.platform.value)
+            result = match.result
+            duration = f"{result.duration // 60}:{result.duration % 60:02d}"
+            platform_icon = get_platform_icon(result.platform.value)
 
             # Score display
             score_str = f"{match.score:.0f}%" if match.score > 0 else "—"
+            votes_str = f"{match.net_votes:+d}"
 
             # Status
-            status_str = "[green]Verified[/]" if match.verified else "[dim]Unverified[/]"
+            status_str = (
+                match.status.title()
+                if match.status
+                else ("Verified" if result.verified else "Unverified")
+            )
 
             table.add_row(
                 str(i),
-                f"{platform_icon} {match.platform.value}",
-                match.name[:35] + "..." if len(match.name) > 35 else match.name,
-                match.artist[:20] + "..." if len(match.artist) > 20 else match.artist,
+                f"{platform_icon} {result.platform.value}",
+                result.name[:35] + "..." if len(result.name) > 35 else result.name,
+                result.artist[:20] + "..." if len(result.artist) > 20 else result.artist,
                 duration,
                 score_str,
+                votes_str,
                 status_str,
             )
 
         status.update(f"[dim]Found {len(self._matches)} match(es)[/]")
+
+    def _wrap_download_result(self, result: DownloadResult) -> MatchEntry:
+        """Wrap a download result into a match entry."""
+        return MatchEntry(
+            id=None,
+            source_url=self._song.url,
+            target_url=result.url,
+            target_platform=result.platform.value,
+            score=result.score,
+            confidence=0.0,
+            match_type="system",
+            status=None,
+            result=result,
+        )
 
     def _update_lyrics_display(self) -> None:
         """Update lyrics display."""
@@ -580,6 +633,10 @@ class TrackScreen(Screen[None]):
             await self._load_track_data()
         elif event.button.id == "refresh-meta-btn":
             await self._refresh_metadata()
+        elif event.button.id == "submit-match-btn":
+            await self._open_submit_match()
+        elif event.button.id == "report-btn":
+            await self._open_report()
 
     async def _download_best_match(self) -> None:
         """Download the best available match."""
@@ -590,7 +647,7 @@ class TrackScreen(Screen[None]):
         best_match = self._matches[0]
         queue = self.spotdl_app.download_queue
 
-        await queue.add(self._song, result=best_match)
+        await queue.add(self._song, result=best_match.result)
         self.notify(f"Added to queue: {self._song.display_name}")
 
     def action_download(self) -> None:
@@ -604,6 +661,22 @@ class TrackScreen(Screen[None]):
     def action_refresh_metadata(self) -> None:
         """Refresh metadata action."""
         self.run_worker(self._refresh_metadata())
+
+    def action_submit_match(self) -> None:
+        """Submit match action."""
+        self.run_worker(self._open_submit_match())
+
+    def action_report(self) -> None:
+        """Report data action."""
+        self.run_worker(self._open_report())
+
+    def action_vote_up(self) -> None:
+        """Upvote selected match."""
+        self.run_worker(self._vote_selected("up"))
+
+    def action_vote_down(self) -> None:
+        """Downvote selected match."""
+        self.run_worker(self._vote_selected("down"))
 
     async def _refresh_metadata(self) -> None:
         """Refresh metadata and enrichment for the current track."""
@@ -634,3 +707,100 @@ class TrackScreen(Screen[None]):
             self.notify("Metadata refreshed")
         except APIError as e:
             self.notify(f"Metadata refresh failed: {e}", severity="error")
+
+    async def _open_submit_match(self) -> None:
+        """Open submit match screen."""
+        if not self.spotdl_app.is_online:
+            self.notify("Submit match requires online mode", severity="warning")
+            return
+        if not self._song.url:
+            self.notify("Source URL unavailable", severity="warning")
+            return
+
+        from spotdl_cli.screens.submit_match import SubmitMatchScreen
+
+        self.app.push_screen(
+            SubmitMatchScreen(
+                source_url=self._song.url,
+                song=self._song,
+                on_submit=self._on_match_submitted,
+            )
+        )
+
+    async def _open_report(self) -> None:
+        """Open report data screen."""
+        if not self._entity_id:
+            self.notify("Report requires internal entity ID", severity="warning")
+            return
+
+        fields = self._build_report_fields()
+        if not fields:
+            self.notify("No reportable fields available", severity="warning")
+            return
+
+        from spotdl_cli.screens.report import ReportScreen
+
+        self.app.push_screen(
+            ReportScreen(
+                entity_type="song",
+                entity_id=self._entity_id,
+                entity_name=self._song.name,
+                fields=fields,
+            )
+        )
+
+    async def _vote_selected(self, vote_type: str) -> None:
+        """Vote on the selected match."""
+        table = self.query_one("#matches-table", DataTable)
+        if table.cursor_row is None or table.cursor_row >= len(self._matches):
+            self.notify("Select a match to vote", severity="warning")
+            return
+
+        match = self._matches[table.cursor_row]
+        if not match.id:
+            self.notify("Voting requires a saved match", severity="warning")
+            return
+
+        try:
+            api_client = get_api_client()
+            summary = await api_client.get_match_votes(match.id)
+            user_vote = summary.get("user_vote")
+
+            if user_vote == vote_type:
+                summary = await api_client.remove_vote(match.id)
+            else:
+                summary = await api_client.cast_vote(match.id, vote_type)
+
+            match.upvotes = summary.get("upvotes", match.upvotes)
+            match.downvotes = summary.get("downvotes", match.downvotes)
+            self._update_matches_table()
+        except APIError as e:
+            self.notify(f"Vote failed: {e}", severity="error")
+
+    def _build_report_fields(self) -> list[dict[str, str]]:
+        """Build reportable fields for the current track."""
+        fields: list[dict[str, str]] = []
+        track = self._track_details or {}
+
+        def add_field(name: str, label: str, value: str | None) -> None:
+            if value is None:
+                return
+            fields.append({"name": name, "label": label, "current_value": str(value)})
+
+        add_field("name", "Title", track.get("name") or self._song.name)
+        add_field("artist", "Artist", track.get("artist") or self._song.artist)
+        add_field("album_name", "Album", track.get("album_name") or self._song.album_name)
+        add_field("release_date", "Release Date", track.get("release_date"))
+        add_field("label", "Label", track.get("label"))
+        add_field("isrc", "ISRC", track.get("isrc") or self._song.isrc)
+        add_field("genres", "Genres", ", ".join(track.get("genres", []) or []))
+        add_field("track_number", "Track Number", track.get("track_number"))
+        add_field("disc_number", "Disc Number", track.get("disc_number"))
+        return fields
+
+    def _on_match_submitted(self, match: MatchEntry) -> None:
+        """Handle new match submission."""
+        existing_ids = {m.id for m in self._matches if m.id}
+        if match.id and match.id not in existing_ids:
+            self._matches.append(match)
+            self._update_matches_table()

@@ -6,6 +6,7 @@ import asyncio
 import hashlib
 import logging
 import time
+from pathlib import Path
 from typing import Any, TypeVar
 
 import httpx
@@ -14,6 +15,7 @@ from spotdl_cli.config import Settings, get_settings
 from spotdl_cli.core.types import (
     DownloadResult,
     EntityType,
+    MatchEntry,
     Platform,
     Song,
     TargetPlatform,
@@ -138,6 +140,72 @@ class APIClient:
         self._settings = settings or get_settings()
         self._client: httpx.AsyncClient | None = None
         self._cache = ResponseCache(max_size=500, default_ttl=300.0)
+
+    def _normalize_provider_id(self, provider_id: str) -> str:
+        """Normalize provider IDs to TargetPlatform naming."""
+        return provider_id.strip().lower().replace("-", "_")
+
+    def _get_target_platforms(
+        self, target_platforms: list[TargetPlatform] | None = None
+    ) -> list[TargetPlatform]:
+        """Resolve target platforms from settings when not provided."""
+        if target_platforms:
+            return target_platforms
+
+        provider_ids: list[str] = []
+        prefs = getattr(self._settings, "audio_source_preferences", None)
+        if prefs:
+            provider_ids = [
+                p.get("id", "")
+                for p in prefs
+                if p and p.get("enabled", True)
+            ]
+        elif self._settings.audio_providers:
+            provider_ids = list(self._settings.audio_providers)
+
+        platforms: list[TargetPlatform] = []
+        for provider_id in provider_ids:
+            normalized = self._normalize_provider_id(provider_id)
+            try:
+                platforms.append(TargetPlatform(normalized))
+            except ValueError:
+                continue
+
+        if not platforms:
+            platforms = [TargetPlatform.YOUTUBE, TargetPlatform.YOUTUBE_MUSIC]
+
+        return platforms
+
+    def _match_entry_from_api(self, match: dict[str, Any], fallback_song: Song) -> MatchEntry:
+        """Convert API match response to MatchEntry."""
+        result_data = match.get("result", {})
+        result = DownloadResult(
+            name=result_data.get("name", fallback_song.name),
+            artists=result_data.get("artists", fallback_song.artists),
+            artist=result_data.get("artist", fallback_song.artist),
+            duration=result_data.get("duration", fallback_song.duration),
+            platform=TargetPlatform(result_data.get("platform", "youtube")),
+            platform_id=result_data.get("platform_id", ""),
+            url=result_data.get("url", ""),
+            verified=result_data.get("verified", False),
+            score=match.get("score", 0.0),
+            cover_url=result_data.get("cover_url"),
+            views=result_data.get("views"),
+        )
+
+        return MatchEntry(
+            id=match.get("id"),
+            source_url=match.get("source_url", fallback_song.url),
+            target_url=match.get("target_url", result.url),
+            target_platform=match.get("target_platform", result.platform.value),
+            score=match.get("score", 0.0),
+            confidence=match.get("confidence", 0.0),
+            match_type=match.get("match_type", "system"),
+            status=match.get("status"),
+            result=result,
+            upvotes=match.get("upvotes", 0) or 0,
+            downvotes=match.get("downvotes", 0) or 0,
+        )
 
     async def _get_client(self) -> httpx.AsyncClient:
         """Get or create the HTTP client with connection pooling."""
@@ -377,20 +445,14 @@ class APIClient:
             List of DownloadResult objects
         """
         # Check cache
-        platforms_key = ",".join(
-            p.value for p in (target_platforms or [TargetPlatform.YOUTUBE])
-        )
+        platforms = self._get_target_platforms(target_platforms)
+        platforms_key = ",".join(p.value for p in platforms)
         cached = await self._cache.get("matches", song.url, platforms_key, limit)
         if cached is not None:
             return cached
 
         try:
             client = await self._get_client()
-
-            platforms = target_platforms or [
-                TargetPlatform.YOUTUBE,
-                TargetPlatform.YOUTUBE_MUSIC,
-            ]
 
             response = await client.post(
                 "/api/v1/matches/find",
@@ -409,17 +471,19 @@ class APIClient:
 
             results = []
             for match in data.get("matches", []):
+                result_data = match.get("result", {})
                 result = DownloadResult(
-                    name=match.get("name", song.name),
-                    artists=match.get("artists", song.artists),
-                    artist=match.get("artist", song.artist),
-                    duration=match.get("duration", song.duration),
-                    platform=TargetPlatform(match.get("target_platform", "youtube")),
-                    platform_id=match.get("platform_id", ""),
-                    url=match.get("url", ""),
-                    verified=match.get("verified", False),
+                    name=result_data.get("name", song.name),
+                    artists=result_data.get("artists", song.artists),
+                    artist=result_data.get("artist", song.artist),
+                    duration=result_data.get("duration", song.duration),
+                    platform=TargetPlatform(result_data.get("platform", "youtube")),
+                    platform_id=result_data.get("platform_id", ""),
+                    url=result_data.get("url", ""),
+                    verified=result_data.get("verified", False),
                     score=match.get("score", 0.0),
-                    cover_url=match.get("cover_url"),
+                    cover_url=result_data.get("cover_url"),
+                    views=result_data.get("views"),
                 )
                 results.append(result)
 
@@ -644,7 +708,8 @@ class APIClient:
         self,
         source_url: str,
         target_url: str,
-    ) -> dict[str, Any]:
+        fallback_song: Song | None = None,
+    ) -> MatchEntry:
         """
         Submit a user-discovered match.
 
@@ -666,8 +731,223 @@ class APIClient:
             )
 
             response.raise_for_status()
-            return response.json()
+            data = response.json()
+            song = fallback_song or Song(
+                name="Unknown",
+                artists=["Unknown"],
+                artist="Unknown",
+                duration=0,
+                platform=Platform.SPOTIFY,
+                platform_id="",
+                url=source_url,
+            )
+            return self._match_entry_from_api(data, song)
 
+        except httpx.ConnectError as e:
+            raise ConnectionError(f"Cannot connect to API: {e}") from e
+        except httpx.HTTPStatusError as e:
+            raise APIError(f"API error: {e.response.text}") from e
+        except httpx.HTTPError as e:
+            raise APIError(f"Request failed: {e}") from e
+
+    async def get_song_matches(
+        self, song_id: str, fallback_song: Song
+    ) -> list[MatchEntry]:
+        """Get saved matches for a song."""
+        try:
+            client = await self._get_client()
+            response = await client.get(f"/api/v1/songs/{song_id}/matches")
+            if response.status_code == 404:
+                return []
+            response.raise_for_status()
+            data = response.json()
+            return [self._match_entry_from_api(m, fallback_song) for m in data]
+        except httpx.ConnectError as e:
+            raise ConnectionError(f"Cannot connect to API: {e}") from e
+        except httpx.HTTPStatusError as e:
+            raise APIError(f"API error: {e.response.text}") from e
+        except httpx.HTTPError as e:
+            raise APIError(f"Request failed: {e}") from e
+
+    async def get_match(self, match_id: str, fallback_song: Song) -> MatchEntry:
+        """Get a match by ID."""
+        try:
+            client = await self._get_client()
+            response = await client.get(f"/api/v1/matches/{match_id}")
+            if response.status_code == 404:
+                raise NotFoundError(f"Match not found: {match_id}")
+            response.raise_for_status()
+            data = response.json()
+            return self._match_entry_from_api(data, fallback_song)
+        except httpx.ConnectError as e:
+            raise ConnectionError(f"Cannot connect to API: {e}") from e
+        except httpx.HTTPStatusError as e:
+            raise APIError(f"API error: {e.response.text}") from e
+        except httpx.HTTPError as e:
+            raise APIError(f"Request failed: {e}") from e
+
+    async def get_match_votes(self, match_id: str) -> dict[str, Any]:
+        """Get vote summary for a match."""
+        try:
+            client = await self._get_client()
+            response = await client.get(f"/api/v1/votes/{match_id}")
+            if response.status_code == 404:
+                raise NotFoundError(f"Match not found: {match_id}")
+            response.raise_for_status()
+            return response.json()
+        except httpx.ConnectError as e:
+            raise ConnectionError(f"Cannot connect to API: {e}") from e
+        except httpx.HTTPStatusError as e:
+            raise APIError(f"API error: {e.response.text}") from e
+        except httpx.HTTPError as e:
+            raise APIError(f"Request failed: {e}") from e
+
+    async def cast_vote(self, match_id: str, vote_type: str) -> dict[str, Any]:
+        """Cast a vote on a match."""
+        try:
+            client = await self._get_client()
+            response = await client.post(
+                "/api/v1/votes",
+                json={"match_id": match_id, "vote_type": vote_type},
+            )
+            response.raise_for_status()
+            return response.json()
+        except httpx.ConnectError as e:
+            raise ConnectionError(f"Cannot connect to API: {e}") from e
+        except httpx.HTTPStatusError as e:
+            raise APIError(f"API error: {e.response.text}") from e
+        except httpx.HTTPError as e:
+            raise APIError(f"Request failed: {e}") from e
+
+    async def remove_vote(self, match_id: str) -> dict[str, Any]:
+        """Remove a vote from a match."""
+        try:
+            client = await self._get_client()
+            response = await client.delete(f"/api/v1/votes/{match_id}")
+            response.raise_for_status()
+            return response.json()
+        except httpx.ConnectError as e:
+            raise ConnectionError(f"Cannot connect to API: {e}") from e
+        except httpx.HTTPStatusError as e:
+            raise APIError(f"API error: {e.response.text}") from e
+        except httpx.HTTPError as e:
+            raise APIError(f"Request failed: {e}") from e
+
+    async def create_report(
+        self,
+        entity_type: str,
+        entity_id: str,
+        field_name: str,
+        current_value: str,
+        suggested_value: str,
+        description: str | None = None,
+    ) -> dict[str, Any]:
+        """Submit a metadata report."""
+        try:
+            client = await self._get_client()
+            response = await client.post(
+                "/api/v1/reports",
+                json={
+                    "entity_type": entity_type,
+                    "entity_id": entity_id,
+                    "field_name": field_name,
+                    "current_value": current_value,
+                    "suggested_value": suggested_value,
+                    "description": description,
+                },
+            )
+            response.raise_for_status()
+            return response.json()
+        except httpx.ConnectError as e:
+            raise ConnectionError(f"Cannot connect to API: {e}") from e
+        except httpx.HTTPStatusError as e:
+            raise APIError(f"API error: {e.response.text}") from e
+        except httpx.HTTPError as e:
+            raise APIError(f"Request failed: {e}") from e
+
+    async def get_service_status(self) -> dict[str, Any]:
+        """Get service health status."""
+        try:
+            client = await self._get_client()
+            response = await client.get("/api/v1/health/services")
+            response.raise_for_status()
+            return response.json()
+        except httpx.ConnectError as e:
+            raise ConnectionError(f"Cannot connect to API: {e}") from e
+        except httpx.HTTPStatusError as e:
+            raise APIError(f"API error: {e.response.text}") from e
+        except httpx.HTTPError as e:
+            raise APIError(f"Request failed: {e}") from e
+
+    async def start_download(self, request: dict[str, Any]) -> dict[str, Any]:
+        """Start a backend download."""
+        try:
+            client = await self._get_client()
+            response = await client.post("/api/v1/download/start", json=request)
+            response.raise_for_status()
+            return response.json()
+        except httpx.ConnectError as e:
+            raise ConnectionError(f"Cannot connect to API: {e}") from e
+        except httpx.HTTPStatusError as e:
+            raise APIError(f"API error: {e.response.text}") from e
+        except httpx.HTTPError as e:
+            raise APIError(f"Request failed: {e}") from e
+
+    async def get_download_status(self, download_id: str) -> dict[str, Any]:
+        """Get download status from backend."""
+        try:
+            client = await self._get_client()
+            response = await client.get(f"/api/v1/download/status/{download_id}")
+            response.raise_for_status()
+            return response.json()
+        except httpx.ConnectError as e:
+            raise ConnectionError(f"Cannot connect to API: {e}") from e
+        except httpx.HTTPStatusError as e:
+            raise APIError(f"API error: {e.response.text}") from e
+        except httpx.HTTPError as e:
+            raise APIError(f"Request failed: {e}") from e
+
+    async def list_downloads(self) -> dict[str, Any]:
+        """List backend downloads."""
+        try:
+            client = await self._get_client()
+            response = await client.get("/api/v1/download/list")
+            response.raise_for_status()
+            return response.json()
+        except httpx.ConnectError as e:
+            raise ConnectionError(f"Cannot connect to API: {e}") from e
+        except httpx.HTTPStatusError as e:
+            raise APIError(f"API error: {e.response.text}") from e
+        except httpx.HTTPError as e:
+            raise APIError(f"Request failed: {e}") from e
+
+    async def cancel_download(self, download_id: str) -> dict[str, Any]:
+        """Cancel a backend download."""
+        try:
+            client = await self._get_client()
+            response = await client.post(f"/api/v1/download/cancel/{download_id}")
+            response.raise_for_status()
+            return response.json()
+        except httpx.ConnectError as e:
+            raise ConnectionError(f"Cannot connect to API: {e}") from e
+        except httpx.HTTPStatusError as e:
+            raise APIError(f"API error: {e.response.text}") from e
+        except httpx.HTTPError as e:
+            raise APIError(f"Request failed: {e}") from e
+
+    async def download_file(self, download_id: str, destination: Path) -> Path:
+        """Download a completed file to a local path."""
+        try:
+            client = await self._get_client()
+            async with client.stream(
+                "GET", f"/api/v1/download/file/{download_id}"
+            ) as response:
+                response.raise_for_status()
+                destination.parent.mkdir(parents=True, exist_ok=True)
+                with destination.open("wb") as handle:
+                    async for chunk in response.aiter_bytes():
+                        handle.write(chunk)
+            return destination
         except httpx.ConnectError as e:
             raise ConnectionError(f"Cannot connect to API: {e}") from e
         except httpx.HTTPStatusError as e:

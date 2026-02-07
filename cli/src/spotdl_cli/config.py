@@ -95,10 +95,38 @@ class Settings(BaseSettings):
     # Proxy
     proxy: str | None = None
 
-    # Provider selection
-    audio_providers: list[str] = Field(default_factory=lambda: ["youtube-music"])
+    # Provider selection (legacy CSV lists)
+    audio_providers: list[str] = Field(
+        default_factory=lambda: ["youtube_music", "youtube"]
+    )
     lyrics_providers: list[str] = Field(
-        default_factory=lambda: ["genius", "musixmatch", "azlyrics", "synced"]
+        default_factory=lambda: ["synced", "genius", "musixmatch", "azlyrics"]
+    )
+
+    # Provider preferences (order + enabled)
+    audio_source_preferences: list[dict[str, Any]] = Field(
+        default_factory=lambda: [
+            {"id": "youtube_music", "enabled": True},
+            {"id": "youtube", "enabled": True},
+            {"id": "soundcloud", "enabled": False},
+            {"id": "bandcamp", "enabled": False},
+            {"id": "piped", "enabled": False},
+        ]
+    )
+    metadata_source_preferences: list[dict[str, Any]] = Field(
+        default_factory=lambda: [
+            {"id": "spotify", "enabled": True},
+            {"id": "musicbrainz", "enabled": True},
+            {"id": "discogs", "enabled": True},
+        ]
+    )
+    lyrics_source_preferences: list[dict[str, Any]] = Field(
+        default_factory=lambda: [
+            {"id": "synced", "enabled": True},
+            {"id": "genius", "enabled": True},
+            {"id": "musixmatch", "enabled": True},
+            {"id": "azlyrics", "enabled": False},
+        ]
     )
 
     # Search customization
@@ -193,6 +221,9 @@ class Settings(BaseSettings):
             "proxy",
             "audio_providers",
             "lyrics_providers",
+            "audio_source_preferences",
+            "metadata_source_preferences",
+            "lyrics_source_preferences",
             "search_query",
             "playlist_numbering",
             "fetch_albums",

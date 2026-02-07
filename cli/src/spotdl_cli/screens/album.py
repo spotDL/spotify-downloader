@@ -48,6 +48,7 @@ class AlbumScreen(Screen[None]):
         Binding("d", "download_all", "Download All"),
         Binding("enter", "view_track", "View Track"),
         Binding("a", "add_all", "Add All to Queue"),
+        Binding("p", "report", "Report Data"),
     ]
 
     def __init__(
@@ -128,6 +129,7 @@ class AlbumScreen(Screen[None]):
                             )
                             yield Button("Add to Queue", id="add-queue-btn", variant="success")
                             yield Button("Refresh", id="refresh-btn", variant="default")
+                            yield Button("Report Data", id="report-btn", variant="default")
 
             # Main content grid
             with Horizontal(id="album-content"):
@@ -475,6 +477,8 @@ class AlbumScreen(Screen[None]):
             await self._add_all_to_queue()
         elif event.button.id == "refresh-btn":
             await self._refresh_metadata()
+        elif event.button.id == "report-btn":
+            await self._open_report()
 
     async def on_data_table_row_selected(self, event: DataTable.RowSelected) -> None:
         """Handle track selection."""
@@ -528,6 +532,10 @@ class AlbumScreen(Screen[None]):
         """Download all action."""
         self.run_worker(self._download_all())
 
+    def action_report(self) -> None:
+        """Report data action."""
+        self.run_worker(self._open_report())
+
     def action_add_all(self) -> None:
         """Add all to queue action."""
         self.run_worker(self._add_all_to_queue())
@@ -559,3 +567,45 @@ class AlbumScreen(Screen[None]):
             self._album_data["artist"] = artist
         self._tracks = []
         await self._load_album_data()
+
+    async def _open_report(self) -> None:
+        """Open report data screen."""
+        if not self._entity_id:
+            self.notify("Report requires internal entity ID", severity="warning")
+            return
+
+        fields = self._build_report_fields()
+        if not fields:
+            self.notify("No reportable fields available", severity="warning")
+            return
+
+        from spotdl_cli.screens.report import ReportScreen
+
+        self.app.push_screen(
+            ReportScreen(
+                entity_type="album",
+                entity_id=self._entity_id,
+                entity_name=self._album_data.get("name", "Album"),
+                fields=fields,
+            )
+        )
+
+    def _build_report_fields(self) -> list[dict[str, str]]:
+        """Build reportable fields for the album."""
+        data = self._album_data
+        fields: list[dict[str, str]] = []
+
+        def add_field(name: str, label: str, value: str | None) -> None:
+            if value is None:
+                return
+            fields.append({"name": name, "label": label, "current_value": str(value)})
+
+        add_field("name", "Name", data.get("name"))
+        add_field("artist_name", "Artist", data.get("artist"))
+        add_field("album_type", "Album Type", data.get("album_type"))
+        add_field("release_date", "Release Date", data.get("release_date"))
+        add_field("label", "Label", data.get("label"))
+        add_field("genres", "Genres", ", ".join(data.get("genres", []) or []))
+        add_field("total_tracks", "Total Tracks", data.get("total_tracks"))
+        add_field("copyright_text", "Copyright", data.get("copyright_text"))
+        return fields
